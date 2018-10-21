@@ -4802,3 +4802,139 @@ Izchak Miller	Mike Stephenson	Yitzhak Sapir
 .\"AMIGA is a trademark of Commodore-Amiga, Inc.
 .sm "Brand and product names are trademarks or registered trademarks \
 of their respective holders."
+014, an interim snapshot of the code under development was
+released publicly by other parties. Since that code was a work-in-progress
+and had not gone through the process of debugging it as a suitable release,
+it was decided that the version numbers present on that code snapshot would
+be retired and never used in an official NetHack release. An announcement
+was posted on the devteam's official nethack.org website to that effect,
+stating that there would never be a 3.4.4, 3.5, or 3.5.0 official release
+version.
+.pg
+In January 2015, preparation began for the release of NetHack 3.6.
+.pg
+At the beginning of development for what would eventually get released
+as 3.6.0, the development team consisted of \fBWarwick Allison\fP,
+\fBMichael Allison\fP, \fBKen Arromdee\fP,
+\fBDavid Cohrs\fP, \fBJessie Collet\fP,
+\fBKen Lorber\fP, \fBDean Luick\fP, \fBPat Rankin\fP,
+\fBMike Stephenson\fP, \fBJanet Walz\fP, and \fBPaul Winner\fP.
+In early 2015, ahead of the release of 3.6.0, new members
+\fBSean Hunt\fP, \fBPasi Kallinen\fP, and \fBDerek S. Ray\fP
+joined the NetHack development team.
+.pg
+Near the end of the development of 3.6.0, one of the significant inspirations for many of
+the humorous and fun features found in the game, author Terry Pratchett,
+passed away. NetHack 3.6.0 introduced a tribute to him.
+.pg
+3.6.0 was released in December 2015, and merged work done by the development
+team since the release of 3.4.3 with some of the beloved community
+patches. Many bugs were fixed and some code was restructured.
+.pg
+In late April 2018, several hundred bug fixes for 3.6.0 and
+some new features were assembled and released as NetHack 3.6.1.
+The development team at the time of release of 3.6.1 consisted of
+\fBWarwick Allison\fP, \fBMichael Allison\fP, \fBKen Arromdee\fP,
+\fBDavid Cohrs\fP, \fBJessie Collet\fP, \fBPasi Kallinen\fP,
+\fBKen Lorber\fP, \fBDean Luick\fP, \fBPatric Mueller\fP,
+\fBPat Rankin\fP, \fBDerek S. Ray\fP, \fBAlex Smith\fP,
+\fBMike Stephenson\fP, \fBJanet Walz\fP, and \fBPaul Winner\fP.
+.pg
+The development team, as well as \fBSteve VanDevender\fP and
+\fBKevin Smolkowski\fP, ensured that NetHack 3.6 continued to operate on
+various
+.UX
+flavors and maintained the X11 interface.
+.pg
+\fBKen Lorber\fP, \fBHaoyang Wang\fP, \fBPat Rankin\fP, and \fBDean Luick\fP
+maintained the port of NetHack 3.6 for Mac OSX.
+.pg
+\fBMichael Allison\fP, \fBDavid Cohrs\fP, \fBBarton House\fP,
+\fBPasi Kallinen\fP, \fBAlex Kompel\fP, \fBDion Nicolaas\fP,
+\fBDerek S. Ray\fP and \fBYitzhak Sapir\fP maintained the port of
+NetHack 3.6 for Microsoft Windows.
+.pg
+\fBPat Rankin\fP attempted to keep the VMS port running for NetHack 3.6.1,
+hindered by limited access. \fBKevin Smolkowski\fP has updated and tested it
+for the most recent version of OpenVMS (V8.4 as of this writing) on Alpha
+and Integrity (aka Itanium aka IA64) but not VAX.
+.pg
+\fBRay Chason\fP resurrected the msdos port for 3.6.1 and contributed the
+necessary updates to the community at large.
+.pg
+The official NetHack web site is maintained by \fBKen Lorber\fP
+at http://www.nethack.org/.
+.pg
+.hn 2
+SPECIAL THANKS
+.pg
+On behalf of the NetHack community, thank you very much once
+again to \fBM. Drew Streib\fP and \fBPasi Kallinen\fP for providing a
+public NetHack server at nethack.alt.org. Thanks to \fBKeith Simpson\fP
+and \fBAndy Thomson\fP for hardfought.org. Thanks to all those
+unnamed dungeoneers who invest their time and effort into annual
+NetHack tournaments such as Junethack and in days past,
+devnull.net (gone for now, but not forgotten).
+.pg
+.ce
+- - - - - - - - - -\ \ \ \ \" when centered, the dashes look a little too far
+.                          \" to the right, so pad them with a few spaces
+.pg
+From time to time, some depraved individual out there in netland sends a
+particularly intriguing modification to help out with the game.  The Gods of
+the Dungeon sometimes make note of the names of the worst of these miscreants
+in this, the list of Dungeoneers:
+.
+.TS S
+center;
+c c c.
+.\"TABLE_START
+Adam Aronow	J. Ali Harlow	Mikko Juola
+Alex Kompel	Janet Walz	Nathan Eady
+Alex Smith	Janne Salmijarvi	Norm Meluch
+Andreas Dorn	Jean-Christophe Collet	Olaf Seibert
+Andy Church	Jeff Bailey	Pasi Kallinen
+Andy Swanson	Jochen Erwied	Pat Rankin
+Ari Huttunen	John Kallen	Patric Mueller
+Barton House	John Rupley	Paul Winner
+Benson I. Margulies	John S. Bien	Pierre Martineau
+Bill Dyer	Johnny Lee	Ralf Brown
+Boudewijn Waijers	Jon W{tte	Ray Chason
+Bruce Cox	Jonathan Handler	Richard Addison
+Bruce Holloway	Joshua Delahunty	Richard Beigel
+Bruce Mewborne	Keizo Yamamoto	Richard P. Hughey
+Carl Schelin	Ken Arnold	Rob Menke
+Chris Russo	Ken Arromdee	Robin Bandy
+David Cohrs	Ken Lorber	Robin Johnson
+David Damerell	Ken Washikita	Roderick Schertler
+David Gentzel	Kevin Darcy	Roland McGrath
+David Hairston	Kevin Hugo	Ron Van Iwaarden
+Dean Luick	Kevin Sitze	Ronnen Miller
+Del Lamb	Kevin Smolkowski	Ross Brown
+Derek S. Ray	Kevin Sweet	Sascha Wostmann
+Deron Meranda	Lars Huttar	Scott Bigham
+Dion Nicolaas	Leon Arnott	Scott R. Turner
+Dylan O'Donnell	M. Drew Streib	Sean Hunt
+Eric Backus	Malcolm Ryan	Stephen Spackman
+Eric Hendrickson	Mark Gooderum	Stefan Thielscher
+Eric R. Smith	Mark Modrall	Stephen White
+Eric S. Raymond	Marvin Bressler	Steve Creps
+Erik Andersen	Matthew Day	Steve Linhart
+Frederick Roeber	Merlyn LeRoy	Steve VanDevender
+Gil Neiger	Michael Allison	Teemu Suikki
+Greg Laskin	Michael Feir	Tim Lennan
+Greg Olson	Michael Hamel	Timo Hakulinen
+Gregg Wonderly	Michael Sokolov	Tom Almy
+Hao-yang Wang	Mike Engber	Tom West
+Helge Hafting	Mike Gallop	Warren Cheung
+Irina Rempt-Drijfhout	Mike Passaretti	Warwick Allison
+Izchak Miller	Mike Stephenson	Yitzhak Sapir
+.\"TABLE_END  Do not delete this line.
+.TE
+.pg
+.\"Microsoft and MS-DOS are registered trademarks of Microsoft Corporation.
+.\"Lattice is a trademark of Lattice, Inc.
+.\"Atari and 1040ST are trademarks of Atari, Inc.
+.\"AMIGA is a trademark of Commodore-Amiga, Inc.
+.sm "Brand and product names are trademarks or registered trademarks \
+of their respective holders."

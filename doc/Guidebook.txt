@@ -5806,3 +5806,93 @@
 
 
 
+dam Aronow            J. Ali Harlow           Mikko Juola
+               Alex Kompel              Janet Walz            Nathan Eady
+               Alex Smith            Janne Salmijarvi         Norm Meluch
+              Andreas Dorn        Jean-Christophe Collet      Olaf Seibert
+               Andy Church             Jeff Bailey           Pasi Kallinen
+              Andy Swanson            Jochen Erwied            Pat Rankin
+              Ari Huttunen             John Kallen           Patric Mueller
+              Barton House             John Rupley            Paul Winner
+           Benson I. Margulies         John S. Bien         Pierre Martineau
+                Bill Dyer               Johnny Lee             Ralf Brown
+            Boudewijn Waijers           Jon W{tte              Ray Chason
+                Bruce Cox            Jonathan Handler       Richard Addison
+             Bruce Holloway          Joshua Delahunty        Richard Beigel
+             Bruce Mewborne           Keizo Yamamoto       Richard P. Hughey
+              Carl Schelin              Ken Arnold             Rob Menke
+               Chris Russo             Ken Arromdee           Robin Bandy
+               David Cohrs              Ken Lorber           Robin Johnson
+
+
+
+          NetHack 3.6                                      October 16, 2018
+
+
+
+
+
+          NetHack Guidebook                                              89
+
+
+
+             David Damerell           Ken Washikita        Roderick Schertler
+              David Gentzel            Kevin Darcy           Roland McGrath
+             David Hairston             Kevin Hugo          Ron Van Iwaarden
+               Dean Luick              Kevin Sitze           Ronnen Miller
+                Del Lamb             Kevin Smolkowski          Ross Brown
+              Derek S. Ray             Kevin Sweet          Sascha Wostmann
+              Deron Meranda            Lars Huttar            Scott Bigham
+              Dion Nicolaas            Leon Arnott          Scott R. Turner
+             Dylan O'Donnell          M. Drew Streib           Sean Hunt
+               Eric Backus             Malcolm Ryan         Stephen Spackman
+            Eric Hendrickson          Mark Gooderum        Stefan Thielscher
+              Eric R. Smith            Mark Modrall          Stephen White
+             Eric S. Raymond         Marvin Bressler          Steve Creps
+              Erik Andersen            Matthew Day           Steve Linhart
+            Frederick Roeber           Merlyn LeRoy        Steve VanDevender
+               Gil Neiger            Michael Allison          Teemu Suikki
+               Greg Laskin             Michael Feir            Tim Lennan
+               Greg Olson             Michael Hamel          Timo Hakulinen
+             Gregg Wonderly          Michael Sokolov            Tom Almy
+              Hao-yang Wang            Mike Engber              Tom West
+              Helge Hafting            Mike Gallop           Warren Cheung
+          Irina Rempt-Drijfhout      Mike Passaretti        Warwick Allison
+              Izchak Miller          Mike Stephenson         Yitzhak Sapir
+
+               Brand  and product names are trademarks or registered trade-
+          marks of their respective holders.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          NetHack 3.6                                      October 16, 2018
+
+
+
