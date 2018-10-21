@@ -13,12 +13,12 @@
 # Which users can use debug mode (aka wizard mode; accessed via '-D' command
 # line flag or OPTIONS=playmode:debug in the runtime options config file).
 # A value of * allows anyone to enter debugging mode.
-WIZARDS=nobody
+WIZARDS=*
 
 # Which users can use explore mode (aka discover mode; accessed via '-X'
 # command line flag or OPTIONS=playmode:explore in runtime options file or
 # via '#exploremode' command during normal play).  Same syntax as WIZARDS.
-EXPLORERS=nobody
+EXPLORERS=*
 
 # Users allowed to use the '!' (shell escape) and '^Z' (suspend process)
 # commands to temporarily leave the game and enter a shell process.
