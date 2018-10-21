@@ -1,52 +1,54 @@
-# Prerequisites
-*.d
-
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
+# CVS default ignores begin
+tags
+TAGS
+.make.state
+.nse_depinfo
+*~
+\#*
+.#*
+,*
+_$*
+*$
+*.old
+*.bak
+*.BAK
+*.orig
+*.rej
+.del-*
 *.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
+*.olb
+*.o
+*.obj
 *.so
-*.so.*
-*.dylib
-
-# Executables
 *.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+*.Z
+*.elc
+*.ln
+core
+# CVS default ignores end
+.*.swp
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
+# We generate makefiles by shell script
+Makefile
+
+# Win32-specific ignores
+Debug/
+Release/
+binary/
+build/
+ipch/
+Nethack.sln
+Nethack.sdf
+Nethack.opensdf
+Makefile.bcc
+Makefile.gcc
+Makefile-orig
+Makefile.bcc-orig
+Makefile.gcc-orig
+*.suo
 *.pdb
+*.ilk
+# VS2013 extension to auto-whine about questionable code generates these
+*.lastcodeanalysissucceeded
+# Win32-specific ignores end
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
