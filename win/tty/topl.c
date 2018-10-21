@@ -207,12 +207,6 @@ more()
     if (flags.standout)
         standoutend();
 
-    putsyms(defmorestr);
-    if (flags.standout)
-        standoutend();
-
-    xwaitforspace("\033 ");
-
     if (morc == '\033')
         cw->flags |= WIN_STOP;
 
