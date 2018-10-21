@@ -5113,8 +5113,10 @@ makewish()
 {
     char buf[BUFSZ] = DUMMY;
     char promptbuf[BUFSZ];
+    char bufcpy[BUFSZ];
     struct obj *otmp, nothing;
     int tries = 0;
+    boolean prev_artwish = u.uconduct.wisharti;
 
     promptbuf[0] = '\0';
     nothing = zeroobj; /* lint suppression; only its address matters */
