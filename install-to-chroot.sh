@@ -14,18 +14,18 @@ NAO_CHROOT="/opt/nethack/hardfought.org"
 DGL_CONFIG="/opt/nethack/dgamelaunch.conf"
 # already compiled versions of dgl and nethack
 DGL_GIT="/home/build/dgamelaunch"
-NETHACK_GIT="/home/build/NetHack36"
+NETHACK_GIT="/home/build/EvilHack"
 # the user & group from dgamelaunch config file.
 USRGRP="games:games"
 # COMPRESS from include/config.h; the compression binary to copy. leave blank to skip.
 COMPRESSBIN="/bin/gzip"
 # fixed data to copy (leave blank to skip)
-NH_GIT="/home/build/NetHack36"
-NH_BRANCH="hardfought"
+NH_GIT="/home/build/EvilHack"
+NH_BRANCH="master"
 # HACKDIR from include/config.h; aka nethack subdir inside chroot
-NHSUBDIR="nh361-hdf"
+NHSUBDIR="evilhack"
 # VAR_PLAYGROUND from include/unixconf.h
-NH_VAR_PLAYGROUND="/nh361-hdf/var/"
+NH_VAR_PLAYGROUND="/evilhack/var/"
 # only define this if dgl was configured with --enable-sqlite
 SQLITE_DBFILE="/dgldir/dgamelaunch.db"
 # END OF CONFIG
@@ -52,15 +52,15 @@ set -e
 umask 022
 
 echo "Creating inprogress and extrainfo directories"
-mkdir -p "$NAO_CHROOT/dgldir/inprogress-nh361-hdf"
-chown "$USRGRP" "$NAO_CHROOT/dgldir/inprogress-nh361-hdf"
-mkdir -p "$NAO_CHROOT/dgldir/extrainfo-nh362"
-chown "$USRGRP" "$NAO_CHROOT/dgldir/extrainfo-nh362"
+mkdir -p "$NAO_CHROOT/dgldir/inprogress-evilhack"
+chown "$USRGRP" "$NAO_CHROOT/dgldir/inprogress-evilhack"
+mkdir -p "$NAO_CHROOT/dgldir/extrainfo-evil"
+chown "$USRGRP" "$NAO_CHROOT/dgldir/extrainfo-evil"
 
 echo "Making $NAO_CHROOT/$NHSUBDIR"
 mkdir -p "$NAO_CHROOT/$NHSUBDIR"
 
-NETHACKBIN="$NETHACK_GIT/src/nethack"
+NETHACKBIN="$NETHACK_GIT/src/evilhack"
 if [ -n "$NETHACKBIN" -a ! -e "$NETHACKBIN" ]; then
   errorexit "Cannot find NetHack binary $NETHACKBIN"
 fi
@@ -70,7 +70,7 @@ if [ -n "$NETHACKBIN" -a -e "$NETHACKBIN" ]; then
   cd "$NAO_CHROOT/$NHSUBDIR"
   NHBINFILE="`basename $NETHACKBIN`-$DATESTAMP"
   cp "$NETHACKBIN" "$NHBINFILE"
-  ln -fs "$NHBINFILE" nethack
+  ln -fs "$NHBINFILE" evilhack
   LIBS="$LIBS `findlibs $NETHACKBIN`"
   cd "$NAO_CHROOT"
 fi
