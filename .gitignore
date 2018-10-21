@@ -25,6 +25,7 @@ _$*
 *.elc
 *.ln
 core
+evilhack
 # CVS default ignores end
 .*.swp
 
