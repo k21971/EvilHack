@@ -1497,7 +1497,7 @@ boolean at_stairs, falling, portal;
             You_hear("groans and moans everywhere.");
         } else
             pline("It is hot here.  You smell smoke...");
-        if(!u.uachieve.enter_gehennom) 
+        if(!u.uachieve.enter_gehennom)
             livelog_write_string(LL_ACHIEVE, "entered Gehennom");
         u.uachieve.enter_gehennom = 1;
     }

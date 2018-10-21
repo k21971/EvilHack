@@ -139,7 +139,7 @@ static struct Bool_Opt {
     { "force_invmenu", &iflags.force_invmenu, FALSE, SET_IN_GAME },
     { "fullscreen", &iflags.wc2_fullscreen, FALSE, SET_IN_FILE },
     { "goldX", &iflags.goldX, FALSE, SET_IN_GAME },
-    {"guicolor", &iflags.wc2_guicolor, TRUE, SET_IN_GAME},
+    { "guicolor", &iflags.wc2_guicolor, TRUE, SET_IN_GAME},
     { "help", &flags.help, TRUE, SET_IN_GAME },
     { "herecmd_menu", &iflags.herecmd_menu, FALSE, SET_IN_GAME },
     { "hilite_pet", &iflags.wc_hilite_pet, FALSE, SET_IN_GAME }, /*WC*/

@@ -5113,10 +5113,8 @@ makewish()
 {
     char buf[BUFSZ] = DUMMY;
     char promptbuf[BUFSZ];
-    char bufcpy[BUFSZ];
     struct obj *otmp, nothing;
     int tries = 0;
-    boolean prev_artwish = u.uconduct.wisharti;
 
     promptbuf[0] = '\0';
     nothing = zeroobj; /* lint suppression; only its address matters */
@@ -5141,7 +5139,6 @@ retry:
      *  has been denied.  Wishing for "nothing" requires a separate
      *  value to remain distinct.
      */
-    strcpy(bufcpy, buf);
     otmp = readobjnam(buf, &nothing);
     if (!otmp) {
         pline("Nothing fitting that description exists in the game.");

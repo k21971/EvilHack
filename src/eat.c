@@ -2584,7 +2584,7 @@ doeat()
                 livelog_printf(LL_CONDUCT, "tasted meat for the first time, by eating %s", an(food_xname(otmp,FALSE)));
             violated_vegetarian();
         } else if (material == WAX)
-            if(!u.uconduct.unvegan++ && !ll_conduct) 
+            if(!u.uconduct.unvegan++ && !ll_conduct)
                 livelog_printf(LL_CONDUCT, "consumed animal products for the first time, by eating %s", an(food_xname(otmp,FALSE)));
 
         if (otmp->cursed) {

@@ -782,28 +782,28 @@ struct obj *obj;
         /* Player will be able to discover if s/he has the real amulet */
         /* by monitoring the livelog - but only when it was picked up */
         /* for the first time */
-        if(!u.uachieve.amulet) 
+        if(!u.uachieve.amulet)
             livelog_write_string(LL_ACHIEVE, "acquired the Amulet of Yendor");
         u.uachieve.amulet = 1;
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
         if (u.uhave.menorah)
             impossible("already have candelabrum?");
         u.uhave.menorah = 1;
-        if(!u.uachieve.menorah) 
+        if(!u.uachieve.menorah)
             livelog_write_string(LL_ACHIEVE, "acquired the Candelabrum of Invocation");
         u.uachieve.menorah = 1;
     } else if (obj->otyp == BELL_OF_OPENING) {
         if (u.uhave.bell)
             impossible("already have silver bell?");
         u.uhave.bell = 1;
-        if(!u.uachieve.bell) 
+        if(!u.uachieve.bell)
             livelog_write_string(LL_ACHIEVE, "acquired the Bell of Opening");
         u.uachieve.bell = 1;
     } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
         if (u.uhave.book)
             impossible("already have the book?");
         u.uhave.book = 1;
-        if(!u.uachieve.book) 
+        if(!u.uachieve.book)
             livelog_write_string(LL_ACHIEVE, "acquired the Book of the Dead");
         u.uachieve.book = 1;
     } else if (obj->oartifact) {
@@ -825,12 +825,12 @@ struct obj *obj;
        nor be a leash (corpsenm overloaded for m_id of leashed
        monster) or a novel (corpsenm overloaded for novel index) */
     if (is_mines_prize(obj)) {
-        if(!u.uachieve.mines_luckstone) 
+        if(!u.uachieve.mines_luckstone)
             livelog_write_string(LL_ACHIEVE, "acquired the luckstone from Mines' End");
         u.uachieve.mines_luckstone = 1;
         obj->record_achieve_special = NON_PM;
     } else if (is_soko_prize(obj)) {
-        if(!u.uachieve.finish_sokoban) 
+        if(!u.uachieve.finish_sokoban)
             livelog_write_string(LL_ACHIEVE, "completed Sokoban");
         u.uachieve.finish_sokoban = 1;
         obj->record_achieve_special = NON_PM;

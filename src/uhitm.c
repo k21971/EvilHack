@@ -354,12 +354,14 @@ register struct monst *mtmp;
                 Strcpy(buf, y_monnam(mtmp));
                 buf[0] = highc(buf[0]);
                 You("stop.  %s is in the way!", buf);
-                context.travel = context.travel1 = context.mv = context.run = 0;
+                context.travel = context.travel1 = context.mv = context.run
+                    = 0;
                 return TRUE;
             } else if ((mtmp->mfrozen || (!mtmp->mcanmove)
                         || (mtmp->data->mmove == 0)) && rn2(6)) {
                 pline("%s doesn't seem to move!", Monnam(mtmp));
-                context.travel = context.travel1 = context.mv = context.run = 0;
+                context.travel = context.travel1 = context.mv = context.run
+                    = 0;
                 return TRUE;
             } else
                 return FALSE;
@@ -423,7 +425,7 @@ register struct monst *mtmp;
         (void) hitum(mtmp, youmonst.data->mattk);
     mtmp->mstrategy &= ~STRAT_WAITMASK;
 
-atk_done:
+ atk_done:
     /* see comment in attack_checks() */
     /* we only need to check for this if we did an attack_checks()
      * and it returned 0 (it's okay to attack), and the monster didn't
@@ -810,7 +812,8 @@ int dieroll;
                     silvermsg = TRUE;
                     silverobj = TRUE;
                 }
-                if (artifact_light(obj) && obj->lamplit && mon_hates_light(mon))
+                if (artifact_light(obj) && obj->lamplit
+                    && mon_hates_light(mon))
                     lightobj = TRUE;
                 if (u.usteed && !thrown && tmp > 0
                     && weapon_type(obj) == P_LANCE && mon != u.ustuck) {
@@ -1553,6 +1556,7 @@ register struct attack *mattk;
     register struct permonst *pd = mdef->data;
     int armpro, tmp = d((int) mattk->damn, (int) mattk->damd);
     boolean negated;
+    struct obj *mongold;
 
     armpro = magic_negation(mdef);
     /* since hero can't be cancelled, only defender's armor applies */
@@ -1692,18 +1696,16 @@ register struct attack *mattk;
     case AD_SGLD:
         /* This you as a leprechaun, so steal
            real gold only, no lesser coins */
-        {
-            struct obj *mongold = findgold(mdef->minvent);
-            if (mongold) {
-                obj_extract_self(mongold);
-                if (merge_choice(invent, mongold) || inv_cnt(FALSE) < 52) {
-                    addinv(mongold);
-                    Your("purse feels heavier.");
-                } else {
-                    You("grab %s's gold, but find no room in your knapsack.",
-                        mon_nam(mdef));
-                    dropy(mongold);
-                }
+        mongold = findgold(mdef->minvent);
+        if (mongold) {
+            obj_extract_self(mongold);
+            if (merge_choice(invent, mongold) || inv_cnt(FALSE) < 52) {
+                addinv(mongold);
+                Your("purse feels heavier.");
+            } else {
+                You("grab %s's gold, but find no room in your knapsack.",
+                    mon_nam(mdef));
+                dropy(mongold);
             }
         }
         exercise(A_DEX, TRUE);
@@ -1714,8 +1716,9 @@ register struct attack *mattk;
             tmp = 1;
         if (!negated && tmp < mdef->mhp) {
             char nambuf[BUFSZ];
-            boolean u_saw_mon =
-                canseemon(mdef) || (u.uswallow && u.ustuck == mdef);
+            boolean u_saw_mon = (canseemon(mdef)
+                                 || (u.uswallow && u.ustuck == mdef));
+
             /* record the name before losing sight of monster */
             Strcpy(nambuf, Monnam(mdef));
             if (u_teleport_mon(mdef, FALSE) && u_saw_mon
@@ -1797,9 +1800,9 @@ register struct attack *mattk;
     case AD_DRCO:
         if (!negated && !rn2(8)) {
             Your("%s was poisoned!", mpoisons_subj(&youmonst, mattk));
-            if (resists_poison(mdef))
+            if (resists_poison(mdef)) {
                 pline_The("poison doesn't seem to affect %s.", mon_nam(mdef));
-            else {
+            } else {
                 if (!rn2(10)) {
                     Your("poison was deadly...");
                     tmp = mdef->mhp;
@@ -1944,12 +1947,11 @@ explum(mdef, mattk)
 register struct monst *mdef;
 register struct attack *mattk;
 {
+    boolean resistance; /* only for cold/fire/elec */
     register int tmp = d((int) mattk->damn, (int) mattk->damd);
 
     You("explode!");
     switch (mattk->adtyp) {
-        boolean resistance; /* only for cold/fire/elec */
-
     case AD_BLND:
         if (!resists_blnd(mdef)) {
             pline("%s is blinded by your flash of light!", Monnam(mdef));

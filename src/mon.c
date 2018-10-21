@@ -1979,7 +1979,9 @@ register struct monst *mtmp;
         livelog_printf(LL_UMONST, "%s %s",
               nonliving(mtmp->data) ? "destroyed" : "killed",
               noit_mon_nam(mtmp));
-    
+
+    if (mtmp->data == &mons[PM_MEDUSA])
+        u.uachieve.killed_medusa = 1;
     if (glyph_is_invisible(levl[mtmp->mx][mtmp->my].glyph))
         unmap_object(mtmp->mx, mtmp->my);
     m_detach(mtmp, mptr);

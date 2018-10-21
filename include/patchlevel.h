@@ -14,7 +14,7 @@
  * Incrementing EDITLEVEL can be used to force invalidation of old bones
  * and save files.
  */
-#define EDITLEVEL 1
+#define EDITLEVEL 0
 
 #define COPYRIGHT_BANNER_A "EvilHack, Copyright 1985-2018"
 #define COPYRIGHT_BANNER_B \
@@ -31,14 +31,14 @@
  * PP = patch level, ee = edit level, L = literal suffix "L",
  * with all four numbers specified as two hexadecimal digits.
  */
-#define VERSION_COMPATIBILITY 0x00010001L
+#define VERSION_COMPATIBILITY 0x00010000L
 
 /****************************************************************************/
 /* Version 3.6.x */
 
 /*  Patch 2, <insert date here>
- *  
- *  Performance optimizations for tty including the ability to 
+ *
+ *  Performance optimizations for tty including the ability to
  *      do per field updating
  *  Significant performance improvements in sys/winnt/nttty mainly through
  *      the introduction of a back buffer approach

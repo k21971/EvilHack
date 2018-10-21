@@ -136,12 +136,12 @@ DUMPLOGFILE=/dgldir/userdata/%N/%n/evilhack/dumplog/%t.evil.txt
 # 'gdb' be available; using LIBC only works if NetHack is linked with a
 # libc that supports the backtrace(3) API.  Both require certain compilation
 # options.  See src/end.c and sys/unix/hints/* for more information.
-#GDBPATH=/usr/bin/gdb
-#GREPPATH=/bin/grep
+GDBPATH=/usr/bin/gdb
+GREPPATH=/bin/grep
 # Values are priorities: 0 - do not use this method, 1 - low priority,
 # 2 - high priority.  Non-zero priority methods are tried in order.
-#PANICTRACE_GDB=1
-#PANICTRACE_LIBC=2
+PANICTRACE_GDB=1
+PANICTRACE_LIBC=2
 
 # Ordinary run-time options can be set here to override the builtin-in
 # default values.  Unlike the SYSCF values above, individual users can
