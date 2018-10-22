@@ -615,9 +615,10 @@ can_twoweapon()
         pline("%s isn't one-handed.", Yname2(otmp));
     } else if (uarms)
         You_cant("use two weapons while wearing a shield.");
-    else if (uswapwep->oartifact)
+    /* Allow two-weaponing with an artifact in each hand. */
+    /* else if (uswapwep->oartifact)
         pline("%s being held second to another weapon!",
-              Yobjnam2(uswapwep, "resist"));
+              Yobjnam2(uswapwep, "resist")); */
     else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
         /* [Note: NOT_WEAPON() check prevents ever getting here...] */
         ; /* must be life-saved to reach here; return FALSE */
