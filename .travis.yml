@@ -1,6 +1,6 @@
 language: c
 
-script: "./configure && make all"
+script: "make all"
 
 compiler:
   - gcc
