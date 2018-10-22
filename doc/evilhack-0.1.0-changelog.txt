@@ -1,0 +1,18 @@
+EvilHack 0.1.0 Changelog
+
+First version of EvilHack, which was forked off of NetHack 362-hdf as of October 20th, 2018.
+Commits from NetHack 3.6.2 beta (vanilla) will be incorporated on a regular basis so as to
+stay current with the 3.6.x codebase.
+
+Version 0.1.0 of EvilHack is for the most part laying down the foundation for content from
+other sources to be added (primarily GruntHack and Sporkhack), and for new custom content to
+be created and implemented.
+
+The following changes to date are:
+
+--------------------------------------------------------------------------------------------
+
+- Edits to config.h, patchlevel.h, allmain.src, sysconf, Makefiles and hints files to
+differentiate EvilHack from NetHack
+- adjust install script for EvilHack for use on public server
+- significant merges of latest 'vanilla' NetHack 3.6.2 code
