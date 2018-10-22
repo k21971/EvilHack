@@ -1,0 +1,15 @@
+language: c
+
+script: "./configure && make all"
+
+compiler:
+  - gcc
+  - clang
+
+sudo: false
+
+notifications:
+  email:
+    recipients:
+      - keith.simpson1971@gmail.com
+    on_success: always
