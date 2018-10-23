@@ -1,3 +1,66 @@
-To-do list for EvilHack
-------------------------------------
+To-do list for EvilHack (in no particular order)
+===============================================
+
+From GruntHack
+--------------
+1) object materials & properties (might pull this from xNetHack [obj materials])
+2) new spells
+3) two-weaponing w/ artifact weapons <---- DONE (needs some tweaks)
+4) new monsters
+5) monster AI (opening/looting containers, using wands of wishing, using player spells, etc)
+6) demon lord levels
+7) new races for PC (ogres, kobolds, giants)
+8) new race/role combos
+9) Izchak change
+10) sokoban changes, especially ending
+11) ability to fooproof virtually anything (but makes most objects suseptible to being burned, etc)
+12) powerful NPC's
+13) do NOT include level flipping
+14) racial shopkeepers
+15) racial grudge (PC and monsters) (look at git commit c404eab from xNetHack)
+16) zombie changes
+17) corpse status
+18) different race soldiers/other humanoids
+
+
+From SporkHack
+--------------
+1) new resistances system
+2) new sacrificing/artifact generation system
+3) new monsters
+4) new spells
+5) changes to artifacts
+6) changes to skills (won't be exact pull, will tweak)
+7) changes to spell casting while wearing body armor (will also tweak)
+8) gold vault changes
+9) unicorn horn behavior
+10) new race/role combos
+11) new objects/artifacts
+12) reflection changes
+13) remove mysterious force, incorporate monster spawn on ascrun
+14) new traps
+15) Vlad changes
+16) genocide behavior
+17) adjust spell levels
+18) conflict tweaks
+19) shower of missiles change
+20) do NOT include weird level generation
+21) racial shopkeepers
+22) racial armor/weapon bonuses
+23) scroll of identify is auto ID'ed
+
+From other variants
+-------------------
+1) gehennom revamp from xNetHack
+2) #give command from SpliceHack
+3) changes to unicorn horn from xNetHack
+
+Custom unique bits
+------------------
+1) new level branches with custom content and monsters
+2) possibly add new PC races (don't think I want to add new roles)
+3) new monsters (also see #1)
+4) tweak behavior from some of things pulled from GruntHack and SporkHack
+5) tweak skill sets for roles to something that makes sense
+6) time to give monks some love
 
