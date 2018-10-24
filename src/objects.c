@@ -205,6 +205,15 @@ WEAPON("elven broadsword", "runed broadsword",
         /* +d4 small, +1 large */
 WEAPON("long sword", None,
        1, 0, 0, 50,  40,  15,  8, 12, 0, S,   P_LONG_SWORD, IRON, HI_METAL),
+/* Base materials for artifact weapons (Sunsword, Dirge, The Sword of Bheleu) */
+WEAPON("silver long sword", None,
+	1, 0, 0, 0, 40, 150,  8, 12, 0, S,   P_LONG_SWORD, SILVER, HI_SILVER),
+WEAPON("mithril long sword", None,
+       1, 0, 0, 0,  25, 100,  8, 12, 0, S,   P_LONG_SWORD, MITHRIL, HI_SILVER),
+WEAPON("mithril two-handed sword", None,
+       1, 0, 1, 0,  90, 350, 12,  6, 0, S,   P_TWO_HANDED_SWORD,
+                                                            MITHRIL, HI_SILVER),
+/* -------------------------------------------------------------------------- */
 WEAPON("two-handed sword", None,
        1, 0, 1, 22, 150,  50, 12,  6, 0, S,   P_TWO_HANDED_SWORD,
                                                             IRON, HI_METAL),
@@ -268,6 +277,10 @@ WEAPON("bec de corbin", "beaked polearm",
 WEAPON("mace", None,
        1, 0, 0, 40,  30,   5,  6,  6, 0, B,   P_MACE, IRON, HI_METAL),
         /* +1 small */
+/* Base material for artifact weapon (Demonbane) */
+WEAPON("silver mace", None,
+       1, 0, 0, 0,  30,  100,  6,  6, 0, B,   P_MACE, SILVER, HI_SILVER),
+/* --------------------------------------------- */
 WEAPON("morning star", None,
        1, 0, 0, 12, 120,  10,  4,  6, 0, B,   P_MORNING_STAR, IRON, HI_METAL),
         /* +d4 small, +1 large */

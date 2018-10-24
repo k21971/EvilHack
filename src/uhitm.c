@@ -1100,7 +1100,7 @@ int dieroll;
         use_skill(wtype, 1);
     }
 
-    if (ispoisoned) {
+    if (ispoisoned || (obj && obj->oartifact == ART_SWORD_OF_BHELEU)) {
         int nopoison = (10 - (obj->owt / 10));
 
         if (nopoison < 2)
@@ -1112,7 +1112,7 @@ int dieroll;
             You_feel("like an evil coward for using a poisoned weapon.");
             adjalign(-1);
         }
-        if (obj && !rn2(nopoison)) {
+        if (obj && !rn2(nopoison) && obj->oartifact != ART_SWORD_OF_BHELEU) {
             /* remove poison now in case obj ends up in a bones file */
             obj->opoisoned = FALSE;
             /* defer "obj is no longer poisoned" until after hit message */

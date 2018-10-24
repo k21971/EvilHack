@@ -493,6 +493,10 @@ long wp_mask;
         mask = &EPoison_resistance;
     else if (dtyp == AD_DRLI)
         mask = &EDrain_resistance;
+    else if (dtyp == AD_ACID)
+        mask = &EAcid_resistance;
+    else if (dtyp == AD_STON)
+        mask = &EStone_resistance;
 
     if (mask && wp_mask == W_ART && !on) {
         /* find out if some other artifact also confers this intrinsic;
@@ -568,7 +572,7 @@ long wp_mask;
             ETeleport_control &= ~wp_mask;
     }
     if (spfx & SPFX_WARN) {
-        if (spec_m2(otmp)) {
+       if (spec_m2(otmp)) {
             if (on) {
                 EWarn_of_mon |= wp_mask;
                 context.warntype.obj |= spec_m2(otmp);
@@ -800,6 +804,8 @@ struct monst *mtmp;
             return !(yours ? Drain_resistance : resists_drli(mtmp));
         case AD_STON:
             return !(yours ? Stone_resistance : resists_ston(mtmp));
+        case AD_ACID:
+            return !(yours ? Acid_resistance : resists_acid(mtmp));
         default:
             impossible("Weird weapon special attack.");
         }
@@ -1204,17 +1210,27 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (attacks(AD_COLD, otmp)) {
         if (realizes_damage)
             pline_The("ice-cold blade %s %s%c",
-                      !spec_dbon_applies ? "hits" : "freezes", hittee,
-                      !spec_dbon_applies ? '.' : '!');
+                      !spec_dbon_applies
+                          ? "hits"
+                          : (mdef->data == &mons[PM_WATER_ELEMENTAL] || mdef->data == &mons[PM_WATER_TROLL])
+                                ? "freezes part of"
+                                : "freezes",
+                      hittee,  !spec_dbon_applies ? '.' : '!');
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_COLD);
         return realizes_damage;
     }
     if (attacks(AD_ELEC, otmp)) {
-        if (realizes_damage)
+        if (realizes_damage) {
+            if (otmp->oartifact == ART_MJOLLNIR)
             pline_The("massive hammer hits%s %s%c",
-                      !spec_dbon_applies ? "" : "!  Lightning strikes",
+                      !spec_dbon_applies ? "" : "! Lightning strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
+            else
+            pline_The("shimmering blade hits%s %s%c", /* I may create more than one artifact weapon that can do AD_ELEC damage later on */
+                      !spec_dbon_applies ? "" : "! Lightning strikes",
+                      hittee, !spec_dbon_applies ? '.' : '!');
+        }
         if (!rn2(5))
             (void) destroy_mitem(mdef, RING_CLASS, AD_ELEC);
         if (!rn2(5))
@@ -1229,6 +1245,29 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           : "!  A hail of magic missiles strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
         return realizes_damage;
+    }
+    /* Fifth basic attack - acid (for the new and improved Dirge... DIRGE) */
+    if (attacks(AD_ACID, otmp)) {
+        if (realizes_damage)
+            pline_The("acidic blade %s %s%c",
+                      !spec_dbon_applies
+                          ? "hits"
+                          : (mdef->data == &mons[PM_IRON_GOLEM] || mdef->data == &mons[PM_IRON_PIERCER])
+                                ? "eats away part of"
+                                : "burns",
+                      hittee, !spec_dbon_applies ? '.' : '!');
+        return realizes_damage;
+    }
+    /* Sixth basic attack - poison */
+    if (attacks(AD_DRST, otmp)) {
+	if (realizes_damage) {
+	    pline_The("gigantic blade %s %s%c",
+                       spec_dbon_applies
+                          ? "eviscerates"
+                          : "hits",
+                      hittee, spec_dbon_applies ? '!' : '.');
+	return realizes_damage;
+        }
     }
 
     if (attacks(AD_STUN, otmp) && dieroll <= MB_MAX_DIEROLL) {
@@ -1749,6 +1788,8 @@ long *abil;
         { &EDisint_resistance, AD_DISN },
         { &EPoison_resistance, AD_DRST },
         { &EDrain_resistance, AD_DRLI },
+        { &EAcid_resistance, AD_ACID },
+        { &EStone_resistance, AD_STON },
     };
     int k;
 
@@ -1850,7 +1891,7 @@ int arti_indx;
     return hcolor(colorstr);
 }
 
-/* use for warning "glow" for Sting, Orcrist, and Grimtooth */
+/* use for warning "glow" for Sting, Orcrist and Grimtooth */
 void
 Sting_effects(orc_count)
 int orc_count; /* new count (warn_obj_cnt is old count); -1 is a flag value */

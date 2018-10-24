@@ -29,6 +29,8 @@ static const char *artifact_names[] = {
 #define     FIRE(a,b)   {0,AD_FIRE,a,b}
 #define     ELEC(a,b)   {0,AD_ELEC,a,b}         /* electrical shock */
 #define     STUN(a,b)   {0,AD_STUN,a,b}         /* magical attack */
+#define     DRST(a,b)   {0,AD_DRST,a,b}         /* poison attack */
+#define     ACID(a,b)   {0,AD_ACID,a,b}         /* acid attack */
 /* clang-format on */
 
 STATIC_OVL NEARDATA struct artifact artilist[] = {
@@ -73,8 +75,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      (handled as special case in spec_dbon()).
      */
     A("Grimtooth", ORCISH_DAGGER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2),
-      0, M2_ELF, PHYS(2, 6), NO_DFNS,
-      NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ORC, 300L, CLR_RED),
+      0, M2_ELF, PHYS(5, 6), NO_DFNS,
+      NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ORC, 600L, CLR_RED),
     /*
      *      Orcrist and Sting have same alignment as elves.
      *
@@ -83,10 +85,10 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Sting and Orcrist will warn of M2_ORC monsters.
      */
     A("Orcrist", ELVEN_BROADSWORD, (SPFX_WARN | SPFX_DFLAG2), 0, M2_ORC,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ELF, 2000L,
+      PHYS(5, 4), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ELF, 2000L,
       CLR_BRIGHT_BLUE), /* bright blue is actually light blue */
 
-    A("Sting", ELVEN_DAGGER, (SPFX_WARN | SPFX_DFLAG2), 0, M2_ORC, PHYS(5, 0),
+    A("Sting", ELVEN_DAGGER, (SPFX_WARN | SPFX_DFLAG2), 0, M2_ORC, PHYS(5, 3),
       NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ELF, 800L, CLR_BRIGHT_BLUE),
     /*
      *      Magicbane is a bit different!  Its magic fanfare
@@ -108,12 +110,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_RESTR | SPFX_DCLAS | SPFX_REFLECT), 0, S_DRAGON,
       PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 500L,
       NO_COLOR),
-
-    A("Demonbane", LONG_SWORD, (SPFX_RESTR | SPFX_DFLAG2), 0, M2_DEMON,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 2500L,
+    /*
+     *      Demonbane from SporkHack is a silver mace with an extra property
+     *      Also the first sacrifice gift for a priest
+     */
+    A("Demonbane", SILVER_MACE, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2), 0, M2_DEMON,
+      PHYS(5, 4), NO_DFNS, NO_CARY, 0, A_LAWFUL, PM_PRIEST, NON_PM, 3000L,
       NO_COLOR),
 
-    A("Werebane", SILVER_SABER, (SPFX_RESTR | SPFX_DFLAG2), 0, M2_WERE,
+    A("Werebane", SILVER_SABER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2), 0, M2_WERE,
       PHYS(5, 0), DFNS(AD_WERE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1500L,
       NO_COLOR),
 
@@ -121,16 +126,16 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 8000L,
       NO_COLOR),
 
-    A("Giantslayer", LONG_SWORD, (SPFX_RESTR | SPFX_DFLAG2), 0, M2_GIANT,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 200L,
+    A("Giantslayer", LONG_SWORD, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2), 0, M2_GIANT,
+      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 500L,
       NO_COLOR),
 
     A("Ogresmasher", WAR_HAMMER, (SPFX_RESTR | SPFX_DCLAS), 0, S_OGRE,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 200L,
+      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 500L,
       NO_COLOR),
 
     A("Trollsbane", MORNING_STAR, (SPFX_RESTR | SPFX_DCLAS), 0, S_TROLL,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 200L,
+      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 500L,
       NO_COLOR),
     /*
      *      Two problems:  1) doesn't let trolls regenerate heads,
@@ -148,12 +153,46 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *                      --Koko, Lord high executioner of Titipu
      *                        (From Sir W.S. Gilbert's "The Mikado")
      */
-    A("Snickersnee", KATANA, SPFX_RESTR, 0, 0, PHYS(0, 8), NO_DFNS, NO_CARY,
+    A("Snickersnee", KATANA, SPFX_RESTR, 0, 0, PHYS(5, 8), NO_DFNS, NO_CARY,
       0, A_LAWFUL, PM_SAMURAI, NON_PM, 1200L, NO_COLOR),
-
-    A("Sunsword", LONG_SWORD, (SPFX_RESTR | SPFX_DFLAG2), 0, M2_UNDEAD,
-      PHYS(5, 0), DFNS(AD_BLND), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 1500L,
+    /*
+     *      Sunsword from SporkHack was silver in nature, and also warned of nearby undead
+     */
+    A("Sunsword", SILVER_LONG_SWORD, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2), 0, M2_UNDEAD,
+      PHYS(5, 4), DFNS(AD_BLND), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 2500L,
       NO_COLOR),
+    /*
+     *      Lifestealer from SporkHack - many of the same properties as Stormbringer
+     *      Meant to be wielded by Vlad. Enjoy the buff Vlad ;)
+     */
+    A("Lifestealer", TWO_HANDED_SWORD,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI), 0, 0,
+      DRLI(5, 2), DRLI(0, 0), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 10000L,
+      NO_COLOR),
+    /*
+     *      Keolewa from SporkHack - a Hawaiian war club
+     *      Buffing this up a bit to give it more utility
+     */
+    A("Keolewa", CLUB, (SPFX_RESTR | SPFX_DEFN), 0, 0,
+      PHYS(5, 6), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL, PM_CAVEMAN, NON_PM,
+      2000L, NO_COLOR),
+    /*
+     *      Dirge from SporkHack, but with a twist
+     *      This is the anti-Excalibur. A Dark Knight needs a special weapon too...
+     */
+    A("Dirge", MITHRIL_LONG_SWORD,
+     (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL), 0, 0,
+     ACID(5, 8), DFNS(AD_ACID), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
+     4000L, NO_COLOR),
+    /*
+     *      The Sword of Bheleu - from 'The Lords of Dus' series by Lawrence Watt-Evans
+     *      If I were to add all of the powers and abilities this sword possesses from the book,
+     *      it would be way over-powered. It will be a worthy two-handed sword to try to obtain however...
+     */
+    A("The Sword of Bheleu", MITHRIL_TWO_HANDED_SWORD,
+     (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL | SPFX_DALIGN), 0, 0,
+     DRST(10, 10), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
+     12000L, NO_COLOR),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.
@@ -258,6 +297,8 @@ A("The Palantir of Westernesse",        CRYSTAL_BALL,
 #undef FIRE
 #undef ELEC
 #undef STUN
+#undef DRST
+#undef ACID
 #endif
 
 /*artilist.h*/
