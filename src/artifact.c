@@ -572,7 +572,7 @@ long wp_mask;
             ETeleport_control &= ~wp_mask;
     }
     if (spfx & SPFX_WARN) {
-       if (spec_m2(otmp)) {
+        if (spec_m2(otmp)) {
             if (on) {
                 EWarn_of_mon |= wp_mask;
                 context.warntype.obj |= spec_m2(otmp);
@@ -1224,11 +1224,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (realizes_damage) {
             if (otmp->oartifact == ART_MJOLLNIR)
             pline_The("massive hammer hits%s %s%c",
-                      !spec_dbon_applies ? "" : "! Lightning strikes",
+                      !spec_dbon_applies ? "" : "!  Lightning strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
             else
             pline_The("shimmering blade hits%s %s%c", /* I may create more than one artifact weapon that can do AD_ELEC damage later on */
-                      !spec_dbon_applies ? "" : "! Lightning strikes",
+                      !spec_dbon_applies ? "" : "!  Lightning strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
         }
         if (!rn2(5))
@@ -1266,7 +1266,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           ? "eviscerates"
                           : "hits",
                       hittee, spec_dbon_applies ? '!' : '.');
-	return realizes_damage;
+        return realizes_damage;
         }
     }
 
@@ -1891,7 +1891,7 @@ int arti_indx;
     return hcolor(colorstr);
 }
 
-/* use for warning "glow" for Sting, Orcrist and Grimtooth */
+/* use for warning "glow" for Sting, Orcrist, and Grimtooth */
 void
 Sting_effects(orc_count)
 int orc_count; /* new count (warn_obj_cnt is old count); -1 is a flag value */
