@@ -29,7 +29,7 @@ From SporkHack
 2) new sacrificing/artifact generation system
 3) new monsters
 4) new spells
-5) changes to artifacts
+5) changes to artifacts <---- DONE (mostly)
 6) changes to skills (won't be exact pull, will tweak)
 7) changes to spell casting while wearing body armor (will also tweak)
 8) gold vault changes
@@ -51,7 +51,7 @@ From SporkHack
 
 From other variants
 -------------------
-1) gehennom revamp from xNetHack
+1) gehennom revamp from xNetHack (or maybe from Sporkhack)
 2) #give command from SpliceHack
 3) changes to unicorn horn from xNetHack
 
@@ -63,4 +63,4 @@ Custom unique bits
 4) tweak behavior from some of things pulled from GruntHack and SporkHack
 5) tweak skill sets for roles to something that makes sense
 6) time to give monks some love
-
+7) Elbereth changes (hero can only use the E-word after it's been discovered in-game)

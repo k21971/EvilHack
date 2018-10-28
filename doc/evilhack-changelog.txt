@@ -1,4 +1,8 @@
-EvilHack 0.1.0 Changelog
+EvilHack Changelog
+============================================================================================
+
+Version 0.1.0
+-------------
 
 First version of EvilHack, which was forked off of NetHack 362-hdf as of October 20th, 2018.
 Commits from NetHack 3.6.2 beta (vanilla) will be incorporated on a regular basis so as to
@@ -10,9 +14,17 @@ be created and implemented.
 
 The following changes to date are:
 
---------------------------------------------------------------------------------------------
-
 - Edits to config.h, patchlevel.h, allmain.src, sysconf, Makefiles and hints files to
 differentiate EvilHack from NetHack
 - adjust install script for EvilHack for use on public server
 - significant merges of latest 'vanilla' NetHack 3.6.2 code
+
+--------------------------------------------------------------------------------------------
+
+Version 0.1.1
+-------------
+
+- Allow two-weaponing with an artifact weapon in each hand
+- Allow passive properties of an off-hand magical or artifact weapon to function
+- Artifact additions and changes
+
