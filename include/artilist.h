@@ -203,7 +203,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_ATTK, NO_DFNS, CARY(AD_MAGM), INVIS, A_LAWFUL, PM_ARCHEOLOGIST,
       NON_PM, 2500L, NO_COLOR),
 
-#if 0 /* Replaced by The Circlet of P'hul */
+#if 0 /* Replaced by The Ring of P'hul */
     A("The Heart of Ahriman", LUCKSTONE,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL), SPFX_STLTH, 0,
       /* this stone does double damage if used as a projectile weapon */
