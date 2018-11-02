@@ -391,7 +391,7 @@ as %n, had begun to gather a large group of cutthroats and brigands
 about %ni.
 
 "At about the same time, these people you once rode with `liberated' a
-potent magical talisman, %o, from a Turanian caravan.
+potent magical ring, %o, from a Turanian caravan.
 
 "%nC and %nj Black Horde swept down upon %i and defeated
 the people there, driving them out into the desert.  He has taken
@@ -429,7 +429,7 @@ guard."
 "May %d protect you, and guide your steps."
 %E
 %Cp Bar 00031
-"If you can lay hands upon %o, carry it for good fortune."
+"If you can lay hands upon %o, wear it for its healing powers."
 %E
 %Cp Bar 00032
 "I cannot stand against %ns sorcery.  But %d will help you."
@@ -504,9 +504,9 @@ And your life as well."
 %E
 %Cc Bar 00070
 As you pick up %o, you feel the power of it
-flowing through your hands.  It seems to be in two or more places
-at once, even though you are holding it.
-%E [You feel the power of %o flowing through your hands.]
+flowing through your entire body.  You feel as though no ailment
+can befall you, nor would any wound be too great to heal.
+%E [You feel the power of %o flowing through your body.]
 %Cc Bar 00080
 %nC falls to the ground, and utters a last curse at you.  Then %nj
 body fades slowly, seemingly dispersing into the air around you.  You

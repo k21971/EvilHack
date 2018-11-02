@@ -497,6 +497,8 @@ long wp_mask;
         mask = &EAcid_resistance;
     else if (dtyp == AD_STON)
         mask = &EStone_resistance;
+    else if (dtyp == AD_DISE)
+        mask = &ESick_resistance;
 
     if (mask && wp_mask == W_ART && !on) {
         /* find out if some other artifact also confers this intrinsic;
@@ -1790,6 +1792,7 @@ long *abil;
         { &EDrain_resistance, AD_DRLI },
         { &EAcid_resistance, AD_ACID },
         { &EStone_resistance, AD_STON },
+        { &ESick_resistance, AD_DISE },
     };
     int k;
 

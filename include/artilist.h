@@ -111,8 +111,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 500L,
       NO_COLOR),
     /*
-     *      Demonbane from SporkHack is a silver mace with an extra property
-     *      Also the first sacrifice gift for a priest
+     *      Demonbane from SporkHack is a silver mace with an extra property.
+     *      Also the first sacrifice gift for a priest.
      */
     A("Demonbane", SILVER_MACE, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2), 0, M2_DEMON,
       PHYS(5, 4), NO_DFNS, NO_CARY, 0, A_LAWFUL, PM_PRIEST, NON_PM, 3000L,
@@ -170,14 +170,14 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       DRLI(5, 2), DRLI(0, 0), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 10000L,
       NO_COLOR),
     /*
-     *      Keolewa from SporkHack - a Hawaiian war club
-     *      Buffing this up a bit to give it more utility
+     *      Keolewa from SporkHack - a Hawaiian war club.
+     *      Buffing this up a bit to give it more utility.
      */
     A("Keolewa", CLUB, (SPFX_RESTR | SPFX_DEFN), 0, 0,
       PHYS(5, 6), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL, PM_CAVEMAN, NON_PM,
       2000L, NO_COLOR),
     /*
-     *      Dirge from SporkHack, but with a twist
+     *      Dirge from SporkHack, but with a twist.
      *      This is the anti-Excalibur. A Dark Knight needs a special weapon too...
      */
     A("Dirge", MITHRIL_LONG_SWORD,
@@ -185,7 +185,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      ACID(5, 8), DFNS(AD_ACID), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
      4000L, NO_COLOR),
     /*
-     *      The Sword of Bheleu - from 'The Lords of Dus' series by Lawrence Watt-Evans
+     *      The Sword of Bheleu - from 'The Lords of Dus' series by Lawrence Watt-Evans.
      *      If I were to add all of the powers and abilities this sword possesses from the book,
      *      it would be way over-powered. It will be a worthy two-handed sword to try to obtain however...
      */
@@ -203,11 +203,13 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_ATTK, NO_DFNS, CARY(AD_MAGM), INVIS, A_LAWFUL, PM_ARCHEOLOGIST,
       NON_PM, 2500L, NO_COLOR),
 
+#if 0 /* Replaced by The Circlet of P'hul */
     A("The Heart of Ahriman", LUCKSTONE,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL), SPFX_STLTH, 0,
       /* this stone does double damage if used as a projectile weapon */
       PHYS(5, 0), NO_DFNS, NO_CARY, LEVITATION, A_NEUTRAL, PM_BARBARIAN,
       NON_PM, 2500L, NO_COLOR),
+#endif
 
     A("The Sceptre of Might", MACE,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DALIGN), 0, 0, PHYS(5, 0),
@@ -215,11 +217,11 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_COLOR),
 
 #if 0 /* OBSOLETE */
-A("The Palantir of Westernesse",        CRYSTAL_BALL,
-        (SPFX_NOGEN|SPFX_RESTR|SPFX_INTEL),
-                (SPFX_ESP|SPFX_REGEN|SPFX_HSPDAM), 0,
-        NO_ATTK,        NO_DFNS,        NO_CARY,
-        TAMING,         A_CHAOTIC, NON_PM , PM_ELF, 8000L, NO_COLOR ),
+    A("The Palantir of Westernesse", CRYSTAL_BALL,
+      (SPFX_NOGEN|SPFX_RESTR|SPFX_INTEL),
+      (SPFX_ESP|SPFX_REGEN|SPFX_HSPDAM), 0,
+      NO_ATTK, NO_DFNS, NO_CARY,
+      TAMING, A_CHAOTIC, NON_PM , PM_ELF, 8000L, NO_COLOR ),
 #endif
 
     A("The Staff of Aesculapius", QUARTERSTAFF,
@@ -276,6 +278,17 @@ A("The Palantir of Westernesse",        CRYSTAL_BALL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL), (SPFX_EREGEN | SPFX_HSPDAM), 0,
       NO_ATTK, DFNS(AD_MAGM), NO_CARY, CREATE_PORTAL, A_NEUTRAL, PM_WIZARD,
       NON_PM, 4000L, NO_COLOR),
+    /*
+     *      Based loosely off of the Ring of P'hul - from 'The Lords of Dus' series
+     *      by Lawrence Watt-Evans. This is another one of those artifacts that would
+     *      just be ridiculous if its full power were realized in-game. In the series,
+     *      it deals out death and disease. Here it will protect the wearer from a
+     *      good portion of that. Making this the quest artifact for the Barbarian role.
+     */
+    A("The Ring of P\'hul", RIN_POISON_RESISTANCE,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DEFN | SPFX_REGEN), 0, 0,
+      NO_ATTK, DFNS(AD_DISE), NO_CARY, 0, A_NEUTRAL, PM_BARBARIAN,
+      NON_PM, 5000L, NO_COLOR),
 
     /*
      *  terminator; otyp must be zero
@@ -299,6 +312,7 @@ A("The Palantir of Westernesse",        CRYSTAL_BALL,
 #undef STUN
 #undef DRST
 #undef ACID
+#undef DISE
 #endif
 
 /*artilist.h*/
