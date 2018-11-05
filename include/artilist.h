@@ -283,9 +283,10 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      by Lawrence Watt-Evans. This is another one of those artifacts that would
      *      just be ridiculous if its full power were realized in-game. In the series,
      *      it deals out death and disease. Here it will protect the wearer from a
-     *      good portion of that. Making this the quest artifact for the Barbarian role.
+     *      good portion of that. Making this the quest artifact for the Barbarian role,
+     *      keeping at least one of the special abilities from The Heart of Ahriman.
      */
-    A("The Ring of P\'hul", RIN_POISON_RESISTANCE,
+    A("The Ring of P\'hul", RIN_STEALTH,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DEFN | SPFX_REGEN), 0, 0,
       NO_ATTK, DFNS(AD_DISE), NO_CARY, 0, A_NEUTRAL, PM_BARBARIAN,
       NON_PM, 5000L, NO_COLOR),
