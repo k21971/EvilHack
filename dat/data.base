@@ -2146,26 +2146,27 @@ physician
 	PHYSICIAN, n.  One upon whom we set our hopes when ill and our
 	dogs when well.
 		[ The Devil's Dictionary, by Ambrose Bierce ]
-heart of ahriman
-	The other three drew in their breath sharply, and the dark,
-	powerful man who stood at the head of the sarcophagus whispered:
-	"The Heart of Ahriman!"  The other lifted a quick hand
-	for silence.  Somewhere a dog began howling dolefully, and a
-	stealthy step padded outside the barred and bolted door. ...
-	But none looked aside from the mummy case over which the man
-	in the ermine-trimmed robe was now moving the great flaming
-	jewel, while he muttered an incantation that was old when
-	Atlantis sank.  The glare of the gem dazzled their eyes, so
-	that they could not be sure what they saw; but with a
-	splintering crash, the carven lid of the sarcophagus burst
-	outward as if from some irresistible pressure applied from
-	within and the four men, bending eagerly forward, saw the
-	occupant -- a huddled, withered, wizened shape, with dried
-	brown limbs like dead wood showing through moldering bandages.
-	"Bring that thing back?" muttered the small dark man who
-	stood on the right, with a short, sardonic laugh.  "It is
-	ready to crumble at a touch.  We are fools ---"
-		[ Conan The Conqueror, by Robert E. Howard ]
+# no longer the Barbarian quest artifact
+#heart of ahriman
+#	The other three drew in their breath sharply, and the dark,
+#	powerful man who stood at the head of the sarcophagus whispered:
+#	"The Heart of Ahriman!"  The other lifted a quick hand
+#	for silence.  Somewhere a dog began howling dolefully, and a
+#	stealthy step padded outside the barred and bolted door. ...
+#	But none looked aside from the mummy case over which the man
+#	in the ermine-trimmed robe was now moving the great flaming
+#	jewel, while he muttered an incantation that was old when
+#	Atlantis sank.  The glare of the gem dazzled their eyes, so
+#	that they could not be sure what they saw; but with a
+#	splintering crash, the carven lid of the sarcophagus burst
+#	outward as if from some irresistible pressure applied from
+#	within and the four men, bending eagerly forward, saw the
+#	occupant -- a huddled, withered, wizened shape, with dried
+#	brown limbs like dead wood showing through moldering bandages.
+#	"Bring that thing back?" muttered the small dark man who
+#	stood on the right, with a short, sardonic laugh.  "It is
+#	ready to crumble at a touch.  We are fools ---"
+#		[ Conan The Conqueror, by Robert E. Howard ]
 hell hound*
 	But suddenly they started forward in a rigid, fixed stare,
 	and his lips parted in amazement.  At the same instant Lestrade
@@ -4271,6 +4272,7 @@ raven
 		Then the bird said, 'Nevermore.'
 				[ The Raven, by Edgar Allan Poe ]
 ~*invisibility
+~*p'hul
 ring
 * ring
 ring of *
@@ -4302,6 +4304,20 @@ ring of invisibility
 	he laid a hand on the king, murdered him and took hold of the
 	leadership."
 		[ The Republic, by Plato, translated by James Adam ]
+ring of p'hul
+        Shandiph rose again; his knees were growing tired. "That's all
+        right.  Yes, we already possess one; it was the Ring of P'hul
+        that first permitted the Council of the Most High to gain what
+        power we now hold, at the end of the Twelfth Age.  It has been
+        kept carefully hidden ever since, because it is far too dangerous
+        to use; it was the Ring which caused the Great Plague that wiped
+        out the Royal Eramman Army and thereby put an end to the Racial
+        Wars before the overmen could be wiped out.  It was the Ring that
+        laid waste the Plain of Derbarok.  It always did what was asked
+        of it, but never in the way desired; it ended the Racial Wars only
+        by killing the army and ended the war with Orun only by ruining
+        what both sides fought for."
+                [ The Sword of Bheleu, by Lawrence Watt-Evans ]
 robe
 	Robes are the only garments, apart from Shirts, ever to have
 	sleeves.  They have three uses:
@@ -4972,6 +4988,13 @@ susano*o
 	material world.  He has been expelled from heaven and taken
 	up residence on earth.
 		[ Encyclopedia of Gods, by Michael Jordan ]
+sword of bheleu
+        The sword that Garth had stolen from Dusarra marked him as the
+        chosen of Bheleu, god of destruction, and gave him immense power.
+        This power could only be used to destroy, and Garth wanted to build.
+        He chose to refuse the god's gift.  Bheleu did not intend to
+        allow that.
+                [ The Sword of Bheleu, by Lawrence Watt-Evans ]
 tanko
 	Samurai plate armor of the Yamato period (AD 300 - 710).
 tengu
