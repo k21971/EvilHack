@@ -164,7 +164,7 @@ many traps."
 "You must destroy %n.  It will pursue you otherwise."
 %E
 %Cp Arc 00030
-"%oC is a mighty talisman.  With it you
+"%oC is a mighty blade.  With it you
 can destroy %n."
 %E
 %Cp Arc 00031
@@ -263,7 +263,7 @@ you know you must return %o to %l.
 The body of %n dissipates in a cloud of noxious fumes.
 %E
 %Cc Arc 00081
-%lC touches %o briefly, gazes into it,
+%lC touches %o briefly, gazes at its shimmering black surface,
 then smiles at you and says:
 
 "Well done, %p.  You have defeated %n and
@@ -275,12 +275,15 @@ guard it now far better than I.
 
 May the blessings of %d follow you and guard you."
 %E [%lC instructs you to guard %o from now on.]
-# assumes Orb of Detection (glass object)
+# assumes Xiuhcoatl (glass saber)
 %Cc Arc 00082
-"Careful, %p!  %oC might break, and that would be
-a tragic loss.  You are its keeper now, and the time has come to
-resume your search for the Amulet.  %Z await your
-return through the magic portal that brought you here."
+%l gazes at the shimmering obsidian blade.
+
+"Of all the items that have been excavated from %i,
+this one has given us the greatest insight into Toltec civilisation.
+Understand that guarding this artifact is no small responsibility,
+%p. Now, it is time that you resumed your expedition for the
+Amulet. %Z await you through the portal which brought you here."
 %E ["Resume your search for the Amulet beyond the magic portal to %Z."]
 %Cc Arc 00090
 "Welcome back, %p.  Have you progressed with your quest to

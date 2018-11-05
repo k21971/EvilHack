@@ -197,6 +197,8 @@ WEAPON("scimitar", "curved sword",
        0, 0, 0, 15,  40,  15,  8,  8, 0, S,   P_SCIMITAR, IRON, HI_METAL),
 WEAPON("silver saber", None,
        1, 0, 0,  6,  40,  75,  8,  8, 0, S,   P_SABER, SILVER, HI_SILVER),
+WEAPON("obsidian saber", None,
+       1, 0, 0,  0,  30,  50, 10, 12, 2, S,   P_SABER, GLASS, CLR_BLACK),
 WEAPON("broadsword", None,
        1, 0, 0,  8,  70,  10,  4,  6, 0, S,   P_BROAD_SWORD, IRON, HI_METAL),
         /* +d4 small, +1 large */

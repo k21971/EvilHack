@@ -198,10 +198,25 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      The artifacts for the quest dungeon, all self-willed.
      */
 
+    /*
+     *      At first I was going to add the artifact shield that was made for the
+     *      Archeologist quest in UnNetHack, but then decided to do something unique.
+     *      Behold Xiuhcoatl, an obsidian saber that does electrical damage much like
+     *      Mjollnir. From Aztec lore, Xiuhcoatl is an atlatl (somewhat like the aklys
+     *      but with darts) but that's a bit boring. Taking some creative license here.
+     *      Be careful, obsidian is a type of glass...
+     */
+    A("Xiuhcoatl", OBSIDIAN_SABER,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_ATTK | SPFX_DEFN), (SPFX_ESP), 0,
+      ELEC(5, 24), DFNS(AD_ELEC), NO_CARY, LEVITATION, A_LAWFUL, PM_ARCHEOLOGIST,
+      NON_PM, 3500L, NO_COLOR),
+
+#if 0 /* Replaced by Xiuhcoatl */
     A("The Orb of Detection", CRYSTAL_BALL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL), (SPFX_ESP | SPFX_HSPDAM), 0,
       NO_ATTK, NO_DFNS, CARY(AD_MAGM), INVIS, A_LAWFUL, PM_ARCHEOLOGIST,
       NON_PM, 2500L, NO_COLOR),
+#endif
 
 #if 0 /* Replaced by The Ring of P'hul */
     A("The Heart of Ahriman", LUCKSTONE,
