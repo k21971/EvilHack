@@ -180,6 +180,11 @@ death from something other than loss of hit points could leave hero with
 	non-zero HP at end of game (during "really die?" prompt, disclosure)
 added several special cases for genocide and/or wishing prompt: (cookie,
 	pie, genie, watchmen)
+lightning strike from Mjollnir did not make any noise
+with menustyle:Full, picking 'A - autoselect all' when putting items into a
+	container actually took everything out of that container
+add missing 'A - autoselect all' choice for menustyle:Full when taking items
+	out while looting a container
 
 
 Fixes to Post-3.6.1 Problems that Were Exposed Via git Repository
@@ -279,6 +284,11 @@ replace #monpolycontrol command with monpolycontrol boolean option
 replace #wizdebug_traveldisplay command with travel_debug boolean option
 rename #wizdebug_bury command to #wizbury
 life-saving now makes swallower or grabber release hero
+for ^X and enlightenment, display the information in a menu rather than a
+	plain text popup, so that player can go back within the text via
+	'<' (menu_previous_page) and '^' (menu_first_page) menu keys;
+	needed for interfaces (tty) without text popup scrollbar support;
+	end of game disclosure of attributes remains single-forward-pass
 
 
 Code Cleanup and Reorganization

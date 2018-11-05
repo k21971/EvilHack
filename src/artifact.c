@@ -1233,6 +1233,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                       !spec_dbon_applies ? "" : "!  Lightning strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
         }
+        if (spec_dbon_applies)
+            wake_nearto(mdef->mx, mdef->my, 4 * 4);
         if (!rn2(5))
             (void) destroy_mitem(mdef, RING_CLASS, AD_ELEC);
         if (!rn2(5))
