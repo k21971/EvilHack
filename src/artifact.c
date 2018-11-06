@@ -70,6 +70,12 @@ hack_artifacts()
 	    artilist[ART_DIRGE].role = NON_PM;
 	}
 
+    /* Demonbane should always be in the Priest's list of available toys
+     * even though this might look a little odd when it comes out Chaotic */
+    if (Role_if(PM_PRIEST)) {
+            artilist[ART_DEMONBANE].alignment = alignmnt;
+    }
+
     /* Fix up the quest artifact */
     if (urole.questarti) {
         artilist[urole.questarti].alignment = alignmnt;
