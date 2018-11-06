@@ -180,8 +180,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Dirge from SporkHack, but with a twist.
      *      This is the anti-Excalibur. A Dark Knight needs a special weapon too...
      */
-    A("Dirge", MITHRIL_LONG_SWORD,
-     (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL), 0, 0,
+    A("Dirge", LONG_SWORD,
+     (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL), 0, 0,
      ACID(5, 8), DFNS(AD_ACID), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
      4000L, NO_COLOR),
     /*
@@ -246,8 +246,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NON_PM, 5000L, NO_COLOR),
 
     A("The Magic Mirror of Merlin", MIRROR,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK), SPFX_ESP, 0,
-      NO_ATTK, NO_DFNS, CARY(AD_MAGM), 0, A_LAWFUL, PM_KNIGHT, NON_PM, 1500L,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK | SPFX_REFLECT),
+      (SPFX_REFLECT | SPFX_ESP | SPFX_HSPDAM), 0,
+      NO_ATTK, NO_DFNS, NO_CARY, 0, A_LAWFUL, PM_KNIGHT, NON_PM, 1500L,
       NO_COLOR),
 
     A("The Eyes of the Overworld", LENSES,

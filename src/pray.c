@@ -1308,6 +1308,7 @@ dosacrifice()
     static NEARDATA const char cloud_of_smoke[] =
         "A cloud of %s smoke surrounds you...";
     register struct obj *otmp;
+        struct obj* wtmp;
     int value = 0, pm;
     boolean highaltar;
     aligntyp altaralign = a_align(u.ux, u.uy);
@@ -1429,6 +1430,23 @@ dosacrifice()
                 useup(otmp);
             else
                 useupf(otmp, 1L);
+
+	    /* create Dirge from player's longsword here if possible */
+	    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)
+		&& uwep->otyp == LONG_SWORD && !uwep->oartifact
+		&& !exist_artifact(LONG_SWORD, artiname(ART_DIRGE))) {
+                    pline("Your sword melts in your hand and transforms into something new!");
+ 		    uwep = oname(uwep, artiname(ART_DIRGE));
+                    discover_artifact(ART_DIRGE);
+		    bless(uwep);
+		    uwep->oeroded = uwep->oeroded2 = 0;
+		    uwep->oerodeproof = TRUE;
+		    exercise(A_WIS, TRUE);
+                        livelog_printf(LL_DIVINEGIFT|LL_ARTIFACT,
+                            "had Dirge gifted to %s by the grace of %s",
+                        uhim(), align_gname(u.ualign.type));
+	            }
+
             return 1;
         } else if (has_omonst(otmp)
                    && (mtmp = get_mtraits(otmp, FALSE)) != 0
@@ -1746,7 +1764,7 @@ dosacrifice()
                     exercise(A_WIS, TRUE);
                     livelog_printf (LL_DIVINEGIFT|LL_ARTIFACT,
                             "had %s bestowed upon %s by %s",
-                            artiname(otmp->oartifact), 
+                            artiname(otmp->oartifact),
                             uhim(),
                             align_gname(u.ualign.type));
                     /* make sure we can use this weapon */

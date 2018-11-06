@@ -63,9 +63,12 @@ hack_artifacts()
         if (art->role == Role_switch && art->alignment != A_NONE)
             art->alignment = alignmnt;
 
-    /* Excalibur can be used by any lawful character, not just knights */
-    if (!Role_if(PM_KNIGHT))
+    /* Excalibur can be used by any lawful character, not just knights
+       Dirge also... */
+    if (!Role_if(PM_KNIGHT)) {
         artilist[ART_EXCALIBUR].role = NON_PM;
+	    artilist[ART_DIRGE].role = NON_PM;
+	}
 
     /* Fix up the quest artifact */
     if (urole.questarti) {
@@ -616,12 +619,22 @@ long wp_mask;
             u.xray_range = -1;
         vision_full_recalc = 1;
     }
-    if ((spfx & SPFX_REFLECT) && (wp_mask & W_WEP)) {
+    if (spfx & SPFX_REFLECT) {
+	    /* Knights only have to carry the mirror; everyone else must wield it */
+	    if (Role_if(PM_KNIGHT)) {
+		    if (on) {
+			    EReflecting |= wp_mask;
+		    } else {
+			    EReflecting &= ~wp_mask;
+		    }
+	    } else if (wp_mask & W_WEP) {
         if (on)
             EReflecting |= wp_mask;
         else
             EReflecting &= ~wp_mask;
+        }
     }
+
     if (spfx & SPFX_PROTECT) {
         if (on)
             EProtection |= wp_mask;

@@ -195,7 +195,7 @@ const struct Role roles[] = {
     { { "Knight", 0 },
       { { "Gallant", 0 },
         { "Esquire", 0 },
-        { "Bachelor", 0 },
+        { "Bachelor", "Bachelorette" },
         { "Sergeant", 0 },
         { "Knight", 0 },
         { "Banneret", 0 },
@@ -217,7 +217,7 @@ const struct Role roles[] = {
       S_IMP,
       S_JELLY,
       ART_MAGIC_MIRROR_OF_MERLIN,
-      MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL,
+      MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 7, 14, 8, 10, 17 },
       { 30, 15, 15, 10, 20, 10 },
@@ -580,6 +580,53 @@ const struct Role roles[] = {
       10,
       A_INT,
       SPE_MAGIC_MISSILE,
+      -4 },
+    /* Array terminator */
+    { { 0, 0 } }
+};
+
+/* Dark Knight */
+    const struct Role align_roles[] = {
+    { { "Dark Knight", 0 },
+      { { "Sniveler", 0 },
+        { "Pawn", 0 },
+        { "Brute", 0 },
+        { "Mercenary", 0 },
+        { "Blackguard", 0 },
+        { "Turncoat", 0 },
+        { "Knave", "Vixen" },
+        { "Dark Baron", "Dark Baroness" },
+        { "Dark Paladin", 0 } },
+      "Lugh", "_Brigit", "Manannan Mac Lir", /* Celtic */
+      "Kni",
+      "Camelot Castle",
+      "the Isle of Glass",
+      PM_KNIGHT,
+      NON_PM,
+      PM_PONY,
+      PM_KING_ARTHUR,
+      PM_PAGE,
+      PM_IXOTH,
+      PM_QUASIT,
+      PM_OCHRE_JELLY,
+      S_IMP,
+      S_JELLY,
+      ART_MAGIC_MIRROR_OF_MERLIN,
+      MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 13, 7, 14, 8, 10, 17 },
+      { 30, 15, 15, 10, 20, 10 },
+      /* Init   Lower  Higher */
+      { 14, 0, 0, 8, 2, 0 }, /* Hit points */
+      { 1, 4, 0, 1, 0, 2 },
+      10, /* Energy */
+      10,
+      8,
+      -2,
+      0,
+      9,
+      A_WIS,
+      SPE_TURN_UNDEAD,
       -4 },
     /* Array terminator */
     { { 0, 0 } }
@@ -2043,6 +2090,11 @@ role_init()
     /* Initialize urole and urace */
     urole = roles[flags.initrole];
     urace = races[flags.initrace];
+
+    /* kick it over to alternate-alignment role */
+    if (alignmnt == A_CHAOTIC && Role_if(PM_KNIGHT)) {
+	urole = align_roles[0];
+    }
 
     /* Fix up the quest leader */
     if (urole.ldrnum != NON_PM) {

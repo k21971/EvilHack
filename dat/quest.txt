@@ -1158,15 +1158,15 @@ Begone from Our sight!"
 "Verily, %p, thou hast done well.  That thou hast survived thus
 far is a credit to thy valor, but thou art yet unprepared for
 the demands required as Our Champion.  %rA, no matter how
-pure, could never hope to defeat the foul %n.
+brave, could never hope to defeat the foul %n.
 
 "Journey forth from this place, and hone thy skills.  Return to
-Our presence when thou hast attained the noble title of %R."
+Our presence when thou hast attained the title of %R."
 %E [You are not prepared to face %n.  Return when you are %Ra.]
 %Cc Kni 00020
-"Thou dishonourest Us, %p!  Thou hast strayed from the path of
-chivalry! Go from Our presence and do penance.  Only when thou art again
-pure mayst thou return hence."
+"Thou dishonourest Us, %p!  Thou hast strayed from thine chosen
+ path!  Go from Our presence and do penance.  Only when thou
+hast regained thy soul's direction mayst thou return hence."
 %E [Go and do penance.  Return when you are truly %a.]
 %Cc Kni 00021
 "Ah, %p.  Thou art truly ready, as no %c before thee hath
@@ -1220,7 +1220,7 @@ Go carefully."
 "Call upon %d when thou art in need."
 %E
 %Cp Kni 00034
-"To find %i, thou must keep thy heart pure."
+"To find %i, thou must keep thy heart true."
 %E
 %Cc Kni 00035
 You stand at the foot of %i.  Atop, you can %x a shrine.

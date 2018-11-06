@@ -2170,6 +2170,12 @@ const char *fmt, *str;
         if (fmt && str)
             pline(fmt, str, uskin ? "luster" : "armor");
         return TRUE;
+    } else if (EReflecting & W_ART) {
+        /* Due to the Magic Mirror, which shows as W_ART */
+	if (fmt && str) {
+		pline(fmt, str, "mirror");
+	}
+	return TRUE;
     } else if (youmonst.data == &mons[PM_SILVER_DRAGON]) {
         if (fmt && str)
             pline(fmt, str, "scales");

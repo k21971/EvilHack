@@ -123,6 +123,9 @@ boolean quietly;
         if (chance > 2)
             chance = otmp->blessed ? 0 : !otmp->cursed ? 1 : 2;
         /* 0,1,2:  b=80%,10,10; nc=10%,80,10; c=10%,10,80 */
+	if (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_DRAGON) {
+	    chance = 2;
+	}
         if (chance > 0) {
             mtmp->mtame = 0;   /* not tame after all */
             if (chance == 2) { /* hostile (cursed figurine) */
@@ -162,8 +165,13 @@ makedog()
     pettype = pet_type();
     if (pettype == PM_LITTLE_DOG)
         petname = dogname;
-    else if (pettype == PM_PONY)
+    else if (pettype == PM_PONY) {
         petname = horsename;
+	/* hijack creation for chaotic knights */
+	if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)) {
+		pettype = PM_NIGHTMARE;
+	}
+    }
     else
         petname = catname;
 
@@ -187,7 +195,7 @@ makedog()
 
     context.startingpet_mid = mtmp->m_id;
     /* Horses already wear a saddle */
-    if (pettype == PM_PONY && !!(otmp = mksobj(SADDLE, TRUE, FALSE))) {
+    if ((pettype == PM_PONY || pettype == PM_NIGHTMARE) && !!(otmp = mksobj(SADDLE, TRUE, FALSE))) {
         otmp->dknown = otmp->bknown = otmp->rknown = 1;
         put_saddle_on_mon(otmp, mtmp);
     }
@@ -876,6 +884,12 @@ register struct obj *obj;
     if (mtmp->iswiz || mtmp->data == &mons[PM_MEDUSA]
         || (mtmp->data->mflags3 & M3_WANTSARTI))
         return FALSE;
+
+    /* Knights can never tame dragons.  Natural enemies, y'see. */
+    if (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_DRAGON) {
+        return FALSE;
+    }
+
 
     /* worst case, at least it'll be peaceful. */
     mtmp->mpeaceful = 1;

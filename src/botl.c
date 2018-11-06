@@ -283,6 +283,10 @@ boolean female;
     if (!role->name.m)
         role = &urole;
 
+    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)) {
+	role = &urole;
+    }
+
     /* Find the rank */
     for (i = xlev_to_rank((int) lev); i >= 0; i--) {
         if (female && role->rank[i].f)
