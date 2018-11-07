@@ -38,6 +38,7 @@ const char *name; /* if null, then format `*objp' */
 {
     struct obj *obj = objp ? *objp : 0;
     const char *onm, *knm;
+    int realac;
     boolean is_acid;
     int kprefix = KILLED_BY_AN, dieroll;
     char onmbuf[BUFSZ], knmbuf[BUFSZ];
@@ -61,7 +62,8 @@ const char *name; /* if null, then format `*objp' */
             : an(name);
     is_acid = (obj && obj->otyp == ACID_VENOM);
 
-    if (u.uac + tlev <= (dieroll = rnd(20))) {
+    realac = AC_VALUE(u.uac);
+    if (realac + tlev <= (dieroll = rnd(20))) {
         ++mesg_given;
         if (Blind || !flags.verbose) {
             pline("It misses.");
@@ -600,6 +602,8 @@ struct obj *obj;         /* missile (or stack providing it) */
                 if (bigmonst(youmonst.data))
                     hitv++;
                 hitv += 8 + singleobj->spe;
+                    /* M3_ACCURATE monsters get a significant bonus here */
+                    if (is_accurate(mon->data)) { hitv += mon->m_lev; }
                 if (dam < 1)
                     dam = 1;
                 hitu = thitu(hitv, dam, &singleobj, (char *) 0);

@@ -576,7 +576,7 @@ toofar:
         || (mtmp->minvis && !rn2(3))
         || (mdat->mlet == S_LEPRECHAUN && !findgold(invent)
             && (findgold(mtmp->minvent) || rn2(2)))
-        || (is_wanderer(mdat) && !rn2(4)) || (Conflict && !mtmp->iswiz)
+        || (is_wanderer(mdat) && !rn2(4)) || (Conflict && !mtmp->iswiz) || is_skittish(mdat)
         || (!mtmp->mcansee && !rn2(4)) || mtmp->mpeaceful) {
         /* Possibly cast an undirected spell if not attacking you */
         /* note that most of the time castmu() will pick a directed
@@ -592,7 +592,7 @@ toofar:
                 if (a->aatyp == AT_MAGC
                     && (a->adtyp == AD_SPEL || a->adtyp == AD_CLRC)) {
                     if (castmu(mtmp, a, FALSE, FALSE)) {
-                        tmp = 3;
+                        tmp = is_skittish(mdat) ? 0 : 3;
                         break;
                     }
                 }
@@ -923,6 +923,10 @@ not_special:
     gx = mtmp->mux;
     gy = mtmp->muy;
     appr = mtmp->mflee ? -1 : 1;
+    /* does this monster like to play keep-away? */
+    if (is_skittish(ptr) && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 10)) {
+	appr = -1;
+    }
     if (mtmp->mconf || (u.uswallow && mtmp == u.ustuck)) {
         appr = 0;
     } else {

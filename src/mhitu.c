@@ -561,6 +561,8 @@ register struct monst *mtmp;
         tmp -= 2;
     if (mtmp->mtrapped)
         tmp -= 2;
+    if (is_accurate(mdat)) /* M3_ACCURATE monsters get a to-hit bonus */
+        tmp += 5;
     if (tmp <= 0)
         tmp = 1;
 

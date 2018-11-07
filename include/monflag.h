@@ -158,6 +158,8 @@
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
 
 #define M3_DISPLACES 0x0400 /* moves monsters out of its way */
+#define M3_SKITTISH  0x0800 /* tends to stay a few squares away from you */
+#define M3_ACCURATE  0x1000 /* gets an accuracy bonus to hit */
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */
