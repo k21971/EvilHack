@@ -1190,6 +1190,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     const char *wepdesc;
     static const char you[] = "you";
     char hittee[BUFSZ];
+    struct artifact* atmp;
+    int j;
 
     Strcpy(hittee, youdefend ? you : mon_nam(mdef));
 
@@ -1304,6 +1306,125 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         return FALSE;
     }
 
+    /* Some neat and unique effects from various artifact weapons.
+     * Pulled this from SporkHack - by default, the odds of an instakill
+     * were 50/50. Because we can dual-wield artifact weapons in EvilHack,
+     * we need to tone this down. Significantly.
+     * I've added a few extra artifact weapons here that could use some
+     * love. Just be warned, this can be used against the player depending
+     * on the race they choose...
+     */
+    atmp = &artilist[otmp->oartifact];
+
+    if (atmp->spfx & (SPFX_DFLAG2 | SPFX_DCLAS)) {
+	j = !rn2(7);	  /* approximately a 14% chance of instakill for some artifacts */
+	switch (otmp->oartifact) {
+		case ART_DRAGONBANE:
+			if (youattack && j) {
+				You("pierce the heart of %s!", mon_nam(mdef));
+				*dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+			} else if (youdefend && j) {
+				pline("The deadly broadsword pierces your heart!");
+				*dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+			} else {
+				return FALSE;
+			}
+			return TRUE;
+		case ART_WEREBANE:
+			if (youattack && j) {
+                                You("severly burn %s with your silver blade!", mon_nam(mdef));
+				*dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+			} else if (youdefend && j) {
+                                pline("The silver blade gravely burns you!");
+				*dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+			} else {
+				return FALSE;
+			}
+			return TRUE;
+		case ART_GIANTSLAYER:
+                        if (youattack && j) {
+                                You("eviscerate %s with a fatal swing!", mon_nam(mdef));
+                                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                        } else if (youdefend && j) {
+                                pline("The magical sword eviscerates you!");
+                                *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                        } else {
+                                return FALSE;
+                        }
+                        return TRUE;
+		case ART_OGRESMASHER:
+			if (youattack && j) {
+				You("crush the skull of %s!", mon_nam(mdef));
+				*dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+			} else if (youdefend && j) {
+				pline("The monstrous hammer crushes your skull!");
+				*dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+			} else {
+				return FALSE;
+			}
+			return TRUE;
+		case ART_TROLLSBANE:
+			if (youattack && j) {
+				pline("As you strike %s, it bursts into flame!", mon_nam(mdef));
+				*dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+			} else if (youdefend && j) {
+				You("burst into flame as you are hit!");
+				*dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+			} else {
+				return FALSE;
+			}
+			return TRUE;
+                case ART_ORCRIST:
+                        if (youattack && j) {
+                                You("slice open the throat of %s!", mon_nam(mdef));
+                                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                        } else if (youdefend && j) {
+                                You("feel Orcrist slice deep across your neck!");
+                                *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                        } else {
+                                return FALSE;
+                        }
+                        return TRUE;
+                case ART_STING:
+                        if (youattack && j) {
+                                You("stab deep into the heart of %s!", mon_nam(mdef));
+                                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                        } else if (youdefend && j) {
+                                You("feel Sting stab deep into your heart!");
+                                *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                        } else {
+                                return FALSE;
+                        }
+                        return TRUE;
+                case ART_GRIMTOOTH:
+                        if (youattack && j) {
+                                You("push Grimtooth deep into the bowels of %s!", mon_nam(mdef));
+                                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                        } else if (youdefend && j) {
+                                pline("Grimtooth penetrates your soft flesh, disembowelling you!");
+                                *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                        } else {
+                                return FALSE;
+                        }
+                        return TRUE;
+                case ART_SUNSWORD:
+                        if (youattack && j) {
+                                pline("Sunsword flares brightly as it incinerates %s!", mon_nam(mdef));
+                                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                        } else if (youdefend && j) {
+                                pline("The holy power of Sunsword incinerates your undead flesh!");
+                                *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                        } else {
+                                return FALSE;
+                        }
+                        return TRUE;
+		/* below this we don't get any additional handling, so drop through
+		* just listed here for potential future reference */
+		case ART_DEMONBANE:
+		default:
+			break;
+	}
+ }
     /* We really want "on a natural 20" but Nethack does it in */
     /* reverse from AD&D. */
     if (spec_ability(otmp, SPFX_BEHEAD)) {
