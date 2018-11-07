@@ -1661,6 +1661,7 @@ int spell;
     int chance, splcaster, special, statused;
     int difficulty;
     int skill;
+    boolean paladin_bonus;
 
     /* Calculate intrinsic ability (splcaster) */
 
@@ -1668,7 +1669,10 @@ int spell;
     special = urole.spelheal;
     statused = ACURR(urole.spelstat);
 
-    if (uarm && is_metallic(uarm))
+    /* Knights don't get metal armor penalty for clerical spells */
+    paladin_bonus = Role_if(PM_KNIGHT) && spell_skilltype(spellid(spell)) == P_CLERIC_SPELL;
+
+    if (uarm && is_metallic(uarm) && !paladin_bonus)
         splcaster += (uarmc && uarmc->otyp == ROBE) ? urole.spelarmr / 2
                                                     : urole.spelarmr;
     else if (uarmc && uarmc->otyp == ROBE)
@@ -1676,11 +1680,11 @@ int spell;
     if (uarms)
         splcaster += urole.spelshld;
 
-    if (uarmh && is_metallic(uarmh) && uarmh->otyp != HELM_OF_BRILLIANCE)
+    if (uarmh && is_metallic(uarmh) && uarmh->otyp != HELM_OF_BRILLIANCE && !paladin_bonus)
         splcaster += uarmhbon;
-    if (uarmg && is_metallic(uarmg))
+    if (uarmg && is_metallic(uarmg) && !paladin_bonus)
         splcaster += uarmgbon;
-    if (uarmf && is_metallic(uarmf))
+    if (uarmf && is_metallic(uarmf) && !paladin_bonus)
         splcaster += uarmfbon;
 
     if (spellid(spell) == urole.spelspec)

@@ -1308,7 +1308,6 @@ dosacrifice()
     static NEARDATA const char cloud_of_smoke[] =
         "A cloud of %s smoke surrounds you...";
     register struct obj *otmp;
-        struct obj* wtmp;
     int value = 0, pm;
     boolean highaltar;
     aligntyp altaralign = a_align(u.ux, u.uy);
@@ -1432,9 +1431,10 @@ dosacrifice()
                 useupf(otmp, 1L);
 
 	    /* create Dirge from player's longsword here if possible */
-	    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)
-		&& uwep->otyp == LONG_SWORD && !uwep->oartifact
-		&& !exist_artifact(LONG_SWORD, artiname(ART_DIRGE))) {
+	    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT) &&
+                !u.ugangr && u.ualign.record > 0 &&
+		uwep && uwep->otyp == LONG_SWORD && !uwep->oartifact &&
+		!exist_artifact(LONG_SWORD, artiname(ART_DIRGE))) {
                     pline("Your sword melts in your hand and transforms into something new!");
  		    uwep = oname(uwep, artiname(ART_DIRGE));
                     discover_artifact(ART_DIRGE);
