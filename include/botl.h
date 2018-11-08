@@ -63,6 +63,7 @@ enum relationships { NO_LTEQGT = -1,
 #define BL_MASK_LEV             0x00000400L
 #define BL_MASK_FLY             0x00000800L
 #define BL_MASK_RIDE            0x00001000L
+#define BL_MASK_SLOW            0x00002000L
 /* clang-format on */
 
 #define REASSESS_ONLY TRUE

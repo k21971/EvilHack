@@ -3525,6 +3525,7 @@ static struct condition_t {
    { BL_MASK_LEV,      {"Lev", "Lev", "Lv"}},
    { BL_MASK_FLY,      {"Fly", "Fly", "Fl"}},
    { BL_MASK_RIDE,     {"Ride", "Rid", "Ri"}},
+   { BL_MASK_SLOW,     {"Slow", "Slo", "Slo"}},
 };
 static const char *encvals[3][6] = {
     { "", "Burdened", "Stressed", "Strained", "Overtaxed", "Overloaded"},
@@ -3666,6 +3667,7 @@ do_setlast()
  *              BL_MASK_LEV             0x00000400L
  *              BL_MASK_FLY             0x00000800L
  *              BL_MASK_RIDE            0x00001000L
+ *              BL_MASK_SLOW            0x00002000L
  *      -- The value passed for BL_GOLD includes an encoded leading
  *         symbol for GOLD "\GXXXXNNNN:nnn". If the window port needs to use
  *         the textual gold amount without the leading "$:" the port will

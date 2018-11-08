@@ -656,12 +656,22 @@ STATIC_PTR
 int
 Armor_on(VOID_ARGS)
 {
+    if (uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES) {
+        begin_burn(uarm,FALSE);
+	if (!Blind)
+		pline("%s to glow.",Tobjnam(uarm,"begin"));
+    }
     return 0;
 }
 
 int
 Armor_off(VOID_ARGS)
 {
+    if (uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES) {
+	end_burn(uarm,FALSE);
+	if (!Blind)
+		pline("%s glowing.",Tobjnam(uarm,"stop"));
+    }
     context.takeoff.mask &= ~W_ARM;
     setworn((struct obj *) 0, W_ARM);
     context.takeoff.cancelled_don = FALSE;
@@ -674,6 +684,8 @@ Armor_off(VOID_ARGS)
 int
 Armor_gone()
 {
+    if (uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES)
+        end_burn(uarm,FALSE);
     context.takeoff.mask &= ~W_ARM;
     setnotworn(uarm);
     context.takeoff.cancelled_don = FALSE;

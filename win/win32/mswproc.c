@@ -2887,6 +2887,7 @@ status_update(int fldindex, genericptr_t ptr, int chg, int percent, int color, u
                         BL_MASK_LEV             0x00000400L
                         BL_MASK_FLY             0x00000800L
                         BL_MASK_RIDE            0x00001000L
+                        BL_MASK_SLOW            0x00002000L
                 -- The value passed for BL_GOLD includes an encoded leading
                    symbol for GOLD "\GXXXXNNNN:nnn". If window port needs
                    textual gold amount without the leading "$:" the port will
@@ -2953,6 +2954,8 @@ mswin_status_update(int idx, genericptr_t ptr, int chg, int percent, int color, 
                 Strcat(_status_vals[idx], " Fly");
             if (cond & BL_MASK_RIDE)
                 Strcat(_status_vals[idx], " Ride");
+            if (cond & BL_MASK_SLOW)
+                Strcat(_status_vals[idx], " Slow");
             value = cond;
         } break;
         case BL_GOLD: {

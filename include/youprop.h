@@ -352,8 +352,12 @@
 
 #define HFast u.uprops[FAST].intrinsic
 #define EFast u.uprops[FAST].extrinsic
-#define Fast (HFast || EFast)
-#define Very_fast ((HFast & ~INTRINSIC) || EFast)
+#define Fast ((HFast || EFast) && !Slow)
+#define Very_fast (((HFast & ~INTRINSIC) || EFast) && !Slow)
+
+#define HSlow u.uprops[SLOW].intrinsic
+#define ESlow u.uprops[SLOW].extrinsic
+#define Slow (HSlow || ESlow)
 
 #define HReflecting u.uprops[REFLECTING].intrinsic
 #define EReflecting u.uprops[REFLECTING].extrinsic

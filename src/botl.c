@@ -183,6 +183,8 @@ do_statusline2()
         Sprintf(nb = eos(nb), " %s", hu_stat[u.uhs]);
     if ((cap = near_capacity()) > UNENCUMBERED)
         Sprintf(nb = eos(nb), " %s", enc_stat[cap]);
+    if (Slow)
+        Strcpy(nb = eos(nb), " Slow");
     if (Blind)
         Strcpy(nb = eos(nb), " Blind");
     if (Deaf)
@@ -696,6 +698,8 @@ bot_via_windowport()
         blstats[idx][BL_CONDITION].a.a_ulong |= BL_MASK_FLY;
     if (u.usteed)
         blstats[idx][BL_CONDITION].a.a_ulong |= BL_MASK_RIDE;
+    if (Slow)
+        blstats[idx][BL_CONDITION].a.a_ulong |= BL_MASK_SLOW;
     evaluate_and_notify_windowport(valset, idx, idx_p);
 }
 
@@ -2092,6 +2096,7 @@ const struct condmap valid_conditions[] = {
     {"lev",      BL_MASK_LEV},
     {"fly",      BL_MASK_FLY},
     {"ride",     BL_MASK_RIDE},
+    {"slow",     BL_MASK_SLOW},
 };
 
 const struct condmap condition_aliases[] = {
@@ -2100,12 +2105,12 @@ const struct condmap condition_aliases[] = {
                        BL_MASK_FOODPOIS | BL_MASK_TERMILL |
                        BL_MASK_BLIND | BL_MASK_DEAF | BL_MASK_STUN |
                        BL_MASK_CONF | BL_MASK_HALLU |
-                       BL_MASK_LEV | BL_MASK_FLY | BL_MASK_RIDE },
+                       BL_MASK_LEV | BL_MASK_FLY | BL_MASK_RIDE | BL_MASK_SLOW },
     {"major_troubles", BL_MASK_STONE | BL_MASK_SLIME | BL_MASK_STRNGL |
                        BL_MASK_FOODPOIS | BL_MASK_TERMILL},
     {"minor_troubles", BL_MASK_BLIND | BL_MASK_DEAF | BL_MASK_STUN |
                        BL_MASK_CONF | BL_MASK_HALLU},
-    {"movement",       BL_MASK_LEV | BL_MASK_FLY | BL_MASK_RIDE}
+    {"movement",       BL_MASK_LEV | BL_MASK_FLY | BL_MASK_RIDE | BL_MASK_SLOW }
 };
 
 unsigned long

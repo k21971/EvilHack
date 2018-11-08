@@ -28,6 +28,7 @@ const struct propname {
     { STRANGLED, "strangling" },
     { SICK, "fatally sick" },
     { STUNNED, "stunned" },
+    { SLOW, "slow" },
     { CONFUSION, "confused" },
     { HALLUC, "hallucinating" },
     { BLINDED, "blinded" },
@@ -492,6 +493,9 @@ nh_timeout()
                     You_feel("yourself slowing down%s.",
                              Fast ? " a bit" : "");
                 break;
+	    case SLOW:
+		You_feel("less sluggish.");
+		break;
             case CONFUSION:
                 /* So make_confused works properly */
                 set_itimeout(&HConfusion, 1L);
@@ -1324,6 +1328,8 @@ boolean already_lit;
         return;
 
     switch (obj->otyp) {
+    case GOLD_DRAGON_SCALE_MAIL:
+    case GOLD_DRAGON_SCALES:
     case MAGIC_LAMP:
         obj->lamplit = 1;
         do_timer = FALSE;

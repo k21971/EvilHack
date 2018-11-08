@@ -126,15 +126,17 @@ struct attack *mattk;
     }
 }
 
-/* called when your intrinsic speed is taken away */
+/* called when you are artifically slowed */
 void
 u_slow_down()
 {
-    HFast = 0L;
-    if (!Fast)
+    if (!Fast && !Slow)
         You("slow down.");
-    else /* speed boots */
-        Your("quickness feels less natural.");
+    else if (!Slow)	 /* speed of some sort */
+        You("feel a strange lethargy overcome you.");
+    else
+	Your("lethargy seems to be settling in for the long haul.");
+    incr_itimeout(&HSlow,rnd(11)+9);
     exercise(A_DEX, FALSE);
 }
 
@@ -1380,10 +1382,19 @@ register struct attack *mattk;
 
     case AD_TLPT:
         hitmsg(mtmp, mattk);
-        if (uncancelled) {
-            if (flags.verbose)
-                Your("position suddenly seems very uncertain!");
-            tele();
+	if (uncancelled || mtmp->mnum == PM_BOOJUM) {
+	    /* "But oh, beamish nephew, beware of the day
+	     * if your Snark be a Boojum!  For then
+	     * You will softly and suddenly vanish away,
+	     * And never be met with again!" */
+	    if (mtmp->mnum == PM_BOOJUM) {
+		You("suddenly vanish!");
+		HInvis |= FROMOUTSIDE;	  /* In multiple senses of 'vanish' :) */
+	    } else {
+		if (flags.verbose)
+		    Your("position suddenly seems very uncertain!");
+	    }
+	    tele();
         }
         break;
     case AD_RUST:
@@ -2090,6 +2101,7 @@ struct attack *mattk;
         "irritated", "inflamed", /* [4,5] */
         "tired",                 /* [6] */
         "dulled",                /* [7] */
+        "chilly",                /* [8] */
     };
     int react = -1;
     boolean cancelled = (mtmp->mcan != 0), already = FALSE;
@@ -2248,7 +2260,30 @@ struct attack *mattk;
             }
         }
         break;
-#ifdef PM_BEHOLDER /* work in progress */
+    case AD_COLD:
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
+            && !mtmp->mspec_used && rn2(5)) {
+            if (cancelled) {
+                react = 8; /* "chilly" */
+            } else {
+                int dmg = d(2, 6), lev = (int) mtmp->m_lev;
+
+                pline("%s attacks you with a chilling gaze!", Monnam(mtmp));
+                stop_occupation();
+                if (Cold_resistance) {
+                    pline_The("chilling gaze doesn't feel cold!");
+                    dmg = 0;
+                }
+                if (lev > rn2(20))
+                    destroy_item(POTION_CLASS, AD_COLD);
+                if (dmg)
+                    mdamageu(mtmp, dmg);
+            }
+        }
+        break;
+/* Comment out the PM_BEHOLDER indef here so the below attack types function.
+ * No wonder initial testing threw program disorders... */
+/* #ifdef PM_BEHOLDER */ /* work in progress */
     case AD_SLEE:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
             && multi >= 0 && !rn2(5) && !Sleep_resistance) {
@@ -2263,9 +2298,9 @@ struct attack *mattk;
         }
         break;
     case AD_SLOW:
-        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
-            && (HFast & (INTRINSIC | TIMEOUT)) && !defends(AD_SLOW, uwep)
-            && !rn2(4)) {
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee &&
+            (HFast & (INTRINSIC | TIMEOUT)) &&
+            !Slow && !defends(AD_SLOW, uwep) && !rn2(4)) {
             if (cancelled) {
                 react = 7; /* "dulled" */
                 already = (mtmp->mspeed == MSLOW);
@@ -2275,7 +2310,66 @@ struct attack *mattk;
             }
         }
         break;
-#endif /* BEHOLDER */
+/* Adding the parts here for disintegration and cancellation. The DevTeam probably
+ * never bothered to add these, even though the Beholder has these two attacks.
+ * Why you may ask? Because the Beholder was never enabled. This needs more work
+ * ('died by a died' isn't going to cut it), but at least it's functional.
+ */
+    case AD_DISN:
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
+            && multi >= 0 && !rn2(5)) {
+	    if (Disint_resistance) {
+	        pline("You bask in the %s aura of %s gaze.",
+		    hcolor(NH_BLACK),
+		    s_suffix(mon_nam(mtmp)));
+		    stop_occupation();
+	    } else {
+		pline("%s attacks you with a destructive gaze!",
+		    Monnam(mtmp));
+	    if (uarms) {
+		/* destroy shield; other possessions are safe */
+		(void) destroy_arm(uarms);
+	        break;
+	    } else if (uarm) {
+		/* destroy suit; if present, cloak goes too */
+		if (uarmc)
+                    (void) destroy_arm(uarmc);
+                (void) destroy_arm(uarm);
+	        break;
+	    }
+	    /* no shield or suit, you're dead; wipe out cloak
+	     and/or shirt in case of life-saving or bones */
+	    if (uarmc)
+                (void) destroy_arm(uarmc);
+	    if (uarmu)
+                (void) destroy_arm(uarmu);
+
+            /* If you want the beholders disintegration ray to behave similar
+             * to that of a wand of death, uncomment the below three lines.
+             * Otherwise the beholders disintegration ray will behave like a
+             * deities' wide-angle death beam - first your armor, then you.
+             */
+         /* if (nonliving(youmonst.data) || is_demon(youmonst.data)) {
+                You("seem unaffected.");
+                break;
+            } */
+
+                /* when killed by a disintegration beam, don't leave a corpse */
+                u.ugrave_arise = -3;
+                done_in_by(mtmp, DIED);
+            }
+        }
+        break;
+    case AD_CNCL:
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
+            && !rn2(5))
+	    {
+	        pline("You meet %s gaze and feel diminished somehow...", s_suffix(mon_nam(mtmp)));
+		(void) cancel_monst(&youmonst, (struct obj *)0,
+		    FALSE, TRUE, FALSE);
+	    }
+	break;
+/* #endif */ /* BEHOLDER */
     default:
         impossible("Gaze attack %d?", mattk->adtyp);
         break;

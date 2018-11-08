@@ -892,6 +892,13 @@ register struct obj *otmp;
         }
         break;
     case POT_SPEED:
+	/* only the potion will fix intrinsic 'slow' */
+	if (Slow) {
+	    HSlow = 0;
+	    if (!ESlow) {
+	        You("no longer feel sluggish.");
+	    }
+	}
         if (Wounded_legs && !otmp->cursed && !u.usteed) {
             /* heal_legs() would heal steeds legs */
             heal_legs();
@@ -900,9 +907,9 @@ register struct obj *otmp;
         }
         /* FALLTHRU */
     case SPE_HASTE_SELF:
-        if (!Very_fast) { /* wwf@doe.carleton.ca */
+        if (!Very_fast && !Slow) { /* wwf@doe.carleton.ca */
             You("are suddenly moving %sfaster.", Fast ? "" : "much ");
-        } else {
+        } else if (!Slow) {
             Your("%s get new energy.", makeplural(body_part(LEG)));
             unkn++;
         }
@@ -1680,7 +1687,7 @@ register struct obj *obj;
             You("yawn.");
         break;
     case POT_SPEED:
-        if (!Fast)
+        if (!Fast && !Slow)
             Your("knees seem more flexible now.");
         incr_itimeout(&HFast, rnd(5));
         exercise(A_DEX, TRUE);

@@ -84,6 +84,7 @@ curses_status_init()
  *              BL_MASK_LEV             0x00000400L
  *              BL_MASK_FLY             0x00000800L
  *              BL_MASK_RIDE            0x00001000L
+ *              BL_MASK_SLOW            0x00002000L
  *      -- The value passed for BL_GOLD includes an encoded leading
  *         symbol for GOLD "\GXXXXNNNN:nnn". If the window port needs to use
  *         the textual gold amount without the leading "$:" the port will
@@ -437,6 +438,7 @@ unsigned long *colormasks;
                 MaybeDisplayCond(BL_MASK_LEV, "Lev");
                 MaybeDisplayCond(BL_MASK_FLY, "Fly");
                 MaybeDisplayCond(BL_MASK_RIDE, "Ride");
+                MaybeDisplayCond(BL_MASK_SLOW, "Slow");
             }
         }
     }
@@ -531,6 +533,7 @@ unsigned long *colormasks;
                     MaybeDisplayCond(BL_MASK_LEV, "Lev");
                     MaybeDisplayCond(BL_MASK_FLY, "Fly");
                     MaybeDisplayCond(BL_MASK_RIDE, "Ride");
+                    MaybeDisplayCond(BL_MASK_SLOW, "Slow");
                 }
             } else {
                 /* hitpointbar using hp percent calculation */

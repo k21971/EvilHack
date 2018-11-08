@@ -372,7 +372,8 @@ register struct monst *mtmp;
 {
     register struct permonst *mdat;
     register int tmp = 0;
-    int inrange, nearby, scared;
+    struct monst* mdummy;
+    int inrange, nearby, scared, oldx, oldy;
 
     /*  Pre-movement adjustments
      */
@@ -411,6 +412,29 @@ register struct monst *mtmp;
 
     /* not frozen or sleeping: wipe out texts written in the dust */
     wipe_engr_at(mtmp->mx, mtmp->my, 1, FALSE);
+
+    /* special snark code; if it's next to you, you might discover
+     * that it's a Boojum, and we need to swap out monsters in that case
+     */
+    if (mtmp->mnum == PM_SNARK && distu(mtmp->mx,mtmp->my) <= 2) {
+	if (mtmp->m_id % 3 < 1) {
+	    oldx = mtmp->mx; oldy = mtmp->my;
+	    mongone(mtmp);
+	    mdummy = makemon(&mons[PM_BOOJUM], oldx, oldy, NO_MM_FLAGS);
+	    /* If someone has managed to extinct boojum, this will
+	     * result in the monster just vanishing.  But this should
+	     * be fairly difficult to do, since boojum only generate
+	     * from snarks at a rate of one snark, one boojum. */
+	    if (mdummy) {
+		mtmp = mdummy;
+	    if (canseemon(mtmp)) {
+		pline("Oh, no, this Snark is a Boojum!");
+	        }
+	    } else {
+		return(0);	// mtmp just went away, we'd better bail out
+	    }
+	}
+    }
 
     /* confused monsters get unconfused with small probability */
     if (mtmp->mconf && !rn2(50))

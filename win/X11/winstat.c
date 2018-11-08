@@ -375,6 +375,7 @@ unsigned long *colormasks;
             MaybeDisplayCond(BL_MASK_LEV, colormasks, "Lev");
             MaybeDisplayCond(BL_MASK_FLY, colormasks, "Fly");
             MaybeDisplayCond(BL_MASK_RIDE, colormasks, "Ride");
+            MaybeDisplayCond(BL_MASK_SLOW, colormasks, "Slow");
         } else {
             label = X11_status_labels[fld];
             text = status_vals[fld];
@@ -556,6 +557,7 @@ unsigned long *colormasks UNUSED;
         { BL_MASK_LEV, F_LEV },
         { BL_MASK_FLY, F_FLY },
         { BL_MASK_RIDE, F_RIDE }
+        { BL_MASK_SLOW, F_SLOW }
     };
     int i;
 

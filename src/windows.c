@@ -986,6 +986,8 @@ unsigned long *colormasks UNUSED;
                 Strcpy(nb = eos(nb), " Fly");
             if (cond & BL_MASK_RIDE)
                 Strcpy(nb = eos(nb), " Ride");
+            if (cond & BL_MASK_SLOW)
+                Strcpy(nb = eos(nb), " Slow");
             break;
         default:
             Sprintf(status_vals[idx],

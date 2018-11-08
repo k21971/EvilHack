@@ -2366,9 +2366,9 @@ boolean ordinary;
     case WAN_SPEED_MONSTER:
         if (!(HFast & INTRINSIC)) {
             learn_it = TRUE;
-            if (!Fast)
+            if (!Fast && !Slow)
                 You("speed up.");
-            else
+            else if (!Slow)
                 Your("quickness feels more natural.");
             exercise(A_DEX, TRUE);
         }

@@ -1379,39 +1379,14 @@ int
 use_offensive(mtmp)
 struct monst *mtmp;
 {
-    int i,maxdmg;
+    int i;
     struct obj *otmp = m.offensive;
-    boolean oseen,mon_has_good_attk;
-    struct attack* mattk;
+    boolean oseen;
 
     /* offensive potions are not drunk, they're thrown */
     if (otmp->oclass != POTION_CLASS && (i = precheck(mtmp, otmp)) != 0)
         return i;
     oseen = otmp && canseemon(mtmp);
-
-    /* From SporkHack...
-     * Not all monsters need to be hucking around potions, wands, etc. if they have
-     * a chance to actually haul off and hit you -- things like the Olog-hai, Vlad,
-     * and shopkeepers come to mind.  If the monster is wielding an artifact, OR
-     * if one of the monster's attacks is noticeably meaner... and the monster is
-     * close enough to actually _use_ the attack, then don't give too much priority
-     * to the ranged/offensive item stuff. */
-
-    for (i = 0; i < NATTK; i++) {
-	mattk = &mtmp->data->mattk[i];
-	maxdmg += mattk->damn * mattk->damd;	/* total up the possible damage for just swinging */
-    }
-
-    /* if damage is sufficient _or_ we have a good weapon, use that if we're close enough;
-     * but if we have the incapacitator wands use those anyway.  note that even though the player
-     * may be sleep resistant the check for the monster knowing this is done in find_offensive,
-     * so if we get here then the monster can correctly pick sleep wands */
-    if ((maxdmg > 36 || MON_WEP(mtmp)->oartifact) &&
-		(monnear(mtmp,mtmp->mux,mtmp->muy) &&
-		 m.has_offense != MUSE_WAN_DEATH &&
-		 m.has_offense != MUSE_WAN_SLEEP)) {
-	return 0;
-    }
 
     switch (m.has_offense) {
     case MUSE_WAN_DEATH:

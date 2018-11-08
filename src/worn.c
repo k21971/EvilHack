@@ -331,6 +331,14 @@ boolean on, silently;
     int which = (int) objects[obj->otyp].oc_oprop;
 
     unseen = !canseemon(mon);
+    if (obj->otyp == GOLD_DRAGON_SCALE_MAIL || obj->otyp == GOLD_DRAGON_SCALES) {
+	if (on)
+		begin_burn(obj,FALSE);
+	else
+		end_burn(obj,FALSE);
+	if (!unseen && !silently)
+		if (on) pline("%s begins to glow.", The(xname(obj)));
+    }
     if (!which)
         goto maybe_blocks;
 

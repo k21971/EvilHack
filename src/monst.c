@@ -141,6 +141,13 @@ NEARDATA struct permonst mons[] = {
         SIZ(1, 5, MS_BUZZ, MZ_TINY), MR_POISON, MR_POISON,
         M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_OVIPAROUS | M1_POIS,
         M2_HOSTILE | M2_FEMALE | M2_PRINCE, 0, 12, HI_LORD),
+    MON("locust", S_ANT,
+        LVL(9, 12, 0, 0, 0), (G_GENO | G_SGROUP | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 8), ATTK(AT_STNG, AD_DISE, 1, 4),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1, 5, MS_BUZZ, MZ_TINY), MR_POISON, MR_POISON,
+        M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_OVIPAROUS | M1_POIS,
+        M2_HOSTILE, 0, 11, CLR_GRAY),
     /*
      * blobs
      */
@@ -299,20 +306,20 @@ NEARDATA struct permonst mons[] = {
     /*
      * eyes
      */
-    MON("gas spore", S_EYE, LVL(1, 3, 10, 0, 0), (G_NOCORPSE | G_GENO | 1),
+    MON("gas spore", S_EYE, LVL(1, 3, 10, 0, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_BOOM, AD_PHYS, 4, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), 0, 0,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS,
         M2_HOSTILE | M2_NEUTER, 0, 2, CLR_GRAY),
-    MON("floating eye", S_EYE, LVL(2, 1, 9, 10, 0), (G_GENO | 5),
+    MON("floating eye", S_EYE, LVL(2, 1, 9, 10, 0), (5),
         A(ATTK(AT_NONE, AD_PLYS, 0, 70), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), 0, 0,
         M1_FLY | M1_AMPHIBIOUS | M1_NOLIMBS | M1_NOHEAD | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 3, CLR_BLUE),
     MON("freezing sphere", S_EYE, LVL(6, 13, 4, 0, 0),
-        (G_NOCORPSE | G_NOHELL | G_GENO | 2),
+        (G_NOCORPSE | G_NOHELL | 2),
         A(ATTK(AT_EXPL, AD_COLD, 4, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_COLD, MR_COLD,
@@ -320,29 +327,36 @@ NEARDATA struct permonst mons[] = {
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 8, CLR_WHITE),
     MON("flaming sphere", S_EYE, LVL(6, 13, 4, 0, 0),
-        (G_NOCORPSE | G_GENO | 2), A(ATTK(AT_EXPL, AD_FIRE, 4, 6), NO_ATTK,
+        (G_NOCORPSE | 2), A(ATTK(AT_EXPL, AD_FIRE, 4, 6), NO_ATTK,
                                      NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_FIRE, MR_FIRE,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 8, CLR_RED),
     MON("shocking sphere", S_EYE, LVL(6, 13, 4, 0, 0),
-        (G_NOCORPSE | G_GENO | 2), A(ATTK(AT_EXPL, AD_ELEC, 4, 6), NO_ATTK,
+        (G_NOCORPSE | 2), A(ATTK(AT_EXPL, AD_ELEC, 4, 6), NO_ATTK,
                                      NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_ELEC, MR_ELEC,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 8, HI_ZAP),
 #if 0 /* not yet implemented */
-    MON("beholder", S_EYE,
-        LVL(6, 3, 4, 0, -10), (G_GENO | 2),
-        A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_SLEE, 2,25),
+    MON("beholder", S_EYE, LVL(6, 3, 4, 0, -10), (2),
+        A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_SLEE, 2, 25),
           ATTK(AT_GAZE, AD_DISN, 0, 0), ATTK(AT_GAZE, AD_STON, 0, 0),
           ATTK(AT_GAZE, AD_CNCL, 2, 4), ATTK(AT_BITE, AD_PHYS, 2, 4)),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_COLD, 0,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS,
         M2_NOPOLY | M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 13, CLR_BROWN),
 #endif
+    MON("magical eye", S_EYE, LVL(9, 6, 4, 90, -10), (2),
+        A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_SLEE, 2, 6),
+          ATTK(AT_GAZE, AD_STUN, 0, 0), ATTK(AT_GAZE, AD_FIRE, 4, 6),
+          ATTK(AT_GAZE, AD_COLD, 2, 4), ATTK(AT_BITE, AD_PHYS, 2, 4)),
+        SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_COLD | MR_FIRE | MR_ELEC, 0,
+        M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD,
+        M2_NOPOLY | M2_HOSTILE | M2_NEUTER | M2_NASTY,
+        M3_SKITTISH | M3_INFRAVISIBLE | M3_INFRAVISION, 14, HI_LORD),
     /*
      * felines
      */
@@ -1158,6 +1172,13 @@ NEARDATA struct permonst mons[] = {
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_POISON, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_POIS,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 13, CLR_GREEN),
+    MON("baby gold dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+        A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_FIRE, 0,
+        M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS,
+        M3_INFRAVISIBLE, 13, HI_GOLD),
     MON("baby yellow dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -1249,6 +1270,15 @@ NEARDATA struct permonst mons[] = {
             | M1_CARNIVORE | M1_POIS,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0, 20, CLR_GREEN),
+    MON("gold dragon", S_DRAGON, LVL(15, 9, -1, 20, -4), (G_GENO | 1),
+        A(ATTK(AT_BREA, AD_FIRE, 6, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
+          ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
+          NO_ATTK),
+        SIZ(WT_DRAGON, 1500, MS_ROAR, MZ_GIGANTIC), MR_FIRE, MR_FIRE,
+        M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
+                      | M1_CARNIVORE,
+        M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
+        M3_INFRAVISIBLE, 20, HI_GOLD),
     MON("yellow dragon", S_DRAGON, LVL(15, 9, -1, 20, 7), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_ACID, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1348,6 +1378,13 @@ NEARDATA struct permonst mons[] = {
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0, 5, CLR_MAGENTA),
+    MON("gray fungus", S_FUNGUS, LVL(3, 0, 7, 0, 0), (G_GENO | 2),
+        A(ATTK(AT_NONE, AD_DISE, 0, 2),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(50, 30, MS_SILENT, MZ_SMALL), MR_POISON, MR_POISON,
+        M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
+            | M1_NOTAKE | M1_POIS,
+        M2_HOSTILE | M2_NEUTER, 0, 5, CLR_GRAY),
     /*
      * Gnomes
      */
@@ -1466,6 +1503,14 @@ struct permonst _mons2[] = {
      */
     /* the illustration from _Through_the_Looking_Glass_
        depicts hands as well as wings */
+   MON("snark", S_JABBERWOCK,
+        LVL(12, 18, 0, 30, 0), (G_GENO | 2),
+        A(ATTK(AT_BITE, AD_PHYS, 2,6), ATTK(AT_BITE, AD_PHYS, 2,6),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(400, 200, MS_SILENT, MZ_LARGE), MR_DISINT, MR_DISINT,
+        M1_ANIMAL | M1_FLY | M1_CARNIVORE,
+        M2_HOSTILE | M2_STRONG | M2_NOPOLY,
+        M3_SKITTISH | M3_INFRAVISIBLE, 15, CLR_WHITE),
     MON("jabberwock", S_JABBERWOCK, LVL(15, 12, -2, 50, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 10), ATTK(AT_BITE, AD_PHYS, 2, 10),
           ATTK(AT_CLAW, AD_PHYS, 2, 10), ATTK(AT_CLAW, AD_PHYS, 2, 10),
@@ -1474,6 +1519,17 @@ struct permonst _mons2[] = {
         M1_ANIMAL | M1_FLY | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_COLLECT, M3_INFRAVISIBLE,
         18, CLR_ORANGE),
+         /* boojum only come from snarks */
+    MON("boojum", S_JABBERWOCK,
+        LVL(18, 15, 0, 90, 0), (G_NOGEN),
+        A(ATTK(AT_BITE, AD_PHYS, 3,10), ATTK(AT_CLAW, AD_PHYS, 3,10),
+          ATTK(AT_CLAW, AD_PHYS, 3,10), ATTK(AT_CLAW, AD_TLPT, 0,0),
+          NO_ATTK, NO_ATTK),
+        SIZ(400, 200, MS_SILENT, MZ_LARGE),
+        MR_FIRE | MR_ELEC | MR_DISINT, MR_FIRE | MR_ELEC | MR_DISINT,
+        M1_ANIMAL | M1_FLY | M1_CARNIVORE | M1_SEE_INVIS,
+        M2_HOSTILE | M2_NOPOLY | M2_STRONG,
+        M3_INFRAVISIBLE, 21, CLR_YELLOW),
 #if 0 /* DEFERRED */
     MON("vorpal jabberwock", S_JABBERWOCK,
         LVL(20, 12, -2, 50, 0), (G_GENO | 1),

@@ -80,6 +80,7 @@ enum prop_types {
     POLYMORPH,
     POLYMORPH_CONTROL,
     UNCHANGING,
+    SLOW,
     FAST,
     REFLECTING,
     FREE_ACTION,

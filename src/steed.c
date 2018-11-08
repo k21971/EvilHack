@@ -30,7 +30,10 @@ struct monst *mtmp;
 
     return (index(steeds, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
             && (!humanoid(ptr) || ptr->mlet == S_CENTAUR) && !amorphous(ptr)
-            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr));
+            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr) &&
+            !(ptr->mlet == S_JABBERWOCK && mtmp->mnum != PM_JABBERWOCK));
+
+    /* hack to avoid the player saddling up snarks and boojum */
 }
 
 int

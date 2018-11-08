@@ -2762,6 +2762,8 @@ int final;
     /* movement and non-armor-based protection */
     if (Fast)
         you_are(Very_fast ? "very fast" : "fast", from_what(FAST));
+    if (Slow)
+        you_are("slow", from_what(SLOW));
     if (Reflecting)
         you_have("reflection", from_what(REFLECTING));
     if (Free_action)

@@ -148,6 +148,10 @@ boolean resuming;
                             /* gain a free action on 1/3 of turns */
                             if (rn2(3) == 0)
                                 moveamt += NORMAL_SPEED;
+			} else if (Slow) {
+			    /* average movement noticeably slower */
+			    if (rn2(3) != 0)
+                                moveamt -= NORMAL_SPEED / 2;
                         }
                     }
 
