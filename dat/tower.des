@@ -23,7 +23,10 @@ $niches = { (03,01), (03,09), (07,01), (07,09), (11,01), (11,09) }
 SHUFFLE: $niches
 LADDER:(11,05),down
 # The lord and his court
-MONSTER:('V',"Vlad the Impaler"),(06,05)
+MONSTER:('V',"Vlad the Impaler"),(06,05) {
+  OBJECT:(')',"two-handed sword"),1d3,name:"Lifestealer",cursed,erodeproof
+  OBJECT:('(',"Candelabrum of Invocation")
+}
 MONSTER:'V',$niches[0]
 MONSTER:'V',$niches[1]
 MONSTER:'V',$niches[2]

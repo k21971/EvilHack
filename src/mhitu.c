@@ -905,6 +905,8 @@ struct monst *mon;
  *        3 if the monster lives but teleported/paralyzed, so it can't keep
  *             attacking you
  */
+extern const char * const behead_msg[];
+
 STATIC_OVL int
 hitmu(mtmp, mattk)
 register struct monst *mtmp;
@@ -1647,10 +1649,32 @@ register struct attack *mattk;
             }
         }
         break;
+    case AD_BHED:
+                if ((!rn2(20) || youmonst.data->mlet == S_JABBERWOCK) && !mtmp->mcan) {
+                        if (!has_head(youmonst.data)) {
+                                pline("Somehow, %s misses you wildly.", mon_nam(mtmp));
+                                dmg = 0;
+                                break;
+                        }
+                        if (noncorporeal(youmonst.data) || amorphous(youmonst.data)) {
+                                pline("%s slices through your %s.",
+                                                Monnam(mtmp), body_part(NECK));
+                                break;
+                        }
+                        pline("%s %ss you!", Monnam(mtmp),
+                                        rn2(2) ? "behead" : "decapitate");
+                        if (Upolyd) rehumanize();
+                        else done_in_by(mtmp, DIED);
+                        dmg = 0;
+                }
+                else hitmsg(mtmp, mattk);
+                break;
     default:
         dmg = 0;
         break;
     }
+    if(u.uhp < 1) done_in_by(mtmp, DIED);
+
     if ((Upolyd ? u.mh : u.uhp) < 1) {
         /* already dead? call rehumanize() or done_in_by() as appropriate */
         mdamageu(mtmp, 1);
@@ -1880,6 +1904,34 @@ struct attack *mattk;
             You("are pummeled with debris!");
             exercise(A_STR, FALSE);
         }
+        break;
+    case AD_WRAP:
+        /* Why AD_WRAP?  There's no suffocation AD_*,
+         * but WRAP is a rarely used suffocation attack. */
+        if (amphibious(youmonst.data) &&
+            mtmp->data == &mons[PM_WATER_ELEMENTAL])
+        {
+            You("feel quite comfortable in here.");
+            tmp = 0;
+        }
+        else if (Breathless)
+        {
+             You("can't breathe, but you don't need to.");
+             tmp = 0;
+        }
+        else if (!Strangled)
+        {
+            /*Message: "You can no longer breathe."*/
+            pline("It's impossible to breathe in here!");
+            Strangled = 7; /* Bug: if you escape from inside the monster that
+                            * engulfed you, you still suffocate. This was fixed
+                            * in GruntHack, but that fix doesn't work here.
+                            * Bumping up this value until a fix is found.
+                            */
+            tmp = 0;
+        }
+        if (mtmp->data == &mons[PM_WATER_ELEMENTAL])
+            water_damage(invent, 0, TRUE); /* This doesn't work */
         break;
     case AD_ACID:
         if (Acid_resistance) {

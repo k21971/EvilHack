@@ -78,6 +78,7 @@
 #define AD_ENCH 41  /* remove enchantment (disenchanter) */
 #define AD_CORR 42  /* corrode armor (black pudding) */
 #define AD_CNCL 43  /* cancellation */
+#define AD_BHED 44  /* beheading (vorpal jabberwock) */
 
 #define AD_CLRC 240 /* random clerical spell */
 #define AD_SPEL 241 /* random magic spell */

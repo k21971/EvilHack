@@ -34,6 +34,7 @@ STATIC_DCL void FDECL(missmm, (struct monst *, struct monst *,
 STATIC_DCL int FDECL(passivemm, (struct monst *, struct monst *,
                                  BOOLEAN_P, int));
 
+
 /* Needed for the special case of monsters wielding vorpal blades (rare).
  * If we use this a lot it should probably be a parameter to mdamagem()
  * instead of a global variable.
@@ -803,6 +804,8 @@ struct attack *mattk;
 /*
  *  See comment at top of mattackm(), for return values.
  */
+extern const char * const behead_msg[];
+
 STATIC_OVL int
 mdamagem(magr, mdef, mattk)
 register struct monst *magr, *mdef;
@@ -911,6 +914,27 @@ register struct attack *mattk;
             break;
         }
         goto physical;
+    case AD_BHED:
+        if ((!rn2(20) || mdef->data->mlet == S_JABBERWOCK) && !magr->mcan) {
+                Strcpy(buf, Monnam(magr));
+                if (!has_head(mdef->data)) {
+                        pline("Somehow, %s misses %s wildly.", buf, mon_nam(mdef));
+                        tmp = 0;
+                        break;
+                }
+                if (noncorporeal(mdef->data) || amorphous(mdef->data)) {
+                        pline("%s slices through %s %s.",
+                                        buf, s_suffix(mon_nam(mdef)),
+                                        mbodypart(mdef,NECK));
+                        goto physical;
+                }
+                pline("%s %ss %s!", buf,
+                                rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
+                mondied(mdef);
+                if (mdef->mhp > 0) return 0;
+                return (MM_DEF_DIED | (grow_up(magr,mdef) ?
+                                        0 : MM_AGR_DIED));
+         }
     case AD_WERE:
     case AD_HEAL:
     case AD_PHYS:

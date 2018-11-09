@@ -70,7 +70,11 @@
 #define control_teleport(ptr) (((ptr)->mflags1 & M1_TPORT_CNTRL) != 0L)
 #define telepathic(ptr)                                                \
     ((ptr) == &mons[PM_FLOATING_EYE] || (ptr) == &mons[PM_MIND_FLAYER] \
-     || (ptr) == &mons[PM_MASTER_MIND_FLAYER])
+     || (ptr) == &mons[PM_MASTER_MIND_FLAYER]                          \
+     || (ptr) == &mons[PM_GOBLIN_SHAMAN]                               \
+     || (ptr) == &mons[PM_KOBOLD_SHAMAN]                               \
+     || (ptr) == &mons[PM_ORC_SHAMAN]                                  \
+     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN])
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
 #define poisonous(ptr) (((ptr)->mflags1 & M1_POIS) != 0L)
@@ -174,7 +178,8 @@
      || likes_lava(ptr))
 
 #define touch_petrifies(ptr) \
-    ((ptr) == &mons[PM_COCKATRICE] || (ptr) == &mons[PM_CHICKATRICE])
+    ((ptr) == &mons[PM_COCKATRICE] || (ptr) == &mons[PM_CHICKATRICE] \
+     || (ptr) == &mons[PM_BASILISK])
 
 #define is_mind_flayer(ptr) \
     ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER])

@@ -1473,7 +1473,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 return TRUE;
             }
         } else if (otmp->oartifact == ART_VORPAL_BLADE
-                   && (dieroll == 1 || mdef->data == &mons[PM_JABBERWOCK])) {
+                   && (dieroll == 1 || mdef->data == &mons[PM_JABBERWOCK]
+                                    || mdef->data == &mons[PM_VORPAL_JABBERWOCK])) {
             static const char *const behead_msg[2] = { "%s beheads %s!",
                                                        "%s decapitates %s!" };
 

@@ -1091,6 +1091,7 @@ register int x, y;
 int mmflags;
 {
     register struct monst *mtmp;
+    struct obj* otmp;
     int mndx, mcham, ct, mitem;
     boolean anymon = (!ptr);
     boolean byyou = (x == u.ux && y == u.uy);
@@ -1882,6 +1883,10 @@ int otyp;
     if (!otyp)
         return 0;
     otmp = mksobj(otyp, TRUE, FALSE);
+    /* special case for Vlad's new sword */
+    if (mtmp->mnum == PM_VLAD_THE_IMPALER && otyp == TWO_HANDED_SWORD) {
+            otmp = mk_artifact(otmp,(aligntyp)A_NONE);
+    }
     if (otmp) {
         if (mtmp->data->mlet == S_DEMON) {
             /* demons never get blessed objects */

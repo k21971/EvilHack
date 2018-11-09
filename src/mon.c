@@ -157,9 +157,7 @@ int mndx;
         break;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LORD:
-#if 0 /* DEFERRED */
     case PM_VAMPIRE_MAGE:
-#endif
     case PM_HUMAN_ZOMBIE:
     case PM_HUMAN_MUMMY:
         mndx = PM_HUMAN;
@@ -297,9 +295,7 @@ unsigned corpseflags;
     switch (mndx) {
     case PM_GRAY_DRAGON:
     case PM_SILVER_DRAGON:
-#if 0 /* DEFERRED */
     case PM_SHIMMERING_DRAGON:
-#endif
     case PM_RED_DRAGON:
     case PM_ORANGE_DRAGON:
     case PM_WHITE_DRAGON:
@@ -3935,6 +3931,10 @@ struct permonst *mdat;
         case PM_ROTHE:
         case PM_MINOTAUR:
             You("notice a bovine smell.");
+            msg_given = TRUE;
+            break;
+        case PM_ELDER_MINOTAUR:
+            You("notice a strong bovine smell.");
             msg_given = TRUE;
             break;
         case PM_CAVEMAN:

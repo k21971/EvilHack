@@ -455,6 +455,7 @@ struct permonst *ptr;
     switch (monsndx(ptr)) {
     case PM_HORNED_DEVIL: /* ? "more than one" */
     case PM_MINOTAUR:
+    case PM_ELDER_MINOTAUR:
     case PM_ASMODEUS:
     case PM_BALROG:
         return 2;
@@ -972,9 +973,7 @@ static const short grownups[][2] = {
     { PM_BAT, PM_GIANT_BAT },
     { PM_BABY_GRAY_DRAGON, PM_GRAY_DRAGON },
     { PM_BABY_SILVER_DRAGON, PM_SILVER_DRAGON },
-#if 0 /* DEFERRED */
-    {PM_BABY_SHIMMERING_DRAGON, PM_SHIMMERING_DRAGON},
-#endif
+    { PM_BABY_SHIMMERING_DRAGON, PM_SHIMMERING_DRAGON },
     { PM_BABY_RED_DRAGON, PM_RED_DRAGON },
     { PM_BABY_WHITE_DRAGON, PM_WHITE_DRAGON },
     { PM_BABY_ORANGE_DRAGON, PM_ORANGE_DRAGON },
