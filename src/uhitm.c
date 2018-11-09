@@ -1548,8 +1548,6 @@ struct attack *mattk;
     }
 }
 
-extern const char * const behead_msg[];
-
 int
 damageum(mdef, mattk)
 register struct monst *mdef;
@@ -1586,7 +1584,7 @@ register struct attack *mattk;
 #endif
         goto physical;
     case AD_BHED:
-        if (!rn2(20) || mdef->data->mlet == S_JABBERWOCK) {
+        if (!rn2(15) || mdef->data->mlet == S_JABBERWOCK) {
                 if (!has_head(mdef->data)) {
                         pline("Somehow, you miss %s wildly.", mon_nam(mdef));
                         tmp = 0;

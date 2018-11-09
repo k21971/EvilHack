@@ -371,7 +371,7 @@ NEARDATA struct permonst mons[] = {
      * identical to how it is now in that variant, but it is going to get some
      * changes here from the original template.
      */
-    MON("beholder", S_EYE, LVL(9, 3, -8, 50, -10), (1),
+    MON("beholder", S_EYE, LVL(9, 3, -8, 50, -10), (G_GENO | 1),
         A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_SLEE, 2, 25),
           ATTK(AT_GAZE, AD_DISN, 0, 0), ATTK(AT_GAZE, AD_STON, 0, 0),
           ATTK(AT_GAZE, AD_CNCL, 2, 4), ATTK(AT_BITE, AD_PHYS, 6, 8)),

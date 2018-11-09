@@ -34,7 +34,6 @@ STATIC_DCL void FDECL(missmm, (struct monst *, struct monst *,
 STATIC_DCL int FDECL(passivemm, (struct monst *, struct monst *,
                                  BOOLEAN_P, int));
 
-
 /* Needed for the special case of monsters wielding vorpal blades (rare).
  * If we use this a lot it should probably be a parameter to mdamagem()
  * instead of a global variable.
@@ -804,8 +803,6 @@ struct attack *mattk;
 /*
  *  See comment at top of mattackm(), for return values.
  */
-extern const char * const behead_msg[];
-
 STATIC_OVL int
 mdamagem(magr, mdef, mattk)
 register struct monst *magr, *mdef;
@@ -915,7 +912,7 @@ register struct attack *mattk;
         }
         goto physical;
     case AD_BHED:
-        if ((!rn2(20) || mdef->data->mlet == S_JABBERWOCK) && !magr->mcan) {
+        if ((!rn2(15) || mdef->data->mlet == S_JABBERWOCK) && !magr->mcan) {
                 Strcpy(buf, Monnam(magr));
                 if (!has_head(mdef->data)) {
                         pline("Somehow, %s misses %s wildly.", buf, mon_nam(mdef));

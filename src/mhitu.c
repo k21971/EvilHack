@@ -905,8 +905,6 @@ struct monst *mon;
  *        3 if the monster lives but teleported/paralyzed, so it can't keep
  *             attacking you
  */
-extern const char * const behead_msg[];
-
 STATIC_OVL int
 hitmu(mtmp, mattk)
 register struct monst *mtmp;
@@ -1650,31 +1648,29 @@ register struct attack *mattk;
         }
         break;
     case AD_BHED:
-                if ((!rn2(20) || youmonst.data->mlet == S_JABBERWOCK) && !mtmp->mcan) {
-                        if (!has_head(youmonst.data)) {
-                                pline("Somehow, %s misses you wildly.", mon_nam(mtmp));
-                                dmg = 0;
-                                break;
-                        }
-                        if (noncorporeal(youmonst.data) || amorphous(youmonst.data)) {
-                                pline("%s slices through your %s.",
-                                                Monnam(mtmp), body_part(NECK));
-                                break;
-                        }
-                        pline("%s %ss you!", Monnam(mtmp),
-                                        rn2(2) ? "behead" : "decapitate");
-                        if (Upolyd) rehumanize();
-                        else done_in_by(mtmp, DIED);
+        if ((!rn2(15) || youmonst.data->mlet == S_JABBERWOCK) && !mtmp->mcan) {
+                if (!has_head(youmonst.data)) {
+                        pline("Somehow, %s misses you wildly.", mon_nam(mtmp));
                         dmg = 0;
+                        break;
                 }
+                if (noncorporeal(youmonst.data) || amorphous(youmonst.data)) {
+                        pline("%s slices through your %s.",
+                                        Monnam(mtmp), body_part(NECK));
+                        break;
+                }
+                pline("%s %ss you!", Monnam(mtmp),
+                                rn2(2) ? "behead" : "decapitate");
+                if (Upolyd) rehumanize();
+                else done_in_by(mtmp, DIED);
+                dmg = 0;
+        }
                 else hitmsg(mtmp, mattk);
-                break;
+        break;
     default:
         dmg = 0;
         break;
     }
-    if(u.uhp < 1) done_in_by(mtmp, DIED);
-
     if ((Upolyd ? u.mh : u.uhp) < 1) {
         /* already dead? call rehumanize() or done_in_by() as appropriate */
         mdamageu(mtmp, 1);
