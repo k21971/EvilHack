@@ -967,13 +967,15 @@ struct monst *mon;
 int mndx;
 {
     struct permonst *ptr = &mons[mndx];
+    int mhitdie;
 
     mon->m_lev = adj_lev(ptr);
     if (is_golem(ptr)) {
         mon->mhpmax = mon->mhp = golemhp(mndx);
     } else if (is_rider(ptr)) {
         /* we want low HP, but a high mlevel so they can attack well */
-        mon->mhpmax = mon->mhp = d(10, 8);
+        /* Riders are a bit too easy to take down. Let's buff them up a bit */
+        mon->mhpmax = mon->mhp = 100 + d(10, 8);
     } else if (ptr->mlevel > 49) {
         /* "special" fixed hp monster
          * the hit points are encoded in the mlevel in a somewhat strange
@@ -982,15 +984,34 @@ int mndx;
         mon->mhpmax = mon->mhp = 2 * (ptr->mlevel - 6);
         mon->m_lev = mon->mhp / 4; /* approximation */
     } else if (ptr->mlet == S_DRAGON && mndx >= PM_GRAY_DRAGON) {
-        /* adult dragons */
+        /* Dragons are MZ_GIGANTIC, plus they're DRAGONS. Should
+         * not be such an easy kill */
         mon->mhpmax = mon->mhp =
             (int) (In_endgame(&u.uz)
-                       ? (8 * mon->m_lev)
-                       : (4 * mon->m_lev + d((int) mon->m_lev, 4)));
+                       ? (10 * mon->m_lev)
+                       :  (8 * mon->m_lev + d((int) mon->m_lev, 8)));
     } else if (!mon->m_lev) {
         mon->mhpmax = mon->mhp = rnd(4);
     } else {
-        mon->mhpmax = mon->mhp = d((int) mon->m_lev, 8);
+     /* mon->mhpmax = mon->mhp = d((int) mon->m_lev, 8); (original formula) */
+
+     /* From SporkHack, modified slightly because 3.6.x...
+      * plain old ordinary monsters; modify hit die based on size;
+      * big-ass critters like mastodons should have big-ass HP, and
+      * small things like bees and locusts should get less
+      */
+      switch (mon->data->msize) {
+	      case MZ_TINY: mhitdie = 5; break;
+	      case MZ_SMALL: mhitdie = 7; break;
+	      case MZ_LARGE: mhitdie = 10; break;
+	      case MZ_HUGE: mhitdie = 14; break;
+	      case MZ_GIGANTIC: mhitdie = 18; break;
+	      case MZ_MEDIUM:
+	      default:
+		      mhitdie = 8;
+		      break;
+	      }
+	mon->mhpmax = mon->mhp = d((int)mon->m_lev, mhitdie);
         if (is_home_elemental(ptr))
             mon->mhpmax = (mon->mhp *= 3);
     }
@@ -1293,6 +1314,7 @@ int mmflags;
         }
     } else if (mndx == PM_WIZARD_OF_YENDOR) {
         mtmp->iswiz = TRUE;
+        mitem = ATHAME;
         context.no_of_wizards++;
         if (context.no_of_wizards == 1 && Is_earthlevel(&u.uz))
             mitem = SPE_DIG;

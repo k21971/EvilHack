@@ -2429,13 +2429,10 @@ struct permonst _mons2[] = {
                                   | M1_POIS | M1_OMNIVORE,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_PNAME | M2_FEMALE,
         M3_WAITFORU | M3_INFRAVISIBLE, 25, CLR_BRIGHT_GREEN),
-    /* Change from SporkHack - if the Wizard gets a hold of your artifact
-     * weapon, he'll use it against you.
-     */
     MON("Wizard of Yendor", S_HUMAN, LVL(30, 12, -8, 100, A_NONE),
         (G_NOGEN | G_UNIQ),
         A(ATTK(AT_CLAW, AD_SAMU, 2, 12), ATTK(AT_MAGC, AD_SPEL, 0, 0),
-          ATTK(AT_WEAP, AD_PHYS, 4, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 12), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_CUSS, MZ_HUMAN), MR_FIRE | MR_POISON,
         MR_FIRE | MR_POISON,
         M1_FLY | M1_BREATHLESS | M1_HUMANOID | M1_REGEN | M1_SEE_INVIS
