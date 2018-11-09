@@ -95,6 +95,8 @@
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
      || (ptr) == &mons[PM_VAMPIRE_BAT])
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
+#define has_beak(ptr) (is_bird(ptr) || (ptr) == &mons[PM_TENGU] \
+                       || (ptr) == &mons[PM_VROCK])
 #define is_giant(ptr) (((ptr)->mflags2 & M2_GIANT) != 0L)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)

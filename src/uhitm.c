@@ -722,6 +722,7 @@ int dieroll;
                 || (is_ammo(obj) && (thrown != HMON_THROWN
                                      || !ammo_and_launcher(obj, uwep)))) {
                 /* then do only 1-2 points of damage */
+                hand_to_hand = TRUE;
                 if (mdat == &mons[PM_SHADE] && !shade_glare(obj))
                     tmp = 0;
                 else
@@ -1229,7 +1230,8 @@ int dieroll;
         else if (!flags.verbose)
             You("hit it.");
         else
-            You("%s %s%s", Role_if(PM_BARBARIAN) ? "smite" : "hit",
+            You("%s %s%s", !obj ? barehitmsg(&youmonst) :
+                hand_to_hand ? weaphitmsg(obj,TRUE) : "hit",
                 mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
     }
 
@@ -2385,7 +2387,8 @@ register struct monst *mon;
                 if (mattk->aatyp == AT_KICK)
                     You("kick %s.", mon_nam(mon));
                 else if (mattk->aatyp == AT_BITE)
-                    You("bite %s.", mon_nam(mon));
+                    You("%s %s.", has_beak(youmonst.data) ?
+                        "peck" : "bite", mon_nam(mon));
                 else if (mattk->aatyp == AT_STNG)
                     You("sting %s.", mon_nam(mon));
                 else if (mattk->aatyp == AT_BUTT)
@@ -2394,6 +2397,9 @@ register struct monst *mon;
                     You("touch %s.", mon_nam(mon));
                 else if (mattk->aatyp == AT_TENT)
                     Your("tentacles suck %s.", mon_nam(mon));
+                else if (mattk->aatyp == AT_CLAW) {
+                    You("%s %s.", barehitmsg(&youmonst),mon_nam(mon));
+                }
                 else
                     You("hit %s.", mon_nam(mon));
                 sum[i] = damageum(mon, mattk);

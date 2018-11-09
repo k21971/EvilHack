@@ -558,8 +558,11 @@ struct attack *mattk;
             Strcpy(magr_name, Monnam(magr));
             switch (mattk->aatyp) {
             case AT_BITE:
-                Sprintf(buf, "%s bites", magr_name);
+		Sprintf(buf,"%s %ss", magr_name, has_beak(magr->data) ?
+                        "peck" : "bite");
                 break;
+            case AT_KICK:
+                Sprintf(buf,"%s kicks", magr_name);
             case AT_STNG:
                 Sprintf(buf, "%s stings", magr_name);
                 break;
@@ -577,6 +580,20 @@ struct attack *mattk;
                     Sprintf(buf, "%s squeezes", magr_name);
                     break;
                 }
+            case AT_WEAP:
+                if (MON_WEP(magr)) {
+                    if (is_launcher(MON_WEP(magr))
+                        || is_missile(MON_WEP(magr))
+                        || is_ammo(MON_WEP(magr))
+                        || is_pole(MON_WEP(magr)))
+                               Sprintf(buf,"%s hits", magr_name);
+                    else Sprintf(buf,"%s %s", magr_name,
+                        makeplural(weaphitmsg(MON_WEP(magr),FALSE)));
+                    break;
+                }
+            case AT_CLAW:
+                Sprintf(buf,"%s %s", magr_name, makeplural(barehitmsg(magr)));
+                break;
                 /*FALLTHRU*/
             default:
                 Sprintf(buf, "%s hits", magr_name);
