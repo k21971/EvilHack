@@ -916,7 +916,7 @@ u_init()
 		attkptr->aatyp = rn2(AT_GAZE);		/* limit it to semi-normal attacks for now */
 		/* theoretically rnd(AT_GAZE)-3 should work since these are uchar, but
 		 * let's not totally confuse the poor people browsing... */
-		if (attkptr->aatyp == AT_GAZE || attkptr->aatyp == AT_SPIT) {
+		if (attkptr->aatyp == AT_GAZE) {
 			attkptr->aatyp = AT_MAGC;
 		}
 		if (attkptr->aatyp == AT_EXPL || attkptr->aatyp == AT_BOOM) {
@@ -935,8 +935,11 @@ u_init()
 			attkptr->adtyp = AD_CLRC + rn2(2);	/* AT_MAGC must correspond to a spell type */
 		}
 		if (attkptr->aatyp == AT_BREA) {
-			attkptr->adtyp == AD_RBRE;	        /* Tiamat's breath weapon if you're a breather at all :)  */
+			attkptr->adtyp == AD_DISN;
 		}
+                if (attkptr->aatyp == AT_SPIT) {
+                        attkptr->adtyp == AD_ACID;
+                }
 		attkptr->damn = 4;				/* we're almost sure to get this wrong first time */
 		attkptr->damd = 6;			        /* either too high or too low */
 	}
