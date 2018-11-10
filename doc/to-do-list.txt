@@ -6,7 +6,7 @@ From GruntHack
 1) object materials & properties (might pull this from xNetHack [obj materials])
 2) new spells
 3) two-weaponing w/ artifact weapons <---- DONE (needs some tweaks)
-4) new monsters
+4) new monsters <---- DONE (mostly)
 5) monster AI (opening/looting containers, using wands of wishing, using player spells, etc)
 6) demon lord levels
 7) new races for PC (ogres, kobolds, giants)
@@ -27,19 +27,19 @@ From SporkHack
 --------------
 1) new resistances system
 2) new sacrificing/artifact generation system
-3) new monsters
+3) new monsters <---- DONE (needs polish)
 4) new spells
-5) changes to artifacts <---- DONE (mostly)
+5) changes to artifacts <---- DONE
 6) changes to skills (won't be exact pull, will tweak)
 7) changes to spell casting while wearing body armor (will also tweak)
 8) gold vault changes
 9) unicorn horn behavior
 10) new race/role combos
-11) new objects/artifacts
+11) new objects/artifacts <---- DONE (artifacts bit)
 12) reflection changes
 13) remove mysterious force, incorporate monster spawn on ascrun
 14) new traps
-15) Vlad changes
+15) Vlad changes <---- DONE
 16) genocide behavior
 17) adjust spell levels
 18) conflict tweaks
@@ -59,8 +59,18 @@ Custom unique bits
 ------------------
 1) new level branches with custom content and monsters
 2) possibly add new PC races (don't think I want to add new roles)
-3) new monsters (also see #1)
+3) new monsters (also see #1) <---- added a couple
 4) tweak behavior from some of things pulled from GruntHack and SporkHack
 5) tweak skill sets for roles to something that makes sense
 6) time to give monks some love
 7) Elbereth changes (hero can only use the E-word after it's been discovered in-game)
+
+=========================================================
+
+Currently known issues:
+* Shimmering dragons don't have displacement yet
+* Engulf attack from gelatinous cubes and water elementals continue to strangle you even after escaping from inside of them. A fix for this was made for GruntHack - that same fix does not work here
+* Water elemental engulf attack does not affect inventory with water damage
+* Riding a steed that engulfs other monsters throws an error
+* Shambling horror 'bad attack type in spitmu' when it uses a spit attack (same behavior with breath attack). Game still progresses.
+* Saving/reloading a game wipes out shambling horror state to default template
