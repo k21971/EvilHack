@@ -74,7 +74,8 @@
      || (ptr) == &mons[PM_GOBLIN_SHAMAN]                               \
      || (ptr) == &mons[PM_KOBOLD_SHAMAN]                               \
      || (ptr) == &mons[PM_ORC_SHAMAN]                                  \
-     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN])
+     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN]                           \
+     || (ptr) == &mons[PM_GNOMISH_WIZARD])
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
 #define poisonous(ptr) (((ptr)->mflags1 & M1_POIS) != 0L)

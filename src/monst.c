@@ -1968,6 +1968,22 @@ struct permonst _mons2[] = {
         SIZ(1200, 500, MS_SILENT, MZ_LARGE), 0, 0, M1_TUNNEL | M1_CARNIVORE,
         M2_STRONG, M3_INFRAVISIBLE, 12, CLR_BROWN),
     /*
+     * From SporkHack
+     * Placeholder for the random creature...
+     *
+     * None of these stats have any significance, they're just to ensure
+     * that if one does get accidentally generated in the 'normal' way
+     * (without a remapped permonst) that nothing useful happens.
+     *
+     * Also note that the LVL value will affect your generated
+     * monster's internal difficulty in monstr.h; be careful to leave this
+     * fairly high as random permutations of ATTK() could make it nasty
+     */
+    MON("shambling horror", S_UMBER, LVL(12, 12, 0, 0, 0), (G_NOCORPSE | 1),
+	A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+	SIZ(25, 25, MS_SILENT, MZ_TINY), 0, 0,
+	M1_CARNIVORE, 0, M3_INFRAVISIBLE, 15, DRAGON_SILVER),
+    /*
      * Vampires
      */
     MON("vampire", S_VAMPIRE, LVL(10, 12, 1, 25, -8),
