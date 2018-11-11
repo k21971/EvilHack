@@ -552,10 +552,11 @@ register struct monst *mtmp;
          * night */
         boolean isnight = night();
         boolean kindred = (Upolyd && (u.umonnum == PM_VAMPIRE
-                                      || u.umonnum == PM_VAMPIRE_LORD));
+                                      || u.umonnum == PM_VAMPIRE_LORD
+                                      || u.umonnum == PM_VAMPIRE_MAGE));
         boolean nightchild =
             (Upolyd && (u.umonnum == PM_WOLF || u.umonnum == PM_WINTER_WOLF
-                        || u.umonnum == PM_WINTER_WOLF_CUB));
+                        || u.umonnum == PM_WARG || u.umonnum == PM_WINTER_WOLF_CUB));
         const char *racenoun =
             (flags.female && urace.individual.f)
                 ? urace.individual.f

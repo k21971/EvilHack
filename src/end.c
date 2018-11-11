@@ -497,6 +497,10 @@ int how;
         u.ugrave_arise = PM_WRAITH;
     else if (mptr->mlet == S_MUMMY && urace.mummynum != NON_PM)
         u.ugrave_arise = urace.mummynum;
+    /* Vampire Mages can produce more of their kind if conditions are just right */
+    else if (mptr == &mons[PM_VAMPIRE_MAGE] && Race_if(PM_HUMAN)
+             && Role_if(PM_WIZARD))
+        u.ugrave_arise = PM_VAMPIRE_MAGE;
     else if (mptr->mlet == S_VAMPIRE && Race_if(PM_HUMAN))
         u.ugrave_arise = PM_VAMPIRE;
     else if (mptr == &mons[PM_GHOUL])

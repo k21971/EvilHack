@@ -331,6 +331,7 @@ unsigned corpseflags;
         goto default_1;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LORD:
+    case PM_VAMPIRE_MAGE:
         /* include mtmp in the mkcorpstat() call */
         num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
@@ -3182,6 +3183,12 @@ struct monst *mon;
             break;
         }
     /*FALLTHRU*/
+    case PM_VAMPIRE_MAGE: /* vampire mage can become a warg */
+        if (!rn2(wolfchance) && !uppercase_only) {
+            mndx = PM_WARG;
+            break;
+        }
+    /*FALLTHRU*/
     case PM_VAMPIRE: /* any vampire can become fog or bat */
         mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
         break;
@@ -3235,7 +3242,7 @@ int *mndx_p, monclass;
         return validspecmon(mon, *mndx_p);
 
     if (*mndx_p == PM_VAMPIRE || *mndx_p == PM_VAMPIRE_LORD
-        || *mndx_p == PM_VLAD_THE_IMPALER) {
+        || *mndx_p == PM_VAMPIRE_MAGE || *mndx_p == PM_VLAD_THE_IMPALER) {
         /* player picked some type of vampire; use mon's self */
         *mndx_p = mon->cham;
         return TRUE;
@@ -3245,9 +3252,9 @@ int *mndx_p, monclass;
         *mndx_p = PM_VLAD_THE_IMPALER;
         return TRUE;
     }
-    /* basic vampires can't become wolves; any can become fog or bat
+    /* basic vampires can't become wolves or wargs; any can become fog or bat
        (we don't enforce upper-case only for rogue level here) */
-    if (*mndx_p == PM_WOLF)
+    if (*mndx_p == PM_WOLF || *mndx_p == PM_WARG)
         return (boolean) (mon->cham != PM_VAMPIRE);
     if (*mndx_p == PM_FOG_CLOUD || *mndx_p == PM_VAMPIRE_BAT)
         return TRUE;
@@ -3313,6 +3320,7 @@ struct monst *mon;
             mndx = pick_animal();
         break;
     case PM_VLAD_THE_IMPALER:
+    case PM_VAMPIRE_MAGE:
     case PM_VAMPIRE_LORD:
     case PM_VAMPIRE:
         mndx = pickvampshape(mon);
