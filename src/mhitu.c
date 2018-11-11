@@ -1194,6 +1194,7 @@ register struct attack *mattk;
         goto dopois;
     case AD_DRCO:
         ptmp = A_CON;
+        goto dopois;
     dopois:
         hitmsg(mtmp, mattk);
         if (uncancelled && !rn2(8)) {
