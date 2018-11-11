@@ -443,7 +443,8 @@ struct obj *scroll;
     if (!Blinded)
         make_blinded(0L, FALSE);
 
-    if ((u.uhave.amulet || On_W_tower_level(&u.uz)) && !rn2(3)) {
+    if ((u.uhave.amulet || On_W_tower_level(&u.uz)
+        || u.usteed && mon_has_amulet(u.usteed))) {
         You_feel("disoriented for a moment.");
         if (!wizard || yn("Override?") != 'y')
             return FALSE;

@@ -843,7 +843,7 @@ struct monst *mtmp;
         m_flee(mtmp);
         if (ledger_no(&u.uz) == 1)
             goto escape; /* impossible; level 1 upstairs are SSTAIRS */
-        if (Inhell && mon_has_amulet(mtmp) && !rn2(4)
+        if (Inhell && mon_has_amulet(mtmp) && !rn2(2)
             && (dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz) - 3)) {
             if (vismon)
                 pline(

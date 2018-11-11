@@ -535,14 +535,16 @@ pick_nasty()
    creatures on average (in 3.6.0 and earlier, Null was treated as chaotic);
    returns the number of monsters created */
 int
-nasty(summoner)
+nasty(summoner, centered_on_stairs)
 struct monst *summoner;
+BOOLEAN_P centered_on_stairs;
 {
     register struct monst *mtmp;
-    register int i, j;
+    struct permonst* mdat;
+    register int i, j, tmp;
     int castalign = (summoner ? sgn(summoner->data->maligntyp) : 0);
     coord bypos;
-    int count, census, tmp, makeindex, s_cls, m_cls;
+    int count, census, makeindex, s_cls, m_cls;
 
 #define MAXNASTIES 10 /* more than this can be created */
 
@@ -556,11 +558,17 @@ struct monst *summoner;
     } else {
         count = 0;
         s_cls = summoner ? summoner->data->mlet : 0;
-        tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
-        /* if we don't have a casting monster, nasties appear around hero,
-           otherwise they'll appear around spot summoner thinks she's at */
-        bypos.x = u.ux;
-        bypos.y = u.uy;
+	tmp = (u.ulevel > 3) ? u.ulevel/3 : 1;
+	/* if we don't have a casting monster, nasties appear around hero,
+	 * ...unless we're being called with the 'stairs' flag to block the
+	 * adventurer's return with the amulet */
+	if (centered_on_stairs && xupstair) {
+            bypos.x = xupstair;
+            bypos.y = yupstair;
+	} else {
+            bypos.x = u.ux;
+            bypos.y = u.uy;
+        }
         for (i = rnd(tmp); i > 0 && count < MAXNASTIES; --i)
             /* Of the 42 nasties[], 10 are lawful, 14 are chaotic,
              * and 18 are neutral.
@@ -580,6 +588,7 @@ struct monst *summoner;
              * randomized so it won't always do so.
              */
             for (j = 0; j < 20; j++) {
+                int makeindex;
                 /* Don't create more spellcasters of the monsters' level or
                  * higher--avoids chain summoners filling up the level.
                  */
@@ -589,7 +598,7 @@ struct monst *summoner;
                 } while (summoner
                          && ((attacktype(&mons[makeindex], AT_MAGC)
                               && mons[makeindex].difficulty
-				 >= mons[summoner->mnum].difficulty)
+                                 >= mons[summoner->mnum].difficulty)
                              || (s_cls == S_DEMON && m_cls == S_ANGEL)
                              || (s_cls == S_ANGEL && m_cls == S_DEMON)));
                 /* do this after picking the monster to place */
@@ -599,12 +608,12 @@ struct monst *summoner;
                 /* this honors genocide but overrides extinction; it ignores
                    inside-hell-only (G_HELL) & outside-hell-only (G_NOHELL) */
                 if ((mtmp = makemon(&mons[makeindex], bypos.x, bypos.y,
-                                    NO_MM_FLAGS)) != 0) {
+                                    MM_ADJACENTOK)) != 0) {
                     mtmp->msleeping = mtmp->mpeaceful = mtmp->mtame = 0;
                     set_malign(mtmp);
                 } else /* random monster to substitute for geno'd selection */
                     mtmp = makemon((struct permonst *) 0, bypos.x, bypos.y,
-                                   NO_MM_FLAGS);
+                                   MM_ADJACENTOK);
                 if (mtmp) {
                     /* delay first use of spell or breath attack */
                     mtmp->mspec_used = rnd(4);
@@ -614,8 +623,7 @@ struct monst *summoner;
                         break;
                 }
             }
-    }
-
+        }
     if (count)
         count = monster_census(FALSE) - census;
     return count;
@@ -680,8 +688,8 @@ resurrect()
 void
 intervene()
 {
-    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(6);
-    /* cases 0 and 5 don't apply on the Astral level */
+    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(8);
+    /* many cases don't apply on the Astral level or Planes */
     switch (which) {
     case 0:
     case 1:
@@ -696,10 +704,14 @@ intervene()
         aggravate();
         break;
     case 4:
-        (void) nasty((struct monst *) 0);
+        (void) nasty((struct monst *) 0, FALSE);
         break;
     case 5:
         resurrect();
+        break;
+    case 6:
+    case 7:
+        (void) nasty((struct monst *) 0, TRUE);
         break;
     }
 }
