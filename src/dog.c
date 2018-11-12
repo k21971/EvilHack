@@ -592,6 +592,8 @@ boolean pets_only; /* true for ascension or final escape */
         mtmp2 = mtmp->nmon;
         if (DEADMONSTER(mtmp))
             continue;
+        if ((mtmp->mextra && ERID(mtmp)) || mtmp->monmount)
+            continue;
         if (pets_only) {
             if (!mtmp->mtame)
                 continue; /* reject non-pets */

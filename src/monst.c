@@ -912,6 +912,32 @@ NEARDATA struct permonst mons[] = {
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE,
         M2_WANDER | M2_STRONG | M2_DOMESTIC, M3_INFRAVISIBLE, 9, CLR_BROWN),
+    /* From SpliceHack
+     * The Horses of the Riders - these have been tweaked and buffed up
+     * a bit from their original template. It's the end game, and the Riders
+     * deserve a truly horrific steed that compliments them.
+     */
+    MON("pale horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
+        A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
+          ATTK(AT_BITE, AD_DRLI, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_COLD | MR_POISON, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY,
+        M2_NOPOLY | M2_NASTY | M2_HOSTILE | M2_STRONG,
+        M3_INFRAVISIBLE, 21, CLR_GRAY),
+    MON("white horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
+        A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
+          ATTK(AT_BITE, AD_DRST, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_COLD | MR_POISON, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY,
+        M2_NOPOLY | M2_NASTY | M2_HOSTILE | M2_STRONG,
+        M3_INFRAVISIBLE, 21, CLR_WHITE),
+    MON("black horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
+        A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
+          ATTK(AT_BITE, AD_SLOW, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_COLD | MR_POISON, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY,
+        M2_NOPOLY | M2_NASTY | M2_HOSTILE | M2_STRONG,
+        M3_INFRAVISIBLE, 21, CLR_BLACK),
     /*
      * vortices
      */

@@ -2015,6 +2015,7 @@ boolean was_swallowed; /* digestion */
         place_monster(ERID(mon)->m1, mon->mx, mon->my);
         ERID(mon)->m1->monmount = 0;
     }
+    free_erid(mon);
 
     if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)

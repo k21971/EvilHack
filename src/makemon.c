@@ -1241,6 +1241,21 @@ int mmflags;
     mtmp->mcansee = mtmp->mcanmove = TRUE;
     mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(ptr);
 
+    /* Here is where we match riding monsters with their mounts */
+    if (!(mmflags & MM_REVIVE)) {
+        switch (mndx) {
+            case PM_DEATH:
+                mount_monster(mtmp, PM_PALE_HORSE);
+                break;
+            case PM_FAMINE:
+                mount_monster(mtmp, PM_BLACK_HORSE);
+                break;
+            case PM_PESTILENCE:
+                mount_monster(mtmp, PM_WHITE_HORSE);
+                break;
+        }
+    }
+
     switch (ptr->mlet) {
     case S_MIMIC:
         set_mimic_sym(mtmp);
