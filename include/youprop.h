@@ -182,7 +182,7 @@
 /* Note: invisibility also hides inventory and steed */
 
 #define EDisplaced u.uprops[DISPLACED].extrinsic
-#define Displaced EDisplaced
+#define Displaced (EDisplaced || is_displaced(youmonst.data))
 
 #define HStealth u.uprops[STEALTH].intrinsic
 #define EStealth u.uprops[STEALTH].extrinsic

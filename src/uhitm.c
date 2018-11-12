@@ -419,6 +419,10 @@ register struct monst *mtmp;
         return FALSE;
     }
 
+    if (is_displaced(mtmp->data) && !u.uswallow && !rn2(4)) {
+        pline("The image of %s shimmers and vanishes!", mon_nam(mtmp));
+        return FALSE;
+    }
     if (Upolyd)
         (void) hmonas(mtmp);
     else
