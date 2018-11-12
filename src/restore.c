@@ -376,6 +376,12 @@ struct monst *mtmp;
             newedog(mtmp);
             mread(fd, (genericptr_t) EDOG(mtmp), sizeof(struct edog));
         }
+        /* erid - steed */
+        mread(fd, (genericptr_t) &buflen, sizeof(buflen));
+        if (buflen > 0) {
+            newerid(mtmp);
+            mread(fd, (genericptr_t) ERID(mtmp), sizeof(struct erid));
+        }
         /* mcorpsenm - obj->corpsenm for mimic posing as corpse or
            statue (inline int rather than pointer to something) */
         mread(fd, (genericptr_t) &MCORPSENM(mtmp), sizeof MCORPSENM(mtmp));

@@ -1029,6 +1029,7 @@ newmextra()
     mextra->eshk = 0;
     mextra->emin = 0;
     mextra->edog = 0;
+    mextra->erid = 0;
     mextra->mcorpsenm = NON_PM;
     return mextra;
 }
@@ -1200,6 +1201,8 @@ int mmflags;
         newemin(mtmp);
     if (mmflags & MM_EDOG)
         newedog(mtmp);
+    if (mmflags & MM_ERID)
+        newerid(mtmp);
 
     mtmp->nmon = fmon;
     fmon = mtmp;

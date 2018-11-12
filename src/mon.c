@@ -96,6 +96,8 @@ mon_sanity_check()
             if (x != u.ux || y != u.uy)
                 impossible("steed (%s) claims to be at <%d,%d>?",
                            fmt_ptr((genericptr_t) mtmp), x, y);
+        } else if (mtmp->monmount) {
+            continue;
         } else if (level.monsters[x][y] != mtmp) {
             impossible("mon (%s) at <%d,%d> is not there!",
                        fmt_ptr((genericptr_t) mtmp), x, y);
@@ -1696,6 +1698,11 @@ struct monst *mtmp2, *mtmp1;
             newedog(mtmp2);
         *EDOG(mtmp2) = *EDOG(mtmp1);
     }
+    if (ERID(mtmp1)) {
+        if (!ERID(mtmp2))
+            newerid(mtmp2);
+        *ERID(mtmp2) = *ERID(mtmp1);
+    }
     if (has_mcorpsenm(mtmp1))
         MCORPSENM(mtmp2) = MCORPSENM(mtmp1);
 }
@@ -1719,6 +1726,8 @@ struct monst *m;
             free((genericptr_t) x->emin);
         if (x->edog)
             free((genericptr_t) x->edog);
+        if (x->erid)
+            free((genericptr_t) x->erid);
         /* [no action needed for x->mcorpsenm] */
 
         free((genericptr_t) x);
@@ -2000,6 +2009,12 @@ boolean was_swallowed; /* digestion */
 {
     struct permonst *mdat = mon->data;
     int i, tmp;
+
+    /* If mounted, the mount appears after death of its rider */
+    if (mon->mextra && ERID(mon) && ERID(mon)->m1 != NULL) {
+        place_monster(ERID(mon)->m1, mon->mx, mon->my);
+        ERID(mon)->m1->monmount = 0;
+    }
 
     if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
