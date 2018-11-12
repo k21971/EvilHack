@@ -170,7 +170,8 @@ struct edog {
 };
 
 struct erid {
-    struct monst *m1; /* monster being ridden */
+    struct monst *m1;   /* monster being ridden */
+    unsigned int mid;   /* pointer to attached monster id */
 };
 
 /***

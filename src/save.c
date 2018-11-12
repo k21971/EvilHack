@@ -1161,6 +1161,12 @@ register struct monst *mtmp;
 
     while (mtmp) {
         mtmp2 = mtmp->nmon;
+        #if 0
+        /* this simply eliminates the mount entirely */
+        if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1) {
+            ERID(mtmp)->m1 = (struct monst *) 0;
+        }
+        #endif
         if (perform_bwrite(mode)) {
             mtmp->mnum = monsndx(mtmp->data);
             if (mtmp->ispriest)

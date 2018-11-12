@@ -331,7 +331,7 @@ boolean with_you;
     ylocale = mtmp->mtrack[1].y;
     memset(mtmp->mtrack, 0, sizeof(mtmp->mtrack));
 
-    if (mtmp == u.usteed)
+    if (mtmp == u.usteed || mtmp->monmount == 1)
         return; /* don't place steed on the map */
     if (with_you) {
         /* When a monster accompanies you, sometimes it will arrive
@@ -344,6 +344,7 @@ boolean with_you;
             rloc_to(mtmp, u.ux, u.uy);
         else
             mnexto(mtmp);
+        update_monsteed(mtmp);
         return;
     }
     /*
@@ -475,6 +476,7 @@ fail_mon_placement:
             mongone(mtmp);
         }
     }
+    update_monsteed(mtmp);
 }
 
 /* heal monster for time spent elsewhere */
@@ -698,6 +700,11 @@ coord *cc;   /* optional destination coordinates */
     d_level new_lev;
     xchar xyflags;
     int num_segs = 0; /* count of worm segments */
+
+    /* Recursive call to levelport monster steeds. */
+    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1) {
+        migrate_to_level(ERID(mtmp)->m1, tolev, xyloc, cc);
+    }
 
     if (mtmp->isshk)
         set_residency(mtmp, TRUE);
