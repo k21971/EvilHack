@@ -15,7 +15,7 @@ be created and implemented.
 The following changes to date are:
 
 - Edits to config.h, patchlevel.h, allmain.src, sysconf, Makefiles and hints files to
-differentiate EvilHack from NetHack
+  differentiate EvilHack from NetHack
 - adjust install script for EvilHack for use on public server
 - significant merges of latest 'vanilla' NetHack 3.6.2 code
 
@@ -26,5 +26,14 @@ Version 0.1.1
 
 - Allow two-weaponing with an artifact weapon in each hand
 - Allow passive properties of an off-hand magical or artifact weapon to function
-- Artifact additions and changes
-
+- Artifact additions and changes (affects some quest artifacts)
+- Changes to the 'Knight' role
+- Import of SporkHack and GruntHack monsters (round one)
+- New custom made monsters
+- tweaks to some existing monsters
+- Descriptive hit messages
+- Monster hit point generation modifications
+- Monsters can ride steeds, from SpliceHack (The Riders only for now)
+- Removal of the mysterious force, nasties now spawn at upstairs while traveling up
+  with the Amulet
+- latest merges from 'vanilla' NetHack 3.6.2 (as of November 11th, 2018)

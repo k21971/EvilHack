@@ -54,6 +54,7 @@ From other variants
 1) gehennom revamp from xNetHack (or maybe from Sporkhack)
 2) #give command from SpliceHack
 3) changes to unicorn horn from xNetHack
+4) monsters can ride steeds <---- DONE
 
 Custom unique bits
 ------------------
@@ -73,4 +74,5 @@ Currently known issues:
 * Water elemental engulf attack does not affect inventory with water damage
 * Riding a steed that engulfs other monsters throws an error
 * Shambling horror 'bad attack type in spitmu' when it uses a spit attack (same behavior with breath attack). Game still progresses.
-* Saving/reloading a game wipes out shambling horror state to default template
+* Saving/reloading a game wipes out shambling horror state to default template <---- work-around enabled
+* Monster dies while riding its steed. Steed still alive and standing on monsters' corpse. If monster is revived while its steed is standing on its corpse, the steed vanishes completely instead of being re-mounted
