@@ -895,10 +895,16 @@ register struct obj *obj;
         return FALSE;
 
     /* Knights can never tame dragons.  Natural enemies, y'see. */
-    if (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_DRAGON) {
+    if (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_DRAGON)
         return FALSE;
-    }
 
+    /* These monsters should never be able to be tamed. Ever. Just no */
+    if (mtmp->data == &mons[PM_BEHOLDER] || mtmp->data == &mons[PM_MAGICAL_EYE]
+        || mtmp->data == &mons[PM_ELDER_MINOTAUR]
+        || mtmp->data == &mons[PM_PALE_HORSE]
+        || mtmp->data == &mons[PM_WHITE_HORSE]
+        || mtmp->data == &mons[PM_BLACK_HORSE])
+        return FALSE;
 
     /* worst case, at least it'll be peaceful. */
     mtmp->mpeaceful = 1;
