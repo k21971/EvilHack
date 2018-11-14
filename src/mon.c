@@ -1536,6 +1536,12 @@ struct monst *magr, /* monster that is currently deciding where to move */
     /* ravens like eyes */
     if (ma == &mons[PM_RAVEN] && md == &mons[PM_FLOATING_EYE])
   	return ALLOW_M | ALLOW_TM;
+    /* lawful and chaotic unicorns don't play nice with each other.
+       neutral unicorns just don't care */
+    if (ma == &mons[PM_WHITE_UNICORN] && md == &mons[PM_BLACK_UNICORN])
+        return ALLOW_M | ALLOW_TM;
+    if (md == &mons[PM_WHITE_UNICORN] && ma == &mons[PM_BLACK_UNICORN])
+        return ALLOW_M | ALLOW_TM;
     return 0L;
 }
 
@@ -2066,6 +2072,14 @@ boolean was_swallowed; /* digestion */
 	}
     }
 
+    /* Zombies don't leave a corpse when the player is wielding Sunsword */
+    if (mdat->mlet == S_ZOMBIE && uwep && uwep->oartifact == ART_SUNSWORD) {
+        if (cansee(mon->mx, mon->my)) {
+            pline("%s corpse dissolves into nothingess.", s_suffix(Monnam(mon)));
+        return FALSE;
+        }
+    }
+
     /* Gas spores always explode upon death */
     for (i = 0; i < NATTK; i++) {
         if (mdat->mattk[i].aatyp == AT_BOOM) {
@@ -2112,7 +2126,8 @@ boolean was_swallowed; /* digestion */
         return FALSE;
 
     if (((bigmonst(mdat) || mdat == &mons[PM_LIZARD]) && !mon->mcloned)
-        || is_golem(mdat) || is_mplayer(mdat) || is_rider(mdat) || mon->isshk)
+        || is_golem(mdat) || is_mplayer(mdat)
+        || is_rider(mdat) || mon->isshk)
         return TRUE;
     tmp = 2 + ((mdat->geno & G_FREQ) < 2) + verysmall(mdat);
     return (boolean) !rn2(tmp);
@@ -2716,6 +2731,21 @@ struct monst *mtmp;
                 (void) makemon((struct permonst *) 0, 0, 0, NO_MM_FLAGS);
         }
         aggravate();
+    }
+    if (mtmp->data == &mons[PM_QUIVERING_BLOB] &&
+        canseemon(mtmp)) {
+	pline("%s quivers.", Monnam(mtmp));
+    }
+    if (mtmp->data->mlet == S_ZOMBIE) {
+        if (canseemon(mtmp))
+	    pline("%s %s.", Monnam(mtmp),
+	                   !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :
+			   !rn2(3) ? "groans" :
+			   !rn2(2) ? "moans" : "shuffles in your direction");
+	else if (!rn2(4))
+	    You_hear("%s", !rn2(8) ? "a low voice mumble \"UUUNNNNGGHH...\"." :
+	                   !rn2(3)  ? "a low groaning." :
+			   !rn2(2)  ? "a low moaning." : "a shuffling noise.");
     }
     if (mtmp->data == &mons[PM_MEDUSA]) {
         register int i;
@@ -4076,6 +4106,10 @@ struct permonst *mdat;
                 break;
             case S_ZOMBIE:
                 You("smell rotting flesh.");
+                msg_given = TRUE;
+                break;
+            case S_WRAITH:
+                You("smell the stench of decay.");
                 msg_given = TRUE;
                 break;
             case S_EEL:

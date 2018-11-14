@@ -19,7 +19,8 @@
 #define resists_acid(mon) (((mon)->mintrinsics & MR_ACID) != 0)
 #define resists_ston(mon) (((mon)->mintrinsics & MR_STONE) != 0)
 #define resists_sick(mon)  ((mon)->data->mlet == S_FUNGUS || \
-			    (mon)->data == &mons[PM_GHOUL])
+                            (mon)->data->mlet == S_ZOMBIE || \
+			    (mon)->data->mlet == S_WRAITH)
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
@@ -91,6 +92,26 @@
 #define is_gnome(ptr) (((ptr)->mflags2 & M2_GNOME) != 0L)
 #define is_orc(ptr) (((ptr)->mflags2 & M2_ORC) != 0L)
 #define is_human(ptr) (((ptr)->mflags2 & M2_HUMAN) != 0L)
+#define is_zombietype(ptr)                                                    \
+    ((ptr) == &mons[PM_KOBOLD] || (ptr) == &mons[PM_LARGE_KOBOLD]             \
+     || (ptr) == &mons[PM_KOBOLD_LORD] || (ptr) == &mons[PM_KOBOLD_SHAMAN]    \
+     || (ptr) == &mons[PM_HILL_ORC] || (ptr) == &mons[PM_MORDOR_ORC]          \
+     || (ptr) == &mons[PM_URUK_HAI] || (ptr) == &mons[PM_ORC_SHAMAN]          \
+     || (ptr) == &mons[PM_ORC_CAPTAIN] || (ptr) == &mons[PM_GNOME]            \
+     || (ptr) == &mons[PM_GNOME_LORD] || (ptr) == &mons[PM_GNOMISH_WIZARD]    \
+     || (ptr) == &mons[PM_GNOME_KING] || (ptr) == &mons[PM_STONE_GIANT ]      \
+     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN] || (ptr) == &mons[PM_HILL_GIANT] \
+     || (ptr) == &mons[PM_FIRE_GIANT] || (ptr) == &mons[PM_FROST_GIANT]       \
+     || (ptr) == &mons[PM_ETTIN] || (ptr) == &mons[PM_STORM_GIANT]            \
+     || (ptr) == &mons[PM_WOODLAND_ELF] || (ptr) == &mons[PM_GREEN_ELF]       \
+     || (ptr) == &mons[PM_GREY_ELF] || (ptr) == &mons[PM_ELF_LORD]            \
+     || (ptr) == &mons[PM_ELVENKING] || (ptr) == &mons[PM_SHOPKEEPER]         \
+     || (ptr) == &mons[PM_GUARD] || (ptr) == &mons[PM_PRISONER]               \
+     || (ptr) == &mons[PM_ALIGNED_PRIEST] || (ptr) == &mons[PM_HIGH_PRIEST]   \
+     || (ptr) == &mons[PM_SOLDIER] || (ptr) == &mons[PM_SERGEANT]             \
+     || (ptr) == &mons[PM_NURSE] || (ptr) == &mons[PM_LIEUTENANT]             \
+     || (ptr) == &mons[PM_CAPTAIN] || (ptr) == &mons[PM_WATCHMAN]             \
+     || (ptr) == &mons[PM_WATCH_CAPTAIN] || (ptr) == &mons[PM_DOPPELGANGER])
 #define your_race(ptr) (((ptr)->mflags2 & urace.selfmask) != 0L)
 #define is_bat(ptr)                                         \
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
@@ -155,7 +176,8 @@
     ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT] \
      || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN])
 /* return TRUE if the monster tends to revive */
-#define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL)
+#define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL \
+                        || (ptr)->mlet == S_ZOMBIE)
 /* monsters whose corpses and statues need special handling;
    note that high priests and the Wizard of Yendor are flagged
    as unique even though they really aren't; that's ok here */

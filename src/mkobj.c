@@ -1186,7 +1186,8 @@ struct obj *body;
             if (!rn2(3))
                 break;
 
-    } else if (mons[body->corpsenm].mlet == S_TROLL && !body->norevive) {
+    } else if ((mons[body->corpsenm].mlet == S_TROLL
+               || mons[body->corpsenm].mlet == S_ZOMBIE) && !body->norevive) {
         long age;
         for (age = 2; age <= TAINT_AGE; age++)
             if (!rn2(TROLL_REVIVE_CHANCE)) { /* troll revives */
@@ -1469,9 +1470,11 @@ int x, y;
 }
 
 /* return TRUE if the corpse has special timing */
-#define special_corpse(num)                                                 \
-    (((num) == PM_LIZARD) || ((num) == PM_LICHEN) || (is_rider(&mons[num])) \
-     || (mons[num].mlet == S_TROLL))
+#define special_corpse(num) (((num) == PM_LIZARD)            \
+                             || ((num) == PM_LICHEN)         \
+                             || (is_rider(&mons[num]))       \
+                             || (mons[num].mlet == S_ZOMBIE) \
+                             || (mons[num].mlet == S_TROLL))
 
 /*
  * OEXTRA note: Passing mtmp causes mtraits to be saved
@@ -1520,7 +1523,8 @@ unsigned corpstatflags;
             otmp->corpsenm = monsndx(ptr);
             otmp->owt = weight(otmp);
             if (otmp->otyp == CORPSE && (special_corpse(old_corpsenm)
-                                         || special_corpse(otmp->corpsenm))) {
+                                         || special_corpse(otmp->corpsenm)
+                                         || (mtmp && mtmp->data->mlet == S_ZOMBIE))) {
                 obj_stop_timers(otmp);
                 start_corpse_timeout(otmp);
             }

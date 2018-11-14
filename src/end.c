@@ -499,6 +499,8 @@ int how;
         u.ugrave_arise = PM_WRAITH;
     else if (mptr->mlet == S_MUMMY && urace.mummynum != NON_PM)
         u.ugrave_arise = urace.mummynum;
+    else if (mptr->mlet == S_ZOMBIE && urace.zombienum != NON_PM)
+        u.ugrave_arise = urace.zombienum;
     /* Vampire Mages can produce more of their kind if conditions are just right */
     else if (mptr == &mons[PM_VAMPIRE_MAGE] && Race_if(PM_HUMAN)
              && Role_if(PM_WIZARD))

@@ -1447,6 +1447,14 @@ register struct attack *mattk;
             place_monster(mdef, mdef->mx, mdef->my);
             mdef->mhp = 0;
         }
+	if (pa->mlet == S_ZOMBIE && !nonliving(pd) && is_zombietype(pd)) {
+            mdef->mtame = mdef->mpeaceful = 0;
+            pd == &mons[PM_HUMAN_ZOMBIE]; //it's permanent
+	    mdef->mhp = 1; //so they don't try to remove it
+		if (mdef->isshk) shkgone(mdef);
+	        (void) newcham(mdef, &mons[PM_HUMAN_ZOMBIE], FALSE, TRUE);
+		return MM_HIT;
+	}
         monkilled(mdef, "", (int) mattk->adtyp);
         if (!DEADMONSTER(mdef))
             return res; /* mdef lifesaved */
@@ -1711,10 +1719,10 @@ int mdead;
             break;
 	case AD_DISE:
 	    if (canseemon(magr)) {
-		pline("%s is covered with tiny spores!", Monnam(magr));
+		pline("%s is diseased!", Monnam(magr));
 	    }
 	    if (resists_sick(magr)) {
-		pline("%s doesn't seem to notice the spores.", Monnam(magr));
+		pline("%s is infected but appears to be immune.", Monnam(magr));
 		tmp = 0;
 	    }
 	    break;

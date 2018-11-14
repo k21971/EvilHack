@@ -2739,13 +2739,13 @@ boolean wep_was_destroyed;
             You("are jolted with electricity!");
             mdamageu(mon, tmp);
 	    break;
-	case AD_DISE:	/* gray fungus */
+	case AD_DISE:
 	    if (Sick_resistance) {
-		You("are covered with botulism spores, but they seem to be inert.");
+		You("are infected, but you appear to be immune.");
 	    } else {
-		You("are covered with botulism spores!");
+		You("are diseased!");
 		mdamageu(mon, tmp);
-		make_sick(20, "bad case of botulism", TRUE, SICK_NONVOMITABLE);
+		make_sick(20, "bad case of the plague", TRUE, SICK_NONVOMITABLE);
 	    }
             break;
         default:
