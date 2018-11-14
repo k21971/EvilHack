@@ -286,11 +286,11 @@ struct obj {
 #define is_elven_obj(otmp) (is_elven_armor(otmp) || is_elven_weapon(otmp))
 
 /* Orcish gear */
-#define is_orcish_obj(otmp)                                           \
-    (is_orcish_armor(otmp) || (otmp)->otyp == ORCISH_ARROW            \
-     || (otmp)->otyp == ORCISH_SPEAR || (otmp)->otyp == ORCISH_DAGGER \
-     || (otmp)->otyp == ORCISH_SHORT_SWORD || (otmp)->otyp == ORCISH_BOW)
-
+#define is_orcish_obj(otmp)                                              \
+    (is_orcish_armor(otmp) || (otmp)->otyp == ORCISH_ARROW               \
+     || (otmp)->otyp == ORCISH_SPEAR || (otmp)->otyp == ORCISH_DAGGER    \
+     || (otmp)->otyp == ORCISH_SHORT_SWORD || (otmp)->otyp == ORCISH_BOW \
+     || (otmp)->otyp == ORCISH_MORNING_STAR)
 /* Dwarvish gear */
 #define is_dwarvish_obj(otmp)                                  \
     (is_dwarvish_armor(otmp) || (otmp)->otyp == DWARVISH_SPEAR \

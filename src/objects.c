@@ -287,6 +287,9 @@ WEAPON("silver mace", None,
 WEAPON("morning star", None,
        1, 0, 0, 12, 120,  10,  4,  6, 0, B,   P_MORNING_STAR, IRON, HI_METAL),
         /* +d4 small, +1 large */
+WEAPON("orcish morning star", "crude morning star",
+       0, 0, 0,  8, 120,  10,  4,  6, 0, B,   P_MORNING_STAR, IRON, CLR_BLACK),
+        /* +d4 small, +1 large */
 WEAPON("war hammer", None,
        1, 0, 0, 15,  50,   5,  4,  4, 0, B,   P_HAMMER, IRON, HI_METAL),
         /* +1 small */
@@ -548,11 +551,13 @@ BOOTS("levitation boots", "snow boots",
 #undef ARMOR
 
 /* rings ... */
+/* note that prob = 1 for all rings and currently can't be specified
+ * per ring without changing the RING definition */
 #define RING(name,stone,power,cost,mgc,spec,mohs,metal,color) \
     OBJECT(OBJ(name, stone),                                          \
            BITS(0, 0, spec, 0, mgc, spec, 0, 0, 0,                    \
                 HARDGEM(mohs), 0, P_NONE, metal),                     \
-           power, RING_CLASS, 0, 0, 3, cost, 0, 0, 0, 0, 15, color)
+           power, RING_CLASS, 1, 0, 3, cost, 0, 0, 0, 0, 15, color)
 RING("adornment", "wooden",
      ADORNED,                  100, 1, 1, 2, WOOD, HI_WOOD),
 RING("gain strength", "granite",
