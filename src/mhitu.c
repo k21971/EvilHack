@@ -2947,10 +2947,6 @@ struct attack *mattk;
 
     switch (mattk->adtyp) {
 	case AD_STUN:
-	/* Only screams when a certain distance from our hero */
-        /* if (!monnear(mtmp, mtmp->mux, mtmp->muy)); {
-	    return 0;
-	} */
         if (m_canseeu(mtmp) && !mtmp->mspec_used && rn2(5)) {
             if (cancelled) {
                 react = 1; /* "stunned" */
@@ -2980,7 +2976,6 @@ struct attack *mattk;
             mtmp->mspec_used = mtmp->mspec_used + (stun + rn2(6));
             Your("mind reels from the noise!");
             make_stunned((HStun & TIMEOUT) + (long) stun, TRUE);
-            /* stop_occupation(); */
             }
         }
         break;
