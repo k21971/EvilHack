@@ -1094,4 +1094,39 @@ struct monst *mtmp;
     }
 }
 
+/* just entered the Astral Plane; receive tame mount if worthy */
+void
+gain_guardian_steed()
+{
+    struct monst *mtmp;
+    struct obj *otmp;
+    coord mm;
+
+    Hear_again(); /* attempt to cure any deafness now (divine
+                     message will be heard even if that fails) */
+    if (u.ualign.record > 8) { /* fervent */
+        pline("A voice whispers:");
+        verbalize("Worthy vassal, know now thy true identity! Behold thy steed, the Red Horse!");
+        mm.x = u.ux;
+        mm.y = u.uy;
+        if (enexto(&mm, mm.x, mm.y, &mons[PM_RED_HORSE])
+            && (mtmp = makemon(&mons[PM_RED_HORSE], mm.x, mm.y, MM_EDOG)) != 0) {
+            mtmp->mtame = 20;
+            EDOG(mtmp)->apport = ACURR(A_CHA);
+            mtmp->mstrategy &= ~STRAT_APPEARMSG;
+            if (!Blind)
+                pline("The Red Horse appears near you.");
+            else
+                You_feel("the presence of The Red Horse near you.");
+            /* make it strong enough vs. endgame foes */
+            mtmp->mhp = mtmp->mhpmax =
+                d((int) mtmp->m_lev, 10) + 30 + rnd(30);
+            otmp = mksobj(SADDLE, TRUE, FALSE);
+            put_saddle_on_mon(otmp, mtmp);
+            bless(otmp);
+            otmp->dknown = otmp->bknown = otmp->rknown = 1;
+        }
+    }
+}
+
 /*dog.c*/

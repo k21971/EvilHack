@@ -929,28 +929,41 @@ NEARDATA struct permonst mons[] = {
      * The Horses of the Riders - these have been tweaked and buffed up
      * a bit from their original template. It's the end game, and the Riders
      * deserve a truly horrific steed that compliments them.
+     *
+     * There's something special here for our hero as well...
      */
-    MON("pale horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
+    MON("Pale Horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
         A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
-          ATTK(AT_BITE, AD_DRLI, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+          ATTK(AT_BITE, AD_DRLI, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_COLD | MR_POISON, 0,
-        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY,
+        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY
+                  | M1_REGEN | M1_SEE_INVIS,
         M2_NOPOLY | M2_NASTY | M2_HOSTILE | M2_STRONG,
-        M3_INFRAVISIBLE, 21, CLR_GRAY),
-    MON("white horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
+        M3_INFRAVISION | M3_INFRAVISIBLE, 21, CLR_GRAY),
+    MON("White Horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
         A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
-          ATTK(AT_BITE, AD_ENCH, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+          ATTK(AT_BITE, AD_ENCH, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_COLD | MR_POISON, 0,
-        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY,
+        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY
+                  | M1_REGEN | M1_SEE_INVIS,
         M2_NOPOLY | M2_NASTY | M2_HOSTILE | M2_STRONG,
-        M3_INFRAVISIBLE, 21, CLR_WHITE),
-    MON("black horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
+        M3_INFRAVISION | M3_INFRAVISIBLE, 21, CLR_WHITE),
+    MON("Black Horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
         A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
-          ATTK(AT_BITE, AD_SLOW, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+          ATTK(AT_BITE, AD_SLOW, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_COLD | MR_POISON, 0,
-        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY,
+        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY
+                  | M1_REGEN | M1_SEE_INVIS,
         M2_NOPOLY | M2_NASTY | M2_HOSTILE | M2_STRONG,
-        M3_INFRAVISIBLE, 21, CLR_BLACK),
+        M3_INFRAVISION | M3_INFRAVISIBLE, 21, CLR_BLACK),
+    MON("Red Horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN),
+        A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
+          ATTK(AT_BITE, AD_FIRE, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_FIRE | MR_POISON, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY
+                  | M1_REGEN | M1_SEE_INVIS,
+        M2_NOPOLY | M2_NASTY | M2_DOMESTIC | M2_PEACEFUL | M2_STRONG,
+        M3_INFRAVISION | M3_INFRAVISIBLE, 21, CLR_RED),
     /*
      * vortices
      */

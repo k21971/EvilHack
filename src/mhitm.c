@@ -573,6 +573,7 @@ struct attack *mattk;
                 break;
             case AT_KICK:
                 Sprintf(buf,"%s kicks", magr_name);
+                break;
             case AT_STNG:
                 Sprintf(buf, "%s stings", magr_name);
                 break;

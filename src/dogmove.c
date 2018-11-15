@@ -925,13 +925,6 @@ int after; /* this is extra fast monster movement */
         allowflags |= ALLOW_MDISP;
     if (Conflict && !resist(mtmp, RING_CLASS, 0, 0)) {
         allowflags |= ALLOW_U;
-        if (!has_edog) {
-            /* Guardian angel refuses to be conflicted; rather,
-             * it disappears, angrily, and sends in some nasties
-             */
-            lose_guardian_angel(mtmp);
-            return 2; /* current monster is gone */
-        }
     }
 #if 0 /* [this is now handled in dochug()] */
     if (!Conflict && !mtmp->mconf
