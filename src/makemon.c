@@ -972,7 +972,8 @@ struct monst *mon;
     } else if (ptr->mlevel > 49) {
         /* arbitrary; such monsters won't be involved in draining anyway */
         hp = 4 + rnd(4); /* 5..8 */
-    } else if (ptr->mlet == S_DRAGON && monsndx(ptr) >= PM_GRAY_DRAGON) {
+    } else if (ptr->mlet == S_DRAGON && monsndx(ptr) >= PM_GRAY_DRAGON
+               && monsndx(ptr) <= PM_YELLOW_DRAGON) {
         /* adult dragons; newmonhp() uses In_endgame(&u.uz) ? 8 : 4 + rnd(4)
          */
         hp = 4 + rn2(5); /* 4..8 */
@@ -1007,7 +1008,8 @@ int mndx;
          * above the 1..49 that indicate "normal" monster levels */
         mon->mhpmax = mon->mhp = 2 * (ptr->mlevel - 6);
         mon->m_lev = mon->mhp / 4; /* approximation */
-    } else if (ptr->mlet == S_DRAGON && mndx >= PM_GRAY_DRAGON) {
+    } else if (ptr->mlet == S_DRAGON && mndx >= PM_GRAY_DRAGON
+               && mndx <= PM_YELLOW_DRAGON) {
         /* Dragons are MZ_GIGANTIC, plus they're DRAGONS. Should
          * not be such an easy kill */
         mon->mhpmax = mon->mhp =
@@ -1276,6 +1278,9 @@ int mmflags;
                 break;
             case PM_PESTILENCE:
                 mount_monster(mtmp, PM_WHITE_HORSE);
+                break;
+            case PM_NAZGUL:
+                mount_monster(mtmp, PM_FELL_BEAST);
                 break;
             case PM_GOBLIN_OUTRIDER:
                 mount_monster(mtmp, PM_WOLF);

@@ -1370,6 +1370,18 @@ NEARDATA struct permonst mons[] = {
                       | M1_OVIPAROUS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0, 20, CLR_YELLOW),
+    /* From J.R.R. Tolkien, the nine Nazgul had steeds known as 'fell beasts'
+     * which the rode/flew into battle. Fearsome in their own right.
+     * Not exactly dragons, but dragon-like.
+     */
+    MON("fell beast", S_DRAGON, LVL(14, 12, -2, 20, -17), (G_NOGEN | 1),
+        A(ATTK(AT_CLAW, AD_PHYS, 4, 5), ATTK(AT_CLAW, AD_PHYS, 4, 5),
+          ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1200, 800, MS_SHRIEK, MZ_LARGE), MR_COLD | MR_SLEEP | MR_POISON, 0,
+        M1_FLY | M1_POIS | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS
+                      | M1_CARNIVORE,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY,
+        M3_ACCURATE | M3_INFRAVISION, 16, HI_LORD),
     /*
      * Elementals
      */
@@ -2104,15 +2116,15 @@ struct permonst _mons2[] = {
         M2_UNDEAD | M2_WANDER | M2_HOSTILE | M2_STRONG | M2_COLLECT
             | M2_NASTY,
         M3_INFRAVISION, 14, CLR_WHITE),
-    MON("Nazgul", S_WRAITH, LVL(13, 12, 0, 25, -17),
-        (G_GENO | G_NOCORPSE | 1),
-        A(ATTK(AT_WEAP, AD_DRLI, 1, 4), ATTK(AT_BREA, AD_SLEE, 2, 25),
-          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+    MON("Nazgul", S_WRAITH, LVL(17, 12, -2, 35, -17),
+        (G_NOCORPSE | 1),
+        A(ATTK(AT_WEAP, AD_DRLI, 1, 10), ATTK(AT_BREA, AD_SLEE, 2, 25),
+          ATTK(AT_SCRE, AD_STUN, 2, 8), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 0, MS_SPELL, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
-        0, M1_BREATHLESS | M1_HUMANOID,
+        0, M1_BREATHLESS | M1_HUMANOID | M1_SEE_INVIS,
         M2_NOPOLY | M2_UNDEAD | M2_STALK | M2_STRONG | M2_HOSTILE | M2_MALE
             | M2_COLLECT,
-        M3_ACCURATE, 17, HI_LORD),
+        M3_ACCURATE | M3_INFRAVISION, 19, HI_LORD),
     /*
      * Xorn
      */

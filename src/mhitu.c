@@ -21,6 +21,7 @@ STATIC_DCL void FDECL(missmu, (struct monst *, BOOLEAN_P, struct attack *));
 STATIC_DCL void FDECL(mswings, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(wildmiss, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(hitmsg, (struct monst *, struct attack *));
+STATIC_DCL int FDECL(screamu, (struct monst*, struct attack*));
 
 /* See comment in mhitm.c.  If we use this a lot it probably should be */
 /* changed to a parameter to mhitu. */
@@ -854,7 +855,12 @@ register struct monst *mtmp;
             else
                 sum[i] = castmu(mtmp, mattk, TRUE, foundyou);
             break;
-
+	case AT_SCRE:
+	    if (ranged) {
+		sum[i] = screamu(mtmp, mattk);
+	    }
+	    /* if you're nice and close, don't bother */
+	    break;
         default: /* no attack */
             break;
         }
@@ -2917,6 +2923,70 @@ const char *str;
                                  : hairbuf);
     }
     remove_worn_item(obj, TRUE);
+}
+
+/* The Nazgul's scream attack effect, pulled from SporkHack.
+ * I've modified it here to be more in-line with how 3.6.x
+ * employs its gaze stun attack, which allows a bit more
+ * fine-tuning */
+STATIC_OVL int
+screamu(mtmp, mattk)
+struct monst *mtmp;
+struct attack *mattk;
+{
+    static const char *const reactions[] = {
+        "stunned",               /* [1] */
+    };
+    int react = -1;
+    boolean cancelled = (mtmp->mcan != 0), already = FALSE;
+
+    /* assumes that hero has to hear the monster's scream in
+       order to be affected */
+    if (Deaf)
+        cancelled = TRUE;
+
+    switch (mattk->adtyp) {
+	case AD_STUN:
+	/* Only screams when a certain distance from our hero */
+        if (distu(mtmp->mx,mtmp->my) > 85) {
+	    return FALSE;
+	}
+        if (m_canseeu(mtmp) && !mtmp->mspec_used && rn2(5)) {
+            if (cancelled) {
+                react = 1; /* "stunned" */
+                already = (mtmp->mstun != 0);
+            if (m_canseeu(mtmp) && canseemon(mtmp) && (Deaf)) {
+                pline("It looks as if %s is yelling at you.", mon_nam(mtmp));
+            }
+            if (m_canseeu(mtmp) && (Blind) && (Deaf)) {
+                You("sense a disturbing vibration in the air.");
+            }
+	    if (m_canseeu(mtmp) && canseemon(mtmp) && (!Deaf)) {
+		pline("%s croaks hoarsely.", Monnam(mtmp));
+	    } else {
+		You_hear("a hoarse croak nearby.");
+	    }
+        } else {
+            int stun = d(2, 8);
+
+        if (m_canseeu(mtmp)) {
+            pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
+        } else {
+            You_hear("a horrific scream!");
+        }
+        if (u.usleep && m_canseeu(mtmp) && (!Deaf)) {
+            unmul("You are frightened awake!");
+        }
+            mtmp->mspec_used = mtmp->mspec_used + (stun + rn2(6));
+            Your("mind reels from the noise!");
+            make_stunned((HStun & TIMEOUT) + (long) stun, TRUE);
+            stop_occupation();
+            }
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 /* FIXME:
