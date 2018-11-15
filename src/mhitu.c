@@ -856,7 +856,7 @@ register struct monst *mtmp;
                 sum[i] = castmu(mtmp, mattk, TRUE, foundyou);
             break;
 	case AT_SCRE:
-	    if (ranged) {
+	    if (range2) {
 		sum[i] = screamu(mtmp, mattk);
 	    }
 	    /* if you're nice and close, don't bother */
@@ -2940,17 +2940,17 @@ struct attack *mattk;
     int react = -1;
     boolean cancelled = (mtmp->mcan != 0), already = FALSE;
 
-    /* assumes that hero has to hear the monster's scream in
-       order to be affected */
+    /* assumes that the hero has to hear the monster's
+       scream in order to be affected */
     if (Deaf)
         cancelled = TRUE;
 
     switch (mattk->adtyp) {
 	case AD_STUN:
 	/* Only screams when a certain distance from our hero */
-        if (distu(mtmp->mx,mtmp->my) > 85) {
-	    return FALSE;
-	}
+        /* if (!monnear(mtmp, mtmp->mux, mtmp->muy)); {
+	    return 0;
+	} */
         if (m_canseeu(mtmp) && !mtmp->mspec_used && rn2(5)) {
             if (cancelled) {
                 react = 1; /* "stunned" */
@@ -2980,7 +2980,7 @@ struct attack *mattk;
             mtmp->mspec_used = mtmp->mspec_used + (stun + rn2(6));
             Your("mind reels from the noise!");
             make_stunned((HStun & TIMEOUT) + (long) stun, TRUE);
-            stop_occupation();
+            /* stop_occupation(); */
             }
         }
         break;

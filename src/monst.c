@@ -936,32 +936,28 @@ NEARDATA struct permonst mons[] = {
         A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
           ATTK(AT_BITE, AD_DRLI, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_COLD | MR_POISON, 0,
-        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY
-                  | M1_REGEN | M1_SEE_INVIS,
+        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_SEE_INVIS,
         M2_NOPOLY | M2_NASTY | M2_HOSTILE | M2_STRONG,
         M3_INFRAVISION | M3_INFRAVISIBLE, 21, CLR_GRAY),
     MON("White Horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
         A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
           ATTK(AT_BITE, AD_ENCH, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_COLD | MR_POISON, 0,
-        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY
-                  | M1_REGEN | M1_SEE_INVIS,
+        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_SEE_INVIS,
         M2_NOPOLY | M2_NASTY | M2_HOSTILE | M2_STRONG,
         M3_INFRAVISION | M3_INFRAVISIBLE, 21, CLR_WHITE),
     MON("Black Horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN | G_NOCORPSE),
         A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
           ATTK(AT_BITE, AD_SLOW, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_COLD | MR_POISON, 0,
-        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY
-                  | M1_REGEN | M1_SEE_INVIS,
+        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_SEE_INVIS,
         M2_NOPOLY | M2_NASTY | M2_HOSTILE | M2_STRONG,
         M3_INFRAVISION | M3_INFRAVISIBLE, 21, CLR_BLACK),
     MON("Red Horse", S_UNICORN, LVL(18, 24, 0, 70, 0), (G_NOGEN),
         A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
           ATTK(AT_BITE, AD_FIRE, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_FIRE | MR_POISON, 0,
-        M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE | M1_FLY
-                  | M1_REGEN | M1_SEE_INVIS,
+        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_SEE_INVIS,
         M2_NOPOLY | M2_NASTY | M2_DOMESTIC | M2_PEACEFUL | M2_STRONG,
         M3_INFRAVISION | M3_INFRAVISIBLE, 21, CLR_RED),
     /*
@@ -1384,7 +1380,7 @@ NEARDATA struct permonst mons[] = {
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0, 20, CLR_YELLOW),
     /* From J.R.R. Tolkien, the nine Nazgul had steeds known as 'fell beasts'
-     * which the rode/flew into battle. Fearsome in their own right.
+     * which they rode/flew into battle. Fearsome in their own right.
      * Not exactly dragons, but dragon-like.
      */
     MON("fell beast", S_DRAGON, LVL(14, 12, -2, 20, -17), (G_NOGEN | 1),
