@@ -2184,15 +2184,15 @@ register struct attack *mattk;
                     pline("%s is pummeled with your debris!", Monnam(mdef));
                 break;
             case AD_WRAP:
-                if (youmonst.data == &mons[PM_WATER_ELEMENTAL] ||
-                    youmonst.data == &mons[PM_GELATINOUS_CUBE]) {
+                /* suffocation attack; negate damage if breathless */
+                if (breathless(mdef->data)) {
+                    pline("%s doesn't appear to need air to breathe.",
+                          Monnam(mdef));
+                    dam = 0;
+                }
+                else {
                     pline("%s is being suffocated!", Monnam(mdef));
-                    if (breathless(pd)) {
-                        dam = 0;
-                        pline("But %s doesn't need air to breathe.", mon_nam(mdef));
-                    }
-                } else
-                    pline("%s is choking!", Monnam(mdef));
+                }
                 break;
             case AD_ACID:
                 pline("%s is covered with your goo!", Monnam(mdef));

@@ -1853,6 +1853,8 @@ struct attack *mattk;
     struct obj *otmp2;
     int i;
     boolean physical_damage = FALSE;
+    /* for tracking if this is the first engulf */
+    boolean old_uswallow = u.uswallow;
 
     if (!u.uswallow) { /* swallows you */
         int omx = mtmp->mx, omy = mtmp->my;
@@ -1984,32 +1986,26 @@ struct attack *mattk;
         }
         break;
     case AD_WRAP:
-        /* Why AD_WRAP?  There's no suffocation AD_*,
-         * but WRAP is a rarely used suffocation attack. */
-        if (amphibious(youmonst.data) &&
-            mtmp->data == &mons[PM_WATER_ELEMENTAL])
-        {
-            You("feel quite comfortable in here.");
+        /* Initially pulled from GruntHack, and then improved upon by
+         * aosdict for xNetHack (see git commit ee808b): AD_WRAP is used because
+         * there's no specific suffocation attack, but it's used for other
+         * suffocation-y things like drowning attacks.
+         * Generally, only give a message if this is the first engulf, not a
+         * subsequent attack when already engulfed. */
+        if (Breathless) {
+            if (!old_uswallow)
+                You("can't breathe, but you don't need to.");
             tmp = 0;
         }
-        else if (Breathless)
-        {
-             You("can't breathe, but you don't need to.");
-             tmp = 0;
-        }
-        else if (!Strangled)
-        {
-            /*Message: "You can no longer breathe."*/
-            pline("It's impossible to breathe in here!");
-            Strangled = 7; /* Bug: if you escape from inside the monster that
-                            * engulfed you, you still suffocate. This was fixed
-                            * in GruntHack, but that fix doesn't work here.
-                            * Bumping up this value until a fix is found.
-                            */
+        else if (!Strangled) {
+            if (!old_uswallow)
+                pline("It's impossible to breathe in here!");
+            Strangled = 3; /* xNetHack sets this timer for 5, GruntHack had it for 3 */
             tmp = 0;
+            /* Immediate timeout message: "You find it hard to breathe." */
         }
         if (mtmp->data == &mons[PM_WATER_ELEMENTAL])
-            water_damage(invent, 0, TRUE); /* This doesn't work */
+            water_damage_chain(invent, FALSE, rnd(3), FALSE);
         break;
     case AD_ACID:
         if (Acid_resistance) {

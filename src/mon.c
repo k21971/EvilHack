@@ -499,7 +499,7 @@ register struct monst *mtmp;
         if (split_mon(mtmp, (struct monst *) 0))
             dryup(mtmp->mx, mtmp->my, FALSE);
         if (inpool)
-            water_damage_chain(mtmp->minvent, FALSE);
+            water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         return 0;
     } else if (mtmp->data == &mons[PM_IRON_GOLEM] && inpool && !rn2(5)) {
         int dam = d(2, 6);
@@ -514,7 +514,7 @@ register struct monst *mtmp;
             if (DEADMONSTER(mtmp))
                 return 1;
         }
-        water_damage_chain(mtmp->minvent, FALSE);
+        water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         return 0;
     }
 
@@ -571,7 +571,7 @@ register struct monst *mtmp;
             }
             mondead(mtmp);
             if (!DEADMONSTER(mtmp)) {
-                water_damage_chain(mtmp->minvent, FALSE);
+                water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
                 (void) rloc(mtmp, FALSE);
                 return 0;
             }
@@ -2304,6 +2304,18 @@ struct monst *mtmp;
                without an engulf attack) from immediately re-engulfing */
             if (attacktype(mtmp->data, AT_ENGL) && !mtmp->mspec_used)
                 mtmp->mspec_used = rnd(2);
+
+            if (attacktype_fordmg(mtmp->data, AT_ENGL, AD_WRAP)) {
+                /* If this is a suffocating engulfer, make sure to reset
+                 * Strangled, unless the hero was already being strangled. */
+                if (Strangled
+                    && (!uamul || uamul->otyp == AMULET_OF_STRANGULATION)) {
+                    /* FIXME: What if the hero was being strangled by some other
+                     * source that isn't the amulet? */
+                    Strangled = 0;
+                    You("can breathe again.");
+                }
+            }
         }
         u.ustuck = 0;
     }

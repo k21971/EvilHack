@@ -3510,7 +3510,7 @@ boolean force;
         if (carried(obj))
             pline("Water gets into your %s!", ostr);
 
-        water_damage_chain(obj->cobj, FALSE);
+        water_damage_chain(obj->cobj, FALSE, 0, TRUE);
         return ER_DAMAGED; /* contents were damaged */
     } else if (obj->otyp == OILSKIN_SACK) {
         if (carried(obj))
@@ -3626,21 +3626,68 @@ boolean force;
     return ER_NOTHING;
 }
 
+/* Apply water damage to a chain (inventory, floor, monster inventory) of
+ * objects.
+ * here is TRUE if the chain represents objects on the floor.
+ * count, if positive, is the number of items that will be damaged by
+ * this function.
+ * If trying to wet everything (e.g. falling into water), set count < 1.
+ */
 void
-water_damage_chain(obj, here)
+water_damage_chain(obj, here, count, do_container)
 struct obj *obj;
 boolean here;
+int count;
+boolean do_container;
 {
-    struct obj *otmp;
+    struct obj *otmp = obj;
+    int i = 0, j;
+    struct obj** to_damage = NULL;
+
+    if (count >= 1) {
+        /* reservoir sampling: setup */
+        to_damage = (struct obj**) alloc(sizeof(struct obj*) * count);
+        for (otmp = obj; otmp; otmp = (here ? otmp->nexthere : otmp->nobj)) {
+            if (!do_container && Is_container(otmp))
+                continue;
+            to_damage[i] = otmp;
+            i++;
+            if (i == count)
+                break;
+        }
+        if (i < count) {
+            /* fewer than count items in chain, so just damage everything */
+            free((genericptr_t) to_damage);
+            count = -1; /* let the rest of this function handle it */
+        }
+    }
 
     /* initialize acid context: so far, neither seen (dknown) potions of
        acid nor unseen have exploded during this water damage sequence */
     acid_ctx.dkn_boom = acid_ctx.unk_boom = 0;
     acid_ctx.ctx_valid = TRUE;
 
-    for (; obj; obj = otmp) {
-        otmp = here ? obj->nexthere : obj->nobj;
-        water_damage(obj, (char *) 0, FALSE);
+    for (otmp = obj; otmp; otmp = (here ? otmp->nexthere : otmp->nobj)) {
+        if (!do_container && Is_container(otmp))
+            continue;
+        if (count < 1) {
+            water_damage(otmp, (char *) 0, FALSE);
+        }
+        else {
+            /* reservoir sampling: replace elements with lowering probability */
+            i++; /* i should start this loop equal to count */
+            j = rn2(i);
+            if (j < count) {
+                to_damage[j] = otmp;
+            }
+        }
+    }
+
+    if (count >= 1) {
+        for (i = 0; i < count; i++) {
+            water_damage(to_damage[i], (char *) 0, FALSE);
+        }
+        free((genericptr_t) to_damage);
     }
 
     /* reset acid context */
@@ -3726,7 +3773,7 @@ drown()
             You("sink like %s.", Hallucination ? "the Titanic" : "a rock");
     }
 
-    water_damage_chain(invent, FALSE);
+    water_damage_chain(invent, FALSE, 0, TRUE);
 
     if (u.umonnum == PM_GREMLIN && rn2(3))
         (void) split_mon(&youmonst, (struct monst *) 0);

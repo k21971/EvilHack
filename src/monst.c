@@ -188,7 +188,7 @@ NEARDATA struct permonst mons[] = {
         MR_FIRE | MR_COLD | MR_ELEC | MR_SLEEP,
         M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS | M1_OMNIVORE
             | M1_ACID,
-        M2_WANDER | M2_HOSTILE | M2_NASTY | M2_NEUTER, 0, 9, CLR_CYAN),
+        M2_WANDER | M2_HOSTILE | M2_NASTY | M2_NEUTER, 0, 10, CLR_CYAN),
     /*
      * cockatrice
      */
