@@ -1,4 +1,4 @@
-/* NetHack 3.6	hack.c	$NHDT-Date: 1540591769 2018/10/26 22:09:29 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.194 $ */
+/* NetHack 3.6	hack.c	$NHDT-Date: 1545530973 2018/12/23 02:09:33 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.202 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -13,7 +13,6 @@ STATIC_DCL int FDECL(still_chewing, (XCHAR_P, XCHAR_P));
 STATIC_DCL void NDECL(dosinkfall);
 STATIC_DCL boolean FDECL(findtravelpath, (int));
 STATIC_DCL boolean FDECL(trapmove, (int, int, struct trap *));
-STATIC_DCL void NDECL(switch_terrain);
 STATIC_DCL struct monst *FDECL(monstinroom, (struct permonst *, int));
 STATIC_DCL boolean FDECL(doorless_door, (int, int));
 STATIC_DCL void FDECL(move_update, (BOOLEAN_P));
@@ -934,7 +933,7 @@ int mode;
                 u.dx = u.tx - u.ux;
                 u.dy = u.ty - u.uy;
                 nomul(0);
-                iflags.travelcc.x = iflags.travelcc.y = -1;
+                iflags.travelcc.x = iflags.travelcc.y = 0;
             }
             return TRUE;
         }
@@ -1056,7 +1055,7 @@ int mode;
                                     nomul(0);
                                     /* reset run so domove run checks work */
                                     context.run = 8;
-                                    iflags.travelcc.x = iflags.travelcc.y = -1;
+                                    iflags.travelcc.x = iflags.travelcc.y = 0;
                                 }
                                 return TRUE;
                             }
@@ -1441,6 +1440,19 @@ domove()
             }
             x = u.ux + u.dx;
             y = u.uy + u.dy;
+
+            /* are we trying to move out of water while carrying too much? */
+            if (isok(x, y) && !is_pool(x, y) && !Is_waterlevel(&u.uz)
+                && wtcap > (Swimming ? MOD_ENCUMBER : SLT_ENCUMBER)) {
+                /* when escaping from drowning you need to be unencumbered
+                   in order to crawl out of water, but when not drowning,
+                   doing so while encumbered is feasible; if in an aquatic
+                   form, stressed or less is allowed; otherwise (magical
+                   breathing), only burdened is allowed */
+                You("are carrying too much to climb out of the water.");
+                nomul(0);
+                return;
+            }
         }
         if (!isok(x, y)) {
             nomul(0);
@@ -1453,6 +1465,7 @@ domove()
                 if (iflags.mention_walls) {
                     if (trap && trap->tseen) {
                         int tt = what_trap(trap->ttyp);
+
                         You("stop in front of %s.",
                             an(defsyms[trap_to_defsym(tt)].explanation));
                     } else if (is_pool_or_lava(x,y) && levl[x][y].seenv) {
@@ -1947,12 +1960,13 @@ invocation_message()
 /* moving onto different terrain;
    might be going into solid rock, inhibiting levitation or flight,
    or coming back out of such, reinstating levitation/flying */
-STATIC_OVL void
+void
 switch_terrain()
 {
     struct rm *lev = &levl[u.ux][u.uy];
     boolean blocklev = (IS_ROCK(lev->typ) || closed_door(u.ux, u.uy)
-                        || (Is_waterlevel(&u.uz) && lev->typ == WATER));
+                        || (Is_waterlevel(&u.uz) && lev->typ == WATER)),
+            was_levitating = !!Levitation, was_flying = !!Flying;
 
     if (blocklev) {
         /* called from spoteffects(), stop levitating but skip float_down() */
@@ -1980,6 +1994,8 @@ switch_terrain()
         if (Flying)
             You("start flying.");
     }
+    if ((!Levitation ^ was_levitating) || (!Flying ^ was_flying))
+        context.botl = TRUE; /* update Lev/Fly status condition */
 }
 
 /* extracted from spoteffects; called by spoteffects to check for entering or
@@ -2840,12 +2856,13 @@ const char *msg_override;
     else if (!nomovemsg)
         nomovemsg = You_can_move_again;
     if (*nomovemsg)
-        pline1(nomovemsg);
+        pline("%s", nomovemsg);
     nomovemsg = 0;
     u.usleep = 0;
     multi_reason = NULL;
     if (afternmv) {
         int NDECL((*f)) = afternmv;
+
         /* clear afternmv before calling it (to override the
            encumbrance hack for levitation--see weight_cap()) */
         afternmv = (int NDECL((*))) 0;

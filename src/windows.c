@@ -99,7 +99,7 @@ static struct win_choices {
     { &tty_procs, win_tty_init CHAINR(0) },
 #endif
 #ifdef CURSES_GRAPHICS
-    { &curses_procs, 0 CHAINR(0) },
+    { &curses_procs, 0 },
 #endif
 #ifdef X11_GRAPHICS
     { &X11_procs, win_X11_init CHAINR(0) },
@@ -296,7 +296,8 @@ const char *s;
                          s, buf);
     }
 
-    if (windowprocs.win_raw_print == def_raw_print)
+    if (windowprocs.win_raw_print == def_raw_print
+            || WINDOWPORT("safe-startup"))
         nh_terminate(EXIT_SUCCESS);
 }
 
@@ -1280,7 +1281,7 @@ winid win UNUSED;
 STATIC_OVL void
 dump_add_menu(win, glyph, identifier, ch, gch, attr, str, preselected)
 winid win UNUSED;
-int glyph UNUSED;
+int glyph;
 const anything *identifier UNUSED;
 char ch;
 char gch UNUSED;

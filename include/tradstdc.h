@@ -1,4 +1,4 @@
-/* NetHack 3.6	tradstdc.h	$NHDT-Date: 1501803107 2017/08/03 23:31:47 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.29 $ */
+/* NetHack 3.6	tradstdc.h	$NHDT-Date: 1545270756 2018/12/20 01:52:36 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.34 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -95,7 +95,7 @@
     {                                    \
         va_list the_args;
 #define VA_INIT(var1, typ1)
-#define VA_NEXT(var1, typ1) var1 = va_arg(the_args, typ1)
+#define VA_NEXT(var1, typ1) (var1 = va_arg(the_args, typ1))
 #define VA_ARGS the_args
 #define VA_START(x) va_start(the_args, x)
 #define VA_END()      \
@@ -123,7 +123,7 @@
 #define VA_ARGS the_args
 #define VA_START(x) va_start(the_args)
 #define VA_INIT(var1, typ1) var1 = va_arg(the_args, typ1)
-#define VA_NEXT(var1, typ1) var1 = va_arg(the_args, typ1)
+#define VA_NEXT(var1, typ1) (var1 = va_arg(the_args, typ1))
 #define VA_END()      \
     va_end(the_args); \
     }
@@ -389,6 +389,13 @@ typedef genericptr genericptr_t; /* (void *) or (char *) */
 #undef signed
 #endif
 
+#ifdef __clang__
+/* clang's gcc emulation is sufficient for nethack's usage */
+#ifndef __GNUC__
+#define __GNUC__ 4
+#endif
+#endif
+
 /*
  * Allow gcc2 to check parameters of printf-like calls with -Wformat;
  * append this to a prototype declaration (see pline() in extern.h).
@@ -400,6 +407,10 @@ typedef genericptr genericptr_t; /* (void *) or (char *) */
 #if __GNUC__ >= 3
 #define UNUSED __attribute__((unused))
 #define NORETURN __attribute__((noreturn))
+/* disable gcc's __attribute__((__warn_unused_result__)) since explicitly
+   discarding the result by casting to (void) is not accepted as a 'use' */
+#define __warn_unused_result__ /*empty*/
+#define warn_unused_result /*empty*/
 #endif
 #endif
 

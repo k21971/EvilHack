@@ -1,4 +1,4 @@
-/* NetHack 3.6	trap.c	$NHDT-Date: 1524312044 2018/04/21 12:00:44 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.290 $ */
+/* NetHack 3.6	trap.c	$NHDT-Date: 1545259936 2018/12/19 22:52:16 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.313 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1185,6 +1185,7 @@ unsigned trflags;
         if (!Sokoban) {
             char verbbuf[BUFSZ];
 
+            *verbbuf = '\0';
             if (u.usteed) {
                 if ((trflags & RECURSIVETRAP) != 0)
                     Sprintf(verbbuf, "and %s fall",
@@ -1202,8 +1203,9 @@ unsigned trflags;
             } else {
                 Strcpy(verbbuf,
                        !plunged ? "fall" : (Flying ? "dive" : "plunge"));
-                You("%s into %s pit!", verbbuf, a_your[trap->madeby_u]);
             }
+            if (*verbbuf)
+                You("%s into %s pit!", verbbuf, a_your[trap->madeby_u]);
         }
         /* wumpus reference */
         if (Role_if(PM_RANGER) && !trap->madeby_u && !trap->once
@@ -1523,7 +1525,7 @@ unsigned trflags;
         int style = ROLL | (trap->tseen ? LAUNCH_KNOWN : 0);
 
         feeltrap(trap);
-        pline("Click! You trigger a rolling boulder trap!");
+        pline("Click!  You trigger a rolling boulder trap!");
         if (!launch_obj(BOULDER, trap->launch.x, trap->launch.y,
                         trap->launch2.x, trap->launch2.y, style)) {
             deltrap(trap);
@@ -2673,7 +2675,7 @@ register struct monst *mtmp;
 
                 newsym(mtmp->mx, mtmp->my);
                 if (in_sight)
-                    pline("Click! %s triggers %s.", Monnam(mtmp),
+                    pline("Click!  %s triggers %s.", Monnam(mtmp),
                           trap->tseen ? "a rolling boulder trap" : something);
                 if (launch_obj(BOULDER, trap->launch.x, trap->launch.y,
                                trap->launch2.x, trap->launch2.y, style)) {
@@ -2689,13 +2691,29 @@ register struct monst *mtmp;
             break;
         case VIBRATING_SQUARE:
             if (see_it && !Blind) {
-                if (in_sight)
-                    pline("You see a strange vibration beneath %s %s.",
-                          s_suffix(mon_nam(mtmp)),
-                          makeplural(mbodypart(mtmp, FOOT)));
-                else
-                    pline("You see the ground vibrate in the distance.");
-                seetrap(trap);
+                seetrap(trap); /* before messages */
+                if (in_sight) {
+                    char buf[BUFSZ], *p, *monnm = mon_nam(mtmp);
+
+                    if (nolimbs(mtmp->data)
+                        || is_floater(mtmp->data) || is_flyer(mtmp->data)) {
+                        /* just "beneath <mon>" */
+                        Strcpy(buf, monnm);
+                    } else {
+                        Strcpy(buf, s_suffix(monnm));
+                        p = eos(strcat(buf, " "));
+                        Strcpy(p, makeplural(mbodypart(mtmp, FOOT)));
+                        /* avoid "beneath 'rear paws'" or 'rear hooves' */
+                        (void) strsubst(p, "rear ", "");
+                    }
+                    You_see("a strange vibration beneath %s.", buf);
+                } else {
+                    /* notice something (hearing uses a larger threshold
+                       for 'nearby') */
+                    You_see("the ground vibrate %s.",
+                            (distu(mtmp->mx, mtmp->my) <= 2 * 2)
+                               ? "nearby" : "in the distance");
+                }
             }
             break;
         default:
@@ -3164,7 +3182,7 @@ domagictrap()
 
     if (fate < 10) {
         /* Most of the time, it creates some monsters. */
-        register int cnt = rnd(4);
+        int cnt = rnd(4);
 
         /* blindness effects */
         if (!resists_blnd(&youmonst)) {
@@ -3189,6 +3207,9 @@ domagictrap()
         }
         while (cnt--)
             (void) makemon((struct permonst *) 0, u.ux, u.uy, NO_MM_FLAGS);
+        /* roar: wake monsters in vicinity, after placing trap-created ones */
+        wake_nearto(u.ux, u.uy, 7 * 7);
+        /* [flash: should probably also hit nearby gremlins with light] */
     } else
         switch (fate) {
         case 10:
@@ -4085,7 +4106,7 @@ boolean force_failure;
         }
     }
     /* untrappable traps are located on the ground. */
-    if (!can_reach_floor(TRUE)) {
+    if (!can_reach_floor(under_u)) {
         if (u.usteed && P_SKILL(P_RIDING) < P_BASIC)
             rider_cant_reach();
         else
@@ -4111,7 +4132,7 @@ boolean force_failure;
 
                         if (ttmp2) {
                             pline_The(
-                                "webbing sticks to you. You're caught too!");
+                                "webbing sticks to you.  You're caught too!");
                             dotrap(ttmp2, NOWEBMSG);
                             if (u.usteed && u.utrap) {
                                 /* you, not steed, are trapped */
@@ -4449,7 +4470,7 @@ boolean force;
                     deal_with_floor_trap = FALSE;
                 } else {
                     Sprintf(
-                        qbuf, "There %s and %s here. %s %s?",
+                        qbuf, "There %s and %s here.  %s %s?",
                         (boxcnt == 1) ? "is a container" : "are containers",
                         an(trapdescr),
                         (ttmp->ttyp == WEB) ? "Remove" : "Disarm", the_trap);

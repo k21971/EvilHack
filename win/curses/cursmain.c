@@ -1,4 +1,7 @@
 /* vim:set cin ft=c sw=4 sts=4 ts=8 et ai cino=Ls\:0t0(0 : -*- mode:c;fill-column:80;tab-width:8;c-basic-offset:4;indent-tabs-mode:nil;c-file-style:"k&r" -*-*/
+/* NetHack 3.6 cursmain.c */
+/* Copyright (c) Karl Garrison, 2010. */
+/* NetHack may be freely redistributed.  See license for details. */
 
 #include "curses.h"
 #include "hack.h"
@@ -76,6 +79,16 @@ struct window_procs curses_procs = {
     curses_status_update,
     genl_can_suspend_yes,
 };
+
+/*
+ * Global variables for curses interface
+ */
+ 
+int term_rows, term_cols;   /* size of underlying terminal */
+int orig_cursor;	    /* Preserve initial cursor state */
+WINDOW *base_term;          /* underlying terminal window */
+boolean counting;           /* Count window is active */
+WINDOW *mapwin, *statuswin, *messagewin;    /* Main windows */
 
 /* Track if we're performing an update to the permanent window.
    Needed since we aren't using the normal menu functions to handle
@@ -606,7 +619,13 @@ raw_print(str)  -- Print directly to a screen, or otherwise guarantee that
 void
 curses_raw_print(const char *str)
 {
+#ifdef PDCURSES
+    WINDOW *win = curses_get_nhwin(MESSAGE_WIN);
+
+    curses_message_win_puts(str, FALSE);
+#else
     puts(str);
+#endif
 }
 
 /*

@@ -43,10 +43,17 @@ boolean win32_cursorblink;
 /* globals required within here */
 HANDLE ffhandle = (HANDLE) 0;
 WIN32_FIND_DATA ffd;
+extern int GUILaunched;
+boolean getreturn_enabled;
+int redirect_stdout;
 
 typedef HWND(WINAPI *GETCONSOLEWINDOW)();
 static HWND GetConsoleHandle(void);
 static HWND GetConsoleHwnd(void);
+#if !defined(TTY_GRAPHICS)
+extern void NDECL(backsp);
+#endif
+int NDECL(windows_console_custom_nhgetch);
 
 /* The function pointer nt_kbhit contains a kbhit() equivalent
  * which varies depending on which window port is active.
@@ -216,7 +223,7 @@ VA_DECL(const char *, s)
     /* error() may get called before tty is initialized */
     if (iflags.window_inited)
         end_screen();
-    if (windowprocs.name != NULL && !strncmpi(windowprocs.name, "tty", 3)) {
+    if (WINDOWPORT("tty")) {
         buf[0] = '\n';
         (void) vsprintf(&buf[1], s, VA_ARGS);
         Strcat(buf, "\n");
@@ -239,6 +246,11 @@ Delay(int ms)
 void
 win32_abort()
 {
+    boolean is_tty = FALSE;
+
+#ifdef TTY_GRAPHICS
+    is_tty = WINDOWPORT("tty");
+#endif
     if (wizard) {
         int c, ci, ct;
 
@@ -248,13 +260,11 @@ win32_abort()
         msmsg("Execute debug breakpoint wizard?");
         while ((ci = nhgetch()) != '\n') {
             if (ct > 0) {
-#ifdef TTY_GRAPHICS
-                backsp(); /* \b is visible on NT */
-#endif
+                if (is_tty)
+                    backsp(); /* \b is visible on NT console */
                 (void) putchar(' ');
-#ifdef TTY_GRAPHICS
-                backsp();
-#endif
+                if (is_tty)
+                    backsp();
                 ct = 0;
                 c = 'n';
             }
@@ -489,12 +499,58 @@ void nhassert_failed(const char * exp, const char * file, int line)
     error(message);
 }
 
-/* nethack_enter_winnt() is the first thing called from main */
+void
+nethack_exit(code)
+int code;
+{
+    /* Only if we started from the GUI, not the command prompt,
+     * we need to get one last return, so the score board does
+     * not vanish instantly after being created.
+     * GUILaunched is defined and set in nttty.c.
+     */
+
+
+    if (!GUILaunched) {
+        windowprocs = *get_safe_procs(1);
+        /* use our custom version which works
+           a little cleaner than the stdio one */
+        windowprocs.win_nhgetch = windows_console_custom_nhgetch;
+    }
+    if (getreturn_enabled)
+        wait_synch();
+    exit(code);
+}
+
+#undef kbhit
+#include <conio.h>
+
+int
+windows_console_custom_nhgetch(VOID_ARGS)
+{
+    return _getch();
+}
+
+
+void
+getreturn(str)
+const char *str;
+{
+    char buf[BUFSZ];
+
+    if (!getreturn_enabled)
+        return;
+    Sprintf(buf,"Hit <Enter> %s.", str);
+    raw_print(buf);
+    wait_synch();
+    return;
+}
+
+/* nethack_enter_winnt() is called from main immediately after
+   initializing the window port */
 void nethack_enter_winnt()
 {
-#ifdef TTY_GRAPHICS
-    nethack_enter_nttty();
-#endif
+	if (WINDOWPORT("tty"))
+		nethack_enter_nttty();
 }
 
 /* CP437 to Unicode mapping according to the Unicode Consortium */
@@ -603,6 +659,26 @@ const char *window_opt;
             "-%swindows:cursorblink is the only supported option.\n");
     }
     return 0;
+}
+
+/*
+ * Add a backslash to any name not ending in /, \ or :	 There must
+ * be room for the \
+ */
+void
+append_slash(name)
+char *name;
+{
+    char *ptr;
+
+    if (!*name)
+        return;
+    ptr = name + (strlen(name) - 1);
+    if (*ptr != '\\' && *ptr != '/' && *ptr != ':') {
+        *++ptr = '\\';
+        *++ptr = '\0';
+    }
+    return;
 }
 #endif /* WIN32 */
 

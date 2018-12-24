@@ -1,4 +1,7 @@
 /* vim:set cin ft=c sw=4 sts=4 ts=8 et ai cino=Ls\:0t0(0 : -*- mode:c;fill-column:80;tab-width:8;c-basic-offset:4;indent-tabs-mode:nil;c-file-style:"k&r" -*-*/
+/* NetHack 3.6 cursdial.c */
+/* Copyright (c) Karl Garrison, 2010. */
+/* NetHack may be freely redistributed.  See license for details. */
 
 #include "curses.h"
 #include "hack.h"
@@ -6,6 +9,13 @@
 #include "cursdial.h"
 #include "func_tab.h"
 #include <ctype.h>
+
+#if defined(FILENAME_CMP)
+#define strcasecmp FILENAME_CMP
+#endif
+#if defined(STRNCMPI)
+#define strncasecmp strncmpi
+#endif
 
 /* Dialog windows for curses interface */
 
@@ -73,17 +83,28 @@ curses_line_input_dialog(const char *prompt, char *answer, int buffer)
 {
     int map_height, map_width, maxwidth, remaining_buf, winx, winy, count;
     WINDOW *askwin, *bwin;
-    char input[buffer];
     char *tmpstr;
     int prompt_width = strlen(prompt) + buffer + 1;
     int prompt_height = 1;
     int height = prompt_height;
+#if __STDC_VERSION__ >= 199901L
+    char input[buffer];
+#else
+#ifndef BUFSZ
+#define BUFSZ 256
+#endif
+    char input[BUFSZ];
+
+    buffer = BUFSZ - 1;
+#endif
 
     maxwidth = term_cols - 2;
 
     if (iflags.window_inited) {
-        if (!iflags.wc_popup_dialog)
-            return curses_message_win_getline(prompt, answer, buffer);
+        if (!iflags.wc_popup_dialog) {
+            curses_message_win_getline(prompt, answer, buffer);
+            return;
+        }
         curses_get_window_size(MAP_WIN, &map_height, &map_width);
         if ((prompt_width + 2) > map_width)
             maxwidth = map_width - 2;
@@ -143,6 +164,7 @@ curses_character_input_dialog(const char *prompt, const char *choices,
                               CHAR_P def)
 {
     WINDOW *askwin = NULL;
+    WINDOW *message_window;
     int answer, count, maxwidth, map_height, map_width;
     char *linestr;
     char askstr[BUFSZ + QBUFSZ];
@@ -159,6 +181,9 @@ curses_character_input_dialog(const char *prompt, const char *choices,
         map_width = term_cols;
     }
 
+#ifdef PDCURSES
+    message_window = curses_get_nhwin(MESSAGE_WIN);
+#endif
     maxwidth = map_width - 2;
 
     if (choices != NULL) {
@@ -220,8 +245,11 @@ curses_character_input_dialog(const char *prompt, const char *choices,
     /*curses_stupid_hack = 0; */
 
     while (1) {
+#ifdef PDCURSES
+        answer = wgetch(message_window);
+#else
         answer = getch();
-
+#endif
         if (answer == ERR) {
             answer = def;
             break;
@@ -267,7 +295,7 @@ curses_character_input_dialog(const char *prompt, const char *choices,
         }
 
         if (choices != NULL) {
-            for (count = 0; count < strlen(choices); count++) {
+            for (count = 0; (size_t) count < strlen(choices); count++) {
                 if (choices[count] == answer) {
                     break;
                 }
@@ -402,7 +430,7 @@ curses_ext_cmd()
                 continue;
             if (!(extcmdlist[count].flags & AUTOCOMPLETE))
                 continue;
-            if (strlen(extcmdlist[count].ef_txt) > prompt_width) {
+            if (strlen(extcmdlist[count].ef_txt) > (size_t) prompt_width) {
                 if (strncasecmp(cur_choice, extcmdlist[count].ef_txt,
                                 prompt_width) == 0) {
                     if ((extcmdlist[count].ef_txt[prompt_width] ==
@@ -489,6 +517,12 @@ curses_add_nhmenu_item(winid wid, int glyph, const ANY_P * identifier,
     nhmenu_item *new_item, *current_items, *menu_item_ptr;
     nhmenu *current_menu = get_menu(wid);
 
+    if (current_menu == NULL) {
+        impossible
+            ("curses_add_nhmenu_item: attempt to add item to nonexistent menu");
+        return;
+    }
+
     if (str == NULL) {
         return;
     }
@@ -510,11 +544,6 @@ curses_add_nhmenu_item(winid wid, int glyph, const ANY_P * identifier,
     new_item->num_lines = 0;
     new_item->count = -1;
     new_item->next_item = NULL;
-
-    if (current_menu == NULL) {
-        panic
-            ("curses_add_nhmenu_item: attempt to add item to nonexistant menu");
-    }
 
     current_items = current_menu->entries;
     menu_item_ptr = current_items;
@@ -540,12 +569,13 @@ curses_finalize_nhmenu(winid wid, const char *prompt)
 {
     int count = 0;
     nhmenu *current_menu = get_menu(wid);
-    nhmenu_item *menu_item_ptr = current_menu->entries;
 
     if (current_menu == NULL) {
-        panic("curses_finalize_nhmenu: attempt to finalize nonexistant menu");
+        impossible("curses_finalize_nhmenu: attempt to finalize nonexistent menu");
+        return;
     }
 
+    nhmenu_item *menu_item_ptr = current_menu->entries;
     while (menu_item_ptr != NULL) {
         menu_item_ptr = menu_item_ptr->next_item;
         count++;
@@ -571,13 +601,15 @@ curses_display_nhmenu(winid wid, int how, MENU_ITEM_P ** _selected)
     *_selected = NULL;
 
     if (current_menu == NULL) {
-        panic("curses_display_nhmenu: attempt to display nonexistant menu");
+        impossible("curses_display_nhmenu: attempt to display nonexistent menu");
+        return '\033';
     }
 
     menu_item_ptr = current_menu->entries;
 
     if (menu_item_ptr == NULL) {
-        panic("curses_display_nhmenu: attempt to display empty menu");
+        impossible("curses_display_nhmenu: attempt to display empty menu");
+        return '\033';
     }
 
     /* Reset items to unselected to clear out selections from previous
@@ -612,8 +644,9 @@ curses_display_nhmenu(winid wid, int how, MENU_ITEM_P ** _selected)
         while (menu_item_ptr != NULL) {
             if (menu_item_ptr->selected) {
                 if (count == num_chosen) {
-                    panic("curses_display_nhmenu: Selected items "
+                    impossible("curses_display_nhmenu: Selected items "
                           "exceeds expected number");
+                     break;
                 }
                 selected[count].item = menu_item_ptr->identifier;
                 selected[count].count = menu_item_ptr->count;
@@ -623,7 +656,7 @@ curses_display_nhmenu(winid wid, int how, MENU_ITEM_P ** _selected)
         }
 
         if (count != num_chosen) {
-            panic("curses_display_nhmenu: Selected items less than "
+            impossible("curses_display_nhmenu: Selected items less than "
                   "expected number");
         }
     }
@@ -853,7 +886,7 @@ menu_win_size(nhmenu *menu)
         } else {
             /* Add space for accelerator */
             curentrywidth = strlen(menu_item_ptr->str) + 4;
-#if 0 // FIXME: menu glyphs
+#if 0 /* FIXME: menu glyphs */
             if (menu_item_ptr->glyph != NO_GLYPH
                         && iflags.use_menu_glyphs)
                 curentrywidth += 2;
@@ -930,7 +963,8 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num)
     }
 
     if (menu_item_ptr == NULL) {        /* Page not found */
-        panic("menu_display_page: attempt to display nonexistant page");
+        impossible("menu_display_page: attempt to display nonexistent page");
+        return;
     }
 
     werase(win);
@@ -1324,7 +1358,8 @@ menu_operation(WINDOW * win, nhmenu *menu, menu_op
     }
 
     if (menu_item_ptr == NULL) {        /* Page not found */
-        panic("menu_display_page: attempt to display nonexistant page");
+        impossible("menu_display_page: attempt to display nonexistent page");
+        return 0;
     }
 
     while (menu_item_ptr != NULL) {

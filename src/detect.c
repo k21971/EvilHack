@@ -1,4 +1,4 @@
-/* NetHack 3.6	detect.c	$NHDT-Date: 1522891623 2018/04/05 01:27:03 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.81 $ */
+/* NetHack 3.6	detect.c	$NHDT-Date: 1544437284 2018/12/10 10:21:24 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.91 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -165,8 +165,14 @@ char oclass;
 
     if (obj->oclass == oclass)
         return obj;
-
-    if (Has_contents(obj)) {
+    /*
+     * Note:  we exclude SchroedingersBox because the corpse it contains
+     * isn't necessarily a corpse yet.  Resolving the status would lead
+     * to complications if it turns out to be a live cat.  We know that
+     * that Box can't contain anything else because putting something in
+     * would resolve the cat/corpse situation and convert to ordinary box.
+     */
+    if (Has_contents(obj) && !SchroedingersBox(obj)) {
         for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
             if (otmp->oclass == oclass)
                 return otmp;
@@ -442,8 +448,7 @@ outgoldmap:
     return 0;
 }
 
-/* returns 1 if nothing was detected   */
-/* returns 0 if something was detected */
+/* returns 1 if nothing was detected, 0 if something was detected */
 int
 food_detect(sobj)
 register struct obj *sobj;
@@ -1303,7 +1308,8 @@ struct obj *sobj; /* scroll--actually fake spellbook--object */
     struct obj *otmp;
     long save_EDetect_mons;
     char save_viz_uyux;
-    boolean unconstrained, refresh = FALSE, mdetected = FALSE,
+    boolean unconstrained, refresh = FALSE,
+            mdetected = FALSE, odetected = FALSE,
             /* fake spellbook 'sobj' implies hero has cast the spell;
                when book is blessed, casting is skilled or expert level;
                if already clairvoyant, non-skilled spell acts like skilled */
@@ -1358,6 +1364,10 @@ struct obj *sobj; /* scroll--actually fake spellbook--object */
                 if (extended)
                     otmp->dknown = 1;
                 map_object(otmp, TRUE);
+                newglyph = glyph_at(zx, zy);
+                /* if otmp is underwater, we'll need to redisplay the water */
+                if (newglyph != oldglyph && covers_objects(zx, zy))
+                    odetected = TRUE;
             }
             /* if there is a monster here, see or detect it,
                possibly as "remembered, unseen monster" */
@@ -1380,7 +1390,7 @@ struct obj *sobj; /* scroll--actually fake spellbook--object */
             }
         }
 
-    if (!level.flags.hero_memory || unconstrained || mdetected) {
+    if (!level.flags.hero_memory || unconstrained || mdetected || odetected) {
         flush_screen(1);                 /* flush temp screen */
         /* the getpos() prompt from browse_map() is only shown when
            flags.verbose is set, but make this unconditional so that

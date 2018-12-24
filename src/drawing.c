@@ -499,12 +499,14 @@ int nondefault;
         if (SYMHANDLING(H_DEC) && decgraphics_mode_callback)
             (*decgraphics_mode_callback)();
 #endif
-#ifdef CURSES_GRAPHICS
+# ifdef CURSES_GRAPHICS
         if (SYMHANDLING(H_CURS) && cursesgraphics_mode_callback)
-            (*cursesgraphics_mode_callback)();
-#endif
-    } else
-        init_symbols();
+            (*cursesgraphics_mode_callback)();		
+# endif
+    } else {
+        init_l_symbols();
+        init_showsyms();
+    }
 }
 
 void
@@ -552,9 +554,10 @@ boolean name_too;
  * to this array at the matching offset.
  */
 const char *known_handling[] = {
-    "UNKNOWN", /* H_UNK */
-    "IBM",     /* H_IBM */
-    "DEC",     /* H_DEC */
+    "UNKNOWN", /* H_UNK  */
+    "IBM",     /* H_IBM  */
+    "DEC",     /* H_DEC  */
+    "CURS",    /* H_CURS */
     (const char *) 0,
 };
 

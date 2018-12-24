@@ -12,7 +12,7 @@
 COMPILEREVISION?=1
 
 # this is the chroot dir
-PREFIX=/opt/nethack/hardfought.org
+PREFIX=/opt/nethack/chroot
 
 # this is the dir where NetHack is inside the chroot
 HACKDIR=/evilhack
@@ -31,6 +31,7 @@ CFLAGS+=-DTIMED_DELAY
 CFLAGS+=-DHACKDIR=\"$(HACKDIR)\"
 CFLAGS+=-DVAR_PLAYGROUND=\"$(HACKDIR)/var\"
 CFLAGS+=-DCONFIG_ERROR_SECURE=FALSE
+CFLAGS+=-DCURSES_GRAPHICS
 
 LINK=$(CC)
 # Only needed for GLIBC stack trace:
@@ -38,7 +39,7 @@ LFLAGS=-rdynamic
 
 WINSRC = $(WINTTYSRC) $(WINCURSESSRC)
 WINOBJ = $(WINTTYOBJ) $(WINCURSESOBJ)
-WINLIB = $(WINTTYLIB)
+WINLIB = $(WINTTYLIB) $(WINCURSESLIB)
 
 WINTTYLIB=-lcurses
 

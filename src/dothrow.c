@@ -1,4 +1,4 @@
-/* NetHack 3.6	dothrow.c	$NHDT-Date: 1525012611 2018/04/29 14:36:51 $  $NHDT-Branch: master $:$NHDT-Revision: 1.137 $ */
+/* NetHack 3.6	dothrow.c	$NHDT-Date: 1545044705 2018/12/17 11:05:05 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.154 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -707,6 +707,11 @@ int x, y;
     newsym(ox, oy);    /* update old position */
     vision_recalc(1);  /* update for new position */
     flush_screen(1);
+    /* if terrain type changes, levitation or flying might become blocked
+       or unblocked; might issue message, so do this after map+vision has
+       been updated for new location instead of right after u_on_newpos() */
+    if (levl[u.ux][u.uy].typ != levl[ox][oy].typ)
+        switch_terrain();
 
     if (is_pool(x, y) && !u.uinwater) {
         if ((Is_waterlevel(&u.uz) && levl[x][y].typ == WATER)
@@ -888,21 +893,26 @@ struct obj *obj;
 xchar x, y;
 boolean broken;
 {
+    boolean costly_xy;
     struct monst *shkp = shop_keeper(*u.ushops);
 
     if (!shkp)
         return;
 
-    if (broken || !costly_spot(x, y)
-        || *in_rooms(x, y, SHOPBASE) != *u.ushops) {
+    costly_xy = costly_spot(x, y);
+    if (broken || !costly_xy || *in_rooms(x, y, SHOPBASE) != *u.ushops) {
         /* thrown out of a shop or into a different shop */
         if (is_unpaid(obj))
             (void) stolen_value(obj, u.ux, u.uy, (boolean) shkp->mpeaceful,
                                 FALSE);
         if (broken)
             obj->no_charge = 1;
-    } else {
-        if (costly_spot(u.ux, u.uy) && costly_spot(x, y)) {
+    } else if (costly_xy) {
+        char *oshops = in_rooms(x, y, SHOPBASE);
+
+        /* ushops0: in case we threw while levitating and recoiled
+           out of shop (most likely to the shk's spot in front of door) */
+        if (*oshops == *u.ushops || *oshops == *u.ushops0) {
             if (is_unpaid(obj))
                 subfrombill(obj, shkp);
             else if (x != shkp->mx || y != shkp->my)
@@ -1652,14 +1662,17 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         }
 
         if (tmp >= dieroll) {
-            boolean wasthrown = (thrownobj != 0);
+            boolean wasthrown = (thrownobj != 0),
+                    /* remember weapon attribute; hmon() might destroy obj */
+                    chopper = is_axe(obj);
 
             /* attack hits mon */
             if (hmode == HMON_APPLIED)
                 if(!u.uconduct.weaphit++)
                     livelog_write_string(LL_CONDUCT, "hit with a wielded weapon for the first time");
             if (hmon(mon, obj, hmode, dieroll)) { /* mon still alive */
-                cutworm(mon, bhitpos.x, bhitpos.y, obj);
+                if (mon->wormno)
+                    cutworm(mon, bhitpos.x, bhitpos.y, chopper);
             }
             exercise(A_DEX, TRUE);
             /* if hero was swallowed and projectile killed the engulfer,
@@ -1669,8 +1682,9 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
             if (wasthrown && !thrownobj)
                 return 1;
 
-            /* projectiles other than magic stones
-               sometimes disappear when thrown */
+            /* projectiles other than magic stones sometimes disappear
+               when thrown; projectiles aren't among the types of weapon
+               that hmon() might have destroyed so obj is intact */
             if (objects[otyp].oc_skill < P_NONE
                 && objects[otyp].oc_skill > -P_BOOMERANG
                 && !objects[otyp].oc_magic) {

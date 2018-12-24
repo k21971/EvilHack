@@ -1,4 +1,4 @@
-/* NetHack 3.6	shk.c	$NHDT-Date: 1515144230 2018/01/05 09:23:50 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.136 $ */
+/* NetHack 3.6	shk.c	$NHDT-Date: 1545383616 2018/12/21 09:13:36 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.144 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -2278,6 +2278,45 @@ register struct monst *shkp;
     return tmp;
 }
 
+/* unlike alter_cost() which operates on a specific item, identifying or
+   forgetting a gem causes all unpaid gems of its type to change value */
+void
+gem_learned(oindx)
+int oindx;
+{
+    struct obj *obj;
+    struct monst *shkp;
+    struct bill_x *bp;
+    int ct;
+
+    /*
+     * Unfortunately, shop bill doesn't have object type included,
+     * just obj->oid for each unpaid stack, so we have to go through
+     * every bill and every item on that bill and match up against
+     * every unpaid stack on the level....
+     *
+     * Fortunately, there's no need to catch up when changing dungeon
+     * levels even if we ID'd or forget some gems while gone from a
+     * level.  There won't be any shop bills when arriving; they were
+     * either paid before leaving or got treated as robbery and it's
+     * too late to adjust pricing.
+     */
+    for (shkp = next_shkp(fmon, TRUE); shkp;
+         shkp = next_shkp(shkp->nmon, TRUE)) {
+        ct = ESHK(shkp)->billct;
+        bp = ESHK(shkp)->bill;
+        while (--ct >= 0) {
+            obj = find_oid(bp->bo_id);
+            if (!obj) /* shouldn't happen */
+                continue;
+            if ((oindx != STRANGE_OBJECT) ? (obj->otyp == oindx)
+                                          : (obj->oclass == GEM_CLASS))
+                bp->price = get_cost(obj, shkp);
+            ++bp;
+        }
+    }
+}
+
 /* called when an item's value has been enhanced; if it happens to be
    on any shop bill, update that bill to reflect the new higher price
    [if the new price drops for some reason, keep the old one in place] */
@@ -2400,6 +2439,8 @@ register struct monst *shkp;
 {
     register struct obj *otmp;
 
+    if (SchroedingersBox(obj))
+        return;
     for (otmp = obj->cobj; otmp; otmp = otmp->nobj) {
         if (otmp->oclass == COIN_CLASS)
             continue;
@@ -2597,15 +2638,16 @@ char *buf;
     static const char *const honored[] = { "good", "honored", "most gracious",
                                            "esteemed",
                                            "most renowned and sacred" };
+
     Strcat(buf, honored[rn2(SIZE(honored) - 1) + u.uevent.udemigod]);
     if (is_vampire(youmonst.data))
         Strcat(buf, (flags.female) ? " dark lady" : " dark lord");
     else if (is_elf(youmonst.data))
         Strcat(buf, (flags.female) ? " hiril" : " hir");
     else
-        Strcat(buf, !is_human(youmonst.data) ? " creature" : (flags.female)
-                                                                 ? " lady"
-                                                                 : " sir");
+        Strcat(buf, !is_human(youmonst.data) ? " creature"
+                                             : (flags.female) ? " lady"
+                                                              : " sir");
 }
 
 void
@@ -2760,6 +2802,15 @@ boolean peaceful, silent;
     char roomno = *in_rooms(x, y, SHOPBASE);
     struct bill_x *bp;
     struct monst *shkp = 0;
+    boolean was_unpaid;
+    long c_count = 0L, u_count = 0L;
+
+    /* gather information for message(s) prior to manipulating bill */
+    was_unpaid = obj->unpaid ? TRUE : FALSE;
+    if (Has_contents(obj)) {
+        c_count = count_contents(obj, TRUE, FALSE, TRUE);
+        u_count = count_contents(obj, TRUE, FALSE, FALSE);
+    }
 
     if (!billable(&shkp, obj, roomno, FALSE)) {
         /* things already on the bill yield a not-billable result, so
@@ -2807,6 +2858,7 @@ boolean peaceful, silent;
             ESHK(shkp)->debit += value;
 
         if (!silent) {
+            char buf[BUFSZ];
             const char *still = "";
 
             if (credit_use) {
@@ -2820,12 +2872,17 @@ boolean peaceful, silent;
                 }
                 still = "still ";
             }
-            if (obj->oclass == COIN_CLASS)
-                You("%sowe %s %ld %s!", still, shkname(shkp), value,
-                    currency(value));
-            else
-                You("%sowe %s %ld %s for %s!", still, shkname(shkp),
-                    value, currency(value), (obj->quan > 1L) ? "them" : "it");
+            Sprintf(buf, "%sowe %s %ld %s", still, shkname(shkp),
+                    value, currency(value));
+            if (u_count) /* u_count > 0 implies Has_contents(obj) */
+                Sprintf(eos(buf), " for %s%sits contents",
+                        was_unpaid ? "it and " : "",
+                        (c_count > u_count) ? "some of " : "");
+            else if (obj->oclass != COIN_CLASS)
+                Sprintf(eos(buf), " for %s",
+                        (obj->quan > 1L) ? "them" : "it");
+
+            You("%s!", buf); /* "You owe <shk> N zorkmids for it!" */
         }
     } else {
         ESHK(shkp)->robbed += value;

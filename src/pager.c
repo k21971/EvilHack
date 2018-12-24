@@ -1,4 +1,4 @@
-/* NetHack 3.6	pager.c	$NHDT-Date: 1537477571 2018/09/20 21:06:11 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.129 $ */
+/* NetHack 3.6	pager.c	$NHDT-Date: 1545361111 2018/12/21 02:58:31 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.143 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -187,6 +187,8 @@ struct obj **obj_p;
             otmp->quan = 2L; /* to force pluralization */
         else if (otmp->otyp == SLIME_MOLD)
             otmp->spe = context.current_fruit; /* give it a type */
+        else if (otmp->otyp == LEASH)
+            otmp->leashmon = 0;
         if (mtmp && has_mcorpsenm(mtmp)) /* mimic as corpse/statue */
             otmp->corpsenm = MCORPSENM(mtmp);
         else if (otmp->otyp == CORPSE && glyph_is_body(glyph))
@@ -528,14 +530,14 @@ char *supplemental_name;
 
     fp = dlb_fopen(DATAFILE, "r");
     if (!fp) {
-        pline("Cannot open data file!");
+        pline("Cannot open 'data' file!");
         return;
     }
     /* If someone passed us garbage, prevent fault. */
     if (!inp || strlen(inp) > (BUFSZ - 1)) {
         impossible("bad do_look buffer passed (%s)!",
                    !inp ? "null" : "too long");
-        return;
+        goto checkfile_done;
     }
 
     /* To prevent the need for entries in data.base like *ngel to account
@@ -577,6 +579,8 @@ char *supplemental_name;
         if (*dbase_str == ' ')
             ++dbase_str;
     }
+    if (!strncmp(dbase_str, "pair of ", 8))
+        dbase_str += 8;
     if (!strncmp(dbase_str, "tame ", 5))
         dbase_str += 5;
     else if (!strncmp(dbase_str, "peaceful ", 9))
@@ -641,6 +645,14 @@ char *supplemental_name;
             ep = strstri(dbase_str, ", ");
         if (ep && ep > dbase_str)
             *ep = '\0';
+        /* remove article from 'alt' name ("a pair of lenses named
+           The Eyes of the Overworld" simplified above to "lenses named
+           The Eyes of the Overworld", now reduced to "The Eyes of the
+           Overworld", skip "The" as with base name processing) */
+        if (!strncmpi(alt, "a ", 2)
+            || !strncmpi(alt, "an ", 3)
+            || !strncmpi(alt, "the ", 4))
+            alt = index(alt, ' ') + 1;
         /* remove charges or "(lit)" or wizmode "(N aum)" */
         if ((ep = strstri(dbase_str, " (")) != 0 && ep > dbase_str)
             *ep = '\0';
@@ -1069,6 +1081,9 @@ coord *click_cc;
     boolean save_verbose; /* saved value of flags.verbose */
     boolean from_screen;  /* question from the screen */
 
+    cc.x = 0;
+    cc.y = 0;
+
     if (!clicklook) {
         if (quick) {
             from_screen = TRUE; /* yes, we want to use the cursor */
@@ -1340,64 +1355,90 @@ boolean do_mons; /* True => monsters, False => objects */
     destroy_nhwindow(win);
 }
 
+static const char *suptext1[] = {
+    "%s is a member of a marauding horde of orcs",
+    "rumored to have brutally attacked and plundered",
+    "the ordinarily sheltered town that is located ",
+    "deep within The Gnomish Mines.",
+    "",
+    "The members of that vicious horde proudly and ",
+    "defiantly acclaim their allegiance to their",
+    "leader %s in their names.",
+    (char *) 0,
+};
+
+static const char *suptext2[] = {
+    "\"%s\" is the common dungeon name of",
+    "a nefarious orc who is known to acquire property",
+    "from thieves and sell it off for profit.",
+    "",
+    "The perpetrator was last seen hanging around the",
+    "stairs leading to the Gnomish Mines.",
+    (char *) 0,
+};
+
 void
 do_supplemental_info(name, pm, without_asking)
 char *name;
 struct permonst *pm;
 boolean without_asking;
 {
+    const char **textp;
     winid datawin = WIN_ERR;
-    char *entrytext = name, *bp;
+    char *entrytext = name, *bp = (char *) 0, *bp2 = (char *) 0;
     char question[QBUFSZ];
     boolean yes_to_moreinfo = FALSE;
+    boolean is_marauder = (name && pm && is_orc(pm));
 
     /*
      * Provide some info on some specific things
      * meant to support in-game mythology, and not
      * available from data.base or other sources.
      */
-    if (name && pm && is_orc(pm) && (strlen(name) < (BUFSZ - 1))
-        && (bp = strstri(name, " of ")) != 0) {
+    if (is_marauder && (strlen(name) < (BUFSZ - 1))) {
         char fullname[BUFSZ];
 
-        Strcpy(fullname, name);
-        if (!without_asking) {
-            Strcpy(question, "More info about \"");
-            /* +2 => length of "\"?" */
-            copynchars(eos(question), entrytext,
-                (int) (sizeof question - 1 - (strlen(question) + 2)));
-            Strcat(question, "\"?");
-            if (yn(question) == 'y')
-            yes_to_moreinfo = TRUE;
-        }
-        if (yes_to_moreinfo) {
-            int i, subs = 0;
-            char *gang = bp + 4;
-            static const char *text[] = {
-             "%s is a member of a marauding horde of orcs",
-             "rumored to have brutally attacked and plundered the ordinarily",
-             "sheltered town that is located deep within The Gnomish Mines.",
-             "",
-             "The members of that vicious horde proudly and defiantly acclaim",
-             "their allegiance to their leader %s in their names.",
-            };
+        bp = strstri(name, " of ");
+        bp2 = strstri(name, " the Fence");
 
-            *bp = '\0';
-            datawin = create_nhwindow(NHW_MENU);
-            for (i = 0; i < SIZE(text); i++) {
-                char buf[BUFSZ];
-                const char *txt;
-
-                if (strstri(text[i], "%s") != 0) {
-                    Sprintf(buf, text[i],
-                            subs++ ? gang : fullname);
-                    txt = buf;
-                } else
-                    txt = text[i];
-                putstr(datawin, 0, txt);
+        if (bp || bp2) {
+            Strcpy(fullname, name);
+            if (!without_asking) {
+                Strcpy(question, "More info about \"");
+                /* +2 => length of "\"?" */
+                copynchars(eos(question), entrytext,
+                    (int) (sizeof question - 1 - (strlen(question) + 2)));
+                Strcat(question, "\"?");
+                if (yn(question) == 'y')
+                yes_to_moreinfo = TRUE;
             }
-            display_nhwindow(datawin, FALSE);
-            destroy_nhwindow(datawin), datawin = WIN_ERR;
+            if (yes_to_moreinfo) {
+                int i, subs = 0;
+                const char *gang = (char *) 0;
+
+                if (bp) {
+                    textp = suptext1;
+                    gang = bp + 4;
+                    *bp = '\0';
+                } else {
+                    textp = suptext2;
+                    gang = "";
+		}
+                datawin = create_nhwindow(NHW_MENU);
+                for (i = 0; textp[i]; i++) {
+                    char buf[BUFSZ];
+                    const char *txt;
+
+                    if (strstri(textp[i], "%s") != 0) {
+                        Sprintf(buf, textp[i], subs++ ? gang : fullname);
+                        txt = buf;
+                    } else
+                        txt = textp[i];
+                    putstr(datawin, 0, txt);
+                }
+                display_nhwindow(datawin, FALSE);
+                destroy_nhwindow(datawin), datawin = WIN_ERR;
+            }
         }
     }
 }
