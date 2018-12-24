@@ -428,6 +428,8 @@ struct instance_flags {
     int wc2_windowborders;	/* display borders on NetHack windows */
     int wc2_petattr;            /* text attributes for pet */
     boolean wc2_guicolor;   /* allow colours in gui (outside map) */
+    boolean msg_is_alert;   /* suggest windowport should grab player's attention
+                             * and request <TAB> acknowlegement */
     boolean obsolete;  /* obsolete options can point at this, it isn't used */
     struct autopickup_exception *autopickup_exceptions[2];
 #define AP_LEAVE 0
