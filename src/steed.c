@@ -436,7 +436,7 @@ exercise_steed()
     /* It takes many turns of riding to exercise skill
      * but we're going to make this a bit more reasonable.
      * Taken from SporkHack. */
-    if (++u.urideturns++ >= 50) {
+    if (u.urideturns++ >= 50) {
         u.urideturns = 0;
         use_skill(P_RIDING, 1);
     }
