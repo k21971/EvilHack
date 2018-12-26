@@ -301,10 +301,13 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      it deals out death and disease. Here it will protect the wearer from a
      *      good portion of that. Making this the quest artifact for the Barbarian role,
      *      keeping at least one of the special abilities from The Heart of Ahriman.
+     *      This artifact also corrects an oversight from vanilla, that no chaotic-based
+     *      artiafcts conferred magic resistance, a problem that was compounded if our
+     *      hero is in a form that can't wear body armor or cloaks.
      */
     A("The Ring of P\'hul", RIN_STEALTH,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DEFN | SPFX_REGEN), 0, 0,
-      NO_ATTK, DFNS(AD_DISE), NO_CARY, 0, A_NEUTRAL, PM_BARBARIAN,
+      NO_ATTK, DFNS(AD_MAGM), CARY(AD_DISE), 0, A_NEUTRAL, PM_BARBARIAN,
       NON_PM, 5000L, NO_COLOR),
 
     /*
