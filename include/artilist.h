@@ -303,11 +303,13 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      keeping at least one of the special abilities from The Heart of Ahriman.
      *      This artifact also corrects an oversight from vanilla, that no chaotic-based
      *      artiafcts conferred magic resistance, a problem that was compounded if our
-     *      hero is in a form that can't wear body armor or cloaks.
+     *      hero is in a form that can't wear body armor or cloaks. So, we make the
+     *      Barbarian artifact chaotic (why it was neutral before is a bit confusing
+     *      to me as most vanilla Barbarian race/role combinations are chaotic).
      */
     A("The Ring of P\'hul", RIN_STEALTH,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DEFN | SPFX_REGEN), 0, 0,
-      NO_ATTK, DFNS(AD_MAGM), CARY(AD_DISE), 0, A_NEUTRAL, PM_BARBARIAN,
+      NO_ATTK, DFNS(AD_MAGM), CARY(AD_DISE), 0, A_CHAOTIC, PM_BARBARIAN,
       NON_PM, 5000L, NO_COLOR),
 
     /*
