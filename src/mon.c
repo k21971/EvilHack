@@ -147,38 +147,38 @@ undead_to_corpse(mndx)
 int mndx;
 {
     switch (mndx) {
-    case PM_KOBOLD_ZOMBIE:
+    /* case PM_KOBOLD_ZOMBIE: */
     case PM_KOBOLD_MUMMY:
         mndx = PM_KOBOLD;
         break;
-    case PM_DWARF_ZOMBIE:
+    /* case PM_DWARF_ZOMBIE: */
     case PM_DWARF_MUMMY:
         mndx = PM_DWARF;
         break;
-    case PM_GNOME_ZOMBIE:
+    /* case PM_GNOME_ZOMBIE: */
     case PM_GNOME_MUMMY:
         mndx = PM_GNOME;
         break;
-    case PM_ORC_ZOMBIE:
+    /* case PM_ORC_ZOMBIE: */
     case PM_ORC_MUMMY:
         mndx = PM_ORC;
         break;
-    case PM_ELF_ZOMBIE:
+    /* case PM_ELF_ZOMBIE: */
     case PM_ELF_MUMMY:
         mndx = PM_ELF;
         break;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LORD:
     case PM_VAMPIRE_MAGE:
-    case PM_HUMAN_ZOMBIE:
+    /* case PM_HUMAN_ZOMBIE: */
     case PM_HUMAN_MUMMY:
         mndx = PM_HUMAN;
         break;
-    case PM_GIANT_ZOMBIE:
+    /* case PM_GIANT_ZOMBIE: */
     case PM_GIANT_MUMMY:
         mndx = PM_GIANT;
         break;
-    case PM_ETTIN_ZOMBIE:
+    /* case PM_ETTIN_ZOMBIE: */
     case PM_ETTIN_MUMMY:
         mndx = PM_ETTIN;
         break;
@@ -2212,7 +2212,7 @@ boolean was_swallowed; /* digestion */
         return FALSE;
 
     if (((bigmonst(mdat) || mdat == &mons[PM_LIZARD]) && !mon->mcloned)
-        || is_golem(mdat) || is_mplayer(mdat)
+        || is_zombie(mdat) || is_golem(mdat) || is_mplayer(mdat)
         || is_rider(mdat) || mon->isshk)
         return TRUE;
     tmp = 2 + ((mdat->geno & G_FREQ) < 2) + verysmall(mdat);
@@ -2844,8 +2844,8 @@ struct monst *mtmp;
 			   !rn2(2) ? "moans" : "shuffles in your direction");
 	else if (!rn2(4))
 	    You_hear("%s", !rn2(8) ? "a low voice mumble \"UUUNNNNGGHH...\"." :
-	                   !rn2(3)  ? "a low groaning." :
-			   !rn2(2)  ? "a low moaning." : "a shuffling noise.");
+	                   !rn2(3) ? "a low groaning." :
+			   !rn2(2) ? "a low moaning." : "a shuffling noise.");
     }
     if (mtmp->data == &mons[PM_MEDUSA]) {
         register int i;
