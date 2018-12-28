@@ -156,10 +156,9 @@ curses_block(boolean noscroll)
     /* msgtype=stop should require space/enter rather than
      * just any key, as we want to prevent YASD from
      * riding direction keys. */
-    while (!iflags.msg_is_alert && (ret = wgetch(win)) != 0 && !index(resp, (char) ret));
+    while (!iflags.msg_is_alert && (ret = wgetch(win)) != 0 && !index(resp, (char) ret))
     if (iflags.msg_is_alert)
         curses_alert_main_borders(FALSE);
-         continue;
     if (height == 1) {
         curses_clear_unhighlight_message_window();
     } else {
