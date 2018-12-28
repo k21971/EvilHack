@@ -1,4 +1,4 @@
-/* NetHack 3.6	pager.c	$NHDT-Date: 1545361111 2018/12/21 02:58:31 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.143 $ */
+/* NetHack 3.6	pager.c	$NHDT-Date: 1545774524 2018/12/25 21:48:44 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.145 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -223,7 +223,8 @@ int x, y, glyph;
 
     if (otmp) {
         Strcpy(buf, (otmp->otyp != STRANGE_OBJECT)
-                     ? distant_name(otmp, doname_vague_quan)
+                     ? distant_name(otmp, otmp->dknown ? doname_with_price
+                                                       : doname_vague_quan)
                      : obj_descr[STRANGE_OBJECT].oc_name);
         if (fakeobj)
             dealloc_obj(otmp), otmp = 0;
@@ -649,9 +650,9 @@ char *supplemental_name;
            The Eyes of the Overworld" simplified above to "lenses named
            The Eyes of the Overworld", now reduced to "The Eyes of the
            Overworld", skip "The" as with base name processing) */
-        if (!strncmpi(alt, "a ", 2)
-            || !strncmpi(alt, "an ", 3)
-            || !strncmpi(alt, "the ", 4))
+        if (alt && (!strncmpi(alt, "a ", 2)
+                    || !strncmpi(alt, "an ", 3)
+                    || !strncmpi(alt, "the ", 4)))
             alt = index(alt, ' ') + 1;
         /* remove charges or "(lit)" or wizmode "(N aum)" */
         if ((ep = strstri(dbase_str, " (")) != 0 && ep > dbase_str)

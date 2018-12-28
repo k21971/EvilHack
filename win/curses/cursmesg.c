@@ -143,8 +143,7 @@ curses_block(boolean noscroll)
 {
     int height, width, ret = 0;
     WINDOW *win = curses_get_nhwin(MESSAGE_WIN);
-    char *resp = " \r\n\033"; /* space, enter, esc */
-
+    const char *resp = " \r\n\033"; /* space, enter, esc */
 
     curses_get_window_size(MESSAGE_WIN, &height, &width);
     curses_toggle_color_attr(win, MORECOLOR, NONE, ON);
@@ -157,9 +156,10 @@ curses_block(boolean noscroll)
     /* msgtype=stop should require space/enter rather than
      * just any key, as we want to prevent YASD from
      * riding direction keys. */
-    while (!iflags.msg_is_alert && (ret = wgetch(win)) && !index(resp,(char)ret));
+    while (!iflags.msg_is_alert && (ret = wgetch(win)) != 0 && !index(resp, (char) ret));
     if (iflags.msg_is_alert)
         curses_alert_main_borders(FALSE);
+         continue;
     if (height == 1) {
         curses_clear_unhighlight_message_window();
     } else {

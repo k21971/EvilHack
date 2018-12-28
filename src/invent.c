@@ -1,4 +1,4 @@
-/* NetHack 3.6	invent.c	$NHDT-Date: 1545043772 2018/12/17 10:49:32 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.244 $ */
+/* NetHack 3.6	invent.c	$NHDT-Date: 1545946249 2018/12/27 21:30:49 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.247 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -829,11 +829,13 @@ struct obj *obj;
             livelog_write_string(LL_ACHIEVE, "acquired the luckstone from Mines' End");
         u.uachieve.mines_luckstone = 1;
         obj->record_achieve_special = NON_PM;
+        obj->nomerge = 0;
     } else if (is_soko_prize(obj)) {
         if(!u.uachieve.finish_sokoban)
             livelog_write_string(LL_ACHIEVE, "completed Sokoban");
         u.uachieve.finish_sokoban = 1;
         obj->record_achieve_special = NON_PM;
+        obj->nomerge = 0;
     }
 }
 
@@ -990,9 +992,9 @@ const char *drop_fmt, *drop_arg, *hold_msg;
         }
     }
     if (Fumbling) {
-        if (drop_fmt)
-            pline(drop_fmt, drop_arg);
-        dropy(obj);
+        obj->nomerge = 1;
+        obj = addinv(obj); /* dropping expects obj to be in invent */
+        goto drop_it;
     } else {
         long oquan = obj->quan;
         int prev_encumbr = near_capacity(); /* before addinv() */
@@ -1009,12 +1011,10 @@ const char *drop_fmt, *drop_arg, *hold_msg;
         obj = addinv(obj);
         if (inv_cnt(FALSE) > 52 || ((obj->otyp != LOADSTONE || !obj->cursed)
                                     && near_capacity() > prev_encumbr)) {
-            if (drop_fmt)
-                pline(drop_fmt, drop_arg);
             /* undo any merge which took place */
             if (obj->quan > oquan)
                 obj = splitobj(obj, oquan);
-            dropx(obj);
+            goto drop_it;
         } else {
             if (flags.autoquiver && !uquiver && !obj->owornmask
                 && (is_missile(obj) || ammo_and_launcher(obj, uwep)
@@ -1025,6 +1025,18 @@ const char *drop_fmt, *drop_arg, *hold_msg;
         }
     }
     return obj;
+
+ drop_it:
+    if (drop_fmt)
+        pline(drop_fmt, drop_arg);
+    obj->nomerge = 0;
+    if (can_reach_floor(TRUE)) {
+        dropx(obj);
+    } else {
+        freeinv(obj);
+        hitfloor(obj, FALSE);
+    }
+    return (struct obj *) 0; /* might be gone */
 }
 
 /* useup() all of an item regardless of its quantity */
@@ -2897,6 +2909,7 @@ int *bcp, *ucp, *ccp, *xcp, *ocp;
     }
 }
 
+/* count everything inside a container, or just shop-owned items inside */
 long
 count_contents(container, nested, quantity, everything)
 struct obj *container;
@@ -2904,13 +2917,24 @@ boolean nested, /* include contents of any nested containers */
     quantity,   /* count all vs count separate stacks */
     everything; /* all objects vs only unpaid objects */
 {
-    struct obj *otmp;
+    struct obj *otmp, *topc;
+    boolean shoppy = FALSE;
     long count = 0L;
 
+    if (!everything) {
+        for (topc = container; topc->ocontainer; topc = topc->ocontainer)
+            continue;
+        if (topc->where == OBJ_FLOOR) {
+            xchar x, y;
+
+            (void) get_obj_location(topc, &x, &y, CONTAINED_TOO);
+            shoppy = costly_spot(x, y);
+        }
+    }
     for (otmp = container->cobj; otmp; otmp = otmp->nobj) {
         if (nested && Has_contents(otmp))
             count += count_contents(otmp, nested, quantity, everything);
-        if (everything || otmp->unpaid)
+        if (everything || otmp->unpaid || (shoppy && !otmp->no_charge))
             count += quantity ? otmp->quan : 1L;
     }
     return count;
@@ -3527,11 +3551,10 @@ register struct obj *otmp, *obj;
 {
     int objnamelth = 0, otmpnamelth = 0;
 
-    if (obj == otmp)
-        return FALSE; /* already the same object */
-    if (obj->otyp != otmp->otyp)
-        return FALSE; /* different types */
-    if (obj->nomerge) /* explicitly marked to prevent merge */
+    /* fail if already the same object, if different types, if either is
+       explicitly marked to prevent merge, or if not mergable in general */
+    if (obj == otmp || obj->otyp != otmp->otyp
+        || obj->nomerge || otmp->nomerge || !objects[obj->otyp].oc_merge)
         return FALSE;
 
     /* coins of the same kind will always merge */
