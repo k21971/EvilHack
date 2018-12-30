@@ -17,7 +17,7 @@ STATIC_DCL boolean FDECL(diseasemu, (struct permonst *));
 STATIC_DCL int FDECL(hitmu, (struct monst *, struct attack *));
 STATIC_DCL int FDECL(gulpmu, (struct monst *, struct attack *));
 STATIC_DCL int FDECL(explmu, (struct monst *, struct attack *, BOOLEAN_P));
-STATIC_DCL void FDECL(missmu, (struct monst *, BOOLEAN_P, struct attack *));
+STATIC_DCL void FDECL(missmu, (struct monst *, int, int, struct attack *));
 STATIC_DCL void FDECL(mswings, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(wildmiss, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(hitmsg, (struct monst *, struct attack *));
@@ -153,21 +153,97 @@ struct attack *mattk;
 }
 
 /* monster missed you */
+/* verbose miss descriptions taken from Slash'EM */
+/* slightly edited for EvilHack */
 STATIC_OVL void
-missmu(mtmp, nearmiss, mattk)
+missmu(mtmp, target, roll, mattk)
 struct monst *mtmp;
-boolean nearmiss;
+int target;
+int roll;
 struct attack *mattk;
 {
+
+    register boolean nearmiss = (target == roll);
+    register struct obj *blocker = (struct obj *)0;
+	/* 3 values for blocker
+	 *	No blocker:  (struct obj *) 0
+	 * 	Piece of armour:  object
+	 *	magical: &zeroobj
+	 */
+
+    if (target < roll) {
+	/* get object responsible
+	 * Work from the closest to the skin outwards
+	 */
+
+        /* Try undershirt */
+	if (uarmu && target <= roll) {
+		target += ARM_BONUS(uarmu);
+		if (target > roll) blocker = uarmu;
+	}
+
+	/* Try body armour */
+	if (uarm && target <= roll) {
+		target += ARM_BONUS(uarm);
+		if (target > roll) blocker = uarm;
+	}
+
+	if (uarmg && !rn2(10)) {
+		/* Try gloves */
+		target += ARM_BONUS(uarmg);
+		if (target > roll) blocker = uarmg;
+	}
+
+	if (uarmf && !rn2(10)) {
+		/* Try boots */
+		target += ARM_BONUS(uarmf);
+		if (target > roll) blocker = uarmf;
+	}
+
+	if (uarmh && !rn2(5)) {
+		/* Try helm */
+		target += ARM_BONUS(uarmh);
+		if (target > roll) blocker = uarmh;
+	}
+
+	if (uarmc && target <= roll) {
+		/* Try cloak */
+		target += ARM_BONUS(uarmc);
+		if (target > roll) blocker = uarmc;
+	}
+
+	if (uarms && target <= roll) {
+		/* Try shield */
+		target += ARM_BONUS(uarms);
+		if (target > roll) blocker = uarms;
+	}
+
+	if (target <= roll) {
+		/* Try spell protection */
+		target += u.uspellprot;
+		if (target > roll) blocker = &zeroobj;
+	}
+    }
+
     if (!canspotmon(mtmp))
         map_invisible(mtmp->mx, mtmp->my);
 
     if (could_seduce(mtmp, &youmonst, mattk) && !mtmp->mcan)
         pline("%s pretends to be friendly.", Monnam(mtmp));
+    else {
+    if (!flags.verbose || !nearmiss && !blocker)
+	pline("%s misses.", Monnam(mtmp));
+    else if (!blocker)
+	pline("%s narrowly misses!", Monnam(mtmp));
+    else if (blocker == &zeroobj)
+	pline("%s is stopped by your golden haze.", Monnam(mtmp));
     else
-        pline("%s %smisses!", Monnam(mtmp),
-              (nearmiss && flags.verbose) ? "just " : "");
-
+	Your("%s %s%s %s attack.",
+		simple_typename(blocker->otyp),
+		rn2(2) ? "repel" : "deflect",
+		(blocker == uarmg || blocker == uarmf) ? "" : "s",
+		s_suffix(mon_nam(mtmp)));
+    }
     stop_occupation();
 }
 
@@ -749,7 +825,7 @@ register struct monst *mtmp;
                             || !thick_skinned(youmonst.data))
                             sum[i] = hitmu(mtmp, mattk);
                     } else
-                        missmu(mtmp, (tmp == j), mattk);
+                        missmu(mtmp, tmp, j, mattk);
                 } else {
                     wildmiss(mtmp, mattk);
                     /* skip any remaining non-spell attacks */
@@ -787,7 +863,7 @@ register struct monst *mtmp;
                         flush_screen(1);
                         sum[i] = gulpmu(mtmp, mattk);
                     } else {
-                        missmu(mtmp, (tmp == j), mattk);
+                        missmu(mtmp, tmp, j, mattk);
                     }
                 } else if (is_animal(mtmp->data)) {
                     pline("%s gulps some air!", Monnam(mtmp));
@@ -838,7 +914,7 @@ register struct monst *mtmp;
                     if (tmp > (j = dieroll = rnd(20 + i)))
                         sum[i] = hitmu(mtmp, mattk);
                     else
-                        missmu(mtmp, (tmp == j), mattk);
+                        missmu(mtmp, tmp, j, mattk);
                     /* KMH -- Don't accumulate to-hit bonuses */
                     if (mon_currwep)
                         tmp -= hittmp;
