@@ -1244,7 +1244,7 @@ const char *build_date;
     Strcat(subbuf, " Beta");
 #endif
 
-    Sprintf(outbuf, "         Version %s %s%s, %s %s.",
+    Sprintf(outbuf, "          Version %s %s%s, %s %s.",
             version_string(versbuf, "."), PORT_ID, subbuf,
             date_via_env ? "revised" : "built", &build_date[4]);
 #if 0
