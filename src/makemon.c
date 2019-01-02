@@ -222,7 +222,8 @@ register struct monst *mtmp;
         } else if (is_elf(ptr)) {
             if (rn2(2))
                 (void) mongets(mtmp,
-                               rn2(2) ? ELVEN_MITHRIL_COAT : ELVEN_CLOAK);
+		 (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELF_LORD || mm == PM_ELVENKING)) ?
+			     ELVEN_MITHRIL_COAT : ELVEN_CLOAK);
             if (rn2(2))
                 (void) mongets(mtmp, ELVEN_LEATHER_HELM);
             else if (!rn2(4))
@@ -363,8 +364,10 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, SLING);
                 break;
             }
-            if (!rn2(10))
-                (void) mongets(mtmp, ELVEN_MITHRIL_COAT);
+	    if (!rn2(10)) {
+			 (void)mongets(mtmp, ELVEN_MITHRIL_COAT);
+			 (void)mongets(mtmp, ELVEN_DAGGER);
+		}
             if (!rn2(10))
                 (void) mongets(mtmp, DWARVISH_CLOAK);
         } else if (is_dwarf(ptr)) {
@@ -382,7 +385,7 @@ register struct monst *mtmp;
                     (void) mongets(mtmp, DWARVISH_ROUNDSHIELD);
                 }
                 (void) mongets(mtmp, DWARVISH_IRON_HELM);
-                if (!rn2(3))
+                if (!rn2(3) && mm != PM_DWARF)
                     (void) mongets(mtmp, DWARVISH_MITHRIL_COAT);
             } else {
                 (void) mongets(mtmp, !rn2(3) ? PICK_AXE : DAGGER);
