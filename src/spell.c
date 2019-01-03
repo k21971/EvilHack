@@ -1661,7 +1661,8 @@ int spell;
     int chance, splcaster, special, statused;
     int difficulty;
     int skill;
-    boolean paladin_bonus;
+    int penalty, dex_adjust;
+    boolean paladin_bonus, primary_casters;
 
     /* Calculate intrinsic ability (splcaster) */
 
@@ -1669,8 +1670,31 @@ int spell;
     special = urole.spelheal;
     statused = ACURR(urole.spelstat);
 
+    /* Wearing body armor can add to your spell casting
+     * failure percentage, but your dexterity can offset
+     * (or add to) that penalty.
+     */
+    dex_adjust = 0;
+    if (ACURR(A_DEX) <= 6)
+        dex_adjust += 10;
+    else if (ACURR(A_DEX) <= 9)
+        dex_adjust += 0;
+    else if (ACURR(A_DEX) <= 12)
+        dex_adjust -= 5;
+    else if (ACURR(A_DEX) <= 15)
+        dex_adjust -= 10;
+    else if (ACURR(A_DEX) <= 18)
+        dex_adjust -= 15;
+    else if (ACURR(A_DEX) >= 20)
+        dex_adjust -= 20;
+    else if (ACURR(A_DEX) >= 23)
+        dex_adjust -= 25;
+
     /* Knights don't get metal armor penalty for clerical spells */
     paladin_bonus = Role_if(PM_KNIGHT) && spell_skilltype(spellid(spell)) == P_CLERIC_SPELL;
+
+    /* Primary casting roles */
+    primary_casters = Role_if(PM_HEALER) || Role_if(PM_PRIEST) || Role_if(PM_WIZARD);
 
     if (uarm && is_metallic(uarm) && !paladin_bonus)
         splcaster += (uarmc && uarmc->otyp == ROBE) ? urole.spelarmr / 2
@@ -1760,6 +1784,25 @@ int spell;
      * and no matter how able, learning is always required.
      */
     chance = chance * (20 - splcaster) / 15 - splcaster;
+
+    /* This works
+    if (uarm) {
+        penalty = (100 - spellev(spell) * 10) - dex_adjust;
+        if (chance > penalty)
+            chance = penalty;
+    } */
+
+    if (uarm) {
+        if (uarm->otyp == CRYSTAL_PLATE_MAIL) {
+        penalty = 100;
+    } else if (primary_casters) {
+        penalty = (130 - spellev(spell) * 10) - dex_adjust;
+    } else {
+        penalty = (100 - spellev(spell) * 10) - dex_adjust;
+        }
+    if (chance > penalty)
+        chance = penalty;
+    }
 
     /* Clamp to percentile */
     if (chance > 100)
