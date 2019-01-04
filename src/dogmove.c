@@ -349,7 +349,97 @@ boolean devour;
         mcureblindness(mtmp, canseemon(mtmp));
     if (deadmimic)
         quickmimic(mtmp);
+
+    dogintr(mtmp, &mons[obj->corpsenm]);
     return 1;
+}
+
+void
+dogintr(mtmp, ptr)
+struct monst *mtmp;
+register struct permonst *ptr;
+{
+    register int type = 0;
+    register int chance;
+    /* this loop of code is copied from cpostfx, since symmetry is good.
+       In the future this should be put into its own function. */
+    int count = 0, i = 0;
+    for (i = 1; i <= LAST_PROP; i++) {
+        if (!intrinsic_possible(i, ptr))
+            continue;
+        ++count;
+        /* a 1 in count chance of replacing the old choice
+           with this one, and a count-1 in count chance
+           of keeping the old choice (note that 1 in 1 and
+           0 in 1 are what we want for the first candidate) */
+        if (!rn2(count)) {
+            type = i;
+        }
+    }
+    /* this section of code is just a modified version of givit() */
+    switch (type) {
+    case POISON_RES:
+        if ((ptr == &mons[PM_KILLER_BEE] || ptr == &mons[PM_SCORPION])
+            && !rn2(4))
+            chance = 1;
+        else
+            chance = 15;
+        break;
+    case TELEPORT:
+        chance = 10;
+        break;
+    case TELEPORT_CONTROL:
+        chance = 12;
+        break;
+    case TELEPAT:
+        chance = 1;
+        break;
+    default:
+        chance = 15;
+        break;
+    }
+
+    if (ptr->mlevel <= rn2(chance))
+        return; /* failed die roll */
+    switch (type) {
+    case FIRE_RES:
+        if (canseemon(mtmp))
+            pline("%s shivers slightly.", Monnam(mtmp));
+        mtmp->mintrinsics |= MR_FIRE;
+        break;
+    case SLEEP_RES:
+        if (canseemon(mtmp))
+            pline("%s looks wide awake.", Monnam(mtmp));
+        mtmp->mintrinsics |= MR_SLEEP;
+        break;
+    case COLD_RES:
+        if (canseemon(mtmp))
+            pline("%s looks quite warm.", Monnam(mtmp));
+        mtmp->mintrinsics |= MR_COLD;
+        break;
+    case DISINT_RES:
+        if (canseemon(mtmp))
+            pline("%s seems more firm.", Monnam(mtmp));
+        mtmp->mintrinsics |= MR_DISINT;
+        break;
+    case SHOCK_RES:
+        if (canseemon(mtmp))
+            pline("%s crackles with static electricity.", Monnam(mtmp));
+        mtmp->mintrinsics |= MR_ELEC;
+        break;
+    case POISON_RES:
+        if (canseemon(mtmp))
+            pline("%s looks very healthy.", Monnam(mtmp));
+        mtmp->mintrinsics |= MR_POISON;
+        break;
+    case TELEPORT:
+    case TELEPORT_CONTROL:
+    case TELEPAT:
+        break;
+    default:
+        debugpline0("Tried to give an impossible intrinsic");
+        break;
+    }
 }
 
 /* hunger effects -- returns TRUE on starvation */
