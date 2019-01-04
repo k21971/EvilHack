@@ -1405,7 +1405,9 @@ domove()
                 skates = find_skates();
             if ((uarmf && uarmf->otyp == skates) || resists_cold(&youmonst)
                 || Flying || is_floater(youmonst.data)
-                || is_clinger(youmonst.data) || is_whirly(youmonst.data)) {
+                || is_clinger(youmonst.data) || is_whirly(youmonst.data)
+		|| (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL ||
+	                     uarm->otyp == WHITE_DRAGON_SCALES))) {
                 on_ice = FALSE;
             } else if (!rn2(Cold_resistance ? 3 : 2)) {
                 HFumbling |= FROMOUTSIDE;
@@ -1882,6 +1884,16 @@ domove()
 
     if (Punished) /* put back ball and chain */
         move_bc(0, bc_control, ballx, bally, chainx, chainy);
+
+    /* Special effects of WDSM; don't spam the player unless they've stepped onto
+     * water from something that wasn't water/ice already */
+    if (is_pool(u.ux,u.uy) && uarm &&
+		(uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
+	levl[u.ux][u.uy].typ = ICE;
+    if (!is_pool(u.ux0,u.uy0) && !is_ice(u.ux0,u.uy0)) {
+		pline("The pool crackles and freezes under your feet.");
+	}
+    }
 
     if (u.umoved)
         spoteffects(TRUE);

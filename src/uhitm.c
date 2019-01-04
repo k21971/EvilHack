@@ -1113,6 +1113,10 @@ int dieroll;
             tmp += dbon();
     }
 
+    if (uarm && (uarm->otyp == RED_DRAGON_SCALE_MAIL || uarm->otyp == RED_DRAGON_SCALES)) {
+	tmp += rnd(6);
+    }
+
     if (valid_weapon_attack) {
         struct obj *wep;
 
@@ -2759,14 +2763,26 @@ boolean wep_was_destroyed;
             You("are jolted with electricity!");
             mdamageu(mon, tmp);
 	    break;
-	case AD_DISE:
+	case AD_DISE: /* specifically gray fungus */
 	    if (Sick_resistance) {
-		You("are infected, but you appear to be immune.");
+		You("are infected, but it appears you are immune.");
 	    } else {
 		You("are diseased!");
 		mdamageu(mon, tmp);
 		make_sick(20, "bad case of the plague", TRUE, SICK_NONVOMITABLE);
 	    }
+            break;
+        case AD_DRST: /* specifically green dragons */
+            if (Poison_resistance) {
+                You("are immune to %s poisonous hide.", s_suffix(mon_nam(mon)));
+            } else {
+                You("have been poisoned!");
+                mdamageu(mon, rnd(6));
+            }
+            break;
+        case AD_SLOW: /* specifically orange dragons */
+            if (!Slow)
+                u_slow_down();
             break;
         default:
             break;

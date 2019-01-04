@@ -1688,7 +1688,7 @@ register struct attack *mattk;
         break;
     case AD_SLOW:
         hitmsg(mtmp, mattk);
-        if (uncancelled && HFast && !defends(AD_SLOW, uwep) && !rn2(4))
+        if (uncancelled && !Slow && !defends(AD_SLOW, uwep) && !rn2(4))
             u_slow_down();
         break;
     case AD_DREN:
@@ -2518,7 +2518,7 @@ struct attack *mattk;
         break;
     case AD_SLOW:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee &&
-            (HFast & (INTRINSIC | TIMEOUT)) &&
+            /* (HFast & (INTRINSIC | TIMEOUT)) && */
             !Slow && !defends(AD_SLOW, uwep) && !rn2(4)) {
             if (cancelled) {
                 react = 7; /* "dulled" */
@@ -3088,6 +3088,60 @@ struct attack *mattk;
 {
     int i, tmp;
     struct attack *oldu_mattk = 0;
+
+    char plurbuf[BUFSZ];
+
+    if (uarm) {
+	switch(uarm->otyp) {
+		case GREEN_DRAGON_SCALE_MAIL:
+		case GREEN_DRAGON_SCALES:
+			if (resists_poison(mtmp)) { return 1; }
+			i = rn2(20);
+			if (i) {
+				mtmp->mhp -= rnd(4);
+				if (rn2(3)) { pline("%s staggers from the poison!", Monnam(mtmp)); }
+			}
+			else {
+				mtmp->mhp = -1;
+				pline("%s is fatally poisoned!", Monnam(mtmp));
+			}
+			if (mtmp->mhp < 1) {
+				xkilled(mtmp, 1);
+                                return 2;  /* let the chain upstream know it died */
+			}
+			return 1;
+			break;
+                case BLACK_DRAGON_SCALE_MAIL:
+                case BLACK_DRAGON_SCALES:
+                        if (resists_disint(mtmp)) { return 1; }
+                        i = rn2(40);
+                        if (i) {
+                                mtmp->mhp -= rnd(4);
+                                if (rn2(3)) { pline("%s partially disintegrates!", Monnam(mtmp)); }
+                        }
+                        else {
+                                mtmp->mhp = -1;
+                                pline("%s is disintegrated completely!", Monnam(mtmp));
+                        }
+                        if (mtmp->mhp < 1) {
+                                xkilled(mtmp, 1);
+                                return 2;
+                        }
+                        return 1;
+                        break;
+		case ORANGE_DRAGON_SCALE_MAIL:
+		case ORANGE_DRAGON_SCALES:
+			if (resists_sleep(mtmp)) { return 1; }
+			if (canseemon(mtmp) && mtmp->mspeed != MSLOW) {
+				pline("%s looks a little sluggish...", Monnam(mtmp));
+			}
+			mtmp->mspeed = MSLOW;
+			return 1;
+			break;
+		default:	  /* all other types of armor, just pass on through */
+			break;
+	}
+    }
 
     /*
      * mattk      == mtmp's attack that hit you;
