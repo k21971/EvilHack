@@ -3339,6 +3339,15 @@ struct obj **pobj; /* object tossed/used, set to NULL
                 /* ZAPPED_WAND */
                 (*fhitm)(mtmp, obj);
                 range -= 3;
+                /* While this code works for all wands,
+                   it causes massive problems if the
+                   mount dies before the rider... */
+
+                if (obj->otyp == WAN_PROBING &&
+                      has_erid(mtmp) && ERID(mtmp)->m1) {
+                    (*fhitm)(ERID(mtmp)->m1, obj);
+                    range -= 1;
+                }
             }
         } else {
             if (weapon == ZAPPED_WAND && obj->otyp == WAN_PROBING

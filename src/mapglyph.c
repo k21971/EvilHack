@@ -192,7 +192,7 @@ unsigned *ospecial;
             /* This currently implies that the hero is here -- monsters */
             /* don't ride (yet...).  Should we set it to yellow like in */
             /* the monster case below?  There is no equivalent in rogue. */
-            color = NO_COLOR; /* no need to check iflags.use_color */
+            color = CLR_RED; /* no need to check iflags.use_color */
         else
             mon_color(offset);
         special |= MG_RIDDEN;
