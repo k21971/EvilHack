@@ -1678,17 +1678,19 @@ int spell;
     if (ACURR(A_DEX) <= 6)
         dex_adjust += 10;
     else if (ACURR(A_DEX) <= 9)
-        dex_adjust += 0;
+        dex_adjust += 5;
     else if (ACURR(A_DEX) <= 12)
-        dex_adjust -= 5;
+        dex_adjust += 0;
     else if (ACURR(A_DEX) <= 15)
         dex_adjust -= 10;
     else if (ACURR(A_DEX) <= 18)
         dex_adjust -= 15;
-    else if (ACURR(A_DEX) >= 20)
+    else if (ACURR(A_DEX) <= 20)
         dex_adjust -= 20;
-    else if (ACURR(A_DEX) >= 23)
+    else if (ACURR(A_DEX) <= 23)
         dex_adjust -= 25;
+    else if (ACURR(A_DEX) >= 24)
+        dex_adjust -= 30;
 
     /* Knights don't get metal armor penalty for clerical spells */
     paladin_bonus = Role_if(PM_KNIGHT) && spell_skilltype(spellid(spell)) == P_CLERIC_SPELL;
