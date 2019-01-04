@@ -593,6 +593,35 @@ toofar:
         }
     }
 
+    /* Look for other monsters to fight (at a distance) */
+    if (( attacktype(mtmp->data, AT_BREA) ||
+          attacktype(mtmp->data, AT_GAZE) ||
+          attacktype(mtmp->data, AT_SPIT) ||
+         (attacktype(mtmp->data, AT_MAGC) &&
+          (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp
+             <= AD_SPC2))
+          ) ||
+         (attacktype(mtmp->data, AT_WEAP) &&
+          select_rwep(mtmp) != 0) ||
+          find_offensive(mtmp)) &&
+        mtmp->mlstmv != monstermoves)
+    {
+        register struct monst *mtmp2 = mfind_target(mtmp);
+        if (mtmp2 &&
+            (mtmp2 != &youmonst ||
+    	 dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 2) &&
+    	 (mtmp2 != mtmp))
+        {
+            int res;
+          	res = (mtmp2 == &youmonst) ? mattacku(mtmp)
+          	                           : mattackm(mtmp, mtmp2);
+            if (res & MM_AGR_DIED)
+    	          return 1; /* Oops. */
+
+    	      return 0; /* that was our move for the round */
+        }
+    }
+
     /*  Now the actual movement phase
      */
 

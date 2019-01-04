@@ -813,7 +813,9 @@ register struct obj *obj;
                  && obj->corpsenm != PM_LIZARD && obj->corpsenm != PM_LICHEN
                  && mptr->mlet != S_FUNGUS)
                 || (acidic(fptr) && !resists_acid(mon))
-                || (poisonous(fptr) && !resists_poison(mon)))
+                || (poisonous(fptr) && !resists_poison(mon))
+                || (touch_petrifies(&mons[obj->corpsenm]) &&
+                    !resists_ston(mon)))
                 return POISON;
             /* turning into slime is preferable to starvation */
             else if (fptr == &mons[PM_GREEN_SLIME] && !slimeproof(mon->data))
@@ -836,6 +838,7 @@ register struct obj *obj;
                       : (herbi || starving)
                          ? ACCFOOD
                          : MANFOOD;
+            return ACCFOOD;
         case TIN:
             return metallivorous(mptr) ? ACCFOOD : MANFOOD;
         case APPLE:
@@ -848,6 +851,17 @@ register struct obj *obj;
                       : (herbi || starving)
                          ? ACCFOOD
                          : MANFOOD;
+        case K_RATION:
+        case C_RATION:
+        case CRAM_RATION:
+        case LEMBAS_WAFER:
+        case FOOD_RATION:
+            if (is_human(mon->data) ||
+          		 is_elf(mon->data) ||
+          		 is_dwarf(mon->data) ||
+          		 is_gnome(mon->data) ||
+          		 is_orc(mon->data))
+          	return ACCFOOD;
         default:
             if (starving)
                 return ACCFOOD;

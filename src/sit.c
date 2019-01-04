@@ -386,6 +386,62 @@ rndcurse()
     }
 }
 
+void
+mrndcurse(mtmp)			/* curse a few inventory items at random! */
+register struct monst *mtmp;
+{
+  	int	nobj = 0;
+  	int	cnt, onum;
+  	struct	obj	*otmp;
+  	static const char mal_aura[] = "feel a malignant aura surround %s.";
+
+  	boolean resists = resist(mtmp, 0, 0, FALSE);
+
+  	if (MON_WEP(mtmp) &&
+  	    (MON_WEP(mtmp)->oartifact == ART_MAGICBANE) && rn2(20)) {
+  	    You(mal_aura, "the magic-absorbing blade");
+  	    return;
+  	}
+
+  	if(resists) {
+  	    shieldeff(mtmp->mx, mtmp->my);
+  	    You(mal_aura, mon_nam(mtmp));
+  	}
+
+  	for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+  	    /* gold isn't subject to being cursed or blessed */
+  	    if (otmp->oclass == COIN_CLASS) continue;
+  	    nobj++;
+  	}
+  	if (nobj) {
+  	    for (cnt = rnd(6/((!!resists) + 1));
+  		      cnt > 0; cnt--)  {
+        		onum = rnd(nobj);
+        		for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+        		    /* as above */
+        		    if (otmp->oclass == COIN_CLASS) continue;
+        		    if (--onum == 0) break;	/* found the target */
+        		}
+        		/* the !otmp case should never happen; picking an already
+        		   cursed item happens--avoid "resists" message in that case */
+        		if (!otmp || otmp->cursed)
+                continue;	/* next target */
+
+        		if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL) &&
+        		   rn2(10) < 8) {
+        		    pline("%s!", Tobjnam(otmp, "resist"));
+        		    continue;
+        		}
+
+        		if (otmp->blessed)
+        			  unbless(otmp);
+        		else
+        			  curse(otmp);
+  	    }
+  	    update_inventory();
+  	}
+}
+
 /* remove a random INTRINSIC ability */
 void
 attrcurse()

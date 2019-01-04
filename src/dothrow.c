@@ -1621,7 +1621,24 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
 
     dieroll = rnd(20);
 
-    if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
+    if (mon->mtame && mon->mcanmove &&
+            (!is_animal(mon->data)) && (!mindless(mon->data)) &&
+            could_use_item(mon, obj, FALSE)) {
+       if (could_use_item(mon, obj, TRUE)) {
+           pline("%s catches %s.", Monnam(mon), the(xname(obj)));
+           obj_extract_self(obj);
+           (void) mpickobj(mon,obj);
+           if (attacktype(mon->data, AT_WEAP) &&
+               mon->weapon_check == NEED_WEAPON) {
+               mon->weapon_check = NEED_HTH_WEAPON;
+               (void) mon_wield_item(mon);
+           }
+           m_dowear(mon, FALSE);
+           newsym(mon->mx, mon->my);
+           return 1;
+       }
+       miss(xname(obj), mon);
+   } else if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
         || obj->oclass == GEM_CLASS) {
         if (hmode == HMON_KICKED) {
             /* throwing adjustments and weapon skill bonus don't apply */

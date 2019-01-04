@@ -125,12 +125,15 @@ register struct monst *mtmp;
 {
     register struct monst *mon, *nmon;
     int result, has_u_swallowed;
+    boolean conflict = Conflict && !resist(mtmp, RING_CLASS, 0, 0);
 #ifdef LINT
     nmon = 0;
 #endif
     /* perhaps the monster will resist Conflict */
     if (resist(mtmp, RING_CLASS, 0, 0))
         return 0;
+    if ((mtmp->mtame || is_covetous(mtmp->data)) && !conflict)
+      	    return 0;
 
     if (u.ustuck == mtmp) {
         /* perhaps we're holding it... */
@@ -150,6 +153,8 @@ register struct monst *mtmp;
          */
         if (mon != mtmp && !DEADMONSTER(mon)) {
             if (monnear(mtmp, mon->mx, mon->my)) {
+                if (!conflict && !mm_aggression(mtmp, mon))
+               		  continue;
                 if (!u.uswallow && (mtmp == u.ustuck)) {
                     if (!rn2(4)) {
                         pline("%s releases you!", Monnam(mtmp));
@@ -223,8 +228,10 @@ boolean quietly;
         return MM_MISS;
 
     /* undetected monster becomes un-hidden if it is displaced */
-    if (mdef->mundetected)
+    if (mdef->mundetected &&
+        dist2(mdef->mx, mdef->my, magr->mx, magr->my) > 2) {
         mdef->mundetected = 0;
+    }
     if (mdef->m_ap_type && mdef->m_ap_type != M_AP_MONSTER)
         seemimic(mdef);
     /* wake up the displaced defender */
@@ -362,7 +369,7 @@ register struct monst *magr, *mdef;
         otmp = (struct obj *) 0;
         attk = 1;
         switch (mattk->aatyp) {
-        case AT_WEAP: /* "hand to hand" attacks */
+        case AT_WEAP: /* weapon attacks */
             if (distmin(magr->mx, magr->my, mdef->mx, mdef->my) > 1) {
                 /* D: Do a ranged attack here! */
                 strike = thrwmm(magr, mdef);
@@ -514,7 +521,14 @@ register struct monst *magr, *mdef;
                     res[i] |= MM_AGR_DIED;
             }
             break;
-
+        case AT_MAGC:
+            if (dist2(magr->mx, magr->my, mdef->mx, mdef->my) > 2)
+                break;
+         	  res[i] = castmm(magr, mdef, mattk);
+         		if (res[i] & MM_DEF_DIED)
+         			return (MM_DEF_DIED |
+         				(grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+         		break;
         default: /* no attack */
             strike = 0;
             attk = 0;
@@ -1404,6 +1418,71 @@ register struct attack *mattk;
         }
         res = eat_brains(magr, mdef, vis, &tmp);
         break;
+    case AD_DETH:
+     	  if (vis)
+     		    pline("%s reaches out with its deadly touch.",
+     		          Monnam(magr));
+     		if (is_undead(mdef->data)) {
+     		    /* Still does normal damage */
+     	            if (vis)
+     		        pline("%s looks no more dead than before.", Monnam(mdef));
+     		    break;
+     		}
+     		switch (rn2(20)) {
+     		case 19:
+        case 18:
+        case 17:
+     		    if (!resists_magm(mdef) && !resist(mdef, 0, 0, 0)) {
+     			mdef->mhp = 0;
+     		        monkilled(mdef, "", AD_DETH);
+     			tmp = 0;
+     			break;
+     		    } /* else FALLTHRU */
+     		default: /* case 16: ... case 5: */
+     		    if (vis)
+     		        pline("%s looks weaker!", Monnam(mdef));
+     		    mdef->mhpmax -= rn2(tmp / 2 + 1); /* mhp will then  */
+     		                                      /* still be less than  */
+     						      /* this value */
+     		    break;
+     		case 4:
+        case 3:
+        case 2:
+        case 1:
+        case 0:
+     		    if (resists_magm(mdef)) shieldeff(mdef->mx, mdef->my);
+     	            if (vis)
+     		        pline("Well. That didn't work...");
+     		    tmp = 0;
+     		    break;
+     		}
+     		break;
+    case AD_PEST:
+     		Strcpy(buf, mon_nam(mdef));
+     	        if (vis)
+     		    pline("%s reaches out, and %s looks rather ill.",
+     		  	    Monnam(magr), buf);
+     		if((mdef->mhpmax > 3) && !resist(mdef, 0, 0, NOTELL))
+     			mdef->mhpmax /= 2;
+     		if((mdef->mhp > 2) && !resist(mdef, 0, 0, NOTELL))
+     			mdef->mhp /= 2;
+     		if (mdef->mhp > mdef->mhpmax) mdef->mhp = mdef->mhpmax;
+     		break;
+    case AD_FAMN:
+     		Strcpy(buf, s_suffix(mon_nam(mdef)));
+     	        if (vis)
+     		    pline("%s reaches out, and %s body shrivels.",
+     			    Monnam(magr), buf);
+     		if (mdef->mtame && !mdef->isminion)
+     		    EDOG(mdef)->hungrytime -= rn1(120, 120);
+     		else
+     		{
+     		    tmp += rnd(10); /* lacks a food rating */
+     		    if (tmp >= mdef->mhp && vis)
+     		        pline("%s starves.", Monnam(mdef));
+     		}
+     		/* plus the normal damage */
+     		break;
     case AD_SLIM:
         if (cancelled)
             break; /* physical damage only */

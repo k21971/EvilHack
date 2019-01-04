@@ -5,6 +5,9 @@
 
 #include "hack.h"
 
+extern boolean FDECL(would_prefer_hwep, (struct monst *, struct obj *));
+extern boolean FDECL(would_prefer_rwep, (struct monst *, struct obj *));
+
 STATIC_PTR int NDECL(stealarm);
 
 STATIC_DCL const char *FDECL(equipname, (struct obj *));
