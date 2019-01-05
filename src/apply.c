@@ -1917,7 +1917,10 @@ struct obj *obj;
             make_stunned((HStun & TIMEOUT) + lcount, TRUE);
             break;
         case 4:
-            (void) adjattrib(rn2(A_MAX), -1, FALSE);
+            if (Vomiting)
+                vomit();
+            else
+                make_vomiting(14L, FALSE);
             break;
         case 5:
             (void) make_hallucinated((HHallucination & TIMEOUT) + lcount,
@@ -1937,12 +1940,10 @@ struct obj *obj;
  * Entries in the trouble list use a very simple encoding scheme.
  */
 #define prop2trbl(X) ((X) + A_MAX)
-#define attr2trbl(Y) (Y)
 #define prop_trouble(X) trouble_list[trouble_count++] = prop2trbl(X)
-#define attr_trouble(Y) trouble_list[trouble_count++] = attr2trbl(Y)
 #define TimedTrouble(P) (((P) && !((P) & ~TIMEOUT)) ? ((P) & TIMEOUT) : 0L)
 
-    trouble_count = unfixable_trbl = did_prop = did_attr = 0;
+    trouble_count = unfixable_trbl = did_prop = 0;
 
     /* collect property troubles */
     if (TimedTrouble(Sick))
@@ -1964,41 +1965,19 @@ struct obj *obj;
 
     unfixable_trbl = unfixable_trouble_count(TRUE);
 
-    /* collect attribute troubles */
-    for (idx = 0; idx < A_MAX; idx++) {
-        if (ABASE(idx) >= AMAX(idx))
-            continue;
-        val_limit = AMAX(idx);
-        /* this used to adjust 'val_limit' for A_STR when u.uhs was
-           WEAK or worse, but that's handled via ATEMP(A_STR) now */
-        if (Fixed_abil) {
-            /* potion/spell of restore ability override sustain ability
-               intrinsic but unicorn horn usage doesn't */
-            unfixable_trbl += val_limit - ABASE(idx);
-            continue;
-        }
-        /* don't recover more than 3 points worth of any attribute */
-        if (val_limit > ABASE(idx) + 3)
-            val_limit = ABASE(idx) + 3;
-
-        for (val = ABASE(idx); val < val_limit; val++)
-            attr_trouble(idx);
-        /* keep track of unfixed trouble, for message adjustment below */
-        unfixable_trbl += (AMAX(idx) - val_limit);
-    }
-
     if (trouble_count == 0) {
         pline1(nothing_happens);
         return;
     } else if (trouble_count > 1) { /* shuffle */
         int i, j, k;
 
-        for (i = trouble_count - 1; i > 0; i--)
+        for (i = trouble_count - 1; i > 0; i--) {
             if ((j = rn2(i + 1)) != i) {
                 k = trouble_list[j];
                 trouble_list[j] = trouble_list[i];
                 trouble_list[i] = k;
             }
+        }
     }
 
     /*
@@ -2045,30 +2024,18 @@ struct obj *obj;
             did_prop++;
             break;
         default:
-            if (idx >= 0 && idx < A_MAX) {
-                ABASE(idx) += 1;
-                did_attr++;
-            } else
-                panic("use_unicorn_horn: bad trouble? (%d)", idx);
+            panic("use_unicorn_horn: bad trouble? (%d)", idx);
             break;
         }
     }
 
-    if (did_attr)
-        pline("This makes you feel %s!",
-              (did_prop + did_attr) == (trouble_count + unfixable_trbl)
-                  ? "great"
-                  : "better");
-    else if (!did_prop)
+    if (!did_prop)
         pline("Nothing seems to happen.");
 
-    context.botl = (did_attr || did_prop);
+    context.botl = did_prop;
 #undef PROP_COUNT
-#undef ATTR_COUNT
 #undef prop2trbl
-#undef attr2trbl
 #undef prop_trouble
-#undef attr_trouble
 #undef TimedTrouble
 }
 
