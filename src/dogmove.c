@@ -511,7 +511,8 @@ boolean devour;
     if (deadmimic)
         quickmimic(mtmp);
 
-    dogintr(mtmp, &mons[obj->corpsenm]);
+    if (obj->otyp == CORPSE)
+        dogintr(mtmp, &mons[obj->corpsenm]);
     return 1;
 }
 
