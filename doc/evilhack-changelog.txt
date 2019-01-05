@@ -30,10 +30,26 @@ Version 0.1.1
 - Changes to the 'Knight' role
 - Import of SporkHack and GruntHack monsters (round one)
 - New custom made monsters
-- tweaks to some existing monsters
+- Tweaks to some existing monsters
 - Descriptive hit messages
 - Monster hit point generation modifications
-- Monsters can ride steeds, from SpliceHack (The Riders only for now)
+- Various monsters can ride steeds (from SpliceHack)
 - Removal of the mysterious force, nasties now spawn at upstairs while traveling up
   with the Amulet
-- latest merges from 'vanilla' NetHack 3.6.2 (as of November 11th, 2018)
+- Enable displacement for shimmering dragons
+- Grudge Patch (by Nephi, modified)
+- Zombies (from GruntHack, modified)
+- Revamp of The Riders
+- Descriptive hit messages
+- Armor adjustments, racial armor bonues
+- Dragon armor and secondary extrinsics (from SporkHack, modified)
+- Spell casting while wearing body armor (from SporkHack, modified)
+- Pet behavior/AI revamp (from SpliceHack/GruntHack)
+- latest merges from 'vanilla' NetHack 3.6.2 (as of January 1st, 2019)
+
+--------------------------------------------------------------------------------------------
+
+Version 0.1.2
+-------------
+
+- TBD
