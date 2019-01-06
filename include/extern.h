@@ -1202,6 +1202,7 @@ E int FDECL(castum, (struct monst *, struct attack *));
 /* ### mhitm.c ### */
 
 E int FDECL(fightm, (struct monst *));
+E boolean FDECL(resist_conflict, (struct monst *));
 E int FDECL(mattackm, (struct monst *, struct monst *));
 E boolean FDECL(engulf_target, (struct monst *, struct monst *));
 E int FDECL(mdisplacem, (struct monst *, struct monst *, BOOLEAN_P));

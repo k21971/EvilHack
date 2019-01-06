@@ -1203,7 +1203,7 @@ int after; /* this is extra fast monster movement */
     udist = distu(omx, omy);
     /* Let steeds eat and maybe throw rider during Conflict */
     if (mtmp == u.usteed) {
-        if (Conflict && !resist(mtmp, RING_CLASS, 0, 0)) {
+        if (Conflict && !resist_conflict(mtmp)) {
             dismount_steed(DISMOUNT_THROWN);
             return 1;
         }
@@ -1242,7 +1242,7 @@ int after; /* this is extra fast monster movement */
         allowflags |= ALLOW_ROCK;
     if (is_displacer(mtmp->data))
         allowflags |= ALLOW_MDISP;
-    if (Conflict && !resist(mtmp, RING_CLASS, 0, 0)) {
+    if (Conflict && !resist_conflict(mtmp)) {
         allowflags |= ALLOW_U;
     }
 #if 0 /* [this is now handled in dochug()] */

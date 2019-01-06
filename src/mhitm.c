@@ -130,7 +130,19 @@ register struct monst *mtmp;
     nmon = 0;
 #endif
     /* perhaps the monster will resist Conflict */
-    if (resist(mtmp, RING_CLASS, 0, 0))
+
+    /* From SporkHack:
+     * In practice, this should be suffixed with "... but probably not".
+     * The old MR check was just letting too many monsters avoid being hit with
+     * conflict in the first place; the ones that didn't resist basically swarmed under
+     * the ones that did, allowing the player to blithely walk through a street brawl
+     * almost totally untouched.  Not so anymore.
+     *
+     * Resistance is based on the player's (mostly-useless) Charisma.  High-CHA players
+     * will be able to 'convince' monsters (through the magic of the ring, of course) to fight
+     * for them much more easily than low-CHA players. */
+
+    if (resist_conflict(mtmp))
         return 0;
     if ((mtmp->mtame || is_covetous(mtmp->data)) && !conflict)
       	    return 0;
@@ -275,6 +287,17 @@ boolean quietly;
     flush_screen(0); /* make sure it shows up */
 
     return MM_HIT;
+}
+
+boolean
+resist_conflict(mtmp)
+struct monst* mtmp;
+{
+	int resist_chance;
+
+	resist_chance = ACURR(A_CHA) - mtmp->m_lev + u.ulevel;
+	if (resist_chance > 19) resist_chance = 19; /* always a small chance */
+	return (rnd(20) > resist_chance);
 }
 
 /*
