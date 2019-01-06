@@ -2317,12 +2317,15 @@ boolean ordinary;
     case WAN_MAGIC_MISSILE:
     case SPE_MAGIC_MISSILE:
         learn_it = TRUE;
+        pline("Idiot!  You've shot yourself!");
+        damage = d(4, 6);
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
-            pline_The("missiles bounce!");
-        } else {
-            damage = d(4, 6);
-            pline("Idiot!  You've shot yourself!");
+            pline("Some of the missiles bounce!");
+            damage = (damage + 1) / 2;
+        }
+        if (Half_spell_damage) {
+            damage = (damage + 1) / 2;
         }
         break;
 
@@ -3552,14 +3555,17 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     *ootmp = (struct obj *) 0;
     switch (abstype) {
     case ZT_MAGIC_MISSILE:
-        if (resists_magm(mon)) {
-            sho_shieldeff = TRUE;
-            break;
-        }
         tmp = d(nd, 6);
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
-        break;
+        if (resists_magm(mon)) {
+            sho_shieldeff = TRUE;
+            tmp = (tmp + 1) / 2;
+            }
+        if (Half_spell_damage) {
+            tmp = (tmp + 1) / 2;
+            }
+            break;
     case ZT_FIRE:
         if (resists_fire(mon)) {
             sho_shieldeff = TRUE;
@@ -3710,13 +3716,16 @@ xchar sx, sy;
 
     switch (abstyp % 10) {
     case ZT_MAGIC_MISSILE:
+        dam = d(nd, 6);
         if (Antimagic) {
             shieldeff(sx, sy);
-            pline_The("missiles bounce off!");
-        } else {
-            dam = d(nd, 6);
-            exercise(A_STR, FALSE);
+            pline("Some missiles bounce off!");
+            dam = (dam + 1) / 2;
         }
+        if (Half_spell_damage) { /* stacks, effectively 1/4 damage */
+            dam = (dam + 1) / 2;
+        }
+            exercise(A_STR, FALSE);
         break;
     case ZT_FIRE:
         if (Fire_resistance) {

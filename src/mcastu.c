@@ -320,12 +320,15 @@ boolean foundyou;
         break;
     case AD_MAGM:
         You("are hit by a shower of missiles!");
+        dmg = d((int) mtmp->m_lev / 2 + 1, 6);
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
-            pline_The("missiles bounce off!");
-            dmg = 0;
-        } else
-            dmg = d((int) mtmp->m_lev / 2 + 1, 6);
+            pline("Some missiles bounce off!");
+            dmg = (dmg + 1) / 2;
+        }
+	if (Half_spell_damage) { /* stacks, effectively 1/4 damage */
+	    dmg = (dmg + 1) / 2;
+	}
         break;
     case AD_SPEL: /* wizard spell */
     case AD_CLRC: /* clerical spell */
@@ -1043,15 +1046,18 @@ castmm(mtmp, mdef, mattk)
    	  case AD_MAGM:
             if (canspotmon(mdef))
          		    pline("%s is hit by a shower of missiles!", Monnam(mdef));
+                            dmg = d((int)mtmp->m_lev/2 + 1,6);
          		if(resists_magm(mdef)) {
            			shieldeff(mdef->mx, mdef->my);
            	                if (canspotmon(mdef))
-           			    pline_The("missiles bounce off!");
-           			dmg = 0;
-         		} else
-                dmg = d((int)mtmp->m_lev/2 + 1,6);
+           			    pline("Some missiles bounce off!");
+           			dmg = (dmg + 1) / 2;
+                        }
+                        if (Half_spell_damage) {
+                                dmg = (dmg + 1) / 2;
+                        }
          		break;
-   	    case AD_SPEL:	/* wizard spell */
+   	    case AD_SPEL: /* wizard spell */
    	    case AD_CLRC: /* clerical spell */
    	    {
    	        /*aggravation is a special case;*/
@@ -1190,12 +1196,15 @@ castum(mtmp, mattk)
          		break;
    	    case AD_MAGM:
          		pline("%s is hit by a shower of missiles!", Monnam(mtmp));
+                        dmg = d((int)ml/2 + 1,6);
          		if (resists_magm(mtmp)) {
            			shieldeff(mtmp->mx, mtmp->my);
-           			pline_The("missiles bounce off!");
-           			dmg = 0;
-         		} else
-                dmg = d((int)ml/2 + 1,6);
+           			pline("Some missiles bounce off!");
+           			dmg = (dmg + 1) / 2;
+         		}
+                        if (Half_spell_damage) {
+                                dmg = (dmg + 1) / 2;
+                        }
          		break;
    	    case AD_SPEL: /* wizard spell */
    	    case AD_CLRC: /* clerical spell */
