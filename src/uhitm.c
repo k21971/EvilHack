@@ -2722,13 +2722,14 @@ boolean wep_was_destroyed;
             break;
         case AD_COLD: /* brown mold or blue jelly */
             if (monnear(mon, u.ux, u.uy)) {
-                if (Cold_resistance) {
+                if (how_resistant(COLD_RES) == 100) {
                     shieldeff(u.ux, u.uy);
                     You_feel("a mild chill.");
                     ugolemeffects(AD_COLD, tmp);
                     break;
                 }
                 You("are suddenly very cold!");
+                tmp = resist_reduce(tmp, COLD_RES);
                 mdamageu(mon, tmp);
                 /* monster gets stronger with your heat! */
                 mon->mhp += tmp / 2;
@@ -2745,24 +2746,26 @@ boolean wep_was_destroyed;
             break;
         case AD_FIRE:
             if (monnear(mon, u.ux, u.uy)) {
-                if (Fire_resistance) {
+                if (how_resistant(FIRE_RES) == 100) {
                     shieldeff(u.ux, u.uy);
                     You_feel("mildly warm.");
                     ugolemeffects(AD_FIRE, tmp);
                     break;
                 }
                 You("are suddenly very hot!");
+                tmp = resist_reduce(tmp, FIRE_RES);
                 mdamageu(mon, tmp); /* fire damage */
             }
             break;
         case AD_ELEC:
-            if (Shock_resistance) {
+            if (how_resistant(SHOCK_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 You_feel("a mild tingle.");
                 ugolemeffects(AD_ELEC, tmp);
                 break;
             }
             You("are jolted with electricity!");
+            tmp = resist_reduce(tmp, SHOCK_RES);
             mdamageu(mon, tmp);
 	    break;
 	case AD_DISE: /* specifically gray fungus */
@@ -2775,10 +2778,11 @@ boolean wep_was_destroyed;
 	    }
             break;
         case AD_DRST: /* specifically green dragons */
-            if (Poison_resistance) {
+            if (how_resistant(POISON_RES) == 100) {
                 You("are immune to %s poisonous hide.", s_suffix(mon_nam(mon)));
             } else {
                 You("have been poisoned!");
+                tmp = resist_reduce(tmp, POISON_RES);
                 mdamageu(mon, rnd(6));
             }
             break;

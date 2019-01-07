@@ -134,7 +134,8 @@ struct prop {
 #define FROMEXPER 0x01000000L   /* Gain/lose with experience, for role */
 #define FROMRACE 0x02000000L    /* Gain/lose with experience, for race */
 #define FROMOUTSIDE 0x04000000L /* By corpses, prayer, thrones, etc. */
-#define INTRINSIC (FROMOUTSIDE | FROMRACE | FROMEXPER)
+#define HAVEPARTIAL 0x08000000L /* This is no longer a timeout, but a partial resistance */
+#define INTRINSIC (FROMOUTSIDE | FROMRACE | FROMEXPER | HAVEPARTIAL)
 /* Control flags */
 #define FROMFORM 0x10000000L  /* Polyd; conferred by monster form */
 #define I_SPECIAL 0x20000000L /* Property is controllable */

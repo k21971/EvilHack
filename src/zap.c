@@ -2262,9 +2262,9 @@ boolean ordinary;
 
     case WAN_LIGHTNING:
         learn_it = TRUE;
-        if (!Shock_resistance) {
+        if (how_resistant(SHOCK_RES) < 100) {
             You("shock yourself!");
-            damage = d(12, 6);
+            damage = resist_reduce(d(12, 6), SHOCK_RES);
             exercise(A_CON, FALSE);
         } else {
             shieldeff(u.ux, u.uy);
@@ -2283,13 +2283,13 @@ boolean ordinary;
     case WAN_FIRE:
     case FIRE_HORN:
         learn_it = TRUE;
-        if (Fire_resistance) {
+        if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You_feel("rather warm.");
             ugolemeffects(AD_FIRE, d(12, 6));
         } else {
             pline("You've set yourself afire!");
-            damage = d(12, 6);
+            damage = resist_reduce(d(12, 6), FIRE_RES);
         }
         burn_away_slime();
         (void) burnarmor(&youmonst);
@@ -2303,13 +2303,13 @@ boolean ordinary;
     case SPE_CONE_OF_COLD:
     case FROST_HORN:
         learn_it = TRUE;
-        if (Cold_resistance) {
+        if (how_resistant(COLD_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You_feel("a little chill.");
             ugolemeffects(AD_COLD, d(12, 6));
         } else {
             You("imitate a popsicle!");
-            damage = d(12, 6);
+            damage = resist_reduce(d(12, 6), COLD_RES);
         }
         destroy_item(POTION_CLASS, AD_COLD);
         break;
@@ -2389,12 +2389,12 @@ boolean ordinary;
     case WAN_SLEEP:
     case SPE_SLEEP:
         learn_it = TRUE;
-        if (Sleep_resistance) {
+        if (how_resistant(SLEEP_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You("don't feel sleepy!");
         } else {
             pline_The("sleep ray hits you!");
-            fall_asleep(-rnd(50), TRUE);
+            fall_asleep(-resist_reduce(rnd(50), SLEEP_RES), TRUE);
         }
         break;
 
@@ -3728,12 +3728,12 @@ xchar sx, sy;
             exercise(A_STR, FALSE);
         break;
     case ZT_FIRE:
-        if (Fire_resistance) {
+        if (how_resistant(FIRE_RES) == 100) {
             shieldeff(sx, sy);
             You("don't feel hot!");
             ugolemeffects(AD_FIRE, d(nd, 6));
         } else {
-            dam = d(nd, 6);
+            dam = resist_reduce(d(nd, 6), FIRE_RES);
         }
         burn_away_slime();
         if (!Reflecting) {
@@ -3749,12 +3749,12 @@ xchar sx, sy;
         }
         break;
     case ZT_COLD:
-        if (Cold_resistance) {
+        if (how_resistant(COLD_RES) == 100) {
             shieldeff(sx, sy);
             You("don't feel cold.");
             ugolemeffects(AD_COLD, d(nd, 6));
         } else {
-            dam = d(nd, 6);
+            dam = resist_reduce(d(nd, 6), COLD_RES);
         }
         if (!Reflecting) {
             if (!rn2(3))
@@ -3762,23 +3762,23 @@ xchar sx, sy;
             }
         break;
     case ZT_SLEEP:
-        if (Sleep_resistance) {
+        if (how_resistant(SLEEP_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You("don't feel sleepy.");
         } else if (Reflecting) {
-            fall_asleep(-d(1, 6), TRUE);
+            fall_asleep(-resist_reduce(d(1, 6), SLEEP_RES), TRUE);
         } else {
-            fall_asleep(-d(nd, 25), TRUE); /* sleep ray */
+            fall_asleep(-resist_reduce(d(nd, 25), SLEEP_RES), TRUE); /* sleep ray */
         }
         break;
     case ZT_DEATH:
         if (abstyp == ZT_BREATH(ZT_DEATH)) {
-            if (Disint_resistance) {
+            if (how_resistant(DISINT_RES) == 100) {
                 You("are not disintegrated.");
                 break;
 	    } else if (Reflecting) {
 		You("aren't disintegrated, but that hurts!");
-		dam = d(nd, 6);
+		dam = resist_reduce(d(nd, 6), DISINT_RES);
 		break;
             } else if (uarms) {
                 /* destroy shield; other possessions are safe */
@@ -3820,12 +3820,12 @@ xchar sx, sy;
         done(DIED);
         return; /* lifesaved */
     case ZT_LIGHTNING:
-        if (Shock_resistance) {
+        if (how_resistant(SHOCK_RES) == 100) {
             shieldeff(sx, sy);
             You("aren't affected.");
             ugolemeffects(AD_ELEC, d(nd, 6));
         } else {
-            dam = d(nd, 6);
+            dam = resist_reduce(d(nd, 6), SHOCK_RES);
             exercise(A_CON, FALSE);
         }
         if (!Reflecting) {
@@ -4800,7 +4800,7 @@ int osym, dmgtyp;
             skip++;
         break;
     case AD_FIRE:
-        xresist = (Fire_resistance && obj->oclass != POTION_CLASS
+        xresist = (how_resistant(FIRE_RES) == 100 && obj->oclass != POTION_CLASS
                    && obj->otyp != GLOB_OF_GREEN_SLIME);
         if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL)
             skip++;
@@ -4838,7 +4838,7 @@ int osym, dmgtyp;
         }
         break;
     case AD_ELEC:
-        xresist = (Shock_resistance && obj->oclass != RING_CLASS);
+        xresist = (how_resistant(SHOCK_RES) == 100 && obj->oclass != RING_CLASS);
         quan = obj->quan;
         switch (osym) {
         case RING_CLASS:

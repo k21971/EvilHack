@@ -177,22 +177,22 @@ int expltype;
                     explmask[i][j] = !!Antimagic;
                     break;
                 case AD_FIRE:
-                    explmask[i][j] = !!Fire_resistance;
+                    explmask[i][j] = (how_resistant(FIRE_RES) > 50);
                     break;
                 case AD_COLD:
-                    explmask[i][j] = !!Cold_resistance;
+                    explmask[i][j] = (how_resistant(COLD_RES) > 50);
                     break;
                 case AD_DISN:
                     explmask[i][j] = (olet == WAND_CLASS)
                                          ? !!(nonliving(youmonst.data)
                                               || is_demon(youmonst.data))
-                                         : !!Disint_resistance;
+                                         : (how_resistant(DISINT_RES) > 50);
                     break;
                 case AD_ELEC:
-                    explmask[i][j] = !!Shock_resistance;
+                    explmask[i][j] = (how_resistant(SHOCK_RES) > 50);
                     break;
                 case AD_DRST:
-                    explmask[i][j] = !!Poison_resistance;
+                    explmask[i][j] = (how_resistant(POISON_RES) > 50);
                     break;
                 case AD_ACID:
                     explmask[i][j] = !!Acid_resistance;

@@ -1096,11 +1096,11 @@ unsigned trflags;
 
     case SLP_GAS_TRAP:
         seetrap(trap);
-        if (Sleep_resistance || breathless(youmonst.data)) {
+        if (how_resistant(SLEEP_RES) == 100 || breathless(youmonst.data)) {
             You("are enveloped in a cloud of gas!");
         } else {
             pline("A cloud of gas puts you to sleep!");
-            fall_asleep(-rnd(25), TRUE);
+            fall_asleep(-resist_reduce(rnd(25), SLEEP_RES), TRUE);
         }
         (void) steedintrap(trap, (struct obj *) 0);
         break;
@@ -3123,7 +3123,7 @@ struct obj *box; /* null for floor trap */
     if ((box && !carried(box)) ? is_pool(box->ox, box->oy) : Underwater) {
         pline("A cascade of steamy bubbles erupts from %s!",
               the(box ? xname(box) : surface(u.ux, u.uy)));
-        if (Fire_resistance)
+        if (how_resistant(FIRE_RES) > 50)
             You("are uninjured.");
         else
             losehp(rnd(3), "boiling water", KILLED_BY);
@@ -3131,7 +3131,7 @@ struct obj *box; /* null for floor trap */
     }
     pline("A %s %s from %s!", tower_of_flame, box ? "bursts" : "erupts",
           the(box ? xname(box) : surface(u.ux, u.uy)));
-    if (Fire_resistance) {
+    if (how_resistant(FIRE_RES) == 100) {
         shieldeff(u.ux, u.uy);
         num = rn2(2);
     } else if (Upolyd) {
@@ -3158,7 +3158,7 @@ struct obj *box; /* null for floor trap */
         if (u.mhmax > mons[u.umonnum].mlevel)
             u.mhmax -= rn2(min(u.mhmax, num + 1)), context.botl = 1;
     } else {
-        num = d(2, 4);
+        num = resist_reduce(d(2, 4), FIRE_RES);
         if (u.uhpmax > u.ulevel)
             u.uhpmax -= rn2(min(u.uhpmax, num + 1)), context.botl = 1;
     }
@@ -4959,12 +4959,12 @@ boolean disarm;
             int dmg;
 
             You("are jolted by a surge of electricity!");
-            if (Shock_resistance) {
+            if (how_resistant(SHOCK_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 You("don't seem to be affected.");
                 dmg = 0;
             } else
-                dmg = d(4, 4);
+                dmg = resist_reduce(d(4, 4), SHOCK_RES);
             destroy_item(RING_CLASS, AD_ELEC);
             destroy_item(WAND_CLASS, AD_ELEC);
             if (dmg)
@@ -5283,14 +5283,14 @@ boolean
 lava_effects()
 {
     register struct obj *obj, *obj2;
-    int dmg = d(6, 6); /* only applicable for water walking */
+    int dmg = resist_reduce(d(6, 6), FIRE_RES); /* only applicable for water walking */
     boolean usurvive, boil_away;
 
     burn_away_slime();
     if (likes_lava(youmonst.data))
         return FALSE;
 
-    usurvive = Fire_resistance || (Wwalking && dmg < u.uhp);
+    usurvive = how_resistant(FIRE_RES) == 100 || (Wwalking && dmg < u.uhp);
     /*
      * A timely interrupt might manage to salvage your life
      * but not your gear.  For scrolls and potions this
@@ -5323,7 +5323,7 @@ lava_effects()
         iflags.in_lava_effects--;
     }
 
-    if (!Fire_resistance) {
+    if (how_resistant(FIRE_RES) < 100) {
         if (Wwalking) {
 		if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
 			levl[u.ux][u.uy].typ = ROOM;
@@ -5390,7 +5390,7 @@ lava_effects()
         You("find yourself back on solid %s.", surface(u.ux, u.uy));
         return TRUE;
     } else if (!Wwalking && (!u.utrap || u.utraptype != TT_LAVA)) {
-        boil_away = !Fire_resistance;
+        boil_away = how_resistant(FIRE_RES) < 100;
         /* if not fire resistant, sink_into_lava() will quickly be fatal;
            hero needs to escape immediately */
         set_utrap((unsigned) (rn1(4, 4) + ((boil_away ? 2 : rn1(4, 12)) << 8)),
@@ -5433,7 +5433,7 @@ sink_into_lava()
            enough to become stuck in lava, but it can happen without
            resistance if water walking boots allow survival and then
            get burned up; u.utrap time will be quite short in that case */
-        if (!Fire_resistance)
+        if (how_resistant(FIRE_RES) < 100)
             u.uhp = (u.uhp + 2) / 3;
 
         u.utrap -= (1 << 8);

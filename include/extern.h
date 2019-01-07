@@ -1939,6 +1939,10 @@ E const char *NDECL(udeadinside);
 
 E void FDECL(set_itimeout, (long *, long));
 E void FDECL(incr_itimeout, (long *, int));
+E void FDECL(incr_resistance, (long *, int));
+E void FDECL(decr_resistance, (long *, int));
+E int FDECL(how_resistant, (int));
+E int FDECL(resist_reduce, (int, int));
 E void FDECL(make_confused, (long, BOOLEAN_P));
 E void FDECL(make_stunned, (long, BOOLEAN_P));
 E void FDECL(make_sick, (long, const char *, BOOLEAN_P, int));

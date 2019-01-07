@@ -303,19 +303,23 @@ boolean foundyou;
     switch (mattk->adtyp) {
     case AD_FIRE:
         pline("You're enveloped in flames.");
-        if (Fire_resistance) {
+        if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
             pline("But you resist the effects.");
             dmg = 0;
+	} else {
+            dmg = resist_reduce(dmg, FIRE_RES);
         }
         burn_away_slime();
         break;
     case AD_COLD:
         pline("You're covered in frost.");
-        if (Cold_resistance) {
+        if (how_resistant(COLD_RES) == 100) {
             shieldeff(u.ux, u.uy);
             pline("But you resist the effects.");
             dmg = 0;
+        } else {
+            dmg = resist_reduce(dmg, COLD_RES);
         }
         break;
     case AD_MAGM:
@@ -543,11 +547,11 @@ int spellnum;
         break;
     case CLC_FIRE_PILLAR:
         pline("A pillar of fire strikes all around you!");
-        if (Fire_resistance) {
+        if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
             dmg = 0;
         } else
-            dmg = d(8, 6);
+            dmg = resist_reduce(d(8, 6), FIRE_RES);
         if (Half_spell_damage)
             dmg = (dmg + 1) / 2;
         burn_away_slime();
@@ -561,19 +565,27 @@ int spellnum;
         boolean reflects;
 
         pline("A bolt of lightning strikes down at you from above!");
-        reflects = ureflects("It bounces off your %s%s.", "");
-        if (reflects || Shock_resistance) {
+        reflects = ureflects("Some of it bounces off your %s%s.", "");
+        if (reflects || (how_resistant(SHOCK_RES) == 100)) {
             shieldeff(u.ux, u.uy);
-            dmg = 0;
-            if (reflects)
-                break;
-        } else
-            dmg = d(8, 6);
-        if (Half_spell_damage)
+            if (reflects) {
+                dmg = resist_reduce(d(4, 6), SHOCK_RES);
+            }
+	    if (how_resistant(SHOCK_RES) == 100) {
+		pline("You aren't shocked.");
+		dmg = 0;
+            }
+        } else {
+            dmg = resist_reduce(d(8, 6), SHOCK_RES);
+        }
+        if (dmg && Half_spell_damage) {
             dmg = (dmg + 1) / 2;
-        destroy_item(WAND_CLASS, AD_ELEC);
-        destroy_item(RING_CLASS, AD_ELEC);
-        (void) flashburn((long) rnd(100));
+        }
+        if (!reflects) {
+            destroy_item(WAND_CLASS, AD_ELEC);
+            destroy_item(RING_CLASS, AD_ELEC);
+            (void) flashburn((long) rnd(100));
+        }
         break;
     }
     case CLC_CURSE_ITEMS:

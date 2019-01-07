@@ -1204,9 +1204,11 @@ register struct attack *mattk;
                 /* KMH -- this is okay with unchanging */
                 rehumanize();
                 break;
-            } else if (Fire_resistance) {
+            } else if (how_resistant(FIRE_RES) == 100) {
                 pline_The("fire doesn't feel hot!");
                 dmg = 0;
+            } else {
+                dmg = resist_reduce(dmg, FIRE_RES);
             }
             if ((int) mtmp->m_lev > rn2(20))
                 destroy_item(SCROLL_CLASS, AD_FIRE);
@@ -1222,9 +1224,11 @@ register struct attack *mattk;
         hitmsg(mtmp, mattk);
         if (uncancelled) {
             pline("You're covered in frost!");
-            if (Cold_resistance) {
+            if (how_resistant(COLD_RES) == 100) {
                 pline_The("frost doesn't seem cold!");
                 dmg = 0;
+            } else {
+                dmg = resist_reduce(dmg, COLD_RES);
             }
             if ((int) mtmp->m_lev > rn2(20))
                 destroy_item(POTION_CLASS, AD_COLD);
@@ -1235,9 +1239,11 @@ register struct attack *mattk;
         hitmsg(mtmp, mattk);
         if (uncancelled) {
             You("get zapped!");
-            if (Shock_resistance) {
+            if (how_resistant(SHOCK_RES) == 100) {
                 pline_The("zap doesn't shock you!");
                 dmg = 0;
+            } else {
+                dmg = resist_reduce(dmg, SHOCK_RES);
             }
             if ((int) mtmp->m_lev > rn2(20))
                 destroy_item(WAND_CLASS, AD_ELEC);
@@ -1249,9 +1255,9 @@ register struct attack *mattk;
     case AD_SLEE:
         hitmsg(mtmp, mattk);
         if (uncancelled && multi >= 0 && !rn2(5)) {
-            if (Sleep_resistance)
+            if (how_resistant(SLEEP_RES) == 100)
                 break;
-            fall_asleep(-rnd(10), TRUE);
+            fall_asleep(-resist_reduce(rnd(10), SLEEP_RES), TRUE);
             if (Blind)
                 You("are put to sleep!");
             else
@@ -2124,36 +2130,42 @@ struct attack *mattk;
     case AD_ELEC:
         if (!mtmp->mcan && rn2(2)) {
             pline_The("air around you crackles with electricity.");
-            if (Shock_resistance) {
+            if (how_resistant(SHOCK_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 You("seem unhurt.");
                 ugolemeffects(AD_ELEC, tmp);
                 tmp = 0;
-            }
+	    } else {
+		tmp = resist_reduce(tmp, SHOCK_RES);
+	    }
         } else
             tmp = 0;
         break;
     case AD_COLD:
         if (!mtmp->mcan && rn2(2)) {
-            if (Cold_resistance) {
+            if (how_resistant(COLD_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 You_feel("mildly chilly.");
                 ugolemeffects(AD_COLD, tmp);
                 tmp = 0;
-            } else
+            } else {
                 You("are freezing to death!");
+                tmp = resist_reduce(tmp, COLD_RES);
+            }
         } else
             tmp = 0;
         break;
     case AD_FIRE:
         if (!mtmp->mcan && rn2(2)) {
-            if (Fire_resistance) {
+            if (how_resistant(FIRE_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 You_feel("mildly hot.");
                 ugolemeffects(AD_FIRE, tmp);
                 tmp = 0;
-            } else
+            } else {
                 You("are burning to a crisp!");
+                tmp = resist_reduce(tmp, FIRE_RES);
+            }
             burn_away_slime();
         } else
             tmp = 0;
@@ -2228,15 +2240,15 @@ boolean ufound;
         switch (mattk->adtyp) {
         case AD_COLD:
             physical_damage = FALSE;
-            not_affected |= Cold_resistance;
+            not_affected |= (how_resistant(COLD_RES) == 100);
             goto common;
         case AD_FIRE:
             physical_damage = FALSE;
-            not_affected |= Fire_resistance;
+            not_affected |= (how_resistant(FIRE_RES) == 100);
             goto common;
         case AD_ELEC:
             physical_damage = FALSE;
-            not_affected |= Shock_resistance;
+            not_affected |= (how_resistant(SHOCK_RES) == 100);
             goto common;
         case AD_PHYS:
             /* there aren't any exploding creatures with AT_EXPL attack
@@ -2463,9 +2475,9 @@ struct attack *mattk;
 
                 pline("%s attacks you with a fiery gaze!", Monnam(mtmp));
                 stop_occupation();
-                if (Fire_resistance) {
-                    pline_The("fire doesn't feel hot!");
-                    dmg = 0;
+	            dmg = resist_reduce(dmg, FIRE_RES);
+		    if (dmg < 1) {
+                    pline_The("fire feels mildly hot.");
                 }
                 burn_away_slime();
                 if (lev > rn2(20))
@@ -2489,9 +2501,9 @@ struct attack *mattk;
 
                 pline("%s attacks you with a chilling gaze!", Monnam(mtmp));
                 stop_occupation();
-                if (Cold_resistance) {
-                    pline_The("chilling gaze doesn't feel cold!");
-                    dmg = 0;
+		    dmg = resist_reduce(dmg, COLD_RES);
+		    if (dmg < 1) {
+                    pline_The("chilling gaze feels mildly cool.");
                 }
                 if (lev > rn2(20))
                     destroy_item(POTION_CLASS, AD_COLD);
@@ -2505,12 +2517,12 @@ struct attack *mattk;
 /* #ifdef PM_BEHOLDER */ /* work in progress */
     case AD_SLEE:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
-            && multi >= 0 && !rn2(5) && !Sleep_resistance) {
+            && multi >= 0 && !rn2(5) && (how_resistant(SLEEP_RES) < 100)) {
             if (cancelled) {
                 react = 6;                      /* "tired" */
                 already = (mtmp->mfrozen != 0); /* can't happen... */
             } else {
-                fall_asleep(-rnd(10), TRUE);
+                fall_asleep(-resist_reduce(rnd(10), SLEEP_RES), TRUE);
                 pline("%s gaze makes you very sleepy...",
                       s_suffix(Monnam(mtmp)));
             }
