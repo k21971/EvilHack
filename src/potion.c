@@ -116,7 +116,8 @@ int amount, which;
 {
 	float tmp = 100 - how_resistant(which);
 	tmp /= 100;
-	pline("incoming: %d  outgoing: %d", amount, (int)((float)amount*tmp));
+	/* debug line */
+        /* pline("incoming: %d  outgoing: %d", amount, (int)((float)amount*tmp)); */
 	return (int)((float)amount * tmp);
 }
 
