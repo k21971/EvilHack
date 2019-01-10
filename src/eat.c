@@ -834,6 +834,21 @@ register struct permonst *ptr;
     return res;
 }
 
+int
+gives_telepathy_incr(ptr)
+struct permonst *ptr;
+{
+    if (ptr == &mons[PM_FLOATING_EYE]) return 6;
+    if (ptr == &mons[PM_MIND_FLAYER]) return 6;
+    if (ptr == &mons[PM_MASTER_MIND_FLAYER]) return 9;
+    if (ptr == &mons[PM_KOBOLD_SHAMAN]) return 3;
+    if (ptr == &mons[PM_GOBLIN_SHAMAN]) return 3;
+    if (ptr == &mons[PM_ORC_SHAMAN]) return 3;
+    if (ptr == &mons[PM_HILL_GIANT_SHAMAN]) return 3;
+    if (ptr == &mons[PM_GNOMISH_WIZARD]) return 3;
+    return 0;
+}
+
 /* givit() tries to give you an intrinsic based on the monster's level
  * and what type of intrinsic it is trying to give you.
  */
@@ -936,10 +951,19 @@ register struct permonst *ptr;
             You_feel(Hallucination ? "in touch with the cosmos."
                                    : "a strange mental acuity.");
             HTelepat |= FROMOUTSIDE;
+	    u.u_telepathy_dist += gives_telepathy_incr(ptr);
+	} else {
+	    int incr = gives_telepathy_incr(ptr);
+	    if (incr && (u.u_telepathy_dist < 600)) {
+		You_feel(Hallucination ?
+			 "like everyone is tad closer." :
+			 "your senses expand a bit.");
+		u.u_telepathy_dist += incr;
+	        }
+	    }
             /* If blind, make sure monsters show up. */
             if (Blind)
                 see_monsters();
-        }
         break;
     default:
         debugpline0("Tried to give an impossible intrinsic");

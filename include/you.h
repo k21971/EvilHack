@@ -301,6 +301,8 @@ struct you {
 
     struct prop uprops[LAST_PROP + 1];
 
+    int u_telepathy_dist;
+
     unsigned umconf;
     Bitfield(usick_type, 2);
 #define SICK_VOMITABLE 0x01
