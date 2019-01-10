@@ -159,7 +159,7 @@ picklock(VOID_ARGS)
         xlock.box->olocked = !xlock.box->olocked;
         xlock.box->lknown = 1;
         if (xlock.box->otrapped)
-            (void) chest_trap(xlock.box, FINGER, FALSE);
+            (void) chest_trap(&youmonst, xlock.box, FINGER, FALSE);
     }
     exercise(A_DEX, TRUE);
     return ((xlock.usedtime = 0));

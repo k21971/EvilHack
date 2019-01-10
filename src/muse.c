@@ -69,6 +69,17 @@ struct obj *obj;
         return 0;
     vis = cansee(mon->mx, mon->my);
 
+    if (obj->where == OBJ_CONTAINED) {
+	struct obj *bag = obj->ocontainer;
+	obj_extract_self(obj);
+	(void)mpickobj(mon, obj);
+
+	if (vis)
+            pline("%s removes %s from %s.", Monnam(mon),
+		  distant_name(obj, doname), singular(bag, doname));
+	return 2;
+    }
+
     if (obj->oclass == POTION_CLASS) {
         coord cc;
         static const char *empty = "The potion turns out to be empty.";
@@ -2127,6 +2138,10 @@ struct obj *obj;
             return (boolean) (!obj->cursed && !is_unicorn(mon->data));
         if (typ == FROST_HORN || typ == FIRE_HORN)
             return (obj->spe > 0 && can_blow(mon));
+        if (typ == SKELETON_KEY || typ == LOCK_PICK || typ == CREDIT_CARD)
+            return TRUE;
+	if (typ == BAG_OF_HOLDING || typ == OILSKIN_SACK || typ == SACK)
+	    return TRUE;
         break;
     case FOOD_CLASS:
         if (typ == CORPSE)

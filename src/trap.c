@@ -4569,7 +4569,7 @@ boolean force;
                             if (!force && (confused || Fumbling
                                            || rnd(75 + level_difficulty() / 2)
                                                   > ch)) {
-                                (void) chest_trap(otmp, FINGER, TRUE);
+                                (void) chest_trap(&youmonst, otmp, FINGER, TRUE);
                             } else {
                                 You("disarm it!");
                                 otmp->otrapped = 0;
@@ -4826,12 +4826,14 @@ boolean *noticed; /* set to true iff hero notices the effect; */
 
 /* only called when the player is doing something to the chest directly */
 boolean
-chest_trap(obj, bodypart, disarm)
+chest_trap(mon, obj, bodypart, disarm)
+register struct monst *mon;
 register struct obj *obj;
 register int bodypart;
 boolean disarm;
 {
     register struct obj *otmp = obj, *otmp2;
+    boolean yours = (mon == &youmonst);
     char buf[80];
     const char *msg;
     coord cc;
@@ -4841,7 +4843,12 @@ boolean disarm;
 
     otmp->otrapped = 0; /* trap is one-shot; clear flag first in case
                            chest kills you and ends up in bones file */
-    You(disarm ? "set it off!" : "trigger a trap!");
+    if (yours)
+        You(disarm ? "set it off!" : "trigger a trap!");
+    else if (cansee(mon->mx,mon->my))
+             pline("%s %s!", Monnam(mon),
+                   disarm ? "sets it off" : "triggers a trap");
+
     display_nhwindow(WIN_MESSAGE, FALSE);
     if (Luck > -13 && rn2(13 + Luck) > 7) { /* saved by luck */
         /* trap went off, but good luck prevents damage */
@@ -4874,7 +4881,7 @@ boolean disarm;
             msg = (char *) 0;
             break;
         }
-        if (msg)
+        if (msg && (yours || cansee(mon->mx,mon->my)))
             pline("But luckily the %s!", msg);
     } else {
         switch (rn2(20) ? ((Luck >= 13) ? 0 : rn2(13 - Luck)) : rn2(26)) {
@@ -4895,8 +4902,13 @@ boolean disarm;
             insider = (*u.ushops && inside_shop(u.ux, u.uy)
                        && *in_rooms(ox, oy, SHOPBASE) == *u.ushops);
 
-            pline("%s!", Tobjnam(obj, "explode"));
-            Sprintf(buf, "exploding %s", xname(obj));
+            if (yours || cansee(mon->mx, mon->my)) {
+                pline("%s!", Tobjnam(obj, "explode"));
+                Sprintf(buf, "exploding %s", xname(obj));
+            } else if (!Deaf) {
+                       You_hear("a distant explosion.");
+            }
+
 
             if (costly)
                 loss += stolen_value(obj, ox, oy, (boolean) shkp->mpeaceful,
@@ -4917,6 +4929,8 @@ boolean disarm;
                 delobj(otmp);
             }
             wake_nearby();
+            if (yours) {
+                losehp(d(6, 6), buf, KILLED_BY_AN);
             losehp(Maybe_Half_Phys(d(6, 6)), buf, KILLED_BY_AN);
             exercise(A_STR, FALSE);
             if (costly && loss) {
@@ -4927,8 +4941,18 @@ boolean disarm;
                     You("caused %ld %s worth of damage!", loss,
                         currency(loss));
                     make_angry_shk(shkp, ox, oy);
+                    }
+                }
+            } else {
+                  mon->mhp -= d(6, 6);
+                  if (mon->mhp <= 0) {
+                      if (canseemon(mon)) {
+                          pline("%s is killed by the explosion!", Monnam(mon));
+                      }
+                      mondied(mon);
                 }
             }
+
             return TRUE;
         } /* case 21 */
         case 20:

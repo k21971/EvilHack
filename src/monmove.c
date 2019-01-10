@@ -18,6 +18,8 @@ STATIC_DCL boolean FDECL(stuff_prevents_passage, (struct monst *));
 STATIC_DCL int FDECL(vamp_shift, (struct monst *, struct permonst *,
                                   BOOLEAN_P));
 
+STATIC_DCL boolean FDECL(likes_contents, (struct monst *, struct obj *));
+
 /* True if mtmp died */
 boolean
 mb_trapped(mtmp)
@@ -816,6 +818,53 @@ xchar nix,niy;
     return FALSE;
 }
 
+STATIC_OVL boolean
+likes_contents(mtmp, container)
+register struct monst *mtmp;
+register struct obj *container;
+{
+    boolean likegold = 0, likegems = 0, likeobjs = 0, likemagic = 0, uses_items = 0;
+    boolean can_open = 0, can_unlock = 0;
+    register int pctload = (curr_mon_load(mtmp) * 100) /
+	max_mon_load(mtmp);
+    register struct obj *otmp;
+
+    can_open = !(nohands(mtmp->data) || verysmall(mtmp->data));
+    can_unlock = ((can_open &&
+                  (m_carrying(mtmp, SKELETON_KEY) ||
+		   m_carrying(mtmp, LOCK_PICK) ||
+		   m_carrying(mtmp, CREDIT_CARD))) ||
+		   mtmp->iswiz || is_rider(mtmp->data));
+
+    if (!Is_container(container)) return FALSE;
+
+    if (container->olocked && !can_unlock) return FALSE;
+
+    likegold = (likes_gold(mtmp->data) && pctload < 95);
+    likegems = (likes_gems(mtmp->data) && pctload < 85);
+    uses_items = (!mindless(mtmp->data) && !is_animal(mtmp->data)
+		  && pctload < 75);
+    likeobjs = (likes_objs(mtmp->data) && pctload < 75);
+    likemagic = (likes_magic(mtmp->data) && pctload < 85);
+
+    if (!likegold && !likegems && !uses_items && !likeobjs && !likemagic)
+	return FALSE;
+
+    for(otmp = container->cobj; otmp; otmp = otmp->nobj) {
+	if(((likegold && otmp->oclass == COIN_CLASS) ||
+	   (likeobjs && index(practical, otmp->oclass) &&
+	    (otmp->otyp != CORPSE || (mtmp->data->mlet == S_NYMPH
+	     && !is_rider(&mons[otmp->corpsenm])))) ||
+	    (likemagic && index(magical, otmp->oclass)) ||
+	    (uses_items && searches_for_item(mtmp, otmp)) ||
+	    (likegems && otmp->oclass == GEM_CLASS &&
+	     objects[otmp->otyp].oc_material != MINERAL)) && touch_artifact(otmp, mtmp))
+	return TRUE;
+	}
+
+	return FALSE;
+}
+
 /* Return values:
  * 0: did not move, but can still attack and do other stuff.
  * 1: moved, possibly can attack.
@@ -1079,7 +1128,8 @@ register int after;
                         || (is_lava(xx, yy) && !likes_lava(ptr)))
                         continue;
 
-                    if (((likegold && otmp->oclass == COIN_CLASS)
+                    if ((((Is_container(otmp) && likes_contents(mtmp, otmp))
+                        || ((likegold && otmp->oclass == COIN_CLASS)
                          || (likeobjs && index(practical, otmp->oclass)
                              && (otmp->otyp != CORPSE
                                  || (ptr->mlet == S_NYMPH
@@ -1091,16 +1141,16 @@ register int after;
                              && objects[otmp->otyp].oc_material != MINERAL)
                          || (conceals && !cansee(otmp->ox, otmp->oy))
                          || (ptr == &mons[PM_GELATINOUS_CUBE]
-                             && !index(indigestion, otmp->oclass)
-                             && !(otmp->otyp == CORPSE
+                             && !index(indigestion, otmp->oclass))))
+                             && !((otmp->otyp == CORPSE
                                   && touch_petrifies(&mons[otmp->corpsenm]))))
                         && touch_artifact(otmp, mtmp)) {
-                        if (can_carry(mtmp, otmp) > 0
-                            && (throws_rocks(ptr) || !sobj_at(BOULDER, xx, yy))
-                            && (!is_unicorn(ptr)
-                                || objects[otmp->otyp].oc_material == GEMSTONE)
+                        if (((can_carry(mtmp, otmp) > 0 || (Is_container(otmp)))
+                            && ((throws_rocks(ptr)) || !sobj_at(BOULDER, xx, yy)))
+                            && ((!is_unicorn(ptr)
+                                || (objects[otmp->otyp].oc_material == GEMSTONE)))
                             /* Don't get stuck circling an Elbereth */
-                            && !onscary(xx, yy, mtmp)) {
+                            && (!onscary(xx, yy, mtmp))) {
                             minr = distmin(omx, omy, xx, yy);
                             oomx = min(COLNO - 1, omx + minr);
                             oomy = min(ROWNO - 1, omy + minr);
@@ -1523,16 +1573,43 @@ register int after;
             if (!*in_rooms(mtmp->mx, mtmp->my, SHOPBASE) || !rn2(25)) {
                 boolean picked = FALSE;
 
+                int mhp = mtmp->mhp;
+
                 if (likeobjs)
                     picked |= mpickstuff(mtmp, practical);
+		if (mhp > mtmp->mhp) {
+                    mmoved = 3;
+		    goto end;
+		}
+
                 if (likemagic)
                     picked |= mpickstuff(mtmp, magical);
+                if (mhp > mtmp->mhp) {
+                    mmoved = 3;
+                    goto end;
+                }
+
                 if (likerock)
                     picked |= mpickstuff(mtmp, boulder_class);
+                if (mhp > mtmp->mhp) {
+                    mmoved = 3;
+                    goto end;
+                }
+
                 if (likegems)
                     picked |= mpickstuff(mtmp, gem_class);
+                if (mhp > mtmp->mhp) {
+                    mmoved = 3;
+                    goto end;
+                }
+
                 if (uses_items)
                     picked |= mpickstuff(mtmp, (char *) 0);
+                if (mhp > mtmp->mhp) {
+                    mmoved = 3;
+                    goto end;
+                }
+
                 if (picked)
                     mmoved = 3;
             }
@@ -1553,6 +1630,7 @@ register int after;
                 (void) hideunder(mtmp);
             newsym(mtmp->mx, mtmp->my);
         }
+end:
         if (mtmp->isshk) {
             after_shk_move(mtmp);
         }

@@ -2521,7 +2521,7 @@ E int FDECL(untrap, (BOOLEAN_P));
 E boolean FDECL(openholdingtrap, (struct monst *, boolean *));
 E boolean FDECL(closeholdingtrap, (struct monst *, boolean *));
 E boolean FDECL(openfallingtrap, (struct monst *, BOOLEAN_P, boolean *));
-E boolean FDECL(chest_trap, (struct obj *, int, BOOLEAN_P));
+E boolean FDECL(chest_trap, (struct monst *, struct obj *, int, BOOLEAN_P));
 E void FDECL(deltrap, (struct trap *));
 E boolean FDECL(delfloortrap, (struct trap *));
 E struct trap *FDECL(t_at, (int, int));

@@ -115,6 +115,10 @@ boolean check_if_better;
  	      /* useful amulets */
  	      otmp->otyp == AMULET_OF_LIFE_SAVING ||
  	      otmp->otyp == AMULET_OF_REFLECTION ||
+	      /* bags */
+	      otmp->otyp == BAG_OF_HOLDING ||
+	      otmp->otyp == OILSKIN_SACK ||
+	      otmp->otyp == SACK ||
  	      /* misc magic items that muse can use */
  	      otmp->otyp == SCR_TELEPORTATION ||
               otmp->otyp == SCR_EARTH ||
@@ -721,8 +725,9 @@ int udist;
             carryamt = can_carry(mtmp, obj);
             if (carryamt > 0 && !obj->cursed
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
-                if (rn2(20) < edog->apport + 3) {
-                    if (rn2(udist) || !rn2(edog->apport)) {
+            boolean can_use = could_use_item(mtmp, obj, TRUE);
+            if (can_use || (rn2(20) < edog->apport + 3)) {
+                    if (can_use || rn2(udist) || !rn2(edog->apport)) {
                         otmp = obj;
                         if (carryamt != obj->quan)
                             otmp = splitobj(obj, carryamt);

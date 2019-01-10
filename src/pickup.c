@@ -2503,7 +2503,7 @@ boolean more_containers; /* True iff #loot multiple and this isn't last one */
         if (held)
             You("open %s...", the(xname(obj)));
         obj->lknown = 1;
-        (void) chest_trap(obj, HAND, FALSE);
+        (void) chest_trap(&youmonst, obj, HAND, FALSE);
         /* even if the trap fails, you've used up this turn */
         if (multi >= 0) { /* in case we didn't become paralyzed */
             nomul(-1);
@@ -3110,7 +3110,7 @@ struct obj *box; /* or bag */
         pline("It's locked.");
     } else if (box->otrapped) {
         /* we're not reaching inside but we're still handling it... */
-        (void) chest_trap(box, HAND, FALSE);
+        (void) chest_trap(&youmonst, box, HAND, FALSE);
         /* even if the trap fails, you've used up this turn */
         if (multi >= 0) { /* in case we didn't become paralyzed */
             nomul(-1);

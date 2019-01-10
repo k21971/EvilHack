@@ -605,7 +605,7 @@ xchar x, y;
                 You("break open the lock!");
                 breakchestlock(kickedobj, FALSE);
                 if (otrp)
-                    (void) chest_trap(kickedobj, LEG, FALSE);
+                    (void) chest_trap(&youmonst, kickedobj, LEG, FALSE);
                 return 1;
             }
         } else {
@@ -613,7 +613,7 @@ xchar x, y;
                 pline_The("lid slams open, then falls shut.");
                 kickedobj->lknown = 1;
                 if (otrp)
-                    (void) chest_trap(kickedobj, LEG, FALSE);
+                    (void) chest_trap(&youmonst, kickedobj, LEG, FALSE);
                 return 1;
             }
         }
