@@ -743,12 +743,13 @@ int udist;
                             (void) mon_wield_item(mtmp);
                         }
                         m_dowear(mtmp, FALSE);
+                        return 1;
                     }
                 }
             }
         }
     }
-    return 0;
+    return m_stash_items(mtmp, FALSE);
 }
 
 /* set dog's goal -- gtyp, gx, gy;

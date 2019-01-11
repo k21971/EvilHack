@@ -3075,6 +3075,120 @@ dotip()
     return 0;
 }
 
+extern struct obj *propellor;
+
+/* Intelligent monsters put things into containers */
+int
+m_stash_items(mon, creation)
+register struct monst *mon;
+boolean creation;
+{
+    boolean putitems = FALSE;
+    char buf[BUFSZ];
+    register struct obj *obj, *nobj, *bag = (struct obj *)0;
+    struct obj *wep = bag, *hwep = bag, *rwep = bag, *proj = bag;
+    for (obj = mon->minvent; obj; obj = obj->nobj) {
+	if (!Is_container(obj) ||
+	    obj->otyp == BAG_OF_TRICKS) continue;
+	if (obj->otyp == BAG_OF_HOLDING) {
+		bag = obj;
+		break;
+	} else if (!bag ||
+	            (obj->otyp == OILSKIN_SACK &&
+		    (bag->otyp != OILSKIN_SACK)) ||
+		    (obj->otyp == SACK &&
+		    ((bag->otyp != OILSKIN_SACK &&
+		      bag->otyp != SACK)))) {
+		bag = obj;
+	}
+    }
+    if (!bag && !creation) return 0;
+
+    if (bag)
+	Strcpy(buf, the(xname(bag)));
+
+    if (attacktype(mon->data, AT_WEAP)) {
+	wep  = MON_WEP(mon);
+        hwep = attacktype(mon->data, AT_WEAP)
+		   ? select_hwep(mon) : (struct obj *)0,
+	proj = attacktype(mon->data, AT_WEAP)
+		   ? select_rwep(mon) : (struct obj *)0,
+	rwep = attacktype(mon->data, AT_WEAP)
+		   ? propellor : &zeroobj;
+    }
+
+    for (obj = mon->minvent; obj; obj = nobj) {
+	nobj = obj->nobj;
+	if (obj == bag ||
+	    obj->owornmask ||
+	    obj == wep || obj == hwep || obj == rwep || obj == proj ||
+	    (!mon->mtame && searches_for_item(mon, obj)) ||
+	    (mon->mtame && could_use_item(mon, obj, TRUE)) ||
+	    (bag && Is_mbag(bag) && mbag_explodes(obj, 0)) ||
+	    (obj->otyp == LOADSTONE && obj->cursed) ||
+	    (obj->otyp == AMULET_OF_YENDOR ||
+	     obj->otyp == FAKE_AMULET_OF_YENDOR ||
+	     obj->otyp == BELL_OF_OPENING ||
+	     obj->otyp == CANDELABRUM_OF_INVOCATION ||
+	     obj->otyp == SPE_BOOK_OF_THE_DEAD ||
+             obj->otyp == ICE_BOX || Is_box(obj) ||
+	     obj->otyp == BOULDER ||
+	    (obj->otyp == STATUE && bigmonst(&mons[obj->corpsenm]))))
+		continue;
+
+	if (!bag && !creation) continue;
+
+	if (creation) {
+		/* exception: balrogs are generated with two weapons */
+		if (mon->data == &mons[PM_BALROG] &&
+		    obj->otyp == BULLWHIP)
+		    continue;
+
+		/* at creation time, this is a junk item we don't need,
+		 * so presumably they got rid of it */
+		if (obj->oclass == WEAPON_CLASS ||
+		    obj->oclass == ARMOR_CLASS)
+		{
+			obj_extract_self(obj);
+			obfree(obj, (struct obj *)0);
+			continue;
+		}
+		else if (!bag) continue;
+	}
+
+	obj_extract_self(obj);
+
+	if (obj->otyp == LOADSTONE) {
+		curse(obj);
+	} else if (obj->otyp == FIGURINE && obj->timed) {
+		(void) stop_timer(FIG_TRANSFORM, (genericptr_t) obj);
+	}
+
+	if (obj_is_burning(obj))
+		(void) snuff_lit(obj);
+
+	if (bag->otyp == ICE_BOX && !age_is_relative(obj)) {
+		obj->age = monstermoves - obj->age;
+		if (obj->otyp == CORPSE && obj->timed) {
+			long rot_alarm =
+				stop_timer(ROT_CORPSE, (genericptr_t)obj);
+			(void) stop_timer(REVIVE_MON, (genericptr_t)obj);
+			if (rot_alarm) obj->norevive = 1;
+		}
+	}
+
+	putitems = TRUE;
+
+   	if (!creation && canseemon(mon))
+		pline("%s puts %s into %s.",
+			Monnam(mon), distant_name(obj,doname), buf);
+
+    	(void) add_to_container(bag, obj);
+    	bag->owt = weight(bag);
+    }
+    return (putitems && !creation);
+}
+
 STATIC_OVL void
 tipcontainer(box)
 struct obj *box; /* or bag */

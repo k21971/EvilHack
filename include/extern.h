@@ -1886,6 +1886,7 @@ E int FDECL(loot_mon, (struct monst *, int *, boolean *));
 E int NDECL(dotip);
 E boolean FDECL(is_autopickup_exception, (struct obj *, BOOLEAN_P));
 E boolean FDECL(autopick_testobj, (struct obj *, BOOLEAN_P));
+E int FDECL(m_stash_items, (struct monst *, BOOLEAN_P));
 
 /* ### pline.c ### */
 
