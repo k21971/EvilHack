@@ -1,4 +1,4 @@
-/* NetHack 3.6	do.c	$NHDT-Date: 1545597418 2018/12/23 20:36:58 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.182 $ */
+/* NetHack 3.6	do.c	$NHDT-Date: 1547680082 2019/01/16 23:08:02 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.186 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -253,6 +253,8 @@ const char *verb;
     struct trap *t;
     struct monst *mtmp;
     struct obj *otmp;
+    boolean tseen;
+    int ttyp = NO_TRAP;
 
     if (obj->where != OBJ_FREE)
         panic("flooreffects: obj not free");
@@ -264,18 +266,43 @@ const char *verb;
         return TRUE;
     } else if (obj->otyp == BOULDER && (t = t_at(x, y)) != 0
                && (is_pit(t->ttyp) || is_hole(t->ttyp))) {
+        ttyp = t->ttyp;
+        tseen = t->tseen ? TRUE : FALSE;
         if (((mtmp = m_at(x, y)) && mtmp->mtrapped)
             || (u.utrap && u.ux == x && u.uy == y)) {
-            if (*verb)
-                pline_The("boulder %s into the pit%s.",
-                          vtense((const char *) 0, verb),
-                          (mtmp) ? "" : " with you");
+            if (*verb && (cansee(x, y) || distu(x, y) == 0))
+                pline("%s boulder %s into the pit%s.",
+                      Blind ? "A" : "The",
+                      vtense((const char *) 0, verb),
+                      mtmp ? "" : " with you");
             if (mtmp) {
                 if (!passes_walls(mtmp->data) && !throws_rocks(mtmp->data)) {
-                    int dieroll = rnd(20);
+                    /* dieroll was rnd(20); 1: maximum chance to hit
+                       since trapped target is a sitting duck */
+                    int damage, dieroll = 1;
 
-                    if (hmon(mtmp, obj, HMON_THROWN, dieroll)
-                        && !is_whirly(mtmp->data))
+                    /* 3.6.2: this was calling hmon() unconditionally
+                       so always credited/blamed the hero but the boulder
+                       might have been thrown by a giant or launched by
+                       a rolling boulder trap triggered by a monster or
+                       dropped by a scroll of earth read by a monster */
+                    if (context.mon_moving) {
+                        /* normally we'd use ohitmon() but it can call
+                           drop_throw() which calls flooreffects() */
+                        damage = dmgval(obj, mtmp);
+                        mtmp->mhp -= damage;
+                        if (DEADMONSTER(mtmp)) {
+                            if (canspotmon(mtmp))
+                                pline("%s is %s!", Monnam(mtmp),
+                                      (nonliving(mtmp->data)
+                                       || is_vampshifter(mtmp))
+                                      ? "destroyed" : "killed");
+                            mondied(mtmp);
+                        }
+                    } else {
+                        (void) hmon(mtmp, obj, HMON_THROWN, dieroll);
+                    }
+                    if (!DEADMONSTER(mtmp) && !is_whirly(mtmp->data))
                         return FALSE; /* still alive */
                 }
                 mtmp->mtrapped = 0;
@@ -293,17 +320,22 @@ const char *verb;
                 You_hear("a CRASH! beneath you.");
             } else if (!Blind && cansee(x, y)) {
                 pline_The("boulder %s%s.",
-                    (t->ttyp == TRAPDOOR && !t->tseen)
-                        ? "triggers and " : "",
-                          t->ttyp == TRAPDOOR
+                          (ttyp == TRAPDOOR && !tseen)
+                              ? "triggers and " : "",
+                          (ttyp == TRAPDOOR)
                               ? "plugs a trap door"
-                              : t->ttyp == HOLE ? "plugs a hole"
-                                                : "fills a pit");
+                              : (ttyp == HOLE) ? "plugs a hole"
+                                               : "fills a pit");
             } else {
                 You_hear("a boulder %s.", verb);
             }
         }
-        deltrap(t);
+        /*
+         * Note:  trap might have gone away via ((hmon -> killed -> xkilled)
+         *  || mondied) -> mondead -> m_detach -> fill_pit.
+         */
+        if ((t = t_at(x, y)) != 0)
+            deltrap(t);
         useupf(obj, 1L);
         bury_objs(x, y);
         newsym(x, y);
@@ -488,7 +520,7 @@ register struct obj *obj;
         goto giveback;
     case RIN_SLOW_DIGESTION:
         pline_The("ring is regurgitated!");
-    giveback:
+ giveback:
         obj->in_use = FALSE;
         dropx(obj);
         trycall(obj);
@@ -1065,7 +1097,7 @@ int retry;
         }
     }
 
-drop_done:
+ drop_done:
     return n_dropped;
 }
 
@@ -1331,6 +1363,45 @@ register xchar x, y;
                       || MON_AT(x, y));
 }
 */
+
+/* when arriving on a level, if hero and a monster are trying to share same
+   spot, move one; extracted from goto_level(); also used by wiz_makemap() */
+void
+u_collide_m(mtmp)
+struct monst *mtmp;
+{
+    coord cc;
+
+    if (!mtmp || mtmp == u.usteed || mtmp != m_at(u.ux, u.uy)) {
+        impossible("level arrival collision: %s?",
+                   !mtmp ? "no monster"
+                     : (mtmp == u.usteed) ? "steed is on map"
+                       : "monster not co-located");
+        return;
+    }
+
+    /* There's a monster at your target destination; it might be one
+       which accompanied you--see mon_arrive(dogmove.c)--or perhaps
+       it was already here.  Randomly move you to an adjacent spot
+       or else the monster to any nearby location.  Prior to 3.3.0
+       the latter was done unconditionally. */
+    if (!rn2(2) && enexto(&cc, u.ux, u.uy, youmonst.data)
+        && distu(cc.x, cc.y) <= 2)
+        u_on_newpos(cc.x, cc.y); /*[maybe give message here?]*/
+    else
+        mnexto(mtmp);
+
+    if ((mtmp = m_at(u.ux, u.uy)) != 0) {
+        /* there was an unconditional impossible("mnexto failed")
+           here, but it's not impossible and we're prepared to cope
+           with the situation, so only say something when debugging */
+        if (wizard)
+            pline("(monster in hero's way)");
+        if (!rloc(mtmp, TRUE) || (mtmp = m_at(u.ux, u.uy)) != 0)
+            /* no room to move it; send it away, to return later */
+            m_into_limbo(mtmp);
+    }
+}
 
 void
 goto_level(newlevel, at_stairs, falling, portal)
@@ -1627,33 +1698,12 @@ boolean at_stairs, falling, portal;
      */
     run_timers();
 
+    /* hero might be arriving at a spot containing a monster;
+       if so, move one or the other to another location */
+    if ((mtmp = m_at(u.ux, u.uy)) != 0)
+        u_collide_m(mtmp);
+
     initrack();
-
-    if ((mtmp = m_at(u.ux, u.uy)) != 0 && mtmp != u.usteed) {
-        /* There's a monster at your target destination; it might be one
-           which accompanied you--see mon_arrive(dogmove.c)--or perhaps
-           it was already here.  Randomly move you to an adjacent spot
-           or else the monster to any nearby location.  Prior to 3.3.0
-           the latter was done unconditionally. */
-        coord cc;
-
-        if (!rn2(2) && enexto(&cc, u.ux, u.uy, youmonst.data)
-            && distu(cc.x, cc.y) <= 2)
-            u_on_newpos(cc.x, cc.y); /*[maybe give message here?]*/
-        else
-            mnexto(mtmp);
-
-        if ((mtmp = m_at(u.ux, u.uy)) != 0) {
-            /* there was an unconditional impossible("mnearto failed")
-               here, but it's not impossible and we're prepared to cope
-               with the situation, so only say something when debugging */
-            if (wizard)
-                pline("(monster in hero's way)");
-            if (!rloc(mtmp, TRUE) || (mtmp = m_at(u.ux, u.uy)) != 0)
-                /* no room to move it; send it away, to return later */
-                m_into_limbo(mtmp);
-        }
-    }
 
     /* initial movement of bubbles just before vision_recalc */
     if (Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
@@ -1886,17 +1936,16 @@ struct obj *corpse;
     where = corpse->where;
     is_uwep = (corpse == uwep);
     chewed = (corpse->oeaten != 0);
-    Strcpy(cname,
-           corpse_xname(corpse, chewed ? "bite-covered" : (const char *) 0,
-                        CXN_SINGULAR));
+    Strcpy(cname, corpse_xname(corpse,
+                               chewed ? "bite-covered" : (const char *) 0,
+                               CXN_SINGULAR));
     mcarry = (where == OBJ_MINVENT) ? corpse->ocarry : 0;
 
     if (where == OBJ_CONTAINED) {
         struct monst *mtmp2;
 
         container = corpse->ocontainer;
-        mtmp2 =
-            get_container_location(container, &container_where, (int *) 0);
+        mtmp2 = get_container_location(container, &container_where, (int *) 0);
         /* container_where is the outermost container's location even if
          * nested */
         if (container_where == OBJ_MINVENT && mtmp2)

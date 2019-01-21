@@ -1,4 +1,4 @@
-/* NetHack 3.6	uhitm.c	$NHDT-Date: 1545597432 2018/12/23 20:37:12 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.197 $ */
+/* NetHack 3.6	uhitm.c	$NHDT-Date: 1547846557 2019/01/18 21:22:37 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.200 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -931,13 +931,13 @@ int dieroll;
                     break;
 
 #define useup_eggs(o)                    \
-    {                                    \
+    do {                                 \
         if (thrown)                      \
             obfree(o, (struct obj *) 0); \
         else                             \
             useupall(o);                 \
         o = (struct obj *) 0;            \
-    } /* now gone */
+    } while (0) /* now gone */
                 case EGG: {
                     long cnt = obj->quan;
 
@@ -971,10 +971,11 @@ int dieroll;
                             break;
                         return (boolean) (!DEADMONSTER(mon));
                     } else { /* ordinary egg(s) */
-                        const char *eggp =
-                            (obj->corpsenm != NON_PM && obj->known)
-                                ? the(mons[obj->corpsenm].mname)
-                                : (cnt > 1L) ? "some" : "an";
+                        const char *eggp = (obj->corpsenm != NON_PM
+                                            && obj->known)
+                                           ? the(mons[obj->corpsenm].mname)
+                                           : (cnt > 1L) ? "some" : "an";
+
                         You("hit %s with %s egg%s.", mon_nam(mon), eggp,
                             plur(cnt));
                         if (touch_petrifies(mdat) && !stale_egg(obj)) {
@@ -1009,7 +1010,7 @@ int dieroll;
                 case BLINDING_VENOM:
                     mon->msleeping = 0;
                     if (can_blnd(&youmonst, mon,
-                                 (uchar) (obj->otyp == BLINDING_VENOM
+                                 (uchar) ((obj->otyp == BLINDING_VENOM)
                                              ? AT_SPIT
                                              : AT_WEAP),
                                  obj)) {
@@ -1322,7 +1323,9 @@ int dieroll;
     if (unpoisonmsg)
         Strcpy(saved_oname, cxname(obj));
 
-    /* [note: thrown obj might go away during killed/xkilled call] */
+    /* [note: thrown obj might go away during killed()/xkilled() call
+       (via 'thrownobj'; if swallowed, it gets added to engulfer's
+       minvent and might merge with a stack that's already there)] */
 
     if (needpoismsg)
         pline_The("poison doesn't seem to affect %s.", mon_nam(mon));
@@ -1635,7 +1638,7 @@ register struct attack *mattk;
     case AD_WERE: /* no special effect on monsters */
     case AD_HEAL: /* likewise */
     case AD_PHYS:
-    physical:
+ physical:
         if (mattk->aatyp == AT_WEAP) {
             if (uwep)
                 tmp = 0;
@@ -2022,7 +2025,7 @@ register struct attack *mattk;
         goto common;
     case AD_ELEC:
         resistance = resists_elec(mdef);
-    common:
+ common:
         if (!resistance) {
             pline("%s gets blasted!", Monnam(mdef));
             mdef->mhp -= tmp;
@@ -2315,7 +2318,7 @@ boolean wouldhavehit;
         wakeup(mdef, TRUE);
 }
 
-/* attack monster as a monster. */
+/* attack monster as a monster; returns True if mon survives */
 STATIC_OVL boolean
 hmonas(mon)
 register struct monst *mon;
@@ -2332,7 +2335,13 @@ register struct monst *mon;
         weapon = 0;
         switch (mattk->aatyp) {
         case AT_WEAP:
-        use_weapon:
+ use_weapon:
+            /* if we've already hit with a two-handed weapon, we don't
+               get to make another weapon attack (note:  monsters who
+               use weapons do not have this restriction, but they also
+               never have the opportunity to use two weapons) */
+            if (weapon_used && sum[i - 1] && uwep && bimanual(uwep))
+                continue;
             /* Certain monsters don't use weapons when encountered as enemies,
              * but players who polymorph into them have hands or claws and
              * thus should be able to use weapons.  This shouldn't prohibit
@@ -2349,11 +2358,23 @@ register struct monst *mon;
                be Null, and we want to track that for passive() */
             originalweapon = (altwep && uswapwep) ? &uswapwep : &uwep;
             if (uswapwep /* set up 'altwep' flag for next iteration */
+                /* only consider seconary when wielding one-handed primary */
+                && uwep && !bimanual(uwep)
+                /* only switch if not wearing shield and not at artifact;
+                   shield limitation is iffy since still get extra swings
+                   if polyform has them, but it matches twoweap behavior;
+                   twoweap also only allows primary to be an artifact, so
+                   if alternate weapon is one, don't use it */
+                && !uarms && !uswapwep->oartifact
                 /* only switch to uswapwep if it's a weapon */
                 && (uswapwep->oclass == WEAPON_CLASS || is_weptool(uswapwep))
                 /* only switch if uswapwep is not bow, arrows, or darts */
                 && !(is_launcher(uswapwep) || is_ammo(uswapwep)
-                     || is_missile(uswapwep))) /* dart, shuriken, boomerang */
+                     || is_missile(uswapwep)) /* dart, shuriken, boomerang */
+                /* and not two-handed and not incapable of being wielded */
+                && !bimanual(uswapwep)
+                && !(objects[uswapwep->otyp].oc_material == SILVER
+                     && Hate_silver))
                 altwep = !altwep; /* toggle for next attack */
             weapon = *originalweapon;
             if (!weapon) /* no need to go beyond no-gloves to rings; not ...*/
@@ -2363,9 +2384,9 @@ register struct monst *mon;
                                    &armorpenalty);
             dieroll = rnd(20);
             dhit = (tmp > dieroll || u.uswallow);
-            /* Enemy dead, before any special abilities used */
             if (!known_hitum(mon, weapon, &dhit, tmp,
                              armorpenalty, mattk, dieroll)) {
+                /* enemy dead, before any special abilities used */
                 sum[i] = 2;
                 break;
             } else
@@ -2374,12 +2395,13 @@ register struct monst *mon;
                now be empty if the weapon was destroyed during the hit;
                passive(,weapon,...) won't call passive_obj() in that case */
             weapon = *originalweapon; /* might receive passive erosion */
-            /* might be a worm that gets cut in half */
-            if (m_at(u.ux + u.dx, u.uy + u.dy) != mon)
-                return (boolean) (nsum != 0);
-            /* Do not print "You hit" message, since known_hitum
-             * already did it.
-             */
+            /* might be a worm that gets cut in half; if so, early return */
+            if (m_at(u.ux + u.dx, u.uy + u.dy) != mon) {
+                i = NATTK; /* skip additional attacks */
+                /* proceed with uswapwep->cursed check, then exit loop */
+                goto passivedone;
+            }
+            /* Do not print "You hit" message; known_hitum already did it. */
             if (dhit && mattk->adtyp != AD_SPEL && mattk->adtyp != AD_PHYS)
                 sum[i] = damageum(mon, mattk);
             break;
@@ -2527,17 +2549,34 @@ register struct monst *mon;
         }
         if (sum[i] == 2) {
             /* defender dead */
-            return (boolean) passive(mon, weapon, 1, 0, mattk->aatyp, FALSE);
+            (void) passive(mon, weapon, 1, 0, mattk->aatyp, FALSE);
+            nsum = 0; /* return value below used to be 'nsum > 0' */
         } else {
             (void) passive(mon, weapon, sum[i], 1, mattk->aatyp, FALSE);
             nsum |= sum[i];
         }
+
+        /* don't use sum[i] beyond this point;
+           'i' will be out of bounds if we get here via 'goto' */
+ passivedone:
+        /* when using dual weapons, cursed secondary weapon doesn't weld,
+           it gets dropped; do the same when multiple AT_WEAP attacks
+           simulate twoweap */
+        if (uswapwep && weapon == uswapwep && weapon->cursed) {
+            drop_uswapwep();
+            break; /* don't proceed with additional attacks */
+        }
+        /* stop attacking if defender has died;
+           needed to defer this until after uswapwep->cursed check */
+        if (DEADMONSTER(mon))
+            break;
         if (!Upolyd)
             break; /* No extra attacks if no longer a monster */
         if (multi < 0)
             break; /* If paralyzed while attacking, i.e. floating eye */
     }
-    return (boolean) (nsum != 0);
+    /* return value isn't used, but make it match hitum()'s */
+    return !DEADMONSTER(mon);
 }
 
 /*      Special (passive) attacks on you by monsters done here.
