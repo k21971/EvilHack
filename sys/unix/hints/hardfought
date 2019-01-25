@@ -43,6 +43,10 @@ WINLIB = $(WINTTYLIB) $(WINCURSESLIB)
 
 WINTTYLIB=-lcurses
 
+# if TTY_TILES_ESCCODES
+WINSRC += tile.c
+WINOBJ += tile.o
+
 CHOWN=chown
 CHGRP=chgrp
 GAMEUID=games

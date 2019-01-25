@@ -509,7 +509,7 @@ typedef unsigned char uchar;
  * in the hints file or Makefile.
  * Set boolean option vt_tiledata in your config file to turn this on.
  * Note that gnome-terminal at least doesn't work with this. */
-/* #define TTY_TILES_ESCCODES */
+#define TTY_TILES_ESCCODES
 
 /* NetHack will execute an external program whenever a new message-window
  * message is shown.  The program to execute is given in environment variable
