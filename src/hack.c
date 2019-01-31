@@ -1479,7 +1479,7 @@ domove_core()
             if (context.run >= 2) {
                 if (iflags.mention_walls) {
                     if (trap && trap->tseen) {
-                        int tt = what_trap(trap->ttyp);
+                        int tt = what_trap(trap->ttyp, rn2_on_display_rng);
 
                         You("stop in front of %s.",
                             an(defsyms[trap_to_defsym(tt)].explanation));
@@ -2745,7 +2745,7 @@ lookaround()
                     goto bcorr; /* if you must */
                 if (x == u.ux + u.dx && y == u.uy + u.dy) {
                     if (iflags.mention_walls) {
-                        int tt = what_trap(trap->ttyp);
+                        int tt = what_trap(trap->ttyp, rn2_on_display_rng);
                         You("stop in front of %s.",
                             an(defsyms[trap_to_defsym(tt)].explanation));
                     }

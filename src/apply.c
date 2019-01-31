@@ -241,7 +241,7 @@ int rx, ry, *resp;
         int visglyph, corpseglyph;
 
         visglyph = glyph_at(rx, ry);
-        corpseglyph = obj_to_glyph(corpse);
+        corpseglyph = obj_to_glyph(corpse, rn2);
 
         if (Blind && (visglyph != corpseglyph))
             map_object(corpse, TRUE);
@@ -2473,7 +2473,7 @@ struct obj *otmp;
     ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE : BEAR_TRAP;
     if (otmp == trapinfo.tobj && u.ux == trapinfo.tx && u.uy == trapinfo.ty) {
         You("resume setting %s%s.", shk_your(buf, otmp),
-            defsyms[trap_to_defsym(what_trap(ttyp))].explanation);
+            defsyms[trap_to_defsym(what_trap(ttyp, rn2))].explanation);
         set_occupation(set_trap, occutext, 0);
         return;
     }
@@ -2498,7 +2498,8 @@ struct obj *otmp;
             chance = (rnl(10) > 5);
         You("aren't very skilled at reaching from %s.", mon_nam(u.usteed));
         Sprintf(buf, "Continue your attempt to set %s?",
-                the(defsyms[trap_to_defsym(what_trap(ttyp))].explanation));
+                the(defsyms[trap_to_defsym(what_trap(ttyp, rn2))]
+                    .explanation));
         if (yn(buf) == 'y') {
             if (chance) {
                 switch (ttyp) {
@@ -2509,7 +2510,7 @@ struct obj *otmp;
                 case BEAR_TRAP: /* drop it without arming it */
                     reset_trapset();
                     You("drop %s!",
-                        the(defsyms[trap_to_defsym(what_trap(ttyp))]
+                        the(defsyms[trap_to_defsym(what_trap(ttyp, rn2))]
                                 .explanation));
                     dropx(otmp);
                     return;
@@ -2521,7 +2522,7 @@ struct obj *otmp;
         }
     }
     You("begin setting %s%s.", shk_your(buf, otmp),
-        defsyms[trap_to_defsym(what_trap(ttyp))].explanation);
+        defsyms[trap_to_defsym(what_trap(ttyp, rn2))].explanation);
     set_occupation(set_trap, occutext, 0);
     return;
 }
@@ -2554,7 +2555,7 @@ set_trap()
         }
         if (!trapinfo.force_bungle)
             You("finish arming %s.",
-                the(defsyms[trap_to_defsym(what_trap(ttyp))].explanation));
+                the(defsyms[trap_to_defsym(what_trap(ttyp, rn2))].explanation));
         if (((otmp->cursed || Fumbling) && (rnl(10) > 5))
             || trapinfo.force_bungle)
             dotrap(ttmp,
