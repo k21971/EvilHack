@@ -2048,6 +2048,7 @@ STATIC_OVL void
 do_class_genocide()
 {
     int i, j, immunecnt, gonecnt, goodcnt, class, feel_dead = 0, ll_done = 0;
+    int killed, candidates;
     char buf[BUFSZ] = DUMMY;
     boolean gameover = FALSE; /* true iff killed self */
 
@@ -2104,6 +2105,7 @@ do_class_genocide()
             continue;
         }
 
+        killed = candidates = 0;
         for (i = LOW_PM; i < NUMMONS; i++) {
             if (mons[i].mlet == class) {
                 char nam[BUFSZ];
@@ -2112,11 +2114,15 @@ do_class_genocide()
                 /* Although "genus" is Latin for race, the hero benefits
                  * from both race and role; thus genocide affects either.
                  */
+                candidates++;
                 if (Your_Own_Role(i) || Your_Own_Race(i)
                     || ((mons[i].geno & G_GENO)
                         && !(mvitals[i].mvflags & G_GENOD))) {
                     /* This check must be first since player monsters might
-                     * have G_GENOD or !G_GENO.
+                     * have G_GENOD or !G_GENO. We also have to keep track of
+                     * whether there are only two or fewer critters left available for us
+		     * to geno in the first place; we must get them all then.
+		     * finally, we have to make sure the self-geno cases always happen.
                      */
                     if(!ll_done++)
                         if(!num_genocides())
@@ -2124,36 +2130,37 @@ do_class_genocide()
                                 "performed %s first genocide (class %c)", uhis(), def_monsyms[class].sym);
                         else
                             livelog_printf(LL_GENOCIDE, "genocided class %c", def_monsyms[class].sym);
-                    mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
-                    reset_rndmonst(i);
-                    kill_genocided_monsters();
-                    update_inventory(); /* eggs & tins */
-                    pline("Wiped out all %s.", nam);
-                    if (Upolyd && i == u.umonnum) {
-                        u.mh = -1;
-                        if (Unchanging) {
-                            if (!feel_dead++)
-                                You("die.");
-                            /* finish genociding this class of
-                               monsters before ultimately dying */
-                            gameover = TRUE;
-                        } else
-                            rehumanize();
-                    }
-                    /* Self-genocide if it matches either your race
-                       or role.  Assumption:  male and female forms
-                       share same monster class. */
-                    if (i == urole.malenum || i == urace.malenum) {
-                        u.uhp = -1;
-                        if (Upolyd) {
-                            if (!feel_dead++)
-                                You_feel("%s inside.", udeadinside());
-                        } else {
-                            if (!feel_dead++)
-                                You("die.");
-                            gameover = TRUE;
-                        }
-                    }
+				if ((killed < 2 && (!rn2(goodcnt) || (killed+candidates > goodcnt-2))) ||
+					Your_Own_Role(i) || Your_Own_Race(i)) {
+					killed++;
+					mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
+					reset_rndmonst(i);
+					kill_genocided_monsters();
+					update_inventory();		/* eggs & tins */
+					pline("Wiped out all %s.", nam);
+					if (Upolyd && i == u.umonnum) {
+						u.mh = -1;
+						if (Unchanging) {
+							if (!feel_dead++) You("die.");
+							/* finish genociding this class of
+								monsters before ultimately dying */
+							gameover = TRUE;
+						} else
+							rehumanize();
+					}
+					/* Self-genocide if it matches either your race
+						or role.  Assumption:  male and female forms
+						share same monster class. */
+					if (i == urole.malenum || i == urace.malenum) {
+						u.uhp = -1;
+						if (Upolyd) {
+							if (!feel_dead++) You_feel("dead inside.");
+						} else {
+							if (!feel_dead++) You("die.");
+							gameover = TRUE;
+						}
+					}
+				}
                 } else if (mvitals[i].mvflags & G_GENOD) {
                     if (!gameover)
                         pline("All %s are already nonexistent.", nam);
