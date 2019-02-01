@@ -661,6 +661,9 @@ u_init()
     u.nv_range = 1;
     u.xray_range = -1;
 
+    /* Scrolls of identify universally known. */
+    knows_object(SCR_IDENTIFY);
+
     /*** Role-specific initializations ***/
     switch (Role_switch) {
     /* rn2(100) > 50 necessary for some choices because some
