@@ -14,7 +14,7 @@ STATIC_DCL void FDECL(mkveggy_at, (int, int));
 STATIC_DCL void FDECL(mkshobj_at, (const struct shclass *, int, int,
                                    BOOLEAN_P));
 STATIC_DCL void FDECL(nameshk, (struct monst *, const char *const *));
-STATIC_DCL int FDECL(shkinit, (const struct shclass *, struct mkroom *));
+STATIC_DCL int FDECL(shkinit, (const struct shclass *, struct mkroom *, int));
 
 #define VEGETARIAN_CLASS (MAXOCLASSES + 1)
 
@@ -586,13 +586,16 @@ struct monst *mtmp;
 
 /* create a new shopkeeper in the given room */
 STATIC_OVL int
-shkinit(shp, sroom)
+shkinit(shp, sroom, shp_indx)
 const struct shclass *shp;
 struct mkroom *sroom;
+int shp_indx;
 {
     register int sh, sx, sy;
+    int srace = 0;
     struct monst *shk;
     struct eshk *eshkp;
+    struct permonst* mdat;
 
     /* place the shopkeeper in the given room */
     sh = sroom->fdoor;
@@ -655,6 +658,91 @@ struct mkroom *sroom;
     if (!(shk = makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK)))
         return -1;
     eshkp = ESHK(shk); /* makemon(...,MM_ESHK) allocates this */
+    /* change the shopkeeper to a particular race */
+    switch (shtypes[shp_indx].symb)
+    {
+	/* armors and weaponry are similar... */
+	case ARMOR_CLASS:
+	case WEAPON_CLASS:
+		switch (rn2(3))
+		{
+			default:
+			case 0:
+				srace = PM_SERGEANT + rn2(3);
+				break;
+			case 1:
+				srace = PM_STONE_GIANT + rn2(6);
+				break;
+			case 2:
+				srace = PM_DWARF_LORD + rn2(3);
+				break;
+		}
+		break;
+	case FOOD_CLASS:
+		srace = PM_OGRE + rn2(2);
+		break;
+	case RING_CLASS:
+		srace = PM_WOOD_NYMPH + rn2(3);
+		break;
+	/* wands and potions also similar... */
+	case WAND_CLASS:
+	case POTION_CLASS:
+		srace = PM_WOODLAND_ELF + rn2(4);
+		break;
+	case TOOL_CLASS:
+		/* Make sure we don't redo Izchak's here */
+		if (shtypes[shp_indx].prob != 0)
+		{
+			srace = PM_GNOME_LORD + rn2(2);
+		}
+		break;
+	/* and scrolls and books fall to spellcasters */
+	case SCROLL_CLASS:
+	case SPBOOK_CLASS:
+		srace = PM_MIND_FLAYER + rn2(4);
+		break;
+	default:
+		break;
+    }
+
+    /* if we picked a specific monster, use that... */
+    if (srace) {
+	/* on the odd chance that it hit one that was genoed, leave it a normal shk */
+	if (!(mvitals[srace].mvflags & G_GONE))
+	{
+		mdat = &mons[srace];
+		shk->mnum = srace;
+		set_mon_data(shk, mdat, 1);
+        }
+    }
+    else
+    {
+	srace = rn2(5);
+	if (srace) {
+		switch (srace) {
+			case 1:
+				mdat = &mons[PM_GREEN_ELF];
+				shk->mnum = PM_GREEN_ELF;
+				break;
+			case 2:
+				mdat = &mons[PM_DWARF];
+				shk->mnum = PM_DWARF;
+				break;
+			case 3:
+				mdat = &mons[PM_ORC];
+				shk->mnum = PM_ORC;
+				break;
+			case 4:
+				mdat = &mons[PM_GNOME];
+				shk->mnum = PM_GNOME;
+				break;
+			case 0:
+			default:
+				break;
+		}
+		set_mon_data(shk, mdat, 1);
+	}
+    }
     shk->isshk = shk->mpeaceful = 1;
     set_malign(shk);
     shk->msleeping = 0;
@@ -716,7 +804,7 @@ register struct mkroom *sroom;
     const struct shclass *shp = &shtypes[shp_indx];
 
     /* first, try to place a shopkeeper in the room */
-    if ((sh = shkinit(shp, sroom)) < 0)
+    if ((sh = shkinit(shp, sroom, shp_indx)) < 0)
         return;
 
     /* make sure no doorways without doors, and no trapped doors, in shops */
