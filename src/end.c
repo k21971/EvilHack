@@ -1105,6 +1105,16 @@ int how;
         pline("But wait...");
         makeknown(AMULET_OF_LIFE_SAVING);
         Your("medallion %s!", !Blind ? "begins to glow" : "feels warm");
+	if (uamul->cursed) {
+	    Your("medallion %s!", !Blind ? "glows white-hot" : "sears your neck");
+            You("hear manic laughter in the distance...");
+	    Your("medallion turns to ash!");
+	    pline("It appears your luck has run out...");
+            killer.format = KILLED_BY;
+	    Strcpy(killer.name, "a cursed amulet of life saving");
+	    survive = FALSE;
+	    uamul = 0;
+    } else {
         if (how == CHOKING)
             You("vomit ...");
         You_feel("much better!");
@@ -1119,6 +1129,7 @@ int how;
         } else {
             livelog_write_string(LL_LIFESAVE, "averted death");
             survive = TRUE;
+            }
         }
     }
     /* explore and wizard modes offer player the option to keep playing */
