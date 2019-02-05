@@ -1189,7 +1189,8 @@ struct obj *body;
     short action;
 
 #define TAINT_AGE (50L)        /* age when corpses go bad */
-#define MON_REVIVE_CHANCE 37 /* 1/37 chance for 50 turns ~ 75% chance */
+#define TROLL_REVIVE_CHANCE 37 /* 1/37 chance for 50 turns ~ 75% chance */
+#define ZOMBIE_REVIVE_CHANCE 37 /* 1/37 chance for 50 turns ~ 75% chance */
 #define ROT_AGE (250L)         /* age when corpses rot away */
 
     /* lizards and lichen don't rot or revive */
@@ -1215,15 +1216,24 @@ struct obj *body;
             if (!rn2(3))
                 break;
 
-    } else if ((mons[body->corpsenm].mlet == S_TROLL
-                || mons[body->corpsenm].mlet == S_ZOMBIE) && !body->norevive) {
+    } else if (mons[body->corpsenm].mlet == S_TROLL && !body->norevive) {
         long age;
-        for (age = 2; age <= TAINT_AGE; age++)
-            if (!rn2(MON_REVIVE_CHANCE)) { /* monster revives */
+        for (age = 2; age <= TAINT_AGE; age++) {
+            if (!rn2(TROLL_REVIVE_CHANCE)) { /* troll revives */
                 action = REVIVE_MON;
                 when = age;
                 break;
             }
+        }
+    } else if (body->zombie_corpse && !body->norevive) {
+        long age;
+        for (age = 2; age <= TAINT_AGE; age++) {
+            if (!rn2(ZOMBIE_REVIVE_CHANCE)) { /* zombie revives */
+                action = REVIVE_MON;
+                when = age;
+                break;
+            }
+        }
     }
 
     if (body->norevive)
@@ -1500,7 +1510,6 @@ int x, y;
 #define special_corpse(num) (((num) == PM_LIZARD)            \
                              || ((num) == PM_LICHEN)         \
                              || (is_rider(&mons[num]))       \
-                             || (mons[num].mlet == S_ZOMBIE) \
                              || (mons[num].mlet == S_TROLL))
 
 /*
@@ -1532,6 +1541,9 @@ unsigned corpstatflags;
     } else
         otmp = mksobj_at(objtype, x, y, init, FALSE);
     if (otmp) {
+        if ((corpstatflags & CORPSTAT_ZOMBIE) != 0) {
+            otmp->zombie_corpse = 1;
+        }
         if (mtmp) {
             struct obj *otmp2;
 
@@ -1550,7 +1562,8 @@ unsigned corpstatflags;
             otmp->corpsenm = monsndx(ptr);
             otmp->owt = weight(otmp);
             if (otmp->otyp == CORPSE && (special_corpse(old_corpsenm)
-                                         || special_corpse(otmp->corpsenm))) {
+                                         || special_corpse(otmp->corpsenm)
+                                         || otmp->zombie_corpse)) {
                 obj_stop_timers(otmp);
                 start_corpse_timeout(otmp);
             }

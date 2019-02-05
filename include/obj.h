@@ -94,6 +94,7 @@ struct obj {
     Bitfield(otrapped, 1);    /* container is trapped */
 /* or accidental tripped rolling boulder trap */
 #define opoisoned otrapped /* object (weapon) is coated with poison */
+#define zombie_corpse otrapped /* zombie corpse that can revive */
 
     Bitfield(recharged, 3); /* number of times it's been recharged */
 #define on_ice recharged    /* corpse on ice */

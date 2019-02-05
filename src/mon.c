@@ -139,6 +139,91 @@ mon_sanity_check()
     }
 }
 
+/* Return TRUE if this monster is capable of converting other monsters into
+ * zombies. */
+boolean
+zombie_maker(pm)
+struct permonst * pm;
+{
+    switch(pm->mlet) {
+    case S_ZOMBIE:
+        /* Z-class monsters that aren't actually zombies go here */
+        if (pm == &mons[PM_GHOUL] || pm == &mons[PM_SKELETON])
+            return FALSE;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* From xNetHack: return the monster index of the zombie monster which this monster could be
+ * turned into, or NON_PM if it doesn't have a direct counterpart. Sort of the
+ * zombie-specific inverse of undead_to_corpse.
+ * If a zombie gets passed to this function, it should return NON_PM, not the
+ * same monster again. */
+int
+zombie_form(pm)
+struct permonst * pm;
+{
+    switch(pm->mlet) {
+    case S_KOBOLD:
+        return PM_KOBOLD_ZOMBIE;
+    case S_ORC:
+        return PM_ORC_ZOMBIE;
+    case S_GIANT:
+        if (pm == &mons[PM_ETTIN])
+            return PM_ETTIN_ZOMBIE;
+        return PM_GIANT_ZOMBIE;
+    case S_HUMAN:
+    case S_KOP:
+        if (is_elf(pm))
+            return PM_ELF_ZOMBIE;
+        return PM_HUMAN_ZOMBIE;
+    case S_HUMANOID:
+        if (is_dwarf(pm))
+            return PM_DWARF_ZOMBIE;
+        else
+            break;
+    case S_GNOME:
+        return PM_GNOME_ZOMBIE;
+    }
+    return NON_PM;
+}
+
+/* mdef is dying to a zombie's attack, and is being resurrected as its
+ * corresponding zombie. */
+void
+zombify(mdef)
+struct monst* mdef;
+{
+    struct permonst* mdat = mdef->data;
+    boolean couldspot = canspotmon(mdef);
+    /* Due to messaging sequencing, we want to print the "rises" message
+     * before calling newcham. To do this, momentarily turn mdef into a
+     * zombie, save its canspotmon, and then put it back. */
+    mdef->data = &mons[zombie_form(mdat)];
+    boolean willspot = canspotmon(mdef);
+    mdef->data = mdat;
+
+    if (couldspot && willspot) {
+        /* only print if you can spot both the dying monster and the arising
+         * zombie */
+        pline("%s rises again as a zombie!", Monnam(mdef));
+    }
+
+    if (newcham(mdef, &mons[zombie_form(mdat)], FALSE, FALSE)) {
+        /* don't continue if failed to turn into zombie (extinct?) */
+        mdef->mcanmove = 1;
+        mdef->mfrozen = 0;
+        mdef->mtame = mdef->mpeaceful = 0;
+
+        newsym(mdef->mx, mdef->my); /* cover bases */
+
+        /* The mhp is presumably the fraction of what it was before -
+         * less than zero. Set it to full. */
+        mdef->mhp = mdef->mhpmax;
+    }
+
+}
 
 /* convert the monster index of an undead to its living counterpart */
 int
@@ -146,38 +231,38 @@ undead_to_corpse(mndx)
 int mndx;
 {
     switch (mndx) {
-    /* case PM_KOBOLD_ZOMBIE: */
+    case PM_KOBOLD_ZOMBIE:
     case PM_KOBOLD_MUMMY:
         mndx = PM_KOBOLD;
         break;
-    /* case PM_DWARF_ZOMBIE: */
+    case PM_DWARF_ZOMBIE:
     case PM_DWARF_MUMMY:
         mndx = PM_DWARF;
         break;
-    /* case PM_GNOME_ZOMBIE: */
+    case PM_GNOME_ZOMBIE:
     case PM_GNOME_MUMMY:
         mndx = PM_GNOME;
         break;
-    /* case PM_ORC_ZOMBIE: */
+    case PM_ORC_ZOMBIE:
     case PM_ORC_MUMMY:
         mndx = PM_ORC;
         break;
-    /* case PM_ELF_ZOMBIE: */
+    case PM_ELF_ZOMBIE:
     case PM_ELF_MUMMY:
         mndx = PM_ELF;
         break;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LORD:
     case PM_VAMPIRE_MAGE:
-    /* case PM_HUMAN_ZOMBIE: */
+    case PM_HUMAN_ZOMBIE:
     case PM_HUMAN_MUMMY:
         mndx = PM_HUMAN;
         break;
-    /* case PM_GIANT_ZOMBIE: */
+    case PM_GIANT_ZOMBIE:
     case PM_GIANT_MUMMY:
         mndx = PM_GIANT;
         break;
-    /* case PM_ETTIN_ZOMBIE: */
+    case PM_ETTIN_ZOMBIE:
     case PM_ETTIN_MUMMY:
         mndx = PM_ETTIN;
         break;
@@ -302,6 +387,7 @@ unsigned corpseflags;
     int mndx = monsndx(mdat);
     unsigned corpstatflags = corpseflags;
     boolean burythem = ((corpstatflags & CORPSTAT_BURIED) != 0);
+    boolean flag_as_zombie = FALSE;
 
     switch (mndx) {
     case PM_GRAY_DRAGON:
@@ -349,14 +435,6 @@ unsigned corpseflags;
         obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, corpstatflags);
         obj->age -= 100; /* this is an *OLD* corpse */
         break;
-    case PM_KOBOLD_MUMMY:
-    case PM_DWARF_MUMMY:
-    case PM_GNOME_MUMMY:
-    case PM_ORC_MUMMY:
-    case PM_ELF_MUMMY:
-    case PM_HUMAN_MUMMY:
-    case PM_GIANT_MUMMY:
-    case PM_ETTIN_MUMMY:
     case PM_KOBOLD_ZOMBIE:
     case PM_DWARF_ZOMBIE:
     case PM_GNOME_ZOMBIE:
@@ -365,8 +443,20 @@ unsigned corpseflags;
     case PM_HUMAN_ZOMBIE:
     case PM_GIANT_ZOMBIE:
     case PM_ETTIN_ZOMBIE:
+        flag_as_zombie = TRUE;
+        /* FALLTHRU */
+    case PM_KOBOLD_MUMMY:
+    case PM_DWARF_MUMMY:
+    case PM_GNOME_MUMMY:
+    case PM_ORC_MUMMY:
+    case PM_ELF_MUMMY:
+    case PM_HUMAN_MUMMY:
+    case PM_GIANT_MUMMY:
+    case PM_ETTIN_MUMMY:
         num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
+        if (flag_as_zombie)
+            corpstatflags |= CORPSTAT_ZOMBIE;
         obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, corpstatflags);
         obj->age -= 100; /* this is an *OLD* corpse */
         break;
@@ -1625,10 +1715,10 @@ struct monst *magr, /* monster that is currently deciding where to move */
     /* Grudge patch */
 
     /* zombies hate all living things */
-    if (ma->mlet == S_ZOMBIE && !is_undead(md))
+    if (is_zombie(ma) && !is_undead(md))
         return ALLOW_M | ALLOW_TM;
     /* the living aren't too fond of zombies either */
-    if (md->mlet == S_ZOMBIE && !is_undead(ma))
+    if (is_zombie(ma) && !is_undead(ma))
         return ALLOW_M | ALLOW_TM;
     /* Since the quest guardians are under siege, it makes sense to have
        them fight hostiles.  (But we don't want the quest leader to be in
@@ -2506,7 +2596,9 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             burycorpse = FALSE,
             nomsg = (xkill_flags & XKILL_NOMSG) != 0,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
-            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0;
+            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
+            zombifying = (zombie_maker(youmonst.data)
+                          && zombie_form(mtmp->data) != NON_PM);
 
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) /* KMH, conduct */
@@ -2553,10 +2645,12 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     vamp_rise_msg = FALSE; /* might get set in mondead(); only checked below */
     disintegested = nocorpse; /* alternate vamp_rise message needed if true */
     /* dispose of monster and make cadaver */
-    if (stoned)
-        monstone(mtmp);
-    else
-        mondead(mtmp);
+    if (!zombifying) {
+        if (stoned)
+            monstone(mtmp);
+        else
+            mondead(mtmp);
+    }
     disintegested = FALSE; /* reset */
 
     if (!DEADMONSTER(mtmp)) { /* monster lifesaved */
@@ -2586,7 +2680,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         stackobj(mksobj_at(SCR_MAIL, x, y, FALSE, FALSE));
     }
 #endif
-    if (accessible(x, y) || is_pool(x, y)) {
+    if ((accessible(x, y) || is_pool(x, y)) && !zombifying) {
         struct obj *cadaver;
         int otyp;
 
@@ -2685,6 +2779,10 @@ cleanup:
 
     /* malign was already adjusted for u.ualign.type and randomization */
     adjalign(mtmp->malign);
+
+    if (zombifying) {
+        zombify(mtmp);
+    }
 }
 
 /* changes the monster into a stone monster of the same type
@@ -2914,7 +3012,10 @@ struct monst *mtmp;
         canseemon(mtmp)) {
 	pline("%s quivers.", Monnam(mtmp));
     }
-    if (mtmp->data->mlet == S_ZOMBIE) {
+    if (mtmp->data == &mons[PM_KOBOLD_ZOMBIE] || mtmp->data == &mons[PM_DWARF_ZOMBIE]
+        || mtmp->data == &mons[PM_GNOME_ZOMBIE] || mtmp->data == &mons[PM_ORC_ZOMBIE]
+        || mtmp->data == &mons[PM_ELF_ZOMBIE] || mtmp->data == &mons[PM_HUMAN_ZOMBIE]
+        || mtmp->data == &mons[PM_GIANT_ZOMBIE] || mtmp->data == &mons[PM_ETTIN_ZOMBIE]) {
         if (canseemon(mtmp))
 	    pline("%s %s.", Monnam(mtmp),
 	                   !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :

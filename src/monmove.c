@@ -465,7 +465,7 @@ register struct monst *mtmp;
     }
     if (mdat->msound == MS_SHRIEK && !um_dist(mtmp->mx, mtmp->my, 1))
         m_respond(mtmp);
-    if (mdat->mlet == S_ZOMBIE && !rn2(10))
+    if (is_zombie(mdat) && !rn2(10))
         m_respond(mtmp);
     if (mdat == &mons[PM_MEDUSA] && couldsee(mtmp->mx, mtmp->my))
         m_respond(mtmp);

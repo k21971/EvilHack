@@ -93,26 +93,6 @@
 #define is_gnome(ptr) (((ptr)->mflags2 & M2_GNOME) != 0L)
 #define is_orc(ptr) (((ptr)->mflags2 & M2_ORC) != 0L)
 #define is_human(ptr) (((ptr)->mflags2 & M2_HUMAN) != 0L)
-#define is_zombietype(ptr)                                                    \
-    ((ptr) == &mons[PM_KOBOLD] || (ptr) == &mons[PM_LARGE_KOBOLD]             \
-     || (ptr) == &mons[PM_KOBOLD_LORD] || (ptr) == &mons[PM_KOBOLD_SHAMAN]    \
-     || (ptr) == &mons[PM_HILL_ORC] || (ptr) == &mons[PM_MORDOR_ORC]          \
-     || (ptr) == &mons[PM_URUK_HAI] || (ptr) == &mons[PM_ORC_SHAMAN]          \
-     || (ptr) == &mons[PM_ORC_CAPTAIN] || (ptr) == &mons[PM_GNOME]            \
-     || (ptr) == &mons[PM_GNOME_LORD] || (ptr) == &mons[PM_GNOMISH_WIZARD]    \
-     || (ptr) == &mons[PM_GNOME_KING] || (ptr) == &mons[PM_STONE_GIANT ]      \
-     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN] || (ptr) == &mons[PM_HILL_GIANT] \
-     || (ptr) == &mons[PM_FIRE_GIANT] || (ptr) == &mons[PM_FROST_GIANT]       \
-     || (ptr) == &mons[PM_ETTIN] || (ptr) == &mons[PM_STORM_GIANT]            \
-     || (ptr) == &mons[PM_WOODLAND_ELF] || (ptr) == &mons[PM_GREEN_ELF]       \
-     || (ptr) == &mons[PM_GREY_ELF] || (ptr) == &mons[PM_ELF_LORD]            \
-     || (ptr) == &mons[PM_ELVENKING] || (ptr) == &mons[PM_SHOPKEEPER]         \
-     || (ptr) == &mons[PM_GUARD] || (ptr) == &mons[PM_PRISONER]               \
-     || (ptr) == &mons[PM_ALIGNED_PRIEST] || (ptr) == &mons[PM_HIGH_PRIEST]   \
-     || (ptr) == &mons[PM_SOLDIER] || (ptr) == &mons[PM_SERGEANT]             \
-     || (ptr) == &mons[PM_NURSE] || (ptr) == &mons[PM_LIEUTENANT]             \
-     || (ptr) == &mons[PM_CAPTAIN] || (ptr) == &mons[PM_WATCHMAN]             \
-     || (ptr) == &mons[PM_WATCH_CAPTAIN] || (ptr) == &mons[PM_DOPPELGANGER])
 #define your_race(ptr) (((ptr)->mflags2 & urace.selfmask) != 0L)
 #define is_bat(ptr)                                         \
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
@@ -123,7 +103,8 @@
                        || (ptr) == &mons[PM_FELL_BEAST])
 #define is_giant(ptr) (((ptr)->mflags2 & M2_GIANT) != 0L)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
-#define is_zombie(ptr) ((ptr)->mlet == S_ZOMBIE)
+#define is_not_zombie(ptr) ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON])
+#define is_zombie(ptr) ((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr))
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
 #define is_demon(ptr) (((ptr)->mflags2 & M2_DEMON) != 0L)
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)

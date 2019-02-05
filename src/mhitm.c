@@ -1556,14 +1556,32 @@ register struct attack *mattk;
             place_monster(mdef, mdef->mx, mdef->my);
             mdef->mhp = 0;
         }
-	if (pa->mlet == S_ZOMBIE && !nonliving(pd) && is_zombietype(pd)) {
-            mdef->mtame = mdef->mpeaceful = 0;
-            pd == &mons[PM_HUMAN_ZOMBIE]; //it's permanent
-	    mdef->mhp = 1; //so they don't try to remove it
-		if (mdef->isshk) shkgone(mdef);
-	        (void) newcham(mdef, &mons[PM_HUMAN_ZOMBIE], FALSE, TRUE);
-		return MM_HIT;
-	}
+
+        /* From xNetHack:
+         * If the killing monster is a zombie (in melee, we assume) and the
+         * dying monster a) has a zombie counterpart and b) won't be lifesaved,
+         * turn it into a zombie instead of killing it.
+         * If it's determined later that the zombie revival process should
+         * happen less than 100% of the time, add a limiting clause here. */
+        if (zombie_maker(pa) && zombie_form(pd) != NON_PM
+            && !mlifesaver(mdef)) {
+            if (canspotmon(mdef)) {
+                /* Since we're not going to call monkilled, need to give the
+                 * standard killed message here.
+                 * "killed" not "destroyed" should be safe assuming that the
+                 * only things which can turn into zombies are !nonliving. */
+                pline("%s is killed!", Monnam(mdef));
+            }
+            zombify(mdef);
+            /* Flag defender as dying so that the attacker won't continue using
+             * its remaining attacks against the new zombie. Also make sure to
+             * call grow_up to credit the attacker with the kill and the HP for
+             * it.
+             * Zombies won't grow up into a genocided form,
+             * so also return aggressor dying in that rare case. */
+            return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+        }
+
         monkilled(mdef, "", (int) mattk->adtyp);
         if (!DEADMONSTER(mdef))
             return res; /* mdef lifesaved */

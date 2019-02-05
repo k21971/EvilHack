@@ -402,11 +402,11 @@ MONSTER:('V',"vampire"),(35,14)
 MONSTER:('V',"vampire lord"),(36,14)
 MONSTER:('V',"vampire lord"),(36,15)
 # Randomly placed companions
-MONSTER:('W',"skeleton"),random
-MONSTER:('W',"skeleton"),random
-MONSTER:('W',"skeleton"),random
-MONSTER:('W',"skeleton"),random
-MONSTER:('W',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
 MONSTER:(' ',"shade"),random
 MONSTER:(' ',"shade"),random
 MONSTER:(' ',"shade"),random
