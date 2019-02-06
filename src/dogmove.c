@@ -569,32 +569,32 @@ register struct permonst *ptr;
         return; /* failed die roll */
     switch (type) {
     case FIRE_RES:
-        if (canseemon(mtmp))
+        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_FIRE)))
             pline("%s shivers slightly.", Monnam(mtmp));
         mtmp->mintrinsics |= MR_FIRE;
         break;
     case SLEEP_RES:
-        if (canseemon(mtmp))
+        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_SLEEP)))
             pline("%s looks wide awake.", Monnam(mtmp));
         mtmp->mintrinsics |= MR_SLEEP;
         break;
     case COLD_RES:
-        if (canseemon(mtmp))
+        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_COLD)))
             pline("%s looks quite warm.", Monnam(mtmp));
         mtmp->mintrinsics |= MR_COLD;
         break;
     case DISINT_RES:
-        if (canseemon(mtmp))
+        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_DISINT)))
             pline("%s seems more firm.", Monnam(mtmp));
         mtmp->mintrinsics |= MR_DISINT;
         break;
     case SHOCK_RES:
-        if (canseemon(mtmp))
+        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_ELEC)))
             pline("%s crackles with static electricity.", Monnam(mtmp));
         mtmp->mintrinsics |= MR_ELEC;
         break;
     case POISON_RES:
-        if (canseemon(mtmp))
+        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_POISON)))
             pline("%s looks very healthy.", Monnam(mtmp));
         mtmp->mintrinsics |= MR_POISON;
         break;
