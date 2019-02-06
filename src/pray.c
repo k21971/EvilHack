@@ -1744,9 +1744,95 @@ dosacrifice()
         } else {
             int nartifacts = nartifact_exist();
 
+	    int nchance = u.ulevel+6;
+
+            /* you were already in pretty good standing
+             *
+	     * The player can gain an artifact;
+	     * The chance goes down as the number of artifacts goes up.
+             *
+             * From SporkHack:
+             * The player can also get handed just a plain old hunk of weaponry,
+	     * but it will be blessed, +3, rustproof, and in one of the player's
+	     * available skill slots. The lower level you are, the more likely it
+	     * is that you'll get a hunk of weaponry rather than an artifact.
+	     *
+	     * Note that no artifact is guaranteed; it's still subject to the
+             * chances of generating one of those in the first place; these are
+	     * just the chances that an artifact will even be considered as a gift.
+	     *
+	     * level  4: 10% chance  level  9: 20% chance  level 12: 30% chance
+	     * level 14: 40% chance  level 17: 50% chance  level 19: 60% chance
+	     * level 21: 70% chance  level 23: 80% chance  level 24: 90% chance
+	     * level 26: 100% chance
+	     */
+
+            if (rn2(10) >= (nchance*nchance)/100) {
+		if (u.uluck >= 0 && !rn2(10 + (2 * u.ugifts))) {
+		int typ, ncount = 0;
+		do {
+		/* don't give unicorn horns or anything the player's restricted in */
+		    typ = rnd_class(SPEAR, CROSSBOW);
+		} while (ncount++ < 500 && typ && P_RESTRICTED(objects[typ].oc_skill));
+		    if (ncount > 499) { return 1; }
+		    if (typ) {
+			otmp = mksobj(typ, FALSE, FALSE);
+			if (otmp) {
+			    bless(otmp);
+			    otmp->spe = 5;
+			    otmp->oerodeproof = TRUE;
+                            at_your_feet("An object");
+			    dropy(otmp);
+			    godvoice(u.ualign.type, "Use this gift valorously!");
+			    u.ugifts++;
+			    u.ublesscnt = rnz(300 + (50 * u.ugifts));
+			    exercise(A_WIS, TRUE);
+                            livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
+                                    "had a %s granted to %s by %s",
+                                    xname(otmp),
+                                    uhim(),
+                                    u_gname());
+                            if (!Hallucination && !Blind) {
+                                otmp->dknown = 1;
+			        makeknown(otmp->otyp);
+                            }
+			    return 1;
+			}
+	            }
+		}
+            } else if (u.uluck >= 0 && !rn2(10 + (2 * nartifacts))) {
+	        otmp = mk_artifact((struct obj *)0, a_align(u.ux,u.uy));
+		if (otmp) {
+		    if (otmp->spe < 0)
+                        otmp->spe = 0;
+		    if (otmp->cursed)
+                        uncurse(otmp);
+                    otmp->oerodeproof = TRUE;
+                    at_your_feet("An object");
+                    dropy(otmp);
+                    godvoice(u.ualign.type, "Use my gift wisely!");
+                    u.ugifts++;
+                    u.ublesscnt = rnz(300 + (50 * nartifacts));
+                    exercise(A_WIS, TRUE);
+                    livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
+                            "had %s bestowed upon %s by %s",
+                            artiname(otmp->oartifact),
+                            uhim(),
+                            align_gname(u.ualign.type));
+		    /* make sure we can use this weapon */
+		    unrestrict_weapon_skill(weapon_type(otmp));
+                    if (!Hallucination && !Blind) {
+                        otmp->dknown = 1;
+                        makeknown(otmp->otyp);
+                        discover_artifact(otmp->oartifact);
+                    }
+	            return 1;
+		}
+
+/* old artifact saccing
             /* you were already in pretty good standing */
             /* The player can gain an artifact */
-            /* The chance goes down as the number of artifacts goes up */
+            /* The chance goes down as the number of artifacts goes up
             if (u.ulevel > 2 && u.uluck >= 0
                 && !rn2(10 + (2 * u.ugifts * nartifacts))) {
                 otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
@@ -1767,7 +1853,7 @@ dosacrifice()
                             artiname(otmp->oartifact),
                             uhim(),
                             align_gname(u.ualign.type));
-                    /* make sure we can use this weapon */
+                    /* make sure we can use this weapon
                     unrestrict_weapon_skill(weapon_type(otmp));
                     if (!Hallucination && !Blind) {
                         otmp->dknown = 1;
@@ -1776,6 +1862,8 @@ dosacrifice()
                     }
                     return 1;
                 }
+old artifact saccing */
+
             }
             change_luck((value * LUCKMAX) / (MAXVALUE * 2));
             if ((int) u.uluck < 0)

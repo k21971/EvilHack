@@ -2620,6 +2620,7 @@ int final;
                 : (context.warntype.obj & M2_UNDEAD) ? "the undead"
                 : (context.warntype.obj & M2_GIANT) ? "giants"
                 : (context.warntype.obj & M2_WERE) ? "werecreatures"
+                : (context.warntype.obj & M2_DRAGON) ? "dragons"
                 : (context.warntype.obj & M2_DEMON) ? "demons" : something);
         you_are(buf, from_what(WARN_OF_MON));
     }
@@ -2640,9 +2641,11 @@ int final;
                                                   ? "giants"
                                                   : (context.warntype.polyd & M2_WERE)
                                                         ? "werecreatures"
-                                                        : (context.warntype.polyd & M2_DEMON)
-                                                              ? "demons"
-                                                              : "certain monsters");
+                                                        : (context.warntype.polyd & M2_DRAGON)
+                                                              ? "dragons"
+                                                              : (context.warntype.polyd & M2_DEMON)
+                                                                    ? "demons"
+                                                                    : "certain monsters");
         you_are(buf, "");
     }
     if (Warn_of_mon && context.warntype.speciesidx >= LOW_PM) {

@@ -1326,7 +1326,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 				You("pierce the heart of %s!", mon_nam(mdef));
 				*dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
 			} else if (youdefend && j) {
-				pline("The deadly broadsword pierces your heart!");
+				pline("The deadly spear pierces your heart!");
 				*dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
 			} else {
 				return FALSE;

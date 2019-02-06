@@ -293,6 +293,10 @@ WEAPON("orcish morning star", "crude morning star",
 WEAPON("war hammer", None,
        1, 0, 0, 15,  50,   5,  4,  4, 0, B,   P_HAMMER, IRON, HI_METAL),
         /* +1 small */
+/* Base weapon for artifact weapon (Mjollnir/Ogresmasher) */
+WEAPON("heavy war hammer", None,
+       1, 0, 0, 0,  60,   10,  8, 10, 0, B,   P_HAMMER, IRON, HI_METAL),
+/* ------------------------------------------------------ */
 WEAPON("club", None,
        1, 0, 0, 12,  30,   3,  6,  3, 0, B,   P_CLUB, WOOD, HI_WOOD),
 WEAPON("rubber hose", None,

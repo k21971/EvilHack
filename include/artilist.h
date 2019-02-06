@@ -48,7 +48,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
 
     A("Excalibur", LONG_SWORD, (SPFX_NOGEN | SPFX_RESTR | SPFX_SEEK
                                 | SPFX_DEFN | SPFX_INTEL | SPFX_SEARCH),
-      0, 0, PHYS(5, 10), DRLI(0, 0), NO_CARY, 0, A_LAWFUL, PM_KNIGHT, NON_PM,
+      0, 0, PHYS(5, 10), DFNS(AD_DRLI), NO_CARY, 0, A_LAWFUL, PM_KNIGHT, NON_PM,
       4000L, NO_COLOR),
     /*
      *      Stormbringer only has a 2 because it can drain a level,
@@ -56,15 +56,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      */
     A("Stormbringer", RUNESWORD,
       (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI), 0, 0,
-      DRLI(5, 2), DRLI(0, 0), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 8000L,
+      DRLI(5, 2), DFNS(AD_DRLI), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 8000L,
       NO_COLOR),
     /*
      *      Mjollnir will return to the hand of the wielder when thrown
      *      if the wielder is a Valkyrie wearing Gauntlets of Power.
      */
-    A("Mjollnir", WAR_HAMMER, /* Mjo:llnir */
-      (SPFX_RESTR | SPFX_ATTK), 0, 0, ELEC(5, 24), NO_DFNS, NO_CARY, 0,
-      A_NEUTRAL, PM_VALKYRIE, NON_PM, 4000L, NO_COLOR),
+    A("Mjollnir", HEAVY_WAR_HAMMER, /* Mjo:llnir */
+      (SPFX_RESTR | SPFX_ATTK), 0, 0, ELEC(5, 24), DFNS(AD_ELEC), NO_CARY, 0,
+      A_NEUTRAL, PM_VALKYRIE, NON_PM, 5000L, NO_COLOR),
 
     A("Cleaver", BATTLE_AXE, SPFX_RESTR, 0, 0, PHYS(3, 6), NO_DFNS, NO_CARY,
       0, A_NEUTRAL, PM_BARBARIAN, NON_PM, 1500L, NO_COLOR),
@@ -99,16 +99,16 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       3500L, NO_COLOR),
 
     A("Frost Brand", LONG_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
-      COLD(5, 0), COLD(0, 0), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
+      COLD(5, 8), DFNS(AD_COLD), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
       NO_COLOR),
 
     A("Fire Brand", LONG_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
-      FIRE(5, 0), FIRE(0, 0), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
+      FIRE(5, 8), DFNS(AD_FIRE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
       NO_COLOR),
 
-    A("Dragonbane", BROADSWORD,
-      (SPFX_RESTR | SPFX_DCLAS | SPFX_REFLECT), 0, S_DRAGON,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 500L,
+    A("Dragonbane", DWARVISH_SPEAR,
+      (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2 | SPFX_REFLECT), 0, M2_DRAGON,
+      PHYS(5, 10), DFNS(AD_FIRE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
       NO_COLOR),
     /*
      *      Demonbane from SporkHack is a silver mace with an extra property.
@@ -119,23 +119,23 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_COLOR),
 
     A("Werebane", SILVER_SABER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2), 0, M2_WERE,
-      PHYS(5, 0), DFNS(AD_WERE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1500L,
+      PHYS(5, 4), DFNS(AD_WERE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1500L,
       NO_COLOR),
 
     A("Grayswandir", SILVER_SABER, (SPFX_RESTR | SPFX_HALRES), 0, 0,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 8000L,
+      PHYS(5, 8), NO_DFNS, NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 8000L,
       NO_COLOR),
 
     A("Giantslayer", LONG_SWORD, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2), 0, M2_GIANT,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 500L,
+      PHYS(5, 5), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 500L,
       NO_COLOR),
 
-    A("Ogresmasher", WAR_HAMMER, (SPFX_RESTR | SPFX_DCLAS), 0, S_OGRE,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 500L,
+    A("Ogresmasher", HEAVY_WAR_HAMMER, (SPFX_RESTR | SPFX_DCLAS), 0, S_OGRE,
+      PHYS(5, 5), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 500L,
       NO_COLOR),
 
     A("Trollsbane", MORNING_STAR, (SPFX_RESTR | SPFX_DCLAS | SPFX_REGEN), 0, S_TROLL,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 800L,
+      PHYS(5, 5), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 800L,
       NO_COLOR),
     /*
      *      Two problems:  1) doesn't let trolls regenerate heads,
@@ -143,7 +143,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      allowing those at all causes more problems than worth the effort).
      */
     A("Vorpal Blade", LONG_SWORD, (SPFX_RESTR | SPFX_BEHEAD), 0, 0,
-      PHYS(5, 1), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 4000L,
+      PHYS(5, 6), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 4000L,
       NO_COLOR),
     /*
      *      Ah, never shall I forget the cry,
@@ -167,7 +167,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      */
     A("Lifestealer", TWO_HANDED_SWORD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI), 0, 0,
-      DRLI(5, 2), DRLI(0, 0), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 10000L,
+      DRLI(5, 2), DFNS(AD_DRLI), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 10000L,
       NO_COLOR),
     /*
      *      Keolewa from SporkHack - a Hawaiian war club.
@@ -242,7 +242,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("The Staff of Aesculapius", QUARTERSTAFF,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL | SPFX_DRLI
        | SPFX_REGEN),
-      0, 0, DRLI(0, 0), DRLI(0, 0), NO_CARY, HEALING, A_NEUTRAL, PM_HEALER,
+      0, 0, DRLI(5, 2), DFNS(AD_DRLI), NO_CARY, HEALING, A_NEUTRAL, PM_HEALER,
       NON_PM, 5000L, NO_COLOR),
 
     A("The Magic Mirror of Merlin", MIRROR,
@@ -277,7 +277,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("The Tsurugi of Muramasa", TSURUGI,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_BEHEAD | SPFX_LUCK
        | SPFX_PROTECT),
-      0, 0, PHYS(0, 8), NO_DFNS, NO_CARY, 0, A_LAWFUL, PM_SAMURAI, NON_PM,
+      0, 0, PHYS(3, 8), NO_DFNS, NO_CARY, 0, A_LAWFUL, PM_SAMURAI, NON_PM,
       4500L, NO_COLOR),
 
     A("The Platinum Yendorian Express Card", CREDIT_CARD,
