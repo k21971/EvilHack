@@ -2096,7 +2096,13 @@ doputon()
 void
 find_ac()
 {
-    int uac = mons[u.umonnum].ac; /* base armor class for current form */
+    /* Base armor class for current form.
+     * Giants can't wear body armor, t-shirt or cloaks,
+     * but they do have thick skin. So they get a little bit
+     * of love in the AC department to compensate somewhat.
+     */
+    int uac = maybe_polyd(mons[u.umonnum].ac,
+                          Race_if(PM_GIANT) ? 6 : mons[u.umonnum].ac);
 
     /* armor class from worn gear */
 
