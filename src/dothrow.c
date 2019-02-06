@@ -185,6 +185,14 @@ int shotlimit;
                 break; /* No bonus */
             }
 
+        if (Race_if(PM_GIANT)) {
+            /* Giants are good at throwing things, but not at
+             * using bows, crossbows and slings.
+             */
+            if ((skill == -P_CROSSBOW) || (skill == -P_BOW) || (skill == -P_SLING))
+                multishot = 1;
+        }
+
         /* crossbows are slow to load and probably shouldn't allow multiple
            shots at all, but that would result in players never using them;
            instead, high strength is necessary to load and shoot quickly */

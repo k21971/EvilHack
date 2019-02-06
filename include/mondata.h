@@ -7,6 +7,7 @@
 
 #define verysmall(ptr) ((ptr)->msize < MZ_SMALL)
 #define bigmonst(ptr) ((ptr)->msize >= MZ_LARGE)
+#define biggermonst(ptr) ((ptr)->msize > (youmonst.data)->msize)
 
 #define pm_resistance(ptr, typ) (((ptr)->mresists & (typ)) != 0)
 

@@ -6,7 +6,7 @@
 
 #define is_bigfoot(x) ((x) == &mons[PM_SASQUATCH])
 #define martial()                                 \
-    (martial_bonus() || is_bigfoot(youmonst.data) \
+    (martial_bonus() || is_giant(youmonst.data) || is_bigfoot(youmonst.data) \
      || (uarmf && uarmf->otyp == KICKING_BOOTS))
 
 static NEARDATA struct rm *maploc, nowhere;
@@ -830,7 +830,7 @@ dokick()
     y = u.uy + u.dy;
 
     /* KMH -- Kicking boots always succeed */
-    if (uarmf && uarmf->otyp == KICKING_BOOTS)
+    if ((uarmf && uarmf->otyp == KICKING_BOOTS) || (is_giant(youmonst.data)))
         avrg_attrib = 99;
     else
         avrg_attrib = (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3;
@@ -1067,7 +1067,7 @@ dokick()
         if (IS_GRAVE(maploc->typ)) {
             if (Levitation)
                 goto dumb;
-            if (rn2(4))
+            if (rn2(4) && !is_giant(youmonst.data))
                 goto ouch;
             exercise(A_WIS, FALSE);
             if (Role_if(PM_ARCHEOLOGIST) || Role_if(PM_SAMURAI)
@@ -1092,7 +1092,7 @@ dokick()
             struct obj *treefruit;
 
             /* nothing, fruit or trouble? 75:23.5:1.5% */
-            if (rn2(3)) {
+            if (is_giant(youmonst.data) ? !rn2(3) : rn2(3)) {
                 if (!rn2(6) && !(mvitals[PM_KILLER_BEE].mvflags & G_GONE))
                     You_hear("a low buzzing."); /* a warning */
                 goto ouch;
@@ -1251,7 +1251,7 @@ dokick()
 
     exercise(A_DEX, TRUE);
     /* door is known to be CLOSED or LOCKED */
-    if (rnl(35) < avrg_attrib + (!martial() ? 0 : ACURR(A_DEX))) {
+    if ((is_giant(youmonst.data)) || (rnl(35) < avrg_attrib + (!martial() ? 0 : ACURR(A_DEX)))) {
         boolean shopdoor = *in_rooms(x, y, SHOPBASE) ? TRUE : FALSE;
         /* break the door */
         if (maploc->doormask & D_TRAPPED) {
@@ -1260,7 +1260,7 @@ dokick()
             exercise(A_STR, FALSE);
             maploc->doormask = D_NODOOR;
             b_trapped("door", FOOT);
-        } else if (ACURR(A_STR) > 18 && !rn2(5) && !shopdoor) {
+        } else if (((ACURR(A_STR) > 18 && !rn2(5)) || (is_giant(youmonst.data) && !rn2(5))) && !shopdoor) {
             pline("As you kick the door, it shatters to pieces!");
             exercise(A_STR, TRUE);
             maploc->doormask = D_NODOOR;

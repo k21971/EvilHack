@@ -1339,6 +1339,10 @@ max_mon_load(mtmp)
 struct monst *mtmp;
 {
     long maxload;
+    long maxcarrcap = MAX_CARR_CAP;
+
+    if (is_giant(mtmp->data))
+        maxcarrcap += 400;
 
     /* Base monster carrying capacity is equal to human maximum
      * carrying capacity, or half human maximum if not strong.
@@ -1349,12 +1353,12 @@ struct monst *mtmp;
      * proportional to their size instead of weight.
      */
     if (!mtmp->data->cwt)
-        maxload = (MAX_CARR_CAP * (long) mtmp->data->msize) / MZ_HUMAN;
+        maxload = (maxcarrcap * (long) mtmp->data->msize) / MZ_HUMAN;
     else if (!strongmonst(mtmp->data)
              || (strongmonst(mtmp->data) && (mtmp->data->cwt > WT_HUMAN)))
-        maxload = (MAX_CARR_CAP * (long) mtmp->data->cwt) / WT_HUMAN;
+        maxload = (maxcarrcap * (long) mtmp->data->cwt) / WT_HUMAN;
     else
-        maxload = MAX_CARR_CAP; /*strong monsters w/cwt <= WT_HUMAN*/
+        maxload = maxcarrcap; /*strong monsters w/cwt <= WT_HUMAN*/
 
     if (!strongmonst(mtmp->data))
         maxload /= 2;

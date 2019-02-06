@@ -114,11 +114,11 @@
 #define M2_GNOME 0x00000040L        /* is a gnome */
 #define M2_ORC 0x00000080L          /* is an orc */
 #define M2_DEMON 0x00000100L        /* is a demon */
-#define M2_MERC 0x00000200L         /* is a guard or soldier */
+#define M2_GIANT 0x00000200L        /* is a giant */
 #define M2_LORD 0x00000400L         /* is a lord to its kind */
 #define M2_PRINCE 0x00000800L       /* is an overlord to its kind */
 #define M2_MINION 0x00001000L       /* is a minion of a deity */
-#define M2_GIANT 0x00002000L        /* is a giant */
+#define M2_MERC 0x00002000L         /* is a guard or soldier */
 #define M2_SHAPESHIFTER 0x00004000L /* is a shapeshifting species */
 #define M2_MALE 0x00010000L         /* always male */
 #define M2_FEMALE 0x00020000L       /* always female */
@@ -175,6 +175,7 @@
 #define MH_ELF M2_ELF
 #define MH_DWARF M2_DWARF
 #define MH_GNOME M2_GNOME
+#define MH_GIANT M2_GIANT
 #define MH_ORC M2_ORC
 
 /* for mons[].geno (constant during game) */

@@ -769,6 +769,16 @@ int dieroll;
                 }
             } else {
                 tmp = dmgval(obj, mon);
+                /* Giants are more effective with a club.
+                 * For example, a caveman's starting +1 club will do an average
+                 * of 4.444 rather than 3 against large monsters, and 6.4725
+                 * rather than 4.5 against small.
+                 **/
+                if (is_giant(youmonst.data)) {
+                    int tmp2 = dmgval(obj, mon);
+                    if (tmp < tmp2) tmp = tmp2;
+                    tmp++;
+                }
                 /* a minimal hit doesn't exercise proficiency */
                 valid_weapon_attack = (tmp > 1);
                 if (!valid_weapon_attack || mon == u.ustuck || u.twoweap
@@ -782,13 +792,15 @@ int dieroll;
                     You("strike %s from behind!", mon_nam(mon));
                     tmp += rnd(u.ulevel);
                     hittxt = TRUE;
-                } else if (dieroll == 2 && obj == uwep
-                           && obj->oclass == WEAPON_CLASS
-                           && (bimanual(obj)
-                               || (Role_if(PM_SAMURAI) && obj->otyp == KATANA
-                                   && !uarms))
+                } else if (obj == uwep && obj->oclass == WEAPON_CLASS &&
+                            ((dieroll == 2 && (bimanual(obj) || (Race_if(PM_GIANT)) ||
+                                (Role_if(PM_SAMURAI) && obj->otyp == KATANA && !uarms))
                            && ((wtype = uwep_skill_type()) != P_NONE
-                               && P_SKILL(wtype) >= P_SKILLED)
+                               && P_SKILL(wtype) >= P_SKILLED)) ||
+                             (dieroll == 3 && (Race_if(PM_GIANT)) && (((wtype = uwep_skill_type()) != P_NONE)
+                               && P_SKILL(wtype) >= P_BASIC)) ||
+                             (dieroll == 4 && (!rn2(2)) && (Race_if(PM_GIANT)) && (((wtype = uwep_skill_type()) != P_NONE)
+                               && P_SKILL(wtype) >= P_EXPERT)))
                            && ((monwep = MON_WEP(mon)) != 0
                                && !is_flimsy(monwep)
                                && !obj_resists(monwep,
@@ -804,6 +816,17 @@ int dieroll;
                      * If attacker's weapon is rustier than defender's,
                      * the obj_resists chance is increased so the shatter
                      * chance is decreased; if less rusty, then vice versa.
+                     *
+                     * Giants have a separate chance when dieroll = 3 or 4.
+                     * Chance:      Giant   Other
+                     * Unskilled    0%      0%
+                     * Basic        2.5%    0%
+                     * Skilled      5%      2.5%
+                     * Expert       6.25%   2.5%
+                     *
+                     * Also not that bimanual() is false for all weapons
+                     * for giants, which is why the dieroll = 2 conditional
+                     * has an exception for giants.
                      */
                     setmnotwielded(mon, monwep);
                     mon->weapon_check = NEED_WEAPON;
@@ -843,6 +866,9 @@ int dieroll;
                 if (thrown == HMON_THROWN
                     && (is_ammo(obj) || is_missile(obj))) {
                     if (ammo_and_launcher(obj, uwep)) {
+                        /* Slings hit giants harder (as Goliath) */
+                        if ((uwep->otyp == SLING) && is_giant(mdat))
+                            tmp *= 2;
                         /* Elves and Samurai do extra damage using
                          * their bows&arrows; they're highly trained.
                          */
@@ -1189,7 +1215,7 @@ int dieroll;
         hittxt = TRUE;
     } else if (unarmed && tmp > 1 && !thrown && !obj && !Upolyd) {
         /* VERY small chance of stunning opponent if unarmed. */
-        if (rnd(100) < P_SKILL(P_BARE_HANDED_COMBAT) && !bigmonst(mdat)
+        if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT) && !biggermonst(mdat)
             && !thick_skinned(mdat)) {
             if (canspotmon(mon))
                 pline("%s %s from your powerful strike!", Monnam(mon),

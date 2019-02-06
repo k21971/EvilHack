@@ -193,8 +193,9 @@ struct obj {
            doesn't weld to hand, and twoweapon won't work with one */
 #define is_wet_towel(o) ((o)->otyp == TOWEL && (o)->spe > 0)
 #define bimanual(otmp)                                            \
+    ((!(Race_if(PM_GIANT))) &&                                    \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
-     && objects[otmp->otyp].oc_bimanual)
+     && objects[otmp->otyp].oc_bimanual))
 #define is_multigen(otmp)                           \
     (otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \

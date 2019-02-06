@@ -749,6 +749,8 @@ register boolean verbose;
                     if (is_accurate(mon->data)) { hitv += mon->m_lev; }
                 if (dam < 1)
                     dam = 1;
+                if ((is_giant(youmonst.data)) && MON_WEP(mon) && MON_WEP(mon)->otyp == SLING)
+                    dam *= 2;
                 hitu = thitu(hitv, dam, &singleobj, (char *) 0);
             }
             if (hitu && singleobj->opoisoned && is_poisonable(singleobj)) {

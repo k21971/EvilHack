@@ -973,8 +973,14 @@ register struct obj *otmp;
                 /* only give "your X is already as high as it can get"
                    message on last attempt (except blessed potions) */
                 itmp = (otmp->blessed || ii == 1) ? 0 : -1;
-                if (adjattrib(i, 1, itmp) && !otmp->blessed)
-                    break;
+                if (i == A_STR) {
+                    if (gainstr(otmp, 1, (itmp == 0)) && !otmp->blessed)
+                        break;
+                }
+                else {
+                    if (adjattrib(i, 1, itmp) && !otmp->blessed)
+                        break;
+                }
             }
         }
         break;

@@ -44,7 +44,14 @@ set_uasmon()
     int new_speed, old_speed = youmonst.data ? youmonst.data->mmove : 0;
 
     set_mon_data(&youmonst, mdat, 0);
-
+    if (!Upolyd) {
+        if (Race_if(PM_GIANT)) {
+            youmonst.data->mflags2 |= M2_GIANT | M2_ROCKTHROW;
+            youmonst.data->msize = MZ_HUGE;
+            youmonst.data->mmove = 10;
+            youmonst.data->cwt = 2200;
+        }
+    }
 #define PROPSET(PropIndx, ON)                          \
     do {                                               \
         if (ON)                                        \
@@ -421,7 +428,8 @@ int psflags;
     boolean forcecontrol = (psflags == 1), monsterpoly = (psflags == 2),
             draconian = (uarm && Is_dragon_armor(uarm)),
             iswere = (u.ulycn >= LOW_PM), isvamp = is_vampire(youmonst.data),
-            controllable_poly = Polymorph_control && !(Stunned || Unaware);
+            controllable_poly = Polymorph_control && !(Stunned || Unaware),
+            yourrace;
 
     if (Unchanging) {
         pline("You fail to transform!");
@@ -590,12 +598,19 @@ int psflags;
         } while (--tryct > 0);
     }
 
+    /* For polymorphing, (fire, frost, hill, stone, storm) giants are
+     * not the same race as a giant player and should not cause newman().
+     */
+    yourrace = your_race(&mons[mntmp]);
+    if (Race_if(PM_GIANT))
+        yourrace = (mntmp == PM_GIANT);
+
     /* The below polyok() fails either if everything is genocided, or if
      * we deliberately chose something illegal to force newman().
      */
     sex_change_ok++;
     if (!polyok(&mons[mntmp]) || (!forcecontrol && !rn2(5))
-        || your_race(&mons[mntmp])) {
+        || yourrace) {
         newman();
     } else {
         (void) polymon(mntmp);

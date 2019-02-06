@@ -619,7 +619,7 @@ tty_player_selection()
                         win = create_nhwindow(NHW_MENU);
                         start_menu(win);
                         any = zeroany; /* zero out all bits */
-                        /* populate the menu with role choices */
+                        /* populate the menu with race choices */
                         setup_racemenu(win, TRUE, ROLE, GEND, ALGN);
                         /* add miscellaneous menu entries */
                         role_menu_extra(ROLE_RANDOM, win, TRUE);
@@ -1081,6 +1081,7 @@ int role, gend, algn;
     boolean race_ok;
     int i;
     char this_ch;
+    char high_ch;
 
     any = zeroany;
     for (i = 0; races[i].noun; i++) {
@@ -1092,13 +1093,21 @@ int role, gend, algn;
         else
             any.a_string = races[i].noun;
         this_ch = *races[i].noun;
+        high_ch = highc(this_ch);
+        if (this_ch == 'g') {
+            if (!strcmp(races[i].noun, "giant"))
+                this_ch = 'G';
+            else
+                high_ch = 0;
+        }
+
         /* filtering: picking race, so choose by first letter, with
            capital letter as unseen accelerator;
            !filtering: resetting filter rather than picking, choose by
            capital letter since lowercase role letters will be present */
         add_menu(win, NO_GLYPH, &any,
-                 filtering ? this_ch : highc(this_ch),
-                 filtering ? highc(this_ch) : 0,
+                 filtering ? this_ch : high_ch,
+                 filtering ? high_ch : 0,
                  ATR_NONE, races[i].noun,
                  (!filtering && !race_ok) ? MENU_SELECTED : MENU_UNSELECTED);
     }

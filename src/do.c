@@ -1208,7 +1208,7 @@ dodown()
 
     if (trap) {
         const char *down_or_thru = trap->ttyp == HOLE ? "down" : "through";
-        const char *actn = Flying ? "fly" : locomotion(youmonst.data, "jump");
+        const char *actn = Flying ? "fly" : is_giant(youmonst.data) ? "squeeze" : locomotion(youmonst.data, "jump");
 
         if (youmonst.data->msize >= MZ_HUGE) {
             char qbuf[QBUFSZ];
