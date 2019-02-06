@@ -187,7 +187,7 @@ struct monst *mon;
             ? select_rwep(mon) : (struct obj *)0;
 
     boolean intelligent = TRUE;
-    rwep = attacktype(mon->data, AT_WEAP) ? propellor : &zeroobj;
+    rwep = attacktype(mon->data, AT_WEAP) ? propellor : (struct obj *) &zeroobj;
 
     if (is_animal(mon->data) || mindless(mon->data)) {
         /* won't hang on to any objects of these types */

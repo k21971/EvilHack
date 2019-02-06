@@ -221,7 +221,7 @@ struct attack *mattk;
 	if (target <= roll) {
 		/* Try spell protection */
 		target += u.uspellprot;
-		if (target > roll) blocker = &zeroobj;
+		if (target > roll) blocker = (struct obj *) &zeroobj;
 	}
     }
 

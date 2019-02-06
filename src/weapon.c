@@ -571,7 +571,7 @@ register struct monst *mtmp;
     boolean mweponly;
     int i;
 
-    struct obj *tmpprop = &zeroobj;
+    struct obj *tmpprop = (struct obj *) &zeroobj;
 
     char mlet = mtmp->data->mlet;
 

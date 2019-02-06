@@ -3114,7 +3114,7 @@ boolean creation;
 	proj = attacktype(mon->data, AT_WEAP)
 		   ? select_rwep(mon) : (struct obj *)0,
 	rwep = attacktype(mon->data, AT_WEAP)
-		   ? propellor : &zeroobj;
+		   ? propellor : (struct obj *) &zeroobj;
     }
 
     for (obj = mon->minvent; obj; obj = nobj) {
