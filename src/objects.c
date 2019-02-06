@@ -1145,7 +1145,7 @@ ROCK("rock", None,         1, 100,  10,  0, 3, 3, 0, 10, 7, MINERAL, CLR_GRAY),
  * on a specific type and may act as containers (both affect weight).
  */
 OBJECT(OBJ("boulder", None),
-       BITS(1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, P_NONE, MINERAL), 0,
+       BITS(1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, P_NONE, MINERAL), 0,
        ROCK_CLASS, 100, 0, 6000, 0, 20, 20, 0, 0, 2000, HI_MINERAL),
 OBJECT(OBJ("statue", None),
        BITS(1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, P_NONE, MINERAL), 0,

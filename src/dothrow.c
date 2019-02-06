@@ -305,7 +305,7 @@ autoquiver()
     for (otmp = invent; otmp; otmp = otmp->nobj) {
         if (otmp->owornmask || otmp->oartifact || !otmp->dknown) {
             ; /* Skip it */
-        } else if (otmp->otyp == ROCK
+        } else if (otmp->otyp == ROCK || otmp->otyp == BOULDER
                    /* seen rocks or known flint or known glass */
                    || (otmp->otyp == FLINT
                        && objects[otmp->otyp].oc_name_known)
