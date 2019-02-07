@@ -1722,8 +1722,9 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (is_zombie(ma) && !is_undead(md))
         return ALLOW_M | ALLOW_TM;
     /* the living aren't too fond of zombies either */
-    if (is_zombie(ma) && !is_undead(ma))
+    if (is_zombie(md) && !is_undead(ma))
         return ALLOW_M | ALLOW_TM;
+
     /* Since the quest guardians are under siege, it makes sense to have
        them fight hostiles.  (But we don't want the quest leader to be in
        danger.) */
@@ -1732,36 +1733,50 @@ struct monst *magr, /* monster that is currently deciding where to move */
     /* and vice versa */
     if (md->msound == MS_GUARDIAN && magr->mpeaceful==FALSE)
    	return ALLOW_M | ALLOW_TM;
+
     /* elves vs. orcs */
     if (is_elf(ma) && is_orc(md))
   	return ALLOW_M | ALLOW_TM;
     /* and vice versa */
     if (is_elf(md) && is_orc(ma))
   	return ALLOW_M | ALLOW_TM;
+
     /* angels vs. demons */
     if (ma->mlet == S_ANGEL && is_demon(md))
   	return ALLOW_M | ALLOW_TM;
     /* and vice versa */
     if (md->mlet == S_ANGEL && is_demon(ma))
   	return ALLOW_M | ALLOW_TM;
+
     /* woodchucks vs. The Oracle */
     if (ma == &mons[PM_WOODCHUCK] && md == &mons[PM_ORACLE])
   	return ALLOW_M | ALLOW_TM;
+
     /* ravens like eyes */
     if (ma == &mons[PM_RAVEN] && md == &mons[PM_FLOATING_EYE])
   	return ALLOW_M | ALLOW_TM;
+
     /* lawful and chaotic unicorns don't play nice with each other.
        neutral unicorns just don't care */
     if (ma == &mons[PM_WHITE_UNICORN] && md == &mons[PM_BLACK_UNICORN])
         return ALLOW_M | ALLOW_TM;
     if (md == &mons[PM_WHITE_UNICORN] && ma == &mons[PM_BLACK_UNICORN])
         return ALLOW_M | ALLOW_TM;
+
     /* pets attack hostile monsters */
     if (magr->mtame && !mdef->mpeaceful)
      	return ALLOW_M | ALLOW_TM;
     /* and vice versa */
     if (mdef->mtame && !magr->mpeaceful)
      	return ALLOW_M | ALLOW_TM;
+
+    /* Nazgul vs. hobbits */
+    if(ma == &mons[PM_NAZGUL] && md == &mons[PM_HOBBIT])
+	return ALLOW_M | ALLOW_TM;
+    /* and vice versa */
+    if(md == &mons[PM_NAZGUL] && ma == &mons[PM_HOBBIT])
+	return ALLOW_M | ALLOW_TM;
+
     return 0L;
 }
 
