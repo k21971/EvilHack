@@ -2154,7 +2154,8 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 		case PM_DWARF:
                 case PM_DWARF_LORD:
 			if (Race_if(PM_ORC)) { tmp *= 2L; }
-			if (Race_if(PM_ELF)) { tmp += tmp / 3L; }  /* "pointy-eared tree hugger." */
+			if (Race_if(PM_ELF)) { tmp += tmp / 3L; }   /* "pointy-eared tree hugger." */
+                        if (Race_if(PM_GIANT)) { tmp += tmp / 2L; } /* "big, dumb and smelly." */
 			break;
 		case PM_ORC:
 			if (Race_if(PM_ELF)) { tmp *= 3L; }
@@ -2200,7 +2201,8 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 		case PM_FROST_GIANT:
 		case PM_STORM_GIANT:
 			/* Non-Elder-Race humanoids are not thought of highly. */
-			if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)) { tmp += tmp / 2L; }
+			if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)) { tmp += tmp / 3L; }
+                        if (Race_if(PM_DWARF)) { tmp += tmp / 2L; }  /* "dwarf tossing, only thing they're good for." */
 			break;
 	}
     }
@@ -2411,7 +2413,8 @@ register struct monst *shkp;
 	case PM_DWARF:
         case PM_DWARF_LORD:
 		if (Race_if(PM_ORC)) { tmp /= 2L; }
-		if (Race_if(PM_ELF)) { tmp -= tmp / 3L; }  /* "pointy-eared tree hugger." */
+		if (Race_if(PM_ELF)) { tmp -= tmp / 3L; }   /* "pointy-eared tree hugger." */
+                if (Race_if(PM_GIANT)) { tmp += tmp / 2L; } /* "big, dumb and smelly." */
 		break;
 	case PM_ORC:
 		if (Race_if(PM_ELF)) { tmp /= 3L; }
@@ -2458,8 +2461,8 @@ register struct monst *shkp;
 	case PM_FROST_GIANT:
 	case PM_STORM_GIANT:
 		/* Non-Elder-Race humanoids are not thought of highly. */
-		if (Race_if(PM_HUMAN) || Race_if(PM_GNOME))
-		{ tmp -= tmp / 2L; }
+		if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)) { tmp -= tmp / 3L; }
+                if (Race_if(PM_DWARF)) { tmp += tmp / 2L; }  /* "dwarf tossing, only thing they're good for." */
 		break;
     }
 
