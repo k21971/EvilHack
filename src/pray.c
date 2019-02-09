@@ -1743,8 +1743,19 @@ dosacrifice()
             }
         } else {
             int nartifacts = nartifact_exist();
-
 	    int nchance = u.ulevel+6;
+            boolean primary_casters, secondary_casters, non_casters;
+
+            /* Primary casting roles */
+            primary_casters = Role_if(PM_HEALER) || Role_if(PM_PRIEST) || Role_if(PM_WIZARD);
+
+            /* Secondary casting roles */
+            secondary_casters = Role_if(PM_ARCHEOLOGIST) || Role_if(PM_KNIGHT) || Role_if(PM_MONK)
+                                 || Role_if(PM_RANGER) || Role_if(PM_ROGUE) || Role_if(PM_TOURIST);
+
+            /* Little to none casting roles */
+            non_casters = Role_if(PM_BARBARIAN) || Role_if(PM_CAVEMAN) || Role_if(PM_SAMURAI)
+                           || Role_if(PM_VALKYRIE);
 
             /* you were already in pretty good standing
              *
@@ -1752,11 +1763,12 @@ dosacrifice()
 	     * The chance goes down as the number of artifacts goes up.
              *
              * From SporkHack:
-             * The player can also get handed just a plain old hunk of weaponry,
-	     * but it will be blessed, +3, rustproof, and in one of the player's
-	     * available skill slots. The lower level you are, the more likely it
-	     * is that you'll get a hunk of weaponry rather than an artifact.
-	     *
+	     * The player can also get handed just a plain old hunk of weaponry
+	     * or piece of armor, but it will be blessed, +3 to +5, fire/rustproof, and
+	     * if it's a weapon, it'll be in one of the player's available skill
+	     * slots. The lower level you are, the more likely it is that you'll
+	     * get a hunk of ordinary junk rather than an artifact.
+             *
 	     * Note that no artifact is guaranteed; it's still subject to the
              * chances of generating one of those in the first place; these are
 	     * just the chances that an artifact will even be considered as a gift.
@@ -1768,18 +1780,22 @@ dosacrifice()
 	     */
 
             if (rn2(10) >= (nchance*nchance)/100) {
-		if (u.uluck >= 0 && !rn2(10 + (2 * u.ugifts))) {
+		if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
 		int typ, ncount = 0;
-		do {
+		if (rn2(2)) {
 		/* don't give unicorn horns or anything the player's restricted in */
-		    typ = rnd_class(SPEAR, CROSSBOW);
-		} while (ncount++ < 500 && typ && P_RESTRICTED(objects[typ].oc_skill));
-		    if (ncount > 499) { return 1; }
+		    do {
+                        typ = rnd_class(SPEAR, CROSSBOW);
+		    } while (ncount++ < 500 && typ && P_RESTRICTED(objects[typ].oc_skill));
+		        if (ncount > 499) { return 1; }
+		    } else {
+		        typ = rnd_class(ELVEN_LEATHER_HELM, LEVITATION_BOOTS);
+		    }
 		    if (typ) {
 			otmp = mksobj(typ, FALSE, FALSE);
 			if (otmp) {
 			    bless(otmp);
-			    otmp->spe = 5;
+			    otmp->spe = rn2(3)+3; /* +3 to +5 */
 			    otmp->oerodeproof = TRUE;
                             at_your_feet("An object");
 			    dropy(otmp);
@@ -1788,7 +1804,7 @@ dosacrifice()
 			    u.ublesscnt = rnz(300 + (50 * u.ugifts));
 			    exercise(A_WIS, TRUE);
                             livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                    "had a %s granted to %s by %s",
+                                    "had a %s entrusted to %s by %s",
                                     xname(otmp),
                                     uhim(),
                                     u_gname());
@@ -1805,8 +1821,7 @@ dosacrifice()
 		if (otmp) {
 		    if (otmp->spe < 0)
                         otmp->spe = 0;
-		    if (otmp->cursed)
-                        uncurse(otmp);
+                    bless(otmp);
                     otmp->oerodeproof = TRUE;
                     at_your_feet("An object");
                     dropy(otmp);
@@ -1828,42 +1843,6 @@ dosacrifice()
                     }
 	            return 1;
 		}
-
-/* old artifact saccing
-            /* you were already in pretty good standing */
-            /* The player can gain an artifact */
-            /* The chance goes down as the number of artifacts goes up
-            if (u.ulevel > 2 && u.uluck >= 0
-                && !rn2(10 + (2 * u.ugifts * nartifacts))) {
-                otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
-                if (otmp) {
-                    if (otmp->spe < 0)
-                        otmp->spe = 0;
-                    if (otmp->cursed)
-                        uncurse(otmp);
-                    otmp->oerodeproof = TRUE;
-                    at_your_feet("An object");
-                    dropy(otmp);
-                    godvoice(u.ualign.type, "Use my gift wisely!");
-                    u.ugifts++;
-                    u.ublesscnt = rnz(300 + (50 * nartifacts));
-                    exercise(A_WIS, TRUE);
-                    livelog_printf (LL_DIVINEGIFT|LL_ARTIFACT,
-                            "had %s bestowed upon %s by %s",
-                            artiname(otmp->oartifact),
-                            uhim(),
-                            align_gname(u.ualign.type));
-                    /* make sure we can use this weapon
-                    unrestrict_weapon_skill(weapon_type(otmp));
-                    if (!Hallucination && !Blind) {
-                        otmp->dknown = 1;
-                        makeknown(otmp->otyp);
-                        discover_artifact(otmp->oartifact);
-                    }
-                    return 1;
-                }
-old artifact saccing */
-
             }
             change_luck((value * LUCKMAX) / (MAXVALUE * 2));
             if ((int) u.uluck < 0)
