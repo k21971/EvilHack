@@ -1783,13 +1783,21 @@ dosacrifice()
 		if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
 		int typ, ncount = 0;
 		if (rn2(2)) {
-		/* don't give unicorn horns or anything the player's restricted in */
+		/* Don't give unicorn horns or anything the player's restricted in
+                 * Lets also try to dish out suitable gear based on the player's role */
 		    do {
-                        typ = rnd_class(SPEAR, CROSSBOW);
+                        if (primary_casters) {
+                            typ = !rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, QUARTERSTAFF);
+                        } else {
+                            typ = rnd_class(SPEAR, KATANA);
+                        }
 		    } while (ncount++ < 500 && typ && P_RESTRICTED(objects[typ].oc_skill));
 		        if (ncount > 499) { return 1; }
-		    } else {
-		        typ = rnd_class(ELVEN_LEATHER_HELM, LEVITATION_BOOTS);
+		    } else if (primary_casters) {
+		            typ = !rn2(2) ? rnd_class(LEATHER_ARMOR, CLOAK_OF_DISPLACEMENT)
+                                          : rnd_class(LEATHER_GLOVES, LEVITATION_BOOTS);
+                        } else {
+                            typ = rnd_class(ELVEN_LEATHER_HELM, LEVITATION_BOOTS);
 		    }
 		    if (typ) {
 			otmp = mksobj(typ, FALSE, FALSE);
