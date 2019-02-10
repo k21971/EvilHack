@@ -3309,8 +3309,10 @@ boolean tinitial, tfrom_file;
         } else if (!(opts = string_for_env_opt(fullname, opts, FALSE))) {
             return FALSE;
         }
-        if (!assign_videocolors(opts)) /* TODO: error msg */
+        if (!assign_videocolors(opts)) {
+            config_error_add("Unknown error handling '%s'", fullname);
             return FALSE;
+        }
         return retval;
     }
     /* videoshades:string */
@@ -3324,8 +3326,10 @@ boolean tinitial, tfrom_file;
         } else if (!(opts = string_for_env_opt(fullname, opts, FALSE))) {
             return FALSE;
         }
-        if (!assign_videoshades(opts)) /* TODO: error msg */
+        if (!assign_videoshades(opts)) {
+            config_error_add("Unknown error handling '%s'", fullname);
             return FALSE;
+        }
         return retval;
     }
 #endif /* VIDEOSHADES */
@@ -3342,8 +3346,10 @@ boolean tinitial, tfrom_file;
         } else if (!(opts = string_for_env_opt(fullname, opts, FALSE))) {
             return FALSE;
         }
-        if (!assign_video(opts)) /* TODO: error msg */
+        if (!assign_video(opts)) {
+            config_error_add("Unknown error handling '%s'", fullname);
             return FALSE;
+        }
         return retval;
     }
 #endif /* NO_TERMS */
@@ -3358,8 +3364,10 @@ boolean tinitial, tfrom_file;
         } else if (!(opts = string_for_env_opt(fullname, opts, FALSE))) {
             return FALSE;
         }
-        if (!assign_soundcard(opts)) /* TODO: error msg */
+        if (!assign_soundcard(opts)) {
+            config_error_add("Unknown error handling '%s'", fullname);
             return FALSE;
+        }
         return retval;
     }
 #endif /* MSDOS */
@@ -3583,10 +3591,14 @@ boolean tinitial, tfrom_file;
         if (duplicate)
             complain_about_duplicate(opts, 1);
         if ((op = string_for_opt(opts, FALSE)) != 0) {
-            if (!wc_set_window_colors(op)) /* TODO: error msg*/
+            if (!wc_set_window_colors(op)) {
+                config_error_add("Could not set %s '%s'", fullname, op);
                 return FALSE;
-        } else if (negated)
+            }
+        } else if (negated) {
             bad_negation(fullname, TRUE);
+            return FALSE;
+        }
         return retval;
     }
 #ifdef CURSES_GRAPHICS
@@ -3596,8 +3608,10 @@ boolean tinitial, tfrom_file;
     if (match_optname(opts, fullname, sizeof "term_cols" - 1, TRUE)) {
         op = string_for_opt(opts, negated);
         iflags.wc2_term_cols = atoi(op);
-        if (negated)
-           bad_negation(fullname, FALSE);
+        if (negated) {
+            bad_negation(fullname, FALSE);
+            return FALSE;
+        }
         return retval;
     }
 
@@ -3607,8 +3621,10 @@ boolean tinitial, tfrom_file;
     if (match_optname(opts, fullname, sizeof "term_rows" - 1, TRUE)) {
         op = string_for_opt(opts, negated);
         iflags.wc2_term_rows = atoi(op);
-        if (negated)
+        if (negated) {
             bad_negation(fullname, FALSE);
+            return FALSE;
+        }
         return retval;
     }
 
@@ -3620,16 +3636,20 @@ boolean tinitial, tfrom_file;
         if (op && !negated) {
 #ifdef CURSES_GRAPHICS
             iflags.wc2_petattr = curses_read_attrs(op);
-            if (!curses_read_attrs(op))
+            if (!curses_read_attrs(op)) {
                 config_error_add("Unknown %s parameter '%s'", fullname, opts);
                 return FALSE;
+            }
 #else
             /* non-curses windowports will not use this flag anyway
              * but the above will not compile if we don't have curses.
              * Just set it to a sensible default: */
             iflags.wc2_petattr = ATR_INVERSE
 #endif
-        } else if (negated) bad_negation(fullname, TRUE);
+        } else if (negated) {
+            bad_negation(fullname, TRUE);
+            return FALSE;
+        }
         return retval;
     }
 
@@ -3638,9 +3658,10 @@ boolean tinitial, tfrom_file;
     fullname = "windowborders";
     if (match_optname(opts, fullname, sizeof "windowborders" - 1, TRUE)) {
         op = string_for_opt(opts, negated);
-        if (negated && op)
+        if (negated && op) {
             bad_negation(fullname, TRUE);
-        else {
+            return FALSE;
+        } else {
             if (negated)
                 iflags.wc2_windowborders = 2; /* Off */
             else if (!op)
@@ -3651,6 +3672,7 @@ boolean tinitial, tfrom_file;
                 || (iflags.wc2_windowborders < 1)) {
                     iflags.wc2_windowborders = 0;
                     config_error_add("Badoption - windowborders %s.", opts);
+                    return FALSE;
             }
         }
         return retval;
