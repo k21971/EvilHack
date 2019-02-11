@@ -7,53 +7,52 @@ From GruntHack
 2) new spells
 3) two-weaponing w/ artifact weapons <---- DONE (needs some tweaks)
 4) new monsters <---- DONE (mostly)
-5) monster AI (opening/looting containers, using wands of wishing, using player spells, etc)
+5) monster AI (opening/looting containers, using wands of wishing, using player spells, etc) <---- almost done
 6) demon lord levels
-7) new races for PC (ogres, kobolds, giants)
+7) new races for PC (ogres, kobolds, giants) <---- giants added
 8) new race/role combos
 9) Izchak change
 10) sokoban changes, especially ending
 11) ability to fooproof virtually anything (but makes most objects suseptible to being burned, etc)
 12) powerful NPC's
 13) do NOT include level flipping
-14) racial shopkeepers
-15) racial grudge (PC and monsters) (look at git commit c404eab from xNetHack)
-16) zombie changes
-17) corpse status
-18) different race soldiers/other humanoids
+14) racial shopkeepers <---- DONE
+15) racial grudge (PC and monsters) <---- DONE
+16) zombie changes <---- DONE (may tweak just a lil bit more, but it's in a good spot)
+17) different race soldiers/other humanoids
 
 
 From SporkHack
 --------------
-1) new resistances system
-2) new sacrificing/artifact generation system
+1) new resistances system <---- DONE
+2) new sacrificing/artifact generation system <---- DONE
 3) new monsters <---- DONE (needs polish)
 4) new spells
 5) changes to artifacts <---- DONE
 6) changes to skills (won't be exact pull, will tweak)
-7) changes to spell casting while wearing body armor (will also tweak)
+7) changes to spell casting while wearing body armor (will also tweak) <---- DONE
 8) gold vault changes
-9) unicorn horn behavior
-10) new race/role combos
+9) unicorn horn behavior <---- DONE
+10) new race/role combos <---- part-way there
 11) new objects/artifacts <---- DONE (artifacts bit)
-12) reflection changes
-13) remove mysterious force, incorporate monster spawn on ascrun
+12) reflection changes <---- DONE
+13) remove mysterious force, incorporate monster spawn on ascrun <---- DONE
 14) new traps
 15) Vlad changes <---- DONE
-16) genocide behavior
+16) genocide behavior <---- DONE
 17) adjust spell levels
-18) conflict tweaks
-19) shower of missiles change
+18) conflict tweaks <---- DONE
+19) shower of missiles change <---- DONE
 20) do NOT include weird level generation
-21) racial shopkeepers
-22) racial armor/weapon bonuses
-23) scroll of identify is auto ID'ed
+21) racial shopkeepers <---- DONE
+22) racial armor/weapon bonuses <---- DONE
+23) scroll of identify is auto ID'ed <---- DONE
 
 From other variants
 -------------------
 1) gehennom revamp from xNetHack (or maybe from Sporkhack)
-2) #give command from SpliceHack
-3) changes to unicorn horn from xNetHack
+2) #give command from SpliceHack <---- DONE
+3) changes to unicorn horn from xNetHack <---- DONE
 4) monsters can ride steeds <---- DONE
 
 Custom unique bits
@@ -69,10 +68,12 @@ Custom unique bits
 =========================================================
 
 Currently known issues:
-* Shimmering dragons don't have displacement yet
-* Engulf attack from gelatinous cubes and water elementals continue to strangle you even after escaping from inside of them. A fix for this was made for GruntHack - that same fix does not work here
+* Shimmering dragons don't have displacement yet <---- FIXED
+* Engulf attack from gelatinous cubes and water elementals continue to strangle you even after escaping from inside of them. A fix for this was made for GruntHack - that same fix does not work here <---- FIXED (thanks aosdict)
 * Water elemental engulf attack does not affect inventory with water damage
 * Riding a steed that engulfs other monsters throws an error
 * Shambling horror 'bad attack type in spitmu' when it uses a spit attack (same behavior with breath attack). Game still progresses.
 * Saving/reloading a game wipes out shambling horror state to default template <---- work-around enabled
-* Monster dies while riding its steed. Steed still alive and standing on monsters' corpse. If monster is revived while its steed is standing on its corpse, the steed vanishes completely instead of being re-mounted
+* Monster dies while riding its steed. Steed still alive and standing on monsters' corpse. If monster is revived while its steed is standing on its corpse, the steed vanishes completely instead of being re-mounted <---- FIXED
+* Resistance gaining messages still occur even when resistance is at 100%
+* Intelligent monsters can use bags and put gear inside of them, but won't take items out
