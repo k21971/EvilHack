@@ -137,8 +137,37 @@ unsigned *ospecial;
                  (x == sstairs.sx && y == sstairs.sy)) {
             color = CLR_YELLOW;
 
+        }
+        /* Colored Walls and Floors Patch */
+        else if (iflags.use_color && offset >= S_vwall && offset <= S_trwall) {
+            if (In_W_tower(x, y, &u.uz))
+                color = CLR_MAGENTA;
+            else if (In_tower(&u.uz)) /* Vlad's */
+                color = CLR_ORANGE;
+            else if (In_sokoban(&u.uz))
+                color = CLR_CYAN;
+            else if (Is_valley(&u.uz))
+                color = CLR_BLACK;
+            else if (In_mines(&u.uz)) /* no in_rooms check */
+                color = CLR_BROWN;
+            else if (In_hell(&u.uz) && !Is_valley(&u.uz))
+                color = CLR_RED;
+            else if (Is_astralevel(&u.uz))
+                color = CLR_WHITE;
+            else
+                cmap_color(offset);
+        }
+
+        else if (iflags.use_color
+                 && (offset == S_room/* || offset == S_darkroom */)) {
+            if (In_hell(&u.uz) && !In_W_tower(x, y, &u.uz) && !Is_valley(&u.uz))
+                color = (Is_juiblex_level(&u.uz)) ? CLR_GREEN : CLR_ORANGE;
+            else
+                cmap_color(offset);
+        }
+
         /* color altars */
-        } else if (iflags.use_color && offset == S_altar) {
+        else if (iflags.use_color && offset == S_altar) {
             if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz)) {
                 color = CLR_BRIGHT_MAGENTA;
             }

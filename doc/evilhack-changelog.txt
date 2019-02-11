@@ -74,5 +74,6 @@ Version 0.1.2
 - Boulders in inventory stack, and can be quivered/fired if able
 - more adjustments to the 'grudge patch'
 - Altar sacrificing changes (from SporkHack, modified)
+- Colored walls and floors patch.
 - latest merges from 'vanilla' NetHack 3.6.2 (as of February 10th, 2019)
 
