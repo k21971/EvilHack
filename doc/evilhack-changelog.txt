@@ -52,4 +52,27 @@ Version 0.1.1
 Version 0.1.2
 -------------
 
-- TBD
+- 'Give' extended command (from SpliceHack)
+- Displace peaceful monsters (from xNetHack)
+- Unicorn horns are one-handed, no longer cure attribute loss
+- Magic missile changes (from SporkHack, modified)
+- Reflection is only partial (from SporkHack, modified)
+- Conflict is based off players charisma score (from SporkHack)
+- Telepathy intrinsic changes (from SporkHack, modified)
+- Intelligent monsters can loot containers and put gear into carried bags (from GruntHack) 
+- Tileset support
+- Tweaks to strength and two-weaponing damage/to-hit bonuses
+- Changes to blessed genocide scroll behavior (from SporkHack)
+- Scrolls of identify are universally known
+- Some monsters that are scared will scream (from SporkHack)
+- Potion of speed can cure extrinsic 'slow' effect
+- Cursed amulet of life saving will fail (from SporkHack, modified)
+- Racial shopkeepers (from SporkHack, modified)
+- Changed color of mind flayers and the Wizard of Yendor
+- more changes to zombies
+- Giant as a playable race (from SporkHack, modified)
+- Boulders in inventory stack, and can be quivered/fired if able
+- more adjustments to the 'grudge patch'
+- Altar sacrificing changes (from SporkHack, modified)
+- latest merges from 'vanilla' NetHack 3.6.2 (as of February 10th, 2019)
+
