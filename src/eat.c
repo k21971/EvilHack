@@ -2496,10 +2496,10 @@ doeat()
     if (check_capacity((char *) 0))
         return 0;
 
-    if (u.uedibility) {
+    if (u.uedibility || Food_sense) {
         int res = edibility_prompts(otmp);
 
-        if (res) {
+        if (res && !Food_sense) {
             Your(
                "%s stops tingling and your sense of smell returns to normal.",
                  body_part(NOSE));

@@ -102,6 +102,7 @@ static const struct innate {
                  { 0, 0, 0, 0 } },
 
   gia_abil[] = { { 1, &HAggravate_monster, "", "" },
+                 { 1, &HFood_sense, "acute sense of smell", "dulled sense of smell" },
                  { 12, &HRegeneration, "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },
 

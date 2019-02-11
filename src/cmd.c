@@ -2672,6 +2672,8 @@ int final;
         you_are("sensing the presence of monsters", "");
     if (u.umconf)
         you_are("going to confuse monsters", "");
+    if (Food_sense)
+        you_can("recognize detrimental food", from_what(FOOD_SENSE));
 
     /*** Appearance and behavior ***/
     if (Adornment) {

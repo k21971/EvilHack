@@ -63,6 +63,7 @@ const struct propname {
     { HALLUC_RES, "hallucination resistance" },
     { FUMBLING, "fumbling" },
     { HUNGER, "voracious hunger" },
+    { FOOD_SENSE, "recognizes detrimental food" },
     { TELEPAT, "telepathic" },
     { WARNING, "warning" },
     { WARN_OF_MON, "warn: monster type or class" },

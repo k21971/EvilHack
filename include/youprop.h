@@ -74,6 +74,8 @@
                          || youmonst.data->mlet == S_WRAITH   \
                          || defends(AD_DISE, uwep))
 
+
+
 #define Invulnerable u.uprops[INVULNERABLE].intrinsic /* [Tom] */
 
 /*** Troubles ***/
@@ -149,6 +151,10 @@
 #define HWarning u.uprops[WARNING].intrinsic
 #define EWarning u.uprops[WARNING].extrinsic
 #define Warning (HWarning || EWarning)
+
+#define HFood_sense u.uprops[FOOD_SENSE].intrinsic
+#define EFood_sense u.uprops[FOOD_SENSE].extrinsic
+#define Food_sense (HFood_sense || EFood_sense)
 
 /* Warning for a specific type of monster */
 #define HWarn_of_mon u.uprops[WARN_OF_MON].intrinsic
