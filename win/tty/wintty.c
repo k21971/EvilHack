@@ -1100,6 +1100,12 @@ int role, gend, algn;
             else
                 high_ch = 0;
         }
+        if (this_ch == 'h') {
+            if (!strcmp(races[i].noun, "hobbit"))
+                this_ch = 'H';
+            else
+                high_ch = 0;
+        }
 
         /* filtering: picking race, so choose by first letter, with
            capital letter as unseen accelerator;

@@ -196,7 +196,9 @@ static struct trobj Wishing[] = { { WAN_WISHING, 3, WAND_CLASS, 1, 0 },
 static struct trobj Money[] = { { GOLD_PIECE, 0, COIN_CLASS, 1, 0 },
                                 { 0, 0, 0, 0, 0 } };
 static struct trobj Gem[] = { { UNDEF_TYP, 0, GEM_CLASS, 1, 0 },
-                                { 0, 0, 0, 0, 0 } };
+                              { 0, 0, 0, 0, 0 } };
+static struct trobj Tinningkit[] = { { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+                                     { 0, 0, 0, 0, 0 } };
 
 /* race-based substitutions for initial inventory;
    the weaker cloak for elven rangers is intentional--they shoot better */
@@ -234,6 +236,15 @@ static struct inv_sub {
     { PM_GIANT, ROBE, HIGH_BOOTS },
     { PM_GIANT, RING_MAIL, HIGH_BOOTS },
     { PM_GIANT, LEATHER_ARMOR, HIGH_BOOTS },
+    /* Hobbits have a thing for elven gear */
+    { PM_HOBBIT, DAGGER, ELVEN_DAGGER },
+    { PM_HOBBIT, SPEAR, ELVEN_SPEAR },
+    { PM_HOBBIT, SHORT_SWORD, ELVEN_SHORT_SWORD },
+    { PM_HOBBIT, BOW, ELVEN_BOW },
+    { PM_HOBBIT, ARROW, ELVEN_ARROW },
+    { PM_HOBBIT, HELMET, ELVEN_LEATHER_HELM },
+    { PM_HOBBIT, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
+    { PM_HOBBIT, CRAM_RATION, LEMBAS_WAFER },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -888,12 +899,37 @@ u_init()
         break;
 
     case PM_GIANT:
-        if (!Role_if(PM_WIZARD))
-            ini_inv(Xtra_food);
         /* Giants know valuable gems from glass, and may recognize a few types of valuable gem. */
         for(i=DILITHIUM_CRYSTAL; i<=LUCKSTONE; i++)
             if ((objects[i].oc_cost <= 1) || (rn2(100) < 5+ACURR(A_INT)))
                 knows_object(i);
+        break;
+
+    case PM_HOBBIT:
+        /* Hobbits are always hungry; you'd be hard-pressed to come across one that didn't have
+         * something to snack on or at least a means to make more food */
+        if (!Role_if(PM_MONK))
+            ini_inv(Xtra_food);
+        if (!Role_if(PM_ARCHEOLOGIST))
+            ini_inv(Tinningkit);
+
+        /* If it relates to food, Hobbits know everything about it */
+        knows_object(TIN);
+        knows_object(TINNING_KIT);
+        knows_object(TIN_OPENER);
+
+        /* Like Elves, Hobbits can recognize all elvish objects */
+        knows_object(ELVEN_SHORT_SWORD);
+        knows_object(ELVEN_ARROW);
+        knows_object(ELVEN_BOW);
+        knows_object(ELVEN_SPEAR);
+        knows_object(ELVEN_DAGGER);
+        knows_object(ELVEN_BROADSWORD);
+        knows_object(ELVEN_MITHRIL_COAT);
+        knows_object(ELVEN_LEATHER_HELM);
+        knows_object(ELVEN_SHIELD);
+        knows_object(ELVEN_BOOTS);
+        knows_object(ELVEN_CLOAK);
         break;
 
     case PM_ORC:
@@ -1041,7 +1077,7 @@ u_init()
 	}
 	shambler->mflags2 &= ~M2_MERC;				/* no guards */
 	shambler->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
-	shambler->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+	/* shambler->mflags2 &= ~M2_WERE; */			/* no lycanthropes */
 	shambler->mflags2 &= ~M2_PNAME;				/* not a proper name */
         shambler->mflags2 &= ~M2_SHAPESHIFTER;                  /* no chameleon types */
 

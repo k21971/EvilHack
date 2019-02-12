@@ -226,9 +226,9 @@ boolean init, artif;
 }
 
 struct obj *
-mksobj_migr_to_species(otyp, mflags2, init, artif)
+mksobj_migr_to_species(otyp, mhflags, init, artif)
 int otyp;
-unsigned mflags2;
+unsigned mhflags;
 boolean init, artif;
 {
     struct obj *otmp;
@@ -237,7 +237,7 @@ boolean init, artif;
     if (otmp) {
         add_to_migration(otmp);
         otmp->owornmask = (long) MIGR_TO_SPECIES;
-        otmp->corpsenm = mflags2;
+        otmp->corpsenm = mhflags;
     }
     return otmp;
 }

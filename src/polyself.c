@@ -46,7 +46,8 @@ set_uasmon()
     set_mon_data(&youmonst, mdat, 0);
     if (!Upolyd) {
         if (Race_if(PM_GIANT)) {
-            youmonst.data->mflags2 |= M2_GIANT | M2_ROCKTHROW;
+            youmonst.data->mhflags = MH_GIANT;
+            youmonst.data->mflags2 = M2_ROCKTHROW;
             youmonst.data->msize = MZ_HUGE;
             youmonst.data->mmove = 10;
             youmonst.data->cwt = 2200;
@@ -1879,7 +1880,7 @@ polysense()
     case PM_VAMPIRE:
     case PM_VAMPIRE_LORD:
     case PM_VAMPIRE_MAGE:
-        context.warntype.polyd = M2_HUMAN | M2_ELF;
+        context.warntype.polyd = MH_HUMAN | MH_ELF;
         HWarn_of_mon |= FROMRACE;
         return;
     }

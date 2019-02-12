@@ -106,21 +106,11 @@
 #endif
 
 #define M2_NOPOLY 0x00000001L       /* players mayn't poly into one */
-#define M2_UNDEAD 0x00000002L       /* is walking dead */
-#define M2_WERE 0x00000004L         /* is a lycanthrope */
-#define M2_HUMAN 0x00000008L        /* is a human */
-#define M2_ELF 0x00000010L          /* is an elf */
-#define M2_DWARF 0x00000020L        /* is a dwarf */
-#define M2_GNOME 0x00000040L        /* is a gnome */
-#define M2_ORC 0x00000080L          /* is an orc */
-#define M2_DEMON 0x00000100L        /* is a demon */
-#define M2_GIANT 0x00000200L        /* is a giant */
-#define M2_LORD 0x00000400L         /* is a lord to its kind */
+#define M2_LORD 0x00000400L         /* is an overlord to its kind */
 #define M2_PRINCE 0x00000800L       /* is an overlord to its kind */
 #define M2_MINION 0x00001000L       /* is a minion of a deity */
 #define M2_MERC 0x00002000L         /* is a guard or soldier */
 #define M2_SHAPESHIFTER 0x00004000L /* is a shapeshifting species */
-#define M2_DRAGON 0x00008000L       /* is a dragon */
 #define M2_MALE 0x00010000L         /* always male */
 #define M2_FEMALE 0x00020000L       /* always female */
 #define M2_NEUTER 0x00040000L       /* neither male nor female */
@@ -170,14 +160,20 @@
 #define MZ_HUGE 4          /* 12-25' */
 #define MZ_GIGANTIC 7      /* off the scale */
 
-/* Monster races -- must stay within ROLE_RACEMASK */
-/* Eventually this may become its own field */
-#define MH_HUMAN M2_HUMAN
-#define MH_ELF M2_ELF
-#define MH_DWARF M2_DWARF
-#define MH_GNOME M2_GNOME
-#define MH_GIANT M2_GIANT
-#define MH_ORC M2_ORC
+#define MH_HUMAN 0x00000001L
+#define MH_ELF 0x00000002L
+#define MH_DWARF 0x00000004L
+#define MH_GNOME 0x00000008L
+#define MH_ORC 0x00000010L
+#define MH_GIANT 0x00000020L
+#define MH_HOBBIT 0x00000040L
+/* Not used as a player race */
+#define MH_UNDEAD 0x00000080L
+#define MH_WERE 0x00000100L
+#define MH_DEMON 0x00000200L
+#define MH_DRAGON 0x00000400L
+
+#define MH_ANY 0x80000000L
 
 /* for mons[].geno (constant during game) */
 #define G_UNIQ 0x1000     /* generated only once */

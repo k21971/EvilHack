@@ -1696,13 +1696,13 @@ unsigned long deliverflags;
         if ((where & MIGR_TO_SPECIES) == 0)
             continue;
 
-        if ((mtmp->data->mflags2 & otmp->corpsenm) != 0) {
+        if ((mtmp->data->mhflags & otmp->corpsenm) != 0) {
             obj_extract_self(otmp);
             otmp->owornmask = 0L;
             otmp->ox = otmp->oy = 0;
 
             /* special treatment for orcs and their kind */
-            if ((otmp->corpsenm & M2_ORC) != 0 && has_oname(otmp)) {
+            if ((otmp->corpsenm & MH_ORC) != 0 && has_oname(otmp)) {
                 if (!has_mname(mtmp)) {
                     if (at_crime_scene || !rn2(2))
                         mtmp = christen_orc(mtmp,

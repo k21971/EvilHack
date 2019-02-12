@@ -102,8 +102,13 @@ static const struct innate {
                  { 0, 0, 0, 0 } },
 
   gia_abil[] = { { 1, &HAggravate_monster, "", "" },
-                 { 1, &HFood_sense, "acute sense of smell", "dulled sense of smell" },
                  { 12, &HRegeneration, "resilient", "less resilient" },
+                 { 0, 0, 0, 0 } },
+
+  hob_abil[] = { { 1, &HFood_sense, "", "" },
+                 { 1, &HHunger, "", "" },
+                 { 4, &(HFast), "quick", "slow" },
+                 { 10, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 
   hum_abil[] = { { 0, 0, 0, 0 } };
@@ -769,6 +774,9 @@ long frommask;
         case PM_GIANT:
             abil = gia_abil;
             break;
+        case PM_HOBBIT:
+            abil = hob_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -946,6 +954,9 @@ int oldlevel, newlevel;
         break;
     case PM_GIANT:
         rabil = gia_abil;
+        break;
+    case PM_HOBBIT:
+        rabil = hob_abil;
         break;
     case PM_HUMAN:
     case PM_DWARF:

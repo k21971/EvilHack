@@ -181,6 +181,8 @@ struct permonst * pm;
     case S_HUMANOID:
         if (is_dwarf(pm))
             return PM_DWARF_ZOMBIE;
+        if (is_hobbit(pm))
+            return PM_HOBBIT_ZOMBIE;
         else
             break;
     case S_GNOME:
@@ -250,6 +252,10 @@ int mndx;
     case PM_ELF_ZOMBIE:
     case PM_ELF_MUMMY:
         mndx = PM_ELF;
+        break;
+    case PM_HOBBIT_ZOMBIE:
+    case PM_HOBBIT_MUMMY:
+        mndx = PM_HOBBIT;
         break;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LORD:
@@ -439,6 +445,7 @@ unsigned corpseflags;
     case PM_GNOME_ZOMBIE:
     case PM_ORC_ZOMBIE:
     case PM_ELF_ZOMBIE:
+    case PM_HOBBIT_ZOMBIE:
     case PM_HUMAN_ZOMBIE:
     case PM_GIANT_ZOMBIE:
     case PM_ETTIN_ZOMBIE:
@@ -449,6 +456,7 @@ unsigned corpseflags;
     case PM_GNOME_MUMMY:
     case PM_ORC_MUMMY:
     case PM_ELF_MUMMY:
+    case PM_HOBBIT_MUMMY:
     case PM_HUMAN_MUMMY:
     case PM_GIANT_MUMMY:
     case PM_ETTIN_MUMMY:
@@ -3032,7 +3040,8 @@ struct monst *mtmp;
     if (mtmp->data == &mons[PM_KOBOLD_ZOMBIE] || mtmp->data == &mons[PM_DWARF_ZOMBIE]
         || mtmp->data == &mons[PM_GNOME_ZOMBIE] || mtmp->data == &mons[PM_ORC_ZOMBIE]
         || mtmp->data == &mons[PM_ELF_ZOMBIE] || mtmp->data == &mons[PM_HUMAN_ZOMBIE]
-        || mtmp->data == &mons[PM_GIANT_ZOMBIE] || mtmp->data == &mons[PM_ETTIN_ZOMBIE]) {
+        || mtmp->data == &mons[PM_GIANT_ZOMBIE] || mtmp->data == &mons[PM_ETTIN_ZOMBIE]
+        || mtmp->data == &mons[PM_HOBBIT_ZOMBIE]) {
         if (canseemon(mtmp))
 	    pline("%s %s.", Monnam(mtmp),
 	                   !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :

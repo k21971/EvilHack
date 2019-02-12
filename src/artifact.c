@@ -165,7 +165,7 @@ aligntyp alignment; /* target alignment, or A_NONE */
         if ((a->alignment == alignment || a->alignment == A_NONE)
             /* avoid enemies' equipment */
             && (a->race == NON_PM || !race_hostile(&mons[a->race]))
-            && (!(Race_if(PM_GIANT) && (a->mtype & M2_GIANT)))) {
+            && (!(Race_if(PM_GIANT) && (a->mtype & MH_GIANT)))) {
             /* when a role-specific first choice is available, use it */
             if (Role_if(a->role)) {
                 /* make this be the only possibility in the list */
@@ -352,7 +352,7 @@ struct obj *obj;
         return TRUE;
     /* non-silver artifacts with bonus against undead also are effective */
     arti = get_artifact(obj);
-    if (arti && (arti->spfx & SPFX_DFLAG2) && arti->mtype == M2_UNDEAD)
+    if (arti && (arti->spfx & SPFX_DFLAGH) && arti->mtype == MH_UNDEAD)
         return TRUE;
     /* [if there was anything with special bonus against noncorporeals,
        it would be effective too] */
@@ -585,13 +585,13 @@ long wp_mask;
             ETeleport_control &= ~wp_mask;
     }
     if (spfx & SPFX_WARN) {
-        if (spec_m2(otmp)) {
+        if (spec_mh(otmp)) {
             if (on) {
                 EWarn_of_mon |= wp_mask;
-                context.warntype.obj |= spec_m2(otmp);
+                context.warntype.obj |= spec_mh(otmp);
             } else {
                 EWarn_of_mon &= ~wp_mask;
-                context.warntype.obj &= ~spec_m2(otmp);
+                context.warntype.obj &= ~spec_mh(otmp);
             }
             see_monsters();
         } else {
@@ -796,11 +796,11 @@ struct monst *mtmp;
         return (weap->mtype == (unsigned long) ptr->mlet);
     } else if (weap->spfx & SPFX_DFLAG1) {
         return ((ptr->mflags1 & weap->mtype) != 0L);
-    } else if (weap->spfx & SPFX_DFLAG2) {
-        return ((ptr->mflags2 & weap->mtype)
+    } else if (weap->spfx & SPFX_DFLAGH) {
+        return ((ptr->mhflags & weap->mtype)
                 || (yours
                     && ((!Upolyd && (urace.selfmask & weap->mtype))
-                        || ((weap->mtype & M2_WERE) && u.ulycn >= LOW_PM))));
+                        || ((weap->mtype & MH_WERE) && u.ulycn >= LOW_PM))));
     } else if (weap->spfx & SPFX_DALIGN) {
         return yours ? (u.ualign.type != weap->alignment)
                      : (ptr->maligntyp == A_NONE
@@ -836,10 +836,10 @@ struct monst *mtmp;
     return 0;
 }
 
-/* return the M2 flags of monster that an artifact's special attacks apply
+/* return the MH flags of monster that an artifact's special attacks apply
  * against */
 long
-spec_m2(otmp)
+spec_mh(otmp)
 struct obj *otmp;
 {
     const struct artifact *artifact = get_artifact(otmp);
@@ -1318,7 +1318,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
      */
     atmp = &artilist[otmp->oartifact];
 
-    if (atmp->spfx & (SPFX_DFLAG2 | SPFX_DCLAS)) {
+    if (atmp->spfx & (SPFX_DFLAGH | SPFX_DCLAS)) {
 	j = !rn2(7);	  /* approximately a 14% chance of instakill for some artifacts */
 	switch (otmp->oartifact) {
 		case ART_DRAGONBANE:
@@ -1356,7 +1356,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         return TRUE;
 		case ART_OGRESMASHER:
 			if (youattack && j) {
-				You("crush the skull of %s!", mon_nam(mdef));
+				You("crush the %s skull!", s_suffix(mon_nam(mdef)));
 				*dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
 			} else if (youdefend && j) {
 				pline("The monstrous hammer crushes your skull!");
@@ -1378,7 +1378,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 			return TRUE;
                 case ART_ORCRIST:
                         if (youattack && j) {
-                                You("slice open the throat of %s!", mon_nam(mdef));
+                                You("slice open %s throat!", s_suffix(mon_nam(mdef)));
                                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                         } else if (youdefend && j) {
                                 You("feel Orcrist slice deep across your neck!");
@@ -1389,7 +1389,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         return TRUE;
                 case ART_STING:
                         if (youattack && j) {
-                                You("stab deep into the heart of %s!", mon_nam(mdef));
+                                You("stab deep into %s heart!", s_suffix(mon_nam(mdef)));
                                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                         } else if (youdefend && j) {
                                 You("feel Sting stab deep into your heart!");
