@@ -1168,7 +1168,7 @@ NEARDATA struct permonst mons[] = {
     /*
      * Centaurs
      */
-    MON("centaur", S_CENTAUR, LVL(4, 18, 4, 0, 0), (G_GENO | 1),
+    MON("centaur", S_CENTAUR, LVL(4, 18, 4, 0, 0), (G_GENO | G_NOGEN | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_KICK, AD_PHYS, 1, 6), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(2500, 500, MS_HUMANOID, MZ_LARGE), 0, 0,
