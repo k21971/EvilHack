@@ -198,6 +198,12 @@ int shotlimit;
                 multishot = 1;
         }
 
+        if (Race_if(PM_CENTAUR)) {
+            /* Centaurs are experts with the bow */
+            if (skill == -P_BOW)
+                multishot++;
+        }
+
         /* crossbows are slow to load and probably shouldn't allow multiple
            shots at all, but that would result in players never using them;
            instead, high strength is necessary to load and shoot quickly */

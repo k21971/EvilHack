@@ -104,6 +104,7 @@
                        || (ptr) == &mons[PM_VROCK]              \
                        || (ptr) == &mons[PM_FELL_BEAST])
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
+#define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_not_zombie(ptr) ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON])
 #define is_zombie(ptr) ((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr))

@@ -3016,7 +3016,7 @@ weight_cap()
     BLevitation &= ~I_SPECIAL;
 
     carrcap = 25 * (ACURRSTR + ACURR(A_CON)) + 50;
-    if (is_giant(youmonst.data)) {
+    if ((is_giant(youmonst.data)) || (is_centaur(youmonst.data))) {
         carrcap += 100;
         maxcarrcap += 400;
     } else if (Upolyd) {

@@ -108,6 +108,11 @@ static const struct innate {
   hob_abil[] = { { 1, &HFood_sense, "", "" },
                  { 1, &HHunger, "", "" },
                  { 4, &(HFast), "quick", "slow" },
+                 { 10, &(HSearching), "perceptive", "" },
+                 { 0, 0, 0, 0 } },
+
+  cen_abil[] = { { 1, &(HFast), "", "" },
+                 { 5, &(EJumping), "light on your feet", "weighted down" },
                  { 10, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 
@@ -209,7 +214,7 @@ boolean givemsg;
 {
     int num = incr;
 
-    if ((!num) || ((Race_if(PM_GIANT)) && (!(otmp && otmp->cursed)))) {
+    if ((!num) || (((Race_if(PM_GIANT)) || (Race_if(PM_CENTAUR))) && (!(otmp && otmp->cursed)))) {
         if (ABASE(A_STR) < 18)
             num = (rn2(4) ? 1 : rnd(6));
         else if (ABASE(A_STR) < STR18(85))
@@ -777,6 +782,9 @@ long frommask;
         case PM_HOBBIT:
             abil = hob_abil;
             break;
+        case PM_CENTAUR:
+            abil = cen_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -957,6 +965,9 @@ int oldlevel, newlevel;
         break;
     case PM_HOBBIT:
         rabil = hob_abil;
+        break;
+    case PM_CENTAUR:
+        rabil = cen_abil;
         break;
     case PM_HUMAN:
     case PM_DWARF:

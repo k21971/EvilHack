@@ -1346,7 +1346,7 @@ struct monst *mtmp;
     long maxload;
     long maxcarrcap = MAX_CARR_CAP;
 
-    if (is_giant(mtmp->data))
+    if ((is_giant(mtmp->data)) || (is_centaur(mtmp->data)))
         maxcarrcap += 400;
 
     /* Base monster carrying capacity is equal to human maximum

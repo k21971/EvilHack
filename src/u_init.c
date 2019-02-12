@@ -932,6 +932,21 @@ u_init()
         knows_object(ELVEN_CLOAK);
         break;
 
+    case PM_CENTAUR:
+        /* Centaurs know all bow-based projectile weapons */
+        knows_object(ELVEN_ARROW);
+        knows_object(ELVEN_BOW);
+        knows_object(ORCISH_ARROW);
+        knows_object(ORCISH_BOW);
+        knows_object(ARROW);
+        knows_object(BOW);
+        knows_object(YA);
+        knows_object(YUMI);
+        knows_object(SILVER_ARROW);
+        knows_object(CROSSBOW_BOLT);
+        knows_object(CROSSBOW);
+        break;
+
     case PM_ORC:
         /* compensate for generally inferior equipment */
         if (!Role_if(PM_WIZARD))

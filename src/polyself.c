@@ -52,6 +52,15 @@ set_uasmon()
             youmonst.data->mmove = 10;
             youmonst.data->cwt = 2200;
         }
+
+        if (Race_if(PM_CENTAUR)) {
+            youmonst.data->mhflags = MH_CENTAUR;
+            youmonst.data->mflags3 = M3_ACCURATE;
+            youmonst.data->msize = MZ_LARGE;
+            youmonst.data->mmove = 18;
+            youmonst.data->cwt = 2200;
+        }
+
     }
 #define PROPSET(PropIndx, ON)                          \
     do {                                               \
@@ -601,10 +610,12 @@ int psflags;
 
     /* For polymorphing, (fire, frost, hill, stone, storm) giants are
      * not the same race as a giant player and should not cause newman().
-     */
+     * Same goes for centaurs */
     yourrace = your_race(&mons[mntmp]);
     if (Race_if(PM_GIANT))
         yourrace = (mntmp == PM_GIANT);
+    if (Race_if(PM_CENTAUR))
+        yourrace = (mntmp == PM_CENTAUR);
 
     /* The below polyok() fails either if everything is genocided, or if
      * we deliberately chose something illegal to force newman().

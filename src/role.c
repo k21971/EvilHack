@@ -92,7 +92,7 @@ const struct Role roles[] = {
       S_OGRE,
       S_TROLL,
       ART_RING_OF_P_HUL,
-      MH_HUMAN | MH_ORC | MH_GIANT,
+      MH_HUMAN | MH_ORC | MH_GIANT | MH_CENTAUR,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 16, 7, 7, 15, 16, 6 },
@@ -260,7 +260,7 @@ const struct Role roles[] = {
       S_ELEMENTAL,
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
-      MH_HUMAN | MH_GIANT,
+      MH_HUMAN | MH_GIANT | MH_CENTAUR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 8, 8, 7, 7 },
@@ -402,7 +402,7 @@ const struct Role roles[] = {
       S_CENTAUR,
       S_SPIDER,
       ART_LONGBOW_OF_DIANA,
-      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT,
+      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT | MH_CENTAUR,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 13, 13, 9, 13, 7 },
@@ -528,7 +528,7 @@ const struct Role roles[] = {
       S_ANT,
       S_GIANT,
       ART_ORB_OF_FATE,
-      MH_HUMAN | MH_DWARF | MH_GIANT,
+      MH_HUMAN | MH_DWARF | MH_GIANT | MH_CENTAUR,
       ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 10, 7 },
@@ -817,6 +817,27 @@ const struct Race races[] = {
         /* Init   Lower  Higher */
         { 2, 0, 0, 2, 1, 0 }, /* Hit points */
         { 2, 0, 2, 1, 2, 0 }  /* Energy */
+    },
+    {
+        "centaur",
+        "centaur",
+        "centaurian",
+        "Cen",
+        { 0, 0 },
+        PM_CENTAUR,
+        NON_PM,
+        NON_PM,
+        NON_PM,
+        MH_CENTAUR | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
+        MH_CENTAUR,
+        MH_CENTAUR,
+        MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(20), 12, 14, 20, 18, 16 },
+        /* Init   Lower  Higher */
+        { 4, 2, 1, 2, 2, 2 }, /* Hit points */
+        { 1, 0, 1, 0, 1, 0 }  /* Energy */
     },
     /* Array terminator */
     { 0, 0, 0, 0 }
