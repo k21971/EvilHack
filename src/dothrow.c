@@ -199,8 +199,8 @@ int shotlimit;
         }
 
         if (Race_if(PM_CENTAUR)) {
-            /* Centaurs are experts with the bow */
-            if (skill == -P_BOW)
+            /* Centaurs are experts with the bow and crossbow */
+            if ((skill == -P_CROSSBOW) || (skill == -P_BOW))
                 multishot++;
         }
 
@@ -209,7 +209,7 @@ int shotlimit;
            instead, high strength is necessary to load and shoot quickly */
         if (multishot > 1 && skill == -P_CROSSBOW
             && ammo_and_launcher(obj, uwep)
-            && (int) ACURRSTR < (Race_if(PM_GNOME) ? 16 : 18))
+            && (int) ACURRSTR < ((Race_if(PM_GNOME)) || (Race_if(PM_CENTAUR)) ? 16 : 18))
             multishot = rnd(multishot);
 
         multishot = rnd(multishot);
