@@ -3258,10 +3258,10 @@ struct permonst _mons2[] = {
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISIBLE, MH_HUMAN, 22, HI_LORD),
     /* Multi-headed, possessing the breath attacks of all the other dragons
      * (selected at random when attacking).
-     * Giving the Chromatic Dragon an engulf attack, keeps it in-line
+     * Giving Tiamat an engulf attack, keeps it in-line
      * with regular dragons attack capabilities.
      */
-    MON("Chromatic Dragon", S_DRAGON, LVL(16, 12, 0, 30, -14),
+    MON("Tiamat", S_DRAGON, LVL(16, 12, 0, 30, -14),
         (G_NOGEN | G_UNIQ),
         A(ATTK(AT_BREA, AD_RBRE, 6, 6), ATTK(AT_MAGC, AD_SPEL, 0, 0),
           ATTK(AT_CLAW, AD_SAMU, 2, 8), ATTK(AT_BITE, AD_PHYS, 4, 8),
