@@ -679,7 +679,7 @@ int shp_indx;
 		}
 		break;
 	case FOOD_CLASS:
-		srace = PM_OGRE + rn2(2);
+		srace = PM_HOBBIT + rn2(2);
 		break;
 	case RING_CLASS:
 		srace = PM_WOOD_NYMPH + rn2(3);
@@ -717,7 +717,7 @@ int shp_indx;
     }
     else
     {
-	srace = rn2(5);
+	srace = rn2(6);
 	if (srace) {
 		switch (srace) {
 			case 1:
@@ -736,6 +736,10 @@ int shp_indx;
 				mdat = &mons[PM_GNOME];
 				shk->mnum = PM_GNOME;
 				break;
+                        case 5:
+                                mdat = &mons[PM_HOBBIT];
+                                shk->mnum = PM_HOBBIT;
+                                break;
 			case 0:
 			default:
 				break;

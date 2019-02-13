@@ -2145,6 +2145,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 		case PM_CAPTAIN:
 			/* nasty, brutish, and short */
 			if (Race_if(PM_ORC) || Race_if(PM_GNOME)) { tmp += tmp / 3L; }
+                        if (Race_if(PM_CENTAUR)) { tmp += tmp / 2L; }   /* "smelly and four-legged" */
 			break;
                 case PM_WOODLAND_ELF:
 		case PM_GREEN_ELF:
@@ -2160,7 +2161,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
                         if (Race_if(PM_GIANT)) { tmp += tmp / 2L; } /* "big, dumb and smelly." */
 			break;
 		case PM_ORC:
-			if (Race_if(PM_ELF)) { tmp *= 3L; }
+			if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) { tmp *= 3L; }
 			if (Race_if(PM_DWARF)) { tmp += (tmp * 2L) / 3L; }
 			if (Race_if(PM_HUMAN)) { tmp += tmp / 3L; }
 			if (Race_if(PM_ORC)) { tmp /= (tmp * 3L) / 2L; }
@@ -2179,11 +2180,13 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 			/* They'd prefer not to sell their libraries. */
 			tmp *= (shkp->mnum - PM_MIND_FLAYER + 2);
 			break;
-		case PM_OGRE:
-		case PM_OGRE_LORD:
-			/* Will tolerate orcs, but no discount. */
-			if (!Race_if(PM_ORC)) { tmp += tmp / 2L; }
+		case PM_CENTAUR:
+                        /* Centaurs don't care much for most humanoid races. */
+                        if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+                            || Race_if(PM_DWARF) || Race_if(PM_ORC)) { tmp += tmp / 2L; }
 			break;
+                case PM_HOBBIT:
+                        if (Race_if(PM_ORC)) { tmp *= 3L; }
 		case PM_WOOD_NYMPH:
 		case PM_MOUNTAIN_NYMPH:
 		case PM_WATER_NYMPH:
@@ -2203,8 +2206,9 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 		case PM_FROST_GIANT:
 		case PM_STORM_GIANT:
 			/* Non-Elder-Race humanoids are not thought of highly. */
-			if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)) { tmp += tmp / 3L; }
-                        if (Race_if(PM_DWARF)) { tmp += tmp / 2L; }  /* "dwarf tossing, only thing they're good for." */
+			if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+                            || Race_if(PM_HOBBIT)) { tmp += tmp / 3L; }
+                        if (Race_if(PM_DWARF)) { tmp += tmp / 2L; } /* "dwarf tossing, only thing they're good for." */
 			break;
 	}
     }
@@ -2404,6 +2408,7 @@ register struct monst *shkp;
 	case PM_LIEUTENANT:
 	case PM_CAPTAIN:
 		if (Race_if(PM_ORC) || Race_if(PM_GNOME)) { tmp -= tmp / 3L; }	  /* nasty, brutish, and short */
+                if (Race_if(PM_CENTAUR)) { tmp += tmp / 2L; }   /* "smelly and four-legged" */
 		break;
 	case PM_WOODLAND_ELF:
 	case PM_GREEN_ELF:
@@ -2419,7 +2424,7 @@ register struct monst *shkp;
                 if (Race_if(PM_GIANT)) { tmp += tmp / 2L; } /* "big, dumb and smelly." */
 		break;
 	case PM_ORC:
-		if (Race_if(PM_ELF)) { tmp /= 3L; }
+		if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) { tmp *= 3L; }
 		if (Race_if(PM_DWARF)) { tmp -= (tmp * 2L) / 3L; }
 		if (Race_if(PM_HUMAN)) { tmp -= tmp / 3L; }
 		if (Race_if(PM_ORC)) { tmp -= tmp / 3L; }	 /* on top of prof. courtesy */
@@ -2439,11 +2444,11 @@ register struct monst *shkp;
 		 * more than younger ones */
 		tmp -= tmp / (shkp->mnum - PM_MIND_FLAYER + 2);
 		break;
-	case PM_OGRE:
-	case PM_OGRE_LORD:
-		/* Will tolerate orcs, but no discount. */
-		if (!Race_if(PM_ORC)) { tmp -= tmp / 2L; }
-		break;
+        case PM_CENTAUR:
+                /* Centaurs don't care much for most humanoid races. */
+                if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+                    || Race_if(PM_DWARF) || Race_if(PM_ORC)) { tmp += tmp / 2L; }
+                break;
 	case PM_WOOD_NYMPH:
 	case PM_MOUNTAIN_NYMPH:
 	case PM_WATER_NYMPH:
@@ -2463,8 +2468,9 @@ register struct monst *shkp;
 	case PM_FROST_GIANT:
 	case PM_STORM_GIANT:
 		/* Non-Elder-Race humanoids are not thought of highly. */
-		if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)) { tmp -= tmp / 3L; }
-                if (Race_if(PM_DWARF)) { tmp += tmp / 2L; }  /* "dwarf tossing, only thing they're good for." */
+		if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+                    || Race_if(PM_HOBBIT)) { tmp += tmp / 3L; }
+                if (Race_if(PM_DWARF)) { tmp += tmp / 2L; } /* "dwarf tossing, only thing they're good for." */
 		break;
     }
 
