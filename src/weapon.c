@@ -1391,6 +1391,16 @@ void
 unrestrict_weapon_skill(skill)
 int skill;
 {
+    /* From SporkHack:
+     * Cavemen are good at what they know how to use, but not much on advanced fencing or combat tactics.
+     * So never unrestrict an edged weapon for them.
+     *
+     * Same for priests and monks, though slightly different: priests shouldn't have edged weapons, and
+     * monks and wizards really shouldn't be _using_ weapons, so don't give them _any_. */
+
+    if (Role_if(PM_MONK) || Role_if(PM_WIZARD)) { return; }
+    if ((Role_if(PM_CAVEMAN) || Role_if(PM_PRIEST)) && skill >= P_DAGGER && skill <= P_SABER) { return; }
+
     if (skill < P_NUM_SKILLS && P_RESTRICTED(skill)) {
         P_SKILL(skill) = P_UNSKILLED;
         P_MAX_SKILL(skill) = P_BASIC;

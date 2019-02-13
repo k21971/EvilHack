@@ -290,9 +290,8 @@ static const struct def_skill Skill_B[] = {
     { P_SPEAR, P_SKILLED },
     { P_TRIDENT, P_SKILLED },
     { P_BOW, P_BASIC },
-    { P_ATTACK_SPELL, P_BASIC },
     { P_ESCAPE_SPELL, P_BASIC }, /* special spell is haste self */
-    { P_RIDING, P_BASIC },
+    { P_RIDING, P_SKILLED },
     { P_TWO_WEAPON_COMBAT, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_MASTER },
     { P_NONE, 0 }
@@ -313,8 +312,6 @@ static const struct def_skill Skill_C[] = {
     { P_TRIDENT, P_SKILLED },
     { P_BOW, P_SKILLED },
     { P_SLING, P_EXPERT },
-    { P_ATTACK_SPELL, P_BASIC },
-    { P_MATTER_SPELL, P_SKILLED },
     { P_BOOMERANG, P_EXPERT },
     { P_UNICORN_HORN, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_MASTER },
@@ -337,6 +334,7 @@ static const struct def_skill Skill_H[] = {
     { P_SHURIKEN, P_SKILLED },
     { P_UNICORN_HORN, P_EXPERT },
     { P_HEALING_SPELL, P_EXPERT },
+    { P_CLERIC_SPELL, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_BASIC },
     { P_NONE, 0 }
 };
@@ -371,8 +369,6 @@ static const struct def_skill Skill_K[] = {
 };
 static const struct def_skill Skill_Mon[] = {
     { P_QUARTERSTAFF, P_BASIC },
-    { P_SPEAR, P_BASIC },
-    { P_CROSSBOW, P_BASIC },
     { P_SHURIKEN, P_BASIC },
     { P_ATTACK_SPELL, P_BASIC },
     { P_HEALING_SPELL, P_EXPERT },
@@ -387,21 +383,10 @@ static const struct def_skill Skill_Mon[] = {
 static const struct def_skill Skill_P[] = {
     { P_CLUB, P_EXPERT },
     { P_MACE, P_EXPERT },
-    { P_MORNING_STAR, P_EXPERT },
-    { P_FLAIL, P_EXPERT },
     { P_HAMMER, P_EXPERT },
     { P_QUARTERSTAFF, P_EXPERT },
-    { P_POLEARMS, P_SKILLED },
-    { P_SPEAR, P_SKILLED },
-    { P_TRIDENT, P_SKILLED },
-    { P_LANCE, P_BASIC },
-    { P_BOW, P_BASIC },
-    { P_SLING, P_BASIC },
-    { P_CROSSBOW, P_BASIC },
-    { P_DART, P_BASIC },
-    { P_SHURIKEN, P_BASIC },
+    { P_SLING, P_SKILLED },
     { P_BOOMERANG, P_BASIC },
-    { P_UNICORN_HORN, P_SKILLED },
     { P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },
     { P_CLERIC_SPELL, P_EXPERT },
@@ -459,6 +444,7 @@ static const struct def_skill Skill_Ran[] = {
     { P_DIVINATION_SPELL, P_EXPERT },
     { P_ESCAPE_SPELL, P_BASIC },
     { P_RIDING, P_BASIC },
+    { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_BASIC },
     { P_NONE, 0 }
 };
@@ -478,9 +464,7 @@ static const struct def_skill Skill_S[] = {
     { P_LANCE, P_SKILLED },
     { P_BOW, P_EXPERT },
     { P_SHURIKEN, P_EXPERT },
-    { P_ATTACK_SPELL, P_BASIC },
     { P_DIVINATION_SPELL, P_BASIC }, /* special spell is clairvoyance */
-    { P_CLERIC_SPELL, P_SKILLED },
     { P_RIDING, P_SKILLED },
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_MARTIAL_ARTS, P_MASTER },
@@ -540,7 +524,6 @@ static const struct def_skill Skill_V[] = {
     { P_LANCE, P_SKILLED },
     { P_SLING, P_BASIC },
     { P_ATTACK_SPELL, P_BASIC },
-    { P_ESCAPE_SPELL, P_BASIC },
     { P_RIDING, P_SKILLED },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
@@ -549,17 +532,9 @@ static const struct def_skill Skill_V[] = {
 static const struct def_skill Skill_W[] = {
     { P_DAGGER, P_EXPERT },
     { P_KNIFE, P_SKILLED },
-    { P_AXE, P_SKILLED },
-    { P_SHORT_SWORD, P_BASIC },
-    { P_CLUB, P_SKILLED },
-    { P_MACE, P_BASIC },
     { P_QUARTERSTAFF, P_EXPERT },
-    { P_POLEARMS, P_SKILLED },
-    { P_SPEAR, P_BASIC },
-    { P_TRIDENT, P_BASIC },
     { P_SLING, P_SKILLED },
     { P_DART, P_EXPERT },
-    { P_SHURIKEN, P_BASIC },
     { P_ATTACK_SPELL, P_EXPERT },
     { P_HEALING_SPELL, P_SKILLED },
     { P_DIVINATION_SPELL, P_EXPERT },
