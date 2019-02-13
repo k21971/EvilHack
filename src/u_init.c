@@ -335,6 +335,7 @@ static const struct def_skill Skill_H[] = {
     { P_UNICORN_HORN, P_EXPERT },
     { P_HEALING_SPELL, P_EXPERT },
     { P_CLERIC_SPELL, P_SKILLED },
+    { P_RIDING, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_BASIC },
     { P_NONE, 0 }
 };
@@ -377,6 +378,7 @@ static const struct def_skill Skill_Mon[] = {
     { P_CLERIC_SPELL, P_SKILLED },
     { P_ESCAPE_SPELL, P_SKILLED },
     { P_MATTER_SPELL, P_BASIC },
+    { P_RIDING, P_BASIC },
     { P_MARTIAL_ARTS, P_GRAND_MASTER },
     { P_NONE, 0 }
 };
@@ -390,6 +392,7 @@ static const struct def_skill Skill_P[] = {
     { P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },
     { P_CLERIC_SPELL, P_EXPERT },
+    { P_RIDING, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_BASIC },
     { P_NONE, 0 }
 };
