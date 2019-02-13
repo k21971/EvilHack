@@ -490,15 +490,15 @@ register struct monst *mtmp;
 
     case S_CENTAUR:
         if (rn2(2)) {
-            (void) mongets(mtmp,
-                           (rn2(5) ? LEATHER_ARMOR : rn2(3) ? LEATHER_GLOVES : ELVEN_LEATHER_HELM));
-                if (ptr == &mons[PM_FOREST_CENTAUR]) {
-                    (void) mongets(mtmp, BOW);
-                    m_initthrow(mtmp, ARROW, 12);
-                } else {
-                    (void) mongets(mtmp, CROSSBOW);
-                    m_initthrow(mtmp, CROSSBOW_BOLT, 12);
-                }
+            (void) mongets(mtmp, (rn2(2) ? LEATHER_ARMOR : STUDDED_LEATHER_ARMOR));
+            (void) mongets(mtmp, (rn2(2) ? LEATHER_GLOVES : ELVEN_LEATHER_HELM));
+        if (ptr == &mons[PM_FOREST_CENTAUR]) {
+            (void) mongets(mtmp, BOW);
+            m_initthrow(mtmp, ARROW, 12);
+        } else {
+            (void) mongets(mtmp, CROSSBOW);
+            m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+            }
         }
         break;
     case S_WRAITH:
