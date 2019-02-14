@@ -199,6 +199,8 @@ static struct trobj Gem[] = { { UNDEF_TYP, 0, GEM_CLASS, 1, 0 },
                               { 0, 0, 0, 0, 0 } };
 static struct trobj Tinningkit[] = { { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 0 },
                                      { 0, 0, 0, 0, 0 } };
+static struct trobj Pickaxe[] = { { PICK_AXE, 0, TOOL_CLASS, 1, 0 },
+                                  { 0, 0, 0, 0, 0 } };
 
 /* race-based substitutions for initial inventory;
    the weaker cloak for elven rangers is intentional--they shoot better */
@@ -290,7 +292,7 @@ static const struct def_skill Skill_B[] = {
     { P_SPEAR, P_SKILLED },
     { P_TRIDENT, P_SKILLED },
     { P_BOW, P_BASIC },
-    { P_ESCAPE_SPELL, P_BASIC }, /* special spell is haste self */
+    { P_ENCHANTMENT_SPELL, P_BASIC }, /* special spell is cause fear */
     { P_RIDING, P_SKILLED },
     { P_TWO_WEAPON_COMBAT, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_MASTER },
@@ -526,7 +528,7 @@ static const struct def_skill Skill_V[] = {
     { P_TRIDENT, P_BASIC },
     { P_LANCE, P_SKILLED },
     { P_SLING, P_BASIC },
-    { P_ATTACK_SPELL, P_BASIC },
+    { P_MATTER_SPELL, P_BASIC }, /* special spell is repair armor */
     { P_RIDING, P_SKILLED },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
@@ -699,7 +701,7 @@ u_init()
         skill_init(Skill_B);
         break;
     case PM_CAVEMAN:
-        Cave_man[C_AMMO].trquan = rn1(11, 10); /* 10..20 */
+        Cave_man[C_AMMO].trquan = rn1(11, 20); /* 20..30 */
         ini_inv(Cave_man);
         if (Race_if(PM_GIANT)) {
             struct trobj RandomGem = Gem[0];
@@ -871,6 +873,12 @@ u_init()
         knows_object(DWARVISH_MITHRIL_COAT);
         knows_object(DWARVISH_CLOAK);
         knows_object(DWARVISH_ROUNDSHIELD);
+
+	if (!Role_if(PM_ARCHEOLOGIST))
+            if (!rn2(4)) {
+	        /* Wise dwarves bring their toy to the dungeons. */
+	        ini_inv(Pickaxe);
+	    }
         break;
 
     case PM_GNOME:
@@ -878,7 +886,7 @@ u_init()
 
     case PM_GIANT:
         /* Giants know valuable gems from glass, and may recognize a few types of valuable gem. */
-        for(i=DILITHIUM_CRYSTAL; i<=LUCKSTONE; i++)
+        for(i = DILITHIUM_CRYSTAL; i <= LUCKSTONE; i++)
             if ((objects[i].oc_cost <= 1) || (rn2(100) < 5+ACURR(A_INT)))
                 knows_object(i);
         break;
