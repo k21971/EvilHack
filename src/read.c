@@ -1390,25 +1390,11 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                       hcolor(scursed ? NH_PURPLE : NH_GOLDEN),
                       scursed ? "glow" : "shield");
             }
-            if (new_erodeproof && (uwep->oeroded || uwep->oeroded2 || uwep->otyp == CORPSE)) {
+            if (new_erodeproof && (uwep->oeroded || uwep->oeroded2)) {
                 uwep->oeroded = uwep->oeroded2 = 0;
-                if (uwep->otyp == CORPSE)
-                    uwep->age = monstermoves;
                 pline("%s as good as new!",
                       Yobjnam2(uwep, Blind ? "feel" : "look"));
             }
-            if (uwep->otyp == CORPSE)
-                {
-                    if (!uwep->oerodeproof && !uwep->timed) {
-                        start_corpse_timeout(uwep);
-                    } else if (uwep->oerodeproof && uwep->timed) {
-                        uwep->age = 0L;
-                        if (uwep->timed) {
-                            (void) stop_timer(ROT_CORPSE, obj_to_any(otmp));
-                            (void) stop_timer(REVIVE_MON, obj_to_any(otmp));
-                        }
-                    }
-                }
             if (old_erodeproof && !new_erodeproof) {
                 /* restore old_erodeproof before shop charges */
                 uwep->oerodeproof = 1;

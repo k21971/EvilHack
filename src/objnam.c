@@ -1119,9 +1119,6 @@ unsigned doname_flags;
         if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
         if (obj->otyp == CORPSE) {
-            if (obj->oerodeproof) {
-                Strcat(prefix, "rotproof ");
-            }
             /* (quan == 1) => want corpse_xname() to supply article,
                (quan != 1) => already have count or "some" as prefix;
                "corpse" is already in the buffer returned by xname() */
