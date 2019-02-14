@@ -3324,6 +3324,9 @@ xchar x, y;
     int in_sight = !Blind && couldsee(x, y); /* Don't care if it's lit */
     int dindx;
 
+    if (is_flammable(obj) && obj->oerodeproof)
+        return FALSE;
+
     /* object might light in a controlled manner */
     if (catch_lit(obj))
         return FALSE;
@@ -5439,19 +5442,22 @@ lava_effects()
             losehp(!boil_away ? 1 : (u.uhp / 2), lava_killer,
                    KILLED_BY); /* lava damage */
     } else {
-	if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
+        if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
 		levl[u.ux][u.uy].typ = ROOM;
 		if (!rn2(4)) {
 			pline_The("lava cools and solidifies under your feet.");
 		}
 		return TRUE;
 	}
-}
+    }
 
 burn_stuff:
+    /*
     destroy_item(SCROLL_CLASS, AD_FIRE);
     destroy_item(SPBOOK_CLASS, AD_FIRE);
     destroy_item(POTION_CLASS, AD_FIRE);
+    */
+    fire_damage_chain(invent, FALSE, FALSE, u.ux, u.uy);
     return FALSE;
 }
 

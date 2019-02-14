@@ -884,11 +884,15 @@ struct obj *obj;
            non-iron tool, in which case rust also implicitly goes away,
            so there's no particular reason to try to handle the first
            instance differently [this comment belongs in poly_obj()...] */
-        return is_weptool(obj) ? TRUE : FALSE;
+        /* return is_weptool(obj) ? TRUE : FALSE; */
     case WEAPON_CLASS:
     case ARMOR_CLASS:
     case BALL_CLASS:
     case CHAIN_CLASS:
+    case AMULET_CLASS:
+    case RING_CLASS:
+    case WAND_CLASS:
+    case FOOD_CLASS:
         return TRUE;
     default:
         break;
@@ -1028,6 +1032,7 @@ unsigned doname_flags;
 
     switch (is_weptool(obj) ? WEAPON_CLASS : obj->oclass) {
     case AMULET_CLASS:
+        add_erosion_words(obj, prefix);
         if (obj->owornmask & W_AMUL)
             Strcat(bp, " (being worn)");
         break;
@@ -1046,6 +1051,7 @@ unsigned doname_flags;
         }
         break;
     case TOOL_CLASS:
+        add_erosion_words(obj, prefix);
         if (obj->owornmask & (W_TOOL | W_SADDLE)) { /* blindfold */
             Strcat(bp, " (being worn)");
             break;
@@ -1083,6 +1089,7 @@ unsigned doname_flags;
             goto charges;
         break;
     case WAND_CLASS:
+        add_erosion_words(obj, prefix);
  charges:
         if (known)
             Sprintf(eos(bp), " (%d:%d)", (int) obj->recharged, obj->spe);
@@ -1092,6 +1099,7 @@ unsigned doname_flags;
             Strcat(bp, " (lit)");
         break;
     case RING_CLASS:
+        add_erosion_words(obj, prefix);
  ring:
         if (obj->owornmask & W_RINGR)
             Strcat(bp, " (on right ");
@@ -1107,9 +1115,13 @@ unsigned doname_flags;
         }
         break;
     case FOOD_CLASS:
+        add_erosion_words(obj, prefix);
         if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
         if (obj->otyp == CORPSE) {
+            if (obj->oerodeproof) {
+                Strcat(prefix, "rotproof ");
+            }
             /* (quan == 1) => want corpse_xname() to supply article,
                (quan != 1) => already have count or "some" as prefix;
                "corpse" is already in the buffer returned by xname() */

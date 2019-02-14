@@ -892,6 +892,7 @@ boolean atme;
     boolean confused = (Confusion != 0);
     boolean physical_damage = FALSE;
     struct obj *pseudo;
+    struct obj* otmp;
     coord cc;
 
     /*
@@ -1201,6 +1202,26 @@ boolean atme;
         if (!jump(max(role_skill, 1)))
             pline1(nothing_happens);
         break;
+    case SPE_REPAIR_ARMOR:
+	/* removes one level of erosion (both types) for a random piece of armor */
+	otmp = some_armor(&youmonst);
+	if (otmp) {
+		if (greatest_erosion(otmp) > 0) {
+			if (!Blind) {
+				pline("Your %s glows faintly golden for a moment.",xname(otmp));
+			}
+			if (otmp->oeroded > 0) { otmp->oeroded--; }
+			if (otmp->oeroded2 > 0) { otmp->oeroded2--; }
+		} else {
+			if (!Blind) {
+				pline("Your %s glows briefly, but looks as new as ever.",xname(otmp));
+			}
+		}
+	} else {
+		/* the player can probably feel this, so no need for a !Blind check :) */
+		pline("Your embarrassing skin rash clears up slightly.");
+	}
+	break;
     default:
         impossible("Unknown spell %d attempted.", spell);
         obfree(pseudo, (struct obj *) 0);

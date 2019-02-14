@@ -1011,6 +1011,8 @@ SPELL("jumping",         "thin",
       P_ESCAPE_SPELL,      20,  3, 2, 1, IMMEDIATE, HI_PAPER),
 SPELL("stone to flesh",  "thick",
       P_HEALING_SPELL,     15,  1, 3, 1, IMMEDIATE, HI_PAPER),
+SPELL("repair armor",	 "paperback",
+      P_MATTER_SPELL,      20,  6, 3, 1, IMMEDIATE, HI_PAPER),
 #if 0 /* DEFERRED */
 /* from slash'em, create a tame critter which explodes when attacking,
    damaging adjacent creatures--friend or foe--and dying in the process */
