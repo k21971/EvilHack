@@ -41,6 +41,7 @@ STATIC_DCL int FDECL(percent_success, (int));
 STATIC_DCL char *FDECL(spellretention, (int, char *));
 STATIC_DCL int NDECL(throwspell);
 STATIC_DCL void NDECL(cast_protection);
+STATIC_DCL void NDECL(cast_reflection);
 STATIC_DCL void FDECL(spell_backfire, (int));
 STATIC_DCL const char *FDECL(spelltypemnemonic, (int));
 STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
@@ -841,6 +842,17 @@ cast_protection()
     }
 }
 
+STATIC_OVL void
+cast_reflection()
+{
+    if (HReflecting) {
+	pline("The shimmering globe around you becomes slightly brighter.");
+    } else {
+	pline("A shimmering globe appears around you!");
+    }
+    incr_itimeout(&HReflecting, rn1(10, HReflecting ? 50 : 250));
+}
+
 /* attempting to cast a forgotten spell will cause disorientation */
 STATIC_OVL void
 spell_backfire(spell)
@@ -1221,6 +1233,9 @@ boolean atme;
 		/* the player can probably feel this, so no need for a !Blind check :) */
 		pline("Your embarrassing skin rash clears up slightly.");
 	}
+	break;
+    case SPE_REFLECTION:
+        cast_reflection();
 	break;
     default:
         impossible("Unknown spell %d attempted.", spell);

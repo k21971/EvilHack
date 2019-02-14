@@ -2215,6 +2215,11 @@ const char *fmt, *str;
             makeknown(SHIELD_OF_REFLECTION);
         }
         return TRUE;
+    } else if (HReflecting) {
+	if (fmt && str) {
+		pline(fmt, str, "magical shield");
+	}
+	return TRUE;
     } else if (EReflecting & W_WEP) {
         /* Due to wielded artifact weapon */
         if (fmt && str)

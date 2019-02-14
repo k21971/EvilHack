@@ -576,6 +576,9 @@ nh_timeout()
 	    case SLOW:
 		You_feel("less sluggish.");
 		break;
+	    case REFLECTING:
+		pline("The shimmering globe around you flickers and vanishes.");
+		break;
             case CONFUSION:
                 /* So make_confused works properly */
                 set_itimeout(&HConfusion, 1L);
