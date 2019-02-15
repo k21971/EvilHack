@@ -2224,7 +2224,7 @@ find_ac()
      */
     if ((uarm && is_heavy_metallic(uarm))
         || (near_capacity() >= SLT_ENCUMBER)) {
-        if (dex_adjust_ac += 1)
+        if (dex_adjust_ac < 0)
             dex_adjust_ac = 0;
     }
 
