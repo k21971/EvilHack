@@ -234,13 +234,15 @@ struct attack *mattk;
     if (!flags.verbose || !nearmiss && !blocker)
 	pline("%s misses.", Monnam(mtmp));
     else if (!blocker)
-	pline("%s narrowly misses!", Monnam(mtmp));
+        rn2(2)
+	    ? pline("%s narrowly misses!", Monnam(mtmp))
+            : You("dodge %s attack!", s_suffix(mon_nam(mtmp)));
     else if (blocker == &zeroobj)
 	pline("%s is stopped by your golden haze.", Monnam(mtmp));
     else
 	Your("%s %s%s %s attack.",
 		simple_typename(blocker->otyp),
-		rn2(2) ? "repel" : "deflect",
+		rn2(2) ? "block" : "deflect",
 		(blocker == uarmg || blocker == uarmf) ? "" : "s",
 		s_suffix(mon_nam(mtmp)));
     }

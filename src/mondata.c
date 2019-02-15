@@ -418,7 +418,10 @@ register struct permonst *ptr;
     if (sliparm(ptr))
         return FALSE;
 
-    return (boolean) ((bigmonst(ptr) && !ptr->mlet == S_CENTAUR)
+    if (is_centaur(ptr))
+        return FALSE;
+
+    return (boolean) (bigmonst(ptr)
                       || (ptr->msize > MZ_SMALL && !humanoid(ptr))
                       /* special cases of humanoids that cannot wear suits */
                       || ptr == &mons[PM_MARILITH]
