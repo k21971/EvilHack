@@ -43,7 +43,6 @@ STATIC_DCL void FDECL(wishcmdassist, (int));
 #define ZT_LIGHTNING (AD_ELEC - 1)
 #define ZT_POISON_GAS (AD_DRST - 1)
 #define ZT_ACID (AD_ACID - 1)
-/* 8 and 9 are currently unassigned */
 
 #define ZT_WAND(x) (x)
 #define ZT_SPELL(x) (10 + (x))
@@ -65,8 +64,8 @@ const char *const flash_types[] =       /* also used in buzzmu(mcastu.c) */
 
         "magic missile", /* Spell equivalents must be 10-19 */
         "fireball", "cone of cold", "sleep ray", "finger of death",
-        "bolt of lightning", /* there is no spell, used for retribution */
-        "", "", "", "",
+        "bolt of lightning", "blast of poison gas", "blast of acid",
+        "", "",
 
         "blast of missiles", /* Dragon breath equivalents 20-29*/
         "blast of fire", "blast of frost", "blast of sleep gas",
@@ -2261,6 +2260,7 @@ boolean ordinary;
         break;
 
     case WAN_LIGHTNING:
+    case SPE_LIGHTNING:
         learn_it = TRUE;
         if (how_resistant(SHOCK_RES) < 100) {
             You("shock yourself!");
@@ -2312,6 +2312,37 @@ boolean ordinary;
             damage = resist_reduce(d(12, 6), COLD_RES);
         }
         destroy_item(POTION_CLASS, AD_COLD);
+        break;
+
+    case SPE_POISON_BLAST:
+        learn_it = TRUE;
+        if (how_resistant(POISON_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            You("inhale some apparently harmless gas.");
+            ugolemeffects(AD_DRST, d(12, 6));
+        } else {
+            You("just poisoned yourself!");
+            damage = resist_reduce(d(12, 6), POISON_RES);
+        }
+        break;
+
+    case SPE_ACID_BLAST:
+        learn_it = TRUE;
+        if (Acid_resistance) {
+            shieldeff(u.ux, u.uy);
+            You("coat yourself in an apparently harmless substance.");
+            ugolemeffects(AD_ACID, d(12, 6));
+        } else {
+            You("cover yourself with slime!  It burns!");
+            damage = d(12, 6);
+        }
+        /* using two weapons at once makes both of them more vulnerable */
+        if (!rn2(u.twoweap ? 3 : 6))
+            acid_damage(uwep);
+        if (u.twoweap && !rn2(3))
+            acid_damage(uswapwep);
+        if (!rn2(6))
+            erode_armor(&youmonst, ERODE_CORRODE);
         break;
 
     case WAN_MAGIC_MISSILE:
@@ -3010,7 +3041,7 @@ struct obj *obj;
 
         if (otyp == WAN_DIGGING || otyp == SPE_DIG)
             zap_dig();
-        else if (otyp >= SPE_MAGIC_MISSILE && otyp <= SPE_FINGER_OF_DEATH)
+        else if (otyp >= SPE_MAGIC_MISSILE && otyp <= SPE_ACID_BLAST)
             buzz(otyp - SPE_MAGIC_MISSILE + 10, u.ulevel / 2 + 1, u.ux, u.uy,
                  u.dx, u.dy);
         else if (otyp >= WAN_MAGIC_MISSILE && otyp <= WAN_LIGHTNING)
@@ -4615,6 +4646,16 @@ short exploding_wand_typ;
             new_doormask = D_BROKEN;
             see_txt = "The door splinters!";
             hear_txt = "crackling.";
+            break;
+        case ZT_POISON_GAS:
+            new_doormask = D_BROKEN;
+            see_txt = "The door rots away!";
+            hear_txt = "hollow thud.";
+            break;
+        case ZT_ACID:
+            new_doormask = D_NODOOR;
+            see_txt = "The door dissolves!";
+            hear_txt = "hissing.";
             break;
         default:
         def_case:

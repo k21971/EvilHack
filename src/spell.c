@@ -1061,6 +1061,8 @@ boolean atme;
      */
     case SPE_FIREBALL:
     case SPE_CONE_OF_COLD:
+    case SPE_POISON_BLAST:
+    case SPE_ACID_BLAST:
         if (role_skill >= P_SKILLED) {
             if (throwspell()) {
                 cc.x = u.dx;
@@ -1078,9 +1080,13 @@ boolean atme;
                         explode(u.dx, u.dy,
                                 otyp - SPE_MAGIC_MISSILE + 10,
                                 spell_damage_bonus(u.ulevel / 2 + 1), 0,
-                                (otyp == SPE_CONE_OF_COLD)
-                                   ? EXPL_FROSTY
-                                   : EXPL_FIERY);
+                                (otyp == SPE_CONE_OF_COLD) ?
+                                   EXPL_FROSTY :
+                                   (otyp == SPE_POISON_BLAST) ?
+                                      EXPL_NOXIOUS :
+                                      (otyp == SPE_ACID_BLAST) ?
+                                         EXPL_ACID :
+                                         EXPL_FIERY);
                     }
                     u.dx = cc.x + rnd(3) - 2;
                     u.dy = cc.y + rnd(3) - 2;
@@ -1111,6 +1117,7 @@ boolean atme;
     case SPE_TELEPORT_AWAY:
     case SPE_CANCELLATION:
     case SPE_FINGER_OF_DEATH:
+    case SPE_LIGHTNING:
     case SPE_LIGHT:
     case SPE_DETECT_UNSEEN:
     case SPE_HEALING:
