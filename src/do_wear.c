@@ -2133,7 +2133,7 @@ find_ac()
 
     /* armor class from worn gear */
 
-    int racial_bonus;
+    int racial_bonus, dex_adjust_ac;
 
     /* Wearing racial armor is worth +x to the armor's AC; orcs get a slightly
      * larger bonus to compensate their sub-standard equipment, lack of equipment,
@@ -2198,6 +2198,37 @@ find_ac()
     if (HProtection & INTRINSIC)
         uac -= u.ublessed;
     uac -= u.uspellprot;
+
+    /* Dexterity affects your base AC */
+    dex_adjust_ac = 0;
+    if (ACURR(A_DEX) <= 6)
+        dex_adjust_ac += 3;
+    else if (ACURR(A_DEX) <= 9)
+        dex_adjust_ac += 1;
+    else if (ACURR(A_DEX) <= 14)
+        dex_adjust_ac -= 0;
+    else if (ACURR(A_DEX) <= 16)
+        dex_adjust_ac -= 1;
+    else if (ACURR(A_DEX) <= 18)
+        dex_adjust_ac -= 2;
+    else if (ACURR(A_DEX) <= 20)
+        dex_adjust_ac -= 3;
+    else if (ACURR(A_DEX) <= 23)
+        dex_adjust_ac -= 4;
+    else if (ACURR(A_DEX) >= 24)
+        dex_adjust_ac -= 5;
+
+    /* Wearing certain types of body armor negates any
+     * beneficial dexterity bonus. So does being
+     * encumbered in any way.
+     */
+    if ((uarm && is_heavy_metallic(uarm))
+        || (near_capacity() >= SLT_ENCUMBER)) {
+        if (dex_adjust_ac += 1)
+            dex_adjust_ac = 0;
+    }
+
+    uac = uac + dex_adjust_ac;
 
     /* [The magic binary numbers 127 and -128 should be replaced with the
      * mystic decimal numbers 99 and -99 which require no explanation to
