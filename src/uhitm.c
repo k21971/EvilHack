@@ -642,6 +642,22 @@ struct attack *uattk;
         if (mhit)
             (void) passive(mon, uswapwep, mhit, malive, AT_WEAP, !uswapwep);
     }
+
+    /* second attack for a Monk who has reach Grand Master skill
+       in martial arts */
+    if (P_BARE_HANDED_COMBAT && Role_if(PM_MONK)
+        && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
+        && malive && m_at(x, y) == mon) {
+        tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
+                               &armorpenalty);
+        dieroll = rnd(20);
+        mhit = (tmp > dieroll || u.uswallow);
+        malive = known_hitum(mon, uswapwep, &mhit, tmp, armorpenalty, uattk,
+                             dieroll);
+        /* second passive counter-attack only occurs if second attack hits */
+        if (mhit)
+            (void) passive(mon, uswapwep, mhit, malive, P_BARE_HANDED_COMBAT, !uswapwep);
+    }
     return malive;
 }
 
@@ -664,6 +680,15 @@ int dieroll;
         (void) angry_guards(!!Deaf);
     return result;
 }
+
+static const char *const monkattacks[] = {
+    "chop", "strike", "jab", "hit", "punch", "pummel", "backhand"
+};
+
+/* hallucinating monk */
+static const char *const hmonkattacks[] = {
+    "lightly caress", "tickle", "gently stroke", "massage", "snuggle"
+};
 
 /* guts of hmon() */
 STATIC_OVL boolean
@@ -1276,7 +1301,15 @@ int dieroll;
             hit(mshot_xname(obj), mon, exclam(tmp));
         else if (!flags.verbose)
             You("hit it.");
-        else
+        else if (P_BARE_HANDED_COMBAT && Role_if(PM_MONK) && !Upolyd) {
+            if (!Blind && Hallucination) {
+                You("%s %s%s", hmonkattacks[rn2(SIZE(hmonkattacks))],
+                    mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
+
+            } else
+                You("%s %s%s", monkattacks[rn2(SIZE(monkattacks))],
+                     mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
+        } else
             You("%s %s%s",
                 (obj && (is_shield(obj) || obj->otyp == HEAVY_IRON_BALL))
                   ? "bash" : Role_if(PM_BARBARIAN) ? "smite" : "hit",
