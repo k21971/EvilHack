@@ -1016,25 +1016,25 @@ dbon()
         return 0;
 
     if (str < 6)
+        dbon = -2;
+    else if (str < 9)
         dbon = -1;
     else if (str < 16)
         dbon = 0;
-    else if (str < 18)
+    else if (str <= 18)
         dbon = 1;
-    else if (str == 18)
-        dbon = 2; /* up to 18 */
     else if (str <= STR18(75))
-        dbon = 3; /* up to 18/75 */
+        dbon = 2; /* up to 18/75 */
     else if (str <= STR18(90))
-        dbon = 4; /* up to 18/90 */
+        dbon = 3; /* up to 18/90 */
     else if (str < STR18(100))
-        dbon = 5; /* up to 18/99 */
+        dbon = 4; /* up to 18/99 */
     else if (str == STR18(100))
-        dbon = 6; /* 18/00 only */
+        dbon = 5; /* 18/00 only */
     else
-        dbon = 7;
+        dbon = 6;
 
-    if (uwep && bimanual(uwep)) { dbon *= 1.5; }
+    if (uwep && bimanual(uwep)) { dbon *= 2 - (dbon / 2); }
 	return dbon;
 }
 

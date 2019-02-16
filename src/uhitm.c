@@ -643,7 +643,7 @@ struct attack *uattk;
             (void) passive(mon, uswapwep, mhit, malive, AT_WEAP, !uswapwep);
     }
 
-    /* second attack for a Monk who has reach Grand Master skill
+    /* second attack for a Monk who has reached Grand Master skill
        in martial arts */
     if (P_BARE_HANDED_COMBAT && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
@@ -1305,7 +1305,6 @@ int dieroll;
             if (!Blind && Hallucination) {
                 You("%s %s%s", hmonkattacks[rn2(SIZE(hmonkattacks))],
                     mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
-
             } else
                 You("%s %s%s", monkattacks[rn2(SIZE(monkattacks))],
                      mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
