@@ -1547,7 +1547,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
      * Certain items which don't in themselves do damage ignore tmp.
      * Distance and monster size affect chance to hit.
      */
-    tmp = -1 + Luck + find_mac(mon) + u.uhitinc
+    tmp = -1 + ((Luck/2) + 1) + find_mac(mon) + u.uhitinc
           + maybe_polyd(youmonst.data->mlevel, u.ulevel);
     if (ACURR(A_DEX) < 4)
         tmp -= 3;
@@ -1567,17 +1567,19 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         disttmp = -4;
     tmp += disttmp;
 
-    /* gloves are a hindrance to proper use of bows */
+    /* some gloves are a hindrance to proper use of bows */
     if (uarmg && uwep && objects[uwep->otyp].oc_skill == P_BOW) {
         switch (uarmg->otyp) {
         case GAUNTLETS_OF_POWER: /* metal */
             tmp -= 2;
             break;
-        case GAUNTLETS_OF_FUMBLING:
-            tmp -= 3;
+        case GAUNTLETS_OF_FUMBLING: /* you're fumbling and shouldn't really even be able to throw */
+            tmp -= 9;
             break;
         case LEATHER_GLOVES:
-        case GAUNTLETS_OF_DEXTERITY:
+            break;
+        case GAUNTLETS_OF_DEXTERITY: /* these gloves were made with archers in mind */
+            tmp += 1;
             break;
         default:
             impossible("Unknown type of gloves (%d)", uarmg->otyp);

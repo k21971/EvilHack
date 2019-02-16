@@ -28,10 +28,10 @@ STATIC_DCL void FDECL(zhitu, (int, int, const char *, XCHAR_P, XCHAR_P));
 STATIC_DCL void FDECL(revive_egg, (struct obj *));
 STATIC_DCL boolean FDECL(zap_steed, (struct obj *));
 STATIC_DCL void FDECL(skiprange, (int, int *, int *));
-STATIC_DCL int FDECL(zap_hit, (int, int));
+STATIC_DCL int FDECL(zap_hit, (int, int, BOOLEAN_P));
 STATIC_OVL void FDECL(disintegrate_mon, (struct monst *, int, const char *));
 STATIC_DCL void FDECL(backfire, (struct obj *));
-STATIC_DCL int FDECL(spell_hit_bonus, (int));
+STATIC_DCL int FDECL(spell_hit_bonus, (int, BOOLEAN_P));
 STATIC_DCL void FDECL(destroy_one_item, (struct obj *, int, int));
 STATIC_DCL void FDECL(wishcmdassist, (int));
 
@@ -3090,12 +3090,16 @@ int dmg; /* base amount to be adjusted by bonus or penalty */
  * spell class and dexterity.
  */
 STATIC_OVL int
-spell_hit_bonus(skill)
+spell_hit_bonus(skill, is_wand)
 int skill;
+boolean is_wand;
 {
     int hit_bon = 0;
     int dex = ACURR(A_DEX);
 
+    if (is_wand) {
+	if (!uwep) { hit_bon = 3; }	/* easier to aim with hands free */
+    } else {
     switch (P_SKILL(spell_skilltype(skill))) {
     case P_ISRESTRICTED:
     case P_UNSKILLED:
@@ -3105,11 +3109,12 @@ int skill;
         hit_bon = 0;
         break;
     case P_SKILLED:
-        hit_bon = 2;
+        hit_bon = 4;
         break;
     case P_EXPERT:
-        hit_bon = 3;
+        hit_bon = 6;
         break;
+        }
     }
 
     if (dex < 4)
@@ -3124,6 +3129,9 @@ int skill;
     else
         /* Even increment for dextrous heroes (see weapon.c abon) */
         hit_bon += dex - 14;
+
+        /* experience matters... */
+        hit_bon += (u.ulevel < 15) ? u.ulevel : 15;
 
     return hit_bon;
 }
@@ -3963,12 +3971,13 @@ boolean u_caused;
 
 /* will zap/spell/breath attack score a hit against armor class `ac'? */
 STATIC_OVL int
-zap_hit(ac, type)
+zap_hit(ac, type, is_wand)
 int ac;
 int type; /* either hero cast spell type or 0 */
+boolean is_wand;
 {
     int chance = rn2(20);
-    int spell_bonus = type ? spell_hit_bonus(type) : 0;
+    int spell_bonus = type ? spell_hit_bonus(type, is_wand) : 0;
 
     /* small chance for naked target to avoid being hit */
     if (!chance)
@@ -3977,7 +3986,7 @@ int type; /* either hero cast spell type or 0 */
     /* very high armor protection does not achieve invulnerability */
     ac = AC_VALUE(ac);
 
-    return (3 - chance < ac + spell_bonus);
+    return -(chance) < ac + spell_bonus;
 }
 
 STATIC_OVL void
@@ -4058,6 +4067,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
     const char *fltxt;
     struct obj *otmp;
     int spell_type;
+    boolean is_wand = (type >= 0 && type <= 9);
 
     /* if its a Hero Spell then get its SPE_TYPE */
     spell_type = is_hero_spell(type) ? SPE_MAGIC_MISSILE + abstype : 0;
@@ -4127,7 +4137,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                 mon->mstrategy &= ~STRAT_WAITMASK;
         buzzmonst:
             notonhead = (mon->mx != bhitpos.x || mon->my != bhitpos.y);
-            if (zap_hit(find_mac(mon), spell_type)) {
+            if (zap_hit(find_mac(mon), spell_type, is_wand)) {
                 if (mon_reflects(mon, (char *) 0)) {
                     if (cansee(mon->mx, mon->my)) {
                         hit(fltxt, mon, exclam(0));
@@ -4213,7 +4223,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
             if (u.usteed && !rn2(3) && !mon_reflects(u.usteed, (char *) 0)) {
                 mon = u.usteed;
                 goto buzzmonst;
-            } else if (zap_hit((int) u.uac, 0)) {
+            } else if (zap_hit((int) u.uac, 0, 0)) {
                 range -= 2;
                 pline("%s hits you!", The(fltxt));
                 if (Reflecting) {

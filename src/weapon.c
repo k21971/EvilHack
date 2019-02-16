@@ -1519,10 +1519,10 @@ struct obj *weapon;
             bonus = 0;
             break;
         case P_SKILLED:
-            bonus = 2;
+            bonus = 3;
             break;
         case P_EXPERT:
-            bonus = 3;
+            bonus = 5;
             break;
         }
     } else if (type == P_TWO_WEAPON_COMBAT) {
@@ -1553,12 +1553,17 @@ struct obj *weapon;
          * basic:  +1   +3         +3   +4
          * skild:  +2   +4         +3   +5
          * exprt:  +2   +5         +4   +7
-         * mastr:  +3   +6         +4   +8
-         * grand:  +3   +7         +5   +10
+         * mastr:  +3   +7         +4   +10
+         * grand:  +3   +9         +5   +12
          */
         bonus = P_SKILL(type);
         bonus = max(bonus, P_UNSKILLED) - 1; /* unskilled => 0 */
         bonus = ((bonus + 2) * (martial_bonus() ? 2 : 1)) / 2;
+        /* extra boost for master/GM */
+        if (bonus > 5) {
+            bonus += ((bonus - 5) * 2);
+        }
+
         if (Race_if(PM_GIANT))
             bonus += martial_bonus() ? 1 : 2;
     }

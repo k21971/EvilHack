@@ -792,21 +792,20 @@ int dieroll;
                     You("strike %s from behind!", mon_nam(mon));
                     tmp += rnd(u.ulevel);
                     hittxt = TRUE;
-                } else if (obj == uwep && obj->oclass == WEAPON_CLASS &&
-                            ((dieroll == 2 && (bimanual(obj) || (Race_if(PM_GIANT)) ||
-                                (Role_if(PM_SAMURAI) && obj->otyp == KATANA && !uarms))
-                           && ((wtype = uwep_skill_type()) != P_NONE
-                               && P_SKILL(wtype) >= P_SKILLED)) ||
-                             (dieroll == 3 && (Race_if(PM_GIANT)) && (((wtype = uwep_skill_type()) != P_NONE)
-                               && P_SKILL(wtype) >= P_BASIC)) ||
-                             (dieroll == 4 && (!rn2(2)) && (Race_if(PM_GIANT)) && (((wtype = uwep_skill_type()) != P_NONE)
-                               && P_SKILL(wtype) >= P_EXPERT)))
-                           && ((monwep = MON_WEP(mon)) != 0
-                               && !is_flimsy(monwep)
-                               && !obj_resists(monwep,
-                                       50 + 15 * (greatest_erosion(obj)
-                                                  - greatest_erosion(monwep)),
-                                               100))) {
+                } else if (obj == uwep && obj->oclass == WEAPON_CLASS
+                           && ((dieroll == 2 && (bimanual(obj) || (Race_if(PM_GIANT))
+                               || (Role_if(PM_SAMURAI) && obj->otyp == KATANA && !uarms))
+                                   && ((wtype = uwep_skill_type()) != P_NONE
+                                   && P_SKILL(wtype) >= P_SKILLED))
+                               || (dieroll == 3 && (Race_if(PM_GIANT)) && (((wtype = uwep_skill_type()) != P_NONE)
+                                   && P_SKILL(wtype) >= P_BASIC))
+                               || (dieroll == 4 && (!rn2(2)) && (Race_if(PM_GIANT))
+                                   && (((wtype = uwep_skill_type()) != P_NONE)
+                                   && P_SKILL(wtype) >= P_EXPERT)))
+                                   && ((monwep = MON_WEP(mon)) != 0
+                                   && !is_flimsy(monwep)
+                                   && !obj_resists(monwep,
+                                           50 + 15 * (greatest_erosion(obj) - greatest_erosion(monwep)), 100))) {
                     /*
                      * 2.5% chance of shattering defender's weapon when
                      * using a two-handed weapon; less if uwep is rusted.

@@ -234,9 +234,9 @@ struct attack *mattk;
     if (!flags.verbose || !nearmiss && !blocker)
 	pline("%s misses.", Monnam(mtmp));
     else if (!blocker)
-        rn2(2)
-	    ? pline("%s narrowly misses!", Monnam(mtmp))
-            : You("dodge %s attack!", s_suffix(mon_nam(mtmp)));
+        rn2(2) ? You("dodge %s attack!", s_suffix(mon_nam(mtmp)))
+            : rn2(2) ? You("evade %s attack!", s_suffix(mon_nam(mtmp)))
+                     : pline("%s narrowly misses!", Monnam(mtmp));
     else if (blocker == &zeroobj)
 	pline("%s is stopped by your golden haze.", Monnam(mtmp));
     else
