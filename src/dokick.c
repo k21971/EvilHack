@@ -28,6 +28,10 @@ STATIC_DCL void FDECL(drop_to, (coord *, SCHAR_P));
 
 static const char kick_passes_thru[] = "kick passes harmlessly through";
 
+static const char *const martial_arts_kick[] = {
+    "pivot and roundhouse kick", "leap up and butterfly kick", "spin around and back kick"
+};
+
 /* kicking damage when not poly'd into a form with a kick attack */
 STATIC_OVL void
 kickdmg(mon, clumsy)
@@ -83,7 +87,7 @@ boolean clumsy;
         if (martial()) {
             if (dmg > 1)
                 kick_skill = P_MARTIAL_ARTS;
-            dmg += rn2(ACURR(A_DEX) / 2 + 1);
+            dmg += rn2(ACURR(A_DEX) / 2 + rnd(4));
         }
         /* a good kick exercises your dex */
         exercise(A_DEX, TRUE);
@@ -229,7 +233,7 @@ xchar x, y;
 
     if (i < (j * 3) / 10) {
         if (!rn2((i < j / 10) ? 2 : (i < j / 5) ? 3 : 4)) {
-            if (martial() && !rn2(2))
+            if (martial() /* && !rn2(2) */)   /* if you're a martial artist, you're not a clumsy kicker */
                 goto doit;
             Your("clumsy kick does no damage.");
             (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
@@ -247,7 +251,11 @@ xchar x, y;
     else if (uarm && objects[uarm->otyp].oc_bulky && ACURR(A_DEX) < rnd(25))
         clumsy = TRUE;
  doit:
-    You("kick %s.", mon_nam(mon));
+    if (Role_if(PM_MONK) || Role_if(PM_SAMURAI))
+        You("%s %s!", martial_arts_kick[rn2(SIZE(martial_arts_kick))], mon_nam(mon));
+    else
+        You("kick %s.", mon_nam(mon));
+
     if (!rn2(clumsy ? 3 : 4) && (clumsy || !bigmonst(mon->data))
         && mon->mcansee && !mon->mtrapped && !thick_skinned(mon->data)
         && mon->data->mlet != S_EEL && haseyes(mon->data) && mon->mcanmove
