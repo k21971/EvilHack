@@ -299,8 +299,10 @@ dig(VOID_ARGS)
 
     context.digging.effort +=
         10 + rn2(5) + abon() + uwep->spe - greatest_erosion(uwep) + u.udaminc;
-    if (Race_if(PM_DWARF) || Race_if(PM_GIANT))
+    if (Race_if(PM_DWARF) || Race_if(PM_GIANT) || P_SKILL(P_PICK_AXE) == P_SKILLED)
         context.digging.effort *= 2;
+    if (P_SKILL(P_PICK_AXE) == P_EXPERT)
+        context.digging.effort *= 4;
     if (context.digging.down) {
         struct trap *ttmp = t_at(dpx, dpy);
 
