@@ -155,6 +155,16 @@ unsigned *ospecial;
                 color = CLR_RED;
             else if (Is_astralevel(&u.uz))
                 color = CLR_WHITE;
+            else if (*in_rooms(x, y, BEEHIVE))
+                color = CLR_YELLOW;
+            else if (*in_rooms(x, y, COCKNEST))
+                color = CLR_BRIGHT_GREEN;
+            else if (*in_rooms(x, y, ANTHOLE))
+                color = CLR_BROWN;
+            else if (*in_rooms(x, y, SWAMP))
+                color = CLR_GREEN;
+            else if (*in_rooms(x, y, VAULT))
+                color = HI_METAL;
             else
                 cmap_color(offset);
         }
