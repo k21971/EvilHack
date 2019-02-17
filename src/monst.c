@@ -1408,6 +1408,27 @@ NEARDATA struct permonst mons[] = {
                       | M1_CARNIVORE,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY,
         M3_ACCURATE | M3_INFRAVISION, 0, 16, HI_LORD),
+    /* A somewhat rare but highly prized familiar from Dungeons & Dragons
+     * for wizards, the pseudodragon was a more than suitable companion for their
+     * spellcasting masters. Not much larger than your typical household
+     * cat, but much more cunning and intelligent.
+     */
+    MON("pseudodragon", S_DRAGON, LVL(4, 18, 2, 20, 0), (G_NOGEN | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_STNG, AD_DRST, 1, 2),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(200, 200, MS_HISS, MZ_SMALL), MR_POISON, 0,
+        M1_FLY | M1_NOHANDS | M1_CARNIVORE,
+        M2_DOMESTIC | M2_GREEDY | M2_JEWELS | M2_MAGIC,
+        M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION,
+        MH_DRAGON, 7, CLR_BROWN),
+    MON("elder pseudodragon", S_DRAGON, LVL(6, 18, 0, 40, 0), (G_NOGEN | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 8), ATTK(AT_STNG, AD_DRST, 1, 4),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(200, 200, MS_HISS, MZ_SMALL), MR_POISON, 0,
+        M1_FLY | M1_NOHANDS | M1_CARNIVORE,
+        M2_DOMESTIC | M2_GREEDY | M2_JEWELS | M2_MAGIC,
+        M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION,
+        MH_DRAGON, 9, CLR_BROWN),
     /*
      * Elementals
      */

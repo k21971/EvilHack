@@ -373,6 +373,8 @@ static struct Comp_Opt {
       DISP_IN_GAME },
     { "player_selection", "choose character via dialog or prompts", 12,
       DISP_IN_GAME },
+    { "pseudoname", "the name of your (first) pseudodragon (e.g., pseudoname:Carl)",
+      PL_PSIZ, DISP_IN_GAME },
     { "race", "your starting race (e.g., Human, Elf)", PL_CSIZ,
       DISP_IN_GAME },
     { "role", "your starting role (e.g., Barbarian, Valkyrie)", PL_CSIZ,
@@ -2153,6 +2155,11 @@ boolean tinitial, tfrom_file;
                        pet_type(dog.c) won't actually honor this */
                     preferred_pet = 'h';
                     break;
+                case 'p': /* pseudodragon */
+                    /* avoids giving "unrecognized type of pet" but
+                       pet_type(dog.c) won't actually honor this */
+                    preferred_pet = 'p';
+                    break;
                 case 'n': /* no pet */
                     preferred_pet = 'n';
                     break;
@@ -2211,6 +2218,21 @@ boolean tinitial, tfrom_file;
         } else
             return FALSE;
         sanitize_name(horsename);
+        return retval;
+    }
+
+    fullname = "pseudoname";
+    if (match_optname(opts, fullname, 5, TRUE)) {
+        if (duplicate)
+            complain_about_duplicate(opts, 1);
+        if (negated) {
+            bad_negation(fullname, FALSE);
+            return FALSE;
+        } else if ((op = string_for_env_opt(fullname, opts, FALSE)) != 0) {
+            nmcpy(pseudoname, op, PL_PSIZ);
+        } else
+            return FALSE;
+        sanitize_name(pseudoname);
         return retval;
     }
 
@@ -5666,8 +5688,9 @@ char *buf;
         Sprintf(buf, "%s", (preferred_pet == 'c') ? "cat"
                            : (preferred_pet == 'd') ? "dog"
                              : (preferred_pet == 'h') ? "horse"
-                               : (preferred_pet == 'n') ? "none"
-                                 : "random");
+                               : (preferred_pet == 'p') ? "pseudodragon"
+                                 : (preferred_pet == 'n') ? "none"
+                                   : "random");
     } else if (!strcmp(optname, "pickup_burden")) {
         Sprintf(buf, "%s", burdentype[flags.pickup_burden]);
     } else if (!strcmp(optname, "pickup_types")) {
@@ -5677,6 +5700,8 @@ char *buf;
         Sprintf(buf, "%d", flags.pile_limit);
     } else if (!strcmp(optname, "playmode")) {
         Strcpy(buf, wizard ? "debug" : discover ? "explore" : "normal");
+    } else if (!strcmp(optname, "pseudoname")) {
+        Sprintf(buf, "%s", pseudoname[0] ? pseudoname : none);
     } else if (!strcmp(optname, "race")) {
         Sprintf(buf, "%s", rolestring(flags.initrace, races, noun));
     } else if (!strcmp(optname, "roguesymset")) {

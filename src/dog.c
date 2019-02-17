@@ -171,6 +171,8 @@ makedog()
     pettype = pet_type();
     if (pettype == PM_LITTLE_DOG)
         petname = dogname;
+    else if (pettype == PM_PSEUDODRAGON)
+        petname = pseudoname;
     else if (pettype == PM_PONY) {
         petname = horsename;
 	/* hijack creation for chaotic knights */

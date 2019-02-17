@@ -213,6 +213,7 @@ gender     Your starting gender (male, female, or random).         [random]
            still denote your gender using the old "male" and "female"
            boolean options, the "gender" option will take precedence.
 horsename  the name of your first horse                              [none]
+pseudoname the name of your first pseudodragon                       [none]
 menu_*     specify single character accelerators for menu commands.
            Here is a list of all commands with their default keystroke
            followed by a list of window-ports that implement them:
