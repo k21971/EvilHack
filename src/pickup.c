@@ -3136,6 +3136,7 @@ boolean creation;
 	    (obj->otyp == STATUE && bigmonst(&mons[obj->corpsenm]))))
 		continue;
 
+        if (nohands(mon->data)) return 0;
 	if (!bag && !creation) continue;
 
 	if (creation) {
