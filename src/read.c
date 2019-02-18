@@ -481,9 +481,10 @@ struct obj *obj;
 /* recharge an object; curse_bless is -1 if the recharging implement
    was cursed, +1 if blessed, 0 otherwise. */
 void
-recharge(obj, curse_bless)
+recharge(obj, curse_bless, mtmp)
 struct obj *obj;
 int curse_bless;
+struct monst *mtmp;
 {
     register int n;
     boolean is_cursed, is_blessed;
@@ -1551,7 +1552,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         sobj = 0; /* it's gone */
         otmp = getobj(all_count, "charge");
         if (otmp)
-            recharge(otmp, scursed ? -1 : sblessed ? 1 : 0);
+            recharge(otmp, scursed ? -1 : sblessed ? 1 : 0, &youmonst);
         break;
     case SCR_MAGIC_MAPPING:
         if (level.flags.nommap) {

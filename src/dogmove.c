@@ -123,6 +123,7 @@ boolean check_if_better;
  	      otmp->otyp == SCR_TELEPORTATION ||
               otmp->otyp == SCR_EARTH ||
               otmp->otyp == SCR_REMOVE_CURSE ||
+              otmp->otyp == SCR_CHARGING ||
               otmp->otyp == SCR_FIRE ||
  	      otmp->otyp == WAN_DEATH ||
  	      otmp->otyp == WAN_DIGGING ||
@@ -132,6 +133,8 @@ boolean check_if_better;
  	      otmp->otyp == WAN_MAGIC_MISSILE ||
  	      otmp->otyp == WAN_STRIKING ||
  	      otmp->otyp == WAN_TELEPORTATION ||
+	      otmp->otyp == WAN_POLYMORPH ||
+	      otmp->otyp == WAN_CANCELLATION ||
  	      otmp->otyp == POT_HEALING ||
  	      otmp->otyp == POT_EXTRA_HEALING ||
  	      otmp->otyp == POT_FULL_HEALING ||

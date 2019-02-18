@@ -3080,7 +3080,7 @@ extern struct obj *propellor;
 /* Intelligent monsters put things into containers */
 int
 m_stash_items(mon, creation)
-register struct monst *mon;
+struct monst *mon;
 boolean creation;
 {
     boolean putitems = FALSE;

@@ -2064,7 +2064,7 @@ E void FDECL(learnscroll, (struct obj *));
 E char *FDECL(tshirt_text, (struct obj *, char *));
 E int NDECL(doread);
 E boolean FDECL(is_chargeable, (struct obj *));
-E void FDECL(recharge, (struct obj *, int));
+E void FDECL(recharge, (struct obj *, int, struct monst *));
 E void FDECL(forget_objects, (int));
 E void FDECL(forget_levels, (int));
 E void NDECL(forget_traps);

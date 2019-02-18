@@ -4,6 +4,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include "artifact.h"
 
 /* Disintegration rays have special treatment; corpses are never left.
  * But the routine which calculates the damage is separate from the routine
@@ -2721,9 +2722,16 @@ boolean youattack, allow_cancel_kill, self_cancel;
         "Some writing vanishes from %s head!";
     static const char your[] = "your"; /* should be extern */
 
-    if (youdefend ? (!youattack && Antimagic)
+    int nobj = 0, onum = 0, cnt = 0;
+    struct obj *otmp;
+
+    boolean resisted = (youdefend && Antimagic) ||
+	(!youdefend && resist(mdef,
+		obj ? obj->oclass : 0, 0, NOTELL));
+
+/*    if (youdefend ? (!youattack && Antimagic)
                   : resist(mdef, obj->oclass, 0, NOTELL))
-        return FALSE; /* resisted cancellation */
+/*        return FALSE; /* resisted cancellation */
 
     if (self_cancel) { /* 1st cancel inventory */
         struct obj *otmp;
@@ -2735,7 +2743,55 @@ boolean youattack, allow_cancel_kill, self_cancel;
             context.botl = 1; /* potential AC change */
             find_ac();
         }
+    } else {
+	if (youdefend)
+            You_feel("magical energies being absorbed from your vicinity.");
+	if (youdefend && Antimagic)
+	{
+            shieldeff(u.ux, u.uy);
+	}
+	else if (!youdefend && resisted)
+	{
+	    shieldeff(mdef->mx, mdef->my);
+	}
+	for (otmp = (youdefend ? invent : mdef->minvent);
+	     otmp; otmp = otmp->nobj) {
+	    /* gold isn't subject to being cursed or blessed */
+	    if (otmp->oclass == COIN_CLASS)
+                continue;
+	    nobj++;
     }
+    if (nobj) {
+        for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
+             cnt > 0; cnt--) {
+            onum = rnd(nobj);
+	    for (otmp = (youdefend ? invent : mdef->minvent);
+	 	 otmp; otmp = otmp->nobj) {
+		/* as above */
+		if (otmp->oclass == COIN_CLASS)
+                    continue;
+		if (--onum == 0)
+                    break;	/* found the target */
+	    }
+	    if (!otmp)
+                continue;	/* next target */
+
+	    if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL)
+	        && rn2(10) < 8) {
+		pline("%s!", Tobjnam(otmp, "resist"));
+		continue;
+	    }
+	    cancel_item(otmp);
+    	}
+        if (youdefend) {
+	    context.botl = 1;	/* potential AC change */
+	    find_ac();
+        }
+	update_inventory();
+        }
+    }
+
+    if (resisted) return FALSE;
 
     /* now handle special cases */
     if (youdefend) {
@@ -2782,7 +2838,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
                 if (youattack)
                     killed(mdef);
                 else
-                    monkilled(mdef, "", AD_SPEL);
+                    monkilled(mdef, "", AD_CNCL);
             }
         }
     }
