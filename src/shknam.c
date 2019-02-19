@@ -712,7 +712,7 @@ int shp_indx;
 	{
 		mdat = &mons[srace];
 		shk->mnum = srace;
-		set_mon_data(shk, mdat, 1);
+		set_mon_data(shk, mdat);
         }
     }
     else
@@ -744,7 +744,7 @@ int shp_indx;
 			default:
 				break;
 		}
-		set_mon_data(shk, mdat, 1);
+		set_mon_data(shk, mdat);
 	}
     }
     shk->isshk = shk->mpeaceful = 1;

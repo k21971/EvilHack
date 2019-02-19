@@ -1189,12 +1189,27 @@ int pm;
     /* possibly convey an intrinsic */
     if (check_intrinsics) {
         struct permonst *ptr = &mons[pm];
+        boolean conveys_STR = is_giant(ptr);
+        int i, count;
 
         if (dmgtype(ptr, AD_STUN) || dmgtype(ptr, AD_HALU)
             || pm == PM_VIOLET_FUNGUS) {
             pline("Oh wow!  Great stuff!");
             (void) make_hallucinated((HHallucination & TIMEOUT) + 200L, FALSE,
                                      0L);
+        }
+
+        count = 0; /* number of possible intrinsics */
+        tmp = 0;   /* which one we will try to give */
+        if (conveys_STR) {
+            count = 1;
+            tmp = -1; /* use -1 as fake prop index for STR */
+            debugpline1("\"Intrinsic\" strength, %d", tmp);
+        }
+        for (i = 1; i <= LAST_PROP; i++) {
+            if (!intrinsic_possible(i, ptr))
+                continue;
+	    givit(i, ptr);
         }
 
         tmp = corpse_intrinsic(ptr);

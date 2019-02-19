@@ -534,7 +534,7 @@ struct permonst* ptr;
     const char* msg = NULL;
     unsigned short intrinsic = 0; /* MR_* constant */
 
-    if (!should_givit(prop, ptr))
+    /* if (!should_givit(prop, ptr))
         return; /* failed die roll */
 
     /* Pets don't have all the fields that the hero does, so they can't get all
@@ -574,11 +574,11 @@ struct permonst* ptr;
     }
 
     /* Don't give message if it already had this intrinsic */
-    if (mtmp->mintrinsics & intrinsic)
+    if (mtmp->mextrinsics & intrinsic)
         return;
 
     if (intrinsic)
-        mtmp->mintrinsics |= intrinsic;
+        mtmp->mextrinsics |= intrinsic;
 
     if (vis && msg)
         pline(msg, Monnam(mtmp));

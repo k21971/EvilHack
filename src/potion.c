@@ -101,7 +101,7 @@ int which;
 	 * as do monster resistances */
 	if (u.uprops[which].extrinsic ||
 			(u.uprops[which].intrinsic & (FROMEXPER | FROMRACE)) ||
-			(youmonst.mintrinsics & (1 << (which-1)))) { /* depends on FIRE_RES/MR_FIRE order matching! */
+			(youmonst.mextrinsics & (1 << (which-1)))) { /* depends on FIRE_RES/MR_FIRE order matching! */
 		return 100;
 	}
 
