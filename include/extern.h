@@ -515,7 +515,6 @@ E boolean FDECL(could_use_item, (struct monst*, struct obj*, BOOLEAN_P));
 /* ### dogmove.c ### */
 
 E boolean FDECL(acceptable_pet_target, (struct monst*, struct monst*, BOOLEAN_P));
-E void FDECL(dogintr, (struct monst*, struct permonst*));
 E struct obj *FDECL(droppables, (struct monst *));
 E int FDECL(dog_nutrition, (struct monst *, struct obj *));
 E int FDECL(dog_eat, (struct monst *, struct obj *, int, int, BOOLEAN_P));
@@ -670,7 +669,8 @@ E void FDECL(food_substitution, (struct obj *, struct obj *));
 E void FDECL(eating_conducts, (struct permonst *));
 E int FDECL(eat_brains, (struct monst *, struct monst *, BOOLEAN_P, int *));
 E void NDECL(fix_petrification);
-E int FDECL(intrinsic_possible, (int, struct permonst *));
+E boolean FDECL(should_givit, (int, struct permonst *));
+E int FDECL(corpse_intrinsic, (struct permonst *));
 E void FDECL(consume_oeaten, (struct obj *, int));
 E boolean FDECL(maybe_finished_meal, (BOOLEAN_P));
 E void FDECL(set_tin_variety, (struct obj *, int));

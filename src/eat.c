@@ -19,6 +19,7 @@ STATIC_DCL struct obj *FDECL(touchfood, (struct obj *));
 STATIC_DCL void NDECL(do_reset_eat);
 STATIC_DCL void FDECL(done_eating, (BOOLEAN_P));
 STATIC_DCL void FDECL(cprefx, (int));
+STATIC_DCL int FDECL(intrinsic_possible, (int, struct permonst *));
 STATIC_DCL void FDECL(givit, (int, struct permonst *));
 STATIC_DCL void FDECL(cpostfx, (int));
 STATIC_DCL void FDECL(consume_tin, (const char *));
@@ -775,7 +776,7 @@ fix_petrification()
  */
 
 /* intrinsic_possible() returns TRUE iff a monster can give an intrinsic. */
-int
+STATIC_OVL int
 intrinsic_possible(type, ptr)
 int type;
 register struct permonst *ptr;
@@ -836,33 +837,16 @@ register struct permonst *ptr;
     return res;
 }
 
-int
-gives_telepathy_incr(ptr)
+/* The "do we or do we not give the intrinsic" logic from givit(), extracted
+ * into its own function. Depends on the monster's level and the type of
+ * intrinsic it is trying to give you.
+ */
+boolean
+should_givit(type, ptr)
+int type;
 struct permonst *ptr;
 {
-    if (ptr == &mons[PM_FLOATING_EYE]) return 6;
-    if (ptr == &mons[PM_MIND_FLAYER]) return 6;
-    if (ptr == &mons[PM_MASTER_MIND_FLAYER]) return 9;
-    if (ptr == &mons[PM_KOBOLD_SHAMAN]) return 3;
-    if (ptr == &mons[PM_GOBLIN_SHAMAN]) return 3;
-    if (ptr == &mons[PM_ORC_SHAMAN]) return 3;
-    if (ptr == &mons[PM_HILL_GIANT_SHAMAN]) return 3;
-    if (ptr == &mons[PM_GNOMISH_WIZARD]) return 3;
-    return 0;
-}
-
-/* givit() tries to give you an intrinsic based on the monster's level
- * and what type of intrinsic it is trying to give you.
- */
-STATIC_OVL void
-givit(type, ptr)
-int type;
-register struct permonst *ptr;
-{
-    register int chance;
-    long percentincrease;
-
-    debugpline1("Attempting to give intrinsic %d", type);
+    int chance;
     /* some intrinsics are easier to get than others */
     switch (type) {
     case TELEPORT:
@@ -879,8 +863,21 @@ register struct permonst *ptr;
         break;
     }
 
-    if (ptr->mlevel <= rn2(chance))
-        return; /* failed die roll */
+    return (ptr->mlevel <= rn2(chance));
+
+}
+
+/* givit() tries to give you an intrinsic based on the monster's level
+ * and what type of intrinsic it is trying to give you.
+ */
+STATIC_OVL void
+givit(type, ptr)
+int type;
+register struct permonst *ptr;
+{
+
+    long percentincrease;
+    debugpline1("Attempting to give intrinsic %d", type);
 
     percentincrease = (ptr->cwt / 90);
     if (percentincrease < 5) { percentincrease = 5; }
@@ -953,24 +950,76 @@ register struct permonst *ptr;
             You_feel(Hallucination ? "in touch with the cosmos."
                                    : "a strange mental acuity.");
             HTelepat |= FROMOUTSIDE;
-	    u.u_telepathy_dist += gives_telepathy_incr(ptr);
-	} else {
-	    int incr = gives_telepathy_incr(ptr);
-	    if (incr && (u.u_telepathy_dist < 600)) {
-		You_feel(Hallucination ?
-			 "like everyone is tad closer." :
-			 "your senses expand a bit.");
-		u.u_telepathy_dist += incr;
-	        }
-	    }
             /* If blind, make sure monsters show up. */
             if (Blind)
                 see_monsters();
+        }
         break;
     default:
         debugpline0("Tried to give an impossible intrinsic");
         break;
     }
+}
+
+/* Choose (one of) the intrinsics granted by a corpse, and return it.
+ * If this corpse gives no intrinsics, return 0.
+ * For the special not-real-prop cases of strength gain (from giants) and energy
+ * gain (from newts etc), return fake prop values of -1 and -2.
+ * Non-deterministic; should only be called once per corpse.
+ */
+int
+corpse_intrinsic(ptr)
+struct permonst * ptr;
+{
+    int i;
+    int count = 0;
+    int prop = 0;
+    boolean conveys_STR = is_giant(ptr);
+
+    /* Eating magical monsters can give you some magical energy. */
+    /* MRKR: "eye of newt" may give small magical energy boost */
+    boolean conveys_energy = (attacktype(ptr, AT_MAGC)
+                              || ptr == &mons[PM_NEWT]);
+
+    /* Check the monster for all of the intrinsics.  If this
+     * monster can give more than one, pick one to try to give
+     * from among all it can give.
+     *
+     * Strength from giants is now treated like an intrinsic
+     * rather than being given unconditionally.
+     */
+
+    if (conveys_STR) {
+        count++;
+        prop = -1;
+        debugpline1("\"Intrinsic\" strength, %d", prop);
+    }
+    if (conveys_energy) {
+        count++;
+        if (!rn2(count)) {
+            prop = -2;
+            debugpline1("\"Intrinsic\" energy gain, %d", prop);
+        }
+    }
+    for (i = 1; i <= LAST_PROP; i++) {
+        if (!intrinsic_possible(i, ptr))
+            continue;
+        count++;
+        /* a 1 in count chance of replacing the old choice
+           with this one, and a count-1 in count chance
+           of keeping the old choice (note that 1 in 1 and
+           0 in 1 are what we want for the first candidate) */
+        if (!rn2(count)) {
+            debugpline2("Intrinsic %d replacing %d", i, prop);
+            prop = i;
+        }
+    }
+
+    /* if strength is the only candidate, give it 50% chance */
+    if (conveys_STR && count == 1 && !rn2(2))
+        prop = 0;
+
+    return prop;
 }
 
 /* called after completely consuming a corpse */
@@ -1140,8 +1189,6 @@ int pm;
     /* possibly convey an intrinsic */
     if (check_intrinsics) {
         struct permonst *ptr = &mons[pm];
-        boolean conveys_STR = is_giant(ptr);
-        int i, count;
 
         if (dmgtype(ptr, AD_STUN) || dmgtype(ptr, AD_HALU)
             || pm == PM_VIOLET_FUNGUS) {
@@ -1150,28 +1197,8 @@ int pm;
                                      0L);
         }
 
-        /* Check the monster for all of the intrinsics.  If this
-         * monster can give more than one, pick one to try to give
-         * from among all it can give.
-         *
-         * Strength from giants is now treated like an intrinsic
-         * rather than being given unconditionally.
-         */
-        count = 0; /* number of possible intrinsics */
-        tmp = 0;   /* which one we will try to give */
-        if (conveys_STR) {
-            count = 1;
-            tmp = -1; /* use -1 as fake prop index for STR */
-            debugpline1("\"Intrinsic\" strength, %d", tmp);
-        }
-        for (i = 1; i <= LAST_PROP; i++) {
-            if (!intrinsic_possible(i, ptr))
-                continue;
-	    givit(i, ptr);
-        }
-        /* if strength is the only candidate, give it 50% chance */
-        if (conveys_STR && count == 1 && !rn2(2))
-            tmp = 0;
+        tmp = corpse_intrinsic(ptr);
+
         /* if something was chosen, give it now (givit() might fail) */
         if (tmp == -1)
             gainstr((struct obj *) 0, 0, TRUE);

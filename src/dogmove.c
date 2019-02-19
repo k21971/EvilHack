@@ -15,6 +15,7 @@ int FDECL(extra_pref, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_hwep, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_rwep, (struct monst *, struct obj *));
 
+STATIC_DCL void FDECL(dog_givit, (struct monst *, struct permonst *));
 STATIC_DCL boolean FDECL(dog_hunger, (struct monst *, struct edog *));
 STATIC_DCL int FDECL(dog_invent, (struct monst *, struct edog *, int));
 STATIC_DCL int FDECL(dog_goal, (struct monst *, struct edog *, int, int, int));
@@ -517,98 +518,70 @@ boolean devour;
         mcureblindness(mtmp, canseemon(mtmp));
     if (deadmimic)
         quickmimic(mtmp);
-
     if (obj->otyp == CORPSE)
-        dogintr(mtmp, &mons[obj->corpsenm]);
+        dog_givit(mtmp, &mons[obj->corpsenm]);
     return 1;
 }
 
-void
-dogintr(mtmp, ptr)
-struct monst *mtmp;
-register struct permonst *ptr;
+/* Maybe give an intrinsic to a pet from eating a corpse that confers it. */
+STATIC_OVL void
+dog_givit(mtmp, ptr)
+struct monst* mtmp;
+struct permonst* ptr;
 {
-    register int type = 0;
-    register int chance;
-    /* this loop of code is copied from cpostfx, since symmetry is good.
-       In the future this should be put into its own function. */
-    int count = 0, i = 0;
-    for (i = 1; i <= LAST_PROP; i++) {
-        if (!intrinsic_possible(i, ptr))
-            continue;
-        ++count;
-        /* a 1 in count chance of replacing the old choice
-           with this one, and a count-1 in count chance
-           of keeping the old choice (note that 1 in 1 and
-           0 in 1 are what we want for the first candidate) */
-        if (!rn2(count)) {
-            type = i;
-        }
-    }
-    /* this section of code is just a modified version of givit() */
-    switch (type) {
-    case POISON_RES:
-        if ((ptr == &mons[PM_KILLER_BEE] || ptr == &mons[PM_SCORPION])
-            && !rn2(4))
-            chance = 1;
-        else
-            chance = 15;
-        break;
-    case TELEPORT:
-        chance = 10;
-        break;
-    case TELEPORT_CONTROL:
-        chance = 12;
-        break;
-    case TELEPAT:
-        chance = 1;
-        break;
-    default:
-        chance = 15;
-        break;
-    }
+    int prop = corpse_intrinsic(ptr);
+    boolean vis = canseemon(mtmp);
+    const char* msg = NULL;
+    unsigned short intrinsic = 0; /* MR_* constant */
 
-    if (ptr->mlevel <= rn2(chance))
+    if (!should_givit(prop, ptr))
         return; /* failed die roll */
-    switch (type) {
+
+    /* Pets don't have all the fields that the hero does, so they can't get all
+     * the same intrinsics. If it happens to choose strength gain or teleport
+     * control or whatever, ignore it. */
+    switch (prop) {
     case FIRE_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_FIRE)))
-            pline("%s shivers slightly.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_FIRE;
-        break;
-    case SLEEP_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_SLEEP)))
-            pline("%s looks wide awake.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_SLEEP;
+        intrinsic = MR_FIRE;
+        msg = "%s shivers slightly.";
         break;
     case COLD_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_COLD)))
-            pline("%s looks quite warm.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_COLD;
+        intrinsic = MR_COLD;
+        msg = "%s looks quite warm.";
+        break;
+    case SLEEP_RES:
+        intrinsic = MR_SLEEP;
+        msg = "%s looks wide awake.";
         break;
     case DISINT_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_DISINT)))
-            pline("%s seems more firm.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_DISINT;
+        intrinsic = MR_DISINT;
+        msg = "%s looks very firm.";
         break;
     case SHOCK_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_ELEC)))
-            pline("%s crackles with static electricity.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_ELEC;
+        intrinsic = MR_ELEC;
+        msg = "%s crackles with static electricity.";
         break;
     case POISON_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_POISON)))
-            pline("%s looks very healthy.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_POISON;
+        intrinsic = MR_POISON;
+        msg = "%s looks healthy.";
         break;
-    case TELEPORT:
-    case TELEPORT_CONTROL:
     case TELEPAT:
-        break;
-    default:
-        debugpline0("Tried to give an impossible intrinsic");
-        break;
+        if (!mindless(mtmp->data)) {
+            intrinsic = MR2_TELEPATHY;
+            if (haseyes(mtmp->data))
+                msg = "%s blinks a few times.";
+        }
     }
+
+    /* Don't give message if it already had this intrinsic */
+    if (mtmp->mintrinsics & intrinsic)
+        return;
+
+    if (intrinsic)
+        mtmp->mintrinsics |= intrinsic;
+
+    if (vis && msg)
+        pline(msg, Monnam(mtmp));
 }
 
 /* hunger effects -- returns TRUE on starvation */
