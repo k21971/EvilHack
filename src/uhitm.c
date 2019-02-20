@@ -1238,7 +1238,7 @@ int dieroll;
         }
         hittxt = TRUE;
     } else if (unarmed && tmp > 1 && !thrown && !obj && !Upolyd) {
-        /* VERY small chance of stunning opponent if unarmed. */
+        /* VERY small chance of stunning or confusing opponent if unarmed. */
         if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT) && !biggermonst(mdat)
             && !thick_skinned(mdat)) {
             if (rn2(2)) {
@@ -1264,6 +1264,7 @@ int dieroll;
             hittxt = TRUE;
         }
     }
+
     if (!already_killed)
         mon->mhp -= tmp;
     /* adjustments might have made tmp become less than what
