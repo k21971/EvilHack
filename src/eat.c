@@ -1212,7 +1212,7 @@ int pm;
 	    givit(i, ptr);
         }
 
-        tmp = corpse_intrinsic(ptr);
+        /* tmp = corpse_intrinsic(ptr);
 
         /* if something was chosen, give it now (givit() might fail) */
         if (tmp == -1)
