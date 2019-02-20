@@ -1241,20 +1241,29 @@ int dieroll;
         /* VERY small chance of stunning opponent if unarmed. */
         if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT) && !biggermonst(mdat)
             && !thick_skinned(mdat)) {
-            if (canspotmon(mon))
-                pline("%s %s from your powerful strike!", Monnam(mon),
-                      makeplural(stagger(mon->data, "stagger")));
-            /* avoid migrating a dead monster */
-            if (mon->mhp > tmp) {
-                mhurtle(mon, u.dx, u.dy, 1);
-                mdat = mon->data; /* in case of a polymorph trap */
-                if (DEADMONSTER(mon))
-                    already_killed = TRUE;
-            }
+            if (rn2(2)) {
+                if (canspotmon(mon))
+                    pline("%s %s from your powerful strike!", Monnam(mon),
+                          makeplural(stagger(mon->data, "stagger")));
+                /* avoid migrating a dead monster */
+                if (mon->mhp > tmp) {
+                    mhurtle(mon, u.dx, u.dy, 1);
+                    mdat = mon->data; /* in case of a polymorph trap */
+                    if (DEADMONSTER(mon))
+                        already_killed = TRUE;
+                    }
+                } else if (canspotmon(mon) && !mindless(mon->data))
+                    Your("forceful blow knocks %s senseless!", mon_nam(mon));
+                /* avoid migrating a dead monster */
+                if (mon->mhp > tmp) {
+                    mon->mconf = 1;
+                    mdat = mon->data; /* in case of a polymorph trap */
+                    if (DEADMONSTER(mon))
+                        already_killed = TRUE;
+                }
             hittxt = TRUE;
         }
     }
-
     if (!already_killed)
         mon->mhp -= tmp;
     /* adjustments might have made tmp become less than what
