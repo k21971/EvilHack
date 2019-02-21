@@ -4193,6 +4193,7 @@ struct obj *no_wish;
             m_dowear(mtmp, TRUE);
             mtmp->weapon_check = strategy;
             mon_wield_item(mtmp);
+            return otmp;
         }
     }
 #endif /*ARTI_WITH_OWNER */
