@@ -409,7 +409,8 @@ register struct monst *mtmp;
     }
     switch (mtmp->data->msound) {
     case MS_NEMESIS:
-        chat_with_nemesis();
+        if (mtmp->data == &mons[urole.neminum])
+            chat_with_nemesis();
         break;
     case MS_GUARDIAN:
         chat_with_guardian();
@@ -429,7 +430,8 @@ struct monst *mtmp;
     }
     switch (mtmp->data->msound) {
     case MS_NEMESIS:
-        nemesis_speaks();
+        if (mtmp->data == &mons[urole.neminum])
+            nemesis_speaks();
         break;
     case MS_DJINNI:
         prisoner_speaks(mtmp);

@@ -117,32 +117,43 @@ short typ;
 }
 
 struct monst *
-mk_mplayer(ptr, x, y, special)
+mk_mplayer(ptr, x, y, special, obj)
 register struct permonst *ptr;
 xchar x, y;
 register boolean special;
+struct obj *obj;
 {
     register struct monst *mtmp;
-    char nam[PL_NSIZ];
+#ifdef ARTI_WITH_OWNER
+    register boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
+#endif
 
-    if (!is_mplayer(ptr))
-        return ((struct monst *) 0);
+    char nam[PL_NSIZ];
 
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), FALSE); /* insurance */
 
+#ifndef ARTI_WITH_OWNER
     if (!In_endgame(&u.uz))
         special = FALSE;
+#endif
 
     if ((mtmp = makemon(ptr, x, y, NO_MM_FLAGS)) != 0) {
         short weapon, armor, cloak, helm, shield;
         int quan;
         struct obj *otmp;
 
+#ifndef ARTI_WITH_OWNER
         mtmp->m_lev = (special ? rn1(16, 15) : rnd(16));
         mtmp->mhp = mtmp->mhpmax = d((int) mtmp->m_lev, 10)
                                    + (special ? (30 + rnd(30)) : 30);
         if (special) {
+#else
+        mtmp->m_lev = (special ? (ascending ? rn1(16,15) : min(30, u.ulevel + rn1(4,4))) : rnd(16));
+        mtmp->mhp = mtmp->mhpmax = d((int)mtmp->m_lev,10) +
+                    (ascending ? (30 + rnd(30)) : 30);
+        if(ascending) {
+#endif
             get_mplname(mtmp, nam);
             mtmp = christen_monst(mtmp, nam);
             /* that's why they are "stuck" in the endgame :-) */
@@ -255,19 +266,33 @@ register boolean special;
             shield = STRANGE_OBJECT;
             break;
         default:
-            impossible("bad mplayer monster");
-            weapon = 0;
+            weapon = STRANGE_OBJECT;
             break;
         }
+#ifdef ARTI_WITH_OWNER
+        if (obj) {
+            if (obj->oclass == WEAPON_CLASS)
+                weapon = STRANGE_OBJECT;
+            if (is_shield(obj))
+                shield = STRANGE_OBJECT;
+        }
+#endif
 
         if (weapon != STRANGE_OBJECT) {
             otmp = mksobj(weapon, TRUE, FALSE);
+#ifndef ARTI_WITH_OWNER
             otmp->spe = (special ? rn1(5, 4) : rn2(4));
+#else
+            otmp->spe = (ascending ? rn1(5,4) : rn2(4));
+#endif
             if (!rn2(3))
                 otmp->oerodeproof = 1;
             else if (!rn2(2))
                 otmp->greased = 1;
             if (special && rn2(2))
+#ifdef ARTI_WITH_OWNER
+              if (!obj)
+#endif
                 otmp = mk_artifact(otmp, A_NONE);
             /* usually increase stack size if stackable weapon */
             if (objects[otmp->otyp].oc_merge && !otmp->oartifact
@@ -279,7 +304,11 @@ register boolean special;
             (void) mpickobj(mtmp, otmp);
         }
 
+#ifndef ARTI_WITH_OWNER
         if (special) {
+#else
+        if(ascending) {
+#endif
             if (!rn2(10))
                 (void) mongets(mtmp, rn2(3) ? LUCKSTONE : LOADSTONE);
             mk_mplayer_armor(mtmp, armor);
@@ -353,7 +382,7 @@ boolean special;
         if (tryct > 50)
             return;
 
-        (void) mk_mplayer(&mons[pm], (xchar) x, (xchar) y, special);
+        (void) mk_mplayer(&mons[pm], (xchar) x, (xchar) y, special, NULL);
         num--;
     }
 }

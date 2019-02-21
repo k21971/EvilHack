@@ -1394,7 +1394,7 @@ int mmflags;
         mtmp = christen_monst(mtmp, rndghostname());
     } else if (mndx == PM_CROESUS) {
         mitem = TWO_HANDED_SWORD;
-    } else if (ptr->msound == MS_NEMESIS) {
+    } else if (mndx == urole.neminum) {
         mitem = BELL_OF_OPENING;
     } else if (mndx == PM_PESTILENCE) {
         mitem = POT_SICKNESS;

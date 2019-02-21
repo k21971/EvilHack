@@ -2281,7 +2281,7 @@ register struct monst *mtmp;
     }
     if (mtmp->iswiz)
         wizdead();
-    if (mtmp->data->msound == MS_NEMESIS)
+    if (tmp == urole.neminum)
         nemdead();
     /* Medusa falls into two livelog categories,
      * we log one message flagged for both categories,
@@ -2775,7 +2775,7 @@ cleanup:
         adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
         pline("That was %sa bad idea...",
               u.uevent.qcompleted ? "probably " : "");
-    } else if (mdat->msound == MS_NEMESIS) { /* Real good! */
+    } else if (mndx == urole.neminum) { /* Real good! */
         adjalign((int) (ALIGNLIM / 4));
     } else if (mdat->msound == MS_GUARDIAN) { /* Bad */
         adjalign(-(int) (ALIGNLIM / 8));

@@ -1643,7 +1643,7 @@ struct mkroom *croom;
     if (m->align != -(MAX_REGISTERS + 2))
         mtmp = mk_roamer(pm, Amask2align(amask), x, y, m->peaceful);
     else if (PM_ARCHEOLOGIST <= m->id && m->id <= PM_WIZARD)
-        mtmp = mk_mplayer(pm, x, y, FALSE);
+        mtmp = mk_mplayer(pm, x, y, FALSE, NULL);
     else
         mtmp = makemon(pm, x, y, NO_MM_FLAGS);
 
