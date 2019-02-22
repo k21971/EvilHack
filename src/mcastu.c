@@ -34,7 +34,8 @@ enum mcast_cleric_spells {
     CLC_CURSE_ITEMS,
     CLC_LIGHTNING,
     CLC_FIRE_PILLAR,
-    CLC_GEYSER
+    CLC_GEYSER,
+    CLC_VULN_YOU
 };
 
 extern void you_aggravate(struct monst *);
@@ -172,6 +173,7 @@ int spellnum;
     case 4:
         return CLC_PARALYZE;
     case 3:
+        return CLC_VULN_YOU;
     case 2:
         return CLC_CONFUSE_YOU;
     case 1:
@@ -523,6 +525,14 @@ int spellnum;
         mdamageu(mtmp, dmg);
 }
 
+const char* vulntext[] = {
+	"chartreuse polka-dot",
+	"reddish-orange",
+	"purplish-blue",
+	"coppery-yellow",
+	"greenish-mottled"
+};
+
 STATIC_OVL
 void
 cast_cleric_spell(mtmp, dmg, spellnum)
@@ -726,6 +736,34 @@ int spellnum;
             dmg = 0;
         }
         break;
+    case CLC_VULN_YOU:
+	dmg = rnd(4);
+	pline("A %s film oozes over your skin!", Blind ? "slimy" : vulntext[dmg]);
+	switch (dmg) {
+		case 1:
+			if (Vulnerable_fire) return;
+			incr_itimeout(&HVulnerable_fire, rnd(100)+150);
+			You_feel("more inflammable.");
+			break;
+		case 2:
+			if (Vulnerable_cold) return;
+			incr_itimeout(&HVulnerable_cold, rnd(100)+150);
+			You_feel("extremely chilly.");
+			break;
+		case 3:
+			if (Vulnerable_elec) return;
+			incr_itimeout(&HVulnerable_elec, rnd(100)+150);
+			You_feel("overly conductive.");
+			break;
+		case 4:
+			if (Vulnerable_acid) return;
+			incr_itimeout(&HVulnerable_acid, rnd(100)+150);
+			You_feel("easily corrodable.");
+			break;
+		default:
+			break;
+	}
+	break;
     case CLC_OPEN_WOUNDS:
         if (Antimagic) {
             shieldeff(u.ux, u.uy);

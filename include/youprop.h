@@ -52,6 +52,26 @@
 #define EDrain_resistance u.uprops[DRAIN_RES].extrinsic
 #define Drain_resistance (HDrain_resistance || EDrain_resistance)
 
+#define HVulnerable_fire u.uprops[VULN_FIRE].intrinsic
+#define EVulnerable_fire u.uprops[VULN_FIRE].extrinsic
+#define Vulnerable_fire (HVulnerable_fire || EVulnerable_fire \
+		         || vulnerable_to(&youmonst, AD_FIRE))
+
+#define HVulnerable_cold u.uprops[VULN_COLD].intrinsic
+#define EVulnerable_cold u.uprops[VULN_COLD].extrinsic
+#define Vulnerable_cold (HVulnerable_cold || EVulnerable_cold \
+		         || vulnerable_to(&youmonst, AD_COLD))
+
+#define HVulnerable_elec u.uprops[VULN_ELEC].intrinsic
+#define EVulnerable_elec u.uprops[VULN_ELEC].extrinsic
+#define Vulnerable_elec (HVulnerable_elec || EVulnerable_elec \
+		         || vulnerable_to(&youmonst, AD_ELEC))
+
+#define HVulnerable_acid u.uprops[VULN_ACID].intrinsic
+#define EVulnerable_acid u.uprops[VULN_ACID].extrinsic
+#define Vulnerable_acid	(HVulnerable_acid || EVulnerable_acid \
+		         || vulnerable_to(&youmonst, AD_ACID))
+
 /* Hxxx due to FROMFORM only */
 #define HAntimagic u.uprops[ANTIMAGIC].intrinsic
 #define EAntimagic u.uprops[ANTIMAGIC].extrinsic

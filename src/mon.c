@@ -616,7 +616,7 @@ register struct monst *mtmp;
 
         if (cansee(mtmp->mx, mtmp->my))
             pline("%s rusts.", Monnam(mtmp));
-        mtmp->mhp -= dam;
+        damage_mon(mtmp, dam, AD_PHYS); /* Not quite accurate but no resistance to rusting */
         if (mtmp->mhpmax > dam)
             mtmp->mhpmax -= dam;
         if (DEADMONSTER(mtmp)) {
@@ -660,7 +660,7 @@ register struct monst *mtmp;
                 else
                     xkilled(mtmp, XKILL_NOMSG);
             } else {
-                mtmp->mhp -= 1;
+                damage_mon(mtmp, 1, AD_FIRE);
                 if (DEADMONSTER(mtmp)) {
                     if (cansee(mtmp->mx, mtmp->my))
                         pline("%s surrenders to the fire.", Monnam(mtmp));
@@ -718,7 +718,7 @@ register struct monst *mtmp;
         if (mtmp->data->mlet == S_EEL && !Is_waterlevel(&u.uz)) {
             /* as mhp gets lower, the rate of further loss slows down */
             if (mtmp->mhp > 1 && rn2(mtmp->mhp) > rn2(8))
-                mtmp->mhp--;
+                damage_mon(mtmp, 1, AD_PHYS);
             monflee(mtmp, 2, FALSE, FALSE);
         }
     }
@@ -2377,7 +2377,7 @@ boolean was_swallowed; /* digestion */
                     losehp(Maybe_Half_Phys(tmp), killer.name, KILLED_BY_AN);
                 } else {
                     You_hear("an explosion.");
-                    magr->mhp -= tmp;
+                    damage_mon(magr, tmp, AD_PHYS);
                     if (DEADMONSTER(magr))
                         mondied(magr);
                     if (DEADMONSTER(magr)) { /* maybe lifesaved */
@@ -4222,6 +4222,22 @@ int damtype, dam;
                 pline("%s seems healthier.", Monnam(mon));
         }
     }
+}
+
+/* Damages mon by amount of type; handles vulnerabilities.
+ * Returns whether mon should have died or not.
+ */
+boolean
+damage_mon(mon, amount, type)
+struct monst* mon;
+int amount;
+int type;
+{
+    if (vulnerable_to(mon, type)) {
+	amount *= 1.5;
+    }
+    mon->mhp -= amount;
+    return (mon->mhp < 1);
 }
 
 boolean

@@ -86,9 +86,13 @@ enum prop_types {
     REFLECTING        = 66,
     FREE_ACTION       = 67,
     FIXED_ABIL        = 68,
-    LIFESAVED         = 69
+    LIFESAVED         = 69,
+    VULN_FIRE         = 70,
+    VULN_COLD         = 71,
+    VULN_ELEC         = 72,
+    VULN_ACID         = 73
 };
-#define LAST_PROP (LIFESAVED)
+#define LAST_PROP (VULN_ACID)
 
 /*** Where the properties come from ***/
 /* Definitions were moved here from obj.h and you.h */

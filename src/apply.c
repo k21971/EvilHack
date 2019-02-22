@@ -754,7 +754,7 @@ register xchar x, y;
                 ; /* still close enough */
             } else if (otmp->cursed && !breathless(mtmp->data)) {
                 if (um_dist(mtmp->mx, mtmp->my, 5)
-                    || (mtmp->mhp -= rnd(2)) <= 0) {
+                    || damage_mon(mtmp, rnd(2), AD_PHYS)) {
                     long save_pacifism = u.uconduct.killer;
 
                     Your("leash chokes %s to death!", mon_nam(mtmp));

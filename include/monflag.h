@@ -150,8 +150,13 @@
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
 
 #define M3_DISPLACES 0x0400 /* moves monsters out of its way */
-#define M3_SKITTISH  0x0800 /* tends to stay a few squares away from you */
-#define M3_ACCURATE  0x1000 /* gets an accuracy bonus to hit */
+#define M3_SKITTISH 0x0800  /* tends to stay a few squares away from you */
+#define M3_ACCURATE 0x1000  /* gets an accuracy bonus to hit */
+
+#define M4_VULNERABLE_FIRE 0x0001 /* inherent elemental vulnerabilities */
+#define M4_VULNERABLE_COLD 0x0002
+#define M4_VULNERABLE_ELEC 0x0004
+#define M4_VULNERABLE_ACID 0x0008
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */

@@ -97,7 +97,7 @@ boolean clumsy;
         dmg += uarmf->spe;
     dmg += u.udaminc; /* add ring(s) of increase damage */
     if (dmg > 0)
-        mon->mhp -= dmg;
+        damage_mon(mon, dmg, AD_PHYS);
     if (!DEADMONSTER(mon) && martial() && !bigmonst(mon->data) && !rn2(3)
         && mon->mcanmove && mon != u.ustuck && !mon->mtrapped) {
         /* see if the monster has a place to move into */

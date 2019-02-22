@@ -1266,7 +1266,7 @@ int dieroll;
     }
 
     if (!already_killed)
-        mon->mhp -= tmp;
+        damage_mon(mon, tmp, AD_PHYS);
     /* adjustments might have made tmp become less than what
        a level draining artifact has already done to max HP */
     if (mon->mhp > mon->mhpmax)
@@ -1879,7 +1879,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
 
             pline("%s suddenly seems weaker!", Monnam(mdef));
             mdef->mhpmax -= xtmp;
-            mdef->mhp -= xtmp;
+            damage_mon(mdef, xtmp, AD_DRLI);
             /* !m_lev: level 0 monster is killed regardless of hit points
                rather than drop to level -1 */
             if (DEADMONSTER(mdef) || !mdef->m_lev) {
@@ -2045,7 +2045,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
     }
 
     mdef->mstrategy &= ~STRAT_WAITFORU; /* in case player is very fast */
-    mdef->mhp -= tmp;
+    damage_mon(mdef, tmp, mattk->adtyp);
     if (DEADMONSTER(mdef)) {
         if (mdef->mtame && !cansee(mdef->mx, mdef->my)) {
             You_feel("embarrassed for a moment.");
@@ -2096,7 +2096,7 @@ register struct attack *mattk;
  common:
         if (!resistance) {
             pline("%s gets blasted!", Monnam(mdef));
-            mdef->mhp -= tmp;
+            damage_mon(mdef, tmp, AD_ELEC);
             if (DEADMONSTER(mdef)) {
                 killed(mdef);
                 return 2;
@@ -2350,7 +2350,7 @@ register struct attack *mattk;
                 break;
             }
             end_engulf();
-            mdef->mhp -= dam;
+            damage_mon(mdef, dam, mattk->adtyp);
             if (DEADMONSTER(mdef)) {
                 killed(mdef);
                 if (DEADMONSTER(mdef)) /* not lifesaved */
@@ -3218,7 +3218,7 @@ int dmg;
 {
     pline("%s %s!", Monnam(mon),
           (dmg > mon->mhp / 2) ? "wails in agony" : "cries out in pain");
-    mon->mhp -= dmg;
+    damage_mon(mon, dmg, AD_BLND);
     wake_nearto(mon->mx, mon->my, 30);
     if (DEADMONSTER(mon)) {
         if (context.mon_moving)

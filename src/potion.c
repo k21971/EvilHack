@@ -97,15 +97,34 @@ int
 how_resistant(which)
 int which;
 {
-	/* externals and level/race based intrinsics always provide 100%
-	 * as do monster resistances */
-	if (u.uprops[which].extrinsic ||
-			(u.uprops[which].intrinsic & (FROMEXPER | FROMRACE)) ||
-			(youmonst.mextrinsics & (1 << (which-1)))) { /* depends on FIRE_RES/MR_FIRE order matching! */
-		return 100;
-	}
+    int val;
 
-	return (u.uprops[which].intrinsic & TIMEOUT);
+    /* externals and level/race based intrinsics always provide 100%
+     * as do monster resistances */
+    if (u.uprops[which].extrinsic ||
+		(u.uprops[which].intrinsic & (FROMEXPER | FROMRACE)) ||
+		(youmonst.mextrinsics & (1 << (which-1)))) { /* depends on FIRE_RES/MR_FIRE order matching! */
+	val = 100;
+    } else {
+	/* None of this is necessary, but this is going in without a savebreak
+	* so people might load save files that have values higher than 100 */
+	val = (u.uprops[which].intrinsic & TIMEOUT);
+	if (val > 100) {
+	    val = 100;
+	    u.uprops[which].intrinsic &= ~TIMEOUT;
+	    u.uprops[which].intrinsic |= (val | HAVEPARTIAL);
+	}
+    }
+
+    /* vulnerability will affect things... */
+    switch (which) {
+	case FIRE_RES:	 if (Vulnerable_fire) { val -= 50; } break;
+	case COLD_RES:	 if (Vulnerable_cold) { val -= 50; } break;
+	case SHOCK_RES:  if (Vulnerable_elec) { val -= 50; } break;
+	case ACID_RES:	 if (Vulnerable_acid) { val -= 50; } break;
+	default: break;
+    }
+    return val;
 }
 
 /* Handles the damage-reduction shuffle necessary to convert 80% resistance
@@ -1412,7 +1431,7 @@ int how;
                       buf);
         }
         if (rn2(5) && mon->mhp > 1 && !hit_saddle)
-            mon->mhp--;
+            damage_mon(mon, 1, AD_PHYS);
     }
 
     /* oil doesn't instantly evaporate; Neither does a saddle hit */
@@ -1564,7 +1583,7 @@ int how;
                           is_silent(mon->data) ? "writhes" : "shrieks");
                     if (!is_silent(mon->data))
                         wake_nearto(tx, ty, mon->data->mlevel * 10);
-                    mon->mhp -= d(2, 6);
+                    damage_mon(mon, d(2, 6), AD_ACID);
                     /* should only be by you */
                     if (DEADMONSTER(mon))
                         killed(mon);
@@ -1587,7 +1606,7 @@ int how;
             } else if (mon->data == &mons[PM_IRON_GOLEM]) {
                 if (canseemon(mon))
                     pline("%s rusts.", Monnam(mon));
-                mon->mhp -= d(1, 6);
+                damage_mon(mon, d(1, 6), AD_PHYS);
                 /* should only be by you */
                 if (DEADMONSTER(mon))
                     killed(mon);
@@ -1603,7 +1622,7 @@ int how;
                       is_silent(mon->data) ? "writhes" : "shrieks");
                 if (!is_silent(mon->data))
                     wake_nearto(tx, ty, mon->data->mlevel * 10);
-                mon->mhp -= d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
+                damage_mon(mon, d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8), AD_ACID);
                 if (DEADMONSTER(mon)) {
                     if (your_fault)
                         killed(mon);

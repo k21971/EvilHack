@@ -999,7 +999,7 @@ genericptr_t p2;
             }
             if (resists_poison(mtmp))
                 return FALSE;
-            mtmp->mhp -= rnd(dam) + 5;
+            damage_mon(mtmp, rnd(dam) + 5, AD_DRST);
             if (DEADMONSTER(mtmp)) {
                 if (heros_fault(reg))
                     killed(mtmp);

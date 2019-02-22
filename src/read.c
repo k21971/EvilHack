@@ -1830,7 +1830,7 @@ boolean confused, byu;
                           xname(helmet), mhim(mtmp));
             }
         }
-        mtmp->mhp -= mdmg;
+        damage_mon(mtmp, mdmg, AD_PHYS);
         if (DEADMONSTER(mtmp)) {
             if (byu) {
                 killed(mtmp);

@@ -2598,6 +2598,14 @@ int final;
                 from_what(HALLUC_RES));
     if (u.uedibility)
         you_can("recognize detrimental food", "");
+    if (Vulnerable_fire)
+        you_are("vulnerable to fire", "");
+    if (Vulnerable_cold)
+        you_are("vulnerable to cold", "");
+    if (Vulnerable_elec)
+        you_are("vulnerable to electricity", "");
+    if (Vulnerable_acid)
+        you_are("vulnerable to acid", "");
 
     /*** Vision and senses ***/
     if (!Blind && (Blinded || !haseyes(youmonst.data)))

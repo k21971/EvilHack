@@ -628,7 +628,7 @@ register struct monst *mtmp;
                 if (3 + find_mac(mtmp) <= rnd(20)) {
                     pline("%s is hit by a falling piercer (you)!",
                           Monnam(mtmp));
-                    if ((mtmp->mhp -= d(3, 6)) < 1)
+                    if (damage_mon(mtmp, d(3, 6), AD_PHYS))
                         killed(mtmp);
                 } else
                     pline("%s is almost hit by a falling piercer (you)!",
@@ -3131,7 +3131,7 @@ struct attack *mattk;
 			if (resists_poison(mtmp)) { return 1; }
 			i = rn2(20);
 			if (i) {
-				mtmp->mhp -= rnd(4);
+				damage_mon(mtmp, rnd(4), AD_DRST);
 				if (rn2(3)) { pline("%s staggers from the poison!", Monnam(mtmp)); }
 			}
 			else {
@@ -3343,7 +3343,7 @@ struct attack *mattk;
         tmp = 0;
 
  assess_dmg:
-    if ((mtmp->mhp -= tmp) <= 0) {
+    if (damage_mon(mtmp, tmp, youmonst.data->mattk[i].adtyp)) {
         pline("%s dies!", Monnam(mtmp));
         xkilled(mtmp, XKILL_NOMSG);
         if (!DEADMONSTER(mtmp))

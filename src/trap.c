@@ -2612,7 +2612,7 @@ register struct monst *mtmp;
 
                 if (in_sight)
                     seetrap(trap);
-                mtmp->mhp -= dmgval2;
+                damage_mon(mtmp, dmgval2, AD_MAGM);
                 if (DEADMONSTER(mtmp))
                     monkilled(mtmp,
                               in_sight
@@ -4145,7 +4145,7 @@ boolean force_failure;
                 if (ttype == BEAR_TRAP) {
                     if (mtmp->mtame)
                         abuse_dog(mtmp);
-                    mtmp->mhp -= rnd(4);
+                    damage_mon(mtmp, rnd(4), AD_PHYS);
                     if (DEADMONSTER(mtmp))
                         killed(mtmp);
                 } else if (ttype == WEB) {

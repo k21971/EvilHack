@@ -436,7 +436,7 @@ struct obj *otmp;
             shieldeff(mtmp->mx, mtmp->my);
         } else if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
                    && !DEADMONSTER(mtmp)) {
-            mtmp->mhp -= dmg;
+            damage_mon(mtmp, dmg, AD_DRIN);
             mtmp->mhpmax -= dmg;
             /* die if already level 0, regardless of hit points */
             if (DEADMONSTER(mtmp) || mtmp->mhpmax <= 0 || mtmp->m_lev < 1) {
@@ -5285,7 +5285,7 @@ int damage, tell;
     }
 
     if (damage) {
-        mtmp->mhp -= damage;
+        damage_mon(mtmp, damage, AD_RBRE);
         if (DEADMONSTER(mtmp)) {
             if (m_using)
                 monkilled(mtmp, "", AD_RBRE);

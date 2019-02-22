@@ -579,6 +579,23 @@ nh_timeout()
 	    case REFLECTING:
 		pline("The shimmering globe around you flickers and vanishes.");
 		break;
+	    /* all these need to make sure the external intrinsic isn't there too */
+            case VULN_FIRE:
+		if (!Vulnerable_fire)
+		    You("don't shy away from sparks anymore.");
+		break;
+	    case VULN_COLD:
+		if (!Vulnerable_cold)
+		    You("aren't nervous about open iceboxes now.");
+                break;
+	    case VULN_ELEC:
+		if (!Vulnerable_elec)
+	            You("seem to be a less ideal conductor again.");
+	        break;
+	    case VULN_ACID:
+		if (!Vulnerable_acid)
+		    You("don't seem to dissolve so easily anymore.");
+		break;
             case CONFUSION:
                 /* So make_confused works properly */
                 set_itimeout(&HConfusion, 1L);
