@@ -448,6 +448,20 @@ register struct monst *magr, *mdef;
             }
             if (strike) {
                 res[i] = hitmm(magr, mdef, mattk);
+		if((res[i]) == MM_HIT && otmp
+		    && otmp->otyp == CORPSE
+		    && otmp->corpsenm
+		    && touch_petrifies(&mons[otmp->corpsenm])
+	            && !resists_ston(mdef)) {
+			if (poly_when_stoned(mdef->data)) {
+			    mon_to_stone(mdef);
+			} else {
+			    mdef->mstone = 5;
+			    mdef->mstonebyu = FALSE;
+			}
+			break;
+		}
+
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
                     && (otmp && (objects[otmp->otyp].oc_material == IRON
@@ -1171,7 +1185,7 @@ register struct attack *mattk;
             break;
         }
         if (!resists_ston(mdef)) {
-            if (vis && canseemon(mdef))
+            /* if (vis && canseemon(mdef))
                 pline("%s turns to stone!", Monnam(mdef));
             monstone(mdef);
  post_stone:
@@ -1179,7 +1193,12 @@ register struct attack *mattk;
                 return 0;
             else if (mdef->mtame && !vis)
                 You(brief_feeling, "peculiarly sad");
-            return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+            return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED)); */
+ post_stone:
+	    if (!mdef->mstone) {
+		mdef->mstone = 5;
+		mdef->mstonebyu = FALSE;
+		}
         }
         tmp = (mattk->adtyp == AD_STON ? 0 : 1);
         break;

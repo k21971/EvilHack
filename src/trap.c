@@ -2771,7 +2771,7 @@ boolean byplayer;
 
     /* give a "<mon> is slowing down" message and also remove
        intrinsic speed (comparable to similar effect on the hero) */
-    mon_adjust_speed(mon, -3, (struct obj *) 0);
+    /* mon_adjust_speed(mon, -3, (struct obj *) 0); */
 
     if (cansee(mon->mx, mon->my))
         pline("%s turns to stone.", Monnam(mon));
@@ -4397,7 +4397,8 @@ struct trap *ttmp;
         pline("%s awakens.", Monnam(mtmp));
     } else if (mtmp->mfrozen && !rn2(mtmp->mfrozen)) {
         /* After such manhandling, perhaps the effect wears off */
-        mtmp->mcanmove = 1;
+        if (!mtmp->mstone || mtmp->mstone > 2)
+            mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         pline("%s stirs.", Monnam(mtmp));
     }

@@ -444,7 +444,7 @@ register struct monst *mtmp;
 		pline("Oh, no, this Snark is a Boojum!");
 	        }
 	    } else {
-		return(0);	// mtmp just went away, we'd better bail out
+		return 0;	// mtmp just went away, we'd better bail out
 	    }
 	}
     }
@@ -456,6 +456,11 @@ register struct monst *mtmp;
     /* stunned monsters get un-stunned with larger probability */
     if (mtmp->mstun && !rn2(10))
         mtmp->mstun = 0;
+
+    if (mtmp->mstone && munstone(mtmp, mtmp->mstonebyu)) {
+        mtmp->mstone = 0;
+        return 1; /* this is its move */
+    }
 
     /* some monsters teleport */
     if (mtmp->mflee && !rn2(40) && can_teleport(mdat) && !mtmp->iswiz

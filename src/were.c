@@ -112,7 +112,8 @@ register struct monst *mon;
         /* transformation wakens and/or revitalizes */
         mon->msleeping = 0;
         mon->mfrozen = 0; /* not asleep or paralyzed */
-        mon->mcanmove = 1;
+        if (!mon->mstone || mon->mstone > 2)
+            mon->mcanmove = 1;
     }
     /* regenerate by 1/4 of the lost hit points */
     mon->mhp += (mon->mhpmax - mon->mhp) / 4;

@@ -561,7 +561,8 @@ register struct monst *priest;
             pline("%s breaks out of %s reverie!", Monnam(priest),
                   mhis(priest));
             priest->mfrozen = priest->msleeping = 0;
-            priest->mcanmove = 1;
+	    if (!priest->mstone || priest->mstone > 2)
+		priest->mcanmove = 1;
         }
         priest->mpeaceful = 0;
         verbalize1(cranky_msg[rn2(3)]);

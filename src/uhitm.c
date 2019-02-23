@@ -285,7 +285,8 @@ int *attk_count, *role_roll_penalty;
     if (!mtmp->mcanmove) {
         tmp += 4;
         if (!rn2(10)) {
-            mtmp->mcanmove = 1;
+            if (!mtmp->mstone || mtmp->mstone > 2)
+                mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
         }
     }
@@ -959,10 +960,14 @@ int dieroll;
                                          obj->dknown ? CXN_PFX_THE
                                                      : CXN_ARTICLE));
                         obj->dknown = 1;
-                        if (!munstone(mon, TRUE))
-                            minstapetrify(mon, TRUE);
+                        /* if (!munstone(mon, TRUE))
+                            minstapetrify(mon, TRUE); */
                         if (resists_ston(mon))
                             break;
+			if (!mon->mstone) {
+			    mon->mstone = 5;
+			    mon->mstonebyu = TRUE;
+			}
                         /* note: hp may be <= 0 even if munstoned==TRUE */
                         return (boolean) !DEADMONSTER(mon);
 #if 0
@@ -1009,10 +1014,14 @@ int dieroll;
                               plur(cnt));
                         obj->known = 1; /* (not much point...) */
                         useup_eggs(obj);
-                        if (!munstone(mon, TRUE))
-                            minstapetrify(mon, TRUE);
+                        /* if (!munstone(mon, TRUE))
+                            minstapetrify(mon, TRUE); */
                         if (resists_ston(mon))
                             break;
+			if (!mon->mstone) {
+			    mon->mstone = 5;
+			    mon->mstonebyu = TRUE;
+			}
                         return (boolean) (!DEADMONSTER(mon));
                     } else { /* ordinary egg(s) */
                         const char *eggp = (obj->corpsenm != NON_PM

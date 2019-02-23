@@ -114,7 +114,10 @@ struct monst {
     Bitfield(iswiz, 1);     /* is the Wizard of Yendor */
     Bitfield(wormno, 5);    /* at most 31 worms on any level */
     Bitfield(monmount, 1);  /* whether this monster is a mount of another */
-    /* 1 free bit */
+    Bitfield(mstonebyu, 1); /* you caused the monster to start stoning */
+
+    Bitfield(mstone, 3);    /* monster is turning to stone */
+    /* 5 free bits */
 
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 

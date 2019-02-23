@@ -69,7 +69,8 @@ int distance;
             continue;
         if ((distm = distu(mtmp->mx, mtmp->my)) < distance) {
             mtmp->msleeping = 0;
-            mtmp->mcanmove = 1;
+	    if (!mtmp->mstone || mtmp->mstone > 2)
+                mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
             /* may scare some monsters -- waiting monsters excluded */
             if (!unique_corpstat(mtmp->data)
@@ -183,7 +184,8 @@ struct monst *bugler; /* monster that played instrument */
             continue;
         if (is_mercenary(mtmp->data) && mtmp->data != &mons[PM_GUARD]) {
             mtmp->mpeaceful = mtmp->msleeping = mtmp->mfrozen = 0;
-            mtmp->mcanmove = 1;
+	    if (!mtmp->mstone || mtmp->mstone > 2)
+		mtmp->mcanmove = 1;
             mtmp->mstrategy &= ~STRAT_WAITMASK;
             if (canseemon(mtmp))
                 pline("%s is now ready for battle!", Monnam(mtmp));
