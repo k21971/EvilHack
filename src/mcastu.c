@@ -380,19 +380,25 @@ int spellnum;
     case MGC_DEATH_TOUCH:
         pline("Oh no, %s's using the touch of death!", mhe(mtmp));
         if (nonliving(youmonst.data) || is_demon(youmonst.data)) {
-            You("seem no deader than before.");
-        } else if (!Antimagic && rn2(mtmp->m_lev) > 12) {
+            You("seem no more dead than before.");
+        } else {
             if (Hallucination) {
                 You("have an out of body experience.");
-            } else {
+            } else if (!Antimagic) {
                 killer.format = KILLED_BY_AN;
                 Strcpy(killer.name, "touch of death");
                 done(DIED);
+            } else if (Antimagic) {
+		dmg = d(8, 6);
+		/* Magic resistance in conjunction with half spell damage will cut this in half */
+		if (Antimagic && Half_spell_damage) {
+		    shieldeff(u.ux, u.uy);
+		    dmg /= 2;
+		}
+		You("feel drained...");
+		u.uhpmax -= dmg / 3 + rn2(5);
+		losehp(dmg, "touch of death", KILLED_BY_AN);
             }
-        } else {
-            if (Antimagic)
-                shieldeff(u.ux, u.uy);
-            pline("Lucky for you, it didn't work!");
         }
         dmg = 0;
         break;
