@@ -45,6 +45,7 @@ STATIC_DCL boolean NDECL(reverse_loot);
 STATIC_DCL boolean FDECL(mon_beside, (int, int));
 STATIC_DCL int FDECL(do_loot_cont, (struct obj **, int, int));
 STATIC_DCL void FDECL(tipcontainer, (struct obj *));
+STATIC_DCL void FDECL(dump_container, (struct obj*, BOOLEAN_P));
 
 /* define for query_objlist() and autopickup() */
 #define FOLLOW(curr, flags) \
@@ -2051,19 +2052,20 @@ int depthin;
 {
     /* these won't cause an explosion when they're empty */
     if ((obj->otyp == WAN_CANCELLATION || obj->otyp == BAG_OF_TRICKS)
-        && obj->spe <= 0)
+        && obj->spe <= 0) {
         return FALSE;
+    }
 
-    /* odds: 1/1, 2/2, 3/4, 4/8, 5/16, 6/32, 7/64, 8/128, 9/128, 10/128,... */
-    if ((Is_mbag(obj) || obj->otyp == WAN_CANCELLATION)
-        && (rn2(1 << (depthin > 7 ? 7 : depthin)) <= depthin))
+    /* odds: 1/1 (just scattered though, not gone) */
+    if (Is_mbag(obj) || obj->otyp == WAN_CANCELLATION) {
         return TRUE;
-    else if (Has_contents(obj)) {
+    } else if (Has_contents(obj)) {
         struct obj *otmp;
 
-        for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
+        for (otmp = obj->cobj; otmp; otmp = otmp->nobj) {
             if (mbag_explodes(otmp, depthin + 1))
                 return TRUE;
+        }
     }
     return FALSE;
 }
@@ -2214,15 +2216,13 @@ register struct obj *obj;
                so that useupf() doesn't double bill */
             current_container->no_charge = save_no_charge.no_charge;
         }
-        delete_contents(current_container);
-        if (!floor_container)
-            useup(current_container);
-        else if (obj_here(current_container, u.ux, u.uy))
-            useupf(current_container, current_container->quan);
-        else
-            panic("in_container:  bag not found.");
 
-        losehp(d(6, 6), "magical explosion", KILLED_BY_AN);
+	/* dump it out onto the floor so the scatterage can take effect */
+	dump_container(current_container, TRUE);
+	pline("Its contents fly everywhere!");
+	scatter(u.ux, u.uy, rn2(10), VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
+
+        losehp(d(8, 6), "magical explosion", KILLED_BY_AN);
         current_container = 0; /* baggone = TRUE; */
     }
 
@@ -3340,6 +3340,52 @@ struct obj *box; /* or bag */
         box->owt = weight(box); /* mbag_item_gone() doesn't update this */
         if (held)
             (void) encumber_msg();
+    }
+}
+
+/* Dumps out a container, possibly as the prelude/result of an explosion.
+ * destroy_after trashes the container afterwards.
+ * Player is assumed to not be handling the contents directly.
+ */
+void
+dump_container(container, destroy_after)
+struct obj* container;
+BOOLEAN_P destroy_after;
+{
+    struct obj* otmp, *otmp2;
+
+    /* sanity check */
+    if (!container) {
+        return;
+    }
+
+    for (otmp = container->cobj; otmp; otmp = otmp2)
+    {
+	otmp2 = otmp->nobj;
+	obj_extract_self(otmp);
+	container->owt = weight(container);
+
+	/* we do need to start the timer on these */
+	if (container->otyp == ICE_BOX && !age_is_relative(otmp)) {
+            otmp->age = monstermoves - otmp->age;
+	    if (otmp->otyp == CORPSE) {
+		start_corpse_timeout(otmp);
+	    }
+	}
+	place_object(otmp, u.ux, u.uy);
+
+	if (otmp->otyp == GOLD_PIECE) {
+	    dealloc_obj(otmp);
+            bot();	/* update character's gold piece count immediately */
+	}
+    }
+
+    if (destroy_after) {
+	if (container->where == OBJ_INVENT) {
+	    useup(container);
+	} else if (obj_here(container, u.ux, u.uy)) {
+		   useupf(container, container->quan);
+	}
     }
 }
 
