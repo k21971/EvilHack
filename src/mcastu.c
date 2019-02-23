@@ -4,6 +4,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include "mextra.h"
 
 extern void demonpet();
 
@@ -35,7 +36,8 @@ enum mcast_cleric_spells {
     CLC_LIGHTNING,
     CLC_FIRE_PILLAR,
     CLC_GEYSER,
-    CLC_VULN_YOU
+    CLC_VULN_YOU,
+    CLC_SUMMON_ELM
 };
 
 extern void you_aggravate(struct monst *);
@@ -156,12 +158,13 @@ int spellnum;
             return CLC_OPEN_WOUNDS;
         /*FALLTHRU*/
     case 13:
-        return CLC_GEYSER;
+        return CLC_SUMMON_ELM;
     case 12:
-        return CLC_FIRE_PILLAR;
+        return CLC_GEYSER;
     case 11:
-        return CLC_LIGHTNING;
+        return CLC_FIRE_PILLAR;
     case 10:
+        return CLC_LIGHTNING;
     case 9:
         return CLC_CURSE_ITEMS;
     case 8:
@@ -540,12 +543,30 @@ struct monst *mtmp;
 int dmg;
 int spellnum;
 {
+    int aligntype;
+    static const char *Moloch = "Moloch";
+
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
         impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
         return;
     }
 
     switch (spellnum) {
+    case CLC_SUMMON_ELM: if (!is_demon(mtmp->data)) {
+        if (mtmp->ispriest) {
+	    aligntype = EPRI(mtmp)->shralign;
+	} else {
+	    aligntype = (int)mtmp->data->maligntyp;
+        }
+        if (EPRI(mtmp)->shralign == A_NONE) {
+            pline("A vassal of %s appears!", Moloch);
+                  summon_minion(aligntype, TRUE);
+        } else {
+	    pline("A servant of %s appears!", aligns[1 - aligntype].noun);
+	          summon_minion(aligntype, TRUE);
+            }
+        }
+	break;
     case CLC_GEYSER:
         /* this is physical damage (force not heat),
          * not magical damage or fire damage
@@ -603,7 +624,7 @@ int spellnum;
         rndcurse();
         dmg = 0;
         break;
-    case CLC_INSECTS: {
+    case CLC_INSECTS: if (!is_demon(mtmp->data)) {
         /* Try for insects, and if there are none
            left, go for (sticks to) snakes.  -3. */
         struct permonst *pm = mkclass(S_ANT, 0);
@@ -1582,6 +1603,8 @@ struct monst *mtmp;
 int dmg;
 int spellnum;
 {
+    int aligntype;
+    static const char *Moloch = "Moloch";
     boolean yours = (mattk == &youmonst);
 
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
@@ -1595,6 +1618,27 @@ int spellnum;
     }
 
     switch (spellnum) {
+    case CLC_SUMMON_ELM:
+        if (!mtmp || mtmp->mhp < 1) {
+            impossible("summon elemental spell with no mtmp");
+            return;
+        }
+
+        if (!is_demon(mtmp->data)) {
+        if (mtmp->ispriest) {
+            aligntype = EPRI(mtmp)->shralign;
+        } else {
+            aligntype = (int)mtmp->data->maligntyp;
+        }
+        if (EPRI(mtmp)->shralign == A_NONE) {
+            pline("A vassal of %s appears!", Moloch);
+                  summon_minion(aligntype, TRUE);
+        } else {
+            pline("A servant of %s appears!", aligns[1 - aligntype].noun);
+                  summon_minion(aligntype, TRUE);
+            }
+        }
+        break;
     case CLC_GEYSER:
        	/* this is physical damage, not magical damage */
        	if (!mtmp || mtmp->mhp < 1) {
@@ -1657,7 +1701,7 @@ int spellnum;
        	dmg = 0;
        	break;
     case CLC_INSECTS:
-    {
+        if (!is_demon(mtmp->data)) {
          	/* Try for insects, and if there are none
          	   left, go for (sticks to) snakes.  -3. */
          	struct permonst *pm = mkclass(S_ANT,0);
@@ -1714,7 +1758,7 @@ int spellnum;
          	}
          	dmg = 0;
          	break;
-      }
+          }
       case CLC_BLIND_YOU:
           if (!mtmp || mtmp->mhp < 1) {
          	    impossible("blindness spell with no mtmp");
