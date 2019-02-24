@@ -144,9 +144,9 @@ int type;
 int ef_flags;
 {
     static NEARDATA const char
-        *const action[] = { "smoulder", "rust", "rot", "corrode" },
-        *const msg[] = { "burnt", "rusted", "rotten", "corroded" },
-        *const bythe[] = { "heat", "oxidation", "decay", "corrosion" };
+        *const action[] = { "smoulder", "rust", "rot", "corrode", "deteriorate" },
+        *const msg[] = { "burnt", "rusted", "rotten", "corroded", "deteriorated" },
+        *const bythe[] = { "heat", "oxidation", "decay", "corrosion", "deterioration" };
     boolean vulnerable = FALSE, is_primary = TRUE,
             check_grease = (ef_flags & EF_GREASE) ? TRUE : FALSE,
             print = (ef_flags & EF_VERBOSE) ? TRUE : FALSE,
@@ -183,6 +183,12 @@ int ef_flags;
         vulnerable = is_corrodeable(otmp);
         is_primary = FALSE;
         cost_type = COST_CORRODE;
+        break;
+    case ERODE_DETERIORATE:
+        vulnerable = is_supermaterial(otmp);
+        check_grease = FALSE;
+        is_primary = FALSE;
+        cost_type = COST_DETERIORATE;
         break;
     default:
         impossible("Invalid erosion type in erode_obj");

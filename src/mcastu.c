@@ -114,12 +114,12 @@ int spellval;
     case 15:
         return MGC_SUMMON_MONS;
     case 14:
-    case 13:
         return MGC_AGGRAVATION;
+    case 13:
     case 12:
     case 11:
-    case 10:
         return MGC_CURSE_ITEMS;
+    case 10:
     case 9:
     case 8:
         return MGC_DESTRY_ARMR;
@@ -371,6 +371,9 @@ struct monst *mtmp;
 int dmg;
 int spellnum;
 {
+    struct obj* oatmp;
+    int erodelvl;
+
     if (dmg == 0 && !is_undirected_spell(AD_SPEL, spellnum)) {
         impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
         return;
@@ -444,11 +447,36 @@ int spellnum;
         dmg = 0;
         break;
     case MGC_DESTRY_ARMR:
+	erodelvl = rnd(3);
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
-            pline("A field of force surrounds you!");
-        } else if (!destroy_arm(some_armor(&youmonst))) {
-            Your("skin itches.");
+	    erodelvl = 1;
+	}
+	oatmp = some_armor(&youmonst);
+	if (oatmp) {
+	    if (oatmp->oerodeproof) {
+                if (!Blind) {
+		    pline("Your %s glows brown for a moment.", xname(oatmp));
+                } else {
+                    pline("Your %s briefly emits an odd smell.", xname(oatmp));
+                }
+		oatmp->oerodeproof = 0;
+	    }
+	    if (greatest_erosion(oatmp) == MAX_ERODE) {
+		destroy_arm(oatmp);
+	    } else {
+		while (erodelvl-- > 0) {
+                if (is_corrodeable(oatmp)) {
+                    (void) erode_obj(oatmp, (char *) 0, ERODE_CORRODE, EF_VERBOSE);
+                } else if (is_supermaterial(oatmp)) {
+                    (void) erode_obj(oatmp, (char *) 0, ERODE_DETERIORATE, EF_VERBOSE);
+                } else {
+                    (void) erode_obj(oatmp, (char *) 0, ERODE_ROT, EF_VERBOSE);
+                    }
+		}
+	    }
+	} else {
+	    Your("skin itches.");
         }
         dmg = 0;
         break;

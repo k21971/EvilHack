@@ -79,6 +79,8 @@ struct objclass {
     Bitfield(oc_material, 5); /* one of obj_material_types */
 
 #define is_organic(otmp) (objects[otmp->otyp].oc_material <= WOOD)
+#define is_dragonhide(otmp) (objects[otmp->otyp].oc_material == DRAGON_HIDE)
+#define is_mithril(otmp) (objects[otmp->otyp].oc_material == MITHRIL)
 #define is_metallic(otmp)                    \
     (objects[otmp->otyp].oc_material >= IRON \
      && objects[otmp->otyp].oc_material <= MITHRIL)
@@ -94,6 +96,10 @@ struct objclass {
 #define is_corrodeable(otmp)                   \
     (objects[otmp->otyp].oc_material == COPPER \
      || objects[otmp->otyp].oc_material == IRON)
+
+#define is_supermaterial(otmp)                      \
+    (objects[otmp->otyp].oc_material == DRAGON_HIDE \
+     || objects[otmp->otyp].oc_material == MITHRIL)
 
 #define is_damageable(otmp)                                        \
     (is_rustprone(otmp) || is_flammable(otmp) || is_rottable(otmp) \
