@@ -239,6 +239,8 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
         /* behave as if leader imparts sufficient info about the
            quest artifact */
         fully_identify_obj(obj);
+            obj->oeroded = obj->oeroded2 = 0;   /* undo any damage */
+	    obj->oerodeproof = 1;		/* Leader 'fixes' it for you */
         update_inventory();
     }
 }
