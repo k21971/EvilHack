@@ -512,6 +512,11 @@ nh_timeout()
         }
     }
 
+    /* Give a small warning that spell-based reflection is running out. */
+    if (HReflecting == 20 && !Blind) {
+	pline("The shimmering globe around you is starting to fade.");
+    }
+
     if (u.ugallop) {
         if (--u.ugallop == 0L && u.usteed)
             pline("%s stops galloping.", Monnam(u.usteed));
