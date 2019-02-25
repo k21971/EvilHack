@@ -2799,10 +2799,13 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     newsym(x, y);
 
 cleanup:
-    /* punish bad behaviour */
-    if (is_human(mdat)
-        && (!always_hostile(mdat) && mtmp->malign <= 0)
-        && (mndx < PM_ARCHEOLOGIST || mndx > PM_WIZARD)
+    /* punish bad behaviour...
+     * Change needed since there are racial shopkeepers now,
+     * should also prevent triggering being a murderer on Astral
+     * if you need to kill that renegade priest that's trying
+     * to kill you.
+     */
+    if (((always_peaceful(mdat) && mtmp->malign <= 0) || mtmp->isshk)
         && u.ualign.type != A_CHAOTIC) {
         HTelepat &= ~INTRINSIC;
         change_luck(-2);
