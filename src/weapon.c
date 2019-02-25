@@ -1034,7 +1034,9 @@ dbon()
     else
         dbon = 6;
 
-    if (uwep && bimanual(uwep)) { dbon *= 2 - (dbon / 2); }
+    if (uwep && bimanual(uwep)) {
+        dbon *= 1.5;
+    }
 	return dbon;
 }
 

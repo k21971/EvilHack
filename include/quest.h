@@ -11,6 +11,7 @@ struct q_score {              /* Quest "scorecard" */
     Bitfield(not_ready, 3);   /* rejected due to alignment, etc. */
     Bitfield(pissed_off, 1);  /* got the leader angry */
     Bitfield(got_quest, 1);   /* got the quest assignment */
+    Bitfield(killed_leader, 1); /* killed the quest leader */
 
     Bitfield(first_locate, 1); /* only set the first time */
     Bitfield(met_intermed, 1); /* used if the locate is a person. */

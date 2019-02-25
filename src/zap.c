@@ -3710,7 +3710,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 break;
             }
             if (nonliving(mon->data) || is_demon(mon->data)
-                || is_vampshifter(mon) || resists_magm(mon)) {
+                || is_vampshifter(mon) || resists_magm(mon)
+                || mon->data->msound == MS_LEADER) {
                 /* similar to player */
                 sho_shieldeff = TRUE;
                 break;

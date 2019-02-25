@@ -269,6 +269,17 @@ register struct monst *mtmp;
         } else if (mm == PM_NINJA) { /* extra quest villains */
             (void) mongets(mtmp, rn2(4) ? SHURIKEN : DART);
             (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : AXE);
+        } else if (mm == PM_KING_ARTHUR) {
+            /* If it has not yet been generated, of course
+               Arthur gets Excalibur */
+            otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_EXCALIBUR));
+            bless(otmp);
+            otmp->oerodeproof = TRUE;
+            spe2 = rn2(4);
+            otmp->spe = max(otmp->spe, spe2);
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, LARGE_SHIELD);
         } else if (ptr->msound == MS_GUARDIAN) {
             /* quest "guardians" */
             switch (mm) {

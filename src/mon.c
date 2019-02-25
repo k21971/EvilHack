@@ -2335,6 +2335,8 @@ register struct monst *mtmp;
         wizdead();
     if (tmp == urole.neminum)
         nemdead();
+    if (mtmp->data->msound == MS_LEADER)
+        leaddead();
     /* Medusa falls into two livelog categories,
      * we log one message flagged for both categories,
      * but only for the first kill. Subsequent kills are not an achievement.

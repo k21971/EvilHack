@@ -18,7 +18,7 @@ STATIC_DCL void NDECL(on_goal);
 STATIC_DCL boolean NDECL(not_capable);
 STATIC_DCL int FDECL(is_pure, (BOOLEAN_P));
 STATIC_DCL void FDECL(expulsion, (BOOLEAN_P));
-STATIC_DCL void NDECL(chat_with_leader);
+STATIC_DCL void FDECL(chat_with_leader, (struct monst *));
 STATIC_DCL void NDECL(chat_with_nemesis);
 STATIC_DCL void NDECL(chat_with_guardian);
 STATIC_DCL void FDECL(prisoner_speaks, (struct monst *));
@@ -114,6 +114,14 @@ nemdead()
 }
 
 void
+leaddead()
+{
+    if (!Qstat(killed_leader)) {
+        Qstat(killed_leader) = TRUE;
+    }
+}
+
+void
 artitouch(obj)
 struct obj *obj;
 {
@@ -132,8 +140,8 @@ struct obj *obj;
 boolean
 ok_to_quest()
 {
-    return (boolean) ((Qstat(got_quest) || Qstat(got_thanks))
-                      && is_pure(FALSE) > 0);
+    return (boolean) (((Qstat(got_quest) || Qstat(got_thanks))
+                      && is_pure(FALSE) > 0)  || Qstat(killed_leader));
 }
 
 STATIC_OVL boolean
@@ -190,6 +198,7 @@ boolean seal;
     portal_flag = u.uevent.qexpelled ? 0 /* returned via artifact? */
                                      : !seal ? 1 : -1;
     schedule_goto(dest, FALSE, FALSE, portal_flag, (char *) 0, (char *) 0);
+
     if (seal) { /* remove the portal to the quest - sealing it off */
         int reexpelled = u.uevent.qexpelled;
 
@@ -245,8 +254,9 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
     }
 }
 
-STATIC_OVL void
-chat_with_leader()
+void
+chat_with_leader(mtmp)
+register struct monst* mtmp;
 {
     /*  Rule 0: Cheater checks. */
     if (u.uhave.questart && !Qstat(met_nemesis))
@@ -298,17 +308,13 @@ chat_with_leader()
             expulsion(FALSE);
         } else if (is_pure(TRUE) < 0) {
             com_pager(QT_BANISHED);
-            expulsion(TRUE);
+            setmangry(mtmp, FALSE);
+            expulsion(FALSE);
         } else if (is_pure(TRUE) == 0) {
             qt_pager(QT_BADALIGN);
-            if (Qstat(not_ready) == MAX_QUEST_TRIES) {
-                qt_pager(QT_LASTLEADER);
-                expulsion(TRUE);
-            } else {
-                Qstat(not_ready)++;
-                exercise(A_WIS, TRUE);
-                expulsion(FALSE);
-            }
+	    Qstat(not_ready) = 1;
+	    exercise(A_WIS, TRUE);
+	    expulsion(FALSE);
         } else { /* You are worthy! */
             qt_pager(QT_ASSIGNQUEST);
             exercise(A_WIS, TRUE);
@@ -323,6 +329,12 @@ struct monst *mtmp;
 {
     /* maybe you attacked leader? */
     if (!mtmp->mpeaceful) {
+	if (!Qstat(pissed_off)) {
+	/* again, don't end it permanently if the leader gets angry
+	 * since you're going to have to kill him to go questing... :)
+	 * ...but do only show this crap once. */
+	    qt_pager(QT_LASTLEADER);
+	}
         Qstat(pissed_off) = TRUE;
         mtmp->mstrategy &= ~STRAT_WAITMASK; /* end the inaction */
     }
@@ -331,11 +343,8 @@ struct monst *mtmp;
     if (!on_level(&u.uz, &qstart_level))
         return;
 
-    if (Qstat(pissed_off)) {
-        qt_pager(QT_LASTLEADER);
-        expulsion(TRUE);
-    } else
-        chat_with_leader();
+    if (!Qstat(pissed_off))
+        chat_with_leader(mtmp);
 }
 
 STATIC_OVL void
@@ -406,7 +415,7 @@ quest_chat(mtmp)
 register struct monst *mtmp;
 {
     if (mtmp->m_id == Qstat(leader_m_id)) {
-        chat_with_leader();
+        chat_with_leader(mtmp);
         return;
     }
     switch (mtmp->data->msound) {
