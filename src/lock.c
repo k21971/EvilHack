@@ -52,23 +52,26 @@ lock_action()
         "unlocking the door",   /* [0] */
         "unlocking the chest",  /* [1] */
         "unlocking the box",    /* [2] */
-        "picking the lock"      /* [3] */
+        "cracking the safe",    /* [3] */
+        "picking the lock"      /* [4] */
     };
 
     /* if the target is currently unlocked, we're trying to lock it now */
     if (xlock.door && !(xlock.door->doormask & D_LOCKED))
         return actions[0] + 2; /* "locking the door" */
     else if (xlock.box && !xlock.box->olocked)
-        return xlock.box->otyp == CHEST ? actions[1] + 2 : actions[2] + 2;
+        return xlock.box->otyp == CHEST ? actions[1] + 2 : xlock.box->otyp == IRON_SAFE
+                   ? actions[3] + 2 : actions[2] + 2;
     /* otherwise we're trying to unlock it */
     else if (xlock.picktyp == LOCK_PICK)
-        return actions[3]; /* "picking the lock" */
+        return actions[4]; /* "picking the lock" */
     else if (xlock.picktyp == CREDIT_CARD)
-        return actions[3]; /* same as lock_pick */
+        return actions[4]; /* same as lock_pick */
     else if (xlock.door)
         return actions[0]; /* "unlocking the door" */
     else if (xlock.box)
-        return xlock.box->otyp == CHEST ? actions[1] : actions[2];
+        return xlock.box->otyp == CHEST ? actions[1] : xlock.box->otyp == IRON_SAFE
+                   ? actions[3] : actions[2];
     else
         return actions[3];
 }
@@ -77,10 +80,15 @@ lock_action()
 STATIC_PTR int
 picklock(VOID_ARGS)
 {
+
+    int rn;
+
     if (xlock.box) {
-        if (xlock.box->where != OBJ_FLOOR
-            || xlock.box->ox != u.ux || xlock.box->oy != u.uy) {
-            return ((xlock.usedtime = 0)); /* you or it moved */
+        if (((xlock.box->where != OBJ_FLOOR
+            || (xlock.box->ox != u.ux || (xlock.box->oy != u.uy))
+            && (xlock.box->otyp != IRON_SAFE || abs(xlock.box->oy - u.uy) > 1
+            || abs(xlock.box->ox - u.ux) > 1)))) {
+           return ((xlock.usedtime = 0)); /* you or it moved */
         }
     } else { /* door */
         if (xlock.door != &(levl[u.ux + u.dx][u.uy + u.dy])) {
@@ -303,8 +311,9 @@ struct obj *container; /* passed from obfree() */
 
 /* player is applying a key, lock pick, or credit card */
 int
-pick_lock(pick)
+pick_lock(pick, rx, ry)
 struct obj *pick;
+int rx, ry;
 {
     int picktyp, c, ch;
     coord cc;
@@ -323,6 +332,8 @@ struct obj *pick;
 
             if (picktyp == CREDIT_CARD)
                 what = "card";
+            if (picktyp == STETHOSCOPE)
+                what = "stethoscope";
             pline(no_longer, "hold the", what);
             reset_pick();
             return PICKLOCK_LEARNED_SOMETHING;
@@ -350,6 +361,7 @@ struct obj *pick;
     }
 
     if (picktyp != LOCK_PICK
+        && picktyp != STETHOSCOPE
         && picktyp != CREDIT_CARD
         && picktyp != SKELETON_KEY) {
         impossible("picking lock with object %d?", picktyp);
@@ -357,10 +369,17 @@ struct obj *pick;
     }
     ch = 0; /* lint suppression */
 
-    if (!get_adjacent_loc((char *) 0, "Invalid location!", u.ux, u.uy, &cc))
-        return PICKLOCK_DID_NOTHING;
+    /* If this is a stethoscope, we know where we came from */
+    if (picktyp == STETHOSCOPE) {
+	cc.x = rx; cc.y = ry;
+    } else {
+	if (!get_adjacent_loc((char *) 0, "Invalid location!", u.ux, u.uy, &cc))
+            return PICKLOCK_DID_NOTHING;
+    }
 
-    if (cc.x == u.ux && cc.y == u.uy) { /* pick lock on a container */
+    /* Very clumsy special case for this, but forcing the player to
+     * a)pply > just to open a safe, when a)pply . works in all other cases? */
+    if (cc.x == u.ux && cc.y == u.uy || picktyp == STETHOSCOPE) {	/* pick lock on a container */
         const char *verb;
         char qsfx[QBUFSZ];
         boolean it;
@@ -390,6 +409,8 @@ struct obj *pick;
                 it = 0;
                 if (otmp->obroken)
                     verb = "fix";
+                else if (otmp->otyp == IRON_SAFE)
+                    verb = "crack", it = 1;
                 else if (!otmp->olocked)
                     verb = "lock", it = 1;
                 else if (picktyp != LOCK_PICK)
@@ -408,6 +429,16 @@ struct obj *pick;
                     return 0;
                 if (c == 'n')
                     continue;
+
+		if (otmp->otyp == IRON_SAFE && picktyp != STETHOSCOPE) {
+		    You("aren't sure how to go about opening the safe that way.");
+		    return 0;
+		}
+
+		if (!otmp->olocked && otmp->otyp == IRON_SAFE) {
+		    You_cant("change the combination.");
+		    return 0;
+		}
 
                 if (otmp->obroken) {
                     You_cant("fix its broken lock with %s.", doname(pick));
@@ -428,6 +459,9 @@ struct obj *pick;
                 case SKELETON_KEY:
                     ch = 75 + ACURR(A_DEX);
                     break;
+		case STETHOSCOPE:
+	            ch = 5 + 2 * ACURR(A_DEX) * Role_if(PM_ROGUE);
+		    break;
                 default:
                     ch = 0;
                 }
@@ -440,7 +474,7 @@ struct obj *pick;
             }
         if (c != 'y') {
             if (!count)
-                There("doesn't seem to be any sort of lock here.");
+                There("doesn't seem to be any sort of pickable lock here.");
             return PICKLOCK_LEARNED_SOMETHING; /* decided against all boxes */
         }
     } else { /* pick the lock in a door */
@@ -567,6 +601,10 @@ doforce()
     xlock.box = (struct obj *) 0;
     for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
         if (Is_box(otmp)) {
+	    if (otmp->otyp == IRON_SAFE) {
+	        You("would need dynamite to force %s.", the(xname(otmp)));
+		continue;
+	    }
             if (otmp->obroken || !otmp->olocked) {
                 /* force doname() to omit known "broken" or "unlocked"
                    prefix so that the message isn't worded redundantly;
