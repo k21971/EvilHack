@@ -1214,7 +1214,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
-        if (realizes_damage)
+        if (realizes_damage) {
+            if (otmp->oartifact == ART_FIRE_BRAND)
             pline_The("fiery blade %s %s%c",
                       !spec_dbon_applies
                           ? "hits"
@@ -1222,6 +1223,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                 ? "vaporizes part of"
                                 : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
+            else
+            pline_The("flaming spear %s %s%c",
+                      !spec_dbon_applies
+                          ? "hits"
+                          : (mdef->data == &mons[PM_WATER_ELEMENTAL])
+                                ? "vaporizes part of"
+                                : "burns",
+                      hittee, !spec_dbon_applies ? '.' : '!');
+        }
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
         if (!rn2(4))

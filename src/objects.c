@@ -147,6 +147,10 @@ WEAPON("silver spear", None,
        1, 1, 0,  2,  36,  40,  6,  8, 0, P,   P_SPEAR, SILVER, HI_SILVER),
 WEAPON("javelin", "throwing spear",
        0, 1, 0, 10,  20,   3,  6,  6, 0, P,   P_SPEAR, IRON, HI_METAL),
+/* Base weapon for the artifact weapon Xiuhcoatl */
+WEAPON("atlatl", None,
+       1, 0, 0,  0,  30,  10,  8, 12, 2, P,   P_SPEAR, WOOD, CLR_BLACK),
+/* --------------------------------------------- */
 
 /* spearish; doesn't stack, not intended to be thrown */
 WEAPON("trident", None,
@@ -197,8 +201,6 @@ WEAPON("scimitar", "curved sword",
        0, 0, 0, 15,  40,  15,  8,  8, 0, S,   P_SCIMITAR, IRON, HI_METAL),
 WEAPON("silver saber", None,
        1, 0, 0,  6,  40,  75,  8,  8, 0, S,   P_SABER, SILVER, HI_SILVER),
-WEAPON("obsidian saber", None,
-       1, 0, 0,  0,  30,  50, 10, 12, 2, S,   P_SABER, GLASS, CLR_BLACK),
 WEAPON("broadsword", None,
        1, 0, 0,  8,  70,  10,  4,  6, 0, S,   P_BROAD_SWORD, IRON, HI_METAL),
         /* +d4 small, +1 large */

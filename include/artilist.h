@@ -201,14 +201,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     /*
      *      At first I was going to add the artifact shield that was made for the
      *      Archeologist quest in UnNetHack, but then decided to do something unique.
-     *      Behold Xiuhcoatl, an obsidian saber that does electrical damage much like
-     *      Mjollnir. From Aztec lore, Xiuhcoatl is an atlatl (somewhat like the aklys
-     *      but with darts) but that's a bit boring. Taking some creative license here.
-     *      Be careful, obsidian is a type of glass...
+     *      Behold Xiuhcoatl, a dark wooden spear-thrower that does fire damage much like
+     *      Mjollnir does electrical damage. From Aztec lore, Xiuhcoatl is an atlatl,
+     *      which is an ancient device that was used to throw spears with great force
+     *      and even greater distances. Xiuhcoatl will return to the throwers hand much like
+     *      Mjollnir, but requires high dexterity instead of strength to handle properly.
      */
-    A("Xiuhcoatl", OBSIDIAN_SABER,
+    A("Xiuhcoatl", ATLATL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_ATTK | SPFX_DEFN), (SPFX_ESP), 0,
-      ELEC(5, 24), DFNS(AD_ELEC), NO_CARY, LEVITATION, A_LAWFUL, PM_ARCHEOLOGIST,
+      FIRE(5, 24), DFNS(AD_FIRE), NO_CARY, LEVITATION, A_LAWFUL, PM_ARCHEOLOGIST,
       NON_PM, 3500L, NO_COLOR),
 
 #if 0 /* Replaced by Xiuhcoatl */
@@ -287,7 +288,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
 
     A("The Orb of Fate", CRYSTAL_BALL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_LUCK),
-      (SPFX_WARN | SPFX_HSPDAM | SPFX_HPHDAM), 0, NO_ATTK, NO_DFNS, NO_CARY,
+      (SPFX_WARN | SPFX_HPHDAM), 0, NO_ATTK, NO_DFNS, NO_CARY,
       LEV_TELE, A_NEUTRAL, PM_VALKYRIE, NON_PM, 3500L, NO_COLOR),
 
     A("The Eye of the Aethiopica", AMULET_OF_ESP,

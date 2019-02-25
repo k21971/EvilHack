@@ -323,7 +323,7 @@ $altar = { (26,05), (26,14), (50,05), (50,14) }
 SHUFFLE:$altar
 ALTAR:$altar[0],chaos,altar
 # Objects
-OBJECT:(')',"obsidian saber"),$altar[0],blessed,1,name:"Xiuhcoatl"
+OBJECT:(')',"atlatl"),$altar[0],blessed,1,name:"Xiuhcoatl"
 OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random

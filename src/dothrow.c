@@ -70,13 +70,17 @@ int shotlimit;
 
     if (!canletgo(obj, "throw"))
         return 0;
-    if (obj->oartifact == ART_MJOLLNIR && obj != uwep) {
+    if ((obj->oartifact == ART_MJOLLNIR || obj->oartifact == ART_XIUHCOATL) && obj != uwep) {
         pline("%s must be wielded before it can be thrown.", The(xname(obj)));
         return 0;
     }
     if ((obj->oartifact == ART_MJOLLNIR && ACURR(A_STR) < STR19(25))
         || (obj->otyp == BOULDER && !throws_rocks(youmonst.data))) {
         pline("It's too heavy.");
+        return 1;
+    }
+    if (obj->oartifact == ART_XIUHCOATL && ACURR(A_DEX) < 18) {
+        pline("%s requires a deft hand.", (xname(obj)));
         return 1;
     }
     if (!u.dx && !u.dy && !u.dz) {
@@ -385,9 +389,10 @@ dofire()
      * stack but also matters for single item if this throw gets
      * aborted (ESC at the direction prompt).  Already wielded
      * item is excluded because wielding might be necessary
-     * (Mjollnir) or make the throw behave differently (aklys),
-     * and alt-wielded item is excluded because switching slots
-     * would end two-weapon combat even if throw gets aborted.]
+     * (Mjollnir and Xiuhcoatl) or make the throw behave
+     * differently (aklys), and alt-wielded item is excluded
+     * because switching slots would end two-weapon combat even
+     * if throw gets aborted.]
      */
     if (!ok_to_throw(&shotlimit))
         return 0;
@@ -1084,7 +1089,7 @@ struct obj *obj;
                       || (is_blade(obj) && !is_sword(obj)
                           && (objects[obj->otyp].oc_dir & PIERCE))
                       /* special cases [might want to add AXE] */
-                      || obj->otyp == WAR_HAMMER || obj->otyp == AKLYS);
+                      || obj->otyp == HEAVY_WAR_HAMMER || obj->otyp == AKLYS);
 }
 
 /* the currently thrown object is returning to you (not for boomerangs) */
@@ -1168,10 +1173,10 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             tmp_at(DISP_TETHER, obj_to_glyph(obj, rn2_on_display_rng));
     } else if (u.dz) {
         if (u.dz < 0
-            /* Mjollnir must we wielded to be thrown--caller verifies this;
+            /* Mjollnir and Xiuhcoatl must we wielded to be thrown--caller verifies this;
                aklys must we wielded as primary to return when thrown */
             && ((Role_if(PM_VALKYRIE) && obj->oartifact == ART_MJOLLNIR)
-                || tethered_weapon)
+                || obj->oartifact == ART_XIUHCOATL || tethered_weapon)
             && !impaired) {
             pline("%s the %s and returns to your hand!", Tobjnam(obj, "hit"),
                   ceiling(u.ux, u.uy));
@@ -1256,6 +1261,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             range = 20; /* you must be giant */
         else if (obj->oartifact == ART_MJOLLNIR)
             range = (range + 1) / 2; /* it's heavy */
+        else if (obj->oartifact == ART_XIUHCOATL)
+            range = (range + 2); /* not heavy at all */
         else if (tethered_weapon) /* primary weapon is aklys */
             /* if an aklys is going to return, range is limited by the
                length of the attached cord [implicit aspect of item] */
@@ -1329,10 +1336,10 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             thrownobj = (struct obj *) 0;
         }
     } else {
-        /* Mjollnir must we wielded to be thrown--caller verifies this;
+        /* Mjollnir and Xiuhcoatl must we wielded to be thrown--caller verifies this;
            aklys must we wielded as primary to return when thrown */
         if ((obj->oartifact == ART_MJOLLNIR && Role_if(PM_VALKYRIE))
-            || tethered_weapon) {
+            || obj->oartifact == ART_XIUHCOATL || tethered_weapon) {
             if (rn2(100)) {
                 if (tethered_weapon)
                     tmp_at(DISP_END, BACKTRACK);
@@ -1385,7 +1392,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                     tmp_at(DISP_END, 0);
                 /* when this location is stepped on, the weapon will be
                    auto-picked up due to 'obj->was_thrown' of 1;
-                   addinv() prevents thrown Mjollnir from being placed
+                   addinv() prevents thrown Mjollnir or Xiuhcoatl from being placed
                    into the quiver slot, but an aklys will end up there if
                    that slot is empty at the time; since hero will need to
                    explicitly rewield the weapon to get throw-and-return

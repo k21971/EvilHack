@@ -164,7 +164,7 @@ many traps."
 "You must destroy %n.  It will pursue you otherwise."
 %E
 %Cp Arc 00030
-"%oC is a mighty blade.  With it you
+"%oC is a mighty weapon.  With it you
 can destroy %n."
 %E
 %Cp Arc 00031
@@ -263,7 +263,7 @@ you know you must return %o to %l.
 The body of %n dissipates in a cloud of noxious fumes.
 %E
 %Cc Arc 00081
-%lC touches %o briefly, gazes at its shimmering black surface,
+%lC touches %o briefly, gazes at its smooth black surface,
 then smiles at you and says:
 
 "Well done, %p.  You have defeated %n and
@@ -275,9 +275,9 @@ guard it now far better than I.
 
 May the blessings of %d follow you and guard you."
 %E [%lC instructs you to guard %o from now on.]
-# assumes Xiuhcoatl (glass saber)
+# assumes Xiuhcoatl (atlatl)
 %Cc Arc 00082
-%l gazes at the shimmering obsidian blade.
+%l gazes at the powerful atlatl.
 
 "Of all the items that have been excavated from %i,
 this one has given us the greatest insight into Toltec civilisation.
