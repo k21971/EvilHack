@@ -1044,17 +1044,29 @@ int mndx;
       * plain old ordinary monsters; modify hit die based on size;
       * big-ass critters like mastodons should have big-ass HP, and
       * small things like bees and locusts should get less
+      *
+      * 25FEB2019 - lets randomize monster HP a bit...
       */
       switch (mon->data->msize) {
-	      case MZ_TINY: mhitdie = 5; break;
-	      case MZ_SMALL: mhitdie = 7; break;
-	      case MZ_LARGE: mhitdie = 10; break;
-	      case MZ_HUGE: mhitdie = 14; break;
-	      case MZ_GIGANTIC: mhitdie = 18; break;
+	      case MZ_TINY:
+                  mhitdie = 5 + rn2(2);
+                  break;
+	      case MZ_SMALL:
+                  mhitdie = 7 + rn2(2);
+                  break;
+	      case MZ_LARGE:
+                  mhitdie = 10 + rn2(3);
+                  break;
+	      case MZ_HUGE:
+                  mhitdie = 14 + rn2(3);
+                  break;
+	      case MZ_GIGANTIC:
+                  mhitdie = 18 + rn2(4);
+                  break;
 	      case MZ_MEDIUM:
 	      default:
-		      mhitdie = 8;
-		      break;
+		  mhitdie = 8 + rn2(2);
+		  break;
 	      }
 	mon->mhpmax = mon->mhp = d((int)mon->m_lev, mhitdie);
         if (is_home_elemental(ptr))
