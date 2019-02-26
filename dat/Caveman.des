@@ -52,7 +52,10 @@ DOOR:locked,(19,06)
 # The temple altar (this will force a priest(ess) to be created)
 ALTAR:(36,02),coaligned,shrine
 # Shaman Karnov
-MONSTER:('@',"Shaman Karnov"),(35,02)
+MONSTER:('@',"Shaman Karnov"),(35,02) {
+  OBJECT:('[',"leather armor"),+5
+  OBJECT:(')',"club"),+5
+}
 # The treasure of Shaman Karnov
 OBJECT:('(',"chest"),(34,02)
 # neanderthal guards for the audience chamber

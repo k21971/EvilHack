@@ -58,7 +58,10 @@ FOUNTAIN:(53,02)
 DOOR:locked,(26,10)
 DOOR:locked,(43,10)
 # Norn
-MONSTER:('@',"Norn"),(35,10)
+MONSTER:('@',"Norn"),(35,10) {
+  OBJECT:('[',"banded mail"),+4
+  OBJECT:(')',"long sword"),+4
+}
 # The treasure of the Norn
 OBJECT:('(',"chest"),(36,10)
 # valkyrie guards for the audience chamber

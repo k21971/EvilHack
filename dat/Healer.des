@@ -58,7 +58,9 @@ DOOR:closed,(47,08)
 DOOR:closed,(48,12)
 DOOR:locked,(50,10)
 # Hippocrates
-MONSTER:('@',"Hippocrates"),(37,10)
+MONSTER:('@',"Hippocrates"),(37,10) {
+  OBJECT:(')',"silver dagger"),+5
+}
 # The treasure of Hippocrates
 OBJECT:('(',"chest"),(37,10)
 # intern guards for the audience chamber

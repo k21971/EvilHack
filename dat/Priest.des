@@ -67,7 +67,10 @@ DOOR:closed,(52,14)
 # Unattended Altar - unaligned due to conflict - player must align it.
 ALTAR:(28,09),noalign,altar
 # High Priest
-MONSTER:('@',"Arch Priest"),(28,10)
+MONSTER:('@',"Arch Priest"),(28,10) {
+  OBJECT:('[',"robe"),+4
+  OBJECT:(')',"mace"),+4
+}
 # The treasure of High Priest
 OBJECT:('(',"chest"),(27,10)
 # knight guards for the audience chamber

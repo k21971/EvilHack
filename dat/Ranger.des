@@ -44,7 +44,11 @@ STAIR:(10,10),down
 # Portal arrival point; just about anywhere on the right hand side of the map
 BRANCH:levregion(51,2,77,18),(0,0,40,20)
 # Orion
-MONSTER:('@',"Orion"),(20,10)
+MONSTER:('@',"Orion"),(20,10) {
+  OBJECT:('[',"leather armor"),+4
+  OBJECT:(')',"yumi"),+4
+  OBJECT:(')',"arrow"),+4,quantity:50
+}
 # The treasure of Orion
 OBJECT:('(',"chest"),(20,10)
 # Guards for the audience chamber

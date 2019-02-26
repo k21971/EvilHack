@@ -114,7 +114,8 @@ Are you finally ready for the task that must be accomplished?"
 %E
 %Cc Arc 00018
 "%p, you have failed us.  All of my careful training has been in
-vain.  Begone!  Your tenure at this college has been revoked!
+vain.  You will never be allowed to accomplish this task while I live!
+  Your tenure at this college has been revoked!
 
 "You are a disgrace to the profession!"
 %E ["%pC, you have failed us.  Begone!"]
@@ -370,7 +371,7 @@ need of your help.  There is a great quest you must undertake.
 %Cc Bar 00018
 "Pah!  You have betrayed the gods, %p.  You will never attain
 the glory which you aspire to.  Your failure to follow the true path has
-closed this future to you.
+closed this future to you for as long as I still draw breath!
 
 "I will protect these people as best I can, but soon %n will overcome
 me and destroy all who once called you %s.  Now begone!"
@@ -631,12 +632,12 @@ ask you to undertake."
 %E
 %Cc Cav 00018
 "%pC!  You have sealed our fate.  You seem unable to reform yourself,
-so I must select another to take your place.
+so I must select another to take your place. 
 
 "Begone from %H!  You have betrayed us by choosing
 the path of the %C over the true path of the %L.
 
-"You no longer live in our eyes."
+"As long as I am leader here, you no longer live in our eyes."
 %E ["You have betrayed the %L.  Begone!"]
 %Cc Cav 00019
 "Alas, %p, you are as yet too inexperienced to embark upon such
@@ -903,7 +904,8 @@ have come prepared this time."
 "You have failed us, %p.  You are a quack!  A charlatan!
 
 "Hades will be happy to hear that you are once again practicing your
-arts on the unsuspecting."
+arts on the unsuspecting.  You shall never be allowed to attempt this
+quest while I still live."
 %E [You are a failure as a healer.]
 %Cc Hea 00019
 "Alas, %p, you are yet too inexperienced to deal with the rigors
@@ -1152,7 +1154,7 @@ decide if thou art ready for this great undertaking."
 "Thou disgracest this noble court with thine impure presence.  We have been
 lenient with thee, but no more.  Thy name shall be spoken no more.  We
 hereby strip thee of thy title, thy lands, and thy standing as %ca.
-Begone from Our sight!"
+Thou art banished as long as I am King!  Begone from Our sight!"
 %E [You are a disgrace as %ca.]
 %Cc Kni 00019
 "Verily, %p, thou hast done well.  That thou hast survived thus
@@ -1399,7 +1401,8 @@ great challenge."
 "You are a heretic, %p!  How can you, %ra, deviate so from the
 teachings of %d?  Begone from this temple.  You are no longer
 %sa to this order.  We will pray to %d for other assistance,
-as you have failed us utterly."
+as you have failed us utterly.  You will never be allowed
+to fulfill your destiny as long as I live and breathe."
 %E [You are a heretic and have failed utterly.]
 %Cc Mon 00019
 "Alas, %p, it is not yet to be.  A mere %r could never
@@ -1638,7 +1641,9 @@ great challenge."
 "You are a heretic, %p!  How can you, %ra, deviate so from the
 teachings of %d?  Begone from this temple.  You are no longer
 %sa to this order.  We will pray to %d for other assistance,
-as you have failed us utterly."
+as you have failed us utterly.  By the power of %d, as long
+as I lead this order, you shall never be allowed entrance to
+this challenge."
 %E [You are a heretic who has deviated from the teachings of %d.]
 %Cc Pri 00019
 "Alas, %p, it is not yet to be.  A mere %r could never
@@ -1885,7 +1890,8 @@ required abilities to take on this responsibility."
 "%pC!  You have doomed us all.  You fairly radiate %L influences
 and weaken the power we have raised in this grove as a result!
 
-"Begone!  We renounce your %shood with us!  You are an outcast now!"
+"Begone!  We renounce your %shood with us!  For as long as I live,
+ you are forever an outcast!"
 %E [You are not sufficiently %a.  We renounce your %shood.]
 %Cc Ran 00019
 "%p, you are yet too inexperienced to withstand the demands of that
@@ -2153,8 +2159,8 @@ think me as stupid as your behavior.  I warn you not to try my patience."
 around here.  Our friend seems to think that %rp have been put in
 charge.  Wrong.  DEAD WRONG!"
 
-Your sudden shift in surroundings prevents you from hearing the end
-of %ls curse.
+It seems as long as %l lives, you'll never be given the contract for
+this job...
 %E [You must go.]
 %Cc Rog 00019
 "In the time that you've been gone you've only been able to master the
@@ -2391,7 +2397,8 @@ to figure out what I need from a samurai?"
 "You are no longer my samurai, %p.
 
 "Hara-kiri is denied.  You are ordered to shave your head and then to
-become a monk.  Your fief and family are forfeit.  Wakarimasu ka?"
+become a monk.  Your fief and family are forfeit.  As long as I live,
+ you will never be allowed to complete this task.  Wakarimasu ka?"
 %E [Leave and do not come back.]
 %Cc Sam 00019
 "%p-san, you have learned well and honored your family.
@@ -2647,7 +2654,8 @@ defeat %n if our town is to become what it once was.
 %E
 %Cc Tou 00018
 "It is too late, %p.  You are not even worthy to die amongst us.
-Leave %H and never return."
+You will never be allowed to attempt this quest as long as I am in
+ charge here.  Leave %H and never return."
 %E [Leave %H and never return.]
 %Cc Tou 00019
 "There is still too much that you have to learn before you can undertake
@@ -2900,7 +2908,8 @@ made changes to become ready for this task..."
 %Cc Val 00018
 "No, %p.  Your fate is sealed.  I must cast about for another
 champion.  Begone from my presence, and never return.  Know this, that
-you shall never succeed in this life, and Valhalla is denied to you."
+you shall never succeed in this life, and Valhalla is denied to you.
+Until my last heartbeat, you shall never be allowed this task."
 %E ["Begone from my presence and never return."]
 %Cc Val 00019
 "I see you and %n fighting, %p.  But you are not prepared and
@@ -3142,7 +3151,8 @@ I certainly hope that you are truly ready this time!"
 %E
 %Cc Wiz 00018
 "You fool, %p!  Why did I waste all of those years teaching you
-the esoteric arts?  Get out of here!  I shall find another."
+the esoteric arts?  Get out of here!  I shall find another.  As long
+ as I exist, you'll never be granted a chance to complete this task."
 %E ["Get out of here!"]
 %Cc Wiz 00019
 "Alas, %p, you have not yet shown your proficiency as a worthy
@@ -3472,7 +3482,7 @@ essential in locating the Amulet of Yendor."
 My allegiance to %d holds fast and I cannot condone or accept what you
 have done.
 
-Leave this place.  You shall never set foot at %H again.
+Leave this place.  For as long as I live, you shall never set foot at %H again.
 That which you seek is now lost forever, for without the Bell of Opening,
 you will never be able to enter the place where he who has the Amulet
 resides.

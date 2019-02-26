@@ -67,7 +67,10 @@ DOOR:open,(23,13)
 DOOR:open,(25,10)
 DOOR:open,(28,05)
 # Elder
-MONSTER:('@',"Pelias"),(10,07)
+MONSTER:('@',"Pelias"),(10,07) {
+  OBJECT:(')',"runesword"),+5
+  OBJECT:('[',"chain mail"),+5
+}
 # The treasure of Pelias
 OBJECT:('(',"chest"),(09,05)
 # chieftain guards for the audience chamber

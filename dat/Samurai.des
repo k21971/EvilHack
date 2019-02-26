@@ -52,7 +52,10 @@ DOOR:locked,(39,08)
 DOOR:closed,(50,04)
 DOOR:closed,(50,06)
 # Lord Sato
-MONSTER:('@',"Lord Sato"),(20,04)
+MONSTER:('@',"Lord Sato"),(20,04) {
+  OBJECT:('[',"splint mail"),+4
+  OBJECT:(')',"katana"),+4
+}
 # The treasure of Lord Sato
 OBJECT:('(',"chest"),(20,04)
 # roshi guards for the audience chamber

@@ -68,7 +68,10 @@ DOOR:locked,(24,14)
 DOOR:closed,(31,14)
 DOOR:locked,(49,14)
 # Lord Carnarvon
-MONSTER:('@',"Lord Carnarvon"),(25,10)
+MONSTER:('@',"Lord Carnarvon"),(25,10) {
+  OBJECT:('[',"fedora"),+5
+  OBJECT:(')',"bullwhip"),+4
+}
 # The treasure of Lord Carnarvon
 OBJECT:('(',"chest"),(25,10)
 # student guards for the audience chamber

@@ -294,9 +294,11 @@ register struct monst* mtmp;
             qt_pager(QT_FIRSTLEADER);
             Qstat(met_leader) = TRUE;
             Qstat(not_ready) = 0;
-        } else
-            qt_pager(QT_NEXTLEADER);
-
+	} else if (!Qstat(pissed_off)) {
+	    qt_pager(QT_NEXTLEADER);
+	} else {
+	    verbalize("Your bones shall serve to warn others.");
+	}
         /* the quest leader might have passed through the portal into
            the regular dungeon; none of the remaining make sense there */
         if (!on_level(&u.uz, &qstart_level))
@@ -307,9 +309,11 @@ register struct monst* mtmp;
             exercise(A_WIS, TRUE);
             expulsion(FALSE);
         } else if (is_pure(TRUE) < 0) {
-            com_pager(QT_BANISHED);
-            setmangry(mtmp, FALSE);
-            expulsion(FALSE);
+	    if (!Qstat(pissed_off)) {
+		com_pager(QT_BANISHED);
+		Qstat(pissed_off) = 1;
+		expulsion(FALSE);
+	    }
         } else if (is_pure(TRUE) == 0) {
             qt_pager(QT_BADALIGN);
 	    Qstat(not_ready) = 1;
@@ -335,7 +339,7 @@ struct monst *mtmp;
 	 * ...but do only show this crap once. */
 	    qt_pager(QT_LASTLEADER);
 	}
-        Qstat(pissed_off) = TRUE;
+        Qstat(pissed_off) = 1;
         mtmp->mstrategy &= ~STRAT_WAITMASK; /* end the inaction */
     }
     /* the quest leader might have passed through the portal into the
@@ -345,6 +349,12 @@ struct monst *mtmp;
 
     if (!Qstat(pissed_off))
         chat_with_leader(mtmp);
+
+    /* leader might have become pissed during the chat */
+    if (Qstat(pissed_off)) {
+        mtmp->mstrategy &= ~STRAT_WAITMASK;
+	mtmp->mpeaceful = 0;
+    }
 }
 
 STATIC_OVL void
@@ -416,6 +426,11 @@ register struct monst *mtmp;
 {
     if (mtmp->m_id == Qstat(leader_m_id)) {
         chat_with_leader(mtmp);
+	/* leader might have become pissed during the chat */
+	if (Qstat(pissed_off)) {
+	    mtmp->mstrategy &= ~STRAT_WAITMASK;
+	    mtmp->mpeaceful = 0;
+	}
         return;
     }
     switch (mtmp->data->msound) {
