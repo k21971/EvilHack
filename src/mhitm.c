@@ -1178,27 +1178,25 @@ register struct attack *mattk;
  do_stone:
         /* may die from the acid if it eats a stone-curing corpse */
         if (munstone(mdef, FALSE))
-            goto post_stone;
         if (poly_when_stoned(pd)) {
             mon_to_stone(mdef);
             tmp = 0;
             break;
         }
         if (!resists_ston(mdef)) {
-            /* if (vis && canseemon(mdef))
-                pline("%s turns to stone!", Monnam(mdef));
-            monstone(mdef);
- post_stone:
-            if (!DEADMONSTER(mdef))
-                return 0;
-            else if (mdef->mtame && !vis)
-                You(brief_feeling, "peculiarly sad");
-            return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED)); */
- post_stone:
-	    if (!mdef->mstone) {
-		mdef->mstone = 5;
-		mdef->mstonebyu = FALSE;
-		}
+            if (mattk->aatyp == AT_GAZE) {
+		if (vis) pline("%s turns to stone!", Monnam(mdef));
+		    monstone(mdef);
+ 		if (mdef->mhp > 0) return MM_MISS;
+		else if (mdef->mtame && !vis)
+		    You(brief_feeling, "peculiarly sad");
+	        return (MM_DEF_DIED | (grow_up(magr, mdef)
+                        ? 0 : MM_AGR_DIED));
+	}
+	if (!mdef->mstone) {
+	    mdef->mstone = 5;
+	    mdef->mstonebyu = FALSE;
+	    }
         }
         tmp = (mattk->adtyp == AD_STON ? 0 : 1);
         break;
