@@ -260,6 +260,7 @@ struct obj *weapon; /* uwep or uswapwep or NULL */
 int *attk_count, *role_roll_penalty;
 {
     int tmp, tmp2;
+    int wepskill, twowepskill, useskill;
 
     *role_roll_penalty = 0; /* default is `none' */
 
@@ -326,6 +327,28 @@ int *attk_count, *role_roll_penalty;
         tmp += weapon_hit_bonus((struct obj *) 0);
     }
 
+    /* if unskilled with a weapon/object type (bare-handed is exempt),
+     * you'll never have a chance greater than 75% to land a hit.
+     */
+    if (uwep && !u.uswallow) {
+	wepskill = P_SKILL(weapon_type(uwep));
+	twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);
+	/* use the lesser skill of two-weapon or your primary */
+	useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill : wepskill;
+	if ((useskill == P_UNSKILLED || useskill == P_ISRESTRICTED) && tmp > 15) {
+	    tmp = 15;
+	if (!rn2(3)) {
+            /* using a corpse as a weapon... alrighty then */
+	    if (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep)) {
+		You("struggle trying to use the %s as a weapon.", aobjnam(uwep, (char *) 0));
+	    } else if (useskill != P_ISRESTRICTED) {
+		You("feel like you could use some more practice...");
+	    } else {
+                You("aren't sure you're doing this the right way...");
+	        }
+	    }
+        }
+    }
     return tmp;
 }
 
