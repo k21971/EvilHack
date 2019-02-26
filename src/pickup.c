@@ -45,7 +45,7 @@ STATIC_DCL boolean NDECL(reverse_loot);
 STATIC_DCL boolean FDECL(mon_beside, (int, int));
 STATIC_DCL int FDECL(do_loot_cont, (struct obj **, int, int));
 STATIC_DCL void FDECL(tipcontainer, (struct obj *));
-STATIC_DCL void FDECL(dump_container, (struct obj*, BOOLEAN_P));
+STATIC_DCL int FDECL(dump_container, (struct obj*, BOOLEAN_P));
 
 /* define for query_objlist() and autopickup() */
 #define FOLLOW(curr, flags) \
@@ -2218,8 +2218,9 @@ register struct obj *obj;
         }
 
 	/* dump it out onto the floor so the scatterage can take effect */
-	dump_container(current_container, TRUE);
-	pline("Its contents fly everywhere!");
+	if (dump_container(current_container, TRUE)) {
+	    pline("Its contents fly everywhere!");
+        }
 	scatter(u.ux, u.uy, rn2(10), VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
 
         losehp(d(8, 6), "magical explosion", KILLED_BY_AN);
@@ -3346,21 +3347,24 @@ struct obj *box; /* or bag */
 /* Dumps out a container, possibly as the prelude/result of an explosion.
  * destroy_after trashes the container afterwards.
  * Player is assumed to not be handling the contents directly.
+ * Returns 1 if at least one object is present, 0 if empty.
  */
-void
+int
 dump_container(container, destroy_after)
 struct obj* container;
 BOOLEAN_P destroy_after;
 {
     struct obj* otmp, *otmp2;
+    int ret = 0;
 
     /* sanity check */
     if (!container) {
-        return;
+        return 0;
     }
 
     for (otmp = container->cobj; otmp; otmp = otmp2)
     {
+        ret = 1;
 	otmp2 = otmp->nobj;
 	obj_extract_self(otmp);
 	container->owt = weight(container);
@@ -3387,6 +3391,7 @@ BOOLEAN_P destroy_after;
 		   useupf(container, container->quan);
 	}
     }
+    return ret;
 }
 
 /*pickup.c*/
