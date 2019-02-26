@@ -302,6 +302,11 @@ int *attk_count, *role_roll_penalty;
         && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
         tmp++;
 
+    /* gloves' bonus contributes if unarmed */
+    if (!uwep && uarmg) {
+	tmp += uarmg->spe;
+    }
+
     /* encumbrance: with a lot of luggage, your agility diminishes */
     if ((tmp2 = near_capacity()) != 0)
         tmp -= (tmp2 * 2) - 1;
@@ -747,6 +752,10 @@ int dieroll;
                                   + ((silverhit & W_RINGR) ? 1 : 0));
         if (barehand_silver_rings > 0)
             silvermsg = TRUE;
+	/* fighting with fists will get the gloves' bonus... */
+	if (uarmg) {
+	    tmp += uarmg->spe;
+	}
     } else {
         if (!(artifact_light(obj) && obj->lamplit))
             Strcpy(saved_oname, cxname(obj));
