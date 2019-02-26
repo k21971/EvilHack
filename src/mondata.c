@@ -553,6 +553,8 @@ register struct monst *mdef, *magr;
                 || (adtyp == AD_COLD && !resists_cold(magr))
                 || (adtyp == AD_FIRE && !resists_fire(magr))
                 || (adtyp == AD_ELEC && !resists_elec(magr))
+                || adtyp == AD_DISE
+                || adtyp == AD_STON
                 || adtyp == AD_PHYS) {
                 dmg = mdef->data->mattk[i].damn;
                 if (!dmg)
