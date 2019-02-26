@@ -628,14 +628,14 @@ long wp_mask;
         vision_full_recalc = 1;
     }
     if (spfx & SPFX_REFLECT) {
-	    /* Knights only have to carry the mirror; everyone else must wear/wield it */
+	    /* Knights only have to carry the mirror; everyone else must wield it */
 	    if (Role_if(PM_KNIGHT)) {
 		    if (on) {
 			    EReflecting |= wp_mask;
 		    } else {
 			    EReflecting &= ~wp_mask;
 		    }
-	    } else if (wp_mask & (W_WEP | W_ARMG)) {
+	    } else if (wp_mask & (W_WEP | W_ARMG)) { /* or in Dragonbane's case, wear them */
         if (on)
             EReflecting |= wp_mask;
         else
@@ -1331,17 +1331,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (atmp->spfx & (SPFX_DFLAGH | SPFX_DCLAS)) {
 	j = !rn2(10);	  /* 10% chance of instakill for some artifacts */
 	switch (otmp->oartifact) {
-		/* case ART_DRAGONBANE:
-			if (youattack && j) {
-				pline("Dragonbane's power overwhelms %s!", mon_nam(mdef));
-				*dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-			} else if (youdefend && j) {
-				pline("Dragonbane's might overwhelms you!");
-				*dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
-			} else {
-				return FALSE;
-			}
-			return TRUE; */
 		case ART_WEREBANE:
 			if (youattack && j) {
                                 You("severly burn %s with your silver blade!", mon_nam(mdef));

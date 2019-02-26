@@ -107,7 +107,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_COLOR),
     /*      Let's flip the script a bit - Dragonbane is no longer a weapon,
      *      but a pair of magical gloves made from the scales of a long dead
-     *      ancient dragon. The gloves afford much of the same special
+     *      ancient dragon. The gloves afford much of the same special abilities
      *      as the weapon did, but swaps fire resistance for acid resistance.
      *      Other dragons will be able to sense the power of these gloves and
      *      will be affected accordingly.
