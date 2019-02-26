@@ -1185,9 +1185,11 @@ register struct attack *mattk;
         }
         if (!resists_ston(mdef)) {
             if (mattk->aatyp == AT_GAZE) {
-		if (vis) pline("%s turns to stone!", Monnam(mdef));
-		    monstone(mdef);
- 		if (mdef->mhp > 0) return MM_MISS;
+		if (vis && canseemon(mdef))
+                    pline("%s turns to stone!", Monnam(mdef));
+		monstone(mdef);
+ 		if (!DEADMONSTER(mdef))
+                    return MM_MISS;
 		else if (mdef->mtame && !vis)
 		    You(brief_feeling, "peculiarly sad");
 	        return (MM_DEF_DIED | (grow_up(magr, mdef)
