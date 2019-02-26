@@ -3182,6 +3182,26 @@ struct attack *mattk;
 	}
     }
 
+    if (uarmg) {
+        switch(uarmg->otyp) {
+                case DRAGONHIDE_GLOVES: /* this really should be ART_DRAGONBANE, but this works for now */
+                        if (!is_dragon(mtmp->data)) { return 1; }
+                        if (canseemon(mtmp) && is_dragon(mtmp->data)) {
+                                pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
+                        mtmp->mhp -= rnd(6) + 2;
+                        }
+                        if (mtmp->mhp < 1) {
+                                pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
+                                xkilled(mtmp, 1);
+                                return 2;
+                        }
+                        return 1;
+                        break;
+                default:          /* all other types of armor, just pass on through */
+                        break;
+        }
+    }
+
     /*
      * mattk      == mtmp's attack that hit you;
      * oldu_mattk == your passive counterattack (even if mtmp's attack

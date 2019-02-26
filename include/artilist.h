@@ -105,10 +105,16 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("Fire Brand", LONG_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
       FIRE(5, 8), DFNS(AD_FIRE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
       NO_COLOR),
-
-    A("Dragonbane", DWARVISH_SPEAR,
+    /*      Let's flip the script a bit - Dragonbane is no longer a weapon,
+     *      but a pair of magical gloves made from the scales of a long dead
+     *      ancient dragon. The gloves afford much of the same special
+     *      as the weapon did, but swaps fire resistance for acid resistance.
+     *      Other dragons will be able to sense the power of these gloves and
+     *      will be affected accordingly.
+     */
+    A("Dragonbane", DRAGONHIDE_GLOVES,
       (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH | SPFX_REFLECT), 0, MH_DRAGON,
-      PHYS(5, 10), DFNS(AD_FIRE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
+      NO_ATTK, DFNS(AD_ACID), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
       NO_COLOR),
     /*
      *      Demonbane from SporkHack is a silver mace with an extra property.
@@ -208,7 +214,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Mjollnir, but requires high dexterity instead of strength to handle properly.
      */
     A("Xiuhcoatl", ATLATL,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_ATTK | SPFX_DEFN), (SPFX_ESP), 0,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_ATTK | SPFX_DEFN), SPFX_ESP, 0,
       FIRE(5, 24), DFNS(AD_FIRE), NO_CARY, LEVITATION, A_LAWFUL, PM_ARCHEOLOGIST,
       NON_PM, 3500L, NO_COLOR),
 
@@ -228,7 +234,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
 #endif
 
     A("The Sceptre of Might", MACE,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DALIGN), 0, 0, PHYS(5, 0),
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DALIGN), 0, 0, PHYS(5, 2),
       DFNS(AD_MAGM), NO_CARY, CONFLICT, A_LAWFUL, PM_CAVEMAN, NON_PM, 2500L,
       NO_COLOR),
 

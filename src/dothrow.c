@@ -1587,6 +1587,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
             tmp -= 9;
             break;
         case LEATHER_GLOVES:
+        case DRAGONHIDE_GLOVES:
             break;
         case GAUNTLETS_OF_DEXTERITY: /* these gloves were made with archers in mind */
             tmp += 1;

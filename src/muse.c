@@ -2771,9 +2771,15 @@ const char *fmt, *str;
             makeknown(SHIELD_OF_REFLECTION);
         }
         return TRUE;
+    } else if (EReflecting & W_ARMG) {
+        /* Due to wearing the artifact Dragonbane */
+        if (fmt && str) {
+            pline(fmt, str, "gloves");
+        }
+        return TRUE;
     } else if (HReflecting) {
 	if (fmt && str) {
-		pline(fmt, str, "magical shield");
+	    pline(fmt, str, "magical shield");
 	}
 	return TRUE;
     } else if (EReflecting & W_WEP) {
@@ -2794,7 +2800,7 @@ const char *fmt, *str;
     } else if (EReflecting & W_ART) {
         /* Due to the Magic Mirror, which shows as W_ART */
 	if (fmt && str) {
-		pline(fmt, str, "mirror");
+	    pline(fmt, str, "mirror");
 	}
 	return TRUE;
     } else if (youmonst.data == &mons[PM_SILVER_DRAGON]) {

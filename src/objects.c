@@ -517,14 +517,16 @@ SHIELD("shield of reflection", "polished silver shield",
  * stay CLR_BROWN (== HI_LEATHER) even though it's normally either
  * HI_METAL or CLR_BLACK.  All have shuffled descriptions.
  */
+GLOVES("dragonhide gloves", "scaly gloves",
+       0, 1,          0,  0, 1,  7, 100, 5, 0,  DRAGON_HIDE, HI_LEATHER),
 GLOVES("leather gloves", "old gloves",
-       0, 0,        0, 16, 1, 10,  8, 9, 0,  LEATHER, HI_LEATHER),
+       0, 0,          0, 16, 1, 10,   8, 9, 0,  LEATHER, HI_LEATHER),
 GLOVES("gauntlets of fumbling", "padded gloves",
-       0, 1, FUMBLING,  8, 1, 10, 50, 9, 0,  LEATHER, HI_LEATHER),
+       0, 1,   FUMBLING,  8, 1, 10,  50, 9, 0,  LEATHER, HI_LEATHER),
 GLOVES("gauntlets of power", "riding gloves",
-       0, 1,        0,  8, 1, 30, 50, 9, 0,  IRON, CLR_BROWN),
+       0, 1,          0,  8, 1, 30,  50, 9, 0,  IRON, CLR_BROWN),
 GLOVES("gauntlets of dexterity", "fencing gloves",
-       0, 1,        0,  8, 1, 10, 50, 9, 0,  LEATHER, HI_LEATHER),
+       0, 1,          0,  8, 1, 10,  50, 9, 0,  LEATHER, HI_LEATHER),
 
 /* boots */
 BOOTS("low boots", "walking shoes",
