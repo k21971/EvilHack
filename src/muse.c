@@ -277,7 +277,8 @@ struct obj *otmp;
 #define MUSE_UNICORN_HORN 17
 #define MUSE_POT_FULL_HEALING 18
 #define MUSE_LIZARD_CORPSE 19
-#define MUSE_BAG_OF_TRICKS 20
+#define MUSE_ACID_BLOB_CORPSE 20
+#define MUSE_BAG_OF_TRICKS 21
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -352,11 +353,13 @@ struct monst *mtmp;
         struct obj *liztin = 0;
 
         for (obj = mtmp->minvent; obj; obj = obj->nobj) {
-            if (obj->otyp == CORPSE && obj->corpsenm == PM_LIZARD) {
+            if (obj->otyp == CORPSE && (obj->corpsenm == PM_LIZARD
+                                        || obj->corpsenm == PM_ACID_BLOB)) {
                 m.defensive = obj;
-                m.has_defense = MUSE_LIZARD_CORPSE;
+                m.has_defense = (MUSE_LIZARD_CORPSE || MUSE_ACID_BLOB_CORPSE);
                 return TRUE;
-            } else if (obj->otyp == TIN && obj->corpsenm == PM_LIZARD) {
+            } else if (obj->otyp == TIN && (obj->corpsenm == PM_LIZARD
+                                            || obj->corpsenm == PM_ACID_BLOB)) {
                 liztin = obj;
             }
         }
@@ -364,7 +367,7 @@ struct monst *mtmp;
         if (liztin && mcould_eat_tin(mtmp) && rn2(3)) {
             m.defensive = liztin;
             /* tin and corpse ultimately end up being handled the same */
-            m.has_defense = MUSE_LIZARD_CORPSE;
+            m.has_defense = (MUSE_LIZARD_CORPSE || MUSE_ACID_BLOB_CORPSE);
             return TRUE;
         }
     }
@@ -1116,6 +1119,10 @@ struct monst *mtmp;
         m_useup(mtmp, otmp);
         return 2;
     case MUSE_LIZARD_CORPSE:
+        /* not actually called for its unstoning effect */
+        mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
+        return 2;
+    case MUSE_ACID_BLOB_CORPSE:
         /* not actually called for its unstoning effect */
         mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
         return 2;
@@ -2730,6 +2737,13 @@ const char *str;
         if (str) {
             pline(str, s_suffix(mon_nam(mon)), "shield");
             makeknown(SHIELD_OF_REFLECTION);
+        }
+        return TRUE;
+    } else if ((orefl = which_armor(mon, W_ARMG))
+               && orefl->otyp == ART_DRAGONBANE) {
+        if (str) {
+            pline(str, s_suffix(mon_nam(mon)), "gloves");
+            makeknown(ART_DRAGONBANE);
         }
         return TRUE;
     } else if (arti_reflects(MON_WEP(mon))) {

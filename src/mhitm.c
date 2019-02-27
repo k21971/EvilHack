@@ -1178,6 +1178,7 @@ register struct attack *mattk;
  do_stone:
         /* may die from the acid if it eats a stone-curing corpse */
         if (munstone(mdef, FALSE))
+            goto post_stone;
         if (poly_when_stoned(pd)) {
             mon_to_stone(mdef);
             tmp = 0;
@@ -1188,6 +1189,7 @@ register struct attack *mattk;
 		if (vis && canseemon(mdef))
                     pline("%s turns to stone!", Monnam(mdef));
 		monstone(mdef);
+post_stone:
  		if (!DEADMONSTER(mdef))
                     return MM_MISS;
 		else if (mdef->mtame && !vis)
