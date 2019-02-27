@@ -2558,22 +2558,22 @@ struct permonst _mons2[] = {
     /* Keep these separate - some of the mkroom code assumes that
      * all the soldiers are contiguous.
      */
-    MON("watchman", S_HUMAN, LVL(6, 10, 10, 0, -2),
+    MON("watchman", S_HUMAN, LVL(10, 10, 10, 0, -2),
         (G_SGROUP | G_NOGEN | G_GENO | 1),
-        A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
-          NO_ATTK),
+        A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_WEAP, AD_PHYS, 2, 6),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_SOLDIER, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_MERC | M2_STALK
             | M2_PEACEFUL | M2_STRONG | M2_COLLECT,
-        M3_INFRAVISIBLE, 0, MH_HUMAN, 8, CLR_GRAY),
-    MON("watch captain", S_HUMAN, LVL(10, 10, 10, 15, -4),
+        M3_INFRAVISIBLE, 0, MH_HUMAN, 12, CLR_GRAY),
+    MON("watch captain", S_HUMAN, LVL(15, 10, 10, 15, -4),
         (G_NOGEN | G_GENO | 1),
-        A(ATTK(AT_WEAP, AD_PHYS, 3, 4), ATTK(AT_WEAP, AD_PHYS, 3, 4), NO_ATTK,
-          NO_ATTK, NO_ATTK, NO_ATTK),
+        A(ATTK(AT_WEAP, AD_PHYS, 4, 5), ATTK(AT_WEAP, AD_PHYS, 3, 5),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_SOLDIER, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_MERC | M2_STALK
             | M2_PEACEFUL | M2_STRONG | M2_COLLECT,
-        M3_ACCURATE | M3_INFRAVISIBLE, 0, MH_HUMAN, 12, CLR_GREEN),
+        M3_ACCURATE | M3_INFRAVISIBLE, 0, MH_HUMAN, 17, CLR_GREEN),
     /* Unique humans not tied to quests.
      */
     MON("Medusa", S_HUMAN, LVL(20, 12, 2, 50, -15), (G_NOGEN | G_UNIQ),

@@ -205,6 +205,7 @@ register struct monst *mtmp;
             case PM_CAPTAIN:
             case PM_WATCH_CAPTAIN:
                 w1 = rn2(2) ? LONG_SWORD : SILVER_SABER;
+                mongets(mtmp, SKELETON_KEY);
                 break;
             default:
                 if (!rn2(4))
