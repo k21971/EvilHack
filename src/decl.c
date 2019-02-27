@@ -141,6 +141,7 @@ NEARDATA struct instance_flags iflags = DUMMY;
 NEARDATA struct you u = DUMMY;
 NEARDATA time_t ubirthday = DUMMY;
 NEARDATA struct u_realtime urealtime = DUMMY;
+NEARDATA struct monst* ukiller = (struct monst*) 0;
 
 schar lastseentyp[COLNO][ROWNO] = {
     DUMMY

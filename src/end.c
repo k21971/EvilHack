@@ -499,6 +499,12 @@ int how;
     }
 
     Strcpy(killer.name, buf);
+    ukiller = mtmp;
+    if (ukiller && (likes_gold(ukiller->data) || likes_gems(ukiller->data) ||
+		    likes_objs(ukiller->data) || likes_magic(ukiller->data) ||
+		    is_covetous(ukiller->data))) {
+	pline("%s ransacks your possessions.", Monnam(ukiller));
+    }
     if (mptr->mlet == S_WRAITH)
         u.ugrave_arise = PM_WRAITH;
     else if (mptr->mlet == S_MUMMY && urace.mummynum != NON_PM)
@@ -513,7 +519,9 @@ int how;
         u.ugrave_arise = PM_VAMPIRE;
     else if (mptr == &mons[PM_GHOUL])
         u.ugrave_arise = PM_GHOUL;
-    else if (mptr == &mons[PM_SPECTRE] || u.ulevel > 15)
+    /* There is a 10% chance that the player will rise as a spectre if their
+     * experience level was tier 8 (level 26) or higher */
+    else if (mptr == &mons[PM_SPECTRE] || (!rn2(10) && u.ulevel > 25))
         u.ugrave_arise = PM_SPECTRE;
     /* this could happen if a high-end vampire kills the hero
        when ordinary vampires are genocided; ditto for wraiths */
@@ -1128,6 +1136,7 @@ int how;
             pline("Unfortunately you are still genocided...");
         } else {
             livelog_write_string(LL_LIFESAVE, "averted death");
+            ukiller = (struct monst*) 0;
             survive = TRUE;
             }
         }
@@ -1137,6 +1146,7 @@ int how;
         && !paranoid_query(ParanoidDie, "Die?")) {
         pline("OK, so you don't %s.", (how == CHOKING) ? "choke" : "die");
         savelife(how);
+        ukiller = (struct monst*) 0;
         survive = TRUE;
     }
 

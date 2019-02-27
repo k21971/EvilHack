@@ -266,6 +266,8 @@ struct obj {
                       || otmp->otyp == IRON_SAFE)
 #define Is_mbag(otmp) \
     (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS)
+#define Is_allbag(otmp) \
+    (otmp->otyp >= SACK && otmp->otyp <= BAG_OF_TRICKS)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)
 
 /* dragon gear */

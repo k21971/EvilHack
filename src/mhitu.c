@@ -1757,6 +1757,7 @@ register struct attack *mattk;
             if (!Antimagic) {
                 killer.format = KILLED_BY_AN;
                 Strcpy(killer.name, "touch of death");
+                ukiller = mtmp;
                 done(DIED);
                 dmg = 0;
                 break;

@@ -375,8 +375,9 @@ make_bones:
         if (mtmp->iswiz || mptr == &mons[PM_MEDUSA]
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
             || mptr == &mons[PM_VLAD_THE_IMPALER]
-            || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp)))
+            || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))) {
             mongone(mtmp);
+        }
     }
     if (u.usteed)
         dismount_steed(DISMOUNT_BONES);
@@ -413,6 +414,48 @@ make_bones:
         /* trick makemon() into allowing monster creation
          * on your location
          */
+	if (ukiller) {
+	   /* If you don't rise from your grave (and are thus carrying your stuff),
+	    * the critter that killed you gets some special handling here.
+	    *
+	    * First, it gets to loot your body; if it's a demon lord or prince,
+	    * it will tend to take all the "good stuff".
+	    *
+	    * It also gets a chance to be removed as well -- hitting Yeenoghu bones
+	    * once is not a big deal, but a persistent upper-dungeon Yeenoghu from
+	    * an unlucky fountain quaffer would be a bit much.
+	    */
+	struct obj* otmp;
+	struct obj* otmp2;
+	boolean greedy = FALSE;
+
+	/* Actively mean monsters */
+	if (is_dlord(ukiller->data) || is_dprince(ukiller->data)) {
+	    greedy = TRUE;
+	}
+
+	for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp2) {
+	     otmp2 = otmp->nexthere; /* mpickobj might free otmp */
+	if (!rn2(8) || (greedy && rn2(2) && (otmp->oartifact || Is_dragon_armor(otmp)
+			|| otmp->otyp == AMULET_OF_LIFE_SAVING || Is_allbag(otmp)
+			|| otmp->otyp == MAGIC_MARKER || otmp->otyp == UNICORN_HORN))) {
+	    if (!touch_artifact(otmp, ukiller))
+                continue;
+	    if (!can_carry(ukiller, otmp))
+                continue;
+		obj_extract_self(otmp);
+		mpickobj(ukiller, otmp);
+	    }
+	}
+	m_dowear(ukiller, TRUE);  /* Let them wear it */
+        /* This right here can help prevent an endless loop of low dungeon level
+         * demon prince/lord bones, but some of the more desirable loot could go
+         * with them. */ 
+	if (greedy && !rn2(3)) {
+	    mongone(ukiller);
+	    dmonsfree();	  /* have to call this again */
+	    }
+	}
         in_mklev = TRUE;
         mtmp = makemon(&mons[PM_GHOST], u.ux, u.uy, MM_NONAME);
         in_mklev = FALSE;
