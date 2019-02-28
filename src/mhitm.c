@@ -39,11 +39,11 @@ static const char *const mwep_pierce[] = {
 };
 
 static const char *const mwep_slash[] = {
-    "hack", "rend", "gashe", "lacerate", "hit"
+    "strike", "hack", "cut", "wound", "lacerate", "hit"
 };
 
 static const char *const mwep_whack[] = {
-    "strike", "whack", "smack", "pound", "bashe", "hit"
+    "smashe", "whack", "smack", "pound", "bashe", "hit"
 };
 
 static const char *const mwep_none[] = {
