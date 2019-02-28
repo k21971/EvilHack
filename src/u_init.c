@@ -1017,28 +1017,37 @@ u_init()
 
 	for (i = 0; i < rnd(4); i++) {
 	     attkptr = &shambler->mattk[i];
-	     attkptr->aatyp = rnd(AT_SCRE); /* uchar */
+	     attkptr->aatyp = rnd(AT_TENT); /* uchar */
              attkptr->adtyp = rn2(AD_BHED);
 
-	if (attkptr->aatyp == AT_GAZE || attkptr->aatyp == AT_SPIT) {
-	    attkptr->aatyp = AT_MAGC;
-	} else if (attkptr->aatyp == AT_EXPL || attkptr->aatyp == AT_BOOM) {
-		   attkptr->aatyp = AT_CLAW + rn2(12);
-        }
-        if (attkptr->aatyp == AT_MAGC) {
-            attkptr->adtyp = AD_CLRC + rn2(2);      /* AT_MAGC must correspond to a spell type */
-        } else if (attkptr->aatyp == AT_BREA) {
-                   attkptr->adtyp = AD_MAGM + rn2(4);
-        } else if (attkptr->aatyp == AT_ENGL) {
-                   attkptr->adtyp = AD_DGST;
-	} else if (attkptr->adtyp == AD_DETH || attkptr->adtyp == AD_PEST
-                    || attkptr->adtyp == AD_FAMN || attkptr->adtyp == AD_DISN
-		    || attkptr->adtyp == AD_SPC1 || attkptr->adtyp == AD_SPC2) {
-		    attkptr->adtyp = AD_ENCH + rn2(4);
+	    if (attkptr->aatyp == AT_GAZE) {
+	        attkptr->aatyp = AT_MAGC;
+	    } else if (attkptr->aatyp == AT_EXPL || attkptr->aatyp == AT_BOOM) {
+	               attkptr->aatyp = AT_CLAW + rn2(12);
+            }
+
+            if (attkptr->aatyp == AT_MAGC) {
+                attkptr->adtyp = AD_CLRC + rn2(2);      /* AT_MAGC must correspond to a spell type */
+            } else if (attkptr->aatyp == AT_BREA) {
+                       attkptr->adtyp = AD_MAGM + rn2(8);
+            } else if (attkptr->aatyp == AT_SPIT) {
+                       attkptr->adtyp = AD_ACID;
+            } else if (attkptr->aatyp == AT_ENGL) {
+                       attkptr->adtyp = AD_DGST;
+	    }
+
+            if (attkptr->adtyp == AD_DETH || attkptr->adtyp == AD_PEST
+                || attkptr->adtyp == AD_FAMN || attkptr->adtyp == AD_SPC1
+                || attkptr->adtyp == AD_SPC2) {
+                attkptr->adtyp = AD_ENCH + rn2(4);
+	    } else if (attkptr->adtyp == AD_DISN) {
+                       attkptr->adtyp = AD_ACID;
+            }
+
+	    attkptr->damn = 3 + rn2(3);
+	    attkptr->damd = 6 + rn2(3);
 	}
-	attkptr->damn = 3 + rn2(3);
-	attkptr->damd = 6 + rn2(3);
-	}
+
 	shambler->msize = rn2(MZ_GIGANTIC + 1);			/* any size */
 	shambler->cwt = 20;					/* fortunately moot as it's flagged NOCORPSE */
 	shambler->cnutrit = 20;					/* see above */
