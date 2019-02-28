@@ -2094,14 +2094,14 @@ struct permonst _mons2[] = {
      * Until I can figure out a way to save the shambling horrors' spawned
      * state into the save file, the template will be adjusted to prevent
      * the player from saving, restoring, and then assuming they'll change
-     * it to something easy.
+     * it to something easy. (template needs to be as bare-bones
+     * as possible - 28FEB2019)
      */
-    MON("shambling horror", S_UMBER, LVL(12, 12, -6, 50, 0), (G_NOCORPSE | 1),
-	A(ATTK(AT_CLAW, AD_PHYS, 4, 6), ATTK(AT_CLAW, AD_PHYS, 4, 6),
-          ATTK(AT_BITE, AD_STUN, 2, 8), NO_ATTK, NO_ATTK, NO_ATTK),
-	SIZ(25, 25, MS_SILENT, MZ_TINY), MR_POISON | MR_SLEEP, 0,
-	M1_CARNIVORE, M2_NOPOLY | M2_HOSTILE | M2_STRONG,
-        M3_INFRAVISIBLE, 0, 0, 15, DRAGON_SILVER),
+    MON("shambling horror", S_UMBER, LVL(12, 12, 0, 0, A_NONE), (G_NOCORPSE | 1),
+	A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+	SIZ(25, 25, MS_SILENT, MZ_TINY), 0, 0,
+	M1_CARNIVORE, M2_NOPOLY | M2_HOSTILE,
+        0, 0, 0, 15, DRAGON_SILVER),
     /*
      * Vampires
      */

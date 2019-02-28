@@ -123,26 +123,26 @@ struct attack *mattk;
             break;
         case AT_WEAP:
             if (MON_WEP(mtmp)) {
- 	        Sprintf(buf, weaphitmsg(MON_WEP(mtmp),FALSE));
+ 	        Strcpy(buf, weaphitmsg(MON_WEP(mtmp), FALSE));
                     if (is_launcher(MON_WEP(mtmp))
                         || is_missile(MON_WEP(mtmp))
                         || is_ammo(MON_WEP(mtmp))
                         || is_pole(MON_WEP(mtmp)))
-                               Sprintf(buf,"hit");
+                               Sprintf(buf, "hit");
                         pline("%s %s%s!", Monnam(mtmp), makeplural(buf),
-                              !strcmp(buf,"whip")
-	 		      || !strcmp(buf,"hack")
-	 		      || !strcmp(buf,"chop")
-	 		      || !strcmp(buf,"jab") ? " you" : "");
+                              !strcmp(buf, "whip")
+	 		      || !strcmp(buf, "hack")
+	 		      || !strcmp(buf, "chop")
+	 		      || !strcmp(buf, "jab") ? " you" : "");
              break;
              }
              /* FALLTHRU */
          case AT_CLAW:
-	     Sprintf(buf, barehitmsg(mtmp));
+	     Strcpy(buf, barehitmsg(mtmp));
                      pline("%s %s%s!", Monnam(mtmp), makeplural(buf),
-	        	   !strcmp(buf,"scratch")
-	 		   || !strcmp(buf,"strike")
-	 		   || !strcmp(buf,"punch") ? "" : " you");
+	        	   !strcmp(buf, "scratch")
+	 		   || !strcmp(buf, "strike")
+	 		   || !strcmp(buf, "punch") ? "" : " you");
         break;
         default:
             pfmt = "%s hits!";

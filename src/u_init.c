@@ -1009,45 +1009,37 @@ u_init()
     }
 
 	/* what a horrible night to have a curse */
-	shambler->mlevel += rnd(12)-3;				/* shuffle level */
-	shambler->mmove = rn2(10)+9;				/* slow to very fast */
-	shambler->ac = rn2(21)-10;				/* any AC */
-	shambler->mr = rn2(5)*25;				/* varying amounts of MR */
-	shambler->maligntyp = rn2(21)-10;			/* any alignment */
-	/* attacks...?  */
+	shambler->mlevel += rnd(12) - 3;		/* shuffle level */
+	shambler->mmove = rn2(10) + 9;			/* slow to very fast */
+	shambler->ac = rn2(21) - 10;			/* any AC */
+	shambler->mr = rn2(5) * 25;			/* varying amounts of MR */
+	shambler->maligntyp == A_NONE;
+
 	for (i = 0; i < rnd(4); i++) {
-		attkptr = &shambler->mattk[i];
-		attkptr->aatyp = rn2(AT_GAZE);		/* limit it to semi-normal attacks for now */
-		/* theoretically rnd(AT_GAZE)-3 should work since these are uchar, but
-		 * let's not totally confuse the poor people browsing... */
-		if (attkptr->aatyp == AT_GAZE) {
-			attkptr->aatyp = AT_MAGC;
-		}
-		if (attkptr->aatyp == AT_EXPL || attkptr->aatyp == AT_BOOM) {
-			attkptr->aatyp = AT_TENT;
-		}
-		attkptr->adtyp = 0;
-		/* Don't let the special Rider attacks be used here
-		 * ...everything else is fair game :D */
-		while (attkptr->adtyp == 0 || attkptr->adtyp == AD_DETH ||
-					attkptr->adtyp == AD_PEST || attkptr->adtyp == AD_FAMN ||
-                                        attkptr->adtyp == AD_STON || attkptr->adtyp == AD_DISN ||
-					attkptr->adtyp == AD_SPC1 || attkptr->adtyp == AD_SPC2) {
-			attkptr->adtyp = rnd(AD_CORR);
-		}
-		if (attkptr->aatyp == AT_MAGC) {
-			attkptr->adtyp = AD_CLRC + rn2(2);	/* AT_MAGC must correspond to a spell type */
-		}
-		if (attkptr->aatyp == AT_BREA) {
-			attkptr->adtyp == AD_DISN;
-		}
-                if (attkptr->aatyp == AT_SPIT) {
-                        attkptr->adtyp == AD_ACID;
-                }
-		attkptr->damn = 4;				/* we're almost sure to get this wrong first time */
-		attkptr->damd = 6;			        /* either too high or too low */
+	     attkptr = &shambler->mattk[i];
+	     attkptr->aatyp = rnd(AT_SCRE); /* uchar */
+             attkptr->adtyp = rn2(AD_BHED);
+
+	if (attkptr->aatyp == AT_GAZE || attkptr->aatyp == AT_SPIT) {
+	    attkptr->aatyp = AT_MAGC;
+	} else if (attkptr->aatyp == AT_EXPL || attkptr->aatyp == AT_BOOM) {
+		   attkptr->aatyp = AT_CLAW + rn2(12);
+        }
+        if (attkptr->aatyp == AT_MAGC) {
+            attkptr->adtyp = AD_CLRC + rn2(2);      /* AT_MAGC must correspond to a spell type */
+        } else if (attkptr->aatyp == AT_BREA) {
+                   attkptr->adtyp = AD_MAGM + rn2(4);
+        } else if (attkptr->aatyp == AT_ENGL) {
+                   attkptr->adtyp = AD_DGST;
+	} else if (attkptr->adtyp == AD_DETH || attkptr->adtyp == AD_PEST
+                    || attkptr->adtyp == AD_FAMN || attkptr->adtyp == AD_DISN
+		    || attkptr->adtyp == AD_SPC1 || attkptr->adtyp == AD_SPC2) {
+		    attkptr->adtyp = AD_ENCH + rn2(4);
 	}
-	shambler->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	attkptr->damn = 3 + rn2(3);
+	attkptr->damd = 6 + rn2(3);
+	}
+	shambler->msize = rn2(MZ_GIGANTIC + 1);			/* any size */
 	shambler->cwt = 20;					/* fortunately moot as it's flagged NOCORPSE */
 	shambler->cnutrit = 20;					/* see above */
 	shambler->msound = rn2(MS_HUMANOID);			/* any but the specials */
@@ -1066,18 +1058,17 @@ u_init()
 	 */
 	shambler->mflags1 = 0;
 	for (i = 0; i < rnd(17); i++) {
-		shambler->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+		shambler->mflags1 |= (1 << rn2(33));		/* rn2() should equal the number of M1_ flags in include/monflag.h */
 	}
 	shambler->mflags1 &= ~M1_UNSOLID;			/* no ghosts */
 	shambler->mflags1 &= ~M1_WALLWALK;			/* no wall-walkers */
 
 	shambler->mflags2 = M2_NOPOLY | M2_HOSTILE;		/* Don't let the player be one of these yet. */
 	for (i = 0; i < rnd(17); i++) {
-		shambler->mflags2 |= (1 << rn2(31));
+		shambler->mflags2 |= (1 << rn2(22));            /* rn2() should equal the number of M2_ flags in include/monflag.h */
 	}
 	shambler->mflags2 &= ~M2_MERC;				/* no guards */
 	shambler->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
-	/* shambler->mflags2 &= ~M2_WERE; */			/* no lycanthropes */
 	shambler->mflags2 &= ~M2_PNAME;				/* not a proper name */
         shambler->mflags2 &= ~M2_SHAPESHIFTER;                  /* no chameleon types */
 
