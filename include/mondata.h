@@ -91,6 +91,18 @@
      || (ptr) == &mons[PM_ORC_SHAMAN]                                  \
      || (ptr) == &mons[PM_HILL_GIANT_SHAMAN]                           \
      || (ptr) == &mons[PM_GNOMISH_WIZARD])
+#define has_claws(ptr) \
+    ((ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE     \
+     || (ptr)->mlet == S_GREMLIN || (ptr)->mlet == S_IMP        \
+     || (ptr)->mlet == S_MIMIC || (ptr)->mlet == S_SPIDER       \
+     || (ptr)->mlet == S_ZRUTY || (ptr)->mlet == S_BAT          \
+     || (ptr)->mlet == S_DRAGON || (ptr)->mlet == S_JABBERWOCK  \
+     || (ptr)->mlet == S_RUSTMONST || (ptr)->mlet == S_TROLL    \
+     || (ptr)->mlet == S_UMBER || (ptr)->mlet == S_YETI         \
+     || (ptr)->mlet == S_DEMON || (ptr)->mlet == S_LIZARD)
+#define has_claws_undead(ptr) \
+    ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE          \
+     || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE)
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
 #define poisonous(ptr) (((ptr)->mflags1 & M1_POIS) != 0L)

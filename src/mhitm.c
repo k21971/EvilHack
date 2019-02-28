@@ -34,6 +34,23 @@ STATIC_DCL void FDECL(missmm, (struct monst *, struct monst *,
 STATIC_DCL int FDECL(passivemm, (struct monst *, struct monst *,
                                  BOOLEAN_P, int));
 
+static const char *const mwep_pierce[] = {
+    "pierce", "gore", "stab", "impale", "hit"
+};
+
+static const char *const mwep_slash[] = {
+    "hack", "rend", "gashe", "lacerate", "hit"
+};
+
+static const char *const mwep_whack[] = {
+    "strike", "whack", "smack", "pound", "bashe", "hit"
+};
+
+static const char *const mwep_none[] = {
+    "punche", "pummel", "hit"
+};
+
+
 /* Needed for the special case of monsters wielding vorpal blades (rare).
  * If we use this a lot it should probably be a parameter to mdamagem()
  * instead of a global variable.
@@ -623,7 +640,7 @@ struct attack *mattk;
                         "peck" : "bite");
                 break;
             case AT_KICK:
-                Sprintf(buf,"%s kicks", magr_name);
+                Sprintf(buf, "%s kicks", magr_name);
                 break;
             case AT_STNG:
                 Sprintf(buf, "%s stings", magr_name);
@@ -643,20 +660,25 @@ struct attack *mattk;
                     break;
                 }
             case AT_WEAP:
-                if (MON_WEP(magr)) {
-                    if (is_launcher(MON_WEP(magr))
-                        || is_missile(MON_WEP(magr))
-                        || is_ammo(MON_WEP(magr))
-                        || is_pole(MON_WEP(magr)))
-                               Sprintf(buf,"%s hits", magr_name);
-                    else Sprintf(buf,"%s %s", magr_name,
-                        makeplural(weaphitmsg(MON_WEP(magr),FALSE)));
-                    break;
-                }
-            case AT_CLAW:
-                Sprintf(buf,"%s %s", magr_name, makeplural(barehitmsg(magr)));
-                break;
-                /*FALLTHRU*/
+            if (!MON_WEP(magr)) { /* AT_WEAP but isn't wielding anything */
+                Sprintf(buf, "%s %ss", magr_name, mwep_none[rn2(SIZE(mwep_none))]);
+            } else if (is_pierce(MON_WEP(magr))) {
+                       Sprintf(buf, "%s %ss", magr_name, mwep_pierce[rn2(SIZE(mwep_pierce))]);
+            } else if (is_slash(MON_WEP(magr))) {
+                       Sprintf(buf, "%s %ss", magr_name, mwep_slash[rn2(SIZE(mwep_slash))]);
+            } else if (is_whack(MON_WEP(magr))) {
+                       Sprintf(buf, "%s %ss", magr_name, mwep_whack[rn2(SIZE(mwep_whack))]);
+            }
+            break;
+        case AT_CLAW:
+            if (has_claws(magr->data)) {
+                Sprintf(buf, "%s claws", magr_name);
+            } else if (has_claws_undead(magr->data)) {
+                       Sprintf(buf, "%s scratches", magr_name);
+            } else {
+                Sprintf(buf, "%s hits", magr_name);
+            }
+            break;
             default:
                 Sprintf(buf, "%s hits", magr_name);
             }

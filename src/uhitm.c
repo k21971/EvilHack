@@ -797,7 +797,6 @@ int dieroll;
                 || (is_ammo(obj) && (thrown != HMON_THROWN
                                      || !ammo_and_launcher(obj, uwep)))) {
                 /* then do only 1-2 points of damage */
-                hand_to_hand = TRUE;
                 if (mdat == &mons[PM_SHADE] && !shade_glare(obj))
                     tmp = 0;
                 else

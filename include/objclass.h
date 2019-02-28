@@ -70,9 +70,13 @@ struct objclass {
 #define IMMEDIATE 2 /*               directional */
 #define RAY 3       /*               zap beams */
 
-#define PIERCE 0x1 /* for weapons & tools used as weapons */
-#define SLASH 0x2  /* (latter includes iron ball & chain) */
-#define WHACK 0x4
+#define PIERCE 1 /* for weapons & tools used as weapons */
+#define SLASH 2  /* (latter includes iron ball & chain) */
+#define WHACK 4
+
+#define is_pierce(otmp) (objects[otmp->otyp].oc_dir == PIERCE)
+#define is_slash(otmp) (objects[otmp->otyp].oc_dir == SLASH)
+#define is_whack(otmp) (objects[otmp->otyp].oc_dir == WHACK)
 
     /* 4 free bits */
 
