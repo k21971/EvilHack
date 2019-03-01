@@ -1890,12 +1890,37 @@ int spell;
      */
     chance = chance * (20 - splcaster) / 15 - splcaster;
 
-    /* This works
-    if (uarm) {
-        penalty = (100 - spellev(spell) * 10) - dex_adjust;
-        if (chance > penalty)
-            chance = penalty;
-    } */
+    /* For those classes that don't cast well, wielding one of these
+     *  special staves this should be a significant help.
+     */
+    if (uwep && uwep->otyp >= STAFF_OF_DIVINATION && uwep->otyp <= STAFF_OF_WAR) {
+#define STAFFBONUS 50
+	if (spell_skilltype(spellid(spell)) == P_CLERIC_SPELL
+            && uwep->otyp == STAFF_OF_HOLINESS) {
+	    chance += STAFFBONUS;
+	}
+	if (spell_skilltype(spellid(spell)) == P_HEALING_SPELL
+            && uwep->otyp == STAFF_OF_HEALING) {
+	    chance += STAFFBONUS;
+	}
+	if (spell_skilltype(spellid(spell)) == P_DIVINATION_SPELL
+            && uwep->otyp == STAFF_OF_DIVINATION) {
+	    chance += STAFFBONUS;
+	}
+	if (spell_skilltype(spellid(spell)) == P_MATTER_SPELL
+            && uwep->otyp == STAFF_OF_MATTER) {
+	    chance += STAFFBONUS;
+	}
+	if (spell_skilltype(spellid(spell)) == P_ESCAPE_SPELL
+            && uwep->otyp == STAFF_OF_ESCAPE) {
+	    chance += STAFFBONUS;
+	}
+	if (spell_skilltype(spellid(spell)) == P_ATTACK_SPELL
+            && uwep->otyp == STAFF_OF_WAR) {
+	    chance += STAFFBONUS;
+	}
+#undef STAFFBONUS
+    }
 
     if (uarm) {
         if (uarm->otyp == CRYSTAL_PLATE_MAIL) {
