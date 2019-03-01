@@ -48,7 +48,7 @@ hitmsg(mtmp, mattk)
 struct monst *mtmp;
 struct attack *mattk;
 {
-    int compat, dam;
+    int compat;
     const char *pfmt = 0;
     char *Monst_name = Monnam(mtmp);
 
