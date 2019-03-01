@@ -2804,6 +2804,8 @@ register struct obj *atmp;
         (void) Cloak_off();
         useup(otmp);
     } else if (DESTROY_ARM(uarm)) {
+        if (uarm && uarm == otmp && otmp->otyp == CRYSTAL_PLATE_MAIL)
+        goto end;
         if (donning(otmp))
             cancel_don();
         Your("armor turns to dust and falls to the %s!", surface(u.ux, u.uy));
@@ -2841,6 +2843,7 @@ register struct obj *atmp;
         (void) Shield_off();
         useup(otmp);
     } else {
+end:
         return 0; /* could not destroy anything */
     }
 

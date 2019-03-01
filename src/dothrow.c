@@ -2120,7 +2120,6 @@ boolean in_view;
         if (obj->oclass != WAND_CLASS)
             impossible("breaking odd object?");
         /*FALLTHRU*/
-    case CRYSTAL_PLATE_MAIL:
     case LENSES:
     case MIRROR:
     case CRYSTAL_BALL:
