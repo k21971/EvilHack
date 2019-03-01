@@ -1772,6 +1772,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
                     tmp = 1;
             }
         }
+	if (youmonst.data == &mons[PM_WATER_ELEMENTAL])
+	    goto do_rust;
         break;
     case AD_FIRE:
         if (negated) {
@@ -1931,6 +1933,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         }
         break;
     case AD_RUST:
+do_rust:
         if (pd == &mons[PM_IRON_GOLEM]) {
             pline("%s falls to pieces!", Monnam(mdef));
             xkilled(mdef, XKILL_NOMSG);
@@ -2910,6 +2913,12 @@ boolean wep_was_destroyed;
         break;
     case AD_RUST:
         if (mhit && !mon->mcan && weapon) {
+	    if (mon->data == &mons[PM_WATER_ELEMENTAL]) {
+		if (rn2(2))
+                    break;
+		if (Blind || !flags.verbose) You("are splashed!");
+		else You("are splashed by %s water!", s_suffix(mon_nam(mon)));
+	    }
             if (aatyp == AT_KICK) {
                 if (uarmf)
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_RUST,

@@ -1187,9 +1187,13 @@ register struct attack *mattk;
                 }
                 rustm(&youmonst, otmp);
             } else if (mattk->aatyp != AT_TUCH || dmg != 0
-                       || mtmp != u.ustuck)
+                       || mtmp != u.ustuck) {
                 hitmsg(mtmp, mattk);
-        }
+                }
+            }
+	    if (mtmp->data == &mons[PM_WATER_ELEMENTAL]) {
+		goto do_rust;
+	}
         break;
     case AD_DISE:
         hitmsg(mtmp, mattk);
@@ -1566,6 +1570,7 @@ register struct attack *mattk;
         }
         break;
     case AD_RUST:
+do_rust:
         hitmsg(mtmp, mattk);
         if (mtmp->mcan)
             break;
