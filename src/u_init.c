@@ -295,7 +295,7 @@ static const struct def_skill Skill_B[] = {
     { P_BOW, P_BASIC },
     { P_ENCHANTMENT_SPELL, P_BASIC }, /* special spell is cause fear */
     { P_RIDING, P_SKILLED },
-    { P_TWO_WEAPON_COMBAT, P_BASIC },
+    { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_MASTER },
     { P_NONE, 0 }
 };
@@ -508,7 +508,7 @@ static const struct def_skill Skill_T[] = {
     { P_ENCHANTMENT_SPELL, P_BASIC },
     { P_ESCAPE_SPELL, P_SKILLED },
     { P_RIDING, P_BASIC },
-    { P_TWO_WEAPON_COMBAT, P_SKILLED },
+    { P_TWO_WEAPON_COMBAT, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_SKILLED },
     { P_NONE, 0 }
 };
