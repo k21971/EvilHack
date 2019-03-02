@@ -3994,7 +3994,7 @@ struct obj *no_wish;
     /* more wishing abuse: don't allow wishing for certain artifacts */
     /* and make them pay; charge them for the wish anyway! */
     if ((is_quest_artifact(otmp)
-        || (otmp->oartifact && rn2(nartifact_exist()) > 1)) && !wizard) {
+        || (otmp->oartifact && rn2(nartifact_exist()) > 2)) && !wizard) {
         artifact_exists(otmp, safe_oname(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
         otmp = (struct obj *) &zeroobj;
@@ -4023,7 +4023,7 @@ struct obj *no_wish;
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
             return otmp;
-    } else if (otmp->oartifact && (rn2(nartifact_exist()) > 1))
+    } else if (otmp->oartifact && (rn2(nartifact_exist()) > 2))
 #ifdef WIZARD
     if (wizard && yn("Force the wish to succeed?") == 'n')
 #endif
@@ -4122,6 +4122,7 @@ struct obj *no_wish;
                     pm=PM_SAMURAI;
                     break;
                 case ART_YENDORIAN_EXPRESS_CARD:
+                case ART_MAGIC___BALL:
                     otmp2 = mksobj(UNICORN_HORN, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
