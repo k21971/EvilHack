@@ -196,9 +196,17 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      it would be way over-powered. It will be a worthy two-handed sword to try to obtain however...
      */
     A("The Sword of Bheleu", MITHRIL_TWO_HANDED_SWORD,
-     (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL | SPFX_DALIGN), 0, 0,
-     DRST(10, 10), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
-     12000L, NO_COLOR),
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL | SPFX_DALIGN), 0, 0,
+      DRST(10, 10), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
+      12000L, NO_COLOR),
+    /* Thought the Oracle just knew everything on her own? Guess again. Should
+     *  anyone ever be foolhardy enough to take on the Oracle and succeed,
+     *  they might discover the true source of her knowledge.
+     */
+    A("Magic 8-Ball", EIGHT_BALL,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK), SPFX_WARN, 0,
+      NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 5000L,
+      NO_COLOR),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

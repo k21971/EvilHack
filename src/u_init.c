@@ -1013,7 +1013,7 @@ u_init()
 	shambler->mmove = rn2(10) + 9;			/* slow to very fast */
 	shambler->ac = rn2(21) - 10;			/* any AC */
 	shambler->mr = rn2(5) * 25;			/* varying amounts of MR */
-	shambler->maligntyp == A_NONE;
+	shambler->maligntyp = rn2(21) - 10;
 
 	for (i = 0; i < rnd(4); i++) {
 	     attkptr = &shambler->mattk[i];

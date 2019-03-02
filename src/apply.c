@@ -11,6 +11,7 @@ STATIC_DCL int FDECL(use_camera, (struct obj *));
 STATIC_DCL int FDECL(use_towel, (struct obj *));
 STATIC_DCL boolean FDECL(its_dead, (int, int, int *, struct obj*));
 STATIC_DCL int FDECL(use_stethoscope, (struct obj *));
+STATIC_DCL void FDECL(use_eight_ball, (struct obj *));
 STATIC_DCL void FDECL(use_whistle, (struct obj *));
 STATIC_DCL void FDECL(use_magic_whistle, (struct obj *));
 STATIC_DCL int FDECL(use_leash, (struct obj *));
@@ -436,6 +437,39 @@ register struct obj *obj;
     if (!its_dead(rx, ry, &res, obj))
         You("hear nothing special."); /* not You_hear()  */
     return res;
+}
+
+STATIC_OVL void
+use_eight_ball(obj)
+struct obj *obj;
+{
+    int chance;
+
+    if (HStun) {
+        You("are incapable of using The %s.", yname(obj));
+    } else if (Underwater) {
+        You("can't effectively shake The %s in this medium.", yname(obj));
+    } else {
+        You("vigorously shake The %s...", yname(obj));
+        check_unpaid_usage(obj, TRUE);
+
+        /* Applying the 8-Ball gives a 1 in 1000 chance of granting a wish,
+         * but only if it's blessed. Otherwise, it will never grant one. */
+        chance = 999;
+        if (obj->blessed)
+            chance = (chance == 0) ? rn2(999) : 999;
+
+        switch (chance) {
+        case 0:
+            pline("The Magic 8-Ball has granted you a wish!");
+            makewish();
+            pline("The Magic 8-Ball winks out of existence, but not before spreading one last rumor.");
+            useup(obj); /* one wish is all you get */
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 static const char whistle_str[] = "produce a %s whistling sound.";
@@ -3653,6 +3687,9 @@ doapply()
         break;
     case CRYSTAL_BALL:
         use_crystal_ball(&obj);
+        break;
+    case EIGHT_BALL:
+        use_eight_ball(obj);
         break;
     case MAGIC_MARKER:
         res = dowrite(obj);
