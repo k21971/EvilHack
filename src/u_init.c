@@ -98,6 +98,7 @@ static struct trobj Monk[] = {
     { 0, 0, 0, 0, 0 }
 };
 static struct trobj Priest[] = {
+#define PRI_MACE 0
     { MACE, 1, WEAPON_CLASS, 1, 1 },
     { ROBE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -210,8 +211,10 @@ static struct inv_sub {
     { PM_ELF, DAGGER, ELVEN_DAGGER },
     { PM_ELF, SPEAR, ELVEN_SPEAR },
     { PM_ELF, SHORT_SWORD, ELVEN_SHORT_SWORD },
+    { PM_ELF, LONG_SWORD, ELVEN_LONG_SWORD },
     { PM_ELF, BOW, ELVEN_BOW },
     { PM_ELF, ARROW, ELVEN_ARROW },
+    { PM_ELF, PLATE_MAIL, ELVEN_MITHRIL_COAT },
     { PM_ELF, HELMET, ELVEN_LEATHER_HELM },
     /* { PM_ELF, SMALL_SHIELD, ELVEN_SHIELD }, */
     { PM_ELF, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
@@ -746,6 +749,7 @@ u_init()
         break;
     }
     case PM_PRIEST:
+	if (Race_switch == PM_ELF) Priest[PRI_MACE].trotyp = CLUB;
         ini_inv(Priest);
         if (!rn2(10))
             ini_inv(Magicmarker);
@@ -856,6 +860,7 @@ u_init()
         knows_object(ELVEN_SPEAR);
         knows_object(ELVEN_DAGGER);
         knows_object(ELVEN_BROADSWORD);
+        knows_object(ELVEN_LONG_SWORD);
         knows_object(ELVEN_MITHRIL_COAT);
         knows_object(ELVEN_LEATHER_HELM);
         knows_object(ELVEN_SHIELD);
@@ -910,6 +915,7 @@ u_init()
         knows_object(ELVEN_SPEAR);
         knows_object(ELVEN_DAGGER);
         knows_object(ELVEN_BROADSWORD);
+        knows_object(ELVEN_LONG_SWORD);
         knows_object(ELVEN_MITHRIL_COAT);
         knows_object(ELVEN_LEATHER_HELM);
         knows_object(ELVEN_SHIELD);

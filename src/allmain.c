@@ -23,6 +23,64 @@ STATIC_DCL void FDECL(debug_fields, (const char *));
 static long prev_dgl_extrainfo = 0;
 #endif
 
+boolean
+elf_can_regen()
+{
+    if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))) {
+	if (uwep && is_iron(uwep)
+            && !is_quest_artifact(uwep) && !uarmg) return 0;
+	if (uarm && is_iron(uarm) && !uarmu) return 0;
+	if (uarmu && is_iron(uarmu)) return 0;
+	if (uarmc && is_iron(uarmc) && !uarmu && !uarm) return 0;
+	if (uarm && is_iron(uarm)) return 0;
+	if (uarmc && is_iron(uarmc) && !uarm) return 0;
+	if (uarmh && is_iron(uarmh)
+            && !is_quest_artifact(uarmh)) return 0;
+	if (uarms && is_iron(uarms) && !uarmg) return 0;
+	if (uarmg && is_iron(uarmg)) return 0;
+	if (uarmf && is_iron(uarmf)) return 0;
+	if (uleft && is_iron(uleft)) return 0;
+	if (uright && is_iron(uright)) return 0;
+	if (uamul && is_iron(uamul) && !is_quest_artifact(uamul)
+            && !uarmu && !uarm) return 0;
+	if (uamul && is_iron(uamul) && !is_quest_artifact(uamul)
+            && !uarm) return 0;
+	if (ublindf && is_iron(ublindf)) return 0;
+	if (uchain && is_iron(uchain)) return 0;
+	if (uswapwep && is_iron(uswapwep) && u.twoweap) return 0;
+    }
+    return 1;
+}
+
+boolean
+orc_can_regen()
+{
+    if (maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC))) {
+	if (uwep && is_mithril(uwep)
+            && !is_quest_artifact(uwep) && !uarmg) return 0;
+	if (uarm && is_mithril(uarm) && !uarmu) return 0;
+	if (uarmu && is_mithril(uarmu)) return 0;
+	if (uarmc && is_mithril(uarmc) && !uarmu && !uarm) return 0;
+	if (uarm && is_mithril(uarm)) return 0;
+	if (uarmc && is_mithril(uarmc) && !uarm) return 0;
+	if (uarmh && is_mithril(uarmh)
+            && !is_quest_artifact(uarmh)) return 0;
+	if (uarms && is_mithril(uarms) && !uarmg) return 0;
+	if (uarmg && is_mithril(uarmg)) return 0;
+	if (uarmf && is_mithril(uarmf)) return 0;
+	if (uleft && is_mithril(uleft)) return 0;
+	if (uright && is_mithril(uright)) return 0;
+        if (uamul && is_mithril(uamul) && !is_quest_artifact(uamul)
+            && !uarmu && !uarm) return 0;
+        if (uamul && is_mithril(uamul) && !is_quest_artifact(uamul)
+            && !uarm) return 0;
+	if (ublindf && is_mithril(ublindf)) return 0;
+	if (uchain && is_mithril(uchain)) return 0;
+	if (uswapwep && is_mithril(uswapwep) && u.twoweap) return 0;
+    }
+    return 1;
+}
+
 void
 moveloop(resuming)
 boolean resuming;
@@ -39,6 +97,8 @@ boolean resuming;
     int timeout_start = rnd(10000)+25000;
     int clock_base = 60000L-timeout_start;
     int past_clock;
+    boolean elf_regen = elf_can_regen();
+    boolean orc_regen = orc_can_regen();
 
     /* Note:  these initializers don't do anything except guarantee that
             we're linked properly.
@@ -420,6 +480,24 @@ boolean resuming;
             curs_on_u();
         }
 
+	if (elf_regen != elf_can_regen()) {
+            if (!Hallucination) {
+	        You_feel("%s.", (elf_regen) ? "itchy" : "relief");
+            } else {
+                You_feel("%s.", (elf_can_regen) ? "magnetic" : "like you are no longer failing Organic Chemistry");
+            }
+	    elf_regen = elf_can_regen();
+	}
+
+	if (orc_regen != orc_can_regen()) {
+            if (!Hallucination) {
+	        You_feel("%s.", (orc_regen) ? "tingly" : "relief");
+            } else {
+                You_feel("%s.", (orc_can_regen) ? "non-magnetic" : "like you are no longer failing Organic Chemistry");
+            }
+	    orc_regen = orc_can_regen();
+	}
+
         context.move = 1;
 
         if (multi >= 0 && occupation) {
@@ -538,7 +616,8 @@ int wtcap;
            no !Upolyd check here, so poly'd hero recovered lost u.uhp
            once u.mh reached u.mhmax; that may have been convenient
            for the player, but it didn't make sense for gameplay...] */
-        if (u.uhp < u.uhpmax && (encumbrance_ok || Regeneration)) {
+        if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
+            && (encumbrance_ok || Regeneration)) {
             if (u.ulevel > 9) {
                 if (!(moves % 3L)) {
                     int Con = (int) ACURR(A_CON);

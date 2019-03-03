@@ -85,6 +85,7 @@ struct objclass {
 #define is_organic(otmp) (objects[otmp->otyp].oc_material <= WOOD)
 #define is_dragonhide(otmp) (objects[otmp->otyp].oc_material == DRAGON_HIDE)
 #define is_mithril(otmp) (objects[otmp->otyp].oc_material == MITHRIL)
+#define is_iron(otmp) (objects[otmp->otyp].oc_material == IRON)
 #define is_metallic(otmp)                    \
     (objects[otmp->otyp].oc_material >= IRON \
      && objects[otmp->otyp].oc_material <= MITHRIL)

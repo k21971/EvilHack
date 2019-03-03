@@ -209,6 +209,8 @@ WEAPON("elven broadsword", "runed broadsword",
         /* +d4 small, +1 large */
 WEAPON("long sword", None,
        1, 0, 0, 50,  40,  15,  8, 12, 0, S,   P_LONG_SWORD, IRON, HI_METAL),
+WEAPON("elven long sword", "runed long sword",
+       1, 0, 0, 20,  35,  15, 10, 12, 0, S,   P_LONG_SWORD, WOOD, HI_WOOD),
 /* Base materials for artifact weapons (Sunsword, The Sword of Bheleu) */
 WEAPON("silver long sword", None,
 	1, 0, 0, 0, 40, 150,  8, 12, 0, S,   P_LONG_SWORD, SILVER, HI_SILVER),
