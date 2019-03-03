@@ -1560,8 +1560,16 @@ register struct attack *mattk;
 	     * You will softly and suddenly vanish away,
 	     * And never be met with again!" */
 	    if (mtmp->mnum == PM_BOOJUM) {
+		/* depending on what we are or if we can't teleport,
+		 * display appropriate messages */
+		if (!level.flags.noteleport) {
 		You("suddenly vanish!");
-		HInvis |= FROMOUTSIDE;	  /* In multiple senses of 'vanish' :) */
+            } else {
+                if (!Invis) {
+                    You("suddenly %s!", See_invisible ? "become transparent" : "vanish");
+                }
+            }
+		incr_itimeout(&HInvis, d(6, 100));	  /* In multiple senses of 'vanish' :) */
 	    } else {
 		if (flags.verbose)
 		    Your("position suddenly seems very uncertain!");

@@ -244,7 +244,7 @@ dosit()
                     }
                 } else {
                     Your("vision becomes clear.");
-                    HSee_invisible |= FROMOUTSIDE;
+                    incr_itimeout(&HSee_invisible, (long) rn1(100, 50));
                     newsym(u.ux, u.uy);
                 }
                 break;

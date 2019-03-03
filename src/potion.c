@@ -805,10 +805,7 @@ register struct obj *otmp;
         } else {
             self_invis_message();
         }
-        if (otmp->blessed)
-            HInvis |= FROMOUTSIDE;
-        else
-            incr_itimeout(&HInvis, rn1(15, 31));
+        incr_itimeout(&HInvis, rn1(15, 31 * (otmp->blessed ? rnd(4) : 1)));
         newsym(u.ux, u.uy); /* update position */
         if (otmp->cursed) {
             pline("For some reason, you feel your presence is known.");
@@ -840,10 +837,9 @@ register struct obj *otmp;
              */
             make_blinded(0L, TRUE);
         }
-        if (otmp->blessed)
-            HSee_invisible |= FROMOUTSIDE;
-        else
-            incr_itimeout(&HSee_invisible, rn1(100, 750));
+	/* remove free permanent see-invis... */
+	incr_itimeout(&HSee_invisible,
+		      rn1(otmp->odiluted ? 50 : 100, otmp->blessed ? 1500: 750));
         set_mimic_blocking(); /* do special mimic handling */
         see_monsters();       /* see invisible monsters */
         newsym(u.ux, u.uy);   /* see yourself! */

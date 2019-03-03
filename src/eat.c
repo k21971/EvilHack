@@ -1076,16 +1076,12 @@ int pm;
         check_intrinsics = TRUE; /* might also convey poison resistance */
         break;
     case PM_STALKER:
-        if (!Invis) {
-            set_itimeout(&HInvis, (long) rn1(100, 50));
-            if (!Blind && !BInvis)
-                self_invis_message();
-        } else {
-            if (!(HInvis & INTRINSIC))
-                You_feel("hidden!");
-            HInvis |= FROMOUTSIDE;
-            HSee_invisible |= FROMOUTSIDE;
-        }
+	incr_itimeout(&HInvis, (long) rn1(100, 50));
+	if (!Invis) {
+	    if (!Blind && !BInvis) self_invis_message();
+	} else {
+	    incr_itimeout(&HSee_invisible, (long) rn1(100, 50));
+	}
         newsym(u.ux, u.uy);
         /*FALLTHRU*/
     case PM_YELLOW_LIGHT:

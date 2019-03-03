@@ -2423,11 +2423,9 @@ boolean ordinary;
             You_feel("rather itchy under %s.", yname(uarmc));
             break;
         }
-        if (ordinary || !rn2(10)) { /* permanent */
-            HInvis |= FROMOUTSIDE;
-        } else { /* temporary */
-            incr_itimeout(&HInvis, d(obj->spe, 250));
-        }
+	/* wand and potion now only do temporary invis,
+	 * to make the cloak and ring more useful */
+        incr_itimeout(&HInvis, d(obj->spe, 250));
         if (msg) {
             learn_it = TRUE;
             newsym(u.ux, u.uy);
