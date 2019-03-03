@@ -702,7 +702,7 @@ register struct obj *otmp;
         if (Hallucination || Halluc_resistance)
             nothing++;
         (void) make_hallucinated(itimeout_incr(HHallucination,
-                                          rn1(200, 600 - 300 * bcsign(otmp))),
+                                 rn1(otmp->odiluted ? 100 : 200, 600 - 300 * bcsign(otmp))),
                                  TRUE, 0L);
         break;
     case POT_WATER:
@@ -805,7 +805,7 @@ register struct obj *otmp;
         } else {
             self_invis_message();
         }
-        incr_itimeout(&HInvis, rn1(15, 31 * (otmp->blessed ? rnd(4) : 1)));
+        incr_itimeout(&HInvis, rn1(otmp->odiluted ? 7 : 15, 31 * (otmp->blessed ? rnd(4) : 1)));
         newsym(u.ux, u.uy); /* update position */
         if (otmp->cursed) {
             pline("For some reason, you feel your presence is known.");
@@ -860,7 +860,7 @@ register struct obj *otmp;
             else
                 Your("%s are frozen to the %s!", makeplural(body_part(FOOT)),
                      surface(u.ux, u.uy));
-            nomul(-(rn1(10, 25 - 12 * bcsign(otmp))));
+            nomul(-(rn1(otmp->odiluted ? 5 : 10, 25 - 12 * bcsign(otmp))));
             multi_reason = "frozen by a potion";
             nomovemsg = You_can_move_again;
             exercise(A_DEX, FALSE);
@@ -871,7 +871,7 @@ register struct obj *otmp;
             You("yawn.");
         } else {
             You("suddenly fall asleep!");
-            fall_asleep(-resist_reduce(rn1(10, 25 - 12 * bcsign(otmp)), SLEEP_RES), TRUE);
+            fall_asleep(-resist_reduce(rn1(otmp->odiluted ? 5 : 10, 25 - 12 * bcsign(otmp)), SLEEP_RES), TRUE);
         }
         break;
     case POT_MONSTER_DETECTION:
@@ -886,7 +886,7 @@ register struct obj *otmp;
             if ((HDetect_monsters & TIMEOUT) >= 300L)
                 i = 1;
             else
-                i = rn1(40, 21);
+                i = rn1(otmp->odiluted ? 20 : 40, 21);
             incr_itimeout(&HDetect_monsters, i);
             for (x = 1; x < COLNO; x++) {
                 for (y = 0; y < ROWNO; y++) {
@@ -970,7 +970,7 @@ register struct obj *otmp;
         } else
             nothing++;
         make_confused(itimeout_incr(HConfusion,
-                                    rn1(7, 16 - 8 * bcsign(otmp))),
+                                    rn1(otmp->odiluted ? 4 : 7, 16 - 8 * bcsign(otmp))),
                       FALSE);
         break;
     case POT_GAIN_ABILITY:
@@ -1022,13 +1022,13 @@ register struct obj *otmp;
             unkn++;
         }
         exercise(A_DEX, TRUE);
-        incr_itimeout(&HFast, rn1(10, 100 + 60 * bcsign(otmp)));
+        incr_itimeout(&HFast, rn1(otmp->odiluted ? 5 : 10, 100 + 60 * bcsign(otmp)));
         break;
     case POT_BLINDNESS:
         if (Blind)
             nothing++;
         make_blinded(itimeout_incr(Blinded,
-                                   rn1(200, 250 - 125 * bcsign(otmp))),
+                                   rn1(otmp->odiluted ? 100 : 200, 250 - 125 * bcsign(otmp))),
                      (boolean) !Blind);
         break;
     case POT_GAIN_LEVEL:
@@ -1066,24 +1066,24 @@ register struct obj *otmp;
         break;
     case POT_HEALING:
         You_feel("better.");
-        healup(d(6 + 2 * bcsign(otmp), 4), !otmp->cursed ? 1 : 0,
-               !!otmp->blessed, !otmp->cursed);
+        healup(d(10 + 2 * bcsign(otmp), 4) / (otmp->odiluted ? 2 : 1),
+               !otmp->cursed ? 1 : 0, !!otmp->blessed, !otmp->cursed);
         exercise(A_CON, TRUE);
         break;
     case POT_EXTRA_HEALING:
         You_feel("much better.");
-        healup(d(6 + 2 * bcsign(otmp), 8),
-               otmp->blessed ? 5 : !otmp->cursed ? 2 : 0, !otmp->cursed,
-               TRUE);
+        healup(d(10 + 2 * bcsign(otmp), 8) / (otmp->odiluted ? 2 : 1),
+               (otmp->blessed ? 5 : !otmp->cursed ? 2 : 0) / (otmp->odiluted ? 2 : 1),
+                !otmp->cursed, TRUE);
         (void) make_hallucinated(0L, TRUE, 0L);
         exercise(A_CON, TRUE);
         exercise(A_STR, TRUE);
         break;
     case POT_FULL_HEALING:
         You_feel("completely healed.");
-        healup(400, 4 + 4 * bcsign(otmp), !otmp->cursed, TRUE);
+        healup(400, (4 + 4 * bcsign(otmp)) / (otmp->odiluted ? 2 : 1), !otmp->cursed, TRUE);
         /* Restore one lost level if blessed */
-        if (otmp->blessed && u.ulevel < u.ulevelmax) {
+        if (otmp->blessed && !otmp->odiluted && u.ulevel < u.ulevelmax) {
             /* when multiple levels have been lost, drinking
                multiple potions will only get half of them back */
             u.ulevelmax -= 1;
@@ -1138,12 +1138,12 @@ register struct obj *otmp;
             }
         } else if (otmp->blessed) {
             /* at this point, timeout is already at least 1 */
-            incr_itimeout(&HLevitation, rn1(50, 250));
+            incr_itimeout(&HLevitation, rn1(otmp->odiluted ? 25 : 50, 250));
             /* can descend at will (stop levitating via '>') provided timeout
                is the only factor (ie, not also wearing Lev ring or boots) */
             HLevitation |= I_SPECIAL;
         } else /* timeout is already at least 1 */
-            incr_itimeout(&HLevitation, rn1(140, 10));
+            incr_itimeout(&HLevitation, rn1(otmp->odiluted ? 70 : 140, 10));
 
         if (Levitation && IS_SINK(levl[u.ux][u.uy].typ))
             spoteffects(FALSE);
@@ -1167,7 +1167,7 @@ register struct obj *otmp;
          *      uncursed: +2..12 max (+ 7   avg), +6..36 current (+21   avg)
          *      cursed:   -1.. 6 max (- 3.5 avg), -3..18 current (-10.5 avg)
          */
-        num = d(otmp->blessed ? 3 : !otmp->cursed ? 2 : 1, 6);
+        num = d(otmp->blessed ? 3 : !otmp->cursed ? 2 : 1, 6) / (otmp->odiluted ? 2 : 1);
         if (otmp->cursed)
             num = -num; /* subtract instead of add when cursed */
         u.uenmax += num;
@@ -1212,7 +1212,7 @@ register struct obj *otmp;
             pline("This burns%s!",
                   otmp->blessed ? " a little" : otmp->cursed ? " a lot"
                                                              : " like acid");
-            dmg = d(otmp->cursed ? 2 : 1, otmp->blessed ? 4 : 8);
+            dmg = d(otmp->cursed ? 2 : 1, otmp->blessed ? 4 : 8) / (otmp->odiluted ? 2 : 1);
             losehp(Maybe_Half_Phys(dmg), "potion of acid", KILLED_BY_AN);
             exercise(A_CON, FALSE);
         }
