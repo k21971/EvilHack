@@ -2868,6 +2868,7 @@ E void FDECL(dump_open_log, (time_t));
 E void NDECL(dump_close_log);
 E void FDECL(dump_redirect, (BOOLEAN_P));
 E void FDECL(dump_forward_putstr, (winid, int, const char*, int));
+E void FDECL(livelog_dump_url, (unsigned int));
 
 /* ### winnt.c ### */
 #ifdef WIN32

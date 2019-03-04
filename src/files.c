@@ -739,7 +739,7 @@ set_whereisfile()
 		p += 2;   /* skip "%n" */
 		strncpy(q, p, strlen(p));
 		new_whereis_fn[new_whereis_len] = '\0';
-		Sprintf(whereis_file,new_whereis_fn);
+		Sprintf(whereis_file, "%s", new_whereis_fn);
 		free(new_whereis_fn); /* clean up the pointer */
 	}
 }
@@ -4322,27 +4322,27 @@ char *buffer;
                 c1++;
             }
             snprintf(tmpbuf, 1024, "lltype=%d%cplayer=%s%crole=%s%crace=%s%cgender=%s%calign=%s%cturns=%ld%cstarttime=%ld%ccurtime=%ld%cmessage=%s\n",
-                     (ll_type & sysopt.livelog), 
-                     LLOG_SEP,  
+                     (ll_type & sysopt.livelog),
+                     LLOG_SEP,
                      plname,
-                     LLOG_SEP,  
+                     LLOG_SEP,
                      urole.filecode,
-                     LLOG_SEP,  
+                     LLOG_SEP,
                      urace.filecode,
-                     LLOG_SEP,  
+                     LLOG_SEP,
                      genders[flags.female].filecode,
-                     LLOG_SEP,  
+                     LLOG_SEP,
                      aligns[1-u.ualign.type].filecode,
-                     LLOG_SEP,  
+                     LLOG_SEP,
                      moves,
-                     LLOG_SEP,  
+                     LLOG_SEP,
                      (long)ubirthday,
-                     LLOG_SEP,  
+                     LLOG_SEP,
                      (long)time(NULL),
-                     LLOG_SEP,  
+                     LLOG_SEP,
                      msgbuf);
 
-            fprintf(livelogfile, tmpbuf);
+            fprintf(livelogfile, "%s", tmpbuf);
             (void) fclose(livelogfile);
         }
         unlock_file(LIVELOGFILE);
