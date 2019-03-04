@@ -11,9 +11,9 @@
 
 MAZE:"earth",' '
 FLAGS: noteleport,hardfloor,shortsighted
-MESSAGE: "Well done, mortal!"
-MESSAGE: "But now thou must face the final Test..."
-MESSAGE: "Prove thyself worthy or perish!"
+#MESSAGE: "Well done, mortal!"
+#MESSAGE: "But now thou must face the final Test..."
+#MESSAGE: "Prove thyself worthy or perish!"
 
 GEOMETRY:center,center
 # The player lands, upon arrival, in the
@@ -48,12 +48,12 @@ REPLACE_TERRAIN:(0,0,75,19), ' ', ('.', unlit), 5%
 
 #  Since there are no stairs, this forces the hero's initial placement
 TELEPORT_REGION:(69,16,69,16),(0,0,0,0)
-PORTAL:(0,0,75,19),(65,13,75,19),"air"
+PORTAL:(0,0,75,19),(65,13,75,19),"earth"
 #  Some helpful monsters.  Making sure a
 #  pick axe and at least one wand of digging
 #  are available.
 MONSTER:('@',"Elvenking"),(67,16)
-MONSTER:('H',"minotaur"),(67,14)
+MONSTER:('H',"elder minotaur"),(67,14)
 #  An assortment of earth-appropriate nasties
 #  in each cavern.
 MONSTER:('E',"earth elemental"),(52,13),hostile
@@ -167,7 +167,7 @@ ENDMAP
 # the preceding level; the exit portal is placed inside the down region.
 TELEPORT_REGION:levregion(01,00,24,20),levregion(25,00,79,20),up
 TELEPORT_REGION:levregion(56,00,79,20),levregion(01,00,55,20),down
-PORTAL:levregion(57,01,78,19),(0,0,0,0),"fire"
+PORTAL:levregion(57,01,78,19),(0,0,0,0),"air"
 REGION:(00,00,75,19),lit,"ordinary"
 MONSTER:('E',"air elemental"),random,hostile
 MONSTER:('E',"air elemental"),random,hostile
@@ -259,7 +259,7 @@ MAP
 .................................LL....................LL...................
 ENDMAP
 TELEPORT_REGION:(69,16,69,16),(0,0,0,0)
-PORTAL:(0,0,75,19),(65,13,75,19),"water"
+PORTAL:(0,0,75,19),(65,13,75,19),"fire"
 
 TRAP:"fire",random
 TRAP:"fire",random
@@ -411,7 +411,7 @@ WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 ENDMAP
 TELEPORT_REGION:(0,0,25,19),(0,0,0,0)
-PORTAL:(51,0,75,19),(0,0,0,0),"astral"
+PORTAL:(51,0,75,19),(0,0,0,0),"water"
 # A fisherman's dream...
 MONSTER:(';',"giant eel"),random
 MONSTER:(';',"giant eel"),random
