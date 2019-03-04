@@ -15,6 +15,8 @@ int FDECL(extra_pref, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_hwep, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_rwep, (struct monst *, struct obj *));
 
+#define DOG_SATIATED 3000
+
 STATIC_DCL void FDECL(dog_givit, (struct monst *, struct permonst *));
 STATIC_DCL boolean FDECL(dog_hunger, (struct monst *, struct edog *));
 STATIC_DCL int FDECL(dog_invent, (struct monst *, struct edog *, int));
@@ -591,27 +593,28 @@ struct monst *mtmp;
 struct edog *edog;
 {
     if (monstermoves > edog->hungrytime) {
-  	    /* We're hungry; check if we're carrying anything we can eat
-  	       Intelligent pets should be able to carry such food */
-  	    register struct obj *otmp, *obest = (struct obj *)0;
-  	    int cur_nutrit = -1, best_nutrit = -1;
-  	    int cur_food = APPORT, best_food = APPORT;
-  	    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-    	      cur_nutrit = dog_nutrition(mtmp, otmp);
-    		    cur_food = dogfood(mtmp, otmp);
-    	      if (cur_food < best_food && cur_nutrit > best_nutrit) {
-        		    best_nutrit = cur_nutrit;
-        		    best_food = cur_food;
-        		    obest = otmp;
-            }
-    	  }
-  	    if (obest != (struct obj *)0) {
-    	      obj_extract_self(obest);
-    		    place_object(obest, mtmp->mx, mtmp->my);
-    	      if (dog_eat(mtmp, obest, mtmp->mx, mtmp->my, FALSE) == 2)
-    	          return(TRUE);
-    	      return(FALSE);
-    	  }
+  	/* We're hungry; check if we're carrying anything we can eat
+  	 * Intelligent pets should be able to carry such food */
+  	register struct obj *otmp, *obest = (struct obj *)0;
+  	int cur_nutrit = -1, best_nutrit = -1;
+        int cur_food = APPORT, best_food = APPORT;
+
+  	for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+    	     cur_nutrit = dog_nutrition(mtmp, otmp);
+             cur_food = dogfood(mtmp, otmp);
+    	if (cur_food < best_food && cur_nutrit > best_nutrit) {
+            best_nutrit = cur_nutrit;
+            best_food = cur_food;
+            obest = otmp;
+        }
+    }
+    if (obest != (struct obj *)0) {
+    	obj_extract_self(obest);
+        place_object(obest, mtmp->mx, mtmp->my);
+    	if (dog_eat(mtmp, obest, mtmp->mx, mtmp->my, FALSE) == 2)
+    	    return(TRUE);
+    	return(FALSE);
+    	}
     }
     if (monstermoves > edog->hungrytime + 500) {
         if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data)) {
@@ -695,8 +698,10 @@ int udist;
             if (!booldroppables && (edible <= CADAVER
                  /* starving pet is more aggressive about eating */
                  || (edog->mhpmax_penalty && edible == ACCFOOD))
-                && could_reach_item(mtmp, obj->ox, obj->oy))
+                && could_reach_item(mtmp, obj->ox, obj->oy)) {
+		if (edog->hungrytime < monstermoves + DOG_SATIATED)
                 return dog_eat(mtmp, obj, omx, omy, FALSE);
+            }
 
             carryamt = can_carry(mtmp, obj);
             if (carryamt > 0 && !obj->cursed
@@ -800,7 +805,7 @@ int after, udist, whappr;
                     }
                 } else if (gtyp == UNDEF && in_masters_sight
                            && ((can_use = could_use_item(mtmp, obj, TRUE))
-                   			      || !dog_has_minvent)
+                   	       || !dog_has_minvent)
                            && (!levl[omx][omy].lit || levl[u.ux][u.uy].lit)
                            && (otyp == MANFOOD || m_cansee(mtmp, nx, ny))
                            && (can_use || edog->apport > rn2(8))
@@ -1396,8 +1401,9 @@ int after; /* this is extra fast monster movement */
                 if (obj->cursed) {
                     cursemsg[i] = TRUE;
                 } else if ((otyp = dogfood(mtmp, obj)) < MANFOOD
-                         && (otyp < ACCFOOD
-                             || edog->hungrytime <= monstermoves)) {
+                           && (otyp < ACCFOOD
+                           || edog->hungrytime <= monstermoves)
+                           && edog->hungrytime < monstermoves + DOG_SATIATED) {
                     /* Note: our dog likes the food so much that he
                      * might eat it even when it conceals a cursed object */
                     nix = nx;

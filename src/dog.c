@@ -858,12 +858,15 @@ register struct obj *obj;
         case CRAM_RATION:
         case LEMBAS_WAFER:
         case FOOD_RATION:
-            if (is_human(mon->data) ||
-          		 is_elf(mon->data) ||
-          		 is_dwarf(mon->data) ||
-          		 is_gnome(mon->data) ||
-          		 is_orc(mon->data))
-          	return ACCFOOD;
+            if (is_human(mon->data)
+          	|| is_elf(mon->data)
+          	|| is_dwarf(mon->data)
+          	|| is_gnome(mon->data)
+          	|| is_orc(mon->data)
+                || is_hobbit(mon->data)
+                || is_giant(mon->data)
+                || is_centaur(mon->data))
+            return ACCFOOD;
         default:
             if (starving)
                 return ACCFOOD;
