@@ -210,15 +210,15 @@ WEAPON("elven broadsword", "runed broadsword",
 WEAPON("long sword", None,
        1, 0, 0, 50,  40,  15,  8, 12, 0, S,   P_LONG_SWORD, IRON, HI_METAL),
 WEAPON("elven long sword", "runed long sword",
-       1, 0, 0, 20,  35,  15, 10, 12, 0, S,   P_LONG_SWORD, WOOD, HI_WOOD),
+       1, 0, 0, 10,  35,  40, 10, 12, 0, S,   P_LONG_SWORD, WOOD, HI_WOOD),
 /* Base materials for artifact weapons (Sunsword, The Sword of Bheleu) */
 WEAPON("silver long sword", None,
-	1, 0, 0, 0, 40, 150,  8, 12, 0, S,   P_LONG_SWORD, SILVER, HI_SILVER),
+	1, 0, 0, 0, 40,  150,  8, 12, 0, S,   P_LONG_SWORD, SILVER, HI_SILVER),
 /* May use this for something else later on...
 WEAPON("mithril long sword", None,
-       1, 0, 0, 0,  25, 100,  8, 12, 0, S,   P_LONG_SWORD, MITHRIL, HI_SILVER), */
+       1, 0, 0, 0,  25,  100,  8, 12, 0, S,   P_LONG_SWORD, MITHRIL, HI_SILVER), */
 WEAPON("mithril two-handed sword", None,
-       1, 0, 1, 0,  90, 350, 12,  6, 0, S,   P_TWO_HANDED_SWORD,
+       1, 0, 1, 0,  90,  350, 12,  6, 0, S,   P_TWO_HANDED_SWORD,
                                                             MITHRIL, HI_SILVER),
 /* -------------------------------------------------------------------------- */
 WEAPON("two-handed sword", None,
