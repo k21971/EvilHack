@@ -659,6 +659,8 @@ int shp_indx;
         return -1;
     eshkp = ESHK(shk); /* makemon(...,MM_ESHK) allocates this */
     /* change the shopkeeper to a particular race */
+    if (is_izchak(shk, TRUE))
+        goto end;
     switch (shtypes[shp_indx].symb)
     {
 	/* armors and weaponry are similar... */
@@ -747,6 +749,7 @@ int shp_indx;
 		set_mon_data(shk, mdat);
 	}
     }
+end:
     shk->isshk = shk->mpeaceful = 1;
     set_malign(shk);
     shk->msleeping = 0;
