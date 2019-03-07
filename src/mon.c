@@ -842,7 +842,6 @@ mcalcdistress()
 
         if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
             if (mtmp->mhp < (mtmp->mhpmax / 2)) {
-                struct obj *otmp;
                 pline("As death approaches, %s transforms into his true form!", mon_nam(mtmp));
                 newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
                 newsym(mtmp->mx, mtmp->my);
