@@ -839,6 +839,19 @@ mcalcdistress()
             decide_to_shapeshift(mtmp, (canspotmon(mtmp)
                                         || (u.uswallow && mtmp == u.ustuck))
                                           ? SHIFT_MSG : 0);
+
+        if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
+            if (mtmp->mhp < (mtmp->mhpmax / 2)) {
+                struct obj *otmp;
+                pline("As death approaches, %s transforms into his true form!", mon_nam(mtmp));
+                newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
+                newsym(mtmp->mx, mtmp->my);
+                mtmp->mcanmove = 1;
+                mtmp->mfrozen = 0;
+                mtmp->mhp = mtmp->mhpmax = 1000;
+            }
+        }
+
         were_change(mtmp);
 
         /* gradually time out temporary problems */

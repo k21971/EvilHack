@@ -612,7 +612,7 @@ MONSTER:('@',"aligned priest"),(13,11),neutral,hostile
 MONSTER:('@',"aligned priest"),(14,11),neutral,peaceful
 MONSTER:('A',"Angel"),(11,05),chaos,hostile
 MONSTER:('A',"Angel"),(12,05),chaos,peaceful
-MONSTER:('A',"Angel"),(13,05),law,hostile
+MONSTER:('A',"Archangel"),(13,05),law,hostile
 MONSTER:('A',"Angel"),(11,13),law,peaceful
 MONSTER:('A',"Angel"),(12,13),neutral,hostile
 MONSTER:('A',"Angel"),(13,13),neutral,peaceful
@@ -625,7 +625,7 @@ MONSTER:('@',"aligned priest"),(41,09),neutral,hostile
 MONSTER:('@',"aligned priest"),(42,09),neutral,peaceful
 MONSTER:('A',"Angel"),(31,08),chaos,hostile
 MONSTER:('A',"Angel"),(32,08),chaos,peaceful
-MONSTER:('A',"Angel"),(31,09),law,hostile
+MONSTER:('A',"Archangel"),(31,09),law,hostile
 MONSTER:('A',"Angel"),(42,08),law,peaceful
 MONSTER:('A',"Angel"),(43,08),neutral,hostile
 MONSTER:('A',"Angel"),(43,09),neutral,peaceful
@@ -638,18 +638,18 @@ MONSTER:('@',"aligned priest"),(61,11),neutral,hostile
 MONSTER:('@',"aligned priest"),(62,11),neutral,peaceful
 MONSTER:('A',"Angel"),(61,05),chaos,hostile
 MONSTER:('A',"Angel"),(62,05),chaos,peaceful
-MONSTER:('A',"Angel"),(63,05),law,hostile
+MONSTER:('A',"Archangel"),(63,05),law,hostile
 MONSTER:('A',"Angel"),(61,13),law,peaceful
 MONSTER:('A',"Angel"),(62,13),neutral,hostile
 MONSTER:('A',"Angel"),(63,13),neutral,peaceful
 #
-# Assorted nasties
-MONSTER:'L',random,hostile
-MONSTER:'L',random,hostile
-MONSTER:'L',random,hostile
-MONSTER:'V',random,hostile
-MONSTER:'V',random,hostile
-MONSTER:'V',random,hostile
+# Assorted nasties (heaven is no place for the undead, save Death)
+MONSTER:'A',random,hostile
+MONSTER:'A',random,hostile
+MONSTER:'A',random,hostile
+MONSTER:'E',random,hostile
+MONSTER:'E',random,hostile
+MONSTER:'J',random,hostile
 MONSTER:'D',random,hostile
 MONSTER:'D',random,hostile
 MONSTER:'D',random,hostile

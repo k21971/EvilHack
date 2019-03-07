@@ -659,8 +659,6 @@ int shp_indx;
         return -1;
     eshkp = ESHK(shk); /* makemon(...,MM_ESHK) allocates this */
     /* change the shopkeeper to a particular race */
-    if (is_izchak(shk, TRUE))
-        goto end;
     switch (shtypes[shp_indx].symb)
     {
 	/* armors and weaponry are similar... */
@@ -749,7 +747,6 @@ int shp_indx;
 		set_mon_data(shk, mdat);
 	}
     }
-end:
     shk->isshk = shk->mpeaceful = 1;
     set_malign(shk);
     shk->msleeping = 0;
@@ -770,6 +767,33 @@ end:
     if (shp->shknms == shkrings)
         (void) mongets(shk, TOUCHSTONE);
     nameshk(shk, shp->shknms);
+
+    if (!strcmp(shkname(shk), "Izchak")) {
+	struct obj *otmp;
+
+	otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+	if (otmp) {
+            bless(otmp);
+	    otmp->spe = rn2(4) + 1;
+	    otmp->oerodeproof = TRUE;
+	    (void) mpickobj(shk, otmp);
+	}
+	otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE);
+	if (otmp) {
+	    bless(otmp);
+	    otmp->spe = rn2(4);
+	    otmp->oerodeproof = TRUE;
+	    (void) mpickobj(shk, otmp);
+	}
+        otmp = mksobj(CRYSTAL_PLATE_MAIL, FALSE, FALSE);
+        if (otmp) {
+            bless(otmp);
+            otmp->spe = rn2(4);
+            otmp->oerodeproof = TRUE;
+            (void) mpickobj(shk, otmp);
+        }
+	m_dowear(shk, TRUE);
+    }
 
     return sh;
 }
