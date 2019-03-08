@@ -74,6 +74,32 @@ Version 0.1.2
 - Boulders in inventory stack, and can be quivered/fired if able
 - more adjustments to the 'grudge patch'
 - Altar sacrificing changes (from SporkHack, modified)
-- Colored walls and floors patch.
-- latest merges from 'vanilla' NetHack 3.6.2 (as of February 10th, 2019)
+- Colored walls and floors patch
+- New intrinsic: Food Sense
+- Hobbit as a playable race
+- Centaurs as a playable race (adjusted armor choices for both player and monster)
+- All roles can train riding to basic
+- Changes to spell level difficulty
+- New spells (reflection, lightning, acid blast, poison blast, repair armor) (from SporkHack and GruntHack)
+- Dexterity affects your AC
+- Monks get some love
+- New wizard starting pet (pseudodragon)
+- Pick-axe skill affects how fast you can dig
+- Intelligent monsters can loot portable containers
+- Owned artifact patch
+- Tweaks to higher-level monsters
+- New monster spells; revamp of others (notably 'destroy armor')
+- Monster stoning behaves like player stoning
+- Exploding bag of holding does not destroy everything
+- New container: iron safe (from SporkHack)
+- Unlock your quest by killing your quest leader if you made them angry
+- More artifact revamps
+- Unskilled/restricted weapon use feedback
+- Killer can go through your possessions upon death (affects bones)
+- New items; changes to existing items
+- Invisibility/see invisible is no longer permanent in most cases
+- Diluted potions have diminished effects
+- Pets will stop eating once satiated
+- Izchak changes
+- latest merges from 'vanilla' NetHack 3.6.2 (as of March 1st, 2019)
 
