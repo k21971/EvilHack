@@ -1505,6 +1505,11 @@ zap_dig()
                 break;
             }
         } else if (closed_door(zx, zy) || room->typ == SDOOR) {
+	    if (In_sokoban(&u.uz) && !!(room->doormask & D_TRAPPED)) {
+		if (!Blind && cansee(zx, zy))
+		    pline_The("door glows, then fades.");
+		    break;
+		}
             if (*in_rooms(zx, zy, SHOPBASE)) {
                 add_damage(zx, zy, SHOP_DOOR_COST);
                 shopdoor = TRUE;

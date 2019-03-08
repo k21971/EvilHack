@@ -763,6 +763,7 @@ initoptions_init()
     iflags.mines_prize_type = LUCKSTONE;
     iflags.soko_prize_type1 = BAG_OF_HOLDING;
     iflags.soko_prize_type2 = AMULET_OF_REFLECTION;
+    iflags.soko_prize_type3 = CLOAK_OF_MAGIC_RESISTANCE;
 
     /* assert( sizeof flags.inv_order == sizeof def_inv_order ); */
     (void) memcpy((genericptr_t) flags.inv_order,

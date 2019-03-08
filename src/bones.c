@@ -153,7 +153,8 @@ boolean restore;
             } else if ((otmp->otyp == iflags.mines_prize_type
                         && !Is_mineend_level(&u.uz))
                        || ((otmp->otyp == iflags.soko_prize_type1
-                            || otmp->otyp == iflags.soko_prize_type2)
+                            || otmp->otyp == iflags.soko_prize_type2
+                            || otmp->otyp == iflags.soko_prize_type3)
                            && !Is_sokoend_level(&u.uz))) {
                 /* "special prize" in this game becomes ordinary object
                    if loaded into another game */

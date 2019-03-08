@@ -4718,6 +4718,8 @@ short exploding_wand_typ;
         const char *see_txt = 0, *sense_txt = 0, *hear_txt = 0;
 
         rangemod = -1000;
+	if ((lev->doormask | D_TRAPPED) && In_sokoban(&u.uz))
+	    goto def_case;
         switch (abstype) {
         case ZT_FIRE:
             new_doormask = D_NODOOR;

@@ -2054,12 +2054,17 @@ struct mkroom *croom;
             if (otmp->otyp == iflags.soko_prize_type1) {
                 otmp->record_achieve_special = SOKO_PRIZE1;
                 otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
-                if (++soko_prize_count > 1)
+                if (++soko_prize_count > 3)
                     impossible(prize_warning, "sokoban end");
             } else if (otmp->otyp == iflags.soko_prize_type2) {
                 otmp->record_achieve_special = SOKO_PRIZE2;
                 otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
-                if (++soko_prize_count > 1)
+                if (++soko_prize_count > 3)
+                    impossible(prize_warning, "sokoban end");
+            } else if (otmp->otyp == iflags.soko_prize_type3) {
+                otmp->record_achieve_special = SOKO_PRIZE3;
+                otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
+                if (++soko_prize_count > 3)
                     impossible(prize_warning, "sokoban end");
             }
         }
@@ -4302,6 +4307,15 @@ genericptr_t arg;
         if (typ < D_CLOSED)
             typ = D_CLOSED;
     }
+
+    /* special Sokoban doors
+     * this relies on the normal doors being locked,
+     * but the special doors being trapped
+     */
+    if (In_sokoban(&u.uz) && typ == D_CLOSED) {
+        typ |= D_TRAPPED;
+    }
+
     set_door_orientation(x, y); /* set/clear levl[x][y].horizontal */
     levl[x][y].doormask = typ;
     SpLev_Map[x][y] = 1;

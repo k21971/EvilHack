@@ -152,9 +152,9 @@ picklock(VOID_ARGS)
 
     You("succeed in %s.", lock_action());
     if (xlock.door) {
-        if (xlock.door->doormask & D_TRAPPED) {
+        if ((xlock.door->doormask & D_TRAPPED && !In_sokoban(&u.uz))) {
             b_trapped("door", FINGER);
-            xlock.door->doormask = D_NODOOR;
+            /* xlock.door->doormask = D_NODOOR; */
             unblock_point(u.ux + u.dx, u.uy + u.dy);
             if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
                 add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
@@ -1057,18 +1057,23 @@ int x, y;
     case SPE_FORCE_BOLT:
         if (door->doormask & (D_LOCKED | D_CLOSED)) {
             if (door->doormask & D_TRAPPED) {
-                if (MON_AT(x, y))
-                    (void) mb_trapped(m_at(x, y));
-                else if (flags.verbose) {
-                    if (cansee(x, y))
-                        pline("KABOOM!!  You see a door explode.");
-                    else
-                        You_hear("a distant explosion.");
-                }
+                if (In_sokoban(&u.uz)) {
+                    if (cansee(x,y))
+                        pline("The door absorbs the force!");
+                } else {
+                    if (MON_AT(x, y))
+                        (void) mb_trapped(m_at(x, y));
+                    else if (flags.verbose) {
+                        if (cansee(x, y))
+                            pline("KABOOM!!  You see a door explode.");
+                        else
+                            You_hear("a distant explosion.");
+                    }
                 door->doormask = D_NODOOR;
                 unblock_point(x, y);
                 newsym(x, y);
                 loudness = 40;
+                }
                 break;
             }
             door->doormask = D_BROKEN;

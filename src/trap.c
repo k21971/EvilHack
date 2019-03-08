@@ -4641,6 +4641,10 @@ boolean force;
         || (!force && confused && !rn2(3))) {
         You("find a trap on the door!");
         exercise(A_WIS, TRUE);
+	if (In_sokoban(&u.uz)) {
+	    pline("But you see no way to disable it.");
+	    return 1;
+	}
         if (ynq("Disarm it?") != 'y')
             return 1;
         if (levl[x][y].doormask & D_TRAPPED) {
@@ -5244,6 +5248,27 @@ int bodypart;
 {
     int lvl = level_difficulty(),
         dmg = rnd(5 + (lvl < 5 ? lvl : 2 + lvl / 2));
+
+    if (In_sokoban(&u.uz)) {
+    	struct rm *lev;
+	int tx = 0, ty = 0;
+	pline("As the door gives way, you %s the other doors seal%s.",
+	      Blind ? "sense" : "see", Blind ? "ing" : "");
+	for (; ty < ROWNO; ty++) {
+	     for (tx = 0; tx < COLNO; tx++) {
+		  lev = &levl[tx][ty];
+		  if (lev->typ == DOOR &&
+		      (lev->doormask & (D_CLOSED | D_TRAPPED))) {
+		       lev->typ = VWALL;
+		       lev->doormask = D_NODOOR;
+                       lev->wall_info |= W_NONDIGGABLE;
+		       if (cansee(tx, ty))
+			   newsym(tx, ty);
+		       }
+		  }
+	}
+	return;
+    }
 
     pline("KABOOM!!  %s was booby-trapped!", The(item));
     wake_nearby();
