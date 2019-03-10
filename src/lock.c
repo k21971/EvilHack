@@ -760,8 +760,8 @@ int x, y;
     if (rnl(20) < (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3) {
         pline_The("door opens.");
         if (door->doormask & D_TRAPPED) {
-            b_trapped("door", FINGER);
             door->doormask = D_NODOOR;
+            b_trapped("door", FINGER);
             if (*in_rooms(cc.x, cc.y, SHOPBASE))
                 add_damage(cc.x, cc.y, SHOP_DOOR_COST);
         } else

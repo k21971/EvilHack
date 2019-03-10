@@ -429,6 +429,8 @@ int force;
                 case DOOR: /* Make the door collapse */
                     if (levl[x][y].doormask == D_NODOOR)
                         goto do_pit;
+		    if (In_sokoban(&u.uz) && (levl[x][y].doormask | D_TRAPPED))
+		    	break;
                     if (cansee(x, y))
                         pline_The("door collapses.");
                     if (*in_rooms(x, y, SHOPBASE))

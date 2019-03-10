@@ -1391,6 +1391,7 @@ int mmflags;
     mitem = 0; /* extra inventory item for this monster */
 
     if (mndx == PM_VLAD_THE_IMPALER)
+        mitem = CANDELABRUM_OF_INVOCATION;
     mtmp->cham = NON_PM; /* default is "not a shapechanger" */
     if ((mcham = pm_to_cham(mndx)) != NON_PM) {
         /* this is a shapechanger after all */
