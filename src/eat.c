@@ -886,35 +886,35 @@ register struct permonst *ptr;
     /* All these use the new system, which is based on corpse weight. */
     case FIRE_RES:
         debugpline0("Trying to give fire resistance");
-        if (!(HFire_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+        if ((HFire_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             You(Hallucination ? "be chillin'." : "feel slightly more chill.");
             incr_resistance(&HFire_resistance, percentincrease);
         }
         break;
     case SLEEP_RES:
         debugpline0("Trying to give sleep resistance");
-        if (!(HSleep_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+        if ((HSleep_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             You_feel("a little more lively.");
             incr_resistance(&HSleep_resistance, percentincrease);
         }
         break;
     case COLD_RES:
         debugpline0("Trying to give cold resistance");
-        if (!(HCold_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+        if ((HCold_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             You_feel("somewhat warmer.");
             incr_resistance(&HCold_resistance, percentincrease);
         }
         break;
     case DISINT_RES:
         debugpline0("Trying to give disintegration resistance");
-        if (!(HDisint_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+        if ((HDisint_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             You_feel(Hallucination ? "totally together, man." : "a bit more firm.");
             incr_resistance(&HDisint_resistance, percentincrease);
         }
         break;
     case SHOCK_RES: /* shock (electricity) resistance */
         debugpline0("Trying to give shock resistance");
-        if (!(HShock_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+        if ((HShock_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             if (Hallucination)
                 You_feel("grounded in reality.");
             else
@@ -924,7 +924,7 @@ register struct permonst *ptr;
         break;
     case POISON_RES:
         debugpline0("Trying to give poison resistance");
-        if (!(HPoison_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+        if ((HPoison_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             You_feel(how_resistant(POISON_RES) == 100 ? "significantly healthier." : "healthier.");
             incr_resistance(&HPoison_resistance, percentincrease);
         }
