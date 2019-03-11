@@ -2123,7 +2123,8 @@ register struct attack *mattk;
         }
         break;
     case AD_HALU:
-        if (haseyes(mdef->data) && mdef->mcansee) {
+        if (haseyes(mdef->data) && mdef->mcansee
+            && !mon_prop(mdef, HALLUC_RES)) {
             pline("%s is affected by your flash of light!", Monnam(mdef));
             mdef->mconf = 1;
         }
@@ -2246,6 +2247,12 @@ register struct attack *mattk;
             start_engulf(mdef);
             switch (mattk->adtyp) {
             case AD_DGST:
+                /* slow digestion protects against engulfing */
+                if (mon_prop(mdef, SLOW_DIGESTION)) {
+	            You("hurriedly regurgitate the indigestible %s.", m_monnam(mdef));
+                    end_engulf();
+                    return 2;
+                }
                 /* eating a Rider or its corpse is fatal */
                 if (is_rider(pd)) {
                     pline("Unfortunately, digesting any of it is fatal.");

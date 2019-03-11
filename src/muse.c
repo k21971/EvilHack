@@ -844,7 +844,10 @@ struct monst *mtmp;
                           Monnam(mtmp));
                 return 2;
             }
+            if (!decide_to_teleport(mtmp))
             nlev = random_teleport_level();
+            else
+                return 2;
             if (nlev == depth(&u.uz)) {
                 if (vismon)
                     pline("%s shudders for a moment.", Monnam(mtmp));
@@ -2653,7 +2656,7 @@ struct obj *obj;
         || mon->data == &mons[PM_GHOST]) /* don't loot bones piles */
         return FALSE;
 
-    if (typ == WAN_MAKE_INVISIBLE || typ == POT_INVISIBILITY)
+    if (typ == WAN_MAKE_INVISIBLE || typ == POT_INVISIBILITY || typ == RIN_INVISIBILITY)
         return (boolean) (!mon->minvis && !mon->invis_blkd
                           && !attacktype(mon->data, AT_GAZE));
     if (typ == WAN_SPEED_MONSTER || typ == POT_SPEED)
@@ -2718,6 +2721,38 @@ struct obj *obj;
                                   && cures_stoning(mon, obj, TRUE)));
         if (typ == EGG)
             return (boolean) touch_petrifies(&mons[obj->corpsenm]);
+        break;
+    case RING_CLASS:
+        /* Should match the list in m_dowear_type.
+         * Uniques don't go for invisibility or teleportation;
+         * it would probably be a waste of time. */
+        if (typ == RIN_PROTECTION
+	    || typ == RIN_INCREASE_DAMAGE
+	    || typ == RIN_INCREASE_ACCURACY)
+            return (obj->spe > 0);
+	if (typ == RIN_SEE_INVISIBLE)
+            return (!mon_prop(mon, SEE_INVIS));
+        if (typ == RIN_FIRE_RESISTANCE)
+            return (!resists_fire(mon));
+        if (typ == RIN_COLD_RESISTANCE)
+            return (!resists_cold(mon));
+        if (typ == RIN_SHOCK_RESISTANCE)
+            return (!resists_elec(mon));
+        if (typ == RIN_POISON_RESISTANCE)
+            return (!resists_poison(mon));
+        if (typ == RIN_SLOW_DIGESTION)
+            return (!mon_prop(mon, SLOW_DIGESTION));
+        if (typ == RIN_REGENERATION)
+            return (!mon_prop(mon, REGENERATION));
+        /* Below this line are off-limits to uniques */
+        if (mon->data->geno & G_UNIQ)
+            return (FALSE);
+        if (typ == RIN_INVISIBILITY)
+            return !(mon->minvis);
+        if (typ == RIN_TELEPORTATION)
+            return (!mon_prop(mon, TELEPORT));
+        if (typ == RIN_TELEPORT_CONTROL)
+            return (!mon_prop(mon, TELEPORT_CONTROL));
         break;
     default:
         break;

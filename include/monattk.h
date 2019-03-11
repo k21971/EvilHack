@@ -97,5 +97,6 @@
 #define MM_HIT 0x1      /* aggressor hit defender */
 #define MM_DEF_DIED 0x2 /* defender died */
 #define MM_AGR_DIED 0x4 /* aggressor died */
+#define MM_EXPELLED 0x8 /* defender was saved by slow digestion */
 
 #endif /* MONATTK_H */

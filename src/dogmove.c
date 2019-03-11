@@ -146,6 +146,18 @@ boolean check_if_better;
  	      otmp->otyp == POT_CONFUSION ||
               otmp->otyp == POT_HALLUCINATION ||
  	      otmp->otyp == POT_ACID ||
+              otmp->otyp == RIN_INVISIBILITY ||
+              otmp->otyp == RIN_FIRE_RESISTANCE ||
+              otmp->otyp == RIN_COLD_RESISTANCE ||
+              otmp->otyp == RIN_POISON_RESISTANCE ||
+              otmp->otyp == RIN_SHOCK_RESISTANCE ||
+              otmp->otyp == RIN_REGENERATION ||
+              otmp->otyp == RIN_TELEPORTATION ||
+              otmp->otyp == RIN_TELEPORT_CONTROL ||
+              otmp->otyp == RIN_SLOW_DIGESTION ||
+              otmp->otyp == RIN_INCREASE_DAMAGE ||
+              otmp->otyp == RIN_INCREASE_ACCURACY ||
+              otmp->otyp == RIN_PROTECTION ||
  	      otmp->otyp == FROST_HORN ||
  	      otmp->otyp == FIRE_HORN ||
               otmp->otyp == MAGIC_HARP ||
@@ -158,7 +170,7 @@ boolean check_if_better;
         if (likes_gold(mtmp->data))
             return TRUE;
         if (otmp->oclass == ARMOR_CLASS) {
- 	          return !check_if_better || !is_better_armor(&youmonst, otmp);
+ 	    return !check_if_better || !is_better_armor(&youmonst, otmp);
         } else if (otmp->oclass == WAND_CLASS && otmp->spe <= 0)
             return FALSE;  /* used charges or was cancelled? */
         else {
@@ -917,7 +929,7 @@ int maxdist;
 
         if (targ) {
             /* Is the monster visible to the pet? */
-            if ((!targ->minvis || perceives(mtmp->data)) && !targ->mundetected)
+            if ((!targ->minvis || mon_prop(mtmp, SEE_INVIS)) && !targ->mundetected)
                 break;
             /* If the pet can't see it, it assumes it aint there */
             targ = 0;
@@ -959,7 +971,7 @@ int    maxdist;
         if (pal) {
             if (pal->mtame) {
                 /* Pet won't notice invisible pets */
-                if (!pal->minvis || perceives(mtmp->data))
+                if (!pal->minvis || mon_prop(mtmp, SEE_INVIS))
                     return 1;
             } else {
                 /* Quest leaders and guardians are always seen */
@@ -1137,7 +1149,7 @@ boolean ranged;
 		(!ranged &&
 		 mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10) &&
 		 mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
-		 && (perceives(mtmp->data) || !mtmp2->minvis)) ||
+		 && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis)) ||
 		(!ranged &&
 		 mtmp2->data==&mons[PM_GELATINOUS_CUBE] && rn2(10)) ||
 		(!ranged &&

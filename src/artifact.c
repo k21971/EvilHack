@@ -120,6 +120,38 @@ int artinum;
     return artilist[artinum].name;
 }
 
+/* Finds a matching SPFX for a prop - used in mondata.c */
+unsigned long
+arti_prop_spfx(prop)
+int prop;
+{
+    switch (prop) {
+        case SEARCHING:
+            return SPFX_SEEK;
+	case WARNING:
+            return SPFX_WARN;
+	case TELEPAT:
+            return SPFX_ESP;
+	case HALLUC_RES:
+            return SPFX_HALRES;
+	case STEALTH:
+            return SPFX_STLTH;
+	case REGENERATION:
+            return SPFX_REGEN;
+	case TELEPORT_CONTROL:
+            return SPFX_TCTRL;
+	case ENERGY_REGENERATION:
+            return SPFX_EREGEN;
+	case HALF_SPDAM:
+            return SPFX_HSPDAM;
+	case HALF_PHDAM:
+            return SPFX_HPHDAM;
+	case REFLECTING:
+            return SPFX_REFLECT;
+    }
+     return 0L;
+}
+
 /*
    Make an artifact.  If a specific alignment is specified, then an object of
    the appropriate alignment is created from scratch, or 0 is returned if
@@ -306,7 +338,9 @@ unsigned long abil;
 {
     const struct artifact *arti = get_artifact(otmp);
 
-    return (boolean) (arti && (arti->spfx & abil) != 0L);
+    if (arti && (arti->spfx & abil) != 0L)
+        return TRUE;
+    return (boolean) (arti && (arti->cspfx & abil) != 0L);
 }
 
 /* used so that callers don't need to known about SPFX_ codes */

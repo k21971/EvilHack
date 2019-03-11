@@ -291,7 +291,7 @@ struct attack *mattk;
               ? could_seduce(mtmp, &youmonst, (struct attack *) 0) : 0);
     Monst_name = Monnam(mtmp);
 
-    if (!mtmp->mcansee || (Invis && !perceives(mtmp->data))) {
+    if (!mtmp->mcansee || (Invis && !mon_prop(mtmp, SEE_INVIS))) {
         const char *swings = (mattk->aatyp == AT_BITE) ? "snaps"
                              : (mattk->aatyp == AT_KICK) ? "kicks"
                                : (mattk->aatyp == AT_STNG
@@ -706,7 +706,7 @@ register struct monst *mtmp;
     tmp += mtmp->m_lev;
     if (multi < 0)
         tmp += 4;
-    if ((Invis && !perceives(mdat)) || !mtmp->mcansee)
+    if ((Invis && !mon_prop(mtmp, SEE_INVIS)) || !mtmp->mcansee)
         tmp -= 2;
     if (mtmp->mtrapped)
         tmp -= 2;
@@ -714,6 +714,14 @@ register struct monst *mtmp;
         tmp += 5;
     if (tmp <= 0)
         tmp = 1;
+
+    /* find rings of increase accuracy */
+    {
+        struct obj *o;
+	for (o = mtmp->minvent; o; o = o->nobj)
+	     if (o->owornmask && o->otyp == RIN_INCREASE_ACCURACY)
+	         tmp += o->spe;
+    }
 
     /* make eels visible the moment they hit/miss us */
     if (mdat->mlet == S_EEL && mtmp->minvis && cansee(mtmp->mx, mtmp->my)) {
@@ -1099,6 +1107,14 @@ register struct attack *mattk;
     dmg = d((int) mattk->damn, (int) mattk->damd);
     if ((is_undead(mdat) || is_vampshifter(mtmp)) && midnight())
         dmg += d((int) mattk->damn, (int) mattk->damd); /* extra damage */
+
+    /* find rings of increase damage */
+    {
+        struct obj *o;
+	for (o = mtmp->minvent; o; o = o->nobj)
+	     if (o->owornmask && o->otyp == RIN_INCREASE_DAMAGE)
+	         dmg += o->spe;
+    }
 
     /* elementals on their home plane hit very hard */
     if(is_home_elemental(mdat)) {
@@ -2684,7 +2700,7 @@ struct attack *mattk;
         defperc = (See_invisible != 0);
         gendef = poly_gender();
     } else {
-        defperc = perceives(mdef->data);
+        defperc = mon_prop(mdef, SEE_INVIS);
         gendef = gender(mdef);
     }
     if (adtyp == AD_SSEX && !SYSOPT_SEDUCE)
@@ -3290,7 +3306,7 @@ struct attack *mattk;
                 if (!rn2(4))
                     tmp = 127;
                 if (mtmp->mcansee && haseyes(mtmp->data) && rn2(3)
-                    && (perceives(mtmp->data) || !Invis)) {
+                    && (mon_prop(mtmp, SEE_INVIS) || !Invis)) {
                     if (Blind)
                         pline("As a blind %s, you cannot defend yourself.",
                               youmonst.data->mname);
