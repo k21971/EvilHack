@@ -647,15 +647,16 @@ RING("protection from shape changers", "shiny",
     OBJECT(OBJ(name, desc),                                            \
            BITS(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, P_NONE, IRON),        \
            power, AMULET_CLASS, prob, 0, 20, 150, 0, 0, 0, 0, 20, HI_METAL)
-AMULET("amulet of ESP",                "circular", TELEPAT, 175),
+AMULET("amulet of ESP",                "circular", TELEPAT, 160),
 AMULET("amulet of life saving",       "spherical", LIFESAVED, 75),
-AMULET("amulet of strangulation",          "oval", STRANGLED, 135),
-AMULET("amulet of restful sleep",    "triangular", SLEEPY, 135),
-AMULET("amulet versus poison",        "pyramidal", POISON_RES, 165),
-AMULET("amulet of change",               "square", 0, 130),
-AMULET("amulet of unchanging",          "concave", UNCHANGING, 45),
+AMULET("amulet of strangulation",          "oval", STRANGLED, 115),
+AMULET("amulet of restful sleep",    "triangular", SLEEPY, 115),
+AMULET("amulet versus poison",        "pyramidal", POISON_RES, 145),
+AMULET("amulet of change",               "square", 0, 115),
+AMULET("amulet of unchanging",          "concave", UNCHANGING, 40),
 AMULET("amulet of reflection",        "hexagonal", REFLECTING, 75),
 AMULET("amulet of magical breathing", "octagonal", MAGICAL_BREATHING, 65),
+AMULET("amulet of flying",            "trapezoid", FLYING, 95),
 /* fixed descriptions; description duplication is deliberate;
  * fake one must come before real one because selection for
  * description shuffling stops when a non-magic amulet is encountered

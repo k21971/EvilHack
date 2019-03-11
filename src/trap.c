@@ -2899,7 +2899,7 @@ float_up()
             dismount_steed(DISMOUNT_GENERIC);
         }
     }
-    if (Flying)
+    if (Flying && !uamul)
         You("are no longer able to control your flight.");
     float_vs_flight(); /* set BFlying, also BLevitation if still trapped */
     /* levitation gives maximum carrying capacity, so encumbrance
