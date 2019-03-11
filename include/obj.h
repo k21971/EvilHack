@@ -356,16 +356,25 @@ struct obj {
 #define SOKO_PRIZE1 2
 #define SOKO_PRIZE2 3
 #define SOKO_PRIZE3 4
+#define SOKO_PRIZE4 5
+#define SOKO_PRIZE5 6
+#define SOKO_PRIZE6 7
 #define is_mines_prize(o) \
-    ((o)->otyp == iflags.mines_prize_type                    \
+    ((o)->otyp == iflags.mines_prize_type \
      && (o)->record_achieve_special == MINES_PRIZE)
 #define is_soko_prize(o) \
-    (((o)->otyp == iflags.soko_prize_type1                   \
-      && (o)->record_achieve_special == SOKO_PRIZE1)         \
-     || ((o)->otyp == iflags.soko_prize_type2                \
-         && (o)->record_achieve_special == SOKO_PRIZE2)      \
-        || ((o)->otyp == iflags.soko_prize_type3             \
-            && (o)->record_achieve_special == SOKO_PRIZE3))
+    (((o)->otyp == iflags.soko_prize_type1                            \
+      && (o)->record_achieve_special == SOKO_PRIZE1)                  \
+     || ((o)->otyp == iflags.soko_prize_type2                         \
+         && (o)->record_achieve_special == SOKO_PRIZE2)               \
+        || ((o)->otyp == iflags.soko_prize_type3                      \
+            && (o)->record_achieve_special == SOKO_PRIZE3)            \
+           || ((o)->otyp == iflags.soko_prize_type4                   \
+               && (o)->record_achieve_special == SOKO_PRIZE4)         \
+              || ((o)->otyp == iflags.soko_prize_type5                \
+                  && (o)->record_achieve_special == SOKO_PRIZE5)      \
+                 || ((o)->otyp == iflags.soko_prize_type6             \
+                     && (o)->record_achieve_special == SOKO_PRIZE6))
 
 /* Flags for get_obj_location(). */
 #define CONTAINED_TOO 0x1

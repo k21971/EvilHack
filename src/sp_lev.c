@@ -2054,17 +2054,32 @@ struct mkroom *croom;
             if (otmp->otyp == iflags.soko_prize_type1) {
                 otmp->record_achieve_special = SOKO_PRIZE1;
                 otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
-                if (++soko_prize_count > 3)
+                if (++soko_prize_count > 6)
                     impossible(prize_warning, "sokoban end");
             } else if (otmp->otyp == iflags.soko_prize_type2) {
                 otmp->record_achieve_special = SOKO_PRIZE2;
                 otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
-                if (++soko_prize_count > 3)
+                if (++soko_prize_count > 6)
                     impossible(prize_warning, "sokoban end");
             } else if (otmp->otyp == iflags.soko_prize_type3) {
                 otmp->record_achieve_special = SOKO_PRIZE3;
                 otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
-                if (++soko_prize_count > 3)
+                if (++soko_prize_count > 6)
+                    impossible(prize_warning, "sokoban end");
+            } else if (otmp->otyp == iflags.soko_prize_type4) {
+                otmp->record_achieve_special = SOKO_PRIZE4;
+                otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
+                if (++soko_prize_count > 6)
+                    impossible(prize_warning, "sokoban end");
+            } else if (otmp->otyp == iflags.soko_prize_type5) {
+                otmp->record_achieve_special = SOKO_PRIZE5;
+                otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
+                if (++soko_prize_count > 6)
+                    impossible(prize_warning, "sokoban end");
+            } else if (otmp->otyp == iflags.soko_prize_type6) {
+                otmp->record_achieve_special = SOKO_PRIZE6;
+                otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
+                if (++soko_prize_count > 6)
                     impossible(prize_warning, "sokoban end");
             }
         }

@@ -527,11 +527,29 @@ DOOR:closed,(17,11)
 DOOR:closed,(17,13)
 DOOR:closed,(17,15)
 REGION:(18,10,22,16),lit,"zoo",filled,irregular
-OBJECT:('(',"bag of holding"),$place[0]
+
+OBJECT:('?', "scare monster"),$place[0],cursed
+IF [50%] {
+  OBJECT:('(', "bag of holding"),$place[0]
+} ELSE {
+  OBJECT:('(', "oilskin sack"),$place[0]
+}
 ENGRAVING:$place[0],burn,"Elbereth"
-OBJECT:('"',"amulet of reflection"),$place[1]
+
+OBJECT:('?', "scare monster"),$place[1],cursed
+IF [50%] {
+  OBJECT:('"', "amulet of reflection"),$place[1]
+} ELSE {
+  OBJECT:('"', "amulet of flying"),$place[1]
+}
 ENGRAVING:$place[1],burn,"Elbereth"
-OBJECT:('[',"cloak of magic resistance"),$place[2]
+
+OBJECT:('?', "scare monster"),$place[2],cursed
+IF [50%] {
+  OBJECT:('[', "cloak of magic resistance"),$place[2]
+} ELSE {
+  OBJECT:('[', "cloak of protection"),$place[2]
+}
 ENGRAVING:$place[2],burn,"Elbereth"
 
 
@@ -627,9 +645,27 @@ DOOR:closed,(17,10)
 DOOR:closed,(17,12)
 DOOR:closed,(17,14)
 REGION:(18,09,22,15),lit,"zoo",filled,irregular
-OBJECT:('"',"amulet of reflection"),$place[0]
+
+OBJECT:('?', "scare monster"),$place[0],cursed
+IF [50%] {
+  OBJECT:('"', "amulet of reflection"),$place[0]
+} ELSE {
+  OBJECT:('"', "amulet of flying"),$place[0]
+}
 ENGRAVING:$place[0],burn,"Elbereth"
-OBJECT:('(',"bag of holding"),$place[1]
+
+OBJECT:('?', "scare monster"),$place[1],cursed
+IF [50%] {
+  OBJECT:('(', "bag of holding"),$place[1]
+} ELSE {
+  OBJECT:('(', "oilskin sack"),$place[1]
+}
 ENGRAVING:$place[1],burn,"Elbereth"
-OBJECT:('[',"cloak of magic resistance"),$place[2]
+
+OBJECT:('?', "scare monster"),$place[2],cursed
+IF [50%] {
+  OBJECT:('[', "cloak of magic resistance"),$place[2]
+} ELSE {
+  OBJECT:('[', "cloak of protection"),$place[2]
+}
 ENGRAVING:$place[2],burn,"Elbereth"

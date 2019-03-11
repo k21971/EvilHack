@@ -154,7 +154,10 @@ boolean restore;
                         && !Is_mineend_level(&u.uz))
                        || ((otmp->otyp == iflags.soko_prize_type1
                             || otmp->otyp == iflags.soko_prize_type2
-                            || otmp->otyp == iflags.soko_prize_type3)
+                            || otmp->otyp == iflags.soko_prize_type3
+                            || otmp->otyp == iflags.soko_prize_type4
+                            || otmp->otyp == iflags.soko_prize_type5
+                            || otmp->otyp == iflags.soko_prize_type6)
                            && !Is_sokoend_level(&u.uz))) {
                 /* "special prize" in this game becomes ordinary object
                    if loaded into another game */

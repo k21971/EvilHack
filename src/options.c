@@ -764,6 +764,9 @@ initoptions_init()
     iflags.soko_prize_type1 = BAG_OF_HOLDING;
     iflags.soko_prize_type2 = AMULET_OF_REFLECTION;
     iflags.soko_prize_type3 = CLOAK_OF_MAGIC_RESISTANCE;
+    iflags.soko_prize_type4 = OILSKIN_SACK;
+    iflags.soko_prize_type5 = AMULET_OF_FLYING;
+    iflags.soko_prize_type6 = CLOAK_OF_PROTECTION;
 
     /* assert( sizeof flags.inv_order == sizeof def_inv_order ); */
     (void) memcpy((genericptr_t) flags.inv_order,

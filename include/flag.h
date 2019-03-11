@@ -450,6 +450,9 @@ struct instance_flags {
     short soko_prize_type1;     /* bag of holding or    */
     short soko_prize_type2;     /* amulet of reflection */
     short soko_prize_type3;     /* cloak of magic resistance */
+    short soko_prize_type4;     /* oilskin sack */
+    short soko_prize_type5;     /* amulet of flying */
+    short soko_prize_type6;     /* cloak of protection */
     struct debug_flags debug;
     boolean windowtype_locked;  /* windowtype can't change from configfile */
     boolean windowtype_deferred; /* pick a windowport and store it in
