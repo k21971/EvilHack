@@ -11,6 +11,8 @@ extern void demonpet();
 /* monster mage spells */
 enum mcast_mage_spells {
     MGC_PSI_BOLT = 0,
+    MGC_FIRE_BOLT,
+    MGC_ICE_BOLT,
     MGC_CURE_SELF,
     MGC_HASTE_SELF,
     MGC_STUN_YOU,
@@ -19,6 +21,7 @@ enum mcast_mage_spells {
     MGC_DESTRY_ARMR,
     MGC_CURSE_ITEMS,
     MGC_AGGRAVATION,
+    MGC_ACID_BLAST,
     MGC_SUMMON_MONS,
     MGC_CLONE_WIZ,
     MGC_DEATH_TOUCH
@@ -29,14 +32,15 @@ enum mcast_cleric_spells {
     CLC_OPEN_WOUNDS = 0,
     CLC_CURE_SELF,
     CLC_CONFUSE_YOU,
+    CLC_UNSTONE,
     CLC_PARALYZE,
+    CLC_VULN_YOU,
     CLC_BLIND_YOU,
     CLC_INSECTS,
     CLC_CURSE_ITEMS,
     CLC_LIGHTNING,
     CLC_FIRE_PILLAR,
     CLC_GEYSER,
-    CLC_VULN_YOU,
     CLC_SUMMON_ELM
 };
 
@@ -91,6 +95,8 @@ STATIC_OVL int
 choose_magic_spell(spellval)
 int spellval;
 {
+    int i;
+
     /* for 3.4.3 and earlier, val greater than 22 selected the default spell
      */
     while (spellval > 24 && rn2(25))
@@ -114,8 +120,9 @@ int spellval;
     case 15:
         return MGC_SUMMON_MONS;
     case 14:
-        return MGC_AGGRAVATION;
+        return MGC_ACID_BLAST;
     case 13:
+        return MGC_AGGRAVATION;
     case 12:
     case 11:
         return MGC_CURSE_ITEMS;
@@ -137,7 +144,16 @@ int spellval;
         return MGC_CURE_SELF;
     case 0:
     default:
-        return MGC_PSI_BOLT;
+        i = rn2(3);
+        switch (i) {
+            case 2:
+                return MGC_FIRE_BOLT;
+            case 1:
+                return MGC_ICE_BOLT;
+            case 0:
+            default:
+                return MGC_PSI_BOLT;
+        }
     }
 }
 
@@ -173,10 +189,11 @@ int spellnum;
     case 6:
         return CLC_BLIND_YOU;
     case 5:
+        return CLC_VULN_YOU;
     case 4:
         return CLC_PARALYZE;
     case 3:
-        return CLC_VULN_YOU;
+        return CLC_UNSTONE;
     case 2:
         return CLC_CONFUSE_YOU;
     case 1:
@@ -243,7 +260,7 @@ boolean foundyou;
     /* monster unable to cast spells? */
     if (mtmp->mcan || mtmp->mspec_used || !ml) {
         cursetxt(mtmp, is_undirected_spell(mattk->adtyp, spellnum));
-        return (0);
+        return 0;
     }
 
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
@@ -261,14 +278,14 @@ boolean foundyou;
               canseemon(mtmp) ? Monnam(mtmp) : "Something",
               levl[mtmp->mux][mtmp->muy].typ == WATER ? "empty water"
                                                       : "thin air");
-        return (0);
+        return 0;
     }
 
     nomul(0);
     if (rn2(ml * 10) < (mtmp->mconf ? 100 : 20)) { /* fumbled attack */
         if (canseemon(mtmp) && !Deaf)
             pline_The("air crackles around %s.", mon_nam(mtmp));
-        return (0);
+        return 0;
     }
     if (canspotmon(mtmp) || !is_undirected_spell(mattk->adtyp, spellnum)) {
         pline("%s casts a spell%s!",
@@ -294,7 +311,7 @@ boolean foundyou;
             impossible(
               "%s casting non-hand-to-hand version of hand-to-hand spell %d?",
                        Monnam(mtmp), mattk->adtyp);
-            return (0);
+            return 0;
         }
     } else if (mattk->damd)
         dmg = d((int) ((ml / 2) + mattk->damn), (int) mattk->damd);
@@ -325,6 +342,16 @@ boolean foundyou;
             dmg = 0;
         } else {
             dmg = resist_reduce(dmg, COLD_RES);
+        }
+        break;
+    case AD_ACID:
+        pline("You're splashed in acid.");
+        if (how_resistant(ACID_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            pline("But you resist the effects.");
+            dmg = 0;
+        } else {
+            dmg = resist_reduce(dmg, ACID_RES);
         }
         break;
     case AD_MAGM:
@@ -404,6 +431,33 @@ int spellnum;
             }
         }
         dmg = 0;
+        break;
+    case MGC_ACID_BLAST:
+        if (mtmp->iswiz || is_prince(mtmp->data)
+            || is_lord(mtmp->data) || mtmp->data->msound == MS_NEMESIS) {
+        if (m_canseeu(mtmp)) {
+            pline("A torrent of acid consumes you!");
+            dmg = d((mtmp->m_lev / 2) + 1, 8);
+        } else {
+            if (canspotmon(mtmp)) {
+                pline("%s blasts the %s with acid and howls with rage!", Monnam(mtmp), rn2(2) ? "ceiling" : "floor");
+            } else {
+                You_hear("some cursing!");
+            }
+        }
+        if (how_resistant(ACID_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            pline("The acid dissipates harmlessly.");
+            dmg = 0;
+        } else {
+        if (!rn2(u.twoweap ? 3 : 6))
+            acid_damage(uwep);
+        if (u.twoweap && !rn2(3))
+            acid_damage(uswapwep);
+        if (!rn2(6))
+            erode_armor(&youmonst, ERODE_CORRODE);
+            }
+        }
         break;
     case MGC_CLONE_WIZ:
         if (mtmp->iswiz && context.no_of_wizards == 1) {
@@ -518,7 +572,7 @@ int spellnum;
             dmg = d(ACURR(A_DEX) < 12 ? 6 : 4, 4);
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
-            make_stunned((HStun & TIMEOUT) + (long) dmg, FALSE);
+            make_stunned(HStun + dmg, FALSE);
         }
         dmg = 0;
         break;
@@ -534,6 +588,23 @@ int spellnum;
             if ((mtmp->mhp += d(3, 6)) > mtmp->mhpmax)
                 mtmp->mhp = mtmp->mhpmax;
             dmg = 0;
+        }
+        break;
+    case MGC_FIRE_BOLT:
+    case MGC_ICE_BOLT:
+        /* hotwire these to only go off if the critter can see you
+         * to avoid bugs WRT the Eyes and detect monsters */
+        if (m_canseeu(mtmp)) {
+            pline("%s blasts you with %s!", Monnam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "cold");
+            explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
+            d((mtmp->m_lev / 5) + 1, 8), WAND_CLASS, (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
+        } else {
+            if (canspotmon(mtmp)) {
+                pline("%s blasts the %s with %s and curses!", Monnam(mtmp), rn2(2) ? "ceiling" : "floor",
+                      (spellnum == MGC_FIRE_BOLT) ? "fire" : "cold");
+            } else {
+                You_hear("some cursing!");
+            }
         }
         break;
     case MGC_PSI_BOLT:
@@ -791,32 +862,40 @@ int spellnum;
             dmg = 0;
         }
         break;
+    case CLC_UNSTONE:
+        if (mtmp->mstone > 0) {
+            if (canseemon(mtmp))
+                pline("%s seems limber.", Monnam(mtmp));
+            mtmp->mstone = 0;
+            dmg = 0;
+        }
+        break;
     case CLC_VULN_YOU:
 	dmg = rnd(4);
 	pline("A %s film oozes over your skin!", Blind ? "slimy" : vulntext[dmg]);
 	switch (dmg) {
-		case 1:
-			if (Vulnerable_fire) return;
-			incr_itimeout(&HVulnerable_fire, rnd(100)+150);
-			You_feel("more inflammable.");
-			break;
-		case 2:
-			if (Vulnerable_cold) return;
-			incr_itimeout(&HVulnerable_cold, rnd(100)+150);
-			You_feel("extremely chilly.");
-			break;
-		case 3:
-			if (Vulnerable_elec) return;
-			incr_itimeout(&HVulnerable_elec, rnd(100)+150);
-			You_feel("overly conductive.");
-			break;
-		case 4:
-			if (Vulnerable_acid) return;
-			incr_itimeout(&HVulnerable_acid, rnd(100)+150);
-			You_feel("easily corrodable.");
-			break;
-		default:
-			break;
+	    case 1:
+		if (Vulnerable_fire) return;
+		    incr_itimeout(&HVulnerable_fire, rnd(100)+150);
+		    You_feel("more inflammable.");
+		break;
+	    case 2:
+		if (Vulnerable_cold) return;
+		    incr_itimeout(&HVulnerable_cold, rnd(100)+150);
+		    You_feel("extremely chilly.");
+		break;
+	    case 3:
+		if (Vulnerable_elec) return;
+		    incr_itimeout(&HVulnerable_elec, rnd(100)+150);
+		    You_feel("overly conductive.");
+		break;
+	    case 4:
+		if (Vulnerable_acid) return;
+		    incr_itimeout(&HVulnerable_acid, rnd(100)+150);
+		    You_feel("easily corrodable.");
+		break;
+	    default:
+		break;
 	}
 	break;
     case CLC_OPEN_WOUNDS:
@@ -864,6 +943,7 @@ int spellnum;
     } else if (adtyp == AD_CLRC) {
         switch (spellnum) {
         case CLC_INSECTS:
+        case CLC_UNSTONE:
         case CLC_CURE_SELF:
             return TRUE;
         default:
@@ -895,10 +975,28 @@ int spellnum;
       	if ((!mtmp->iswiz || context.no_of_wizards > 1)
       						&& spellnum == MGC_CLONE_WIZ)
       	    return TRUE;
+        /* Don't waste time zapping resisted spells at the player,
+         * and don't blast ourselves with our own explosions */
+        if ((resists_fire(mtmp) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_FIRE_BOLT) {
+            return TRUE;
+        }
+        if ((resists_cold(mtmp) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_ICE_BOLT) {
+            return TRUE;
+        }
+        if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT)
+            && mtmp->mpeaceful) {
+            return TRUE;
+        }
      } else if (adtyp == AD_CLRC) {
       	/* healing when already healed */
       	if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
       	    return TRUE;
+        /* unstoning when not in process of being stoned */
+        if (mtmp->mstone = 0 && spellnum == CLC_UNSTONE) {
+            return TRUE;
+        }
       	/* blindness spell on blinded player */
       	if ((!haseyes(mdef->data) || mdef->mblinded) && spellnum == CLC_BLIND_YOU)
       	    return TRUE;
@@ -927,8 +1025,12 @@ int spellnum;
       	    return TRUE;
     } else if (adtyp == AD_CLRC) {
       	/* healing when already healed */
-      	if (u.mh == u.mhmax && spellnum == MGC_CURE_SELF)
+      	if (u.mh == u.mhmax && spellnum == CLC_CURE_SELF)
       	    return TRUE;
+        /* unstoning when not in process of being stoned */
+        if (!Stoned && spellnum == CLC_UNSTONE) {
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -987,6 +1089,20 @@ int spellnum;
             if (!has_aggravatables(mtmp))
                 return rn2(100) ? TRUE : FALSE;
         }
+        /* Don't waste time zapping resisted spells at the player,
+         * and don't blast ourselves with our own explosions */
+        if ((resists_fire(mtmp) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_FIRE_BOLT) {
+            return TRUE;
+        }
+        if ((resists_cold(mtmp) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_ICE_BOLT) {
+            return TRUE;
+        }
+        if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT)
+            && mtmp->mpeaceful) {
+            return TRUE;
+        }
     } else if (adtyp == AD_CLRC) {
         /* summon insects/sticks to snakes won't be cast by peaceful monsters
          */
@@ -995,6 +1111,10 @@ int spellnum;
         /* healing when already healed */
         if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
             return TRUE;
+        /* unstoning when not in process of being stoned */
+        if (mtmp->mstone = 0 && spellnum == CLC_UNSTONE) {
+            return TRUE;
+        }
         /* don't summon insects if it doesn't think you're around */
         if (!mcouldseeu && spellnum == CLC_INSECTS)
             return TRUE;
@@ -1017,11 +1137,11 @@ register struct attack *mattk;
     /* don't print constant stream of curse messages for 'normal'
        spellcasting monsters at range */
     if (mattk->adtyp > AD_SPC2)
-        return (0);
+        return 0;
 
     if (mtmp->mcan) {
         cursetxt(mtmp, FALSE);
-        return (0);
+        return 0;
     }
     if (lined_up(mtmp) && rn2(3)) {
         nomul(0);
@@ -1034,7 +1154,7 @@ register struct attack *mattk;
         } else
             impossible("Monster spell %d cast", mattk->adtyp - 1);
     }
-    return (1);
+    return 1;
 }
 
 /* return values:
@@ -1048,7 +1168,7 @@ castmm(mtmp, mdef, mattk)
 	register struct monst *mdef;
 	register struct attack *mattk;
 {
-   	int	dmg, ml = mtmp->m_lev;
+   	int dmg, ml = mtmp->m_lev;
    	int ret;
    	int spellnum = 0;
 
@@ -1086,7 +1206,7 @@ castmm(mtmp, mdef, mattk)
    	    } else if ((!(moves % 4) || !rn2(4))) {
    	        if (!Deaf) Norep("You hear a mumbled curse.");
    	    }
-   	    return(0);
+   	    return 0;
    	}
 
    	if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
@@ -1097,7 +1217,7 @@ castmm(mtmp, mdef, mattk)
    	if(rn2(ml*10) < (mtmp->mconf ? 100 : 20)) {	/* fumbled attack */
    	    if (canseemon(mtmp))
    		pline_The("air crackles around %s.", mon_nam(mtmp));
-   	    return(0);
+   	    return 0;
    	}
    	if (cansee(mtmp->mx, mtmp->my) ||
    	    canseemon(mtmp) ||
@@ -1140,7 +1260,7 @@ castmm(mtmp, mdef, mattk)
    	  case AD_COLD:
    	      if (canspotmon(mdef))
    		        pline("%s is covered in frost.", Monnam(mdef));
-       		if(resists_fire(mdef)) {
+       		if(resists_cold(mdef)) {
          			shieldeff(mdef->mx, mdef->my);
          	                if (canspotmon(mdef))
          			    pline("But %s resists the effects.",
@@ -1148,6 +1268,17 @@ castmm(mtmp, mdef, mattk)
          			dmg = 0;
        		}
    		    break;
+          case AD_ACID:
+              if (canspotmon(mdef))
+                        pline("%s is covered in acid.", Monnam(mdef));
+                if(resists_acid(mdef)) {
+                                shieldeff(mdef->mx, mdef->my);
+                                if (canspotmon(mdef))
+                                    pline("But %s resists the effects.",
+                                        mhe(mdef));
+                                dmg = 0;
+                }
+                    break;
    	  case AD_MAGM:
             if (canspotmon(mdef))
          		    pline("%s is hit by a shower of missiles!", Monnam(mdef));
@@ -1190,7 +1321,7 @@ castmm(mtmp, mdef, mattk)
    	}
    	if (mdef && mdef->mhp < 1)
         return 2;
-   	return(ret);
+   	return (ret);
 }
 
 /* return values:
@@ -1201,7 +1332,7 @@ castmm(mtmp, mdef, mattk)
 int
 castum(mtmp, mattk)
        register struct monst *mtmp;
-	register struct attack *mattk;
+       register struct attack *mattk;
 {
    	int dmg, ml = mons[u.umonnum].mlevel;
    	int ret;
@@ -1253,7 +1384,7 @@ castum(mtmp, mattk)
    	        You("point at %s, then curse.", mon_nam(mtmp));
    	    else
    	        You("point all around, then curse.");
-   	    return(0);
+   	    return 0;
    	}
 
    	if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
@@ -1262,7 +1393,7 @@ castum(mtmp, mattk)
 
    	if (rn2(ml*10) < (Confusion ? 100 : 20)) {	/* fumbled attack */
   	    pline_The("air crackles around you.");
-   	    return(0);
+   	    return 0;
    	}
 
     You("cast a spell%s%s!",
@@ -1292,13 +1423,22 @@ castum(mtmp, mattk)
          		break;
    	    case AD_COLD:
          		pline("%s is covered in frost.", Monnam(mtmp));
-         		if(resists_fire(mtmp)) {
+         		if(resists_cold(mtmp)) {
          			shieldeff(mtmp->mx, mtmp->my);
          			pline("But %s resists the effects.",
          			    mhe(mtmp));
          			dmg = 0;
          		}
          		break;
+            case AD_ACID:
+                        pline("%s is covered in acid.", Monnam(mtmp));
+                        if(resists_acid(mtmp)) {
+                                shieldeff(mtmp->mx, mtmp->my);
+                                pline("But %s resists the effects.",
+                                    mhe(mtmp));
+                                dmg = 0;
+                        }
+                        break;
    	    case AD_MAGM:
          		pline("%s is hit by a shower of missiles!", Monnam(mtmp));
                         dmg = d((int)ml/2 + 1,6);
@@ -1402,6 +1542,21 @@ int spellnum;
        	}
        	dmg = 0;
        	break;
+    case MGC_ACID_BLAST:
+        if (!mtmp || mtmp->mhp < 1) {
+            impossible("acid blast with no mtmp");
+            return;
+        }
+        if (yours || canseemon(mtmp))
+            pline("A deluge of acid consumes %s!", mon_nam(mtmp));
+        if (resists_acid(mtmp)) {
+            shieldeff(mtmp->mx, mtmp->my);
+            dmg = 0;
+        } else
+            dmg = d(8, 6);
+        if (!rn2(6))
+            erode_armor(mtmp, ERODE_CORRODE);
+        break;
     case MGC_SUMMON_MONS:
     {
      	int count = 0;
@@ -1601,6 +1756,19 @@ int spellnum;
        	    context.botl = 1;
        	    dmg = 0;
         }
+        break;
+    case MGC_FIRE_BOLT:
+    case MGC_ICE_BOLT:
+        if (!mtmp || mtmp->mhp < 1) {
+            impossible("bolt spell with no mtmp");
+            return;
+        }
+        if (canseemon(mtmp)) {
+            You("blast %s with %s!", mon_nam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "cold");
+            explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
+            d((mtmp->m_lev / 5) + 1, 8), WAND_CLASS, 1);
+        }
+        dmg = 0;
         break;
     case MGC_PSI_BOLT:
        	if (!mtmp || mtmp->mhp < 1) {
@@ -1859,6 +2027,41 @@ int spellnum;
        	    dmg = 0;
        	}
        	break;
+    case CLC_UNSTONE:
+        if (Stoned) {
+            You("feel limber.");
+            fix_petrification();
+            dmg = 0;
+        }
+        break;
+    case CLC_VULN_YOU:
+	dmg = rnd(4);
+	pline("A %s film oozes over its skin!", Blind ? "slimy" : vulntext[dmg]);
+	switch (dmg) {
+	    case 1:
+		if (vulnerable_to(mtmp, AD_FIRE)) return;
+		    incr_itimeout(&HVulnerable_fire, rnd(100)+150);
+		    pline("%s is more inflammable.", Monnam(mtmp));
+		break;
+	    case 2:
+		if (vulnerable_to(mtmp, AD_COLD)) return;
+		    incr_itimeout(&HVulnerable_cold, rnd(100)+150);
+		    pline("%s is extremely chilly.", Monnam(mtmp));
+		break;
+	    case 3:
+		if (vulnerable_to(mtmp, AD_ELEC)) return;
+		    incr_itimeout(&HVulnerable_elec, rnd(100)+150);
+		    pline("%s is overly conductive.", Monnam(mtmp));
+		break;
+	    case 4:
+		if (vulnerable_to(mtmp, AD_ACID)) return;
+		    incr_itimeout(&HVulnerable_acid, rnd(100)+150);
+		    pline("%s is easily corrodable.", Monnam(mtmp));
+		break;
+	    default:
+		break;
+	}
+	break;
     case CLC_OPEN_WOUNDS:
         if (!mtmp || mtmp->mhp < 1) {
        	    impossible("wound spell with no mtmp");

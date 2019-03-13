@@ -562,6 +562,7 @@ int expltype;
         pay_for_damage((adtyp == AD_FIRE) ? "burn away"
                           : (adtyp == AD_COLD) ? "shatter"
                              : (adtyp == AD_DISN) ? "disintegrate"
+                                : (adtyp == AD_ACID) ? "dissolve"
                                 : "destroy",
                        FALSE);
     }

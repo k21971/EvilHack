@@ -989,6 +989,8 @@ struct monst *mtmp;
         Strcat(info, ", stunned");
     if (mtmp->msleeping)
         Strcat(info, ", asleep");
+    if (mtmp->mstone > 0)
+        Strcat(info, ", solidifying");
 #if 0 /* unfortunately mfrozen covers temporary sleep and being busy \
          (donning armor, for instance) as well as paralysis */
     else if (mtmp->mfrozen)
