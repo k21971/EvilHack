@@ -3,16 +3,16 @@ To-do list for EvilHack (in no particular order)
 
 From GruntHack
 --------------
-1) object materials & properties (might pull this from xNetHack [obj materials])
+1) object materials & properties <---- materials DONE
 2) new spells <---- DONE
 3) two-weaponing w/ artifact weapons <---- DONE (reverted back to vanilla behavior)
 4) new monsters <---- DONE (mostly)
 5) monster AI (opening/looting containers, using wands of wishing, using player spells, etc) <---- almost done
 6) demon lord levels
-7) new races for PC (ogres, kobolds, giants) <---- giants added
+7) new races for PC (ogres, kobolds, giants) <---- DONE
 8) new race/role combos <---- DONE
 9) Izchak change <---- DONE
-10) sokoban changes, especially ending
+10) sokoban changes, especially ending <---- DONE
 11) ability to fooproof virtually anything (but makes most objects suseptible to being burned, etc) <---- DONE
 12) powerful NPC's
 13) do NOT include level flipping <---- DONE (because I never did it)
@@ -75,5 +75,5 @@ Currently known issues:
 * Shambling horror 'bad attack type in spitmu' when it uses a spit attack (same behavior with breath attack). Game still progresses. <---- FIXED
 * Saving/reloading a game wipes out shambling horror state to default template <---- work-around enabled
 * Monster dies while riding its steed. Steed still alive and standing on monsters' corpse. If monster is revived while its steed is standing on its corpse, the steed vanishes completely instead of being re-mounted <---- FIXED
-* Resistance gaining messages still occur even when resistance is at 100%
+* Resistance gaining messages still occur even when resistance is at 100% <---- FIXED
 * Intelligent monsters can use bags and put gear inside of them, but won't take items out <---- FIXED

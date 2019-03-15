@@ -101,5 +101,16 @@ Version 0.1.2
 - Diluted potions have diminished effects
 - Pets will stop eating once satiated
 - Izchak changes
-- latest merges from 'vanilla' NetHack 3.6.2 (as of March 1st, 2019)
+- Sokoban End revamp
+- New item: amulet of flying (from UnNetHack)
+- Monster Ring patch
+- More new monster spells
+- latest merges from 'vanilla' NetHack 3.6.2 (as of March 11th, 2019)
+
+--------------------------------------------------------------------------------------------
+
+Version 0.2.0
+-------------
+
+- Object Materials patch (from xNetHack)
 
