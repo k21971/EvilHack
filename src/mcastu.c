@@ -450,11 +450,11 @@ int spellnum;
             pline("The acid dissipates harmlessly.");
             dmg = 0;
         } else {
-        if (!rn2(u.twoweap ? 3 : 6))
+        if (rn2(u.twoweap ? 2 : 3))
             acid_damage(uwep);
-        if (u.twoweap && !rn2(3))
+        if (u.twoweap && rn2(2))
             acid_damage(uswapwep);
-        if (!rn2(6))
+        if (rn2(4))
             erode_armor(&youmonst, ERODE_CORRODE);
             }
         }
@@ -1548,13 +1548,14 @@ int spellnum;
             return;
         }
         if (yours || canseemon(mtmp))
-            pline("A deluge of acid consumes %s!", mon_nam(mtmp));
+            pline("A torrent of acid consumes %s!", mon_nam(mtmp));
         if (resists_acid(mtmp)) {
             shieldeff(mtmp->mx, mtmp->my);
+            pline("But the acid dissipates harmlessly.");
             dmg = 0;
         } else
-            dmg = d(8, 6);
-        if (!rn2(6))
+            dmg = d(8, 8);
+        if (rn2(4))
             erode_armor(mtmp, ERODE_CORRODE);
         break;
     case MGC_SUMMON_MONS:

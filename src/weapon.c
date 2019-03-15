@@ -254,7 +254,6 @@ struct monst *mon;
         case TSURUGI:
         case DWARVISH_MATTOCK:
         case TWO_HANDED_SWORD:
-        case MITHRIL_TWO_HANDED_SWORD:
             tmp += d(2, 6);
             break;
         }
@@ -266,10 +265,10 @@ struct monst *mon;
         case CROSSBOW_BOLT:
         case MACE:
         case WAR_HAMMER:
+        case HEAVY_WAR_HAMMER:
         case FLAIL:
         case SPETUM:
         case TRIDENT:
-        case SILVER_MACE:
             tmp++;
             break;
 
@@ -294,12 +293,44 @@ struct monst *mon;
     }
     if (Is_weapon) {
         tmp += otmp->spe;
-        /* negative enchantment mustn't produce negative damage */
-        if (tmp < 0)
-            tmp = 0;
     }
 
-    if (objects[otyp].oc_material <= LEATHER && thick_skinned(ptr))
+    /* adjust for various materials */
+#define is_odd_material(obj, mat) \
+    ((obj)->material == (mat) && !(objects[(obj)->otyp].oc_material == (mat)))
+    if (is_odd_material(otmp, GLASS)
+        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH))) {
+        /* glass is sharp */
+        tmp += 3;
+    }
+    else if (is_odd_material(otmp, GOLD) || is_odd_material(otmp, PLATINUM)) {
+        /* heavy metals */
+        if (objects[otmp->otyp].oc_dir == WHACK) {
+            tmp += 2;
+        }
+    }
+    else if (is_odd_material(otmp, MINERAL)) {
+        /* stone is heavy */
+        if (objects[otmp->otyp].oc_dir == WHACK) {
+            tmp += 1;
+        }
+    }
+    else if (is_odd_material(otmp, PLASTIC) || is_odd_material(otmp, PAPER)) {
+        /* just terrible weapons all around */
+        tmp -= 2;
+    }
+    else if (is_odd_material(otmp, WOOD) && !is_elven_weapon(otmp)) {
+        /* poor at holding an edge */
+        if (is_blade(otmp)) {
+            tmp -= 1;
+        }
+    }
+
+    /* negative modifiers mustn't produce negative damage */
+    if (tmp < 0)
+        tmp = 0;
+
+    if (otmp->material <= LEATHER && thick_skinned(ptr))
         /* thick skinned/scaled creatures don't feel it */
         tmp = 0;
     if (ptr == &mons[PM_SHADE] && !shade_glare(otmp))
@@ -327,8 +358,8 @@ struct monst *mon;
             bonus += rnd(4);
         if (is_axe(otmp) && is_wooden(ptr))
             bonus += rnd(4);
-        if (objects[otyp].oc_material == SILVER && mon_hates_silver(mon))
-            bonus += rnd(20);
+        if (mon_hates_material(mon, otmp->material))
+            bonus += rnd(sear_damage(otmp->material));
         if (artifact_light(otmp) && otmp->lamplit && hates_light(ptr))
             bonus += rnd(8);
 
@@ -357,20 +388,21 @@ struct monst *mon;
 /* check whether blessed and/or silver damage applies for *non-weapon* hit;
    return value is the amount of the extra damage */
 int
-special_dmgval(magr, mdef, armask, silverhit_p)
+special_dmgval(magr, mdef, armask, out_obj)
 struct monst *magr, *mdef;
 long armask; /* armor mask, multiple bits accepted for W_ARMC|W_ARM|W_ARMU
               * or W_ARMG|W_RINGL|W_RINGR only */
-long *silverhit_p; /* output flag mask for silver bonus */
+struct obj **out_obj; /* ptr to offending object, can be NULL if not wanted */
 {
     struct obj *obj;
     struct permonst *ptr = mdef->data;
     boolean left_ring = (armask & W_RINGL) ? TRUE : FALSE,
             right_ring = (armask & W_RINGR) ? TRUE : FALSE;
-    long silverhit = 0L;
     int bonus = 0;
 
     obj = 0;
+    if (out_obj)
+        *out_obj = 0;
     if (armask & (W_ARMC | W_ARM | W_ARMU)) {
         if ((armask & W_ARMC) != 0L
             && (obj = which_armor(magr, W_ARMC)) != 0)
@@ -393,75 +425,84 @@ long *silverhit_p; /* output flag mask for silver bonus */
         if (obj->blessed
             && (is_undead(ptr) || is_demon(ptr) || is_vampshifter(mdef)))
             bonus += rnd(4);
-        /* the only silver armor is shield of reflection (silver dragon
-           scales refer to color, not material) and the only way to hit
-           with one--aside from throwing--is to wield it and perform a
-           weapon hit, but we include a general check here */
-        if (objects[obj->otyp].oc_material == SILVER
-            && mon_hates_silver(mdef)) {
-            bonus += rnd(20);
-            silverhit |= armask;
+        if (mon_hates_material(mdef, obj->material)) {
+            bonus += rnd(sear_damage(obj->material));
+            if (out_obj)
+                *out_obj = obj;
         }
 
-    /* when no gloves we check for silver rings (blessed rings ignored) */
+    /* when no gloves we check for rings made of hated material (blessed rings
+     * ignored) */
     } else if ((left_ring || right_ring) && magr == &youmonst) {
-        if (left_ring && uleft) {
-            if (objects[uleft->otyp].oc_material == SILVER
-                && mon_hates_silver(mdef)) {
-                bonus += rnd(20);
-                silverhit |= W_RINGL;
-            }
+        if (left_ring && uleft
+            && mon_hates_material(mdef, uleft->material)) {
+            bonus += rnd(sear_damage(uleft->material));
+            if (out_obj)
+                *out_obj = uleft;
         }
-        if (right_ring && uright) {
-            if (objects[uright->otyp].oc_material == SILVER
-                && mon_hates_silver(mdef)) {
-                /* two silver rings don't give double silver damage
-                   but 'silverhit' messages might be adjusted for them */
-                if (!(silverhit & W_RINGL))
-                    bonus += rnd(20);
-                silverhit |= W_RINGR;
+        if (right_ring && uright
+            && mon_hates_material(mdef, uright->material)) {
+            /* What if an enemy hates two kinds of materials and you're
+             * wearing one of each?
+             * The most appropriate flavor is that you're only hitting with
+             * one hand at a time, so if both would apply material damage,
+             * take one or the other hand randomly. */
+            if (*out_obj == uleft && rn2(2)) {
+                /* nothing in this function could have set bonus to 0 before
+                 * this except the left ring case above */
+                bonus = 0;
+                bonus += rnd(sear_damage(uright->material));
+                if (out_obj)
+                    *out_obj = uright;
             }
         }
     }
 
-    if (silverhit_p)
-        *silverhit_p = silverhit;
     return bonus;
 }
 
-/* give a "silver <item> sears <target>" message;
-   not used for weapon hit, so we only handle rings */
+/* give a "silver <item> sears <target>" message (or similar for other
+ * material); not used for weapon hit, so we only handle rings */
 void
-silver_sears(magr, mdef, silverhit)
+searmsg(magr, mdef, obj)
 struct monst *magr UNUSED;
 struct monst *mdef;
-long silverhit;
+struct obj * obj; /* the offending item */
 {
-    char rings[20]; /* plenty of room for "rings" */
-    int ltyp = ((uleft && (silverhit & W_RINGL) != 0L)
-                ? uleft->otyp : STRANGE_OBJECT),
-        rtyp = ((uright && (silverhit & W_RINGR) != 0L)
-                ? uright->otyp : STRANGE_OBJECT);
-    boolean both,
-        l_ag = (objects[ltyp].oc_material == SILVER && uleft->dknown),
-        r_ag = (objects[rtyp].oc_material == SILVER && uright->dknown);
+    char onamebuf[BUFSZ];
+    char whose[BUFSZ];
+    int mat = obj->material;
+    const char* matname = materialnm[mat];
 
-    if ((silverhit & (W_RINGL | W_RINGR)) != 0L) {
-        /* plural if both the same type (so not multi_claw and both rings
-           are non-Null) and either both known or neither known, or both
-           silver (in case there is ever more than one type of silver ring)
-           and both known; singular if multi_claw (where one of ltyp or
-           rtyp will always be STRANGE_OBJECT) even if both rings are known
-           silver [see hmonas(uhitm.c) for explanation of 'multi_claw'] */
-        both = ((ltyp == rtyp && uleft->dknown == uright->dknown)
-                || (l_ag && r_ag));
-        Sprintf(rings, "ring%s", both ? "s" : "");
-        Your("%s%s %s %s!",
-             (l_ag || r_ag) ? "silver "
-             : both ? ""
-               : ((silverhit & W_RINGL) != 0L) ? "left "
-                 : "right ",
-             rings, vtense(rings, "sear"), mon_nam(mdef));
+    if (!obj) {
+        impossible("searmsg: nothing searing?");
+        return;
+    }
+
+    /* Make it explicit to the player that this effect is from the
+     * material. If the object name doesn't already contain the material name,
+     * add it (e.g. "engraved silver bell" shouldn't turn into "silver engraved
+     * silver bell") */
+    boolean alreadyin = (strstri(cxname(obj), matname) != NULL);
+    if (!alreadyin) {
+        Sprintf(onamebuf, "%s %s", matname, cxname(obj));
+    }
+    else {
+        Strcpy(onamebuf, cxname(obj));
+    }
+    char* whom = mon_nam(mdef);
+    shk_your(whose, obj);
+    if (mat == SILVER) { /* more dramatic effects than other materials */
+        /* note: s_suffix returns a modifiable buffer */
+        if (!noncorporeal(mdef->data) && !amorphous(mdef->data))
+            whom = strcat(s_suffix(whom), " flesh");
+
+        pline("%s%s %s %s!", upstart(whose), onamebuf,
+              vtense(onamebuf, "sear"), whom);
+    }
+    else {
+        whom = upstart(whom);
+        pline("%s recoils from %s%s!", whom, whose, onamebuf);
     }
 }
 
@@ -492,9 +533,9 @@ int x;
 
 /* TODO: have monsters use aklys' throw-and-return */
 static NEARDATA const int rwep[] = {
-    DWARVISH_SPEAR, SILVER_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, JAVELIN,
-    SHURIKEN, YA, SILVER_ARROW, ELVEN_ARROW, ARROW, ORCISH_ARROW,
-    CROSSBOW_BOLT, SILVER_DAGGER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, KNIFE,
+    DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, JAVELIN,
+    SHURIKEN, YA, ELVEN_ARROW, ARROW, ORCISH_ARROW,
+    CROSSBOW_BOLT, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, KNIFE,
     FLINT, ROCK, LOADSTONE, LUCKSTONE, DART,
     /* BOOMERANG, */ CREAM_PIE
 };
@@ -529,8 +570,8 @@ struct obj *otmp;
 
     if (((strongmonst(mtmp->data) && (mtmp->misc_worn_check & W_ARMS) == 0)
 	    || !objects[pwep[i]].oc_bimanual) &&
-        (objects[pwep[i]].oc_material != SILVER
- 	    || !hates_silver(mtmp->data)))
+        (wep->material != SILVER
+ 	    || !mon_hates_material(mtmp, otmp->material)))
     {
         for (i = 0; i < SIZE(pwep); i++)
         {
@@ -602,13 +643,12 @@ register struct monst *mtmp;
              * Big weapon is basically the same as bimanual.
              * All monsters can wield the remaining weapons.
              */
-            if (((strongmonst(mtmp->data)
+            if ((strongmonst(mtmp->data)
                   && (mtmp->misc_worn_check & W_ARMS) == 0)
-                 || !objects[pwep[i]].oc_bimanual)
-                && (objects[pwep[i]].oc_material != SILVER
-                    || !mon_hates_silver(mtmp))) {
+                 || !objects[pwep[i]].oc_bimanual) {
                 if ((otmp = oselect(mtmp, pwep[i])) != 0
-                    && (otmp == mwep || !mweponly)) {
+                    && (otmp == mwep || !mweponly)
+                    && !mon_hates_material(mtmp, otmp->material)) {
                     propellor = otmp; /* force the monster to wield it */
                     return otmp;
                 }
@@ -704,13 +744,12 @@ struct obj *obj;
 /* Weapons in order of preference */
 static const NEARDATA short hwep[] = {
     CORPSE, /* cockatrice corpse */
-    TSURUGI, MITHRIL_TWO_HANDED_SWORD, RUNESWORD, SILVER_SABER, SILVER_LONG_SWORD,
-    ATLATL, HEAVY_WAR_HAMMER, LONG_SWORD, DWARVISH_MATTOCK, TWO_HANDED_SWORD,
-    BATTLE_AXE, KATANA, SILVER_MACE, ELVEN_LONG_SWORD, UNICORN_HORN, CRYSKNIFE, TRIDENT,
+    TSURUGI, RUNESWORD, ATLATL, HEAVY_WAR_HAMMER, LONG_SWORD, DWARVISH_MATTOCK, TWO_HANDED_SWORD,
+    BATTLE_AXE, KATANA, ELVEN_LONG_SWORD, UNICORN_HORN, CRYSKNIFE, TRIDENT,
     ELVEN_BROADSWORD, BROADSWORD, SCIMITAR, MORNING_STAR, ELVEN_SHORT_SWORD, DWARVISH_SHORT_SWORD,
-    SHORT_SWORD, ORCISH_SHORT_SWORD, MACE, AXE, DWARVISH_SPEAR, SILVER_SPEAR, ELVEN_SPEAR, SPEAR,
+    SHORT_SWORD, ORCISH_SHORT_SWORD, MACE, AXE, DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR,
     ORCISH_SPEAR, FLAIL, BULLWHIP, QUARTERSTAFF, JAVELIN, AKLYS, CLUB, PICK_AXE, RUBBER_HOSE,
-    WAR_HAMMER, SILVER_DAGGER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, ATHAME,
+    WAR_HAMMER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, ATHAME,
     SCALPEL, KNIFE, WORM_TOOTH
 };
 
@@ -779,7 +818,7 @@ register struct monst *mtmp;
             continue;
         if (((strong && !wearing_shield) || !objects[hwep[i]].oc_bimanual)
             && (objects[hwep[i]].oc_material != SILVER
-                || !mon_hates_silver(mtmp)))
+                || !mon_hates_material(mtmp, otmp->material)))
             Oselect(hwep[i]);
     }
 

@@ -207,15 +207,21 @@ struct obj *wep;
                 pline("%s to shine %s!", Tobjnam(wep, "begin"),
                       arti_light_description(wep));
         }
-#if 0
-        /* we'll get back to this someday, but it's not balanced yet */
+
         if (Race_if(PM_ELF) && !wep->oartifact
-            && objects[wep->otyp].oc_material == IRON) {
+            && wep->material == IRON) {
             /* Elves are averse to wielding cold iron */
             You("have an uneasy feeling about wielding cold iron.");
             change_luck(-1);
         }
-#endif
+
+        if (Race_if(PM_ORC) && !wep->oartifact
+            && wep->material == MITHRIL) {
+            /* Orcs are averse to wielding mithril */
+            You("have a weird feeling about wielding mithril.");
+            change_luck(-1);
+        }
+
         if (wep->unpaid) {
             struct monst *this_shkp;
 
@@ -773,6 +779,7 @@ register int amount;
              multiple ? "fuse, and become" : "is");
         uwep->otyp = CRYSKNIFE;
         uwep->oerodeproof = 0;
+        set_material(uwep, objects[CRYSKNIFE].oc_material);
         if (multiple) {
             uwep->quan = 1L;
             uwep->owt = weight(uwep);
@@ -795,6 +802,7 @@ register int amount;
         costly_alteration(uwep, COST_DEGRD); /* DECHNT? other? */
         uwep->otyp = WORM_TOOTH;
         uwep->oerodeproof = 0;
+        set_material(uwep, objects[WORM_TOOTH].oc_material);
         if (multiple) {
             uwep->quan = 1L;
             uwep->owt = weight(uwep);

@@ -30,7 +30,8 @@ enum obj_material_types {
     PLASTIC     = 18,
     GLASS       = 19,
     GEMSTONE    = 20,
-    MINERAL     = 21
+    MINERAL     = 21,
+    NUM_MATERIAL_TYPES
 };
 
 enum obj_armor_types {
@@ -82,29 +83,25 @@ struct objclass {
 
     Bitfield(oc_material, 5); /* one of obj_material_types */
 
-#define is_organic(otmp) (objects[otmp->otyp].oc_material <= WOOD)
-#define is_dragonhide(otmp) (objects[otmp->otyp].oc_material == DRAGON_HIDE)
-#define is_mithril(otmp) (objects[otmp->otyp].oc_material == MITHRIL)
-#define is_iron(otmp) (objects[otmp->otyp].oc_material == IRON)
-#define is_metallic(otmp)                    \
-    (objects[otmp->otyp].oc_material >= IRON \
-     && objects[otmp->otyp].oc_material <= MITHRIL)
-#define is_heavy_metallic(otmp)                    \
-    (objects[otmp->otyp].oc_material >= IRON \
-     && objects[otmp->otyp].oc_material <= PLATINUM)
+#define is_organic(otmp) (otmp->material <= WOOD)
+#define is_dragonhide(otmp) (otmp->material == DRAGON_HIDE)
+#define is_mithril(otmp) (otmp->material == MITHRIL)
+#define is_iron(otmp) (otmp->material == IRON)
+#define is_metallic(otmp) \
+    (otmp->material >= IRON && otmp->material <= MITHRIL)
+#define is_heavy_metallic(otmp) \
+    (otmp->material >= IRON && otmp->material <= PLATINUM)
 
 /* primary damage: fire/rust/--- */
 /* is_flammable(otmp), is_rottable(otmp) in mkobj.c */
-#define is_rustprone(otmp) (objects[otmp->otyp].oc_material == IRON)
+#define is_rustprone(otmp) (otmp->material == IRON)
 
 /* secondary damage: rot/acid/acid */
-#define is_corrodeable(otmp)                   \
-    (objects[otmp->otyp].oc_material == COPPER \
-     || objects[otmp->otyp].oc_material == IRON)
+#define is_corrodeable(otmp) \
+    (otmp->material == COPPER || otmp->material == IRON)
 
-#define is_supermaterial(otmp)                      \
-    (objects[otmp->otyp].oc_material == DRAGON_HIDE \
-     || objects[otmp->otyp].oc_material == MITHRIL)
+#define is_supermaterial(otmp) \
+    (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL)
 
 #define is_damageable(otmp)                                        \
     (is_rustprone(otmp) || is_flammable(otmp) || is_rottable(otmp) \

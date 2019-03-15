@@ -112,7 +112,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Other dragons will be able to sense the power of these gloves and
      *      will be affected accordingly.
      */
-    A("Dragonbane", DRAGONHIDE_GLOVES,
+    A("Dragonbane", GLOVES,
       (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH | SPFX_REFLECT), 0, MH_DRAGON,
       NO_ATTK, DFNS(AD_ACID), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
       NO_COLOR),
@@ -120,15 +120,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Demonbane from SporkHack is a silver mace with an extra property.
      *      Also the first sacrifice gift for a priest.
      */
-    A("Demonbane", SILVER_MACE, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_DEMON,
+    A("Demonbane", MACE, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_DEMON,
       PHYS(5, 4), NO_DFNS, NO_CARY, 0, A_LAWFUL, PM_PRIEST, NON_PM, 3000L,
       NO_COLOR),
 
-    A("Werebane", SILVER_SABER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_WERE,
+    A("Werebane", SABER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_WERE,
       PHYS(5, 4), DFNS(AD_WERE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1500L,
       NO_COLOR),
 
-    A("Grayswandir", SILVER_SABER, (SPFX_RESTR | SPFX_HALRES), 0, 0,
+    A("Grayswandir", SABER, (SPFX_RESTR | SPFX_HALRES), 0, 0,
       PHYS(5, 8), NO_DFNS, NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 8000L,
       NO_COLOR),
 
@@ -164,7 +164,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     /*
      *      Sunsword from SporkHack was silver in nature, and also warned of nearby undead
      */
-    A("Sunsword", SILVER_LONG_SWORD, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_UNDEAD,
+    A("Sunsword", LONG_SWORD, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_UNDEAD,
       PHYS(5, 4), DFNS(AD_BLND), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 2500L,
       NO_COLOR),
     /*
@@ -195,7 +195,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      If I were to add all of the powers and abilities this sword possesses from the book,
      *      it would be way over-powered. It will be a worthy two-handed sword to try to obtain however...
      */
-    A("The Sword of Bheleu", MITHRIL_TWO_HANDED_SWORD,
+    A("The Sword of Bheleu", TWO_HANDED_SWORD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL | SPFX_DALIGN), 0, 0,
       DRST(10, 10), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
       12000L, NO_COLOR),

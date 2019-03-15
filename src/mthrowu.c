@@ -88,10 +88,15 @@ const char *name; /* if null, then format `*objp' */
             potionhit(&youmonst, obj, POTHIT_OTHER_THROW);
             *objp = obj = 0; /* potionhit() uses up the potion */
         } else {
-            if (obj && objects[obj->otyp].oc_material == SILVER
-                && Hate_silver) {
+            if (obj && Hate_material(obj->material)) {
                 /* extra damage already applied by dmgval() */
-                pline_The("silver sears your flesh!");
+                if (obj->material == SILVER) {
+                    pline_The("silver sears your flesh!");
+                }
+                else {
+                    You("recoil at the touch of %s!",
+                        materialnm[obj->material]);
+                }
                 exercise(A_CON, FALSE);
             }
             if (is_acid)
@@ -131,7 +136,12 @@ int x, y;
                     && is_pit(t->ttyp))) {
         int objgone = 0;
 
-        if (down_gate(x, y) != -1)
+        if (!IS_SOFT(levl[x][y].typ) && breaktest(obj)) {
+            breakmsg(obj, cansee(x, y));
+            breakobj(obj, x, y, FALSE, FALSE);
+            objgone = 1;
+        }
+        if (!objgone && down_gate(x, y) != -1)
             objgone = ship_object(obj, x, y, FALSE);
         if (!objgone) {
             if (!flooreffects(obj, x, y, "fall")) {
@@ -522,12 +532,18 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                 }
             }
         }
-        if (objects[otmp->otyp].oc_material == SILVER
-            && mon_hates_silver(mtmp)) {
-            if (vis)
-                pline_The("silver sears %s flesh!", s_suffix(mon_nam(mtmp)));
-            else if (verbose && !target)
-                pline("Its flesh is seared!");
+        if (mon_hates_material(mtmp, otmp->material)) {
+            /* Extra damage is already handled in dmgval(). */
+            if (otmp->material == SILVER) {
+                if (vis)
+                    pline_The("silver sears %s flesh!", s_suffix(mon_nam(mtmp)));
+                else if (verbose && !target)
+                    pline("Its flesh is seared!");
+            }
+            else if (vis) {
+                pline("%s recoils at the touch of %s!", Monnam(mtmp),
+                      materialnm[otmp->material]);
+            }
         }
         if (otmp->otyp == ACID_VENOM && cansee(mtmp->mx, mtmp->my)) {
             if (resists_acid(mtmp)) {
@@ -1318,8 +1334,7 @@ boolean your_fault, from_invent;
     else if (obj_type == BOULDER || obj_type == HEAVY_IRON_BALL)
         pline("Whang!");
     else if (otmp->oclass == COIN_CLASS
-             || objects[obj_type].oc_material == GOLD
-             || objects[obj_type].oc_material == SILVER)
+             || otmp->material == GOLD || otmp->material == SILVER)
         pline("Clink!");
     else
         pline("Clonk!");
@@ -1355,7 +1370,7 @@ int whodidit;   /* 1==hero, 0=other, -1==just check whether it'll pass thru */
             hits = (obj_type != SKELETON_KEY && obj_type != LOCK_PICK
                     && obj_type != CREDIT_CARD && obj_type != TALLOW_CANDLE
                     && obj_type != WAX_CANDLE && obj_type != LENSES
-                    && obj_type != TIN_WHISTLE && obj_type != MAGIC_WHISTLE);
+                    && obj_type != PEA_WHISTLE && obj_type != MAGIC_WHISTLE);
             break;
         case ROCK_CLASS: /* includes boulder */
             if (obj_type != STATUE || mons[otmp->corpsenm].msize > MZ_TINY)

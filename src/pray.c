@@ -1814,10 +1814,10 @@ dosacrifice()
 		    } while (ncount++ < 500 && typ && P_RESTRICTED(objects[typ].oc_skill));
 		        if (ncount > 499) { return 1; }
 		    } else if (primary_casters) {
-		            typ = !rn2(2) ? rnd_class(LEATHER_ARMOR, CLOAK_OF_DISPLACEMENT)
-                                          : rnd_class(LEATHER_GLOVES, LEVITATION_BOOTS);
+		            typ = !rn2(2) ? rnd_class(ARMOR, CLOAK_OF_DISPLACEMENT)
+                                          : rnd_class(GLOVES, LEVITATION_BOOTS);
                         } else {
-                            typ = rnd_class(ELVEN_LEATHER_HELM, LEVITATION_BOOTS);
+                            typ = rnd_class(ELVEN_HELM, LEVITATION_BOOTS);
 		    }
 		    if (typ) {
 			otmp = mksobj(typ, FALSE, FALSE);

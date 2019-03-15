@@ -491,8 +491,8 @@ register struct monst *magr, *mdef;
 
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
-                    && (otmp && (objects[otmp->otyp].oc_material == IRON
-                                 || objects[otmp->otyp].oc_material == METAL))
+                    && (otmp && (otmp->material == IRON
+                                 || otmp->material == METAL))
                     && mdef->mhp > 1
                     && !mdef->mcan) {
                     if (clone_mon(mdef, 0, 0)) {

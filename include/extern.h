@@ -555,6 +555,7 @@ E int FDECL(breaks, (struct obj *, XCHAR_P, XCHAR_P));
 E void FDECL(release_camera_demon, (struct obj *, XCHAR_P, XCHAR_P));
 E void FDECL(breakobj, (struct obj *, XCHAR_P, XCHAR_P, BOOLEAN_P, BOOLEAN_P));
 E boolean FDECL(breaktest, (struct obj *));
+E void FDECL(breakmsg, (struct obj *, BOOLEAN_P));
 E boolean FDECL(walk_path, (coord *, coord *,
                             boolean (*)(genericptr, int, int), genericptr_t));
 E boolean FDECL(hurtle_jump, (genericptr_t, int, int));
@@ -1341,6 +1342,7 @@ E struct monst *FDECL(get_mtraits, (struct obj *, BOOLEAN_P));
 E struct obj *FDECL(mk_tt_object, (int, int, int));
 E struct obj *FDECL(mk_named_object,
                     (int, struct permonst *, int, int, const char *));
+E int FDECL(material_bonus, (struct obj*));
 E struct obj *FDECL(rnd_treefruit_at, (int, int));
 E void FDECL(set_corpsenm, (struct obj *, int));
 E void FDECL(start_corpse_timeout, (struct obj *));
@@ -1371,6 +1373,8 @@ E struct obj *FDECL(obj_nexto_xy, (struct obj *, int, int, BOOLEAN_P));
 E struct obj *FDECL(obj_absorb, (struct obj **, struct obj **));
 E struct obj *FDECL(obj_meld, (struct obj **, struct obj **));
 E void FDECL(pudding_merge_message, (struct obj *, struct obj *));
+E boolean FDECL(valid_obj_material, (struct obj *, int));
+E void FDECL(set_material, (struct obj *, int));
 
 /* ### mkroom.c ### */
 
@@ -1474,8 +1478,9 @@ E boolean FDECL(vulnerable_to, (struct monst *, int));
 E boolean FDECL(can_blnd, (struct monst *, struct monst *,
                            UCHAR_P, struct obj *));
 E boolean FDECL(ranged_attk, (struct permonst *));
-E boolean FDECL(hates_silver, (struct permonst *));
-E boolean FDECL(mon_hates_silver, (struct monst *));
+E boolean FDECL(hates_material, (struct permonst *, int));
+E boolean FDECL(mon_hates_material, (struct monst *, int));
+E int FDECL(sear_damage, (int));
 E boolean FDECL(mon_hates_light, (struct monst *));
 E boolean FDECL(passes_bars, (struct permonst *));
 E boolean FDECL(can_blow, (struct monst *));
@@ -2572,6 +2577,7 @@ E void FDECL(missum, (struct monst *, struct attack *, BOOLEAN_P));
 E int FDECL(passive, (struct monst *, struct obj *, BOOLEAN_P, int,
                       UCHAR_P, BOOLEAN_P));
 E void FDECL(passive_obj, (struct monst *, struct obj *, struct attack *));
+E boolean FDECL(break_glass_obj, (struct obj *));
 E void FDECL(stumble_onto_mimic, (struct monst *));
 E int FDECL(flash_hits_mon, (struct monst *, struct obj *));
 E void FDECL(light_hits_gremlin, (struct monst *, int));
@@ -2786,8 +2792,9 @@ E int FDECL(vms_get_saved_games, (const char *, char ***));
 E const char *FDECL(weapon_descr, (struct obj *));
 E int FDECL(hitval, (struct obj *, struct monst *));
 E int FDECL(dmgval, (struct obj *, struct monst *));
-E int FDECL(special_dmgval, (struct monst *, struct monst *, long, long *));
-E void FDECL(silver_sears, (struct monst *, struct monst *, long));
+E int FDECL(special_dmgval, (struct monst *, struct monst *, long,
+                             struct obj **));
+E void FDECL(searmsg, (struct monst *, struct monst *, struct obj *));
 E struct obj *FDECL(select_rwep, (struct monst *));
 E boolean FDECL(monmightthrowwep, (struct obj *));
 E struct obj *FDECL(select_hwep, (struct monst *));

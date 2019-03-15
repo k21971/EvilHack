@@ -157,7 +157,7 @@ Boots_on(VOID_ARGS)
 
     switch (uarmf->otyp) {
     case LOW_BOOTS:
-    case IRON_SHOES:
+    case DWARVISH_BOOTS:
     case HIGH_BOOTS:
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
@@ -249,7 +249,7 @@ Boots_off(VOID_ARGS)
         }
         break;
     case LOW_BOOTS:
-    case IRON_SHOES:
+    case DWARVISH_BOOTS:
     case HIGH_BOOTS:
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
@@ -275,7 +275,7 @@ Cloak_on(VOID_ARGS)
     case DWARVISH_CLOAK:
     case CLOAK_OF_MAGIC_RESISTANCE:
     case ROBE:
-    case LEATHER_CLOAK:
+    case CLOAK:
         break;
     case CLOAK_OF_PROTECTION:
         makeknown(uarmc->otyp);
@@ -339,7 +339,7 @@ Cloak_off(VOID_ARGS)
     case CLOAK_OF_MAGIC_RESISTANCE:
     case OILSKIN_CLOAK:
     case ROBE:
-    case LEATHER_CLOAK:
+    case CLOAK:
         break;
     case ELVEN_CLOAK:
         toggle_stealth(otmp, oldprop, FALSE);
@@ -381,8 +381,8 @@ Helmet_on(VOID_ARGS)
     case FEDORA:
     case HELMET:
     case DENTED_POT:
-    case ELVEN_LEATHER_HELM:
-    case DWARVISH_IRON_HELM:
+    case ELVEN_HELM:
+    case DWARVISH_HELM:
     case ORCISH_HELM:
     case HELM_OF_TELEPATHY:
         break;
@@ -447,8 +447,8 @@ Helmet_off(VOID_ARGS)
     case FEDORA:
     case HELMET:
     case DENTED_POT:
-    case ELVEN_LEATHER_HELM:
-    case DWARVISH_IRON_HELM:
+    case ELVEN_HELM:
+    case DWARVISH_HELM:
     case ORCISH_HELM:
         break;
     case DUNCE_CAP:
@@ -491,8 +491,7 @@ Gloves_on(VOID_ARGS)
         u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
 
     switch (uarmg->otyp) {
-    case LEATHER_GLOVES:
-    case DRAGONHIDE_GLOVES:
+    case GLOVES:
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
@@ -546,8 +545,7 @@ Gloves_off(VOID_ARGS)
     context.takeoff.mask &= ~W_ARMG;
 
     switch (uarmg->otyp) {
-    case LEATHER_GLOVES:
-    case DRAGONHIDE_GLOVES:
+    case GLOVES:
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
@@ -2159,8 +2157,8 @@ find_ac()
     if (uarm) {
 	uac -= ARM_BONUS(uarm);
 	if ((Race_if(PM_ORC) && (uarm->otyp == ORCISH_CHAIN_MAIL || uarm->otyp == ORCISH_RING_MAIL)) ||
-			(Race_if(PM_ELF) && uarm->otyp == ELVEN_MITHRIL_COAT) ||
-			(Race_if(PM_DWARF) && uarm->otyp == DWARVISH_MITHRIL_COAT)) {
+			(Race_if(PM_ELF) && uarm->otyp == ELVEN_CHAIN_MAIL) ||
+			(Race_if(PM_DWARF) && uarm->otyp == DWARVISH_CHAIN_MAIL)) {
 		uac -= racial_bonus;
 	}
     }
@@ -2177,8 +2175,8 @@ find_ac()
     if (uarmh) {
 	uac -= ARM_BONUS(uarmh);
 	if ((Race_if(PM_ORC) && uarmh->otyp == ORCISH_HELM) ||
-			(Race_if(PM_ELF) && uarmh->otyp == ELVEN_LEATHER_HELM) ||
-			(Race_if(PM_DWARF) && uarmh->otyp == DWARVISH_IRON_HELM)) {
+			(Race_if(PM_ELF) && uarmh->otyp == ELVEN_HELM) ||
+			(Race_if(PM_DWARF) && uarmh->otyp == DWARVISH_HELM)) {
 		uac -= racial_bonus;
 	}
     }
@@ -2186,7 +2184,7 @@ find_ac()
     if (uarmf) {
 	uac -= ARM_BONUS(uarmf);
 	if ((Race_if(PM_ELF) && uarmf->otyp == ELVEN_BOOTS) ||
-			(Race_if(PM_DWARF) && uarmf->otyp == IRON_SHOES)) {
+			(Race_if(PM_DWARF) && uarmf->otyp == DWARVISH_BOOTS)) {
 		uac -= racial_bonus;
 	}
     }

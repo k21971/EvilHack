@@ -29,7 +29,7 @@ STATIC_DCL boolean FDECL(restricted_spell_discipline, (int));
 static struct trobj Archeologist[] = {
     /* if adventure has a name...  idea from tan@uvm-gen */
     { BULLWHIP, 2, WEAPON_CLASS, 1, UNDEF_BLESS },
-    { LEATHER_JACKET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { JACKET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { FEDORA, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
     { PICK_AXE, UNDEF_SPE, TOOL_CLASS, 1, UNDEF_BLESS },
@@ -53,12 +53,12 @@ static struct trobj Cave_man[] = {
     { SLING, 2, WEAPON_CLASS, 1, UNDEF_BLESS },
     { FLINT, 0, GEM_CLASS, 15, UNDEF_BLESS }, /* quan is variable */
     { ROCK, 0, GEM_CLASS, 3, 0 },             /* yields 18..33 */
-    { LEATHER_ARMOR, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ARMOR, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
 static struct trobj Healer[] = {
     { SCALPEL, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
-    { LEATHER_GLOVES, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { STETHOSCOPE, 0, TOOL_CLASS, 1, 0 },
     { POT_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
     { POT_EXTRA_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
@@ -76,14 +76,14 @@ static struct trobj Knight[] = {
     { PLATE_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { LEATHER_GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { APPLE, 0, FOOD_CLASS, 10, 0 },
     { CARROT, 0, FOOD_CLASS, 10, 0 },
     { 0, 0, 0, 0, 0 }
 };
 static struct trobj Monk[] = {
 #define M_BOOK 2
-    { LEATHER_GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
     { ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
@@ -124,7 +124,7 @@ static struct trobj Rogue[] = {
 #define R_DAGGERS 1
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { DAGGER, 0, WEAPON_CLASS, 10, 0 }, /* quan is variable */
-    { LEATHER_ARMOR, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ARMOR, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { POT_SICKNESS, 0, POTION_CLASS, 1, 0 },
     { LOCK_PICK, 0, TOOL_CLASS, 1, 0 },
     { SACK, 0, TOOL_CLASS, 1, 0 },
@@ -184,7 +184,7 @@ static struct trobj Lamp[] = { { OIL_LAMP, 1, TOOL_CLASS, 1, 0 },
                                { 0, 0, 0, 0, 0 } };
 static struct trobj Blindfold[] = { { BLINDFOLD, 0, TOOL_CLASS, 1, 0 },
                                     { 0, 0, 0, 0, 0 } };
-static struct trobj Instrument[] = { { WOODEN_FLUTE, 0, TOOL_CLASS, 1, 0 },
+static struct trobj Instrument[] = { { FLUTE, 0, TOOL_CLASS, 1, 0 },
                                      { 0, 0, 0, 0, 0 } };
 static struct trobj Xtra_food[] = { { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 2, 0 },
                                     { 0, 0, 0, 0, 0 } };
@@ -214,8 +214,8 @@ static struct inv_sub {
     { PM_ELF, LONG_SWORD, ELVEN_LONG_SWORD },
     { PM_ELF, BOW, ELVEN_BOW },
     { PM_ELF, ARROW, ELVEN_ARROW },
-    { PM_ELF, PLATE_MAIL, ELVEN_MITHRIL_COAT },
-    { PM_ELF, HELMET, ELVEN_LEATHER_HELM },
+    { PM_ELF, PLATE_MAIL, ELVEN_CHAIN_MAIL },
+    { PM_ELF, HELMET, ELVEN_HELM },
     /* { PM_ELF, SMALL_SHIELD, ELVEN_SHIELD }, */
     { PM_ELF, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_ELF, CRAM_RATION, LEMBAS_WAFER },
@@ -232,7 +232,7 @@ static struct inv_sub {
     { PM_ORC, LEMBAS_WAFER, TRIPE_RATION },
     { PM_DWARF, SPEAR, DWARVISH_SPEAR },
     { PM_DWARF, SHORT_SWORD, DWARVISH_SHORT_SWORD },
-    { PM_DWARF, HELMET, DWARVISH_IRON_HELM },
+    { PM_DWARF, HELMET, DWARVISH_HELM },
     /* { PM_DWARF, SMALL_SHIELD, DWARVISH_ROUNDSHIELD }, */
     /* { PM_DWARF, PICK_AXE, DWARVISH_MATTOCK }, */
     { PM_DWARF, LEMBAS_WAFER, CRAM_RATION },
@@ -240,14 +240,14 @@ static struct inv_sub {
     { PM_GNOME, ARROW, CROSSBOW_BOLT },
     { PM_GIANT, ROBE, HIGH_BOOTS },
     { PM_GIANT, RING_MAIL, HIGH_BOOTS },
-    { PM_GIANT, LEATHER_ARMOR, HIGH_BOOTS },
+    { PM_GIANT, ARMOR, HIGH_BOOTS },
     /* Hobbits have a thing for elven gear */
     { PM_HOBBIT, DAGGER, ELVEN_DAGGER },
     { PM_HOBBIT, SPEAR, ELVEN_SPEAR },
     { PM_HOBBIT, SHORT_SWORD, ELVEN_SHORT_SWORD },
     { PM_HOBBIT, BOW, ELVEN_BOW },
     { PM_HOBBIT, ARROW, ELVEN_ARROW },
-    { PM_HOBBIT, HELMET, ELVEN_LEATHER_HELM },
+    { PM_HOBBIT, HELMET, ELVEN_HELM },
     { PM_HOBBIT, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_HOBBIT, CRAM_RATION, LEMBAS_WAFER },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
@@ -847,7 +847,7 @@ u_init()
          * get only non-magic instruments.
          */
         if (Role_if(PM_PRIEST) || Role_if(PM_WIZARD)) {
-            static int trotyp[] = { WOODEN_FLUTE, TOOLED_HORN, WOODEN_HARP,
+            static int trotyp[] = { FLUTE,  TOOLED_HORN,       HARP,
                                     BELL,         BUGLE,       LEATHER_DRUM };
             Instrument[0].trotyp = trotyp[rn2(SIZE(trotyp))];
             ini_inv(Instrument);
@@ -861,8 +861,8 @@ u_init()
         knows_object(ELVEN_DAGGER);
         knows_object(ELVEN_BROADSWORD);
         knows_object(ELVEN_LONG_SWORD);
-        knows_object(ELVEN_MITHRIL_COAT);
-        knows_object(ELVEN_LEATHER_HELM);
+        knows_object(ELVEN_CHAIN_MAIL);
+        knows_object(ELVEN_HELM);
         knows_object(ELVEN_SHIELD);
         knows_object(ELVEN_BOOTS);
         knows_object(ELVEN_CLOAK);
@@ -873,9 +873,10 @@ u_init()
         knows_object(DWARVISH_SPEAR);
         knows_object(DWARVISH_SHORT_SWORD);
         knows_object(DWARVISH_MATTOCK);
-        knows_object(DWARVISH_IRON_HELM);
-        knows_object(DWARVISH_MITHRIL_COAT);
+        knows_object(DWARVISH_HELM);
+        knows_object(DWARVISH_CHAIN_MAIL);
         knows_object(DWARVISH_CLOAK);
+        knows_object(DWARVISH_BOOTS);
         knows_object(DWARVISH_ROUNDSHIELD);
 
 	if (!Role_if(PM_ARCHEOLOGIST))
@@ -916,8 +917,8 @@ u_init()
         knows_object(ELVEN_DAGGER);
         knows_object(ELVEN_BROADSWORD);
         knows_object(ELVEN_LONG_SWORD);
-        knows_object(ELVEN_MITHRIL_COAT);
-        knows_object(ELVEN_LEATHER_HELM);
+        knows_object(ELVEN_CHAIN_MAIL);
+        knows_object(ELVEN_HELM);
         knows_object(ELVEN_SHIELD);
         knows_object(ELVEN_BOOTS);
         knows_object(ELVEN_CLOAK);
@@ -933,7 +934,6 @@ u_init()
         knows_object(BOW);
         knows_object(YA);
         knows_object(YUMI);
-        knows_object(SILVER_ARROW);
         knows_object(CROSSBOW_BOLT);
         knows_object(CROSSBOW);
         break;
@@ -1176,6 +1176,8 @@ register struct trobj *trop;
         otyp = (int) trop->trotyp;
         if (otyp != UNDEF_TYP) {
             obj = mksobj(otyp, TRUE, FALSE);
+            /* Don't allow materials to be start scummed for */
+            set_material(obj, objects[obj->otyp].oc_material);
         } else { /* UNDEF_TYP */
             static NEARDATA short nocreate = STRANGE_OBJECT;
             static NEARDATA short nocreate2 = STRANGE_OBJECT;
@@ -1223,6 +1225,9 @@ register struct trobj *trop;
                 otyp = obj->otyp;
             }
 
+            /* Don't allow materials to be start scummed for */
+            set_material(obj, objects[obj->otyp].oc_material);
+
             /* Don't start with +0 or negative rings */
             if (objects[otyp].oc_charged && obj->spe <= 0)
                 obj->spe = rne(3);
@@ -1262,6 +1267,11 @@ register struct trobj *trop;
                                 (trop->trotyp == UNDEF_TYP) ? "random " : "",
                                 OBJ_NAME(objects[otyp]));
                     otyp = obj->otyp = inv_subs[i].subs_otyp;
+                    /* This might have created a bad material combination, such
+                     * as a dagger (which was forced to be iron earlier) turning
+                     * into an elven dagger, but now remaining iron. Fix this up
+                     * here as well. */
+                    obj->material = objects[otyp].oc_material;
                     break;
                 }
         }

@@ -53,7 +53,7 @@ DOOR:locked,(19,06)
 ALTAR:(36,02),coaligned,shrine
 # Shaman Karnov
 MONSTER:('@',"Shaman Karnov"),(35,02) {
-  OBJECT:('[',"leather armor"),+5
+  OBJECT:('[',"armor"),+5
   OBJECT:(')',"club"),+5
 }
 # The treasure of Shaman Karnov

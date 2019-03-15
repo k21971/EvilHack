@@ -129,12 +129,12 @@ struct obj *obj;
             k = 1; /* regular container or unknown bag of tricks */
         else
             switch (otyp) {
-            case WOODEN_FLUTE:
+            case FLUTE:
             case MAGIC_FLUTE:
             case TOOLED_HORN:
             case FROST_HORN:
             case FIRE_HORN:
-            case WOODEN_HARP:
+            case HARP:
             case MAGIC_HARP:
             case BUGLE:
             case LEATHER_DRUM:
@@ -1553,7 +1553,7 @@ register const char *let, *word;
                  && (otyp != CORPSE || !tinnable(otmp)))
              || (!strcmp(word, "rub")
                  && ((otmp->oclass == TOOL_CLASS && otyp != OIL_LAMP
-                      && otyp != MAGIC_LAMP && otyp != BRASS_LANTERN)
+                      && otyp != MAGIC_LAMP && otyp != LANTERN)
                      || (otmp->oclass == GEM_CLASS && !is_graystone(otmp))))
              || (!strcmp(word, "use or apply")
                  /* Picks, axes, pole-weapons, bullwhips */
@@ -3615,7 +3615,7 @@ register struct obj *otmp, *obj;
     if (obj->dknown != otmp->dknown
         || (obj->bknown != otmp->bknown && !Role_if(PM_PRIEST))
         || obj->oeroded != otmp->oeroded || obj->oeroded2 != otmp->oeroded2
-        || obj->greased != otmp->greased)
+        || obj->material != otmp->material || obj->greased != otmp->greased)
         return FALSE;
 
     if ((obj->oclass == WEAPON_CLASS || obj->oclass == ARMOR_CLASS)

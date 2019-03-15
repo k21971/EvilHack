@@ -45,7 +45,7 @@ STAIR:(10,10),down
 BRANCH:levregion(51,2,77,18),(0,0,40,20)
 # Orion
 MONSTER:('@',"Orion"),(20,10) {
-  OBJECT:('[',"leather armor"),+4
+  OBJECT:('[',"armor"),+4
   OBJECT:(')',"yumi"),+4
   OBJECT:(')',"arrow"),+4,quantity:50
 }

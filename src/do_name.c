@@ -1309,6 +1309,28 @@ const char *name;
             else
                 livelog_printf(LL_ARTIFACT, "chose %s to be named \"%s\"", ansimpleoname(obj), bare_artifactname(obj));
         }
+        /* set up specific materials for the artifact */
+        switch(obj->oartifact) {
+        case ART_SUNSWORD:
+        case ART_WEREBANE:
+        case ART_DEMONBANE:
+        case ART_GRAYSWANDIR:
+            set_material(obj, SILVER);
+            break;
+        case ART_DIRGE:
+        case ART_SWORD_OF_BHELEU:
+            set_material(obj, MITHRIL);
+            break;
+        case ART_YENDORIAN_EXPRESS_CARD:
+            set_material(obj, PLATINUM);
+            break;
+        case ART_DRAGONBANE:
+            set_material(obj, DRAGON_HIDE);
+            break;
+        default:
+            /* prevent any wishes for materials on an artifact */
+            set_material(obj, objects[obj->otyp].oc_material);
+        }
     }
     if (carried(obj))
         update_inventory();

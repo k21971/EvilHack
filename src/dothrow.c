@@ -15,7 +15,6 @@ STATIC_DCL void FDECL(tmiss, (struct obj *, struct monst *, BOOLEAN_P));
 STATIC_DCL int FDECL(throw_gold, (struct obj *));
 STATIC_DCL void FDECL(check_shop_obj, (struct obj *, XCHAR_P, XCHAR_P,
                                        BOOLEAN_P));
-STATIC_DCL void FDECL(breakmsg, (struct obj *, BOOLEAN_P));
 STATIC_DCL boolean FDECL(toss_up, (struct obj *, BOOLEAN_P));
 STATIC_DCL void FDECL(sho_obj_return_to_u, (struct obj * obj));
 STATIC_DCL boolean FDECL(mhurtle_step, (genericptr_t, int, int));
@@ -324,8 +323,7 @@ autoquiver()
                    /* seen rocks or known flint or known glass */
                    || (otmp->otyp == FLINT
                        && objects[otmp->otyp].oc_name_known)
-                   || (otmp->oclass == GEM_CLASS
-                       && objects[otmp->otyp].oc_material == GLASS
+                   || (is_worthless_glass(otmp)
                        && objects[otmp->otyp].oc_name_known)) {
             if (uslinging())
                 oammo = otmp;
@@ -1039,8 +1037,7 @@ boolean hitsroof;
                 dmg = 1;
             else if (dmg > 6)
                 dmg = 6;
-            if (youmonst.data == &mons[PM_SHADE]
-                && objects[obj->otyp].oc_material != SILVER)
+            if (youmonst.data == &mons[PM_SHADE] && obj->material != SILVER)
                 dmg = 0;
         }
         if (dmg > 1 && less_damage)
@@ -1588,8 +1585,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         case GAUNTLETS_OF_FUMBLING: /* you're fumbling and shouldn't really even be able to throw */
             tmp -= 9;
             break;
-        case LEATHER_GLOVES:
-        case DRAGONHIDE_GLOVES:
+        case GLOVES:
             break;
         case GAUNTLETS_OF_DEXTERITY: /* these gloves were made with archers in mind */
             tmp += 1;
@@ -1840,7 +1836,7 @@ register struct obj *obj;
 {
     char buf[BUFSZ];
     boolean is_buddy = sgn(mon->data->maligntyp) == sgn(u.ualign.type);
-    boolean is_gem = objects[obj->otyp].oc_material == GEMSTONE;
+    boolean is_gem = obj->material == GEMSTONE;
     int ret = 0;
     static NEARDATA const char nogood[] = " is not interested in your junk.";
     static NEARDATA const char acceptgift[] = " accepts your gift.";
@@ -2076,8 +2072,17 @@ boolean from_invent;
             }
         }
     }
-    if (!fracture)
-        delobj(obj);
+    if (!fracture) {
+        /* FIXME: This replicates useup() code but we can't use useup() since
+         * obj isn't necessarily in hero's inventory */
+        if (obj->quan > 1) {
+            obj->quan--;
+            obj->owt = weight(obj);
+        }
+        else {
+            delobj(obj);
+        }
+    }
 }
 
 /*
@@ -2090,8 +2095,8 @@ struct obj *obj;
 {
     if (obj_resists(obj, 1, 99))
         return 0;
-    if (objects[obj->otyp].oc_material == GLASS && !obj->oartifact
-        && obj->oclass != GEM_CLASS)
+    if (obj->material == GLASS && !obj->oerodeproof
+        && !obj->oartifact && obj->oclass != GEM_CLASS)
         return 1;
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case EXPENSIVE_CAMERA:
@@ -2107,7 +2112,7 @@ struct obj *obj;
     }
 }
 
-STATIC_OVL void
+void
 breakmsg(obj, in_view)
 struct obj *obj;
 boolean in_view;
@@ -2117,7 +2122,7 @@ boolean in_view;
     to_pieces = "";
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     default: /* glass or crystal wand */
-        if (obj->oclass != WAND_CLASS)
+        if (obj->material != GLASS)
             impossible("breaking odd object?");
         /*FALLTHRU*/
     case LENSES:
@@ -2146,6 +2151,70 @@ boolean in_view;
         pline("Splash!");
         break;
     }
+}
+
+/* Possibly destroy a glass object by its use in melee or thrown combat.
+ * Return TRUE if destroyed.
+ * Separate logic from breakobj because we are not unconditionally breaking the
+ * object, and we also need to make sure it's removed from the inventory
+ * properly. */
+boolean
+break_glass_obj(obj)
+struct obj* obj;
+{
+    if (!obj || !breaktest(obj) || rn2(6))
+        return FALSE;
+    /* now we are definitely breaking it */
+
+    boolean your_fault = !context.mon_moving;
+
+    /* remove its worn flags */
+    long unwornmask = obj->owornmask;
+    if (!unwornmask) {
+        impossible("breaking non-equipped glass obj?");
+        return FALSE;
+    }
+    if (carried(obj)) { /* hero's item */
+        if (obj->quan == 1L) {
+            if (obj == uwep) {
+                unweapon = TRUE;
+            }
+            setworn(NULL, unwornmask);
+        }
+        update_inventory();
+    }
+    else if (mcarried(obj)) { /* monster's item */
+        if (obj->quan == 1L) {
+            struct monst* mon = obj->ocarry;
+            mon->misc_worn_check &= ~unwornmask;
+            if (unwornmask & W_WEP) {
+                setmnotwielded(mon, obj);
+                possibly_unwield(mon, FALSE);
+            }
+            else if (unwornmask & W_ARMG) {
+                mselftouch(mon, NULL, TRUE);
+            }
+            /* shouldn't really be needed but... */
+            update_mon_intrinsics(mon, obj, FALSE, FALSE);
+        }
+    }
+    else {
+        impossible("breaking glass obj in melee but not in inventory?");
+        return FALSE;
+    }
+    obj->owornmask = 0;
+
+    if (obj->quan == 1L) {
+        pline("%s breaks into pieces!", upstart(yname(obj)));
+        obj_extract_self(obj); /* it's being destroyed */
+    }
+    else {
+        pline("One of %s breaks into pieces!", yname(obj));
+    }
+    breakobj(obj, obj->ox, obj->oy, your_fault, TRUE);
+    if (carried(obj))
+        update_inventory();
+    return TRUE;
 }
 
 STATIC_OVL int

@@ -467,14 +467,27 @@ unsigned corpseflags;
         break;
     case PM_IRON_GOLEM:
         num = d(2, 6);
-        while (num--)
-            obj = mksobj_at(IRON_CHAIN, x, y, TRUE, FALSE);
+        while (num--) {
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, IRON)) {
+                delobj(obj);
+                obj = mksobj_at(IRON_CHAIN, x, y, TRUE, FALSE);
+            }
+            set_material(obj, IRON);
+        }
         free_mname(mtmp); /* don't christen obj */
         break;
     case PM_GLASS_GOLEM:
         num = d(2, 4); /* very low chance of creating all glass gems */
-        while (num--)
-            obj = mksobj_at((LAST_GEM + rnd(9)), x, y, TRUE, FALSE);
+        while (num--) {
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, GLASS)
+                || obj->oclass == POTION_CLASS) {
+                delobj(obj);
+                obj = mksobj_at((LAST_GEM + rnd(9)), x, y, TRUE, FALSE);
+            }
+            set_material(obj, GLASS);
+        }
         free_mname(mtmp);
         break;
     case PM_CLAY_GOLEM:
@@ -491,14 +504,25 @@ unsigned corpseflags;
     case PM_WOOD_GOLEM:
         num = d(2, 4);
         while (num--) {
-            obj = mksobj_at(QUARTERSTAFF, x, y, TRUE, FALSE);
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, WOOD)) {
+                delobj(obj);
+                obj = mksobj_at(QUARTERSTAFF, x, y, TRUE, FALSE);
+            }
+            set_material(obj, WOOD);
         }
         free_mname(mtmp);
         break;
     case PM_LEATHER_GOLEM:
         num = d(2, 4);
-        while (num--)
-            obj = mksobj_at(LEATHER_ARMOR, x, y, TRUE, FALSE);
+        while (num--) {
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, LEATHER)) {
+                delobj(obj);
+                obj = mksobj_at(ARMOR, x, y, TRUE, FALSE);
+            }
+            set_material(obj, LEATHER);
+        }
         free_mname(mtmp);
         break;
     case PM_GOLD_GOLEM:
@@ -508,8 +532,15 @@ unsigned corpseflags;
         break;
     case PM_PAPER_GOLEM:
         num = rnd(4);
-        while (num--)
-            obj = mksobj_at(SCR_BLANK_PAPER, x, y, TRUE, FALSE);
+        while (num--) {
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, PAPER) || obj->oclass == SCROLL_CLASS
+                || obj->oclass == SPBOOK_CLASS) {
+                delobj(obj);
+                obj = mksobj_at(SCR_BLANK_PAPER, x, y, TRUE, FALSE);
+            }
+            set_material(obj, PAPER);
+        }
         free_mname(mtmp);
         break;
     /* expired puddings will congeal into a large blob;
@@ -1257,7 +1288,7 @@ register struct monst *mtmp;
     int mat_idx;
 
     if ((gold = g_at(mtmp->mx, mtmp->my)) != 0) {
-        mat_idx = objects[gold->otyp].oc_material;
+        mat_idx = gold->material;
         obj_extract_self(gold);
         add_to_minv(mtmp, gold);
         if (cansee(mtmp->mx, mtmp->my)) {
@@ -1465,7 +1496,7 @@ struct obj *otmp;
         return 0;
     if (otyp == CORPSE && is_rider(&mons[otmp->corpsenm]))
         return 0;
-    if (objects[otyp].oc_material == SILVER && mon_hates_silver(mtmp)
+    if (mon_hates_material(mtmp, otmp->material)
         && (otyp != BELL_OF_OPENING || !is_covetous(mdat)))
         return 0;
 

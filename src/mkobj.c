@@ -19,6 +19,8 @@ STATIC_DCL void FDECL(insane_object, (struct obj *, const char *,
                                       const char *, struct monst *));
 STATIC_DCL void FDECL(check_contained, (struct obj *, const char *));
 STATIC_DCL void FDECL(sanity_check_worn, (struct obj *));
+STATIC_DCL const struct icp* FDECL(material_list, (struct obj *));
+STATIC_DCL void FDECL(init_obj_material, (struct obj *));
 
 struct icp {
     int iprob;   /* probability of an item type */
@@ -811,6 +813,7 @@ boolean artif;
     otmp->lknown = 0;
     otmp->cknown = 0;
     otmp->corpsenm = NON_PM;
+    init_obj_material(otmp);
 
     if (init) {
         switch (let) {
@@ -918,7 +921,7 @@ boolean artif;
                 otmp->quan = 1L + (long) (rn2(2) ? rn2(7) : 0);
                 blessorcurse(otmp, 5);
                 break;
-            case BRASS_LANTERN:
+            case LANTERN:
             case OIL_LAMP:
                 otmp->spe = 1;
                 otmp->age = (long) rn1(500, 1000);
@@ -1416,6 +1419,40 @@ register struct obj *otmp;
     return (!!otmp->blessed - !!otmp->cursed);
 }
 
+/* Relative weights of different materials.
+ * This used to be an attempt at making them super realistic, with densities in
+ * terms of their kg/m^3 and as close to real life as possible, but that just
+ * doesn't work because it makes materials infeasible to use. Nobody wants
+ * anything gold or platinum if it weighs three times as much as its iron
+ * counterpart, and things such as wooden plate mails were incredibly
+ * overpowered by weighing about one-tenth as much as the iron counterpart.
+ * Instead, use arbitrary units. */
+STATIC_DCL
+const int matdensities[] = {
+    0,   // will cause div/0 errors if anything is this material
+    10,  // LIQUID
+    15,  // WAX
+    10,  // VEGGY
+    10,  // FLESH
+    5,   // PAPER
+    10,  // CLOTH
+    15,  // LEATHER
+    30,  // WOOD
+    25,  // BONE
+    20,  // DRAGONHIDE
+    80,  // IRON
+    70,  // METAL
+    85,  // COPPER
+    90,  // SILVER
+    120, // GOLD
+    120, // PLATINUM
+    30,  // MITHRIL
+    20,  // PLASTIC
+    60,  // GLASS
+    55,  // GEMSTONE
+    70   // MINERAL
+};
+
 /*
  *  Calculate the weight of the given object.  This will recursively follow
  *  and calculate the weight of any containers.
@@ -1429,6 +1466,13 @@ weight(obj)
 register struct obj *obj;
 {
     int wt = (int) objects[obj->otyp].oc_weight;
+
+    /* Modify weight according to the relative densities of the two materials,
+     * if they differ. */
+    if (obj->material != objects[obj->otyp].oc_material) {
+        wt = (wt * matdensities[obj->material])
+             / matdensities[objects[obj->otyp].oc_material];
+    }
 
     /* glob absorpsion means that merging globs accumulates weight while
        quantity stays 1, so update 'wt' to reflect that, unless owt is 0,
@@ -1481,6 +1525,51 @@ register struct obj *obj;
         return wt + obj->spe * (int) objects[TALLOW_CANDLE].oc_weight;
     }
     return (wt ? wt * (int) obj->quan : ((int) obj->quan + 1) >> 1);
+}
+
+/* Relative defensiveness of various materials. The only thing that should ever
+ * matter is the difference between two of these quantities, so the values are
+ * adjusted up so that there are no negatives.
+ * The units involved here are AC points (but again, only the difference
+ * matters.) */
+const int matac[] = {
+     0,
+     0,  // LIQUID
+     1,  // WAX
+     1,  // VEGGY
+     3,  // FLESH
+     1,  // PAPER
+     2,  // CLOTH
+     3,  // LEATHER
+     4,  // WOOD
+     4,  // BONE
+     10, // DRAGON_HIDE
+     5,  // IRON - de facto baseline for metal armor
+     5,  // METAL
+     4,  // COPPER
+     5,  // SILVER
+     3,  // GOLD
+     4,  // PLATINUM
+     6,  // MITHRIL
+     3,  // PLASTIC
+     5,  // GLASS
+     7,  // GEMSTONE
+     6   // MINERAL
+};
+
+/* Compute the bonus or penalty to AC an armor piece should get for being a
+ * non-default material. */
+int
+material_bonus(obj)
+struct obj * obj;
+{
+    int diff = matac[obj->material] - matac[objects[obj->otyp].oc_material];
+
+    /* don't allow the armor's base AC to go below 0 */
+    if (objects[obj->otyp].a_ac + diff < 0) {
+        diff = -(objects[obj->otyp].a_ac);
+    }
+    return diff;
 }
 
 static int treefruits[] = { APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF };
@@ -1717,7 +1806,7 @@ is_flammable(otmp)
 register struct obj *otmp;
 {
     int otyp = otmp->otyp;
-    int omat = objects[otyp].oc_material;
+    int omat = otmp->material;
 
     /* Candles can be burned, but they're not flammable in the sense that
      * they can't get fire damage and it makes no sense for them to be
@@ -1729,7 +1818,7 @@ register struct obj *otmp;
     if (objects[otyp].oc_oprop == FIRE_RES || otyp == WAN_FIRE)
         return FALSE;
 
-    return (boolean) ((omat <= WOOD && omat != LIQUID) || omat == PLASTIC);
+    return (boolean) ((omat <= BONE && omat != LIQUID) || omat == PLASTIC);
 }
 
 boolean
@@ -1738,8 +1827,7 @@ register struct obj *otmp;
 {
     int otyp = otmp->otyp;
 
-    return (boolean) (objects[otyp].oc_material <= WOOD
-                      && objects[otyp].oc_material != LIQUID);
+    return (boolean) (otmp->material <= WOOD && otmp->material != LIQUID);
 }
 
 /*
@@ -2867,6 +2955,301 @@ struct obj *otmp2;
     } else {
         You_hear("a faint sloshing sound.");
     }
+}
+
+/* Object material probabilities. */
+/* for objects which are normally iron or metal */
+static const struct icp metal_materials[] = {
+    {75, 0}, /* default to base type, iron or metal */
+    { 5, IRON},
+    { 5, WOOD},
+    { 4, SILVER},
+    { 4, COPPER},
+    { 3, MITHRIL},
+    { 1, GOLD},
+    { 1, GLASS},
+    { 1, PLATINUM},
+    { 1, BONE}
+};
+
+/* for objects which are normally wooden */
+static const struct icp wood_materials[] = {
+    {80, WOOD},
+    {10, MINERAL},
+    { 4, IRON},
+    { 2, MITHRIL},
+    { 2, BONE},
+    { 1, COPPER},
+    { 1, SILVER}
+};
+
+/* for objects which are normally cloth */
+static const struct icp cloth_materials[] = {
+    {80, CLOTH},
+    {10, LEATHER},
+    { 8, PAPER},
+    { 2, DRAGON_HIDE}
+};
+
+/* for objects which are normally leather */
+static const struct icp leather_materials[] = {
+    {85, LEATHER},
+    {13, CLOTH},
+    { 2, DRAGON_HIDE}
+};
+
+/* for objects of dwarvish make */
+static const struct icp dwarvish_materials[] = {
+    {80, IRON},
+    {15, MITHRIL},
+    { 2, COPPER},
+    { 1, SILVER},
+    { 1, GOLD},
+    { 1, PLATINUM}
+};
+
+/* for armor objects of elven make - no iron!
+ * Does not cover cloth items; those use the regular cloth probs. */
+static const struct icp elven_materials[] = {
+    {60, 0}, /* use base material */
+    {20, WOOD},
+    {10, COPPER},
+    { 5, MITHRIL},
+    { 3, SILVER},
+    { 2, GOLD}
+};
+
+/* Reflectable items - for the shield of reflection; anything that can hold a
+ * polish. Amulets also arbitrarily use this list. */
+static const struct icp shiny_materials[] = {
+    {65, SILVER},
+    {20, GOLD},
+    { 5, MITHRIL},
+    { 5, COPPER},
+    { 3, METAL}, /* aluminum, or similar */
+    { 2, PLATINUM}
+};
+
+/* for bells and other tools, especially instruments, which are normally copper
+ * or metal.  Wood and glass in other lists precludes us from using those. */
+static const struct icp resonant_materials[] = {
+    {55, 0}, /* use base material */
+    {25, COPPER},
+    { 6, SILVER},
+    { 5, IRON},
+    { 5, MITHRIL},
+    { 3, GOLD},
+    { 1, PLATINUM}
+};
+
+/* for horns, currently. */
+static const struct icp horn_materials[] = {
+    {70, BONE},
+    {10, COPPER},
+    { 8, MITHRIL},
+    { 5, WOOD},
+    { 5, SILVER},
+    { 2, GOLD}
+};
+
+/* hacks for specific objects... not great because it's a lot of data, but it's
+ * a relatively clean solution */
+static const struct icp elvenhelm_materials[] = {
+    {70, LEATHER},
+    {20, COPPER},
+    {10, MITHRIL}
+};
+
+static const struct icp bow_materials[] = {
+    /* assumes all bows will be wood by default, fairly safe assumption */
+    {75, WOOD},
+    { 7, IRON},
+    { 5, MITHRIL},
+    { 5, COPPER},
+    { 5, BONE},
+    { 2, SILVER},
+    { 1, GOLD}
+};
+/* TODO: Orcish? */
+
+/* Return the appropriate above list for a given object, or NULL if there isn't
+ * an appropriate list. */
+const struct icp*
+material_list(obj)
+struct obj* obj;
+{
+    unsigned short otyp = obj->otyp;
+    int default_material = objects[otyp].oc_material;
+
+    /* Cases for specific object types. */
+    switch (otyp) {
+        /* Special exceptions to the whole randomized materials system - where
+         * we ALWAYS want an object to use its base material regardless of
+         * other cases in this function - go here.
+         * Return NULL so that init_obj_material and valid_obj_material both
+         * work properly. */
+        case BULLWHIP:
+        case WORM_TOOTH:
+        case CRYSKNIFE:
+            return NULL;
+        /* Any other cases for specific object types go here. */
+        case SHIELD_OF_REFLECTION:
+            return shiny_materials;
+        case BOW:
+        case ELVEN_BOW:
+        case ORCISH_BOW:
+        case YUMI:
+        case BOOMERANG: /* wooden base, similar shape */
+            return bow_materials;
+        case ELVEN_HELM:
+            return elvenhelm_materials;
+        case CHEST:
+        case LARGE_BOX:
+            return wood_materials;
+        case SKELETON_KEY:
+        case LOCK_PICK:
+        case TIN_OPENER:
+            return metal_materials;
+        case BELL:
+        case BUGLE:
+        case LANTERN:
+        case OIL_LAMP:
+        case MAGIC_LAMP:
+        case MAGIC_WHISTLE:
+        case FLUTE:
+        case MAGIC_FLUTE:
+        case HARP:
+        case MAGIC_HARP:
+            return resonant_materials;
+        case TOOLED_HORN:
+        case FIRE_HORN:
+        case FROST_HORN:
+        case HORN_OF_PLENTY:
+            return horn_materials;
+        default:
+            break;
+    }
+
+    /* Otherwise, select an appropriate list, or return NULL if no appropriate
+     * list exists. */
+    if (is_elven_obj(obj) && default_material != CLOTH) {
+        return elven_materials;
+    }
+    else if (is_dwarvish_obj(obj) && default_material != CLOTH) {
+        return dwarvish_materials;
+    }
+    else if (obj->oclass == AMULET_CLASS && otyp != AMULET_OF_YENDOR
+             && otyp != FAKE_AMULET_OF_YENDOR) {
+        /* could use metal_materials too */
+        return shiny_materials;
+    }
+    else if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
+             || obj->oclass == ARMOR_CLASS) {
+        if (default_material == IRON || default_material == METAL) {
+            return metal_materials;
+        }
+        else if (default_material == WOOD) {
+            return wood_materials;
+        }
+        else if (default_material == CLOTH) {
+            return cloth_materials;
+        } else if (default_material == LEATHER) {
+            return leather_materials;
+        }
+    }
+    return NULL;
+}
+
+/* Initialize the material field of an object, possibly randomizing it from the
+ * above lists. */
+void
+init_obj_material(obj)
+struct obj* obj;
+{
+    const struct icp* materials = material_list(obj);
+    unsigned short otyp = obj->otyp;
+
+    if (materials) {
+        int i = rnd(100);
+        while (i > 0) {
+            if (i <= materials->iprob)
+                break;
+            i -= materials->iprob;
+            materials++;
+        }
+        if (materials->iclass)
+            set_material(obj, materials->iclass);
+        else
+            /* can use a 0 in the list to default to the base material */
+            set_material(obj, objects[obj->otyp].oc_material);
+    }
+    else {
+        /* default case for other items: always use base material... */
+        set_material(obj, objects[obj->otyp].oc_material);
+    }
+
+    /* Do any post-fixups here for bad or illogical material combinations */
+    if ((otyp == PICK_AXE || otyp == DWARVISH_MATTOCK)
+        && (obj->material == PLASTIC || obj->material == GLASS)) {
+        set_material(obj, objects[obj->otyp].oc_material);
+    }
+}
+
+/* Return TRUE if mat is a valid material for a given object of obj's type
+ * (whether a random object of this type could generate as that material). */
+boolean
+valid_obj_material(obj, mat)
+struct obj* obj;
+int mat;
+{
+    if (obj->oartifact) {
+        /* shenanigans possible here, ignore them */
+        return TRUE;
+    }
+
+    /* if it is what it's defined as in objects.c, always valid, don't bother
+     * with lists */
+    if (objects[obj->otyp].oc_material == mat) {
+        return TRUE;
+    }
+    else {
+        const struct icp* materials = material_list(obj);
+
+        if (materials) {
+            int i = 100; /* guarantee going through everything */
+            while (i > 0) {
+                if (materials->iclass == mat)
+                    return TRUE;
+                i -= materials->iprob;
+                materials++;
+            }
+        }
+        /* no valid materials in list, or no valid list */
+        return FALSE;
+    }
+}
+
+/* Change the object's material, and any properties derived from it.
+ * This includes weight, and erosion/erodeproofing (i.e. materials which
+ * can't corrode will not be generated corroded or corrode-proofed).
+ */
+void
+set_material(otmp, material)
+struct obj* otmp;
+int material;
+{
+    if (!valid_obj_material(otmp, material)) {
+        impossible("setting material of %s to invalid material %d",
+                   OBJ_NAME(objects[otmp->otyp]), material);
+    }
+    otmp->material = material;
+    otmp->owt = weight(otmp);
+    if ((otmp->oeroded) && !is_rustprone(otmp) && !is_flammable(otmp))
+        otmp->oeroded = 0;
+    if ((otmp->oeroded2) && !is_corrodeable(otmp) && !is_rottable(otmp))
+        otmp->oeroded2 = 0;
+    if (otmp->oerodeproof && !is_damageable(otmp) && (otmp->material != GLASS))
+        otmp->oerodeproof = FALSE;
 }
 
 /*mkobj.c*/

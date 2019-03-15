@@ -1171,12 +1171,21 @@ register struct attack *mattk;
                 if (!(otmp->oartifact
                       && artifact_hit(mtmp, &youmonst, otmp, &dmg, dieroll)))
                     hitmsg(mtmp, mattk);
+
+                /* glass breakage from the attack */
+                break_glass_obj(MON_WEP(mtmp));
+                break_glass_obj(some_armor(&youmonst));
+
                 if (!dmg)
                     break;
-                if (objects[otmp->otyp].oc_material == SILVER
-                    && Hate_silver) {
-                    pline_The("silver sears your flesh!");
+                if (Hate_material(otmp->material)) {
+                    if (otmp->material == SILVER)
+                        pline_The("silver sears your flesh!");
+                    else
+                        You("recoil at the touch of %s!",
+                            materialnm[otmp->material]);
                     exercise(A_CON, FALSE);
+                    dmg += rnd(sear_damage(otmp->material));
                 }
                 /* this redundancy necessary because you have
                    to take the damage _before_ being cloned;
@@ -1187,9 +1196,8 @@ register struct attack *mattk;
                 if (tmp < 1)
                     tmp = 1;
                 if (u.mh - tmp > 1
-                    && (objects[otmp->otyp].oc_material == IRON
+                    && (otmp->material == IRON || otmp->material == METAL)
                         /* relevant 'metal' objects are scalpel and tsurugi */
-                        || objects[otmp->otyp].oc_material == METAL)
                     && (u.umonnum == PM_BLACK_PUDDING
                         || u.umonnum == PM_BROWN_PUDDING)) {
                     if (tmp > 1)
@@ -1391,7 +1399,7 @@ register struct attack *mattk;
         } else {
             if (uarmf) {
                 if (rn2(2) && (uarmf->otyp == LOW_BOOTS
-                               || uarmf->otyp == IRON_SHOES)) {
+                               || uarmf->otyp == DWARVISH_BOOTS)) {
                     pline("%s pricks the exposed part of your %s %s!",
                           Monst_name, sidestr, leg);
                 } else if (!rn2(5)) {
@@ -1868,6 +1876,41 @@ do_rust:
     default:
         dmg = 0;
         break;
+    }
+    /* handle silver gloves for touch attacks */
+    switch(mattk->aatyp) {
+    case AT_WEAP:
+        if (mon_currwep)
+            break;
+        /* FALLTHRU */
+    case AT_CLAW:
+    case AT_TUCH:
+    case AT_HUGS:
+        {
+            struct obj *marmg = which_armor(mtmp, W_ARMG);
+            if (marmg && Hate_material(marmg->material)) {
+                /* assume that marmg is plural */
+                if (marmg->material == SILVER)
+                    pline("%s sear your flesh!", upstart(yname(marmg)));
+                else
+                    You("recoil at the touch of %s!", yname(marmg));
+                exercise(A_CON, FALSE);
+                dmg += rnd(sear_damage(marmg->material));
+            }
+        }
+        break;
+    case AT_KICK:
+        {
+            struct obj * marmf = which_armor(mtmp, W_ARMF);
+            if (marmf && Hate_material(marmf->material)) {
+                if (marmf->material == SILVER)
+                    pline("%s sear your flesh!", upstart(yname(marmf)));
+                else
+                    You("recoil at the touch of %s!", yname(marmf));
+                exercise(A_CON, FALSE);
+                dmg += rnd(sear_damage(marmf->material));
+            }
+        }
     }
     if ((Upolyd ? u.mh : u.uhp) < 1) {
         /* already dead? call rehumanize() or done_in_by() as appropriate */
@@ -3191,7 +3234,7 @@ struct attack *mattk;
 
     if (uarmg) {
         switch(uarmg->otyp) {
-                case DRAGONHIDE_GLOVES: /* this really should be ART_DRAGONBANE, but this works for now */
+                case GLOVES: /* this really should be ART_DRAGONBANE, but this works for now */
                         if (!is_dragon(mtmp->data)) { return 1; }
                         if (canseemon(mtmp) && is_dragon(mtmp->data)) {
                                 pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
