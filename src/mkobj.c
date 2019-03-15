@@ -3091,6 +3091,12 @@ struct obj* obj;
         case BULLWHIP:
         case WORM_TOOTH:
         case CRYSKNIFE:
+        case STAFF_OF_DIVINATION:
+        case STAFF_OF_HEALING:
+        case STAFF_OF_HOLINESS:
+        case STAFF_OF_MATTER:
+        case STAFF_OF_ESCAPE:
+        case STAFF_OF_WAR:
             return NULL;
         /* Any other cases for specific object types go here. */
         case SHIELD_OF_REFLECTION:

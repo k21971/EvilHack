@@ -2686,8 +2686,8 @@ register struct monst *mon;
                       byhand ? "throttled" : "crushed",
                       /* extra feedback for non-breather being choked */
                       unconcerned ? " but doesn't seem concerned" : "");
-                /* if (hated_obj && flags.verbose)
-                    searmsg(&youmonst, mon, hated_obj); */
+                if (hated_obj && flags.verbose)
+                    searmsg(&youmonst, mon, hated_obj);
                 sum[i] = damageum(mon, mattk, specialdmg);
             } else if (i >= 2 && sum[i - 1] && sum[i - 2]) {
                 /* in case we're hugging a new target while already
