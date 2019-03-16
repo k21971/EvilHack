@@ -506,12 +506,21 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Sprintf(buf, "set of %s", actualn);
             break;
         }
+
         if (is_boots(obj) || is_gloves(obj))
             Strcpy(buf, "pair of ");
 
         if (obj->material != objects[obj->otyp].oc_material) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
+        }
+
+        if (obj->otyp == ARMOR || obj->otyp == JACKET) {
+            Sprintf(buf, "%s ", materialnm[obj->material]);
+        }
+
+        if (obj->otyp == GLOVES) {
+            Sprintf(buf, "pair of %s ", materialnm[obj->material]);
         }
 
         if (obj->otyp >= ELVEN_SHIELD && obj->otyp <= ORCISH_SHIELD
