@@ -104,8 +104,7 @@ struct objclass {
 #define is_supermaterial(otmp) \
     (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL \
      || otmp->material == GOLD || otmp->material == PLATINUM    \
-     || otmp->material == SILVER || otmp->material == PLASTIC   \
-     || otmp->material == MINERAL)
+     || otmp->material == SILVER || otmp->material == MINERAL)
 
 #define is_damageable(otmp)                                        \
     (is_rustprone(otmp) || is_flammable(otmp) || is_rottable(otmp) \
