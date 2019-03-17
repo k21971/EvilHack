@@ -87,6 +87,7 @@ struct objclass {
 #define is_dragonhide(otmp) (otmp->material == DRAGON_HIDE)
 #define is_mithril(otmp) (otmp->material == MITHRIL)
 #define is_iron(otmp) (otmp->material == IRON)
+#define is_glass(otmp) (otmp->material == GLASS)
 #define is_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= MITHRIL)
 #define is_heavy_metallic(otmp) \
@@ -101,11 +102,14 @@ struct objclass {
     (otmp->material == COPPER || otmp->material == IRON)
 
 #define is_supermaterial(otmp) \
-    (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL)
+    (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL \
+     || otmp->material == GOLD || otmp->material == PLATINUM    \
+     || otmp->material == SILVER || otmp->material == PLASTIC   \
+     || otmp->material == MINERAL)
 
 #define is_damageable(otmp)                                        \
     (is_rustprone(otmp) || is_flammable(otmp) || is_rottable(otmp) \
-     || is_corrodeable(otmp))
+     || is_corrodeable(otmp) || is_glass(otmp))
 
     /* 3 free bits */
 

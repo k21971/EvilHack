@@ -859,8 +859,8 @@ char *prefix;
 
     rknown = (iflags.override_ID == 0) ? obj->rknown : TRUE;
 
-    if (!is_damageable(obj) && !(obj->material == GLASS) && !iscrys)
-        return;
+    /* if (!is_damageable(obj) && !(obj->material == GLASS) && !iscrys)
+        return; */
 
     /* The only cases where any of these bits do double duty are for
      * rotted food and diluted potions, which are all not is_damageable().
@@ -886,12 +886,13 @@ char *prefix;
             break;
         }
         Strcat(prefix, !is_damageable(obj) ? "deteriorated " :
+               is_glass(obj) ? "fractured " :
                is_corrodeable(obj) ? "corroded " : "rotted ");
     }
     if (rknown && obj->oerodeproof) {
         if (iscrys)
             Strcat(prefix, "fixed ");
-        else if (obj->material == GLASS)
+        else if (is_glass(obj))
             Strcat(prefix, "shatterproof ");
         else if (is_rustprone(obj))
             Strcat(prefix, "rustproof ");

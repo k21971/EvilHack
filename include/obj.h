@@ -391,7 +391,8 @@ struct obj {
 #define ERODE_RUST 1
 #define ERODE_ROT 2
 #define ERODE_CORRODE 3
-#define ERODE_DETERIORATE 4
+#define ERODE_FRACTURE 4
+#define ERODE_DETERIORATE 5
 
 /* erosion flags for erode_obj() */
 #define EF_NONE 0

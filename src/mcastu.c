@@ -522,6 +522,10 @@ int spellnum;
 		while (erodelvl-- > 0) {
                 if (is_corrodeable(oatmp)) {
                     (void) erode_obj(oatmp, (char *) 0, ERODE_CORRODE, EF_VERBOSE);
+                } else if (is_flammable(oatmp)) {
+                    (void) erode_obj(oatmp, (char *) 0, ERODE_BURN, EF_VERBOSE);
+                } else if (is_glass(oatmp)) {
+                    (void) erode_obj(oatmp, (char *) 0, ERODE_FRACTURE, EF_VERBOSE);
                 } else if (is_supermaterial(oatmp)) {
                     (void) erode_obj(oatmp, (char *) 0, ERODE_DETERIORATE, EF_VERBOSE);
                 } else {
