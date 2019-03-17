@@ -223,9 +223,10 @@ register struct monst *mtmp;
         } else if (is_elf(ptr)) {
             if (rn2(2))
                 (void) mongets(mtmp,
-		 (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELF_LORD || mm == PM_ELVENKING)) ?
+		 (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELF_LORD
+                             || mm == PM_ELVEN_WIZARD || mm == PM_ELVENKING)) ?
 			     ELVEN_HELM : ELVEN_CLOAK);
-            if (rn2(2)) {
+            if (rn2(2) && !mm == PM_ELVEN_WIZARD) {
                 struct obj* mail = m_carrying(mtmp, ELVEN_CHAIN_MAIL);
                 if (mail)
                     set_material(mail, MITHRIL);
@@ -236,22 +237,28 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, ELVEN_DAGGER);
             switch (rn2(3)) {
             case 0:
-                if (!rn2(4))
-                    (void) mongets(mtmp, ELVEN_SHIELD);
-                if (rn2(3))
-                    (void) mongets(mtmp, ELVEN_SHORT_SWORD);
-                (void) mongets(mtmp, ELVEN_BOW);
-                m_initthrow(mtmp, ELVEN_ARROW, 12);
+                if (!mm == PM_ELVEN_WIZARD) {
+                    if (!rn2(4))
+                        (void) mongets(mtmp, ELVEN_SHIELD);
+                    if (rn2(3))
+                        (void) mongets(mtmp, ELVEN_SHORT_SWORD);
+                    (void) mongets(mtmp, ELVEN_BOW);
+                    m_initthrow(mtmp, ELVEN_ARROW, 12);
+                }
                 break;
             case 1:
-                (void) mongets(mtmp, rn2(2) ? ELVEN_LONG_SWORD : ELVEN_BROADSWORD);
-                if (rn2(2))
-                    (void) mongets(mtmp, ELVEN_SHIELD);
+                if (!mm == PM_ELVEN_WIZARD) {
+                    (void) mongets(mtmp, rn2(2) ? ELVEN_LONG_SWORD : ELVEN_BROADSWORD);
+                    if (rn2(2))
+                        (void) mongets(mtmp, ELVEN_SHIELD);
+                }
                 break;
             case 2:
-                if (rn2(2)) {
-                    (void) mongets(mtmp, ELVEN_SPEAR);
-                    (void) mongets(mtmp, ELVEN_SHIELD);
+                if (!mm == PM_ELVEN_WIZARD) {
+                    if (rn2(2)) {
+                        (void) mongets(mtmp, ELVEN_SPEAR);
+                        (void) mongets(mtmp, ELVEN_SHIELD);
+                    }
                 }
                 break;
             }
