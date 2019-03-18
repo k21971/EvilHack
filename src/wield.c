@@ -631,9 +631,12 @@ can_twoweapon()
         pline("%s isn't one-handed.", Yname2(otmp));
     } else if (uarms)
         You_cant("use two weapons while wearing a shield.");
-    /* Allow two-weaponing with an artifact in each hand. */
-    else if (uswapwep->oartifact)
-        pline("%s being held second to another weapon!",
+    /* Allow two-weaponing with an artifact, but not if they are of opposite alignements.
+     * As expected, neutral artifacts don't care */
+    else if (uswapwep->oartifact
+             && (is_lawful_artifact(uswapwep) && is_chaotic_artifact(uwep))
+                 || (is_chaotic_artifact(uswapwep) && is_lawful_artifact(uwep)))
+        pline("%s being held second to an opposite aligned weapon!",
               Yobjnam2(uswapwep, "resist"));
     else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
         /* [Note: NOT_WEAPON() check prevents ever getting here...] */

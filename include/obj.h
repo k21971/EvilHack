@@ -193,6 +193,22 @@ struct obj {
     ((o)->oclass == TOOL_CLASS && objects[(o)->otyp].oc_skill != P_NONE)
         /* towel is not a weptool:  spe isn't an enchantment, cursed towel
            doesn't weld to hand, and twoweapon won't work with one */
+
+#define is_lawful_artifact(otmp) \
+    (otmp->oartifact == ART_EXCALIBUR || otmp->oartifact == ART_DEMONBANE                         \
+     || otmp->oartifact == ART_GRAYSWANDIR || otmp->oartifact == ART_SNICKERSNEE                  \
+     || otmp->oartifact == ART_SUNSWORD || otmp->oartifact == ART_XIUHCOATL                       \
+     || otmp->oartifact == ART_EXCALIBUR || otmp->oartifact == ART_SCEPTRE_OF_MIGHT               \
+     || otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN || otmp->oartifact == ART_MITRE_OF_HOLINESS \
+     || otmp->oartifact == ART_TSURUGI_OF_MURAMASA)
+
+#define is_chaotic_artifact(otmp) \
+    (otmp->oartifact == ART_STORMBRINGER || otmp->oartifact == ART_GRIMTOOTH                   \
+     || otmp->oartifact == ART_ORCRIST || otmp->oartifact == ART_STING                         \
+     || otmp->oartifact == ART_LIFESTEALER || otmp->oartifact == ART_DIRGE                     \
+     || otmp->oartifact == ART_SWORD_OF_BHELEU || otmp->oartifact == ART_LONGBOW_OF_DIANA      \
+     || otmp->oartifact == ART_MASTER_KEY_OF_THIEVERY || otmp->oartifact == ART_RING_OF_P_HUL) \
+
 #define is_wet_towel(o) ((o)->otyp == TOWEL && (o)->spe > 0)
 #define bimanual(otmp)                                            \
     ((!(Race_if(PM_GIANT))) &&                                    \
