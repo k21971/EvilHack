@@ -2913,6 +2913,7 @@ struct obj *no_wish;
 #define UNDEFINED 0
 #define EMPTY 1
 #define SPINACH 2
+    material = 0;
     contents = UNDEFINED;
     oclass = 0;
     actualn = dn = un = 0;
