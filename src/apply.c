@@ -455,9 +455,9 @@ struct obj *obj;
 
         /* Applying the 8-Ball gives a 1 in 1000 chance of granting a wish,
          * but only if it's blessed. Otherwise, it will never grant one. */
-        chance = 999;
+        chance = 9999;
         if (obj->blessed)
-            chance = (chance == 0) ? rn2(999) : 999;
+            chance = (chance == 0) ? rn2(9999) : 9999;
 
         switch (chance) {
         case 0:

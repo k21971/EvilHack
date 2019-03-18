@@ -21,6 +21,7 @@ static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
 STATIC_DCL boolean FDECL(learnscrolltyp, (SHORT_P));
 STATIC_DCL char *FDECL(erode_obj_text, (struct obj *, char *));
 STATIC_DCL char *FDECL(apron_text, (struct obj *, char *buf));
+STATIC_DCL char *FDECL(eight_ball_text, (struct obj *, char *buf));
 STATIC_DCL void FDECL(stripspe, (struct obj *));
 STATIC_DCL void FDECL(p_glow1, (struct obj *));
 STATIC_DCL void FDECL(p_glow2, (struct obj *, const char *));
@@ -314,6 +315,79 @@ doread()
         if(!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading the divine signature of Odin");
+        return 1;
+    } else if (scroll->oartifact == ART_MAGIC___BALL) {
+        if (Blind)
+            You("feel the smooth plastic window.");
+        else if (flags.verbose)
+            pline("The Magic 8-Ball replies:");
+            switch (rn2(20)) {
+            case 0:
+                pline("It is certain.");
+                break;
+            case 1:
+                pline("It is decidedly so.");
+                break;
+            case 2:
+                pline("Without a doubt.");
+                break;
+            case 3:
+                pline("Yes - definitely.");
+                break;
+            case 4:
+                pline("You may rely on it.");
+                break;
+            case 5:
+                pline("As I see it, yes.");
+                break;
+            case 6:
+                pline("Most likely.");
+                break;
+            case 7:
+                pline("Outlook good.");
+                break;
+            case 8:
+                pline("Yes.");
+                break;
+            case 9:
+                pline("Signs point to yes.");
+                break;
+            case 10:
+                pline("Reply hazy, try again.");
+                break;
+            case 11:
+                pline("Ask again later.");
+                break;
+            case 12:
+                pline("Better not tell you now.");
+                break;
+            case 13:
+                pline("Cannot predict now.");
+                break;
+            case 14:
+                pline("Concentrate and ask again.");
+                break;
+            case 15:
+                pline("Don't count on it.");
+                break;
+            case 16:
+                pline("My reply is no.");
+                break;
+            case 17:
+                pline("My sources say no.");
+                break;
+            case 18:
+                pline("Outlook not so good.");
+                break;
+            case 19:
+                pline("Very doubtful.");
+                break;
+            default:
+                break;
+            }
+        if(!u.uconduct.literate++)
+            livelog_write_string(LL_CONDUCT,
+                    "became literate by reading the Magic 8-Ball");
         return 1;
     } else if (scroll->otyp == CANDY_BAR) {
         static const char *wrapper_msgs[] = {
