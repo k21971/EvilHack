@@ -453,11 +453,9 @@ struct obj *obj;
         You("vigorously shake The %s...", yname(obj));
         check_unpaid_usage(obj, TRUE);
 
-        /* Applying the 8-Ball gives a 1 in 1000 chance of granting a wish,
+        /* Applying the 8-Ball gives a 1 in 10000 chance of granting a wish,
          * but only if it's blessed. Otherwise, it will never grant one. */
-        chance = rn2(10000);
-        if (obj->blessed)
-            chance = (chance == 0) ? rn2(9999) : 9999;
+        chance = (obj->blessed) ? rn2(10000) : 9999;
 
         switch (chance) {
         case 0:
