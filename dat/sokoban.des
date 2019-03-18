@@ -532,7 +532,7 @@ OBJECT:('?', "scare monster"),$place[0],cursed
 IF [50%] {
   OBJECT:('(', "bag of holding"),$place[0]
 } ELSE {
-  OBJECT:('(', "oilskin sack"),$place[0]
+  OBJECT:('(', "magic marker"),$place[0]
 }
 ENGRAVING:$place[0],burn,"Elbereth"
 
@@ -658,7 +658,7 @@ OBJECT:('?', "scare monster"),$place[1],cursed
 IF [50%] {
   OBJECT:('(', "bag of holding"),$place[1]
 } ELSE {
-  OBJECT:('(', "oilskin sack"),$place[1]
+  OBJECT:('(', "magic marker"),$place[1]
 }
 ENGRAVING:$place[1],burn,"Elbereth"
 
