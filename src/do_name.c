@@ -1318,6 +1318,8 @@ const char *name;
             set_material(obj, SILVER);
             break;
         case ART_DIRGE:
+        case ART_FIRE_BRAND:
+        case ART_FROST_BRAND:
         case ART_SWORD_OF_BHELEU:
             set_material(obj, MITHRIL);
             break;
