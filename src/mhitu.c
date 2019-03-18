@@ -3234,13 +3234,13 @@ struct attack *mattk;
 
     if (uarmg) {
         switch(uarmg->otyp) {
-                case GLOVES: /* this really should be ART_DRAGONBANE, but this works for now */
+                case GLOVES:
                         if (!is_dragon(mtmp->data)) { return 1; }
-                        if (canseemon(mtmp) && is_dragon(mtmp->data)) {
+                        if (canseemon(mtmp) && is_dragon(mtmp->data) && uarmg->oartifact == ART_DRAGONBANE) {
                                 pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
                         mtmp->mhp -= rnd(6) + 2;
                         }
-                        if (mtmp->mhp < 1) {
+                        if (mtmp->mhp < 1 && uarmg->oartifact == ART_DRAGONBANE) {
                                 pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
                                 xkilled(mtmp, 1);
                                 return 2;
