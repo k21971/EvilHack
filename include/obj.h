@@ -207,7 +207,7 @@ struct obj {
      || otmp->oartifact == ART_ORCRIST || otmp->oartifact == ART_STING                         \
      || otmp->oartifact == ART_LIFESTEALER || otmp->oartifact == ART_DIRGE                     \
      || otmp->oartifact == ART_SWORD_OF_BHELEU || otmp->oartifact == ART_LONGBOW_OF_DIANA      \
-     || otmp->oartifact == ART_MASTER_KEY_OF_THIEVERY || otmp->oartifact == ART_RING_OF_P_HUL) \
+     || otmp->oartifact == ART_MASTER_KEY_OF_THIEVERY || otmp->oartifact == ART_RING_OF_P_HUL)
 
 #define is_wet_towel(o) ((o)->otyp == TOWEL && (o)->spe > 0)
 #define bimanual(otmp)                                            \
