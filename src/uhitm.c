@@ -9,6 +9,7 @@ STATIC_DCL boolean FDECL(known_hitum, (struct monst *, struct obj *, int *,
                                        int, int, struct attack *, int));
 STATIC_DCL boolean FDECL(theft_petrifies, (struct obj *));
 STATIC_DCL void FDECL(steal_it, (struct monst *, struct attack *));
+STATIC_DCL boolean FDECL(really_steal, (struct obj *, struct monst *));
 STATIC_DCL boolean FDECL(hitum_cleave, (struct monst *, struct attack *));
 STATIC_DCL boolean FDECL(hitum, (struct monst *, struct attack *));
 STATIC_DCL boolean FDECL(hmon_hitmon, (struct monst *, struct obj *, int,
@@ -1581,7 +1582,6 @@ struct monst *mdef;
 struct attack *mattk;
 {
     struct obj *otmp, *stealoid, **minvent_ptr;
-    long unwornmask;
 
     if (!mdef->minvent)
         return; /* nothing to take */
@@ -1616,42 +1616,60 @@ struct attack *mattk;
     while ((otmp = mdef->minvent) != 0) {
         if (!Upolyd)
             break; /* no longer have ability to steal */
-        /* take the object away from the monster */
-        obj_extract_self(otmp);
-        if ((unwornmask = otmp->owornmask) != 0L) {
-            mdef->misc_worn_check &= ~unwornmask;
-            if (otmp->owornmask & W_WEP)
-                setmnotwielded(mdef, otmp);
-            otmp->owornmask = 0L;
-            update_mon_intrinsics(mdef, otmp, FALSE, FALSE);
-            /* give monster a chance to wear other equipment on its next
-               move instead of waiting until it picks something up */
-            mdef->misc_worn_check |= I_SPECIAL;
-
-            if (otmp == stealoid) /* special message for final item */
-                pline("%s finishes taking off %s suit.", Monnam(mdef),
-                      mhis(mdef));
-        }
-        /* give the object to the character */
-        otmp = hold_another_object(otmp, "You snatched but dropped %s.",
-                                   doname(otmp), "You steal: ");
+        if (otmp == stealoid) /* special message for final item */
+            pline("%s finishes taking off %s suit.", Monnam(mdef),
+                    mhis(mdef));
+        if (really_steal(otmp, mdef)) /* hero got interrupted... */
+            break;
         /* might have dropped otmp, and it might have broken or left level */
         if (!otmp || otmp->where != OBJ_INVENT)
             continue;
-        if (theft_petrifies(otmp))
-            break; /* stop thieving even though hero survived */
-        /* more take-away handling, after theft message */
-        if (unwornmask & W_WEP) { /* stole wielded weapon */
-            possibly_unwield(mdef, FALSE);
-        } else if (unwornmask & W_ARMG) { /* stole worn gloves */
-            mselftouch(mdef, (const char *) 0, TRUE);
-            if (DEADMONSTER(mdef)) /* it's now a statue */
-                return;         /* can't continue stealing */
-        }
 
         if (!stealoid)
             break; /* only taking one item */
     }
+}
+
+/* Actual mechanics of stealing obj from mdef. This is now its own function
+ * because player-as-leprechaun can steal gold items, including gold weapons and
+ * armor, etc.
+ * Assumes caller handles whatever other messages are necessary; this takes care
+ * of the "You steal e - an imaginary widget" message.
+ * Returns TRUE if and only if the player has done something that should
+ * interrupt multi-stealing, such as stealing a cockatrice corpse and getting
+ * petrified, but then getting lifesaved.*/
+STATIC_OVL boolean
+really_steal(obj, mdef)
+struct obj * obj;
+struct monst * mdef;
+{
+    long unwornmask;
+    /* take the object away from the monster */
+    obj_extract_self(obj);
+    if ((unwornmask = obj->owornmask) != 0L) {
+        mdef->misc_worn_check &= ~unwornmask;
+        if (obj->owornmask & W_WEP)
+            setmnotwielded(mdef, obj);
+        obj->owornmask = 0L;
+        update_mon_intrinsics(mdef, obj, FALSE, FALSE);
+        /* give monster a chance to wear other equipment on its next
+           move instead of waiting until it picks something up */
+        mdef->misc_worn_check |= I_SPECIAL;
+    }
+    /* give the object to the character */
+    obj = hold_another_object(obj, "You snatched but dropped %s.",
+                               doname(obj), "You steal: ");
+    if (theft_petrifies(obj))
+        return TRUE; /* stop thieving even though hero survived */
+    /* more take-away handling, after theft message */
+    if (unwornmask & W_WEP) { /* stole wielded weapon */
+        possibly_unwield(mdef, FALSE);
+    } else if (unwornmask & W_ARMG) { /* stole worn gloves */
+        mselftouch(mdef, (const char *) 0, TRUE);
+        if (DEADMONSTER(mdef)) /* it's now a statue */
+            return TRUE;       /* can't continue stealing */
+    }
+    return FALSE;
 }
 
 int
@@ -1829,15 +1847,20 @@ int specialdmg; /* blessed and/or silver bonus against various things */
     case AD_SGLD:
         /* This you as a leprechaun, so steal
            real gold only, no lesser coins */
-        mongold = findgold(mdef->minvent);
+        mongold = findgold(mdef->minvent, FALSE);
         if (mongold) {
-            obj_extract_self(mongold);
-            if (merge_choice(invent, mongold) || inv_cnt(FALSE) < 52) {
-                addinv(mongold);
+            if (mongold->otyp != GOLD_PIECE) {
+                /* stole a gold non-coin object */
+                really_steal(mongold, mdef);
+            }
+            else if (merge_choice(invent, mongold) || inv_cnt(FALSE) < 52) {
                 Your("purse feels heavier.");
+                obj_extract_self(mongold);
+                addinv(mongold);
             } else {
                 You("grab %s's gold, but find no room in your knapsack.",
                     mon_nam(mdef));
+                obj_extract_self(mongold);
                 dropy(mongold);
             }
         }
