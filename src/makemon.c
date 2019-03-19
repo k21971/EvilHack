@@ -346,6 +346,27 @@ register struct monst *mtmp;
                 break;
             }
         }
+        else if (mm == PM_CROESUS) {
+            (void) mongets(mtmp, TWO_HANDED_SWORD);
+            struct obj* received = m_carrying(mtmp, TWO_HANDED_SWORD);
+            if (received)
+                received->material = GOLD;
+            int item = rn2(2) ? BANDED_MAIL : PLATE_MAIL;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
+            if (received)
+                received->material = GOLD;
+            int item2 = rn2(2) ? HELMET : DWARVISH_HELM;
+            (void) mongets(mtmp, item2);
+            received = m_carrying(mtmp, item2);
+            if (received)
+                received->material = GOLD;
+            int item3 = rn2(2) ? KICKING_BOOTS : DWARVISH_BOOTS;
+            (void) mongets(mtmp, item3);
+            received = m_carrying(mtmp, item3);
+            if (received)
+                received->material = GOLD;
+        }
         break;
 
     case S_ANGEL:
@@ -1434,8 +1455,6 @@ int mmflags;
             mitem = SPE_DIG;
     } else if (mndx == PM_GHOST && !(mmflags & MM_NONAME)) {
         mtmp = christen_monst(mtmp, rndghostname());
-    } else if (mndx == PM_CROESUS) {
-        mitem = TWO_HANDED_SWORD;
     } else if (mndx == urole.neminum) {
         mitem = BELL_OF_OPENING;
     } else if (mndx == PM_PESTILENCE) {
