@@ -2100,7 +2100,7 @@ int otyp;
         if (is_prince(mtmp->data) || is_lord(mtmp->data)) {
             if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1)
                 otmp->spe = rn2(3) + 1;
-            else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 0)
+            else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 1)
                 otmp->spe = rn2(4) + 1;
         }
 
