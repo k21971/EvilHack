@@ -3002,8 +3002,7 @@ static const struct icp leather_materials[] = {
 static const struct icp dwarvish_materials[] = {
     {80, IRON},
     {15, MITHRIL},
-    { 2, COPPER},
-    { 1, SILVER},
+    { 3, SILVER},
     { 1, GOLD},
     { 1, PLATINUM}
 };
@@ -3019,14 +3018,22 @@ static const struct icp elven_materials[] = {
     { 2, GOLD}
 };
 
+/* for objects of orcish make - no mithril! */
+static const struct icp orcish_materials[] = {
+    {60, 0}, /* use base material */
+    {10, IRON},
+    {15, BONE},
+    {15, LEATHER},
+};
+
 /* Reflectable items - for the shield of reflection; anything that can hold a
  * polish. Amulets also arbitrarily use this list. */
 static const struct icp shiny_materials[] = {
     {65, SILVER},
     {20, GOLD},
     { 5, MITHRIL},
-    { 5, COPPER},
-    { 3, METAL}, /* aluminum, or similar */
+    { 4, COPPER},
+    { 4, METAL}, /* aluminum, or similar */
     { 2, PLATINUM}
 };
 
@@ -3056,21 +3063,26 @@ static const struct icp horn_materials[] = {
  * a relatively clean solution */
 static const struct icp elvenhelm_materials[] = {
     {70, LEATHER},
-    {20, COPPER},
-    {10, MITHRIL}
+    {15, MITHRIL},
+    {15, COPPER}
+};
+
+static const struct icp dwarvish_weapon_materials[] = {
+    {70, IRON},
+    {15, MITHRIL},
+    {15, GEMSTONE} /* gemstone is very hard and very sharp */
 };
 
 static const struct icp bow_materials[] = {
     /* assumes all bows will be wood by default, fairly safe assumption */
     {75, WOOD},
     { 7, IRON},
-    { 5, MITHRIL},
-    { 5, COPPER},
-    { 5, BONE},
+    { 7, BONE},
+    { 6, MITHRIL},
+    { 2, COPPER},
     { 2, SILVER},
     { 1, GOLD}
 };
-/* TODO: Orcish? */
 
 /* Return the appropriate above list for a given object, or NULL if there isn't
  * an appropriate list. */
@@ -3103,18 +3115,21 @@ struct obj* obj;
             return shiny_materials;
         case BOW:
         case ELVEN_BOW:
-        case ORCISH_BOW:
         case YUMI:
         case BOOMERANG: /* wooden base, similar shape */
             return bow_materials;
         case ELVEN_HELM:
             return elvenhelm_materials;
+        case DWARVISH_SPEAR:
+        case DWARVISH_SHORT_SWORD:
+        case DWARVISH_MATTOCK:
+            return dwarvish_weapon_materials;
         case CHEST:
         case LARGE_BOX:
             return wood_materials;
-        case SKELETON_KEY:
         case LOCK_PICK:
         case TIN_OPENER:
+        case STETHOSCOPE:
             return metal_materials;
         case BELL:
         case BUGLE:
@@ -3127,6 +3142,7 @@ struct obj* obj;
         case HARP:
         case MAGIC_HARP:
             return resonant_materials;
+        case SKELETON_KEY:
         case TOOLED_HORN:
         case FIRE_HORN:
         case FROST_HORN:
@@ -3143,6 +3159,9 @@ struct obj* obj;
     }
     else if (is_dwarvish_obj(obj) && default_material != CLOTH) {
         return dwarvish_materials;
+    }
+    else if (is_orcish_obj(obj) && default_material != CLOTH) {
+        return orcish_materials;
     }
     else if (obj->oclass == AMULET_CLASS && otyp != AMULET_OF_YENDOR
              && otyp != FAKE_AMULET_OF_YENDOR) {
@@ -3254,7 +3273,8 @@ int material;
         otmp->oeroded = 0;
     if ((otmp->oeroded2) && !is_corrodeable(otmp) && !is_rottable(otmp))
         otmp->oeroded2 = 0;
-    if (otmp->oerodeproof && !is_damageable(otmp) && (otmp->material != GLASS))
+    if (otmp->oerodeproof && !is_damageable(otmp)
+        && (otmp->material != GLASS) && (otmp->material != GEMSTONE))
         otmp->oerodeproof = FALSE;
 }
 
