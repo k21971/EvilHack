@@ -2095,12 +2095,13 @@ int otyp;
             otmp->cursed = TRUE;
         }
 
-        /* leaders don't tolerate inferior quality battle gear */
-        if (is_prince(mtmp->data)) {
+        /* leaders don't tolerate inferior quality battle gear
+         * in fact, they don't settle for non-enchanted gear period */
+        if (is_prince(mtmp->data) || is_lord(mtmp->data)) {
             if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1)
-                otmp->spe = 1;
+                otmp->spe = rn2(3) + 1;
             else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 0)
-                otmp->spe = 0;
+                otmp->spe = rn2(4) + 1;
         }
 
         spe = otmp->spe;
