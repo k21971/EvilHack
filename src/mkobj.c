@@ -1542,7 +1542,7 @@ const int matac[] = {
      2,  // CLOTH
      3,  // LEATHER
      4,  // WOOD
-     4,  // BONE
+     5,  // BONE
      10, // DRAGON_HIDE
      5,  // IRON - de facto baseline for metal armor
      5,  // METAL
@@ -2986,8 +2986,7 @@ static const struct icp wood_materials[] = {
 /* for objects which are normally cloth */
 static const struct icp cloth_materials[] = {
     {80, CLOTH},
-    {10, LEATHER},
-    { 8, PAPER},
+    {18, LEATHER},
     { 2, DRAGON_HIDE}
 };
 
@@ -3020,10 +3019,9 @@ static const struct icp elven_materials[] = {
 
 /* for objects of orcish make - no mithril! */
 static const struct icp orcish_materials[] = {
-    {60, 0}, /* use base material */
-    {10, IRON},
-    {15, BONE},
-    {15, LEATHER},
+    {70, IRON},
+    {20, BONE},
+    {10, MINERAL}
 };
 
 /* Reflectable items - for the shield of reflection; anything that can hold a
