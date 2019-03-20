@@ -993,6 +993,10 @@ int spellnum;
             && mtmp->mpeaceful) {
             return TRUE;
         }
+        /* Don't try to destroy armor if none is being worn */
+        if (!wearing_armor() && spellnum == MGC_DESTRY_ARMR) {
+            return TRUE;
+        }
      } else if (adtyp == AD_CLRC) {
       	/* healing when already healed */
       	if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
@@ -1105,6 +1109,10 @@ int spellnum;
         }
         if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT)
             && mtmp->mpeaceful) {
+            return TRUE;
+        }
+        /* Don't try to destroy armor if none is being worn */
+        if (!wearing_armor() && spellnum == MGC_DESTRY_ARMR) {
             return TRUE;
         }
     } else if (adtyp == AD_CLRC) {
@@ -1768,7 +1776,7 @@ int spellnum;
             impossible("bolt spell with no mtmp");
             return;
         }
-        if (canseemon(mtmp)) {
+        if (yours || canseemon(mtmp)) {
             You("blast %s with %s!", mon_nam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "cold");
             explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
             d((mtmp->m_lev / 5) + 1, 8), WAND_CLASS, 1);
@@ -1784,7 +1792,7 @@ int spellnum;
        	    shieldeff(mtmp->mx, mtmp->my);
        	    dmg = (dmg + 1) / 2;
        	}
-       	if (canseemon(mtmp))
+       	if (yours || canseemon(mtmp))
        	    pline("%s winces%s", Monnam(mtmp), (dmg <= 5) ? "." : "!");
        	break;
     default:
@@ -2040,31 +2048,38 @@ int spellnum;
         }
         break;
     case CLC_VULN_YOU:
-	dmg = rnd(4);
-	pline("A %s film oozes over its skin!", Blind ? "slimy" : vulntext[dmg]);
-	switch (dmg) {
-	    case 1:
-		if (vulnerable_to(mtmp, AD_FIRE)) return;
-		    incr_itimeout(&HVulnerable_fire, rnd(100)+150);
-		    pline("%s is more inflammable.", Monnam(mtmp));
-		break;
-	    case 2:
-		if (vulnerable_to(mtmp, AD_COLD)) return;
-		    incr_itimeout(&HVulnerable_cold, rnd(100)+150);
-		    pline("%s is extremely chilly.", Monnam(mtmp));
-		break;
-	    case 3:
-		if (vulnerable_to(mtmp, AD_ELEC)) return;
-		    incr_itimeout(&HVulnerable_elec, rnd(100)+150);
-		    pline("%s is overly conductive.", Monnam(mtmp));
-		break;
-	    case 4:
-		if (vulnerable_to(mtmp, AD_ACID)) return;
-		    incr_itimeout(&HVulnerable_acid, rnd(100)+150);
-		    pline("%s is easily corrodable.", Monnam(mtmp));
-		break;
-	    default:
-		break;
+        if (!mtmp || mtmp->mhp < 1) {
+            impossible("vulnerable spell with no mtmp");
+            return;
+        }
+
+        if (yours) {
+	    dmg = rnd(4);
+	    pline("A %s film oozes over its skin!", Blind ? "slimy" : vulntext[dmg]);
+	    switch (dmg) {
+	        case 1:
+		    if (vulnerable_to(mtmp, AD_FIRE)) return;
+		        incr_itimeout(&HVulnerable_fire, rnd(100)+150);
+		        pline("%s is more inflammable.", Monnam(mtmp));
+		    break;
+	        case 2:
+		    if (vulnerable_to(mtmp, AD_COLD)) return;
+		        incr_itimeout(&HVulnerable_cold, rnd(100)+150);
+		        pline("%s is extremely chilly.", Monnam(mtmp));
+		    break;
+	        case 3:
+		    if (vulnerable_to(mtmp, AD_ELEC)) return;
+		        incr_itimeout(&HVulnerable_elec, rnd(100)+150);
+		        pline("%s is overly conductive.", Monnam(mtmp));
+		    break;
+	        case 4:
+		    if (vulnerable_to(mtmp, AD_ACID)) return;
+		        incr_itimeout(&HVulnerable_acid, rnd(100)+150);
+		        pline("%s is easily corrodable.", Monnam(mtmp));
+		    break;
+	        default:
+		    break;
+                }
 	}
 	break;
     case CLC_OPEN_WOUNDS:
