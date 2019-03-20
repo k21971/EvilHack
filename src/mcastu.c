@@ -2053,7 +2053,7 @@ int spellnum;
             return;
         }
 
-        if (yours) {
+        if (yours || canseemon(mtmp)) {
 	    dmg = rnd(4);
 	    pline("A %s film oozes over its skin!", Blind ? "slimy" : vulntext[dmg]);
 	    switch (dmg) {
@@ -2079,7 +2079,7 @@ int spellnum;
 		    break;
 	        default:
 		    break;
-                }
+            }
 	}
 	break;
     case CLC_OPEN_WOUNDS:

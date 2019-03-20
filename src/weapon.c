@@ -570,7 +570,7 @@ struct obj *otmp;
 
     if (((strongmonst(mtmp->data) && (mtmp->misc_worn_check & W_ARMS) == 0)
 	    || !objects[pwep[i]].oc_bimanual) &&
-        (wep->material != SILVER
+        (objects[pwep[i]].oc_material != SILVER
  	    || !mon_hates_material(mtmp, otmp->material)))
     {
         for (i = 0; i < SIZE(pwep); i++)
