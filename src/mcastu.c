@@ -1688,7 +1688,7 @@ int spellnum;
            		obfree(otmp, (struct obj *)0);
         	  }
        	    else if (yours || canseemon(mtmp))
-       	        pline("%s looks itchy.", Monnam(mtmp));
+       	        pline("%s skin looks flaky.", s_suffix(Monnam(mtmp)));
         }
        	dmg = 0;
        	break;
