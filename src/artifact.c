@@ -1254,7 +1254,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             pline_The("fiery blade %s %s%c",
                       !spec_dbon_applies
                           ? "hits"
-                          : (mdef->data == &mons[PM_WATER_ELEMENTAL])
+                          : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                             || mdef->data == &mons[PM_ICE_VORTEX])
                                 ? "vaporizes part of"
                                 : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
@@ -1262,10 +1263,23 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             pline_The("flaming spear %s %s%c",
                       !spec_dbon_applies
                           ? "hits"
-                          : (mdef->data == &mons[PM_WATER_ELEMENTAL])
+                          : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                             || mdef->data == &mons[PM_ICE_VORTEX])
                                 ? "vaporizes part of"
                                 : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
+            if (completelyburns(mdef->data) || is_wooden(mdef->data)
+                || mdef->data == &mons[PM_GREEN_SLIME]) {
+                if (youdefend) {
+                    You("ignite and turn to ash!");
+                    losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
+                           NO_KILLER_PREFIX);
+                }
+                else {
+                    pline("%s ignites and turns to ash!", Monnam(mdef));
+                    mondead(mdef);
+                }
+            }
         }
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
@@ -1282,7 +1296,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             pline_The("ice-cold blade %s %s%c",
                       !spec_dbon_applies
                           ? "hits"
-                          : (mdef->data == &mons[PM_WATER_ELEMENTAL] || mdef->data == &mons[PM_WATER_TROLL])
+                          : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                             || mdef->data == &mons[PM_WATER_TROLL])
                                 ? "freezes part of"
                                 : "freezes",
                       hittee,  !spec_dbon_applies ? '.' : '!');
@@ -1324,7 +1339,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             pline_The("acidic blade %s %s%c",
                       !spec_dbon_applies
                           ? "hits"
-                          : (mdef->data == &mons[PM_IRON_GOLEM] || mdef->data == &mons[PM_IRON_PIERCER])
+                          : (mdef->data == &mons[PM_IRON_GOLEM]
+                             || mdef->data == &mons[PM_IRON_PIERCER])
                                 ? "eats away part of"
                                 : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
