@@ -189,4 +189,6 @@ struct monst {
 #define is_obj_mappear(mon,otyp) ((mon)->m_ap_type == M_AP_OBJECT \
                                   && (mon)->mappearance == (otyp))
 
+#define helpless(mon) ((mon)->msleeping || !(mon)->mcanmove)
+
 #endif /* MONST_H */
