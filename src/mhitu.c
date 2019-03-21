@@ -28,11 +28,11 @@ static const char *const mwep_pierce[] = {
 };
 
 static const char *const mwep_slash[] = {
-    "strike", "hack", "cut", "wound", "lacerate", "hit"
+    "strike", "hack", "cut", "lacerate", "hit"
 };
 
 static const char *const mwep_whack[] = {
-    "smashe", "whack", "smack", "pound", "bashe", "hit"
+    "smashe", "whack", "pound", "bashe", "hit"
 };
 
 static const char *const mwep_none[] = {
@@ -226,7 +226,7 @@ struct obj *otemp;
     } else if (is_slash(MON_WEP(mtmp))) {
     if (flags.verbose && !Blind && mon_visible(mtmp)) {
         pline("%s %s %s%s %s.", Monnam(mtmp),
-              rn2(2) ? "slashes" : "slices",
+              rn2(2) ? "slashes" : "swings",
               (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
         }
     } else if (is_whack(MON_WEP(mtmp))) {
