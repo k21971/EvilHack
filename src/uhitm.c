@@ -2767,6 +2767,9 @@ register struct monst *mon;
              */
             if ((youmonst.data->mlet == S_KOBOLD
                  || youmonst.data->mlet == S_ORC
+                 || youmonst.data->mlet == S_HUMAN
+                 || youmonst.data->mlet == S_GIANT
+                 || youmonst.data->mlet == S_VAMPIRE
                  || youmonst.data->mlet == S_GNOME) && !weapon_used)
                 goto use_weapon;
             sum[i] = castum(mon, mattk);
