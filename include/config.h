@@ -551,6 +551,7 @@ typedef unsigned char uchar;
 /* #define EDIT_GETLIN */
 
 #define WHEREIS_FILE "whereis/%n.whereis" /* Write out player's current location to player.whereis */
+#define WISH_TRACKER /* log all wishes made */
 
 #define DUMPLOG   /* End-of-game dump logs */
 #ifdef DUMPLOG

@@ -5472,6 +5472,10 @@ retry:
                        "wished for \"%s\"", bufcpy);
 
     if (otmp != &zeroobj) {
+#ifdef WISH_TRACKER
+    /* write it out to our universal wishtracker file */
+    trackwish(buf);
+#endif
         const char
             *verb = ((Is_airlevel(&u.uz) || u.uinwater) ? "slip" : "drop"),
             *oops_msg = (u.uswallow

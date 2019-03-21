@@ -720,6 +720,38 @@ int fd;
 }
 #endif /* ?HOLD_LOCKFILE_OPEN */
 
+#ifdef WISH_TRACKER
+const char* wish_tracker_file =
+# ifdef UNIX
+		"wishtracker";
+# else
+#  if defined(MAC) || defined(__BEOS__)
+		"Wish Tracker";
+#  else
+		"wishes.txt";
+#  endif
+# endif
+
+void
+trackwish(wishstring)
+char* wishstring;
+{
+    char bigbuf[512];
+    FILE* fp;
+    time_t now = getnow();
+
+    fp = fopen_datafile(wish_tracker_file, "a+", LEVELPREFIX);
+    if (fp) {
+	Sprintf(bigbuf,"%s wished for %s (%ld%s wish, on T:%ld on %08ld at %06ld hrs)\n",
+			plname, wishstring, u.uconduct.wishes,
+			u.uconduct.wishes == 1 ? "st" : u.uconduct.wishes == 2 ? "nd" :
+			u.uconduct.wishes == 3 ? "rd" : "th", moves, yyyymmdd(now), hhmmss(now));
+	fwrite(bigbuf, strlen(bigbuf), 1, fp);
+	fclose(fp);
+    }
+}
+#endif
+
 #ifdef WHEREIS_FILE
 /** Set the filename for the whereis file. */
 void
