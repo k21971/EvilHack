@@ -141,6 +141,8 @@ struct obj *obj;
                     verbalize("Thank you for freeing me! In return, I will grant you a wish!");
                     mmake_wish(mon);
                     if (vis)
+                        pline("%s makes a wish!", Monnam(mon));
+                    if (vis)
                         pline("%s vanishes.", Monnam(mtmp));
                     mongone(mtmp);
                 } else if (rn2(2)) {
