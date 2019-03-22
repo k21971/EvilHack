@@ -118,6 +118,7 @@ boolean check_if_better;
  	      /* useful amulets */
  	      otmp->otyp == AMULET_OF_LIFE_SAVING ||
  	      otmp->otyp == AMULET_OF_REFLECTION ||
+              otmp->otyp == AMULET_OF_FLYING ||
 	      /* bags */
 	      otmp->otyp == BAG_OF_HOLDING ||
 	      otmp->otyp == OILSKIN_SACK ||
@@ -128,6 +129,7 @@ boolean check_if_better;
               otmp->otyp == SCR_REMOVE_CURSE ||
               otmp->otyp == SCR_CHARGING ||
               otmp->otyp == SCR_FIRE ||
+              otmp->otyp == WAN_WISHING ||
  	      otmp->otyp == WAN_DEATH ||
  	      otmp->otyp == WAN_DIGGING ||
  	      otmp->otyp == WAN_FIRE ||
@@ -146,6 +148,7 @@ boolean check_if_better;
  	      otmp->otyp == POT_CONFUSION ||
               otmp->otyp == POT_HALLUCINATION ||
  	      otmp->otyp == POT_ACID ||
+              otmp->otyp == POT_POLYMORPH ||
               otmp->otyp == RIN_INVISIBILITY ||
               otmp->otyp == RIN_FIRE_RESISTANCE ||
               otmp->otyp == RIN_COLD_RESISTANCE ||
@@ -162,6 +165,7 @@ boolean check_if_better;
  	      otmp->otyp == FIRE_HORN ||
               otmp->otyp == MAGIC_HARP ||
               otmp->otyp == DRUM_OF_EARTHQUAKE ||
+              otmp->otyp == FIGURINE ||
  	      otmp->otyp == UNICORN_HORN));
 
     if (can_use)
