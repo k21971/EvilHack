@@ -1526,8 +1526,9 @@ register struct attack *mattk;
         }
         /*FALLTHRU*/
     case AD_SITM: /* for now these are the same */
-    case AD_SEDU:
-        if (is_animal(mtmp->data)) {
+    case AD_SEDU: {
+        int is_robber = (is_animal(mtmp->data) || is_rogue(mtmp->data));
+        if (is_robber) {
             hitmsg(mtmp, mattk);
             if (mtmp->mcan)
                 break;
@@ -1565,9 +1566,9 @@ register struct attack *mattk;
         case 0:
             break;
         default:
-            if (!is_animal(mtmp->data) && !tele_restrict(mtmp))
+            if (!is_robber && !tele_restrict(mtmp))
                 (void) rloc(mtmp, TRUE);
-            if (is_animal(mtmp->data) && *buf) {
+            if (is_robber && *buf) {
                 if (canseemon(mtmp))
                     pline("%s tries to %s away with %s.", Monnam(mtmp),
                           locomotion(mtmp->data, "run"), buf);
@@ -1576,7 +1577,7 @@ register struct attack *mattk;
             return 3;
         }
         break;
-
+    }
     case AD_SAMU:
         hitmsg(mtmp, mattk);
         /* when the Wizard or quest nemesis hits, there's a 1/20 chance

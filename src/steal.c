@@ -254,7 +254,7 @@ boolean unchain_ball; /* whether to unpunish or just unwield */
 /* Returns 1 when something was stolen (or at least, when N should flee now)
  * Returns -1 if the monster died in the attempt
  * Avoid stealing the object stealoid
- * Nymphs and monkeys won't steal coins
+ * Nymphs, rogues and monkeys won't steal coins
  */
 int
 steal(mtmp, objnambuf)
@@ -263,7 +263,7 @@ char *objnambuf;
 {
     struct obj *otmp;
     int tmp, could_petrify, armordelay, olddelay, named = 0, retrycnt = 0;
-    boolean monkey_business, /* true iff an animal is doing the thievery */
+    boolean monkey_business, /* true iff an animal or rogue is doing the thievery */
         was_doffing;
 
     if (objnambuf)
@@ -289,7 +289,7 @@ char *objnambuf;
         return 1; /* let her flee */
     }
 
-    monkey_business = is_animal(mtmp->data);
+    monkey_business = (is_animal(mtmp->data) || is_rogue(mtmp->data));
     if (monkey_business || uarmg) {
         ; /* skip ring special cases */
     } else if (Adornment & LEFT_RING) {
@@ -344,7 +344,7 @@ gotobj:
             goto retry;
         goto cant_take;
     }
-    /* animals can't overcome curse stickiness nor unlock chains */
+    /* animals and rogues can't overcome curse stickiness nor unlock chains */
     if (monkey_business) {
         boolean ostuck;
         /* is the player prevented from voluntarily giving up this item?
@@ -402,7 +402,7 @@ gotobj:
             if (olddelay > 0 && olddelay < armordelay)
                 armordelay = olddelay;
             if (monkey_business) {
-                /* animals usually don't have enough patience
+                /* animals and rogues usually don't have enough patience
                    to take off items which require extra time */
                 if (armordelay >= 1 && !olddelay && rn2(10))
                     goto cant_take;
