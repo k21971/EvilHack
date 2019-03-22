@@ -517,6 +517,8 @@ register struct monst *mtmp;
     case S_OGRE:
         if (!rn2(mm == PM_OGRE_KING ? 3 : mm == PM_OGRE_LORD ? 6 : 12))
             (void) mongets(mtmp, BATTLE_AXE);
+        if (!rn2(mm == PM_OGRE_QUEEN ? 3 : mm == PM_OGRE_LADY ? 6 : 12))
+            (void) mongets(mtmp, BATTLE_AXE);
         else
             (void) mongets(mtmp, CLUB);
         break;

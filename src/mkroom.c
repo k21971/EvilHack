@@ -246,6 +246,7 @@ int x,y;
 {
     int i = rnd(level_difficulty());
     int pm = (i > 9) ? PM_OGRE_KING
+        : (i > 9) ? PM_OGRE_QUEEN
         : (i > 5) ? PM_ELVEN_KING
         : (i > 5) ? PM_ELVEN_QUEEN
         : (i > 2) ? PM_DWARF_KING

@@ -1081,6 +1081,7 @@ static const short grownups[][2] = {
     { PM_CAVE_SPIDER, PM_GIANT_SPIDER },
     { PM_OGRE, PM_OGRE_LORD },
     { PM_OGRE_LORD, PM_OGRE_KING },
+    { PM_OGRE_LADY, PM_OGRE_QUEEN },
     { PM_ELF, PM_ELF_LORD },
     { PM_WOODLAND_ELF, PM_ELF_LORD },
     { PM_GREEN_ELF, PM_ELF_LADY },
