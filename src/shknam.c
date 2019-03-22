@@ -664,7 +664,7 @@ int shp_indx;
 	/* armors and weaponry are similar... */
 	case ARMOR_CLASS:
 	case WEAPON_CLASS:
-		switch (rn2(3))
+		switch (rn2(4))
 		{
 			default:
 			case 0:
@@ -676,6 +676,9 @@ int shp_indx;
 			case 2:
 				srace = PM_DWARF_LORD + rn2(3);
 				break;
+                        case 3:
+                                srace = PM_DWARF_LADY + rn2(3);
+                                break;
 		}
 		break;
 	case FOOD_CLASS:

@@ -2193,11 +2193,13 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 		case PM_GREEN_ELF:
 		case PM_GREY_ELF:
 		case PM_ELF_LORD:
+                case PM_ELF_LADY:
 			if (Race_if(PM_ORC)) { tmp *= 2L; }
 			if (Race_if(PM_DWARF)) { tmp += tmp / 3L; }	/* "lawn ornament." */
 			break;
 		case PM_DWARF:
                 case PM_DWARF_LORD:
+                case PM_DWARF_LADY:
 			if (Race_if(PM_ORC)) { tmp *= 2L; }
 			if (Race_if(PM_ELF)) { tmp += tmp / 3L; }   /* "pointy-eared tree hugger." */
                         if (Race_if(PM_GIANT)) { tmp += tmp / 2L; } /* "big, dumb and smelly." */
@@ -2211,6 +2213,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 			break;
 		case PM_GNOME:
 		case PM_GNOME_LORD:
+                case PM_GNOME_LADY:
 			/* Gnomes are crafty.  They don't really have racial animosities, but
 			* it's going to be a lot harder to get a good deal out of a gnome unless
 			* you're remarkably shrewd yourself. */
@@ -2477,11 +2480,13 @@ register struct monst *shkp;
 	case PM_GREEN_ELF:
 	case PM_GREY_ELF:
 	case PM_ELF_LORD:
+        case PM_ELF_LADY:
 		if (Race_if(PM_ORC)) { tmp /= 2L; }
 		if (Race_if(PM_DWARF)) { tmp -= tmp / 3L; }	/* "lawn ornament." */
 		break;
 	case PM_DWARF:
         case PM_DWARF_LORD:
+        case PM_DWARF_LADY:
 		if (Race_if(PM_ORC)) { tmp /= 2L; }
 		if (Race_if(PM_ELF)) { tmp -= tmp / 3L; }   /* "pointy-eared tree hugger." */
                 if (Race_if(PM_GIANT)) { tmp += tmp / 2L; } /* "big, dumb and smelly." */
@@ -2494,6 +2499,7 @@ register struct monst *shkp;
 		break;
 	case PM_GNOME:
         case PM_GNOME_LORD:
+        case PM_GNOME_LADY:
 		/* Gnomes are crafty.  They don't really have racial animosities, but
 		 * it's going to be a lot harder to get a good deal out of a gnome unless
 		 * you're remarkably shrewd yourself. */

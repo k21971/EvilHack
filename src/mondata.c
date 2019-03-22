@@ -847,7 +847,7 @@ const char *in_str;
             { "master of assassin", PM_MASTER_ASSASSIN },
             /* Outdated names */
             { "invisible stalker", PM_STALKER },
-            { "high-elf", PM_ELVENKING }, /* PM_HIGH_ELF is obsolete */
+            { "high-elf", PM_ELVEN_KING }, /* PM_HIGH_ELF is obsolete */
             /* other misspellings or incorrect words */
             { "wood-elf", PM_WOODLAND_ELF },
             { "wood elf", PM_WOODLAND_ELF },
@@ -1068,8 +1068,10 @@ static const short grownups[][2] = {
     { PM_LARGE_KOBOLD, PM_KOBOLD_LORD },
     { PM_GNOME, PM_GNOME_LORD },
     { PM_GNOME_LORD, PM_GNOME_KING },
+    { PM_GNOME_LADY, PM_GNOME_QUEEN },
     { PM_DWARF, PM_DWARF_LORD },
     { PM_DWARF_LORD, PM_DWARF_KING },
+    { PM_DWARF_LADY, PM_DWARF_QUEEN },
     { PM_MIND_FLAYER, PM_MASTER_MIND_FLAYER },
     { PM_ORC, PM_ORC_CAPTAIN },
     { PM_HILL_ORC, PM_ORC_CAPTAIN },
@@ -1081,9 +1083,10 @@ static const short grownups[][2] = {
     { PM_OGRE_LORD, PM_OGRE_KING },
     { PM_ELF, PM_ELF_LORD },
     { PM_WOODLAND_ELF, PM_ELF_LORD },
-    { PM_GREEN_ELF, PM_ELF_LORD },
+    { PM_GREEN_ELF, PM_ELF_LADY },
     { PM_GREY_ELF, PM_ELF_LORD },
-    { PM_ELF_LORD, PM_ELVENKING },
+    { PM_ELF_LORD, PM_ELVEN_KING },
+    { PM_ELF_LADY, PM_ELVEN_QUEEN },
     { PM_LICH, PM_DEMILICH },
     { PM_DEMILICH, PM_MASTER_LICH },
     { PM_MASTER_LICH, PM_ARCH_LICH },

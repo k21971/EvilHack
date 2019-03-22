@@ -224,7 +224,8 @@ register struct monst *mtmp;
             if (rn2(2))
                 (void) mongets(mtmp,
 		 (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELF_LORD
-                             || mm == PM_ELVEN_WIZARD || mm == PM_ELVENKING)) ?
+                             || mm == PM_ELF_LADY || mm == PM_ELVEN_WIZARD
+                             || mm == PM_ELVEN_KING || mm == PM_ELVEN_QUEEN)) ?
 			     ELVEN_HELM : ELVEN_CLOAK);
             if (rn2(2) && !mm == PM_ELVEN_WIZARD) {
                 struct obj* mail = m_carrying(mtmp, ELVEN_CHAIN_MAIL);
@@ -262,7 +263,7 @@ register struct monst *mtmp;
                 }
                 break;
             }
-            if (mm == PM_ELVENKING) {
+            if (mm == PM_ELVEN_KING || mm == PM_ELVEN_QUEEN) {
                 if (rn2(3) || (in_mklev && Is_earthlevel(&u.uz)))
                     (void) mongets(mtmp, PICK_AXE);
                 if (!rn2(50))
@@ -432,6 +433,8 @@ register struct monst *mtmp;
                 if (!rn2(3) && mm != PM_DWARF) {
                     (void) mongets(mtmp, DWARVISH_CHAIN_MAIL);
                     if ((ptr == &mons[PM_DWARF_LORD] && !rn2(4))
+                        || (ptr == &mons[PM_DWARF_LADY] && !rn2(4))
+                        || (ptr == &mons[PM_DWARF_QUEEN] && !rn2(2))
                         || (ptr == &mons[PM_DWARF_KING] && !rn2(2))) {
                         struct obj* mail = m_carrying(mtmp, DWARVISH_CHAIN_MAIL);
                         if (mail)

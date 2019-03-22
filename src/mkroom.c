@@ -246,16 +246,19 @@ int x,y;
 {
     int i = rnd(level_difficulty());
     int pm = (i > 9) ? PM_OGRE_KING
-        : (i > 5) ? PM_ELVENKING
+        : (i > 5) ? PM_ELVEN_KING
+        : (i > 5) ? PM_ELVEN_QUEEN
         : (i > 2) ? PM_DWARF_KING
-        : PM_GNOME_KING;
+        : (i > 2) ? PM_DWARF_QUEEN
+        : (i > 2) ? PM_GNOME_KING
+        : PM_GNOME_QUEEN;
     struct monst *mon = makemon(&mons[pm], x, y, NO_MM_FLAGS);
 
     if (mon) {
         mon->msleeping = 1;
         mon->mpeaceful = 0;
         set_malign(mon);
-        /* Give him a sceptre to pound in judgment */
+        /* Give him/her a sceptre to pound in judgment */
         (void) mongets(mon, MACE);
     }
 }

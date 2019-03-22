@@ -30,7 +30,7 @@ MONSTER: ('G', "gnome"), random
 MONSTER: ('G', "gnome"), random
 MONSTER: ('G', "gnome"), random
 MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
+MONSTER: ('G', "gnome lady"), random
 MONSTER: ('G', "gnome lord"), random
 MONSTER: ('h', "dwarf"), random
 MONSTER: ('h', "dwarf"), random
@@ -587,7 +587,7 @@ MONSTER: ('G', "gnome"), random
 MONSTER: ('G', "gnome"), random
 MONSTER: ('G', "gnome"), random
 MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome lord"), random
+MONSTER: ('G', "gnome lady"), random
 MONSTER: ('G', "gnome lord"), random
 MONSTER: ('h', "dwarf"), random
 MONSTER: ('h', "dwarf"), random
@@ -699,7 +699,7 @@ MONSTER: ('G', "gnome"), random
 MONSTER: ('G', "gnome"), random
 MONSTER: ('G', "gnome"), random
 MONSTER: ('G', "gnome"), (14,6)
-MONSTER: ('G', "gnome lord"), (14,5)
+MONSTER: ('G', "gnome lady"), (14,5)
 MONSTER: ('G', "gnome"), (27,8)
 MONSTER: ('G', "gnome lord"), random
 MONSTER: ('G', "gnome lord"), random
@@ -810,7 +810,7 @@ MONSTER: ('@', "watchman"), random, peaceful
 MONSTER: ('@', "watch captain"), random, peaceful
 MONSTER:('G',"gnome"),random
 MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
+MONSTER:('G',"gnome lady"),random
 MONSTER:('G',"gnome lord"),random
 MONSTER:('Y',"monkey"),random
 MONSTER:('Y',"monkey"),random
@@ -932,8 +932,8 @@ TRAP:random,random
 TRAP:random,random
 # Random monsters
 MONSTER:('G',"gnome king"),random
-MONSTER:('G',"gnome lord"),random
-MONSTER:('G',"gnome lord"),random
+MONSTER:('G',"gnome queen"),random
+MONSTER:('G',"gnome lady"),random
 MONSTER:('G',"gnome lord"),random
 MONSTER:('G',"gnomish wizard"),random
 MONSTER:('G',"gnomish wizard"),random
@@ -1081,8 +1081,8 @@ TRAP:random,random
 TRAP:random,random
 # Random monsters.
 MONSTER:('G',"gnome king"),random
-MONSTER:('G',"gnome lord"),random
-MONSTER:('G',"gnome lord"),random
+MONSTER:('G',"gnome queen"),random
+MONSTER:('G',"gnome lady"),random
 MONSTER:('G',"gnome lord"),random
 MONSTER:('G',"gnomish wizard"),random
 MONSTER:('G',"gnomish wizard"),random
