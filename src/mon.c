@@ -1871,10 +1871,10 @@ struct monst *magr, /* monster that is currently deciding where to move */
      	return ALLOW_M | ALLOW_TM;
 
     /* Nazgul vs. hobbits */
-    if (ma == &mons[PM_NAZGUL] && md == &mons[PM_HOBBIT])
+    if (ma == &mons[PM_NAZGUL] && is_hobbit(md))
 	return ALLOW_M | ALLOW_TM;
     /* and vice versa */
-    if (md == &mons[PM_NAZGUL] && ma == &mons[PM_HOBBIT])
+    if (md == &mons[PM_NAZGUL] && is_hobbit(ma))
 	return ALLOW_M | ALLOW_TM;
 
     /* Pseudodragons *really* like to hunt for rodents */

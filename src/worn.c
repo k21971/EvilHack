@@ -1139,7 +1139,7 @@ struct obj *obj;
 
     /* Acceptable Exceptions: */
     /* Allow hobbits to wear elven armor - LoTR */
-    if (ptr == &mons[PM_HOBBIT] && is_elven_armor(obj))
+    if (is_hobbit(ptr) && is_elven_armor(obj))
         return 1;
     /* Unacceptable Exceptions: */
     /* Checks for object that certain races should never use go here */

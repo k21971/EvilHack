@@ -947,7 +947,7 @@ MONSTER:('G',"gnome"),random
 MONSTER:('G',"gnome"),random
 MONSTER:('G',"gnome"),random
 MONSTER:('h',"hobbit"),random
-MONSTER:('h',"hobbit"),random
+MONSTER:('h',"hobbit rogue"),random
 MONSTER:('h',"dwarf"),random
 MONSTER:('h',"dwarf"),random
 MONSTER:('h',"dwarf"),random
@@ -1096,7 +1096,7 @@ MONSTER:('G',"gnome"),random
 MONSTER:('G',"gnome"),random
 MONSTER:('G',"gnome"),random
 MONSTER:('h',"hobbit"),random
-MONSTER:('h',"hobbit"),random
+MONSTER:('h',"hobbit rogue"),random
 MONSTER:('h',"dwarf"),random
 MONSTER:('h',"dwarf"),random
 MONSTER:('h',"dwarf"),random

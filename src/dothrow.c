@@ -183,6 +183,7 @@ int shotlimit;
                     multishot++;
                 break;
             case PM_HOBBIT:
+            case PM_HOBBIT_ROGUE:
                 /* Hobbits are good with slings and small blades */
                 if ((skill == -P_SLING) || (skill == -P_KNIFE) || (skill == -P_DAGGER))
                     multishot++;

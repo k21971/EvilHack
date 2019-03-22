@@ -395,7 +395,7 @@ register struct monst *mtmp;
         break;
 
     case S_HUMANOID:
-        if (mm == PM_HOBBIT) {
+        if (is_hobbit(ptr)) {
             switch (rn2(3)) {
             case 0:
                 (void) mongets(mtmp, DAGGER);
