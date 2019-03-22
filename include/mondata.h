@@ -92,6 +92,7 @@
      || (ptr) == &mons[PM_KOBOLD_SHAMAN]                               \
      || (ptr) == &mons[PM_ORC_SHAMAN]                                  \
      || (ptr) == &mons[PM_HILL_GIANT_SHAMAN]                           \
+     || (ptr) == &mons[PM_ELVEN_WIZARD]                                \
      || (ptr) == &mons[PM_GNOMISH_WIZARD])
 #define has_claws(ptr) \
     ((ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE     \
