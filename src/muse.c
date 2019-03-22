@@ -139,9 +139,9 @@ struct obj *obj;
                 /* CAN wish for wands of death here.... */
                 if (rn2(2)) {
                     verbalize("Thank you for freeing me! In return, I will grant you a wish!");
-                    mmake_wish(mon);
                     if (vis)
                         pline("%s makes a wish!", Monnam(mon));
+                        mmake_wish(mon);
                     if (vis)
                         pline("%s vanishes.", Monnam(mtmp));
                     mongone(mtmp);
