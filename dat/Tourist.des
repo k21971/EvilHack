@@ -478,11 +478,11 @@ TRAP: random, random
 TRAP: random, random
 TRAP: random, random
 #
-MONSTER: ('@', "soldier"), random, hostile
-MONSTER: ('@', "soldier"), random, hostile
-MONSTER: ('@', "soldier"), random, hostile
-MONSTER: ('@', "soldier"), random, hostile
-MONSTER: ('@', "soldier"), random, hostile
+MONSTER: ('@', "human soldier"), random, hostile
+MONSTER: ('@', "elven soldier"), random, hostile
+MONSTER: ('@', "human soldier"), random, hostile
+MONSTER: ('@', "elven soldier"), random, hostile
+MONSTER: ('@', "giant soldier"), random, hostile
 MONSTER: 'H', random, hostile
 MONSTER: 'C', random, hostile
 
@@ -510,9 +510,9 @@ TRAP: random, random
 TRAP: random, random
 TRAP: random, random
 #
-MONSTER: ('@', "soldier"), random, hostile
-MONSTER: ('@', "captain"), random, hostile
-MONSTER: ('@', "captain"), random, hostile
+MONSTER: ('@', "dwarvish soldier"), random, hostile
+MONSTER: ('@', "human captain"), random, hostile
+MONSTER: ('@', "elven captain"), random, hostile
 MONSTER: 'H', random, hostile
 MONSTER: 'H', random, hostile
 MONSTER: 'C', random, hostile

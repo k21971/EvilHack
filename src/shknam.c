@@ -668,7 +668,7 @@ int shp_indx;
 		{
 			default:
 			case 0:
-				srace = PM_SERGEANT + rn2(3);
+				srace = PM_HUMAN_SERGEANT + rn2(3);
 				break;
 			case 1:
 				srace = PM_STONE_GIANT + rn2(6);

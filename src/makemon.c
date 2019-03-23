@@ -189,23 +189,49 @@ register struct monst *mtmp;
             w1 = w2 = 0;
             switch (mm) {
             case PM_WATCHMAN:
-            case PM_SOLDIER:
+            case PM_HUMAN_SOLDIER:
+            case PM_ELVEN_SOLDIER:
+            case PM_DWARVISH_SOLDIER:
+            case PM_GNOMISH_SOLDIER:
+            case PM_ORCISH_SOLDIER:
+            case PM_CENTAURIAN_SOLDIER:
+            case PM_GIANT_SOLDIER:
                 if (!rn2(3)) {
                     w1 = rn1(BEC_DE_CORBIN - PARTISAN + 1, PARTISAN);
                     w2 = rn2(2) ? DAGGER : KNIFE;
                 } else
                     w1 = rn2(2) ? SPEAR : SHORT_SWORD;
                 break;
-            case PM_SERGEANT:
+            case PM_HUMAN_SERGEANT:
+            case PM_ELVEN_SERGEANT:
+            case PM_DWARVISH_SERGEANT:
+            case PM_GNOMISH_SERGEANT:
+            case PM_ORCISH_SERGEANT:
+            case PM_CENTAURIAN_SERGEANT:
+            case PM_GIANT_SERGEANT:
                 w1 = rn2(2) ? FLAIL : MACE;
                 break;
-            case PM_LIEUTENANT:
+            case PM_HUMAN_LIEUTENANT:
+            case PM_ELVEN_LIEUTENANT:
+            case PM_DWARVISH_LIEUTENANT:
+            case PM_GNOMISH_LIEUTENANT:
+            case PM_ORCISH_LIEUTENANT:
+            case PM_CENTAURIAN_LIEUTENANT:
+            case PM_GIANT_LIEUTENANT:
                 w1 = rn2(2) ? BROADSWORD : LONG_SWORD;
+                if (mm == PM_GIANT_LIEUTENANT)
+                    (void) mongets(mtmp, BATTLE_AXE);
                 break;
-            case PM_CAPTAIN:
+            case PM_HUMAN_CAPTAIN:
+            case PM_ELVEN_CAPTAIN:
+            case PM_DWARVISH_CAPTAIN:
+            case PM_GNOMISH_CAPTAIN:
+            case PM_GIANT_CAPTAIN:
             case PM_WATCH_CAPTAIN:
                 w1 = rn2(2) ? LONG_SWORD : SABER;
                 mongets(mtmp, SKELETON_KEY);
+                (void) mongets(mtmp, (rn2(2) && (mm == PM_GIANT_CAPTAIN))
+                                      ? BATTLE_AXE : TWO_HANDED_SWORD);
                 break;
             default:
                 if (!rn2(4))
@@ -683,16 +709,82 @@ register struct monst *mtmp;
             case PM_GUARD:
                 mac = -1;
                 break;
-            case PM_SOLDIER:
+            case PM_HUMAN_SOLDIER:
                 mac = 3;
                 break;
-            case PM_SERGEANT:
+            case PM_ELVEN_SOLDIER:
+                mac = 3;
+                break;
+            case PM_DWARVISH_SOLDIER:
+                mac = 3;
+                break;
+            case PM_GNOMISH_SOLDIER:
+                mac = 3;
+                break;
+            case PM_ORCISH_SOLDIER:
+                mac = 3;
+                break;
+            case PM_GIANT_SOLDIER:
+                mac = 3;
+                break;
+            case PM_CENTAURIAN_SOLDIER:
+                mac = 3;
+                break;
+            case PM_HUMAN_SERGEANT:
                 mac = 0;
                 break;
-            case PM_LIEUTENANT:
+            case PM_ELVEN_SERGEANT:
+                mac = 0;
+                break;
+            case PM_DWARVISH_SERGEANT:
+                mac = 0;
+                break;
+            case PM_GNOMISH_SERGEANT:
+                mac = 0;
+                break;
+            case PM_ORCISH_SERGEANT:
+                mac = 0;
+                break;
+            case PM_GIANT_SERGEANT:
+                mac = 0;
+                break;
+            case PM_CENTAURIAN_SERGEANT:
+                mac = 0;
+                break;
+            case PM_HUMAN_LIEUTENANT:
                 mac = -2;
                 break;
-            case PM_CAPTAIN:
+            case PM_ELVEN_LIEUTENANT:
+                mac = -2;
+                break;
+            case PM_DWARVISH_LIEUTENANT:
+                mac = -2;
+                break;
+            case PM_GNOMISH_LIEUTENANT:
+                mac = -2;
+                break;
+            case PM_ORCISH_LIEUTENANT:
+                mac = -2;
+                break;
+            case PM_GIANT_LIEUTENANT:
+                mac = -2;
+                break;
+            case PM_CENTAURIAN_LIEUTENANT:
+                mac = -2;
+                break;
+            case PM_HUMAN_CAPTAIN:
+                mac = -3;
+                break;
+            case PM_ELVEN_CAPTAIN:
+                mac = -3;
+                break;
+            case PM_DWARVISH_CAPTAIN:
+                mac = -3;
+                break;
+            case PM_GNOMISH_CAPTAIN:
+                mac = -3;
+                break;
+            case PM_GIANT_CAPTAIN:
                 mac = -3;
                 break;
             case PM_WATCHMAN:
@@ -707,13 +799,13 @@ register struct monst *mtmp;
                 break;
             }
 
-            if (mac < -1 && rn2(5))
+            if (mac < -1 && rn2(5) && !MH_GIANT)
                 mac += 7 + mongets(mtmp, (rn2(5)) ? PLATE_MAIL
                                                   : CRYSTAL_PLATE_MAIL);
-            else if (mac < 3 && rn2(5))
+            else if (mac < 3 && rn2(5) && !MH_GIANT)
                 mac +=
                     6 + mongets(mtmp, (rn2(3)) ? SPLINT_MAIL : BANDED_MAIL);
-            else if (rn2(5))
+            else if (rn2(5) && !MH_GIANT)
                 mac += 3 + mongets(mtmp, (rn2(3)) ? RING_MAIL
                                                   : STUDDED_ARMOR);
             else
@@ -727,13 +819,13 @@ register struct monst *mtmp;
                 mac += 1 + mongets(mtmp, SMALL_SHIELD);
             else if (mac < 10 && rn2(2))
                 mac += 2 + mongets(mtmp, LARGE_SHIELD);
-            if (mac < 10 && rn2(3))
+            if (mac < 10 && rn2(3) && !MH_CENTAUR)
                 mac += 1 + mongets(mtmp, LOW_BOOTS);
-            else if (mac < 10 && rn2(2))
+            else if (mac < 10 && rn2(2) && !MH_CENTAUR)
                 mac += 2 + mongets(mtmp, HIGH_BOOTS);
             if (mac < 10 && rn2(3))
                 mac += 1 + mongets(mtmp, GLOVES);
-            else if (mac < 10 && rn2(2))
+            else if (mac < 10 && rn2(2) && !MH_GIANT)
                 mac += 1 + mongets(mtmp, CLOAK);
 
             nhUse(mac); /* suppress 'dead increment' from static analyzer */
@@ -755,7 +847,7 @@ register struct monst *mtmp;
                     (void) mongets(mtmp, K_RATION);
                 if (!rn2(2))
                     (void) mongets(mtmp, C_RATION);
-                if (ptr != &mons[PM_SOLDIER] && !rn2(3))
+                if ((!is_soldier(ptr)) && !rn2(3))
                     (void) mongets(mtmp, BUGLE);
             }
         } else if (ptr == &mons[PM_SHOPKEEPER]) {
@@ -876,7 +968,7 @@ register struct monst *mtmp;
     }
 
     /* ordinary soldiers rarely have access to magic (or gold :-) */
-    if (ptr == &mons[PM_SOLDIER] && rn2(13))
+    if ((is_soldier(ptr)) && rn2(13))
         return;
 
     if ((int) mtmp->m_lev > rn2(50))

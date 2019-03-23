@@ -139,6 +139,21 @@
 #define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 #define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)
+#define is_soldier(ptr) ((ptr) == &mons[PM_HUMAN_SOLDIER] || (ptr) == &mons[PM_ELVEN_SOLDIER]          \
+                         || (ptr) == &mons[PM_DWARVISH_SOLDIER] || (ptr) == &mons[PM_GNOMISH_SOLDIER]  \
+                         || (ptr) == &mons[PM_ORCISH_SOLDIER] || (ptr) == &mons[PM_CENTAURIAN_SOLDIER] \
+                         || (ptr) == &mons[PM_GIANT_SOLDIER])
+#define is_sergeant(ptr) ((ptr) == &mons[PM_HUMAN_SERGEANT] || (ptr) == &mons[PM_ELVEN_SERGEANT]          \
+                          || (ptr) == &mons[PM_DWARVISH_SERGEANT] || (ptr) == &mons[PM_GNOMISH_SERGEANT]  \
+                          || (ptr) == &mons[PM_ORCISH_SERGEANT] || (ptr) == &mons[PM_CENTAURIAN_SERGEANT] \
+                          || (ptr) == &mons[PM_GIANT_SERGEANT])
+#define is_lieutenant(ptr) ((ptr) == &mons[PM_HUMAN_LIEUTENANT] || (ptr) == &mons[PM_ELVEN_LIEUTENANT]          \
+                            || (ptr) == &mons[PM_DWARVISH_LIEUTENANT] || (ptr) == &mons[PM_GNOMISH_LIEUTENANT]  \
+                            || (ptr) == &mons[PM_ORCISH_LIEUTENANT] || (ptr) == &mons[PM_CENTAURIAN_LIEUTENANT] \
+                            || (ptr) == &mons[PM_GIANT_LIEUTENANT])
+#define is_captain(ptr) ((ptr) == &mons[PM_HUMAN_CAPTAIN] || (ptr) == &mons[PM_ELVEN_CAPTAIN]         \
+                         || (ptr) == &mons[PM_DWARVISH_CAPTAIN] || (ptr) == &mons[PM_GNOMISH_CAPTAIN] \
+                         || (ptr) == &mons[PM_GIANT_CAPTAIN])
 #define is_rogue(ptr) ((ptr) == &mons[PM_ROGUE] || (ptr) == &mons[PM_HOBBIT_ROGUE])
 #define is_male(ptr) (((ptr)->mflags2 & M2_MALE) != 0L)
 #define is_female(ptr) (((ptr)->mflags2 & M2_FEMALE) != 0L)

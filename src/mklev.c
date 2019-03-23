@@ -778,7 +778,7 @@ makelevel()
         else if (u_depth > 12 && !rn2(8) && antholemon())
             mkroom(ANTHOLE);
         else if (u_depth > 14 && !rn2(4)
-                 && !(mvitals[PM_SOLDIER].mvflags & G_GONE))
+                 && !(mvitals[PM_HUMAN_SOLDIER].mvflags & G_GONE))
             mkroom(BARRACKS);
         else if (u_depth > 15 && !rn2(6))
             mkroom(SWAMP);

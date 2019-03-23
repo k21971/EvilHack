@@ -767,15 +767,37 @@ courtmon()
         return mkclass(S_KOBOLD, 0);
 }
 
-#define NSTYPES (PM_CAPTAIN - PM_SOLDIER + 1)
+#define NSTYPES (PM_GIANT_CAPTAIN - PM_HUMAN_SOLDIER + 1)
 
 static struct {
     unsigned pm;
     unsigned prob;
-} squadprob[NSTYPES] = { { PM_SOLDIER, 80 },
-                         { PM_SERGEANT, 15 },
-                         { PM_LIEUTENANT, 4 },
-                         { PM_CAPTAIN, 1 } };
+} squadprob[NSTYPES] = { { PM_HUMAN_SOLDIER, 8 },
+                         { PM_ELVEN_SOLDIER, 8 },
+                         { PM_DWARVISH_SOLDIER, 8 },
+                         { PM_GNOMISH_SOLDIER, 8 },
+                         { PM_ORCISH_SOLDIER, 8 },
+                         { PM_GIANT_SOLDIER, 8 },
+                         { PM_CENTAURIAN_SOLDIER, 8 },
+                         { PM_HUMAN_SERGEANT, 3 },
+                         { PM_ELVEN_SERGEANT, 2 },
+                         { PM_DWARVISH_SERGEANT, 3 },
+                         { PM_GNOMISH_SERGEANT, 2 },
+                         { PM_ORCISH_SERGEANT, 3 },
+                         { PM_GIANT_SERGEANT, 2 },
+                         { PM_CENTAURIAN_SERGEANT, 2 },
+                         { PM_HUMAN_LIEUTENANT, 2 },
+                         { PM_ELVEN_LIEUTENANT, 2 },
+                         { PM_DWARVISH_LIEUTENANT, 2 },
+                         { PM_GNOMISH_LIEUTENANT, 2 },
+                         { PM_ORCISH_LIEUTENANT, 2 },
+                         { PM_GIANT_LIEUTENANT, 2 },
+                         { PM_CENTAURIAN_LIEUTENANT, 2 },
+                         { PM_HUMAN_CAPTAIN, 1 },
+                         { PM_ELVEN_CAPTAIN, 1 },
+                         { PM_DWARVISH_CAPTAIN, 1 },
+                         { PM_GNOMISH_CAPTAIN, 1 },
+                         { PM_GIANT_CAPTAIN, 1 } };
 
 /* return soldier types. */
 STATIC_OVL struct permonst *

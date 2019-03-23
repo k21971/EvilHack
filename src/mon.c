@@ -1809,6 +1809,14 @@ struct monst *magr, /* monster that is currently deciding where to move */
     ma = magr->data;
     md = mdef->data;
 
+    /* Don't allow pets to fight each other. */
+    if (magr->mtame && mdef->mtame)
+        return 0;
+    /* Soldiers of different races shouldn't fight each other either.
+       They're all on the same team */
+    if (ma->msound == MS_SOLDIER && md->msound == MS_SOLDIER)
+        return 0;
+
     /* supposedly purple worms are attracted to shrieking because they
        like to eat shriekers, so attack the latter when feasible */
     if (ma == &mons[PM_PURPLE_WORM] && md == &mons[PM_SHRIEKER])

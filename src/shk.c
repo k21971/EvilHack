@@ -2182,9 +2182,9 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 	switch (shkp->mnum) {
 		default:
 		case PM_HUMAN:
-		case PM_SERGEANT:
-		case PM_LIEUTENANT:
-		case PM_CAPTAIN:
+		case PM_HUMAN_SERGEANT:
+		case PM_HUMAN_LIEUTENANT:
+		case PM_HUMAN_CAPTAIN:
 			/* nasty, brutish, and short */
 			if (Race_if(PM_ORC) || Race_if(PM_GNOME)) { tmp += tmp / 3L; }
                         if (Race_if(PM_CENTAUR)) { tmp += tmp / 2L; }   /* "smelly and four-legged" */
@@ -2470,9 +2470,9 @@ register struct monst *shkp;
     switch (shkp->mnum) {
 	default:
 	case PM_HUMAN:
-	case PM_SERGEANT:
-	case PM_LIEUTENANT:
-	case PM_CAPTAIN:
+	case PM_HUMAN_SERGEANT:
+	case PM_HUMAN_LIEUTENANT:
+	case PM_HUMAN_CAPTAIN:
 		if (Race_if(PM_ORC) || Race_if(PM_GNOME)) { tmp -= tmp / 3L; }	  /* nasty, brutish, and short */
                 if (Race_if(PM_CENTAUR)) { tmp += tmp / 2L; }   /* "smelly and four-legged" */
 		break;

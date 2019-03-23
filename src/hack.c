@@ -2491,10 +2491,32 @@ register boolean newlev;
             You("enter an anthole!");
             break;
         case BARRACKS:
-            if (monstinroom(&mons[PM_SOLDIER], roomno)
-                || monstinroom(&mons[PM_SERGEANT], roomno)
-                || monstinroom(&mons[PM_LIEUTENANT], roomno)
-                || monstinroom(&mons[PM_CAPTAIN], roomno))
+            if (monstinroom(&mons[PM_HUMAN_SOLDIER], roomno)
+                || monstinroom(&mons[PM_ELVEN_SOLDIER], roomno)
+                || monstinroom(&mons[PM_DWARVISH_SOLDIER], roomno)
+                || monstinroom(&mons[PM_GNOMISH_SOLDIER], roomno)
+                || monstinroom(&mons[PM_ORCISH_SOLDIER], roomno)
+                || monstinroom(&mons[PM_CENTAURIAN_SOLDIER], roomno)
+                || monstinroom(&mons[PM_GIANT_SOLDIER], roomno)
+                || monstinroom(&mons[PM_HUMAN_SERGEANT], roomno)
+                || monstinroom(&mons[PM_ELVEN_SERGEANT], roomno)
+                || monstinroom(&mons[PM_DWARVISH_SERGEANT], roomno)
+                || monstinroom(&mons[PM_GNOMISH_SERGEANT], roomno)
+                || monstinroom(&mons[PM_ORCISH_SERGEANT], roomno)
+                || monstinroom(&mons[PM_CENTAURIAN_SERGEANT], roomno)
+                || monstinroom(&mons[PM_GIANT_SERGEANT], roomno)
+                || monstinroom(&mons[PM_HUMAN_LIEUTENANT], roomno)
+                || monstinroom(&mons[PM_ELVEN_LIEUTENANT], roomno)
+                || monstinroom(&mons[PM_DWARVISH_LIEUTENANT], roomno)
+                || monstinroom(&mons[PM_GNOMISH_LIEUTENANT], roomno)
+                || monstinroom(&mons[PM_ORCISH_LIEUTENANT], roomno)
+                || monstinroom(&mons[PM_CENTAURIAN_LIEUTENANT], roomno)
+                || monstinroom(&mons[PM_GIANT_LIEUTENANT], roomno)
+                || monstinroom(&mons[PM_HUMAN_CAPTAIN], roomno)
+                || monstinroom(&mons[PM_ELVEN_CAPTAIN], roomno)
+                || monstinroom(&mons[PM_DWARVISH_CAPTAIN], roomno)
+                || monstinroom(&mons[PM_GNOMISH_CAPTAIN], roomno)
+                || monstinroom(&mons[PM_GIANT_CAPTAIN], roomno))
                 You("enter a military barracks!");
             else
                 You("enter an abandoned barracks.");
