@@ -667,7 +667,7 @@ int spellnum;
 	} else {
 	    aligntype = (int)mtmp->data->maligntyp;
         }
-        if (EPRI(mtmp)->shralign == A_NONE) {
+        if (aligntype == A_NONE) {
             pline("A vassal of %s appears!", Moloch);
                   summon_minion(aligntype, TRUE);
         } else {
