@@ -3112,7 +3112,6 @@ struct obj* obj;
         case SHIELD_OF_REFLECTION:
             return shiny_materials;
         case BOW:
-        case ELVEN_BOW:
         case YUMI:
         case BOOMERANG: /* wooden base, similar shape */
             return bow_materials;

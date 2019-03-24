@@ -190,10 +190,7 @@ register struct monst *mtmp;
             switch (mm) {
             case PM_WATCHMAN:
             case PM_HUMAN_SOLDIER:
-            case PM_ELVEN_SOLDIER:
-            case PM_DWARVISH_SOLDIER:
             case PM_GNOMISH_SOLDIER:
-            case PM_ORCISH_SOLDIER:
             case PM_CENTAURIAN_SOLDIER:
             case PM_GIANT_SOLDIER:
                 if (!rn2(3)) {
@@ -202,36 +199,84 @@ register struct monst *mtmp;
                 } else
                     w1 = rn2(2) ? SPEAR : SHORT_SWORD;
                 break;
+            case PM_ELVEN_SOLDIER:
+                if (!rn2(3)) {
+                    mongets(mtmp, ELVEN_BOW);
+                    m_initthrow(mtmp, ELVEN_ARROW, 12);
+                    mongets(mtmp, ELVEN_DAGGER);
+                } else
+                    w1 = rn2(2) ? ELVEN_SPEAR : ELVEN_SHORT_SWORD;
+                break;
+            case PM_DWARVISH_SOLDIER:
+                if (!rn2(3)) {
+                    w1 = rn1(BEC_DE_CORBIN - PARTISAN + 1, PARTISAN);
+                    w2 = rn2(2) ? DAGGER : AXE;
+                } else
+                    w1 = rn2(2) ? DWARVISH_SPEAR : DWARVISH_SHORT_SWORD;
+                break;
+            case PM_ORCISH_SOLDIER:
+                if (!rn2(3)) {
+                    mongets(mtmp, ORCISH_BOW);
+                    m_initthrow(mtmp, ORCISH_ARROW, 12);
+                    w1 = rn2(2) ? ORCISH_DAGGER : KNIFE;
+                } else
+                    w1 = rn2(2) ? ORCISH_SPEAR : ORCISH_SHORT_SWORD;
+                break;
             case PM_HUMAN_SERGEANT:
-            case PM_ELVEN_SERGEANT:
-            case PM_DWARVISH_SERGEANT:
             case PM_GNOMISH_SERGEANT:
-            case PM_ORCISH_SERGEANT:
-            case PM_CENTAURIAN_SERGEANT:
-            case PM_GIANT_SERGEANT:
                 w1 = rn2(2) ? FLAIL : MACE;
                 break;
+            case PM_ELVEN_SERGEANT:
+                w1 = rn2(2) ? ELVEN_BROADSWORD : QUARTERSTAFF;
+                break;
+            case PM_DWARVISH_SERGEANT:
+                w1 = rn2(2) ? MORNING_STAR : DWARVISH_MATTOCK;
+                break;
+            case PM_ORCISH_SERGEANT:
+                w1 = rn2(2) ? ORCISH_MORNING_STAR : ORCISH_SHORT_SWORD;
+                break;
+            case PM_CENTAURIAN_SERGEANT:
+                mongets(mtmp, CROSSBOW);
+                m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+                w1 = rn2(2) ? CLUB : MACE;
+                break;
+            case PM_GIANT_SERGEANT:
+                w1 = rn2(2) ? WAR_HAMMER : BATTLE_AXE;
+                mongets(mtmp, BOULDER);
+                break;
             case PM_HUMAN_LIEUTENANT:
-            case PM_ELVEN_LIEUTENANT:
             case PM_DWARVISH_LIEUTENANT:
             case PM_GNOMISH_LIEUTENANT:
-            case PM_ORCISH_LIEUTENANT:
             case PM_CENTAURIAN_LIEUTENANT:
-            case PM_GIANT_LIEUTENANT:
                 w1 = rn2(2) ? BROADSWORD : LONG_SWORD;
-                if (mm == PM_GIANT_LIEUTENANT)
-                    (void) mongets(mtmp, BATTLE_AXE);
+                break;
+            case PM_ELVEN_LIEUTENANT:
+                w1 = rn2(2) ? ELVEN_BROADSWORD : ELVEN_LONG_SWORD;
+                break;
+            case PM_ORCISH_LIEUTENANT:
+                w1 = rn2(2) ? BROADSWORD : SCIMITAR;
+                break;
+            case PM_GIANT_LIEUTENANT:
+                w1 = rn2(2) ? LONG_SWORD : BATTLE_AXE;
+                mongets(mtmp, BOULDER);
                 break;
             case PM_HUMAN_CAPTAIN:
-            case PM_ELVEN_CAPTAIN:
             case PM_DWARVISH_CAPTAIN:
             case PM_GNOMISH_CAPTAIN:
+                w1 = rn2(2) ? LONG_SWORD : SABER;
+                mongets(mtmp, SKELETON_KEY);
+                break;
+            case PM_ELVEN_CAPTAIN:
+                mongets(mtmp, ELVEN_LONG_SWORD);
+                mongets(mtmp, SKELETON_KEY);
+                break;
             case PM_GIANT_CAPTAIN:
+                w1 = rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
+                mongets(mtmp, SKELETON_KEY);
+                break;
             case PM_WATCH_CAPTAIN:
                 w1 = rn2(2) ? LONG_SWORD : SABER;
                 mongets(mtmp, SKELETON_KEY);
-                (void) mongets(mtmp, (rn2(2) && (mm == PM_GIANT_CAPTAIN))
-                                      ? BATTLE_AXE : TWO_HANDED_SWORD);
                 break;
             default:
                 if (!rn2(4))
@@ -251,8 +296,8 @@ register struct monst *mtmp;
                 (void) mongets(mtmp,
 		 (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELF_LORD
                              || mm == PM_ELF_LADY || mm == PM_ELVEN_WIZARD
-                             || mm == PM_ELVEN_KING || mm == PM_ELVEN_QUEEN)) ?
-			     ELVEN_HELM : ELVEN_CLOAK);
+                             || mm == PM_ELVEN_KING || mm == PM_ELVEN_QUEEN))
+			     ? ELVEN_HELM : ELVEN_CLOAK);
             if (rn2(2) && !mm == PM_ELVEN_WIZARD) {
                 struct obj* mail = m_carrying(mtmp, ELVEN_CHAIN_MAIL);
                 if (mail)
@@ -802,31 +847,70 @@ register struct monst *mtmp;
             if (mac < -1 && rn2(5) && !MH_GIANT)
                 mac += 7 + mongets(mtmp, (rn2(5)) ? PLATE_MAIL
                                                   : CRYSTAL_PLATE_MAIL);
-            else if (mac < 3 && rn2(5) && !MH_GIANT)
+                    struct obj* plate_mail = m_carrying(mtmp, PLATE_MAIL);
+                    if (plate_mail)
+                        set_material(plate_mail, METAL);
+            else if (mac < 3 && rn2(5) && (!MH_GIANT || !MH_ELF || !MH_ORC))
                 mac +=
                     6 + mongets(mtmp, (rn2(3)) ? SPLINT_MAIL : BANDED_MAIL);
-            else if (rn2(5) && !MH_GIANT)
+            else if (mac < 3 && rn2(5) && (ptr == &mons[PM_ELVEN_SOLDIER]
+                     || ptr == &mons[PM_ELVEN_SERGEANT] || ptr == &mons[PM_ELVEN_LIEUTENANT]
+                     || ptr == &mons[PM_ELVEN_CAPTAIN]))
+                mac +=
+                    6 + mongets(mtmp, (rn2(3)) ? ELVEN_CHAIN_MAIL : BANDED_MAIL);
+                    struct obj* banded_mail = m_carrying(mtmp, BANDED_MAIL);
+                    if (banded_mail)
+                        set_material(banded_mail, MITHRIL);
+            else if (rn2(5) && (!MH_GIANT || !MH_ELF || !MH_ORC))
                 mac += 3 + mongets(mtmp, (rn2(3)) ? RING_MAIL
                                                   : STUDDED_ARMOR);
+            else if (rn2(5) && (ptr == &mons[PM_ORCISH_SOLDIER]
+                     || ptr == &mons[PM_ORCISH_SERGEANT] || ptr == &mons[PM_ORCISH_LIEUTENANT]))
+                mac += 3 + mongets(mtmp, (rn2(3)) ? ORCISH_RING_MAIL
+                                                  : ARMOR);
             else
                 mac += 2 + mongets(mtmp, ARMOR);
 
-            if (mac < 10 && rn2(3))
+            if (mac < 10 && rn2(3) && (!MH_ELF || !MH_ORC))
                 mac += 1 + mongets(mtmp, HELMET);
-            else if (mac < 10 && rn2(2))
+            else if (mac < 10 && rn2(2) && (!MH_ELF || !MH_ORC))
                 mac += 1 + mongets(mtmp, DENTED_POT);
-            if (mac < 10 && rn2(3))
+            else if (mac < 10 && rn2(3) && (ptr == &mons[PM_ELVEN_SOLDIER]
+                     || ptr == &mons[PM_ELVEN_SERGEANT] || ptr == &mons[PM_ELVEN_LIEUTENANT]
+                     || ptr == &mons[PM_ELVEN_CAPTAIN]))
+                mac += 1 + mongets(mtmp, ELVEN_HELM);
+            else if (mac < 10 && rn2(3) && (ptr == &mons[PM_ORCISH_SOLDIER]
+                     || ptr == &mons[PM_ORCISH_SERGEANT] || ptr == &mons[PM_ORCISH_LIEUTENANT]))
+                mac += 1 + mongets(mtmp, ORCISH_HELM);
+
+            if (mac < 10 && rn2(3) && (!MH_ELF || !MH_ORC))
                 mac += 1 + mongets(mtmp, SMALL_SHIELD);
-            else if (mac < 10 && rn2(2))
+            else if (mac < 10 && rn2(2) && (!MH_ELF || !MH_ORC))
                 mac += 2 + mongets(mtmp, LARGE_SHIELD);
+            else if (mac < 10 && rn2(2) && (ptr == &mons[PM_ELVEN_SOLDIER]
+                     || ptr == &mons[PM_ELVEN_SERGEANT] || ptr == &mons[PM_ELVEN_LIEUTENANT]
+                     || ptr == &mons[PM_ELVEN_CAPTAIN]))
+                mac += 2 + mongets(mtmp, ELVEN_SHIELD);
+            else if (mac < 10 && rn2(2) && (ptr == &mons[PM_ORCISH_SOLDIER]
+                     || ptr == &mons[PM_ORCISH_SERGEANT] || ptr == &mons[PM_ORCISH_LIEUTENANT]))
+                mac += 2 + mongets(mtmp, ORCISH_SHIELD);
+
             if (mac < 10 && rn2(3) && !MH_CENTAUR)
                 mac += 1 + mongets(mtmp, LOW_BOOTS);
             else if (mac < 10 && rn2(2) && !MH_CENTAUR)
                 mac += 2 + mongets(mtmp, HIGH_BOOTS);
+
             if (mac < 10 && rn2(3))
                 mac += 1 + mongets(mtmp, GLOVES);
-            else if (mac < 10 && rn2(2) && !MH_GIANT)
+            else if (mac < 10 && rn2(2) && (!MH_GIANT || !MH_ELF || !MH_ORC))
                 mac += 1 + mongets(mtmp, CLOAK);
+            else if (mac < 10 && rn2(2) && (ptr == &mons[PM_ELVEN_SOLDIER]
+                     || ptr == &mons[PM_ELVEN_SERGEANT] || ptr == &mons[PM_ELVEN_LIEUTENANT]
+                     || ptr == &mons[PM_ELVEN_CAPTAIN]))
+                mac += 1 + mongets(mtmp, ELVEN_CLOAK);
+            else if (mac < 10 && rn2(2) && (ptr == &mons[PM_ORCISH_SOLDIER]
+                     || ptr == &mons[PM_ORCISH_SERGEANT] || ptr == &mons[PM_ORCISH_LIEUTENANT]))
+                mac += 1 + mongets(mtmp, ORCISH_CLOAK);
 
             nhUse(mac); /* suppress 'dead increment' from static analyzer */
 
