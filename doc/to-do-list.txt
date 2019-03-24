@@ -3,11 +3,11 @@ To-do list for EvilHack (in no particular order)
 
 From GruntHack
 --------------
-1) object materials & properties <---- materials DONE
+1) object materials & properties <---- DONE (not doing obj properties)
 2) new spells <---- DONE
-3) two-weaponing w/ artifact weapons <---- DONE (reverted back to vanilla behavior)
+3) two-weaponing w/ artifact weapons <---- DONE (with restrictions)
 4) new monsters <---- DONE (mostly)
-5) monster AI (opening/looting containers, using wands of wishing, using player spells, etc) <---- almost done
+5) monster AI (opening/looting containers, using wands of wishing, etc) <---- almost done
 6) demon lord levels
 7) new races for PC (ogres, kobolds, giants) <---- DONE
 8) new race/role combos <---- DONE
@@ -19,14 +19,14 @@ From GruntHack
 14) racial shopkeepers <---- DONE
 15) racial grudge (PC and monsters) <---- DONE
 16) zombie changes <---- DONE
-17) different race soldiers/other humanoids
+17) different race soldiers/other humanoids <---- DONE
 
 
 From SporkHack
 --------------
 1) new resistances system <---- DONE
 2) new sacrificing/artifact generation system <---- DONE
-3) new monsters <---- DONE (needs polish)
+3) new monsters <---- DONE
 4) new spells <---- DONE
 5) changes to artifacts <---- DONE
 6) changes to skills <---- DONE
@@ -34,7 +34,7 @@ From SporkHack
 8) gold vault changes
 9) unicorn horn behavior <---- DONE
 10) new race/role combos <---- DONE
-11) new objects/artifacts <---- DONE (artifacts bit)
+11) new objects/artifacts <---- DONE
 12) reflection changes <---- DONE
 13) remove mysterious force, incorporate monster spawn on ascrun <---- DONE
 14) new traps

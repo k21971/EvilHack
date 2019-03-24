@@ -113,4 +113,18 @@ Version 0.2.0
 -------------
 
 - Object Materials patch (from xNetHack)
+- Several tweaks and adjustments to various things to take the new object materials patch into account
+- New monsters: elven wizard, hobbit rogue
+- Add some flavor to the Magic 8-Ball
+- Magic markers no longer randomly generated, chance of one being found in Sokoban
+- Two-weaponing artifacts is back in, but with restrictions (lawful and chaotic don't play nice together)
+- Artifact changes: Fire/Frost brand are now short swords, made of mithril
+- Spellbook weight determined by its level
+- Leprechauns will steal anything made of gold (from xNetHack)
+- Melee combat can wake up nearby monsters
+- Wish tracker (from SporkHack)
+- Intelligent monsters can use wands of wishing (from GruntHack/SpliceHack)
+- Minor tweaks to mplayer types (rogues can steal, spellcasting types can cast spells)
+- Female counterparts to several monster lord/king types (lady/queen)
+- Racial soldiers: major change to soldier/sergeant/lieutenant/captain monsters, can be several different humanoid races
 
