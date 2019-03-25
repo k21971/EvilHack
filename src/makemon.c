@@ -193,6 +193,7 @@ extern struct trobj Leash[];
 extern struct trobj Towel[];
 extern struct trobj Wishing[];
 extern struct trobj Money[];
+extern struct trobj Pickaxe[];
 
 struct trobj Level20Kit1[] = {
 	{ SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -406,6 +407,7 @@ register struct monst *mtmp;
 	    ini_mon_inv(mtmp, Archeologist, 1);
 	    if (!rn2(10)) ini_mon_inv(mtmp, Tinopener);
 	    else if (!rn2(4)) ini_mon_inv(mtmp, Lamp);
+            else if (rn2(3)) ini_mon_inv(mtmp, Pickaxe);
 	    break;
 	case PM_BARBARIAN:
 	    if (rn2(100) >= 50) {
