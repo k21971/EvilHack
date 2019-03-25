@@ -40,7 +40,7 @@ static const char *developers[] = {
 };
 
 /* return a randomly chosen developer name */
-STATIC_DCL const char *
+STATIC_OVL const char *
 dev_name()
 {
     register int i, m = 0, n = SIZE(developers);
