@@ -154,11 +154,11 @@ struct obj *obj;
                     (ascending ? (30 + rnd(30)) : 30);
         if (ascending) {
 #endif
-            get_mplname(mtmp, nam);
-            mtmp = christen_monst(mtmp, nam);
             /* that's why they are "stuck" in the endgame :-) */
             (void) mongets(mtmp, FAKE_AMULET_OF_YENDOR);
         }
+        get_mplname(mtmp, nam);
+        mtmp = christen_monst(mtmp, nam);
         mtmp->mpeaceful = 0;
         set_malign(mtmp); /* peaceful may have changed again */
 
