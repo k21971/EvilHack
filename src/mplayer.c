@@ -149,16 +149,16 @@ struct obj *obj;
                                    + (special ? (30 + rnd(30)) : 30);
         if (special) {
 #else
-        mtmp->m_lev = (special ? (ascending ? rn1(16,15) : min(30, u.ulevel + rn1(4,4))) : rnd(16));
-        mtmp->mhp = mtmp->mhpmax = d((int)mtmp->m_lev,10) +
+        mtmp->m_lev = (special ? (ascending ? rn1(16, 15) : min(30, u.ulevel + rn1(4, 4))) : rnd(16));
+        mtmp->mhp = mtmp->mhpmax = d((int)mtmp->m_lev, 10) +
                     (ascending ? (30 + rnd(30)) : 30);
-        if(ascending) {
+        if (ascending) {
 #endif
-            get_mplname(mtmp, nam);
-            mtmp = christen_monst(mtmp, nam);
             /* that's why they are "stuck" in the endgame :-) */
             (void) mongets(mtmp, FAKE_AMULET_OF_YENDOR);
         }
+        get_mplname(mtmp, nam);
+        mtmp = christen_monst(mtmp, nam);
         mtmp->mpeaceful = 0;
         set_malign(mtmp); /* peaceful may have changed again */
 
@@ -283,7 +283,7 @@ struct obj *obj;
 #ifndef ARTI_WITH_OWNER
             otmp->spe = (special ? rn1(5, 4) : rn2(4));
 #else
-            otmp->spe = (ascending ? rn1(5,4) : rn2(4));
+            otmp->spe = (ascending ? rn1(5, 4) : rn2(4));
 #endif
             if (!rn2(3))
                 otmp->oerodeproof = 1;
@@ -357,6 +357,7 @@ struct obj *obj;
             while (quan--)
                 (void) mpickobj(mtmp, mkobj(RANDOM_CLASS, FALSE));
         }
+
         quan = rnd(3);
         while (quan--)
             (void) mongets(mtmp, rnd_offensive_item(mtmp));
@@ -398,10 +399,10 @@ boolean special;
         do {
             x = rn1(COLNO - 4, 2);
             y = rnd(ROWNO - 2);
-        } while (!goodpos(x, y, &fakemon, 0) && tryct++ <= 50);
+        } while (!goodpos(x, y, &fakemon, 0) && tryct++ <= 500);
 
-        /* if pos not found in 50 tries, don't bother to continue */
-        if (tryct > 50)
+        /* if pos not found in 500 tries, don't bother to continue */
+        if (tryct > 500)
             return;
 
         (void) mk_mplayer(&mons[pm], (xchar) x, (xchar) y, special, NULL);

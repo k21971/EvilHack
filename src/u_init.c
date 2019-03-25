@@ -26,7 +26,7 @@ STATIC_DCL boolean FDECL(restricted_spell_discipline, (int));
  *      Initial inventory for the various roles.
  */
 
-static struct trobj Archeologist[] = {
+struct trobj Archeologist[] = {
     /* if adventure has a name...  idea from tan@uvm-gen */
     { BULLWHIP, 2, WEAPON_CLASS, 1, UNDEF_BLESS },
     { JACKET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -38,7 +38,7 @@ static struct trobj Archeologist[] = {
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Barbarian[] = {
+struct trobj Barbarian[] = {
 #define B_MAJOR 0 /* two-handed sword or battle-axe  */
 #define B_MINOR 1 /* matched with axe or short sword */
     { TWO_HANDED_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
@@ -47,7 +47,7 @@ static struct trobj Barbarian[] = {
     { FOOD_RATION, 0, FOOD_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Cave_man[] = {
+struct trobj Cave_man[] = {
 #define C_AMMO 2
     { CLUB, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { SLING, 2, WEAPON_CLASS, 1, UNDEF_BLESS },
@@ -56,7 +56,7 @@ static struct trobj Cave_man[] = {
     { ARMOR, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Healer[] = {
+struct trobj Healer[] = {
     { SCALPEL, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { GLOVES, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { STETHOSCOPE, 0, TOOL_CLASS, 1, 0 },
@@ -70,7 +70,7 @@ static struct trobj Healer[] = {
     { APPLE, 0, FOOD_CLASS, 5, 0 },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Knight[] = {
+struct trobj Knight[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { LANCE, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { PLATE_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -81,7 +81,7 @@ static struct trobj Knight[] = {
     { CARROT, 0, FOOD_CLASS, 10, 0 },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Monk[] = {
+struct trobj Monk[] = {
 #define M_BOOK 2
     { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
     { ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -97,7 +97,7 @@ static struct trobj Monk[] = {
     { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Priest[] = {
+struct trobj Priest[] = {
 #define PRI_MACE 0
     { MACE, 1, WEAPON_CLASS, 1, 1 },
     { ROBE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -108,7 +108,7 @@ static struct trobj Priest[] = {
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 2, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Ranger[] = {
+struct trobj Ranger[] = {
 #define RAN_BOW 1
 #define RAN_TWO_ARROWS 2
 #define RAN_ZERO_ARROWS 3
@@ -120,7 +120,7 @@ static struct trobj Ranger[] = {
     { CRAM_RATION, 0, FOOD_CLASS, 4, 0 },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Rogue[] = {
+struct trobj Rogue[] = {
 #define R_DAGGERS 1
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { DAGGER, 0, WEAPON_CLASS, 10, 0 }, /* quan is variable */
@@ -130,7 +130,7 @@ static struct trobj Rogue[] = {
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Samurai[] = {
+struct trobj Samurai[] = {
 #define S_ARROWS 3
     { KATANA, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS }, /* wakizashi */
@@ -139,7 +139,7 @@ static struct trobj Samurai[] = {
     { SPLINT_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Tourist[] = {
+struct trobj Tourist[] = {
 #define T_DARTS 0
     { DART, 2, WEAPON_CLASS, 25, UNDEF_BLESS }, /* quan is variable */
     { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 10, 0 },
@@ -150,14 +150,14 @@ static struct trobj Tourist[] = {
     { CREDIT_CARD, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Valkyrie[] = {
+struct trobj Valkyrie[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { DAGGER, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 3, ARMOR_CLASS, 1, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
-static struct trobj Wizard[] = {
+struct trobj Wizard[] = {
 #define W_MULTSTART 2
 #define W_MULTEND 6
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
@@ -175,34 +175,34 @@ static struct trobj Wizard[] = {
  *      Optional extra inventory items.
  */
 
-static struct trobj Tinopener[] = { { TIN_OPENER, 0, TOOL_CLASS, 1, 0 },
+struct trobj Tinopener[] = { { TIN_OPENER, 0, TOOL_CLASS, 1, 0 },
                                     { 0, 0, 0, 0, 0 } };
-static struct trobj Lamp[] = { { OIL_LAMP, 1, TOOL_CLASS, 1, 0 },
+struct trobj Lamp[] = { { OIL_LAMP, 1, TOOL_CLASS, 1, 0 },
                                { 0, 0, 0, 0, 0 } };
-static struct trobj Blindfold[] = { { BLINDFOLD, 0, TOOL_CLASS, 1, 0 },
+struct trobj Blindfold[] = { { BLINDFOLD, 0, TOOL_CLASS, 1, 0 },
                                     { 0, 0, 0, 0, 0 } };
-static struct trobj Instrument[] = { { FLUTE, 0, TOOL_CLASS, 1, 0 },
+struct trobj Instrument[] = { { FLUTE, 0, TOOL_CLASS, 1, 0 },
                                      { 0, 0, 0, 0, 0 } };
-static struct trobj Xtra_food[] = { { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 2, 0 },
+struct trobj Xtra_food[] = { { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 2, 0 },
                                     { 0, 0, 0, 0, 0 } };
-static struct trobj Leash[] = { { LEASH, 0, TOOL_CLASS, 1, 0 },
+struct trobj Leash[] = { { LEASH, 0, TOOL_CLASS, 1, 0 },
                                 { 0, 0, 0, 0, 0 } };
-static struct trobj Towel[] = { { TOWEL, 0, TOOL_CLASS, 1, 0 },
+struct trobj Towel[] = { { TOWEL, 0, TOOL_CLASS, 1, 0 },
                                 { 0, 0, 0, 0, 0 } };
-static struct trobj Wishing[] = { { WAN_WISHING, 3, WAND_CLASS, 1, 0 },
+struct trobj Wishing[] = { { WAN_WISHING, 3, WAND_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
-static struct trobj Money[] = { { GOLD_PIECE, 0, COIN_CLASS, 1, 0 },
+struct trobj Money[] = { { GOLD_PIECE, 0, COIN_CLASS, 1, 0 },
                                 { 0, 0, 0, 0, 0 } };
-static struct trobj Gem[] = { { UNDEF_TYP, 0, GEM_CLASS, 1, 0 },
+struct trobj Gem[] = { { UNDEF_TYP, 0, GEM_CLASS, 1, 0 },
                               { 0, 0, 0, 0, 0 } };
-static struct trobj Tinningkit[] = { { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+struct trobj Tinningkit[] = { { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 0 },
                                      { 0, 0, 0, 0, 0 } };
-static struct trobj Pickaxe[] = { { PICK_AXE, 0, TOOL_CLASS, 1, 0 },
+struct trobj Pickaxe[] = { { PICK_AXE, 0, TOOL_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
 
 /* race-based substitutions for initial inventory;
    the weaker cloak for elven rangers is intentional--they shoot better */
-static struct inv_sub {
+struct inv_sub {
     short race_pm, item_otyp, subs_otyp;
 } inv_subs[] = {
     { PM_ELF, DAGGER, ELVEN_DAGGER },
@@ -698,7 +698,7 @@ u_init()
         skill_init(Skill_B);
         break;
     case PM_CAVEMAN:
-        Cave_man[C_AMMO].trquan = rn1(11, 20); /* 20..30 */
+        Cave_man[C_AMMO].trquan = rn1(11, 10); /* 10..20 */
         ini_inv(Cave_man);
         if (Race_if(PM_GIANT)) {
             struct trobj RandomGem = Gem[0];
@@ -1155,13 +1155,16 @@ int otyp;
 }
 
 STATIC_OVL void
-ini_inv(trop)
-register struct trobj *trop;
+ini_inv(origtrop)
+register struct trobj *origtrop;
 {
     struct obj *obj;
     int otyp, i;
+    struct trobj temptrop;
+    register struct trobj *trop = &temptrop;
+    memcpy(&temptrop, origtrop, sizeof(struct trobj));
 
-    while (trop->trclass) {
+    while (origtrop->trclass) {
         otyp = (int) trop->trotyp;
         if (otyp != UNDEF_TYP) {
             obj = mksobj(otyp, TRUE, FALSE);
@@ -1354,7 +1357,8 @@ register struct trobj *trop;
                 continue; /* make a similar object */
         }
 #endif
-        trop++;
+        origtrop++;
+        memcpy(&temptrop, origtrop, sizeof(struct trobj));
     }
 }
 
