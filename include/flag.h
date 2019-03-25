@@ -1,4 +1,4 @@
-/* NetHack 3.6	flag.h	$NHDT-Date: 1514071158 2017/12/23 23:19:18 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.132 $ */
+/* NetHack 3.6	flag.h	$NHDT-Date: 1553204011 2019/03/21 21:33:31 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.148 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -371,7 +371,6 @@ struct instance_flags {
     boolean wizweight;       /* display weight of everything in wizard mode */
     boolean cmdassist;       /* provide detailed assistance for some commands */
     boolean clicklook;          /* allow right-clicking for look */
-    int statuslines;         /* default = 2, code support for alternative 3 */
     /*
      * Window capability support.
      */
@@ -391,10 +390,8 @@ struct instance_flags {
     char *wc_backgrnd_menu; /* points to backgrnd color name for menu win   */
     char *wc_foregrnd_message; /* points to foregrnd color name for msg win */
     char *wc_backgrnd_message; /* points to backgrnd color name for msg win */
-    char *
-        wc_foregrnd_status; /* points to foregrnd color name for status win */
-    char *
-        wc_backgrnd_status; /* points to backgrnd color name for status win */
+    char *wc_foregrnd_status; /* points to foregrnd color name for status   */
+    char *wc_backgrnd_status; /* points to backgrnd color name for status   */
     char *wc_foregrnd_text; /* points to foregrnd color name for text win   */
     char *wc_backgrnd_text; /* points to backgrnd color name for text win   */
     char *wc_font_map;      /* points to font name for the map win */
@@ -422,15 +419,15 @@ struct instance_flags {
     boolean wc2_selectsaved;    /* display a menu of user's saved games */
     boolean wc2_darkgray;    /* try to use dark-gray color for black glyphs */
     boolean wc2_hitpointbar;  /* show graphical bar representing hit points */
+    boolean wc2_guicolor;       /* allow colours in gui (outside map) */
     int wc_mouse_support;       /* allow mouse support */
     int wc2_term_cols;		/* terminal width, in characters */
     int wc2_term_rows;		/* terminal height, in characters */
+    int wc2_statuslines;        /* default = 2, curses can handle 3 */
     int wc2_windowborders;	/* display borders on NetHack windows */
     int wc2_petattr;            /* text attributes for pet */
-    boolean wc2_guicolor;   /* allow colours in gui (outside map) */
     boolean msg_is_alert;   /* suggest windowport should grab player's attention
                              * and request <TAB> acknowlegement */
-    boolean obsolete;  /* obsolete options can point at this, it isn't used */
     struct autopickup_exception *autopickup_exceptions[2];
 #define AP_LEAVE 0
 #define AP_GRAB 1
@@ -458,6 +455,7 @@ struct instance_flags {
     boolean windowtype_deferred; /* pick a windowport and store it in
                                     chosen_windowport[], but do not switch to
                                     it in the midst of options processing */
+    boolean obsolete;  /* obsolete options can point at this, it isn't used */
 };
 
 /*

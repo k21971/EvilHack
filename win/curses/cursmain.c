@@ -20,8 +20,8 @@ struct window_procs curses_procs = {
 #if defined(STATUS_HILITES)
      | WC2_HILITE_STATUS
 #endif
-     | WC2_HITPOINTBAR | WC2_FLUSH_STATUS
-     | WC2_TERM_SIZE | WC2_WINDOWBORDERS | WC2_PETATTR | WC2_GUICOLOR
+     | WC2_HITPOINTBAR | WC2_FLUSH_STATUS | WC2_TERM_SIZE
+     | WC2_STATUSLINES | WC2_WINDOWBORDERS | WC2_PETATTR | WC2_GUICOLOR
      | WC2_SUPPRESS_HIST),
     curses_init_nhwindows,
     curses_player_selection,
@@ -210,13 +210,12 @@ curses_askname()
 void
 curses_get_nh_event()
 {
+    boolean do_reset = FALSE;
+
 #ifdef PDCURSES
     if (is_termresized()) {
         resize_term(0, 0);
-        getmaxyx(base_term, term_rows, term_cols);
-        curses_create_main_windows();
-        curses_last_messages();
-        doredraw();
+        do_reset = TRUE;
     }
 #endif
 #ifdef NCURSES_VERSION          /* Is there a better way to detect ncurses? */
@@ -224,14 +223,16 @@ curses_get_nh_event()
         if (!isendwin()) {
             endwin();
         }
-
         refresh();
-        getmaxyx(base_term, term_rows, term_cols);
-        curses_create_main_windows();
-        curses_last_messages();
-        doredraw();
+        do_reset = TRUE;
     }
 #endif
+
+    if (do_reset) {
+        getmaxyx(base_term, term_rows, term_cols);
+        /* status_initialize, create_main_windows, last_messages, doredraw */
+        curs_reset_windows(TRUE, TRUE);
+    }
 }
 
 /* Exits the window system.  This should dismiss all windows,
@@ -240,6 +241,12 @@ curses_get_nh_event()
 void
 curses_exit_nhwindows(const char *str)
 {
+    curses_destroy_nhwindow(INV_WIN);
+    curses_destroy_nhwindow(MAP_WIN);
+    curses_destroy_nhwindow(STATUS_WIN);
+    curses_destroy_nhwindow(MESSAGE_WIN);
+    curs_destroy_all_wins();
+
     curses_cleanup();
     curs_set(orig_cursor);
     endwin();
@@ -339,6 +346,21 @@ curses_display_nhwindow(winid wid, BOOLEAN_P block)
 void
 curses_destroy_nhwindow(winid wid)
 {
+    switch (wid) {
+    case MESSAGE_WIN:
+        curses_teardown_messages(); /* discard ^P message history data */
+        break;
+    case STATUS_WIN:
+        curses_status_finish(); /* discard cached status data */
+        break;
+    case INV_WIN:
+        iflags.perm_invent = 0; /* avoid unexpected update_inventory() */
+        break;
+    case MAP_WIN:
+        break;
+    default:
+        break;
+    }
     curses_del_nhwin(wid);
 }
 
@@ -526,9 +548,7 @@ curses_update_inventory(void)
        changed the option. */
     if (!iflags.perm_invent) {
         if (curses_get_nhwin(INV_WIN)) {
-            curses_create_main_windows();
-            curses_last_messages();
-            doredraw();
+            curs_reset_windows(TRUE, FALSE);
         }
         return;
     }
@@ -852,13 +872,38 @@ preference_update(preference)
 void
 curses_preference_update(const char *pref)
 {
-    if (!strcmp(pref, "hilite_status") || !strcmp(pref, "align_status"))
-        status_initialize(REASSESS_ONLY);
+    boolean redo_main = FALSE, redo_status = FALSE;
 
     if (!strcmp(pref, "align_status")
-        || !strcmp(pref, "align_message")) {
+        || !strcmp(pref, "statuslines")
+        || !strcmp(pref, "windowborders"))
+        redo_main = redo_status = TRUE;
+    else if (!strcmp(pref, "hilite_status"))
+        redo_status = TRUE;
+    else if (!strcmp(pref, "align_message"))
+        redo_main = TRUE;
+
+    if (redo_main || redo_status)
+        curs_reset_windows(redo_main, redo_status);
+}
+
+void
+curs_reset_windows(boolean redo_main, boolean redo_status)
+{
+    boolean need_redraw = FALSE;
+
+    if (redo_status) {
+        status_initialize(REASSESS_ONLY);
+        need_redraw = TRUE;
+    }
+    if (redo_main) {
         curses_create_main_windows();
+        need_redraw = TRUE;
+    }
+    if (need_redraw) {
         curses_last_messages();
         doredraw();
     }
 }
+
+/*cursmain.c*/
