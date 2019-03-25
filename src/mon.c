@@ -1340,7 +1340,7 @@ register const char *str;
 	}
     	for(otmp3 = otmp->cobj; otmp3; otmp3 = otmp4) {
 	    otmp4 = otmp3->nobj;
-    	    if (!str ? searches_for_item(mtmp,otmp3) :
+    	    if (!str ? searches_for_item(mtmp, otmp3) :
 		  !!(index(str, otmp3->oclass)) ||
 		  (otmp3->oclass == COIN_CLASS &&
 		   likes_gold(mtmp->data))) {
@@ -1350,10 +1350,10 @@ register const char *str;
 			!touch_petrifies(&mons[otmp3->corpsenm]) &&
 			otmp3->corpsenm != PM_LIZARD &&
 			!acidic(&mons[otmp3->corpsenm])) continue;
-		if (!touch_artifact(otmp3,mtmp)) continue;
-		if (!can_carry(mtmp,otmp3)) continue;
-		if (is_pool(mtmp->mx,mtmp->my)) continue;
-		if (!pickedup && cansee(mtmp->mx,mtmp->my) && flags.verbose)
+		if (!touch_artifact(otmp3, mtmp)) continue;
+		if (!can_carry(mtmp, otmp3)) continue;
+		if (is_pool(mtmp->mx, mtmp->my)) continue;
+		if (!pickedup && cansee(mtmp->mx, mtmp->my) && flags.verbose)
 		{
 			pline("%s %s opens %s...", Monnam(mtmp),
 				waslocked ? "unlocks and" : "carefully",
@@ -1362,7 +1362,7 @@ register const char *str;
 				);
 			otmp->olocked = 0;
 		}
-		if (cansee(mtmp->mx,mtmp->my) && flags.verbose)
+		if (cansee(mtmp->mx, mtmp->my) && flags.verbose)
 			pline("%s retrieves %s from %s.", Monnam(mtmp),
 			      (distu(mtmp->mx, mtmp->my) <= 5) ?
 				doname(otmp3) : distant_name(otmp3, doname),

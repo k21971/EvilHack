@@ -5,7 +5,7 @@
 #include "hack.h"
 
 STATIC_DCL const char *NDECL(dev_name);
-STATIC_DCL void FDECL(get_mplname, (struct monst *, char *));
+void FDECL(get_mplname, (struct monst *, char *));
 STATIC_DCL void FDECL(mk_mplayer_armor, (struct monst *, SHORT_P));
 
 /* These are the names of those who
@@ -40,7 +40,7 @@ static const char *developers[] = {
 };
 
 /* return a randomly chosen developer name */
-STATIC_OVL const char *
+STATIC_DCL const char *
 dev_name()
 {
     register int i, m = 0, n = SIZE(developers);
@@ -67,7 +67,7 @@ dev_name()
     return (developers[i]);
 }
 
-STATIC_OVL void
+void
 get_mplname(mtmp, nam)
 register struct monst *mtmp;
 char *nam;

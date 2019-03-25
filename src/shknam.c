@@ -796,6 +796,7 @@ int shp_indx;
             (void) mpickobj(shk, otmp);
         }
 	m_dowear(shk, TRUE);
+        mon_wield_item(shk);
     }
 
     return sh;

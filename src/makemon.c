@@ -509,7 +509,7 @@ register struct monst *mtmp;
 	if (bag) {
 	    int count = (mtmp->m_lev * mtmp->m_lev) / 25;
 	    if (count < 1) count = 1;
-	    if (count > 15) count = 15;
+	    if (count > 10) count = 10;
 		count += rn2((mtmp->m_lev / 5) + 2);
 	    while (count-- > 0) {
 	        int otyp =
@@ -1628,6 +1628,8 @@ int mndx;
             (int) (In_endgame(&u.uz)
                        ? (10 * mon->m_lev)
                        :  (8 * mon->m_lev + d((int) mon->m_lev, 8)));
+    } else if (is_mplayer(ptr)) {
+	mon->mhpmax = mon->mhp = (7 * mon->m_lev + d((int) mon->m_lev, 8));
     } else if (!mon->m_lev) {
         mon->mhpmax = mon->mhp = rnd(4);
     } else {
@@ -1748,6 +1750,8 @@ coord *cc;
     }
     return FALSE;
 }
+
+extern void FDECL(get_mplname, (struct monst *, char *));
 
 /*
  * called with [x,y] = coordinates;
@@ -2071,6 +2075,7 @@ int mmflags;
             m_initweap(mtmp); /* equip with weapons / armor */
         m_initinv(mtmp); /* add on a few special items incl. more armor */
         m_dowear(mtmp, TRUE);
+        mon_wield_item(mtmp);
         (void) m_stash_items(mtmp, TRUE);
 
         if (!rn2(100) && is_domestic(ptr)
@@ -2096,6 +2101,12 @@ int mmflags;
 
     if (allow_minvent && migrating_objs)
         deliver_obj_to_mon(mtmp, 1, DF_NONE); /* in case of waiting items */
+
+    if (is_mplayer(ptr)) {
+	char nam[PL_NSIZ];
+        get_mplname(mtmp, nam);
+	mtmp = christen_monst(mtmp, nam);
+    }
 
     if (!in_mklev)
         newsym(mtmp->mx, mtmp->my); /* make sure the mon shows up */
@@ -2456,6 +2467,13 @@ register struct permonst *ptr;
         if (tmp > 49)
             tmp = 49;
         return tmp;
+    }
+
+    if (is_mplayer(ptr)) {
+	tmp = rn1(5, u.ulevel-2);
+	if (tmp < 1) tmp = 1;
+	if (tmp > 30) tmp = 30;
+	return tmp;
     }
 
     if ((tmp = ptr->mlevel) > 49)
