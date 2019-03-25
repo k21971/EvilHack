@@ -404,8 +404,8 @@ register struct monst *mtmp;
     switch (mtmp->mnum) {
         case PM_ARCHEOLOGIST:
 	    ini_mon_inv(mtmp, Archeologist, 1);
-	    ini_mon_inv(mtmp, Tinopener, 10);
-	    ini_mon_inv(mtmp, Lamp, 6);
+	    if (!rn2(10)) ini_mon_inv(mtmp, Tinopener);
+	    else if (!rn2(4)) ini_mon_inv(mtmp, Lamp);
 	    break;
 	case PM_BARBARIAN:
 	    if (rn2(100) >= 50) {
@@ -469,8 +469,8 @@ register struct monst *mtmp;
 	    mkmonmoney(mtmp, (long) rn1(1000, 1001));
 	    ini_mon_inv(mtmp, Tourist, 1);
 	    if (!rn2(25)) ini_mon_inv(mtmp, Tinopener, 1);
-	    else if(!rn2(25)) ini_mon_inv(mtmp, Leash, 1);
-	    else if(!rn2(25)) ini_mon_inv(mtmp, Towel, 1);
+	    else if (!rn2(25)) ini_mon_inv(mtmp, Leash, 1);
+	    else if (!rn2(25)) ini_mon_inv(mtmp, Towel, 1);
 	    break;
 	case PM_VALKYRIE:
 	    ini_mon_inv(mtmp, Valkyrie, 1);
@@ -480,7 +480,7 @@ register struct monst *mtmp;
 	    ini_mon_inv(mtmp, Wizard, 1);
 	    ini_mon_inv(mtmp, Blindfold, 5);
 	    break;
-	default:	/* impossible */
+	default: /* impossible */
 	    break;
 	}
 
@@ -523,8 +523,8 @@ register struct monst *mtmp;
 		(void) mpickobj(mtmp, otmp);
 	    else
 		(void) add_to_container(bag, otmp);
-	}
-    }
+	    }
+        }
     }
     return;
 }
