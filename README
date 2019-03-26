@@ -1,3 +1,30 @@
+                     EvilHack -- General information
+
+EvilHack is a NetHack variant that attempts to incorporate many of the best
+features of the variants GruntHack and SporkHack, as well as other interesting
+bits of code from other variants (Splicehack, UnNetHack, xNetHack, etc).
+Wrap all that up along with some custom/unique content never seen in any other
+variant, and you have EvilHack.
+
+EvilHack is built off of the NetHack 3.6.2 codebase, and will be updated
+accordingly as NetHack 3.6.x progresses and evolves.
+
+This variant is designed to be difficult, much like how GruntHack and SporkHack
+turned out to be (hence the name 'EvilHack'). It is not impossible to win by
+any means, but several aspects of the game that one might take for gratned in
+the 'vanilla' version of NetHack can easily cost you your game in this variant.
+Various monsters are tougher, have more hit points, can fight more intelligently,
+and can use a variety of objects against you that previously only the player
+could use.
+
+More information regarding this variant can be accessed at the NetHackWiki -
+https://nethackwiki.com/wiki/EvilHack - or by visiting channel #hardfought on
+Freenode IRC.
+
+NetHack's general information bit is below.
+
+================================================================================
+
                 NetHack 3.6.2 -- General information
 
 NetHack 3.6 is an enhancement to the dungeon exploration game NetHack,
