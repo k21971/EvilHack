@@ -1160,6 +1160,7 @@ struct monst *mtmp;
     if (is_animal(pm) || attacktype(pm, AT_EXPL) || mindless(mtmp->data)
         || pm->mlet == S_GHOST || pm->mlet == S_KOP)
         return 0;
+
  try_again:
     switch (rn2(8 + (difficulty > 3) + (difficulty > 6) + (difficulty > 8))) {
     case 6:
@@ -1218,6 +1219,7 @@ struct monst *mtmp;
 #define MUSE_SCR_STINKING_CLOUD 20
 #define MUSE_POT_POLYMORPH_THROW 21
 #define MUSE_POT_HALLUCINATION 22
+#define MUSE_WAN_POLYMORPH 23
 
 /* Select an offensive item/action for a monster.  Returns TRUE iff one is
  * found.
@@ -1302,11 +1304,16 @@ struct monst *mtmp;
                 m.offensive = obj;
                 m.has_offense = MUSE_WAN_MAGIC_MISSILE;
             }
-            nomore(MUSE_WAN_CANCELLATION);
-            if (obj->otyp == WAN_CANCELLATION && obj->spe > 0) {
-                m.offensive = obj;
-                m.has_offense = MUSE_WAN_CANCELLATION;
-            }
+        }
+        nomore(MUSE_WAN_CANCELLATION);
+        if (obj->otyp == WAN_CANCELLATION && obj->spe > 0) {
+            m.offensive = obj;
+            m.has_offense = MUSE_WAN_CANCELLATION;
+        }
+        nomore(MUSE_WAN_POLYMORPH);
+        if (obj->otyp == WAN_POLYMORPH && obj->spe > 0) {
+            m.offensive = obj;
+            m.has_offense = MUSE_WAN_POLYMORPH;
         }
         nomore(MUSE_WAN_STRIKING);
         if (obj->otyp == WAN_STRIKING && obj->spe > 0) {
@@ -1541,6 +1548,24 @@ boolean reflection_skip;
 		        m.tocharge = obj;
 		    }
 		}
+                nomore(MUSE_WAN_POLYMORPH);
+                if(obj->otyp == WAN_POLYMORPH) {
+                    if (obj->spe > 0) {
+                        m.offensive = obj;
+                        m.has_offense = MUSE_WAN_POLYMORPH;
+                    } else if (!m.tocharge ||
+                               (m.tocharge->otyp != WAN_DEATH &&
+                                m.tocharge->otyp != WAN_SLEEP &&
+                                m.tocharge->otyp != WAN_FIRE &&
+                                m.tocharge->otyp != FIRE_HORN &&
+                                m.tocharge->otyp != WAN_COLD &&
+                                m.tocharge->otyp != FROST_HORN &&
+                                m.tocharge->otyp != WAN_LIGHTNING &&
+                                m.tocharge->otyp != WAN_MAGIC_MISSILE &&
+                                m.tocharge->otyp != WAN_CANCELLATION)) {
+                        m.tocharge = obj;
+                    }
+                }
 		nomore(MUSE_WAN_STRIKING);
 		if(obj->otyp == WAN_STRIKING) {
 		    if (obj->spe > 0) {
@@ -1555,7 +1580,8 @@ boolean reflection_skip;
 				m.tocharge->otyp != FROST_HORN &&
 				m.tocharge->otyp != WAN_LIGHTNING &&
 				m.tocharge->otyp != WAN_MAGIC_MISSILE &&
-				m.tocharge->otyp != WAN_CANCELLATION)) {
+                                m.tocharge->otyp != WAN_CANCELLATION &&
+				m.tocharge->otyp != WAN_POLYMORPH)) {
 		        m.tocharge = obj;
 		    }
 		}
@@ -1709,17 +1735,17 @@ register struct obj *otmp;
 #endif
     case WAN_POLYMORPH:
 	if (mtmp == &youmonst) {
-		if (Antimagic) {
-			shieldeff(u.ux, u.uy);
-			You_feel("momentarily different.");
-		    	if (zap_oseen && otmp->otyp == WAN_POLYMORPH)
-		        	makeknown(WAN_POLYMORPH);
-		}
-		else if (!Unchanging) {
-		    if (zap_oseen && otmp->otyp == WAN_POLYMORPH)
-		        makeknown(WAN_POLYMORPH);
-		    polyself(FALSE);
-		}
+	    if (Antimagic) {
+		shieldeff(u.ux, u.uy);
+		You_feel("momentarily different.");
+		if (zap_oseen && otmp->otyp == WAN_POLYMORPH)
+		    makeknown(WAN_POLYMORPH);
+	    }
+	    else if (!Unchanging) {
+	        if (zap_oseen && otmp->otyp == WAN_POLYMORPH)
+		    makeknown(WAN_POLYMORPH);
+		polyself(FALSE);
+	    }
 	} else if (resists_magm(mtmp)) {
 	    /* magic resistance protects from polymorph traps, so make
 	       it guard against involuntary polymorph attacks too... */
@@ -1728,14 +1754,14 @@ register struct obj *otmp;
 	    register struct obj *obj;
 		/* dropped inventory shouldn't be hit by this zap */
 		for (obj = mtmp->minvent; obj; obj = obj->nobj)
-		    bypass_obj(obj);
+		     bypass_obj(obj);
 
 		if (canseemon(mtmp))
-			pline("%s is killed!", Monnam(mtmp));
+		    pline("%s is killed!", Monnam(mtmp));
 		DEADMONSTER(mtmp);
-	    } else if (newcham(mtmp, (struct permonst *)0, TRUE, FALSE)) {
-		if (!Hallucination && zap_oseen && otmp->otyp == WAN_POLYMORPH)
-		    makeknown(otmp->otyp);
+	} else if (newcham(mtmp, (struct permonst *)0, TRUE, FALSE)) {
+            if (!Hallucination && zap_oseen && otmp->otyp == WAN_POLYMORPH)
+		makeknown(otmp->otyp);
 	}
 	break;
     case WAN_CANCELLATION:
@@ -1912,6 +1938,7 @@ struct monst *mtmp;
         return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_WAN_CANCELLATION:
     case MUSE_WAN_TELEPORTATION:
+    case MUSE_WAN_POLYMORPH:
     case MUSE_WAN_STRIKING:
         zap_oseen = oseen;
         mzapmsg(mtmp, otmp, FALSE);
@@ -2060,6 +2087,8 @@ struct monst *mtmp;
         return 0;
     if (difficulty > 7 && !rn2(35))
         return WAN_DEATH;
+    if (difficulty > 7 && !rn2(30))
+        return WAN_POLYMORPH;
     switch (rn2(9 - (difficulty < 4) + 4 * (difficulty > 6))) {
     case 0: {
         struct obj *helmet = which_armor(mtmp, W_ARMH);
@@ -2104,7 +2133,7 @@ struct monst *mtmp;
 #define MUSE_WAN_MAKE_INVISIBLE 2
 #define MUSE_POT_INVISIBILITY 3
 #define MUSE_POLY_TRAP 4
-#define MUSE_WAN_POLYMORPH 5
+#define MUSE_WAN_POLYMORPH_SELF 5
 #define MUSE_POT_SPEED 6
 #define MUSE_WAN_SPEED_MONSTER 7
 #define MUSE_BULLWHIP 8
@@ -2234,11 +2263,11 @@ struct monst *mtmp;
             m.misc = obj;
             m.has_misc = MUSE_POT_SPEED;
         }
-        nomore(MUSE_WAN_POLYMORPH);
+        nomore(MUSE_WAN_POLYMORPH_SELF);
         if (obj->otyp == WAN_POLYMORPH && obj->spe > 0
             && (mtmp->cham == NON_PM) && mons[monsndx(mdat)].difficulty < 6) {
             m.misc = obj;
-            m.has_misc = MUSE_WAN_POLYMORPH;
+            m.has_misc = MUSE_WAN_POLYMORPH_SELF;
         }
         nomore(MUSE_POT_POLYMORPH);
         if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
@@ -2348,11 +2377,11 @@ struct obj *start;
             m.misc = obj;
             m.has_misc = MUSE_POT_SPEED;
         }
-        nomore(MUSE_WAN_POLYMORPH);
+        nomore(MUSE_WAN_POLYMORPH_SELF);
         if (obj->otyp == WAN_POLYMORPH && obj->spe > 0
             && (mtmp->cham == NON_PM) && mons[monsndx(mdat)].difficulty < 6) {
             m.misc = obj;
-            m.has_misc = MUSE_WAN_POLYMORPH;
+            m.has_misc = MUSE_WAN_POLYMORPH_SELF;
         }
         nomore(MUSE_POT_POLYMORPH);
         if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
@@ -2529,7 +2558,7 @@ struct monst *mtmp;
         mon_adjust_speed(mtmp, 1, otmp);
         m_useup(mtmp, otmp);
         return 2;
-    case MUSE_WAN_POLYMORPH:
+    case MUSE_WAN_POLYMORPH_SELF:
         mzapmsg(mtmp, otmp, TRUE);
         otmp->spe--;
         (void) newcham(mtmp, muse_newcham_mon(mtmp), TRUE, FALSE);
@@ -2537,6 +2566,10 @@ struct monst *mtmp;
             makeknown(WAN_POLYMORPH);
         return 2;
     case MUSE_WAN_WISHING:
+        /* wear any armor items previously wished for before
+         * using another wish */
+        m_dowear(mtmp, FALSE);
+
         mzapmsg(mtmp, otmp, FALSE);
         otmp->spe--;
         if (vismon)
@@ -2761,11 +2794,10 @@ struct obj *obj;
             return FALSE;
         if (typ == WAN_DIGGING)
             return (boolean) !is_floater(mon->data);
-        if (typ == WAN_POLYMORPH)
-            return (boolean) (mons[monsndx(mon->data)].difficulty < 6);
         if (objects[typ].oc_dir == RAY || typ == WAN_STRIKING
             || typ == WAN_TELEPORTATION || typ == WAN_CREATE_MONSTER
-            || typ == WAN_CANCELLATION || typ == WAN_WISHING)
+            || typ == WAN_CANCELLATION || typ == WAN_WISHING
+            || typ == WAN_POLYMORPH)
             return TRUE;
         break;
     case POTION_CLASS:
