@@ -372,12 +372,18 @@ struct monst *mon;
     }
 
     if (tmp > 0) {
+        int mac = (mon && mon != &zeromonst) ? find_mac(mon) : 10;
         /* It's debatable whether a rusted blunt instrument
            should do less damage than a pristine one, since
            it will hit with essentially the same impact, but
            there ought to some penalty for using damaged gear
            so always subtract erosion even for blunt weapons. */
         tmp -= greatest_erosion(otmp);
+
+	/* Low AC subtracts damage, just as it does with players */
+	if (mac < 0)
+	    tmp -= rnd(-mac);
+
         if (tmp < 1)
             tmp = 1;
     }

@@ -5038,7 +5038,7 @@ boolean disarm;
 		    pline("A %s erupts from %s!", tower_of_flame, the(xname(obj)));
 		if (resists_fire(mon)) {
 		    if (canseemon(mon)) {
-			shieldeff(mon->mx,mon->my);
+			shieldeff(mon->mx, mon->my);
 			pline("%s is uninjured.", Monnam(mon));
 		    }
 		} else {
