@@ -4879,7 +4879,7 @@ boolean disarm;
                            chest kills you and ends up in bones file */
     if (yours)
         You(disarm ? "set it off!" : "trigger a trap!");
-    else if (cansee(mon->mx,mon->my))
+    else if (canseemon(mon))
              pline("%s %s!", Monnam(mon),
                    disarm ? "sets it off" : "triggers a trap");
 
@@ -4915,7 +4915,7 @@ boolean disarm;
             msg = (char *) 0;
             break;
         }
-        if (msg && (yours || cansee(mon->mx,mon->my)))
+        if (msg && (yours || canseemon(mon)))
             pline("But luckily the %s!", msg);
     } else {
         switch (rn2(20) ? ((Luck >= 13) ? 0 : rn2(13 - Luck)) : rn2(26)) {
@@ -4936,18 +4936,16 @@ boolean disarm;
             insider = (*u.ushops && inside_shop(u.ux, u.uy)
                        && *in_rooms(ox, oy, SHOPBASE) == *u.ushops);
 
-            if (yours || cansee(mon->mx, mon->my)) {
+            if (yours || canseemon(mon)) {
                 pline("%s!", Tobjnam(obj, "explode"));
                 Sprintf(buf, "exploding %s", xname(obj));
             } else if (!Deaf) {
                        You_hear("a distant explosion.");
             }
 
-
             if (costly)
-                loss += stolen_value(obj, ox, oy, (boolean) shkp->mpeaceful,
-                                     TRUE);
-            delete_contents(obj);
+                loss += stolen_value(obj, ox, oy, (boolean) shkp->mpeaceful, TRUE);
+                delete_contents(obj);
             /* unpunish() in advance if either ball or chain (or both)
                is going to be destroyed */
             if (Punished && ((uchain->ox == u.ux && uchain->oy == u.uy)
@@ -4956,25 +4954,25 @@ boolean disarm;
                 unpunish();
 
             for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp2) {
-                otmp2 = otmp->nexthere;
+                 otmp2 = otmp->nexthere;
                 if (costly)
                     loss += stolen_value(otmp, otmp->ox, otmp->oy,
                                          (boolean) shkp->mpeaceful, TRUE);
-                delobj(otmp);
+                    delobj(otmp);
             }
             wake_nearby();
             if (yours) {
                 losehp(d(6, 6), buf, KILLED_BY_AN);
             losehp(Maybe_Half_Phys(d(6, 6)), buf, KILLED_BY_AN);
             exercise(A_STR, FALSE);
-            if (costly && loss) {
-                if (insider)
-                    You("owe %ld %s for objects destroyed.", loss,
-                        currency(loss));
-                else {
-                    You("caused %ld %s worth of damage!", loss,
-                        currency(loss));
-                    make_angry_shk(shkp, ox, oy);
+                if (costly && loss) {
+                    if (insider)
+                        You("owe %ld %s for objects destroyed.", loss,
+                            currency(loss));
+                    else {
+                        You("caused %ld %s worth of damage!", loss,
+                            currency(loss));
+                        make_angry_shk(shkp, ox, oy);
                     }
                 }
             } else {
@@ -4984,81 +4982,186 @@ boolean disarm;
                           pline("%s is killed by the explosion!", Monnam(mon));
                       }
                       mondied(mon);
-                }
+                  }
             }
-
             return TRUE;
         } /* case 21 */
         case 20:
         case 19:
         case 18:
         case 17:
-            pline("A cloud of noxious gas billows from %s.", the(xname(obj)));
-            poisoned("gas cloud", A_STR, "cloud of poison gas", 15, FALSE);
-            exercise(A_CON, FALSE);
+            if (yours || canseemon(mon))
+                pline("A cloud of noxious gas billows from %s.", the(xname(obj)));
+            if (yours) {
+                poisoned("gas cloud", A_STR, "cloud of poison gas", 15, FALSE);
+                exercise(A_CON, FALSE);
+	    } else if (!resists_poison(mon)) {
+	               int dmg = rnd(15);
+	        if (!rn2(10))
+		    dmg = mon->mhp;
+		    mon->mhp -= dmg;
+		if (mon->mhp <= 0) {
+		    if (canseemon(mon))
+			pline("%s is killed!", Monnam(mon));
+			mondied(mon);
+		}
+	    }
             break;
         case 16:
         case 15:
         case 14:
         case 13:
-            You_feel("a needle prick your %s.", body_part(bodypart));
-            poisoned("needle", A_CON, "poisoned needle", 10, FALSE);
-            exercise(A_CON, FALSE);
+            if (yours) {
+                You_feel("a needle prick your %s.", body_part(bodypart));
+                poisoned("needle", A_CON, "poisoned needle", 10, FALSE);
+                exercise(A_CON, FALSE);
+	    } else if (!resists_poison(mon)) {
+		       int dmg = rnd(10);
+	        if (!rn2(10))
+		    dmg = mon->mhp;
+		    mon->mhp -= dmg;
+		if (mon->mhp <= 0) {
+		    if (canseemon(mon))
+			pline("%s is killed!", Monnam(mon));
+			mondied(mon);
+		}
+	    }
             break;
         case 12:
         case 11:
         case 10:
         case 9:
-            dofiretrap(obj);
+            if (yours) {
+                dofiretrap(obj);
+	    } else {
+	        if (canseemon(mon))
+		    pline("A %s erupts from %s!", tower_of_flame, the(xname(obj)));
+		if (resists_fire(mon)) {
+		    if (canseemon(mon)) {
+			shieldeff(mon->mx,mon->my);
+			pline("%s is uninjured.", Monnam(mon));
+		    }
+		} else {
+		    int num = d(2, 4), alt;
+		    boolean immolate = FALSE;
+
+		    /* paper burns very fast, assume straw is tightly
+		     * packed and burns a bit slower */
+		    switch (monsndx(mon->data)) {
+		        case PM_PAPER_GOLEM:
+                            immolate = TRUE;
+			    alt = mon->mhpmax;
+                            break;
+			case PM_STRAW_GOLEM:
+                            alt = mon->mhpmax / 2;
+                            break;
+		        case PM_WOOD_GOLEM:
+                            alt = mon->mhpmax / 4;
+                            break;
+			case PM_LEATHER_GOLEM:
+                            alt = mon->mhpmax / 8;
+                            break;
+			default:
+                            alt = 0;
+                            break;
+		    }
+		    if (alt > num) num = alt;
+
+		    if (!thitm(0, mon, (struct obj *)0, num, immolate))
+			mon->mhpmax -= rn2(num + 1);
+		}
+
+		if (burnarmor(mon) || rn2(3)) {
+		    (void) destroy_mitem(mon, SCROLL_CLASS, AD_FIRE);
+		    (void) destroy_mitem(mon, SPBOOK_CLASS, AD_FIRE);
+		    (void) destroy_mitem(mon, POTION_CLASS, AD_FIRE);
+		}
+
+		if (burn_floor_objects(mon->mx, mon->my, canseemon(mon), FALSE)
+                    && !canseemon(mon) && distu(mon->mx, mon->my) <= 3 * 3)
+		    You("smell smoke.");
+		if (is_ice(mon->mx, mon->my))
+		    melt_ice(mon->mx, mon->my, (char *) 0);
+		}
             break;
         case 8:
         case 7:
-        case 6: {
-            int dmg;
+        case 6:
+            if (yours) {
+                int dmg;
 
-            You("are jolted by a surge of electricity!");
-            if (how_resistant(SHOCK_RES) == 100) {
-                shieldeff(u.ux, u.uy);
-                You("don't seem to be affected.");
-                dmg = 0;
-            } else
-                dmg = resist_reduce(d(4, 4), SHOCK_RES);
-            destroy_item(RING_CLASS, AD_ELEC);
-            destroy_item(WAND_CLASS, AD_ELEC);
-            if (dmg)
-                losehp(dmg, "electric shock", KILLED_BY_AN);
+                You("are jolted by a surge of electricity!");
+                if (how_resistant(SHOCK_RES) == 100) {
+                    shieldeff(u.ux, u.uy);
+                    You("don't seem to be affected.");
+                    dmg = 0;
+                } else
+                    dmg = resist_reduce(d(4, 4), SHOCK_RES);
+                destroy_item(RING_CLASS, AD_ELEC);
+                destroy_item(WAND_CLASS, AD_ELEC);
+                if (dmg)
+                    losehp(dmg, "electric shock", KILLED_BY_AN);
+	    } else {
+		if (canseemon(mon)) {
+		    pline("%s is jolted by a surge of electricity!", Monnam(mon));
+		}
+		(void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
+		(void) destroy_mitem(mon, WAND_CLASS, AD_ELEC);
+		if (!resists_elec(mon)) {
+		    mon->mhp -= d(4, 4);
+		    if (mon->mhp <= 0) {
+			if (canseemon(mon))
+			    pline("%s is killed!", Monnam(mon));
+			    mondied(mon);
+		    }
+		} else if (canseemon(mon)) {
+		    pline("%s doesn't seem to be affected.", Monnam(mon));
+		}
+	    }
             break;
-        } /* case 6 */
         case 5:
         case 4:
         case 3:
-            if (!Free_action) {
-                pline("Suddenly you are frozen in place!");
-                nomul(-d(5, 6));
-                multi_reason = "frozen by a trap";
-                exercise(A_DEX, FALSE);
-                nomovemsg = You_can_move_again;
-            } else
-                You("momentarily stiffen.");
+            if (yours) {
+                if (!Free_action) {
+                    pline("Suddenly you are frozen in place!");
+                    nomul(-d(5, 6));
+                    multi_reason = "frozen by a trap";
+                    exercise(A_DEX, FALSE);
+                    nomovemsg = You_can_move_again;
+                } else
+                    You("momentarily stiffen.");
+	    } else {
+	        if (mon->mcanmove) {
+		    mon->mcanmove = 0;
+		    mon->mfrozen = d(5, 6);
+		}
+	    }
             break;
         case 2:
         case 1:
         case 0:
-            pline("A cloud of %s gas billows from %s.",
-                  Blind ? blindgas[rn2(SIZE(blindgas))] : rndcolor(),
-                  the(xname(obj)));
-            if (!Stunned) {
-                if (Hallucination)
-                    pline("What a groovy feeling!");
-                else
-                    You("%s%s...", stagger(youmonst.data, "stagger"),
-                        Halluc_resistance ? ""
-                                          : Blind ? " and get dizzy"
-                                                  : " and your vision blurs");
-            }
-            make_stunned((HStun & TIMEOUT) + (long) rn1(7, 16), FALSE);
-            (void) make_hallucinated(
-                (HHallucination & TIMEOUT) + (long) rn1(5, 16), FALSE, 0L);
+            if (yours || canseemon(mon)) {
+                pline("A cloud of %s gas billows from %s.",
+                      Blind ? blindgas[rn2(SIZE(blindgas))] : rndcolor(),
+                      the(xname(obj)));
+                if (!Stunned) {
+                    if (Hallucination)
+                        pline("What a groovy feeling!");
+                    else
+                        You("%s%s...", stagger(youmonst.data, "stagger"),
+                            Halluc_resistance ? ""
+                                              : Blind ? " and get dizzy"
+                                                      : " and your vision blurs");
+                }
+                make_stunned((HStun & TIMEOUT) + (long) rn1(7, 16), FALSE);
+                (void) make_hallucinated(
+                    (HHallucination & TIMEOUT) + (long) rn1(5, 16), FALSE, 0L);
+	    } else {
+	        mon->mstun = mon->mconf = 1;
+		if (canseemon(mon))
+		    pline("%s staggers for a moment.", Monnam(mon));
+	    }
             break;
         default:
             impossible("bad chest trap");
