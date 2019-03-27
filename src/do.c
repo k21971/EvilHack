@@ -1860,7 +1860,7 @@ final_level()
     }
 
     /* create some player-monsters */
-    create_mplayers(rn1(4, 3), TRUE);
+    create_mplayers(rn1(5, 4), TRUE);
 
     /* create a guardian steed next to player, if worthy */
     gain_guardian_steed();

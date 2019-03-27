@@ -245,7 +245,7 @@ struct obj *obj;
                 weapon = KATANA;
             break;
         case PM_TOURIST:
-            /* Defaults are just fine */
+            (void) mongets(mtmp, EXPENSIVE_CAMERA);
             break;
         case PM_VALKYRIE:
             if (rn2(2))
@@ -307,7 +307,7 @@ struct obj *obj;
 #ifndef ARTI_WITH_OWNER
         if (special) {
 #else
-        if(ascending) {
+        if (ascending) {
 #endif
             if (!rn2(10))
                 (void) mongets(mtmp, rn2(3) ? LUCKSTONE : LOADSTONE);

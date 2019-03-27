@@ -95,11 +95,11 @@ ENTRYMAX=2000
 # 0x100 - Murder of tame pet
 # 0x8000 - Livelog debug msgs (currently only 'enter new level')
 # Enabled at compile time by defining LIVELOGFILE in config.h
-LIVELOG=0x0FFF
+LIVELOG=0x03FF
 
 # Do not livelog breaking of conducts before this turncount
 # Cuts down on spam
-LLC_TURNS=3000
+LLC_TURNS=1
 
 # Show debugging information originating from these source files.
 # Use '*' for all, or list source files separated by spaces.

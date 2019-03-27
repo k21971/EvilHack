@@ -1889,6 +1889,10 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (ma == &mons[PM_PSEUDODRAGON] && md->mlet == S_RODENT)
         return ALLOW_M | ALLOW_TM;
 
+    /* Endgame amulet theft / fleeing */
+    if(mon_has_amulet(magr) && In_endgame(&u.uz)) {
+        return ALLOW_M | ALLOW_TM;
+    }
     return 0L;
 }
 

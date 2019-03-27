@@ -175,7 +175,10 @@ boolean check_if_better;
             return TRUE;
         if (otmp->oclass == ARMOR_CLASS) {
  	    return !check_if_better || !is_better_armor(&youmonst, otmp);
-        } else if (otmp->oclass == WAND_CLASS && otmp->spe <= 0)
+        } else if ((otmp->oclass == WAND_CLASS
+                   || otmp->oclass == TOOL_CLASS
+                   || otmp->oclass == RING_CLASS)
+                   && otmp->spe <= 0)
             return FALSE;  /* used charges or was cancelled? */
         else {
        	    /* Check if you've got one.

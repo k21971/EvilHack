@@ -221,7 +221,7 @@
 #ifdef LIVELOGFILE
 /* LL_flags defined in global.h. Value below is ignored if SYSCF is enabled */
 /* #define LIVELOG_DETAIL (LL_WISH|LL_ACHIEVE|LL_UMONST) */
-#define LIVELOG_DETAIL 0x0FFF
+#define LIVELOG_DETAIL 0x03FF
 #endif
 #define NEWS     "news"     /* the file containing the latest hack news */
 #define PANICLOG "paniclog" /* log of panic and impossible events */

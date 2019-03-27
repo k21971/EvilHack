@@ -17,8 +17,9 @@ STATIC_DCL int FDECL(m_arrival, (struct monst *));
 STATIC_DCL boolean FDECL(stuff_prevents_passage, (struct monst *));
 STATIC_DCL int FDECL(vamp_shift, (struct monst *, struct permonst *,
                                   BOOLEAN_P));
-
 STATIC_DCL boolean FDECL(likes_contents, (struct monst *, struct obj *));
+
+#define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
 
 /* True if mtmp died */
 boolean
@@ -915,6 +916,7 @@ register int after;
     long info[9];
     long flag;
     int omx = mtmp->mx, omy = mtmp->my;
+    int offer;
 
     if (mtmp->mtrapped) {
         int i = mintrap(mtmp);
@@ -936,6 +938,14 @@ register int after;
     }
     if (hides_under(ptr) && OBJ_AT(mtmp->mx, mtmp->my) && rn2(10))
         return 0; /* do not leave hiding place */
+
+    /* Offering takes presedence over everything else.*/
+    if (IS_ALTAR(levl[mtmp->mx][mtmp->my].typ)) {
+        offer = moffer(mtmp);
+        if (offer != 0) {
+            return offer;
+        }
+    }
 
     set_apparxy(mtmp);
     /* where does mtmp think you are? */

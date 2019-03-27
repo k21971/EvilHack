@@ -696,6 +696,7 @@ intervene()
     /* many cases don't apply on the Astral level or Planes */
     switch (which) {
     case 0:
+        You_feel("apprehensive.");
     case 1:
         You_feel("vaguely nervous.");
         break;

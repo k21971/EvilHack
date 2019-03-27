@@ -1583,8 +1583,12 @@ register struct attack *mattk;
         /* when the Wizard or quest nemesis hits, there's a 1/20 chance
            to steal a quest artifact (any, not just the one for the hero's
            own role) or the Amulet or one of the invocation tools */
-        if (!rn2(20))
+        if (!rn2(20)) {
             stealamulet(mtmp);
+            if (In_endgame(&u.uz) && mon_has_amulet(mtmp)) {
+                monflee(mtmp, 20, FALSE, TRUE);
+            }
+        }
         break;
 
     case AD_TLPT:
@@ -1920,6 +1924,12 @@ do_rust:
                     You("recoil at the touch of %s!", yname(marmf));
                 exercise(A_CON, FALSE);
                 dmg += rnd(sear_damage(marmf->material));
+            }
+            if (mdat == &mons[PM_MONK])
+                if (!rn2(10) && youmonst.data->msize != MZ_HUGE) {
+                You("reel from %s powerful kick!", s_suffix(mon_nam(mtmp)));
+                make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+                dmg /= 2;
             }
         }
     }

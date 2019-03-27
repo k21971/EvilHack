@@ -531,17 +531,20 @@ struct monst *mtmp;
     struct obj *otmp = 0, *obj = 0;
     int real = 0, fake = 0, n;
 
-    /* target every quest artifact, not just current role's;
-       if hero has more than one, choose randomly so that player
-       can't use inventory ordering to influence the theft */
-    for (n = 0, obj = invent; obj; obj = obj->nobj)
-        if (any_quest_artifact(obj))
-            ++n, otmp = obj;
-    if (n > 1) {
-        n = rnd(n);
-        for (otmp = invent; otmp; otmp = otmp->nobj)
-            if (any_quest_artifact(otmp) && !--n)
-                break;
+    /* target every quest artifact (except mplayer monsters),
+       not just current role's; if hero has more than one,
+       choose randomly so that player can't use inventory
+       ordering to influence the theft */
+    if (!is_mplayer(mtmp->data)) {
+        for (n = 0, obj = invent; obj; obj = obj->nobj)
+            if (any_quest_artifact(obj))
+                ++n, otmp = obj;
+        if (n > 1) {
+            n = rnd(n);
+            for (otmp = invent; otmp; otmp = otmp->nobj)
+                if (any_quest_artifact(otmp) && !--n)
+                    break;
+        }
     }
 
     if (!otmp) {
