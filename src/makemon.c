@@ -433,7 +433,7 @@ register struct monst *mtmp;
                 }
 		ini_mon_inv(mtmp, !rn2(2) ? Level10Kit1 : Level10Kit2,
 	                    (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
-    }
+        }
 
     switch (mtmp->mnum) {
         case PM_ARCHEOLOGIST:

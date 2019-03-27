@@ -39,6 +39,14 @@ static const char *developers[] = {
     "Joshua",  "Pat",    ""
 };
 
+static const char *fem_names[] = {
+    "Ariel",   "Alexandria",  "Betty",     "Charlotte",
+    "Ella",    "Gabriel",     "Isabella",  "Kathryn",
+    "Mary",    "Nancy",       "Olivia",    "Penny",
+    "Rosa",    "Sally",       "Sophia",    "Veronica",
+    "Yvette",  "Zoey"
+};
+
 /* return a randomly chosen developer name */
 STATIC_OVL const char *
 dev_name()
@@ -79,7 +87,9 @@ char *nam;
     if (!devnam)
         Strcpy(nam, fmlkind ? "Eve" : "Adam");
     else if (fmlkind && !!strcmp(devnam, "Janet"))
-        Strcpy(nam, rn2(2) ? "Maud" : "Eve");
+        /* Strcpy(nam, rn2(2) ? "Maud" : "Eve"); */
+        Sprintf(nam, "%s", fem_names[rn2(SIZE(fem_names))]);
+
     else
         Strcpy(nam, devnam);
 
