@@ -1300,7 +1300,7 @@ register struct monst *mtmp;
                 pline("However, your quest ends here...");
                 done(ESCAPED);
             } else {
-                pline("The Demigod of %s looks down upon you, and squashes you like the ant that you are",
+                pline("The Demigod of %s looks down upon you, and squashes you like the ant that you are.",
                       a_gname_at(mtmp->mx, mtmp->my));
                 Sprintf(killer.name, "%s indifference", s_suffix(mon_nam(mtmp)));
                 killer.format = KILLED_BY;

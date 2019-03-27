@@ -939,7 +939,7 @@ register int after;
     if (hides_under(ptr) && OBJ_AT(mtmp->mx, mtmp->my) && rn2(10))
         return 0; /* do not leave hiding place */
 
-    /* Offering takes presedence over everything else.*/
+    /* Offering takes precedence over everything else */
     if (IS_ALTAR(levl[mtmp->mx][mtmp->my].typ)) {
         offer = moffer(mtmp);
         if (offer != 0) {

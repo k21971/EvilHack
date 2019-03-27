@@ -3278,7 +3278,7 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_TUNNEL | M1_NEEDPICK | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
         MH_HUMAN, 12, CLR_YELLOW),
-    MON("barbarian", S_HUMAN, LVL(10, 15, 10, 1, 0), (1),
+    MON("barbarian", S_HUMAN, LVL(10, 15, 10, 1, -3), (1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_WEAP, AD_SAMU, 1, 6), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), MR_POISON, 0,
