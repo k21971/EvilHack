@@ -661,11 +661,14 @@ int spellnum;
     }
 
     switch (spellnum) {
-    case CLC_SUMMON_ELM: if (!is_demon(mtmp->data)) {
+    case CLC_SUMMON_ELM:
+        if (is_demon(mtmp->data))
+            return;
+
         if (mtmp->ispriest) {
 	    aligntype = EPRI(mtmp)->shralign;
 	} else {
-	    aligntype = (int)mtmp->data->maligntyp;
+	    aligntype = sgn(mtmp->data->maligntyp);
         }
         if (aligntype == A_NONE) {
             pline("A vassal of %s appears!", Moloch);
@@ -673,7 +676,6 @@ int spellnum;
         } else {
 	    pline("A servant of %s appears!", aligns[1 - aligntype].noun);
 	          summon_minion(aligntype, TRUE);
-            }
         }
 	break;
     case CLC_GEYSER:
@@ -1570,17 +1572,16 @@ int spellnum;
         if (rn2(4))
             erode_armor(mtmp, ERODE_CORRODE);
         break;
-    case MGC_SUMMON_MONS:
-    {
+    case MGC_SUMMON_MONS: {
      	int count = 0;
-      register struct monst *mpet;
+        register struct monst *mpet;
 
-      if (!rn2(10) && Inhell) {
+        if (!rn2(10) && Inhell) {
      	    if (yours) demonpet();
-     	    else msummon(mattk);
+        else msummon(mattk);
      	} else {
      	    register int i, j;
-                 int makeindex, tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
+            int makeindex, tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
      	    coord bypos;
 
      	    if (mtmp)
@@ -1595,36 +1596,32 @@ int spellnum;
      	            do {
      	                makeindex = pick_nasty();
      	            } while (attacktype(&mons[makeindex], AT_MAGC) &&
-     	                     mons[makeindex].difficulty
-                              >= mons[u.umonnum].difficulty);
-                         if (yours &&
-     		        !enexto(&bypos, u.ux, u.uy, &mons[makeindex]))
+     	                     mons[makeindex].difficulty >= mons[u.umonnum].difficulty);
+                        if (yours &&
+     		            !enexto(&bypos, u.ux, u.uy, &mons[makeindex]))
      		        continue;
-                         if (!yours &&
-     		        !enexto(&bypos, mattk->mx, mattk->my, &mons[makeindex]))
+                        if (!yours &&
+     		            !enexto(&bypos, mattk->mx, mattk->my, &mons[makeindex]))
      		        continue;
-     		    if ((mpet = makemon(&mons[makeindex],
-                               bypos.x, bypos.y,
-     			  (yours || mattk->mtame) ? MM_EDOG :
-     			                            NO_MM_FLAGS)) != 0) {
-                             mpet->msleeping = 0;
-                             if (yours || mattk->mtame)
+     		    if ((mpet = makemon(&mons[makeindex], bypos.x, bypos.y,
+     			(yours || mattk->mtame) ? MM_EDOG : NO_MM_FLAGS)) != 0) {
+                        mpet->msleeping = 0;
+                        if (yours || mattk->mtame)
      			    initedog(mpet);
      			else if (mattk->mpeaceful)
      			    mpet->mpeaceful = 1;
      			else mpet->mpeaceful = mpet->mtame = 0;
-
                              set_malign(mpet);
-                         } else /* GENOD? */
+                        } else /* GENOD? */
                              mpet = makemon((struct permonst *)0,
-                                                 bypos.x, bypos.y, NO_MM_FLAGS);
-                         if(mpet && (u.ualign.type == 0 ||
-     		        mpet->data->maligntyp == 0 ||
-                             sgn(mpet->data->maligntyp) == sgn(u.ualign.type)) ) {
-                             count++;
-                             break;
-                         }
+                                            bypos.x, bypos.y, NO_MM_FLAGS);
+                    if (mpet && (u.ualign.type == 0
+     		        || mpet->data->maligntyp == 0
+                        || sgn(mpet->data->maligntyp) == sgn(u.ualign.type))) {
+                        count++;
+                        break;
                      }
+                }
 
      	    const char *mappear =
      		    (count == 1) ? "A monster appears" : "Monsters appear";
@@ -1632,10 +1629,9 @@ int spellnum;
      	    if (yours || canseemon(mtmp))
      	        pline("%s from nowhere!", mappear);
      	}
-
      	dmg = 0;
      	break;
-      }
+    }
     case MGC_AGGRAVATION:
        	if (!mtmp || mtmp->mhp < 1) {
        	    You_feel("lonely.");
@@ -1839,19 +1835,20 @@ int spellnum;
             return;
         }
 
-        if (!is_demon(mtmp->data)) {
+        if (is_demon(mtmp->data))
+            return;
+
         if (mtmp->ispriest) {
             aligntype = EPRI(mtmp)->shralign;
         } else {
-            aligntype = (int)mtmp->data->maligntyp;
+            aligntype = sgn(mtmp->data->maligntyp);
         }
-        if (EPRI(mtmp)->shralign == A_NONE) {
+        if (aligntype == A_NONE) {
             pline("A vassal of %s appears!", Moloch);
                   summon_minion(aligntype, TRUE);
         } else {
             pline("A servant of %s appears!", aligns[1 - aligntype].noun);
                   summon_minion(aligntype, TRUE);
-            }
         }
         break;
     case CLC_GEYSER:

@@ -1127,7 +1127,7 @@ NEARDATA struct permonst mons[] = {
         SIZ(900, 400, MS_HISS, MZ_LARGE), MR_POISON, 0,
         M1_FLY | M1_NOHANDS | M1_SLITHY | M1_POIS,
         M2_MINION | M2_STALK | M2_STRONG | M2_NASTY,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 11, CLR_GREEN),
+        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ANGEL, 11, CLR_GREEN),
     MON("Aleax", S_ANGEL, LVL(10, 8, 0, 30, 7), (G_NOHELL | G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_WEAP, AD_PHYS, 1, 6),
           ATTK(AT_KICK, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK),
@@ -1135,7 +1135,7 @@ NEARDATA struct permonst mons[] = {
         MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON, 0,
         M1_HUMANOID | M1_SEE_INVIS,
         M2_MINION | M2_STALK | M2_NASTY | M2_COLLECT,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 12, CLR_YELLOW),
+        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ANGEL, 12, CLR_YELLOW),
     /* Angels start with the emin extension attached, and usually have
        the isminion flag set; however, non-minion Angels can be tamed
        and will switch to edog (guardian Angel is handled specially and
@@ -1149,7 +1149,7 @@ NEARDATA struct permonst mons[] = {
         MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON, 0,
         M1_FLY | M1_HUMANOID | M1_SEE_INVIS,
         M2_NOPOLY | M2_MINION | M2_STALK | M2_STRONG | M2_NASTY | M2_COLLECT,
-        M3_ACCURATE | M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 19, CLR_WHITE),
+        M3_ACCURATE | M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ANGEL, 19, CLR_WHITE),
     MON("ki-rin", S_ANGEL, LVL(16, 18, -5, 90, 15),
         (G_NOHELL | G_NOCORPSE | 1),
         A(ATTK(AT_KICK, AD_PHYS, 2, 4), ATTK(AT_KICK, AD_PHYS, 2, 4),
@@ -1158,7 +1158,7 @@ NEARDATA struct permonst mons[] = {
         SIZ(WT_HUMAN, 400, MS_NEIGH, MZ_LARGE), 0, 0,
         M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_SEE_INVIS,
         M2_NOPOLY | M2_MINION | M2_STALK | M2_STRONG | M2_NASTY | M2_LORD,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 21, HI_GOLD),
+        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ANGEL, 21, HI_GOLD),
     /* You'll only ever be graced by the presence of an Archangel
      * on the Astral Plane. And one other place... */
     MON("Archangel", S_ANGEL, LVL(18, 16, -6, 70, 15),
@@ -1171,7 +1171,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_HUMANOID | M1_SEE_INVIS | M1_REGEN,
         M2_NOPOLY | M2_MINION | M2_STALK | M2_STRONG | M2_NASTY | M2_PRINCE
             | M2_COLLECT | M2_MAGIC,
-        M3_ACCURATE | M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 25, DRAGON_SILVER),
+        M3_ACCURATE | M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ANGEL, 25, DRAGON_SILVER),
     MON("Archon", S_ANGEL, LVL(19, 16, -6, 80, 15),
         (G_NOHELL | G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_WEAP, AD_PHYS, 2, 4),
@@ -1182,7 +1182,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_HUMANOID | M1_SEE_INVIS | M1_REGEN,
         M2_NOPOLY | M2_MINION | M2_STALK | M2_STRONG | M2_NASTY | M2_LORD
             | M2_COLLECT | M2_MAGIC,
-        M3_ACCURATE | M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 26, HI_LORD),
+        M3_ACCURATE | M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ANGEL, 26, HI_LORD),
     /*
      * Bats
      */
