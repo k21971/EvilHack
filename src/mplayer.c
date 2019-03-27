@@ -87,9 +87,7 @@ char *nam;
     if (!devnam)
         Strcpy(nam, fmlkind ? "Eve" : "Adam");
     else if (fmlkind && !!strcmp(devnam, "Janet"))
-        /* Strcpy(nam, rn2(2) ? "Maud" : "Eve"); */
         Sprintf(nam, "%s", fem_names[rn2(SIZE(fem_names))]);
-
     else
         Strcpy(nam, devnam);
 

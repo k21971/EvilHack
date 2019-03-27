@@ -1930,7 +1930,7 @@ void
 use_unicorn_horn(obj)
 struct obj *obj;
 {
-#define PROP_COUNT 7           /* number of properties we're dealing with */
+#define PROP_COUNT 8           /* number of properties we're dealing with */
 #define ATTR_COUNT (A_MAX * 3) /* number of attribute points we might fix */
     int idx, val, val_limit, trouble_count, unfixable_trbl, did_prop,
         did_attr;
@@ -1972,6 +1972,10 @@ struct obj *obj;
                 pline("Nothing seems to happen.");
             make_deaf((HDeaf & TIMEOUT) + lcount, TRUE);
             break;
+        case 7:
+            if (Slow)
+            goto end;
+            break; /* unicorn horns don't cure being slow */
         }
         return;
     }
@@ -2006,6 +2010,7 @@ struct obj *obj;
     unfixable_trbl = unfixable_trouble_count(TRUE);
 
     if (trouble_count == 0) {
+end:
         pline1(nothing_happens);
         return;
     } else if (trouble_count > 1) { /* shuffle */
