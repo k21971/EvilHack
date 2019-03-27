@@ -202,30 +202,59 @@ struct trobj Level20Kit1[] = {
 	{ SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ HELMET, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
 	{ AMULET_OF_LIFE_SAVING, 0, AMULET_CLASS, 1, UNDEF_BLESS },
-	{ LONG_SWORD, (6 | RND_SPE), WEAPON_CLASS, 1, 1 },
 	{ BAG_OF_HOLDING, 0, TOOL_CLASS, 1, 1 },
 	{ 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit2[] = {
 	{ GRAY_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-	{ GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+	{ GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
 	{ AMULET_OF_REFLECTION, 0, AMULET_CLASS, 1, UNDEF_BLESS },
-	{ LONG_SWORD, (6 | RND_SPE), WEAPON_CLASS, 1, 1 },
 	{ BAG_OF_HOLDING, 0, TOOL_CLASS, 1, 1 },
 	{ 0, 0, 0, 0, 0 }
 };
 
-struct trobj Level10Kit[] = {
+struct trobj Level20Kit3[] = {
+        { GOLD_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GLOVES, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { AMULET_OF_REFLECTION, 0, AMULET_CLASS, 1, UNDEF_BLESS },
+        { BAG_OF_HOLDING, 0, TOOL_CLASS, 1, 1 },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20Kit4[] = {
+        { BLACK_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { AMULET_OF_FLYING, 0, AMULET_CLASS, 1, UNDEF_BLESS },
+        { BAG_OF_HOLDING, 0, TOOL_CLASS, 1, 1 },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level10Kit1[] = {
 	{ ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
 	{ HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
 	{ HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
 	{ GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
 	{ SACK, 0, TOOL_CLASS, 1, UNDEF_BLESS },
 	{ 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level10Kit2[] = {
+        { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { LOW_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { OILSKIN_SACK, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
 };
 
 #define B_MAJOR	        0 /* two-handed sword or battle-axe  */
@@ -369,10 +398,10 @@ unsigned short chance;
 		   (void) mpickobj(mtmp, obj);
 	       }
 
-	       if(trop->trquan) { /* check if zero first */
-		  --trop->trquan;
-	       if(trop->trquan)
-		  continue; /* make a similar object */
+	       if (trop->trquan) { /* check if zero first */
+		   --trop->trquan;
+	       if (trop->trquan)
+		   continue; /* make a similar object */
 	       }
     origtrop++;
     memcpy(&temptrop, origtrop, sizeof(struct trobj));
@@ -395,11 +424,15 @@ register struct monst *mtmp;
     if (is_mplayer(mtmp->data)) {
 	if (mtmp->m_lev > 1) {
 	    if (mtmp->m_lev > 10 || !rn2(10))
-		ini_mon_inv(mtmp, !rn2(2) ? Level20Kit1 : Level20Kit2,
-			    (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
-
-		ini_mon_inv(mtmp, Level10Kit,
-				(mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
+                if (rn2(2)) {
+		    ini_mon_inv(mtmp, !rn2(2) ? Level20Kit1 : Level20Kit2,
+                                (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                } else {
+                    ini_mon_inv(mtmp, !rn2(2) ? Level20Kit3 : Level20Kit4,
+                                (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                }
+		ini_mon_inv(mtmp, !rn2(2) ? Level10Kit1 : Level10Kit2,
+	                    (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
     }
 
     switch (mtmp->mnum) {
@@ -510,7 +543,7 @@ register struct monst *mtmp;
 	    int count = (mtmp->m_lev * mtmp->m_lev) / 25;
 	    if (count < 1) count = 1;
 	    if (count > 10) count = 10;
-		count += rn2((mtmp->m_lev / 5) + 2);
+		count += rn2((mtmp->m_lev / 10) + 2);
 	    while (count-- > 0) {
 	        int otyp =
 		        (rn2(2) ? rnd_offensive_item(mtmp) :
@@ -1629,7 +1662,7 @@ int mndx;
                        ? (10 * mon->m_lev)
                        :  (8 * mon->m_lev + d((int) mon->m_lev, 8)));
     } else if (is_mplayer(ptr)) {
-	mon->mhpmax = mon->mhp = (5 * mon->m_lev + d((int) mon->m_lev, 6));
+	mon->mhpmax = mon->mhp = (5 * mon->m_lev + d((int) mon->m_lev, 8));
     } else if (!mon->m_lev) {
         mon->mhpmax = mon->mhp = rnd(4);
     } else {
