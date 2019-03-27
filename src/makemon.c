@@ -1662,7 +1662,7 @@ int mndx;
                        ? (10 * mon->m_lev)
                        :  (8 * mon->m_lev + d((int) mon->m_lev, 8)));
     } else if (is_mplayer(ptr)) {
-	mon->mhpmax = mon->mhp = (5 * mon->m_lev + d((int) mon->m_lev, 8));
+	mon->mhpmax = mon->mhp = (4 * mon->m_lev + d((int) mon->m_lev, 8));
     } else if (!mon->m_lev) {
         mon->mhpmax = mon->mhp = rnd(4);
     } else {
