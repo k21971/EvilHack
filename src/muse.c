@@ -3018,6 +3018,32 @@ boolean by_you;
         return FALSE;
     mon->mstrategy &= ~STRAT_WAITFORU;
 
+    if (is_spellcaster(mon->data) && !mon->mcan
+	&& can_cast_spells(mon) && !mon->mconf
+        && mon->m_lev >= 5) {
+
+        register struct obj *otemp, *onext;
+        register struct obj *pseudo = mksobj(SPE_STONE_TO_FLESH, FALSE, FALSE);
+        pseudo->blessed = pseudo->cursed = 0;
+        if (canseemon(mon))
+            pline("%s casts a spell!", canspotmon(mon)
+                  ? Monnam(mon) : Something);
+        if (canseemon(mon)) {
+            if (Hallucination)
+                pline("Look! The Pillsbury Doughboy!");
+            else
+                pline("%s seems limber!", Monnam(mon));
+        }
+        pseudo->quan = 20L;
+        for (otemp = mon->minvent; otemp; otemp = onext) {
+            onext = otemp->nobj;
+            (void) bhito(otemp, pseudo);
+        }
+        obfree(pseudo, (struct obj *) 0);
+        mon->mlstmv = monstermoves; /* it takes a turn */
+        return TRUE;
+    }
+
     tinok = mcould_eat_tin(mon);
     for (obj = mon->minvent; obj; obj = obj->nobj) {
         if (cures_stoning(mon, obj, tinok)) {

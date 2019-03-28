@@ -32,7 +32,6 @@ enum mcast_cleric_spells {
     CLC_OPEN_WOUNDS = 0,
     CLC_CURE_SELF,
     CLC_CONFUSE_YOU,
-    CLC_UNSTONE,
     CLC_PARALYZE,
     CLC_VULN_YOU,
     CLC_BLIND_YOU,
@@ -57,6 +56,36 @@ FDECL(spell_would_be_useless, (struct monst *, unsigned int, int));
 STATIC_DCL boolean FDECL(uspell_would_be_useless,(unsigned int,int));
 STATIC_DCL void FDECL(ucast_wizard_spell, (struct monst *, struct monst *, int, int));
 STATIC_DCL void FDECL(ucast_cleric_spell, (struct monst *, struct monst *, int, int));
+
+boolean
+is_spellcaster(ptr)
+register struct permonst *ptr;
+{
+    int i = 0;
+    for (; i < NATTK; i++) {
+        if (ptr->mattk[i].aatyp == AT_MAGC
+            && (ptr->mattk[i].adtyp == AD_SPEL
+                || ptr->mattk[i].adtyp == AD_CLRC)) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+boolean
+can_cast_spells(mtmp)
+register struct monst *mtmp;
+{
+    return mtmp->mspec_used <= maxspelltimeout(mtmp);
+}
+
+int maxspelltimeout(mtmp)
+register struct monst *mtmp;
+{
+   if (mtmp->m_lev >= 38)
+       return 255;
+   return 8 * mtmp->m_lev * ((38 - mtmp->m_lev) *2 / 3);
+}
 
 extern const char *const flash_types[]; /* from zap.c */
 
@@ -193,7 +222,6 @@ int spellnum;
     case 4:
         return CLC_PARALYZE;
     case 3:
-        return CLC_UNSTONE;
     case 2:
         return CLC_CONFUSE_YOU;
     case 1:
@@ -868,36 +896,28 @@ int spellnum;
             dmg = 0;
         }
         break;
-    case CLC_UNSTONE:
-        if (mtmp->mstone > 0) {
-            if (canseemon(mtmp))
-                pline("%s seems limber.", Monnam(mtmp));
-            mtmp->mstone = 0;
-            dmg = 0;
-        }
-        break;
     case CLC_VULN_YOU:
 	dmg = rnd(4);
 	pline("A %s film oozes over your skin!", Blind ? "slimy" : vulntext[dmg]);
 	switch (dmg) {
 	    case 1:
 		if (Vulnerable_fire) return;
-		    incr_itimeout(&HVulnerable_fire, rnd(100)+150);
+		    incr_itimeout(&HVulnerable_fire, rnd(100) + 150);
 		    You_feel("more inflammable.");
 		break;
 	    case 2:
 		if (Vulnerable_cold) return;
-		    incr_itimeout(&HVulnerable_cold, rnd(100)+150);
+		    incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
 		    You_feel("extremely chilly.");
 		break;
 	    case 3:
 		if (Vulnerable_elec) return;
-		    incr_itimeout(&HVulnerable_elec, rnd(100)+150);
+		    incr_itimeout(&HVulnerable_elec, rnd(100) + 150);
 		    You_feel("overly conductive.");
 		break;
 	    case 4:
 		if (Vulnerable_acid) return;
-		    incr_itimeout(&HVulnerable_acid, rnd(100)+150);
+		    incr_itimeout(&HVulnerable_acid, rnd(100) + 150);
 		    You_feel("easily corrodable.");
 		break;
 	    default:
@@ -949,7 +969,6 @@ int spellnum;
     } else if (adtyp == AD_CLRC) {
         switch (spellnum) {
         case CLC_INSECTS:
-        case CLC_UNSTONE:
         case CLC_CURE_SELF:
             return TRUE;
         default:
@@ -1003,10 +1022,6 @@ int spellnum;
       	/* healing when already healed */
       	if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
       	    return TRUE;
-        /* unstoning when not in process of being stoned */
-        if (mtmp->mstone = 0 && spellnum == CLC_UNSTONE) {
-            return TRUE;
-        }
       	/* blindness spell on blinded player */
       	if ((!haseyes(mdef->data) || mdef->mblinded) && spellnum == CLC_BLIND_YOU)
       	    return TRUE;
@@ -1037,10 +1052,6 @@ int spellnum;
       	/* healing when already healed */
       	if (u.mh == u.mhmax && spellnum == CLC_CURE_SELF)
       	    return TRUE;
-        /* unstoning when not in process of being stoned */
-        if (!Stoned && spellnum == CLC_UNSTONE) {
-            return TRUE;
-        }
     }
     return FALSE;
 }
@@ -1125,10 +1136,6 @@ int spellnum;
         /* healing when already healed */
         if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
             return TRUE;
-        /* unstoning when not in process of being stoned */
-        if (mtmp->mstone = 0 && spellnum == CLC_UNSTONE) {
-            return TRUE;
-        }
         /* don't summon insects if it doesn't think you're around */
         if (!mcouldseeu && spellnum == CLC_INSECTS)
             return TRUE;
@@ -1178,37 +1185,35 @@ register struct attack *mattk;
 */
 int
 castmm(mtmp, mdef, mattk)
-	register struct monst *mtmp;
-	register struct monst *mdef;
-	register struct attack *mattk;
+register struct monst *mtmp;
+register struct monst *mdef;
+register struct attack *mattk;
 {
-   	int dmg, ml = mtmp->m_lev;
-   	int ret;
-   	int spellnum = 0;
+    int dmg, ml = mtmp->m_lev;
+    int ret;
+    int spellnum = 0;
 
-   	if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) && ml) {
-   	    int cnt = 40;
+    if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) && ml) {
+   	int cnt = 40;
 
-   	    do {
-   	        spellnum = rn2(ml);
-         		if (mattk->adtyp == AD_SPEL)
-         		    spellnum = choose_magic_spell(spellnum);
-         		else
-         		    spellnum = choose_clerical_spell(spellnum);
-           		   /* not trying to attack?  don't allow directed spells */
-   	    } while(--cnt > 0 &&
-   		    mspell_would_be_useless(mtmp, mdef,
-   		                            mattk->adtyp, spellnum));
+   	do {
+   	    spellnum = rn2(ml);
+            if (mattk->adtyp == AD_SPEL)
+                spellnum = choose_magic_spell(spellnum);
+            else
+                spellnum = choose_clerical_spell(spellnum);
+        /* not trying to attack?  don't allow directed spells */
+   	} while (--cnt > 0 &&
+   		 mspell_would_be_useless(mtmp, mdef,
+   		                         mattk->adtyp, spellnum));
    	    if (cnt == 0)
             return 0;
-
    	}
 
    	/* monster unable to cast spells? */
-   	if(mtmp->mcan || mtmp->mspec_used || !ml) {
-   	    if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my))
-   	    {
-                   char buf[BUFSZ];
+   	if (mtmp->mcan || mtmp->mspec_used || !ml) {
+   	    if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)) {
+                char buf[BUFSZ];
    		Sprintf(buf, "%s", Monnam(mtmp));
 
    		if (is_undirected_spell(mattk->adtyp, spellnum))
@@ -1228,16 +1233,15 @@ castmm(mtmp, mdef, mattk)
    	    if (mtmp->mspec_used < 2) mtmp->mspec_used = 2;
    	}
 
-   	if(rn2(ml*10) < (mtmp->mconf ? 100 : 20)) {	/* fumbled attack */
+   	if (rn2(ml*10) < (mtmp->mconf ? 100 : 20)) {	/* fumbled attack */
    	    if (canseemon(mtmp))
    		pline_The("air crackles around %s.", mon_nam(mtmp));
    	    return 0;
    	}
-   	if (cansee(mtmp->mx, mtmp->my) ||
-   	    canseemon(mtmp) ||
-   	    (!is_undirected_spell(mattk->adtyp, spellnum) &&
-   	     (cansee(mdef->mx, mdef->my) || canseemon(mdef)))) {
-               char buf[BUFSZ];
+   	if (cansee(mtmp->mx, mtmp->my) || canseemon(mtmp)
+   	    || (!is_undirected_spell(mattk->adtyp, spellnum)
+   	    && (cansee(mdef->mx, mdef->my) || canseemon(mdef)))) {
+            char buf[BUFSZ];
    	    Sprintf(buf, " at ");
    	    Strcat(buf, mon_nam(mdef));
    	    pline("%s casts a spell%s!",
@@ -1247,95 +1251,92 @@ castmm(mtmp, mdef, mattk)
 
    	if (mattk->damd)
    	    dmg = d((int)((ml/2) + mattk->damn), (int)mattk->damd);
-   	else dmg = d((int)((ml/2) + 1), 6);
+   	else
+            dmg = d((int)((ml/2) + 1), 6);
 
    	ret = 1;
 
    	switch (mattk->adtyp) {
-   	  case AD_FIRE:
-   	      if (canspotmon(mdef)) {
-              is_demon(mtmp->data) ?
-   		          pline("%s is enveloped in flames.", Monnam(mdef))
-                : pline("%s is enveloped in a pillar of hellfire!",
-                    Monnam(mdef));
-          }
-          if (is_demon(mtmp->data) && resists_fire(mdef)) {
-              dmg = (dmg + 1) / 2;
-              break;
-          }
-       		if(resists_fire(mdef)) {
-         			shieldeff(mdef->mx, mdef->my);
-         	                if (canspotmon(mdef))
-         			    pline("But %s resists the effects.",
-         			        mhe(mdef));
-         			dmg = 0;
-   		}
-   		break;
-   	  case AD_COLD:
-   	      if (canspotmon(mdef))
-   		        pline("%s is covered in frost.", Monnam(mdef));
-       		if(resists_cold(mdef)) {
-         			shieldeff(mdef->mx, mdef->my);
-         	                if (canspotmon(mdef))
-         			    pline("But %s resists the effects.",
-         			        mhe(mdef));
-         			dmg = 0;
-       		}
-   		    break;
-          case AD_ACID:
-              if (canspotmon(mdef))
-                        pline("%s is covered in acid.", Monnam(mdef));
-                if(resists_acid(mdef)) {
-                                shieldeff(mdef->mx, mdef->my);
-                                if (canspotmon(mdef))
-                                    pline("But %s resists the effects.",
-                                        mhe(mdef));
-                                dmg = 0;
+   	    case AD_FIRE:
+   	        if (canspotmon(mdef)) {
+                is_demon(mtmp->data)
+   		         ? pline("%s is enveloped in flames.", Monnam(mdef))
+                         : pline("%s is enveloped in a pillar of hellfire!", Monnam(mdef));
                 }
+                if (is_demon(mtmp->data) && resists_fire(mdef)) {
+                    dmg = (dmg + 1) / 2;
                     break;
-   	  case AD_MAGM:
-            if (canspotmon(mdef))
-         		    pline("%s is hit by a shower of missiles!", Monnam(mdef));
-                            dmg = d((int)mtmp->m_lev/2 + 1,6);
-         		if(resists_magm(mdef)) {
-           			shieldeff(mdef->mx, mdef->my);
-           	                if (canspotmon(mdef))
-           			    pline("Some missiles bounce off!");
-           			dmg = (dmg + 1) / 2;
-                        }
-                        if (Half_spell_damage) {
-                                dmg = (dmg + 1) / 2;
-                        }
-         		break;
+                }
+       	        if(resists_fire(mdef)) {
+         	   shieldeff(mdef->mx, mdef->my);
+         	   if (canspotmon(mdef))
+         	       pline("But %s resists the effects.", mhe(mdef));
+                   dmg = 0;
+   	        }
+   	        break;
+   	    case AD_COLD:
+   	        if (canspotmon(mdef))
+   	  	    pline("%s is covered in frost.", Monnam(mdef));
+       		  if (resists_cold(mdef)) {
+         	      shieldeff(mdef->mx, mdef->my);
+         	      if (canspotmon(mdef))
+         	          pline("But %s resists the effects.", mhe(mdef));
+                      dmg = 0;
+       	          }
+                break;
+            case AD_ACID:
+                if (canspotmon(mdef))
+                    pline("%s is covered in acid.", Monnam(mdef));
+                if (resists_acid(mdef)) {
+                    shieldeff(mdef->mx, mdef->my);
+                    if (canspotmon(mdef))
+                        pline("But %s resists the effects.", mhe(mdef));
+                    dmg = 0;
+                }
+                break;
+   	    case AD_MAGM:
+                if (canspotmon(mdef))
+                    pline("%s is hit by a shower of missiles!", Monnam(mdef));
+                    dmg = d((int)mtmp->m_lev/2 + 1,6);
+                if (resists_magm(mdef)) {
+           	    shieldeff(mdef->mx, mdef->my);
+           	    if (canspotmon(mdef))
+                        pline("Some missiles bounce off!");
+           	    dmg = (dmg + 1) / 2;
+                }
+                if (Half_spell_damage) {
+                    dmg = (dmg + 1) / 2;
+                }
+                break;
    	    case AD_SPEL: /* wizard spell */
    	    case AD_CLRC: /* clerical spell */
    	    {
-   	        /*aggravation is a special case;*/
-         		/*it's undirected but should still target the*/
-         		/*victim so as to aggravate you*/
+   	        /*aggravation is a special case;
+                 * it's undirected but should still target the
+                 * victim so as to aggravate you */
    	        if (is_undirected_spell(mattk->adtyp, spellnum)
-                && (mattk->adtyp != AD_SPEL
-                || (spellnum != MGC_AGGRAVATION &&
-                  spellnum != MGC_SUMMON_MONS))) {
+                    && (mattk->adtyp != AD_SPEL
+                    || (spellnum != MGC_AGGRAVATION
+                    && spellnum != MGC_SUMMON_MONS))) {
      		    if (mattk->adtyp == AD_SPEL)
      		        cast_wizard_spell(mtmp, dmg, spellnum);
      		    else
      		        cast_cleric_spell(mtmp, dmg, spellnum);
-         		} else if (mattk->adtyp == AD_SPEL)
-       		      ucast_wizard_spell(mtmp, mdef, dmg, spellnum);
-       		  else
-       		      ucast_cleric_spell(mtmp, mdef, dmg, spellnum);
-         		dmg = 0; /* done by the spell casting functions */
-         		break;
+                } else if (mattk->adtyp == AD_SPEL)
+       		    ucast_wizard_spell(mtmp, mdef, dmg, spellnum);
+                else
+       		    ucast_cleric_spell(mtmp, mdef, dmg, spellnum);
+         	    dmg = 0; /* done by the spell casting functions */
+                    break;
    	    }
    	}
    	if (dmg > 0 && mdef->mhp > 0) {
-   	    mdef->mhp -= dmg;
-   	    if (mdef->mhp < 1) monkilled(mdef, "", mattk->adtyp);
+            mdef->mhp -= dmg;
+ 	    if (mdef->mhp < 1) monkilled(mdef, "", mattk->adtyp);
    	}
    	if (mdef && mdef->mhp < 1)
         return 2;
-   	return (ret);
+        return (ret);
 }
 
 /* return values:
@@ -1345,145 +1346,142 @@ castmm(mtmp, mdef, mattk)
 */
 int
 castum(mtmp, mattk)
-       register struct monst *mtmp;
-       register struct attack *mattk;
+register struct monst *mtmp;
+register struct attack *mattk;
 {
-   	int dmg, ml = mons[u.umonnum].mlevel;
-   	int ret;
-   	int spellnum = 0;
-   	boolean directed = FALSE;
-   	if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) && ml) {
-   	    int cnt = 40;
+    int dmg, ml = mons[u.umonnum].mlevel;
+    int ret;
+    int spellnum = 0;
+    boolean directed = FALSE;
 
-   	    do {
-   	        spellnum = rn2(ml);
-         		if (mattk->adtyp == AD_SPEL)
-         		    spellnum = choose_magic_spell(spellnum);
-         		else
-         		    spellnum = choose_clerical_spell(spellnum);
-         		/* not trying to attack?  don't allow directed spells */
-         		if (!mtmp || mtmp->mhp < 1) {
-         		    if (is_undirected_spell(mattk->adtyp, spellnum) &&
-         			!uspell_would_be_useless(mattk->adtyp, spellnum)) {
-         		        break;
-         		    }
-         		}
-   	    } while(--cnt > 0 &&
-   	            ((!mtmp && !is_undirected_spell(mattk->adtyp, spellnum))
-   		    || uspell_would_be_useless(mattk->adtyp, spellnum)));
-   	    if (cnt == 0) {
-   	        You("have no spells to cast right now!");
-         		return 0;
-   	    }
+    if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) && ml) {
+   	int cnt = 40;
+
+   	do {
+   	    spellnum = rn2(ml);
+            if (mattk->adtyp == AD_SPEL)
+                spellnum = choose_magic_spell(spellnum);
+            else
+                spellnum = choose_clerical_spell(spellnum);
+            /* not trying to attack?  don't allow directed spells */
+            if (!mtmp || mtmp->mhp < 1) {
+                if (is_undirected_spell(mattk->adtyp, spellnum)
+         	    && !uspell_would_be_useless(mattk->adtyp, spellnum)) {
+         	break;
+            }
+        }
+
+    } while (--cnt > 0 &&
+   	     ((!mtmp && !is_undirected_spell(mattk->adtyp, spellnum))
+   	      || uspell_would_be_useless(mattk->adtyp, spellnum)));
+        if (cnt == 0) {
+   	    You("have no spells to cast right now!");
+        return 0;
    	}
+    }
 
-   	if (spellnum == MGC_AGGRAVATION && !mtmp) {
-   	    /* choose a random monster on the level */
-   	    int j = 0, k = 0;
-   	    for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-   	        if (!mtmp->mtame && !mtmp->mpeaceful) j++;
-   	    if (j > 0) {
-   	        k = rn2(j);
-   	        for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-   	            if (!mtmp->mtame && !mtmp->mpeaceful)
-   		        if (--k < 0) break;
-   	    }
+    if (spellnum == MGC_AGGRAVATION && !mtmp) {
+   	/* choose a random monster on the level */
+   	int j = 0, k = 0;
+   	for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+   	     if (!mtmp->mtame && !mtmp->mpeaceful) j++;
+   	if (j > 0) {
+   	    k = rn2(j);
+   	    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+   	         if (!mtmp->mtame && !mtmp->mpeaceful)
+   		     if (--k < 0)
+            break;
    	}
+    }
 
-   	directed = mtmp && !is_undirected_spell(mattk->adtyp, spellnum);
+    directed = mtmp && !is_undirected_spell(mattk->adtyp, spellnum);
 
-   	/* unable to cast spells? */
-   	if(u.uen < ml) {
-   	    if (directed)
-   	        You("point at %s, then curse.", mon_nam(mtmp));
-   	    else
-   	        You("point all around, then curse.");
-   	    return 0;
-   	}
-
-   	if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
-   	    u.uen -= ml;
-   	}
-
-   	if (rn2(ml*10) < (Confusion ? 100 : 20)) {	/* fumbled attack */
-  	    pline_The("air crackles around you.");
-   	    return 0;
-   	}
-
-    You("cast a spell%s%s!",
-	    directed ? " at " : "",
-	    directed ? mon_nam(mtmp) : "");
-
-   /*
-    *	As these are spells, the damage is related to the level
-    *	of the monster casting the spell.
-    */
-   	if (mattk->damd)
-   	    dmg = d((int)((ml/2) + mattk->damn), (int)mattk->damd);
+    /* unable to cast spells? */
+    if (u.uen < ml) {
+   	if (directed)
+   	    You("point at %s, then curse.", mon_nam(mtmp));
    	else
+   	    You("point all around, then curse.");
+   	return 0;
+    }
+
+    if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
+   	u.uen -= ml;
+    }
+
+    if (rn2(ml*10) < (Confusion ? 100 : 20)) {	/* fumbled attack */
+  	pline_The("air crackles around you.");
+   	return 0;
+    }
+
+    You("cast a spell%s%s!", directed ? " at " : "",
+	directed ? mon_nam(mtmp) : "");
+
+    /* As these are spells, the damage is related to the level
+     * of the monster casting the spell. */
+    if (mattk->damd)
+   	dmg = d((int)((ml/2) + mattk->damn), (int)mattk->damd);
+    else
         dmg = d((int)((ml/2) + 1), 6);
 
-   	ret = 1;
+    ret = 1;
 
-   	switch (mattk->adtyp) {
-   	    case AD_FIRE:
-         		pline("%s is enveloped in flames.", Monnam(mtmp));
-         		if(resists_fire(mtmp)) {
-           			shieldeff(mtmp->mx, mtmp->my);
-           			pline("But %s resists the effects.",
-           			    mhe(mtmp));
-           			dmg = 0;
-         		}
-         		break;
-   	    case AD_COLD:
-         		pline("%s is covered in frost.", Monnam(mtmp));
-         		if(resists_cold(mtmp)) {
-         			shieldeff(mtmp->mx, mtmp->my);
-         			pline("But %s resists the effects.",
-         			    mhe(mtmp));
-         			dmg = 0;
-         		}
-         		break;
-            case AD_ACID:
-                        pline("%s is covered in acid.", Monnam(mtmp));
-                        if(resists_acid(mtmp)) {
-                                shieldeff(mtmp->mx, mtmp->my);
-                                pline("But %s resists the effects.",
-                                    mhe(mtmp));
-                                dmg = 0;
-                        }
-                        break;
-   	    case AD_MAGM:
-         		pline("%s is hit by a shower of missiles!", Monnam(mtmp));
-                        dmg = d((int)ml/2 + 1,6);
-         		if (resists_magm(mtmp)) {
-           			shieldeff(mtmp->mx, mtmp->my);
-           			pline("Some missiles bounce off!");
-           			dmg = (dmg + 1) / 2;
-         		}
-                        if (Half_spell_damage) {
-                                dmg = (dmg + 1) / 2;
-                        }
-         		break;
-   	    case AD_SPEL: /* wizard spell */
-   	    case AD_CLRC: /* clerical spell */
+    switch (mattk->adtyp) {
+        case AD_FIRE:
+            pline("%s is enveloped in flames.", Monnam(mtmp));
+            if (resists_fire(mtmp)) {
+                shieldeff(mtmp->mx, mtmp->my);
+           	pline("But %s resists the effects.", mhe(mtmp));
+            dmg = 0;
+            }
+            break;
+   	case AD_COLD:
+            pline("%s is covered in frost.", Monnam(mtmp));
+            if (resists_cold(mtmp)) {
+         	shieldeff(mtmp->mx, mtmp->my);
+         	pline("But %s resists the effects.", mhe(mtmp));
+            dmg = 0;
+            }
+            break;
+        case AD_ACID:
+            pline("%s is covered in acid.", Monnam(mtmp));
+            if (resists_acid(mtmp)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                pline("But %s resists the effects.", mhe(mtmp));
+            dmg = 0;
+            }
+            break;
+   	case AD_MAGM:
+            pline("%s is hit by a shower of missiles!", Monnam(mtmp));
+            dmg = d((int)ml/2 + 1, 6);
+            if (resists_magm(mtmp)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                pline("Some missiles bounce off!");
+            dmg = (dmg + 1) / 2;
+            }
+            if (Half_spell_damage) {
+                dmg = (dmg + 1) / 2;
+            }
+            break;
+   	case AD_SPEL: /* wizard spell */
+   	case AD_CLRC: /* clerical spell */
    	    {
-         		if (mattk->adtyp == AD_SPEL)
-         		    ucast_wizard_spell(&youmonst, mtmp, dmg, spellnum);
-         		else
-         		    ucast_cleric_spell(&youmonst, mtmp, dmg, spellnum);
-         		dmg = 0; /* done by the spell casting functions */
-         		break;
+            if (mattk->adtyp == AD_SPEL)
+                ucast_wizard_spell(&youmonst, mtmp, dmg, spellnum);
+            else
+                ucast_cleric_spell(&youmonst, mtmp, dmg, spellnum);
+            dmg = 0; /* done by the spell casting functions */
+            break;
    	    }
-   	}
+    }
 
-   	if (mtmp && dmg > 0 && mtmp->mhp > 0) {
-   	    mtmp->mhp -= dmg;
-   	    if (mtmp->mhp < 1) killed(mtmp);
-   	}
-   	if (mtmp && mtmp->mhp < 1)
+    if (mtmp && dmg > 0 && mtmp->mhp > 0) {
+   	mtmp->mhp -= dmg;
+   	if (mtmp->mhp < 1) killed(mtmp);
+    }
+    if (mtmp && mtmp->mhp < 1)
         return 2;
- 	  return(ret);
+    return (ret);
 }
 
  extern NEARDATA const int nasties[];
@@ -2037,13 +2035,6 @@ int spellnum;
        	    dmg = 0;
        	}
        	break;
-    case CLC_UNSTONE:
-        if (Stoned) {
-            You("feel limber.");
-            fix_petrification();
-            dmg = 0;
-        }
-        break;
     case CLC_VULN_YOU:
         if (!mtmp || mtmp->mhp < 1) {
             impossible("vulnerable spell with no mtmp");
