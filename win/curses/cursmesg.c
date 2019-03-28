@@ -158,16 +158,18 @@ curses_block(boolean noscroll) /* noscroll - blocking because of msgtype
 
     curses_get_window_size(MESSAGE_WIN, &height, &width);
     curses_toggle_color_attr(win, MORECOLOR, NONE, ON);
-    mvwprintw(win, my, mx, iflags.msg_is_alert ? "<TAB!>" : ">>");
+    mvwprintw(win, my, mx, iflags.msg_is_alert ? "<TAB>" : ">>");
     curses_toggle_color_attr(win, MORECOLOR, NONE, OFF);
     if (iflags.msg_is_alert)
         curses_alert_main_borders(TRUE);
     wrefresh(win);
     while (iflags.msg_is_alert && (ret = wgetch(win) != '\t'));
+           curses_alert_main_borders(FALSE);
     /* msgtype=stop should require space/enter rather than
      * just any key, as we want to prevent YASD from
      * riding direction keys. */
-    while ((ret = wgetch(win)) != 0 && !index(resp, (char) ret))
+    while (!iflags.msg_is_alert
+           && (ret = wgetch(win)) != 0 && !index(resp, (char) ret))
         continue;
     if (height == 1) {
         curses_clear_unhighlight_message_window();
