@@ -2041,7 +2041,7 @@ end:
 
         switch (idx) {
         case prop2trbl(SICK):
-            make_sick(0L, 0, TRUE, SICK_ALL);
+            make_sick(0L, (char *) 0, TRUE, SICK_ALL);
             did_prop++;
             break;
         case prop2trbl(BLINDED):
