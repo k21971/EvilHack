@@ -1930,7 +1930,7 @@ void
 use_unicorn_horn(obj)
 struct obj *obj;
 {
-#define PROP_COUNT 8           /* number of properties we're dealing with */
+#define PROP_COUNT 7           /* number of properties we're dealing with */
 #define ATTR_COUNT (A_MAX * 3) /* number of attribute points we might fix */
     int idx, val, val_limit, trouble_count, unfixable_trbl, did_prop,
         did_attr;
@@ -1939,7 +1939,7 @@ struct obj *obj;
     if (obj && obj->cursed) {
         long lcount = (long) rn1(90, 10);
 
-        switch (rn2(13) / 2) { /* case 6 is half as likely as the others */
+        switch (rn2(15) / 2) { /* case 7 is half as likely as the others */
         case 0:
             make_sick((Sick & TIMEOUT) ? (Sick & TIMEOUT) / 3L + 1L
                                        : (long) rn1(ACURR(A_CON), 20),
@@ -1968,14 +1968,14 @@ struct obj *obj;
                                      TRUE, 0L);
             break;
         case 6:
+            if (Slow)
+            goto end; /* unicorn horns don't cure being slow */
+            break;
+        case 7:
             if (Deaf) /* make_deaf() won't give feedback when already deaf */
                 pline("Nothing seems to happen.");
             make_deaf((HDeaf & TIMEOUT) + lcount, TRUE);
             break;
-        case 7:
-            if (Slow)
-            goto end;
-            break; /* unicorn horns don't cure being slow */
         }
         return;
     }
@@ -2041,7 +2041,7 @@ end:
 
         switch (idx) {
         case prop2trbl(SICK):
-            make_sick(0L, (char *) 0, TRUE, SICK_ALL);
+            make_sick(0L, 0, TRUE, SICK_ALL);
             did_prop++;
             break;
         case prop2trbl(BLINDED):
@@ -2076,7 +2076,7 @@ end:
 
     if (did_attr || did_prop)
         context.botl = TRUE;
-    if (did_attr)
+    if (did_prop)
         pline("This makes you feel %s!",
               (did_prop + did_attr) == (trouble_count + unfixable_trbl)
                   ? "great"
