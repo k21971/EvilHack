@@ -2506,7 +2506,7 @@ register struct permonst *ptr;
     }
 
     if (is_mplayer(ptr)) {
-	tmp = rn1(5, u.ulevel-2);
+	tmp = rn1(5, u.ulevel - 2);
 	if (tmp < 1) tmp = 1;
 	if (tmp > 30) tmp = 30;
 	return tmp;
