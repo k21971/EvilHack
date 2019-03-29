@@ -2212,7 +2212,14 @@ struct monst *mtmp;
             pline("%s medallion begins to glow!", s_suffix(Monnam(mtmp)));
             makeknown(AMULET_OF_LIFE_SAVING);
             /* amulet is visible, but monster might not be */
-            if (canseemon(mtmp)) {
+            if (canseemon(mtmp) && lifesave->cursed) {
+                pline("%s medallion glows white-hot!", s_suffix(Monnam(mtmp)));
+                You("hear diabolical laughter in the distance...");
+                pline("%s body turns to dust and blows away.", s_suffix(Monnam(mtmp)));
+                m_useup(mtmp, lifesave);
+                mtmp->mhp = 0;
+                return;
+            } else if (canseemon(mtmp)) {
                 if (attacktype(mtmp->data, AT_EXPL)
                     || attacktype(mtmp->data, AT_BOOM))
                     pline("%s reconstitutes!", Monnam(mtmp));
