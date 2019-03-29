@@ -697,6 +697,7 @@ intervene()
     switch (which) {
     case 0:
         You_feel("apprehensive.");
+        break;
     case 1:
         You_feel("vaguely nervous.");
         break;
