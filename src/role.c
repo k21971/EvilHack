@@ -794,7 +794,7 @@ const struct Race races[] = {
         { 3, 3, 3, 3, 3, 3 },
         { STR19(25), 14, 18, 14, 25, 16 },
         /* Init   Lower  Higher */
-        { 5, 4, 1, 4, 3, 3 }, /* Hit points */
+        { 4, 3, 1, 4, 3, 3 }, /* Hit points */
         { 1, 0, 1, 0, 1, 0 }  /* Energy */
     },
     {
@@ -836,7 +836,7 @@ const struct Race races[] = {
         { 3, 3, 3, 3, 3, 3 },
         { STR19(20), 12, 14, 20, 18, 16 },
         /* Init   Lower  Higher */
-        { 4, 2, 1, 2, 2, 2 }, /* Hit points */
+        { 3, 3, 1, 2, 2, 2 }, /* Hit points */
         { 1, 0, 1, 0, 1, 0 }  /* Energy */
     },
     /* Array terminator */
