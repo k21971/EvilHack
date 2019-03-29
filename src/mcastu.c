@@ -714,6 +714,12 @@ int spellnum;
         dmg = d(8, 6);
         if (Half_physical_damage)
             dmg = (dmg + 1) / 2;
+        if (u.umonnum == PM_IRON_GOLEM) {
+            You("rust!");
+            rehumanize();
+            break;
+        }
+        (void) erode_armor(&youmonst, ERODE_RUST);
         break;
     case CLC_FIRE_PILLAR:
         pline("A pillar of fire strikes all around you!");
@@ -1858,8 +1864,9 @@ int spellnum;
        	if (yours || canseemon(mtmp))
        	    pline("A sudden geyser slams into %s from nowhere!", mon_nam(mtmp));
        	dmg = d(8, 6);
+        (void) erode_armor(mtmp, ERODE_RUST);
        	break;
-           case CLC_FIRE_PILLAR:
+    case CLC_FIRE_PILLAR:
        	if (!mtmp || mtmp->mhp < 1) {
        	    impossible("fire pillar spell with no mtmp");
        	    return;
