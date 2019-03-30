@@ -84,7 +84,16 @@ register struct monst *mtmp;
 {
    if (mtmp->m_lev >= 38)
        return 255;
-   return 8 * mtmp->m_lev * ((38 - mtmp->m_lev) *2 / 3);
+   return 8 * mtmp->m_lev * ((38 - mtmp->m_lev) * 2 / 3);
+}
+
+int spelltimeout(mtmp, level)
+register struct monst *mtmp;
+register int level;
+{
+    if (mtmp->m_lev >= 38)
+	return 0;
+    return 5 * level * ((38-mtmp->m_lev) * 2 / 3);
 }
 
 extern const char *const flash_types[]; /* from zap.c */
@@ -292,9 +301,16 @@ boolean foundyou;
     }
 
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
-        mtmp->mspec_used = 10 - mtmp->m_lev;
-        if (mtmp->mspec_used < 2)
-            mtmp->mspec_used = 2;
+        register struct obj *obj;
+        mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
+        if (mtmp->mspec_used < 1)
+            mtmp->mspec_used = 1;
+        for (obj = mtmp->minvent; obj; obj = obj->nobj)
+	    if (obj->oartifact
+		&& obj->oartifact == ART_EYE_OF_THE_AETHIOPICA) {
+		mtmp->mspec_used = 0;
+		break;
+	    }
     }
 
     /* monster can cast spells, but is casting a directed spell at the
@@ -462,7 +478,8 @@ int spellnum;
         break;
     case MGC_ACID_BLAST:
         if (mtmp->iswiz || is_prince(mtmp->data)
-            || is_lord(mtmp->data) || mtmp->data->msound == MS_NEMESIS) {
+            || is_lord(mtmp->data) || mtmp->data->msound == MS_NEMESIS
+            || mtmp->data->msound == MS_LEADER) {
         if (m_canseeu(mtmp)) {
             pline("A torrent of acid consumes you!");
             dmg = d((mtmp->m_lev / 2) + 1, 8);
@@ -769,7 +786,10 @@ int spellnum;
         rndcurse();
         dmg = 0;
         break;
-    case CLC_INSECTS: if (!is_demon(mtmp->data)) {
+    case CLC_INSECTS:
+        if (is_demon(mtmp->data))
+            return;
+
         /* Try for insects, and if there are none
            left, go for (sticks to) snakes.  -3. */
         struct permonst *pm = mkclass(S_ANT, 0);
@@ -840,7 +860,6 @@ int spellnum;
 
         dmg = 0;
         break;
-    }
     case CLC_BLIND_YOU:
         /* note: resists_blnd() doesn't apply here */
         if (!Blinded) {
@@ -1235,8 +1254,17 @@ register struct attack *mattk;
    	}
 
    	if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
-   	    mtmp->mspec_used = 10 - mtmp->m_lev;
-   	    if (mtmp->mspec_used < 2) mtmp->mspec_used = 2;
+            register struct obj *obj;
+            mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
+            if (mtmp->mspec_used < 1)
+                mtmp->mspec_used = 1;
+            for (obj = mtmp->minvent; obj; obj = obj->nobj)
+                if (obj->oartifact
+                    && obj->oartifact == ART_EYE_OF_THE_AETHIOPICA) {
+                    mtmp->mspec_used = 0;
+                    break;
+            }
+
    	}
 
    	if (rn2(ml*10) < (mtmp->mconf ? 100 : 20)) {	/* fumbled attack */
@@ -1513,17 +1541,17 @@ int spellnum;
     boolean yours = (mattk == &youmonst);
 
     if (dmg == 0 && !is_undirected_spell(AD_SPEL, spellnum)) {
- 	      impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
- 	      return;
+ 	impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
+ 	return;
     }
 
     if (mtmp && mtmp->mhp < 1) {
         impossible("monster already dead?");
- 	      return;
+ 	return;
     }
 
-     switch (spellnum) {
-     case MGC_DEATH_TOUCH:
+    switch (spellnum) {
+    case MGC_DEATH_TOUCH:
        	if (!mtmp || mtmp->mhp < 1) {
        	    impossible("touch of death with no mtmp");
        	    return;
@@ -1703,7 +1731,7 @@ int spellnum;
        	} else {
        	    if (mtmp->mhp < 1) {
        	        impossible("trying to drain monster that's already dead");
-       		      return;
+       		return;
        	    }
        	    if (yours || canseemon(mtmp))
        	        pline("%s suddenly seems weaker!", Monnam(mtmp));
@@ -1711,7 +1739,7 @@ int spellnum;
        	    mtmp->mhpmax -= dmg;
        	    if ((mtmp->mhp -= dmg) <= 0) {
        	        if (yours) killed(mtmp);
-       		  else monkilled(mtmp, "", AD_SPEL);
+       		else monkilled(mtmp, "", AD_SPEL);
             }
        	}
        	dmg = 0;
@@ -1720,7 +1748,7 @@ int spellnum;
         if (!yours) {
        	    impossible("ucast disappear but not yours?");
        	    return;
- 	      }
+ 	}
        	if (!(HInvis & INTRINSIC)) {
        	    HInvis |= FROMOUTSIDE;
        	    if (!Blind && !BInvis) self_invis_message();
@@ -1742,7 +1770,7 @@ int spellnum;
        	        if (mtmp->mstun)
        	            pline("%s struggles to keep %s balance.",
        	 	          Monnam(mtmp), mhis(mtmp));
-                       else
+                else
        	            pline("%s reels...", Monnam(mtmp));
        	    }
        	    mtmp->mstun = 1;
@@ -1755,16 +1783,16 @@ int spellnum;
        	    return;
        	}
         if (!(HFast & INTRINSIC))
- 	          You("are suddenly moving faster.");
- 	      HFast |= INTRINSIC;
- 	      dmg = 0;
- 	      break;
+ 	    You("are suddenly moving faster.");
+ 	    HFast |= INTRINSIC;
+ 	    dmg = 0;
+ 	break;
     case MGC_CURE_SELF:
         if (!yours)
             impossible("ucast healing but not yours?");
         else if (u.mh < u.mhmax) {
        	    You("feel better.");
-       	    if ((u.mh += d(3,6)) > u.mhmax)
+       	    if ((u.mh += d(3, 6)) > u.mhmax)
        		      u.mh = u.mhmax;
        	    context.botl = 1;
        	    dmg = 0;
@@ -1804,9 +1832,9 @@ int spellnum;
     if (dmg > 0 && mtmp && mtmp->mhp > 0) {
         mtmp->mhp -= dmg;
         if (mtmp->mhp < 1) {
- 	          if (yours) killed(mtmp);
- 	          else monkilled(mtmp, "", AD_SPEL);
- 	      }
+ 	    if (yours) killed(mtmp);
+ 	    else monkilled(mtmp, "", AD_SPEL);
+ 	}
     }
 }
 
@@ -1829,7 +1857,7 @@ int spellnum;
 
     if (mtmp && mtmp->mhp < 1) {
         impossible("monster already dead?");
- 	      return;
+ 	return;
     }
 
     switch (spellnum) {
@@ -1918,85 +1946,82 @@ int spellnum;
        	dmg = 0;
        	break;
     case CLC_INSECTS:
-        if (!is_demon(mtmp->data)) {
-         	/* Try for insects, and if there are none
-         	   left, go for (sticks to) snakes.  -3. */
-         	struct permonst *pm = mkclass(S_ANT,0);
-         	struct monst *mtmp2 = (struct monst *)0;
-         	char let = (pm ? S_ANT : S_SNAKE);
-         	boolean success;
-         	int i;
-         	coord bypos;
-         	int quan;
+        if (is_demon(mtmp->data))
+            return;
 
-         	if (!mtmp || mtmp->mhp < 1) {
-         	    impossible("insect spell with no mtmp");
-         	    return;
-         	}
+        /* Try for insects, and if there are none
+           left, go for (sticks to) snakes.  -3. */
+        struct permonst *pm = mkclass(S_ANT,0);
+        struct monst *mtmp2 = (struct monst *)0;
+        char let = (pm ? S_ANT : S_SNAKE);
+        boolean success;
+        int i;
+        coord bypos;
+        int quan;
 
-         	quan = (mons[u.umonnum].mlevel < 2) ? 1 :
-         	       rnd(mons[u.umonnum].mlevel / 2);
-         	if (quan < 3) quan = 3;
-         	success = pm ? TRUE : FALSE;
-         	for (i = 0; i <= quan; i++) {
-         	    if (!enexto(&bypos, mtmp->mx, mtmp->my, mtmp->data))
-         		break;
-         	    if ((pm = mkclass(let,0)) != 0 &&
-         		    (mtmp2 = makemon(pm, bypos.x, bypos.y, NO_MM_FLAGS)) != 0) {
-         		success = TRUE;
-         		mtmp2->msleeping = 0;
-         		if (yours || mattk->mtame)
-         		    (void) tamedog(mtmp2, (struct obj *)0);
-         		else if (mattk->mpeaceful)
-         		    mattk->mpeaceful = 1;
-         		else mattk->mpeaceful = 0;
+        if (!mtmp || mtmp->mhp < 1) {
+            impossible("insect spell with no mtmp");
+            return;
+        }
 
-         		set_malign(mtmp2);
-         	    }
-         	}
-
-                 if (yours)
-         	{
-         	    if (!success)
-         	        You("cast at a clump of sticks, but nothing happens.");
-         	    else if (let == S_SNAKE)
-         	        You("transforms a clump of sticks into snakes!");
-         	    else
-         	        You("summon insects!");
-                 } else if (canseemon(mtmp)) {
-         	    if (!success)
-         	        pline("%s casts at a clump of sticks, but nothing happens.",
-         		      Monnam(mattk));
-         	    else if (let == S_SNAKE)
-         	        pline("%s transforms a clump of sticks into snakes!",
-         		      Monnam(mattk));
-         	    else
-         	        pline("%s summons insects!", Monnam(mattk));
-         	}
-         	dmg = 0;
+        quan = (mons[u.umonnum].mlevel < 2) ? 1 :
+         	rnd(mons[u.umonnum].mlevel / 2);
+        if (quan < 3) quan = 3;
+            success = pm ? TRUE : FALSE;
+        for (i = 0; i <= quan; i++) {
+            if (!enexto(&bypos, mtmp->mx, mtmp->my, mtmp->data))
          	break;
-          }
-      case CLC_BLIND_YOU:
-          if (!mtmp || mtmp->mhp < 1) {
-         	    impossible("blindness spell with no mtmp");
-         	    return;
- 	        }
-         	/* note: resists_blnd() doesn't apply here */
-         	if (!mtmp->mblinded &&
-         	    haseyes(mtmp->data)) {
-         	    if (!resists_blnd(mtmp)) {
-         	        int num_eyes = eyecount(mtmp->data);
-         	        pline("Scales cover %s %s!",
-         	          s_suffix(mon_nam(mtmp)),
-         		  (num_eyes == 1) ? "eye" : "eyes");
+            if ((pm = mkclass(let,0)) != 0
+                && (mtmp2 = makemon(pm, bypos.x, bypos.y, NO_MM_FLAGS)) != 0) {
+         	success = TRUE;
+         	mtmp2->msleeping = 0;
+         	if (yours || mattk->mtame)
+         	    (void) tamedog(mtmp2, (struct obj *)0);
+         	else if (mattk->mpeaceful)
+                    mattk->mpeaceful = 1;
+         	else mattk->mpeaceful = 0;
 
-         		  mtmp->mblinded = 127;
-         	    }
-         	    dmg = 0;
+         	set_malign(mtmp2);
+            }
+        }
 
-         	} else
-         	    impossible("no reason for monster to cast blindness spell?");
-         	break;
+        if (yours) {
+            if (!success)
+         	You("cast at a clump of sticks, but nothing happens.");
+            else if (let == S_SNAKE)
+         	You("transforms a clump of sticks into snakes!");
+            else
+         	You("summon insects!");
+        } else if (canseemon(mtmp)) {
+            if (!success)
+         	pline("%s casts at a clump of sticks, but nothing happens.", Monnam(mattk));
+            else if (let == S_SNAKE)
+         	pline("%s transforms a clump of sticks into snakes!", Monnam(mattk));
+            else
+         	pline("%s summons insects!", Monnam(mattk));
+        }
+        dmg = 0;
+        break;
+    case CLC_BLIND_YOU:
+        if (!mtmp || mtmp->mhp < 1) {
+            impossible("blindness spell with no mtmp");
+            return;
+        }
+        /* note: resists_blnd() doesn't apply here */
+        if (!mtmp->mblinded
+            && haseyes(mtmp->data)) {
+            if (!resists_blnd(mtmp)) {
+         	int num_eyes = eyecount(mtmp->data);
+         	pline("Scales cover %s %s!", s_suffix(mon_nam(mtmp)),
+         	      (num_eyes == 1) ? "eye" : "eyes");
+
+                mtmp->mblinded = 127;
+            }
+        dmg = 0;
+
+        } else
+            impossible("no reason for monster to cast blindness spell?");
+        break;
     case CLC_PARALYZE:
          if (!mtmp || mtmp->mhp < 1) {
        	    impossible("paralysis spell with no mtmp");
@@ -2015,11 +2040,11 @@ int spellnum;
        	}
        	dmg = 0;
        	break;
-     case CLC_CONFUSE_YOU:
+    case CLC_CONFUSE_YOU:
         if (!mtmp || mtmp->mhp < 1) {
        	    impossible("confusion spell with no mtmp");
        	    return;
-   	    }
+   	}
        	if (resist(mtmp, 0, 0, FALSE)) {
        	    shieldeff(mtmp->mx, mtmp->my);
        	    if (yours || canseemon(mtmp))
@@ -2087,8 +2112,7 @@ int spellnum;
        	    dmg = (dmg + 1) / 2;
        	}
        	/* not canseemon; if you can't see it you don't know it was wounded */
-       	if (yours)
-       	{
+       	if (yours) {
        	    if (dmg <= 5)
        	        pline("%s looks itchy!", Monnam(mtmp));
        	    else if (dmg <= 10)
@@ -2110,7 +2134,7 @@ int spellnum;
         if (mtmp->mhp < 1) {
        	    if (yours) killed(mtmp);
        	    else monkilled(mtmp, "", AD_CLRC);
-	        }
+	}
     }
 }
 
