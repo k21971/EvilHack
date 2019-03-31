@@ -592,7 +592,7 @@ const struct Role roles[] = {
 };
 
 /* Dark Knight */
-    const struct Role align_roles[] = {
+const struct Role align_roles[] = {
     { { "Dark Knight", 0 },
       { { "Sniveler", 0 },
         { "Pawn", 0 },

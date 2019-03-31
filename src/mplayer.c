@@ -40,11 +40,11 @@ static const char *developers[] = {
 };
 
 static const char *fem_names[] = {
-    "Ariel",   "Alexandria",  "Betty",     "Charlotte",
-    "Ella",    "Gabriel",     "Isabella",  "Kathryn",
-    "Mary",    "Nancy",       "Olivia",    "Penny",
-    "Rosa",    "Sally",       "Sophia",    "Veronica",
-    "Yvette",  "Zoey"
+    "Alexandria",   "Anna",        "Ariel",      "Betty",      "Charlotte",
+    "Ella",         "Gabrielle",   "Inez",       "Isabella",   "Kathryn",
+    "Lillianna",    "Joanna",      "Mary",       "Nancy",      "Natasha",
+    "Olivia",       "Penny",       "Rosa",       "Sally",      "Sierra",
+    "Sophia",       "Tabitha",     "Veronica",   "Yvette",     "Zoey"
 };
 
 /* return a randomly chosen developer name */
@@ -132,36 +132,22 @@ register boolean special;
 struct obj *obj;
 {
     register struct monst *mtmp;
-#ifdef ARTI_WITH_OWNER
     register boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
-#endif
 
     char nam[PL_NSIZ];
 
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), FALSE); /* insurance */
 
-#ifndef ARTI_WITH_OWNER
-    if (!In_endgame(&u.uz))
-        special = FALSE;
-#endif
-
     if ((mtmp = makemon(ptr, x, y, NO_MM_FLAGS)) != 0) {
         short weapon, armor, cloak, helm, shield;
         int quan;
         struct obj *otmp;
 
-#ifndef ARTI_WITH_OWNER
-        mtmp->m_lev = (special ? rn1(16, 15) : rnd(16));
-        mtmp->mhp = mtmp->mhpmax = d((int) mtmp->m_lev, 10)
-                                   + (special ? (30 + rnd(30)) : 30);
-        if (special) {
-#else
         mtmp->m_lev = (special ? (ascending ? rn1(16, 15) : min(30, u.ulevel + rn1(4, 4))) : rnd(16));
         mtmp->mhp = mtmp->mhpmax = d((int)mtmp->m_lev, 10) +
                     (ascending ? (30 + rnd(30)) : 30);
         if (ascending) {
-#endif
             /* that's why they are "stuck" in the endgame :-) */
             (void) mongets(mtmp, FAKE_AMULET_OF_YENDOR);
         }
@@ -181,11 +167,11 @@ struct obj *obj;
                          : rnd_class(ELVEN_SHIELD, SHIELD_OF_REFLECTION);
 
         switch (monsndx(ptr)) {
-        case PM_ARCHEOLOGIST:
+        case PM_HUMAN_ARCHEOLOGIST:
             if (rn2(2))
                 weapon = BULLWHIP;
             break;
-        case PM_BARBARIAN:
+        case PM_HUMAN_BARBARIAN:
             if (rn2(2)) {
                 weapon = rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
                 shield = STRANGE_OBJECT;
@@ -195,8 +181,8 @@ struct obj *obj;
             if (helm == HELM_OF_BRILLIANCE)
                 helm = STRANGE_OBJECT;
             break;
-        case PM_CAVEMAN:
-        case PM_CAVEWOMAN:
+        case PM_HUMAN_CAVEMAN:
+        case PM_HUMAN_CAVEWOMAN:
             if (rn2(4))
                 weapon = MACE;
             else if (rn2(2))
@@ -204,7 +190,7 @@ struct obj *obj;
             if (helm == HELM_OF_BRILLIANCE)
                 helm = STRANGE_OBJECT;
             break;
-        case PM_HEALER:
+        case PM_HUMAN_HEALER:
             if (rn2(4))
                 weapon = QUARTERSTAFF;
             else if (rn2(2))
@@ -214,21 +200,22 @@ struct obj *obj;
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
-        case PM_KNIGHT:
+        case PM_HUMAN_KNIGHT:
+        case PM_HUMAN_DARK_KNIGHT:
             if (rn2(4))
                 weapon = LONG_SWORD;
             if (rn2(2))
                 armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
             break;
-        case PM_MONK:
+        case PM_HUMAN_MONK:
             weapon = !rn2(3) ? SHURIKEN : STRANGE_OBJECT;
             armor = STRANGE_OBJECT;
             cloak = ROBE;
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
-        case PM_PRIEST:
-        case PM_PRIESTESS:
+        case PM_HUMAN_PRIEST:
+        case PM_HUMAN_PRIESTESS:
             if (rn2(2))
                 weapon = MACE;
             if (rn2(2))
@@ -240,28 +227,28 @@ struct obj *obj;
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
-        case PM_RANGER:
+        case PM_HUMAN_RANGER:
             if (rn2(2))
                 weapon = ELVEN_DAGGER;
             break;
-        case PM_ROGUE:
+        case PM_HUMAN_ROGUE:
             if (rn2(2))
                 weapon = rn2(2) ? SHORT_SWORD : ORCISH_DAGGER;
             break;
-        case PM_SAMURAI:
+        case PM_HUMAN_SAMURAI:
             if (rn2(2))
                 weapon = KATANA;
             break;
-        case PM_TOURIST:
+        case PM_HUMAN_TOURIST:
             (void) mongets(mtmp, EXPENSIVE_CAMERA);
             break;
-        case PM_VALKYRIE:
+        case PM_HUMAN_VALKYRIE:
             if (rn2(2))
                 weapon = WAR_HAMMER;
             if (rn2(2))
                 armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
             break;
-        case PM_WIZARD:
+        case PM_HUMAN_WIZARD:
             if (rn2(4))
                 weapon = rn2(2) ? QUARTERSTAFF : ATHAME;
             if (rn2(2)) {
@@ -277,31 +264,24 @@ struct obj *obj;
             weapon = STRANGE_OBJECT;
             break;
         }
-#ifdef ARTI_WITH_OWNER
+
         if (obj) {
             if (obj->oclass == WEAPON_CLASS)
                 weapon = STRANGE_OBJECT;
             if (is_shield(obj))
                 shield = STRANGE_OBJECT;
         }
-#endif
 
         if (weapon != STRANGE_OBJECT) {
             otmp = mksobj(weapon, TRUE, FALSE);
-#ifndef ARTI_WITH_OWNER
-            otmp->spe = (special ? rn1(5, 4) : rn2(4));
-#else
             otmp->spe = (ascending ? rn1(5, 4) : rn2(4));
-#endif
             if (!rn2(3))
                 otmp->oerodeproof = 1;
             else if (!rn2(2))
                 otmp->greased = 1;
             if (special && rn2(2))
-#ifdef ARTI_WITH_OWNER
-              if (!obj)
-#endif
-                otmp = mk_artifact(otmp, A_NONE);
+                if (!obj)
+                    otmp = mk_artifact(otmp, A_NONE);
             /* usually increase stack size if stackable weapon */
             if (objects[otmp->otyp].oc_merge && !otmp->oartifact
                 && monmightthrowwep(otmp))
@@ -312,11 +292,7 @@ struct obj *obj;
             (void) mpickobj(mtmp, otmp);
         }
 
-#ifndef ARTI_WITH_OWNER
-        if (special) {
-#else
         if (ascending) {
-#endif
             if (!rn2(10))
                 (void) mongets(mtmp, rn2(3) ? LUCKSTONE : LOADSTONE);
             mk_mplayer_armor(mtmp, armor);
@@ -332,11 +308,12 @@ struct obj *obj;
                 mk_mplayer_armor(mtmp, rnd_class(LOW_BOOTS,
                                                  LEVITATION_BOOTS));
             m_dowear(mtmp, TRUE);
+            mon_wield_item(mtmp);
 
-	    /* done after wearing the dragon mail so the resists checks work */
-	    if (rn2(8) || monsndx(ptr) == PM_WIZARD) {
+	    /* done after wearing any dragon mail so the resists checks work */
+	    if (rn2(8) || monsndx(ptr) == PM_HUMAN_WIZARD) {
 		int i, ring;
-		for (i=0; i<2 && (rn2(2) || monsndx(ptr) == PM_WIZARD); i++) {
+		for (i=0; i<2 && (rn2(2) || monsndx(ptr) == PM_HUMAN_WIZARD); i++) {
 		     do ring = !rn2(9) ? RIN_INVISIBILITY :
 			       !rn2(8) ? RIN_TELEPORT_CONTROL :
 			       !rn2(7) ? RIN_FIRE_RESISTANCE :
@@ -400,7 +377,7 @@ boolean special;
         int tryct = 0;
 
         /* roll for character class */
-        pm = rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
+        pm = rn1(PM_HUMAN_WIZARD - PM_HUMAN_ARCHEOLOGIST + 1, PM_HUMAN_ARCHEOLOGIST);
         set_mon_data(&fakemon, &mons[pm]);
 
         /* roll for an available location */

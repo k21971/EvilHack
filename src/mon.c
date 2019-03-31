@@ -291,43 +291,43 @@ int mndx, mode;
     switch (mndx) {
     /* Quest guardians */
     case PM_STUDENT:
-        mndx = mode ? PM_ARCHEOLOGIST : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_ARCHEOLOGIST : PM_HUMAN;
         break;
     case PM_CHIEFTAIN:
-        mndx = mode ? PM_BARBARIAN : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_BARBARIAN : PM_HUMAN;
         break;
     case PM_NEANDERTHAL:
-        mndx = mode ? PM_CAVEMAN : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_CAVEMAN : PM_HUMAN;
         break;
     case PM_ATTENDANT:
-        mndx = mode ? PM_HEALER : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_HEALER : PM_HUMAN;
         break;
     case PM_PAGE:
-        mndx = mode ? PM_KNIGHT : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_KNIGHT : PM_HUMAN;
         break;
     case PM_ABBOT:
-        mndx = mode ? PM_MONK : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_MONK : PM_HUMAN;
         break;
     case PM_ACOLYTE:
-        mndx = mode ? PM_PRIEST : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_PRIEST : PM_HUMAN;
         break;
     case PM_HUNTER:
-        mndx = mode ? PM_RANGER : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_RANGER : PM_HUMAN;
         break;
     case PM_THUG:
-        mndx = mode ? PM_ROGUE : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_ROGUE : PM_HUMAN;
         break;
     case PM_ROSHI:
-        mndx = mode ? PM_SAMURAI : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_SAMURAI : PM_HUMAN;
         break;
     case PM_GUIDE:
-        mndx = mode ? PM_TOURIST : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_TOURIST : PM_HUMAN;
         break;
     case PM_APPRENTICE:
-        mndx = mode ? PM_WIZARD : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_WIZARD : PM_HUMAN;
         break;
     case PM_WARRIOR:
-        mndx = mode ? PM_VALKYRIE : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_VALKYRIE : PM_HUMAN;
         break;
     default:
         if (mndx >= LOW_PM && mndx < NUMMONS) {
@@ -3802,7 +3802,7 @@ struct monst *mon;
         if (!rn2(7)) {
             mndx = pick_nasty();
         } else if (rn2(3)) { /* role monsters */
-            mndx = rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
+            mndx = rn1(PM_HUMAN_WIZARD - PM_HUMAN_ARCHEOLOGIST + 1, PM_HUMAN_ARCHEOLOGIST);
         } else if (!rn2(3)) { /* quest guardians */
             mndx = rn1(PM_APPRENTICE - PM_STUDENT + 1, PM_STUDENT);
             /* avoid own role's guardian */
@@ -3915,10 +3915,12 @@ int mndx;
         return 0;
     if (is_placeholder(mdat))
         return 0;
+    if (is_mplayer(mdat))
+        return 0;
     /* select_newcham_form() might deliberately pick a player
        character type (random selection never does) which
        polyok() rejects, so we need a special case here */
-    if (is_mplayer(mdat))
+    if (is_actual_player(mdat))
         return mdat;
     /* polyok() rules out M2_PNAME, M2_WERE, and all humans except Kops */
     return polyok(mdat) ? mdat : 0;

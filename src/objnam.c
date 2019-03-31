@@ -4056,22 +4056,6 @@ struct obj *no_wish;
         }
     }
 
-#ifndef ARTI_WITH_OWNER
-    /* more wishing abuse: don't allow wishing for certain artifacts */
-    /* and make them pay; charge them for the wish anyway! */
-    if ((is_quest_artifact(otmp)
-        || (otmp->oartifact && rn2(nartifact_exist()) > 2)) && !wizard) {
-        artifact_exists(otmp, safe_oname(otmp), FALSE);
-        obfree(otmp, (struct obj *) 0);
-        otmp = (struct obj *) &zeroobj;
-        if (Hallucination)
-            pline("Wish in one hand...");
-        else
-            pline("For a moment, you feel %s in your %s, but it disappears!",
-                  something, makeplural(body_part(HAND)));
-            return otmp;
-    }
-#else
     /* more wishing abuse: don't allow wishing for the quest artifact */
     /* otherwise an increasing propability that the artifact returns */
     /* with its previous owner */
@@ -4100,9 +4084,7 @@ struct obj *no_wish;
         const char *voice = NULL;
         struct obj *otmp2 = (struct obj *) 0;
         /* You can use otmp2 to give the owner some other item you want to.
-           Used here to give ammunition for the Longbow of Diana, and weapons
-           for guardians of non-weapon artifacts.
-           **/
+           Used here to give ammunition for the Longbow of Diana. */
         const char *aname = artiname(otmp->oartifact);
 
         /* Wishing for a quest artifact may summon its nemesis (and quest enemies?) */
@@ -4114,55 +4096,49 @@ struct obj *no_wish;
                  * the Rogue's quest leader.
                  */
                 if (!((role->neminum == PM_MASTER_OF_THIEVES) && Role_if(PM_ROGUE)))
-                    pm=role->neminum;
+                    pm = role->neminum;
             }
         }
 
         if (pm < 0) {
             switch(otmp->oartifact) {
                 case ART_LIFESTEALER:
-                    pm=PM_VAMPIRE_LORD;
-                    voice="Vlad the Impaler";
+                    pm = PM_VAMPIRE_LORD;
+                    voice = "Vlad the Impaler";
                     break;
                 case ART_XIUHCOATL:
                 case ART_SUNSWORD:
                 case ART_GRAYSWANDIR:
-                    pm=PM_ARCHEOLOGIST;
+                    pm = PM_HUMAN_ARCHEOLOGIST;
                     break;
                 case ART_RING_OF_P_HUL:
-                    otmp2 = mksobj(BATTLE_AXE, TRUE, FALSE);
-                    if (otmp2->spe < 3)
-                        otmp2->spe = rnd(4);
                 case ART_CLEAVER:
                 case ART_STORMBRINGER:
                 case ART_OGRESMASHER:
-                    pm=PM_BARBARIAN;
+                case ART_SWORD_OF_BHELEU:
+                    pm = PM_HUMAN_BARBARIAN;
                     break;
                 case ART_KEOLEWA:
                 case ART_DRAGONBANE:
                 case ART_SCEPTRE_OF_MIGHT:
-                    pm=PM_CAVEMAN;
+                    pm = PM_HUMAN_CAVEMAN;
                     break;
                 case ART_STAFF_OF_AESCULAPIUS:
-                    pm=PM_HEALER;
+                    pm = PM_HUMAN_HEALER;
                     break;
                 case ART_MAGIC_MIRROR_OF_MERLIN:
-                    otmp2 = mksobj(LONG_SWORD, TRUE, FALSE);
-                    if (otmp2->spe < 3)
-                        otmp2->spe = rnd(4);
                 case ART_EXCALIBUR:
+                    pm = PM_HUMAN_KNIGHT;
+                    break;
                 case ART_DIRGE:
-                    pm=PM_KNIGHT;
+                    pm = PM_HUMAN_DARK_KNIGHT;
                     break;
                 case ART_EYES_OF_THE_OVERWORLD:
-                    pm=PM_MONK;
+                    pm = PM_HUMAN_MONK;
                     break;
                 case ART_MITRE_OF_HOLINESS:
-                    otmp2 = mksobj(MACE, TRUE, FALSE);
-                    if (otmp2->spe < 3)
-                        otmp2->spe = rnd(4);
                 case ART_TROLLSBANE:
-                    pm=PM_PRIEST;
+                    pm = PM_HUMAN_PRIEST;
                     break;
                 case ART_LONGBOW_OF_DIANA:
                     otmp2 = mksobj(ARROW, TRUE, FALSE);
@@ -4172,74 +4148,61 @@ struct obj *no_wish;
                     otmp2->spe = rn2(3);
                     strategy = NEED_RANGED_WEAPON;
                 case ART_ORCRIST:
-                    pm=PM_RANGER;
+                    pm = PM_HUMAN_RANGER;
                     break;
                 case ART_MASTER_KEY_OF_THIEVERY:
-                    otmp2 = mksobj(SHORT_SWORD, TRUE, FALSE);
-                    if (otmp2->spe < 3)
-                        otmp2->spe = rnd(4);
                 case ART_STING:
                 case ART_GRIMTOOTH:
-                    pm=PM_ROGUE;
+                    pm = PM_HUMAN_ROGUE;
                     break;
                 case ART_TSURUGI_OF_MURAMASA:
                 case ART_SNICKERSNEE:
-                case ART_SWORD_OF_BHELEU:
-                    pm=PM_SAMURAI;
+                    pm = PM_HUMAN_SAMURAI;
                     break;
                 case ART_YENDORIAN_EXPRESS_CARD:
                 case ART_MAGIC___BALL:
-                    otmp2 = mksobj(UNICORN_HORN, TRUE, FALSE);
-                    if (otmp2->spe < 3)
-                        otmp2->spe = rnd(4);
                 case ART_VORPAL_BLADE:
-                    pm=PM_TOURIST;
+                    pm = PM_HUMAN_TOURIST;
                     break;
                 case ART_ORB_OF_FATE:
-                    otmp2 = mksobj(WAR_HAMMER, TRUE, FALSE);
-                    if (otmp2->spe < 3)
-                        otmp2->spe = rnd(4);
                 case ART_GIANTSLAYER:
                 case ART_MJOLLNIR:
-                    pm=PM_VALKYRIE;
+                    pm = PM_HUMAN_VALKYRIE;
                     break;
                 case ART_EYE_OF_THE_AETHIOPICA:
-                    otmp2 = mksobj(QUARTERSTAFF, TRUE, FALSE);
-                    if (otmp2->spe < 3)
-                        otmp2->spe = rnd(4);
                 case ART_MAGICBANE:
-                    pm=PM_WIZARD;
+                    pm = PM_HUMAN_WIZARD;
                     break;
                 case ART_FROST_BRAND:
-                    if(u.ualign.type == A_NEUTRAL)
-                        pm=PM_TOURIST;
+                    if (u.ualign.type == A_NEUTRAL)
+                        pm = PM_HUMAN_TOURIST;
                     else
-                        pm=PM_KNIGHT;
+                        pm = PM_HUMAN_KNIGHT;
                     break;
                 case ART_FIRE_BRAND:
-                    if(u.ualign.type == A_NEUTRAL)
-                        pm=PM_BARBARIAN;
+                    if (u.ualign.type == A_CHAOTIC)
+                        pm = PM_HUMAN_BARBARIAN;
                     else
-                        pm=PM_ARCHEOLOGIST;
+                        pm = PM_HUMAN_ARCHEOLOGIST;
                     break;
                 case ART_DEMONBANE:
-                    if(u.ualign.type == A_NEUTRAL)
-                        pm=PM_HEALER;
+                    if (u.ualign.type == A_NEUTRAL)
+                        pm = PM_HUMAN_HEALER;
                     else
-                        pm=PM_PRIEST;
+                        pm = PM_HUMAN_PRIEST;
                     break;
                 case ART_WEREBANE:
-                    if(u.ualign.type == A_NEUTRAL)
-                        pm=PM_BARBARIAN;
+                    if (u.ualign.type == A_CHAOTIC)
+                        pm = PM_HUMAN_BARBARIAN;
                     else
-                        pm=PM_CAVEMAN;
+                        pm = PM_HUMAN_CAVEMAN;
                     break;
                 default:
                     impossible("Unknown artifact!");
                     break;
             }
-            if (pm==PM_CAVEMAN && rn2(2)) pm=PM_CAVEWOMAN;
-            if (pm==PM_PRIEST  && rn2(2)) pm=PM_PRIESTESS;
+            if (pm == PM_HUMAN_CAVEMAN && rn2(2)) pm = PM_HUMAN_CAVEWOMAN;
+            if (pm == PM_HUMAN_PRIEST && rn2(2)) pm = PM_HUMAN_PRIESTESS;
         }
 
         mtmp = mk_mplayer(&mons[pm], u.ux, u.uy, TRUE, otmp);
@@ -4267,7 +4230,6 @@ struct obj *no_wish;
             return otmp;
         }
     }
-#endif /*ARTI_WITH_OWNER */
 
     if (material > 0 && !otmp->oartifact
         && (wizard || valid_obj_material(otmp, material))) {

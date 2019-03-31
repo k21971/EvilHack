@@ -327,9 +327,9 @@ unsigned short chance;
 			  || otyp == RIN_HUNGER
 			  || otyp == WAN_NOTHING
 			  || (otyp == SCR_ENCHANT_WEAPON
-			      && mtmp->mnum == PM_MONK)
+			      && mtmp->mnum == PM_HUMAN_MONK)
 			  || (otyp == SPE_FORCE_BOLT
-			      && mtmp->mnum == PM_WIZARD)
+			      && mtmp->mnum == PM_HUMAN_WIZARD)
 			  || (obj->oclass == SPBOOK_CLASS
 			      && objects[otyp].oc_level > 3)) {
 				 dealloc_obj(obj);
@@ -421,7 +421,7 @@ register struct monst *mtmp;
         return;
 
     /* treat mplayers differently */
-    if (is_mplayer(mtmp->data)) {
+    if (is_mplayer(mtmp->data) && !In_endgame(&u.uz)) {
 	if (mtmp->m_lev > 1) {
 	    if (mtmp->m_lev > 10 || !rn2(10))
                 if (rn2(2)) {
@@ -436,13 +436,13 @@ register struct monst *mtmp;
         }
 
     switch (mtmp->mnum) {
-        case PM_ARCHEOLOGIST:
+        case PM_HUMAN_ARCHEOLOGIST:
 	    ini_mon_inv(mtmp, Archeologist, 1);
 	    if (!rn2(10)) ini_mon_inv(mtmp, Tinopener);
 	    else if (!rn2(4)) ini_mon_inv(mtmp, Lamp);
             else if (rn2(3)) ini_mon_inv(mtmp, Pickaxe);
 	    break;
-	case PM_BARBARIAN:
+	case PM_HUMAN_BARBARIAN:
 	    if (rn2(100) >= 50) {
 		Barbarian[B_MAJOR].trotyp = BATTLE_AXE;
 		Barbarian[B_MINOR].trotyp = SHORT_SWORD;
@@ -454,20 +454,21 @@ register struct monst *mtmp;
 	    ini_mon_inv(mtmp, Barbarian, 1);
 	    ini_mon_inv(mtmp, Lamp, 6);
 	    break;
-	case PM_CAVEMAN:
-	case PM_CAVEWOMAN:
+	case PM_HUMAN_CAVEMAN:
+	case PM_HUMAN_CAVEWOMAN:
 	    Cave_man[C_AMMO].trquan = rn1(11, 10);	/* 10..20 */
 	    ini_mon_inv(mtmp, Cave_man, 1);
 	    break;
-	case PM_HEALER:
+	case PM_HUMAN_HEALER:
 	    mkmonmoney(mtmp, (long) rn1(1000, 1001));
 	    ini_mon_inv(mtmp, Healer, 1);
 	    ini_mon_inv(mtmp, Lamp, 25);
 	    break;
-	case PM_KNIGHT:
+	case PM_HUMAN_KNIGHT:
+        case PM_HUMAN_DARK_KNIGHT:
 	    ini_mon_inv(mtmp, Knight, 1);
 	    break;
-	case PM_MONK:
+	case PM_HUMAN_MONK:
 	    switch (rn2(90) / 30) {
 		case 0: Monk[M_BOOK].trotyp = SPE_HEALING;
                     break;
@@ -479,27 +480,27 @@ register struct monst *mtmp;
 	    ini_mon_inv(mtmp, Monk, 1);
 	    ini_mon_inv(mtmp, Lamp, 10);
 	    break;
-	case PM_PRIEST:
-	case PM_PRIESTESS:
+	case PM_HUMAN_PRIEST:
+	case PM_HUMAN_PRIESTESS:
 	    ini_mon_inv(mtmp, Priest, 1);
 	    ini_mon_inv(mtmp, Lamp, 10);
 	    break;
-	case PM_RANGER:
+	case PM_HUMAN_RANGER:
 	    Ranger[RAN_TWO_ARROWS].trquan = rn1(10, 50);
 	    Ranger[RAN_ZERO_ARROWS].trquan = rn1(10, 30);
 	    ini_mon_inv(mtmp, Ranger, 1);
 	    break;
-	case PM_ROGUE:
+	case PM_HUMAN_ROGUE:
 	    Rogue[R_DAGGERS].trquan = rn1(10, 6);
 	    ini_mon_inv(mtmp, Rogue, 1);
 	    ini_mon_inv(mtmp, Blindfold, 5);
 	    break;
-	case PM_SAMURAI:
+	case PM_HUMAN_SAMURAI:
 	    Samurai[S_ARROWS].trquan = rn1(20, 26);
 	    ini_mon_inv(mtmp, Samurai, 1);
 	    ini_mon_inv(mtmp, Blindfold, 5);
 	    break;
-	case PM_TOURIST:
+	case PM_HUMAN_TOURIST:
 	    Tourist[T_DARTS].trquan = rn1(20, 21);
 	    mkmonmoney(mtmp, (long) rn1(1000, 1001));
 	    ini_mon_inv(mtmp, Tourist, 1);
@@ -507,11 +508,11 @@ register struct monst *mtmp;
 	    else if (!rn2(25)) ini_mon_inv(mtmp, Leash, 1);
 	    else if (!rn2(25)) ini_mon_inv(mtmp, Towel, 1);
 	    break;
-	case PM_VALKYRIE:
+	case PM_HUMAN_VALKYRIE:
 	    ini_mon_inv(mtmp, Valkyrie, 1);
 	    ini_mon_inv(mtmp, Lamp, 6);
 	    break;
-	case PM_WIZARD:
+	case PM_HUMAN_WIZARD:
 	    ini_mon_inv(mtmp, Wizard, 1);
 	    ini_mon_inv(mtmp, Blindfold, 5);
 	    break;
@@ -1950,8 +1951,11 @@ int mmflags;
             case PM_GOBLIN_CAPTAIN:
                 mount_monster(mtmp, PM_WARG);
                 break;
-            case PM_KNIGHT:
+            case PM_HUMAN_KNIGHT:
                 mount_monster(mtmp, PM_HORSE);
+                break;
+            case PM_HUMAN_DARK_KNIGHT:
+                mount_monster(mtmp, PM_NIGHTMARE);
                 break;
         }
     }
@@ -2549,8 +2553,8 @@ struct monst *mtmp, *victim;
        have both little and big forms */
     oldtype = monsndx(ptr);
     newtype = little_to_big(oldtype);
-    if (newtype == PM_PRIEST && mtmp->female)
-        newtype = PM_PRIESTESS;
+    if (newtype == PM_HUMAN_PRIEST && mtmp->female)
+        newtype = PM_HUMAN_PRIESTESS;
 
     /* growth limits differ depending on method of advancement */
     if (victim) {                       /* killed a monster */

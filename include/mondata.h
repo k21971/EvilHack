@@ -197,8 +197,10 @@
 #define is_displacer(ptr) (((ptr)->mflags3 & M3_DISPLACES) != 0L)
 #define is_displaced(ptr) ((ptr) == &mons[PM_SHIMMERING_DRAGON] || \
     (ptr) == &mons[PM_BABY_SHIMMERING_DRAGON])
-#define is_mplayer(ptr) \
+#define is_actual_player(ptr) \
     (((ptr) >= &mons[PM_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_WIZARD]))
+#define is_mplayer(ptr) \
+    (((ptr) >= &mons[PM_HUMAN_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_HUMAN_WIZARD]))
 #define is_watch(ptr) \
     ((ptr) == &mons[PM_WATCHMAN] || (ptr) == &mons[PM_WATCH_CAPTAIN])
 #define is_rider(ptr)                                      \

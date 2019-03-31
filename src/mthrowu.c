@@ -207,18 +207,23 @@ struct obj *otmp, *mwep;
         /* class bonus */
         switch (monsndx(mtmp->data)) {
         case PM_CAVEMAN: /* give bonus for low-tech gear */
+        case PM_HUMAN_CAVEMAN:
+        case PM_HUMAN_CAVEWOMAN:
             if (skill == -P_SLING || skill == P_SPEAR)
                 multishot++;
             break;
         case PM_MONK: /* allow higher volley count */
+        case PM_HUMAN_MONK:
             if (skill == -P_SHURIKEN)
                 multishot++;
             break;
         case PM_RANGER:
+        case PM_HUMAN_RANGER:
             if (skill != P_DAGGER)
                 multishot++;
             break;
         case PM_ROGUE:
+        case PM_HUMAN_ROGUE:
             if (skill == P_DAGGER)
                 multishot++;
             break;
@@ -227,6 +232,7 @@ struct obj *otmp, *mwep;
                 multishot++;
             /*FALLTHRU*/
         case PM_SAMURAI:
+        case PM_HUMAN_SAMURAI:
             if (otmp->otyp == YA && mwep->otyp == YUMI)
                 multishot++;
             break;

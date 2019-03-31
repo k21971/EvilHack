@@ -1925,7 +1925,7 @@ do_rust:
                 exercise(A_CON, FALSE);
                 dmg += rnd(sear_damage(marmf->material));
             }
-            if (mdat == &mons[PM_MONK])
+            if (mdat == &mons[PM_HUMAN_MONK])
                 if (!rn2(10) && youmonst.data->msize != MZ_HUGE) {
                 You("reel from %s powerful kick!", s_suffix(mon_nam(mtmp)));
                 make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
