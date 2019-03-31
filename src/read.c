@@ -1696,6 +1696,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         if (confused) {
             if (how_resistant(FIRE_RES) == 100) {
                 shieldeff(u.ux, u.uy);
+                monstseesu(M_SEEN_FIRE);
                 if (!Blind)
                     pline("Oh, look, what a pretty fire in your %s.",
                           makeplural(body_part(HAND)));

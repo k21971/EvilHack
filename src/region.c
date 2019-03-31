@@ -969,6 +969,7 @@ genericptr_t p2;
             losehp(resist_reduce(Maybe_Half_Phys(rnd(dam) + 5), POISON_RES), "gas cloud", KILLED_BY_AN);
             return FALSE;
         } else {
+            monstseesu(M_SEEN_POISON);
             You("cough!");
             return FALSE;
         }

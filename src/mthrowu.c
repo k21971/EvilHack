@@ -82,6 +82,7 @@ const char *name; /* if null, then format `*objp' */
 
         if (is_acid && Acid_resistance) {
             pline("It doesn't seem to hurt you.");
+            monstseesu(M_SEEN_ACID);
         } else if (obj && obj->oclass == POTION_CLASS) {
             /* an explosion which scatters objects might hit hero with one
                (potions deliberately thrown at hero are handled by m_throw) */
@@ -970,6 +971,7 @@ struct attack  *mattk;
 {
     /* if new breath types are added, change AD_ACID to max type */
     int typ = (mattk->adtyp == AD_RBRE) ? rnd(AD_ACID) : mattk->adtyp ;
+    boolean player_resists = FALSE;
 
     if (mlined_up(mtmp, mtarg, TRUE)) {
         if (mtmp->mcan) {
@@ -981,6 +983,16 @@ struct attack  *mattk;
             }
             return 0;
         }
+
+	/* if we've seen the actual resistance, don't bother, or
+	 * if we're close by and they reflect, just jump the player */
+	player_resists = m_seenres(mtmp, 1 << (typ-1));
+	if (player_resists
+	    || (m_seenres(mtmp, M_SEEN_REFL)
+            && monnear(mtmp, mtmp->mux, mtmp->muy))) {
+	    return 1;
+	}
+
         if (!mtmp->mspec_used && rn2(3)) {
             if ((typ >= AD_MAGM) && (typ <= AD_ACID)) {
                 if (canseemon(mtmp))

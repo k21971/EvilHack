@@ -372,6 +372,7 @@ boolean foundyou;
         if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
             pline("But you resist the effects.");
+            monstseesu(M_SEEN_FIRE);
             dmg = 0;
 	} else {
             dmg = resist_reduce(dmg, FIRE_RES);
@@ -383,6 +384,7 @@ boolean foundyou;
         if (how_resistant(COLD_RES) == 100) {
             shieldeff(u.ux, u.uy);
             pline("But you resist the effects.");
+            monstseesu(M_SEEN_COLD);
             dmg = 0;
         } else {
             dmg = resist_reduce(dmg, COLD_RES);
@@ -393,6 +395,7 @@ boolean foundyou;
         if (how_resistant(ACID_RES) == 100) {
             shieldeff(u.ux, u.uy);
             pline("But you resist the effects.");
+            monstseesu(M_SEEN_ACID);
             dmg = 0;
         } else {
             dmg = resist_reduce(dmg, ACID_RES);
@@ -404,6 +407,7 @@ boolean foundyou;
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
             pline("Some missiles bounce off!");
+            monstseesu(M_SEEN_MAGR);
             dmg = (dmg + 1) / 2;
         }
 	if (Half_spell_damage) { /* stacks, effectively 1/4 damage */
@@ -467,6 +471,7 @@ int spellnum;
 		/* Magic resistance in conjunction with half spell damage will cut this in half */
 		if (Antimagic && Half_spell_damage) {
 		    shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_MAGR);
 		    dmg /= 2;
 		}
 		You("feel drained...");
@@ -493,6 +498,7 @@ int spellnum;
         if (how_resistant(ACID_RES) == 100) {
             shieldeff(u.ux, u.uy);
             pline("The acid dissipates harmlessly.");
+            monstseesu(M_SEEN_ACID);
             dmg = 0;
         } else {
         if (rn2(u.twoweap ? 2 : 3))
@@ -549,6 +555,7 @@ int spellnum;
 	erodelvl = rnd(3);
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_MAGR);
 	    erodelvl = 1;
 	}
 	oatmp = some_armor(&youmonst);
@@ -586,6 +593,7 @@ int spellnum;
     case MGC_WEAKEN_YOU: /* drain strength */
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_MAGR);
             You_feel("momentarily weakened.");
         } else {
             You("suddenly feel weaker!");
@@ -661,6 +669,7 @@ int spellnum;
            made the spell virtually harmless to players with magic res. */
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_MAGR);
             dmg = (dmg + 1) / 2;
         }
         if (dmg <= 5)
@@ -742,6 +751,7 @@ int spellnum;
         pline("A pillar of fire strikes all around you!");
         if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_FIRE);
             dmg = 0;
         } else
             dmg = resist_reduce(d(8, 6), FIRE_RES);
@@ -763,9 +773,11 @@ int spellnum;
             shieldeff(u.ux, u.uy);
             if (reflects) {
                 dmg = resist_reduce(d(4, 6), SHOCK_RES);
+                monstseesu(M_SEEN_REFL);
             }
 	    if (how_resistant(SHOCK_RES) == 100) {
 		pline("You aren't shocked.");
+                monstseesu(M_SEEN_ELEC);
 		dmg = 0;
             }
         } else {
@@ -896,6 +908,7 @@ int spellnum;
     case CLC_CONFUSE_YOU:
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_MAGR);
             You_feel("momentarily dizzy.");
         } else {
             boolean oldprop = !!Confusion;
@@ -952,6 +965,7 @@ int spellnum;
     case CLC_OPEN_WOUNDS:
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_MAGR);
             dmg = (dmg + 1) / 2;
         }
         if (dmg <= 5)

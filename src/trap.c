@@ -1122,6 +1122,7 @@ unsigned trflags;
     case SLP_GAS_TRAP:
         seetrap(trap);
         if (how_resistant(SLEEP_RES) == 100 || breathless(youmonst.data)) {
+            monstseesu(M_SEEN_SLEEP);
             You("are enveloped in a cloud of gas!");
         } else {
             pline("A cloud of gas puts you to sleep!");
@@ -3148,8 +3149,10 @@ struct obj *box; /* null for floor trap */
     if ((box && !carried(box)) ? is_pool(box->ox, box->oy) : Underwater) {
         pline("A cascade of steamy bubbles erupts from %s!",
               the(box ? xname(box) : surface(u.ux, u.uy)));
-        if (how_resistant(FIRE_RES) > 50)
+        if (how_resistant(FIRE_RES) > 50) {
             You("are uninjured.");
+            monstseesu(M_SEEN_FIRE);
+        }
         else
             losehp(rnd(3), "boiling water", KILLED_BY);
         return;
@@ -3158,6 +3161,7 @@ struct obj *box; /* null for floor trap */
           the(box ? xname(box) : surface(u.ux, u.uy)));
     if (how_resistant(FIRE_RES) == 100) {
         shieldeff(u.ux, u.uy);
+        monstseesu(M_SEEN_FIRE);
         num = rn2(2);
     } else if (Upolyd) {
         num = d(2, 4);
@@ -5093,6 +5097,7 @@ boolean disarm;
                 You("are jolted by a surge of electricity!");
                 if (how_resistant(SHOCK_RES) == 100) {
                     shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_ELEC);
                     You("don't seem to be affected.");
                     dmg = 0;
                 } else
@@ -5508,12 +5513,12 @@ lava_effects()
     if (how_resistant(FIRE_RES) < 100) {
         if (Wwalking) {
 		if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
-			levl[u.ux][u.uy].typ = ROOM;
-			if (!rn2(4)) {
+		    levl[u.ux][u.uy].typ = ROOM;
+		    if (!rn2(4)) {
 			pline_The("lava cools and solidifies under your feet.");
-		}
+		    }
 		return TRUE;
-	    }
+	        }
             pline_The("%s here burns you!", hliquid("lava"));
             if (usurvive) {
                 losehp(dmg, lava_killer, KILLED_BY); /* lava damage */
@@ -5580,16 +5585,17 @@ lava_effects()
         You("sink into the %s%s!", hliquid("lava"),
             !boil_away ? ", but it only burns slightly"
                        : " and are about to be immolated");
+            monstseesu(M_SEEN_FIRE);
         if (u.uhp > 1)
             losehp(!boil_away ? 1 : (u.uhp / 2), lava_killer,
                    KILLED_BY); /* lava damage */
     } else {
         if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
-		levl[u.ux][u.uy].typ = ROOM;
-		if (!rn2(4)) {
-			pline_The("lava cools and solidifies under your feet.");
-		}
-		return TRUE;
+	    levl[u.ux][u.uy].typ = ROOM;
+	    if (!rn2(4)) {
+		pline_The("lava cools and solidifies under your feet.");
+	    }
+	    return TRUE;
 	}
     }
 

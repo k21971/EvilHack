@@ -2890,6 +2890,8 @@ boolean wep_was_destroyed;
 
             if (!Acid_resistance)
                 mdamageu(mon, tmp);
+            else
+                monstseesu(M_SEEN_ACID);
             if (!rn2(30))
                 erode_armor(&youmonst, ERODE_CORRODE);
         }
@@ -2960,6 +2962,7 @@ boolean wep_was_destroyed;
         /* wrath of gods for attacking Oracle */
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_MAGR);
             pline("A hail of magic missiles narrowly misses you!");
         } else {
             You("are hit by magic missiles appearing from thin air!");
@@ -3028,6 +3031,7 @@ boolean wep_was_destroyed;
             if (monnear(mon, u.ux, u.uy)) {
                 if (how_resistant(COLD_RES) == 100) {
                     shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_COLD);
                     You_feel("a mild chill.");
                     ugolemeffects(AD_COLD, tmp);
                     break;
@@ -3052,6 +3056,7 @@ boolean wep_was_destroyed;
             if (monnear(mon, u.ux, u.uy)) {
                 if (how_resistant(FIRE_RES) == 100) {
                     shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_FIRE);
                     You_feel("mildly warm.");
                     ugolemeffects(AD_FIRE, tmp);
                     break;
@@ -3064,6 +3069,7 @@ boolean wep_was_destroyed;
         case AD_ELEC:
             if (how_resistant(SHOCK_RES) == 100) {
                 shieldeff(u.ux, u.uy);
+                monstseesu(M_SEEN_ELEC);
                 You_feel("a mild tingle.");
                 ugolemeffects(AD_ELEC, tmp);
                 break;

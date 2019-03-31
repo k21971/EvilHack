@@ -594,12 +594,14 @@ aligntyp resp_god;
         pline("Suddenly, a bolt of lightning strikes you!");
         if (Reflecting) {
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_REFL);
             if (Blind)
                 pline("For some reason you're unaffected.");
             else
                 (void) ureflects("%s reflects from your %s.", "It");
         } else if (how_resistant(SHOCK_RES) == 100) {
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_ELEC);
             pline("It seems not to affect you.");
         } else
             fry_by_god(resp_god, FALSE);
@@ -635,6 +637,7 @@ aligntyp resp_god;
             fry_by_god(resp_god, TRUE);
         } else {
             You("bask in its %s glow for a minute...", NH_BLACK);
+            monstseesu(M_SEEN_DISINT);
             godvoice(resp_god, "I believe it not!");
         }
         if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz)) {
@@ -768,6 +771,7 @@ gcrownu()
     incr_resistance(&HShock_resistance, 100);
     incr_resistance(&HSleep_resistance, 100);
     incr_resistance(&HPoison_resistance, 100);
+    monstseesu(M_SEEN_FIRE | M_SEEN_COLD | M_SEEN_ELEC | M_SEEN_SLEEP | M_SEEN_POISON);
     godvoice(u.ualign.type, (char *) 0);
 
     obj = ok_wep(uwep) ? uwep : 0;

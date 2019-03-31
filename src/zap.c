@@ -2299,6 +2299,7 @@ boolean ordinary;
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
             pline("Boing!");
+            monstseesu(M_SEEN_MAGR);
         } else {
             if (ordinary) {
                 You("bash yourself!");
@@ -2319,6 +2320,7 @@ boolean ordinary;
         } else {
             shieldeff(u.ux, u.uy);
             You("zap yourself, but seem unharmed.");
+            monstseesu(M_SEEN_ELEC);
             ugolemeffects(AD_ELEC, d(12, 6));
         }
         destroy_item(WAND_CLASS, AD_ELEC);
@@ -2336,6 +2338,7 @@ boolean ordinary;
         if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You_feel("rather warm.");
+            monstseesu(M_SEEN_FIRE);
             ugolemeffects(AD_FIRE, d(12, 6));
         } else {
             pline("You've set yourself afire!");
@@ -2356,6 +2359,7 @@ boolean ordinary;
         if (how_resistant(COLD_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You_feel("a little chill.");
+            monstseesu(M_SEEN_COLD);
             ugolemeffects(AD_COLD, d(12, 6));
         } else {
             You("imitate a popsicle!");
@@ -2369,6 +2373,7 @@ boolean ordinary;
         if (how_resistant(POISON_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You("inhale some apparently harmless gas.");
+            monstseesu(M_SEEN_POISON);
             ugolemeffects(AD_DRST, d(12, 6));
         } else {
             You("just poisoned yourself!");
@@ -2380,7 +2385,8 @@ boolean ordinary;
         learn_it = TRUE;
         if (Acid_resistance) {
             shieldeff(u.ux, u.uy);
-            You("coat yourself in an apparently harmless substance.");
+            You("coat yourself in a seemingly harmless substance.");
+            monstseesu(M_SEEN_ACID);
             ugolemeffects(AD_ACID, d(12, 6));
         } else {
             You("cover yourself with slime!  It burns!");
@@ -2403,6 +2409,7 @@ boolean ordinary;
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
             pline("Some of the missiles bounce!");
+            monstseesu(M_SEEN_MAGR);
             damage = (damage + 1) / 2;
         }
         if (Half_spell_damage) {
@@ -2499,7 +2506,7 @@ boolean ordinary;
         if (nonliving(youmonst.data) || is_demon(youmonst.data)) {
             pline((obj->otyp == WAN_DEATH)
                       ? "The wand shoots an apparently harmless beam at you."
-                      : "You seem no deader than before.");
+                      : "You seem no more dead than before.");
             break;
         }
         learn_it = TRUE;
@@ -3863,6 +3870,7 @@ xchar sx, sy;
         if (Antimagic) {
             shieldeff(sx, sy);
             pline("Some missiles bounce off!");
+            monstseesu(M_SEEN_MAGR);
             dam = (dam + 1) / 2;
         }
         if (Half_spell_damage) { /* stacks, effectively 1/4 damage */
@@ -3874,6 +3882,7 @@ xchar sx, sy;
         if (how_resistant(FIRE_RES) == 100) {
             shieldeff(sx, sy);
             You("don't feel hot!");
+            monstseesu(M_SEEN_FIRE);
             ugolemeffects(AD_FIRE, d(nd, 6));
         } else {
             dam = resist_reduce(d(nd, 6), FIRE_RES);
@@ -3895,6 +3904,7 @@ xchar sx, sy;
         if (how_resistant(COLD_RES) == 100) {
             shieldeff(sx, sy);
             You("don't feel cold.");
+            monstseesu(M_SEEN_COLD);
             ugolemeffects(AD_COLD, d(nd, 6));
         } else {
             dam = resist_reduce(d(nd, 6), COLD_RES);
@@ -3908,8 +3918,10 @@ xchar sx, sy;
         if (how_resistant(SLEEP_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You("don't feel sleepy.");
+            monstseesu(M_SEEN_SLEEP);
         } else if (Reflecting) {
             fall_asleep(-resist_reduce(d(1, 6), SLEEP_RES), TRUE);
+            monstseesu(M_SEEN_REFL);
         } else {
             fall_asleep(-resist_reduce(d(nd, 25), SLEEP_RES), TRUE); /* sleep ray */
         }
@@ -3918,6 +3930,7 @@ xchar sx, sy;
         if (abstyp == ZT_BREATH(ZT_DEATH)) {
             if (how_resistant(DISINT_RES) == 100) {
                 You("are not disintegrated.");
+                monstseesu(M_SEEN_DISINT);
                 break;
 	    } else if (Reflecting) {
 		You("aren't disintegrated, but that hurts!");
@@ -3949,6 +3962,7 @@ xchar sx, sy;
         } else if (Antimagic) {
             shieldeff(sx, sy);
             You("aren't affected.");
+            monstseesu(M_SEEN_MAGR);
             break;
 	} else if (Reflecting) {
             You("feel a little bit drained!");
@@ -3966,6 +3980,7 @@ xchar sx, sy;
         if (how_resistant(SHOCK_RES) == 100) {
             shieldeff(sx, sy);
             You("aren't affected.");
+            monstseesu(M_SEEN_ELEC);
             ugolemeffects(AD_ELEC, d(nd, 6));
         } else {
             dam = resist_reduce(d(nd, 6), SHOCK_RES);
@@ -3986,6 +4001,7 @@ xchar sx, sy;
     case ZT_ACID:
         if (Acid_resistance) {
             pline_The("%s doesn't hurt.", hliquid("acid"));
+            monstseesu(M_SEEN_ACID);
             dam = 0;
         } else {
             pline_The("%s burns!", hliquid("acid"));
@@ -4340,6 +4356,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     dy = -dy;
                     shieldeff(sx, sy);
                     nd = (nd + 1) / 2;
+                    monstseesu(M_SEEN_REFL);
                 }
                 zhitu(type, nd, fltxt, sx, sy);
             } else if (!Blind) {
@@ -4420,7 +4437,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                              ? "shatter"
                              /* "damage" indicates wall rather than door */
                              : abstype == ZT_ACID
-                                ? "damage"
+                                ? "dissolve"
                                 : abstype == ZT_DEATH
                                    ? "disintegrate"
                                    : "destroy",
@@ -5491,6 +5508,19 @@ retry:
                                    The(aobjnam(otmp, verb)),
                                    (const char *) 0);
         u.ublesscnt += rn1(100, 50); /* the gods take notice */
+    }
+}
+
+/* uses the M_SEEN definitions in monst.h */
+void
+monstseesu(udid)
+unsigned long udid;
+{
+    struct monst* mtmp;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+	if (!DEADMONSTER(mtmp) && m_canseeu(mtmp))
+            m_setseen(mtmp, udid);
     }
 }
 

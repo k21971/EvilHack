@@ -868,6 +868,7 @@ register struct obj *otmp;
         break;
     case POT_SLEEPING:
         if (how_resistant(SLEEP_RES) == 100 || Free_action) {
+            monstseesu(M_SEEN_SLEEP);
             You("yawn.");
         } else {
             You("suddenly fall asleep!");
@@ -926,6 +927,7 @@ register struct obj *otmp;
                 pline("(But in fact it was biologically contaminated %s.)",
                       fruitname(TRUE));
             if (Role_if(PM_HEALER)) {
+                monstseesu(M_SEEN_POISON);
                 pline("Fortunately, you have been immunized.");
             } else {
                 char contaminant[BUFSZ];
@@ -1206,6 +1208,7 @@ register struct obj *otmp;
         if (Acid_resistance) {
             /* Not necessarily a creature who _likes_ acid */
             pline("This tastes %s.", Hallucination ? "tangy" : "sour");
+            monstseesu(M_SEEN_ACID);
         } else {
             int dmg;
 
@@ -1454,6 +1457,8 @@ int how;
                                    : obj->cursed ? " a lot" : "");
                 dmg = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
                 losehp(Maybe_Half_Phys(dmg), "potion of acid", KILLED_BY_AN);
+	    } else {
+		monstseesu(M_SEEN_ACID);
             }
             break;
         }
@@ -1806,8 +1811,10 @@ register struct obj *obj;
             multi_reason = "sleeping off a magical draught";
             nomovemsg = You_can_move_again;
             exercise(A_DEX, FALSE);
-        } else
+        } else {
+            monstseesu(M_SEEN_SLEEP);
             You("yawn.");
+        }
         break;
     case POT_SPEED:
         if (!Fast && !Slow)

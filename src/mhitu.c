@@ -1245,6 +1245,7 @@ register struct attack *mattk;
                 break;
             } else if (how_resistant(FIRE_RES) == 100) {
                 pline_The("fire doesn't feel hot!");
+                monstseesu(M_SEEN_FIRE);
                 dmg = 0;
             } else {
                 dmg = resist_reduce(dmg, FIRE_RES);
@@ -1265,6 +1266,7 @@ register struct attack *mattk;
             pline("You're covered in frost!");
             if (how_resistant(COLD_RES) == 100) {
                 pline_The("frost doesn't seem cold!");
+                monstseesu(M_SEEN_COLD);
                 dmg = 0;
             } else {
                 dmg = resist_reduce(dmg, COLD_RES);
@@ -1280,6 +1282,7 @@ register struct attack *mattk;
             You("get zapped!");
             if (how_resistant(SHOCK_RES) == 100) {
                 pline_The("zap doesn't shock you!");
+                monstseesu(M_SEEN_ELEC);
                 dmg = 0;
             } else {
                 dmg = resist_reduce(dmg, SHOCK_RES);
@@ -1294,8 +1297,10 @@ register struct attack *mattk;
     case AD_SLEE:
         hitmsg(mtmp, mattk);
         if (uncancelled && multi >= 0 && !rn2(5)) {
-            if (how_resistant(SLEEP_RES) == 100)
+            if (how_resistant(SLEEP_RES) == 100) {
+                monstseesu(M_SEEN_SLEEP);
                 break;
+            }
             fall_asleep(-resist_reduce(rnd(10), SLEEP_RES), TRUE);
             if (Blind)
                 You("are put to sleep!");
@@ -1740,6 +1745,7 @@ do_rust:
             if (Acid_resistance) {
                 pline("You're covered in %s, but it seems harmless.",
                       hliquid("acid"));
+                monstseesu(M_SEEN_ACID);
                 dmg = 0;
             } else {
                 pline("You're covered in %s!  It burns!", hliquid("acid"));
@@ -2201,6 +2207,7 @@ struct attack *mattk;
     case AD_ACID:
         if (Acid_resistance) {
             You("are covered with a seemingly harmless goo.");
+            monstseesu(M_SEEN_ACID);
             tmp = 0;
         } else {
             if (Hallucination)
@@ -2232,6 +2239,7 @@ struct attack *mattk;
             if (how_resistant(SHOCK_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 You("seem unhurt.");
+                monstseesu(M_SEEN_ELEC);
                 ugolemeffects(AD_ELEC, tmp);
                 tmp = 0;
 	    } else {
@@ -2245,6 +2253,7 @@ struct attack *mattk;
             if (how_resistant(COLD_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 You_feel("mildly chilly.");
+                monstseesu(M_SEEN_COLD);
                 ugolemeffects(AD_COLD, tmp);
                 tmp = 0;
             } else {
@@ -2259,6 +2268,7 @@ struct attack *mattk;
             if (how_resistant(FIRE_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 You_feel("mildly hot.");
+                monstseesu(M_SEEN_FIRE);
                 ugolemeffects(AD_FIRE, tmp);
                 tmp = 0;
             } else {
@@ -2370,6 +2380,8 @@ boolean ufound;
                 if (physical_damage)
                     tmp = Maybe_Half_Phys(tmp);
                 mdamageu(mtmp, tmp);
+		} else {
+		    monstseesu(1 << (mattk->adtyp-1));
             }
             break;
 
@@ -2577,6 +2589,7 @@ struct attack *mattk;
 	            dmg = resist_reduce(dmg, FIRE_RES);
 		    if (dmg < 1) {
                     pline_The("fire feels mildly hot.");
+                    monstseesu(M_SEEN_FIRE);
                 }
                 burn_away_slime();
                 if (lev > rn2(20))
@@ -2603,6 +2616,7 @@ struct attack *mattk;
 		    dmg = resist_reduce(dmg, COLD_RES);
 		    if (dmg < 1) {
                     pline_The("chilling gaze feels mildly cool.");
+                    monstseesu(M_SEEN_COLD);
                 }
                 if (lev > rn2(20))
                     destroy_item(POTION_CLASS, AD_COLD);
@@ -2624,6 +2638,9 @@ struct attack *mattk;
                 fall_asleep(-resist_reduce(rnd(10), SLEEP_RES), TRUE);
                 pline("%s gaze makes you very sleepy...",
                       s_suffix(Monnam(mtmp)));
+            }
+            if (how_resistant(SLEEP_RES) == 100) {
+                monstseesu(M_SEEN_SLEEP);
             }
         }
         break;
@@ -2652,6 +2669,7 @@ struct attack *mattk;
 	        pline("You bask in the %s aura of %s gaze.",
 		    hcolor(NH_BLACK),
 		    s_suffix(mon_nam(mtmp)));
+                    monstseesu(M_SEEN_DISINT);
 		    stop_occupation();
 	    } else {
 		pline("%s attacks you with a destructive gaze!",
