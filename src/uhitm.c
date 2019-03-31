@@ -265,8 +265,8 @@ int *attk_count, *role_roll_penalty;
 
     *role_roll_penalty = 0; /* default is `none' */
 
-    tmp = 1 + Luck + abon() + find_mac(mtmp) + u.uhitinc
-          + maybe_polyd(youmonst.data->mlevel, u.ulevel);
+    tmp = 1 + (Luck / 3) + abon() + find_mac(mtmp) + u.uhitinc
+          + maybe_polyd(youmonst.data->mlevel, (u.ulevel > 20 ? 20 : u.ulevel));
 
     /* some actions should occur only once during multiple attacks */
     if (!(*attk_count)++) {
