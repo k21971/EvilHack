@@ -143,8 +143,17 @@ int spellval;
     switch (spellval) {
     case 24:
     case 23:
-        if (Antimagic || Hallucination)
-            return MGC_PSI_BOLT;
+        i = rn2(3);
+        switch (i) {
+            case 2:
+                return MGC_FIRE_BOLT;
+            case 1:
+                return MGC_ICE_BOLT;
+            case 0:
+            default:
+                if (Antimagic || Hallucination)
+                    return MGC_PSI_BOLT;
+        }
         /*FALLTHRU*/
     case 22:
     case 21:
@@ -190,7 +199,8 @@ int spellval;
                 return MGC_ICE_BOLT;
             case 0:
             default:
-                return MGC_PSI_BOLT;
+                if (Antimagic || Hallucination)
+                    return MGC_PSI_BOLT;
         }
     }
 }
@@ -652,13 +662,19 @@ int spellnum;
         /* hotwire these to only go off if the critter can see you
          * to avoid bugs WRT the Eyes and detect monsters */
         if (m_canseeu(mtmp)) {
-            pline("%s blasts you with %s!", Monnam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "cold");
+            pline("%s blasts you with %s!", Monnam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
+            if (how_resistant((spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES) == 100) {
+                shieldeff(u.ux, u.uy);
+                monstseesu((spellnum == MGC_FIRE_BOLT) ? M_SEEN_FIRE : M_SEEN_COLD);
+                pline("But you resist the effects.");
+            }
             explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
-            d((mtmp->m_lev / 5) + 1, 8), WAND_CLASS, (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
+                    resist_reduce(d((mtmp->m_lev / 5) + 1, 8), (spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES),
+                    WAND_CLASS, (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
         } else {
             if (canspotmon(mtmp)) {
                 pline("%s blasts the %s with %s and curses!", Monnam(mtmp), rn2(2) ? "ceiling" : "floor",
-                      (spellnum == MGC_FIRE_BOLT) ? "fire" : "cold");
+                      (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
             } else {
                 You_hear("some cursing!");
             }
@@ -1819,9 +1835,9 @@ int spellnum;
             return;
         }
         if (yours || canseemon(mtmp)) {
-            You("blast %s with %s!", mon_nam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "cold");
-            explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
-            d((mtmp->m_lev / 5) + 1, 8), WAND_CLASS, 1);
+            You("blast %s with %s!", mon_nam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
+                explode(mtmp->mx, mtmp->my, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
+                d((mtmp->m_lev / 5) + 1, 8), WAND_CLASS, 1);
         }
         dmg = 0;
         break;
