@@ -326,7 +326,7 @@ boolean foundyou;
     }
 
     nomul(0);
-    if (rn2(ml * 10) < (mtmp->mconf ? 100 : 20)) { /* fumbled attack */
+    if (rn2(ml * 10) < (mtmp->mconf ? 100 : 10)) { /* fumbled attack */
         if (canseemon(mtmp) && !Deaf)
             pline_The("air crackles around %s.", mon_nam(mtmp));
         return 0;
@@ -1151,11 +1151,11 @@ int spellnum;
         }
         /* Don't waste time zapping resisted spells at the player,
          * and don't blast ourselves with our own explosions */
-        if ((resists_fire(mtmp) || distu(mtmp->mx, mtmp->my) < 2)
+        if ((m_seenres(mtmp, M_SEEN_FIRE) || distu(mtmp->mx, mtmp->my) < 2)
             && spellnum == MGC_FIRE_BOLT) {
             return TRUE;
         }
-        if ((resists_cold(mtmp) || distu(mtmp->mx, mtmp->my) < 2)
+        if ((m_seenres(mtmp, M_SEEN_COLD) || distu(mtmp->mx, mtmp->my) < 2)
             && spellnum == MGC_ICE_BOLT) {
             return TRUE;
         }
