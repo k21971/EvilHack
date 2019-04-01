@@ -376,13 +376,15 @@ NEARDATA struct permonst mons[] = {
      * identical to how it is now in that variant, but it is going to get some
      * changes here from the original template.
      */
-    MON("beholder", S_EYE, LVL(9, 3, -8, 50, -10), (G_GENO | 1),
+    MON("beholder", S_EYE, LVL(10, 3, -8, 50, -10), (1),
         A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_SLEE, 2, 25),
           ATTK(AT_GAZE, AD_DISN, 0, 0), ATTK(AT_GAZE, AD_STON, 0, 0),
-          ATTK(AT_GAZE, AD_CNCL, 2, 4), ATTK(AT_BITE, AD_PHYS, 6, 8)),
-        SIZ(800, 200, MS_SILENT, MZ_LARGE), MR_COLD | MR_ELEC | MR_POISON, MR_POISON,
+          ATTK(AT_GAZE, AD_CNCL, 4, 4), ATTK(AT_BITE, AD_PHYS, 8, 8)),
+        SIZ(800, 200, MS_SILENT, MZ_LARGE), MR_COLD | MR_ELEC | MR_POISON
+            | MR_STONE, MR_POISON,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS,
-        M2_NOPOLY | M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 0, 0, 15, CLR_BROWN),
+        M2_NOPOLY | M2_HOSTILE | M2_NASTY | M2_NEUTER, M3_INFRAVISIBLE,
+        0, 0, 16, CLR_BROWN),
     MON("magical eye", S_EYE, LVL(9, 6, 0, 90, -10), (2),
         A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_SLEE, 2, 6),
           ATTK(AT_GAZE, AD_STUN, 0, 0), ATTK(AT_GAZE, AD_FIRE, 4, 6),

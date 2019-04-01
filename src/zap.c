@@ -2800,12 +2800,10 @@ boolean youattack, allow_cancel_kill, self_cancel;
     } else {
 	if (youdefend)
             You_feel("magical energies being absorbed from your vicinity.");
-	if (youdefend && Antimagic)
-	{
+	if (youdefend && Antimagic) {
             shieldeff(u.ux, u.uy);
 	}
-	else if (!youdefend && resisted)
-	{
+	else if (!youdefend && resisted) {
 	    shieldeff(mdef->mx, mdef->my);
 	}
 	for (otmp = (youdefend ? invent : mdef->minvent);
@@ -2817,10 +2815,10 @@ boolean youattack, allow_cancel_kill, self_cancel;
     }
     if (nobj) {
         for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
-             cnt > 0; cnt--) {
+            cnt > 0; cnt--) {
             onum = rnd(nobj);
 	    for (otmp = (youdefend ? invent : mdef->minvent);
-	 	 otmp; otmp = otmp->nobj) {
+	        otmp; otmp = otmp->nobj) {
 		/* as above */
 		if (otmp->oclass == COIN_CLASS)
                     continue;

@@ -2499,15 +2499,32 @@ struct attack *mattk;
             return 2;
         }
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
-            && !Stone_resistance) {
-            You("meet %s gaze.", s_suffix(mon_nam(mtmp)));
+            && !Stone_resistance && !rn2(4)) {
+            You("meet %s petrifying gaze!", s_suffix(mon_nam(mtmp)));
             stop_occupation();
-            if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
-                break;
-            You("turn to stone...");
-            killer.format = KILLED_BY;
-            Strcpy(killer.name, mtmp->data->mname);
-            done(STONING);
+            if (mtmp->data == &mons[PM_BEHOLDER]) {
+                if (!Stoned && !Stone_resistance
+                    && !(poly_when_stoned(youmonst.data)
+                    && polymon(PM_STONE_GOLEM))) {
+                    int kformat = KILLED_BY_AN;
+                    const char *kname = mtmp->data->mname;
+
+                    if (mtmp->data->geno & G_UNIQ) {
+                        if (!type_is_pname(mtmp->data))
+                            kname = the(kname);
+                            kformat = KILLED_BY;
+                        }
+                    make_stoned(5L, (char *) 0, kformat, kname);
+                    return 1;
+                }
+            } else if (mtmp->data == &mons[PM_MEDUSA]) {
+                if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
+                    break;
+                You("turn to stone...");
+                killer.format = KILLED_BY;
+                Strcpy(killer.name, mtmp->data->mname);
+                done(STONING);
+            }
         }
         break;
     case AD_CONF:
@@ -2667,13 +2684,12 @@ struct attack *mattk;
             && multi >= 0 && !rn2(5)) {
 	    if (Disint_resistance) {
 	        pline("You bask in the %s aura of %s gaze.",
-		    hcolor(NH_BLACK),
-		    s_suffix(mon_nam(mtmp)));
-                    monstseesu(M_SEEN_DISINT);
-		    stop_occupation();
+		      hcolor(NH_BLACK), s_suffix(mon_nam(mtmp)));
+                monstseesu(M_SEEN_DISINT);
+		stop_occupation();
 	    } else {
 		pline("%s attacks you with a destructive gaze!",
-		    Monnam(mtmp));
+		      Monnam(mtmp));
 	    if (uarms) {
 		/* destroy shield; other possessions are safe */
 		(void) destroy_arm(uarms);
@@ -2709,12 +2725,15 @@ struct attack *mattk;
         }
         break;
     case AD_CNCL:
-        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
-            && !rn2(5))
-	    {
-	        pline("You meet %s gaze and feel diminished somehow...", s_suffix(mon_nam(mtmp)));
-		(void) cancel_monst(&youmonst, (struct obj *)0,
-		    FALSE, TRUE, FALSE);
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
+            && mtmp->mcansee && !rn2(3)) {
+            int dmg = d(4, 4);
+
+	    You("meet %s strange gaze.",
+                  s_suffix(mon_nam(mtmp)));
+	    (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
+            if (dmg)
+                mdamageu(mtmp, dmg);
 	    }
 	break;
 /* #endif */ /* BEHOLDER */

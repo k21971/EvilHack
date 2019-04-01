@@ -1987,6 +1987,9 @@ int mmflags;
         break;
     case S_JABBERWOCK:
         break;
+    case S_EYE:
+        if (mtmp->data == &mons[PM_BEHOLDER])
+        /*FALLTHRU*/
     case S_NYMPH:
         if (rn2(5) && !u.uhave.amulet)
             mtmp->msleeping = 1;
