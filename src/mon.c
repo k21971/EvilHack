@@ -2235,7 +2235,6 @@ struct monst *mtmp;
         mtmp->misc_worn_check |= I_SPECIAL;
         /* check remaining gear */
         m_dowear(mtmp, FALSE);
-        mon_wield_item(mtmp);
 
         surviver = !(mvitals[monsndx(mtmp->data)].mvflags & G_GENOD);
 	if (!mtmp->mstone || mtmp->mstone > 2)
