@@ -973,6 +973,15 @@ struct obj *obj;
         else
             You_hear("%s stop moving.", something);
         paralyze_monst(mtmp, (int) mtmp->mfrozen + tmp);
+    } else if (monable && !mtmp->mcan && !mtmp->minvis
+	       && mtmp->data == &mons[PM_MAGICAL_EYE]) {
+	if (vis) {
+            pline("%s sees its own glare in your mirror.",
+		  Monnam(mtmp));
+	    pline("%s is cancelled!", Monnam(mtmp));
+        }
+        mtmp->mcan = 1;
+	monflee(mtmp, 0, FALSE, TRUE);
     } else if (monable && mtmp->data == &mons[PM_UMBER_HULK]) {
         if (vis)
             pline("%s confuses itself!", Monnam(mtmp));
