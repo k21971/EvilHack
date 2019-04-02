@@ -360,6 +360,7 @@ struct you {
 #define A_CURRENT  0
     aligntyp ualignbase[CONVERT]; /* for ualign conversion record */
     schar uluck, moreluck;        /* luck and luck bonus */
+    int luckturn;
 #define Luck (u.uluck + u.moreluck)
 #define LUCKADD    3  /* value of u.moreluck when carrying luck stone;
                          + when blessed or uncursed, - when cursed */
