@@ -832,6 +832,12 @@ boolean artif;
 
             if (artif && !rn2(20))
                 otmp = mk_artifact(otmp, (aligntyp) A_NONE);
+
+            if (Is_medusa_level(&u.uz) && otmp->otyp == ORCISH_ARROW) {
+                bless(otmp);
+                otmp->oerodeproof = TRUE;
+                otmp->spe = rn2(4) + 1;
+            }
             break;
         case FOOD_CLASS:
             otmp->oeaten = 0;

@@ -758,6 +758,9 @@ register struct monst *mtmp;
             otmp->spe = max(otmp->spe, spe2);
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, LARGE_SHIELD);
+        } else if (mm == PM_MEDUSA) {
+            (void) mongets(mtmp, ORCISH_BOW);
+            m_initthrow(mtmp, ORCISH_ARROW, 24);
         } else if (ptr->msound == MS_GUARDIAN) {
             /* quest "guardians" */
             switch (mm) {
@@ -2706,6 +2709,14 @@ int otyp;
                 otmp->spe = rn2(3) + 1;
             else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 1)
                 otmp->spe = rn2(4) + 1;
+        }
+
+        /* Medusa's bow and arrows are also high quality */
+        if (mtmp->data == &mons[PM_MEDUSA]) {
+            if (otmp->oclass == WEAPON_CLASS && otmp->spe < 7)
+                otmp->spe = rn2(4) + 1;
+                otmp->blessed = TRUE;
+                otmp->oerodeproof = TRUE;
         }
 
         spe = otmp->spe;

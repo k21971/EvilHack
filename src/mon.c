@@ -835,7 +835,8 @@ mcalcdistress()
 			break;
 		    case 2:
 		        if (canseemon(mtmp))
-			    pline("%s has turned to stone.", Monnam(mtmp)),
+			    pline("%s has almost completely turned to stone.",
+                                   Monnam(mtmp)),
 			mtmp->mcanmove = 0;
 			break;
 		    case 1:

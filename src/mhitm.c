@@ -667,7 +667,11 @@ struct attack *mattk;
                 Sprintf(buf, "%s touches", magr_name);
                 break;
             case AT_TENT:
-                Sprintf(buf, "%s tentacles suck", s_suffix(magr_name));
+                if (magr->data == &mons[PM_MEDUSA])
+                    Sprintf(buf, "The venomous snakes on %s head attack",
+                            s_suffix(magr_name));
+                else
+                    Sprintf(buf, "%s tentacles suck", s_suffix(magr_name));
                 break;
             case AT_HUGS:
                 if (magr != u.ustuck) {

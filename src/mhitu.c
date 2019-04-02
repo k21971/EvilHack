@@ -79,8 +79,12 @@ struct attack *mattk;
             pfmt = "%s touches you!";
             break;
         case AT_TENT:
-            pfmt = "%s tentacles suck you!";
-            Monst_name = s_suffix(Monst_name);
+            if (mtmp->data == &mons[PM_MEDUSA])
+                pline_The("venomous snakes on %s head %s you!", s_suffix(mon_nam(mtmp)),
+                          rn2(2) ? "lash out at" : "bite");
+            else
+                pfmt = "%s tentacles suck you!";
+                Monst_name = s_suffix(Monst_name);
             break;
         case AT_EXPL:
         case AT_BOOM:
@@ -252,7 +256,8 @@ struct attack *mattk;
     } else {
         return (mattk->aatyp == AT_TUCH) ? "contact"
                   : (mattk->aatyp == AT_GAZE) ? "gaze"
-                       : (mattk->aatyp == AT_BITE) ? "bite" : "sting";
+                       : (mattk->aatyp == AT_TENT) ? "snake bite" /* Medusa's hair-do */
+                            : (mattk->aatyp == AT_BITE) ? "bite" : "sting";
     }
 }
 
@@ -266,7 +271,7 @@ u_slow_down()
         You("feel a strange lethargy overcome you.");
     else
 	Your("lethargy seems to be settling in for the long haul.");
-    incr_itimeout(&HSlow,rnd(11)+12);
+    incr_itimeout(&HSlow,rnd(11) + 12);
     exercise(A_DEX, FALSE);
 }
 
@@ -827,6 +832,23 @@ register struct monst *mtmp;
                         if (mattk->aatyp != AT_KICK
                             || !thick_skinned(youmonst.data))
                             sum[i] = hitmu(mtmp, mattk);
+                        if (mtmp->data == &mons[PM_MEDUSA]
+                            && mattk->aatyp == AT_BITE) {
+                            if (!Stoned && !Stone_resistance
+                                && !(poly_when_stoned(youmonst.data)
+                                && polymon(PM_STONE_GOLEM))) {
+                                int kformat = KILLED_BY_AN;
+                                const char *kname = mtmp->data->mname;
+
+                                if (mtmp->data->geno & G_UNIQ) {
+                                if (!type_is_pname(mtmp->data))
+                                    kname = the(kname);
+                                    kformat = KILLED_BY;
+                                }
+                                make_stoned(5L, (char *) 0, kformat, kname);
+                                return 1;
+                            }
+                        }
                     } else
                         missmu(mtmp, tmp, j, mattk);
                 } else {

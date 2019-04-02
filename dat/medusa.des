@@ -18,10 +18,10 @@ MAP
 }....}}}}}}}}.....}}}}..}}}}}}.................}}}}}}}}}}}.}}}}.....}}...}}
 }....}}}}}}}}}}}}.}}}}.}}}}}}.-----------------.}}}}}}}}}}}}}}}}}.........}
 }....}}}}}}}}}}}}}}}}}}.}}}...|...............S...}}}}}}}}}}}}}}}}}}}....}}
-}.....}.}}....}}}}}}}}}.}}....--------+--------....}}}}}}..}}}}}}}}}}}...}}
-}......}}}}..}}}}}}}}}}}}}........|.......|........}}}}}....}}}}}}}}}}}}}}}
-}.....}}}}}}}}}}}}}}}}}}}}........|.......|........}}}}}...}}}}}}}}}.}}}}}}
-}.....}}}}}}}}}}}}}}}}}}}}....--------+--------....}}}}}}.}.}}}}}}}}}}}}}}}
+}.....}.}}....}}}}}}}}}.}}....|...............|....}}}}}}..}}}}}}}}}}}...}}
+}......}}}}..}}}}}}}}}}}}}....|...............|....}}}}}....}}}}}}}}}}}}}}}
+}.....}}}}}}}}}}}}}}}}}}}}....|...............|....}}}}}...}}}}}}}}}.}}}}}}
+}.....}}}}}}}}}}}}}}}}}}}}....|...............|....}}}}}}.}.}}}}}}}}}}}}}}}
 }......}}}}}}}}}}}}}}}}}}}}...S...............|...}}}}}}}}}}}}}}}}}.}}}}}}}
 }.......}}}}}}}..}}}}}}}}}}}}.-----------------.}}}}}}}}}}}}}}}}}....}}}}}}
 }........}}.}}....}}}}}}}}}}}}.................}}}}}..}}}}}}}}}.......}}}}}
@@ -34,29 +34,25 @@ ENDMAP
 # Dungeon Description
 # (must maintain one room definition; `unfilled' forces its room to be kept)
 REGION:(00,00,74,19),lit,"ordinary"
-REGION:(31,07,45,07),unlit,"ordinary"
-REGION:(35,09,41,10),unlit,"ordinary",unfilled
-REGION:(31,12,45,12),unlit,"ordinary"
+REGION:(31,07,45,12),lit,"ordinary",unfilled
 # Teleport: down to up stairs island, up to Medusa's island
 TELEPORT_REGION:(01,01,05,17),(0,0,0,0),down
 TELEPORT_REGION:(26,04,50,15),(0,0,0,0),up
 # Stairs
 STAIR:(05,14),up
-STAIR:(36,10),down
+STAIR:(38,09),down
 # Doors
-DOOR:closed,(46,07)
-DOOR:locked,(38,08)
-DOOR:locked,(38,11)
-DOOR:closed,(30,12)
+DOOR:locked,(46,07)
+DOOR:locked,(30,12)
 # Branch, not allowed inside Medusa's building.
 BRANCH:levregion(01,00,79,20),(30,06,46,13)
 # Non diggable walls
 NON_DIGGABLE:(30,06,46,13)
 # Objects
-CONTAINER:('`',"statue"),(36,10),uncursed,montype:"knight",3,name:"Perseus" {
+CONTAINER:('`',"statue"),(38,10),uncursed,montype:"human knight",3,name:"Perseus" {
   [75%]: OBJECT:('[',"shield of reflection"),cursed,+0
   [25%]: OBJECT:('[',"levitation boots"),+0
-  [50%]: OBJECT:(')',"scimitar"),blessed,+2
+  [50%]: OBJECT:(')',"saber"),blessed,+2
   [50%]: OBJECT:('(',"sack")
 }
 # These aren't really containers, but specifying CONTAINER forces them to be
@@ -82,10 +78,12 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
-TRAP:"board",(38,07)
-TRAP:"board",(38,12)
+TRAP:"board",(45,07)
+TRAP:"board",(45,08)
+TRAP:"board",(31,11)
+TRAP:"board",(31,12)
 # Random monsters
-MONSTER:('@',"Medusa"),(36,10),asleep
+MONSTER:('@',"Medusa"),(38,09),asleep
 MONSTER:(';',"giant eel"),(11,06)
 MONSTER:(';',"giant eel"),(23,13)
 MONSTER:(';',"giant eel"),(29,02)
@@ -94,8 +92,11 @@ MONSTER:(';',"jellyfish"),(00,08)
 MONSTER:(';',"jellyfish"),(04,18)
 MONSTER:('T',"water troll"),(51,03)
 MONSTER:('T',"water troll"),(64,11)
-MONSTER:'S',(38,07)
-MONSTER:'S',(38,12)
+MONSTER:'S',(33,10)
+MONSTER:('S',"python"),(37,09)
+MONSTER:('S',"giant anaconda"),(38,08)
+MONSTER:('S',"giant anaconda"),(39,09)
+MONSTER:'S',(43,09)
 MONSTER:random,random
 MONSTER:random,random
 MONSTER:random,random
@@ -117,16 +118,16 @@ MAP
 }|....|}}}}}}}}}..}.}}..}}}}}}}}}}}}}..}}}}}}-.....--}}}}}}}|............|}
 }|....|.}}}}}}}}}}}.}...}}..}}}}}}}}}}}}}}}}}---......}}}}}.|............|}
 }S....|.}}}}}}---}}}}}}}}}}}}}}}}}}}}}}}}}}---...|..-}}}}}}.S..----------|}
-}|....|.}}}}}}-...}}}}}}}}}.}}...}.}}}}.}}}......----}}}}}}.|............|}
-}|....|.}}}}}}-....--}}}}}}}}}}}}}}}}}}}}}}----...--}}}}}}}.|..--------+-|}
-}|....|.}}}}}}}......}}}}...}}}}}}.}}}}}}}}}}}---..---}}}}}.|..|..S...|..|}
-}|....|.}}}}}}-....-}}}}}}}------}}}}}}}}}}}}}}-...|.-}}}}}.|..|..|...|..|}
-}|....|.}}}}}}}}}---}}}}}}}........}}}}}}}}}}---.|....}}}}}.|..|..|...|..|}
-}|....|.}}}}}}}}}}}}}}}}}}-....|...-}}}}}}}}--...----.}}}}}.|..|..|...|..|}
-}|....|.}}}}}}..}}}}}}}}}}---..--------}}}}}-..---}}}}}}}}}.|..|..-------|}
+}|....|.}}}}}}-...}}}}}}}}}.}}...}.}}}}.}}}......----}}}}}}.|..S.........|}
+}|....|.}}}}}}-....--}}}}}}}}}}}}}}}}}}}}}}----...--}}}}}}}.|..----------|}
+}|....|.}}}}}}}......}}}}...}}}}}}.}}}}}}}}}}}---..---}}}}}.|..|.........|}
+}|....|.}}}}}}-....-}}}}}}}------}}}}}}}}}}}}}}-...|.-}}}}}.|..|.........|}
+}|....|.}}}}}}}}}---}}}}}}}........}}}}}}}}}}---.|....}}}}}.|..|.........|}
+}|....|.}}}}}}}}}}}}}}}}}}-....|...-}}}}}}}}--...----.}}}}}.|..|.........|}
+}|....|.}}}}}}..}}}}}}}}}}---..--------}}}}}-..---}}}}}}}}}.|..|.........|}
 }|...}|...}}}.}}}}}}...}}}}}--..........}}}}..--}}}}}}}}}}}.|..|.........|}
-}|...}S...}}.}}}}}}}}}}}}}}}-..--------}}}}}}}}}}}}}}...}}}.|..--------..S}
-}|...}|...}}}}}}}..}}}}}}----..|....-}}}}}}}}}}}}}}}}}..}}}.|............|}
+}|...}S...}}.}}}}}}}}}}}}}}}-..--------}}}}}}}}}}}}}}...}}}.|..-S--------|}
+}|...}|...}}}}}}}..}}}}}}----..|....-}}}}}}}}}}}}}}}}}..}}}.|............S}
 }|....|}}}}}....}}}}..}}.-.......----}}......}}}}}}.......}}|............|}
 }------}}}}}}}}}}}}}}}}}}---------}}}}}}}}}}}}}}}}}}}}}}}}}}--------------}
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
@@ -136,36 +137,37 @@ ENDMAP
 REGION:(00,00,74,19),lit,"ordinary"
 REGION:(02,03,05,16),unlit,"ordinary"
 REGION:(61,03,72,16),unlit,"ordinary",unfilled,irregular
-REGION:(71,08,72,11),unlit,"ordinary"
-REGION:(67,08,69,11),lit,"ordinary"
+REGION:(64,06,72,06),unlit,"ordinary"
+REGION:(64,08,72,13),lit,"ordinary"
 # Teleport: down to up stairs island, up to Medusa's island
 TELEPORT_REGION:(02,03,05,16),(0,0,0,0),down
 TELEPORT_REGION:(61,03,72,16),(0,0,0,0),up
 # Stairs
 STAIR:(04,09),up
-STAIR:(68,10),down
+STAIR:(68,09),down
 # Doors
-DOOR:locked,(71,07)
+DOOR:locked,(63,06)
+DOOR:locked,(64,14)
 # Branch, not allowed on Medusa's island.
 BRANCH:levregion(01,00,79,20),(59,01,73,17)
 # Non diggable walls
 NON_DIGGABLE:(01,02,06,17)
 NON_DIGGABLE:(60,02,73,17)
 # Objects
-CONTAINER:('`',"statue"),(68,10),uncursed,montype:"knight",3,name:"Perseus" {
+CONTAINER:('`',"statue"),(67,09),uncursed,montype:"human knight",3,name:"Perseus" {
   [25%]: OBJECT:('[',"shield of reflection"),cursed,+0
   [75%]: OBJECT:('[',"levitation boots"),+0
-  [50%]: OBJECT:(')',"scimitar"),blessed,+2
+  [50%]: OBJECT:(')',"saber"),blessed,+2
   [50%]: OBJECT:('(',"sack")
 }
-CONTAINER:('`',"statue"),(64,08) { }
-CONTAINER:('`',"statue"),(65,08) { }
-CONTAINER:('`',"statue"),(64,09) { }
-CONTAINER:('`',"statue"),(65,09) { }
-CONTAINER:('`',"statue"),(64,10) { }
-CONTAINER:('`',"statue"),(65,10) { }
-CONTAINER:('`',"statue"),(64,11) { }
-CONTAINER:('`',"statue"),(65,11) { }
+CONTAINER:('`',"statue"),(61,15) { }
+CONTAINER:('`',"statue"),(62,16) { }
+CONTAINER:('`',"statue"),(63,15) { }
+CONTAINER:('`',"statue"),(64,15) { }
+CONTAINER:('`',"statue"),(65,16) { }
+CONTAINER:('`',"statue"),(67,15) { }
+CONTAINER:('`',"statue"),(68,16) { }
+CONTAINER:('`',"statue"),(69,15) { }
 OBJECT:('`',"boulder"),(04,04)
 OBJECT:'/',(52,09)
 OBJECT:('`',"boulder"),(52,09)
@@ -177,12 +179,14 @@ OBJECT:random,random
 OBJECT:random,random
 # Traps
 TRAP:"magic",(03,12)
+TRAP:"board",(64,13)
+TRAP:"board",(65,13)
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Monsters.
-MONSTER:('@',"Medusa"),(68,10),asleep
+MONSTER:('@',"Medusa"),(68,09),asleep
 MONSTER:('g',"gremlin"),(02,14)
 MONSTER:('H',"titan"),(02,05)
 MONSTER:(';',"electric eel"),(10,13)
@@ -194,14 +198,14 @@ MONSTER:(';',"electric eel"),(11,15)
 MONSTER:(';',"jellyfish"),(01,01)
 MONSTER:(';',"jellyfish"),(00,08)
 MONSTER:(';',"jellyfish"),(04,19)
-MONSTER:(''',"stone golem"),(64,08),asleep
-MONSTER:(''',"stone golem"),(65,08),asleep
-MONSTER:(''',"stone golem"),(64,09),asleep
-MONSTER:(''',"stone golem"),(65,09),asleep
-MONSTER:('S',"cobra"),(64,10),asleep
-MONSTER:('S',"cobra"),(65,10),asleep
-MONSTER:'A',(72,08)
-MONSTER:('y',"yellow light"),(72,11),asleep
+MONSTER:(''',"stone golem"),(61,06),asleep
+MONSTER:(''',"stone golem"),(62,06),asleep
+MONSTER:(''',"stone golem"),(72,15),asleep
+MONSTER:(''',"stone golem"),(72,16),asleep
+MONSTER:('S',"giant anaconda"),(64,11),asleep
+MONSTER:('S',"giant anaconda"),(69,12),asleep
+MONSTER:'A',(71,06)
+MONSTER:('y',"yellow light"),(64,06),asleep
 MONSTER:random,(17,07)
 MONSTER:random,(28,11)
 MONSTER:random,(32,13)
@@ -242,7 +246,7 @@ MAP
 }}}}.}..}}}}}}}.T.....}}}}}}}}}}}..T.}}}}.T.|...|...|....}}}}}.}}}}}...}}}}}
 }}}.T.}...}..}}}}T.T.}}}}}}.}}}}}}}....}}...|...+...|.}}}}}}}}}}}}}..T...}}}
 }}}}..}}}.....}}...}}}}}}}...}}}}}}}}}}}}}T.|...|...|}}}}}}}}}}}....T..}}}}}
-}}}}}..}}}.T..}}}.}}}}}}}}.T..}}}}}}}}}}}}}}---S-----}}}}}}}}}}}}}....}}}}}}
+}}}}}..}}}.T..}}}.}}}}}}}}.T..}}}}}}}}}}}}}}---------}}}}}}}}}}}}}....}}}}}}
 }}}}}}}}}}}..}}}}}}}}}}}}}}}.}}}}}}}}}}}}}}}}}T..T}}}}}}}}}}}}}}}}}}}}}}}}}}
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 ENDMAP
@@ -270,10 +274,10 @@ DOOR:locked,(48,15)
 # 
 FOUNTAIN:$place[1]
 #
-CONTAINER:('`',"statue"),$place[2],uncursed,montype:"knight",3,name:"Perseus" {
+CONTAINER:('`',"statue"),$place[2],uncursed,montype:"human knight",3,name:"Perseus" {
   [75%]: OBJECT: ('[',"shield of reflection"),cursed,+0
   [25%]: OBJECT: ('[',"levitation boots"),+0
-  [50%]: OBJECT: (')',"scimitar"),blessed,+2
+  [50%]: OBJECT: (')',"saber"),blessed,+2
   [50%]: OBJECT: ('(',"sack")
 }
 #
@@ -306,6 +310,7 @@ MONSTER:('n',"wood nymph"),random
 MONSTER:('n',"wood nymph"),random
 MONSTER:('n',"water nymph"),random
 MONSTER:('n',"water nymph"),random
+MONSTER:('S',"giant anaconda"),(50,15),asleep
 
 LOOP [30] {
   MONSTER:('B',"raven"),random,hostile
@@ -324,17 +329,17 @@ MAP
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 }}}}}}}}}}}}}}........}}}}}}}}}}}}}}}}}}}}}}}..}}}.....}}}}}}}}}}}----|}}}}}
 }}}}}}..----------F-.....}}}}}}}}}}}}}}}}..---...}}}}....T.}}}}}}}....|}}}}}
-}}}.....|...F......S}}}}....}}}}}}}...}}.....|}}.}}}}}}}......}}}}|......}}}
+}}}.....|...|......S}}}}....}}}}}}}...}}.....|}}.}}}}}}}......}}}}|......}}}
 }}}.....+...|..{...|}}}}}}}}}}}}.....}}}}|...|}}}}}}}}}}}.}}}}}}}}----.}}}}}
 }}......|...|......|}}}}}}}}}......}}}}}}|.......}}}}}}}}}}}}}..}}}}}...}}}}
 }}|-+--F|-+--....|F|-|}}}}}....}}}....}}}-----}}.....}}}}}}}......}}}}.}}}}}
 }}|...}}|...|....|}}}|}}}}}}}..}}}}}}}}}}}}}}}}}}}}....}}}}}}}}....T.}}}}}}}
-}}|...}}F...+....F}}}}}}}..}}}}}}}}}}}}}}...}}}}}}}}}}}}}}}}}}}}}}....}}..}}
+}}|...}}F...|....F}}}}}}}..}}}}}}}}}}}}}}...}}}}}}}}}}}}}}}}}}}}}}....}}..}}
 }}|...}}|...|....|}}}|}....}}}}}}....}}}...}}}}}...}}}}}}}}}}}}}}}}}.....}}}
-}}--+--F|-+--....-F|-|....}}}}}}}}}}.T...}}}}....---}}}}}}}}}}}}}}}}}}}}}}}}
+}}--+--F|...|....-F|-|....}}}}}}}}}}.T...}}}}....---}}}}}}}}}}}}}}}}}}}}}}}}
 }}......|...|......|}}}}}.}}}}}}}}}....}}}}}}}.....|}}}}}}}}}.}}}}}}}}}}}}}}
-}}}}....+...|..{...|.}}}}}}}}}}}}}}}}}}}}}}}}}}.|..|}}}}}}}......}}}}...}}}}
-}}}}}}..|...F......|...}}}}}}}}}}..---}}}}}}}}}}--.-}}}}}....}}}}}}....}}}}}
+}}}}....|...|..{...|.}}}}}}}}}}}}}}}}}}}}}}}}}}.|..|}}}}}}}......}}}}...}}}}
+}}}}}}..|...|......|...}}}}}}}}}}..---}}}}}}}}}}--.-}}}}}....}}}}}}....}}}}}
 }}}}}}}}-----S----F|....}}}}}}}}}|...|}}}}}}}}}}}}...}}}}}}...}}}}}}..}}}}}}
 }}}}}}}}}..............T...}}}}}.|.......}}}}}}}}}}}}}}..}...}.}}}}....}}}}}
 }}}}}}}}}}....}}}}...}...}}}}}.......|.}}}}}}}}}}}}}}.......}}}}}}}}}...}}}}
@@ -344,7 +349,7 @@ MAP
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 ENDMAP
 #
-$place = { (04,08),(10,04),(10,08),(10,12) }
+$place = { (10,08),(10,10),(10,12) }
 SHUFFLE: $place
 #
 REGION:(00,00,74,19),lit,"ordinary"
@@ -359,10 +364,7 @@ STAIR:$place[0],down
 DOOR:locked,(04,06)
 DOOR:locked,(04,10)
 DOOR:locked,(08,04)
-DOOR:locked,(08,12)
 DOOR:locked,(10,06)
-DOOR:locked,(10,10)
-DOOR:locked,(12,08)
 #
 BRANCH:levregion(27,00,79,20),(0,0,0,0)
 #
@@ -370,10 +372,10 @@ NON_DIGGABLE:(01,01,22,14)
 #
 OBJECT:('(',"crystal ball"),(07,08)
 #
-CONTAINER:('`',"statue"),$place[1],uncursed,montype:"knight",3,name:"Perseus" {
+CONTAINER:('`',"statue"),$place[1],uncursed,montype:"human knight",3,name:"Perseus" {
   [75%]: OBJECT: ('[',"shield of reflection"),cursed,+0
   [25%]: OBJECT: ('[',"levitation boots"),+0
-  [50%]: OBJECT: (')',"scimitar"),blessed,+2
+  [50%]: OBJECT: (')',"saber"),blessed,+2
   [50%]: OBJECT: ('(',"sack")
 }
 #
@@ -388,6 +390,9 @@ LOOP [8] {
   OBJECT:random,random
 }
 #
+TRAP:"board",(09,07)
+TRAP:"land mine",(10,07)
+TRAP:"board",(11,07)
 LOOP [7] {
   TRAP:random,random
 }
@@ -407,7 +412,8 @@ MONSTER:(';',"giant eel"),random
 MONSTER:(';',"giant eel"),random
 MONSTER:(';',"jellyfish"),random
 MONSTER:(';',"jellyfish"),random
-LOOP [14] {
+MONSTER:('S',"giant anaconda"),(10,04),asleep
+LOOP [16] {
   MONSTER:'S',random
 }
 LOOP [4] {

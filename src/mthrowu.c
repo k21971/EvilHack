@@ -190,7 +190,9 @@ struct obj *otmp, *mwep;
         /* fake players treated as skilled (regardless of role limits) */
         else if (is_mplayer(mtmp->data))
             multishot++;
-
+        /* Medusa is an expert archer */
+        else if (mtmp->data == &mons[PM_MEDUSA])
+            multishot += 2;
         /* this portion is different from hero multishot; from slash'em?
          */
         /* Elven Craftsmanship makes for light, quick bows */

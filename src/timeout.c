@@ -100,11 +100,11 @@ const struct propname {
 
 /* He is being petrified - dialogue by inmet!tower */
 static NEARDATA const char *const stoned_texts[] = {
-    "You are slowing down.",            /* 5 */
-    "Your limbs are stiffening.",       /* 4 */
-    "Your limbs have turned to stone.", /* 3 */
-    "You have turned to stone.",        /* 2 */
-    "You are a statue."                 /* 1 */
+    "You are slowing down.",                       /* 5 */
+    "Your limbs are stiffening.",                  /* 4 */
+    "Your limbs have turned to stone.",            /* 3 */
+    "You have almost completely turned to stone.", /* 2 */
+    "You are a statue."                            /* 1 */
 };
 
 STATIC_OVL void

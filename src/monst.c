@@ -2097,6 +2097,14 @@ struct permonst _mons2[] = {
         M1_SWIM | M1_CONCEAL | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY | M1_POIS
             | M1_CARNIVORE | M1_OVIPAROUS | M1_NOTAKE,
         M2_HOSTILE, M3_ACCURATE, 0, 0, 10, CLR_BLUE),
+    MON("giant anaconda", S_SNAKE, LVL(10, 6, 2, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 2, 6), ATTK(AT_HUGS, AD_WRAP, 2, 6),
+          ATTK(AT_HUGS, AD_PHYS, 4, 6), ATTK(AT_ENGL, AD_DGST, 3, 6), NO_ATTK,
+          NO_ATTK),
+        SIZ(1600, 400, MS_HISS, MZ_HUGE), 0, 0,
+        M1_SWIM | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY | M1_CARNIVORE
+            | M1_OVIPAROUS | M1_NOTAKE,
+        M2_HOSTILE | M2_STRONG, M3_INFRAVISION, 0, 0, 13, CLR_BRIGHT_GREEN),
     /*
      * Trolls
      */
@@ -2819,15 +2827,16 @@ struct permonst _mons2[] = {
         M3_ACCURATE | M3_INFRAVISIBLE, 0, MH_HUMAN, 17, CLR_GREEN),
     /* Unique humans not tied to quests.
      */
-    MON("Medusa", S_HUMAN, LVL(20, 12, 2, 50, -15), (G_NOGEN | G_UNIQ),
-        A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_CLAW, AD_PHYS, 1, 8),
-          ATTK(AT_GAZE, AD_STON, 0, 0), ATTK(AT_BITE, AD_DRST, 1, 6), NO_ATTK,
+    MON("Medusa", S_HUMAN, LVL(24, 12, -8, 50, -15), (G_NOGEN | G_UNIQ),
+        A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_TENT, AD_DRST, 1, 8),
+          ATTK(AT_GAZE, AD_STON, 0, 0), ATTK(AT_BITE, AD_STON, 1, 6), NO_ATTK,
           NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_HISS, MZ_LARGE), MR_POISON | MR_STONE,
-        MR_POISON | MR_STONE, M1_FLY | M1_SWIM | M1_AMPHIBIOUS | M1_HUMANOID
+        MR_POISON | MR_STONE, M1_SWIM | M1_AMPHIBIOUS | M1_HUMANOID
                                   | M1_POIS | M1_OMNIVORE,
-        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_PNAME | M2_FEMALE,
-        M3_WAITFORU | M3_INFRAVISIBLE, 0, 0, 25, CLR_BRIGHT_GREEN),
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_PNAME | M2_FEMALE | M2_NASTY,
+        M3_WAITFORU | M3_INFRAVISIBLE | M3_ACCURATE, M4_VULNERABLE_FIRE,
+        0, 28, CLR_BRIGHT_GREEN),
     MON("Wizard of Yendor", S_HUMAN, LVL(30, 12, -8, 100, A_NONE),
         (G_NOGEN | G_UNIQ),
         A(ATTK(AT_CLAW, AD_SAMU, 2, 12), ATTK(AT_MAGC, AD_SPEL, 0, 0),
