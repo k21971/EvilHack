@@ -1176,6 +1176,18 @@ int pm;
         } else {
             pline("For some reason, that tasted bland.");
         }
+    case PM_MAGICAL_EYE:
+	if (context.victual.piece->blessed) {
+	    You_feel("more fortunate.");
+	    change_luck(rnd(3));
+	} else if (context.victual.piece->cursed) {
+	    You_feel("less fortunate.");
+	    change_luck(-rnd(3));
+	} else {
+	    You_feel("your fortune oscillate.");
+	    change_luck(2-rn2(4));
+	}
+	break;
     /*FALLTHRU*/
     default:
         check_intrinsics = TRUE;

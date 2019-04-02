@@ -2521,7 +2521,7 @@ struct attack *mattk;
             return 2;
         }
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
-            && !Stone_resistance && !rn2(4)) {
+            && !Stone_resistance && !rn2(5)) {
             You("meet %s petrifying gaze!", s_suffix(mon_nam(mtmp)));
             stop_occupation();
             if (mtmp->data == &mons[PM_BEHOLDER]) {
@@ -2664,6 +2664,24 @@ struct attack *mattk;
             }
         }
         break;
+    case AD_LUCK:
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
+            && !mtmp->mspec_used && rn2(4) && !cancelled) {
+            pline("%s glares ominously at you!", Monnam(mtmp));
+            mtmp->mspec_used = mtmp->mspec_used + 3 + rn2(8);
+
+            if (uwep && uwep->otyp == MIRROR && uwep->blessed) {
+	        pline("%s sees its own glare in your mirror.", Monnam(mtmp));
+	        pline("%s is cancelled!", Monnam(mtmp));
+	        mtmp->mcan = 1;
+	        monflee(mtmp, 0, FALSE, TRUE);
+            } else {
+                change_luck(-1);
+                pline("You don't feel as lucky as before.");
+            }
+            stop_occupation();
+        }
+        break;
 /* Comment out the PM_BEHOLDER indef here so the below attack types function.
  * No wonder initial testing threw program disorders... */
 /* #ifdef PM_BEHOLDER */ /* work in progress */
@@ -2703,7 +2721,7 @@ struct attack *mattk;
  */
     case AD_DISN:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
-            && multi >= 0 && !rn2(5)) {
+            && multi >= 0 && !rn2(7)) {
 	    if (Disint_resistance) {
 	        pline("You bask in the %s aura of %s gaze.",
 		      hcolor(NH_BLACK), s_suffix(mon_nam(mtmp)));

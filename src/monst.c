@@ -388,7 +388,7 @@ NEARDATA struct permonst mons[] = {
     MON("magical eye", S_EYE, LVL(9, 6, 0, 90, -10), (2),
         A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_SLEE, 2, 6),
           ATTK(AT_GAZE, AD_STUN, 0, 0), ATTK(AT_GAZE, AD_FIRE, 4, 6),
-          ATTK(AT_GAZE, AD_COLD, 2, 4), ATTK(AT_BITE, AD_PHYS, 2, 4)),
+          ATTK(AT_GAZE, AD_COLD, 2, 4), ATTK(AT_GAZE, AD_LUCK, 0, 0)),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_COLD | MR_FIRE | MR_ELEC, 0,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD,
         M2_NOPOLY | M2_HOSTILE | M2_NEUTER | M2_NASTY,
