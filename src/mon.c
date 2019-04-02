@@ -2215,7 +2215,8 @@ struct monst *mtmp;
             /* amulet is visible, but monster might not be */
             if (canseemon(mtmp) && lifesave->cursed) {
                 pline("%s medallion glows white-hot!", s_suffix(Monnam(mtmp)));
-                You("hear diabolical laughter in the distance...");
+                if (!Deaf)
+                    You("hear diabolical laughter in the distance...");
                 pline("%s body turns to dust and blows away.", s_suffix(Monnam(mtmp)));
                 m_useup(mtmp, lifesave);
                 mtmp->mhp = 0;
@@ -2232,6 +2233,9 @@ struct monst *mtmp;
         m_useup(mtmp, lifesave);
         /* equip replacement amulet, if any, on next move */
         mtmp->misc_worn_check |= I_SPECIAL;
+        /* check remaining gear */
+        m_dowear(mtmp, FALSE);
+        mon_wield_item(mtmp);
 
         surviver = !(mvitals[monsndx(mtmp->data)].mvflags & G_GENOD);
 	if (!mtmp->mstone || mtmp->mstone > 2)
