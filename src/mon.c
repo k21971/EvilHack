@@ -713,7 +713,7 @@ register struct monst *mtmp;
          * be handled here.  Swimmers are able to protect their stuff...
          */
         if (!is_clinger(mtmp->data) && !is_swimmer(mtmp->data)
-            && !amphibious(mtmp->data)) {
+            && !amphibious(mtmp->data)&& !can_wwalk(mtmp)) {
             /* like hero with teleport intrinsic or spell, teleport away
                if possible */
             if (can_teleport(mtmp->data) && !tele_restrict(mtmp)) {
@@ -1582,7 +1582,8 @@ long flag;
     nodiag = NODIAG(mdat - mons);
     wantpool = mdat->mlet == S_EEL;
     poolok = (is_flyer(mdat) || is_clinger(mdat)
-              || (is_swimmer(mdat) && !wantpool));
+              || (is_swimmer(mdat) && !wantpool)
+              || can_wwalk(mon));
     lavaok = (is_flyer(mdat) || is_clinger(mdat) || likes_lava(mdat));
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
     poisongas_ok = ((nonliving(mdat) || is_vampshifter(mon)

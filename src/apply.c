@@ -1650,6 +1650,31 @@ boolean showmsg;
     return TRUE;
 }
 
+boolean
+check_mon_jump(mtmp, x, y)
+struct monst *mtmp;
+int x, y;
+{
+    coord mc, tc;
+    mc.x = mtmp->mx, mc.y = mtmp->my;
+    tc.x = x, tc.y = y; /* target */
+
+    int traj,
+        dx = x - u.ux, dy = y - u.uy,
+        ax = abs(dx), ay = abs(dy);
+    /* traj: flatten out the trajectory => some diagonals re-classified */
+    if (ax >= 2 * ay)
+        ay = 0;
+    else if (ay >= 2 * ax)
+        ax = 0;
+    traj = jAny;
+
+    if (!walk_path(&mc, &tc, check_jump, (genericptr_t) & traj)) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
 static int jumping_is_magic;
 
 STATIC_OVL boolean

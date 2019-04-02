@@ -355,6 +355,12 @@ boolean on, silently;
             in_mklev = save_in_mklev;
             break;
         }
+        case WWALKING:
+            mon->mextrinsics |= MR2_WATERWALK;
+            break;
+        case JUMPING:
+            mon->mextrinsics |= MR2_JUMPING;
+            break;
         /* properties handled elsewhere */
         case ANTIMAGIC:
         case REFLECTING:
@@ -366,12 +372,10 @@ boolean on, silently;
             break;
         /* properties which should have an effect but aren't implemented */
         case LEVITATION:
-        case WWALKING:
             break;
         /* properties which maybe should have an effect but don't */
         case DISPLACED:
         case FUMBLING:
-        case JUMPING:
         case PROTECTION:
             break;
         default:
@@ -395,6 +399,8 @@ boolean on, silently;
             in_mklev = save_in_mklev;
             break;
         }
+        case JUMPING:
+        case WWALKING:
         case FIRE_RES:
         case COLD_RES:
         case SLEEP_RES:
