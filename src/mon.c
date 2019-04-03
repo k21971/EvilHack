@@ -2438,8 +2438,6 @@ register struct monst *mtmp;
         }
     }
 
-    if (mtmp->data == &mons[PM_MEDUSA])
-        u.uachieve.killed_medusa = 1;
     if (glyph_is_invisible(levl[mtmp->mx][mtmp->my].glyph))
         unmap_object(mtmp->mx, mtmp->my);
     m_detach(mtmp, mptr);
@@ -2926,7 +2924,7 @@ cleanup:
             You_hear("the studio audience applaud!");
         if (!unique_corpstat(mdat) && has_mname(mtmp)) {
             livelog_printf(LL_KILLEDPET, "murdered %s, %s faithful %s",
-                           MNAME(mtmp), uhis(), mdat->mname);
+                           mon_nam(mtmp), uhis(), mdat->mname);
         }
     } else if (mtmp->mpeaceful)
         adjalign(-5);

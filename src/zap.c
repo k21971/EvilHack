@@ -5461,6 +5461,7 @@ retry:
      *  has been denied.  Wishing for "nothing" requires a separate
      *  value to remain distinct.
      */
+    strcpy(bufcpy, buf);
     otmp = readobjnam(buf, &nothing);
     if (!otmp) {
         pline("Nothing fitting that description exists in the game.");
