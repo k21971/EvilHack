@@ -570,7 +570,12 @@ int spellnum;
 	}
 	oatmp = some_armor(&youmonst);
 	if (oatmp) {
-	    if (oatmp->oerodeproof) {
+            if (any_quest_artifact(oatmp)) {
+                pline("The %s shines brightly.", xname(oatmp));
+                pline("The %s is immune to %s destructive magic.", xname(oatmp),
+                      s_suffix(mon_nam(mtmp)));
+                return;
+            } else if (oatmp->oerodeproof && !any_quest_artifact(oatmp)) {
                 if (!Blind) {
 		    pline("Your %s glows brown for a moment.", xname(oatmp));
                 } else {

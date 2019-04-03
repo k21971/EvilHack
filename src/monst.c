@@ -2839,8 +2839,8 @@ struct permonst _mons2[] = {
         0, 28, CLR_BRIGHT_GREEN),
     MON("Wizard of Yendor", S_HUMAN, LVL(30, 12, -8, 100, A_NONE),
         (G_NOGEN | G_UNIQ),
-        A(ATTK(AT_CLAW, AD_SAMU, 2, 12), ATTK(AT_MAGC, AD_SPEL, 0, 0),
-          ATTK(AT_CLAW, AD_PHYS, 2, 12), NO_ATTK, NO_ATTK, NO_ATTK),
+        A(ATTK(AT_CLAW, AD_SAMU, 2, 12), ATTK(AT_WEAP, AD_PHYS, 2, 8),
+          ATTK(AT_MAGC, AD_SPEL, 0, 0), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_CUSS, MZ_HUMAN), MR_FIRE | MR_POISON,
         MR_FIRE | MR_POISON,
         M1_FLY | M1_BREATHLESS | M1_HUMANOID | M1_REGEN | M1_SEE_INVIS

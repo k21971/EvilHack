@@ -254,9 +254,10 @@ register struct monst *mtmp;
         else if ((otmp = on_ground(otyp)))
             return STRAT(STRAT_GROUND, otmp->ox, otmp->oy, mask);
         else if ((mtmp2 = other_mon_has_arti(mtmp, otyp)) != 0
-                 /* when seeking the Amulet, avoid targetting the Wizard
-                    or temple priests (to protect Moloch's high priest) */
-                 && (otyp != AMULET_OF_YENDOR
+                 /* when seeking the Amulet or a quest artifact,
+                    avoid targetting the Wizard or temple priests
+                    (to protect Moloch's high priest) */
+                 && ((otyp != AMULET_OF_YENDOR || otyp != any_quest_artifact(otmp))
                      || (!mtmp2->iswiz && !inhistemple(mtmp2))))
             return STRAT(STRAT_MONSTR, mtmp2->mx, mtmp2->my, mask);
     }
