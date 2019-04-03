@@ -1917,11 +1917,11 @@ domove_core()
 
     /* Special effects of WDSM; don't spam the player unless they've stepped onto
      * water from something that wasn't water/ice already */
-    if (is_pool(u.ux,u.uy) && uarm &&
-		(uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
+    if (is_pool(u.ux, u.uy) && uarm
+	&& (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
 	levl[u.ux][u.uy].typ = ICE;
-    if (!is_pool(u.ux0,u.uy0) && !is_ice(u.ux0,u.uy0)) {
-		pline("The pool crackles and freezes under your feet.");
+        if (!is_pool(u.ux0, u.uy0) && !is_ice(u.ux0, u.uy0)) {
+	    pline("The pool crackles and freezes under your feet.");
 	}
     }
 

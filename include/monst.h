@@ -84,8 +84,8 @@ struct monst {
 #define M_SEEN_ACID    0x0080
 #define M_SEEN_REFL    0x0100
 
-#define m_seenres(mon,mask) ((mon)->seen_resistance & (mask))
-#define m_setseen(mon,mask) ((mon)->seen_resistance |= (mask))
+#define m_seenres(mon, mask) ((mon)->seen_resistance & (mask))
+#define m_setseen(mon, mask) ((mon)->seen_resistance |= (mask))
 
     unsigned long seen_resistance; /* Has seen you resist an element or magical effect */
 

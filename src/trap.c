@@ -3013,10 +3013,10 @@ long hmask, emask; /* might cancel timeout */
         if (is_pool(u.ux, u.uy) && !Wwalking && !Swimming && !u.uinwater)
             no_msg = drown();
 
-	if (is_pool(u.ux,u.uy) && uarm &&
-			(uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
-		levl[u.ux][u.uy].typ = ICE;
-		pline("The pool crackles and freezes under your feet.");
+	if (is_pool(u.ux,u.uy) && uarm
+            && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
+	    levl[u.ux][u.uy].typ = ICE;
+	    pline("The pool crackles and freezes under your feet.");
 	}
 
         if (is_lava(u.ux, u.uy)) {
@@ -5512,13 +5512,13 @@ lava_effects()
 
     if (how_resistant(FIRE_RES) < 100) {
         if (Wwalking) {
-		if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
-		    levl[u.ux][u.uy].typ = ROOM;
-		    if (!rn2(4)) {
-			pline_The("lava cools and solidifies under your feet.");
-		    }
+	    if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
+		levl[u.ux][u.uy].typ = ROOM;
+		if (!rn2(4)) {
+	            pline_The("lava cools and solidifies under your feet.");
+		}
 		return TRUE;
-	        }
+	    }
             pline_The("%s here burns you!", hliquid("lava"));
             if (usurvive) {
                 losehp(dmg, lava_killer, KILLED_BY); /* lava damage */

@@ -3279,74 +3279,84 @@ struct attack *mattk;
     char plurbuf[BUFSZ];
 
     if (uarm) {
-	switch(uarm->otyp) {
-		case GREEN_DRAGON_SCALE_MAIL:
-		case GREEN_DRAGON_SCALES:
-			if (resists_poison(mtmp)) { return 1; }
-			i = rn2(20);
-			if (i) {
-				damage_mon(mtmp, rnd(4), AD_DRST);
-				if (rn2(3)) { pline("%s staggers from the poison!", Monnam(mtmp)); }
-			}
-			else {
-				mtmp->mhp = -1;
-				pline("%s is fatally poisoned!", Monnam(mtmp));
-			}
-			if (mtmp->mhp < 1) {
-				xkilled(mtmp, 1);
-                                return 2;  /* let the chain upstream know it died */
-			}
-			return 1;
-			break;
-                case BLACK_DRAGON_SCALE_MAIL:
-                case BLACK_DRAGON_SCALES:
-                        if (resists_disint(mtmp)) { return 1; }
-                        i = rn2(40);
-                        if (i) {
-                                mtmp->mhp -= rnd(4);
-                                if (rn2(3)) { pline("%s partially disintegrates!", Monnam(mtmp)); }
-                        }
-                        else {
-                                mtmp->mhp = -1;
-                                pline("%s is disintegrated completely!", Monnam(mtmp));
-                        }
-                        if (mtmp->mhp < 1) {
-                                xkilled(mtmp, 1);
-                                return 2;
-                        }
-                        return 1;
-                        break;
-		case ORANGE_DRAGON_SCALE_MAIL:
-		case ORANGE_DRAGON_SCALES:
-			if (resists_sleep(mtmp)) { return 1; }
-			if (canseemon(mtmp) && mtmp->mspeed != MSLOW) {
-				pline("%s looks a little sluggish...", Monnam(mtmp));
-			}
-			mtmp->mspeed = MSLOW;
-			return 1;
-			break;
-		default:	  /* all other types of armor, just pass on through */
-			break;
+	switch (uarm->otyp) {
+	    case GREEN_DRAGON_SCALE_MAIL:
+	    case GREEN_DRAGON_SCALES:
+		if (resists_poison(mtmp)) {
+                    return 1;
+                }
+		i = rn2(20);
+		if (i) {
+		    damage_mon(mtmp, rnd(4), AD_DRST);
+		    if (rn2(3)) {
+                        pline("%s staggers from the poison!", Monnam(mtmp));
+                    }
+		} else {
+		    mtmp->mhp = -1;
+		    pline("%s is fatally poisoned!", Monnam(mtmp));
+		}
+		if (mtmp->mhp < 1) {
+		    xkilled(mtmp, 1);
+                    return 2;  /* let the chain upstream know it died */
+		}
+		return 1;
+		break;
+            case BLACK_DRAGON_SCALE_MAIL:
+            case BLACK_DRAGON_SCALES:
+                if (resists_disint(mtmp)) {
+                    return 1;
+                }
+                i = rn2(40);
+                if (i) {
+                    mtmp->mhp -= rnd(4);
+                    if (rn2(3)) {
+                        pline("%s partially disintegrates!", Monnam(mtmp));
+                    }
+                } else {
+                    mtmp->mhp = -1;
+                    pline("%s is disintegrated completely!", Monnam(mtmp));
+                }
+                if (mtmp->mhp < 1) {
+                    xkilled(mtmp, 1);
+                    return 2;
+                }
+                return 1;
+                break;
+	    case ORANGE_DRAGON_SCALE_MAIL:
+	    case ORANGE_DRAGON_SCALES:
+		if (resists_sleep(mtmp)) {
+                    return 1;
+                }
+		if (canseemon(mtmp) && mtmp->mspeed != MSLOW) {
+		    pline("%s looks a little sluggish...", Monnam(mtmp));
+		}
+		mtmp->mspeed = MSLOW;
+		return 1;
+		break;
+	    default:	  /* all other types of armor, just pass on through */
+	        break;
 	}
     }
 
     if (uarmg) {
-        switch(uarmg->otyp) {
-                case GLOVES:
-                        if (!is_dragon(mtmp->data)) { return 1; }
-                        if (canseemon(mtmp) && is_dragon(mtmp->data) && uarmg->oartifact == ART_DRAGONBANE) {
-                                pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
-                        mtmp->mhp -= rnd(6) + 2;
-                        }
-                        if (mtmp->mhp < 1 && uarmg->oartifact == ART_DRAGONBANE) {
-                                pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
-                                xkilled(mtmp, 1);
-                                return 2;
-                        }
-                        return 1;
-                        break;
-                default:          /* all other types of armor, just pass on through */
-                        break;
+        switch (uarmg->otyp) {
+            case GLOVES:
+                if (!is_dragon(mtmp->data)) {
+                    return 1;
+                }
+                if (canseemon(mtmp) && is_dragon(mtmp->data) && uarmg->oartifact == ART_DRAGONBANE) {
+                    pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
+                    mtmp->mhp -= rnd(6) + 2;
+                }
+                if (mtmp->mhp < 1 && uarmg->oartifact == ART_DRAGONBANE) {
+                    pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
+                    xkilled(mtmp, 1);
+                    return 2;
+                }
+                return 1;
+                break;
+            default:          /* all other types of armor, just pass on through */
+                break;
         }
     }
 
