@@ -363,6 +363,9 @@ boolean on, silently;
         case JUMPING:
             mon->mextrinsics |= MR2_JUMPING;
             break;
+        case DISPLACED:
+            mon->mextrinsics |= MR2_DISPLACED;
+            break;
         /* properties handled elsewhere */
         case ANTIMAGIC:
         case REFLECTING:
@@ -376,7 +379,6 @@ boolean on, silently;
         case LEVITATION:
             break;
         /* properties which maybe should have an effect but don't */
-        case DISPLACED:
         case FUMBLING:
         case PROTECTION:
             break;
@@ -401,6 +403,7 @@ boolean on, silently;
             in_mklev = save_in_mklev;
             break;
         }
+        case DISPLACED:
         case JUMPING:
         case WWALKING:
         case FIRE_RES:

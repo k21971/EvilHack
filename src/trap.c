@@ -3013,7 +3013,7 @@ long hmask, emask; /* might cancel timeout */
         if (is_pool(u.ux, u.uy) && !Wwalking && !Swimming && !u.uinwater)
             no_msg = drown();
 
-	if (is_pool(u.ux,u.uy) && uarm
+	if (is_pool(u.ux, u.uy) && uarm
             && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
 	    levl[u.ux][u.uy].typ = ICE;
 	    pline("The pool crackles and freezes under your feet.");

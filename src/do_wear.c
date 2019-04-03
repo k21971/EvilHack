@@ -673,12 +673,12 @@ Armor_on(VOID_ARGS)
 	    case GOLD_DRAGON_SCALES:
 		begin_burn(uarm, FALSE);
 		if (!Blind)
-		    pline("%s to glow.",Tobjnam(uarm,"begin"));
+		    pline("%s to glow.", Tobjnam(uarm, "begin"));
 		break;
 	    case BLUE_DRAGON_SCALE_MAIL:
 	    case BLUE_DRAGON_SCALES:
 		if (!oldprop && !Very_fast) {
-		    pline("You speed up%s.",Fast ? " a bit more" : "");
+		    pline("You speed up%s.", Fast ? " a bit more" : "");
 		}
 		EFast |= W_ARM;
 		break;
@@ -712,7 +712,7 @@ Armor_off(VOID_ARGS)
 	    case GOLD_DRAGON_SCALES:
 		end_burn(uarm, FALSE);
 		if (!Blind)
-		    pline("%s glowing.",Tobjnam(uarm,"stop"));
+		    pline("%s glowing.", Tobjnam(uarm, "stop"));
 		break;
 	    case BLUE_DRAGON_SCALE_MAIL:
 	    case BLUE_DRAGON_SCALES:

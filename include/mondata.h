@@ -33,6 +33,7 @@
 
 #define can_wwalk(mon) (((mon)->mextrinsics & MR2_WATERWALK) != 0)
 #define can_jump(mon)  (((mon)->mextrinsics & MR2_JUMPING) != 0)
+#define has_displacement(mon) (((mon)->mextrinsics & MR2_DISPLACED) != 0)
 
 #define resists_sick(mon)  ((mon)->data->mlet == S_FUNGUS || \
                             (mon)->data->mlet == S_ZOMBIE || \
