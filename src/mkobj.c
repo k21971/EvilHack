@@ -1043,13 +1043,15 @@ boolean artif;
             }
             break;
         case WAND_CLASS:
-            if (otmp->otyp == WAN_WISHING)
+            if (otmp->otyp == WAN_WISHING) {
                 otmp->spe = rnd(3);
-            else
+                otmp->recharged = Is_stronghold(&u.uz) ? 0 : 1;
+            } else {
                 otmp->spe =
                     rn1(5, (objects[otmp->otyp].oc_dir == NODIR) ? 11 : 4);
+                otmp->recharged = 0; /* used to control recharging */
+            }
             blessorcurse(otmp, 17);
-            otmp->recharged = 0; /* used to control recharging */
             break;
         case RING_CLASS:
             if (objects[otmp->otyp].oc_charged) {
