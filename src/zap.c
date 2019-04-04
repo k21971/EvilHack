@@ -61,7 +61,8 @@ const char *const flash_types[] =       /* also used in buzzmu(mcastu.c) */
     {
         "magic missile", /* Wands must be 0-9 */
         "bolt of fire", "bolt of cold", "sleep ray", "death ray",
-        "bolt of lightning", "", "", "", "",
+        "bolt of lightning", "stream of poison gas", "stream of acid",
+        "", "",
 
         "magic missile", /* Spell equivalents must be 10-19 */
         "fireball", "cone of cold", "sleep ray", "finger of death",

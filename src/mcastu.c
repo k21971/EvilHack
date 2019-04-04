@@ -165,7 +165,7 @@ int spellval;
     case 17:
     case 16:
     case 15:
-        return MGC_SUMMON_MONS;
+        /* return MGC_SUMMON_MONS; */
     case 14:
         return MGC_ACID_BLAST;
     case 13:
@@ -495,28 +495,22 @@ int spellnum;
         if (mtmp->iswiz || is_prince(mtmp->data)
             || is_lord(mtmp->data) || mtmp->data->msound == MS_NEMESIS
             || mtmp->data->msound == MS_LEADER) {
-        if (m_canseeu(mtmp)) {
-            pline("A torrent of acid consumes you!");
-            dmg = d((mtmp->m_lev / 2) + 1, 8);
-        } else {
-            if (canspotmon(mtmp)) {
-                pline("%s blasts the %s with acid and howls with rage!", Monnam(mtmp), rn2(2) ? "ceiling" : "floor");
-            } else {
-                You_hear("some cursing!");
-            }
-        }
-        if (how_resistant(ACID_RES) == 100) {
-            shieldeff(u.ux, u.uy);
-            pline("The acid dissipates harmlessly.");
-            monstseesu(M_SEEN_ACID);
-            dmg = 0;
-        } else {
-        if (rn2(u.twoweap ? 2 : 3))
-            acid_damage(uwep);
-        if (u.twoweap && rn2(2))
-            acid_damage(uswapwep);
-        if (rn2(4))
-            erode_armor(&youmonst, ERODE_CORRODE);
+            if (m_canseeu(mtmp)) {
+                pline("%s douses you in a torrent of acid!", Monnam(mtmp));
+                if (how_resistant(ACID_RES) == 100) {
+                    shieldeff(u.ux, u.uy);
+                    pline("The acid dissipates harmlessly.");
+                    monstseesu(M_SEEN_ACID);
+                    dmg = 0;
+                }
+                explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 8, 8),
+                    WAND_CLASS, EXPL_ACID);
+                if (rn2(u.twoweap ? 2 : 3))
+                    acid_damage(uwep);
+                if (u.twoweap && rn2(2))
+                    acid_damage(uswapwep);
+                if (rn2(4))
+                    erode_armor(&youmonst, ERODE_CORRODE);
             }
         }
         break;
@@ -672,6 +666,7 @@ int spellnum;
                 shieldeff(u.ux, u.uy);
                 monstseesu((spellnum == MGC_FIRE_BOLT) ? M_SEEN_FIRE : M_SEEN_COLD);
                 pline("But you resist the effects.");
+                dmg = 0;
             }
             explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
                     resist_reduce(d((mtmp->m_lev / 5) + 1, 8), (spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES),
@@ -1060,20 +1055,6 @@ int spellnum;
       	if ((!mtmp->iswiz || context.no_of_wizards > 1)
       						&& spellnum == MGC_CLONE_WIZ)
       	    return TRUE;
-        /* Don't waste time zapping resisted spells at the player,
-         * and don't blast ourselves with our own explosions */
-        if ((resists_fire(mtmp) || distu(mtmp->mx, mtmp->my) < 2)
-            && spellnum == MGC_FIRE_BOLT) {
-            return TRUE;
-        }
-        if ((resists_cold(mtmp) || distu(mtmp->mx, mtmp->my) < 2)
-            && spellnum == MGC_ICE_BOLT) {
-            return TRUE;
-        }
-        if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT)
-            && mtmp->mpeaceful) {
-            return TRUE;
-        }
         /* Don't try to destroy armor if none is being worn */
         if (!wearing_armor() && spellnum == MGC_DESTRY_ARMR) {
             return TRUE;
@@ -1169,20 +1150,6 @@ int spellnum;
                will eventually end up picking it too often] */
             if (!has_aggravatables(mtmp))
                 return rn2(100) ? TRUE : FALSE;
-        }
-        /* Don't waste time zapping resisted spells at the player,
-         * and don't blast ourselves with our own explosions */
-        if ((m_seenres(mtmp, M_SEEN_FIRE) || distu(mtmp->mx, mtmp->my) < 2)
-            && spellnum == MGC_FIRE_BOLT) {
-            return TRUE;
-        }
-        if ((m_seenres(mtmp, M_SEEN_COLD) || distu(mtmp->mx, mtmp->my) < 2)
-            && spellnum == MGC_ICE_BOLT) {
-            return TRUE;
-        }
-        if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT)
-            && mtmp->mpeaceful) {
-            return TRUE;
         }
         /* Don't try to destroy armor if none is being worn */
         if (!wearing_armor() && spellnum == MGC_DESTRY_ARMR) {
@@ -1629,13 +1596,14 @@ int spellnum;
             return;
         }
         if (yours || canseemon(mtmp))
-            pline("A torrent of acid consumes %s!", mon_nam(mtmp));
+            You("douse %s in a torrent of acid!", mon_nam(mtmp));
         if (resists_acid(mtmp)) {
             shieldeff(mtmp->mx, mtmp->my);
             pline("But the acid dissipates harmlessly.");
             dmg = 0;
-        } else
-            dmg = d(8, 8);
+        }
+        explode(mtmp->mx, mtmp->my, AD_ACID - 1, d((mtmp->m_lev / 2) + 8, 8),
+                WAND_CLASS, EXPL_ACID);
         if (rn2(4))
             erode_armor(mtmp, ERODE_CORRODE);
         break;
@@ -1841,10 +1809,25 @@ int spellnum;
         }
         if (yours || canseemon(mtmp)) {
             You("blast %s with %s!", mon_nam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
-                explode(mtmp->mx, mtmp->my, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
-                d((mtmp->m_lev / 5) + 1, 8), WAND_CLASS, 1);
+            if (spellnum == MGC_FIRE_BOLT && resists_fire(mtmp)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                pline("But %s seems unaffected by the fire.", mon_nam(mtmp));
+                dmg = 0;
+            } else if (spellnum == MGC_ICE_BOLT && resists_cold(mtmp)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                pline("But %s seems unaffected by the cold.", mon_nam(mtmp));
+                dmg = 0;
+            }
+            explode(mtmp->mx, mtmp->my, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
+                    d((mtmp->m_lev / 5) + 1, 8), WAND_CLASS, 1);
+            if (spellnum == MGC_FIRE_BOLT) {
+                (void) burnarmor(mtmp);
+                destroy_mitem(mtmp, SCROLL_CLASS, AD_FIRE);
+                destroy_mitem(mtmp, POTION_CLASS, AD_FIRE);
+                destroy_mitem(mtmp, SPBOOK_CLASS, AD_FIRE);
+                (void) burn_floor_objects(mtmp->mx, mtmp->my, TRUE, FALSE);
+            }
         }
-        dmg = 0;
         break;
     case MGC_PSI_BOLT:
        	if (!mtmp || mtmp->mhp < 1) {
