@@ -184,7 +184,9 @@ struct obj* tobj;
     boolean more_corpses;
     struct permonst *mptr;
     struct obj *corpse = sobj_at(CORPSE, rx, ry),
-               *statue = sobj_at(STATUE, rx, ry);
+               *statue = sobj_at(STATUE, rx, ry),
+               *egg    = sobj_at(EGG, rx, ry),
+               *safe   = sobj_at(IRON_SAFE, rx, ry);
 
     if (!can_reach_floor(TRUE)) { /* levitation or unskilled riding */
         corpse = 0;               /* can't reach corpse on floor */
@@ -290,11 +292,34 @@ struct obj* tobj;
         return TRUE;
     }
 
-    /* using a stethoscope on a safe?  You safe-cracker, you. */
-    struct obj *otmp;
-    if (otmp = sobj_at(IRON_SAFE, rx, ry)) {
-	pick_lock(tobj, rx, ry);
+    if (egg) {
+	if (Hallucination || tobj->cursed) {
+	    pline("You listen to the egg and guess... %s?",
+                  rndmonnam((char *) 0));
+	} else {
+            if (tobj->blessed
+                && (stale_egg(egg) || egg->corpsenm == NON_PM)) {
+                pline("The egg doesn't really make any noise at all.");
+	    } else if (tobj->blessed
+                && (!stale_egg(egg) || !egg->corpsenm == NON_PM)) {
+                pline("You listen to the egg and guess... %s!",
+                       mons[egg->corpsenm].mname);
+            } else {
+                You("can't quite tell what's inside the egg.");
+            }
+	}
 	return TRUE;
+    }
+
+    /* using a stethoscope on a safe?  You safe-cracker, you. */
+    if (safe) {
+        if (Hallucination || Confusion || tobj->cursed) {
+            pline("You attempt to crack the safe using the combination... %s?",
+                  rndcolor());
+        } else {
+	    pick_lock(tobj, rx, ry);
+	    return TRUE;
+        }
     }
 
     return FALSE; /* no corpse or statue */
