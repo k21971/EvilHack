@@ -2180,89 +2180,125 @@ register struct monst *shkp; /* if angry, impose a surcharge */
     /* possible additional surcharges based on shk race, if one was passed in */
     if (shkp) {
 	switch (shkp->mnum) {
-		default:
-		case PM_HUMAN:
-		case PM_HUMAN_SERGEANT:
-		case PM_HUMAN_LIEUTENANT:
-		case PM_HUMAN_CAPTAIN:
-			/* nasty, brutish, and short */
-			if (Race_if(PM_ORC) || Race_if(PM_GNOME)) { tmp += tmp / 3L; }
-                        if (Race_if(PM_CENTAUR)) { tmp += tmp / 2L; }   /* "smelly and four-legged" */
-			break;
-                case PM_WOODLAND_ELF:
-		case PM_GREEN_ELF:
-		case PM_GREY_ELF:
-		case PM_ELF_LORD:
-                case PM_ELF_LADY:
-			if (Race_if(PM_ORC)) { tmp *= 2L; }
-			if (Race_if(PM_DWARF)) { tmp += tmp / 3L; }	/* "lawn ornament." */
-			break;
-		case PM_DWARF:
-                case PM_DWARF_LORD:
-                case PM_DWARF_LADY:
-			if (Race_if(PM_ORC)) { tmp *= 2L; }
-			if (Race_if(PM_ELF)) { tmp += tmp / 3L; }   /* "pointy-eared tree hugger." */
-                        if (Race_if(PM_GIANT)) { tmp += tmp / 2L; } /* "big, dumb and smelly." */
-			break;
-		case PM_ORC:
-			if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) { tmp *= 3L; }
-			if (Race_if(PM_DWARF)) { tmp += (tmp * 2L) / 3L; }
-			if (Race_if(PM_HUMAN)) { tmp += tmp / 3L; }
-			if (Race_if(PM_ORC)) { tmp /= (tmp * 3L) / 2L; }
-			/* big discount on top of professional courtesy */
-			break;
-		case PM_GNOME:
-		case PM_GNOME_LORD:
-                case PM_GNOME_LADY:
-			/* Gnomes are crafty.  They don't really have racial animosities, but
-			* it's going to be a lot harder to get a good deal out of a gnome unless
-			* you're remarkably shrewd yourself. */
-			if (ACURR(A_INT) < 15) { tmp += tmp / 2L; }
-			else if (ACURR(A_INT) < 18) { tmp += tmp / 3L; }
-                        break;
-		case PM_MIND_FLAYER:
-		case PM_MASTER_MIND_FLAYER:
-			/* They'd prefer not to sell their libraries. */
-			tmp *= (shkp->mnum - PM_MIND_FLAYER + 2);
-			break;
-		case PM_CENTAUR:
-                        /* Centaurs don't care much for most humanoid races. */
-                        if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                            || Race_if(PM_DWARF) || Race_if(PM_ORC)) { tmp += tmp / 2L; }
-			break;
-                case PM_HOBBIT:
-                        if (Race_if(PM_ORC)) { tmp *= 3L; }
-		case PM_WOOD_NYMPH:
-		case PM_MOUNTAIN_NYMPH:
-		case PM_WATER_NYMPH:
-			if (ACURR(A_CHA) > 14)
-			{
-				/* Pretty people don't get gouged TOO badly... */
-				tmp += (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 6L);
-			} else {
-				/* ... but if you don't measure up... */
-				tmp += (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 3L);
-			}
-			break;
-		case PM_STONE_GIANT:
-		case PM_HILL_GIANT_SHAMAN:
-		case PM_HILL_GIANT:
-		case PM_FIRE_GIANT:
-		case PM_FROST_GIANT:
-		case PM_STORM_GIANT:
-			/* Non-Elder-Race humanoids are not thought of highly. */
-			if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                            || Race_if(PM_HOBBIT)) { tmp += tmp / 3L; }
-                        if (Race_if(PM_DWARF)) { tmp += tmp / 2L; } /* "dwarf tossing, only thing they're good for." */
-			break;
+	    default:
+	    case PM_HUMAN:
+	    case PM_HUMAN_SERGEANT:
+	    case PM_HUMAN_LIEUTENANT:
+	    case PM_HUMAN_CAPTAIN:
+		if (Race_if(PM_ORC) || Race_if(PM_GNOME)) {
+                    tmp += tmp / 3L; /* nasty, brutish, and short */
+                }
+                if (Race_if(PM_CENTAUR)) {
+                    tmp += tmp / 2L; /* "smelly and four-legged" */
+                }
+		break;
+            case PM_WOODLAND_ELF:
+            case PM_GREEN_ELF:
+	    case PM_GREY_ELF:
+	    case PM_ELF_LORD:
+            case PM_ELF_LADY:
+		if (Race_if(PM_ORC)) {
+                    tmp *= 2L;
+                }
+		if (Race_if(PM_DWARF)) {
+                    tmp += tmp / 3L; /* "lawn ornament" */
+                }
+		break;
+	    case PM_DWARF:
+            case PM_DWARF_LORD:
+            case PM_DWARF_LADY:
+		if (Race_if(PM_ORC)) {
+                    tmp *= 2L;
+                }
+		if (Race_if(PM_ELF)) {
+                    tmp += tmp / 3L; /* "pointy-eared tree hugger" */
+                }
+                if (Race_if(PM_GIANT)) {
+                    tmp += tmp / 2L; /* "big, dumb and smelly" */
+                }
+		break;
+	    case PM_ORC:
+		if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) {
+                    tmp *= 3L;
+                }
+		if (Race_if(PM_DWARF)) {
+                    tmp += (tmp * 2L) / 3L;
+                }
+		if (Race_if(PM_HUMAN)) {
+                    tmp += tmp / 3L;
+                }
+		if (Race_if(PM_ORC)) {
+                    tmp -= tmp / 3L; /* big discount on top of professional courtesy */
+                }
+		break;
+	    case PM_GNOME:
+	    case PM_GNOME_LORD:
+            case PM_GNOME_LADY:
+		/* Gnomes are crafty. They don't really have racial animosities, but
+		 * it's going to be a lot harder to get a good deal out of a gnome unless
+		 * you're remarkably shrewd yourself */
+		if (ACURR(A_INT) < 15) {
+                    tmp += tmp / 2L;
+                }
+		else if (ACURR(A_INT) < 18) {
+                    tmp += tmp / 3L;
+                }
+                break;
+	    case PM_MIND_FLAYER:
+	    case PM_MASTER_MIND_FLAYER:
+		/* They'd prefer not to sell their libraries */
+		tmp *= (shkp->mnum - PM_MIND_FLAYER);
+		break;
+	    case PM_CENTAUR:
+                /* Centaurs don't care much for most humanoid races */
+                if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+                    || Race_if(PM_DWARF) || Race_if(PM_ORC)) {
+                    tmp += tmp / 2L;
+                }
+		break;
+            case PM_HOBBIT:
+                if (Race_if(PM_ORC)) {
+                    tmp *= 3L;
+                }
+                break;
+	    case PM_WOOD_NYMPH:
+	    case PM_MOUNTAIN_NYMPH:
+	    case PM_WATER_NYMPH:
+		if (ACURR(A_CHA) > 14) {
+		    /* Pretty people don't get gouged TOO badly... */
+		    tmp += (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 6L);
+		} else {
+		    /* ... but if you don't measure up... */
+		    tmp += (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 3L);
+		}
+		break;
+	    case PM_STONE_GIANT:
+	    case PM_HILL_GIANT_SHAMAN:
+	    case PM_HILL_GIANT:
+	    case PM_FIRE_GIANT:
+	    case PM_FROST_GIANT:
+	    case PM_STORM_GIANT:
+		/* Non-Elder-Race humanoids are not thought of highly */
+		if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+                    || Race_if(PM_HOBBIT)) {
+                    tmp += tmp / 3L;
+                }
+                if (Race_if(PM_DWARF)) {
+                    tmp += tmp / 2L; /* "dwarf tossing, only thing they're good for" */
+                }
+		break;
 	}
     }
 
     /* professional courtesy if nonhuman */
-    if (shkp && shkp->mnum != PM_HUMAN && match_shkrace(shkp)) { tmp -= tmp / 2L; }
+    if (shkp && shkp->mnum != PM_HUMAN && match_shkrace(shkp)) {
+        tmp -= tmp / 2L;
+    }
 
     /* and just make sure we haven't dealt ourselves out of money */
-    if (tmp < 1) { tmp = 3; }
+    if (tmp < 1) {
+        tmp = 3;
+    }
 
     return tmp;
 }
@@ -2473,78 +2509,115 @@ register struct monst *shkp;
 	case PM_HUMAN_SERGEANT:
 	case PM_HUMAN_LIEUTENANT:
 	case PM_HUMAN_CAPTAIN:
-		if (Race_if(PM_ORC) || Race_if(PM_GNOME)) { tmp -= tmp / 3L; }	  /* nasty, brutish, and short */
-                if (Race_if(PM_CENTAUR)) { tmp += tmp / 2L; }   /* "smelly and four-legged" */
-		break;
+	    if (Race_if(PM_ORC) || Race_if(PM_GNOME)) {
+                tmp -= tmp / 3L; /* nasty, brutish, and short */
+            }
+            if (Race_if(PM_CENTAUR)) {
+                tmp -= tmp / 2L; /* "smelly and four-legged" */
+            }
+	    break;
 	case PM_WOODLAND_ELF:
 	case PM_GREEN_ELF:
 	case PM_GREY_ELF:
 	case PM_ELF_LORD:
         case PM_ELF_LADY:
-		if (Race_if(PM_ORC)) { tmp /= 2L; }
-		if (Race_if(PM_DWARF)) { tmp -= tmp / 3L; }	/* "lawn ornament." */
-		break;
+	    if (Race_if(PM_ORC)) {
+                tmp /= 2L;
+            }
+	    if (Race_if(PM_DWARF)) {
+                tmp -= tmp / 3L; /* "lawn ornament" */
+            }
+	    break;
 	case PM_DWARF:
         case PM_DWARF_LORD:
         case PM_DWARF_LADY:
-		if (Race_if(PM_ORC)) { tmp /= 2L; }
-		if (Race_if(PM_ELF)) { tmp -= tmp / 3L; }   /* "pointy-eared tree hugger." */
-                if (Race_if(PM_GIANT)) { tmp += tmp / 2L; } /* "big, dumb and smelly." */
-		break;
+	    if (Race_if(PM_ORC)) {
+                tmp /= 2L;
+            }
+	    if (Race_if(PM_ELF)) {
+                tmp -= tmp / 3L; /* "pointy-eared tree hugger" */
+            }
+            if (Race_if(PM_GIANT)) {
+                tmp -= tmp / 2L; /* "big, dumb and smelly" */
+            }
+	    break;
 	case PM_ORC:
-		if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) { tmp *= 3L; }
-		if (Race_if(PM_DWARF)) { tmp -= (tmp * 2L) / 3L; }
-		if (Race_if(PM_HUMAN)) { tmp -= tmp / 3L; }
-		if (Race_if(PM_ORC)) { tmp -= tmp / 3L; }	 /* on top of prof. courtesy */
-		break;
+	    if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) {
+                tmp /= 3L;
+            }
+	    if (Race_if(PM_DWARF)) {
+                tmp -= (tmp * 2L) / 3L;
+            }
+	    if (Race_if(PM_HUMAN)) {
+                tmp -= tmp / 3L;
+            }
+	    if (Race_if(PM_ORC)) {
+                tmp += tmp / 3L; /* on top of prof. courtesy */
+            }
+	    break;
 	case PM_GNOME:
         case PM_GNOME_LORD:
         case PM_GNOME_LADY:
-		/* Gnomes are crafty.  They don't really have racial animosities, but
-		 * it's going to be a lot harder to get a good deal out of a gnome unless
-		 * you're remarkably shrewd yourself. */
-		if (ACURR(A_INT) < 15) { tmp -= tmp / 2L; }
-		else if (ACURR(A_INT) < 18) { tmp -= tmp / 3L; }
-		break;
+	    /* Gnomes are crafty. They don't really have racial animosities, but
+	     * it's going to be a lot harder to get a good deal out of a gnome unless
+	     * you're remarkably shrewd yourself */
+	    if (ACURR(A_INT) < 15) {
+                tmp -= tmp / 2L;
+            } else if (ACURR(A_INT) < 18) {
+                tmp -= tmp / 3L;
+            }
+	    break;
 	case PM_MIND_FLAYER:
 	case PM_MASTER_MIND_FLAYER:
-		/* They don't mind acquiring more books...
-		 * ...and yes, this is correct, older mind flayers would value the books
-		 * more than younger ones */
-		tmp -= tmp / (shkp->mnum - PM_MIND_FLAYER + 2);
-		break;
+	    /* They don't mind acquiring more books...
+	     * ...and yes, this is correct, older mind flayers would value the books
+	     * more than younger ones */
+	    tmp -= tmp / (shkp->mnum - PM_MIND_FLAYER);
+	    break;
         case PM_CENTAUR:
-                /* Centaurs don't care much for most humanoid races. */
-                if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                    || Race_if(PM_DWARF) || Race_if(PM_ORC)) { tmp += tmp / 2L; }
-                break;
+            /* Centaurs don't care much for most humanoid races. */
+            if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+                || Race_if(PM_DWARF) || Race_if(PM_ORC)) {
+                tmp -= tmp / 2L;
+            }
+            break;
+        case PM_HOBBIT:
+            if (Race_if(PM_ORC)) {
+                tmp /= 3L;
+            }
+            break;
 	case PM_WOOD_NYMPH:
 	case PM_MOUNTAIN_NYMPH:
 	case PM_WATER_NYMPH:
-		if (ACURR(A_CHA) > 14)
-		{
-			/* Pretty people don't get gouged TOO badly... */
-			tmp -= (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 6L);
-		} else {
-			/* ... but if you don't measure up... */
-			tmp -= (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 4L);
-		}
-		break;
+	    if (ACURR(A_CHA) > 14) {
+		/* Pretty people don't get gouged TOO badly... */
+		tmp -= (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 6L);
+	    } else {
+		/* ... but if you don't measure up... */
+		tmp -= (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 4L);
+	    }
+	    break;
 	case PM_STONE_GIANT:
 	case PM_HILL_GIANT_SHAMAN:
 	case PM_HILL_GIANT:
 	case PM_FIRE_GIANT:
 	case PM_FROST_GIANT:
 	case PM_STORM_GIANT:
-		/* Non-Elder-Race humanoids are not thought of highly. */
-		if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                    || Race_if(PM_HOBBIT)) { tmp += tmp / 3L; }
-                if (Race_if(PM_DWARF)) { tmp += tmp / 2L; } /* "dwarf tossing, only thing they're good for." */
-		break;
+	    /* Non-Elder-Race humanoids are not thought of highly */
+	    if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+                || Race_if(PM_HOBBIT)) {
+                tmp -= tmp / 3L;
+            }
+            if (Race_if(PM_DWARF)) {
+                tmp -= tmp / 2L; /* "dwarf tossing, only thing they're good for" */
+            }
+	    break;
     }
 
     /* professional courtesy if nonhuman, but not _that_ much */
-    if (shkp->mnum != PM_HUMAN && match_shkrace(shkp)) { tmp += tmp / 3L; }
+    if (shkp->mnum != PM_HUMAN && match_shkrace(shkp)) {
+        tmp += tmp / 3L;
+    }
 
     /* Final quick check; if we're about to buy this for more than we'd sell
      * it for in the first place, let's arrange to, er, not do that.  */
