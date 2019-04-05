@@ -1069,6 +1069,24 @@ int spellnum;
         if (!wearing_armor() && spellnum == MGC_DESTRY_ARMR) {
             return TRUE;
         }
+        /* Don't waste time zapping resisted spells at the player,
+         * and don't blast ourselves with our own explosions */
+        if ((m_seenres(mtmp, M_SEEN_FIRE) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_FIRE_BOLT) {
+            return TRUE;
+        }
+        if ((m_seenres(mtmp, M_SEEN_COLD) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_ICE_BOLT) {
+            return TRUE;
+        }
+        if ((m_seenres(mtmp, M_SEEN_ACID) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_ACID_BLAST) {
+            return TRUE;
+        }
+        if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT
+            || spellnum == MGC_ACID_BLAST) && mtmp->mpeaceful) {
+            return TRUE;
+        }
      } else if (adtyp == AD_CLRC) {
       	/* healing when already healed */
       	if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
@@ -1163,6 +1181,22 @@ int spellnum;
         }
         /* Don't try to destroy armor if none is being worn */
         if (!wearing_armor() && spellnum == MGC_DESTRY_ARMR) {
+            return TRUE;
+        }
+        if ((m_seenres(mtmp, M_SEEN_FIRE) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_FIRE_BOLT) {
+            return TRUE;
+        }
+        if ((m_seenres(mtmp, M_SEEN_COLD) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_ICE_BOLT) {
+            return TRUE;
+        }
+        if ((m_seenres(mtmp, M_SEEN_ACID) || distu(mtmp->mx, mtmp->my) < 2)
+            && spellnum == MGC_ACID_BLAST) {
+            return TRUE;
+        }
+        if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT
+            || spellnum == MGC_ACID_BLAST) && mtmp->mpeaceful) {
             return TRUE;
         }
     } else if (adtyp == AD_CLRC) {
