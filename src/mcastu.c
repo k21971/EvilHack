@@ -46,13 +46,12 @@ enum mcast_cleric_spells {
 extern void you_aggravate(struct monst *);
 
 STATIC_DCL void FDECL(cursetxt, (struct monst *, BOOLEAN_P));
-STATIC_DCL int FDECL(choose_magic_spell, (int));
-STATIC_DCL int FDECL(choose_clerical_spell, (int));
+STATIC_DCL int FDECL(choose_magic_spell, (struct monst *, int));
+STATIC_DCL int FDECL(choose_clerical_spell, (struct monst *, int));
 STATIC_DCL void FDECL(cast_wizard_spell, (struct monst *, int, int));
 STATIC_DCL void FDECL(cast_cleric_spell, (struct monst *, int, int));
 STATIC_DCL boolean FDECL(is_undirected_spell, (unsigned int, int));
-STATIC_DCL boolean
-FDECL(spell_would_be_useless, (struct monst *, unsigned int, int));
+STATIC_DCL boolean FDECL(spell_would_be_useless, (struct monst *, unsigned int, int));
 STATIC_DCL boolean FDECL(uspell_would_be_useless,(unsigned int,int));
 STATIC_DCL void FDECL(ucast_wizard_spell, (struct monst *, struct monst *, int, int));
 STATIC_DCL void FDECL(ucast_cleric_spell, (struct monst *, struct monst *, int, int));
@@ -130,7 +129,8 @@ boolean undirected;
 /* convert a level based random selection into a specific mage spell;
    inappropriate choices will be screened out by spell_would_be_useless() */
 STATIC_OVL int
-choose_magic_spell(spellval)
+choose_magic_spell(mtmp, spellval)
+struct monst* mtmp;
 int spellval;
 {
     int i;
@@ -139,6 +139,11 @@ int spellval;
      */
     while (spellval > 24 && rn2(25))
         spellval = rn2(spellval);
+
+    /* If we're hurt, seriously consider giving fixing ourselves priority */
+    if ((mtmp->mhp * 4) <= mtmp->mhpmax) {
+        spellval = 1;
+    }
 
     switch (spellval) {
     case 24:
@@ -207,13 +212,19 @@ int spellval;
 
 /* convert a level based random selection into a specific cleric spell */
 STATIC_OVL int
-choose_clerical_spell(spellnum)
+choose_clerical_spell(mtmp, spellnum)
+struct monst* mtmp;
 int spellnum;
 {
     /* for 3.4.3 and earlier, num greater than 13 selected the default spell
      */
     while (spellnum > 15 && rn2(16))
         spellnum = rn2(spellnum);
+
+    /* If we're hurt, seriously consider giving fixing ourselves priority */
+    if ((mtmp->mhp * 4) <= mtmp->mhpmax) {
+        spellnum = 1;
+    }
 
     switch (spellnum) {
     case 15:
@@ -284,9 +295,9 @@ boolean foundyou;
         do {
             spellnum = rn2(ml);
             if (mattk->adtyp == AD_SPEL)
-                spellnum = choose_magic_spell(spellnum);
+                spellnum = choose_magic_spell(mtmp, spellnum);
             else
-                spellnum = choose_clerical_spell(spellnum);
+                spellnum = choose_clerical_spell(mtmp, spellnum);
             /* not trying to attack?  don't allow directed spells */
             if (!thinks_it_foundyou) {
                 if (!is_undirected_spell(mattk->adtyp, spellnum)
@@ -1270,9 +1281,9 @@ register struct attack *mattk;
    	do {
    	    spellnum = rn2(ml);
             if (mattk->adtyp == AD_SPEL)
-                spellnum = choose_magic_spell(spellnum);
+                spellnum = choose_magic_spell(mtmp, spellnum);
             else
-                spellnum = choose_clerical_spell(spellnum);
+                spellnum = choose_clerical_spell(mtmp, spellnum);
         /* not trying to attack?  don't allow directed spells */
    	} while (--cnt > 0 &&
    		 mspell_would_be_useless(mtmp, mdef,
@@ -1440,9 +1451,9 @@ register struct attack *mattk;
    	do {
    	    spellnum = rn2(ml);
             if (mattk->adtyp == AD_SPEL)
-                spellnum = choose_magic_spell(spellnum);
+                spellnum = choose_magic_spell(mtmp, spellnum);
             else
-                spellnum = choose_clerical_spell(spellnum);
+                spellnum = choose_clerical_spell(mtmp, spellnum);
             /* not trying to attack?  don't allow directed spells */
             if (!mtmp || mtmp->mhp < 1) {
                 if (is_undirected_spell(mattk->adtyp, spellnum)
