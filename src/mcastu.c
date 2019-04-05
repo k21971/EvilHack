@@ -165,7 +165,7 @@ int spellval;
     case 17:
     case 16:
     case 15:
-        /* return MGC_SUMMON_MONS; */
+        return MGC_SUMMON_MONS;
     case 14:
         return MGC_ACID_BLAST;
     case 13:
@@ -511,6 +511,13 @@ int spellnum;
                     acid_damage(uswapwep);
                 if (rn2(4))
                     erode_armor(&youmonst, ERODE_CORRODE);
+            } else {
+                if (canspotmon(mtmp)) {
+                    pline("%s blasts the %s with %s and curses!", Monnam(mtmp),
+                          rn2(2) ? "ceiling" : "floor", "acid");
+                } else {
+                    You_hear("some cursing!");
+                }
             }
         }
         break;
@@ -1013,10 +1020,13 @@ int spellnum;
         switch (spellnum) {
         case MGC_CLONE_WIZ:
         case MGC_SUMMON_MONS:
+        case MGC_ACID_BLAST:
         case MGC_AGGRAVATION:
         case MGC_DISAPPEAR:
         case MGC_HASTE_SELF:
         case MGC_CURE_SELF:
+        case MGC_FIRE_BOLT:
+        case MGC_ICE_BOLT:
             return TRUE;
         default:
             break;
