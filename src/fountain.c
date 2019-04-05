@@ -358,6 +358,13 @@ drinkfountain()
     dryup(u.ux, u.uy, TRUE);
 }
 
+/* Monty Python and the Holy Grail ;) */
+static const char *const excalmsgs[] = {
+    "had Excalibur thrown at them by some watery tart.",
+    "received Excalibur from a strange woman lying in a pond.",
+    "signified by divine providence, was chosen to carry Excalibur."
+};
+
 void
 dipfountain(obj)
 register struct obj *obj;
@@ -382,7 +389,7 @@ register struct obj *obj;
                 obj->spe--;
             obj->oerodeproof = FALSE;
             exercise(A_WIS, FALSE);
-	    livelog_printf(LL_ARTIFACT, "was denied Excalibur! The Lady of the Lake has deemed %s unworthy",uhim());
+	    livelog_printf(LL_ARTIFACT, "was denied Excalibur! The Lady of the Lake has deemed %s unworthy", uhim());
         } else {
             /* The lady of the lake acts! - Eric Backus */
             /* Be *REAL* nice */
@@ -395,7 +402,7 @@ register struct obj *obj;
             obj->oeroded = obj->oeroded2 = 0;
             obj->oerodeproof = TRUE;
             exercise(A_WIS, TRUE);
-	    livelog_printf(LL_ARTIFACT, "had Excalibur thrown at %s by some watery tart",uhim()); /* Monty Python and the Holy Grail ;) */
+	    livelog_printf(LL_ARTIFACT, "%s", excalmsgs[rn2(SIZE(excalmsgs))]);
         }
         update_inventory();
         levl[u.ux][u.uy].typ = ROOM, levl[u.ux][u.uy].flags = 0;

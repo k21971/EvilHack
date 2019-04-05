@@ -369,8 +369,9 @@ struct savefile_info {
 #define LL_ARTIFACT   0x0040 /* Excalibur, Sting, Orcrist, plus sac gifts and artwishes */
 #define LL_GENOCIDE   0x0080 /* Logging of genocides */
 #define LL_KILLEDPET  0x0100 /* Killed a tame monster */
-#define LL_DUMP_ASC   0x0200 /* Log URL for dumplog if ascended */
-#define LL_DUMP_ALL   0x0400 /* Log dumplog url for all games */
+#define LL_ALIGNMENT  0x0200 /* changed alignment temporarily or permanently */
+#define LL_DUMP_ASC   0x0400 /* Log URL for dumplog if ascended */
+#define LL_DUMP_ALL   0x0800 /* Log dumplog url for all games */
 #define LL_DEBUG      0x8000 /* For debugging messages and other spam */
 /* Supply nethack_enter macro if not supplied by port */
 #ifndef nethack_enter
