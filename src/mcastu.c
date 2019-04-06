@@ -419,7 +419,7 @@ boolean foundyou;
             monstseesu(M_SEEN_ACID);
             dmg = 0;
         } else {
-            dmg = resist_reduce(dmg, ACID_RES);
+            dmg = d((int) mtmp->m_lev / 2 + 1, 8);
         }
         break;
     case AD_MAGM:
@@ -514,7 +514,7 @@ int spellnum;
                     monstseesu(M_SEEN_ACID);
                     dmg = 0;
                 }
-                explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 8, 8),
+                explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
                     WAND_CLASS, EXPL_ACID);
                 if (rn2(u.twoweap ? 2 : 3))
                     acid_damage(uwep);
@@ -1388,7 +1388,7 @@ register struct attack *mattk;
    	    case AD_MAGM:
                 if (canspotmon(mdef))
                     pline("%s is hit by a shower of missiles!", Monnam(mdef));
-                    dmg = d((int)mtmp->m_lev/2 + 1,6);
+                    dmg = d((int)mtmp->m_lev / 2 + 1, 6);
                 if (resists_magm(mdef)) {
            	    shieldeff(mdef->mx, mdef->my);
            	    if (canspotmon(mdef))
@@ -1657,7 +1657,7 @@ int spellnum;
             pline("But the acid dissipates harmlessly.");
             dmg = 0;
         }
-        explode(mtmp->mx, mtmp->my, AD_ACID - 1, d((mtmp->m_lev / 2) + 8, 8),
+        explode(mtmp->mx, mtmp->my, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
                 WAND_CLASS, EXPL_ACID);
         if (rn2(4))
             erode_armor(mtmp, ERODE_CORRODE);
