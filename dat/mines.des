@@ -52,8 +52,8 @@ TRAP: random, random
 # Orcish Town - a variant of Frontier Town that has been
 # overrun by orcs.  Note the barricades (iron bars).
 #
-LEVEL: "minetn-1"
-FLAGS:mazelevel
+MAZE:"minetn-1",' '
+FLAGS:inaccessibles
 INIT_MAP:mines,'.',' ',true,true,random,true
 GEOMETRY:center,center
 MAP
@@ -79,10 +79,23 @@ MAP
 ENDMAP
 
 # Don't let the player fall into his likely death
-TELEPORT_REGION:levregion(01,01,20,19),levregion(20,00,70,19)
+TELEPORT_REGION:levregion(01,01,70,19),levregion(21,02,55,18),down
 REGION:(00,00,36,16),lit,"ordinary"
 STAIR:levregion(01,03,20,19),(00,00,36,15),up
 STAIR:levregion(61,03,75,19),(00,00,36,15),down
+
+# Define areas of the map
+# Inside the walls
+$inside = selection: floodfill(18,8)
+# Near the temple
+$near_temple = selection: filter(fillrect(17,8, 23,14), $inside)
+
+# One shopkeeper managed to barricade their shop with boulders, and they live!
+REGION:(4,4,6,7),lit,"shop",filled
+DOOR:locked,(5,8)
+OBJECT:('`',"boulder"),(4,9)
+OBJECT:('`',"boulder"),(5,9)
+OBJECT:('`',"boulder"),(6,9)
 
 # shame we can't make polluted fountains
 FOUNTAIN:(16,09)
@@ -92,7 +105,6 @@ FOUNTAIN:(25,09)
 ALTAR:(20,13),noalign,shrine
 
 # set up the shop doors; could be broken down
-DOOR:random,(5,8)
 DOOR:random,(9,8)
 DOOR:random,(13,7)
 DOOR:random,(22,5)
@@ -105,55 +117,80 @@ DOOR:random,(25,13)
 DOOR:random,(31,11)
 
 # knock a few holes in the shop interior walls
-REPLACE_TERRAIN:(07,04,11,06),'|','.',18%
+REPLACE_TERRAIN:(11,04,11,06),'|','.',18%
 REPLACE_TERRAIN:(25,04,29,06),'|','.',18%
 REPLACE_TERRAIN:(07,12,11,14),'|','.',18%
 REPLACE_TERRAIN:(28,12,28,14),'|','.',33%
 
-# One spot each in most shops...
-$place = { (05,04),(09,05),(13,04),(26,04),(31,05),(30,14),(05,14),(10,13),(26,14),(27,13) }
-SHUFFLE:$place
-
-# scatter some bodies
-OBJECT:('%',"corpse"),(20,12),montype:"aligned priest"
-OBJECT:('%',"corpse"),$place[0],montype:"shopkeeper"
-OBJECT:('%',"corpse"),$place[1],montype:"shopkeeper"
-OBJECT:('%',"corpse"),$place[2],montype:"shopkeeper"
-OBJECT:('%',"corpse"),$place[3],montype:"shopkeeper"
-OBJECT:('%',"corpse"),$place[4],montype:"shopkeeper"
-OBJECT:('%',"corpse"),random,montype:"watchman"
-OBJECT:('%',"corpse"),random,montype:"watchman"
-OBJECT:('%',"corpse"),random,montype:"watchman"
-OBJECT:('%',"corpse"),random,montype:"watchman"
-OBJECT:('%',"corpse"),random,montype:"watch captain"
-
 # Rubble!
-LOOP [9 + 2d5] {
+LOOP [5 + 2d5] {
   [90%]: OBJECT:('`',"boulder"),random
   OBJECT:('*',"rock"),random
 }
 
-# Guarantee 7 candles since we won't have Izchak available
-OBJECT:('(',"wax candle"),$place[0],quantity:1d2
-OBJECT:('(',"wax candle"),$place[1],quantity:2d2
-OBJECT:('(',"wax candle"),$place[2],quantity:1d2
-OBJECT:('(',"tallow candle"),$place[3],quantity:1d3
-OBJECT:('(',"tallow candle"),$place[2],quantity:1d2
-OBJECT:('(',"tallow candle"),$place[0],quantity:1d2
+# Shopkeeper "bones" piles. One spot each in most shops...
+# there were 4 shops in Frontier Town; the general store shk is still present
+# so there should only be three dead shks here
+$shk_demise = { (09,05),(13,04),(26,04),(31,05),(30,14),(05,14),(10,13),(26,14),(27,13) }
+SHUFFLE:$shk_demise
 
-# go ahead and leave a lamp next to one corpse to be suggestive
-# and some empty wands...
-OBJECT:('(',"oil lamp"),$place[2]
-OBJECT:('/',"striking"),$place[1],uncursed,0
-OBJECT:('/',"striking"),$place[3],uncursed,0
-OBJECT:('/',"striking"),$place[4],uncursed,0
-OBJECT:('/',"magic missile"),$place[4],uncursed,0
-OBJECT:('/',"magic missile"),$place[0],uncursed,0
+MONSTER:('@',"shopkeeper"),$shk_demise[0],dead
+MONSTER:('@',"shopkeeper"),$shk_demise[1],dead
+MONSTER:('@',"shopkeeper"),$shk_demise[2],dead
+# Orcish Town is hard enough without the orcs picking up and using the
+# shopkeepers' wands and potions.
+OBJECT: ('`',"boulder"), $shk_demise[0]
+OBJECT: ('`',"boulder"), $shk_demise[1]
+OBJECT: ('`',"boulder"), $shk_demise[2]
+
+# shop inventories... 9 items from a tool shop, 4 from a delicatessen, 6 from Izchak
+# Ideally we could just call some routine to fill the shop objects with the
+# appropriate probabilities for their shops and not put in the shopkeepers, but
+# that can't be made to work without a refactor of room-filling semantics.
+LOOP [9] {
+  OBJECT: '(', rndcoord($inside)
+}
+# For now, only FOOD_CLASS items from deli.
+LOOP [4] {
+  OBJECT: '%', rndcoord($inside)
+}
+# probabilities not exactly the same, no potion of oil, but otherwise close.
+# Notably, overall 5% chance of a magic lamp per placement, up from 3%.
+LOOP [6] {
+  IF [80%] {
+    IF [50%] {
+      OBJECT: ('(',"wax candle"), rndcoord($inside), quantity:1d4
+    } ELSE {
+      OBJECT: ('(',"tallow candle"), rndcoord($inside), quantity:1d4
+    }
+  } ELSE {
+    IF [50%] {
+      OBJECT: ('(',"oil lamp"), rndcoord($inside)
+    } ELSE {
+      IF [50%] {
+        OBJECT: ('(',"lantern"), rndcoord($inside)
+      } ELSE {
+        OBJECT: ('(',"magic lamp"), rndcoord($inside)
+      }
+    }
+  }
+}
+
+# priest spoils
+# have to manually provide the spellbooks because those are given to a priest
+# when initialized as a shrine attendant - which this priest is not.
+MONSTER:('@',"aligned priest"),(20,12),dead
+LOOP [1d3 + 1] {
+  OBJECT: '+', (20,12)
+}
+
+# the remains of the Watch
+LOOP [4] {
+  MONSTER:('@',"watchman"),random,dead
+}
+MONSTER:('@',"watch captain"),random,dead
 
 # the Orcish Army
-
-$inside = selection: floodfill(18,8)
-$near_temple = selection: filter(fillrect(17,8, 23,14), $inside)
 
 LOOP [5 + 1d10] {
     IF [50%] {
@@ -170,20 +207,22 @@ LOOP [5 + 1d10] {
 LOOP [2d3] {
   MONSTER: ('o', "orc shaman"), rndcoord($near_temple), hostile
 }
-# these are not such a big deal
-# to run into outside the bars
+# these are not such a big deal to run into outside the bars
 LOOP [9 + 2d5] {
     IF [90%] {
         MONSTER: ('o', "hill orc"), random, hostile
     } ELSE {
-        MONSTER: ('o', "goblin"), random, hostile
+        IF [80%] {
+            MONSTER: ('o', "goblin"), random, hostile
+        } ELSE {
+            MONSTER: ('o', "goblin outrider"), random, hostile
+        }
     }
 }
 
 # Hack to force full-level wallification
 NOMAP
 WALLIFY
-
 
 # Minetown variant 2
 # "Town Square"
@@ -636,27 +675,27 @@ DOOR:closed,(31,05)
 ALTAR:(31,03),align[0],shrine
 
 
-# "Bustling Town" by Kelly Bailey
+# "Zoo Town" by Derek S. Ray (SporkHack)
 #
 MAZE: "minetn-6",' '
 FLAGS: inaccessibles
 INIT_MAP:mines,'.','-',true,true,lit,true
 GEOMETRY:center,top
 MAP
-.-----................----------------.-
-.|...|................|...|..|...|...|..
-.|...+..--+--.........|...|..|...|...|..
-.|...|..|...|..-----..|...|..|-+---+--..
-.-----..|...|--|...|..--+---+-.........|
-........|...|..|...+.............-----..
-........-----..|...|......--+-...|...|..
-.----...|...|+------..{...|..|...+...|..
+.-----...................-------------.-
+.|...|...................|...|...|...|..
+.|...+..--+--...-FFF+F...|...|...|...|..
+.|...|..|...|...|....F...|...|-+---+--..
+.-----..|...|...|....F...---+-.........|
+........|...|...|....F...........-----..
+........-----...------....--+-...|...|..
+.----...|...|.{........{..|..|...+...|..
 .|..+...|...|.............|..|...|...|..
-.|..|...|...|-+-.....---+-------------.|
-.----...--+--..|..-+-|..................
+.|..|...|...|---.....---+-------------.|
+.----...--+--..|..---|..................
 ...|........|..|..|..|----....---------.
-...|..T.....----..|..|...+....|......|-.
-...|-....{........|..|...|....+......|-.
+...|..T.....-+--..+..|...+....|......|-.
+...|-....T........|..|...|....+......|-.
 ...--..-....T.....--------....|......|-.
 .......--.....................----------
 ENDMAP
@@ -664,12 +703,13 @@ ENDMAP
 REGION:(00,00,38,15),lit,"ordinary"
 STAIR:levregion(01,03,20,19),(0,0,39,15),up
 STAIR:levregion(61,03,75,19),(0,0,39,15),down
-FOUNTAIN:(22,07)
-FOUNTAIN:(09,13)
-REGION:(13,5,14,6),unlit,"ordinary"
+FOUNTAIN:(23,07)
+FOUNTAIN:(14,07)
+# protect the zoo against dwarves and inquisitive players
+NON_DIGGABLE:(13,0,24,8)
 REGION:(9,7,11,9),lit,"candle shop"
-REGION:(16,4,18,6),lit,"tool shop"
-REGION:(23,1,25,3),lit,"shop"
+REGION:(9,3,11,5),lit,"tool shop"
+REGION:(26,1,28,3),lit,"shop"
 REGION:(22,12,24,13),lit,"food shop"
 REGION:(31,12,36,14),lit,"temple"
 ALTAR:(35,13),align[0],shrine
@@ -678,11 +718,8 @@ DOOR:closed,(5,2)
 DOOR:locked,(4,8)
 DOOR:closed,(10,2)
 DOOR:closed,(10,10)
-DOOR:locked,(13,7)
-DOOR:locked,(14,9)
-DOOR:closed,(19,5)
-DOOR:closed,(19,10)
-DOOR:closed,(24,4)
+DOOR:locked,(13,12)
+DOOR:locked,(20,2)
 DOOR:closed,(24,9)
 DOOR:closed,(25,12)
 DOOR:closed,(28,4)
@@ -692,26 +729,42 @@ DOOR:closed,(31,3)
 DOOR:closed,(35,3)
 DOOR:closed,(33,7)
 
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), (14,6)
-MONSTER: ('G', "gnome lady"), (14,5)
-MONSTER: ('G', "gnome"), (27,8)
-MONSTER: ('G', "gnome lord"), random
-MONSTER: ('G', "gnome lord"), random
-MONSTER: ('h', "dwarf"), random
-MONSTER: ('h', "dwarf"), random
-MONSTER: ('h', "dwarf"), random
-MONSTER: ('@', "watchman"), random, peaceful
-MONSTER: ('@', "watchman"), random, peaceful
-MONSTER: ('@', "watchman"), random, peaceful
-MONSTER: ('@', "watch captain"), random, peaceful
-MONSTER: ('@', "watch captain"), random, peaceful
+$in_zoo = selection:floodfill(18,4)
+$outside = selection: filter(floodfill(18,8), fillrect (1,0,37,15))
 
+LOOP [4 + 1d8] {
+  MONSTER: ('G', "gnome"), rndcoord($outside)
+}
+MONSTER: ('G', "gnome"), rndcoord($outside)
+MONSTER: ('G', "gnome lord"), rndcoord($outside)
+MONSTER: ('G', "gnome"), rndcoord($outside)
+MONSTER: ('G', "gnome lord"), rndcoord($outside)
+MONSTER: ('G', "gnome lord"), rndcoord($outside)
+MONSTER: ('G', "gnomish wizard"), rndcoord($outside)
+MONSTER: ('G', "gnomish wizard"), rndcoord($outside)
+MONSTER: ('h', "dwarf"), rndcoord($outside)
+
+MONSTER: ('@', "watchman"), rndcoord($outside), peaceful
+MONSTER: ('@', "watchman"), rndcoord($outside), peaceful
+MONSTER: ('@', "watchman"), rndcoord($outside), peaceful
+MONSTER: ('@', "watch captain"), rndcoord($outside), peaceful
+MONSTER: ('@', "watch captain"), rndcoord($outside), peaceful
+# The zoo needs some stuff...
+MONSTER: ('f', "tiger"), rndcoord($in_zoo), hostile
+MONSTER: ('f', "jaguar"), rndcoord($in_zoo), hostile
+MONSTER: ('q', "mastodon"), rndcoord($in_zoo), hostile
+MONSTER: ('S', "giant anaconda"), rndcoord($in_zoo), hostile
+# and a couple token handlers
+MONSTER: ('o', "Mordor orc"), rndcoord($in_zoo), hostile {
+  OBJECT:(')', "bullwhip")
+}
+MONSTER: ('o', "Mordor orc"), rndcoord($in_zoo), hostile {
+  OBJECT:(')', "bullwhip")
+}
+# and a couple shiny prizes as temptation (for the handlers to use, possibly?)
+OBJECT: '/', rndcoord($in_zoo)
+OBJECT: '/', rndcoord($in_zoo)
+OBJECT: '=', rndcoord($in_zoo)
 
 # "Bazaar Town" by Kelly Bailey
 #
