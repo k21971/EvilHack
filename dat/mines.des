@@ -207,6 +207,10 @@ LOOP [5 + 1d10] {
 LOOP [2d3] {
   MONSTER: ('o', "orc shaman"), rndcoord($near_temple), hostile
 }
+# add one or two goblin captains for good measure
+LOOP [1d2] {
+  MONSTER: ('o', "goblin-captain"), rndcoord($inside), hostile
+}
 # these are not such a big deal to run into outside the bars
 LOOP [9 + 2d5] {
     IF [90%] {
@@ -736,7 +740,7 @@ LOOP [4 + 1d8] {
   MONSTER: ('G', "gnome"), rndcoord($outside)
 }
 MONSTER: ('G', "gnome"), rndcoord($outside)
-MONSTER: ('G', "gnome lord"), rndcoord($outside)
+MONSTER: ('G', "gnome lady"), rndcoord($outside)
 MONSTER: ('G', "gnome"), rndcoord($outside)
 MONSTER: ('G', "gnome lord"), rndcoord($outside)
 MONSTER: ('G', "gnome lord"), rndcoord($outside)
