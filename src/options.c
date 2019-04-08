@@ -1,4 +1,4 @@
-/* NetHack 3.6	options.c	$NHDT-Date: 1553858470 2019/03/29 11:21:10 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.361 $ */
+/* NetHack 3.6	options.c	$NHDT-Date: 1554591224 2019/04/06 22:53:44 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.363 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2008. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -104,11 +104,6 @@ static struct Bool_Opt {
 #else
     { "checkspace", (boolean *) 0, FALSE, SET_IN_FILE },
 #endif
-#ifdef CURSES_GRAPHICS
-    { "classic_status", &iflags.classic_status, TRUE, SET_IN_FILE },
-#else
-    { "classic_status", (boolean *) 0, TRUE, SET_IN_FILE },
-#endif
     { "clicklook", &iflags.clicklook, FALSE, SET_IN_GAME },
     { "cmdassist", &iflags.cmdassist, TRUE, SET_IN_GAME },
 #if defined(MICRO) || defined(WIN32) || defined(CURSES_GRAPHICS)
@@ -119,7 +114,7 @@ static struct Bool_Opt {
     { "confirm", &flags.confirm, TRUE, SET_IN_GAME },
     { "dark_room", &flags.dark_room, TRUE, SET_IN_GAME },
     { "eight_bit_tty", &iflags.wc_eight_bit_input, FALSE, SET_IN_GAME }, /*WC*/
-#if defined(TTY_GRAPHICS) || defined(CURSES_GRAPHICS)
+#if defined(TTY_GRAPHICS) || defined(CURSES_GRAPHICS) || defined(X11_GRAPHICS)
     { "extmenu", &iflags.extmenu, FALSE, SET_IN_GAME },
 #else
     { "extmenu", (boolean *) 0, FALSE, SET_IN_FILE },
@@ -4078,9 +4073,8 @@ boolean tinitial, tfrom_file;
                 || boolopt[i].addr == &flags.showscore
 #endif
                 || boolopt[i].addr == &flags.showexp) {
-#ifdef STATUS_HILITES
-                status_initialize(REASSESS_ONLY);
-#endif
+                if (VIA_WINDOWPORT())
+                    status_initialize(REASSESS_ONLY);
                 context.botl = TRUE;
             } else if (boolopt[i].addr == &flags.invlet_constant) {
                 if (flags.invlet_constant) {
@@ -4122,11 +4116,12 @@ boolean tinitial, tfrom_file;
                 }
 #endif
                 need_redraw = TRUE;
-#ifdef STATUS_HILITES
             } else if (boolopt[i].addr == &iflags.wc2_hitpointbar) {
-                status_initialize(REASSESS_ONLY);
-                need_redraw = TRUE;
-#endif
+                if (VIA_WINDOWPORT()) {
+                    /* [is reassessment really needed here?] */
+                    status_initialize(REASSESS_ONLY);
+                    need_redraw = TRUE;
+                }
 #ifdef TEXTCOLOR
             } else if (boolopt[i].addr == &iflags.use_color) {
                 need_redraw = TRUE;

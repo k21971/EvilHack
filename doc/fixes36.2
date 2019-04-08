@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.294 $ $NHDT-Date: 1554071680 2019/03/31 22:34:40 $
+$NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.299 $ $NHDT-Date: 1554580624 2019/04/06 19:57:04 $
 
 This fixes36.2 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.1 in April 2018. Please note, however,
@@ -406,6 +406,9 @@ shorten the getpos prompt for teleport destination so that it won't yield a
 once a status highlight for a temporary rule ('up', 'down', 'changed') timed
 	out, further spurious status updates (evaluating all fields) would
 	occur every 'statushilites' turns even if no fields had changed
+if a migrating long worm couldn't be placed, or some other monster was given
+	an existing long worm's place and it couldn't be put somewhere else,
+	a "trying to place monster at <0,0>" warning would occur
 
 
 Fixes to Post-3.6.1 Problems that Were Exposed Via git Repository
@@ -499,6 +502,9 @@ tty: when clipping was used to show a subset of the map on a small display,
 X11: its use of genl_status_update exposed a negative index use that could
 	lead to a segfault
 X11: rollback disabling of keystroke input for PICK_NONE menus (for scrolling)
+X11: make use of the 'extmenu' option:  On to choose among all commands, Off
+	to choose among the traditional extended command subset
+X11: support menu scrolling via (^ < > |) in the extended commands menu
 curses: catch up with tty to not put dolook/whatis autodescribe feedback into
 	^P message recall (multi-digit count feedback was already handled)
 curses: if the interface code ran out of memory, it would crash rather than
@@ -532,6 +538,9 @@ curses: highlighting of status conditions was broken by the fix for timing out
 curses: if player pressed ESC at More>> prompt to suppress remaining messages
 	for the current move and then hero got another move on the same turn,
 	messages and most prompts would stay suppressed during that extra move
+curses: don't let MSGTYPE=hide block prompts from being shown
+curses: the --More-- prompt (">>") wasn't always placed in a visible location,
+	especially when window borders were displayed
 vms: add compile of isaac64.c to Makefile.src and vmsbuild.com
 vms+curses: add compile support but it is known to fail to build
 
@@ -612,7 +621,7 @@ windows-tty: add support for mouse_support:0 (disabled), mouse_support:1
 X11: implement menucolors and allow menus to obey some attributes
 X11: make key translations work with menus on Linux
 X11: allow mouse wheel scrolling to work in menus by default
-X11: handle paged menu control keys
+X11: handle menu scrolling via first-/previous-/next-/last-page keys (^ < > |)
 X11: remember perm_invent window geometry
 X11: handle X errors via panic
 X11: don't reuse perm_invent window for picking an object

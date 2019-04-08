@@ -182,6 +182,7 @@ extern void curses_add_nhmenu_item(winid wid, int glyph,
                                    const ANY_P *identifier, CHAR_P accelerator,
                                    CHAR_P group_accel, int attr,
                                    const char *str, BOOLEAN_P presel);
+extern void curs_menu_set_bottom_heavy(winid);
 extern void curses_finalize_nhmenu(winid wid, const char *prompt);
 extern int curses_display_nhmenu(winid wid, int how, MENU_ITEM_P **_selected);
 extern boolean curses_menu_exists(winid wid);
@@ -212,6 +213,7 @@ extern void curses_cleanup(void);
 /* cursmesg.c */
 
 extern void curses_message_win_puts(const char *message, boolean recursed);
+extern void curses_got_input(void);
 extern int curses_block(boolean require_tab); /* for MSGTYPE=STOP */
 extern int curses_more(void);
 extern void curses_clear_unhighlight_message_window(void);

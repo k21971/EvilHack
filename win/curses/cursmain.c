@@ -232,6 +232,7 @@ curses_get_nh_event()
 
     if (do_reset) {
         getmaxyx(base_term, term_rows, term_cols);
+        curses_got_input(); /* reset More>> */
         /* status_initialize, create_main_windows, last_messages, doredraw */
         curs_reset_windows(TRUE, TRUE);
     }
@@ -353,7 +354,8 @@ curses_destroy_nhwindow(winid wid)
         curses_teardown_messages(); /* discard ^P message history data */
         break;
     case STATUS_WIN:
-        curses_status_finish(); /* discard cached status data */
+        if (VIA_WINDOWPORT())
+            curses_status_finish(); /* discard cached status data */
         break;
     case INV_WIN:
         iflags.perm_invent = 0; /* avoid unexpected update_inventory() */
@@ -690,9 +692,6 @@ int
 curses_nhgetch()
 {
     int ch;
-
-    /* if messages are being suppressed, reenable them */
-    curs_mesg_suppress_turn = -1;
 
     curses_prehousekeeping();
     ch = curses_read_char();

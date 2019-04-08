@@ -1,4 +1,4 @@
-/* NetHack 3.6	botl.c	$NHDT-Date: 1554045809 2019/03/31 15:23:29 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.140 $ */
+/* NetHack 3.6	botl.c	$NHDT-Date: 1554591223 2019/04/06 22:53:43 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.143 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -15,10 +15,8 @@ const char *const enc_stat[] = { "",         "Burdened",  "Stressed",
 
 STATIC_OVL NEARDATA int mrank_sz = 0; /* loaded by max_rank_sz (from u_init) */
 STATIC_DCL const char *NDECL(rank);
-#ifdef STATUS_HILITES
 STATIC_DCL void NDECL(bot_via_windowport);
 STATIC_DCL void NDECL(stat_update_time);
-#endif
 
 /* limit of the player's name in the status window */
 #define BOTL_NSIZ 16
@@ -241,14 +239,14 @@ bot()
 {
     /* dosave() flags completion by setting u.uhp to -1 */
     if ((u.uhp != -1) && youmonst.data && iflags.status_updates) {
-#ifdef STATUS_HILITES
-        bot_via_windowport();
-#else
-        curs(WIN_STATUS, 1, 0);
-        putstr(WIN_STATUS, 0, do_statusline1());
-        curs(WIN_STATUS, 1, 1);
-        putmixed(WIN_STATUS, 0, do_statusline2());
-#endif
+        if (VIA_WINDOWPORT()) {
+            bot_via_windowport();
+        } else {
+            curs(WIN_STATUS, 1, 0);
+            putstr(WIN_STATUS, 0, do_statusline1());
+            curs(WIN_STATUS, 1, 1);
+            putmixed(WIN_STATUS, 0, do_statusline2());
+        }
     }
     context.botl = context.botlx = iflags.time_botl = FALSE;
 }
@@ -256,13 +254,13 @@ bot()
 void
 timebot()
 {
-    if (flags.time) {
-#ifdef STATUS_HILITES
-        stat_update_time();
-#else
-        /* old status display updates everything */
-        bot();
-#endif
+    if (flags.time && iflags.status_updates) {
+        if (VIA_WINDOWPORT()) {
+            stat_update_time();
+        } else {
+            /* old status display updates everything */
+            bot();
+        }
     }
     iflags.time_botl = FALSE;
 }
@@ -457,26 +455,35 @@ struct istat_s {
 #endif
 };
 
-STATIC_DCL void NDECL(init_blstats);
-STATIC_DCL char *FDECL(anything_to_s, (char *, anything *, int));
-STATIC_OVL int FDECL(percentage, (struct istat_s *, struct istat_s *));
-STATIC_OVL int FDECL(compare_blstats, (struct istat_s *, struct istat_s *));
 STATIC_DCL boolean FDECL(eval_notify_windowport_field, (int, boolean *, int));
 STATIC_DCL void FDECL(evaluate_and_notify_windowport, (boolean *, int));
+STATIC_DCL void NDECL(init_blstats);
+STATIC_DCL int FDECL(compare_blstats, (struct istat_s *, struct istat_s *));
+STATIC_DCL char *FDECL(anything_to_s, (char *, anything *, int));
+STATIC_DCL int FDECL(percentage, (struct istat_s *, struct istat_s *));
 
 #ifdef STATUS_HILITES
-STATIC_DCL boolean FDECL(hilite_reset_needed, (struct istat_s *, long));
 STATIC_DCL void FDECL(s_to_anything, (anything *, char *, int));
-STATIC_DCL boolean FDECL(is_ltgt_percentnumber, (const char *));
-STATIC_DCL boolean FDECL(has_ltgt_percentnumber, (const char *));
-STATIC_DCL boolean FDECL(parse_status_hl2, (char (*)[QBUFSZ], BOOLEAN_P));
-STATIC_DCL boolean FDECL(parse_condition, (char (*)[QBUFSZ], int));
+STATIC_DCL enum statusfields FDECL(fldname_to_bl_indx, (const char *));
+STATIC_DCL boolean FDECL(hilite_reset_needed, (struct istat_s *, long));
 STATIC_DCL boolean FDECL(noneoftheabove, (const char *));
 STATIC_DCL struct hilite_s *FDECL(get_hilite, (int, int, genericptr_t,
                                                int, int, int *));
+STATIC_DCL void FDECL(split_clridx, (int, int *, int *));
+STATIC_DCL boolean FDECL(is_ltgt_percentnumber, (const char *));
+STATIC_DCL boolean FDECL(has_ltgt_percentnumber, (const char *));
+STATIC_DCL int FDECL(splitsubfields, (char *, char ***, int));
+STATIC_DCL boolean FDECL(is_fld_arrayvalues, (const char *,
+                                              const char *const *,
+                                              int, int, int *));
+STATIC_DCL int FDECL(query_arrayvalue, (const char *, const char *const *,
+                                        int, int));
+STATIC_DCL void FDECL(status_hilite_add_threshold, (int, struct hilite_s *));
+STATIC_DCL boolean FDECL(parse_status_hl2, (char (*)[QBUFSZ], BOOLEAN_P));
+STATIC_DCL char *FDECL(conditionbitmask2str, (unsigned long));
 STATIC_DCL unsigned long FDECL(match_str2conditionbitmask, (const char *));
 STATIC_DCL unsigned long FDECL(str2conditionbitmask, (char *));
-STATIC_DCL void FDECL(split_clridx, (int, int *, int *));
+STATIC_DCL boolean FDECL(parse_condition, (char (*)[QBUFSZ], int));
 STATIC_DCL char *FDECL(hlattr2attrname, (int, char *, int));
 STATIC_DCL void FDECL(status_hilite_linestr_add, (int, struct hilite_s *,
                                                 unsigned long, const char *));
@@ -508,7 +515,7 @@ STATIC_DCL boolean FDECL(status_hilite_menu_add, (int));
       wid,  maxfld, fld INIT_THRESH }
 
 /* If entries are added to this, botl.h will require updating too */
-STATIC_DCL struct istat_s initblstats[MAXBLSTATS] = {
+STATIC_VAR struct istat_s initblstats[MAXBLSTATS] = {
     INIT_BLSTAT("title", "%s", ANY_STR, MAXVALWIDTH, BL_TITLE),
     INIT_BLSTAT("strength", " St:%s", ANY_INT, 10, BL_STR),
     INIT_BLSTAT("dexterity", " Dx:%s", ANY_INT,  10, BL_DX),
@@ -847,7 +854,7 @@ boolean *valsetlist;
     return updated;
 }
 
-static void
+STATIC_OVL void
 evaluate_and_notify_windowport(valsetlist, idx)
 int idx;
 boolean *valsetlist;
@@ -904,6 +911,7 @@ boolean *valsetlist;
     update_all = FALSE;
 }
 
+/* called from moveloop(); sets context.botl if temp hilites have timed out */
 void
 status_eval_next_unhilite()
 {
@@ -1298,6 +1306,46 @@ struct istat_s *bl, *maxbl;
     return result;
 }
 
+/* callback so that interface can get capacity index rather than trying
+   to reconstruct that from the encumbrance string or asking the general
+   core what the value is */
+int
+stat_cap_indx()
+{
+    int cap;
+
+#ifdef STATUS_HILITES
+    cap = blstats[now_or_before_idx][BL_CAP].a.a_int;
+#else
+    cap = near_capacity();
+#endif
+    return cap;
+}
+
+/* callback so that interface can get hunger index rather than trying to
+   reconstruct that from the hunger string or dipping into core internals */
+int
+stat_hunger_indx()
+{
+    int uhs;
+
+#ifdef STATUS_HILITES
+    uhs = blstats[now_or_before_idx][BL_HUNGER].a.a_int;
+#else
+    uhs = (int) u.uhs;
+#endif
+    return uhs;
+}
+
+/* used by X11 for "tty status" even when STATUS_HILITES is disabled */
+const char *
+bl_idx_to_fldname(idx)
+int idx;
+{
+    if (idx >= 0 && idx < MAXBLSTATS)
+        return initblstats[idx].fldname;
+    return (const char *) 0;
+}
 
 #ifdef STATUS_HILITES
 
@@ -1339,15 +1387,6 @@ static struct fieldid_t {
 static const char threshold_value[] = "hilite_status threshold ",
                   is_out_of_range[] = " is out of range";
 
-
-const char *
-bl_idx_to_fldname(idx)
-int idx;
-{
-    if (idx >= 0 && idx < MAXBLSTATS)
-        return initblstats[idx].fldname;
-    return (const char *) 0;
-}
 
 /* field name to bottom line index */
 STATIC_OVL enum statusfields
@@ -1806,7 +1845,7 @@ int maxsf;
 }
 #undef MAX_SUBFIELDS
 
-boolean
+STATIC_OVL boolean
 is_fld_arrayvalues(str, arr, arrmin, arrmax, retidx)
 const char *str;
 const char *const *arr;
@@ -1823,7 +1862,7 @@ int *retidx;
     return FALSE;
 }
 
-int
+STATIC_OVL int
 query_arrayvalue(querystr, arr, arrmin, arrmax)
 const char *querystr;
 const char *const *arr;
@@ -1857,7 +1896,7 @@ int arrmin, arrmax;
     return ret;
 }
 
-void
+STATIC_OVL void
 status_hilite_add_threshold(fld, hilite)
 int fld;
 struct hilite_s *hilite;
@@ -2167,6 +2206,7 @@ boolean from_configfile;
 
     return TRUE;
 }
+#endif /* STATUS_HILITES */
 
 const struct condmap valid_conditions[] = {
     { "stone",    BL_MASK_STONE },
@@ -2184,6 +2224,8 @@ const struct condmap valid_conditions[] = {
     { "ride",     BL_MASK_RIDE },
     { "slow",     BL_MASK_SLOW},
 };
+
+#ifdef STATUS_HILITES
 
 const struct condmap condition_aliases[] = {
     { "strangled",      BL_MASK_STRNGL },
