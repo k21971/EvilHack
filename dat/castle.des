@@ -24,15 +24,15 @@ MAP
 }-------}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}-------}
 }|.....|-----------------------------------------------|.....|}
 }|.....+...............................................+.....|}
-}-------------------------------+-----------------------------}
-}}}}}}|........|..........+...........|.......S.S.......|}}}}}}
+}-FFF---------------------------+-------------------------FFF-}
+}}}}}}|........|..........|...........|.......S.S.......|}}}}}}
 .....}|........|..........|...........|.......|.|.......|}.....
 .....}|........------------...........---------S---------}.....
 .....}|...{....+..........+.........\.S.................+......
 .....}|........------------...........---------S---------}.....
 .....}|........|..........|...........|.......|.|.......|}.....
-}}}}}}|........|..........+...........|.......S.S.......|}}}}}}
-}-------------------------------+-----------------------------}
+}}}}}}|........|..........|...........|.......S.S.......|}}}}}}
+}-FFF---------------------------+-------------------------FFF-}
 }|.....+...............................................+.....|}
 }|.....|-----------------------------------------------|.....|}
 }-------}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}-------}
@@ -51,14 +51,19 @@ SHUFFLE: $monster
 
 
 TELEPORT_REGION:levregion(01,00,10,20),(1,1,61,15),down
-TELEPORT_REGION:levregion(69,00,79,20),(1,1,61,15),up
+TELEPORT_REGION:levregion(69,00,77,20),(1,1,61,15),up
 STAIR:levregion(01,00,10,20),(0,0,62,16),up
+BRANCH:levregion(69,00,77,20),(1,1,61,15)
 FOUNTAIN:(10,08)
 # Doors
-DOOR:closed,(07,03)
-DOOR:closed,(55,03)
+DOOR:locked,(07,03)
+DOOR:locked,(55,03)
 DOOR:locked,(32,04)
-DOOR:locked,(26,05)
+IF [50%] {
+  DOOR:closed,(15,05)
+} ELSE {
+  DOOR:closed,(26,05)
+}
 DOOR:locked,(46,05)
 DOOR:locked,(48,05)
 DOOR:locked,(47,07)
@@ -67,12 +72,16 @@ DOOR:closed,(26,08)
 DOOR:locked,(38,08)
 DOOR:locked,(56,08)
 DOOR:locked,(47,09)
-DOOR:locked,(26,11)
+IF [50%] {
+  DOOR:closed,(15,11)
+} ELSE {
+  DOOR:closed,(26,11)
+}
 DOOR:locked,(46,11)
 DOOR:locked,(48,11)
 DOOR:locked,(32,12)
-DOOR:closed,(07,13)
-DOOR:closed,(55,13)
+DOOR:locked,(07,13)
+DOOR:locked,(55,13)
 # The drawbridge
 DRAWBRIDGE:(05,08),east,closed
 # Storeroom number 1
@@ -139,9 +148,28 @@ OBJECT:$object[3],(55,11)
 CONTAINER:('(',"chest"),not_trapped,$place[0] {
 OBJECT:('/',"wishing")
 }
-# Prevent monsters from eating it.  (@'s never eat objects)
+# THE NOT QUITE WANDS OF WISHING
+# ...since you can see the chest now through the bars,
+# we have to find a better way to disguise where the wand is
+# From SporkHack
+CONTAINER:('(',"chest"),not_trapped,$place[1] {
+OBJECT:('/',"secret door detection")
+}
+CONTAINER:('(',"chest"),not_trapped,$place[2] {
+OBJECT:('/',"nothing")
+}
+CONTAINER:('(',"chest"),not_trapped,$place[3] {
+OBJECT:('/',"enlightenment")
+}
+# Prevent monsters from eating them.  (@'s never eat objects)
 ENGRAVING:$place[0],burn,"Elbereth"
 OBJECT:('?',"scare monster"),$place[0],cursed
+ENGRAVING:$place[1],burn,"Elbereth"
+OBJECT:('?',"scare monster"),$place[1],cursed
+ENGRAVING:$place[2],burn,"Elbereth"
+OBJECT:('?',"scare monster"),$place[2],cursed
+ENGRAVING:$place[3],burn,"Elbereth"
+OBJECT:('?',"scare monster"),$place[3],cursed
 # The treasure of the lord
 OBJECT:('(',"chest"),(37,08)
 # Traps
@@ -161,14 +189,14 @@ MONSTER:('@',"elven soldier"),(11,11)
 MONSTER:('@',"giant soldier"),(12,10)
 MONSTER:('@',"centaurian lieutenant"),(09,08)
 # Soldiers guarding the towers
-MONSTER:('@',"human soldier"),(03,02)
-MONSTER:('@',"elven soldier"),(05,02)
-MONSTER:('@',"dwarvish soldier"),(57,02)
-MONSTER:('@',"gnomish soldier"),(59,02)
-MONSTER:('@',"orcish soldier"),(03,14)
-MONSTER:('@',"centaurian soldier"),(05,14)
-MONSTER:('@',"giant soldier"),(57,14)
-MONSTER:('@',"human soldier"),(59,14)
+MONSTER:('@',"human sergeant"),(03,02)
+MONSTER:('@',"elven lieutenant"),(05,02)
+MONSTER:('@',"dwarvish sergeant"),(57,02)
+MONSTER:('@',"gnomish lieutenant"),(59,02)
+MONSTER:('@',"orcish sergeant"),(03,14)
+MONSTER:('@',"centaurian lieutenant"),(05,14)
+MONSTER:('@',"giant sergeant"),(57,14)
+MONSTER:('@',"human lieutenant"),(59,14)
 # The four dragons that are guarding the storerooms
 MONSTER:'D',(47,05)
 MONSTER:'D',(47,06)

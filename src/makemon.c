@@ -415,7 +415,7 @@ register struct monst *mtmp;
     register struct permonst *ptr = mtmp->data;
     register int mm = monsndx(ptr);
     struct obj *otmp;
-    int bias, spe2, w1, w2;
+    int bias, spe2, w1, w2, randwand;
 
     if (Is_rogue_level(&u.uz))
         return;
@@ -620,15 +620,27 @@ register struct monst *mtmp;
             case PM_HUMAN_SERGEANT:
             case PM_GNOMISH_SERGEANT:
                 w1 = rn2(2) ? FLAIL : MACE;
+	        if (Is_stronghold(&u.uz)) {
+		    w2 = BOW;
+		    m_initthrow(mtmp, ARROW, 30);
+                }
                 break;
             case PM_ELVEN_SERGEANT:
                 w1 = rn2(2) ? ELVEN_BROADSWORD : QUARTERSTAFF;
                 break;
             case PM_DWARVISH_SERGEANT:
                 w1 = rn2(2) ? MORNING_STAR : DWARVISH_MATTOCK;
+                if (Is_stronghold(&u.uz)) {
+                    w2 = BOW;
+                    m_initthrow(mtmp, ARROW, 30);
+                }
                 break;
             case PM_ORCISH_SERGEANT:
                 w1 = rn2(2) ? ORCISH_MORNING_STAR : ORCISH_SHORT_SWORD;
+                if (Is_stronghold(&u.uz)) {
+                    w2 = ORCISH_BOW;
+                    m_initthrow(mtmp, ORCISH_ARROW, 30);
+                }
                 break;
             case PM_CENTAURIAN_SERGEANT:
                 mongets(mtmp, CROSSBOW);
@@ -644,9 +656,73 @@ register struct monst *mtmp;
             case PM_GNOMISH_LIEUTENANT:
             case PM_CENTAURIAN_LIEUTENANT:
                 w1 = rn2(2) ? BROADSWORD : LONG_SWORD;
+                if (Is_stronghold(&u.uz)) {
+                    w2 = BOW;
+                    m_initthrow(mtmp, ARROW, 30);
+	        do {
+		    randwand = rn2(7);
+		} while (randwand > 5 && rn2(14));
+		    switch (randwand) {
+		        case 1:
+			    randwand = WAN_MAGIC_MISSILE;
+			    break;
+			case 2:
+			    randwand = WAN_SLEEP;
+			    break;
+			case 3:
+			    randwand = WAN_FIRE;
+			    break;
+			case 4:
+			    randwand = WAN_COLD;
+			    break;
+			case 5:
+			    randwand = WAN_LIGHTNING;
+			    break;
+			case 6:
+			    randwand = WAN_DEATH;
+			    break;
+			case 0:
+			default:
+			    randwand = WAN_STRIKING;
+			    break;
+		    }
+		    (void) mongets(mtmp, randwand);
+		}
                 break;
             case PM_ELVEN_LIEUTENANT:
                 w1 = rn2(2) ? ELVEN_BROADSWORD : ELVEN_LONG_SWORD;
+                if (Is_stronghold(&u.uz)) {
+                    w2 = ELVEN_BOW;
+                    m_initthrow(mtmp, ELVEN_ARROW, 30);
+                do {
+                    randwand = rn2(7);
+                } while (randwand > 5 && rn2(14));
+                    switch (randwand) {
+                        case 1:
+                            randwand = WAN_MAGIC_MISSILE;
+                            break;
+                        case 2:
+                            randwand = WAN_SLEEP;
+                            break;
+                        case 3:
+                            randwand = WAN_FIRE;
+                            break;
+                        case 4:
+                            randwand = WAN_COLD;
+                            break;
+                        case 5:
+                            randwand = WAN_LIGHTNING;
+                            break;
+                        case 6:
+                            randwand = WAN_DEATH;
+                            break;
+                        case 0:
+                        default:
+                            randwand = WAN_STRIKING;
+                            break;
+                    }
+                    (void) mongets(mtmp, randwand);
+                }
                 break;
             case PM_ORCISH_LIEUTENANT:
                 w1 = rn2(2) ? BROADSWORD : SCIMITAR;
