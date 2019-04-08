@@ -362,7 +362,9 @@ drinkfountain()
 static const char *const excalmsgs[] = {
     "had Excalibur thrown at them by some watery tart.",
     "received Excalibur from a strange woman lying in a pond.",
-    "signified by divine providence, was chosen to carry Excalibur."
+    "signified by divine providence, was chosen to carry Excalibur.",
+    "has been given Excalibur, and now enjoys supreme executive power.",
+    "endures an absurd aquatic ceremony, and now wields Excalibur."
 };
 
 void
