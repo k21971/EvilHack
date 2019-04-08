@@ -129,7 +129,8 @@ int expltype;
             break;
         case 1:
             str = (olet == BURNING_OIL) ? "burning oil"
-                     : (olet == SCROLL_CLASS) ? "tower of flame" : "fireball";
+                     : (olet == SCROLL_CLASS) ? "tower of flame"
+                          : (olet == TRAPPED_DOOR) ? "explosion" : "fireball";
             /* fire damage, not physical damage */
             adtyp = AD_FIRE;
             break;
@@ -543,6 +544,9 @@ int expltype;
                     killer.format = NO_KILLER_PREFIX;
                     Sprintf(killer.name, "caught %sself in %s own %s", uhim(),
                             uhis(), str);
+                } else if (adtyp == AD_FIRE && olet == TRAPPED_DOOR) {
+                    killer.format = KILLED_BY_AN;
+                    Strcpy(killer.name, str);
                 } else {
                     killer.format = (!strcmpi(str, "tower of flame")
                                      || !strcmpi(str, "fireball"))
