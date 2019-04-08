@@ -1484,7 +1484,7 @@ unsigned trflags;
         if (!rn2(15)) {
             deltrap(trap);
             newsym(u.ux, u.uy); /* update position */
-            if (!rn2(2)) {
+            if (rn2(2)) {
                 You("are caught in a magical explosion!");
                 losehp(rnd(10), "magical explosion", KILLED_BY_AN);
                 Your("body absorbs some of the magical energy!");
@@ -1500,7 +1500,7 @@ unsigned trflags;
 		    pline("It smells sort of %s in here.",
 			  Hallucination ? "purple" : "fleecy"); /* hi Amy */
 		}
-	    incr_itimeout(&HHallucination,rnd(50)+50);
+	    incr_itimeout(&HHallucination,rnd(50) + 50);
 	    }
         break;
         } else {
