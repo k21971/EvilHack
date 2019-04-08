@@ -1258,7 +1258,7 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\astral.lev	   del $(W_DAT)\astral.lev
 	if exist $(W_DAT)\baalz.lev	   del $(W_DAT)\baalz.lev
 	if exist $(W_DAT)\bigrm-*.lev	   del $(W_DAT)\bigrm-*.lev
-	if exist $(W_DAT)\castle.lev	   del $(W_DAT)\castle.lev
+	if exist $(W_DAT)\castle-?.lev	   del $(W_DAT)\castle-?.lev
 	if exist $(W_DAT)\data		   del $(W_DAT)\data
 	if exist $(W_DAT)\dungeon          del $(W_DAT)\dungeon
 	if exist $(W_DAT)\dungeon.pdf	   del $(W_DAT)\dungeon.pdf
