@@ -407,6 +407,56 @@ int x, y, typ;
         mongone(mtmp);
         break;
     }
+    case MAGIC_BEAM_TRAP:
+	{
+	    int d, startdir = rn2(8);
+	    int dist;
+	    int lx, ly;
+	    int ok = 0;
+	    for (d = 0; ((d < 8) && !ok); d++)
+		for (dist = 1; ((dist < 8) && !ok); dist++) {
+		    lx = x;
+		    ly = y;
+		    switch ((startdir + d) % 8) {
+		        case 0: lx += dist;
+                            break;
+         		case 1: lx += dist; ly += dist;
+                            break;
+			case 2: ly += dist;
+                            break;
+		        case 3: lx -= dist; ly += dist;
+                            break;
+			case 4: lx -= dist;
+                            break;
+			case 5: lx -= dist; ly -= dist;
+                            break;
+			case 6: ly -= dist;
+                            break;
+			case 7: lx += dist; ly -= dist;
+                            break;
+		    }
+	            if (isok(lx, ly) && IS_STWALL(levl[lx][ly].typ)) {
+			ttmp->launch.x = lx;
+			ttmp->launch.y = ly;
+			/* no AD_DISN, thanks */
+			ttmp->launch_otyp = -10-(AD_MAGM - 1);
+			if (!rn2(15))
+			    ttmp->launch_otyp = -20-(AD_ELEC - 1);
+			else if (!rn2(10))
+			    ttmp->launch_otyp = -20-(AD_FIRE - 1);
+			else if (!rn2(10))
+			    ttmp->launch_otyp = -10-(AD_COLD - 1);
+			else if (!rn2(7))
+			    ttmp->launch_otyp = -20-(AD_DRST - 1);
+			else if (!rn2(7))
+			    ttmp->launch_otyp = -20-(AD_ACID - 1);
+			else if (!rn2(5))
+			    ttmp->launch_otyp = -10-(AD_SLEE - 1);
+			ok = 1;
+		    }
+	        }
+	}
+	break;
     case ROLLING_BOULDER_TRAP: /* boulder will roll towards trigger */
         (void) mkroll_launch(ttmp, x, y, BOULDER, 1L);
         break;
@@ -998,6 +1048,21 @@ unsigned trflags;
         }
         break;
 
+    case MAGIC_BEAM_TRAP:
+	You_hear("a soft click.");
+	seetrap(trap);
+	if (isok(trap->launch.x, trap->launch.y)
+            && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
+	    buzz(trap->launch_otyp, 8,
+		 trap->launch.x, trap->launch.y,
+		 sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y));
+	    trap->once = 1;
+	} else {
+	    deltrap(trap);
+	    newsym(u.ux, u.uy);
+	}
+	break;
+
     case DART_TRAP:
         if (trap->once && trap->tseen && !rn2(15)) {
             You_hear("a soft click.");
@@ -1416,14 +1481,28 @@ unsigned trflags;
 
     case MAGIC_TRAP: /* A magic trap. */
         seetrap(trap);
-        if (!rn2(30)) {
+        if (!rn2(15)) {
             deltrap(trap);
             newsym(u.ux, u.uy); /* update position */
-            You("are caught in a magical explosion!");
-            losehp(rnd(10), "magical explosion", KILLED_BY_AN);
-            Your("body absorbs some of the magical energy!");
-            u.uen = (u.uenmax += 2);
-            break;
+            if (!rn2(2)) {
+                You("are caught in a magical explosion!");
+                losehp(rnd(10), "magical explosion", KILLED_BY_AN);
+                Your("body absorbs some of the magical energy!");
+                u.uen = (u.uenmax += 2);
+	    } else {
+		if (!Blind) {
+		    if (!Hallucination) {
+			pline("A cloud of brightly colored smoke billows up around you!");
+		    } else {
+			pline("The floor lights came on!  Let's disco!");
+		    }
+		} else {
+		    pline("It smells sort of %s in here.",
+			  Hallucination ? "purple" : "fleecy"); /* hi Amy */
+		}
+	    incr_itimeout(&HHallucination,rnd(50)+50);
+	    }
+        break;
         } else {
             domagictrap();
         }
@@ -1561,6 +1640,22 @@ unsigned trflags;
         break;
     }
 
+    case SPEAR_TRAP:
+        feeltrap(trap);
+        pline("A spear stabs up from a hole in the ground at you!");
+        if (thick_skinned(youmonst.data)) {
+            pline("But it breaks off against your body.");
+            deltrap(trap);
+        } else if (Levitation) {
+            pline("The spear isn't long enough to reach you.");
+        } else if (unsolid(youmonst.data)) {
+            pline("It passes right through you!");
+        } else {
+            pline("Ouch!  That hurts!");
+            losehp(rnd(10) + 10, "sharpened bamboo stick", KILLED_BY_AN);
+        }
+        break;
+
     case MAGIC_PORTAL:
         feeltrap(trap);
         domagicportal(trap);
@@ -1640,6 +1735,10 @@ struct obj *otmp;
         }
         steedhit = TRUE;
         break;
+    case SPEAR_TRAP:
+	trapkilled = thitm(0, steed, (struct obj*) 0, rnd(10) + 10, FALSE);
+	steedhit = TRUE;
+	break;
     case LANDMINE:
         trapkilled = thitm(0, steed, (struct obj *) 0, rnd(16), FALSE);
         steedhit = TRUE;
@@ -1652,6 +1751,8 @@ struct obj *otmp;
         steedhit = TRUE;
         break;
     case POLY_TRAP:
+        deltrap(trap);
+        newsym(steed->mx, steed->my);
         if (!resists_magm(steed) && !resist(steed, WAND_CLASS, 0, NOTELL)) {
             (void) newcham(steed, (struct permonst *) 0, FALSE, FALSE);
             if (!can_saddle(steed) || !can_ride(steed))
@@ -2148,6 +2249,7 @@ register struct monst *mtmp;
     boolean trapkilled = FALSE;
     struct permonst *mptr = mtmp->data;
     struct obj *otmp;
+    struct monst* mtmp2;
 
     if (!trap) {
         mtmp->mtrapped = 0;      /* perhaps teleported? */
@@ -2214,6 +2316,15 @@ register struct monst *mtmp;
 
         in_sight = canseemon(mtmp);
         see_it = cansee(mtmp->mx, mtmp->my);
+
+	/* some monsters may learn from others' errors */
+	for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+	    if (m_cansee(mtmp2, mtmp->mx, mtmp->my)
+                && !mindless(mtmp2->data)) {
+		mtmp2->mtrapseen |= (1 << (tt-1));
+	    }
+	}
+
         /* assume hero can tell what's going on for the steed */
         if (mtmp == u.usteed)
             in_sight = TRUE;
@@ -2688,11 +2799,14 @@ register struct monst *mtmp;
             if (resists_magm(mtmp)) {
                 shieldeff(mtmp->mx, mtmp->my);
             } else if (!resist(mtmp, WAND_CLASS, 0, NOTELL)) {
-                if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE))
+                if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE)) {
                     /* we're done with mptr but keep it up to date */
                     mptr = mtmp->data;
-                if (in_sight)
+                    deltrap(trap);
+                }
+                if (in_sight) {
                     seetrap(trap);
+                }
             }
             break;
         case ROLLING_BOULDER_TRAP:
@@ -2715,6 +2829,48 @@ register struct monst *mtmp;
                 }
             }
             break;
+        case SPEAR_TRAP:
+	    if (in_sight) {
+		seetrap(trap);
+		pline("A spear stabs up from a hole in the ground!");
+	    }
+	    if (thick_skinned(mptr)) {
+		if (in_sight) {
+		    pline("But it breaks off against %s.", mon_nam(mtmp));
+		}
+	    deltrap(trap);
+	    } else if (unsolid(mptr)) {
+		if (in_sight) {
+		    pline("It passes right through %s!", mon_nam(mtmp));
+		}
+	    } else if (is_flyer(mptr)) {
+		if (in_sight) {
+		    pline("The spear isn't long enough to reach %s.", mon_nam(mtmp));
+		}
+	    } else {
+		if (thitm(0, mtmp, (struct obj *) 0, rnd(10) + 10, FALSE))
+                    trapkilled = TRUE;
+		else if (in_sight) {
+		    pline("%s is skewered!", Monnam(mtmp));
+                }
+	    }
+	    break;
+        case MAGIC_BEAM_TRAP:
+            if (distu(trap->tx, trap->ty) < 4) You_hear("a faint click.");
+	    if (in_sight) {
+	        seetrap(trap);
+	    }
+	    if (isok(trap->launch.x,trap->launch.y)
+                && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
+	        buzz(trap->launch_otyp, 8,
+	    	     trap->launch.x, trap->launch.y,
+	             sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y));
+		trap->once = 1;
+	    } else {
+	        deltrap(trap);
+	        newsym(u.ux, u.uy);
+	    }
+	    break;
         case VIBRATING_SQUARE:
             if (see_it && !Blind) {
                 seetrap(trap); /* before messages */
@@ -3248,9 +3404,28 @@ domagictrap()
     } else
         switch (fate) {
         case 10:
-        case 11:
-            /* sometimes nothing happens */
-            break;
+	case 11:
+            /* toggle any intrinsic invisibility */
+	    You_hear("a low hum.");
+	    if (!Invis) {
+		if (!Blind) {
+                    self_invis_message();
+                }
+	    } else if (!EInvis && !pm_invisible(youmonst.data)) {
+		if (!Blind) {
+		    if (!See_invisible) {
+			pline("You can see yourself again!");
+		    } else {
+			pline("You can't see through yourself anymore.");
+		    }
+		}
+	    } else {
+		/* If we're invisible from another source */
+		You_feel("a little more %s now.", HInvis ? "obvious" : "hidden");
+	    }
+	    HInvis = HInvis ? 0 : HInvis | FROMOUTSIDE;
+            newsym(u.ux, u.uy);
+	    break;
         case 12: /* a flash of fire */
             dofiretrap((struct obj *) 0);
             break;

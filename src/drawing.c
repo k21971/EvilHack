@@ -203,6 +203,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '^', "magic trap", C(HI_ZAP) },               /* trap */
        { '^', "anti-magic field", C(HI_ZAP) },         /* trap */
        { '^', "polymorph trap", C(CLR_BRIGHT_GREEN) }, /* trap */
+       { '^', "spear trap", C(CLR_BROWN) },            /* trap */
+       { '^', "magic beam trap", C(CLR_YELLOW) },      /* trap */
        { '~', "vibrating square", C(CLR_MAGENTA) },    /* "trap" */
        /* zap colors are changed by mapglyph() to match type of beam */
        { '|', "", C(CLR_GRAY) },                /* vbeam */
@@ -656,6 +658,8 @@ struct symparse loadsyms[] = {
     { SYM_PCHAR, S_magic_trap, "S_magic_trap" },
     { SYM_PCHAR, S_anti_magic_trap, "S_anti_magic_trap" },
     { SYM_PCHAR, S_polymorph_trap, "S_polymorph_trap" },
+    { SYM_PCHAR, S_spear_trap, "S_spear_trap" },
+    { SYM_PCHAR, S_magic_beam_trap, "S_magic_beam_trap" },
     { SYM_PCHAR, S_vibrating_square, "S_vibrating_square" },
     { SYM_PCHAR, S_vbeam, "S_vbeam" },
     { SYM_PCHAR, S_hbeam, "S_hbeam" },

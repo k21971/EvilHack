@@ -2476,6 +2476,7 @@ struct monst *mtmp;
     struct obj *otmp = m.misc;
     boolean vis, vismon, oseen;
     char nambuf[BUFSZ];
+    struct trap * tt;
 
     if ((i = precheck(mtmp, otmp)) != 0)
         return i;
@@ -2651,6 +2652,7 @@ struct monst *mtmp;
      	m_useup(mtmp, otmp);
      	return 0;
     case MUSE_POLY_TRAP:
+        tt = t_at(trapx, trapy);
         if (vismon) {
             const char *Mnam = Monnam(mtmp);
 
@@ -2658,7 +2660,8 @@ struct monst *mtmp;
                   vtense(Mnam, locomotion(mtmp->data, "jump")));
         }
         if (vis)
-            seetrap(t_at(trapx, trapy));
+            seetrap(tt);
+        deltrap(tt);
 
         /*  don't use rloc() due to worms */
         remove_monster(mtmp->mx, mtmp->my);

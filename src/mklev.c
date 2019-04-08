@@ -478,6 +478,7 @@ static NEARDATA const char *trap_engravings[TRAPNUM] = {
     /* 14..16: trap door, teleport, level-teleport */
     "Vlad was here", "ad aerarium", "ad aerarium", (char *) 0, (char *) 0,
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
+    (char *) 0,
 };
 
 STATIC_OVL void
@@ -1332,6 +1333,7 @@ coord *tm;
                     kind = NO_TRAP;
                 break;
             case LANDMINE:
+            case SPEAR_TRAP:
                 if (lvl < 6)
                     kind = NO_TRAP;
                 break;
@@ -1342,6 +1344,10 @@ coord *tm;
             case STATUE_TRAP:
             case POLY_TRAP:
                 if (lvl < 8)
+                    kind = NO_TRAP;
+                break;
+            case MAGIC_BEAM_TRAP:
+                if (lvl < 12)
                     kind = NO_TRAP;
                 break;
             case FIRE_TRAP:
