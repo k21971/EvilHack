@@ -523,7 +523,8 @@ SPEC_LEVS = \
  tower1.lev   tower2.lev   tower3.lev valley.lev   wizard1.lev  wizard2.lev \
  wizard3.lev  astral.lev   air.lev earth.lev    fire.lev     water.lev \
  soko1-1.lev  soko1-2.lev  soko2-1.lev  soko2-2.lev  castle-2.lev castle-3.lev \
- soko3-1.lev  soko3-2.lev  soko4-1.lev  soko4-2.lev  knox-2.lev   knox-3.lev
+ soko3-1.lev  soko3-2.lev  soko4-1.lev  soko4-2.lev  knox-2.lev   knox-3.lev \
+ demogor.lev  dis.lev  yeenoghu.lev  geryon.lev
 
 QUEST_LEVS = \
  Arc-goal.lev Arc-fila.lev Arc-filb.lev Arc-loca.lev Arc-strt.lev \

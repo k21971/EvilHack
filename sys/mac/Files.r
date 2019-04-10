@@ -174,6 +174,10 @@ read 'File' (1166,"castle-3.lev") "castle-3.lev";
 read 'File' (1167,"knox-2.lev") "knox-2.lev";
 read 'File' (1168,"knox-3.lev") "knox-3.lev";
 read 'File' (1169,"hellfill.lev") "hellfill.lev";
+read 'File' (1170,"demogor.lev") "demogor.lev";
+read 'File' (1171,"dis.lev") "dis.lev";
+read 'File' (1172,"yeenoghu.lev") "yeenoghu.lev";
+read 'File' (1173,"geryon.lev") "geryon.lev";
 #else
 read 'File' (1000,"cmdhelp") ":dat:cmdhelp";
 read 'File' (1001,"help") ":dat:help";
@@ -308,4 +312,8 @@ read 'File' (1166,"castle-3.lev") ":lib:castle-3.lev";
 read 'File' (1167,"knox-2.lev") ":lib:knox-2.lev";
 read 'File' (1168,"knox-3.lev") ":lib:knox-3.lev";
 read 'File' (1169,"hellfill.lev") ":lib:hellfill.lev";
+read 'File' (1170,"demogor.lev") ":lib:demogor.lev";
+read 'File' (1171,"dis.lev") ":lib:dis.lev";
+read 'File' (1172,"yeenoghu.lev") ":lib:yeenoghu.lev";
+read 'File' (1173,"geryon.lev") ":lib:geryon.lev";
 #endif

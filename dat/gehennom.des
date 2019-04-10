@@ -738,6 +738,570 @@ STAIR:(63,15),up
 TELEPORT_REGION:levregion(54,1,79,18),(0,0,0,0),down
 
 
+# new demon lord/prince levels,
+# from GruntHack
+# Yeenoghu's realm
+MAZE:"yeenoghu", random
+FLAGS:noteleport
+INIT_MAP:mines,'.','}',false,true,lit,false
+GEOMETRY:right,center
+MAP
+}}}.}}.....}}}}}}}}}}}
+}---------------.}}.}}
+.|..|...|..|...|...}}}
+.-S----+--+-+--|..}.}}
+.|..+..........|...}}}
+.|..|..........|..}.}}
+.----+------S---..}.}}
+.+.......|.....|....}}
+.+.......|..\..|..}}.}
+.+.......|.....|....}}
+.----+------S---...}}}
+.|..|..........|..}.}}
+.|..+..........|...}.}
+.-S----+--+-+---...}}}
+.|..|...|..|...|..}.}}
+}---------------...}}}
+}}.}.....}.}..}}}}}}}}
+ENDMAP
+
+STAIR:levregion(01,01,19,19),levregion(01,01,01,01),up
+BRANCH:levregion(01,01,19,19),levregion(01,01,01,01)
+STAIR:(14,08),down
+DOOR:locked,(07,03)
+DOOR:locked,(10,03)
+DOOR:locked,(12,03)
+DOOR:locked,(04,04)
+DOOR:locked,(05,06)
+DOOR:locked,(01,07)
+DOOR:locked,(01,08)
+DOOR:locked,(01,09)
+DOOR:locked,(05,10)
+DOOR:locked,(04,12)
+DOOR:locked,(07,13)
+DOOR:locked,(10,13)
+DOOR:locked,(12,13)
+REGION:(00,00,21,16),lit,"ordinary"
+REGION:(10,07,14,09),lit,"throne",unfilled
+NON_DIGGABLE:(01,01,15,15)
+# the owner of the mansion
+MONSTER:('&',"Yeenoghu"),(12,08)
+# his minions
+MONSTER:('d',"hell hound"),(11,08)
+MONSTER:('d',"hell hound"),(13,08)
+MONSTER:('T',"Olog-hai"),(11,07)
+MONSTER:('T',"Olog-hai"),(11,09)
+MONSTER:('T',"Olog-hai"),(13,07)
+MONSTER:('T',"Olog-hai"),(13,09)
+MONSTER:'G',(10,08)
+MONSTER:'G',(14,12)
+
+NOMAP
+# his slaves
+MONSTER:'@',random
+MONSTER:'@',random
+MONSTER:'@',random
+MONSTER:'@',random
+MONSTER:'@',random
+MONSTER:'@',random
+MONSTER:'@',random
+MONSTER:'@',random
+MONSTER:'@',random
+MONSTER:'@',random
+# other denizens
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'T',random
+MONSTER:'T',random
+MONSTER:'T',random
+MONSTER:'T',random
+MONSTER:'T',random
+MONSTER:'d',random
+MONSTER:'d',random
+MONSTER:'d',random
+MONSTER:'d',random
+MONSTER:'d',random
+MONSTER:'G',random
+MONSTER:'G',random
+MONSTER:' ',random
+MONSTER:' ',random
+MONSTER:' ',random
+# the throne room loot
+OBJECT:('(',"chest"),(13,08)
+# some wasteland-ish stuff
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+# other loot
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:')',random
+OBJECT:')',random
+OBJECT:'(',random
+OBJECT:'/',random
+OBJECT:'=',random
+OBJECT:'?',random
+OBJECT:'?',random
+OBJECT:'!',random
+OBJECT:'!',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+# traps
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "magic", random
+TRAP: "magic", random
+TRAP: "magic", random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+
+
+# the isle of Erytheia, Geryon's domain
+MAZE:"geryon",'W'
+FLAGS:noteleport
+INIT_MAP:mines,'.','}',false,true,lit,false
+GEOMETRY:right, center
+MAP
+}}}}}}}}}}}}........T............................}}}}}}}}}}}
+}}}....}}}............................................}}}}}}
+}........}}}}...........FFFFFFFFFF........................}}
+............}}..........F........F......T...................
+...........T.}}.........F........F..........................
+..............}}........F........F...........----------.....
+...............}}}......F........F...........|...|....|.....
+.................}}}}...FFFF++FFFF...........|...|....|.....
+....................}........................|...|....|.....
+....T...............}}.......................+...|....|....T
+.....................}}.}}}}}}}}}}}..........--+----+--.....
+......................}.}.........}}}}.......|........|.....
+.................T...................}}}}}}}}|........|.....
+.........................}}}}}..}}}}}}.......----------.....
+...................}}}}}}}...}.}}......T....................
+............T..}}}}}}.......................................
+}}}}..........}}.......................................}}}}}
+}}}}}}}}..}}}}}...............T.......................}}}}}}
+}}}}}}}}}}}}.......................................}}}}}}}}}
+}}}}}}}}}}}}}}}}}....T...................}}}}}}}}}}}}}}}}}}}
+ENDMAP
+DOOR:closed,(28,07)
+DOOR:closed,(29,07)
+DOOR:locked,(45,09)
+DOOR:closed,(47,10)
+DOOR:closed,(52,10)
+STAIR:levregion(01,01,20,19),(00,00,59,19),up
+STAIR:(50,07),down
+REGION:(00,00,59,19),lit,"ordinary"
+REGION:(46,06,53,12),unlit,"ordinary"
+NON_DIGGABLE:(45,05,54,13)
+# the fellow in residence
+MONSTER:('&',"Geryon"),(51,08)
+# his herd
+MONSTER:'q',(25,03)
+MONSTER:'q',(27,03)
+MONSTER:'q',(29,03)
+MONSTER:'q',(31,03)
+MONSTER:'q',(26,04)
+MONSTER:'q',(28,04)
+MONSTER:'q',(30,04)
+MONSTER:'q',(32,04)
+MONSTER:'q',(25,05)
+MONSTER:'q',(27,05)
+MONSTER:'q',(29,05)
+MONSTER:'q',(31,05)
+MONSTER:'q',(26,06)
+MONSTER:'q',(28,06)
+MONSTER:'q',(30,06)
+MONSTER:'q',(32,06)
+# its guard
+MONSTER:('d',"hell hound"),(28,08)
+# the eponymous residents
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+# some other denizens
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+# a bit of loot
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:')',random
+OBJECT:')',random
+OBJECT:'(',random
+OBJECT:'/',random
+OBJECT:'=',random
+OBJECT:'?',random
+OBJECT:'?',random
+OBJECT:'!',random
+OBJECT:'!',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+# traps!
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "magic", random
+TRAP: "magic", random
+TRAP: "magic", random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+
+
+# the city of Dis
+MAZE:"dis", ' ' 
+FLAGS:noteleport,shortsighted
+INIT_MAP:mines,'.',' ',true,true,unlit,true
+GEOMETRY:center,center
+MAP
+  .................................  
+......LLLLLLLLLLLLLLLLLLLLLLLLL......
+...LLLLLL-------------------LLLLLL...
+.LLLLL----.................----LLLLL.
+LLL----.....-------------.....----LLL
+LL--.....----...........----.....--LL
+L||....---....----S----....---....||L
+L|....--....---.......---....--....|L
+L|...||...---..I-----I..---...||...|L
+L|...|....|...I|-...-|I...|....|...|L
+L|...S....|...IS.....SI...|....S...|L
+L|...|....|...I|-...-|I...|....|...|L
+L|...||...---..I-----I..---...||...|L
+L|....--....---.......---....--....|L
+L||....---....----S----....---....||L
+LL--.....----...........----.....--LL
+LLL----.....-------------.....----LLL
+.LLLLL----.................----LLLLL.
+...LLLLLL-------------------LLLLLL...
+......LLLLLLLLLLLLLLLLLLLLLLLLL......
+  .................................  
+ENDMAP
+MAZEWALK:(18,01),north
+MAZEWALK:(18,19),south
+DRAWBRIDGE:(18,01),south,closed
+DRAWBRIDGE:(18,19),north,closed
+STAIR:levregion(01,01,79,20),levregion(21,1,59,20),up
+STAIR:(18,10),down
+NON_DIGGABLE:(00,00,36,20)
+
+TERRAIN: (00,00), ' '
+TERRAIN: (36,00), ' '
+TERRAIN: (00,20), ' '
+TERRAIN: (36,20), ' '
+
+TERRAIN: floodfill (00,00), 'L'
+TERRAIN: floodfill (36,00), 'L'
+TERRAIN: floodfill (00,20), 'L'
+TERRAIN: floodfill (36,20), 'L'
+
+# the guy in charge
+MONSTER:('&',"Dispater"),(18,10)
+# his minions
+MONSTER:(''',"iron golem"),(18,09)
+MONSTER:('&',"pit fiend"),(18,11)
+MONSTER:('&',"bone devil"),(17,10)
+MONSTER:('&',"bone devil"),(19,10)
+# their subordinates
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:' ',random
+MONSTER:' ',random
+MONSTER:' ',random
+MONSTER:' ',random
+# the damned
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:('W',"wraith"),random
+MONSTER:('W',"wraith"),random
+MONSTER:('W',"wraith"),random
+MONSTER:('W',"wraith"),random
+MONSTER:('W',"wraith"),random
+# a bit of loot
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:')',random
+OBJECT:')',random
+OBJECT:'(',random
+OBJECT:'/',random
+OBJECT:'=',random
+OBJECT:'?',random
+OBJECT:'?',random
+OBJECT:'!',random
+OBJECT:'!',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+# traps!
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "magic", random
+TRAP: "magic", random
+TRAP: "magic", random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+
+
+# Demogorgon's towers
+MAZE:"demogor", ' '
+FLAGS:noteleport,shortsighted
+INIT_MAP:mines,'.','}',true,true,lit,false
+GEOMETRY:center,center
+MAP
+}}.}}}}..}}.}}.}}.}}}}}}}}}}}}}}}}}}}}}}}}}.}.}..}}..}}..}..
+}..}.}...}...}..}.}}}.}}}}}}}}}}}}}.}}}.}}.}...}..}.}}..}..}
+..---------------}}}}}}.}}}.}}}}}}}}}}}}}.}---------------}.
+}}|.............|..}}}}}}}}}}}}}}}}}}}}}.}}|....|.|...|..|.}
+..|S-----------.|.}.}}}}}}..}}}.}}}}}}}}}..|.--.S.|.|.S..|..
+}.|.|...|...|.|.|}}}}.}}}}}}}}}.}}}.}}}...}|.----.|.----S|.}
+.}|...|...|...|.|....}}}}}}}}}}}}}}}}}}}}..|....|...|....|..
+}.----------S--S-}}.}}}}}}}}}}}}}}}}}}}}}}.----S-------S--}.
+..|..|--...|.|..|}}}}}}}}}}}}}}}}}}}}}}}}}}|..|.|...--...|.}
+..|....S...|.|..|}########################}|..|.|...S....|.}
+}.|..|--...|.|..|}}}}}}}}}}}}}}}}}}}}}}}}}}|..|.|...--...|..
+.}--S-------S----}}}}}}}}}}}}}}}}}}}}}}}}}}-S--S----------}.
+}.|....|...|....|}.}}}}}}}}}}}}}.}}}}}}}...|.|...|...|...|.}
+}}|S----.|.----.|.}}.}}}..}}}}}}}}}.}}}.}}.|.|.|...|...|.|..
+..|..S.|.|.S.--.|.}.}}}}}}}}..}}}}}}}}}}}}}|.-----------S|}.
+..|..|...|.|....|}.}}}}}}}}}}}}}.}}}}}}}}}}|.............|}}
+}.---------------.}}}....}}}}}}}}}}}}}}}}..---------------..
+...}.}...}...}..}.}}}}}.}}}}}}}}}}}}}.}}}}.}...}..}.}...}..}
+}}}..}}...}.}}.}.}}}}}}}}}}}}}}}}}}}}.}}}}}}}}..}}.}..}}}.}}
+ENDMAP
+# from above, land in the left tower; from below, land in the right tower
+TELEPORT_REGION:(43,02,57,16),(0,0,0,0),up
+TELEPORT_REGION:(02,02,16,16),(0,0,0,0),down
+REGION:(00,00,59,18),lit,"ordinary"
+REGION:(02,02,16,16),unlit,"ordinary"
+REGION:(43,02,57,16),unlit,"ordinary"
+# can't dig in the towers
+NON_DIGGABLE:(02,02,16,16)
+NON_DIGGABLE:(43,02,58,16)
+# bridge between the two towers
+DRAWBRIDGE:(17,09),west,closed
+DRAWBRIDGE:(42,09),east,closed
+# stairs in the two towers
+STAIR:(09,09),up
+STAIR:(50,09),down
+# the fellow in residence
+MONSTER:('&',"Demogorgon"),(50,09)
+# some tough guards
+MONSTER:('&',"nalfeshnee"),(49,08)
+MONSTER:('&',"balrog"),(51,08)
+MONSTER:('&',"nalfeshnee"),(49,10)
+MONSTER:('&',"balrog"),(51,10)
+MONSTER:('&',"pit fiend"),(50,08)
+MONSTER:('H',"elder minotaur"),(49,09)
+MONSTER:('&',"pit fiend"),(50,10)
+# and some other denizens
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:'i',random
+MONSTER:(';',"kraken"),random
+MONSTER:(';',"kraken"),random
+MONSTER:(';',"kraken"),random
+MONSTER:(';',"kraken"),random
+MONSTER:(';',"kraken"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"giant eel"),random
+MONSTER:(';',"electric eel"),random
+MONSTER:(';',"electric eel"),random
+MONSTER:(';',"electric eel"),random
+MONSTER:(';',"electric eel"),random
+MONSTER:(';',"electric eel"),random
+MONSTER:(';',"shark"),random
+MONSTER:(';',"shark"),random
+MONSTER:(';',"shark"),random
+MONSTER:(';',"shark"),random
+MONSTER:(';',"shark"),random
+MONSTER:(';',"shark"),random
+MONSTER:(';',"shark"),random
+MONSTER:(';',"shark"),random
+MONSTER:(';',"shark"),random
+MONSTER:(';',"shark"),random
+# a bit of loot
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:')',random
+OBJECT:')',random
+OBJECT:'(',random
+OBJECT:'/',random
+OBJECT:'=',random
+OBJECT:'?',random
+OBJECT:'?',random
+OBJECT:'!',random
+OBJECT:'!',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+# some traps
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "magic", random
+TRAP: "magic", random
+TRAP: "magic beam", random
+TRAP: "spear", random
+TRAP: "spear", random
+
+
 #	The "fill" level for Gehennom
 #
 #	This level is used to fill out any levels not occupied by
@@ -745,7 +1309,7 @@ TELEPORT_REGION:levregion(54,1,79,18),(0,0,0,0),down
 #
 MAZE:"hellfill", ' '
 FLAGS:mazelevel
-INIT_MAP: mines, '.', ' ', true, true, unlit, true
+INIT_MAP: mines,'.',' ',true,true,unlit,true
 TELEPORT_REGION:levregion(11,01,59,19),levregion(01,01,02,02)
 NOMAP
 #

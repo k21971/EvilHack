@@ -48,22 +48,26 @@ BRANCH:		"The Elemental Planes" @ (1, 0) no_down up
 #		monsters can properly migrate here under certain
 #		circumstances.
 #
-DUNGEON:	"Gehennom" "G" (20, 5)
+DUNGEON:	"Gehennom" "G" (25, 5)
 DESCRIPTION:	mazelike
 DESCRIPTION:	hellish
 ALIGNMENT:	noalign
 BRANCH:		"Vlad's Tower" @ (9, 5) up
 LEVEL:		"valley" "V" @ (1, 0)
+LEVEL:		"demogor" "D" @ (-5, 3)
+LEVEL:		"dis" "I" @ (16, 4)
+LEVEL:		"geryon" "H" @ (-12, 4)
 LEVEL:		"sanctum" "none" @ (-1, 0)
 LEVEL:		"juiblex" "J" @ (4, 4)
 LEVEL:		"baalz" "B" @ (6, 4)
 LEVEL:		"asmodeus" "A" @ (2, 6)
-LEVEL:		"wizard1" "none" @ (11, 6)
+LEVEL:		"wizard1" "none" @ (14, 6)
 CHAINLEVEL:	"wizard2" "X" "wizard1" + (1, 0)
 CHAINLEVEL:	"wizard3" "Y" "wizard1" + (2, 0)
 LEVEL:		"orcus" "O" @ (10, 6)
-LEVEL:		"fakewiz1" "F" @ (-6,4)
-LEVEL:		"fakewiz2" "G" @ (-6,4)
+LEVEL:		"yeenoghu" "Z" @ (12, 6)
+LEVEL:		"fakewiz1" "F" @ (-8, 4)
+LEVEL:		"fakewiz2" "G" @ (-8, 4)
 
 #
 #	The Mines of the Gnomes of Zurich.

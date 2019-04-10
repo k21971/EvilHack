@@ -509,7 +509,8 @@ INSTDUNGEONFILES1= \
 	$(SLIB)valley.lev	$(SLIB)water.lev	$(SLIB)wizard1.lev \
 	$(SLIB)wizard2.lev	$(SLIB)wizard3.lev      $(SLIB)castle-2.lev \
         $(SLIB)castle-3.lev     $(SLIB)knox-2.lev       $(SLIB)knox-3.lev \
-        $(SLIB)hellfill.lev \
+        $(SLIB)hellfill.lev     $(SLIB)demogor.lev      $(SLIB)dis.lev \
+        $(SLIB)yeenoghu.lev     $(SLIB)geryon.lev \
 	$(XDFILES)
 
 INSTDUNGEONFILES= $(NETHACK)NetHack.cnf $(INSTDUNGEONFILES1)
