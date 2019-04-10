@@ -205,7 +205,7 @@ curses_block(boolean noscroll) /* noscroll - blocking because of msgtype
         wattroff(win, A_BLINK);
         waddstr(win, ">"), mx += 1;
     } else {
-        mvwprintw(win, my, mx, (iflags.msg_is_alert ? "<TAB>" : ">>")), mx += morewidth + 1;
+        mvwprintw(win, my, mx, (iflags.msg_is_alert ? "<TAB>" : ">>")), mx += morewidth;
     }
     curses_toggle_color_attr(win, MORECOLOR, moreattr, OFF);
     if (iflags.msg_is_alert) {
