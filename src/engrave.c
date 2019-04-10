@@ -418,14 +418,17 @@ xchar e_type;
 
     if ((ep = engr_at(x, y)) != 0)
         del_engr(ep);
-    if (!in_mklev && !strcmpi(s, "Elbereth")) {
+    if (!in_mklev && strcasestr(s, "Elbereth")) {
         if (!u.uevent.ulearned_elbereth) {
            s = bogus_elbereth[rn2(N_BOGUS_ELBERETH)];
-           You_cant("seem to wrap your mind around that word!  You write %s instead.", s);
+           You_cant("seem to wrap your mind around that!  You %swrite %s instead.",
+                    (ep ? "wipe out the message and " : ""),  s);
         } else {
-            /* engraving Elbereth shows wisdom */
-            exercise(A_WIS, TRUE);
-            u.uconduct.elbereth++;
+            if (!strcmpi(s, "Elbereth")) {
+                /* engraving Elbereth shows wisdom */
+                exercise(A_WIS, TRUE);
+                u.uconduct.elbereth++;
+            }
         }
     }
     smem = strlen(s) + 1;
