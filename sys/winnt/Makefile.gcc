@@ -1260,11 +1260,14 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\bigrm-*.lev	   del $(W_DAT)\bigrm-*.lev
 	if exist $(W_DAT)\castle-?.lev	   del $(W_DAT)\castle-?.lev
 	if exist $(W_DAT)\data		   del $(W_DAT)\data
+        if exist $(W_DAT)\demogor.lev      del $(W_DAT)\demogor.lev
+        if exist $(W_DAT)\dis.lev          del $(W_DAT)\dis.lev
 	if exist $(W_DAT)\dungeon          del $(W_DAT)\dungeon
 	if exist $(W_DAT)\dungeon.pdf	   del $(W_DAT)\dungeon.pdf
 	if exist $(W_DAT)\earth.lev	   del $(W_DAT)\earth.lev
 	if exist $(W_DAT)\fakewiz?.lev	   del $(W_DAT)\fakewiz?.lev
 	if exist $(W_DAT)\fire.lev	   del $(W_DAT)\fire.lev
+        if exist $(W_DAT)\geryon.lev       del $(W_DAT)\geryon.lev
         if exist $(W_DAT)\hellfill.lev     del $(W_DAT)\hellfill.lev
 	if exist $(W_DAT)\juiblex.lev	   del $(W_DAT)\juiblex.lev
 	if exist $(W_DAT)\knox-?.lev	   del $(W_DAT)\knox-?.lev
@@ -1284,6 +1287,7 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\valley.lev	   del $(W_DAT)\valley.lev
 	if exist $(W_DAT)\water.lev	   del $(W_DAT)\water.lev
 	if exist $(W_DAT)\wizard?.lev	   del $(W_DAT)\wizard?.lev
+        if exist $(W_DAT)\yeenoghu.lev     del $(W_DAT)\yeenoghu.lev
 	if exist $(W_DAT)\dlb.lst          del $(W_DAT)\dlb.lst
 	if exist $(W_DAT)\porthelp	   del $(W_DAT)\porthelp
 endif

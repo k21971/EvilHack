@@ -75,6 +75,10 @@
     <Levfiles Include = "baalz.lev"/>
     <Levfiles Include = "juiblex.lev"/>
     <Levfiles Include = "orcus.lev"/>
+    <Levfiles Include = "demogor.lev"/>
+    <Levfiles Include = "dis.lev"/>
+    <Levfiles Include = "geryon.lev"/>
+    <Levfiles Include = "yeenoghu.lev"/>
     <Levfiles Include = "sanctum.lev"/>
     <Levfiles Include = "valley.lev"/>
     <Levfiles Include = "hellfill.lev"/>
