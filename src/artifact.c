@@ -1949,6 +1949,7 @@ struct obj *obj;
         line = "NetHack rumors file closed for renovation.";
     pline("%s:", Tobjnam(obj, "whisper"));
     verbalize1(line);
+    maybe_learn_elbereth(line);
     return;
 }
 
