@@ -169,10 +169,11 @@ read 'File' (1161,"Wiz-filb.lev") "Wiz-filb.lev";
 read 'File' (1162,"Wiz-goal.lev") "Wiz-goal.lev";
 read 'File' (1163,"Wiz-loca.lev") "Wiz-loca.lev";
 read 'File' (1164,"Wiz-strt.lev") "Wiz-strt.lev";
-read 'File' (1165,"castle-2.lev") ":lib:castle-2.lev";
-read 'File' (1166,"castle-3.lev") ":lib:castle-3.lev";
+read 'File' (1165,"castle-2.lev") "castle-2.lev";
+read 'File' (1166,"castle-3.lev") "castle-3.lev";
 read 'File' (1167,"knox-2.lev") "knox-2.lev";
 read 'File' (1168,"knox-3.lev") "knox-3.lev";
+read 'File' (1169,"hellfill.lev") "hellfill.lev";
 #else
 read 'File' (1000,"cmdhelp") ":dat:cmdhelp";
 read 'File' (1001,"help") ":dat:help";
@@ -306,4 +307,5 @@ read 'File' (1165,"castle-2.lev") ":lib:castle-2.lev";
 read 'File' (1166,"castle-3.lev") ":lib:castle-3.lev";
 read 'File' (1167,"knox-2.lev") ":lib:knox-2.lev";
 read 'File' (1168,"knox-3.lev") ":lib:knox-3.lev";
+read 'File' (1169,"hellfill.lev") ":lib:hellfill.lev";
 #endif

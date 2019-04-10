@@ -515,15 +515,15 @@ DATHELP = \
  help hh cmdhelp history opthelp wizhelp
 
 SPEC_LEVS = \
- asmodeus.lev baalz.lev    bigrm-1.lev \
- bigrm-2.lev  bigrm-3.lev  bigrm-4.lev castle.lev   fakewiz1.lev fakewiz2.lev \
- juiblex.lev  knox.lev     medusa-1.lev medusa-2.lev minend-1.lev minend-2.lev \
+ asmodeus.lev baalz.lev    bigrm-1.lev  hellfill.lev \
+ bigrm-2.lev  bigrm-3.lev  bigrm-4.lev castle-1.lev  fakewiz1.lev fakewiz2.lev \
+ juiblex.lev  knox-1.lev   medusa-1.lev medusa-2.lev minend-1.lev minend-2.lev \
  minend-3.lev minefill.lev minetn-1.lev minetn-2.lev minetn-3.lev minetn-4.lev \
  minetn-5.lev minetn-6.lev minetn-7.lev oracle.lev   orcus.lev    sanctum.lev \
  tower1.lev   tower2.lev   tower3.lev valley.lev   wizard1.lev  wizard2.lev \
  wizard3.lev  astral.lev   air.lev earth.lev    fire.lev     water.lev \
- soko1-1.lev  soko1-2.lev  soko2-1.lev  soko2-2.lev  \
- soko3-1.lev  soko3-2.lev  soko4-1.lev  soko4-2.lev
+ soko1-1.lev  soko1-2.lev  soko2-1.lev  soko2-2.lev  castle-2.lev castle-3.lev \
+ soko3-1.lev  soko3-2.lev  soko4-1.lev  soko4-2.lev  knox-2.lev   knox-3.lev
 
 QUEST_LEVS = \
  Arc-goal.lev Arc-fila.lev Arc-filb.lev Arc-loca.lev Arc-strt.lev \

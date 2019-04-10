@@ -736,3 +736,118 @@ STAIR:(63,15),up
 # Teleporting to this level is allowed after the invocation creates its
 # entrance.  Force arrival in that case to be on rightmost third of level.
 TELEPORT_REGION:levregion(54,1,79,18),(0,0,0,0),down
+
+
+#	The "fill" level for Gehennom
+#
+#	This level is used to fill out any levels not occupied by
+#	specific levels as defined above.
+#
+MAZE:"hellfill", ' '
+FLAGS:mazelevel
+INIT_MAP: mines, '.', ' ', true, true, unlit, true
+TELEPORT_REGION:levregion(11,01,59,19),levregion(01,01,02,02)
+NOMAP
+#
+#  always put stairs relatively far apart
+#
+IF [50%] {
+  IF [50%] {
+    # Option 1: Up Left, Down Right
+    STAIR:levregion(01,01,20,20),levregion(40,10,44,12),up
+    STAIR:levregion(50,01,70,20),levregion(45,10,49,12),down
+  } ELSE {
+    # Option 2: Up Right, Down Left
+    STAIR:levregion(50,01,70,20),levregion(45,10,49,12),up
+    STAIR:levregion(01,01,20,20),levregion(40,10,44,12),down
+  }
+} ELSE {
+  IF [50%] {
+  # Option 3: Up Center, Down Elsewhere
+    STAIR:levregion(30,01,50,20),levregion(38,01,42,20),up
+    STAIR:levregion(01,01,70,20),levregion(30,01,50,20),down
+  } ELSE {
+  # Option 4: Down Center, Up Elsewhere
+    STAIR:levregion(01,01,70,20),levregion(30,01,50,20),up
+    STAIR:levregion(30,01,50,20),levregion(38,01,42,20),down
+  }
+}
+#
+$object = OBJECT:{ '(','/','=','+',')','[','?','*','%'}
+OBJECT: $object[0], random
+OBJECT: $object[0], random
+OBJECT: $object[1], random
+OBJECT: $object[2], random
+OBJECT: $object[3], random
+OBJECT: $object[4], random
+OBJECT: random, random
+OBJECT: random, random
+#
+$monster = MONSTER:{ 'V','D',' ','&','Z' }
+MONSTER:$monster[0],random,hostile
+MONSTER:$monster[0],random,hostile
+MONSTER:$monster[1],random,hostile
+MONSTER:$monster[1],random,hostile
+MONSTER:$monster[2],random,hostile
+MONSTER:$monster[3],random,hostile
+MONSTER:random,random,hostile
+MONSTER:'H',random,hostile
+# chance of evil critters
+IF [50%] {
+  MONSTER:'L',random,hostile
+} ELSE {
+  MONSTER:random,random,hostile
+}
+IF [66%] {
+# could be a snark now, so up the percentage a bit
+  MONSTER:'J',random,hostile
+} ELSE {
+  MONSTER:random,random,hostile
+}
+
+# SporkHack (and then UnNetHack) used a custom-made
+# opcode called SPILL that would fill in any 'dead
+# space' with lava outside the walls. That opcode never
+# made its way into 3.6.x - to simulate what SPILL
+# accomplished, using 'floodfill' instead at key
+# points on the outer edges of the map. The single
+# blank terrain coordinates prevent floodfill from
+# filling the interior with lava should the map
+# generate a wall or floor tile in the same spot.  
+TERRAIN: (19,00), ' '
+TERRAIN: (39,00), ' '
+TERRAIN: (59,00), ' '
+TERRAIN: (19,20), ' '
+TERRAIN: (39,20), ' '
+TERRAIN: (59,20), ' '
+
+TERRAIN: floodfill (00,00), 'L'
+TERRAIN: floodfill (19,00), 'L'
+TERRAIN: floodfill (39,00), 'L'
+TERRAIN: floodfill (59,00), 'L'
+TERRAIN: floodfill (78,00), 'L'
+TERRAIN: floodfill (00,20), 'L'
+TERRAIN: floodfill (19,20), 'L'
+TERRAIN: floodfill (39,20), 'L'
+TERRAIN: floodfill (59,20), 'L'
+TERRAIN: floodfill (78,20), 'L'
+
+# the lava river
+IF [50%] {
+  TERRAIN: grow(north | west, randline (30,00),(50,20), 10), 'L'
+} ELSE {
+  TERRAIN: grow(north | west, randline (50,00),(30,20), 10), 'L'
+}
+
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random

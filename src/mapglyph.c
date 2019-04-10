@@ -147,12 +147,10 @@ unsigned *ospecial;
                 color = CLR_ORANGE;
             else if (In_sokoban(&u.uz))
                 color = CLR_CYAN;
-            else if (Is_valley(&u.uz))
+            else if (Is_valley(&u.uz) || In_hell(&u.uz))
                 color = CLR_BLACK;
             else if (In_mines(&u.uz)) /* no in_rooms check */
                 color = CLR_BROWN;
-            else if (In_hell(&u.uz) && !Is_valley(&u.uz))
-                color = CLR_RED;
             else if (Is_astralevel(&u.uz))
                 color = CLR_WHITE;
             else if (*in_rooms(x, y, BEEHIVE))

@@ -1311,6 +1311,7 @@ spotless: clean
 	if exist $(DAT)\earth.lev	 del $(DAT)\earth.lev
 	if exist $(DAT)\fakewiz?.lev	 del $(DAT)\fakewiz?.lev
 	if exist $(DAT)\fire.lev	 del $(DAT)\fire.lev
+        if exist $(DAT)\hellfill.lev     del $(DAT)\hellfill.lev
 	if exist $(DAT)\juiblex.lev	 del $(DAT)\juiblex.lev
 	if exist $(DAT)\knox-?.lev	 del $(DAT)\knox-?.lev
 	if exist $(DAT)\medusa-?.lev	 del $(DAT)\medusa-?.lev

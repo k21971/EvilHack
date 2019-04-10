@@ -1265,6 +1265,7 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\earth.lev	   del $(W_DAT)\earth.lev
 	if exist $(W_DAT)\fakewiz?.lev	   del $(W_DAT)\fakewiz?.lev
 	if exist $(W_DAT)\fire.lev	   del $(W_DAT)\fire.lev
+        if exist $(W_DAT)\hellfill.lev     del $(W_DAT)\hellfill.lev
 	if exist $(W_DAT)\juiblex.lev	   del $(W_DAT)\juiblex.lev
 	if exist $(W_DAT)\knox-?.lev	   del $(W_DAT)\knox-?.lev
 	if exist $(W_DAT)\medusa-?.lev	   del $(W_DAT)\medusa-?.lev
