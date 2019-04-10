@@ -732,6 +732,8 @@ E void FDECL(make_engr_at, (int, int, const char *, long, XCHAR_P));
 E void FDECL(del_engr_at, (int, int));
 E int NDECL(freehand);
 E int NDECL(doengrave);
+E void NDECL(learn_elbereth);
+E void FDECL(maybe_learn_elbereth, (const char *));
 E void NDECL(sanitize_engravings);
 E void FDECL(save_engravings, (int, int));
 E void FDECL(rest_engravings, (int));

@@ -52,6 +52,7 @@ struct u_event {
     Bitfield(udemigod, 1);          /* killed the wiz */
     Bitfield(uvibrated, 1);         /* stepped on "vibrating square" */
     Bitfield(ascended, 1);          /* has offered the Amulet */
+    Bitfield(ulearned_elbereth, 1); /* Evilhack: Learned how to write Elbereth */
 };
 
 struct u_achieve {

@@ -188,7 +188,7 @@ doread()
 {
     register struct obj *scroll;
     boolean confused, nodisappear;
-
+    const char *mesg;
     known = FALSE;
     if (check_capacity((char *) 0))
         return 0;
@@ -208,7 +208,7 @@ doread()
         useup(scroll);
         return 1;
     } else if (scroll->otyp == T_SHIRT || scroll->otyp == ALCHEMY_SMOCK) {
-        char buf[BUFSZ], *mesg;
+        char buf[BUFSZ];
         const char *endpunct;
 
         if (Blind) {
@@ -238,6 +238,7 @@ doread()
             pline("It reads:");
         }
         pline("\"%s\"%s", mesg, endpunct);
+        maybe_learn_elbereth(mesg);
         return 1;
     } else if (scroll->otyp == CREDIT_CARD) {
         static const char *card_msgs[] = {
@@ -262,10 +263,11 @@ doread()
         } else {
             if (flags.verbose)
                 pline("It reads:");
-            pline("\"%s\"",
-                  scroll->oartifact
+                mesg = scroll->oartifact
                       ? card_msgs[SIZE(card_msgs) - 1]
-                      : card_msgs[scroll->o_id % (SIZE(card_msgs) - 1)]);
+                      : card_msgs[scroll->o_id % (SIZE(card_msgs) - 1)];
+            pline("\"%s\"", mesg);
+            maybe_learn_elbereth(mesg);
         }
         /* Make a credit card number */
         pline("\"%d0%d %ld%d1 0%d%d0\"%s",
@@ -403,8 +405,9 @@ doread()
             You_cant("feel any Braille writing.");
             return 0;
         }
-        pline("The wrapper reads: \"%s\".",
-              wrapper_msgs[scroll->o_id % SIZE(wrapper_msgs)]);
+        mesg = wrapper_msgs[scroll->o_id % SIZE(wrapper_msgs)];
+        pline("The wrapper reads: \"%s\".", mesg);
+        maybe_learn_elbereth(mesg);
         if(!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading a candy bar wrapper");

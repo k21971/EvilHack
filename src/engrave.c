@@ -373,10 +373,29 @@ int x, y;
             } else
                 et = ep->engr_txt;
             You("%s: \"%s\".", (Blind) ? "feel the words" : "read", et);
+            maybe_learn_elbereth(et);
             if (context.run > 1)
                 nomul(0);
         }
     }
+}
+
+void
+learn_elbereth()
+{
+    if (!u.uevent.ulearned_elbereth) {
+        debugpline0("You learn how to write Elbereth");
+        u.uevent.ulearned_elbereth = 1;
+    } else
+        debugpline0("You would have learnt Elbereth from this, but you already know it");
+}
+
+void
+maybe_learn_elbereth(s)
+const char *s;
+{
+    if (strcasestr(s, "Elbereth"))
+        learn_elbereth();
 }
 
 void
@@ -386,11 +405,30 @@ const char *s;
 long e_time;
 xchar e_type;
 {
+#define N_BOGUS_ELBERETH 5
+    static char *bogus_elbereth[N_BOGUS_ELBERETH] = {
+        "Elizabeth",
+        "OwlBreath",
+        "Everest",
+        "Elly'sBreast", /* maybe not ;) */
+        "Eratosthenes"
+    };
     struct engr *ep;
-    unsigned smem = strlen(s) + 1;
+    unsigned smem;
 
     if ((ep = engr_at(x, y)) != 0)
         del_engr(ep);
+    if (!in_mklev && !strcmpi(s, "Elbereth")) {
+        if (!u.uevent.ulearned_elbereth) {
+           s = bogus_elbereth[rn2(N_BOGUS_ELBERETH)];
+           You_cant("seem to wrap your mind around that word!  You write %s instead.", s);
+        } else {
+            /* engraving Elbereth shows wisdom */
+            exercise(A_WIS, TRUE);
+            u.uconduct.elbereth++;
+        }
+    }
+    smem = strlen(s) + 1;
     ep = newengr(smem);
     (void) memset((genericptr_t)ep, 0, smem + sizeof(struct engr));
     ep->nxt_engr = head_engr;
@@ -399,11 +437,6 @@ xchar e_type;
     ep->engr_y = y;
     ep->engr_txt = (char *) (ep + 1);
     Strcpy(ep->engr_txt, s);
-    /* engraving Elbereth shows wisdom */
-    if (!in_mklev && !strcmpi(s, "Elbereth")) {
-        exercise(A_WIS, TRUE);
-        u.uconduct.elbereth++;
-    }
     ep->engr_time = e_time;
     ep->engr_type = e_type > 0 ? e_type : rnd(N_ENGRAVE - 1);
     ep->engr_lth = smem;
