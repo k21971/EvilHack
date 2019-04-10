@@ -471,11 +471,11 @@ struct obj *obj;
     int chance;
 
     if (HStun) {
-        You("are incapable of using The %s.", yname(obj));
+        You("are incapable of using %s.", yname(obj));
     } else if (Underwater) {
-        You("can't effectively shake The %s in this medium.", yname(obj));
+        You("can't effectively shake %s in this medium.", yname(obj));
     } else {
-        You("vigorously shake The %s...", yname(obj));
+        You("vigorously shake %s...", yname(obj));
         check_unpaid_usage(obj, TRUE);
 
         /* Applying the 8-Ball gives a 1 in 10000 chance of granting a wish,
