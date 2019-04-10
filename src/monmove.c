@@ -140,9 +140,12 @@ int x, y;
 struct monst *mtmp;
 {
     /* creatures who are directly resistant to magical scaring:
-     * Rodney, lawful minions, Angels, the Riders, shopkeepers
-     * inside their own shop, priests inside their own temple */
+     * Rodney, lawful minions, Angels, Archangels, the Riders,
+     * monster players, shopkeepers inside their own shop,
+     * priests inside their own temple */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
+        || mtmp->data == &mons[PM_ARCHANGEL]
+        || is_mplayer(mtmp->data)
         || is_rider(mtmp->data)
         || (mtmp->isshk && inhishop(mtmp))
         || (mtmp->ispriest && inhistemple(mtmp)))
