@@ -169,7 +169,8 @@ unsigned *ospecial;
 
         else if (iflags.use_color && (offset == S_room)) {
             if (In_hell(&u.uz) && !In_W_tower(x, y, &u.uz) && !Is_valley(&u.uz))
-                color = (Is_juiblex_level(&u.uz)) ? CLR_GREEN : CLR_ORANGE;
+                color = (Is_juiblex_level(&u.uz) || Is_baal_level(&u.uz))
+                         ? CLR_GREEN : CLR_ORANGE;
             else
                 cmap_color(offset);
         }

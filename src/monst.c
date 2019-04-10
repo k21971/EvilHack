@@ -3046,7 +3046,8 @@ struct permonst _mons2[] = {
         M1_FLY | M1_SEE_INVIS | M1_POIS,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_LORD | M2_MALE | M2_COLLECT,
-        M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_DEMON, 31, HI_LORD),
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, MH_DEMON, 31, HI_LORD),
     MON("Orcus", S_DEMON, LVL(66, 9, -6, 85, -20),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 3, 4),
@@ -3068,7 +3069,8 @@ struct permonst _mons2[] = {
         M1_FLY | M1_SEE_INVIS | M1_POIS | M1_SLITHY,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_PRINCE | M2_MALE,
-        M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_DEMON, 36, HI_LORD),
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, MH_DEMON, 36, HI_LORD),
     MON("Dispater", S_DEMON, LVL(78, 15, -2, 80, 15),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 6), ATTK(AT_MAGC, AD_CLRC, 6, 6), NO_ATTK,
@@ -3077,7 +3079,8 @@ struct permonst _mons2[] = {
         M1_FLY | M1_SEE_INVIS | M1_POIS | M1_HUMANOID,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_PRINCE | M2_MALE | M2_COLLECT,
-        M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_DEMON, 40, HI_LORD),
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, MH_DEMON, 40, HI_LORD),
     MON("Baalzebub", S_DEMON, LVL(89, 9, -5, 85, 20),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_BITE, AD_DRST, 2, 6), ATTK(AT_GAZE, AD_STUN, 2, 6),
@@ -3107,7 +3110,8 @@ struct permonst _mons2[] = {
         M1_FLY | M1_SEE_INVIS | M1_NOHANDS | M1_POIS,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_PRINCE | M2_MALE,
-        M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_DEMON, 57, HI_LORD),
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, MH_DEMON, 57, HI_LORD),
     /* Riders -- the Four Horsemen of the Apocalypse ("War" == player);
      * depicted with '&' but do not have MH_DEMON set.
      */
