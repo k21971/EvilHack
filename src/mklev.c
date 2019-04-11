@@ -177,6 +177,7 @@ boolean is_room;
             levl[hix + 1][lowy - 1].typ = TRCORNER;
             levl[lowx - 1][hiy + 1].typ = BLCORNER;
             levl[hix + 1][hiy + 1].typ = BRCORNER;
+            wallification(lowx - 1, lowy - 1, hix + 1, hiy + 1);
         } else { /* a subroom */
             wallification(lowx - 1, lowy - 1, hix + 1, hiy + 1);
         }
@@ -219,6 +220,68 @@ boolean special;
     nsubroom++;
 }
 
+void
+mk_split_room()
+{
+    NhRect *r1 = rnd_rect();
+    NhRect r2;
+    int area;
+    xchar hx, hy, lx, ly, wid, hei;
+    xchar rlit;
+    struct mkroom *troom;
+
+    if (!r1) return;
+
+    wid = rn1(12, 5);
+    hei = rn1(3, 5);
+
+    hx = (r1->hx - r1->lx - wid - 2);
+    hy = (r1->hy - r1->ly - hei - 2);
+
+    lx = ((hx < 1) ? 0 : rn2(hx)) + 1;
+    ly = ((hy < 1) ? 0 : rn2(hy)) + 1;
+
+    area = wid * hei;
+    if (!check_room(&lx, &wid, &ly, &hei, FALSE))
+        return;
+    if (wid < 5 || hei < 5)
+        return;
+
+    r2.lx = lx;
+    r2.ly = ly;
+    r2.hx = lx + wid;
+    r2.hy = ly + hei;
+    split_rects(r1, &r2);
+    smeq[nroom] = nroom;
+    if ((wid > hei) || (wid == hei && rn2(2))) {
+	int adj = (wid/2);
+	rlit = (rnd(1+abs(depth(&u.uz))) < 11 && rn2(77)) ? TRUE : FALSE;
+	add_room(lx, ly, lx + adj - 1, ly + hei, rlit, OROOM, FALSE);
+	smeq[nroom] = nroom;
+	rlit = (rnd(1 + abs(depth(&u.uz))) < 11 && rn2(77)) ? TRUE : FALSE;
+	troom = &rooms[nroom];
+#ifdef SPECIALIZATION
+	topologize(troom,FALSE);              /* set roomno */
+#else
+	topologize(troom);                    /* set roomno */
+#endif
+	add_room(lx + adj + 1, ly, lx +adj + adj, ly + hei, rlit, OROOM, FALSE);
+    } else {
+	int adj = (hei / 2);
+	rlit = (rnd(1 + abs(depth(&u.uz))) < 11 && rn2(77)) ? TRUE : FALSE;
+	add_room(lx, ly, lx + wid, ly + adj - 1, rlit, OROOM, FALSE);
+	smeq[nroom] = nroom;
+	rlit = (rnd(1 + abs(depth(&u.uz))) < 11 && rn2(77)) ? TRUE : FALSE;
+	troom = &rooms[nroom];
+#ifdef SPECIALIZATION
+	topologize(troom,FALSE);              /* set roomno */
+#else
+	topologize(troom);                    /* set roomno */
+#endif
+	add_room(lx, ly + adj + 1, lx + wid, ly + adj + adj, rlit, OROOM, FALSE);
+    }
+}
+
 STATIC_OVL void
 makerooms()
 {
@@ -234,8 +297,17 @@ makerooms()
                 vault_y = rooms[nroom].ly;
                 rooms[nroom].hx = -1;
             }
-        } else if (!create_room(-1, -1, -1, -1, -1, -1, OROOM, -1))
-            return;
+        /* } else if (!create_room(-1, -1, -1, -1, -1, -1, OROOM, -1))
+            return; */
+		} else {
+		    switch (rn2(8)) {
+		    default:
+			if (!create_room(-1, -1, -1, -1, -1, -1, OROOM, -1))
+			    return;
+			break;
+		    case 0: mk_split_room(); break;
+		    }
+		}
     }
     return;
 }
@@ -546,6 +618,38 @@ int trap_type;
     }
 }
 
+/* replaces horiz/vert walls with iron bars,
+   if there's no door next to the place, and
+   there's space on the other side of the wall */
+void
+make_ironbarwalls(chance)
+int chance;
+{
+    xchar x, y;
+
+    if (chance < 1)
+        return;
+
+    for (x = 1; x < COLNO-1; x++) {
+	for (y = 1; y < ROWNO-1; y++) {
+	    schar typ = levl[x][y].typ;
+	    if (typ == HWALL) {
+		if ((IS_WALL(levl[x - 1][y].typ) || levl[x - 1][y].typ == IRONBARS)
+		    && (IS_WALL(levl[x + 1][y].typ) || levl[x + 1][y].typ == IRONBARS)
+		    && SPACE_POS(levl[x][y - 1].typ) && SPACE_POS(levl[x][y + 1].typ)
+		    && rn2(100) < chance)
+		    levl[x][y].typ = IRONBARS;
+	    } else if (typ == VWALL) {
+		if ((IS_WALL(levl[x][y - 1].typ) || levl[x][y - 1].typ == IRONBARS)
+		    && (IS_WALL(levl[x][y + 1].typ) || levl[x][y + 1].typ == IRONBARS)
+		    && SPACE_POS(levl[x - 1][y].typ) && SPACE_POS(levl[x + 1][y].typ)
+		    && rn2(100) < chance)
+		    levl[x][y].typ = IRONBARS;
+	    }
+	}
+    }
+}
+
 STATIC_OVL void
 make_niches()
 {
@@ -726,6 +830,8 @@ makelevel()
         goto skip0;
     makecorridors();
     make_niches();
+    if (!rn2(5))
+        make_ironbarwalls(rn2(20) ? rn2(20) : rn2(50));
 
     /* make a secret treasure vault, not connected to the rest */
     if (do_vault()) {
