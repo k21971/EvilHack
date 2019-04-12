@@ -26,6 +26,7 @@ _$*
 *.ln
 core
 evilhack
+vaults.dat
 # CVS default ignores end
 .*.swp
 
