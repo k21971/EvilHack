@@ -220,22 +220,6 @@ boolean special;
     nsubroom++;
 }
 
-boolean
-not_enough_rooms()
-{
-    int x, y;
-    long c = 0;
-
-    if (nroom < 2)
-        return TRUE;
-
-    for (x = 1; x < COLNO; x++)
-	for (y = 0; y < ROWNO; y++)
-	    if (levl[x][y].roomno) c++;
-
-    return (c * 5 < (COLNO * ROWNO));
-}
-
 struct _rndvault {
     char *fname;
     long freq;
@@ -272,8 +256,9 @@ rndvault_gen_load()
 
 	while (dlb_fgets(line, sizeof line, fd)) {
 	    struct _rndvault *vlt = (struct _rndvault *) alloc(sizeof(struct _rndvault));
+            char *tmpch = fnamebuf;
 	    fnamebuf[0] = '\0';
-	    if (sscanf(line, "%ld %63s", &frq, fnamebuf) == 2) {
+	    if (sscanf(line, "%ld %63s", &frq, tmpch) == 2) {
 		if (frq < 1) frq = 1;
 		vlt->freq = frq;
 		vlt->fname = strdup(fnamebuf);
@@ -299,8 +284,8 @@ rndvault_getname()
 	while (tmp && ((frq -= tmp->freq) > 0)) tmp = tmp->next;
 	if (tmp && tmp->fname)
 	    return tmp->fname;
-	return "vlt-0000";
     }
+    return NULL;
 }
 
 STATIC_OVL void
@@ -309,7 +294,8 @@ makerooms()
     boolean tried_vault = FALSE;
 
     /* make rooms until satisfied */
-    while (nroom < MAXNROFROOMS && not_enough_rooms()) {
+    /* rnd_rect() will returns 0 if no more rects are available... */
+    while (nroom < MAXNROFROOMS && rnd_rect()) {
         if (nroom >= (MAXNROFROOMS / 6) && rn2(2) && !tried_vault) {
             tried_vault = TRUE;
             if (create_vault()) {
@@ -319,11 +305,20 @@ makerooms()
             }
         } else {
             char protofile[64];
-            Sprintf(protofile, "%s", rndvault_getname());
-	    Strcat(protofile, LEV_EXT);
-	    in_mk_rndvault = TRUE;
-	    (void) load_special(protofile);
-	    in_mk_rndvault = FALSE;
+	    char *fnam = rndvault_getname();
+	    if (fnam) {
+		Sprintf(protofile, "%s", fnam);
+		Strcat(protofile, LEV_EXT);
+		in_mk_rndvault = TRUE;
+		rndvault_failed = FALSE;
+		(void) load_special(protofile);
+		in_mk_rndvault = FALSE;
+		if (rndvault_failed)
+                    return;
+	    } else {
+		if (!create_room(-1, -1, -1, -1, -1, -1, OROOM, -1))
+		    return;
+	    }
 	}
     }
     return;
@@ -819,24 +814,26 @@ makelevel()
         makerogueghost();
     } else
         makerooms();
-    sort_rooms();
+    /* sort_rooms(); */ /* this screws with roomno order */
 
     /* construct stairs (up and down in different rooms if possible) */
-    croom = &rooms[rn2(nroom)];
+    tryct = 0;
+    do {
+        croom = &rooms[rn2(nroom)];
+    } while (!croom->needjoining && ++tryct < 100);
     if (!Is_botlevel(&u.uz)) {
 	if (!somexyspace(croom, &pos, 0)) {
-	    if (!somexy(croom, &pos)) {
-	        pos.x = somex(croom);
-	        pos.y = somey(croom);
-	    }
+            pos.x = somex(croom);
+            pos.y = somey(croom);
 	}
         mkstairs(pos.x, pos.y, 0, croom); /* down */
     }
     if (nroom > 1) {
         troom = croom;
-        croom = &rooms[rn2(nroom - 1)];
-        if (croom == troom)
-            croom++;
+        tryct = 0;
+        do {
+            croom = &rooms[rn2(nroom - 1)];
+        } while ((!croom->needjoining || (croom == troom)) && ++tryct < 100);
     }
 
     if (u.uz.dlevel != 1) {
@@ -856,6 +853,7 @@ makelevel()
         goto skip0;
     makecorridors();
     make_niches();
+
     if (!rn2(5))
         make_ironbarwalls(rn2(20) ? rn2(20) : rn2(50));
 
@@ -876,7 +874,7 @@ makelevel()
             mk_knox_portal(vault_x + w, vault_y + h);
             if (!level.flags.noteleport && !rn2(3))
                 makevtele();
-        } else if (not_enough_rooms() && create_vault()) {
+        } else if (rnd_rect() && create_vault()) {
             vault_x = rooms[nroom].lx;
             vault_y = rooms[nroom].ly;
             if (check_room(&vault_x, &w, &vault_y, &h, TRUE))
@@ -928,7 +926,7 @@ makelevel()
     for (croom = rooms; croom->hx > 0; croom++) {
 	if (croom->rtype != OROOM && croom->rtype != RNDVAULT)
             continue;
-	if (croom->rtype == RNDVAULT && !croom->needfill)
+	if (!croom->needfill)
             continue;
 
         /* put a sleeping monster inside */
@@ -1242,9 +1240,9 @@ coord *mp;
     if (nroom == 0) {
         mazexy(mp); /* already verifies location */
     } else {
-        int tryct = 0;
         /* not perfect - there may be only one stairway */
         if (nroom > 2) {
+            int tryct = 0;
 
             do
                 croom = &rooms[rn2(nroom)];
@@ -1255,8 +1253,7 @@ coord *mp;
 
 	if (!somexyspace(croom, mp, 2)) {
 	    if (!somexyspace(croom, mp, 0)) {
-		if (!somexy(croom, mp))
-		    impossible("can't place branch!");
+    	        impossible("can't place branch!");
 	    }
 	}
     }
@@ -1336,6 +1333,35 @@ xchar x, y; /* location */
      * next call.
      */
     made_branch = TRUE;
+}
+
+boolean
+bydoor(x, y)
+register xchar x, y;
+{
+    register int typ;
+
+    if (isok(x + 1, y)) {
+        typ = levl[x + 1][y].typ;
+        if (IS_DOOR(typ) || typ == SDOOR)
+            return TRUE;
+    }
+    if (isok(x - 1, y)) {
+        typ = levl[x - 1][y].typ;
+        if (IS_DOOR(typ) || typ == SDOOR)
+            return TRUE;
+    }
+    if (isok(x, y + 1)) {
+        typ = levl[x][y + 1].typ;
+        if (IS_DOOR(typ) || typ == SDOOR)
+            return TRUE;
+    }
+    if (isok(x, y - 1)) {
+        typ = levl[x][y - 1].typ;
+        if (IS_DOOR(typ) || typ == SDOOR)
+            return TRUE;
+    }
+    return FALSE;
 }
 
 /* see whether it is allowable to create a door at [x,y] */
@@ -1483,7 +1509,7 @@ coord *tm;
         boolean avoid_boulder = (is_pit(kind) || is_hole(kind));
 
         if (mazeflag)
-	    mazexy(&m);
+	    (void) somexyspace(NULL, &m, 16);
 	else if (!somexyspace(croom, &m, (avoid_boulder ? 4 : 0)))
 	    return;
     }
@@ -1675,16 +1701,11 @@ int mazeflag;
 struct mkroom *croom;
 {
     coord m;
-    register int tryct = 0;
 
-    do {
-        if (++tryct > 200)
-            return;
-        if (mazeflag)
-            mazexy(&m);
-        else if (!somexy(croom, &m))
-            return;
-    } while (!SPACE_POS(levl[m.x][m.y].typ) || occupied(m.x, m.y) || bydoor(m.x, m.y));
+    if (mazeflag)
+        (void) somexyspace(NULL, &m, 16);
+    else if (!somexyspace(croom, &m, 8))
+        return;
 
     /* Put a fountain at m.x, m.y */
     levl[m.x][m.y].typ = FOUNTAIN;
@@ -1700,7 +1721,6 @@ mksink(croom)
 struct mkroom *croom;
 {
     coord m;
-    register int tryct = 0;
 
     if (!somexyspace(croom, &m, 8))
         return;
@@ -1716,7 +1736,6 @@ mkaltar(croom)
 struct mkroom *croom;
 {
     coord m;
-    register int tryct = 0;
     aligntyp al;
 
     if (croom->rtype != OROOM)

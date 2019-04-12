@@ -215,7 +215,8 @@ extern char curr_token[512];
 %token	<i> GRAVE_ID ERODEPROOF_ID
 %token	<i> FUNCTION_ID
 %token	<i> MSG_OUTPUT_TYPE
-%token	<i> COMPARE_TYPE VAULTGEN_ID
+%token	<i> COMPARE_TYPE
+%token  <i> VAULTGEN_ID
 %token  <i> UNKNOWN_TYPE
 %token	<i> rect_ID fillrect_ID line_ID randline_ID grow_ID
 %token	<i> selection_ID flood_ID
@@ -314,6 +315,8 @@ level		: level_def flags levstatements
 level_def	: LEVEL_ID ':' STRING
 		  {
 		      start_level_def(&splev, $3);
+                      rnd_vault_freq = 1;
+                      is_rnd_vault = 0;
 		      $$ = $3;
 		  }
 		| MAZE_ID ':' STRING ',' mazefiller
@@ -334,6 +337,7 @@ level_def	: LEVEL_ID ':' STRING
 				 VA_PASS2(MAZELEVEL, SPO_LEVEL_FLAGS));
 		      max_x_map = COLNO-1;
 		      max_y_map = ROWNO;
+
 		      $$ = $3;
 		  }
 		;
@@ -452,7 +456,6 @@ flags		: /* nothing */
 		  {
 		      if ($3 & FLAG_RNDVAULT) {
 			  is_rnd_vault = 1;
-			  rnd_vault_freq = 1;
 		      }
 		      add_opvars(splev, "io",
                                  VA_PASS2((int) $3, SPO_LEVEL_FLAGS));

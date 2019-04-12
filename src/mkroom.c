@@ -7,7 +7,6 @@
  * Entry points:
  *      mkroom() -- make and stock a room of a given type
  *      nexttodoor() -- return TRUE if adjacent to a door
- *	bydoor() -- like nexttodoor() but checks only 4 directions
  *      has_dnstairs() -- return TRUE if given room has a down staircase
  *      has_upstairs() -- return TRUE if given room has an up staircase
  *      courtmon() -- generate a court monster
@@ -619,35 +618,6 @@ register int sx, sy;
             if (IS_DOOR(lev->typ) || lev->typ == SDOOR)
                 return TRUE;
         }
-    return FALSE;
-}
-
-boolean
-bydoor(x, y)
-register xchar x, y;
-{
-    register int typ;
-
-    if (isok(x + 1, y)) {
-        typ = levl[x + 1][y].typ;
-        if (IS_DOOR(typ) || typ == SDOOR)
-            return TRUE;
-    }
-    if (isok(x - 1, y)) {
-        typ = levl[x - 1][y].typ;
-        if (IS_DOOR(typ) || typ == SDOOR)
-            return TRUE;
-    }
-    if (isok(x, y + 1)) {
-        typ = levl[x][y + 1].typ;
-        if (IS_DOOR(typ) || typ == SDOOR)
-            return TRUE;
-    }
-    if (isok(x, y - 1)) {
-        typ = levl[x][y - 1].typ;
-        if (IS_DOOR(typ) || typ == SDOOR)
-            return TRUE;
-    }
     return FALSE;
 }
 

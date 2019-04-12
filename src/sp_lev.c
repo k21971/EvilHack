@@ -1089,6 +1089,11 @@ chk:
     if (hix <= *lowx || hiy <= *lowy)
         return FALSE;
 
+    if (in_mk_rndvault &&
+        (s_lowx != *lowx) && (s_ddx != *ddx)
+        && (s_lowy != *lowy) && (s_ddy != *ddy))
+        return FALSE;
+
     /* check area around room (and make room smaller if necessary) */
     for (x = *lowx - xlim; x <= hix + xlim; x++) {
         if (x <= 0 || x >= COLNO)
@@ -1106,6 +1111,8 @@ chk:
                     debugpline2("strange area [%d,%d] in check_room.", x, y);
                 }
                 if (!rn2(3))
+                    return FALSE;
+                if (in_mk_rndvault)
                     return FALSE;
                 if (x < *lowx)
                     *lowx = x + xlim + 1;
@@ -1130,22 +1137,6 @@ chk:
     return TRUE;
 }
 
-boolean
-check_room_space(x1, y1, x2, y2)
-int x1, y1, x2, y2;
-{
-    int x, y;
-    for (x = x1; x <= x2; x++)
-	for (y = y1; y <= y2; y++) {
-	    if (!isok(x, y))
-                return FALSE;
-	    if (levl[x][y].typ != STONE
-                || levl[x][y].roomno != NO_ROOM)
-                return FALSE;
-	}
-    return TRUE;
-}
-
 /*
  * Create a new room.
  * This is still very incomplete...
@@ -1159,10 +1150,10 @@ xchar rtype, rlit;
 {
     xchar xabs = 0, yabs = 0;
     int wtmp, htmp, xaltmp, yaltmp, xtmp, ytmp;
+    NhRect *r1 = 0, r2;
     int trycnt = 0;
     boolean vault = FALSE;
     int xlim = XLIM, ylim = YLIM;
-    boolean fail = TRUE;
 
     if (rtype == -1) /* Is the type random ? */
         rtype = OROOM;
@@ -1199,12 +1190,16 @@ xchar rtype, rlit;
         if ((xtmp < 0 && ytmp < 0 && wtmp < 0 && xaltmp < 0 && yaltmp < 0)
             || vault) {
             xchar hx, hy, lx, ly, dx, dy;
-	    hx = rn2(COLNO - 1 - 2);
-	    while ((lx = rn2(COLNO - hx)) > hx)
-                   hx = lx;
-    	    hy = rn2(ROWNO - 2);
-	    while ((ly = rn2(ROWNO - hy)) > hy)
-                   hy = ly;
+            r1 = rnd_rect(); /* Get a random rectangle */
+
+            if (!r1) { /* No more free rectangles ! */
+                debugpline0("No more rects...");
+                return FALSE;
+            }
+            hx = r1->hx;
+            hy = r1->hy;
+            lx = r1->lx;
+            ly = r1->ly;
             if (vault)
                 dx = dy = 1;
             else {
@@ -1216,6 +1211,7 @@ xchar rtype, rlit;
             xborder = (lx > 0 && hx < COLNO - 1) ? 2 * xlim : xlim + 1;
             yborder = (ly > 0 && hy < ROWNO - 1) ? 2 * ylim : ylim + 1;
             if (hx - lx < dx + 3 + xborder || hy - ly < dy + 3 + yborder) {
+                r1 = 0;
                 continue;
             }
             xabs = lx + (lx > 0 ? xlim : 3)
@@ -1229,16 +1225,18 @@ xchar rtype, rlit;
                     dy--;
             }
             if (!check_room(&xabs, &dx, &yabs, &dy, vault)) {
+                r1 = 0;
                 continue;
             }
             wtmp = dx + 1;
             htmp = dy + 1;
-	    if (in_mk_rndvault
-	        && !check_room_space(xabs - 1 - 1, yabs - 1 - 1, xabs + wtmp + 1, yabs + htmp + 1))
-                continue;
-	    fail = FALSE;
+            r2.lx = xabs - 1;
+            r2.ly = yabs - 1;
+            r2.hx = xabs + wtmp;
+            r2.hy = yabs + htmp;
         } else { /* Only some parameters are random */
             int rndpos = 0;
+            xchar dx, dy;
             if (xtmp < 0 && ytmp < 0) { /* Position is RANDOM */
                 xtmp = rnd(5);
                 ytmp = rnd(5);
@@ -1287,15 +1285,27 @@ xchar rtype, rlit;
             if (yabs < 2)
                 yabs = 2;
 
-	    if (in_mk_rndvault
-	        && !check_room_space(xabs - 1 - 1, yabs - 1 - 1, xabs + wtmp + rndpos + 1, yabs + htmp + rndpos + 1))
-	        continue;
-	    fail = FALSE;
+            /* Try to find a rectangle that fit our room ! */
+
+            r2.lx = xabs - 1;
+            r2.ly = yabs - 1;
+            r2.hx = xabs + wtmp + rndpos;
+            r2.hy = yabs + htmp + rndpos;
+            r1 = get_rect(&r2);
+
+	    dx = wtmp;
+	    dy = htmp;
+
+	    if (r1 && !check_room(&xabs, &dx, &yabs, &dy, vault)) {
+		r1 = 0;
+	    }
+
         }
-    } while (++trycnt <= 10000 && fail);
-    if (fail) { /* creation of room failed ? */
+    } while (++trycnt <= 100 && !r1);
+    if (!r1) { /* creation of room failed ? */
         return FALSE;
     }
+    split_rects(r1, &r2);
 
     if (!vault) {
         smeq[nroom] = nroom;
@@ -1397,7 +1407,6 @@ struct mkroom *broom;
 
     do {
         register int dwall, dpos;
-        int ds;
 
         dwall = dd->wall;
         if (dwall == -1) /* The wall is RANDOM */
@@ -1412,8 +1421,8 @@ struct mkroom *broom;
             if (!(dwall & W_NORTH))
                 goto redoloop;
             y = broom->ly - 1;
-	    ds = (broom->hx - broom->lx);
-	    x = broom->lx + ((dpos == -1) ? (ds < 1 ? 0 : rn2(ds + 1)) : dpos);
+            x = broom->lx
+                + ((dpos == -1) ? rn2(1 + (broom->hx - broom->lx)) : dpos);
             if (IS_ROCK(levl[x][y - 1].typ))
                 goto redoloop;
             goto outdirloop;
@@ -1421,8 +1430,8 @@ struct mkroom *broom;
             if (!(dwall & W_SOUTH))
                 goto redoloop;
             y = broom->hy + 1;
-	    ds = (broom->hx - broom->lx);
-	    x = broom->lx + ((dpos == -1) ? (ds < 1 ? 0 : rn2(ds + 1)) : dpos);
+            x = broom->lx
+                + ((dpos == -1) ? rn2(1 + (broom->hx - broom->lx)) : dpos);
             if (IS_ROCK(levl[x][y + 1].typ))
                 goto redoloop;
             goto outdirloop;
@@ -1430,8 +1439,8 @@ struct mkroom *broom;
             if (!(dwall & W_WEST))
                 goto redoloop;
             x = broom->lx - 1;
-	    ds = (broom->hy - broom->ly);
-	    y = broom->ly + ((dpos == -1) ? (ds < 1 ? 0 : rn2(ds + 1)) : dpos);
+            y = broom->ly
+                + ((dpos == -1) ? rn2(1 + (broom->hy - broom->ly)) : dpos);
             if (IS_ROCK(levl[x - 1][y].typ))
                 goto redoloop;
             goto outdirloop;
@@ -1439,8 +1448,8 @@ struct mkroom *broom;
             if (!(dwall & W_EAST))
                 goto redoloop;
             x = broom->hx + 1;
-	    ds = (broom->hy - broom->ly);
-	    y = broom->ly + ((dpos == -1) ? (ds < 1 ? 0 : rn2(ds + 1)) : dpos);
+            y = broom->ly
+                + ((dpos == -1) ? rn2(1 + (broom->hy - broom->ly)) : dpos);
             if (IS_ROCK(levl[x + 1][y].typ))
                 goto redoloop;
             goto outdirloop;
@@ -3455,6 +3464,7 @@ struct sp_coder *coder;
 {
     static const char nhFunc[] = "spo_room";
 
+    int isbigrm = FALSE;
     if (coder->n_subroom > MAX_NESTED_ROOMS) {
         panic("Too deeply nested rooms?!");
     } else {
@@ -3481,6 +3491,8 @@ struct sp_coder *coder;
         /*tmproom.irregular = (OV_i(rflags) & (1 << 1));*/
         tmproom.joined = !(OV_i(rflags) & (1 << 2));
 
+        isbigrm = ((tmproom.w * tmproom.h) > 20);
+
         opvar_free(x);
         opvar_free(y);
         opvar_free(w);
@@ -3505,6 +3517,8 @@ struct sp_coder *coder;
     coder->tmproomlist[coder->n_subroom] = (struct mkroom *) 0;
     coder->failed_room[coder->n_subroom] = TRUE;
     coder->n_subroom++;
+    if (in_mk_rndvault && coder->opcode == SPO_ROOM && !isbigrm)
+        rndvault_failed = TRUE;
 }
 
 void
@@ -4746,6 +4760,9 @@ struct sp_coder *coder;
 #endif
     }
 
+    if (in_mk_rndvault && prefilled)
+        troom->needfill = 1;
+
     if (!room_not_needed) {
         if (coder->n_subroom > 1)
             impossible("region as subroom");
@@ -4970,11 +4987,13 @@ struct sp_coder *coder;
     xchar halign, valign;
     xchar tmpxstart, tmpystart, tmpxsize, tmpysize;
     unpacked_coord upc;
+    int tryct = 0;
 
     if (!OV_pop_i(mpxs) || !OV_pop_i(mpys) || !OV_pop_s(mpmap)
         || !OV_pop_i(mpkeepr) || !OV_pop_i(mpzalign) || !OV_pop_c(mpa))
         return;
 
+redo_maploc:
     tmpmazepart.xsize = OV_i(mpxs);
     tmpmazepart.ysize = OV_i(mpys);
     tmpmazepart.zaligntyp = OV_i(mpzalign);
@@ -5067,19 +5086,34 @@ struct sp_coder *coder;
 	/* random vault should never overwrite anything */
 	if (in_mk_rndvault) {
 	    boolean isokp = TRUE;
-	    for (y = ystart; y < ystart+ysize; y++)
-		for (x = xstart; x < xstart+xsize; x++) {
-		    xchar mptyp = (mpmap->vardata.str[(y - ystart) * xsize + (x - xstart)] - 1);
-		    if (mptyp >= MAX_TYPE)
-                        continue;
-		    if (isok(x, y)) {
-			if (levl[x][y].typ != STONE && levl[x][y].typ != mptyp)
+	    for (y = ystart - 1; y < ystart + ysize + 1; y++)
+		for (x = xstart - 1; x < xstart + xsize + 1; x++) {
+		    xchar mptyp;
+		    if (!isok(x, y)) {
+			isokp = FALSE;
+		    } else if (y < ystart || y >= (ystart + ysize) ||
+			x < xstart || x >= (xstart + xsize)) {
+			if (levl[x][y].typ != STONE)
                             isokp = FALSE;
 			if (levl[x][y].roomno != NO_ROOM)
                             isokp = FALSE;
-		    } else
-                        isokp = FALSE;
+		    } else {
+			mptyp = (mpmap->vardata.str[(y - ystart + 1) * xsize + (x - xstart + 1)] - 1);
+			if (mptyp >= MAX_TYPE)
+                           continue;
+			if (isok(x, y)) {
+			    if (levl[x][y].typ != STONE && levl[x][y].typ != mptyp)
+                                isokp = FALSE;
+			    if (levl[x][y].roomno != NO_ROOM)
+                                isokp = FALSE;
+			} else isokp = FALSE;
+		    }
 		    if (!isokp) {
+			if ((tryct++ < 100) && (tmpmazepart.zaligntyp == 2)
+			    && ((tmpmazepart.halign < 0) || (tmpmazepart.valign < 0)) /* rnd pos */ )
+			    goto redo_maploc;
+			if (!((xsize * ysize) > 20)) /* !isbig() */
+			    rndvault_failed = TRUE;
 			coder->exit_script = TRUE;
 			goto skipmap;
 		    }
@@ -5123,7 +5157,7 @@ struct sp_coder *coder;
                 else if (splev_init_present && levl[x][y].typ == ICE)
                     levl[x][y].icedpool = icedpools ? ICED_POOL : ICED_MOAT;
             }
-        if (coder->lvl_is_joined)
+        if (coder->lvl_is_joined && !in_mk_rndvault)
             remove_rooms(xstart, ystart, xstart + xsize, ystart + ysize);
     }
 
@@ -5410,6 +5444,7 @@ sp_lev *lvl;
     coder->n_subroom = 1;
     coder->exit_script = FALSE;
     coder->lvl_is_joined = 0;
+    rndvault_failed = FALSE;
 
     splev_init_present = FALSE;
     icedpools = FALSE;
@@ -5457,6 +5492,9 @@ sp_lev *lvl;
             impossible("Level script is taking too much time, stopping.");
             coder->exit_script = TRUE;
         }
+
+        if (rndvault_failed)
+            coder->exit_script = TRUE;
 
         if (coder->failed_room[coder->n_subroom - 1]
             && coder->opcode != SPO_ENDROOM && coder->opcode != SPO_ROOM
@@ -6120,6 +6158,42 @@ sp_lev *lvl;
 /*
  * General loader
  */
+
+struct _sploader_cache {
+    char *fname;
+    sp_lev *lvl;
+    struct _sploader_cache *next;
+};
+
+struct _sploader_cache *sp_loader_cache = NULL;
+
+sp_lev *
+sp_lev_cache(fnam)
+char *fnam;
+{
+    struct _sploader_cache *tmp = sp_loader_cache;
+
+    while (tmp) {
+	if (!strcmp(tmp->fname, fnam))
+            return tmp->lvl;
+	tmp = tmp->next;
+    }
+    return NULL;
+}
+
+void
+sp_lev_savecache(fnam, lvl)
+char *fnam;
+sp_lev *lvl;
+{
+    struct _sploader_cache *tmp = (struct _sploader_cache *)alloc(sizeof(struct _sploader_cache));
+    if (!tmp) panic("save splev cache");
+    tmp->lvl = lvl;
+    tmp->fname = strdup(fnam);
+    tmp->next = sp_loader_cache;
+    sp_loader_cache = tmp;
+}
+
 boolean
 load_special(name)
 const char *name;
@@ -6129,22 +6203,29 @@ const char *name;
     boolean result = FALSE;
     struct version_info vers_info;
 
-    fd = dlb_fopen(name, RDBMODE);
-    if (!fd)
-        return FALSE;
-    Fread((genericptr_t) &vers_info, sizeof vers_info, 1, fd);
-    if (!check_version(&vers_info, name, TRUE)) {
-        (void) dlb_fclose(fd);
-        goto give_up;
-    }
+    if (!(lvl = sp_lev_cache(name))) {
+	fd = dlb_fopen(name, RDBMODE);
+	if (!fd)
+             return FALSE;
+	Fread((genericptr_t) &vers_info, sizeof vers_info, 1, fd);
+	if (!check_version(&vers_info, name, TRUE)) {
+            (void) dlb_fclose(fd);
+	    goto give_up;
+	}
 
-    lvl = (sp_lev *) alloc(sizeof (sp_lev));
-    result = sp_level_loader(fd, lvl);
+    lvl = (sp_lev *) alloc(sizeof(sp_lev));
+    if (!lvl) panic("alloc sp_lev");
+        result = sp_level_loader(fd, lvl);
     (void) dlb_fclose(fd);
-    if (result)
-        result = sp_level_coder(lvl);
-    sp_level_free(lvl);
-    Free(lvl);
+    if (in_mk_rndvault) sp_lev_savecache(name, lvl);
+    if (result) result = sp_level_coder(lvl);
+        if (!in_mk_rndvault) {
+	    sp_level_free(lvl);
+	    Free(lvl);
+        }
+    } else {
+	result = sp_level_coder(lvl);
+    }
 
 give_up:
     return result;

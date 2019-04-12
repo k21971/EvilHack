@@ -2,44 +2,22 @@
 # This file contains the randomly used "vaults", or predefined rooms.
 # From SporkHack / Pasi Kallinen
 
-#
-# NOTE:
-#  - Use the "rndvault" LEVEL flag.
-#  - To change vault appearing frequency, use "VAULTGEN:x"
-#  - Usually the correct choice for the vault room type is "rndvault",
-#    but occasionally other types might be acceptable. "ordinary" vault
-#    room might be converted to any other type of random room, as per
-#    random level generation.
-#  - To only generate the items/monsters/whatever you define in the vault,
+#  - Use the "rndvault" LEVEL flag. (implies noflip)
+#  - To change vault appearing frequency, use "VAULTGEN"
+#  - REGIONs in vaults are always kept as rooms, never discarded.
+#  - "ordinary" vault rooms might be converted to any other type
+#    of random room, as per random level generation.
+#    "rndvault" room type is never converted to another room type.
+#  - To only generate the contents you define in the vault,
 #    set the room prefilled flag to false. Otherwise you'll get normal
 #    room contents in addition to the stuff you defined.
+#    Or, if using MAP & REGION, set the REGION as "filled"
 #
-
-#
-# BUGS:
-#  - The Gold vaults are never generated.
-#  - Level generation can be slow. Maybe add the rect split code back?
-#  - ROOMDOOR cannot be used, as corridors haven't been created yet.
-#    (create_door() in sp_lev.c, "if (IS_ROCK(levl[x][y-1].typ)) goto redoloop;" etc
-#    is a check whether there's actual free space behind the door, outside the room)
-#  - SUBROOM does not work. (causes a crash occasionally. try with fake delphi)
-#  - cannot do split rooms.  (can do, with MAP-ENDMAP & REGIONs)
-#  - Player is occasionally put into a corner of the map. Why?
-#
-# TODO:
-#  - FLAGS: unique
-#  - JOIN: (x,y), doorstate
-#  - mark walls where we don't want random doors to be put.
-#  - unjoined rooms (aka $$$$ vaults)
-#  - force random corridors to join in certain place?
-#  - maybe vault-specific level sounds?
-#
-
 
 # normal random room
 LEVEL:"vlt-0000"
 FLAGS:rndvault
-VAULTGEN:500
+VAULTGEN:200
 ROOM:"ordinary", random, random, random, random {
 }
 
@@ -105,10 +83,8 @@ ROOM:"rndvault", random, random, random, random {
 LEVEL:"vlt-0005"
 FLAGS:rndvault
 ROOM:"rndvault", random, random, random, random {
+  [50%]: TRAP:"fire",random
   TERRAIN:floodfill(1,1), 'I'
-  IF [33%] {
-    TRAP:"fire",random
-  }
 }
 
 # random cloud/lava/ice/pool/tree room
@@ -514,3 +490,23 @@ ENDMAP
 REGION:(1,1,3,6),random,"rndvault" { }
 REGION:(5,1,6,2),random,"rndvault" { }
 REGION:(5,4,6,6),random,"rndvault" { }
+
+# Cross
+LEVEL:"vlt-0026"
+FLAGS:rndvault
+GEOMETRY:random
+MAP
+xxx-----xxx
+xxx|...|xxx
+xxx|...|xxx
+----...----
+|.........|
+|.........|
+|.........|
+----...----
+xxx|...|xxx
+xxx|...|xxx
+xxx-----xxx
+ENDMAP
+REGION:(5,5,5,5),random,"ordinary",unfilled,irregular { }
+
