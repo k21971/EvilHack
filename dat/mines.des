@@ -1085,15 +1085,18 @@ NON_DIGGABLE:(58,12,58,13)
 NON_DIGGABLE:(53,14,61,14)
 NON_DIGGABLE:(61,15,61,16)
 # The Gnome King's wine cellar.
-# the Trespassers sign is a long-running joke
+# the Trespassers sign used to be a long-running joke...
 ENGRAVING:(12,03),engrave,"You are now entering the Gnome King's wine cellar."
 ENGRAVING:(12,04),engrave,"Trespassers will be persecuted!"
+MONSTER:('@',"gnomish sergeant"),(14,04),hostile
+MONSTER:('@',"gnomish soldier"),(14,05),hostile
 OBJECT:('!',"booze"),(10,07)
 OBJECT:('!',"booze"),(10,07)
 OBJECT:'!',(10,07)
 OBJECT:('!',"booze"),(10,08)
 OBJECT:('!',"booze"),(10,08)
 OBJECT:'!',(10,08)
+ENGRAVING:(10,09),burn,"Elbereth"
 OBJECT:('!',"booze"),(10,09)
 OBJECT:('!',"booze"),(10,09)
 OBJECT:('!',"object detection"),(10,09)
@@ -1262,5 +1265,149 @@ MONSTER:'e',random
 MONSTER:'e',random
 MONSTER:'e',random
 
+
+# "Orc Temple" by Khor
+# In this variant of the mines end a group of orcs have found a randomly generated figurine of a demon and worship it
+#
+MAZE:"minend-4",' '
+FLAGS:nommap
+GEOMETRY:center,center
+MAP
+                                                                   |-----|
+                                             -------              |-LLLLL-|
+                         ---------------     |.....|             |-LL...LL-|
+                        -|..|..........|     |.....|        -----|LL.....LL|
+                       -|...F..........|     |.....|        |...||L.......L|
+         |-------|    -|....|-+------+-|    ----+----       |...||L.......L|
+        |-.......-|  -|.....F..........|----|.......|---------+---L.......L|
+ -------|.........|--|.....--...............F.......F.....||.....|LL.....LL|
+-|..........}}}...........-|..............................--.....|-LL...LL-|
+|...........}{}...........+...............................+......||-LL.LL-|
+-|..........}}}...........-|..............................--.....| |--S--|
+ -------|.........|--|.....--...............F.......F.....||.....|    .     
+        |-.......-|  -|.....F..........|----|.......|---------S---          
+         |-------|    -|....|-+------+-|    ----+----         .             
+                       -|...F..........|     |.....|                        
+                        -|..|..........|     |.....|                        
+                         ---------------     |.....|                        
+                                             -------                     ..}
+                                                                         .}}
+                                                                        .}}{
+ENDMAP
+
+$stones = { (0,18),(0,12),(2,18),(12,14),(20,12),(16,16),(72,18),(52,14),(44,14) }
+SHUFFLE: $stones
+REGION:(0,0,75,19),lit,"ordinary"
+NON_DIGGABLE:(0,0,75,19)
+STAIR:(1,9),up
+
+#SOME ORCS (The religious kind)
+MONSTER:('o',"goblin outrider"),random
+MONSTER:('o',"goblin-captain"),random
+MONSTER:('o',"goblin outrider"),random
+MONSTER:('o',"hobgoblin"),random
+MONSTER:('o',"hill orc"),random
+MONSTER:('o',"hill orc"),random
+MONSTER:('o',"hill orc"),random
+MONSTER:('o',"hill orc"),random
+MONSTER:('o',"hill orc"),random
+MONSTER:('o',"hill orc"),random
+MONSTER:('o',"hill orc"),random
+MONSTER:('o',"hill orc"),random
+MONSTER:('o',"Mordor orc"),random
+MONSTER:('o',"Mordor orc"),random
+MONSTER:('o',"Mordor orc"),random
+MONSTER:('o',"Mordor orc"),random
+MONSTER:('o',"Mordor orc"),random
+MONSTER:('o',"Mordor orc"),random
+MONSTER:('o',"Mordor orc"),random
+MONSTER:('o',"Mordor orc"),random
+MONSTER:'o',random
+MONSTER:'o',random
+MONSTER:'o',random
+MONSTER:'o',random
+MONSTER:'o',random
+MONSTER:'o',random
+MONSTER:'o',random
+MONSTER:'o',random
+MONSTER:'o',random
+MONSTER:'o',random
+
+#SECRET CAVE
+MAZEWALK:(62,15),south
+ALTAR:(70,5),noalign,shrine
+DOOR:closed,(62,12)
+DOOR:closed,(70,10)
+TRAP:"spear",random
+TRAP:"board",random
+OBJECT:('?', "scare monster"),(70,5),cursed
+ENGRAVING:(70,5),burn,"Elbereth"
+OBJECT:('(',"figurine"),(70,5),cursed,montype:"balrog",1
+OBJECT:('*',"luckstone"),$stones[0]
+OBJECT:('*',"flint"),$stones[1]
+OBJECT:'*',$stones[2]
+OBJECT:'*',$stones[3]
+OBJECT:'*',$stones[4]
+OBJECT:'*',$stones[5]
+OBJECT:'*',$stones[6]
+OBJECT:'*',$stones[7]
+OBJECT:'*',$stones[8]
+OBJECT:'*',$stones[9]
+MONSTER:('o',"orc shaman"),(69,3),asleep
+MONSTER:('o',"orc shaman"),(71,3),asleep
+MONSTER:('o',"orc shaman"),(68,4),asleep
+MONSTER:('o',"orc shaman"),(72,4),asleep
+MONSTER:('o',"orc shaman"),(68,6),asleep
+MONSTER:('o',"orc shaman"),(72,6),asleep
+MONSTER:('o',"goblin shaman"),(69,7),asleep
+MONSTER:('o',"goblin shaman"),(71,7),asleep
+
+#TEMPLE
+ENGRAVING:(55,9),burn,"Blessed are the destroyers of false hope, for they are the true Messiahs."
+MONSTER:('o',"orc shaman"),(55,9),asleep
+ENGRAVING:(48,3),burn,"Why should you not hate your enemies. If you love them does that not place you at their mercy?"
+MONSTER:('o',"orc shaman"),(48,3),asleep
+ENGRAVING:(48,15),burn,"Cursed are the god-adorers, for they shall be shorn sheep!"
+MONSTER:('o',"orc shaman"),(48,15),asleep
+ENGRAVING:(25,09),burn,"Dagul protects our doors. Dagul protects our souls."
+MONSTER:('o',"goblin shaman"),(25,09),asleep
+OBJECT:('`',"statue"),(56,8),montype:"orc shaman",1
+OBJECT:('`',"statue"),(56,10),montype:"orc-captain",1
+OBJECT:('`',"statue"),(50,3),montype:"hill orc",1
+OBJECT:('`',"statue"),(46,3),montype:"hill orc",1
+OBJECT:('`',"statue"),(50,15),montype:"Mordor orc",1
+OBJECT:('`',"statue"),(46,15),montype:"Mordor orc",1
+OBJECT:('`',"statue"),(29,03),montype:"Mordor orc",1
+OBJECT:('`',"statue"),(32,03),montype:"hill orc",1
+OBJECT:('`',"statue"),(35,03),montype:"goblin-captain",1
+OBJECT:('`',"statue"),(38,03),montype:"orc shaman",1
+OBJECT:('`',"statue"),(29,15),montype:"mordor orc",1
+OBJECT:('`',"statue"),(32,15),montype:"hill orc",1
+OBJECT:('`',"statue"),(35,15),montype:"orc-captain",1
+OBJECT:('`',"statue"),(38,15),montype:"orc shaman",1
+OBJECT:('(',"chest"),(61,4)
+OBJECT:('(',"iron safe"),(62,4)
+OBJECT:('(',"chest"),(63,4)
+ALTAR:(48,2),noalign,shrine
+ALTAR:(48,16),noalign,shrine
+ALTAR:(56,9),noalign,shrine
+DOOR:closed,(58,9)
+DOOR:closed,(26,9)
+DOOR:closed,(30,5)
+DOOR:closed,(37,5)
+DOOR:closed,(48,5)
+DOOR:locked,(62,6)
+DOOR:closed,(30,13)
+DOOR:closed,(37,13)
+DOOR:closed,(48,13)
+# Wake the shamans if anyone tries to take the figurine:
+TRAP:"board",(69,04)
+TRAP:"board",(69,05)
+TRAP:"board",(69,06)
+TRAP:"board",(70,04)
+TRAP:"board",(70,06)
+TRAP:"board",(71,04)
+TRAP:"board",(71,05)
+TRAP:"board",(71,06)
 
 # end mines.des
