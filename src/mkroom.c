@@ -7,6 +7,7 @@
  * Entry points:
  *      mkroom() -- make and stock a room of a given type
  *      nexttodoor() -- return TRUE if adjacent to a door
+ *	bydoor() -- like nexttodoor() but checks only 4 directions
  *      has_dnstairs() -- return TRUE if given room has a down staircase
  *      has_upstairs() -- return TRUE if given room has an up staircase
  *      courtmon() -- generate a court monster
@@ -622,6 +623,35 @@ register int sx, sy;
 }
 
 boolean
+bydoor(x, y)
+register xchar x, y;
+{
+    register int typ;
+
+    if (isok(x + 1, y)) {
+        typ = levl[x + 1][y].typ;
+        if (IS_DOOR(typ) || typ == SDOOR)
+            return TRUE;
+    }
+    if (isok(x - 1, y)) {
+        typ = levl[x - 1][y].typ;
+        if (IS_DOOR(typ) || typ == SDOOR)
+            return TRUE;
+    }
+    if (isok(x, y + 1)) {
+        typ = levl[x][y + 1].typ;
+        if (IS_DOOR(typ) || typ == SDOOR)
+            return TRUE;
+    }
+    if (isok(x, y - 1)) {
+        typ = levl[x][y - 1].typ;
+        if (IS_DOOR(typ) || typ == SDOOR)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+boolean
 has_dnstairs(sroom)
 register struct mkroom *sroom;
 {
@@ -664,6 +694,34 @@ xchar x, y;
 {
     return (boolean) (x >= croom->lx - 1 && x <= croom->hx + 1
                       && y >= croom->ly - 1 && y <= croom->hy + 1);
+}
+
+boolean
+somexyspace(croom, pos, flags)
+struct mkroom *croom;
+coord *pos;
+int flags;
+{
+    int tryct = 0;
+    boolean isok;
+    do {
+	isok = TRUE;
+	if (!somexy(croom, pos)) isok = FALSE;
+	if ((flags & 1) && (IS_POOL(levl[pos->x][pos->y].typ)
+            || IS_FURNITURE(levl[pos->x][pos->y].typ)))
+            isok = FALSE;
+	if ((flags & 2) && (levl[pos->x][pos->y].typ != CORR)
+            || (levl[pos->x][pos->y].typ != ROOM))
+            isok = FALSE;
+	if ((flags & 4) && (sobj_at(BOULDER, pos->x, pos->y)))
+            isok = FALSE;
+	if ((flags & 8) && bydoor(pos->x, pos->y))
+            isok = FALSE;
+    } while ((!isok || !SPACE_POS(levl[pos->x][pos->y].typ)
+             || occupied(pos->x, pos->y)) && (++tryct < 100));
+    if ((tryct < 100) && isok)
+        return TRUE;
+    return FALSE;
 }
 
 boolean

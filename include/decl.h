@@ -219,6 +219,7 @@ E NEARDATA long moves, monstermoves;
 E NEARDATA long wailmsg;
 
 E NEARDATA boolean in_mklev;
+E NEARDATA boolean in_mk_rndvault;
 E NEARDATA boolean stoned;
 E NEARDATA boolean unweapon;
 E NEARDATA boolean mrg_to_wielded;

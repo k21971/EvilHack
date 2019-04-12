@@ -1069,6 +1069,11 @@ boolean vault;
     register struct rm *lev;
     int xlim, ylim, ymax;
 
+    xchar s_lowx, s_ddx, s_lowy, s_ddy;
+
+    s_lowx = *lowx; s_ddx = *ddx;
+    s_lowy = *lowy; s_ddy = *ddy;
+
     xlim = XLIM + (vault ? 1 : 0);
     ylim = YLIM + (vault ? 1 : 0);
 
@@ -1116,6 +1121,28 @@ chk:
     }
     *ddx = hix - *lowx;
     *ddy = hiy - *lowy;
+
+    if (in_mk_rndvault
+        && (s_lowx != *lowx) && (s_ddx != *ddx)
+	&& (s_lowy != *lowy) && (s_ddy != *ddy))
+        return FALSE;
+
+    return TRUE;
+}
+
+boolean
+check_room_space(x1, y1, x2, y2)
+int x1, y1, x2, y2;
+{
+    int x, y;
+    for (x = x1; x <= x2; x++)
+	for (y = y1; y <= y2; y++) {
+	    if (!isok(x, y))
+                return FALSE;
+	    if (levl[x][y].typ != STONE
+                || levl[x][y].roomno != NO_ROOM)
+                return FALSE;
+	}
     return TRUE;
 }
 
@@ -1132,10 +1159,10 @@ xchar rtype, rlit;
 {
     xchar xabs = 0, yabs = 0;
     int wtmp, htmp, xaltmp, yaltmp, xtmp, ytmp;
-    NhRect *r1 = 0, r2;
     int trycnt = 0;
     boolean vault = FALSE;
     int xlim = XLIM, ylim = YLIM;
+    boolean fail = TRUE;
 
     if (rtype == -1) /* Is the type random ? */
         rtype = OROOM;
@@ -1172,16 +1199,12 @@ xchar rtype, rlit;
         if ((xtmp < 0 && ytmp < 0 && wtmp < 0 && xaltmp < 0 && yaltmp < 0)
             || vault) {
             xchar hx, hy, lx, ly, dx, dy;
-            r1 = rnd_rect(); /* Get a random rectangle */
-
-            if (!r1) { /* No more free rectangles ! */
-                debugpline0("No more rects...");
-                return FALSE;
-            }
-            hx = r1->hx;
-            hy = r1->hy;
-            lx = r1->lx;
-            ly = r1->ly;
+	    hx = rn2(COLNO - 1 - 2);
+	    while ((lx = rn2(COLNO - hx)) > hx)
+                   hx = lx;
+    	    hy = rn2(ROWNO - 2);
+	    while ((ly = rn2(ROWNO - hy)) > hy)
+                   hy = ly;
             if (vault)
                 dx = dy = 1;
             else {
@@ -1193,7 +1216,6 @@ xchar rtype, rlit;
             xborder = (lx > 0 && hx < COLNO - 1) ? 2 * xlim : xlim + 1;
             yborder = (ly > 0 && hy < ROWNO - 1) ? 2 * ylim : ylim + 1;
             if (hx - lx < dx + 3 + xborder || hy - ly < dy + 3 + yborder) {
-                r1 = 0;
                 continue;
             }
             xabs = lx + (lx > 0 ? xlim : 3)
@@ -1207,15 +1229,14 @@ xchar rtype, rlit;
                     dy--;
             }
             if (!check_room(&xabs, &dx, &yabs, &dy, vault)) {
-                r1 = 0;
                 continue;
             }
             wtmp = dx + 1;
             htmp = dy + 1;
-            r2.lx = xabs - 1;
-            r2.ly = yabs - 1;
-            r2.hx = xabs + wtmp;
-            r2.hy = yabs + htmp;
+	    if (in_mk_rndvault
+	        && !check_room_space(xabs - 1 - 1, yabs - 1 - 1, xabs + wtmp + 1, yabs + htmp + 1))
+                continue;
+	    fail = FALSE;
         } else { /* Only some parameters are random */
             int rndpos = 0;
             if (xtmp < 0 && ytmp < 0) { /* Position is RANDOM */
@@ -1266,19 +1287,15 @@ xchar rtype, rlit;
             if (yabs < 2)
                 yabs = 2;
 
-            /* Try to find a rectangle that fit our room ! */
-
-            r2.lx = xabs - 1;
-            r2.ly = yabs - 1;
-            r2.hx = xabs + wtmp + rndpos;
-            r2.hy = yabs + htmp + rndpos;
-            r1 = get_rect(&r2);
+	    if (in_mk_rndvault
+	        && !check_room_space(xabs - 1 - 1, yabs - 1 - 1, xabs + wtmp + rndpos + 1, yabs + htmp + rndpos + 1))
+	        continue;
+	    fail = FALSE;
         }
-    } while (++trycnt <= 100 && !r1);
-    if (!r1) { /* creation of room failed ? */
+    } while (++trycnt <= 10000 && fail);
+    if (fail) { /* creation of room failed ? */
         return FALSE;
     }
-    split_rects(r1, &r2);
 
     if (!vault) {
         smeq[nroom] = nroom;
@@ -1380,6 +1397,7 @@ struct mkroom *broom;
 
     do {
         register int dwall, dpos;
+        int ds;
 
         dwall = dd->wall;
         if (dwall == -1) /* The wall is RANDOM */
@@ -1394,8 +1412,8 @@ struct mkroom *broom;
             if (!(dwall & W_NORTH))
                 goto redoloop;
             y = broom->ly - 1;
-            x = broom->lx
-                + ((dpos == -1) ? rn2(1 + (broom->hx - broom->lx)) : dpos);
+	    ds = (broom->hx - broom->lx);
+	    x = broom->lx + ((dpos == -1) ? (ds < 1 ? 0 : rn2(ds + 1)) : dpos);
             if (IS_ROCK(levl[x][y - 1].typ))
                 goto redoloop;
             goto outdirloop;
@@ -1403,8 +1421,8 @@ struct mkroom *broom;
             if (!(dwall & W_SOUTH))
                 goto redoloop;
             y = broom->hy + 1;
-            x = broom->lx
-                + ((dpos == -1) ? rn2(1 + (broom->hx - broom->lx)) : dpos);
+	    ds = (broom->hx - broom->lx);
+	    x = broom->lx + ((dpos == -1) ? (ds < 1 ? 0 : rn2(ds + 1)) : dpos);
             if (IS_ROCK(levl[x][y + 1].typ))
                 goto redoloop;
             goto outdirloop;
@@ -1412,8 +1430,8 @@ struct mkroom *broom;
             if (!(dwall & W_WEST))
                 goto redoloop;
             x = broom->lx - 1;
-            y = broom->ly
-                + ((dpos == -1) ? rn2(1 + (broom->hy - broom->ly)) : dpos);
+	    ds = (broom->hy - broom->ly);
+	    y = broom->ly + ((dpos == -1) ? (ds < 1 ? 0 : rn2(ds + 1)) : dpos);
             if (IS_ROCK(levl[x - 1][y].typ))
                 goto redoloop;
             goto outdirloop;
@@ -1421,8 +1439,8 @@ struct mkroom *broom;
             if (!(dwall & W_EAST))
                 goto redoloop;
             x = broom->hx + 1;
-            y = broom->ly
-                + ((dpos == -1) ? rn2(1 + (broom->hy - broom->ly)) : dpos);
+	    ds = (broom->hy - broom->ly);
+	    y = broom->ly + ((dpos == -1) ? (ds < 1 ? 0 : rn2(ds + 1)) : dpos);
             if (IS_ROCK(levl[x + 1][y].typ))
                 goto redoloop;
             goto outdirloop;
@@ -4682,7 +4700,8 @@ struct sp_coder *coder;
     /* for an ordinary room, `prefilled' is a flag to force
        an actual room to be created (such rooms are used to
        control placement of migrating monster arrivals) */
-    room_not_needed = (OV_i(rtype) == OROOM && !irregular && !prefilled);
+    room_not_needed = (OV_i(rtype) == OROOM && !irregular
+                       && !prefilled && !in_mk_rndvault);
     if (room_not_needed || nroom >= MAXNROFROOMS) {
         region tmpregion;
         if (!room_not_needed)
@@ -5027,6 +5046,10 @@ struct sp_coder *coder;
         break;
     }
     if (ystart < 0 || ystart + ysize > ROWNO) {
+	if (in_mk_rndvault) {
+	    coder->exit_script = TRUE;
+	    goto skipmap;
+	}
         /* try to move the start a bit */
         ystart += (ystart > 0) ? -2 : 2;
         if (ysize == ROWNO)
@@ -5041,7 +5064,27 @@ struct sp_coder *coder;
         ysize = ROWNO;
     } else {
         xchar x, y, mptyp;
-
+	/* random vault should never overwrite anything */
+	if (in_mk_rndvault) {
+	    boolean isokp = TRUE;
+	    for (y = ystart; y < ystart+ysize; y++)
+		for (x = xstart; x < xstart+xsize; x++) {
+		    xchar mptyp = (mpmap->vardata.str[(y - ystart) * xsize + (x - xstart)] - 1);
+		    if (mptyp >= MAX_TYPE)
+                        continue;
+		    if (isok(x, y)) {
+			if (levl[x][y].typ != STONE && levl[x][y].typ != mptyp)
+                            isokp = FALSE;
+			if (levl[x][y].roomno != NO_ROOM)
+                            isokp = FALSE;
+		    } else
+                        isokp = FALSE;
+		    if (!isokp) {
+			coder->exit_script = TRUE;
+			goto skipmap;
+		    }
+		}
+	}
         /* Load the map */
         for (y = ystart; y < ystart + ysize; y++)
             for (x = xstart; x < xstart + xsize; x++) {
@@ -5083,6 +5126,7 @@ struct sp_coder *coder;
         if (coder->lvl_is_joined)
             remove_rooms(xstart, ystart, xstart + xsize, ystart + ysize);
     }
+
     if (!OV_i(mpkeepr)) {
         xstart = tmpxstart;
         ystart = tmpystart;
@@ -5090,6 +5134,7 @@ struct sp_coder *coder;
         ysize = tmpysize;
     }
 
+skipmap:
     opvar_free(mpxs);
     opvar_free(mpys);
     opvar_free(mpmap);

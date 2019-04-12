@@ -30,7 +30,8 @@
                                  */
 #define SOLIDIFY 0x00000400L  /* outer areas are nondiggable & nonpasswall */
 #define CORRMAZE 0x00000800L  /* for maze levels only */
-#define CHECK_INACCESSIBLES 0x00001000L /* check for inaccessible areas and
+#define FLAG_RNDVAULT 0x00001000L
+#define CHECK_INACCESSIBLES 0x00002000L /* check for inaccessible areas and
    generate ways to escape from them */
 
 /* different level layout initializers */

@@ -189,6 +189,7 @@ BREAK		ST_RET(BREAK_ID);
 DEFAULT		ST_RET(DEFAULT_ID);
 FUNCTION	ST_RET(FUNCTION_ID);
 SHUFFLE		ST_RET(SHUFFLE_ID);
+VAULTGEN	ST_RET(VAULTGEN_ID);
 montype		ST_RET(MONTYPE_ID);
 selection	ST_RET(selection_ID);
 rect		ST_RET(rect_ID);
@@ -293,6 +294,7 @@ blood		{ savetoken(yytext); yylval.i=ENGR_BLOOD; return ENGRAVING_TYPE; }
 blessed		{ savetoken(yytext); yylval.i=1; return CURSE_TYPE; }
 uncursed	{ savetoken(yytext); yylval.i=2; return CURSE_TYPE; }
 cursed		{ savetoken(yytext); yylval.i=3; return CURSE_TYPE; }
+rndvault	{ savetoken(yytext); yylval.i=FLAG_RNDVAULT; return FLAG_TYPE; }
 noteleport	{ savetoken(yytext); yylval.i=NOTELEPORT; return FLAG_TYPE; }
 hardfloor	{ savetoken(yytext); yylval.i=HARDFLOOR; return FLAG_TYPE; }
 nommap		{ savetoken(yytext); yylval.i=NOMMAP; return FLAG_TYPE; }

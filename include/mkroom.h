@@ -66,6 +66,7 @@ enum roomtype_types {
     LEPREHALL,  /* leprechaun hall (Tom Proudfoot) */
     COCKNEST,   /* cockatrice nest (Tom Proudfoot) */
     ANTHOLE,    /* ants (Tom Proudfoot) */
+    RNDVAULT,   /* random vault, not to be confused with VAULT */
     SHOPBASE,   /* everything above this is a shop */
     ARMORSHOP,  /* specific shop defines for level compiler */
     SCROLLSHOP,
