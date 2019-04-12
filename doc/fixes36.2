@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.299 $ $NHDT-Date: 1554580624 2019/04/06 19:57:04 $
+$NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.301 $ $NHDT-Date: 1555022325 2019/04/11 22:38:45 $
 
 This fixes36.2 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.1 in April 2018. Please note, however,
@@ -409,6 +409,8 @@ once a status highlight for a temporary rule ('up', 'down', 'changed') timed
 if a migrating long worm couldn't be placed, or some other monster was given
 	an existing long worm's place and it couldn't be put somewhere else,
 	a "trying to place monster at <0,0>" warning would occur
+if hero throws a pick-axe into a shop and shopkeeper catches it, shk will say
+	"get out of my way, scum" even if there's no monster at pick-axe spot
 
 
 Fixes to Post-3.6.1 Problems that Were Exposed Via git Repository
@@ -574,6 +576,7 @@ tty: if eight_bit_tty option is set and current symbol set specifies
 	DECgraphics handling, render line-drawing characters (in nethack's
 	scheme, the 4th quarter of ASCII--mostly lower case letters--with
 	8th-bit forced on) instead of treating that subset as 8-bit characters
+tty: enable blink attribute for status highlights (TERMLIB + !NO_TERMS config)
 unix: Makefile.src and Makefile.utl inadvertently relied on a 'gnu make'
 	extension when using $(VERBOSEMAKE) to reduce build-time feedback;
 	replace with $(QUIETCC) which operates the same but defaults to
