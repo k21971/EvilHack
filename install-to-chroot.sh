@@ -8,8 +8,7 @@
 
 # autonamed chroot directory. Can rename.
 DATESTAMP=`date +%Y%m%d-%H%M%S`
-NAO_CHROOT="/opt/nethack/hardfought.org"
-#NAO_CHROOT=/opt/nethack/chroot
+NAO_CHROOT="/opt/nethack/chroot"
 # config outside of chroot
 DGL_CONFIG="/opt/nethack/dgamelaunch.conf"
 # already compiled versions of dgl and nethack
@@ -23,9 +22,9 @@ COMPRESSBIN="/bin/gzip"
 NH_GIT="/home/build/EvilHack"
 NH_BRANCH="master"
 # HACKDIR from include/config.h; aka nethack subdir inside chroot
-NHSUBDIR="evilhack"
+NHSUBDIR="evilhack-0.3.0"
 # VAR_PLAYGROUND from include/unixconf.h
-NH_VAR_PLAYGROUND="/evilhack/var/"
+NH_VAR_PLAYGROUND="/evilhack-0.3.0/var/"
 # only define this if dgl was configured with --enable-sqlite
 SQLITE_DBFILE="/dgldir/dgamelaunch.db"
 # END OF CONFIG
