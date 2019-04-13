@@ -838,10 +838,10 @@ makelevel()
 
     if (u.uz.dlevel != 1) {
 	if (!somexyspace(croom, &pos, 0)) {
-	    if (!somexy(croom, &pos)) {
-	        pos.x = somex(croom);
-	        pos.y = somey(croom);
-	    }
+            if (!somexy(croom, &pos)) {
+                pos.x = somex(croom);
+                pos.y = somey(croom);
+            }
         }
 	mkstairs(pos.x, pos.y, 1, croom); /* up */
     }

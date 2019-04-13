@@ -510,3 +510,39 @@ xxx-----xxx
 ENDMAP
 REGION:(5,5,5,5),random,"ordinary",unfilled,irregular { }
 
+# Four-leaf clover
+LEVEL:"vlt-0027"
+FLAGS:rndvault
+GEOMETRY:random
+MAP
+-----x-----
+|...|x|...|
+|...---...|
+|.........|
+---.....---
+xx|.....|xx
+---.....---
+|.........|
+|...---...|
+|...|x|...|
+-----x-----
+ENDMAP
+REGION:(1,1,1,1),random,"ordinary",unfilled,irregular { }
+
+# spider nest
+LEVEL:"vlt-0028"
+FLAGS:rndvault
+ROOM:"rndvault", unlit, random, random, random {
+  LOOP [3d3] {
+    TRAP:"web", random
+  }
+}
+
+# room with a subroom
+LEVEL:"vlt-0029"
+FLAGS:rndvault
+ROOM:"rndvault", random, random, random, random {
+   SUBROOM:"ordinary", random, random, random {
+      ROOMDOOR:random, random, random, random
+   }
+}
