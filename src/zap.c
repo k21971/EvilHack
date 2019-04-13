@@ -2177,6 +2177,7 @@ register struct obj *obj;
         litroom(TRUE, obj);
         if (!Blind)
             known = TRUE;
+        blindingflash();
         if (lightdamage(obj, TRUE, 5))
             known = TRUE;
         break;
@@ -5537,6 +5538,33 @@ unsigned long udid;
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
 	if (!DEADMONSTER(mtmp) && m_canseeu(mtmp))
             m_setseen(mtmp, udid);
+    }
+}
+
+void
+blindingflash()
+{
+    struct monst* mtmp;
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+	/* if it can't see the flash, don't bother */
+	if (DEADMONSTER(mtmp) || mtmp->msleeping
+			|| !haseyes(mtmp->data) || !mtmp->mcansee
+                        || mtmp->mblinded || !&youmonst.data) {
+			continue;
+	}
+	/* must be able to see our location... */
+	if (m_cansee(mtmp, u.ux, u.uy) && !rn2(5)) {
+	    if (!Blind && canseemon(mtmp)) {
+		pline("%s is blinded by the flash!", Monnam(mtmp));
+	    }
+            if (mtmp->mtame && rn2(2)) {
+                abuse_dog(mtmp);
+            } else if (mtmp->mpeaceful) {
+                setmangry(mtmp, TRUE);
+            }
+	    mtmp->mblinded = rnd(20);
+	    mtmp->mcansee = 0;
+	}
     }
 }
 

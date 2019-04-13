@@ -3025,6 +3025,7 @@ E int FDECL(destroy_mitem, (struct monst *, int, int));
 E int FDECL(resist, (struct monst *, CHAR_P, int, int));
 E void NDECL(makewish);
 E void FDECL(monstseesu, (unsigned long));
+E void NDECL(blindingflash);
 
 #endif /* !MAKEDEFS_C && !LEV_LEX_C */
 

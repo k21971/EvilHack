@@ -2097,6 +2097,9 @@ struct obj *obj;
      *  correctly update all previously seen positions *and* correctly
      *  set the waslit bit [could be messed up from above].
      */
+    if (on)
+        blindingflash();
+
     if (!Blind) {
         vision_recalc(2);
 
