@@ -863,7 +863,7 @@ struct obj *obj;
         obj->nomerge = 0;
     } else if (is_soko_prize(obj)) {
         if (!u.uachieve.finish_sokoban)
-            livelog_write_string(LL_ACHIEVE, "completed Sokoban");
+            livelog_printf(LL_ACHIEVE, "completed Sokoban, acquiring %s", doname(obj));
         u.uachieve.finish_sokoban = 1;
         obj->record_achieve_special = NON_PM;
         obj->nomerge = 0;
