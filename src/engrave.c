@@ -405,14 +405,25 @@ const char *s;
 long e_time;
 xchar e_type;
 {
-#define N_BOGUS_ELBERETH 5
+#define N_BOGUS_ELBERETH 7
     static char *bogus_elbereth[N_BOGUS_ELBERETH] = {
         "Elizabeth",
         "OwlBreath",
         "Everest",
         "Elly'sBreast", /* maybe not ;) */
-        "Eratosthenes"
+        "Eratosthenes",
+        "EvilHack",     /* hahahah */
+        "htereblE"
     };
+
+#define N_CANNOT_WRITE 4
+    static char *cannot_write[N_CANNOT_WRITE] = {
+        "You can't seem to wrap your mind around that!",
+        "You feel like you've seen this word before, but can't quite remember it.",
+        "You regret skipping Sindarin class during school.",
+        "You have difficulty writing a word you've never learned."
+    };
+
     struct engr *ep;
     unsigned smem;
 
@@ -421,8 +432,9 @@ xchar e_type;
     if (!in_mklev && strcasestr(s, "Elbereth")) {
         if (!u.uevent.ulearned_elbereth) {
            s = bogus_elbereth[rn2(N_BOGUS_ELBERETH)];
-           You_cant("seem to wrap your mind around that!  You %swrite %s instead.",
-                    (ep ? "wipe out the message and " : ""),  s);
+           pline("%s", cannot_write[rn2(N_CANNOT_WRITE)]);
+           You("%swrite %s instead.",
+               (ep ? "wipe out the message and " : ""),  s);
         } else {
             if (!strcmpi(s, "Elbereth")) {
                 /* engraving Elbereth shows wisdom */
