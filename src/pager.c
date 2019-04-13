@@ -282,6 +282,12 @@ int x, y;
     if (mtmp->mleashed)
         Strcat(buf, ", leashed to you");
 
+    if (mtmp->misc_worn_check && canseemon(mtmp) && !Blind)
+        Strcat(buf, ", wearing armor");
+
+    if (MON_WEP(mtmp) && canseemon(mtmp) && !Blind)
+        Sprintf(eos(buf), ", wielding %s", ansimpleoname(MON_WEP(mtmp)));
+
     if (mtmp->mtrapped && cansee(mtmp->mx, mtmp->my)) {
         struct trap *t = t_at(mtmp->mx, mtmp->my);
         int tt = t ? t->ttyp : NO_TRAP;
