@@ -461,7 +461,7 @@ make_bones:
 	m_dowear(ukiller, TRUE);  /* Let them wear it */
         /* This right here can help prevent an endless loop of low dungeon level
          * demon prince/lord bones, but some of the more desirable loot could go
-         * with them. */ 
+         * with them. */
 	if (greedy && !rn2(3)) {
 	    mongone(ukiller);
 	    dmonsfree();	  /* have to call this again */
@@ -502,6 +502,7 @@ make_bones:
         mtmp->mhp = mtmp->mhpmax = u.uhpmax;
         mtmp->female = flags.female;
         mtmp->msleeping = 1;
+        Strcpy(mtmp->former_rank, rank());
     }
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         resetobjs(mtmp->minvent, FALSE);
