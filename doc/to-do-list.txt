@@ -7,14 +7,14 @@ From GruntHack
 2) new spells <---- DONE
 3) two-weaponing w/ artifact weapons <---- DONE (with restrictions)
 4) new monsters <---- DONE (mostly)
-5) monster AI (opening/looting containers, using wands of wishing, etc) <---- almost done
-6) demon lord levels
+5) monster AI (opening/looting containers, using wands of wishing, etc) <---- DONE
+6) demon lord levels <---- DONE
 7) new races for PC (ogres, kobolds, giants) <---- DONE
 8) new race/role combos <---- DONE
 9) Izchak change <---- DONE
 10) sokoban changes, especially ending <---- DONE
 11) ability to fooproof virtually anything (but makes most objects suseptible to being burned, etc) <---- DONE
-12) powerful NPC's
+12) powerful NPC's <---- almost done
 13) do NOT include level flipping <---- DONE (because I never did it)
 14) racial shopkeepers <---- DONE
 15) racial grudge (PC and monsters) <---- DONE
@@ -31,13 +31,13 @@ From SporkHack
 5) changes to artifacts <---- DONE
 6) changes to skills <---- DONE
 7) changes to spell casting while wearing body armor (will also tweak) <---- DONE
-8) gold vault changes
+8) gold vault changes <---- DONE
 9) unicorn horn behavior <---- DONE
 10) new race/role combos <---- DONE
 11) new objects/artifacts <---- DONE
 12) reflection changes <---- DONE
 13) remove mysterious force, incorporate monster spawn on ascrun <---- DONE
-14) new traps
+14) new traps <---- DONE
 15) Vlad changes <---- DONE
 16) genocide behavior <---- DONE
 17) adjust spell levels <---- DONE
@@ -50,7 +50,7 @@ From SporkHack
 
 From other variants
 -------------------
-1) gehennom revamp from xNetHack (or maybe from Sporkhack)
+1) gehennom revamp from xNetHack (or maybe from Sporkhack) <---- DONE
 2) #give command from SpliceHack <---- DONE
 3) changes to unicorn horn from xNetHack <---- DONE
 4) monsters can ride steeds <---- DONE
@@ -63,7 +63,7 @@ Custom unique bits
 4) tweak behavior from some of things pulled from GruntHack and SporkHack <---- DONE (kind of an always on-going thing)
 5) tweak skill sets for roles to something that makes sense <---- DONE
 6) time to give monks some love <---- DONE
-7) Elbereth changes (hero can only use the E-word after it's been discovered in-game)
+7) Elbereth changes (hero can only use the E-word after it's been discovered in-game) <---- almost done but IT WORKS
 
 =========================================================
 

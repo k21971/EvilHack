@@ -104,6 +104,8 @@ touch "$NAO_CHROOT/$NHSUBDIR/var/xlogfile"
 chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/xlogfile"
 touch "$NAO_CHROOT/$NHSUBDIR/var/livelog"
 chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/livelog"
+touch "$NAO_CHROOT/$NHSUBDIR/var/wishtracker"
+chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/wishtracker"
 
 RECOVER="$NETHACK_GIT/util/recover"
 
