@@ -172,7 +172,7 @@ Version 0.2.1
 - New Fort Ludios maps
 - Changes and tweaks to the Valley of the Dead
 - Major Gehennom revamp (mines-style levels with lots of lava instead of random mazes)
-- All demon lords and prices have their own special level now in Gehennom. Yes, you have
+- All demon lords and princes have their own special level now in Gehennom. Yes, you have
   to deal with Demogorgon
 - Special room generation/random 'vaults' added to the regular dungeon
 - New mines end map - Orc Temple (by Khor)

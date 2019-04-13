@@ -13,12 +13,12 @@
 # Which users can use debug mode (aka wizard mode; accessed via '-D' command
 # line flag or OPTIONS=playmode:debug in the runtime options config file).
 # A value of * allows anyone to enter debugging mode.
-WIZARDS=*
+WIZARDS=nobody
 
 # Which users can use explore mode (aka discover mode; accessed via '-X'
 # command line flag or OPTIONS=playmode:explore in runtime options file or
 # via '#exploremode' command during normal play).  Same syntax as WIZARDS.
-EXPLORERS=*
+EXPLORERS=nobody
 
 # Users allowed to use the '!' (shell escape) and '^Z' (suspend process)
 # commands to temporarily leave the game and enter a shell process.
@@ -102,7 +102,7 @@ LIVELOG=0x0FFF
 
 # Do not livelog breaking of conducts before this turncount
 # Cuts down on spam
-LLC_TURNS=1
+LLC_TURNS=3000
 
 # Show debugging information originating from these source files.
 # Use '*' for all, or list source files separated by spaces.
