@@ -1447,7 +1447,7 @@ NEARDATA struct permonst mons[] = {
      * which they rode/flew into battle. Fearsome in their own right.
      * Not exactly dragons, but dragon-like.
      */
-    MON("fell beast", S_DRAGON, LVL(14, 12, -2, 20, -17), (G_NOGEN | 1),
+    MON("fell beast", S_DRAGON, LVL(14, 12, -2, 20, -17), (G_NOGEN),
         A(ATTK(AT_CLAW, AD_PHYS, 4, 5), ATTK(AT_CLAW, AD_PHYS, 4, 5),
           ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1200, 800, MS_SHRIEK, MZ_LARGE), MR_COLD | MR_SLEEP | MR_POISON, 0,
@@ -1460,7 +1460,7 @@ NEARDATA struct permonst mons[] = {
      * spellcasting masters. Not much larger than your typical household
      * cat, but much more cunning and intelligent.
      */
-    MON("pseudodragon", S_DRAGON, LVL(4, 18, 2, 20, 0), (G_NOGEN | 1),
+    MON("pseudodragon", S_DRAGON, LVL(4, 18, 2, 20, 0), (G_NOGEN),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_STNG, AD_DRST, 1, 2),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(200, 200, MS_HISS, MZ_SMALL), MR_POISON, 0,
@@ -1468,7 +1468,7 @@ NEARDATA struct permonst mons[] = {
         M2_DOMESTIC | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION, 0,
         MH_DRAGON, 7, CLR_BROWN),
-    MON("elder pseudodragon", S_DRAGON, LVL(6, 18, 0, 40, 0), (G_NOGEN | 1),
+    MON("elder pseudodragon", S_DRAGON, LVL(6, 18, 0, 40, 0), (G_NOGEN),
         A(ATTK(AT_BITE, AD_PHYS, 1, 8), ATTK(AT_STNG, AD_DRST, 1, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(200, 200, MS_HISS, MZ_SMALL), MR_POISON, 0,
