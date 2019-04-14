@@ -533,7 +533,7 @@ REGION:(1,1,1,1),random,"ordinary",unfilled,irregular { }
 LEVEL:"vlt-0028"
 FLAGS:rndvault
 ROOM:"rndvault", unlit, random, random, random {
-  LOOP [3d3] {
+  LOOP [2d2] {
     TRAP:"web", random
   }
 }

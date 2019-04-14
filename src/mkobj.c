@@ -1206,10 +1206,10 @@ struct obj *body;
     int rot_adjust;
     short action;
 
-#define TAINT_AGE (50L)        /* age when corpses go bad */
-#define TROLL_REVIVE_CHANCE 37 /* 1/37 chance for 50 turns ~ 75% chance */
-#define ZOMBIE_REVIVE_CHANCE 37 /* 1/37 chance for 50 turns ~ 75% chance */
-#define ROT_AGE (250L)         /* age when corpses rot away */
+#define TAINT_AGE (50L)          /* age when corpses go bad */
+#define TROLL_REVIVE_CHANCE 37   /* 1/37 chance for 50 turns ~ 75% chance */
+#define ZOMBIE_REVIVE_CHANCE 275 /* 1/275 chance for 250 turns ~ 60% chance */
+#define ROT_AGE (250L)           /* age when corpses rot away */
 
     /* lizards and lichen don't rot or revive */
     if (body->corpsenm == PM_LIZARD || body->corpsenm == PM_LICHEN)
@@ -1245,7 +1245,7 @@ struct obj *body;
         }
     } else if (body->zombie_corpse && !body->norevive) {
         long age;
-        for (age = 2; age <= TAINT_AGE; age++) {
+        for (age = 2; age <= ROT_AGE; age++) {
             if (!rn2(ZOMBIE_REVIVE_CHANCE)) { /* zombie revives */
                 action = REVIVE_MON;
                 when = age;
