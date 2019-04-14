@@ -2153,7 +2153,7 @@ curses_add_statuses(WINDOW *win, boolean align_right,
     statprob("Blind",    Blind);
     statprob("Stun",     Stunned);
     statprob("Hallu",    Hallucination);
-    statprob("Ill",      (u.usick_type & SICK_NONVOMITABLE));
+    statprob("Ill",      (u.usick_type & (SICK_NONVOMITABLE | SICK_ZOMBIE)));
     statprob("FoodPois", (u.usick_type & SICK_VOMITABLE));
     statprob("Slime",    Slimed);
 

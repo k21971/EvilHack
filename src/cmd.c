@@ -2299,6 +2299,8 @@ int final;
         /* prayer lumps these together; botl puts Ill before FoodPois */
         if (u.usick_type & SICK_NONVOMITABLE)
             you_are("terminally sick from illness", "");
+        if (u.usick_type & SICK_ZOMBIE)
+            you_are("turning into a zombie", "");
         if (u.usick_type & SICK_VOMITABLE)
             you_are("terminally sick from food poisoning", "");
     }

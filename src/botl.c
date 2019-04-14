@@ -174,7 +174,7 @@ do_statusline2()
     if (Sick) {
         if (u.usick_type & SICK_VOMITABLE)
             Strcpy(nb = eos(nb), " FoodPois");
-        if (u.usick_type & SICK_NONVOMITABLE)
+        if (u.usick_type & (SICK_NONVOMITABLE | SICK_ZOMBIE))
             Strcpy(nb = eos(nb), " TermIll");
     }
     if (u.uhs != NOT_HUNGRY)
@@ -719,7 +719,7 @@ bot_via_windowport()
         blstats[idx][BL_CONDITION].a.a_ulong |= BL_MASK_STRNGL;
     if (Sick && (u.usick_type & SICK_VOMITABLE) != 0)
         blstats[idx][BL_CONDITION].a.a_ulong |= BL_MASK_FOODPOIS;
-    if (Sick && (u.usick_type & SICK_NONVOMITABLE) != 0)
+    if (Sick && (u.usick_type & (SICK_NONVOMITABLE | SICK_ZOMBIE)) != 0)
         blstats[idx][BL_CONDITION].a.a_ulong |= BL_MASK_TERMILL;
     /*
      * basic formatting puts hunger status and encumbrance here

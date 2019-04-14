@@ -599,6 +599,12 @@ nh_timeout()
                         killer.format = KILLED_BY;
                     }
                 }
+
+                if (!!(u.usick_type & SICK_ZOMBIE)) {
+                    u.ugrave_arise = urace.zombienum;
+                    killer.format = NO_KILLER_PREFIX;
+                    Strcpy(killer.name, "zombified by a zombie");
+                }
                 u.usick_type = 0;
                 done(POISONING);
                 break;

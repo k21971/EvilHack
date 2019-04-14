@@ -303,10 +303,11 @@ struct you {
     struct prop uprops[LAST_PROP + 1];
 
     unsigned umconf;
-    Bitfield(usick_type, 2);
+    Bitfield(usick_type, 3);
 #define SICK_VOMITABLE 0x01
 #define SICK_NONVOMITABLE 0x02
-#define SICK_ALL 0x03
+#define SICK_ZOMBIE 0x04
+#define SICK_ALL 0x07
 
     /* These ranges can never be more than MAX_RANGE (vision.h). */
     int nv_range;   /* current night vision range */

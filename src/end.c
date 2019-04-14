@@ -1234,6 +1234,8 @@ int how;
         u.ugrave_arise = (NON_PM - 2); /* leave no corpse */
     else if (how == STONING)
         u.ugrave_arise = (NON_PM - 1); /* statue instead of corpse */
+    else if (u.usick_type & SICK_ZOMBIE)
+        u.ugrave_arise = urace.zombienum;
     else if (how == TURNED_SLIME
              /* it's possible to turn into slime even though green slimes
                 have been genocided:  genocide could occur after hero is

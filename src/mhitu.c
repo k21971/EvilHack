@@ -997,7 +997,7 @@ struct permonst *mdat;
         return FALSE;
     } else {
         make_sick(Sick ? Sick / 3L + 1L : (long) rn1(ACURR(A_CON), 20),
-                  mdat->mname, TRUE, SICK_NONVOMITABLE);
+                  mdat->mname, TRUE, is_zombie(mdat) ? SICK_ZOMBIE : SICK_NONVOMITABLE);
         return TRUE;
     }
 }
@@ -1252,6 +1252,11 @@ register struct attack *mattk;
                 hitmsg(mtmp, mattk);
                 }
             }
+            if (is_zombie(mtmp->data) && !rn2(3)) {
+                if (uncancelled)
+                    diseasemu(mdat);
+                break;
+            }
 	    if (mtmp->data == &mons[PM_WATER_ELEMENTAL]) {
 		goto do_rust;
 	}
@@ -1371,6 +1376,12 @@ register struct attack *mattk;
         }
         if (u_slip_free(mtmp, mattk))
             break;
+
+        if (is_zombie(mtmp->data) && rn2(5)) {
+            if (uncancelled)
+                diseasemu(mdat);
+            break;
+        }
 
         if (uarmh && rn2(8)) {
             /* not body_part(HEAD) */

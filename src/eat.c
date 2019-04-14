@@ -1966,7 +1966,7 @@ struct obj *otmp;
                before eventual vomit, but also means that constitution
                will be abused more times before illness completes */
             make_vomiting((Vomiting & TIMEOUT) + (long) d(10, 4), TRUE);
-        } else {
+        } else
         give_feedback:
             pline("This %s is %s", singular(otmp, xname),
                   otmp->cursed
@@ -1976,8 +1976,21 @@ struct obj *otmp;
                         || otmp->otyp == C_RATION)
                         ? "bland."
                         : Hallucination ? "gnarly!" : "delicious!");
-        }
         break; /* default */
+    case CORPSE:
+    case TIN:
+    case ROCK:
+        if (otmp->corpsenm && otmp->zombie_corpse && !Sick_resistance) {
+            char buf[BUFSZ];
+            /* zombie meat */
+            long sick_time = (long) rn1(10, 10);
+            /* make sure new ill doesn't result in improvement */
+            if (Sick && (sick_time > Sick))
+                sick_time = (Sick > 1L) ? Sick - 1L : 1L;
+            Sprintf(buf, "tasting %s zombie meat",
+                    mons[otmp->corpsenm].mname);
+            make_sick(sick_time, buf, TRUE, SICK_ZOMBIE);
+        }
     } /* switch */
 }
 
