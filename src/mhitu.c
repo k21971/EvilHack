@@ -99,6 +99,8 @@ struct attack *mattk;
                        pline("%s %ss you!", Monnam(mtmp), mwep_slash[rn2(SIZE(mwep_slash))]);
             } else if (is_whack(MON_WEP(mtmp))) {
                        pline("%s %ss you!", Monnam(mtmp), mwep_whack[rn2(SIZE(mwep_whack))]);
+            } else {
+                pfmt = "%s hits you!";
             }
             break;
         case AT_CLAW:
@@ -222,23 +224,26 @@ struct monst *mtmp;
 struct obj *otemp;
 {
     if (is_pierce(MON_WEP(mtmp))) {
-    if (flags.verbose && !Blind && mon_visible(mtmp)) {
-        pline("%s %s %s%s %s.", Monnam(mtmp),
-              rn2(2) ? "thrusts" : "jabs",
-              (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
+        if (flags.verbose && !Blind && mon_visible(mtmp)) {
+            pline("%s %s %s%s %s.", Monnam(mtmp),
+                  rn2(2) ? "thrusts" : "jabs",
+                  (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
         }
     } else if (is_slash(MON_WEP(mtmp))) {
-    if (flags.verbose && !Blind && mon_visible(mtmp)) {
-        pline("%s %s %s%s %s.", Monnam(mtmp),
-              rn2(2) ? "slashes" : "swings",
-              (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
+        if (flags.verbose && !Blind && mon_visible(mtmp)) {
+            pline("%s %s %s%s %s.", Monnam(mtmp),
+                  rn2(2) ? "slashes" : "swings",
+                  (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
         }
     } else if (is_whack(MON_WEP(mtmp))) {
-    if (flags.verbose && !Blind && mon_visible(mtmp)) {
-        pline("%s %s %s%s %s.", Monnam(mtmp),
-              rn2(2) ? "swings" : "swipes",
-              (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
+        if (flags.verbose && !Blind && mon_visible(mtmp)) {
+            pline("%s %s %s%s %s.", Monnam(mtmp),
+                  rn2(2) ? "swings" : "swipes",
+                  (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
         }
+    } else if (flags.verbose && !Blind && mon_visible(mtmp)) {
+        pline("%s %s %s%s %s.", Monnam(mtmp), "swings",
+              (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
     }
 }
 

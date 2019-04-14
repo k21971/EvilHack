@@ -689,6 +689,8 @@ struct attack *mattk;
                        Sprintf(buf, "%s %ss", magr_name, mwep_slash[rn2(SIZE(mwep_slash))]);
             } else if (is_whack(MON_WEP(magr))) {
                        Sprintf(buf, "%s %ss", magr_name, mwep_whack[rn2(SIZE(mwep_whack))]);
+            } else {
+                Sprintf(buf, "%s hits", magr_name);
             }
             break;
         case AT_CLAW:
