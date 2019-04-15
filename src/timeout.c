@@ -603,7 +603,8 @@ nh_timeout()
                 if (!!(u.usick_type & SICK_ZOMBIE)) {
                     u.ugrave_arise = urace.zombienum;
                     killer.format = NO_KILLER_PREFIX;
-                    Strcpy(killer.name, "zombified by a zombie");
+                    Sprintf(killer.name, "zombified by %s",
+                            mons[m_idx].mname);
                 }
                 u.usick_type = 0;
                 done(POISONING);
