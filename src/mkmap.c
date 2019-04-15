@@ -568,9 +568,6 @@ lev_init *init_lev;
     if (In_mines(&u.uz) && !In_hell(&u.uz))
         mkrivers();
 
-    if (In_mines(&u.uz) && lit == 1)
-        pline("hi");
-
     finish_map(fg_typ, bg_typ, (boolean) lit, (boolean) walled,
                init_lev->icedpools);
     /* a walled, joined level is cavernous, not mazelike -dlc */
