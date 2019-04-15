@@ -515,7 +515,7 @@ int spellnum;
                     dmg = 0;
                 }
                 explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
-                    WAND_CLASS, EXPL_ACID);
+                    MON_CASTBALL, EXPL_ACID);
                 if (rn2(u.twoweap ? 2 : 3))
                     acid_damage(uwep);
                 if (u.twoweap && rn2(2))
