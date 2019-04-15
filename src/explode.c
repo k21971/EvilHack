@@ -327,7 +327,8 @@ int expltype;
                 if (type >= 0 && !u.uswallow)
                     (void) zap_over_floor((xchar) (i + x - 1),
                                           (xchar) (j + y - 1), type,
-                                          &shopdamage, exploding_wand_typ);
+                                          &shopdamage, exploding_wand_typ,
+                                          MON_CASTBALL);
 
                 mtmp = m_at(i + x - 1, j + y - 1);
                 if (!mtmp && i + x - 1 == u.ux && j + y - 1 == u.uy)
@@ -476,7 +477,7 @@ int expltype;
                             adtyp = AD_RBRE; /* no corpse */
                         monkilled(mtmp, "", (int) adtyp);
                     }
-                } else if (!context.mon_moving) {
+                } else if (!context.mon_moving && olet != MON_CASTBALL) {
                     /* all affected monsters, even if mdef is set */
                     setmangry(mtmp, TRUE);
                 }

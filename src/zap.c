@@ -4260,7 +4260,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
         bhitpos.x = sx, bhitpos.y = sy;
         /* Fireballs only damage when they explode */
         if (type != ZT_SPELL(ZT_FIRE)) {
-            range += zap_over_floor(sx, sy, type, &shopdamage, 0);
+            range += zap_over_floor(sx, sy, type, &shopdamage, 0, FALSE);
             /* zap with fire -> melt ice -> drown monster, so monster
                found and cached above might not be here any more */
             mon = m_at(sx, sy);
@@ -4569,13 +4569,17 @@ long timeout UNUSED;
  * Used both for normal bolts of fire, cold, etc... and for fireballs.
  * Sets shopdamage to TRUE if a shop door is destroyed, and returns the
  * amount by which range is reduced (the latter is just ignored by fireballs)
+ *
+ * If moncast is TRUE, then a monster is causing this damage; do not penalize
+ * the player for any shop damage or miscellaneous item destruction.
  */
 int
-zap_over_floor(x, y, type, shopdamage, exploding_wand_typ)
+zap_over_floor(x, y, type, shopdamage, exploding_wand_typ, moncast)
 xchar x, y;
 int type;
 boolean *shopdamage;
 short exploding_wand_typ;
+boolean moncast;
 {
     const char *zapverb;
     struct monst *mon;
@@ -4832,7 +4836,7 @@ short exploding_wand_typ;
         }
         if (new_doormask >= 0) { /* door gets broken */
             if (*in_rooms(x, y, SHOPBASE)) {
-                if (type >= 0) {
+                if (type >= 0 && !moncast) {
                     add_damage(x, y, SHOP_DOOR_COST);
                     *shopdamage = TRUE;
                 } else /* caused by monster */
@@ -4855,13 +4859,13 @@ short exploding_wand_typ;
     }
 
     if (OBJ_AT(x, y) && abstype == ZT_FIRE)
-        if (burn_floor_objects(x, y, FALSE, type > 0) && couldsee(x, y)) {
+        if (burn_floor_objects(x, y, FALSE, (type > 0 && !moncast)) && couldsee(x, y)) {
             newsym(x, y);
             You("%s of smoke.", !Blind ? "see a puff" : "smell a whiff");
         }
     if ((mon = m_at(x, y)) != 0) {
         wakeup(mon, FALSE);
-        if (type >= 0) {
+        if (type >= 0 && !moncast) {
             setmangry(mon, TRUE);
             if (mon->ispriest && *in_rooms(mon->mx, mon->my, TEMPLE))
                 ghod_hitsu(mon);
