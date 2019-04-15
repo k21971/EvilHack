@@ -91,8 +91,8 @@ register struct monst *mtmp;
 register int level;
 {
     if (mtmp->m_lev >= 38)
-	return 0;
-    return 5 * level * ((38-mtmp->m_lev) * 2 / 3);
+	return 1;
+    return 5 * level * ((38 - mtmp->m_lev) * 2 / 3);
 }
 
 extern const char *const flash_types[]; /* from zap.c */
@@ -324,8 +324,8 @@ boolean foundyou;
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
         register struct obj *obj;
         mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
-        if (mtmp->mspec_used < 1)
-            mtmp->mspec_used = 1;
+        if (mtmp->mspec_used < 2)
+            mtmp->mspec_used = 2;
         for (obj = mtmp->minvent; obj; obj = obj->nobj)
 	    if (obj->oartifact
 		&& obj->oartifact == ART_EYE_OF_THE_AETHIOPICA) {
@@ -1313,8 +1313,8 @@ register struct attack *mattk;
    	if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
             register struct obj *obj;
             mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
-            if (mtmp->mspec_used < 1)
-                mtmp->mspec_used = 1;
+            if (mtmp->mspec_used < 2)
+                mtmp->mspec_used = 2;
             for (obj = mtmp->minvent; obj; obj = obj->nobj)
                 if (obj->oartifact
                     && obj->oartifact == ART_EYE_OF_THE_AETHIOPICA) {
