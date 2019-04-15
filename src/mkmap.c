@@ -469,12 +469,13 @@ boolean lava;
       	else if (levl[cx][cy].typ == ROOM) chance = 30;
       	else if (IS_ROCK(levl[cx][cy].typ)) chance = 100;
 
-      	if (rn2(100) < chance && !t_at(cx,cy)) {
+      	if (rn2(100) < chance && !t_at(cx, cy)) {
       	    if (lava) {
             	levl[cx][cy].typ = LAVAPOOL;
             	levl[cx][cy].lit = 1;
       	    } else
       	        levl[cx][cy].typ = !rn2(3) ? POOL : MOAT;
+                levl[cx][cy].lit = 1;
       	}
 
       	if (cx == x2 && cy == y2) break;
@@ -529,8 +530,8 @@ mkrivers()
     int nriv = rn2(3) + 1;
     boolean lava = rn2(100) < depth(&u.uz);
     while (nriv--) {
-      	if (rn2(2)) makeriver(0, rn2(ROWNO), COLNO-1, rn2(ROWNO), lava);
-      	else makeriver(rn2(COLNO), 0, rn2(COLNO), ROWNO-1, lava);
+      	if (rn2(2)) makeriver(0, rn2(ROWNO), COLNO - 1, rn2(ROWNO), lava);
+      	else makeriver(rn2(COLNO), 0, rn2(COLNO), ROWNO - 1, lava);
     }
 }
 
@@ -566,6 +567,9 @@ lev_init *init_lev;
 
     if (In_mines(&u.uz) && !In_hell(&u.uz))
         mkrivers();
+
+    if (In_mines(&u.uz) && lit == 1)
+        pline("hi");
 
     finish_map(fg_typ, bg_typ, (boolean) lit, (boolean) walled,
                init_lev->icedpools);
