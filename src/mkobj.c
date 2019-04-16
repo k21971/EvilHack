@@ -1208,7 +1208,7 @@ struct obj *body;
 
 #define TAINT_AGE (50L)          /* age when corpses go bad */
 #define TROLL_REVIVE_CHANCE 37   /* 1/37 chance for 50 turns ~ 75% chance */
-#define ZOMBIE_REVIVE_CHANCE 275 /* 1/275 chance for 250 turns ~ 60% chance */
+#define ZOMBIE_REVIVE_CHANCE 250 /* 1/250 chance for 250 turns ~ 65% chance */
 #define ROT_AGE (250L)           /* age when corpses rot away */
 
     /* lizards and lichen don't rot or revive */

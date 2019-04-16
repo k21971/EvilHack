@@ -1707,7 +1707,8 @@ struct obj *otmp;
             rotted -= 2L;
     }
 
-    if (mnum != PM_ACID_BLOB && !stoneable && !slimeable && rotted > 5L) {
+    if ((mnum != PM_ACID_BLOB && !stoneable && !slimeable && rotted > 5L)
+        || (otmp->zombie_corpse)) {
         boolean cannibal = maybe_cannibal(mnum, FALSE);
 
         pline("Ulch - that %s was tainted%s!",
@@ -1716,9 +1717,9 @@ struct obj *otmp;
                       : vegetarian(&mons[mnum]) ? "protoplasm"
                           : "meat",
               cannibal ? ", you cannibal" : "");
-        if (Sick_resistance) {
+        if (Sick_resistance && !otmp->zombie_corpse) {
             pline("It doesn't seem at all sickening, though...");
-        } else {
+        } else if (!otmp->zombie_corpse) {
             long sick_time;
 
             sick_time = (long) rn1(10, 10);
@@ -1729,7 +1730,20 @@ struct obj *otmp;
                       TRUE, SICK_VOMITABLE);
 
             pline("(It must have died too long ago to be safe to eat.)");
+        } else {
+            long sick_time;
+
+            sick_time = (long) rn1(10, 10);
+            /* make sure new ill doesn't result in improvement */
+            if (Sick && (sick_time > Sick))
+                sick_time = (Sick > 1L) ? Sick - 1L : 1L;
+            make_sick(sick_time, corpse_xname(otmp, "rotted", CXN_NORMAL),
+                      TRUE, SICK_ZOMBIE);
+
+            You_feel("a horrifying change starting within you.");
+            You("have an overwhelming urge to consume brains...");
         }
+
         if (carried(otmp))
             useup(otmp);
         else
@@ -2426,7 +2440,8 @@ struct obj *otmp;
      * These problems with food should be checked in
      * order from most detrimental to least detrimental.
      */
-    if (cadaver && mnum != PM_ACID_BLOB && rotted > 5L && !Sick_resistance) {
+    if (((cadaver && mnum != PM_ACID_BLOB && rotted > 5L) || (cadaver && (otmp->zombie_corpse)))
+        && !Sick_resistance) {
         /* Tainted meat */
         Sprintf(buf, "%s like %s could be tainted!  %s", foodsmell, it_or_they,
                 eat_it_anyway);
@@ -2517,7 +2532,8 @@ struct obj *otmp;
             return 2;
     }
 
-    if (cadaver && mnum != PM_ACID_BLOB && rotted > 5L && Sick_resistance) {
+    if (((cadaver && mnum != PM_ACID_BLOB && rotted > 5L) || (cadaver && (otmp->zombie_corpse)))
+        && Sick_resistance) {
         /* Tainted meat with Sick_resistance */
         Sprintf(buf, "%s like %s could be tainted!  %s",
                 foodsmell, it_or_they, eat_it_anyway);

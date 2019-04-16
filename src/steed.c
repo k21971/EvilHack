@@ -28,7 +28,7 @@ struct monst *mtmp;
         ERID(mtmp)->m1->mpeaceful = mtmp->mpeaceful;
     }
 }
- void mount_monster(mtmp, pm)
+void mount_monster(mtmp, pm)
 struct monst *mtmp;
 int pm;
 {
@@ -60,7 +60,7 @@ struct monst *mtmp;
         (void) memset((genericptr_t) ERID(mtmp), 0, sizeof(struct erid));
     }
 }
- void
+void
 free_erid(mtmp)
 struct monst *mtmp;
 {

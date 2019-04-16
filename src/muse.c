@@ -2877,7 +2877,7 @@ struct obj *obj;
             return TRUE;
         break;
     case FOOD_CLASS:
-        if (typ == CORPSE)
+        if (typ == CORPSE && !obj->zombie_corpse)
             return (boolean) (((mon->misc_worn_check & W_ARMG) != 0L
                                && touch_petrifies(&mons[obj->corpsenm]))
                               || (!resists_ston(mon)
