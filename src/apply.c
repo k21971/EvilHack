@@ -2133,14 +2133,10 @@ end:
         }
     }
 
-    if (did_attr || did_prop)
-        context.botl = TRUE;
     if (did_prop)
-        pline("This makes you feel %s!",
-              (did_prop + did_attr) == (trouble_count + unfixable_trbl)
-                  ? "great"
-                  : "better");
-    else if (!did_prop)
+        context.botl = TRUE;
+
+    if (!did_prop)
         pline("Nothing seems to happen.");
 
 #undef PROP_COUNT
