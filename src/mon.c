@@ -2936,11 +2936,12 @@ cleanup:
         zombify(mtmp);
     }
 
-    /* currently not working as intended...
-    if (mtmp->data == &mons[PM_GHOST] && mtmp->former_rank) {
+    /* currently not working as intended... */
+    if (mtmp->data == &mons[PM_GHOST] && mtmp->former_rank
+        && strlen(mtmp->former_rank) > 0) {
         livelog_printf(LL_UMONST, "destroyed %s, the former %s",
                        mon_nam(mtmp), mtmp->former_rank);
-    } */
+    }
 }
 
 /* changes the monster into a stone monster of the same type
