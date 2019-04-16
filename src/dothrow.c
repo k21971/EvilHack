@@ -137,26 +137,33 @@ int shotlimit;
         /* ...or is using a special weapon for their role... */
         switch (Role_switch) {
         case PM_CAVEMAN:
+        case PM_CAVEWOMAN:
+        case PM_HUMAN_CAVEMAN:
+        case PM_HUMAN_CAVEWOMAN:
             /* give bonus for low-tech gear */
             if (skill == -P_SLING || skill == P_SPEAR)
                 multishot++;
             break;
         case PM_MONK:
+        case PM_HUMAN_MONK:
             /* allow higher volley count despite skill limitation */
             if (skill == -P_SHURIKEN)
                 multishot++;
             break;
         case PM_RANGER:
+        case PM_HUMAN_RANGER:
             /* arbitrary; encourage use of other missiles beside daggers */
             if (skill != P_DAGGER)
                 multishot++;
             break;
         case PM_ROGUE:
+        case PM_HUMAN_ROGUE:
             /* possibly should add knives... */
             if (skill == P_DAGGER)
                 multishot++;
             break;
         case PM_SAMURAI:
+        case PM_HUMAN_SAMURAI:
             /* role-specific launcher and its ammo */
             if (obj->otyp == YA && uwep && uwep->otyp == YUMI)
                 multishot++;
@@ -182,9 +189,8 @@ int shotlimit;
                 if (skill == -P_CROSSBOW)
                     multishot++;
                 break;
-            case PM_HOBBIT:
             case PM_HOBBIT_ROGUE:
-                /* Hobbits are good with slings and small blades */
+                /* Hobbit rogues are good with slings and small blades */
                 if ((skill == -P_SLING) || (skill == -P_KNIFE) || (skill == -P_DAGGER))
                     multishot++;
                 break;
@@ -200,6 +206,12 @@ int shotlimit;
              */
             if ((skill == -P_CROSSBOW) || (skill == -P_BOW) || (skill == -P_SLING))
                 multishot = 1;
+        }
+
+        if (Race_if(PM_HOBBIT)) {
+            /* Normal hobbits are also good with slings and small blades */
+            if ((skill == -P_SLING) || (skill == -P_KNIFE) || (skill == -P_DAGGER))
+                multishot++;
         }
 
         if (Race_if(PM_CENTAUR)) {
