@@ -2393,6 +2393,8 @@ rndmonst()
             if (Inhell && (ptr->geno & G_NOHELL))
                 continue;
             ct = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
+	    if (!is_mplayer(ptr))
+	        ct *= 2;
             if (ct < 0 || ct > 127)
                 panic("rndmonst: bad count [#%d: %d]", mndx, ct);
             rndmonst_state.choice_count += ct;
@@ -2520,7 +2522,8 @@ aligntyp atyp;
                 && mons[last].difficulty > mons[last - 1].difficulty
                 && rn2(2))
                 break;
-            if ((k = (mons[last].geno & G_FREQ)) > 0) {
+            if ((k = (is_mplayer(&mons[last]) ? 1 : 5)
+                * (mons[last].geno & G_FREQ)) > 0) {
                 /* skew towards lower value monsters at lower exp. levels
                    (this used to be done in the next loop, but that didn't
                    work well when multiple species had the same level and

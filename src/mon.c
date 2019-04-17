@@ -3171,11 +3171,7 @@ struct monst *mtmp;
         canseemon(mtmp)) {
 	pline("%s quivers.", Monnam(mtmp));
     }
-    if (mtmp->data == &mons[PM_KOBOLD_ZOMBIE] || mtmp->data == &mons[PM_DWARF_ZOMBIE]
-        || mtmp->data == &mons[PM_GNOME_ZOMBIE] || mtmp->data == &mons[PM_ORC_ZOMBIE]
-        || mtmp->data == &mons[PM_ELF_ZOMBIE] || mtmp->data == &mons[PM_HUMAN_ZOMBIE]
-        || mtmp->data == &mons[PM_GIANT_ZOMBIE] || mtmp->data == &mons[PM_ETTIN_ZOMBIE]
-        || mtmp->data == &mons[PM_HOBBIT_ZOMBIE]) {
+    if (is_zombie(mtmp->data)) {
         if (canseemon(mtmp))
 	    pline("%s %s.", Monnam(mtmp),
 	                   !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :
