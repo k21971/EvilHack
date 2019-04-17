@@ -138,7 +138,6 @@ int shotlimit;
         switch (Role_switch) {
         case PM_CAVEMAN:
         case PM_CAVEWOMAN:
-        case PM_HUMAN_CAVEMAN:
         case PM_HUMAN_CAVEWOMAN:
             /* give bonus for low-tech gear */
             if (skill == -P_SLING || skill == P_SPEAR)

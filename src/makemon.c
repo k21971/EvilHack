@@ -454,7 +454,6 @@ register struct monst *mtmp;
 	    ini_mon_inv(mtmp, Barbarian, 1);
 	    ini_mon_inv(mtmp, Lamp, 6);
 	    break;
-	case PM_HUMAN_CAVEMAN:
 	case PM_HUMAN_CAVEWOMAN:
 	    Cave_man[C_AMMO].trquan = rn1(11, 10);	/* 10..20 */
 	    ini_mon_inv(mtmp, Cave_man, 1);
@@ -465,7 +464,6 @@ register struct monst *mtmp;
 	    ini_mon_inv(mtmp, Lamp, 25);
 	    break;
 	case PM_HUMAN_KNIGHT:
-        case PM_HUMAN_DARK_KNIGHT:
 	    ini_mon_inv(mtmp, Knight, 1);
 	    break;
 	case PM_HUMAN_MONK:
@@ -480,7 +478,6 @@ register struct monst *mtmp;
 	    ini_mon_inv(mtmp, Monk, 1);
 	    ini_mon_inv(mtmp, Lamp, 10);
 	    break;
-	case PM_HUMAN_PRIEST:
 	case PM_HUMAN_PRIESTESS:
 	    ini_mon_inv(mtmp, Priest, 1);
 	    ini_mon_inv(mtmp, Lamp, 10);
@@ -2036,9 +2033,6 @@ int mmflags;
             case PM_HUMAN_KNIGHT:
                 mount_monster(mtmp, PM_HORSE);
                 break;
-            case PM_HUMAN_DARK_KNIGHT:
-                mount_monster(mtmp, PM_NIGHTMARE);
-                break;
         }
     }
 
@@ -2641,8 +2635,8 @@ struct monst *mtmp, *victim;
        have both little and big forms */
     oldtype = monsndx(ptr);
     newtype = little_to_big(oldtype);
-    if (newtype == PM_HUMAN_PRIEST && mtmp->female)
-        newtype = PM_HUMAN_PRIESTESS;
+    if (newtype == PM_PRIEST && mtmp->female)
+        newtype = PM_PRIESTESS;
 
     /* growth limits differ depending on method of advancement */
     if (victim) {                       /* killed a monster */

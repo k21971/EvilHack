@@ -210,7 +210,6 @@ struct obj *otmp, *mwep;
         /* class bonus */
         switch (monsndx(mtmp->data)) {
         case PM_CAVEMAN: /* give bonus for low-tech gear */
-        case PM_HUMAN_CAVEMAN:
         case PM_HUMAN_CAVEWOMAN:
             if (skill == -P_SLING || skill == P_SPEAR)
                 multishot++;
