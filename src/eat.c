@@ -1165,6 +1165,10 @@ int pm;
         debugpline0("using attrcurse to strip an intrinsic");
         attrcurse();
         break;
+    case PM_MAGICAL_EYE:
+        You_feel("your fortune oscillate.");
+        change_luck(2-rn2(4));
+        break;
     case PM_MIND_FLAYER:
     case PM_MASTER_MIND_FLAYER:
         if (ABASE(A_INT) < ATTRMAX(A_INT)) {
@@ -1176,19 +1180,6 @@ int pm;
         } else {
             pline("For some reason, that tasted bland.");
         }
-        break;
-    case PM_MAGICAL_EYE:
-	if (context.victual.piece->blessed) {
-	    You_feel("more fortunate.");
-	    change_luck(rnd(3));
-	} else if (context.victual.piece->cursed) {
-	    You_feel("less fortunate.");
-	    change_luck(-rnd(3));
-	} else {
-	    You_feel("your fortune oscillate.");
-	    change_luck(2-rn2(4));
-	}
-	break;
     /*FALLTHRU*/
     default:
         check_intrinsics = TRUE;
