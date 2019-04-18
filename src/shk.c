@@ -2200,6 +2200,9 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 	    case PM_GREY_ELF:
 	    case PM_ELF_LORD:
             case PM_ELF_LADY:
+            case PM_ELVEN_SERGEANT:
+            case PM_ELVEN_LIEUTENANT:
+            case PM_ELVEN_CAPTAIN:
 		if (Race_if(PM_ORC)) {
                     tmp *= 2L;
                 }
@@ -2210,6 +2213,9 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 	    case PM_DWARF:
             case PM_DWARF_LORD:
             case PM_DWARF_LADY:
+            case PM_DWARVISH_SERGEANT:
+            case PM_DWARVISH_LIEUTENANT:
+            case PM_DWARVISH_CAPTAIN:
 		if (Race_if(PM_ORC)) {
                     tmp *= 2L;
                 }
@@ -2237,6 +2243,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 	    case PM_GNOME:
 	    case PM_GNOME_LORD:
             case PM_GNOME_LADY:
+            case PM_GNOMISH_WIZARD:
 		/* Gnomes are crafty. They don't really have racial animosities, but
 		 * it's going to be a lot harder to get a good deal out of a gnome unless
 		 * you're remarkably shrewd yourself */
@@ -2250,7 +2257,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 	    case PM_MIND_FLAYER:
 	    case PM_MASTER_MIND_FLAYER:
 		/* They'd prefer not to sell their libraries */
-		tmp *= (shkp->mnum - PM_MIND_FLAYER);
+		tmp *= ((shkp->mnum - PM_MIND_FLAYER + 1) * 10);
 		break;
 	    case PM_CENTAUR:
                 /* Centaurs don't care much for most humanoid races */
@@ -2524,6 +2531,9 @@ register struct monst *shkp;
 	case PM_GREY_ELF:
 	case PM_ELF_LORD:
         case PM_ELF_LADY:
+        case PM_ELVEN_SERGEANT:
+        case PM_ELVEN_LIEUTENANT:
+        case PM_ELVEN_CAPTAIN:
 	    if (Race_if(PM_ORC)) {
                 tmp /= 2L;
             }
@@ -2534,6 +2544,9 @@ register struct monst *shkp;
 	case PM_DWARF:
         case PM_DWARF_LORD:
         case PM_DWARF_LADY:
+        case PM_DWARVISH_SERGEANT:
+        case PM_DWARVISH_LIEUTENANT:
+        case PM_DWARVISH_CAPTAIN:
 	    if (Race_if(PM_ORC)) {
                 tmp /= 2L;
             }
@@ -2561,6 +2574,7 @@ register struct monst *shkp;
 	case PM_GNOME:
         case PM_GNOME_LORD:
         case PM_GNOME_LADY:
+        case PM_GNOMISH_WIZARD:
 	    /* Gnomes are crafty. They don't really have racial animosities, but
 	     * it's going to be a lot harder to get a good deal out of a gnome unless
 	     * you're remarkably shrewd yourself */
@@ -2575,7 +2589,7 @@ register struct monst *shkp;
 	    /* They don't mind acquiring more books...
 	     * ...and yes, this is correct, older mind flayers would value the books
 	     * more than younger ones */
-	    tmp -= tmp / (shkp->mnum - PM_MIND_FLAYER);
+	    tmp -= tmp / ((shkp->mnum - PM_MIND_FLAYER + 1) * 10);
 	    break;
         case PM_CENTAUR:
             /* Centaurs don't care much for most humanoid races. */

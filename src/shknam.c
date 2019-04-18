@@ -664,92 +664,110 @@ int shp_indx;
 	/* armors and weaponry are similar... */
 	case ARMOR_CLASS:
 	case WEAPON_CLASS:
-		switch (rn2(4))
-		{
-			default:
-			case 0:
-				srace = PM_HUMAN_SERGEANT + rn2(3);
-				break;
-			case 1:
-				srace = PM_STONE_GIANT + rn2(6);
-				break;
-			case 2:
-				srace = PM_DWARF_LORD + rn2(3);
-				break;
-                        case 3:
-                                srace = PM_DWARF_LADY + rn2(3);
-                                break;
-		}
-		break;
+	    switch (rn2(4)) {
+		default:
+		case 0:
+    		    srace = PM_HUMAN_SERGEANT + rn2(3);
+	    	    break;
+		case 1:
+		    srace = PM_STONE_GIANT + rn2(5);
+		    break;
+		case 2:
+	            srace = PM_DWARF_LORD + rn2(2);
+		    break;
+                case 3:
+                    srace = PM_CENTAUR;
+                    break;
+	    }
+	    break;
 	case FOOD_CLASS:
-		srace = PM_HOBBIT + rn2(2);
-		break;
+            switch (rn2(3)) {
+                default:
+                case 0:
+	            srace = PM_HOBBIT;
+	            break;
+                case 1:
+                    srace = PM_HUMAN;
+                    break;
+                case 2:
+                    srace = PM_GNOME;
+                    break;
+            }
+            break;
 	case RING_CLASS:
-		srace = PM_WOOD_NYMPH + rn2(3);
-		break;
+	    srace = PM_WOOD_NYMPH + rn2(3);
+	    break;
 	/* wands and potions also similar... */
 	case WAND_CLASS:
 	case POTION_CLASS:
-		srace = PM_WOODLAND_ELF + rn2(4);
-		break;
+	    srace = PM_WOODLAND_ELF + rn2(5);
+	    break;
 	case TOOL_CLASS:
-		/* Make sure we don't redo Izchak's here */
-		if (shtypes[shp_indx].prob != 0)
-		{
-			srace = PM_GNOME_LORD + rn2(2);
-		}
-		break;
+	    /* Make sure we don't redo Izchak's here */
+	    if (shtypes[shp_indx].prob != 0) {
+		srace = PM_GNOME_LORD + rn2(2);
+	    }
+	    break;
 	/* and scrolls and books fall to spellcasters */
 	case SCROLL_CLASS:
 	case SPBOOK_CLASS:
-		srace = PM_MIND_FLAYER + rn2(4);
-		break;
+            switch (rn2(3)) {
+                default:
+                case 0:
+                    srace = PM_MIND_FLAYER + rn2(2);
+                    break;
+                case 1:
+	            srace = PM_HILL_GIANT_SHAMAN;
+	            break;
+                case 2:
+                    srace = PM_GNOMISH_WIZARD;
+                    break;
+            }
+            break;
 	default:
-		break;
+	    break;
     }
 
     /* if we picked a specific monster, use that... */
     if (srace) {
 	/* on the odd chance that it hit one that was genoed, leave it a normal shk */
-	if (!(mvitals[srace].mvflags & G_GONE))
-	{
-		mdat = &mons[srace];
-		shk->mnum = srace;
-		set_mon_data(shk, mdat);
+	if (!(mvitals[srace].mvflags & G_GONE)) {
+	    mdat = &mons[srace];
+	    shk->mnum = srace;
+	    set_mon_data(shk, mdat);
         }
-    }
-    else
-    {
+    } else {
 	srace = rn2(6);
 	if (srace) {
-		switch (srace) {
-			case 1:
-				mdat = &mons[PM_GREEN_ELF];
-				shk->mnum = PM_GREEN_ELF;
-				break;
-			case 2:
-				mdat = &mons[PM_DWARF];
-				shk->mnum = PM_DWARF;
-				break;
-			case 3:
-				mdat = &mons[PM_ORC];
-				shk->mnum = PM_ORC;
-				break;
-			case 4:
-				mdat = &mons[PM_GNOME];
-				shk->mnum = PM_GNOME;
-				break;
-                        case 5:
-                                mdat = &mons[PM_HOBBIT];
-                                shk->mnum = PM_HOBBIT;
-                                break;
-			case 0:
-			default:
-				break;
-		}
-		set_mon_data(shk, mdat);
+	    switch (srace) {
+		case 1:
+		    mdat = &mons[PM_GREEN_ELF];
+		    shk->mnum = PM_GREEN_ELF;
+		    break;
+		case 2:
+		    mdat = &mons[PM_DWARF];
+		    shk->mnum = PM_DWARF;
+		    break;
+		case 3:
+		    mdat = &mons[PM_ORC];
+		    shk->mnum = PM_ORC;
+		    break;
+		case 4:
+		    mdat = &mons[PM_GNOME];
+		    shk->mnum = PM_GNOME;
+		    break;
+                case 5:
+                    mdat = &mons[PM_GIANT];
+                    shk->mnum = PM_GIANT;
+                    break;
+		case 0:
+		default:
+		    break;
+	    }
+	set_mon_data(shk, mdat);
 	}
     }
+
     shk->isshk = shk->mpeaceful = 1;
     set_malign(shk);
     shk->msleeping = 0;
