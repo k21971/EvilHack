@@ -1176,6 +1176,7 @@ int pm;
         } else {
             pline("For some reason, that tasted bland.");
         }
+        break;
     case PM_MAGICAL_EYE:
 	if (context.victual.piece->blessed) {
 	    You_feel("more fortunate.");
