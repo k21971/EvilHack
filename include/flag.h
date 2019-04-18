@@ -365,7 +365,7 @@ struct instance_flags {
     boolean clicklook;       /* allow right-clicking for look */
     boolean cmdassist;       /* provide detailed assistance for some comnds */
     boolean time_botl;       /* context.botl for 'time' (moves) only */
-    boolean wizweight;       /* display weight of everything in wizard mode */
+    boolean invweight;       /* display weight of items in inventory */
     /*
      * Window capability support.
      */

@@ -146,6 +146,7 @@ static struct Bool_Opt {
     { "ignintr", (boolean *) 0, FALSE, SET_IN_FILE },
 #endif
     { "implicit_uncursed", &iflags.implicit_uncursed, TRUE, SET_IN_GAME },
+    { "invweight", &iflags.invweight, FALSE, SET_IN_GAME },
     { "large_font", &iflags.obsolete, FALSE, SET_IN_FILE }, /* OBSOLETE */
     { "legacy", &flags.legacy, TRUE, DISP_IN_GAME },
     { "lit_corridor", &flags.lit_corridor, FALSE, SET_IN_GAME },
@@ -243,7 +244,6 @@ static struct Bool_Opt {
 #endif
     { "whatis_menu", &iflags.getloc_usemenu, FALSE, SET_IN_GAME },
     { "whatis_moveskip", &iflags.getloc_moveskip, FALSE, SET_IN_GAME },
-    { "wizweight", &iflags.wizweight, FALSE, SET_IN_WIZGAME },
     { "wraptext", &iflags.wc2_wraptext, FALSE, SET_IN_GAME }, /*WC2*/
 #ifdef ZEROCOMP
     { "zerocomp", &iflags.zerocomp,
