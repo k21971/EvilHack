@@ -2470,8 +2470,12 @@ boolean ordinary;
                 You("speed up.");
             else if (!Slow)
                 Your("quickness feels more natural.");
-            exercise(A_DEX, TRUE);
-        }
+            } else if (Slow) {
+                HSlow = 0;
+                if (!ESlow)
+                    You("no longer feel sluggish.");
+            }
+        exercise(A_DEX, TRUE);
         HFast |= FROMOUTSIDE;
         break;
 
