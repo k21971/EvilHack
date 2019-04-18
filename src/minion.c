@@ -262,12 +262,13 @@ register struct monst *mtmp;
             (void) rloc(mtmp, TRUE);
         return 1;
     }
+
     cash = money_cnt(invent);
     demand =
-        (cash * (rnd(80) + 20 * Athome))
-        / (100 * (1 + (sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))));
+        rn1(3000, 1000)
+        + (1000 * (1 + (sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))));
 
-    if (!demand || multi < 0) { /* you have no gold or can't move */
+    if (!demand || multi < 0 || cash <= 0) { /* you have no gold or can't move */
         mtmp->mpeaceful = 0;
         set_malign(mtmp);
         return 0;
@@ -276,7 +277,7 @@ register struct monst *mtmp;
            has the Amulet, preventing monster from being satisfied
            and removed from the game (along with said Amulet...) */
         if (mon_has_amulet(mtmp))
-            demand = cash + (long) rn1(1000, 40);
+            demand = money_cnt(invent) + (long) rn1(1000, 40);
 
         pline("%s demands %ld %s for safe passage.", Amonnam(mtmp), demand,
               currency(demand));
