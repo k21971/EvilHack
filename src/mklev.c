@@ -1513,10 +1513,17 @@ coord *tm;
     if (tm) {
         m = *tm;
     } else {
+        register int tryct = 0;
         boolean avoid_boulder = (is_pit(kind) || is_hole(kind));
 
         if (mazeflag)
-	    (void) somexyspace(NULL, &m, 16);
+            do {
+                if (++tryct > 200)
+                    return;
+                mazexy(&m);
+            } while (occupied(m.x, m.y)
+                     || (avoid_boulder && sobj_at(BOULDER, m.x, m.y)));
+
 	else if (!somexyspace(croom, &m, (avoid_boulder ? 4 : 0)))
 	    return;
     }
