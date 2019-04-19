@@ -727,7 +727,8 @@ int flags;
     boolean isok;
     do {
         isok = TRUE;
-        if (!somexy(croom, pos)) isok = FALSE;
+        if (!somexy(croom, pos))
+            isok = FALSE;
         if ((flags & 1) && (IS_POOL(levl[pos->x][pos->y].typ)
             || IS_FURNITURE(levl[pos->x][pos->y].typ)))
             isok = FALSE;
