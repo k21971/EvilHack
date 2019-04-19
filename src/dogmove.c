@@ -15,7 +15,7 @@ int FDECL(extra_pref, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_hwep, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_rwep, (struct monst *, struct obj *));
 
-#define DOG_SATIATED 3000
+#define DOG_SATIATED 1500
 
 STATIC_DCL void FDECL(dog_givit, (struct monst *, struct permonst *));
 STATIC_DCL boolean FDECL(dog_hunger, (struct monst *, struct edog *));
@@ -611,6 +611,9 @@ dog_hunger(mtmp, edog)
 struct monst *mtmp;
 struct edog *edog;
 {
+    /* The below block of code is broken
+     * commenting out for now (#if 0) */
+#if 0
     if (monstermoves > edog->hungrytime) {
   	/* We're hungry; check if we're carrying anything we can eat
   	 * Intelligent pets should be able to carry such food */
@@ -635,6 +638,8 @@ struct edog *edog;
     	return(FALSE);
     	}
     }
+#endif
+
     if (monstermoves > edog->hungrytime + 500) {
         if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data)) {
             edog->hungrytime = monstermoves + 500;
