@@ -254,7 +254,7 @@ STAIR:(36,05),up
 ALTAR:(63,04),noncoaligned,altar
 NON_DIGGABLE:(00,00,75,19)
 # Objects
-OBJECT:('=',"stealth"),(63,04),blessed,0,name:"The Ring of P'hul"
+OBJECT:('=',"free action"),(63,04),blessed,0,name:"The Ring of P'hul"
 OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random

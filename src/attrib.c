@@ -112,7 +112,7 @@ static const struct innate {
                  { 0, 0, 0, 0 } },
 
   cen_abil[] = { { 1, &(HFast), "", "" },
-                 { 5, &(EJumping), "light on your feet", "weighted down" },
+                 { 5, &(EJumping), "light on your hooves", "weighted down" },
                  { 10, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 

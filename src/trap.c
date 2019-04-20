@@ -3460,7 +3460,31 @@ domagictrap()
             You(Hallucination ? "smell hamburgers." : "smell charred flesh.");
             break;
         case 18:
-            You_feel("tired.");
+            You_feel("an odd sensation.");
+            if (!See_invisible) {
+                if (!Blind) {
+                    if (Invis) {
+                        You("can see right through yourself!");
+                    } else {
+                        Your("eyes tingle for a brief moment.");
+                    }
+                }
+            } else if (!ESee_invisible && !perceives(youmonst.data)) {
+                if (!Blind) {
+                    if (Invis) {
+                        You("can no longer see through yourself!");
+                    } else {
+                        Your("eyesight feels diminished.");
+                    }
+                }
+            } else {
+                /* If we can see invisible from another source */
+                You_feel("a bit more %s now.", HSee_invisible ? "perceptive" : "focused");
+            }
+            HSee_invisible = HSee_invisible ? 0 : HSee_invisible | FROMOUTSIDE;
+            set_mimic_blocking();
+            see_monsters();
+            newsym(u.ux, u.uy);
             break;
 
         /* very occasionally something nice happens. */
