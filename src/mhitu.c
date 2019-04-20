@@ -224,24 +224,24 @@ struct monst *mtmp;
 struct obj *otemp;
 {
     if (is_pierce(MON_WEP(mtmp))) {
-        if (flags.verbose && !Blind && mon_visible(mtmp)) {
+        if (flags.verbose && !Blind && canspotmon(mtmp)) {
             pline("%s %s %s%s %s.", Monnam(mtmp),
                   rn2(2) ? "thrusts" : "jabs",
                   (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
         }
     } else if (is_slash(MON_WEP(mtmp))) {
-        if (flags.verbose && !Blind && mon_visible(mtmp)) {
+        if (flags.verbose && !Blind && canspotmon(mtmp)) {
             pline("%s %s %s%s %s.", Monnam(mtmp),
                   rn2(2) ? "slashes" : "swings",
                   (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
         }
     } else if (is_whack(MON_WEP(mtmp))) {
-        if (flags.verbose && !Blind && mon_visible(mtmp)) {
+        if (flags.verbose && !Blind && canspotmon(mtmp)) {
             pline("%s %s %s%s %s.", Monnam(mtmp),
                   rn2(2) ? "swings" : "swipes",
                   (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
         }
-    } else if (flags.verbose && !Blind && mon_visible(mtmp)) {
+    } else if (flags.verbose && !Blind && canspotmon(mtmp)) {
         pline("%s %s %s%s %s.", Monnam(mtmp), "swings",
               (otemp->quan > 1L) ? "one of " : "", mhis(mtmp), xname(otemp));
     }

@@ -146,6 +146,8 @@ struct monst *mtmp;
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL]
         || is_mplayer(mtmp->data)
+        || is_dlord(mtmp->data)
+        || is_dprince(mtmp->data)
         || is_rider(mtmp->data)
         || (mtmp->isshk && inhishop(mtmp))
         || (mtmp->ispriest && inhistemple(mtmp)))

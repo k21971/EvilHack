@@ -138,6 +138,8 @@
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
+#define is_ogre(ptr) ((ptr)->mlet == S_OGRE)
+#define is_troll(ptr) ((ptr)->mlet == S_TROLL)
 #define is_not_zombie(ptr) ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON])
 #define is_zombie(ptr) ((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr))
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
@@ -160,7 +162,8 @@
 #define is_captain(ptr) ((ptr) == &mons[PM_HUMAN_CAPTAIN] || (ptr) == &mons[PM_ELVEN_CAPTAIN]         \
                          || (ptr) == &mons[PM_DWARVISH_CAPTAIN] || (ptr) == &mons[PM_GNOMISH_CAPTAIN] \
                          || (ptr) == &mons[PM_GIANT_CAPTAIN])
-#define is_rogue(ptr) ((ptr) == &mons[PM_ROGUE] || (ptr) == &mons[PM_HOBBIT_ROGUE])
+#define is_rogue(ptr) ((ptr) == &mons[PM_ROGUE] || (ptr) == &mons[PM_HOBBIT_ROGUE] \
+                       || (ptr) == &mons[PM_HUMAN_ROGUE])
 #define is_male(ptr) (((ptr)->mflags2 & M2_MALE) != 0L)
 #define is_female(ptr) (((ptr)->mflags2 & M2_FEMALE) != 0L)
 #define is_neuter(ptr) (((ptr)->mflags2 & M2_NEUTER) != 0L)
