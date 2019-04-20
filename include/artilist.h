@@ -314,15 +314,14 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      by Lawrence Watt-Evans. This is another one of those artifacts that would
      *      just be ridiculous if its full power were realized in-game. In the series,
      *      it deals out death and disease. Here it will protect the wearer from a
-     *      good portion of that. Making this the quest artifact for the Barbarian role,
-     *      keeping at least one of the special abilities from The Heart of Ahriman.
+     *      good portion of that. Making this the quest artifact for the Barbarian role.
      *      This artifact also corrects an oversight from vanilla, that no chaotic-based
      *      artiafcts conferred magic resistance, a problem that was compounded if our
      *      hero is in a form that can't wear body armor or cloaks. So, we make the
      *      Barbarian artifact chaotic (why it was neutral before is a bit confusing
      *      to me as most vanilla Barbarian race/role combinations are chaotic).
      */
-    A("The Ring of P\'hul", RIN_STEALTH,
+    A("The Ring of P\'hul", RIN_FREE_ACTION,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DEFN), 0, 0,
       NO_ATTK, DFNS(AD_MAGM), CARY(AD_DISE), 0, A_CHAOTIC, PM_BARBARIAN,
       NON_PM, 5000L, NO_COLOR),
