@@ -2789,7 +2789,7 @@ int otyp;
         /* Medusa's bow and arrows are also high quality */
         if (mtmp->data == &mons[PM_MEDUSA]) {
             if (otmp->oclass == WEAPON_CLASS && otmp->spe < 7)
-                otmp->spe = rn2(4) + 1;
+                otmp->spe = rn2(3) + 3;
                 otmp->blessed = TRUE;
                 otmp->oerodeproof = TRUE;
         }

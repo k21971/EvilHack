@@ -836,7 +836,7 @@ boolean artif;
             if (Is_medusa_level(&u.uz) && otmp->otyp == ORCISH_ARROW) {
                 bless(otmp);
                 otmp->oerodeproof = TRUE;
-                otmp->spe = rn2(4) + 1;
+                otmp->spe = rn2(3) + 3;
             }
             break;
         case FOOD_CLASS:

@@ -2527,10 +2527,15 @@ struct attack *mattk;
                           Monnam(mtmp), mhis(mtmp));
                 break;
             }
-            if (useeit)
+            if (useeit && !rn2(8)) {
                 pline("%s is turned to stone!", Monnam(mtmp));
-            stoned = TRUE;
-            killed(mtmp);
+                stoned = TRUE;
+                killed(mtmp);
+            } else if (useeit) {
+                pline("%s shields %s eyes from %s reflected gaze just in time!",
+                      Monnam(mtmp), mhis(mtmp), mhis(mtmp));
+                break;
+            }
 
             if (!DEADMONSTER(mtmp))
                 break;
