@@ -777,7 +777,9 @@ register boolean verbose;
                     hitv++;
                 hitv += 8 + singleobj->spe;
                     /* M3_ACCURATE monsters get a significant bonus here */
-                    if (is_accurate(mon->data)) { hitv += mon->m_lev; }
+                if (is_accurate(mon->data)) {
+                    hitv += mon->m_lev;
+                }
                 if (dam < 1)
                     dam = 1;
                 if ((is_giant(youmonst.data)) && MON_WEP(mon) && MON_WEP(mon)->otyp == SLING)
