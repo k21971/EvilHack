@@ -14,7 +14,7 @@ From GruntHack
 9) Izchak change <---- DONE
 10) sokoban changes, especially ending <---- DONE
 11) ability to fooproof virtually anything (but makes most objects suseptible to being burned, etc) <---- DONE
-12) powerful NPC's <---- almost done
+12) powerful NPC's <---- DONE (but could use some work)
 13) do NOT include level flipping <---- DONE (because I never did it)
 14) racial shopkeepers <---- DONE
 15) racial grudge (PC and monsters) <---- DONE

@@ -179,7 +179,7 @@ Version 0.2.1
 - Several new livelogged events (killing another players' ghost, BoH exploding, sokoban
   tweak, stealing from a shop)
 - Wands of light as well as casting the spell or reading a scroll of light has a 20% chance
-  of blinding any monsters within range that can see.
+  of blinding any monsters within range that can see
 - Viewing monsters via farlook provides a bit more basic information
 - Players cannot successfully engrave Elbereth until they have learned it in-game (thank you Tangles)
 - Various bug fixes and code clean-up throughout
@@ -190,3 +190,37 @@ Version 0.2.1
 Version 0.3.0
 -------------
 
+- Zombie movement speed and corpse revival time adjusted
+- Significant changes to zombie claw/bite attack and zombie sickness
+- Peaceful monsters no longer get angry if damaged by a hostile monsters AoE spell
+- Eating a zombie corpse infects you with their zombie sickness
+- Multitude of various fixes to player races, monster players, livelogging, tool use,
+  random vault room selection, rivers in the gnomish mines, and descriptive hit messages
+- Latest merges from 'vanilla' NetHack 3.6.2 (as of April 16th, 2019)
+
+--------------------------------------------------------------------------------------------
+
+Version 0.3.1
+-------------
+
+- Another major fix for mplayer monsters using the correct rank based on their role
+  (more of a kludge, but it works)
+- Fix racial shopkeeper pricing (mind flayers were only charging 3 zm for anything,
+  couple other tweaks)
+- Bribe amounts from demon lords/princes significantly increased to something much more realistic
+- New feature: player can view item weight in inventory (off by default, use OPTIONS=invweight
+  in rc config to turn on)
+- Fixes concerning eating magical eyes (confers luck)
+- Excalibur livelog tweaks
+- Player can cure extrinsic slow with a wand of speed monster
+- Fix: vibrating square maze was not loading, allowing the player to skip the invocation and
+  go straight to the sanctum
+- Fix: really odd pet eating behavior (disabled code section imported from GruntHack)
+- Fix: special instakill/heavy damage attacks from certain artifacts (was applying to 
+  all monsters and not their intended target race only)
+- Add demon lords/princes to the list of monsters who are not affected via magical scaring
+- Change the Barbarian quest artifact base ring type from stealth to free action
+- Magic traps can confer permanent see invisible (on/off) as well as invisibility
+- Medusa revamp, round two (based on player feedback and some of my own ideas)
+- New dungeon feature: forges - player interacts with them just like they would a fountain,
+  but instead of water, it's molten lava. See the 'forges' commit for what all it can do
