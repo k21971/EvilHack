@@ -3582,7 +3582,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
                 && (is_pool(bhitpos.x, bhitpos.y)
                     || is_lava(bhitpos.x, bhitpos.y)))
                 break;
-            if (IS_SINK(typ) && weapon != FLASHED_LIGHT)
+            if ((IS_SINK(typ) || IS_FORGE(typ)) && weapon != FLASHED_LIGHT)
                 break; /* physical objects fall onto sink */
         }
         /* limit range of ball so hero won't make an invalid move */

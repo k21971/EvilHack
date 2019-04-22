@@ -70,6 +70,7 @@ enum opcode_defs {
     SPO_STAIR,
     SPO_LADDER,
     SPO_ALTAR,
+    SPO_FORGE,
     SPO_FOUNTAIN,
     SPO_SINK,
     SPO_POOL,

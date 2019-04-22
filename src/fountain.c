@@ -9,8 +9,10 @@
 STATIC_DCL void NDECL(dowatersnakes);
 STATIC_DCL void NDECL(dowaterdemon);
 STATIC_DCL void NDECL(dowaternymph);
+STATIC_DCL void NDECL(dofireelemental);
 STATIC_PTR void FDECL(gush, (int, int, genericptr_t));
 STATIC_DCL void NDECL(dofindgem);
+STATIC_DCL void FDECL(blowupforge, (int, int));
 
 /* used when trying to dip in or drink from fountain or sink or pool while
    levitating above it, or when trying to move downwards in that state */
@@ -99,6 +101,33 @@ dowaternymph()
         pline("A large bubble rises to the surface and pops.");
     else
         You_hear("a loud pop.");
+}
+
+/* Fire elemental */
+STATIC_OVL void
+dofireelemental()
+{
+    struct monst *mtmp;
+
+    if (!(mvitals[PM_FIRE_ELEMENTAL].mvflags & G_GONE)) {
+        if ((mtmp = makemon(&mons[PM_FIRE_ELEMENTAL], u.ux, u.uy,
+                            NO_MM_FLAGS)) != 0) {
+            if (!Blind)
+                You("summon %s!", a_monnam(mtmp));
+            else
+                You_feel("the temperature rise significantly.");
+
+            /* Give those on low levels a (slightly) better chance of survival
+             */
+            if (rnd(100) > (80 + level_difficulty())) {
+                pline("Freed from the Plane of Fire, %s offers to aid you in your quest!",
+                      mhe(mtmp));
+                (void) tamedog(mtmp, (struct obj *) 0);
+            } else if (t_at(mtmp->mx, mtmp->my))
+                (void) mintrap(mtmp);
+        }
+    } else
+        pline_The("forge violently spews lava for a moment, then settles.");
 }
 
 /* Gushing forth along LOS from (u.ux, u.uy) */
@@ -216,6 +245,63 @@ boolean isyou;
         if (isyou && in_town(x, y))
             (void) angry_guards(FALSE);
     }
+}
+
+void
+dipforge(obj)
+register struct obj *obj;
+{
+    burn_away_slime();
+    switch (rnd(30)) {
+        case 21:
+        case 22:
+            if (!obj->blessed && Luck > 5) {
+                bless(obj);
+                if (!Blind) {
+                    Your("%s glows blue for a moment.",
+                         xname(obj));
+                }
+            }
+            break;
+        case 23:
+        case 24: /* Fire elemental */
+            dofireelemental();
+            break;
+        case 25:
+        case 26:
+            if (!is_metallic(obj))
+                goto lava;
+
+            if (is_metallic(obj) && Luck > 0) {
+                if (greatest_erosion(obj) > 0) {
+                    if (!Blind)
+                        You("successfully reforge your %s, repairing some of the damage.",
+                            xname(obj));
+                    if (obj->oeroded > 0)
+                        obj->oeroded--;
+                    if (obj->oeroded2 > 0)
+                        obj->oeroded2--;
+                } else {
+                    if (!Blind) {
+                        Your("%s glows briefly from the heat, but looks reforged and as new as ever.",
+                             xname(obj));
+                    }
+                }
+            }
+            break;
+        case 27:
+            blowupforge(u.ux, u.uy);
+            break;
+        case 28: /* Strange feeling */
+            pline("A weird sensation runs up your %s.", body_part(ARM));
+            break;
+        case 29: /* Strange feeling */
+            You_feel("a sudden flare of heat.");
+            break;
+    }
+lava:
+    lava_damage(obj, u.ux, u.uy);
+    update_inventory();
 }
 
 void
@@ -511,6 +597,65 @@ register struct obj *obj;
     }
     update_inventory();
     dryup(u.ux, u.uy, TRUE);
+}
+
+void
+breakforge(x, y)
+int x, y;
+{
+    if (cansee(x, y) || (x == u.ux && y == u.uy))
+        pline_The("forge splits in two as molten lava rushes forth!");
+    levl[x][y].doormask = 0;
+    levl[x][y].typ = LAVAPOOL;
+    newsym(x, y);
+    level.flags.nforges--;
+}
+
+void
+blowupforge(x, y)
+int x, y;
+{
+    if (cansee(x, y) || (x == u.ux && y == u.uy))
+        pline_The("forge rumbles, then explodes!  Molten lava splashes everywhere!");
+    levl[x][y].typ = ROOM, levl[x][y].flags = 0;
+    levl[x][y].doormask = 0;
+    newsym(x, y);
+    level.flags.nforges--;
+    explode(u.ux, u.uy, 11, rnd(30), TOOL_CLASS, EXPL_FIERY);
+}
+
+void
+drinkforge()
+{
+    if (Levitation) {
+        floating_above("forge");
+        return;
+    } if (!likes_lava(youmonst.data)) {
+        pline("Molten lava incinerates its way down your gullet...");
+        u.uhp = 0;
+        losehp(1, "trying to drink molten lava", KILLED_BY);
+        return;
+    }
+    burn_away_slime();
+    switch(rn2(20)) {
+    case 0:
+        pline("You drink some molten lava. Mmmmm mmm!");
+        u.uhunger += rnd(50);
+        break;
+    case 1:
+        breakforge(u.ux, u.uy);
+        break;
+    case 2:
+    case 3:
+        pline_The("%s moves as though of its own will!", hliquid("lava"));
+        if ((mvitals[PM_FIRE_ELEMENTAL].mvflags & G_GONE)
+            || !makemon(&mons[PM_FIRE_ELEMENTAL], u.ux, u.uy, NO_MM_FLAGS))
+            pline("But it settles down.");
+        break;
+    default:
+        pline("You take a sip of molten lava.");
+        u.uhunger += rnd(5);
+    }
 }
 
 void

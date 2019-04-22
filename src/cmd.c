@@ -1197,6 +1197,9 @@ wiz_map_levltyp(VOID_ARGS)
         if (level.flags.nsinks)
             Sprintf(eos(dsc), " %c:%d", defsyms[S_sink].sym,
                     (int) level.flags.nsinks);
+        if (level.flags.nforges)
+            Sprintf(eos(dsc), " %c:%d", defsyms[S_forge].sym,
+                    (int) level.flags.nforges);
         if (level.flags.has_vault)
             Strcat(dsc, " vault");
         if (level.flags.has_shop)
@@ -1289,7 +1292,7 @@ static const char *levltyp[] = {
     "tee-left wall", "tee-right wall", "drawbridge wall", "tree",
     "secret door", "secret corridor", "pool", "moat", "water",
     "drawbridge up", "lava pool", "iron bars", "door", "corridor", "room",
-    "stairs", "ladder", "fountain", "throne", "sink", "grave", "altar", "ice",
+    "stairs", "ladder", "forge", "fountain", "throne", "sink", "grave", "altar", "ice",
     "drawbridge down", "air", "cloud",
     /* not a real terrain type, but used for undiggable stone
        by wiz_map_levltyp() */
@@ -5368,9 +5371,13 @@ boolean doit;
                 defsyms[IS_FOUNTAIN(typ) ? S_fountain : S_sink].explanation);
         add_herecmd_menuitem(win, dodrink, buf);
     }
+    if (IS_FORGE(typ)) {
+        add_herecmd_menuitem(win, dodrink, "Really drink the lava from the forge?");
+    }
     if (IS_FOUNTAIN(typ))
-        add_herecmd_menuitem(win, dodip,
-                             "Dip something into the fountain");
+        Sprintf(buf, "Dip something into the %s",
+                defsyms[IS_FOUNTAIN(typ) ? S_fountain : S_forge].explanation);
+        add_herecmd_menuitem(win, dodip, buf);
     if (IS_THRONE(typ))
         add_herecmd_menuitem(win, dosit,
                              "Sit on the throne");
@@ -5490,7 +5497,8 @@ int x, y, mod;
 
             /* here */
             if (IS_FOUNTAIN(levl[u.ux][u.uy].typ)
-                || IS_SINK(levl[u.ux][u.uy].typ)) {
+                || IS_SINK(levl[u.ux][u.uy].typ)
+                || IS_FORGE(levl[u.ux][u.uy].typ)) {
                 cmd[0] = cmd_from_func(mod == CLICK_1 ? dodrink : dodip);
                 return cmd;
             } else if (IS_THRONE(levl[u.ux][u.uy].typ)) {

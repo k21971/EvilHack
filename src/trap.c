@@ -3674,6 +3674,9 @@ xchar x, y;
             if (obj == thrownobj || obj == kickedobj)
                 pline("%s %s up!", is_plural(obj) ? "They" : "It",
                       otense(obj, "burn"));
+            else if (IS_FORGE(levl[u.ux][u.uy].typ))
+                pline_The("molten lava in the forge incinerates the %s.",
+                          xname(obj));
             else
                 You_see("%s hit lava and burn up!", doname(obj));
         }

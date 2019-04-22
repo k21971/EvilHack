@@ -577,6 +577,15 @@ dodrink()
             return 1;
         }
     }
+    /* Or a forge? */
+    if (IS_FORGE(levl[u.ux][u.uy].typ)
+        /* not as low as floor level but similar restrictions apply */
+        && can_reach_floor(FALSE)) {
+        if (yn("Drink from the forge?") == 'y') {
+            drinkforge();
+            return 1;
+        }
+    }
     /* Or are you surrounded by water? */
     if (Underwater && !u.uswallow) {
         if (yn("Drink the water around you?") == 'y') {
@@ -2008,6 +2017,14 @@ dodip()
         /* "Dip <the object> into the fountain?" */
         if (yn(qbuf) == 'y') {
             dipfountain(obj);
+            return 1;
+        }
+    } else if (IS_FORGE(here)) {
+        Sprintf(qbuf, "%s%s into the forge?", Dip_,
+                flags.verbose ? obuf : shortestname);
+        /* "Dip <the object> into the forge?" */
+        if (yn(qbuf) == 'y') {
+            dipforge(obj);
             return 1;
         }
     } else if (is_pool(u.ux, u.uy)) {

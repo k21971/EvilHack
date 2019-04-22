@@ -863,8 +863,11 @@ E void FDECL(gush, (int, int, genericptr_t));
 E void FDECL(dryup, (XCHAR_P, XCHAR_P, BOOLEAN_P));
 E void NDECL(drinkfountain);
 E void FDECL(dipfountain, (struct obj *));
+E void FDECL(breakforge, (int, int));
 E void FDECL(breaksink, (int, int));
 E void NDECL(drinksink);
+E void NDECL(drinkforge);
+E void FDECL(dipforge, (struct obj *));
 
 /* ### hack.c ### */
 

@@ -178,6 +178,7 @@ LEV_COMP(6)                   1996                    LEV_COMP(6)
                      | trap_detail
                      | altar_detail
                      | fountain_detail
+                     | forge_detail
                      | sink_detail
                      | pool_detail
                      | gold_detail
@@ -300,6 +301,7 @@ LEV_COMP(6)                   1996                    LEV_COMP(6)
                      | branch_region
                      | altar_detail
                      | fountain_detail
+                     | forge_detail
                      | mazewalk_detail
                      | wallify_detail
                      | ladder_detail
@@ -428,6 +430,9 @@ LEV_COMP(6)                   1996                    LEV_COMP(6)
                      ;
 
      fountain_detail : FOUNTAIN_ID ':' coordinate
+                     ;
+
+     forge_detail : FORGE_ID ':' coordinate
                      ;
 
      sink_detail : SINK_ID ':' coordinate
@@ -611,6 +616,7 @@ LEV_COMP(6)                   1996                    LEV_COMP(6)
      'S'     a secret door
      'H'     a secret corridor
      '{'     a fountain
+     'U'     a forge
      '\'     a throne
      'K'     a sink (if SINKS is defined, else a room location)
      '}'     a part of a moat or other deep water

@@ -766,6 +766,8 @@ const char *kickobjnam;
         what = "a headstone";
     else if (IS_SINK(maploc->typ))
         what = "a sink";
+    else if (IS_FORGE(maploc->typ))
+        what = "a forge";
     else if (IS_ALTAR(maploc->typ))
         what = "an altar";
     else if (IS_DRAWBRIDGE(maploc->typ))
@@ -1088,6 +1090,21 @@ dokick()
             if (uarmf && rn2(3))
                 if (water_damage(uarmf, "metal boots", TRUE) == ER_NOTHING) {
                     Your("boots get wet.");
+                    /* could cause short-lived fumbling here */
+                }
+            exercise(A_DEX, TRUE);
+            return 1;
+        }
+        if (IS_FORGE(maploc->typ)) {
+            if (Levitation)
+                goto dumb;
+            You("kick %s.", (Blind ? something : "the forge"));
+            if (!rn2(3))
+                goto ouch;
+            /* make metal boots burn */
+            if (uarmf && rn2(3))
+                if (fire_damage(uarmf, FALSE, u.ux, u.uy)) {
+                    pline("Molten lava from the forge splashes onto your boots.");
                     /* could cause short-lived fumbling here */
                 }
             exercise(A_DEX, TRUE);

@@ -286,6 +286,10 @@ int force;
                     if (cansee(x, y))
                         pline_The("kitchen sink falls into a chasm.");
                     goto do_pit;
+                case FORGE:
+                    if (cansee(x, y))
+                        pline_The("forge falls into a chasm.");
+                    goto do_pit;
                 case ALTAR:
                     if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz))
                         break;

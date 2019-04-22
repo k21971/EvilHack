@@ -49,6 +49,12 @@ dosounds()
         };
         You_hear1(sink_msg[rn2(2) + hallu]);
     }
+    if (level.flags.nforges && !rn2(300)) {
+        static const char *const forge_msg[3] = {
+            "a slow bubbling.", "crackling flames.", "burning fleecy bundles!", /* hi again Amy */
+        };
+        You_hear1(forge_msg[rn2(2) + hallu]);
+    }
     if (level.flags.has_court && !rn2(200)) {
         static const char *const throne_msg[4] = {
             "the tones of courtly conversation.",

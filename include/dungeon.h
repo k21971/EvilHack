@@ -147,7 +147,7 @@ typedef struct branch {
 #define MIGR_WITH_HERO 9    /* mon: followers; obj: trap door */
 #define MIGR_NOBREAK 1024   /* bitmask: don't break on delivery */
 #define MIGR_NOSCATTER 2048 /* don't scatter on delivery */
-#define MIGR_TO_SPECIES 4096 /* migrating to species as they are made */ 
+#define MIGR_TO_SPECIES 4096 /* migrating to species as they are made */
 #define MIGR_LEFTOVERS 8192  /* grab remaining MIGR_TO_SPECIES objects */
 /* level information (saved via ledger number) */
 
@@ -199,6 +199,7 @@ typedef struct mapseen {
     d_level lev;          /* corresponding dungeon level */
     struct mapseen_feat {
         /* feature knowledge that must be calculated from levl array */
+        Bitfield(nforge, 2);
         Bitfield(nfount, 2);
         Bitfield(nsink, 2);
         Bitfield(naltar, 2);
