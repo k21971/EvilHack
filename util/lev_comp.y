@@ -197,7 +197,7 @@ extern char curr_token[512];
 %token	<i> MAZEWALK_ID WALLIFY_ID REGION_ID FILLING IRREGULAR JOINED
 %token	<i> ALTAR_ID LADDER_ID STAIR_ID NON_DIGGABLE_ID NON_PASSWALL_ID ROOM_ID
 %token	<i> PORTAL_ID TELEPRT_ID BRANCH_ID LEV MINERALIZE_ID
-%token	<i> CORRIDOR_ID GOLD_ID ENGRAVING_ID FOUNTAIN_ID POOL_ID SINK_ID NONE
+%token	<i> CORRIDOR_ID GOLD_ID ENGRAVING_ID FORGE_ID FOUNTAIN_ID POOL_ID SINK_ID NONE
 %token	<i> RAND_CORRIDOR_ID DOOR_STATE LIGHT_STATE CURSE_TYPE ENGRAVING_TYPE
 %token	<i> DIRECTION RANDOM_TYPE RANDOM_TYPE_BRACKET A_REGISTER
 %token	<i> ALIGNMENT LEFT_OR_RIGHT CENTER TOP_OR_BOT ALTAR_TYPE UP_OR_DOWN
@@ -502,6 +502,7 @@ levstatement 	: message
 		| engraving_detail
 		| mineralize
 		| fountain_detail
+                | forge_detail
 		| gold_detail
 		| switchstatement
 		| forstatement
@@ -1878,6 +1879,12 @@ teleprt_detail	: /* empty */
 			$$ = $2;
 		  }
 		;
+
+forge_detail : FORGE_ID ':' ter_selection
+                  {
+                      add_opvars(splev, "o", VA_PASS1(SPO_FORGE));
+                  }
+                ;
 
 fountain_detail : FOUNTAIN_ID ':' ter_selection
 		  {

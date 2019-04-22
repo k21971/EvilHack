@@ -3677,6 +3677,13 @@ struct obj *no_wish;
             newsym(x, y);
             return (struct obj *) &zeroobj;
         }
+        if (!BSTRCMPI(bp, p - 7, "forge")) {
+            lev->typ = FORGE;
+            level.flags.nforges++;
+            pline("A forge.");
+            newsym(x, y);
+            return (struct obj *) &zeroobj;
+        }
         /* ("water" matches "potion of water" rather than terrain) */
         if (!BSTRCMPI(bp, p - 4, "pool") || !BSTRCMPI(bp, p - 4, "moat")) {
             lev->typ = !BSTRCMPI(bp, p - 4, "pool") ? POOL : MOAT;

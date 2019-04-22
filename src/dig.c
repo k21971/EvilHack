@@ -571,6 +571,9 @@ int ttyp;
     } else if (IS_SINK(lev->typ)) {
         breaksink(x, y);
         return;
+    } else if (IS_FORGE(lev->typ)) {
+        breakforge(x, y);
+        return;
     } else if (lev->typ == DRAWBRIDGE_DOWN
                || (is_drawbridge_wall(x, y) >= 0)) {
         int bx = x, by = y;
@@ -1652,6 +1655,9 @@ char *msg;
 #endif
     } else if (IS_SINK(ltyp)) {
         Strcpy(msg, "A tangled mass of plumbing remains below the sink.");
+        return FALSE;
+    } else if (IS_FORGE(ltyp)) {
+        Strcpy(msg, "A volcanic vent remains below the forge.");
         return FALSE;
     } else if ((cc->x == xupladder && cc->y == yupladder) /* ladder up */
                || (cc->x == xdnladder && cc->y == ydnladder)) { /* " down */

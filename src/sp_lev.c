@@ -673,14 +673,14 @@ shuffle_alignments()
 }
 
 /*
- * Count the different features (sinks, fountains) in the level.
+ * Count the different features (sinks, fountains, forges) in the level.
  */
 STATIC_OVL void
 count_features()
 {
     xchar x, y;
 
-    level.flags.nfountains = level.flags.nsinks = 0;
+    level.flags.nfountains = level.flags.nsinks = level.flags.nforges = 0;
     for (y = 0; y < ROWNO; y++)
         for (x = 0; x < COLNO; x++) {
             int typ = levl[x][y].typ;
@@ -688,6 +688,8 @@ count_features()
                 level.flags.nfountains++;
             else if (typ == SINK)
                 level.flags.nsinks++;
+            else if (typ == FORGE)
+                level.flags.nforges++;
         }
 }
 
@@ -4414,6 +4416,9 @@ struct sp_coder *coder;
     case SPO_FOUNTAIN:
         typ = FOUNTAIN;
         break;
+    case SPO_FORGE:
+        typ = FORGE;
+        break;
     case SPO_SINK:
         typ = SINK;
         break;
@@ -5591,6 +5596,7 @@ sp_lev *lvl;
             break;
         case SPO_SINK:
         case SPO_POOL:
+        case SPO_FORGE:
         case SPO_FOUNTAIN:
             spo_feature(coder);
             break;

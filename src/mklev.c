@@ -11,6 +11,7 @@
 /* conversion of result to int is reasonable */
 
 STATIC_DCL void FDECL(mkfount, (int, struct mkroom *));
+STATIC_DCL void FDECL(mkforge, (int, struct mkroom *));
 STATIC_DCL void FDECL(mksink, (struct mkroom *));
 STATIC_DCL void FDECL(mkaltar, (struct mkroom *));
 STATIC_DCL void FDECL(mkgrave, (struct mkroom *));
@@ -721,6 +722,7 @@ clear_level_structures()
     level.damagelist = (struct damage *) 0;
     level.bonesinfo = (struct cemetery *) 0;
 
+    level.flags.nforges = 0;
     level.flags.nfountains = 0;
     level.flags.nsinks = 0;
     level.flags.has_shop = 0;
@@ -966,6 +968,8 @@ makelevel()
             mkfount(0, croom);
         if (!rn2(60))
             mksink(croom);
+        if (!rn2(40))
+            mkforge(0, croom);
         if (!rn2(60))
             mkaltar(croom);
         i = 80 - (depth(&u.uz) * 2);
@@ -1728,6 +1732,24 @@ struct mkroom *croom;
         levl[m.x][m.y].blessedftn = 1;
 
     level.flags.nfountains++;
+}
+
+STATIC_OVL void
+mkforge(mazeflag, croom)
+int mazeflag;
+struct mkroom *croom;
+{
+    coord m;
+
+    if (mazeflag)
+        (void) somexyspace(NULL, &m, 16);
+    else if (!somexyspace(croom, &m, 8))
+        return;
+
+    /* Put a forge at m.x, m.y */
+    levl[m.x][m.y].typ = FORGE;
+
+    level.flags.nforges++;
 }
 
 STATIC_OVL void

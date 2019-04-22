@@ -3328,6 +3328,8 @@ char *buf;
         dfeature = "pool of water";
     else if (IS_SINK(ltyp))
         cmap = S_sink; /* "sink" */
+    else if (IS_FORGE(ltyp))
+        cmap = S_forge; /* "forge" */
     else if (IS_ALTAR(ltyp)) {
         Sprintf(altbuf, "%saltar to %s (%s)",
                 ((lev->altarmask & AM_SHRINE)

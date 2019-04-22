@@ -637,7 +637,8 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                       bhitpos.x + dx, bhitpos.y + dy,                   \
                       ((pre) ? 0 : !rn2(5)), 0))                        \
      /* Thrown objects "sink" */                                        \
-     || (!(pre) && IS_SINK(levl[bhitpos.x][bhitpos.y].typ)))
+     || (!(pre) && IS_SINK(levl[bhitpos.x][bhitpos.y].typ)              \
+         || IS_FORGE(levl[bhitpos.x][bhitpos.y].typ)))
 
 void
 m_throw(mon, x, y, dx, dy, range, obj, verbose)

@@ -38,6 +38,7 @@ on.
         "        An amulet, or a spider web.
         0        An iron ball.
         _        An altar, or an iron chain.
+        {        A forge.
         {        A fountain.
         }        A pool of water or moat or a pool of lava.
         \        An opulent throne.

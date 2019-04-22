@@ -1707,6 +1707,9 @@ xchar x, y;
     case LADDER:
         idx = (ptr->ladder & LA_DOWN) ? S_dnladder : S_upladder;
         break;
+    case FORGE:
+        idx = S_forge;
+        break;
     case FOUNTAIN:
         idx = S_fountain;
         break;
@@ -1920,7 +1923,7 @@ static const char *type_names[MAX_TYPE] = {
     "STONE", "VWALL", "HWALL", "TLCORNER", "TRCORNER", "BLCORNER", "BRCORNER",
     "CROSSWALL", "TUWALL", "TDWALL", "TLWALL", "TRWALL", "DBWALL", "TREE",
     "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP", "LAVAPOOL",
-    "IRON_BARS", "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FOUNTAIN",
+    "IRON_BARS", "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FORGE", "FOUNTAIN",
     "THRONE", "SINK", "GRAVE", "ALTAR", "ICE", "DRAWBRIDGE_DOWN", "AIR",
     "CLOUD"
 };

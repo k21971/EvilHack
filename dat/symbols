@@ -76,6 +76,7 @@ start: IBMgraphics
 	S_room: \xfa			# meta-z, centered dot
 	S_corr: \xb0			# meta-0, light shading
 	S_litcorr: \xb1			# meta-1, medium shading
+        S_forge: \xf4                   # meta-t, integral top half
 	S_fountain: \xf4		# meta-t, integral top half
 	S_pool: \xf7			# meta-w, approx. equals
 	S_ice: \xfa			# meta-z, centered dot
@@ -329,6 +330,7 @@ start: NHAccess
 	S_grave: \126
 	S_throne: \126
 	S_sink: \126
+        S_forge: \126
 	S_fountain: \126 
 	S_pool: \042
 	S_ice: \042
@@ -445,6 +447,7 @@ start: Blank
         S_fire_trap: \032
         S_flashbeam: \032
         S_food: \032
+        S_forge: \032
         S_fountain: \032
         S_fungus: \032
         S_gem: \032

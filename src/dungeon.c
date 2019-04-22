@@ -2348,9 +2348,10 @@ d_level *lev;
     }
 }
 
-#define INTEREST(feat)                                                \
-    ((feat).nfount || (feat).nsink || (feat).nthrone || (feat).naltar \
-     || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple)
+#define INTEREST(feat)                                                   \
+    ((feat).nfount || (feat).nsink || (feat).nthrone || (feat).naltar    \
+     || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple  \
+     || (feat).nforge)
   /* || (feat).water || (feat).ice || (feat).lava */
 
 /* returns true if this level has something interesting to print out */
@@ -2560,6 +2561,11 @@ recalc_mapseen()
                 count = mptr->feat.nsink + 1;
                 if (count <= 3)
                     mptr->feat.nsink = count;
+                break;
+            case FORGE:
+                count = mptr->feat.nforge + 1;
+                if (count <= 3)
+                    mptr->feat.nforge = count;
                 break;
             case GRAVE:
                 count = mptr->feat.ngrave + 1;
@@ -2994,6 +3000,7 @@ boolean printdun;
                 Sprintf(eos(buf), " to %s", align_gname(u.ualign.type));
         }
         ADDNTOBUF("throne", mptr->feat.nthrone);
+        ADDNTOBUF("forge", mptr->feat.nforge);
         ADDNTOBUF("fountain", mptr->feat.nfount);
         ADDNTOBUF("sink", mptr->feat.nsink);
         ADDNTOBUF("grave", mptr->feat.ngrave);
