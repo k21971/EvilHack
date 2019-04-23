@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.303 $ $NHDT-Date: 1555201701 2019/04/14 00:28:21 $
+$NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.307 $ $NHDT-Date: 1555801218 2019/04/20 23:00:18 $
 
 This fixes36.2 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.1 in April 2018. Please note, however,
@@ -359,7 +359,7 @@ monster with multiple items in inventory could trigger 'dealloc_obj with nobj'
 	panic when turned into a statue if separate mon->minvent items merged
 lock picking context could end up with stale container pointer if container
 	being forced/unlocked/locked got destroyed or sent to another level
-teleporting out a vault after guard appears could result in the guard being
+teleporting out of a vault after guard appears could result in the guard being
 	stranded in a one-square long temporary corridor adjacent to vault
 	wall and periodically saying "Move along!"
 if game ends while hero is in a vault wall breach or in guard's temporary
@@ -411,6 +411,11 @@ if a migrating long worm couldn't be placed, or some other monster was given
 	a "trying to place monster at <0,0>" warning would occur
 if hero throws a pick-axe into a shop and shopkeeper catches it, shk will say
 	"get out of my way, scum" even if there's no monster at pick-axe spot
+a quantum mechanic hit that teleported the target could also kill it at the
+	destination; make sure that the small amount of physical damage isn't
+	fatal unless the teleport is negated by cancellation (magic or armor)
+if a mimic concealed itself as a corpse, it could pick a monster type which
+	never leaves a corpse
 
 
 Fixes to Post-3.6.1 Problems that Were Exposed Via git Repository
@@ -484,6 +489,7 @@ using 'O' to set status hilites for any status condition (Blind, &c) and
 	retain one of the chosen attributes
 when u.uhp==-1 became a flag to suppress status updating, if game ended when
 	hero died with exactly -1 HP, status would be blank during disclosure
+mimic mimicking a shop item didn't show any shop price for whatis and glance
 tty: turn off an optimization that is the suspected cause of Windows reported
 	partial status lines following level changes
 tty: ensure that current status fields are always copied to prior status
@@ -696,15 +702,14 @@ tty: support statuslines:3 and dynamically switching between 2 and 3 with 'O'
 
 NetHack Community Patches (or Variation) Included
 -------------------------------------------------
-curses: the community patch for an optional curses window-port was
-	incorporated into the NetHack source code tree.  The curses
-	window-port evolved from work originally done by Karl Garrison,
-	and has been in use in several NetHack variants and on
-	nethack.alt.org and on www.hardfought.org/nethack/ for a while.
-	It is available and tested for 3.6.2 for Windows with PDCurses
-	layered underneath, and for Mac OSX and Unix (using ncurses as
-	the layer underneath).  It may also work for DOS with PDCurses
-	layered underneath, but that has not been tested.
+curses: the community patch for an optional curses window-port has been
+	adopted.  The curses window-port evolved from work originally done
+	by Karl Garrison, and has been in use in several NetHack variants
+	and on nethack.alt.org and on www.hardfought.org/nethack/ for a
+	while.  It is available and tested for 3.6.2 for Windows console
+	with PDCurses layered underneath, and for Mac OSX and Unix (using
+	ncurses as the layer underneath).  It may also work for MS-DOS with
+	PDCurses, but that has not been tested.
 
 
 Code Cleanup and Reorganization

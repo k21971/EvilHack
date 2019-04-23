@@ -327,12 +327,19 @@ boolean thrown_weapon; /* thrown weapons are less deadly */
         kprefix = KILLED_BY;
     }
 
-    i = resist_reduce(!fatal ? 1 : rn2(fatal + (thrown_weapon ? 20 : 0)), POISON_RES);
+    i = !fatal ? 1 : rn2(fatal + (thrown_weapon ? 20 : 0));
     if (i == 0 && typ != A_CHA) {
-        /* instant kill */
-        u.uhp = -1;
-        context.botl = TRUE;
-        pline_The("poison was deadly...");
+        if (how_resistant(POISON_RES) >= 35) {
+            pline_The("poison was extremely toxic!");
+            i = resist_reduce(d(4, 6), POISON_RES);
+            losehp(i, pkiller, kprefix);
+            u.uhpmax -= (i / 2);
+        } else {
+            /* instant kill */
+            u.uhp = -1;
+            context.botl = TRUE;
+            pline_The("poison was deadly...");
+        }
     } else if (i > 5) {
         /* HP damage; more likely--but less severe--with missiles */
         loss = resist_reduce(thrown_weapon ? rnd(6) : rn1(10, 6), POISON_RES);

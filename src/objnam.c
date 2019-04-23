@@ -3677,7 +3677,7 @@ struct obj *no_wish;
             newsym(x, y);
             return (struct obj *) &zeroobj;
         }
-        if (!BSTRCMPI(bp, p - 7, "forge")) {
+        if (!BSTRCMPI(bp, p - 5, "forge")) {
             lev->typ = FORGE;
             level.flags.nforges++;
             pline("A forge.");
