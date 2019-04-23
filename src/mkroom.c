@@ -677,7 +677,7 @@ coord *c;
     if (croom->irregular) {
         i = (int) ((croom - rooms) + ROOMOFFSET);
 
-        while (try_cnt++ < 100) {
+        while (try_cnt++ < 500) {
             c->x = somex(croom);
             c->y = somey(croom);
             if (!levl[c->x][c->y].edge && (int) levl[c->x][c->y].roomno == i)
@@ -700,7 +700,7 @@ coord *c;
 
     /* Check that coords doesn't fall into a subroom or into a wall */
 
-    while (try_cnt++ < 100) {
+    while (try_cnt++ < 500) {
         c->x = somex(croom);
         c->y = somey(croom);
         if (IS_WALL(levl[c->x][c->y].typ))
@@ -712,7 +712,7 @@ coord *c;
     you_lose:
         ;
     }
-    if (try_cnt >= 100)
+    if (try_cnt >= 500)
         return FALSE;
     return TRUE;
 }
@@ -740,8 +740,8 @@ int flags;
         if ((flags & 8) && bydoor(pos->x, pos->y))
             isok = FALSE;
     } while ((!isok || !SPACE_POS(levl[pos->x][pos->y].typ)
-             || occupied(pos->x, pos->y)) && (++tryct < 100));
-    if ((tryct < 100) && isok)
+             || occupied(pos->x, pos->y)) && (++tryct < 500));
+    if ((tryct < 500) && isok)
         return TRUE;
     return FALSE;
 }
