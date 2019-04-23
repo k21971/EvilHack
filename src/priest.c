@@ -1040,13 +1040,17 @@ ustatusline()
 
     info[0] = '\0';
     if (Sick) {
-        Strcat(info, ", dying from");
-        if (u.usick_type & SICK_VOMITABLE)
-            Strcat(info, " food poisoning");
-        if (u.usick_type & SICK_NONVOMITABLE) {
+        if (u.usick_type & SICK_ZOMBIE) {
+            Strcat(info, ", turning into a zombie");
+        } else {
+            Strcat(info, ", dying from");
             if (u.usick_type & SICK_VOMITABLE)
-                Strcat(info, " and");
-            Strcat(info, " illness");
+                Strcat(info, " food poisoning");
+            if (u.usick_type & SICK_NONVOMITABLE) {
+                if (u.usick_type & SICK_VOMITABLE)
+                    Strcat(info, " and");
+                Strcat(info, " illness");
+            }
         }
     }
     if (Stoned)
