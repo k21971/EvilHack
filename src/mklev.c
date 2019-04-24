@@ -829,7 +829,7 @@ makelevel()
     tryct = 0;
     do {
         croom = &rooms[rn2(nroom)];
-    } while (!croom->needjoining && ++tryct < 100);
+    } while (!croom->needjoining && ++tryct < 500);
     if (!Is_botlevel(&u.uz)) {
 	if (!somexyspace(croom, &pos, 0)) {
             pos.x = somex(croom);
@@ -842,7 +842,7 @@ makelevel()
         tryct = 0;
         do {
             croom = &rooms[rn2(nroom - 1)];
-        } while ((!croom->needjoining || (croom == troom)) && ++tryct < 100);
+        } while ((!croom->needjoining || (croom == troom)) && ++tryct < 500);
     }
 
     if (u.uz.dlevel != 1) {
@@ -1258,7 +1258,7 @@ coord *mp;
             do
                 croom = &rooms[rn2(nroom)];
             while ((croom == dnstairs_room || croom == upstairs_room
-                    || croom->rtype != OROOM) && (++tryct < 100));
+                    || croom->rtype != OROOM) && (++tryct < 500));
         } else
             croom = &rooms[rn2(nroom)];
 
