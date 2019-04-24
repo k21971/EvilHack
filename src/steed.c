@@ -826,7 +826,9 @@ int x, y;
                    (mon == u.usteed) ? "steed" : "defunct monster");
         return;
     }
-    if (level.monsters[x][y] && !ERID(mon))
+    if (level.monsters[x][y] && !((has_erid(level.monsters[x][y])
+        && ERID(level.monsters[x][y])->m1 == mon)
+        || (has_erid(mon) && ERID(mon)->m1 == level.monsters[x][y])))
         impossible("placing monster over another at <%d,%d>?", x, y);
     mon->mx = x, mon->my = y;
     level.monsters[x][y] = mon;
