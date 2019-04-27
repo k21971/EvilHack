@@ -19,6 +19,7 @@ boolean m_using = FALSE;
 STATIC_DCL struct permonst *FDECL(muse_newcham_mon, (struct monst *));
 STATIC_DCL int FDECL(precheck, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mzapmsg, (struct monst *, struct obj *, BOOLEAN_P));
+STATIC_DCL void FDECL(mbagmsg, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mreadmsg, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mquaffmsg, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(m_use_healing, (struct monst *));
@@ -206,6 +207,19 @@ boolean self;
               doname(otmp));
     } else {
         pline("%s zaps %s!", Monnam(mtmp), an(xname(otmp)));
+        stop_occupation();
+    }
+}
+
+STATIC_OVL void
+mbagmsg(mtmp, otmp)
+struct monst *mtmp;
+struct obj *otmp;
+{
+    if (!canseemon(mtmp)) {
+        You_hear("a bag being used.");
+    } else {
+        pline("%s uses %s!", Monnam(mtmp), an(xname(otmp)));
         stop_occupation();
     }
 }
@@ -910,6 +924,24 @@ struct monst *mtmp;
                          (coord *) 0);
         return 2;
     }
+    case MUSE_BAG_OF_TRICKS: {
+        coord cc;
+        /* pm: 0 => random, eel => aquatic, croc => amphibious */
+        struct permonst *pm =
+            !is_pool(mtmp->mx, mtmp->my)
+                ? 0
+                : &mons[u.uinwater ? PM_GIANT_EEL : PM_CROCODILE];
+        struct monst *mon;
+
+        if (!enexto(&cc, mtmp->mx, mtmp->my, pm))
+            return 0;
+        mbagmsg(mtmp, otmp);
+        otmp->spe--;
+        mon = makemon((struct permonst *) 0, cc.x, cc.y, NO_MM_FLAGS);
+        if (mon && canspotmon(mon) && oseen)
+            makeknown(BAG_OF_TRICKS);
+        return 2;
+    }
     case MUSE_WAN_CREATE_MONSTER: {
         coord cc;
         /* pm: 0 => random, eel => aquatic, croc => amphibious */
@@ -928,7 +960,6 @@ struct monst *mtmp;
             makeknown(WAN_CREATE_MONSTER);
         return 2;
     }
-    case MUSE_BAG_OF_TRICKS:
     case MUSE_SCR_CREATE_MONSTER: {
         coord cc;
         struct permonst *pm = 0, *fish = 0;
