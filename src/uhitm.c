@@ -693,7 +693,7 @@ struct attack *uattk;
                              dieroll);
         /* second passive counter-attack only occurs if second attack hits */
         if (mhit)
-            (void) passive(mon, uswapwep, mhit, malive, P_BARE_HANDED_COMBAT, !uswapwep);
+            (void) passive(mon, uswapwep, mhit, malive, AT_WEAP, FALSE);
     }
     return malive;
 }
