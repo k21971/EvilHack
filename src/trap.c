@@ -1566,9 +1566,13 @@ unsigned trflags;
             You_feel("momentarily different.");
             /* Trap did nothing; don't remove it --KAA */
         } else {
-            (void) steedintrap(trap, (struct obj *) 0);
-            deltrap(trap);      /* delete trap before polymorph */
-            newsym(u.ux, u.uy); /* get rid of trap symbol */
+            int steedtrapped = steedintrap(trap, (struct obj *) 0);
+
+            /* If the steed hit the trap, it was already deleted */
+            if (steedtrapped == FALSE) {
+                deltrap(trap);      /* delete trap before polymorph */
+                newsym(u.ux, u.uy); /* get rid of trap symbol */
+            }
             You_feel("a change coming over you.");
             polyself(0);
         }
