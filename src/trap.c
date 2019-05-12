@@ -2806,7 +2806,6 @@ register struct monst *mtmp;
                 if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE)) {
                     /* we're done with mptr but keep it up to date */
                     mptr = mtmp->data;
-                    deltrap(trap);
                 }
                 if (in_sight) {
                     seetrap(trap);
