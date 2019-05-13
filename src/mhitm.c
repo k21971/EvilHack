@@ -467,7 +467,7 @@ register struct monst *magr, *mdef;
             /* KMH -- don't accumulate to-hit bonuses */
             if (otmp)
                 tmp -= hitval(otmp, mdef);
-            if ((is_displaced(magr->data) || has_displacement(magr))
+            if ((is_displaced(mdef->data) || has_displacement(mdef))
                 && rn2(4)) {
                 pline("%s attacks the displaced image of %s.",
                       Monnam(magr), mon_nam(mdef));
