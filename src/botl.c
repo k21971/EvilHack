@@ -397,16 +397,13 @@ char *buf;
     int ret = 1;
 
     /* TODO:    Add in dungeon name */
-    if (Is_knox(&u.uz)) {
+    if (Is_knox(&u.uz))
         Sprintf(buf, "%s ", dungeons[u.uz.dnum].dname);
-    } else if (In_quest(&u.uz)) {
+    else if (In_quest(&u.uz))
         Sprintf(buf, "Home %d ", dunlev(&u.uz));
-    } else if (In_endgame(&u.uz)) {
-        /* [3.6.2: this used to be "Astral Plane" or generic "End Game"] */
-        (void) endgamelevelname(buf, depth(&u.uz));
-        (void) strsubst(buf, "Plane of ", ""); /* just keep <element> */
-        Strcat(buf, " ");
-    } else {
+    else if (In_endgame(&u.uz))
+        Sprintf(buf, Is_astralevel(&u.uz) ? "Astral Plane " : "End Game ");
+    else {
         /* ports with more room may expand this one */
         Sprintf(buf, "Dlvl:%-2d ", depth(&u.uz));
         ret = 0;
