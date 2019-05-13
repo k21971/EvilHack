@@ -261,6 +261,12 @@ NEARDATA struct permonst mons[] = {
         SIZ(150, 150, MS_BARK, MZ_SMALL), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_DOMESTIC, M3_INFRAVISIBLE,
         0, 0, 3, HI_DOMESTIC),
+    MON("rabid dog", S_DOG, LVL(3, 16, 6, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_DRCO, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(200, 150, MS_BARK, MZ_SMALL), MR_POISON, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_POIS | M1_CARNIVORE, M2_HOSTILE | M2_WANDER,
+        M3_INFRAVISIBLE, 0, 0, 4, CLR_GRAY),
     MON("dingo", S_DOG, LVL(4, 16, 5, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -865,6 +871,19 @@ NEARDATA struct permonst mons[] = {
             | M1_HERBIVORE,
         /* In reality, they tunnel instead of cutting lumber.  Oh, well. */
         M2_WANDER | M2_HOSTILE, M3_INFRAVISIBLE, 0, 0, 4, CLR_BROWN),
+    MON("enormous rat", S_RODENT, LVL(6, 8, 5, 0, 0), (G_GENO | G_SGROUP | 1),
+	A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+	SIZ(400, 150, MS_SQEEK, MZ_MEDIUM), 0, 0,
+	M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
+        0, 0, 7, CLR_BROWN),
+    MON("rodent of unusual size", S_RODENT,
+        LVL(8, 8, 2, 0, 0), (G_GENO | G_SGROUP | 1),
+	A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+	SIZ(600, 250, MS_SQEEK, MZ_MEDIUM), 0, 0,
+	M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
+        0, 0, 9, CLR_BROWN),
     /*
      * spiders & scorpions (keep webmaker() in sync if new critters are added)
      */
