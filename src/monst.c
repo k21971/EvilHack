@@ -1470,11 +1470,19 @@ NEARDATA struct permonst mons[] = {
     MON("elder pseudodragon", S_DRAGON, LVL(6, 18, 0, 40, 0), G_NOGEN,
         A(ATTK(AT_BITE, AD_PHYS, 1, 8), ATTK(AT_STNG, AD_DRST, 1, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(250, 250, MS_HISS, MZ_SMALL), MR_POISON, 0,
+        SIZ(300, 200, MS_HISS, MZ_SMALL), MR_POISON, 0,
         M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_CARNIVORE,
         M2_DOMESTIC | M2_STRONG,
         M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION, 0,
         MH_DRAGON, 9, CLR_BROWN),
+    MON("ancient pseudodragon", S_DRAGON, LVL(8, 20, -2, 60, 0), G_NOGEN,
+        A(ATTK(AT_BITE, AD_SLEE, 2, 6), ATTK(AT_STNG, AD_DRST, 1, 6),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1300, 300, MS_HISS, MZ_LARGE), MR_SLEEP | MR_POISON, 0,
+        M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_CARNIVORE,
+        M2_DOMESTIC | M2_STRONG,
+        M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION, 0,
+        MH_DRAGON, 10, CLR_BROWN),
     /*
      * Elementals
      */

@@ -711,6 +711,7 @@ register int pm;
     case PM_LARGE_CAT:
     case PM_PSEUDODRAGON:
     case PM_ELDER_PSEUDODRAGON:
+    case PM_ANCIENT_PSEUDODRAGON:
         /* cannibals are allowed to eat domestic animals without penalty */
         if (!CANNIBAL_ALLOWED()) {
             You_feel("that eating the %s was a bad idea.", mons[pm].mname);

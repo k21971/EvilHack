@@ -145,6 +145,8 @@
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
 #define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 #define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)
+#define is_pseudodragon(ptr) ((ptr) == &mons[PM_PSEUDODRAGON] || (ptr) == &mons[PM_ELDER_PSEUDODRAGON] \
+                              || (ptr) == &mons[PM_ANCIENT_PSEUDODRAGON])
 #define is_angel(ptr) (((ptr)->mhflags & MH_ANGEL) != 0L)
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)
 #define is_soldier(ptr) ((ptr) == &mons[PM_HUMAN_SOLDIER] || (ptr) == &mons[PM_ELVEN_SOLDIER]          \
