@@ -504,7 +504,8 @@ int how;
     if (ukiller && (likes_gold(ukiller->data) || likes_gems(ukiller->data) ||
 		    likes_objs(ukiller->data) || likes_magic(ukiller->data) ||
 		    is_covetous(ukiller->data))) {
-	pline("%s ransacks your possessions.", Monnam(ukiller));
+	pline("%s starts to %s your possessions...", Monnam(ukiller),
+              rn2(2) ? "ransack" : "rummage through");
     }
 
     /*
