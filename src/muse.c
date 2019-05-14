@@ -3097,15 +3097,15 @@ boolean by_you;
 
     if (is_spellcaster(mon->data) && !mon->mcan
 	&& can_cast_spells(mon) && !mon->mconf
-        && mon->m_lev >= 5) {
+        && mon->m_lev >= 5 && rn2(2)) {
 
         register struct obj *otemp, *onext;
         register struct obj *pseudo = mksobj(SPE_STONE_TO_FLESH, FALSE, FALSE);
         pseudo->blessed = pseudo->cursed = 0;
-        if (canseemon(mon))
+        if (canspotmon(mon))
             pline("%s casts a spell!", canspotmon(mon)
                   ? Monnam(mon) : Something);
-        if (canseemon(mon)) {
+        if (canspotmon(mon)) {
             if (Hallucination)
                 pline("Look! The Pillsbury Doughboy!");
             else

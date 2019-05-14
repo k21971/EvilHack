@@ -812,21 +812,21 @@ mcalcdistress()
 	        mtmp->mstone = 0;
 	        mon_to_stone(mtmp);
 	    } else {
-	        switch(mtmp->mstone--) {
+	        switch (mtmp->mstone--) {
 	            case 5:
 		        /* "<mon> is slowing down.";
 		         * also removes intrinsic speed */
 		        mon_adjust_speed(mtmp, -3, (struct obj *)0);
 		        break;
 		    case 4:
-		        if (canseemon(mtmp))
+		        if (canspotmon(mtmp))
 			    pline("%s %s are stiffening.",
 			          s_suffix(Monnam(mtmp)),
 				  nolimbs(mtmp->data) ? "extremities"
 				                      : "limbs");
 			break;
 		    case 3:
-		        if (canseemon(mtmp))
+		        if (canspotmon(mtmp))
 			    pline("%s %s have turned to stone.",
 			          s_suffix(Monnam(mtmp)),
 				  nolimbs(mtmp->data) ? "extremities"
@@ -834,13 +834,13 @@ mcalcdistress()
 			mtmp->mcanmove = 0;
 			break;
 		    case 2:
-		        if (canseemon(mtmp))
+		        if (canspotmon(mtmp))
 			    pline("%s has almost completely turned to stone.",
                                    Monnam(mtmp)),
 			mtmp->mcanmove = 0;
 			break;
 		    case 1:
-		        if (canseemon(mtmp))
+		        if (canspotmon(mtmp))
 			    pline("%s is a statue.", Monnam(mtmp));
 			if (mtmp->mstonebyu) {
 			    stoned = TRUE;
