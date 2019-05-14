@@ -24,6 +24,7 @@ enum mcast_mage_spells {
     MGC_ACID_BLAST,
     MGC_SUMMON_MONS,
     MGC_CLONE_WIZ,
+    MGC_CANCELLATION,
     MGC_DEATH_TOUCH
 };
 
@@ -141,7 +142,7 @@ int spellval;
     while (spellval > 24 && rn2(25))
         spellval = rn2(spellval);
 
-    /* If we're hurt, seriously consider giving fixing ourselves priority */
+    /* If we're hurt, seriously consider fixing ourselves a priority */
     if ((mtmp->mhp * 4) <= mtmp->mhpmax) {
         spellval = 1;
     }
@@ -170,8 +171,9 @@ int spellval;
         return MGC_CLONE_WIZ;
     case 17:
     case 16:
-    case 15:
         return MGC_SUMMON_MONS;
+    case 15:
+        return MGC_CANCELLATION;
     case 14:
         return MGC_ACID_BLAST;
     case 13:
@@ -516,6 +518,18 @@ int spellnum;
 		u.uhpmax -= dmg / 3 + rn2(5);
 		losehp(dmg, "touch of death", KILLED_BY_AN);
             }
+        }
+        dmg = 0;
+        break;
+    case MGC_CANCELLATION:
+        if (m_canseeu(mtmp)) {
+            if (canseemon(mtmp))
+                pline("%s %s a cancellation spell!", Monnam(mtmp),
+                      rn2(2) ? "evokes" : "conjures up");
+            else if (!Deaf)
+                You_hear("a powerful spell being %s.",
+                         rn2(2) ? "spoken" : "uttered");
+            (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
         }
         dmg = 0;
         break;
@@ -1041,6 +1055,7 @@ int spellnum;
         case MGC_CURE_SELF:
         case MGC_FIRE_BOLT:
         case MGC_ICE_BOLT:
+        case MGC_CANCELLATION:
             return TRUE;
         default:
             break;

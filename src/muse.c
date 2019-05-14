@@ -2163,6 +2163,7 @@ struct monst *mtmp;
         return WAN_DEATH;
     if (difficulty > 7 && !rn2(30))
         return WAN_POLYMORPH;
+
     switch (rn2(9 - (difficulty < 4) + 4 * (difficulty > 6))) {
     case 0: {
         struct obj *helmet = which_armor(mtmp, W_ARMH);
