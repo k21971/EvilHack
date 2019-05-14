@@ -2805,12 +2805,13 @@ boolean youattack, allow_cancel_kill, self_cancel;
             find_ac();
         }
     } else {
+        if (youattack && canseemon(mdef))
+            pline("Magical energies are absorbed from %s.", mon_nam(mdef));
 	if (youdefend)
             You_feel("magical energies being absorbed from your vicinity.");
 	if (youdefend && Antimagic) {
             shieldeff(u.ux, u.uy);
-	}
-	else if (!youdefend && resisted) {
+	} else if (!youdefend && resisted) {
 	    shieldeff(mdef->mx, mdef->my);
 	}
 	for (otmp = (youdefend ? invent : mdef->minvent);
