@@ -3374,6 +3374,7 @@ struct obj *no_wish;
         && strncmpi(bp, "studded armor", 13)
         && strncmpi(bp, "armor", 5)
         && strncmpi(bp, "tooled horn", 11)
+        && strncmpi(bp, "ring of p'", 10)
         && strncmpi(bp, "food ration", 11)
         && strncmpi(bp, "meat ring", 9))
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
