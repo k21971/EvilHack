@@ -2787,8 +2787,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
     struct obj *otmp;
 
     boolean resisted = (youdefend && Antimagic) ||
-	(!youdefend && resist(mdef,
-		obj ? obj->oclass : 0, 0, NOTELL));
+	(!youdefend && resist(mdef, obj ? obj->oclass : 0, 0, NOTELL));
 
 /*    if (youdefend ? (!youattack && Antimagic)
                   : resist(mdef, obj->oclass, 0, NOTELL))

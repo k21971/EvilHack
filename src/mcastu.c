@@ -1663,6 +1663,19 @@ int spellnum;
        	}
        	dmg = 0;
        	break;
+    case MGC_CANCELLATION:
+        if (!mtmp) {
+            impossible("cancellation with no mtmp");
+            return;
+        }
+        if (yours)
+            You("%s a cancellation spell!",
+                rn2(2) ? "evoke" : "conjure up");
+        else if (canseemon(mattk))
+            pline("%s %s a cancellation spell!", Monnam(mattk),
+                  rn2(2) ? "evokes" : "conjures up");
+        (void) cancel_monst(mtmp, (struct obj *) 0, FALSE, TRUE, FALSE);
+        break;
     case MGC_ACID_BLAST:
         if (!mtmp || mtmp->mhp < 1) {
             impossible("acid blast with no mtmp");
