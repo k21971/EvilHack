@@ -711,6 +711,7 @@ register int pm;
     case PM_LARGE_CAT:
     case PM_PSEUDODRAGON:
     case PM_ELDER_PSEUDODRAGON:
+    case PM_ANCIENT_PSEUDODRAGON:
         /* cannibals are allowed to eat domestic animals without penalty */
         if (!CANNIBAL_ALLOWED()) {
             You_feel("that eating the %s was a bad idea.", mons[pm].mname);
@@ -862,9 +863,7 @@ struct permonst *ptr;
         chance = 1; /* the rest use the new system, give it to them all the time */
         break;
     }
-
     return (ptr->mlevel <= rn2(chance));
-
 }
 
 /* givit() tries to give you an intrinsic based on the monster's level
@@ -931,14 +930,14 @@ register struct permonst *ptr;
         break;
     case TELEPORT:
         debugpline0("Trying to give teleport");
-        if (!(HTeleportation & FROMOUTSIDE)) {
+        if (!(HTeleportation & FROMOUTSIDE) && !rn2(5)) {
             You_feel(Hallucination ? "diffuse." : "very jumpy.");
             HTeleportation |= FROMOUTSIDE;
         }
         break;
     case TELEPORT_CONTROL:
         debugpline0("Trying to give teleport control");
-        if (!(HTeleport_control & FROMOUTSIDE)) {
+        if (!(HTeleport_control & FROMOUTSIDE) && !rn2(10)) {
             You_feel(Hallucination ? "centered in your personal space."
                                    : "in control of yourself.");
             HTeleport_control |= FROMOUTSIDE;

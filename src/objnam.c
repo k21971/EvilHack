@@ -3374,6 +3374,7 @@ struct obj *no_wish;
         && strncmpi(bp, "studded armor", 13)
         && strncmpi(bp, "armor", 5)
         && strncmpi(bp, "tooled horn", 11)
+        && strncmpi(bp, "ring of p'", 10)
         && strncmpi(bp, "food ration", 11)
         && strncmpi(bp, "meat ring", 9))
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
@@ -4080,7 +4081,7 @@ struct obj *no_wish;
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
             return otmp;
-    } else if (otmp->oartifact && (rn2(nartifact_exist()) > 2))
+    } else if (otmp->oartifact && (rn2(nartifact_exist()) > 1))
 #ifdef WIZARD
     if (wizard && yn("Force the wish to succeed?") == 'n')
 #endif
@@ -4110,8 +4111,8 @@ struct obj *no_wish;
         if (pm < 0) {
             switch(otmp->oartifact) {
                 case ART_LIFESTEALER:
-                    pm = PM_VAMPIRE_LORD;
-                    voice = "Vlad the Impaler";
+                    pm = PM_VAMPIRE_MAGE;
+                    voice = "The Envoy of Vlad the Impaler";
                     break;
                 case ART_XIUHCOATL:
                 case ART_SUNSWORD:

@@ -90,8 +90,8 @@ MONSTER: ('r',"rabid rat"),random
 MONSTER: ('r',"rabid rat"),random
 MONSTER: ('r',"rabid rat"),random
 MONSTER: ('r',"rabid rat"),random
-MONSTER: ('r',"rabid rat"),random
-MONSTER: ('r',"rabid rat"),random
+MONSTER: ('r',"enormous rat"),random
+MONSTER: ('r',"enormous rat"),random
 MONSTER: (';',"giant eel"),random
 MONSTER: (';',"shark"),random
 MONSTER: ';', random
@@ -174,8 +174,8 @@ MONSTER:('r',"rabid rat"),random
 MONSTER:('r',"rabid rat"),random
 MONSTER:('r',"rabid rat"),random
 MONSTER:('r',"rabid rat"),random
-MONSTER:('r',"rabid rat"),random
-MONSTER:('r',"rabid rat"),random
+MONSTER:('r',"enormous rat"),random
+MONSTER:('r',"enormous rat"),random
 MONSTER:'r',random,hostile
 MONSTER:(';',"giant eel"),random
 MONSTER:(';',"giant eel"),random
@@ -265,6 +265,8 @@ MONSTER:('H',"Cyclops"),(20,06),hostile
 MONSTER:('r',"rabid rat"),random
 MONSTER:('r',"rabid rat"),random
 MONSTER:('r',"rabid rat"),random
+MONSTER:('r',"rodent of unusual size"),random
+MONSTER:('r',"rodent of unusual size"),random
 MONSTER:'r',random,hostile
 MONSTER:'r',random,hostile
 MONSTER:(';',"giant eel"),random
@@ -320,6 +322,7 @@ OBJECT: random, random
 OBJECT: random, random
 #
 MONSTER: ('r', "rabid rat"), random
+MONSTER: ('r', "enormous rat"), random
 MONSTER: 'r', random,hostile
 MONSTER: 'r', random,hostile
 MONSTER: (';', "giant eel"), random
@@ -359,6 +362,7 @@ OBJECT: random, random
 #
 MONSTER: ('r', "rabid rat"), random
 MONSTER: ('r', "rabid rat"), random
+MONSTER: ('r', "enormous rat"), random
 MONSTER: 'r', random,hostile
 MONSTER: 'r', random,hostile
 MONSTER: (';', "giant eel"), random

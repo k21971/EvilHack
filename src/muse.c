@@ -1812,16 +1812,26 @@ register struct obj *otmp;
 	    shieldeff(mtmp->mx, mtmp->my);
 	} else if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
 	    register struct obj *obj;
+            /* natural shapechangers aren't affected by system shock
+               (unless protection from shapechangers is interfering
+               with their metabolism...) */
+            if (!is_shapeshifter(mtmp->data) && !rn2(25)) {
+                if (canseemon(mtmp)) {
+                    pline("%s shudders!", Monnam(mtmp));
+                    if (zap_oseen && otmp->otyp == WAN_POLYMORPH)
+                        makeknown(WAN_POLYMORPH);
+                }
 		/* dropped inventory shouldn't be hit by this zap */
 		for (obj = mtmp->minvent; obj; obj = obj->nobj)
-		     bypass_obj(obj);
+		    bypass_obj(obj);
 
 		if (canseemon(mtmp))
 		    pline("%s is killed!", Monnam(mtmp));
 		DEADMONSTER(mtmp);
-	} else if (newcham(mtmp, (struct permonst *)0, TRUE, FALSE)) {
-            if (!Hallucination && zap_oseen && otmp->otyp == WAN_POLYMORPH)
-		makeknown(otmp->otyp);
+	    } else if (newcham(mtmp, (struct permonst *) 0, TRUE, FALSE)) {
+                if (!Hallucination && zap_oseen && otmp->otyp == WAN_POLYMORPH)
+		    makeknown(otmp->otyp);
+            }
 	}
 	break;
     case WAN_CANCELLATION:
@@ -2163,6 +2173,7 @@ struct monst *mtmp;
         return WAN_DEATH;
     if (difficulty > 7 && !rn2(30))
         return WAN_POLYMORPH;
+
     switch (rn2(9 - (difficulty < 4) + 4 * (difficulty > 6))) {
     case 0: {
         struct obj *helmet = which_armor(mtmp, W_ARMH);
@@ -3097,15 +3108,15 @@ boolean by_you;
 
     if (is_spellcaster(mon->data) && !mon->mcan
 	&& can_cast_spells(mon) && !mon->mconf
-        && mon->m_lev >= 5) {
+        && mon->m_lev >= 5 && rn2(2)) {
 
         register struct obj *otemp, *onext;
         register struct obj *pseudo = mksobj(SPE_STONE_TO_FLESH, FALSE, FALSE);
         pseudo->blessed = pseudo->cursed = 0;
-        if (canseemon(mon))
+        if (canspotmon(mon))
             pline("%s casts a spell!", canspotmon(mon)
                   ? Monnam(mon) : Something);
-        if (canseemon(mon)) {
+        if (canspotmon(mon)) {
             if (Hallucination)
                 pline("Look! The Pillsbury Doughboy!");
             else

@@ -204,8 +204,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *  they might discover the true source of her knowledge.
      */
     A("Magic 8-Ball", EIGHT_BALL,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK), SPFX_WARN, 0,
-      NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 5000L,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK), (SPFX_WARN | SPFX_EXCLUDE),
+      0, NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 5000L,
       NO_COLOR),
 
     /*

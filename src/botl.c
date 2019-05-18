@@ -1,4 +1,4 @@
-/* NetHack 3.6	botl.c	$NHDT-Date: 1554857126 2019/04/10 00:45:26 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.144 $ */
+/* NetHack 3.6	botl.c	$NHDT-Date: 1557094795 2019/05/05 22:19:55 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.145 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -397,16 +397,13 @@ char *buf;
     int ret = 1;
 
     /* TODO:    Add in dungeon name */
-    if (Is_knox(&u.uz)) {
+    if (Is_knox(&u.uz))
         Sprintf(buf, "%s ", dungeons[u.uz.dnum].dname);
-    } else if (In_quest(&u.uz)) {
+    else if (In_quest(&u.uz))
         Sprintf(buf, "Home %d ", dunlev(&u.uz));
-    } else if (In_endgame(&u.uz)) {
-        /* [3.6.2: this used to be "Astral Plane" or generic "End Game"] */
-        (void) endgamelevelname(buf, depth(&u.uz));
-        (void) strsubst(buf, "Plane of ", ""); /* just keep <element> */
-        Strcat(buf, " ");
-    } else {
+    else if (In_endgame(&u.uz))
+        Sprintf(buf, Is_astralevel(&u.uz) ? "Astral Plane " : "End Game ");
+    else {
         /* ports with more room may expand this one */
         Sprintf(buf, "Dlvl:%-2d ", depth(&u.uz));
         ret = 0;
@@ -822,6 +819,15 @@ boolean *valsetlist;
     }
 #endif
 
+        /*
+         * TODO?
+         *  It's possible for HPmax (or ENEmax) to change while current
+         *  HP (or energy) stays the same.  [Perhaps current and maximum
+         *  both go up, then before the next status update takes place
+         *  current goes down again.]  If that happens with HPmax, we
+         *  ought to force the windowport to treat current HP as changed
+         *  if hitpointbar is On, in order for that to be re-rendered.
+         */
     if (update_all || chg || reset) {
         idxmax = curr->idxmax;
         pc = (idxmax >= 0) ? percentage(curr, &blstats[idx][idxmax]) : 0;
@@ -903,8 +909,8 @@ boolean *valsetlist;
     if (context.botlx && (windowprocs.wincap2 & WC2_RESET_STATUS) != 0L)
         status_update(BL_RESET, (genericptr_t) 0, 0, 0,
                       NO_COLOR, (unsigned long *) 0);
-    else if ((updated || context.botlx) &&
-             (windowprocs.wincap2 & WC2_FLUSH_STATUS) != 0L)
+    else if ((updated || context.botlx)
+             && (windowprocs.wincap2 & WC2_FLUSH_STATUS) != 0L)
         status_update(BL_FLUSH, (genericptr_t) 0, 0, 0,
                       NO_COLOR, (unsigned long *) 0);
 
@@ -1387,7 +1393,8 @@ const char *name;
 STATIC_OVL boolean
 hilite_reset_needed(bl_p, augmented_time)
 struct istat_s *bl_p;
-long augmented_time;
+long augmented_time; /* no longer augmented; it once encoded fractional
+                      * amounts for multiple moves within same turn     */
 {
     /*
      * This 'multi' handling may need some tuning...
@@ -1445,7 +1452,7 @@ status_eval_next_unhilite()
     }
 }
 
-/* called by options handling when 'statushilites' boolean is toggled */
+/* called by options handling when 'statushilites' value is changed */
 void
 reset_status_hilites()
 {

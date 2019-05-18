@@ -1913,7 +1913,7 @@ struct obj *obj, *otmp;
                 break;
             }
             /* KMH, conduct */
-            if(!u.uconduct.polypiles++)
+            if (!u.uconduct.polypiles++)
                 livelog_printf(LL_CONDUCT, "polymorphed %s first object", uhis());
             /* any saved lock context will be dangerously obsolete */
             if (Is_box(obj))
@@ -2805,12 +2805,13 @@ boolean youattack, allow_cancel_kill, self_cancel;
             find_ac();
         }
     } else {
+        if (youattack && canseemon(mdef))
+            pline("Magical energies are absorbed from %s.", mon_nam(mdef));
 	if (youdefend)
             You_feel("magical energies being absorbed from your vicinity.");
 	if (youdefend && Antimagic) {
             shieldeff(u.ux, u.uy);
-	}
-	else if (!youdefend && resisted) {
+	} else if (!youdefend && resisted) {
 	    shieldeff(mdef->mx, mdef->my);
 	}
 	for (otmp = (youdefend ? invent : mdef->minvent);
@@ -3390,11 +3391,18 @@ struct obj **pobj; /* object tossed/used, set to NULL
             levl[bhitpos.x][bhitpos.y].typ = ROOM;
             if (cansee(bhitpos.x, bhitpos.y))
                 pline_The("iron bars are blown apart!");
-            else
+            else if (!Deaf)
                 You_hear("a lot of loud clanging sounds!");
             wake_nearto(bhitpos.x, bhitpos.y, 20 * 20);
             newsym(bhitpos.x, bhitpos.y);
             /* stop the bolt here; it takes a lot of energy to destroy bars */
+            range = 0;
+            break;
+        } else if ((levl[bhitpos.x][bhitpos.y].wall_info & W_NONDIGGABLE) != 0) {
+            if (cansee(bhitpos.x, bhitpos.y))
+                pline_The("iron bars vibrate, but are otherwise intact.");
+            else if (!Deaf)
+                You_hear("an intense sustained hum.");
             range = 0;
             break;
         }
