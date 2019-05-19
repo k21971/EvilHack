@@ -1646,7 +1646,9 @@ unsigned trflags;
 
     case SPEAR_TRAP:
         feeltrap(trap);
-        pline("A spear stabs up from a hole in the ground at you!");
+        pline("A spear stabs up from a hole in the ground, %s %s!",
+              rn2(2) ? "piercing your" : "stabbing you in the",
+              body_part(LEG));
         if (thick_skinned(youmonst.data)) {
             pline("But it breaks off against your body.");
             deltrap(trap);
@@ -1656,7 +1658,9 @@ unsigned trflags;
             pline("It passes right through you!");
         } else {
             pline("Ouch!  That hurts!");
-            losehp(rnd(10) + 10, "sharpened bamboo stick", KILLED_BY_AN);
+            set_wounded_legs(rn2(2) ? RIGHT_SIDE : LEFT_SIDE, rn1(10, 10));
+            exercise(A_DEX, FALSE);
+            losehp(Maybe_Half_Phys(rnd(10) + 10), "sharpened bamboo stick", KILLED_BY_AN);
         }
         break;
 
