@@ -82,6 +82,11 @@ STATIC_DCL void FDECL(nsb_mung_line, (char *));
 STATIC_DCL void FDECL(nsb_unmung_line, (char *));
 #endif
 
+/* tracking of various killed unique monsters
+   from UnNetHack */
+static char* FDECL(killed_uniques, (void));
+static int FDECL(killed_with_mbirth_limit, (int));
+
 static winid toptenwin = WIN_ERR;
 
 /* "killed by",&c ["an"] 'killer.name' */
@@ -376,7 +381,15 @@ int how;
             genders[flags.initgend].filecode, XLOG_SEP,
             aligns[1 - u.ualignbase[A_ORIGINAL]].filecode);
     Fprintf(rfile, "%cflags=0x%lx", XLOG_SEP, encodexlogflags());
+
+    /* unique/special monster types */
+    Fprintf(rfile, "%ckilled_uniques=%s", XLOG_SEP, killed_uniques());
+    Fprintf(rfile, "%ckilled_nazgul=%d", XLOG_SEP, mvitals[PM_NAZGUL].died);
+    Fprintf(rfile, "%ckilled_erinyes=%d", XLOG_SEP, mvitals[PM_ERINYS].died);
+    Fprintf(rfile, "%ckilled_archangels=%d", XLOG_SEP, mvitals[PM_ARCHANGEL].died);
+
     Fprintf(rfile, "\n");
+
 #undef XLOG_SEP
 }
 
@@ -468,6 +481,30 @@ encodeachieve()
 }
 
 #endif /* XLOGFILE */
+
+static char _killed_uniques[640];
+static char*
+killed_uniques(void)
+{
+    _killed_uniques[0] = '\0';
+
+    for (int i = LOW_PM; i < NUMMONS; i++) {
+	if ((mons[i].geno & G_UNIQ) && mvitals[i].died) {
+    	    if (i == PM_LONG_WORM_TAIL)
+                continue;
+	    if (i == PM_HIGH_PRIEST)
+                continue;
+	    Sprintf(eos(_killed_uniques), "%s,", mons[i].mname);
+	}
+    }
+
+    int len;
+    if ((len=strlen(_killed_uniques))) {
+        _killed_uniques[len-1] = '\0';
+    }
+
+    return _killed_uniques;
+}
 
 STATIC_OVL void
 free_ttlist(tt)
