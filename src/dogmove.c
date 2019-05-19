@@ -729,7 +729,7 @@ int udist;
             }
 
             carryamt = can_carry(mtmp, obj);
-            if (carryamt > 0 && !obj->cursed
+            if (carryamt > 0 && !obj->cursed && !obj->zombie_corpse
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
             boolean can_use = could_use_item(mtmp, obj, TRUE);
             if (can_use || (rn2(20) < edog->apport + 3)) {
