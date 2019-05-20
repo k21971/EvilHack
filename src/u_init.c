@@ -388,9 +388,11 @@ static const struct def_skill Skill_Mon[] = {
 static const struct def_skill Skill_P[] = {
     { P_CLUB, P_EXPERT },
     { P_MACE, P_EXPERT },
+    { P_MORNING_STAR, P_EXPERT },
     { P_HAMMER, P_EXPERT },
+    { P_FLAIL, P_EXPERT },
     { P_QUARTERSTAFF, P_EXPERT },
-    { P_SLING, P_SKILLED },
+    { P_SLING, P_BASIC },
     { P_BOOMERANG, P_BASIC },
     { P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },
@@ -742,7 +744,7 @@ u_init()
         break;
     }
     case PM_PRIEST:
-	if (Race_switch == PM_ELF) Priest[PRI_MACE].trotyp = CLUB;
+	if (Race_switch == PM_ELF) Priest[PRI_MACE].trotyp = QUARTERSTAFF;
         ini_inv(Priest);
         if (!rn2(4))
             ini_inv(Lamp);

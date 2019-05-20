@@ -1841,10 +1841,11 @@ dosacrifice()
         } else {
             int nartifacts = nartifact_exist();
 	    int nchance = u.ulevel + 6;
-            boolean primary_casters, secondary_casters, non_casters;
+            boolean primary_casters, primary_casters_priest, secondary_casters, non_casters;
 
             /* Primary casting roles */
-            primary_casters = Role_if(PM_HEALER) || Role_if(PM_PRIEST) || Role_if(PM_WIZARD);
+            primary_casters = Role_if(PM_HEALER) || Role_if(PM_WIZARD);
+            primary_casters_priest = Role_if(PM_PRIEST);
 
             /* Secondary casting roles */
             secondary_casters = Role_if(PM_ARCHEOLOGIST) || Role_if(PM_KNIGHT) || Role_if(PM_MONK)
@@ -1884,7 +1885,9 @@ dosacrifice()
                  * Lets also try to dish out suitable gear based on the player's role */
 		    do {
                         if (primary_casters) {
-                            typ = !rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, QUARTERSTAFF);
+                            typ = rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, FLAIL);
+                        } else if (primary_casters_priest) {
+                            typ = rnd_class(MACE, FLAIL);
                         } else {
                             typ = rnd_class(SPEAR, KATANA);
                         }
@@ -1892,7 +1895,7 @@ dosacrifice()
 		        if (ncount > 499) {
                             return 1;
                         }
-		    } else if (primary_casters) {
+		    } else if (primary_casters || primary_casters_priest) {
 		        typ = !rn2(2) ? rnd_class(ARMOR, CLOAK_OF_DISPLACEMENT)
                                       : rnd_class(GLOVES, LEVITATION_BOOTS);
                     } else {

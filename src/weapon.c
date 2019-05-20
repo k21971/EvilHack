@@ -1438,15 +1438,21 @@ void
 unrestrict_weapon_skill(skill)
 int skill;
 {
-    /* From SporkHack:
+    /* From SporkHack (modified):
      * Cavemen are good at what they know how to use, but not much on advanced fencing or combat tactics.
      * So never unrestrict an edged weapon for them.
      *
      * Same for priests and monks, though slightly different: priests shouldn't have edged weapons, and
-     * monks and wizards really shouldn't be _using_ weapons, so don't give them _any_. */
+     * monks really shouldn't be _using_ weapons, so don't give them _any_. */
 
-    if (Role_if(PM_MONK) || Role_if(PM_WIZARD)) { return; }
-    if ((Role_if(PM_CAVEMAN) || Role_if(PM_PRIEST)) && skill >= P_DAGGER && skill <= P_SABER) { return; }
+    if (Role_if(PM_MONK)) {
+        return;
+    }
+    if ((Role_if(PM_CAVEMAN) || Role_if(PM_PRIEST))
+        && skill >= P_DAGGER && skill <= P_SABER
+        && skill >= P_POLEARMS && skill <= P_UNICORN_HORN) {
+        return;
+    }
 
     if (skill < P_NUM_SKILLS && P_RESTRICTED(skill)) {
         P_SKILL(skill) = P_UNSKILLED;
@@ -1667,6 +1673,20 @@ struct obj *weapon;
         }
         if (u.twoweap)
             bonus -= 2;
+    }
+
+    /* Priests using edged weapons is frowned upon by their deity */
+    if (Role_if(PM_PRIEST) && (is_pierce(weapon) || is_slash(weapon))) {
+        pline("%s has %s you from using edged weapons such as %s!",
+              align_gname(u.ualign.type), rn2(2) ? "forbidden" : "prohibited",
+              makeplural(xname(weapon)));
+        exercise(A_WIS, FALSE);
+        if (!rn2(10)) {
+            Your("behavior has displeased %s.",
+                 align_gname(u.ualign.type));
+            adjalign(-1);
+        }
+        bonus = -30;
     }
 
     return bonus;
