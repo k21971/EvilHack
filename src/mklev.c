@@ -952,6 +952,12 @@ makelevel()
                     (void) maketrap(pos.x, pos.y, WEB);
             }
         }
+
+        if (level.flags.has_beehive == 1) {
+            if (!occupied(pos.x, pos.y) && rn2(5))
+                (void) makemon(&mons[PM_HONEY_BADGER], pos.x, pos.y, NO_MM_FLAGS);
+        }
+
         /* put traps and mimics inside */
         i = 8 - (level_difficulty() / 6);
         if (i <= 1)

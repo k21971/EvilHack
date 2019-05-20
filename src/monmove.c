@@ -141,10 +141,13 @@ struct monst *mtmp;
 {
     /* creatures who are directly resistant to magical scaring:
      * Rodney, lawful minions, Angels, Archangels, the Riders,
-     * monster players, shopkeepers inside their own shop,
-     * priests inside their own temple */
+     * monster players, honey badgers,
+     * shopkeepers inside their own shop,
+     * priests inside their own temple
+     */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL]
+        || mtmp->data == &mons[PM_HONEY_BADGER]
         || is_mplayer(mtmp->data)
         || is_dlord(mtmp->data)
         || is_dprince(mtmp->data)
@@ -172,7 +175,7 @@ struct monst *mtmp;
      * Creatures who don't (or can't) fear a written Elbereth:
      * all the above plus shopkeepers (even if poly'd into non-human),
      * vault guards (also even if poly'd), blind or peaceful monsters,
-     * humans and elves, and minotaurs.
+     * humans and elves, honey badgers, and minotaurs.
      *
      * If the player isn't actually on the square OR the player's image
      * isn't displaced to the square, no protection is being granted.
@@ -187,6 +190,7 @@ struct monst *mtmp;
                  || mtmp->mpeaceful || mtmp->data->mlet == S_HUMAN
                  || mtmp->data == &mons[PM_MINOTAUR]
                  || mtmp->data == &mons[PM_ELDER_MINOTAUR]
+                 || mtmp->data == &mons[PM_HONEY_BADGER]
                  || Inhell || In_endgame(&u.uz)));
 }
 
@@ -1629,6 +1633,12 @@ register int after;
             /* Maybe a cube ate just about anything */
             if (ptr == &mons[PM_GELATINOUS_CUBE]) {
                 if (meatobj(mtmp) == 2)
+                    return 2; /* it died */
+            }
+
+            /* Maybe a honey badger raided a beehive */
+            if (ptr == &mons[PM_HONEY_BADGER]) {
+                if (meatjelly(mtmp) == 2)
                     return 2; /* it died */
             }
 

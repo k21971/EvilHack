@@ -2932,6 +2932,8 @@ struct obj *obj;
                                   && cures_stoning(mon, obj, TRUE)));
         if (typ == EGG)
             return (boolean) touch_petrifies(&mons[obj->corpsenm]);
+        if (is_royaljelly(obj) && mon->data == &mons[PM_HONEY_BADGER])
+            return TRUE;
         break;
     case RING_CLASS:
         /* Should match the list in m_dowear_type.
