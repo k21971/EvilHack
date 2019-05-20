@@ -338,14 +338,15 @@ int *attk_count, *role_roll_penalty;
 	useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill : wepskill;
 	if ((useskill == P_UNSKILLED || useskill == P_ISRESTRICTED) && tmp > 15) {
 	    tmp = 15;
-	if (!rn2(3)) {
-            /* using a corpse as a weapon... alrighty then */
-	    if (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep)) {
-		You("struggle trying to use the %s as a weapon.", aobjnam(uwep, (char *) 0));
-	    } else if (useskill != P_ISRESTRICTED) {
-		You("feel like you could use some more practice...");
-	    } else {
-                You("aren't sure you're doing this the right way...");
+	    if (!rn2(3)) {
+                /* using a corpse as a weapon... alrighty then */
+	        if (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep)) {
+		    You("struggle trying to use the %s as a weapon.",
+                         aobjnam(uwep, (char *) 0));
+	        } else if (useskill != P_ISRESTRICTED) {
+		    You("feel like you could use some more practice.");
+	        } else {
+                    You("aren't sure you're doing this the right way...");
 	        }
 	    }
         }
