@@ -224,3 +224,53 @@ Version 0.3.1
 - Medusa revamp, round two (based on player feedback and some of my own ideas)
 - New dungeon feature: forges - player interacts with them just like they would a fountain,
   but instead of water, it's molten lava. See the 'forges' commit for what all it can do
+- Fix: instakill from poison vs poison reistance percentage
+- Fix: 'turning into a zombie' status not showing when checking yourself via wand of probing
+  or a stethoscope
+- Added more rumors (mostly true)
+- Fix: 'placing monster over another' and 'can't place branch' impossibe messages
+- Add inventory weight/carrying cap and number of slots left to inventory display
+- Fix: 'named object not in disco' when forgetting known objects (amnesia or brain eaten)
+- Tweak pseudodragon/elder pseudodragon behavior in regards to items
+- Fix: monsters using a bag of tricks would show as '<monster> reads a bag of tricks'
+- Fix: properly map steed ids when loading bones files to prevent panic()
+- Latest merges from 'vanilla' NetHack 3.6.2 (as of May 5th, 2019)
+
+--------------------------------------------------------------------------------------------
+
+Version 0.3.2
+-------------
+
+- Fix: correctly handle player and steed getting polymorphed on a trap
+- Change status lines' "End Game" behavior back to old method
+- Elder minotaurs will spawn with wands of digging
+- Fix: displaced monsters attacking non-displaced would behave as if the non-displaced
+  monster was the one with displacement
+- Tweaks to the Red Horse
+- Added a third tier to the wizard starting pet pseudodragon
+- New monsters: enormous rat, rodent of unusual size, rabid dog, jumping spider,
+  honey badger
+- Random dragonhide-based armor is a bit more rare to find
+- Fix: eating a tengu corpse gave the player teleportis and teleport control
+  immediately, first time
+- Proper feedback when trying to destroy iron bars with a wand of striking/spell
+  of force bolt and can't
+- Fix: adjusted behavior of spellcasting monsters using stone to flesh on themselves
+- Randomize the message received when the player dies and the attacking monster
+  starts to go through their possessions
+- Add feedback when zapping a wand of cancellation at a monster
+- New monster spell: MGC_CANCELLATION
+- Fix: monsters zapped by a wand of polymorph wielded by another monster would not
+  change form and/or die
+- Fix: The Ring of P'hul can now be wished for
+- Added an EvilHack splash screen for curses mode
+- Tweak castle-2 level
+- Fix: impossible when monster's armor gets destroyed by a spell
+- Updated the item array for what monsters will wish for
+- Tweaks to spear traps
+- Adjust pet behavior is regards to zombie corpses
+- Record killing of unique monsters, other special monster types in the xlogfile
+  (primarily for the JunetHack tournament)
+- Twoweapon patch
+- Priests are penalized for using edged weapons
+- Latest merges from 'vanilla' NetHack 3.6.2 (as of May 7th, 2019) -- official release
