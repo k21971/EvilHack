@@ -4363,8 +4363,11 @@ render_status(VOID_ARGS)
                      * | Condition Codes |
                      * +-----------------+
                      */
+                    /* comment out the below two lines
+                     * to address status not updating
+                     * on the botl
                     if (!tty_condition_bits)
-                        continue;
+                        continue; */
                     if (num_rows == 3) {
                         int k;
                         char *dat = &cw->data[y][0];
