@@ -1,4 +1,4 @@
-/* NetHack 3.6	dogmove.c	$NHDT-Date: 1551493951 2019/03/02 02:32:31 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.72 $ */
+/* NetHack 3.6	dogmove.c	$NHDT-Date: 1557094801 2019/05/05 22:20:01 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.74 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -661,8 +661,9 @@ struct edog *edog;
             else
                 You_feel("worried about %s.", y_monnam(mtmp));
             stop_occupation();
-        } else if (monstermoves > edog->hungrytime + 750 || DEADMONSTER(mtmp)) {
-        dog_died:
+        } else if (monstermoves > edog->hungrytime + 750
+                   || DEADMONSTER(mtmp)) {
+ dog_died:
             if (mtmp->mleashed && mtmp != u.usteed)
                 Your("leash goes slack.");
             else if (cansee(mtmp->mx, mtmp->my))
@@ -728,7 +729,7 @@ int udist;
             }
 
             carryamt = can_carry(mtmp, obj);
-            if (carryamt > 0 && !obj->cursed
+            if (carryamt > 0 && !obj->cursed && !obj->zombie_corpse
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
             boolean can_use = could_use_item(mtmp, obj, TRUE);
             if (can_use || (rn2(20) < edog->apport + 3)) {
@@ -905,7 +906,6 @@ int after, udist, whappr;
     return appr;
 }
 
-
 STATIC_OVL struct monst *
 find_targ(mtmp, dx, dy, maxdist)
 register struct monst *mtmp;
@@ -934,14 +934,13 @@ int maxdist;
         if (!m_cansee(mtmp, curx, cury))
             break;
 
-        targ = m_at(curx, cury);
-
         if (curx == mtmp->mux && cury == mtmp->muy)
             return &youmonst;
 
-        if (targ) {
+        if ((targ = m_at(curx, cury)) != 0) {
             /* Is the monster visible to the pet? */
-            if ((!targ->minvis || mon_prop(mtmp, SEE_INVIS)) && !targ->mundetected)
+            if ((!targ->minvis || mon_prop(mtmp, SEE_INVIS))
+                && !targ->mundetected)
                 break;
             /* If the pet can't see it, it assumes it aint there */
             targ = 0;
@@ -1097,7 +1096,6 @@ struct monst *mtmp, *mtarg;
     return score;
 }
 
-
 STATIC_OVL struct monst *
 best_target(mtmp)
 struct monst *mtmp;   /* Pet */
@@ -1156,23 +1154,17 @@ register struct monst *mtmp2;
 boolean ranged;
 {
     return
-    !((!ranged && (int) mtmp2->m_lev >= (int)mtmp->m_lev+2 &&
-		!attacktype(mtmp->data, AT_EXPL)) ||
-		(!ranged &&
-		 mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10) &&
-		 mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
-		 && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis)) ||
-		(!ranged &&
-		 mtmp2->data==&mons[PM_GELATINOUS_CUBE] && rn2(10)) ||
-		(!ranged &&
-		 max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp) ||
-		((mtmp->mhp*4 < mtmp->mhpmax
-		  || mtmp2->data->msound == MS_GUARDIAN
-		  || mtmp2->data->msound == MS_LEADER
-		  || always_peaceful(mtmp2->data)) &&
-		 mtmp2->mpeaceful && !Conflict) ||
-		   (!ranged && touch_petrifies(mtmp2->data) &&
-			!resists_ston(mtmp)));
+    !((!ranged && (int) mtmp2->m_lev >= (int)mtmp->m_lev+2
+     &&	!attacktype(mtmp->data, AT_EXPL))
+     ||	(!ranged && mtmp2->data == &mons[PM_FLOATING_EYE]
+     && rn2(10) && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
+     && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis))
+     || (!ranged && mtmp2->data==&mons[PM_GELATINOUS_CUBE] && rn2(10))
+     || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
+     || ((mtmp->mhp * 4 < mtmp->mhpmax || mtmp2->data->msound == MS_GUARDIAN
+     || mtmp2->data->msound == MS_LEADER || always_peaceful(mtmp2->data))
+     && mtmp2->mpeaceful && !Conflict) || (!ranged && touch_petrifies(mtmp2->data)
+     && !resists_ston(mtmp)));
 }
 
 /* return 0 (no move), 1 (move) or 2 (dead) */
@@ -1467,7 +1459,7 @@ int after; /* this is extra fast monster movement */
                 chcnt = 0;
             chi = i;
         }
-    nxti:
+ nxti:
         ;
     }
 
@@ -1482,6 +1474,7 @@ int after; /* this is extra fast monster movement */
         /* How hungry is the pet? */
         if (!mtmp->isminion) {
             struct edog *dog = EDOG(mtmp);
+
             hungry = (monstermoves > (dog->hungrytime + 300));
         }
 
@@ -1527,7 +1520,7 @@ int after; /* this is extra fast monster movement */
         }
     }
 
-newdogpos:
+ newdogpos:
     if (nix != omx || niy != omy) {
         boolean wasseen;
 
@@ -1599,7 +1592,7 @@ newdogpos:
         }
         cc.x = mtmp->mx;
         cc.y = mtmp->my;
-    dognext:
+ dognext:
         if (!m_in_out_region(mtmp, nix, niy))
             return 1;
         remove_monster(mtmp->mx, mtmp->my);

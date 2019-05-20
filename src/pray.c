@@ -1840,11 +1840,12 @@ dosacrifice()
             }
         } else {
             int nartifacts = nartifact_exist();
-	    int nchance = u.ulevel+6;
-            boolean primary_casters, secondary_casters, non_casters;
+	    int nchance = u.ulevel + 6;
+            boolean primary_casters, primary_casters_priest, secondary_casters, non_casters;
 
             /* Primary casting roles */
-            primary_casters = Role_if(PM_HEALER) || Role_if(PM_PRIEST) || Role_if(PM_WIZARD);
+            primary_casters = Role_if(PM_HEALER) || Role_if(PM_WIZARD);
+            primary_casters_priest = Role_if(PM_PRIEST);
 
             /* Secondary casting roles */
             secondary_casters = Role_if(PM_ARCHEOLOGIST) || Role_if(PM_KNIGHT) || Role_if(PM_MONK)
@@ -1876,7 +1877,7 @@ dosacrifice()
 	     * level 26: 100% chance
 	     */
 
-            if (rn2(10) >= (nchance*nchance)/100) {
+            if (rn2(10) >= (nchance * nchance) / 100) {
 		if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
 		int typ, ncount = 0;
 		if (rn2(2)) {
@@ -1884,23 +1885,27 @@ dosacrifice()
                  * Lets also try to dish out suitable gear based on the player's role */
 		    do {
                         if (primary_casters) {
-                            typ = !rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, QUARTERSTAFF);
+                            typ = rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, FLAIL);
+                        } else if (primary_casters_priest) {
+                            typ = rnd_class(MACE, FLAIL);
                         } else {
                             typ = rnd_class(SPEAR, KATANA);
                         }
 		    } while (ncount++ < 500 && typ && P_RESTRICTED(objects[typ].oc_skill));
-		        if (ncount > 499) { return 1; }
-		    } else if (primary_casters) {
-		            typ = !rn2(2) ? rnd_class(ARMOR, CLOAK_OF_DISPLACEMENT)
-                                          : rnd_class(GLOVES, LEVITATION_BOOTS);
-                        } else {
-                            typ = rnd_class(ELVEN_HELM, LEVITATION_BOOTS);
+		        if (ncount > 499) {
+                            return 1;
+                        }
+		    } else if (primary_casters || primary_casters_priest) {
+		        typ = !rn2(2) ? rnd_class(ARMOR, CLOAK_OF_DISPLACEMENT)
+                                      : rnd_class(GLOVES, LEVITATION_BOOTS);
+                    } else {
+                        typ = rnd_class(ELVEN_HELM, LEVITATION_BOOTS);
 		    }
 		    if (typ) {
 			otmp = mksobj(typ, FALSE, FALSE);
 			if (otmp) {
 			    bless(otmp);
-			    otmp->spe = rn2(3)+3; /* +3 to +5 */
+			    otmp->spe = rn2(3) + 3; /* +3 to +5 */
 			    otmp->oerodeproof = TRUE;
                             at_your_feet("An object");
 			    dropy(otmp);
@@ -1922,7 +1927,7 @@ dosacrifice()
 	            }
 		}
             } else if (u.uluck >= 0 && !rn2(10 + (2 * nartifacts))) {
-	        otmp = mk_artifact((struct obj *)0, a_align(u.ux,u.uy));
+	        otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
 		if (otmp) {
 		    if (otmp->spe < 0)
                         otmp->spe = 0;

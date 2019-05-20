@@ -1447,7 +1447,7 @@ const int matdensities[] = {
     15,  // LEATHER
     30,  // WOOD
     25,  // BONE
-    20,  // DRAGONHIDE
+    20,  // DRAGON_HIDE
     80,  // IRON
     70,  // METAL
     85,  // COPPER
@@ -2994,15 +2994,15 @@ static const struct icp wood_materials[] = {
 /* for objects which are normally cloth */
 static const struct icp cloth_materials[] = {
     {80, CLOTH},
-    {18, LEATHER},
-    { 2, DRAGON_HIDE}
+    {19, LEATHER},
+    { 1, DRAGON_HIDE}
 };
 
 /* for objects which are normally leather */
 static const struct icp leather_materials[] = {
-    {85, LEATHER},
+    {86, LEATHER},
     {13, CLOTH},
-    { 2, DRAGON_HIDE}
+    { 1, DRAGON_HIDE}
 };
 
 /* for objects of dwarvish make */

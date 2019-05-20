@@ -1438,15 +1438,21 @@ void
 unrestrict_weapon_skill(skill)
 int skill;
 {
-    /* From SporkHack:
+    /* From SporkHack (modified):
      * Cavemen are good at what they know how to use, but not much on advanced fencing or combat tactics.
      * So never unrestrict an edged weapon for them.
      *
      * Same for priests and monks, though slightly different: priests shouldn't have edged weapons, and
-     * monks and wizards really shouldn't be _using_ weapons, so don't give them _any_. */
+     * monks really shouldn't be _using_ weapons, so don't give them _any_. */
 
-    if (Role_if(PM_MONK) || Role_if(PM_WIZARD)) { return; }
-    if ((Role_if(PM_CAVEMAN) || Role_if(PM_PRIEST)) && skill >= P_DAGGER && skill <= P_SABER) { return; }
+    if (Role_if(PM_MONK)) {
+        return;
+    }
+    if ((Role_if(PM_CAVEMAN) || Role_if(PM_PRIEST))
+        && skill >= P_DAGGER && skill <= P_SABER
+        && skill >= P_POLEARMS && skill <= P_UNICORN_HORN) {
+        return;
+    }
 
     if (skill < P_NUM_SKILLS && P_RESTRICTED(skill)) {
         P_SKILL(skill) = P_UNSKILLED;
@@ -1543,7 +1549,7 @@ int
 weapon_hit_bonus(weapon)
 struct obj *weapon;
 {
-    int type, wep_type, skill, bonus = 0;
+    int type, wep_type, skill, bonus, maxweight = 0;
     static const char bad_skill[] = "weapon_hit_bonus: bad skill %d";
 
     wep_type = weapon_type(weapon);
@@ -1593,6 +1599,41 @@ struct obj *weapon;
             bonus = 0; /* if you're an expert, there shouldn't be a penalty */
             break;
         }
+	/* Heavy things are hard to use in your offhand unless you're
+	 * very good at what you're doing, or are very strong (see below).
+	 */
+	switch (P_SKILL(P_TWO_WEAPON_COMBAT)) {
+    	    default:
+                impossible(bad_skill, P_SKILL(P_TWO_WEAPON_COMBAT));
+	    case P_ISRESTRICTED:
+	    case P_UNSKILLED:
+                maxweight = 20; /* can use tridents/javelins, crysknives, unicorn horns or anything lighter */
+                break;
+	    case P_BASIC:
+                maxweight = 30; /* can use short swords/spears or a mace */
+                break;
+	    case P_SKILLED:
+        	maxweight = 40; /* can use sabers/long swords */
+                break;
+	    case P_EXPERT:
+                maxweight = 70; /* expert level can offhand any one-handed weapon */
+                break;
+	}
+
+        /* basically no restrictions if you're a giant, or have giant strength */
+        if (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER
+            || maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
+            maxweight = 200;
+
+	if (uswapwep && uswapwep->owt > maxweight) {
+	    Your("%s seem%s very %s.",
+                 xname(uswapwep), uswapwep->quan == 1 ? "s" : "",
+                 rn2(2) ? "unwieldy" : "cumbersome");
+            if (!rn2(10))
+                Your("%s %s too heavy to effectively fight offhand with.",
+                     xname(uswapwep), uswapwep->quan == 1 ? "is" : "are");
+	    bonus = -30;
+	}
     } else if (type == P_BARE_HANDED_COMBAT) {
         /*
          *        b.h. m.a. giant b.h. m.a.
@@ -1632,6 +1673,20 @@ struct obj *weapon;
         }
         if (u.twoweap)
             bonus -= 2;
+    }
+
+    /* Priests using edged weapons is frowned upon by their deity */
+    if (Role_if(PM_PRIEST) && (is_pierce(weapon) || is_slash(weapon))) {
+        pline("%s has %s you from using edged weapons such as %s!",
+              align_gname(u.ualign.type), rn2(2) ? "forbidden" : "prohibited",
+              makeplural(xname(weapon)));
+        exercise(A_WIS, FALSE);
+        if (!rn2(10)) {
+            Your("behavior has displeased %s.",
+                 align_gname(u.ualign.type));
+            adjalign(-1);
+        }
+        bonus = -30;
     }
 
     return bonus;

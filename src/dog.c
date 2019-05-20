@@ -812,6 +812,7 @@ register struct obj *obj;
                  && mptr->mlet != S_FUNGUS)
                 || (acidic(fptr) && !resists_acid(mon))
                 || (poisonous(fptr) && !resists_poison(mon))
+                || (obj->zombie_corpse && !resists_sick(mon))
                 || (touch_petrifies(&mons[obj->corpsenm]) &&
                     !resists_ston(mon)))
                 return POISON;

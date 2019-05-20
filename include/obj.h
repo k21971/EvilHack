@@ -270,6 +270,7 @@ struct obj {
 #define polyfodder(obj) (ofood(obj) && pm_to_cham((obj)->corpsenm) != NON_PM)
 #define mlevelgain(obj) (ofood(obj) && (obj)->corpsenm == PM_WRAITH)
 #define mhealup(obj) (ofood(obj) && (obj)->corpsenm == PM_NURSE)
+#define is_royaljelly(o) (o->otyp == LUMP_OF_ROYAL_JELLY)
 #define Is_pudding(o)                                                 \
     (o->otyp == GLOB_OF_GRAY_OOZE || o->otyp == GLOB_OF_BROWN_PUDDING \
      || o->otyp == GLOB_OF_GREEN_SLIME || o->otyp == GLOB_OF_BLACK_PUDDING)

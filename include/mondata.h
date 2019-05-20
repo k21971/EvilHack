@@ -41,7 +41,8 @@
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
-#define is_jumper(ptr) ((ptr) == &mons[PM_HUMAN_KNIGHT])
+#define is_jumper(ptr) ((ptr) == &mons[PM_HUMAN_KNIGHT] \
+                        || (ptr) == &mons[PM_JUMPING_SPIDER])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
@@ -145,6 +146,8 @@
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
 #define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 #define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)
+#define is_pseudodragon(ptr) ((ptr) == &mons[PM_PSEUDODRAGON] || (ptr) == &mons[PM_ELDER_PSEUDODRAGON] \
+                              || (ptr) == &mons[PM_ANCIENT_PSEUDODRAGON])
 #define is_angel(ptr) (((ptr)->mhflags & MH_ANGEL) != 0L)
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)
 #define is_soldier(ptr) ((ptr) == &mons[PM_HUMAN_SOLDIER] || (ptr) == &mons[PM_ELVEN_SOLDIER]          \

@@ -1566,9 +1566,13 @@ unsigned trflags;
             You_feel("momentarily different.");
             /* Trap did nothing; don't remove it --KAA */
         } else {
-            (void) steedintrap(trap, (struct obj *) 0);
-            deltrap(trap);      /* delete trap before polymorph */
-            newsym(u.ux, u.uy); /* get rid of trap symbol */
+            int steedtrapped = steedintrap(trap, (struct obj *) 0);
+
+            /* If the steed hit the trap, it was already deleted */
+            if (steedtrapped == FALSE) {
+                deltrap(trap);      /* delete trap before polymorph */
+                newsym(u.ux, u.uy); /* get rid of trap symbol */
+            }
             You_feel("a change coming over you.");
             polyself(0);
         }
@@ -1642,7 +1646,9 @@ unsigned trflags;
 
     case SPEAR_TRAP:
         feeltrap(trap);
-        pline("A spear stabs up from a hole in the ground at you!");
+        pline("A spear stabs up from a hole in the ground, %s %s!",
+              rn2(2) ? "piercing your" : "stabbing you in the",
+              body_part(LEG));
         if (thick_skinned(youmonst.data)) {
             pline("But it breaks off against your body.");
             deltrap(trap);
@@ -1652,7 +1658,9 @@ unsigned trflags;
             pline("It passes right through you!");
         } else {
             pline("Ouch!  That hurts!");
-            losehp(rnd(10) + 10, "sharpened bamboo stick", KILLED_BY_AN);
+            set_wounded_legs(rn2(2) ? RIGHT_SIDE : LEFT_SIDE, rn1(10, 10));
+            exercise(A_DEX, FALSE);
+            losehp(Maybe_Half_Phys(rnd(10) + 10), "sharpened bamboo stick", KILLED_BY_AN);
         }
         break;
 
@@ -2802,7 +2810,6 @@ register struct monst *mtmp;
                 if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE)) {
                     /* we're done with mptr but keep it up to date */
                     mptr = mtmp->data;
-                    deltrap(trap);
                 }
                 if (in_sight) {
                     seetrap(trap);

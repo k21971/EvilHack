@@ -24,6 +24,7 @@ enum mcast_mage_spells {
     MGC_ACID_BLAST,
     MGC_SUMMON_MONS,
     MGC_CLONE_WIZ,
+    MGC_CANCELLATION,
     MGC_DEATH_TOUCH
 };
 
@@ -48,6 +49,7 @@ extern void you_aggravate(struct monst *);
 STATIC_DCL void FDECL(cursetxt, (struct monst *, BOOLEAN_P));
 STATIC_DCL int FDECL(choose_magic_spell, (struct monst *, int));
 STATIC_DCL int FDECL(choose_clerical_spell, (struct monst *, int));
+STATIC_DCL int FDECL(m_cure_self, (struct monst *, int));
 STATIC_DCL void FDECL(cast_wizard_spell, (struct monst *, int, int));
 STATIC_DCL void FDECL(cast_cleric_spell, (struct monst *, int, int));
 STATIC_DCL boolean FDECL(is_undirected_spell, (unsigned int, int));
@@ -140,7 +142,7 @@ int spellval;
     while (spellval > 24 && rn2(25))
         spellval = rn2(spellval);
 
-    /* If we're hurt, seriously consider giving fixing ourselves priority */
+    /* If we're hurt, seriously consider fixing ourselves a priority */
     if ((mtmp->mhp * 4) <= mtmp->mhpmax) {
         spellval = 1;
     }
@@ -169,8 +171,9 @@ int spellval;
         return MGC_CLONE_WIZ;
     case 17:
     case 16:
-    case 15:
         return MGC_SUMMON_MONS;
+    case 15:
+        return MGC_CANCELLATION;
     case 14:
         return MGC_ACID_BLAST;
     case 13:
@@ -451,6 +454,22 @@ boolean foundyou;
     return (ret);
 }
 
+STATIC_OVL int
+m_cure_self(mtmp, dmg)
+struct monst *mtmp;
+int dmg;
+{
+    if (mtmp->mhp < mtmp->mhpmax) {
+        if (canseemon(mtmp))
+            pline("%s looks better.", Monnam(mtmp));
+        /* note: player healing does 6d4; this used to do 1d8 */
+        if ((mtmp->mhp += d(3, 6)) > mtmp->mhpmax)
+            mtmp->mhp = mtmp->mhpmax;
+        dmg = 0;
+    }
+    return dmg;
+}
+
 /* monster wizard and cleric spellcasting functions */
 /*
    If dmg is zero, then the monster is not casting at you.
@@ -499,6 +518,18 @@ int spellnum;
 		u.uhpmax -= dmg / 3 + rn2(5);
 		losehp(dmg, "touch of death", KILLED_BY_AN);
             }
+        }
+        dmg = 0;
+        break;
+    case MGC_CANCELLATION:
+        if (m_canseeu(mtmp)) {
+            if (canseemon(mtmp))
+                pline("%s %s a cancellation spell!", Monnam(mtmp),
+                      rn2(2) ? "evokes" : "conjures up");
+            else if (!Deaf)
+                You_hear("a powerful spell being %s.",
+                         rn2(2) ? "spoken" : "uttered");
+            (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
         }
         dmg = 0;
         break;
@@ -665,14 +696,7 @@ int spellnum;
         dmg = 0;
         break;
     case MGC_CURE_SELF:
-        if (mtmp->mhp < mtmp->mhpmax) {
-            if (canseemon(mtmp))
-                pline("%s looks better.", Monnam(mtmp));
-            /* note: player healing does 6d4; this used to do 1d8 */
-            if ((mtmp->mhp += d(3, 6)) > mtmp->mhpmax)
-                mtmp->mhp = mtmp->mhpmax;
-            dmg = 0;
-        }
+        dmg = m_cure_self(mtmp, dmg);
         break;
     case MGC_FIRE_BOLT:
     case MGC_ICE_BOLT:
@@ -959,14 +983,7 @@ int spellnum;
         dmg = 0;
         break;
     case CLC_CURE_SELF:
-        if (mtmp->mhp < mtmp->mhpmax) {
-            if (canseemon(mtmp))
-                pline("%s looks better.", Monnam(mtmp));
-            /* note: player healing does 6d4; this used to do 1d8 */
-            if ((mtmp->mhp += d(3, 6)) > mtmp->mhpmax)
-                mtmp->mhp = mtmp->mhpmax;
-            dmg = 0;
-        }
+        dmg = m_cure_self(mtmp, dmg);
         break;
     case CLC_VULN_YOU:
 	dmg = rnd(4);
@@ -1038,6 +1055,7 @@ int spellnum;
         case MGC_CURE_SELF:
         case MGC_FIRE_BOLT:
         case MGC_ICE_BOLT:
+        case MGC_CANCELLATION:
             return TRUE;
         default:
             break;
@@ -1645,6 +1663,19 @@ int spellnum;
        	}
        	dmg = 0;
        	break;
+    case MGC_CANCELLATION:
+        if (!mtmp) {
+            impossible("cancellation with no mtmp");
+            return;
+        }
+        if (yours)
+            You("%s a cancellation spell!",
+                rn2(2) ? "evoke" : "conjure up");
+        else if (canseemon(mattk))
+            pline("%s %s a cancellation spell!", Monnam(mattk),
+                  rn2(2) ? "evokes" : "conjures up");
+        (void) cancel_monst(mtmp, (struct obj *) 0, FALSE, TRUE, FALSE);
+        break;
     case MGC_ACID_BLAST:
         if (!mtmp || mtmp->mhp < 1) {
             impossible("acid blast with no mtmp");
@@ -1760,20 +1791,23 @@ int spellnum;
        	    if (otmp &&
        	        !oresist_disintegration(otmp)) {
        	        pline("%s %s %s!",
-       		      s_suffix(Monnam(mtmp)),
-       		      xname(otmp),
-       		      is_cloak(otmp)  ? "crumbles and turns to dust" :
-       		      is_shirt(otmp)  ? "crumbles into tiny threads" :
-       		      is_helmet(otmp) ? "turns to dust and is blown away" :
-       		      is_gloves(otmp) ? "vanish" :
-       		      is_boots(otmp)  ? "disintegrate" :
-      		      is_shield(otmp) ? "crumbles away" :
-       		                        "turns to dust"
-       		      );
-           		obj_extract_self(otmp);
-           		obfree(otmp, (struct obj *)0);
-        	  }
-       	    else if (yours || canseemon(mtmp))
+                      s_suffix(Monnam(mtmp)),
+                      xname(otmp),
+                      is_cloak(otmp)  ? "crumbles and turns to dust" :
+                      is_shirt(otmp)  ? "crumbles into tiny threads" :
+                      is_helmet(otmp) ? "turns to dust and is blown away" :
+                      is_gloves(otmp) ? "vanish" :
+                      is_boots(otmp)  ? "disintegrate" :
+                      is_shield(otmp) ? "crumbles away" :
+                                        "turns to dust"
+                     );
+                obj_extract_self(otmp);
+                mtmp->misc_worn_check &= ~otmp->owornmask;
+                update_mon_intrinsics(mtmp, otmp, FALSE, TRUE);
+                otmp->owornmask = 0L; /* obfree() expects this */
+                obfree(otmp, (struct obj *)0);
+            }
+            else if (yours || canseemon(mtmp))
        	        pline("%s skin looks flaky.", s_suffix(Monnam(mtmp)));
         }
        	dmg = 0;

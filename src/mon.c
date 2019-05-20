@@ -812,21 +812,21 @@ mcalcdistress()
 	        mtmp->mstone = 0;
 	        mon_to_stone(mtmp);
 	    } else {
-	        switch(mtmp->mstone--) {
+	        switch (mtmp->mstone--) {
 	            case 5:
 		        /* "<mon> is slowing down.";
 		         * also removes intrinsic speed */
 		        mon_adjust_speed(mtmp, -3, (struct obj *)0);
 		        break;
 		    case 4:
-		        if (canseemon(mtmp))
+		        if (canspotmon(mtmp))
 			    pline("%s %s are stiffening.",
 			          s_suffix(Monnam(mtmp)),
 				  nolimbs(mtmp->data) ? "extremities"
 				                      : "limbs");
 			break;
 		    case 3:
-		        if (canseemon(mtmp))
+		        if (canspotmon(mtmp))
 			    pline("%s %s have turned to stone.",
 			          s_suffix(Monnam(mtmp)),
 				  nolimbs(mtmp->data) ? "extremities"
@@ -834,13 +834,13 @@ mcalcdistress()
 			mtmp->mcanmove = 0;
 			break;
 		    case 2:
-		        if (canseemon(mtmp))
+		        if (canspotmon(mtmp))
 			    pline("%s has almost completely turned to stone.",
                                    Monnam(mtmp)),
 			mtmp->mcanmove = 0;
 			break;
 		    case 1:
-		        if (canseemon(mtmp))
+		        if (canspotmon(mtmp))
 			    pline("%s is a statue.", Monnam(mtmp));
 			if (mtmp->mstonebyu) {
 			    stoned = TRUE;
@@ -1300,6 +1300,67 @@ register struct monst *mtmp;
             newsym(mtmp->mx, mtmp->my);
         }
     }
+}
+
+/* monster eats royal jelly */
+int
+meatjelly(mtmp)
+register struct monst *mtmp;
+{
+    register struct obj *otmp;
+    struct permonst *ptr;
+    int grow, heal, mstone;
+
+    /* If a pet, eating is handled separately, in dog.c */
+    if (mtmp->mtame)
+        return 0;
+
+    /* Eats topmost royal jelly if it is there */
+    for (otmp = level.objects[mtmp->mx][mtmp->my]; otmp;
+         otmp = otmp->nexthere) {
+        /* Don't eat indigestible/inappropriate objects */
+        if (mtmp->data == &mons[PM_HONEY_BADGER] && !is_royaljelly(otmp))
+            continue;
+        if (is_royaljelly(otmp)) {
+            if (mtmp->data == &mons[PM_HONEY_BADGER]) {
+                if (cansee(mtmp->mx, mtmp->my) && flags.verbose)
+                    pline("%s eats %s!", Monnam(mtmp),
+                          distant_name(otmp, doname));
+                else if (flags.verbose)
+                    You_hear("a smacking sound.");
+                mtmp->meating = otmp->owt / 2 + 1;
+                /* Heal up to the object's weight in hp */
+                if (mtmp->mhp < mtmp->mhpmax) {
+                    mtmp->mhp += objects[otmp->otyp].oc_weight;
+                    if (mtmp->mhp > mtmp->mhpmax)
+                        mtmp->mhp = mtmp->mhpmax;
+            }
+            grow = mlevelgain(otmp);
+            heal = mhealup(otmp);
+            mstone = mstoning(otmp);
+            delobj(otmp);
+            ptr = mtmp->data;
+            if (grow) {
+                ptr = grow_up(mtmp, (struct monst *) 0);
+            } else if (mstone) {
+                if (poly_when_stoned(ptr)) {
+                    mon_to_stone(mtmp);
+                    ptr = mtmp->data;
+                } else if (!resists_ston(mtmp)) {
+		    mtmp->mstone = 5;
+		    mtmp->mstonebyu = FALSE;
+                }
+            } else if (heal) {
+                mtmp->mhp = mtmp->mhpmax;
+            }
+            if (!ptr)
+                return 2; /* it died */
+            }
+        }
+        newsym(mtmp->mx, mtmp->my);
+        return 1;
+    }
+    return 0;
 }
 
 boolean
@@ -1889,11 +1950,17 @@ struct monst *magr, /* monster that is currently deciding where to move */
 	return ALLOW_M | ALLOW_TM;
 
     /* Pseudodragons *really* like to hunt for rodents */
-    if (ma == &mons[PM_PSEUDODRAGON] && md->mlet == S_RODENT)
+    if (is_pseudodragon(ma) && md->mlet == S_RODENT)
+        return ALLOW_M | ALLOW_TM;
+
+    /* Killer bees and honey badgers don't play nice */
+    if (ma == &mons[PM_HONEY_BADGER] && md == &mons[PM_KILLER_BEE])
+        return ALLOW_M | ALLOW_TM;
+    if (md == &mons[PM_HONEY_BADGER] && ma == &mons[PM_KILLER_BEE])
         return ALLOW_M | ALLOW_TM;
 
     /* Endgame amulet theft / fleeing */
-    if(mon_has_amulet(magr) && In_endgame(&u.uz)) {
+    if (mon_has_amulet(magr) && In_endgame(&u.uz)) {
         return ALLOW_M | ALLOW_TM;
     }
     return 0L;
@@ -2028,6 +2095,7 @@ struct monst **monst_list; /* &migrating_mons or &mydogs or null */
     }
 
     if (on_map) {
+        mon->mtrapped = 0;
         if (mon->wormno)
             remove_worm(mon);
         else

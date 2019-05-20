@@ -140,7 +140,7 @@ WEAPON("elven spear", "runed spear",
 WEAPON("orcish spear", "crude spear",
        0, 1, 0, 13,  30,   3,  5,  8, 0, P,   P_SPEAR, IRON, CLR_BLACK),
 WEAPON("dwarvish spear", "stout spear",
-       0, 1, 0, 12,  35,   3,  8,  8, 0, P,   P_SPEAR, IRON, HI_METAL),
+       0, 1, 0, 12,  30,   3,  8,  8, 0, P,   P_SPEAR, IRON, HI_METAL),
 WEAPON("javelin", "throwing spear",
        0, 1, 0, 10,  20,   3,  6,  6, 0, P,   P_SPEAR, IRON, HI_METAL),
 /* Base weapon for the artifact weapon Xiuhcoatl */
@@ -150,7 +150,7 @@ WEAPON("atlatl", None,
 
 /* spearish; doesn't stack, not intended to be thrown */
 WEAPON("trident", None,
-       1, 0, 0,  8,  25,   5,  6,  4, 0, P,   P_TRIDENT, IRON, HI_METAL),
+       1, 0, 0,  8,  20,   5,  6,  4, 0, P,   P_TRIDENT, IRON, HI_METAL),
         /* +1 small, +2d4 large */
 
 /* blades; all stack */

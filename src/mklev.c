@@ -563,7 +563,7 @@ static NEARDATA const char *trap_engravings[TRAPNUM] = {
     /* 14..16: trap door, teleport, level-teleport */
     "Vlad was here", "ad aerarium", "ad aerarium", (char *) 0, (char *) 0,
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
-    (char *) 0,
+    (char *) 0,      (char *) 0,
 };
 
 STATIC_OVL void
@@ -952,6 +952,12 @@ makelevel()
                     (void) maketrap(pos.x, pos.y, WEB);
             }
         }
+
+        if (level.flags.has_beehive == 1) {
+            if (!occupied(pos.x, pos.y) && rn2(5))
+                (void) makemon(&mons[PM_HONEY_BADGER], pos.x, pos.y, NO_MM_FLAGS);
+        }
+
         /* put traps and mimics inside */
         i = 8 - (level_difficulty() / 6);
         if (i <= 1)
@@ -1416,7 +1422,7 @@ int num, mazeflag;
 struct mkroom *croom;
 coord *tm;
 {
-    register int kind;
+    register int i, kind;
     struct trap *t;
     unsigned lvl = level_difficulty();
     coord m;
@@ -1537,8 +1543,20 @@ coord *tm;
        should prevent cases where that might not happen) but be paranoid */
     kind = t ? t->ttyp : NO_TRAP;
 
-    if (kind == WEB)
-        (void) makemon(&mons[PM_GIANT_SPIDER], m.x, m.y, NO_MM_FLAGS);
+    if (kind == WEB) {
+        i = rn2(3);
+        switch (i) {
+            case 0:
+                (void) makemon(&mons[PM_JUMPING_SPIDER], m.x, m.y, NO_MM_FLAGS);
+                break;
+            case 1:
+                (void) makemon(&mons[PM_CAVE_SPIDER], m.x, m.y, NO_MM_FLAGS);
+                break;
+            default:
+                (void) makemon(&mons[PM_GIANT_SPIDER], m.x, m.y, NO_MM_FLAGS);
+                break;
+        }
+    }
 
     /* The hero isn't the only person who's entered the dungeon in
        search of treasure. On the very shallowest levels, there's a
@@ -1589,6 +1607,8 @@ coord *tm;
             break;
         case ROCKTRAP:
             otmp = mksobj(ROCK, TRUE, FALSE);
+            break;
+        case SPEAR_TRAP:
             break;
         default:
             /* no item dropped by the trap */

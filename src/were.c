@@ -74,11 +74,13 @@ int pm;
     case PM_SEWER_RAT:
     case PM_GIANT_RAT:
     case PM_RABID_RAT:
+    case PM_ENORMOUS_RAT:
         return PM_WERERAT;
     case PM_WEREJACKAL:
     case PM_JACKAL:
     case PM_FOX:
     case PM_COYOTE:
+    case PM_RABID_DOG:
         return PM_WEREJACKAL;
     case PM_WEREWOLF:
     case PM_WOLF:
@@ -142,13 +144,16 @@ char *genbuf;
         case PM_WERERAT:
         case PM_HUMAN_WERERAT:
             typ = rn2(3) ? PM_SEWER_RAT
-                         : rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
+                         : rn2(3) ? PM_GIANT_RAT
+                                  : rn2(2) ? PM_RABID_RAT : PM_ENORMOUS_RAT;
             if (genbuf)
                 Strcpy(genbuf, "rat");
             break;
         case PM_WEREJACKAL:
         case PM_HUMAN_WEREJACKAL:
-            typ = rn2(7) ? PM_JACKAL : rn2(3) ? PM_COYOTE : PM_FOX;
+            typ = rn2(7) ? PM_JACKAL
+                         : rn2(3) ? PM_COYOTE
+                                  : rn2(2) ? PM_FOX : PM_RABID_DOG;
             if (genbuf)
                 Strcpy(genbuf, "jackal");
             break;

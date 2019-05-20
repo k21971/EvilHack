@@ -1,4 +1,4 @@
-/* NetHack 3.6	monmove.c	$NHDT-Date: 1545596010 2018/12/23 20:13:30 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.111 $ */
+/* NetHack 3.6	monmove.c	$NHDT-Date: 1557094802 2019/05/05 22:20:02 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.113 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -141,10 +141,13 @@ struct monst *mtmp;
 {
     /* creatures who are directly resistant to magical scaring:
      * Rodney, lawful minions, Angels, Archangels, the Riders,
-     * monster players, shopkeepers inside their own shop,
-     * priests inside their own temple */
+     * monster players, honey badgers,
+     * shopkeepers inside their own shop,
+     * priests inside their own temple
+     */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL]
+        || mtmp->data == &mons[PM_HONEY_BADGER]
         || is_mplayer(mtmp->data)
         || is_dlord(mtmp->data)
         || is_dprince(mtmp->data)
@@ -172,7 +175,7 @@ struct monst *mtmp;
      * Creatures who don't (or can't) fear a written Elbereth:
      * all the above plus shopkeepers (even if poly'd into non-human),
      * vault guards (also even if poly'd), blind or peaceful monsters,
-     * humans and elves, and minotaurs.
+     * humans and elves, honey badgers, and minotaurs.
      *
      * If the player isn't actually on the square OR the player's image
      * isn't displaced to the square, no protection is being granted.
@@ -187,6 +190,7 @@ struct monst *mtmp;
                  || mtmp->mpeaceful || mtmp->data->mlet == S_HUMAN
                  || mtmp->data == &mons[PM_MINOTAUR]
                  || mtmp->data == &mons[PM_ELDER_MINOTAUR]
+                 || mtmp->data == &mons[PM_HONEY_BADGER]
                  || Inhell || In_endgame(&u.uz)));
 }
 
@@ -592,7 +596,7 @@ register struct monst *mtmp;
             }
         }
     }
-toofar:
+ toofar:
 
     /* If monster is nearby you, and has to wield a weapon, do so.   This
      * costs the monster a move, of course.
@@ -1155,7 +1159,7 @@ register int after;
         if ((likegold || likegems || likeobjs || likemagic || likerock
              || conceals) && (!*in_rooms(omx, omy, SHOPBASE)
                               || (!rn2(25) && !mtmp->isshk))) {
-        look_for_obj:
+ look_for_obj:
             oomx = min(COLNO - 1, omx + minr);
             oomy = min(ROWNO - 1, omy + minr);
             lmx = max(1, omx - minr);
@@ -1632,6 +1636,12 @@ register int after;
                     return 2; /* it died */
             }
 
+            /* Maybe a honey badger raided a beehive */
+            if (ptr == &mons[PM_HONEY_BADGER]) {
+                if (meatjelly(mtmp) == 2)
+                    return 2; /* it died */
+            }
+
             if (!*in_rooms(mtmp->mx, mtmp->my, SHOPBASE) || !rn2(25)) {
                 boolean picked = FALSE;
 
@@ -1778,6 +1788,7 @@ register struct monst *mtmp;
 
     if (!gotu) {
         register int try_cnt = 0;
+
         do {
             if (++try_cnt > 200)
                 goto found_you; /* punt */
@@ -1791,7 +1802,7 @@ register struct monst *mtmp;
                               && (can_ooze(mtmp) || can_fog(mtmp)))))
                  || !couldsee(mx, my));
     } else {
-    found_you:
+ found_you:
         mx = u.ux;
         my = u.uy;
     }

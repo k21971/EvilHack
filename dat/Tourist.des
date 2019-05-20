@@ -79,9 +79,9 @@ MONSTER: ('s',"giant spider"),random
 MONSTER: ('s',"giant spider"),random
 MONSTER: ('s',"giant spider"),random
 MONSTER: ('s',"giant spider"),random
-MONSTER: ('s',"giant spider"),random
-MONSTER: ('s',"giant spider"),random
-MONSTER: ('s',"giant spider"),random
+MONSTER: ('s',"jumping spider"),random
+MONSTER: ('s',"jumping spider"),random
+MONSTER: ('s',"jumping spider"),random
 MONSTER: 's',random
 MONSTER: 's',random
 MONSTER: ('C',"forest centaur"),random
@@ -283,9 +283,9 @@ MONSTER:('s',"giant spider"),random
 MONSTER:('s',"giant spider"),random
 MONSTER:('s',"giant spider"),random
 MONSTER:('s',"giant spider"),random
-MONSTER:('s',"giant spider"),random
-MONSTER:('s',"giant spider"),random
-MONSTER:('s',"giant spider"),random
+MONSTER:('s',"jumping spider"),random
+MONSTER:('s',"jumping spider"),random
+MONSTER:('s',"jumping spider"),random
 MONSTER:'s',random
 MONSTER:'s',random
 
@@ -421,9 +421,9 @@ MONSTER:('s',"giant spider"),random
 MONSTER:('s',"giant spider"),random
 MONSTER:('s',"giant spider"),random
 MONSTER:('s',"giant spider"),random
-MONSTER:('s',"giant spider"),random
-MONSTER:('s',"giant spider"),random
-MONSTER:('s',"giant spider"),random
+MONSTER:('s',"jumping spider"),random
+MONSTER:('s',"jumping spider"),random
+MONSTER:('s',"jumping spider"),random
 MONSTER:'s',random
 MONSTER:'s',random
 # ladies of the evening
