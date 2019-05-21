@@ -441,6 +441,7 @@ register struct monst *mtmp;
 	    if (!rn2(10)) ini_mon_inv(mtmp, Tinopener);
 	    else if (!rn2(4)) ini_mon_inv(mtmp, Lamp);
             else if (rn2(3)) ini_mon_inv(mtmp, Pickaxe);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_BARBARIAN:
 	    if (rn2(100) >= 50) {
@@ -453,6 +454,7 @@ register struct monst *mtmp;
 	    }
 	    ini_mon_inv(mtmp, Barbarian, 1);
 	    ini_mon_inv(mtmp, Lamp, 6);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_CAVEWOMAN:
 	    Cave_man[C_AMMO].trquan = rn1(11, 10);	/* 10..20 */
@@ -462,9 +464,11 @@ register struct monst *mtmp;
 	    mkmonmoney(mtmp, (long) rn1(1000, 1001));
 	    ini_mon_inv(mtmp, Healer, 1);
 	    ini_mon_inv(mtmp, Lamp, 25);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_KNIGHT:
 	    ini_mon_inv(mtmp, Knight, 1);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_MONK:
 	    switch (rn2(90) / 30) {
@@ -477,15 +481,18 @@ register struct monst *mtmp;
 	    }
 	    ini_mon_inv(mtmp, Monk, 1);
 	    ini_mon_inv(mtmp, Lamp, 10);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_PRIESTESS:
 	    ini_mon_inv(mtmp, Priest, 1);
 	    ini_mon_inv(mtmp, Lamp, 10);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_RANGER:
 	    Ranger[RAN_TWO_ARROWS].trquan = rn1(10, 50);
 	    Ranger[RAN_ZERO_ARROWS].trquan = rn1(10, 30);
 	    ini_mon_inv(mtmp, Ranger, 1);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_ROGUE:
 	    Rogue[R_DAGGERS].trquan = rn1(10, 6);
@@ -496,6 +503,7 @@ register struct monst *mtmp;
 	    Samurai[S_ARROWS].trquan = rn1(20, 26);
 	    ini_mon_inv(mtmp, Samurai, 1);
 	    ini_mon_inv(mtmp, Blindfold, 5);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_TOURIST:
 	    Tourist[T_DARTS].trquan = rn1(20, 21);
@@ -508,10 +516,12 @@ register struct monst *mtmp;
 	case PM_HUMAN_VALKYRIE:
 	    ini_mon_inv(mtmp, Valkyrie, 1);
 	    ini_mon_inv(mtmp, Lamp, 6);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_WIZARD:
 	    ini_mon_inv(mtmp, Wizard, 1);
 	    ini_mon_inv(mtmp, Blindfold, 5);
+            mongets(mtmp, SKELETON_KEY);
 	    break;
 	default: /* impossible */
 	    break;
@@ -521,21 +531,21 @@ register struct monst *mtmp;
         struct obj *otmp = mtmp->minvent, *bag = (struct obj *) 0;
 	if (mtmp->m_lev > 1) {
 	    for (; otmp; otmp = otmp->nobj) {
-	         if (otmp->oclass == WEAPON_CLASS) {
-		     if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
-			 if (!rn2(100 + 10 * nartifact_exist())) {
-			     mk_artifact(otmp, sgn(mtmp->data->maligntyp));
-			 }
-		     }
-		 }
+	        if (otmp->oclass == WEAPON_CLASS) {
+		    if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
+		        if (!rn2(100 + 10 * nartifact_exist())) {
+			    mk_artifact(otmp, sgn(mtmp->data->maligntyp));
+			}
+		    }
+		}
 	    }
 	}
 
         for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-	     if (Is_container(otmp) && otmp->otyp != BAG_OF_TRICKS)
-		 bag = otmp;
-	     if (otmp->otyp == BAG_OF_HOLDING)
-		 break;
+	    if (Is_container(otmp) && otmp->otyp != BAG_OF_TRICKS)
+	        bag = otmp;
+	    if (otmp->otyp == BAG_OF_HOLDING)
+		break;
 	}
 	if (bag) {
 	    int count = (mtmp->m_lev * mtmp->m_lev) / 25;
