@@ -882,8 +882,8 @@ u_init()
 
     case PM_GIANT:
         /* Giants know valuable gems from glass, and may recognize a few types of valuable gem. */
-        for(i = DILITHIUM_CRYSTAL; i <= LUCKSTONE; i++)
-            if ((objects[i].oc_cost <= 1) || (rn2(100) < 5+ACURR(A_INT)))
+        for (i = DILITHIUM_CRYSTAL; i <= LUCKSTONE; i++)
+            if ((objects[i].oc_cost <= 1) || (rn2(100) < 5 + ACURR(A_INT)))
                 knows_object(i);
         break;
 
@@ -968,7 +968,7 @@ u_init()
      **/
     if (Role_if(PM_MONK)) {
         struct obj *otmp;
-        for(otmp = invent; otmp; otmp = otmp->nobj) {
+        for (otmp = invent; otmp; otmp = otmp->nobj) {
             if ((otmp->otyp == TIN) && (!vegetarian(&mons[otmp->corpsenm]))) {
                 if (rn2(2)) {
                     otmp->spe = 1;

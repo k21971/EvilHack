@@ -829,7 +829,7 @@ makelevel()
     tryct = 0;
     do {
         croom = &rooms[rn2(nroom)];
-    } while (!croom->needjoining && ++tryct < 500);
+    } while (!croom->needjoining && ++tryct < 100);
     if (!Is_botlevel(&u.uz)) {
 	if (!somexyspace(croom, &pos, 0)) {
             pos.x = somex(croom);
@@ -842,7 +842,7 @@ makelevel()
         tryct = 0;
         do {
             croom = &rooms[rn2(nroom - 1)];
-        } while ((!croom->needjoining || (croom == troom)) && ++tryct < 500);
+        } while ((!croom->needjoining || (croom == troom)) && ++tryct < 100);
     }
 
     if (u.uz.dlevel != 1) {
@@ -1264,15 +1264,18 @@ coord *mp;
             do
                 croom = &rooms[rn2(nroom)];
             while ((croom == dnstairs_room || croom == upstairs_room
-                    || croom->rtype != OROOM) && (++tryct < 500));
+                   || croom->rtype != OROOM) && (++tryct < 100));
         } else
             croom = &rooms[rn2(nroom)];
 
-	if (!somexyspace(croom, mp, 2)) {
-	    if (!somexyspace(croom, mp, 0)) {
-    	        impossible("can't place branch!");
-	    }
-	}
+        do {
+            if (!somexyspace(croom, mp, 2)) {
+                if (!somexyspace(croom, mp, 0))
+                    impossible("can't place branch!");
+            }
+        } while (occupied(mp->x, mp->y)
+                 || (levl[mp->x][mp->y].typ != CORR
+                     && levl[mp->x][mp->y].typ != ROOM));
     }
     return croom;
 }
