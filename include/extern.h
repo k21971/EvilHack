@@ -1,4 +1,4 @@
-/* NetHack 3.6	extern.h	$NHDT-Date: 1557088399 2019/05/05 20:33:19 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.703 $ */
+/* NetHack 3.6	extern.h	$NHDT-Date: 1558485640 2019/05/22 00:40:40 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.706 $ */
 /* Copyright (c) Steve Creps, 1988.				  */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -1724,6 +1724,7 @@ E void NDECL(objects_init);
 
 E char *FDECL(obj_typename, (int));
 E char *FDECL(simple_typename, (int));
+E char *FDECL(safe_typename, (int));
 E boolean FDECL(obj_is_pname, (struct obj *));
 E char *FDECL(distant_name, (struct obj *, char *(*)(OBJ_P)));
 E char *FDECL(fruitname, (BOOLEAN_P));
@@ -2328,6 +2329,8 @@ E boolean FDECL(block_door, (XCHAR_P, XCHAR_P));
 E boolean FDECL(block_entry, (XCHAR_P, XCHAR_P));
 E char *FDECL(shk_your, (char *, struct obj *));
 E char *FDECL(Shk_Your, (char *, struct obj *));
+E void FDECL(globby_bill_fixup, (struct obj *, struct obj *));
+E void FDECL(globby_donation, (struct obj *, struct obj *));
 
 /* ### shknam.c ### */
 

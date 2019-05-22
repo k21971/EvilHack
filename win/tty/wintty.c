@@ -1,4 +1,4 @@
-/* NetHack 3.6	wintty.c	$NHDT-Date: 1557088734 2019/05/05 20:38:54 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.203 $ */
+/* NetHack 3.6	wintty.c	$NHDT-Date: 1558400902 2019/05/21 01:08:22 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.209 $ */
 /* Copyright (c) David Cohrs, 1991                                */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -210,6 +210,9 @@ STATIC_DCL int NDECL(condition_size);
 STATIC_DCL int FDECL(make_things_fit, (BOOLEAN_P));
 STATIC_DCL void FDECL(shrink_enc, (int));
 STATIC_DCL void FDECL(shrink_dlvl, (int));
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+STATIC_DCL void NDECL(status_sanity_check);
+#endif /* NH_DEVEL_STATUS */
 #endif
 
 /*
@@ -2938,7 +2941,7 @@ boolean preselected;        /* item is marked as selected */
 
     cw->nitems++;
     if (identifier->a_void) {
-        int len = strlen(str);
+        int len = (int) strlen(str);
 
         if (len >= BUFSZ) {
             /* We *think* everything's coming in off at most BUFSZ bufs... */
@@ -2952,7 +2955,7 @@ boolean preselected;        /* item is marked as selected */
     } else
         newstr = str;
 
-    item = (tty_menu_item *) alloc(sizeof(tty_menu_item));
+    item = (tty_menu_item *) alloc(sizeof *item);
     item->identifier = *identifier;
     item->count = -1L;
     item->selected = preselected;
@@ -3016,12 +3019,21 @@ const char *prompt; /* prompt to for menu */
                      MENU_UNSELECTED);
     }
 
-    /* XXX another magic number? 52 */
+    /* 52: 'a'..'z' and 'A'..'Z'; avoids selector duplication within a page */
     lmax = min(52, (int) ttyDisplay->rows - 1);    /* # lines per page */
     cw->npages = (cw->nitems + (lmax - 1)) / lmax; /* # of pages */
+    /*
+     * TODO?
+     *  For really tall page, allow 53 if '$' or '#' is present and
+     *  54 if both are.  [Only for single page menu, otherwise pages
+     *  without those could try to use too many letters.]
+     *  Probably not worth bothering with; anyone with a display big
+     *  for this to matter will likely switch from tty to curses for
+     *  multi-line message window and/or persistent inventory window.
+     */
 
     /* make sure page list is large enough */
-    if (cw->plist_size < cw->npages + 1 /*need 1 slot beyond last*/) {
+    if (cw->plist_size < cw->npages + 1) { /* +1: need one slot beyond last */
         if (cw->plist)
             free((genericptr_t) cw->plist);
         cw->plist_size = cw->npages + 1;
@@ -3635,9 +3647,11 @@ char *posbar;
  *
  *  render_status
  *
- *      Goes through each of the two status row's fields and
+ *      Goes through each of the status row's fields and
  *      calls tty_putstatusfield() to place them on the display.
  *          ->tty_putstatusfield()
+ *      At the end of the for-loop, the NOW values get copied
+ *      to BEFORE values.
  *
  *  tty_putstatusfield()
  *
@@ -3765,6 +3779,7 @@ tty_status_init()
         tty_status[NOW][i].valid  = FALSE;
         tty_status[NOW][i].dirty  = FALSE;
         tty_status[NOW][i].redraw = FALSE;
+        tty_status[NOW][i].sanitycheck = FALSE;
         tty_status[BEFORE][i] = tty_status[NOW][i];
     }
     tty_condition_bits = 0L;
@@ -3869,8 +3884,12 @@ unsigned long *colormasks;
         reset_state = FORCE_RESET;
         /*FALLTHRU*/
     case BL_FLUSH:
-        if (make_things_fit(reset_state) || truncation_expected)
+        if (make_things_fit(reset_state) || truncation_expected) {
             render_status();
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+            status_sanity_check();
+#endif
+        }
         return;
     case BL_CONDITION:
         tty_status[NOW][fldidx].idx = fldidx;
@@ -3878,6 +3897,7 @@ unsigned long *colormasks;
         tty_colormasks = colormasks;
         tty_status[NOW][fldidx].valid = TRUE;
         tty_status[NOW][fldidx].dirty = TRUE;
+        tty_status[NOW][fldidx].sanitycheck = TRUE;
         truncation_expected = FALSE;
         break;
     case BL_GOLD:
@@ -3905,6 +3925,7 @@ unsigned long *colormasks;
         tty_status[NOW][fldidx].lth = strlen(status_vals[fldidx]);
         tty_status[NOW][fldidx].valid = TRUE;
         tty_status[NOW][fldidx].dirty = TRUE;
+        tty_status[NOW][fldidx].sanitycheck = TRUE;
         break;
     }
 
@@ -4075,10 +4096,10 @@ int sz[3];
                  *  - Is the additional processing time for this worth it?
                  */
                 if (do_field_opt
-                    /* These color/attr checks aren't right for
-                       'condition'; is it safe to assume that same text
-                       means same highlighting for that field?  If not,
-                       we'd end up redrawing conditions every time. */
+                    /* color/attr checks aren't right for 'condition'
+                       and neither is examining status_vals[BL_CONDITION]
+                       so skip same-contents optimization for conditions */
+                    && idx != BL_CONDITION
                     && (tty_status[NOW][idx].color
                         == tty_status[BEFORE][idx].color)
                     && (tty_status[NOW][idx].attr
@@ -4127,6 +4148,52 @@ int sz[3];
     }
     return valid;
 }
+
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+STATIC_OVL void
+status_sanity_check(VOID_ARGS)
+{
+    int i;
+    static boolean in_sanity_check = FALSE;
+    static const char *const idxtext[] = {
+        "BL_TITLE", "BL_STR", "BL_DX", "BL_CO", "BL_IN", "BL_WI", /* 0.. 5   */
+        "BL_CH","BL_ALIGN", "BL_SCORE", "BL_CAP", "BL_GOLD",     /* 6.. 10  */
+        "BL_ENE", "BL_ENEMAX", "BL_XP", "BL_AC", "BL_HD",       /* 11.. 15 */
+        "BL_TIME", "BL_HUNGER", "BL_HP", "BL_HPMAX",           /* 16.. 19 */
+        "BL_LEVELDESC", "BL_EXP", "BL_CONDITION"              /* 20.. 22 */
+    };
+   
+    if (in_sanity_check)
+        return;
+    in_sanity_check = TRUE;
+    /*
+     * Make sure that every field made it down to the
+     * bottom of the render_status() for-loop.
+     */
+    for (i = 0; i < MAXBLSTATS; ++i) {
+        if (tty_status[NOW][i].sanitycheck) {
+            char panicmsg[BUFSZ];
+
+            Sprintf(panicmsg, "failed on tty_status[NOW][%s].", idxtext[i]);
+            paniclog("status_sanity_check", panicmsg);
+            tty_status[NOW][i].sanitycheck = FALSE;
+            /*
+             * Attention developers: If you encounter the above
+             * message in paniclog, it almost certainly means that
+             * a recent code change has caused a failure to reach
+             * the bottom of render_status(), at least for the BL_
+             * field identified in the impossible() message.
+             *
+             * That could be because of the addition of a continue
+             * statement within the render_status() for-loop, or a
+             * premature return from render_status() before it finished
+             * its housekeeping chores.
+             */
+        }
+    }
+    in_sanity_check = FALSE;
+}
+#endif /* NHDEVEL_STATUS */
 
 /*
  * This is what places a field on the tty display.
@@ -4350,8 +4417,8 @@ render_status(VOID_ARGS)
             if (!status_activefields[idx])
                 continue;
             x = tty_status[NOW][idx].x;
-            text = status_vals[idx];
-            tlth = (int) tty_status[NOW][idx].lth;
+            text = status_vals[idx]; /* always "" for BL_CONDITION */
+            tlth = (int) tty_status[NOW][idx].lth; /* valid for BL_CONDITION */
 
             if (tty_status[NOW][idx].redraw || !do_field_opt) {
                 boolean hitpointbar = (idx == BL_TITLE
@@ -4363,12 +4430,11 @@ render_status(VOID_ARGS)
                      * | Condition Codes |
                      * +-----------------+
                      */
-                    /* comment out the below two lines
-                     * to address status not updating
-                     * on the botl
-                    if (!tty_condition_bits)
-                        continue; */
-                    if (num_rows == 3) {
+                    bits = tty_condition_bits;
+                    /* if no bits are set, we can fall through condition
+                       rendering code to finalx[] handling (and subsequent
+                       rest-of-line erasure if line is shorter than before) */
+                    if (num_rows == 3 && bits != 0L) {
                         int k;
                         char *dat = &cw->data[y][0];
 
@@ -4395,8 +4461,7 @@ render_status(VOID_ARGS)
                         tty_status[NOW][BL_CONDITION].x = x;
                         tty_curs(WIN_STATUS, x, y);
                     }
-                    bits = tty_condition_bits;
-                    for (c = 0; c < SIZE(conditions); ++c) {
+                    for (c = 0; c < SIZE(conditions) && bits != 0L; ++c) {
                         mask = conditions[c].mask;
                         if (bits & mask) {
                             const char *condtext;
@@ -4412,8 +4477,10 @@ render_status(VOID_ARGS)
                             condtext = conditions[c].text[cond_shrinklvl];
                             if (x >= cw->cols && !truncation_expected) {
                                 impossible(
-                                   "Unexpected condition placement overflow");
+                         "Unexpected condition placement overflow for \"%s\"",
+                                           condtext);
                                 condtext = "";
+                                bits = 0L; /* skip any remaining conditions */
                             }
                             tty_putstatusfield(condtext, x, y);
                             x += (int) strlen(condtext);
@@ -4422,8 +4489,7 @@ render_status(VOID_ARGS)
                                     term_end_color();
                                 End_Attr(attrmask);
                             }
-                            if (!(bits &= ~mask))
-                                break;
+                            bits &= ~mask;
                         }
                     }
                     /* 'x' is 1-based and 'cols' and 'data' are 0-based,
@@ -4524,9 +4590,10 @@ render_status(VOID_ARGS)
                 x += tlth;
             }
             finalx[row][NOW] = x - 1;
-            /* reset .redraw and .dirty now that they're rendered */
+            /* reset .redraw and .dirty now that field has been rendered */
             tty_status[NOW][idx].dirty  = FALSE;
             tty_status[NOW][idx].redraw = FALSE;
+            tty_status[NOW][idx].sanitycheck = FALSE;
             /*
              * For comparison of current and previous:
              * - Copy the entire tty_status struct.

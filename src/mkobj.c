@@ -1,4 +1,4 @@
-/* NetHack 3.6	mkobj.c	$NHDT-Date: 1548978605 2019/01/31 23:50:05 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.142 $ */
+/* NetHack 3.6	mkobj.c	$NHDT-Date: 1558124913 2019/05/17 20:28:33 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.147 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -18,6 +18,7 @@ STATIC_DCL const char *FDECL(where_name, (struct obj *));
 STATIC_DCL void FDECL(insane_object, (struct obj *, const char *,
                                       const char *, struct monst *));
 STATIC_DCL void FDECL(check_contained, (struct obj *, const char *));
+STATIC_DCL void FDECL(check_glob, (struct obj *, const char *));
 STATIC_DCL void FDECL(sanity_check_worn, (struct obj *));
 STATIC_DCL const struct icp* FDECL(material_list, (struct obj *));
 STATIC_DCL void FDECL(init_obj_material, (struct obj *));
@@ -1855,15 +1856,25 @@ int x, y;
         panic("place_object: obj not free");
 
     obj_no_longer_held(otmp);
-    /* (could bypass this vision update if there is already a boulder here) */
-    if (otmp->otyp == BOULDER)
-        block_point(x, y); /* vision */
+    if (otmp->otyp == BOULDER) {
+        if (!otmp2 || otmp2->otyp != BOULDER)
+            block_point(x, y); /* vision */
+    }
 
-    /* obj goes under boulders */
-    if (otmp2 && (otmp2->otyp == BOULDER)) {
+    /* non-boulder object goes under boulders so that map will show boulder
+       here without display code needing to traverse pile chain to find one */
+    if (otmp2 && otmp2->otyp == BOULDER && otmp->otyp != BOULDER) {
+        /* 3.6.3: put otmp under last consecutive boulder rather than under
+           just the first one; multiple boulders at same spot in new games
+           will be consecutive due to this, ones in old games saved before
+           this change might not be; can affect the map display if the top
+           boulder is moved/removed by some means other than pushing */
+        while (otmp2->nexthere && otmp2->nexthere->otyp == BOULDER)
+            otmp2 = otmp2->nexthere;
         otmp->nexthere = otmp2->nexthere;
         otmp2->nexthere = otmp;
     } else {
+        /* put on top of current pile */
         otmp->nexthere = otmp2;
         level.objects[x][y] = otmp;
     }
@@ -1871,7 +1882,6 @@ int x, y;
     /* set the new object's location */
     otmp->ox = x;
     otmp->oy = y;
-
     otmp->where = OBJ_FLOOR;
 
     /* add to floor chain */
@@ -2472,6 +2482,8 @@ const char *mesg;
                 }
                 break;
             }
+            if (obj->globby)
+                check_glob(obj, mesg);
         }
     }
 }
@@ -2486,7 +2498,8 @@ const char *mesg;
     struct obj *obj, *mwep;
 
     for (mon = monlist; mon; mon = mon->nmon) {
-        if (DEADMONSTER(mon)) continue;
+        if (DEADMONSTER(mon))
+            continue;
         mwep = MON_WEP(mon);
         if (mwep) {
             if (!mcarried(mwep))
@@ -2499,6 +2512,8 @@ const char *mesg;
                 insane_object(obj, mfmt1, mesg, mon);
             if (obj->ocarry != mon)
                 insane_object(obj, mfmt2, mesg, mon);
+            if (obj->globby)
+                check_glob(obj, mesg);
             check_contained(obj, mesg);
         }
     }
@@ -2549,7 +2564,8 @@ struct monst *mon;
         impossible(altfmt, mesg, fmt_ptr((genericptr_t) obj), where_name(obj),
               objnm, fmt_ptr((genericptr_t) mon), monnm);
     } else {
-        impossible(fmt, mesg, fmt_ptr((genericptr_t) obj), where_name(obj), objnm);
+        impossible(fmt, mesg, fmt_ptr((genericptr_t) obj), where_name(obj),
+                   objnm);
     }
 }
 
@@ -2581,6 +2597,8 @@ const char *mesg;
                   fmt_ptr((genericptr_t) obj),
                   fmt_ptr((genericptr_t) obj->ocontainer),
                   fmt_ptr((genericptr_t) container));
+        if (obj->globby)
+            check_glob(obj, mesg);
 
         if (Has_contents(obj)) {
             /* catch most likely indirect cycle; we won't notice if
@@ -2592,11 +2610,33 @@ const char *mesg;
                and "nested contained..." to "nested nested contained..." */
             Strcpy(nestedmesg, "nested ");
             copynchars(eos(nestedmesg), mesg, (int) sizeof nestedmesg
-                                                  - (int) strlen(nestedmesg)
-                                                  - 1);
+                                              - (int) strlen(nestedmesg) - 1);
             /* recursively check contents */
             check_contained(obj, nestedmesg);
         }
+    }
+}
+
+/* called when 'obj->globby' is set so we don't recheck it here */
+STATIC_OVL void
+check_glob(obj, mesg)
+struct obj *obj;
+const char *mesg;
+{
+#define LOWEST_GLOB GLOB_OF_GRAY_OOZE
+#define HIGHEST_GLOB GLOB_OF_BLACK_PUDDING
+    if (obj->quan != 1L || obj->owt == 0
+        || obj->otyp < LOWEST_GLOB || obj->otyp > HIGHEST_GLOB
+        /* a partially eaten glob could have any non-zero weight but an
+           intact one should weigh an exact multiple of base weight (20) */
+        || ((obj->owt % objects[obj->otyp].oc_weight) != 0 && !obj->oeaten)) {
+        char mesgbuf[BUFSZ], globbuf[QBUFSZ];
+
+        Sprintf(globbuf, " glob %d,quan=%ld,owt=%u ",
+                obj->otyp, obj->quan, obj->owt);
+        mesg = strsubst(strcpy(mesgbuf, mesg), " obj ", globbuf);
+        insane_object(obj, ofmt0, mesg,
+                      (obj->where == OBJ_MINVENT) ? obj->ocarry : 0);
     }
 }
 
@@ -2605,7 +2645,7 @@ STATIC_OVL void
 sanity_check_worn(obj)
 struct obj *obj;
 {
-#if defined(BETA) || defined(DEBUG)
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || defined(DEBUG)
     static unsigned long wearbits[] = {
         W_ARM,    W_ARMC,   W_ARMH,    W_ARMS, W_ARMG,  W_ARMF,  W_ARMU,
         W_WEP,    W_QUIVER, W_SWAPWEP, W_AMUL, W_RINGL, W_RINGR, W_TOOL,
@@ -2788,7 +2828,7 @@ struct obj *obj;
             insane_object(obj, ofmt0, maskbuf, mon);
         }
     }
-#else /* not (BETA || DEBUG) */
+#else /* not (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || DEBUG) */
     /* dummy use of obj to avoid "arg not used" complaint */
     if (!obj)
         insane_object(obj, ofmt0, "<null>", (struct monst *) 0);
@@ -2875,6 +2915,7 @@ struct obj **obj1, **obj2;
         otmp1 = *obj1;
         otmp2 = *obj2;
         if (otmp1 && otmp2 && otmp1 != otmp2) {
+            globby_bill_fixup(otmp1, otmp2);
             if (otmp1->bknown != otmp2->bknown)
                 otmp1->bknown = otmp2->bknown = 0;
             if (otmp1->rknown != otmp2->rknown)
@@ -2908,7 +2949,10 @@ struct obj **obj1, **obj2;
 }
 
 /*
- * Causes the heavier object to absorb the lighter object;
+ * Causes the heavier object to absorb the lighter object in
+ * most cases, but if one object is OBJ_FREE and the other is
+ * on the floor, the floor object goes first.
+ *
  * wrapper for obj_absorb so that floor_effects works more
  * cleanly (since we don't know which we want to stay around)
  */
@@ -2922,8 +2966,9 @@ struct obj **obj1, **obj2;
         otmp1 = *obj1;
         otmp2 = *obj2;
         if (otmp1 && otmp2 && otmp1 != otmp2) {
-            if (otmp1->owt > otmp2->owt
-                || (otmp1->owt == otmp2->owt && rn2(2))) {
+            if (!(otmp2->where == OBJ_FLOOR && otmp1->where == OBJ_FREE) &&
+                (otmp1->owt > otmp2->owt
+                 || (otmp1->owt == otmp2->owt && rn2(2)))) {
                 return obj_absorb(obj1, obj2);
             }
             return obj_absorb(obj2, obj1);
@@ -2957,7 +3002,12 @@ struct obj *otmp2;
              * they'll be out of our view (minvent or container)
              * so don't actually show anything */
         } else if (onfloor || inpack) {
-            pline("The %s coalesce%s.", makeplural(obj_typename(otmp->otyp)),
+            boolean adj = ((otmp->ox != u.ux || otmp->oy != u.uy) &&
+                              (otmp2->ox != u.ux || otmp2->oy != u.uy));
+
+            pline("The %s%s coalesce%s.",
+                  (onfloor && adj) ? "adjacent " : "",
+                  makeplural(obj_typename(otmp->otyp)),
                   inpack ? " inside your pack" : "");
         }
     } else {

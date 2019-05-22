@@ -1,4 +1,4 @@
-/* NetHack 3.6	objnam.c	$NHDT-Date: 1551138256 2019/02/25 23:44:16 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.235 $ */
+/* NetHack 3.6	objnam.c	$NHDT-Date: 1558485650 2019/05/22 00:40:50 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.241 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -27,6 +27,7 @@ STATIC_DCL boolean FDECL(singplur_lookup, (char *, char *, BOOLEAN_P,
 STATIC_DCL char *FDECL(singplur_compound, (char *));
 STATIC_DCL char *FDECL(xname_flags, (struct obj *, unsigned));
 STATIC_DCL boolean FDECL(badman, (const char *, BOOLEAN_P));
+STATIC_DCL char *FDECL(globwt, (struct obj *, char *));
 
 struct Jitem {
     int item;
@@ -198,6 +199,28 @@ int otyp;
     if ((pp = strstri(bufp, " (")) != 0)
         *pp = '\0'; /* strip the appended description */
     return bufp;
+}
+
+/* typename for debugging feedback where data involved might be suspect */
+char *
+safe_typename(otyp)
+int otyp;
+{
+    unsigned save_nameknown;
+    char *res = 0;
+
+    if (otyp < STRANGE_OBJECT || otyp >= NUM_OBJECTS
+        || !OBJ_NAME(objects[otyp])) {
+        res = nextobuf();
+        Sprintf(res, "glorkum[%d]", otyp);
+    } else {
+        /* force it to be treated as fully discovered */
+        save_nameknown = objects[otyp].oc_name_known;
+        objects[otyp].oc_name_known = 1;
+        res = simple_typename(otyp);
+        objects[otyp].oc_name_known = save_nameknown;
+    }
+    return res;
 }
 
 boolean
@@ -945,7 +968,7 @@ unsigned doname_flags;
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0;
     boolean known, dknown, cknown, bknown, lknown;
     int omndx = obj->corpsenm;
-    char prefix[PREFIX];
+    char prefix[PREFIX], globbuf[QBUFSZ];
     char tmpbuf[PREFIX + 1]; /* for when we have to add something at
                                 the start of prefix instead of the
                                 end (Strcat is used on the end) */
@@ -1248,25 +1271,27 @@ unsigned doname_flags;
         }
     }
     /* treat 'restoring' like suppress_price because shopkeeper and
-       bill might not be available yet while restore is in progress */
+       bill might not be available yet while restore is in progress
+       (objects won't normally be formatted during that time, but if
+       'perm_invent' is enabled then they might be) */
     if (iflags.suppress_price || restoring) {
         ; /* don't attempt to obtain any stop pricing, even if 'with_price' */
     } else if (is_unpaid(obj)) { /* in inventory or in container in invent */
         long quotedprice = unpaid_cost(obj, TRUE);
 
-        Sprintf(eos(bp), " (%s, %ld %s)",
+        Sprintf(eos(bp), " (%s, %s%ld %s)",
                 obj->unpaid ? "unpaid" : "contents",
-                quotedprice, currency(quotedprice));
+                globwt(obj, globbuf), quotedprice, currency(quotedprice));
     } else if (with_price) { /* on floor or in container on floor */
         int nochrg = 0;
         long price = get_cost_of_shop_item(obj, &nochrg);
 
         if (price > 0L)
-            Sprintf(eos(bp), " (%s, %ld %s)",
+            Sprintf(eos(bp), " (%s, %s%ld %s)",
                     nochrg ? "contents" : "for sale",
-                    price, currency(price));
+                    globwt(obj, globbuf), price, currency(price));
         else if (nochrg > 0)
-            Strcat(bp, " (no charge)");
+            Sprintf(eos(bp), " (%sno charge)", globwt(obj, globbuf));
     }
     if (!strncmp(prefix, "a ", 2)) {
         /* save current prefix, without "a "; might be empty */
@@ -1277,9 +1302,11 @@ unsigned doname_flags;
         Strcat(prefix, tmpbuf);
     }
 
-    /* show weight for items */
+    /* show weight for items
+     * aum is stolen from Crawl's "Arbitrary Unit of Measure" */
     if (iflags.invweight && (obj->where == OBJ_INVENT || wizard)) {
-        Sprintf(eos(bp), " {%d}", obj->owt);
+        if (!obj->globby)   /* aum already apparent for globs */
+            Sprintf(eos(bp), " (%d aum)", obj->owt);
     }
 
     bp = strprepend(bp, prefix);
@@ -4460,6 +4487,18 @@ const char *lastR;
     }
     /* assert( strlen(qbuf) < QBUFSZ ); */
     return qbuf;
+}
+
+STATIC_OVL char *
+globwt(otmp, buf)
+struct obj *otmp;
+char *buf;
+{
+    *buf = '\0';
+    if (otmp->globby) {
+        Sprintf(buf, "%u aum, ", otmp->owt);
+    }
+    return buf;
 }
 
 /*objnam.c*/

@@ -1,0 +1,58 @@
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.10 $ $NHDT-Date: 1558355176 2019/05/20 12:26:16 $
+
+This fixes36.3 file is here to capture information about updates in the 3.6.x
+lineage following the release of 3.6.2 in May 2019. Please note, however,
+that another 3.6.x release is not anticipated, and most developer
+focus will shift to the next major release.
+
+General Fixes and Modified Features
+-----------------------------------
+when place_object() puts a non-boulder on the map at a spot which contains
+	other objects, put it under all boulders in the pile rather than just
+	under the top one; previously, map wasn't showing a boulder there if
+	the top one got moved by means other than pushing
+when examining the map with '/' or ';', picking a symbol which is used for
+	more than 4 things yielded a sentence lacking its terminating period
+billing and payment issue as a result of glob coalescing
+glob pricing did not consider weight properly
+glob shop interaction improved to handle more of the expected scenarios
+
+
+Fixes to Post-3.6.2 Problems that Were Exposed Via git Repository
+------------------------------------------------------------------
+
+
+Platform- and/or Interface-Specific Fixes or Features
+-----------------------------------------------------
+curses: very tall menus tried to use selector characters a-z, A-Z, and 0-9,
+	but 0-9 should be reserved for counts and if the display was tall
+	enough for more than 62 entries, arbitrary ASCII punctuation got used
+curses: when all available lines in the message window are in use,
+	autodescribe feedback for 'pick a position with cursor' overwrote
+	the last line (usually the 'pick a position' prompt/hint), sometimes
+	leaving part of longer underlying line's text visible
+curses: if message window is only one line, cancelling some prompts with ESC
+	left the prompts visible on the message line instead of erasing them
+curses: support EDIT_GETLIN (but like with tty, it's disabled by default) to
+	pre-load an earlier response as the default answer for some prompts
+tty: re-do one optimization used when status conditions have all been removed
+	and remove another that tried to check whether condition text to be
+	displayed next was the same as the existing value; sometimes new
+	status condition wouldn't be shown unless a screen redraw was forced
+Windows: some startup error messages were not being delivered successfully
+
+
+General New Features
+--------------------
+classify sources as released, beta, or work-in-progress via NH_DEVEL_STATUS
+	rather than just released vs beta via BETA
+
+
+NetHack Community Patches (or Variation) Included
+-------------------------------------------------
+add a couple of engraving suggestions in pull request #79
+
+
+Code Cleanup and Reorganization
+-------------------------------
+
