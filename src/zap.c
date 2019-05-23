@@ -3397,11 +3397,14 @@ struct obj **pobj; /* object tossed/used, set to NULL
             /* stop the bolt here; it takes a lot of energy to destroy bars */
             range = 0;
             break;
-        } else if ((levl[bhitpos.x][bhitpos.y].wall_info & W_NONDIGGABLE) != 0) {
+        } else if (typ == IRONBARS
+                   && ((levl[bhitpos.x][bhitpos.y].wall_info & W_NONDIGGABLE) != 0)
+                   && (obj->otyp == SPE_FORCE_BOLT || obj->otyp == WAN_STRIKING)) {
             if (cansee(bhitpos.x, bhitpos.y))
                 pline_The("iron bars vibrate, but are otherwise intact.");
             else if (!Deaf)
                 You_hear("an intense sustained hum.");
+            wake_nearto(bhitpos.x, bhitpos.y, 8 * 8);
             range = 0;
             break;
         }
