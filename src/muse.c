@@ -3532,7 +3532,7 @@ struct monst *mon;
     boolean wish_cloak  = (!cantweararm(ptr)
 	                   || ptr->msize == MZ_SMALL)
 			   && !which_armor(mon, W_ARMC);
-    boolean wish_shield = !bimanual(MON_WEP(mon))
+    boolean wish_shield = (!MON_WEP(mon) || !bimanual(MON_WEP(mon)))
 			   && !which_armor(mon, W_ARMS);
     boolean wish_gloves = !which_armor(mon, W_ARMG);
     boolean wish_helm   = !which_armor(mon, W_ARMH);
