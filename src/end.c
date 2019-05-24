@@ -480,8 +480,6 @@ int how;
         mptr = mtmp->data; /* reset for mimicker case */
     } else if (is_bones_monster(mptr)) {
         Strcpy(buf, m_monnam(mtmp));
-        if (has_mname(mtmp))
-            Sprintf(eos(buf), " of %s", MNAME(mtmp));
     } else if (mtmp->isshk) {
         const char *shknm = shkname(mtmp),
                    *honorific = shkname_is_pname(mtmp) ? ""
