@@ -714,6 +714,7 @@ int udist;
     } else {
         if ((obj = level.objects[omx][omy]) != 0
             && !index(nofetch, obj->oclass)
+            && !is_soko_prize_flag(obj)
 #ifdef MAIL
             && obj->otyp != SCR_MAIL
 #endif

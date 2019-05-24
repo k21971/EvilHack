@@ -89,6 +89,7 @@ struct obj {
 #define norevive oeroded2
     Bitfield(oerodeproof, 1); /* erodeproof weapon/armor */
     Bitfield(olocked, 1);     /* object is locked */
+#define sokoprize olocked     /* special flag for sokoban prize */
     Bitfield(obroken, 1);     /* lock has been broken */
 #define degraded_horn obroken /* unicorn horn will poly to non-magic */
     Bitfield(otrapped, 1);    /* container is trapped */
@@ -398,6 +399,8 @@ struct obj {
                   && (o)->record_achieve_special == SOKO_PRIZE5)      \
                  || ((o)->otyp == iflags.soko_prize_type6             \
                      && (o)->record_achieve_special == SOKO_PRIZE6))
+#define is_soko_prize_flag(otmp) \
+    ((otmp)->sokoprize && (!Is_box(otmp)))
 
 /* Flags for get_obj_location(). */
 #define CONTAINED_TOO 0x1

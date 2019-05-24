@@ -1194,6 +1194,10 @@ register int after;
                         || (is_lava(xx, yy) && !likes_lava(ptr)))
                         continue;
 
+                    /* ignore sokoban prizes */
+                    if (is_soko_prize_flag(otmp))
+                        continue;
+
                     if ((((Is_container(otmp) && likes_contents(mtmp, otmp))
                         || ((likegold && otmp->oclass == COIN_CLASS)
                          || (likeobjs && index(practical, otmp->oclass)

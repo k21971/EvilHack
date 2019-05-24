@@ -427,7 +427,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     register char *buf;
     register int typ = obj->otyp;
     register struct objclass *ocl = &objects[typ];
-    int nn = ocl->oc_name_known, omndx = obj->corpsenm;
+    int nn = ocl->oc_name_known
+        || (is_soko_prize_flag(obj)
+            && (cansee(obj->ox, obj->oy)
+                || (u.ux == obj->ox && u.uy == obj->oy)));
+    int omndx = obj->corpsenm;
     const char *actualn = OBJ_NAME(*ocl);
     const char *dn = OBJ_DESCR(*ocl);
     const char *un = ocl->oc_uname;
@@ -452,6 +456,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     if (!nn && ocl->oc_uses_known && ocl->oc_unique)
         obj->known = 0;
     if (!Blind && !distantname)
+        obj->dknown = TRUE;
+    if (is_soko_prize_flag(obj))
         obj->dknown = TRUE;
     if (Role_if(PM_PRIEST))
         obj->bknown = TRUE;
@@ -482,6 +488,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, actualn);
         else if (un)
             Sprintf(eos(buf), "amulet called %s", un);
+	else if (is_soko_prize_flag(obj))
+	    Strcpy(buf, "sokoban prize amulet");
         else
             Sprintf(eos(buf), "%s amulet", dn);
         break;
@@ -509,6 +517,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, dn);
             Strcat(buf, " called ");
             Strcat(buf, un);
+        } else if (is_soko_prize_flag(obj)) {
+            Strcpy(buf, "sokoban prize tool");
         } else
             Strcat(buf, dn);
 
@@ -573,6 +583,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 Strcpy(buf, "armor");
             Strcat(buf, " called ");
             Strcat(buf, un);
+        } else if (is_soko_prize_flag(obj)) {
+            Strcpy(buf, "sokoban prize cloak");
         } else
             Strcat(buf, dn);
         break;

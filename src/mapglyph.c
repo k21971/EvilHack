@@ -34,6 +34,7 @@ static const int explcolors[] = {
 #define warn_color(n) \
     color = iflags.use_color ? def_warnsyms[n].color : NO_COLOR
 #define explode_color(n) color = iflags.use_color ? explcolors[n] : NO_COLOR
+#define sokoban_prize_color() color = iflags.use_color ? CLR_BRIGHT_GREEN : NO_COLOR
 
 #else /* no text color */
 
@@ -45,6 +46,7 @@ static const int explcolors[] = {
 #define pet_color(c)
 #define warn_color(n)
 #define explode_color(n)
+#define sokoban_prize_color()
 #endif
 
 #if defined(USE_TILES) && defined(MSDOS)
@@ -240,6 +242,9 @@ unsigned *ospecial;
             obj_color(offset);
         if (offset != BOULDER && is_objpile(x,y))
             special |= MG_OBJPILE;
+	if (level.objects[x][y] && is_soko_prize_flag(level.objects[x][y])) {
+	    sokoban_prize_color();
+	}
     } else if ((offset = (glyph - GLYPH_RIDDEN_OFF)) >= 0) { /* mon ridden */
         idx = mons[offset].mlet + SYM_OFF_M;
         if (has_rogue_color)

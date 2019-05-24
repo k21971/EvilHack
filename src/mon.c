@@ -1069,7 +1069,8 @@ register struct monst *mtmp;
         /* Don't eat indigestible/choking/inappropriate objects */
         if ((mtmp->data == &mons[PM_RUST_MONSTER] && !is_rustprone(otmp))
             || (otmp->otyp == AMULET_OF_STRANGULATION)
-            || (otmp->otyp == RIN_SLOW_DIGESTION))
+            || (otmp->otyp == RIN_SLOW_DIGESTION)
+            || (is_soko_prize_flag(otmp)))
             continue;
         if (is_metallic(otmp) && !obj_resists(otmp, 5, 95)
             && touch_artifact(otmp, mtmp)) {
@@ -1213,6 +1214,8 @@ struct monst *mtmp;
         /* lastly, edible items; yum! */
         } else {
             /* devour */
+            if (is_soko_prize_flag(otmp))
+                continue;
             ++count;
             if (cansee(mtmp->mx, mtmp->my)) {
                 if (flags.verbose)
@@ -1401,43 +1404,45 @@ register const char *str;
 		(void) chest_trap(mtmp, otmp, FINGER, FALSE);
 		return TRUE;
 	}
-    	for(otmp3 = otmp->cobj; otmp3; otmp3 = otmp4) {
+    	for (otmp3 = otmp->cobj; otmp3; otmp3 = otmp4) {
 	    otmp4 = otmp3->nobj;
-    	    if (!str ? searches_for_item(mtmp, otmp3) :
-		  !!(index(str, otmp3->oclass)) ||
-		  (otmp3->oclass == COIN_CLASS &&
-		   likes_gold(mtmp->data))) {
-		if ((otmp3->otyp == CORPSE ||
-		    (otmp3->otyp == ROCK && otmp3->corpsenm != 0))
-		        && mtmp->data->mlet != S_NYMPH &&
-			!touch_petrifies(&mons[otmp3->corpsenm]) &&
-			otmp3->corpsenm != PM_LIZARD &&
-			!acidic(&mons[otmp3->corpsenm])) continue;
-		if (!touch_artifact(otmp3, mtmp)) continue;
-		if (!can_carry(mtmp, otmp3)) continue;
-		if (is_pool(mtmp->mx, mtmp->my)) continue;
-		if (!pickedup && cansee(mtmp->mx, mtmp->my) && flags.verbose)
-		{
-			pline("%s %s opens %s...", Monnam(mtmp),
-				waslocked ? "unlocks and" : "carefully",
-			      (distu(mtmp->mx, mtmp->my) <= 5) ?
-				the(xname(otmp)) : the(distant_name(otmp, xname))
-				);
-			otmp->olocked = 0;
+    	    if (!str ? searches_for_item(mtmp, otmp3)
+		: !!(index(str, otmp3->oclass))
+		|| (otmp3->oclass == COIN_CLASS
+		&& likes_gold(mtmp->data))) {
+		if ((otmp3->otyp == CORPSE
+		    || (otmp3->otyp == ROCK && otmp3->corpsenm != 0))
+		    && mtmp->data->mlet != S_NYMPH
+		    && !touch_petrifies(&mons[otmp3->corpsenm])
+		    && otmp3->corpsenm != PM_LIZARD
+		    && !acidic(&mons[otmp3->corpsenm]))
+                    continue;
+		if (!touch_artifact(otmp3, mtmp))
+                    continue;
+		if (!can_carry(mtmp, otmp3))
+                    continue;
+		if (is_pool(mtmp->mx, mtmp->my))
+                    continue;
+		if (!pickedup
+                    && cansee(mtmp->mx, mtmp->my) && flags.verbose) {
+		    pline("%s %s opens %s...", Monnam(mtmp),
+			  waslocked ? "unlocks and" : "carefully",
+			  (distu(mtmp->mx, mtmp->my) <= 5)
+			  ? the(xname(otmp)) : the(distant_name(otmp, xname)));
+		    otmp->olocked = 0;
 		}
 		if (cansee(mtmp->mx, mtmp->my) && flags.verbose)
-			pline("%s retrieves %s from %s.", Monnam(mtmp),
-			      (distu(mtmp->mx, mtmp->my) <= 5) ?
-				doname(otmp3) : distant_name(otmp3, doname),
-			       (distu(mtmp->mx, mtmp->my) <= 5) ?
-				the(xname(otmp)) : the(distant_name(otmp, xname))
-				);
-		obj_extract_self(otmp3);
-		(void) mpickobj(mtmp, otmp3);	/* may merge and free otmp */
-		m_dowear(mtmp, FALSE);
-		newsym(mtmp->mx, mtmp->my);
-		/* loot the entire container if we can */
-		pickedup = TRUE;
+		    pline("%s retrieves %s from %s.", Monnam(mtmp),
+			  (distu(mtmp->mx, mtmp->my) <= 5)
+			  ? doname(otmp3) : distant_name(otmp3, doname),
+			  (distu(mtmp->mx, mtmp->my) <= 5)
+			  ? the(xname(otmp)) : the(distant_name(otmp, xname)));
+		    obj_extract_self(otmp3);
+		    (void) mpickobj(mtmp, otmp3);	/* may merge and free otmp */
+		    m_dowear(mtmp, FALSE);
+		    newsym(mtmp->mx, mtmp->my);
+		    /* loot the entire container if we can */
+		    pickedup = TRUE;
 	    }
 	}
 	if (pickedup) return TRUE;
@@ -1464,6 +1469,8 @@ register const char *str;
             if (carryamt != otmp->quan) {
                 otmp3 = splitobj(otmp, carryamt);
             }
+            if (is_soko_prize_flag(otmp))
+                continue;
             if (cansee(mtmp->mx, mtmp->my) && flags.verbose)
                 pline("%s picks up %s.", Monnam(mtmp),
                       (distu(mtmp->mx, mtmp->my) <= 5)

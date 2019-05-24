@@ -46,6 +46,7 @@ STATIC_DCL boolean FDECL(mon_beside, (int, int));
 STATIC_DCL int FDECL(do_loot_cont, (struct obj **, int, int));
 STATIC_DCL void FDECL(tipcontainer, (struct obj *));
 STATIC_DCL int FDECL(dump_container, (struct obj*, BOOLEAN_P));
+STATIC_DCL void NDECL(del_soko_prizes);
 
 /* define for query_objlist() and autopickup() */
 #define FOLLOW(curr, flags) \
@@ -765,6 +766,10 @@ boolean calc_costly;
     /* pickup_thrown overrides pickup_types and exceptions */
     if (!pickit)
         pickit = (flags.pickup_thrown && otmp->was_thrown);
+    /* never pick up sokoban prize */
+    if (is_soko_prize_flag(otmp)) {
+        pickit = FALSE;
+    }
     return pickit;
 }
 
@@ -1515,6 +1520,13 @@ boolean telekinesis; /* not picking it up directly by hand */
     prinv(nearload == SLT_ENCUMBER ? moderateloadmsg : (char *) 0, obj,
           count);
     mrg_to_wielded = FALSE;
+
+    if (is_soko_prize_flag(obj)) {
+	makeknown(obj->otyp);    /* obj is already known */
+	obj->sokoprize = FALSE;  /* reset sokoprize flag */
+	del_soko_prizes();	 /* delete other sokoprizes */
+        return -1;
+    }
     return 1;
 }
 
@@ -3401,6 +3413,41 @@ BOOLEAN_P destroy_after;
 	}
     }
     return ret;
+}
+
+STATIC_OVL void
+del_soko_prizes()
+{
+    int x, y, cnt = 0;
+    struct obj *otmp, *onext;
+    /* check objs on floor */
+    for (otmp = fobj; otmp; otmp = onext) {
+	onext = otmp->nobj; /* otmp may be destroyed */
+	if (is_soko_prize_flag(otmp)) {
+	    x = otmp->ox;
+	    y = otmp->oy;
+	    obj_extract_self(otmp);
+	    if (cansee(x, y)) {
+		You("see %s %s.", an(xname(otmp)),
+                    rn2(2) ? "dissolve into nothingness"
+                           : "wink out of existience");
+		newsym(x, y);
+	    } else cnt++;
+	        obfree(otmp, (struct obj *) 0);
+	}
+    }
+    if (cnt && !Deaf)
+        You_hear("%s.",
+                 rn2(2) ? "a distinct popping sound"
+                        : "a noise like a hundred thousand people saying 'foop'");
+    /* check buried objs... do we need this? */
+    for (otmp = level.buriedobjlist; otmp; otmp = onext) {
+	onext = otmp->nobj; /* otmp may be destroyed */
+	if (is_soko_prize_flag(otmp)) {
+	    obj_extract_self(otmp);
+	    obfree(otmp, (struct obj *) 0);
+	}
+    }
 }
 
 /*pickup.c*/

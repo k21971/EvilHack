@@ -84,7 +84,7 @@ TRAP:"pit",(07,10)
 
 # A little help
 OBJECT:('?',"earth"),(02,11)
-OBJECT:('?',"earth"),(03,11)
+[50%]: OBJECT:('?',"earth"),(03,11)
 
 # Random objects
 OBJECT:'%',random
@@ -148,7 +148,7 @@ TRAP:"pit",(06,08)
 
 # A little help
 OBJECT:('?',"earth"),(01,09)
-OBJECT:('?',"earth"),(02,09)
+[50%]: OBJECT:('?',"earth"),(02,09)
 
 # Random objects
 OBJECT:'%',random
