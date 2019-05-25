@@ -1251,7 +1251,7 @@ register struct attack *mattk;
                 hitmsg(mtmp, mattk);
                 }
             }
-            if (is_zombie(mtmp->data) && !rn2(3)) {
+            if (is_zombie(mtmp->data) && !rn2(8)) {
                 if (uncancelled)
                     diseasemu(mdat);
                 break;
