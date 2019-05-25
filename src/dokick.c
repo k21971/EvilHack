@@ -1451,6 +1451,9 @@ xchar dlev;          /* if !0 send to dlev near player */
         oct += obj->quan;
         if (obj == uball || obj == uchain)
             continue;
+        /* sokoban prizes never fall */
+        if (is_soko_prize_flag(obj))
+            continue;
         /* boulders can fall too, but rarely & never due to rocks */
         if ((isrock && obj->otyp == BOULDER)
             || rn2(obj->otyp == BOULDER ? 30 : 3))
@@ -1546,7 +1549,7 @@ boolean shop_floor_obj;
 
     /* objects other than attached iron ball always fall down ladder,
        but have a chance of staying otherwise */
-    nodrop = (otmp == uball) || (otmp == uchain)
+    nodrop = (otmp == uball) || (otmp == uchain) || is_soko_prize_flag(otmp)
              || (toloc != MIGR_LADDER_UP && rn2(3));
 
     container = Has_contents(otmp);
