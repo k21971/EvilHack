@@ -2226,6 +2226,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 	    case PM_GREY_ELF:
 	    case PM_ELF_LORD:
             case PM_ELF_LADY:
+            case PM_ELVEN_WIZARD:
             case PM_ELVEN_SERGEANT:
             case PM_ELVEN_LIEUTENANT:
             case PM_ELVEN_CAPTAIN:
@@ -2559,6 +2560,7 @@ register struct monst *shkp;
 	case PM_GREY_ELF:
 	case PM_ELF_LORD:
         case PM_ELF_LADY:
+        case PM_ELVEN_WIZARD:
         case PM_ELVEN_SERGEANT:
         case PM_ELVEN_LIEUTENANT:
         case PM_ELVEN_CAPTAIN:

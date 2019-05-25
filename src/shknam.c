@@ -659,38 +659,35 @@ int shp_indx;
         return -1;
     eshkp = ESHK(shk); /* makemon(...,MM_ESHK) allocates this */
     /* change the shopkeeper to a particular race */
-    switch (shtypes[shp_indx].symb)
-    {
+    switch (shtypes[shp_indx].symb) {
 	/* armors and weaponry are similar... */
 	case ARMOR_CLASS:
 	case WEAPON_CLASS:
 	    switch (rn2(4)) {
-		default:
 		case 0:
     		    srace = PM_HUMAN_SERGEANT + rn2(3);
 	    	    break;
 		case 1:
 		    srace = PM_STONE_GIANT + rn2(5);
 		    break;
-		case 2:
-	            srace = PM_DWARF_LORD + rn2(2);
-		    break;
-                case 3:
+                case 2:
                     srace = PM_CENTAUR;
                     break;
+		default:
+	            srace = PM_DWARF_LORD + rn2(2);
+		    break;
 	    }
 	    break;
 	case FOOD_CLASS:
             switch (rn2(3)) {
-                default:
                 case 0:
 	            srace = PM_HOBBIT;
 	            break;
                 case 1:
-                    srace = PM_HUMAN;
-                    break;
-                case 2:
                     srace = PM_GNOME;
+                    break;
+                default:
+                    srace = PM_HUMAN;
                     break;
             }
             break;
@@ -711,8 +708,7 @@ int shp_indx;
 	/* and scrolls and books fall to spellcasters */
 	case SCROLL_CLASS:
 	case SPBOOK_CLASS:
-            switch (rn2(3)) {
-                default:
+            switch (rn2(4)) {
                 case 0:
                     srace = PM_MIND_FLAYER + rn2(2);
                     break;
@@ -721,6 +717,9 @@ int shp_indx;
 	            break;
                 case 2:
                     srace = PM_GNOMISH_WIZARD;
+                    break;
+                default:
+                    srace = PM_ELVEN_WIZARD;
                     break;
             }
             break;
@@ -740,28 +739,29 @@ int shp_indx;
 	srace = rn2(6);
 	if (srace) {
 	    switch (srace) {
-		case 1:
+		case 0:
 		    mdat = &mons[PM_GREEN_ELF];
 		    shk->mnum = PM_GREEN_ELF;
 		    break;
-		case 2:
+		case 1:
 		    mdat = &mons[PM_DWARF];
 		    shk->mnum = PM_DWARF;
 		    break;
-		case 3:
+		case 2:
 		    mdat = &mons[PM_ORC];
 		    shk->mnum = PM_ORC;
 		    break;
-		case 4:
+		case 3:
 		    mdat = &mons[PM_GNOME];
 		    shk->mnum = PM_GNOME;
 		    break;
-                case 5:
+                case 4:
                     mdat = &mons[PM_GIANT];
                     shk->mnum = PM_GIANT;
                     break;
-		case 0:
 		default:
+                    mdat = &mons[PM_HUMAN];
+                    shk->mnum = PM_HUMAN;
 		    break;
 	    }
 	set_mon_data(shk, mdat);
@@ -806,6 +806,13 @@ int shp_indx;
 	    otmp->oerodeproof = TRUE;
 	    (void) mpickobj(shk, otmp);
 	}
+        otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
+        if (otmp) {
+            bless(otmp);
+            otmp->spe = rn2(4);
+            otmp->oerodeproof = TRUE;
+            (void) mpickobj(shk, otmp);
+        }
         otmp = mksobj(CRYSTAL_PLATE_MAIL, FALSE, FALSE);
         if (otmp) {
             bless(otmp);
@@ -816,7 +823,6 @@ int shp_indx;
 	m_dowear(shk, TRUE);
         mon_wield_item(shk);
     }
-
     return sh;
 }
 
