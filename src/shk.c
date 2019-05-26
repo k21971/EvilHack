@@ -2505,6 +2505,9 @@ register struct monst *shkp;
     multiplier *= matprices[obj->material];
     divisor *= matprices[objects[obj->otyp].oc_material];
 
+    if (obj->globby)
+        goto end;
+
     if (uarmh && uarmh->otyp == DUNCE_CAP)
         divisor *= 3L;
     else if ((Role_if(PM_TOURIST) && u.ulevel < (MAXULEV / 2))
@@ -2668,10 +2671,10 @@ register struct monst *shkp;
 
     /* Final quick check; if we're about to buy this for more than we'd sell
      * it for in the first place, let's arrange to, er, not do that.  */
-    if (tmp > get_cost(obj,shkp) * obj->quan) {
-	tmp = (get_cost(obj,shkp) * 4L / 5L) * obj->quan;
+    if (tmp > get_cost(obj, shkp) * obj->quan) {
+	tmp = (get_cost(obj, shkp) * 4L / 5L) * obj->quan;
     }
-
+end:
     /* (no adjustment for angry shk here) */
     return tmp;
 }
