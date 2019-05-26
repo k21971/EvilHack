@@ -1885,9 +1885,12 @@ dosacrifice()
                      * Lets also try to dish out suitable gear based on the player's role */
 		        do {
                             if (primary_casters) {
-                                typ = rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, FLAIL);
+                                typ = rn2(2) ? rnd_class(DAGGER, ATHAME)
+                                             : rnd_class(MACE, FLAIL);
                             } else if (primary_casters_priest) {
                                 typ = rnd_class(MACE, FLAIL);
+                            } else if (Role_if(PM_MONK)) {
+                                typ = rnd_class(QUARTERSTAFF, STAFF_OF_WAR);
                             } else {
                                 typ = rnd_class(SPEAR, KATANA);
                             }
@@ -1898,6 +1901,10 @@ dosacrifice()
 		        } else if ((primary_casters || primary_casters_priest)
                                    && (!Race_if(PM_GIANT) || !Race_if(PM_CENTAUR))) {
 		            typ = rn2(2) ? rnd_class(ARMOR, CLOAK_OF_DISPLACEMENT)
+                                         : rnd_class(GLOVES, LEVITATION_BOOTS);
+                        } else if (Role_if(PM_MONK)
+                                   && (!Race_if(PM_GIANT) || !Race_if(PM_CENTAUR))) {
+                            typ = rn2(2) ? rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY)
                                          : rnd_class(GLOVES, LEVITATION_BOOTS);
                         } else if (Race_if(PM_GIANT)) {
                             typ = rn2(2) ? rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY)
