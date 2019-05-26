@@ -1879,27 +1879,33 @@ dosacrifice()
 
             if (rn2(10) >= (nchance * nchance) / 100) {
 		if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
-		int typ, ncount = 0;
-		if (rn2(2)) {
-		/* Don't give unicorn horns or anything the player's restricted in
-                 * Lets also try to dish out suitable gear based on the player's role */
-		    do {
-                        if (primary_casters) {
-                            typ = rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, FLAIL);
-                        } else if (primary_casters_priest) {
-                            typ = rnd_class(MACE, FLAIL);
+		    int typ, ncount = 0;
+		    if (rn2(2)) {
+		    /* Don't give unicorn horns or anything the player's restricted in
+                     * Lets also try to dish out suitable gear based on the player's role */
+		        do {
+                            if (primary_casters) {
+                                typ = rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, FLAIL);
+                            } else if (primary_casters_priest) {
+                                typ = rnd_class(MACE, FLAIL);
+                            } else {
+                                typ = rnd_class(SPEAR, KATANA);
+                            }
+		        } while (ncount++ < 500 && typ && P_RESTRICTED(objects[typ].oc_skill));
+		            if (ncount > 499) {
+                                return 1;
+                            }
+		        } else if ((primary_casters || primary_casters_priest)
+                                   && (!Race_if(PM_GIANT) || !Race_if(PM_CENTAUR))) {
+		            typ = rn2(2) ? rnd_class(ARMOR, CLOAK_OF_DISPLACEMENT)
+                                         : rnd_class(GLOVES, LEVITATION_BOOTS);
+                        } else if (Race_if(PM_GIANT)) {
+                            typ = rn2(2) ? rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY)
+                                         : rnd_class(SMALL_SHIELD, LEVITATION_BOOTS);
+                        } else if (Race_if(PM_CENTAUR)) {
+                            typ = rnd_class(ELVEN_HELM, GAUNTLETS_OF_DEXTERITY);
                         } else {
-                            typ = rnd_class(SPEAR, KATANA);
-                        }
-		    } while (ncount++ < 500 && typ && P_RESTRICTED(objects[typ].oc_skill));
-		        if (ncount > 499) {
-                            return 1;
-                        }
-		    } else if (primary_casters || primary_casters_priest) {
-		        typ = !rn2(2) ? rnd_class(ARMOR, CLOAK_OF_DISPLACEMENT)
-                                      : rnd_class(GLOVES, LEVITATION_BOOTS);
-                    } else {
-                        typ = rnd_class(ELVEN_HELM, LEVITATION_BOOTS);
+                            typ = rnd_class(ELVEN_HELM, LEVITATION_BOOTS);
 		    }
 		    if (typ) {
 			otmp = mksobj(typ, FALSE, FALSE);
@@ -1914,8 +1920,8 @@ dosacrifice()
 			    u.ublesscnt = rnz(300 + (50 * u.ugifts));
 			    exercise(A_WIS, TRUE);
                             livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                    "had a %s entrusted to %s by %s",
-                                    xname(otmp),
+                                    "had %s entrusted to %s by %s",
+                                    an(xname(otmp)),
                                     uhim(),
                                     u_gname());
                             if (!Hallucination && !Blind) {
