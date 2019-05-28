@@ -3298,7 +3298,7 @@ struct attack *mattk;
 		    You_hear("a hoarse croak nearby.");
 	        }
             } else {
-                int stun = d(2, 8);
+                int stun = d(4, 6);
 
                 if (m_canseeu(mtmp)) {
                     pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
@@ -3308,7 +3308,7 @@ struct attack *mattk;
                 if (u.usleep && m_canseeu(mtmp) && (!Deaf)) {
                     unmul("You are frightened awake!");
                 }
-                mtmp->mspec_used = mtmp->mspec_used + (stun + rn2(6));
+                mtmp->mspec_used = mtmp->mspec_used + rnd(8);
                 Your("mind reels from the noise!");
                 make_stunned((HStun & TIMEOUT) + (long) stun, TRUE);
             }
@@ -3317,6 +3317,7 @@ struct attack *mattk;
         default:
             break;
     }
+    return 0;
 }
 
 /* FIXME:
