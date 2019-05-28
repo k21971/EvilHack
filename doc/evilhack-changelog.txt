@@ -228,12 +228,14 @@ Version 0.3.1
 - Fix: 'turning into a zombie' status not showing when checking yourself via wand of probing
   or a stethoscope
 - Added more rumors (mostly true)
+- Fix: 2nd attack for GM monk so cockatrices don't instapetrify when wearing gloves
 - Fix: 'placing monster over another' and 'can't place branch' impossibe messages
 - Add inventory weight/carrying cap and number of slots left to inventory display
 - Fix: 'named object not in disco' when forgetting known objects (amnesia or brain eaten)
 - Tweak pseudodragon/elder pseudodragon behavior in regards to items
 - Fix: monsters using a bag of tricks would show as '<monster> reads a bag of tricks'
 - Fix: properly map steed ids when loading bones files to prevent panic()
+- Fix: priests and shopkleepers stepping on zombies
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of May 5th, 2019)
 
 --------------------------------------------------------------------------------------------
@@ -273,4 +275,17 @@ Version 0.3.2
   (primarily for the JunetHack tournament)
 - Twoweapon patch
 - Priests are penalized for using edged weapons
-- Latest merges from 'vanilla' NetHack 3.6.2 (as of May 7th, 2019) -- official release
+- Most mplayers will spawn with a key or other unlocking tool
+- Fix: force bolt/wand of striking feedback when hitting iron bars
+- Room generation code clean up
+- Sokoban end revamp (round three)
+- Change livelogging of killing a players bones ghost to any creature they rise as
+- Shopkeeper race selection improvements
+- Minor zombie tweaks
+- Fix: temporary fix preventing segfault when splitting puddings and their corpses
+  are absorbed into another corpse
+- Adjustments to what players receive via altar sacrificing (regular items)
+- Fix: giant player race wasn't getting hungerless regeneration intrinsic
+- Fix: a burnt partly eaten <corpse name here>
+- Nazgul and lichen tweaks
+- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress (as of May 28th, 2019)

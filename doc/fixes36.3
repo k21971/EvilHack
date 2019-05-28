@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.18 $ $NHDT-Date: 1558794988 2019/05/25 14:36:28 $
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.25 $ $NHDT-Date: 1559035655 2019/05/28 09:27:35 $
 
 This fixes36.3 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.2 in May 2019. Please note, however,
@@ -24,6 +24,12 @@ when co-located with a boulder you could sometimes swap places with pets of
 on rare occasions, multiple mine's end luckstones were being marked as the
 	prize and triggering an impossible() on a public server
 make sure the correct luckstone is the prize in mine's end
+free dungeon overview's bones information at end of game
+free current level's bones information at end of game
+free ball and chain if Punished hero dies while descending stairs or dies or
+	quits while swallowed; put ball and chain in bones for the stairs case
+if hero dies while a thrown or kicked object is in transit, put that object
+	on the map in case bones data gets saved
 
 
 Fixes to Post-3.6.2 Problems that Were Exposed Via git Repository
@@ -51,6 +57,8 @@ curses: when display windows get reconfigured (after setting align_status,
 	when feasible it combines short lines, resulting in N messages on
 	fewer than N lines and leaving some of the available lines blank.]
 curses: plug memory leak when getting a line of input is cancelled by ESC
+curses: after requesting a line of input from player, next line of message
+	window could end up being skipped
 tty: re-do one optimization used when status conditions have all been removed
 	and remove another that tried to check whether condition text to be
 	displayed next was the same as the existing value; sometimes new
