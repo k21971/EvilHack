@@ -3271,6 +3271,7 @@ struct attack *mattk;
     static const char *const reactions[] = {
         "stunned",               /* [1] */
     };
+
     int react = -1;
     boolean cancelled = (mtmp->mcan != 0), already = FALSE;
 
@@ -3285,36 +3286,36 @@ struct attack *mattk;
             if (cancelled) {
                 react = 1; /* "stunned" */
                 already = (mtmp->mstun != 0);
-            if (m_canseeu(mtmp) && canseemon(mtmp) && (Deaf)) {
-                pline("It looks as if %s is yelling at you.", mon_nam(mtmp));
-            }
-            if (m_canseeu(mtmp) && (Blind) && (Deaf)) {
-                You("sense a disturbing vibration in the air.");
-            }
-	    if (m_canseeu(mtmp) && canseemon(mtmp) && (!Deaf)) {
-		pline("%s croaks hoarsely.", Monnam(mtmp));
-	    } else {
-		You_hear("a hoarse croak nearby.");
-	    }
-        } else {
-            int stun = d(2, 8);
+                if (m_canseeu(mtmp) && canseemon(mtmp) && (Deaf)) {
+                    pline("It looks as if %s is yelling at you.", mon_nam(mtmp));
+                }
+                if (m_canseeu(mtmp) && (Blind) && (Deaf)) {
+                    You("sense a disturbing vibration in the air.");
+                }
+	        if (m_canseeu(mtmp) && canseemon(mtmp) && (!Deaf)) {
+		    pline("%s croaks hoarsely.", Monnam(mtmp));
+	        } else {
+		    You_hear("a hoarse croak nearby.");
+	        }
+            } else {
+                int stun = d(2, 8);
 
-        if (m_canseeu(mtmp)) {
-            pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
-        } else {
-            You_hear("a horrific scream!");
-        }
-        if (u.usleep && m_canseeu(mtmp) && (!Deaf)) {
-            unmul("You are frightened awake!");
-        }
-            mtmp->mspec_used = mtmp->mspec_used + (stun + rn2(6));
-            Your("mind reels from the noise!");
-            make_stunned((HStun & TIMEOUT) + (long) stun, TRUE);
+                if (m_canseeu(mtmp)) {
+                    pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
+                } else {
+                    You_hear("a horrific scream!");
+                }
+                if (u.usleep && m_canseeu(mtmp) && (!Deaf)) {
+                    unmul("You are frightened awake!");
+                }
+                mtmp->mspec_used = mtmp->mspec_used + (stun + rn2(6));
+                Your("mind reels from the noise!");
+                make_stunned((HStun & TIMEOUT) + (long) stun, TRUE);
             }
         }
         break;
-    default:
-        break;
+        default:
+            break;
     }
 }
 
