@@ -1825,8 +1825,9 @@ do_rust:
         break;
     case AD_SLOW:
         hitmsg(mtmp, mattk);
-        if (uncancelled && !Slow && !defends(AD_SLOW, uwep) && !rn2(4))
+        if (uncancelled && !Slow && !defends(AD_SLOW, uwep) && !rn2(3))
             u_slow_down();
+            stop_occupation();
         break;
     case AD_DREN:
         hitmsg(mtmp, mattk);

@@ -1565,12 +1565,12 @@ NEARDATA struct permonst mons[] = {
      * Fungi
      */
     MON("lichen", S_FUNGUS, LVL(0, 1, 9, 0, 0), (G_GENO | 4),
-        A(ATTK(AT_TUCH, AD_STCK, 0, 0), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
-          NO_ATTK),
+        A(ATTK(AT_TUCH, AD_STCK, 1, 2), ATTK(AT_TUCH, AD_SLOW, 1, 1),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(20, 200, MS_SILENT, MZ_SMALL), 0, 0,
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
-        M2_HOSTILE | M2_NEUTER, 0, 0, 0, 1, CLR_BRIGHT_GREEN),
+        M2_HOSTILE | M2_NEUTER, 0, M4_VULNERABLE_FIRE, 0, 1, CLR_BRIGHT_GREEN),
     MON("brown mold", S_FUNGUS, LVL(1, 0, 9, 0, 0), (G_GENO | 1),
         A(ATTK(AT_NONE, AD_COLD, 0, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
