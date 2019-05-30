@@ -810,9 +810,19 @@ register struct attack *mattk;
     int status;
     char buf[BUFSZ];
     struct obj *obj;
+    struct monst *msteed = NULL;
 
     if (!engulf_target(magr, mdef))
         return MM_MISS;
+
+    if (mdef->mextra && ERID(mdef) && ERID(mdef)->m1 != NULL) {
+        msteed = ERID(mdef)->m1;
+        ERID(mdef)->m1->monmount = 0;
+        if (vis) {
+            pline("%s plucks %s right off %s mount!", Monnam(magr), mon_nam(mdef), mhis(mdef));
+        }
+        free_erid(mdef);
+    }
 
     if (vis) {
         /* [this two-part formatting dates back to when only one x_monnam
@@ -853,6 +863,8 @@ register struct attack *mattk;
     remove_monster(dx, dy);
     remove_monster(ax, ay);
     place_monster(magr, dx, dy);
+    if (msteed != NULL)
+        place_monster(msteed, ax, ay);
     newsym(ax, ay); /* erase old position */
     newsym(dx, dy); /* update new position */
 
