@@ -353,12 +353,13 @@ struct obj *corpse;
 {
     int fd, x, y;
     struct trap *ttmp;
-    struct monst *mtmp;
+    struct monst *mtmp, *msteed;
     struct permonst *mptr;
     struct fruit *f;
     struct cemetery *newbones;
     char c, *bonesid;
     char whynot[BUFSZ];
+    coord cc;
 
     /* caller has already checked `can_make_bones()' */
 
@@ -390,9 +391,23 @@ struct obj *corpse;
         if (mtmp->iswiz || mptr == &mons[PM_MEDUSA]
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
             || mptr == &mons[PM_VLAD_THE_IMPALER]
-            || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))) {
+            || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp)))
             mongone(mtmp);
+
+        /* monster steeds tend to wander off */
+        if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1 != NULL) {
+            msteed = ERID(mtmp)->m1;
+            ERID(mtmp)->m1->monmount = 0;
+            cc.x = msteed->mx;
+            cc.y = msteed->my;
+            enexto(&cc, u.ux, u.uy, msteed->data);
+            if (!m_at(cc.x, cc.y)) {
+                place_monster(msteed, cc.x, cc.y);
+            } else {
+                mongone(msteed);
+            }
         }
+        free_erid(mtmp);
     }
     if (u.usteed)
         dismount_steed(DISMOUNT_BONES);
