@@ -262,7 +262,8 @@ struct attack *mattk;
         return (mattk->aatyp == AT_TUCH) ? "contact"
                   : (mattk->aatyp == AT_GAZE) ? "gaze"
                        : (mattk->aatyp == AT_TENT) ? "snake bite" /* Medusa's hair-do */
-                            : (mattk->aatyp == AT_BITE) ? "bite" : "sting";
+                            : (mattk->aatyp == AT_BITE) ? "bite"
+                                 : (mattk->aatyp == AT_CLAW) ? "scratch" : "sting";
     }
 }
 
@@ -1250,11 +1251,6 @@ register struct attack *mattk;
                        || mtmp != u.ustuck) {
                 hitmsg(mtmp, mattk);
                 }
-            }
-            if (is_zombie(mtmp->data) && !rn2(8)) {
-                if (uncancelled)
-                    diseasemu(mdat);
-                break;
             }
 	    if (mtmp->data == &mons[PM_WATER_ELEMENTAL]) {
 		goto do_rust;
