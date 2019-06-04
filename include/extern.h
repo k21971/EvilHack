@@ -1,4 +1,4 @@
-/* NetHack 3.6	extern.h	$NHDT-Date: 1558485640 2019/05/22 00:40:40 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.706 $ */
+/* NetHack 3.6	extern.h	$NHDT-Date: 1559601014 2019/06/03 22:30:14 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.708 $ */
 /* Copyright (c) Steve Creps, 1988.				  */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -133,8 +133,15 @@ E void FDECL(uchangealign, (int, int));
 
 E void FDECL(ballrelease, (BOOLEAN_P));
 E void NDECL(ballfall);
+#ifndef BREADCRUMBS
 E void NDECL(placebc);
 E void NDECL(unplacebc);
+#else
+E void FDECL(Placebc, (const char *, int));
+E void FDECL(Unplacebc, (const char *, int));
+#define placebc() Placebc(__FUNCTION__, __LINE__)
+#define unplacebc() Unplacebc(__FUNCTION__, __LINE__)
+#endif
 E void FDECL(set_bc, (int));
 E void FDECL(move_bc, (int, int, XCHAR_P, XCHAR_P, XCHAR_P, XCHAR_P));
 E boolean FDECL(drag_ball, (XCHAR_P, XCHAR_P, int *, xchar *, xchar *,
@@ -1441,6 +1448,7 @@ E int FDECL(mfndpos, (struct monst *, coord *, long *, long));
 E long FDECL(mm_aggression, (struct monst *, struct monst *));
 E boolean FDECL(monnear, (struct monst *, int, int));
 E void NDECL(dmonsfree);
+E void FDECL(elemental_clog, (struct monst *));
 E int FDECL(mcalcmove, (struct monst *));
 E void NDECL(mcalcdistress);
 E void FDECL(replmon, (struct monst *, struct monst *));
