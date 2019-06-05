@@ -596,6 +596,7 @@ int shp_indx;
     struct monst *shk;
     struct eshk *eshkp;
     struct permonst* mdat;
+    const char *shname = 0;
 
     /* place the shopkeeper in the given room */
     sh = sroom->fdoor;
@@ -700,8 +701,10 @@ int shp_indx;
 	    srace = PM_WOODLAND_ELF + rn2(5);
 	    break;
 	case TOOL_CLASS:
-	    /* Make sure we don't redo Izchak's here */
-	    if (shtypes[shp_indx].prob != 0) {
+	    /* Izchak is always human */
+            if (shname = "+Izchak") {
+                srace = PM_HUMAN;
+            } else {
 		srace = PM_GNOME_LORD + rn2(2);
 	    }
 	    break;
@@ -817,6 +820,12 @@ int shp_indx;
         if (otmp) {
             bless(otmp);
             otmp->spe = rn2(4);
+            otmp->oerodeproof = TRUE;
+            (void) mpickobj(shk, otmp);
+        }
+        otmp = mksobj(RIN_SLOW_DIGESTION, FALSE, FALSE);
+        if (otmp) {
+            bless(otmp);
             otmp->oerodeproof = TRUE;
             (void) mpickobj(shk, otmp);
         }
