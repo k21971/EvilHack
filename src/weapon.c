@@ -299,14 +299,20 @@ struct monst *mon;
 #define is_odd_material(obj, mat) \
     ((obj)->material == (mat) && !(objects[(obj)->otyp].oc_material == (mat)))
     if ((is_odd_material(otmp, GLASS) || is_odd_material(otmp, GEMSTONE))
-        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH | WHACK))) {
-        /* glass and gemstone are sharp */
+        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH))) {
+        /* glass and gemstone are extremely sharp */
         tmp += 3;
     }
     else if (is_odd_material(otmp, GOLD) || is_odd_material(otmp, PLATINUM)) {
         /* heavy metals, but softer than stone */
-        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
+        if (objects[otmp->otyp].oc_dir & WHACK) {
             tmp += 1;
+        }
+    }
+    else if (is_odd_material(otmp, MITHRIL)) {
+        /* light and sharp */
+        if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)) {
+            tmp += 2;
         }
     }
     else if (is_odd_material(otmp, MINERAL)) {

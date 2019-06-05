@@ -405,7 +405,7 @@ const char *s;
 long e_time;
 xchar e_type;
 {
-#define N_BOGUS_ELBERETH 7
+#define N_BOGUS_ELBERETH 8
     static char *bogus_elbereth[N_BOGUS_ELBERETH] = {
         "Elizabeth",
         "OwlBreath",
@@ -413,7 +413,8 @@ xchar e_type;
         "Elly'sBreast", /* maybe not ;) */
         "Eratosthenes",
         "EvilHack",     /* hahahah */
-        "htereblE"
+        "htereblE",
+        "Ermahgerd"     /* Gersberms, mah fravrit berks */
     };
 
 #define N_CANNOT_WRITE 4
