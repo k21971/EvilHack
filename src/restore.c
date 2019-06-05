@@ -742,9 +742,12 @@ boolean ghostly;
               if (mtmp->m_id == steed_id)
                   break;
             }
-            if (!mtmp)
-                panic("Cannot find monster steed.");
-            ERID(mon)->m1 = mtmp;
+            if (!mtmp) {
+                /* steed probably died but was not cleaned up due to other issues */
+                impossible("Cannot find monster steed.");
+                free_erid(mon);
+            } else 
+                ERID(mon)->m1 = mtmp;
         }
     }
 

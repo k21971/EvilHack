@@ -2422,6 +2422,16 @@ register struct monst *mtmp;
     if (mtmp == u.usteed)
         dismount_steed(DISMOUNT_GENERIC);
 
+    /* Likewise, if it's a mon-steed */
+    if (mtmp->monmount) {
+        struct monst *mtmp2;
+        for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon)
+            if (get_mount(mtmp2) == mtmp) {
+                free_erid(mtmp2);
+                break;
+            }
+    }
+
     /* extinguish monster's armor */
     if ( (otmp = which_armor(mtmp, W_ARM)) &&
 	(otmp->otyp==GOLD_DRAGON_SCALE_MAIL || otmp->otyp == GOLD_DRAGON_SCALES) )
