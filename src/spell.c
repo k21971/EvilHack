@@ -1771,7 +1771,7 @@ int spell;
     int difficulty;
     int skill;
     int penalty, dex_adjust;
-    boolean paladin_bonus, primary_casters;
+    boolean paladin_bonus, primary_casters, non_casters;
 
     /* Calculate intrinsic ability (splcaster) */
 
@@ -1785,27 +1785,32 @@ int spell;
      */
     dex_adjust = 0;
     if (ACURR(A_DEX) <= 6)
-        dex_adjust += 10;
-    else if (ACURR(A_DEX) <= 9)
-        dex_adjust += 5;
-    else if (ACURR(A_DEX) <= 12)
-        dex_adjust += 0;
-    else if (ACURR(A_DEX) <= 15)
         dex_adjust -= 10;
+    else if (ACURR(A_DEX) <= 9)
+        dex_adjust -= 5;
+    else if (ACURR(A_DEX) <= 12)
+        dex_adjust = 0;
+    else if (ACURR(A_DEX) <= 15)
+        dex_adjust += 10;
     else if (ACURR(A_DEX) <= 18)
-        dex_adjust -= 15;
+        dex_adjust += 15;
     else if (ACURR(A_DEX) <= 20)
-        dex_adjust -= 20;
+        dex_adjust += 20;
     else if (ACURR(A_DEX) <= 23)
-        dex_adjust -= 25;
+        dex_adjust += 25;
     else if (ACURR(A_DEX) >= 24)
-        dex_adjust -= 30;
+        dex_adjust += 30;
 
     /* Knights don't get metal armor penalty for clerical spells */
     paladin_bonus = Role_if(PM_KNIGHT) && spell_skilltype(spellid(spell)) == P_CLERIC_SPELL;
 
-    /* Primary casting roles */
+    /* Casting roles */
     primary_casters = Role_if(PM_HEALER) || Role_if(PM_PRIEST) || Role_if(PM_WIZARD);
+
+    non_casters = Role_if(PM_ARCHEOLOGIST) || Role_if(PM_BARBARIAN) || Role_if(PM_CAVEMAN)
+                  || Role_if(PM_KNIGHT) || Role_if(PM_MONK) || Role_if(PM_RANGER)
+                  || Role_if(PM_ROGUE) || Role_if(PM_SAMURAI) || Role_if(PM_TOURIST)
+                  || Role_if(PM_VALKYRIE);
 
     if (uarm && is_metallic(uarm) && !paladin_bonus)
         splcaster += (uarmc && uarmc->otyp == ROBE) ? urole.spelarmr / 2
@@ -1897,7 +1902,7 @@ int spell;
     chance = chance * (20 - splcaster) / 15 - splcaster;
 
     /* For those classes that don't cast well, wielding one of these
-     *  special staves this should be a significant help.
+     * special staves should be a significant help.
      */
     if (uwep && uwep->otyp >= STAFF_OF_DIVINATION && uwep->otyp <= STAFF_OF_WAR) {
 #define STAFFBONUS 50
@@ -1928,16 +1933,25 @@ int spell;
 #undef STAFFBONUS
     }
 
-    if (uarm) {
-        if (uarm->otyp == CRYSTAL_PLATE_MAIL) {
-        penalty = 100;
-    } else if (primary_casters) {
-        penalty = (130 - spellev(spell) * 10) - dex_adjust;
-    } else {
-        penalty = (100 - spellev(spell) * 10) - dex_adjust;
+    /* Wearing body armor hinders spellcasting, 10% per spell level
+     * starting at level 1 spells for non-casting roles, and
+     * then 10% per spell level starting at level 4 spells for
+     * primary casting roles. Wearing a robe and/or wielding one
+     * of the special spell staves, or adjusting your dexterity
+     * along with all of the vanilla-based factors (int/wis, your
+     * experience level, skill level) are factored in.
+     */
+    if (uarm && uarm->otyp != CRYSTAL_PLATE_MAIL) {
+#define PENALTY_NON_CASTER (spellev(spell) * 10) - dex_adjust
+#define PENALTY_PRI_CASTER ((spellev(spell) * 10) - dex_adjust) - 30
+        if (primary_casters) {
+            chance = chance -= PENALTY_PRI_CASTER;
         }
-    if (chance > penalty)
-        chance = penalty;
+        if (non_casters) {
+            chance = chance -= PENALTY_NON_CASTER;
+        }
+#undef PENALTY_NON_CASTER
+#undef PENALTY_PRI_CASTER
     }
 
     /* Clamp to percentile */
