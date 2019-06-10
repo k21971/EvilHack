@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.41 $ $NHDT-Date: 1559733390 2019/06/05 11:16:30 $
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.49 $ $NHDT-Date: 1560089250 2019/06/09 14:07:30 $
 
 This fixes36.3 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.2 in May 2019. Please note, however,
@@ -57,12 +57,27 @@ flying monsters could enter water on the Plane of Water but then they'd drown
 	unless they could also swim or else didn't need to breathe
 when finding a place to put a monster on the Plane of Water, don't pick a
 	water location for flyers or floaters (levitate) or clingers (ceiling)
+#turn worked when unable to speak despite "you chant an arcane formula"
+#turn implicitly required sight due to wrong check for avoiding spanning walls
+thrown or kicked light source (lit lamp, candle, oil) should emit light as it
+	traverses the map; dungeon features, objects, or monsters seen while
+	it's in transit will become part of hero's memory of the level, and
+	any messages delivered won't have stale light from it around the hero
+unlike watching a monster trying to swap out a cursed weapon for some other
+	weapon and failing, watching it wield a cursed weapon didn't report
+	that weapon becoming welded to the monster's hand/claw/whatever
+accept "hidden" as an attribute for wizard mode ^G monster creation; created
+	monsters which can't be seen will have their locations highlighted
 
 
 Fixes to Post-3.6.2 Problems that Were Exposed Via git Repository
 ------------------------------------------------------------------
 elemental_clog() loop needed to guard against obliteration of the monster
 	that was trying to be placed
+using ^G to create "hidden mimic" shouldn't have marked it as undetected since
+	mimics 'hide' be appearing to be something else; honor "hidden" for
+	'hides_under' creatures if/when created at location with object(s),
+	also for eels and other fish if/when created at water location
 curses: sometimes the message window would show a blank line after a prompt
 
 
@@ -89,6 +104,13 @@ curses: when display windows get reconfigured (after setting align_status,
 curses: plug memory leak when getting a line of input is cancelled by ESC
 curses: after requesting a line of input from player, next line of message
 	window could end up being skipped
+curses: don't convert ^M (or <return> or <enter> key) into ^J; both ^J and ^M
+	indicate end of input when typing a line of text but as nethack
+	commands, ^J means run toward bottom of screen (when number_pad is
+	off) and ^M is not bound to any command, so accidental <return> won't
+	cause the hero to try to move
+curses+EDIT_GETLIN: when a prompt's answer was preloaded, using ESC to discard
+	it deleted it from the answer buffer but didn't erase it from screen
 tty: re-do one optimization used when status conditions have all been removed
 	and remove another that tried to check whether condition text to be
 	displayed next was the same as the existing value; sometimes new
@@ -102,6 +124,7 @@ classify sources as released, beta, or work-in-progress via NH_DEVEL_STATUS
 	rather than just released vs beta via BETA
 if you reach the edge of a level (relatively uncommon) and try to move off,
 	report that you can't go farther if the 'mention_walls' option is set
+wizard-mode: display effect to show where an unseen wished-for monster landed
 
 
 NetHack Community Patches (or Variation) Included

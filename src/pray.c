@@ -1,4 +1,4 @@
-/* NetHack 3.6	pray.c	$NHDT-Date: 1559670608 2019/06/04 17:50:08 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.112 $ */
+/* NetHack 3.6	pray.c	$NHDT-Date: 1559853037 2019/06/06 20:30:37 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.114 $ */
 /* Copyright (c) Benson I. Margulies, Mike Stephenson, Steve Linhart, 1989. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -2102,7 +2102,7 @@ prayer_done() /* M. Stephenson (1.0.3b) */
         return 1;
     }
     if (Inhell) {
-        pline("Since you are in Gehennom, %s won't help you.",
+        pline("Since you are in Gehennom, %s can't help you.",
               align_gname(alignment));
         /* haltingly aligned is least likely to anger */
         if (u.ualign.record <= 0 || rnl(u.ualign.record))
@@ -2143,6 +2143,7 @@ doturn()
 {
     /* Knights & Priest(esse)s only please */
     struct monst *mtmp, *mtmp2;
+    const char *Gname;
     int once, range, xlev;
 
     if (!Role_if(PM_PRIEST) && !Role_if(PM_KNIGHT)) {
@@ -2167,32 +2168,51 @@ doturn()
     if(!u.uconduct.gnostic++)
         livelog_write_string(LL_CONDUCT, "rejected atheism by turning undead");
 
+    u.uconduct.gnostic++;
+    Gname = halu_gname(u.ualign.type);
+
+    /* [What about needing free hands (does #turn involve any gesturing)?] */
+    if (!can_chant(&youmonst)) {
+        /* "evilness": "demons and undead" is too verbose and too precise */
+        You("are %s upon %s to turn aside evilness.",
+            Strangled ? "not able to call" : "incapable of calling", Gname);
+        /* violates agnosticism due to intent; conduct tracking is not
+           supposed to affect play but we make an exception here:  use a
+           move if this is the first time agnostic conduct has been broken */
+        return (u.uconduct.gnostic == 1);
+    }
     if ((u.ualign.type != A_CHAOTIC
          && (is_demon(youmonst.data) || is_undead(youmonst.data)))
         || u.ugangr > 6) { /* "Die, mortal!" */
-        pline("For some reason, %s seems to ignore you.", u_gname());
+        pline("For some reason, %s seems to ignore you.", Gname);
         aggravate();
         exercise(A_WIS, FALSE);
         return 1;
     }
     if (Inhell) {
-        pline("Since you are in Gehennom, %s won't help you.", u_gname());
+        pline("Since you are in Gehennom, %s %s help you.",
+              /* not actually calling upon Moloch but use alternate
+                 phrasing anyway if hallucinatory feedback says it's him */
+              Gname, !strcmp(Gname, Moloch) ? "won't" : "can't");
         aggravate();
         return 1;
     }
-    pline("Calling upon %s, you chant an arcane formula.", u_gname());
+    pline("Calling upon %s, you chant an arcane formula.", Gname);
     exercise(A_WIS, TRUE);
 
     /* note: does not perform unturn_dead() on victims' inventories */
-    range = BOLT_LIM + (u.ulevel / 5); /* 5 to 11 */
+    range = BOLT_LIM + (u.ulevel / 5); /* 8 to 14 */
     range *= range;
     once = 0;
     for (mtmp = fmon; mtmp; mtmp = mtmp2) {
         mtmp2 = mtmp->nmon;
-
         if (DEADMONSTER(mtmp))
             continue;
-        if (!cansee(mtmp->mx, mtmp->my) || distu(mtmp->mx, mtmp->my) > range)
+        /* 3.6.3: used to use cansee() here but the purpose is to prevent
+           #turn operating through walls, not to require that the hero be
+           able to see the target location */
+        if (!couldsee(mtmp->mx, mtmp->my)
+            || distu(mtmp->mx, mtmp->my) > range)
             continue;
 
         if (!mtmp->mpeaceful
@@ -2212,15 +2232,20 @@ doturn()
                 /* this is intentional, lichs are tougher
                    than zombies. */
                 case S_LICH:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_GHOST:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_VAMPIRE:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_WRAITH:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_MUMMY:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_ZOMBIE:
                     if (u.ulevel >= xlev && !resist(mtmp, '\0', 0, NOTELL)) {
                         if (u.ualign.type == A_CHAOTIC) {
@@ -2239,6 +2264,22 @@ doturn()
             }
         }
     }
+
+    /*
+     *  There is no detrimental effect on self for successful #turn
+     *  while in demon or undead form.  That can only be done while
+     *  chaotic oneself (see "For some reason" above) and chaotic
+     *  turning only makes targets peaceful.
+     *
+     *  Paralysis duration probably ought to be based on the strengh
+     *  of turned creatures rather than on turner's level.
+     *  Why doesn't this honor Free_action?  [Because being able to
+     *  repeat #turn every turn would be too powerful.  Maybe instead
+     *  of nomul(-N) we should add the equivalent of mon->mspec_used
+     *  for the hero and refuse to #turn when it's non-zero?  Or have
+     *  both and u.uspec_used only matters when Free_action prevents
+     *  the brief paralysis?]
+     */
     nomul(-(5 - ((u.ulevel - 1) / 6))); /* -5 .. -1 */
     multi_reason = "trying to turn the monsters";
     nomovemsg = You_can_move_again;

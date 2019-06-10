@@ -1,4 +1,4 @@
-/* NetHack 3.6	read.c	$NHDT-Date: 1559679496 2019/06/04 20:18:16 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.165 $ */
+/* NetHack 3.6	read.c	$NHDT-Date: 1560085864 2019/06/09 13:11:04 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.171 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -2555,7 +2555,7 @@ struct _create_particular_data {
     char monclass;
     boolean randmonst;
     boolean maketame, makepeaceful, makehostile;
-    boolean sleeping, saddled, invisible;
+    boolean sleeping, saddled, invisible, hidden;
 };
 
 boolean
@@ -2571,7 +2571,7 @@ struct _create_particular_data *d;
     d->fem = -1; /* gender not specified */
     d->randmonst = FALSE;
     d->maketame = d->makepeaceful = d->makehostile = FALSE;
-    d->sleeping = d->saddled = d->invisible = FALSE;
+    d->sleeping = d->saddled = d->invisible = d->hidden = FALSE;
 
     if ((tmpp = strstri(bufp, "saddled ")) != 0) {
         d->saddled = TRUE;
@@ -2584,6 +2584,10 @@ struct _create_particular_data *d;
     if ((tmpp = strstri(bufp, "invisible ")) != 0) {
         d->invisible = TRUE;
         (void) memset(tmpp, ' ', sizeof "invisible " - 1);
+    }
+    if ((tmpp = strstri(bufp, "hidden ")) != 0) {
+        d->hidden = TRUE;
+        (void) memset(tmpp, ' ', sizeof "hidden " - 1);
     }
     /* check "female" before "male" to avoid false hit mid-word */
     if ((tmpp = strstri(bufp, "female ")) != 0) {
@@ -2639,7 +2643,7 @@ create_particular_creation(d)
 struct _create_particular_data *d;
 {
     struct permonst *whichpm = NULL;
-    int i, firstchoice = NON_PM;
+    int i, mx, my, firstchoice = NON_PM;
     struct monst *mtmp;
     boolean madeany = FALSE;
 
@@ -2670,6 +2674,7 @@ struct _create_particular_data *d;
             /* otherwise try again */
             continue;
         }
+        mx = mtmp->mx, my = mtmp->my;
         /* 'is_FOO()' ought to be called 'always_FOO()' */
         if (d->fem != -1 && !is_male(mtmp->data) && !is_female(mtmp->data))
             mtmp->female = d->fem; /* ignored for is_neuter() */
@@ -2686,15 +2691,33 @@ struct _create_particular_data *d;
             put_saddle_on_mon(otmp, mtmp);
         }
         if (d->invisible) {
-            int mx = mtmp->mx, my = mtmp->my;
             mon_set_minvis(mtmp);
             if (does_block(mx, my, &levl[mx][my]))
                 block_point(mx, my);
             else
                 unblock_point(mx, my);
         }
+       if (d->hidden
+           && ((is_hider(mtmp->data) && mtmp->data->mlet != S_MIMIC)
+               || (hides_under(mtmp->data) && OBJ_AT(mx, my))
+               || (mtmp->data->mlet == S_EEL && is_pool(mx, my))))
+            mtmp->mundetected = 1;
         if (d->sleeping)
             mtmp->msleeping = 1;
+        /* iff asking for 'hidden', show locaton of every created monster
+           that can't be seen--whether that's due to successfully hiding
+           or vision issues (line-of-sight, invisibility, blindness) */
+        if (d->hidden && !canspotmon(mtmp)) {
+            int count = couldsee(mx, my) ? 8 : 4;
+            char saveviz = viz_array[my][mx];
+
+            if (!flags.sparkle)
+                count /= 2;
+            viz_array[my][mx] |= (IN_SIGHT | COULD_SEE);
+            flash_glyph_at(mx, my, mon_to_glyph(mtmp, newsym_rn2), count);
+            viz_array[my][mx] = saveviz;
+            newsym(mx, my);
+        }
         madeany = TRUE;
         /* in case we got a doppelganger instead of what was asked
            for, make it start out looking like what was asked for */
