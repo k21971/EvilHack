@@ -1779,27 +1779,26 @@ int spell;
     special = urole.spelheal;
     statused = ACURR(urole.spelstat);
 
-    /* Wearing body armor can add to your spell casting
-     * failure percentage, but your dexterity can offset
-     * (or add to) that penalty.
+    /* Your dexterity can offset
+     * (for better or for worse) your spellcasting penalty
      */
     dex_adjust = 0;
     if (ACURR(A_DEX) <= 6)
         dex_adjust -= 10;
     else if (ACURR(A_DEX) <= 9)
         dex_adjust -= 5;
-    else if (ACURR(A_DEX) <= 12)
-        dex_adjust = 0;
+    /* Range of 10 to 15 - no dexterity adjustment */
     else if (ACURR(A_DEX) <= 15)
-        dex_adjust += 10;
+        dex_adjust += 0;
+    /* At 18 and above we start to see some benefit */
     else if (ACURR(A_DEX) <= 18)
-        dex_adjust += 15;
+        dex_adjust += 5;
     else if (ACURR(A_DEX) <= 20)
-        dex_adjust += 20;
+        dex_adjust += 10;
     else if (ACURR(A_DEX) <= 23)
-        dex_adjust += 25;
+        dex_adjust += 15;
     else if (ACURR(A_DEX) >= 24)
-        dex_adjust += 30;
+        dex_adjust += 20;
 
     /* Knights don't get metal armor penalty for clerical spells */
     paladin_bonus = Role_if(PM_KNIGHT) && spell_skilltype(spellid(spell)) == P_CLERIC_SPELL;
@@ -1898,8 +1897,9 @@ int spell;
      * encumbrances).  No matter how intelligent/wise and advanced
      * a player is, intrinsics and encumbrance can prevent casting;
      * and no matter how able, learning is always required.
+     * Here is also where the players' dexterity factors in.
      */
-    chance = chance * (20 - splcaster) / 15 - splcaster;
+    chance = (chance * (20 - splcaster) / 15 - splcaster) + dex_adjust;
 
     /* For those classes that don't cast well, wielding one of these
      * special staves should be a significant help.
@@ -1939,16 +1939,17 @@ int spell;
      * primary casting roles. Wearing a robe and/or wielding one
      * of the special spell staves, or adjusting your dexterity
      * along with all of the vanilla-based factors (int/wis, your
-     * experience level, skill level) are factored in.
+     * experience level, skill level) are factored in prior
+     * to this calculation.
      */
     if (uarm && uarm->otyp != CRYSTAL_PLATE_MAIL) {
-#define PENALTY_NON_CASTER (spellev(spell) * 10) - dex_adjust
-#define PENALTY_PRI_CASTER ((spellev(spell) * 10) - dex_adjust) - 30
+#define PENALTY_NON_CASTER (spellev(spell) * 10)
+#define PENALTY_PRI_CASTER (spellev(spell) * 10) - 30
         if (primary_casters) {
-            chance = chance -= PENALTY_PRI_CASTER;
+            chance = (chance -= PENALTY_PRI_CASTER);
         }
         if (non_casters) {
-            chance = chance -= PENALTY_NON_CASTER;
+            chance = (chance -= PENALTY_NON_CASTER);
         }
 #undef PENALTY_NON_CASTER
 #undef PENALTY_PRI_CASTER
