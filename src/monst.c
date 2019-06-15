@@ -222,7 +222,7 @@ NEARDATA struct permonst mons[] = {
     MON("basilisk", S_COCKATRICE, LVL(12, 12, -10, 70, -5), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 4), ATTK(AT_TUCH, AD_STON, 1, 6),
           ATTK(AT_TUCH, AD_STON, 1, 6), ATTK(AT_CLAW, AD_PHYS, 2, 8),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_NONE, AD_STON, 0, 0), NO_ATTK),
         SIZ(90, 50, MS_HISS, MZ_MEDIUM), MR_POISON | MR_SLEEP | MR_STONE,
         MR_POISON | MR_STONE,
         M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE | M1_THICK_HIDE,

@@ -683,18 +683,18 @@ struct attack *uattk;
 
     /* second attack for a Monk who has reached Grand Master skill
        in martial arts */
-    if (P_BARE_HANDED_COMBAT && Role_if(PM_MONK)
+    if (!uwep && P_BARE_HANDED_COMBAT && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
         && malive && m_at(x, y) == mon) {
-        tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
+        tmp = find_roll_to_hit(mon, uattk->aatyp, uwep, &attknum,
                                &armorpenalty);
         dieroll = rnd(20);
         mhit = (tmp > dieroll || u.uswallow);
-        malive = known_hitum(mon, uswapwep, &mhit, tmp, armorpenalty, uattk,
+        malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk,
                              dieroll);
         /* second passive counter-attack only occurs if second attack hits */
         if (mhit)
-            (void) passive(mon, uswapwep, mhit, malive, AT_WEAP, FALSE);
+            (void) passive(mon, uwep, mhit, malive, AT_CLAW, FALSE);
     }
     return malive;
 }
@@ -1367,7 +1367,7 @@ int dieroll;
             hit(mshot_xname(obj), mon, exclam(tmp));
         else if (!flags.verbose)
             You("hit it.");
-        else if (P_BARE_HANDED_COMBAT && Role_if(PM_MONK) && !Upolyd) {
+        else if (!uwep && P_BARE_HANDED_COMBAT && Role_if(PM_MONK) && !Upolyd) {
             if (!Blind && Hallucination) {
                 You("%s %s%s", hmonkattacks[rn2(SIZE(hmonkattacks))],
                     mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
