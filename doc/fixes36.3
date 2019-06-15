@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.49 $ $NHDT-Date: 1560089250 2019/06/09 14:07:30 $
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.52 $ $NHDT-Date: 1560387439 2019/06/13 00:57:19 $
 
 This fixes36.3 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.2 in May 2019. Please note, however,
@@ -68,6 +68,11 @@ unlike watching a monster trying to swap out a cursed weapon for some other
 	that weapon becoming welded to the monster's hand/claw/whatever
 accept "hidden" as an attribute for wizard mode ^G monster creation; created
 	monsters which can't be seen will have their locations highlighted
+don't give feedback for monster zapping a wand if a monster plays a fire horn
+	directed at self to burn away slime
+if hero knows the number of charges in a wand or magical horn and a monster
+	acquires it and zaps/plays it when not in view, remove the hero's
+	memory of the number of charges
 
 
 Fixes to Post-3.6.2 Problems that Were Exposed Via git Repository
@@ -78,6 +83,8 @@ using ^G to create "hidden mimic" shouldn't have marked it as undetected since
 	mimics 'hide' be appearing to be something else; honor "hidden" for
 	'hides_under' creatures if/when created at location with object(s),
 	also for eels and other fish if/when created at water location
+for wizard mode 'wizweight' option, glob weight wasn't shown unless glob had
+	shop price information attached
 curses: sometimes the message window would show a blank line after a prompt
 
 
@@ -115,6 +122,9 @@ tty: re-do one optimization used when status conditions have all been removed
 	and remove another that tried to check whether condition text to be
 	displayed next was the same as the existing value; sometimes new
 	status condition wouldn't be shown unless a screen redraw was forced
+tty: message line anomaly: if autodecribe feedback wrapped to second line,
+	the wrapped portion wasn't erased when a shorter line was shown or
+	getpos was dismissed
 Windows: some startup error messages were not being delivered successfully
 
 

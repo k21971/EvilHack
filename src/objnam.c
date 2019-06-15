@@ -1,4 +1,4 @@
-/* NetHack 3.6	objnam.c	$NHDT-Date: 1559670607 2019/06/04 17:50:07 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.242 $ */
+/* NetHack 3.6	objnam.c	$NHDT-Date: 1560185545 2019/06/10 16:52:25 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.243 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -27,7 +27,7 @@ STATIC_DCL boolean FDECL(singplur_lookup, (char *, char *, BOOLEAN_P,
 STATIC_DCL char *FDECL(singplur_compound, (char *));
 STATIC_DCL char *FDECL(xname_flags, (struct obj *, unsigned));
 STATIC_DCL boolean FDECL(badman, (const char *, BOOLEAN_P));
-STATIC_DCL char *FDECL(globwt, (struct obj *, char *));
+STATIC_DCL char *FDECL(globwt, (struct obj *, char *, boolean *));
 
 struct Jitem {
     int item;
@@ -980,7 +980,8 @@ unsigned doname_flags;
 {
     boolean ispoisoned = FALSE,
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
-            vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0;
+            vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
+            weightshown = FALSE;
     boolean known, dknown, cknown, bknown, lknown;
     int omndx = obj->corpsenm;
     char prefix[PREFIX], globbuf[QBUFSZ];
@@ -1296,7 +1297,8 @@ unsigned doname_flags;
 
         Sprintf(eos(bp), " (%s, %s%ld %s)",
                 obj->unpaid ? "unpaid" : "contents",
-                globwt(obj, globbuf), quotedprice, currency(quotedprice));
+                globwt(obj, globbuf, &weightshown),
+                quotedprice, currency(quotedprice));
     } else if (with_price) { /* on floor or in container on floor */
         int nochrg = 0;
         long price = get_cost_of_shop_item(obj, &nochrg);
@@ -1304,9 +1306,11 @@ unsigned doname_flags;
         if (price > 0L)
             Sprintf(eos(bp), " (%s, %s%ld %s)",
                     nochrg ? "contents" : "for sale",
-                    globwt(obj, globbuf), price, currency(price));
+                    globwt(obj, globbuf, &weightshown),
+                    price, currency(price));
         else if (nochrg > 0)
-            Sprintf(eos(bp), " (%sno charge)", globwt(obj, globbuf));
+            Sprintf(eos(bp), " (%sno charge)",
+                    globwt(obj, globbuf, &weightshown));
     }
     if (!strncmp(prefix, "a ", 2)) {
         /* save current prefix, without "a "; might be empty */
@@ -1317,11 +1321,13 @@ unsigned doname_flags;
         Strcat(prefix, tmpbuf);
     }
 
-    /* show weight for items
-     * aum is stolen from Crawl's "Arbitrary Unit of Measure" */
+    /* show weight for items (debug tourist info);
+       "aum" is stolen from Crawl's "Arbitrary Unit of Measure" */
     if (iflags.invweight && (obj->where == OBJ_INVENT || wizard)) {
-        if (!obj->globby)   /* aum already apparent for globs */
-            Sprintf(eos(bp), " (%d aum)", obj->owt);
+        /* wizard mode user has asked to see object weights;
+           globs with shop pricing attached already include it */
+        if (!weightshown)
+            Sprintf(eos(bp), " (%u aum)", obj->owt);
     }
 
     bp = strprepend(bp, prefix);
@@ -4505,13 +4511,17 @@ const char *lastR;
 }
 
 STATIC_OVL char *
-globwt(otmp, buf)
+globwt(otmp, buf, weightformatted_p)
 struct obj *otmp;
 char *buf;
+boolean *weightformatted_p;
 {
     *buf = '\0';
     if (otmp->globby) {
         Sprintf(buf, "%u aum, ", otmp->owt);
+        *weightformatted_p = TRUE;
+    } else {
+        *weightformatted_p = FALSE;
     }
     return buf;
 }
