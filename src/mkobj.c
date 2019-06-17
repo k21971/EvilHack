@@ -3107,8 +3107,9 @@ static const struct icp orcish_materials[] = {
 /* Reflectable items - for the shield of reflection; anything that can hold a
  * polish. Amulets also arbitrarily use this list. */
 static const struct icp shiny_materials[] = {
-    {65, SILVER},
-    {20, GOLD},
+    {50, 0}, /* use base material */
+    {20, SILVER},
+    {15, GOLD},
     { 5, MITHRIL},
     { 4, COPPER},
     { 4, METAL}, /* aluminum, or similar */
