@@ -236,8 +236,8 @@ struct inv_sub {
     { PM_GNOME, BOW, CROSSBOW },
     { PM_GNOME, ARROW, CROSSBOW_BOLT },
     { PM_GIANT, ROBE, HIGH_BOOTS },
-    { PM_GIANT, RING_MAIL, HIGH_BOOTS },
-    { PM_GIANT, ARMOR, HIGH_BOOTS },
+    { PM_GIANT, RING_MAIL, HELMET },
+    { PM_GIANT, ARMOR, HELMET },
     /* Hobbits have a thing for elven gear */
     { PM_HOBBIT, DAGGER, ELVEN_DAGGER },
     { PM_HOBBIT, SPEAR, ELVEN_SPEAR },
