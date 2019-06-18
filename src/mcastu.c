@@ -1113,7 +1113,8 @@ int spellnum;
             return TRUE;
         }
         if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT
-            || spellnum == MGC_ACID_BLAST) && mtmp->mpeaceful) {
+            || spellnum == MGC_ACID_BLAST || spellnum == MGC_CANCELLATION)
+            && mtmp->mpeaceful) {
             return TRUE;
         }
      } else if (adtyp == AD_CLRC) {
@@ -1225,7 +1226,8 @@ int spellnum;
             return TRUE;
         }
         if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT
-            || spellnum == MGC_ACID_BLAST) && mtmp->mpeaceful) {
+            || spellnum == MGC_ACID_BLAST || spellnum == MGC_CANCELLATION)
+            && mtmp->mpeaceful) {
             return TRUE;
         }
     } else if (adtyp == AD_CLRC) {
