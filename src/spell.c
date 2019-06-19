@@ -1770,7 +1770,7 @@ int spell;
     int chance, splcaster, special, statused;
     int difficulty;
     int skill;
-    int penalty, dex_adjust;
+    int dex_adjust;
     boolean paladin_bonus, primary_casters, non_casters;
 
     /* Calculate intrinsic ability (splcaster) */
@@ -1940,12 +1940,13 @@ int spell;
      * of the special spell staves, or adjusting your dexterity
      * along with all of the vanilla-based factors (int/wis, your
      * experience level, skill level) are factored in prior
-     * to this calculation.
+     * to this calculation. Obtaining skilled or expert in
+     * various spell schools can offset this penalty.
      */
     if (uarm && uarm->otyp != CRYSTAL_PLATE_MAIL) {
 #define PENALTY_NON_CASTER (spellev(spell) * 10)
 #define PENALTY_PRI_CASTER (spellev(spell) * 10) - 30
-        if (primary_casters) {
+        if (primary_casters && spellev(spell) >= 4) {
             chance = (chance -= PENALTY_PRI_CASTER);
         }
         if (non_casters) {
