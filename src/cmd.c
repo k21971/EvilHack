@@ -1,4 +1,4 @@
-/* NetHack 3.6	cmd.c	$NHDT-Date: 1559382745 2019/06/01 09:52:25 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.335 $ */
+/* NetHack 3.6	cmd.c	$NHDT-Date: 1561917056 2019/06/30 17:50:56 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.338 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1990,19 +1990,28 @@ int final;
         enlght_line(You_, "entered ", buf, "");
     }
     if (!Upolyd) {
-        /* flags.showexp does not matter */
+        int ulvl = (int) u.ulevel;
+        /* [flags.showexp currently does not matter; should it?] */
+
         /* experience level is already shown above */
         Sprintf(buf, "%-1ld experience point%s", u.uexp, plur(u.uexp));
-        if (wizard) {
-            if (u.ulevel < 30) {
-                int ulvl = (int) u.ulevel;
-                long nxtlvl = newuexp(ulvl);
-                /* long oldlvl = (ulvl > 1) ? newuexp(ulvl - 1) : 0; */
+        /* TODO?
+         *  Remove wizard-mode restriction since patient players can
+         *  determine the numbers needed without resorting to spoilers
+         *  (even before this started being disclosed for 'final';
+         *  just enable 'showexp' and look at normal status lines
+         *  after drinking gain level potions or eating wraith corpses
+         *  or being level-drained by vampires).
+         */
+        if (ulvl < 30 && (final || wizard)) {
+            long nxtlvl = newuexp(ulvl), delta = nxtlvl - u.uexp;
 
-                Sprintf(eos(buf), ", %ld %s%sneeded to attain level %d",
-                        (nxtlvl - u.uexp), (u.uexp > 0) ? "more " : "",
-                        !final ? "" : "were ", (ulvl + 1));
-            }
+            Sprintf(eos(buf), ", %ld %s%sneeded %s level %d",
+                    delta, (u.uexp > 0) ? "more " : "",
+                    /* present tense=="needed", past tense=="were needed" */
+                    !final ? "" : (delta == 1L) ? "was " : "were ",
+                    /* "for": grammatically iffy but less likely to wrap */
+                    (ulvl < 18) ? "to attain" : "for", (ulvl + 1));
         }
         you_have(buf, "");
     }
@@ -4593,21 +4602,51 @@ int NDECL((*cmd_func));
 char
 randomkey()
 {
-    static int i = 0;
+    static unsigned i = 0;
     char c;
 
-    switch (rn2(12)) {
-    default: c = '\033'; break;
-    case 0: c = '\n'; break;
+    switch (rn2(16)) {
+    default:
+        c = '\033';
+        break;
+    case 0:
+        c = '\n';
+        break;
     case 1:
     case 2:
     case 3:
-    case 4: c = (char)(' ' + rn2((int)('~' - ' '))); break;
-    case 5: c = '\t'; break;
-    case 6: c = (char)('a' + rn2((int)('z' - 'a'))); break;
-    case 7: c = (char)('A' + rn2((int)('Z' - 'A'))); break;
-    case 8: c = extcmdlist[(i++) % SIZE(extcmdlist)].key; break;
-    case 9: c = '#'; break;
+    case 4:
+        c = (char) rn1('~' - ' ' + 1, ' ');
+        break;
+    case 5:
+        c = (char) (rn2(2) ? '\t' : ' ');
+        break;
+    case 6:
+        c = (char) rn1('z' - 'a' + 1, 'a');
+        break;
+    case 7:
+        c = (char) rn1('Z' - 'A' + 1, 'A');
+        break;
+    case 8:
+        c = extcmdlist[i++ % SIZE(extcmdlist)].key;
+        break;
+    case 9:
+        c = '#';
+        break;
+    case 10:
+    case 11:
+    case 12:
+        c = Cmd.dirchars[rn2(8)];
+        if (!rn2(7))
+            c = !Cmd.num_pad ? (!rn2(3) ? C(c) : (c + 'A' - 'a')) : M(c);
+        break;
+    case 13:
+        c = (char) rn1('9' - '0' + 1, '0');
+        break;
+    case 14:
+        /* any char, but avoid '\0' because it's used for mouse click */
+        c = (char) rnd(iflags.wc_eight_bit_input ? 255 : 127);
+        break;
     }
 
     return c;

@@ -101,7 +101,7 @@ static void menu_display_page(nhmenu *menu, WINDOW * win, int page_num,
                               char *);
 static int menu_get_selections(WINDOW * win, nhmenu *menu, int how);
 static void menu_select_deselect(WINDOW * win, nhmenu_item *item,
-                                 menu_op operation);
+                                 menu_op operation, int);
 static int menu_operation(WINDOW * win, nhmenu *menu, menu_op operation,
                           int page_num);
 static void menu_clear_selections(nhmenu *menu);
@@ -135,7 +135,7 @@ curses_line_input_dialog(const char *prompt, char *answer, int buffer)
     curses_got_input();
 
     if (buffer > (int) sizeof input)
-         buffer = (int) sizeof input;
+        buffer = (int) sizeof input;
     maxwidth = term_cols - 2;
 
     if (iflags.window_inited) {
@@ -264,7 +264,8 @@ curses_character_input_dialog(const char *prompt, const char *choices,
         any_choice = TRUE;
     }
 
-    prompt_width = (int) strlen(askstr);
+    /* +1: room for a trailing space where the cursor will rest */
+    prompt_width = (int) strlen(askstr) + 1;
 
     if ((prompt_width + 2) > maxwidth) {
         prompt_height = curses_num_lines(askstr, maxwidth);
@@ -284,11 +285,11 @@ curses_character_input_dialog(const char *prompt, const char *choices,
         /* TODO: add SUPPRESS_HISTORY flag, then after getting a response,
            append it and use put_msghistory() on combined prompt+answer */
         custompline(OVERRIDE_MSGTYPE, "%s", askstr);
-        curs_set(1);
     }
 
     /*curses_stupid_hack = 0; */
 
+    curs_set(1);
     while (1) {
 #ifdef PDCURSES
         answer = wgetch(message_window);
@@ -342,6 +343,7 @@ curses_character_input_dialog(const char *prompt, const char *choices,
         if (choices != NULL && answer != '\0' && index(choices, answer))
             break;
     }
+    curs_set(0);
 
     if (iflags.wc_popup_dialog) {
         /* Kludge to make prompt visible after window is dismissed
@@ -354,7 +356,6 @@ curses_character_input_dialog(const char *prompt, const char *choices,
         curses_destroy_win(askwin);
     } else {
         curses_clear_unhighlight_message_window();
-        curs_set(0);
     }
 
     return answer;
@@ -388,7 +389,8 @@ curses_ext_cmd()
         getbegyx(extwin2, y0, x0);
         getmaxyx(extwin2, h, w);
         extwin = newwin(1, w - 2, y0 + 1, x0 + 1);
-        if (w - 4 < maxlen) maxlen = w - 4;
+        if (w - 4 < maxlen)
+            maxlen = w - 4;
     } else {
         curses_get_window_xy(MESSAGE_WIN, &winx, &winy);
         curses_get_window_size(MESSAGE_WIN, &messageh, &messagew);
@@ -985,14 +987,24 @@ menu_determine_pages(nhmenu *menu)
 static void
 menu_win_size(nhmenu *menu)
 {
-    int width, height, maxwidth, maxheight, curentrywidth, lastline;
+    int maxwidth, maxheight, curentrywidth, lastline;
     int maxentrywidth = (int) strlen(menu->prompt);
     int maxheaderwidth = 0;
     nhmenu_item *menu_item_ptr;
 
-    maxwidth = 38;              /* Reasonable minimum usable width */
-    if ((term_cols / 2) > maxwidth) {
-        maxwidth = (term_cols / 2);     /* Half the screen */
+    if (program_state.gameover) {
+        /* for final inventory disclosure, use full width */
+        maxwidth = term_cols - 2;
+    } else {
+        /* this used to be 38, which is 80/2 - 2 (half a 'normal' sized
+           screen minus room for a border box), but some data files
+           have been manually formatted for 80 columns (usually limited
+           to 78 but sometimes 79, rarely 80 itself) and using a value
+           less that 40 meant that a full line would wrap twice:
+           1..38, 39..76, and 77..80 */
+        maxwidth = 40; /* Reasonable minimum usable width */
+        if ((term_cols / 2) > maxwidth)
+            maxwidth = (term_cols / 2); /* Half the screen */
     }
     maxheight = menu_max_height();
 
@@ -1017,7 +1029,8 @@ menu_win_size(nhmenu *menu)
         }
     }
 
-    /* If widest entry is smaller than maxwidth, reduce maxwidth accordingly */
+    /* If widest entry is smaller than maxwidth, reduce maxwidth
+       accordingly (but not too far; minimum width will be applied below) */
     if (maxentrywidth < maxwidth) {
         maxwidth = maxentrywidth;
     }
@@ -1025,11 +1038,12 @@ menu_win_size(nhmenu *menu)
     /* Try not to wrap headers/normal text lines if possible.  We can
        go wider than half the screen for this purpose if need be */
 
-    if ((maxheaderwidth > maxwidth) && (maxheaderwidth < (term_cols - 2))) {
-        maxwidth = maxheaderwidth;
+    if (maxheaderwidth > maxwidth) {
+        if (maxheaderwidth < (term_cols - 2))
+            maxwidth = maxheaderwidth;
+        else
+            maxwidth = term_cols - 2;
     }
-
-    width = maxwidth;
 
     /* Possibly reduce height if only 1 page */
     if (!menu_is_multipage(menu, maxwidth, maxheight)) {
@@ -1044,16 +1058,16 @@ menu_win_size(nhmenu *menu)
         if (lastline < maxheight) {
             maxheight = lastline;
         }
-    } else { /* If multipage, make sure we have enough width for page footer */
-
-        if (width < 20) {
-            width = 20;
-        }
     }
 
-    height = maxheight;
-    menu->width = width;
-    menu->height = height;
+    /* avoid a tiny popup window; when it's shown over the endings of
+       old messsages rather than over the map, it is fairly easy for
+       the player to overlook it, particularly when walking around and
+       stepping on a pile of 2 items; also, multi-page menus need enough
+       room for "(Page M of N) => " even if all entries are narrower
+       than that; we specify same minimum width even when single page */
+    menu->width = max(maxwidth, 25);
+    menu->height = max(maxheight, 5);
 }
 
 
@@ -1254,7 +1268,6 @@ menu_get_selections(WINDOW * win, nhmenu *menu, int how)
                     num_selected = -1;
                 } else {
                     num_selected = 0;
-
                 }
                 dismiss = TRUE;
                 break;
@@ -1358,12 +1371,14 @@ menu_get_selections(WINDOW * win, nhmenu *menu, int how)
                         && strstri(menu_item_ptr->str, search_key)) {
                         if (how == PICK_ONE) {
                             menu_clear_selections(menu);
-                            menu_select_deselect(win, menu_item_ptr, SELECT);
+                            menu_select_deselect(win, menu_item_ptr,
+                                                 SELECT, curpage);
                             num_selected = 1;
                             dismiss = TRUE;
                             break;
                         } else {
-                            menu_select_deselect(win, menu_item_ptr, INVERT);
+                            menu_select_deselect(win, menu_item_ptr,
+                                                 INVERT, curpage);
                         }
                     }
 
@@ -1396,19 +1411,22 @@ menu_get_selections(WINDOW * win, nhmenu *menu, int how)
 
                     if (how == PICK_ONE) {
                         menu_clear_selections(menu);
-                        menu_select_deselect(win, menu_item_ptr, SELECT);
+                        menu_select_deselect(win, menu_item_ptr,
+                                             SELECT, curpage);
                         if (count)
                             menu_item_ptr->count = count;
                         num_selected = 1;
                         dismiss = TRUE;
                         break;
                     } else if (how == PICK_ANY && curletter == count_letter) {
-                        menu_select_deselect(win, menu_item_ptr, SELECT);
+                        menu_select_deselect(win, menu_item_ptr,
+                                             SELECT, curpage);
                         menu_item_ptr->count = count;
                         count = 0;
                         count_letter = '\0';
                     } else {
-                        menu_select_deselect(win, menu_item_ptr, INVERT);
+                        menu_select_deselect(win, menu_item_ptr,
+                                             INVERT, curpage);
                     }
                 }
             }
@@ -1434,30 +1452,38 @@ menu_get_selections(WINDOW * win, nhmenu *menu, int how)
 }
 
 
-/* Select, deselect, or toggle selected for the given menu entry */
+/* Select, deselect, or toggle selected for the given menu entry.
+   For search operations, the toggled entry might be on a different
+   page than the one currently shown. */
 
 static void
-menu_select_deselect(WINDOW * win, nhmenu_item *item, menu_op operation)
+menu_select_deselect(WINDOW *win, nhmenu_item *item,
+                     menu_op operation, int current_page)
 {
     int curletter = item->accelerator;
+    boolean visible = (item->page_num == current_page);
 
-    if ((operation == DESELECT) || (item->selected && (operation == INVERT))) {
+    if (operation == DESELECT || (item->selected && operation == INVERT)) {
         item->selected = FALSE;
-        mvwaddch(win, item->line_num + 1, 1, ' ');
-        curses_toggle_color_attr(win, HIGHLIGHT_COLOR, NONE, ON);
-        mvwaddch(win, item->line_num + 1, 2, curletter);
-        curses_toggle_color_attr(win, HIGHLIGHT_COLOR, NONE, OFF);
-        mvwaddch(win, item->line_num + 1, 3, ')');
+        if (visible) {
+            mvwaddch(win, item->line_num + 1, 1, ' ');
+            curses_toggle_color_attr(win, HIGHLIGHT_COLOR, NONE, ON);
+            mvwaddch(win, item->line_num + 1, 2, curletter);
+            curses_toggle_color_attr(win, HIGHLIGHT_COLOR, NONE, OFF);
+            mvwaddch(win, item->line_num + 1, 3, ')');
+        }
     } else {
         item->selected = TRUE;
-        curses_toggle_color_attr(win, HIGHLIGHT_COLOR, A_REVERSE, ON);
-        mvwaddch(win, item->line_num + 1, 1, '<');
-        mvwaddch(win, item->line_num + 1, 2, curletter);
-        mvwaddch(win, item->line_num + 1, 3, '>');
-        curses_toggle_color_attr(win, HIGHLIGHT_COLOR, A_REVERSE, OFF);
+        if (visible) {
+            curses_toggle_color_attr(win, HIGHLIGHT_COLOR, A_REVERSE, ON);
+            mvwaddch(win, item->line_num + 1, 1, '<');
+            mvwaddch(win, item->line_num + 1, 2, curletter);
+            mvwaddch(win, item->line_num + 1, 3, '>');
+            curses_toggle_color_attr(win, HIGHLIGHT_COLOR, A_REVERSE, OFF);
+        }
     }
-
-    wrefresh(win);
+    if (visible)
+        wrefresh(win);
 }
 
 
@@ -1510,7 +1536,7 @@ menu_operation(WINDOW * win, nhmenu *menu, menu_op
         }
 
         if (menu_item_ptr->identifier.a_void != NULL) {
-            menu_select_deselect(win, menu_item_ptr, operation);
+            menu_select_deselect(win, menu_item_ptr, operation, current_page);
         }
 
         menu_item_ptr = menu_item_ptr->next_item;

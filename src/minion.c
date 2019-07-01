@@ -1,4 +1,4 @@
-/* NetHack 3.6	minion.c	$NHDT-Date: 1544998886 2018/12/16 22:21:26 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.40 $ */
+/* NetHack 3.6	minion.c	$NHDT-Date: 1561061319 2019/06/20 20:08:39 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.42 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2008. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -206,9 +206,13 @@ boolean talk;
     }
     if (mon) {
         if (talk) {
-            pline_The("voice of %s booms:", align_gname(alignment));
+            if (!Deaf)
+                pline_The("voice of %s booms:", align_gname(alignment));
+            else
+                You_feel("%s booming voice:",
+                         s_suffix(align_gname(alignment)));
             verbalize("Thou shalt pay for thine indiscretion!");
-            if (!Blind)
+            if (canspotmon(mon))
                 pline("%s appears before you.", Amonnam(mon));
             mon->mstrategy &= ~STRAT_APPEARMSG;
         }
@@ -256,17 +260,19 @@ register struct monst *mtmp;
         newsym(mtmp->mx, mtmp->my);
     }
     if (youmonst.data->mlet == S_DEMON) { /* Won't blackmail their own. */
-        pline("%s says, \"Good hunting, %s.\"", Amonnam(mtmp),
-              flags.female ? "Sister" : "Brother");
+        if (!Deaf)
+            pline("%s says, \"Good hunting, %s.\"", Amonnam(mtmp),
+                  flags.female ? "Sister" : "Brother");
+        else if (canseemon(mtmp))
+            pline("%s says something.", Amonnam(mtmp));
         if (!tele_restrict(mtmp))
             (void) rloc(mtmp, TRUE);
         return 1;
     }
 
     cash = money_cnt(invent);
-    demand =
-        rn1(3000, 1000)
-        + (1000 * (1 + (sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))));
+    demand = (cash * (rnd(80) + 20 * Athome))
+           + (1000 * (1 + (sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))));
 
     if (!demand || multi < 0 || cash <= 0) { /* you have no gold or can't move */
         mtmp->mpeaceful = 0;
@@ -276,13 +282,22 @@ register struct monst *mtmp;
         /* make sure that the demand is unmeetable if the monster
            has the Amulet, preventing monster from being satisfied
            and removed from the game (along with said Amulet...) */
-        if (mon_has_amulet(mtmp))
-            demand = money_cnt(invent) + (long) rn1(1000, 40);
+        /* [actually the Amulet is safe; it would be dropped when
+           mongone() gets rid of the monster; force combat anyway;
+           also make it unmeetable if the player is Deaf, to simplify
+           handling that case as player-won't-pay] */
+        if (mon_has_amulet(mtmp) || Deaf)
+            /* 125: 5*25 in case hero has maximum possible charisma */
+            demand = cash + (long) rn1(1000, 125);
 
-        pline("%s demands %ld %s for safe passage.", Amonnam(mtmp), demand,
-              currency(demand));
+        if (!Deaf)
+            pline("%s demands %ld %s for safe passage.",
+                  Amonnam(mtmp), demand, currency(demand));
+        else if (canseemon(mtmp))
+            pline("%s seems to be demanding something.", Amonnam(mtmp));
 
-        if ((offer = bribe(mtmp)) >= demand) {
+        offer = 0L;
+        if (!Deaf && ((offer = bribe(mtmp)) >= demand)) {
             pline("%s vanishes, laughing about cowardly mortals.",
                   Amonnam(mtmp));
             livelog_printf(LL_UMONST, "bribed %s with %ld %s for safe passage",
@@ -413,5 +428,100 @@ aligntyp atyp; /* A_NONE is used for 'any alignment' */
     ptr = mkclass_aligned(S_DEMON, 0, atyp);
     return (ptr && is_ndemon(ptr)) ? monsndx(ptr) : NON_PM;
 }
+
+/* lose_guardian_angel() and gain_guardian_angel() commented out here
+ * due to addition of the hero obtaining The Red Horse (player == War)
+ */
+
+#if 0
+/* guardian angel has been affected by conflict so is abandoning hero */
+void
+lose_guardian_angel(mon)
+struct monst *mon; /* if null, angel hasn't been created yet */
+{
+    coord mm;
+    int i;
+
+    if (mon) {
+        if (canspotmon(mon)) {
+            if (!Deaf) {
+                pline("%s rebukes you, saying:", Monnam(mon));
+                verbalize("Since you desire conflict, have some more!");
+            } else {
+                pline("%s vanishes!", Monnam(mon));
+            }
+        }
+        mongone(mon);
+    }
+    /* create 2 to 4 hostile angels to replace the lost guardian */
+    for (i = rn1(3, 2); i > 0; --i) {
+        mm.x = u.ux;
+        mm.y = u.uy;
+        if (enexto(&mm, mm.x, mm.y, &mons[PM_ANGEL]))
+            (void) mk_roamer(&mons[PM_ANGEL], u.ualign.type, mm.x, mm.y,
+                             FALSE);
+    }
+}
+
+/* just entered the Astral Plane; receive tame guardian angel if worthy */
+void
+gain_guardian_angel()
+{
+    struct monst *mtmp;
+    struct obj *otmp;
+    coord mm;
+
+    Hear_again(); /* attempt to cure any deafness now (divine
+                     message will be heard even if that fails) */
+    if (Conflict) {
+        if (!Deaf)
+            pline("A voice booms:");
+        else
+            You_feel("a booming voice:");
+        verbalize("Thy desire for conflict shall be fulfilled!");
+        /* send in some hostile angels instead */
+        lose_guardian_angel((struct monst *) 0);
+    } else if (u.ualign.record > 8) { /* fervent */
+        if (!Deaf)
+            pline("A voice whispers:");
+        else
+            You_feel("a soft voice:");
+        verbalize("Thou hast been worthy of me!");
+        mm.x = u.ux;
+        mm.y = u.uy;
+        if (enexto(&mm, mm.x, mm.y, &mons[PM_ANGEL])
+            && (mtmp = mk_roamer(&mons[PM_ANGEL], u.ualign.type, mm.x, mm.y,
+                                 TRUE)) != 0) {
+            mtmp->mstrategy &= ~STRAT_APPEARMSG;
+            if (!Blind)
+                pline("An angel appears near you.");
+            else
+                You_feel("the presence of a friendly angel near you.");
+            /* guardian angel -- the one case mtame doesn't
+             * imply an edog structure, so we don't want to
+             * call tamedog().
+             */
+            mtmp->mtame = 10;
+            /* make him strong enough vs. endgame foes */
+            mtmp->m_lev = rn1(8, 15);
+            mtmp->mhp = mtmp->mhpmax =
+                d((int) mtmp->m_lev, 10) + 30 + rnd(30);
+            if ((otmp = select_hwep(mtmp)) == 0) {
+                otmp = mksobj(SILVER_SABER, FALSE, FALSE);
+                if (mpickobj(mtmp, otmp))
+                    panic("merged weapon?");
+            }
+            bless(otmp);
+            if (otmp->spe < 4)
+                otmp->spe += rnd(4);
+            if ((otmp = which_armor(mtmp, W_ARMS)) == 0
+                || otmp->otyp != SHIELD_OF_REFLECTION) {
+                (void) mongets(mtmp, AMULET_OF_REFLECTION);
+                m_dowear(mtmp, TRUE);
+            }
+        }
+    }
+}
+#endif
 
 /*minion.c*/

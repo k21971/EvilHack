@@ -9,6 +9,15 @@
 #include "color.h"
 #include "wincurs.h"
 
+/* define this if not linking with <foo>tty.o|.obj for some reason */
+#ifdef CURSES_DEFINE_ERASE_CHAR
+char erase_char, kill_char;
+#else
+/* defined in sys/<foo>/<foo>tty.o|.obj which gets linked into
+   tty-only, tty+curses, and curses-only binaries */
+extern char erase_char, kill_char;
+#endif
+
 extern long curs_mesg_suppress_turn; /* from cursmesg.c */
 
 /* Public functions for curses NetHack interface */
@@ -17,6 +26,9 @@ extern long curs_mesg_suppress_turn; /* from cursmesg.c */
 struct window_procs curses_procs = {
     "curses",
     (WC_ALIGN_MESSAGE | WC_ALIGN_STATUS | WC_COLOR | WC_HILITE_PET
+#ifdef NCURSES_MOUSE_VERSION /* (this macro name works for PDCURSES too) */
+     | WC_MOUSE_SUPPORT
+#endif
      | WC_PERM_INVENT | WC_POPUP_DIALOG | WC_SPLASH_SCREEN),
     (WC2_DARKGRAY | WC2_HITPOINTBAR
 #if defined(STATUS_HILITES)
@@ -183,6 +195,10 @@ curses_init_nhwindows(int *argcp UNUSED,
     if ((term_rows < 15) || (term_cols < 40)) {
         panic("Terminal too small.  Must be minumum 40 width and 15 height");
     }
+    /* during line input, deletes the most recently typed character */
+    erase_char = erasechar(); /* <delete>/<rubout> or possibly <backspace> */
+    /* during line input, deletes all typed characters */
+    kill_char = killchar(); /* ^U (back in prehistoric times, '@') */
 
     curses_create_main_windows();
     curses_init_mesg_history();
@@ -895,6 +911,8 @@ curses_preference_update(const char *pref)
         redo_status = TRUE;
     else if (!strcmp(pref, "align_message"))
         redo_main = TRUE;
+    else if (!strcmp(pref, "mouse_support"))
+        curses_mouse_support(iflags.wc_mouse_support);
 
     if (redo_main || redo_status)
         curs_reset_windows(redo_main, redo_status);

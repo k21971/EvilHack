@@ -1,4 +1,4 @@
-/* NetHack 3.6	mon.c	$NHDT-Date: 1559733390 2019/06/05 11:16:30 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.292 $ */
+/* NetHack 3.6	mon.c	$NHDT-Date: 1560791350 2019/06/17 17:09:10 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.294 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -23,7 +23,7 @@ STATIC_DCL void FDECL(kill_eggs, (struct obj *));
 STATIC_DCL int FDECL(pickvampshape, (struct monst *));
 STATIC_DCL boolean FDECL(isspecmon, (struct monst *));
 STATIC_DCL boolean FDECL(validspecmon, (struct monst *, int));
-STATIC_DCL struct permonst *FDECL(accept_newcham_form, (int));
+STATIC_DCL struct permonst *FDECL(accept_newcham_form, (struct monst *, int));
 STATIC_DCL struct obj *FDECL(make_corpse, (struct monst *, unsigned));
 STATIC_DCL void FDECL(m_detach, (struct monst *, struct permonst *));
 STATIC_DCL void FDECL(lifesaved_monster, (struct monst *));
@@ -3223,31 +3223,20 @@ struct monst *mon;
 
             mtmp->mstate |= MON_OBLITERATE;
             mongone(mtmp);
-            /* some places in the code might still reference mtmp->mx, mtmp->my */
+            /* places in the code might still reference mtmp->mx, mtmp->my */
             /* mtmp->mx = mtmp->my = 0; */ 
             rloc_to(mon, mx, my);           /* note: mon, not mtmp */
-        } else {
-            /* last resort - migrate mon to the next plane */
-            if (Is_waterlevel(&u.uz) || Is_firelevel(&u.uz)
-                || Is_earthlevel(&u.uz)) {
-                /* try sending mon on to the next plane */
-                xchar target_lev = 0, xyloc = 0;
-                struct trap *trap = ftrap;
 
-                while (trap) {
-                    if (trap->ttyp == MAGIC_PORTAL)
-                        break;
-                    trap = trap->ntrap;
-                }
-                if (trap) {
-                    target_lev = ledger_no(&trap->dst);
-                    xyloc = MIGR_RANDOM;
-                }
-                if (target_lev) {
-                    mon->mstate |= MON_ENDGAME_MIGR;
-                    migrate_mon(mon, target_lev, xyloc);
-                }
-            }
+        /* last resort - migrate mon to the next plane */
+        } else if (!Is_astralevel(&u.uz)) {
+            d_level dest;
+            xchar target_lev;
+
+            dest = u.uz;
+            dest.dlevel--;
+            target_lev = ledger_no(&dest);
+            mon->mstate |= MON_ENDGAME_MIGR;
+            migrate_mon(mon, target_lev, MIGR_RANDOM);
         }
     }
 }
@@ -3963,7 +3952,7 @@ int mndx;
     if (mndx == NON_PM)
         return TRUE; /* caller wants random */
 
-    if (!accept_newcham_form(mndx))
+    if (!accept_newcham_form(mon, mndx))
         return FALSE; /* geno'd or !polyok */
 
     if (isspecmon(mon)) {
@@ -3988,18 +3977,18 @@ int *mndx_p, monclass;
     if (!is_vampshifter(mon))
         return validspecmon(mon, *mndx_p);
 
-    if (*mndx_p == PM_VAMPIRE || *mndx_p == PM_VAMPIRE_LORD
-        || *mndx_p == PM_VAMPIRE_MAGE || *mndx_p == PM_VLAD_THE_IMPALER) {
-        /* player picked some type of vampire; use mon's self */
-        *mndx_p = mon->cham;
-        return TRUE;
-    }
     if (mon->cham == PM_VLAD_THE_IMPALER && mon_has_special(mon)) {
         /* Vlad with Candelabrum; override choice, then accept it */
         *mndx_p = PM_VLAD_THE_IMPALER;
         return TRUE;
     }
-    /* basic vampires can't become wolves or wargs; any can become fog or bat
+    if (*mndx_p >= LOW_PM && is_shapeshifter(&mons[*mndx_p])) {
+        /* player picked some type of shapeshifter; use mon's self
+           (vampire or chameleon) */
+        *mndx_p = mon->cham;
+        return TRUE;
+    }
+    /* basic vampires can't become wolves; any can become fog or bat
        (we don't enforce upper-case only for rogue level here) */
     if (*mndx_p == PM_WOLF || *mndx_p == PM_WARG)
         return (boolean) (mon->cham != PM_VAMPIRE);
@@ -4022,7 +4011,7 @@ int *mndx_p, monclass;
             *mndx_p = PM_WOLF;
             break;
         }
-    /*FALLTHRU*/
+        /*FALLTHRU*/
     default:
         *mndx_p = NON_PM;
         break;
@@ -4086,16 +4075,35 @@ struct monst *mon;
 
     /* for debugging: allow control of polymorphed monster */
     if (wizard && iflags.mon_polycontrol) {
-        char pprompt[BUFSZ], buf[BUFSZ] = DUMMY;
-        int monclass;
+        char pprompt[BUFSZ], parttwo[QBUFSZ], buf[BUFSZ];
+        int monclass, len;
 
-        Sprintf(pprompt, "Change %s @ %s into what kind of monster?",
-                noit_mon_nam(mon),
+        /* construct prompt in pieces */
+        Sprintf(pprompt, "Change %s", noit_mon_nam(mon));
+        Sprintf(parttwo, " @ %s into what?",
                 coord_desc((int) mon->mx, (int) mon->my, buf,
                            (iflags.getpos_coords != GPCOORDS_NONE)
                               ? iflags.getpos_coords : GPCOORDS_MAP));
-        tryct = 5;
+        /* combine the two parts, not exceeding QBUFSZ-1 in overall length;
+           if combined length is too long it has to be due to monster's
+           name so we'll chop enough of that off to fit the second part */
+        if ((len = (int) strlen(pprompt) + (int) strlen(parttwo)) >= QBUFSZ)
+            /* strlen(parttwo) is less than QBUFSZ/2 so strlen(pprompt) is
+               more than QBUFSZ/2 and excess amount being truncated can't
+               exceed pprompt's length and back up to before &pprompt[0]) */
+            *(eos(pprompt) - (len - (QBUFSZ - 1))) = '\0';
+        Strcat(pprompt, parttwo);
+
+        buf[0] = '\0'; /* clear buffer for EDIT_GETLIN */
+#define TRYLIMIT 5
+        tryct = TRYLIMIT;
         do {
+            if (tryct == TRYLIMIT - 1) { /* first retry */
+                /* change "into what?" to "into what kind of monster?" */
+                if (strlen(pprompt) + sizeof " kind of monster" - 1 < QBUFSZ)
+                    Strcpy(eos(pprompt) - 1, " kind of monster?");
+            }
+#undef TRYLIMIT
             monclass = 0;
             getlin(pprompt, buf);
             mungspaces(buf);
@@ -4103,7 +4111,7 @@ struct monst *mon;
             if (*buf == '\033')
                 break;
             /* for "*", use NON_PM to pick an arbitrary shape below */
-            if (!strcmp(buf, "*") || !strcmp(buf, "random")) {
+            if (!strcmp(buf, "*") || !strcmpi(buf, "random")) {
                 mndx = NON_PM;
                 break;
             }
@@ -4125,6 +4133,7 @@ struct monst *mon;
 
             pline("It can't become that.");
         } while (--tryct > 0);
+
         if (!tryct)
             pline1(thats_enough_tries);
         if (is_vampshifter(mon) && !validvamp(mon, &mndx, monclass))
@@ -4146,7 +4155,8 @@ struct monst *mon;
 
 /* this used to be inline within newcham() but monpolycontrol needs it too */
 STATIC_OVL struct permonst *
-accept_newcham_form(mndx)
+accept_newcham_form(mon, mndx)
+struct monst *mon;
 int mndx;
 {
     struct permonst *mdat;
@@ -4164,6 +4174,11 @@ int mndx;
        character type (random selection never does) which
        polyok() rejects, so we need a special case here */
     if (is_actual_player(mdat))
+        return mdat;
+    /* shapeshifters are rejected by polyok() but allow a shapeshifter
+       to take on its 'natural' form */
+    if (is_shapeshifter(mdat)
+        && mon->cham >= LOW_PM && mdat == &mons[mon->cham])
         return mdat;
     /* polyok() rules out M2_PNAME, M2_WERE, and all humans except Kops */
     return polyok(mdat) ? mdat : 0;
@@ -4236,7 +4251,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
         tryct = 20;
         do {
             mndx = select_newcham_form(mtmp);
-            mdat = accept_newcham_form(mndx);
+            mdat = accept_newcham_form(mtmp, mndx);
             /* for the first several tries we require upper-case on
                the rogue level (after that, we take whatever we get) */
             if (tryct > 15 && Is_rogue_level(&u.uz)

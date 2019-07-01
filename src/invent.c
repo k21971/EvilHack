@@ -1,4 +1,4 @@
-/* NetHack 3.6	invent.c	$NHDT-Date: 1558234540 2019/05/19 02:55:40 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.258 $ */
+/* NetHack 3.6	invent.c	$NHDT-Date: 1561751391 2019/06/28 19:49:51 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.260 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -2574,12 +2574,12 @@ long *out_cnt;
     menu_item *selected;
     unsigned sortflags;
     Loot *sortedinvent, *srtinv;
-    boolean wizid = FALSE;
+    boolean wizid = (wizard && iflags.override_ID), gotsomething = FALSE;
 
     if (lets && !*lets)
         lets = 0; /* simplify tests: (lets) instead of (lets && *lets) */
 
-    if (iflags.perm_invent && (lets || xtra_choice)) {
+    if (iflags.perm_invent && (lets || xtra_choice || wizid)) {
         /* partial inventory in perm_invent setting; don't operate on
            full inventory window, use an alternate one instead; create
            the first time needed and keep it for re-use as needed later */
@@ -2671,6 +2671,7 @@ long *out_cnt;
             add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
                      "(all items are permanently identified already)",
                      MENU_UNSELECTED);
+            gotsomething = TRUE;
         } else {
             any.a_obj = &wizid_fakeobj;
             Sprintf(prompt, "select %s to permanently identify",
@@ -2678,13 +2679,14 @@ long *out_cnt;
             /* wiz_identify stuffed the wiz_identify command character (^I)
                into iflags.override_ID for our use as an accelerator;
                it could be ambiguous if player has assigned a letter to
-               the #wizidentify command */
+               the #wizidentify command, so include it as a group accelator
+               but use '_' as the primary selector */
             if (unid_cnt > 1)
                 Sprintf(eos(prompt), " (%s for all)",
                         visctrl(iflags.override_ID));
             add_menu(win, NO_GLYPH, &any, '_', iflags.override_ID, ATR_NONE,
                      prompt, MENU_UNSELECTED);
-            wizid = TRUE;
+            gotsomething = TRUE;
         }
    } else if (xtra_choice) {
         /* wizard override ID and xtra_choice are mutually exclusive */
@@ -2694,6 +2696,7 @@ long *out_cnt;
         any.a_char = HANDS_SYM; /* '-' */
         add_menu(win, NO_GLYPH, &any, HANDS_SYM, 0, ATR_NONE,
                  xtra_choice, MENU_UNSELECTED);
+        gotsomething = TRUE;
     }
 
     /* Show weight total and item limit. */
@@ -2727,6 +2730,7 @@ nextclass:
             add_menu(win, obj_to_glyph(otmp, rn2_on_display_rng), &any, ilet,
                      wizid ? def_oc_syms[(int) otmp->oclass].sym : 0,
                      ATR_NONE, doname(otmp), MENU_UNSELECTED);
+            gotsomething = TRUE;
         }
     }
     if (flags.sortpack) {
@@ -2744,13 +2748,14 @@ nextclass:
         any.a_char = '*';
         add_menu(win, NO_GLYPH, &any, '*', 0, ATR_NONE,
                  "(list everything)", MENU_UNSELECTED);
+        gotsomething = TRUE;
     }
     unsortloot(&sortedinvent);
     /* for permanent inventory where we intend to show everything but
        nothing has been listed (because there isn't anyhing to list;
-       recognized via any.a_char still being zero; the n==0 case above
-       gets skipped for perm_invent), put something into the menu */
-    if (iflags.perm_invent && !lets && !any.a_char) {
+       the n==0 case above gets skipped for perm_invent), put something
+       into the menu */
+    if (iflags.perm_invent && !lets && !gotsomething) {
         any = zeroany;
         add_menu(win, NO_GLYPH, &any, 0, 0, 0,
                  not_carrying_anything, MENU_UNSELECTED);
@@ -2765,6 +2770,10 @@ nextclass:
         if (wizid) {
             int i;
 
+            /* identifying items will update perm_invent, calling this
+               routine recursively, and we don't want the nested call
+               to filter on unID'd items */
+            iflags.override_ID = 0;
             ret = '\0';
             for (i = 0; i < n; ++i) {
                 otmp = selected[i].item.a_obj;
@@ -4050,8 +4059,11 @@ doorganize() /* inventory organizer by Del Lamb */
     const char *adj_type;
     boolean ever_mind = FALSE, collect;
 
-    if (!invent) {
-        You("aren't carrying anything to adjust.");
+    /* when no invent, or just gold in '$' slot, there's nothing to adjust */
+    if (!invent || (invent->oclass == COIN_CLASS
+                    && invent->invlet == GOLD_SYM && !invent->nobj)) {
+        You("aren't carrying anything %s.",
+            !invent ? "to adjust" : "adjustable");
         return 0;
     }
 

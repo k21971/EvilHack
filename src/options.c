@@ -1,4 +1,4 @@
-/* NetHack 3.6	options.c	$NHDT-Date: 1554591224 2019/04/06 22:53:44 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.363 $ */
+/* NetHack 3.6	options.c	$NHDT-Date: 1561682566 2019/06/28 00:42:46 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.367 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2008. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -692,7 +692,7 @@ initoptions()
 void
 initoptions_init()
 {
-#if defined(UNIX) || defined(VMS)
+#if (defined(UNIX) || defined(VMS)) && defined(TTY_GRAPHICS)
     char *opts;
 #endif
     int i;
@@ -4022,7 +4022,6 @@ boolean tinitial, tfrom_file;
             }
 
             op = string_for_opt(opts, TRUE);
-
             if (op) {
                 if (negated) {
                     config_error_add(
@@ -4038,6 +4037,11 @@ boolean tinitial, tfrom_file;
                     config_error_add("Illegal parameter for a boolean");
                     return FALSE;
                 }
+            }
+            if (iflags.debug_fuzzer && !initial) {
+                /* don't randomly toggle this/these */
+                if (boolopt[i].addr == &flags.silent)
+                    return TRUE;
             }
 
             *(boolopt[i].addr) = !negated;
@@ -4076,12 +4080,12 @@ boolean tinitial, tfrom_file;
                 if (VIA_WINDOWPORT())
                     status_initialize(REASSESS_ONLY);
                 context.botl = TRUE;
-            } else if (boolopt[i].addr == &flags.invlet_constant) {
-                if (flags.invlet_constant) {
+            } else if (boolopt[i].addr == &flags.invlet_constant
+                       || boolopt[i].addr == &flags.sortpack) {
+                if (!flags.invlet_constant)
                     reassign();
-                    if (iflags.perm_invent)
-                        need_redraw = TRUE;
-                }
+                if (iflags.perm_invent)
+                    update_inventory();
             } else if (boolopt[i].addr == &flags.lit_corridor
                        || boolopt[i].addr == &flags.dark_room) {
                 /*
@@ -4305,36 +4309,55 @@ boolean dolist;
             putstr(win, 0, buf);
         }
     } else {
+        const char
+            fmt3[] = " %-12s       %-2s        %-2s  %s",
+            fmt2[] = " %-12s       %-2s        %-2s",
+            fmt1[] = " %10s  %-2s  %s",
+            fmt0[] = " %14s  %s";
+
         putstr(win, 0, "");
-        putstr(win, 0, "          Page    All items");
-        Sprintf(buf, "  Select   %s       %s",
+        putstr(win, 0, "Selection:       On page   Full menu");
+        Sprintf(buf, fmt2, "Select all",
                 visctrl(get_menu_cmd_key(MENU_SELECT_PAGE)),
                 visctrl(get_menu_cmd_key(MENU_SELECT_ALL)));
         putstr(win, 0, buf);
-        Sprintf(buf, "Deselect   %s       %s",
+        Sprintf(buf, fmt2, "Deselect all",
                 visctrl(get_menu_cmd_key(MENU_UNSELECT_PAGE)),
                 visctrl(get_menu_cmd_key(MENU_UNSELECT_ALL)));
         putstr(win, 0, buf);
-        Sprintf(buf, "  Invert   %s       %s",
+        Sprintf(buf, fmt2, "Invert all",
                 visctrl(get_menu_cmd_key(MENU_INVERT_PAGE)),
                 visctrl(get_menu_cmd_key(MENU_INVERT_ALL)));
         putstr(win, 0, buf);
-        putstr(win, 0, "");
-        Sprintf(buf, "   Go to   %s   Next page",
-                visctrl(get_menu_cmd_key(MENU_NEXT_PAGE)));
-        putstr(win, 0, buf);
-        Sprintf(buf, "           %s   Previous page",
-                visctrl(get_menu_cmd_key(MENU_PREVIOUS_PAGE)));
-        putstr(win, 0, buf);
-        Sprintf(buf, "           %s   First page",
-                visctrl(get_menu_cmd_key(MENU_FIRST_PAGE)));
-        putstr(win, 0, buf);
-        Sprintf(buf, "           %s   Last page",
-                visctrl(get_menu_cmd_key(MENU_LAST_PAGE)));
+        Sprintf(buf, fmt3, "Text match", "",
+                visctrl(get_menu_cmd_key(MENU_SEARCH)),
+                "Search and toggle matching entries");
         putstr(win, 0, buf);
         putstr(win, 0, "");
-        Sprintf(buf, "           %s   Search and toggle matching entries",
-                visctrl(get_menu_cmd_key(MENU_SEARCH)));
+        putstr(win, 0, "Navigation:");
+        Sprintf(buf, fmt1, "Go to     ",
+                visctrl(get_menu_cmd_key(MENU_NEXT_PAGE)),
+                "Next page");
+        putstr(win, 0, buf);
+        Sprintf(buf, fmt1, "",
+                visctrl(get_menu_cmd_key(MENU_PREVIOUS_PAGE)),
+                "Previous page");
+        putstr(win, 0, buf);
+        Sprintf(buf, fmt1, "",
+                visctrl(get_menu_cmd_key(MENU_FIRST_PAGE)),
+                "First page");
+        putstr(win, 0, buf);
+        Sprintf(buf, fmt1, "",
+                visctrl(get_menu_cmd_key(MENU_LAST_PAGE)),
+                "Last page");
+        putstr(win, 0, buf);
+        Sprintf(buf, fmt0, "SPACE", "Next page, if any, otherwise RETURN");
+        putstr(win, 0, buf);
+        Sprintf(buf, fmt0, "RETURN/ENTER",
+                "Finish menu with any selection(s) made");
+        putstr(win, 0, buf);
+        Sprintf(buf, fmt0, "ESCAPE",
+                "Cancel menu without selecting anything");
         putstr(win, 0, buf);
     }
 }

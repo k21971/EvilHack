@@ -9,6 +9,10 @@
 #include "cursmesg.h"
 #include <ctype.h>
 
+/* defined in sys/<foo>/<foo>tty.c or cursmain.c as last resort;
+   set up by curses_init_nhwindows() */
+extern char erase_char, kill_char;
+
 /*
  * Note: references to "More>>" mean ">>", the curses rendition of "--More--".
  */
@@ -554,12 +558,13 @@ curses_message_win_getline(const char *prompt, char *answer, int buffer)
            if that is called for; find where the end of the prompt will
            be without the answer appended */
         while (ltmp2 > 0) {
-            ltmp2 -= ltmp;
+            if ((ltmp2 -= ltmp) < 0) {
+                ltmp = -ltmp2;
+                break;
+            }
             promptline -= 1;
-            ltmp = (int) strlen(linestarts[promptline]);
+            ltmp = linestarts[promptline + 1] - linestarts[promptline];
         }
-        if (ltmp2 < 0)
-            ltmp = -ltmp2;
         promptx = ltmp + border_space;
     }
 #endif
@@ -599,19 +604,19 @@ curses_message_win_getline(const char *prompt, char *answer, int buffer)
 #else
         ch = getch();
 #endif
-#if 0   /* [erase_char (delete one character) and kill_char (delete all
-         * characters) are from tty and not currently set up for curses] */
-        if (ch == erase_char) {
+        curs_set(0);
+
+        if (erase_char && ch == (int) (uchar) erase_char) {
             ch = '\177'; /* match switch-case below */
 
         /* honor kill_char if it's ^U or similar, but not if it's '@' */
-        } else if (ch == kill_char && (ch < ' ' || ch >= '\177')) { /*ASCII*/
+        } else if (kill_char && ch == (int) (uchar) kill_char
+                   && (ch < ' ' || ch >= '\177')) { /*ASCII*/
             if (len == 0) /* nothing to kill; just start over */
                 continue;
             ch = '\033'; /* get rid of all current input, then start over */
         }
-#endif
-        curs_set(0);
+
         switch (ch) {
         case ERR: /* should not happen */
             *answer = '\0';
@@ -890,6 +895,9 @@ boolean restoring_msghist;
     static boolean initd = FALSE;
     static int stash_count;
     static nhprev_mesg *stash_head = 0;
+#ifdef DUMPLOG
+    extern unsigned saved_pline_index; /* pline.c */
+#endif
 
     if (restoring_msghist && !initd) {
         /* hide any messages we've gathered since starting current session
@@ -899,12 +907,19 @@ boolean restoring_msghist;
         stash_head = first_mesg, first_mesg = (nhprev_mesg *) 0;
         last_mesg = (nhprev_mesg *) 0; /* no need to remember the tail */
         initd = TRUE;
+#ifdef DUMPLOG
+        /* this suffices; there's no need to scrub saved_pline[] pointers */
+        saved_pline_index = 0;
+#endif
     }
 
     if (msg) {
         mesg_add_line(msg);
         /* treat all saved and restored messages as turn #1 */
         last_mesg->turn = 1L;
+#ifdef DUMPLOG
+        dumplogmsg(last_mesg->str);
+#endif
     } else if (stash_count) {
         nhprev_mesg *mesg;
         long mesg_turn;
@@ -924,6 +939,9 @@ boolean restoring_msghist;
             mesg_add_line(mesg->str);
             /* added line became new tail */
             last_mesg->turn = mesg_turn;
+#ifdef DUMPLOG
+            dumplogmsg(mesg->str);
+#endif
             free((genericptr_t) mesg->str);
             free((genericptr_t) mesg);
         }
