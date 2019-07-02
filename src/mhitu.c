@@ -1647,41 +1647,39 @@ register struct attack *mattk;
                 }
 		incr_itimeout(&HInvis, d(6, 100));	  /* In multiple senses of 'vanish' :) */
 	    } else {
-                if (uncancelled) {
-                    if (flags.verbose)
-                        Your("position suddenly seems %suncertain!",
-                             (Teleport_control && !Stunned && !unconscious()) ? ""
-                             : "very ");
-                    tele();
-                    /* 3.6.2:  make sure damage isn't fatal; previously, it
-                       was possible to be teleported and then drop dead at
-                       the destination when QM's 1d4 damage gets applied below;
-                       even though that wasn't "wrong", it seemed strange,
-                       particularly if the teleportation had been controlled
-                       [applying the damage first and not teleporting if fatal
-                       is another alternative but it has its own complications] */
-                    if ((Half_physical_damage ? (dmg - 1) / 2 : dmg)
-                        >= (tmphp = (Upolyd ? u.mh : u.uhp))) {
-                        dmg = tmphp - 1;
-                        if (Half_physical_damage)
-                            dmg *= 2; /* doesn't actually increase damage; we only
-                                       * get here if half the original damage would
-                                       * would have been fatal, so double reduced
-                                       * damage will be less than original damage */
-                        if (dmg < 1) { /* implies (tmphp <= 1) */
-                            dmg = 1;
-                            /* this might increase current HP beyond maximum HP but
-                               it will be immediately reduced below, so that should
-                               be indistinguishable from zero damage; we don't drop
-                               damage all the way to zero because that inhibits any
-                               passive counterattack if poly'd hero has one */
-                            if (Upolyd && u.mh == 1)
-                                ++u.mh;
-                            else if (!Upolyd && u.uhp == 1)
-                                ++u.uhp;
-                            /* [don't set context.botl here] */
-                        }
-                    }
+                if (flags.verbose)
+                    Your("position suddenly seems %suncertain!",
+                         (Teleport_control && !Stunned && !unconscious()) ? ""
+                         : "very ");
+            }
+            tele();
+            /* 3.6.2:  make sure damage isn't fatal; previously, it
+               was possible to be teleported and then drop dead at
+               the destination when QM's 1d4 damage gets applied below;
+               even though that wasn't "wrong", it seemed strange,
+               particularly if the teleportation had been controlled
+               [applying the damage first and not teleporting if fatal
+               is another alternative but it has its own complications] */
+            if ((Half_physical_damage ? (dmg - 1) / 2 : dmg)
+                >= (tmphp = (Upolyd ? u.mh : u.uhp))) {
+                dmg = tmphp - 1;
+                if (Half_physical_damage)
+                    dmg *= 2; /* doesn't actually increase damage; we only
+                               * get here if half the original damage would
+                               * would have been fatal, so double reduced
+                               * damage will be less than original damage */
+                if (dmg < 1) { /* implies (tmphp <= 1) */
+                    dmg = 1;
+                    /* this might increase current HP beyond maximum HP but
+                       it will be immediately reduced below, so that should
+                       be indistinguishable from zero damage; we don't drop
+                       damage all the way to zero because that inhibits any
+                       passive counterattack if poly'd hero has one */
+                    if (Upolyd && u.mh == 1)
+                        ++u.mh;
+                    else if (!Upolyd && u.uhp == 1)
+                        ++u.uhp;
+                    /* [don't set context.botl here] */
                 }
             }
         }
