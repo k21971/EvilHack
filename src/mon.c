@@ -1389,11 +1389,12 @@ register const char *str;
 
     if (Is_box(otmp) || otmp->otyp == ICE_BOX) {
     	if (otmp->olocked) {
-	    if ((nohands(mtmp->data) || verysmall(mtmp->data) ||
-		 (!m_carrying(mtmp, SKELETON_KEY) &&
-		  !m_carrying(mtmp, LOCK_PICK) &&
-		  !m_carrying(mtmp, CREDIT_CARD))) &&
-	      !mtmp->iswiz && !is_rider(mtmp->data))
+	    if ((nohands(mtmp->data) || verysmall(mtmp->data)
+                || otmp->otyp == IRON_SAFE
+		|| (!m_carrying(mtmp, SKELETON_KEY)
+		&& !m_carrying(mtmp, LOCK_PICK)
+		&& !m_carrying(mtmp, CREDIT_CARD)))
+	        && !mtmp->iswiz && !is_rider(mtmp->data))
 	        continue;
 	    waslocked = TRUE;
 	}
@@ -1402,7 +1403,7 @@ register const char *str;
 		pline("%s %s %s%s", Monnam(mtmp),
 		      waslocked ? "unlocks" : "carefully opens",
 		      (distu(mtmp->mx, mtmp->my) <= 5) ?
-			doname(otmp) : distant_name(otmp, doname),
+		      doname(otmp) : distant_name(otmp, doname),
 		      waslocked ? "." : "...");
 		otmp->olocked = 0;
 		(void) chest_trap(mtmp, otmp, FINGER, FALSE);
@@ -1449,7 +1450,8 @@ register const char *str;
 		    pickedup = TRUE;
 	    }
 	}
-	if (pickedup) return TRUE;
+	if (pickedup)
+            return TRUE;
     }
 
         /* Nymphs take everything.  Most monsters don't pick up corpses. */
