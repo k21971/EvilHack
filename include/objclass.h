@@ -182,10 +182,11 @@ enum obj_class_types {
 #define ALL_CLASSES (MAXOCLASSES + 2) /* input to getobj().                 */
 #define ALLOW_NONE  (MAXOCLASSES + 3)
 
-#define BURNING_OIL  (MAXOCLASSES + 1) /* Can be used as input to explode.          */
-#define MON_EXPLODE  (MAXOCLASSES + 2) /* Exploding monster (e.g. gas spore)        */
-#define TRAPPED_DOOR (MAXOCLASSES + 3) /* Exploding booby-trapped doors (GruntHack) */
-#define MON_CASTBALL (MAXOCLASSES + 4) /* For monsters casting area-effect spells   */
+#define BURNING_OIL   (MAXOCLASSES + 1) /* Can be used as input to explode.          */
+#define MON_EXPLODE   (MAXOCLASSES + 2) /* Exploding monster (e.g. gas spore)        */
+#define TRAPPED_DOOR  (MAXOCLASSES + 3) /* Exploding booby-trapped doors (GruntHack) */
+#define MON_CASTBALL  (MAXOCLASSES + 4) /* For monsters casting area-effect spells   */
+#define FORGE_EXPLODE (MAXOCLASSES + 5) /* Exploding forges                          */
 
 #if 0 /* moved to decl.h so that makedefs.c won't see them */
 extern const struct class_sym

@@ -623,7 +623,8 @@ int x, y;
     levl[x][y].doormask = 0;
     newsym(x, y);
     level.flags.nforges--;
-    explode(u.ux, u.uy, 11, rnd(30), TOOL_CLASS, EXPL_FIERY);
+    explode(u.ux, u.uy, AD_FIRE - 1, resist_reduce(rnd(30), FIRE_RES),
+            FORGE_EXPLODE, EXPL_FIERY);
 }
 
 void

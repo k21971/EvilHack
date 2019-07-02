@@ -47,7 +47,7 @@ int expltype;
     char hallu_buf[BUFSZ], killr_buf[BUFSZ];
     short exploding_wand_typ = 0;
 
-    if (olet == TRAPPED_DOOR) { /* exploding door */
+    if (olet == TRAPPED_DOOR || olet == FORGE_EXPLODE) { /* exploding doors and forges */
         exploding_wand_typ = type;
     }
 
@@ -134,7 +134,8 @@ int expltype;
         case 1:
             str = (olet == BURNING_OIL) ? "burning oil"
                      : (olet == SCROLL_CLASS) ? "tower of flame"
-                          : (olet == TRAPPED_DOOR) ? "explosion" : "fireball";
+                          : (olet == TRAPPED_DOOR) ? "explosion"
+                               : (olet == FORGE_EXPLODE) ? "exploding forge" : "fireball";
             /* fire damage, not physical damage */
             adtyp = AD_FIRE;
             break;
@@ -545,13 +546,16 @@ int expltype;
                     else if (str != killer.name && str != hallu_buf)
                         Strcpy(killer.name, str);
                     killer.format = KILLED_BY_AN;
+                } else if (adtyp == AD_FIRE && olet == TRAPPED_DOOR) {
+                    killer.format = KILLED_BY_AN;
+                    Strcpy(killer.name, str);
+                } else if (adtyp == AD_FIRE && olet == FORGE_EXPLODE) {
+                    killer.format = KILLED_BY_AN;
+                    Strcpy(killer.name, str);
                 } else if (type >= 0 && olet != SCROLL_CLASS) {
                     killer.format = NO_KILLER_PREFIX;
                     Sprintf(killer.name, "caught %sself in %s own %s", uhim(),
                             uhis(), str);
-                } else if (adtyp == AD_FIRE && olet == TRAPPED_DOOR) {
-                    killer.format = KILLED_BY_AN;
-                    Strcpy(killer.name, str);
                 } else {
                     killer.format = (!strcmpi(str, "tower of flame")
                                      || !strcmpi(str, "fireball"))
