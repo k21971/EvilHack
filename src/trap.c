@@ -1646,18 +1646,18 @@ unsigned trflags;
 
     case SPEAR_TRAP:
         feeltrap(trap);
-        pline("A spear stabs up from a hole in the ground, %s %s!",
-              rn2(2) ? "piercing your" : "stabbing you in the",
-              body_part(LEG));
+        pline("A spear shoots up from a hole in the ground at you,");
         if (thick_skinned(youmonst.data)) {
-            pline("But it breaks off against your body.");
+            pline("but it breaks off against your thick hide.");
             deltrap(trap);
-        } else if (Levitation) {
-            pline("The spear isn't long enough to reach you.");
         } else if (unsolid(youmonst.data)) {
-            pline("It passes right through you!");
+            pline("but it passes right through you!");
+        } else if (Levitation || Flying) {
+            pline("but it isn't long enough to reach you.");
         } else {
-            pline("Ouch!  That hurts!");
+            pline("%s %s!  Ouch, that hurts!",
+                  rn2(2) ? "piercing your" : "stabbing you in the",
+              body_part(LEG));
             set_wounded_legs(rn2(2) ? RIGHT_SIDE : LEFT_SIDE, rn1(10, 10));
             exercise(A_DEX, FALSE);
             losehp(Maybe_Half_Phys(rnd(10) + 10), "sharpened bamboo stick", KILLED_BY_AN);
