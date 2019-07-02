@@ -1497,9 +1497,9 @@ boolean reflection_skip;
 {
     register struct obj *obj;
     struct obj *helmet = which_armor(mtmp, W_ARMH);
-    struct obj *charge_scroll = (struct obj *)0;
+    struct obj *charge_scroll = (struct obj *) 0;
 
-#define nomore(x) if (m.has_offense==x) continue;
+#define nomore(x) if (m.has_offense == x) continue;
     for (obj=start; obj; obj=obj->nobj) {
 	if (Is_container(obj)) {
 	    (void) find_offensive_recurse(mtmp, obj->cobj, target,
@@ -1511,7 +1511,7 @@ boolean reflection_skip;
             nomore(MUSE_WAN_DEATH);
 	    if (obj->otyp == WAN_DEATH) {
 		if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR)
-                    && (!m_seenres(mtmp,M_SEEN_REFL)
+                    && (!m_seenres(mtmp, M_SEEN_REFL)
                     || nonliving(mtmp->data) || mtmp->data->msound == MS_LEADER)) {
 	            m.offensive = obj;
 	            m.has_offense = MUSE_WAN_DEATH;
@@ -2000,19 +2000,20 @@ struct monst *mtmp;
     switch (m.has_offense) {
     case MUSE_SCR_CHARGING:
 	if (!m.tocharge) {
-		impossible("Attempting to charge nothing?");
-		return 0;
+	    impossible("Attempting to charge nothing?");
+	    return 0;
 	}
 	mreadmsg(mtmp, otmp);
-	if (oseen) makeknown(otmp->otyp);
+	if (oseen)
+            makeknown(otmp->otyp);
 	if (mtmp->mconf) {
-		if (attacktype(mtmp->data, AT_MAGC))
-			mtmp->mspec_used = 0;
-		if (canseemon(mtmp))
-			pline("%s looks charged up!", Monnam(mtmp));
+	    if (attacktype(mtmp->data, AT_MAGC))
+		mtmp->mspec_used = 0;
+	    if (canseemon(mtmp))
+		pline("%s looks charged up!", Monnam(mtmp));
 	} else {
-		recharge(m.tocharge, (otmp->cursed) ? -1 :
-			             (otmp->blessed) ? 1 : 0, mtmp);
+	    recharge(m.tocharge, (otmp->cursed) ? -1 :
+	             (otmp->blessed) ? 1 : 0, mtmp);
 	}
 	m_useup(mtmp, otmp);
 	return (mtmp->mhp <= 0) ? 1 : 2;
