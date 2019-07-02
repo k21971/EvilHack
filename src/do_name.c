@@ -1335,8 +1335,10 @@ const char *name;
         case ART_DIRGE:
         case ART_FIRE_BRAND:
         case ART_FROST_BRAND:
-        case ART_SWORD_OF_BHELEU:
             set_material(obj, MITHRIL);
+            break;
+        case ART_SWORD_OF_BHELEU:
+            set_material(obj, GEMSTONE);
             break;
         case ART_YENDORIAN_EXPRESS_CARD:
             set_material(obj, PLATINUM);
