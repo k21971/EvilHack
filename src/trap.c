@@ -1662,6 +1662,7 @@ unsigned trflags;
             exercise(A_DEX, FALSE);
             losehp(Maybe_Half_Phys(rnd(10) + 10), "sharpened bamboo stick", KILLED_BY_AN);
         }
+        (void) steedintrap(trap, (struct obj *) 0);
         break;
 
     case MAGIC_PORTAL:
@@ -1744,9 +1745,18 @@ struct obj *otmp;
         steedhit = TRUE;
         break;
     case SPEAR_TRAP:
-	trapkilled = thitm(0, steed, (struct obj*) 0, rnd(10) + 10, FALSE);
-	steedhit = TRUE;
-	break;
+        pline("The spear stabs %s also!", mon_nam(steed));
+        if (thick_skinned(steed->data)) {
+            pline("But it breaks off against %s thick hide.", s_suffix(mon_nam(steed)));
+            deltrap(trap);
+        } else if (is_flyer(steed->data)) {
+            pline("But it isn't long enough to reach %s.", mon_nam(steed));
+            break;
+        } else {
+	    trapkilled = thitm(0, steed, (struct obj*) 0, rnd(10) + 10, FALSE);
+	    steedhit = TRUE;
+        }
+        break;
     case LANDMINE:
         trapkilled = thitm(0, steed, (struct obj *) 0, rnd(16), FALSE);
         steedhit = TRUE;
