@@ -1727,22 +1727,23 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         goto physical;
     case AD_BHED:
         if (!rn2(15) || mdef->data->mlet == S_JABBERWOCK) {
-                if (!has_head(mdef->data)) {
-                        pline("Somehow, you miss %s wildly.", mon_nam(mdef));
-                        tmp = 0;
-                        break;
-                }
-                if (noncorporeal(mdef->data) || amorphous(mdef->data)) {
-                        pline("You slice through %s %s.",
-                                        s_suffix(mon_nam(mdef)),
-                                        mbodypart(mdef,NECK));
-                        goto physical;
-                }
-                pline("You %s %s!",
-                                rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
-                xkilled(mdef,0);
+            if (!has_head(mdef->data)) {
+                pline("Somehow, you miss %s wildly.", mon_nam(mdef));
                 tmp = 0;
                 break;
+            }
+            if (noncorporeal(mdef->data) || amorphous(mdef->data)) {
+                pline("You slice through %s %s.",
+                      s_suffix(mon_nam(mdef)), mbodypart(mdef,NECK));
+                goto physical;
+            }
+            pline("You %s %s!",
+                  rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
+            if (is_zombie(mdef->data) || is_troll(mdef->data))
+                mdef->mcan = 1; /* no head? no reviving */
+            xkilled(mdef, 0);
+            tmp = 0;
+            break;
         }
     case AD_WERE: /* no special effect on monsters */
     case AD_HEAL: /* likewise */

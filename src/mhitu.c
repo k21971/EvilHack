@@ -1940,23 +1940,24 @@ do_rust:
         break;
     case AD_BHED:
         if ((!rn2(15) || youmonst.data->mlet == S_JABBERWOCK) && !mtmp->mcan) {
-                if (!has_head(youmonst.data)) {
-                        pline("Somehow, %s misses you wildly.", mon_nam(mtmp));
-                        dmg = 0;
-                        break;
-                }
-                if (noncorporeal(youmonst.data) || amorphous(youmonst.data)) {
-                        pline("%s slices through your %s.",
-                                        Monnam(mtmp), body_part(NECK));
-                        break;
-                }
-                pline("%s %ss you!", Monnam(mtmp),
-                                rn2(2) ? "behead" : "decapitate");
-                if (Upolyd) rehumanize();
-                else done_in_by(mtmp, DIED);
+            if (!has_head(youmonst.data)) {
+                pline("Somehow, %s misses you wildly.", mon_nam(mtmp));
+                dmg = 0;
+                break;
+            }
+            if (noncorporeal(youmonst.data) || amorphous(youmonst.data)) {
+                pline("%s slices through your %s.",
+                      Monnam(mtmp), body_part(NECK));
+                break;
+            }
+            pline("%s %ss you!", Monnam(mtmp),
+                  rn2(2) ? "behead" : "decapitate");
+            if (Upolyd)
+                rehumanize();
+            else done_in_by(mtmp, DIED);
                 dmg = 0;
         }
-                else hitmsg(mtmp, mattk);
+        else hitmsg(mtmp, mattk);
         break;
     default:
         dmg = 0;

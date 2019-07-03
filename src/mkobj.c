@@ -1684,6 +1684,9 @@ unsigned corpstatflags;
                                          || special_corpse(otmp->corpsenm)
                                          || otmp->zombie_corpse)) {
                 obj_stop_timers(otmp);
+                if (mtmp && (is_zombie(mtmp->data) || is_troll(mtmp->data))
+                    && mtmp->mcan == 1)
+                    otmp->norevive = 1;
                 start_corpse_timeout(otmp);
             }
         }

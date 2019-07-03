@@ -1560,6 +1560,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                       mon_nam(mdef));
                 if (Hallucination && !flags.female)
                     pline("Good job Henry, but that wasn't Anne.");
+		if (is_zombie(mdef->data) || is_troll(mdef->data))
+		    mdef->mcan = 1; /* kinda hard to revive if you've lost your head... */
                 otmp->dknown = TRUE;
                 return TRUE;
             } else {
