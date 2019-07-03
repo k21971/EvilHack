@@ -108,7 +108,7 @@ static const struct innate {
   hob_abil[] = { { 1, &HFood_sense, "", "" },
                  { 1, &HHunger, "", "" },
                  { 4, &(HFast), "quick", "slow" },
-                 { 10, &(HSearching), "perceptive", "" },
+                 { 7, &(HSearching), "perceptive", "" },
                  { 0, 0, 0, 0 } },
 
   cen_abil[] = { { 1, &(HFast), "", "" },
