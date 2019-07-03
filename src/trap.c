@@ -961,11 +961,21 @@ boolean msg;
     }
 }
 
+static const char *const spearmsgs[] = {
+    "a spear trap",
+    "a sharpened bamboo stick",
+    "a tapered wooden spike",
+    "a narrow pointy stake",
+    "becoming a doner kebab",
+    "imitating a meat popsicle"
+};
+
 void
 dotrap(trap, trflags)
 register struct trap *trap;
 unsigned trflags;
 {
+    char buf[BUFSZ];
     register int ttype = trap->ttyp;
     struct obj *otmp;
     boolean already_seen = trap->tseen,
@@ -1646,21 +1656,22 @@ unsigned trflags;
 
     case SPEAR_TRAP:
         feeltrap(trap);
-        pline("A spear shoots up from a hole in the ground at you,");
+        pline("A spear shoots up from a hole in the ground at you!");
         if (thick_skinned(youmonst.data)) {
-            pline("but it breaks off against your thick hide.");
+            pline("But it breaks off against your thick hide.");
             deltrap(trap);
         } else if (unsolid(youmonst.data)) {
-            pline("but it passes right through you!");
+            pline("But it passes right through you!");
         } else if (Levitation || Flying) {
-            pline("but it isn't long enough to reach you.");
+            pline("But it isn't long enough to reach you.");
         } else {
-            pline("%s %s!  Ouch, that hurts!",
-                  rn2(2) ? "piercing your" : "stabbing you in the",
+            pline("It %s %s!  Ouch, that hurts!",
+                  rn2(2) ? "pierces your" : "stabs you in the",
               body_part(LEG));
             set_wounded_legs(rn2(2) ? RIGHT_SIDE : LEFT_SIDE, rn1(10, 10));
             exercise(A_DEX, FALSE);
-            losehp(Maybe_Half_Phys(rnd(10) + 10), "sharpened bamboo stick", KILLED_BY_AN);
+            Sprintf(buf, "%s", spearmsgs[rn2(SIZE(spearmsgs))]);
+            losehp(Maybe_Half_Phys(rnd(10) + 10), buf, KILLED_BY);
         }
         (void) steedintrap(trap, (struct obj *) 0);
         break;
