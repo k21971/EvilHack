@@ -249,8 +249,26 @@ void
 setuswapwep(obj)
 register struct obj *obj;
 {
+    struct obj *olduswap = uswapwep;
+
+    if (obj == uswapwep)
+        return;
+
     setworn(obj, W_SWAPWEP);
-    return;
+    if (uswapwep == obj && artifact_light(olduswap) && olduswap->lamplit) {
+        end_burn(olduswap, FALSE);
+        if (!Blind)
+            pline("%s shining.", Tobjnam(olduswap, "stop"));
+    }
+    if (uswapwep == obj
+        && ((uswapwep && uswapwep->oartifact == ART_OGRESMASHER)
+            || (olduswap && olduswap->oartifact == ART_OGRESMASHER)))
+        context.botl = 1;
+
+    if (uswapwep == obj
+        && ((uswapwep && uswapwep->oartifact == ART_GIANTSLAYER)
+            || (olduswap && olduswap->oartifact == ART_GIANTSLAYER)))
+        context.botl = 1;
 }
 
 /*** Commands to change particular slot(s) ***/
@@ -637,7 +655,7 @@ can_twoweapon()
              && (is_lawful_artifact(uswapwep) && is_chaotic_artifact(uwep))
                  || (is_chaotic_artifact(uswapwep) && is_lawful_artifact(uwep)))
         pline("%s being held second to an opposite aligned weapon!",
-              Yobjnam2(uswapwep, "resist"));
+              Yobjnam2(uwep, "resist"));
     else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
         /* [Note: NOT_WEAPON() check prevents ever getting here...] */
         ; /* must be life-saved to reach here; return FALSE */
@@ -671,7 +689,7 @@ dotwoweapon()
         You("switch to your primary weapon.");
         tmp = uswapwep;
         u.twoweap = 0;
-	setuswapwep((struct obj *)0);
+	setuswapwep((struct obj *) 0);
 	setuswapwep(tmp);
         update_inventory();
         return 0;

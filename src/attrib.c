@@ -1110,8 +1110,9 @@ int x;
     register int tmp = (u.abon.a[x] + u.atemp.a[x] + u.acurr.a[x]);
 
     if (x == A_STR) {
-        if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER ||
-            uwep && uwep->oartifact == ART_GIANTSLAYER))
+        if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER
+            || uwep && uwep->oartifact == ART_GIANTSLAYER
+            || uswapwep && uswapwep->oartifact == ART_GIANTSLAYER))
             return (schar) 125;
         else
 #ifdef WIN32_BUG
@@ -1125,7 +1126,8 @@ int x;
                 || u.umonnum == PM_INCUBUS))
             return (schar) 18;
     } else if (x == A_CON) {
-        if (uwep && uwep->oartifact == ART_OGRESMASHER)
+        if (uwep && uwep->oartifact == ART_OGRESMASHER
+            || uswapwep && uswapwep->oartifact == ART_OGRESMASHER)
             return (schar) 25;
     } else if (x == A_INT || x == A_WIS) {
         /* yes, this may raise int/wis if player is sufficiently

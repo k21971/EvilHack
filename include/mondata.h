@@ -139,8 +139,8 @@
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
-#define is_ogre(ptr) ((ptr)->mlet == S_OGRE)
-#define is_troll(ptr) ((ptr)->mlet == S_TROLL)
+#define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
+#define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_not_zombie(ptr) ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON])
 #define is_zombie(ptr) ((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr))
 #define is_bones_monster(ptr) ((ptr) == &mons[PM_GHOST] || (ptr) == &mons[PM_GHOUL]            \

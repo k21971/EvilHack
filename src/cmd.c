@@ -2161,11 +2161,15 @@ int mode, final, attrindx;
             hide_innate_value = TRUE;
         if (uwep && uwep->oartifact == ART_GIANTSLAYER && uwep->cursed)
             hide_innate_value = TRUE;
+        if (uswapwep && uswapwep->oartifact == ART_GIANTSLAYER && uswapwep->cursed)
+            hide_innate_value = TRUE;
         break;
     case A_DEX:
         break;
     case A_CON:
         if (uwep && uwep->oartifact == ART_OGRESMASHER && uwep->cursed)
+            hide_innate_value = TRUE;
+        if (uswapwep && uswapwep->oartifact == ART_OGRESMASHER && uswapwep->cursed)
             hide_innate_value = TRUE;
         break;
     case A_INT:
@@ -2648,6 +2652,8 @@ int final;
                 : (context.warntype.obj & MH_GIANT) ? "giants"
                 : (context.warntype.obj & MH_WERE) ? "werecreatures"
                 : (context.warntype.obj & MH_DRAGON) ? "dragons"
+                : (context.warntype.obj & MH_OGRE) ? "ogres"
+                : (context.warntype.obj & MH_TROLL) ? "trolls"
                 : (context.warntype.obj & MH_DEMON) ? "demons" : something);
         you_are(buf, from_what(WARN_OF_MON));
     }
@@ -2670,9 +2676,13 @@ int final;
                                                         ? "werecreatures"
                                                         : (context.warntype.polyd & MH_DRAGON)
                                                               ? "dragons"
-                                                              : (context.warntype.polyd & MH_DEMON)
-                                                                    ? "demons"
-                                                                    : "certain monsters");
+                                                              : (context.warntype.polyd & MH_OGRE)
+                                                                    ? "ogres"
+                                                                    : (context.warntype.polyd & MH_TROLL)
+                                                                          ? "trolls"
+                                                                          : (context.warntype.polyd & MH_DEMON)
+                                                                                ? "demons"
+                                                                                : "certain monsters");
         you_are(buf, "");
     }
     if (Warn_of_mon && context.warntype.speciesidx >= LOW_PM) {

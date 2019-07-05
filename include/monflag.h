@@ -175,12 +175,14 @@
 #define MH_GIANT 0x00000020L
 #define MH_HOBBIT 0x00000040L
 #define MH_CENTAUR 0x00000080L
-/* Not used as a player race */
+/* Flags below not used as a player race */
 #define MH_UNDEAD 0x00000100L
 #define MH_WERE 0x00000200L
 #define MH_DEMON 0x00000400L
 #define MH_DRAGON 0x00000800L
 #define MH_ANGEL 0x00001000L
+#define MH_OGRE 0x00002000L
+#define MH_TROLL 0x00004000L
 
 #define MH_ANY 0x80000000L
 

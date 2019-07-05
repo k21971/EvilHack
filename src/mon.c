@@ -2578,7 +2578,8 @@ boolean was_swallowed; /* digestion */
     }
 
     /* Trolls don't leave a corpse when the player is wielding Trollsbane */
-    if (mdat->mlet == S_TROLL && uwep && uwep->oartifact == ART_TROLLSBANE) {
+    if (mdat->mlet == S_TROLL && (uwep && uwep->oartifact == ART_TROLLSBANE
+        || uswapwep && uswapwep->oartifact == ART_TROLLSBANE)) {
 	if (cansee(mon->mx, mon->my)) {
 	    pline("%s corpse flares brightly and burns to ashes.", s_suffix(Monnam(mon)));
 	return FALSE;
@@ -2586,7 +2587,8 @@ boolean was_swallowed; /* digestion */
     }
 
     /* Zombies don't leave a corpse when the player is wielding Sunsword */
-    if (mdat->mlet == S_ZOMBIE && uwep && uwep->oartifact == ART_SUNSWORD) {
+    if (mdat->mlet == S_ZOMBIE && (uwep && uwep->oartifact == ART_SUNSWORD
+        || uswapwep && uswapwep->oartifact == ART_SUNSWORD)) {
         if (cansee(mon->mx, mon->my)) {
             pline("%s corpse dissolves into nothingess.", s_suffix(Monnam(mon)));
         return FALSE;
