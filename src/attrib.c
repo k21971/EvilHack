@@ -1112,7 +1112,7 @@ int x;
     if (x == A_STR) {
         if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER
             || uwep && uwep->oartifact == ART_GIANTSLAYER
-            || uswapwep && uswapwep->oartifact == ART_GIANTSLAYER))
+            || u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
             return (schar) 125;
         else
 #ifdef WIN32_BUG
@@ -1127,7 +1127,7 @@ int x;
             return (schar) 18;
     } else if (x == A_CON) {
         if (uwep && uwep->oartifact == ART_OGRESMASHER
-            || uswapwep && uswapwep->oartifact == ART_OGRESMASHER)
+            || u.twoweap && uswapwep->oartifact == ART_OGRESMASHER)
             return (schar) 25;
     } else if (x == A_INT || x == A_WIS) {
         /* yes, this may raise int/wis if player is sufficiently

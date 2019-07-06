@@ -2161,7 +2161,7 @@ int mode, final, attrindx;
             hide_innate_value = TRUE;
         if (uwep && uwep->oartifact == ART_GIANTSLAYER && uwep->cursed)
             hide_innate_value = TRUE;
-        if (uswapwep && uswapwep->oartifact == ART_GIANTSLAYER && uswapwep->cursed)
+        if (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER && uswapwep->cursed)
             hide_innate_value = TRUE;
         break;
     case A_DEX:
@@ -2169,7 +2169,7 @@ int mode, final, attrindx;
     case A_CON:
         if (uwep && uwep->oartifact == ART_OGRESMASHER && uwep->cursed)
             hide_innate_value = TRUE;
-        if (uswapwep && uswapwep->oartifact == ART_OGRESMASHER && uswapwep->cursed)
+        if (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER && uswapwep->cursed)
             hide_innate_value = TRUE;
         break;
     case A_INT:

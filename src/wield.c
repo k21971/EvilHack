@@ -261,13 +261,13 @@ register struct obj *obj;
             pline("%s shining.", Tobjnam(olduswap, "stop"));
     }
     if (uswapwep == obj
-        && ((uswapwep && uswapwep->oartifact == ART_OGRESMASHER)
-            || (olduswap && olduswap->oartifact == ART_OGRESMASHER)))
+        && ((u.twoweap && uswapwep->oartifact == ART_OGRESMASHER)
+            || (u.twoweap && olduswap->oartifact == ART_OGRESMASHER)))
         context.botl = 1;
 
     if (uswapwep == obj
-        && ((uswapwep && uswapwep->oartifact == ART_GIANTSLAYER)
-            || (olduswap && olduswap->oartifact == ART_GIANTSLAYER)))
+        && ((u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER)
+            || (u.twoweap && olduswap->oartifact == ART_GIANTSLAYER)))
         context.botl = 1;
 }
 

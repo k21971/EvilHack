@@ -369,8 +369,14 @@ int x, y;
                     const char *whom = ((mW & MH_HUMAN & mh) ? "human"
                                         : (mW & MH_ELF & mh) ? "elf"
                                           : (mW & MH_ORC & mh) ? "orc"
-                                            : (mW & MH_DEMON & mh) ? "demon"
-                                              : mtmp->data->mname);
+                                            : (mW & MH_UNDEAD & mh) ? "the undead"
+                                              : (mW & MH_GIANT & mh) ? "giant"
+                                                : (mW & MH_WERE & mh) ? "werecreature"
+                                                  : (mW & MH_DRAGON & mh) ? "dragon"
+                                                    : (mW & MH_OGRE & mh) ? "ogre"
+                                                      : (mW & MH_TROLL & mh) ? "troll"
+                                                        : (mW & MH_DEMON & mh) ? "demon"
+                                                          : mtmp->data->mname);
 
                     Sprintf(eos(monbuf), "warned of %s", makeplural(whom));
                 }
