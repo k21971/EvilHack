@@ -2249,6 +2249,9 @@ register struct obj *obj;
         /* did not actually insert obj yet */
         if (was_unpaid)
             addtobill(obj, FALSE, FALSE, TRUE);
+	if (obj->otyp == WAN_CANCELLATION) {
+	    makeknown(obj->otyp);
+	}
         obfree(obj, (struct obj *) 0);
         livelog_printf(LL_ACHIEVE, "just blew up %s bag of holding", uhis());
         /* if carried, shop goods will be flagged 'unpaid' and obfree() will
