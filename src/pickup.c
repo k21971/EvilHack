@@ -2103,7 +2103,8 @@ int depthin;
     }
 
     /* odds: 1/1 (just scattered though, not gone) */
-    if (Is_mbag(obj) || obj->otyp == WAN_CANCELLATION) {
+    if (Is_mbag(obj) || obj->otyp == WAN_CANCELLATION
+        || (!rn2(3) && obj->oartifact == ART_MAGICBANE)) {
         return TRUE;
     } else if (Has_contents(obj)) {
         struct obj *otmp;
@@ -2270,7 +2271,7 @@ register struct obj *obj;
         }
 	scatter(u.ux, u.uy, rn2(10), VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
 
-        losehp(d(8, 6), "magical explosion", KILLED_BY_AN);
+        losehp(Maybe_Half_Phys(d(8, 10)), "exploding magical bag", KILLED_BY_AN);
         current_container = 0; /* baggone = TRUE; */
     }
 
