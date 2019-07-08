@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.80 $ $NHDT-Date: 1561920590 2019/06/30 18:49:50 $
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.87 $ $NHDT-Date: 1562532730 2019/07/07 20:52:10 $
 
 This fixes36.3 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.2 in May 2019. Please note, however,
@@ -94,6 +94,11 @@ saving bones with 'perm_invent' On could result in "Bad fruit #N" warnings
 update persistent inventory window immediately if 'sortpack' option is toggled
 grammar bit for wizard mode final disclosure; attribute section could show
 	"You had N experience points, 1 more were needed to attain level X+1."
+if an engulfer has any worn items, hero could pick them up from inside and
+	they wouldn't be unworn properly, eventually triggering warnings or
+	worse (Juiblex will wear an amulet if created with one; a shapechanger
+	might wear one and then turn into an engulfer)
+kicking an altar ignored god's wrath if hero injured himself during the kick
 
 
 Fixes to Post-3.6.2 Problems that Were Exposed Via git Repository
@@ -165,6 +170,7 @@ curses: when map window was clipped, the 'scrollbars' shown to indicate which
 	the 2nd and 3rd fifths (for example) were currently within view
 curses: support users's setting for erase char and kill char when getting a
 	line of input with 'popup_dialog' Off (already supported for popup On)
+curses: attempting to use ^H to rush left actually executed ^G (#wizgenesis)
 curses+'perm_invent': entries were wrapping without any control; usually not
 	noticeable because next entry overwrote, but visible for final entry
 	when whole inventory fit within the available height; looked ok with
@@ -184,6 +190,7 @@ curses+EDIT_GETLIN: when a prompt's answer was preloaded, using ESC to discard
 curses+EDIT_GETLIN: the preceding fix handled an answer which spanned more
 	than one line but didn't remove the answer properly if the prompt
 	portion of prompt+answer spanned more than one line
+msdos:  code fixes to allow a build with curses and PDCurses
 tty: re-do one optimization used when status conditions have all been removed
 	and remove another that tried to check whether condition text to be
 	displayed next was the same as the existing value; sometimes new
@@ -191,6 +198,8 @@ tty: re-do one optimization used when status conditions have all been removed
 tty: take two, if/when autodecribe feedback wraps past top line, clear
 	continuation lines and redraw map if needed when top line is cleared
 	['exposed by git' section has an entry for reversal of 'take one']
+tty: video attributes (bold, inverse, &c) for status highlighting sometimes
+	were scrambled
 Windows: some startup error messages were not being delivered successfully
 
 
@@ -203,6 +212,17 @@ if you reach the edge of a level (relatively uncommon) and try to move off,
 'attributes' disclosure at end of game includes number of experience points
 	that were needed to reach the next experience level (new for normal
 	play and explore mode; previously only shown for wizard mode)
+report Friday-13th/phase-of-moon/time-of-day for ^X and final disclosure when
+	their values matter to game play (date and moon are from the start of
+	current session and are not dynamically updated as real time elapses;
+	night is a fixed range of hours using the computer's conception of
+	local time which could differ from player's if there are time zone or
+	system clock issues or simply seasonal variation based on latitude;
+	not new but needs to be documented somewhere other than spoilers...)
+status highlighting using percentage rules now supported for experience level
+	and experience points; for both, percent is based on Exp progress from
+	the start of the current Xp level to the start of the next Xp level;
+	100% isn't possible so used as special case for next_Xp_lvl - 1 Exp_pt
 wizard-mode: display effect to show where an unseen wished-for monster landed
 curses: enable latent mouse support
 curses: give menus and text windows a minimum size of 5x25 since tiny ones can
