@@ -1251,10 +1251,17 @@ unsigned doname_flags;
         }
     }
     if (obj->owornmask & W_SWAPWEP) {
-        if (u.twoweap)
+        if (u.twoweap) {
             Sprintf(eos(bp), " (wielded in other %s)", body_part(HAND));
-        else
+            if (warn_obj_cnt && obj == uswapwep && (EWarn_of_mon & W_SWAPWEP) != 0L) {
+                if (!Blind) /* we know bp[] ends with ')'; overwrite that */
+                    Sprintf(eos(bp) - 1, ", %s %s)",
+                            glow_verb(warn_obj_cnt, TRUE),
+                            glow_color(obj->oartifact));
+            }
+        } else {
             Strcat(bp, " (alternate weapon; not wielded)");
+        }
     }
     if (obj->owornmask & W_QUIVER) {
         switch (obj->oclass) {

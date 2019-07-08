@@ -2644,19 +2644,26 @@ int final;
         you_are("telepathic", from_what(TELEPAT));
     if (Warning)
         you_are("warned", from_what(WARNING));
-    if (Warn_of_mon && context.warntype.obj) {
-        Sprintf(buf, "aware of the presence of %s",
-                (context.warntype.obj & MH_ORC) ? "orcs"
-                : (context.warntype.obj & MH_ELF) ? "elves"
-                : (context.warntype.obj & MH_UNDEAD) ? "the undead"
-                : (context.warntype.obj & MH_GIANT) ? "giants"
-                : (context.warntype.obj & MH_WERE) ? "werecreatures"
-                : (context.warntype.obj & MH_DRAGON) ? "dragons"
-                : (context.warntype.obj & MH_OGRE) ? "ogres"
-                : (context.warntype.obj & MH_TROLL) ? "trolls"
-                : (context.warntype.obj & MH_DEMON) ? "demons" : something);
-        you_are(buf, from_what(WARN_OF_MON));
-    }
+
+    if (Warn_of_mon && (context.warntype.obj & MH_ORC))
+        you_are("aware of the presence of orcs", from_what(WARN_OF_MON));
+    if (Warn_of_mon && (context.warntype.obj & MH_ELF))
+        you_are("aware of the presence of elves because of Grimtooth", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_UNDEAD))
+        you_are("aware of the presence of the undead because of Sunsword", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_GIANT))
+        you_are("aware of the presence of giants because of Giantslayer", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_WERE))
+        you_are("aware of the presence of werecreatures because of Werebane", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_DRAGON))
+        you_are("aware of the presence of dragons because of Dragonbane", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_OGRE))
+        you_are("aware of the presence of ogres because of Ogresmasher", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_TROLL))
+        you_are("aware of the presence of trolls because of Trollsbane", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_DEMON))
+        you_are("aware of the presence of demons because of Demonbane", "");
+
     if (Warn_of_mon && context.warntype.polyd) {
         Sprintf(buf, "aware of the presence of %s",
                 ((context.warntype.polyd & (MH_HUMAN | MH_ELF))
@@ -2691,7 +2698,7 @@ int final;
         you_are(buf, from_what(WARN_OF_MON));
     }
     if (Undead_warning)
-        you_are("warned of undead", from_what(WARN_UNDEAD));
+        you_are("warned of the undead", from_what(WARN_UNDEAD));
     if (Searching)
         you_have("automatic searching", from_what(SEARCHING));
     if (Clairvoyant)

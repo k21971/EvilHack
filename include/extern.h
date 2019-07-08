@@ -97,6 +97,7 @@ E struct obj *FDECL(what_gives, (long *));
 E const char *FDECL(glow_color, (int));
 E const char *FDECL(glow_verb, (int, BOOLEAN_P));
 E void FDECL(Sting_effects, (int));
+E void FDECL(Sting_effects_offhand, (int));
 E int FDECL(retouch_object, (struct obj **, BOOLEAN_P));
 E void FDECL(retouch_equipment, (int));
 E void NDECL(mkot_trap_warn);

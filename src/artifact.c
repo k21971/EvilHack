@@ -2171,6 +2171,40 @@ int orc_count; /* new count (warn_obj_cnt is old count); -1 is a flag value */
     }
 }
 
+void
+Sting_effects_offhand(orc_count)
+int orc_count; /* new count (warn_obj_cnt is old count); -1 is a flag value */
+{
+    if (u.twoweap
+        && (uswapwep->oartifact == ART_STING
+            || uswapwep->oartifact == ART_ORCRIST
+            || uswapwep->oartifact == ART_GRIMTOOTH)) {
+        int oldstr = glow_strength(warn_obj_cnt),
+            newstr = glow_strength(orc_count);
+
+        if (u.twoweap && orc_count == -1 && warn_obj_cnt > 0) {
+            /* -1 means that blindness has just been toggled; give a
+               'continue' message that eventual 'stop' message will match */
+            pline("%s is %s.", bare_artifactname(uswapwep),
+                  glow_verb(Blind ? 0 : warn_obj_cnt, TRUE));
+        } else if (newstr > 0 && newstr != oldstr) {
+            /* 'start' message */
+            if (u.twoweap && !Blind)
+                pline("%s %s %s%c", bare_artifactname(uswapwep),
+                      otense(uswapwep, glow_verb(orc_count, FALSE)),
+                      glow_color(uswapwep->oartifact),
+                      (newstr > oldstr) ? '!' : '.');
+            else if (u.twoweap && oldstr == 0) /* quivers */
+                pline("%s %s slightly.", bare_artifactname(uswapwep),
+                      otense(uswapwep, glow_verb(0, FALSE)));
+        } else if (u.twoweap && orc_count == 0 && warn_obj_cnt > 0) {
+            /* 'stop' message */
+            pline("%s stops %s.", bare_artifactname(uswapwep),
+                  glow_verb(Blind ? 0 : warn_obj_cnt, TRUE));
+        }
+    }
+}
+
 /* called when hero is wielding/applying/invoking a carried item, or
    after undergoing a transformation (alignment change, lycanthropy,
    polymorph) which might affect item access */

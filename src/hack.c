@@ -1228,7 +1228,8 @@ struct trap *desttrap; /* nonnull if another trap at <x,y> */
         climb_pit();
         break;
     case TT_WEB:
-        if (uwep && uwep->oartifact == ART_STING) {
+        if (uwep && uwep->oartifact == ART_STING
+            || u.twoweap && uswapwep->oartifact == ART_STING) {
             /* escape trap but don't move and don't destroy it */
             u.utrap = 0; /* caller will call reset_utrap() */
             pline("Sting cuts through the web!");

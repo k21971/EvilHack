@@ -1284,6 +1284,7 @@ see_monsters()
      */
     if (new_warn_obj_cnt != warn_obj_cnt) {
         Sting_effects(new_warn_obj_cnt);
+        Sting_effects_offhand(new_warn_obj_cnt);
         warn_obj_cnt = new_warn_obj_cnt;
     }
 

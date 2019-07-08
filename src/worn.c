@@ -90,8 +90,7 @@ long mask;
                      * Allow weapon-tools, too.
                      * wp_mask should be same as mask at this point.
                      */
-                    if ((wp->w_mask & ~(W_SWAPWEP | W_QUIVER)) ||
-		        (wp->w_mask & W_SWAPWEP && u.twoweap)) {
+                    if (wp->w_mask & ~(W_QUIVER)) {
                         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
                             || mask != W_WEP) {
                             p = objects[obj->otyp].oc_oprop;
