@@ -427,11 +427,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     register char *buf;
     register int typ = obj->otyp;
     register struct objclass *ocl = &objects[typ];
-    int nn = ocl->oc_name_known
-        || (is_soko_prize_flag(obj)
-            && (cansee(obj->ox, obj->oy)
-                || (u.ux == obj->ox && u.uy == obj->oy)));
-    int omndx = obj->corpsenm;
+    int nn = ocl->oc_name_known, omndx = obj->corpsenm;
     const char *actualn = OBJ_NAME(*ocl);
     const char *dn = OBJ_DESCR(*ocl);
     const char *un = ocl->oc_uname;

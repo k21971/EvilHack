@@ -1764,7 +1764,7 @@ struct obj *obj;
     }
 
     if (dmgtyp >= 0 && !rn2(chance))
-        (void) erode_obj(obj, (char *) 0, dmgtyp, EF_GREASE | EF_VERBOSE);
+        (void) erode_obj(obj, (char *) 0, dmgtyp, EF_GREASE | EF_DESTROY);
 }
 
 STATIC_OVL void

@@ -2246,7 +2246,7 @@ dodip()
     }
 
     if (potion->otyp == POT_ACID) {
-        if (erode_obj(obj, 0, ERODE_CORRODE, EF_GREASE) != ER_NOTHING)
+        if (erode_obj(obj, 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY) != ER_NOTHING)
             goto poof;
     }
 

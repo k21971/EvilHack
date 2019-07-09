@@ -50,45 +50,41 @@ int hurt;
         case 0:
             target = which_armor(mdef, W_ARMH);
             if (!target
-                || erode_obj(target, xname(target), hurt, EF_GREASE)
-                       == ER_NOTHING)
+                || erode_obj(target, xname(target), hurt, EF_GREASE | EF_DESTROY))
                 continue;
             break;
         case 1:
             target = which_armor(mdef, W_ARMC);
             if (target) {
                 (void) erode_obj(target, xname(target), hurt,
-                                 EF_GREASE | EF_VERBOSE);
+                                 EF_GREASE | EF_DESTROY);
                 break;
             }
             if ((target = which_armor(mdef, W_ARM)) != (struct obj *) 0) {
                 (void) erode_obj(target, xname(target), hurt,
-                                 EF_GREASE | EF_VERBOSE);
+                                 EF_GREASE | EF_DESTROY);
             } else if ((target = which_armor(mdef, W_ARMU))
                        != (struct obj *) 0) {
                 (void) erode_obj(target, xname(target), hurt,
-                                 EF_GREASE | EF_VERBOSE);
+                                 EF_GREASE | EF_DESTROY);
             }
             break;
         case 2:
             target = which_armor(mdef, W_ARMS);
             if (!target
-                || erode_obj(target, xname(target), hurt, EF_GREASE)
-                       == ER_NOTHING)
+                || erode_obj(target, xname(target), hurt, EF_GREASE | EF_DESTROY))
                 continue;
             break;
         case 3:
             target = which_armor(mdef, W_ARMG);
             if (!target
-                || erode_obj(target, xname(target), hurt, EF_GREASE)
-                       == ER_NOTHING)
+                || erode_obj(target, xname(target), hurt, EF_GREASE | EF_DESTROY))
                 continue;
             break;
         case 4:
             target = which_armor(mdef, W_ARMF);
             if (!target
-                || erode_obj(target, xname(target), hurt, EF_GREASE)
-                       == ER_NOTHING)
+                || erode_obj(target, xname(target), hurt, EF_GREASE | EF_DESTROY))
                 continue;
             break;
         }
@@ -2909,7 +2905,7 @@ boolean wep_was_destroyed;
             if (aatyp == AT_KICK) {
                 if (uarmf && !rn2(6))
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_CORRODE,
-                                     EF_GREASE | EF_VERBOSE);
+                                     EF_GREASE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
                 passive_obj(mon, weapon, &(ptr->mattk[i]));
@@ -2951,7 +2947,7 @@ boolean wep_was_destroyed;
             if (aatyp == AT_KICK) {
                 if (uarmf)
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_RUST,
-                                     EF_GREASE | EF_VERBOSE);
+                                     EF_GREASE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
                 passive_obj(mon, weapon, &(ptr->mattk[i]));
@@ -2962,7 +2958,7 @@ boolean wep_was_destroyed;
             if (aatyp == AT_KICK) {
                 if (uarmf)
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_CORRODE,
-                                     EF_GREASE | EF_VERBOSE);
+                                     EF_GREASE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
                 passive_obj(mon, weapon, &(ptr->mattk[i]));
@@ -3161,17 +3157,17 @@ struct attack *mattk;     /* null means we find one internally */
         break;
     case AD_ACID:
         if (!rn2(6)) {
-            (void) erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE);
+            (void) erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_RUST:
         if (!mon->mcan) {
-            (void) erode_obj(obj, (char *) 0, ERODE_RUST, EF_GREASE);
+            (void) erode_obj(obj, (char *) 0, ERODE_RUST, EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_CORR:
         if (!mon->mcan) {
-            (void) erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE);
+            (void) erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_ENCH:
