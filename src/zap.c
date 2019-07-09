@@ -2810,6 +2810,10 @@ boolean youattack, allow_cancel_kill, self_cancel;
     boolean resisted = (youdefend && Antimagic) ||
 	(!youdefend && resist(mdef, obj ? obj->oclass : 0, 0, NOTELL));
 
+    if (obj && obj->otyp == WAN_CANCELLATION) {
+        makeknown(obj->otyp);
+    }
+
     if (self_cancel) { /* 1st cancel inventory */
         struct obj *otmp;
 
@@ -2817,22 +2821,15 @@ boolean youattack, allow_cancel_kill, self_cancel;
             otmp = otmp->nobj)
             cancel_item(otmp);
         if (youdefend) {
+            You_feel("magical energies being absorbed from your exact location.");
             context.botl = 1; /* potential AC change */
             find_ac();
         }
     } else {
-        if (youattack && canseemon(mdef)) {
+        if (youattack && canseemon(mdef))
             pline("Magical energies are absorbed from %s.", mon_nam(mdef));
-	    if (obj->otyp == WAN_CANCELLATION) {
-		makeknown(obj->otyp);
-	    }
-        }
-	if (youdefend) {
+	if (youdefend)
             You_feel("magical energies being absorbed from your vicinity.");
-            if (obj->otyp == WAN_CANCELLATION) {
-                makeknown(obj->otyp);
-            }
-        }
 	if (youdefend && Antimagic) {
             shieldeff(u.ux, u.uy);
 	} else if (!youdefend && resisted) {
