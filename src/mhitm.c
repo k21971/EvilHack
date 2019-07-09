@@ -1752,7 +1752,8 @@ struct obj *obj;
     if (!mdef || !obj)
         return; /* just in case */
     /* AD_ACID and AD_ENCH are handled in passivemm() and passiveum() */
-    if (dmgtype(mdef->data, AD_CORR)) {
+    if (dmgtype(mdef->data, AD_CORR)
+        || dmgtype(mdef->data, AD_DCAY)) {
         dmgtyp = ERODE_CORRODE;
     } else if (dmgtype(mdef->data, AD_RUST)) {
         dmgtyp = ERODE_RUST;

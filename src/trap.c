@@ -274,8 +274,16 @@ int ef_flags;
         if (ef_flags & EF_PAY)
             costly_alteration(otmp, cost_type);
 
-        setnotworn(otmp);
-        delobj(otmp);
+        if (vismon) {
+            obj_extract_self(otmp);
+            victim->misc_worn_check &= ~otmp->owornmask;
+            update_mon_intrinsics(victim, otmp, FALSE, TRUE);
+            otmp->owornmask = 0; /* obfree() expects this */
+            obfree(otmp, (struct obj *) 0);
+        } else {
+            setnotworn(otmp);
+            delobj(otmp);
+        }
         return ER_DESTROYED;
     } else {
         if (flags.verbose && print) {
