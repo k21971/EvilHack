@@ -592,8 +592,12 @@ struct monst *mtmp;
          *      7 : 100     100
          */
         n = (int) obj->recharged;
-        if (n > 0 && (obj->otyp == WAN_WISHING || obj->otyp == WAN_DEATH
+        if (n > 0 && (obj->otyp == WAN_WISHING
                       || (n * n * n > rn2(7 * 7 * 7)))) { /* recharge_limit */
+            wand_explode(obj, rnd(lim));
+            return;
+        }
+        if (n > 1 && (obj->otyp == WAN_DEATH)) { /* recharge_limit one greater than wand of wishing */
             wand_explode(obj, rnd(lim));
             return;
         }
