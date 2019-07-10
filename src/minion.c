@@ -271,7 +271,7 @@ register struct monst *mtmp;
     }
 
     cash = money_cnt(invent);
-    demand = (cash * (rnd(80) + 20 * Athome))
+    demand = rn1(4000, 1000)
            + (1000 * (1 + (sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))));
 
     if (!demand || multi < 0 || cash <= 0) { /* you have no gold or can't move */
@@ -288,7 +288,7 @@ register struct monst *mtmp;
            handling that case as player-won't-pay] */
         if (mon_has_amulet(mtmp) || Deaf)
             /* 125: 5*25 in case hero has maximum possible charisma */
-            demand = cash + (long) rn1(1000, 125);
+            demand = money_cnt(invent) + (long) rn1(1000, 125);
 
         if (!Deaf)
             pline("%s demands %ld %s for safe passage.",
