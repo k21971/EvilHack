@@ -276,6 +276,7 @@ int ef_flags;
 
         if (vismon) {
             obj_extract_self(otmp);
+            possibly_unwield(victim, FALSE);
             victim->misc_worn_check &= ~otmp->owornmask;
             update_mon_intrinsics(victim, otmp, FALSE, TRUE);
             otmp->owornmask = 0; /* obfree() expects this */
