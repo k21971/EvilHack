@@ -1728,7 +1728,7 @@ struct obj *otmp;
             /* make sure new ill doesn't result in improvement */
             if (Sick && (sick_time > Sick))
                 sick_time = (Sick > 1L) ? Sick - 1L : 1L;
-            make_sick(sick_time, corpse_xname(otmp, "rotted", CXN_NORMAL),
+            make_sick(sick_time, corpse_xname(otmp, "diseased", CXN_NORMAL),
                       TRUE, SICK_ZOMBIE);
 
             You_feel("a horrifying change starting within you.");

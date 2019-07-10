@@ -615,7 +615,7 @@ nh_timeout()
                     u.ugrave_arise = urace.zombienum;
                     killer.format = NO_KILLER_PREFIX;
                     Sprintf(killer.name, "zombified by %s",
-                            an(mons[m_idx].mname));
+                            an(killer.name));
                 }
                 u.usick_type = 0;
                 done(POISONING);
