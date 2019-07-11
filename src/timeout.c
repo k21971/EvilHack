@@ -744,15 +744,22 @@ nh_timeout()
                 }
                 break;
             case STRANGLED:
-                killer.format = KILLED_BY;
-                Strcpy(killer.name,
-                       (u.uburied) ? "suffocation" : "strangulation");
-                done(DIED);
-                /* must be declining to die in explore|wizard mode;
-                   treat like being cured of strangulation by prayer */
-                if (uamul && uamul->otyp == AMULET_OF_STRANGULATION) {
-                    Your("amulet vanishes!");
-                    useup(uamul);
+                if (u.uswallow) {
+                    killer.format = NO_KILLER_PREFIX;
+                    Sprintf(killer.name, "suffocated by %s",
+                            an(l_monnam(u.ustuck)));
+                    done(DIED);
+                } else {
+                    killer.format = KILLED_BY;
+                    Strcpy(killer.name,
+                           (u.uburied) ? "suffocation" : "strangulation");
+                    done(DIED);
+                    /* must be declining to die in explore|wizard mode;
+                       treat like being cured of strangulation by prayer */
+                    if (uamul && uamul->otyp == AMULET_OF_STRANGULATION) {
+                        Your("amulet vanishes!");
+                        useup(uamul);
+                    }
                 }
                 break;
             case FUMBLING:
