@@ -259,7 +259,7 @@ register struct monst *mtmp;
                     avoid targetting the Wizard or temple priests
                     (to protect Moloch's high priest) */
                  && !is_mplayer(mtmp2->data)
-                 && ((otyp != AMULET_OF_YENDOR || otyp != any_quest_artifact(otmp))
+                 && ((otyp != AMULET_OF_YENDOR && otyp != 0 )
                      || (!mtmp2->iswiz && !inhistemple(mtmp2))))
             return STRAT(STRAT_MONSTR, mtmp2->mx, mtmp2->my, mask);
     }
