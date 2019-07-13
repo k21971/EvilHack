@@ -3193,12 +3193,12 @@ boolean incr;
                 You((!incr) ? "now have a lesser case of the munchies."
                             : "are getting the munchies.");
             } else if (Race_if(PM_HOBBIT)) {
-                You((!incr) ? "only feel hungry now."
+                You((!incr) ? "could use some supper."
                             : (u.uhunger < 145)
                                   ? "feel it's time for afternoon tea."
                                   : rn2(2)
                                         ? "need to stop for second breakfast."
-                                        : "stomach grumbles; it's time for elevenses.");
+                                        : "hear your stomach rumble; it's time for elevenses.");
             } else
                 You((!incr) ? "only feel hungry now."
                             : (u.uhunger < 145)
