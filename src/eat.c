@@ -2883,7 +2883,8 @@ struct obj *obj;
 STATIC_OVL int
 bite()
 {
-    if (context.victual.canchoke && u.uhunger >= 2000) {
+    if ((context.victual.canchoke && u.uhunger >= 2000 && !Race_if(PM_HOBBIT))
+        || (context.victual.canchoke && u.uhunger >= 4000 && Race_if(PM_HOBBIT))) {
         choke(context.victual.piece);
         return 1;
     }
@@ -2985,7 +2986,8 @@ int num;
 
     debugpline1("lesshungry(%d)", num);
     u.uhunger += num;
-    if (u.uhunger >= 2000) {
+    if ((u.uhunger >= 2000 && !Race_if(PM_HOBBIT))
+        || (u.uhunger >= 4000 && Race_if(PM_HOBBIT))) {
         if (!iseating || context.victual.canchoke) {
             if (iseating) {
                 choke(context.victual.piece);
@@ -2999,10 +3001,30 @@ int num;
         /* Have lesshungry() report when you're nearly full so all eating
          * warns when you're about to choke.
          */
-        if (u.uhunger >= 1500) {
+        if (u.uhunger >= 1500 && !Race_if(PM_HOBBIT)) {
             if (!context.victual.eating
                 || (context.victual.eating && !context.victual.fullwarn)) {
                 pline("You're having a hard time getting all of it down.");
+                nomovemsg = "You're finally finished.";
+                if (!context.victual.eating) {
+                    multi = -2;
+                } else {
+                    context.victual.fullwarn = TRUE;
+                    if (context.victual.canchoke
+                        && context.victual.reqtime > 1) {
+                        /* a one-gulp food will not survive a stop */
+                        if (yn_function("Continue eating?", ynchars, 'n')
+                            != 'y') {
+                            reset_eat();
+                            nomovemsg = (char *) 0;
+                        }
+                    }
+                }
+            }
+        } else if (u.uhunger >= 3500 && Race_if(PM_HOBBIT)) {
+            if (!context.victual.eating
+                || (context.victual.eating && !context.victual.fullwarn)) {
+                pline("Amazingly, you're having a hard time getting all of it down.");
                 nomovemsg = "You're finally finished.";
                 if (!context.victual.eating) {
                     multi = -2;
@@ -3060,10 +3082,16 @@ boolean incr;
     static boolean saved_hs = FALSE;
     int h = u.uhunger;
 
-    newhs = (h > 1000)
-                ? SATIATED
-                : (h > 150) ? NOT_HUNGRY
-                            : (h > 50) ? HUNGRY : (h > 0) ? WEAK : FAINTING;
+    if (Race_if(PM_HOBBIT))
+        newhs = (h > 3000)
+                    ? SATIATED
+                    : (h > 150) ? NOT_HUNGRY
+                                : (h > 50) ? HUNGRY : (h > 0) ? WEAK : FAINTING;
+    else
+        newhs = (h > 1000)
+                    ? SATIATED
+                    : (h > 150) ? NOT_HUNGRY
+                                : (h > 50) ? HUNGRY : (h > 0) ? WEAK : FAINTING;
 
     /* While you're eating, you may pass from WEAK to HUNGRY to NOT_HUNGRY.
      * This should not produce the message "you only feel hungry now";
@@ -3164,6 +3192,13 @@ boolean incr;
             if (Hallucination) {
                 You((!incr) ? "now have a lesser case of the munchies."
                             : "are getting the munchies.");
+            } else if (Race_if(PM_HOBBIT)) {
+                You((!incr) ? "only feel hungry now."
+                            : (u.uhunger < 145)
+                                  ? "feel it's time for afternoon tea."
+                                  : rn2(2)
+                                        ? "need to stop for second breakfast."
+                                        : "stomach grumbles; it's time for elevenses.");
             } else
                 You((!incr) ? "only feel hungry now."
                             : (u.uhunger < 145)
