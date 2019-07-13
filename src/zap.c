@@ -2826,8 +2826,12 @@ boolean youattack, allow_cancel_kill, self_cancel;
             find_ac();
         }
     } else {
-        if (youattack && canseemon(mdef))
-            pline("Magical energies are absorbed from %s.", mon_nam(mdef));
+        if (youattack && canseemon(mdef)) {
+            if (!mdef->mcan)
+                pline("Magical energies are absorbed from %s.", mon_nam(mdef));
+            else if (mdef->mcan)
+                pline("%s appears to already be diminished.", Monnam(mdef));
+        }
 	if (youdefend)
             You_feel("magical energies being absorbed from your vicinity.");
 	if (youdefend && Antimagic) {
