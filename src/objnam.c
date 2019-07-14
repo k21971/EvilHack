@@ -1189,7 +1189,6 @@ unsigned doname_flags;
     case FOOD_CLASS:
         if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
-        add_erosion_words(obj, prefix);
         if (obj->otyp == CORPSE) {
             /* (quan == 1) => want corpse_xname() to supply article,
                (quan != 1) => already have count or "some" as prefix;
@@ -1216,6 +1215,7 @@ unsigned doname_flags;
         }
         if (obj->otyp == MEAT_RING)
             goto ring;
+        add_erosion_words(obj, prefix);
         break;
     case BALL_CLASS:
     case CHAIN_CLASS:
