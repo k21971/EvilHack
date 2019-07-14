@@ -1538,6 +1538,11 @@ struct obj *otmp;
     const char *mesg = 0;
     register int tmp;
 
+    if (otmp->otrapped && In_sokoban(&u.uz)) {
+        pline("For some strange reason, you are unable to open this tin right now.");
+        return;
+    }
+
     if (metallivorous(youmonst.data)) {
         mesg = "You bite right into the metal tin...";
         tmp = 0;
