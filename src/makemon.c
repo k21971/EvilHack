@@ -1129,18 +1129,27 @@ register struct monst *mtmp;
         case PM_BALROG:
             (void) mongets(mtmp, BULLWHIP);
             (void) mongets(mtmp, BROADSWORD);
+            struct obj* sword = m_carrying(mtmp, BROADSWORD);
+            if (sword)
+                set_material(sword, rn2(2) ? IRON : MITHRIL);
             break;
         case PM_ORCUS:
             (void) mongets(mtmp, WAN_DEATH); /* the Wand of Orcus */
             break;
         case PM_HORNED_DEVIL:
             (void) mongets(mtmp, rn2(4) ? TRIDENT : BULLWHIP);
+            struct obj* tri = m_carrying(mtmp, TRIDENT);
+            if (tri)
+                set_material(tri, rn2(2) ? IRON : MITHRIL);
             break;
         case PM_DISPATER:
             (void) mongets(mtmp, WAN_STRIKING);
             break;
         case PM_YEENOGHU:
             (void) mongets(mtmp, FLAIL);
+            struct obj* fla = m_carrying(mtmp, FLAIL);
+            if (fla)
+                set_material(fla, rn2(2) ? IRON : MITHRIL);
             break;
         }
         /* prevent djinn and mail daemons from leaving objects when
@@ -1160,32 +1169,93 @@ register struct monst *mtmp;
         case 1:
             if (strongmonst(ptr))
                 (void) mongets(mtmp, BATTLE_AXE);
+                struct obj* btlaxe = m_carrying(mtmp, BATTLE_AXE);
+                if (btlaxe && is_demon(ptr))
+                    set_material(btlaxe, rn2(2) ? IRON : MITHRIL);
             else
                 m_initthrow(mtmp, DART, 12);
+                struct obj* drt = m_carrying(mtmp, DART);
+                if (drt && is_demon(ptr))
+                    set_material(drt, rn2(2) ? IRON : MITHRIL);
+                if (drt && is_elf(ptr))
+                    set_material(drt, rn2(2) ? WOOD : MITHRIL);
+                if (drt && is_orc(ptr))
+                    set_material(drt, rn2(2) ? IRON : BONE);
             break;
         case 2:
             if (strongmonst(ptr))
                 (void) mongets(mtmp, TWO_HANDED_SWORD);
+                struct obj* twosword = m_carrying(mtmp, TWO_HANDED_SWORD);
+                if (twosword && is_demon(ptr))
+                    set_material(twosword, rn2(2) ? IRON : MITHRIL);
             else {
                 (void) mongets(mtmp, CROSSBOW);
                 m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+                struct obj* cross = m_carrying(mtmp, CROSSBOW);
+                struct obj* crossb = m_carrying(mtmp, CROSSBOW_BOLT);
+                if (cross && is_demon(ptr))
+                    set_material(cross, rn2(2) ? IRON : MITHRIL);
+                if (cross && is_elf(ptr))
+                    set_material(cross, rn2(2) ? WOOD : MITHRIL);
+                if (cross && is_orc(ptr))
+                    set_material(cross, rn2(2) ? IRON : STONE);
+                if (crossb && is_demon(ptr))
+                    set_material(crossb, rn2(2) ? IRON : MITHRIL);
+                if (crossb && is_elf(ptr))
+                    set_material(crossb, rn2(2) ? WOOD : MITHRIL);
+                if (crossb && is_orc(ptr))
+                    set_material(crossb, rn2(2) ? IRON : BONE);
             }
             break;
         case 3:
             (void) mongets(mtmp, BOW);
             m_initthrow(mtmp, ARROW, 12);
+            struct obj* bow = m_carrying(mtmp, BOW);
+            struct obj* arrow = m_carrying(mtmp, ARROW);
+            if (bow && is_demon(ptr))
+                set_material(bow, rn2(2) ? IRON : MITHRIL);
+            if (bow && is_elf(ptr))
+                set_material(bow, rn2(2) ? WOOD : MITHRIL);
+            if (bow && is_orc(ptr))
+                set_material(bow, rn2(2) ? IRON : BONE);
+            if (arrow && is_demon(ptr))
+                set_material(arrow, rn2(2) ? IRON : MITHRIL);
+            if (arrow && is_elf(ptr))
+                set_material(arrow, rn2(2) ? WOOD : MITHRIL);
+            if (arrow && is_orc(ptr))
+                set_material(arrow, rn2(2) ? IRON : BONE);
             break;
         case 4:
             if (strongmonst(ptr))
                 (void) mongets(mtmp, LONG_SWORD);
+                struct obj* lsword = m_carrying(mtmp, LONG_SWORD);
+                if (lsword && is_demon(ptr))
+                    set_material(lsword, rn2(2) ? IRON : MITHRIL);
             else
                 m_initthrow(mtmp, DAGGER, 3);
+                struct obj* dag = m_carrying(mtmp, DAGGER);
+                if (dag && is_demon(ptr))
+                    set_material(dag, rn2(2) ? IRON : MITHRIL);
+                if (dag && is_elf(ptr))
+                    set_material(dag, rn2(2) ? WOOD : MITHRIL);
+                if (dag && is_orc(ptr))
+                    set_material(dag, rn2(2) ? IRON : BONE);
             break;
         case 5:
             if (strongmonst(ptr))
                 (void) mongets(mtmp, LUCERN_HAMMER);
+                struct obj* luc = m_carrying(mtmp, LUCERN_HAMMER);
+                if (luc && is_demon(ptr))
+                    set_material(luc, rn2(2) ? IRON : MITHRIL);
             else
                 (void) mongets(mtmp, AKLYS);
+                struct obj* akl = m_carrying(mtmp, AKLYS);
+                if (akl && is_demon(ptr))
+                    set_material(akl, rn2(2) ? IRON : MITHRIL);
+                if (akl && is_elf(ptr))
+                    set_material(akl, rn2(2) ? WOOD : MITHRIL);
+                if (akl && is_orc(ptr))
+                    set_material(akl, rn2(2) ? IRON : BONE);
             break;
         default:
             break;
