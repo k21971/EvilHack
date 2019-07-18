@@ -1525,25 +1525,25 @@ dosacrifice()
 
 	    /* create Dirge from player's longsword here if possible */
 	    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT) &&
-                !u.ugangr && u.ualign.record > 0 &&
-		uwep && (uwep->otyp == LONG_SWORD || uwep->otyp == ELVEN_LONG_SWORD)
-                && !uwep->oartifact
+                !u.ugangr && u.ualign.record > 0
+		&& uwep && (uwep->otyp == LONG_SWORD || uwep->otyp == ELVEN_LONG_SWORD)
+                && !uwep->oartifact && uarmh && uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT
                 && !exist_artifact(LONG_SWORD, artiname(ART_DIRGE))) {
-                    pline("Your sword melts in your hand and transforms into something new!");
-                    uwep->otyp = LONG_SWORD;
- 		    uwep = oname(uwep, artiname(ART_DIRGE));
-                    /* discover_artifact(ART_DIRGE); */
-		    bless(uwep);
-                    if (uwep->spe < 0)
-                        uwep->spe = 0;
-		    uwep->oeroded = uwep->oeroded2 = 0;
-		    uwep->oerodeproof = TRUE;
-		    exercise(A_WIS, TRUE);
-                        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
-                            "had Dirge gifted to %s by the grace of %s",
-                        uhim(), align_gname(u.ualign.type));
-	            }
-
+                pline("Your sword melts in your hand and transforms into something new!");
+                uwep->otyp = LONG_SWORD;
+ 	        uwep = oname(uwep, artiname(ART_DIRGE));
+                discover_artifact(ART_DIRGE);
+		bless(uwep);
+                if (uwep->spe < 0)
+                    uwep->spe = 0;
+		uwep->oeroded = uwep->oeroded2 = 0;
+		uwep->oerodeproof = TRUE;
+		exercise(A_WIS, TRUE);
+                livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                               "had Dirge gifted to %s by the grace of %s",
+                               uhim(), align_gname(u.ualign.type));
+                update_inventory();
+	    }
             return 1;
         } else if (has_omonst(otmp)
                    && (mtmp = get_mtraits(otmp, FALSE)) != 0

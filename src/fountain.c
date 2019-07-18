@@ -465,8 +465,8 @@ register struct obj *obj;
     /* Don't grant Excalibur when there's more than one object.  */
     /* (quantity could be > 1 if merged daggers got polymorphed) */
     if (obj->otyp == LONG_SWORD && obj->quan == 1L && u.ulevel >= 5 && !rn2(6)
-        && !obj->oartifact
-        && !exist_artifact(LONG_SWORD, artiname(ART_EXCALIBUR))) {
+        && uarmh && uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT
+        && !obj->oartifact && !exist_artifact(LONG_SWORD, artiname(ART_EXCALIBUR))) {
         if (u.ualign.type != A_LAWFUL || !Role_if(PM_KNIGHT)) {
             /* Ha!  Trying to cheat her. */
             pline("A freezing mist rises from the %s and envelopes the sword.",
