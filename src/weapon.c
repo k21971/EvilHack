@@ -1694,7 +1694,7 @@ struct obj *weapon;
     }
 
     /* Priests using edged weapons is frowned upon by their deity */
-    if (Role_if(PM_PRIEST) && (is_pierce(weapon) || is_slash(weapon))) {
+    if (uwep && Role_if(PM_PRIEST) && (is_pierce(weapon) || is_slash(weapon))) {
         pline("%s has %s you from using edged weapons such as %s!",
               align_gname(u.ualign.type), rn2(2) ? "forbidden" : "prohibited",
               makeplural(xname(weapon)));
