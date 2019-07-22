@@ -1,4 +1,4 @@
-/* NetHack 3.6	pager.c	$NHDT-Date: 1558045586 2019/05/16 22:26:26 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.153 $ */
+/* NetHack 3.6	pager.c	$NHDT-Date: 1562632673 2019/07/09 00:37:53 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.154 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -306,9 +306,11 @@ int x, y;
         int tt = t ? t->ttyp : NO_TRAP;
 
         /* newsym lets you know of the trap, so mention it here */
-        if (tt == BEAR_TRAP || is_pit(tt) || tt == WEB)
+        if (tt == BEAR_TRAP || is_pit(tt) || tt == WEB) {
             Sprintf(eos(buf), ", trapped in %s",
                     an(defsyms[trap_to_defsym(tt)].explanation));
+            t->tseen = 1;
+        }
     }
 
     /* we know the hero sees a monster at this location, but if it's shown
@@ -1422,7 +1424,7 @@ static const char *suptext2[] = {
     (char *) 0,
 };
 
-void
+STATIC_OVL void
 do_supplemental_info(name, pm, without_asking)
 char *name;
 struct permonst *pm;
@@ -1898,61 +1900,61 @@ docontact(VOID_ARGS)
     destroy_nhwindow(cwin);
 }
 
-void
+STATIC_OVL void
 dispfile_help(VOID_ARGS)
 {
     display_file(HELP, TRUE);
 }
 
-void
+STATIC_OVL void
 dispfile_shelp(VOID_ARGS)
 {
     display_file(SHELP, TRUE);
 }
 
-void
+STATIC_OVL void
 dispfile_optionfile(VOID_ARGS)
 {
     display_file(OPTIONFILE, TRUE);
 }
 
-void
+STATIC_OVL void
 dispfile_license(VOID_ARGS)
 {
     display_file(LICENSE, TRUE);
 }
 
-void
+STATIC_OVL void
 dispfile_debughelp(VOID_ARGS)
 {
     display_file(DEBUGHELP, TRUE);
 }
 
-void
+STATIC_OVL void
 hmenu_doextversion(VOID_ARGS)
 {
     (void) doextversion();
 }
 
-void
+STATIC_OVL void
 hmenu_dohistory(VOID_ARGS)
 {
     (void) dohistory();
 }
 
-void
+STATIC_OVL void
 hmenu_dowhatis(VOID_ARGS)
 {
     (void) dowhatis();
 }
 
-void
+STATIC_OVL void
 hmenu_dowhatdoes(VOID_ARGS)
 {
     (void) dowhatdoes();
 }
 
-void
+STATIC_OVL void
 hmenu_doextlist(VOID_ARGS)
 {
     (void) doextlist();

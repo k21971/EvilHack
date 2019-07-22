@@ -1611,7 +1611,7 @@ int typ;
     return (char *) 0;
 }
 
-int
+STATIC_OVL int
 query_msgtype()
 {
     winid tmpwin;
@@ -1805,7 +1805,7 @@ const char *errmsg;
     return retval;
 }
 
-boolean
+STATIC_OVL boolean
 add_menu_coloring_parsed(str, c, a)
 char *str;
 int c, a;

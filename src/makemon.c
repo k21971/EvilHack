@@ -1883,7 +1883,7 @@ newmextra()
     return mextra;
 }
 
-boolean
+STATIC_OVL boolean
 makemon_rnd_goodpos(mon, gpflags, cc)
 struct monst *mon;
 unsigned gpflags;

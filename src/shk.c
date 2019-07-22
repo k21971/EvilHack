@@ -3035,7 +3035,7 @@ boolean ininv, dummy, silent;
     }
 }
 
-void
+STATIC_OVL void
 append_honorific(buf)
 char *buf;
 {

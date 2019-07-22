@@ -1358,7 +1358,7 @@ domove()
         domove_attempting = 0L;
 }
 
-void
+STATIC_OVL void
 domove_core()
 {
     register struct monst *mtmp;
@@ -1979,7 +1979,7 @@ domove_core()
     }
 }
 
-void
+STATIC_OVL void
 maybe_smudge_engr(x1,y1,x2,y2)
 int x1, y1, x2, y2;
 {
