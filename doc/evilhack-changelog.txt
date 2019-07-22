@@ -288,4 +288,47 @@ Version 0.3.2
 - Fix: giant player race wasn't getting hungerless regeneration intrinsic
 - Fix: a burnt partly eaten <corpse name here>
 - Nazgul and lichen tweaks
-- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress (as of May 28th, 2019)
+- Fix: monsters engulfing other monsters off of their steeds
+- Fix: Monster steeds in bones files are detatched from their riders
+- Adjust zombie movement speed and claw attack
+- Fix: handling of weapon damage based on material type
+- More Izchak tweaks
+- Specific livelog message for 'killing' Death
+- Fix: segfault when monster player has the Amulet of Yendor and the Wizard of Yendor appears
+- Excalibur and Dirge never have a negative enchantment
+- Fix: Monk triggering 'hitting with a wielded weapon for first time' conduct when fighting
+  bare-handed but weapon was flagged as 'alternate weapon; not wielded'
+- Change various objects base material from iron to generic metal
+- Fix: tame high-level spellcasting monster pets would still cast MGC_CANCELLATION at the hero
+- Tweak starting gear if playing Giant race
+- More spell casting while wearing body armor revamps
+- Fix: Prevent intelligent monsters from unlocking an iron safe with keys/lock picks/credit cards
+- Fix: Boojum AD_TLPT attack wasn't teleporting the hero
+- Fix: change The Sword of Bheleu's base material from mithril to gemstone
+- Fix: Monks did not have weapon skill restriction lifted when receiving an artifact gift weapon
+- Another Monk weapon skills revamp
+- Fix: being killed by an exploding forge was displaying the wrong 'killed by' message
+- Fix: livelog output when the player blows up their bag of holding
+- Fix: spear traps should not be able to reach the hero if they are flying
+- Quest leaders nor nemesis can be frightened by magical means
+- Monsters that revive (trolls, zombies) will not revive if they lose their heads
+- Fix: spear traps properly handle steeds
+- Added a random set of death messages from being killed by a spear trap
+- Artifact properties when in offhand and two-weaponing are active
+- Limit amount of times a wand of death can be recharged
+- Putting Magicbane into a bag of holding has a chance of causing the bag to explode
+- Wands of cancellation self-identify when the player observes their use and effects
+- Player can see colored flashes when dropping a container on an altar
+- Objects can be completely destroyed via rusting/rotting/corroding
+- Fix: broken 'killed by' format when the player dies due to eating a zombie corpse
+- Unique death messages when killed by a water elemental or gelatinous cube while engulfed
+- Improved feedback when cancelling a monster
+- Hobbits can eat significantly more food before becoming satiated
+- Tweaks to Hobbit eating/hunger feedback
+- Fix: opening a trapped tin while in Sokoban would trip the doors at Sokoban End
+- Neutral aligned summon minion has small chance of producing something other than an elemental
+- Fix: Monsters that have an aversion to a certain material should never spawn with an object made of that material
+- Fix: disallow obtaining Excalibur or Dirge by using a helm of opposite alignment
+- Magic lamps can be wished for
+- Fix: segfault when playing as priest and attacking a monster bare-handed
+- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress (as of July 22nd, 2019)
