@@ -1836,15 +1836,13 @@ int mdead;
                     shieldeff(magr->mx, magr->my);
                     pline("%s deadly hide does not appear to affect %s",
                           s_suffix(Monnam(mdef)), mon_nam(magr));
-                    tmp = 0;
                 }
             } else {
-                if (canseemon(magr)) {
+                if (canseemon(magr))
                     pline("%s deadly hide disintegrates %s!",
                           s_suffix(Monnam(mdef)), mon_nam(magr));
-                    monkilled(magr, "", (int) mddat->mattk[i].adtyp);
-                    return (mdead | mhit | MM_AGR_DIED);
-                }
+                monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+                return (mdead | mhit | MM_AGR_DIED);
             }
         }
         break;
