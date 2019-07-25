@@ -3346,18 +3346,19 @@ struct attack *mattk;
                 }
 		i = rn2(20);
 		if (i) {
-		    damage_mon(mtmp, rnd(4), AD_DRST);
-		    if (rn2(3)) {
-                        pline("%s staggers from the poison!", Monnam(mtmp));
+		    if (!rn2(3)) {
+                        if (canseemon(mtmp))
+                            pline("%s staggers from the poison!", Monnam(mtmp));
+                        damage_mon(mtmp, rnd(4), AD_DRST);
                     }
 		} else {
-		    mtmp->mhp = -1;
-		    pline("%s is fatally poisoned!", Monnam(mtmp));
+                    if (canseemon(mtmp))
+		        pline("%s is fatally poisoned!", Monnam(mtmp));
+                    mtmp->mhp = -1;
 		}
-		if (mtmp->mhp < 1) {
-		    xkilled(mtmp, 1);
-                    return 2;  /* let the chain upstream know it died */
-		}
+                if (mtmp->mhp < 1) {
+                    goto assess_dmg;
+                }
 		return 1;
 		break;
             case BLACK_DRAGON_SCALE_MAIL:
@@ -3367,17 +3368,18 @@ struct attack *mattk;
                 }
                 i = rn2(40);
                 if (i) {
-                    mtmp->mhp -= rnd(4);
-                    if (rn2(3)) {
-                        pline("%s partially disintegrates!", Monnam(mtmp));
+                    if (!rn2(3)) {
+                        if (canseemon(mtmp))
+                            pline("%s partially disintegrates!", Monnam(mtmp));
+                        mtmp->mhp -= rnd(4);
                     }
                 } else {
+                    if (canseemon(mtmp))
+                        pline("%s is disintegrated completely!", Monnam(mtmp));
                     mtmp->mhp = -1;
-                    pline("%s is disintegrated completely!", Monnam(mtmp));
                 }
                 if (mtmp->mhp < 1) {
-                    xkilled(mtmp, 1);
-                    return 2;
+                    goto assess_dmg;
                 }
                 return 1;
                 break;
@@ -3386,10 +3388,11 @@ struct attack *mattk;
 		if (resists_sleep(mtmp)) {
                     return 1;
                 }
-		if (canseemon(mtmp) && mtmp->mspeed != MSLOW) {
-		    pline("%s looks a little sluggish...", Monnam(mtmp));
-		}
-		mtmp->mspeed = MSLOW;
+		if (!rn2(3) && mtmp->mspeed != MSLOW) {
+                    if (canseemon(mtmp))
+		        pline("%s looks a little sluggish...", Monnam(mtmp));
+                    mtmp->mspeed = MSLOW;
+                }
 		return 1;
 		break;
             case WHITE_DRAGON_SCALE_MAIL:
@@ -3397,19 +3400,20 @@ struct attack *mattk;
                 if (resists_cold(mtmp)) {
                     return 1;
                 }
-                i = rn2(40);
+                i = rn2(50);
                 if (i) {
-                    damage_mon(mtmp, rnd(4), AD_COLD);
                     if (rn2(3)) {
-                        pline("%s flinches from the cold!", Monnam(mtmp));
+                        if (canseemon(mtmp))
+                            pline("%s flinches from the cold!", Monnam(mtmp));
+                        damage_mon(mtmp, rnd(4), AD_COLD);
                     }
                 } else {
+                    if (canseemon(mtmp))
+                        pline("%s is frozen solid!", Monnam(mtmp));
                     mtmp->mhp = -1;
-                    pline("%s is frozen solid and dies!", Monnam(mtmp));
                 }
                 if (mtmp->mhp < 1) {
-                    xkilled(mtmp, 1);
-                    return 2;
+                    goto assess_dmg;
                 }
                 return 1;
                 break;
@@ -3424,16 +3428,16 @@ struct attack *mattk;
                 if (!is_dragon(mtmp->data)) {
                     return 1;
                 }
-                if (rn2(3) && canseemon(mtmp) && is_dragon(mtmp->data)
+                if (!rn2(3) && is_dragon(mtmp->data)
                     && uarmg->oartifact == ART_DRAGONBANE) {
-                    pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
+                    if (canseemon(mtmp))
+                        pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
                     mtmp->mhp -= rnd(6) + 2;
                 }
-                if (mtmp->mhp < 1 && canseemon(mtmp) && is_dragon(mtmp->data)
-                    && uarmg->oartifact == ART_DRAGONBANE) {
-                    pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
-                    xkilled(mtmp, 1);
-                    return 2;
+                if (mtmp->mhp < 1) {
+                    if (canseemon(mtmp))
+                        pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
+                    goto assess_dmg;
                 }
                 return 1;
                 break;
