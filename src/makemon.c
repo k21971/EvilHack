@@ -398,11 +398,16 @@ unsigned short chance;
 		   (void) mpickobj(mtmp, obj);
 	       }
 
-	       if (trop->trquan) { /* check if zero first */
-		   --trop->trquan;
-	       if (trop->trquan)
-		   continue; /* make a similar object */
-	       }
+#if !defined(PYRAMID_BUG) && !defined(MAC)
+        if (--trop->trquan)
+            continue; /* make a similar object */
+#else
+        if (trop->trquan) { /* check if zero first */
+            --trop->trquan;
+            if (trop->trquan)
+                continue; /* make a similar object */
+        }
+#endif
     origtrop++;
     memcpy(&temptrop, origtrop, sizeof(struct trobj));
     }

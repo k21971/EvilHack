@@ -1829,22 +1829,42 @@ int mdead;
         if (!rn2(6))
             acid_damage(MON_WEP(magr));
         goto assess_dmg;
+    case AD_DISN:
+        if (mhit && !mdef->mcan && !rn2(20)) {
+            if (resists_disint(magr)) {
+                if (canseemon(magr)) {
+                    shieldeff(magr->mx, magr->my);
+                    pline("%s deadly hide does not appear to affect %s",
+                          s_suffix(Monnam(mdef)), mon_nam(magr));
+                    tmp = 0;
+                }
+            } else {
+                if (canseemon(magr)) {
+                    pline("%s deadly hide disintegrates %s!",
+                          s_suffix(Monnam(mdef)), mon_nam(magr));
+                    monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+                    return (mdead | mhit | MM_AGR_DIED);
+                }
+            }
+        }
+        break;
     /* Grudge patch. */
     case AD_MAGM:
       /* wrath of gods for attacking Oracle */
-        if(resists_magm(magr)) {
-            if(canseemon(magr)) {
+        if (resists_magm(magr)) {
+            if (canseemon(magr)) {
                 shieldeff(magr->mx, magr->my);
                 pline("A hail of magic missiles narrowly misses %s!",
-                    mon_nam(magr));
-              }
+                      mon_nam(magr));
+            }
         } else {
-            if(canseemon(magr))
+            if (canseemon(magr))
                 pline(magr->data == &mons[PM_WOODCHUCK] ? "ZOT!" :
-                    "%s is hit by magic missiles appearing from thin air!",
-                    Monnam(magr));
+                      "%s is hit by magic missiles appearing from thin air!",
+                      Monnam(magr));
             goto assess_dmg;
-        } break;
+        }
+        break;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
         if (mhit && !mdef->mcan && otmp) {
             (void) drain_item(otmp, FALSE);

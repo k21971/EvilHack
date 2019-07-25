@@ -2990,6 +2990,53 @@ boolean wep_was_destroyed;
                 passive_obj(mon, weapon, &(ptr->mattk[i]));
         }
         break;
+    case AD_DISN:
+        if (mhit && !mon->mcan && !rn2(20)) { /* successful attack */
+            long protector = attk_protection((int) aatyp);
+
+            /* hero using monsters' AT_MAGC attack is hitting hand to
+               hand rather than casting a spell */
+            if (aatyp == AT_MAGC)
+                protector = W_ARMG;
+
+            if (protector == 0L /* no protection */
+                || (protector == W_ARMG && !uarmg
+                    && !uwep && !wep_was_destroyed)
+                || (protector == W_ARMF && !uarmf)
+                || (protector == W_ARMH && !uarmh)
+                || (protector == (W_ARMC | W_ARMG) && (!uarmc || !uarmg))) {
+                if (Disint_resistance || resists_disint(&youmonst)) {
+                    You("are unaffected by %s hide.",
+                        s_suffix(mon_nam(mon)));
+                    monstseesu(M_SEEN_DISINT);
+                    stop_occupation();
+                } else if (!Disint_resistance || !resists_disint(&youmonst)) {
+                    You("disintegrate yourself off of the %s hide!",
+                        s_suffix(mon_nam(mon)));
+                    u.ugrave_arise = -3;
+                    done_in_by(mon, DIED);
+                    return 2;
+                }
+            }
+        }
+        if (mhit && !mon->mcan && !rn2(10)) {
+            if (!uwep && !wep_was_destroyed
+                && (aatyp == AT_WEAP || aatyp == AT_CLAW
+                || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
+                if (uarmg)
+                    (void) destroy_arm(uarmg);
+            }
+        }
+        if (mhit && !mon->mcan && weapon && !rn2(10)) {
+            if (aatyp == AT_KICK) {
+                if (uarmf)
+                    (void) destroy_arm(uarmf);
+            } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
+                       || aatyp == AT_MAGC || aatyp == AT_TUCH) {
+                passive_obj(mon, weapon, &(ptr->mattk[i]));
+            }
+        }
+        break;
     case AD_MAGM:
         /* wrath of gods for attacking Oracle */
         if (Antimagic) {
@@ -3059,7 +3106,7 @@ boolean wep_was_destroyed;
                 exercise(A_DEX, FALSE);
             }
             break;
-        case AD_COLD: /* brown mold or blue jelly */
+        case AD_COLD: /* brown mold, blue jelly, white dragon */
             if (monnear(mon, u.ux, u.uy)) {
                 if (how_resistant(COLD_RES) == 100) {
                     shieldeff(u.ux, u.uy);
@@ -3076,8 +3123,11 @@ boolean wep_was_destroyed;
                 if (mon->mhpmax < mon->mhp)
                     mon->mhpmax = mon->mhp;
                 /* at a certain point, the monster will reproduce! */
-                if (mon->mhpmax > ((int) (mon->m_lev + 1) * 8))
-                    (void) split_mon(mon, &youmonst);
+                if (ptr == &mons[PM_BLUE_JELLY]
+                    || ptr == &mons[PM_BROWN_MOLD]) {
+                    if (mon->mhpmax > ((int) (mon->m_lev + 1) * 8))
+                        (void) split_mon(mon, &youmonst);
+                }
             }
             break;
         case AD_STUN: /* specifically yellow mold */
@@ -3201,6 +3251,18 @@ struct attack *mattk;     /* null means we find one internally */
             if (drain_item(obj, TRUE) && carried(obj)
                 && (obj->known || obj->oclass == ARMOR_CLASS)) {
                 pline("%s less effective.", Yobjnam2(obj, "seem"));
+            }
+            break;
+        }
+    case AD_DISN:
+        if (!mon->mcan) {
+            if (!rn2(u.twoweap ? 2 : 3)) {
+                useup(uwep);
+                Your("primary weapon disintegrates!");
+            }
+            if (u.twoweap && rn2(2)) {
+                useup(uswapwep);
+                Your("offhand weapon disintegrates!");
             }
             break;
         }

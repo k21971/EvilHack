@@ -3392,6 +3392,27 @@ struct attack *mattk;
 		mtmp->mspeed = MSLOW;
 		return 1;
 		break;
+            case WHITE_DRAGON_SCALE_MAIL:
+            case WHITE_DRAGON_SCALES:
+                if (resists_cold(mtmp)) {
+                    return 1;
+                }
+                i = rn2(40);
+                if (i) {
+                    damage_mon(mtmp, rnd(4), AD_COLD);
+                    if (rn2(3)) {
+                        pline("%s flinches from the cold!", Monnam(mtmp));
+                    }
+                } else {
+                    mtmp->mhp = -1;
+                    pline("%s is frozen solid and dies!", Monnam(mtmp));
+                }
+                if (mtmp->mhp < 1) {
+                    xkilled(mtmp, 1);
+                    return 2;
+                }
+                return 1;
+                break;
 	    default:	  /* all other types of armor, just pass on through */
 	        break;
 	}
@@ -3403,11 +3424,13 @@ struct attack *mattk;
                 if (!is_dragon(mtmp->data)) {
                     return 1;
                 }
-                if (canseemon(mtmp) && is_dragon(mtmp->data) && uarmg->oartifact == ART_DRAGONBANE) {
+                if (rn2(3) && canseemon(mtmp) && is_dragon(mtmp->data)
+                    && uarmg->oartifact == ART_DRAGONBANE) {
                     pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
                     mtmp->mhp -= rnd(6) + 2;
                 }
-                if (mtmp->mhp < 1 && uarmg->oartifact == ART_DRAGONBANE) {
+                if (mtmp->mhp < 1 && canseemon(mtmp) && is_dragon(mtmp->data)
+                    && uarmg->oartifact == ART_DRAGONBANE) {
                     pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
                     xkilled(mtmp, 1);
                     return 2;
