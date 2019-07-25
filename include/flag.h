@@ -441,10 +441,10 @@ struct instance_flags {
     /* item types used to acomplish "special achievements"; find the target
        object and you'll be flagged as having achieved something... */
     short mines_prize_type;     /* luckstone */
-    short soko_prize_type1;     /* bag of holding or    */
+    short soko_prize_type1;     /* bag of holding */
     short soko_prize_type2;     /* amulet of reflection */
     short soko_prize_type3;     /* cloak of magic resistance */
-    short soko_prize_type4;     /* oilskin sack */
+    short soko_prize_type4;     /* magic marker */
     short soko_prize_type5;     /* amulet of flying */
     short soko_prize_type6;     /* cloak of protection */
     struct debug_flags debug;
