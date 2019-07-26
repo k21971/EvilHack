@@ -3864,7 +3864,13 @@ int shiftflags;
          * If we're shifted and getting low on hp, maybe shift back, or
          * if we're a fog cloud at full hp, maybe pick a different shape.
          * If we're not already shifted and in good health, maybe shift.
+         *
+         * If we're already in vampire form and are tame, don't shift
+         * back to an animal/fog form.
          */
+        if (mon->data->mlet == S_VAMPIRE && mon->mtame)
+            dochng = FALSE;
+
         if (mon->data->mlet != S_VAMPIRE) {
             if ((mon->mhp <= (mon->mhpmax + 5) / 6) && rn2(4)
                 && mon->cham >= LOW_PM) {
