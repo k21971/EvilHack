@@ -837,11 +837,16 @@ register struct attack *mattk;
      */
     remove_monster(dx, dy);
     remove_monster(ax, ay);
-    place_monster(magr, dx, dy);
+    if (u.usteed && magr == u.usteed) {
+	teleds(dx, dy, FALSE);
+    } else {
+        place_monster(magr, dx, dy);
+        newsym(ax, ay); /* erase old position */
+    }
+    newsym(dx, dy); /* update new position */
+
     if (msteed != NULL)
         place_monster(msteed, ax, ay);
-    newsym(ax, ay); /* erase old position */
-    newsym(dx, dy); /* update new position */
 
     status = mdamagem(magr, mdef, mattk);
 
@@ -854,8 +859,12 @@ register struct attack *mattk;
          *  magr from level.monsters[mdef->mx][mdef->my].  We need to
          *  put it back and display it.  -kd
          */
-        place_monster(magr, dx, dy);
-        newsym(dx, dy);
+	if (u.usteed && magr == u.usteed) {
+	    teleds(dx, dy, FALSE);
+	} else {
+            place_monster(magr, dx, dy);
+            newsym(dx, dy);
+        }
         /* aggressor moves to <dx,dy> and might encounter trouble there */
         if (minliquid(magr) || (t_at(dx, dy) && mintrap(magr) == 2))
             status |= MM_AGR_DIED;
@@ -873,10 +882,15 @@ register struct attack *mattk;
             }
         }
 
-        remove_monster(dx,dy);
-        place_monster(magr, ax, ay);
+        remove_monster(dx, dy);
+
+	if (u.usteed && magr == u.usteed) {
+	    teleds(ax, ay, FALSE);
+	} else {
+            place_monster(magr, ax, ay);
+            newsym(ax, ay);
+        }
         place_monster(mdef, dx, dy);
-        newsym(ax, ay);
         newsym(dx, dy);
     }
 

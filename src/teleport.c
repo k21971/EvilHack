@@ -367,6 +367,11 @@ boolean allow_drag;
     }
     initrack(); /* teleports mess up tracking monsters without this */
     update_player_regions();
+    /* Move your steed, too */
+    if (u.usteed) {
+	u.usteed->mx = nux;
+	u.usteed->my = nuy;
+    }
     /*
      *  Make sure the hero disappears from the old location.  This will
      *  not happen if she is teleported within sight of her previous
