@@ -1869,6 +1869,12 @@ int mdead;
             /* No message */
         }
         break;
+    case AD_CNCL:
+        if (mhit && !rn2(6)) {
+            pline("%s hide absorbs magical energy from %s.",
+                  s_suffix(Monnam(mdef)), mon_nam(magr));
+            (void) cancel_monst(magr, otmp, FALSE, TRUE, FALSE);
+        }
     default:
         break;
     }
@@ -1922,8 +1928,11 @@ int mdead;
             mdef->mhp += tmp / 2;
             if (mdef->mhpmax < mdef->mhp)
                 mdef->mhpmax = mdef->mhp;
-            if (mdef->mhpmax > ((int) (mdef->m_lev + 1) * 8))
-                (void) split_mon(mdef, magr);
+            if (mddat == &mons[PM_BLUE_JELLY]
+                || mddat == &mons[PM_BROWN_MOLD]) {
+                if (mdef->mhpmax > ((int) (mdef->m_lev + 1) * 8))
+                    (void) split_mon(mdef, magr);
+            }
             break;
         case AD_STUN:
             if (!magr->mstun) {

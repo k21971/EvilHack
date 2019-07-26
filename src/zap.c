@@ -2837,12 +2837,12 @@ boolean youattack, allow_cancel_kill, self_cancel;
 	    shieldeff(mdef->mx, mdef->my);
 	}
 	for (otmp = (youdefend ? invent : mdef->minvent);
-	     otmp; otmp = otmp->nobj) {
+	    otmp; otmp = otmp->nobj) {
 	    /* gold isn't subject to being cursed or blessed */
 	    if (otmp->oclass == COIN_CLASS)
                 continue;
 	    nobj++;
-    }
+        }
     if (nobj) {
         for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
             cnt > 0; cnt--) {

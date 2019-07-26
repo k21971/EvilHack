@@ -35,9 +35,10 @@
 #define can_jump(mon)  (((mon)->mextrinsics & MR2_JUMPING) != 0)
 #define has_displacement(mon) (((mon)->mextrinsics & MR2_DISPLACED) != 0)
 
-#define resists_sick(mon)  ((mon)->data->mlet == S_FUNGUS || \
-                            (mon)->data->mlet == S_ZOMBIE || \
-			    (mon)->data->mlet == S_WRAITH)
+#define resists_sick(mon)  ((mon)->data->mlet == S_FUNGUS                \
+                            || is_undead((mon)->data)                    \
+                            || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
+                            || (mon)->data == &mons[PM_GOLD_DRAGON])
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)

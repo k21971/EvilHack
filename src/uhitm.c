@@ -3060,6 +3060,11 @@ boolean wep_was_destroyed;
             passive_obj(mon, weapon, &(ptr->mattk[i]));
         }
         break;
+    case AD_CNCL:
+        if (mhit && !rn2(6)) {
+            (void) cancel_monst(&youmonst, weapon, FALSE, TRUE, FALSE);
+        }
+        break;
     default:
         break;
     }

@@ -1293,7 +1293,8 @@ NEARDATA struct permonst mons[] = {
      */
     MON("baby gray dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
-          ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_NONE, AD_CNCL, 0, 0),
+          NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), 0, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
@@ -1314,7 +1315,8 @@ NEARDATA struct permonst mons[] = {
         MH_DRAGON, 13, CLR_CYAN),
     MON("baby red dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 6, 5), ATTK(AT_CLAW, AD_PHYS, 2, 6),
-          ATTK(AT_CLAW, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 6), ATTK(AT_NONE, AD_FIRE, 0, 2),
+          NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_FIRE, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_INFRAVISIBLE,
@@ -1381,7 +1383,7 @@ NEARDATA struct permonst mons[] = {
     MON("gray dragon", S_DRAGON, LVL(15, 9, -1, 20, 4), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_MAGM, 4, 6), ATTK(AT_BITE, AD_PHYS, 4, 8),
           ATTK(AT_CLAW, AD_PHYS, 4, 4), ATTK(AT_CLAW, AD_PHYS, 4, 4),
-          ATTK(AT_ENGL, AD_DGST, 2, 10), NO_ATTK),
+          ATTK(AT_ENGL, AD_DGST, 2, 10), ATTK(AT_NONE, AD_CNCL, 0, 0)),
         SIZ(WT_DRAGON, 1500, MS_ROAR, MZ_GIGANTIC), 0, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
@@ -1408,7 +1410,7 @@ NEARDATA struct permonst mons[] = {
     MON("red dragon", S_DRAGON, LVL(15, 9, -1, 20, -4), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_FIRE, 7, 6), ATTK(AT_BITE, AD_PHYS, 4, 9),
           ATTK(AT_CLAW, AD_PHYS, 4, 5), ATTK(AT_CLAW, AD_PHYS, 4, 5),
-          ATTK(AT_ENGL, AD_DGST, 2, 10), NO_ATTK),
+          ATTK(AT_ENGL, AD_DGST, 2, 10), ATTK(AT_NONE, AD_FIRE, 0, 6)),
         SIZ(WT_DRAGON, 1500, MS_ROAR, MZ_GIGANTIC), MR_FIRE, MR_FIRE,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,

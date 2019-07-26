@@ -88,13 +88,17 @@
 /* Intrinsics only */
 #define HSick_resistance u.uprops[SICK_RES].intrinsic
 #define ESick_resistance u.uprops[SICK_RES].extrinsic
-#define Sick_resistance (HSick_resistance || ESick_resistance \
-                         || youmonst.data->mlet == S_FUNGUS   \
-                         || youmonst.data->mlet == S_ZOMBIE   \
-                         || youmonst.data->mlet == S_WRAITH   \
+#define Sick_resistance (HSick_resistance || ESick_resistance           \
+                         || youmonst.data->mlet == S_FUNGUS             \
+                         || youmonst.data->mlet == S_ZOMBIE             \
+                         || youmonst.data->mlet == S_WRAITH             \
+                         || youmonst.data->mlet == S_VAMPIRE            \
+                         || youmonst.data->mlet == S_GHOST              \
+                         || youmonst.data->mlet == S_MUMMY              \
+                         || youmonst.data->mlet == S_LICH               \
+                         || youmonst.data == &mons[PM_BABY_GOLD_DRAGON] \
+                         || youmonst.data == &mons[PM_GOLD_DRAGON]      \
                          || defends(AD_DISE, uwep))
-
-
 
 #define Invulnerable u.uprops[INVULNERABLE].intrinsic /* [Tom] */
 
@@ -118,7 +122,7 @@
      && !(ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD))
 /* ...the Eyes operate even when you really are blind
     or don't have any eyes */
-#define Blindfolded_only                                            \
+#define Blindfolded_only                                             \
     (Blindfolded && ublindf->oartifact != ART_EYES_OF_THE_OVERWORLD \
      && !u.uroleplay.blind && !Blinded && haseyes(youmonst.data))
 /* ...blind because of a blindfold, and *only* that */

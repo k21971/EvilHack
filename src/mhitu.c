@@ -3402,7 +3402,7 @@ struct attack *mattk;
                 }
                 i = rn2(50);
                 if (i) {
-                    if (rn2(3)) {
+                    if (!rn2(3)) {
                         if (canseemon(mtmp))
                             pline("%s flinches from the cold!", Monnam(mtmp));
                         damage_mon(mtmp, rnd(4), AD_COLD);
@@ -3410,10 +3410,42 @@ struct attack *mattk;
                 } else {
                     if (canseemon(mtmp))
                         pline("%s is frozen solid!", Monnam(mtmp));
-                    mtmp->mhp = -1;
+                    damage_mon(mtmp, d(6, 6), AD_COLD);
                 }
                 if (mtmp->mhp < 1) {
                     goto assess_dmg;
+                }
+                return 1;
+                break;
+            case RED_DRAGON_SCALE_MAIL:
+            case RED_DRAGON_SCALES:
+                if (resists_fire(mtmp)) {
+                    return 1;
+                }
+                i = rn2(50);
+                if (i) {
+                    if (!rn2(3)) {
+                        if (canseemon(mtmp))
+                            pline("%s is burned!", Monnam(mtmp));
+                        damage_mon(mtmp, rnd(4), AD_FIRE);
+                    }
+                } else {
+                    if (canseemon(mtmp))
+                        pline("%s is severely burned!", Monnam(mtmp));
+                    damage_mon(mtmp, d(6, 6), AD_FIRE);
+                }
+                if (mtmp->mhp < 1) {
+                    goto assess_dmg;
+                }
+                return 1;
+                break;
+            case GRAY_DRAGON_SCALE_MAIL:
+            case GRAY_DRAGON_SCALES:
+                if (resists_magm(mtmp)) {
+                    return 1;
+                }
+                if (!rn2(6)) {
+                    (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);
                 }
                 return 1;
                 break;

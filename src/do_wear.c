@@ -666,11 +666,13 @@ int
 Armor_on(VOID_ARGS)
 {
     long oldprop = EFast & W_ARM;
+    long oldprop2 = EStealth & W_ARM;
 
     if (uarm) {
 	switch (uarm->otyp) {
 	    case GOLD_DRAGON_SCALE_MAIL:
 	    case GOLD_DRAGON_SCALES:
+                ESick_resistance |= W_ARM;
 		begin_burn(uarm, FALSE);
 		if (!Blind)
 		    pline("%s to glow.", Tobjnam(uarm, "begin"));
@@ -690,6 +692,20 @@ Armor_on(VOID_ARGS)
 	    case WHITE_DRAGON_SCALES:
 		EWwalking |= W_ARM;
 		break;
+            case SHIMMERING_DRAGON_SCALE_MAIL:
+            case SHIMMERING_DRAGON_SCALES:
+                You_feel("that monsters have difficulty pinpointing your location.");
+                if (!oldprop2 && !HStealth && !BStealth) {
+                    You("move very quietly.");
+                } else if (Levitation || Flying) {
+                    You("float imperceptibly.");
+                }
+                EStealth |= W_ARM;
+                break;
+            case SILVER_DRAGON_SCALE_MAIL:
+            case SILVER_DRAGON_SCALES:
+                ECold_resistance |= W_ARM;
+                break;
 	    default:
 		break;
 	    }
@@ -710,6 +726,7 @@ Armor_off(VOID_ARGS)
 	switch (uarm->otyp) {
 	    case GOLD_DRAGON_SCALE_MAIL:
 	    case GOLD_DRAGON_SCALES:
+                ESick_resistance &= ~W_ARM;
 		end_burn(uarm, FALSE);
 		if (!Blind)
 		    pline("%s glowing.", Tobjnam(uarm, "stop"));
@@ -720,6 +737,7 @@ Armor_off(VOID_ARGS)
 		if (!Very_fast) {
 		    pline("You slow down.");
 		}
+                break;
 	    case YELLOW_DRAGON_SCALE_MAIL:
 	    case YELLOW_DRAGON_SCALES:
 	        EStone_resistance &= ~W_ARM;
@@ -727,6 +745,17 @@ Armor_off(VOID_ARGS)
 	    case WHITE_DRAGON_SCALE_MAIL:
 	    case WHITE_DRAGON_SCALES:
 		EWwalking &= ~W_ARM;
+                break;
+            case SHIMMERING_DRAGON_SCALE_MAIL:
+            case SHIMMERING_DRAGON_SCALES:
+                You_feel("that monsters no longer have difficulty pinpointing your location.");
+                EStealth &= ~W_ARM;
+                You("sure are noisy.");
+                break;
+            case SILVER_DRAGON_SCALE_MAIL:
+            case SILVER_DRAGON_SCALES:
+                ECold_resistance &= ~W_ARM;
+                break;
 	    default:
 		break;
 	}
@@ -750,6 +779,7 @@ Armor_gone()
 	switch (uarm->otyp) {
 	    case GOLD_DRAGON_SCALE_MAIL:
 	    case GOLD_DRAGON_SCALES:
+                ESick_resistance &= ~W_ARM;
 		end_burn(uarm, FALSE);
 		break;
 	    case BLUE_DRAGON_SCALE_MAIL:
@@ -766,6 +796,17 @@ Armor_gone()
 	    case WHITE_DRAGON_SCALE_MAIL:
 	    case WHITE_DRAGON_SCALES:
 		EWwalking &= ~W_ARM;
+                break;
+            case SHIMMERING_DRAGON_SCALE_MAIL:
+            case SHIMMERING_DRAGON_SCALES:
+                You_feel("that monsters no longer have difficulty pinpointing your location.");
+                EStealth &= ~W_ARM;
+                You("sure are noisy.");
+                break;
+            case SILVER_DRAGON_SCALE_MAIL:
+            case SILVER_DRAGON_SCALES:
+                ECold_resistance &= ~W_ARM;
+                break;
 	    default:
 		break;
 	}
