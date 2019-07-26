@@ -838,7 +838,7 @@ register struct monst *mtmp;
                             || !thick_skinned(youmonst.data))
                             sum[i] = hitmu(mtmp, mattk);
                         if (mtmp->data == &mons[PM_MEDUSA]
-                            && mattk->aatyp == AT_BITE) {
+                            && mattk->aatyp == AT_BITE && !mtmp->mcan) {
                             if (!Stoned && !Stone_resistance
                                 && !(poly_when_stoned(youmonst.data)
                                 && polymon(PM_STONE_GOLEM))) {
@@ -2554,13 +2554,13 @@ struct attack *mattk;
                           Monnam(mtmp), mhis(mtmp));
                 break;
             }
-            if (useeit && !rn2(8)) {
+            if (useeit && !rn2(20)) {
                 pline("%s is turned to stone!", Monnam(mtmp));
                 stoned = TRUE;
                 killed(mtmp);
             } else if (useeit) {
-                pline("%s shields %s eyes from %s reflected gaze just in time!",
-                      Monnam(mtmp), mhis(mtmp), mhis(mtmp));
+                pline("%s %s %s eyes from %s reflected gaze just in time!",
+                      Monnam(mtmp), rn2(2) ? "shields" : "covers", mhis(mtmp), mhis(mtmp));
                 break;
             }
 
