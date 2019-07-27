@@ -3492,9 +3492,12 @@ struct attack *mattk;
     }
     if (oldu_mattk->damn)
         tmp = d((int) oldu_mattk->damn, (int) oldu_mattk->damd);
-    else if (oldu_mattk->damd)
-        tmp = d((int) olduasmon->mlevel + 1, (int) oldu_mattk->damd);
-    else
+    else if (oldu_mattk->damd) {
+        if (is_dragon(olduasmon))
+            tmp = d((int) olduasmon->mlevel + 1, (int) oldu_mattk->damd) / 3;
+        else
+            tmp = d((int) olduasmon->mlevel + 1, (int) oldu_mattk->damd);
+    } else
         tmp = 0;
 
     /* These affect the enemy even if you were "killed" (rehumanized) */
