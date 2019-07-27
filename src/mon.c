@@ -2653,6 +2653,8 @@ void
 mondied(mdef)
 register struct monst *mdef;
 {
+    struct monst *msteed = NULL;
+
     mondead(mdef);
     if (!DEADMONSTER(mdef))
         return; /* lifesaved */
@@ -2660,6 +2662,17 @@ register struct monst *mdef;
     if (corpse_chance(mdef, (struct monst *) 0, FALSE)
         && (accessible(mdef->mx, mdef->my) || is_pool(mdef->mx, mdef->my)))
         (void) make_corpse(mdef, CORPSTAT_NONE);
+
+    if (mdef->mextra && ERID(mdef) && ERID(mdef)->m1 != NULL) {
+        msteed = ERID(mdef)->m1;
+        ERID(mdef)->m1->monmount = 0;
+        if (msteed != NULL)
+            place_monster(msteed, mdef->mx, mdef->my);
+        else
+            place_monster(mdef, mdef->mx, mdef->my);
+        newsym(mdef->mx, mdef->my);
+        free_erid(mdef);
+    }
 }
 
 /* monster disappears, not dies */
