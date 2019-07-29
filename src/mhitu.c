@@ -2211,6 +2211,10 @@ struct attack *mattk;
             tmp = u.uhp;
             if (Half_physical_damage)
                 tmp *= 2; /* sorry */
+            killer.format = NO_KILLER_PREFIX;
+            Sprintf(killer.name, "digested by %s",
+                    an(l_monnam(u.ustuck)));
+            done(DIED);
         } else {
             pline("%s%s digests you!", Monnam(mtmp),
                   (u.uswldtim == 2) ? " thoroughly"
