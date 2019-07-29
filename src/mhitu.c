@@ -3441,9 +3441,6 @@ struct attack *mattk;
                 break;
             case GRAY_DRAGON_SCALE_MAIL:
             case GRAY_DRAGON_SCALES:
-                if (resists_magm(mtmp)) {
-                    return 1;
-                }
                 if (!rn2(6)) {
                     (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);
                 }
@@ -3571,6 +3568,12 @@ struct attack *mattk;
             /* No message */
         }
         return 1;
+    case AD_CNCL:
+        if (!rn2(6)) {
+            (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);
+        }
+        return 1;
+        break;
     default:
         break;
     }
