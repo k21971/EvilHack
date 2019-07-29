@@ -2882,7 +2882,8 @@ uchar aatyp;
 boolean wep_was_destroyed;
 {
     register struct permonst *ptr = mon->data;
-    register int i, tmp;
+    register struct obj *m_armor;
+    register int i, t, tmp;
 
     for (i = 0;; i++) {
         if (i >= NATTK)
@@ -2897,6 +2898,124 @@ boolean wep_was_destroyed;
         tmp = d((int) mon->m_lev + 1, (int) ptr->mattk[i].damd);
     else
         tmp = 0;
+
+    /* Humanoid monsters wearing various dragon scale/dragon scale mail armor */
+    for (m_armor = mon->minvent; m_armor; m_armor = m_armor->nobj) {
+        t = rnd(6) + 1;
+        if (mhit && m_armor->owornmask & (W_ARM) != 0 && !rn2(3)) {
+            switch (m_armor->otyp) {
+                case GREEN_DRAGON_SCALE_MAIL:
+                case GREEN_DRAGON_SCALES:
+                    if (how_resistant(POISON_RES) == 100) {
+                        You("are immune to %s poisonous armor.",
+                            s_suffix(mon_nam(mon)));
+                        monstseesu(M_SEEN_POISON);
+                        break;
+                    } else {
+                        i = rn2(20);
+                        if (i) {
+                            You("have been poisoned!");
+                            t = resist_reduce(t, POISON_RES);
+                            mdamageu(mon, t);
+                        } else {
+                            if (how_resistant(POISON_RES) <= 34) {
+                                pline("%s poisonous armor was deadly...",
+                                      s_suffix(Monnam(mon)));
+                                done_in_by(mon, DIED);
+                                return 2;
+                            }
+                        }
+                    }
+                    break;
+                case BLACK_DRAGON_SCALE_MAIL:
+                case BLACK_DRAGON_SCALES:
+                    if (how_resistant(DISINT_RES) == 100) {
+                        You("are unaffected by %s deadly armor.",
+                            s_suffix(mon_nam(mon)));
+                        monstseesu(M_SEEN_DISINT);
+                        break;
+                    } else {
+                        i = rn2(40);
+                        if (i) {
+                            You("partially disintegrate!");
+                            t = resist_reduce(t, DISINT_RES);
+                            mdamageu(mon, t);
+                        } else {
+                            pline("%s deadly armor disintegrates you!",
+                                  s_suffix(Monnam(mon)));
+                            u.ugrave_arise = -3;
+                            done_in_by(mon, DIED);
+                            return 2;
+                        }
+                    }
+                    break;
+                case ORANGE_DRAGON_SCALE_MAIL:
+                case ORANGE_DRAGON_SCALES:
+                    if (how_resistant(SLEEP_RES) == 100) {
+                        break;
+                    } else {
+                        if (!Slow)
+                            u_slow_down();
+                    }
+                    break;
+                case WHITE_DRAGON_SCALE_MAIL:
+                case WHITE_DRAGON_SCALES:
+                    if (how_resistant(COLD_RES) == 100) {
+                        shieldeff(u.ux, u.uy);
+                        monstseesu(M_SEEN_COLD);
+                        You_feel("a mild chill from %s armor.",
+                                 s_suffix(mon_nam(mon)));
+                        ugolemeffects(AD_COLD, t);
+                        break;
+                    } else {
+                        i = rn2(50);
+                        if (i) {
+                            You("are suddenly very cold!");
+                            t = resist_reduce(t, COLD_RES);
+                            mdamageu(mon, t);
+                        } else {
+                            pline("%s chilly armor freezes you!",
+                                  s_suffix(Monnam(mon)));
+                            resist_reduce(t, COLD_RES);
+                            mdamageu(mon, d(3, 6) + t);
+                        }
+                    }
+                    break;
+                case RED_DRAGON_SCALE_MAIL:
+                case RED_DRAGON_SCALES:
+                    if (how_resistant(FIRE_RES) == 100) {
+                        shieldeff(u.ux, u.uy);
+                        monstseesu(M_SEEN_FIRE);
+                        You_feel("mildly warm from %s armor.",
+                                 s_suffix(mon_nam(mon)));
+                        ugolemeffects(AD_FIRE, t);
+                        break;
+                    } else {
+                        i = rn2(50);
+                        if (i) {
+                            You("are suddenly very hot!");
+                            t = resist_reduce(t, FIRE_RES);
+                            mdamageu(mon, t);
+                        } else {
+                            pline("%s fiery armor severely burns you!",
+                                  s_suffix(Monnam(mon)));
+                            resist_reduce(t, FIRE_RES);
+                            mdamageu(mon, d(3, 6) + t);
+                        }
+                    }
+                    break;
+                case GRAY_DRAGON_SCALE_MAIL:
+                case GRAY_DRAGON_SCALES:
+                    if (rn2(4)) {
+                        (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
+                    }
+                    break;
+                default:          /* all other types of armor, just pass on through */
+                    break;
+            }
+        }
+        return (malive | mhit);
+    }
 
     /*  These affect you even if they just died.
      */
@@ -3183,10 +3302,24 @@ boolean wep_was_destroyed;
         case AD_DRST: /* specifically green dragons */
             if (how_resistant(POISON_RES) == 100) {
                 You("are immune to %s poisonous hide.", s_suffix(mon_nam(mon)));
+                monstseesu(M_SEEN_POISON);
             } else {
-                You("have been poisoned!");
-                tmp = resist_reduce(tmp, POISON_RES);
-                mdamageu(mon, rnd(6));
+                i = rn2(20);
+                if (i) {
+                    You("have been poisoned!");
+                    tmp = resist_reduce(tmp, POISON_RES);
+                    if (is_dragon(mon->data))
+                        mdamageu(mon, tmp / 3);
+                    else
+                        mdamageu(mon, tmp);
+                } else {
+                    if (how_resistant(POISON_RES) <= 34) {
+                        pline("%s poisonous hide was deadly...",
+                              s_suffix(Monnam(mon)));
+                        done_in_by(mon, DIED);
+                        return 2;
+                    }
+                }
             }
             break;
         case AD_SLOW: /* specifically orange dragons */
