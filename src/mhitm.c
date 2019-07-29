@@ -1863,6 +1863,30 @@ int mdead;
             }
         }
         break;
+    case AD_DRST:
+        if (mhit && !mdef->mcan && !rn2(3)) {
+            if (resists_poison(magr)) {
+                if (canseemon(magr)) {
+                    shieldeff(magr->mx, magr->my);
+                    pline("%s poisonous hide doesn't seem to affect %s.",
+                              s_suffix(Monnam(mdef)), mon_nam(magr));
+                }
+            } else {
+                if (canseemon(magr)) {
+                    if (rn2(20)) {
+                        pline("%s is poisoned!", Monnam(magr));
+                    } else {
+                        if (canseemon(magr)) {
+                            pline("%s poisonous hide was deadly...",
+                                  s_suffix(Monnam(mdef)));
+                            monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+                            return (mdead | mhit | MM_AGR_DIED);
+                        }
+                    }
+                }
+            }
+        }
+        break;
     /* Grudge patch. */
     case AD_MAGM:
       /* wrath of gods for attacking Oracle */
@@ -1992,6 +2016,20 @@ int mdead;
             }
             if (canseemon(magr))
                 pline("%s is jolted with electricity!", Monnam(magr));
+            break;
+        case AD_SLOW:
+            if (resists_sleep(magr)) {
+                tmp = 0;
+                break;
+            }
+            if (mhit && !mdef->mcan && magr->mspeed != MSLOW && !rn2(3)) {
+                unsigned int oldspeed = magr->mspeed;
+
+                mon_adjust_speed(magr, -1, (struct obj *) 0);
+                if (magr->mspeed != oldspeed && canseemon(magr))
+                    pline("%s slows down.", Monnam(magr));
+            }
+            tmp = 0;
             break;
         default:
             tmp = 0;

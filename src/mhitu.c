@@ -3520,6 +3520,23 @@ struct attack *mattk;
         if (!rn2(6))
             acid_damage(MON_WEP(mtmp));
         goto assess_dmg;
+    case AD_DISN:
+        if (!rn2(20)) {
+            if (resists_disint(mtmp)) {
+                if (canseemon(mtmp)) {
+                    shieldeff(mtmp->mx, mtmp->my);
+                    Your("deadly hide does not appear to affect %s",
+                          mon_nam(mtmp));
+                }
+            } else {
+                if (canseemon(mtmp)) {
+                    Your("deadly hide disintegrates %s!",
+                          mon_nam(mtmp));
+                    mtmp->mhp = -1;
+                }
+            }
+        }
+        break;
     case AD_STON: /* cockatrice */
     {
         long protector = attk_protection((int) mattk->aatyp),
@@ -3639,6 +3656,35 @@ struct attack *mattk;
                 break;
             }
             pline("%s is jolted with your electricity!", Monnam(mtmp));
+            break;
+        case AD_DRST:
+            if (resists_poison(mtmp)) {
+                pline("%s is unaffected by your poisonous hide.", Monnam(mtmp));
+                tmp = 0;
+                break;
+            }
+            if (canseemon(mtmp)) {
+                if (rn2(20)) {
+                    pline("%s is poisoned!", Monnam(mtmp));
+                } else {
+                    if (canseemon(mtmp)) {
+                        Your("poisonous hide was deadly...");
+                        mtmp->mhp = -1;
+                    }
+                }
+            }
+            break;
+        case AD_SLOW:
+            if (resists_sleep(mtmp)) {
+                tmp = 0;
+                break;
+            }
+            if (rn2(2) && mtmp->mspeed != MSLOW) {
+                if (canseemon(mtmp))
+                    pline("%s looks a little sluggish...", Monnam(mtmp));
+                mtmp->mspeed = MSLOW;
+            }
+            tmp = 0;
             break;
         default:
             tmp = 0;
