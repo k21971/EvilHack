@@ -2976,7 +2976,7 @@ boolean wep_was_destroyed;
                         } else {
                             pline("%s chilly armor freezes you!",
                                   s_suffix(Monnam(mon)));
-                            resist_reduce(t, COLD_RES);
+                            t = resist_reduce(t, COLD_RES);
                             mdamageu(mon, d(3, 6) + t);
                         }
                     }
@@ -2999,7 +2999,7 @@ boolean wep_was_destroyed;
                         } else {
                             pline("%s fiery armor severely burns you!",
                                   s_suffix(Monnam(mon)));
-                            resist_reduce(t, FIRE_RES);
+                            t = resist_reduce(t, FIRE_RES);
                             mdamageu(mon, d(3, 6) + t);
                         }
                     }
