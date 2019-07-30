@@ -2229,12 +2229,11 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
            "<obj> evades your grasp|control" message; give an alternate one */
 
         if (!bane && !(hatemat && obj->material == SILVER)) {
-            pline("The %s of %s hurts to touch!", materialnm[obj->material],
-                  yname(obj));
-        }
-        else {
+            pline("The %s of %s %s!", materialnm[obj->material],
+                  yname(obj), rn2(2) ? "hurts to touch" : "burns your skin");
+        } else {
             You_cant("handle %s%s!", yname(obj),
-                    obj->owornmask ? " anymore" : "");
+                     obj->owornmask ? " anymore" : "");
         }
         /* also inflict damage unless touch_artifact() already did so */
         if (!touch_blasted) {
@@ -2244,10 +2243,19 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
                 dmg += rnd(sear_damage(obj->material) / 2);
             if (bane)
                 dmg += rnd(10);
-            Sprintf(buf, "handling %s", killer_xname(obj));
+            Sprintf(buf, "handling %s that was made of %s",
+                    killer_xname(obj), materialnm[obj->material]);
             losehp(dmg, buf, KILLED_BY);
             exercise(A_CON, FALSE);
         }
+        /* concession to those wishing to use gear made of an adverse material:
+         * don't make them totally unable to use them. In fact, they can touch
+         * them just fine as long as they're willing to.
+         * In keeping with the flavor of searing vs just pain implemented
+         * everywhere else, only silver is actually unbearable -- other
+         * hated non-silver materials can be used too. */
+        if (!bane && !(hatemat && obj->material == SILVER))
+            return 1;
     }
 
     /* removing a worn item might result in loss of levitation,

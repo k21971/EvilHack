@@ -343,9 +343,15 @@ int material;
             if (ptr == &mons[PM_TENGU] || ptr == &mons[PM_LEPRECHAUN])
                 return FALSE;
         }
-        return (boolean) (is_were(ptr) || ptr->mlet == S_VAMPIRE
-                          || is_demon(ptr) || ptr == &mons[PM_SHADE]
-                          || (ptr->mlet == S_IMP));
+        return (is_were(ptr) || ptr->mlet == S_VAMPIRE
+                || is_demon(ptr) || ptr == &mons[PM_SHADE]
+                || (ptr->mlet == S_IMP));
+    } else if (material == IRON) {
+        /* cold iron: elves hate it */
+        return (is_elf(ptr));
+    } else if (material == MITHRIL) {
+        /* mithril: orcs hate it */
+        return (is_orc(ptr));
     }
     return FALSE;
 }
@@ -360,6 +366,8 @@ int material;
     case SILVER:
         return 20;
     case IRON:
+    case MITHRIL:
+        return 8;
     default:
         return 6;
     }
