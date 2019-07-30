@@ -28,26 +28,43 @@ elf_can_regen()
 {
     if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))) {
 	if (uwep && is_iron(uwep)
-            && !is_quest_artifact(uwep) && !uarmg) return 0;
-	if (uarm && is_iron(uarm) && !uarmu) return 0;
-	if (uarmu && is_iron(uarmu)) return 0;
-	if (uarmc && is_iron(uarmc) && !uarmu && !uarm) return 0;
-	if (uarm && is_iron(uarm)) return 0;
-	if (uarmc && is_iron(uarmc) && !uarm) return 0;
+            && !is_quest_artifact(uwep) && !uarmg)
+            return 0;
+	if (uarm && is_iron(uarm) && !uarmu)
+            return 0;
+	if (uarmu && is_iron(uarmu))
+            return 0;
+	if (uarmc && is_iron(uarmc) && !uarmu && !uarm)
+            return 0;
+	if (uarm && is_iron(uarm))
+            return 0;
+	if (uarmc && is_iron(uarmc) && !uarm)
+            return 0;
 	if (uarmh && is_iron(uarmh)
-            && !is_quest_artifact(uarmh)) return 0;
-	if (uarms && is_iron(uarms) && !uarmg) return 0;
-	if (uarmg && is_iron(uarmg)) return 0;
-	if (uarmf && is_iron(uarmf)) return 0;
-	if (uleft && is_iron(uleft)) return 0;
-	if (uright && is_iron(uright)) return 0;
+            && !is_quest_artifact(uarmh))
+            return 0;
+	if (uarms && is_iron(uarms) && !uarmg)
+            return 0;
+	if (uarmg && is_iron(uarmg))
+            return 0;
+	if (uarmf && is_iron(uarmf))
+            return 0;
+	if (uleft && is_iron(uleft))
+            return 0;
+	if (uright && is_iron(uright))
+            return 0;
 	if (uamul && is_iron(uamul) && !is_quest_artifact(uamul)
-            && !uarmu && !uarm) return 0;
+            && !uarmu && !uarm)
+            return 0;
 	if (uamul && is_iron(uamul) && !is_quest_artifact(uamul)
-            && !uarm) return 0;
-	if (ublindf && is_iron(ublindf)) return 0;
-	if (uchain && is_iron(uchain)) return 0;
-	if (uswapwep && is_iron(uswapwep) && u.twoweap) return 0;
+            && !uarm)
+            return 0;
+	if (ublindf && is_iron(ublindf))
+            return 0;
+	if (uchain && is_iron(uchain))
+            return 0;
+	if (uswapwep && is_iron(uswapwep) && u.twoweap)
+            return 0;
     }
     return 1;
 }
@@ -57,26 +74,43 @@ orc_can_regen()
 {
     if (maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC))) {
 	if (uwep && is_mithril(uwep)
-            && !is_quest_artifact(uwep) && !uarmg) return 0;
-	if (uarm && is_mithril(uarm) && !uarmu) return 0;
-	if (uarmu && is_mithril(uarmu)) return 0;
-	if (uarmc && is_mithril(uarmc) && !uarmu && !uarm) return 0;
-	if (uarm && is_mithril(uarm)) return 0;
-	if (uarmc && is_mithril(uarmc) && !uarm) return 0;
+            && !is_quest_artifact(uwep) && !uarmg)
+            return 0;
+	if (uarm && is_mithril(uarm) && !uarmu)
+            return 0;
+	if (uarmu && is_mithril(uarmu))
+            return 0;
+	if (uarmc && is_mithril(uarmc) && !uarmu && !uarm)
+            return 0;
+	if (uarm && is_mithril(uarm))
+            return 0;
+	if (uarmc && is_mithril(uarmc) && !uarm)
+            return 0;
 	if (uarmh && is_mithril(uarmh)
-            && !is_quest_artifact(uarmh)) return 0;
-	if (uarms && is_mithril(uarms) && !uarmg) return 0;
-	if (uarmg && is_mithril(uarmg)) return 0;
-	if (uarmf && is_mithril(uarmf)) return 0;
-	if (uleft && is_mithril(uleft)) return 0;
-	if (uright && is_mithril(uright)) return 0;
+            && !is_quest_artifact(uarmh))
+            return 0;
+	if (uarms && is_mithril(uarms) && !uarmg)
+            return 0;
+	if (uarmg && is_mithril(uarmg))
+            return 0;
+	if (uarmf && is_mithril(uarmf))
+            return 0;
+	if (uleft && is_mithril(uleft))
+            return 0;
+	if (uright && is_mithril(uright))
+            return 0;
         if (uamul && is_mithril(uamul) && !is_quest_artifact(uamul)
-            && !uarmu && !uarm) return 0;
+            && !uarmu && !uarm)
+            return 0;
         if (uamul && is_mithril(uamul) && !is_quest_artifact(uamul)
-            && !uarm) return 0;
-	if (ublindf && is_mithril(ublindf)) return 0;
-	if (uchain && is_mithril(uchain)) return 0;
-	if (uswapwep && is_mithril(uswapwep) && u.twoweap) return 0;
+            && !uarm)
+            return 0;
+	if (ublindf && is_mithril(ublindf))
+            return 0;
+	if (uchain && is_mithril(uchain))
+            return 0;
+	if (uswapwep && is_mithril(uswapwep) && u.twoweap)
+            return 0;
     }
     return 1;
 }

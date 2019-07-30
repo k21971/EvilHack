@@ -413,8 +413,12 @@
 #define Unaware (multi < 0 && (unconscious() || is_fainted()))
 
 /* Whether the hero is in a form that dislikes a certain material */
-#define Hate_material(material) \
-    (hates_material(youmonst.data, material) \
-     || (material == SILVER && u.ulycn >= LOW_PM))
+#define Hate_material(material)                                   \
+    (hates_material(youmonst.data, material)                      \
+     || (material == SILVER && u.ulycn >= LOW_PM)                 \
+     || (material == IRON                                         \
+         && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))  \
+     || (material == MITHRIL                                      \
+         && maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC))))
 
 #endif /* YOUPROP_H */
