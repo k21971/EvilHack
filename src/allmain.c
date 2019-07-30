@@ -36,10 +36,6 @@ elf_can_regen()
             return 0;
 	if (uarmc && is_iron(uarmc) && !uarmu && !uarm)
             return 0;
-	if (uarm && is_iron(uarm))
-            return 0;
-	if (uarmc && is_iron(uarmc) && !uarm)
-            return 0;
 	if (uarmh && is_iron(uarmh)
             && !is_quest_artifact(uarmh))
             return 0;
@@ -55,9 +51,6 @@ elf_can_regen()
             return 0;
 	if (uamul && is_iron(uamul) && !is_quest_artifact(uamul)
             && !uarmu && !uarm)
-            return 0;
-	if (uamul && is_iron(uamul) && !is_quest_artifact(uamul)
-            && !uarm)
             return 0;
 	if (ublindf && is_iron(ublindf))
             return 0;
@@ -82,10 +75,6 @@ orc_can_regen()
             return 0;
 	if (uarmc && is_mithril(uarmc) && !uarmu && !uarm)
             return 0;
-	if (uarm && is_mithril(uarm))
-            return 0;
-	if (uarmc && is_mithril(uarmc) && !uarm)
-            return 0;
 	if (uarmh && is_mithril(uarmh)
             && !is_quest_artifact(uarmh))
             return 0;
@@ -101,9 +90,6 @@ orc_can_regen()
             return 0;
         if (uamul && is_mithril(uamul) && !is_quest_artifact(uamul)
             && !uarmu && !uarm)
-            return 0;
-        if (uamul && is_mithril(uamul) && !is_quest_artifact(uamul)
-            && !uarm)
             return 0;
 	if (ublindf && is_mithril(ublindf))
             return 0;
