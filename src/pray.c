@@ -1865,7 +1865,7 @@ dosacrifice()
 	     * The player can gain an artifact;
 	     * The chance goes down as the number of artifacts goes up.
              *
-             * From SporkHack:
+             * From SporkHack (heavily modified):
 	     * The player can also get handed just a plain old hunk of weaponry
 	     * or piece of armor, but it will be blessed, +3 to +5, fire/rustproof, and
 	     * if it's a weapon, it'll be in one of the player's available skill
@@ -1873,7 +1873,7 @@ dosacrifice()
 	     * get a hunk of ordinary junk rather than an artifact.
              *
 	     * Note that no artifact is guaranteed; it's still subject to the
-             * chances of generating one of those in the first place; these are
+             * chances of generating one of those in the first place. These are
 	     * just the chances that an artifact will even be considered as a gift.
 	     *
 	     * level  4: 10% chance  level  9: 20% chance  level 12: 30% chance
@@ -1903,10 +1903,45 @@ dosacrifice()
 		            if (ncount > 499) {
                                 return 1;
                             }
-		        } else if ((primary_casters || primary_casters_priest)
-                                   && (!Race_if(PM_GIANT) || !Race_if(PM_CENTAUR))) {
-		            typ = rn2(2) ? rnd_class(ARMOR, CLOAK_OF_DISPLACEMENT)
-                                         : rnd_class(GLOVES, LEVITATION_BOOTS);
+		        } else if (primary_casters || primary_casters_priest) {
+                            if (rn2(3)) {
+		                typ = rn2(2) ? rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY)
+                                             : rnd_class(GLOVES, LEVITATION_BOOTS);
+                            } else {
+                                int sp_no, trycnt = u.ulevel + 1;
+
+                                otmp = mkobj(SPBOOK_CLASS, TRUE);
+                                while (--trycnt > 0) {
+                                    if (otmp->otyp != SPE_BLANK_PAPER) {
+                                        for (sp_no = 0; sp_no < MAXSPELL; sp_no++)
+                                            if (spl_book[sp_no].sp_id == otmp->otyp)
+                                                break;
+                                        if (sp_no == MAXSPELL
+                                            && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
+                                            break; /* usable, but not yet known */
+                                    } else {
+                                        if (!objects[SPE_BLANK_PAPER].oc_name_known
+                                            || carrying(MAGIC_MARKER))
+                                            break;
+                                    }
+                                    otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                                }
+                                bless(otmp);
+                                at_your_feet("An object");
+                                dropy(otmp);
+                                godvoice(u.ualign.type, "Use this gift skillfully!");
+                                u.ugifts++;
+                                u.ublesscnt = rnz(300 + (50 * u.ugifts));
+                                exercise(A_WIS, TRUE);
+                                livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
+                                                "had %s given to %s by %s", an(xname(otmp)),
+                                                uhim(), u_gname());
+                                if (!Hallucination && !Blind) {
+                                    otmp->dknown = 1;
+                                    makeknown(otmp->otyp);
+                                }
+                                return 1;
+                            }
                         } else if (Role_if(PM_MONK)
                                    && (!Race_if(PM_GIANT) || !Race_if(PM_CENTAUR))) {
                             typ = rn2(2) ? rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY)
@@ -1932,10 +1967,8 @@ dosacrifice()
 			    u.ublesscnt = rnz(300 + (50 * u.ugifts));
 			    exercise(A_WIS, TRUE);
                             livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                    "had %s entrusted to %s by %s",
-                                    an(xname(otmp)),
-                                    uhim(),
-                                    u_gname());
+                                            "had %s entrusted to %s by %s", an(xname(otmp)),
+                                            uhim(), u_gname());
                             if (!Hallucination && !Blind) {
                                 otmp->dknown = 1;
 			        makeknown(otmp->otyp);
@@ -1958,10 +1991,8 @@ dosacrifice()
                     u.ublesscnt = rnz(300 + (50 * nartifacts));
                     exercise(A_WIS, TRUE);
                     livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                            "had %s bestowed upon %s by %s",
-                            artiname(otmp->oartifact),
-                            uhim(),
-                            align_gname(u.ualign.type));
+                                    "had %s bestowed upon %s by %s", artiname(otmp->oartifact),
+                                    uhim(), align_gname(u.ualign.type));
 		    /* make sure we can use this weapon */
 		    unrestrict_weapon_skill(weapon_type(otmp));
                     if (!Hallucination && !Blind) {
