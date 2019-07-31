@@ -844,7 +844,7 @@ int dieroll;
                 }
                 /* a minimal hit doesn't exercise proficiency */
                 valid_weapon_attack = (tmp > 1);
-                if (!valid_weapon_attack || mon == u.ustuck || u.twoweap
+                if (!valid_weapon_attack || mon == u.ustuck
                     /* Cleaver can hit up to three targets at once so don't
                        let it also hit from behind or shatter foes' weapons */
                     || (hand_to_hand && obj->oartifact == ART_CLEAVER)) {
@@ -853,7 +853,10 @@ int dieroll;
                            /* multi-shot throwing is too powerful here */
                            && hand_to_hand) {
                     You("strike %s from behind!", mon_nam(mon));
-                    tmp += rnd(u.ulevel);
+                    if (u.twoweap)
+                        tmp += rnd(u.ulevel / 2) + 1;
+                    else
+                        tmp += rnd(u.ulevel);
                     hittxt = TRUE;
                 } else if (obj == uwep && obj->oclass == WEAPON_CLASS
                            && ((dieroll == 2 && (bimanual(obj) || (Race_if(PM_GIANT))
