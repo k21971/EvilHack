@@ -1623,7 +1623,7 @@ register struct attack *mattk;
         if (!rn2(20)) {
             stealamulet(mtmp);
             if (In_endgame(&u.uz) && mon_has_amulet(mtmp)) {
-                monflee(mtmp, 20, FALSE, TRUE);
+                monflee(mtmp, rnd(100) + 100, FALSE, TRUE);
             }
         }
         break;

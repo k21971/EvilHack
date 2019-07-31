@@ -245,7 +245,7 @@ register struct monst *mtmp;
     register struct obj *otmp;
     register struct monst *mtmp2;
 
-    if (!M_Wants(mask))
+    if (!M_Wants(mask) && !is_mplayer(mtmp->data))
         return (unsigned long) STRAT_NONE;
 
     otyp = which_arti(mask);
@@ -262,6 +262,26 @@ register struct monst *mtmp;
                  && ((otyp != AMULET_OF_YENDOR && otyp != 0 )
                      || (!mtmp2->iswiz && !inhistemple(mtmp2))))
             return STRAT(STRAT_MONSTR, mtmp2->mx, mtmp2->my, mask);
+    }
+
+#define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
+
+    /* Do we have the Amulet? Alrighty then... */
+    if (Is_astralevel(&u.uz)) {
+	int targetx = u.ux, targety = u.uy;
+	aligntyp malign = sgn(mtmp->data->maligntyp);
+
+	if (IS_ALTAR(levl[10][10].typ)
+            && a_align(10, 10) == malign)
+            targetx = 10, targety = 10;
+	else if (IS_ALTAR(levl[40][6].typ)
+                 && a_align(40, 6) == malign)
+            targetx = 40, targety = 6;
+	else if (IS_ALTAR(levl[70][10].typ)
+                 && a_align(70, 10) == malign)
+            targetx = 70, targety = 10;
+
+	return STRAT(STRAT_NONE, targetx, targety, mask);
     }
     return (unsigned long) STRAT_NONE;
 }
