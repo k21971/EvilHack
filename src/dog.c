@@ -1122,7 +1122,11 @@ gain_guardian_steed()
                      message will be heard even if that fails) */
     if (u.ualign.record > 8) { /* fervent */
         pline("A voice whispers:");
-        verbalize("Worthy vassal, know now thy true identity! Behold thy steed, the Red Horse!");
+        /* Neither Centaurs nor Giants can ride horses. Awww... */
+        if (Race_if(PM_CENTAUR) || Race_if(PM_GIANT))
+            verbalize("Worthy vassal, know now thy true identity!  Behold thy companion, the Red Horse!");
+        else
+            verbalize("Worthy vassal, know now thy true identity!  Behold thy steed, the Red Horse!");
         mm.x = u.ux;
         mm.y = u.uy;
         if (enexto(&mm, mm.x, mm.y, &mons[PM_RED_HORSE])
@@ -1133,7 +1137,7 @@ gain_guardian_steed()
             if (!Blind)
                 pline("The Red Horse appears near you.");
             else
-                You_feel("the presence of The Red Horse near you.");
+                You_feel("the presence of the Red Horse near you.");
             /* make it strong enough vs. endgame foes */
             mtmp->mhp = mtmp->mhpmax =
                 d((int) mtmp->m_lev, 10) + 30 + rnd(30);
