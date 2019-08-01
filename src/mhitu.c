@@ -928,12 +928,18 @@ register struct monst *mtmp;
                  * wields when 2 spaces away, but it can be
                  * teleported or whatever....
                  */
-                if (mtmp->weapon_check == NEED_WEAPON || !MON_WEP(mtmp)) {
+                if ((mtmp->weapon_check == NEED_WEAPON || !MON_WEP(mtmp)
+                    || (is_launcher(MON_WEP(mtmp)) && !(MON_WEP(mtmp))->cursed))) {
                     mtmp->weapon_check = NEED_HTH_WEAPON;
                     /* mon_wield_item resets weapon_check as appropriate */
                     if (mon_wield_item(mtmp) != 0)
                         break;
                 }
+		if ((!MON_WEP(mtmp))
+		    || (is_launcher(MON_WEP(mtmp)))) {
+		    /* implies we could not find a HTH weapon */
+		    thrwmu(mtmp);
+	        }
                 if (foundyou) {
                     mon_currwep = MON_WEP(mtmp);
                     if (mon_currwep) {

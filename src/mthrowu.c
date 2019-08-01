@@ -332,7 +332,9 @@ struct obj *otmp, *mwep;
 
         struct monst *mat, *mret = (struct monst *)0, *oldmret = (struct monst *)0;
 
-        boolean conflicted = Conflict && !resist(mtmp, RING_CLASS, 0, 0);
+        boolean conflicted = Conflict && couldsee(mtmp->mx, mtmp->my)
+                                      && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM)
+                                      && !resist(mtmp, RING_CLASS, 0, 0);
 
         if (is_covetous(mtmp->data) && !mtmp->mtame)
         {
@@ -340,22 +342,21 @@ struct obj *otmp, *mwep;
             register int gx = STRAT_GOALX(mtmp->mstrategy),
                          gy = STRAT_GOALY(mtmp->mstrategy);
             register struct monst *mtmp2 = m_at(gx, gy);
-        if (mtmp2 && mlined_up(mtmp, mtmp2, FALSE))
-     	{
+
+        if (mtmp2 && mlined_up(mtmp, mtmp2, FALSE)) {
      	    return mtmp2;
      	}
 
-        if (!mtmp->mpeaceful && !conflicted &&
-     	   ((mtmp->mstrategy & STRAT_STRATMASK) == STRAT_NONE) &&
-     	    lined_up(mtmp)) {
-             	return &youmonst;  /* kludge - attack the player first
-     				      if possible */
+        if (!mtmp->mpeaceful && !conflicted
+     	    && ((mtmp->mstrategy & STRAT_STRATMASK) == STRAT_NONE)
+     	    && lined_up(mtmp)) {
+            return &youmonst;  /* kludge - attack the player first if possible */
      	}
 
      	for (dir = 0; dir < 8; dir++)
-     		if (dirx[dir] == sgn(gx-mtmp->mx) &&
-     		    diry[dir] == sgn(gy-mtmp->my))
-     		    	break;
+     	    if (dirx[dir] == sgn(gx-mtmp->mx)
+     		&& diry[dir] == sgn(gy-mtmp->my))
+     	    break;
 
      	if (dir == 8) {
      	    tbx = tby = 0;
@@ -364,17 +365,15 @@ struct obj *otmp, *mwep;
 
      	origdir = -1;
         } else {
-       	dir = rn2(8);
-     	origdir = -1;
+       	    dir = rn2(8);
+     	    origdir = -1;
 
-         	if (!mtmp->mpeaceful && !conflicted && lined_up(mtmp)) {
-             	return &youmonst;  /* kludge - attack the player first
-     				      if possible */
+            if (!mtmp->mpeaceful && !conflicted && lined_up(mtmp)) {
+                return &youmonst;  /* kludge - attack the player first if possible */
      	    }
         }
 
-        for (; dir != origdir; dir = ((dir + 1) % 8))
-        {
+        for (; dir != origdir; dir = ((dir + 1) % 8)) {
             if (origdir < 0) origdir = dir;
 
      	mret = (struct monst *)0;
@@ -383,56 +382,50 @@ struct obj *otmp, *mwep;
      	y = mtmp->my;
      	dx = dirx[dir];
      	dy = diry[dir];
-     	for(i = 0; i < BOLT_LIM; i++)
-     	{
+     	for (i = 0; i < BOLT_LIM; i++) {
      	    x += dx;
      	    y += dy;
 
      	    if (!isok(x, y) || !ZAP_POS(levl[x][y].typ) || closed_door(x, y))
      	        break; /* off the map or otherwise bad */
 
-     	    if (!conflicted &&
-     	        ((mtmp->mpeaceful && (x == mtmp->mux && y == mtmp->muy)) ||
-     	        (mtmp->mtame && x == u.ux && y == u.uy)))
-     	    {
+     	    if (!conflicted
+     	        && ((mtmp->mpeaceful && (x == mtmp->mux && y == mtmp->muy))
+     	        || (mtmp->mtame && x == u.ux && y == u.uy))) {
      	        mret = oldmret;
      	        break; /* don't attack you if peaceful */
      	    }
 
-     	    if ((mat = m_at(x, y)))
-    	    {
+     	    if ((mat = m_at(x, y))) {
      	        /* i > 0 ensures this is not a close range attack */
-     	        if (mtmp->mtame && !mat->mtame &&
-     		    acceptable_pet_target(mtmp, mat, TRUE) && i > 0) {
-     		    if ((!oldmret) ||
-     		        (mons[monsndx(mat->data)].difficulty >
-     			 mons[monsndx(oldmret->data)].difficulty))
+     	        if (mtmp->mtame && !mat->mtame
+     		    && acceptable_pet_target(mtmp, mat, TRUE) && i > 0) {
+     		    if ((!oldmret)
+     		        || (mons[monsndx(mat->data)].difficulty >
+     			mons[monsndx(oldmret->data)].difficulty))
      		    	mret = mat;
      		}
      		else if ((mm_aggression(mtmp, mat) & ALLOW_M)
-     		    || conflicted)
-    		{
-     		    if (mtmp->mtame && !conflicted &&
-     		        !acceptable_pet_target(mtmp, mat, TRUE))
-     		    {
+     		    || conflicted) {
+     		    if (mtmp->mtame && !conflicted
+     		        && !acceptable_pet_target(mtmp, mat, TRUE)) {
      		        mret = oldmret;
      		        break; /* not willing to attack in that direction */
      		    }
 
      		    /* Can't make some pairs work together
      		       if they hate each other on principle. */
-     		    if ((conflicted ||
-     		        (!(mtmp->mtame && mat->mtame) || !rn2(5))) &&
-     			i > 0) {
-     		    	if ((!oldmret) ||
-     		            (mons[monsndx(mat->data)].difficulty >
-     			     mons[monsndx(oldmret->data)].difficulty))
-     		        	mret = mat;
+     		    if ((conflicted
+     		        || (!(mtmp->mtame && mat->mtame) || !rn2(5)))
+     			&& i > 0) {
+     		    	if ((!oldmret)
+     		            || (mons[monsndx(mat->data)].difficulty >
+     			    mons[monsndx(oldmret->data)].difficulty))
+     		            mret = mat;
      		    }
      		}
 
-     		if (mtmp->mtame && mat->mtame)
-     		{
+     		if (mtmp->mtame && mat->mtame) {
      		    mret = oldmret;
      		    break;  /* Not going to hit friendlies unless they
      		               already hate them, as above. */
@@ -447,12 +440,12 @@ struct obj *otmp, *mwep;
      	tby = (mret->my - mtmp->my);
              return mret; /* should be the strongest monster that's not behind
      	                   a friendly */
-         }
+        }
 
-         /* Nothing lined up? */
-         tbx = tby = 0;
-         return (struct monst *)0;
-     }
+        /* Nothing lined up? */
+        tbx = tby = 0;
+        return (struct monst *) 0;
+    }
 
 /* an object launched by someone/thing other than player attacks a monster;
    return 1 if the object has stopped moving (hit or its range used up) */
