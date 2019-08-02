@@ -201,9 +201,10 @@ struct obj *otmp, *mwep;
         /* for arrow, we checked bow&arrow at start of block, but for
            bow, so far we've only validated that otmp is a weapon stack;
            need to verify that it's a stack of arrows rather than darts */
+        /* this is broken, commenting out until the devteam fixes
         if (mwep->otyp == ELVEN_BOW && ammo_and_launcher(otmp, mwep)
             && !mwep->cursed)
-            multishot++;
+            multishot++; */
         /* 1/3 of launcher enchantment */
         if (ammo_and_launcher(otmp, mwep) && mwep->spe > 1)
             multishot += (long) rounddiv(mwep->spe, 3);
