@@ -2666,10 +2666,7 @@ register struct monst *mdef;
     if (mdef->mextra && ERID(mdef) && ERID(mdef)->m1 != NULL) {
         msteed = ERID(mdef)->m1;
         ERID(mdef)->m1->monmount = 0;
-        if (msteed != NULL)
-            place_monster(msteed, mdef->mx, mdef->my);
-        else
-            place_monster(mdef, mdef->mx, mdef->my);
+        place_monster(msteed, mdef->mx, mdef->my);
         newsym(mdef->mx, mdef->my);
         free_erid(mdef);
     }
