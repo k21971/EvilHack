@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.97 $ $NHDT-Date: 1564608120 2019/07/31 21:22:00 $
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.99 $ $NHDT-Date: 1564771880 2019/08/02 18:51:20 $
 
 This fixes36.3 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.2 in May 2019. Please note, however,
@@ -112,6 +112,9 @@ if a chaotic monk or wizard gets crowned and is given a spellbook rather than
 	been "chosen to steal souls for [Arioch's] glory"
 for multi-shot shooting by monsters, a typo checked hero's weapon for
 	compatibility with ammo when monster was wielding an elven bow
+when a boulder was teleported, if it landed in a pit or trap door or hole its
+	former location wasn't updated to show that it wasn't there anymore
+	(noticed in Sokoban but not limited to there)
 
 
 Fixes to Post-3.6.2 Problems that Were Exposed Via git Repository
@@ -128,6 +131,8 @@ fix for feedback when a monster plays a fire horn at self to cure green slime
 	ended up being used for zapping a wand of fire at self too
 wizard mode ^I "not carrying anything" still claimed "not carrying anything"
 	if "(all items are already identified)" was given
+monster throwing from stack of missiles (darts, daggers, spears) would cause
+	crash if it wasn't wielding a weapon (bug in multi-shot shooting fix)
 curses: sometimes the message window would show a blank line after a prompt
 curses: the change to show map in columns 1..79 instead of 2..80 made the
 	highlight for '@' show up in the wrong place if clipped map had been
