@@ -2953,7 +2953,7 @@ boolean printdun;
             Sprintf(buf, "%s: levels %d to %d",
                     dungeons[dnum].dname, depthstart,
                     depthstart + dungeons[dnum].dunlev_ureached - 1);
-        putstr(win, !final ? ATR_INVERSE : 0, buf);
+        putstr(win, !final ? ATR_INVERSE : ATR_SUBHEAD, buf);
     }
 
     /* calculate level number */
@@ -2978,7 +2978,7 @@ boolean printdun;
                 (!final || (final == 1 && how == ASCENDED)) ? "are"
                   : (final == 1 && how == ESCAPED) ? "left from"
                     : "were");
-    putstr(win, !final ? ATR_BOLD : 0, buf);
+    putstr(win, !final ? ATR_BOLD : ATR_PREFORM, buf);
 
     if (mptr->flags.forgot)
         return;
@@ -3024,7 +3024,7 @@ boolean printdun;
         buf[i] = highc(buf[i]);
         /* capitalizing it makes it a sentence; terminate with '.' */
         Strcat(buf, ".");
-        putstr(win, 0, buf);
+        putstr(win, ATR_PREFORM, buf);
     }
 
     /* we assume that these are mutually exclusive */
@@ -3058,11 +3058,11 @@ boolean printdun;
         Sprintf(buf, "%sMoloch's Sanctum.", PREFIX);
     }
     if (*buf)
-        putstr(win, 0, buf);
+        putstr(win, ATR_PREFORM, buf);
     /* quest entrance is not mutually-exclusive with bigroom or rogue level */
     if (mptr->flags.quest_summons) {
         Sprintf(buf, "%sSummoned by %s.", PREFIX, ldrname());
-        putstr(win, 0, buf);
+        putstr(win, ATR_PREFORM, buf);
     }
 
     /* print out branches */
@@ -3077,7 +3077,7 @@ boolean printdun;
         if (mptr->br->end1_up && !In_endgame(&(mptr->br->end2)))
             Sprintf(eos(buf), ", level %d", depth(&(mptr->br->end2)));
         Strcat(buf, ".");
-        putstr(win, 0, buf);
+        putstr(win, ATR_PREFORM, buf);
     }
 
     /* maybe print out bones details */
@@ -3090,7 +3090,7 @@ boolean printdun;
                 ++kncnt;
         if (kncnt) {
             Sprintf(buf, "%s%s", PREFIX, "Final resting place for");
-            putstr(win, 0, buf);
+            putstr(win, ATR_PREFORM, buf);
             if (died_here) {
                 /* disclosure occurs before bones creation, so listing dead
                    hero here doesn't give away whether bones are produced */
@@ -3102,13 +3102,13 @@ boolean printdun;
                 (void) strsubst(tmpbuf, " her ", " your ");
                 Sprintf(buf, "%s%syou, %s%c", PREFIX, TAB, tmpbuf,
                         --kncnt ? ',' : '.');
-                putstr(win, 0, buf);
+                putstr(win, ATR_PREFORM, buf);
             }
             for (bp = mptr->final_resting_place; bp; bp = bp->next) {
                 if (bp->bonesknown || wizard || final) {
                     Sprintf(buf, "%s%s%s, %s%c", PREFIX, TAB, bp->who,
                             bp->how, --kncnt ? ',' : '.');
-                    putstr(win, 0, buf);
+                    putstr(win, ATR_PREFORM, buf);
                 }
             }
         }
