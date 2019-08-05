@@ -1282,6 +1282,27 @@ int skill;
                           >= practice_needed_to_advance(P_SKILL(skill))));
 }
 
+/* From UnNetHack - return true if this skill requires only a bit more exercise
+ * before it can be advanced (if it's 80% of the way to the next level) */
+STATIC_OVL boolean
+can_almost_advance(skill)
+int skill;
+{
+    if (P_RESTRICTED(skill)
+	|| P_SKILL(skill) >= P_MAX_SKILL(skill)
+	|| P_ADVANCE(skill) >= (unsigned) practice_needed_to_advance(P_SKILL(skill))
+	|| u.skills_advanced >= P_SKILL_LIMIT)
+	return 0;
+    else {
+	unsigned this_level, next_level, remaining;
+	this_level = P_SKILL(skill) > P_UNSKILLED
+	    ? (unsigned) practice_needed_to_advance(P_SKILL(skill - 1)) : 0;
+	next_level = (unsigned) practice_needed_to_advance(P_SKILL(skill));
+	remaining = next_level - P_ADVANCE(skill);
+	return remaining * 5 <= next_level - this_level;
+    }
+}
+
 STATIC_OVL void
 skill_advance(skill)
 int skill;
@@ -1315,7 +1336,7 @@ static const struct skill_range {
 int
 enhance_weapon_skill()
 {
-    int pass, i, n, len, longest, to_advance, eventually_advance, maxxed_cnt;
+    int pass, i, n, len, longest, to_advance, eventually_advance, maxxed_cnt, almost_advance;
     char buf[BUFSZ], sklnambuf[BUFSZ];
     const char *prefix;
     menu_item *selected;
@@ -1328,7 +1349,7 @@ enhance_weapon_skill()
 
     do {
         /* find longest available skill name, count those that can advance */
-        to_advance = eventually_advance = maxxed_cnt = 0;
+        to_advance = eventually_advance = maxxed_cnt = almost_advance = 0;
         for (longest = 0, i = 0; i < P_NUM_SKILLS; i++) {
             if (P_RESTRICTED(i))
                 continue;
@@ -1340,14 +1361,17 @@ enhance_weapon_skill()
                 eventually_advance++;
             else if (peaked_skill(i))
                 maxxed_cnt++;
+	    else if (can_almost_advance(i))
+                almost_advance++;
         }
 
         win = create_nhwindow(NHW_MENU);
         start_menu(win);
 
         /* start with a legend if any entries will be annotated
-           with "*" or "#" below */
-        if (eventually_advance > 0 || maxxed_cnt > 0) {
+           with "*", "#",  or "#" below */
+        if (eventually_advance > 0 || maxxed_cnt > 0
+            || almost_advance > 0) {
             any = zeroany;
             if (eventually_advance > 0) {
                 Sprintf(buf, "(Skill%s flagged by \"*\" may be enhanced %s.)",
@@ -1365,6 +1389,13 @@ enhance_weapon_skill()
                 add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, buf,
                          MENU_UNSELECTED);
             }
+	    if (almost_advance > 0) {
+	        Sprintf(buf,
+		 "(Skill%s flagged by \">\" could be enhanced with just a little more exercise.)",
+			plur(almost_advance));
+		add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, buf,
+			 MENU_UNSELECTED);
+	    }
             add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, "",
                      MENU_UNSELECTED);
         }
@@ -1397,9 +1428,11 @@ enhance_weapon_skill()
                     prefix = "  * ";
                 else if (peaked_skill(i))
                     prefix = "  # ";
+		else if (can_almost_advance(i))
+		    prefix = "  > ";
                 else
                     prefix =
-                        (to_advance + eventually_advance + maxxed_cnt > 0)
+                        (to_advance + eventually_advance + maxxed_cnt + almost_advance > 0)
                             ? "    "
                             : "";
                 (void) skill_level_name(i, sklnambuf);
