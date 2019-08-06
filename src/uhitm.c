@@ -3146,16 +3146,34 @@ boolean wep_was_destroyed;
                 && (aatyp == AT_WEAP || aatyp == AT_CLAW
                 || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
                 if (uarmg)
-                    (void) destroy_arm(uarmg);
+                    if (rn2(2) && (uarmg->oerodeproof
+                        || is_supermaterial(uarmg)))
+                        pline("%s being disintegrated!",
+                              Yobjnam2(uarmg, "resist"));
+                    else
+                        (void) destroy_arm(uarmg);
+                break;
             }
         }
         if (mhit && !mon->mcan && weapon && !rn2(10)) {
             if (aatyp == AT_KICK) {
                 if (uarmf)
-                    (void) destroy_arm(uarmf);
+                    if (rn2(2) && (uarmf->oerodeproof
+                        || is_supermaterial(uarmf)))
+                        pline("%s being disintegrated!",
+                              Yobjnam2(uarmf, "resist"));
+                    else
+                        (void) destroy_arm(uarmf);
+                break;
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH) {
-                passive_obj(mon, weapon, &(ptr->mattk[i]));
+                if (rn2(2) && (weapon->oerodeproof
+                    || is_supermaterial(weapon)))
+                    pline("%s being disintegrated!",
+                          Yobjnam2(weapon, "resist"));
+                else
+                    passive_obj(mon, weapon, &(ptr->mattk[i]));
+                break;
             }
         }
         break;
@@ -3403,13 +3421,13 @@ struct attack *mattk;     /* null means we find one internally */
         }
     case AD_DISN:
         if (!mon->mcan) {
-            if (!rn2(u.twoweap ? 2 : 3)) {
+            if (!rn2(u.twoweap ? 2 : 3) && !is_launcher(uwep)) {
+                Your("%s disintegrates!", xname(uwep));
                 useup(uwep);
-                Your("primary weapon disintegrates!");
             }
             if (u.twoweap && rn2(2)) {
+                Your("%s disintegrates!", xname(uswapwep));
                 useup(uswapwep);
-                Your("offhand weapon disintegrates!");
             }
             break;
         }

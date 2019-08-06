@@ -284,6 +284,7 @@ int ef_flags;
         } else {
             setnotworn(otmp);
             delobj(otmp);
+            update_inventory();
         }
         return ER_DESTROYED;
     } else {
@@ -3917,6 +3918,9 @@ boolean force;
             obj->odiluted++;
             if (carried(obj))
                 update_inventory();
+            return ER_DAMAGED;
+        } else if (obj->otyp == HEAVY_IRON_BALL
+                   || obj->otyp == IRON_CHAIN) {
             return ER_DAMAGED;
         }
     } else {
