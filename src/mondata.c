@@ -367,7 +367,7 @@ int material;
         return 20;
     case IRON:
     case MITHRIL:
-        return 8;
+        return rnd(6) + 2;
     default:
         return 6;
     }

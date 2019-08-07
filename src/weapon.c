@@ -515,7 +515,8 @@ struct obj * obj; /* the offending item */
     }
     else {
         whom = upstart(whom);
-        pline("%s recoils from %s%s!", whom, whose, onamebuf);
+        pline("%s %s %s%s!",
+              whom, rn2(2) ? "recoils from" : "is burned by", whose, onamebuf);
     }
 }
 
