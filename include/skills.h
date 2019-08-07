@@ -68,6 +68,7 @@ enum p_skills {
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
+#define P_THIEVERY P_BARE_HANDED_COMBAT
 
 #define P_FIRST_WEAPON P_DAGGER
 #define P_LAST_WEAPON P_UNICORN_HORN
@@ -100,7 +101,7 @@ enum skill_levels {
        were unnamed and just used numbers.  Devteam coined them Master and
        Grand Master.  Sometime after that, Heroes of Might and Magic IV (tm)
        was released and had two more levels which use these same names. */
-    P_MASTER       = 5, /* Unarmed combat/martial arts only */
+    P_MASTER       = 5, /* Unarmed combat/martial arts/thievery only */
     P_GRAND_MASTER = 6  /* ditto */
 };
 

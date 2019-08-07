@@ -428,7 +428,7 @@ static const struct def_skill Skill_R[] = {
     { P_MATTER_SPELL, P_SKILLED },
     { P_RIDING, P_BASIC },
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
-    { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_THIEVERY, P_MASTER },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_Ran[] = {

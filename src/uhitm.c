@@ -445,7 +445,8 @@ register struct monst *mtmp;
                 You("begin bashing monsters with %s.", yname(uwep));
             else if (!cantwield(youmonst.data))
                 You("begin %s monsters with your %s %s.",
-                    ing_suffix(Role_if(PM_MONK) ? "strike" : "bash"),
+                    ing_suffix(Role_if(PM_MONK) ? "strike" :
+                               Role_if(PM_ROGUE) ? "rob" : "bash"),
                     uarmg ? "gloved" : "bare", /* Del Lamb */
                     makeplural(body_part(HAND)));
         }
@@ -745,6 +746,7 @@ int dieroll;
     boolean ispoisoned = FALSE, needpoismsg = FALSE, poiskilled = FALSE,
             unpoisonmsg = FALSE;
     boolean lightobj = FALSE;
+    boolean thievery = FALSE;
     boolean valid_weapon_attack = FALSE;
     boolean unarmed = !uwep && !uarm && !uarms;
     boolean hand_to_hand = (thrown == HMON_MELEE
@@ -781,6 +783,7 @@ int dieroll;
          * 1 on this d4, they get no bonuses and hit for just that one point of
          * damage. */
         valid_weapon_attack = TRUE;
+        thievery = Role_if(PM_ROGUE) && !context.forcefight && !Upolyd;
 
         /* Blessed gloves give bonuses when fighting 'bare-handed'.  So do
            rings or gloves made of a hated material.  Note:  rings are worn
@@ -1290,7 +1293,7 @@ int dieroll;
                 already_killed = TRUE;
         }
         hittxt = TRUE;
-    } else if (unarmed && tmp > 1 && !thrown && !obj && !Upolyd) {
+    } else if (unarmed && tmp > 1 && !thrown && !obj && !Upolyd && !thievery) {
         /* VERY small chance of stunning or confusing opponent if unarmed. */
         if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT) && !biggermonst(mdat)
             && !thick_skinned(mdat)) {
@@ -1318,7 +1321,17 @@ int dieroll;
         }
     }
 
-    if (!already_killed)
+    if (thievery) {
+        You("%s to %s %s.",
+            rn2(2) ? "try" : "attempt",
+            rn2(2) ? "steal from" : "pickpocket",
+            mon_nam(mon));
+        if (mon->minvent == 0)
+            pline("%s has nothing for you to %s.",
+                  Monnam(mon), rn2(2) ? "steal" : "pickpocket");
+        steal_it(mon, &youmonst.data->mattk[0]);
+        hittxt = TRUE;
+    } else if (!already_killed)
         damage_mon(mon, tmp, AD_PHYS);
     /* adjustments might have made tmp become less than what
        a level draining artifact has already done to max HP */
@@ -1640,11 +1653,17 @@ struct attack *mattk;
     if (gold)
         obj_extract_self(gold);
 
+    /* Rogue uses the thievery skill */
+    if (!Upolyd && (rn2(5) > P_SKILL(P_THIEVERY))) {
+        Your("attempt to %s %s %s.",
+             rn2(2) ? "pickpocket" : "steal from",
+             mon_nam(mdef), rn2(2) ? "failed" : "was unsuccessful");
+        return;
+    }
+
     while ((otmp = mdef->minvent) != 0) {
         if (gold) /* put 'mdef's gold back after remembering mdef->minvent */
             mpickobj(mdef, gold), gold = 0;
-        if (!Upolyd)
-            break; /* no longer have ability to steal */
         if (otmp == stealoid) /* special message for final item */
             pline("%s finishes taking off %s suit.", Monnam(mdef),
                     mhis(mdef));
@@ -1653,9 +1672,13 @@ struct attack *mattk;
         /* might have dropped otmp, and it might have broken or left level */
         if (!otmp || otmp->where != OBJ_INVENT)
             continue;
+        if (theft_petrifies(otmp))
+            break; /* stop thieving even though hero survived */
 
         if (!stealoid)
             break; /* only taking one item */
+        if (!Upolyd)
+            break; /* no longer have ability to steal */
 
         /* take gold out of minvent before making next selection; if it
            is the only thing left, the loop will terminate and it will be
@@ -1701,8 +1724,6 @@ struct monst * mdef;
     /* give the object to the character */
     obj = hold_another_object(obj, "You snatched but dropped %s.",
                                doname(obj), "You steal: ");
-    if (theft_petrifies(obj))
-        return TRUE; /* stop thieving even though hero survived */
     /* more take-away handling, after theft message */
     if (unwornmask & W_WEP) { /* stole wielded weapon */
         possibly_unwield(mdef, FALSE);

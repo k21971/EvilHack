@@ -18,7 +18,7 @@ STATIC_DCL void FDECL(skill_advance, (int));
 
 /* Categories whose names don't come from OBJ_NAME(objects[type])
  */
-#define PN_BARE_HANDED (-1) /* includes martial arts */
+#define PN_BARE_HANDED (-1) /* includes martial arts and thievery */
 #define PN_TWO_WEAPONS (-2)
 #define PN_RIDING (-3)
 #define PN_POLEARMS (-4)
@@ -50,17 +50,18 @@ STATIC_VAR NEARDATA const char *const odd_skill_names[] = {
     "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
 };
-/* indexed vis `is_martial() */
+/* indexed vis Role_if(PM_ROGUE) ? 2 : is_martial() */
 STATIC_VAR NEARDATA const char *const barehands_or_martial[] = {
-    "bare handed combat", "martial arts"
+    "bare handed combat", "martial arts", "thievery"
 };
 
-#define P_NAME(type)                                    \
-    ((skill_names_indices[type] > 0)                    \
-         ? OBJ_NAME(objects[skill_names_indices[type]]) \
-         : (type == P_BARE_HANDED_COMBAT)               \
-               ? barehands_or_martial[martial_bonus()]  \
-               : odd_skill_names[-skill_names_indices[type]])
+#define P_NAME(type)                                        \
+    ((skill_names_indices[type] > 0)                        \
+         ? OBJ_NAME(objects[skill_names_indices[type]])     \
+         : (type == P_BARE_HANDED_COMBAT)                   \
+               ? barehands_or_martial[Role_if(PM_ROGUE) ? 2 \
+               : martial_bonus()]                           \
+                     : odd_skill_names[-skill_names_indices[type]])
 
 static NEARDATA const char kebabable[] = { S_XORN, S_DRAGON, S_JABBERWOCK,
                                            S_NAGA, S_GIANT,  '\0' };
