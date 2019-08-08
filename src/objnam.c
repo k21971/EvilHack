@@ -4186,7 +4186,8 @@ struct obj *no_wish;
         /* Wishing for a quest artifact may summon its nemesis (and quest enemies?) */
         if (any_quest_artifact(otmp) && (rn2(nartifact_exist()) > 1)) {
             const struct Role *role = roles;
-            while ((role->name.m) && (role->questarti != otmp->oartifact)) role++;
+            while ((role->name.m) && (role->questarti != otmp->oartifact))
+                role++;
             if (role->name.m) {
                 /* Don't bring the Tourist's nemesis to fight a Rogue when he is also
                  * the Rogue's quest leader.
@@ -4298,24 +4299,34 @@ struct obj *no_wish;
         }
 
         mtmp = mk_mplayer(&mons[pm], u.ux, u.uy, TRUE, otmp);
+        if (!is_mplayer(mtmp->data))
+            free_mname(mtmp);
         if (mtmp) {
             if(Blind) {
                 if (Hallucination)
                     pline("Smells like teen spirit...");
                 else
                     You("hear a small explosion and smell smoke.");
-                You("hear somebody say: Did you think that I would relinquish %s so easily?", aname);
+                    You("hear somebody say: Did you think that I would %s %s %s?",
+                        rn2(2) ? "relinquish"
+                               : rn2(2) ? "hand over" : "give you",
+                        aname, rn2(2) ? "so easily" : "without a fight");
             } else {
                 if (Hallucination)
                     pline("Nice colors, but the sound could have been more mellow.");
                 else
                     pline("There is a puff of smoke and a figure appears!");
-                pline("%s says: Did you think that I would relinquish %s so easily?",
-                      voice ? voice : Monnam(mtmp), aname);
+                    pline("%s says: Did you think that I would %s %s %s?",
+                          voice ? voice : Monnam(mtmp),
+                          rn2(2) ? "relinquish"
+                                 : rn2(2) ? "hand over" : "give you",
+                          aname, rn2(2) ? "so easily" : "without a fight");
             }
             (void) mpickobj(mtmp, otmp);
-            if (otmp2) (void) mpickobj(mtmp, otmp2);
+            if (otmp2)
+                (void) mpickobj(mtmp, otmp2);
             otmp = (struct obj *) &zeroobj;
+            mtmp->mpeaceful = mtmp->msleeping = 0;
             m_dowear(mtmp, TRUE);
             mtmp->weapon_check = strategy;
             mon_wield_item(mtmp);
