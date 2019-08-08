@@ -1915,7 +1915,7 @@ struct obj *obj, *otmp;
                 break;
             }
             /* KMH, conduct */
-            if (!u.uconduct.polypiles++)
+            if ((otmp->otyp != WAN_POLYMORPH || otmp->where == OBJ_INVENT) && (!u.uconduct.polypiles++))
                 livelog_printf(LL_CONDUCT, "polymorphed %s first object", uhis());
             /* any saved lock context will be dangerously obsolete */
             if (Is_box(obj))
