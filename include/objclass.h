@@ -88,6 +88,9 @@ struct objclass {
 #define is_mithril(otmp) (otmp->material == MITHRIL)
 #define is_iron(otmp) (otmp->material == IRON)
 #define is_glass(otmp) (otmp->material == GLASS)
+#define is_wood(otmp) (otmp->material == WOOD)
+#define is_bone(otmp) (otmp->material == BONE)
+#define is_stone(otmp) (otmp->material == MINERAL)
 #define is_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= MITHRIL)
 #define is_heavy_metallic(otmp) \
@@ -101,6 +104,7 @@ struct objclass {
 #define is_corrodeable(otmp) \
     (otmp->material == COPPER || otmp->material == IRON)
 
+/* inherently fooproof */
 #define is_supermaterial(otmp) \
     (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL \
      || otmp->material == GOLD || otmp->material == PLATINUM    \
