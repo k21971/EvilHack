@@ -3442,6 +3442,21 @@ struct attack *mattk;     /* null means we find one internally */
         }
     case AD_DISN:
         if (!mon->mcan) {
+            /* lets not make the game unwinnable... */
+            if (uwep->otyp == AMULET_OF_YENDOR
+                || uwep->otyp == BELL_OF_OPENING
+                || uwep->otyp == SPE_BOOK_OF_THE_DEAD
+                || uwep->otyp == CANDELABRUM_OF_INVOCATION) {
+                Your("%s %s and cannot be disintegrated.",
+                      xname(uwep), rn2(2) ? "resists completely" : "defies physics");
+                break;
+            }
+            /* nope */
+            if (uwep->otyp == BLACK_DRAGON_SCALES || uwep->otyp == BLACK_DRAGON_SCALE_MAIL) {
+                Your("%s is disintegration-proof and remains intact.",
+                     xname(uwep));
+                break;
+            }
             if (!rn2(u.twoweap ? 2 : 3) && !is_launcher(uwep)) {
                 Your("%s disintegrates!", xname(uwep));
                 useup(uwep);
