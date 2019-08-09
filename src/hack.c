@@ -341,8 +341,9 @@ moverock()
                           (willpickup || canpickup) ? "pick it up"
                                                     : "push it aside");
                     if (In_sokoban(&u.uz)) {
-                        if (yn("Do so?") != 'y') return -1;
-                    sokoban_guilt();
+                        if (yn("Do so?") != 'y')
+                            return -1;
+                        sokoban_guilt();
                     }
                     break;
                 }
@@ -630,6 +631,121 @@ dosinkfall()
     /* probably moot; we're either still levitating or went
        through float_down(), but make sure BFlying is up to date */
     float_vs_flight();
+}
+
+static NEARDATA int dpx, dpy; /* boulder being attacked */
+static NEARDATA int breakturns; /* concentration turn */
+
+STATIC_OVL int
+ma_break()
+{
+    struct obj *bobj, *obj;
+    int success = 0;
+    int prob;
+
+    if (distu(dpx, dpy) > 2) {
+        Your("qi dissipates in all directions.");
+        make_confused(6 + breakturns * P_SKILL(P_MARTIAL_ARTS), FALSE);
+        return 0;
+    }
+
+    if (breakturns < 40 / P_SKILL(P_MARTIAL_ARTS)) {
+        breakturns++;
+        return 1; /* still concentrating */
+    }
+
+    if (obj = sobj_at(BOULDER, dpx, dpy)) {
+        pline("Focusing your qi, you %s the boulder.",
+              rn2(2) ? "strike" : "hit");
+    } else if (obj = sobj_at(STATUE, dpx, dpy)) {
+        pline("Focusing your qi, you %s the statue.",
+              rn2(2) ? "strike" : "hit");
+    }
+
+    /* even while blind you can first feel and then image the boulder */
+    if (Confusion || Hallucination || Stunned) {
+        if (obj = sobj_at(BOULDER, dpx, dpy)) {
+            if (rn2(2)) {
+                You("swing wildly, missing the boulder.");
+            } else {
+               You("slip, hitting your head against the boulder!");
+               losehp(d(1, 4), "face planting into a boulder.",
+                      NO_KILLER_PREFIX);
+            }
+        } else if (obj = sobj_at(STATUE, dpx, dpy)) {
+            if (rn2(2)) {
+                You("swing wildly, missing the statue.");
+            } else {
+               You("slip, hitting your head against the statue!");
+               losehp(d(1, 4), "trying to headbutt a statue.",
+                      NO_KILLER_PREFIX);
+            }
+        }
+        return 0;
+    }
+
+    prob = 40;
+    prob -= u.ulevel;
+    prob /= P_SKILL(P_MARTIAL_ARTS);
+
+    /* inherently strong races get a probability bonus,
+     * inherently weak races, not so much */
+    if (Race_if(PM_GIANT))
+        prob -= 3;
+    if (Race_if(PM_CENTAUR))
+        prob -= 2;
+    if (Race_if(PM_ELF))
+        prob += 1;
+
+    if (uarmg) {
+        switch (uarmg->otyp) {
+            case GAUNTLETS_OF_POWER:
+                prob -= 10;
+                break;
+            case GAUNTLETS_OF_FUMBLING:
+                prob *= 4;
+                break;
+            case GLOVES:
+            case GAUNTLETS_OF_DEXTERITY:
+                break;
+            default:
+                impossible("Unknown type of gloves (%d)", uarmg->otyp);
+        }
+    }
+
+    if (3 > prob)
+        prob = 3; /* don't be always successful without skill */
+
+    if (P_SKILL(P_MARTIAL_ARTS) > P_EXPERT
+        || !rn2(prob)) {
+        if (obj = sobj_at(BOULDER, dpx, dpy)) {
+            fracture_rock(obj);
+            pline_The("boulder splits and falls apart.");
+        } else if (obj = sobj_at(STATUE, dpx, dpy)) {
+            fracture_rock(obj);
+            pline_The("statue shatters into pieces.");
+        }
+        if ((bobj = sobj_at(BOULDER, dpx, dpy)) != 0) {
+            /* another boulder here, restack it to the top */
+            obj_extract_self(bobj);
+            place_object(bobj, dpx, dpy);
+        }
+        exercise(A_STR, TRUE);
+        use_skill(P_MARTIAL_ARTS, 1);
+    } else {
+        if (obj = sobj_at(BOULDER, dpx, dpy)) {
+            pline("However, your qi is not focused enough to break the boulder.");
+            losehp(d(1, 6), "trying to split a boulder.", KILLED_BY);
+        } else if (obj = sobj_at(STATUE, dpx, dpy)) {
+            pline("However, your qi is not focused enough to break the statue.");
+            losehp(d(1, 6), "trying to shatter a statue.", KILLED_BY);
+        }
+        if (!rn2(5)) {
+            You("need more training to reliably focus your qi.");
+            use_skill(P_MARTIAL_ARTS, 1);
+        }
+    }
+    return 0; /* done */
 }
 
 /* intended to be called only on ROCKs or TREEs */
@@ -1704,17 +1820,32 @@ domove_core()
         } else {
             Strcpy(buf, "thin air");
         }
-        You("%s%s %s.",
-            !(boulder || solid) ? "" : !explo ? "harmlessly " : "futilely ",
-            explo ? "explode at" : "attack", buf);
+        if (((boulder = sobj_at(BOULDER, x, y)) != 0
+            || (boulder = sobj_at(STATUE, x, y)) != 0)
+            && weapon_type(uwep) == P_BARE_HANDED_COMBAT && Role_if(PM_MONK)) {
+            if (P_SKILL(P_MARTIAL_ARTS) < P_SKILLED) {
+                You("lack the necessary training to focus your qi.");
+            } else {
+                You("start channeling your qi.");
+                dpx = x;
+                dpy = y;
+                breakturns = 0;
+                set_occupation(ma_break, "channeling your qi", 0);
+            }
+            return;
+        } else {
+            You("%s%s %s.",
+                !(boulder || solid) ? "" : !explo ? "harmlessly " : "futilely ",
+                explo ? "explode at" : "attack", buf);
 
-        nomul(0);
-        if (explo) {
-            wake_nearby();
-            u.mh = -1; /* dead in the current form */
-            rehumanize();
+            nomul(0);
+            if (explo) {
+                wake_nearby();
+                u.mh = -1; /* dead in the current form */
+                rehumanize();
+            }
+            return;
         }
-        return;
     }
     (void) unmap_invisible(x, y);
     /* not attacking an animal, so we try to move */
