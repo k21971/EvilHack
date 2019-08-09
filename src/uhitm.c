@@ -783,7 +783,14 @@ int dieroll;
          * 1 on this d4, they get no bonuses and hit for just that one point of
          * damage. */
         valid_weapon_attack = TRUE;
-        thievery = Role_if(PM_ROGUE) && !context.forcefight && !Upolyd;
+
+        /* establish conditions for Rogue's special thieving skill */
+        thievery = Role_if(PM_ROGUE) && context.forcefight && !Upolyd;
+
+        /* don't increment thievery skill for regular bare handed attacks */
+        if (!uwep && Role_if(PM_ROGUE) && P_BARE_HANDED_COMBAT
+            && !context.forcefight)
+            use_skill(P_THIEVERY, -1);
 
         /* Blessed gloves give bonuses when fighting 'bare-handed'.  So do
            rings or gloves made of a hated material.  Note:  rings are worn
@@ -1322,14 +1329,18 @@ int dieroll;
     }
 
     if (thievery) {
-        You("%s to %s %s.",
-            rn2(2) ? "try" : "attempt",
-            rn2(2) ? "steal from" : "pickpocket",
-            mon_nam(mon));
-        if (mon->minvent == 0)
+        if (mon->minvent != 0) {
+            You("%s to %s %s.",
+                rn2(2) ? "try" : "attempt",
+                rn2(2) ? "steal from" : "pickpocket",
+                mon_nam(mon));
+            steal_it(mon, &youmonst.data->mattk[0]);
+        } else if (mon->minvent == 0) {
             pline("%s has nothing for you to %s.",
                   Monnam(mon), rn2(2) ? "steal" : "pickpocket");
-        steal_it(mon, &youmonst.data->mattk[0]);
+            /* prevent skill from incrementing - nothing was stolen */
+            use_skill(P_THIEVERY, -1);
+        }
         hittxt = TRUE;
     } else if (!already_killed)
         damage_mon(mon, tmp, AD_PHYS);
@@ -1654,10 +1665,40 @@ struct attack *mattk;
         obj_extract_self(gold);
 
     /* Rogue uses the thievery skill */
-    if (!Upolyd && (rn2(5) > P_SKILL(P_THIEVERY))) {
-        Your("attempt to %s %s %s.",
-             rn2(2) ? "pickpocket" : "steal from",
-             mon_nam(mdef), rn2(2) ? "failed" : "was unsuccessful");
+    int dex_pick;
+
+    dex_pick = 0;
+    if (ACURR(A_DEX) <= 6)
+        dex_pick += 3;
+    else if (ACURR(A_DEX) <= 9)
+        dex_pick += 2;
+    else if (ACURR(A_DEX) <= 15)
+        dex_pick -= 0;
+    else if (ACURR(A_DEX) <= 18)
+        dex_pick -= 1;
+    else if (ACURR(A_DEX) <= 21)
+        dex_pick -= 2;
+    else if (ACURR(A_DEX) <= 24)
+        dex_pick -= 3;
+    else if (ACURR(A_DEX) == 25)
+        dex_pick -= 4;
+
+    if (Confusion || Stunned)
+        dex_pick += 20;
+
+    if (!Upolyd && ((rn2(10) + dex_pick) > P_SKILL(P_THIEVERY))) {
+        if (Confusion || Stunned) {
+            You("are in no shape to %s anything.",
+                rn2(2) ? "pickpocket" : "steal");
+        } else {
+            Your("attempt to %s %s %s.",
+                 rn2(2) ? "pickpocket" : "steal from",
+                 mon_nam(mdef), rn2(2) ? "failed" : "was unsuccessful");
+            if (!rn2(5))
+                You("could use more practice at pickpocketing.");
+        }
+        /* don't increment the skill if the attempt isn't successful */
+        use_skill(P_THIEVERY, -1);
         return;
     }
 

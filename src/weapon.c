@@ -1893,6 +1893,10 @@ const struct def_skill *class_skill;
     /* High potential fighters already know how to use their hands. */
     if (P_MAX_SKILL(P_BARE_HANDED_COMBAT) > P_EXPERT)
         P_SKILL(P_BARE_HANDED_COMBAT) = P_BASIC;
+    /* Rogues need to work for their pickpocking skill. */
+    if (P_MAX_SKILL(P_BARE_HANDED_COMBAT) > P_EXPERT
+        && Role_if(PM_ROGUE))
+        P_SKILL(P_BARE_HANDED_COMBAT) = P_UNSKILLED;
 
     /* Roles that start with a horse know how to ride it */
     if (urole.petnum == PM_PONY)
