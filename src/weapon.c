@@ -1893,7 +1893,7 @@ const struct def_skill *class_skill;
     /* High potential fighters already know how to use their hands. */
     if (P_MAX_SKILL(P_BARE_HANDED_COMBAT) > P_EXPERT)
         P_SKILL(P_BARE_HANDED_COMBAT) = P_BASIC;
-    /* Rogues need to work for their pickpocking skill. */
+    /* Rogues need to work for their pickpocketing skill. */
     if (P_MAX_SKILL(P_BARE_HANDED_COMBAT) > P_EXPERT
         && Role_if(PM_ROGUE))
         P_SKILL(P_BARE_HANDED_COMBAT) = P_UNSKILLED;
