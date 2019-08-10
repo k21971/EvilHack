@@ -331,4 +331,40 @@ Version 0.3.2
 - Fix: disallow obtaining Excalibur or Dirge by using a helm of opposite alignment
 - Magic lamps can be wished for
 - Fix: segfault when playing as priest and attacking a monster bare-handed
-- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress (as of July 22nd, 2019)
+- Several changes to dragon scales/scale mail secondary extrinsics (humanoid monsters wearing same armor have most
+  DSM extrinsics as do dragons themselves, BDSM can disintegrate you or certain inventory objects,
+  GDSM has a cancellation secondary extrinsic)
+- Fix: several issues regarding monster steeds
+- Medusa's stoning bite can be cancelled
+- Tame vampires no longer revert to fog/animal form
+- Fix: magic marker not showing up as 'sokoban prize tool'
+- Allow any slash/pierce weapon to be poisonable
+- Improved logic concerning passive attacks
+- Unique death messages when engulfed or digested
+- Elves (player and monster) have a true aversion to iron
+- Orcs (player and monster) have a true aversion to mithril
+- Additional logic to compel monsters in possession of the Amulet of Yendor to go sacrifice it if on the Astral Plane
+- Primary spellcasters can be gifted spellbooks via altar sacrificing
+- Allow Rogue's 'strike from behind' damage bonus while twoweaponing
+- Monsters will fire their ranged weapon at melee range if no other option exists
+- Player races elves and orcs will not received items from their deity made of a hated materail
+- Beholders will always show as a 5 via warning
+- Tame spellcasting pets should not summon nasties
+- Amulet of life saving will not work if the wearer is non-living (player and monster)
+- Skills flagged as > in the #enhance menu require just a bit more practice to advance
+- Small chance the game will continue if the player rises from the grave (undead)
+- HTML dumplogs
+- Fooproofed items have a chance to resist being disintegrated if they come in contact with a black dragon,
+  any invocation item and the Amulet of Yendor are immune to being disintegrated
+- Mithril, bone and mineral materials can grant various levels of MC to elves/orcs
+- Rogue new skill: Thievery
+- Monk new ability: break boulders or statues using martial arts
+- Add materials to list of helmet objects that can protect you from falling objects
+- Improvements to the 'Owned Artifact' patch
+- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress (as of August 9th, 2019)
+
+--------------------------------------------------------------------------------------------
+
+Version 0.4.0
+-------------
+
