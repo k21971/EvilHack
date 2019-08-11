@@ -407,13 +407,11 @@ struct monst *mtmp;
         struct obj *liztin = 0;
 
         for (obj = mtmp->minvent; obj; obj = obj->nobj) {
-            if (obj->otyp == CORPSE && (obj->corpsenm == PM_LIZARD
-                                        || obj->corpsenm == PM_ACID_BLOB)) {
+            if (obj->otyp == CORPSE && obj->corpsenm == PM_LIZARD) {
                 m.defensive = obj;
-                m.has_defense = (MUSE_LIZARD_CORPSE || MUSE_ACID_BLOB_CORPSE);
+                m.has_defense = MUSE_LIZARD_CORPSE;
                 return TRUE;
-            } else if (obj->otyp == TIN && (obj->corpsenm == PM_LIZARD
-                                            || obj->corpsenm == PM_ACID_BLOB)) {
+            } else if (obj->otyp == TIN && obj->corpsenm == PM_LIZARD) {
                 liztin = obj;
             }
         }
@@ -421,7 +419,7 @@ struct monst *mtmp;
         if (liztin && mcould_eat_tin(mtmp) && rn2(3)) {
             m.defensive = liztin;
             /* tin and corpse ultimately end up being handled the same */
-            m.has_defense = (MUSE_LIZARD_CORPSE || MUSE_ACID_BLOB_CORPSE);
+            m.has_defense = MUSE_LIZARD_CORPSE;
             return TRUE;
         }
     }
@@ -3227,6 +3225,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
         mon->mconf = 0;
         mon->mstun = 0;
         if (vis && !is_bat(mon->data) && mon->data != &mons[PM_STALKER])
+            pline("%s eats %s.", Monnam(mon), distant_name(obj, doname));
             pline("%s seems steadier now.", Monnam(mon));
     }
     if (mon->mtame && !mon->isminion && nutrit > 0) {
