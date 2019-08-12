@@ -3481,6 +3481,7 @@ struct attack *mattk;     /* null means we find one internally */
             }
             break;
         }
+        break;
     case AD_DISN:
         if (!mon->mcan) {
             /* lets not make the game unwinnable... */
@@ -3488,28 +3489,24 @@ struct attack *mattk;     /* null means we find one internally */
                 || obj->otyp == BELL_OF_OPENING
                 || obj->otyp == SPE_BOOK_OF_THE_DEAD
                 || obj->otyp == CANDELABRUM_OF_INVOCATION) {
-                Your("%s %s and cannot be disintegrated.",
+                pline_The("%s %s and cannot be disintegrated.",
                       xname(obj), rn2(2) ? "resists completely" : "defies physics");
                 break;
             }
             /* nope */
             if (obj->otyp == BLACK_DRAGON_SCALES || obj->otyp == BLACK_DRAGON_SCALE_MAIL) {
-                Your("%s is disintegration-proof and remains intact.",
+                pline_The("%s is disintegration-proof and remains intact.",
                      xname(obj));
                 break;
             }
-            /*  I believe we don't need this because passive_obj will get called for each object that hits
-            if (!rn2(u.twoweap ? 2 : 3) && !is_launcher(uwep)) {
-                Your("%s disintegrates!", xname(uwep));
-                useup(uwep);
-            }
-            if (u.twoweap && rn2(2)) {
-                Your("%s disintegrates!", xname(uswapwep));
-                useup(uswapwep);
-            }
-            */
+            pline_The("%s disintegrates!", xname(obj));
+            if (carried(obj))
+                useup(obj);
+            else
+                delobj(obj);
             break;
         }
+        break;
     default:
         break;
     }
