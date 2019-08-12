@@ -3484,20 +3484,21 @@ struct attack *mattk;     /* null means we find one internally */
     case AD_DISN:
         if (!mon->mcan) {
             /* lets not make the game unwinnable... */
-            if (uwep->otyp == AMULET_OF_YENDOR
-                || uwep->otyp == BELL_OF_OPENING
-                || uwep->otyp == SPE_BOOK_OF_THE_DEAD
-                || uwep->otyp == CANDELABRUM_OF_INVOCATION) {
+            if (obj->otyp == AMULET_OF_YENDOR
+                || obj->otyp == BELL_OF_OPENING
+                || obj->otyp == SPE_BOOK_OF_THE_DEAD
+                || obj->otyp == CANDELABRUM_OF_INVOCATION) {
                 Your("%s %s and cannot be disintegrated.",
-                      xname(uwep), rn2(2) ? "resists completely" : "defies physics");
+                      xname(obj), rn2(2) ? "resists completely" : "defies physics");
                 break;
             }
             /* nope */
-            if (uwep->otyp == BLACK_DRAGON_SCALES || uwep->otyp == BLACK_DRAGON_SCALE_MAIL) {
+            if (obj->otyp == BLACK_DRAGON_SCALES || obj->otyp == BLACK_DRAGON_SCALE_MAIL) {
                 Your("%s is disintegration-proof and remains intact.",
-                     xname(uwep));
+                     xname(obj));
                 break;
             }
+            /*  I believe we don't need this because passive_obj will get called for each object that hits
             if (!rn2(u.twoweap ? 2 : 3) && !is_launcher(uwep)) {
                 Your("%s disintegrates!", xname(uwep));
                 useup(uwep);
@@ -3506,6 +3507,7 @@ struct attack *mattk;     /* null means we find one internally */
                 Your("%s disintegrates!", xname(uswapwep));
                 useup(uswapwep);
             }
+            */
             break;
         }
     default:
