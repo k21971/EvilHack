@@ -1901,11 +1901,12 @@ struct obj *otmp;
         if (u.uhunger <= 200)
             pline("%s!", Hallucination ? "Oh wow, like, superior, man"
                                        : "This food really hits the spot");
-
         /* 700-1+800 remains below 1500, the choking threshold which
            triggers "you're having a hard time getting it down" feedback */
-        else if (u.uhunger < 700)
+        else if (!Race_if(PM_HOBBIT) && u.uhunger < 700)
             pline("This satiates your %s!", body_part(STOMACH));
+        else if (Race_if(PM_HOBBIT) && u.uhunger >= 2200)
+            pline("Surprisingly, this satiates your %s!", body_part(STOMACH));
         /* [satiation message may be inaccurate if eating gets interrupted] */
         break;
     case TRIPE_RATION:
@@ -1930,6 +1931,12 @@ struct obj *otmp;
             break;
         } else if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))) {
             pline("A little goes a long way.");
+            break;
+        } else if (maybe_polyd(is_dwarf(youmonst.data), Race_if(PM_DWARF))) {
+            pline("Hrm... cram.");
+            break;
+        } else if (maybe_polyd(is_hobbit(youmonst.data), Race_if(PM_HOBBIT))) {
+            pline("You'd prefer a bit of plain bread and a mug of ale, but this will do.");
             break;
         }
         goto give_feedback;

@@ -280,7 +280,7 @@ install: rootcheck $(GAME) recover $(VARDAT) dungeon spec_levs
 	# chmod $(DIRPERM) $(INSTDIR)
 	# chmod $(VARDIRPERM) $(VARDIR) $(VARDIR)/save
 # set up the game files
-	# ( $(MAKE) dofiles )
+	( $(MAKE) dofiles )
 # set up some additional files
 	# touch $(VARDIR)/perm $(VARDIR)/record $(VARDIR)/logfile $(VARDIR)/livelog $(VARDIR)/xlogfile $(VARDIR)/wishtracker
 	# -( cd $(VARDIR) ; $(CHOWN) $(GAMEUID) perm record logfile livelog xlogfile wishtracker ; \
