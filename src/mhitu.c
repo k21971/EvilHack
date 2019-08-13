@@ -3393,14 +3393,17 @@ struct attack *mattk;
                         if (canseemon(mtmp))
                             pline("%s partially disintegrates!", Monnam(mtmp));
                         mtmp->mhp -= rnd(4);
+                        if (mtmp->mhp < 1) {
+                            goto assess_dmg;
+                        }
                     }
                 } else {
                     if (canseemon(mtmp))
                         pline("%s is disintegrated completely!", Monnam(mtmp));
-                    mtmp->mhp = -1;
-                }
-                if (mtmp->mhp < 1) {
-                    goto assess_dmg;
+                    xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
                 }
                 return 1;
                 break;
@@ -3550,7 +3553,10 @@ struct attack *mattk;
                 if (canseemon(mtmp)) {
                     Your("deadly hide disintegrates %s!",
                           mon_nam(mtmp));
-                    mtmp->mhp = -1;
+                    xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
                 }
             }
         }
