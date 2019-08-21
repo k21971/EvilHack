@@ -3164,10 +3164,11 @@ static const struct icp horn_materials[] = {
 
 /* hacks for specific objects... not great because it's a lot of data, but it's
  * a relatively clean solution */
-static const struct icp elvenhelm_materials[] = {
+static const struct icp elven_helm_boots_materials[] = {
     {70, LEATHER},
     {15, MITHRIL},
-    {15, COPPER}
+    {14, COPPER},
+    { 1, DRAGON_HIDE}
 };
 
 static const struct icp dwarvish_weapon_materials[] = {
@@ -3212,6 +3213,7 @@ struct obj* obj;
         case STAFF_OF_MATTER:
         case STAFF_OF_ESCAPE:
         case STAFF_OF_WAR:
+        case GRAPPLING_HOOK:
             return NULL;
         /* Any other cases for specific object types go here. */
         case SHIELD_OF_REFLECTION:
@@ -3221,7 +3223,8 @@ struct obj* obj;
         case BOOMERANG: /* wooden base, similar shape */
             return bow_materials;
         case ELVEN_HELM:
-            return elvenhelm_materials;
+        case ELVEN_BOOTS:
+            return elven_helm_boots_materials;
         case DWARVISH_SPEAR:
         case DWARVISH_SHORT_SWORD:
         case DWARVISH_MATTOCK:
