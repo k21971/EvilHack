@@ -522,7 +522,7 @@ int spellnum;
         dmg = 0;
         break;
     case MGC_CANCELLATION:
-        if (m_canseeu(mtmp)) {
+        if (m_canseeu(mtmp) && lined_up(mtmp)) {
             if (canseemon(mtmp))
                 pline("%s %s a cancellation spell!", Monnam(mtmp),
                       rn2(2) ? "evokes" : "conjures up");
@@ -702,7 +702,7 @@ int spellnum;
     case MGC_ICE_BOLT:
         /* hotwire these to only go off if the critter can see you
          * to avoid bugs WRT the Eyes and detect monsters */
-        if (m_canseeu(mtmp)) {
+        if (m_canseeu(mtmp) && lined_up(mtmp)) {
             pline("%s blasts you with %s!", Monnam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
             if (how_resistant((spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES) == 100) {
                 shieldeff(u.ux, u.uy);
