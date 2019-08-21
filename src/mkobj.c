@@ -3167,7 +3167,8 @@ static const struct icp horn_materials[] = {
 static const struct icp elven_helm_boots_materials[] = {
     {70, LEATHER},
     {15, MITHRIL},
-    {14, COPPER},
+    {10, COPPER},
+    { 4, WOOD},
     { 1, DRAGON_HIDE}
 };
 

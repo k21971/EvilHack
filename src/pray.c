@@ -1886,7 +1886,7 @@ dosacrifice()
 	     */
 
             if (rn2(10) >= (nchance * nchance) / 100) {
-		if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
+		if (u.uluck >= 0 && rn2(6 + (2 * u.ugifts))) {
 		    int typ, ncount = 0;
 		    if (rn2(2)) {
 		    /* Don't give unicorn horns or anything the player's restricted in
@@ -1963,9 +1963,11 @@ dosacrifice()
 			    bless(otmp);
 			    otmp->spe = rn2(3) + 3; /* +3 to +5 */
 			    otmp->oerodeproof = TRUE;
-                            if (Race_if(PM_ELF) && is_iron(otmp))
+                            if (Race_if(PM_ELF) && is_iron(otmp)
+                                && !is_orcish_obj(otmp) && !is_dwarvish_obj(otmp))
                                 set_material(otmp, rn2(2) ? WOOD : MITHRIL);
-                            else if (Race_if(PM_ORC) && is_mithril(otmp))
+                            else if (Race_if(PM_ORC) && is_mithril(otmp)
+                                && !is_elven_obj(otmp) && !is_dwarvish_obj(otmp))
                                 set_material(otmp, rn2(2) ? IRON : BONE);
                             at_your_feet("An object");
 			    dropy(otmp);
