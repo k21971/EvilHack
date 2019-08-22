@@ -1276,18 +1276,14 @@ coord *mp;
             do
                 croom = &rooms[rn2(nroom)];
             while ((croom == dnstairs_room || croom == upstairs_room
-                   || croom->rtype != OROOM) && (++tryct < 100));
+                   || croom->rtype != OROOM) && (++tryct < 500));
         } else
             croom = &rooms[rn2(nroom)];
 
-        do {
-            if (!somexyspace(croom, mp, 2)) {
-                if (!somexyspace(croom, mp, 0))
-                    impossible("can't place branch!");
-            }
-        } while (occupied(mp->x, mp->y)
-                 || (levl[mp->x][mp->y].typ != CORR
-                     && levl[mp->x][mp->y].typ != ROOM));
+        if (!somexyspace(croom, mp, 2)) {
+            if (!somexyspace(croom, mp, 0))
+                impossible("Can't place branch!");
+        }
     }
     return croom;
 }
