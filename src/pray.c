@@ -1964,10 +1964,12 @@ dosacrifice()
 			    otmp->spe = rn2(3) + 3; /* +3 to +5 */
 			    otmp->oerodeproof = TRUE;
                             if (Race_if(PM_ELF) && is_iron(otmp)
-                                && !is_orcish_obj(otmp) && !is_dwarvish_obj(otmp))
+                                && !is_orcish_obj(otmp)
+                                && !is_dwarvish_obj(otmp) && !is_magical_staff(otmp))
                                 set_material(otmp, rn2(2) ? WOOD : MITHRIL);
                             else if (Race_if(PM_ORC) && is_mithril(otmp)
-                                && !is_elven_obj(otmp) && !is_dwarvish_obj(otmp))
+                                && !is_elven_obj(otmp)
+                                && !is_dwarvish_obj(otmp) && !is_magical_staff(otmp))
                                 set_material(otmp, rn2(2) ? IRON : BONE);
                             at_your_feet("An object");
 			    dropy(otmp);

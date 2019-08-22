@@ -210,6 +210,11 @@ struct obj {
      || otmp->oartifact == ART_SWORD_OF_BHELEU || otmp->oartifact == ART_LONGBOW_OF_DIANA      \
      || otmp->oartifact == ART_MASTER_KEY_OF_THIEVERY || otmp->oartifact == ART_RING_OF_P_HUL)
 
+#define is_magical_staff(otmp) \
+    (otmp->otyp == STAFF_OF_DIVINATION || otmp->otyp == STAFF_OF_HEALING \
+     || otmp->otyp == STAFF_OF_HOLINESS || otmp->otyp == STAFF_OF_MATTER \
+     || otmp->otyp == STAFF_OF_ESCAPE || otmp->otyp == STAFF_OF_WAR)
+
 #define is_wet_towel(o) ((o)->otyp == TOWEL && (o)->spe > 0)
 #define bimanual(otmp)                                            \
     ((!(Race_if(PM_GIANT))) &&                                    \
