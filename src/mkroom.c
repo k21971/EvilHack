@@ -729,7 +729,8 @@ int flags;
         isok = TRUE;
         if (croom && !somexy(croom, pos))
             isok = FALSE;
-        if ((flags & 16)) mazexy(pos);
+        if ((flags & 16))
+            mazexy(pos);
         if ((flags & 1) && (IS_POOL(levl[pos->x][pos->y].typ)
             || IS_FURNITURE(levl[pos->x][pos->y].typ)))
             isok = FALSE;

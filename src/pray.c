@@ -1886,7 +1886,7 @@ dosacrifice()
 	     */
 
             if (rn2(10) >= (nchance * nchance) / 100) {
-		if (u.uluck >= 0 && rn2(6 + (2 * u.ugifts))) {
+		if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
 		    int typ, ncount = 0;
 		    if (rn2(2)) {
 		    /* Don't give unicorn horns or anything the player's restricted in
