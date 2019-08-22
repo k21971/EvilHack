@@ -3421,8 +3421,7 @@ BOOLEAN_P destroy_after;
         return 0;
     }
 
-    for (otmp = container->cobj; otmp; otmp = otmp2)
-    {
+    for (otmp = container->cobj; otmp; otmp = otmp2) {
         ret = 1;
 	otmp2 = otmp->nobj;
 	obj_extract_self(otmp);
@@ -3438,7 +3437,6 @@ BOOLEAN_P destroy_after;
 	place_object(otmp, u.ux, u.uy);
 
 	if (otmp->otyp == GOLD_PIECE) {
-	    dealloc_obj(otmp);
             bot();	/* update character's gold piece count immediately */
 	}
     }
@@ -3447,7 +3445,7 @@ BOOLEAN_P destroy_after;
 	if (container->where == OBJ_INVENT) {
 	    useup(container);
 	} else if (obj_here(container, u.ux, u.uy)) {
-		   useupf(container, container->quan);
+            useupf(container, container->quan);
 	}
     }
     return ret;
