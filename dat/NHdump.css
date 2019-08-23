@@ -6,7 +6,7 @@ body {
 	font-size:0.9vw;
 }
 pre.nh_screen {
-	font-family: DejaVu Sans Mono,Menlo,Courier New,Courier,monospace;
+	font-family: DejaVu Sans Mono, Consolas, Menlo, Courier New, Courier, monospace;
         font-size:1.05vw;
 }
 .nh_item_letter {
@@ -92,4 +92,3 @@ span.nh_screen {
 .nh_inv_13 { color: black; background-color:#FF55FF; } /* CLR_BRIGHT_MAGENTA */
 .nh_inv_14 { color: black; background-color:#55FFFF; } /* CLR_BRIGHT_CYAN    */
 .nh_inv_15 { color: black; background-color:#FCFCFC; } /* CLR_WHITE          */
-
