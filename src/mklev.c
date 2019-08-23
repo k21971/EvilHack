@@ -1281,7 +1281,7 @@ coord *mp;
             croom = &rooms[rn2(nroom)];
 
         if (!somexyspace(croom, mp, 2)) {
-            if (!somexyspace(croom, mp, 0))
+            if (!somexyspace(croom, mp, 0) && !In_hell(&u.uz))
                 impossible("Can't place branch!");
         }
     }
