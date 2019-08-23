@@ -2122,7 +2122,8 @@ int mmflags;
                 mount_monster(mtmp, PM_WARG);
                 break;
             case PM_HUMAN_KNIGHT:
-                mount_monster(mtmp, PM_HORSE);
+                rn2(2) ? mount_monster(mtmp, PM_HORSE)
+                       : mount_monster(mtmp, PM_WARHORSE);
                 break;
         }
     }
