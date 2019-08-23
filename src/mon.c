@@ -1386,73 +1386,85 @@ register const char *str;
 
     for (otmp = level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
         otmp2 = otmp->nexthere;
-
-    if (Is_box(otmp) || otmp->otyp == ICE_BOX) {
-    	if (otmp->olocked) {
-	    if ((nohands(mtmp->data) || verysmall(mtmp->data)
-                || otmp->otyp == IRON_SAFE
-		|| (!m_carrying(mtmp, SKELETON_KEY)
-		&& !m_carrying(mtmp, LOCK_PICK)
-		&& !m_carrying(mtmp, CREDIT_CARD)))
-	        && !mtmp->iswiz && !is_rider(mtmp->data))
-	        continue;
-	    waslocked = TRUE;
-	}
-	if (otmp->otrapped) {
-            if (cansee(mtmp->mx, mtmp->my))
-		pline("%s %s %s%s", Monnam(mtmp),
-		      waslocked ? "unlocks" : "carefully opens",
-		      (distu(mtmp->mx, mtmp->my) <= 5) ?
-		      doname(otmp) : distant_name(otmp, doname),
-		      waslocked ? "." : "...");
-		otmp->olocked = 0;
-		(void) chest_trap(mtmp, otmp, FINGER, FALSE);
-		return TRUE;
-	}
-    	for (otmp3 = otmp->cobj; otmp3; otmp3 = otmp4) {
-	    otmp4 = otmp3->nobj;
-    	    if (!str ? searches_for_item(mtmp, otmp3)
-		: !!(index(str, otmp3->oclass))
-		|| (otmp3->oclass == COIN_CLASS
-		&& likes_gold(mtmp->data))) {
-		if ((otmp3->otyp == CORPSE
-		    || (otmp3->otyp == ROCK && otmp3->corpsenm != 0))
-		    && mtmp->data->mlet != S_NYMPH
-		    && !touch_petrifies(&mons[otmp3->corpsenm])
-		    && otmp3->corpsenm != PM_LIZARD
-		    && !acidic(&mons[otmp3->corpsenm]))
-                    continue;
-		if (!touch_artifact(otmp3, mtmp))
-                    continue;
-		if (!can_carry(mtmp, otmp3))
-                    continue;
-		if (is_pool(mtmp->mx, mtmp->my))
-                    continue;
-		if (!pickedup
-                    && cansee(mtmp->mx, mtmp->my) && flags.verbose) {
-		    pline("%s %s opens %s...", Monnam(mtmp),
-			  waslocked ? "unlocks and" : "carefully",
-			  (distu(mtmp->mx, mtmp->my) <= 5)
-			  ? the(xname(otmp)) : the(distant_name(otmp, xname)));
-		    otmp->olocked = 0;
-		}
-		if (cansee(mtmp->mx, mtmp->my) && flags.verbose)
-		    pline("%s retrieves %s from %s.", Monnam(mtmp),
-			  (distu(mtmp->mx, mtmp->my) <= 5)
-			  ? doname(otmp3) : distant_name(otmp3, doname),
-			  (distu(mtmp->mx, mtmp->my) <= 5)
-			  ? the(xname(otmp)) : the(distant_name(otmp, xname)));
-		    obj_extract_self(otmp3);
-		    (void) mpickobj(mtmp, otmp3);	/* may merge and free otmp */
-		    m_dowear(mtmp, FALSE);
-		    newsym(mtmp->mx, mtmp->my);
-		    /* loot the entire container if we can */
-		    pickedup = TRUE;
+        if (Is_box(otmp) || otmp->otyp == ICE_BOX) {
+    	    if (otmp->olocked) {
+	        if ((nohands(mtmp->data) || verysmall(mtmp->data)
+                    || otmp->otyp == IRON_SAFE
+		    || (!m_carrying(mtmp, SKELETON_KEY)
+		    && !m_carrying(mtmp, LOCK_PICK)
+		    && !m_carrying(mtmp, CREDIT_CARD)))
+	            && !mtmp->iswiz && !is_rider(mtmp->data))
+	            continue;
+	        waslocked = TRUE;
 	    }
-	}
-	if (pickedup)
-            return TRUE;
-    }
+	    if (otmp->otrapped) {
+                if (cansee(mtmp->mx, mtmp->my) && flags.verbose) {
+		    pline("%s %s %s%s", Monnam(mtmp),
+		          waslocked ? "unlocks" : "carefully opens",
+		          (distu(mtmp->mx, mtmp->my) <= 5) ?
+		          doname(otmp) : distant_name(otmp, doname),
+		          waslocked ? "." : "...");
+                } else if (!Deaf && flags.verbose) {
+                    You_hear("something being %s.",
+                             waslocked ? "unlocked" : "opened");
+                }
+	        otmp->olocked = 0;
+	        (void) chest_trap(mtmp, otmp, FINGER, FALSE);
+	        return TRUE;
+	    }
+    	    for (otmp3 = otmp->cobj; otmp3; otmp3 = otmp4) {
+	        otmp4 = otmp3->nobj;
+    	        if (!str ? searches_for_item(mtmp, otmp3)
+		    : !!(index(str, otmp3->oclass))
+		    || (otmp3->oclass == COIN_CLASS
+		    && likes_gold(mtmp->data))) {
+		    if ((otmp3->otyp == CORPSE
+		        || (otmp3->otyp == ROCK && otmp3->corpsenm != 0))
+		        && mtmp->data->mlet != S_NYMPH
+		        && !touch_petrifies(&mons[otmp3->corpsenm])
+		        && otmp3->corpsenm != PM_LIZARD
+		        && !acidic(&mons[otmp3->corpsenm]))
+                        continue;
+		    if (!touch_artifact(otmp3, mtmp))
+                        continue;
+		    if (!can_carry(mtmp, otmp3))
+                        continue;
+		    if (is_pool(mtmp->mx, mtmp->my))
+                        continue;
+		    if (!pickedup) {
+                        if (cansee(mtmp->mx, mtmp->my) && flags.verbose) {
+		            pline("%s %s opens %s...", Monnam(mtmp),
+			          waslocked ? "unlocks and" : "carefully",
+			          (distu(mtmp->mx, mtmp->my) <= 5)
+			          ? the(xname(otmp)) : the(distant_name(otmp, xname)));
+                        } else if (!Deaf && flags.verbose) {
+                            You_hear("something being %s.",
+                                     waslocked ? "unlocked" : "opened");
+                        }
+                        otmp->olocked = 0;
+                    }
+    	            if (cansee(mtmp->mx, mtmp->my) && flags.verbose) {
+	                pline("%s retrieves %s from %s.", Monnam(mtmp),
+	                      (distu(mtmp->mx, mtmp->my) <= 5)
+		              ? doname(otmp3) : distant_name(otmp3, doname),
+		              (distu(mtmp->mx, mtmp->my) <= 5)
+		              ? the(xname(otmp)) : the(distant_name(otmp, xname)));
+                    } else if (!Deaf && flags.verbose) {
+                        You_hear("something rummaging through %s.",
+                                 (distu(mtmp->mx, mtmp->my) <= 5)
+                                 ? an(xname(otmp)) : an(distant_name(otmp, xname)));
+                    }
+	            obj_extract_self(otmp3);
+	            (void) mpickobj(mtmp, otmp3);	/* may merge and free otmp */
+	            m_dowear(mtmp, FALSE);
+	            newsym(mtmp->mx, mtmp->my);
+	            /* loot the entire container if we can */
+	            pickedup = TRUE;
+	        }
+            }
+            if (pickedup)
+                return TRUE;
+        }
 
         /* Nymphs take everything.  Most monsters don't pick up corpses. */
         if (!str ? searches_for_item(mtmp, otmp)
