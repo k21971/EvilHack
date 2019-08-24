@@ -361,7 +361,21 @@ Version 0.3.2
 - Monk new ability: break boulders or statues using martial arts
 - Add materials to list of helmet objects that can protect you from falling objects
 - Improvements to the 'Owned Artifact' patch
-- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress (as of August 9th, 2019)
+- Monks granted ability to break boulders/statues using martial arts
+- Fixes and tweaks to passive disintegration attack
+- Fix: Hobbit player race receiving 'this satiates your stomach' too early
+- Fix: iron hook spawning with a different material other than iron
+- Monster spells cancellation, fire bolt and ice bolt require that their target is lined up
+- HTML dumplogs - adjust object/terrain colors, add font for windows users
+- Magical staves keep their base material when given to the player via altar sacrifice
+- Fix: a burnt partly eaten <corpse name here> (last time)
+- Fix: 'dealloc_obj: obj not free' crash when a bag of holding explodes with gold pieces inside of it
+- Fix: intelligent monsters going through locked containers when not seen
+- Fix: 'impossible: Can't place branch!' panic messages in Gehennom
+- Monster player tweaks and fixes (Monks finally spawn with gear, Knights steed randomized)
+- Fix: 'impossible - breaking non-equipped glass obj? Program in disorder!' when wielding
+  and attacking with a stack of glass weapons
+- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress (as of August 24th, 2019)
 
 --------------------------------------------------------------------------------------------
 
