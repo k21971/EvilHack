@@ -904,7 +904,8 @@ struct obj *obj;
     boolean obj_was_thrown;
 
     if (obj->where != OBJ_FREE)
-        panic("addinv: obj not free");
+        panic("addinv: obj not free (%d, %d, %d)",
+              obj->where, obj->otyp, obj->invlet);
     /* normally addtobill() clears no_charge when items in a shop are
        picked up, but won't do so if the shop has become untended */
     obj->no_charge = 0; /* should not be set in hero's invent */

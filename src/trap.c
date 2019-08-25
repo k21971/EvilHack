@@ -281,10 +281,9 @@ int ef_flags;
             update_mon_intrinsics(victim, otmp, FALSE, TRUE);
             otmp->owornmask = 0; /* obfree() expects this */
             obfree(otmp, (struct obj *) 0);
-        } else {
+        } else if (victim == &youmonst) {
             setnotworn(otmp);
             delobj(otmp);
-            update_inventory();
         }
         return ER_DESTROYED;
     } else {

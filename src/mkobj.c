@@ -2193,7 +2193,8 @@ struct obj *obj;
     struct obj *otmp;
 
     if (obj->where != OBJ_FREE)
-        panic("add_to_minv: obj not free");
+        panic("add_to_minv: obj not free (%d, %d, %d)",
+              obj->where, obj->otyp, obj->invlet);
 
     /* merge if possible */
     for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
@@ -2218,7 +2219,8 @@ struct obj *container, *obj;
     struct obj *otmp;
 
     if (obj->where != OBJ_FREE)
-        panic("add_to_container: obj not free");
+        panic("add_to_container: obj not free (%d, %d, %d)",
+              obj->where, obj->otyp, obj->invlet);
     if (container->where != OBJ_INVENT && container->where != OBJ_MINVENT)
         obj_no_longer_held(obj);
 
@@ -2239,7 +2241,8 @@ add_to_migration(obj)
 struct obj *obj;
 {
     if (obj->where != OBJ_FREE)
-        panic("add_to_migration: obj not free");
+        panic("add_to_migration: obj not free (%d, %d, %d)",
+              obj->where, obj->otyp, obj->invlet);
 
     /* lock picking context becomes stale if it's for this object */
     if (Is_container(obj))
@@ -2255,7 +2258,8 @@ add_to_buried(obj)
 struct obj *obj;
 {
     if (obj->where != OBJ_FREE)
-        panic("add_to_buried: obj not free");
+        panic("add_to_buried: obj not free (%d, %d, %d)",
+              obj->where, obj->otyp, obj->invlet);
 
     obj->where = OBJ_BURIED;
     obj->nobj = level.buriedobjlist;
@@ -2285,11 +2289,14 @@ dealloc_obj(obj)
 struct obj *obj;
 {
     if (obj->where != OBJ_FREE)
-        panic("dealloc_obj: obj not free");
+        panic("dealloc_obj: obj not free (%d, %d, %d)",
+              obj->where, obj->otyp, obj->invlet);
     if (obj->nobj)
-        panic("dealloc_obj with nobj");
+        panic("dealloc_obj with nobj (%d, %d, %d)",
+              obj->where, obj->otyp, obj->invlet);
     if (obj->cobj)
-        panic("dealloc_obj with cobj");
+        panic("dealloc_obj with cobj (%d, %d, %d)",
+              obj->where, obj->otyp, obj->invlet);
 
     /* free up any timers attached to the object */
     if (obj->timed)
