@@ -361,7 +361,6 @@ Version 0.3.2
 - Monk new ability: break boulders or statues using martial arts
 - Add materials to list of helmet objects that can protect you from falling objects
 - Improvements to the 'Owned Artifact' patch
-- Monks granted ability to break boulders/statues using martial arts
 - Fixes and tweaks to passive disintegration attack
 - Fix: Hobbit player race receiving 'this satiates your stomach' too early
 - Fix: iron hook spawning with a different material other than iron
@@ -375,6 +374,8 @@ Version 0.3.2
 - Monster player tweaks and fixes (Monks finally spawn with gear, Knights steed randomized)
 - Fix: 'impossible - breaking non-equipped glass obj? Program in disorder!' when wielding
   and attacking with a stack of glass weapons
+- Fix: game crash when last rustable/corrodible object in player inventory rusts/corrodes
+  away and is gone
 - Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress (as of August 24th, 2019)
 
 --------------------------------------------------------------------------------------------
