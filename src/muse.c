@@ -2553,7 +2553,10 @@ struct monst *mtmp;
         int mndx = otmp->corpsenm;
 
         pm = &mons[mndx];
-        pline("%s activates a figurine!", Monnam(mtmp));
+        if (vismon)
+            pline("%s activates a figurine!", Monnam(mtmp));
+        else if (!Deaf)
+            You("hear a figurine being activated.");
         /* activating a figurine provides one way to exceed the
            maximum number of the target critter created--unless
            it has a special limit (erinys, Nazgul) */
