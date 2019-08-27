@@ -1021,13 +1021,6 @@ register struct obj *otmp;
         }
         break;
     case POT_SPEED:
-	/* only the potion will fix intrinsic 'slow' */
-	if (Slow) {
-		HSlow = 0;
-		if (!ESlow) {
-			You("no longer feel sluggish.");
-		}
-	}
         /* skip when mounted; heal_legs() would heal steed's legs */
         if (Wounded_legs && !otmp->cursed && !u.usteed) {
             heal_legs(0);
@@ -1036,6 +1029,13 @@ register struct obj *otmp;
         }
         /* FALLTHRU */
     case SPE_HASTE_SELF:
+        /* will fix intrinsic 'slow' */
+        if (Slow) {
+            HSlow = 0;
+            if (!ESlow) {
+                You("no longer feel sluggish.");
+            }
+        }
         if (!Very_fast && !Slow) { /* wwf@doe.carleton.ca */
             You("are suddenly moving %sfaster.", Fast ? "" : "much ");
         } else if (!Slow) {
