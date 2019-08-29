@@ -715,13 +715,13 @@ NEARDATA struct permonst mons[] = {
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(400, 100, MS_ORC, MZ_SMALL), MR_POISON, 0, M1_HUMANOID | M1_OMNIVORE,
-        M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ORC, 5, CLR_CYAN),
+        M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ORC, 7, CLR_CYAN),
     MON("goblin-captain", S_ORC, LVL(5, 10, 10, 0, -5), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_WEAP, AD_PHYS, 2, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(800, 200, MS_ORC, MZ_MEDIUM), MR_POISON, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION | M3_ACCURATE, 0,
-        MH_ORC, 7, CLR_WHITE),
+        MH_ORC, 8, CLR_WHITE),
     /* plain "orc" for zombie corpses only; not created at random
      */
     MON("orc", S_ORC, LVL(1, 9, 10, 0, -3), (G_GENO | G_NOGEN | G_LGROUP),
