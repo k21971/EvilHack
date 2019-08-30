@@ -1988,8 +1988,6 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (mon_has_amulet(magr) && In_endgame(&u.uz))
         return ALLOW_M | ALLOW_TM;
 
-    return 0L;
-
     /* now test all two-way aggressions both ways */
     return (mm_2way_aggression(magr, mdef) | mm_2way_aggression(mdef, magr));
 }
