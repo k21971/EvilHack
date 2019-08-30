@@ -25,6 +25,7 @@ STATIC_DCL boolean FDECL(isspecmon, (struct monst *));
 STATIC_DCL boolean FDECL(validspecmon, (struct monst *, int));
 STATIC_DCL struct permonst *FDECL(accept_newcham_form, (struct monst *, int));
 STATIC_DCL struct obj *FDECL(make_corpse, (struct monst *, unsigned));
+STATIC_OVL long FDECL(mm_2way_aggression, (struct monst *, struct monst *));
 STATIC_DCL void FDECL(m_detach, (struct monst *, struct permonst *));
 STATIC_DCL void FDECL(lifesaved_monster, (struct monst *));
 STATIC_DCL void FDECL(migrate_mon, (struct monst *, XCHAR_P, XCHAR_P));
@@ -1889,6 +1890,53 @@ long flag;
     return cnt;
 }
 
+/* Part of mm_aggression that represents two-way aggression. To avoid having to
+ * code each case twice, this function contains those cases that ought to
+ * happen twice, and mm_aggression will call it twice. */
+STATIC_OVL long
+mm_2way_aggression(magr, mdef)
+struct monst *magr, *mdef;
+{
+    struct permonst *ma = magr->data;
+    struct permonst *md = mdef->data;
+    /* Since the quest guardians are under siege, it makes sense to have
+       them fight hostiles.  (But we don't want the quest leader to be in
+       danger.)
+       NOTE: But don't let still-peaceful guardians fight hostile guardians if
+       the hero manages to annoy one of them! */
+    if (ma->msound == MS_GUARDIAN && mdef->mpeaceful == FALSE
+        && !md->msound == MS_GUARDIAN)
+        return ALLOW_M | ALLOW_TM;
+
+    /* elves vs orcs */
+    if (is_elf(ma) && is_orc(md))
+        return ALLOW_M | ALLOW_TM;
+
+    /* angels vs demons */
+    if (is_angel(ma) && is_demon(md))
+        return ALLOW_M | ALLOW_TM;
+
+    /* zombies vs all living things */
+    if (is_zombie(ma) && !nonliving(md))
+        return ALLOW_M | ALLOW_TM;
+
+    /* lawful and chaotic unicorns don't play nice with each other.
+       neutral unicorns just don't care */
+    if (ma == &mons[PM_WHITE_UNICORN] && md == &mons[PM_BLACK_UNICORN])
+        return ALLOW_M | ALLOW_TM;
+
+    /* Nazgul vs hobbits */
+    if (ma == &mons[PM_NAZGUL] && is_hobbit(md))
+        return ALLOW_M | ALLOW_TM;
+
+    /* bees and honey badgers don't play nice */
+    if (ma == &mons[PM_HONEY_BADGER]
+        && (md == &mons[PM_KILLER_BEE] || md == &mons[PM_QUEEN_BEE]))
+        return ALLOW_M | ALLOW_TM;
+
+    return 0;
+}
+
 /* Monster against monster special attacks; for the specified monster
    combinations, this allows one monster to attack another adjacent one
    in the absence of Conflict.  There is no provision for targetting
@@ -1917,40 +1965,10 @@ struct monst *magr, /* monster that is currently deciding where to move */
         return ALLOW_M | ALLOW_TM;
 
     /* Grudge patch */
+    /* Put one-way aggressions below here, and two-way aggressions in
+     * mm_2way_aggression */
 
-    /* zombies hate all living things */
-    if (is_zombie(ma) && !is_undead(md))
-        return ALLOW_M | ALLOW_TM;
-    /* the living aren't too fond of zombies either */
-    if (is_zombie(md) && !is_undead(ma))
-        return ALLOW_M | ALLOW_TM;
-
-    /* Since the quest guardians are under siege, it makes sense to have
-       them fight hostiles.  (But we don't want the quest leader to be in
-       danger.) */
-    if (ma->msound == MS_GUARDIAN && (mdef->mpeaceful==FALSE
-                                      && !md->msound == MS_LEADER))
-        return ALLOW_M | ALLOW_TM;
-    /* and vice versa */
-    if (md->msound == MS_GUARDIAN && (magr->mpeaceful==FALSE
-                                      && !ma->msound == MS_LEADER))
-   	return ALLOW_M | ALLOW_TM;
-
-    /* elves vs. orcs */
-    if (is_elf(ma) && is_orc(md))
-  	return ALLOW_M | ALLOW_TM;
-    /* and vice versa */
-    if (is_elf(md) && is_orc(ma))
-  	return ALLOW_M | ALLOW_TM;
-
-    /* angels vs. demons */
-    if (ma->mlet == S_ANGEL && is_demon(md))
-  	return ALLOW_M | ALLOW_TM;
-    /* and vice versa */
-    if (md->mlet == S_ANGEL && is_demon(ma))
-  	return ALLOW_M | ALLOW_TM;
-
-    /* woodchucks vs. The Oracle */
+    /* woodchucks vs The Oracle */
     if (ma == &mons[PM_WOODCHUCK] && md == &mons[PM_ORACLE])
   	return ALLOW_M | ALLOW_TM;
 
@@ -1958,42 +1976,22 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (ma == &mons[PM_RAVEN] && md == &mons[PM_FLOATING_EYE])
   	return ALLOW_M | ALLOW_TM;
 
-    /* lawful and chaotic unicorns don't play nice with each other.
-       neutral unicorns just don't care */
-    if (ma == &mons[PM_WHITE_UNICORN] && md == &mons[PM_BLACK_UNICORN])
-        return ALLOW_M | ALLOW_TM;
-    if (md == &mons[PM_WHITE_UNICORN] && ma == &mons[PM_BLACK_UNICORN])
-        return ALLOW_M | ALLOW_TM;
-
-    /* pets attack hostile monsters */
-    if (magr->mtame && !mdef->mpeaceful)
+    /* hostile monsters will attack your pets */
+    if (!magr->mpeaceful && mdef->mtame)
      	return ALLOW_M | ALLOW_TM;
-    /* and vice versa */
-    if (mdef->mtame && !magr->mpeaceful)
-     	return ALLOW_M | ALLOW_TM;
-
-    /* Nazgul vs. hobbits */
-    if (ma == &mons[PM_NAZGUL] && is_hobbit(md))
-	return ALLOW_M | ALLOW_TM;
-    /* and vice versa */
-    if (md == &mons[PM_NAZGUL] && is_hobbit(ma))
-	return ALLOW_M | ALLOW_TM;
 
     /* Pseudodragons *really* like to hunt for rodents */
     if (is_pseudodragon(ma) && md->mlet == S_RODENT)
         return ALLOW_M | ALLOW_TM;
 
-    /* Killer bees and honey badgers don't play nice */
-    if (ma == &mons[PM_HONEY_BADGER] && md == &mons[PM_KILLER_BEE])
-        return ALLOW_M | ALLOW_TM;
-    if (md == &mons[PM_HONEY_BADGER] && ma == &mons[PM_KILLER_BEE])
+    /* Endgame amulet theft / fleeing */
+    if (mon_has_amulet(magr) && In_endgame(&u.uz))
         return ALLOW_M | ALLOW_TM;
 
-    /* Endgame amulet theft / fleeing */
-    if (mon_has_amulet(magr) && In_endgame(&u.uz)) {
-        return ALLOW_M | ALLOW_TM;
-    }
     return 0L;
+
+    /* now test all two-way aggressions both ways */
+    return (mm_2way_aggression(magr, mdef) | mm_2way_aggression(mdef, magr));
 }
 
 /* Monster displacing another monster out of the way */

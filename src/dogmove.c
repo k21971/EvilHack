@@ -1154,18 +1154,38 @@ register struct monst *mtmp;
 register struct monst *mtmp2;
 boolean ranged;
 {
+    /* from xNetHack...
+     * weight the audacity of the pet to attack a differently-leveled
+     * foe based on its fraction of max HP:
+     *       100%:  up to level + 2
+     * 80% and up:  up to level + 1
+     * 60% to 80%:  up to same level
+     * 40% to 60%:  up to level - 1
+     * 25% to 40%:  up to level - 2
+     *  below 25%:  prevented from attacking at all by a different case
+     */
+    int balk = mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
+    boolean grudge = FALSE;
+
+    /* Grudges override level checks. */
+    if (mm_aggression(mtmp, mtmp2) & ALLOW_M) {
+        grudge = TRUE;
+        balk = mtmp2->m_lev + 1;
+    }
+
     return
-    !((!ranged && (int) mtmp2->m_lev >= (int)mtmp->m_lev+2
-     &&	!attacktype(mtmp->data, AT_EXPL))
-     ||	(!ranged && mtmp2->data == &mons[PM_FLOATING_EYE]
-     && rn2(10) && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
-     && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis))
-     || (!ranged && mtmp2->data==&mons[PM_GELATINOUS_CUBE] && rn2(10))
-     || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
-     || ((mtmp->mhp * 4 < mtmp->mhpmax || mtmp2->data->msound == MS_GUARDIAN
-     || mtmp2->data->msound == MS_LEADER || always_peaceful(mtmp2->data))
-     && mtmp2->mpeaceful && !Conflict) || (!ranged && touch_petrifies(mtmp2->data)
-     && !resists_ston(mtmp)));
+    !((!ranged && (int) mtmp2->m_lev >= balk
+       && !attacktype(mtmp->data, AT_EXPL))
+       || (!ranged && mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
+           && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
+           && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis))
+       || (!ranged && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
+       || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
+       || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
+       || ((mtmp->mhp * 4 < mtmp->mhpmax || mtmp2->data->msound == MS_GUARDIAN
+           || mtmp2->data->msound == MS_LEADER || always_peaceful(mtmp2->data))
+       && mtmp2->mpeaceful && !grudge && !Conflict)
+       || (!ranged && touch_petrifies(mtmp2->data) && !resists_ston(mtmp)));
 }
 
 /* return 0 (no move), 1 (move) or 2 (dead) */
@@ -1258,48 +1278,45 @@ int after; /* this is extra fast monster movement */
 #endif
 
     /*
-    * We haven't moved yet, so search for monsters to attack from a
-    * distance and attack them if it's plausible.
-    */
-  	if (find_offensive(mtmp))
-  	{
-   	    int ret = use_offensive(mtmp);
-   	    if (ret == 1) return 2; /* died */
-   	    if (ret == 2) return 1; /* did something */
- 	  }
-   	else if (find_defensive(mtmp))
-   	{
-   	    int ret = use_defensive(mtmp);
-   	    if (ret == 1) return 2; /* died */
-   	    if (ret == 2) return 1; /* did something */
-   	}
-   	else if (find_misc(mtmp))
-   	{
-   	    int ret = use_misc(mtmp);
-   	    if (ret == 1) return 2; /* died */
-   	    if (ret == 2) return 1; /* did something */
-   	}
- 	  else
-       	if (( attacktype(mtmp->data, AT_BREA) ||
-       	      attacktype(mtmp->data, AT_GAZE) ||
-       	      attacktype(mtmp->data, AT_SPIT) ||
-       	     (attacktype(mtmp->data, AT_MAGC) &&
-       	      (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp
-       	         <= AD_SPC2))
-       	      ) ||
-       	     (attacktype(mtmp->data, AT_WEAP) &&
-       	      select_rwep(mtmp))) &&
-       	    mtmp->mlstmv != monstermoves) {
-           	    struct monst *mon = mfind_target(mtmp);
-           	    if (mon && (mon != &youmonst) &&
-           	        acceptable_pet_target(mtmp, mon, TRUE)) {
-           	        int res = (mon == &youmonst) ? mattacku(mtmp)
-           		                             : mattackm(mtmp, mon);
-           	        if (res & MM_AGR_DIED)
-           		          return 2; /* died */
-                    return 1; /* attacked */
-       	    }
-       	  }
+     * We haven't moved yet, so search for monsters to attack from a
+     * distance and attack them if it's plausible.
+     */
+    if (find_offensive(mtmp)) {
+        int ret = use_offensive(mtmp);
+        if (ret == 1)
+            return 2; /* died */
+        if (ret == 2)
+            return 1; /* did something */
+    } else if (find_defensive(mtmp)) {
+        int ret = use_defensive(mtmp);
+        if (ret == 1)
+            return 2; /* died */
+        if (ret == 2)
+            return 1; /* did something */
+    } else if (find_misc(mtmp)) {
+        int ret = use_misc(mtmp);
+        if (ret == 1)
+            return 2; /* died */
+        if (ret == 2)
+            return 1; /* did something */
+    } else if ((attacktype(mtmp->data, AT_BREA)
+        || attacktype(mtmp->data, AT_GAZE)
+        || attacktype(mtmp->data, AT_SPIT)
+        || (attacktype(mtmp->data, AT_MAGC)
+        && (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp <= AD_SPC2)))
+            || (attacktype(mtmp->data, AT_WEAP)
+            && select_rwep(mtmp)))
+            && mtmp->mlstmv != monstermoves) {
+        struct monst *mon = mfind_target(mtmp);
+        if (mon && (mon != &youmonst) &&
+            acceptable_pet_target(mtmp, mon, TRUE)) {
+            int res = (mon == &youmonst)
+                       ? mattacku(mtmp) : mattackm(mtmp, mon);
+            if (res & MM_AGR_DIED)
+                return 2; /* died */
+            return 1; /* attacked */
+        }
+    }
 
     if (!nohands(mtmp->data) && !verysmall(mtmp->data)) {
         allowflags |= OPENDOOR;
