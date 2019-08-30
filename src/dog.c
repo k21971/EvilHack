@@ -992,10 +992,9 @@ register struct obj *obj;
         /* defer eating until the edog extension has been set up */
         place_object(obj, mtmp->mx, mtmp->my); /* put on floor */
         /* devour the food (might grow into larger, genocided monster) */
-        if (dog_eat(mtmp, obj, mtmp->mx, mtmp->my, TRUE) == 2) {
+        if (dog_eat(mtmp, obj, mtmp->mx, mtmp->my, TRUE) == 2)
             return TRUE; /* oops, it died... */
-            /* `obj' is now obsolete */
-        }
+        /* `obj' is now obsolete */
     }
 
     newsym(mtmp->mx, mtmp->my);
