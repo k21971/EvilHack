@@ -557,6 +557,8 @@ register struct monst *mtmp;
             /* Let your steed retaliate */
             return !!(mattackm(u.usteed, mtmp) & MM_DEF_DIED);
         }
+        if (u.usteed->mtame >= 15)
+            return !!(mattackm(u.usteed, mtmp) & MM_DEF_DIED);
     }
 
     if (u.uundetected && !range2 && foundyou && !u.uswallow) {
