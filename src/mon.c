@@ -1954,6 +1954,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
     /* Don't allow pets to fight each other. */
     if (magr->mtame && mdef->mtame)
         return 0;
+
     /* Soldiers of different races shouldn't fight each other either.
        They're all on the same team */
     if (ma->msound == MS_SOLDIER && md->msound == MS_SOLDIER)
@@ -1982,6 +1983,12 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* Pseudodragons *really* like to hunt for rodents */
     if (is_pseudodragon(ma) && md->mlet == S_RODENT)
+        return ALLOW_M | ALLOW_TM;
+
+    /* covetous/player monsters will attack
+       whoever has the amulet  */
+    if ((is_covetous(ma) || is_mplayer(ma))
+        && mon_has_amulet(mdef))
         return ALLOW_M | ALLOW_TM;
 
     /* Endgame amulet theft / fleeing */
