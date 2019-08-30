@@ -922,6 +922,10 @@ register struct obj *obj;
         || mtmp->data == &mons[PM_BLACK_HORSE])
         return FALSE;
 
+    /* Only orcs can tame the savage warg... */
+    if (!Race_if(PM_ORC) && mtmp->data == &mons[PM_WARG])
+        return FALSE;
+
     /* worst case, at least it'll be peaceful. */
     mtmp->mpeaceful = 1;
     set_malign(mtmp);
@@ -988,9 +992,10 @@ register struct obj *obj;
         /* defer eating until the edog extension has been set up */
         place_object(obj, mtmp->mx, mtmp->my); /* put on floor */
         /* devour the food (might grow into larger, genocided monster) */
-        if (dog_eat(mtmp, obj, mtmp->mx, mtmp->my, TRUE) == 2)
+        if (dog_eat(mtmp, obj, mtmp->mx, mtmp->my, TRUE) == 2) {
             return TRUE; /* oops, it died... */
-        /* `obj' is now obsolete */
+            /* `obj' is now obsolete */
+        }
     }
 
     newsym(mtmp->mx, mtmp->my);

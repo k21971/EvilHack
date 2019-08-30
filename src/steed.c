@@ -7,7 +7,7 @@
 /* Monsters that might be ridden */
 static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN, S_ANGEL,
                                         S_CENTAUR,   S_DRAGON,  S_JABBERWOCK,
-                                        '\0' };
+                                        S_DOG, '\0' };
 
 STATIC_DCL boolean FDECL(landing_spot, (coord *, int, int));
 STATIC_DCL void FDECL(maybewakesteed, (struct monst *));
@@ -91,10 +91,10 @@ struct monst *mtmp;
 
     return (index(steeds, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
             && (!humanoid(ptr) || ptr->mlet == S_CENTAUR) && !amorphous(ptr)
-            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr) &&
-            !(ptr->mlet == S_JABBERWOCK && mtmp->mnum != PM_JABBERWOCK));
+            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
+            && !(ptr->mlet == S_JABBERWOCK && mtmp->mnum != PM_JABBERWOCK)
+            && (!(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG) && Race_if(PM_ORC)));
 
-    /* hack to avoid the player saddling up snarks and boojum */
 }
 
 int
@@ -147,6 +147,14 @@ struct obj *otmp;
     if (mtmp->isminion || mtmp->isshk || mtmp->ispriest || mtmp->isgd
         || mtmp->iswiz) {
         pline("I think %s would mind.", mon_nam(mtmp));
+        return 1;
+    }
+    if (ptr == &mons[PM_WARG] && !Race_if(PM_ORC)) {
+        pline("%s %s menacingly at you!", Monnam(mtmp),
+              rn2(2) ? "snarls" : "growls");
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3))
+            mtmp->mtame = mtmp->mpeaceful = 0;
         return 1;
     }
     if (!can_saddle(mtmp)) {
