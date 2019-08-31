@@ -376,7 +376,17 @@ Version 0.3.2
   and attacking with a stack of glass weapons
 - Fix: game crash when last rustable/corrodible object in player inventory rusts/corrodes
   away and is gone
-- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress (as of August 24th, 2019)
+- Player spell 'haste self' can cure slow effect
+- Improved feedback when a monster activates a figurine
+- Fix: restricted weapon penalty messages when using a different form of attack
+- Tweak dfficultly level of goblin outriders / goblin-captains
+- Fix: Intelligent pet code issues
+- Player monsters or any covetous monsters will grudge any monster that has
+  the Amulet of Yendor
+- A mounted steed will attack hostiles on its own without having to be attacked first
+  if its tameness is high enough
+- Player race orc can ride tame wargs
+- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of August 31st, 2019)
 
 --------------------------------------------------------------------------------------------
 
