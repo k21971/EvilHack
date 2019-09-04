@@ -11,7 +11,7 @@
 
 STATIC_DCL boolean FDECL(histemple_at, (struct monst *, XCHAR_P, XCHAR_P));
 STATIC_DCL boolean FDECL(has_shrine, (struct monst *));
-extern boolean notonhead;
+
 void
 newepri(mtmp)
 struct monst *mtmp;
@@ -52,7 +52,7 @@ register xchar omx, omy, gx, gy;
     schar chcnt, cnt;
     coord poss[9];
     long info[9];
-    long ninfo; /* info flags for eventually chosen position */
+    long ninfo;
     long allowflags;
 #if 0 /* dead code; see below */
     struct obj *ib = (struct obj *) 0;
@@ -101,10 +101,11 @@ pick_move:
         ny = poss[i].y;
         if (IS_ROOM(levl[nx][ny].typ)
             || (mtmp->isshk && (!in_his_shop || ESHK(mtmp)->following))) {
-            if (avoid && (info[i] & NOTONL))
+            if (avoid && (info[i] & NOTONL) && !(info[i] & ALLOW_M))
                 continue;
             if ((!appr && !rn2(++chcnt))
-                || (appr && GDIST(nx, ny) < GDIST(nix, niy))) {
+                || (appr && GDIST(nx, ny) < GDIST(nix, niy))
+                || (info[i] & ALLOW_M)) {
                 nix = nx;
                 niy = ny;
                 ninfo = info[i];
@@ -120,34 +121,16 @@ pick_move:
     }
 
     if (nix != omx || niy != omy) {
-        /* ALLOW_M gets set if there's a zombie,
-         * or something we are aggrsssive to on the space
-         * this attack sequence is adapred from m_move.
-         * we can't return to m_move for this, because
-         * it will pick a different (possibly inappropriate) move.
-         */
-        if (ninfo & ALLOW_M)  {
-            struct monst *mtmp2;
-            int mstatus;
-
-            mtmp2 = m_at(nix, niy);
-
-            notonhead = mtmp2 && (nix != mtmp2->mx || niy != mtmp2->my);
-            /* note: mstatus returns 0 if mtmp2 is nonexistent */
-            mstatus = mattackm(mtmp, mtmp2);
-
-            if (mstatus & MM_AGR_DIED) /* aggressor died */
-                return -2;
-
-            if ((mstatus & MM_HIT) && !(mstatus & MM_DEF_DIED) && rn2(4)
-                && mtmp2->movement >= NORMAL_SPEED) {
-                mtmp2->movement -= NORMAL_SPEED;
-                notonhead = 0;
-                mstatus = mattackm(mtmp2, mtmp); /* return attack */
-                if (mstatus & MM_DEF_DIED)
-                    return -2;
+        if (ninfo & ALLOW_M) {
+            /* mtmp is deciding it would like to attack this turn.
+             * Returns from m_move_aggress don't correspond to the same things
+             * as this function should return, so we need to translate. */
+            switch (m_move_aggress(mtmp, nix, niy)) {
+            case 2:
+                return -2; /* died making the attack */
+            case 3:
+                return 1; /* attacked and spent this move */
             }
-            return 3;
         }
 
         remove_monster(omx, omy);
