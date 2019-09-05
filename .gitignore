@@ -27,6 +27,7 @@ _$*
 core
 evilhack
 vaults.dat
+*.diff
 # CVS default ignores end
 .*.swp
 
