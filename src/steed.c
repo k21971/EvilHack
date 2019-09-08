@@ -93,8 +93,7 @@ struct monst *mtmp;
             && (!humanoid(ptr) || ptr->mlet == S_CENTAUR) && !amorphous(ptr)
             && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
             && !(ptr->mlet == S_JABBERWOCK && mtmp->mnum != PM_JABBERWOCK)
-            && (!(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG) && Race_if(PM_ORC)));
-
+            && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG));
 }
 
 int

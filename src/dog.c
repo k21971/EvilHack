@@ -198,7 +198,8 @@ makedog()
 
     context.startingpet_mid = mtmp->m_id;
     /* Horses already wear a saddle */
-    if ((pettype == PM_PONY || pettype == PM_NIGHTMARE) && !!(otmp = mksobj(SADDLE, TRUE, FALSE))) {
+    if ((pettype == PM_PONY || pettype == PM_NIGHTMARE)
+        && !!(otmp = mksobj(SADDLE, TRUE, FALSE))) {
         otmp->dknown = otmp->bknown = otmp->rknown = 1;
         put_saddle_on_mon(otmp, mtmp);
     }
