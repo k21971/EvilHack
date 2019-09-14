@@ -24,14 +24,42 @@
 #define FIRST_AMULET AMULET_OF_ESP
 #define LAST_AMULET AMULET_OF_YENDOR
 
+/* Same values as in shk.c */
+STATIC_DCL
+const int matprices[] = {
+     0,
+     1, /* LIQUID */
+     1, /* WAX */
+     1, /* VEGGY */
+     3, /* FLESH */
+     2, /* PAPER */
+     3, /* CLOTH */
+     5, /* LEATHER */
+     8, /* WOOD */
+    20, /* BONE */
+   200, /* DRAGON_HIDE - DSM to scale mail */
+    10, /* IRON */
+    10, /* METAL */
+    10, /* COPPER */
+    30, /* SILVER */
+    60, /* GOLD */
+    80, /* PLATINUM */
+    50, /* MITHRIL - mithril-coat to regular chain mail */
+    10, /* PLASTIC */
+    20, /* GLASS */
+   500, /* GEMSTONE */
+    10  /* MINERAL */
+};
+
 struct valuable_data {
     long count;
     int typ;
+    int mat;
 };
 
 static struct valuable_data
     gems[LAST_GEM + 1 - FIRST_GEM + 1], /* 1 extra for glass */
-    amulets[LAST_AMULET + 1 - FIRST_AMULET];
+    amulets[(LAST_AMULET + 1 - FIRST_AMULET) * NUM_MATERIAL_TYPES];
 
 static struct val_list {
     struct valuable_data *list;
@@ -1028,10 +1056,12 @@ struct obj *list; /* inventory or container contents */
         } else if (obj->oartifact) {
             continue;
         } else if (obj->oclass == AMULET_CLASS) {
-            i = obj->otyp - FIRST_AMULET;
+            i = ((obj->otyp - FIRST_AMULET) * NUM_MATERIAL_TYPES)
+                + obj->material;
             if (!amulets[i].count) {
                 amulets[i].count = obj->quan;
                 amulets[i].typ = obj->otyp;
+                amulets[i].mat = obj->material;
             } else
                 amulets[i].count += obj->quan; /* always adds one */
         } else if (obj->oclass == GEM_CLASS && obj->otyp < LUCKSTONE) {
@@ -1039,6 +1069,7 @@ struct obj *list; /* inventory or container contents */
             if (!gems[i].count) {
                 gems[i].count = obj->quan;
                 gems[i].typ = obj->otyp;
+                gems[i].mat = obj->material;
             } else
                 gems[i].count += obj->quan;
         }
@@ -1636,7 +1667,9 @@ int how;
             for (i = 0; i < val->size; i++)
                 if (val->list[i].count != 0L) {
                     tmp = val->list[i].count
-                          * (long) objects[val->list[i].typ].oc_cost;
+                          * (long) objects[val->list[i].typ].oc_cost
+                          * (long) matprices[val->list[i].mat]
+                          / (long) matprices[objects[val->list[i].typ].oc_material];
                     nowrap_add(u.urexp, tmp);
                 }
 
@@ -1688,6 +1721,7 @@ int how;
             for (i = 0; i < val->size && !done_stopprint; i++) {
                 int typ = val->list[i].typ;
                 long count = val->list[i].count;
+                int mat = val->list[i].mat;
 
                 if (count == 0L)
                     continue;
@@ -1696,11 +1730,15 @@ int how;
                     discover_object(otmp->otyp, TRUE, FALSE);
                     otmp->known = 1;  /* for fake amulets */
                     otmp->dknown = 1; /* seen it (blindness fix) */
+                    otmp->material = mat;
                     if (has_oname(otmp))
                         free_oname(otmp);
                     otmp->quan = count;
                     Sprintf(pbuf, "%8ld %s (worth %ld %s),", count,
-                            xname(otmp), count * (long) objects[typ].oc_cost,
+                            xname(otmp), count
+                                * (long) objects[typ].oc_cost
+                                * (long) matprices[mat]
+                                / (long) matprices[objects[typ].oc_material],
                             currency(2L));
                     obfree(otmp, (struct obj *) 0);
                 } else {
