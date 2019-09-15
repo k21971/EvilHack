@@ -341,16 +341,16 @@ boolean allow_detrimental;
 
        /* check for restrictions */
        if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
-           && (j & (ITEM_FUMBLING)))
+           && (j & (ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER)))
            continue;
 
        if ((is_ammo(otmp) || is_missile(otmp))
-           && (j & (ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
-                    | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER)))
+           && (j & (ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP
+                    | ITEM_SEARCHING | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER)))
            continue;
 
-       if ((otmp->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_DRLI))
-           && (j & (ITEM_FIRE | ITEM_FROST | ITEM_DRLI)))
+       if ((otmp->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK | ITEM_VENOM | ITEM_DRLI))
+           && (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK | ITEM_VENOM | ITEM_DRLI)))
            continue; /* these are mutually exclusive */
 
        if (otmp->material != CLOTH
@@ -376,7 +376,7 @@ boolean allow_detrimental;
             otmp->spe = rn2(2) + 1;
     }
 
-    if (otmp->oprops & (ITEM_FUMBLING |ITEM_HUNGER)
+    if (otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER)
         && allow_detrimental)
         curse(otmp);
     return otmp;
@@ -598,8 +598,11 @@ struct obj *otmp;
         if (adtyp == AD_COLD
             && (otmp->oprops & ITEM_FROST))
             return TRUE;
-        if (adtyp == AD_DRLI
-            && (otmp->oprops & ITEM_DRLI))
+        if (adtyp == AD_ELEC
+            && (otmp->oprops & ITEM_SHOCK))
+            return TRUE;
+        if (adtyp == AD_DRST
+            && (otmp->oprops & ITEM_VENOM))
             return TRUE;
     }
     return FALSE;
@@ -1076,10 +1079,19 @@ int tmp;
         if ((attacks(AD_FIRE, otmp)
             && ((yours) ? (!Fire_resistance) : (!resists_fire(mon))))
                 || (attacks(AD_COLD, otmp)
-                    && ((yours) ? (!Cold_resistance) : (!resists_cold(mon))))) {
+                    && ((yours) ? (!Cold_resistance) : (!resists_cold(mon))))
+                        || (attacks(AD_ELEC, otmp)
+                            && ((yours) ? (!Shock_resistance) : (!resists_elec(mon))))
+                                || (attacks(AD_DRST, otmp)
+                                    && ((yours) ? (!Poison_resistance) : (!resists_poison(mon))))) {
 
             spec_dbon_applies = TRUE;
-            return rnd(8);
+            /* majority of ITEM_VENOM damage
+             * handled in src/uhitm.c */
+            if (otmp->oprops & ITEM_VENOM)
+                return rnd(2);
+            else
+                return rnd(5) + 3;
         }
         if ((otmp->oprops & ITEM_DRLI)
             && ((yours) ? (!Drain_resistance) : (!resists_drli(mon)))) {
@@ -1504,7 +1516,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             else if (otmp->oclass == WEAPON_CLASS
                      && (otmp->oprops & ITEM_FROST))
                 pline_The("%s %s %s %s%c",
-                          rn2(2) ? "icy" : "frozen",
+                          rn2(2) ? "icy" : "frigid",
                           distant_name(otmp, xname),
                           !spec_dbon_applies
                               ? "hits"
@@ -1521,21 +1533,29 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         return realizes_damage;
     }
     if (attacks(AD_ELEC, otmp)) {
-        if (realizes_damage) {
+        if (realizes_damage
+            && (otmp->oartifact
+                || ((otmp->oprops & ITEM_SHOCK)
+                    && (spec_dbon_applies || (otmp->oprops_known & ITEM_SHOCK))))) {
             if (otmp->oartifact == ART_MJOLLNIR)
                 pline_The("massive hammer hits%s %s%c",
                           !spec_dbon_applies
                               ? ""
                               : "!  Lightning strikes",
                           hittee, !spec_dbon_applies ? '.' : '!');
-            else
-                pline_The("shimmering blade hits%s %s%c",
+            else if (otmp->oclass == WEAPON_CLASS
+                     && (otmp->oprops & ITEM_SHOCK))
+                pline_The("%s %s %s %s%c",
+                          rn2(2) ? "shimmering" : "electric",
+                          distant_name(otmp, xname),
                           !spec_dbon_applies
-                          ? ""
-                          : "!  Lightning strikes",
+                              ? "jolts"
+                              : "shocks",
                           hittee, !spec_dbon_applies ? '.' : '!');
+            if ((otmp->oprops & ITEM_SHOCK) && spec_dbon_applies)
+                otmp->oprops_known |= ITEM_SHOCK;
         }
-        if (spec_dbon_applies)
+        if (spec_dbon_applies && otmp->oartifact == ART_MJOLLNIR)
             wake_nearto(mdef->mx, mdef->my, 4 * 4);
         if (!rn2(5))
             (void) destroy_mitem(mdef, RING_CLASS, AD_ELEC);
@@ -1567,14 +1587,23 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
     /* Sixth basic attack - poison */
     if (attacks(AD_DRST, otmp)) {
-	if (realizes_damage) {
-	    pline_The("gigantic blade %s %s%c",
-                       spec_dbon_applies
-                          ? "eviscerates"
-                          : "hits",
-                      hittee, spec_dbon_applies ? '!' : '.');
-        return realizes_damage;
+	if (realizes_damage
+            && (otmp->oartifact
+                || ((otmp->oprops & ITEM_VENOM)
+                    && (spec_dbon_applies || (otmp->oprops_known & ITEM_VENOM))))) {
+            if (otmp->oartifact == ART_SWORD_OF_BHELEU)
+	        pline_The("gigantic blade %s %s!",
+                          rn2(2) ? "poisons" : "eviscerates", hittee);
+            else if (otmp->oclass == WEAPON_CLASS
+                     && (otmp->oprops & ITEM_VENOM))
+                pline_The("%s %s %s %s!",
+                          rn2(2) ? "noxious" : "toxic",
+                          distant_name(otmp, xname),
+                          rn2(2) ? "infects" : "poisons", hittee);
+            if ((otmp->oprops & ITEM_VENOM) && spec_dbon_applies)
+                otmp->oprops_known |= ITEM_VENOM;
         }
+        return realizes_damage;
     }
 
     if (attacks(AD_STUN, otmp) && dieroll <= MB_MAX_DIEROLL) {

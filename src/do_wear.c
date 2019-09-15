@@ -166,6 +166,10 @@ long mask;
         ECold_resistance |= mask;
     if (props & ITEM_DRLI)
         EDrain_resistance |= mask;
+    if (props & ITEM_SHOCK)
+        EShock_resistance |= mask;
+    if (props & ITEM_VENOM)
+        EPoison_resistance |= mask;
     if (props & ITEM_OILSKIN) {
         pline("%s very tightly.", Tobjnam(otmp, "fit"));
         otmp->oprops_known |= ITEM_OILSKIN;
@@ -257,6 +261,10 @@ long mask;
         ECold_resistance &= ~mask;
     if (props & ITEM_DRLI)
         EDrain_resistance &= ~mask;
+    if (props & ITEM_SHOCK)
+        EShock_resistance &= ~mask;
+    if (props & ITEM_VENOM)
+        EPoison_resistance &= ~mask;
     if (props & ITEM_OILSKIN)
         otmp->oprops_known |= ITEM_OILSKIN;
     if (props & ITEM_ESP) {

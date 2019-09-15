@@ -447,6 +447,20 @@ boolean has_of;
             Strcpy(of, " and");
         }
     }
+    if (props & ITEM_SHOCK) {
+        if (props_known & ITEM_SHOCK) {
+            Strcat(buf, of),
+            Strcat(buf, weapon ? " lightning" : " shock resistance"),
+            Strcpy(of, " and");
+        }
+    }
+    if (props & ITEM_VENOM) {
+        if (props_known & ITEM_VENOM) {
+            Strcat(buf, of),
+            Strcat(buf, weapon ? " venom" : " poison resistance"),
+            Strcpy(of, " and");
+        }
+    }
     if (props & ITEM_ESP) {
         if (props_known & ITEM_ESP) {
             Strcat(buf, of),
@@ -3498,6 +3512,16 @@ struct obj *no_wish;
                     if (!objpropcount || wizard)
                         objprops |= ITEM_DRLI;
                     objpropcount++;
+                } else if (!strncmpi((p + of), "shock", l = 5)
+                           || !strncmpi((p + of), "lightning", l = 9)) {
+                    if (!objpropcount || wizard)
+                        objprops |= ITEM_SHOCK;
+                    objpropcount++;
+                } else if (!strncmpi((p + of), "poison", l = 6)
+                           || !strncmpi((p + of), "venom", l = 5)) {
+                    if (!objpropcount || wizard)
+                        objprops |= ITEM_VENOM;
+                    objpropcount++;
                 } else if (!strncmpi((p + of), "telepathy", l = 9)
                            || !strncmpi((p + 4), "ESP", l = 3)) {
                     if (!objpropcount || wizard)
@@ -4564,14 +4588,18 @@ struct obj *no_wish;
         || otmp->oclass == ARMOR_CLASS) {
         /* check for restrictions */
         if (objprops & ITEM_FROST)
-            objprops &= ~(ITEM_FIRE | ITEM_DRLI);
+            objprops &= ~(ITEM_FIRE | ITEM_DRLI | ITEM_SHOCK | ITEM_VENOM);
         else if (objprops & ITEM_FIRE)
-            objprops &= ~(ITEM_FROST | ITEM_DRLI);
+            objprops &= ~(ITEM_FROST | ITEM_DRLI | ITEM_SHOCK | ITEM_VENOM);
         else if (objprops & ITEM_DRLI)
-            objprops &= ~(ITEM_FIRE | ITEM_FROST);
+            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_SHOCK | ITEM_VENOM);
+        else if (objprops & ITEM_SHOCK)
+            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_VENOM);
+        else if (objprops & ITEM_VENOM)
+            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_SHOCK);
 
         if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
-            objprops &= ~(ITEM_FUMBLING);
+            objprops &= ~(ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER);
 
         if (otmp->material != CLOTH)
             objprops &= ~ITEM_OILSKIN;

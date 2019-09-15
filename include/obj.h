@@ -443,18 +443,20 @@ struct obj {
 /* object properties */
 #define ITEM_FIRE      0x00000001L /* fire damage or resistance */
 #define ITEM_FROST     0x00000002L /* frost damage or resistance */
-#define ITEM_DRLI      0x00000004L /* drains life or resists it */
-#define ITEM_OILSKIN   0x00000008L /* permanently greased */
-#define ITEM_ESP       0x00000010L /* extrinsic telepathy */
-#define ITEM_SEARCHING 0x00000020L /* extrinsic searching */
-#define ITEM_WARNING   0x00000040L /* extrinsic warning */
-#define ITEM_FUMBLING  0x00000080L /* extrinsic fumbling */
-#define ITEM_HUNGER    0x00000100L /* extrinsic hunger */
+#define ITEM_SHOCK     0x00000004L /* shock damage or resistance */
+#define ITEM_VENOM     0x00000008L /* poison damage or resistance */
+#define ITEM_DRLI      0x00000010L /* drains life or resists it */
+#define ITEM_OILSKIN   0x00000020L /* permanently greased */
+#define ITEM_ESP       0x00000040L /* extrinsic telepathy */
+#define ITEM_SEARCHING 0x00000080L /* extrinsic searching */
+#define ITEM_WARNING   0x00000100L /* extrinsic warning */
+#define ITEM_FUMBLING  0x00000200L /* extrinsic fumbling */
+#define ITEM_HUNGER    0x00000400L /* extrinsic hunger */
 
 #define ITEM_MAGICAL   0x80000000L /* known to have magical properties */
 
-#define ITEM_PROP_MASK 0x000001FFL /* all current properties */
-#define MAX_ITEM_PROPS 9
+#define ITEM_PROP_MASK 0x000007FFL /* all current properties */
+#define MAX_ITEM_PROPS 11
 
 /*
  *  Notes for adding new oextra structures:

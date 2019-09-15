@@ -340,6 +340,14 @@ register int which;
             return !!(obj->oclass != WEAPON_CLASS
                       && !is_weptool(obj)
                       && (obj->oprops & ITEM_DRLI));
+       case SHOCK_RES:
+            return !!(obj->oclass != WEAPON_CLASS
+                      && !is_weptool(obj)
+                      && (obj->oprops & ITEM_SHOCK));
+       case POISON_RES:
+            return !!(obj->oclass != WEAPON_CLASS
+                      && !is_weptool(obj)
+                      && (obj->oprops & ITEM_VENOM));
         case TELEPAT:
             return !!(obj->oprops & ITEM_ESP);
         case FUMBLING:
@@ -506,12 +514,20 @@ new_property:
                     if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
                         which = DRAIN_RES;
                     break;
-               case ITEM_ESP:
-                   which = TELEPAT;
-                   break;
-               case ITEM_FUMBLING:
-                   which = FUMBLING;
-                   break;
+                case ITEM_SHOCK:
+                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                        which = SHOCK_RES;
+                    break;
+                case ITEM_VENOM:
+                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                        which = POISON_RES;
+                    break;
+                case ITEM_ESP:
+                    which = TELEPAT;
+                    break;
+                case ITEM_FUMBLING:
+                    which = FUMBLING;
+                    break;
             }
             if (which)
                 goto new_property;
