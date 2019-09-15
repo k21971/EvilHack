@@ -2285,6 +2285,8 @@ struct obj *otmp;
     if (otmp->oartifact)
         discover_artifact((xchar) otmp->oartifact);
     otmp->known = otmp->dknown = otmp->bknown = otmp->rknown = 1;
+    if (otmp->oprops)
+        otmp->oprops_known = ITEM_PROP_MASK;
     if (Is_container(otmp) || otmp->otyp == STATUE)
         otmp->cknown = otmp->lknown = 1;
     if (otmp->otyp == EGG && otmp->corpsenm != NON_PM)

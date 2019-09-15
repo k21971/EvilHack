@@ -57,6 +57,9 @@ struct obj {
     char invlet;    /* designation in inventory */
     char oartifact; /* artifact array index */
 
+    long oprops;       /* item properties */
+    long oprops_known; /* known item properties */
+
     xchar where;        /* where the object thinks it is */
 #define OBJ_FREE 0      /* object not attached to anything */
 #define OBJ_FLOOR 1     /* object on floor */
@@ -436,6 +439,21 @@ struct obj {
 #define POTHIT_HERO_THROW  1 /* thrown by hero */
 #define POTHIT_MONST_THROW 2 /* thrown by a monster */
 #define POTHIT_OTHER_THROW 3 /* propelled by some other means [scatter()] */
+
+/* object properties */
+#define ITEM_FIRE      0x00000001L /* fire damage or resistance */
+#define ITEM_FROST     0x00000002L /* frost damage or resistance */
+#define ITEM_DRLI      0x00000004L /* drains life or resists it */
+#define ITEM_OILSKIN   0x00000008L /* permanently greased */
+#define ITEM_ESP       0x00000010L /* extrinsic telepathy */
+#define ITEM_SEARCHING 0x00000020L /* extrinsic searching */
+#define ITEM_WARNING   0x00000040L /* extrinsic warning */
+#define ITEM_FUMBLING  0x00000080L /* extrinsic fumbling */
+
+#define ITEM_MAGICAL   0x80000000L /* known to have magical properties */
+
+#define ITEM_PROP_MASK 0x000000FFL /* all current properties */
+#define MAX_ITEM_PROPS 8
 
 /*
  *  Notes for adding new oextra structures:

@@ -75,7 +75,7 @@ long mask;
                             u.uprops[p].extrinsic & ~wp->w_mask;
                         if ((p = w_blocks(oobj, mask)) != 0)
                             u.uprops[p].blocked &= ~wp->w_mask;
-                        if (oobj->oartifact)
+                        if (oobj->oartifact || oobj->oprops)
                             set_artifact_intrinsic(oobj, 0, mask);
                     }
                     /* in case wearing or removal is in progress or removal
@@ -99,7 +99,7 @@ long mask;
                             if ((p = w_blocks(obj, mask)) != 0)
                                 u.uprops[p].blocked |= wp->w_mask;
                         }
-                        if (obj->oartifact)
+                        if (obj->oartifact || obj->oprops)
                             set_artifact_intrinsic(obj, 1, mask);
                     }
                 }
@@ -131,7 +131,7 @@ register struct obj *obj;
             p = objects[obj->otyp].oc_oprop;
             u.uprops[p].extrinsic = u.uprops[p].extrinsic & ~wp->w_mask;
             obj->owornmask &= ~wp->w_mask;
-            if (obj->oartifact)
+            if (obj->oartifact || obj->oprops)
                 set_artifact_intrinsic(obj, 0, wp->w_mask);
             if ((p = w_blocks(obj, wp->w_mask)) != 0)
                 u.uprops[p].blocked &= ~wp->w_mask;
@@ -316,6 +316,38 @@ struct obj *obj; /* item to make known if effect can be seen */
     }
 }
 
+boolean
+obj_has_prop(obj, which)
+register struct obj *obj;
+register int which;
+{
+    if (objects[obj->otyp].oc_oprop == which)
+        return TRUE;
+
+    if (!obj->oprops)
+        return FALSE;
+
+    switch (which) {
+        case FIRE_RES:
+            return !!(obj->oclass != WEAPON_CLASS
+                      && !is_weptool(obj)
+                      && obj->oprops & ITEM_FIRE);
+        case COLD_RES:
+            return !!(obj->oclass != WEAPON_CLASS
+                      && !is_weptool(obj)
+                      && obj->oprops & ITEM_FROST);
+        case DRAIN_RES:
+            return !!(obj->oclass != WEAPON_CLASS
+                      && !is_weptool(obj)
+                      && obj->oprops & ITEM_DRLI);
+        case TELEPAT:
+            return (obj->oprops & ITEM_ESP);
+        case FUMBLING:
+            return (obj->oprops & ITEM_FUMBLING);
+    }
+    return FALSE;
+}
+
 /* armor put on or taken off; might be magical variety
    [TODO: rename to 'update_mon_extrinsics()' and change all callers...] */
 void
@@ -325,9 +357,12 @@ struct obj *obj;
 boolean on, silently;
 {
     int unseen;
-    uchar mask;
+    uchar  mask;
     struct obj *otmp;
     int which = (int) objects[obj->otyp].oc_oprop;
+
+    long props = obj->oprops;
+    int i = 0;
 
     unseen = !canseemon(mon);
     if (obj->otyp == GOLD_DRAGON_SCALE_MAIL
@@ -343,6 +378,7 @@ boolean on, silently;
     if (!which)
         goto maybe_blocks;
 
+new_property:
     if (on) {
         switch (which) {
         case INVIS:
@@ -419,7 +455,7 @@ boolean on, silently;
             for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
                 if (otmp != obj
                     && otmp->owornmask
-                    && (int) objects[otmp->otyp].oc_oprop == which)
+                    && (int) (obj_has_prop(otmp, which)))
                     break;
             if (!otmp)
                 mon->mextrinsics &= ~((unsigned short) mask);
@@ -440,6 +476,43 @@ boolean on, silently;
         break;
     default:
         break;
+    }
+
+    while (props) {
+        if (!i)
+            i = 1;
+        else
+            i <<= 1;
+
+        if (i > ITEM_PROP_MASK)
+            break;
+
+        if (props & i) {
+            which = 0;
+            props &= ~(i);
+            switch (i) {
+                case ITEM_FIRE:
+                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                        which = FIRE_RES;
+                    break;
+                case ITEM_FROST:
+                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                        which = COLD_RES;
+                    break;
+                case ITEM_DRLI:
+                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                        which = DRAIN_RES;
+                    break;
+               case ITEM_ESP:
+                   which = TELEPAT;
+                   break;
+               case ITEM_FUMBLING:
+                   which = FUMBLING;
+                   break;
+            }
+            if (which)
+                goto new_property;
+        }
     }
 
     if (!on && mon == u.usteed && obj->otyp == SADDLE)
@@ -1060,9 +1133,15 @@ struct obj *obj;
     long i;
 
     if (!obj)
-         return 0;
+        return 0;
     if (obj->otyp == SPEED_BOOTS && mon->permspeed != MFAST)
         return 20;
+    if (obj_has_prop(obj, DISPLACED))
+        return 30;
+    if (obj_has_prop(obj, ANTIMAGIC))
+        return 20;
+    if (obj_has_prop(obj, WWALKING))
+        return 10;
     if (obj->oclass != RING_CLASS)
         return 0;
 

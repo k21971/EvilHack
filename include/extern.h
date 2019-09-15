@@ -64,6 +64,7 @@ E void FDECL(restore_artifacts, (int));
 E unsigned long FDECL(arti_prop_spfx, (int));
 E const char *FDECL(artiname, (int));
 E struct obj *FDECL(mk_artifact, (struct obj *, ALIGNTYP_P));
+E struct obj *FDECL(create_oprop, (struct obj *));
 E const char *FDECL(artifact_name, (const char *, short *));
 E boolean FDECL(exist_artifact, (int, const char *));
 E void FDECL(artifact_exists, (struct obj *, const char *, BOOLEAN_P));

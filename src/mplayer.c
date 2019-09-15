@@ -276,9 +276,14 @@ struct obj *obj;
                 otmp->oerodeproof = 1;
             else if (!rn2(2))
                 otmp->greased = 1;
-            if (special && rn2(2))
-                if (!obj)
-                    otmp = mk_artifact(otmp, A_NONE);
+            if (special && rn2(2)) {
+                if (!obj) {
+                    if (!rn2(5))
+                        otmp = mk_artifact(otmp, A_NONE);
+                    else
+                        otmp = create_oprop(otmp);
+                }
+            }
             /* usually increase stack size if stackable weapon */
             if (objects[otmp->otyp].oc_merge && !otmp->oartifact
                 && monmightthrowwep(otmp))

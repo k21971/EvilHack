@@ -1096,7 +1096,8 @@ register struct attack *mattk;
                     tmp += rn1(4, 3); /* 3..6 */
                 if (tmp < 1) /* is this necessary?  mhitu.c has it... */
                     tmp = 1;
-                if (otmp->oartifact) {
+                if ((otmp->oclass == WEAPON_CLASS && otmp->oprops)
+                    || otmp->oartifact) {
                     (void) artifact_hit(magr, mdef, otmp, &tmp, dieroll);
                     if (DEADMONSTER(mdef))
                         return (MM_DEF_DIED

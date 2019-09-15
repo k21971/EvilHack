@@ -933,9 +933,12 @@ register struct monst *mtmp;
             otmp = mksobj(LONG_SWORD, FALSE, FALSE);
 
             /* maybe make it special */
-            if (!rn2(20) || is_lord(ptr))
+            if (!rn2(20) || is_lord(ptr)) {
                 otmp = oname(otmp,
                              artiname(ART_SUNSWORD));
+                if (!otmp->oartifact)
+                    create_oprop(otmp);
+            }
             bless(otmp);
             otmp->oerodeproof = TRUE;
             spe2 = rn2(4);

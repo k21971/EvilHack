@@ -109,6 +109,8 @@ struct monst *mon;
     return (boolean) (wep && wep->oartifact && defends(AD_DRLI, wep));
 }
 
+extern boolean FDECL(obj_has_prop, (struct obj *, int));
+
 /* True if monster is magic-missile (actually, general magic) resistant */
 boolean
 resists_magm(mon)
@@ -137,7 +139,7 @@ struct monst *mon;
         slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
-             && objects[o->otyp].oc_oprop == ANTIMAGIC)
+             && obj_has_prop(o, ANTIMAGIC))
             || (o->oartifact && defends_when_carried(AD_MAGM, o)))
             return TRUE;
     return FALSE;

@@ -1025,7 +1025,8 @@ struct attack *mattk;
 
     /* if your cloak/armor is greased, monster slips off; this
        protection might fail (33% chance) when the armor is cursed */
-    if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK)
+    if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK
+        || (obj->oprops & ITEM_OILSKIN))
         && (!obj->cursed || rn2(3))) {
         pline("%s %s your %s %s!", Monnam(mtmp),
               (mattk->adtyp == AD_WRAP) ? "slips off of"
@@ -1224,8 +1225,9 @@ register struct attack *mattk;
                     dmg += rn1(4, 3); /* 3..6 */
                 if (dmg <= 0)
                     dmg = 1;
-                if (!(otmp->oartifact
-                      && artifact_hit(mtmp, &youmonst, otmp, &dmg, dieroll)))
+                if (!(((otmp->oclass == WEAPON_CLASS
+                        && otmp->oprops) || otmp->oartifact)
+                        && artifact_hit(mtmp, &youmonst, otmp, &dmg, dieroll)))
                     hitmsg(mtmp, mattk);
 
                 /* glass breakage from the attack */

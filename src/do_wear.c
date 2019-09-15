@@ -23,6 +23,7 @@ static NEARDATA const long takeoff_order[] = {
 STATIC_DCL void FDECL(on_msg, (struct obj *));
 STATIC_DCL void FDECL(toggle_stealth, (struct obj *, long, BOOLEAN_P));
 STATIC_DCL void FDECL(toggle_displacement, (struct obj *, long, BOOLEAN_P));
+STATIC_DCL void FDECL(oprops_on, (struct obj *, long));
 STATIC_PTR int NDECL(Armor_on);
 /* int NDECL(Boots_on); -- moved to extern.h */
 STATIC_PTR int NDECL(Cloak_on);
@@ -34,6 +35,7 @@ STATIC_PTR int NDECL(Shirt_on);
 STATIC_DCL void NDECL(Amulet_on);
 STATIC_DCL void FDECL(learnring, (struct obj *, BOOLEAN_P));
 STATIC_DCL void FDECL(Ring_off_or_gone, (struct obj *, BOOLEAN_P));
+STATIC_DCL void FDECL(oprops_off, (struct obj *, long));
 STATIC_PTR int FDECL(select_off, (struct obj *));
 STATIC_DCL struct obj *NDECL(do_takeoff);
 STATIC_PTR int NDECL(take_off);
@@ -150,11 +152,51 @@ boolean on;
  * [Blindf_on() is an exception and calls setworn() itself.]
  */
 
+STATIC_OVL
+void
+oprops_on(otmp, mask)
+register struct obj *otmp;
+long mask;
+{
+    long props = otmp->oprops;
+
+    if (props & ITEM_FIRE)
+        EFire_resistance |= mask;
+
+    if (props & ITEM_FROST)
+        ECold_resistance |= mask;
+
+    if (props & ITEM_DRLI)
+        EDrain_resistance |= mask;
+
+    if (props & ITEM_OILSKIN) {
+        pline("%s very tightly.", Tobjnam(otmp, "fit"));
+        otmp->oprops_known |= ITEM_OILSKIN;
+    }
+
+    if (props & ITEM_ESP)
+        ETelepat |= mask;
+
+    if (props & ITEM_SEARCHING)
+        ESearching |= mask;
+
+    if (props & ITEM_WARNING)
+        EWarning |= mask;
+
+    if (props & ITEM_FUMBLING) {
+        if (!EFumbling && !(HFumbling & ~TIMEOUT))
+            incr_itimeout(&HFumbling, rnd(20));
+        EFumbling |= mask;
+    }
+}
+
 int
 Boots_on(VOID_ARGS)
 {
     long oldprop =
         u.uprops[objects[uarmf->otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
+
+    oprops_on(uarmf, WORN_BOOTS);
 
     switch (uarmf->otyp) {
     case LOW_BOOTS:
@@ -182,7 +224,7 @@ Boots_on(VOID_ARGS)
         toggle_stealth(uarmf, oldprop, TRUE);
         break;
     case FUMBLE_BOOTS:
-        if (!oldprop && !(HFumbling & ~TIMEOUT))
+        if (!(HFumbling & ~TIMEOUT))
             incr_itimeout(&HFumbling, rnd(20));
         break;
     case LEVITATION_BOOTS:
@@ -202,12 +244,50 @@ Boots_on(VOID_ARGS)
     return 0;
 }
 
+STATIC_OVL
+void
+oprops_off(otmp, mask)
+register struct obj *otmp;
+long mask;
+{
+    long props = otmp->oprops;
+
+    if (props & ITEM_FIRE)
+        EFire_resistance &= ~mask;
+
+    if (props & ITEM_FROST)
+        ECold_resistance &= ~mask;
+
+    if (props & ITEM_DRLI)
+        EDrain_resistance &= ~mask;
+
+    if (props & ITEM_OILSKIN)
+        otmp->oprops_known |= ITEM_OILSKIN;
+
+    if (props & ITEM_ESP)
+        ETelepat &= ~mask;
+
+    if (props & ITEM_SEARCHING)
+        ESearching &= ~mask;
+
+    if (props & ITEM_WARNING)
+        EWarning &= ~mask;
+
+    if (props & ITEM_FUMBLING) {
+        EFumbling &= ~mask;
+        if (!EFumbling && !(HFumbling & ~TIMEOUT))
+           HFumbling = EFumbling = 0;
+    }
+}
+
 int
 Boots_off(VOID_ARGS)
 {
     struct obj *otmp = uarmf;
     int otyp = otmp->otyp;
     long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
+
+    oprops_off(uarmf, WORN_BOOTS);
 
     context.takeoff.mask &= ~W_ARMF;
     /* For levitation, float_down() returns if Levitation, so we
@@ -237,7 +317,7 @@ Boots_off(VOID_ARGS)
         toggle_stealth(otmp, oldprop, FALSE);
         break;
     case FUMBLE_BOOTS:
-        if (!oldprop && !(HFumbling & ~TIMEOUT))
+        if (!(HFumbling & ~TIMEOUT))
             HFumbling = EFumbling = 0;
         break;
     case LEVITATION_BOOTS:
@@ -267,6 +347,8 @@ Cloak_on(VOID_ARGS)
 {
     long oldprop =
         u.uprops[objects[uarmc->otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
+
+    oprops_on(uarmc, WORN_CLOAK);
 
     switch (uarmc->otyp) {
     case ORCISH_CLOAK:
@@ -326,6 +408,8 @@ Cloak_off(VOID_ARGS)
     int otyp = otmp->otyp;
     long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
 
+    oprops_off(uarmc, WORN_CLOAK);
+
     context.takeoff.mask &= ~W_ARMC;
     /* For mummy wrapping, taking it off first resets `Invisible'. */
     setworn((struct obj *) 0, W_ARMC);
@@ -378,6 +462,8 @@ STATIC_PTR
 int
 Helmet_on(VOID_ARGS)
 {
+    oprops_on(uarmh, WORN_HELMET);
+
     switch (uarmh->otyp) {
     case FEDORA:
     case HELMET:
@@ -442,6 +528,8 @@ Helmet_on(VOID_ARGS)
 int
 Helmet_off(VOID_ARGS)
 {
+    oprops_off(uarmh, WORN_HELMET);
+
     context.takeoff.mask &= ~W_ARMH;
 
     switch (uarmh->otyp) {
@@ -491,11 +579,13 @@ Gloves_on(VOID_ARGS)
     long oldprop =
         u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
 
+    oprops_on(uarmg, WORN_GLOVES);
+
     switch (uarmg->otyp) {
     case GLOVES:
         break;
     case GAUNTLETS_OF_FUMBLING:
-        if (!oldprop && !(HFumbling & ~TIMEOUT))
+        if (!(HFumbling & ~TIMEOUT))
             incr_itimeout(&HFumbling, rnd(20));
         break;
     case GAUNTLETS_OF_POWER:
@@ -508,6 +598,8 @@ Gloves_on(VOID_ARGS)
     default:
         impossible(unknown_type, c_gloves, uarmg->otyp);
     }
+    if (uarmg->greased)
+        Glib |= FROMOUTSIDE;
     uarmg->known = 1; /* gloves' +/- evident because of status line AC */
     return 0;
 }
@@ -543,13 +635,18 @@ Gloves_off(VOID_ARGS)
         u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
     boolean on_purpose = !context.mon_moving && !uarmg->in_use;
 
+    oprops_off(uarmg, WORN_GLOVES);
+
+    if (uarmg->greased)
+        Glib &= ~FROMOUTSIDE;
+
     context.takeoff.mask &= ~W_ARMG;
 
     switch (uarmg->otyp) {
     case GLOVES:
         break;
     case GAUNTLETS_OF_FUMBLING:
-        if (!oldprop && !(HFumbling & ~TIMEOUT))
+        if (!(HFumbling & ~TIMEOUT))
             HFumbling = EFumbling = 0;
         break;
     case GAUNTLETS_OF_POWER:
@@ -587,6 +684,7 @@ Gloves_off(VOID_ARGS)
 STATIC_PTR int
 Shield_on(VOID_ARGS)
 {
+    oprops_on(uarms, WORN_SHIELD);
     /* no shield currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does
        [reflection is handled by setting u.uprops[REFLECTION].extrinsic
@@ -610,6 +708,8 @@ Shield_on(VOID_ARGS)
 int
 Shield_off(VOID_ARGS)
 {
+    oprops_off(uarms, WORN_SHIELD);
+
     context.takeoff.mask &= ~W_ARMS;
 
     /* no shield currently requires special handling when taken off, but we
@@ -634,6 +734,8 @@ Shield_off(VOID_ARGS)
 STATIC_PTR int
 Shirt_on(VOID_ARGS)
 {
+    oprops_on(uarmu, WORN_SHIRT);
+
     /* no shirt currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does */
     switch (uarmu->otyp) {
@@ -650,6 +752,8 @@ Shirt_on(VOID_ARGS)
 int
 Shirt_off(VOID_ARGS)
 {
+    oprops_off(uarmu, WORN_SHIRT);
+
     context.takeoff.mask &= ~W_ARMU;
 
     /* no shirt currently requires special handling when taken off, but we
@@ -713,13 +817,14 @@ Armor_on(VOID_ARGS)
                 break;
 	    default:
 		break;
-	    }
+        }
     }
     /*
      * No suits require special handling.  Special properties conferred by
      * suits are set up as intrinsics (actually 'extrinsics') by setworn()
      * which is called by armor_or_accessory_on() before Armor_on().
      */
+    oprops_on(uarm, W_ARM);
     uarm->known = 1; /* suit's +/- evident because of status line AC */
     return 0;
 }
@@ -763,8 +868,9 @@ Armor_off(VOID_ARGS)
                 break;
 	    default:
 		break;
-	}
+        }
     }
+    oprops_off(uarm, W_ARM);
     context.takeoff.mask &= ~W_ARM;
     setworn((struct obj *) 0, W_ARM);
     context.takeoff.cancelled_don = FALSE;
@@ -816,6 +922,7 @@ Armor_gone()
 		break;
 	}
     }
+    oprops_off(uarm, W_ARM);
     context.takeoff.mask &= ~W_ARM;
     setnotworn(uarm);
     context.takeoff.cancelled_don = FALSE;

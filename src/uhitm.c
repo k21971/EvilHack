@@ -915,7 +915,7 @@ int dieroll;
                     hittxt = TRUE;
                 }
 
-                if (obj->oartifact
+                if (((obj->oclass == WEAPON_CLASS && obj->oprops) || obj->oartifact)
                     && artifact_hit(&youmonst, mon, obj, &tmp, dieroll)) {
                     if (DEADMONSTER(mon)) /* artifact killed monster */
                         return FALSE;

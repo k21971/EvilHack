@@ -332,6 +332,8 @@ struct monst *victim;
         pline("%s %s", Yobjnam2(otmp, "are"), txt);
     }
     if (!rn2(2)) {
+        if (otmp == uarmg)
+            Glib &= ~FROMOUTSIDE;
         otmp->greased = 0;
         if (carried(otmp)) {
             pline_The("grease dissolves.");
@@ -3816,7 +3818,9 @@ boolean force;
             update_inventory();
         return ER_GREASED;
     } else if (Is_container(obj) && !Is_box(obj)
-               && (obj->otyp != OILSKIN_SACK || (obj->cursed && !rn2(3)))) {
+               && (!(obj->otyp == OILSKIN_SACK
+                   || obj->oprops & ITEM_OILSKIN)
+               || (obj->cursed && !rn2(3)))) {
         if (carried(obj))
             pline("Water gets into your %s!", ostr);
 

@@ -1886,7 +1886,8 @@ dosacrifice()
 	     */
 
             if (rn2(10) >= (nchance * nchance) / 100) {
-		if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
+                /* TESTING */
+		if (u.uluck >= 0 && rn2(6 + (2 * u.ugifts))) {
 		    int typ, ncount = 0;
 		    if (rn2(2)) {
 		    /* Don't give unicorn horns or anything the player's restricted in
@@ -1960,6 +1961,9 @@ dosacrifice()
 		    if (typ) {
 			otmp = mksobj(typ, FALSE, FALSE);
 			if (otmp) {
+                            /* TESTING */
+                            if (rn2(20))
+                                otmp = create_oprop(otmp);
 			    bless(otmp);
 			    otmp->spe = rn2(3) + 3; /* +3 to +5 */
 			    otmp->oerodeproof = TRUE;

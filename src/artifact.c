@@ -182,6 +182,12 @@ aligntyp alignment; /* target alignment, or A_NONE */
     boolean unique = !by_align && otmp && objects[o_typ].oc_unique;
     short eligible[NROFARTIFACTS];
 
+    /* don't add properties to special weapons */
+    if (otmp && otmp->oprops)
+        return otmp;
+    if (otmp && otmp->oartifact)
+        return otmp;
+
     n = altn = 0;    /* no candidates found yet */
     eligible[0] = 0; /* lint suppression */
     /* gather eligible artifacts */
@@ -250,9 +256,77 @@ aligntyp alignment; /* target alignment, or A_NONE */
             artiexist[m] = TRUE;
         }
     } else {
-        /* nothing appropriate could be found; return original object */
-        if (by_align)
-            otmp = 0; /* (there was no original object) */
+        otmp = create_oprop(otmp);
+    }
+    return otmp;
+}
+
+/* Create an item with special properties, or grant the item those properties */
+struct obj *
+create_oprop(obj)
+register struct obj *obj;
+{
+    register struct obj *otmp = obj;
+    int i, j;
+
+    if (!otmp) {
+        /* This probably is only ever done for weapons, y'know? */
+        otmp = mkobj(WEAPON_CLASS, FALSE);
+    }
+
+    /* Don't spruce up certain objects */
+    if (otmp->oartifact)
+        return otmp;
+    else if (objects[otmp->otyp].oc_unique)
+        return otmp;
+    else if (Is_dragon_armor(otmp))
+        return otmp;
+
+    /* properties only added to weapons and armor */
+    if (otmp->oclass != WEAPON_CLASS
+        && !is_weptool(otmp) && otmp->oclass != ARMOR_CLASS)
+        return otmp;
+
+    /* it is possible to have an object spawn with more
+     * than one object property, but the odds are so low
+     * that if it happens, well good for you */
+    while (!otmp->oprops || !rn2(100000)) {
+        i = rn2(MAX_ITEM_PROPS);
+        j = 1 << i; /* pick an object property */
+
+       if (otmp->oprops & j)
+           continue;
+
+       /* check for restrictions */
+       if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+           && (j & (ITEM_FUMBLING)))
+           continue;
+
+       if ((otmp->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_DRLI))
+           && (j & (ITEM_FIRE | ITEM_FROST | ITEM_DRLI)))
+           continue; /* these are mutually exclusive */
+
+       if (otmp->material != CLOTH
+           && (j & ITEM_OILSKIN))
+           continue;
+
+       otmp->oprops |= j;
+    }
+
+    /* Fix it up as necessary */
+    if (otmp->oprops) {
+        if (otmp->cursed)
+            uncurse(otmp);
+        else
+            bless(otmp);
+    }
+
+    if (otmp->oprops && (otmp->oclass == WEAPON_CLASS
+        || otmp->oclass == ARMOR_CLASS)) {
+        if (otmp->spe < 0)
+            otmp->spe = 0;
+        else if (otmp->spe == 0)
+            otmp->spe = rn2(2) + 1;
     }
     return otmp;
 }
@@ -464,6 +538,19 @@ struct obj *otmp;
 
     if ((weap = get_artifact(otmp)) != 0)
         return (boolean) (weap->attk.adtyp == adtyp);
+
+    if (!weap && otmp->oprops
+        && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))) {
+        if (adtyp == AD_FIRE
+            && (otmp->oprops & ITEM_FIRE))
+            return TRUE;
+        if (adtyp == AD_COLD
+            && (otmp->oprops & ITEM_FROST))
+            return TRUE;
+        if (adtyp == AD_DRLI
+            && (otmp->oprops & ITEM_DRLI))
+            return TRUE;
+    }
     return FALSE;
 }
 
@@ -525,11 +612,14 @@ long wp_mask;
     register uchar dtyp;
     register long spfx;
 
-    if (!oart)
+    if (!oart && !otmp->oprops)
         return;
 
     /* effects from the defn field */
-    dtyp = (wp_mask != W_ART) ? oart->defn.adtyp : oart->cary.adtyp;
+    if (oart)
+        dtyp = (wp_mask != W_ART) ? oart->defn.adtyp : oart->cary.adtyp;
+    else
+        dtyp = 0;
 
     if (dtyp == AD_FIRE)
         mask = &EFire_resistance;
@@ -573,7 +663,18 @@ long wp_mask;
     }
 
     /* intrinsics from the spfx field; there could be more than one */
-    spfx = (wp_mask != W_ART) ? oart->spfx : oart->cspfx;
+    spfx = 0;
+    if (oart) {
+        spfx = (wp_mask != W_ART) ? oart->spfx : oart->cspfx;
+    } else if (wp_mask == W_WEP || wp_mask == W_SWAPWEP) {
+        if (otmp->oprops & ITEM_SEARCHING)
+            spfx |= SPFX_SEARCH;
+        if (otmp->oprops & ITEM_WARNING)
+            spfx |= SPFX_WARN;
+        if (otmp->oprops & ITEM_ESP)
+            spfx |= SPFX_ESP;
+    }
+
     if (spfx && wp_mask == W_ART && !on) {
         /* don't change any spfx also conferred by other artifacts */
         for (obj = invent; obj; obj = obj->nobj)
@@ -691,7 +792,7 @@ long wp_mask;
             EProtection &= ~wp_mask;
     }
 
-    if (wp_mask == W_ART && !on && oart->inv_prop) {
+    if (wp_mask == W_ART && !on && oart && oart->inv_prop) {
         /* might have to turn off invoked power too */
         if (oart->inv_prop <= LAST_PROP
             && (u.uprops[oart->inv_prop].extrinsic & W_ARTI))
@@ -915,6 +1016,34 @@ struct monst *mon;
 int tmp;
 {
     register const struct artifact *weap = get_artifact(otmp);
+
+    if (!weap && otmp->oprops
+        && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))) {
+        /* until we know otherwise... */
+        if ((attacks(AD_FIRE, otmp) && !resists_fire(mon))
+            || (attacks(AD_COLD, otmp) && !resists_cold(mon))) {
+            spec_dbon_applies = TRUE;
+
+            int tmp;
+
+            if (bigmonst(mon->data))
+                tmp = rnd(objects[otmp->otyp].oc_wldam);
+            else
+                tmp = rnd(objects[otmp->otyp].oc_wsdam);
+
+            tmp += otmp->spe;
+
+            if (tmp < 1)
+                tmp = 1;
+
+            return tmp;
+        }
+        if ((otmp->oprops & ITEM_DRLI) && !resists_drli(mon)) {
+            spec_dbon_applies = TRUE;
+            return 0;
+        }
+        return 0;
+    }
 
     if (!weap || (weap->attk.adtyp == AD_PHYS /* check for `NO_ATTK' */
                   && weap->attk.damn == 0 && weap->attk.damd == 0))
@@ -1258,35 +1387,48 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (attacks(AD_FIRE, otmp)) {
         if (realizes_damage) {
             if (otmp->oartifact == ART_FIRE_BRAND)
-            pline_The("fiery blade %s %s%c",
-                      !spec_dbon_applies
-                          ? "hits"
-                          : (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                             || mdef->data == &mons[PM_ICE_VORTEX])
-                                ? "vaporizes part of"
-                                : "burns",
-                      hittee, !spec_dbon_applies ? '.' : '!');
-            else
-            pline_The("flaming spear %s %s%c",
-                      !spec_dbon_applies
-                          ? "hits"
-                          : (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                             || mdef->data == &mons[PM_ICE_VORTEX])
-                                ? "vaporizes part of"
-                                : "burns",
-                      hittee, !spec_dbon_applies ? '.' : '!');
+                pline_The("fiery blade %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits"
+                              : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_ICE_VORTEX])
+                                 ? "vaporizes part of"
+                                 : "burns",
+                          hittee, !spec_dbon_applies ? '.' : '!');
+            else if (otmp->oartifact == ART_XIUHCOATL)
+                pline_The("flaming spear %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits"
+                              : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_ICE_VORTEX])
+                                 ? "vaporizes part of"
+                                 : "burns",
+                          hittee, !spec_dbon_applies ? '.' : '!');
+            else if (otmp->oclass == WEAPON_CLASS
+                     && (otmp->oprops & ITEM_FIRE))
+                pline_The("%s %s %s %s%c",
+                          rn2(2) ? "fiery" : "flaming",
+                          distant_name(otmp, xname),
+                          !spec_dbon_applies
+                              ? "hits"
+                              : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_ICE_VORTEX])
+                                 ? "vaporizes part of"
+                                 : "burns",
+                          hittee, !spec_dbon_applies ? '.' : '!');
             if (completelyburns(mdef->data) || is_wooden(mdef->data)
                 || mdef->data == &mons[PM_GREEN_SLIME]) {
                 if (youdefend) {
                     You("ignite and turn to ash!");
                     losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
                            NO_KILLER_PREFIX);
-                }
-                else {
+                } else {
                     pline("%s ignites and turns to ash!", Monnam(mdef));
                     mondead(mdef);
                 }
             }
+            if (otmp->oprops & ITEM_FIRE)
+                otmp->oprops_known |= ITEM_FIRE;
         }
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
@@ -1299,15 +1441,31 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         return realizes_damage;
     }
     if (attacks(AD_COLD, otmp)) {
-        if (realizes_damage)
-            pline_The("ice-cold blade %s %s%c",
-                      !spec_dbon_applies
-                          ? "hits"
-                          : (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                             || mdef->data == &mons[PM_WATER_TROLL])
-                                ? "freezes part of"
-                                : "freezes",
-                      hittee,  !spec_dbon_applies ? '.' : '!');
+        if (realizes_damage) {
+            if (otmp->oartifact == ART_FROST_BRAND)
+                pline_The("ice-cold blade %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits"
+                              : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_WATER_TROLL])
+                                 ? "freezes part of"
+                                 : "freezes",
+                          hittee,  !spec_dbon_applies ? '.' : '!');
+            else if (otmp->oclass == WEAPON_CLASS
+                     && (otmp->oprops & ITEM_FROST))
+                pline_The("%s %s %s %s%c",
+                          rn2(2) ? "icy" : "frozen",
+                          distant_name(otmp, xname),
+                          !spec_dbon_applies
+                              ? "hits"
+                              : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_WATER_TROLL])
+                                 ? "freezes part of"
+                                 : "freezes",
+                          hittee, !spec_dbon_applies ? '.' : '!');
+            if (otmp->oprops & ITEM_FROST)
+                otmp->oprops_known |= ITEM_FROST;
+        }
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_COLD);
         return realizes_damage;
@@ -1315,13 +1473,17 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (attacks(AD_ELEC, otmp)) {
         if (realizes_damage) {
             if (otmp->oartifact == ART_MJOLLNIR)
-            pline_The("massive hammer hits%s %s%c",
-                      !spec_dbon_applies ? "" : "!  Lightning strikes",
-                      hittee, !spec_dbon_applies ? '.' : '!');
+                pline_The("massive hammer hits%s %s%c",
+                          !spec_dbon_applies
+                              ? ""
+                              : "!  Lightning strikes",
+                          hittee, !spec_dbon_applies ? '.' : '!');
             else
-            pline_The("shimmering blade hits%s %s%c", /* I may create more than one artifact weapon that can do AD_ELEC damage later on */
-                      !spec_dbon_applies ? "" : "!  Lightning strikes",
-                      hittee, !spec_dbon_applies ? '.' : '!');
+                pline_The("shimmering blade hits%s %s%c",
+                          !spec_dbon_applies
+                          ? ""
+                          : "!  Lightning strikes",
+                          hittee, !spec_dbon_applies ? '.' : '!');
         }
         if (spec_dbon_applies)
             wake_nearto(mdef->mx, mdef->my, 4 * 4);
@@ -1348,8 +1510,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           ? "hits"
                           : (mdef->data == &mons[PM_IRON_GOLEM]
                              || mdef->data == &mons[PM_IRON_PIERCER])
-                                ? "eats away part of"
-                                : "burns",
+                             ? "eats away part of"
+                             : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
         return realizes_damage;
     }
@@ -1584,7 +1746,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             }
         }
     }
-    if (spec_ability(otmp, SPFX_DRLI)) {
+    if (attacks(AD_DRLI, otmp)
+        || spec_ability(otmp, SPFX_DRLI)) {
         /* some non-living creatures (golems, vortices) are
            vulnerable to life drain effects */
         const char *life = nonliving(mdef->data) ? "animating force" : "life";
@@ -1594,10 +1757,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (otmp->oartifact == ART_STORMBRINGER)
                     pline_The("%s blade draws the %s from %s!",
                               hcolor(NH_BLACK), life, mon_nam(mdef));
-                else
-                    pline("%s draws the %s from %s!",
-                          The(distant_name(otmp, xname)), life,
+                else if (otmp->oartifact == ART_LIFESTEALER)
+                    pline_The("massive sword draws the %s from %s!",
+                              life, mon_nam(mdef));
+                else if (otmp->oclass == WEAPON_CLASS
+                         && (otmp->oprops & ITEM_DRLI))
+                    pline_The("deadly %s draws the %s from %s!",
+                          distant_name(otmp, xname), life,
                           mon_nam(mdef));
+                if (otmp->oprops & ITEM_DRLI)
+                    otmp->oprops_known |= ITEM_DRLI;
             }
             if (mdef->m_lev == 0) {
                 *dmgptr = 2 * mdef->mhp + FATAL_DAMAGE_MODIFIER;
@@ -1617,15 +1786,21 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
             if (Blind)
                 You_feel("an %s drain your %s!",
-                         (otmp->oartifact == ART_STORMBRINGER)
+                         (otmp->oartifact == ART_STORMBRINGER
+                          || otmp->oartifact == ART_LIFESTEALER)
                             ? "unholy blade"
                             : "object",
                          life);
             else if (otmp->oartifact == ART_STORMBRINGER)
                 pline_The("%s blade drains your %s!", hcolor(NH_BLACK), life);
-            else
-                pline("%s drains your %s!", The(distant_name(otmp, xname)),
-                      life);
+            else if (otmp->oartifact == ART_STORMBRINGER)
+                pline_The("massive sword drains your %s!", life);
+            else if (otmp->oclass == WEAPON_CLASS
+                     && (otmp->oprops & ITEM_DRLI))
+                pline_The("deadly %s drains your %s!",
+                          distant_name(otmp, xname), life);
+            if (otmp->oprops & ITEM_DRLI)
+                otmp->oprops_known |= ITEM_DRLI;
             losexp("life drainage");
             if (magr && magr->mhp < magr->mhpmax) {
                 magr->mhp += (oldhpmax - u.uhpmax) / 2;
@@ -1635,7 +1810,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             return TRUE;
         }
     }
-    return FALSE;
+    return realizes_damage;
 }
 
 static NEARDATA const char recharge_type[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
