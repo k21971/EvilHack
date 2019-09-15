@@ -162,32 +162,31 @@ long mask;
 
     if (props & ITEM_FIRE)
         EFire_resistance |= mask;
-
     if (props & ITEM_FROST)
         ECold_resistance |= mask;
-
     if (props & ITEM_DRLI)
         EDrain_resistance |= mask;
-
     if (props & ITEM_OILSKIN) {
         pline("%s very tightly.", Tobjnam(otmp, "fit"));
         otmp->oprops_known |= ITEM_OILSKIN;
     }
-
-    if (props & ITEM_ESP)
+    if (props & ITEM_ESP) {
         ETelepat |= mask;
-
+        see_monsters();
+    }
     if (props & ITEM_SEARCHING)
         ESearching |= mask;
-
-    if (props & ITEM_WARNING)
+    if (props & ITEM_WARNING) {
         EWarning |= mask;
-
+        see_monsters();
+    }
     if (props & ITEM_FUMBLING) {
         if (!EFumbling && !(HFumbling & ~TIMEOUT))
             incr_itimeout(&HFumbling, rnd(20));
         EFumbling |= mask;
     }
+    if (props & ITEM_HUNGER)
+        EHunger |= mask;
 }
 
 int
@@ -254,30 +253,29 @@ long mask;
 
     if (props & ITEM_FIRE)
         EFire_resistance &= ~mask;
-
     if (props & ITEM_FROST)
         ECold_resistance &= ~mask;
-
     if (props & ITEM_DRLI)
         EDrain_resistance &= ~mask;
-
     if (props & ITEM_OILSKIN)
         otmp->oprops_known |= ITEM_OILSKIN;
-
-    if (props & ITEM_ESP)
+    if (props & ITEM_ESP) {
         ETelepat &= ~mask;
-
+        see_monsters();
+    }
     if (props & ITEM_SEARCHING)
         ESearching &= ~mask;
-
-    if (props & ITEM_WARNING)
+    if (props & ITEM_WARNING) {
         EWarning &= ~mask;
-
+        see_monsters();
+    }
     if (props & ITEM_FUMBLING) {
         EFumbling &= ~mask;
         if (!EFumbling && !(HFumbling & ~TIMEOUT))
            HFumbling = EFumbling = 0;
     }
+    if (props & ITEM_HUNGER)
+        EHunger &= ~mask;
 }
 
 int

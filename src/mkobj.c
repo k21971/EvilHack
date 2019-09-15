@@ -841,7 +841,7 @@ boolean artif;
                 otmp = mk_artifact(otmp, (aligntyp) A_NONE);
             /* TESTING */
             else if (rn2(100))
-                otmp = create_oprop(otmp);
+                otmp = create_oprop(otmp, TRUE);
 
             if (Is_medusa_level(&u.uz) && otmp->otyp == ORCISH_ARROW) {
                 bless(otmp);
@@ -1043,7 +1043,7 @@ boolean artif;
                 otmp = mk_artifact(otmp, (aligntyp) A_NONE);
             /* TESTING */
             else if (rn2(100))
-                otmp = create_oprop(otmp);
+                otmp = create_oprop(otmp, TRUE);
             /* simulate lacquered armor for samurai */
             if (Role_if(PM_SAMURAI) && otmp->otyp == SPLINT_MAIL
                 && (moves <= 1 || In_quest(&u.uz))) {

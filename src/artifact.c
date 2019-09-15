@@ -256,22 +256,60 @@ aligntyp alignment; /* target alignment, or A_NONE */
             artiexist[m] = TRUE;
         }
     } else {
-        otmp = create_oprop(otmp);
+        otmp = create_oprop(otmp, FALSE);
     }
     return otmp;
 }
 
 /* Create an item with special properties, or grant the item those properties */
 struct obj *
-create_oprop(obj)
+create_oprop(obj, allow_detrimental)
 register struct obj *obj;
+boolean allow_detrimental;
 {
     register struct obj *otmp = obj;
     int i, j;
 
     if (!otmp) {
-        /* This probably is only ever done for weapons, y'know? */
-        otmp = mkobj(WEAPON_CLASS, FALSE);
+        int type = 0, skill = P_NONE,
+            candidates[128], ccount,
+            threshold = P_EXPERT, i;
+        /* This probably is only ever done for weapons, y'know?
+         * Find an appropriate type of weapon */
+        while (threshold > P_UNSKILLED) {
+            ccount = 0;
+            for (i = P_FIRST_WEAPON; i < P_LAST_WEAPON; i++) {
+                if (P_MAX_SKILL(i) >= max(threshold, P_BASIC)
+                    && P_SKILL(i) >= threshold)
+                    candidates[ccount++] = i;
+                if (ccount >= 128)
+                     break;
+            }
+            if (ccount == 0) {
+                threshold--;
+                continue;
+            }
+            skill = candidates[rn2(ccount)];
+            ccount = 0;
+            for (i = ARROW; i <= CROSSBOW; i++) {
+                if (abs(objects[i].oc_skill) == skill)
+                    candidates[ccount++] = i;
+                if (ccount == 128)
+                    break;
+            }
+            if (!ccount) {
+                impossible("found no weapons for skill %d?", skill);
+                threshold--;
+                continue;
+            }
+            type = candidates[rn2(ccount)];
+            break;
+        }
+        /* Now make one, if we can */
+        if (type != 0)
+            otmp = mksobj(type, TRUE, FALSE);
+        else
+            otmp = mkobj(WEAPON_CLASS, FALSE);
     }
 
     /* Don't spruce up certain objects */
@@ -297,9 +335,18 @@ register struct obj *obj;
        if (otmp->oprops & j)
            continue;
 
+       if ((j & (ITEM_FUMBLING | ITEM_HUNGER))
+           && !allow_detrimental)
+           continue;
+
        /* check for restrictions */
        if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
            && (j & (ITEM_FUMBLING)))
+           continue;
+
+       if ((is_ammo(otmp) || is_missile(otmp))
+           && (j & (ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
+                    | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER)))
            continue;
 
        if ((otmp->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_DRLI))
@@ -314,7 +361,7 @@ register struct obj *obj;
     }
 
     /* Fix it up as necessary */
-    if (otmp->oprops) {
+    if (otmp->oprops && !allow_detrimental) {
         if (otmp->cursed)
             uncurse(otmp);
         else
@@ -328,6 +375,10 @@ register struct obj *obj;
         else if (otmp->spe == 0)
             otmp->spe = rn2(2) + 1;
     }
+
+    if (otmp->oprops & (ITEM_FUMBLING |ITEM_HUNGER)
+        && allow_detrimental)
+        curse(otmp);
     return otmp;
 }
 
@@ -1016,29 +1067,22 @@ struct monst *mon;
 int tmp;
 {
     register const struct artifact *weap = get_artifact(otmp);
+    boolean yours = (mon == &youmonst);
+    spec_dbon_applies = FALSE;
 
     if (!weap && otmp->oprops
         && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))) {
         /* until we know otherwise... */
-        if ((attacks(AD_FIRE, otmp) && !resists_fire(mon))
-            || (attacks(AD_COLD, otmp) && !resists_cold(mon))) {
+        if ((attacks(AD_FIRE, otmp)
+            && ((yours) ? (!Fire_resistance) : (!resists_fire(mon))))
+                || (attacks(AD_COLD, otmp)
+                    && ((yours) ? (!Cold_resistance) : (!resists_cold(mon))))) {
+
             spec_dbon_applies = TRUE;
-
-            int tmp;
-
-            if (bigmonst(mon->data))
-                tmp = rnd(objects[otmp->otyp].oc_wldam);
-            else
-                tmp = rnd(objects[otmp->otyp].oc_wsdam);
-
-            tmp += otmp->spe;
-
-            if (tmp < 1)
-                tmp = 1;
-
-            return tmp;
+            return rnd(8);
         }
-        if ((otmp->oprops & ITEM_DRLI) && !resists_drli(mon)) {
+        if ((otmp->oprops & ITEM_DRLI)
+            && ((yours) ? (!Drain_resistance) : (!resists_drli(mon)))) {
             spec_dbon_applies = TRUE;
             return 0;
         }
@@ -1385,7 +1429,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
-        if (realizes_damage) {
+        if (realizes_damage
+            && (otmp->oartifact
+                || ((otmp->oprops & ITEM_FIRE)
+                    && (spec_dbon_applies || (otmp->oprops_known & ITEM_FIRE))))) {
             if (otmp->oartifact == ART_FIRE_BRAND)
                 pline_The("fiery blade %s %s%c",
                           !spec_dbon_applies
@@ -1427,7 +1474,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     mondead(mdef);
                 }
             }
-            if (otmp->oprops & ITEM_FIRE)
+            if ((otmp->oprops & ITEM_FIRE) && spec_dbon_applies)
                 otmp->oprops_known |= ITEM_FIRE;
         }
         if (!rn2(4))
@@ -1441,7 +1488,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         return realizes_damage;
     }
     if (attacks(AD_COLD, otmp)) {
-        if (realizes_damage) {
+        if (realizes_damage
+            && (otmp->oartifact
+                || ((otmp->oprops & ITEM_FROST)
+                    && (spec_dbon_applies || (otmp->oprops_known & ITEM_FROST))))) {
             if (otmp->oartifact == ART_FROST_BRAND)
                 pline_The("ice-cold blade %s %s%c",
                           !spec_dbon_applies
@@ -1463,7 +1513,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                  ? "freezes part of"
                                  : "freezes",
                           hittee, !spec_dbon_applies ? '.' : '!');
-            if (otmp->oprops & ITEM_FROST)
+            if ((otmp->oprops & ITEM_FROST) && spec_dbon_applies)
                 otmp->oprops_known |= ITEM_FROST;
         }
         if (!rn2(4))

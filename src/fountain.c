@@ -484,6 +484,7 @@ register struct obj *obj;
             pline(
               "From the murky depths, a hand reaches up to bless the sword.");
             pline("As the hand retreats, the fountain disappears!");
+            obj->oprops = obj->oprops_known = 0L;
             obj = oname(obj, artiname(ART_EXCALIBUR));
             discover_artifact(ART_EXCALIBUR);
             bless(obj);

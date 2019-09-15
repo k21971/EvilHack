@@ -2285,8 +2285,7 @@ struct obj *otmp;
     if (otmp->oartifact)
         discover_artifact((xchar) otmp->oartifact);
     otmp->known = otmp->dknown = otmp->bknown = otmp->rknown = 1;
-    if (otmp->oprops)
-        otmp->oprops_known = ITEM_PROP_MASK;
+    otmp->oprops_known = ITEM_PROP_MASK;
     if (Is_container(otmp) || otmp->otyp == STATUE)
         otmp->cknown = otmp->lknown = 1;
     if (otmp->otyp == EGG && otmp->corpsenm != NON_PM)
@@ -3728,6 +3727,13 @@ register struct obj *otmp, *obj;
     /* for the moment, any additional information is incompatible */
     if (has_omonst(obj) || has_omid(obj) || has_olong(obj) || has_omonst(otmp)
         || has_omid(otmp) || has_olong(otmp))
+        return FALSE;
+
+    if (obj->oprops != otmp->oprops)
+        return FALSE;
+
+    if ((obj->oprops & (obj->oprops_known | ITEM_MAGICAL))
+        != (otmp->oprops & (otmp->oprops_known | ITEM_MAGICAL)))
         return FALSE;
 
     if (obj->oartifact != otmp->oartifact)

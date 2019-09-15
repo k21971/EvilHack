@@ -865,13 +865,13 @@ SCROLL("earth",                          "KIRJE",  1,  18, 200),
 SCROLL("punishment",            "VE FORBRYDERNE",  1,  15, 300),
 SCROLL("charging",                "HACKEM MUCHE",  1,  15, 300),
 SCROLL("stinking cloud",             "VELOX NEB",  1,  15, 300),
+SCROLL("magic detection",        "FOOBIE BLETCH",  1,  40, 100),
     /* Extra descriptions, shuffled into use at start of new game.
      * Code in win/share/tilemap.c depends on SCR_STINKING_CLOUD preceding
      * these and on how many of them there are.  If a real scroll gets added
      * after stinking cloud or the number of extra descriptions changes,
      * tilemap.c must be modified to match.
      */
-SCROLL(None,      "FOOBIE BLETCH",  1,   0, 100),
 SCROLL(None,              "TEMOV",  1,   0, 100),
 SCROLL(None,         "GARVEN DEH",  1,   0, 100),
 SCROLL(None,            "READ ME",  1,   0, 100),

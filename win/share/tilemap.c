@@ -32,7 +32,7 @@ extern void FDECL(exit, (int));
 #define OBJ_GLYPH 2
 #define OTH_GLYPH 3 /* fortunately unnecessary */
 
-#define EXTRA_SCROLL_DESCR_COUNT ((SCR_BLANK_PAPER - SCR_STINKING_CLOUD) - 1)
+#define EXTRA_SCROLL_DESCR_COUNT ((SCR_BLANK_PAPER - SCR_MAGIC_DETECTION) - 1)
 
 /* note that the ifdefs here should be the opposite sense from monst.c/
  * objects.c/rm.h
@@ -70,7 +70,7 @@ struct conditionals {
  * don't know what a slime mold should look like when renamed anyway
  */
 #ifndef MAIL
-    { OBJ_GLYPH, SCR_STINKING_CLOUD + EXTRA_SCROLL_DESCR_COUNT,
+    { OBJ_GLYPH, SCR_MAGIC_DETECTION + EXTRA_SCROLL_DESCR_COUNT,
       "stamped / mail" },
 #endif
     { 0, 0, 0 }

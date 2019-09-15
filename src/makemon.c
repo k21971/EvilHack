@@ -540,6 +540,8 @@ register struct monst *mtmp;
 		    if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
 		        if (!rn2(100 + 10 * nartifact_exist())) {
 			    mk_artifact(otmp, sgn(mtmp->data->maligntyp));
+                        } else {
+                            create_oprop(otmp, FALSE);
 			}
 		    }
 		}
@@ -554,9 +556,11 @@ register struct monst *mtmp;
 	}
 	if (bag) {
 	    int count = (mtmp->m_lev * mtmp->m_lev) / 25;
-	    if (count < 1) count = 1;
-	    if (count > 10) count = 10;
-		count += rn2((mtmp->m_lev / 10) + 2);
+	    if (count < 1)
+                count = 1;
+	    if (count > 10)
+                count = 10;
+	    count += rn2((mtmp->m_lev / 10) + 2);
 	    while (count-- > 0) {
 	        int otyp =
 		        (rn2(2) ? rnd_offensive_item(mtmp) :
@@ -936,8 +940,10 @@ register struct monst *mtmp;
             if (!rn2(20) || is_lord(ptr)) {
                 otmp = oname(otmp,
                              artiname(ART_SUNSWORD));
-                if (!otmp->oartifact)
-                    create_oprop(otmp);
+                if (!otmp->oartifact) {
+                    otmp = oname(otmp, "");
+                    create_oprop(otmp, FALSE);
+                }
             }
             bless(otmp);
             otmp->oerodeproof = TRUE;

@@ -468,6 +468,8 @@ xchar x, y; /* coordinates where object was before the impact, not after */
     }
 }
 
+extern struct obj *stack;
+
 /* jacket around really_kick_object */
 STATIC_OVL int
 kick_object(x, y, kickobjnam)
@@ -708,6 +710,7 @@ xchar x, y;
             && kickedobj->ocarry == mon)
             return 1; /* alert shk caught it */
         notonhead = (mon->mx != bhitpos.x || mon->my != bhitpos.y);
+        stack = (struct obj *) 0;
         if (isgold ? ghitm(mon, kickedobj)      /* caught? */
                    : thitmonst(mon, kickedobj)) /* hit && used up? */
             return 1;

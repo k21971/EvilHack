@@ -797,6 +797,7 @@ int shp_indx;
 
 	otmp = mksobj(LONG_SWORD, FALSE, FALSE);
 	if (otmp) {
+            create_oprop(otmp, FALSE);
             bless(otmp);
 	    otmp->spe = rn2(4) + 1;
 	    otmp->oerodeproof = TRUE;

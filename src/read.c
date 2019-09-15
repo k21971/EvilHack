@@ -1814,6 +1814,11 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                                 8 + 4 * bcsign(sobj));
         break;
     }
+    case SCR_MAGIC_DETECTION:
+        if (magic_detect(sobj))
+            return 1;
+        known = TRUE;
+        break;
     default:
         impossible("What weird effect is this? (%u)", otyp);
     }

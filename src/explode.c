@@ -605,6 +605,8 @@ struct scatter_chain {
     boolean stopped;            /* flag for in-motion/stopped   */
 };
 
+extern struct obj *stack;
+
 /*
  * scflags:
  *      VIS_EFFECTS     Add visual effects to display
@@ -747,6 +749,7 @@ struct obj *obj; /* only scatter this obj        */
                         hitvalu = 8 + stmp->obj->spe;
                         if (bigmonst(youmonst.data))
                             hitvalu++;
+                        stack = (struct obj *) 0;
                         hitu = thitu(hitvalu, dmgval(stmp->obj, &youmonst),
                                      &stmp->obj, (char *) 0);
                         if (!stmp->obj)

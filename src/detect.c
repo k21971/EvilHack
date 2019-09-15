@@ -17,9 +17,9 @@ STATIC_DCL boolean NDECL(unconstrain_map);
 STATIC_DCL void NDECL(reconstrain_map);
 STATIC_DCL void FDECL(browse_map, (int, const char *));
 STATIC_DCL void FDECL(map_monst, (struct monst *, BOOLEAN_P));
-STATIC_DCL void FDECL(do_dknown_of, (struct obj *));
-STATIC_DCL boolean FDECL(check_map_spot, (int, int, CHAR_P, unsigned));
-STATIC_DCL boolean FDECL(clear_stale_map, (CHAR_P, unsigned));
+STATIC_DCL void FDECL(do_dknown_of, (struct obj *, BOOLEAN_P));
+STATIC_DCL boolean FDECL(check_map_spot, (int, int, CHAR_P, unsigned, BOOLEAN_P));
+STATIC_DCL boolean FDECL(clear_stale_map, (CHAR_P, unsigned, BOOLEAN_P));
 STATIC_DCL void FDECL(sense_trap, (struct trap *, XCHAR_P, XCHAR_P, int));
 STATIC_DCL int FDECL(detect_obj_traps, (struct obj *, BOOLEAN_P, int));
 STATIC_DCL void FDECL(show_map_spot, (int, int));
@@ -214,24 +214,36 @@ unsigned material;
 }
 
 STATIC_OVL void
-do_dknown_of(obj)
+do_dknown_of(obj, magic)
 struct obj *obj;
+boolean magic;
 {
     struct obj *otmp;
 
     obj->dknown = 1;
+    if (magic) {
+        obj->oprops_known |= obj->oprops;
+        if (objects[obj->otyp].oc_magic) {
+            makeknown(obj->otyp);
+        }
+    }
     if (Has_contents(obj)) {
         for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
-            do_dknown_of(otmp);
+            do_dknown_of(otmp, magic);
     }
 }
 
+#define is_magic(obj) \
+                 (((obj)->oprops & ITEM_PROP_MASK) \
+                  || (objects[(obj)->otyp]).oc_magic)
+
 /* Check whether the location has an outdated object displayed on it. */
 STATIC_OVL boolean
-check_map_spot(x, y, oclass, material)
+check_map_spot(x, y, oclass, material, magic)
 int x, y;
 char oclass;
 unsigned material;
+boolean magic;
 {
     int glyph;
     register struct obj *otmp;
@@ -240,7 +252,19 @@ unsigned material;
     glyph = glyph_at(x, y);
     if (glyph_is_object(glyph)) {
         /* there's some object shown here */
-        if (oclass == ALL_CLASSES) {
+            if (magic) {
+                /* the object shown here is of interest because it is magical */
+                for (otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere)
+                    if (is_magic(otmp))
+                        return FALSE;
+                /* didn't find it; perhaps a monster is carrying it */
+                if ((mtmp = m_at(x,y)) != 0) {
+                    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
+                        if (is_magic(otmp)) return FALSE;
+                }
+                /* detection indicates removal of this object from the map */
+                return TRUE;
+            } else if (oclass == ALL_CLASSES) {
             return (boolean) !(level.objects[x][y] /* stale if nothing here */
                                || ((mtmp = m_at(x, y)) != 0 && mtmp->minvent));
         } else {
@@ -248,12 +272,12 @@ unsigned material;
                 && objects[glyph_to_obj(glyph)].oc_material == material) {
                 /* object shown here is of interest because material matches */
                 for (otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere)
-                    if (o_material(otmp, GOLD))
+                    if (o_material(otmp, material))
                         return FALSE;
                 /* didn't find it; perhaps a monster is carrying it */
                 if ((mtmp = m_at(x, y)) != 0) {
                     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
-                        if (o_material(otmp, GOLD))
+                        if (o_material(otmp, material))
                             return FALSE;
                 }
                 /* detection indicates removal of this object from the map */
@@ -285,16 +309,17 @@ unsigned material;
  * change occurs.
  */
 STATIC_OVL boolean
-clear_stale_map(oclass, material)
+clear_stale_map(oclass, material, magic)
 char oclass;
 unsigned material;
+boolean magic;
 {
     register int zx, zy;
     boolean change_made = FALSE;
 
     for (zx = 1; zx < COLNO; zx++)
         for (zy = 0; zy < ROWNO; zy++)
-            if (check_map_spot(zx, zy, oclass, material)) {
+            if (check_map_spot(zx, zy, oclass, material, magic)) {
                 unmap_object(zx, zy);
                 change_made = TRUE;
             }
@@ -314,7 +339,7 @@ register struct obj *sobj;
     int ter_typ = TER_DETECT | TER_OBJ;
 
     known = stale = clear_stale_map(COIN_CLASS,
-                                    (unsigned) (sobj->blessed ? GOLD : 0));
+                                    (unsigned) (sobj->blessed ? GOLD : 0), FALSE);
 
     /* look for gold carried by monsters (might be in a container) */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -468,7 +493,7 @@ register struct obj *sobj;
     char oclass = confused ? POTION_CLASS : FOOD_CLASS;
     const char *what = confused ? something : "food";
 
-    stale = clear_stale_map(oclass, 0);
+    stale = clear_stale_map(oclass, 0, FALSE);
     if (u.usteed) /* some situations leave steed with stale coordinates */
         u.usteed->mx = u.ux, u.usteed->my = u.uy;
 
@@ -624,7 +649,7 @@ int class;            /* an object class, 0 for all */
 
     if (do_dknown)
         for (obj = invent; obj; obj = obj->nobj)
-            do_dknown_of(obj);
+            do_dknown_of(obj, FALSE);
 
     for (obj = fobj; obj; obj = obj->nobj) {
         if ((!class && !boulder) || o_in(obj, class) || o_in(obj, boulder)) {
@@ -634,7 +659,7 @@ int class;            /* an object class, 0 for all */
                 ct++;
         }
         if (do_dknown)
-            do_dknown_of(obj);
+            do_dknown_of(obj, FALSE);
     }
 
     for (obj = level.buriedobjlist; obj; obj = obj->nobj) {
@@ -645,7 +670,7 @@ int class;            /* an object class, 0 for all */
                 ct++;
         }
         if (do_dknown)
-            do_dknown_of(obj);
+            do_dknown_of(obj, FALSE);
     }
 
     if (u.usteed)
@@ -659,7 +684,7 @@ int class;            /* an object class, 0 for all */
                 || o_in(obj, boulder))
                 ct++;
             if (do_dknown)
-                do_dknown_of(obj);
+                do_dknown_of(obj, FALSE);
         }
         if ((is_cursed && M_AP_TYPE(mtmp) == M_AP_OBJECT
              && (!class || class == objects[mtmp->mappearance].oc_class))
@@ -670,7 +695,7 @@ int class;            /* an object class, 0 for all */
         }
     }
 
-    if (!clear_stale_map(!class ? ALL_CLASSES : class, 0) && !ct) {
+    if (!clear_stale_map(!class ? ALL_CLASSES : class, 0, FALSE) && !ct) {
         if (!ctu) {
             if (detector)
                 strange_feeling(detector, "You feel a lack of something.");
@@ -857,6 +882,192 @@ int mclass;                /* monster class, 0 for all */
         if (u.uburied)
             under_ground(2);
     }
+    return 0;
+}
+
+/*
+ * Used for scrolls.  Returns:
+ *
+ * 1 - nothing was detected
+ * 0 - something was detected
+ */
+int
+magic_detect(detector)
+struct obj *detector;	/* object doing the detecting */
+{
+    register int x, y;
+    char stuff[BUFSZ];
+    int is_cursed = (detector && detector->cursed);
+    int do_pknown = (detector && (detector->oclass == SCROLL_CLASS)
+    		     && detector->blessed);
+    int ct = 0, ctu = 0;
+    register struct obj *obj;
+    struct obj otmp;
+    register struct monst *mtmp;
+    int uw = u.uinwater;
+    boolean woken = FALSE;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+    	if (!DEADMONSTER(mtmp)
+	    /* TODO: other magical types of creature? */
+	    && attacktype(mtmp->data, AT_MAGC)) {
+	    ct++;
+	    break;
+        }
+
+    if (Upolyd
+        && attacktype(youmonst.data, AT_MAGC))
+	ctu++;
+
+    if (Hallucination || Confusion)
+	Strcpy(stuff, something);
+    else
+    	Strcpy(stuff, "magic");
+
+    for (obj = invent; obj; obj = obj->nobj)
+        if (is_magic(obj)) {
+	    obj->oprops_known |= ITEM_MAGICAL;
+	    if (do_pknown)
+	        do_dknown_of(obj, TRUE);
+	}
+
+    for (obj = fobj; obj; obj = obj->nobj) {
+        if (!is_magic(obj))
+            continue;
+	if (obj->ox == u.ux && obj->oy == u.uy)
+            ctu++;
+	else
+            ct++;
+	obj->oprops_known |= ITEM_MAGICAL;
+	if (do_pknown)
+            do_dknown_of(obj, TRUE);
+    }
+
+    for (obj = level.buriedobjlist; obj; obj = obj->nobj) {
+        if (!is_magic(obj))
+            continue;
+	if (obj->ox == u.ux && obj->oy == u.uy)
+            ctu++;
+	else
+            ct++;
+	obj->oprops_known |= ITEM_MAGICAL;
+	if (do_pknown)
+            do_dknown_of(obj, TRUE);
+    }
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+	if (DEADMONSTER(mtmp))
+            continue;
+	for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+            if (!is_magic(obj))
+                continue;
+	    ct++;
+	    obj->oprops_known |= ITEM_MAGICAL;
+	    if (do_pknown)
+                do_dknown_of(obj, TRUE);
+	}
+	if (is_cursed && mtmp->m_ap_type == M_AP_OBJECT
+	    && objects[mtmp->mappearance].oc_magic) {
+	    ct++;
+	    break;
+	}
+    }
+
+    if (!clear_stale_map(ALL_CLASSES, 0, TRUE) && !ct) {
+	if (!ctu) {
+	    if (detector)
+		strange_feeling(detector, "You feel mundane.");
+	    return 1;
+	}
+
+	You("sense %s nearby.", stuff);
+	return 0;
+    }
+
+    cls();
+
+    u.uinwater = 0;
+
+    /* Map all buried objects first */
+    for (obj = level.buriedobjlist; obj; obj = obj->nobj)
+	if (is_magic(obj)) {
+	    map_object(obj, 1);
+	}
+    /*
+     * If we are mapping all objects, map only the top object of a pile or
+     * the first object in a monster's inventory.  Otherwise, go looking
+     * for a matching object class and display the first one encountered
+     * at each location.
+     *
+     * Objects on the floor override buried objects.
+     */
+    for (x = 1; x < COLNO; x++)
+	for (y = 0; y < ROWNO; y++)
+	    for (obj = level.objects[x][y]; obj; obj = obj->nexthere)
+		if (is_magic(obj)) {
+		    map_object(obj, 1);
+		    break;
+		}
+
+    /* Objects in the monster's inventory override floor objects */
+    for (mtmp = fmon ; mtmp ; mtmp = mtmp->nmon) {
+	if (DEADMONSTER(mtmp))
+            continue;
+	for (obj = mtmp->minvent; obj; obj = obj->nobj)
+	    if (is_magic(obj)) {
+		otmp = *obj;
+		otmp.ox = mtmp->mx; /* at monster location */
+		otmp.oy = mtmp->my;
+		map_object(&otmp, 1);
+		break;
+	    }
+	/* Allow a mimic to override the detected objects it is carrying */
+	if (is_cursed && mtmp->m_ap_type == M_AP_OBJECT
+            && (objects[mtmp->mappearance].oc_magic)) {
+	    otmp.otyp = mtmp->mappearance; /* needed for obj_to_glyph() */
+	    otmp.ox = mtmp->mx;
+	    otmp.oy = mtmp->my;
+	    otmp.corpsenm = PM_TENGU; /* if mimicing a corpse */
+	    map_object(&otmp, 1);
+	}
+    }
+
+    /* Magical monsters override objects */
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp)
+	    || !attacktype(mtmp->data, AT_MAGC))
+            continue;
+	    if (mtmp->mx > 0) {
+		show_glyph(mtmp->mx, mtmp->my, mon_to_glyph(mtmp, newsym_rn2));
+		/* don't be stingy - display entire worm */
+		if (mtmp->data == &mons[PM_LONG_WORM])
+                    detect_wsegs(mtmp, 0);
+	    }
+        if (cursed
+	    && (mtmp->msleeping || !mtmp->mcanmove)) {
+	    mtmp->msleeping = mtmp->mfrozen = 0;
+	    mtmp->mcanmove = 1;
+	    woken = TRUE;
+        }
+    }
+
+    newsym(u.ux, u.uy);
+    You("detect the %s of %s.",
+        ct ? "presence" : "absence", stuff);
+    if (woken)
+	 pline("Magic senses the presence of you.");
+    display_nhwindow(WIN_MAP, TRUE);
+    /*
+     * What are we going to do when the hero does an object detect while blind
+     * and the detected object covers a known pool?
+     */
+    reconstrain_map();
+    docrt(); /* this will correctly reset vision */
+    u.uinwater = uw;
+    if (Underwater)
+        under_water(2);
+    if (u.uburied)
+        under_ground(2);
     return 0;
 }
 

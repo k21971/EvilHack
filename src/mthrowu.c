@@ -29,6 +29,8 @@ STATIC_OVL NEARDATA const char *breathwep[] = {
 extern boolean notonhead; /* for long worms */
 STATIC_VAR int mesg_given; /* for m_throw()/thitu() 'miss' message */
 
+extern struct obj *stack;
+
 /* hero is hit by something other than a monster */
 int
 thitu(tlev, dam, objp, name)
@@ -79,6 +81,9 @@ const char *name; /* if null, then format `*objp' */
             You("are hit%s", exclam(dam));
         else
             You("are hit by %s%s", onm, exclam(dam));
+
+        if (stack)
+            stack->oprops_known |= obj->oprops_known;
 
         if (is_acid && Acid_resistance) {
             pline("It doesn't seem to hurt you.");
@@ -648,6 +653,8 @@ register boolean verbose;
     char sym = obj->oclass;
     int hitu = 0, oldumort, blindinc = 0;
 
+    stack = obj;
+
     bhitpos.x = x;
     bhitpos.y = y;
     notonhead = FALSE; /* reset potentially stale value */
@@ -1105,6 +1112,7 @@ struct monst *mtmp;
         if (dam < 1)
             dam = 1;
 
+        stack = (struct obj *) 0;
         (void) thitu(hitv, dam, &otmp, (char *) 0);
         stop_occupation();
         return;

@@ -1307,6 +1307,7 @@ const char *name;
     if (lth)
         artifact_exists(obj, name, TRUE);
     if (obj->oartifact) {
+        obj->oprops = obj->oprops_known = 0L;
         /* can't dual-wield with artifact as secondary weapon */
         if (obj == uswapwep)
             untwoweapon();

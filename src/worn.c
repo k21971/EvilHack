@@ -331,19 +331,21 @@ register int which;
         case FIRE_RES:
             return !!(obj->oclass != WEAPON_CLASS
                       && !is_weptool(obj)
-                      && obj->oprops & ITEM_FIRE);
+                      && (obj->oprops & ITEM_FIRE));
         case COLD_RES:
             return !!(obj->oclass != WEAPON_CLASS
                       && !is_weptool(obj)
-                      && obj->oprops & ITEM_FROST);
+                      && (obj->oprops & ITEM_FROST));
         case DRAIN_RES:
             return !!(obj->oclass != WEAPON_CLASS
                       && !is_weptool(obj)
-                      && obj->oprops & ITEM_DRLI);
+                      && (obj->oprops & ITEM_DRLI));
         case TELEPAT:
-            return (obj->oprops & ITEM_ESP);
+            return !!(obj->oprops & ITEM_ESP);
         case FUMBLING:
-            return (obj->oprops & ITEM_FUMBLING);
+            return !!(obj->oprops & ITEM_FUMBLING);
+        case HUNGER:
+            return !!(obj->oprops & ITEM_HUNGER);
     }
     return FALSE;
 }
@@ -409,6 +411,7 @@ new_property:
         case CLAIRVOYANT:
         case STEALTH:
         case TELEPAT:
+        case HUNGER:
             break;
         /* properties which should have an effect but aren't implemented */
         case LEVITATION:

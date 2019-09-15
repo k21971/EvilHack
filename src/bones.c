@@ -95,6 +95,7 @@ boolean restore;
             if (objects[otmp->otyp].oc_uses_known)
                 otmp->known = 0;
             otmp->dknown = otmp->bknown = 0;
+            otmp->oprops_known = 0;
             otmp->rknown = 0;
             otmp->lknown = 0;
             otmp->cknown = 0;

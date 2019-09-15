@@ -1533,6 +1533,7 @@ dosacrifice()
                 && !uwep->oartifact && uarmh && uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT
                 && !exist_artifact(LONG_SWORD, artiname(ART_DIRGE))) {
                 pline("Your sword melts in your hand and transforms into something new!");
+                uwep->oprops = uwep->oprops_known = 0L;
                 uwep->otyp = LONG_SWORD;
  	        uwep = oname(uwep, artiname(ART_DIRGE));
                 discover_artifact(ART_DIRGE);
@@ -1962,8 +1963,12 @@ dosacrifice()
 			otmp = mksobj(typ, FALSE, FALSE);
 			if (otmp) {
                             /* TESTING */
-                            if (rn2(20))
-                                otmp = create_oprop(otmp);
+                            if (rn2(20)) {
+                                if (u.uluck >= 5)
+                                    otmp = create_oprop(otmp, FALSE);
+                                else
+                                    otmp = create_oprop(otmp, TRUE);
+                            }
 			    bless(otmp);
 			    otmp->spe = rn2(3) + 3; /* +3 to +5 */
 			    otmp->oerodeproof = TRUE;
