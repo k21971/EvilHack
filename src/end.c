@@ -24,32 +24,7 @@
 #define FIRST_AMULET AMULET_OF_ESP
 #define LAST_AMULET AMULET_OF_YENDOR
 
-/* Same values as in shk.c */
-STATIC_DCL
-const int matprices[] = {
-     0,
-     1, /* LIQUID */
-     1, /* WAX */
-     1, /* VEGGY */
-     3, /* FLESH */
-     2, /* PAPER */
-     3, /* CLOTH */
-     5, /* LEATHER */
-     8, /* WOOD */
-    20, /* BONE */
-   200, /* DRAGON_HIDE - DSM to scale mail */
-    10, /* IRON */
-    10, /* METAL */
-    10, /* COPPER */
-    30, /* SILVER */
-    60, /* GOLD */
-    80, /* PLATINUM */
-    50, /* MITHRIL - mithril-coat to regular chain mail */
-    10, /* PLASTIC */
-    20, /* GLASS */
-   500, /* GEMSTONE */
-    10  /* MINERAL */
-};
+extern const int matprices[];
 
 struct valuable_data {
     long count;

@@ -2071,7 +2071,6 @@ unsigned oid;
  * Units for this are much more poorly defined than for weights; the best
  * approximation would be something like "zorkmids per aum".
  * We only care about the ratio of two of these together. */
-STATIC_DCL
 const int matprices[] = {
      0,
      1, /* LIQUID */
