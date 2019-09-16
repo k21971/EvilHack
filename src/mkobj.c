@@ -840,7 +840,7 @@ boolean artif;
             if (artif && !rn2(20))
                 otmp = mk_artifact(otmp, (aligntyp) A_NONE);
             /* TESTING */
-            else if (rn2(100))
+            if (rn2(100))
                 otmp = create_oprop(otmp, TRUE);
 
             if (Is_medusa_level(&u.uz) && otmp->otyp == ORCISH_ARROW) {

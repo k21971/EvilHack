@@ -657,12 +657,12 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
 
         if (obj->otyp == ARMOR || obj->otyp == JACKET) {
-            Strcpy(buf, materialnm[obj->material]);
+            Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
 
         if (obj->otyp == GLOVES) {
-            Strcpy(buf, materialnm[obj->material]);
+            Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
 
@@ -4597,6 +4597,16 @@ struct obj *no_wish;
             objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_VENOM);
         else if (objprops & ITEM_VENOM)
             objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_SHOCK);
+
+        if (objects[otmp->otyp].oc_magic)
+            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_SHOCK
+                          | ITEM_VENOM | ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
+                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER);
+
+        if (Is_dragon_armor(otmp))
+            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_SHOCK
+                          | ITEM_VENOM | ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
+                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER);
 
         if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
             objprops &= ~(ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER);

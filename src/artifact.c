@@ -317,7 +317,9 @@ boolean allow_detrimental;
         return otmp;
     else if (objects[otmp->otyp].oc_unique)
         return otmp;
-    else if (Is_dragon_armor(otmp))
+    else if (objects[otmp->otyp].oc_magic)
+        return otmp;
+    else if (otmp && Is_dragon_armor(otmp))
         return otmp;
 
     /* properties only added to weapons and armor */
@@ -1415,7 +1417,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     boolean vis = (!youattack && magr && cansee(magr->mx, magr->my))
                   || (!youdefend && cansee(mdef->mx, mdef->my))
                   || (youattack && u.uswallow && mdef == u.ustuck && !Blind);
-    boolean realizes_damage;
+    boolean realizes_damage, msgprinted = FALSE;
     const char *wepdesc;
     static const char you[] = "you";
     char hittee[BUFSZ];
@@ -1497,7 +1499,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             (void) destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
         if (youdefend && Slimed)
             burn_away_slime();
-        return realizes_damage;
+        /* return realizes_damage; */
+        msgprinted = TRUE;
     }
     if (attacks(AD_COLD, otmp)) {
         if (realizes_damage
@@ -1530,7 +1533,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_COLD);
-        return realizes_damage;
+        /*return realizes_damage; */
+        msgprinted = TRUE;
     }
     if (attacks(AD_ELEC, otmp)) {
         if (realizes_damage
@@ -1561,7 +1565,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             (void) destroy_mitem(mdef, RING_CLASS, AD_ELEC);
         if (!rn2(5))
             (void) destroy_mitem(mdef, WAND_CLASS, AD_ELEC);
-        return realizes_damage;
+        /* return realizes_damage; */
+        msgprinted = TRUE;
     }
     if (attacks(AD_MAGM, otmp)) {
         if (realizes_damage)
@@ -1570,7 +1575,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           ? ""
                           : "!  A hail of magic missiles strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
-        return realizes_damage;
+        /* return realizes_damage; */
+        msgprinted = TRUE;
     }
     /* Fifth basic attack - acid (for the new and improved Dirge... DIRGE) */
     if (attacks(AD_ACID, otmp)) {
@@ -1583,7 +1589,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                              ? "eats away part of"
                              : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
-        return realizes_damage;
+        /* return realizes_damage; */
+        msgprinted = TRUE;
     }
     /* Sixth basic attack - poison */
     if (attacks(AD_DRST, otmp)) {
@@ -1603,18 +1610,23 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             if ((otmp->oprops & ITEM_VENOM) && spec_dbon_applies)
                 otmp->oprops_known |= ITEM_VENOM;
         }
-        return realizes_damage;
+        /* return realizes_damage; */
+        msgprinted = TRUE;
     }
 
     if (attacks(AD_STUN, otmp) && dieroll <= MB_MAX_DIEROLL) {
-        /* Magicbane's special attacks (possibly modifies hittee[]) */
-        return Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis, hittee);
+        if (dieroll <= MB_MAX_DIEROLL)
+            /* Magicbane's special attacks (possibly modifies hittee[]) */
+            return Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis, hittee);
+        else
+            return msgprinted;
     }
 
     if (!spec_dbon_applies) {
         /* since damage bonus didn't apply, nothing more to do;
            no further attacks have side-effects on inventory */
-        return FALSE;
+        /* return FALSE; */
+        return msgprinted;
     }
 
     /* Some neat and unique effects from various artifact weapons.
@@ -1724,8 +1736,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 	    case ART_DEMONBANE:
 	    default:
 	        break;
-	}
- }
+        }
+        return msgprinted;
+    }
     /* We really want "on a natural 20" but Nethack does it in */
     /* reverse from AD&D. */
     if (spec_ability(otmp, SPFX_BEHEAD)) {
@@ -1889,7 +1902,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             return TRUE;
         }
     }
-    return realizes_damage;
+    /* return realizes_damage; */
+    return msgprinted;
 }
 
 static NEARDATA const char recharge_type[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
