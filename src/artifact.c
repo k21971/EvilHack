@@ -317,7 +317,10 @@ boolean allow_detrimental;
         return otmp;
     else if (objects[otmp->otyp].oc_unique)
         return otmp;
-    else if (objects[otmp->otyp].oc_magic)
+    /* already magical items obtain properties
+     * a tenth as often */
+    else if ((objects[otmp->otyp].oc_magic)
+        && rn2(10))
         return otmp;
     else if (otmp && Is_dragon_armor(otmp))
         return otmp;
@@ -1499,7 +1502,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             (void) destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
         if (youdefend && Slimed)
             burn_away_slime();
-        /* return realizes_damage; */
         msgprinted = TRUE;
     }
     if (attacks(AD_COLD, otmp)) {
@@ -1533,7 +1535,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_COLD);
-        /*return realizes_damage; */
         msgprinted = TRUE;
     }
     if (attacks(AD_ELEC, otmp)) {
@@ -1565,7 +1566,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             (void) destroy_mitem(mdef, RING_CLASS, AD_ELEC);
         if (!rn2(5))
             (void) destroy_mitem(mdef, WAND_CLASS, AD_ELEC);
-        /* return realizes_damage; */
         msgprinted = TRUE;
     }
     if (attacks(AD_MAGM, otmp)) {
@@ -1575,7 +1575,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           ? ""
                           : "!  A hail of magic missiles strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
-        /* return realizes_damage; */
         msgprinted = TRUE;
     }
     /* Fifth basic attack - acid (for the new and improved Dirge... DIRGE) */
@@ -1589,7 +1588,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                              ? "eats away part of"
                              : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
-        /* return realizes_damage; */
         msgprinted = TRUE;
     }
     /* Sixth basic attack - poison */
@@ -1610,7 +1608,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             if ((otmp->oprops & ITEM_VENOM) && spec_dbon_applies)
                 otmp->oprops_known |= ITEM_VENOM;
         }
-        /* return realizes_damage; */
         msgprinted = TRUE;
     }
 
@@ -1902,7 +1899,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             return TRUE;
         }
     }
-    /* return realizes_damage; */
     return msgprinted;
 }
 

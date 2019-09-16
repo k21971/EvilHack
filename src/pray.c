@@ -1887,8 +1887,7 @@ dosacrifice()
 	     */
 
             if (rn2(10) >= (nchance * nchance) / 100) {
-                /* TESTING */
-		if (u.uluck >= 0 && rn2(6 + (2 * u.ugifts))) {
+		if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
 		    int typ, ncount = 0;
 		    if (rn2(2)) {
 		    /* Don't give unicorn horns or anything the player's restricted in
@@ -1962,8 +1961,7 @@ dosacrifice()
 		    if (typ) {
 			otmp = mksobj(typ, FALSE, FALSE);
 			if (otmp) {
-                            /* TESTING */
-                            if (rn2(20)) {
+                            if (!rn2(30)) {
                                 if (u.uluck >= 5)
                                     otmp = create_oprop(otmp, FALSE);
                                 else

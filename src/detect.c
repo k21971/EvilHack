@@ -223,7 +223,8 @@ boolean magic;
     obj->dknown = 1;
     if (magic) {
         obj->oprops_known |= obj->oprops;
-        if (objects[obj->otyp].oc_magic) {
+        if (objects[obj->otyp].oc_magic
+            && !is_soko_prize_flag(obj)) {
             makeknown(obj->otyp);
         }
     }
@@ -258,7 +259,7 @@ boolean magic;
                     if (is_magic(otmp))
                         return FALSE;
                 /* didn't find it; perhaps a monster is carrying it */
-                if ((mtmp = m_at(x,y)) != 0) {
+                if ((mtmp = m_at(x, y)) != 0) {
                     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
                         if (is_magic(otmp)) return FALSE;
                 }
@@ -904,7 +905,7 @@ struct obj *detector;	/* object doing the detecting */
     register struct obj *obj;
     struct obj otmp;
     register struct monst *mtmp;
-    int uw = u.uinwater;
+    int uw = u.uinwater, ter_typ = TER_DETECT | TER_OBJ;
     boolean woken = FALSE;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
@@ -987,7 +988,7 @@ struct obj *detector;	/* object doing the detecting */
     cls();
 
     u.uinwater = 0;
-
+    (void) unconstrain_map();
     /* Map all buried objects first */
     for (obj = level.buriedobjlist; obj; obj = obj->nobj)
 	if (is_magic(obj)) {
@@ -1050,13 +1051,19 @@ struct obj *detector;	/* object doing the detecting */
 	    woken = TRUE;
         }
     }
-
-    newsym(u.ux, u.uy);
+    if (!glyph_is_object(glyph_at(u.ux, u.uy))) {
+        newsym(u.ux, u.uy);
+        ter_typ |= TER_MON;
+    }
+    /* newsym(u.ux, u.uy); */
     You("detect the %s of %s.",
         ct ? "presence" : "absence", stuff);
     if (woken)
 	 pline("Magic senses the presence of you.");
-    display_nhwindow(WIN_MAP, TRUE);
+    if (!ct)
+        display_nhwindow(WIN_MAP, TRUE);
+    else
+        browse_map(ter_typ, "magical object");
     /*
      * What are we going to do when the hero does an object detect while blind
      * and the detected object covers a known pool?

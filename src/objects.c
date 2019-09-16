@@ -84,7 +84,7 @@ OBJECT(OBJ("strange object", None),
        0, ILLOBJ_CLASS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 
 /* weapons ... */
-#define WEAPON(name,desc,kn,mg,bi,prob,wt,                \
+#define WEAPON(name,desc,kn,mg,bi,prob,wt,            \
                cost,sdam,ldam,hitbon,typ,sub,metal,color) \
     OBJECT(OBJ(name,desc),                                          \
            BITS(kn, mg, 1, 0, 0, 1, 0, 0, bi, 0, typ, sub, metal),  \
@@ -502,7 +502,7 @@ SHIELD("large shield", None,
 SHIELD("dwarvish roundshield", "large round shield",
        0, 0, 0,          0, 4, 0, 100, 10, 8, 0,  IRON, HI_METAL),
 SHIELD("shield of reflection", "polished shield",
-       0, 1, 0, REFLECTING, 3, 0,  50, 50, 8, 0,  SILVER, HI_SILVER),
+       0, 0, 0, REFLECTING, 3, 0,  50, 50, 8, 0,  SILVER, HI_SILVER),
 
 /* gloves */
 /* These have their color but not material shuffled, so the IRON must
@@ -679,7 +679,7 @@ TOOL("credit card",         None, 1, 0, 0, 0, 15,  1, 10, PLASTIC, CLR_WHITE),
 /* light sources */
 TOOL("tallow candle",   "candle", 0, 1, 0, 0, 20,  2, 10, WAX, CLR_WHITE),
 TOOL("wax candle",      "candle", 0, 1, 0, 0,  5,  2, 20, WAX, CLR_WHITE),
-TOOL("lantern",       None, 1, 0, 0, 0, 30, 30, 12, COPPER, CLR_YELLOW),
+TOOL("lantern",             None, 1, 0, 0, 0, 30, 30, 12, COPPER, CLR_YELLOW),
 TOOL("oil lamp",          "lamp", 0, 0, 0, 0, 45, 20, 10, COPPER, CLR_YELLOW),
 TOOL("magic lamp",        "lamp", 0, 0, 1, 0, 15, 20, 50, COPPER, CLR_YELLOW),
 /* other tools */
@@ -724,7 +724,7 @@ WEPTOOL("pick-axe", None,
 WEPTOOL("grappling hook", "iron hook",
         0, 0, 0,  5,  30,  50,  2,  6, WHACK,  P_FLAIL,    IRON, HI_METAL),
 WEPTOOL("unicorn horn", None,
-        1, 1, 0,  0,  20, 100,  8, 10, PIERCE, P_UNICORN_HORN,
+        1, 1, 1,  0,  20, 100,  8, 10, PIERCE, P_UNICORN_HORN,
                                                            BONE, CLR_WHITE),
         /* 3.4.1: unicorn horn left classified as "magic" */
 /* two unique tools;

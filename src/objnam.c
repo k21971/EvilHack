@@ -3261,8 +3261,8 @@ struct obj *no_wish;
             /* "very large " had "very " peeled off on previous iteration */
             gsize = (very != 1) ? 3 : 4;
         } else if (!strncmpi(bp, "oilskin ", l = 8)
-                   && !!strncmpi(bp, "oilskin cloak", l = 13)
-                   && !!strncmpi(bp, "oilskin sack", l = 12)) {
+                   && !!strncmpi(bp, "oilskin cloak", 13)
+                   && !!strncmpi(bp, "oilskin sack", 12)) {
             if (!objpropcount || wizard)
                 objprops |= ITEM_OILSKIN;
             objpropcount++;

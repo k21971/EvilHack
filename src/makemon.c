@@ -540,7 +540,7 @@ register struct monst *mtmp;
 		    if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
 		        if (!rn2(100 + 10 * nartifact_exist())) {
 			    mk_artifact(otmp, sgn(mtmp->data->maligntyp));
-                        } else {
+                        } else if (!rn2(40)) {
                             create_oprop(otmp, FALSE);
 			}
 		    }
@@ -942,7 +942,8 @@ register struct monst *mtmp;
                              artiname(ART_SUNSWORD));
                 if (!otmp->oartifact) {
                     otmp = oname(otmp, "");
-                    create_oprop(otmp, FALSE);
+                    if (!rn2(20))
+                        create_oprop(otmp, FALSE);
                 }
             }
             bless(otmp);
