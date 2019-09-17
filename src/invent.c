@@ -2710,7 +2710,7 @@ long *out_cnt;
                      prompt, MENU_UNSELECTED);
             gotsomething = TRUE;
         }
-   } else if (xtra_choice) {
+    } else if (xtra_choice) {
         /* wizard override ID and xtra_choice are mutually exclusive */
         if (flags.sortpack)
             add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
@@ -2724,9 +2724,11 @@ long *out_cnt;
     /* Show weight total and item limit. */
     char invheading[QBUFSZ];
     int wcap = weight_cap();
-    Sprintf(invheading, "Inventory: %d/%d weight (%d/52 slots)",
-            inv_weight() + wcap, wcap, inv_cnt(TRUE));
-    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_BOLD, invheading, MENU_UNSELECTED);
+    if (!xtra_choice) {
+        Sprintf(invheading, "Inventory: %d/%d weight (%d/52 slots)",
+                inv_weight() + wcap, wcap, inv_cnt(TRUE));
+        add_menu(win, NO_GLYPH, &any, 0, 0, ATR_BOLD, invheading, MENU_UNSELECTED);
+    }
 
 nextclass:
     classcount = 0;
