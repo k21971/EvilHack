@@ -37,8 +37,8 @@ static const struct innate {
                  { 15, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 
-  hea_abil[] = { { 1, &(HPoison_resistance), "", "" },
-                 { 15, &(HWarning), "sensitive", "" },
+  hea_abil[] = { { 3, &(HPoison_resistance), "healthy", "" },
+                 { 15, &(HSick_resistance), "hale", "" },
                  { 0, 0, 0, 0 } },
 
   kni_abil[] = { { 7, &(HFast), "quick", "slow" }, { 0, 0, 0, 0 } },
