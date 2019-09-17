@@ -3366,9 +3366,9 @@ struct attack *mattk;
 	switch (uarm->otyp) {
 	    case GREEN_DRAGON_SCALE_MAIL:
 	    case GREEN_DRAGON_SCALES:
-		if (resists_poison(mtmp)) {
+		if (resists_poison(mtmp))
                     return 1;
-                }
+
 		i = rn2(20);
 		if (i) {
 		    if (!rn2(3)) {
@@ -3380,26 +3380,32 @@ struct attack *mattk;
                     if (canseemon(mtmp))
 		        pline("%s is fatally poisoned!", Monnam(mtmp));
                     mtmp->mhp = -1;
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
 		}
                 if (mtmp->mhp < 1) {
-                    goto assess_dmg;
+                    if (canseemon(mtmp))
+                        pline("%s dies!", Monnam(mtmp));
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
                 }
-		return 1;
+                return 1;
 		break;
             case BLACK_DRAGON_SCALE_MAIL:
             case BLACK_DRAGON_SCALES:
-                if (resists_disint(mtmp)) {
+                if (resists_disint(mtmp))
                     return 1;
-                }
+
                 i = rn2(40);
                 if (i) {
                     if (!rn2(3)) {
                         if (canseemon(mtmp))
                             pline("%s partially disintegrates!", Monnam(mtmp));
                         mtmp->mhp -= rnd(4);
-                        if (mtmp->mhp < 1) {
-                            goto assess_dmg;
-                        }
                     }
                 } else {
                     if (canseemon(mtmp))
@@ -3409,13 +3415,21 @@ struct attack *mattk;
                         return 1;
                     return 2;
                 }
+                if (mtmp->mhp < 1) {
+                    if (canseemon(mtmp))
+                        pline("%s dies!", Monnam(mtmp));
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
+                }
                 return 1;
                 break;
 	    case ORANGE_DRAGON_SCALE_MAIL:
 	    case ORANGE_DRAGON_SCALES:
-		if (resists_sleep(mtmp)) {
+		if (resists_sleep(mtmp))
                     return 1;
-                }
+
 		if (!rn2(3) && mtmp->mspeed != MSLOW) {
                     if (canseemon(mtmp))
 		        pline("%s looks a little sluggish...", Monnam(mtmp));
@@ -3425,9 +3439,9 @@ struct attack *mattk;
 		break;
             case WHITE_DRAGON_SCALE_MAIL:
             case WHITE_DRAGON_SCALES:
-                if (resists_cold(mtmp)) {
+                if (resists_cold(mtmp))
                     return 1;
-                }
+
                 i = rn2(50);
                 if (i) {
                     if (!rn2(3)) {
@@ -3441,15 +3455,20 @@ struct attack *mattk;
                     damage_mon(mtmp, d(6, 6), AD_COLD);
                 }
                 if (mtmp->mhp < 1) {
-                    goto assess_dmg;
+                    if (canseemon(mtmp))
+                        pline("%s dies!", Monnam(mtmp));
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
                 }
                 return 1;
                 break;
             case RED_DRAGON_SCALE_MAIL:
             case RED_DRAGON_SCALES:
-                if (resists_fire(mtmp)) {
+                if (resists_fire(mtmp))
                     return 1;
-                }
+
                 i = rn2(50);
                 if (i) {
                     if (!rn2(3)) {
@@ -3463,15 +3482,19 @@ struct attack *mattk;
                     damage_mon(mtmp, d(6, 6), AD_FIRE);
                 }
                 if (mtmp->mhp < 1) {
-                    goto assess_dmg;
+                    if (canseemon(mtmp))
+                        pline("%s dies!", Monnam(mtmp));
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
                 }
                 return 1;
                 break;
             case GRAY_DRAGON_SCALE_MAIL:
             case GRAY_DRAGON_SCALES:
-                if (!rn2(6)) {
+                if (!rn2(6))
                     (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);
-                }
                 return 1;
                 break;
 	    default:	  /* all other types of armor, just pass on through */
@@ -3482,9 +3505,9 @@ struct attack *mattk;
     if (uarmg) {
         switch (uarmg->otyp) {
             case GLOVES:
-                if (!is_dragon(mtmp->data)) {
+                if (!is_dragon(mtmp->data))
                     return 1;
-                }
+
                 if (!rn2(3) && is_dragon(mtmp->data)
                     && uarmg->oartifact == ART_DRAGONBANE) {
                     if (canseemon(mtmp))
@@ -3494,7 +3517,11 @@ struct attack *mattk;
                 if (mtmp->mhp < 1) {
                     if (canseemon(mtmp))
                         pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
-                    goto assess_dmg;
+                        pline("%s dies!", Monnam(mtmp));
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
                 }
                 return 1;
                 break;
