@@ -56,7 +56,8 @@ elf_can_regen()
             return 0;
 	if (uchain && is_iron(uchain))
             return 0;
-	if (uswapwep && is_iron(uswapwep) && u.twoweap)
+	if (uswapwep && is_iron(uswapwep)
+            && u.twoweap && !uarmg)
             return 0;
     }
     return 1;
@@ -95,7 +96,8 @@ orc_can_regen()
             return 0;
 	if (uchain && is_mithril(uchain))
             return 0;
-	if (uswapwep && is_mithril(uswapwep) && u.twoweap)
+	if (uswapwep && is_mithril(uswapwep)
+            && u.twoweap && !uarmg)
             return 0;
     }
     return 1;
