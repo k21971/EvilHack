@@ -1588,6 +1588,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                              ? "eats away part of"
                              : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
+        if (!rn2(5))
+            erode_armor(mdef, ERODE_CORRODE);
         msgprinted = TRUE;
     }
     /* Sixth basic attack - poison */
