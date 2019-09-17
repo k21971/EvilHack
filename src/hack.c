@@ -706,6 +706,7 @@ ma_break()
                 prob *= 4;
                 break;
             case GLOVES:
+            case GAUNTLETS:
             case GAUNTLETS_OF_DEXTERITY:
                 break;
             default:

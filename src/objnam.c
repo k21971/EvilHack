@@ -57,6 +57,7 @@ STATIC_OVL struct Jitem Japanese_items[] = { { SHORT_SWORD, "wakizashi" },
                                              { PLATE_MAIL, "tanko" },
                                              { HELMET, "kabuto" },
                                              { GLOVES, "yugake" },
+                                             { GAUNTLETS, "tekko" },
                                              { FOOD_RATION, "gunyoki" },
                                              { POT_BOOZE, "sake" },
                                              { 0, "" } };
@@ -656,13 +657,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, " ");
         }
 
-        if (obj->otyp == ARMOR || obj->otyp == JACKET) {
-            Strcat(buf, materialnm[obj->material]);
-            Strcat(buf, " ");
-        }
-
-        if (obj->otyp == GLOVES) {
-            Strcat(buf, materialnm[obj->material]);
+        if (obj->otyp == ARMOR || obj->otyp == JACKET
+            || obj->otyp == GLOVES || obj->otyp == GAUNTLETS) {
+            Strcpy(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
 

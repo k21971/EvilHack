@@ -261,7 +261,8 @@ struct obj {
 #define is_orcish_armor(otmp)                                            \
     ((otmp)->otyp == ORCISH_HELM || (otmp)->otyp == ORCISH_CHAIN_MAIL    \
      || (otmp)->otyp == ORCISH_RING_MAIL || (otmp)->otyp == ORCISH_CLOAK \
-     || (otmp)->otyp == URUK_HAI_SHIELD || (otmp)->otyp == ORCISH_SHIELD)
+     || (otmp)->otyp == URUK_HAI_SHIELD || (otmp)->otyp == ORCISH_SHIELD \
+     || (otmp)->otyp == ORCISH_BOOTS)
 #define is_dwarvish_armor(otmp)               \
     ((otmp)->otyp == DWARVISH_HELM            \
      || (otmp)->otyp == DWARVISH_CHAIN_MAIL   \
@@ -324,7 +325,7 @@ struct obj {
     (is_orcish_armor(otmp) || (otmp)->otyp == ORCISH_ARROW               \
      || (otmp)->otyp == ORCISH_SPEAR || (otmp)->otyp == ORCISH_DAGGER    \
      || (otmp)->otyp == ORCISH_SHORT_SWORD || (otmp)->otyp == ORCISH_BOW \
-     || (otmp)->otyp == ORCISH_MORNING_STAR)
+     || (otmp)->otyp == ORCISH_MORNING_STAR || (otmp)->otyp == ORCISH_SCIMITAR)
 /* Dwarvish gear */
 #define is_dwarvish_obj(otmp)                                  \
     (is_dwarvish_armor(otmp) || (otmp)->otyp == DWARVISH_SPEAR \

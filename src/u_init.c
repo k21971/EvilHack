@@ -76,7 +76,7 @@ struct trobj Knight[] = {
     { PLATE_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { APPLE, 0, FOOD_CLASS, 10, 0 },
     { CARROT, 0, FOOD_CLASS, 10, 0 },
     { 0, 0, 0, 0, 0 }
@@ -213,6 +213,7 @@ struct inv_sub {
     { PM_ELF, ARROW, ELVEN_ARROW },
     { PM_ELF, PLATE_MAIL, ELVEN_CHAIN_MAIL },
     { PM_ELF, HELMET, ELVEN_HELM },
+    { PM_ELF, GAUNTLETS, GLOVES },
     /* { PM_ELF, SMALL_SHIELD, ELVEN_SHIELD }, */
     { PM_ELF, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_ELF, CRAM_RATION, LEMBAS_WAFER },
@@ -948,6 +949,8 @@ u_init()
         knows_object(ORCISH_SHIELD);
         knows_object(URUK_HAI_SHIELD);
         knows_object(ORCISH_CLOAK);
+        knows_object(ORCISH_SCIMITAR);
+        knows_object(ORCISH_BOOTS);
         break;
 
     default: /* impossible */
