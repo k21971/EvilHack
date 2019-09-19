@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.110 $ $NHDT-Date: 1567805962 2019/09/06 21:39:22 $
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.113 $ $NHDT-Date: 1568831820 2019/09/18 18:37:00 $
 
 This fixes36.3 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.2 in May 2019. Please note, however,
@@ -139,6 +139,8 @@ when spellcasting monster aimed at wrong spot due to not being able to see
 prevent impossible when guard tries to relocate a monster on a full level
 hallucination provides partial protection from passive gaze counterattack
 	against hero's attack; check for that before checking for free action
+feedback from blessed potion of restore ability never reported "you feel great"
+	due to bad logic for not-unihorn case in unfixable_trouble_count()
 
 
 Fixes to Post-3.6.2 Problems that Were Exposed Via git Repository
@@ -157,6 +159,8 @@ wizard mode ^I "not carrying anything" still claimed "not carrying anything"
 	if "(all items are already identified)" was given
 monster throwing from stack of missiles (darts, daggers, spears) would cause
 	crash if it wasn't wielding a weapon (bug in multi-shot shooting fix)
+surviving death while polymorphed would yield "You are a <foo>" without
+	terminating period
 curses: sometimes the message window would show a blank line after a prompt
 curses: the change to show map in columns 1..79 instead of 2..80 made the
 	highlight for '@' show up in the wrong place if clipped map had been
@@ -294,6 +298,7 @@ curses+'perm_invent': since persistent inventory is narrow, strip off "a",
 NetHack Community Patches (or Variation) Included
 -------------------------------------------------
 add a couple of engraving suggestions in pull request #79
+chasonr's faster method to write characters to msdos VGA in pull request #220
 
 
 Code Cleanup and Reorganization
