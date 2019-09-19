@@ -2844,30 +2844,37 @@ int otyp;
         /* if mtmp would hate the material of the object they're getting,
          * rerandomize it */
         tryct = 0;
-        while (mon_hates_material(mtmp, otmp->material)) {
-            init_obj_material(otmp);
-            tryct++;
-            if (tryct >= 100) {
-                /* will anything work? */
-                int mat;
-                for (mat = 1; mat < NUM_MATERIAL_TYPES; ++mat) {
-                    if (valid_obj_material(otmp, mat)
-                        && !mon_hates_material(mtmp, mat)) {
-                        set_material(otmp, mat);
-                        break;
+        if (otmp->oclass == WEAPON_CLASS
+            && is_weptool(otmp) && otmp->oclass == ARMOR_CLASS
+            && otmp->oclass == AMULET_CLASS) {
+            while (mon_hates_material(mtmp, otmp->material)) {
+                init_obj_material(otmp);
+                tryct++;
+                if (tryct >= 1) {
+                    /* will anything work? */
+                    int mat;
+                    for (mat = 1; mat < NUM_MATERIAL_TYPES; ++mat) {
+                        if (valid_obj_material(otmp, mat)
+                            && !mon_hates_material(mtmp, mat)) {
+                            set_material(otmp, mat);
+                            break;
+                        }
                     }
+                    if (mat == NUM_MATERIAL_TYPES) {
+                        impossible("mon %d doesn't like any materials for obj %d",
+                                   monsndx(mtmp->data), otmp->otyp);
+                        set_material(otmp, objects[otmp->otyp].oc_material);
+                    }
+                    break;
                 }
-                if (mat == NUM_MATERIAL_TYPES) {
-                    impossible("mon %d doesn't like any materials for obj %d",
-                               monsndx(mtmp->data), otmp->otyp);
-                    set_material(otmp, objects[otmp->otyp].oc_material);
-                }
-                break;
             }
         }
 
         spe = otmp->spe;
-        (void) mpickobj(mtmp, otmp); /* might free otmp */
+        if (mpickobj(mtmp, otmp)) {
+            /* otmp was freed via merging with something else */
+            otmp = (struct obj *) 0;
+        }
         return spe;
     }
     return 0;
