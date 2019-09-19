@@ -2665,6 +2665,15 @@ register struct monst *mon;
                                    &attknum, &armorpenalty);
             dieroll = rnd(20);
             dhit = (tmp > dieroll || u.uswallow);
+
+            if ((uwep || u.twoweap && uswapwep
+                || (!uwep && P_BARE_HANDED_COMBAT))
+                && (touch_petrifies(mon->data)
+                    || is_rider(mon->data)
+                    ||  mon->data == &mons[PM_MEDUSA]
+                    || mon->data == &mons[PM_GREEN_SLIME]))
+                break;
+
             if (dhit) {
                 int compat, specialdmg;
                 struct obj * hated_obj = NULL;
