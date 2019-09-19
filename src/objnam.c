@@ -4726,7 +4726,7 @@ struct obj *helmet;
      *      fedora, cornuthaum, dunce cap       -> hat
      *      all other types of helmets          -> helm
      */
-    return (helmet && !is_metallic(helmet)) ? "hat" : "helm";
+    return (helmet && !is_hard(helmet)) ? "hat" : "helm";
 }
 
 const char *

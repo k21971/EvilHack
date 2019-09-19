@@ -96,6 +96,10 @@ struct objclass {
 #define is_heavy_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= PLATINUM)
 
+#define is_hard(otmp) \
+    (is_metallic(otmp) || is_glass(otmp) \
+     || is_wood(otmp) || is_bone(otmp) || is_stone(otmp))
+
 /* primary damage: fire/rust/--- */
 /* is_flammable(otmp), is_rottable(otmp) in mkobj.c */
 #define is_rustprone(otmp) (otmp->material == IRON)

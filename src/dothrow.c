@@ -1037,8 +1037,7 @@ boolean hitsroof;
         }
         return FALSE;
     } else { /* neither potion nor other breaking object */
-        boolean less_damage = uarmh && (is_metallic(uarmh) || is_wood(uarmh)
-                                        || is_bone(uarmh) || is_stone(uarmh)), artimsg = FALSE;
+        boolean less_damage = uarmh && (is_hard(uarmh)), artimsg = FALSE;
         int dmg = dmgval(obj, &youmonst);
 
         if (obj->oartifact
@@ -1059,8 +1058,8 @@ boolean hitsroof;
             if (youmonst.data == &mons[PM_SHADE] && obj->material != SILVER)
                 dmg = 0;
         }
-        if (dmg > 1 && less_damage)
-            dmg = 1;
+        if (dmg > 2 && less_damage)
+            dmg = (dmg > 2 ? dmg - 2 : 2);
         if (dmg > 0)
             dmg += u.udaminc;
         if (dmg < 0)
@@ -1068,9 +1067,15 @@ boolean hitsroof;
         dmg = Maybe_Half_Phys(dmg);
 
         if (uarmh) {
-            if (less_damage && dmg < (Upolyd ? u.mh : u.uhp)) {
-                if (!artimsg)
-                    pline("Fortunately, you are wearing a hard helmet.");
+            if (obj->owt >= 400 && is_glass(uarmh) && break_glass_obj(uarmh)) {
+                ;
+            } else if (less_damage && dmg < (Upolyd ? u.mh : u.uhp)) {
+                if (!artimsg) {
+                    if (dmg > 2)
+                        Your("helmet only slightly protects you.");
+                    else
+                        pline("Fortunately, you are wearing a hard helmet.");
+                }
                 /* helmet definitely protects you when it blocks petrification
                  */
             } else if (!petrifier) {
@@ -2225,7 +2230,7 @@ struct obj* obj;
         }
     }
     else {
-        impossible("breaking glass obj in melee but not in inventory?");
+        impossible("breaking glass obj not in inventory?");
         return FALSE;
     }
 
