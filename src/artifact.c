@@ -1884,7 +1884,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                          life);
             else if (otmp->oartifact == ART_STORMBRINGER)
                 pline_The("%s blade drains your %s!", hcolor(NH_BLACK), life);
-            else if (otmp->oartifact == ART_STORMBRINGER)
+            else if (otmp->oartifact == ART_LIFESTEALER)
                 pline_The("massive sword drains your %s!", life);
             else if (otmp->oclass == WEAPON_CLASS
                      && (otmp->oprops & ITEM_DRLI))

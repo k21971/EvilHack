@@ -312,27 +312,27 @@ struct obj *obj;
             m_dowear(mtmp, TRUE);
             mon_wield_item(mtmp);
 
-	    /* done after wearing any dragon mail so the resists checks work */
-	    if (rn2(8) || monsndx(ptr) == PM_HUMAN_WIZARD) {
-		int i, ring;
-		for (i=0; i<2 && (rn2(2) || monsndx(ptr) == PM_HUMAN_WIZARD); i++) {
-		     do ring = !rn2(9) ? RIN_INVISIBILITY :
-			       !rn2(8) ? RIN_TELEPORT_CONTROL :
-			       !rn2(7) ? RIN_FIRE_RESISTANCE :
-			       !rn2(6) ? RIN_COLD_RESISTANCE :
-		               !rn2(5) ? RIN_SHOCK_RESISTANCE :
-			       !rn2(4) ? RIN_POISON_RESISTANCE :
-			       !rn2(3) ? RIN_INCREASE_ACCURACY :
-			       !rn2(2) ? RIN_INCREASE_DAMAGE :
-					 RIN_PROTECTION;
-		     while ((resists_poison(mtmp) && ring == RIN_POISON_RESISTANCE)
-			    || (resists_elec(mtmp) && ring == RIN_SHOCK_RESISTANCE)
-			    || (resists_fire(mtmp) && ring == RIN_FIRE_RESISTANCE)
-			    || (resists_cold(mtmp) && ring == RIN_COLD_RESISTANCE)
-			    || (mtmp->minvis && ring == RIN_INVISIBILITY));
-			    mk_mplayer_armor(mtmp, ring);
-		 }
-	    }
+            /* done after wearing any dragon mail so the resists checks work */
+            if (rn2(8) || monsndx(ptr) == PM_HUMAN_WIZARD) {
+                int i, ring;
+                for (i=0; i<2 && (rn2(2) || monsndx(ptr) == PM_HUMAN_WIZARD); i++) {
+                    do ring = !rn2(9) ? RIN_INVISIBILITY :
+                              !rn2(8) ? RIN_TELEPORT_CONTROL :
+                              !rn2(7) ? RIN_FIRE_RESISTANCE :
+                              !rn2(6) ? RIN_COLD_RESISTANCE :
+                              !rn2(5) ? RIN_SHOCK_RESISTANCE :
+                              !rn2(4) ? RIN_POISON_RESISTANCE :
+                              !rn2(3) ? RIN_INCREASE_ACCURACY :
+                              !rn2(2) ? RIN_INCREASE_DAMAGE :
+                                        RIN_PROTECTION;
+                    while ((resists_poison(mtmp) && ring == RIN_POISON_RESISTANCE)
+                        || (resists_elec(mtmp) && ring == RIN_SHOCK_RESISTANCE)
+                        || (resists_fire(mtmp) && ring == RIN_FIRE_RESISTANCE)
+                        || (resists_cold(mtmp) && ring == RIN_COLD_RESISTANCE)
+                        || (mtmp->minvis && ring == RIN_INVISIBILITY));
+                    mk_mplayer_armor(mtmp, ring);
+                }
+            }
 
             quan = rn2(3) ? rn2(3) : rn2(16);
             while (quan--)
