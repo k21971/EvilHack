@@ -479,6 +479,16 @@ register struct obj *spellbook;
             return 1;
         }
 
+        /* Only Illithids get this 'ability' */
+        if (booktype == SPE_PSIONIC_WAVE
+            && !Race_if(PM_ILLITHID)) {
+            You("do not understand the strange language this book is written in.");
+            pline("The inscriptions in the book start to fade away!");
+            spellbook->otyp = booktype = SPE_BLANK_PAPER;
+            makeknown(booktype);
+            return 1;
+        }
+
         /* 3.6 tribute */
         if (booktype == SPE_NOVEL) {
             /* Obtain current Terry Pratchett book title */
@@ -633,7 +643,7 @@ age_spells()
      * does not alter the loss of memory.
      */
     for (i = 0; i < MAXSPELL && spellid(i) != NO_SPELL; i++)
-        if (spellknow(i))
+        if (spellknow(i) && spellid(i) != SPE_PSIONIC_WAVE)
             decrnknow(i);
     return;
 }
@@ -982,7 +992,10 @@ boolean atme;
     }
 
     if (energy > u.uen) {
-        You("don't have enough energy to cast that spell.");
+        if (spellid(spell) == SPE_PSIONIC_WAVE)
+            Your("mind is fatigued.  You cannot use your psychic energy.");
+        else
+            You("don't have enough energy to cast that spell.");
         return res;
     } else {
         if (spellid(spell) != SPE_DETECT_FOOD) {
@@ -1130,6 +1143,7 @@ boolean atme;
     case SPE_EXTRA_HEALING:
     case SPE_DRAIN_LIFE:
     case SPE_STONE_TO_FLESH:
+    case SPE_PSIONIC_WAVE:
         if (objects[otyp].oc_dir != NODIR) {
             if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING) {
                 /* healing and extra healing are actually potion effects,
@@ -1231,20 +1245,26 @@ boolean atme;
 	/* removes one level of erosion (both types) for a random piece of armor */
 	otmp = some_armor(&youmonst);
 	if (otmp) {
-		if (greatest_erosion(otmp) > 0) {
-			if (!Blind) {
-				pline("Your %s glows faintly golden for a moment.",xname(otmp));
-			}
-			if (otmp->oeroded > 0) { otmp->oeroded--; }
-			if (otmp->oeroded2 > 0) { otmp->oeroded2--; }
-		} else {
-			if (!Blind) {
-				pline("Your %s glows briefly, but looks as new as ever.",xname(otmp));
-			}
-		}
+            if (greatest_erosion(otmp) > 0) {
+                if (!Blind) {
+                    pline("Your %s glows faintly golden for a moment.",
+                          xname(otmp));
+                }
+                if (otmp->oeroded > 0) {
+                    otmp->oeroded--;
+                }
+                if (otmp->oeroded2 > 0) {
+                    otmp->oeroded2--;
+                }
+            } else {
+                if (!Blind) {
+                    pline("Your %s glows briefly, but looks as new as ever.",
+                          xname(otmp));
+                }
+            }
 	} else {
-		/* the player can probably feel this, so no need for a !Blind check :) */
-		pline("Your embarrassing skin rash clears up slightly.");
+            /* the player can probably feel this, so no need for a !Blind check :) */
+            pline("Your embarrassing skin rash clears up slightly.");
 	}
 	break;
     case SPE_REFLECTION:
@@ -1961,6 +1981,12 @@ int spell;
         chance = 100;
     if (chance < 0)
         chance = 0;
+
+    /* As an Illithid, you can always use your
+     * natural inherent 'ability' */
+    if (spellid(spell) == SPE_PSIONIC_WAVE
+        && Race_if(PM_ILLITHID))
+        chance = 100;
 
     return chance;
 }

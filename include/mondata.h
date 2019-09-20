@@ -27,6 +27,8 @@
     ((((mon)->data->mresists | (mon)->mextrinsics) & MR_ACID) != 0)
 #define resists_ston(mon) \
     ((((mon)->data->mresists | (mon)->mextrinsics) & MR_STONE) != 0)
+#define resists_psychic(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_PSYCHIC) != 0)
 
 #define has_telepathy(mon) \
     (telepathic((mon)->data) || ((mon)->mextrinsics & MR2_TELEPATHY) != 0)
@@ -142,6 +144,7 @@
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
+#define is_illithid(ptr) (((ptr)->mhflags & MH_ILLITHID) != 0L)
 #define is_not_zombie(ptr) ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON])
 #define is_zombie(ptr) ((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr))
 #define is_bones_monster(ptr) ((ptr) == &mons[PM_GHOST] || (ptr) == &mons[PM_GHOUL]            \

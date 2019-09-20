@@ -44,6 +44,7 @@ STATIC_DCL void FDECL(wishcmdassist, (int));
 #define ZT_LIGHTNING (AD_ELEC - 1)
 #define ZT_POISON_GAS (AD_DRST - 1)
 #define ZT_ACID (AD_ACID - 1)
+#define ZT_PSYCHIC (AD_PSYC - 1)
 
 #define ZT_WAND(x) (x)
 #define ZT_SPELL(x) (10 + (x))
@@ -67,7 +68,7 @@ const char *const flash_types[] =       /* also used in buzzmu(mcastu.c) */
         "magic missile", /* Spell equivalents must be 10-19 */
         "fireball", "cone of cold", "sleep ray", "finger of death",
         "bolt of lightning", "blast of poison gas", "blast of acid",
-        "", "",
+        "psionic wave", "",
 
         "blast of missiles", /* Dragon breath equivalents 20-29*/
         "blast of fire", "blast of frost", "blast of sleep gas",
@@ -176,6 +177,34 @@ struct obj *otmp;
             (void) resist(mtmp, otmp->oclass, dmg, TELL);
         } else
             miss(zap_type_text, mtmp);
+        learn_it = TRUE;
+        break;
+    case SPE_PSIONIC_WAVE:
+        You("mentally %s %s!",
+            rn2(2) ? "attack" : "assault", mon_nam(mtmp));
+        if (mindless(mtmp->data)) {
+            shieldeff(mtmp->mx, mtmp->my);
+            pline("%s has no mind, and is immune to your mental attack.",
+                  Monnam(mtmp));
+        } else if (resists_psychic(mtmp)) {
+            shieldeff(mtmp->mx, mtmp->my);
+            pline("%s resists your mental onslaught!", Monnam(mtmp));
+        } else if (!DEADMONSTER(mtmp)) {
+            dmg = d(2, 6);
+            damage_mon(mtmp, dmg, AD_PSYC);
+            if (DEADMONSTER(mtmp)) {
+                killed(mtmp);
+            } else if (canseemon(mtmp)) {
+                pline("%s %s in %s!", Monnam(mtmp),
+                       rn2(2) ? "withers" : "trembles",
+                       rn2(2) ? "agony" : "anguish");
+                if (!rn2(4)) {
+                    mtmp->mconf = 1;
+                    pline("%s seems %s!", Monnam(mtmp),
+                          rn2(2) ? "confused" : "disoriented");
+                }
+            }
+        }
         learn_it = TRUE;
         break;
     case WAN_SLOW_MONSTER:
@@ -2090,6 +2119,7 @@ struct obj *obj, *otmp;
         case WAN_NOTHING:
         case SPE_HEALING:
         case SPE_EXTRA_HEALING:
+        case SPE_PSIONIC_WAVE:
             res = 0;
             break;
         case SPE_STONE_TO_FLESH:
@@ -2405,6 +2435,19 @@ boolean ordinary;
             acid_damage(uswapwep);
         if (!rn2(6))
             erode_armor(&youmonst, ERODE_CORRODE);
+        break;
+
+    case SPE_PSIONIC_WAVE:
+        learn_it = TRUE;
+        if (Psychic_resistance) {
+            shieldeff(u.ux, u.uy);
+            Your("wave of psionic energy drifts harmlessly through your mind.");
+            ugolemeffects(AD_PSYC, d(2, 6));
+        } else {
+            You("assault your own mind!");
+            make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
+            damage = d(2, 6);
+        }
         break;
 
     case WAN_MAGIC_MISSILE:
@@ -2768,6 +2811,7 @@ struct obj *obj; /* wand or spell */
     case SPE_POLYMORPH:
     case WAN_STRIKING:
     case SPE_FORCE_BOLT:
+    case SPE_PSIONIC_WAVE:
     case WAN_SLOW_MONSTER:
     case SPE_SLOW_MONSTER:
     case WAN_SPEED_MONSTER:
@@ -3806,6 +3850,15 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             destroy_mitem(mon, FOOD_CLASS, AD_FIRE); /* carried slime */
         }
         break;
+    case ZT_PSYCHIC:
+        if (resists_psychic(mon)) {
+            sho_shieldeff = TRUE;
+            break;
+        }
+        tmp = d(2, 6);
+        mon->mconf = 1;
+        mon->mstrategy &= ~STRAT_WAITFORU;
+        break;
     case ZT_COLD:
         if (resists_cold(mon)) {
             sho_shieldeff = TRUE;
@@ -3969,6 +4022,15 @@ xchar sx, sy;
                     destroy_item(SPBOOK_CLASS, AD_FIRE);
                 destroy_item(FOOD_CLASS, AD_FIRE);
             }
+        }
+        break;
+    case ZT_PSYCHIC:
+        if (Psychic_resistance) {
+            shieldeff(sx, sy);
+            You("resist the mental onslaught!");
+        } else {
+            dam = d(2, 6);
+            make_confused(HConfusion + rnd(15), FALSE);
         }
         break;
     case ZT_COLD:

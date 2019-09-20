@@ -176,7 +176,7 @@ const struct Role roles[] = {
       S_RODENT,
       S_YETI,
       ART_STAFF_OF_AESCULAPIUS,
-      MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT | MH_ILLITHID,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 13, 7, 11, 16 },
@@ -302,7 +302,7 @@ const struct Role roles[] = {
       S_ZOMBIE,
       S_WRAITH,
       ART_MITRE_OF_HOLINESS,
-      MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GIANT | MH_HOBBIT | MH_CENTAUR,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GIANT | MH_HOBBIT | MH_CENTAUR | MH_ILLITHID,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 10, 7, 7, 7 },
@@ -569,7 +569,7 @@ const struct Role roles[] = {
       S_BAT,
       S_WRAITH,
       ART_EYE_OF_THE_AETHIOPICA,
-      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT,
+      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT | MH_ILLITHID,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 7, 7, 7, 7 },
@@ -837,6 +837,27 @@ const struct Race races[] = {
         /* Init   Lower  Higher */
         { 3, 3, 1, 2, 2, 2 }, /* Hit points */
         { 1, 0, 1, 0, 1, 0 }  /* Energy */
+    },
+    {
+        "illithid",
+        "illithid",
+        "illithid-kind",
+        "Ith",
+        { 0, 0 },
+        PM_ILLITHID,
+        NON_PM,
+        NON_PM,
+        NON_PM,
+        MH_ILLITHID | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+        MH_ILLITHID,
+        MH_ILLITHID,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT | MH_GIANT | MH_CENTAUR,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { 13, 22, 22, 18, 14, 16 },
+        /* Init   Lower  Higher */
+        { 2, 0, 1, 1, 1, 0 }, /* Hit points */
+        { 3, 0, 4, 0, 5, 0 }  /* Energy */
     },
     /* Array terminator */
     { 0, 0, 0, 0 }

@@ -52,6 +52,10 @@
 #define EDrain_resistance u.uprops[DRAIN_RES].extrinsic
 #define Drain_resistance (HDrain_resistance || EDrain_resistance)
 
+#define HPsychic_resistance u.uprops[PSYCHIC_RES].intrinsic
+#define EPsychic_resistance u.uprops[PSYCHIC_RES].extrinsic
+#define Psychic_resistance (HPsychic_resistance || EPsychic_resistance)
+
 #define HVulnerable_fire u.uprops[VULN_FIRE].intrinsic
 #define EVulnerable_fire u.uprops[VULN_FIRE].extrinsic
 #define Vulnerable_fire (HVulnerable_fire || EVulnerable_fire \

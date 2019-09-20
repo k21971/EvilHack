@@ -116,6 +116,12 @@ static const struct innate {
                  { 10, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 
+  ill_abil[] = { { 1, &HInfravision, "", "" },
+                 { 1, &(HTelepat), "", "" },
+                 { 1, &(HPsychic_resistance), "", "" },
+                 { 12, &(HFlying), "lighter than air", "gravity's pull" },
+                 { 0, 0, 0, 0 } },
+
   hum_abil[] = { { 0, 0, 0, 0 } };
 
 STATIC_DCL void NDECL(exerper);
@@ -800,6 +806,9 @@ long frommask;
         case PM_CENTAUR:
             abil = cen_abil;
             break;
+        case PM_ILLITHID:
+            abil = ill_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -983,6 +992,9 @@ int oldlevel, newlevel;
         break;
     case PM_CENTAUR:
         rabil = cen_abil;
+        break;
+    case PM_ILLITHID:
+        rabil = ill_abil;
         break;
     case PM_HUMAN:
     case PM_DWARF:

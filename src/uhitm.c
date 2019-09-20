@@ -1904,6 +1904,27 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         /* only potions damage resistant players in destroy_item */
         tmp += destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
         break;
+    case AD_PSYC:
+        if (negated) {
+            tmp = 0;
+            break;
+        }
+        if (!Blind) {
+            You("mentally assault %s!", mon_nam(mdef));
+            if (mindless(mdef->data)) {
+                shieldeff(mdef->mx, mdef->my);
+                tmp = 0;
+                pline("%s has no mind, and is immune to your onslaught.",
+                      Monnam(mdef));
+            } else if (resists_psychic(mdef)) {
+                shieldeff(mdef->mx, mdef->my);
+                tmp = 0;
+                pline("%s resists your mental assault!", Monnam(mdef));
+            } else {
+                mdef->mconf = 1;
+            }
+        }
+        break;
     case AD_COLD:
         if (negated) {
             tmp = 0;
@@ -2670,7 +2691,7 @@ register struct monst *mon;
                 || (!uwep && P_BARE_HANDED_COMBAT))
                 && (touch_petrifies(mon->data)
                     || is_rider(mon->data)
-                    ||  mon->data == &mons[PM_MEDUSA]
+                    || mon->data == &mons[PM_MEDUSA]
                     || mon->data == &mons[PM_GREEN_SLIME]))
                 break;
 

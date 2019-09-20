@@ -199,6 +199,8 @@ struct trobj Tinningkit[] = { { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 0 },
                                      { 0, 0, 0, 0, 0 } };
 struct trobj Pickaxe[] = { { PICK_AXE, 0, TOOL_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
+struct trobj Psionics[] = { { SPE_PSIONIC_WAVE, 0, SPBOOK_CLASS, 1, 0 },
+                                  { 0, 0, 0, 0, 0 } };
 
 /* race-based substitutions for initial inventory;
    the weaker cloak for elven rangers is intentional--they shoot better */
@@ -719,6 +721,8 @@ u_init()
         skill_init(Skill_C);
         break;
     case PM_HEALER:
+        if (Race_if(PM_ILLITHID))
+            ini_inv(Psionics);
         u.umoney0 = rn1(1000, 1001);
         ini_inv(Healer);
         if (!rn2(25))
@@ -748,7 +752,10 @@ u_init()
         break;
     }
     case PM_PRIEST:
-	if (Race_switch == PM_ELF) Priest[PRI_MACE].trotyp = QUARTERSTAFF;
+	if (Race_switch == PM_ELF)
+            Priest[PRI_MACE].trotyp = QUARTERSTAFF;
+        if (Race_if(PM_ILLITHID))
+            ini_inv(Psionics);
         ini_inv(Priest);
         if (!rn2(4))
             ini_inv(Lamp);
@@ -817,6 +824,8 @@ u_init()
         skill_init(Skill_V);
         break;
     case PM_WIZARD:
+        if (Race_if(PM_ILLITHID))
+            ini_inv(Psionics);
         ini_inv(Wizard);
         if (!rn2(5))
             ini_inv(Lamp);
@@ -882,6 +891,7 @@ u_init()
         break;
 
     case PM_GNOME:
+    case PM_ILLITHID:
         break;
 
     case PM_GIANT:
@@ -1019,15 +1029,15 @@ u_init()
 	shambler->maligntyp = rn2(21) - 10;
 
 	for (i = 0; i < rnd(4); i++) {
-	     attkptr = &shambler->mattk[i];
-	     attkptr->aatyp = rnd(AT_TENT); /* uchar */
-             attkptr->adtyp = rn2(AD_BHED);
+	    attkptr = &shambler->mattk[i];
+	    attkptr->aatyp = rnd(AT_TENT); /* uchar */
+            attkptr->adtyp = rn2(AD_BHED);
 
 	    if (attkptr->aatyp == AT_GAZE) {
 	        attkptr->aatyp = AT_MAGC;
 	    } else if (attkptr->aatyp == AT_EXPL || attkptr->aatyp == AT_BOOM) {
 	               attkptr->aatyp = AT_CLAW + rn2(12);
-            }
+        }
 
             if (attkptr->aatyp == AT_MAGC) {
                 attkptr->adtyp = AD_CLRC + rn2(2);         /* AT_MAGC must correspond to a spell type */
@@ -1094,10 +1104,8 @@ u_init()
         shambler->mflags2 &= ~M2_DOMESTIC;                      /* no taming */
 
 	for (i = 0; i < rnd(5); i++) {
-	     shambler->mflags3 |= (0x100 << rn2(6));	        /* no covetous, but any of the middle
-                                                                 * M3_ flags are OK */
-	}
-
+	    shambler->mflags3 |= (0x100 << rn2(6));	        /* no covetous, but any of the middle */
+        }                                                       /* M3_ flags are OK */
     return;
 }
 
