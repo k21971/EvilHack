@@ -2229,7 +2229,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
             case PM_ELVEN_SERGEANT:
             case PM_ELVEN_LIEUTENANT:
             case PM_ELVEN_CAPTAIN:
-		if (Race_if(PM_ORC)) {
+		if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
                     tmp *= 2L;
                 }
 		if (Race_if(PM_DWARF)) {
@@ -2242,7 +2242,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
             case PM_DWARVISH_SERGEANT:
             case PM_DWARVISH_LIEUTENANT:
             case PM_DWARVISH_CAPTAIN:
-		if (Race_if(PM_ORC)) {
+		if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
                     tmp *= 2L;
                 }
 		if (Race_if(PM_ELF)) {
@@ -2283,12 +2283,14 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 	    case PM_MIND_FLAYER:
 	    case PM_MASTER_MIND_FLAYER:
 		/* They'd prefer not to sell their libraries */
-		tmp *= ((shkp->mnum - PM_MIND_FLAYER + 1) * 10);
+                if (!Race_if(PM_ILLITHID))
+		    tmp *= ((shkp->mnum - PM_MIND_FLAYER + 1) * 10);
 		break;
 	    case PM_CENTAUR:
                 /* Centaurs don't care much for most humanoid races */
                 if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                    || Race_if(PM_DWARF) || Race_if(PM_ORC)) {
+                    || Race_if(PM_DWARF) || Race_if(PM_ORC)
+                    || Race_if(PM_ILLITHID)) {
                     tmp += tmp / 2L;
                 }
 		break;
@@ -2316,7 +2318,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 	    case PM_STORM_GIANT:
 		/* Non-Elder-Race humanoids are not thought of highly */
 		if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                    || Race_if(PM_HOBBIT)) {
+                    || Race_if(PM_HOBBIT) || Race_if(PM_ILLITHID)) {
                     tmp += tmp / 3L;
                 }
                 if (Race_if(PM_DWARF)) {
@@ -2566,7 +2568,7 @@ register struct monst *shkp;
         case PM_ELVEN_SERGEANT:
         case PM_ELVEN_LIEUTENANT:
         case PM_ELVEN_CAPTAIN:
-	    if (Race_if(PM_ORC)) {
+	    if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
                 tmp /= 2L;
             }
 	    if (Race_if(PM_DWARF)) {
@@ -2579,7 +2581,7 @@ register struct monst *shkp;
         case PM_DWARVISH_SERGEANT:
         case PM_DWARVISH_LIEUTENANT:
         case PM_DWARVISH_CAPTAIN:
-	    if (Race_if(PM_ORC)) {
+	    if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
                 tmp /= 2L;
             }
 	    if (Race_if(PM_ELF)) {
@@ -2621,12 +2623,14 @@ register struct monst *shkp;
 	    /* They don't mind acquiring more books...
 	     * ...and yes, this is correct, older mind flayers would value the books
 	     * more than younger ones */
-	    tmp -= tmp / ((shkp->mnum - PM_MIND_FLAYER + 1) * 10);
+            if (!Race_if(PM_ILLITHID))
+	        tmp -= tmp / ((shkp->mnum - PM_MIND_FLAYER + 1) * 10);
 	    break;
         case PM_CENTAUR:
             /* Centaurs don't care much for most humanoid races. */
             if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                || Race_if(PM_DWARF) || Race_if(PM_ORC)) {
+                || Race_if(PM_DWARF) || Race_if(PM_ORC)
+                || Race_if(PM_ILLITHID)) {
                 tmp -= tmp / 2L;
             }
             break;
@@ -2654,7 +2658,7 @@ register struct monst *shkp;
 	case PM_STORM_GIANT:
 	    /* Non-Elder-Race humanoids are not thought of highly */
 	    if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                || Race_if(PM_HOBBIT)) {
+                || Race_if(PM_HOBBIT) || Race_if(PM_ILLITHID)) {
                 tmp -= tmp / 3L;
             }
             if (Race_if(PM_DWARF)) {

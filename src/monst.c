@@ -526,7 +526,7 @@ NEARDATA struct permonst mons[] = {
         SIZ(1450, 400, MS_HISS, MZ_HUMAN), MR_PSYCHIC, 0,
         M1_HUMANOID | M1_FLY | M1_SEE_INVIS | M1_OMNIVORE,
         M2_HOSTILE | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_COLLECT,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 13, CLR_BRIGHT_MAGENTA),
+        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ILLITHID, 13, CLR_BRIGHT_MAGENTA),
     MON("master mind flayer", S_HUMANOID, LVL(13, 12, 0, 90, -8),
         (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 10), ATTK(AT_TENT, AD_DRIN, 2, 1),
@@ -535,9 +535,9 @@ NEARDATA struct permonst mons[] = {
         SIZ(1450, 400, MS_HISS, MZ_HUMAN), MR_PSYCHIC, 0,
         M1_HUMANOID | M1_FLY | M1_SEE_INVIS | M1_OMNIVORE,
         M2_HOSTILE | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_COLLECT,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 19, CLR_BRIGHT_MAGENTA),
+        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ILLITHID, 19, CLR_BRIGHT_MAGENTA),
     /* Place-holder for player race Illithid, not generated at random */
-    MON("illithid", S_HUMANOID, LVL(0, 12, 10, 0, -3), (G_GENO | G_NOGEN),
+    MON("illithid", S_HUMANOID, LVL(0, 12, 10, 0, -8), (G_GENO | G_NOGEN),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_TENT, AD_DRIN, 2, 1),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), MR_PSYCHIC, 0,
@@ -3578,7 +3578,7 @@ struct permonst _mons2[] = {
         SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT | M2_MAGIC,
-        M3_INFRAVISIBLE, 0, MH_HUMAN | MH_ILLITHID, 12, HI_DOMESTIC),
+        M3_INFRAVISIBLE, 0, MH_HUMAN, 12, HI_DOMESTIC),
     /*
      * quest leaders
      */

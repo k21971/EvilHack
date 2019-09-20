@@ -1679,18 +1679,22 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         break;
     case SCR_AMNESIA:
         known = TRUE;
-        forget((!sblessed ? ALL_SPELLS : 0)
-               | (!confused || scursed ? ALL_MAP : 0));
-        if (Hallucination) /* Ommmmmm! */
-            Your("mind releases itself from mundane concerns.");
-        else if (!strncmpi(plname, "Maud", 4))
-            pline(
-          "As your mind turns inward on itself, you forget everything else.");
-        else if (rn2(2))
-            pline("Who was that Maud person anyway?");
-        else
-            pline("Thinking of Maud you forget everything else.");
-        exercise(A_WIS, FALSE);
+        if (Race_if(PM_ILLITHID)) {
+            Your("psionic abilities ward off the scrolls magic.");
+            break;
+        } else {
+            forget((!sblessed ? ALL_SPELLS : 0)
+                   | (!confused || scursed ? ALL_MAP : 0));
+            if (Hallucination) /* Ommmmmm! */
+                Your("mind releases itself from mundane concerns.");
+            else if (!strncmpi(plname, "Maud", 4))
+                pline("As your mind turns inward on itself, you forget everything else.");
+            else if (rn2(2))
+                pline("Who was that Maud person anyway?");
+            else
+                pline("Thinking of Maud you forget everything else.");
+            exercise(A_WIS, FALSE);
+        }
         break;
     case SCR_FIRE: {
         coord cc;

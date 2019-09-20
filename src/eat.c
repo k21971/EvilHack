@@ -520,9 +520,15 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             pline("%s brain is unharmed.",
                   (mdef == &youmonst) ? "Your" : s_suffix(Monnam(mdef)));
         return MM_MISS; /* side-effects can't occur */
+    } else if (is_illithid(pd)) {
+        if (visflag)
+            pline("%s psionic abilities shield %s brain.",
+                  (mdef == &youmonst) ? "Your" : s_suffix(Monnam(mdef)),
+                  (mdef == &youmonst) ? "your" : "its");
+        return MM_MISS; /* side-effects can't occur */
     } else if (magr == &youmonst) {
         You("eat %s brain!", s_suffix(mon_nam(mdef)));
-    } else if (mdef == &youmonst) {
+    } else if (mdef == &youmonst && !Race_if(PM_ILLITHID)) {
         Your("brain is eaten!");
     } else { /* monster against monster */
         if (visflag && canspotmon(mdef))
