@@ -553,7 +553,7 @@ struct permonst* ptr;
     int prop = corpse_intrinsic(ptr);
     boolean vis = canseemon(mtmp);
     const char* msg = NULL;
-    unsigned short intrinsic = 0; /* MR_* constant */
+    unsigned long intrinsic = 0; /* MR_* constant */
 
     /* if (!should_givit(prop, ptr))
         return; /* failed die roll */

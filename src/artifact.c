@@ -1736,7 +1736,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 	    default:
 	        break;
         }
-        return msgprinted;
     }
     /* We really want "on a natural 20" but Nethack does it in */
     /* reverse from AD&D. */

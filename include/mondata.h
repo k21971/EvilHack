@@ -228,7 +228,7 @@
 #define is_placeholder(ptr)                                 \
     ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]     \
      || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]  \
-     || (ptr) == &mons[PM_CENTAUR])
+     || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_ILLITHID])
 /* return TRUE if the monster tends to revive */
 #define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL \
                         || is_zombie(ptr))

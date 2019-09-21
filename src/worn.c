@@ -429,10 +429,10 @@ new_property:
         case PROTECTION:
             break;
         default:
-            if (which <= 8) { /* 1 thru 8 correspond to MR_xxx mask values */
-                /* FIRE,COLD,SLEEP,DISINT,SHOCK,POISON,ACID,STONE */
+            if (which <= 8) { /* 1 thru 9 correspond to MR_xxx mask values */
+                /* FIRE,COLD,SLEEP,DISINT,SHOCK,POISON,ACID,STONE,PSYCHIC */
                 mask = (uchar) (1 << (which - 1));
-                mon->mextrinsics |= (unsigned short) mask;
+                mon->mextrinsics |= (unsigned long) mask;
             }
             break;
         }
@@ -460,6 +460,7 @@ new_property:
         case POISON_RES:
         case ACID_RES:
         case STONE_RES:
+        case PSYCHIC_RES:
             mask = (uchar) (1 << (which - 1));
             /* update monster's extrinsics (for worn objects only;
                'obj' itself might still be worn or already unworn) */
@@ -469,7 +470,7 @@ new_property:
                     && (int) (obj_has_prop(otmp, which)))
                     break;
             if (!otmp)
-                mon->mextrinsics &= ~((unsigned short) mask);
+                mon->mextrinsics &= ~((unsigned long) mask);
             break;
         default:
             break;

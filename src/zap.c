@@ -180,28 +180,37 @@ struct obj *otmp;
         learn_it = TRUE;
         break;
     case SPE_PSIONIC_WAVE:
-        You("mentally %s %s!",
-            rn2(2) ? "attack" : "assault", mon_nam(mtmp));
-        if (mindless(mtmp->data)) {
-            shieldeff(mtmp->mx, mtmp->my);
-            pline("%s has no mind, and is immune to your mental attack.",
-                  Monnam(mtmp));
-        } else if (resists_psychic(mtmp)) {
-            shieldeff(mtmp->mx, mtmp->my);
-            pline("%s resists your mental onslaught!", Monnam(mtmp));
-        } else if (!DEADMONSTER(mtmp)) {
-            dmg = d(2, 6);
-            damage_mon(mtmp, dmg, AD_PSYC);
-            if (DEADMONSTER(mtmp)) {
-                killed(mtmp);
-            } else if (canseemon(mtmp)) {
-                pline("%s %s in %s!", Monnam(mtmp),
-                       rn2(2) ? "withers" : "trembles",
-                       rn2(2) ? "agony" : "anguish");
-                if (!rn2(4)) {
-                    mtmp->mconf = 1;
-                    pline("%s seems %s!", Monnam(mtmp),
-                          rn2(2) ? "confused" : "disoriented");
+        if (uarmh && is_heavy_metallic(uarmh)) {
+            pline_The("%s of your %s blocks your psionic attack.",
+                      materialnm[uarmh->material],
+                      helm_simple_name(uarmh));
+        } else {
+            You("mentally %s %s!",
+                rn2(2) ? "attack" : "assault", mon_nam(mtmp));
+            if (mindless(mtmp->data)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                pline("%s has no mind, and is immune to your mental attack.",
+                      Monnam(mtmp));
+            } else if (resists_psychic(mtmp)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                pline("%s resists your mental onslaught!", Monnam(mtmp));
+            } else if (!DEADMONSTER(mtmp)) {
+                if (u.ulevel >= 26)
+                    dmg = d(4, 6);
+                else
+                    dmg = d(2, 6);
+                damage_mon(mtmp, dmg, AD_PSYC);
+                if (DEADMONSTER(mtmp)) {
+                    killed(mtmp);
+                } else if (canseemon(mtmp)) {
+                    pline("%s %s in %s!", Monnam(mtmp),
+                          rn2(2) ? "withers" : "trembles",
+                          rn2(2) ? "agony" : "anguish");
+                    if (!rn2(4)) {
+                        mtmp->mconf = 1;
+                        pline("%s seems %s!", Monnam(mtmp),
+                              rn2(2) ? "confused" : "disoriented");
+                    }
                 }
             }
         }
@@ -2439,14 +2448,23 @@ boolean ordinary;
 
     case SPE_PSIONIC_WAVE:
         learn_it = TRUE;
-        if (Psychic_resistance) {
-            shieldeff(u.ux, u.uy);
-            Your("wave of psionic energy drifts harmlessly through your mind.");
-            ugolemeffects(AD_PSYC, d(2, 6));
+        if (uarmh && is_heavy_metallic(uarmh)) {
+            pline_The("%s of your %s blocks your psionic attack.",
+                      materialnm[uarmh->material],
+                      helm_simple_name(uarmh));
         } else {
-            You("assault your own mind!");
-            make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
-            damage = d(2, 6);
+            if (Psychic_resistance) {
+                shieldeff(u.ux, u.uy);
+                Your("wave of psionic energy drifts harmlessly through your mind.");
+                ugolemeffects(AD_PSYC, d(2, 6));
+            } else {
+                You("assault your own mind!");
+                make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
+                if (u.ulevel >= 26)
+                    damage = d(4, 6);
+                else
+                    damage = d(2, 6);
+            }
         }
         break;
 
