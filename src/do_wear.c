@@ -868,7 +868,9 @@ Armor_off(VOID_ARGS)
             case SHIMMERING_DRAGON_SCALES:
                 You_feel("that monsters no longer have difficulty pinpointing your location.");
                 EStealth &= ~W_ARM;
-                You("sure are noisy.");
+                if (!Stealth) {
+                    You("sure are noisy.");
+                }
                 break;
             case SILVER_DRAGON_SCALE_MAIL:
             case SILVER_DRAGON_SCALES:
@@ -920,7 +922,9 @@ Armor_gone()
             case SHIMMERING_DRAGON_SCALES:
                 You_feel("that monsters no longer have difficulty pinpointing your location.");
                 EStealth &= ~W_ARM;
-                You("sure are noisy.");
+                if (!Stealth) {
+                    You("sure are noisy.");
+                }
                 break;
             case SILVER_DRAGON_SCALE_MAIL:
             case SILVER_DRAGON_SCALES:

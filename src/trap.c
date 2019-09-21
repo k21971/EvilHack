@@ -428,56 +428,55 @@ int x, y, typ;
         mongone(mtmp);
         break;
     }
-    case MAGIC_BEAM_TRAP:
-	{
-	    int d, startdir = rn2(8);
-	    int dist;
-	    int lx, ly;
-	    int ok = 0;
-	    for (d = 0; ((d < 8) && !ok); d++)
-		for (dist = 1; ((dist < 8) && !ok); dist++) {
-		    lx = x;
-		    ly = y;
-		    switch ((startdir + d) % 8) {
-		        case 0: lx += dist;
-                            break;
-         		case 1: lx += dist; ly += dist;
-                            break;
-			case 2: ly += dist;
-                            break;
-		        case 3: lx -= dist; ly += dist;
-                            break;
-			case 4: lx -= dist;
-                            break;
-			case 5: lx -= dist; ly -= dist;
-                            break;
-			case 6: ly -= dist;
-                            break;
-			case 7: lx += dist; ly -= dist;
-                            break;
-		    }
-	            if (isok(lx, ly) && IS_STWALL(levl[lx][ly].typ)) {
-			ttmp->launch.x = lx;
-			ttmp->launch.y = ly;
-			/* no AD_DISN, thanks */
-			ttmp->launch_otyp = -10-(AD_MAGM - 1);
-			if (!rn2(15))
-			    ttmp->launch_otyp = -20-(AD_ELEC - 1);
-			else if (!rn2(10))
-			    ttmp->launch_otyp = -20-(AD_FIRE - 1);
-			else if (!rn2(10))
-			    ttmp->launch_otyp = -10-(AD_COLD - 1);
-			else if (!rn2(7))
-			    ttmp->launch_otyp = -20-(AD_DRST - 1);
-			else if (!rn2(7))
-			    ttmp->launch_otyp = -20-(AD_ACID - 1);
-			else if (!rn2(5))
-			    ttmp->launch_otyp = -10-(AD_SLEE - 1);
-			ok = 1;
-		    }
-	        }
-	}
-	break;
+    case MAGIC_BEAM_TRAP: {
+        int d, startdir = rn2(8);
+        int dist;
+        int lx, ly;
+        int ok = 0;
+        for (d = 0; ((d < 8) && !ok); d++)
+            for (dist = 1; ((dist < 8) && !ok); dist++) {
+                lx = x;
+                ly = y;
+                switch ((startdir + d) % 8) {
+                case 0: lx += dist;
+                    break;
+                case 1: lx += dist; ly += dist;
+                    break;
+                case 2: ly += dist;
+                    break;
+                case 3: lx -= dist; ly += dist;
+                    break;
+                case 4: lx -= dist;
+                    break;
+                case 5: lx -= dist; ly -= dist;
+                    break;
+                case 6: ly -= dist;
+                    break;
+                case 7: lx += dist; ly -= dist;
+                    break;
+                }
+                if (isok(lx, ly) && IS_STWALL(levl[lx][ly].typ)) {
+                    ttmp->launch.x = lx;
+                    ttmp->launch.y = ly;
+                    /* no AD_DISN, thanks */
+                    ttmp->launch_otyp = -10-(AD_MAGM - 1);
+                    if (!rn2(15))
+                        ttmp->launch_otyp = -20-(AD_ELEC - 1);
+                    else if (!rn2(10))
+                        ttmp->launch_otyp = -20-(AD_FIRE - 1);
+                    else if (!rn2(10))
+                        ttmp->launch_otyp = -10-(AD_COLD - 1);
+                    else if (!rn2(7))
+                        ttmp->launch_otyp = -20-(AD_DRST - 1);
+                    else if (!rn2(7))
+                        ttmp->launch_otyp = -20-(AD_ACID - 1);
+                    else if (!rn2(5))
+                        ttmp->launch_otyp = -10-(AD_SLEE - 1);
+                    ok = 1;
+                }
+            }
+        break;
+    }
     case ROLLING_BOULDER_TRAP: /* boulder will roll towards trigger */
         (void) mkroll_launch(ttmp, x, y, BOULDER, 1L);
         break;
