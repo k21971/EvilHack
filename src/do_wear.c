@@ -207,6 +207,7 @@ Boots_on(VOID_ARGS)
     case HIGH_BOOTS:
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
+    case ORCISH_BOOTS:
         break;
     case WATER_WALKING_BOOTS:
         if (u.uinwater)
@@ -340,6 +341,7 @@ Boots_off(VOID_ARGS)
     case HIGH_BOOTS:
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
+    case ORCISH_BOOTS:
         break;
     default:
         impossible(unknown_type, c_boots, otyp);
@@ -2330,45 +2332,46 @@ find_ac()
 
     if (uarm) {
 	uac -= ARM_BONUS(uarm);
-	if ((Race_if(PM_ORC) && (uarm->otyp == ORCISH_CHAIN_MAIL || uarm->otyp == ORCISH_RING_MAIL)) ||
-			(Race_if(PM_ELF) && uarm->otyp == ELVEN_CHAIN_MAIL) ||
-			(Race_if(PM_DWARF) && uarm->otyp == DWARVISH_CHAIN_MAIL)) {
-		uac -= racial_bonus;
+	if ((Race_if(PM_ORC) && (uarm->otyp == ORCISH_CHAIN_MAIL || uarm->otyp == ORCISH_RING_MAIL))
+            || (Race_if(PM_ELF) && uarm->otyp == ELVEN_CHAIN_MAIL)
+            || (Race_if(PM_DWARF) && uarm->otyp == DWARVISH_CHAIN_MAIL)) {
+	    uac -= racial_bonus;
 	}
     }
 
     if (uarmc) {
 	uac -= ARM_BONUS(uarmc);
-	if ((Race_if(PM_ORC) && uarmc->otyp == ORCISH_CLOAK) ||
-			(Race_if(PM_ELF) && uarmc->otyp == ELVEN_CLOAK) ||
-			(Race_if(PM_DWARF) && uarmc->otyp == DWARVISH_CLOAK)) {
-		uac -= racial_bonus;
+	if ((Race_if(PM_ORC) && uarmc->otyp == ORCISH_CLOAK)
+            || (Race_if(PM_ELF) && uarmc->otyp == ELVEN_CLOAK)
+            || (Race_if(PM_DWARF) && uarmc->otyp == DWARVISH_CLOAK)) {
+	    uac -= racial_bonus;
 	}
     }
 
     if (uarmh) {
 	uac -= ARM_BONUS(uarmh);
-	if ((Race_if(PM_ORC) && uarmh->otyp == ORCISH_HELM) ||
-			(Race_if(PM_ELF) && uarmh->otyp == ELVEN_HELM) ||
-			(Race_if(PM_DWARF) && uarmh->otyp == DWARVISH_HELM)) {
-		uac -= racial_bonus;
+	if ((Race_if(PM_ORC) && uarmh->otyp == ORCISH_HELM)
+            || (Race_if(PM_ELF) && uarmh->otyp == ELVEN_HELM)
+            || (Race_if(PM_DWARF) && uarmh->otyp == DWARVISH_HELM)) {
+	    uac -= racial_bonus;
 	}
     }
 
     if (uarmf) {
 	uac -= ARM_BONUS(uarmf);
-	if ((Race_if(PM_ELF) && uarmf->otyp == ELVEN_BOOTS) ||
-			(Race_if(PM_DWARF) && uarmf->otyp == DWARVISH_BOOTS)) {
-		uac -= racial_bonus;
+	if ((Race_if(PM_ELF) && uarmf->otyp == ELVEN_BOOTS)
+            || (Race_if(PM_DWARF) && uarmf->otyp == DWARVISH_BOOTS)
+            || (Race_if(PM_ORC) && uarmf->otyp == ORCISH_BOOTS)) {
+	    uac -= racial_bonus;
 	}
     }
 
     if (uarms) {
 	uac -= ARM_BONUS(uarms);
-	if ((Race_if(PM_ORC) && uarms->otyp == ORCISH_SHIELD) ||
-			(Race_if(PM_ELF) && uarms->otyp == ELVEN_SHIELD) ||
-			(Race_if(PM_DWARF) && uarms->otyp == DWARVISH_ROUNDSHIELD)) {
-		uac -= racial_bonus;
+	if ((Race_if(PM_ORC) && uarms->otyp == ORCISH_SHIELD)
+            || (Race_if(PM_ELF) && uarms->otyp == ELVEN_SHIELD)
+            || (Race_if(PM_DWARF) && uarms->otyp == DWARVISH_ROUNDSHIELD)) {
+	    uac -= racial_bonus;
 	}
     }
 
