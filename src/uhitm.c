@@ -470,7 +470,7 @@ register struct monst *mtmp;
         pline("The image of %s shimmers and vanishes!", mon_nam(mtmp));
         return FALSE;
     }
-    if (Upolyd)
+    if (Upolyd || Race_if(PM_ILLITHID))
         (void) hmonas(mtmp);
     else
         (void) hitum(mtmp, youmonst.data->mattk);
@@ -2576,6 +2576,7 @@ register struct monst *mon;
             stop_attacking = FALSE;
     int i, tmp, armorpenalty, sum[NATTK], nsum = 0, dhit = 0, attknum = 0;
     int dieroll, multi_claw = 0;
+    boolean Old_Upolyd = Upolyd;
 
     /* with just one touch/claw/weapon attack, both rings matter;
        with more than one, alternate right and left when checking
@@ -2960,8 +2961,8 @@ register struct monst *mon;
            or zombified and we should not attack it any more this round. */
         if (DEADMONSTER(mon) || stop_attacking)
             break;
-        if (!Upolyd)
-            break; /* No extra attacks if no longer a monster */
+        if (Upolyd != Old_Upolyd)
+            break; /* No extra attacks if form changed */
         if (multi < 0)
             break; /* If paralyzed while attacking, i.e. floating eye */
     }
