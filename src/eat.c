@@ -576,7 +576,10 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             done(DIED);
             /* life-saving needed to reach here */
             exercise(A_WIS, FALSE);
-            *dmg_p += xtra_dmg; /* Rider takes extra damage */
+            if (Race_if(PM_ILLITHID))
+                *dmg_p += rnd(4);
+            else
+                *dmg_p += xtra_dmg; /* Rider takes extra damage */
         } else {
             morehungry(-rnd(30)); /* cannot choke */
             if (ABASE(A_INT) < AMAX(A_INT)) {
@@ -587,7 +590,10 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                 context.botl = 1;
             }
             exercise(A_WIS, TRUE);
-            *dmg_p += xtra_dmg;
+            if (Race_if(PM_ILLITHID))
+                *dmg_p += rnd(4);
+            else
+                *dmg_p += xtra_dmg;
         }
         /* targetting another mind flayer or your own underlying species
            is cannibalism */
