@@ -576,9 +576,14 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             done(DIED);
             /* life-saving needed to reach here */
             exercise(A_WIS, FALSE);
-            if (Race_if(PM_ILLITHID))
-                *dmg_p += rnd(4);
-            else
+            if (Race_if(PM_ILLITHID)) {
+                if (u.ulevel >= 14)
+                    *dmg_p += rn2(10) + 1;
+                else if (u.ulevel >= 26)
+                    *dmg_p += rn2(10) + 7;
+                else
+                    *dmg_p += rn2(4) + 1;
+            } else
                 *dmg_p += xtra_dmg; /* Rider takes extra damage */
         } else {
             morehungry(-rnd(30)); /* cannot choke */
@@ -590,9 +595,14 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                 context.botl = 1;
             }
             exercise(A_WIS, TRUE);
-            if (Race_if(PM_ILLITHID))
-                *dmg_p += rnd(4);
-            else
+            if (Race_if(PM_ILLITHID)) {
+                if (u.ulevel >= 14)
+                    *dmg_p += rn2(10) + 1;
+                else if (u.ulevel >= 26)
+                    *dmg_p += rn2(10) + 7;
+                else
+                    *dmg_p += rn2(4) + 1;
+            } else
                 *dmg_p += xtra_dmg;
         }
         /* targetting another mind flayer or your own underlying species
