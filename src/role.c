@@ -444,7 +444,7 @@ const struct Role roles[] = {
       S_DOG,
       S_ELEMENTAL,
       ART_TSURUGI_OF_MURAMASA,
-      MH_HUMAN,
+      MH_HUMAN | MH_DWARF,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL,
       { 10, 8, 7, 10, 17, 6 },
       { 30, 10, 8, 30, 14, 8 },
@@ -569,7 +569,8 @@ const struct Role roles[] = {
       S_BAT,
       S_WRAITH,
       ART_EYE_OF_THE_AETHIOPICA,
-      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT | MH_ILLITHID,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_ORC
+          | MH_HOBBIT | MH_GIANT | MH_ILLITHID,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 7, 7, 7, 7 },
