@@ -2845,12 +2845,12 @@ int otyp;
          * rerandomize it */
         tryct = 0;
         if (otmp->oclass == WEAPON_CLASS
-            && is_weptool(otmp) && otmp->oclass == ARMOR_CLASS
-            && otmp->oclass == AMULET_CLASS) {
+            || is_weptool(otmp) || otmp->oclass == ARMOR_CLASS
+            || otmp->oclass == AMULET_CLASS) {
             while (mon_hates_material(mtmp, otmp->material)) {
                 init_obj_material(otmp);
                 tryct++;
-                if (tryct >= 1) {
+                if (tryct >= 100) {
                     /* will anything work? */
                     int mat;
                     for (mat = 1; mat < NUM_MATERIAL_TYPES; ++mat) {

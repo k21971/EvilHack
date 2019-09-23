@@ -655,11 +655,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         if (obj->material != objects[obj->otyp].oc_material) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
-        }
-
-        if (obj->otyp == ARMOR || obj->otyp == JACKET
+        } else if (obj->otyp == ARMOR || obj->otyp == JACKET
             || obj->otyp == GLOVES || obj->otyp == GAUNTLETS) {
-            Strcpy(buf, materialnm[obj->material]);
+            Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
 
