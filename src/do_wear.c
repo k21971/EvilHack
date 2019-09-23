@@ -838,9 +838,11 @@ Armor_off(VOID_ARGS)
         case GOLD_DRAGON_SCALE_MAIL:
         case GOLD_DRAGON_SCALES:
             ESick_resistance &= ~W_ARM;
-            end_burn(uarm, FALSE);
-            if (!Blind)
-                pline("%s glowing.", Tobjnam(uarm, "stop"));
+            if (uarm->lamplit) {
+                end_burn(uarm, FALSE);
+                if (!Blind)
+                    pline("%s glowing.", Tobjnam(uarm, "stop"));
+            }
             break;
         case BLUE_DRAGON_SCALE_MAIL:
         case BLUE_DRAGON_SCALES:
@@ -892,7 +894,8 @@ Armor_gone()
         case GOLD_DRAGON_SCALE_MAIL:
         case GOLD_DRAGON_SCALES:
             ESick_resistance &= ~W_ARM;
-            end_burn(uarm, FALSE);
+            if (uarm->lamplit)
+                end_burn(uarm, FALSE);
             break;
         case BLUE_DRAGON_SCALE_MAIL:
         case BLUE_DRAGON_SCALES:
