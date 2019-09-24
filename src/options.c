@@ -5590,7 +5590,7 @@ char *buf;
     else if (!strcmp(optname, "dogname"))
         Sprintf(buf, "%s", dogname[0] ? dogname : none);
     else if (!strcmp(optname, "ratname"))
-	Sprintf(buf, "%s", ratname[0] ? ratname : none );
+        Sprintf(buf, "%s", ratname[0] ? ratname : none );
     else if (!strcmp(optname, "dungeon"))
         Sprintf(buf, "%s", to_be_done);
     else if (!strcmp(optname, "effects"))

@@ -192,7 +192,7 @@ makedog()
         if (Role_if(PM_RANGER))
             petname = "Sirius"; /* Orion's dog */
     } else if (!*petname && pettype == PM_SEWER_RAT) {
-	if (Role_if(PM_CONVICT))
+        if (Role_if(PM_CONVICT))
             petname = "Nicodemus"; /* Rats of NIMH */
     }
 

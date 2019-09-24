@@ -749,7 +749,7 @@ u_init()
         knows_object(GRAPPLING_HOOK);
         skill_init(Skill_Con);
         u.uhunger = 200;  /* On the verge of hungry */
-    	u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL]
+        u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL]
             =u.ualign.type = A_CHAOTIC; /* Override racial alignment */
         urace.hatemask |= urace.lovemask; /* Hated by the race's allies */
         urace.lovemask = 0; /* Convicts are pariahs of their race */
