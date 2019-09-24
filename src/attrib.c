@@ -37,6 +37,11 @@ static const struct innate {
                  { 15, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 
+  con_abil[] = { { 1, &(HSick_resistance), "", "" },
+                 { 7, &(HPoison_resistance), "healthy", "" },
+                 { 20, &(HSearching), "perceptive", "unaware" },
+                 { 0, 0, 0, 0 } },
+
   hea_abil[] = { { 3, &(HPoison_resistance), "healthy", "" },
                  { 15, &(HSick_resistance), "hale", "" },
                  { 0, 0, 0, 0 } },
@@ -755,6 +760,7 @@ int r;
         { PM_ARCHEOLOGIST, arc_abil },
         { PM_BARBARIAN, bar_abil },
         { PM_CAVEMAN, cav_abil },
+        { PM_CONVICT, con_abil},
         { PM_HEALER, hea_abil },
         { PM_KNIGHT, kni_abil },
         { PM_MONK, mon_abil },

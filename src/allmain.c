@@ -793,9 +793,21 @@ newgame()
     (void) makedog();
     docrt();
 
+    if (Role_if(PM_CONVICT)) {
+        setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
+        setworn(mkobj(BALL_CLASS, TRUE), W_BALL);
+        uball->spe = 1;
+        placebc();
+        newsym(u.ux, u.uy);
+    }
+
     if (flags.legacy) {
         flush_screen(1);
-        com_pager(1);
+        if (Role_if(PM_CONVICT)) {
+	    com_pager(199);
+        } else {
+	    com_pager(1);
+        }
     }
 
     urealtime.realtime = 0L;

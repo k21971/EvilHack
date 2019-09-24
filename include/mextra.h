@@ -121,6 +121,7 @@ struct eshk {
     schar unused;         /* to force alignment for stupid compilers */
     boolean following;    /* following customer since he owes us sth */
     boolean surcharge;    /* angry shk inflates prices */
+    boolean pbanned;	  /* player is banned from the shop */
     boolean dismiss_kops; /* pacified shk sends kops away */
     coord shk;            /* usual position shopkeeper */
     coord shd;            /* position shop door */

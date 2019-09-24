@@ -300,6 +300,15 @@ int *attk_count, *role_roll_penalty;
         && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
         tmp++;
 
+    /* Adding iron ball as a weapon skill gives a -4 penalty for
+    unskilled vs no penalty for non-weapon objects.  Add 4 to
+    compensate. */
+    if (uwep && (uwep->otyp == HEAVY_IRON_BALL)) {
+        tmp += 4;   /* Compensate for iron ball weapon skill -4
+                    penalty for unskilled vs no penalty for non-
+                    weapon objects. */
+    }
+
     /* gloves' bonus contributes if unarmed */
     if (!uwep && uarmg) {
 	tmp += uarmg->spe;
@@ -804,7 +813,7 @@ int dieroll;
         else
             Strcpy(saved_oname, bare_artifactname(obj));
         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
-            || obj->oclass == GEM_CLASS) {
+            || obj->oclass == GEM_CLASS || obj->otyp == HEAVY_IRON_BALL) {
             /* is it not a melee weapon? */
             if (/* if you strike with a bow... */
                 is_launcher(obj)

@@ -189,6 +189,10 @@ struct obj *obj;
             if (helm == HELM_OF_BRILLIANCE)
                 helm = STRANGE_OBJECT;
             break;
+        case PM_HUMAN_CONVICT:
+            if (rn2(2))
+                weapon = FLAIL;
+            break;
         case PM_HUMAN_HEALER:
             if (rn2(4))
                 weapon = QUARTERSTAFF;

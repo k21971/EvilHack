@@ -89,6 +89,12 @@ register struct monst *mtmp;
 
     if (mtmp->mpeaceful && in_town(u.ux + u.dx, u.uy + u.dy)
         && mtmp->mcansee && m_canseeu(mtmp) && !rn2(3)) {
+        if (Role_if(PM_CONVICT) && !Upolyd) {
+            mon_yells(mtmp, "Hey, you're the one from the wanted poster!");
+            (void) angry_guards(!!Deaf);
+            stop_occupation();
+            return;
+        }
         if (picking_lock(&x, &y) && IS_DOOR(levl[x][y].typ)
             && (levl[x][y].doormask & D_LOCKED)) {
             if (couldsee(mtmp->mx, mtmp->my)) {
@@ -525,7 +531,7 @@ register struct monst *mtmp;
 
     /* Demonic Blackmail! */
     if (nearby && mdat->msound == MS_BRIBE && mtmp->mpeaceful && !mtmp->mtame
-        && !u.uswallow) {
+        && !u.uswallow && monsndx(mdat) != PM_PRISON_GUARD) {
         if (mtmp->mux != u.ux || mtmp->muy != u.uy) {
             pline("%s whispers at thin air.",
                   cansee(mtmp->mux, mtmp->muy) ? Monnam(mtmp) : "It");
@@ -544,6 +550,24 @@ register struct monst *mtmp;
             }
         } else if (demon_talk(mtmp))
             return 1; /* you paid it off */
+    }
+
+    /* Prison guard extortion */
+    if (nearby && (monsndx(mdat) == PM_PRISON_GUARD) && !mtmp->mpeaceful
+        && !mtmp->mtame && !u.uswallow && (!mtmp->mspec_used)) {
+        long gdemand = 500 * u.ulevel;
+        long goffer = 0;
+
+        pline("%s demands %ld %s to avoid re-arrest.", Amonnam(mtmp),
+              gdemand, currency(gdemand));
+        if ((goffer = bribe(mtmp)) >= gdemand) {
+            verbalize("Good.  Now beat it, scum!");
+            mtmp->mpeaceful = 1;
+            set_malign(mtmp);
+        } else {
+            pline("I said %ld!", gdemand);
+            mtmp->mspec_used = 1000;
+        }
     }
 
     /* the watch will look around and see if you are up to no good :-) */

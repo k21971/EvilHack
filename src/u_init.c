@@ -56,6 +56,11 @@ struct trobj Cave_man[] = {
     { ARMOR, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
+struct trobj Convict[] = {
+    { ROCK, 0, GEM_CLASS, 1, 0 },
+    { STRIPED_SHIRT, 0, ARMOR_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
 struct trobj Healer[] = {
     { SCALPEL, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { GLOVES, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -321,6 +326,24 @@ static const struct def_skill Skill_C[] = {
     { P_BOOMERANG, P_EXPERT },
     { P_UNICORN_HORN, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_MASTER },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Con[] = {
+    { P_DAGGER, P_SKILLED },
+    { P_KNIFE,  P_EXPERT },
+    { P_HAMMER, P_SKILLED },
+    { P_PICK_AXE, P_EXPERT },
+    { P_CLUB, P_EXPERT },
+    { P_MACE, P_BASIC },
+    { P_DART, P_SKILLED },
+    { P_FLAIL, P_EXPERT },
+    { P_SHORT_SWORD, P_BASIC },
+    { P_BROAD_SWORD, P_SKILLED },
+    { P_SLING, P_SKILLED },
+    { P_ATTACK_SPELL, P_BASIC },
+    { P_ESCAPE_SPELL, P_EXPERT },
+    { P_TWO_WEAPON_COMBAT, P_SKILLED },
+    { P_BARE_HANDED_COMBAT, P_SKILLED },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_H[] = {
@@ -720,6 +743,17 @@ u_init()
         }
         skill_init(Skill_C);
         break;
+    case PM_CONVICT:
+        ini_inv(Convict);
+        knows_object(SKELETON_KEY);
+        knows_object(GRAPPLING_HOOK);
+        skill_init(Skill_Con);
+        u.uhunger = 200;  /* On the verge of hungry */
+    	u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL]
+            =u.ualign.type = A_CHAOTIC; /* Override racial alignment */
+        urace.hatemask |= urace.lovemask; /* Hated by the race's allies */
+        urace.lovemask = 0; /* Convicts are pariahs of their race */
+        break;
     case PM_HEALER:
         if (Race_if(PM_ILLITHID))
             ini_inv(Psionics);
@@ -904,7 +938,7 @@ u_init()
     case PM_HOBBIT:
         /* Hobbits are always hungry; you'd be hard-pressed to come across one that didn't have
          * something to snack on or at least a means to make more food */
-        if (!Role_if(PM_MONK))
+        if (!Role_if(PM_MONK) || !Role_if(PM_CONVICT))
             ini_inv(Xtra_food);
         if (!Role_if(PM_ARCHEOLOGIST))
             ini_inv(Tinningkit);
@@ -945,7 +979,7 @@ u_init()
 
     case PM_ORC:
         /* compensate for generally inferior equipment */
-        if (!Role_if(PM_WIZARD))
+        if (!Role_if(PM_WIZARD) || !Role_if(PM_CONVICT))
             ini_inv(Xtra_food);
         /* Orcs can recognize all orcish objects */
         knows_object(ORCISH_SHORT_SWORD);
@@ -1126,6 +1160,9 @@ int otyp;
         break;
     case PM_CAVEMAN:
         skills = Skill_C;
+        break;
+    case PM_CONVICT:
+        skills = Skill_Con;
         break;
     case PM_HEALER:
         skills = Skill_H;
@@ -1311,6 +1348,9 @@ register struct trobj *origtrop;
             } else if (obj->oclass == GEM_CLASS && is_graystone(obj)
                        && obj->otyp != FLINT) {
                 obj->quan = 1L;
+            }
+            if (obj->otyp == STRIPED_SHIRT ) {
+                obj->cursed = TRUE;
             }
             if (trop->trspe != UNDEF_SPE)
                 obj->spe = trop->trspe;

@@ -596,6 +596,12 @@ char *enterstring;
         return;
     }
 
+    /* Visible striped prison shirt */
+    if ((uarmu && (uarmu->otyp == STRIPED_SHIRT))
+        && !uarm && !uarmc) {
+        eshkp->pbanned = TRUE;
+    }
+
     rt = rooms[*enterstring - ROOMOFFSET].rtype;
 
     if (ANGRY(shkp)) {
@@ -614,7 +620,7 @@ char *enterstring;
             pline("%s is combing through %s inventory list.",
                   Shknam(shkp), noit_mhis(shkp));
     } else {
-        if (!Deaf && !muteshk(shkp))
+        if (!Deaf && !muteshk(shkp) && !eshkp->pbanned)
             verbalize("%s, %s!  Welcome%s to %s %s!", Hello(shkp), plname,
                       eshkp->visitct++ ? " again" : "",
                       s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name);
@@ -662,6 +668,9 @@ char *enterstring;
                       Shknam(shkp),
                       NOTANGRY(shkp) ? "is hesitant" : "refuses",
                       tool, plur(cnt));
+            should_block = TRUE;
+        } else if (eshkp->pbanned && !ANGRY(shkp)) {
+            verbalize("I don't sell to your kind here.");
             should_block = TRUE;
         } else if (u.usteed) {
             if (!Deaf && !muteshk(shkp))
@@ -1778,6 +1787,7 @@ boolean silently; /* maybe avoid messages */
         if (mtmp != firstshk) {
             numsk++;
             taken |= inherits(mtmp, numsk, croaked, silently);
+            ESHK(mtmp)->pbanned = FALSE; /* Un-ban for bones levels */
         }
         /* for bones: we don't want a shopless shk around */
         if (!local)
@@ -4208,6 +4218,7 @@ struct monst *shkp;
             if (uondoor) {
                 badinv =
                     (carrying(PICK_AXE) || carrying(DWARVISH_MATTOCK)
+                     || eshkp->pbanned
                      || (Fast && (sobj_at(PICK_AXE, u.ux, u.uy)
                                   || sobj_at(DWARVISH_MATTOCK, u.ux, u.uy))));
                 if (satdoor && badinv)

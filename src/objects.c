@@ -455,6 +455,8 @@ ARMOR("jacket", None,
 /* shirts */
 ARMOR("Hawaiian shirt", None,
       1, 0, 0,  0,  8, 0,   5,   3, 10, 0,  ARM_SHIRT, CLOTH, CLR_MAGENTA),
+ARMOR("striped shirt", None,
+      1, 0, 0,  0,  0, 0,   5,   2, 10, 0,  ARM_SHIRT, CLOTH, CLR_GRAY),
 ARMOR("T-shirt", None,
       1, 0, 0,  0,  2, 0,   5,   2, 10, 0,  ARM_SHIRT, CLOTH, CLR_WHITE),
 
@@ -1170,7 +1172,7 @@ OBJECT(OBJ("statue", None),
        ROCK_CLASS, 900, 0, 2500, 0, 20, 20, 0, 0, 2500, CLR_WHITE),
 
 OBJECT(OBJ("heavy iron ball", None),
-       BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, WHACK, P_NONE, IRON), 0,
+       BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, WHACK, P_FLAIL, IRON), 0,
        BALL_CLASS, 1000, 0, 480, 10, 25, 25, 0, 0, 200, HI_METAL),
         /* +d4 when "very heavy" */
 OBJECT(OBJ("iron chain", None),

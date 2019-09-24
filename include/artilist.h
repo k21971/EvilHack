@@ -208,12 +208,18 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       DRST(10, 10), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
       12000L, NO_COLOR),
     /* Thought the Oracle just knew everything on her own? Guess again. Should
-     *  anyone ever be foolhardy enough to take on the Oracle and succeed,
-     *  they might discover the true source of her knowledge.
+     * anyone ever be foolhardy enough to take on the Oracle and succeed,
+     * they might discover the true source of her knowledge.
      */
     A("Magic 8-Ball", EIGHT_BALL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK), (SPFX_WARN | SPFX_EXCLUDE),
       0, NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 5000L,
+      NO_COLOR),
+    /* Convict role first artifact weapon should they altar sacrifice for one.
+     * Acts like a luckstone.
+     */
+    A("Luck Blade", BROADSWORD, (SPFX_RESTR | SPFX_LUCK | SPFX_INTEL), 0, 0,
+      PHYS(5,6), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_CONVICT, NON_PM, 3000L,
       NO_COLOR),
 
     /*
@@ -333,6 +339,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DEFN), 0, 0,
       NO_ATTK, DFNS(AD_MAGM), CARY(AD_DISE), 0, A_CHAOTIC, PM_BARBARIAN,
       NON_PM, 5000L, NO_COLOR),
+
+    /* Convict role quest artifact. Provides magic resistance when carried,
+     * invoke to phase through walls like a xorn.
+     */
+    A("The Iron Ball of Liberation", HEAVY_IRON_BALL,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL),
+      (SPFX_STLTH | SPFX_SEARCH | SPFX_WARN), 0,
+      NO_ATTK, NO_DFNS, CARY(AD_MAGM), PHASING,
+      A_NEUTRAL, PM_PRISONER, NON_PM, 10000L, NO_COLOR),
 
     /*
      *  terminator; otyp must be zero

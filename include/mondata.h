@@ -139,6 +139,11 @@
 #define has_beak(ptr) (is_bird(ptr) || (ptr) == &mons[PM_TENGU] \
                        || (ptr) == &mons[PM_VROCK]              \
                        || (ptr) == &mons[PM_FELL_BEAST])
+# define is_rat(ptr) ((ptr) == &mons[PM_SEWER_RAT]       \
+                      || (ptr) == &mons[PM_GIANT_RAT]    \
+                      || (ptr) == &mons[PM_RABID_RAT]    \
+                      || (ptr) == &mons[PM_ENORMOUS_RAT] \
+                      || (ptr) == &mons[PM_RODENT_OF_UNUSUAL_SIZE])
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
@@ -301,7 +306,8 @@
 #define befriend_with_obj(ptr, obj) \
     (((ptr) == &mons[PM_MONKEY] || (ptr) == &mons[PM_APE])               \
      ? (obj)->otyp == BANANA                                             \
-     : (is_domestic(ptr) && (obj)->oclass == FOOD_CLASS                  \
+     : ((is_domestic(ptr) || (is_rat(ptr) && Role_if(PM_CONVICT)))       \
+        && (obj)->oclass == FOOD_CLASS                                   \
         && ((ptr)->mlet != S_UNICORN                                     \
             || obj->material == VEGGY                                    \
             || ((obj)->otyp == CORPSE && (obj)->corpsenm == PM_LICHEN))))

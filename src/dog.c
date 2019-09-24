@@ -168,6 +168,8 @@ makedog()
         petname = dogname;
     else if (pettype == PM_PSEUDODRAGON)
         petname = pseudoname;
+    else if (pettype == PM_SEWER_RAT)
+        petname = ratname;
     else if (pettype == PM_PONY) {
         petname = horsename;
 	/* hijack creation for chaotic knights */
@@ -189,6 +191,9 @@ makedog()
             petname = "Idefix"; /* Obelix */
         if (Role_if(PM_RANGER))
             petname = "Sirius"; /* Orion's dog */
+    } else if (!*petname && pettype == PM_SEWER_RAT) {
+	if (Role_if(PM_CONVICT))
+            petname = "Nicodemus"; /* Rats of NIMH */
     }
 
     mtmp = makemon(&mons[pettype], u.ux, u.uy, MM_EDOG);
@@ -933,6 +938,12 @@ register struct obj *obj;
     if (flags.moonphase == FULL_MOON && night() && rn2(6) && obj
         && mtmp->data->mlet == S_DOG)
         return FALSE;
+
+    if (Role_if(PM_CONVICT) && (is_domestic(mtmp->data) && obj)) {
+        /* Domestic animals are wary of the Convict */
+        pline("%s still looks wary of you.", Monnam(mtmp));
+        return FALSE;
+    }
 
     /* If we cannot tame it, at least it's no longer afraid. */
     mtmp->mflee = 0;

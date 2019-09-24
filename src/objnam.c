@@ -4447,6 +4447,10 @@ struct obj *no_wish;
                 case ART_SCEPTRE_OF_MIGHT:
                     pm = PM_HUMAN_CAVEWOMAN;
                     break;
+                case ART_LUCK_BLADE:
+                case ART_IRON_BALL_OF_LIBERATION:
+                    pm = PM_HUMAN_CONVICT;
+                    break;
                 case ART_STAFF_OF_AESCULAPIUS:
                     pm = PM_HUMAN_HEALER;
                     break;

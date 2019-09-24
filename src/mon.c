@@ -303,6 +303,9 @@ int mndx, mode;
     case PM_NEANDERTHAL:
         mndx = mode ? PM_HUMAN_CAVEWOMAN : PM_HUMAN;
         break;
+    case PM_INMATE:
+        mndx = mode ? PM_HUMAN_CONVICT : PM_HUMAN;
+        break;
     case PM_ATTENDANT:
         mndx = mode ? PM_HUMAN_HEALER : PM_HUMAN;
         break;

@@ -175,6 +175,7 @@ struct trobj {
 extern struct trobj Archeologist[];
 extern struct trobj Barbarian[];
 extern struct trobj Cave_man[];
+extern struct trobj Convict[];
 extern struct trobj Healer[];
 extern struct trobj Knight[];
 extern struct trobj Monk[];
@@ -465,6 +466,11 @@ register struct monst *mtmp;
 	    Cave_man[C_AMMO].trquan = rn1(11, 10);	/* 10..20 */
 	    ini_mon_inv(mtmp, Cave_man, 1);
 	    break;
+        case PM_HUMAN_CONVICT:
+            ini_mon_inv(mtmp, Convict, 1);
+            mongets(mtmp, SKELETON_KEY);
+            mongets(mtmp, GRAPPLING_HOOK);
+            break;
 	case PM_HUMAN_HEALER:
 	    mkmonmoney(mtmp, (long) rn1(1000, 1001));
 	    ini_mon_inv(mtmp, Healer, 1);
@@ -763,6 +769,7 @@ register struct monst *mtmp;
                 w1 = rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
                 mongets(mtmp, SKELETON_KEY);
                 break;
+            case PM_PRISON_GUARD:
             case PM_WATCH_CAPTAIN:
                 w1 = rn2(2) ? LONG_SWORD : SABER;
                 mongets(mtmp, SKELETON_KEY);
@@ -1013,6 +1020,11 @@ register struct monst *mtmp;
             } else {
                 (void) mongets(mtmp, !rn2(3) ? PICK_AXE : DAGGER);
             }
+        } else if (mm == PM_MINER) {
+            (void)mongets(mtmp, PICK_AXE);
+            otmp = mksobj(LANTERN, TRUE, FALSE);
+            (void) mpickobj(mtmp, otmp);
+            begin_burn(otmp, FALSE);
         }
         break;
     case S_KOP:
@@ -1253,6 +1265,9 @@ register struct monst *mtmp;
             switch (monsndx(ptr)) {
             case PM_GUARD:
                 mac = -1;
+                break;
+            case PM_PRISON_GUARD:
+                mac = -2;
                 break;
             case PM_HUMAN_SOLDIER:
                 mac = 3;

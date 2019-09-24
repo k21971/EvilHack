@@ -1727,7 +1727,9 @@ boolean at_stairs, falling, portal;
                     You("fly down %s.",
                         at_ladder ? "along the ladder" : "the stairs");
             } else if (near_capacity() > UNENCUMBERED
-                       || Punished || Fumbling) {
+                       || (Punished && ((uwep != uball)
+                       || ((P_SKILL(P_FLAIL) < P_BASIC))
+                       || !Role_if(PM_CONVICT))) || Fumbling) {
                 You("fall down the %s.", at_ladder ? "ladder" : "stairs");
                 if (Punished) {
                     drag_down();

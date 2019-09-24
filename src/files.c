@@ -2524,6 +2524,8 @@ char *origbuf;
         (void) strncpy(dogname, bufp, PL_PSIZ - 1);
     } else if (match_varname(buf, "CATNAME", 3)) {
         (void) strncpy(catname, bufp, PL_PSIZ - 1);
+    } else if (match_varname(buf, "RATNAME", 3)) {
+	(void) strncpy(ratname, bufp, PL_PSIZ - 1);
 
 #ifdef SYSCF
     } else if (src == SET_IN_SYS && match_varname(buf, "WIZARDS", 7)) {

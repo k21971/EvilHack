@@ -25,7 +25,7 @@ TILE2X11 = $(UTL)tile2x11.exe;
 UTILMARKER = $(UTL)util.timestamp;
 
 # note: filespecs have enough punctuation to satisfy DELETE
-MARKERS = spec_levs.timestamp;,quest_levs.timestamp; 
+MARKERS = spec_levs.timestamp;,quest_levs.timestamp;
 VARDAT	= data.;,rumors.;,quest.dat;,oracles.;,options.;,\
 	engrave.;,epitaph.;,bogusmon.;
 DUNGEON = dungeon.;
@@ -33,7 +33,7 @@ X11TILES= x11tiles.;
 # note: the level lists need to be space separated for use as-is by $(LEVCOMP)
 QUESTLEVS = Arch.des Barb.des Caveman.des Healer.des Knight.des \
 	Monk.des Priest.des Ranger.des Rogue.des Samurai.des Tourist.des \
-	Valkyrie.des Wizard.des
+	Valkyrie.des Wizard.des Convict.des
 SPECLEVS  = bigroom.des castle.des endgame.des gehennom.des knox.des \
 	medusa.des mines.des oracle.des sokoban.des tower.des yendor.des
 
