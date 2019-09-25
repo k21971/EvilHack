@@ -1279,31 +1279,32 @@ int how;
         pline("But wait...");
         makeknown(AMULET_OF_LIFE_SAVING);
         Your("medallion %s!", !Blind ? "begins to glow" : "feels warm");
-	if (uamul->cursed) {
+        if (uamul->cursed) {
 	    Your("medallion %s!", !Blind ? "glows white-hot" : "sears your neck");
             You("hear manic laughter in the distance...");
-	    Your("medallion turns to ash!");
-	    pline("It appears your luck has run out...");
+            Your("medallion turns to ash!");
+            pline("It appears your luck has run out...");
             killer.format = KILLED_BY;
-	    Strcpy(killer.name, "a cursed amulet of life saving");
-	    survive = FALSE;
-	    uamul = 0;
-    } else {
-        if (how == CHOKING)
-            You("vomit ...");
-        You_feel("much better!");
-        pline_The("medallion crumbles to dust!");
-        if (uamul)
-            useup(uamul);
-
-        (void) adjattrib(A_CON, -1, TRUE);
-        savelife(how);
-        if (how == GENOCIDED) {
-            pline("Unfortunately you are still genocided...");
+            Strcpy(killer.name, "a cursed amulet of life saving");
+            survive = FALSE;
+            if (uamul)
+                useup(uamul);
         } else {
-            livelog_write_string(LL_LIFESAVE, "averted death");
-            ukiller = (struct monst*) 0;
-            survive = TRUE;
+            if (how == CHOKING)
+                You("vomit ...");
+            You_feel("much better!");
+            pline_The("medallion crumbles to dust!");
+            if (uamul)
+                useup(uamul);
+
+            (void) adjattrib(A_CON, -1, TRUE);
+            savelife(how);
+            if (how == GENOCIDED) {
+                pline("Unfortunately you are still genocided...");
+            } else {
+                livelog_write_string(LL_LIFESAVE, "averted death");
+                ukiller = (struct monst*) 0;
+                survive = TRUE;
             }
         }
     }
