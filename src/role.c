@@ -92,7 +92,7 @@ const struct Role roles[] = {
       S_OGRE,
       S_TROLL,
       ART_RING_OF_P_HUL,
-      MH_HUMAN | MH_ORC | MH_GIANT | MH_CENTAUR,
+      MH_HUMAN | MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 16, 7, 7, 15, 16, 6 },
