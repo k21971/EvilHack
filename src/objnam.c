@@ -3267,7 +3267,8 @@ struct obj *no_wish;
                 || !strncmpi(bp, "gold dragon", l = 11)
                 || !strcmp(bp, "gold")
                 || !strncmpi(bp, "platinum yendorian express card", l = 31)
-                || !strncmpi(bp, "iron bars", l = 9)) {
+                || !strncmpi(bp, "iron bars", l = 9)
+                || !strncmpi(bp, "iron ball of liberation", l = 23)) {
                 /* hack so that gold/silver dragon scales/mail doesn't get
                  * interpreted as silver, or a wish for just "gold" doesn't get
                  * interpreted as gold */

@@ -1347,6 +1347,9 @@ const char *name;
         case ART_DRAGONBANE:
             set_material(obj, DRAGON_HIDE);
             break;
+        case ART_IRON_BALL_OF_LIBERATION:
+            set_material(obj, IRON);
+            break;
         default:
             /* prevent any wishes for materials on an artifact */
             set_material(obj, objects[obj->otyp].oc_material);
