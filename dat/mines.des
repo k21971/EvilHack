@@ -1269,18 +1269,19 @@ MONSTER:'e',random
 
 # "Orc Temple" by Khor
 # In this variant of the mines end a group of orcs have found a randomly generated figurine of a demon and worship it
+# Slightly modified from the original
 #
 MAZE:"minend-4",' '
 FLAGS:nommap
 GEOMETRY:center,center
 MAP
                                                                    |-----|
-                                             -------              |-LLLLL-|
-                         ---------------     |.....|             |-LL...LL-|
-                        -|..|..........|     |.....|        -----|LL.....LL|
+                                             -------        ----- |-LLLLL-|
+                         ---------------     |.....|        |...||-LL...LL-|
+                        -|..|..........|     |.....|        |...||LL.....LL|
                        -|...F..........|     |.....|        |...||L.......L|
-         |-------|    -|....|-+------+-|    ----+----       |...||L.......L|
-        |-.......-|  -|.....F..........|----|.......|---------+---L.......L|
+         |-------|    -|....|-+------+-|    ----+----       |LLL||L.......L|
+        |-.......-|  -|.....F..........|----|.......|---------S---L.......L|
  -------|.........|--|.....--...............F.......F.....||.....|LL.....LL|
 -|..........}}}...........-|..............................--.....|-LL...LL-|
 |...........}{}...........+...............................+......||-LL.LL-|
@@ -1342,7 +1343,7 @@ DOOR:closed,(70,10)
 TRAP:"spear",random
 TRAP:"board",random
 OBJECT:('?', "scare monster"),(70,5),cursed
-ENGRAVING:(70,5),burn,"Elbereth"
+ENGRAVING:(70,5),burn,"Moloch"
 OBJECT:('(',"figurine"),(70,5),cursed,montype:"balrog",1
 OBJECT:('*',"luckstone"),$stones[0]
 OBJECT:('*',"flint"),$stones[1]
@@ -1386,12 +1387,15 @@ OBJECT:('`',"statue"),(29,15),montype:"mordor orc",1
 OBJECT:('`',"statue"),(32,15),montype:"hill orc",1
 OBJECT:('`',"statue"),(35,15),montype:"orc-captain",1
 OBJECT:('`',"statue"),(38,15),montype:"orc shaman",1
-OBJECT:('(',"chest"),(61,4)
-OBJECT:('(',"iron safe"),(62,4)
-OBJECT:('(',"chest"),(63,4)
+OBJECT:('(',"iron safe"),(61,2)
+OBJECT:('(',"iron safe"),(63,2)
 ALTAR:(48,2),noalign,shrine
 ALTAR:(48,16),noalign,shrine
 ALTAR:(56,9),noalign,shrine
+ALTAR:(62,2),noncoaligned,shrine
+ENGRAVING:(62,2),burn,"Elbereth"
+MONSTER:('@',"elven wizard"),(61,3),asleep
+MONSTER:('@',"green-elf"),(63,3),asleep
 FORGE:(48,9)
 DOOR:closed,(58,9)
 DOOR:closed,(26,9)
