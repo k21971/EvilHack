@@ -103,7 +103,7 @@ dowaternymph()
         You_hear("a loud pop.");
 }
 
-/* Fire elemental */
+/* Lava Demon */
 STATIC_OVL void
 dolavademon()
 {
@@ -122,7 +122,7 @@ dolavademon()
             if (rnd(100) > (80 + level_difficulty())) {
                 pline("Freed from the depths of Gehennom, %s offers to aid you in your quest!",
                       mhe(mtmp));
-                mtmp->mtame = 1;
+                (void) tamedog(mtmp, (struct obj *) 0);
             } else if (t_at(mtmp->mx, mtmp->my))
                 (void) mintrap(mtmp);
         }
