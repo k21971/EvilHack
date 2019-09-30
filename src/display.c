@@ -277,6 +277,8 @@ void
 map_invisible(x, y)
 register xchar x, y;
 {
+    if (has_erid(m_at(x, y)) && mon_visible(ERID(m_at(x, y))->m1))
+        return;
     if (x != u.ux || y != u.uy) { /* don't display I at hero's location */
         if (level.flags.hero_memory)
             levl[x][y].glyph = GLYPH_INVISIBLE;
@@ -806,6 +808,8 @@ register int x, y;
                 display_monster(x, y, mon,
                                 see_it ? PHYSICALLY_SEEN : DETECTED,
                                 worm_tail);
+            } else if (mon && !mon_visible(mon) && has_erid(mon) && mon_visible(ERID(mon)->m1)) {
+                display_monster(x, y, ERID(mon)->m1, PHYSICALLY_SEEN, FALSE);
             } else if (mon && mon_warning(mon) && !is_worm_tail(mon)) {
                 display_warning(mon);
             } else if (glyph_is_invisible(lev->glyph)) {

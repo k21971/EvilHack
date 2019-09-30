@@ -137,7 +137,8 @@ struct obj *wep; /* uwep for attack(), null for kick_monster() */
      */
     if (!canspotmon(mtmp)
         && !glyph_is_warning(glyph) && !glyph_is_invisible(glyph)
-        && !(!Blind && mtmp->mundetected && hides_under(mtmp->data))) {
+        && !(!Blind && mtmp->mundetected && hides_under(mtmp->data)
+        && !has_erid(mtmp))) {
         pline("Wait!  There's %s there you can't see!", something);
         map_invisible(bhitpos.x, bhitpos.y);
         /* if it was an invisible mimic, treat it as if we stumbled

@@ -281,9 +281,10 @@ int x, y;
                     ? "peaceful "
                     : "",
             name);
-    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1) {
+    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1)
         Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->m1));
-    }
+    if (mtmp->monmount)
+        Sprintf(eos(buf), ", being ridden");
     if (u.ustuck == mtmp) {
         if (u.uswallow || iflags.save_uswallow) /* monster detection */
             Strcat(buf, is_animal(mtmp->data)
