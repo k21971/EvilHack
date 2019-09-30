@@ -1752,7 +1752,8 @@ int part;
         return bird_parts[part];
     if (has_beak(mptr) && part == NOSE)
         return "beak";
-    if (mptr->mlet == S_CENTAUR || mptr->mlet == S_UNICORN
+    if (mptr->mlet == S_CENTAUR || Race_if(PM_CENTAUR)
+        || mptr->mlet == S_UNICORN
         || (mptr == &mons[PM_ROTHE] && part != HAIR))
         return horse_parts[part];
     if (mptr->mlet == S_LIGHT) {
