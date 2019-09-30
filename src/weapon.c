@@ -648,18 +648,17 @@ register struct monst *mtmp;
     mwep = MON_WEP(mtmp);
     /* NO_WEAPON_WANTED means we already tried to wield and failed */
     mweponly = (mwelded(mwep) && mtmp->weapon_check == NO_WEAPON_WANTED);
-   	/* This check is disabled, as it's targeted towards attacking you
-   	   and not any arbitrary target. */
-   	/* if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 13 && couldsee(mtmp->mx, mtmp->my)) */
-   	{
+
+    if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 5
+        && couldsee(mtmp->mx, mtmp->my)) {
         for (i = 0; i < SIZE(pwep); i++) {
             /* Only strong monsters can wield big (esp. long) weapons.
              * Big weapon is basically the same as bimanual.
              * All monsters can wield the remaining weapons.
              */
             if ((strongmonst(mtmp->data)
-                  && (mtmp->misc_worn_check & W_ARMS) == 0)
-                 || !objects[pwep[i]].oc_bimanual) {
+                && (mtmp->misc_worn_check & W_ARMS) == 0)
+                || !objects[pwep[i]].oc_bimanual) {
                 if ((otmp = oselect(mtmp, pwep[i])) != 0
                     && (otmp == mwep || !mweponly)
                     && !mon_hates_material(mtmp, otmp->material)) {
@@ -710,7 +709,8 @@ register struct monst *mtmp;
             case P_CROSSBOW:
                 propellor = oselect(mtmp, CROSSBOW);
             }
-            if (!tmpprop) tmpprop = propellor;
+            if (!tmpprop)
+                tmpprop = propellor;
             if ((otmp = MON_WEP(mtmp)) && mwelded(otmp) && otmp != propellor
                 && mtmp->weapon_check == NO_WEAPON_WANTED)
                 propellor = 0;
@@ -738,7 +738,8 @@ register struct monst *mtmp;
     }
 
     /* failure */
-    if (tmpprop) propellor = tmpprop;
+    if (tmpprop)
+        propellor = tmpprop;
     return (struct obj *) 0;
 }
 
