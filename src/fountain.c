@@ -9,7 +9,7 @@
 STATIC_DCL void NDECL(dowatersnakes);
 STATIC_DCL void NDECL(dowaterdemon);
 STATIC_DCL void NDECL(dowaternymph);
-STATIC_DCL void NDECL(dofireelemental);
+STATIC_DCL void NDECL(dolavademon);
 STATIC_PTR void FDECL(gush, (int, int, genericptr_t));
 STATIC_DCL void NDECL(dofindgem);
 STATIC_DCL void FDECL(blowupforge, (int, int));
@@ -105,12 +105,12 @@ dowaternymph()
 
 /* Fire elemental */
 STATIC_OVL void
-dofireelemental()
+dolavademon()
 {
     struct monst *mtmp;
 
-    if (!(mvitals[PM_FIRE_ELEMENTAL].mvflags & G_GONE)) {
-        if ((mtmp = makemon(&mons[PM_FIRE_ELEMENTAL], u.ux, u.uy,
+    if (!(mvitals[PM_LAVA_DEMON].mvflags & G_GONE)) {
+        if ((mtmp = makemon(&mons[PM_LAVA_DEMON], u.ux, u.uy,
                             NO_MM_FLAGS)) != 0) {
             if (!Blind)
                 You("summon %s!", a_monnam(mtmp));
@@ -120,9 +120,9 @@ dofireelemental()
             /* Give those on low levels a (slightly) better chance of survival
              */
             if (rnd(100) > (80 + level_difficulty())) {
-                pline("Freed from the Plane of Fire, %s offers to aid you in your quest!",
+                pline("Freed from the depths of Gehennom, %s offers to aid you in your quest!",
                       mhe(mtmp));
-                (void) tamedog(mtmp, (struct obj *) 0);
+                mtmp->mtame = 1;
             } else if (t_at(mtmp->mx, mtmp->my))
                 (void) mintrap(mtmp);
         }
@@ -253,8 +253,8 @@ register struct obj *obj;
 {
     burn_away_slime();
     switch (rnd(30)) {
+        case 20:
         case 21:
-        case 22:
             if (!obj->blessed && Luck > 5) {
                 bless(obj);
                 if (!Blind) {
@@ -263,10 +263,11 @@ register struct obj *obj;
                 }
             }
             break;
-        case 23:
-        case 24: /* Fire elemental */
-            dofireelemental();
+        case 22:
+        case 23: /* Lava Demon */
+            dolavademon();
             break;
+        case 24:
         case 25:
         case 26:
             if (!is_metallic(obj))
@@ -290,7 +291,12 @@ register struct obj *obj;
             }
             break;
         case 27:
-            blowupforge(u.ux, u.uy);
+            if (Luck < 1) {
+                blowupforge(u.ux, u.uy);
+            } else {
+               pline("Molten lava surges up and splashes all over you!");
+               losehp(resist_reduce(d(2, 6), FIRE_RES), "dipping into a forge", KILLED_BY);
+            }
             break;
         case 28: /* Strange feeling */
             pline("A weird sensation runs up your %s.", body_part(ARM));
