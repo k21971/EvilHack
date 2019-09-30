@@ -253,20 +253,23 @@ register struct obj *obj;
 {
     burn_away_slime();
     switch (rnd(30)) {
+        case 19:
         case 20:
-        case 21:
             if (!obj->blessed && Luck > 5) {
                 bless(obj);
                 if (!Blind) {
                     Your("%s glows blue for a moment.",
                          xname(obj));
                 }
+            } else {
+                You_feel("a sudden wave of heat.");
             }
             break;
-        case 22:
-        case 23: /* Lava Demon */
+        case 21:
+        case 22: /* Lava Demon */
             dolavademon();
             break;
+        case 23:
         case 24:
         case 25:
         case 26:
