@@ -205,9 +205,10 @@ struct monst {
 
 #define DEADMONSTER(mon) ((mon)->mhp < 1)
 #define is_starting_pet(mon) ((mon)->m_id == context.startingpet_mid)
-#define is_vampshifter(mon)                                      \
-    ((mon)->cham == PM_VAMPIRE || (mon)->cham == PM_VAMPIRE_LORD \
-     || (mon)->cham == PM_VAMPIRE_MAGE                           \
+#define is_vampshifter(mon) \
+    ((mon)->cham == PM_VAMPIRE || (mon)->cham == PM_VAMPIRE_LORD          \
+     || (mon)->cham == PM_VAMPIRE_LADY || (mon)->cham == PM_VAMPIRE_KING  \
+     || (mon)->cham == PM_VAMPIRE_QUEEN || (mon)->cham == PM_VAMPIRE_MAGE \
      || (mon)->cham == PM_VLAD_THE_IMPALER)
 #define is_changeling(mon)                                          \
     ((mon)->cham == PM_CHAMELEON || (mon)->cham == PM_DOPPELGANGER  \
