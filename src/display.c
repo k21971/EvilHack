@@ -808,6 +808,8 @@ register int x, y;
                 display_monster(x, y, mon,
                                 see_it ? PHYSICALLY_SEEN : DETECTED,
                                 worm_tail);
+            } else if (mon && !mon_visible(mon) && has_erid(mon) && mon_visible(ERID(mon)->m1)) {
+                display_monster(x, y, ERID(mon)->m1, PHYSICALLY_SEEN, FALSE);
             } else if (mon && mon_warning(mon) && !is_worm_tail(mon)) {
                 display_warning(mon);
             } else if (glyph_is_invisible(lev->glyph)) {

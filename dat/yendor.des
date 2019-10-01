@@ -48,7 +48,7 @@ NON_PASSWALL:(21,00,27,10)
 # The wizard and his guards
 MONSTER:('@',"Wizard of Yendor"),(16,05),asleep
 MONSTER:('d',"hell hound"),(15,05)
-MONSTER:('V',"vampire lord"),(17,05)
+MONSTER:('V',"vampire king"),(17,05)
 # The local treasure
 OBJECT:('+',"Book of the Dead"),(16,05)
 # Surrounding terror
@@ -242,7 +242,7 @@ PORTAL:(4,4,4,4),(0,0,0,0),"wizard3"
 MAZEWALK:(08,05),east
 REGION:(04,03,06,06),unlit,"ordinary",unfilled,irregular
 MONSTER:'L',(04,04)
-MONSTER:('V',"vampire lord"),(03,04)
+MONSTER:('V',"vampire lady"),(03,04)
 MONSTER:(';',"kraken"),(06,06)
 # And to make things a little harder.
 TRAP:"board",(04,03)
@@ -270,7 +270,7 @@ TELEPORT_REGION:levregion(01,00,79,20),(2,2,6,6)
 MAZEWALK:(08,05),east
 REGION:(04,03,06,06),unlit,"ordinary",unfilled,irregular
 MONSTER:'L',(04,04)
-MONSTER:('V',"vampire lord"),(03,04)
+MONSTER:('V',"vampire queen"),(03,04)
 MONSTER:(';',"kraken"),(06,06)
 # And to make things a little harder.
 TRAP:"board",(04,03)

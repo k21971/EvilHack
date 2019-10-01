@@ -174,7 +174,7 @@ makedog()
         petname = horsename;
 	/* hijack creation for chaotic knights */
 	if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)) {
-            pettype = PM_NIGHTMARE;
+            pettype = PM_LESSER_NIGHTMARE;
 	}
     }
     else
@@ -203,7 +203,7 @@ makedog()
 
     context.startingpet_mid = mtmp->m_id;
     /* Horses already wear a saddle */
-    if ((pettype == PM_PONY || pettype == PM_NIGHTMARE)
+    if ((pettype == PM_PONY || pettype == PM_LESSER_NIGHTMARE)
         && !!(otmp = mksobj(SADDLE, TRUE, FALSE))) {
         otmp->dknown = otmp->bknown = otmp->rknown = 1;
         put_saddle_on_mon(otmp, mtmp);
@@ -989,7 +989,8 @@ register struct obj *obj;
         /* monsters with conflicting structures cannot be tamed */
         || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion
         || is_covetous(mtmp->data) || is_human(mtmp->data)
-        || (is_demon(mtmp->data) && !is_demon(youmonst.data))
+        || (is_demon(mtmp->data) && mtmp->data != &mons[PM_LAVA_DEMON]
+            && !is_demon(youmonst.data))
         || (obj && dogfood(mtmp, obj) >= MANFOOD))
         return FALSE;
 

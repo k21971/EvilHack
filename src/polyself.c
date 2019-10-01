@@ -1752,7 +1752,8 @@ int part;
         return bird_parts[part];
     if (has_beak(mptr) && part == NOSE)
         return "beak";
-    if (mptr->mlet == S_CENTAUR || mptr->mlet == S_UNICORN
+    if (mptr->mlet == S_CENTAUR || Race_if(PM_CENTAUR)
+        || mptr->mlet == S_UNICORN
         || (mptr == &mons[PM_ROTHE] && part != HAIR))
         return horse_parts[part];
     if (mptr->mlet == S_LIGHT) {
@@ -1896,6 +1897,9 @@ polysense()
         break;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LORD:
+    case PM_VAMPIRE_LADY:
+    case PM_VAMPIRE_KING:
+    case PM_VAMPIRE_QUEEN:
     case PM_VAMPIRE_MAGE:
         context.warntype.polyd = MH_HUMAN | MH_ELF;
         HWarn_of_mon |= FROMRACE;

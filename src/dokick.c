@@ -1106,12 +1106,17 @@ dokick()
             You("kick %s.", (Blind ? something : "the forge"));
             if (!rn2(3))
                 goto ouch;
-            /* make metal boots burn */
-            if (uarmf && rn2(3))
-                if (fire_damage(uarmf, FALSE, u.ux, u.uy)) {
+            if (rn2(2)) {
+                if (uarmf) {
                     pline("Molten lava from the forge splashes onto your boots.");
-                    /* could cause short-lived fumbling here */
+                    fire_damage(uarmf, FALSE, u.ux, u.uy);
+                } else {
+                    pline("Molten lava from the forge splashes onto your %s!",
+                          body_part(FOOT));
+                    losehp(resist_reduce(d(2, 6), FIRE_RES),
+                           "molten lava from kicking a forge", KILLED_BY);
                 }
+            }
             exercise(A_DEX, TRUE);
             return 1;
         }
