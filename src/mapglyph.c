@@ -167,6 +167,8 @@ unsigned *ospecial;
                 color = CLR_BRIGHT_GREEN;
             else if (*in_rooms(x, y, VAULT))
                 color = HI_METAL;
+            else if (*in_rooms(x, y, OWLBNEST))
+                color = CLR_BLACK;
             else
                 cmap_color(offset);
         }

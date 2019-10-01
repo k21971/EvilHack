@@ -80,6 +80,9 @@ int roomtype;
         case ANTHOLE:
             mkzoo(ANTHOLE);
             break;
+        case OWLBNEST:
+            mkzoo(OWLBNEST);
+            break;
         default:
             impossible("Tried to make a room of type %d.", roomtype);
         }
@@ -127,6 +130,10 @@ mkshop()
             }
             if (*ep == 'l' || *ep == 'L') {
                 mkzoo(LEPREHALL);
+                return;
+            }
+            if (*ep == 'y' || *ep == 'Y') {
+                mkzoo(OWLBNEST);
                 return;
             }
             if (*ep == '_') {
@@ -269,6 +276,7 @@ fill_zoo(sroom)
 struct mkroom *sroom;
 {
     struct monst *mon;
+    struct obj *oegg;
     register int sx, sy, i;
     int sh, tx = 0, ty = 0, goldlim = 0, type = sroom->rtype;
     int rmno = (int) ((sroom - rooms) + ROOMOFFSET);
@@ -292,11 +300,12 @@ struct mkroom *sroom;
     throne_placed:
         mk_zoo_thronemon(tx, ty);
         break;
+    case OWLBNEST:
     case BEEHIVE:
         tx = sroom->lx + (sroom->hx - sroom->lx + 1) / 2;
         ty = sroom->ly + (sroom->hy - sroom->ly + 1) / 2;
         if (sroom->irregular) {
-            /* center might not be valid, so put queen elsewhere */
+            /* center might not be valid, so put queen/mother elsewhere */
             if ((int) levl[tx][ty].roomno != rmno || levl[tx][ty].edge) {
                 (void) somexy(sroom, &mm);
                 tx = mm.x;
@@ -344,7 +353,11 @@ struct mkroom *sroom;
                                              ? &mons[PM_COCKATRICE]
                                              : (type == ANTHOLE)
                                                  ? antholemon()
-                                                 : (struct permonst *) 0,
+                                                 : (type == OWLBNEST)
+                                                     ? (sx == tx && sy == ty
+                                                         ? &mons[PM_OWLBEAR]
+                                                         : &mons[PM_BABY_OWLBEAR])
+                                                     : (struct permonst *) 0,
                           sx, sy, MM_ASLEEP);
             if (mon) {
                 mon->msleeping = 1;
@@ -400,6 +413,12 @@ struct mkroom *sroom;
             case ANTHOLE:
                 if (!rn2(3))
                     (void) mkobj_at(FOOD_CLASS, sx, sy, FALSE);
+                break;
+            case OWLBNEST:
+                if (!rn2(5)) {
+                    oegg = mksobj_at(EGG, sx, sy, TRUE, FALSE);
+                    set_corpsenm(oegg, PM_OWLBEAR);
+                }
                 break;
             }
         }

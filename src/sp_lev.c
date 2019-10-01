@@ -2541,6 +2541,7 @@ boolean prefilled;
         case LEPREHALL:
         case MORGUE:
         case BARRACKS:
+        case OWLBNEST:
             fill_zoo(croom);
             break;
         }

@@ -2662,6 +2662,9 @@ register boolean newlev;
         case ANTHOLE:
             You("enter an anthole!");
             break;
+        case OWLBNEST:
+            You("enter an owlbear nest!");
+            break;
         case BARRACKS:
             if (monstinroom(&mons[PM_HUMAN_SOLDIER], roomno)
                 || monstinroom(&mons[PM_ELVEN_SOLDIER], roomno)

@@ -138,6 +138,8 @@
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
 #define has_beak(ptr) (is_bird(ptr) || (ptr) == &mons[PM_TENGU] \
                        || (ptr) == &mons[PM_VROCK]              \
+                       || (ptr) == &mons[PM_BABY_OWLBEAR]       \
+                       || (ptr) == &mons[PM_OWLBEAR]            \
                        || (ptr) == &mons[PM_FELL_BEAST])
 # define is_rat(ptr) ((ptr) == &mons[PM_SEWER_RAT]       \
                       || (ptr) == &mons[PM_GIANT_RAT]    \
