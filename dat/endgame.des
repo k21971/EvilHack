@@ -324,7 +324,7 @@ MONSTER:('s',"scorpion"),random
 MONSTER:('H',"fire giant"),random
 #
 MONSTER:('d',"hell hound"),random
-MONSTER:('v',"dust vortex"),random
+MONSTER:('&',"lava demon"),random
 MONSTER:('v',"fire vortex"),random
 MONSTER:('E',"fire elemental"),random,hostile
 MONSTER:('E',"fire elemental"),random,hostile
@@ -332,8 +332,8 @@ MONSTER:('E',"fire elemental"),random,hostile
 MONSTER:('d',"hell hound"),random
 MONSTER:('E',"fire elemental"),random,hostile
 MONSTER:(''',"stone golem"),random
-MONSTER:('S',"pit viper"),random
-MONSTER:('S',"pit viper"),random
+MONSTER:('&',"lava demon"),random
+MONSTER:('&',"lava demon"),random
 MONSTER:('v',"fire vortex"),random
 #
 MONSTER:('E',"fire elemental"),random,hostile
@@ -344,7 +344,7 @@ MONSTER:('v',"fire vortex"),random
 MONSTER:('v',"fire vortex"),random
 MONSTER:('&',"pit fiend"),random
 MONSTER:('E',"fire elemental"),random,hostile
-MONSTER:('S',"pit viper"),random
+MONSTER:('&',"lava demon"),random
 #
 MONSTER:(':',"salamander"),random,hostile
 MONSTER:(':',"salamander"),random,hostile
