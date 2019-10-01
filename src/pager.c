@@ -268,6 +268,9 @@ int x, y;
     char *name, monnambuf[BUFSZ];
     boolean accurate = !Hallucination;
 
+    if (!mon_visible(mtmp) && has_erid(mtmp) && mon_visible(ERID(mtmp)->m1))
+        mtmp = ERID(mtmp)->m1;
+
     name = (mtmp->data == &mons[PM_COYOTE] && accurate)
               ? coyotename(mtmp, monnambuf)
               : distant_monnam(mtmp, ARTICLE_NONE, monnambuf);
