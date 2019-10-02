@@ -921,22 +921,22 @@ register struct monst *mtmp;
             (void) mongets(mtmp, TWO_HANDED_SWORD);
             struct obj* received = m_carrying(mtmp, TWO_HANDED_SWORD);
             if (received)
-                received->material = GOLD;
+                set_material(received, GOLD);
             int item = rn2(2) ? BANDED_MAIL : PLATE_MAIL;
             (void) mongets(mtmp, item);
             received = m_carrying(mtmp, item);
             if (received)
-                received->material = GOLD;
-            int item2 = rn2(2) ? HELMET : DWARVISH_HELM;
-            (void) mongets(mtmp, item2);
-            received = m_carrying(mtmp, item2);
+                set_material(received, GOLD);
+            item = rn2(2) ? HELMET : DWARVISH_HELM;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
             if (received)
-                received->material = GOLD;
-            int item3 = rn2(2) ? KICKING_BOOTS : DWARVISH_BOOTS;
-            (void) mongets(mtmp, item3);
-            received = m_carrying(mtmp, item3);
+                set_material(received, GOLD);
+            item = rn2(2) ? KICKING_BOOTS : DWARVISH_BOOTS;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
             if (received)
-                received->material = GOLD;
+                set_material(received, GOLD);
         }
         break;
 
