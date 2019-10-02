@@ -41,55 +41,63 @@ register struct obj *otmp;
     register struct obj *obj;
     register struct obj *best = (struct obj *)0;
 
-    if (otmp->oclass != ARMOR_CLASS) return FALSE;
+    if (otmp->oclass != ARMOR_CLASS)
+        return FALSE;
 
-    if (cantweararm(mtmp->data) &&
-        !(is_cloak(otmp) && mtmp->data->msize == MZ_SMALL))
+    if (cantweararm(mtmp->data)
+        && !(is_cloak(otmp) && mtmp->data->msize == MZ_SMALL))
         return FALSE;
 
     if (is_shirt(otmp) && (mtmp->misc_worn_check & W_ARM))
         return FALSE;
 
-    if (is_shield(otmp) &&
-        (mtmp == &youmonst) ? (uwep && bimanual(uwep))
- 	          : (MON_WEP(mtmp) && bimanual(MON_WEP(mtmp))))
-              return FALSE;
+    if (is_shield(otmp)
+        && (mtmp == &youmonst) ? (uwep && bimanual(uwep))
+ 	    : (MON_WEP(mtmp) && bimanual(MON_WEP(mtmp))))
+        return FALSE;
 
     if (is_gloves(otmp) && nohands(mtmp->data))
         return FALSE;
 
-    if (is_boots(otmp) &&
-        (slithy(mtmp->data) || mtmp->data->mlet == S_CENTAUR))
- 	      return FALSE;
+    if (is_boots(otmp)
+        && (slithy(mtmp->data) || mtmp->data->mlet == S_CENTAUR))
+ 	return FALSE;
 
-    if (is_helmet(otmp) &&
-          !is_flimsy(otmp) &&
- 	        num_horns(mtmp->data) > 0)
- 	      return FALSE;
+    if (is_helmet(otmp)
+        && !is_flimsy(otmp)
+ 	&& num_horns(mtmp->data) > 0)
+ 	return FALSE;
 
     obj = (mtmp == &youmonst) ? invent : mtmp->minvent;
 
     for (; obj; obj = obj->nobj) {
-        if (is_cloak(otmp)  && !is_cloak(obj) ) continue;
-        if (is_suit(otmp)   && !is_suit(obj)  ) continue;
-        if (is_shirt(otmp)  && !is_shirt(obj) ) continue;
-        if (is_boots(otmp)  && !is_boots(obj) ) continue;
-        if (is_shield(otmp) && !is_shield(obj)) continue;
-        if (is_helmet(otmp) && !is_helmet(obj)) continue;
-        if (is_gloves(otmp) && !is_gloves(obj)) continue;
+        if (is_cloak(otmp) && !is_cloak(obj))
+            continue;
+        if (is_suit(otmp) && !is_suit(obj))
+            continue;
+        if (is_shirt(otmp) && !is_shirt(obj))
+            continue;
+        if (is_boots(otmp) && !is_boots(obj))
+            continue;
+        if (is_shield(otmp) && !is_shield(obj))
+            continue;
+        if (is_helmet(otmp) && !is_helmet(obj))
+            continue;
+        if (is_gloves(otmp) && !is_gloves(obj))
+            continue;
 
- 	      if (!obj->owornmask) continue;
+        if (!obj->owornmask) continue;
 
-       	if (best &&
-       	    (ARM_BONUS(obj) +  extra_pref(mtmp,obj) >=
-       	      ARM_BONUS(best) + extra_pref(mtmp,best)))
+       	if (best
+       	    && (ARM_BONUS(obj) +  extra_pref(mtmp,obj) >=
+       	    ARM_BONUS(best) + extra_pref(mtmp,best)))
        	    best = obj;
     }
 
-    return ((best == (struct obj *)0) ||
- 	      (ARM_BONUS(otmp) + extra_pref(mtmp,otmp) >
+    return ((best == (struct obj *)0)
+ 	    || (ARM_BONUS(otmp) + extra_pref(mtmp,otmp) >
  	        ARM_BONUS(best) + extra_pref(mtmp,best)));
- }
+}
 
 /*
 * See if a monst could use this item in an offensive or defensive capacity.
@@ -102,74 +110,75 @@ boolean check_if_better;
 {
     boolean can_use =
         /* make sure this is an intelligent monster */
-        (mtmp && !is_animal(mtmp->data) && !mindless(mtmp->data) &&
- 	        !nohands(mtmp->data) && otmp &&
- 	      /* food */
-        ((dogfood(mtmp, otmp) < APPORT) ||
+        (mtmp && !is_animal(mtmp->data) && !mindless(mtmp->data)
+ 	 && !nohands(mtmp->data) && otmp
+ 	 /* food */
+         && ((dogfood(mtmp, otmp) < APPORT)
  	      /* better weapons */
- 	      (attacktype(mtmp->data, AT_WEAP) &&
- 	      (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) &&
- 		    (!check_if_better ||
- 		    would_prefer_hwep(mtmp, otmp) ||
- 		    would_prefer_rwep(mtmp, otmp))) ||
- 	      /* better armor */
- 	      (otmp->oclass == ARMOR_CLASS &&
- 	      (!check_if_better || is_better_armor(mtmp, otmp))) ||
- 	      /* useful amulets */
- 	      otmp->otyp == AMULET_OF_LIFE_SAVING ||
- 	      otmp->otyp == AMULET_OF_REFLECTION ||
-              otmp->otyp == AMULET_OF_FLYING ||
-	      /* bags */
-	      otmp->otyp == BAG_OF_HOLDING ||
-	      otmp->otyp == OILSKIN_SACK ||
-	      otmp->otyp == SACK ||
- 	      /* misc magic items that muse can use */
- 	      otmp->otyp == SCR_TELEPORTATION ||
-              otmp->otyp == SCR_EARTH ||
-              otmp->otyp == SCR_REMOVE_CURSE ||
-              otmp->otyp == SCR_CHARGING ||
-              otmp->otyp == SCR_FIRE ||
-              otmp->otyp == WAN_WISHING ||
- 	      otmp->otyp == WAN_DEATH ||
- 	      otmp->otyp == WAN_DIGGING ||
- 	      otmp->otyp == WAN_FIRE ||
- 	      otmp->otyp == WAN_COLD ||
- 	      otmp->otyp == WAN_LIGHTNING ||
- 	      otmp->otyp == WAN_MAGIC_MISSILE ||
- 	      otmp->otyp == WAN_STRIKING ||
- 	      otmp->otyp == WAN_TELEPORTATION ||
-	      otmp->otyp == WAN_POLYMORPH ||
-	      otmp->otyp == WAN_CANCELLATION ||
- 	      otmp->otyp == POT_HEALING ||
- 	      otmp->otyp == POT_EXTRA_HEALING ||
- 	      otmp->otyp == POT_FULL_HEALING ||
- 	      otmp->otyp == POT_PARALYSIS ||
- 	      otmp->otyp == POT_BLINDNESS ||
- 	      otmp->otyp == POT_CONFUSION ||
-              otmp->otyp == POT_HALLUCINATION ||
- 	      otmp->otyp == POT_ACID ||
-              otmp->otyp == POT_POLYMORPH ||
-              otmp->otyp == RIN_INVISIBILITY ||
-              otmp->otyp == RIN_FIRE_RESISTANCE ||
-              otmp->otyp == RIN_COLD_RESISTANCE ||
-              otmp->otyp == RIN_POISON_RESISTANCE ||
-              otmp->otyp == RIN_SHOCK_RESISTANCE ||
-              otmp->otyp == RIN_REGENERATION ||
-              otmp->otyp == RIN_TELEPORTATION ||
-              otmp->otyp == RIN_TELEPORT_CONTROL ||
-              otmp->otyp == RIN_SLOW_DIGESTION ||
-              otmp->otyp == RIN_INCREASE_DAMAGE ||
-              otmp->otyp == RIN_INCREASE_ACCURACY ||
-              otmp->otyp == RIN_PROTECTION ||
- 	      otmp->otyp == FROST_HORN ||
- 	      otmp->otyp == FIRE_HORN ||
-              otmp->otyp == MAGIC_HARP ||
-              otmp->otyp == DRUM_OF_EARTHQUAKE ||
-              otmp->otyp == FIGURINE ||
- 	      otmp->otyp == UNICORN_HORN));
+ 	     || (attacktype(mtmp->data, AT_WEAP)
+ 	     && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+             && (!check_if_better
+ 		 || would_prefer_hwep(mtmp, otmp)
+ 		 || would_prefer_rwep(mtmp, otmp)))
+ 	     /* better armor */
+ 	     || (otmp->oclass == ARMOR_CLASS
+ 	         && (!check_if_better || is_better_armor(mtmp, otmp)))
+ 	     /* useful amulets */
+ 	     || otmp->otyp == AMULET_OF_LIFE_SAVING
+ 	     || otmp->otyp == AMULET_OF_REFLECTION
+             || otmp->otyp == AMULET_OF_FLYING
+             || otmp->otyp == AMULET_OF_MAGIC_RESISTANCE
+	     /* bags */
+	     || otmp->otyp == BAG_OF_HOLDING
+	     || otmp->otyp == OILSKIN_SACK
+	     || otmp->otyp == SACK
+ 	     /* misc magic items that muse can use */
+ 	     || otmp->otyp == SCR_TELEPORTATION
+             || otmp->otyp == SCR_EARTH
+             || otmp->otyp == SCR_REMOVE_CURSE
+             || otmp->otyp == SCR_CHARGING
+             || otmp->otyp == SCR_FIRE
+             || otmp->otyp == SCR_STINKING_CLOUD
+             || otmp->otyp == WAN_WISHING
+ 	     || otmp->otyp == WAN_DEATH
+ 	     || otmp->otyp == WAN_DIGGING
+ 	     || otmp->otyp == WAN_FIRE
+ 	     || otmp->otyp == WAN_COLD
+ 	     || otmp->otyp == WAN_LIGHTNING
+ 	     || otmp->otyp == WAN_MAGIC_MISSILE
+ 	     || otmp->otyp == WAN_STRIKING
+ 	     || otmp->otyp == WAN_TELEPORTATION
+	     || otmp->otyp == WAN_POLYMORPH
+	     || otmp->otyp == WAN_CANCELLATION
+ 	     || otmp->otyp == POT_HEALING
+ 	     || otmp->otyp == POT_EXTRA_HEALING
+ 	     || otmp->otyp == POT_FULL_HEALING
+ 	     || otmp->otyp == POT_PARALYSIS
+ 	     || otmp->otyp == POT_BLINDNESS
+ 	     || otmp->otyp == POT_CONFUSION
+             || otmp->otyp == POT_HALLUCINATION
+ 	     || otmp->otyp == POT_ACID
+             || otmp->otyp == POT_POLYMORPH
+             || otmp->otyp == RIN_INVISIBILITY
+             || otmp->otyp == RIN_FIRE_RESISTANCE
+             || otmp->otyp == RIN_COLD_RESISTANCE
+             || otmp->otyp == RIN_POISON_RESISTANCE
+             || otmp->otyp == RIN_SHOCK_RESISTANCE
+             || otmp->otyp == RIN_REGENERATION
+             || otmp->otyp == RIN_TELEPORTATION
+             || otmp->otyp == RIN_TELEPORT_CONTROL
+             || otmp->otyp == RIN_SLOW_DIGESTION
+             || otmp->otyp == RIN_INCREASE_DAMAGE
+             || otmp->otyp == RIN_INCREASE_ACCURACY
+             || otmp->otyp == RIN_PROTECTION
+ 	     || otmp->otyp == FROST_HORN
+ 	     || otmp->otyp == FIRE_HORN
+             || otmp->otyp == MAGIC_HARP
+             || otmp->otyp == DRUM_OF_EARTHQUAKE
+             || otmp->otyp == FIGURINE
+ 	     || otmp->otyp == UNICORN_HORN));
 
-    if (can_use)
-    {
+    if (can_use) {
         /* arbitrary - greedy monsters keep any item you can use */
         if (likes_gold(mtmp->data))
             return TRUE;
@@ -184,13 +193,12 @@ boolean check_if_better;
        	    /* Check if you've got one.
        	       If you don't, don't hoard it. */
             register struct obj *otmp2;
-       	    for(otmp2 = invent; otmp2; otmp2 = otmp2->nobj)
+       	    for (otmp2 = invent; otmp2; otmp2 = otmp2->nobj)
        	        if (otmp->otyp == otmp2->otyp ||
        	            (otmp->otyp == FOOD_CLASS && otmp2->otyp == FOOD_CLASS))
-       	        return TRUE;
+       	            return TRUE;
        	}
     }
-
     return FALSE;
 }
 

@@ -470,6 +470,9 @@ STATIC_PTR
 int
 Helmet_on(VOID_ARGS)
 {
+    long oldprop =
+        u.uprops[objects[uarmh->otyp].oc_oprop].extrinsic & ~WORN_HELMET;
+
     oprops_on(uarmh, WORN_HELMET);
 
     switch (uarmh->otyp) {
@@ -492,6 +495,13 @@ Helmet_on(VOID_ARGS)
         ABON(A_CHA) += (Role_if(PM_WIZARD) ? 1 : -1);
         context.botl = 1;
         makeknown(uarmh->otyp);
+        break;
+    case HELM_OF_SPEED:
+        if (!oldprop && !(HFast & TIMEOUT)) {
+            makeknown(uarmh->otyp);
+            You_feel("yourself speed up%s.",
+                     (oldprop || HFast) ? " a bit more" : "");
+        }
         break;
     case HELM_OF_OPPOSITE_ALIGNMENT:
         /* changing alignment can toggle off active artifact
@@ -556,6 +566,11 @@ Helmet_off(VOID_ARGS)
             ABON(A_CHA) += (Role_if(PM_WIZARD) ? -1 : 1);
             context.botl = 1;
         }
+        break;
+    case HELM_OF_SPEED:
+        setworn((struct obj *) 0, W_ARMH);
+        if (!Very_fast && !context.takeoff.cancelled_don)
+            You_feel("yourself slow down%s.", Fast ? " a bit" : "");
         break;
     case HELM_OF_TELEPATHY:
         /* need to update ability before calling see_monsters() */
@@ -990,6 +1005,7 @@ Amulet_on()
     case AMULET_OF_LIFE_SAVING:
     case AMULET_VERSUS_POISON:
     case AMULET_OF_REFLECTION:
+    case AMULET_OF_MAGIC_RESISTANCE:
     case FAKE_AMULET_OF_YENDOR:
         break;
     case AMULET_OF_MAGICAL_BREATHING:
@@ -1077,6 +1093,7 @@ Amulet_off()
     case AMULET_OF_REFLECTION:
     case AMULET_OF_CHANGE:
     case AMULET_OF_UNCHANGING:
+    case AMULET_OF_MAGIC_RESISTANCE:
     case FAKE_AMULET_OF_YENDOR:
         break;
     case AMULET_OF_MAGICAL_BREATHING:

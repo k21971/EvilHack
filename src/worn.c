@@ -1154,7 +1154,8 @@ struct obj *obj;
 
     if (!obj)
         return 0;
-    if (obj->otyp == SPEED_BOOTS && mon->permspeed != MFAST)
+    if ((obj->otyp == SPEED_BOOTS || obj->otyp == HELM_OF_SPEED)
+        && mon->permspeed != MFAST)
         return 20;
     if (obj_has_prop(obj, DISPLACED))
         return 30;
