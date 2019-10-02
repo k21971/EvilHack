@@ -540,13 +540,13 @@ OBJECT:('?', "scare monster"),$place[1],cursed
 IF [50%] {
   OBJECT:('"', "amulet of reflection"),$place[1]
 } ELSE {
-  OBJECT:('"', "amulet of flying"),$place[1]
+  OBJECT:('"', "amulet of magic resistance"),$place[1]
 }
 ENGRAVING:$place[1],burn,"Elbereth"
 
 OBJECT:('?', "scare monster"),$place[2],cursed
 IF [50%] {
-  OBJECT:('[', "cloak of magic resistance"),$place[2]
+  OBJECT:('[', "helm of speed"),$place[2]
 } ELSE {
   OBJECT:('[', "cloak of protection"),$place[2]
 }
@@ -650,7 +650,7 @@ OBJECT:('?', "scare monster"),$place[0],cursed
 IF [50%] {
   OBJECT:('"', "amulet of reflection"),$place[0]
 } ELSE {
-  OBJECT:('"', "amulet of flying"),$place[0]
+  OBJECT:('"', "amulet of magic resistance"),$place[0]
 }
 ENGRAVING:$place[0],burn,"Elbereth"
 
@@ -664,7 +664,7 @@ ENGRAVING:$place[1],burn,"Elbereth"
 
 OBJECT:('?', "scare monster"),$place[2],cursed
 IF [50%] {
-  OBJECT:('[', "cloak of magic resistance"),$place[2]
+  OBJECT:('[', "helm of speed"),$place[2]
 } ELSE {
   OBJECT:('[', "cloak of protection"),$place[2]
 }

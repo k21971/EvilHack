@@ -697,7 +697,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, " called ");
             Strcat(buf, un);
         } else if (is_soko_prize_flag(obj)) {
-            Strcpy(buf, "sokoban prize cloak");
+            Strcpy(buf, "sokoban prize armor");
         } else {
             Strcat(buf, dn);
             propnames(buf, obj->oprops, obj->oprops_known,
