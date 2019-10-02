@@ -277,7 +277,7 @@ void
 map_invisible(x, y)
 register xchar x, y;
 {
-    if (has_erid(m_at(x, y)) && mon_visible(ERID(m_at(x, y))->m1))
+    if (m_at(x, y) && has_erid(m_at(x, y)) && mon_visible(ERID(m_at(x, y))->m1))
         return;
     if (x != u.ux || y != u.uy) { /* don't display I at hero's location */
         if (level.flags.hero_memory)

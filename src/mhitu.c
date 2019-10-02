@@ -1393,7 +1393,7 @@ register struct attack *mattk;
             break;
         }
 
-        if (is_illithid(mtmp->data)) {
+        if (Race_if(PM_ILLITHID)) {
             Your("psionic abilities shield your brain.");
             break;
         }
@@ -1429,11 +1429,9 @@ register struct attack *mattk;
                 break;
         }
         /* adjattrib gives dunce cap message when appropriate */
-        if (!Race_if(PM_ILLITHID)) {
-            (void) adjattrib(A_INT, -rnd(2), FALSE);
-            forget_levels(25);  /* lose memory of 25% of levels */
-            forget_objects(25); /* lose memory of 25% of objects */
-        }
+        (void) adjattrib(A_INT, -rnd(2), FALSE);
+        forget_levels(25);  /* lose memory of 25% of levels */
+        forget_objects(25); /* lose memory of 25% of objects */
         break;
     case AD_PLYS:
         hitmsg(mtmp, mattk);

@@ -577,10 +577,10 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             /* life-saving needed to reach here */
             exercise(A_WIS, FALSE);
             if (Race_if(PM_ILLITHID)) {
-                if (u.ulevel >= 14)
-                    *dmg_p += rn2(10) + 1;
-                else if (u.ulevel >= 26)
+                if (u.ulevel >= 26)
                     *dmg_p += rn2(10) + 7;
+                else if (u.ulevel >= 14)
+                    *dmg_p += rn2(10) + 1;
                 else
                     *dmg_p += rn2(4) + 1;
             } else
@@ -596,10 +596,10 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             }
             exercise(A_WIS, TRUE);
             if (Race_if(PM_ILLITHID)) {
-                if (u.ulevel >= 14)
-                    *dmg_p += rn2(10) + 1;
-                else if (u.ulevel >= 26)
+                if (u.ulevel >= 26)
                     *dmg_p += rn2(10) + 7;
+                else if (u.ulevel >= 14)
+                    *dmg_p += rn2(10) + 1;
                 else
                     *dmg_p += rn2(4) + 1;
             } else
