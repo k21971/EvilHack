@@ -1880,7 +1880,9 @@ int specialdmg; /* blessed and/or silver bonus against various things */
                     tmp = 1;
             }
         }
-	if (youmonst.data == &mons[PM_WATER_ELEMENTAL])
+	if (youmonst.data == &mons[PM_WATER_ELEMENTAL]
+            || youmonst.data == &mons[PM_BABY_SEA_DRAGON]
+            || youmonst.data == &mons[PM_SEA_DRAGON])
 	    goto do_rust;
         break;
     case AD_FIRE:
@@ -3193,7 +3195,9 @@ boolean wep_was_destroyed;
         break;
     case AD_RUST:
         if (mhit && !mon->mcan && weapon) {
-	    if (mon->data == &mons[PM_WATER_ELEMENTAL]) {
+	    if (mon->data == &mons[PM_WATER_ELEMENTAL]
+                || mon->data == &mons[PM_BABY_SEA_DRAGON]
+                || mon->data == &mons[PM_SEA_DRAGON]) {
 		if (rn2(2))
                     break;
 		if (Blind || !flags.verbose) You("are splashed!");

@@ -820,6 +820,14 @@ Armor_on(VOID_ARGS)
         case SILVER_DRAGON_SCALES:
             ECold_resistance |= W_ARM;
             break;
+        case SEA_DRAGON_SCALE_MAIL:
+        case SEA_DRAGON_SCALES:
+            if (Strangled) {
+                You("can suddenly breathe again!");
+                Strangled = 0;
+            }
+            ESwimming |= W_ARM;
+            break;
         default:
             break;
         }
@@ -873,6 +881,20 @@ Armor_off(VOID_ARGS)
         case SILVER_DRAGON_SCALES:
             ECold_resistance &= ~W_ARM;
             break;
+        case SEA_DRAGON_SCALE_MAIL:
+        case SEA_DRAGON_SCALES:
+            ESwimming &= ~W_ARM;
+            if (Underwater) {
+                setworn((struct obj *) 0, W_ARM);
+                if (!breathless(youmonst.data) && !amphibious(youmonst.data)
+                    && !Swimming) {
+                    You("suddenly inhale an unhealthy amount of %s!",
+                        hliquid("water"));
+                    (void) drown();
+                }
+                return 0;
+            }
+            break;
         default:
             break;
         }
@@ -925,6 +947,20 @@ Armor_gone()
         case SILVER_DRAGON_SCALE_MAIL:
         case SILVER_DRAGON_SCALES:
             ECold_resistance &= ~W_ARM;
+            break;
+        case SEA_DRAGON_SCALE_MAIL:
+        case SEA_DRAGON_SCALES:
+            ESwimming &= ~W_ARM;
+            if (Underwater) {
+                setworn((struct obj *) 0, W_ARM);
+                if (!breathless(youmonst.data) && !amphibious(youmonst.data)
+                    && !Swimming) {
+                    You("suddenly inhale an unhealthy amount of %s!",
+                        hliquid("water"));
+                    (void) drown();
+                }
+                return 0;
+            }
             break;
         default:
             break;

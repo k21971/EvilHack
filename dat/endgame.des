@@ -448,8 +448,8 @@ MONSTER:(';',"piranha"),random
 MONSTER:(';',"piranha"),random
 MONSTER:(';',"jellyfish"),random
 MONSTER:(';',"jellyfish"),random
-MONSTER:(';',"jellyfish"),random
-MONSTER:(';',"jellyfish"),random
+MONSTER:('D',"sea dragon"),random
+MONSTER:('D',"sea dragon"),random
 MONSTER:';',random
 MONSTER:';',random
 MONSTER:';',random

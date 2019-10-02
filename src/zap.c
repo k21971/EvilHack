@@ -43,6 +43,7 @@ STATIC_DCL void FDECL(wishcmdassist, (int));
 #define ZT_DEATH (AD_DISN - 1) /* or disintegration */
 #define ZT_LIGHTNING (AD_ELEC - 1)
 #define ZT_POISON_GAS (AD_DRST - 1)
+#define ZT_WATER (AD_WATR - 1)
 #define ZT_ACID (AD_ACID - 1)
 #define ZT_PSYCHIC (AD_PSYC - 1)
 
@@ -67,13 +68,14 @@ const char *const flash_types[] =       /* also used in buzzmu(mcastu.c) */
 
         "magic missile", /* Spell equivalents must be 10-19 */
         "fireball", "cone of cold", "sleep ray", "finger of death",
-        "bolt of lightning", "blast of poison gas", "blast of acid",
-        "psionic wave", "",
+        "bolt of lightning", "blast of poison gas", "blast of water",
+        "blast of acid", "psionic wave",
 
         "blast of missiles", /* Dragon breath equivalents 20-29*/
         "blast of fire", "blast of frost", "blast of sleep gas",
         "blast of disintegration", "blast of lightning",
-        "blast of poison gas", "blast of acid", "", ""
+        "blast of poison gas",  "blast of water", "blast of acid",
+        ""
     };
 
 /*
@@ -3868,15 +3870,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             destroy_mitem(mon, FOOD_CLASS, AD_FIRE); /* carried slime */
         }
         break;
-    case ZT_PSYCHIC:
-        if (resists_psychic(mon)) {
-            sho_shieldeff = TRUE;
-            break;
-        }
-        tmp = d(2, 6);
-        mon->mconf = 1;
-        mon->mstrategy &= ~STRAT_WAITFORU;
-        break;
     case ZT_COLD:
         if (resists_cold(mon)) {
             sho_shieldeff = TRUE;
@@ -3971,6 +3964,21 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         }
         tmp = d(nd, 6);
         break;
+    case ZT_WATER:
+        tmp = d(nd, 8);
+        if (mon->data == &mons[PM_IRON_GOLEM]) {
+            if (canseemon(mon))
+                pline("%s falls to pieces!", Monnam(mon));
+            if (mon->mtame)
+                pline("May %s rust in peace.", mon_nam(mon));
+            tmp = 500;
+            break;
+        }
+        if (!rn2(6))
+            water_damage(MON_WEP(mon), 0, TRUE);
+        if (!rn2(6))
+            erode_armor(mon, ERODE_RUST);
+        break;
     case ZT_ACID:
         if (resists_acid(mon)) {
             sho_shieldeff = TRUE;
@@ -3981,6 +3989,15 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             acid_damage(MON_WEP(mon));
         if (!rn2(6))
             erode_armor(mon, ERODE_CORRODE);
+        break;
+    case ZT_PSYCHIC:
+        if (resists_psychic(mon)) {
+            sho_shieldeff = TRUE;
+            break;
+        }
+        tmp = d(2, 6);
+        mon->mconf = 1;
+        mon->mstrategy &= ~STRAT_WAITFORU;
         break;
     }
     if (sho_shieldeff)
@@ -4040,15 +4057,6 @@ xchar sx, sy;
                     destroy_item(SPBOOK_CLASS, AD_FIRE);
                 destroy_item(FOOD_CLASS, AD_FIRE);
             }
-        }
-        break;
-    case ZT_PSYCHIC:
-        if (Psychic_resistance) {
-            shieldeff(sx, sy);
-            You("resist the mental onslaught!");
-        } else {
-            dam = d(2, 6);
-            make_confused(HConfusion + rnd(15), FALSE);
         }
         break;
     case ZT_COLD:
@@ -4149,6 +4157,25 @@ xchar sx, sy;
             poisoned("blast", A_DEX, "poisoned blast", 15, FALSE);
         }
         break;
+    case ZT_WATER:
+        dam = d(nd, 8);
+        if (Half_physical_damage)
+            dam = (dam + 1) / 2;
+        if (u.umonnum == PM_IRON_GOLEM) {
+            You("rust!");
+            rehumanize();
+            break;
+        }
+        if (!Reflecting) {
+            /* using two weapons at once makes both of them more vulnerable */
+            if (!rn2(u.twoweap ? 3 : 6))
+                water_damage(uwep, 0, TRUE);
+            if (u.twoweap && !rn2(3))
+                water_damage(uswapwep, 0, TRUE);
+            if (!rn2(6))
+                erode_armor(&youmonst, ERODE_RUST);
+        }
+        break;
     case ZT_ACID:
         if (Acid_resistance) {
             pline_The("%s doesn't hurt.", hliquid("acid"));
@@ -4167,6 +4194,15 @@ xchar sx, sy;
                 acid_damage(uswapwep);
             if (!rn2(6))
                 erode_armor(&youmonst, ERODE_CORRODE);
+        }
+        break;
+    case ZT_PSYCHIC:
+        if (Psychic_resistance) {
+            shieldeff(sx, sy);
+            You("resist the mental onslaught!");
+        } else {
+            dam = d(2, 6);
+            make_confused(HConfusion + rnd(15), FALSE);
         }
         break;
     }
@@ -4416,6 +4452,9 @@ boolean say; /* Announce out of sight hit/miss events if true */
                         (void) mon_reflects(mon,
                                             "But it reflects from %s %s!");
                     }
+                    /* water is reflected but doesn't bounce */
+                    if (abstype == ZT_WATER)
+                        range = 0;
                     dx = -dx;
                     dy = -dy;
                 } else {
@@ -4496,7 +4535,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
                 goto buzzmonst;
             } else if (zap_hit((int) u.uac, 0, 0)) {
                 range -= 2;
-                pline("%s hits you!", The(fltxt));
+                pline("%s %s you!", The(fltxt),
+                      abstype == ZT_WATER ? "slams into" : "hits");
                 if (Reflecting) {
                     if (!Blind) {
                         (void) ureflects("Some of %s reflects from your %s!",
@@ -4505,6 +4545,9 @@ boolean say; /* Announce out of sight hit/miss events if true */
                         pline("You appear to only be partially affected.");
                     dx = -dx;
                     dy = -dy;
+                    /* water is reflected but doesn't bounce */
+                    if (abstype == ZT_WATER)
+                        range = 0;
                     shieldeff(sx, sy);
                     nd = (nd + 1) / 2;
                     monstseesu(M_SEEN_REFL);
@@ -4544,6 +4587,10 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     sx = lsx;
                     sy = lsy;
                     break; /* fireballs explode before the obstacle */
+                } else if (abstype == ZT_WATER) {
+                    if (isok(sx, sy) && IS_STWALL(levl[sx][sy].typ))
+                        pline("%s splashes against the wall!", The(fltxt));
+                    break;
                 } else
                     pline_The("%s bounces!", fltxt);
             }

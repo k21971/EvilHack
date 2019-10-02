@@ -5828,6 +5828,9 @@ lava_effects()
         /* s/he died... */
         boil_away = (u.umonnum == PM_WATER_ELEMENTAL
                      || u.umonnum == PM_STEAM_VORTEX
+                     || u.umonnum == PM_WATER_TROLL
+                     || u.umonnum == PM_BABY_SEA_DRAGON
+                     || u.umonnum == PM_SEA_DRAGON
                      || u.umonnum == PM_FOG_CLOUD);
         for (;;) {
             u.uhp = -1;

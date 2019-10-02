@@ -563,6 +563,9 @@ mkswamp() /* Michiel Huisjes & Fred de Wilde */
                                                  ? &mons[PM_PIRANHA]
                                                  : &mons[PM_ELECTRIC_EEL],
                                            sx, sy, NO_MM_FLAGS);
+                            if (!rn2(50))
+                                (void) makemon(&mons[PM_SEA_DRAGON],
+                                               sx, sy, NO_MM_FLAGS);
                             eelct++;
                         }
                     } else if (!rn2(4)) /* swamps tend to be moldy and wet */

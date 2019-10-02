@@ -1119,6 +1119,7 @@ static const short grownups[][2] = {
     { PM_BABY_BLUE_DRAGON, PM_BLUE_DRAGON },
     { PM_BABY_GREEN_DRAGON, PM_GREEN_DRAGON },
     { PM_BABY_GOLD_DRAGON, PM_GOLD_DRAGON },
+    { PM_BABY_SEA_DRAGON, PM_SEA_DRAGON },
     { PM_BABY_YELLOW_DRAGON, PM_YELLOW_DRAGON },
     { PM_PSEUDODRAGON, PM_ELDER_PSEUDODRAGON },
     { PM_ELDER_PSEUDODRAGON, PM_ANCIENT_PSEUDODRAGON },
@@ -1294,6 +1295,9 @@ struct attack *mattk;
     case PM_WATER_ELEMENTAL:
     case PM_FOG_CLOUD:
     case PM_STEAM_VORTEX:
+    case PM_WATER_TROLL:
+    case PM_BABY_SEA_DRAGON:
+    case PM_SEA_DRAGON:
         what = "boiling";
         break;
     case PM_ICE_VORTEX:

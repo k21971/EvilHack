@@ -1463,6 +1463,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           !spec_dbon_applies
                               ? "hits"
                               : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_BABY_SEA_DRAGON]
+                                 || mdef->data == &mons[PM_SEA_DRAGON]
                                  || mdef->data == &mons[PM_ICE_VORTEX])
                                  ? "vaporizes part of"
                                  : "burns",
@@ -1472,6 +1474,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           !spec_dbon_applies
                               ? "hits"
                               : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_BABY_SEA_DRAGON]
+                                 || mdef->data == &mons[PM_SEA_DRAGON]
                                  || mdef->data == &mons[PM_ICE_VORTEX])
                                  ? "vaporizes part of"
                                  : "burns",
@@ -1484,6 +1488,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           !spec_dbon_applies
                               ? "hits"
                               : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_BABY_SEA_DRAGON]
+                                 || mdef->data == &mons[PM_SEA_DRAGON]
                                  || mdef->data == &mons[PM_ICE_VORTEX])
                                  ? "vaporizes part of"
                                  : "burns",
@@ -1522,6 +1528,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           !spec_dbon_applies
                               ? "hits"
                               : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_BABY_SEA_DRAGON]
+                                 || mdef->data == &mons[PM_SEA_DRAGON]
                                  || mdef->data == &mons[PM_WATER_TROLL])
                                  ? "freezes part of"
                                  : "freezes",
@@ -1534,6 +1542,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           !spec_dbon_applies
                               ? "hits"
                               : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                 || mdef->data == &mons[PM_BABY_SEA_DRAGON]
+                                 || mdef->data == &mons[PM_SEA_DRAGON]
                                  || mdef->data == &mons[PM_WATER_TROLL])
                                  ? "freezes part of"
                                  : "freezes",

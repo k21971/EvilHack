@@ -1273,7 +1273,9 @@ register struct attack *mattk;
                 hitmsg(mtmp, mattk);
                 }
             }
-	    if (mtmp->data == &mons[PM_WATER_ELEMENTAL]) {
+	    if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
+                || mtmp->data == &mons[PM_BABY_SEA_DRAGON]
+                || mtmp->data == &mons[PM_SEA_DRAGON]) {
 		goto do_rust;
 	}
         break;
@@ -1714,8 +1716,8 @@ register struct attack *mattk;
         }
         break;
     case AD_RUST:
-do_rust:
         hitmsg(mtmp, mattk);
+do_rust:
         if (mtmp->mcan)
             break;
         if (u.umonnum == PM_IRON_GOLEM) {
@@ -2299,7 +2301,8 @@ struct attack *mattk;
             tmp = 0;
             /* Immediate timeout message: "You find it hard to breathe." */
         }
-        if (mtmp->data == &mons[PM_WATER_ELEMENTAL])
+        if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
+            || mtmp->data == &mons[PM_SEA_DRAGON])
             water_damage_chain(invent, FALSE, rnd(3), FALSE);
         break;
     case AD_ACID:

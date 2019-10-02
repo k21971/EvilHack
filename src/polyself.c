@@ -1872,6 +1872,9 @@ int atyp;
     case GOLD_DRAGON_SCALE_MAIL:
     case GOLD_DRAGON_SCALES:
         return PM_GOLD_DRAGON;
+    case SEA_DRAGON_SCALE_MAIL:
+    case SEA_DRAGON_SCALES:
+        return PM_SEA_DRAGON;
     case YELLOW_DRAGON_SCALE_MAIL:
     case YELLOW_DRAGON_SCALES:
         return PM_YELLOW_DRAGON;

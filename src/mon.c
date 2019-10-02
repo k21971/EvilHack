@@ -415,6 +415,7 @@ unsigned corpseflags;
     case PM_BLUE_DRAGON:
     case PM_GREEN_DRAGON:
     case PM_GOLD_DRAGON:
+    case PM_SEA_DRAGON:
     case PM_YELLOW_DRAGON:
         /* Make dragon scales.  This assumes that the order of the
            dragons is the same as the order of the scales. */
@@ -1677,7 +1678,8 @@ long flag;
     nowtyp = levl[x][y].typ;
 
     nodiag = NODIAG(mdat - mons);
-    wantpool = (mdat->mlet == S_EEL);
+    wantpool = (mdat->mlet == S_EEL || mdat == &mons[PM_BABY_SEA_DRAGON]
+                || mdat == &mons[PM_SEA_DRAGON]);
     poolok = ((!Is_waterlevel(&u.uz)
                && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)))
               || (is_swimmer(mdat) && !wantpool));
@@ -2481,9 +2483,10 @@ register struct monst *mtmp;
     }
 
     /* extinguish monster's armor */
-    if ( (otmp = which_armor(mtmp, W_ARM)) &&
-	(otmp->otyp==GOLD_DRAGON_SCALE_MAIL || otmp->otyp == GOLD_DRAGON_SCALES) )
-	end_burn(otmp,FALSE);
+    if ((otmp = which_armor(mtmp, W_ARM))
+        && (otmp->otyp==GOLD_DRAGON_SCALE_MAIL
+            || otmp->otyp == GOLD_DRAGON_SCALES))
+        end_burn(otmp,FALSE);
 
     mptr = mtmp->data; /* save this for m_detach() */
     /* restore chameleon, lycanthropes to true form at death */
