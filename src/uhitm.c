@@ -3343,6 +3343,11 @@ boolean wep_was_destroyed;
                     } else if (Free_action) {
                         You("momentarily stiffen under %s gaze!",
                             s_suffix(mon_nam(mon)));
+                    } else if (ublindf
+                               && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
+                        pline("%s protect you from %s paralyzing gaze.",
+                              An(bare_artifactname(ublindf)), s_suffix(mon_nam(mon)));
+                        break;
                     } else {
                         You("are frozen by %s gaze!", s_suffix(mon_nam(mon)));
                         nomul((ACURR(A_WIS) > 12 || rn2(4)) ? -tmp : -127);
