@@ -622,7 +622,7 @@ boolean adminmsg;
 
         pline(msgfrom, curline);
         if (adminmsg)
-            verbalize(msg, "%s");
+            verbalize("%s", msg);
         else
             pline("It reads: \"%s\".", msg);
 
