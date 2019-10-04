@@ -92,26 +92,26 @@ static const struct innate {
                  { 0, 0, 0, 0 } },
 
   /* Intrinsics conferred by race */
-  dwa_abil[] = { { 1, &HInfravision, "", "" },
+  dwa_abil[] = { { 1, &(HInfravision), "", "" },
                  { 0, 0, 0, 0 } },
 
-  elf_abil[] = { { 1, &HInfravision, "", "" },
-                 { 4, &HSleep_resistance, "awake", "tired" },
+  elf_abil[] = { { 1, &(HInfravision), "", "" },
+                 { 4, &(HSleep_resistance), "awake", "tired" },
                  { 0, 0, 0, 0 } },
 
-  gno_abil[] = { { 1, &HInfravision, "", "" },
+  gno_abil[] = { { 1, &(HInfravision), "", "" },
                  { 0, 0, 0, 0 } },
 
-  orc_abil[] = { { 1, &HInfravision, "", "" },
-                 { 1, &HPoison_resistance, "", "" },
+  orc_abil[] = { { 1, &(HInfravision), "", "" },
+                 { 1, &(HPoison_resistance), "", "" },
                  { 0, 0, 0, 0 } },
 
-  gia_abil[] = { { 1, &HAggravate_monster, "", "" },
-                 { 12, &HRegeneration, "resilient", "less resilient" },
+  gia_abil[] = { { 1, &(HAggravate_monster), "", "" },
+                 { 12, &(HRegeneration), "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },
 
-  hob_abil[] = { { 1, &HFood_sense, "", "" },
-                 { 1, &HHunger, "", "" },
+  hob_abil[] = { { 1, &(HFood_sense), "", "" },
+                 { 1, &(HHunger), "", "" },
                  { 4, &(HFast), "quick", "slow" },
                  { 7, &(HSearching), "perceptive", "" },
                  { 0, 0, 0, 0 } },
@@ -121,7 +121,7 @@ static const struct innate {
                  { 10, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 
-  ill_abil[] = { { 1, &HInfravision, "", "" },
+  ill_abil[] = { { 1, &(HInfravision), "", "" },
                  { 1, &(HTelepat), "", "" },
                  { 1, &(HPsychic_resistance), "", "" },
                  { 12, &(HFlying), "lighter than air", "gravity's pull" },

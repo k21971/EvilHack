@@ -619,6 +619,9 @@ Gloves_on(VOID_ARGS)
     case GAUNTLETS_OF_DEXTERITY:
         adj_abon(uarmg, uarmg->spe);
         break;
+    case GAUNTLETS_OF_PROTECTION:
+        makeknown(uarmg->otyp);
+        break;
     default:
         impossible(unknown_type, c_gloves, uarmg->otyp);
     }
@@ -669,6 +672,7 @@ Gloves_off(VOID_ARGS)
     switch (uarmg->otyp) {
     case GLOVES:
     case GAUNTLETS:
+    case GAUNTLETS_OF_PROTECTION:
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!(HFumbling & ~TIMEOUT))

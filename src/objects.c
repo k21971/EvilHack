@@ -486,8 +486,7 @@ CLOAK("cloak", None,
       1, 0,          0,  8, 0, 15, 40,  9, 1,  LEATHER, CLR_BROWN),
 /* with shuffled appearances... */
 CLOAK("cloak of protection", "tattered cape",
-      0, 1, PROTECTION,  9, 0, 10, 50,  7, 3,  CLOTH, HI_CLOTH),
-        /* cloak of protection is now the only item conferring MC 3 */
+      0, 1, PROTECTION,  5, 0, 10, 50,  7, 3,  CLOTH, HI_CLOTH),
 CLOAK("cloak of invisibility", "opera cloak",
       0, 1,      INVIS, 10, 0, 10, 60,  9, 1,  CLOTH, CLR_BRIGHT_MAGENTA),
 CLOAK("cloak of magic resistance", "ornamental cope",
@@ -525,6 +524,8 @@ GLOVES("gauntlets of fumbling", "padded gloves",
        0, 1,   FUMBLING,  8, 1, 10,  50, 9, 0,  LEATHER, HI_LEATHER),
 GLOVES("gauntlets of power", "riding gloves",
        0, 1,          0,  8, 1, 30,  50, 9, 0,  IRON, CLR_BROWN),
+GLOVES("gauntlets of protection", "boxing gloves",
+       0, 1, PROTECTION,  4, 1, 10,  60, 8, 3,  CLOTH, CLR_BROWN),
 GLOVES("gauntlets of dexterity", "fencing gloves",
        0, 1,          0,  8, 1, 10,  50, 9, 0,  LEATHER, HI_LEATHER),
 

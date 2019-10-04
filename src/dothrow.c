@@ -1615,6 +1615,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         case GAUNTLETS_OF_FUMBLING: /* you're fumbling and shouldn't really even be able to throw */
             tmp -= 9;
             break;
+        case GAUNTLETS_OF_PROTECTION:
         case GLOVES:
             break;
         case GAUNTLETS_OF_DEXTERITY: /* these gloves were made with archers in mind */
