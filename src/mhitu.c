@@ -73,11 +73,8 @@ struct attack *mattk;
             pfmt = "%s stings!";
             break;
         case AT_BUTT:
-            if (mtmp->data == &mons[PM_WOOLLY_MAMMOTH]
-                || mtmp->data == &mons[PM_MASTODON])
-                pfmt = "%s gores you with its tusks!";
-            else
-                pfmt = "%s butts!";
+            pline("%s %ss!", Monnam(mtmp), has_trunk(mtmp->data) ?
+                  "gores you with its tusk" : "butt");
             break;
         case AT_TUCH:
             pfmt = "%s touches you!";
@@ -1200,8 +1197,7 @@ register struct attack *mattk;
                     dmg = 0;
                 } else {
                     u.ustuck = mtmp;
-                    if (mtmp->data == &mons[PM_WOOLLY_MAMMOTH]
-                        || mtmp->data == &mons[PM_MASTODON])
+                    if (has_trunk(mtmp->data))
                         pline("%s grasps you with its trunk!", Monnam(mtmp));
                     else
                         pline("%s grabs you!", Monnam(mtmp));

@@ -2759,11 +2759,7 @@ register struct monst *mon;
                                                 &hated_obj);
                     break;
                 case AT_BUTT:
-                    if (youmonst.data == &mons[PM_WOOLLY_MAMMOTH]
-                        || youmonst.data == &mons[PM_MASTODON])
-                        verb = "gore";
-                    else
-                        verb = "head butt"; /* mbodypart(mon,HEAD)=="head" */
+                    verb = (has_trunk(youmonst.data)) ? "gore" : "head butt";
                     /* hypothetical; if any form with a head-butt attack
                        could wear a helmet, it would hit shades when
                        wearing a blessed (or silver) one */

@@ -146,6 +146,9 @@
                       || (ptr) == &mons[PM_RABID_RAT]    \
                       || (ptr) == &mons[PM_ENORMOUS_RAT] \
                       || (ptr) == &mons[PM_RODENT_OF_UNUSUAL_SIZE])
+#define has_trunk(ptr) ((ptr) == &mons[PM_MUMAK]       \
+                        || (ptr) == &mons[PM_MASTODON] \
+                        || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)

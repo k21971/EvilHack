@@ -639,11 +639,8 @@ struct attack *mattk;
                 Sprintf(buf, "%s stings", magr_name);
                 break;
             case AT_BUTT:
-                if (magr->data == &mons[PM_WOOLLY_MAMMOTH]
-                    || magr->data == &mons[PM_MASTODON])
-                    Sprintf(buf, "%s gores", magr_name);
-                else
-                    Sprintf(buf, "%s butts", magr_name);
+                Sprintf(buf, "%s %ss", magr_name, has_trunk(magr->data) ?
+                        "gore" : "butt");
                 break;
             case AT_TUCH:
                 Sprintf(buf, "%s touches", magr_name);
