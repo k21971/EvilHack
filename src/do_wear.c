@@ -858,6 +858,8 @@ Armor_on(VOID_ARGS)
      */
     oprops_on(uarm, W_ARM);
     uarm->known = 1; /* suit's +/- evident because of status line AC */
+    if (Role_if(PM_MONK))
+        You_feel("extremely uncomfortable wearing such armor.");
     return 0;
 }
 
@@ -922,6 +924,8 @@ Armor_off(VOID_ARGS)
     context.takeoff.mask &= ~W_ARM;
     setworn((struct obj *) 0, W_ARM);
     context.takeoff.cancelled_don = FALSE;
+    if (Role_if(PM_MONK))
+        You_feel("much more comfortable and free now.");
     return 0;
 }
 
@@ -989,6 +993,8 @@ Armor_gone()
     context.takeoff.mask &= ~W_ARM;
     setnotworn(uarm);
     context.takeoff.cancelled_don = FALSE;
+    if (Role_if(PM_MONK))
+        You_feel("much more comfortable and free now.");
     return 0;
 }
 
