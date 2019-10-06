@@ -219,6 +219,8 @@ char preferred_pet; /* '\0', 'c', 'd', 'h', 'p', 'n' (none) */
 NEARDATA struct monst *mydogs = (struct monst *) 0;
 /* monsters that are moving to another dungeon level */
 NEARDATA struct monst *migrating_mons = (struct monst *) 0;
+NEARDATA struct autopickup_exception *apelist =
+                            (struct autopickup_exception *)0;
 
 NEARDATA struct mvitals mvitals[NUMMONS];
 NEARDATA long domove_attempting = 0L;
@@ -259,7 +261,8 @@ struct c_common_strings c_common_strings = { "Nothing happens.",
                                              "You can move again.",
                                              "Never mind.",
                                              "vision quickly clears.",
-                                             { "the", "your" } };
+                                             { "the", "your" },
+                                             { "mon", "you" } };
 
 /* NOTE: the order of these words exactly corresponds to the
    order of oc_material values #define'd in objclass.h. */
