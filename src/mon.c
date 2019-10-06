@@ -3010,6 +3010,14 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
                 pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
             }
         }
+        if (wasinside && is_dragon(mtmp->data) && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
+            cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
+                                                   : CORPSTAT_NONE);
+            if (burycorpse && cadaver && cansee(x, y) && !mtmp->minvis
+                && cadaver->where == OBJ_BURIED && !nomsg) {
+                pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
+            }
+        }
     }
     if (wasinside)
         spoteffects(TRUE); /* poor man's expels() */
