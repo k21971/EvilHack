@@ -3547,16 +3547,22 @@ struct attack *mattk;     /* null means we find one internally */
                 || obj->otyp == SPE_BOOK_OF_THE_DEAD
                 || obj->otyp == CANDELABRUM_OF_INVOCATION) {
                 pline_The("%s %s and cannot be disintegrated.",
-                      xname(obj), rn2(2) ? "resists completely" : "defies physics");
+                          xname(obj), rn2(2) ? "resists completely" : "defies physics");
                 break;
             }
             /* nope */
             if (obj->otyp == BLACK_DRAGON_SCALES || obj->otyp == BLACK_DRAGON_SCALE_MAIL) {
-                pline_The("%s is disintegration-proof and remains intact.",
-                     xname(obj));
+                pline_The("%s are disintegration-proof and remain intact.",
+                          Yname2(obj));
                 break;
             }
-            pline_The("%s disintegrates!", xname(obj));
+            if (obj->oartifact && rn2(50)) {
+                pline("%s %s, but remains %s.", Yname2(obj),
+                      rn2(2) ? "shudders violently" : "vibrates unexpectedly",
+                      rn2(2) ? "whole" : "intact");
+                break;
+            }
+            pline("%s disintegrates!", Yname2(obj));
             if (carried(obj))
                 useup(obj);
             else
