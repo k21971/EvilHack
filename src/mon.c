@@ -418,8 +418,9 @@ unsigned corpseflags;
     case PM_SEA_DRAGON:
     case PM_YELLOW_DRAGON:
         /* Make dragon scales.  This assumes that the order of the
-           dragons is the same as the order of the scales. */
-        if (!rn2(mtmp->mrevived ? 20 : 3)) {
+           dragons is the same as the order of the scales.
+           If the dragon is a pet, no scales generated. */
+        if (!mtmp->mtame && !rn2(mtmp->mrevived ? 20 : 3)) {
             num = GRAY_DRAGON_SCALES + monsndx(mdat) - PM_GRAY_DRAGON;
             obj = mksobj_at(num, x, y, FALSE, FALSE);
             obj->spe = 0;
