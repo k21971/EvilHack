@@ -839,6 +839,12 @@ NEARDATA struct permonst mons[] = {
         SIZ(3800, 800, MS_SILENT, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS | M1_HERBIVORE,
         M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE, 0, 0, 22, CLR_BLACK),
+    MON("woolly mammoth", S_QUADRUPED, LVL(24, 10, 2, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BUTT, AD_PHYS, 6, 8), ATTK(AT_BUTT, AD_PHYS, 6, 8), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(4200, 1200, MS_SILENT, MZ_GIGANTIC), MR_COLD, 0,
+        M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS | M1_HERBIVORE,
+        M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE, 0, 0, 26, CLR_ORANGE),
     /*
      * rodents
      */
