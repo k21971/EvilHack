@@ -1417,7 +1417,9 @@ register const char *str;
 		          doname(otmp) : distant_name(otmp, doname),
 		          waslocked ? "." : "...");
                 } else if (!Deaf && flags.verbose) {
-                    You_hear("something being %s.",
+                    You_hear("%s being %s.",
+                             (distu(mtmp->mx, mtmp->my) <= 5)
+                             ? an(xname(otmp)) : an(distant_name(otmp, xname)),
                              waslocked ? "unlocked" : "opened");
                 }
 	        otmp->olocked = 0;
@@ -1450,7 +1452,9 @@ register const char *str;
 			          (distu(mtmp->mx, mtmp->my) <= 5)
 			          ? the(xname(otmp)) : the(distant_name(otmp, xname)));
                         } else if (!Deaf && flags.verbose) {
-                            You_hear("something being %s.",
+                            You_hear("%s being %s.",
+                                     (distu(mtmp->mx, mtmp->my) <= 5)
+                                     ? an(xname(otmp)) : an(distant_name(otmp, xname)),
                                      waslocked ? "unlocked" : "opened");
                         }
                         otmp->olocked = 0;
