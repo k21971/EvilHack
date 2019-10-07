@@ -510,8 +510,8 @@ struct obj *obj;
     return FALSE;
 }
 
-/* decide whether this obj is effective when attacking against shades;
-   does not consider the bonus for blessed objects versus undead */
+/* decide whether this obj is effective when attacking against shades
+ * or any incorporeal monster */
 boolean
 shade_glare(obj)
 struct obj *obj;

@@ -3010,8 +3010,8 @@ struct permonst _mons2[] = {
     /*
      * ghosts
      */
-    MON("ghost", S_GHOST, LVL(10, 3, -5, 50, -5), (G_NOCORPSE | G_NOGEN),
-        A(ATTK(AT_TUCH, AD_PHYS, 1, 1), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+    MON("ghost", S_GHOST, LVL(7, 5, 0, 80, -5), (G_NOCORPSE | G_NOGEN),
+        A(ATTK(AT_TUCH, AD_PLYS, 1, 1), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(WT_HUMAN, 0, MS_SILENT, MZ_HUMAN),
         MR_COLD | MR_DISINT | MR_SLEEP | MR_POISON | MR_STONE, 0,
