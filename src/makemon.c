@@ -1741,13 +1741,42 @@ boolean ghostly;
     return result;
 }
 
+/* From xNetHack:
+ * Hit dice size of a monster, based on its size. (Max HP is then usually
+ * calculated by rolling a die of this size for each level the monster has.)
+ * It used to be 8 for all monsters, but it makes more sense for, say, a mumak
+ * to be beefier than a killer bee of the same level.
+ * For EvilHack - we randomize the amount of HD just a bit. */
+STATIC_OVL xchar
+hd_size(ptr)
+struct permonst * ptr;
+{
+    switch(ptr->msize) {
+    case MZ_TINY:
+        return 5 + rn2(2);
+    case MZ_SMALL:
+        return 7 + rn2(2);
+    case MZ_MEDIUM:
+        return 8 + rn2(2);
+    case MZ_LARGE:
+        return 10 + rn2(3);
+    case MZ_HUGE:
+        return 14 + rn2(3);
+    case MZ_GIGANTIC:
+        return 18 + rn2(4);
+    default:
+        impossible("hd_size: unknown monster size %d", ptr->msize);
+        return 8;
+    }
+}
+
 /* amount of HP to lose from level drain (or gain from Stormbringer) */
 int
 monhp_per_lvl(mon)
 struct monst *mon;
 {
     struct permonst *ptr = mon->data;
-    int hp = rnd(8); /* default is d8 */
+    int hp = rnd(hd_size(ptr)); /* default is d8 */
 
     /* like newmonhp, but home elementals are ignored, riders use normal d8 */
     if (is_golem(ptr)) {
@@ -1756,16 +1785,41 @@ struct monst *mon;
     } else if (ptr->mlevel > 49) {
         /* arbitrary; such monsters won't be involved in draining anyway */
         hp = 4 + rnd(4); /* 5..8 */
-    } else if (ptr->mlet == S_DRAGON && monsndx(ptr) >= PM_GRAY_DRAGON
-               && monsndx(ptr) <= PM_YELLOW_DRAGON) {
-        /* adult dragons; newmonhp() uses In_endgame(&u.uz) ? 8 : 4 + rnd(4)
-         */
-        hp = 4 + rn2(5); /* 4..8 */
-    } else if (!mon->m_lev) {
+    } else if (mon->m_lev == 0) {
         /* level 0 monsters use 1d4 instead of Nd8 */
         hp = rnd(4);
     }
     return hp;
+}
+
+/* Compute an appropriate maximum HP for a given monster type and level. */
+int
+monmaxhp(ptr, m_lev)
+struct permonst *ptr;
+uchar m_lev; /* not just a struct mon because polyself code also uses this */
+{
+    if (is_golem(ptr)) {
+        return golemhp(monsndx(ptr));
+    } else if (is_rider(ptr)) {
+        /* we want low HP, but a high mlevel so they can attack well
+         * Riders are a bit too easy to take down. Let's buff them up a bit */
+        return 100 + d(10, 8);
+    } else if (ptr->mlevel > 49) {
+        /* "special" fixed hp monster
+         * the hit points are encoded in the mlevel in a somewhat strange
+         * way to fit in the 50..127 positive range of a signed character
+         * above the 1..49 that indicate "normal" monster levels */
+        return 2 * (ptr->mlevel - 6);
+    } else if (m_lev == 0) {
+        return rnd(4);
+    } else {
+        int hpmax = d(m_lev, hd_size(ptr));
+        if (is_home_elemental(ptr))
+            hpmax *= 3;
+        if (is_mplayer(ptr))
+            hpmax *= 1.25;
+        return hpmax;
+    }
 }
 
 /* set up a new monster's initial level and hit points;
@@ -1776,68 +1830,12 @@ struct monst *mon;
 int mndx;
 {
     struct permonst *ptr = &mons[mndx];
-    int mhitdie;
 
     mon->m_lev = adj_lev(ptr);
-    if (is_golem(ptr)) {
-        mon->mhpmax = mon->mhp = golemhp(mndx);
-    } else if (is_rider(ptr)) {
-        /* we want low HP, but a high mlevel so they can attack well */
-        /* Riders are a bit too easy to take down. Let's buff them up a bit */
-        mon->mhpmax = mon->mhp = 100 + d(10, 8);
-    } else if (ptr->mlevel > 49) {
-        /* "special" fixed hp monster
-         * the hit points are encoded in the mlevel in a somewhat strange
-         * way to fit in the 50..127 positive range of a signed character
-         * above the 1..49 that indicate "normal" monster levels */
-        mon->mhpmax = mon->mhp = 2 * (ptr->mlevel - 6);
+    mon->mhpmax = mon->mhp = monmaxhp(ptr, mon->m_lev);
+    if (ptr->mlevel > 49) {
+        /* Second half of the "special" fixed hp monster code: adjust level */
         mon->m_lev = mon->mhp / 4; /* approximation */
-    } else if (ptr->mlet == S_DRAGON && mndx >= PM_GRAY_DRAGON
-               && mndx <= PM_YELLOW_DRAGON) {
-        /* Dragons are MZ_GIGANTIC, plus they're DRAGONS. Should
-         * not be such an easy kill */
-        mon->mhpmax = mon->mhp =
-            (int) (In_endgame(&u.uz)
-                       ? (10 * mon->m_lev)
-                       :  (8 * mon->m_lev + d((int) mon->m_lev, 8)));
-    } else if (is_mplayer(ptr)) {
-	mon->mhpmax = mon->mhp = (4 * mon->m_lev + d((int) mon->m_lev, 8));
-    } else if (!mon->m_lev) {
-        mon->mhpmax = mon->mhp = rnd(4);
-    } else {
-     /* mon->mhpmax = mon->mhp = d((int) mon->m_lev, 8); (original formula) */
-
-     /* From SporkHack, modified slightly because 3.6.x...
-      * plain old ordinary monsters; modify hit die based on size;
-      * big-ass critters like mastodons should have big-ass HP, and
-      * small things like bees and locusts should get less
-      *
-      * 25FEB2019 - lets randomize monster HP a bit...
-      */
-      switch (mon->data->msize) {
-	      case MZ_TINY:
-                  mhitdie = 5 + rn2(2);
-                  break;
-	      case MZ_SMALL:
-                  mhitdie = 7 + rn2(2);
-                  break;
-	      case MZ_LARGE:
-                  mhitdie = 10 + rn2(3);
-                  break;
-	      case MZ_HUGE:
-                  mhitdie = 14 + rn2(3);
-                  break;
-	      case MZ_GIGANTIC:
-                  mhitdie = 18 + rn2(4);
-                  break;
-	      case MZ_MEDIUM:
-	      default:
-		  mhitdie = 8 + rn2(2);
-		  break;
-	      }
-	mon->mhpmax = mon->mhp = d((int)mon->m_lev, mhitdie);
-        if (is_home_elemental(ptr))
-            mon->mhpmax = (mon->mhp *= 3);
     }
 }
 
