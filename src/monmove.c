@@ -148,12 +148,13 @@ struct monst *mtmp;
     /* creatures who are directly resistant to magical scaring:
      * Rodney, lawful minions, Angels, Archangels, the Riders,
      * monster players, demon lords and princes, honey badgers,
-     * shopkeepers inside their own shop,
+     * shopkeepers inside their own shop, anything that is mindless,
      * priests inside their own temple, the quest leaders and nemesis
      */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL]
         || mtmp->data == &mons[PM_HONEY_BADGER]
+        || mindless(mtmp->data)
         || is_mplayer(mtmp->data)
         || is_dlord(mtmp->data)
         || is_dprince(mtmp->data)
@@ -198,7 +199,6 @@ struct monst *mtmp;
                  || mtmp->mpeaceful || mtmp->data->mlet == S_HUMAN
                  || mtmp->data == &mons[PM_MINOTAUR]
                  || mtmp->data == &mons[PM_ELDER_MINOTAUR]
-                 || mtmp->data == &mons[PM_HONEY_BADGER]
                  || Inhell || In_endgame(&u.uz)));
 }
 
