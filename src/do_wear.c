@@ -3056,7 +3056,7 @@ register struct obj *atmp;
         useup(otmp);
     } else if (DESTROY_ARM(uarm)) {
         if (uarm && uarm == otmp && otmp->otyp == CRYSTAL_PLATE_MAIL)
-        goto end;
+            goto end;
         if (donning(otmp))
             cancel_don();
         Your("armor turns to dust and falls to the %s!", surface(u.ux, u.uy));
@@ -3075,6 +3075,12 @@ register struct obj *atmp;
         (void) Helmet_off();
         useup(otmp);
     } else if (DESTROY_ARM(uarmg)) {
+        if (uarmg && uarmg == otmp && otmp->oartifact == ART_DRAGONBANE) {
+            pline("%s %s and cannot be disintegrated.",
+                  Yname2(otmp), rn2(2) ? "resists completely"
+                                       : "defies physics");
+            goto end;
+        }
         if (donning(otmp))
             cancel_don();
         Your("gloves vanish!");

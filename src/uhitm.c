@@ -3545,7 +3545,8 @@ struct attack *mattk;     /* null means we find one internally */
             if (obj->otyp == AMULET_OF_YENDOR
                 || obj->otyp == BELL_OF_OPENING
                 || obj->otyp == SPE_BOOK_OF_THE_DEAD
-                || obj->otyp == CANDELABRUM_OF_INVOCATION) {
+                || obj->otyp == CANDELABRUM_OF_INVOCATION
+                || obj->oartifact == ART_DRAGONBANE) {
                 pline_The("%s %s and cannot be disintegrated.",
                           xname(obj), rn2(2) ? "resists completely" : "defies physics");
                 break;
