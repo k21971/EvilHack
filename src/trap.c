@@ -984,9 +984,9 @@ boolean msg;
 static const char *const spearmsgs[] = {
     "a spear trap",
     "a sharpened bamboo stick",
-    "a tapered wooden spike",
-    "a narrow pointy stake",
-    "becoming a doner kebab",
+    "a tapered wooden stake",
+    "a narrow pointy spike",
+    "becoming a döner kebab",
     "imitating a meat popsicle"
 };
 
@@ -1011,6 +1011,7 @@ unsigned trflags;
             adj_pit = adj_nonconjoined_pit(trap);
     int oldumort;
     int steed_article = ARTICLE_THE;
+    int lvl = level_difficulty();
 
     nomul(0);
 
@@ -1695,7 +1696,13 @@ unsigned trflags;
             set_wounded_legs(rn2(2) ? RIGHT_SIDE : LEFT_SIDE, rn1(10, 10));
             exercise(A_DEX, FALSE);
             Sprintf(buf, "%s", spearmsgs[rn2(SIZE(spearmsgs))]);
-            losehp(Maybe_Half_Phys(rnd(10) + 10), buf, KILLED_BY);
+            /* currently there's no way to have random vaults spawn at
+             * certain level depths. until then, we'll curtail spear trap
+             * damage a bit, up until the level they'd normally appear at */
+            if (lvl < 6)
+                losehp(Maybe_Half_Phys(rnd(4) + 6), buf, KILLED_BY);
+            else
+                losehp(Maybe_Half_Phys(rnd(10) + 10), buf, KILLED_BY);
         }
         (void) steedintrap(trap, (struct obj *) 0);
         break;
