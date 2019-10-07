@@ -480,6 +480,21 @@ register struct obj *obj;
             /* Ha!  Trying to cheat her. */
             pline("A freezing mist rises from the %s and envelopes the sword.",
                   hliquid("water"));
+            if (!rn2(3)) {
+                pline("From the mist, a hand reaches forth and wrests your %s from your grasp!",
+                      xname(obj));
+                livelog_printf(LL_ARTIFACT,
+                               "was denied Excalibur! The Lady of the Lake has removed %s %s from existence!",
+                               uhis(), xname(obj));
+                if (carried(obj))
+                    useup(obj);
+                else
+                   delobj(obj);
+                pline_The("fountain disappears!");
+                exercise(A_WIS, FALSE);
+                change_luck(-1);
+                goto dip_end;
+            }
             pline_The("fountain disappears!");
             curse(obj);
             if (obj->spe > -6 && !rn2(3))
@@ -504,6 +519,7 @@ register struct obj *obj;
             exercise(A_WIS, TRUE);
 	    livelog_printf(LL_ARTIFACT, "%s", excalmsgs[rn2(SIZE(excalmsgs))]);
         }
+dip_end:
         update_inventory();
         levl[u.ux][u.uy].typ = ROOM, levl[u.ux][u.uy].flags = 0;
         newsym(u.ux, u.uy);
