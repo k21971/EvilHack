@@ -1397,24 +1397,35 @@ register struct attack *mattk;
             break;
         }
 
-        if (Race_if(PM_ILLITHID)) {
+        if (u_slip_free(mtmp, mattk))
+            break;
+
+        /* The material of the helmet on your head determines how effective
+         * it will be when deflecting tentacle/bite attacks. Harder material
+         * will do a better job than a soft cap. */
+        if (uarmh && is_hard(uarmh) && rn2(5)) {
+            /* not body_part(HEAD) */
+            Your("%s blocks the %s to your head.",
+                 helm_simple_name(uarmh), is_zombie(mdat) ? "bite" : "attack");
+            break;
+        }
+
+        if (uarmh && !is_hard(uarmh) && rn2(2)) {
+            Your("%s repels the %s to your head.",
+                 helm_simple_name(uarmh), is_zombie(mdat) ? "bite" : "attack");
+            break;
+        }
+
+        if (Race_if(PM_ILLITHID) && !is_zombie(mdat)) {
             Your("psionic abilities shield your brain.");
             break;
         }
 
-        if (u_slip_free(mtmp, mattk))
-            break;
-
-        if (is_zombie(mtmp->data) && rn2(5)) {
-            if (uncancelled)
+        if (is_zombie(mdat) && rn2(5)) {
+            if (uncancelled) {
+                pline("%s eats your brains!", Monnam(mtmp));
                 diseasemu(mdat);
-            break;
-        }
-
-        if (uarmh && rn2(8)) {
-            /* not body_part(HEAD) */
-            Your("%s blocks the attack to your head.",
-                 helm_simple_name(uarmh));
+            }
             break;
         }
         /* negative armor class doesn't reduce this damage */
