@@ -2556,10 +2556,16 @@ register struct monst *mtmp;
     } else if (unique_corpstat(mtmp->data)) {
         switch(mvitals[tmp].died) {
             case 1:
-                livelog_printf(LL_UMONST, "%s %s",
-                    nonliving(mtmp->data) ? "destroyed" : "killed",
-                    noit_mon_nam(mtmp));
-                break;
+                /* don't livelog your unique pet being killed
+                 * by something else, it gives the impression you did it */
+                if (mtmp->data == &mons[PM_RED_HORSE] && mtmp->mtame) {
+                    break;
+                } else {
+                    livelog_printf(LL_UMONST, "%s %s",
+                        nonliving(mtmp->data) ? "destroyed" : "killed",
+                        noit_mon_nam(mtmp));
+                    break;
+                }
             case 5:
             case 10:
             case 50:
