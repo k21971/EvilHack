@@ -722,7 +722,7 @@ ma_break()
             fracture_rock(obj);
             pline_The("boulder splits and falls apart.");
         } else if (obj = sobj_at(STATUE, dpx, dpy)) {
-            fracture_rock(obj);
+            break_statue(obj);
             pline_The("statue shatters into pieces.");
         }
         if ((bobj = sobj_at(BOULDER, dpx, dpy)) != 0) {
