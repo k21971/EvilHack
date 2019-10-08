@@ -495,6 +495,7 @@ register struct monst *mtmp;
             mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_PRIESTESS:
+            mkmonmoney(mtmp, (long) rn1(10, 20));
 	    ini_mon_inv(mtmp, Priest, 1);
 	    ini_mon_inv(mtmp, Lamp, 10);
             mongets(mtmp, SKELETON_KEY);
@@ -506,6 +507,7 @@ register struct monst *mtmp;
             mongets(mtmp, SKELETON_KEY);
 	    break;
 	case PM_HUMAN_ROGUE:
+            mkmonmoney(mtmp, (long) rn1(1000, 500));
 	    Rogue[R_DAGGERS].trquan = rn1(10, 6);
 	    ini_mon_inv(mtmp, Rogue, 1);
 	    ini_mon_inv(mtmp, Blindfold, 5);
@@ -991,6 +993,8 @@ register struct monst *mtmp;
             }
             if (!rn2(10))
                 (void) mongets(mtmp, DWARVISH_CLOAK);
+            if (mm == PM_HOBBIT_ROGUE)
+                mkmonmoney(mtmp, (long) rn1(100, 20));
         } else if (is_dwarf(ptr)) {
             if (rn2(7))
                 (void) mongets(mtmp, DWARVISH_CLOAK);
