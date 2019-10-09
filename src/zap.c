@@ -4119,9 +4119,16 @@ xchar sx, sy;
             You("seem unaffected.");
             break;
         } else if (Antimagic) {
-            shieldeff(sx, sy);
-            You("aren't affected.");
-            monstseesu(M_SEEN_MAGR);
+            /* not as much damage as 'touch of death'
+             * but this will still leave a mark */
+            dam = d(4, 6);
+            if (Antimagic && Half_spell_damage) {
+                shieldeff(sx, sy);
+                monstseesu(M_SEEN_MAGR);
+                dam /= 2;
+            }
+            You("feel drained...");
+            u.uhpmax -= dam / 3 + rn2(5);
             break;
 	} else if (Reflecting) {
             You("feel a little bit drained!");
