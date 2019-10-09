@@ -585,7 +585,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         else if (typ == AMULET_OF_YENDOR || typ == FAKE_AMULET_OF_YENDOR)
             /* each must be identified individually */
             Strcat(buf, known ? actualn : dn);
-        else if (nn)
+        else if (nn && !is_soko_prize_flag(obj))
             Strcat(buf, actualn);
         else if (un)
             Sprintf(eos(buf), "amulet called %s", un);
@@ -612,7 +612,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
         if (!dknown)
             Strcat(buf, dn);
-        else if (nn)
+        else if (nn && !is_soko_prize_flag(obj))
             Strcat(buf, actualn);
         else if (un) {
             Strcat(buf, dn);
@@ -675,7 +675,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             break;
         }
 
-        if (nn) {
+        if (nn && !is_soko_prize_flag(obj)) {
             Strcat(buf, actualn);
             propnames(buf, obj->oprops, obj->oprops_known,
                       FALSE, !!strstri(actualn, " of "));

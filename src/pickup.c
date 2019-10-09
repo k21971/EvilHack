@@ -1548,9 +1548,9 @@ boolean telekinesis; /* not picking it up directly by hand */
     mrg_to_wielded = FALSE;
 
     if (is_soko_prize_flag(obj)) {
-	makeknown(obj->otyp);    /* obj is already known */
-	obj->sokoprize = FALSE;  /* reset sokoprize flag */
-	del_soko_prizes();	 /* delete other sokoprizes */
+        makeknown(obj->otyp);    /* obj is already known */
+        obj->sokoprize = FALSE;  /* reset sokoprize flag */
+        del_soko_prizes();	 /* delete other sokoprizes */
         return -1;
     }
     return 1;
@@ -3457,31 +3457,31 @@ del_soko_prizes()
     struct obj *otmp, *onext;
     /* check objs on floor */
     for (otmp = fobj; otmp; otmp = onext) {
-	onext = otmp->nobj; /* otmp may be destroyed */
-	if (is_soko_prize_flag(otmp)) {
-	    x = otmp->ox;
-	    y = otmp->oy;
-	    obj_extract_self(otmp);
-	    if (cansee(x, y)) {
-		You("see %s %s.", an(xname(otmp)),
+        onext = otmp->nobj; /* otmp may be destroyed */
+        if (is_soko_prize_flag(otmp)) {
+            x = otmp->ox;
+            y = otmp->oy;
+            obj_extract_self(otmp);
+            if (cansee(x, y)) {
+                You("see %s %s.", an(xname(otmp)),
                     rn2(2) ? "dissolve into nothingness"
                            : "wink out of existience");
-		newsym(x, y);
-	    } else cnt++;
-	        obfree(otmp, (struct obj *) 0);
-	}
+                newsym(x, y);
+            } else if (cnt && !Deaf) {
+                You_hear("%s.",
+                         rn2(2) ? "a distinct popping sound"
+                                : "a noise like a hundred thousand people saying 'foop'");
+            } else cnt++;
+                obfree(otmp, (struct obj *) 0);
+        }
     }
-    if (cnt && !Deaf)
-        You_hear("%s.",
-                 rn2(2) ? "a distinct popping sound"
-                        : "a noise like a hundred thousand people saying 'foop'");
     /* check buried objs... do we need this? */
     for (otmp = level.buriedobjlist; otmp; otmp = onext) {
 	onext = otmp->nobj; /* otmp may be destroyed */
-	if (is_soko_prize_flag(otmp)) {
-	    obj_extract_self(otmp);
-	    obfree(otmp, (struct obj *) 0);
-	}
+        if (is_soko_prize_flag(otmp)) {
+            obj_extract_self(otmp);
+            obfree(otmp, (struct obj *) 0);
+        }
     }
 }
 
