@@ -3435,7 +3435,6 @@ screamu(mtmp, mattk)
 struct monst *mtmp;
 struct attack *mattk;
 {
-    struct obj *obj;
     static const char *const reactions[] = {
         "stunned",               /* [1] */
     };
@@ -3460,11 +3459,11 @@ struct attack *mattk;
                 if (m_canseeu(mtmp) && (Blind) && (Deaf)) {
                     You("sense a disturbing vibration in the air.");
                 }
-	        if (m_canseeu(mtmp) && canseemon(mtmp) && (!Deaf)) {
-		    pline("%s croaks hoarsely.", Monnam(mtmp));
-	        } else {
-		    You_hear("a hoarse croak nearby.");
-	        }
+                if (m_canseeu(mtmp) && canseemon(mtmp) && (!Deaf)) {
+                    pline("%s croaks hoarsely.", Monnam(mtmp));
+                } else {
+                    You_hear("a hoarse croak nearby.");
+                }
                 break;
             } else {
                 int stun = d(4, 6);
