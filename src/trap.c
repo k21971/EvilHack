@@ -77,7 +77,7 @@ struct monst *victim;
         item = item->nobj;
     }
 
-#define burn_dmg(obj, descr) erode_obj(obj, descr, ERODE_BURN, EF_GREASE)
+#define burn_dmg(obj, descr) erode_obj(obj, descr, ERODE_BURN, (EF_GREASE | EF_DESTROY))
     while (1) {
         switch (rn2(5)) {
         case 0:
@@ -5876,7 +5876,8 @@ lava_effects()
             losehp(!boil_away ? 1 : (u.uhp / 2), lava_killer,
                    KILLED_BY); /* lava damage */
     } else {
-        if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
+        if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
+                     || uarm->otyp == WHITE_DRAGON_SCALES)) {
 	    levl[u.ux][u.uy].typ = ROOM;
 	    if (!rn2(4)) {
 		pline_The("lava cools and solidifies under your feet.");
@@ -5886,11 +5887,6 @@ lava_effects()
     }
 
 burn_stuff:
-    /*
-    destroy_item(SCROLL_CLASS, AD_FIRE);
-    destroy_item(SPBOOK_CLASS, AD_FIRE);
-    destroy_item(POTION_CLASS, AD_FIRE);
-    */
     fire_damage_chain(invent, FALSE, FALSE, u.ux, u.uy);
     return FALSE;
 }

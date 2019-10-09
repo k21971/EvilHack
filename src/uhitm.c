@@ -3161,7 +3161,7 @@ boolean wep_was_destroyed;
             if (aatyp == AT_KICK) {
                 if (uarmf && !rn2(6))
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_BURN,
-                                     EF_GREASE | EF_VERBOSE);
+                                     EF_GREASE | EF_VERBOSE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
                 passive_obj(mon, weapon, &(ptr->mattk[i]));
@@ -3536,7 +3536,7 @@ struct attack *mattk;     /* null means we find one internally */
         if (!rn2(6) && !mon->mcan
             /* steam vortex: fire resist applies, fire damage doesn't */
             && mon->data != &mons[PM_STEAM_VORTEX]) {
-            (void) erode_obj(obj, NULL, ERODE_BURN, EF_NONE);
+            (void) erode_obj(obj, NULL, ERODE_BURN, EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_ACID:
