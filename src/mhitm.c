@@ -1160,6 +1160,27 @@ register struct attack *mattk;
         }
         tmp += destroy_mitem(mdef, POTION_CLASS, AD_COLD);
         break;
+    case AD_LOUD:
+        if (cancelled) {
+            tmp = 0;
+            break;
+        }
+        if (vis && canseemon(mdef) && !Deaf)
+            pline("%s reels from the noise!", Monnam(mdef));
+        if (!rn2(6))
+            erode_armor(mdef, ERODE_FRACTURE);
+        tmp += destroy_mitem(mdef, RING_CLASS, AD_LOUD);
+        tmp += destroy_mitem(mdef, TOOL_CLASS, AD_LOUD);
+        tmp += destroy_mitem(mdef, WAND_CLASS, AD_LOUD);
+        tmp += destroy_mitem(mdef, POTION_CLASS, AD_LOUD);
+        if (pd == &mons[PM_GLASS_GOLEM]) {
+            pline("%s shatters into a million pieces!", Monnam(mdef));
+            mondied(mdef);
+            if (mdef->mhp > 0)
+                return 0;
+            return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+        }
+        break;
     case AD_ELEC:
         if (cancelled) {
             tmp = 0;

@@ -45,44 +45,45 @@
 #define AD_DRST 7   /* drains str (poison) */
 #define AD_WATR 8   /* water (physical) attack */
 #define AD_ACID 9   /* acid damage */
-#define AD_SPC1 10   /* for extension of buzz() */
-#define AD_SPC2 11  /* for extension of buzz() */
-#define AD_BLND 12  /* blinds (yellow light) */
-#define AD_STUN 13  /* stuns */
-#define AD_SLOW 14  /* slows */
-#define AD_PLYS 15  /* paralyses */
-#define AD_DRLI 16  /* drains life levels (Vampire) */
-#define AD_DREN 17  /* drains magic energy */
-#define AD_LEGS 18  /* damages legs (xan) */
-#define AD_STON 19  /* petrifies (Medusa, cockatrice) */
-#define AD_STCK 20  /* sticks to you (mimic) */
-#define AD_SGLD 21  /* steals gold (leppie) */
-#define AD_SITM 22  /* steals item (nymphs) */
-#define AD_SEDU 23  /* seduces & steals multiple items */
-#define AD_TLPT 24  /* teleports you (Quantum Mech.) */
-#define AD_RUST 25  /* rusts armour (Rust Monster)*/
-#define AD_CONF 26  /* confuses (Umber Hulk) */
-#define AD_DGST 27  /* digests opponent (trapper, etc.) */
-#define AD_HEAL 28  /* heals opponent's wounds (nurse) */
-#define AD_WRAP 29  /* special "stick" for eels */
-#define AD_WERE 30  /* confers lycanthropy */
-#define AD_DRDX 31  /* drains dexterity (quasit) */
-#define AD_DRCO 32  /* drains constitution */
-#define AD_DRIN 33  /* drains intelligence (mind flayer) */
-#define AD_DISE 34  /* confers diseases */
-#define AD_DCAY 35  /* decays organics (brown Pudding) */
-#define AD_SSEX 36  /* Succubus seduction (extended) */
-#define AD_HALU 37  /* causes hallucination */
-#define AD_DETH 38  /* for Death only */
-#define AD_PEST 39  /* for Pestilence only */
-#define AD_FAMN 40  /* for Famine only */
-#define AD_SLIM 41  /* turns you into green slime */
-#define AD_ENCH 42  /* remove enchantment (disenchanter) */
-#define AD_CORR 43  /* corrode armor (black pudding) */
-#define AD_CNCL 44  /* cancellation */
-#define AD_BHED 45  /* beheading (vorpal jabberwock) */
-#define AD_LUCK 46  /* affects luck (magical eye) */
-#define AD_PSYC 47  /* psionic attack */
+#define AD_LOUD 10  /* sound damage */
+#define AD_SPC1 11  /* for extension of buzz() */
+#define AD_SPC2 12  /* for extension of buzz() */
+#define AD_BLND 13  /* blinds (yellow light) */
+#define AD_STUN 14  /* stuns */
+#define AD_SLOW 15  /* slows */
+#define AD_PLYS 16  /* paralyses */
+#define AD_DRLI 17  /* drains life levels (Vampire) */
+#define AD_DREN 18  /* drains magic energy */
+#define AD_LEGS 19  /* damages legs (xan) */
+#define AD_STON 20  /* petrifies (Medusa, cockatrice) */
+#define AD_STCK 21  /* sticks to you (mimic) */
+#define AD_SGLD 22  /* steals gold (leppie) */
+#define AD_SITM 23  /* steals item (nymphs) */
+#define AD_SEDU 24  /* seduces & steals multiple items */
+#define AD_TLPT 25  /* teleports you (Quantum Mech.) */
+#define AD_RUST 26  /* rusts armour (Rust Monster)*/
+#define AD_CONF 27  /* confuses (Umber Hulk) */
+#define AD_DGST 28  /* digests opponent (trapper, etc.) */
+#define AD_HEAL 29  /* heals opponent's wounds (nurse) */
+#define AD_WRAP 30  /* special "stick" for eels */
+#define AD_WERE 31  /* confers lycanthropy */
+#define AD_DRDX 32  /* drains dexterity (quasit) */
+#define AD_DRCO 33  /* drains constitution */
+#define AD_DRIN 34  /* drains intelligence (mind flayer) */
+#define AD_DISE 35  /* confers diseases */
+#define AD_DCAY 36  /* decays organics (brown Pudding) */
+#define AD_SSEX 37  /* Succubus seduction (extended) */
+#define AD_HALU 38  /* causes hallucination */
+#define AD_DETH 39  /* for Death only */
+#define AD_PEST 40  /* for Pestilence only */
+#define AD_FAMN 41  /* for Famine only */
+#define AD_SLIM 42  /* turns you into green slime */
+#define AD_ENCH 43  /* remove enchantment (disenchanter) */
+#define AD_CORR 44  /* corrode armor (black pudding) */
+#define AD_CNCL 45  /* cancellation */
+#define AD_BHED 46  /* beheading (vorpal jabberwock) */
+#define AD_LUCK 47  /* affects luck (magical eye) */
+#define AD_PSYC 48  /* psionic attack */
 
 #define AD_CLRC 240 /* random clerical spell */
 #define AD_SPEL 241 /* random magic spell */

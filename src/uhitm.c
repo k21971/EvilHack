@@ -1953,6 +1953,30 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         }
         tmp += destroy_mitem(mdef, POTION_CLASS, AD_COLD);
         break;
+    /* currently the only monster that uses AD_LOUD is
+     * the Nazgul, and they are M2_NOPOLY, but we'll put this
+     * here for completeness sake. we may add other creatures
+     * that can use this damage type at some point in the future */
+    case AD_LOUD:
+        if (negated) {
+            tmp = 0;
+            break;
+        }
+        if (!Deaf)
+            pline("%s reels from the noise!", Monnam(mdef));
+        if (!rn2(6))
+            erode_armor(mdef, ERODE_FRACTURE);
+        tmp += destroy_mitem(mdef, RING_CLASS, AD_LOUD);
+        tmp += destroy_mitem(mdef, TOOL_CLASS, AD_LOUD);
+        tmp += destroy_mitem(mdef, WAND_CLASS, AD_LOUD);
+        tmp += destroy_mitem(mdef, POTION_CLASS, AD_LOUD);
+        if (pd == &mons[PM_GLASS_GOLEM]) {
+            pline("%s shatters into a million pieces!", Monnam(mdef));
+            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+            tmp = 0;
+            break;
+        }
+        break;
     case AD_ELEC:
         if (negated) {
             tmp = 0;

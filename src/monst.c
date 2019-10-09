@@ -2358,7 +2358,7 @@ struct permonst _mons2[] = {
     MON("Nazgul", S_WRAITH, LVL(17, 12, -2, 35, -17),
         (G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_DRLI, 1, 10), ATTK(AT_BREA, AD_SLEE, 2, 25),
-          ATTK(AT_SCRE, AD_STUN, 2, 8), NO_ATTK, NO_ATTK, NO_ATTK),
+          ATTK(AT_SCRE, AD_LOUD, 2, 8), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 0, MS_SPELL, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
         0, M1_BREATHLESS | M1_HUMANOID | M1_SEE_INVIS,
         M2_NOPOLY | M2_STALK | M2_STRONG | M2_HOSTILE | M2_MALE

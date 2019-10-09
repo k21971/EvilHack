@@ -5134,6 +5134,9 @@ register struct obj *obj;
  *      [4] burning spellbook
  *      [5] shocked ring
  *      [6] shocked wand
+ *      [7] sound potion
+ *      [8] sound item
+ *      [9] sound wand
  * (books, rings, and wands don't stack so don't need plural form;
  *  crumbling ring doesn't do damage so doesn't need killer reason)
  */
@@ -5146,6 +5149,9 @@ const char *const destroy_strings[][3] = {
     { "catches fire and burns", "", "burning book" },
     { "turns to dust and vanishes", "", "" },
     { "breaks apart and explodes", "", "exploding wand" },
+    { "resonates and shatters", "resonate and shatter", "shattered potion"},
+    { "resonates and shatters", "", "shattered item"},
+    { "vibrates and shatters", "", "shattered wand"},
 };
 
 /* guts of destroy_item(), which ought to be called maybe_destroy_items();
@@ -5240,6 +5246,38 @@ int osym, dmgtyp;
             skip++;
             break;
         }
+        break;
+    case AD_LOUD:
+        if (objects[obj->otyp].oc_material == GLASS
+            && obj->oerodeproof) {
+            skip++;
+            if (!Blind)
+                Your("%s oscillates briefly, but remains intact.",
+                     xname(obj));
+        }
+        if (objects[obj->otyp].oc_material == GLASS
+            && !obj->oerodeproof) {
+            quan = obj->quan;
+            switch (osym) {
+            case POTION_CLASS:
+                dmg = rnd(4);
+                dindx = 7;
+                break;
+            case RING_CLASS:
+            case TOOL_CLASS:
+                dmg = 1;
+                dindx = 8;
+                break;
+            case WAND_CLASS:
+                dmg = rnd(6);
+                dindx = 9;
+                break;
+            default:
+                skip++;
+                break;
+            }
+        } else
+            skip++;
         break;
     default:
         skip++;
@@ -5474,6 +5512,35 @@ int osym, dmgtyp;
                 skip++;
                 break;
             }
+            break;
+        case AD_LOUD:
+            if (objects[obj->otyp].oc_material == GLASS
+                && obj->oerodeproof) {
+                skip++;
+                if (vis)
+                    pline("%s oscillates briefly, but remains intact.",
+                          The(distant_name(obj, xname)));
+            }
+            if (objects[obj->otyp].oc_material == GLASS
+                && !obj->oerodeproof) {
+                quan = obj->quan;
+                switch (osym) {
+                case POTION_CLASS:
+                    dindx = 7;
+                    break;
+                case RING_CLASS:
+                case TOOL_CLASS:
+                    dindx = 8;
+                    break;
+                case WAND_CLASS:
+                    dindx = 9;
+                    break;
+                default:
+                    skip++;
+                    break;
+                }
+            } else
+                skip++;
             break;
         default:
             skip++;

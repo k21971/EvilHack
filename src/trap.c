@@ -264,13 +264,21 @@ int ef_flags;
 
         return ER_DAMAGED;
     } else if (ef_flags & EF_DESTROY) {
-        if (uvictim || vismon || visobj)
-            pline("%s %s %s away!",
-                  uvictim ? "Your"
-                          : !vismon ? "The" /* visobj */
-                                    : s_suffix(Monnam(victim)),
-                  ostr, vtense(ostr, action[type]));
-
+        if (type == ERODE_FRACTURE) {
+            if (uvictim || vismon || visobj)
+                pline("%s %s %s and shatters!",
+                      uvictim ? "Your"
+                              : !vismon ? "The" /* visobj */
+                                        : s_suffix(Monnam(victim)),
+                      ostr, vtense(ostr, action[type]));
+        } else {
+            if (uvictim || vismon || visobj)
+                pline("%s %s %s away!",
+                      uvictim ? "Your"
+                              : !vismon ? "The" /* visobj */
+                                        : s_suffix(Monnam(victim)),
+                      ostr, vtense(ostr, action[type]));
+        }
         if (ef_flags & EF_PAY)
             costly_alteration(otmp, cost_type);
 
