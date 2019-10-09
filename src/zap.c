@@ -3845,11 +3845,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         if (resists_magm(mon)) {
             sho_shieldeff = TRUE;
             tmp = (tmp + 1) / 2;
-            }
-        if (Half_spell_damage) {
+        }
+        if (Half_spell_damage)
             tmp = (tmp + 1) / 2;
-            }
-            break;
+        break;
     case ZT_FIRE:
         if (resists_fire(mon)) {
             sho_shieldeff = TRUE;
@@ -3890,6 +3889,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         break;
     case ZT_DEATH:                              /* death/disintegration */
         if (abs(type) != ZT_BREATH(ZT_DEATH)) { /* death */
+            tmp = d(4, 6);
             if (mon->data == &mons[PM_DEATH]) {
                 mon->mhpmax += mon->mhpmax / 2;
                 if (mon->mhpmax >= MAGIC_COOKIE)
@@ -3899,10 +3899,20 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 break;
             }
             if (nonliving(mon->data) || is_demon(mon->data)
-                || is_vampshifter(mon) || resists_magm(mon)
-                || mon->data->msound == MS_LEADER) {
+                || is_vampshifter(mon) || mon->data->msound == MS_LEADER) {
+                sho_shieldeff = TRUE;
+                break;
+            }
+            if (resists_magm(mon)) {
                 /* similar to player */
                 sho_shieldeff = TRUE;
+                tmp = (tmp + 1) / 2;
+                pline("%s resists the death magic, but appears drained!",
+                      Monnam(mon));
+                if (spellcaster)
+                    tmp = spell_damage_bonus(tmp);
+                if (Half_spell_damage)
+                    tmp = (tmp + 1) / 2;
                 break;
             }
             type = -1; /* so they don't get saving throws */

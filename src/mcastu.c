@@ -1656,15 +1656,17 @@ int spellnum;
        	} else if (!(resisted = resist(mtmp, 0, 0, FALSE)) ||
        	           rn2(mons[u.umonnum].mlevel) > 12) {
                    mtmp->mhp = -1;
-       	    if (yours) killed(mtmp);
+       	    if (yours)
+                killed(mtmp);
        	    else monkilled(mtmp, "", AD_SPEL);
        	    return;
        	} else {
-       	    if (resisted) shieldeff(mtmp->mx, mtmp->my);
+       	    if (resisted)
+                shieldeff(mtmp->mx, mtmp->my);
        	    if (yours || canseemon(mtmp)) {
        	        if (mtmp->mtame)
-       		          pline("Lucky for %s, it didn't work!", mon_nam(mtmp));
-       		      else
+       		    pline("Lucky for %s, it didn't work!", mon_nam(mtmp));
+       	        else
        	            pline("Well. That didn't work...");
             }
        	}
