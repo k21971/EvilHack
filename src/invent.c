@@ -865,8 +865,9 @@ struct obj *obj;
         obj->record_achieve_special = NON_PM;
         obj->nomerge = 0;
     } else if (is_soko_prize(obj)) {
+        /* Moved this livelog announcement to src/pickup.c
         if (!u.uachieve.finish_sokoban)
-            livelog_printf(LL_ACHIEVE, "completed Sokoban, acquiring %s", doname(obj));
+            livelog_printf(LL_ACHIEVE, "completed Sokoban, acquiring %s", an(xname(obj))); */
         u.uachieve.finish_sokoban = 1;
         obj->record_achieve_special = NON_PM;
         obj->nomerge = 0;
