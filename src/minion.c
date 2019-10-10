@@ -502,6 +502,7 @@ gain_guardian_angel()
              * call tamedog().
              */
             mtmp->mtame = 10;
+            u.uconduct.pets++;
             /* make him strong enough vs. endgame foes */
             mtmp->m_lev = rn1(8, 15);
             mtmp->mhp = mtmp->mhpmax =

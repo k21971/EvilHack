@@ -848,8 +848,10 @@ gcrownu()
             if (!Blind)
                 Your("sword shines brightly for a moment.");
             obj = oname(obj, artiname(ART_EXCALIBUR));
-            if (obj && obj->oartifact == ART_EXCALIBUR)
+            if (obj && obj->oartifact == ART_EXCALIBUR) {
                 u.ugifts++;
+                u.uconduct.artitouch++;
+            }
         }
         /* acquire Excalibur's skill regardless of weapon or gift */
         unrestrict_weapon_skill(P_LONG_SWORD);
@@ -1543,6 +1545,7 @@ dosacrifice()
 		uwep->oeroded = uwep->oeroded2 = 0;
 		uwep->oerodeproof = TRUE;
 		exercise(A_WIS, TRUE);
+                u.uconduct.artitouch++;
                 livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                                "had Dirge gifted to %s by the grace of %s",
                                uhim(), align_gname(u.ualign.type));

@@ -94,12 +94,16 @@ struct u_conduct {     /* number of times... */
     long wishes;       /* used a wish */
     long wisharti;     /* wished for an artifact */
     long elbereth;     /* engraved Elbereth */
+    long artitouch;    /* touched an artifact */
+    long pets;         /* obtained a pet */
     /* genocides already listed at end of game */
 };
 
 struct u_roleplay {
     boolean blind;  /* permanently blind */
     boolean nudist; /* has not worn any armor, ever */
+    boolean hallu;  /* permanently hallucinating */
+    boolean deaf;   /* permanently deaf */
     long numbones;  /* # of bones files loaded  */
 };
 

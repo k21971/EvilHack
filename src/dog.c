@@ -118,6 +118,7 @@ boolean quietly;
         return (struct monst *) 0;
 
     initedog(mtmp);
+    u.uconduct.pets++;
     mtmp->msleeping = 0;
     if (otmp) { /* figurine; resulting monster might not become a pet */
         chance = rn2(10); /* 0==tame, 1==peaceful, 2==hostile */
@@ -129,6 +130,7 @@ boolean quietly;
 	}
         if (chance > 0) {
             mtmp->mtame = 0;   /* not tame after all */
+            u.uconduct.pets--; /* doesn't count as creating a pet */
             if (chance == 2) { /* hostile (cursed figurine) */
                 if (!quietly)
                     You("get a bad feeling about this.");
@@ -162,6 +164,8 @@ makedog()
 
     if (preferred_pet == 'n')
         return ((struct monst *) 0);
+
+    u.uconduct.pets++;
 
     pettype = pet_type();
     if (pettype == PM_LITTLE_DOG)
@@ -1000,6 +1004,7 @@ register struct obj *obj;
     /* add the pet extension */
     newedog(mtmp);
     initedog(mtmp);
+    u.uconduct.pets++;
 
     if (obj) { /* thrown food */
         /* defer eating until the edog extension has been set up */
@@ -1149,6 +1154,7 @@ gain_guardian_steed()
         if (enexto(&mm, mm.x, mm.y, &mons[PM_RED_HORSE])
             && (mtmp = makemon(&mons[PM_RED_HORSE], mm.x, mm.y, MM_EDOG)) != 0) {
             mtmp->mtame = 20;
+            u.uconduct.pets++;
             EDOG(mtmp)->apport = ACURR(A_CHA);
             mtmp->mstrategy &= ~STRAT_APPEARMSG;
             if (!Blind)

@@ -2412,7 +2412,7 @@ int final;
     if (Confusion)
         you_are("confused", "");
     if (Hallucination)
-        you_are("hallucinating", "");
+        you_are("hallucinating", from_what(HALLUC));
     if (Blind) {
         /* from_what() (currently wizard-mode only) checks !haseyes()
            before u.uroleplay.blind, so we should too */
@@ -3329,6 +3329,10 @@ int final;
 
     if (u.uroleplay.blind)
         you_have_been("blind from birth");
+    if (u.uroleplay.deaf)
+        you_have_been("deaf from birth");
+    if (u.uroleplay.hallu)
+        you_have_been("hallucinating for your entire life");
     if (u.uroleplay.nudist)
         you_have_been("faithfully nudist");
 
@@ -3394,6 +3398,10 @@ int final;
         you_have_X(buf);
     }
 
+    if (!u.uconduct.artitouch) {
+        you_have_never("touched an artifact");
+    }
+
     if (!u.uconduct.wishes) {
         you_have_X("used no wishes");
     } else {
@@ -3424,6 +3432,10 @@ int final;
         if (!u.uconduct.wisharti)
             enl_msg(You_, "have not wished", "did not wish",
                     " for any artifacts", "");
+    }
+
+    if (!u.uconduct.pets) {
+       you_have_never("owned a pet");
     }
 
     /* Pop up the window and wait for a key */

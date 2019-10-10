@@ -402,8 +402,13 @@ encodexlogflags()
         e |= 1L << 0;
     if (discover)
         e |= 1L << 1;
-    if (!u.uroleplay.numbones)
-        e |= 1L << 2;
+    /* Reserve the 9th through 16th bits as their own number representing the
+     * number of bones files loaded. */
+    if (u.uroleplay.numbones > 0xFF) {
+        impossible("more than 255 bones files loaded?");
+        u.uroleplay.numbones = 0xFF;
+    }
+    e |= u.uroleplay.numbones << 8;
 
     return e;
 }
@@ -437,8 +442,22 @@ encodeconduct()
         e |= 1L << 10;
     if (!num_genocides())
         e |= 1L << 11;
-    if (!u.uconduct.elbereth)
+    if (!u.uconduct.pets)
         e |= 1L << 12;
+    if (!u.uconduct.artitouch)
+        e |= 1L << 13;
+    if (!u.uconduct.elbereth)
+        e |= 1L << 14;
+    if (u.uroleplay.blind)
+        e |= 1L << 15;
+    if (u.uroleplay.nudist)
+        e |= 1L << 16;
+    if (u.uroleplay.hallu)
+        e |= 1L << 17;
+    if (u.uroleplay.deaf)
+        e |= 1L << 18;
+    if (u.umortality == 0)
+        e |= 1L << 19;
 
     return e;
 }
@@ -472,10 +491,6 @@ encodeachieve()
         r |= 1L << 10;
     if (u.uachieve.killed_medusa)
         r |= 1L << 11;
-    if (u.uroleplay.blind)
-        r |= 1L << 12;
-    if (u.uroleplay.nudist)
-        r |= 1L << 13;
 
     return r;
 }
