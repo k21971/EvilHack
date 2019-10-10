@@ -772,11 +772,11 @@ int dieroll;
     unconventional[0] = '\0';
     saved_oname[0] = '\0';
 
-    /* Awaken nearby monsters. A stealthy hero causes less noise. */
+    /* Awaken nearby monsters. A stealthy hero makes much less noise */
     if (!(is_silent(youmonst.data) && helpless(mon))
-        && rn2(Stealth ? 10 : 5)) {
+        && rn2(Stealth ? 10 : 2)) {
         int base_combat_noise = combat_noise(&mons[urace.malenum]);
-        wake_nearto(mon->mx, mon->my, Stealth ? base_combat_noise/2
+        wake_nearto(mon->mx, mon->my, Stealth ? base_combat_noise / 2
                                               : base_combat_noise);
     }
 

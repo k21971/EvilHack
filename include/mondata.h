@@ -323,7 +323,7 @@
  * This gets used as an argument to wake_nearto, which expects a squared value,
  * so we square the result. */
 #define combat_noise(ptr) \
-    ((ptr)->msound ? ((ptr)->msize*2 + 1) * ((ptr)->msize*2 + 1) \
-                   : ((ptr)->msize + 1)   * ((ptr)->msize + 1))
+    ((ptr)->msound ? ((ptr)->msize * 2 + 1) * ((ptr)->msize * 2 + 1) \
+                   : ((ptr)->msize + 1) * ((ptr)->msize + 1))
 
 #endif /* MONDATA_H */
