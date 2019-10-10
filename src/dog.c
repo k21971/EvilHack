@@ -1153,8 +1153,13 @@ gain_guardian_steed()
         mm.y = u.uy;
         if (enexto(&mm, mm.x, mm.y, &mons[PM_RED_HORSE])
             && (mtmp = makemon(&mons[PM_RED_HORSE], mm.x, mm.y, MM_EDOG)) != 0) {
-            mtmp->mtame = 20;
-            u.uconduct.pets++;
+            /* Too nasty for the game to unexpectedly break petless conduct on
+             * the final level of the game. The Red Horse will still appear, but
+             * won't be tamed. Toss some carrots at it if you want to tame it */
+            if (u.uconduct.pets) {
+                mtmp->mtame = 20;
+                u.uconduct.pets++;
+            }
             EDOG(mtmp)->apport = ACURR(A_CHA);
             mtmp->mstrategy &= ~STRAT_APPEARMSG;
             if (!Blind)
