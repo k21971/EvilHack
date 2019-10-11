@@ -293,7 +293,7 @@ struct obj {
      (o)->cobj != (struct obj *) 0)
 #define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
 #define Is_box(otmp) (otmp->otyp == LARGE_BOX || otmp->otyp == CHEST \
-                      || otmp->otyp == IRON_SAFE)
+                      || otmp->otyp == IRON_SAFE || otmp->otyp == CRYSTAL_CHEST)
 #define Is_mbag(otmp) \
     (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS)
 #define Is_allbag(otmp) \

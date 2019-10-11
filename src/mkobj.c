@@ -306,6 +306,7 @@ struct obj *box;
         n = 10;
         break;
     case CHEST:
+    case CRYSTAL_CHEST:
         n = box->olocked ? 7 : 5;
         break;
     case LARGE_BOX:
@@ -952,9 +953,9 @@ boolean artif;
                 otmp->olocked = 1;
             case CHEST:
             case LARGE_BOX:
-		if (otmp->otyp != IRON_SAFE) {
-		    otmp->olocked = !!(rn2(5));
-		}
+                if (otmp->otyp != IRON_SAFE) {
+                    otmp->olocked = !!(rn2(5));
+                }
                 otmp->otrapped = !(rn2(10));
                 /*FALLTHRU*/
             case ICE_BOX:

@@ -4187,6 +4187,7 @@ struct obj *no_wish;
     case CHEST:
     case LARGE_BOX:
     case IRON_SAFE:
+    case CRYSTAL_CHEST:
     case HEAVY_IRON_BALL:
     case IRON_CHAIN:
     case STATUE:

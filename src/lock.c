@@ -86,8 +86,8 @@ picklock(VOID_ARGS)
     if (xlock.box) {
         if (((xlock.box->where != OBJ_FLOOR
             || (xlock.box->ox != u.ux || (xlock.box->oy != u.uy))
-            && (xlock.box->otyp != IRON_SAFE || abs(xlock.box->oy - u.uy) > 1
-            || abs(xlock.box->ox - u.ux) > 1)))) {
+            && (xlock.box->otyp != IRON_SAFE || xlock.box->otyp != CRYSTAL_CHEST
+                || abs(xlock.box->oy - u.uy) > 1 || abs(xlock.box->ox - u.ux) > 1)))) {
            return ((xlock.usedtime = 0)); /* you or it moved */
         }
     } else { /* door */
@@ -231,6 +231,8 @@ boolean destroyit;
 STATIC_PTR int
 forcelock(VOID_ARGS)
 {
+    struct obj *otmp;
+
     if ((xlock.box->ox != u.ux) || (xlock.box->oy != u.uy))
         return ((xlock.usedtime = 0)); /* you or it moved */
 
@@ -238,6 +240,11 @@ forcelock(VOID_ARGS)
         You("give up your attempt to force the lock.");
         if (xlock.usedtime >= 50) /* you made the effort */
             exercise((xlock.picktyp) ? A_DEX : A_STR, TRUE);
+        return ((xlock.usedtime = 0));
+    }
+
+    if (otmp->otyp == CRYSTAL_CHEST) {
+        You_cant("force the lock of such a container.");
         return ((xlock.usedtime = 0));
     }
 
@@ -432,13 +439,23 @@ int rx, ry;
 
 		if (otmp->otyp == IRON_SAFE && picktyp != STETHOSCOPE) {
 		    You("aren't sure how to go about opening the safe that way.");
-		    return 0;
+		    return PICKLOCK_LEARNED_SOMETHING;
 		}
 
 		if (!otmp->olocked && otmp->otyp == IRON_SAFE) {
 		    You_cant("change the combination.");
-		    return 0;
+		    return PICKLOCK_LEARNED_SOMETHING;
 		}
+
+                if (otmp->olocked && otmp->otyp == CRYSTAL_CHEST) {
+                    You_cant("unlock such a container via physical means.");
+                    return PICKLOCK_LEARNED_SOMETHING;
+                }
+
+                if (!otmp->olocked && otmp->otyp == CRYSTAL_CHEST) {
+                    You_cant("lock such a container via physical means.");
+                    return PICKLOCK_LEARNED_SOMETHING;
+                }
 
                 if (otmp->obroken) {
                     You_cant("fix its broken lock with %s.", doname(pick));
@@ -605,6 +622,10 @@ doforce()
 	        You("would need dynamite to force %s.", the(xname(otmp)));
 		continue;
 	    }
+            if (otmp->otyp == CRYSTAL_CHEST) {
+                You_cant("force the lock of such a container.");
+                continue;
+            }
             if (otmp->obroken || !otmp->olocked) {
                 /* force doname() to omit known "broken" or "unlocked"
                    prefix so that the message isn't worded redundantly;

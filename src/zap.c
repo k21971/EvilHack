@@ -1280,6 +1280,8 @@ int mat, minwt;
             continue;
         if (obj_resists(otmp, 0, 0))
             continue; /* preserve unique objects */
+        if (otmp->otyp == CRYSTAL_CHEST)
+            continue; /* special container that is immune to magic */
 #ifdef MAIL
         if (otmp->otyp == SCR_MAIL)
             continue;
@@ -1950,7 +1952,8 @@ struct obj *obj, *otmp;
         case WAN_POLYMORPH:
         case SPE_POLYMORPH:
             if (obj->otyp == WAN_POLYMORPH || obj->otyp == SPE_POLYMORPH
-                || obj->otyp == POT_POLYMORPH || obj_resists(obj, 5, 95)) {
+                || obj->otyp == POT_POLYMORPH || obj_resists(obj, 5, 95)
+                || obj->otyp == CRYSTAL_CHEST) {
                 res = 0;
                 break;
             }
@@ -1982,8 +1985,12 @@ struct obj *obj, *otmp;
             /* target object has now been "seen (up close)" */
             obj->dknown = 1;
             if (Is_container(obj) || obj->otyp == STATUE) {
-                obj->cknown = obj->lknown = 1;
-                if (!obj->cobj) {
+                if (!obj->otyp == CRYSTAL_CHEST)
+                    obj->cknown = obj->lknown = 1;
+                if (obj->otyp == CRYSTAL_CHEST) {
+                    pline_The("%s resists your magical probing.", xname(obj));
+                    res = 0;
+                } else if (!obj->cobj) {
                     pline("%s empty.", Tobjnam(obj, "are"));
                 } else if (SchroedingersBox(obj)) {
                     /* we don't want to force alive vs dead

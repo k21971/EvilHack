@@ -118,7 +118,8 @@ int x, y;
      */
 
     /* on map, presence of any trappable container will do */
-    if (sobj_at(CHEST, x, y) || sobj_at(LARGE_BOX, x, y) || sobj_at(IRON_SAFE, x, y))
+    if (sobj_at(CHEST, x, y) || sobj_at(LARGE_BOX, x, y)
+        || sobj_at(IRON_SAFE, x, y) || sobj_at(CRYSTAL_CHEST, x, y))
         return TRUE;
     /* in inventory, we need to find one which is actually trapped */
     if (x == u.ux && y == u.uy) {

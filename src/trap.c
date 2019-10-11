@@ -3620,6 +3620,7 @@ xchar x, y;
         switch (obj->otyp) {
         case ICE_BOX:
         case IRON_SAFE:
+        case CRYSTAL_CHEST:
             return FALSE; /* Immune */
         case CHEST:
             chance = 40;

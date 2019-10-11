@@ -1989,7 +1989,8 @@ reverse_loot()
         /* find original coffers chest if present, otherwise use nearest one */
         otmp = 0;
         for (coffers = fobj; coffers; coffers = coffers->nobj)
-            if (coffers->otyp == CHEST || coffers->otyp == IRON_SAFE) {
+            if (coffers->otyp == CHEST || coffers->otyp == IRON_SAFE
+                || coffers->otyp == CRYSTAL_CHEST) {
                 if (coffers->spe == 2)
                     break; /* a throne room chest */
                 if (!otmp

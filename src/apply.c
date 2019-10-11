@@ -3681,6 +3681,7 @@ doapply()
     case BAG_OF_HOLDING:
     case OILSKIN_SACK:
     case IRON_SAFE:
+    case CRYSTAL_CHEST:
         res = use_container(&obj, 1, FALSE);
         break;
     case BAG_OF_TRICKS:
