@@ -643,7 +643,10 @@ struct attack *mattk;
                         "gore" : "butt");
                 break;
             case AT_TUCH:
-                Sprintf(buf, "%s touches", magr_name);
+                if (magr->data == &mons[PM_GIANT_CENTIPEDE])
+                    Sprintf(buf, "%s coils its body around", magr_name);
+                else
+                    Sprintf(buf, "%s touches", magr_name);
                 break;
             case AT_TENT:
                 if (magr->data == &mons[PM_MEDUSA])

@@ -942,6 +942,16 @@ NEARDATA struct permonst mons[] = {
         M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_POIS
             | M1_CARNIVORE,
         M2_HOSTILE, M3_ACCURATE, 0, 0, 8, CLR_RED),
+    /* in honor of our friend Grasshopper
+     * who always seems to be attacked by centipedes */
+    MON("giant centipede", S_SPIDER, LVL(16, 24, -6, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_DRST, 6, 8), ATTK(AT_TUCH, AD_WRAP, 1, 4),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(600, 300, MS_SILENT, MZ_LARGE), MR_POISON, MR_POISON,
+        M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE
+            | M1_THICK_HIDE,
+        M2_HOSTILE | M2_STRONG | M2_NASTY, M3_ACCURATE,
+        0, 0, 20, CLR_ORANGE),
     /*
      * trappers, lurkers, &c
      */

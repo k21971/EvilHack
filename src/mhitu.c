@@ -77,7 +77,10 @@ struct attack *mattk;
                   "gores you with its tusk" : "butt");
             break;
         case AT_TUCH:
-            pfmt = "%s touches you!";
+            if (mtmp->data == &mons[PM_GIANT_CENTIPEDE])
+                pline("%s coils its body around you!", Monnam(mtmp));
+            else
+                pfmt = "%s touches you!";
             break;
         case AT_TENT:
             if (mtmp->data == &mons[PM_MEDUSA])
@@ -1612,7 +1615,9 @@ register struct attack *mattk;
                 if (u_slip_free(mtmp, mattk)) {
                     dmg = 0;
                 } else {
-                    pline("%s swings itself around you!", Monnam(mtmp));
+                    pline("%s %s around you!", Monnam(mtmp),
+                          mtmp->data == &mons[PM_GIANT_CENTIPEDE]
+                          ? "coils its body" : "swings itself");
                     u.ustuck = mtmp;
                 }
             } else if (u.ustuck == mtmp) {
@@ -1634,7 +1639,8 @@ register struct attack *mattk;
                 dmg = 0;
                 if (flags.verbose)
                     pline("%s brushes against your %s.", Monnam(mtmp),
-                          body_part(LEG));
+                          mtmp->data == &mons[PM_GIANT_CENTIPEDE]
+                          ? "body" : body_part(LEG));
             }
         } else
             dmg = 0;
