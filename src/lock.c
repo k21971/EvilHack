@@ -459,7 +459,6 @@ int rx, ry;
                              an(simple_typename(picktyp)));
                     return PICKLOCK_LEARNED_SOMETHING;
                 }
-cont_pick_lock:
                 switch (picktyp) {
                 case CREDIT_CARD:
                     ch = ACURR(A_DEX) + 20 * Role_if(PM_ROGUE);
