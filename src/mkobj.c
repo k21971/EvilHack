@@ -953,6 +953,7 @@ boolean artif;
                 otmp->olocked = 1;
             case CHEST:
             case LARGE_BOX:
+            case CRYSTAL_CHEST:
                 if (otmp->otyp != IRON_SAFE) {
                     otmp->olocked = !!(rn2(5));
                 }
@@ -3231,6 +3232,8 @@ struct obj* obj;
         case STAFF_OF_ESCAPE:
         case STAFF_OF_WAR:
         case GRAPPLING_HOOK:
+        case IRON_SAFE:
+        case CRYSTAL_CHEST:
             return NULL;
         /* Any other cases for specific object types go here. */
         case SHIELD_OF_REFLECTION:

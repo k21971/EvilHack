@@ -1009,8 +1009,8 @@ makelevel()
          */
 	if (!rn2(nroom * 5 / 2)) {
 	    i = rn2(5);
-	    if (!i && depth(&u.uz) > 15) {
-	        boxtype = IRON_SAFE;
+            if (!i && depth(&u.uz) > 15) {
+                boxtype = IRON_SAFE;
             } else if (!i && depth(&u.uz) > 10) {
                 boxtype = CRYSTAL_CHEST;
 	    } else if (i > 2) {

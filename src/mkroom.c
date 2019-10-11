@@ -433,7 +433,7 @@ struct mkroom *sroom;
         /* the royal coffers */
 	if (depth(&u.uz) > 15) {
 	    chest = mksobj_at(IRON_SAFE, mm.x, mm.y, TRUE, FALSE);
-        } else if (depth(&u.uz) > 9 && !rn2(10)) {
+        } else if (depth(&u.uz) > 10 && !rn2(10)) {
             chest = mksobj_at(CRYSTAL_CHEST, mm.x, mm.y, TRUE, FALSE);
 	} else {
 	    chest = mksobj_at(CHEST, mm.x, mm.y, TRUE, FALSE);

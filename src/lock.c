@@ -231,8 +231,6 @@ boolean destroyit;
 STATIC_PTR int
 forcelock(VOID_ARGS)
 {
-    struct obj *otmp;
-
     if ((xlock.box->ox != u.ux) || (xlock.box->oy != u.uy))
         return ((xlock.usedtime = 0)); /* you or it moved */
 
@@ -240,11 +238,6 @@ forcelock(VOID_ARGS)
         You("give up your attempt to force the lock.");
         if (xlock.usedtime >= 50) /* you made the effort */
             exercise((xlock.picktyp) ? A_DEX : A_STR, TRUE);
-        return ((xlock.usedtime = 0));
-    }
-
-    if (otmp->otyp == CRYSTAL_CHEST) {
-        You_cant("force the lock of such a container.");
         return ((xlock.usedtime = 0));
     }
 
@@ -466,6 +459,7 @@ int rx, ry;
                              an(simple_typename(picktyp)));
                     return PICKLOCK_LEARNED_SOMETHING;
                 }
+cont_pick_lock:
                 switch (picktyp) {
                 case CREDIT_CARD:
                     ch = ACURR(A_DEX) + 20 * Role_if(PM_ROGUE);
@@ -618,9 +612,9 @@ doforce()
     xlock.box = (struct obj *) 0;
     for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
         if (Is_box(otmp)) {
-	    if (otmp->otyp == IRON_SAFE) {
-	        You("would need dynamite to force %s.", the(xname(otmp)));
-		continue;
+            if (otmp->otyp == IRON_SAFE) {
+                You("would need dynamite to force %s.", the(xname(otmp)));
+                continue;
 	    }
             if (otmp->otyp == CRYSTAL_CHEST) {
                 You_cant("force the lock of such a container.");
