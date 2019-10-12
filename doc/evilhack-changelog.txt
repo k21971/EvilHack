@@ -393,3 +393,106 @@ Version 0.3.2
 Version 0.4.0
 -------------
 
+- Amulet material fixes (by ogmobot)
+- Object properties patch
+- Adjust material frequency for items regularly made of iron/metal, orcish gear, dwarvish weapons
+- New weapons/armor (orcish scimitar, orcish boots, regular gauntlets
+- Fix: crash due to various dragon scales/scale mail and Dragonbane passive attack
+- Healers gain sickness resistance intrinsic at experience level 15
+- Fix: inventory weight and available/total slots showing up as a menu selection
+- Fix: player races that hated a certain material would still be adversely affected while
+  twoweaponing and wearing gloves
+- Dirge does proper acid damage to worn armor
+- Prevent monsters' starting gear from being a material they hate
+- Fix: not all cases were covered in regards to protecting the players (or monsters) head
+  for a hard helmet made of a hard material.
+- Heavy objects falling on your head do more damage than normal
+- Glass helmets when worn can shatter if a heavy object falls on the players head
+- When polymorphed into forms that have certain attacks, don't use those attacks under
+  certain conditions
+- New player race: Illithid
+- Fix: MR_PSYCHIC was not applied correctly for all monsters with the flag
+- Fix: panic when trying to wear orcish boots
+- Fix: the <weapon> welds itself to the hobbit rogue's claw!
+- Add tentacle brain-eating attack to Illithid player race
+- Make shimmering scales use toggle_stealth and toggle_displacement (by ogmobot)
+- Gold DSM shouldn't stop glowing if it hasn't yet been worn (by ogmobot)
+- Adjust Illithid tentacle attack damage based on experience level
+- New race/role combinations (dwarf barbarian, samurai or wizard, giant wizard)
+- New player role: Convict
+- Add Luck Blade to the array of chaotic artifacts
+- Allow the Iron Ball of Liberation to be wished for
+- Fix: cursed amulet of life saving could appear in bones file after use
+- Illithid player race fixes (by ogmobot)
+- Slight adjustments to mines' end 'Orc Temple'
+- Reduce amount of feedback received with fighting with a weapon that requires more practice
+  to train or is restricted
+- High priest in the sanctum has a magic marker in inventory
+- Fix: various intelligent monster AI issues
+- Fix: monster steeds lagging behind one turn when it and its rider are teleported
+- Fix: incorrect feedback when invisible monster rides a steed
+- Forge revamp
+- Fix: crash bug introduced from last commit (tame lava demon from forge-dipping)
+- Dropping a ring of polymorph down a sink has a chance of creating a forge
+- Forge tweaks - extra feedback when dipping and nothing of consequence happens,
+  slightly increased odds again of repairing damage to metal objects
+- Illithid race not allowed to play healer role
+- Create three levels of the Dark Knight's steed, the 'nightmare' (lesser nightmare,
+  nightmare, cauchemar)
+- Adjust stats of all three levels of pseudodragon
+- Bugbear edit (now S_ORC as it should have been)
+- New vampire types
+- Fix: crash when trying to check steed of invisible monster (by ogmobot)
+- Owlbear makeover
+- Lava demons like lava
+- Use set_material for Croesus' gear (by ogmobot)
+- New monster: Sea dragon
+- New objects: Helm of speed, amulet of magic resistance
+- Two sokoban end prizes changed
+- New object: gauntlets of protection
+- Readjust dwarvish/elven chain mail MC
+- The Eyes of the Overworld protect against several gaze attacks
+- Monks wearing body armor penalty actually means something (penalty is more severe)
+- Player feedback for monks wearing/removing body armor
+- Artifact weapons used against black drgaons have much greater chance
+  of not being disintegrated
+- Killing a dragon while engulfed by it will produce a dragon corpse
+- Tame dragons don't drop scales
+- Adjust shopkeepers' base level to 13
+- New monster: Woolly Mammoth
+- Elephant-like monsters gain a gripping trunk attack
+- Mumak revamp
+- Revamp of the monster HP modification code (from xNetHack)
+- Ghost overhaul
+- Suppress livelogging of the Red Horse being killed
+- Adjust spear trap damage based on level depth
+- Fix: how helmets are supposed to block attacks to your head
+- Dragonbane is immune to black dragon's passive disintegration
+- Fix: better feedback for 'you hear something being opened'
+- Mindless monsters are unaffected by any means of scaring
+- Fix: breaking a statue that had contents would not clear cobj
+- The Lady of the Lake wants your sword
+- Reverting back to wands of death can only be recharged once before exploding
+- Hobbit rogues, human rogues always have gold on them
+- Croesus can move other monsters out of his way
+- Nazgul scream attack can potentially shatter glass objects
+- Sokoban end: walls that replace disppearing doors prevent phasing
+- Fix: if player has an object that is already ID'ed and that object is also
+  one of the sokoban prizes, don't show that sokoban prize object as
+  known until it's actually been picked up by the player.
+- Wand of death/finger of death spell is not completely negated by magic
+- Monsters with magic resistance are affected the same way as the player
+  when hit by a wand of death/finger of death spell
+- Livelog ID'ed sokoban prize and not 'sokoban prize <object>
+- More scenarios where fire damage can destroy objects
+- Less chance of waking monsters in combat if stealthy
+- New conducts
+- Don't break petless conduct upon entering the Astral Plane
+- New object: crystal chest
+- Fix: artifactless conduct wasn't broken by kicking an artifact
+- New monster: giant centipede (hi Grasshopper!)
+- Fix: msize bug with shambling horror
+- Fix: player monsters taking the wrong rank when created
+- Tweak damage from iron/mithril as a hated material
+- Additional missing monsters added to monsters.txt
+- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of October 12th, 2019)
