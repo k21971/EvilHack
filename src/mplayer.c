@@ -96,7 +96,7 @@ char *nam;
     else
         mtmp->female = 0;
     Strcat(nam, " the ");
-    Strcat(nam, rank_of((int) mtmp->m_lev, monsndx(mtmp->data),
+    Strcat(nam, rank_of((int) mtmp->m_lev, monsndx(mtmp->data) + 17,
                         (boolean) mtmp->female));
 }
 
@@ -181,6 +181,7 @@ struct obj *obj;
             if (helm == HELM_OF_BRILLIANCE)
                 helm = STRANGE_OBJECT;
             break;
+        case PM_HUMAN_CAVEMAN:
         case PM_HUMAN_CAVEWOMAN:
             if (rn2(4))
                 weapon = MACE;
@@ -216,6 +217,7 @@ struct obj *obj;
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
+        case PM_HUMAN_PRIEST:
         case PM_HUMAN_PRIESTESS:
             if (rn2(2))
                 weapon = MACE;

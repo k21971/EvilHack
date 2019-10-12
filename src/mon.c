@@ -304,7 +304,7 @@ int mndx, mode;
         mndx = mode ? PM_HUMAN_BARBARIAN : PM_HUMAN;
         break;
     case PM_NEANDERTHAL:
-        mndx = mode ? PM_HUMAN_CAVEWOMAN : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_CAVEMAN : PM_HUMAN;
         break;
     case PM_INMATE:
         mndx = mode ? PM_HUMAN_CONVICT : PM_HUMAN;
@@ -319,7 +319,7 @@ int mndx, mode;
         mndx = mode ? PM_HUMAN_MONK : PM_HUMAN;
         break;
     case PM_ACOLYTE:
-        mndx = mode ? PM_HUMAN_PRIESTESS : PM_HUMAN;
+        mndx = mode ? PM_HUMAN_PRIEST : PM_HUMAN;
         break;
     case PM_HUNTER:
         mndx = mode ? PM_HUMAN_RANGER : PM_HUMAN;

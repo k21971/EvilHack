@@ -462,6 +462,7 @@ register struct monst *mtmp;
 	    ini_mon_inv(mtmp, Lamp, 6);
             mongets(mtmp, SKELETON_KEY);
 	    break;
+        case PM_HUMAN_CAVEMAN:
 	case PM_HUMAN_CAVEWOMAN:
 	    Cave_man[C_AMMO].trquan = rn1(11, 10);	/* 10..20 */
 	    ini_mon_inv(mtmp, Cave_man, 1);
@@ -494,6 +495,7 @@ register struct monst *mtmp;
 	    ini_mon_inv(mtmp, Lamp, 10);
             mongets(mtmp, SKELETON_KEY);
 	    break;
+        case PM_HUMAN_PRIEST:
 	case PM_HUMAN_PRIESTESS:
             mkmonmoney(mtmp, (long) rn1(10, 20));
 	    ini_mon_inv(mtmp, Priest, 1);

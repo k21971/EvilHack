@@ -3446,7 +3446,6 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
          MH_HUMAN, 12, CLR_YELLOW),
-#if 0
     MON("human caveman", S_HUMAN, LVL(10, 15, 10, 0, 1), (1),
         A(ATTK(AT_WEAP, AD_SAMU, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -3454,7 +3453,6 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_MALE | M2_COLLECT,
         M3_INFRAVISIBLE, 0, MH_HUMAN, 12, CLR_YELLOW),
-#endif
     MON("human cavewoman", S_HUMAN, LVL(10, 15, 10, 0, 1), (1),
         A(ATTK(AT_WEAP, AD_SAMU, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -3483,15 +3481,6 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
         MH_HUMAN, 12, CLR_YELLOW),
-#if 0
-    MON("human dark knight", S_HUMAN, LVL(10, 15, 10, 1, -3), (1),
-        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_WEAP, AD_SAMU, 1, 6),
-          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), 0, 0,
-        M1_HUMANOID | M1_OMNIVORE,
-        M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE,
-        0, MH_HUMAN, 12, CLR_YELLOW),
-#endif
     MON("human monk", S_HUMAN, LVL(10, 12, 10, 2, 0), (1),
         A(ATTK(AT_WEAP, AD_SAMU, 1, 8), ATTK(AT_KICK, AD_PHYS, 1, 8),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -3499,7 +3488,6 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_HERBIVORE | M1_SEE_INVIS,
         M2_NOPOLY | M2_STRONG | M2_COLLECT | M2_MALE,
         M3_INFRAVISIBLE, 0, MH_HUMAN, 12, CLR_YELLOW),
-#if 0
     MON("human priest", S_HUMAN, LVL(10, 12, 10, 2, 0), (1),
         A(ATTK(AT_WEAP, AD_SAMU, 1, 6), ATTK(AT_MAGC, AD_CLRC, 1, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -3507,7 +3495,6 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_MALE | M2_COLLECT,
         M3_INFRAVISIBLE, 0, MH_HUMAN, 12, CLR_YELLOW),
-#endif
     MON("human priestess", S_HUMAN, LVL(10, 12, 10, 2, -2), (1),
         A(ATTK(AT_WEAP, AD_SAMU, 1, 6), ATTK(AT_MAGC, AD_CLRC, 1, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
