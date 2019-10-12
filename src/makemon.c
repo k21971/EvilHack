@@ -1,4 +1,4 @@
-/* NetHack 3.6	makemon.c	$NHDT-Date: 1561236435 2019/06/22 20:47:15 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.138 $ */
+/* NetHack 3.6	makemon.c	$NHDT-Date: 1570569787 2019/10/08 21:23:07 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.140 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -421,7 +421,7 @@ register struct monst *mtmp;
     register struct permonst *ptr = mtmp->data;
     register int mm = monsndx(ptr);
     struct obj *otmp;
-    int bias, spe2, w1, w2, randwand;
+    int bias, w1, w2, randwand;
 
     if (Is_rogue_level(&u.uz))
         return;
@@ -841,12 +841,10 @@ register struct monst *mtmp;
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_PRIEST)) {
             otmp = mksobj(MACE, FALSE, FALSE);
-            if (otmp) {
-                otmp->spe = rnd(3);
-                if (!rn2(2))
-                    curse(otmp);
-                (void) mpickobj(mtmp, otmp);
-            }
+            otmp->spe = rnd(3);
+            if (!rn2(2))
+                curse(otmp);
+            (void) mpickobj(mtmp, otmp);
         } else if (mm == PM_NINJA) { /* extra quest villains */
             (void) mongets(mtmp, rn2(4) ? SHURIKEN : DART);
             (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : AXE);
@@ -857,8 +855,7 @@ register struct monst *mtmp;
             otmp = oname(otmp, artiname(ART_EXCALIBUR));
             bless(otmp);
             otmp->oerodeproof = TRUE;
-            spe2 = rn2(4);
-            otmp->spe = max(otmp->spe, spe2);
+            otmp->spe = rnd(4) + 1;
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, LARGE_SHIELD);
         } else if (mm == PM_MEDUSA) {
@@ -959,14 +956,13 @@ register struct monst *mtmp;
             }
             bless(otmp);
             otmp->oerodeproof = TRUE;
-            spe2 = rn2(4);
-            otmp->spe = max(otmp->spe, spe2);
+            otmp->spe = rn2(4);
             (void) mpickobj(mtmp, otmp);
 
             otmp = mksobj(!rn2(4) || is_lord(ptr) ? SHIELD_OF_REFLECTION
                                                   : LARGE_SHIELD,
                           FALSE, FALSE);
-            otmp->cursed = FALSE;
+            /* uncurse(otmp); -- mksobj(,FALSE,) item is always uncursed */
             otmp->oerodeproof = TRUE;
             otmp->spe = 0;
             (void) mpickobj(mtmp, otmp);
