@@ -1824,9 +1824,8 @@ struct permonst _mons2[] = {
     *
    /* the illustration from _Through_the_Looking_Glass_
       depicts hands as well as wings */
-   MON("snark", S_JABBERWOCK,
-        LVL(12, 18, 0, 30, 0), (G_GENO | 2),
-        A(ATTK(AT_BITE, AD_PHYS, 2,6), ATTK(AT_BITE, AD_PHYS, 2,6),
+   MON("snark", S_JABBERWOCK, LVL(12, 18, 0, 30, 0), (G_GENO | 2),
+        A(ATTK(AT_BITE, AD_PHYS, 2, 6), ATTK(AT_BITE, AD_PHYS, 2, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(400, 200, MS_SILENT, MZ_LARGE), MR_DISINT, MR_DISINT,
         M1_ANIMAL | M1_FLY | M1_CARNIVORE,
@@ -1841,10 +1840,9 @@ struct permonst _mons2[] = {
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_COLLECT, M3_INFRAVISIBLE,
         0, 0, 18, CLR_ORANGE),
     /* boojum only come from snarks */
-    MON("boojum", S_JABBERWOCK,
-        LVL(18, 15, 0, 90, 0), G_NOGEN,
-        A(ATTK(AT_BITE, AD_PHYS, 3,10), ATTK(AT_CLAW, AD_PHYS, 3,10),
-          ATTK(AT_CLAW, AD_PHYS, 3,10), ATTK(AT_CLAW, AD_TLPT, 0,0),
+    MON("boojum", S_JABBERWOCK, LVL(18, 15, 0, 90, 0), G_NOGEN,
+        A(ATTK(AT_BITE, AD_PHYS, 3, 10), ATTK(AT_CLAW, AD_PHYS, 3, 10),
+          ATTK(AT_CLAW, AD_PHYS, 3, 10), ATTK(AT_CLAW, AD_TLPT, 0, 0),
           NO_ATTK, NO_ATTK),
         SIZ(400, 200, MS_SILENT, MZ_LARGE),
         MR_FIRE | MR_ELEC | MR_DISINT, MR_FIRE | MR_ELEC | MR_DISINT,
