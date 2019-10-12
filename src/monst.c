@@ -2253,16 +2253,12 @@ struct permonst _mons2[] = {
         SIZ(1200, 500, MS_SILENT, MZ_LARGE), 0, 0, M1_TUNNEL | M1_CARNIVORE,
         M2_STRONG, M3_INFRAVISIBLE, 0, 0, 12, CLR_BROWN),
     /*
-     * From SporkHack
+     * From SporkHack/UnNetHack
      * Placeholder for the random creature...
      *
      * None of these stats have any significance, they're just to ensure
      * that if one does get accidentally generated in the 'normal' way
      * (without a remapped permonst) that nothing useful happens.
-     *
-     * Also note that the LVL value will affect your generated
-     * monster's internal difficulty in monstr.h; be careful to leave this
-     * fairly high as random permutations of ATTK() could make it nasty
      *
      * Until I can figure out a way to save the shambling horrors' spawned
      * state into the save file, the template will be adjusted to prevent

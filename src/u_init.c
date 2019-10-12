@@ -1055,91 +1055,90 @@ u_init()
         break;
     }
 
-	/* what a horrible night to have a curse */
-	shambler->mlevel += rnd(12) - 3;		/* shuffle level */
-	shambler->mmove = rn2(10) + 9;			/* slow to very fast */
-	shambler->ac = rn2(21) - 10;			/* any AC */
-	shambler->mr = rn2(5) * 25;			/* varying amounts of MR */
-	shambler->maligntyp = rn2(21) - 10;
+    /* what a horrible night to have a curse */
+    shambler->mlevel += rnd(12) - 3;	/* shuffle level */
+    shambler->mmove = rn2(10) + 9;	/* slow to very fast */
+    shambler->ac = rn2(21) - 10;	/* any AC */
+    shambler->mr = rn2(5) * 25;		/* varying amounts of MR */
+    shambler->maligntyp = rn2(21) - 10;
 
-	for (i = 0; i < rnd(4); i++) {
-	    attkptr = &shambler->mattk[i];
-	    attkptr->aatyp = rnd(AT_TENT); /* uchar */
-            attkptr->adtyp = rn2(AD_BHED);
+    for (i = 0; i < rnd(4); i++) {
+        attkptr = &shambler->mattk[i];
+        attkptr->aatyp = rnd(AT_TENT); /* uchar */
+        attkptr->adtyp = rn2(AD_BHED);
 
-	    if (attkptr->aatyp == AT_GAZE) {
-	        attkptr->aatyp = AT_MAGC;
-	    } else if (attkptr->aatyp == AT_EXPL || attkptr->aatyp == AT_BOOM) {
-	               attkptr->aatyp = AT_CLAW + rn2(12);
+        if (attkptr->aatyp == AT_GAZE) {
+            attkptr->aatyp = AT_MAGC;
+        } else if (attkptr->aatyp == AT_EXPL || attkptr->aatyp == AT_BOOM) {
+                   attkptr->aatyp = AT_CLAW + rn2(12);
         }
 
-            if (attkptr->aatyp == AT_MAGC) {
-                attkptr->adtyp = AD_CLRC + rn2(2);         /* AT_MAGC must correspond to a spell type */
-            } else if (attkptr->aatyp == AT_BREA) {
-                       attkptr->adtyp = AD_MAGM + rn2(8);
-            } else if (attkptr->aatyp == AT_SPIT) {
-                       attkptr->adtyp = AD_ACID;
-            } else if (attkptr->aatyp == AT_ENGL) {
-                       attkptr->adtyp = AD_DGST + rn2(3);  /* This could either be really bad, or very good */
-	    }
+        if (attkptr->aatyp == AT_MAGC) {
+            attkptr->adtyp = AD_CLRC + rn2(2);         /* AT_MAGC must correspond to a spell type */
+        } else if (attkptr->aatyp == AT_BREA) {
+                   attkptr->adtyp = AD_MAGM + rn2(8);
+        } else if (attkptr->aatyp == AT_SPIT) {
+                   attkptr->adtyp = AD_ACID;
+        } else if (attkptr->aatyp == AT_ENGL) {
+                   attkptr->adtyp = AD_DGST + rn2(3);  /* This could either be really bad, or very good */
+        }
 
-            if (attkptr->adtyp == AD_DETH || attkptr->adtyp == AD_PEST
-                || attkptr->adtyp == AD_FAMN || attkptr->adtyp == AD_SPC1
-                || attkptr->adtyp == AD_SPC2) {
-                attkptr->adtyp = AD_ENCH + rn2(4);
-            } else if (attkptr->adtyp == AD_STCK || attkptr->adtyp == AD_SSEX) {
-                       attkptr->adtyp = AD_SLOW + rn2(4);
-	    } else if (attkptr->adtyp == AD_DISN) {
-                       attkptr->adtyp = AD_ACID;
-            }
+        if (attkptr->adtyp == AD_DETH || attkptr->adtyp == AD_PEST
+            || attkptr->adtyp == AD_FAMN || attkptr->adtyp == AD_SPC1
+            || attkptr->adtyp == AD_SPC2) {
+            attkptr->adtyp = AD_ENCH + rn2(4);
+        } else if (attkptr->adtyp == AD_STCK || attkptr->adtyp == AD_SSEX) {
+                   attkptr->adtyp = AD_SLOW + rn2(4);
+        } else if (attkptr->adtyp == AD_DISN) {
+                   attkptr->adtyp = AD_ACID;
+        }
 
-	    attkptr->damn = 3 + rn2(3);
-	    attkptr->damd = 6 + rn2(3);
-	}
+        attkptr->damn = 3 + rn2(3);
+        attkptr->damd = 6 + rn2(3);
+    }
 
-	shambler->msize = rn2(MZ_GIGANTIC + 1);			/* any size */
-	shambler->cwt = 20;					/* fortunately moot as it's flagged NOCORPSE */
-	shambler->cnutrit = 20;					/* see above */
-	shambler->msound = rn2(MS_HUMANOID);			/* any but the specials */
-	shambler->mresists = 0;
-	for (i = 0; i < rnd(6); i++) {
-	     shambler->mresists |= (1 << rn2(8));		/* physical resistances... */
-	}
-	for (i = 0; i < rnd(5); i++) {
-	     shambler->mresists |= (0x100 << rn2(7));	        /* 'different' resistances, even clumsy */
-	}
-	shambler->mconveys = 0;					/* flagged NOCORPSE */
-	/*
-	 * now time for the random flags.  this will likely produce
-	 * a number of complete trainwreck monsters at first, but
-	 * every so often something will dial up nasty stuff
-	 */
-	shambler->mflags1 = 0;
-	for (i = 0; i < rnd(17); i++) {
-	     shambler->mflags1 |= (1 << rn2(33));		/* rn2() should equal the number of M1_ flags in
-                                                                 * include/monflag.h */
-	}
-	shambler->mflags1 &= ~M1_UNSOLID;			/* no ghosts */
-	shambler->mflags1 &= ~M1_WALLWALK;			/* no wall-walkers */
-        shambler->mflags1 &= ~M1_ACID;                          /* will never leave a corpse */
-        shambler->mflags1 &= ~M1_POIS;                          /* same as above */
+    shambler->msize = rn2(MZ_HUGE);		/* any size */
+    shambler->cwt = 20;				/* fortunately moot as it's flagged NOCORPSE */
+    shambler->cnutrit = 20;			/* see above */
+    shambler->msound = rn2(MS_HUMANOID);	/* any but the specials */
+    shambler->mresists = 0;
 
-	shambler->mflags2 = M2_NOPOLY | M2_HOSTILE;		/* Don't let the player be one of these yet. */
-	for (i = 0; i < rnd(17); i++) {
-	     shambler->mflags2 |= (1 << rn2(22));               /* rn2() should equal the number of M2_ flags in
-                                                                 * include/monflag.h */
-	}
-	shambler->mflags2 &= ~M2_MERC;				/* no guards */
-	shambler->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
-	shambler->mflags2 &= ~M2_PNAME;				/* not a proper name */
-        shambler->mflags2 &= ~M2_SHAPESHIFTER;                  /* no chameleon types */
-        shambler->mflags2 &= ~M2_LORD;                          /* isn't rolyalty */
-        shambler->mflags2 &= ~M2_PRINCE;                        /* still isn't royalty */
-        shambler->mflags2 &= ~M2_DOMESTIC;                      /* no taming */
+    for (i = 0; i < rnd(6); i++)
+        shambler->mresists |= (1 << rn2(8));		/* physical resistances... */
+    for (i = 0; i < rnd(5); i++)
+        shambler->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+    shambler->mconveys = 0;				/* flagged NOCORPSE */
 
-	for (i = 0; i < rnd(5); i++) {
-	    shambler->mflags3 |= (0x100 << rn2(6));	        /* no covetous, but any of the middle */
-        }                                                       /* M3_ flags are OK */
+    /*
+     * now time for the random flags.  this will likely produce
+     * a number of complete trainwreck monsters at first, but
+     * every so often something will dial up nasty stuff
+     */
+    shambler->mflags1 = 0;
+
+    for (i = 0; i < rnd(17); i++)
+        shambler->mflags1 |= (1 << rn2(33));	/* rn2() should equal the number of M1_ flags in
+                                                 * include/monflag.h */
+    shambler->mflags1 &= ~M1_UNSOLID;		/* no ghosts */
+    shambler->mflags1 &= ~M1_WALLWALK;		/* no wall-walkers */
+    shambler->mflags1 &= ~M1_ACID;		/* will never leave a corpse */
+    shambler->mflags1 &= ~M1_POIS;		/* same as above */
+
+    shambler->mflags2 = M2_NOPOLY | M2_HOSTILE;	/* Don't let the player be one of these yet. */
+    for (i = 0; i < rnd(17); i++)
+        shambler->mflags2 |= (1 << rn2(22));	/* rn2() should equal the number of M2_ flags in
+                                                 * include/monflag.h */
+    shambler->mflags2 &= ~M2_MERC;		/* no guards */
+    shambler->mflags2 &= ~M2_PEACEFUL;		/* no peacefuls */
+    shambler->mflags2 &= ~M2_PNAME;		/* not a proper name */
+    shambler->mflags2 &= ~M2_SHAPESHIFTER;	/* no chameleon types */
+    shambler->mflags2 &= ~M2_LORD;		/* isn't royalty */
+    shambler->mflags2 &= ~M2_PRINCE;		/* still isn't royalty */
+    shambler->mflags2 &= ~M2_DOMESTIC;		/* no taming */
+
+    for (i = 0; i < rnd(5); i++)
+        shambler->mflags3 |= (0x100 << rn2(6));	/* no covetous, but any of the middle */
+                                                /* M3_ flags are OK */
     return;
 }
 
