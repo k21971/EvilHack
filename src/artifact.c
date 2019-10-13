@@ -1671,7 +1671,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 		    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
 		} else if (youdefend && is_were(youmonst.data) && k) {
                     pline("The silver blade gravely burns you!");
-			  *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+			  *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
 		} else {
 	   	    return FALSE;
 		}
@@ -1682,7 +1682,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)) && k) {
                     pline("The magical sword eviscerates you!");
-                          *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                          *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else {
                     return FALSE;
                 }
@@ -1693,7 +1693,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 			*dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
 		} else if (youdefend && is_ogre(youmonst.data) && k) {
 		    pline("The monstrous hammer crushes your skull!");
-		 	  *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+		 	  *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
 		} else {
 		    return FALSE;
 		}
@@ -1704,7 +1704,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 			  *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
 		} else if (youdefend && is_troll(youmonst.data) && k) {
 		    You("burst into flame as you are hit!");
-			*dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+			*dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
 		} else {
 		    return FALSE;
 		}
@@ -1715,7 +1715,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC)) && k) {
                     You("feel Orcrist slice deep across your neck!");
-                        *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                        *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else {
                     return FALSE;
                 }
@@ -1726,7 +1726,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC)) && k) {
                     You("feel Sting stab deep into your heart!");
-                        *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                        *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else {
                     return FALSE;
                 }
@@ -1737,7 +1737,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)) && k) {
                     pline("Grimtooth penetrates your soft flesh, disembowelling you!");
-                          *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                          *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else {
                     return FALSE;
                 }
@@ -1748,7 +1748,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && is_undead(youmonst.data) && k) {
                     pline("The holy power of Sunsword incinerates your undead flesh!");
-                          *dmgptr = (2 * Upolyd ? u.mh : u.uhp + FATAL_DAMAGE_MODIFIER);
+                          *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else {
                     return FALSE;
                 }
