@@ -3176,8 +3176,6 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
 
     /* give a "<mon> is slowing down" message and also remove
        intrinsic speed (comparable to similar effect on the hero) */
-    if (stoning)
-        /* mon_adjust_speed(mon, -3, (struct obj *) 0); */
 
     if (vis) {
         long save_quan = obj->quan;

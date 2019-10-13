@@ -3281,25 +3281,27 @@ boolean wep_was_destroyed;
             if (!uwep && !wep_was_destroyed
                 && (aatyp == AT_WEAP || aatyp == AT_CLAW
                 || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
-                if (uarmg)
+                if (uarmg) {
                     if (rn2(2) && (uarmg->oerodeproof
                         || is_supermaterial(uarmg)))
                         pline("%s being disintegrated!",
                               Yobjnam2(uarmg, "resist"));
                     else
                         (void) destroy_arm(uarmg);
+                }
                 break;
             }
         }
         if (mhit && !mon->mcan && weapon && !rn2(10)) {
             if (aatyp == AT_KICK) {
-                if (uarmf)
+                if (uarmf) {
                     if (rn2(2) && (uarmf->oerodeproof
                         || is_supermaterial(uarmf)))
                         pline("%s being disintegrated!",
                               Yobjnam2(uarmf, "resist"));
                     else
                         (void) destroy_arm(uarmf);
+                }
                 break;
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH) {

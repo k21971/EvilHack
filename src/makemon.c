@@ -429,7 +429,7 @@ register struct monst *mtmp;
     /* treat mplayers differently */
     if (is_mplayer(mtmp->data) && !In_endgame(&u.uz)) {
 	if (mtmp->m_lev > 1) {
-	    if (mtmp->m_lev > 10 || !rn2(10))
+	    if (mtmp->m_lev > 10 || !rn2(10)) {
                 if (rn2(2)) {
 		    ini_mon_inv(mtmp, !rn2(2) ? Level20Kit1 : Level20Kit2,
                                 (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
@@ -437,6 +437,7 @@ register struct monst *mtmp;
                     ini_mon_inv(mtmp, !rn2(2) ? Level20Kit3 : Level20Kit4,
                                 (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
                 }
+            }
 	    ini_mon_inv(mtmp, !rn2(2) ? Level10Kit1 : Level10Kit2,
 	                (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
         }
