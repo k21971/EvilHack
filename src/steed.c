@@ -233,9 +233,9 @@ boolean
 can_ride(mtmp)
 struct monst *mtmp;
 {
-    return (mtmp->mtame && humanoid(youmonst.data)
+    return ((mtmp->mtame && humanoid(youmonst.data)
             && !verysmall(youmonst.data) && !bigmonst(youmonst.data)
-            && (!Underwater || is_swimmer(mtmp->data))
+            && (!Underwater || is_swimmer(mtmp->data)))
             || (mtmp->data == &mons[PM_WOOLLY_MAMMOTH] && Race_if(PM_GIANT)));
 }
 

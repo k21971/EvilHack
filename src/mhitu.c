@@ -203,7 +203,7 @@ struct attack *mattk;
     if (could_seduce(mtmp, &youmonst, mattk) && !mtmp->mcan)
         pline("%s pretends to be friendly.", Monnam(mtmp));
     else {
-    if (!flags.verbose || !nearmiss && !blocker)
+    if (!flags.verbose || (!nearmiss && !blocker))
 	pline("%s misses.", Monnam(mtmp));
     else if (!blocker)
         rn2(2) ? You("dodge %s attack!", s_suffix(mon_nam(mtmp)))

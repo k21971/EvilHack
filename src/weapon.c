@@ -1677,7 +1677,7 @@ struct obj *weapon;
 	}
 
         /* basically no restrictions if you're a giant, or have giant strength */
-        if (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER
+        if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
             || maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
             maxweight = 200;
 

@@ -2725,7 +2725,7 @@ register struct monst *mon;
             dieroll = rnd(20);
             dhit = (tmp > dieroll || u.uswallow);
 
-            if ((uwep || u.twoweap && uswapwep
+            if ((uwep || (u.twoweap && uswapwep)
                 || (!uwep && P_BARE_HANDED_COMBAT))
                 && (touch_petrifies(mon->data)
                     || is_rider(mon->data)

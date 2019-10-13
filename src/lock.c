@@ -81,8 +81,8 @@ STATIC_PTR int
 picklock(VOID_ARGS)
 {
     if (xlock.box) {
-        if (((xlock.box->where != OBJ_FLOOR
-            || (xlock.box->ox != u.ux || (xlock.box->oy != u.uy))
+        if ((((xlock.box->where != OBJ_FLOOR
+            || (xlock.box->ox != u.ux || (xlock.box->oy != u.uy)))
             && (xlock.box->otyp != IRON_SAFE || xlock.box->otyp != CRYSTAL_CHEST
                 || abs(xlock.box->oy - u.uy) > 1 || abs(xlock.box->ox - u.ux) > 1)))) {
            return ((xlock.usedtime = 0)); /* you or it moved */
@@ -376,7 +376,7 @@ int rx, ry;
 
     /* Very clumsy special case for this, but forcing the player to
      * a)pply > just to open a safe, when a)pply . works in all other cases? */
-    if (cc.x == u.ux && cc.y == u.uy || picktyp == STETHOSCOPE) {	/* pick lock on a container */
+    if ((cc.x == u.ux && cc.y == u.uy) || picktyp == STETHOSCOPE) {	/* pick lock on a container */
         const char *verb;
         char qsfx[QBUFSZ];
         boolean it;
