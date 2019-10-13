@@ -1287,11 +1287,8 @@ struct monst *mtmp;
     register struct obj *obj;
     boolean reflection_skip = m_seenres(mtmp, M_SEEN_REFL)
                               && monnear(mtmp, mtmp->mux, mtmp->muy);
-    boolean mr_skip = m_seenres(mtmp, M_SEEN_MAGR)
-                      && monnear(mtmp, mtmp->mux, mtmp->muy);
     boolean ranged_stuff = FALSE;
     struct obj *helmet = which_armor(mtmp, W_ARMH);
-    struct obj *charge_scroll = (struct obj *)0;
 
     struct monst *target = mfind_target(mtmp);
     if (target) {
@@ -2404,7 +2401,6 @@ struct obj *start;
 {
     register struct obj *obj;
     struct permonst *mdat = mtmp->data;
-    struct obj *charge_scroll = (struct obj *)0;
 #define nomore(x) if(m.has_misc==x) continue;
     for (obj=start; obj; obj=obj->nobj) {
         if (Is_container(obj)) {

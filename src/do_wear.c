@@ -602,9 +602,6 @@ STATIC_PTR
 int
 Gloves_on(VOID_ARGS)
 {
-    long oldprop =
-        u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
-
     oprops_on(uarmg, WORN_GLOVES);
 
     switch (uarmg->otyp) {
@@ -661,8 +658,6 @@ boolean voluntary; /* taking gloves off on purpose? */
 int
 Gloves_off(VOID_ARGS)
 {
-    long oldprop =
-        u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
     boolean on_purpose = !context.mon_moving && !uarmg->in_use;
 
     oprops_off(uarmg, WORN_GLOVES);

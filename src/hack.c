@@ -640,7 +640,6 @@ STATIC_OVL int
 ma_break()
 {
     struct obj *bobj, *obj;
-    int success = 0;
     int prob;
 
     if (distu(dpx, dpy) > 2) {

@@ -3441,11 +3441,6 @@ screamu(mtmp, mattk)
 struct monst *mtmp;
 struct attack *mattk;
 {
-    static const char *const reactions[] = {
-        "stunned",               /* [1] */
-    };
-
-    int react = -1;
     boolean cancelled = (mtmp->mcan != 0), already = FALSE;
 
     /* assumes that the hero has to hear the monster's
@@ -3457,7 +3452,6 @@ struct attack *mattk;
     case AD_LOUD:
         if (m_canseeu(mtmp) && !mtmp->mspec_used && rn2(5)) {
             if (cancelled) {
-                react = 1; /* "stunned" */
                 already = (mtmp->mstun != 0);
                 if (m_canseeu(mtmp) && canseemon(mtmp) && (Deaf)) {
                     pline("It looks as if %s is yelling at you.", mon_nam(mtmp));
@@ -3530,8 +3524,6 @@ struct attack *mattk;
 {
     int i, tmp;
     struct attack *oldu_mattk = 0;
-
-    char plurbuf[BUFSZ];
 
     if (uarm) {
 	switch (uarm->otyp) {

@@ -569,11 +569,10 @@ struct monst *summoner;
 BOOLEAN_P centered_on_stairs;
 {
     register struct monst *mtmp;
-    struct permonst* mdat;
     register int i, j, tmp;
     int castalign = (summoner ? sgn(summoner->data->maligntyp) : 0);
     coord bypos;
-    int count, census, makeindex, s_cls, m_cls;
+    int count, census, s_cls, m_cls;
 
 #define MAXNASTIES 10 /* more than this can be created */
 

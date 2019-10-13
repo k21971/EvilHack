@@ -80,9 +80,6 @@ lock_action()
 STATIC_PTR int
 picklock(VOID_ARGS)
 {
-
-    int rn;
-
     if (xlock.box) {
         if (((xlock.box->where != OBJ_FLOOR
             || (xlock.box->ox != u.ux || (xlock.box->oy != u.uy))

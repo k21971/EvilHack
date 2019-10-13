@@ -2653,7 +2653,7 @@ char *origbuf;
         sysopt.tt_oname_maxrank = n;
     } else if (src == SET_IN_SYS && match_varname(buf, "LIVELOG", 7)) {
 #ifdef LIVELOGFILE
-        n = strtol(bufp,NULL,0); 
+        n = strtol(bufp,NULL,0);
         if (n < 0 || n > 0xFFFF) {
             raw_printf("Illegal value in LIVELOG (must be between 0 and 0xFFFF).");
             return 0;

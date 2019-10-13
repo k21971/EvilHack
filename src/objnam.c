@@ -520,7 +520,6 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     const char *un = ocl->oc_uname;
     boolean pluralize = (obj->quan != 1L) && !(cxn_flags & CXN_SINGULAR);
     boolean known, dknown, bknown;
-    boolean tmp = FALSE;
 
     buf = nextobuf() + PREFIX; /* leave room for "17 -3 " */
     if (Role_if(PM_SAMURAI) && Japanese_item_name(typ))

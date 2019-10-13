@@ -1822,8 +1822,8 @@ struct permonst _mons2[] = {
    /*
     * Jabberwock
     *
-   /* the illustration from _Through_the_Looking_Glass_
-      depicts hands as well as wings */
+    * the illustration from _Through_the_Looking_Glass_
+    * depicts hands as well as wings */
    MON("snark", S_JABBERWOCK, LVL(12, 18, 0, 30, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), ATTK(AT_BITE, AD_PHYS, 2, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),

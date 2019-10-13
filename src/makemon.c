@@ -285,7 +285,7 @@ unsigned short chance;
     struct obj *obj;
     struct trobj temptrop;
     register struct trobj *trop = &temptrop;
-    int otyp, i;
+    int otyp;
 
     memcpy(&temptrop, origtrop, sizeof(struct trobj));
 

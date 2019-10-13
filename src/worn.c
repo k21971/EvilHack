@@ -1150,7 +1150,6 @@ struct obj *obj;
      */
     struct obj *old;
     int rc = 1;
-    long i;
 
     if (!obj)
         return 0;

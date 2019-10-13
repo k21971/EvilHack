@@ -1991,8 +1991,7 @@ struct obj *obj;
 {
 #define PROP_COUNT 7           /* number of properties we're dealing with */
 #define ATTR_COUNT (A_MAX * 3) /* number of attribute points we might fix */
-    int idx, val, val_limit, trouble_count, unfixable_trbl, did_prop,
-        did_attr;
+    int idx, val, val_limit, trouble_count, unfixable_trbl, did_prop;
     int trouble_list[PROP_COUNT + ATTR_COUNT];
 
     if (obj && obj->cursed) {

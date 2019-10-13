@@ -1285,7 +1285,6 @@ moffer(mtmp)
 register struct monst *mtmp;
 {
     register struct obj *otmp;
-    register struct obj *gift;
     /* loop based on select_hwep */
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
         if (otmp->otyp == AMULET_OF_YENDOR && In_endgame(&u.uz)
