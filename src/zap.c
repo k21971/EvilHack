@@ -5824,25 +5824,24 @@ blindingflash()
 {
     struct monst* mtmp;
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-	/* if it can't see the flash, don't bother */
-	if (DEADMONSTER(mtmp) || mtmp->msleeping
-			|| !haseyes(mtmp->data) || !mtmp->mcansee
-                        || mtmp->mblinded || !&youmonst.data) {
-			continue;
-	}
-	/* must be able to see our location... */
-	if (m_cansee(mtmp, u.ux, u.uy) && !rn2(5)) {
-	    if (!Blind && canseemon(mtmp)) {
-		pline("%s is blinded by the flash!", Monnam(mtmp));
-	    }
-            if (mtmp->mtame && rn2(2)) {
+        /* if it can't see the flash, don't bother */
+        if (DEADMONSTER(mtmp) || mtmp->msleeping
+            || !haseyes(mtmp->data) || !mtmp->mcansee
+            || mtmp->mblinded || !&youmonst.data)
+            continue;
+
+        /* must be able to see our location... */
+        if (m_cansee(mtmp, u.ux, u.uy) && !rn2(5)) {
+            if (!Blind && canseemon(mtmp))
+                pline("%s is blinded by the flash!", Monnam(mtmp));
+            if (mtmp->mtame && !rn2(3)) {
                 abuse_dog(mtmp);
-            } else if (mtmp->mpeaceful) {
+            } else if (mtmp->mpeaceful && !rn2(5)) {
                 setmangry(mtmp, TRUE);
             }
-	    mtmp->mblinded = rnd(20);
-	    mtmp->mcansee = 0;
-	}
+            mtmp->mblinded = rnd(20);
+            mtmp->mcansee = 0;
+        }
     }
 }
 
