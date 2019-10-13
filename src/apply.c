@@ -301,7 +301,7 @@ struct obj* tobj;
                 && (stale_egg(egg) || egg->corpsenm == NON_PM)) {
                 pline("The egg doesn't really make any noise at all.");
 	    } else if (tobj->blessed
-                && (!stale_egg(egg) || !egg->corpsenm == NON_PM)) {
+                && (!stale_egg(egg) || egg->corpsenm != NON_PM)) {
                 pline("You listen to the egg and guess... %s!",
                        mons[egg->corpsenm].mname);
             } else {

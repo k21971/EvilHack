@@ -1985,7 +1985,7 @@ struct obj *obj, *otmp;
             /* target object has now been "seen (up close)" */
             obj->dknown = 1;
             if (Is_container(obj) || obj->otyp == STATUE) {
-                if (!obj->otyp == CRYSTAL_CHEST)
+                if (obj->otyp != CRYSTAL_CHEST)
                     obj->cknown = obj->lknown = 1;
                 if (obj->otyp == CRYSTAL_CHEST) {
                     pline_The("%s resists your magical probing.", xname(obj));
