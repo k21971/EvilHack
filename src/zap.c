@@ -2886,8 +2886,6 @@ boolean youattack, allow_cancel_kill, self_cancel;
     }
 
     if (self_cancel) { /* 1st cancel inventory */
-        struct obj *otmp;
-
         for (otmp = (youdefend ? invent : mdef->minvent); otmp;
             otmp = otmp->nobj)
             cancel_item(otmp);

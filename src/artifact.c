@@ -273,7 +273,7 @@ boolean allow_detrimental;
     if (!otmp) {
         int type = 0, skill = P_NONE,
             candidates[128], ccount,
-            threshold = P_EXPERT, i;
+            threshold = P_EXPERT;
         /* This probably is only ever done for weapons, y'know?
          * Find an appropriate type of weapon */
         while (threshold > P_UNSKILLED) {

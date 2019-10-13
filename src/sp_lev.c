@@ -5109,7 +5109,6 @@ redo_maploc:
 	    boolean isokp = TRUE;
 	    for (y = ystart - 1; y < ystart + ysize + 1; y++)
 		for (x = xstart - 1; x < xstart + xsize + 1; x++) {
-		    xchar mptyp;
 		    if (!isok(x, y)) {
 			isokp = FALSE;
 		    } else if (y < ystart || y >= (ystart + ysize) ||

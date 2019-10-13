@@ -420,7 +420,7 @@ register struct monst *mtmp;
 {
     register struct permonst *ptr = mtmp->data;
     register int mm = monsndx(ptr);
-    struct obj *otmp;
+    struct obj *otmp = mtmp->minvent;
     int bias, w1, w2, randwand;
 
     if (Is_rogue_level(&u.uz))
@@ -544,7 +544,7 @@ register struct monst *mtmp;
     }
 
     {
-        struct obj *otmp = mtmp->minvent, *bag = (struct obj *) 0;
+        struct obj *bag = (struct obj *) 0;
 	if (mtmp->m_lev > 1) {
 	    for (; otmp; otmp = otmp->nobj) {
 	        if (otmp->oclass == WEAPON_CLASS) {
