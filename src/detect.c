@@ -1045,7 +1045,7 @@ struct obj *detector;	/* object doing the detecting */
 		if (mtmp->data == &mons[PM_LONG_WORM])
                     detect_wsegs(mtmp, 0);
 	    }
-        if (cursed
+        if (detector && detector->cursed
 	    && (mtmp->msleeping || !mtmp->mcanmove)) {
 	    mtmp->msleeping = mtmp->mfrozen = 0;
 	    mtmp->mcanmove = 1;

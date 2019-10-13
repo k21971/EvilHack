@@ -518,7 +518,7 @@ boolean resuming;
             if (!Hallucination) {
 	        You_feel("%s.", (elf_regen) ? "itchy" : "relief");
             } else {
-                You_feel("%s.", (elf_can_regen) ? "magnetic" : "like you are no longer failing Organic Chemistry");
+                You_feel("%s.", (elf_can_regen()) ? "magnetic" : "like you are no longer failing Organic Chemistry");
             }
 	    elf_regen = elf_can_regen();
 	}
@@ -527,7 +527,7 @@ boolean resuming;
             if (!Hallucination) {
 	        You_feel("%s.", (orc_regen) ? "tingly" : "relief");
             } else {
-                You_feel("%s.", (orc_can_regen) ? "non-magnetic" : "like you are no longer failing Organic Chemistry");
+                You_feel("%s.", (orc_can_regen()) ? "non-magnetic" : "like you are no longer failing Organic Chemistry");
             }
 	    orc_regen = orc_can_regen();
 	}
