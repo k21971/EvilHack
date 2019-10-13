@@ -1307,8 +1307,8 @@ unsigned doname_flags;
     case FOOD_CLASS:
         if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
+        add_erosion_words(obj, prefix);
         if (obj->otyp == CORPSE) {
-            add_erosion_words(obj, prefix);
             /* (quan == 1) => want corpse_xname() to supply article,
                (quan != 1) => already have count or "some" as prefix;
                "corpse" is already in the buffer returned by xname() */
@@ -1324,7 +1324,6 @@ unsigned doname_flags;
             if (known && stale_egg(obj))
                 Strcat(prefix, "stale ");
 #endif
-            add_erosion_words(obj, prefix);
             if (omndx >= LOW_PM
                 && (known || (mvitals[omndx].mvflags & MV_KNOWS_EGG))) {
                 Strcat(prefix, mons[omndx].mname);
@@ -1332,8 +1331,6 @@ unsigned doname_flags;
                 if (obj->spe)
                     Strcat(bp, " (laid by you)");
             }
-        } else {
-            add_erosion_words(obj, prefix);
         }
         if (obj->otyp == MEAT_RING)
             goto ring;
