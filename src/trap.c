@@ -5229,7 +5229,7 @@ boolean disarm;
 
             if (costly)
                 loss += stolen_value(obj, ox, oy, (boolean) shkp->mpeaceful, TRUE);
-                delete_contents(obj);
+            delete_contents(obj);
             /* unpunish() in advance if either ball or chain (or both)
                is going to be destroyed */
             if (Punished && ((uchain->ox == u.ux && uchain->oy == u.uy)
@@ -5242,7 +5242,7 @@ boolean disarm;
                 if (costly)
                     loss += stolen_value(otmp, otmp->ox, otmp->oy,
                                          (boolean) shkp->mpeaceful, TRUE);
-                    delobj(otmp);
+                delobj(otmp);
             }
             wake_nearby();
             if (yours) {
@@ -5283,11 +5283,11 @@ boolean disarm;
 	               int dmg = rnd(15);
 	        if (!rn2(10))
 		    dmg = mon->mhp;
-		    mon->mhp -= dmg;
+		mon->mhp -= dmg;
 		if (mon->mhp <= 0) {
 		    if (canseemon(mon))
 			pline("%s is killed!", Monnam(mon));
-			mondied(mon);
+		    mondied(mon);
 		}
 	    }
             break;
@@ -5303,11 +5303,11 @@ boolean disarm;
 		       int dmg = rnd(10);
 	        if (!rn2(10))
 		    dmg = mon->mhp;
-		    mon->mhp -= dmg;
+		mon->mhp -= dmg;
 		if (mon->mhp <= 0) {
 		    if (canseemon(mon))
 			pline("%s is killed!", Monnam(mon));
-			mondied(mon);
+		    mondied(mon);
 		}
 	    }
             break;
@@ -5397,7 +5397,7 @@ boolean disarm;
 		    if (mon->mhp <= 0) {
 			if (canseemon(mon))
 			    pline("%s is killed!", Monnam(mon));
-			    mondied(mon);
+			mondied(mon);
 		    }
 		} else if (canseemon(mon)) {
 		    pline("%s doesn't seem to be affected.", Monnam(mon));

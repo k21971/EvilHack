@@ -263,9 +263,9 @@ doread()
         } else {
             if (flags.verbose)
                 pline("It reads:");
-                mesg = scroll->oartifact
-                      ? card_msgs[SIZE(card_msgs) - 1]
-                      : card_msgs[scroll->o_id % (SIZE(card_msgs) - 1)];
+            mesg = scroll->oartifact
+                  ? card_msgs[SIZE(card_msgs) - 1]
+                  : card_msgs[scroll->o_id % (SIZE(card_msgs) - 1)];
             pline("\"%s\"", mesg);
             maybe_learn_elbereth(mesg);
         }
@@ -322,7 +322,7 @@ doread()
             You("feel the smooth plastic window.");
         else if (flags.verbose)
             pline("The Magic 8-Ball replies:");
-            switch (rn2(20)) {
+        switch (rn2(20)) {
             case 0:
                 pline("It is certain.");
                 break;
@@ -385,7 +385,7 @@ doread()
                 break;
             default:
                 break;
-            }
+        }
         if(!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading the Magic 8-Ball");
@@ -2245,39 +2245,39 @@ do_class_genocide()
                         else
                             livelog_printf(LL_GENOCIDE, "genocided two random monsters from class %c",
                                            def_monsyms[class].sym);
-			if ((killed < 2 && (!rn2(goodcnt) || (killed+candidates > goodcnt-2))) ||
-			    Your_Own_Role(i) || Your_Own_Race(i)) {
-			    killed++;
-			    mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
-			    reset_rndmonst(i);
-			    kill_genocided_monsters();
-			    update_inventory();	/* eggs & tins */
-			    pline("Wiped out all %s.", nam);
-			    if (Upolyd && i == u.umonnum) {
-			 	u.mh = -1;
-			        if (Unchanging) {
-				    if (!feel_dead++) You("die.");
-				        /* finish genociding this class of
-				           monsters before ultimately dying */
-				        gameover = TRUE;
-			        } else
-			            rehumanize();
+		    if ((killed < 2 && (!rn2(goodcnt) || (killed+candidates > goodcnt-2)))
+			|| Your_Own_Role(i) || Your_Own_Race(i)) {
+			killed++;
+		        mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
+	                reset_rndmonst(i);
+			kill_genocided_monsters();
+                        update_inventory();	/* eggs & tins */
+			pline("Wiped out all %s.", nam);
+			if (Upolyd && i == u.umonnum) {
+                            u.mh = -1;
+			    if (Unchanging) {
+			        if (!feel_dead++) You("die.");
+				    /* finish genociding this class of
+				       monsters before ultimately dying */
+			            gameover = TRUE;
+			    } else
+			        rehumanize();
+			}
+			/* Self-genocide if it matches either your race
+		 	   or role.  Assumption:  male and female forms
+			   share same monster class. */
+			if (i == urole.malenum || i == urace.malenum) {
+			    u.uhp = -1;
+			    if (Upolyd) {
+				if (!feel_dead++)
+                                    You_feel("dead inside.");
+			    } else {
+				if (!feel_dead++)
+                                    You("die.");
+			        gameover = TRUE;
 			    }
-			    /* Self-genocide if it matches either your race
-		 	       or role.  Assumption:  male and female forms
-			       share same monster class. */
-			    if (i == urole.malenum || i == urace.malenum) {
-			        u.uhp = -1;
-			        if (Upolyd) {
-				    if (!feel_dead++)
-                                        You_feel("dead inside.");
-			        } else {
-				    if (!feel_dead++)
-                                        You("die.");
-				        gameover = TRUE;
-			        }
-			    }
-		        }
+			}
+		    }
                 } else if (mvitals[i].mvflags & G_GENOD) {
                     if (!gameover)
                         pline("All %s are already nonexistent.", nam);

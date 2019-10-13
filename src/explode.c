@@ -448,8 +448,8 @@ int expltype;
                         mdam *= 2;
                     else if (resists_fire(mtmp) && adtyp == AD_COLD)
                         mdam *= 2;
-                        damage_mon(mtmp, mdam, adtyp);
-			damage_mon(mtmp, idamres + idamnonres, adtyp);
+                    damage_mon(mtmp, mdam, adtyp);
+		    damage_mon(mtmp, idamres + idamnonres, adtyp);
                 }
                 if (DEADMONSTER(mtmp)) {
                     int xkflg = ((adtyp == AD_FIRE

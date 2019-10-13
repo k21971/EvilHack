@@ -1413,7 +1413,7 @@ register struct attack *mattk;
    	    case AD_MAGM:
                 if (canspotmon(mdef))
                     pline("%s is hit by a shower of missiles!", Monnam(mdef));
-                    dmg = d((int)mtmp->m_lev / 2 + 1, 6);
+                dmg = d((int)mtmp->m_lev / 2 + 1, 6);
                 if (resists_magm(mdef)) {
            	    shieldeff(mdef->mx, mdef->my);
            	    if (canspotmon(mdef))
@@ -1442,8 +1442,8 @@ register struct attack *mattk;
        		    ucast_wizard_spell(mtmp, mdef, dmg, spellnum);
                 else
        		    ucast_cleric_spell(mtmp, mdef, dmg, spellnum);
-         	    dmg = 0; /* done by the spell casting functions */
-                    break;
+         	dmg = 0; /* done by the spell casting functions */
+                break;
    	    }
    	}
    	if (dmg > 0 && mdef->mhp > 0) {
@@ -1741,10 +1741,10 @@ int spellnum;
      			else if (mattk->mpeaceful)
      			    mpet->mpeaceful = 1;
      			else mpet->mpeaceful = mpet->mtame = 0;
-                             set_malign(mpet);
-                        } else /* GENOD? */
-                             mpet = makemon((struct permonst *)0,
-                                            bypos.x, bypos.y, NO_MM_FLAGS);
+                        set_malign(mpet);
+                    } else /* GENOD? */
+                        mpet = makemon((struct permonst *)0,
+                                       bypos.x, bypos.y, NO_MM_FLAGS);
                     if (mpet && (u.ualign.type == 0
      		        || mpet->data->maligntyp == 0
                         || sgn(mpet->data->maligntyp) == sgn(u.ualign.type))) {

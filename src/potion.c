@@ -1788,8 +1788,8 @@ register struct obj *obj;
             if (!Hallucination)
                 chg =
                     make_hallucinated(HHallucination + (long) rn1(10, 5), FALSE, 0L);
-                You("%s.", chg ? "are freaked out"
-                    : "have a momentary vision, but are otherwise unaffected");
+            You("%s.", chg ? "are freaked out"
+                : "have a momentary vision, but are otherwise unaffected");
         }
         break;
     }

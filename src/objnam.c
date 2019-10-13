@@ -4396,7 +4396,7 @@ struct obj *no_wish;
         else
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
-            return otmp;
+        return otmp;
     } else if (otmp->oartifact && (rn2(nartifact_exist()) > 1))
 #ifdef WIZARD
     if (wizard && yn("Force the wish to succeed?") == 'n')
@@ -4540,25 +4540,25 @@ struct obj *no_wish;
         if (!is_mplayer(mtmp->data))
             free_mname(mtmp);
         if (mtmp) {
-            if(Blind) {
+            if (Blind) {
                 if (Hallucination)
                     pline("Smells like teen spirit...");
                 else
                     You("hear a small explosion and smell smoke.");
-                    You("hear somebody say: Did you think that I would %s %s %s?",
-                        rn2(2) ? "relinquish"
-                               : rn2(2) ? "hand over" : "give you",
-                        aname, rn2(2) ? "so easily" : "without a fight");
+                You("hear somebody say: Did you think that I would %s %s %s?",
+                    rn2(2) ? "relinquish"
+                           : rn2(2) ? "hand over" : "give you",
+                    aname, rn2(2) ? "so easily" : "without a fight");
             } else {
                 if (Hallucination)
                     pline("Nice colors, but the sound could have been more mellow.");
                 else
                     pline("There is a puff of smoke and a figure appears!");
-                    pline("%s says: Did you think that I would %s %s %s?",
-                          voice ? voice : Monnam(mtmp),
-                          rn2(2) ? "relinquish"
-                                 : rn2(2) ? "hand over" : "give you",
-                          aname, rn2(2) ? "so easily" : "without a fight");
+                pline("%s says: Did you think that I would %s %s %s?",
+                      voice ? voice : Monnam(mtmp),
+                      rn2(2) ? "relinquish"
+                             : rn2(2) ? "hand over" : "give you",
+                      aname, rn2(2) ? "so easily" : "without a fight");
             }
             (void) mpickobj(mtmp, otmp);
             if (otmp2)

@@ -474,8 +474,8 @@ struct obj *corpse;
                 continue;
 	    if (!can_carry(ukiller, otmp))
                 continue;
-		obj_extract_self(otmp);
-		mpickobj(ukiller, otmp);
+            obj_extract_self(otmp);
+            mpickobj(ukiller, otmp);
 	    }
 	}
 	m_dowear(ukiller, TRUE);  /* Let them wear it */

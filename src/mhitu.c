@@ -88,7 +88,7 @@ struct attack *mattk;
                           rn2(2) ? "lash out at" : "bite");
             else
                 pfmt = "%s tentacles suck you!";
-                Monst_name = s_suffix(Monst_name);
+            Monst_name = s_suffix(Monst_name);
             break;
         case AT_EXPL:
         case AT_BOOM:
@@ -852,8 +852,8 @@ register struct monst *mtmp;
                                 const char *kname = mtmp->data->mname;
 
                                 if (mtmp->data->geno & G_UNIQ) {
-                                if (!type_is_pname(mtmp->data))
-                                    kname = the(kname);
+                                    if (!type_is_pname(mtmp->data))
+                                        kname = the(kname);
                                     kformat = KILLED_BY;
                                 }
                                 make_stoned(5L, (char *) 0, kformat, kname);
@@ -1930,7 +1930,7 @@ do_rust:
         hitmsg(mtmp, mattk);
         if (uncancelled && !Slow && !defends(AD_SLOW, uwep) && !rn2(3))
             u_slow_down();
-            stop_occupation();
+        stop_occupation();
         break;
     case AD_DREN:
         hitmsg(mtmp, mattk);
@@ -2705,8 +2705,8 @@ struct attack *mattk;
                     if (mtmp->data->geno & G_UNIQ) {
                         if (!type_is_pname(mtmp->data))
                             kname = the(kname);
-                            kformat = KILLED_BY;
-                        }
+                        kformat = KILLED_BY;
+                    }
                     make_stoned(5L, (char *) 0, kformat, kname);
                     return 1;
                 }
@@ -3680,7 +3680,7 @@ struct attack *mattk;
                 if (mtmp->mhp < 1) {
                     if (canseemon(mtmp))
                         pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
-                        pline("%s dies!", Monnam(mtmp));
+                    pline("%s dies!", Monnam(mtmp));
                     xkilled(mtmp, XKILL_NOMSG);
                     if (!DEADMONSTER(mtmp))
                         return 1;

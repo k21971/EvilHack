@@ -1511,7 +1511,7 @@ boolean mon_notices;
         if (mon_notices && mon->data->mmove && !rn2(10)) {
 	    if (!mon->mstone || mon->mstone > 2)
 	        mon->mcanmove = 1;
-                mon->mfrozen = 0;
+            mon->mfrozen = 0;
         }
     }
     /* some objects are more likely to hit than others */

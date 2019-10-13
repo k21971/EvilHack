@@ -341,28 +341,28 @@ unsigned short chance;
 		   if (objects[otyp].oc_charged && obj->spe <= 0)
 		       obj->spe = rne(3);
 
-		       /* Heavily relies on the fact that 1) we create wands
-			* before rings, 2) that we create rings before
-			* spellbooks, and that 3) not more than 1 object of a
-			* particular symbol is to be prohibited.  (For more
-			* objects, we need more nocreate variables...)
-			*/
-		       switch (otyp) {
-		           case WAN_POLYMORPH:
-			   case RIN_POLYMORPH:
-		           case POT_POLYMORPH:
-			       nocreate = RIN_POLYMORPH_CONTROL;
-			       break;
-			   case RIN_POLYMORPH_CONTROL:
-			       nocreate = RIN_POLYMORPH;
-			       nocreate2 = SPE_POLYMORPH;
-			       nocreate3 = POT_POLYMORPH;
-		       }
-		       /* Don't have 2 of the same ring or spellbook */
-		       if (obj->oclass == RING_CLASS
-		           || obj->oclass == SPBOOK_CLASS)
-			   nocreate4 = otyp;
-		       }
+                   /* Heavily relies on the fact that 1) we create wands
+                    * before rings, 2) that we create rings before
+                    * spellbooks, and that 3) not more than 1 object of a
+                    * particular symbol is to be prohibited.  (For more
+                    * objects, we need more nocreate variables...)
+                    */
+                   switch (otyp) {
+	               case WAN_POLYMORPH:
+		       case RIN_POLYMORPH:
+	               case POT_POLYMORPH:
+		           nocreate = RIN_POLYMORPH_CONTROL;
+		           break;
+		       case RIN_POLYMORPH_CONTROL:
+		           nocreate = RIN_POLYMORPH;
+		           nocreate2 = SPE_POLYMORPH;
+		           nocreate3 = POT_POLYMORPH;
+                   }
+                   /* Don't have 2 of the same ring or spellbook */
+                   if (obj->oclass == RING_CLASS
+                       || obj->oclass == SPBOOK_CLASS)
+                       nocreate4 = otyp;
+                   }
 
 		   if (trop->trclass == COIN_CLASS) {
 		       /* no "blessed" or "identified" money */
@@ -437,8 +437,8 @@ register struct monst *mtmp;
                     ini_mon_inv(mtmp, !rn2(2) ? Level20Kit3 : Level20Kit4,
                                 (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
                 }
-		ini_mon_inv(mtmp, !rn2(2) ? Level10Kit1 : Level10Kit2,
-	                    (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
+	    ini_mon_inv(mtmp, !rn2(2) ? Level10Kit1 : Level10Kit2,
+	                (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
         }
 
     switch (mtmp->mnum) {
@@ -540,7 +540,7 @@ register struct monst *mtmp;
 	    break;
 	default: /* impossible */
 	    break;
-	}
+    }
 
     {
         struct obj *otmp = mtmp->minvent, *bag = (struct obj *) 0;
@@ -2860,8 +2860,8 @@ int otyp;
         if (mtmp->data == &mons[PM_MEDUSA]) {
             if (otmp->oclass == WEAPON_CLASS && otmp->spe < 7)
                 otmp->spe = rn2(3) + 3;
-                otmp->blessed = TRUE;
-                otmp->oerodeproof = TRUE;
+            otmp->blessed = TRUE;
+            otmp->oerodeproof = TRUE;
         }
 
         /* if mtmp would hate the material of the object they're getting,

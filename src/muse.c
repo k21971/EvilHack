@@ -143,7 +143,7 @@ struct obj *obj;
                     verbalize("Thank you for freeing me! In return, I will grant you a wish!");
                     if (vis)
                         pline("%s makes a wish!", Monnam(mon));
-                        mmake_wish(mon);
+                    mmake_wish(mon);
                     if (vis)
                         pline("%s vanishes.", Monnam(mtmp));
                     mongone(mtmp);
@@ -2112,7 +2112,7 @@ struct monst *mtmp;
             num = (2 * (rn1(3, 3) + 2 * bcsign(otmp)) + 1) / 3;
             if (how_resistant(FIRE_RES) == 100)
                 You("are not harmed.");
-                monstseesu(M_SEEN_FIRE);
+            monstseesu(M_SEEN_FIRE);
             burn_away_slime();
             if (Half_spell_damage)
                 num = (num + 1) / 2;
@@ -3227,7 +3227,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
         mon->mstun = 0;
         if (vis && !is_bat(mon->data) && mon->data != &mons[PM_STALKER])
             pline("%s eats %s.", Monnam(mon), distant_name(obj, doname));
-            pline("%s seems steadier now.", Monnam(mon));
+        pline("%s seems steadier now.", Monnam(mon));
     }
     if (mon->mtame && !mon->isminion && nutrit > 0) {
         struct edog *edog = EDOG(mon);

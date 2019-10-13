@@ -3342,8 +3342,8 @@ boolean is_wand;
         /* Even increment for dextrous heroes (see weapon.c abon) */
         hit_bon += dex - 14;
 
-        /* experience matters... */
-        hit_bon += (u.ulevel < 15) ? u.ulevel : 15;
+    /* experience matters... */
+    hit_bon += (u.ulevel < 15) ? u.ulevel : 15;
 
     return hit_bon;
 }

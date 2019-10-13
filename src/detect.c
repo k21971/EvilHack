@@ -1039,12 +1039,12 @@ struct obj *detector;	/* object doing the detecting */
         if (DEADMONSTER(mtmp)
 	    || !attacktype(mtmp->data, AT_MAGC))
             continue;
-	    if (mtmp->mx > 0) {
-		show_glyph(mtmp->mx, mtmp->my, mon_to_glyph(mtmp, newsym_rn2));
-		/* don't be stingy - display entire worm */
-		if (mtmp->data == &mons[PM_LONG_WORM])
-                    detect_wsegs(mtmp, 0);
-	    }
+        if (mtmp->mx > 0) {
+            show_glyph(mtmp->mx, mtmp->my, mon_to_glyph(mtmp, newsym_rn2));
+            /* don't be stingy - display entire worm */
+            if (mtmp->data == &mons[PM_LONG_WORM])
+                detect_wsegs(mtmp, 0);
+        }
         if (detector && detector->cursed
 	    && (mtmp->msleeping || !mtmp->mcanmove)) {
 	    mtmp->msleeping = mtmp->mfrozen = 0;
