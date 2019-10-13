@@ -643,7 +643,9 @@ struct attack *mattk;
                         "gore" : "butt");
                 break;
             case AT_TUCH:
-                if (magr->data == &mons[PM_GIANT_CENTIPEDE])
+                if (magr->data == &mons[PM_DEATH])
+                    Sprintf(buf, "%s reaches out with its deadly touch towards", magr_name);
+                else if (magr->data == &mons[PM_GIANT_CENTIPEDE])
                     Sprintf(buf, "%s coils its body around", magr_name);
                 else
                     Sprintf(buf, "%s touches", magr_name);
@@ -1067,7 +1069,7 @@ register struct attack *mattk;
             }
             if (noncorporeal(mdef->data) || amorphous(mdef->data)) {
                 pline("%s slices through %s %s.",
-                      buf, s_suffix(mon_nam(mdef)), mbodypart(mdef,NECK));
+                      buf, s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
                 goto physical;
             }
             pline("%s %ss %s!", buf,
@@ -1077,7 +1079,7 @@ register struct attack *mattk;
                 return 0;
             if (is_zombie(mdef->data) || is_troll(mdef->data))
                 mdef->mcan = 1; /* no head? no reviving */
-            return (MM_DEF_DIED | (grow_up(magr,mdef) ? 0 : MM_AGR_DIED));
+            return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
         }
         break;
     case AD_WERE:
@@ -1563,9 +1565,6 @@ post_stone:
         res = eat_brains(magr, mdef, vis, &tmp);
         break;
     case AD_DETH:
-        if (vis)
-            pline("%s reaches out with its deadly touch.",
-                  Monnam(magr));
         if (is_undead(mdef->data)) {
             /* Still does normal damage */
             if (vis)
@@ -1576,27 +1575,20 @@ post_stone:
         case 19:
         case 18:
         case 17:
-        case 16:
-        case 15:
-        case 14:
-        case 13:
-        case 12:
-        case 11:
-        case 10:
-        case 9:
-        case 8:
-        case 7:
-        case 6:
-        case 5:
             if (!resists_magm(mdef) && !resist(mdef, 0, 0, 0)) {
                 mdef->mhp = 0;
                 monkilled(mdef, "", AD_DETH);
-                tmp = 0;
-            } else if (vis) {
-                  pline("%s looks weaker!", Monnam(mdef));
-                  /* mhp will then still be less than this value*/
-                  mdef->mhpmax -= rn2(tmp / 2 + 1);
+                if (!DEADMONSTER(mdef))
+                    return 0;
+                return (MM_DEF_DIED
+                        | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
             }
+            break;
+        default: /* case 16 through case 5 */
+            if (vis)
+                pline("%s looks weaker!", Monnam(mdef));
+            /* mhp will then still be less than this value*/
+            mdef->mhpmax -= rn2(tmp / 2 + 1);
             break;
      	case 4:
         case 3:
@@ -1621,7 +1613,7 @@ post_stone:
         if ((mdef->mhp > 2) && !resist(mdef, 0, 0, NOTELL))
             mdef->mhp /= 2;
         if (mdef->mhp > mdef->mhpmax)
-             mdef->mhp = mdef->mhpmax;
+            mdef->mhp = mdef->mhpmax;
         break;
     case AD_FAMN:
         Strcpy(buf, s_suffix(mon_nam(mdef)));
