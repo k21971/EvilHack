@@ -1846,6 +1846,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
             tmp = 0;
             break;
         }
+        break;
     case AD_WERE: /* no special effect on monsters */
     case AD_HEAL: /* likewise */
     case AD_PHYS:

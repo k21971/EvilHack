@@ -2130,7 +2130,10 @@ int mmflags;
     case S_JABBERWOCK:
         break;
     case S_EYE:
-        if (mtmp->data != &mons[PM_BEHOLDER])
+        if (mtmp->data != &mons[PM_BEHOLDER]) {
+            if (rn2(5) && !u.uhave.amulet)
+                mtmp->msleeping = 1;
+        }
         break;
     case S_NYMPH:
         if (rn2(5) && !u.uhave.amulet)

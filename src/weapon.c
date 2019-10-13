@@ -1660,7 +1660,7 @@ struct obj *weapon;
 	 */
 	switch (P_SKILL(P_TWO_WEAPON_COMBAT)) {
     	    default:
-                impossible(bad_skill, P_SKILL(P_TWO_WEAPON_COMBAT));
+                impossible(bad_skill, P_SKILL(P_TWO_WEAPON_COMBAT)); /* fall through */
 	    case P_ISRESTRICTED:
 	    case P_UNSKILLED:
                 maxweight = 20; /* can use tridents/javelins, crysknives, unicorn horns or anything lighter */

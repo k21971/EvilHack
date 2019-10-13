@@ -553,6 +553,7 @@ attrcurse()
             You_feel("less attractive.");
             break;
         }
+        /*FALLTHRU*/
     case 12:
         if (HSleep_resistance) {
 	    HSleep_resistance = HSleep_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
@@ -560,6 +561,7 @@ attrcurse()
 	    You_feel("a little tired.");
 	    break;
 	}
+        /*FALLTHRU*/
     case 13:
         if (HDisint_resistance) {
 	    HDisint_resistance = HDisint_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
@@ -567,6 +569,7 @@ attrcurse()
 	    You_feel("less firm.");
 	    break;
 	}
+        /*FALLTHRU*/
     case 14:
         if (HShock_resistance) {
 	    HShock_resistance = HShock_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);

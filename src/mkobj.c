@@ -949,12 +949,11 @@ boolean artif;
                 break;
             case IRON_SAFE:
                 otmp->olocked = 1;
+                break;
             case CHEST:
             case LARGE_BOX:
             case CRYSTAL_CHEST:
-                if (otmp->otyp != IRON_SAFE) {
-                    otmp->olocked = !!(rn2(5));
-                }
+                otmp->olocked = !!(rn2(5));
                 otmp->otrapped = !(rn2(10));
                 /*FALLTHRU*/
             case ICE_BOX:

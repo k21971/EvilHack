@@ -874,7 +874,8 @@ register struct obj *obj;
                 || is_hobbit(mon->data)
                 || is_giant(mon->data)
                 || is_centaur(mon->data))
-            return ACCFOOD;
+                return ACCFOOD;
+            /*FALLTHRU*/
         default:
             if (starving)
                 return ACCFOOD;

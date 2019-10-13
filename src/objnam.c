@@ -4474,6 +4474,8 @@ struct obj *no_wish;
                     otmp2->blessed = otmp2->cursed = 0;
                     otmp2->spe = rn2(3);
                     strategy = NEED_RANGED_WEAPON;
+                    pm = PM_HUMAN_RANGER;
+                    break;
                 case ART_ORCRIST:
                     pm = PM_HUMAN_RANGER;
                     break;

@@ -656,10 +656,9 @@ struct attack *mattk;
                     Sprintf(buf, "%s tentacles suck", s_suffix(magr_name));
                 break;
             case AT_HUGS:
-                if (magr != u.ustuck) {
+                if (magr != u.ustuck)
                     Sprintf(buf, "%s squeezes", magr_name);
-                    break;
-                }
+                break;
             case AT_WEAP:
             if (!MON_WEP(magr)) { /* AT_WEAP but isn't wielding anything */
                 Sprintf(buf, "%s %ss", magr_name, mwep_none[rn2(SIZE(mwep_none))]);
@@ -1080,6 +1079,7 @@ register struct attack *mattk;
                 mdef->mcan = 1; /* no head? no reviving */
             return (MM_DEF_DIED | (grow_up(magr,mdef) ? 0 : MM_AGR_DIED));
         }
+        break;
     case AD_WERE:
     case AD_HEAL:
     case AD_PHYS:
@@ -1563,70 +1563,80 @@ post_stone:
         res = eat_brains(magr, mdef, vis, &tmp);
         break;
     case AD_DETH:
-     	  if (vis)
-     		    pline("%s reaches out with its deadly touch.",
-     		          Monnam(magr));
-     		if (is_undead(mdef->data)) {
-     		    /* Still does normal damage */
-     	            if (vis)
-     		        pline("%s looks no more dead than before.", Monnam(mdef));
-     		    break;
-     		}
-     		switch (rn2(20)) {
-     		case 19:
+        if (vis)
+            pline("%s reaches out with its deadly touch.",
+                  Monnam(magr));
+        if (is_undead(mdef->data)) {
+            /* Still does normal damage */
+            if (vis)
+                pline("%s looks no more dead than before.", Monnam(mdef));
+            break;
+        }
+        switch (rn2(20)) {
+        case 19:
         case 18:
         case 17:
-     		    if (!resists_magm(mdef) && !resist(mdef, 0, 0, 0)) {
-     			mdef->mhp = 0;
-     		        monkilled(mdef, "", AD_DETH);
-     			tmp = 0;
-     			break;
-     		    } /* else FALLTHRU */
-     		default: /* case 16: ... case 5: */
-     		    if (vis)
-     		        pline("%s looks weaker!", Monnam(mdef));
-     		    mdef->mhpmax -= rn2(tmp / 2 + 1); /* mhp will then  */
-     		                                      /* still be less than  */
-     						      /* this value */
-     		    break;
-     		case 4:
+        case 16:
+        case 15:
+        case 14:
+        case 13:
+        case 12:
+        case 11:
+        case 10:
+        case 9:
+        case 8:
+        case 7:
+        case 6:
+        case 5:
+            if (!resists_magm(mdef) && !resist(mdef, 0, 0, 0)) {
+                mdef->mhp = 0;
+                monkilled(mdef, "", AD_DETH);
+                tmp = 0;
+            } else if (vis) {
+                  pline("%s looks weaker!", Monnam(mdef));
+                  /* mhp will then still be less than this value*/
+                  mdef->mhpmax -= rn2(tmp / 2 + 1);
+            }
+            break;
+     	case 4:
         case 3:
         case 2:
         case 1:
         case 0:
-     		    if (resists_magm(mdef)) shieldeff(mdef->mx, mdef->my);
-     	            if (vis)
-     		        pline("Well. That didn't work...");
-     		    tmp = 0;
-     		    break;
-     		}
-     		break;
+            if (resists_magm(mdef))
+                shieldeff(mdef->mx, mdef->my);
+            if (vis)
+                pline("Well. That didn't work...");
+            tmp = 0;
+            break;
+        }
+        break;
     case AD_PEST:
-     		Strcpy(buf, mon_nam(mdef));
-     	        if (vis)
-     		    pline("%s reaches out, and %s looks rather ill.",
-     		  	    Monnam(magr), buf);
-     		if((mdef->mhpmax > 3) && !resist(mdef, 0, 0, NOTELL))
-     			mdef->mhpmax /= 2;
-     		if((mdef->mhp > 2) && !resist(mdef, 0, 0, NOTELL))
-     			mdef->mhp /= 2;
-     		if (mdef->mhp > mdef->mhpmax) mdef->mhp = mdef->mhpmax;
-     		break;
+        Strcpy(buf, mon_nam(mdef));
+        if (vis)
+            pline("%s reaches out, and %s looks rather ill.",
+                  Monnam(magr), buf);
+        if ((mdef->mhpmax > 3) && !resist(mdef, 0, 0, NOTELL))
+            mdef->mhpmax /= 2;
+        if ((mdef->mhp > 2) && !resist(mdef, 0, 0, NOTELL))
+            mdef->mhp /= 2;
+        if (mdef->mhp > mdef->mhpmax)
+             mdef->mhp = mdef->mhpmax;
+        break;
     case AD_FAMN:
-     		Strcpy(buf, s_suffix(mon_nam(mdef)));
-     	        if (vis)
-     		    pline("%s reaches out, and %s body shrivels.",
-     			    Monnam(magr), buf);
-     		if (mdef->mtame && !mdef->isminion)
-     		    EDOG(mdef)->hungrytime -= rn1(120, 120);
-     		else
-     		{
-     		    tmp += rnd(10); /* lacks a food rating */
-     		    if (tmp >= mdef->mhp && vis)
-     		        pline("%s starves.", Monnam(mdef));
-     		}
-     		/* plus the normal damage */
-     		break;
+        Strcpy(buf, s_suffix(mon_nam(mdef)));
+        if (vis)
+            pline("%s reaches out, and %s body shrivels.",
+                  Monnam(magr), buf);
+        if (mdef->mtame && !mdef->isminion)
+            EDOG(mdef)->hungrytime -= rn1(120, 120);
+        else {
+            tmp += rnd(10); /* lacks a food rating */
+            if (tmp >= mdef->mhp && vis)
+                pline("%s starves.", Monnam(mdef));
+        }
+        /* plus the normal damage */
+        break;
     case AD_SLIM:
         if (cancelled)
             break; /* physical damage only */
