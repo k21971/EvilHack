@@ -3039,7 +3039,7 @@ boolean wep_was_destroyed;
     /* Humanoid monsters wearing various dragon scale/dragon scale mail armor */
     for (m_armor = mon->minvent; m_armor; m_armor = m_armor->nobj) {
         t = rnd(6) + 1;
-        if (mhit && m_armor->owornmask & (W_ARM) != 0 && !rn2(3)) {
+        if ((mhit && m_armor->owornmask & (W_ARM)) != 0 && !rn2(3)) {
             switch (m_armor->otyp) {
                 case GREEN_DRAGON_SCALE_MAIL:
                 case GREEN_DRAGON_SCALES:
