@@ -4334,7 +4334,7 @@ int bufsz;
 void
 livelog_write_string(ll_type, buffer)
 unsigned int ll_type;
-char *buffer;
+const char *buffer;
 {
 #define LLOG_SEP '\t' /* livelog field separator */
     FILE* livelogfile;
