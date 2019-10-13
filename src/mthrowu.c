@@ -469,7 +469,6 @@ int range;          /* how much farther will object travel if it misses;
 boolean verbose;    /* give message(s) even when you can't see what happened */
 {
     int damage, tmp;
-    int damtype = AD_PHYS;
     boolean vis, ismimic;
     int objgone = 1;
     struct obj *mon_launcher = archer ? MON_WEP(archer) : NULL;
@@ -533,7 +532,6 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                     pline_The("poison doesn't seem to affect %s.",
                               mon_nam(mtmp));
             } else {
-                damtype = AD_DRST;
                 if (rn2(30)) {
                     damage += rnd(6);
                 } else {
@@ -561,7 +559,6 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                 if (vis || (verbose && !target))
                     pline("%s is unaffected.", Monnam(mtmp));
             } else {
-                damtype = AD_ACID;
                 if (vis)
                     pline_The("%s burns %s!", hliquid("acid"), mon_nam(mtmp));
                 else if (verbose && !target)

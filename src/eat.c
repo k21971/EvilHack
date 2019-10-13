@@ -1229,7 +1229,7 @@ int pm;
         count = 0; /* number of possible intrinsics */
         tmp = 0;   /* which one we will try to give */
         if (conveys_STR) {
-            count = 1;
+            count += 1;
             tmp = -1; /* use -1 as fake prop index for STR */
             debugpline1("\"Intrinsic\" strength, %d", tmp);
         }

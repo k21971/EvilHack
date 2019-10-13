@@ -3441,7 +3441,7 @@ screamu(mtmp, mattk)
 struct monst *mtmp;
 struct attack *mattk;
 {
-    boolean cancelled = (mtmp->mcan != 0), already = FALSE;
+    boolean cancelled = (mtmp->mcan != 0);
 
     /* assumes that the hero has to hear the monster's
        scream in order to be affected */
@@ -3452,7 +3452,6 @@ struct attack *mattk;
     case AD_LOUD:
         if (m_canseeu(mtmp) && !mtmp->mspec_used && rn2(5)) {
             if (cancelled) {
-                already = (mtmp->mstun != 0);
                 if (m_canseeu(mtmp) && canseemon(mtmp) && (Deaf)) {
                     pline("It looks as if %s is yelling at you.", mon_nam(mtmp));
                 }
