@@ -21,10 +21,12 @@ VARDIR = $(HACKDIR)/var
 POSTINSTALL=cp -n sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf;
 
 CFLAGS=-g -O0 -I../include -DNOTPARMDECL -DDLB
-CFLAGS+=-DGCC_WARN -Wall -Wextra -Wformat
+CFLAGS+=-DGCC_WARN -Wall -Wextra -Wformat=2
 CFLAGS+=-Wimplicit -Wreturn-type -Wunused -Wswitch -Wshadow -Wwrite-strings
-CFLAGS+=-Wno-format-overflow
+CFLAGS+=-Wno-format-nonliteral
+CFLAGS+=-Wno-stringop-truncation
 CFLAGS+=-Wno-missing-field-initializers
+CFLAGS+=-Wno-format-overflow
 CFLAGS+=-DCOMPRESS=\"/bin/gzip\" -DCOMPRESS_EXTENSION=\".gz\"
 CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE
 CFLAGS+=-DTIMED_DELAY
