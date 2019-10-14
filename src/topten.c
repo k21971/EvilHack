@@ -85,7 +85,6 @@ STATIC_DCL void FDECL(nsb_unmung_line, (char *));
 /* tracking of various killed unique monsters
    from UnNetHack */
 static char* FDECL(killed_uniques, (void));
-static int FDECL(killed_with_mbirth_limit, (int));
 
 static winid toptenwin = WIN_ERR;
 
