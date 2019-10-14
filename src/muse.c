@@ -1671,7 +1671,7 @@ register struct obj *otmp;
             /* natural shapechangers aren't affected by system shock
                (unless protection from shapechangers is interfering
                with their metabolism...) */
-            if (!is_shapeshifter(mtmp->data) && rn2(25)) {
+            if (!is_shapeshifter(mtmp->data) && !rn2(25)) {
                 if (canseemon(mtmp)) {
                     pline("%s shudders!", Monnam(mtmp));
                     if (zap_oseen && otmp->otyp == WAN_POLYMORPH)
