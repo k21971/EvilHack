@@ -289,9 +289,9 @@ char *fqn_prefix[PREFIX_COUNT] = { (char *) 0, (char *) 0, (char *) 0,
                                    (char *) 0, (char *) 0, (char *) 0,
                                    (char *) 0, (char *) 0, (char *) 0,
                                    (char *) 0 };
-                                   
+
 #ifdef PREFIXES_IN_USE
-char *fqn_prefix_names[PREFIX_COUNT] = {
+const char *fqn_prefix_names[PREFIX_COUNT] = {
     "hackdir",  "leveldir", "savedir",    "bonesdir",  "datadir",
     "scoredir", "lockdir",  "sysconfdir", "configdir", "troubledir"
 };
