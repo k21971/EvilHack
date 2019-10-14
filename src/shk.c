@@ -3712,7 +3712,7 @@ boolean shk_buying;
         for (i = 0; i < MAX_ITEM_PROPS; i++)
             if (obj->oprops & (1 << i))
                 factor *= next, next = (next == 2) ? 5 : 2;
-            tmp += factor;
+        tmp += factor;
     }
     switch (obj->oclass) {
     case FOOD_CLASS:
