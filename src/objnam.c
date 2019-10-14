@@ -1037,7 +1037,8 @@ char *prefix;
         }
         Strcat(prefix, !is_damageable(obj) ? "deteriorated " :
                is_glass(obj) ? "fractured " :
-               is_corrodeable(obj) ? "corroded " : "rotted ");
+               is_corrodeable(obj) ? "corroded " :
+               obj->oclass == FOOD_CLASS ? "rotten " : "rotted ");
     }
     if (rknown && obj->oerodeproof) {
         if (iscrys)
@@ -1305,8 +1306,8 @@ unsigned doname_flags;
     case FOOD_CLASS:
         if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
+        add_erosion_words(obj, prefix);
         if (obj->otyp == CORPSE) {
-            add_erosion_words(obj, prefix);
             /* (quan == 1) => want corpse_xname() to supply article,
                (quan != 1) => already have count or "some" as prefix;
                "corpse" is already in the buffer returned by xname() */
@@ -1322,7 +1323,6 @@ unsigned doname_flags;
             if (known && stale_egg(obj))
                 Strcat(prefix, "stale ");
 #endif
-            add_erosion_words(obj, prefix);
             if (omndx >= LOW_PM
                 && (known || (mvitals[omndx].mvflags & MV_KNOWS_EGG))) {
                 Strcat(prefix, mons[omndx].mname);
@@ -1330,8 +1330,6 @@ unsigned doname_flags;
                 if (obj->spe)
                     Strcat(bp, " (laid by you)");
             }
-        } else {
-            add_erosion_words(obj, prefix);
         }
         if (obj->otyp == MEAT_RING)
             goto ring;
@@ -3220,7 +3218,8 @@ struct obj *no_wish;
             eroded = 1 + very;
             very = 0;
         } else if (!strncmpi(bp, "corroded ", l = 9)
-                   || !strncmpi(bp, "rotted ", l = 7)) {
+                   || !strncmpi(bp, "rotted ", l = 7)
+                   || !strncmpi(bp, "rotten ", l = 7)) {
             eroded2 = 1 + very;
             very = 0;
         } else if (!strncmpi(bp, "partly eaten ", l = 13)

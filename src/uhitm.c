@@ -137,8 +137,8 @@ struct obj *wep; /* uwep for attack(), null for kick_monster() */
      */
     if (!canspotmon(mtmp)
         && !glyph_is_warning(glyph) && !glyph_is_invisible(glyph)
-        && !(!Blind && mtmp->mundetected && hides_under(mtmp->data)
-        && !has_erid(mtmp))) {
+        && !(!Blind && mtmp->mundetected && hides_under(mtmp->data))
+        && (!has_erid(mtmp) || !canspotmon(ERID(mtmp)->m1))) {
         pline("Wait!  There's %s there you can't see!", something);
         map_invisible(bhitpos.x, bhitpos.y);
         /* if it was an invisible mimic, treat it as if we stumbled
@@ -3580,8 +3580,8 @@ struct attack *mattk;     /* null means we find one internally */
             }
             /* nope */
             if (obj->otyp == BLACK_DRAGON_SCALES || obj->otyp == BLACK_DRAGON_SCALE_MAIL) {
-                pline_The("%s are disintegration-proof and remain intact.",
-                          Yname2(obj));
+                pline("%s disintegration-proof and %s intact.",
+                      Yobjnam2(obj, "are"), otense(obj, "remain"));
                 break;
             }
             if (obj->oartifact && rn2(50)) {

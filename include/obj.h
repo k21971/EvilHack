@@ -87,9 +87,9 @@ struct obj {
     (int)((otmp)->oeroded > (otmp)->oeroded2 ? (otmp)->oeroded \
                                              : (otmp)->oeroded2)
 #define MAX_ERODE 3
-#define orotten oeroded  /* rotten food */
+#define norevive oeroded
+#define orotten oeroded2 /* rotten food */
 #define odiluted oeroded /* diluted potions */
-#define norevive oeroded2
     Bitfield(oerodeproof, 1); /* erodeproof weapon/armor */
     Bitfield(olocked, 1);     /* object is locked */
 #define sokoprize olocked     /* special flag for sokoban prize */
