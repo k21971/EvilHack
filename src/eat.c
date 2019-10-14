@@ -1239,9 +1239,7 @@ int pm;
 	    givit(i, ptr);
         }
 
-        /* tmp = corpse_intrinsic(ptr);
-
-        /* if something was chosen, give it now (givit() might fail) */
+        /* if something was chosen, give it now givit() might fail) */
         if (tmp == -1)
             gainstr((struct obj *) 0, 0, TRUE);
         else if (tmp > 0)

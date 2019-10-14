@@ -563,9 +563,6 @@ struct permonst* ptr;
     const char* msg = NULL;
     unsigned long intrinsic = 0; /* MR_* constant */
 
-    /* if (!should_givit(prop, ptr))
-        return; /* failed die roll */
-
     /* Pets don't have all the fields that the hero does, so they can't get all
      * the same intrinsics. If it happens to choose strength gain or teleport
      * control or whatever, ignore it. */
