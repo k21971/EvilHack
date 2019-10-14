@@ -240,7 +240,7 @@ curses_block(boolean noscroll) /* noscroll - blocking because of msgtype
     if (height == 1) {
         curses_clear_unhighlight_message_window();
     } else {
-        mx -= morewidth, mvwprintw(win, my, mx, "%*s", (size_t)morewidth, ""); /* back up and blank out ">>" */
+        mx -= morewidth, mvwprintw(win, my, mx, "%*s", (int) morewidth, ""); /* back up and blank out ">>" */
         if (!noscroll) {
             scroll_window(MESSAGE_WIN);
         }
