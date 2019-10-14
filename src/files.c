@@ -3713,7 +3713,9 @@ const char *reason; /* explanation */
 {
 #ifdef PANICLOG
     FILE *lfile;
-    char buf[BUFSZ];
+    /* EvilHack by default will always use PANICLOG_FMT2,
+       commenting the below out to silence a compiler warning */
+    /* char buf[BUFSZ]; */
 
     if (!program_state.in_paniclog) {
         program_state.in_paniclog = 1;
@@ -3721,7 +3723,8 @@ const char *reason; /* explanation */
         if (lfile) {
 #ifdef PANICLOG_FMT2
             (void) fprintf(lfile, "%ld %s: %s %s\n",
-                           ubirthday, (plname ? plname : "(none)"),
+                           ubirthday, plname,
+                           /* ubirthday, (plname ? plname : "(none)"), */
                            type, reason);
 #else
             time_t now = getnow();
