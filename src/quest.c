@@ -18,7 +18,7 @@ STATIC_DCL void NDECL(on_goal);
 STATIC_DCL boolean NDECL(not_capable);
 STATIC_DCL int FDECL(is_pure, (BOOLEAN_P));
 STATIC_DCL void FDECL(expulsion, (BOOLEAN_P));
-STATIC_DCL void FDECL(chat_with_leader, (struct monst *));
+STATIC_DCL void NDECL(chat_with_leader);
 STATIC_DCL void NDECL(chat_with_nemesis);
 STATIC_DCL void NDECL(chat_with_guardian);
 STATIC_DCL void FDECL(prisoner_speaks, (struct monst *));
@@ -255,8 +255,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
 }
 
 void
-chat_with_leader(mtmp)
-register struct monst* mtmp;
+chat_with_leader()
 {
     /*  Rule 0: Cheater checks. */
     if (u.uhave.questart && !Qstat(met_nemesis))
@@ -348,7 +347,7 @@ struct monst *mtmp;
         return;
 
     if (!Qstat(pissed_off))
-        chat_with_leader(mtmp);
+        chat_with_leader();
 
     /* leader might have become pissed during the chat */
     if (Qstat(pissed_off)) {
@@ -425,7 +424,7 @@ quest_chat(mtmp)
 register struct monst *mtmp;
 {
     if (mtmp->m_id == Qstat(leader_m_id)) {
-        chat_with_leader(mtmp);
+        chat_with_leader();
 	/* leader might have become pissed during the chat */
 	if (Qstat(pissed_off)) {
 	    mtmp->mstrategy &= ~STRAT_WAITMASK;

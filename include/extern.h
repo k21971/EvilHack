@@ -2140,6 +2140,7 @@ E void FDECL(drop_boulder_on_player,
              (BOOLEAN_P, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P));
 E boolean FDECL(drop_boulder_on_monster, (int, int, BOOLEAN_P, BOOLEAN_P));
 E void FDECL(wand_explode, (struct obj *, int));
+E void FDECL(mwand_explode, (struct monst *, struct obj *));
 #ifdef USE_TRAMPOLI
 E void FDECL(set_lit, (int, int, genericptr_t));
 #endif
