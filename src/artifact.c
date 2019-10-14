@@ -1659,7 +1659,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
      * love. Just be warned, this can be used against the player depending
      * on the race they choose...
      */
-    atmp = &artilist[otmp->oartifact];
+    atmp = &artilist[(unsigned char)otmp->oartifact];
 
     if (atmp->spfx & (SPFX_DFLAGH | SPFX_DCLAS)) {
 	j = !rn2(10);	  /* 10% chance of instakill for some artifacts */
