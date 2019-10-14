@@ -770,7 +770,7 @@ makelevel()
 {
     register struct mkroom *croom, *troom;
     register int tryct;
-    register int x, y, i;
+    register int i;
     struct monst *tmonst; /* always put a web with a spider */
     branch *branchp;
     int room_threshold, boxtype;
