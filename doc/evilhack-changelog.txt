@@ -495,4 +495,21 @@ Version 0.4.0
 - Fix: player monsters taking the wrong rank when created
 - Tweak damage from iron/mithril as a hated material
 - Additional missing monsters added to monsters.txt
-- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of October 12th, 2019)
+- Correct numbered order of objects in other.txt
+- Tweak making friendlies angry when blinding them
+- Silencing compiler warnings
+- Fix: issues when Death attacks another monster
+- Add in missing code from GruntHack in regards to monsters charging wands
+- Address some minor issues with spellcasting while wearing body armor
+- Fix: ogresmasher and trollsbane special attack was not working
+- Fix: don't need to wear a hat to wield Excalibur
+- Fix: Rotten food is no longer burnt
+- Added psionic resistance to enlightenment feedback
+- Better feedback when hitting a black dragon with something disintegration-proof
+- Clean up function call to add_erosion_words
+- Ensure monsters with invisible steeds are mapped properly
+- Better feedback when looking at an invisible monster riding a steed
+- Attempt to improve monster AI logic in regards to charging wands
+- Update install scripts for version 0.4.0
+- Establish a distinct debug mode hints file
+- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of October 14th, 2019)
