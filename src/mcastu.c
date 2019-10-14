@@ -210,6 +210,7 @@ int spellval;
                 if (Antimagic || Hallucination)
                     return MGC_PSI_BOLT;
         }
+        return i;
     }
 }
 
