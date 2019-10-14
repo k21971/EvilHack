@@ -1787,7 +1787,7 @@ int spell;
     /* Intrinsic and learned ability are combined to calculate
      * the probability of player's success at cast a given spell.
      */
-    int chance, splcaster, special, statused;
+    int chance, chance2, splcaster, special, statused;
     int difficulty;
     int skill;
     int dex_adjust;
@@ -1919,7 +1919,7 @@ int spell;
      * and no matter how able, learning is always required.
      * Here is also where the players' dexterity factors in.
      */
-    chance = (chance * (20 - splcaster) / 15 - splcaster) + dex_adjust;
+    chance = chance2 = (chance * (20 - splcaster) / 15 - splcaster) + dex_adjust;
 
     /* For those classes that don't cast well, wielding one of these
      * special staves should be a significant help.
@@ -1929,26 +1929,32 @@ int spell;
 	if (spell_skilltype(spellid(spell)) == P_CLERIC_SPELL
             && uwep->otyp == STAFF_OF_HOLINESS) {
 	    chance += STAFFBONUS;
+            chance2 += STAFFBONUS;
 	}
 	if (spell_skilltype(spellid(spell)) == P_HEALING_SPELL
             && uwep->otyp == STAFF_OF_HEALING) {
 	    chance += STAFFBONUS;
+            chance2 += STAFFBONUS;
 	}
 	if (spell_skilltype(spellid(spell)) == P_DIVINATION_SPELL
             && uwep->otyp == STAFF_OF_DIVINATION) {
 	    chance += STAFFBONUS;
+            chance2 += STAFFBONUS;
 	}
 	if (spell_skilltype(spellid(spell)) == P_MATTER_SPELL
             && uwep->otyp == STAFF_OF_MATTER) {
 	    chance += STAFFBONUS;
+            chance2 += STAFFBONUS;
 	}
 	if (spell_skilltype(spellid(spell)) == P_ESCAPE_SPELL
             && uwep->otyp == STAFF_OF_ESCAPE) {
 	    chance += STAFFBONUS;
+            chance2 += STAFFBONUS;
 	}
 	if (spell_skilltype(spellid(spell)) == P_ATTACK_SPELL
             && uwep->otyp == STAFF_OF_WAR) {
 	    chance += STAFFBONUS;
+            chance2 += STAFFBONUS;
 	}
 #undef STAFFBONUS
     }
@@ -1967,10 +1973,10 @@ int spell;
 #define PENALTY_NON_CASTER (spellev(spell) * 10)
 #define PENALTY_PRI_CASTER (spellev(spell) * 10) - 30
         if (primary_casters && spellev(spell) >= 4) {
-            chance = (chance -= PENALTY_PRI_CASTER);
+            chance = (chance2 -= PENALTY_PRI_CASTER);
         }
         if (non_casters) {
-            chance = (chance -= PENALTY_NON_CASTER);
+            chance = (chance2 -= PENALTY_NON_CASTER);
         }
 #undef PENALTY_NON_CASTER
 #undef PENALTY_PRI_CASTER
@@ -1981,12 +1987,16 @@ int spell;
         chance = 100;
     if (chance < 0)
         chance = 0;
+    if (chance2 > 100)
+        chance2 = 100;
+    if (chance2 < 0)
+        chance2 = 0;
 
-    /* As an Illithid, you can always use your
-     * natural inherent 'ability' */
+    /* As an Illithid, you can always use
+     * your natural inherent 'ability' */
     if (spellid(spell) == SPE_PSIONIC_WAVE
         && Race_if(PM_ILLITHID))
-        chance = 100;
+        chance = chance2 = 100;
 
     return chance;
 }
