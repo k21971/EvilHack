@@ -702,7 +702,7 @@ int shp_indx;
 	    break;
 	case TOOL_CLASS:
 	    /* Izchak is always human */
-            if (shname = "+Izchak") {
+            if ((shname = "+Izchak")) {
                 srace = PM_HUMAN;
             } else {
 		srace = PM_GNOME_LORD + rn2(2);

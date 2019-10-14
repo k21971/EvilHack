@@ -653,17 +653,16 @@ ma_break()
         return 1; /* still concentrating */
     }
 
-    if (obj = sobj_at(BOULDER, dpx, dpy)) {
+    if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0)
         pline("Focusing your qi, you %s the boulder.",
               rn2(2) ? "strike" : "hit");
-    } else if (obj = sobj_at(STATUE, dpx, dpy)) {
+    else if ((obj = sobj_at(STATUE, dpx, dpy)) !=0)
         pline("Focusing your qi, you %s the statue.",
               rn2(2) ? "strike" : "hit");
-    }
 
     /* even while blind you can first feel and then image the boulder */
     if (Confusion || Hallucination || Stunned) {
-        if (obj = sobj_at(BOULDER, dpx, dpy)) {
+        if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
             if (rn2(2)) {
                 You("swing wildly, missing the boulder.");
             } else {
@@ -671,7 +670,7 @@ ma_break()
                losehp(d(1, 4), "face planting into a boulder.",
                       NO_KILLER_PREFIX);
             }
-        } else if (obj = sobj_at(STATUE, dpx, dpy)) {
+        } else if ((obj = sobj_at(STATUE, dpx, dpy)) != 0) {
             if (rn2(2)) {
                 You("swing wildly, missing the statue.");
             } else {
@@ -707,6 +706,7 @@ ma_break()
             case GLOVES:
             case GAUNTLETS:
             case GAUNTLETS_OF_DEXTERITY:
+            case GAUNTLETS_OF_PROTECTION:
                 break;
             default:
                 impossible("Unknown type of gloves (%d)", uarmg->otyp);
@@ -718,10 +718,10 @@ ma_break()
 
     if (P_SKILL(P_MARTIAL_ARTS) > P_EXPERT
         || !rn2(prob)) {
-        if (obj = sobj_at(BOULDER, dpx, dpy)) {
+        if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
             fracture_rock(obj);
             pline_The("boulder splits and falls apart.");
-        } else if (obj = sobj_at(STATUE, dpx, dpy)) {
+        } else if ((obj = sobj_at(STATUE, dpx, dpy)) != 0) {
             break_statue(obj);
             pline_The("statue shatters into pieces.");
         }
@@ -733,10 +733,10 @@ ma_break()
         exercise(A_STR, TRUE);
         use_skill(P_MARTIAL_ARTS, 1);
     } else {
-        if (obj = sobj_at(BOULDER, dpx, dpy)) {
+        if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
             pline("However, your qi is not focused enough to break the boulder.");
             losehp(d(1, 6), "trying to split a boulder.", KILLED_BY);
-        } else if (obj = sobj_at(STATUE, dpx, dpy)) {
+        } else if ((obj = sobj_at(STATUE, dpx, dpy)) != 0) {
             pline("However, your qi is not focused enough to break the statue.");
             losehp(d(1, 6), "trying to shatter a statue.", KILLED_BY);
         }
