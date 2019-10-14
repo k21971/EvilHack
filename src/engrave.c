@@ -410,7 +410,7 @@ long e_time;
 xchar e_type;
 {
 #define N_BOGUS_ELBERETH 8
-    static char *bogus_elbereth[N_BOGUS_ELBERETH] = {
+    static const char *bogus_elbereth[N_BOGUS_ELBERETH] = {
         "Elizabeth",
         "OwlBreath",
         "Everest",
@@ -422,7 +422,7 @@ xchar e_type;
     };
 
 #define N_CANNOT_WRITE 4
-    static char *cannot_write[N_CANNOT_WRITE] = {
+    static const char *cannot_write[N_CANNOT_WRITE] = {
         "You can't seem to wrap your mind around that!",
         "You feel like you've seen this word before, but can't quite remember it.",
         "You regret skipping Sindarin class during school.",
