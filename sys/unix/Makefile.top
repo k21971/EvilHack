@@ -266,26 +266,26 @@ install: rootcheck $(GAME) recover $(VARDAT) dungeon spec_levs
 	true; $(PREINSTALL)
 # set up the directories
 # not all mkdirs have -p; those that don't will create a -p directory
-	# -if test -n '$(SHELLDIR)'; then \
-		# mkdir -p $(SHELLDIR); fi
-	# rm -rf $(INSTDIR) $(VARDIR)
-	# -mkdir -p $(INSTDIR) $(VARDIR) $(VARDIR)/save
-	# -mkdir -p $(INSTDIR) $(VARDIR) $(VARDIR)/whereis
-	# if test -d ./-p; then rmdir ./-p; fi
-	# -$(CHOWN) $(GAMEUID) $(INSTDIR) $(VARDIR) $(VARDIR)/save
-	# -$(CHOWN) $(GAMEUID) $(INSTDIR) $(VARDIR) $(VARDIR)/whereis
-	# $(CHGRP) $(GAMEGRP) $(INSTDIR) $(VARDIR) $(VARDIR)/save
-	# $(CHGRP) $(GAMEGRP) $(INSTDIR) $(VARDIR) $(VARDIR)/whereis
+	-if test -n '$(SHELLDIR)'; then \
+		mkdir -p $(SHELLDIR); fi
+	rm -rf $(INSTDIR) $(VARDIR)
+	-mkdir -p $(INSTDIR) $(VARDIR) $(VARDIR)/save
+	-mkdir -p $(INSTDIR) $(VARDIR) $(VARDIR)/whereis
+	if test -d ./-p; then rmdir ./-p; fi
+	-$(CHOWN) $(GAMEUID) $(INSTDIR) $(VARDIR) $(VARDIR)/save
+	-$(CHOWN) $(GAMEUID) $(INSTDIR) $(VARDIR) $(VARDIR)/whereis
+	$(CHGRP) $(GAMEGRP) $(INSTDIR) $(VARDIR) $(VARDIR)/save
+	$(CHGRP) $(GAMEGRP) $(INSTDIR) $(VARDIR) $(VARDIR)/whereis
 # order counts here:
-	# chmod $(DIRPERM) $(INSTDIR)
-	# chmod $(VARDIRPERM) $(VARDIR) $(VARDIR)/save
+	chmod $(DIRPERM) $(INSTDIR)
+	chmod $(VARDIRPERM) $(VARDIR) $(VARDIR)/save
 # set up the game files
 	( $(MAKE) dofiles )
 # set up some additional files
-	# touch $(VARDIR)/perm $(VARDIR)/record $(VARDIR)/logfile $(VARDIR)/livelog $(VARDIR)/xlogfile $(VARDIR)/wishtracker
-	# -( cd $(VARDIR) ; $(CHOWN) $(GAMEUID) perm record logfile livelog xlogfile wishtracker ; \
-			# $(CHGRP) $(GAMEGRP) perm record logfile livelog xlogfile wishtracker ; \
-			# chmod $(VARFILEPERM) perm record logfile livelog xlogfile wishtracker )
+	touch $(VARDIR)/perm $(VARDIR)/record $(VARDIR)/logfile $(VARDIR)/livelog $(VARDIR)/xlogfile $(VARDIR)/wishtracker
+	-( cd $(VARDIR) ; $(CHOWN) $(GAMEUID) perm record logfile livelog xlogfile wishtracker ; \
+			$(CHGRP) $(GAMEGRP) perm record logfile livelog xlogfile wishtracker ; \
+			chmod $(VARFILEPERM) perm record logfile livelog xlogfile wishtracker )
 	true; $(POSTINSTALL)
 # and a reminder
 	@echo You may also want to reinstall the man pages via the doc Makefile.
