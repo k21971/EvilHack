@@ -742,10 +742,10 @@ coord *c;
 }
 
 boolean
-somexyspace(croom, pos, flags)
+somexyspace(croom, pos, xy_flags)
 struct mkroom *croom;
 coord *pos;
-int flags;
+int xy_flags;
 {
     int tryct = 0;
     boolean isok;
@@ -753,17 +753,17 @@ int flags;
         isok = TRUE;
         if (croom && !somexy(croom, pos))
             isok = FALSE;
-        if ((flags & 16))
+        if ((xy_flags & 16))
             mazexy(pos);
-        if ((flags & 1) && (IS_POOL(levl[pos->x][pos->y].typ)
+        if ((xy_flags & 1) && (IS_POOL(levl[pos->x][pos->y].typ)
             || IS_FURNITURE(levl[pos->x][pos->y].typ)))
             isok = FALSE;
-        if (((flags & 2) && (levl[pos->x][pos->y].typ != CORR))
+        if (((xy_flags & 2) && (levl[pos->x][pos->y].typ != CORR))
             || (levl[pos->x][pos->y].typ != ROOM))
             isok = FALSE;
-        if ((flags & 4) && (sobj_at(BOULDER, pos->x, pos->y)))
+        if ((xy_flags & 4) && (sobj_at(BOULDER, pos->x, pos->y)))
             isok = FALSE;
-        if ((flags & 8) && bydoor(pos->x, pos->y))
+        if ((xy_flags & 8) && bydoor(pos->x, pos->y))
             isok = FALSE;
     } while ((!isok || !SPACE_POS(levl[pos->x][pos->y].typ)
              || occupied(pos->x, pos->y)) && (++tryct < 500));

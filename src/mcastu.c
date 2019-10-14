@@ -88,13 +88,13 @@ register struct monst *mtmp;
    return 8 * mtmp->m_lev * ((38 - mtmp->m_lev) * 2 / 3);
 }
 
-int spelltimeout(mtmp, level)
+int spelltimeout(mtmp, spl_level)
 register struct monst *mtmp;
-register int level;
+register int spl_level;
 {
     if (mtmp->m_lev >= 38)
 	return 1;
-    return 5 * level * ((38 - mtmp->m_lev) * 2 / 3);
+    return 5 * spl_level * ((38 - mtmp->m_lev) * 2 / 3);
 }
 
 extern const char *const flash_types[]; /* from zap.c */

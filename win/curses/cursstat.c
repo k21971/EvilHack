@@ -210,8 +210,8 @@ static void
 draw_status()
 {
     WINDOW *win = curses_get_nhwin(STATUS_WIN);
-    int orient = curses_get_window_orientation(STATUS_WIN);
-    boolean horiz = (orient != ALIGN_RIGHT && orient != ALIGN_LEFT);
+    int curses_orient = curses_get_window_orientation(STATUS_WIN);
+    boolean horiz = (curses_orient != ALIGN_RIGHT && curses_orient != ALIGN_LEFT);
     boolean border = curses_window_has_border(STATUS_WIN);
 
     /* Figure out if we have proper window dimensions for horizontal
