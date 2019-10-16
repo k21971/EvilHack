@@ -1993,12 +1993,21 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (ma == &mons[PM_RAVEN] && md == &mons[PM_FLOATING_EYE])
   	return ALLOW_M | ALLOW_TM;
 
-    /* hostile monsters will attack your pets */
-    if (!magr->mpeaceful && mdef->mtame)
-     	return ALLOW_M | ALLOW_TM;
+    /* insect-eating bugs vs insects */
+    if (ma->mlet == S_SPIDER && (md->mlet == S_ANT || md->mlet == S_XAN))
+        return ALLOW_M|ALLOW_TM;
+
+    /* bats vs flying insects */
+    if (is_bat(ma) && (md->mlet == S_ANT || md->mlet == S_XAN)
+        && (md->mflags1 & M1_FLY))
+        return ALLOW_M | ALLOW_TM;
+
+    /* cats vs rats */
+    if (ma->mlet == S_FELINE && is_rat(md))
+        return ALLOW_M | ALLOW_TM;
 
     /* Pseudodragons *really* like to hunt for rodents */
-    if (is_pseudodragon(ma) && md->mlet == S_RODENT)
+    if (is_pseudodragon(ma) && is_rat(md))
         return ALLOW_M | ALLOW_TM;
 
     /* covetous/player monsters will attack
