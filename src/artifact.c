@@ -349,6 +349,11 @@ boolean allow_detrimental;
            && (j & (ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER)))
            continue;
 
+       if (is_launcher(otmp)
+           &&  (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK
+                     | ITEM_VENOM | ITEM_DRLI | ITEM_OILSKIN)))
+           continue;
+
        if ((is_ammo(otmp) || is_missile(otmp))
            && (j & (ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP
                     | ITEM_SEARCHING | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER)))

@@ -4616,6 +4616,14 @@ struct obj *no_wish;
         if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
             objprops &= ~(ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER);
 
+        if (is_launcher(otmp))
+            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI
+                          | ITEM_SHOCK | ITEM_VENOM | ITEM_OILSKIN);
+
+        if (is_ammo(otmp) || is_missile(otmp))
+            objprops &= ~(ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
+                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER);
+
         if (otmp->material != CLOTH)
             objprops &= ~ITEM_OILSKIN;
 
