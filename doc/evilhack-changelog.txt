@@ -512,4 +512,8 @@ Version 0.4.0
 - Attempt to improve monster AI logic in regards to charging wands
 - Update install scripts for version 0.4.0
 - Establish a distinct debug mode hints file
+- Fix: monsters and tame pets
+- Fix: launcher and ammo tweaks to object properties
+- Fix: launchers should not spawn as 'poisoned'
+- Fix: Your crystal plate mail stone deflects its attack
 - Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of October 14th, 2019)
