@@ -136,7 +136,7 @@ struct attack *mattk;
 {
 
     register boolean nearmiss = (target == roll);
-    register struct obj *blocker = (struct obj *)0;
+    register struct obj *blocker = (struct obj *) 0;
 	/* 3 values for blocker
 	 *	No blocker:  (struct obj *) 0
 	 * 	Piece of armour:  object
@@ -144,57 +144,65 @@ struct attack *mattk;
 	 */
 
     if (target < roll) {
-	/* get object responsible
-	 * Work from the closest to the skin outwards
-	 */
+        /* get object responsible
+         * Work from the closest to the skin outwards
+         */
 
         /* Try undershirt */
-	if (uarmu && target <= roll) {
-		target += ARM_BONUS(uarmu);
-		if (target > roll) blocker = uarmu;
-	}
+        if (uarmu && target <= roll) {
+            target += ARM_BONUS(uarmu);
+            if (target > roll)
+                 blocker = uarmu;
+        }
 
-	/* Try body armour */
-	if (uarm && target <= roll) {
-		target += ARM_BONUS(uarm);
-		if (target > roll) blocker = uarm;
-	}
+        /* Try body armour */
+        if (uarm && target <= roll) {
+            target += ARM_BONUS(uarm);
+            if (target > roll)
+                 blocker = uarm;
+        }
 
-	if (uarmg && !rn2(10)) {
-		/* Try gloves */
-		target += ARM_BONUS(uarmg);
-		if (target > roll) blocker = uarmg;
-	}
+        if (uarmg && !rn2(10)) {
+            /* Try gloves */
+            target += ARM_BONUS(uarmg);
+            if (target > roll)
+                blocker = uarmg;
+        }
 
-	if (uarmf && !rn2(10)) {
-		/* Try boots */
-		target += ARM_BONUS(uarmf);
-		if (target > roll) blocker = uarmf;
-	}
+        if (uarmf && !rn2(10)) {
+            /* Try boots */
+            target += ARM_BONUS(uarmf);
+            if (target > roll)
+                blocker = uarmf;
+        }
 
-	if (uarmh && !rn2(5)) {
-		/* Try helm */
-		target += ARM_BONUS(uarmh);
-		if (target > roll) blocker = uarmh;
-	}
+        if (uarmh && !rn2(5)) {
+            /* Try helm */
+            target += ARM_BONUS(uarmh);
+            if (target > roll)
+                blocker = uarmh;
+        }
 
-	if (uarmc && target <= roll) {
-		/* Try cloak */
-		target += ARM_BONUS(uarmc);
-		if (target > roll) blocker = uarmc;
-	}
+        if (uarmc && target <= roll) {
+            /* Try cloak */
+            target += ARM_BONUS(uarmc);
+            if (target > roll)
+                blocker = uarmc;
+        }
 
-	if (uarms && target <= roll) {
-		/* Try shield */
-		target += ARM_BONUS(uarms);
-		if (target > roll) blocker = uarms;
-	}
+        if (uarms && target <= roll) {
+            /* Try shield */
+            target += ARM_BONUS(uarms);
+            if (target > roll)
+                blocker = uarms;
+        }
 
-	if (target <= roll) {
-		/* Try spell protection */
-		target += u.uspellprot;
-		if (target > roll) blocker = (struct obj *) &zeroobj;
-	}
+        if (target <= roll) {
+            /* Try spell protection */
+            target += u.uspellprot;
+            if (target > roll)
+                blocker = (struct obj *) &zeroobj;
+        }
     }
 
     if (!canspotmon(mtmp))
@@ -203,20 +211,20 @@ struct attack *mattk;
     if (could_seduce(mtmp, &youmonst, mattk) && !mtmp->mcan)
         pline("%s pretends to be friendly.", Monnam(mtmp));
     else {
-    if (!flags.verbose || (!nearmiss && !blocker))
-	pline("%s misses.", Monnam(mtmp));
-    else if (!blocker)
-        rn2(2) ? You("dodge %s attack!", s_suffix(mon_nam(mtmp)))
-            : rn2(2) ? You("evade %s attack!", s_suffix(mon_nam(mtmp)))
-                     : pline("%s narrowly misses!", Monnam(mtmp));
-    else if (blocker == &zeroobj)
-	pline("%s is stopped by your golden haze.", Monnam(mtmp));
-    else
-	Your("%s %s%s %s attack.",
-		simple_typename(blocker->otyp),
-		rn2(2) ? "block" : "deflect",
-		(blocker == uarmg || blocker == uarmf) ? "" : "s",
-		s_suffix(mon_nam(mtmp)));
+        if (!flags.verbose || (!nearmiss && !blocker))
+            pline("%s misses.", Monnam(mtmp));
+        else if (!blocker)
+            rn2(2) ? You("dodge %s attack!", s_suffix(mon_nam(mtmp)))
+                   : rn2(2) ? You("evade %s attack!", s_suffix(mon_nam(mtmp)))
+                            : pline("%s narrowly misses!", Monnam(mtmp));
+        else if (blocker == &zeroobj)
+            pline("%s is stopped by your golden haze.", Monnam(mtmp));
+        else
+            Your("%s %s%s %s attack.",
+                 simple_typename(blocker->otyp),
+                 rn2(2) ? "block" : "deflect",
+                 (blocker == uarmg || blocker == uarmf) ? "" : "s",
+                 s_suffix(mon_nam(mtmp)));
     }
     stop_occupation();
 }

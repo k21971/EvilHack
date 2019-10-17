@@ -156,7 +156,7 @@ register int otyp;
     default:
         if (nn) {
             Strcpy(buf, actualn);
-            if (GemStone(otyp))
+            if (GemStone(otyp) && ocl->oc_class != ARMOR_CLASS)
                 Strcat(buf, " stone");
             if (un)
                 Sprintf(eos(buf), " called %s", un);
