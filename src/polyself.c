@@ -750,7 +750,6 @@ int mntmp;
      */
     mlvl = (int) mons[mntmp].mlevel;
     u.mhmax = u.mh = monmaxhp(&mons[mntmp], mlvl);
-    pline("setting mlvl %d, hpmax %d", mlvl, u.mhmax);
 
     if (u.ulevel < mlvl) {
         /* Low level characters can't become high level monsters for long */
