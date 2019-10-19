@@ -1,4 +1,4 @@
-/* NetHack 3.6	options.c	$NHDT-Date: 1571045295 2019/10/14 09:28:15 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.376 $ */
+/* NetHack 3.6	options.c	$NHDT-Date: 1571448220 2019/10/19 01:23:40 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.380 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2008. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -795,9 +795,9 @@ initoptions_init()
      */
     /* this detects the IBM-compatible console on most 386 boxes */
     if ((opts = nh_getenv("TERM")) && !strncmp(opts, "AT", 2)) {
-        if (!symset[PRIMARY].name)
+        if (!symset[PRIMARY].explicitly)
             load_symset("IBMGraphics", PRIMARY);
-        if (!symset[ROGUESET].name)
+        if (!symset[ROGUESET].explicitly)
             load_symset("RogueIBM", ROGUESET);
         switch_symbols(TRUE);
 #ifdef TEXTCOLOR
@@ -812,7 +812,7 @@ initoptions_init()
         /* [could also check "xterm" which emulates vtXXX by default] */
         && !strncmpi(opts, "vt", 2)
         && AS && AE && index(AS, '\016') && index(AE, '\017')) {
-        if (!symset[PRIMARY].name)
+        if (!symset[PRIMARY].explicitly)
             load_symset("DECGraphics", PRIMARY);
         switch_symbols(TRUE);
     }
@@ -821,15 +821,13 @@ initoptions_init()
 
 #if defined(MSDOS) || defined(WIN32)
     /* Use IBM defaults. Can be overridden via config file */
-    if (!symset[PRIMARY].name) {
+    if (!symset[PRIMARY].explicitly)
         load_symset("IBMGraphics_2", PRIMARY);
-    }
-    if (!symset[ROGUESET].name) {
+    if (!symset[ROGUESET].explicitly)
         load_symset("RogueEpyx", ROGUESET);
-    }
 #endif
 #ifdef MAC_GRAPHICS_ENV
-    if (!symset[PRIMARY].name)
+    if (!symset[PRIMARY].explicitly)
         load_symset("MACGraphics", PRIMARY);
     switch_symbols(TRUE);
 #endif /* MAC_GRAPHICS_ENV */
@@ -2357,7 +2355,6 @@ boolean tinitial, tfrom_file;
             } else {
                 if (!initial && Is_rogue_level(&u.uz))
                     assign_graphics(ROGUESET);
-                symset[ROGUESET].fallback = FALSE;
                 need_redraw = TRUE;
             }
         } else
@@ -2382,7 +2379,6 @@ boolean tinitial, tfrom_file;
                 return FALSE;
             } else {
                 switch_symbols(symset[PRIMARY].name != (char *) 0);
-                symset[PRIMARY].fallback = FALSE;
                 need_redraw = TRUE;
             }
         } else
@@ -5378,8 +5374,8 @@ boolean setinitial, setfromfile;
                          MENU_UNSELECTED);
                 for (i = 0; i < numapes && ape; i++) {
                     any.a_void = (opt_idx == 1) ? 0 : ape;
-                    /* length of pattern plus quotes (plus '<'/'>') is less than
-                       BUFSZ */
+                    /* length of pattern plus quotes (plus '<'/'>') is
+                       less than BUFSZ */
                     Sprintf(apebuf, "\"%c%s\"", ape->grab ? '<' : '>',
                             ape->pattern);
                     add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, apebuf,
@@ -5412,7 +5408,7 @@ boolean setinitial, setfromfile;
                 nothing_to_do = FALSE;
         char *symset_name, fmtstr[20];
         struct symsetentry *sl;
-        int res, which_set, setcount = 0, chosen = -2;
+        int res, which_set, setcount = 0, chosen = -2, defindx = 0;
 
         which_set = rogueflag ? ROGUESET : PRIMARY;
         symset_list = (struct symsetentry *) 0;
@@ -5425,18 +5421,27 @@ boolean setinitial, setfromfile;
         symset[which_set].name = symset_name;
 
         if (res && symset_list) {
-            int thissize, biggest = 0;
+            int thissize,
+                biggest = (int) (sizeof "Default Symbols" - sizeof ""),
+                big_desc = 0;
 
             for (sl = symset_list; sl; sl = sl->next) {
                 /* check restrictions */
                 if (rogueflag ? sl->primary : sl->rogue)
                     continue;
+#ifndef MAC_GRAPHICS_ENV
+                if (sl->handling == H_MAC)
+                    continue;
+#endif
 
                 setcount++;
                 /* find biggest name */
                 thissize = sl->name ? (int) strlen(sl->name) : 0;
                 if (thissize > biggest)
                     biggest = thissize;
+                thissize = sl->desc ? (int) strlen(sl->desc) : 0;
+                if (thissize > big_desc)
+                    big_desc = thissize;
             }
             if (!setcount) {
                 pline("There are no appropriate %s symbol sets available.",
@@ -5444,32 +5449,92 @@ boolean setinitial, setfromfile;
                 return TRUE;
             }
 
-            Sprintf(fmtstr, "%%-%ds %%s", biggest + 5);
+            Sprintf(fmtstr, "%%-%ds %%s", biggest + 2);
             tmpwin = create_nhwindow(NHW_MENU);
             start_menu(tmpwin);
             any = zeroany;
-            any.a_int = 1;
+#ifdef CURSES_GRAPHICS /* this ought to be handled within curses... */
+            /*
+             * Symbol sets are formatted in two columns, "name description",
+             * on selectable lines.  curses bases menu width on the length
+             * of non-selectable lines (main header, separators if present,
+             * with trailing spaces ignored) and defaults to half the map.
+             * Without something like this separator (shown after the menu
+             * title and a blank line which follows that) to force a wider
+             * menu, entries with long descriptions wrap.  That would be
+             * ok if wrapping operated on the same two columns, but the
+             * menu doesn't know anything about those and the description
+             * is wrapping into the next line's name column, making long
+             * descriptions--and menus containing them--hard to read.
+             */
+            if (WINDOWPORT("curses")) {
+                char tmp1[BUFSZ], tmp2[BUFSZ], bigbuf[BUFSZ + 1 + BUFSZ];
+
+                /* 4: room for space+letter+paren+space, fake selector;
+                   2: added to 'biggest' when constructing 'fmtstr';
+                   1: space between symset name+2 and symset description */
+                if (4 + biggest + 2 + 1 > (int) sizeof tmp1 - 1)
+                    biggest = (int) sizeof tmp1 - 1 - (4 + 2 + 1);
+                (void) memset((genericptr_t) tmp1, '-', biggest);
+                tmp1[biggest] = '\0';
+                if (big_desc > (int) sizeof tmp2 - 1)
+                    big_desc = (int) sizeof tmp2 - 1;
+                (void) memset((genericptr_t) tmp2, '-', big_desc);
+                tmp2[big_desc] = '\0';
+                Sprintf(bigbuf, "%4s", "");
+                Sprintf(eos(bigbuf), fmtstr, tmp1, tmp2);
+                bigbuf[BUFSZ - 1] = '\0';
+                any.a_int = 0;
+                add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                         bigbuf, MENU_UNSELECTED);
+            }
+#else
+            nhUse(big_desc);
+#endif
+            any.a_int = 1; /* -1 + 2 [see 'if (sl->name) {' below]*/
+            if (!symset_name)
+                defindx = any.a_int;
             add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
-                     "Default Symbols", MENU_UNSELECTED);
+                     "Default Symbols",
+                     (any.a_int == defindx) ? MENU_SELECTED
+                                            : MENU_UNSELECTED);
 
             for (sl = symset_list; sl; sl = sl->next) {
                 /* check restrictions */
                 if (rogueflag ? sl->primary : sl->rogue)
                     continue;
-
+#ifndef MAC_GRAPHICS_ENV
+                if (sl->handling == H_MAC)
+                    continue;
+#endif
                 if (sl->name) {
+                    /* +2: sl->idx runs from 0 to N-1 for N symsets;
+                       +1 because Defaults are implicitly in slot [0];
+                       +1 again so that valid data is never 0 */
                     any.a_int = sl->idx + 2;
+                    if (symset_name && !strcmpi(sl->name, symset_name))
+                        defindx = any.a_int;
                     Sprintf(buf, fmtstr, sl->name, sl->desc ? sl->desc : "");
-                    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
-                             buf, MENU_UNSELECTED);
+                    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf,
+                             (any.a_int == defindx) ? MENU_SELECTED
+                                                    : MENU_UNSELECTED);
                 }
             }
             Sprintf(buf, "Select %ssymbol set:",
                     rogueflag ? "rogue level " : "");
             end_menu(tmpwin, buf);
-            if (select_menu(tmpwin, PICK_ONE, &symset_pick) > 0) {
-                chosen = symset_pick->item.a_int - 2;
+            n = select_menu(tmpwin, PICK_ONE, &symset_pick);
+            if (n > 0) {
+                chosen = symset_pick[0].item.a_int;
+                /* if picking non-preselected entry yields 2, make sure
+                   that we're going with the non-preselected one */
+                if (n == 2 && chosen == defindx)
+                    chosen = symset_pick[1].item.a_int;
+                chosen -= 2; /* convert menu index to symset index;
+                              * "Default symbols" have index -1 */
                 free((genericptr_t) symset_pick);
+            } else if (n == 0 && defindx > 0) {
+                chosen = defindx - 2;
             }
             destroy_nhwindow(tmpwin);
 
@@ -6057,10 +6122,8 @@ int which_set;
 
     if (read_sym_file(which_set)) {
         switch_symbols(TRUE);
-        symset[which_set].fallback = FALSE;
     } else {
         clear_symsetentry(which_set, TRUE);
-        symset[which_set].fallback = TRUE;
         return 0;
     }
     return 1;

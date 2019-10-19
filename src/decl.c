@@ -1,4 +1,4 @@
-/* NetHack 3.6	decl.c	$NHDT-Date: 1547025164 2019/01/09 09:12:44 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.141 $ */
+/* NetHack 3.6	decl.c	$NHDT-Date: 1571352532 2019/10/17 22:48:52 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.146 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -171,17 +171,20 @@ NEARDATA struct obj
 #ifdef TEXTCOLOR
 /*
  *  This must be the same order as used for buzz() in zap.c.
+ *  (They're only used in mapglyph.c so probably shouldn't be here.)
  */
 const int zapcolors[NUM_ZAP] = {
-    HI_ZAP,              /* 0 - missile */
-    CLR_ORANGE,          /* 1 - fire */
-    CLR_WHITE,           /* 2 - frost */
-    HI_ZAP,              /* 3 - sleep */
-    CLR_BLACK,           /* 4 - death */
-    CLR_WHITE,           /* 5 - lightning */
-    CLR_BRIGHT_GREEN,    /* 6 - poison gas */
-    CLR_BLUE,            /* 7 - water */
-    CLR_YELLOW,          /* 8 - acid */
+    HI_ZAP,     /* 0 - missile */
+    CLR_ORANGE, /* 1 - fire */
+    CLR_WHITE,  /* 2 - frost */
+    HI_ZAP,     /* 3 - sleep */
+    CLR_BLACK,  /* 4 - death */
+    CLR_WHITE,  /* 5 - lightning */
+    /* 3.6.3: poison gas zap used to be yellow and acid zap was green,
+       which conflicted with the corresponding dragon colors */
+    CLR_GREEN,  /* 6 - poison gas */
+    CLR_BLUE,   /* 7 - water */
+    CLR_YELLOW, /* 8 - acid */
 };
 #endif /* text color */
 
