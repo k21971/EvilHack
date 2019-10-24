@@ -3870,7 +3870,9 @@ struct attack *mattk;
             u.mh += tmp / 2;
             if (u.mhmax < u.mh)
                 u.mhmax = u.mh;
-            if (u.mhmax > ((youmonst.data->mlevel + 1) * 8))
+            if (u.mhmax > ((youmonst.data->mlevel + 1) * 8)
+                && (youmonst.data->mlet == S_JELLY
+                    || youmonst.data->mlet == S_FUNGUS))
                 (void) split_mon(&youmonst, mtmp);
             break;
         case AD_STUN: /* Yellow mold */
