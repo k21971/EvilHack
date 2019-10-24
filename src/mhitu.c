@@ -1185,9 +1185,22 @@ register struct attack *mattk;
     }
 
     /* elementals on their home plane hit very hard */
-    if(is_home_elemental(mdat)) {
+    if (is_home_elemental(mdat)) {
+        /* air elementals hit hard enough already */
 	if (mtmp->mnum != PM_AIR_ELEMENTAL)
-		dmg += d((int)mattk->damn, (int)mattk->damd);  /* air elementals hit hard enough already */
+            dmg += d((int) mattk->damn, (int) mattk->damd);
+    }
+
+    if (is_berserker(mdat)) {
+        if (!rn2(6)) {
+            if (mdat->mlet == S_HUMAN || mdat->mlet == S_ORC
+                || mdat->mlet == S_GIANT || mdat->mlet == S_OGRE)
+                pline("%s flies into a berserker rage!", Monnam(mtmp));
+            else
+                pline("%s %s with rage!", Monnam(mtmp),
+                      rn2(2) ? "roars" : "howls");
+            dmg += d((int) mattk->damn, (int) mattk->damd);
+        }
     }
 
     /*  Next a cancellation factor.

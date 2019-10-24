@@ -1995,7 +1995,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* insect-eating bugs vs insects */
     if (ma->mlet == S_SPIDER && (md->mlet == S_ANT || md->mlet == S_XAN))
-        return ALLOW_M|ALLOW_TM;
+        return ALLOW_M | ALLOW_TM;
 
     /* bats vs flying insects */
     if (is_bat(ma) && (md->mlet == S_ANT || md->mlet == S_XAN)
@@ -2008,6 +2008,17 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* Pseudodragons *really* like to hunt for rodents */
     if (is_pseudodragon(ma) && is_rat(md))
+        return ALLOW_M | ALLOW_TM;
+
+    /* berserk monsters sometimes lash out at everything
+       when trying to attack you  */
+    if (is_berserker(ma) && m_canseeu(magr) && !rn2(6))
+        return ALLOW_M | ALLOW_TM;
+
+    /* The Riders, and huge/gigantic monsters
+       will step on the bugs to get to you */
+    if ((is_rider(ma) || ma->msize >= MZ_HUGE)
+        && m_canseeu(magr) && md->msize == MZ_TINY)
         return ALLOW_M | ALLOW_TM;
 
     /* covetous/player monsters will attack
