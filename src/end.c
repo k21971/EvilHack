@@ -590,7 +590,8 @@ int how;
      *  transformation.  (Turning to slime isn't an issue here because
      *  Unchanging prevents that from happening.)
      */
-    if (mptr->mlet == S_WRAITH)
+    if (mptr == &mons[PM_WRAITH]
+        || mptr == &mons[PM_BARROW_WIGHT])
         u.ugrave_arise = PM_WRAITH;
     else if (mptr->mlet == S_MUMMY && urace.mummynum != NON_PM)
         u.ugrave_arise = urace.mummynum;
@@ -604,10 +605,12 @@ int how;
         u.ugrave_arise = PM_VAMPIRE;
     else if (mptr == &mons[PM_GHOUL])
         u.ugrave_arise = PM_GHOUL;
-    /* There is a 10% chance that the player will rise as a spectre if their
-     * experience level was tier 8 (level 26) or higher */
-    else if (mptr == &mons[PM_SPECTRE] || (!rn2(10) && u.ulevel > 25))
+    /* There is a 50% chance that the player will rise as a spectre if their
+       experience level was tier 8 (level 26) or higher */
+    else if (mptr == &mons[PM_SPECTRE] || (rn2(2) && u.ulevel > 25))
         u.ugrave_arise = PM_SPECTRE;
+    else if (mptr == &mons[PM_NAZGUL])
+        u.ugrave_arise = PM_BARROW_WIGHT;
     /* this could happen if a high-end vampire kills the hero
        when ordinary vampires are genocided; ditto for wraiths */
     if (u.ugrave_arise >= LOW_PM
