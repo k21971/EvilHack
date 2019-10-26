@@ -218,6 +218,7 @@ int got_errors = 0;
 int be_verbose = 0;
 int is_rnd_vault = 0;
 int rnd_vault_freq = 1;
+int rnd_vault_mindepth = 0;
 int fname_counter = 1;
 
 #ifdef FLEX23_BUG
@@ -1600,7 +1601,7 @@ sp_lev *lvl;
 #endif
         Strcat(lbuf, "vaults.dat");
         fout = open(lbuf, O_WRONLY | O_APPEND | O_CREAT, OMASK);
-        snprintf(debuf, 255, "%i %s\n", rnd_vault_freq, filename);
+        snprintf(debuf, 255, "%i %i %s\n", rnd_vault_mindepth, rnd_vault_freq, filename);
         Write(fout, debuf, strlen(debuf));
         (void) close(fout);
     }

@@ -144,6 +144,7 @@ extern int line_number;
 extern const char *fname;
 extern int is_rnd_vault;
 extern int rnd_vault_freq;
+extern int rnd_vault_mindepth;
 
 extern char curr_token[512];
 
@@ -217,6 +218,7 @@ extern char curr_token[512];
 %token	<i> MSG_OUTPUT_TYPE
 %token	<i> COMPARE_TYPE
 %token  <i> VAULTGEN_ID
+%token  <i> MINDEPTH_ID
 %token  <i> UNKNOWN_TYPE
 %token	<i> rect_ID fillrect_ID line_ID randline_ID grow_ID
 %token	<i> selection_ID flood_ID
@@ -316,6 +318,7 @@ level_def	: LEVEL_ID ':' STRING
 		  {
 		      start_level_def(&splev, $3);
                       rnd_vault_freq = 1;
+                      rnd_vault_mindepth = 0;
                       is_rnd_vault = 0;
 		      $$ = $3;
 		  }
@@ -514,6 +517,7 @@ levstatement 	: message
 		| function_define
 		| function_call
 		| vaultgen_stmt
+		| mindepth_stmt
 		| ladder_detail
 		| map_definition
 		| mazewalk_detail
@@ -1230,6 +1234,18 @@ vaultgen_stmt : VAULTGEN_ID ':' INTEGER
 			  lc_error("VAULTGEN without rndvault FLAG.");
 		  }
 		;
+
+mindepth_stmt   : MINDEPTH_ID ':' INTEGER
+                  {
+                      if (is_rnd_vault) {
+                          if ($3 > 0)
+                              rnd_vault_mindepth = $3;
+                          else
+                              lc_error("Invalid MINDEPTH value.");
+                      } else
+                          lc_error("MINDEPTH without rndvault FLAG.");
+                  }
+                ;
 
 message		: MESSAGE_ID ':' string_expr
 		  {

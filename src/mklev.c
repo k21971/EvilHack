@@ -224,6 +224,7 @@ boolean special;
 struct _rndvault {
     char *fname;
     long freq;
+    long mindepth;
     struct _rndvault *next;
 };
 
@@ -242,7 +243,7 @@ rndvault_gen_load()
 	dlb *fd;
 	char line[BUFSZ];
 	char fnamebuf[64];
-	long frq;
+	long frq, mind;
 	fd = dlb_fopen("vaults.dat", "r");
         if (!fd)
             return;
@@ -259,9 +260,11 @@ rndvault_gen_load()
 	    struct _rndvault *vlt = (struct _rndvault *) alloc(sizeof(struct _rndvault));
             char *tmpch = fnamebuf;
 	    fnamebuf[0] = '\0';
-	    if (sscanf(line, "%ld %63s", &frq, tmpch) == 2) {
-		if (frq < 1) frq = 1;
+	    if (sscanf(line, "%ld %ld %63s", &mind, &frq, tmpch) == 3) {
+		if (frq < 1)
+                    frq = 1;
 		vlt->freq = frq;
+                vlt->mindepth = mind;
 		vlt->fname = strdup(fnamebuf);
 		vlt->next = rndvault_gen->vaults;
 		rndvault_gen->vaults = vlt;
@@ -275,16 +278,36 @@ rndvault_gen_load()
     }
 }
 
+long curr_vault_depth = -1;
+long curr_total_freq = -1;
+
 char *
 rndvault_getname()
 {
     if (!rndvault_gen) rndvault_gen_load();
     if (rndvault_gen) {
-	long frq = rn2(rndvault_gen->total_freq);
+        long cdepth = depth(&u.uz);
+        if (curr_total_freq == -1 || curr_vault_depth != cdepth) {
+            struct _rndvault *tmp = rndvault_gen->vaults;
+            curr_total_freq = 0;
+            while (tmp) {
+                if (cdepth >= tmp->mindepth)
+                    curr_total_freq += tmp->freq;
+                tmp = tmp->next;
+            }
+            curr_vault_depth = cdepth;
+        }
+        long frq = rn2(curr_total_freq);
 	struct _rndvault *tmp = rndvault_gen->vaults;
-	while (tmp && ((frq -= tmp->freq) > 0)) tmp = tmp->next;
-	if (tmp && tmp->fname)
-	    return tmp->fname;
+
+        while (tmp) {
+            if (cdepth >= tmp->mindepth)
+                frq -= tmp->freq;
+            if (frq <= 0)
+                return tmp->fname ? tmp->fname : NULL;
+            tmp = tmp->next;
+        }
+
     }
     return NULL;
 }
