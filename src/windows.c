@@ -1849,9 +1849,9 @@ dump_headers()
 
     fprintf(dumphtml_file, "<!DOCTYPE html>\n");
     fprintf(dumphtml_file, "<head>\n");
-    fprintf(dumphtml_file, "<title>NetHack %s</title>\n",  version_string(vers));
+    fprintf(dumphtml_file, "<title>EvilHack %s</title>\n",  version_string(vers));
     fprintf(dumphtml_file, "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
-    fprintf(dumphtml_file, "<meta name=\"generator\" content=\"NetHack %s \" />\n", vers);
+    fprintf(dumphtml_file, "<meta name=\"generator\" content=\"EvilHack %s \" />\n", vers);
     fprintf(dumphtml_file, "<meta name=\"date\" content=\"%s\" />\n", iso8601);
     fprintf(dumphtml_file, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n");
     fprintf(dumphtml_file, "<style type=\"text/css\">\n");
