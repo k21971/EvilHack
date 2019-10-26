@@ -15,7 +15,7 @@ int FDECL(extra_pref, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_hwep, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_rwep, (struct monst *, struct obj *));
 
-#define DOG_SATIATED 1500
+#define DOG_SATIATED 800
 
 STATIC_DCL void FDECL(dog_givit, (struct monst *, struct permonst *));
 STATIC_DCL boolean FDECL(dog_hunger, (struct monst *, struct edog *));
@@ -626,10 +626,10 @@ struct edog *edog;
   	int cur_nutrit = -1, best_nutrit = -1;
         int cur_food = APPORT, best_food = APPORT;
 
-  	for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-    	     cur_nutrit = dog_nutrition(mtmp, otmp);
-             cur_food = dogfood(mtmp, otmp);
-    	if (cur_food < best_food && cur_nutrit > best_nutrit) {
+        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+    	    cur_nutrit = dog_nutrition(mtmp, otmp);
+            cur_food = dogfood(mtmp, otmp);
+        if (cur_food < best_food && cur_nutrit > best_nutrit) {
             best_nutrit = cur_nutrit;
             best_food = cur_food;
             obest = otmp;
@@ -727,18 +727,18 @@ int udist;
             int edible = dogfood(mtmp, obj);
 
             if (!booldroppables && (edible <= CADAVER
-                 /* starving pet is more aggressive about eating */
-                 || (edog->mhpmax_penalty && edible == ACCFOOD))
+                /* starving pet is more aggressive about eating */
+                || (edog->mhpmax_penalty && edible == ACCFOOD))
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
 		if (edog->hungrytime < monstermoves + DOG_SATIATED)
-                return dog_eat(mtmp, obj, omx, omy, FALSE);
+                    return dog_eat(mtmp, obj, omx, omy, FALSE);
             }
 
             carryamt = can_carry(mtmp, obj);
             if (carryamt > 0 && !obj->cursed && !obj->zombie_corpse
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
-            boolean can_use = could_use_item(mtmp, obj, TRUE);
-            if (can_use || (rn2(20) < edog->apport + 3)) {
+                boolean can_use = could_use_item(mtmp, obj, TRUE);
+                if (can_use || (rn2(20) < edog->apport + 3)) {
                     if (can_use || rn2(udist) || !rn2(edog->apport)) {
                         otmp = obj;
                         if (carryamt != obj->quan)
