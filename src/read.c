@@ -21,6 +21,7 @@ static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
 STATIC_DCL boolean FDECL(learnscrolltyp, (SHORT_P));
 STATIC_DCL char *FDECL(erode_obj_text, (struct obj *, char *));
 STATIC_DCL char *FDECL(apron_text, (struct obj *, char *buf));
+STATIC_DCL char *FDECL(striped_text, (struct obj *, char *buf));
 STATIC_DCL void FDECL(stripspe, (struct obj *));
 STATIC_DCL void FDECL(p_glow1, (struct obj *));
 STATIC_DCL void FDECL(p_glow2, (struct obj *, const char *));
@@ -158,6 +159,12 @@ char *buf;
            from book series _A_Song_of_Ice_and_Fire_ by George R.R. Martin,
            TV show "Game of Thrones" (probably an actual T-shirt too...) */
         "/Valar morghulis/ -- /Valar dohaeris/",
+        /* actual funny t-shirt slogans that make me chuckle */
+        "Totes Adorbs",
+        "Zonk Track Club",
+        "Licky Chewy's Pogey Bait",
+        "Space Force Gunnery School",
+        "Mandatory Fun Shirt",
     };
 
     Strcpy(buf, shirt_msgs[tshirt->o_id % SIZE(shirt_msgs)]);
@@ -185,6 +192,28 @@ char *buf;
     return erode_obj_text(apron, buf);
 }
 
+STATIC_OVL char *
+striped_text(striped, buf)
+struct obj *striped;
+char *buf;
+{
+    static const char *const striped_msgs[] = {
+        "AZ# 85",    /* Al Capone */
+        "AZ# 117",   /* George 'Machine Gun' Kelly */
+        "AZ# 594",   /* Robert 'The Birdman of Alcatraz' Stroud */
+        "B-33920",   /* Charles Manson */
+        "227501",    /* Jeffrey Dahmer */
+        "46664",     /* Nelson Mandela */
+        "B5160-8",   /* Hannibal Lecter */
+        "37927",     /* Andy Dufresne */
+        "55170-054", /* Martha Stewart */
+        "1027820",   /* O.J. Simpson */
+    };
+
+    Strcpy(buf, striped_msgs[rn2(SIZE(striped_msgs))]);
+    return erode_obj_text(striped, buf);
+}
+
 int
 doread()
 {
@@ -204,12 +233,13 @@ doread()
             You("break up the cookie and throw away the pieces.");
         outrumor(bcsign(scroll), BY_COOKIE);
         if (!Blind)
-            if(!u.uconduct.literate++)
+            if (!u.uconduct.literate++)
                 livelog_write_string(LL_CONDUCT,
                         "became literate by reading a fortune cookie");
         useup(scroll);
         return 1;
-    } else if (scroll->otyp == T_SHIRT || scroll->otyp == ALCHEMY_SMOCK) {
+    } else if (scroll->otyp == T_SHIRT || scroll->otyp == ALCHEMY_SMOCK
+               || scroll->otyp == STRIPED_SHIRT) {
         char buf[BUFSZ];
         const char *endpunct;
 
@@ -218,18 +248,23 @@ doread()
             return 0;
         }
         /* can't read shirt worn under suit (under cloak is ok though) */
-        if (scroll->otyp == T_SHIRT && uarm && scroll == uarmu) {
+        if ((scroll->otyp == T_SHIRT || scroll->otyp == STRIPED_SHIRT)
+            && uarm && scroll == uarmu) {
             pline("%s shirt is obscured by %s%s.",
                   scroll->unpaid ? "That" : "Your", shk_your(buf, uarm),
                   suit_simple_name(uarm));
             return 0;
         }
-        if(!u.uconduct.literate++)
+        if (!u.uconduct.literate++)
             livelog_printf(LL_CONDUCT, "became literate by reading %s",
-                    (scroll->otyp == T_SHIRT) ? "a T-shirt" : "an apron");
+                    (scroll->otyp == T_SHIRT) ? "a T-shirt"
+                                              : (scroll->otyp == STRIPED_SHIRT) ? "a striped shirt"
+                                                                                : "an apron");
         /* populate 'buf[]' */
         mesg = (scroll->otyp == T_SHIRT) ? tshirt_text(scroll, buf)
-                                         : apron_text(scroll, buf);
+                                         : (scroll->otyp == STRIPED_SHIRT) ? striped_text(scroll, buf)
+                                                                           : apron_text(scroll, buf);
+
         endpunct = "";
         if (flags.verbose) {
             int ln = (int) strlen(mesg);
@@ -280,7 +315,7 @@ doread()
               (!((int) scroll->o_id % 3)),
               (((int) scroll->o_id * 7) % 10),
               (flags.verbose || Blind) ? "." : "");
-        if(!u.uconduct.literate++)
+        if (!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading a credit card");
         return 1;
@@ -295,7 +330,7 @@ doread()
         if (flags.verbose)
             pline("It reads:");
         pline("\"Magic Marker(TM) Red Ink Marker Pen.  Water Soluble.\"");
-        if(!u.uconduct.literate++)
+        if (!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading a magic marker");
         return 1;
@@ -305,7 +340,7 @@ doread()
         else if (flags.verbose)
             You("read:");
         pline("\"1 Zorkmid.  857 GUE.  In Frobs We Trust.\"");
-        if(!u.uconduct.literate++)
+        if (!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading a coin's engravings");
         return 1;
@@ -315,7 +350,7 @@ doread()
         else
             pline("It is signed:");
         pline("\"Odin.\"");
-        if(!u.uconduct.literate++)
+        if (!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading the divine signature of Odin");
         return 1;
@@ -388,7 +423,7 @@ doread()
             default:
                 break;
         }
-        if(!u.uconduct.literate++)
+        if (!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading the Magic 8-Ball");
         return 1;
@@ -410,7 +445,7 @@ doread()
         mesg = wrapper_msgs[scroll->o_id % SIZE(wrapper_msgs)];
         pline("The wrapper reads: \"%s\".", mesg);
         maybe_learn_elbereth(mesg);
-        if(!u.uconduct.literate++)
+        if (!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading a candy bar wrapper");
         return 1;
@@ -456,7 +491,7 @@ doread()
     if (scroll->otyp != SPE_BOOK_OF_THE_DEAD
         && scroll->otyp != SPE_BLANK_PAPER && scroll->otyp != SCR_BLANK_PAPER
         && scroll->otyp != SPE_NOVEL)
-        if(!u.uconduct.literate++)
+        if (!u.uconduct.literate++)
             livelog_printf(LL_CONDUCT, "became literate by reading %s",
                     scroll->oclass == SPBOOK_CLASS ? "a book" :
                     scroll->oclass == SCROLL_CLASS ? "a scroll" : "something");
@@ -2503,7 +2538,7 @@ int how;
             which = !type_is_pname(ptr) ? "the " : "";
     }
     if (how & REALLY) {
-        if(!num_genocides())
+        if (!num_genocides())
             livelog_printf(LL_CONDUCT|LL_GENOCIDE,
                     "performed %s first genocide (%s)", uhis(), buf);
         else
