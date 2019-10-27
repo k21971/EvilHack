@@ -1356,10 +1356,14 @@ unsigned doname_flags;
                     (obj->otyp == AKLYS) ? "tethered " : "", hand_s);
 
             if (warn_obj_cnt && obj == uwep && (EWarn_of_mon & W_WEP) != 0L) {
-                if (!Blind) /* we know bp[] ends with ')'; overwrite that */
-                    Sprintf(eos(bp) - 1, ", %s %s)",
-                            glow_verb(warn_obj_cnt, TRUE),
-                            glow_color(obj->oartifact));
+                if (!obj->oartifact)
+                    impossible("glowing non-artifact?");
+                if (strcmp(glow_color(obj->oartifact), "no color")) {
+                    if (!Blind) /* we know bp[] ends with ')'; overwrite that */
+                        Sprintf(eos(bp) - 1, ", %s %s)",
+                                glow_verb(warn_obj_cnt, TRUE),
+                                glow_color(obj->oartifact));
+                }
             }
         }
     }
@@ -1367,10 +1371,14 @@ unsigned doname_flags;
         if (u.twoweap) {
             Sprintf(eos(bp), " (wielded in other %s)", body_part(HAND));
             if (warn_obj_cnt && obj == uswapwep && (EWarn_of_mon & W_SWAPWEP) != 0L) {
-                if (!Blind) /* we know bp[] ends with ')'; overwrite that */
-                    Sprintf(eos(bp) - 1, ", %s %s)",
-                            glow_verb(warn_obj_cnt, TRUE),
-                            glow_color(obj->oartifact));
+                if (!obj->oartifact)
+                    impossible("glowing non-artifact?");
+                if (strcmp(glow_color(obj->oartifact), "no color")) {
+                    if (!Blind) /* we know bp[] ends with ')'; overwrite that */
+                        Sprintf(eos(bp) - 1, ", %s %s)",
+                                glow_verb(warn_obj_cnt, TRUE),
+                                glow_color(obj->oartifact));
+                }
             }
         } else {
             Strcat(bp, " (alternate weapon; not wielded)");
