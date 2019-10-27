@@ -1819,13 +1819,14 @@ struct permonst _mons2[] = {
     /* From GruntHack. Have fun if you run into this one...
      */
     MON("elder minotaur", S_GIANT, LVL(26, 14, -8, 25, -4), (G_HELL | G_GENO | 1),
-        A(ATTK(AT_CLAW, AD_PHYS, 6, 7), ATTK(AT_CLAW, AD_PHYS, 6, 7),
-          ATTK(AT_BUTT, AD_PHYS, 8, 5), ATTK(AT_HUGS, AD_PHYS, 8, 3),
+        A(ATTK(AT_CLAW, AD_PHYS, 6, 6), ATTK(AT_CLAW, AD_PHYS, 6, 6),
+          ATTK(AT_BUTT, AD_PHYS, 8, 4), ATTK(AT_HUGS, AD_PHYS, 6, 4),
           NO_ATTK, NO_ATTK),
         SIZ(2200, 900, MS_ROAR, MZ_HUGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE | M1_THICK_HIDE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_WANDER | M2_STALK | M2_LORD,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 29, CLR_BLACK),
+        M3_INFRAVISIBLE | M3_INFRAVISION | M3_BERSERK,
+        0, 0, 29, CLR_BLACK),
    /* 'I' is a visual marker for all invisible monsters and must be unused */
    /*
     * Jabberwock
@@ -2414,7 +2415,8 @@ struct permonst _mons2[] = {
           ATTK(AT_HUGS, AD_PHYS, 2, 8), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1700, 700, MS_ROAR, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE | M1_OVIPAROUS,
-        M2_HOSTILE | M2_STRONG | M2_NASTY, M3_INFRAVISIBLE, 0, 0, 7, CLR_BROWN),
+        M2_HOSTILE | M2_STRONG | M2_NASTY, M3_INFRAVISIBLE | M3_BERSERK,
+        0, 0, 7, CLR_BROWN),
     MON("yeti", S_YETI, LVL(5, 15, 6, 0, 0), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_PHYS, 1, 6),
           ATTK(AT_BITE, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK),
@@ -2432,7 +2434,7 @@ struct permonst _mons2[] = {
           ATTK(AT_KICK, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1550, 750, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_SEE_INVIS | M1_OMNIVORE, M2_STRONG,
-        M3_INFRAVISIBLE, 0, 0, 9, CLR_GRAY),
+        M3_INFRAVISIBLE | M3_BERSERK, 0, 0, 9, CLR_GRAY),
     /*
      * Zombies
      */
