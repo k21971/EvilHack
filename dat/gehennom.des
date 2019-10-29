@@ -747,6 +747,8 @@ MONSTER:'L',random
 MONSTER:'V',random
 MONSTER:'V',random
 MONSTER:'V',random
+MONSTER:('U',"shambling horror"),random
+MONSTER:('U',"shambling horror"),random
 STAIR:(63,15),up
 # Teleporting to this level is allowed after the invocation creates its
 # entrance.  Force arrival in that case to be on rightmost third of level.
