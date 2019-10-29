@@ -1192,9 +1192,10 @@ register struct attack *mattk;
     }
 
     if (is_berserker(mdat)) {
-        if (!rn2(6)) {
+        if (!rn2(7)) {
             if (mdat->mlet == S_HUMAN || mdat->mlet == S_ORC
-                || mdat->mlet == S_GIANT || mdat->mlet == S_OGRE)
+                || mdat->mlet == S_GIANT || mdat->mlet == S_OGRE
+                || mdat->mlet == S_HUMANOID)
                 pline("%s flies into a berserker rage!", Monnam(mtmp));
             else
                 pline("%s %s with rage!", Monnam(mtmp),

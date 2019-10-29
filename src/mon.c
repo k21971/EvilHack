@@ -2012,7 +2012,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* berserk monsters sometimes lash out at everything
        when trying to attack you  */
-    if (is_berserker(ma) && m_canseeu(magr) && !rn2(6))
+    if (is_berserker(ma) && m_canseeu(magr) && !rn2(7))
         return ALLOW_M | ALLOW_TM;
 
     /* The Riders, and huge/gigantic monsters
