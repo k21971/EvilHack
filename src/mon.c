@@ -1950,6 +1950,13 @@ struct monst *magr, *mdef;
         && (md == &mons[PM_KILLER_BEE] || md == &mons[PM_QUEEN_BEE]))
         return ALLOW_M | ALLOW_TM;
 
+    /* Shambling horrors are nasty. They hate you
+       and all of your friends. Your friends realize
+       this; they hate shambling horrors too */
+    if (ma == &mons[PM_SHAMBLING_HORROR]
+        && mdef->mtame)
+        return ALLOW_M | ALLOW_TM;
+
     return 0;
 }
 
