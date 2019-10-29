@@ -1115,7 +1115,6 @@ u_init()
      * every so often something will dial up nasty stuff
      */
     shambler->mflags1 = 0;
-
     for (i = 0; i < rnd(17); i++)
         shambler->mflags1 |= (1 << rn2(33));	/* rn2() should equal the number of M1_ flags in
                                                  * include/monflag.h */
@@ -1136,6 +1135,7 @@ u_init()
     shambler->mflags2 &= ~M2_PRINCE;		/* still isn't royalty */
     shambler->mflags2 &= ~M2_DOMESTIC;		/* no taming */
 
+    shambler->mflags3 = 0;
     for (i = 0; i < rnd(5); i++)
         shambler->mflags3 |= (1 << rn2(16));    /* rn2() should equal the number of M3_ flags in
                                                  * include/monflag.h */
