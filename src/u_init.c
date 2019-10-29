@@ -1056,9 +1056,9 @@ u_init()
     }
 
     /* what a horrible night to have a curse */
-    shambler->mlevel += rnd(12) - 3;	/* shuffle level */
+    shambler->mlevel += rnd(15) - 3;	/* shuffle level */
     shambler->mmove = rn2(10) + 9;	/* slow to very fast */
-    shambler->ac = rn2(21) - 10;	/* any AC */
+    shambler->ac = rn2(31) - 20;	/* any AC */
     shambler->mr = rn2(5) * 25;		/* varying amounts of MR */
     shambler->maligntyp = rn2(21) - 10;
 
@@ -1070,13 +1070,13 @@ u_init()
         if (attkptr->aatyp == AT_GAZE) {
             attkptr->aatyp = AT_MAGC;
         } else if (attkptr->aatyp == AT_EXPL || attkptr->aatyp == AT_BOOM) {
-                   attkptr->aatyp = AT_CLAW + rn2(12);
+                   attkptr->aatyp = AT_CLAW + rn2(10);
         }
 
         if (attkptr->aatyp == AT_MAGC) {
             attkptr->adtyp = AD_CLRC + rn2(2);         /* AT_MAGC must correspond to a spell type */
         } else if (attkptr->aatyp == AT_BREA) {
-                   attkptr->adtyp = AD_MAGM + rn2(8);
+                   attkptr->adtyp = AD_MAGM + rn2(9);
         } else if (attkptr->aatyp == AT_SPIT) {
                    attkptr->adtyp = AD_ACID;
         } else if (attkptr->aatyp == AT_ENGL) {
@@ -1137,8 +1137,12 @@ u_init()
     shambler->mflags2 &= ~M2_DOMESTIC;		/* no taming */
 
     for (i = 0; i < rnd(5); i++)
-        shambler->mflags3 |= (0x100 << rn2(6));	/* no covetous, but any of the middle */
-                                                /* M3_ flags are OK */
+        shambler->mflags3 |= (1 << rn2(16));    /* rn2() should equal the number of M3_ flags in
+                                                 * include/monflag.h */
+    shambler->mflags3 &= ~M3_WANTSALL;
+    shambler->mflags3 &= ~M3_COVETOUS;          /* no covetous behavior */
+    shambler->mflags3 &= ~M3_WAITMASK;          /* no waiting either */
+
     return;
 }
 
