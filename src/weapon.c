@@ -446,7 +446,7 @@ struct obj **out_obj; /* ptr to offending object, can be NULL if not wanted */
 
     /* when no gloves we check for rings made of hated material (blessed rings
      * ignored) */
-    } else if ((left_ring || right_ring) && magr == &youmonst) {
+    } else if (magr == &youmonst) {
         if (left_ring && uleft
             && mon_hates_material(mdef, uleft->material)) {
             bonus += rnd(sear_damage(uleft->material));
@@ -469,18 +469,30 @@ struct obj **out_obj; /* ptr to offending object, can be NULL if not wanted */
                     *out_obj = uright;
             }
         }
+        /* only apply damage from current form's material if nothing else has
+         * applied damage */
+        if (bonus == 0) {
+            int umaterial = monmaterial(monsndx(youmonst.data));
+            if (mon_hates_material(mdef, umaterial)) {
+                bonus += rnd(sear_damage(umaterial));
+                if (out_obj)
+                    *out_obj = (struct obj *) &zeroobj;
+            }
+        }
     }
-
     return bonus;
 }
 
 /* give a "silver <item> sears <target>" message (or similar for other
- * material); not used for weapon hit, so we only handle rings */
+ * material); not used for weapon hit, so we only handle rings, boots for kick,
+ * gloves for punch, or helm for headbutt.
+ * This also handles the case where magr is made of a material that mdef hates.
+ */
 void
 searmsg(magr, mdef, obj)
 struct monst *magr UNUSED;
 struct monst *mdef;
-struct obj * obj; /* the offending item */
+struct obj * obj; /* the offending item,  or &zeroobj if your body */
 {
     char onamebuf[BUFSZ];
     char whose[BUFSZ];
@@ -492,19 +504,25 @@ struct obj * obj; /* the offending item */
         return;
     }
 
-    /* Make it explicit to the player that this effect is from the
-     * material. If the object name doesn't already contain the material name,
-     * add it (e.g. "engraved silver bell" shouldn't turn into "silver engraved
-     * silver bell") */
-    boolean alreadyin = (strstri(cxname(obj), matname) != NULL);
-    if (!alreadyin) {
-        Sprintf(onamebuf, "%s %s", matname, cxname(obj));
+    else if (obj == &zeroobj) {
+        Strcpy(whose, "your ");
+        Sprintf(onamebuf, "%s touch",
+                materialnm[monmaterial(monsndx(youmonst.data))]);
+    } else {
+        /* Make it explicit to the player that this effect is from the material.
+         * If the object name doesn't already contain the material name, add it
+         * (e.g. "engraved silver bell" shouldn't turn into "silver engraved
+         * silver bell") */
+        boolean alreadyin = (strstri(cxname(obj), matname) != NULL);
+        if (!alreadyin) {
+            Sprintf(onamebuf, "%s %s", matname, cxname(obj));
+        } else {
+            Strcpy(onamebuf, cxname(obj));
+        }
+        shk_your(whose, obj);
     }
-    else {
-        Strcpy(onamebuf, cxname(obj));
-    }
+
     char* whom = mon_nam(mdef);
-    shk_your(whose, obj);
     if (mat == SILVER) { /* more dramatic effects than other materials */
         /* note: s_suffix returns a modifiable buffer */
         if (!noncorporeal(mdef->data) && !amorphous(mdef->data))

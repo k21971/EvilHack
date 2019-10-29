@@ -1299,11 +1299,22 @@ register struct attack *mattk;
             } else if (mattk->aatyp != AT_TUCH || dmg != 0
                        || mtmp != u.ustuck) {
                 hitmsg(mtmp, mattk);
+                /* Monster is hitting you barehanded. It might be made of a
+                 * material you hate. */
+                int mat = monmaterial(monsndx(mdat));
+                if (Hate_material(mat)) {
+                    if (mat == SILVER)
+                        pline_The("silver sears your flesh!");
+                    else
+                        You("flinch at the touch of %s!",
+                            materialnm[mat]);
+                    exercise(A_CON, FALSE);
+                    dmg += rnd(sear_damage(mat));
                 }
             }
 	    if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
                 || mtmp->data == &mons[PM_BABY_SEA_DRAGON]
-                || mtmp->data == &mons[PM_SEA_DRAGON]) {
+                || mtmp->data == &mons[PM_SEA_DRAGON])
 		goto do_rust;
 	}
         break;

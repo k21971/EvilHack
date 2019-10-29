@@ -1344,4 +1344,36 @@ struct permonst *mdat;
     return TRUE;
 }
 
+/* Return the material a monster is composed of. */
+int
+monmaterial(mndx)
+int mndx;
+{
+    switch (mndx) {
+    case PM_GARGOYLE:
+    case PM_WINGED_GARGOYLE:
+    case PM_EARTH_ELEMENTAL:
+        return MINERAL;
+    case PM_SKELETON:
+        return BONE;
+    case PM_PAPER_GOLEM:
+        return PAPER;
+    case PM_GOLD_GOLEM:
+        return GOLD;
+    case PM_LEATHER_GOLEM:
+        return LEATHER;
+    case PM_WOOD_GOLEM:
+        return WOOD;
+    case PM_CLAY_GOLEM:
+    case PM_STONE_GOLEM:
+        return MINERAL;
+    case PM_GLASS_GOLEM:
+        return GLASS;
+    case PM_IRON_GOLEM:
+        return IRON;
+    default:
+        return 0;
+    }
+}
+
 /*mondata.c*/

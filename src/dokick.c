@@ -42,6 +42,7 @@ boolean clumsy;
     int dmg = (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 15;
     int specialdmg, kick_skill = P_NONE;
     boolean trapkilled = FALSE;
+    struct obj* hated_obj;
 
     if (uarmf && uarmf->otyp == KICKING_BOOTS)
         dmg += 5;
@@ -58,7 +59,7 @@ boolean clumsy;
     if (noncorporeal(mon->data))
         dmg = 0;
 
-    specialdmg = special_dmgval(&youmonst, mon, W_ARMF, NULL);
+    specialdmg = special_dmgval(&youmonst, mon, W_ARMF, &hated_obj);
 
     if (noncorporeal(mon->data) && !specialdmg) {
         pline_The("%s.", kick_passes_thru);
@@ -95,9 +96,9 @@ boolean clumsy;
     dmg += specialdmg; /* for blessed (or hypothetically, silver) boots */
     if (uarmf) {
         dmg += uarmf->spe;
-        if (specialdmg)
-            searmsg(&youmonst, mon, uarmf);
     }
+    if (specialdmg)
+        searmsg(&youmonst, mon, hated_obj);
     dmg += u.udaminc; /* add ring(s) of increase damage */
     if (dmg > 0)
         damage_mon(mon, dmg, AD_PHYS);
