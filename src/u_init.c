@@ -1106,7 +1106,7 @@ u_init()
         attkptr = &shambler->mattk[i];
         attkptr->aatyp = attk_melee_types[rn2(SIZE(attk_melee_types))];
         attkptr->adtyp = damg_melee_types[rn2(SIZE(damg_melee_types))];
-        attkptr->damn = 3 + rn2(3);
+        attkptr->damn = 2 + rn2(4);
         attkptr->damd = 6 + rn2(3);
     }
 
@@ -1114,7 +1114,7 @@ u_init()
     for (; i < shambler_attacks; i++) {
         attkptr = &shambler->mattk[i];
         attkptr->aatyp = attk_spec_types[rn2(SIZE(attk_spec_types))];
-        attkptr->damn = 3 + rn2(3);
+        attkptr->damn = 2 + rn2(4);
         attkptr->damd = 6 + rn2(3);
         switch (attkptr->aatyp) {
             case AT_BREA:
