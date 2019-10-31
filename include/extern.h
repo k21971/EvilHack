@@ -598,15 +598,19 @@ E int FDECL(def_char_to_monclass, (CHAR_P));
 #if !defined(MAKEDEFS_C) && !defined(LEV_LEX_C)
 E void FDECL(switch_symbols, (int));
 E void FDECL(assign_graphics, (int));
-E void NDECL(init_r_symbols);
 E void NDECL(init_symbols);
-E void NDECL(update_bouldersym);
 E void NDECL(init_showsyms);
-E void NDECL(init_l_symbols);
+E void NDECL(init_primary_symbols);
+E void NDECL(init_rogue_symbols);
+E void NDECL(init_ov_primary_symbols);
+E void NDECL(init_ov_rogue_symbols);
 E void FDECL(clear_symsetentry, (int, BOOLEAN_P));
-E void FDECL(update_l_symset, (struct symparse *, int));
-E void FDECL(update_r_symset, (struct symparse *, int));
+E void FDECL(update_primary_symset, (struct symparse *, int));
+E void FDECL(update_rogue_symset, (struct symparse *, int));
+E void FDECL(update_ov_primary_symset, (struct symparse *, int));
+E void FDECL(update_ov_rogue_symset, (struct symparse *, int));
 E boolean FDECL(cursed_object_at, (int, int));
+E nhsym FDECL(get_othersym, (int, int));
 
 /* ### dungeon.c ### */
 
@@ -1841,7 +1845,7 @@ E int FDECL(add_autopickup_exception, (const char *));
 E void NDECL(free_autopickup_exceptions);
 E int FDECL(load_symset, (const char *, int));
 E void NDECL(free_symsets);
-E boolean FDECL(parsesymbols, (char *));
+E boolean FDECL(parsesymbols, (char *, int));
 E struct symparse *FDECL(match_sym, (char *));
 E void NDECL(set_playmode);
 E int FDECL(sym_val, (const char *));
@@ -1881,6 +1885,8 @@ E int NDECL(dohistory);
 E void FDECL(chdirx, (char *, BOOLEAN_P));
 #endif /* CHDIR */
 E boolean NDECL(authorize_wizard_mode);
+E boolean NDECL(is_desktop_bridge_application);
+
 #endif /* MICRO || WIN32 */
 
 /* ### pcsys.c ### */
