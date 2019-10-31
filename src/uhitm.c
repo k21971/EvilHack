@@ -2714,24 +2714,33 @@ register struct monst *mon;
             if (uwep && youmonst.data->mlet == S_LICH && !weapon_used)
                 goto use_weapon;
             /*FALLTHRU*/
-        case AT_KICK:
-        case AT_BITE:
-        case AT_STNG:
-        case AT_BUTT:
         case AT_TENT:
-        /*weaponless:*/
-            tmp = find_roll_to_hit(mon, mattk->aatyp, (struct obj *) 0,
-                                   &attknum, &armorpenalty);
-            dieroll = rnd(20);
-            dhit = (tmp > dieroll || u.uswallow);
-
-            if ((uwep || (u.twoweap && uswapwep)
-                || (!uwep && P_BARE_HANDED_COMBAT))
+            if ((uwep || (u.twoweap && uswapwep) || uarmg)
+                && (is_illithid(youmonst.data)
+                    || Race_if(PM_ILLITHID))
                 && (touch_petrifies(mon->data)
                     || is_rider(mon->data)
                     || mon->data == &mons[PM_MEDUSA]
                     || mon->data == &mons[PM_GREEN_SLIME]))
                 break;
+            /*FALLTHRU*/
+        case AT_BITE:
+            if ((uwep || (u.twoweap && uswapwep) || uarmg)
+                && is_vampire(youmonst.data)
+                && (touch_petrifies(mon->data)
+                    || is_rider(mon->data)
+                    || mon->data == &mons[PM_MEDUSA]
+                    || mon->data == &mons[PM_GREEN_SLIME]))
+                break;
+            /*FALLTHRU*/
+        case AT_KICK:
+        case AT_STNG:
+        case AT_BUTT:
+        /*weaponless:*/
+            tmp = find_roll_to_hit(mon, mattk->aatyp, (struct obj *) 0,
+                                   &attknum, &armorpenalty);
+            dieroll = rnd(20);
+            dhit = (tmp > dieroll || u.uswallow);
 
             if (dhit) {
                 int compat, specialdmg;
