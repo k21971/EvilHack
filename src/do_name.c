@@ -1286,6 +1286,7 @@ const char *name;
 {
     int lth;
     char buf[PL_PSIZ];
+    struct monst *mtmp;
 
     lth = *name ? (int) (strlen(name) + 1) : 0;
     if (lth > PL_PSIZ) {
@@ -1318,12 +1319,43 @@ const char *name;
         if (obj->unpaid)
             alter_cost(obj, 0L);
         if (via_naming) {
+            /* naming an artifact has consequences now, much like
+               wishing for one... not as bad as spawning a player
+               monster or quest nemesis, but you're still not
+               getting these for free */
+            mtmp = makemon(&mons[PM_GREY_ELF], u.ux, u.uy, MM_ADJACENTOK);
+            if (mtmp) {
+                if (Blind && !Deaf) {
+                    if (Hallucination)
+                        pline("Smells like teen spirit...");
+                    else
+                        You("hear movement nearby.");
+                    You("hear somebody say: %s is not yours to take! %s it!",
+                        artiname(obj->oartifact),
+                        rn2(2) ? "Relinquish" : "Return");
+                } else {
+                    if (Hallucination)
+                        pline("Nice colors, but the sound could have been more mellow.");
+                    else
+                        You("see a %s step out of the shadows.",
+                            mon_nam(mtmp));
+                    pline("%s says: %s is not yours to take! %s it!",
+                          Monnam(mtmp),
+                          artiname(obj->oartifact),
+                          rn2(2) ? "Relinquish" : "Return");
+                }
+                mtmp->mpeaceful = mtmp->msleeping = 0;
+                m_dowear(mtmp, TRUE);
+                mon_wield_item(mtmp);
+            }
             /* violate illiteracy conduct since successfully wrote arti-name */
             u.uconduct.literate++;
             if(!u.uconduct.literate++)
-                livelog_printf(LL_CONDUCT|LL_ARTIFACT, "became literate by naming %s", bare_artifactname(obj));
+                livelog_printf(LL_CONDUCT | LL_ARTIFACT, "became literate by naming %s",
+                               bare_artifactname(obj));
             else
-                livelog_printf(LL_ARTIFACT, "chose %s to be named \"%s\"", ansimpleoname(obj), bare_artifactname(obj));
+                livelog_printf(LL_ARTIFACT, "chose %s to be named \"%s\"",
+                               ansimpleoname(obj), bare_artifactname(obj));
         }
         /* set up specific materials for the artifact */
         switch(obj->oartifact) {
