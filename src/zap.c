@@ -5829,14 +5829,14 @@ blindingflash()
             continue;
 
         /* must be able to see our location... */
-        if (m_cansee(mtmp, u.ux, u.uy) && !rn2(5)) {
+        if (m_cansee(mtmp, u.ux, u.uy)
+            && distu(mtmp->mx, mtmp->my) <= 5) {
             if (!Blind && canseemon(mtmp))
                 pline("%s is blinded by the flash!", Monnam(mtmp));
-            if (mtmp->mtame && !rn2(3)) {
+            if (mtmp->mtame && rn2(2))
                 abuse_dog(mtmp);
-            } else if (mtmp->mpeaceful && !rn2(5)) {
+            if (mtmp->mpeaceful && !rn2(3))
                 setmangry(mtmp, TRUE);
-            }
             mtmp->mblinded = rnd(20);
             mtmp->mcansee = 0;
         }
