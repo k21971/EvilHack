@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.151 $ $NHDT-Date: 1572530225 2019/10/31 13:57:05 $
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.157 $ $NHDT-Date: 1572887643 2019/11/04 17:14:03 $
 
 This fixes36.3 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.2 in May 2019. Please note, however,
@@ -210,6 +210,13 @@ parsing for the argument to 'scores' option was sloppy; "3a/o" (slash) and
 wizmakemap could leave genocided monsters on map
 when entering Astral level, initial rendering of guardian angel didn't show
 	it as tame; noticeable if the level was entered with 'hilite_pet' On
+fix a leashed pet polymorphed into a long worm staying leashed
+prevent leashing unsolid monsters and monsters with no extremities
+playing musical instruments gave feedback which ignored deafness
+some other deafness-related message corrections
+when dipping into holy/unholy water while blind (where the glow message is
+	suppressed), clear dipped item's bknown flag unless water potion's
+	bless/curse state is known
 
 
 Fixes to Post-3.6.2 Problems that Were Exposed Via git Repository
@@ -348,6 +355,9 @@ unix: sysconf CHECK_PLNAME=1 wouldn't work if attempt to obtain unix username
 unix+curses: startup error only reset terminal for tty; one noticeable
 	example was answering 'n' to "Destroy old game?"
 Windows: some startup error messages were not being delivered successfully
+WindowsGUI: player selection dialog box layout was not being adjusted for DPI
+Windows: signifiant changes to default directory choices.  see documentation
+    for details.
 
 
 General New Features
@@ -396,5 +406,8 @@ autopickup exception priority change in pull request #226
 Code Cleanup and Reorganization
 -------------------------------
 began to add some function caller BREADCRUMBS to aid debugging
+flag existing occurrences of "You hear" as "Deaf-aware" to aid in
+	future maintenance
+
 
 

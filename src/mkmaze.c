@@ -1371,7 +1371,7 @@ fumaroles()
         }
     }
     if (snd && !Deaf)
-        Norep("You hear a %swhoosh!", loud ? "loud " : "");
+        Norep("You hear a %swhoosh!", loud ? "loud " : "");  /* Deaf-aware */
 }
 
 /*

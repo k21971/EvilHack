@@ -4806,7 +4806,9 @@ boolean moncast;
         if (is_ice(x, y)) {
             melt_ice(x, y, (char *) 0);
         } else if (is_pool(x, y)) {
-            const char *msgtxt = "You hear hissing gas.";
+            const char *msgtxt = (!Deaf)
+                                     ? "You hear hissing gas." /* Deaf-aware */
+                                     : "That seemed remarkably uneventful.";
 
             if (lev->typ != POOL) { /* MOAT or DRAWBRIDGE_UP */
                 if (see_it)
