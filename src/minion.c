@@ -171,7 +171,7 @@ boolean talk;
         mnum = lminion();
         break;
     case A_NEUTRAL:
-        mnum = rn2(4) ? (PM_AIR_ELEMENTAL + rn2(4)) : PM_WOODCHUCK;
+        mnum = rn2(50) ? (PM_AIR_ELEMENTAL + rn2(4)) : PM_WOODCHUCK;
         break;
     case A_CHAOTIC:
     case A_NONE:
