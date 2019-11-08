@@ -4404,7 +4404,7 @@ struct obj *no_wish;
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
         return otmp;
-    } else if (otmp->oartifact && (rn2(nartifact_exist()) > -1))
+    } else if (otmp->oartifact)
 #ifdef WIZARD
     if (wizard && yn("Force the wish to succeed?") == 'n')
 #endif
@@ -4419,7 +4419,7 @@ struct obj *no_wish;
         const char *aname = artiname(otmp->oartifact);
 
         /* Wishing for a quest artifact may summon its nemesis (and quest enemies?) */
-        if (any_quest_artifact(otmp) && (rn2(nartifact_exist()) > 1)) {
+        if (any_quest_artifact(otmp)) {
             const struct Role *role = roles;
             while ((role->name.m) && (role->questarti != otmp->oartifact))
                 role++;
