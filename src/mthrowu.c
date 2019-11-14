@@ -1,4 +1,4 @@
-/* NetHack 3.6	mthrowu.c	$NHDT-Date: 1564767726 2019/08/02 17:42:06 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.85 $ */
+/* NetHack 3.6	mthrowu.c	$NHDT-Date: 1573688695 2019/11/13 23:44:55 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.86 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -513,6 +513,10 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         damage = dmgval(otmp, mtmp);
         if (otmp->otyp == ACID_VENOM && resists_acid(mtmp))
             damage = 0;
+#if 0 /* can't use this because we don't have the attacker */
+        if (is_orc(mtmp->data) && is_elf(?magr?))
+            damage++;
+#endif
         if (ismimic)
             seemimic(mtmp);
         mtmp->msleeping = 0;
@@ -715,7 +719,12 @@ register boolean verbose;
     while (range-- > 0) { /* Actually the loop is always exited by break */
         bhitpos.x += dx;
         bhitpos.y += dy;
-        if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
+        mtmp = m_at(bhitpos.x, bhitpos.y);
+        if (mtmp && shade_miss(mon, mtmp, singleobj, TRUE, TRUE)) {
+            /* if mtmp is a shade and missile passes harmlessly through it,
+               give message and skip it in order to keep going */
+            mtmp = (struct monst *) 0;
+        } else if (mtmp) {
             if (ohitmon(mtmp, singleobj, range, verbose))
                 break;
         } else if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
@@ -939,10 +948,7 @@ struct attack *mattk;
             break;
         default:
             impossible("bad attack type in spitmu");
-            /* fall through */
-        /* case AD_ACID:
-            otmp = mksobj(ACID_VENOM, TRUE, FALSE); */
-            break;
+            /*FALLTHRU*/
         }
         if (!rn2(BOLT_LIM-distmin(mtmp->mx,mtmp->my,mtarg->mx,mtarg->my))) {
             if (canseemon(mtmp))

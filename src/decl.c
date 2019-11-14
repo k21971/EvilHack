@@ -292,6 +292,12 @@ char *fqn_prefix[PREFIX_COUNT] = { (char *) 0, (char *) 0, (char *) 0,
                                    (char *) 0, (char *) 0, (char *) 0,
                                    (char *) 0, (char *) 0, (char *) 0,
                                    (char *) 0 };
+#ifdef WIN32
+boolean fqn_prefix_locked[PREFIX_COUNT] = { FALSE, FALSE, FALSE,
+                                            FALSE, FALSE, FALSE,
+                                            FALSE, FALSE, FALSE,
+                                            FALSE };
+#endif
 
 #ifdef PREFIXES_IN_USE
 const char *fqn_prefix_names[PREFIX_COUNT] = {

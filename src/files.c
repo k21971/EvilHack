@@ -1,4 +1,4 @@
-/* NetHack 3.6	files.c	$NHDT-Date: 1573066357 2019/11/06 18:52:37 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.260 $ */
+/* NetHack 3.6	files.c	$NHDT-Date: 1573358489 2019/11/10 04:01:29 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.263 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -165,6 +165,10 @@ static int lockptr;
 #define Close close
 #ifndef WIN_CE
 #define DeleteFile unlink
+#endif
+#ifdef WIN32
+/*from windmain.c */
+extern char *FDECL(translate_path_variables, (const char *, char *));
 #endif
 #endif
 
@@ -365,6 +369,13 @@ const char *basenam;
 int whichprefix UNUSED_if_not_PREFIXES_IN_USE;
 int buffnum UNUSED_if_not_PREFIXES_IN_USE;
 {
+#ifdef PREFIXES_IN_USE
+    char *bufptr;
+#endif
+#ifdef WIN32
+    char tmpbuf[BUFSZ];
+#endif
+
 #ifndef PREFIXES_IN_USE
     return basenam;
 #else
@@ -376,15 +387,19 @@ int buffnum UNUSED_if_not_PREFIXES_IN_USE;
         impossible("Invalid fqn_filename_buffer specified: %d", buffnum);
         buffnum = 0;
     }
-    if (strlen(fqn_prefix[whichprefix]) + strlen(basenam)
-        >= FQN_MAX_FILENAME) {
-        impossible("fqname too long: %s + %s", fqn_prefix[whichprefix],
-                   basenam);
+    bufptr = fqn_prefix[whichprefix];
+#ifdef WIN32
+    if (strchr(fqn_prefix[whichprefix], '%')
+        || strchr(fqn_prefix[whichprefix], '~'))
+        bufptr = translate_path_variables(fqn_prefix[whichprefix], tmpbuf);
+#endif
+    if (strlen(bufptr) + strlen(basenam) >= FQN_MAX_FILENAME) {
+        impossible("fqname too long: %s + %s", bufptr, basenam);
         return basenam; /* XXX */
     }
-    Strcpy(fqn_filename_buffer[buffnum], fqn_prefix[whichprefix]);
+    Strcpy(fqn_filename_buffer[buffnum], bufptr);
     return strcat(fqn_filename_buffer[buffnum], basenam);
-#endif
+#endif /* !PREFIXES_IN_USE */
 }
 
 int
@@ -2166,7 +2181,7 @@ int src;
 /* constructed full path names don't need fqname() */
 #ifdef VMS
     /* no punctuation, so might be a logical name */
-    set_configfile_name(fqname("nethackini", CONFIGPREFIX, 0));
+    set_configfile_name("nethackini");
     if ((fp = fopenp(configfile, "r")) != (FILE *) 0)
         return fp;
     set_configfile_name("sys$login:nethack.ini");
@@ -2202,7 +2217,7 @@ int src;
         set_configfile_name(tmp_config);
         if ((fp = fopenp(configfile, "r")) != (FILE *) 0)
             return fp;
-        /* may be easier for user to edit if filename as '.txt' suffix */
+        /* may be easier for user to edit if filename has '.txt' suffix */
         Sprintf(tmp_config, "%s/%s", envp,
                 "Library/Preferences/NetHack Defaults.txt");
         set_configfile_name(tmp_config);
@@ -2304,6 +2319,10 @@ int prefixid;
 
     if (!bufp)
         return;
+#ifdef WIN32
+    if (fqn_prefix_locked[prefixid])
+        return;
+#endif
     /* Backward compatibility, ignore trailing ;n */
     if ((ptr = index(bufp, ';')) != 0)
         *ptr = '\0';
@@ -3368,7 +3387,13 @@ fopen_sym_file()
 {
     FILE *fp;
 
-    fp = fopen_datafile(SYMBOLS, "r", HACKPREFIX);
+    fp = fopen_datafile(SYMBOLS, "r",
+#ifdef WIN32
+                            SYSCONFPREFIX
+#else
+                            HACKPREFIX
+#endif
+                       );
 
     return fp;
 }
@@ -3404,14 +3429,7 @@ int which_set;
         if (symset[which_set].name
             && (fuzzymatch(symset[which_set].name, "Default symbols",
                            " -_", TRUE)
-                || !strcmpi(symset[which_set].name, "default")
-#ifdef CURSES_GRAPHICS
-                /* we don't maintain static symbols for curses
-                 * the system defines these at runtime
-                 */
-                || !strcmpi(symset[which_set].name, "curses")
-#endif
-                ))
+                || !strcmpi(symset[which_set].name, "default")))
             clear_symsetentry(which_set, TRUE);
         config_error_done();
 
@@ -4043,6 +4061,10 @@ assure_syscf_file()
 {
     int fd;
 
+#ifdef WIN32
+    /* We are checking that the sysconf exists ... lock the path */
+    fqn_prefix_locked[SYSCONFPREFIX] = TRUE;
+#endif
     /*
      * All we really care about is the end result - can we read the file?
      * So just check that directly.
@@ -4146,6 +4168,150 @@ boolean wildcards;
 }
 
 #endif /*DEBUG*/
+
+#ifdef UNIX
+#ifndef PATH_MAX
+#include <limits.h>
+#endif
+#endif
+
+void
+reveal_paths(VOID_ARGS)
+{
+    const char *fqn, *filep;
+    char buf[BUFSZ];
+#if defined(UNIX) || defined(PREFIXES_IN_USE)
+    char *strp;
+#endif
+#ifdef UNIX
+    char *envp, cwdbuf[PATH_MAX];
+#endif
+#ifdef PREFIXES_IN_USE
+    int i, maxlen = 0;
+
+    raw_print("Variable playground locations:");
+    for (i = 0; i < PREFIX_COUNT; i++)
+        raw_printf("    [%-10s]=\"%s\"", fqn_prefix_names[i],
+                   fqn_prefix[i] ? fqn_prefix[i] : "not set");
+#endif
+
+    /* sysconf file */
+
+#ifdef SYSCF
+#ifdef PREFIXES_IN_USE
+    strp = fqn_prefix_names[SYSCONFPREFIX];
+    maxlen = BUFSZ - sizeof " (in )";
+    if (strp && strlen(strp) < (size_t) maxlen)
+        Sprintf(buf, " (in %s)", strp);
+#else
+    buf[0] = '\0';
+#endif
+    raw_printf("Your system configuration file%s:", buf);
+#ifdef SYSCF_FILE
+    filep = SYSCF_FILE;
+#else
+    filep = "sysconf";
+#endif
+    fqn = fqname(filep, SYSCONFPREFIX, 0);
+    if (fqn) {
+        set_configfile_name(fqn);
+        filep = configfile;
+    }
+    raw_printf("    \"%s\"", filep);
+#else /* !SYSCF */
+    raw_printf("No system configuration file.");
+#endif /* ?SYSCF */
+
+    /* symbols file */
+
+    buf[0] = '\0';
+#ifndef UNIX
+#ifdef PREFIXES_IN_USE
+#ifdef WIN32
+    strp = fqn_prefix_names[SYSCONFPREFIX];
+#else
+    strp = fqn_prefix_names[HACKPREFIX];
+#endif /* WIN32 */
+    maxlen = BUFSZ - sizeof " (in )";
+    if (strp && strlen(strp) < (size_t) maxlen)
+        Sprintf(buf, " (in %s)", strp);
+#endif /* PREFIXES_IN_USE */
+    raw_printf("Your game's loadable symbols file%s:", buf);
+#endif /* UNIX */
+
+#ifdef UNIX
+    envp = getcwd(cwdbuf, PATH_MAX);
+    if (envp) {
+        raw_print("Your game's loadable symbols file:");
+        raw_printf("    \"%s/%s\"", envp, SYMBOLS);
+    }
+#else /* UNIX */
+    filep = SYMBOLS;
+#ifdef PREFIXES_IN_USE
+#ifdef WIN32
+    fqn = fqname(filep, SYSCONFPREFIX, 1);
+#else
+    fqn = fqname(filep, HACKPREFIX, 1);
+#endif /* WIN32 */
+    if (fqn)
+        filep = fqn;
+#endif /* PREFIXES_IN_USE */
+    raw_printf("    \"%s\"", filep);
+#endif /* UNIX */
+
+    /* personal configuration file */
+
+    buf[0] = '\0';
+#ifdef PREFIXES_IN_USE
+    strp = fqn_prefix_names[CONFIGPREFIX];
+    maxlen = BUFSZ - sizeof " (in )";
+    if (strp && strlen(strp) < (size_t) maxlen)
+        Sprintf(buf, " (in %s)", strp);
+#endif /* PREFIXES_IN_USE */
+    raw_printf("Your personal configuration file%s:", buf);
+
+#ifdef UNIX
+    buf[0] = '\0';
+    if ((envp = nh_getenv("HOME")) != 0) {
+        copynchars(buf, envp, (int) sizeof buf - 1 - 1);
+        Strcat(buf, "/");
+    }
+    strp = eos(buf);
+    copynchars(strp, default_configfile,
+               (int) (sizeof buf - 1 - strlen(buf)));
+#if defined(__APPLE__) /* UNIX+__APPLE__ => MacOSX aka OSX aka macOS */
+    if (envp) {
+        if (access(buf, 4) == -1) { /* 4: R_OK, -1: failure */
+            /* read access to default failed; might be protected excessively
+               but more likely it doesn't exist; try first alternate:
+               "$HOME/Library/Pref..."; 'strp' points past '/' */
+            copynchars(strp, "Library/Preferences/NetHack Defaults",
+                       (int) (sizeof buf - 1 - strlen(buf)));
+            if (access(buf, 4) == -1) {
+                /* first alternate failed, try second:
+                   ".../NetHack Defaults.txt"; no 'strp', just append */
+                copynchars(eos(buf), ".txt",
+                           (int) (sizeof buf - 1 - strlen(buf)));
+                if (access(buf, 4) == -1) {
+                    /* second alternate failed too, so revert to the
+                       original default ("$HOME/.nethackrc") for message */
+                    copynchars(strp, default_configfile,
+                               (int) (sizeof buf - 1 - strlen(buf)));
+                }
+            }
+        }
+    }
+#endif /* __APPLE__ */
+    raw_printf("    \"%s\"", buf);
+#else /* !UNIX */
+    fqn = (const char *) 0;
+#ifdef PREFIXES_IN_USE
+    fqn = fqname(default_configfile, CONFIGPREFIX, 2);
+#endif
+    raw_printf("    \"%s\"", fqn ? fqn : default_configfile);
+#endif  /* ?UNIX */
+    raw_print("");
+}
 
 /* ----------  BEGIN TRIBUTE ----------- */
 

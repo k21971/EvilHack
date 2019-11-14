@@ -1,4 +1,4 @@
-/* NetHack 3.6	dothrow.c	$NHDT-Date: 1569276989 2019/09/23 22:16:29 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.161 $ */
+/* NetHack 3.6	dothrow.c	$NHDT-Date: 1573688688 2019/11/13 23:44:48 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.164 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1198,6 +1198,10 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
        will be left with a stale pointer. */
 
     if (u.uswallow) {
+        if (obj == uball) {
+            uball->ox = uchain->ox = u.ux;
+            uball->oy = uchain->oy = u.uy;
+        }
         mon = u.ustuck;
         bhitpos.x = mon->mx;
         bhitpos.y = mon->my;
@@ -1205,8 +1209,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             tmp_at(DISP_TETHER, obj_to_glyph(obj, rn2_on_display_rng));
     } else if (u.dz) {
         if (u.dz < 0
-            /* Mjollnir and Xiuhcoatl must we wielded to be thrown--caller verifies this;
-               aklys must we wielded as primary to return when thrown */
+            /* Mjollnir and Xiuhcoatl must be wielded to be thrown--caller verifies this;
+               aklys must be wielded as primary to return when thrown */
             && iflags.returning_missile
             && !impaired) {
             pline("%s the %s and returns to your hand!", Tobjnam(obj, "hit"),
@@ -1336,7 +1340,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
         obj_gone = thitmonst(mon, obj);
         if (stack)
             stack->oprops_known |= obj->oprops_known;
-        /* Monster may have been tamed; this frees old mon */
+        /* Monster may have been tamed; this frees old mon [obsolete] */
         mon = m_at(bhitpos.x, bhitpos.y);
 
         /* [perhaps this should be moved into thitmonst or hmon] */
@@ -1361,8 +1365,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             clear_thrownobj = TRUE;
         goto throwit_return;
     } else {
-        /* Mjollnir and Xiuhcoatl must we wielded to be thrown--caller verifies this;
-           aklys must we wielded as primary to return when thrown */
+        /* Mjollnir and Xiuhcoatl must be wielded to be thrown--caller verifies this;
+           aklys must be wielded as primary to return when thrown */
         if (iflags.returning_missile) { /* Mjollnir, Xiuhcoatl or aklys */
             if (rn2(100)) {
                 if (tethered_weapon)
