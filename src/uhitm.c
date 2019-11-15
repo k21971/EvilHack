@@ -1500,7 +1500,7 @@ struct monst *magr, *mdef;
 struct obj *obj;
 boolean thrown, verbose;
 {
-    const char *what, *whose; /* *target; */
+    const char *what, *whose, *target;
     boolean youagr = (magr == &youmonst), youdef = (mdef == &youmonst);
 
     /* we're using dmgval() for zero/not-zero, not for actual damage amount */
@@ -1513,7 +1513,7 @@ boolean thrown, verbose;
         static const char harmless[] = " harmlessly through ";
 
         what = (!obj || shade_aware(obj)) ? "attack" : cxname(obj);
-        /* target = youdef ? "you" : mon_nam(mdef); */
+        target = youdef ? "you" : mon_nam(mdef);
         if (!thrown) {
             whose = youagr ? "Your" : s_suffix(Monnam(magr));
             pline("%s %s %s%s%s.", whose, what,

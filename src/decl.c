@@ -300,9 +300,11 @@ boolean fqn_prefix_locked[PREFIX_COUNT] = { FALSE, FALSE, FALSE,
 #endif
 
 #ifdef PREFIXES_IN_USE
-const char *fqn_prefix_names[PREFIX_COUNT] = {
-    "hackdir",  "leveldir", "savedir",    "bonesdir",  "datadir",
-    "scoredir", "lockdir",  "sysconfdir", "configdir", "troubledir"
+char *fqn_prefix_names[PREFIX_COUNT] = {
+    (char *) "hackdir",  (char *) "leveldir",   (char *) "savedir",
+    (char *) "bonesdir", (char *) "datadir",    (char *) "scoredir",
+    (char *) "lockdir",  (char *) "sysconfdir", (char *) "configdir",
+    (char *) "troubledir"
 };
 #endif
 

@@ -419,7 +419,7 @@ E char *fqn_prefix[PREFIX_COUNT];
 E boolean fqn_prefix_locked[PREFIX_COUNT];
 #endif
 #ifdef PREFIXES_IN_USE
-E const char *fqn_prefix_names[PREFIX_COUNT];
+E char *fqn_prefix_names[PREFIX_COUNT];
 #endif
 
 E NEARDATA struct savefile_info sfcap, sfrestinfo, sfsaveinfo;
