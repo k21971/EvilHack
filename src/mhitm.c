@@ -738,7 +738,7 @@ struct attack *mattk;
             }
             pline("%s %s.", buf, mon_nam_too(mdef, magr));
 
-            if (weaponhit && mon_hates_material(mdef, otmp->material)) {
+            if (weaponhit && otmp && mon_hates_material(mdef, otmp->material)) {
                 char *mdef_name = mon_nam_too(mdef, magr);
 
                 /* note: mon_nam_too returns a modifiable buffer; so
