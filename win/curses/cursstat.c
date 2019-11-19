@@ -210,8 +210,8 @@ static void
 draw_status()
 {
     WINDOW *win = curses_get_nhwin(STATUS_WIN);
-    int curses_orient = curses_get_window_orientation(STATUS_WIN);
-    boolean horiz = (curses_orient != ALIGN_RIGHT && curses_orient != ALIGN_LEFT);
+    orient statorient = (orient) curses_get_window_orientation(STATUS_WIN);
+    boolean horiz = (statorient != ALIGN_RIGHT && statorient != ALIGN_LEFT);
     boolean border = curses_window_has_border(STATUS_WIN);
 
     /* Figure out if we have proper window dimensions for horizontal
@@ -1723,18 +1723,14 @@ void
 curses_update_stats(void)
 {
     WINDOW *win = curses_get_nhwin(STATUS_WIN);
+    orient statorient = (orient) curses_get_window_orientation(STATUS_WIN);
+    boolean horiz = (statorient != ALIGN_RIGHT && statorient != ALIGN_LEFT);
+    boolean border = curses_window_has_border(STATUS_WIN);
 
     /* Clear the window */
     werase(win);
 
-    int orient = curses_get_window_orientation(STATUS_WIN);
-
-    boolean horiz = FALSE;
-    if ((orient != ALIGN_RIGHT) && (orient != ALIGN_LEFT))
-        horiz = TRUE;
-    boolean border = curses_window_has_border(STATUS_WIN);
-
-    /* Figure out if we have proper window dimensions for horizontal statusbar. */
+    /* Figure out if we have proper window dimensions for horizontal status */
     if (horiz) {
         /* correct y */
         int cy = 3;
@@ -1753,7 +1749,8 @@ curses_update_stats(void)
             curses_last_messages();
             doredraw();
 
-            /* Reset XP highlight (since classic_status and new show different numbers) */
+            /* Reset XP highlight (since classic_status and new show
+               different numbers) */
             prevexp.highlight_turns = 0;
             curses_update_stats();
             return;
@@ -1779,7 +1776,7 @@ curses_update_stats(void)
         hpmax = u.mhmax;
     }
 
-    if (orient != ALIGN_RIGHT && orient != ALIGN_LEFT)
+    if (horiz)
         draw_horizontal(x, y, hp, hpmax);
     else
         draw_vertical(x, y, hp, hpmax);
@@ -1792,7 +1789,8 @@ curses_update_stats(void)
     if (first) {
         first = FALSE;
 
-        /* Zero highlight timers. This will call curses_update_status again if needed */
+        /* Zero highlight timers. This will call curses_update_status again
+           if needed */
         curses_decrement_highlights(TRUE);
     }
 }

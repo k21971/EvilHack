@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.177 $ $NHDT-Date: 1573778559 2019/11/15 00:42:39 $
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.184 $ $NHDT-Date: 1574107001 2019/11/18 19:56:41 $
 
 This fixes36.3 file is here to capture information about updates in the 3.6.x
 lineage following the release of 3.6.2 in May 2019. Please note, however,
@@ -116,7 +116,10 @@ when a boulder was teleported, if it landed in a pit or trap door or hole its
 	former location wasn't updated to show that it wasn't there anymore
 	(noticed in Sokoban but not limited to there)
 Terry Pratchett tribute, fix typo in passage #4 for Mort ("the" -> "they");
-	also passage #7 for Soul Music ("genious" -> "genius")
+	also passage #7 for Soul Music ("genious" -> "genius");
+	and passage #11 for The Light Fantastic ("to" -> "do");
+	passage #3 for Eric ("short" -> "sort");
+	passage #10 for Witches Abroad ("was" -> "what")
 fix typo in end_of_input() present since 3.6.0 that would prevent compilation
 	for NOSAVEONHANGUP+INSURANCE configuration
 when a status condition becomes fatal, keep it listed as an active condition
@@ -225,6 +228,19 @@ putting on gloves while having slippery fingers transfered slipperiness to
 when a monster reads a scroll of fire to cure sliming, don't access that
 	scroll's memory after it has been used up (bcsign)
 monster vs monster attacks didn't handle shades or silver weapon feedback
+successful alchemy would show new potion's description (color) even when blind
+dipping some types of objects into oil would yield "<object> gleams with an
+	oily sheen" even when blind
+dipping into an undiscovered potion would offer chance to give a name to the
+	potion even when its description wasn't known (picked up while blind)
+dipping lichen corpse into acid when not blind and acid was undicovered would
+	not offer a chance to give a name to the potion after lichen feedback
+pluralization improvement for words ending in a k-sound like "biotech"
+check for whether a monster was entering a region (gas cloud) erroneously
+	depended upon whether or not the hero was inside the same region
+all Is_*_level tests during early startup would test as true until
+	dungeon_topology was initialized in a new game or restored from 
+	a save file
 
 
 Fixes to Post-3.6.2 Problems that Were Exposed Via git Repository
@@ -255,6 +271,7 @@ percentage highlighting for Xp broke up/down/changed highlighting for it;
 deaf change to zap_over_floor needed to be restricted to player actions only
 monster vs shade attack inflicted damage despite "passes harmlessly through"
 fix for feedback from musical instruments played while deaf ignored whistles
+special map display symbol S_player_override renamed to S_hero_override
 curses: sometimes the message window would show a blank line after a prompt
 curses: the change to show map in columns 1..79 instead of 2..80 made the
 	highlight for '@' show up in the wrong place if clipped map had been
@@ -267,6 +284,16 @@ tty: revert the attempt to fix "message line anomaly: if autodecribe feedback
 	wrapped to second line, the wrapped portion wasn't erased when a
 	shorter line was shown or getpos was dismissed" because it disrupted
 	prompts that spanned more than one line, a more significant issue
+
+
+Fixes post-beta1
+------------------------------------------------------------------
+fix several tribute typos
+pluralization correction for unlikely epoch and loch
+ensure that --showpaths displays the personal configuration file last
+unix: Fix double DLB definition in linux hints file
+windows: fix --showpaths output for the data file which relies on being
+	constructed programmatically to incorporate the version suffix
 
 
 Platform- and/or Interface-Specific Fixes or Features

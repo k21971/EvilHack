@@ -1,4 +1,4 @@
-/* NetHack 3.6	files.c	$NHDT-Date: 1573358489 2019/11/10 04:01:29 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.263 $ */
+/* NetHack 3.6	files.c	$NHDT-Date: 1574116097 2019/11/18 22:28:17 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.272 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -2447,13 +2447,12 @@ char *origbuf;
     static boolean ramdisk_specified = FALSE;
 #endif
 #ifdef SYSCF
-    int n;
+    int n, src = iflags.parse_config_file_src;
 #endif
     char *bufp, buf[4 * BUFSZ];
     uchar translate[MAXPCHARS];
     int len;
     boolean retval = TRUE;
-    int src = iflags.parse_config_file_src;
 
     /* convert any tab to space, condense consecutive spaces into one,
        remove leading and trailing spaces (exception: if there is nothing
@@ -2770,8 +2769,8 @@ char *origbuf;
 #endif /* SYSCF */
 
     } else if (match_varname(buf, "BOULDER", 3)) {
-        (void) get_uchars(bufp, &ov_primary_syms[SYM_BOULDER + SYM_OFF_X], TRUE, 1,
-                          "BOULDER");
+        (void) get_uchars(bufp, &ov_primary_syms[SYM_BOULDER + SYM_OFF_X],
+                          TRUE, 1, "BOULDER");
     } else if (match_varname(buf, "MENUCOLOR", 9)) {
         if (!add_menu_coloring(bufp))
             retval = FALSE;
@@ -4178,15 +4177,19 @@ boolean wildcards;
 void
 reveal_paths(VOID_ARGS)
 {
-    const char *fqn, *filep;
+    const char *fqn, *nodumpreason;
     char buf[BUFSZ];
-#if defined(UNIX) || defined(PREFIXES_IN_USE)
-    char *strp;
+#if defined(SYSCF) || !defined(UNIX) || defined(DLB)
+    const char *filep;
+#ifdef SYSCF
+    const char *gamename = (hname && *hname) ? hname : "NetHack";
+#endif
 #endif
 #ifdef UNIX
-    char *envp, cwdbuf[PATH_MAX];
+    char *endp, *envp, cwdbuf[PATH_MAX];
 #endif
 #ifdef PREFIXES_IN_USE
+    const char *strp;
     int i, maxlen = 0;
 
     raw_print("Variable playground locations:");
@@ -4201,12 +4204,12 @@ reveal_paths(VOID_ARGS)
 #ifdef PREFIXES_IN_USE
     strp = fqn_prefix_names[SYSCONFPREFIX];
     maxlen = BUFSZ - sizeof " (in )";
-    if (strp && strlen(strp) < (size_t) maxlen)
+    if (strp && (int) strlen(strp) < maxlen)
         Sprintf(buf, " (in %s)", strp);
 #else
     buf[0] = '\0';
 #endif
-    raw_printf("Your system configuration file%s:", buf);
+    raw_printf("%s system configuration file%s:", s_suffix(gamename), buf);
 #ifdef SYSCF_FILE
     filep = SYSCF_FILE;
 #else
@@ -4233,16 +4236,16 @@ reveal_paths(VOID_ARGS)
     strp = fqn_prefix_names[HACKPREFIX];
 #endif /* WIN32 */
     maxlen = BUFSZ - sizeof " (in )";
-    if (strp && strlen(strp) < (size_t) maxlen)
+    if (strp && (int) strlen(strp) < maxlen)
         Sprintf(buf, " (in %s)", strp);
 #endif /* PREFIXES_IN_USE */
-    raw_printf("Your game's loadable symbols file%s:", buf);
+    raw_printf("The loadable symbols file%s:", buf);
 #endif /* UNIX */
 
 #ifdef UNIX
     envp = getcwd(cwdbuf, PATH_MAX);
     if (envp) {
-        raw_print("Your game's loadable symbols file:");
+        raw_print("The loadable symbols file:");
         raw_printf("    \"%s/%s\"", envp, SYMBOLS);
     }
 #else /* UNIX */
@@ -4259,13 +4262,66 @@ reveal_paths(VOID_ARGS)
     raw_printf("    \"%s\"", filep);
 #endif /* UNIX */
 
+    /* dlb vs non-dlb */
+
+    buf[0] = '\0';
+#ifdef PREFIXES_IN_USE
+    strp = fqn_prefix_names[DATAPREFIX];
+    maxlen = BUFSZ - sizeof " (in )";
+    if (strp && (int) strlen(strp) < maxlen)
+        Sprintf(buf, " (in %s)", strp);
+#endif
+#ifdef DLB
+    raw_printf("Basic data files%s are collected inside:", buf);
+    filep = DLBFILE;
+#ifdef VERSION_IN_DLB_FILENAME
+    Strcpy(buf, build_dlb_filename((const char *) 0));
+#ifdef PREFIXES_IN_USE
+    fqn = fqname(buf, DATAPREFIX, 1);
+    if (fqn)
+        filep = fqn;
+#endif /* PREFIXES_IN_USE */
+#endif
+    raw_printf("    \"%s\"", filep);
+#ifdef DLBFILE2
+    filep = DLBFILE2;
+    raw_printf("    \"%s\"", filep);
+#endif
+#else /* !DLB */
+    raw_printf("Basic data files%s are in many separate files.", buf);
+#endif /* ?DLB */
+
+    /* dumplog */
+
+#ifndef DUMPLOG
+    nodumpreason = "not supported";
+#else
+    nodumpreason = "disabled";
+#ifdef SYSCF
+    fqn = sysopt.dumplogfile;
+#else  /* !SYSCF */
+#ifdef DUMPLOG_FILE
+    fqn = DUMPLOG_FILE;
+#else
+    fqn = (char *) 0;
+#endif
+#endif /* ?SYSCF */
+    if (fqn && *fqn) {
+        raw_print("Your end-of-game disclosure file:");
+        (void) dump_fmtstr(fqn, buf, FALSE);
+        buf[sizeof buf - sizeof "    \"\""] = '\0';
+        raw_printf("    \"%s\"", buf);
+    } else
+#endif /* ?DUMPLOG */
+        raw_printf("No end-of-game disclosure file (%s).", nodumpreason);
+
     /* personal configuration file */
 
     buf[0] = '\0';
 #ifdef PREFIXES_IN_USE
     strp = fqn_prefix_names[CONFIGPREFIX];
     maxlen = BUFSZ - sizeof " (in )";
-    if (strp && strlen(strp) < (size_t) maxlen)
+    if (strp && (int) strlen(strp) < maxlen)
         Sprintf(buf, " (in %s)", strp);
 #endif /* PREFIXES_IN_USE */
     raw_printf("Your personal configuration file%s:", buf);
@@ -4276,26 +4332,26 @@ reveal_paths(VOID_ARGS)
         copynchars(buf, envp, (int) sizeof buf - 1 - 1);
         Strcat(buf, "/");
     }
-    strp = eos(buf);
-    copynchars(strp, default_configfile,
+    endp = eos(buf);
+    copynchars(endp, default_configfile,
                (int) (sizeof buf - 1 - strlen(buf)));
 #if defined(__APPLE__) /* UNIX+__APPLE__ => MacOSX aka OSX aka macOS */
     if (envp) {
         if (access(buf, 4) == -1) { /* 4: R_OK, -1: failure */
             /* read access to default failed; might be protected excessively
                but more likely it doesn't exist; try first alternate:
-               "$HOME/Library/Pref..."; 'strp' points past '/' */
-            copynchars(strp, "Library/Preferences/NetHack Defaults",
+               "$HOME/Library/Pref..."; 'endp' points past '/' */
+            copynchars(endp, "Library/Preferences/NetHack Defaults",
                        (int) (sizeof buf - 1 - strlen(buf)));
             if (access(buf, 4) == -1) {
                 /* first alternate failed, try second:
-                   ".../NetHack Defaults.txt"; no 'strp', just append */
+                   ".../NetHack Defaults.txt"; no 'endp', just append */
                 copynchars(eos(buf), ".txt",
                            (int) (sizeof buf - 1 - strlen(buf)));
                 if (access(buf, 4) == -1) {
                     /* second alternate failed too, so revert to the
                        original default ("$HOME/.nethackrc") for message */
-                    copynchars(strp, default_configfile,
+                    copynchars(endp, default_configfile,
                                (int) (sizeof buf - 1 - strlen(buf)));
                 }
             }
@@ -4310,6 +4366,7 @@ reveal_paths(VOID_ARGS)
 #endif
     raw_printf("    \"%s\"", fqn ? fqn : default_configfile);
 #endif  /* ?UNIX */
+
     raw_print("");
 }
 
