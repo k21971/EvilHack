@@ -539,4 +539,5 @@ Version 0.4.0
 - Lower the odds of receiving a wish from the magic 8-ball
 - Tweak chance appearance of special neutral minion
 - Fix: crash when monster hits another monster under certain conditions
+- Fix: HTML dumplog display errors
 - Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of November 19th, 2019)
