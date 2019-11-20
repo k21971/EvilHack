@@ -516,4 +516,27 @@ Version 0.4.0
 - Fix: launcher and ammo tweaks to object properties
 - Fix: launchers should not spawn as 'poisoned'
 - Fix: Your crystal plate mail stone deflects its attack
-- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of October 14th, 2019)
+- Some monsters go berserk (added new M3_BERSERK flag)
+- Fix: you multiply from its heat!
+- Arise as a barrow wight if killed by a Nazgul
+- Minimum dungeon level depth set for random vaults (by paxed)
+- Convict's striped shirt can be read
+- Fix: variant type title (HTML dumplogs)
+- Tweak pet satiation again
+- Don't need to wear a hat to wield Dirge either...
+- Fix: SPFX_WARN artifacts without a glow color specified shouldn't glow
+- Fix: shambling horror settings
+- Tweaks to random vaults again
+- Another shambling horror revamp
+- Tweak shambling horror damage output a bit
+- Add some shambling horrors to the sanctum
+- Material damage for contact with monsters made of a hated material
+- Partial fix: attacking certain monsters with tentacle/bite attack
+- Blinding monsters with a wand/scroll/spell of light only happens at a close distance
+  to the player
+- Naming/wishing for artifacts tweaks
+- Tweak hard material helmet deflection against attacks to the players head
+- Lower the odds of receiving a wish from the magic 8-ball
+- Tweak chance appearance of special neutral minion
+- Fix: crash when monster hits another monster under certain conditions
+- Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of November 19th, 2019)
