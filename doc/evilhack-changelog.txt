@@ -540,4 +540,5 @@ Version 0.4.0
 - Tweak chance appearance of special neutral minion
 - Fix: crash when monster hits another monster under certain conditions
 - Fix: HTML dumplog display errors
+- Fix: crash when removing starting t-shirt (object properties)
 - Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of November 25th, 2019)

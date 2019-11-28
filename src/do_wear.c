@@ -209,8 +209,6 @@ Boots_on(VOID_ARGS)
     long oldprop =
         u.uprops[objects[uarmf->otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
 
-    oprops_on(uarmf, WORN_BOOTS);
-
     switch (uarmf->otyp) {
     case LOW_BOOTS:
     case DWARVISH_BOOTS:
@@ -259,8 +257,10 @@ Boots_on(VOID_ARGS)
     default:
         impossible(unknown_type, c_boots, uarmf->otyp);
     }
-    if (uarmf) /* could be Null here (levitation boots put on over a sink) */
+    if (uarmf) { /* could be Null here (levitation boots put on over a sink) */
         uarmf->known = 1; /* boots' +/- evident because of status line AC */
+        oprops_on(uarmf, WORN_BOOTS);
+    }
     return 0;
 }
 
@@ -372,8 +372,6 @@ Cloak_on(VOID_ARGS)
     long oldprop =
         u.uprops[objects[uarmc->otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
 
-    oprops_on(uarmc, WORN_CLOAK);
-
     switch (uarmc->otyp) {
     case ORCISH_CLOAK:
 	if (Race_if(PM_ORC)) {
@@ -421,8 +419,10 @@ Cloak_on(VOID_ARGS)
     default:
         impossible(unknown_type, c_cloak, uarmc->otyp);
     }
-    if (uarmc) /* no known instance of !uarmc here but play it safe */
+    if (uarmc) { /* no known instance of !uarmc here but play it safe */
         uarmc->known = 1; /* cloak's +/- evident because of status line AC */
+        oprops_on(uarmc, WORN_CLOAK);
+    }
     return 0;
 }
 
@@ -490,8 +490,6 @@ Helmet_on(VOID_ARGS)
     long oldprop =
         u.uprops[objects[uarmh->otyp].oc_oprop].extrinsic & ~WORN_HELMET;
 
-    oprops_on(uarmh, WORN_HELMET);
-
     switch (uarmh->otyp) {
     case FEDORA:
     case HELMET:
@@ -558,8 +556,10 @@ Helmet_on(VOID_ARGS)
         impossible(unknown_type, c_helmet, uarmh->otyp);
     }
     /* uarmh could be Null due to uchangealign() */
-    if (uarmh)
+    if (uarmh) {
         uarmh->known = 1; /* helmet's +/- evident because of status line AC */
+        oprops_on(uarmh, WORN_HELMET);
+    }
     return 0;
 }
 
@@ -619,8 +619,6 @@ STATIC_PTR
 int
 Gloves_on(VOID_ARGS)
 {
-    oprops_on(uarmg, WORN_GLOVES);
-
     switch (uarmg->otyp) {
     case GLOVES:
     case GAUNTLETS:
@@ -642,8 +640,10 @@ Gloves_on(VOID_ARGS)
     default:
         impossible(unknown_type, c_gloves, uarmg->otyp);
     }
-    if (uarmg) /* no known instance of !uarmg here but play it safe */
+    if (uarmg) { /* no known instance of !uarmg here but play it safe */
         uarmg->known = 1; /* gloves' +/- evident because of status line AC */
+        oprops_on(uarmg, WORN_GLOVES);
+    }
     return 0;
 }
 
@@ -735,7 +735,6 @@ Gloves_off(VOID_ARGS)
 STATIC_PTR int
 Shield_on(VOID_ARGS)
 {
-    oprops_on(uarms, WORN_SHIELD);
     /* no shield currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does
        [reflection is handled by setting u.uprops[REFLECTION].extrinsic
@@ -752,8 +751,10 @@ Shield_on(VOID_ARGS)
     default:
         impossible(unknown_type, c_shield, uarms->otyp);
     }
-    if (uarms) /* no known instance of !uarmgs here but play it safe */
+    if (uarms) { /* no known instance of !uarmgs here but play it safe */
         uarms->known = 1; /* shield's +/- evident because of status line AC */
+        oprops_on(uarms, WORN_SHIELD);
+    }
     return 0;
 }
 
@@ -786,8 +787,6 @@ Shield_off(VOID_ARGS)
 STATIC_PTR int
 Shirt_on(VOID_ARGS)
 {
-    oprops_on(uarmu, WORN_SHIRT);
-
     /* no shirt currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does */
     switch (uarmu->otyp) {
@@ -798,8 +797,10 @@ Shirt_on(VOID_ARGS)
     default:
         impossible(unknown_type, c_shirt, uarmu->otyp);
     }
-    if (uarmu) /* no known instances of !uarmu here but play it safe */
+    if (uarmu) { /* no known instances of !uarmu here but play it safe */
         uarmu->known = 1; /* shirt's +/- evident because of status line AC */
+        oprops_on(uarmu, WORN_SHIRT);
+    }
     return 0;
 }
 
@@ -880,9 +881,10 @@ Armor_on(VOID_ARGS)
      * suits are set up as intrinsics (actually 'extrinsics') by setworn()
      * which is called by armor_or_accessory_on() before Armor_on().
      */
-    oprops_on(uarm, W_ARM);
-    if (uarm) /* no known instances of !uarm here but play it safe */
+    if (uarm) { /* no known instances of !uarm here but play it safe */
         uarm->known = 1; /* suit's +/- evident because of status line AC */
+        oprops_on(uarm, W_ARM);
+    }
     if (Role_if(PM_MONK))
         You_feel("extremely uncomfortable wearing such armor.");
     return 0;
@@ -945,7 +947,9 @@ Armor_off(VOID_ARGS)
             break;
         }
     }
-    oprops_off(uarm, W_ARM);
+
+    if (uarm)
+        oprops_off(uarm, W_ARM);
     context.takeoff.mask &= ~W_ARM;
     setworn((struct obj *) 0, W_ARM);
     context.takeoff.cancelled_don = FALSE;
@@ -1014,7 +1018,8 @@ Armor_gone()
             break;
         }
     }
-    oprops_off(uarm, W_ARM);
+    if (uarm)
+        oprops_off(uarm, W_ARM);
     context.takeoff.mask &= ~W_ARM;
     setnotworn(uarm);
     context.takeoff.cancelled_don = FALSE;
