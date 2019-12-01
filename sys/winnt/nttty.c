@@ -715,7 +715,6 @@ tty_delay_output()
     }
 }
 
-#ifdef TEXTCOLOR
 /*
  * CLR_BLACK		0
  * CLR_RED		1
@@ -788,10 +787,10 @@ init_ttycolor()
 #endif
     init_ttycolor_completed = TRUE;
 }
-#endif /* TEXTCOLOR */
 
+#if 0
 int
-has_color(int color)
+has_color(int color)        /* this function is commented out */
 {
 #ifdef TEXTCOLOR
     if ((color >= 0) && (color < CLR_MAX))
@@ -803,6 +802,7 @@ has_color(int color)
     else
         return 0;
 }
+#endif
 
 int
 term_attr_fixup(int attrmask)
