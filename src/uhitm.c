@@ -652,6 +652,7 @@ struct attack *uattk;
 {
     boolean malive, wep_was_destroyed = FALSE;
     struct obj *wepbefore = uwep;
+    struct obj *wearshield = uarms;
     int armorpenalty, attknum = 0, x = u.ux + u.dx, y = u.uy + u.dy,
                       tmp = find_roll_to_hit(mon, uattk->aatyp, uwep,
                                              &attknum, &armorpenalty);
@@ -693,15 +694,21 @@ struct attack *uattk;
     if (!uwep && P_BARE_HANDED_COMBAT && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
         && malive && m_at(x, y) == mon) {
-        tmp = find_roll_to_hit(mon, uattk->aatyp, uwep, &attknum,
-                               &armorpenalty);
-        dieroll = rnd(20);
-        mhit = (tmp > dieroll || u.uswallow);
-        malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk,
-                             dieroll);
-        /* second passive counter-attack only occurs if second attack hits */
-        if (mhit)
-            (void) passive(mon, uwep, mhit, malive, AT_CLAW, FALSE);
+        if (wearshield) {
+            if (!rn2(8))
+                pline("Your extra attack is ineffective while wearing %s.",
+                      an(xname(wearshield)));
+        } else {
+            tmp = find_roll_to_hit(mon, uattk->aatyp, uwep, &attknum,
+                                   &armorpenalty);
+            dieroll = rnd(20);
+            mhit = (tmp > dieroll || u.uswallow);
+            malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk,
+                                 dieroll);
+            /* second passive counter-attack only occurs if second attack hits */
+            if (mhit)
+                (void) passive(mon, uwep, mhit, malive, AT_CLAW, FALSE);
+        }
     }
     return malive;
 }
