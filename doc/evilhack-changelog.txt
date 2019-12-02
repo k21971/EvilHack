@@ -543,4 +543,6 @@ Version 0.4.0
 - Fix: crash when removing starting t-shirt (object properties)
 - Monks do not utilize their extra attack at grand master martial arts skill
   if wearing a shield
+- Floating eyes can regenerate hit points
+- Clean up some behavior and feedback when naming Sting or Orcrist
 - Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st, 2019)
