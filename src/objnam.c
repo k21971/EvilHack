@@ -4431,7 +4431,7 @@ struct obj *no_wish;
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
         return otmp;
-    } else if (otmp->oartifact)
+    } else if (otmp->oartifact && rn2(10))
 #ifdef WIZARD
     if (wizard && yn("Force the wish to succeed?") == 'n')
 #endif

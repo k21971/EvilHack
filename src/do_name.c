@@ -1323,11 +1323,12 @@ const char *name;
                wishing for one... not as bad as spawning a player
                monster or quest nemesis, but you're still not
                getting these for free */
-            mtmp = makemon(&mons[PM_GREY_ELF], u.ux, u.uy, MM_ADJACENTOK);
+            if (rn2(3))
+                mtmp = makemon(&mons[PM_GREY_ELF], u.ux, u.uy, MM_ADJACENTOK);
             if (mtmp) {
                 if (Blind && !Deaf) {
                     if (Hallucination)
-                        pline("Smells like teen spirit...");
+                        You("hear the sounds of silence.");
                     else
                         You("hear movement nearby.");
                     You("hear somebody say: %s is not yours to take! %s it!",
@@ -1335,14 +1336,15 @@ const char *name;
                         rn2(2) ? "Relinquish" : "Return");
                 } else {
                     if (Hallucination)
-                        pline("Nice colors, but the sound could have been more mellow.");
+                        You("see the second coming of the Prophet.");
                     else
-                        You("see a %s step out of the shadows.",
-                            mon_nam(mtmp));
-                    pline("%s says: %s is not yours to take! %s it!",
-                          Monnam(mtmp),
-                          artiname(obj->oartifact),
-                          rn2(2) ? "Relinquish" : "Return");
+                        You("see %s step out of the shadows.",
+                            a_monnam(mtmp));
+                    if (!Deaf)
+                        pline("%s says: %s is not yours to take! %s it!",
+                              Monnam(mtmp),
+                              artiname(obj->oartifact),
+                              rn2(2) ? "Relinquish" : "Return");
                 }
                 mtmp->mpeaceful = mtmp->msleeping = 0;
                 m_dowear(mtmp, TRUE);
@@ -1350,7 +1352,7 @@ const char *name;
             }
             /* violate illiteracy conduct since successfully wrote arti-name */
             u.uconduct.literate++;
-            if(!u.uconduct.literate++)
+            if (!u.uconduct.literate++)
                 livelog_printf(LL_CONDUCT | LL_ARTIFACT, "became literate by naming %s",
                                bare_artifactname(obj));
             else
