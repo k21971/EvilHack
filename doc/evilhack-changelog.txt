@@ -545,4 +545,5 @@ Version 0.4.0
   if wearing a shield
 - Floating eyes can regenerate hit points
 - Clean up some behavior and feedback when naming Sting or Orcrist
+- Fix: impossible when monster's armor or weapon erodes away when hero is blind
 - Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st, 2019)

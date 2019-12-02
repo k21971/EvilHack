@@ -291,7 +291,7 @@ int ef_flags;
             unpunish(); /* frees uchain */
         }
 
-        if (vismon) {
+        if (victim && (victim != &youmonst)) {
             obj_extract_self(otmp);
             possibly_unwield(victim, FALSE);
             victim->misc_worn_check &= ~otmp->owornmask;
