@@ -282,14 +282,8 @@ int ef_flags;
         if (ef_flags & EF_PAY)
             costly_alteration(otmp, cost_type);
 
-        if (otmp == uball) {
+        if (otmp == uball || otmp == uchain)
             unpunish();
-            setnotworn(otmp);
-            delobj(otmp);
-            otmp->nobj = 0;
-        } else if (otmp == uchain) {
-            unpunish(); /* frees uchain */
-        }
 
         if (victim && (victim != &youmonst)) {
             obj_extract_self(otmp);
