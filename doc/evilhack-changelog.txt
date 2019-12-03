@@ -547,4 +547,5 @@ Version 0.4.0
 - Clean up some behavior and feedback when naming Sting or Orcrist
 - Fix: impossible when monster's armor or weapon erodes away when hero is blind
 - Fix: double-free or corruption crash (ball & chain erodes completely away)
+- Fix: panic 'explosion base type 8?' caused by monster spell 'acid blast'
 - Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st, 2019)
