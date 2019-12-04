@@ -47,6 +47,11 @@ int pm;
     ERID(mtmp)->m1->mx = mtmp->mx;
     ERID(mtmp)->m1->my = mtmp->my;
     context.botl = TRUE;
+
+    if (can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
+        struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
+        put_saddle_on_mon(otmp, mount);
+    }
 }
 
 void

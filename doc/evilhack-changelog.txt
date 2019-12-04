@@ -550,4 +550,5 @@ Version 0.4.0
 - Fix: panic 'explosion base type 8?' caused by monster spell 'acid blast'
 - Fix: Convicts aren't supposed to spawn with anything extra in inventory
 - Fix: proper feedback when eating zombie corpses while having sickness resistance
+- Monster steeds will spawn wearing a saddle if they are allowed to wear one
 - Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st, 2019)
