@@ -1749,17 +1749,21 @@ struct obj *otmp;
 
             pline("(It must have died too long ago to be safe to eat.)");
         } else {
-            long sick_time;
+            if (Sick_resistance) {
+                You_feel("an odd sensation for a brief moment, but it soon passes.");
+            } else {
+                long sick_time;
 
-            sick_time = (long) rn1(10, 10);
-            /* make sure new ill doesn't result in improvement */
-            if (Sick && (sick_time > Sick))
-                sick_time = (Sick > 1L) ? Sick - 1L : 1L;
-            make_sick(sick_time, corpse_xname(otmp, "diseased", CXN_NORMAL),
-                      TRUE, SICK_ZOMBIE);
+                sick_time = (long) rn1(10, 10);
+                /* make sure new ill doesn't result in improvement */
+                if (Sick && (sick_time > Sick))
+                    sick_time = (Sick > 1L) ? Sick - 1L : 1L;
+                make_sick(sick_time, corpse_xname(otmp, "diseased", CXN_NORMAL),
+                          TRUE, SICK_ZOMBIE);
 
-            You_feel("a horrifying change starting within you.");
-            You("have an overwhelming urge to consume brains...");
+                You_feel("a horrifying change starting within you.");
+                You("have an overwhelming urge to consume brains...");
+            }
         }
 
         if (carried(otmp))
