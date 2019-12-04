@@ -956,7 +956,7 @@ u_init()
         knows_object(DWARVISH_BOOTS);
         knows_object(DWARVISH_ROUNDSHIELD);
 
-	if (!Role_if(PM_ARCHEOLOGIST))
+	if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_CONVICT))
             if (!rn2(4)) {
 	        /* Wise dwarves bring their toy to the dungeons. */
 	        ini_inv(Pickaxe);
@@ -977,9 +977,9 @@ u_init()
     case PM_HOBBIT:
         /* Hobbits are always hungry; you'd be hard-pressed to come across one that didn't have
          * something to snack on or at least a means to make more food */
-        if (!Role_if(PM_MONK) || !Role_if(PM_CONVICT))
+        if (!Role_if(PM_CONVICT))
             ini_inv(Xtra_food);
-        if (!Role_if(PM_ARCHEOLOGIST))
+        if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_CONVICT))
             ini_inv(Tinningkit);
 
         /* If it relates to food, Hobbits know everything about it */
@@ -1018,7 +1018,7 @@ u_init()
 
     case PM_ORC:
         /* compensate for generally inferior equipment */
-        if (!Role_if(PM_WIZARD) || !Role_if(PM_CONVICT))
+        if (!Role_if(PM_WIZARD) && !Role_if(PM_CONVICT))
             ini_inv(Xtra_food);
         /* Orcs can recognize all orcish objects */
         knows_object(ORCISH_SHORT_SWORD);
