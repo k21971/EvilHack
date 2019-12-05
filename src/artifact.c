@@ -1049,6 +1049,8 @@ struct monst *mtmp;
             return !(yours ? Stone_resistance : resists_ston(mtmp));
         case AD_ACID:
             return !(yours ? Acid_resistance : resists_acid(mtmp));
+        case AD_DISE:
+            return !(yours ? Sick_resistance : resists_sick(mtmp));
         default:
             impossible("Weird weapon special attack.");
         }
@@ -1106,7 +1108,12 @@ int tmp;
                         || (attacks(AD_ELEC, otmp)
                             && ((yours) ? (!Shock_resistance) : (!resists_elec(mon))))
                                 || (attacks(AD_DRST, otmp)
-                                    && ((yours) ? (!Poison_resistance) : (!resists_poison(mon))))) {
+                                    && ((yours) ? (!Poison_resistance) : (!resists_poison(mon))))
+                                        || (attacks(AD_ACID, otmp)
+                                            && ((yours) ? (!Acid_resistance) : (!resists_acid(mon))))
+                                                || (attacks(AD_DISE, otmp)
+                                                    && ((yours) ? (!Sick_resistance) : (!resists_sick(mon))))) {
+
 
             spec_dbon_applies = TRUE;
             /* majority of ITEM_VENOM damage
@@ -1634,10 +1641,27 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 pline_The("%s %s %s %s!",
                           rn2(2) ? "noxious" : "toxic",
                           distant_name(otmp, xname),
-                          rn2(2) ? "infects" : "poisons", hittee);
+                          rn2(2) ? "taints" : "poisons", hittee);
             if ((otmp->oprops & ITEM_VENOM) && spec_dbon_applies)
                 otmp->oprops_known |= ITEM_VENOM;
         }
+        msgprinted = TRUE;
+    }
+    /* Seventh basic attack - disease */
+    if (attacks(AD_DISE, otmp)) {
+        if (realizes_damage)
+            pline_The("filthy dagger %s %s%c",
+                      rn2(2) ? "contaminates" : "infects",
+                      hittee, !spec_dbon_applies ? '.' : '!');
+        if (!youdefend) {
+            if (!resists_sick(mdef)) {
+                pline("%s looks %s.", Monnam(mdef),
+                      mdef->mdiseased ? "even worse" : "diseased");
+                mdef->mdiseased = 1;
+            }
+        }
+        if (youdefend)
+            diseasemu(mdef->data);
         msgprinted = TRUE;
     }
 

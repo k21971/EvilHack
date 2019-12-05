@@ -1018,8 +1018,13 @@ struct monst *mtmp;
         Strcat(info, ", blind");
     if (mtmp->mstun)
         Strcat(info, ", stunned");
-    if (mtmp->msick)
-        Strcat(info, ", ill");
+    if (mtmp->msick & 2) {
+        Strcat(info, ", turning into a zombie");
+    } else if (mtmp->msick & 1) {
+        Strcat(info, ", dying from illness");
+    }
+    if (mtmp->mdiseased)
+        Strcat(info, ", dying from disease");
     if (mtmp->msleeping)
         Strcat(info, ", asleep");
     if (mtmp->mstone > 0)
