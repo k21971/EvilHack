@@ -481,27 +481,6 @@ register struct monst *mtmp;
         return 1; /* this is its move */
     }
 
-    /* sick monsters can die from their illness */
-    if (mtmp->msick && !rn2(10)) {
-        if (resists_sick(mtmp)) {
-            mtmp->msick = 0;
-        } else {
-            if (canseemon(mtmp))
-                pline("%s dies from %s illness.",
-                      Monnam(mtmp), mhis(mtmp));
-            if ((mtmp->msick = 2) && !nonliving(mtmp->data)
-                && can_become_zombie(mtmp->data)) {
-                zombify(mtmp);
-                return 1;
-            } else {
-                mtmp->msick = 0;
-                mtmp->mhp = -1;
-                mondied(mtmp);
-            }
-            return (mtmp->mhp > 0) ? 0 : 1;
-        }
-    }
-
     /* some monsters teleport */
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz
         && !level.flags.noteleport) {

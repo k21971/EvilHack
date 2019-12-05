@@ -158,9 +158,6 @@
 #define is_illithid(ptr) (((ptr)->mhflags & MH_ILLITHID) != 0L)
 #define is_not_zombie(ptr) ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON])
 #define is_zombie(ptr) ((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr))
-#define can_become_zombie(ptr) ((ptr)->mlet == S_KOBOLD || (ptr)->mlet == S_GIANT       \
-                                || (ptr)->mlet == S_HUMAN || (ptr)->mlet == S_KOP       \
-                                || (ptr)->mlet == S_HUMANOID || (ptr)->mlet == S_GNOME)
 #define is_bones_monster(ptr) ((ptr) == &mons[PM_GHOST] || (ptr) == &mons[PM_GHOUL]            \
                                || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_VAMPIRE]     \
                                || (ptr) == &mons[PM_VAMPIRE_MAGE] || (ptr) == &mons[PM_WRAITH] \

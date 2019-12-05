@@ -181,14 +181,6 @@ struct permonst * pm;
     case S_KOP:
         if (is_elf(pm))
             return PM_ELF_ZOMBIE;
-        if (is_dwarf(pm))
-            return PM_DWARF_ZOMBIE;
-        if (is_gnome(pm))
-            return PM_GNOME_ZOMBIE;
-        if (is_orc(pm))
-            return PM_ORC_ZOMBIE;
-        if (is_hobbit(pm))
-            return PM_HOBBIT_ZOMBIE;
         return PM_HUMAN_ZOMBIE;
     case S_HUMANOID:
         if (is_dwarf(pm))

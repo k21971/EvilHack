@@ -661,13 +661,6 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             if (*dmg_p >= mdef->mhp && visflag && canspotmon(mdef))
                 pline("%s last thought fades away...",
                       s_suffix(Monnam(mdef)));
-            if (*dmg_p < mdef->mhp && is_zombie(magr->data)) {
-                if (visflag && canspotmon(mdef) && !resists_sick(mdef))
-                    pline("%s looks rather ill.", Monnam(mdef));
-                if (resists_sick(mdef))
-                    return MM_MISS;
-                mdef->msick = (is_zombie(magr->data)) ? 3 : 1;
-            }
         }
     }
 

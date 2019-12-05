@@ -1646,11 +1646,6 @@ post_stone:
             }
             break;
         }
-        if (is_zombie(pd) && rn2(5)) {
-            if (vis && canspotmon(mdef) && !resists_sick(mdef))
-                pline("%s looks rather ill.", Monnam(mdef));
-            goto msickness;
-        }
         res = eat_brains(magr, mdef, vis, &tmp);
         break;
     case AD_DETH:
@@ -1694,24 +1689,15 @@ post_stone:
         break;
     case AD_PEST:
         Strcpy(buf, mon_nam(mdef));
-        if (vis) {
-            if (resists_sick(mdef))
-                pline("%s reaches out, but %s looks unaffected.",
-                      Monnam(magr), buf);
-            else
-                pline("%s reaches out, and %s looks rather ill.",
-                      Monnam(magr), buf);
-        }
+        if (vis)
+            pline("%s reaches out, and %s looks rather ill.",
+                  Monnam(magr), buf);
         if ((mdef->mhpmax > 3) && !resist(mdef, 0, 0, NOTELL))
             mdef->mhpmax /= 2;
         if ((mdef->mhp > 2) && !resist(mdef, 0, 0, NOTELL))
             mdef->mhp /= 2;
         if (mdef->mhp > mdef->mhpmax)
             mdef->mhp = mdef->mhpmax;
-msickness:
-        if (resists_sick(mdef))
-            break;
-        mdef->msick = (is_zombie(pa)) ? 3 : 1;
         break;
     case AD_FAMN:
         Strcpy(buf, s_suffix(mon_nam(mdef)));
