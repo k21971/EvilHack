@@ -13,7 +13,6 @@ STATIC_DCL int FDECL(passiveum, (struct permonst *, struct monst *,
                                  struct attack *));
 STATIC_DCL void FDECL(mayberem, (struct monst *, const char *,
                                  struct obj *, const char *));
-STATIC_DCL boolean FDECL(diseasemu, (struct permonst *));
 STATIC_DCL int FDECL(hitmu, (struct monst *, struct attack *));
 STATIC_DCL int FDECL(gulpmu, (struct monst *, struct attack *));
 STATIC_DCL int FDECL(explmu, (struct monst *, struct attack *, BOOLEAN_P));
@@ -1007,7 +1006,7 @@ register struct monst *mtmp;
     return 0;
 }
 
-STATIC_OVL boolean
+boolean
 diseasemu(mdat)
 struct permonst *mdat;
 {

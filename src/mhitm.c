@@ -1648,7 +1648,8 @@ post_stone:
         }
         if (is_zombie(pd) && rn2(5)) {
             if (vis && canspotmon(mdef) && !resists_sick(mdef))
-                pline("%s looks rather ill.", Monnam(mdef));
+                pline("%s looks %s.", Monnam(mdef),
+                      mdef->msick ? "much worse" : "rather ill");
             goto msickness;
         }
         res = eat_brains(magr, mdef, vis, &tmp);
@@ -1711,7 +1712,7 @@ post_stone:
 msickness:
         if (resists_sick(mdef))
             break;
-        mdef->msick = (is_zombie(pa)) ? 3 : 1;
+        mdef->msick = (can_become_zombie(pd)) ? 3 : 1;
         break;
     case AD_FAMN:
         Strcpy(buf, s_suffix(mon_nam(mdef)));
