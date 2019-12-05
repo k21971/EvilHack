@@ -502,21 +502,6 @@ register struct monst *mtmp;
         }
     }
 
-    /* diseased monsters can die as well... */
-    if (mtmp->mdiseased && !rn2(10)) {
-        if (resists_sick(mtmp)) {
-            mtmp->mdiseased = 0;
-        } else {
-            if (canseemon(mtmp))
-                pline("%s dies from %s infection.",
-                      Monnam(mtmp), mhis(mtmp));
-            mtmp->mdiseased = 0;
-            mtmp->mhp = -1;
-            mondied(mtmp);
-            return (mtmp->mhp > 0) ? 0 : 1;
-        }
-    }
-
     /* some monsters teleport */
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz
         && !level.flags.noteleport) {

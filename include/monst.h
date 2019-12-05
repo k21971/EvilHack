@@ -140,7 +140,6 @@ struct monst {
 
     Bitfield(mconf, 1);     /* confused */
     Bitfield(msick, 2);     /* monsters ill from zombies */
-    Bitfield(mdiseased, 1); /* monsters infected with disease */
     Bitfield(mpeaceful, 1); /* does not attack unprovoked */
     Bitfield(mtrapped, 1);  /* trapped in a pit, web or bear trap */
     Bitfield(mleashed, 1);  /* monster is on a leash */

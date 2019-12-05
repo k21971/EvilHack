@@ -2173,20 +2173,12 @@ do_rust:
             }
         }
         break;
-    case AD_DISE:
-        if (!resists_sick(mdef)) {
-            pline("%s looks %s.", Monnam(mdef),
-                  mdef->mdiseased ? "even worse" : "diseased");
-            mdef->mdiseased = 1;
-        }
-        break;
     case AD_DRIN: {
         struct obj *helmet;
 
         if (is_zombie(youmonst.data) && rn2(5)) {
             if (!resists_sick(mdef)) {
-                pline("%s looks %s.", Monnam(mdef),
-                      mdef->msick ? "much worse" : "rather ill");
+                pline("%s looks rather ill.", Monnam(mdef));
                 mdef->msick = 3;
             }
             break;
@@ -3521,7 +3513,7 @@ boolean wep_was_destroyed;
 	    } else {
 		You("are diseased!");
 		mdamageu(mon, tmp);
-		make_sick(20, "severe case of the plague", TRUE, SICK_NONVOMITABLE);
+		make_sick(20, "bad case of the plague", TRUE, SICK_NONVOMITABLE);
 	    }
             break;
         case AD_DRST: /* specifically green dragons */
