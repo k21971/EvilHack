@@ -2176,6 +2176,14 @@ do_rust:
     case AD_DRIN: {
         struct obj *helmet;
 
+        if (is_zombie(youmonst.data) && rn2(5)) {
+            if (!resists_sick(mdef)) {
+                pline("%s looks rather ill.", Monnam(mdef));
+                mdef->msick = 3;
+            }
+            break;
+        }
+
         if (notonhead || !has_head(pd)) {
             pline("%s doesn't seem harmed.", Monnam(mdef));
             tmp = 0;

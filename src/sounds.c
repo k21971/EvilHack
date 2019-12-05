@@ -789,7 +789,8 @@ register struct monst *mtmp;
         /* Generic peaceful humanoid behaviour. */
         if (mtmp->mflee)
             pline_msg = "wants nothing to do with you.";
-        else if (mtmp->mhp < mtmp->mhpmax / 4)
+        else if (mtmp->mhp < mtmp->mhpmax / 4
+                 || mtmp->msick)
             pline_msg = "moans.";
         else if (mtmp->mconf || mtmp->mstun)
             verbl_msg = !rn2(3) ? "Huh?" : rn2(2) ? "What?" : "Eh?";
