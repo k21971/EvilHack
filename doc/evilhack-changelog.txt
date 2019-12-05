@@ -563,3 +563,4 @@ Version 0.4.1
 - Grimtooth now has a disease attack
 - Fix: correct 'killed by' message if infected by Grimtooth
 - Comment correction in include/monst.h
+- New monster: queen ant

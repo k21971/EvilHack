@@ -301,6 +301,7 @@ struct mkroom *sroom;
         mk_zoo_thronemon(tx, ty);
         break;
     case OWLBNEST:
+    case ANTHOLE:
     case BEEHIVE:
         tx = sroom->lx + (sroom->hx - sroom->lx + 1) / 2;
         ty = sroom->ly + (sroom->hy - sroom->ly + 1) / 2;
@@ -352,7 +353,9 @@ struct mkroom *sroom;
                                          : (type == COCKNEST)
                                              ? &mons[PM_COCKATRICE]
                                              : (type == ANTHOLE)
-                                                 ? antholemon()
+                                                 ? (sx == tx && sy == ty
+                                                     ? &mons[PM_QUEEN_ANT]
+                                                     : antholemon())
                                                  : (type == OWLBNEST)
                                                      ? (sx == tx && sy == ty
                                                          ? &mons[PM_OWLBEAR]
@@ -413,6 +416,10 @@ struct mkroom *sroom;
             case ANTHOLE:
                 if (!rn2(3))
                     (void) mkobj_at(FOOD_CLASS, sx, sy, FALSE);
+                if (!rn2(5)) {
+                    oegg = mksobj_at(EGG, sx, sy, TRUE, FALSE);
+                    set_corpsenm(oegg, PM_GIANT_ANT);
+                }
                 break;
             case OWLBNEST:
                 if (!rn2(5)) {
@@ -517,6 +524,7 @@ antholemon()
     /* casts are for dealing with time_t */
     indx = (int) ((long) ubirthday % 3L);
     indx += level_difficulty();
+
     /* Same monsters within a level, different ones between levels */
     do {
         switch ((indx + trycnt) % 3) {
