@@ -1653,15 +1653,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             pline_The("filthy dagger %s %s%c",
                       rn2(2) ? "contaminates" : "infects",
                       hittee, !spec_dbon_applies ? '.' : '!');
-        if (!youdefend) {
+        if (youdefend) {
+            diseasemu(magr->data);
+        } else {
             if (!resists_sick(mdef)) {
                 pline("%s looks %s.", Monnam(mdef),
                       mdef->mdiseased ? "even worse" : "diseased");
                 mdef->mdiseased = 1;
             }
         }
-        if (youdefend)
-            diseasemu(mdef->data);
         msgprinted = TRUE;
     }
 
