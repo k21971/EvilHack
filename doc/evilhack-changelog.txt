@@ -552,3 +552,11 @@ Version 0.4.0
 - Fix: proper feedback when eating zombie corpses while having sickness resistance
 - Monster steeds will spawn wearing a saddle if they are allowed to wear one
 - Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st, 2019)
+
+--------------------------------------------------------------------------------------------
+
+Version 0.4.1
+-------------
+
+- Prep for version 0.4.1
+
