@@ -155,7 +155,7 @@ struct monst {
     Bitfield(mstonebyu, 1); /* you caused the monster to start stoning */
 
     Bitfield(mstone, 3);    /* monster is turning to stone */
-    /* 5 free bits */
+    /* 2 free bits (and an ale) */
 
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 

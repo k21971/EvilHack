@@ -562,3 +562,4 @@ Version 0.4.1
 - Zombies can make other monsters ill, not just the player
 - Grimtooth now has a disease attack
 - Fix: correct 'killed by' message if infected by Grimtooth
+- Comment correction in include/monst.h
