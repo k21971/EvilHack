@@ -2092,11 +2092,11 @@ int mdead;
             }
             if (canseemon(magr))
                 pline("%s is suddenly very cold!", Monnam(magr));
-            mdef->mhp += tmp / 2;
-            if (mdef->mhpmax < mdef->mhp)
-                mdef->mhpmax = mdef->mhp;
             if (mddat == &mons[PM_BLUE_JELLY]
                 || mddat == &mons[PM_BROWN_MOLD]) {
+                mdef->mhp += tmp / 2;
+                if (mdef->mhpmax < mdef->mhp)
+                    mdef->mhpmax = mdef->mhp;
                 if (mdef->mhpmax > ((int) (mdef->m_lev + 1) * 8))
                     (void) split_mon(mdef, magr);
             }

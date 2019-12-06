@@ -3467,16 +3467,16 @@ boolean wep_was_destroyed;
                 You("are suddenly very cold!");
                 tmp = resist_reduce(tmp, COLD_RES);
                 if (is_dragon(mon->data))
-                    mdamageu(mon, tmp / 3);
+                    mdamageu(mon, rnd(10) + 7);
                 else
                     mdamageu(mon, tmp); /* cold damage */
                 /* monster gets stronger with your heat! */
-                mon->mhp += tmp / 2;
-                if (mon->mhpmax < mon->mhp)
-                    mon->mhpmax = mon->mhp;
-                /* at a certain point, the monster will reproduce! */
                 if (ptr == &mons[PM_BLUE_JELLY]
                     || ptr == &mons[PM_BROWN_MOLD]) {
+                    mon->mhp += tmp / 2;
+                    if (mon->mhpmax < mon->mhp)
+                        mon->mhpmax = mon->mhp;
+                /* at a certain point, the monster will reproduce! */
                     if (mon->mhpmax > ((int) (mon->m_lev + 1) * 8))
                         (void) split_mon(mon, &youmonst);
                 }
