@@ -261,12 +261,14 @@ TRAP:"fire",random
 TRAP:"fire",random
 TRAP:"fire",random
 TRAP:"fire",random
-# Lava demons
-MONSTER: ('&',"lava demon"),(30,05),hostile,awake
+# Lava demons and salamanders
+MONSTER: ('&',"lava demon"),(31,05),hostile,awake
 MONSTER: ('&',"lava demon"),(23,09),hostile,awake
 MONSTER: ('&',"lava demon"),(39,09),hostile,awake
 MONSTER: ('&',"lava demon"),(36,14),hostile,awake
 MONSTER: ('&',"lava demon"),(26,14),hostile,awake
+MONSTER: (':',"salamander"),(29,10),hostile,awake
+MONSTER: (':',"salamander"),(33,10),hostile,awake
 # Elite guard
 MONSTER: (''',"iron golem"),(04,13),hostile
 # Objects

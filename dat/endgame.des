@@ -320,7 +320,6 @@ MONSTER:('E',"fire elemental"),random,hostile
 MONSTER:('d',"hell hound"),random
 MONSTER:('E',"fire elemental"),random,hostile
 MONSTER:('E',"fire elemental"),random,hostile
-MONSTER:('s',"scorpion"),random
 MONSTER:('H',"fire giant"),random
 #
 MONSTER:('d',"hell hound"),random
@@ -369,6 +368,10 @@ MONSTER:('E',"fire elemental"),random,hostile
 MONSTER:('&',"barbed devil"),random
 MONSTER:(':',"salamander"),random,hostile
 MONSTER:('v',"steam vortex"),random
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
 MONSTER:(':',"salamander"),random,hostile
 MONSTER:(':',"salamander"),random,hostile
 

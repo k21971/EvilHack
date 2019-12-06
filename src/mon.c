@@ -1679,7 +1679,7 @@ long flag;
     int cnt = 0;
     uchar ntyp;
     uchar nowtyp;
-    boolean wantpool, poolok, lavaok, nodiag;
+    boolean wantpool, wantlava, poolok, lavaok, nodiag;
     boolean rockok = FALSE, treeok = FALSE, thrudoor;
     int maxx, maxy;
     boolean poisongas_ok, in_poisongas;
@@ -1693,13 +1693,14 @@ long flag;
     nodiag = NODIAG(mdat - mons);
     wantpool = (mdat->mlet == S_EEL || mdat == &mons[PM_BABY_SEA_DRAGON]
                 || mdat == &mons[PM_SEA_DRAGON]);
+    wantlava = (mdat == &mons[PM_SALAMANDER]);
     poolok = ((!Is_waterlevel(&u.uz)
                && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)))
               || (is_swimmer(mdat) && !wantpool));
     /* note: floating eye is the only is_floater() so this could be
        simplified, but then adding another floater would be error prone */
     lavaok = (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)
-              || likes_lava(mdat));
+              || (likes_lava(mdat) && !wantlava));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
@@ -1729,8 +1730,9 @@ long flag;
             thrudoor = TRUE;
     }
 
- nexttry: /* eels prefer the water, but if there is no water nearby,
-             they will crawl over land */
+ nexttry: /* Eels prefer the water, but if there is no water nearby,
+             they will crawl over land. Salamanders are the same way
+             about lava */
     if (mon->mconf) {
         flag |= ALLOW_ALL;
         flag &= ~NOTONL;
@@ -1779,7 +1781,7 @@ long flag;
                         && !m_at(nx, ny) && (nx != u.ux || ny != u.uy))))
                 continue;
             if ((is_pool(nx, ny) == wantpool || poolok)
-                && (lavaok || !is_lava(nx, ny))) {
+                && (is_lava(nx, ny) == wantlava || lavaok)) {
                 int dispx, dispy;
                 boolean monseeu = (mon->mcansee
                                    && (!Invis || mon_prop(mon, SEE_INVIS)));
@@ -1909,6 +1911,10 @@ long flag;
         }
     if (!cnt && wantpool && !is_pool(x, y)) {
         wantpool = FALSE;
+        goto nexttry;
+    }
+    if (!cnt && wantlava && !is_lava(x, y)) {
+        wantlava = FALSE;
         goto nexttry;
     }
     return cnt;

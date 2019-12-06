@@ -274,6 +274,9 @@ MONSTER:('H',"fire giant"),(24,09),hostile
 MONSTER:('H',"fire giant"),(24,10),hostile
 MONSTER:('H',"fire giant"),random,hostile
 MONSTER:('H',"fire giant"),random,hostile
+MONSTER:(':',"salamander"),(20,02),hostile
+MONSTER:(':',"salamander"),(20,14),hostile
+MONSTER:(':',"salamander"),random,hostile
 MONSTER:'H',random,hostile
 
 #

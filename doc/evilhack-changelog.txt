@@ -564,4 +564,5 @@ Version 0.4.1
 - Fix: correct 'killed by' message if infected by Grimtooth
 - Comment correction in include/monst.h
 - New monster: queen ant
+- Salamanders can pull you into lava
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 5th, 2019)

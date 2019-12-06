@@ -1649,7 +1649,9 @@ register struct attack *mattk;
                 } else {
                     pline("%s %s around you!", Monnam(mtmp),
                           mtmp->data == &mons[PM_GIANT_CENTIPEDE]
-                          ? "coils its body" : "swings itself");
+                          ? "coils its body"
+                              : mtmp->data == &mons[PM_SALAMANDER]
+                                  ? "wraps its arms" : "swings itself");
                     u.ustuck = mtmp;
                 }
             } else if (u.ustuck == mtmp) {
@@ -1665,14 +1667,26 @@ register struct attack *mattk;
                             moat ? "moat" : "pool of water",
                             an(mtmp->data->mname));
                     done(DROWNING);
+                } else if (is_lava(mtmp->mx, mtmp->my)) {
+                    pline("%s pulls you into the lava...", Monnam(mtmp));
+                    killer.format = KILLED_BY_AN;
+                    Sprintf(killer.name, "%s by %s",
+                            "being pulled into molten lava",
+                            an(mtmp->data->mname));
+                    done(BURNING);
                 } else if (mattk->aatyp == AT_HUGS)
                     You("are being crushed.");
             } else {
                 dmg = 0;
-                if (flags.verbose)
-                    pline("%s brushes against your %s.", Monnam(mtmp),
-                          mtmp->data == &mons[PM_GIANT_CENTIPEDE]
-                          ? "body" : body_part(LEG));
+                if (flags.verbose) {
+                    if (mtmp->data == &mons[PM_SALAMANDER])
+                        pline("%s tries to grab you!",
+                               Monnam(mtmp));
+                    else
+                        pline("%s brushes against your %s.", Monnam(mtmp),
+                              mtmp->data == &mons[PM_GIANT_CENTIPEDE]
+                              ? "body" : body_part(LEG));
+                }
             }
         } else
             dmg = 0;

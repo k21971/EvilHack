@@ -269,6 +269,8 @@ MONSTER: ('X',"xorn"),random
 MONSTER: ('X',"xorn"),random
 MONSTER: ('X',"xorn"),random
 MONSTER: ('X',"xorn"),random
+MONSTER: (':',"salamander"),random,hostile
+MONSTER: (':',"salamander"),random,hostile
 
 #
 #	The "fill" levels for the quest.

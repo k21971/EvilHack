@@ -1136,6 +1136,10 @@ MONSTER:('W',"wraith"),random,hostile
 MONSTER:('W',"wraith"),random,hostile
 MONSTER:('W',"wraith"),random,hostile
 MONSTER:('W',"wraith"),random,hostile
+MONSTER:(':',"salamander"),(16,01),hostile
+MONSTER:(':',"salamander"),(20,19),hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
 # a bit of loot
 OBJECT:'[',random
 OBJECT:'[',random
@@ -1398,6 +1402,14 @@ IF [66%] {
   MONSTER:'J',random,hostile
 } ELSE {
   MONSTER:random,random,hostile
+}
+
+IF [75%] {
+  MONSTER:(':',"salamander"),random,hostile
+  MONSTER:(':',"salamander"),random,hostile
+} ELSE {
+  MONSTER:(':',"salamander"),random,hostile
+  MONSTER:('&',"lava demon"),random,hostile
 }
 
 # SporkHack (and then UnNetHack) used a custom-made
