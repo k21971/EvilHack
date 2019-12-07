@@ -169,7 +169,7 @@ NEARDATA struct permonst mons[] = {
         M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_THICK_HIDE
             | M1_CARNIVORE | M1_POIS,
         M2_HOSTILE | M2_NASTY | M2_FEMALE | M2_PRINCE,
-        0, 0, 0, 16, CLR_BRIGHT_MAGENTA),
+        0, 0, 0, 16, CLR_CYAN),
     /*
      * blobs
      */

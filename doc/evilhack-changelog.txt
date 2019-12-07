@@ -567,4 +567,5 @@ Version 0.4.1
 - Salamanders can pull you into lava
 - Fix: white dragons gaining hit points each time its passive attack activated
 - Fix: do passive attacks for green/red/white dragons the correct way
+- Adjust color of queen ant
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 5th, 2019)
