@@ -3466,10 +3466,7 @@ boolean wep_was_destroyed;
                 }
                 You("are suddenly very cold!");
                 tmp = resist_reduce(tmp, COLD_RES);
-                if (is_dragon(mon->data))
-                    mdamageu(mon, rnd(10) + 7);
-                else
-                    mdamageu(mon, tmp); /* cold damage */
+                mdamageu(mon, tmp); /* cold damage */
                 /* monster gets stronger with your heat! */
                 if (ptr == &mons[PM_BLUE_JELLY]
                     || ptr == &mons[PM_BROWN_MOLD]) {
@@ -3497,10 +3494,7 @@ boolean wep_was_destroyed;
                 }
                 You("are suddenly very hot!");
                 tmp = resist_reduce(tmp, FIRE_RES);
-                if (is_dragon(mon->data))
-                    mdamageu(mon, tmp / 3);
-                else
-                    mdamageu(mon, tmp); /* fire damage */
+                mdamageu(mon, tmp); /* fire damage */
             }
             break;
         case AD_ELEC:
@@ -3533,10 +3527,7 @@ boolean wep_was_destroyed;
                 if (i) {
                     You("have been poisoned!");
                     tmp = resist_reduce(tmp, POISON_RES);
-                    if (is_dragon(mon->data))
-                        mdamageu(mon, tmp / 3);
-                    else
-                        mdamageu(mon, tmp);
+                    mdamageu(mon, tmp);
                 } else {
                     if (how_resistant(POISON_RES) <= 34) {
                         pline("%s poisonous hide was deadly...",

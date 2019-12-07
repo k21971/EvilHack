@@ -1944,12 +1944,9 @@ int mdead;
     }
     if (mddat->mattk[i].damn)
         tmp = d((int) mddat->mattk[i].damn, (int) mddat->mattk[i].damd);
-    else if (mddat->mattk[i].damd) {
-        if (is_dragon(mdef->data))
-            tmp = d((int) mddat->mlevel + 1, (int) mddat->mattk[i].damd) / 3;
-        else
-            tmp = d((int) mddat->mlevel + 1, (int) mddat->mattk[i].damd);
-    } else
+    else if (mddat->mattk[i].damd)
+        tmp = d((int) mddat->mlevel + 1, (int) mddat->mattk[i].damd);
+    else
         tmp = 0;
 
     /* These affect the enemy even if defender killed */
