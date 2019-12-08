@@ -2646,6 +2646,8 @@ struct obj *sobj;
     else
         setworn(reuse_ball, W_BALL);
     uball->spe = 1; /* special ball (see save) */
+    if (rn2(2))
+        uball->oerodeproof = 1;
 
     /*
      *  Place ball & chain if not swallowed.  If swallowed, the ball & chain
