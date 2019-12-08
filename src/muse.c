@@ -856,7 +856,7 @@ struct monst *mtmp;
                 mtmp->mtrapseen |= (1 << (TELEP_TRAP - 1));
             return 2;
         }
-        if ((mon_has_amulet(mtmp) || On_W_tower_level(&u.uz)) && !rn2(3)) {
+        if (mon_has_amulet(mtmp) || On_W_tower_level(&u.uz)) {
             if (vismon)
                 pline("%s seems disoriented for a moment.", Monnam(mtmp));
             return 2;
@@ -1060,7 +1060,10 @@ struct monst *mtmp;
         m_flee(mtmp);
         if (ledger_no(&u.uz) == 1)
             goto escape; /* impossible; level 1 upstairs are SSTAIRS */
-        if (Inhell && mon_has_amulet(mtmp) && !rn2(2)
+#if 0 /* disabling the mysterious force level teleportation for monsters
+         while carrying the Amulet */
+
+        if (Inhell && mon_has_amulet(mtmp) && !rn2(4)
             && (dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz) - 3)) {
             if (vismon)
                 pline(
@@ -1073,11 +1076,11 @@ struct monst *mtmp;
             migrate_to_level(mtmp, ledger_no(&u.uz) + 1, MIGR_RANDOM,
                              (coord *) 0);
         } else {
+#endif
             if (vismon)
                 pline("%s escapes upstairs!", Monnam(mtmp));
             migrate_to_level(mtmp, ledger_no(&u.uz) - 1, MIGR_STAIRS_DOWN,
                              (coord *) 0);
-        }
         return 2;
     case MUSE_DOWNSTAIRS:
         m_flee(mtmp);

@@ -586,14 +586,14 @@ BOOLEAN_P centered_on_stairs;
     } else {
         count = 0;
         s_cls = summoner ? summoner->data->mlet : 0;
-	tmp = (u.ulevel > 3) ? u.ulevel/3 : 1;
-	/* if we don't have a casting monster, nasties appear around hero,
-	 * ...unless we're being called with the 'stairs' flag to block the
-	 * adventurer's return with the amulet */
-	if (centered_on_stairs && xupstair) {
+        tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
+        /* if we don't have a casting monster, nasties appear around hero,
+         * ...unless we're being called with the 'stairs' flag to block the
+         * adventurer's return with the amulet */
+        if (centered_on_stairs && xupstair) {
             bypos.x = xupstair;
             bypos.y = yupstair;
-	} else {
+        } else {
             bypos.x = u.ux;
             bypos.y = u.uy;
         }
@@ -625,8 +625,8 @@ BOOLEAN_P centered_on_stairs;
                     m_cls = mons[makeindex].mlet;
                 } while (summoner
                          && ((attacktype(&mons[makeindex], AT_MAGC)
-                              && mons[makeindex].difficulty
-                                 >= mons[summoner->mnum].difficulty)
+                             && mons[makeindex].difficulty
+                             >= mons[summoner->mnum].difficulty)
                              || (s_cls == S_DEMON && m_cls == S_ANGEL)
                              || (s_cls == S_ANGEL && m_cls == S_DEMON)));
                 /* do this after picking the monster to place */

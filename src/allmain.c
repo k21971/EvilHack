@@ -116,8 +116,8 @@ boolean resuming;
 
     /* don't make it obvious when monsters will start speeding up */
     int monclock;
-    int timeout_start = rnd(10000)+25000;
-    int clock_base = 60000L-timeout_start;
+    int timeout_start = rnd(10000) + 25000;
+    int clock_base = 60000L - timeout_start;
     int past_clock;
     boolean elf_regen = elf_can_regen();
     boolean orc_regen = orc_can_regen();
@@ -237,31 +237,27 @@ boolean resuming;
 		     * to handle anything that comes your way, so this won't be
 		     * dropping newbies off the edge of the planet.  -- DSR 12/2/07
 		     */
- 	            monclock = 70;
-	            if (u.uevent.udemigod) {
-		        monclock = 10;
-	            } else {
-		        if (depth(&u.uz) > depth(&stronghold_level)) {
-		            monclock = 50;
-		        }
-		        past_clock = moves - timeout_start;
-		        if (past_clock > 0) {
-		            monclock -= (past_clock/clock_base)*60;
-		        }
+                    monclock = 70;
+                    if (u.uevent.udemigod) {
+                        monclock = 10;
+                    } else {
+                        if (depth(&u.uz) > depth(&stronghold_level))
+                            monclock = 50;
+                        past_clock = moves - timeout_start;
+                        if (past_clock > 0)
+                            monclock -= (past_clock / clock_base) * 60;
 	            }
 		    /* make sure we don't fall off the bottom */
-		    if (monclock < 10) {
+                    if (monclock < 10)
                         monclock = 10;
-                    }
 
-		    if (!rn2(monclock)) {
-		        if (u.uevent.udemigod && xupstair && rn2(10)) {
-			    (void) makemon((struct permonst *) 0, xupstair, yupstair,
+                    if (!rn2(monclock)) {
+                        if (u.uevent.udemigod && xupstair && rn2(10))
+                            (void) makemon((struct permonst *) 0, xupstair, yupstair,
                                            MM_ADJACENTOK);
-		        } else {
+                        else
                             (void) makemon((struct permonst *) 0, 0, 0,
                                            NO_MM_FLAGS);
-                        }
                     }
                     /* calculate how much time passed. */
                     if (u.usteed && u.umoved) {
