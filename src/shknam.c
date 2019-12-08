@@ -773,6 +773,7 @@ int shp_indx;
 
     shk->isshk = shk->mpeaceful = 1;
     set_malign(shk);
+    shk->data->msound = MS_HUMANOID;
     shk->msleeping = 0;
     shk->mtrapseen = ~0; /* we know all the traps already */
     eshkp->shoproom = (schar) ((sroom - rooms) + ROOMOFFSET);
