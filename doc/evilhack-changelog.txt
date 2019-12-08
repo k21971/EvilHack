@@ -571,4 +571,5 @@ Version 0.4.1
 - Fix: shopkeepers can talk regardless of their race
 - Fix: mysterious force and teleporting with the Amulet of Yendor should be removed for
   monsters as well as the hero
+- Convict role starting striped shirt and heavy iron ball are fooproof
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 5th, 2019)
