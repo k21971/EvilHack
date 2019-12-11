@@ -205,7 +205,7 @@ register int x, y;
     else if (IS_PUDDLE(levl[x][y].typ))
         return "water";
     else if (IS_SEWAGE(levl[x][y].typ))
-        return "water";
+        return "raw sewage";
     else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz))
              || IS_WALL(lev->typ) || IS_DOOR(lev->typ) || lev->typ == SDOOR)
         return "floor";

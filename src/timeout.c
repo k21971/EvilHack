@@ -668,10 +668,10 @@ nh_timeout()
                     You_feel("yourself slowing down%s.",
                              Fast ? " a bit" : "");
                 break;
-	    case SLOW:
+            case SLOW:
                 HSlow &= ~FROMOUTSIDE;
-		You_feel("less sluggish.");
-		break;
+                You_feel("less sluggish.");
+                break;
 	    case REFLECTING:
                 if (!Blind)
 		    pline("The shimmering globe around you flickers and vanishes.");
@@ -1103,7 +1103,7 @@ struct obj *figurine;
 }
 
 /* give a fumble message */
-STATIC_DCL void
+STATIC_OVL void
 slip_or_trip()
 {
     struct obj *otmp = vobj_at(u.ux, u.uy), *otmp2;

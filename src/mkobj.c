@@ -1958,7 +1958,7 @@ int x, y;
 
     /* for objects initially created in water */
     if (is_damp_terrain(x, y))
-	water_damage(otmp, FALSE, FALSE);
+        water_damage(otmp, FALSE, FALSE);
 }
 
 #define ROT_ICE_ADJUSTMENT 2 /* rotting on ice takes 2 times as long */

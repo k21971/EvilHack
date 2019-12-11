@@ -862,9 +862,9 @@ dokick()
                && !Levitation && !Flying && !Wwalking
                /* mud boots negate water resistance */
                && (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
-               pline_The("water surrounding your %s hinders your ability to kick.",
-                         makeplural(body_part(FOOT)));
-               no_kick = TRUE;
+        pline_The("water surrounding your %s hinders your ability to kick.",
+                  makeplural(body_part(FOOT)));
+        no_kick = TRUE;
     }
 
     if (no_kick) {

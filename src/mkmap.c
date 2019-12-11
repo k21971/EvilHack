@@ -464,13 +464,13 @@ boolean notpool;
     while (count++ < 2000) {
       	int rnum = levl[cx][cy].roomno - ROOMOFFSET;
       	chance = 0;
-      	if (rnum >= 0 && rooms[rnum].rtype != OROOM)
+        if (rnum >= 0 && rooms[rnum].rtype != OROOM)
             chance = 0;
-      	else if (levl[cx][cy].typ == CORR)
+        else if (levl[cx][cy].typ == CORR)
             chance = 15;
-      	else if (levl[cx][cy].typ == ROOM)
+        else if (levl[cx][cy].typ == ROOM)
             chance = 30;
-      	else if (IS_ROCK(levl[cx][cy].typ))
+        else if (IS_ROCK(levl[cx][cy].typ))
             chance = 100;
 
         if (rn2(100) < chance && !t_at(cx, cy)) {
@@ -484,24 +484,24 @@ boolean notpool;
             }
       	}
 
-      	if (cx == x2 && cy == y2)
+        if (cx == x2 && cy == y2)
             break;
 
-      	if (cx < x2 && !rn2(3))
+        if (cx < x2 && !rn2(3))
             dx = 1;
-      	else if (cx > x2 && !rn2(3))
+        else if (cx > x2 && !rn2(3))
             dx = -1;
-      	else
+        else
             dx = 0;
 
-      	if (cy < y2 && !rn2(3))
+        if (cy < y2 && !rn2(3))
             dy = 1;
-      	else if (cy > y2 && !rn2(3))
+        else if (cy > y2 && !rn2(3))
             dy = -1;
-      	else
+        else
             dy = 0;
 
-      	switch (rn2(16)) {
+        switch (rn2(16)) {
             default:
                 break;
             case 1: dx--; dy--;
@@ -522,25 +522,25 @@ boolean notpool;
                 break;
       	}
 
-      	if (dx < -1)
+        if (dx < -1)
             dx = -1;
-      	else if (dx > 1)
+        else if (dx > 1)
             dx = 1;
-      	if (dy < -1)
+        if (dy < -1)
             dy = -1;
-      	else if (dy > 1)
+        else if (dy > 1)
             dy = 1;
 
-      	cx += dx;
-      	cy += dy;
+        cx += dx;
+        cy += dy;
 
-      	if (cx < 0)
+        if (cx < 0)
             cx = 0;
-      	else if (cx >= COLNO)
+        else if (cx >= COLNO)
             cx = COLNO - 1;
-      	if (cy < 0)
+        if (cy < 0)
             cy = 0;
-      	else if (cy >= ROWNO)
+        else if (cy >= ROWNO)
             cy = ROWNO - 1;
     }
 }
@@ -551,9 +551,9 @@ mkrivers()
     int nriv = rn2(3) + 1;
     boolean notpool = rn2(100) < depth(&u.uz);
     while (nriv--) {
-      	if (rn2(2))
+        if (rn2(2))
             makeriver(0, rn2(ROWNO), COLNO - 1, rn2(ROWNO), notpool);
-      	else
+        else
             makeriver(rn2(COLNO), 0, rn2(COLNO), ROWNO - 1, notpool);
     }
 }

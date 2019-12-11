@@ -683,7 +683,7 @@ register struct monst *mtmp;
             mondead(mtmp);
             if (DEADMONSTER(mtmp)) {
                 if (mtmp->mtame && !canseemon(mtmp))
-		    pline("May %s rust in peace.", mon_nam(mtmp));
+                    pline("May %s rust in peace.", mon_nam(mtmp));
                 return 1;
             }
         }
@@ -1813,7 +1813,7 @@ long flag;
                 && (is_lava(nx, ny) == wantlava || lavaok)
                 && (is_sewage(nx, ny) == wantsewage || !wantsewage)
                 /* iron golems and longworms avoid shallow water */
-		&& ((mon->data != &mons[PM_IRON_GOLEM] && !is_longworm(mon->data)
+                && ((mon->data != &mons[PM_IRON_GOLEM] && !is_longworm(mon->data)
                     && !vs_cantflyorswim(mon->data))
                     || !(is_puddle(nx, ny) || is_sewage(nx, ny)))) {
                 int dispx, dispy;

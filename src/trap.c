@@ -2582,7 +2582,7 @@ register struct monst *mtmp;
                 else if (see_it)
                     You("see a cascade of steamy bubbles erupt from the %s!",
                         surface(mtmp->mx, mtmp->my));
-                if(rn2(2)) {
+                if (rn2(2)) {
                     if (in_sight)
                         pline_The("water evaporates!");
                         levl[mtmp->mx][mtmp->my].typ = ROOM;
@@ -3265,11 +3265,11 @@ long hmask, emask; /* might cancel timeout */
         if (is_pool(u.ux, u.uy) && !Wwalking && !Swimming && !u.uinwater)
             no_msg = drown();
 
-	if (is_damp_terrain(u.ux, u.uy) && uarm
+        if (is_damp_terrain(u.ux, u.uy) && uarm
             && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
                 || uarm->otyp == WHITE_DRAGON_SCALES)) {
 	    levl[u.ux][u.uy].typ = ICE;
-	    pline("The water crackles and freezes under your feet.");
+	    pline("The pool crackles and freezes under your feet.");
 	}
 
         if (is_lava(u.ux, u.uy)) {
