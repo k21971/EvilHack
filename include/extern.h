@@ -267,6 +267,9 @@ E boolean FDECL(paranoid_query, (BOOLEAN_P, const char *));
 
 /* ### dbridge.c ### */
 
+E boolean FDECL(is_damp_terrain, (int, int));
+E boolean FDECL(is_puddle, (int, int));
+E boolean FDECL(is_sewage, (int, int));
 E boolean FDECL(is_pool, (int, int));
 E boolean FDECL(is_lava, (int, int));
 E boolean FDECL(is_pool_or_lava, (int, int));

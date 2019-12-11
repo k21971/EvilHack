@@ -4043,6 +4043,22 @@ struct obj *no_wish;
             newsym(x, y);
             return (struct obj *) &zeroobj;
         }
+        if (!BSTRCMPI(bp, p - 13, "shallow water")) {
+            lev->typ = PUDDLE;
+            del_engr_at(x, y);
+            pline("Shallow water.");
+            water_damage(level.objects[x][y], 0, TRUE);
+            newsym(x, y);
+            return (struct obj *) &zeroobj;
+        }
+        if (!BSTRCMPI(bp, p - 6, "sewage")) {
+            lev->typ = SEWAGE;
+            del_engr_at(x, y);
+            pline("Sewage.");
+            water_damage(level.objects[x][y], 0, TRUE);
+            newsym(x, y);
+            return (struct obj *) &zeroobj;
+        }
         if (!BSTRCMPI(bp, p - 4, "lava")) { /* also matches "molten lava" */
             lev->typ = LAVAPOOL;
             del_engr_at(x, y);

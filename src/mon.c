@@ -636,7 +636,7 @@ int
 minliquid(mtmp)
 register struct monst *mtmp;
 {
-    boolean inpool, inlava, infountain;
+    boolean inpool, inlava, infountain, inshallow;
 
     /* [ceiling clingers are handled below] */
     inpool = (is_pool(mtmp->mx, mtmp->my)
@@ -646,6 +646,8 @@ register struct monst *mtmp;
     inlava = (is_lava(mtmp->mx, mtmp->my)
               && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
     infountain = IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ);
+    inshallow = ((is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my))
+                 && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
 
     /* Flying and levitation keeps our steed out of the liquid
        (but not water-walking or swimming; note: if hero is in a
@@ -659,13 +661,15 @@ register struct monst *mtmp;
      * keep going down, and when it gets to 1 hit point the clone
      * function will fail.
      */
-    if (mtmp->data == &mons[PM_GREMLIN] && (inpool || infountain) && rn2(3)) {
+    if (mtmp->data == &mons[PM_GREMLIN]
+        && (inpool || infountain || inshallow) && rn2(3)) {
         if (split_mon(mtmp, (struct monst *) 0))
             dryup(mtmp->mx, mtmp->my, FALSE);
         if (inpool)
             water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         return 0;
-    } else if (mtmp->data == &mons[PM_IRON_GOLEM] && inpool && !rn2(5)) {
+    } else if (mtmp->data == &mons[PM_IRON_GOLEM]
+               && ((inpool && !rn2(5)) || (inshallow && rn2(2)))) {
         int dam = d(2, 6);
 
         if (cansee(mtmp->mx, mtmp->my))
@@ -674,12 +678,34 @@ register struct monst *mtmp;
         if (mtmp->mhpmax > dam)
             mtmp->mhpmax -= dam;
         if (DEADMONSTER(mtmp)) {
+            if (canseemon(mtmp))
+                pline("%s falls to pieces.", Monnam(mtmp));
             mondead(mtmp);
-            if (DEADMONSTER(mtmp))
+            if (DEADMONSTER(mtmp)) {
+                if (mtmp->mtame && !canseemon(mtmp))
+		    pline("May %s rust in peace.", mon_nam(mtmp));
+                return 1;
+            }
+        }
+        if (inshallow)
+            water_damage(which_armor(mtmp, W_ARMF), FALSE, FALSE);
+        else
+            water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
+        return 0;
+    } else if  (is_longworm(mtmp->data) && inshallow) {
+        int dam = d(3, 12);
+        if (canseemon(mtmp))
+            pline("The water burns %s flesh!", s_suffix(mon_nam(mtmp)));
+        mtmp->mhp -= dam;
+        if (mtmp->mhpmax > dam)
+            mtmp->mhpmax -= (dam + 1) / 2;
+        if (mtmp->mhp < 1) {
+            if (canseemon(mtmp))
+                pline("%s dies.", Monnam(mtmp));
+            mondead(mtmp);
+            if (mtmp->mhp < 1)
                 return 1;
         }
-        water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
-        return 0;
     }
 
     if (inlava) {
@@ -770,7 +796,8 @@ register struct monst *mtmp;
         }
     } else {
         /* but eels have a difficult time outside */
-        if (mtmp->data->mlet == S_EEL && !Is_waterlevel(&u.uz)) {
+        if (mtmp->data->mlet == S_EEL && !Is_waterlevel(&u.uz)
+            && !is_puddle(mtmp->mx, mtmp->my) && !is_sewage(mtmp->mx, mtmp->my)) {
             /* as mhp gets lower, the rate of further loss slows down */
             if (mtmp->mhp > 1 && rn2(mtmp->mhp) > rn2(8))
                 damage_mon(mtmp, 1, AD_PHYS);
@@ -1679,7 +1706,8 @@ long flag;
     int cnt = 0;
     uchar ntyp;
     uchar nowtyp;
-    boolean wantpool, wantlava, poolok, lavaok, nodiag;
+    boolean wantpool, wantlava, wantsewage;
+    boolean poolok, lavaok, nodiag;
     boolean rockok = FALSE, treeok = FALSE, thrudoor;
     int maxx, maxy;
     boolean poisongas_ok, in_poisongas;
@@ -1694,6 +1722,7 @@ long flag;
     wantpool = (mdat->mlet == S_EEL || mdat == &mons[PM_BABY_SEA_DRAGON]
                 || mdat == &mons[PM_SEA_DRAGON]);
     wantlava = (mdat == &mons[PM_SALAMANDER]);
+    wantsewage = (mdat == &mons[PM_GIANT_LEECH]);
     poolok = ((!Is_waterlevel(&u.uz)
                && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)))
               || (is_swimmer(mdat) && !wantpool));
@@ -1781,7 +1810,12 @@ long flag;
                         && !m_at(nx, ny) && (nx != u.ux || ny != u.uy))))
                 continue;
             if ((is_pool(nx, ny) == wantpool || poolok)
-                && (is_lava(nx, ny) == wantlava || lavaok)) {
+                && (is_lava(nx, ny) == wantlava || lavaok)
+                && (is_sewage(nx, ny) == wantsewage || !wantsewage)
+                /* iron golems and longworms avoid shallow water */
+		&& ((mon->data != &mons[PM_IRON_GOLEM] && !is_longworm(mon->data)
+                    && !vs_cantflyorswim(mon->data))
+                    || !(is_puddle(nx, ny) || is_sewage(nx, ny)))) {
                 int dispx, dispy;
                 boolean monseeu = (mon->mcansee
                                    && (!Invis || mon_prop(mon, SEE_INVIS)));
@@ -1915,6 +1949,10 @@ long flag;
     }
     if (!cnt && wantlava && !is_lava(x, y)) {
         wantlava = FALSE;
+        goto nexttry;
+    }
+    if (!cnt && wantsewage && !is_sewage(x, y)) {
+        wantsewage = FALSE;
         goto nexttry;
     }
     return cnt;
@@ -3864,6 +3902,8 @@ struct monst *mtmp;
         ; /* can't hide while stuck in a non-pit trap */
     } else if (mtmp->data->mlet == S_EEL) {
         undetected = (is_pool(x, y) && !Is_waterlevel(&u.uz));
+    } else if (mtmp->data == &mons[PM_GIANT_LEECH]) {
+        undetected = (is_sewage(x, y));
     } else if (hides_under(mtmp->data) && OBJ_AT(x, y)) {
         struct obj *otmp = level.objects[x][y];
 
@@ -3886,7 +3926,8 @@ void
 hide_monst(mon)
 struct monst *mon;
 {
-    boolean hider_under = hides_under(mon->data) || mon->data->mlet == S_EEL;
+    boolean hider_under = hides_under(mon->data) || mon->data->mlet == S_EEL
+                                                 || mon->data == &mons[PM_GIANT_LEECH];
 
     if ((is_hider(mon->data) || hider_under)
         && !(mon->mundetected || M_AP_TYPE(mon))) {

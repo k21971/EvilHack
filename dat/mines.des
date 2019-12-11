@@ -1268,8 +1268,9 @@ MONSTER:'e',random
 
 
 # "Orc Temple" by Khor
-# In this variant of the mines end a group of orcs have found a randomly generated figurine of a demon and worship it
-# Slightly modified from the original
+# In this variant of the mines' end a group of orcs have found a randomly
+# generated figurine of a demon and worship it. Slightly modified from
+# the original.
 #
 MAZE:"minend-4",' '
 FLAGS:nommap
@@ -1415,5 +1416,151 @@ TRAP:"board",(70,06)
 TRAP:"board",(71,04)
 TRAP:"board",(71,05)
 TRAP:"board",(71,06)
+
+# Mine end level variant 5
+# "The Sewers of Waterdeep"
+# Infested with all sorts of nasty filth critters
+#
+MAZE: "minend-5", ' '
+MESSAGE: "You enter the sewers of the Gnomish Mines."
+MESSAGE: "The stench of fetid sewage is barely tolerable."
+GEOMETRY:center,center
+#         1         2         3         4         5         6         7
+#12345678901234567890123456789012345678901234567890123456789012345678901234
+MAP
+---------------------------------------------------------------------------
+|                           ---------------                               |
+|  ---------                |sssssssssssss|                         ----  |
+|  |sssssss|----------------|sssssss...sss|-------------------------|ss|  |
+|  |s.....sssssssssssssssssssss.........sssssssssSsssssssssssSssssssSss|  |
+|  |sssssss|---------s------|ssss.......ss|--s--s-------------s-----|ss|  |
+|  -----s---..ssss..|s|     |sssssssssssss| |s||s|..sssssssss|s|    ----  |
+|      |s| |..ssss..|s|     -------s---------s||sS..ssssssss\|s------     |
+|      |s| |..ssss..|s|           |s|sssssssss||s|..sssssssss|ssssss|     |
+|      |s------------s------      |s|s----------s---------S--------s|     |
+|      |sssssssssssssssssss|-------s|s|sssssssssssssss|  |s|      |s|     |
+| ---- --------|sss....sssssssssssss|s|ssssssss......s|  |s|    ---S----  |
+| |ss|---------|s.........s|-------sss|ssssss.......ss|---S-----|ssssss|  |
+| |ssSsssssssssSssss....sss|----------|ssss.......ssssssssssssssss...ss|  |
+| |ss|---------|ssssssssssssssssssssssssssssssssssssss|---------|ssssss|  |
+| ----         ----------------------------------------         --------  |
+|                                                                         |
+---------------------------------------------------------------------------
+ENDMAP
+
+# Dungeon Description
+$place = { (03,14),(70,03),(12,07) }
+SHUFFLE: $place
+
+REGION:(00,00,74,17),unlit,"ordinary"
+# Secret doors
+DOOR:locked,(05,13)
+DOOR:locked,(15,13)
+DOOR:locked,(49,04)
+DOOR:locked,(49,07)
+DOOR:locked,(58,09)
+DOOR:locked,(58,12)
+DOOR:locked,(61,04)
+DOOR:locked,(68,04)
+DOOR:locked,(67,11)
+# Stairs
+STAIR:(48,12),up
+# Non diggable / non phase walls
+NON_DIGGABLE:(00,00,74,17)
+NON_PASSWALL:(00,00,74,17)
+# Niches
+# Note: $place[2] empty
+OBJECT:('*',"luckstone"),$place[0]
+OBJECT:('*',"loadstone"),$place[1]
+# Traps
+TRAP:"teleport",(05,04)
+TRAP:"teleport",(12,08)
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+# Objects
+OBJECT:('(',"chest"),trapped,(19,06)
+OBJECT:('(',"crystal chest"),(19,08)
+CONTAINER:('(',"iron safe"),(19,07) {
+OBJECT:('*',"diamond")
+OBJECT:('*',"dilithium crystal")
+OBJECT:'/'
+OBJECT:'!'
+OBJECT:'='
+OBJECT:'?'
+OBJECT:'+'
+}
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+
+# Monsters
+MONSTER:(':',"giant crocodile"),(58,07)
+MONSTER:('w',"giant leech"),(52,07)
+MONSTER:('w',"giant leech"),(55,06)
+MONSTER:('w',"giant leech"),(55,08)
+MONSTER:('w',"giant leech"),(04,12)
+MONSTER:('a',"giant cockroach"),(04,14)
+MONSTER:('w',"giant leech"),(69,03)
+MONSTER:('a',"giant cockroach"),(69,05)
+MONSTER:('w',"giant leech"),(15,06)
+MONSTER:('a',"giant cockroach"),(18,08)
+MONSTER:('w',"giant leech"),(17,07)
+MONSTER:('a',"giant cockroach"),(16,06)
+MONSTER:('a',"giant cockroach"),(16,07)
+
+MONSTER:(':',"baby crocodile"),random
+MONSTER:(':',"baby crocodile"),random
+MONSTER:(':',"crocodile"),random
+MONSTER:('r',"sewer rat"),random
+MONSTER:('r',"sewer rat"),random
+MONSTER:('r',"sewer rat"),random
+MONSTER:('r',"sewer rat"),random
+MONSTER:('r',"sewer rat"),random
+MONSTER:('r',"sewer rat"),random
+MONSTER:('r',"sewer rat"),random
+MONSTER:('r',"sewer rat"),random
+MONSTER:('r',"giant rat"),random
+MONSTER:('r',"giant rat"),random
+MONSTER:('r',"giant rat"),random
+MONSTER:('r',"giant rat"),random
+MONSTER:('r',"giant rat"),random
+MONSTER:('r',"giant rat"),random
+MONSTER:('r',"enormous rat"),random
+MONSTER:('r',"enormous rat"),random
+MONSTER:('r',"rodent of unusual size"),random
+MONSTER:('r',"wererat"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('a',"giant cockroach"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
+MONSTER:('w',"giant leech"),random
 
 # end mines.des

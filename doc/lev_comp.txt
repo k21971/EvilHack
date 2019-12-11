@@ -180,6 +180,8 @@ LEV_COMP(6)                   1996                    LEV_COMP(6)
                      | fountain_detail
                      | forge_detail
                      | sink_detail
+                     | puddle_detail
+                     | sewage_detail
                      | pool_detail
                      | gold_detail
                      | engraving_detail
@@ -438,6 +440,12 @@ LEV_COMP(6)                   1996                    LEV_COMP(6)
      sink_detail : SINK_ID ':' coordinate
                      ;
 
+     puddle_detail : PUDDLE_ID ':' coordinate
+                     ;
+
+     sewage_detail : SEWAGE_ID ':' coordinate
+                     ;
+
      pool_detail : POOL_ID ':' coordinate
                      ;
 
@@ -609,6 +617,8 @@ LEV_COMP(6)                   1996                    LEV_COMP(6)
      '-'     horizontal wall
      '|'     vertical wall
      '+'     a doorway (state is specified in a DOOR declaration)
+     's'     sewage
+     'w'     shallow water
      'A'     open air
      'B'     boundary room location (for bounding unwalled irregular regions)
      'C'     cloudy air

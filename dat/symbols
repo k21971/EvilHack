@@ -73,8 +73,10 @@ start: NHAccess
 	S_grave: \126
 	S_throne: \126
 	S_sink: \126
-        S_forge: \126
-	S_fountain: \126 
+	S_forge: \126
+	S_fountain: \126
+	S_puddle: \042
+	S_sewage: \042 
 	S_pool: \042
 	S_ice: \042
 	S_lava: \035
@@ -242,6 +244,7 @@ start: Blank
         S_pool: \032
         S_potion: \032
         S_pudding: \032
+        S_puddle: \032
         S_quadruped: \032
         S_quantmech: \032
         S_ring: \032
@@ -253,6 +256,7 @@ start: Blank
         S_rust_trap: \032
         S_rustmonst: \032
         S_scroll: \032
+        S_sewage: \032
         S_sink: \032
         S_sleeping_gas_trap: \032
         S_snake: \032
@@ -338,8 +342,10 @@ start: IBMgraphics
 	S_room: \xfa			# meta-z, centered dot
 	S_corr: \xb0			# meta-0, light shading
 	S_litcorr: \xb1			# meta-1, medium shading
-        S_forge: \xf4                   # meta-t, integral top half
+	S_forge: \xf4			# meta-t, integral top half
 	S_fountain: \xf4		# meta-t, integral top half
+	S_puddle: \xf7			# meta-w, approx. equals
+	S_sewage: \xf7			# meta-w, approx. equals
 	S_pool: \xf7			# meta-w, approx. equals
 	S_ice: \xfa			# meta-z, centered dot
 	S_lava: \xf7			# meta-w, approx. equals
@@ -591,6 +597,8 @@ start: DECgraphics
 	S_upladder: \xf9		# meta-y, less-than-or-equals
 	S_dnladder: \xfa		# meta-z, greater-than-or-equals
 	S_altar: \xfb			# meta-{, pi (used to default to '_')
+	S_puddle: \xe0			# meta-\, diamond
+	S_sewage: \xe0			# meta-\, diamond
 	S_pool: \xe0			# meta-\, diamond
 	S_ice: \xfe			# meta-~, centered dot
 	S_lava: \xe0			# meta-\, diamond
@@ -633,6 +641,8 @@ start: MACgraphics
 	S_tree: \xf1			# plus-or-minus
 	S_corr: \xb0
 	S_grave: \xef			# same as open door
+	S_puddle: \xe0
+	S_sewage: \xe0
 	S_pool: \xe0
 finish
 

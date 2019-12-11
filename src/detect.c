@@ -1722,7 +1722,8 @@ genericptr_t num;
             (*(int *) num)++;
         } else if (mtmp->mundetected && (is_hider(mtmp->data)
                                          || hides_under(mtmp->data)
-                                         || mtmp->data->mlet == S_EEL)) {
+                                         || mtmp->data->mlet == S_EEL
+                                         || mtmp->data == &mons[PM_GIANT_LEECH])) {
             mtmp->mundetected = 0;
             newsym(zx, zy);
             (*(int *) num)++;
@@ -1890,7 +1891,8 @@ boolean via_warning;
         found_something = !canspotmon(mtmp);
         if (mtmp->mundetected && (is_hider(mtmp->data)
                                   || hides_under(mtmp->data)
-                                  || mtmp->data->mlet == S_EEL)) {
+                                  || mtmp->data->mlet == S_EEL
+                                  || mtmp->data == &mons[PM_GIANT_LEECH])) {
             if (via_warning) {
                 Your("warning senses cause you to take a second %s.",
                      Blind ? "to check nearby" : "look close by");

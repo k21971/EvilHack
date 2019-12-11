@@ -117,7 +117,7 @@ FILE *orig_yyin = NULL;
 		  map_cnt = 0;
 		  return MAP_ID;
 		}
-<MAPC>[-|}{+xABCISHKPLWTF\\#. 0123456789]*\r?\n	{
+<MAPC>[-|}{+swxABCISHUKPLWTF\\#. 0123456789]*\r?\n	{
 		  int len = yyleng;
 		  savetoken(yytext);
 		  /* convert \r\n to \n */
@@ -163,6 +163,8 @@ BRANCH		ST_RET(BRANCH_ID);
 FORGE           ST_RET(FORGE_ID);
 FOUNTAIN	ST_RET(FOUNTAIN_ID);
 SINK		ST_RET(SINK_ID);
+PUDDLE          ST_RET(PUDDLE_ID);
+SEWAGE          ST_RET(SEWAGE_ID);
 POOL		ST_RET(POOL_ID);
 NON_DIGGABLE	ST_RET(NON_DIGGABLE_ID);
 NON_PASSWALL	ST_RET(NON_PASSWALL_ID);

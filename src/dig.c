@@ -797,7 +797,7 @@ coord *cc;
         pline_The("%s %shere is too hard to dig in.", surface(dig_x, dig_y),
                   (dig_x != u.ux || dig_y != u.uy) ? "t" : "");
 
-    } else if (is_pool_or_lava(dig_x, dig_y)) {
+    } else if (is_lava(dig_x, dig_y) || is_damp_terrain(dig_x, dig_y)) {
         pline_The("%s sloshes furiously for a moment, then subsides.",
                   hliquid(is_lava(dig_x, dig_y) ? "lava" : "water"));
         wake_nearby(); /* splashing */
@@ -1173,6 +1173,10 @@ struct obj *obj;
         /* Monsters which swim also happen not to be able to dig */
         You("cannot stay under%s long enough.",
             is_pool(u.ux, u.uy) ? "water" : " the lava");
+    } else if (IS_PUDDLE(levl[u.ux][u.uy].typ)
+               || IS_SEWAGE(levl[u.ux][u.uy].typ)) {
+        Your("%s against the water's surface.", aobjnam(obj, "splash"));
+        wake_nearby();
     } else if ((trap = t_at(u.ux, u.uy)) != 0
                && (uteetering_at_seen_pit(trap) || uescaped_shaft(trap))) {
         dotrap(trap, FORCEBUNGLE);

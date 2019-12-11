@@ -587,7 +587,7 @@ fixup_special()
             for (y = croom->ly; y <= croom->hy; y++) {
                 if (!is_solid(x, y)) {
                     (void) mkgold((long) rn1(300, 600), x, y);
-                    if (!rn2(3) && !is_pool(x, y))
+                    if (!rn2(3) && !is_damp_terrain(x, y))
                         (void) maketrap(x, y, rn2(3) ? LANDMINE : SPIKED_PIT);
                 }
             }
@@ -1660,6 +1660,10 @@ xchar x, y;
         return "ice";
     else if (ltyp == POOL)
         return "pool of water";
+    else if (ltyp == PUDDLE)
+        return "pool of shallow water";
+    else if (ltyp == SEWAGE)
+        return "pool of raw sewage";
     else if (ltyp == WATER || Is_waterlevel(&u.uz))
         ; /* fall through to default return value */
     else if (Is_juiblex_level(&u.uz))

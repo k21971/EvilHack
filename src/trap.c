@@ -2574,6 +2574,30 @@ register struct monst *mtmp;
         } /* RUST_TRAP */
         case FIRE_TRAP:
         mfiretrap:
+            if ((is_puddle(mtmp->mx, mtmp->my)
+                || is_sewage(mtmp->mx, mtmp->my))) {
+                if (in_sight)
+                    pline("A cascade of steamy bubbles erupts from the %s under %s!",
+                          surface(mtmp->mx, mtmp->my), mon_nam(mtmp));
+                else if (see_it)
+                    You("see a cascade of steamy bubbles erupt from the %s!",
+                        surface(mtmp->mx, mtmp->my));
+                if(rn2(2)) {
+                    if (in_sight)
+                        pline_The("water evaporates!");
+                        levl[mtmp->mx][mtmp->my].typ = ROOM;
+                }
+                if (resists_fire(mtmp)) {
+                    if (in_sight) {
+                        shieldeff(mtmp->mx, mtmp->my);
+                        pline("%s is uninjured.", Monnam(mtmp));
+                    }
+                } else if (thitm(0, mtmp, (struct obj *)0, rnd(3), FALSE))
+                           trapkilled = TRUE;
+                if (see_it)
+                    seetrap(trap);
+                break;
+            }
             if (in_sight)
                 pline("A %s erupts from the %s under %s!", tower_of_flame,
                       surface(mtmp->mx, mtmp->my), mon_nam(mtmp));
@@ -3208,7 +3232,7 @@ long hmask, emask; /* might cancel timeout */
     }
 
     if (Punished && !carried(uball)
-        && (is_pool(uball->ox, uball->oy)
+        && (is_damp_terrain(uball->ox, uball->oy)
             || ((trap = t_at(uball->ox, uball->oy))
                 && (is_pit(trap->ttyp) || is_hole(trap->ttyp))))) {
         u.ux0 = u.ux;
@@ -3241,10 +3265,11 @@ long hmask, emask; /* might cancel timeout */
         if (is_pool(u.ux, u.uy) && !Wwalking && !Swimming && !u.uinwater)
             no_msg = drown();
 
-	if (is_pool(u.ux, u.uy) && uarm
-            && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
+	if (is_damp_terrain(u.ux, u.uy) && uarm
+            && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
+                || uarm->otyp == WHITE_DRAGON_SCALES)) {
 	    levl[u.ux][u.uy].typ = ICE;
-	    pline("The pool crackles and freezes under your feet.");
+	    pline("The water crackles and freezes under your feet.");
 	}
 
         if (is_lava(u.ux, u.uy)) {
@@ -3280,7 +3305,7 @@ long hmask, emask; /* might cancel timeout */
                     You("settle more firmly in the saddle.");
                 } else if (Hallucination) {
                     pline("Bummer!  You've %s.",
-                          is_pool(u.ux, u.uy)
+                          is_damp_terrain(u.ux, u.uy)
                              ? "splashed down"
                              : "hit the ground");
                 } else {
@@ -3374,7 +3399,8 @@ struct obj *box; /* null for floor trap */
      * to be done upon its contents.
      */
 
-    if ((box && !carried(box)) ? is_pool(box->ox, box->oy) : Underwater) {
+    if ((box && !carried(box)) ? is_pool(box->ox, box->oy)
+                               : (Underwater || is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy))) {
         pline("A cascade of steamy bubbles erupts from %s!",
               the(box ? xname(box) : surface(u.ux, u.uy)));
         if (how_resistant(FIRE_RES) > 50) {
@@ -3383,6 +3409,11 @@ struct obj *box; /* null for floor trap */
         }
         else
             losehp(rnd(3), "boiling water", KILLED_BY);
+        if ((is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy))
+            && rn2(2)) {
+            pline_The("water evaporates!");
+            levl[u.ux][u.uy].typ = ROOM;
+        }
         return;
     }
     pline("A %s %s from %s!", tower_of_flame, box ? "bursts" : "erupts",

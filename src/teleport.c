@@ -73,7 +73,8 @@ unsigned gpflags;
                         || (!Is_waterlevel(&u.uz)
                             && (is_floater(mdat) || is_flyer(mdat)
                                 || is_clinger(mdat))));
-        } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater) {
+        } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater
+                   && (!is_puddle(x, y) || !is_sewage(x, y))) {
             return FALSE;
         } else if (is_lava(x, y)) {
             /* 3.6.3: floating eye can levitate over lava but it avoids

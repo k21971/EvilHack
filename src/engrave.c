@@ -187,7 +187,7 @@ register int x, y;
         return "maw";
     else if (IS_AIR(lev->typ) && Is_airlevel(&u.uz))
         return "air";
-    else if (is_pool(x, y))
+    else if (is_damp_terrain(x, y))
         return (Underwater && !Is_waterlevel(&u.uz))
             ? "bottom" : hliquid("water");
     else if (is_ice(x, y))
@@ -202,6 +202,10 @@ register int x, y;
         return "headstone";
     else if (IS_FOUNTAIN(levl[x][y].typ))
         return "fountain";
+    else if (IS_PUDDLE(levl[x][y].typ))
+        return "water";
+    else if (IS_SEWAGE(levl[x][y].typ))
+        return "water";
     else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz))
              || IS_WALL(lev->typ) || IS_DOOR(lev->typ) || lev->typ == SDOOR)
         return "floor";
@@ -572,7 +576,7 @@ doengrave()
     } else if (is_lava(u.ux, u.uy)) {
         You_cant("write on the %s!", surface(u.ux, u.uy));
         return 0;
-    } else if (is_pool(u.ux, u.uy) || IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
+    } else if (is_damp_terrain(u.ux, u.uy) || IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
         You_cant("write on the %s!", surface(u.ux, u.uy));
         return 0;
     }

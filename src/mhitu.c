@@ -591,7 +591,10 @@ register struct monst *mtmp;
                    when it's in water and hero is over land */
                 || (mtmp->data->mlet == S_EEL
                     && is_pool(mtmp->mx, mtmp->my)
-                    && !is_pool(u.ux, u.uy))) {
+                    && !is_pool(u.ux, u.uy))
+                || (mtmp->data == &mons[PM_GIANT_LEECH]
+                    && is_sewage(mtmp->mx, mtmp->my)
+                    && !is_sewage(u.ux, u.uy))) {
                 /* couldn't find any spot for hero; this used to
                    kill off attacker, but now we just give a "miss"
                    message and keep both mtmp and hero at their
@@ -650,7 +653,9 @@ register struct monst *mtmp;
 
                 if (obj || u.umonnum == PM_TRAPPER
                     || (youmonst.data->mlet == S_EEL
-                        && is_pool(u.ux, u.uy))) {
+                        && is_pool(u.ux, u.uy))
+                    || (u.umonnum == PM_GIANT_LEECH
+                        && is_sewage(u.ux, u.uy))) {
                     int save_spe = 0; /* suppress warning */
 
                     if (obj) {
@@ -661,7 +666,7 @@ register struct monst *mtmp;
                     /* note that m_monnam() overrides hallucination, which is
                        what we want when message is from mtmp's perspective */
                     if (youmonst.data->mlet == S_EEL
-                        || u.umonnum == PM_TRAPPER)
+                        || u.umonnum == PM_TRAPPER || u.umonnum == PM_GIANT_LEECH)
                         pline(
                              "Wait, %s!  There's a hidden %s named %s there!",
                               m_monnam(mtmp), youmonst.data->mname, plname);
@@ -746,8 +751,9 @@ register struct monst *mtmp;
 	         tmp += o->spe;
     }
 
-    /* make eels visible the moment they hit/miss us */
-    if (mdat->mlet == S_EEL && mtmp->minvis && cansee(mtmp->mx, mtmp->my)) {
+    /* make eels and leeches visible the moment they hit/miss us */
+    if ((mdat->mlet == S_EEL || mdat == &mons[PM_GIANT_LEECH])
+        && mtmp->minvis && cansee(mtmp->mx, mtmp->my)) {
         mtmp->minvis = 0;
         newsym(mtmp->mx, mtmp->my);
     }
@@ -1150,7 +1156,8 @@ register struct attack *mattk;
     /*  If the monster is undetected & hits you, you should know where
      *  the attack came from.
      */
-    if (mtmp->mundetected && (hides_under(mdat) || mdat->mlet == S_EEL)) {
+    if (mtmp->mundetected && (hides_under(mdat) || mdat->mlet == S_EEL
+                              || mdat == &mons[PM_GIANT_LEECH])) {
         mtmp->mundetected = 0;
         if (!(Blind ? Blind_telepat : Unblind_telepat)) {
             struct obj *obj;
@@ -1161,6 +1168,8 @@ register struct attack *mattk;
                     what = something;
                 else if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
                     what = "the water";
+                else if (is_sewage(mtmp->mx, mtmp->my))
+                    what = "the raw sewage";
                 else
                     what = doname(obj);
 

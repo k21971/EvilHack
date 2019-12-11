@@ -1297,7 +1297,7 @@ static const char *levltyp[] = {
     "secret door", "secret corridor", "pool", "moat", "water",
     "drawbridge up", "lava pool", "iron bars", "door", "corridor", "room",
     "stairs", "ladder", "forge", "fountain", "throne", "sink", "grave", "altar", "ice",
-    "drawbridge down", "air", "cloud",
+    "drawbridge down", "air", "cloud", "puddle", "sewage",
     /* not a real terrain type, but used for undiggable stone
        by wiz_map_levltyp() */
     "unreachable/undiggable",
@@ -3283,6 +3283,9 @@ int msgflag;          /* for variant message phrasing */
         bp = eos(buf); /* points past "hiding" */
         if (youmonst.data->mlet == S_EEL) {
             if (is_pool(u.ux, u.uy))
+                Sprintf(bp, " in the %s", waterbody_name(u.ux, u.uy));
+        } else if (youmonst.data == &mons[PM_GIANT_LEECH]) {
+            if (is_sewage(u.ux, u.uy))
                 Sprintf(bp, " in the %s", waterbody_name(u.ux, u.uy));
         } else if (hides_under(youmonst.data)) {
             struct obj *o = level.objects[u.ux][u.uy];

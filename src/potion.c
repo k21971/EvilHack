@@ -604,7 +604,33 @@ dodrink()
         }
     }
     /* Or are you surrounded by water? */
-    if (Underwater && !u.uswallow) {
+    if ((((is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy))
+        && !verysmall(youmonst.data))
+        || (is_pool(u.ux, u.uy) && Wwalking))
+        && !u.uswallow && can_reach_floor(FALSE)) {
+        if (yn("Drink the water beneath you?") == 'y') {
+            if (is_sewage(u.ux, u.uy)) {
+                if (yn("Do you really want to drink raw sewage?") == 'y') {
+                    pline("This sewage is foul!");
+                    if (how_resistant(SICK_RES) == 100) {
+                        You_feel("mildly nauseous.");
+                        losehp(rnd(4), "upset stomach", KILLED_BY_AN);
+                    }
+                    losestr(resist_reduce(rn1(4, 3), SICK_RES));
+                    losehp(resist_reduce(rnd(10), SICK_RES),
+                           "contaminated sewage", KILLED_BY);
+                    exercise(A_CON, FALSE);
+                    return 1;
+                }
+            } else {
+                pline("Do you know what lives in that water?");
+            }
+            return 1;
+        }
+    } else if ((Underwater
+               || ((is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy))
+                   && verysmall(youmonst.data)))
+               && !u.uswallow) {
         if (yn("Drink the water around you?") == 'y') {
             pline("Do you know what lives in this water?");
             return 1;
@@ -2045,7 +2071,7 @@ dodip()
             dipforge(obj);
             return 1;
         }
-    } else if (is_pool(u.ux, u.uy)) {
+    } else if (is_damp_terrain(u.ux, u.uy)) {
         const char *pooltype = waterbody_name(u.ux, u.uy);
 
         Sprintf(qbuf, "%s%s into the %s?", Dip_,
@@ -2057,6 +2083,15 @@ dodip()
             } else if (u.usteed && !is_swimmer(u.usteed->data)
                        && P_SKILL(P_RIDING) < P_BASIC) {
                 rider_cant_reach(); /* not skilled enough to reach */
+            } else if (IS_SEWAGE(here)) {
+                if (rn2(3)) {
+                    You("see something moving under the surface and abruptly pull your %s back.",
+                        xname(obj));
+                } else {
+                    pline("Without warning, a creature hiding in the muck snatches your %s away!",
+                          xname(obj));
+                    useupall(obj);
+                }
             } else {
                 if (obj->otyp == POT_ACID)
                     obj->in_use = 1;

@@ -1533,6 +1533,15 @@ dohide()
         u.uundetected = 0;
         return 0;
     }
+    if (youmonst.data == &mons[PM_GIANT_LEECH] && !is_sewage(u.ux, u.uy)) {
+        if (IS_FOUNTAIN(levl[u.ux][u.uy].typ)
+            || IS_PUDDLE(levl[u.ux][u.uy].typ))
+            The("water here is too clean to hide in.");
+        else
+            There("isn't any raw sewage to hide in here.");
+        u.uundetected = 0;
+        return 0;
+    }
     if (hides_under(youmonst.data) && !level.objects[u.ux][u.uy]) {
         There("is nothing to hide under here.");
         u.uundetected = 0;

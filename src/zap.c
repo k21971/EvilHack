@@ -3132,6 +3132,9 @@ struct obj *obj; /* wand or spell */
             if (!(e && e->engr_type == ENGRAVE)) {
                 if (is_pool(u.ux, u.uy) || is_ice(u.ux, u.uy))
                     pline1(nothing_happens);
+                else if (is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy))
+                    pline("The water at your %s turns slightly %s.",
+                          makeplural(body_part(FOOT)), hcolor("red"));
                 else
                     pline("Blood %ss %s your %s.",
                           is_lava(u.ux, u.uy) ? "boil" : "pool",
@@ -4691,22 +4694,30 @@ const char *msg;
 #ifdef STUPID
         if (lev->icedpool == ICED_POOL)
             lev->typ = POOL;
+        if (lev->icedpool == ICED_PUDDLE)
+            lev->typ = PUDDLE;
+        if (lev->icedpool == ICED_SEWAGE)
+            lev->typ = SEWAGE;
         else
             lev->typ = MOAT;
 #else
-        lev->typ = (lev->icedpool == ICED_POOL ? POOL : MOAT);
+        lev->typ = (lev->icedpool == ICED_POOL ? POOL
+                        : lev->icedpool == ICED_PUDDLE ? PUDDLE
+                              : lev->icedpool == ICED_SEWAGE ? SEWAGE : MOAT);
 #endif
         lev->icedpool = 0;
     }
     spot_stop_timers(x, y, MELT_ICE_AWAY); /* no more ice to melt away */
     obj_ice_effects(x, y, FALSE);
-    unearth_objs(x, y);
+    if (lev->typ != PUDDLE || lev->typ != SEWAGE)
+        unearth_objs(x, y);
     if (Underwater)
         vision_recalc(1);
     newsym(x, y);
     if (cansee(x, y))
         Norep("%s", msg);
-    if ((otmp = sobj_at(BOULDER, x, y)) != 0) {
+    if ((lev->typ != PUDDLE || lev->typ != SEWAGE)
+        && (otmp = sobj_at(BOULDER, x, y)) != 0) {
         if (cansee(x, y))
             pline("%s settles...", An(xname(otmp)));
         do {
@@ -4842,11 +4853,17 @@ boolean moncast;
                 pline("Steam billows from the fountain.");
             rangemod -= 1;
             dryup(x, y, type > 0);
+        } else if (IS_PUDDLE(lev->typ) || IS_SEWAGE(lev->typ)) {
+            rangemod -= 3;
+            lev->typ = ROOM;
+            if (cansee(x,y))
+                pline_The("water evaporates.");
+            else You_hear("hissing gas.");
         }
         break; /* ZT_FIRE */
 
     case ZT_COLD:
-        if (is_pool(x, y) || is_lava(x, y)) {
+        if (is_damp_terrain(x, y) || is_lava(x, y)) {
             boolean lava = is_lava(x, y),
                     moat = is_moat(x, y);
 
@@ -4868,10 +4885,14 @@ boolean moncast;
                 } else {
                     lev->icedpool = lava ? 0
                                          : (lev->typ == POOL) ? ICED_POOL
-                                                              : ICED_MOAT;
+                                                : (lev->typ == PUDDLE) ? ICED_PUDDLE
+                                                       : (lev->typ == SEWAGE) ? ICED_SEWAGE
+                                                                              : ICED_MOAT;
                     lev->typ = lava ? ROOM : ICE;
                 }
-                bury_objs(x, y);
+                if (lev->icedpool != ICED_PUDDLE
+                    || lev->icedpool != ICED_SEWAGE)
+                    bury_objs(x, y);
                 if (see_it) {
                     if (lava)
                         Norep("The %s cools and solidifies.", hliquid("lava"));

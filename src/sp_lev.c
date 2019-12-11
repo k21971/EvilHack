@@ -956,12 +956,12 @@ register int humidity;
     if (humidity & DRY) {
         typ = levl[x][y].typ;
         if (typ == ROOM || typ == AIR || typ == CLOUD || typ == ICE
-            || typ == CORR)
+            || typ == CORR || typ == PUDDLE || typ == SEWAGE)
             return TRUE;
     }
     if ((humidity & SPACELOC) && SPACE_POS(levl[x][y].typ))
         return TRUE;
-    if ((humidity & WET) && is_pool(x, y))
+    if ((humidity & WET) && is_damp_terrain(x, y))
         return TRUE;
     if ((humidity & HOT) && is_lava(x, y))
         return TRUE;

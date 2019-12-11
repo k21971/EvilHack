@@ -1319,6 +1319,10 @@ char c;
         return (SINK);
     case '}':
         return (MOAT);
+    case 'w':
+        return (PUDDLE);
+    case 's':
+        return (SEWAGE);
     case 'P':
         return (POOL);
     case 'L':

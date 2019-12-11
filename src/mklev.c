@@ -15,6 +15,7 @@ STATIC_DCL void FDECL(mkforge, (int, struct mkroom *));
 STATIC_DCL void FDECL(mksink, (struct mkroom *));
 STATIC_DCL void FDECL(mkaltar, (struct mkroom *));
 STATIC_DCL void FDECL(mkgrave, (struct mkroom *));
+STATIC_DCL void FDECL(mkpuddles, (struct mkroom *));
 STATIC_DCL void NDECL(makevtele);
 STATIC_DCL void NDECL(clear_level_structures);
 STATIC_DCL void NDECL(makelevel);
@@ -1001,10 +1002,17 @@ makelevel()
 	}
         if (Is_rogue_level(&u.uz))
             goto skip_nonrogue;
-        if (!rn2(10))
+        /* greater chance of puddles if a water source is nearby */
+        if (!rn2(10)) {
             mkfount(0, croom);
-        if (!rn2(60))
+            if (!rn2(30))
+                mkpuddles(croom);
+        }
+        if (!rn2(60)) {
             mksink(croom);
+            if (!rn2(20))
+                mkpuddles(croom);
+        }
         if (!rn2(40))
             mkforge(0, croom);
         if (!rn2(60))
@@ -1893,6 +1901,46 @@ struct mkroom *croom;
     if (dobell)
         (void) mksobj_at(BELL, m.x, m.y, TRUE, FALSE);
     return;
+}
+
+/* make connected spots of shallow water (or pools) and add sea monsters */
+static void
+mkpuddles(croom)
+register struct mkroom *croom;
+{
+    coord m;
+    register int tryct = 0;
+    register int puddles = 0; /* how many spaces have we altered? */
+
+    do {
+        if (++tryct > 200)
+            return;
+        if (!somexyspace(croom, &m, 8))
+            return;
+    } while (occupied(m.x, m.y));
+
+    do {
+        if (!is_damp_terrain(m.x, m.y)) {
+            puddles++;
+            levl[m.x][m.y].typ = (depth(&u.uz) > 9 && !rn2(4)
+                                  ? POOL : PUDDLE);
+        }
+
+        if (puddles > 4 && depth(&u.uz) > 4) {
+            (void) makemon(is_pool(m.x, m.y)
+                           ? mkclass(S_EEL, 0) : &mons[PM_PIRANHA], m.x, m.y, NO_MM_FLAGS);
+            puddles -= 2; /* puddles created should always exceed piranhas */
+        }
+
+        tryct = 0;
+        do {
+            m.x += sgn(rn2(3) - 1);
+            m.y += sgn(rn2(3) - 1);
+        } while ((occupied(m.x, m.y)
+                || m.x < croom->lx || m.x > croom->hx
+                || m.y < croom->ly || m.y > croom->hy)
+                && (++tryct <= 27));
+    } while (tryct <= 27);
 }
 
 /* maze levels have slightly different constraints from normal levels */

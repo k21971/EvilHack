@@ -1758,7 +1758,8 @@ register int after;
             }
         }
 
-        if (hides_under(ptr) || ptr->mlet == S_EEL) {
+        if (hides_under(ptr) || ptr->mlet == S_EEL
+            || ptr == &mons[PM_GIANT_LEECH]) {
             /* Always set--or reset--mundetected if it's already hidden
                (just in case the object it was hiding under went away);
                usually set mundetected unless monster can't move.  */

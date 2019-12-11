@@ -170,6 +170,12 @@ NEARDATA struct permonst mons[] = {
             | M1_CARNIVORE | M1_POIS,
         M2_HOSTILE | M2_NASTY | M2_FEMALE | M2_PRINCE,
         0, 0, 0, 16, CLR_CYAN),
+    MON("giant cockroach", S_ANT, LVL(4, 16, 3, 0, 0), (G_GENO | G_NOGEN),
+        A(ATTK(AT_BITE, AD_DRCO, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(100, 100, MS_SILENT, MZ_SMALL), MR_POISON, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_CONCEAL | M1_OVIPAROUS | M1_CARNIVORE,
+        M2_HOSTILE, 0, 0, 0, 6, CLR_GREEN),
     /*
      * blobs
      */
@@ -866,7 +872,7 @@ NEARDATA struct permonst mons[] = {
     MON("sewer rat", S_RODENT, LVL(0, 12, 7, 0, 0), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 3), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
-        SIZ(20, 12, MS_SQEEK, MZ_TINY), 0, 0,
+        SIZ(20, 12, MS_SQEEK, MZ_SMALL), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
         0, 0, 1, CLR_BROWN),
     MON("giant rat", S_RODENT, LVL(1, 10, 7, 0, 0), (G_GENO | G_SGROUP | 2),
@@ -884,7 +890,7 @@ NEARDATA struct permonst mons[] = {
     MON("wererat", S_RODENT, LVL(2, 12, 6, 10, -7), (G_NOGEN | G_NOCORPSE),
         A(ATTK(AT_BITE, AD_WERE, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
-        SIZ(40, 30, MS_SQEEK, MZ_TINY), MR_POISON, 0,
+        SIZ(40, 30, MS_SQEEK, MZ_SMALL), MR_POISON, 0,
         M1_NOHANDS | M1_POIS | M1_REGEN | M1_CARNIVORE,
         M2_NOPOLY | M2_HOSTILE, M3_INFRAVISIBLE, 0, MH_WERE, 4, CLR_BROWN),
     MON("rock mole", S_RODENT, LVL(3, 3, 0, 20, 0), (G_GENO | 2),
@@ -1162,6 +1168,13 @@ NEARDATA struct permonst mons[] = {
         SIZ(2700, 700, MS_SILENT, MZ_GIGANTIC), 0, 0,
         M1_ANIMAL | M1_SLITHY | M1_NOLIMBS | M1_OVIPAROUS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY, 0, 0, 0, 17, CLR_MAGENTA),
+    MON("giant leech", S_WORM, LVL(6, 8, 5, 0, 0), (G_GENO | G_NOGEN),
+        A(ATTK(AT_BITE, AD_STCK, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(100, 100, MS_SILENT, MZ_SMALL), MR_POISON, 0,
+        M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_SLITHY | M1_NOLIMBS
+            | M1_OVIPAROUS | M1_CARNIVORE | M1_NOTAKE,
+        M2_HOSTILE, 0, 0, 0, 8, CLR_BLACK),
     /*
      * xan, &c
      */
@@ -3447,6 +3460,13 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_SLITHY | M1_THICK_HIDE | M1_POIS,
         M2_STALK | M2_HOSTILE | M2_COLLECT | M2_MAGIC, M3_INFRAVISIBLE,
         M4_VULNERABLE_COLD, 0, 12, CLR_ORANGE),
+    MON("giant crocodile", S_LIZARD, LVL(12, 9, 1, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 4, 4), ATTK(AT_CLAW, AD_PHYS, 3, 6),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1600, 800, MS_ROAR, MZ_HUGE), 0, 0,
+        M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS
+            | M1_OVIPAROUS | M1_CARNIVORE,
+        M2_STRONG | M2_HOSTILE, 0, 0, 0, 15, CLR_BROWN),
     /*
      * mplayer classes
      * These MUST come before "long worm tail"
