@@ -3373,6 +3373,10 @@ char *buf;
         cmap = S_ice; /* "ice" */
     else if (is_pool(x, y))
         dfeature = "pool of water";
+    else if (is_puddle(x, y))
+        dfeature = "pool of shallow water";
+    else if (is_sewage(x, y))
+        dfeature = "pool of raw sewage";
     else if (IS_SINK(ltyp))
         cmap = S_sink; /* "sink" */
     else if (IS_FORGE(ltyp))

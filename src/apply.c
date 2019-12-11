@@ -2254,7 +2254,7 @@ long timeout;
                 if (canseemon(figurine->ocarry)
                     && (!mon->wormno || cansee(mon->mx, mon->my)))
                     Sprintf(carriedby, "%s pack", s_suffix(a_monnam(mon)));
-                else if (is_pool(mon->mx, mon->my))
+                else if (is_damp_terrain(mon->mx, mon->my))
                     Strcpy(carriedby, "empty water");
                 else
                     Strcpy(carriedby, "thin air");
@@ -2348,7 +2348,7 @@ struct obj **optr;
     You("%s and it %stransforms.",
         (u.dx || u.dy) ? "set the figurine beside you"
                        : (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)
-                          || is_pool(cc.x, cc.y))
+                          || is_damp_terrain(cc.x, cc.y))
                              ? "release the figurine"
                              : (u.dz < 0 ? "toss the figurine into the air"
                                          : "set the figurine on the ground"),
@@ -2589,7 +2589,7 @@ struct obj *otmp;
         what = "underwater";
     else if (Levitation)
         what = "while levitating";
-    else if (is_pool(u.ux, u.uy))
+    else if (is_damp_terrain(u.ux, u.uy))
         what = "in water";
     else if (is_lava(u.ux, u.uy))
         what = "in lava";
@@ -3342,7 +3342,7 @@ struct obj *obj;
         }
     /*FALLTHRU*/
     case 3: /* Surface */
-        if (IS_AIR(levl[cc.x][cc.y].typ) || is_pool(cc.x, cc.y))
+        if (IS_AIR(levl[cc.x][cc.y].typ) || is_damp_terrain(cc.x, cc.y))
             pline_The("hook slices through the %s.", surface(cc.x, cc.y));
         else {
             You("are yanked toward the %s!", surface(cc.x, cc.y));

@@ -851,11 +851,20 @@ dokick()
             break;
         case TT_WEB:
         case TT_BEARTRAP:
+        case TT_LAVA:
             You_cant("move your %s!", body_part(LEG));
             break;
         default:
             break;
         }
+    } else if (rn2(2) && (IS_PUDDLE(levl[u.ux][u.uy].typ)
+               || IS_SEWAGE(levl[u.ux][u.uy].typ))
+               && !Levitation && !Flying && !Wwalking
+               /* mud boots negate water resistance */
+               && (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
+               pline_The("water surrounding your %s hinders your ability to kick.",
+                         makeplural(body_part(FOOT)));
+               no_kick = TRUE;
     }
 
     if (no_kick) {
@@ -987,7 +996,7 @@ dokick()
         return 1;
     }
     (void) unmap_invisible(x, y);
-    if (is_pool(x, y) ^ !!u.uinwater) {
+    if (is_damp_terrain(x, y) ^ !!u.uinwater) {
         /* objects normally can't be removed from water by kicking */
         You("splash some %s around.", hliquid("water"));
         return 1;

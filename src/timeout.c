@@ -669,6 +669,7 @@ nh_timeout()
                              Fast ? " a bit" : "");
                 break;
 	    case SLOW:
+                HSlow &= ~FROMOUTSIDE;
 		You_feel("less sluggish.");
 		break;
 	    case REFLECTING:
@@ -1102,7 +1103,7 @@ struct obj *figurine;
 }
 
 /* give a fumble message */
-STATIC_OVL void
+STATIC_DCL void
 slip_or_trip()
 {
     struct obj *otmp = vobj_at(u.ux, u.uy), *otmp2;

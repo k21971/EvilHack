@@ -77,7 +77,7 @@ ALIGNMENT:	lawful
 DESCRIPTION:	mazelike
 RNDLEVEL:	"minetn" "T" @ (3, 2) 7
 LEVELDESC:	town
-RNDLEVEL:	"minend" "E" @ (-1, 0) 4
+RNDLEVEL:	"minend" "E" @ (-1, 0) 5
 
 #
 #	The Questdungeon

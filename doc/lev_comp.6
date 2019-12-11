@@ -169,8 +169,10 @@ room_detail	: room_name
 		| trap_detail
 		| altar_detail
 		| fountain_detail
-                | forge_detail
+		| forge_detail
 		| sink_detail
+		| puddle_detail
+		| sewage_detail
 		| pool_detail
 		| gold_detail
 		| engraving_detail
@@ -373,6 +375,12 @@ forge_detail : FORGE_ID ':' coordinate
 sink_detail : SINK_ID ':' coordinate
 		;
 
+puddle_detail : PUDDLE_ID ':' coordinate
+                ;
+
+sewage_detail : SEWAGE_ID ':' coordinate
+                ;
+
 pool_detail : POOL_ID ':' coordinate
 		;
 
@@ -507,6 +515,8 @@ The maximum size of a map is normally 76 columns by 21 rows.
 \&'-'	horizontal wall
 \&'|'	vertical wall
 \&'+'	a doorway (state is specified in a DOOR declaration)
+\&'s'	sewage
+\&'w'	shallow water
 \&'A'	open air
 \&'B'	boundary room location (for bounding unwalled irregular regions)
 \&'C'	cloudy air

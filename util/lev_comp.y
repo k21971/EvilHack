@@ -198,7 +198,7 @@ extern char curr_token[512];
 %token	<i> MAZEWALK_ID WALLIFY_ID REGION_ID FILLING IRREGULAR JOINED
 %token	<i> ALTAR_ID LADDER_ID STAIR_ID NON_DIGGABLE_ID NON_PASSWALL_ID ROOM_ID
 %token	<i> PORTAL_ID TELEPRT_ID BRANCH_ID LEV MINERALIZE_ID
-%token	<i> CORRIDOR_ID GOLD_ID ENGRAVING_ID FORGE_ID FOUNTAIN_ID POOL_ID SINK_ID NONE
+%token	<i> CORRIDOR_ID GOLD_ID ENGRAVING_ID FORGE_ID FOUNTAIN_ID PUDDLE_ID SEWAGE_ID POOL_ID SINK_ID NONE
 %token	<i> RAND_CORRIDOR_ID DOOR_STATE LIGHT_STATE CURSE_TYPE ENGRAVING_TYPE
 %token	<i> DIRECTION RANDOM_TYPE RANDOM_TYPE_BRACKET A_REGISTER
 %token	<i> ALIGNMENT LEFT_OR_RIGHT CENTER TOP_OR_BOT ALTAR_TYPE UP_OR_DOWN
@@ -400,7 +400,7 @@ lev_init	: LEV_INIT_ID ':' SOLID_FILL_ID ',' terrain_type
 			  lc_error("INIT_MAP: Invalid foreground type.");
 		      if (bg == INVALID_TYPE || bg >= MAX_TYPE)
 			  lc_error("INIT_MAP: Invalid background type.");
-		      if (joined && fg != CORR && fg != ROOM)
+		      if (joined && fg != CORR && fg != ROOM && fg != PUDDLE && fg != SEWAGE)
 			  lc_error("INIT_MAP: Invalid foreground type for joined map.");
 
 		      if (filling == INVALID_TYPE)
@@ -505,7 +505,7 @@ levstatement 	: message
 		| engraving_detail
 		| mineralize
 		| fountain_detail
-                | forge_detail
+		| forge_detail
 		| gold_detail
 		| switchstatement
 		| forstatement
@@ -524,6 +524,8 @@ levstatement 	: message
 		| monster_detail
 		| object_detail
 		| passwall_detail
+		| puddle_detail
+		| sewage_detail
 		| pool_detail
 		| portal_region
 		| random_corridors
@@ -1913,6 +1915,18 @@ sink_detail : SINK_ID ':' ter_selection
 		      add_opvars(splev, "o", VA_PASS1(SPO_SINK));
 		  }
 		;
+
+puddle_detail : PUDDLE_ID ':' ter_selection
+                  {
+                      add_opvars(splev, "o", VA_PASS1(SPO_PUDDLE));
+                  }
+                ;
+
+sewage_detail : SEWAGE_ID ':' ter_selection
+                  {
+                      add_opvars(splev, "o", VA_PASS1(SPO_SEWAGE));
+                  }
+                ;
 
 pool_detail : POOL_ID ':' ter_selection
 		  {

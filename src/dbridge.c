@@ -34,6 +34,42 @@ STATIC_DCL boolean FDECL(e_jumps, (struct entity *));
 STATIC_DCL void FDECL(do_entity, (struct entity *));
 
 boolean
+is_damp_terrain(x, y)
+int x, y;
+{
+    return (is_pool(x, y) || is_puddle(x, y)
+            || is_sewage(x, y));
+}
+
+boolean
+is_puddle(x, y)
+int x, y;
+{
+    schar ltyp;
+
+    if (!isok(x, y))
+        return FALSE;
+    ltyp = levl[x][y].typ;
+    if (ltyp == PUDDLE)
+        return TRUE;
+    return FALSE;
+}
+
+boolean
+is_sewage(x, y)
+int x, y;
+{
+    schar ltyp;
+
+    if (!isok(x, y))
+        return FALSE;
+    ltyp = levl[x][y].typ;
+    if (ltyp == SEWAGE)
+        return TRUE;
+    return FALSE;
+}
+
+boolean
 is_pool(x, y)
 int x, y;
 {

@@ -1501,6 +1501,7 @@ domove_core()
     struct trap *trap = NULL;
     int wtcap;
     boolean on_ice;
+    boolean walk_sewage;
     xchar chainx = 0, chainy = 0,
           ballx = 0, bally = 0;         /* ball&chain new positions */
     int bc_control = 0;                 /* control for ball&chain */
@@ -1570,6 +1571,24 @@ domove_core()
         }
         if (!on_ice && (HFumbling & FROMOUTSIDE))
             HFumbling &= ~FROMOUTSIDE;
+
+        /* check walking through sewage */
+        walk_sewage = !Levitation && is_sewage(u.ux, u.uy);
+        if (walk_sewage) {
+            if (Flying || is_floater(youmonst.data)
+                || is_swimmer(youmonst.data)
+                || is_clinger(youmonst.data) || is_whirly(youmonst.data)
+                || (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
+                             || uarm->otyp == WHITE_DRAGON_SCALES))) {
+                walk_sewage = FALSE;
+            } else {
+                HSlow |= FROMOUTSIDE;
+                HSlow &= ~TIMEOUT;
+                HSlow += 3; /* slowed on next move */
+            }
+        }
+        if (!walk_sewage && (HSlow & FROMOUTSIDE))
+            HSlow &= ~FROMOUTSIDE;
 
         x = u.ux + u.dx;
         y = u.uy + u.dy;
@@ -1753,7 +1772,8 @@ domove_core()
             return;
         }
         if (context.forcefight || !mtmp->mundetected || sensemon(mtmp)
-            || ((hides_under(mtmp->data) || mtmp->data->mlet == S_EEL)
+            || ((hides_under(mtmp->data) || mtmp->data->mlet == S_EEL
+                || mtmp->data == &mons[PM_GIANT_LEECH])
                 && !is_safepet(mtmp))) {
             /* try to attack; note that it might evade */
             /* also, we don't attack tame when _safepet_ */
@@ -2062,7 +2082,7 @@ domove_core()
     }
 
     if (hides_under(youmonst.data) || youmonst.data->mlet == S_EEL
-        || u.dx || u.dy)
+        || youmonst.data == &mons[PM_GIANT_LEECH] || u.dx || u.dy)
         (void) hideunder(&youmonst);
 
     /*
@@ -2092,12 +2112,12 @@ domove_core()
 
     /* Special effects of WDSM; don't spam the player unless they've stepped onto
      * water from something that wasn't water/ice already */
-    if (is_pool(u.ux, u.uy) && uarm
-	&& (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
+    if (is_damp_terrain(u.ux, u.uy) && uarm
+	&& (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
+            || uarm->otyp == WHITE_DRAGON_SCALES)) {
 	levl[u.ux][u.uy].typ = ICE;
-        if (!is_pool(u.ux0, u.uy0) && !is_ice(u.ux0, u.uy0)) {
-	    pline("The pool crackles and freezes under your feet.");
-	}
+        if (!is_pool(u.ux0, u.uy0) && !is_ice(u.ux0, u.uy0))
+	    pline("The water crackles and freezes under your feet.");
     }
 
     if (u.umoved)
@@ -2272,37 +2292,86 @@ boolean newspot;             /* true if called by spoteffects */
     }
 
     /* check for entering water or lava */
-    if (!u.ustuck && !Levitation && !Flying && is_pool_or_lava(u.ux, u.uy)) {
-        if (u.usteed
-            && (is_flyer(u.usteed->data) || is_floater(u.usteed->data)
-                || is_clinger(u.usteed->data))) {
-            /* floating or clinging steed keeps hero safe (is_flyer() test
-               is redundant; it can't be true since Flying yielded false) */
-            return FALSE;
-        } else if (u.usteed) {
-            /* steed enters pool */
-            dismount_steed(Underwater ? DISMOUNT_FELL : DISMOUNT_GENERIC);
-            /* dismount_steed() -> float_down() -> pickup()
-               (float_down doesn't do autopickup on Air or Water) */
-            if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
+    if (!u.ustuck && !Levitation && !Flying) {
+        if (is_pool_or_lava(u.ux, u.uy)) {
+            if (u.usteed
+                && (is_flyer(u.usteed->data) || is_floater(u.usteed->data)
+                    || is_clinger(u.usteed->data))) {
+                /* floating or clinging steed keeps hero safe (is_flyer() test
+                   is redundant; it can't be true since Flying yielded false) */
                 return FALSE;
-            /* even if we actually end up at same location, float_down()
-               has already done spoteffect()'s trap and pickup actions */
-            if (newspot)
-                check_special_room(FALSE); /* spoteffects */
-            return TRUE;
-        }
-        /* not mounted */
+            } else if (u.usteed) {
+                /* steed enters pool */
+                dismount_steed(Underwater ? DISMOUNT_FELL : DISMOUNT_GENERIC);
+                /* dismount_steed() -> float_down() -> pickup()
+                   (float_down doesn't do autopickup on Air or Water) */
+                if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
+                    return FALSE;
+                /* even if we actually end up at same location, float_down()
+                   has already done spoteffect()'s trap and pickup actions */
+                if (newspot)
+                    check_special_room(FALSE); /* spoteffects */
+                return TRUE;
+            }
+            /* not mounted */
 
-        /* drown(),lava_effects() return true if hero changes
-           location while surviving the problem */
-        if (is_lava(u.ux, u.uy)) {
-            if (lava_effects())
-                return TRUE;
-        } else if (!Wwalking
-                   && (newspot || !u.uinwater || !(Swimming || Amphibious))) {
-            if (drown())
-                return TRUE;
+            /* drown(),lava_effects() return true if hero changes
+               location while surviving the problem */
+            if (is_lava(u.ux, u.uy)) {
+                if (lava_effects())
+                    return TRUE;
+            } else if (!Wwalking
+                       && (newspot || !u.uinwater || !(Swimming || Amphibious))) {
+                if (drown())
+                    return TRUE;
+            }
+        } else if ((is_puddle(u.ux, u.uy)
+                   || is_sewage(u.ux, u.uy)) && !Wwalking) {
+            if (!rn2(12) && is_puddle(u.ux, u.uy))
+                pline("You %s through the shallow water.",
+                      vs_cantflyorswim(youmonst.data) ? "wade" : "splash");
+
+            if (!Levitation && is_sewage(u.ux, u.uy)) {
+                if (!rn2(4)) {
+                    pline("%s %s difficulty %s through %s.",
+                          u.usteed ? upstart(x_monnam(u.usteed,
+                                             (has_mname(u.usteed)) ? ARTICLE_NONE
+                                                                   : ARTICLE_THE,
+                                             (char *) 0, SUPPRESS_SADDLE, FALSE))
+                                   : "You",
+                          u.usteed ? "has" : "have",
+                          rn2(2) ? "wading" : "trudging",
+                          rn2(2) ? "this sludge" : "the muck");
+                }
+            }
+
+            if (!verysmall(youmonst.data) && !rn2(4))
+                wake_nearby();
+
+            if (Upolyd && youmonst.data  == &mons[PM_GREMLIN])
+                (void) split_mon(&youmonst, NULL);
+            else if (youmonst.data == &mons[PM_IRON_GOLEM]
+                     /* mud boots keep the feet dry */
+                     && (!uarmf
+                         || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
+                int dam = rnd(6);
+                pline("Your %s rust!", makeplural(body_part(FOOT)));
+                if (u.mhmax > dam)
+                    u.mhmax -= dam;
+                losehp(dam, "rusting away", NO_KILLER_PREFIX);
+            } else if (is_longworm(youmonst.data)) {
+                int dam = d(3, 12);
+                if (u.mhmax > dam)
+                    u.mhmax -= ((dam + 1) / 2);
+                pline("The water burns your flesh!");
+                losehp(dam, "contact with water", NO_KILLER_PREFIX);
+            }
+            if (verysmall(youmonst.data))
+                water_damage_chain(invent, FALSE, rnd(3), FALSE);
+            if (!u.usteed) {
+                if (!rn2(3))
+                    (void) water_damage(uarmf, "boots", TRUE);
+            }
         }
     }
     return FALSE;

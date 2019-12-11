@@ -2125,6 +2125,10 @@ int mmflags;
     case S_EEL:
         (void) hideunder(mtmp);
         break;
+    case S_WORM:
+        if (mtmp->data == &mons[PM_GIANT_LEECH])
+            (void) hideunder(mtmp);
+        break;
     case S_LEPRECHAUN:
         mtmp->msleeping = 1;
         break;

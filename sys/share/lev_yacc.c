@@ -4882,6 +4882,16 @@ case 404:
 break;
 case 405:
 {
+                      add_opvars(splev, "o", VA_PASS1(SPO_PUDDLE));
+                  }
+break;
+case 406:
+{
+                      add_opvars(splev, "o", VA_PASS1(SPO_SEWAGE));
+                  }
+break;
+case 407:
+{
 			if (yyvsp[-7].i <= 0 || yyvsp[-7].i >= COLNO)
 			    lc_error(
                           "Region (%ld,%ld,%ld,%ld) out of level range (x1)!",
@@ -4905,7 +4915,7 @@ case 405:
 			yyval.lregn.area = 1;
 		  }
 break;
-case 406:
+case 408:
 {
 /* This series of if statements is a hack for MSC 5.1.  It seems that its
    tiny little brain cannot compile if these are all one big if statement. */

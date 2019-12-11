@@ -1796,6 +1796,12 @@ xchar x, y;
     case CLOUD:
         idx = S_cloud;
         break;
+    case PUDDLE:
+        idx = S_puddle;
+        break;
+    case SEWAGE:
+        idx = S_sewage;
+        break;
     case WATER:
         idx = S_water;
         break;
@@ -1937,6 +1943,12 @@ xchar x, y;
         case CLOUD:
            idx = S_cloud;
            break;
+        case PUDDLE:
+            idx = S_puddle;
+            break;
+        case SEWAGE:
+            idx = S_sewage;
+            break;
         case POOL:
         case MOAT:
            idx = S_pool;
@@ -1982,7 +1994,7 @@ static const char *type_names[MAX_TYPE] = {
     "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP", "LAVAPOOL",
     "IRON_BARS", "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FORGE", "FOUNTAIN",
     "THRONE", "SINK", "GRAVE", "ALTAR", "ICE", "DRAWBRIDGE_DOWN", "AIR",
-    "CLOUD"
+    "CLOUD", "PUDDLE", "SEWAGE"
 };
 
 static const char *

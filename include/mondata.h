@@ -8,6 +8,13 @@
 #define verysmall(ptr) ((ptr)->msize < MZ_SMALL)
 #define bigmonst(ptr) ((ptr)->msize >= MZ_LARGE)
 #define biggermonst(ptr) ((ptr)->msize > (youmonst.data)->msize)
+#define vs_cantflyorswim(ptr) \
+    ((ptr) == &mons[PM_GIANT_ANT] || (ptr) == &mons[PM_SOLDIER_ANT]    \
+     || (ptr) == &mons[PM_FIRE_ANT] || (ptr) == &mons[PM_ACID_BLOB]    \
+     || (ptr) == &mons[PM_IMP] || (ptr) == &mons[PM_LEPRECHAUN]        \
+     || (ptr) == &mons[PM_RABID_RAT] || (ptr) == &mons[PM_CAVE_SPIDER] \
+     || (ptr) == &mons[PM_GRID_BUG] || (ptr) == &mons[PM_GECKO]        \
+     || (ptr) == &mons[PM_IGUANA] || (ptr) == &mons[PM_LIZARD])
 
 #define pm_resistance(ptr, typ) (((ptr)->mresists & (typ)) != 0)
 
@@ -40,7 +47,9 @@
 #define resists_sick(mon)  ((mon)->data->mlet == S_FUNGUS                \
                             || is_undead((mon)->data)                    \
                             || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
-                            || (mon)->data == &mons[PM_GOLD_DRAGON])
+                            || (mon)->data == &mons[PM_GOLD_DRAGON]      \
+                            || (mon)->data == &mons[PM_GIANT_LEECH]      \
+                            || (mon)->data == &mons[PM_GIANT_COCKROACH])
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)

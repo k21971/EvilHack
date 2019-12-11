@@ -343,7 +343,7 @@ const char *verb;
         return TRUE;
     } else if (is_lava(x, y)) {
         return lava_damage(obj, x, y);
-    } else if (is_pool(x, y)) {
+    } else if (is_damp_terrain(x, y)) {
         /* Reasonably bulky objects (arbitrary) splash when dropped.
          * If you're floating above the water even small things make
          * noise.  Stuff dropped near fountains always misses */
@@ -356,10 +356,10 @@ const char *verb;
                     pline("Plop!");
                 }
             }
-            map_background(x, y, 0);
+            /* map_background(x, y, 0); */ /* can't tell what kind of water it is */
             newsym(x, y);
         }
-        return water_damage(obj, NULL, FALSE) == ER_DESTROYED;
+        /* return water_damage(obj, NULL, FALSE) == ER_DESTROYED; */ /* moved to place_object() */
     } else if (u.ux == x && u.uy == y && (t = t_at(x, y)) != 0
                && (uteetering_at_seen_pit(t) || uescaped_shaft(t))) {
         if (Blind && !Deaf)

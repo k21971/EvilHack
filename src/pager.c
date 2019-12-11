@@ -150,6 +150,8 @@ char *outbuf;
         } else {
             if (mon->data->mlet == S_EEL && is_pool(x, y))
                 Strcat(outbuf, " in murky water");
+            if (mon->data == &mons[PM_GIANT_LEECH] && is_sewage(x, y))
+                Strcat(outbuf, " in raw sewage");
         }
     }
 }
@@ -998,6 +1000,8 @@ struct permonst **for_supplement;
                           : !(alt_i <= 2
                               || strcmp(x_str, "air") == 0
                               || strcmp(x_str, "land") == 0
+                              || strcmp(x_str, "shallow water") == 0
+                              || strcmp(x_str, "sewage") == 0
                               || strcmp(x_str, "water") == 0);
 
             if (!found) {

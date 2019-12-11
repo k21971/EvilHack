@@ -574,4 +574,6 @@ Version 0.4.1
 - Convict role starting striped shirt and heavy iron ball are fooproof
 - The heavy iron ball generated from reading a scroll of punishment will be rustproof
   50% of the time
+- New dungeon features: shallow water and sewage, new monsters: giant cockroach, giant
+  leech, giant crocodile, new mines' end map: The Sewers of Waterdeep
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 8th, 2019)
