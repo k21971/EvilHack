@@ -579,4 +579,5 @@ Version 0.4.1
 - Fix: some formatting issues and small errors with the shallow water patch
 - Fix: text-based dumplog was not being generated
 - Readjust (down) lower-level zombies' spawn rate
+- Convict role starting iron chain needs to be rustproof along with the heavy iron ball
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 8th, 2019)

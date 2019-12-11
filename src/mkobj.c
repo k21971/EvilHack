@@ -1009,7 +1009,21 @@ boolean artif;
                 blessorcurse(otmp, 10);
             break;
         case VENOM_CLASS:
+            break;
         case CHAIN_CLASS:
+            /* since it's fairly easy for objects to erode/burn
+             * completely away, this need to be fooproofed
+             * at the start of the game */
+            if (Role_if(PM_CONVICT) && otmp->otyp == IRON_CHAIN
+                && (moves <= 1)) {
+#ifdef UNIXPC
+                /* optimizer bitfield bug */
+                otmp->oerodeproof = 1;
+                otmp->rknown = 1;
+#else
+                otmp->oerodeproof = otmp->rknown = 1;
+#endif
+            }
             break;
         case BALL_CLASS:
             /* since it's fairly easy for objects to erode/burn
