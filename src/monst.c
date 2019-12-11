@@ -2463,7 +2463,7 @@ struct permonst _mons2[] = {
      * Zombies
      */
     MON("kobold zombie", S_ZOMBIE, LVL(0, 2, 10, 0, -3),
-        (G_GENO | G_LGROUP | 3),
+        (G_GENO | G_LGROUP | 2),
         A(ATTK(AT_CLAW, AD_DRCO, 1, 4), ATTK(AT_BITE, AD_DRIN, 1, 2),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(400, 50, MS_SILENT, MZ_SMALL), MR_COLD | MR_SLEEP | MR_POISON, 0,
@@ -2471,7 +2471,7 @@ struct permonst _mons2[] = {
         M2_STALK | M2_HOSTILE, M3_INFRAVISION,
         M4_VULNERABLE_FIRE, MH_UNDEAD, 2, CLR_BROWN),
     MON("gnome zombie", S_ZOMBIE, LVL(1, 2, 10, 0, -3),
-        (G_GENO | G_LGROUP | 3),
+        (G_GENO | G_LGROUP | 2),
         A(ATTK(AT_CLAW, AD_DRCO, 1, 5), ATTK(AT_BITE, AD_DRIN, 1, 2),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(650, 50, MS_SILENT, MZ_SMALL), MR_COLD | MR_SLEEP | MR_POISON, 0,

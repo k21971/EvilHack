@@ -578,4 +578,5 @@ Version 0.4.1
   leech, giant crocodile, new mines' end map: The Sewers of Waterdeep
 - Fix: some formatting issues and small errors with the shallow water patch
 - Fix: text-based dumplog was not being generated
+- Readjust (down) lower-level zombies' spawn rate
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 8th, 2019)
