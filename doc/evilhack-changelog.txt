@@ -577,4 +577,5 @@ Version 0.4.1
 - New dungeon features: shallow water and sewage, new monsters: giant cockroach, giant
   leech, giant crocodile, new mines' end map: The Sewers of Waterdeep
 - Fix: some formatting issues and small errors with the shallow water patch
+- Fix: text-based dumplog was not being generated
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 8th, 2019)
