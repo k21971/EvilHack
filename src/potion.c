@@ -2087,9 +2087,6 @@ dodip()
                 if (rn2(3)) {
                     You("see something moving under the surface and abruptly pull your %s back.",
                         xname(obj));
-                } else if (is_worn(obj) && obj->cursed) {
-                    pline("A creature hiding under the surface tries to grab your %s, but cannot!",
-                          xname(obj));
                 } else if (obj == uball
                            || (is_worn(obj) && obj->cursed)) {
                     pline("A creature hiding under the surface tries to grab your %s, but cannot!",
