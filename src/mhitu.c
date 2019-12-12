@@ -20,7 +20,7 @@ STATIC_DCL void FDECL(missmu, (struct monst *, int, int, struct attack *));
 STATIC_DCL void FDECL(mswings, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(wildmiss, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(hitmsg, (struct monst *, struct attack *));
-STATIC_DCL int FDECL(screamu, (struct monst*, struct attack*));
+STATIC_DCL int FDECL(screamu, (struct monst*, struct attack*, int));
 
 static const char *const mwep_pierce[] = {
     "pierce", "gore", "stab", "impale", "hit"
@@ -987,8 +987,9 @@ register struct monst *mtmp;
                 sum[i] = castmu(mtmp, mattk, TRUE, foundyou);
             break;
 	case AT_SCRE:
-	    if (range2)
-		sum[i] = screamu(mtmp, mattk);
+            if (ranged)
+                sum[i] = screamu(mtmp, mattk,
+                                 d((int) mattk->damn, (int) mattk->damd));
 	    /* if you're nice and close, don't bother */
 	    break;
         default: /* no attack */
@@ -3499,48 +3500,48 @@ const char *str;
  * employs its gaze stun attack, which allows a bit more
  * fine-tuning */
 STATIC_OVL int
-screamu(mtmp, mattk)
+screamu(mtmp, mattk, dmg)
 struct monst *mtmp;
 struct attack *mattk;
+int dmg;
 {
     boolean cancelled = (mtmp->mcan != 0);
 
-    /* assumes that the hero has to hear the monster's
-       scream in order to be affected */
-    if (Deaf)
-        cancelled = TRUE;
+    /* Assumes that the hero has to hear the monster's
+     * scream in order to be affected.
+     * Only screams when a certain distance from our hero,
+     * can see them, and has the available mspec.
+     */
+    if (distu(mtmp->mx, mtmp->my) > 85
+        || !m_canseeu(mtmp) || mtmp->mspec_used)
+        return FALSE;
 
+    if (canseemon(mtmp) && (Deaf))
+        pline("It looks as if %s is yelling at you.",
+              mon_nam(mtmp));
+    if (!cancelled && ((m_canseeu(mtmp) && Blind && Deaf)))
+        You("sense a disturbing vibration in the air.");
+    else if (m_canseeu(mtmp) && canseemon(mtmp) && !Deaf && cancelled)
+        pline("%s croaks hoarsely.", Monnam(mtmp));
+    else if (cancelled && !Deaf)
+        You_hear("a hoarse croak nearby.");
+
+    /* Set mspec->mused */
+    mtmp->mspec_used = mtmp->mspec_used + (dmg + rn2(6));
+
+    if (cancelled || Deaf)
+        return FALSE;
+
+    /* scream attacks */
     switch (mattk->adtyp) {
-    case AD_LOUD:
-        if (m_canseeu(mtmp) && !mtmp->mspec_used && rn2(5)) {
-            if (cancelled) {
-                if (m_canseeu(mtmp) && canseemon(mtmp) && (Deaf)) {
-                    pline("It looks as if %s is yelling at you.", mon_nam(mtmp));
-                }
-                if (m_canseeu(mtmp) && (Blind) && (Deaf)) {
-                    You("sense a disturbing vibration in the air.");
-                }
-                if (m_canseeu(mtmp) && canseemon(mtmp) && (!Deaf)) {
-                    pline("%s croaks hoarsely.", Monnam(mtmp));
-                } else {
-                    You_hear("a hoarse croak nearby.");
-                }
-                break;
-            } else {
-                int stun = d(4, 6);
-
-                if (m_canseeu(mtmp)) {
-                    pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
-                } else {
-                    You_hear("a horrific scream!");
-                }
-                if (u.usleep && m_canseeu(mtmp) && (!Deaf)) {
-                    unmul("You are frightened awake!");
-                }
-                mtmp->mspec_used = mtmp->mspec_used + rnd(8);
-                Your("mind reels from the noise!");
-                make_stunned((HStun & TIMEOUT) + (long) stun, TRUE);
-            }
+        case AD_LOUD:
+            if (m_canseeu(mtmp))
+                pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
+            else if (u.usleep && m_canseeu(mtmp) && (!Deaf))
+                     unmul("You are frightened awake!");
+            Your("mind reels from the noise!");
+            make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+            stop_occupation();
 
             if (!rn2(6))
                 erode_armor(&youmonst, ERODE_FRACTURE);
@@ -3562,12 +3563,11 @@ struct attack *mattk;
                 rehumanize();
                 break;
             }
-        }
-        break;
+            break;
         default:
             break;
     }
-    return 0;
+    return TRUE;
 }
 
 /* FIXME:

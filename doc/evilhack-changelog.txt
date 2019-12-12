@@ -582,5 +582,7 @@ Version 0.4.1
 - Convict role starting iron chain needs to be rustproof along with the heavy iron ball
 - The iron chain generated with the heavy iron ball from reading a scroll of punishment
   will also be rustproof 50% of the time
-- Fix: dipping cursed worn items into sewage 
+- Fix: dipping cursed worn items into sewage
+- Fix: intelligent pet patch bug that made monsters with ranged attacks never approach
+- Fix: rework Nazgul scream attack
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 8th, 2019)
