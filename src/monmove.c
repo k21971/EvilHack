@@ -708,14 +708,15 @@ toofar:
     }
 
     /* Look for other monsters to fight (at a distance) */
-    if ((attacktype(mtmp->data, AT_BREA)
+    if ((((attacktype(mtmp->data, AT_BREA)
         || attacktype(mtmp->data, AT_GAZE)
         || attacktype(mtmp->data, AT_SPIT)
+        || attacktype(mtmp->data, AT_SCRE)
         || (attacktype(mtmp->data, AT_MAGC)
-        && (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp
-            <= AD_SPC2)))
+            && (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp
+                <= AD_LOUD)))) && !mtmp->mspec_used)
         || (attacktype(mtmp->data, AT_WEAP)
-        && select_rwep(mtmp) != 0)
+            && select_rwep(mtmp) != 0)
         || find_offensive(mtmp))
         && mtmp->mlstmv != monstermoves) {
         register struct monst *mtmp2 = mfind_target(mtmp);
