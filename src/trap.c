@@ -282,10 +282,16 @@ int ef_flags;
         if (ef_flags & EF_PAY)
             costly_alteration(otmp, cost_type);
 
-        if (otmp == uball || otmp == uchain)
+        if (otmp == uball || otmp == uchain) {
+            boolean ball = (otmp == uball);
             unpunish();
-
-        if (victim && (victim != &youmonst)) {
+            if (ball) {
+                if (carried(otmp))
+                    useupall(otmp);
+                else
+                    delobj(otmp);
+            }
+        } else if (victim && (victim != &youmonst)) {
             obj_extract_self(otmp);
             possibly_unwield(victim, FALSE);
             victim->misc_worn_check &= ~otmp->owornmask;
