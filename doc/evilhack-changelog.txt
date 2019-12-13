@@ -585,4 +585,5 @@ Version 0.4.1
 - Fix: dipping cursed worn items into sewage
 - Fix: intelligent pet patch bug that made monsters with ranged attacks never approach
 - Fix: rework Nazgul scream attack
+- Fix: monster spell 'stone to flesh' now uses mspec
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December11th, 2019)
