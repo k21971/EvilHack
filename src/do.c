@@ -359,7 +359,7 @@ const char *verb;
             /* map_background(x, y, 0); */ /* can't tell what kind of water it is */
             newsym(x, y);
         }
-        /* return water_damage(obj, NULL, FALSE) == ER_DESTROYED; */ /* moved to place_object() */
+        return water_damage(obj, NULL, FALSE) == ER_DESTROYED;
     } else if (u.ux == x && u.uy == y && (t = t_at(x, y)) != 0
                && (uteetering_at_seen_pit(t) || uescaped_shaft(t))) {
         if (Blind && !Deaf)
