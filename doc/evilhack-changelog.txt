@@ -589,4 +589,5 @@ Version 0.4.1
 - Partial fix: heavy iron ball rusting away
 - Fix: priests using ammo as a melee weapon
 - Fix: objects spawning in unseen shallow pools
+- Fix: heavy iron ball rusting away while attached if being dragged on floor
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 11th, 2019)

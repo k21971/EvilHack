@@ -559,11 +559,16 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
                 /* If the chain moved or nothing moved & chain on top. */
                 if (on_floor)
                     place_object(uball, ballx, bally);
-                place_object(uchain, chainx, chainy); /* chain on top */
+                if (uchain)
+                    place_object(uchain, chainx, chainy); /* chain on top */
             } else {
+                /* if the chain rusts away, we get unpunished...
+                 * the ball may still exist but will no longer be uball.
+                 */
+                struct obj *theball = uball;
                 place_object(uchain, chainx, chainy);
                 if (on_floor)
-                    place_object(uball, ballx, bally);
+                    place_object(theball, ballx, bally);
                 /* ball on top */
             }
             newsym(chainx, chainy);
