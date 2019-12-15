@@ -120,6 +120,11 @@ ballfall()
 STATIC_OVL void
 placebc_core()
 {
+    /* if the chain rusts away, we get unpunished...
+     * the ball may still exist but will no longer be uball.
+     */
+    struct obj *theball = uball;
+    
     if (!uchain || !uball) {
         impossible("Where are your ball and chain?");
         return;
@@ -127,16 +132,18 @@ placebc_core()
 
     (void) flooreffects(uchain, u.ux, u.uy, ""); /* chain might rust */
 
-    if (carried(uball)) { /* the ball is carried */
+    if (carried(theball)) { /* the ball is carried */
         u.bc_order = BCPOS_DIFFER;
     } else {
         /* ball might rust -- already checked when carried */
-        (void) flooreffects(uball, u.ux, u.uy, "");
-        place_object(uball, u.ux, u.uy);
+        if (flooreffects(theball, u.ux, u.uy, ""))
+            return; /* ball rusts away, chain is gone too */
+        place_object(theball, u.ux, u.uy);
         u.bc_order = BCPOS_CHAIN;
     }
 
-    place_object(uchain, u.ux, u.uy);
+    if (uchain) /* might've rusted away */
+        place_object(uchain, u.ux, u.uy);
 
     u.bglyph = u.cglyph = levl[u.ux][u.uy].glyph; /* pick up glyph */
 
