@@ -1245,7 +1245,11 @@ const char *build_date;
 #if (NH_DEVEL_STATUS == NH_STATUS_BETA)
     Strcat(subbuf, " Beta");
 #else
+#if (NH_DEVEL_STATUS == NH_STATUS_WIP)
     Strcat(subbuf, " Work-in-progress");
+#else
+    Strcat(subbuf, " post-release");
+#endif
 #endif
 #endif
 
@@ -1847,7 +1851,11 @@ do_options()
 #if (NH_DEVEL_STATUS == NH_STATUS_BETA)
             " [beta]"
 #else
+#if (NH_DEVEL_STATUS == NH_STATUS_WIP)
             " [work-in-progress]"
+#else
+            " [post-release]"
+#endif
 #endif
 #else
             ""

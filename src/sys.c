@@ -44,6 +44,9 @@ sys_early_init()
 #ifdef DUMPHTML
     sysopt.dumphtmlfile = (char *) 0;
 #endif
+#ifdef WIN32
+    sysopt.portable_device_top = (char *) 0;
+#endif
     sysopt.env_dbgfl = 0; /* haven't checked getenv("DEBUGFILES") yet */
     sysopt.shellers = (char *) 0;
     sysopt.explorers = (char *) 0;
@@ -111,11 +114,17 @@ sysopt_release()
         sysopt.debugfiles = (char *) 0;
 #ifdef DUMPLOG
     if (sysopt.dumplogfile)
-        free((genericptr_t)sysopt.dumplogfile), sysopt.dumplogfile=(char *)0;
+        free((genericptr_t)sysopt.dumplogfile), sysopt.dumplogfile=(char *) 0;
 #endif
 #ifdef DUMPHTML
     if (sysopt.dumphtmlfile)
-        free((genericptr_t)sysopt.dumphtmlfile), sysopt.dumphtmlfile=(char *)0;
+        free((genericptr_t)sysopt.dumphtmlfile), sysopt.dumphtmlfile=(char *) 0;
+#endif
+#ifdef WIN32
+    if (sysopt.portable_device_top) {
+        free((genericptr_t) sysopt.portable_device_top);
+        sysopt.portable_device_top = (char *) 0;
+    }
 #endif
     if (sysopt.genericusers)
         free((genericptr_t) sysopt.genericusers),

@@ -23,6 +23,9 @@ struct sysopt {
     char *dumphtmlfile; /* where the html dump is saved */
 #endif
 
+#ifdef WIN32
+    char *portable_device_top;  /* nethack configuration for a portable drive */
+#endif
     int env_dbgfl;    /*  1: debugfiles comes from getenv("DEBUGFILES")
                        *     so sysconf's DEBUGFILES shouldn't override it;
                        *  0: getenv() hasn't been attempted yet;
