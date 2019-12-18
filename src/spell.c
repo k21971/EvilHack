@@ -1141,6 +1141,7 @@ boolean atme;
     case SPE_DETECT_UNSEEN:
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
+    case SPE_CURE_SICKNESS:
     case SPE_DRAIN_LIFE:
     case SPE_STONE_TO_FLESH:
     case SPE_PSIONIC_WAVE:
@@ -1214,13 +1215,6 @@ boolean atme;
 
     case SPE_CURE_BLINDNESS:
         healup(0, 0, FALSE, TRUE);
-        break;
-    case SPE_CURE_SICKNESS:
-        if (Sick)
-            You("are no longer ill.");
-        if (Slimed)
-            make_slimed(0L, "The slime disappears!");
-        healup(0, 0, TRUE, FALSE);
         break;
     case SPE_CREATE_FAMILIAR:
         (void) make_familiar((struct obj *) 0, u.ux, u.uy, FALSE);

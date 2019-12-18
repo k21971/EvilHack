@@ -591,4 +591,5 @@ Version 0.4.1
 - Fix: objects spawning in unseen shallow pools
 - Fix: heavy iron ball rusting away while attached if being dragged on floor
 - Reorganization of server-side config and hints files
+- Cure sickness is now directional and can be used to cure monsters as well as yourself
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 17th, 2019)

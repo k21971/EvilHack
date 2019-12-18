@@ -436,6 +436,25 @@ struct obj *otmp;
                           d(3, otyp == SPE_EXTRA_HEALING ? 8 : 4), TELL);
         }
         break;
+    case SPE_CURE_SICKNESS:
+        if (mtmp->msick) {
+            wake = FALSE;
+            pline("%s is no longer ill.", Monnam(mtmp));
+            mtmp->msick = 0;
+            if (mtmp->mtame || mtmp->mpeaceful) {
+                adjalign(Role_if(PM_HEALER) ? 1 : sgn(u.ualign.type));
+            }
+        } else if (is_zombie(mtmp->data)) {
+            if (!DEADMONSTER(mtmp)) {
+                dmg = d(1, 8);
+                damage_mon(mtmp, dmg, AD_PHYS);
+                if (canseemon(mtmp))
+                    pline("%s shudders in agony!", Monnam(mtmp));
+                if (DEADMONSTER(mtmp))
+                    killed(mtmp);
+            }
+        }
+        break;
     case WAN_LIGHT: /* (broken wand) */
         if (flash_hits_mon(mtmp, otmp)) {
             learn_it = TRUE;
@@ -2139,6 +2158,7 @@ struct obj *obj, *otmp;
         case WAN_NOTHING:
         case SPE_HEALING:
         case SPE_EXTRA_HEALING:
+        case SPE_CURE_SICKNESS:
         case SPE_PSIONIC_WAVE:
             res = 0;
             break;
@@ -2616,6 +2636,13 @@ boolean ordinary;
         healup(d(6, obj->otyp == SPE_EXTRA_HEALING ? 8 : 4), 0, FALSE,
                (obj->blessed || obj->otyp == SPE_EXTRA_HEALING));
         You_feel("%sbetter.", obj->otyp == SPE_EXTRA_HEALING ? "much " : "");
+        break;
+    case SPE_CURE_SICKNESS:
+        if (Sick)
+            You("are no longer ill.");
+        if (Slimed)
+            make_slimed(0L, "The slime disappears!");
+        healup(0, 0, TRUE, FALSE);
         break;
     case WAN_LIGHT: /* (broken wand) */
         /* assert( !ordinary ); */
