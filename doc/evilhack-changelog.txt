@@ -593,3 +593,11 @@ Version 0.4.1
 - Reorganization of server-side config and hints files
 - Cure sickness is now directional and can be used to cure monsters as well as yourself
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 17th, 2019)
+
+--------------------------------------------------------------------------------------------
+
+Version 0.4.2
+-------------
+
+- Prep for version 0.4.2
+
