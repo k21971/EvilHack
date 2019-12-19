@@ -600,4 +600,5 @@ Version 0.4.2
 -------------
 
 - Prep for version 0.4.2
+- All types of healing potions, unicorn horns, and eucalyptus leaves can cure ill monsters 
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 18th, 2019)

@@ -1549,14 +1549,31 @@ int how;
         switch (obj->otyp) {
         case POT_FULL_HEALING:
             cureblind = TRUE;
+            if (mon->msick) {
+                if (canseemon(mon))
+                    pline("%s is no longer ill.", Monnam(mon));
+                mon->msick = 0;
+            }
             /*FALLTHRU*/
         case POT_EXTRA_HEALING:
-            if (!obj->cursed)
+            if (!obj->cursed) {
                 cureblind = TRUE;
+                if (mon->msick) {
+                    if (canseemon(mon))
+                        pline("%s is no longer ill.", Monnam(mon));
+                    mon->msick = 0;
+                }
+            }
             /*FALLTHRU*/
         case POT_HEALING:
-            if (obj->blessed)
+            if (obj->blessed) {
                 cureblind = TRUE;
+                if (mon->msick) {
+                    if (canseemon(mon))
+                        pline("%s is no longer ill.", Monnam(mon));
+                    mon->msick = 0;
+                }
+            }
             if (mon->data == &mons[PM_PESTILENCE])
                 goto do_illness;
             /*FALLTHRU*/

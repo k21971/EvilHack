@@ -439,7 +439,8 @@ struct obj *otmp;
     case SPE_CURE_SICKNESS:
         if (mtmp->msick) {
             wake = FALSE;
-            pline("%s is no longer ill.", Monnam(mtmp));
+            if (canseemon(mtmp))
+                pline("%s is no longer ill.", Monnam(mtmp));
             mtmp->msick = 0;
             if (mtmp->mtame || mtmp->mpeaceful) {
                 adjalign(Role_if(PM_HEALER) ? 1 : sgn(u.ualign.type));

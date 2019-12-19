@@ -176,6 +176,7 @@ boolean check_if_better;
              || otmp->otyp == MAGIC_HARP
              || otmp->otyp == DRUM_OF_EARTHQUAKE
              || otmp->otyp == FIGURINE
+             || otmp->otyp == EUCALYPTUS_LEAF
  	     || otmp->otyp == UNICORN_HORN));
 
     if (can_use) {

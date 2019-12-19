@@ -333,6 +333,7 @@ struct obj *otmp;
 #define MUSE_LIZARD_CORPSE 19
 #define MUSE_ACID_BLOB_CORPSE 20
 #define MUSE_BAG_OF_TRICKS 21
+#define MUSE_EUCALYPTUS_LEAF 22
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -360,6 +361,13 @@ struct monst *mtmp;
         m.defensive = obj;
         m.has_defense = MUSE_POT_HEALING;
         return TRUE;
+    }
+    if (mtmp->msick) {
+        if ((obj = m_carrying(mtmp, EUCALYPTUS_LEAF)) != 0) {
+            m.defensive = obj;
+            m.has_defense = MUSE_EUCALYPTUS_LEAF;
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -390,7 +398,7 @@ struct monst *mtmp;
     /* since unicorn horns don't get used up, the monster would look
      * silly trying to use the same cursed horn round after round
      */
-    if (mtmp->mconf || mtmp->mstun || !mtmp->mcansee) {
+    if (mtmp->mconf || mtmp->mstun || !mtmp->mcansee || mtmp->msick) {
         if (!is_unicorn(mtmp->data) && !nohands(mtmp->data)) {
             for (obj = mtmp->minvent; obj; obj = obj->nobj)
                 if (obj->otyp == UNICORN_HORN && !obj->cursed)
@@ -399,6 +407,30 @@ struct monst *mtmp;
         if (obj || is_unicorn(mtmp->data)) {
             m.defensive = obj;
             m.has_defense = MUSE_UNICORN_HORN;
+            return TRUE;
+        }
+    }
+
+    if (mtmp->msick) {
+        for (obj = mtmp->minvent; obj; obj = obj->nobj)
+            if (obj->otyp == POT_HEALING && !obj->cursed)
+                break;
+        if (obj && obj->otyp == POT_FULL_HEALING) {
+            m.defensive = obj;
+            m.has_defense = MUSE_POT_FULL_HEALING;
+            return TRUE;
+        } else if (obj && obj->otyp == POT_EXTRA_HEALING) {
+            m.defensive = obj;
+            m.has_defense = MUSE_POT_EXTRA_HEALING;
+            return TRUE;
+        } else if (obj && obj->otyp == POT_HEALING
+                   && obj->blessed) {
+            m.defensive = obj;
+            m.has_defense = MUSE_POT_HEALING;
+            return TRUE;
+        } else if (obj && obj->otyp == EUCALYPTUS_LEAF) {
+            m.defensive = obj;
+            m.has_defense = MUSE_EUCALYPTUS_LEAF;
             return TRUE;
         }
     }
@@ -432,7 +464,7 @@ struct monst *mtmp;
      * These would be hard to combine because of the control flow.
      * Pestilence won't use healing even when blind.
      */
-    if (!mtmp->mcansee && !nohands(mtmp->data)
+    if ((!mtmp->mcansee || mtmp->msick) && !nohands(mtmp->data)
         && mtmp->data != &mons[PM_PESTILENCE]) {
         if (m_use_healing(mtmp))
             return TRUE;
@@ -640,6 +672,11 @@ struct monst *mtmp;
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_HEALING;
             }
+            nomore(MUSE_EUCALYPTUS_LEAF);
+            if (obj->otyp == EUCALYPTUS_LEAF) {
+                m.defensive = obj;
+                m.has_defense = MUSE_EUCALYPTUS_LEAF;
+            }
         } else { /* Pestilence */
             nomore(MUSE_POT_FULL_HEALING);
             if (obj->otyp == POT_SICKNESS) {
@@ -763,6 +800,11 @@ struct obj *start;
 	        m.defensive = obj;
 	        m.has_defense = MUSE_POT_HEALING;
 	    }
+            nomore(MUSE_EUCALYPTUS_LEAF);
+            if (obj->otyp == EUCALYPTUS_LEAF) {
+                m.defensive = obj;
+                m.has_defense = MUSE_EUCALYPTUS_LEAF;
+            }
 	} else {	/* Pestilence */
 	    nomore(MUSE_POT_FULL_HEALING);
 	    if (obj->otyp == POT_SICKNESS) {
@@ -827,6 +869,10 @@ struct monst *mtmp;
         }
         if (!mtmp->mcansee) {
             mcureblindness(mtmp, vismon);
+        } else if (mtmp->msick) {
+            mtmp->msick = 0;
+            if (vismon)
+                pline("%s is no longer ill.", Monnam(mtmp));
         } else if (mtmp->mconf || mtmp->mstun) {
             mtmp->mconf = mtmp->mstun = 0;
             if (vismon)
@@ -1154,8 +1200,13 @@ struct monst *mtmp;
         mtmp->mhp += i;
         if (mtmp->mhp > mtmp->mhpmax)
             mtmp->mhp = ++mtmp->mhpmax;
-        if (!otmp->cursed && !mtmp->mcansee)
+        if (!otmp->cursed && !mtmp->mcansee) {
             mcureblindness(mtmp, vismon);
+        } else if (otmp->blessed && mtmp->msick) {
+            if (vismon)
+                pline("%s is no longer ill.", Monnam(mtmp));
+            mtmp->msick = 0;
+        }
         if (vismon)
             pline("%s looks better.", Monnam(mtmp));
         if (oseen)
@@ -1168,8 +1219,13 @@ struct monst *mtmp;
         mtmp->mhp += i;
         if (mtmp->mhp > mtmp->mhpmax)
             mtmp->mhp = (mtmp->mhpmax += (otmp->blessed ? 5 : 2));
-        if (!mtmp->mcansee)
+        if (!mtmp->mcansee) {
             mcureblindness(mtmp, vismon);
+        } else if (mtmp->msick) {
+            if (vismon)
+                pline("%s is no longer ill.", Monnam(mtmp));
+            mtmp->msick = 0;
+        }
         if (vismon)
             pline("%s looks much better.", Monnam(mtmp));
         if (oseen)
@@ -1181,8 +1237,13 @@ struct monst *mtmp;
         if (otmp->otyp == POT_SICKNESS)
             unbless(otmp); /* Pestilence */
         mtmp->mhp = (mtmp->mhpmax += (otmp->blessed ? 8 : 4));
-        if (!mtmp->mcansee && otmp->otyp != POT_SICKNESS)
+        if (!mtmp->mcansee && otmp->otyp != POT_SICKNESS) {
             mcureblindness(mtmp, vismon);
+        } else if (mtmp->msick) {
+            if (vismon)
+                pline("%s is no longer ill.", Monnam(mtmp));
+            mtmp->msick = 0;
+        }
         if (vismon)
             pline("%s looks completely healed.", Monnam(mtmp));
         if (oseen)
@@ -1194,6 +1255,10 @@ struct monst *mtmp;
         mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
         return 2;
     case MUSE_ACID_BLOB_CORPSE:
+        /* not actually called for its unstoning effect */
+        mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
+        return 2;
+    case MUSE_EUCALYPTUS_LEAF:
         /* not actually called for its unstoning effect */
         mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
         return 2;
@@ -3016,7 +3081,8 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
             food = obj->otyp == CORPSE || tinned,
             acid = obj->otyp == POT_ACID
                    || (food && acidic(&mons[obj->corpsenm])),
-            lizard = food && obj->corpsenm == PM_LIZARD;
+            lizard = food && obj->corpsenm == PM_LIZARD,
+            leaf = obj->otyp == EUCALYPTUS_LEAF;
     int nutrit = food ? dog_nutrition(mon, obj) : 0; /* also sets meating */
 
     /* give a "<mon> is slowing down" message and also remove
@@ -3069,6 +3135,11 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
         if (vis && !is_bat(mon->data) && mon->data != &mons[PM_STALKER])
             pline("%s eats %s.", Monnam(mon), distant_name(obj, doname));
         pline("%s seems steadier now.", Monnam(mon));
+    }
+    if (leaf && mon->msick) {
+        mon->msick = 0;
+        if (vis)
+            pline("%s is no longer ill.", Monnam(mon));
     }
     if (mon->mtame && !mon->isminion && nutrit > 0) {
         struct edog *edog = EDOG(mon);
