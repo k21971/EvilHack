@@ -419,7 +419,8 @@ struct monst *mtmp;
             m.defensive = obj;
             m.has_defense = MUSE_POT_FULL_HEALING;
             return TRUE;
-        } else if (obj && obj->otyp == POT_EXTRA_HEALING) {
+        } else if (obj && obj->otyp == POT_EXTRA_HEALING
+                   && !obj->cursed) {
             m.defensive = obj;
             m.has_defense = MUSE_POT_EXTRA_HEALING;
             return TRUE;
@@ -1221,7 +1222,7 @@ struct monst *mtmp;
             mtmp->mhp = (mtmp->mhpmax += (otmp->blessed ? 5 : 2));
         if (!mtmp->mcansee) {
             mcureblindness(mtmp, vismon);
-        } else if (mtmp->msick) {
+        } else if (!otmp->cursed && mtmp->msick) {
             if (vismon)
                 pline("%s is no longer ill.", Monnam(mtmp));
             mtmp->msick = 0;
