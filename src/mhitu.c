@@ -1707,7 +1707,10 @@ register struct attack *mattk;
             && !Protection_from_shape_changers && !defends(AD_WERE, uwep)) {
             You_feel("feverish.");
             exercise(A_CON, FALSE);
-            set_ulycn(monsndx(mdat));
+            if (mdat == &mons[PM_RAT_KING])
+                set_ulycn(PM_WERERAT);
+            else
+                set_ulycn(monsndx(mdat));
             retouch_equipment(2);
         }
         break;

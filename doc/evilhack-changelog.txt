@@ -606,4 +606,5 @@ Version 0.4.2
 - Fix: description/color issues with the spell 'acid blast'
 - AD_PSYC is not a ray type attack
 - New unique monster: The Rat King
+- Fix: lycanthropy from The Rat King changes you into a wererat
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 18th, 2019)
