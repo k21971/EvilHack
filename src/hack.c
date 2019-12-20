@@ -3043,7 +3043,7 @@ lookaround()
                     goto stop;
                 }
                 continue;
-            } else if (is_pool_or_lava(x, y)) {
+            } else if (is_damp_terrain(x, y) || is_lava(x, y)) {
                 /* water and lava only stop you if directly in front, and stop
                  * you even if you are running
                  */
@@ -3055,7 +3055,7 @@ lookaround()
                      */
                     if (iflags.mention_walls)
                         You("stop at the edge of the %s.",
-                            hliquid(is_pool(x,y) ? "water" : "lava"));
+                            hliquid(is_damp_terrain(x,y) ? "water" : "lava"));
                     goto stop;
                 }
                 continue;
