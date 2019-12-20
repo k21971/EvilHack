@@ -864,6 +864,15 @@ register struct monst *mtmp;
         } else if (mm == PM_MEDUSA) {
             (void) mongets(mtmp, ORCISH_BOW);
             m_initthrow(mtmp, ORCISH_ARROW, 24);
+        } else if (mm == PM_RAT_KING) {
+            otmp = mksobj(SCIMITAR, FALSE, FALSE);
+            bless(otmp);
+            otmp->oerodeproof = TRUE;
+            otmp->opoisoned = TRUE;
+            otmp->spe = rnd(3);
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, HIGH_BOOTS);
+            (void) mongets(mtmp, CLOAK_OF_DISPLACEMENT);
         } else if (ptr->msound == MS_GUARDIAN) {
             /* quest "guardians" */
             switch (mm) {
@@ -918,8 +927,7 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, ARMOR);
                 break;
             }
-        }
-        else if (mm == PM_CROESUS) {
+        } else if (mm == PM_CROESUS) {
             (void) mongets(mtmp, TWO_HANDED_SWORD);
             struct obj* received = m_carrying(mtmp, TWO_HANDED_SWORD);
             if (received)

@@ -1503,16 +1503,18 @@ OBJECT:'*',random
 OBJECT:'*',random
 
 # Monsters
-MONSTER:(':',"giant crocodile"),(58,07)
+MONSTER:('@',"rat king"),(60,07),asleep
+MONSTER:(':',"giant crocodile"),(18,07)
 MONSTER:('w',"giant leech"),(52,07)
-MONSTER:('w',"giant leech"),(55,06)
-MONSTER:('w',"giant leech"),(55,08)
+MONSTER:('r',"sewer rat"),(59,06),asleep
+MONSTER:('r',"sewer rat"),(59,08),asleep
+MONSTER:('r',"sewer rat"),(60,06),asleep
+MONSTER:('r',"sewer rat"),(60,08),asleep
 MONSTER:('w',"giant leech"),(04,12)
 MONSTER:('a',"giant cockroach"),(04,14)
 MONSTER:('w',"giant leech"),(69,03)
 MONSTER:('a',"giant cockroach"),(69,05)
 MONSTER:('w',"giant leech"),(15,06)
-MONSTER:('a',"giant cockroach"),(18,08)
 MONSTER:('w',"giant leech"),(17,07)
 MONSTER:('a',"giant cockroach"),(16,06)
 MONSTER:('a',"giant cockroach"),(16,07)

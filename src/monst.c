@@ -3012,7 +3012,7 @@ struct permonst _mons2[] = {
           NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_HISS, MZ_LARGE), MR_POISON | MR_STONE,
         MR_POISON | MR_STONE, M1_SWIM | M1_AMPHIBIOUS | M1_HUMANOID
-                                  | M1_POIS | M1_OMNIVORE,
+            | M1_POIS | M1_OMNIVORE,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_PNAME | M2_FEMALE | M2_NASTY,
         M3_WAITFORU | M3_INFRAVISIBLE, M4_VULNERABLE_FIRE,
         0, 28, CLR_BRIGHT_GREEN),
@@ -3048,6 +3048,15 @@ struct permonst _mons2[] = {
             | M2_COLLECT,
         M3_INFRAVISIBLE, 0, MH_HUMAN, 38, CLR_WHITE),
 #endif
+    MON("Rat King", S_HUMAN, LVL(12, 12, 3, 30, -10), (G_UNIQ | G_NOGEN),
+        A(ATTK(AT_WEAP, AD_PHYS, 3, 4), ATTK(AT_BITE, AD_WERE, 1, 6), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_WERE, MZ_HUMAN), MR_POISON | MR_SLEEP, 0,
+        M1_HUMANOID | M1_POIS | M1_REGEN | M1_OMNIVORE,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY
+            | M2_PNAME | M2_MALE | M2_GREEDY | M2_COLLECT,
+        M3_WAITFORU | M3_INFRAVISIBLE,
+        0, MH_HUMAN | MH_WERE, 14, CLR_BLACK),
     /*
      * ghosts
      */

@@ -605,4 +605,5 @@ Version 0.4.2
 - Tweak conditions for monsters drinking healing potions when ill
 - Fix: description/color issues with the spell 'acid blast'
 - AD_PSYC is not a ray type attack
+- New unique monster: The Rat King
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 18th, 2019)

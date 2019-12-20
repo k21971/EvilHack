@@ -13,6 +13,8 @@ register struct monst *mon;
         return;
 
     if (is_human(mon->data)) {
+        if (mon->data == &mons[PM_RAT_KING])
+            return;
         if (!Protection_from_shape_changers
             && !rn2(night() ? (flags.moonphase == FULL_MOON ? 3 : 30)
                             : (flags.moonphase == FULL_MOON ? 10 : 50))) {
@@ -99,6 +101,9 @@ register struct monst *mon;
 {
     register int pm;
 
+    if (mon->data == &mons[PM_RAT_KING])
+        return;
+
     pm = counter_were(monsndx(mon->data));
     if (pm < LOW_PM) {
         impossible("unknown lycanthrope %s.", mon->data->mname);
@@ -143,6 +148,7 @@ char *genbuf;
         switch (pm) {
         case PM_WERERAT:
         case PM_HUMAN_WERERAT:
+        case PM_RAT_KING:
             typ = rn2(3) ? PM_SEWER_RAT
                          : rn2(3) ? PM_GIANT_RAT
                                   : rn2(2) ? PM_RABID_RAT : PM_ENORMOUS_RAT;
