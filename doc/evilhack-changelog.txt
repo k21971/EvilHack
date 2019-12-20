@@ -603,4 +603,5 @@ Version 0.4.2
 - All types of healing potions, unicorn horns, and eucalyptus leaves can cure ill monsters 
 - Fix: prevent 'destroyed it' when livelogging destroying the ghost/undead of another player
 - Tweak conditions for monsters drinking healing potions when ill
+- Fix: description/color issues with the spell 'acid blast'
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 18th, 2019)

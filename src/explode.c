@@ -157,10 +157,6 @@ int expltype;
             adtyp = AD_DRST;
             break;
         case 7:
-            str = "blast of water";
-            adtyp = AD_WATR;
-            break;
-        case 8:
             str = "splash of acid";
             adtyp = AD_ACID;
             break;
