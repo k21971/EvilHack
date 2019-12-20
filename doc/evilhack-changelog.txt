@@ -608,4 +608,5 @@ Version 0.4.2
 - New unique monster: The Rat King
 - Fix: lycanthropy from The Rat King changes you into a wererat
 - Fix: autotravel using _ will stop at shallow water and sewage
+- Update to the README file
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 18th, 2019)

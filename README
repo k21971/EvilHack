@@ -1,4 +1,3 @@
-<<<<<<< HEAD
                      EvilHack -- General information
 
 EvilHack is a NetHack variant that attempts to incorporate many of the best
@@ -7,8 +6,8 @@ bits of code from other variants (Slash'EM, Splicehack, UnNetHack, xNetHack).
 Wrap all that up along with some custom/unique content never seen in any other
 variant, and you have EvilHack.
 
-EvilHack is built off of the NetHack 3.6.2 codebase, and will be updated
-accordingly as NetHack 3.6.x progresses and evolves.
+EvilHack was initially built off of the NetHack 3.6.2 codebase, and will be
+updated accordingly as NetHack 3.6.x progresses and evolves.
 
 This variant is designed to be difficult, much like how GruntHack and SporkHack
 turned out to be (hence the name 'EvilHack'). It is not impossible to win by
@@ -19,17 +18,14 @@ and can use a variety of objects against you that previously only the player
 could use.
 
 More information regarding this variant can be accessed at the NetHackWiki -
-https://nethackwiki.com/wiki/EvilHack - or by visiting channel #hardfought on
-Freenode IRC.
+https://nethackwiki.com/wiki/EvilHack - or by visiting channels #evilhack
+or #hardfought on Freenode IRC.
 
 NetHack's general information bit is below.
 
 ================================================================================
 
-          NetHack 3.6.3 -- General information December 5, 2019
-=======
           NetHack 3.6.4 -- General information December 18, 2019
->>>>>>> cf9e92677a18d1bc66c040068b2e666c651c7522
 
 NetHack 3.6 is an enhancement to the dungeon exploration game NetHack,
 which is a distant descendent of Rogue and Hack, and a direct descendent of
