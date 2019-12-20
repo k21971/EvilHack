@@ -45,7 +45,6 @@ STATIC_DCL void FDECL(wishcmdassist, (int));
 #define ZT_POISON_GAS (AD_DRST - 1)
 #define ZT_WATER (AD_WATR - 1)
 #define ZT_ACID (AD_ACID - 1)
-#define ZT_PSYCHIC (AD_PSYC - 1)
 
 #define ZT_WAND(x) (x)
 #define ZT_SPELL(x) (10 + (x))
@@ -63,13 +62,12 @@ const char *const flash_types[] =       /* also used in buzzmu(mcastu.c) */
     {
         "magic missile", /* Wands must be 0-9 */
         "bolt of fire", "bolt of cold", "sleep ray", "death ray",
-        "bolt of lightning", "stream of poison gas", "stream of acid",
-        "", "",
+        "bolt of lightning", "", "", "", "",
 
         "magic missile", /* Spell equivalents must be 10-19 */
         "fireball", "cone of cold", "sleep ray", "finger of death",
         "bolt of lightning", "blast of poison gas", "blast of acid",
-        "psionic wave", "",
+        "", "",
 
         "blast of missiles", /* Dragon breath equivalents 20-29*/
         "blast of fire", "blast of frost", "blast of sleep gas",
@@ -4045,15 +4043,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         if (!rn2(6))
             erode_armor(mon, ERODE_CORRODE);
         break;
-    case ZT_PSYCHIC:
-        if (resists_psychic(mon)) {
-            sho_shieldeff = TRUE;
-            break;
-        }
-        tmp = d(2, 6);
-        mon->mconf = 1;
-        mon->mstrategy &= ~STRAT_WAITFORU;
-        break;
     }
     if (sho_shieldeff)
         shieldeff(mon->mx, mon->my);
@@ -4256,15 +4245,6 @@ xchar sx, sy;
                 acid_damage(uswapwep);
             if (!rn2(6))
                 erode_armor(&youmonst, ERODE_CORRODE);
-        }
-        break;
-    case ZT_PSYCHIC:
-        if (Psychic_resistance) {
-            shieldeff(sx, sy);
-            You("resist the mental onslaught!");
-        } else {
-            dam = d(2, 6);
-            make_confused(HConfusion + rnd(15), FALSE);
         }
         break;
     }
