@@ -284,6 +284,10 @@ static NEARDATA const char bullets[] = { /* (note: different from dothrow.c) */
     ALLOW_COUNT, COIN_CLASS, ALL_CLASSES, ALLOW_NONE,
     GEM_CLASS, WEAPON_CLASS, 0
 };
+static NEARDATA const char boulders[] = { /* (note: different from dothrow.c) */
+    ALLOW_COUNT, COIN_CLASS, ALL_CLASSES, ALLOW_NONE,
+    ROCK_CLASS, WEAPON_CLASS, 0
+};
 
 int
 dowield()
@@ -401,8 +405,9 @@ dowieldquiver()
     quivee_types = (uslinging()
                     || (uswapwep
                         && objects[uswapwep->otyp].oc_skill == P_SLING))
-                   ? bullets
-                   : ready_objs;
+                    ? bullets : (Race_if(PM_GIANT) && objects[BOULDER].oc_class)
+                        ? boulders
+                        : ready_objs;
     newquiver = getobj(quivee_types, "ready");
 
     if (!newquiver) {
