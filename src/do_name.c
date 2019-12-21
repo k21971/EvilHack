@@ -1346,6 +1346,11 @@ const char *name;
                               artiname(obj->oartifact),
                               rn2(2) ? "Relinquish" : "Return");
                 }
+                /* random chance of some helpers */
+                if (rn2(3))
+                    (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);
+                if (rn2(3))
+                    (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);
                 mtmp->mpeaceful = mtmp->msleeping = 0;
                 m_dowear(mtmp, TRUE);
                 mon_wield_item(mtmp);

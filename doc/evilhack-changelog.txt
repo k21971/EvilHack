@@ -611,4 +611,6 @@ Version 0.4.2
 - Update to the README file
 - Boulders have some weight if playing Giant race
 - Selecting 'Q' to quiver now counts boulders as an option when playing as Giant race
+- Naming Sting or Orcrist has a chance of summoning more than just angry elf
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 18th, 2019)
+
