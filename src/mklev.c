@@ -1528,14 +1528,23 @@ coord *tm;
             case SPIKED_PIT:
                 if (lvl < 5)
                     kind = NO_TRAP;
+                if (is_puddle(tm->x, tm->y)
+                    || is_sewage(tm->x, tm->y))
+                    kind = NO_TRAP;
                 break;
             case LANDMINE:
             case SPEAR_TRAP:
                 if (lvl < 6)
                     kind = NO_TRAP;
+                if (is_puddle(tm->x, tm->y)
+                    || is_sewage(tm->x, tm->y))
+                    kind = NO_TRAP;
                 break;
             case WEB:
                 if (lvl < 7)
+                    kind = NO_TRAP;
+                if (is_puddle(tm->x, tm->y)
+                    || is_sewage(tm->x, tm->y))
                     kind = NO_TRAP;
                 break;
             case STATUE_TRAP:
@@ -1558,6 +1567,9 @@ coord *tm;
             case HOLE:
                 /* make these much less often than other traps */
                 if (rn2(7))
+                    kind = NO_TRAP;
+                if (is_puddle(tm->x, tm->y)
+                    || is_sewage(tm->x, tm->y))
                     kind = NO_TRAP;
                 break;
             }
@@ -1756,6 +1768,10 @@ struct mkroom *croom;
         impossible("mkstairs:  bogus stair attempt at <%d,%d>", x, y);
         return;
     }
+
+    /* Don't place stairs under shallow water or sewage */
+    if (is_puddle(x, y) || is_sewage(x, y))
+        return;
 
     /*
      * We can't make a regular stair off an end of the dungeon.  This
