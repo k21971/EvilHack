@@ -614,5 +614,6 @@ Version 0.4.2
 - Naming Sting or Orcrist has a chance of summoning more than just angry elf
 - Fix: objects spawning in unseen shallow pools (again); certain traps and stairs will not
   spawn in same space as shallow water or sewage
+- Fix: non-placement of certain traps under shallow water or sewage
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 18th, 2019)
 
