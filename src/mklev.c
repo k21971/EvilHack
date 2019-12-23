@@ -858,8 +858,9 @@ makelevel()
     tryct = 0;
     do {
         croom = &rooms[rn2(nroom)];
-    } while (!croom->needjoining && ++tryct < 100);
-    if (!Is_botlevel(&u.uz)) {
+    } while (!croom->needjoining && ++tryct < 500);
+    if (!Is_botlevel(&u.uz)
+        || !is_puddle(pos.x, pos.y) || !is_sewage(pos.x, pos.y)) {
 	if (!somexyspace(croom, &pos, 0)) {
             pos.x = somex(croom);
             pos.y = somey(croom);
@@ -871,10 +872,11 @@ makelevel()
         tryct = 0;
         do {
             croom = &rooms[rn2(nroom - 1)];
-        } while ((!croom->needjoining || (croom == troom)) && ++tryct < 100);
+        } while ((!croom->needjoining || (croom == troom)) && ++tryct < 500);
     }
 
-    if (u.uz.dlevel != 1) {
+    if (u.uz.dlevel != 1
+        || !is_puddle(pos.x, pos.y) || !is_sewage(pos.x, pos.y)) {
 	if (!somexyspace(croom, &pos, 0)) {
             if (!somexy(croom, &pos)) {
                 pos.x = somex(croom);
@@ -1768,10 +1770,6 @@ struct mkroom *croom;
         impossible("mkstairs:  bogus stair attempt at <%d,%d>", x, y);
         return;
     }
-
-    /* Don't place stairs under shallow water or sewage */
-    if (is_puddle(x, y) || is_sewage(x, y))
-        return;
 
     /*
      * We can't make a regular stair off an end of the dungeon.  This
