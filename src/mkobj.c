@@ -1969,10 +1969,6 @@ int x, y;
     fobj = otmp;
     if (otmp->timed)
         obj_timer_checks(otmp, x, y, 0);
-
-    /* for objects initially created in water */
-    if (is_damp_terrain(x, y))
-        water_damage(otmp, (char *) 0, FALSE);
 }
 
 #define ROT_ICE_ADJUSTMENT 2 /* rotting on ice takes 2 times as long */
