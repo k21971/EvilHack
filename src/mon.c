@@ -2030,6 +2030,11 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (magr->mtame && mdef->mtame)
         return 0;
 
+    /* Racial shopkeepers would sometimes attack peaceful
+       pets unprovoked... */
+    if (ma->msound == MS_SELL && mdef->mtame)
+        return 0;
+
     /* Soldiers of different races shouldn't fight each other either.
        They're all on the same team */
     if (ma->msound == MS_SOLDIER && md->msound == MS_SOLDIER)
@@ -3123,7 +3128,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
      * if you need to kill that renegade priest that's trying
      * to kill you.
      */
-    if (((always_peaceful(mdat) && mtmp->malign <= 0) || mtmp->isshk)
+    if (((always_peaceful(mdat) && mtmp->malign <= 0)
+        || (mtmp->isshk && !is_zombie(mdat)))
         && u.ualign.type != A_CHAOTIC) {
         HTelepat &= ~INTRINSIC;
         change_luck(-2);
