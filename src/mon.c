@@ -3184,10 +3184,10 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         zombify(mtmp);
     }
 
-    if (is_bones_monster(mtmp->data) && mtmp->former_rank
-        && strlen(mtmp->former_rank) > 0) {
+    if (is_bones_monster(mtmp->data)
+        && mtmp->former_rank && strlen(mtmp->former_rank) > 0) {
         livelog_printf(LL_UMONST, "destroyed %s, the former %s",
-                       MNAME(mtmp), mtmp->former_rank);
+                       mon_nam(mtmp), mtmp->former_rank);
     }
 }
 

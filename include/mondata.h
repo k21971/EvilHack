@@ -181,11 +181,11 @@
 #define can_become_zombie(ptr) ((ptr)->mlet == S_KOBOLD || (ptr)->mlet == S_GIANT       \
                                 || (ptr)->mlet == S_HUMAN || (ptr)->mlet == S_KOP       \
                                 || (ptr)->mlet == S_HUMANOID || (ptr)->mlet == S_GNOME)
-#define is_bones_monster(ptr) ((ptr) == &mons[PM_GHOST] || (ptr) == &mons[PM_GHOUL]            \
-                               || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_VAMPIRE]     \
-                               || (ptr) == &mons[PM_VAMPIRE_MAGE] || (ptr) == &mons[PM_WRAITH] \
-                               || (ptr)->mlet == S_MUMMY || is_zombie(ptr)                     \
-                               || (ptr) == &mons[PM_BARROW_WIGHT])
+#define is_bones_monster(ptr) ((ptr) == &mons[PM_GHOST] || (ptr) == &mons[PM_GHOUL]                 \
+                               || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_VAMPIRE]          \
+                               || (ptr) == &mons[PM_VAMPIRE_MAGE] || (ptr) == &mons[PM_WRAITH]      \
+                               || (ptr)->mlet == S_MUMMY || is_zombie(ptr)                          \
+                               || (ptr) == &mons[PM_BARROW_WIGHT] || (ptr) == &mons[PM_GREEN_SLIME])
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
 #define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 #define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)

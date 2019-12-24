@@ -617,5 +617,6 @@ Version 0.4.2
 - Fix: non-placement of certain traps under shallow water or sewage
 - Fix: no for real this time - objects spawning in unseen shallow pools (yet again)
 - Fix: sometimes stairs not being generated on levels with lots of shallow water or sewage
+- Tweaks to livelogging being killed by bones monster of another player
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
