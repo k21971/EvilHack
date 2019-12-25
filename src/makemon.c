@@ -1473,6 +1473,9 @@ register struct monst *mtmp;
             }
         } else if (ptr == &mons[PM_SHOPKEEPER]) {
             (void) mongets(mtmp, SKELETON_KEY);
+            if (rn2(4))
+                (void) mongets(mtmp, rn2(3) ? ELVEN_HELM : HELMET);
+            (void) mongets(mtmp, rn2(8) ? DAGGER : CRYSKNIFE);
             switch (rn2(4)) {
             /* MAJOR fall through ... */
             case 0:
