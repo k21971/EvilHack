@@ -475,11 +475,10 @@ boolean notpool;
 
         if (rn2(100) < chance && !t_at(cx, cy)) {
             if (notpool) {
-                levl[cx][cy].typ = SEWAGE;
+                levl[cx][cy].typ = LAVAPOOL;
                 levl[cx][cy].lit = 1;
       	    } else {
-      	        levl[cx][cy].typ = !rn2(3) ? POOL
-                                           : !rn2(3) ? PUDDLE : MOAT;
+      	        levl[cx][cy].typ = !rn2(3) ? POOL : MOAT;
                 levl[cx][cy].lit = 1;
             }
       	}
@@ -550,6 +549,7 @@ mkrivers()
 {
     int nriv = rn2(3) + 1;
     boolean notpool = rn2(100) < depth(&u.uz);
+
     while (nriv--) {
         if (rn2(2))
             makeriver(0, rn2(ROWNO), COLNO - 1, rn2(ROWNO), notpool);

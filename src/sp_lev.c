@@ -4441,6 +4441,12 @@ struct sp_coder *coder;
     case SPO_POOL:
         typ = POOL;
         break;
+    case SPO_PUDDLE:
+        typ = PUDDLE;
+        break;
+    case SPO_SEWAGE:
+        typ = SEWAGE;
+        break;
     }
     selection_iterate(sel, sel_set_feature, (genericptr_t) &typ);
     opvar_free(sel);
@@ -5613,6 +5619,8 @@ sp_lev *lvl;
         case SPO_POOL:
         case SPO_FORGE:
         case SPO_FOUNTAIN:
+        case SPO_PUDDLE:
+        case SPO_SEWAGE:
             spo_feature(coder);
             break;
         case SPO_TRAP:
