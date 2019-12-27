@@ -1535,11 +1535,14 @@ coord *tm;
                     kind = NO_TRAP;
                 break;
             case LANDMINE:
-            case SPEAR_TRAP:
                 if (lvl < 6)
                     kind = NO_TRAP;
                 if (tm && (is_puddle(tm->x, tm->y)
                     || is_sewage(tm->x, tm->y)))
+                    kind = NO_TRAP;
+                break;
+            case SPEAR_TRAP:
+                if (lvl < 6)
                     kind = NO_TRAP;
                 break;
             case WEB:
