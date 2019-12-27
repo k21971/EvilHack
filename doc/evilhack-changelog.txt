@@ -623,5 +623,6 @@ Version 0.4.2
 - Another tweak to livelogging being killed by bones monster of another player
 - Adjust shopkeepers starting gear 
 - Partial fix/revert: game freezing on creation of minetn-1 or minetn-6
+- Fix: game freezing on creation of minetn-1 or minetn-6
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

@@ -92,7 +92,7 @@ enum levl_typ_types {
 #define IS_DOORJOIN(typ) (IS_ROCK(typ) || (typ) == IRONBARS)
 #define IS_TREE(typ)                                            \
     ((typ) == TREE || (level.flags.arboreal && (typ) == STONE))
-#define ACCESSIBLE(typ) ((typ) >= DOOR) /* good position */
+#define ACCESSIBLE(typ) ((typ) >= DOOR && (typ) <= CLOUD) /* good position */
 #define IS_ROOM(typ) ((typ) >= ROOM)    /* ROOM, STAIRS, furniture.. */
 #define ZAP_POS(typ) ((typ) >= POOL)
 #define SPACE_POS(typ) ((typ) > DOOR)

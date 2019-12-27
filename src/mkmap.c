@@ -475,10 +475,11 @@ boolean notpool;
 
         if (rn2(100) < chance && !t_at(cx, cy)) {
             if (notpool) {
-                levl[cx][cy].typ = LAVAPOOL;
+                levl[cx][cy].typ = SEWAGE;
                 levl[cx][cy].lit = 1;
       	    } else {
-      	        levl[cx][cy].typ = !rn2(3) ? POOL : MOAT;
+      	        levl[cx][cy].typ = !rn2(3) ? POOL
+                                           : !rn2(3) ? PUDDLE : MOAT;
                 levl[cx][cy].lit = 1;
             }
       	}
