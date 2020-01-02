@@ -4440,7 +4440,7 @@ struct obj *no_wish;
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
         return otmp;
-    } else if (otmp->oartifact && rn2(7)) {
+    } else if (otmp->oartifact && rn2(4)) {
         int pm = -1;
         int strategy = NEED_HTH_WEAPON;
         struct monst *mtmp;
@@ -4603,6 +4603,10 @@ struct obj *no_wish;
             if (otmp2)
                 (void) mpickobj(mtmp, otmp2);
             otmp = (struct obj *) &zeroobj;
+            if (is_mplayer(mtmp->data))
+                mtmp->m_lev = rn1(8, 23);
+            else
+                mtmp->m_lev = rn1(8, 15);
             mtmp->mpeaceful = mtmp->msleeping = 0;
             m_dowear(mtmp, TRUE);
             mtmp->weapon_check = strategy;
