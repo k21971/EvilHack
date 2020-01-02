@@ -4428,13 +4428,9 @@ struct obj *no_wish;
     }
 
     /* more wishing abuse: don't allow wishing for the quest artifact */
-    /* otherwise an increasing propability that the artifact returns */
+    /* otherwise an increasing probability that the artifact returns */
     /* with its previous owner */
-    if (is_quest_artifact(otmp)
-#ifdef WIZARD
-        && !wizard
-#endif
-        ) {
+    if (is_quest_artifact(otmp) && !wizard) {
         artifact_exists(otmp, ONAME(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
         otmp = (struct obj *) &zeroobj;
@@ -4444,11 +4440,7 @@ struct obj *no_wish;
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
         return otmp;
-    } else if (otmp->oartifact && rn2(10))
-#ifdef WIZARD
-    if (wizard && yn("Force the wish to succeed?") == 'n')
-#endif
-    {
+    } else if (otmp->oartifact && rn2(7)) {
         int pm = -1;
         int strategy = NEED_HTH_WEAPON;
         struct monst *mtmp;
