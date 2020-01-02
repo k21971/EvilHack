@@ -627,5 +627,6 @@ Version 0.4.2
 - Spear traps can form under shallow water or sewage
 - Fix: Illithid player race aren't supposed to get INT loss/amnesia
 - Settings correction for the convict quest artifact 'The Iron Ball of Liberation'
+- Tweak livelogging of genocided monsters
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

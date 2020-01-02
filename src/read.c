@@ -2365,7 +2365,7 @@ do_class_genocide()
                             livelog_printf(LL_GENOCIDE, "genocided two random monsters from class %c",
                                            def_monsyms[class].sym);
                     }
-		    if ((killed < 2 && (!rn2(goodcnt) || (killed+candidates > goodcnt-2)))
+		    if ((killed < 2 && (!rn2(goodcnt) || (killed + candidates > goodcnt - 2)))
 			|| Your_Own_Role(i) || Your_Own_Race(i)) {
 			killed++;
 		        mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
@@ -2540,9 +2540,9 @@ int how;
     if (how & REALLY) {
         if (!num_genocides())
             livelog_printf(LL_CONDUCT|LL_GENOCIDE,
-                    "performed %s first genocide (%s)", uhis(), buf);
+                    "performed %s first genocide (%s)", uhis(), makeplural(buf));
         else
-            livelog_printf(LL_GENOCIDE, "genocided %s", buf);
+            livelog_printf(LL_GENOCIDE, "genocided %s", makeplural(buf));
 
         /* setting no-corpse affects wishing and random tin generation */
         mvitals[mndx].mvflags |= (G_GENOD | G_NOCORPSE);
