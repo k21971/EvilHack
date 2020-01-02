@@ -546,6 +546,9 @@ int expltype;
                     else if (str != killer.name && str != hallu_buf)
                         Strcpy(killer.name, str);
                     killer.format = KILLED_BY_AN;
+                } else if (olet == MON_CASTBALL) {
+                    killer.format = KILLED_BY_AN;
+                    Strcpy(killer.name, str);
                 } else if (adtyp == AD_FIRE && olet == TRAPPED_DOOR) {
                     killer.format = KILLED_BY_AN;
                     Strcpy(killer.name, str);
