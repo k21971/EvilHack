@@ -630,5 +630,6 @@ Version 0.4.2
 - Tweak livelogging of genocided monsters
 - Fix: killed by message when killed via certain monster spells
 - Fix: unicorn horns weren't one-handed
+- Fix: inventory weight header showing as selectable object in certain inventory windows
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
