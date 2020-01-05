@@ -4862,15 +4862,18 @@ boolean moncast;
             rangemod -= 1;
             dryup(x, y, type > 0);
         } else if (IS_PUDDLE(lev->typ) || IS_SEWAGE(lev->typ)) {
-            rangemod -= 3;
-            lev->typ = ROOM;
             if (see_it) {
                 if (IS_PUDDLE(lev->typ))
-                    pline_The("water evaporates.");
-                else
+                    pline_The("shallow water boils away.");
+                else if (IS_SEWAGE(lev->typ))
                     pline_The("raw sewage boils away.");
-            } else
+            } else {
                 You_hear("hissing gas.");
+            }
+            rangemod -= 3;
+            lev->typ = ROOM;
+            if (lev->typ == ROOM)
+                newsym(x, y);
         }
         break; /* ZT_FIRE */
 
