@@ -635,5 +635,6 @@ Version 0.4.2
 - Adjust odds even more in favor of the player when wishing for an artifact, but the
   owner will always be of an appropriate high level no matter what level the player is
 - Fix: getting 'the raw sewage boils away' when evaporating shallow pools
+- Fix: chest containing the wand of wishing on castle-3.lev would sometimes spawn as trapped
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
