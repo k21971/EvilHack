@@ -580,25 +580,18 @@ unsigned ftflags;
     else if (Levitation || u.ustuck
              || (!Can_fall_thru(&u.uz) && !levl[u.ux][u.uy].candig)
              || ((Flying || is_clinger(youmonst.data)
+                  || is_giant(youmonst.data)
                   || (ceiling_hider(youmonst.data) && u.uundetected))
                  && !(ftflags & TOOKPLUNGE))
              || (Inhell && !u.uevent.invoked && newlevel == bottom)) {
-        dont_fall = "don't fall in.";
-    } else if (youmonst.data->msize >= MZ_HUGE) {
-        dont_fall = "don't fit through.";
-        /* This is mainly a hint for the sake of giant players trying to get
-         * past the Castle and finding that they can't just fall through.
-         * That actually makes it easier for giants, but not if they thought
-         * it was a bug and gave up there!
-         *
-         * It does apply to polymorphed giants and traps elsewhere, but it's
-         * reasonable enough - it's too much of a tight squeeze to accidentally
-         * fall down, and not every MZ_HUGE monster could do it, only those
-         * which are humanoid and so capable of climbing.
-         */
-        if (is_giant(youmonst.data)) {
+        /* Give player giants a hint... */
+        if (is_giant(youmonst.data))
             dont_fall = "don't fall, but you can climb down.";
-        }
+        else
+            dont_fall = "don't fall in.";
+    } else if (youmonst.data->msize >= MZ_HUGE
+               && !is_giant(youmonst.data)) {
+        dont_fall = "don't fit through.";
     } else if (!next_to_u()) {
         dont_fall = "are jerked back by your pet!";
     }
@@ -612,7 +605,7 @@ unsigned ftflags;
         }
         return;
     }
-    if ((Flying || is_clinger(youmonst.data))
+    if ((Flying || is_clinger(youmonst.data) || is_giant(youmonst.data))
         && (ftflags & TOOKPLUNGE) && td && t)
         You("%s down %s!",
             Flying ? "swoop" : "deliberately drop",
