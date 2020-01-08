@@ -3814,9 +3814,6 @@ const char *reason; /* explanation */
 {
 #ifdef PANICLOG
     FILE *lfile;
-    /* EvilHack by default will always use PANICLOG_FMT2,
-       commenting the below out to silence a compiler warning */
-    /* char buf[BUFSZ]; */
 
     if (!program_state.in_paniclog) {
         program_state.in_paniclog = 1;
@@ -3828,6 +3825,7 @@ const char *reason; /* explanation */
                            /* ubirthday, (plname ? plname : "(none)"), */
                            type, reason);
 #else
+            char buf[BUFSZ];
             time_t now = getnow();
             int uid = getuid();
             char playmode = wizard ? 'D' : discover ? 'X' : '-';
@@ -4719,7 +4717,7 @@ VA_DECL2(unsigned int, ll_type, const char *, fmt)
 void
 livelog_write_string(log_type, buffer)
 unsigned int log_type UNUSED;
-char *buffer UNUSED;
+const char *buffer UNUSED;
 {
 }
 
