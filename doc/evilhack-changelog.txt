@@ -642,5 +642,7 @@ Version 0.4.2
 - Fix: build errors when livelog and paniclog_fmt2 are not defined
 - Fix: wizmode wishing - if artifact owner would appear, ask if this is wanted
 - Fix: update_inventory() and the spell 'repair armor'
+- When invoking the Iron Ball of Liberation, the chain generated when it attaches itself
+  to the player is always rustproof
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

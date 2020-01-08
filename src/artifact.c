@@ -2174,10 +2174,11 @@ struct obj *obj;
                     setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
                     setworn(obj, W_BALL);
                     uball->spe = 1;
+                    uchain->oerodeproof = 1;
                     if (!u.uswallow) {
-                    placebc();
-                    if (Blind) set_bc(1);	/* set up ball and chain variables */
-                    newsym(u.ux, u.uy);		/* see ball&chain if can't see self */
+                        placebc();
+                        if (Blind) set_bc(1);	/* set up ball and chain variables */
+                            newsym(u.ux, u.uy);	/* see ball&chain if can't see self */
                     }
                     Your("%s chains itself to you!", xname(obj));
                 }
