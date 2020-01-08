@@ -644,5 +644,7 @@ Version 0.4.2
 - Fix: update_inventory() and the spell 'repair armor'
 - When invoking the Iron Ball of Liberation, the chain generated when it attaches itself
   to the player is always rustproof
+- Fix: player could not phase through objects diagonally via invoking the Iron Ball of
+  Liberation if carrying a lot of objects in open inventory or if playing as a giant
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

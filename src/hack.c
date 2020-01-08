@@ -811,13 +811,13 @@ struct monst *mon;
     /* too big? */
     if (bigmonst(ptr)
         && !(amorphous(ptr) || is_whirly(ptr) || noncorporeal(ptr)
-             || slithy(ptr) || can_fog(mon)))
+             || slithy(ptr) || can_fog(mon) || Passes_walls))
         return 1;
 
     /* lugging too much junk? */
     amt = (mon == &youmonst) ? inv_weight() + weight_cap()
                              : curr_mon_load(mon);
-    if (amt > 600)
+    if (amt > 600 && !Passes_walls)
         return 2;
 
     /* Sokoban restriction applies to hero only */
