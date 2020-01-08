@@ -4440,7 +4440,7 @@ struct obj *no_wish;
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
         return otmp;
-    } else if (otmp->oartifact && rn2(4)) {
+    } else if (otmp->oartifact && rn2(4) && !(wizard && yn("Deal with previous owner?") == 'n')) {
         int pm = -1;
         int strategy = NEED_HTH_WEAPON;
         struct monst *mtmp;
