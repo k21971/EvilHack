@@ -1236,31 +1236,31 @@ boolean atme;
             pline1(nothing_happens);
         break;
     case SPE_REPAIR_ARMOR:
-	/* removes one level of erosion (both types) for a random piece of armor */
-	otmp = some_armor(&youmonst);
-	if (otmp) {
+        /* removes one level of erosion (both types) for a random piece of armor */
+        otmp = some_armor(&youmonst);
+        if (otmp) {
             if (greatest_erosion(otmp) > 0) {
-                if (!Blind) {
+                if (Blind)
+                    pline("Your %s feels warmer for a brief moment.",
+                          xname(otmp));
+                else
                     pline("Your %s glows faintly golden for a moment.",
                           xname(otmp));
-                }
-                if (otmp->oeroded > 0) {
+                if (otmp->oeroded > 0)
                     otmp->oeroded--;
-                }
-                if (otmp->oeroded2 > 0) {
+                if (otmp->oeroded2 > 0)
                     otmp->oeroded2--;
-                }
+                update_inventory();
             } else {
-                if (!Blind) {
+                if (!Blind)
                     pline("Your %s glows briefly, but looks as new as ever.",
                           xname(otmp));
-                }
             }
-	} else {
+        } else {
             /* the player can probably feel this, so no need for a !Blind check :) */
             pline("Your embarrassing skin rash clears up slightly.");
-	}
-	break;
+        }
+        break;
     case SPE_REFLECTION:
         cast_reflection();
 	break;

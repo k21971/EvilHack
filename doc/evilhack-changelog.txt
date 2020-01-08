@@ -639,5 +639,8 @@ Version 0.4.2
 - Tweak mines' end level 'Orc Temple'
 - Adjust odds of random object spawning with some type of object property
 - Fix: player giants climbing down through trap doors/gaping holes
+- Fix: build errors when livelog and paniclog_fmt2 are not defined
+- Fix: wizmode wishing - if artifact owner would appear, ask if this is wanted
+- Fix: update_inventory() and the spell 'repair armor'
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
