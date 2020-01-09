@@ -648,5 +648,6 @@ Version 0.4.2
   Liberation if carrying a lot of objects in open inventory or if playing as a giant
 - Fix: "You can hear again" when deafness times out while permadeaf
 - Fix: permahallucination doesn't abuse wisdom
+- Fix: killed by 'the Rat King', not killed by 'Rat King'
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
