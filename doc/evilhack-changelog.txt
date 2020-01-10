@@ -652,5 +652,6 @@ Version 0.4.2
 - Certain monsters can spawn in the Gnomish Mines' rivers
 - Fix: 'Do so? [y/n]' message when moving onto boulders in sokoban as a giant and that
   level is already solved
+- Fix: issues with monster spells fire bolt, ice bolt and acid blast
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

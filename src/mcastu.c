@@ -537,17 +537,19 @@ int spellnum;
     case MGC_ACID_BLAST:
         if (mtmp->iswiz || is_prince(mtmp->data)
             || is_lord(mtmp->data) || mtmp->data->msound == MS_NEMESIS
-            || mtmp->data->msound == MS_LEADER) {
+            || mtmp->data->msound == MS_LEADER
+            || mtmp->data == &mons[PM_MASTER_LICH]
+            || mtmp->data == &mons[PM_ARCH_LICH]) {
             if (m_canseeu(mtmp)) {
                 pline("%s douses you in a torrent of acid!", Monnam(mtmp));
+                explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
+                        MON_CASTBALL, EXPL_ACID);
                 if (how_resistant(ACID_RES) == 100) {
                     shieldeff(u.ux, u.uy);
                     pline("The acid dissipates harmlessly.");
                     monstseesu(M_SEEN_ACID);
                     dmg = 0;
                 }
-                explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
-                    MON_CASTBALL, EXPL_ACID);
                 if (rn2(u.twoweap ? 2 : 3))
                     acid_damage(uwep);
                 if (u.twoweap && rn2(2))
@@ -703,17 +705,17 @@ int spellnum;
     case MGC_ICE_BOLT:
         /* hotwire these to only go off if the critter can see you
          * to avoid bugs WRT the Eyes and detect monsters */
-        if (m_canseeu(mtmp) && lined_up(mtmp)) {
+        if (m_canseeu(mtmp)) {
             pline("%s blasts you with %s!", Monnam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
+            explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
+                    resist_reduce(d((mtmp->m_lev / 5) + 1, 8), (spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES),
+                    MON_CASTBALL, (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
             if (how_resistant((spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 monstseesu((spellnum == MGC_FIRE_BOLT) ? M_SEEN_FIRE : M_SEEN_COLD);
                 pline("But you resist the effects.");
                 dmg = 0;
             }
-            explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
-                    resist_reduce(d((mtmp->m_lev / 5) + 1, 8), (spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES),
-                    MON_CASTBALL, (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
         } else {
             if (canspotmon(mtmp)) {
                 pline("%s blasts the %s with %s and curses!", Monnam(mtmp), rn2(2) ? "ceiling" : "floor",
