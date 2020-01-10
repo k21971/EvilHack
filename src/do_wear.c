@@ -116,7 +116,10 @@ boolean on;
             else
                 You("walk very quietly.");
         } else {
-            You("sure are noisy.");
+            if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
+                You("are just as noisy as before.");
+            else
+               You("sure are noisy.");
         }
     }
 }
@@ -233,7 +236,13 @@ Boots_on(VOID_ARGS)
         }
         break;
     case ELVEN_BOOTS:
-        toggle_stealth(uarmf, oldprop, TRUE);
+        if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) {
+            pline("This %s will not silence someone %s.",
+                  xname(uarmf), rn2(2) ? "as large as you" : "of your stature");
+            EStealth &= ~W_ARMF;
+        } else {
+            toggle_stealth(uarmf, oldprop, TRUE);
+        }
         break;
     case FUMBLE_BOOTS:
         if (!(HFumbling & ~TIMEOUT))
@@ -1252,7 +1261,13 @@ register struct obj *obj;
     case MEAT_RING:
         break;
     case RIN_STEALTH:
-        toggle_stealth(obj, oldprop, TRUE);
+        if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) {
+            pline("This %s will not silence someone %s.",
+                  xname(obj), rn2(2) ? "as large as you" : "of your stature");
+            EStealth &= ~W_RING;
+        } else {
+            toggle_stealth(obj, oldprop, TRUE);
+        }
         break;
     case RIN_WARNING:
         see_monsters();
@@ -1337,8 +1352,6 @@ boolean gone;
     boolean observable;
 
     context.takeoff.mask &= ~mask;
-    if (!(u.uprops[objects[obj->otyp].oc_oprop].extrinsic & mask))
-        impossible("Strange... I didn't know you had that ring.");
     if (gone)
         setnotworn(obj);
     else
