@@ -457,6 +457,7 @@ boolean notpool;
     int dx, dy;
     int chance;
     int count = 0;
+    int monstcount = rnd(4);
 
     cx = x1;
     cy = y1;
@@ -542,6 +543,22 @@ boolean notpool;
             cy = 0;
         else if (cy >= ROWNO)
             cy = ROWNO - 1;
+    }
+    /* loop through and spawn some monsters */
+    count = 0;
+    while (count++ < 2000 && monstcount > 0) {
+        cx = 1 + rn2(COLNO - 2);
+        cy = 1 + rn2(ROWNO - 2);
+        if (levl[cx][cy].typ == POOL || levl[cx][cy].typ == MOAT
+            || levl[cx][cy].typ == PUDDLE) {
+            (void) makemon(&mons[PM_JELLYFISH +
+                           rn2(PM_SHARK - PM_JELLYFISH)], cx, cy, NO_MM_FLAGS);
+            monstcount--;
+        } else if (levl[cx][cy].typ == SEWAGE) {
+            (void) makemon(rn2(3) ? &mons[PM_GIANT_LEECH]
+                                  : &mons[PM_GIANT_COCKROACH], cx, cy, NO_MM_FLAGS);
+            monstcount--;
+        }
     }
 }
 

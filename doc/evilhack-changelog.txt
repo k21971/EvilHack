@@ -649,5 +649,6 @@ Version 0.4.2
 - Fix: "You can hear again" when deafness times out while permadeaf
 - Fix: permahallucination doesn't abuse wisdom
 - Fix: killed by 'the Rat King', not killed by 'Rat King'
+- Certain monsters can spawn in the Gnomish Mines' rivers
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
