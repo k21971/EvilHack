@@ -358,7 +358,7 @@ moverock()
                           (willpickup || !canpickup) ? "" : "could ",
                           (willpickup || canpickup) ? "pick it up"
                                                     : "push it aside");
-                    if (In_sokoban(&u.uz)) {
+                    if (In_sokoban(&u.uz) && Sokoban != 0) {
                         if (yn("Do so?") != 'y')
                             return -1;
                         sokoban_guilt();

@@ -650,5 +650,7 @@ Version 0.4.2
 - Fix: permahallucination doesn't abuse wisdom
 - Fix: killed by 'the Rat King', not killed by 'Rat King'
 - Certain monsters can spawn in the Gnomish Mines' rivers
+- Fix: 'Do so? [y/n]' message when moving onto boulders in sokoban as a giant and that
+  level is already solved
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
