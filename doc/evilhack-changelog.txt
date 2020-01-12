@@ -654,5 +654,6 @@ Version 0.4.2
   level is already solved
 - Fix: issues with monster spells fire bolt, ice bolt and acid blast
 - Fix: Giants aren't supposed to be stealthy. Ever.
+- Fix: player role Priest should not receive an edged crowning gift
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
