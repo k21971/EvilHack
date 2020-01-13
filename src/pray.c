@@ -1237,7 +1237,7 @@ aligntyp g_align;
         }
         case 7:
         case 8:
-            if (u.ualign.record >= 0 && !u.uevent.uhand_of_elbereth) {
+            if (u.ualign.record >= PIOUS && !u.uevent.uhand_of_elbereth) {
                 gcrownu();
                 break;
             }
@@ -2033,7 +2033,7 @@ dosacrifice()
 	            }
 		}
             } else if (u.uluck >= 0 && !rn2(10 + (2 * nartifacts))) {
-	        otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
+                otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
 		if (otmp) {
 		    if (otmp->spe < 0)
                         otmp->spe = 0;
