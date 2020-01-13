@@ -342,7 +342,8 @@ moverock()
                                     slot or into the overflow ('#') slot
                                     unless already carrying at least one */
                               && (inv_cnt(FALSE) < 52 || !carrying(BOULDER))),
-                    willpickup = (canpickup && flags.pickup
+                    willpickup = (canpickup
+                                  && (flags.pickup && !context.nopick)
                                   && autopick_testobj(otmp, TRUE));
 
                 if (u.usteed && P_SKILL(P_RIDING) < P_BASIC) {
@@ -352,8 +353,8 @@ moverock()
                 } else {
                     /*
                      * will pick up:  you easily pick it up
-                     * can but won't: you manuver over it and could pick it up
-                     * can't pick up: you manuver over it (possibly followed
+                     * can but won't: you maneuver over it and could pick it up
+                     * can't pick up: you maneuver over it (possibly followed
                      * by feedback from failed auto-pickup attempt)
                      */
                     pline("However, you %s%s.",
