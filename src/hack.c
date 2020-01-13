@@ -342,7 +342,8 @@ moverock()
                                     slot or into the overflow ('#') slot
                                     unless already carrying at least one */
                               && (inv_cnt(FALSE) < 52 || !carrying(BOULDER))),
-                    willpickup = (canpickup && autopick_testobj(otmp, TRUE));
+                    willpickup = (canpickup && flags.pickup
+                                  && autopick_testobj(otmp, TRUE));
 
                 if (u.usteed && P_SKILL(P_RIDING) < P_BASIC) {
                     You("aren't skilled enough to %s %s from %s.",
@@ -350,15 +351,22 @@ moverock()
                         the(xname(otmp)), y_monnam(u.usteed));
                 } else {
                     /*
-                     * willpickup:  you easily pick it up
-                     * canpickup:   you could easily pick it up
-                     * otherwise:   you easily push it aside
+                     * will pick up:  you easily pick it up
+                     * can but won't: you manuver over it and could pick it up
+                     * can't pick up: you manuver over it (possibly followed
+                     * by feedback from failed auto-pickup attempt)
                      */
-                    pline("However, you %seasily %s.",
-                          (willpickup || !canpickup) ? "" : "could ",
-                          (willpickup || canpickup) ? "pick it up"
-                                                    : "push it aside");
-                    if (In_sokoban(&u.uz)) {
+                    pline("However, you %s%s.",
+                          willpickup ? "easily pick it up"
+                                     : "maneuver over it",
+                          (canpickup && !willpickup)
+                                     ? " and could pick it up"
+                                     : "");
+                    /* similar to dropping everything and squeezing onto
+                       a Sokoban boulder's spot, moving to same breaks the
+                       Sokoban rules because on next step you could go
+                       past it without pushing it to plug a pit or hole */
+                    if (In_sokoban(&u.uz) && Sokoban != 0) {
                         if (yn("Do so?") != 'y')
                             return -1;
                         sokoban_guilt();
@@ -811,13 +819,13 @@ struct monst *mon;
     /* too big? */
     if (bigmonst(ptr)
         && !(amorphous(ptr) || is_whirly(ptr) || noncorporeal(ptr)
-             || slithy(ptr) || can_fog(mon)))
+             || slithy(ptr) || can_fog(mon) || Passes_walls))
         return 1;
 
     /* lugging too much junk? */
     amt = (mon == &youmonst) ? inv_weight() + weight_cap()
                              : curr_mon_load(mon);
-    if (amt > 600)
+    if (amt > 600 && !Passes_walls)
         return 2;
 
     /* Sokoban restriction applies to hero only */

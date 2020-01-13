@@ -639,5 +639,27 @@ Version 0.4.2
 - Tweak mines' end level 'Orc Temple'
 - Adjust odds of random object spawning with some type of object property
 - Fix: player giants climbing down through trap doors/gaping holes
+- Fix: build errors when livelog and paniclog_fmt2 are not defined
+- Fix: wizmode wishing - if artifact owner would appear, ask if this is wanted
+- Fix: update_inventory() and the spell 'repair armor'
+- When invoking the Iron Ball of Liberation, the chain generated when it attaches itself
+  to the player is always rustproof
+- Fix: player could not phase through objects diagonally via invoking the Iron Ball of
+  Liberation if carrying a lot of objects in open inventory or if playing as a giant
+- Fix: "You can hear again" when deafness times out while permadeaf
+- Fix: permahallucination doesn't abuse wisdom
+- Fix: killed by 'the Rat King', not killed by 'Rat King'
+- Certain monsters can spawn in the Gnomish Mines' rivers
+- Fix: 'Do so? [y/n]' message when moving onto boulders in sokoban as a giant and that
+  level is already solved
+- Fix: issues with monster spells fire bolt, ice bolt and acid blast
+- Fix: Giants aren't supposed to be stealthy. Ever.
+- Fix: player role Priest should not receive an edged crowning gift
+- Fix: displaying plural form of artifact names as a priest trying to use an edged
+  or piercing type artifact weapon
+- Revert alignment level for crowning back to normal
+- Fix: player role Priest should not receive an edged artifact weapon via
+  altar sacrifice
+- Fix: boulder feedback as a giant moving into a boulder's location
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

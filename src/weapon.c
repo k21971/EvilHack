@@ -1757,7 +1757,9 @@ struct obj *weapon;
             pline("%s has %s you from using %s weapons such as %s!",
                   align_gname(u.ualign.type), rn2(2) ? "forbidden" : "prohibited",
                   is_slash(weapon) ? "edged" : "piercing",
-                  is_ammo(weapon) ? xname(weapon) : makeplural(xname(weapon)));
+                  (is_ammo(weapon)
+                   || (weapon->oartifact && (is_pierce(weapon) || is_slash(weapon))))
+                  ? xname(weapon) : makeplural(xname(weapon)));
         exercise(A_WIS, FALSE);
         if (!rn2(10)) {
             Your("behavior has displeased %s.",

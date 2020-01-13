@@ -721,9 +721,9 @@ domonability(VOID_ARGS)
             aggravate();
     } else if (youmonst.data->mlet == S_VAMPIRE)
         return dopoly();
-      /* else if (attacktype(youmonst.data, AT_MAGC))
- 	       return castum((struct monst *) 0,
- 	                  &youmonst.data->mattk[attacktype(youmonst.data, AT_MAGC)]); */
+    /* else if (attacktype(youmonst.data, AT_MAGC))
+        return castum((struct monst *) 0,
+ 	              &youmonst.data->mattk[attacktype(youmonst.data, AT_MAGC)]); */
     else if (Upolyd)
         pline("Any special ability you may have is purely reflexive.");
     else if (attacktype(youmonst.data, AT_MAGC))

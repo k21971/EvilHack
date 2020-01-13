@@ -516,6 +516,10 @@ int how;
         Strcat(buf, "the ");
         killer.format = KILLED_BY;
     }
+    if (mptr == &mons[PM_RAT_KING]) {
+        Strcat(buf, "the ");
+        killer.format = KILLED_BY;
+    }
     if (mtmp->minvis)
         Strcat(buf, "invisible ");
     if (distorted)
