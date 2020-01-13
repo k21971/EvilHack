@@ -658,5 +658,7 @@ Version 0.4.2
 - Fix: displaying plural form of artifact names as a priest trying to use an edged
   or piercing type artifact weapon
 - Revert alignment level for crowning back to normal
+- Fix: player role Priest should not receive an edged artifact weapon via
+  altar sacrifice
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

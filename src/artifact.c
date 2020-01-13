@@ -210,7 +210,8 @@ aligntyp alignment; /* target alignment, or A_NONE */
         if ((a->alignment == alignment || a->alignment == A_NONE)
             /* avoid enemies' equipment */
             && (a->race == NON_PM || !race_hostile(&mons[a->race]))
-            && (!(Race_if(PM_GIANT) && (a->mtype & MH_GIANT)))) {
+            && (!(Race_if(PM_GIANT) && (a->mtype & MH_GIANT)))
+            && (!(Role_if(PM_PRIEST) && (is_slash(a) || is_pierce(a))))) {
             /* when a role-specific first choice is available, use it */
             if (Role_if(a->role)) {
                 /* make this be the only possibility in the list */
