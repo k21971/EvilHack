@@ -1803,6 +1803,28 @@ int buflen, rolenum, racenum, gendnum, alignnum;
         return err_ret;
 }
 
+/* utility function to list valid role/race/align/gender combos, for external
+ * scoreboards and role-selection generators
+ */
+void
+listroles()
+{
+    /* output is 3-character filecodes separated by hyphens */
+    /* rog-orc-mal-cha */
+    int rol, rac, gen, ali;
+    for (rol = 0; roles[rol].filecode; rol++)
+        for (rac = 0; races[rac].filecode; rac++)
+            for (gen = 0; gen < ROLE_GENDERS; gen++)
+                for (ali = 0; ali < ROLE_ALIGNS; ali++)
+                    if (ok_role(rol, rac, gen, ali)
+                        && ok_race(rol, rac, gen, ali)
+                        && ok_gend(rol, rac, gen, ali)
+                        && ok_align(rol, rac, gen, ali))
+                        raw_printf("%s-%s-%s-%s", roles[rol].filecode,
+                                   races[rac].filecode, genders[gen].filecode,
+                                   aligns[ali].filecode);
+}
+
 char *
 build_plselection_prompt(buf, buflen, rolenum, racenum, gendnum, alignnum)
 char *buf;

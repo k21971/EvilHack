@@ -113,6 +113,8 @@ char *argv[];
     if (argc > 1) {
         if (argcheck(argc, argv, ARG_VERSION) == 2)
             exit(EXIT_SUCCESS);
+        if (argcheck(argc, argv, ARG_LISTROLES) == 2)
+            exit(EXIT_SUCCESS);
 
         if (argcheck(argc, argv, ARG_SHOWPATHS) == 2) {
 #ifdef CHDIR

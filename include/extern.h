@@ -2244,6 +2244,7 @@ E int FDECL(randrole, (BOOLEAN_P));
 E int FDECL(randrace, (int));
 E int FDECL(randgend, (int, int));
 E int FDECL(randalign, (int, int));
+E void NDECL(listroles);
 E int FDECL(str2role, (const char *));
 E int FDECL(str2race, (const char *));
 E int FDECL(str2gend, (const char *));
