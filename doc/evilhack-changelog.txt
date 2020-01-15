@@ -661,5 +661,6 @@ Version 0.4.2
 - Fix: player role Priest should not receive an edged artifact weapon via
   altar sacrifice
 - Fix: boulder feedback as a giant moving into a boulder's location
+- Fix: more giant walking onto boulder feedback
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
