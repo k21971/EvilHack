@@ -177,7 +177,7 @@ const struct Role roles[] = {
       S_SPIDER,
       ART_IRON_BALL_OF_LIBERATION,
       MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_HOBBIT,
-      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NORACEALIGN,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 13, 6 },
       { 20, 20, 10, 20, 20, 10 },
@@ -1165,8 +1165,9 @@ int rolenum, racenum, alignnum;
 {
     /* Assumes validrole and validrace */
     return (boolean) (alignnum >= 0 && alignnum < ROLE_ALIGNS
-                      && (roles[rolenum].allow & races[racenum].allow
-                          & aligns[alignnum].allow & ROLE_ALIGNMASK));
+                      && (roles[rolenum].allow & aligns[alignnum].allow)
+                      && ((races[racenum].allow & aligns[alignnum].allow)
+                          || (roles[rolenum].allow & ROLE_NORACEALIGN)));
 }
 
 int
@@ -1177,16 +1178,14 @@ int rolenum, racenum;
 
     /* Count the number of valid alignments */
     for (i = 0; i < ROLE_ALIGNS; i++)
-        if (roles[rolenum].allow & races[racenum].allow & aligns[i].allow
-            & ROLE_ALIGNMASK)
+        if (validalign(rolenum, racenum, i))
             n++;
 
     /* Pick a random alignment */
     if (n)
         n = rn2(n);
     for (i = 0; i < ROLE_ALIGNS; i++)
-        if (roles[rolenum].allow & races[racenum].allow & aligns[i].allow
-            & ROLE_ALIGNMASK) {
+        if (validalign(rolenum, racenum, i)) {
             if (n)
                 n--;
             else
@@ -1305,9 +1304,17 @@ int rolenum, racenum, gendnum, alignnum;
         if (rfilter.mask & races[racenum].selfmask)
             return FALSE;
         allow = races[racenum].allow;
-        if (rolenum >= 0 && rolenum < SIZE(roles) - 1
-            && !(allow & roles[rolenum].mhrace & races[racenum].selfmask))
-            return FALSE;
+        if (rolenum >= 0 && rolenum < SIZE(roles) - 1) {
+            if (!(allow & roles[rolenum].mhrace & races[racenum].selfmask))
+                return FALSE;
+            if (roles[rolenum].allow & ROLE_NORACEALIGN) {
+                /* If the role overrides racial alignments,
+                   replace the allowed race alignments with allowed role
+                   alignments */
+                allow &= ~ROLE_ALIGNMASK;
+                allow |= (roles[rolenum].allow & ROLE_ALIGNMASK);
+            }
+        }
         if (gendnum >= 0 && gendnum < ROLE_GENDERS
             && !(allow & genders[gendnum].allow & ROLE_GENDMASK))
             return FALSE;
@@ -1321,9 +1328,14 @@ int rolenum, racenum, gendnum, alignnum;
             if (rfilter.mask & races[i].selfmask)
                 continue;
             allow = races[i].allow;
-            if (rolenum >= 0 && rolenum < SIZE(roles) - 1
-                && !(allow & roles[rolenum].mhrace & races[racenum].selfmask))
-                continue;
+            if (rolenum >= 0 && rolenum < SIZE(roles) - 1) {
+                if (!(roles[rolenum].mhrace & races[racenum].selfmask))
+                    continue;
+                if (roles[rolenum].allow & ROLE_NORACEALIGN) {
+                    allow &= ~ROLE_ALIGNMASK;
+                    allow |= (roles[rolenum].allow & ROLE_ALIGNMASK);
+                }
+            }
             if (gendnum >= 0 && gendnum < ROLE_GENDERS
                 && !(allow & genders[gendnum].allow & ROLE_GENDMASK))
                 continue;
@@ -1447,9 +1459,12 @@ int alignnum;
         if (rfilter.mask & aligns[alignnum].allow)
             return FALSE;
         allow = aligns[alignnum].allow;
-        if (rolenum >= 0 && rolenum < SIZE(roles) - 1
-            && !(allow & roles[rolenum].allow & ROLE_ALIGNMASK))
-            return FALSE;
+        if (rolenum >= 0 && rolenum < SIZE(roles) - 1) {
+            if (!(allow & roles[rolenum].allow & ROLE_ALIGNMASK))
+                return FALSE;
+            if (roles[rolenum].allow & ROLE_NORACEALIGN)
+                return TRUE;
+        }
         if (racenum >= 0 && racenum < SIZE(races) - 1
             && !(allow & races[racenum].allow & ROLE_ALIGNMASK))
             return FALSE;
@@ -1460,9 +1475,12 @@ int alignnum;
             if (rfilter.mask & aligns[i].allow)
                 continue;
             allow = aligns[i].allow;
-            if (rolenum >= 0 && rolenum < SIZE(roles) - 1
-                && !(allow & roles[rolenum].allow & ROLE_ALIGNMASK))
-                continue;
+            if (rolenum >= 0 && rolenum < SIZE(roles) - 1) {
+                if (!(allow & roles[rolenum].allow & ROLE_ALIGNMASK))
+                    continue;
+                if (roles[rolenum].allow & ROLE_NORACEALIGN)
+                    return TRUE;
+            }
             if (racenum >= 0 && racenum < SIZE(races) - 1
                 && !(allow & races[racenum].allow & ROLE_ALIGNMASK))
                 continue;
@@ -1979,7 +1997,7 @@ winid where;
         allowmask = roles[r].allow;
         if (roles[r].mhrace == MH_HUMAN)
             c = 0; /* races[human] */
-        else if (c >= 0 && !(roles[r].mhrace & races[c].allow))
+        else if (c >= 0 && !(roles[r].mhrace & races[c].selfmask))
             c = ROLE_RANDOM;
         if ((allowmask & ROLE_GENDMASK) == ROLE_MALE)
             g = 0; /* role forces male (hypothetical) */
@@ -1990,20 +2008,22 @@ winid where;
         else if ((allowmask & ROLE_ALIGNMASK) == AM_NEUTRAL)
             a = 1; /* aligns[neutral] */
         else if ((allowmask & ROLE_ALIGNMASK) == AM_CHAOTIC)
-            a = 2; /* alings[chaotic] */
+            a = 2; /* aligns[chaotic] */
     }
     if (c >= 0) {
-        allowmask = races[c].allow;
+        allowmask = (r >= 0) && (roles[r].allow & ROLE_NORACEALIGN)
+                    ? roles[r].allow
+                    : races[c].allow;
         if ((allowmask & ROLE_ALIGNMASK) == AM_LAWFUL)
             a = 0; /* aligns[lawful] */
         else if ((allowmask & ROLE_ALIGNMASK) == AM_NEUTRAL)
             a = 1; /* aligns[neutral] */
         else if ((allowmask & ROLE_ALIGNMASK) == AM_CHAOTIC)
-            a = 2; /* alings[chaotic] */
+            a = 2; /* aligns[chaotic] */
         /* [c never forces gender] */
     }
     /* [g and a don't constrain anything sufficiently
-       to narrow something done to a single choice] */
+       to narrow something down to a single choice] */
 
     Sprintf(buf, "%12s ", "name:");
     Strcat(buf, (which == RS_NAME) ? choosing : !*plname ? not_yet : plname);
@@ -2140,7 +2160,8 @@ boolean preselect;
             if (a >= 0)
                 constrainer = "role";
         }
-        if (c >= 0 && !constrainer) {
+        if (c >= 0 && !constrainer
+            && !(r >= 0 && roles[r].allow & ROLE_NORACEALIGN)) {
             allowmask = races[c].allow & ROLE_ALIGNMASK;
             if (allowmask == AM_LAWFUL)
                 a = 0; /* aligns[lawful] */
