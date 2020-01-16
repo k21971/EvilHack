@@ -757,6 +757,7 @@ initoptions_init()
     /* hero's role, race, &c haven't been chosen yet */
     flags.initrole = flags.initrace = flags.initgend = flags.initalign
         = ROLE_NONE;
+    clearrolefilter();
 
     init_ov_primary_symbols();
     init_ov_rogue_symbols();
