@@ -1329,7 +1329,7 @@ int rolenum, racenum, gendnum, alignnum;
                 continue;
             allow = races[i].allow;
             if (rolenum >= 0 && rolenum < SIZE(roles) - 1) {
-                if (!(roles[rolenum].mhrace & races[racenum].selfmask))
+                if (!(roles[rolenum].mhrace & races[i].selfmask))
                     continue;
                 if (roles[rolenum].allow & ROLE_NORACEALIGN) {
                     allow &= ~ROLE_ALIGNMASK;
