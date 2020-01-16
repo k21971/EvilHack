@@ -510,7 +510,7 @@ int type;
                 levl[x][y].doormask = D_CLOSED;
 
             if (levl[x][y].doormask != D_ISOPEN && !shdoor
-                && level_difficulty() >= 5 && !rn2(25))
+                && level_difficulty() >= 13 && !rn2(25))
                 levl[x][y].doormask |= D_TRAPPED;
         } else {
 #ifdef STUPID
@@ -549,7 +549,7 @@ int type;
         else
             levl[x][y].doormask = D_CLOSED;
 
-        if (!shdoor && level_difficulty() >= 4 && !rn2(20))
+        if (!shdoor && level_difficulty() >= 13 && !rn2(20))
             levl[x][y].doormask |= D_TRAPPED;
     }
 
