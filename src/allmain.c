@@ -215,26 +215,26 @@ boolean resuming;
                     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
                         mtmp->movement += mcalcmove(mtmp);
 
-		    /* From SporkHack
-		     * Vanilla generates a critter every 70-ish turns.
-		     * The rate accelerates to every 50 or so below the Castle,
-		     * and 'round every 25 turns once you've done the Invocation.
-		     *
-		     * We will push it even further.  Monsters post-Invocation
-		     * will almost always appear on the stairs (if present), and
-		     * much more frequently; this, along with the extra intervene()
-		     * calls, should certainly make it seem like you're wading back
-		     * through the teeming hordes.
-		     *
-		     * Aside from that, a more general clock should be put on things;
-		     * after about 30,000 turns, the frequency rate of appearance
-		     * and difficulty of monsters generated will slowly increase until
-		     * it reaches the point it will be at as if you were post-Invocation.
-		     *
+                    /* From SporkHack & UnNetHack (modified)
+                     * Vanilla generates a critter every 70-ish turns.
+                     * The rate accelerates to every 50 or so below the Castle,
+                     * and 'round every 25 turns once you've done the Invocation.
+                     *
+                     * We will push it even further.  Monsters post-Invocation
+                     * will almost always appear on the stairs (if present), and
+                     * much more frequently; this, along with the extra intervene()
+                     * calls, should certainly make it seem like you're wading back
+                     * through the teeming hordes.
+                     *
+                     * Aside from that, a more general clock should be put on things;
+                     * after about 30,000 turns, the frequency rate of appearance
+                     * and difficulty of monsters generated will slowly increase until
+                     * it reaches the point it will be at as if you were post-Invocation.
+                     *
                      * The rate increases linearly with turns.  The rule of thumb is that
                      * at turn x the rate is approximately (x / 30.0000) times the normal
-                     * rate.  Maximal rate is 7x the normal rate.
-		     */
+                     * rate.  Maximal rate is 8x the normal rate.
+                     */
                     monclock = MIN_MONGEN_RATE;
                     if (u.uevent.udemigod) {
                         monclock = MAX_MONGEN_RATE;
