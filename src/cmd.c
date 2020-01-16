@@ -724,10 +724,10 @@ domonability(VOID_ARGS)
     /* else if (attacktype(youmonst.data, AT_MAGC))
         return castum((struct monst *) 0,
  	              &youmonst.data->mattk[attacktype(youmonst.data, AT_MAGC)]); */
-    else if (Upolyd)
-        pline("Any special ability you may have is purely reflexive.");
     else if (attacktype(youmonst.data, AT_MAGC))
         You("currently cannot use this form of attack.");
+    else if (Upolyd)
+        pline("Any special ability you may have is purely reflexive.");
     else
         You("don't have a special ability in your normal form!");
     return 0;
