@@ -204,6 +204,9 @@ STATIC_DCL char *NDECL(parse);
 STATIC_DCL void FDECL(show_direction_keys, (winid, CHAR_P, BOOLEAN_P));
 STATIC_DCL boolean FDECL(help_dir, (CHAR_P, int, const char *));
 
+/* allmain.c */
+extern int monclock;
+
 static const char *readchar_queue = "";
 static coord clicklook_cc;
 /* for rejecting attempts to use wizard mode commands */
@@ -2667,6 +2670,11 @@ int final;
     if (wizard) {
         Sprintf(buf, " %d", u.ualign.record);
         enl_msg("Your alignment ", "is", "was", buf, "");
+    }
+
+    if ((wizard || final) && (monclock > 0)) {
+        Sprintf(buf, "%2.2fx", (float) MIN_MONGEN_RATE / monclock);
+        enl_msg("Monster generation rate ", "is ", "was ", buf, "");
     }
 
     /*** Resistances to troubles ***/

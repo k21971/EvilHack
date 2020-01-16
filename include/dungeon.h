@@ -256,4 +256,9 @@ typedef struct mapseen {
     struct cemetery *final_resting_place; /* same as level.bonesinfo */
 } mapseen;
 
+enum monster_generation {
+    MIN_MONGEN_RATE = 80,
+    MAX_MONGEN_RATE = 10
+};
+
 #endif /* DUNGEON_H */

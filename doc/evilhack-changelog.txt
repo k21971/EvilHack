@@ -666,5 +666,6 @@ Version 0.4.2
 - Adjust feedback when trying to cast spells using #monster
 - Adjust how a player could arise as a spectre
 - Door traps won't start to appear until dungeon level 13
+- Adjust monster generation rates
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

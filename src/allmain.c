@@ -23,6 +23,8 @@ STATIC_DCL void FDECL(debug_fields, (const char *));
 static long prev_dgl_extrainfo = 0;
 #endif
 
+enum monster_generation monclock;
+
 boolean
 elf_can_regen()
 {
@@ -115,9 +117,7 @@ boolean resuming;
     boolean monscanmove = FALSE;
 
     /* don't make it obvious when monsters will start speeding up */
-    int monclock;
     int timeout_start = rnd(10000) + 25000;
-    int clock_base = 60000L - timeout_start;
     int past_clock;
     boolean elf_regen = elf_can_regen();
     boolean orc_regen = orc_can_regen();
@@ -231,25 +231,27 @@ boolean resuming;
 		     * and difficulty of monsters generated will slowly increase until
 		     * it reaches the point it will be at as if you were post-Invocation.
 		     *
-		     * 60,000 turns should be adequate as a target mark for this effect;
-	             * if you haven't ascended in 60,000 turns, you're intentionally
-		     * fiddling around somewhere and will certainly be strong enough
-		     * to handle anything that comes your way, so this won't be
-		     * dropping newbies off the edge of the planet.  -- DSR 12/2/07
+                     * The rate increases linearly with turns.  The rule of thumb is that
+                     * at turn x the rate is approximately (x / 30.0000) times the normal
+                     * rate.  Maximal rate is 7x the normal rate.
 		     */
-                    monclock = 70;
+                    monclock = MIN_MONGEN_RATE;
                     if (u.uevent.udemigod) {
-                        monclock = 10;
+                        monclock = MAX_MONGEN_RATE;
                     } else {
-                        if (depth(&u.uz) > depth(&stronghold_level))
-                            monclock = 50;
                         past_clock = moves - timeout_start;
                         if (past_clock > 0)
-                            monclock -= (past_clock / clock_base) * 60;
+                            monclock = MIN_MONGEN_RATE * 30000 / (past_clock + 30000);
+                        if (monclock > MIN_MONGEN_RATE / 2 && depth(&u.uz) > depth(&stronghold_level))
+                            monclock = MIN_MONGEN_RATE / 2;
+                        if (monclock > MIN_MONGEN_RATE / 3 && depth(&u.uz) > depth(&orcus_level))
+                            monclock = MIN_MONGEN_RATE / 3;
 	            }
 		    /* make sure we don't fall off the bottom */
-                    if (monclock < 10)
-                        monclock = 10;
+                    if (monclock < MAX_MONGEN_RATE)
+                        monclock = MAX_MONGEN_RATE;
+                    if (monclock > MIN_MONGEN_RATE)
+                        monclock = MIN_MONGEN_RATE;
 
                     if (!rn2(monclock)) {
                         if (u.uevent.udemigod && xupstair && rn2(10))
