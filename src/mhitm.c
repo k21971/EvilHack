@@ -2123,7 +2123,7 @@ int mdead;
 	    if (canseemon(magr)) {
 		pline("%s is diseased!", Monnam(magr));
 	    }
-	    if (resists_sick(magr)) {
+	    if (canseemon(magr) && resists_sick(magr)) {
 		pline("%s is infected but appears to be immune.", Monnam(magr));
 		tmp = 0;
 	    }
