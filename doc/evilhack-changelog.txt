@@ -669,5 +669,6 @@ Version 0.4.2
 - Adjust monster generation rates
 - Fix: getting immune to sickness feedback from a monster attacking a gray fungus but
   the player not viewing said monster
+- Fix: non-magical flutes and harps in src/objects.c
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
