@@ -670,5 +670,6 @@ Version 0.4.2
 - Fix: getting immune to sickness feedback from a monster attacking a gray fungus but
   the player not viewing said monster
 - Fix: non-magical flutes and harps in src/objects.c
+- Fix: obtaining invisibility/see invisible from eating a stalker corpse
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
