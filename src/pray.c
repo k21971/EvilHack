@@ -2180,16 +2180,27 @@ prayer_done() /* M. Stephenson (1.0.3b) */
 
     u.uinvulnerable = FALSE;
     if (p_type == -1) {
+        const char* residual = "residual undead turning effect";
         godvoice(alignment,
                  (alignment == A_LAWFUL)
                     ? "Vile creature, thou durst call upon me?"
                     : "Walk no more, perversion of nature!");
         You_feel("like you are falling apart.");
-        /* KMH -- Gods have mastery over unchanging */
+        /* KMH -- Gods have mastery over unchanging
+         * aos -- ...unless you've been sentient_arise()'d or are polyinitted */
+        if (HUnchanging) {
+            u.mh = 0;
+            /* set killer things here because rehumanize will call done() if you
+             * have unchanging and will impossible if killer is unset */
+            Strcpy(killer.name, residual);
+            killer.format = KILLED_BY_AN;
+        }
         rehumanize();
         /* no Half_physical_damage adjustment here */
-        losehp(rnd(20), "residual undead turning effect", KILLED_BY_AN);
-        exercise(A_CON, FALSE);
+        if (!HUnchanging) {
+            losehp(rnd(20), "residual undead turning effect", KILLED_BY_AN);
+            exercise(A_CON, FALSE);
+        }
         return 1;
     }
     if (Inhell) {
