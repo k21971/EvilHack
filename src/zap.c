@@ -4153,10 +4153,10 @@ xchar sx, sy;
             /* no shield or suit, you're dead; wipe out cloak
                and/or shirt in case of life-saving or bones */
             if (!Reflecting) {
-            if (uarmc)
-                (void) destroy_arm(uarmc);
-            if (uarmu)
-                (void) destroy_arm(uarmu);
+                if (uarmc)
+                    (void) destroy_arm(uarmc);
+                if (uarmu)
+                    (void) destroy_arm(uarmu);
             }
         } else if (nonliving(youmonst.data) || is_demon(youmonst.data)) {
             shieldeff(sx, sy);
@@ -4171,13 +4171,23 @@ xchar sx, sy;
                 monstseesu(M_SEEN_MAGR);
                 dam /= 2;
             }
+            if (Reflecting) {
+                You("feel a little drained...");
+                u.uhpmax -= (dam / 3 + rn2(5)) / 2;
+            } else {
+                You("feel drained...");
+                u.uhpmax -= dam / 3 + rn2(5);
+            }
+	    break;
+	} else if (Reflecting && !Antimagic) {
+	    dam = d(4, 6);
+            if (Reflecting && Half_spell_damage) {
+                shieldeff(sx, sy);
+                monstseesu(M_SEEN_MAGR);
+                dam /= 2;
+            }
             You("feel drained...");
             u.uhpmax -= dam / 3 + rn2(5);
-            break;
-	} else if (Reflecting) {
-            You("feel a little bit drained!");
-	    dam = d(2, 6);
-	    u.uhpmax -= dam; /* it'll cost you... */
 	    break;
 	}
         killer.format = KILLED_BY_AN;

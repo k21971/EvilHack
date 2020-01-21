@@ -678,5 +678,7 @@ Version 0.4.2
 - Adjust which monsters are sick resistant; move permonst drain resistance and
   player-style-MR checks to macros
 - Fix: The Rat King shouldn't have the M2_PNAME flag
+- Fix: having both magic resistance and reflection together didn't stack against
+  death rays
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
