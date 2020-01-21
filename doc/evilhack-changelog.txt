@@ -673,5 +673,7 @@ Version 0.4.2
 - Fix: obtaining invisibility/see invisible from eating a stalker corpse
 - Fix: exploit with sentient_arise() and god destroying your undead form while unchanging
   set no killer
+- Fix: no feedback when hitting an unseen monster with various artifact weapons or
+  weapons with offensive object properties
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

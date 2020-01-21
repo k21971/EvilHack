@@ -1535,6 +1535,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (youdefend && Slimed)
             burn_away_slime();
         msgprinted = TRUE;
+        return realizes_damage;
     }
     if (attacks(AD_COLD, otmp)) {
         if (realizes_damage
@@ -1572,6 +1573,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_COLD);
         msgprinted = TRUE;
+        return realizes_damage;
     }
     if (attacks(AD_ELEC, otmp)) {
         if (realizes_damage
@@ -1603,6 +1605,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (!rn2(5))
             (void) destroy_mitem(mdef, WAND_CLASS, AD_ELEC);
         msgprinted = TRUE;
+        return realizes_damage;
     }
     if (attacks(AD_MAGM, otmp)) {
         if (realizes_damage)
@@ -1612,6 +1615,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           : "!  A hail of magic missiles strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
         msgprinted = TRUE;
+        return realizes_damage;
     }
     /* Fifth basic attack - acid (for the new and improved Dirge... DIRGE) */
     if (attacks(AD_ACID, otmp)) {
@@ -1627,6 +1631,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (!rn2(5))
             erode_armor(mdef, ERODE_CORRODE);
         msgprinted = TRUE;
+        return realizes_damage;
     }
     /* Sixth basic attack - poison */
     if (attacks(AD_DRST, otmp)) {
@@ -1647,6 +1652,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 otmp->oprops_known |= ITEM_VENOM;
         }
         msgprinted = TRUE;
+        return realizes_damage;
     }
     /* Seventh basic attack - disease */
     if (attacks(AD_DISE, otmp)) {
@@ -1664,6 +1670,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             }
         }
         msgprinted = TRUE;
+        return realizes_damage;
     }
 
     if (attacks(AD_STUN, otmp) && dieroll <= MB_MAX_DIEROLL) {
