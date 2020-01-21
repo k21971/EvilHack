@@ -45,11 +45,22 @@
 #define has_displacement(mon) (((mon)->mextrinsics & MR2_DISPLACED) != 0)
 
 #define resists_sick(mon)  ((mon)->data->mlet == S_FUNGUS                \
-                            || is_undead((mon)->data)                    \
+                            || nonliving((mon)->data)                    \
                             || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
                             || (mon)->data == &mons[PM_GOLD_DRAGON]      \
                             || (mon)->data == &mons[PM_GIANT_LEECH]      \
                             || (mon)->data == &mons[PM_GIANT_COCKROACH])
+
+/* as of 3.2.0:  gray dragons, Angels, Oracle, Yeenoghu */
+#define resists_mgc(ptr) \
+    (dmgtype(ptr, AD_MAGM) || ptr == &mons[PM_BABY_GRAY_DRAGON] \
+     || ptr == &mons[PM_ARCHON] || ptr == &mons[PM_ARCHANGEL]   \
+     || dmgtype(ptr, AD_RBRE)) /* Chromatic Dragon */
+
+#define resists_drain(ptr) \
+    (is_undead(ptr) || is_demon(ptr) || is_were(ptr) \
+     || ptr == &mons[PM_DEATH])
+/* is_were() doesn't handle hero in human form */
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
