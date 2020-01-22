@@ -2672,7 +2672,7 @@ int final;
         enl_msg("Your alignment ", "is", "was", buf, "");
     }
 
-    if ((wizard || final) && (monclock > 0)) {
+    if (monclock > 0) {
         Sprintf(buf, "%2.2fx", (float) MIN_MONGEN_RATE / monclock);
         enl_msg("Monster generation rate ", "is ", "was ", buf, "");
     }

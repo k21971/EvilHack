@@ -236,16 +236,22 @@ boolean resuming;
                      * rate.  Maximal rate is 8x the normal rate.
                      */
                     monclock = MIN_MONGEN_RATE;
-                    if (u.uevent.udemigod) {
+                    /* performing the invocation gets the entire dungeon riled up */
+                    if (u.uevent.invoked) {
                         monclock = MAX_MONGEN_RATE;
                     } else {
                         past_clock = moves - timeout_start;
                         if (past_clock > 0)
                             monclock = MIN_MONGEN_RATE * 30000 / (past_clock + 30000);
-                        if (monclock > MIN_MONGEN_RATE / 2 && depth(&u.uz) > depth(&stronghold_level))
+                        if (monclock > MIN_MONGEN_RATE / 2 && (depth(&u.uz) > depth(&stronghold_level)
+                                                               || u.uevent.uhand_of_elbereth))
                             monclock = MIN_MONGEN_RATE / 2;
-                        if (monclock > MIN_MONGEN_RATE / 3 && depth(&u.uz) > depth(&orcus_level))
+                        if (monclock > MIN_MONGEN_RATE / 3 && depth(&u.uz) > depth(&juiblex_level))
                             monclock = MIN_MONGEN_RATE / 3;
+                        if (monclock > MIN_MONGEN_RATE / 4 && depth(&u.uz) > depth(&wiz1_level))
+                            monclock = MIN_MONGEN_RATE / 4;
+                        if (monclock > MIN_MONGEN_RATE / 6 && u.uevent.udemigod)
+                            monclock = MIN_MONGEN_RATE / 6;
 	            }
 		    /* make sure we don't fall off the bottom */
                     if (monclock < MAX_MONGEN_RATE)
@@ -254,7 +260,7 @@ boolean resuming;
                         monclock = MIN_MONGEN_RATE;
 
                     if (!rn2(monclock)) {
-                        if (u.uevent.udemigod && xupstair && rn2(10))
+                        if (u.uevent.invoked && xupstair && rn2(10))
                             (void) makemon((struct permonst *) 0, xupstair, yupstair,
                                            MM_ADJACENTOK);
                         else
