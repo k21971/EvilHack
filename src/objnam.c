@@ -4427,10 +4427,13 @@ struct obj *no_wish;
         }
     }
 
-    /* more wishing abuse: don't allow wishing for the quest artifact */
-    /* otherwise an increasing probability that the artifact returns */
-    /* with its previous owner */
-    if (is_quest_artifact(otmp) && !wizard) {
+    /* more wishing abuse: don't allow wishing for the quest artifact
+     * and make them pay; charge them for the wish anyway!
+     * otherwise an increasing probability that the artifact returns
+     * with its previous owner
+     */
+    if ((is_quest_artifact(otmp)
+        || (otmp->oartifact && rn2(nartifact_exist()) > 1)) && !wizard) {
         artifact_exists(otmp, ONAME(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
         otmp = (struct obj *) &zeroobj;
@@ -4440,7 +4443,8 @@ struct obj *no_wish;
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
         return otmp;
-    } else if (otmp->oartifact && rn2(4) && !(wizard && yn("Deal with previous owner?") == 'n')) {
+    } else if (((otmp->oartifact && rn2(nartifact_exist() + 1) > 0))
+               && !(wizard && yn("Deal with previous owner?") == 'n')) {
         int pm = -1;
         int strategy = NEED_HTH_WEAPON;
         struct monst *mtmp;
@@ -4467,7 +4471,7 @@ struct obj *no_wish;
         if (pm < 0) {
             switch(otmp->oartifact) {
                 case ART_LIFESTEALER:
-                    pm = PM_VAMPIRE_KING;
+                    pm = PM_BALROG;
                     voice = "The Envoy of Vlad the Impaler";
                     break;
                 case ART_XIUHCOATL:

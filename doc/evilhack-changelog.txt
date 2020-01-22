@@ -682,5 +682,6 @@ Version 0.4.2
   death rays
 - Elven boots shouldn't be made of a hard material
 - Fix: Orcs made sick by zombies weren't arising as zombies when they died
+- Fix: another artifact wishing revamp
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
