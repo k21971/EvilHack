@@ -3255,10 +3255,8 @@ static const struct icp horn_materials[] = {
 /* hacks for specific objects... not great because it's a lot of data, but it's
  * a relatively clean solution */
 static const struct icp elven_helm_boots_materials[] = {
-    {70, LEATHER},
-    {15, MITHRIL},
-    {10, COPPER},
-    { 4, WOOD},
+    {90, LEATHER},
+    { 9, CLOTH},
     { 1, DRAGON_HIDE}
 };
 

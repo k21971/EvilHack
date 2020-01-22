@@ -680,5 +680,6 @@ Version 0.4.2
 - Fix: The Rat King shouldn't have the M2_PNAME flag
 - Fix: having both magic resistance and reflection together didn't stack against
   death rays
+- Elven boots shouldn't be made of a hard material
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 
