@@ -686,5 +686,6 @@ Version 0.4.2
 - Being crowned has chance of getting sick resistance
 - Tweak monster generation rates again; player can see monster generation rates via
   enlightenment
+- Monks can break a monster's wielded weapon under certain conditions
 - Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
 

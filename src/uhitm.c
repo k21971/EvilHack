@@ -808,6 +808,28 @@ int dieroll;
             && !context.forcefight)
             use_skill(P_THIEVERY, -1);
 
+        /* monks have a chance to break their opponents wielded weapon
+         * under certain conditions */
+        if ((dieroll == 5 && unarmed
+            && Role_if(PM_MONK) && P_BARE_HANDED_COMBAT
+            && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER)
+            && ((monwep = MON_WEP(mon)) != 0
+                && !is_flimsy(monwep))
+                && !obj_resists(monwep,
+                        50 + 15 * (greatest_erosion(monwep)), 100)) {
+            setmnotwielded(mon, monwep);
+            mon->weapon_check = NEED_WEAPON;
+            You("%s your qi.  %s from the force of your blow!",
+                  rn2(2) ? "channel" : "focus",
+                  Yobjnam2(monwep, (monwep->material == WOOD || monwep->material == BONE)
+                           ? "splinter" : "shatter"));
+            m_useupall(mon, monwep);
+            /* If someone just shattered MY weapon, I'd flee! */
+            if (!rn2(4))
+                monflee(mon, d(2, 3), TRUE, TRUE);
+            hittxt = TRUE;
+        }
+
         /* Blessed gloves give bonuses when fighting 'bare-handed'.  So do
            rings or gloves made of a hated material.  Note:  rings are worn
            under gloves, so you don't get both bonuses, and two hated rings
@@ -865,7 +887,8 @@ int dieroll;
                  **/
                 if (is_giant(youmonst.data)) {
                     int tmp2 = dmgval(obj, mon);
-                    if (tmp < tmp2) tmp = tmp2;
+                    if (tmp < tmp2)
+                        tmp = tmp2;
                     tmp++;
                 }
                 /* a minimal hit doesn't exercise proficiency */
@@ -894,10 +917,10 @@ int dieroll;
                                || (dieroll == 4 && (!rn2(2)) && (Race_if(PM_GIANT))
                                    && (((wtype = uwep_skill_type()) != P_NONE)
                                    && P_SKILL(wtype) >= P_EXPERT)))
-                                   && ((monwep = MON_WEP(mon)) != 0
-                                   && !is_flimsy(monwep)
-                                   && !obj_resists(monwep,
-                                           50 + 15 * (greatest_erosion(obj) - greatest_erosion(monwep)), 100))) {
+                           && ((monwep = MON_WEP(mon)) != 0
+                               && !is_flimsy(monwep)
+                               && !obj_resists(monwep,
+                                       50 + 15 * (greatest_erosion(obj) - greatest_erosion(monwep)), 100))) {
                     /*
                      * 2.5% chance of shattering defender's weapon when
                      * using a two-handed weapon; less if uwep is rusted.
@@ -922,15 +945,14 @@ int dieroll;
                     setmnotwielded(mon, monwep);
                     mon->weapon_check = NEED_WEAPON;
                     pline("%s from the force of your blow!",
-                          Yobjnam2(monwep, "shatter"));
+                          Yobjnam2(monwep, (monwep->material == WOOD || monwep->material == BONE)
+                                   ? "splinter" : "shatter"));
                     m_useupall(mon, monwep);
                     /* If someone just shattered MY weapon, I'd flee! */
-                    if (rn2(4)) {
+                    if (!rn2(4))
                         monflee(mon, d(2, 3), TRUE, TRUE);
-                    }
                     hittxt = TRUE;
                 }
-
                 if (((obj->oclass == WEAPON_CLASS && obj->oprops) || obj->oartifact)
                     && artifact_hit(&youmonst, mon, obj, &tmp, dieroll)) {
                     if (DEADMONSTER(mon)) /* artifact killed monster */
