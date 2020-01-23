@@ -2558,6 +2558,10 @@ struct obj *obj;
         verbalize("You disturbed me, fool!");
         mtmp->mpeaceful = FALSE;
         set_malign(mtmp);
+        if (!rn2(5)) {
+            verbalize("I think I'll keep this wish for myself!");
+            mmake_wish(mtmp);
+        }
         break;
     }
 }

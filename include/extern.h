@@ -1712,6 +1712,7 @@ E boolean FDECL(ureflects, (const char *, const char *));
 E void FDECL(mcureblindness, (struct monst *, BOOLEAN_P));
 E boolean FDECL(munstone, (struct monst *, BOOLEAN_P));
 E boolean FDECL(munslime, (struct monst *, BOOLEAN_P));
+E void FDECL(mmake_wish, (struct monst *));
 
 /* ### music.c ### */
 
