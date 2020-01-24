@@ -108,15 +108,17 @@ char *bufp;
 
 static boolean dump_prop_flag = FALSE;
 
-/* used by possessions identifier */
-void dump_prop_on()
+/* identify object properties */
+void
+dump_prop_on()
 {
-  dump_prop_flag = TRUE;
+    dump_prop_flag = TRUE;
 }
 
-void dump_prop_off()
+void
+dump_prop_off()
 {
-  dump_prop_flag = FALSE;
+    dump_prop_flag = FALSE;
 }
 
 char *
