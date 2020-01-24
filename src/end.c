@@ -870,8 +870,10 @@ time_t when; /* date+time at end of game */
     dump_plines();
     putstr(NHW_DUMPTXT, 0, "");
     putstr(0, ATR_HEADING, "Inventory:");
+    dump_prop_on();
     (void) display_inventory((char *) 0, TRUE);
     container_contents(invent, TRUE, TRUE, FALSE);
+    dump_prop_off();
     enlightenment((BASICENLIGHTENMENT | MAGICENLIGHTENMENT),
                   (how >= PANICKED) ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD);
     putstr(NHW_DUMPTXT, 0, "");
@@ -910,8 +912,10 @@ boolean taken;
         c = ask ? yn_function(qbuf, ynqchars, defquery) : defquery;
         if (c == 'y') {
             /* caller has already ID'd everything */
+            dump_prop_on();
             (void) display_inventory((char *) 0, TRUE);
             container_contents(invent, TRUE, TRUE, FALSE);
+            dump_prop_off();
         }
         if (c == 'q')
             done_stopprint++;

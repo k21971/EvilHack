@@ -106,6 +106,19 @@ char *bufp;
         obufidx = (obufidx - 1 + NUMOBUF) % NUMOBUF;
 }
 
+static boolean dump_prop_flag = FALSE;
+
+/* used by possessions identifier */
+void dump_prop_on()
+{
+  dump_prop_flag = TRUE;
+}
+
+void dump_prop_off()
+{
+  dump_prop_flag = FALSE;
+}
+
 char *
 obj_typename(otyp)
 register int otyp;
@@ -428,70 +441,80 @@ boolean has_of;
 
     Strcpy(of, (has_of) ? " and" : " of");
     if (props & ITEM_FIRE) {
-        if (props_known & ITEM_FIRE) {
+        if ((props_known & ITEM_FIRE)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, weapon ? " fire" : " fire resistance"),
             Strcpy(of, " and");
         }
     }
     if (props & ITEM_FROST) {
-        if (props_known & ITEM_FROST) {
+        if ((props_known & ITEM_FROST)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, weapon ? " frost" : " cold resistance"),
             Strcpy(of, " and");
         }
     }
     if (props & ITEM_DRLI) {
-        if (props_known & ITEM_DRLI) {
+        if ((props_known & ITEM_DRLI)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, weapon ? " decay" : " drain resistance"),
             Strcpy(of, " and");
         }
     }
     if (props & ITEM_SHOCK) {
-        if (props_known & ITEM_SHOCK) {
+        if ((props_known & ITEM_SHOCK)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, weapon ? " lightning" : " shock resistance"),
             Strcpy(of, " and");
         }
     }
     if (props & ITEM_VENOM) {
-        if (props_known & ITEM_VENOM) {
+        if ((props_known & ITEM_VENOM)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, weapon ? " venom" : " poison resistance"),
             Strcpy(of, " and");
         }
     }
     if (props & ITEM_ESP) {
-        if (props_known & ITEM_ESP) {
+        if ((props_known & ITEM_ESP)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, " telepathy"),
             Strcpy(of, " and");
         }
     }
     if (props & ITEM_SEARCHING) {
-        if (props_known & ITEM_SEARCHING) {
+        if ((props_known & ITEM_SEARCHING)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, " searching"),
             Strcpy(of, " and");
         }
     }
     if (props & ITEM_WARNING) {
-        if (props_known & ITEM_WARNING) {
+        if ((props_known & ITEM_WARNING)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, " warning"),
             Strcpy(of, " and");
         }
     }
     if (props & ITEM_FUMBLING) {
-        if (props_known & ITEM_FUMBLING) {
+        if ((props_known & ITEM_FUMBLING)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, " fumbling"),
             Strcpy(of, " and");
         }
     }
     if (props & ITEM_HUNGER) {
-        if (props_known & ITEM_HUNGER) {
+        if ((props_known & ITEM_HUNGER)
+            || dump_prop_flag) {
             Strcat(buf, of),
             Strcat(buf, " hunger"),
             Strcpy(of, " and");
@@ -555,6 +578,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
     if (iflags.override_ID) {
         known = dknown = bknown = TRUE;
+        obj->oprops_known = ITEM_PROP_MASK;
         nn = 1;
     } else {
         known = obj->known;
@@ -648,7 +672,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, "pair of ");
 
         if (dknown && (obj->oprops & ITEM_OILSKIN)
-            && (obj->oprops_known & ITEM_OILSKIN))
+            && ((obj->oprops_known & ITEM_OILSKIN)
+                || dump_prop_flag))
             Strcat(buf, "oilskin ");
 
         if (obj->material != objects[obj->otyp].oc_material) {
@@ -1105,6 +1130,7 @@ unsigned doname_flags;
 
     if (iflags.override_ID) {
         known = dknown = cknown = bknown = lknown = TRUE;
+        obj->oprops_known = ITEM_PROP_MASK;
     } else {
         known = obj->known;
         dknown = obj->dknown;

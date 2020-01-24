@@ -1767,6 +1767,8 @@ E void NDECL(objects_init);
 
 /* ### objnam.c ### */
 
+E void NDECL(dump_prop_on);
+E void NDECL(dump_prop_off);
 E char *FDECL(obj_typename, (int));
 E char *FDECL(simple_typename, (int));
 E char *FDECL(safe_typename, (int));

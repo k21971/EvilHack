@@ -2004,16 +2004,12 @@ dosacrifice()
                             typ = rnd_class(ELVEN_HELM, GAUNTLETS_OF_DEXTERITY);
                         } else {
                             typ = rnd_class(ELVEN_HELM, LEVITATION_BOOTS);
-		    }
+                    }
 		    if (typ) {
-			otmp = mksobj(typ, FALSE, FALSE);
+                        otmp = mksobj(typ, FALSE, FALSE);
 			if (otmp) {
-                            if (!rn2(30)) {
-                                if (u.uluck >= 5)
-                                    otmp = create_oprop(otmp, FALSE);
-                                else
-                                    otmp = create_oprop(otmp, TRUE);
-                            }
+                            if (!rn2(12))
+                                otmp = create_oprop(otmp, FALSE);
 			    bless(otmp);
 			    otmp->spe = rn2(3) + 3; /* +3 to +5 */
 			    otmp->oerodeproof = TRUE;
@@ -2048,7 +2044,9 @@ dosacrifice()
                     u.ublesscnt = rnz(300 + (50 * nartifacts));
                     exercise(A_WIS, TRUE);
                     livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                    "had %s bestowed upon %s by %s", artiname(otmp->oartifact),
+                                    "had %s bestowed upon %s by %s",
+                                    otmp->oartifact ? artiname(otmp->oartifact)
+                                                    : an(xname(otmp)),
                                     uhim(), align_gname(u.ualign.type));
 		    /* make sure we can use this weapon */
 		    unrestrict_weapon_skill(weapon_type(otmp));
