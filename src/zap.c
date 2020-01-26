@@ -2509,9 +2509,8 @@ boolean ordinary;
             monstseesu(M_SEEN_MAGR);
             damage = (damage + 1) / 2;
         }
-        if (Half_spell_damage) {
+        if (Half_spell_damage)
             damage = (damage + 1) / 2;
-        }
         break;
 
     case WAN_POLYMORPH:
@@ -3883,14 +3882,14 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     switch (abstype) {
     case ZT_MAGIC_MISSILE:
         tmp = d(nd, 6);
-        if (spellcaster)
-            tmp = spell_damage_bonus(tmp);
         if (resists_magm(mon)) {
             sho_shieldeff = TRUE;
             tmp = (tmp + 1) / 2;
         }
-        if (Half_spell_damage)
-            tmp = (tmp + 1) / 2;
+        if (spellcaster)
+            tmp = spell_damage_bonus(tmp);
+        if (wizard)
+            pline("Damage = %d", tmp);
         break;
     case ZT_FIRE:
         if (resists_fire(mon)) {
@@ -3954,8 +3953,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                       Monnam(mon));
                 if (spellcaster)
                     tmp = spell_damage_bonus(tmp);
-                if (Half_spell_damage)
-                    tmp = (tmp + 1) / 2;
                 break;
             }
             type = -1; /* so they don't get saving throws */
@@ -4009,6 +4006,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         /* not actually possible yet */
         if (!rn2(3))
             (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
+        if (wizard)
+            pline("Damage = %d", tmp);
         break;
     case ZT_POISON_GAS:
         if (resists_poison(mon)) {
@@ -4076,10 +4075,9 @@ xchar sx, sy;
             monstseesu(M_SEEN_MAGR);
             dam = (dam + 1) / 2;
         }
-        if (Half_spell_damage) { /* stacks, effectively 1/4 damage */
+        if (Half_spell_damage) /* stacks, effectively 1/4 damage */
             dam = (dam + 1) / 2;
-        }
-            exercise(A_STR, FALSE);
+        exercise(A_STR, FALSE);
         break;
     case ZT_FIRE:
         if (how_resistant(FIRE_RES) == 100) {
@@ -4115,7 +4113,7 @@ xchar sx, sy;
         if (!Reflecting) {
             if (!rn2(3))
                 destroy_item(POTION_CLASS, AD_COLD);
-            }
+        }
         break;
     case ZT_SLEEP:
         if (how_resistant(SLEEP_RES) == 100) {

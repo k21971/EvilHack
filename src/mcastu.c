@@ -435,9 +435,8 @@ boolean foundyou;
             monstseesu(M_SEEN_MAGR);
             dmg = (dmg + 1) / 2;
         }
-	if (Half_spell_damage) { /* stacks, effectively 1/4 damage */
-	    dmg = (dmg + 1) / 2;
-	}
+        if (Half_spell_damage)
+            dmg = (dmg + 1) / 2;
         break;
     case AD_SPEL: /* wizard spell */
     case AD_CLRC: /* clerical spell */
@@ -509,8 +508,8 @@ int spellnum;
                 done(DIED);
             } else if (Antimagic) {
 		dmg = d(8, 6);
-		/* Magic resistance in conjunction with half spell damage will cut this in half */
-		if (Antimagic && Half_spell_damage) {
+		/* Magic resistance or half spell damage will cut this in half */
+		if (Antimagic || Half_spell_damage) {
 		    shieldeff(u.ux, u.uy);
                     monstseesu(M_SEEN_MAGR);
 		    dmg /= 2;
@@ -844,9 +843,8 @@ int spellnum;
         } else {
             dmg = resist_reduce(d(8, 6), SHOCK_RES);
         }
-        if (dmg && Half_spell_damage) {
+        if (dmg && Half_spell_damage)
             dmg = (dmg + 1) / 2;
-        }
         if (!reflects) {
             destroy_item(WAND_CLASS, AD_ELEC);
             destroy_item(RING_CLASS, AD_ELEC);
@@ -1423,9 +1421,6 @@ register struct attack *mattk;
                         pline("Some missiles bounce off!");
            	    dmg = (dmg + 1) / 2;
                 }
-                if (Half_spell_damage) {
-                    dmg = (dmg + 1) / 2;
-                }
                 break;
    	    case AD_SPEL: /* wizard spell */
    	    case AD_CLRC: /* clerical spell */
@@ -1572,13 +1567,10 @@ register struct attack *mattk;
             break;
    	case AD_MAGM:
             pline("%s is hit by a shower of missiles!", Monnam(mtmp));
-            dmg = d((int)ml/2 + 1, 6);
+            dmg = d((int)ml / 2 + 1, 6);
             if (resists_magm(mtmp)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("Some missiles bounce off!");
-            dmg = (dmg + 1) / 2;
-            }
-            if (Half_spell_damage) {
                 dmg = (dmg + 1) / 2;
             }
             break;
