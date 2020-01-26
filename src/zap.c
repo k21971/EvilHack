@@ -3888,8 +3888,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         }
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
-        if (wizard)
-            pline("Damage = %d", tmp);
         break;
     case ZT_FIRE:
         if (resists_fire(mon)) {
@@ -4006,8 +4004,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         /* not actually possible yet */
         if (!rn2(3))
             (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
-        if (wizard)
-            pline("Damage = %d", tmp);
         break;
     case ZT_POISON_GAS:
         if (resists_poison(mon)) {
