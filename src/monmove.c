@@ -325,18 +325,43 @@ boolean fleemsg;
                 else
                     verbalize("Bright light!");
             } else if (!rn2(5) && !Deaf && !mindless(mtmp->data) && !is_silent(mtmp->data)) {
-                       if (mtmp->data->msound != MS_BUZZ && mtmp->data->msound != MS_HISS)
-                           pline("%s screams in terror!", Monnam(mtmp));
+                       if (mtmp->data->msound == MS_BARK
+                           || mtmp->data->msound == MS_GROWL)
+                           pline("%s howls in %s!", Monnam(mtmp),
+                                 rn2(2) ? "fear" : "terror");
+                       else if (mtmp->data->msound == MS_MEW
+                                || mtmp->data->msound == MS_HISS)
+                                pline("%s hisses in %s!", Monnam(mtmp),
+                                      rn2(2) ? "fear" : "terror");
+                       else if (mtmp->data->msound == MS_ROAR)
+                                pline("%s roars in %s!", Monnam(mtmp),
+                                      rn2(2) ? "fear" : "terror");
+                       else if (mtmp->data->msound == MS_SQAWK)
+                                pline("%s squawks in %s!", Monnam(mtmp),
+                                      rn2(2) ? "fear" : "terror");
+                       else if (mtmp->data->msound == MS_SQEEK)
+                                pline("%s squeals in %s!", Monnam(mtmp),
+                                      rn2(2) ? "fear" : "terror");
+                       else if (mtmp->data->msound == MS_NEIGH)
+                                pline("%s trumpets in %s!", Monnam(mtmp),
+                                      rn2(2) ? "fear" : "terror");
+                       else if (mtmp->data->msound == MS_SHRIEK)
+                                pline("%s shrieks in %s!", Monnam(mtmp),
+                                      rn2(2) ? "fear" : "terror");
+                       else if (mtmp->data->msound == MS_GRUNT
+                                || mtmp->data->msound >= MS_LAUGH)
+                                pline("%s screams in %s!", Monnam(mtmp),
+                                      rn2(2) ? "fear" : "terror");
                        else
-                           pline("%s squeals in fear!", Monnam(mtmp));
+                           pline("%s squeaks in %s!", Monnam(mtmp),
+                                 rn2(2) ? "fear" : "terror");
                 /* Check and see who was close enough to hear it */
                 for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
-                     if (dist2(mtmp->mx, mtmp->my, mtmp2->mx, mtmp2->my) < 19 && !rn2(3)) {
-                         mtmp2->msleeping = 0;
-                        }
-                    }
+                    if (dist2(mtmp->mx, mtmp->my, mtmp2->mx, mtmp2->my) < 19 && !rn2(3))
+                        mtmp2->msleeping = 0;
                 }
-                pline("%s turns to flee.", Monnam(mtmp));
+            }
+            pline("%s turns to flee.", Monnam(mtmp));
         }
         mtmp->mflee = 1;
     }
