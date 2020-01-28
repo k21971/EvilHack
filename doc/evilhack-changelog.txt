@@ -698,5 +698,6 @@ Version 0.4.2
   an amulet of flying
 - Randomize how often Illithid player race uses tentacle attack
 - Add Lifestealer to the SPFX_EXCLUDE list
+- Adjust odds of random object spawning with some type of object property again
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
