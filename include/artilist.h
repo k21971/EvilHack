@@ -181,9 +181,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Meant to be wielded by Vlad. Enjoy the buff Vlad ;)
      */
     A("Lifestealer", TWO_HANDED_SWORD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI), 0, 0,
-      DRLI(5, 2), DFNS(AD_DRLI), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 10000L,
-      NO_COLOR),
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI),
+      SPFX_EXCLUDE, 0, DRLI(5, 2), DFNS(AD_DRLI), NO_CARY, 0, A_CHAOTIC, NON_PM,
+      NON_PM, 10000L, NO_COLOR),
     /*
      *      Keolewa from SporkHack - a Hawaiian war club.
      *      Buffing this up a bit to give it more utility.
