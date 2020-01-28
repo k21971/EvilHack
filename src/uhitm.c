@@ -481,7 +481,7 @@ register struct monst *mtmp;
         pline("The image of %s shimmers and vanishes!", mon_nam(mtmp));
         return FALSE;
     }
-    if (Upolyd || Race_if(PM_ILLITHID))
+    if (Upolyd || (Race_if(PM_ILLITHID) && !rn2(4)))
         (void) hmonas(mtmp);
     else
         (void) hitum(mtmp, youmonst.data->mattk);
