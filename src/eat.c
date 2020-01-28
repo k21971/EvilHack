@@ -674,7 +674,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
 
     if (give_nutrit && magr->mtame && !magr->isminion) {
         if (Race_if(PM_ILLITHID))
-            EDOG(magr)->hungrytime += rnd(6);
+            EDOG(magr)->hungrytime += rnd(3);
         else
             EDOG(magr)->hungrytime += rnd(60);
         magr->mconf = 0;
