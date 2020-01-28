@@ -3559,15 +3559,16 @@ struct monst *mtmp;
 	pline("%s quivers.", Monnam(mtmp));
     }
     if (is_zombie(mtmp->data)) {
-        if (canseemon(mtmp))
-	    pline("%s %s.", Monnam(mtmp),
-	                   !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :
-			   !rn2(3) ? "groans" :
-			   !rn2(2) ? "moans" : "shuffles in your direction");
-	else if (!rn2(4))
-	    You_hear("%s", !rn2(8) ? "a low voice mumble \"UUUNNNNGGHH...\"." :
-	                   !rn2(3) ? "a low groaning." :
-			   !rn2(2) ? "a low moaning." : "a shuffling noise.");
+        if (canseemon(mtmp) && !Deaf)
+            pline("%s %s.", Monnam(mtmp),
+	          !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :
+                  !rn2(3) ? "groans" :
+                  rn2(2) ? "moans" : "shuffles in your direction");
+        else if (!rn2(4) && !Deaf)
+            You_hear("%s.",
+                     !rn2(8) ? "a low voice mumble \"UUUNNNNGGHH...\"" :
+                     !rn2(3) ? "a low groaning" :
+                     rn2(2) ? "a low moaning" : "a shuffling noise");
     }
     if (mtmp->data == &mons[PM_MEDUSA]) {
         register int i;

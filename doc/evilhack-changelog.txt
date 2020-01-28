@@ -690,5 +690,6 @@ Version 0.4.2
 - Fix: monster wishes; djinn will sometimes use their wish on themselves if hostile
 - Fix: DYWYPI and items with object properties
 - Fix: magic missile causing half damage to target if the player had half spell damage
+- Fix: could hear zombie sounds when deaf
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
