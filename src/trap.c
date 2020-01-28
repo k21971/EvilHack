@@ -3156,6 +3156,8 @@ float_up()
         pline("Up, up, and awaaaay!  You're walking on air!");
     } else if (Is_airlevel(&u.uz)) {
         You("gain control over your movements.");
+    } else if (HFlying && uamul) {
+        pline("Except you are already flying...");
     } else {
         You("start to float in the air!");
     }
@@ -3318,7 +3320,8 @@ long hmask, emask; /* might cancel timeout */
                              ? "splashed down"
                              : "hit the ground");
                 } else {
-                    You("float gently to the %s.", surface(u.ux, u.uy));
+                    if (!HFlying)
+                        You("float gently to the %s.", surface(u.ux, u.uy));
                 }
             }
         }

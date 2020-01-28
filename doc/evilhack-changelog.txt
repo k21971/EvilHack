@@ -694,5 +694,7 @@ Version 0.4.2
 - Tweak nutrition gained by Illithid tentacle attack
 - Fix: the sounds various monsters make when scared
 - Fix: couldn't name regular flutes or harps
+- Fix: 'You float gently to the floor' with intrinsic flying (Illithid) and taking off
+  an amulet of flying
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
