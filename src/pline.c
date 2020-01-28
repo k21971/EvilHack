@@ -129,7 +129,7 @@ VA_DECL(const char *, line)
     int ln;
     int msgtyp;
 #if !defined(NO_VSNPRINTF)
-    int vlen = 0;
+    int vlen UNUSED;
 #endif
     boolean no_repeat;
     /* Do NOT use VA_START and VA_END in here... see above */
@@ -605,7 +605,7 @@ VA_DECL(const char *, str)
 #endif /* ?(USE_STDARG || USE_VARARG) */
 {       /* start of vconf...() or of nested block in USE_OLDARG's conf...() */
 #if !defined(NO_VSNPRINTF)
-    int vlen = 0;
+    int vlen UNUSED;
 #endif
     char buf[BIGBUFSZ]; /* will be chopped down to BUFSZ-1 if longer */
 
