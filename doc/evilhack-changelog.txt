@@ -690,5 +690,5 @@ Version 0.4.2
 - Fix: monster wishes; djinn will sometimes use their wish on themselves if hostile
 - Fix: DYWYPI and items with object properties
 - Fix: magic missile causing half damage to target if the player had half spell damage
-- Latest merges from 'vanilla' NetHack 3.6.4 official release (as of December 23rd, 2019)
+- Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
