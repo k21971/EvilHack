@@ -1447,7 +1447,6 @@ register struct obj *otmp;
 struct inv_sub { short race_pm, item_otyp, subs_otyp; };
 extern struct inv_sub inv_subs[];
 
-
 int
 dosacrifice()
 {
@@ -1919,16 +1918,16 @@ dosacrifice()
              *
              * The player can gain an artifact;
              * The chance goes down as the number of artifacts goes up.
-                 *
-                 * From SporkHack (heavily modified):
+             *
+             * From SporkHack (heavily modified):
              * The player can also get handed just a plain old hunk of weaponry
              * or piece of armor, but it will be blessed, +3 to +5, fire/rustproof, and
              * if it's a weapon, it'll be in one of the player's available skill
              * slots. The lower level you are, the more likely it is that you'll
              * get a hunk of ordinary junk rather than an artifact.
-                 *
+             *
              * Note that no artifact is guaranteed; it's still subject to the
-                 * chances of generating one of those in the first place. These are
+             * chances of generating one of those in the first place. These are
              * just the chances that an artifact will even be considered as a gift.
              *
              * level  4: 10% chance  level  9: 20% chance  level 12: 30% chance
@@ -1936,54 +1935,45 @@ dosacrifice()
              * level 21: 70% chance  level 23: 80% chance  level 24: 90% chance
              * level 26: 100% chance
              */
-            if (rn2(10) >= (int)((nchance * nchance) / 100)) {
+            if (rn2(10) >= (int) ((nchance * nchance) / 100)) {
                 if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
                     int typ, ncount = 0;
-                    if (rn2(2)) { // Making a weapon
+                    if (rn2(2)) { /* Making a weapon */
                         do {
                             /* Don't give unicorn horns or anything the player's restricted in
                              * Lets also try to dish out suitable gear based on the player's role */
-                            if (primary_casters) {
+                            if (primary_casters)
                                 typ = rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, FLAIL);
-                            } else if (primary_casters_priest) {
+                            else if (primary_casters_priest)
                                 typ = rnd_class(MACE, FLAIL);
-                            } else if (Role_if(PM_MONK)) {
+                            else if (Role_if(PM_MONK))
                                 typ = rnd_class(QUARTERSTAFF, STAFF_OF_WAR);
-                            } else {
+                            else
                                 typ = rnd_class(SPEAR, KATANA);
-                            }
-                
-                            // apply starting inventory subs - so we'll get racial gear if possible
+
+                            /* apply starting inventory subs - so we'll get racial gear if possible */
                             if (urace.malenum != PM_HUMAN) {
-                                for (int i = 0; inv_subs[i].race_pm != NON_PM; ++i){
-                                    if (inv_subs[i].race_pm == urace.malenum && typ == inv_subs[i].item_otyp) {
+                                for (int i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
+                                    if (inv_subs[i].race_pm == urace.malenum
+                                        && typ == inv_subs[i].item_otyp) {
                                         typ = inv_subs[i].subs_otyp;
                                         break;
                                     }
                                 }
                             }
-                
-                            /*
-                            if (objects[typ].oc_material == IRON && Race_if(PM_ELF))
-                                typ = 0;
-                            else if (objects[typ].oc_material == MITHRIL && Race_if(PM_ORC))
-                                typ = 0;
-                            */ 
-                            // The issue here is it blocks elves from getting basically 
-                            // anything, since most (non-elven) weapons are base mat iron...
-                                
-                            // if we have the WRONG race, then let's not do that
+
+                            /* The issue here is it blocks elves from getting basically
+                             * anything, since most (non-elven) weapons are base mat iron...
+                             * if we have the WRONG race, then let's not do that
+                             */
                             otmp = mksobj(typ, FALSE, FALSE);
-                            if (is_elven_obj(otmp) && !Race_if(PM_ELF)){
+                            if (is_elven_obj(otmp) && !Race_if(PM_ELF))
                                 typ = 0;
-                            } else if (is_orcish_obj(otmp) && !Race_if(PM_ORC)){
+                            else if (is_orcish_obj(otmp) && !Race_if(PM_ORC))
                                 typ = 0;
-                            } else if (is_dwarvish_obj(otmp) && !Race_if(PM_DWARF)){
-                                typ = 0;
-                            }
-                            
+
                             otmp = (struct obj *) 0;
-                            
+
                             if (typ && !P_RESTRICTED(objects[typ].oc_skill))
                                 break;
                         } while (ncount++ < 1000);
@@ -1992,7 +1982,8 @@ dosacrifice()
                             debugpline0("Ran out of tries making weapon");
                             return 1;
                         }
-                    } else if ((primary_casters || primary_casters_priest) && !rn2(3)) { // Making a spellbook
+                    } else if ((primary_casters || primary_casters_priest) && !rn2(3)) {
+                        /* Making a spellbook */
                         int sp_no, trycnt = u.ulevel + 1;
 
                         otmp = mkobj(SPBOOK_CLASS, TRUE);
@@ -2002,147 +1993,142 @@ dosacrifice()
 
                         while (--trycnt > 0) {
                             if (otmp->otyp != SPE_BLANK_PAPER) {
-                                for (sp_no = 0; sp_no < MAXSPELL; sp_no++){
+                                for (sp_no = 0; sp_no < MAXSPELL; sp_no++) {
                                     if (spl_book[sp_no].sp_id == otmp->otyp)
                                         break;
                                 }
-                                if (sp_no == MAXSPELL && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
+                                if (sp_no == MAXSPELL
+                                    && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
                                     break; /* usable, but not yet known */
                             } else {
-                                if (!objects[SPE_BLANK_PAPER].oc_name_known || carrying(MAGIC_MARKER))
+                                if (!objects[SPE_BLANK_PAPER].oc_name_known
+                                    || carrying(MAGIC_MARKER))
                                     break;
                             }
                             otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
                         }
-            
+
                         bless(otmp);
                         at_your_feet("An object");
                         dropy(otmp);
-            
                         godvoice(u.ualign.type, "Use this gift skillfully!");
                         u.ugifts++;
                         u.ublesscnt = rnz(300 + (50 * u.ugifts));
                         exercise(A_WIS, TRUE);
-            
                         livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
                                         "had %s given to %s by %s", an(xname(otmp)),
                                         uhim(), u_gname());
-            
                         if (!Hallucination && !Blind) {
                             otmp->dknown = 1;
                             makeknown(otmp->otyp);
                         }
                         return 1;
-                    } else { // Making armor
+                    } else { /* Making armor */
                         do {
-                            // even chance for each slot
-                            // giants are evenly distributed among armor they can wear
-                            // monks and centaurs end up more likely to receive certain kinds, but them's the breaks
-                            switch (Race_if(PM_GIANT) ? rn1(4, 2) : rn2(6)){
+                            /* even chance for each slot
+                             * giants are evenly distributed among armor they can wear
+                             * monks and centaurs end up more likely to receive certain
+                             * kinds, but them's the breaks */
+                            switch (Race_if(PM_GIANT) ? rn1(4, 2) : rn2(6)) {
                                 case 0:
-                                    // body armor (inc. shirts)
+                                    /* body armor (inc. shirts) */
                                     typ = rnd_class(PLATE_MAIL, T_SHIRT);
-                                    if(!Role_if(PM_MONK) || (typ == T_SHIRT || typ == HAWAIIAN_SHIRT)){
-                                        break; // monks only can have shirts
-                                    } // monks have (almost) double chance for cloaks
+                                    if (!Role_if(PM_MONK)
+                                        || (typ == T_SHIRT || typ == HAWAIIAN_SHIRT)) {
+                                        break; /* monks only can have shirts */
+                                    } /* monks have (almost) double chance for cloaks */
+                                    /* FALLTHRU */
                                 case 1:
-                                    // cloak
+                                    /* cloak */
                                     typ = rnd_class(MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT);
                                     break;
                                 case 2:
-                                    // boots
+                                    /* boots */
                                     typ = rnd_class(LOW_BOOTS, LEVITATION_BOOTS);
-                                    if (!Race_if(PM_CENTAUR)){
+                                    if (!Race_if(PM_CENTAUR)) {
                                         break;
-                                    } // centaurs have double chances to get a shield
+                                    } /* centaurs have double chances to get a shield */
+                                    /* FALLTHRU */
                                 case 3:
-                                    // shield
+                                    /* shield */
                                     typ = rnd_class(SMALL_SHIELD, SHIELD_OF_REFLECTION);
-                                    if(!Role_if(PM_MONK)){
+                                    if (!Role_if(PM_MONK)) {
                                         break;
-                                    } // monks have double chances to get gloves
+                                    } /* monks have double chances to get gloves */
+                                    /* FALLTHRU */
                                 case 4:
-                                    // gloves
+                                    /* gloves */
                                     typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
                                     break;
                                 case 5:
-                                    // helm
+                                    /* helm */
                                     typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
                                     break;
                                 default:
-                                    typ = HAWAIIAN_SHIRT; // ace ventura approved
-                                    break;    
+                                    typ = HAWAIIAN_SHIRT; /* Ace Ventura approved. Alrighty then. */
+                                    break;
                             }
-            
-                            /*
-                            if (objects[typ].oc_material == IRON && Race_if(PM_ELF))
-                                typ = 0;
-                            else if (objects[typ].oc_material == MITHRIL && Race_if(PM_ORC))
-                                typ = 0;
-                            */ 
-                            // Same as weapons, but not as badly obviously 
-                
-                            // apply starting inventory subs - so we'll get racial gear if possible
+
+                            /* Same as weapons, but not as badly obviously
+                             * apply starting inventory subs - so we'll get
+                             * racial gear if possible
+                             */
                             if (urace.malenum != PM_HUMAN) {
-                                for (int i = 0; inv_subs[i].race_pm != NON_PM; ++i){
-                                    if (inv_subs[i].race_pm == urace.malenum && typ == inv_subs[i].item_otyp) {
+                                for (int i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
+                                    if (inv_subs[i].race_pm == urace.malenum
+                                        && typ == inv_subs[i].item_otyp) {
                                         typ = inv_subs[i].subs_otyp;
+                                        break;
                                     }
                                 }
                             }
-                
-                            // if we have the WRONG race, then let's not do that
+
+                            /* if we have the WRONG race, then let's not do that */
                             otmp = mksobj(typ, FALSE, FALSE);
-                            if (is_elven_armor(otmp) && !Race_if(PM_ELF)){
+                            if (is_elven_armor(otmp) && !Race_if(PM_ELF))
                                 typ = 0;
-                            } else if (is_orcish_armor(otmp) && !Race_if(PM_ORC)){
+                            else if (is_orcish_armor(otmp) && !Race_if(PM_ORC))
                                 typ = 0;
-                            } else if (is_dwarvish_armor(otmp) && !Race_if(PM_DWARF)){
+                            else if (is_dwarvish_armor(otmp) && !Race_if(PM_DWARF))
                                 typ = 0;
-                            }
+
                             otmp = (struct obj *) 0;
-                
-                
+
                         } while (ncount++ < 1000 && !typ);
                     }
-            
+
                     if (typ) {
                         ncount = 0;
                         otmp = mksobj(typ, FALSE, FALSE);
-                        
-                        if (Race_if(PM_ELF)){
-                            while (otmp->material == IRON && ncount++ < 500){
+                        if (Race_if(PM_ELF)) {
+                            while (otmp->material == IRON && ncount++ < 500) {
                                 otmp = mksobj(typ, FALSE, FALSE);
-                                // keep trying for non-iron
+                                /* keep trying for non-iron */
                             }
                         }
-                        
-                        if (Race_if(PM_ORC)){
-                            while (otmp->material == MITHRIL && ncount++ < 500){
+
+                        if (Race_if(PM_ORC)) {
+                            while (otmp->material == MITHRIL && ncount++ < 500) {
                                 otmp = mksobj(typ, FALSE, FALSE);
-                                // keep trying for non-mithril
+                                /* keep trying for non-mithril */
                             }
                         }
-                        
+
                         if (otmp) {
-            
                             if (!rn2(12))
                                 otmp = create_oprop(otmp, FALSE);
-            
                             bless(otmp);
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */
                             otmp->oerodeproof = TRUE;
                             at_your_feet("An object");
                             dropy(otmp);
-            
                             godvoice(u.ualign.type, "Use this gift valorously!");
                             u.ugifts++;
                             u.ublesscnt = rnz(300 + (50 * u.ugifts));
                             exercise(A_WIS, TRUE);
-            
                             livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                "had %s entrusted to %s by %s", an(xname(otmp)), uhim(), u_gname());
-            
+                                            "had %s entrusted to %s by %s", an(xname(otmp)),
+                                            uhim(), u_gname());
                             if (!Hallucination && !Blind) {
                                 otmp->dknown = 1;
                                 makeknown(otmp->otyp);
@@ -2150,7 +2136,6 @@ dosacrifice()
                             return 1;
                         }
                     }
-                    
                     debugpline0("Failed to create item from typ - no typ");
                 }
 
@@ -2159,17 +2144,14 @@ dosacrifice()
                 if (otmp) {
                     if (otmp->spe < 0)
                         otmp->spe = 0;
-        
                     bless(otmp);
                     otmp->oerodeproof = TRUE;
                     at_your_feet("An object");
                     dropy(otmp);
-        
                     godvoice(u.ualign.type, "Use my gift wisely!");
                     u.ugifts++;
                     u.ublesscnt = rnz(300 + (50 * nartifacts));
                     exercise(A_WIS, TRUE);
-        
                     livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
                                     "had %s bestowed upon %s by %s",
                                     otmp->oartifact ? artiname(otmp->oartifact)
@@ -2198,11 +2180,10 @@ dosacrifice()
                         body_part(FOOT));
                 else
                     You(Hallucination
-                    ? "see crabgrass at your %s.  A funny thing in a dungeon."
-                            : "glimpse a four-leaf clover at your %s.",
+                        ? "see crabgrass at your %s.  A funny thing in a dungeon."
+                        : "glimpse a four-leaf clover at your %s.",
                         makeplural(body_part(FOOT)));
             }
-
         }
     }
     return 1;
