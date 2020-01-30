@@ -3849,4 +3849,4 @@ yourself by recovering the Amulet for %d.  You are
 determined to recover the Amulet for your deity, or die
 in the attempt.  Your hour of destiny has come.  For
 the sake of us all:  Go bravely with %d!
-%E
+%E [%dC has chosen you to recover the Amulet of Yendor for %dI.]

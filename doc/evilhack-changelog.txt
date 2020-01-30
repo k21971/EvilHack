@@ -701,5 +701,6 @@ Version 0.4.2
 - Adjust odds of random object spawning with some type of object property again
 - Some changes to a few monsters, as well as nasties() and wizapp()
 - Non-artifact sacrifice gifts revamp
+- Fix: missing quest message for Convict role
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
