@@ -702,5 +702,6 @@ Version 0.4.2
 - Some changes to a few monsters, as well as nasties() and wizapp()
 - Non-artifact sacrifice gifts revamp
 - Fix: missing quest message for Convict role
+- Fix: count shallow water and sewage as a safe landing spot in goodpos()
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 

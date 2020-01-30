@@ -94,6 +94,9 @@ unsigned gpflags;
             return TRUE;
         if (amorphous(mdat) && closed_door(x, y))
             return TRUE;
+        if ((is_puddle(x, y) || is_sewage(x, y))
+            && !vs_cantflyorswim(mdat))
+            return TRUE;
     }
     if (!accessible(x, y)) {
         if (!(is_pool(x, y) && ignorewater))
