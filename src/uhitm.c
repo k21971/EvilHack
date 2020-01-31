@@ -457,7 +457,7 @@ register struct monst *mtmp;
             else if (!cantwield(youmonst.data))
                 You("begin %s monsters with your %s %s.",
                     ing_suffix(Role_if(PM_MONK) ? "strike" :
-                               Role_if(PM_ROGUE) ? "rob" : "bash"),
+                               (Role_if(PM_ROGUE) && context.forcefight) ? "rob" : "bash"),
                     uarmg ? "gloved" : "bare", /* Del Lamb */
                     makeplural(body_part(HAND)));
         }
@@ -481,6 +481,7 @@ register struct monst *mtmp;
         pline("The image of %s shimmers and vanishes!", mon_nam(mtmp));
         return FALSE;
     }
+
     if (Upolyd || (Race_if(PM_ILLITHID) && !rn2(4)))
         (void) hmonas(mtmp);
     else
@@ -725,9 +726,11 @@ int dieroll;
     boolean result, anger_guards;
 
     anger_guards = (mon->mpeaceful
-                    && (mon->ispriest || mon->isshk || is_watch(mon->data)));
+                    && (mon->ispriest || mon->isshk || is_watch(mon->data))
+                    && (!(Role_if(PM_ROGUE) && context.forcefight && !Upolyd)));
     result = hmon_hitmon(mon, obj, thrown, dieroll);
-    if (mon->ispriest && !rn2(2))
+    if (mon->ispriest && !rn2(2)
+        && (!(Role_if(PM_ROGUE) && context.forcefight && !Upolyd)))
         ghod_hitsu(mon);
     if (anger_guards)
         (void) angry_guards(!!Deaf);
@@ -1361,6 +1364,12 @@ int dieroll;
     }
 
     if (thievery) {
+        if (mon->isshk
+            && !strcmp(shkname(mon), "Izchak")) {
+            You("find yourself unable to steal from %s.",
+            mon_nam(mon));
+            return 0;
+        }
         if (mon->minvent != 0) {
             You("%s to %s %s.",
                 rn2(2) ? "try" : "attempt",
@@ -1764,8 +1773,77 @@ struct attack *mattk;
             Your("attempt to %s %s %s.",
                  rn2(2) ? "pickpocket" : "steal from",
                  mon_nam(mdef), rn2(2) ? "failed" : "was unsuccessful");
-            if (!rn2(5))
+            if (!rn2(5) && P_SKILL(P_THIEVERY) == P_UNSKILLED)
                 You("could use more practice at pickpocketing.");
+            /* There's a chance a monster being pickpocketed will notice.
+             * As expected, they're not too happy about it. A good bit
+             * of this comes from setmangry()
+             */
+            if (mdef->mpeaceful) {
+                if (rnd(6) > P_SKILL(P_THIEVERY)) {
+                    if (mdef->mtame)
+                        return;
+                    mdef->mpeaceful = 0;
+                    if (mdef->ispriest) {
+                        if (p_coaligned(mdef))
+                            adjalign(-5); /* very bad */
+                        else
+                            adjalign(2);
+                    }
+                    if (couldsee(mdef->mx, mdef->my)) {
+                        if (humanoid(mdef->data) || mdef->isshk || mdef->isgd)
+                            pline("%s notices your pickpocketing attempt and gets angry!",
+                                  Monnam(mdef));
+                        else if (flags.verbose && !Deaf)
+                            growl(mdef);
+                    }
+                    /* stealing from your own quest leader will anger his or her guardians */
+                    if (!context.mon_moving /* should always be the case here */
+                        && mdef->data == &mons[quest_info(MS_LEADER)]) {
+                        struct monst *mon;
+                        struct permonst *q_guardian = &mons[quest_info(MS_GUARDIAN)];
+                        int got_mad = 0;
+
+                        /* guardians will sense this theft even if they can't see it */
+                        for (mon = fmon; mon; mon = mon->nmon) {
+                            if (DEADMONSTER(mon))
+                                continue;
+                            if (mon->data == q_guardian && mon->mpeaceful) {
+                                mon->mpeaceful = 0;
+                                if (canseemon(mon))
+                                    ++got_mad;
+                            }
+                        }
+                        if (got_mad && !Hallucination) {
+                            const char *who = q_guardian->mname;
+
+                            if (got_mad > 1)
+                                who = makeplural(who);
+                            pline_The("%s %s to be angry too...",
+                                      who, vtense(who, "appear"));
+                        }
+                    }
+                    /* make the watch react */
+                    if (!context.mon_moving) {
+                        struct monst *mon;
+
+                        for (mon = fmon; mon; mon = mon->nmon) {
+                            if (DEADMONSTER(mon))
+                                continue;
+                            if (mon == mdef) /* the mpeaceful test catches this since mtmp */
+                                continue;    /* is no longer peaceful, but be explicit...  */
+
+                            if (humanoid(mon->data) || mon->isshk || mon->ispriest) {
+                                if (is_watch(mon->data)
+                                    && mon->mcansee && m_canseeu(mon)) {
+                                    verbalize("Halt!  You're under arrest!");
+                                    (void) angry_guards(!!Deaf);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         /* don't increment the skill if the attempt isn't successful */
         use_skill(P_THIEVERY, -1);
@@ -2666,10 +2744,16 @@ boolean wouldhavehit;
 
     if (could_seduce(&youmonst, mdef, mattk))
         You("pretend to be friendly to %s.", mon_nam(mdef));
-    else if (canspotmon(mdef) && flags.verbose)
-        You("miss %s.", mon_nam(mdef));
-    else
-        You("miss it.");
+    else if (canspotmon(mdef) && flags.verbose) {
+        if (Role_if(PM_ROGUE)
+            && context.forcefight && !Upolyd) {
+            Your("pickpocketing attempt fails %s",
+                 rn2(2) ? "horribly" : "miserably");
+        } else {
+            You("miss %s.", mon_nam(mdef));
+        }
+    } else
+          You("miss it.");
     if (!mdef->msleeping && mdef->mcanmove)
         wakeup(mdef, TRUE);
 }

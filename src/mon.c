@@ -3612,109 +3612,112 @@ boolean via_attack;
     }
 
     /* AIS: Should this be in both places, or just in wakeup()? */
-    mtmp->mstrategy &= ~STRAT_WAITMASK;
-    if (!mtmp->mpeaceful)
-        return;
-    if (mtmp->mtame)
-        return;
-    mtmp->mpeaceful = 0;
-    if (mtmp->ispriest) {
-        if (p_coaligned(mtmp))
-            adjalign(-5); /* very bad */
-        else
-            adjalign(2);
-    } else
-        adjalign(-1); /* attacking peaceful monsters is bad */
-    if (couldsee(mtmp->mx, mtmp->my)) {
-        if (humanoid(mtmp->data) || mtmp->isshk || mtmp->isgd)
-            pline("%s gets angry!", Monnam(mtmp));
-        else if (flags.verbose && !Deaf)
-            growl(mtmp);
-    }
+    if (!(via_attack
+        && (Role_if(PM_ROGUE) && context.forcefight && !Upolyd))) {
+        mtmp->mstrategy &= ~STRAT_WAITMASK;
+        if (!mtmp->mpeaceful)
+            return;
+        if (mtmp->mtame)
+            return;
+        mtmp->mpeaceful = 0;
+        if (mtmp->ispriest) {
+            if (p_coaligned(mtmp))
+                adjalign(-5); /* very bad */
+            else
+                adjalign(2);
+        } else
+            adjalign(-1); /* attacking peaceful monsters is bad */
+        if (couldsee(mtmp->mx, mtmp->my)) {
+            if (humanoid(mtmp->data) || mtmp->isshk || mtmp->isgd)
+                pline("%s gets angry!", Monnam(mtmp));
+            else if (flags.verbose && !Deaf)
+                growl(mtmp);
+        }
 
-    /* attacking your own quest leader will anger his or her guardians */
-    if (!context.mon_moving /* should always be the case here */
-        && mtmp->data == &mons[quest_info(MS_LEADER)]) {
-        struct monst *mon;
-        struct permonst *q_guardian = &mons[quest_info(MS_GUARDIAN)];
-        int got_mad = 0;
+        /* attacking your own quest leader will anger his or her guardians */
+        if (!context.mon_moving /* should always be the case here */
+            && mtmp->data == &mons[quest_info(MS_LEADER)]) {
+            struct monst *mon;
+            struct permonst *q_guardian = &mons[quest_info(MS_GUARDIAN)];
+            int got_mad = 0;
 
-        /* guardians will sense this attack even if they can't see it */
-        for (mon = fmon; mon; mon = mon->nmon) {
-            if (DEADMONSTER(mon))
-                continue;
-            if (mon->data == q_guardian && mon->mpeaceful) {
-                mon->mpeaceful = 0;
-                if (canseemon(mon))
-                    ++got_mad;
+            /* guardians will sense this attack even if they can't see it */
+            for (mon = fmon; mon; mon = mon->nmon) {
+                if (DEADMONSTER(mon))
+                    continue;
+                if (mon->data == q_guardian && mon->mpeaceful) {
+                    mon->mpeaceful = 0;
+                    if (canseemon(mon))
+                        ++got_mad;
+                }
+            }
+            if (got_mad && !Hallucination) {
+                const char *who = q_guardian->mname;
+
+                if (got_mad > 1)
+                    who = makeplural(who);
+                pline_The("%s %s to be angry too...",
+                          who, vtense(who, "appear"));
             }
         }
-        if (got_mad && !Hallucination) {
-            const char *who = q_guardian->mname;
 
-            if (got_mad > 1)
-                who = makeplural(who);
-            pline_The("%s %s to be angry too...",
-                      who, vtense(who, "appear"));
-        }
-    }
+        /* make other peaceful monsters react */
+        if (!context.mon_moving) {
+            static const char *const Exclam[] = {
+                "Gasp!", "Uh-oh.", "Oh my!", "What?", "Why?",
+            };
+            struct monst *mon;
+            int mndx = monsndx(mtmp->data);
 
-    /* make other peaceful monsters react */
-    if (!context.mon_moving) {
-        static const char *const Exclam[] = {
-            "Gasp!", "Uh-oh.", "Oh my!", "What?", "Why?",
-        };
-        struct monst *mon;
-        int mndx = monsndx(mtmp->data);
+            for (mon = fmon; mon; mon = mon->nmon) {
+                if (DEADMONSTER(mon))
+                    continue;
+                if (mon == mtmp) /* the mpeaceful test catches this since mtmp */
+                    continue;    /* is no longer peaceful, but be explicit...  */
 
-        for (mon = fmon; mon; mon = mon->nmon) {
-            if (DEADMONSTER(mon))
-                continue;
-            if (mon == mtmp) /* the mpeaceful test catches this since mtmp */
-                continue;    /* is no longer peaceful, but be explicit...  */
+                if (!mindless(mon->data) && mon->mpeaceful
+                    && couldsee(mon->mx, mon->my) && !mon->msleeping
+                    && mon->mcansee && m_canseeu(mon)) {
+                    boolean exclaimed = FALSE;
 
-            if (!mindless(mon->data) && mon->mpeaceful
-                && couldsee(mon->mx, mon->my) && !mon->msleeping
-                && mon->mcansee && m_canseeu(mon)) {
-                boolean exclaimed = FALSE;
-
-                if (humanoid(mon->data) || mon->isshk || mon->ispriest) {
-                    if (is_watch(mon->data)) {
-                        verbalize("Halt!  You're under arrest!");
-                        (void) angry_guards(!!Deaf);
-                    } else {
-                        if (!rn2(5)) {
-                            verbalize("%s", Exclam[mon->m_id % SIZE(Exclam)]);
-                            exclaimed = TRUE;
-                        }
-                        /* shopkeepers and temple priests might gasp in
-                           surprise, but they won't become angry here */
-                        if (mon->isshk || mon->ispriest)
-                            continue;
-
-                        if (mon->data->mlevel < rn2(10)) {
-                            monflee(mon, rn2(50) + 25, TRUE, !exclaimed);
-                            exclaimed = TRUE;
-                        }
-                        if (mon->mtame) {
-                            /* mustn't set mpeaceful to 0 as below;
-                               perhaps reduce tameness? */
+                    if (humanoid(mon->data) || mon->isshk || mon->ispriest) {
+                        if (is_watch(mon->data)) {
+                            verbalize("Halt!  You're under arrest!");
+                            (void) angry_guards(!!Deaf);
                         } else {
-                            mon->mpeaceful = 0;
-                            adjalign(-1);
-                            if (!exclaimed)
-                                pline("%s gets angry!", Monnam(mon));
+                            if (!rn2(5)) {
+                                verbalize("%s", Exclam[mon->m_id % SIZE(Exclam)]);
+                                exclaimed = TRUE;
+                            }
+                            /* shopkeepers and temple priests might gasp in
+                               surprise, but they won't become angry here */
+                            if (mon->isshk || mon->ispriest)
+                                continue;
+
+                            if (mon->data->mlevel < rn2(10)) {
+                                monflee(mon, rn2(50) + 25, TRUE, !exclaimed);
+                                exclaimed = TRUE;
+                            }
+                            if (mon->mtame) {
+                                /* mustn't set mpeaceful to 0 as below;
+                                   perhaps reduce tameness? */
+                            } else {
+                                mon->mpeaceful = 0;
+                                adjalign(-1);
+                                if (!exclaimed)
+                                    pline("%s gets angry!", Monnam(mon));
+                            }
                         }
+                    } else if (mon->data->mlet == mtmp->data->mlet
+                               && big_little_match(mndx, monsndx(mon->data))
+                               && !rn2(3)) {
+                        if (!rn2(4)) {
+                            growl(mon);
+                            exclaimed = TRUE;
+                        }
+                        if (rn2(6))
+                            monflee(mon, rn2(25) + 15, TRUE, !exclaimed);
                     }
-                } else if (mon->data->mlet == mtmp->data->mlet
-                           && big_little_match(mndx, monsndx(mon->data))
-                           && !rn2(3)) {
-                    if (!rn2(4)) {
-                        growl(mon);
-                        exclaimed = TRUE;
-                    }
-                    if (rn2(6))
-                        monflee(mon, rn2(25) + 15, TRUE, !exclaimed);
                 }
             }
         }
