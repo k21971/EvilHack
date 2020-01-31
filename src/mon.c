@@ -2076,8 +2076,16 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* berserk monsters sometimes lash out at everything
        when trying to attack you  */
-    if (is_berserker(ma) && m_canseeu(magr) && !rn2(7))
+    if (is_berserker(ma) && m_canseeu(magr)
+        && !rn2(7) && (magr->mhp < (magr->mhpmax / 3))) {
+        if (ma->mlet == S_HUMAN || ma->mlet == S_ORC
+            || ma->mlet == S_GIANT || ma->mlet == S_OGRE)
+            pline("%s flies into a berserker rage!", Monnam(magr));
+        else
+            pline("%s %s with rage!", Monnam(magr),
+                  rn2(2) ? "roars" : "howls");
         return ALLOW_M | ALLOW_TM;
+    }
 
     /* The Riders, and huge/gigantic monsters
        will step on the bugs to get to you */

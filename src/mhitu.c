@@ -1201,7 +1201,7 @@ register struct attack *mattk;
     }
 
     if (is_berserker(mdat)) {
-        if (!rn2(7)) {
+        if (!rn2(7) && (mtmp->mhp < (mtmp->mhpmax / 3))) {
             if (mdat->mlet == S_HUMAN || mdat->mlet == S_ORC
                 || mdat->mlet == S_GIANT || mdat->mlet == S_OGRE
                 || mdat->mlet == S_HUMANOID)

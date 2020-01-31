@@ -704,5 +704,6 @@ Version 0.4.2
 - Fix: missing quest message for Convict role
 - Fix: count shallow water and sewage as a safe landing spot in goodpos()
 - Rogue thievery skill can be used on peaceful monsters without them knowing
+- Tweaks to M3_BERSERK
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
