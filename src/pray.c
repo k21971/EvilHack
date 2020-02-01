@@ -773,7 +773,7 @@ gcrownu()
 #define ok_wep(o) ((o) && ((o)->oclass == WEAPON_CLASS || is_weptool(o)))
 
     HSee_invisible |= FROMOUTSIDE;
-    if (!rn2(3))
+    if (!rn2(10))
         HSick_resistance |= FROMOUTSIDE;
     incr_resistance(&HFire_resistance, 100);
     incr_resistance(&HCold_resistance, 100);

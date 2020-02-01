@@ -707,5 +707,6 @@ Version 0.4.2
 - Tweaks to M3_BERSERK
 - Fix: hunger levels and dexterity abuse for Hobbits
 - Fix: player gets credit for the kill if monster dies from Grimtooth's disease effect
+- Adjust chances of getting sick resistance when crowned
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
