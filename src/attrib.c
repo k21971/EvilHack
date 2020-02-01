@@ -494,13 +494,15 @@ exerper()
     if (!(moves % 10)) {
         /* Hunger Checks */
 
-        int hs = (u.uhunger > 1000) ? SATIATED : (u.uhunger > 150)
-                                                     ? NOT_HUNGRY
-                                                     : (u.uhunger > 50)
-                                                           ? HUNGRY
-                                                           : (u.uhunger > 0)
-                                                                 ? WEAK
-                                                                 : FAINTING;
+        boolean hungerlvl = ((Race_if(PM_HOBBIT)) ? (u.uhunger > 3000)
+                                                  : (u.uhunger > 1000));
+        int hs = hungerlvl ? SATIATED : (u.uhunger > 150)
+                                            ? NOT_HUNGRY
+                                            : (u.uhunger > 50)
+                                                  ? HUNGRY
+                                                  : (u.uhunger > 0)
+                                                        ? WEAK
+                                                        : FAINTING;
 
         debugpline0("exerper: Hunger checks");
         switch (hs) {

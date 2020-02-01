@@ -3251,7 +3251,7 @@ boolean incr;
                                   ? "feel it's time for afternoon tea."
                                   : rn2(2)
                                         ? "need to stop for second breakfast."
-                                        : "hear your stomach rumble; it's time for elevenses.");
+                                        : "hear your stomach rumble.  It's time for elevenses.");
             } else
                 You((!incr) ? "only feel hungry now."
                             : (u.uhunger < 145)
