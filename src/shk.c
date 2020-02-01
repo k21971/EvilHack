@@ -2193,28 +2193,6 @@ register struct monst *shkp; /* if angry, impose a surcharge */
     else if (ACURR(A_CHA) <= 10)
         multiplier *= 4L, divisor *= 3L;
 
-    /* tmp = (tmp * multiplier) / divisor [with roundoff tweak] */
-    tmp *= multiplier;
-    if (divisor > 1L) {
-        /* tmp = (((tmp * 10) / divisor) + 5) / 10 */
-        tmp *= 10L;
-        tmp /= divisor;
-        tmp += 5L;
-        tmp /= 10L;
-    }
-
-    if (tmp <= 0L)
-        tmp = 1L;
-    /* the artifact prices in artilist[] are also used as a score bonus;
-       inflate their shop price here without affecting score calculation */
-    if (obj->oartifact)
-        tmp *= 4L;
-
-    /* anger surcharge should match rile_shk's, so we do it separately
-       from the multiplier/divisor calculation */
-    if (shkp && ESHK(shkp)->surcharge)
-        tmp += (tmp + 2L) / 3L;
-
     /* possible additional surcharges based on shk race, if one was passed in */
     if (shkp) {
 	switch (shkp->mnum) {
@@ -2339,14 +2317,34 @@ register struct monst *shkp; /* if angry, impose a surcharge */
     }
 
     /* professional courtesy if nonhuman */
-    if (shkp && shkp->mnum != PM_HUMAN && match_shkrace(shkp)) {
+    if (shkp && shkp->mnum != PM_HUMAN && match_shkrace(shkp))
         tmp -= tmp / 2L;
-    }
 
     /* and just make sure we haven't dealt ourselves out of money */
-    if (tmp < 1) {
+    if (tmp < 1)
         tmp = 3;
+
+    /* tmp = (tmp * multiplier) / divisor [with roundoff tweak] */
+    tmp *= multiplier;
+    if (divisor > 1L) {
+        /* tmp = (((tmp * 10) / divisor) + 5) / 10 */
+        tmp *= 10L;
+        tmp /= divisor;
+        tmp += 5L;
+        tmp /= 10L;
     }
+
+    if (tmp <= 0L)
+        tmp = 1L;
+    /* the artifact prices in artilist[] are also used as a score bonus;
+       inflate their shop price here without affecting score calculation */
+    if (obj->oartifact)
+        tmp *= 4L;
+
+    /* anger surcharge should match rile_shk's, so we do it separately
+       from the multiplier/divisor calculation */
+    if (shkp && ESHK(shkp)->surcharge)
+        tmp += (tmp + 2L) / 3L;
 
     return tmp;
 }
@@ -2541,20 +2539,6 @@ register struct monst *shkp;
             multiplier *= 3L, divisor *= 4L;
     }
 
-    if (tmp >= 1L) {
-        /* [see get_cost()] */
-        tmp *= multiplier;
-        if (divisor > 1L) {
-            tmp *= 10L;
-            tmp /= divisor;
-            tmp += 5L;
-            tmp /= 10L;
-        }
-        /* avoid adjusting nonzero to zero */
-        if (tmp < 1L)
-            tmp = 1L;
-    }
-
     /* possible additional adjustments based on shk race.. */
     switch (shkp->mnum) {
 	default:
@@ -2678,15 +2662,28 @@ register struct monst *shkp;
     }
 
     /* professional courtesy if nonhuman, but not _that_ much */
-    if (shkp->mnum != PM_HUMAN && match_shkrace(shkp)) {
+    if (shkp->mnum != PM_HUMAN && match_shkrace(shkp))
         tmp += tmp / 3L;
-    }
 
     /* Final quick check; if we're about to buy this for more than we'd sell
      * it for in the first place, let's arrange to, er, not do that.  */
-    if (tmp > get_cost(obj, shkp) * obj->quan) {
+    if (tmp > get_cost(obj, shkp) * obj->quan)
 	tmp = (get_cost(obj, shkp) * 4L / 5L) * obj->quan;
+
+    if (tmp >= 1L) {
+        /* [see get_cost()] */
+        tmp *= multiplier;
+        if (divisor > 1L) {
+            tmp *= 10L;
+            tmp /= divisor;
+            tmp += 5L;
+            tmp /= 10L;
+        }
+        /* avoid adjusting nonzero to zero */
+        if (tmp < 1L)
+            tmp = 1L;
     }
+
 end:
     /* (no adjustment for angry shk here) */
     return tmp;

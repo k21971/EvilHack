@@ -708,5 +708,6 @@ Version 0.4.2
 - Fix: hunger levels and dexterity abuse for Hobbits
 - Fix: player gets credit for the kill if monster dies from Grimtooth's disease effect
 - Adjust chances of getting sick resistance when crowned
+- Fix: rounding formula apply after racial shopkeeper price adjustments
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
