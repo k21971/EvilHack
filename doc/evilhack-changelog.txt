@@ -706,5 +706,6 @@ Version 0.4.2
 - Rogue thievery skill can be used on peaceful monsters without them knowing
 - Tweaks to M3_BERSERK
 - Fix: hunger levels and dexterity abuse for Hobbits
+- Fix: player gets credit for the kill if monster dies from Grimtooth's disease effect
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 

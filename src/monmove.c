@@ -537,7 +537,11 @@ register struct monst *mtmp;
                       Monnam(mtmp), mhis(mtmp));
             mtmp->mdiseased = 0;
             mtmp->mhp = -1;
-            mondied(mtmp);
+            if ((uwep && uwep->oartifact == ART_GRIMTOOTH)
+                || (u.twoweap && uswapwep->oartifact == ART_GRIMTOOTH))
+                xkilled(mtmp, XKILL_GIVEMSG);
+            else
+                mondied(mtmp);
             return (mtmp->mhp > 0) ? 0 : 1;
         }
     }
