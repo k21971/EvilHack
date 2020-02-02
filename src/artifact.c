@@ -1910,10 +1910,18 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 else if (otmp->oartifact == ART_LIFESTEALER)
                     pline_The("massive sword draws the %s from %s!",
                               life, mon_nam(mdef));
+                /* 'thristy' weapons currently are not allowed
+                 * but we'll cover that base here just in case
+                 * they're added someday */
                 else if (otmp->oclass == WEAPON_CLASS
                          && (otmp->oprops & ITEM_DRLI))
                     pline_The("deadly %s draws the %s from %s!",
                           distant_name(otmp, xname), life,
+                          mon_nam(mdef));
+                /* The Staff of Aesculapius */
+                else
+                    pline("%s draws the %s from %s!",
+                          The(distant_name(otmp, xname)), life,
                           mon_nam(mdef));
                 if (otmp->oprops & ITEM_DRLI)
                     otmp->oprops_known |= ITEM_DRLI;
@@ -1949,6 +1957,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                      && (otmp->oprops & ITEM_DRLI))
                 pline_The("deadly %s drains your %s!",
                           distant_name(otmp, xname), life);
+            /* The Staff of Aesculapius */
+            else
+                pline("%s drains your %s!", The(distant_name(otmp, xname)),
+                      life);
             if (otmp->oprops & ITEM_DRLI)
                 otmp->oprops_known |= ITEM_DRLI;
             losexp("life drainage");

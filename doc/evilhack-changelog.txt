@@ -709,5 +709,6 @@ Version 0.4.2
 - Fix: player gets credit for the kill if monster dies from Grimtooth's disease effect
 - Adjust chances of getting sick resistance when crowned
 - Fix: rounding formula apply after racial shopkeeper price adjustments
+- Fix: missing hit feedback from the Staff of Aesculapius
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
