@@ -2884,8 +2884,8 @@ struct attack *mattk;
 
                 pline("%s attacks you with a fiery gaze!", Monnam(mtmp));
                 stop_occupation();
-	            dmg = resist_reduce(dmg, FIRE_RES);
-		    if (dmg < 1) {
+	        dmg = resist_reduce(dmg, FIRE_RES);
+		if (dmg < 1) {
                     pline_The("fire feels mildly hot.");
                     monstseesu(M_SEEN_FIRE);
                 }
@@ -2911,8 +2911,8 @@ struct attack *mattk;
 
                 pline("%s attacks you with a chilling gaze!", Monnam(mtmp));
                 stop_occupation();
-		    dmg = resist_reduce(dmg, COLD_RES);
-		    if (dmg < 1) {
+		dmg = resist_reduce(dmg, COLD_RES);
+		if (dmg < 1) {
                     pline_The("chilling gaze feels mildly cool.");
                     monstseesu(M_SEEN_COLD);
                 }
@@ -2941,9 +2941,8 @@ struct attack *mattk;
             stop_occupation();
         }
         break;
-/* Comment out the PM_BEHOLDER indef here so the below attack types function.
- * No wonder initial testing threw program disorders... */
-/* #ifdef PM_BEHOLDER */ /* work in progress */
+    /* Comment out the PM_BEHOLDER indef here so the below attack types function */
+    /* #ifdef PM_BEHOLDER */
     case AD_SLEE:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
             && multi >= 0 && !rn2(5) && (how_resistant(SLEEP_RES) < 100)) {
@@ -2986,64 +2985,59 @@ struct attack *mattk;
             }
         }
         break;
-/* Adding the parts here for disintegration and cancellation. The DevTeam probably
- * never bothered to add these, even though the Beholder has these two attacks.
- * Why you may ask? Because the Beholder was never enabled. This needs more work
- * ('died by a died' isn't going to cut it), but at least it's functional.
- */
+    /* Adding the parts here for disintegration and cancellation. The devteam probably
+     * never bothered to add these, even though the Beholder has these two attacks.
+     * Why you may ask? Because the Beholder was never enabled.
+     */
     case AD_DISN:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
             && multi >= 0 && !rn2(7)) {
-	    if (Disint_resistance) {
+            int dmg = d(8, 8);
+
+            pline("%s attacks you with a destructive gaze!",
+                  Monnam(mtmp));
+	    if (how_resistant(DISINT_RES) == 100) {
 	        pline("You bask in the %s aura of %s gaze.",
 		      hcolor(NH_BLACK), s_suffix(mon_nam(mtmp)));
                 monstseesu(M_SEEN_DISINT);
 		stop_occupation();
-	    } else {
-		pline("%s attacks you with a destructive gaze!",
-		      Monnam(mtmp));
-	        if (uarms) {
-		    /* destroy shield; other possessions are safe */
-		    (void) destroy_arm(uarms);
-	            break;
-	        } else if (uarm) {
-		    /* destroy suit; if present, cloak goes too */
-		    if (uarmc)
-                        (void) destroy_arm(uarmc);
-                    (void) destroy_arm(uarm);
-	            break;
-	        }
-	        /* no shield or suit, you're dead; wipe out cloak
-	         * and/or shirt in case of life-saving or bones */
-	        if (uarmc)
-                    (void) destroy_arm(uarmc);
-	        if (uarmu)
-                    (void) destroy_arm(uarmu);
-
-                /* If you want the beholders disintegration ray to behave similar
-                 * to that of a wand of death, uncomment the below three lines.
-                 * Otherwise the beholders disintegration ray will behave like a
-                 * deities' wide-angle death beam - first your armor, then you.
-                 */
-                /* if (nonliving(youmonst.data) || is_demon(youmonst.data)) {
-                       You("seem unaffected.");
-                       break;
-                } */
-
-                /* The EotO can afford the player some protection when worn */
-                int dmg;
+	    } else if (how_resistant(DISINT_RES) > 0) {
+                You("aren't disintegrated, but that really hurts!");
+                dmg = resist_reduce(dmg, DISINT_RES);
                 if (ublindf
-                    && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
-                    pline("%s partially protect you from %s destructive gaze.  That stings!",
-                          An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
-                    dmg = d(8, 8);
-                    if (dmg)
-                        mdamageu(mtmp, dmg);
-                } else {
-                    /* when killed by a disintegration beam, don't leave a corpse */
-                    u.ugrave_arise = -3;
-                    done_in_by(mtmp, DIED);
-                }
+                    && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD)
+                    dmg /= 2;
+                if (dmg)
+                    mdamageu(mtmp, dmg);
+                break;
+            /* The EotO can afford the player some protection when worn */
+            } else if (ublindf
+                       && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
+                pline("%s partially protect you from %s destructive gaze.  That stings!",
+                      An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
+                if (dmg)
+                    mdamageu(mtmp, dmg);
+                break;
+	    } else if (uarms) {
+                /* destroy shield; other possessions are safe */
+                (void) destroy_arm(uarms);
+                break;
+            } else if (uarm) {
+                /* destroy suit; if present, cloak goes too */
+                if (uarmc)
+                    (void) destroy_arm(uarmc);
+                (void) destroy_arm(uarm);
+                break;
+            } else {
+                /* no shield or suit, you're dead; wipe out cloak
+                 * and/or shirt in case of life-saving or bones */
+                if (uarmc)
+                    (void) destroy_arm(uarmc);
+                if (uarmu)
+                    (void) destroy_arm(uarmu);
+                /* when killed by a disintegration beam, don't leave a corpse */
+                u.ugrave_arise = -3;
+                done_in_by(mtmp, DIED);
             }
         }
         break;
@@ -3070,7 +3064,7 @@ struct attack *mattk;
             }
         }
 	break;
-/* #endif */ /* BEHOLDER */
+    /* #endif */ /* BEHOLDER */
     default:
         impossible("Gaze attack %d?", mattk->adtyp);
         break;

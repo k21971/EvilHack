@@ -4131,8 +4131,12 @@ xchar sx, sy;
                 break;
 	    } else if (Reflecting) {
 		You("aren't disintegrated, but that hurts!");
-		dam = resist_reduce(d(nd, 6), DISINT_RES);
+		dam = resist_reduce(d(6, 6), DISINT_RES);
 		break;
+            } else if (!Reflecting && (how_resistant(DISINT_RES) > 0)) {
+                You("aren't disintegrated, but that really hurts!");
+                dam = resist_reduce(d(12, 6), DISINT_RES);
+                break;
             } else if (uarms) {
                 /* destroy shield; other possessions are safe */
                 (void) destroy_arm(uarms);
