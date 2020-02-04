@@ -712,5 +712,6 @@ Version 0.4.2
 - Fix: missing hit feedback from the Staff of Aesculapius
 - Fix: make partial disintegration resistance actually mean something
 - Fix: a searmsg call didn't check validity of hated_obj
+- Another case of mindless monsters should not become scared
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 

@@ -1288,7 +1288,8 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
         attack_indx = MB_INDEX_STUN;
         *dmgptr += rnd(4); /* (3..4)d4 */
     }
-    if (dieroll <= scare_dieroll) {
+    if (dieroll <= scare_dieroll
+        && !mindless(mdef->data)) {
         attack_indx = MB_INDEX_SCARE;
         *dmgptr += rnd(4); /* (3..5)d4 */
     }
