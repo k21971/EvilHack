@@ -2996,12 +2996,12 @@ struct attack *mattk;
 
             pline("%s attacks you with a destructive gaze!",
                   Monnam(mtmp));
-	    if (how_resistant(DISINT_RES) == 100) {
-	        pline("You bask in the %s aura of %s gaze.",
-		      hcolor(NH_BLACK), s_suffix(mon_nam(mtmp)));
+            if (how_resistant(DISINT_RES) == 100) {
+                pline("You bask in the %s aura of %s gaze.",
+                      hcolor(NH_BLACK), s_suffix(mon_nam(mtmp)));
                 monstseesu(M_SEEN_DISINT);
-		stop_occupation();
-	    } else if (how_resistant(DISINT_RES) > 0) {
+                stop_occupation();
+            } else if (how_resistant(DISINT_RES) > 0) {
                 You("aren't disintegrated, but that really hurts!");
                 dmg = resist_reduce(dmg, DISINT_RES);
                 if (ublindf
@@ -3018,7 +3018,7 @@ struct attack *mattk;
                 if (dmg)
                     mdamageu(mtmp, dmg);
                 break;
-	    } else if (uarms) {
+            } else if (uarms) {
                 /* destroy shield; other possessions are safe */
                 (void) destroy_arm(uarms);
                 break;

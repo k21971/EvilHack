@@ -484,7 +484,7 @@ struct obj **out_obj; /* ptr to offending object, can be NULL if not wanted */
 }
 
 /* give a "silver <item> sears <target>" message (or similar for other
- * material); not used for weapon hit, so we only handle rings, boots for kick,
+ * material); in addition to weapon hit, this is used for rings, boots for kick,
  * gloves for punch, or helm for headbutt.
  * This also handles the case where magr is made of a material that mdef hates.
  */
@@ -494,21 +494,23 @@ struct monst *magr UNUSED;
 struct monst *mdef;
 struct obj * obj; /* the offending item,  or &zeroobj if your body */
 {
-    char onamebuf[BUFSZ];
-    char whose[BUFSZ];
-    int mat = obj->material;
-    const char* matname = materialnm[mat];
-
     if (!obj) {
         impossible("searmsg: nothing searing?");
         return;
     }
 
-    else if (obj == &zeroobj) {
+    char onamebuf[BUFSZ];
+    char whose[BUFSZ];
+    int mat;
+
+    if (obj == &zeroobj) {
+        mat = monmaterial(monsndx(youmonst.data));
         Strcpy(whose, "your ");
-        Sprintf(onamebuf, "%s touch",
-                materialnm[monmaterial(monsndx(youmonst.data))]);
+        Sprintf(onamebuf, "%s touch", materialnm[mat]);
     } else {
+        mat = obj->material;
+        const char* matname = materialnm[mat];
+
         /* Make it explicit to the player that this effect is from the material.
          * If the object name doesn't already contain the material name, add it
          * (e.g. "engraved silver bell" shouldn't turn into "silver engraved
@@ -530,8 +532,7 @@ struct obj * obj; /* the offending item,  or &zeroobj if your body */
 
         pline("%s%s %s %s!", upstart(whose), onamebuf,
               vtense(onamebuf, "sear"), whom);
-    }
-    else {
+    } else {
         whom = upstart(whom);
         pline("%s %s %s%s!",
               whom, rn2(2) ? "recoils from" : "is burned by", whose, onamebuf);
