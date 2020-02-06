@@ -925,7 +925,8 @@ mcalcdistress()
                                           ? SHIFT_MSG : 0);
 
         if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
-            if (mtmp->mhp < (mtmp->mhpmax / 2) || mtmp->mstone > 3) {
+            if (mtmp->data == &mons[PM_HUMAN]
+                && (mtmp->mhp < (mtmp->mhpmax / 2) || mtmp->mstone > 3)) {
                 pline("As death approaches, %s transforms into his true form!", mon_nam(mtmp));
                 newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
                 newsym(mtmp->mx, mtmp->my);
