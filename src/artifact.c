@@ -1473,10 +1473,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
-        if (realizes_damage
-            && (otmp->oartifact
-                || ((otmp->oprops & ITEM_FIRE)
-                    && (spec_dbon_applies || (otmp->oprops_known & ITEM_FIRE))))) {
+        if (realizes_damage) {
             if (otmp->oartifact == ART_FIRE_BRAND)
                 pline_The("fiery blade %s %s%c",
                           !spec_dbon_applies
@@ -1501,8 +1498,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           hittee, !spec_dbon_applies ? '.' : '!');
             else if (otmp->oclass == WEAPON_CLASS
                      && (otmp->oprops & ITEM_FIRE))
-                pline_The("%s %s %s %s%c",
-                          rn2(2) ? "fiery" : "flaming",
+                pline_The("%s %s %s%c",
                           distant_name(otmp, xname),
                           !spec_dbon_applies
                               ? "hits"
@@ -1539,32 +1535,26 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         return realizes_damage;
     }
     if (attacks(AD_COLD, otmp)) {
-        if (realizes_damage
-            && (otmp->oartifact
-                || ((otmp->oprops & ITEM_FROST)
-                    && (spec_dbon_applies || (otmp->oprops_known & ITEM_FROST))))) {
+        if (realizes_damage) {
             if (otmp->oartifact == ART_FROST_BRAND)
                 pline_The("ice-cold blade %s %s%c",
                           !spec_dbon_applies
                               ? "hits"
                               : (mdef->data == &mons[PM_WATER_ELEMENTAL]
                                  || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                 || mdef->data == &mons[PM_SEA_DRAGON]
-                                 || mdef->data == &mons[PM_WATER_TROLL])
+                                 || mdef->data == &mons[PM_SEA_DRAGON])
                                  ? "freezes part of"
                                  : "freezes",
                           hittee,  !spec_dbon_applies ? '.' : '!');
             else if (otmp->oclass == WEAPON_CLASS
                      && (otmp->oprops & ITEM_FROST))
-                pline_The("%s %s %s %s%c",
-                          rn2(2) ? "icy" : "frigid",
+                pline_The("%s %s %s%c",
                           distant_name(otmp, xname),
                           !spec_dbon_applies
                               ? "hits"
                               : (mdef->data == &mons[PM_WATER_ELEMENTAL]
                                  || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                 || mdef->data == &mons[PM_SEA_DRAGON]
-                                 || mdef->data == &mons[PM_WATER_TROLL])
+                                 || mdef->data == &mons[PM_SEA_DRAGON])
                                  ? "freezes part of"
                                  : "freezes",
                           hittee, !spec_dbon_applies ? '.' : '!');
@@ -1577,10 +1567,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         return realizes_damage;
     }
     if (attacks(AD_ELEC, otmp)) {
-        if (realizes_damage
-            && (otmp->oartifact
-                || ((otmp->oprops & ITEM_SHOCK)
-                    && (spec_dbon_applies || (otmp->oprops_known & ITEM_SHOCK))))) {
+        if (realizes_damage) {
             if (otmp->oartifact == ART_MJOLLNIR)
                 pline_The("massive hammer hits%s %s%c",
                           !spec_dbon_applies
@@ -1589,12 +1576,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           hittee, !spec_dbon_applies ? '.' : '!');
             else if (otmp->oclass == WEAPON_CLASS
                      && (otmp->oprops & ITEM_SHOCK))
-                pline_The("%s %s %s %s%c",
-                          rn2(2) ? "shimmering" : "electric",
+                pline_The("%s %s %s%c",
                           distant_name(otmp, xname),
                           !spec_dbon_applies
-                              ? "jolts"
-                              : "shocks",
+                              ? "hits"
+                              : rn2(2) ? "jolts" : "shocks",
                           hittee, !spec_dbon_applies ? '.' : '!');
             if ((otmp->oprops & ITEM_SHOCK) && spec_dbon_applies)
                 otmp->oprops_known |= ITEM_SHOCK;
@@ -1636,21 +1622,27 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
     /* Sixth basic attack - poison */
     if (attacks(AD_DRST, otmp)) {
-	if (realizes_damage
-            && (otmp->oartifact
-                || ((otmp->oprops & ITEM_VENOM)
-                    && (spec_dbon_applies || (otmp->oprops_known & ITEM_VENOM))))) {
+	if (realizes_damage) {
             if (otmp->oartifact == ART_SWORD_OF_BHELEU)
-	        pline_The("gigantic blade %s %s!",
-                          rn2(2) ? "poisons" : "eviscerates", hittee);
+	        pline_The("gigantic blade %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits"
+                              : rn2(2) ? "poisons" : "eviscerates",
+                          hittee, !spec_dbon_applies ? '.' : '!');
             else if (otmp->oclass == WEAPON_CLASS
                      && (otmp->oprops & ITEM_VENOM))
-                pline_The("%s %s %s %s!",
-                          rn2(2) ? "noxious" : "toxic",
+                pline_The("%s %s %s%c",
                           distant_name(otmp, xname),
-                          rn2(2) ? "taints" : "poisons", hittee);
+                          !spec_dbon_applies
+                              ? "hits"
+                              : rn2(2) ? "taints" : "poisons",
+                          hittee, !spec_dbon_applies ? '.' : '!');
             if ((otmp->oprops & ITEM_VENOM) && spec_dbon_applies)
                 otmp->oprops_known |= ITEM_VENOM;
+            if (youdefend) {
+                if (spec_dbon_applies && !rn2(8))
+                    poisoned("blade", A_STR, "poisoned blade", 30, FALSE);
+            }
         }
         msgprinted = TRUE;
         return realizes_damage;
@@ -1659,7 +1651,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (attacks(AD_DISE, otmp)) {
         if (realizes_damage)
             pline_The("filthy dagger %s %s%c",
-                      rn2(2) ? "contaminates" : "infects",
+                      !spec_dbon_applies
+                          ? "hits"
+                          : rn2(2) ? "contaminates" : "infects",
                       hittee, !spec_dbon_applies ? '.' : '!');
         if (youdefend) {
             diseasemu(magr->data);
