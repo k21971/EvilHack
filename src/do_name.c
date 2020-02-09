@@ -1366,7 +1366,6 @@ const char *name;
         }
         /* set up specific materials for the artifact */
         switch(obj->oartifact) {
-        case ART_SUNSWORD:
         case ART_WEREBANE:
         case ART_DEMONBANE:
         case ART_GRAYSWANDIR:
@@ -1377,6 +1376,7 @@ const char *name;
         case ART_FROST_BRAND:
             set_material(obj, MITHRIL);
             break;
+        case ART_SUNSWORD:
         case ART_SWORD_OF_BHELEU:
             set_material(obj, GEMSTONE);
             break;

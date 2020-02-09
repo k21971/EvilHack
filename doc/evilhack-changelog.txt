@@ -715,5 +715,6 @@ Version 0.4.2
 - Another case of mindless monsters should not become scared
 - Fix: Izchak isn't supposed to be immortal
 - Refer to objects made of gemstone as 'crystal'
+- Change Sunsword's base material from silver to gemstone
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
