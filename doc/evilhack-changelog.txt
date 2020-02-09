@@ -719,5 +719,6 @@ Version 0.4.2
 - Fix: monsters with a disease-based attack wasn't having an effect on other monsters
 - Revamp feedback when attacking with/being hit by a weapon with offensive object
   properties
+- Reset rogue's initial thievery skill back to basic level 
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 

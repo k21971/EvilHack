@@ -1773,7 +1773,7 @@ struct attack *mattk;
             Your("attempt to %s %s %s.",
                  rn2(2) ? "pickpocket" : "steal from",
                  mon_nam(mdef), rn2(2) ? "failed" : "was unsuccessful");
-            if (!rn2(5) && P_SKILL(P_THIEVERY) == P_UNSKILLED)
+            if (!rn2(10) && P_SKILL(P_THIEVERY) == P_BASIC)
                 You("could use more practice at pickpocketing.");
             /* There's a chance a monster being pickpocketed will notice.
              * As expected, they're not too happy about it. A good bit
