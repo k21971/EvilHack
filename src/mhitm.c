@@ -1630,6 +1630,19 @@ post_stone:
             }
         }
         break;
+    case AD_DISE:
+        if (resists_sick(mdef)) {
+            if (vis && canseemon(mdef))
+                pline("%s resists infection.", Monnam(mdef));
+            tmp = 0;
+            break;
+        }
+        if (vis && canseemon(mdef)) {
+            pline("%s looks %s.", Monnam(mdef),
+                  mdef->mdiseased ? "even worse" : "diseased");
+            mdef->mdiseased = 1;
+        }
+        break;
     case AD_DRIN:
         if (notonhead || !has_head(pd)) {
             if (vis && canspotmon(mdef))
@@ -2120,13 +2133,17 @@ int mdead;
                 pline("%s is suddenly very hot!", Monnam(magr));
             break;
 	case AD_DISE:
-	    if (canseemon(magr)) {
-		pline("%s is diseased!", Monnam(magr));
+	    if (resists_sick(magr)) {
+                if (canseemon(magr))
+                    pline("%s resists infection.", Monnam(magr));
+                tmp = 0;
+                break;
 	    }
-	    if (canseemon(magr) && resists_sick(magr)) {
-		pline("%s is infected but appears to be immune.", Monnam(magr));
-		tmp = 0;
-	    }
+            if (canseemon(magr)) {
+                pline("%s looks %s.", Monnam(magr),
+                      magr->mdiseased ? "even worse" : "diseased");
+                magr->mdiseased = 1;
+            }
 	    break;
         case AD_ELEC:
             if (resists_elec(magr)) {

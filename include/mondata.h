@@ -49,7 +49,8 @@
                             || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
                             || (mon)->data == &mons[PM_GOLD_DRAGON]      \
                             || (mon)->data == &mons[PM_GIANT_LEECH]      \
-                            || (mon)->data == &mons[PM_GIANT_COCKROACH])
+                            || (mon)->data == &mons[PM_GIANT_COCKROACH]  \
+                            || (mon)->data == &mons[PM_LOCUST])
 
 /* as of 3.2.0:  gray dragons, Angels, Oracle, Yeenoghu */
 #define resists_mgc(ptr) \
