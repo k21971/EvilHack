@@ -1845,8 +1845,10 @@ struct obj *weapon;
         bonus = ((bonus + 1) * (martial_bonus() ? 3 : 1)) / 2;
     }
 
-    /* KMH -- Riding gives some thrusting damage */
-    if (u.usteed && type != P_TWO_WEAPON_COMBAT) {
+    /* KMH -- Riding or being a centaur gives
+     * some thrusting damage */
+    if ((u.usteed || Race_if(PM_CENTAUR))
+        && type != P_TWO_WEAPON_COMBAT) {
         switch (P_SKILL(P_RIDING)) {
         case P_ISRESTRICTED:
         case P_UNSKILLED:
@@ -1925,6 +1927,10 @@ const struct def_skill *class_skill;
     /* Roles that start with a horse know how to ride it */
     if (urole.petnum == PM_PONY)
         P_SKILL(P_RIDING) = P_BASIC;
+
+    /* Centaurs can never ride anything */
+    if (Race_if(PM_CENTAUR))
+        P_SKILL(P_RIDING) = P_NONE;
 
     /*
      * Make sure we haven't missed setting the max on a skill
