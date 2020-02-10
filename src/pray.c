@@ -1674,6 +1674,23 @@ dosacrifice()
                                /* else headed towards celestial disgrace */
                                : "ashamed");
             return 1;
+        } else if (!rn2(3) && Is_astralevel(&u.uz)
+                   && uarmh && uarmh->otyp == HELM_OF_OPPOSITE_ALIGNMENT) {
+            /* just got caught trying to be sneaky */
+            You("offer the Amulet of Yendor to %s... but %s has noticed your deception!",
+                a_gname(), align_gname(u.ualignbase[A_ORIGINAL]));
+            /* your god isn't thrilled about it */
+            godvoice(u.ualignbase[A_ORIGINAL], "Thou shall pay for thy trickery, mortal!");
+            godvoice(u.ualignbase[A_ORIGINAL], "Bring unto me what is rightfully mine!");
+            /* say goodbye to the HoOA */
+            destroy_arm(uarmh);
+            change_luck(-5);
+            adjalign(-5);
+            /* and forget about ever being able to pray.
+             * at least the hero is able to continue and
+             * perhaps redeem themselves */
+            gods_upset(u.ualignbase[A_ORIGINAL]);
+            return 1;
         } else {
             /* The final Test.  Did you win? */
             if (uamul == otmp)

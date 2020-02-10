@@ -721,5 +721,7 @@ Version 0.4.2
   properties
 - Reset rogue's initial thievery skill back to basic level 
 - Healers guaranteed to have enough power to cast a level one spell at game start
+- Offering the Amulet of Yendor while wearing a helm of opposite alignment does not
+  always fool your deity
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
