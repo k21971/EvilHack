@@ -250,6 +250,11 @@ struct obj *obj; /* item to make known if effect can be seen */
     unsigned int oldspeed = mon->mspeed;
 
     switch (adjust) {
+    case 3: /* no longer in sewage */
+        if (mon->permspeed == MSLOW)
+            mon->permspeed = 0;
+        give_msg = FALSE;
+        break;
     case 2:
         mon->permspeed = MFAST;
         give_msg = FALSE; /* special case monster creation */
@@ -268,9 +273,9 @@ struct obj *obj; /* item to make known if effect can be seen */
         else
             mon->permspeed = MSLOW;
         break;
-    case -2:
+    case -2: /* wading through sewage */
         mon->permspeed = MSLOW;
-        give_msg = FALSE; /* (not currently used) */
+        give_msg = FALSE;
         break;
     case -3: /* petrification */
         /* take away intrinsic speed but don't reduce normal speed */

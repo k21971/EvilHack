@@ -435,6 +435,8 @@ register struct monst *mtmp;
     struct monst* mdummy;
     int inrange, nearby, scared, oldx, oldy;
 
+    boolean mwalk_sewage = is_sewage(mtmp->mx, mtmp->my);
+
     /*  Pre-movement adjustments
      */
 
@@ -508,6 +510,20 @@ register struct monst *mtmp;
         mtmp->mstone = 0;
         return 1; /* this is its move */
     }
+
+    /* some monsters get slowed down if wading through sewage */
+    if (mwalk_sewage) {
+        if (is_flyer(mdat) || is_floater(mdat)
+            || is_clinger(mdat) || is_swimmer(mdat)
+            || passes_walls(mdat) || noncorporeal(mdat)
+            || is_whirly(mdat)) {
+            mwalk_sewage = FALSE;
+        } else {
+            mon_adjust_speed(mtmp, -2, (struct obj *) 0);
+        }
+    }
+    if (!mwalk_sewage)
+        mon_adjust_speed(mtmp, 3, (struct obj *) 0);
 
     /* sick monsters can die from their illness */
     if (mtmp->msick && !rn2(10)) {
