@@ -208,7 +208,7 @@ boolean isyou;
                 if (DEADMONSTER(mtmp))
                     continue;
                 if (is_watch(mtmp->data) && couldsee(mtmp->mx, mtmp->my)
-                    && mtmp->mpeaceful) {
+                    && mtmp->mpeaceful && !MON_CASTBALL) {
                     if (!Deaf) {
                         pline("%s yells:", Amonnam(mtmp));
                         verbalize("Hey, stop using that fountain!");
@@ -242,7 +242,7 @@ boolean isyou;
            or felt if the hero is blind. */
         newsym(x, y);
         level.flags.nfountains--;
-        if (isyou && in_town(x, y))
+        if (isyou && in_town(x, y) && !MON_CASTBALL)
             (void) angry_guards(FALSE);
     }
 }
