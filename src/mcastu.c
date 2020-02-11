@@ -1809,7 +1809,7 @@ int spellnum;
                 mtmp->misc_worn_check &= ~otmp->owornmask;
                 update_mon_intrinsics(mtmp, otmp, FALSE, TRUE);
                 otmp->owornmask = 0L; /* obfree() expects this */
-                obfree(otmp, (struct obj *)0);
+                obfree(otmp, (struct obj *) 0);
             }
             else if (yours || canseemon(mtmp))
        	        pline("%s skin looks flaky.", s_suffix(Monnam(mtmp)));

@@ -726,5 +726,7 @@ Version 0.4.2
 - Fix: intelligent monsters that had no hands could open and loot containers
 - Remove riding skill for Centaurs
 - Certain monsters will move slower through sewage just like the player
+- Partial fix: obfree deleting worn obj (spellcasting monster casting stone to flesh on
+  itself while wearing a ring that could be affected)
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
