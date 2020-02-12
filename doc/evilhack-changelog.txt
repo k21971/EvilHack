@@ -730,5 +730,6 @@ Version 0.4.2
   itself while wearing a ring that could be affected)
 - Fix: player being blamed for monster spell drying up a fountain
 - Partial fix: active extrinsic from offhand weapon but not twoweaponing
+- Fix: active extrinsic from offhand weapon but not twoweaponing
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 

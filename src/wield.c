@@ -250,26 +250,19 @@ void
 setuswapwep(obj)
 register struct obj *obj;
 {
-    struct obj *olduswap = uswapwep;
-
-    if (obj == uswapwep)
-        return;
+    if (u.twoweap && obj && (obj->oartifact || obj->oprops))
+        set_artifact_intrinsic(obj, 1, W_SWAPWEP);
 
     setworn(obj, W_SWAPWEP);
-    if (uswapwep == obj && artifact_light(olduswap) && olduswap->lamplit) {
-        end_burn(olduswap, FALSE);
-        if (!Blind)
-            pline("%s shining.", Tobjnam(olduswap, "stop"));
-    }
+
     if (uswapwep == obj
-        && ((u.twoweap && uswapwep->oartifact == ART_OGRESMASHER)
-            || (u.twoweap && olduswap->oartifact == ART_OGRESMASHER)))
+        && (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER))
         context.botl = 1;
 
     if (uswapwep == obj
-        && ((u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER)
-            || (u.twoweap && olduswap->oartifact == ART_GIANTSLAYER)))
+        && (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
         context.botl = 1;
+    return;
 }
 
 /*** Commands to change particular slot(s) ***/
