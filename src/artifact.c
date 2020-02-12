@@ -839,18 +839,17 @@ long wp_mask;
         vision_full_recalc = 1;
     }
     if (spfx & SPFX_REFLECT) {
-	    /* Knights only have to carry the mirror; everyone else must wield it */
-	    if (Role_if(PM_KNIGHT)) {
-		    if (on) {
-			    EReflecting |= wp_mask;
-		    } else {
-			    EReflecting &= ~wp_mask;
-		    }
-	    } else if (wp_mask & (W_WEP | W_ARMG)) { /* or in Dragonbane's case, wear them */
-        if (on)
-            EReflecting |= wp_mask;
-        else
-            EReflecting &= ~wp_mask;
+        /* Knights only have to carry the mirror; everyone else must wield it */
+        if (Role_if(PM_KNIGHT)) {
+            if (on)
+                EReflecting |= wp_mask;
+            else
+                EReflecting &= ~wp_mask;
+        } else if (wp_mask & (W_WEP | W_ARMG)) { /* or in Dragonbane's case, wear them */
+            if (on)
+                EReflecting |= wp_mask;
+            else
+                EReflecting &= ~wp_mask;
         }
     }
 

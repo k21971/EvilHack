@@ -90,7 +90,8 @@ long mask;
                      * Allow weapon-tools, too.
                      * wp_mask should be same as mask at this point.
                      */
-                    if (wp->w_mask & ~(W_QUIVER)) {
+                    if ((wp->w_mask & ~(W_SWAPWEP | W_QUIVER))
+                        || (wp->w_mask & W_SWAPWEP && u.twoweap)) {
                         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
                             || mask != W_WEP) {
                             p = objects[obj->otyp].oc_oprop;
@@ -569,8 +570,10 @@ register struct monst *mon;
     /* Tweak the monster's AC a bit according to its level */
     div = mon->m_lev > 20 ? 5 : 4;
     bonus = ((mon->m_lev / 2) ^2) / div;
-    if (bonus > 20) { bonus = 20; }
-    if (bonus < 0) { bonus = 0; }
+    if (bonus > 20)
+        bonus = 20;
+    if (bonus < 0)
+        bonus = 0;
     base -= bonus;
 
     return base;

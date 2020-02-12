@@ -691,8 +691,11 @@ dotwoweapon()
 {
     /* You can always toggle it off */
     if (u.twoweap) {
+        struct obj *tmp = uswapwep;
         You("switch to your primary weapon.");
         u.twoweap = 0;
+        setuswapwep((struct obj *) 0);
+        setuswapwep(tmp);
         update_inventory();
         return 0;
     }
@@ -702,6 +705,7 @@ dotwoweapon()
         /* Success! */
         You("begin two-weapon combat.");
         u.twoweap = 1;
+        setuswapwep(uswapwep);
         update_inventory();
         return (rnd(20) > ACURR(A_DEX));
     }
@@ -751,8 +755,11 @@ void
 untwoweapon()
 {
     if (u.twoweap) {
+        struct obj *tmp = uswapwep;
         You("can no longer use two weapons at once.");
         u.twoweap = FALSE;
+        setuswapwep((struct obj *) 0);
+        setuswapwep(tmp);
         update_inventory();
     }
     return;
