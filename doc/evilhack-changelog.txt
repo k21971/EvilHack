@@ -731,5 +731,6 @@ Version 0.4.2
 - Fix: player being blamed for monster spell drying up a fountain
 - Partial fix: active extrinsic from offhand weapon but not twoweaponing
 - Fix: active extrinsic from offhand weapon but not twoweaponing
+- Fix: monsters kept displacement extrinsic after removing a worn cloak of displacement
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 

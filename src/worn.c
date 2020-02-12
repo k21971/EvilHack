@@ -455,9 +455,15 @@ new_property:
             in_mklev = save_in_mklev;
             break;
         }
-        case DISPLACED:
-        case JUMPING:
         case WWALKING:
+            mon->mextrinsics &= ~(MR2_WATERWALK);
+            break;
+        case JUMPING:
+            mon->mextrinsics &= ~(MR2_JUMPING);
+            break;
+        case DISPLACED:
+            mon->mextrinsics &= ~(MR2_DISPLACED);
+            break;
         case FIRE_RES:
         case COLD_RES:
         case SLEEP_RES:
