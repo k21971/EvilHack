@@ -733,5 +733,6 @@ Version 0.4.2
 - Fix: active extrinsic from offhand weapon but not twoweaponing
 - Fix: monsters kept displacement extrinsic after removing a worn cloak of displacement
 - Fix: getting reflection from Dragonbane if wielded
+- Fix: placing defunct monster onto map, mstate:%lx, on Dlvl:%s
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 

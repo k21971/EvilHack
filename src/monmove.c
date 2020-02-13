@@ -778,7 +778,7 @@ toofar:
             if (res & MM_AGR_DIED)
     	        return 1; /* Oops. */
 
-    	    /* return 0; */ /* that was our move for the round */
+    	    return 0; /* that was our move for the round */
         }
     }
 
