@@ -198,6 +198,9 @@ struct obj *otmp, *mwep;
         /* Medusa is an expert archer */
         else if (mtmp->data == &mons[PM_MEDUSA])
             multishot += 2;
+        /* Mariliths have multiple pairs of limbs */
+        else if (mtmp->data == &mons[PM_MARILITH])
+            multishot += 2;
         /* this portion is different from hero multishot; from slash'em?
          */
         /* Elven Craftsmanship makes for light, quick bows */
