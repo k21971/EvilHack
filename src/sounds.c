@@ -844,6 +844,30 @@ register struct monst *mtmp;
             case PM_TOURIST:
                 verbl_msg = "Aloha.";
                 break;
+            case PM_CHARON:
+                if (mtmp->mpeaceful) {
+                    switch (rnd(6)) {
+                    case 1:
+                        verbl_msg = "Cerberus awaits beyond these gates.  Beware, mortal!";
+                        break;
+                    case 2:
+                        verbl_msg = "Abandon all hope, ye who enter here.";
+                        break;
+                    case 3:
+                        verbl_msg = "This is all that remains of the river Styx.";
+                        break;
+                    case 4:
+                        verbl_msg = "Mortal, take heed!  Cerberus guards the entrance to Gehennom, and cannot be dispatched easily.";
+                        break;
+                    case 5:
+                        verbl_msg = "The Gates of Hell are impenetrable.";
+                        break;
+                    case 6:
+                        pline_msg = "asks if you've seen his boat.";
+                        break;
+                    }
+                }
+                break;
             default:
                 pline_msg = "discusses dungeon exploration.";
                 break;

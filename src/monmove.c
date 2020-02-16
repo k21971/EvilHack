@@ -154,6 +154,8 @@ struct monst *mtmp;
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL]
         || mtmp->data == &mons[PM_HONEY_BADGER]
+        || mtmp->data == &mons[PM_CERBERUS]
+        || mtmp->data == &mons[PM_CHARON]
         || mindless(mtmp->data)
         || is_mplayer(mtmp->data)
         || is_dlord(mtmp->data)
@@ -293,7 +295,8 @@ boolean fleemsg;
     struct monst* mtmp2;
 
     /* shouldn't happen; maybe warrants impossible()? */
-    if (DEADMONSTER(mtmp) || mindless(mtmp->data))
+    if (DEADMONSTER(mtmp) || mindless(mtmp->data)
+        || unique_corpstat(mtmp->data))
         return;
 
     if (mtmp == u.ustuck)

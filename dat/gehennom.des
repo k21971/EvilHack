@@ -9,17 +9,17 @@ FLAGS: noteleport,hardfloor,nommap
 GEOMETRY:center,center
 MAP
 ----------------------------------------------------------------------------
-|...S.|..|.....|  |.....-|      |................|   |...............| |...|
-|--S|.|.--.---.|  |......--- ----..........-----.-----....---........---.-.|
-| |.|.|.|..| |.| --........| |.............|   |.......---| |-...........--|
-| |.|...S..| |.| |.......-----.......------|   |--------..--|......--...-- |
-|--S-------- |.| |-......| |....|...-- |...-----................----|...|  |
-|.....S....---.| |.......| |....|...|  |..............-----------   |...|  |
-|.....|.|......| |.....--- |......---  |....---.......|            -|...|  |
-|.....|.|------| |....--   --....-- |-------- ----BBBB--------------...--  |
-|.....|--......---BBB-|     |...--  |.......|    |...............B.....|   |
-|..........||........-|    --...|   |.......|    |...||..........B..----   |
-|.....|....||.........------....|   |.......---- |...||..........B..--     |
+|..........|}}}|  |.....-|      |................|   |...............| |...|
+|..........|}..|  |......--- ----..........-----.-----....---........---.-.|
+|.........|-}}.| --........| |.............|   |.......---| |-...........--|
+|........--}}..| |.......-----.......------|   |--------..--|......--...-- |
+|--------|}}...| |-......| |....|...-- |...-----................----|...|  |
+}}}}}}}}}}}....| |.......| |....|...|  |..............-----------   |...|  |
+}}}}}}.........| |.....--- |......---  |....---.......|            -|...|  |
+|..............| |....--   --....-- |-------- ----BBBB--------------...--  |
+|--S--------------BBB-|     |...--  |.......|    |...............B.....|   |
+|.....|....||........-|    --...|   |.......|    |...||..........B..----   |
+|..........||.........------....|   |.......---- |...||..........B..--     |
 |.....|--......---...........--------..........| |.......---------...--    |
 |.....| |------| |--.......--|   |..B......----- -----....| |.|  |....---  |
 |.....| |......--| ------..| |----..B......|       |.--------.-- |-.....---|
@@ -54,13 +54,15 @@ IF [50%] {
 
 # Dungeon Description
 # The shrine to Moloch.
-REGION:(01,06,05,14),lit,"temple"
+REGION:(01,10,05,14),lit,"temple"
 # The Morgues
 REGION:(19,01,24,08),unlit,"morgue",filled,irregular
 REGION:(09,14,16,18),unlit,"morgue",filled,irregular
 REGION:(37,09,43,14),unlit,"morgue",filled,irregular
 REGION:(50,09,64,11),unlit,"morgue",filled,irregular
 REGION:(02,16,05,18),unlit,"morgue",filled,irregular
+# Cerberus area
+REGION:(00,00,15,09),unlit,"ordinary",unfilled
 # Stairs
 STAIR:(01,01),down
 # Branch location
@@ -68,18 +70,29 @@ BRANCH:(66,17,66,17),(0,0,0,0)
 TELEPORT_REGION:(58,09,72,18),(0,0,0,0),down
 
 # Secret Doors
-DOOR:locked,(04,01)
-DOOR:locked,(08,04)
-DOOR:locked,(06,06)
-DOOR:locked,(03,02)
-DOOR:locked,(03,05)
+DOOR:locked,(03,09)
 DOOR:locked,(08,16)
 
 # The altar of Moloch.
-ALTAR:(03,10),noalign,shrine
+ALTAR:(03,12),noalign,shrine
 
 # Non diggable walls - everywhere!
 NON_DIGGABLE:(00,00,75,19)
+# Non passable walls
+NON_PASSWALL:(00,00,15,09)
+
+# Entrance to Cerberus' lair, and on to Gehennom
+DRAWBRIDGE:(12,02),west,closed
+ENGRAVING:(13,02),burn,"Lasciate ogne speranza, voi ch'intrate"
+# Moat denziens
+MONSTER:(';',"kraken"),(02,07)
+MONSTER:(';',"kraken"),(07,06)
+MONSTER:(';',"kraken"),(11,04)
+
+# Cerberus guards the entrance to Gehennom
+# Charon plays a small role as well
+MONSTER:('d',"Cerberus"),(01,03),hostile
+MONSTER:('@',"Charon"),(14,02),peaceful
 
 # Objects
 # **LOTS** of dead bodies (all human).
@@ -108,6 +121,13 @@ OBJECT:('%',"corpse"),random,montype:"valkyrie"
 OBJECT:('%',"corpse"),random,montype:"valkyrie"
 OBJECT:('%',"corpse"),random,montype:"wizard"
 OBJECT:('%',"corpse"),random,montype:"wizard"
+# Corpses in Cerberus' lair
+OBJECT:('%',"corpse"),(01,03),montype:"barbarian"
+OBJECT:('%',"corpse"),(04,01),montype:"knight"
+OBJECT:('%',"corpse"),(05,04),montype:"ranger"
+OBJECT:('%',"corpse"),(08,02),montype:"samurai"
+OBJECT:('%',"corpse"),(09,03),montype:"valkyrie"
+
 #
 # Some random weapons and armor.
 #
@@ -144,6 +164,7 @@ OBJECT:'(',random
 CONTAINER:('(',"iron safe"),(02,18) {
 OBJECT:('*',"diamond")
 OBJECT:('*',"diamond")
+OBJECT:('/',"opening")
 OBJECT:'*'
 OBJECT:'*'
 OBJECT:'='
@@ -155,11 +176,6 @@ OBJECT:('(',"chest"),(02,17)
 OBJECT:('(',"chest"),(03,18)
 
 # (Not so) Random traps.
-TRAP:"spiked pit", (05,02)
-TRAP:"spiked pit", (14,05)
-TRAP:"sleep gas", (03,01)
-TRAP:"magic beam", (03,03)
-TRAP:"spear", (03,04)
 TRAP:"board", (21,12)
 TRAP:"board", random
 TRAP:"magic", (60,01)
@@ -171,30 +187,32 @@ TRAP:"magic", random
 
 # Random monsters.
 # The ghosts.
-MONSTER:' ',random
-MONSTER:(' ',"ghost"),random
-MONSTER:(' ',"ghost"),random
-MONSTER:(' ',"ghost"),random
-MONSTER:(' ',"ghost"),random
-MONSTER:(' ',"spectre"),random
+MONSTER:' ',(74,15)
+MONSTER:(' ',"ghost"),(34,01)
+MONSTER:(' ',"ghost"),(38,01)
+MONSTER:(' ',"ghost"),(18,10)
+MONSTER:(' ',"ghost"),(21,15)
+MONSTER:(' ',"spectre"),(66,02)
 # Add a few bats for atmosphere.
-MONSTER:('B',"vampire bat"),random
-MONSTER:('B',"vampire bat"),random
-MONSTER:('B',"vampire bat"),random
+MONSTER:('B',"vampire bat"),(73,15)
+MONSTER:('B',"vampire bat"),(23,16)
+MONSTER:('B',"vampire bat"),(19,11)
 # And a lich for good measure.
-MONSTER:'L',random
+MONSTER:'L',(20,10)
+# Balrog guards the hidden treasure room
+MONSTER:('&',"balrog"),(05,18)
 # Some undead nasties for good measure
-MONSTER:'V',random
-MONSTER:'V',random
-MONSTER:'V',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'M',random
-MONSTER:'M',random
-MONSTER:'M',random
-MONSTER:'M',random
+MONSTER:'V',(34,03)
+MONSTER:'V',(66,04)
+MONSTER:'V',(40,03)
+MONSTER:'Z',(40,01)
+MONSTER:'Z',(62,02)
+MONSTER:'Z',(64,02)
+MONSTER:'Z',(36,01)
+MONSTER:'M',(62,04)
+MONSTER:'M',(64,04)
+MONSTER:'M',(36,03)
+MONSTER:'M',(38,03)
 
 
 #

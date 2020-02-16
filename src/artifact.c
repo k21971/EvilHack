@@ -1298,7 +1298,7 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
         *dmgptr += rnd(4); /* (3..4)d4 */
     }
     if (dieroll <= scare_dieroll
-        && !mindless(mdef->data)) {
+        && !mindless(mdef->data) && !unique_corpstat(mdef->data)) {
         attack_indx = MB_INDEX_SCARE;
         *dmgptr += rnd(4); /* (3..5)d4 */
     }
@@ -1869,6 +1869,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (noncorporeal(mdef->data) || amorphous(mdef->data)) {
                     pline("%s slices through %s %s.", wepdesc,
                           s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
+                    return TRUE;
+                }
+                if (mdef->data == &mons[PM_CERBERUS]) {
+                    pline("%s removes one of %s heads!", wepdesc,
+                          s_suffix(mon_nam(mdef)));
+                    You("watch in horror as it quickly grows back.");
+                    *dmgptr = rn2(15) + 10;
                     return TRUE;
                 }
                 *dmgptr = 2 * mdef->mhp + FATAL_DAMAGE_MODIFIER;
