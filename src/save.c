@@ -1138,7 +1138,14 @@ register int fd, mode;
 register struct monst *mtmp;
 {
     register struct monst *mtmp2;
+    int iter;
     int minusone = -1;
+    int nummons = NUMMONS;
+    struct permonst *monbegin = &mons[0];
+    int namesize = sizeof(monbegin->mname);
+
+    if (perform_bwrite(mode))
+        bwrite(fd, (genericptr_t) &monbegin, sizeof(monbegin));
 
     while (mtmp) {
         mtmp2 = mtmp->nmon;
@@ -1168,6 +1175,15 @@ register struct monst *mtmp;
     }
     if (perform_bwrite(mode))
         bwrite(fd, (genericptr_t) &minusone, sizeof (int));
+
+    /* save off our own particular permonst chain */
+    if (perform_bwrite(mode))
+        bwrite(fd, (genericptr_t) &nummons, sizeof(int)); /* future compatibility check */
+
+    for (iter = 0; iter < nummons; iter++) {
+        if (perform_bwrite(mode))
+            bwrite(fd, (genericptr_t) &mons[iter] + namesize, sizeof(struct permonst) - namesize);
+    }
 }
 
 /* save traps; ftrap is the only trap chain so the 2nd arg is superfluous */

@@ -418,7 +418,12 @@ boolean ghostly;
 {
     register struct monst *mtmp, *mtmp2 = 0;
     register struct monst *first = (struct monst *) 0;
-    int offset, buflen;
+    int offset, buflen, monstoread, iter;
+    struct permonst *monbegin;
+    int namesize = sizeof(monbegin->mname);
+
+    /* get the original base address */
+    mread(fd, (genericptr_t)&monbegin, sizeof(monbegin));
 
     while (1) {
         mread(fd, (genericptr_t) &buflen, sizeof(buflen));
@@ -482,6 +487,18 @@ boolean ghostly;
         impossible("Restmonchn: error reading monchn.");
         mtmp2->nmon = 0;
     }
+
+    /* get the permonst chain back */
+    mread(fd, (genericptr_t) &monstoread, sizeof(int));
+
+    if (monstoread != NUMMONS) {
+        impossible("Restmonchn: number of permonst stored doesn't match current NUMMONS. Using default permonst");
+    } else {
+        for (iter = 0; iter < NUMMONS; iter++) {
+            mread(fd, (genericptr_t) &mons[iter] + namesize, sizeof(struct permonst) - namesize);
+        }
+    }
+
     return first;
 }
 

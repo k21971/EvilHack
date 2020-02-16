@@ -84,7 +84,7 @@ NON_PASSWALL:(00,00,15,09)
 # Entrance to Cerberus' lair, and on to Gehennom
 DRAWBRIDGE:(12,02),west,closed
 ENGRAVING:(13,02),burn,"Lasciate ogne speranza, voi ch'intrate"
-# Moat denziens
+# Moat denizens
 MONSTER:(';',"kraken"),(02,07)
 MONSTER:(';',"kraken"),(07,06)
 MONSTER:(';',"kraken"),(11,04)

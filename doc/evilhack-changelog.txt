@@ -744,3 +744,4 @@ Version 0.5.0
 - Prep for version 0.5.0
 - Gehennom changes (round one) - area around the wizard towers
 - Gehennom changes (round two) - Cerberus guards the entrance to Gehennom
+- Fix: Shambling horrors stats persist across save/restore
