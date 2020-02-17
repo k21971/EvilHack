@@ -750,3 +750,5 @@ Version 0.5.0
 - Fix: Giant wizard starting with a cloak of magic resistance
 - Fix: Switch cloak of protection for gauntlets of protection (one of the sokoban prizes)
 - Fix: Jumping spiders getting stuck in webs
+- Fix: Kicking or throwing a spellbook of force bolt or a wand of striking at iron bars
+  would destroy the iron bars
