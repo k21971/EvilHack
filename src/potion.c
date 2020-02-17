@@ -1110,6 +1110,12 @@ register struct obj *otmp;
                     if (on_level(&newlevel, &u.uz)) {
                         pline("It tasted bad.");
                         break;
+                    } else if (Is_valley(&u.uz)) {
+                        You("have an uneasy feeling.");
+                        break;
+                    } else if (Is_valley(&newlevel) + 1) {
+                        You(riseup, ceiling(u.ux, u.uy));
+                        goto_level(&newlevel, TRUE, FALSE, FALSE);
                     } else
                         You(riseup, ceiling(u.ux, u.uy));
                     goto_level(&newlevel, FALSE, FALSE, FALSE);

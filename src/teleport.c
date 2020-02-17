@@ -902,10 +902,11 @@ level_tele()
             return;
         }
 
-        /* if in Knox and the requested level > 0, stay put.
-         * we let negative values requests fall into the "heaven" loop.
+        /* if in Knox or the Valley of the Dead and the requested level > 0,
+         * stay put. we let negative values requests fall into the "heaven" loop.
          */
-        if (Is_knox(&u.uz) && newlev > 0 && !force_dest) {
+        if ((Is_knox(&u.uz) || Is_valley(&u.uz))
+            && newlev > 0 && !force_dest) {
             You1(shudder_for_moment);
             return;
         }

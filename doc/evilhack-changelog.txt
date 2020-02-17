@@ -746,3 +746,4 @@ Version 0.5.0
 - Gehennom changes (round two) - Cerberus guards the entrance to Gehennom
 - Fix: Shambling horrors stats persist across save/restore
 - Fix: Throwing Grimtooth up in the air and having it hit the player caused a segfault
+- Bypassing Cerberus
