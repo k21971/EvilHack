@@ -776,7 +776,7 @@ initoptions_init()
     iflags.soko_prize_type3 = HELM_OF_SPEED;
     iflags.soko_prize_type4 = MAGIC_MARKER;
     iflags.soko_prize_type5 = AMULET_OF_MAGIC_RESISTANCE;
-    iflags.soko_prize_type6 = CLOAK_OF_PROTECTION;
+    iflags.soko_prize_type6 = GAUNTLETS_OF_PROTECTION;
 
     /* assert( sizeof flags.inv_order == sizeof def_inv_order ); */
     (void) memcpy((genericptr_t) flags.inv_order,

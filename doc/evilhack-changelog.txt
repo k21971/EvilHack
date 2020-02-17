@@ -748,3 +748,4 @@ Version 0.5.0
 - Fix: Throwing Grimtooth up in the air and having it hit the player caused a segfault
 - Bypassing Cerberus
 - Fix: Giant wizard starting with a cloak of magic resistance
+- Fix: Switch cloak of protection for gauntlets of protection (one of the sokoban prizes)

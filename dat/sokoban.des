@@ -548,7 +548,7 @@ OBJECT:('?', "scare monster"),$place[2],cursed
 IF [50%] {
   OBJECT:('[', "helm of speed"),$place[2]
 } ELSE {
-  OBJECT:('[', "cloak of protection"),$place[2]
+  OBJECT:('[', "gauntlets of protection"),$place[2]
 }
 ENGRAVING:$place[2],burn,"Elbereth"
 
@@ -666,6 +666,6 @@ OBJECT:('?', "scare monster"),$place[2],cursed
 IF [50%] {
   OBJECT:('[', "helm of speed"),$place[2]
 } ELSE {
-  OBJECT:('[', "cloak of protection"),$place[2]
+  OBJECT:('[', "gauntlets of protection"),$place[2]
 }
 ENGRAVING:$place[2],burn,"Elbereth"
