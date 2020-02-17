@@ -747,3 +747,4 @@ Version 0.5.0
 - Fix: Shambling horrors stats persist across save/restore
 - Fix: Throwing Grimtooth up in the air and having it hit the player caused a segfault
 - Bypassing Cerberus
+- Fix: Giant wizard starting with a cloak of magic resistance

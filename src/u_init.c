@@ -206,6 +206,8 @@ struct trobj Pickaxe[] = { { PICK_AXE, 0, TOOL_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
 struct trobj Psionics[] = { { SPE_PSIONIC_WAVE, 0, SPBOOK_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
+struct trobj AoMR[] = { { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, 0 },
+                                  { 0, 0, 0, 0, 0 } };
 
 /* race-based substitutions for initial inventory;
    the weaker cloak for elven rangers is intentional--they shoot better */
@@ -246,6 +248,7 @@ struct inv_sub {
     { PM_GIANT, ROBE, HIGH_BOOTS },
     { PM_GIANT, RING_MAIL, HELMET },
     { PM_GIANT, ARMOR, HELMET },
+    { PM_GIANT, CLOAK_OF_MAGIC_RESISTANCE, LOW_BOOTS },
     /* Hobbits have a thing for elven gear */
     { PM_HOBBIT, DAGGER, ELVEN_DAGGER },
     { PM_HOBBIT, SPEAR, ELVEN_SPEAR },
@@ -897,6 +900,8 @@ u_init()
         skill_init(Skill_V);
         break;
     case PM_WIZARD:
+        if (Race_if(PM_GIANT))
+            ini_inv(AoMR);
         if (Race_if(PM_ILLITHID))
             ini_inv(Psionics);
         ini_inv(Wizard);
@@ -1449,6 +1454,8 @@ register struct trobj *origtrop;
         }
         if (obj->oclass == SPBOOK_CLASS && obj->otyp != SPE_BLANK_PAPER)
             initialspell(obj);
+        if (obj->oclass == AMULET_CLASS)
+            setworn(obj, W_AMUL);
 
         /* Don't allow gear with object properties
          * to be start scummed for */
