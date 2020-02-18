@@ -1634,7 +1634,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 	if (realizes_damage) {
             if (otmp->oartifact == ART_SWORD_OF_BHELEU)
 	        pline_The("gigantic blade %s %s%c",
-                          !spec_dbon_applies
+                          resists_poison(mdef)
                               ? "hits"
                               : rn2(2) ? "poisons" : "eviscerates",
                           hittee, !spec_dbon_applies ? '.' : '!');
@@ -1642,7 +1642,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                      && (otmp->oprops & ITEM_VENOM))
                 pline_The("%s %s %s%c",
                           distant_name(otmp, xname),
-                          !spec_dbon_applies
+                          resists_poison(mdef)
                               ? "hits"
                               : rn2(2) ? "taints" : "poisons",
                           hittee, !spec_dbon_applies ? '.' : '!');
@@ -1660,7 +1660,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (attacks(AD_DISE, otmp)) {
         if (realizes_damage)
             pline_The("filthy dagger %s %s%c",
-                      !spec_dbon_applies
+                      resists_sick(mdef)
                           ? "hits"
                           : rn2(2) ? "contaminates" : "infects",
                       hittee, !spec_dbon_applies ? '.' : '!');

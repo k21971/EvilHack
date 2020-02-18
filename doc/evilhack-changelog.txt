@@ -753,3 +753,4 @@ Version 0.5.0
 - Fix: kicking or throwing a spellbook of force bolt or a wand of striking at iron bars
   would destroy the iron bars
 - Death (rider) livelogging tweak
+- Another Izchak revamp

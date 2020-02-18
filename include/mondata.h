@@ -46,6 +46,7 @@
 
 #define resists_sick(mon)  ((mon)->data->mlet == S_FUNGUS                \
                             || nonliving((mon)->data)                    \
+                            || (mon)->data == &mons[PM_ARCHANGEL]        \
                             || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
                             || (mon)->data == &mons[PM_GOLD_DRAGON]      \
                             || (mon)->data == &mons[PM_GIANT_LEECH]      \

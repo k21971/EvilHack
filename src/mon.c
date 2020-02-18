@@ -187,8 +187,6 @@ struct permonst * pm;
             return PM_GNOME_ZOMBIE;
         if (is_orc(pm))
             return PM_ORC_ZOMBIE;
-        if (is_hobbit(pm))
-            return PM_HOBBIT_ZOMBIE;
         return PM_HUMAN_ZOMBIE;
     case S_HUMANOID:
         if (is_dwarf(pm))
@@ -225,6 +223,20 @@ struct monst* mdef;
     }
 
     if (newcham(mdef, &mons[zombie_form(mdat)], FALSE, FALSE)) {
+        /* off-chance Izchak succumbs to a zombie's physical attack */
+        if (mdef->isshk && !strcmp(shkname(mdef), "Izchak")) {
+            pline("But wait!  %s transforms again into his true form!", mon_nam(mdef));
+            mdef->mcanmove = 1;
+            mdef->mfrozen = 0;
+            mdef->mstone = 0;
+            mdef->msick = 0;
+            mdef->mdiseased = 0;
+            newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
+            mdef->mhp = mdef->mhpmax = 1500;
+            newsym(mdef->mx, mdef->my);
+            return;
+        }
+
         /* don't continue if failed to turn into zombie (extinct?) */
         mdef->mcanmove = 1;
         mdef->mfrozen = 0;
@@ -236,7 +248,6 @@ struct monst* mdef;
          * less than zero. Set it to full. */
         mdef->mhp = mdef->mhpmax;
     }
-
 }
 
 /* convert the monster index of an undead to its living counterpart */
@@ -926,14 +937,8 @@ mcalcdistress()
 
         if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
             if (mtmp->data == &mons[PM_HUMAN]
-                && (mtmp->mhp < (mtmp->mhpmax / 2) || mtmp->mstone > 3)) {
-                pline("As death approaches, %s transforms into his true form!", mon_nam(mtmp));
-                newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
-                newsym(mtmp->mx, mtmp->my);
-                mtmp->mcanmove = 1;
-                mtmp->mfrozen = 0;
-                mtmp->mhp = mtmp->mhpmax = 1000;
-            }
+                && (mtmp->mstone > 3 || mtmp->msick > 0))
+                mondead(mtmp);
         }
 
         were_change(mtmp);
@@ -2496,6 +2501,30 @@ register struct monst *mtmp;
     lifesaved_monster(mtmp);
     if (!DEADMONSTER(mtmp))
         return;
+
+    /* someone or something decided to mess with Izchak. oops... */
+    if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
+        if (mtmp->data == &mons[PM_HUMAN]) {
+            pline("But wait!  %s rises and transforms into his true form!", mon_nam(mtmp));
+            mtmp->mcanmove = 1;
+            mtmp->mfrozen = 0;
+            mtmp->mstone = 0;
+            mtmp->msick = 0;
+            mtmp->mdiseased = 0;
+            if (!mtmp->mpeaceful)
+                hot_pursuit(mtmp);
+            newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
+            mtmp->mhp = mtmp->mhpmax = 1500;
+            if (mtmp == u.ustuck) {
+                if (u.uswallow)
+                    expels(mtmp, mtmp->data, FALSE);
+                else
+                    uunstick();
+            }
+            newsym(mtmp->mx, mtmp->my);
+            return;
+        }
+    }
 
     if (is_vampshifter(mtmp) || is_changeling(mtmp)) {
         int mndx = mtmp->cham;
