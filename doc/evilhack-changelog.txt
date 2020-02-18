@@ -744,11 +744,12 @@ Version 0.5.0
 - Prep for version 0.5.0
 - Gehennom changes (round one) - area around the wizard towers
 - Gehennom changes (round two) - Cerberus guards the entrance to Gehennom
-- Fix: Shambling horrors stats persist across save/restore
-- Fix: Throwing Grimtooth up in the air and having it hit the player caused a segfault
+- Fix: shambling horrors stats persist across save/restore
+- Fix: throwing Grimtooth up in the air and having it hit the player caused a segfault
 - Bypassing Cerberus
-- Fix: Giant wizard starting with a cloak of magic resistance
-- Fix: Switch cloak of protection for gauntlets of protection (one of the sokoban prizes)
-- Fix: Jumping spiders getting stuck in webs
-- Fix: Kicking or throwing a spellbook of force bolt or a wand of striking at iron bars
+- Fix: giant wizard starting with a cloak of magic resistance
+- Fix: switch cloak of protection for gauntlets of protection (one of the sokoban prizes)
+- Fix: jumping spiders getting stuck in webs
+- Fix: kicking or throwing a spellbook of force bolt or a wand of striking at iron bars
   would destroy the iron bars
+- Death (rider) livelogging tweak
