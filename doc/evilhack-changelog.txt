@@ -757,3 +757,4 @@ Version 0.5.0
 - Fix: sokoban door exploit
 - Fix: monster wearing gear with extrinsic could negate same intrinsic once gear was
   removed
+- Rogue tribute level disabled
