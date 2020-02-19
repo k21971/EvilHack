@@ -18,40 +18,36 @@
 
 #define pm_resistance(ptr, typ) (((ptr)->mresists & (typ)) != 0)
 
-#define resists_fire(mon) \
-    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_FIRE) != 0)
-#define resists_cold(mon) \
-    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_COLD) != 0)
-#define resists_sleep(mon) \
-    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_SLEEP) != 0)
-#define resists_disint(mon) \
-    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_DISINT) != 0)
-#define resists_elec(mon) \
-    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_ELEC) != 0)
-#define resists_poison(mon) \
-    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_POISON) != 0)
-#define resists_acid(mon) \
-    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_ACID) != 0)
-#define resists_ston(mon) \
-    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_STONE) != 0)
-#define resists_psychic(mon) \
-    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_PSYCHIC) != 0)
+/* mresists from any source - innate, intrinsic, or extrinsic */
+#define mon_resistancebits(mon) \
+    ((mon)->data->mresists | (mon)->mextrinsics | (mon)->mintrinsics)
+#define resists_fire(mon) ((mon_resistancebits(mon) & MR_FIRE) != 0)
+#define resists_cold(mon) ((mon_resistancebits(mon) & MR_COLD) != 0)
+#define resists_sleep(mon) ((mon_resistancebits(mon) & MR_SLEEP) != 0)
+#define resists_disint(mon) ((mon_resistancebits(mon) & MR_DISINT) != 0)
+#define resists_elec(mon) ((mon_resistancebits(mon) & MR_ELEC) != 0)
+#define resists_poison(mon) ((mon_resistancebits(mon) & MR_POISON) != 0)
+#define resists_acid(mon) ((mon_resistancebits(mon) & MR_ACID) != 0)
+#define resists_ston(mon) ((mon_resistancebits(mon) & MR_STONE) != 0)
+#define resists_psychic(mon) ((mon_resistancebits(mon) & MR_PSYCHIC) != 0)
 
 #define has_telepathy(mon) \
-    (telepathic((mon)->data) || ((mon)->mextrinsics & MR2_TELEPATHY) != 0)
+    (telepathic((mon)->data) || (mon_resistancebits(mon) & MR2_TELEPATHY) != 0)
+#define can_wwalk(mon) \
+    ((mon_resistancebits(mon) & MR2_WATERWALK) != 0)
+#define can_jump(mon) \
+    ((mon_resistancebits(mon) & MR2_JUMPING) != 0)
+#define has_displacement(mon) \
+    ((mon_resistancebits(mon) & MR2_DISPLACED) != 0)
 
-#define can_wwalk(mon) (((mon)->mextrinsics & MR2_WATERWALK) != 0)
-#define can_jump(mon)  (((mon)->mextrinsics & MR2_JUMPING) != 0)
-#define has_displacement(mon) (((mon)->mextrinsics & MR2_DISPLACED) != 0)
-
-#define resists_sick(mon)  ((mon)->data->mlet == S_FUNGUS                \
-                            || nonliving((mon)->data)                    \
-                            || (mon)->data == &mons[PM_ARCHANGEL]        \
-                            || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
-                            || (mon)->data == &mons[PM_GOLD_DRAGON]      \
-                            || (mon)->data == &mons[PM_GIANT_LEECH]      \
-                            || (mon)->data == &mons[PM_GIANT_COCKROACH]  \
-                            || (mon)->data == &mons[PM_LOCUST])
+#define resists_sick(mon) ((mon)->data->mlet == S_FUNGUS                \
+                           || nonliving((mon)->data)                    \
+                           || (mon)->data == &mons[PM_ARCHANGEL]        \
+                           || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
+                           || (mon)->data == &mons[PM_GOLD_DRAGON]      \
+                           || (mon)->data == &mons[PM_GIANT_LEECH]      \
+                           || (mon)->data == &mons[PM_GIANT_COCKROACH]  \
+                           || (mon)->data == &mons[PM_LOCUST])
 
 /* as of 3.2.0:  gray dragons, Angels, Oracle, Yeenoghu */
 #define resists_mgc(ptr) \

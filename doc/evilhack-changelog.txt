@@ -755,3 +755,5 @@ Version 0.5.0
 - Death (rider) livelogging tweak
 - Another Izchak revamp
 - Fix: sokoban door exploit
+- Fix: monster wearing gear with extrinsic could negate same intrinsic once gear was
+  removed
