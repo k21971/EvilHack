@@ -754,3 +754,4 @@ Version 0.5.0
   would destroy the iron bars
 - Death (rider) livelogging tweak
 - Another Izchak revamp
+- Fix: sokoban door exploit
