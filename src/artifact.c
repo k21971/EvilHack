@@ -1665,7 +1665,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           : rn2(2) ? "contaminates" : "infects",
                       hittee, !spec_dbon_applies ? '.' : '!');
         if (youdefend) {
-            diseasemu(magr->data);
+            diseasemu(mdef->data);
         } else {
             if (!resists_sick(mdef)) {
                 pline("%s looks %s.", Monnam(mdef),

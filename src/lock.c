@@ -123,7 +123,10 @@ picklock(VOID_ARGS)
         /* unfortunately we don't have a 'tknown' flag to record
            "known to be trapped" so declining to disarm and then
            retrying lock manipulation will find it all over again */
-        if (yn("You find a trap!  Do you want to try to disarm it?") == 'y') {
+        if (In_sokoban(&u.uz)) {
+            pline("You find a trap!  But you see no way to disarm it.");
+            return ((xlock.usedtime = 0));
+        } else if (yn("You find a trap!  Do you want to try to disarm it?") == 'y') {
             const char *what;
             boolean alreadyunlocked;
 
@@ -151,7 +154,7 @@ picklock(VOID_ARGS)
     if (xlock.door) {
         if ((xlock.door->doormask & D_TRAPPED && !In_sokoban(&u.uz))) {
             b_trapped("door", FINGER);
-            /* xlock.door->doormask = D_NODOOR; */
+            xlock.door->doormask = D_NODOOR;
             unblock_point(u.ux + u.dx, u.uy + u.dy);
             if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
                 add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);

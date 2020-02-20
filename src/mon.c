@@ -2648,12 +2648,29 @@ register struct monst *mtmp;
      */
     if (mtmp->data == &mons[PM_MEDUSA] && !u.uachieve.killed_medusa) {
         u.uachieve.killed_medusa = 1;
-        livelog_write_string(LL_ACHIEVE|LL_UMONST, "killed Medusa");
+        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Medusa");
     } else if (mtmp->data == &mons[PM_DEATH]) {
-        livelog_printf(LL_UMONST, "put %s down for a little nap",
-            noit_mon_nam(mtmp));
+        switch (mvitals[tmp].died) {
+            case 1:
+                livelog_printf(LL_UMONST, "put %s down for a little nap",
+                               noit_mon_nam(mtmp));
+                break;
+            case 5:
+            case 10:
+            case 50:
+            case 100:
+            case 150:
+            case 200:
+            case 250:
+                livelog_printf(LL_UMONST, "put %s down for a little nap (%d times)",
+                               noit_mon_nam(mtmp), mvitals[tmp].died);
+                break;
+            default:
+                /* don't spam the log every time */
+                break;
+        }
     } else if (unique_corpstat(mtmp->data)) {
-        switch(mvitals[tmp].died) {
+        switch (mvitals[tmp].died) {
             case 1:
                 /* don't livelog your unique pet being killed
                  * by something else, it gives the impression you did it */
