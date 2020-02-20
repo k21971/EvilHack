@@ -990,44 +990,45 @@ register struct obj *container;
 {
     boolean likegold = 0, likegems = 0, likeobjs = 0, likemagic = 0, uses_items = 0;
     boolean can_open = 0, can_unlock = 0;
-    register int pctload = (curr_mon_load(mtmp) * 100) /
-	max_mon_load(mtmp);
+    register int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
     register struct obj *otmp;
 
     can_open = !(nohands(mtmp->data) || verysmall(mtmp->data));
-    can_unlock = ((can_open &&
-                  (m_carrying(mtmp, SKELETON_KEY) ||
-		   m_carrying(mtmp, LOCK_PICK) ||
-		   m_carrying(mtmp, CREDIT_CARD))) ||
-		   mtmp->iswiz || is_rider(mtmp->data));
+    can_unlock = ((can_open
+                  && (m_carrying(mtmp, SKELETON_KEY)
+                      || m_carrying(mtmp, LOCK_PICK)
+                      || m_carrying(mtmp, CREDIT_CARD)))
+                  || mtmp->iswiz || is_rider(mtmp->data));
 
-    if (!Is_container(container)) return FALSE;
+    if (!Is_container(container))
+        return FALSE;
 
-    if (container->olocked && !can_unlock) return FALSE;
+    if (container->olocked && !can_unlock)
+        return FALSE;
 
     likegold = (likes_gold(mtmp->data) && pctload < 95);
     likegems = (likes_gems(mtmp->data) && pctload < 85);
     uses_items = (!mindless(mtmp->data) && !is_animal(mtmp->data)
-		  && pctload < 75);
+                  && pctload < 75);
     likeobjs = (likes_objs(mtmp->data) && pctload < 75);
     likemagic = (likes_magic(mtmp->data) && pctload < 85);
 
     if (!likegold && !likegems && !uses_items && !likeobjs && !likemagic)
-	return FALSE;
+        return FALSE;
 
-    for(otmp = container->cobj; otmp; otmp = otmp->nobj) {
-	if(((likegold && otmp->oclass == COIN_CLASS) ||
-	   (likeobjs && index(practical, otmp->oclass) &&
-	    (otmp->otyp != CORPSE || (mtmp->data->mlet == S_NYMPH
-	     && !is_rider(&mons[otmp->corpsenm])))) ||
-	    (likemagic && index(magical, otmp->oclass)) ||
-	    (uses_items && searches_for_item(mtmp, otmp)) ||
-	    (likegems && otmp->oclass == GEM_CLASS &&
-	     otmp->material != MINERAL)) && touch_artifact(otmp, mtmp))
-	return TRUE;
-	}
-
-	return FALSE;
+    for (otmp = container->cobj; otmp; otmp = otmp->nobj) {
+        if (((likegold && otmp->oclass == COIN_CLASS)
+              || (likeobjs && index(practical, otmp->oclass)
+                  && (otmp->otyp != CORPSE || (mtmp->data->mlet == S_NYMPH
+                      && !is_rider(&mons[otmp->corpsenm]))))
+             || (likemagic && index(magical, otmp->oclass))
+             || (uses_items && searches_for_item(mtmp, otmp))
+             || (likegems && otmp->oclass == GEM_CLASS
+                 && otmp->material != MINERAL))
+            && touch_artifact(otmp, mtmp))
+	    return TRUE;
+    }
+    return FALSE;
 }
 
 /* Return values:
@@ -1211,9 +1212,9 @@ register int after;
     gy = mtmp->muy;
     appr = mtmp->mflee ? -1 : 1;
     /* does this monster like to play keep-away? */
-    if (is_skittish(ptr) && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 10)) {
+    if (is_skittish(ptr)
+        && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 10))
 	appr = -1;
-    }
     if (mtmp->mconf || (u.uswallow && mtmp == u.ustuck)) {
         appr = 0;
     } else {
@@ -1331,22 +1332,23 @@ register int after;
                     if (is_soko_prize_flag(otmp))
                         continue;
 
-                    if ((((Is_container(otmp) && likes_contents(mtmp, otmp))
-                        || ((likegold && otmp->oclass == COIN_CLASS)
-                         || (likeobjs && index(practical, otmp->oclass)
-                             && (otmp->otyp != CORPSE
-                                 || (ptr->mlet == S_NYMPH
-                                     && !is_rider(&mons[otmp->corpsenm]))))
-                         || (likemagic && index(magical, otmp->oclass))
-                         || (uses_items && searches_for_item(mtmp, otmp))
-                         || (likerock && otmp->otyp == BOULDER)
-                         || (likegems && otmp->oclass == GEM_CLASS
-                             && otmp->material != MINERAL)
-                         || (conceals && !cansee(otmp->ox, otmp->oy))
-                         || (ptr == &mons[PM_GELATINOUS_CUBE]
-                             && !index(indigestion, otmp->oclass))))
-                             && !((otmp->otyp == CORPSE
-                                  && touch_petrifies(&mons[otmp->corpsenm]))))
+                    if ((((Is_container(otmp)
+                           && likes_contents(mtmp, otmp) && can_open)
+                          || ((likegold && otmp->oclass == COIN_CLASS)
+                          || (likeobjs && index(practical, otmp->oclass)
+                              && (otmp->otyp != CORPSE
+                                  || (ptr->mlet == S_NYMPH
+                                      && !is_rider(&mons[otmp->corpsenm]))))
+                        || (likemagic && index(magical, otmp->oclass))
+                        || (uses_items && searches_for_item(mtmp, otmp))
+                        || (likerock && otmp->otyp == BOULDER)
+                        || (likegems && otmp->oclass == GEM_CLASS
+                            && otmp->material != MINERAL)
+                        || (conceals && !cansee(otmp->ox, otmp->oy))
+                        || (ptr == &mons[PM_GELATINOUS_CUBE]
+                            && !index(indigestion, otmp->oclass))))
+                        && !((otmp->otyp == CORPSE
+                             && touch_petrifies(&mons[otmp->corpsenm]))))
                         && touch_artifact(otmp, mtmp)) {
                         if (((can_carry(mtmp, otmp) > 0 || (Is_container(otmp)))
                             && ((throws_rocks(ptr)) || !sobj_at(BOULDER, xx, yy)))
