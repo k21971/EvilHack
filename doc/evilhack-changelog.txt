@@ -759,3 +759,5 @@ Version 0.5.0
   removed
 - Rogue tribute level disabled
 - Re-add Frontier Town (mines)
+- Partial fix: Monsters switching back and forth between melee and ranged weapon in a
+  loop at a certain range
