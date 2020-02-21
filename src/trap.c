@@ -5696,31 +5696,34 @@ b_trapped(item, bodypart)
 const char *item;
 int bodypart;
 {
+    struct rm *lev;
+    struct obj *tin = context.tin.tin;
+    int tx = 0, ty = 0;
     int lvl = level_difficulty(),
         dmg = rnd(5 + (lvl < 5 ? lvl : 2 + lvl / 2));
 
+    if (tin)
+        goto boom;
+
     if (In_sokoban(&u.uz)) {
-    	struct rm *lev;
-	int tx = 0, ty = 0;
-
-	pline("As the door gives way, you %s the other doors seal%s.",
-	      Blind ? "sense" : "see", Blind ? "ing" : "");
-	for (; ty < ROWNO; ty++) {
-	    for (tx = 0; tx < COLNO; tx++) {
-		lev = &levl[tx][ty];
-		if (lev->typ == DOOR
-		    && (lev->doormask & (D_CLOSED | D_TRAPPED))) {
-	           lev->typ = VWALL;
-		   lev->doormask = D_NODOOR;
-                   lev->wall_info |= (W_NONDIGGABLE | W_NONPASSWALL);
-		   if (cansee(tx, ty))
-		       newsym(tx, ty);
-		}
+        pline("As the door gives way, you %s the other doors sealing.",
+              Deaf ? "sense" : "hear");
+        for (; ty < ROWNO; ty++) {
+            for (tx = 0; tx < COLNO; tx++) {
+                lev = &levl[tx][ty];
+                if (lev->typ == DOOR
+                    && (lev->doormask & (D_CLOSED | D_TRAPPED))) {
+                    lev->typ = VWALL;
+                    lev->doormask = D_NODOOR;
+                    lev->wall_info |= (W_NONDIGGABLE | W_NONPASSWALL);
+                    if (cansee(tx, ty))
+                        newsym(tx, ty);
+                }
             }
-	}
-	return;
+        }
+        return;
     }
-
+boom:
     pline("KABOOM!!  %s was booby-trapped!", The(item));
     explode(u.ux, u.uy, AD_FIRE - 1, resist_reduce(dmg, FIRE_RES),
             TRAPPED_DOOR, EXPL_FIERY);

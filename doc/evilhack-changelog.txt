@@ -763,3 +763,4 @@ Version 0.5.0
   loop at a certain range
 - Fix: monsters hovering over an unlocked container they can't open that contains objects
   they want
+- Fix: better handling of trapped tins in Sokoban
