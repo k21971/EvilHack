@@ -4488,11 +4488,17 @@ struct obj *no_wish;
             while ((role->name.m) && (role->questarti != otmp->oartifact))
                 role++;
             if (role->name.m) {
-                /* Don't bring the Tourist's nemesis to fight a Rogue when he is also
-                 * the Rogue's quest leader.
+                /* Don't bring the Rogue's leader to fight a Tourist when he is also
+                 * the Tourist's quest nemesis.
                  */
-                if (!((role->neminum == PM_MASTER_OF_THIEVES) && Role_if(PM_ROGUE)))
-                    pm = role->neminum;
+                if (!((role->ldrnum == PM_MASTER_OF_THIEVES) && Role_if(PM_TOURIST))) {
+                    pm = role->ldrnum;
+                    struct permonst* ldr = &mons[pm];
+                    /* remove flags that tag quest leaders as
+                       peaceful or spawn them mediating */
+                    ldr->mflags2 &= ~(M2_PEACEFUL);
+                    ldr->mflags3 &= ~(M3_WAITMASK);
+                }
             }
         }
 
@@ -4614,22 +4620,24 @@ struct obj *no_wish;
             if (Blind) {
                 if (Hallucination)
                     pline("Smells like teen spirit...");
-                else
+                else if (!Deaf)
                     You("hear a small explosion and smell smoke.");
-                You("hear somebody say: Did you think that I would %s %s %s?",
-                    rn2(2) ? "relinquish"
-                           : rn2(2) ? "hand over" : "give you",
-                    aname, rn2(2) ? "so easily" : "without a fight");
+                if (!Deaf)
+                    You("hear somebody say: Did you think that I would %s %s %s?",
+                        rn2(2) ? "relinquish"
+                               : rn2(2) ? "hand over" : "give you",
+                        aname, rn2(2) ? "so easily" : "without a fight");
             } else {
                 if (Hallucination)
                     pline("Nice colors, but the sound could have been more mellow.");
                 else
                     pline("There is a puff of smoke and a figure appears!");
-                pline("%s says: Did you think that I would %s %s %s?",
-                      voice ? voice : Monnam(mtmp),
-                      rn2(2) ? "relinquish"
-                             : rn2(2) ? "hand over" : "give you",
-                      aname, rn2(2) ? "so easily" : "without a fight");
+                if (!Deaf)
+                    pline("%s says: Did you think that I would %s %s %s?",
+                          voice ? voice : Monnam(mtmp),
+                          rn2(2) ? "relinquish"
+                                 : rn2(2) ? "hand over" : "give you",
+                          aname, rn2(2) ? "so easily" : "without a fight");
             }
             (void) mpickobj(mtmp, otmp);
             if (otmp2)
@@ -4638,7 +4646,7 @@ struct obj *no_wish;
             if (is_mplayer(mtmp->data))
                 mtmp->m_lev = rn1(8, 23);
             else
-                mtmp->m_lev = rn1(8, 15);
+                mtmp->m_lev = rn1(3, 20);
             mtmp->mpeaceful = mtmp->msleeping = 0;
             m_dowear(mtmp, TRUE);
             mtmp->weapon_check = strategy;

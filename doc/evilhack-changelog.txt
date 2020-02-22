@@ -764,3 +764,4 @@ Version 0.5.0
 - Fix: monsters hovering over an unlocked container they can't open that contains objects
   they want
 - Fix: better handling of trapped tins in Sokoban
+- Wishing for a quest artifact brings its true rightful owner

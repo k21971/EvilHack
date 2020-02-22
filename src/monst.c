@@ -3782,10 +3782,10 @@ struct permonst _mons2[] = {
         M3_CLOSE | M3_INFRAVISION | M3_INFRAVISIBLE, 0,
         MH_ELF | MH_HUMAN, 22, HI_LORD),
 #endif
-    MON("Robert the Lifer", S_HUMAN, LVL(20, 12, 0, 40, -20), (G_NOGEN | G_UNIQ),
-        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_WEAP, AD_PHYS, 1, 6),
+    MON("Robert the Lifer", S_HUMAN, LVL(20, 15, 0, 90, -20), (G_NOGEN | G_UNIQ),
+        A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_WEAP, AD_PHYS, 4, 10),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(WT_HUMAN, 400, MS_LEADER, MZ_HUMAN), 0, 0,
+        SIZ(WT_HUMAN, 400, MS_LEADER, MZ_HUMAN), MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_PNAME | M2_PEACEFUL | M2_STRONG | M2_MALE
             | M2_COLLECT | M2_MAGIC,
@@ -3793,7 +3793,7 @@ struct permonst _mons2[] = {
     MON("Hippocrates", S_HUMAN, LVL(20, 15, 0, 90, 0), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_MAGC, AD_CLRC, 2, 8),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(WT_HUMAN, 400, MS_LEADER, MZ_HUMAN), MR_SLEEP |MR_POISON | MR_STONE, 0,
+        SIZ(WT_HUMAN, 400, MS_LEADER, MZ_HUMAN), MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_PNAME | M2_PEACEFUL | M2_STRONG | M2_MALE
             | M2_COLLECT | M2_MAGIC,
