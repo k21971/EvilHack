@@ -394,6 +394,16 @@ boolean message;
                     case AD_COLD:
                         Strcpy(blast, " in a blast of frost");
                         break;
+                    case AD_FIRE:
+                        if (mdat == &mons[PM_STEAM_VORTEX])
+                            Strcpy(blast, " in a blast of steam");
+                        else
+                            Strcpy(blast, " in a blast of fire");
+                        break;
+                    case AD_BLND:
+                    case AD_PHYS:
+                        Strcpy(blast, " with a woosh");
+                        break;
                     }
                 } else {
                     Strcpy(blast, " with a squelch");
@@ -2564,12 +2574,11 @@ struct attack *mattk;
            expels now so the !u.uswldtim case is no longer possible;
            however, polymorphing into a huge form while already
            swallowed is still possible */
-        You("get %s!", is_animal(mtmp->data) ? "regurgitated" : "expelled");
+        expels(mtmp, mtmp->data, TRUE);
         if (flags.verbose
             && (is_animal(mtmp->data)
                 || (dmgtype(mtmp->data, AD_DGST) && Slow_digestion)))
             pline("Obviously %s doesn't like your taste.", mon_nam(mtmp));
-        expels(mtmp, mtmp->data, FALSE);
     }
     return 1;
 }

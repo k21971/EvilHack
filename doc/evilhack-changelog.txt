@@ -767,3 +767,5 @@ Version 0.5.0
 - Wishing for a quest artifact brings its true rightful owner
 - Bows and crossbows are now two-handed weapons
 - Amulet of life saving does not fully heal the wearer
+- Using a wand of digging to escape being engulfed does not always drop the engulfer's
+  hit points down to one
