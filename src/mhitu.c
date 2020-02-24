@@ -1669,7 +1669,8 @@ register struct attack *mattk;
         break;
     case AD_WRAP:
         if ((!mtmp->mcan || u.ustuck == mtmp) && !sticks(youmonst.data)) {
-            if (!u.ustuck && !rn2(10)) {
+            if (!u.ustuck
+                && mtmp->data == &mons[PM_SALAMANDER] ? !rn2(6) : !rn2(8)) {
                 if (u_slip_free(mtmp, mattk)) {
                     dmg = 0;
                 } else {

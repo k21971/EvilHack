@@ -770,3 +770,4 @@ Version 0.5.0
 - Using a wand of digging to escape being engulfed does not always drop the engulfer's
   hit points down to one
 - Hey shopkeeper, stop polymorphing yourself!
+- Increase odds to be pulled into water/lava
