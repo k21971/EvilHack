@@ -2269,13 +2269,14 @@ struct monst *mtmp;
         }
         nomore(MUSE_WAN_POLYMORPH_SELF);
         if (obj->otyp == WAN_POLYMORPH && obj->spe > 0
-            && (mtmp->cham == NON_PM) && mons[monsndx(mdat)].difficulty < 6) {
+            && (mtmp->cham == NON_PM) && !mtmp->isshk
+            && mons[monsndx(mdat)].difficulty < 6) {
             m.misc = obj;
             m.has_misc = MUSE_WAN_POLYMORPH_SELF;
         }
         nomore(MUSE_POT_POLYMORPH);
         if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
-            && mons[monsndx(mdat)].difficulty < 6) {
+            && !mtmp->isshk && mons[monsndx(mdat)].difficulty < 6) {
             m.misc = obj;
             m.has_misc = MUSE_POT_POLYMORPH;
         }
@@ -2378,13 +2379,14 @@ struct obj *start;
         }
         nomore(MUSE_WAN_POLYMORPH_SELF);
         if (obj->otyp == WAN_POLYMORPH && obj->spe > 0
-            && (mtmp->cham == NON_PM) && mons[monsndx(mdat)].difficulty < 6) {
+            && (mtmp->cham == NON_PM) && !mtmp->isshk
+            && mons[monsndx(mdat)].difficulty < 6) {
             m.misc = obj;
             m.has_misc = MUSE_WAN_POLYMORPH_SELF;
         }
         nomore(MUSE_POT_POLYMORPH);
         if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
-            && mons[monsndx(mdat)].difficulty < 6) {
+            && !mtmp->isshk && mons[monsndx(mdat)].difficulty < 6) {
             m.misc = obj;
             m.has_misc = MUSE_POT_POLYMORPH;
         }
