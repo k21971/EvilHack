@@ -977,26 +977,21 @@ savelife(how)
 int how;
 {
     int uhpmin = max(2 * u.ulevel, 10);
+    int *hp = (Upolyd ? &u.mh : &u.uhp),
+        *hpmax = (Upolyd ? &u.mhmax : &u.uhpmax);
 
-    if (Upolyd) {
-        if (Unchanging) {
-            if (u.mhmax < uhpmin)
-                u.mhmax = uhpmin;
-            u.mh = u.mhmax;
-        } else {
-            rehumanize();
-        }
+    if (Upolyd && !Unchanging) {
+        rehumanize();
     } else {
-        if (u.uhpmax < uhpmin)
-            u.uhpmax = uhpmin;
-        u.uhp = u.uhpmax;
+        /* not polyed, or polyed but trapped in that form */
+        if (*hpmax < uhpmin)
+            *hpmax = uhpmin;
+        if (*hp <= 150) {
+            *hp = 150;
+            if (*hp > *hpmax)
+                *hp = *hpmax;
+        }
     }
-
-    if (u.uhpmax < uhpmin)
-        u.uhpmax = uhpmin;
-    u.uhp = u.uhpmax;
-    if (Upolyd) /* Unchanging, or death which bypasses losing hit points */
-        u.mh = u.mhmax;
     if (u.uhunger < 500 || how == CHOKING) {
         init_uhunger();
     }

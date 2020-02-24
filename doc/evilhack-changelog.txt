@@ -766,3 +766,4 @@ Version 0.5.0
 - Fix: better handling of trapped tins in Sokoban
 - Wishing for a quest artifact brings its true rightful owner
 - Bows and crossbows are now two-handed weapons
+- Amulet of life saving does not fully heal the wearer
