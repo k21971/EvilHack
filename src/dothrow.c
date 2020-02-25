@@ -879,7 +879,7 @@ boolean verbose;
     multi_reason = "moving through the air";
     nomovemsg = ""; /* it just happens */
     if (verbose)
-        You("%s in the opposite direction.", range > 1 ? "hurtle" : "float");
+        You("%s in the opposite direction.", (range > 1 || !(Flying || Levitation)) ? "hurtle" : "float");
     /* if we're in the midst of shooting multiple projectiles, stop */
     endmultishot(TRUE);
     sokoban_guilt();

@@ -1157,6 +1157,7 @@ register struct attack *mattk;
         break;
     case AD_WERE:
     case AD_HEAL:
+    case AD_CLOB:
     case AD_PHYS:
  physical:
         /* this shade check is necessary in case any attacks which
@@ -1202,6 +1203,11 @@ register struct attack *mattk;
                the subsequent engulf attack should accomplish that */
             if (tmp >= mdef->mhp && mdef->mhp > 1)
                 tmp = mdef->mhp - 1;
+        }
+        if (mattk->adtyp == AD_CLOB && tmp != 0 && !rn2(6)) {
+            pline("%s knocks %s back with a %s %s!", Monnam(magr), mon_nam(mdef),
+                  rn2(2) ? "forceful" : "powerful", rn2(2) ? "blow" : "strike");
+            mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my, rnd(2));
         }
         break;
     case AD_FIRE:

@@ -771,3 +771,4 @@ Version 0.5.0
   hit points down to one
 - Hey shopkeeper, stop polymorphing yourself!
 - Increase odds to be pulled into water/lava
+- Clobber attack from various monsters
