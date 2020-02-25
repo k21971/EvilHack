@@ -182,6 +182,9 @@ struct obj {
 #define is_launcher(otmp)                                                  \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill >= P_BOW \
      && objects[otmp->otyp].oc_skill <= P_CROSSBOW)
+#define is_2h_launcher(otmp)                                                  \
+    (otmp->oclass == WEAPON_CLASS && (objects[otmp->otyp].oc_skill == P_BOW \
+     || objects[otmp->otyp].oc_skill == P_CROSSBOW))
 #define is_ammo(otmp)                                            \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == GEM_CLASS) \
      && objects[otmp->otyp].oc_skill >= -P_CROSSBOW              \
@@ -220,9 +223,9 @@ struct obj {
      || otmp->otyp == STAFF_OF_ESCAPE || otmp->otyp == STAFF_OF_WAR)
 
 #define is_wet_towel(o) ((o)->otyp == TOWEL && (o)->spe > 0)
-#define bimanual(otmp)                                            \
-    ((!(Race_if(PM_GIANT))) &&                                    \
-    ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
+#define bimanual(otmp) \
+    ((!(Race_if(PM_GIANT)) || (Race_if(PM_GIANT) && is_2h_launcher(otmp))) \
+     && ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS)      \
      && objects[otmp->otyp].oc_bimanual))
 #define is_multigen(otmp)                           \
     (otmp->oclass == WEAPON_CLASS                   \

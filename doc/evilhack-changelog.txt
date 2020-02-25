@@ -773,3 +773,4 @@ Version 0.5.0
 - Increase odds to be pulled into water/lava
 - Clobber attack from various monsters
 - Fix: wielding the Longbow of Diana was not granting reflection
+- Bows and crossbows are two-handed weapons even for a giant
