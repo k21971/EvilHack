@@ -846,21 +846,20 @@ long wp_mask;
             else
                 EReflecting &= ~wp_mask;
         } else if (otmp
-                   && otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN
-                   && (wp_mask & W_WEP)) { /* wielding the Magic Mirror of Merlin */
+            && (otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN
+                || otmp->oartifact == ART_LONGBOW_OF_DIANA)
+            && (wp_mask & W_WEP)) { /* wielding the Magic Mirror of Merlin */
             if (on)
                 EReflecting |= wp_mask;
             else
                 EReflecting &= ~wp_mask;
-        } else if (otmp
-                   && otmp->oartifact == ART_DRAGONBANE
-                   && (wp_mask & W_ARMG)) { /* or in Dragonbane's case, wear them */
+        } else if (otmp && otmp->oartifact == ART_DRAGONBANE
+            && (wp_mask & W_ARMG)) { /* or in Dragonbane's case, wear them */
             if (on)
                 EReflecting |= wp_mask;
             else
                 EReflecting &= ~wp_mask;
         }
-
     }
 
     if (spfx & SPFX_PROTECT) {
