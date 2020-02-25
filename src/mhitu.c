@@ -1233,6 +1233,7 @@ register struct attack *mattk;
     permdmg = 0;
     /*  Now, adjust damages via resistances or specific attacks */
     switch (mattk->adtyp) {
+    case AD_CLOB:
     case AD_PHYS:
         if (mattk->aatyp == AT_HUGS && !sticks(youmonst.data)) {
             if (!u.ustuck && rn2(2)) {
@@ -1330,6 +1331,14 @@ register struct attack *mattk;
                     exercise(A_CON, FALSE);
                     dmg += rnd(sear_damage(mat));
                 }
+            }
+            if (mattk->adtyp == AD_CLOB && dmg != 0
+                && (youmonst.data)->msize < MZ_HUGE && !rn2(6)) {
+                pline("%s knocks you back with a %s %s!", Monnam(mtmp),
+                      rn2(2) ? "forceful" : "powerful", rn2(2) ? "blow" : "strike");
+                hurtle(u.ux - mtmp->mx, u.uy - mtmp->my, rnd(2), FALSE);
+                if (!rn2(4))
+                    make_stunned((HStun & TIMEOUT) + (long) rnd(2) + 1, TRUE);
             }
 	    if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
                 || mtmp->data == &mons[PM_BABY_SEA_DRAGON]
