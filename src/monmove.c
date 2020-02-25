@@ -1328,8 +1328,9 @@ register int after;
                     if (is_soko_prize_flag(otmp))
                         continue;
 
-                    if ((((Is_container(otmp) && likes_contents(mtmp, otmp))
-                        || ((likegold && otmp->oclass == COIN_CLASS)
+                    if ((((Is_container(otmp)
+                           && likes_contents(mtmp, otmp) && can_open)
+                         || ((likegold && otmp->oclass == COIN_CLASS)
                          || (likeobjs && index(practical, otmp->oclass)
                              && (otmp->otyp != CORPSE
                                  || (ptr->mlet == S_NYMPH
