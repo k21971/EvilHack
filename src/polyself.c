@@ -1315,6 +1315,7 @@ dospinweb()
             newsym(u.ux, u.uy);
             return 1;
         case ARROW_TRAP:
+        case BOLT_TRAP:
         case DART_TRAP:
         case BEAR_TRAP:
         case ROCKTRAP:

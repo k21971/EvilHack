@@ -583,8 +583,8 @@ int *dy, *xx, *yy;
 static NEARDATA const char *trap_engravings[TRAPNUM] = {
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
-    (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0,
-    /* 14..16: trap door, teleport, level-teleport */
+    (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
+    /* 15..17: trap door, teleport, level-teleport */
     "Vlad was here", "ad aerarium", "ad aerarium", (char *) 0, (char *) 0,
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
     (char *) 0,      (char *) 0,
@@ -1483,7 +1483,7 @@ coord *tm;
     if (num > 0 && num < TRAPNUM) {
         kind = num;
     } else if (Is_rogue_level(&u.uz)) {
-        switch (rn2(7)) {
+        switch (rn2(8)) {
         default:
             kind = BEAR_TRAP;
             break; /* 0 */
@@ -1491,18 +1491,21 @@ coord *tm;
             kind = ARROW_TRAP;
             break;
         case 2:
-            kind = DART_TRAP;
+            kind = BOLT_TRAP;
             break;
         case 3:
-            kind = TRAPDOOR;
+            kind = DART_TRAP;
             break;
         case 4:
-            kind = PIT;
+            kind = TRAPDOOR;
             break;
         case 5:
-            kind = SLP_GAS_TRAP;
+            kind = PIT;
             break;
         case 6:
+            kind = SLP_GAS_TRAP;
+            break;
+        case 7:
             kind = RUST_TRAP;
             break;
         }
@@ -1665,6 +1668,10 @@ coord *tm;
             otmp->opoisoned = 0;
             /* don't adjust the quantity; maybe the trap shot multiple
                times, there was an untrapping attempt, etc... */
+            break;
+        case BOLT_TRAP:
+            otmp = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
+            otmp->opoisoned = 0;
             break;
         case DART_TRAP:
             otmp = mksobj(DART, TRUE, FALSE);

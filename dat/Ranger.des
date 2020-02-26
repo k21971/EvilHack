@@ -63,8 +63,16 @@ MONSTER:('@',"hunter"),(21,11)
 # Non diggable walls
 NON_DIGGABLE:(00,00,40,20)
 # Traps
-TRAP:"arrow",(30,09)
-TRAP:"arrow",(30,10)
+IF [50%] {
+  TRAP:"arrow",(30,09)
+} ELSE {
+  TRAP:"crossbow bolt",(30,09)
+}
+IF [50%] {
+  TRAP:"arrow",(30,10)
+} ELSE {
+  TRAP:"crossbow bolt",(30,10)
+}
 TRAP:"pit",(40,09)
 TRAP:"spiked pit",random
 TRAP:"bear",random
@@ -153,8 +161,16 @@ TRAP:"spiked pit",random
 TRAP:"spiked pit",random
 TRAP:"teleport",random
 TRAP:"teleport",random
-TRAP:"arrow",random
-TRAP:"arrow",random
+IF [50%] {
+  TRAP:"arrow",random
+} ELSE {
+  TRAP:"crossbow bolt",random
+}
+IF [50%] {
+  TRAP:"arrow",random
+} ELSE {
+  TRAP:"crossbow bolt",random
+}
 # Random monsters.
 MONSTER:('q',"wumpus"),(27,18),hostile,asleep
 MONSTER:('B',"giant bat"),random,hostile

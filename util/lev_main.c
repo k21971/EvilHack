@@ -150,6 +150,7 @@ static struct {
     const char *name;
     int type;
 } trap_types[] = { { "arrow", ARROW_TRAP },
+                   { "crossbow bolt", BOLT_TRAP },
                    { "dart", DART_TRAP },
                    { "falling rock", ROCKTRAP },
                    { "board", SQKY_BOARD },

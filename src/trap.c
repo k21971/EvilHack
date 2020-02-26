@@ -1093,6 +1093,32 @@ unsigned trflags;
         }
         break;
 
+    case BOLT_TRAP:
+        if (trap->once && trap->tseen && !rn2(15)) {
+            You_hear("a loud click!");
+            deltrap(trap);
+            newsym(u.ux, u.uy);
+            break;
+        }
+        trap->once = 1;
+        seetrap(trap);
+        pline("A crossbow bolt shoots out at you!");
+        otmp = t_missile(CROSSBOW_BOLT, trap);
+        if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
+            ; /* nothing */
+            stack = (struct obj *) 0;
+        } else if (thitu(8, dmgval(otmp, &youmonst), &otmp, "crossbow bolt")) {
+            if (otmp)
+                obfree(otmp, (struct obj *) 0);
+        } else {
+            place_object(otmp, u.ux, u.uy);
+            if (!Blind)
+                otmp->dknown = 1;
+            stackobj(otmp);
+            newsym(u.ux, u.uy);
+        }
+        break;
+
     case MAGIC_BEAM_TRAP:
 	You_hear("a soft click.");
 	seetrap(trap);
@@ -1781,6 +1807,14 @@ struct obj *otmp;
         trapkilled = thitm(8, steed, otmp, 0, FALSE);
         steedhit = TRUE;
         break;
+    case BOLT_TRAP:
+        if (!otmp) {
+            impossible("steed hit by non-existent crossbow bolt?");
+            return 0;
+        }
+        trapkilled = thitm(8, steed, otmp, 0, FALSE);
+        steedhit = TRUE;
+        break;
     case DART_TRAP:
         if (!otmp) {
             impossible("steed hit by non-existent dart?");
@@ -2421,6 +2455,22 @@ register struct monst *mtmp;
             }
             trap->once = 1;
             otmp = t_missile(ARROW, trap);
+            if (in_sight)
+                seetrap(trap);
+            if (thitm(8, mtmp, otmp, 0, FALSE))
+                trapkilled = TRUE;
+            break;
+        case BOLT_TRAP:
+            if (trap->once && trap->tseen && !rn2(15)) {
+                if (in_sight && see_it)
+                    pline("%s triggers a trap but nothing happens.",
+                          Monnam(mtmp));
+                deltrap(trap);
+                newsym(mtmp->mx, mtmp->my);
+                break;
+            }
+            trap->once = 1;
+            otmp = t_missile(CROSSBOW_BOLT, trap);
             if (in_sight)
                 seetrap(trap);
             if (thitm(8, mtmp, otmp, 0, FALSE))
@@ -4872,6 +4922,8 @@ boolean force;
                     return disarm_shooting_trap(ttmp, DART);
                 case ARROW_TRAP:
                     return disarm_shooting_trap(ttmp, ARROW);
+                case BOLT_TRAP:
+                    return disarm_shooting_trap(ttmp, CROSSBOW_BOLT);
                 case PIT:
                 case SPIKED_PIT:
                     if (here) {
