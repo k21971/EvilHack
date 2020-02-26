@@ -776,3 +776,4 @@ Version 0.5.0
 - Bows and crossbows are two-handed weapons even for a giant
 - Some angels and priests on astral level have 'purple rain' insurance
 - Fix: giant wizard starting with a ring of stealth
+- Fix: wands were not being created when wished for by a monster
