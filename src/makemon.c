@@ -980,6 +980,12 @@ register struct monst *mtmp;
             otmp->oerodeproof = TRUE;
             otmp->spe = 0;
             (void) mpickobj(mtmp, otmp);
+            /* some insurance against 'purple rain' */
+            if (on_level(&astral_level, &u.uz) && !rn2(3)) {
+                otmp = mksobj(RIN_SLOW_DIGESTION, FALSE, FALSE);
+                (void) mpickobj(mtmp, otmp);
+                m_dowear(mtmp, FALSE);
+            }
         }
         break;
 
@@ -1500,6 +1506,11 @@ register struct monst *mtmp;
                                                  : CLOAK_OF_MAGIC_RESISTANCE);
             (void) mongets(mtmp, SMALL_SHIELD);
             (void) mongets(mtmp, rn2(2) ? MACE : QUARTERSTAFF);
+            /* some insurance against 'purple rain' */
+            if (on_level(&astral_level, &u.uz) && rn2(2)) {
+                (void) mongets(mtmp, RIN_SLOW_DIGESTION);
+                m_dowear(mtmp, FALSE);
+            }
             mkmonmoney(mtmp, (long) rn1(10, 20));
         } else if (quest_mon_represents_role(ptr, PM_MONK)) {
             (void) mongets(mtmp, rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE);

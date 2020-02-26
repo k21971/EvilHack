@@ -774,3 +774,4 @@ Version 0.5.0
 - Clobber attack from various monsters
 - Fix: wielding the Longbow of Diana was not granting reflection
 - Bows and crossbows are two-handed weapons even for a giant
+- Some angels and priests on astral level have 'purple rain' insurance
