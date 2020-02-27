@@ -347,7 +347,7 @@ rndcurse()
     static const char mal_aura[] = "feel a malignant aura surround %s.";
 
     if (uwep && (uwep->oartifact == ART_MAGICBANE) && rn2(20)) {
-        You(mal_aura, "the magic-absorbing blade");
+        You(mal_aura, "the magic-absorbing staff");
         return;
     }
 
@@ -420,7 +420,7 @@ register struct monst *mtmp;
 
   	if (MON_WEP(mtmp) &&
   	    (MON_WEP(mtmp)->oartifact == ART_MAGICBANE) && rn2(20)) {
-  	    You(mal_aura, "the magic-absorbing blade");
+  	    You(mal_aura, "the magic-absorbing staff");
   	    return;
   	}
 

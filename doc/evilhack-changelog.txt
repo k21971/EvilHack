@@ -782,3 +782,4 @@ Version 0.5.0
 - Fix: various issues with crystal chests and iron safes
 - Fix: wishing for elven helms of (object property)
 - Get rid of CREATE_AMMO2
+- Switch Magicbane from an athame to a quarterstaff
