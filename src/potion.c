@@ -714,6 +714,7 @@ peffects(otmp)
 register struct obj *otmp;
 {
     register int i, ii, lim;
+    struct monst *mtmp;
 
     switch (otmp->otyp) {
     case POT_RESTORE_ABILITY:
@@ -1094,6 +1095,16 @@ register struct obj *otmp;
     case POT_GAIN_LEVEL:
         if (otmp->cursed) {
             unkn++;
+
+            /* Being in the presence of demon lords/princes
+               negates cursed potions of gain level */
+            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                if (is_dlord(mtmp->data) || is_dprince(mtmp->data)) {
+                    pline("Demonic forces prevent you from rising up.");
+                    goto no_rise;
+                }
+            }
+
             /* they went up a level */
             if ((ledger_no(&u.uz) == 1 && u.uhave.amulet)
                 || Can_rise_up(u.ux, u.uy, &u.uz)) {
@@ -1122,6 +1133,7 @@ register struct obj *otmp;
                 }
             } else
                 You("have an uneasy feeling.");
+no_rise:
             break;
         }
         pluslvl(FALSE);
