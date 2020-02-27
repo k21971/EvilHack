@@ -682,7 +682,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         } else if (obj->otyp == ARMOR || obj->otyp == JACKET
-            || obj->otyp == GLOVES || obj->otyp == GAUNTLETS) {
+            || obj->otyp == GLOVES || obj->otyp == GAUNTLETS
+            || obj->otyp == CLOAK) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
@@ -2972,7 +2973,7 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
     { "hat", ARMOR_CLASS, FEDORA, DUNCE_CAP },
     { "helm", ARMOR_CLASS, ELVEN_HELM, HELM_OF_TELEPATHY },
     { "gloves", ARMOR_CLASS, GLOVES, GAUNTLETS_OF_DEXTERITY },
-    { "gauntlets", ARMOR_CLASS, GLOVES, GAUNTLETS_OF_DEXTERITY },
+    { "gauntlets", ARMOR_CLASS, GAUNTLETS, GAUNTLETS_OF_POWER },
     { "boots", ARMOR_CLASS, LOW_BOOTS, LEVITATION_BOOTS },
     { "shoes", ARMOR_CLASS, LOW_BOOTS, DWARVISH_BOOTS },
     { "cloak", ARMOR_CLASS, MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT },
@@ -3531,9 +3532,6 @@ struct obj *no_wish;
                 tmpp = strstri(p, " of ");
                 if (tmpp) {
                     if ((tmpp - 6 >= bp && !strncmpi(tmpp - 6, "amulet", 6))
-                        || (tmpp - 5 >= bp && !strncmpi(tmpp - 5, "cloak", 5))
-                        || (tmpp - 9 >= bp && !strncmpi(tmpp - 9, "gauntlets", 9))
-                        || (tmpp - 4 >= bp && !strncmpi(tmpp - 4, "helm", 4))
                         || (tmpp - 6 >= bp && !strncmpi(tmpp - 6, "potion", 6))
                         || (tmpp - 4 >= bp && !strncmpi(tmpp - 4, "ring", 4))) {
                         p = tmpp + 4;
@@ -3737,7 +3735,10 @@ struct obj *no_wish;
         && strncmpi(bp, "tooled horn", 11)
         && strncmpi(bp, "ring of p'", 10)
         && strncmpi(bp, "food ration", 11)
-        && strncmpi(bp, "meat ring", 9))
+        && strncmpi(bp, "meat ring", 9)
+        && strncmpi(bp, "helm", 4)
+        && strncmpi(bp, "gauntlets", 9)
+        && strncmpi(bp, "cloak", 5))
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
             register int j = strlen(wrp[i]);
 

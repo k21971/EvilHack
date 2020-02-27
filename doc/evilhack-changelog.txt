@@ -780,3 +780,4 @@ Version 0.5.0
 - New trap: crossbow bolt trap
 - Gnomish rangers quest artifact is a crossbow
 - Fix: various issues with crystal chests and iron safes
+- Fix: wishing for elven helms of (object property)

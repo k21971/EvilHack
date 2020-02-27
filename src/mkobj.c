@@ -3163,11 +3163,12 @@ static const struct icp metal_materials[] = {
     {75, 0}, /* default to base type, iron or metal */
     { 5, BONE},
     { 5, WOOD},
-    { 5, SILVER},
+    { 4, SILVER},
     { 4, COPPER},
     { 3, MITHRIL},
     { 1, GOLD},
     { 1, GLASS},
+    { 1, MINERAL},
     { 1, PLATINUM}
 };
 
