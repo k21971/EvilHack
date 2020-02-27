@@ -949,10 +949,15 @@ boolean artif;
                 break;
             case IRON_SAFE:
                 otmp->olocked = 1;
+                mkbox_cnts(otmp);
+                break;
+            case CRYSTAL_CHEST:
+                otmp->olocked = !!(rn2(5));
+                otmp->otrapped = 0;
+                mkbox_cnts(otmp);
                 break;
             case CHEST:
             case LARGE_BOX:
-            case CRYSTAL_CHEST:
                 otmp->olocked = !!(rn2(5));
                 otmp->otrapped = !(rn2(10));
                 /*FALLTHRU*/
