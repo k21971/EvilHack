@@ -299,7 +299,7 @@ boolean female;
         role = &urole;
 
     if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)) {
-	role = &urole;
+        role = &urole;
     }
 
     /* Find the rank */

@@ -778,3 +778,4 @@ Version 0.5.0
 - Fix: giant wizard starting with a ring of stealth
 - Fix: wands were not being created when wished for by a monster
 - New trap: crossbow bolt trap
+- Gnomish rangers quest artifact is a crossbow

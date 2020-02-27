@@ -68,6 +68,7 @@ enum invoke_prop_types {
     CREATE_PORTAL,
     ENLIGHTENING,
     CREATE_AMMO,
+    CREATE_AMMO2,
     PHASING
 };
 

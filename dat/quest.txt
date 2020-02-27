@@ -2263,7 +2263,7 @@ This must be %i.
 You are in a cave built of many different rooms, all interconnected
 by tunnels.  Your quest is to find and shoot the evil wumpus that
 resides elsewhere in the cave without running into any bottomless
-pits or using up your limited supply of arrows.  Good luck.
+pits or using up your limited supply of ammunition.  Good luck.
 
 You are in room 9 of the cave.  There are tunnels to rooms
 5, 8, and 10.
@@ -2359,11 +2359,10 @@ for %d before that happens, we will be eternally safe.
 "Take %o with you.  It will aid in your quest for
 the Amulet."
 %E [You have succeeded.  Take %o with you as you go to find the Amulet.]
-# assumes The Longbow of Diana
 %Cc Ran 00082
-%l flexes %o reverently.
+%l inspects %o reverently.
 
-"With this wondrous bow, one need never run out of arrows.
+"With this wondrous weapon, one need never run out of ammunition.
 You are its keeper now, and the time has come to resume your
 search for the Amulet.  %Z await your return
 through the magic portal that brought you here."

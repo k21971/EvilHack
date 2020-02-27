@@ -847,8 +847,9 @@ long wp_mask;
                 EReflecting &= ~wp_mask;
         } else if (otmp
             && (otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN
-                || otmp->oartifact == ART_LONGBOW_OF_DIANA)
-            && (wp_mask & W_WEP)) { /* wielding the Magic Mirror of Merlin */
+                || otmp->oartifact == ART_LONGBOW_OF_DIANA
+                || otmp->oartifact == ART_CROSSBOW_OF_CARL)
+            && (wp_mask & W_WEP)) { /* wielding various reflecting artifacts */
             if (on)
                 EReflecting |= wp_mask;
             else
@@ -966,6 +967,11 @@ struct monst *mon;
         if (Punished && (obj != uball)) {
             unpunish(); /* Remove a mundane heavy iron ball */
         }
+    }
+    if (oart == &artilist[ART_CROSSBOW_OF_CARL]) {
+        if (Role_if(PM_RANGER) && Race_if(PM_GNOME))
+            obj->owt = 24; /* Magically lightened,
+                              same weight as the Longbow of Diana */
     }
     return 1;
 }
@@ -2171,6 +2177,29 @@ struct obj *obj;
             break;
         case CREATE_AMMO: {
             struct obj *otmp = mksobj(ARROW, TRUE, FALSE);
+
+            if (!otmp)
+                goto nothing_special;
+            otmp->blessed = obj->blessed;
+            otmp->cursed = obj->cursed;
+            otmp->bknown = obj->bknown;
+            if (obj->blessed) {
+                if (otmp->spe < 0)
+                    otmp->spe = 0;
+                otmp->quan += rnd(10);
+            } else if (obj->cursed) {
+                if (otmp->spe > 0)
+                    otmp->spe = 0;
+            } else
+                otmp->quan += rnd(5);
+            otmp->owt = weight(otmp);
+            otmp = hold_another_object(otmp, "Suddenly %s out.",
+                                       aobjnam(otmp, "fall"), (char *) 0);
+            nhUse(otmp);
+            break;
+        }
+        case CREATE_AMMO2: {
+            struct obj *otmp = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
 
             if (!otmp)
                 goto nothing_special;

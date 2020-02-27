@@ -215,7 +215,8 @@ struct obj {
      || otmp->oartifact == ART_LIFESTEALER || otmp->oartifact == ART_DIRGE                    \
      || otmp->oartifact == ART_SWORD_OF_BHELEU || otmp->oartifact == ART_LONGBOW_OF_DIANA     \
      || otmp->oartifact == ART_MASTER_KEY_OF_THIEVERY || otmp->oartifact == ART_RING_OF_P_HUL \
-     || otmp->oartifact == ART_LUCK_BLADE || otmp->oartifact == ART_IRON_BALL_OF_LIBERATION)
+     || otmp->oartifact == ART_LUCK_BLADE || otmp->oartifact == ART_IRON_BALL_OF_LIBERATION   \
+     || otmp->oartifact == ART_CROSSBOW_OF_CARL)
 
 #define is_magical_staff(otmp) \
     (otmp->otyp == STAFF_OF_DIVINATION || otmp->otyp == STAFF_OF_HEALING \

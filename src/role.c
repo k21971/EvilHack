@@ -681,6 +681,55 @@ const struct Role align_roles[] = {
     { { 0, 0 } }
 };
 
+/* Gnomish Ranger */
+const struct Role race_roles[] = {
+    { { "Ranger", 0 },
+      {
+        { "Tenderfoot", 0 },
+        { "Lookout", 0 },
+        { "Trailblazer", 0 },
+        { "Reconnoiterer", "Reconnoiteress" },
+        { "Scout", 0 },
+        { "Arbalester", 0 }, /* One skilled at crossbows */
+        { "Archer", 0 },
+        { "Sharpshooter", 0 },
+        { "Marksman", "Markswoman" } },
+      "Mercury", "_Venus", "Mars", /* Roman/planets */
+      "Ran",
+      "Orion's camp",
+      "the cave of the wumpus",
+      PM_RANGER,
+      NON_PM,
+      PM_LITTLE_DOG /* Orion & canis major */,
+      PM_ORION,
+      PM_HUNTER,
+      PM_SCORPIUS,
+      PM_FOREST_CENTAUR,
+      PM_SCORPION,
+      S_CENTAUR,
+      S_SPIDER,
+      ART_CROSSBOW_OF_CARL,
+      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT | MH_CENTAUR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 13, 13, 13, 9, 13, 7 },
+      { 30, 10, 10, 20, 20, 10 },
+      /* Init   Lower  Higher */
+      { 13, 0, 0, 6, 1, 0 }, /* Hit points */
+      { 1, 0, 0, 1, 0, 1 },
+      12, /* Energy */
+      10,
+      9,
+      2,
+      1,
+      10,
+      A_INT,
+      SPE_INVISIBILITY,
+      -4 },
+    /* Array terminator */
+    { { 0, 0 } }
+};
+
 /* The player's role, created at runtime from initial
  * choices.  This may be munged in role_init().
  */
@@ -2284,7 +2333,11 @@ role_init()
 
     /* kick it over to alternate-alignment role */
     if (alignmnt == A_CHAOTIC && Role_if(PM_KNIGHT)) {
-	urole = align_roles[0];
+        urole = align_roles[0];
+    }
+
+    if (Race_if(PM_GNOME) && Role_if(PM_RANGER)) {
+        urole = race_roles[0];
     }
 
     /* Fix up the quest leader */

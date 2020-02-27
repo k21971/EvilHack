@@ -1602,6 +1602,23 @@ register struct monst *mtmp;
                 begin_burn(otmp, FALSE);
         }
         break;
+    case S_SPIDER:
+        if (ptr == &mons[PM_SCORPIUS]) {
+            if (Race_if(PM_GNOME)) {
+                otmp = mksobj(CROSSBOW, FALSE, FALSE);
+                otmp = oname(otmp, artiname(ART_CROSSBOW_OF_CARL));
+                bless(otmp);
+                otmp->spe = 0;
+                (void) mpickobj(mtmp, otmp);
+            } else {
+                otmp = mksobj(BOW, FALSE, FALSE);
+                otmp = oname(otmp, artiname(ART_LONGBOW_OF_DIANA));
+                bless(otmp);
+                otmp->spe = 0;
+                (void) mpickobj(mtmp, otmp);
+            }
+        }
+        break;
     default:
         break;
     }

@@ -4479,7 +4479,7 @@ struct obj *no_wish;
         const char *voice = NULL;
         struct obj *otmp2 = (struct obj *) 0;
         /* You can use otmp2 to give the owner some other item you want to.
-           Used here to give ammunition for the Longbow of Diana. */
+           Used here to give ammunition for the Ranger artifacts. */
         const char *aname = artiname(otmp->oartifact);
 
         /* Wishing for a quest artifact may summon its nemesis (and quest enemies?) */
@@ -4546,6 +4546,15 @@ struct obj *no_wish;
                     break;
                 case ART_LONGBOW_OF_DIANA:
                     otmp2 = mksobj(ARROW, TRUE, FALSE);
+                    otmp2->quan = (long) rn1(20, 10);
+                    otmp2->owt = weight(otmp2);
+                    otmp2->blessed = otmp2->cursed = 0;
+                    otmp2->spe = rn2(3);
+                    strategy = NEED_RANGED_WEAPON;
+                    pm = PM_HUMAN_RANGER;
+                    break;
+                case ART_CROSSBOW_OF_CARL:
+                    otmp2 = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
                     otmp2->quan = (long) rn1(20, 10);
                     otmp2->owt = weight(otmp2);
                     otmp2->blessed = otmp2->cursed = 0;
