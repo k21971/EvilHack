@@ -658,26 +658,26 @@ FLAGS: noteleport,hardfloor,nommap
 NON_PASSWALL:(39,00,41,00)
 GEOMETRY:center,center
 MAP
-----------------------------------------------------------------------------
-|             --------------                                               |
-|             |............|             -------                           |
-|       -------............-----         |.....|                           |
-|       |......................|        --.....|            ---------      |
-|    ----......................---------|......----         |.......|      |
-|    |........---------..........|......+.........|     ------+---..|      |
-|  ---........|.......|..........--S----|.........|     |........|..|      |
-|  |..........|.......|.............|   |.........-------..----------      |
-|  |..........|.......|..........----   |..........|....|..|......|        |
-|  |..........|.......|..........|      --.......----+---S---S--..|        |
-|  |..........---------..........|       |.......|.............|..|        |
-|  ---...........................|       -----+-------S---------S---       |
-|    |...........................|          |...| |......|    |....|--     |
-|    ----.....................----          |...---....---  ---......|     |
-|       |.....................|             |..........|    |.....----     |
-|       -------...........-----             --...-------    |.....|        |
-|             |...........|                  |...|          |.....|        |
-|             -------------                  -----          -------        |
-----------------------------------------------------------------------------
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLL----F----F----LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLL|............|LLLLLLLLLLLLL-------LLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLL---F---............---F-LLLLLLLLLF.....FLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLL|......................|LLLLLLLL--.....|LLLLLLLLLLLL--F---F--LLLLLLL
+LLLLL-F--....LLLLLLLLLLL.......-F-----LL|......----LLLLLLLLL|.......|LLLLLLL
+LLLLL|.......L---------L.........|...|LL|.........|--F----F---+---..FLLLLLLL
+LLL---.......L|.......|L.........--S--LL|.........|.....S........|..|LLLLLLL
+LLLF.........L|.......|L............|LLLF.........---S---..-----S----LLLLLLL
+LLL|.........L|.......|L.........----LLL|..........|....|..|......|LLLLLLLLL
+LLL|.........L|.......|L.........FLLLLLL--.......----+---S---S--..FLLLLLLLLL
+LLLF.........L---------L.........|LLLLLLLF.......|.............|..|LLLLLLLLL
+LLL---.......LLLLLLLLLLL.........|LLLLLLL-----+-------S---------S---LLLLLLLL
+LLLLL|...........................FLLLLLLLLLL|...F.F......|....|....|--LLLLLL
+LLLLL-F--.....................----LLLLLLLLLLF...-F-....------S-......FLLLLLL
+LLLLLLLL|.....................|LLLLLLLLLLLLL|..........|LLLL|.....----LLLLLL
+LLLLLLLL---F---...........---F-LLLLLLLLLLLLL--...----F--LLLLF.....|LLLLLLLLL
+LLLLLLLLLLLLLL|...........|LLLLLLLLLLLLLLLLLLF...FLLLLLLLLLL|.....FLLLLLLLLL
+LLLLLLLLLLLLLL----F----F---LLLLLLLLLLLLLLLLLL-----LLLLLLLLLL-------LLLLLLLLL
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 ENDMAP
 REGION:(15,07,21,10),lit,"temple"
 ALTAR:(18,08),noalign,sanctum
@@ -686,46 +686,13 @@ REGION:(41,06,48,11),unlit,"morgue",filled,irregular
 NON_DIGGABLE:(00,00,75,19)
 # Invisible barrier separating the left & right halves of the level
 NON_PASSWALL:(37,00,39,19)
+# Drawbridges
+DRAWBRIDGE:(38,06),west,closed
+DRAWBRIDGE:(39,06),east,closed
 # Doors
-DOOR:closed,(40,06)
 DOOR:locked,(62,06)
 DOOR:closed,(46,12)
 DOOR:closed,(53,10)
-# Surround the temple with fire
-TRAP:"fire",(13,05)
-TRAP:"fire",(14,05)
-TRAP:"fire",(15,05)
-TRAP:"fire",(16,05)
-TRAP:"fire",(17,05)
-TRAP:"fire",(18,05)
-TRAP:"fire",(19,05)
-TRAP:"fire",(20,05)
-TRAP:"fire",(21,05)
-TRAP:"fire",(22,05)
-TRAP:"fire",(23,05)
-TRAP:"fire",(13,12)
-TRAP:"fire",(14,12)
-TRAP:"fire",(15,12)
-TRAP:"fire",(16,12)
-TRAP:"fire",(17,12)
-TRAP:"fire",(18,12)
-TRAP:"fire",(19,12)
-TRAP:"fire",(20,12)
-TRAP:"fire",(21,12)
-TRAP:"fire",(22,12)
-TRAP:"fire",(23,12)
-TRAP:"fire",(13,06)
-TRAP:"fire",(13,07)
-TRAP:"fire",(13,08)
-TRAP:"fire",(13,09)
-TRAP:"fire",(13,10)
-TRAP:"fire",(13,11)
-TRAP:"fire",(23,06)
-TRAP:"fire",(23,07)
-TRAP:"fire",(23,08)
-TRAP:"fire",(23,09)
-TRAP:"fire",(23,10)
-TRAP:"fire",(23,11)
 # Some traps.
 TRAP:"spiked pit", random
 TRAP:"fire", random
@@ -733,6 +700,8 @@ TRAP:"sleep gas", random
 TRAP:"anti magic", random
 TRAP:"fire", random
 TRAP:"magic", random
+TRAP:"spear", random
+TRAP:"magic beam", random
 # Some random objects
 OBJECT:'[',random
 OBJECT:'[',random
@@ -750,9 +719,16 @@ OBJECT:'?',random
 OBJECT:'?',random
 OBJECT:'?',random
 OBJECT:'?',random
+# Inner sanctum guards
+MONSTER:(':',"salamander"),(13,05),hostile
+MONSTER:(':',"salamander"),(23,05),hostile
+MONSTER:(':',"salamander"),(13,12),hostile
+MONSTER:(':',"salamander"),(23,12),hostile
+MONSTER:('&',"lava demon"),(18,05),hostile
+MONSTER:('&',"lava demon"),(18,12),hostile
 # Some monsters.
-MONSTER:('&',"horned devil"),(14,12),hostile
-MONSTER:('&',"barbed devil"),(18,08),hostile
+MONSTER:('&',"pit fiend"),(14,12),hostile
+MONSTER:('&',"balrog"),(18,08),hostile
 MONSTER:('&',"erinys"),(10,04),hostile
 MONSTER:('&',"marilith"),(07,09),hostile
 MONSTER:('&',"nalfeshnee"),(27,08),hostile
@@ -774,6 +750,17 @@ MONSTER:'V',random
 MONSTER:'V',random
 MONSTER:('U',"shambling horror"),random
 MONSTER:('U',"shambling horror"),random
+MONSTER:('U',"shambling horror"),random
+# Lava nasties
+MONSTER:(':',"salamander"),(01,01),hostile
+MONSTER:(':',"salamander"),(74,01),hostile
+MONSTER:(':',"salamander"),(01,18),hostile
+MONSTER:(':',"salamander"),(74,18),hostile
+MONSTER:(':',"salamander"),(38,04),hostile
+MONSTER:(':',"salamander"),(38,08),hostile
+MONSTER:('&',"lava demon"),(60,03),hostile
+MONSTER:('&',"lava demon"),(30,17),hostile
+# Exit
 STAIR:(63,15),up
 # Teleporting to this level is allowed after the invocation creates its
 # entrance.  Force arrival in that case to be on rightmost third of level.
