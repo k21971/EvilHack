@@ -2176,30 +2176,7 @@ struct obj *obj;
             enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS);
             break;
         case CREATE_AMMO: {
-            struct obj *otmp = mksobj(ARROW, TRUE, FALSE);
-
-            if (!otmp)
-                goto nothing_special;
-            otmp->blessed = obj->blessed;
-            otmp->cursed = obj->cursed;
-            otmp->bknown = obj->bknown;
-            if (obj->blessed) {
-                if (otmp->spe < 0)
-                    otmp->spe = 0;
-                otmp->quan += rnd(10);
-            } else if (obj->cursed) {
-                if (otmp->spe > 0)
-                    otmp->spe = 0;
-            } else
-                otmp->quan += rnd(5);
-            otmp->owt = weight(otmp);
-            otmp = hold_another_object(otmp, "Suddenly %s out.",
-                                       aobjnam(otmp, "fall"), (char *) 0);
-            nhUse(otmp);
-            break;
-        }
-        case CREATE_AMMO2: {
-            struct obj *otmp = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
+            struct obj *otmp = mksobj(obj->otyp == CROSSBOW ? CROSSBOW_BOLT : ARROW, TRUE, FALSE);
 
             if (!otmp)
                 goto nothing_special;

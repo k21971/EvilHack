@@ -781,3 +781,4 @@ Version 0.5.0
 - Gnomish rangers quest artifact is a crossbow
 - Fix: various issues with crystal chests and iron safes
 - Fix: wishing for elven helms of (object property)
+- Get rid of CREATE_AMMO2
