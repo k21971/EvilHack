@@ -783,3 +783,4 @@ Version 0.5.0
 - Fix: wishing for elven helms of (object property)
 - Get rid of CREATE_AMMO2
 - Switch Magicbane from an athame to a quarterstaff
+- Fix: material damage messages after monster is already dead

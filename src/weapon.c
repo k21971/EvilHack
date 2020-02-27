@@ -499,6 +499,9 @@ struct obj * obj; /* the offending item,  or &zeroobj if your body */
         return;
     }
 
+    if (DEADMONSTER(mdef))
+        return;
+
     char onamebuf[BUFSZ];
     char whose[BUFSZ];
     int mat;
