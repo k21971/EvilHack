@@ -1191,7 +1191,8 @@ boolean ranged;
        || ((mtmp->mhp * 4 < mtmp->mhpmax || mtmp2->data->msound == MS_GUARDIAN
            || mtmp2->data->msound == MS_LEADER || always_peaceful(mtmp2->data))
        && mtmp2->mpeaceful && !grudge && !Conflict)
-       || (!ranged && touch_petrifies(mtmp2->data) && !resists_ston(mtmp)));
+       || (!ranged && touch_petrifies(mtmp2->data) && !resists_ston(mtmp))
+       || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp)));
 }
 
 /* return 0 (no move), 1 (move) or 2 (dead) */
