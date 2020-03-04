@@ -1220,6 +1220,9 @@ done(how)
 int how;
 {
     boolean survive = FALSE;
+    register xchar x, y;
+    x = u.ux + u.dx;
+    y = u.uy + u.dy;
 
     if (how == TRICKED) {
         if (killer.name[0]) {
@@ -1312,6 +1315,9 @@ int how;
             savelife(how);
             if (how == GENOCIDED) {
                 pline("Unfortunately you are still genocided...");
+            } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
+                && !Levitation && !Flying) {
+                pline("Unfortunately the impact was too great...");
             } else {
                 livelog_write_string(LL_LIFESAVE, "averted death");
                 ukiller = (struct monst*) 0;

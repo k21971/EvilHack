@@ -3020,7 +3020,7 @@ lookaround()
                 continue;
 
             if (IS_ROCK(levl[x][y].typ) || levl[x][y].typ == ROOM
-                || IS_AIR(levl[x][y].typ)) {
+                || (IS_AIR(levl[x][y].typ) && Is_airlevel(&u.uz))) {
                 continue;
             } else if (closed_door(x, y) || (mtmp && is_door_mappear(mtmp))) {
                 if (x != u.ux && y != u.uy)
@@ -3076,7 +3076,14 @@ lookaround()
                      */
                     if (iflags.mention_walls)
                         You("stop at the edge of the %s.",
-                            hliquid(is_damp_terrain(x,y) ? "water" : "lava"));
+                            hliquid(is_damp_terrain(x, y) ? "water" : "lava"));
+                    goto stop;
+                }
+                continue;
+            } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
+                if (!Levitation && !Flying && !is_whirly(youmonst.data)
+                    && !noncorporeal(youmonst.data)
+                    && x == u.ux + u.dx && y == u.uy + u.dy) {
                     goto stop;
                 }
                 continue;

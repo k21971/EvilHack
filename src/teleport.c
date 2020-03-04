@@ -533,8 +533,8 @@ struct obj *scroll;
     if (!Blinded)
         make_blinded(0L, FALSE);
 
-    if ((u.uhave.amulet || On_W_tower_level(&u.uz)
-        || (u.usteed && mon_has_amulet(u.usteed)))) {
+    if (u.uhave.amulet || On_W_tower_level(&u.uz)
+        || (u.usteed && mon_has_amulet(u.usteed))) {
         You_feel("disoriented for a moment.");
         if (!wizard || yn("Override?") != 'y')
             return FALSE;
@@ -822,7 +822,8 @@ level_tele()
 
     if (iflags.debug_fuzzer)
         goto random_levtport;
-    if ((u.uhave.amulet || In_endgame(&u.uz) || In_sokoban(&u.uz))
+    if ((u.uhave.amulet || In_endgame(&u.uz)
+        || In_V_tower(&u.uz) || In_sokoban(&u.uz))
         && !wizard) {
         You_feel("very disoriented for a moment.");
         return;

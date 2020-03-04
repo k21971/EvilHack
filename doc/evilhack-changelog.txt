@@ -789,3 +789,4 @@ Version 0.5.0
 - Being in the presence of demon lords or princes negates the effects of drinking
   a cursed potion of gain level
 - Gehennom changes (round four) - Vlad's tower
+- Fix: address some issues found with Vlad's tower revamp
