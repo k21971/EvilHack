@@ -1582,6 +1582,7 @@
 				"$(NH_DAT_DIR)/tower1.lev",
 				"$(NH_DAT_DIR)/tower2.lev",
 				"$(NH_DAT_DIR)/tower3.lev",
+				"$(NH_DAT_DIR)/tower4.lev",
 				"$(NH_DAT_DIR)/tribute",
 				"$(NH_DAT_DIR)/valley.lev",
 				"$(NH_DAT_DIR)/water.lev",

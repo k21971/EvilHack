@@ -97,6 +97,10 @@ unsigned gpflags;
         if ((is_puddle(x, y) || is_sewage(x, y))
             && !vs_cantflyorswim(mdat))
             return TRUE;
+        if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
+            && !(is_flyer(mdat) || is_floater(mdat)
+                 || noncorporeal(mdat) || is_whirly(mdat)))
+            return FALSE;
     }
     if (!accessible(x, y)) {
         if (!(is_pool(x, y) && ignorewater))

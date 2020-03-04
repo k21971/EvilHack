@@ -3344,6 +3344,17 @@ long hmask, emask; /* might cancel timeout */
             You("begin to tumble in place.");
         } else if (Is_waterlevel(&u.uz) && !no_msg) {
             You_feel("heavier.");
+        } else if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)
+            && !(u.usteed && (is_floater(u.usteed->data)
+                              || is_flyer(u.usteed->data)))) {
+            if (!Flying) {
+                You("are no longer flying.");
+                You("plummet a few thousand feet to your death.");
+                Sprintf(killer.name,
+                        "fell to %s death", uhis());
+                killer.format = NO_KILLER_PREFIX;
+                done(DIED);
+            }
         /* u.uinwater msgs already in spoteffects()/drown() */
         } else if (!u.uinwater && !no_msg) {
             if (!(emask & W_SADDLE)) {

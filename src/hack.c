@@ -1542,7 +1542,7 @@ domove_core()
         u.uy = y = u.ustuck->my;
         mtmp = u.ustuck;
     } else {
-        if (Is_airlevel(&u.uz) && rn2(4) && !Levitation && !Flying) {
+        if ((Is_airlevel(&u.uz)) && rn2(4) && !Levitation && !Flying) {
             switch (rn2(3)) {
             case 0:
                 You("tumble in place.");
@@ -1557,6 +1557,18 @@ domove_core()
                 break;
             }
             return;
+        }
+
+        x = u.ux + u.dx;
+        y = u.uy + u.dy;
+        if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
+            && !Levitation && !Flying) {
+            pline("Unfortunately, you don't know how to fly.");
+            You("plummet a few thousand feet to your death.");
+            Sprintf(killer.name,
+                    "fell to %s death", uhis());
+            killer.format = NO_KILLER_PREFIX;
+            done(DIED);
         }
 
         /* check slippery ice */

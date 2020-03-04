@@ -377,6 +377,11 @@ const char *verb;
             (void) obj_meld(&obj, &otmp);
         }
         return (boolean) !obj;
+    } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
+        if (!Blind)
+            pline("%s %s away and %s.", The(xname(obj)),
+                  otense(obj, "fall"), otense(obj, "disappear"));
+        return TRUE;
     }
     return FALSE;
 }

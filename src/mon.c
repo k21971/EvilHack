@@ -1817,12 +1817,17 @@ long flag;
                     || (m_at(x, ny) && m_at(nx, y) && worm_cross(x, y, nx, ny)
                         && !m_at(nx, ny) && (nx != u.ux || ny != u.uy))))
                 continue;
+            /* avoid open air if gravity is in effect */
+            if (IS_AIR(ntyp) && In_V_tower(&u.uz)
+                && !(is_flyer(mdat) || is_floater(mdat)
+                     || noncorporeal(mdat) || is_whirly(mdat)))
+                continue;
             if ((is_pool(nx, ny) == wantpool || poolok)
                 && (is_lava(nx, ny) == wantlava || lavaok)
                 && (is_sewage(nx, ny) == wantsewage || !wantsewage)
                 /* iron golems and longworms avoid shallow water */
-                && ((mon->data != &mons[PM_IRON_GOLEM] && !is_longworm(mon->data)
-                    && !vs_cantflyorswim(mon->data))
+                && ((mon->data != &mons[PM_IRON_GOLEM] && !is_longworm(mdat)
+                    && !vs_cantflyorswim(mdat))
                     || !(is_puddle(nx, ny) || is_sewage(nx, ny)))) {
                 int dispx, dispy;
                 boolean monseeu = (mon->mcansee
@@ -2759,19 +2764,24 @@ boolean was_swallowed; /* digestion */
     /* Trolls don't leave a corpse when the player is wielding Trollsbane */
     if (mdat->mlet == S_TROLL && ((uwep && uwep->oartifact == ART_TROLLSBANE)
         || (u.twoweap && uswapwep->oartifact == ART_TROLLSBANE))) {
-	if (cansee(mon->mx, mon->my)) {
+	if (cansee(mon->mx, mon->my))
 	    pline("%s corpse flares brightly and burns to ashes.", s_suffix(Monnam(mon)));
 	return FALSE;
-	}
     }
 
     /* Zombies don't leave a corpse when the player is wielding Sunsword */
     if (mdat->mlet == S_ZOMBIE && ((uwep && uwep->oartifact == ART_SUNSWORD)
         || (u.twoweap && uswapwep->oartifact == ART_SUNSWORD))) {
-        if (cansee(mon->mx, mon->my)) {
+        if (cansee(mon->mx, mon->my))
             pline("%s corpse dissolves into nothingess.", s_suffix(Monnam(mon)));
         return FALSE;
-        }
+    }
+
+    /* Corpses don't hover in midair in the presence of gravity */
+    if (IS_AIR(levl[mon->mx][mon->my].typ) && In_V_tower(&u.uz)) {
+        if (cansee(mon->mx, mon->my))
+            pline("%s corpse falls away and disappears.", s_suffix(Monnam(mon)));
+        return FALSE;
     }
 
     /* Gas spores always explode upon death */
@@ -4147,7 +4157,10 @@ struct monst *mon;
     case PM_VAMPIRE_LORD:
     case PM_VAMPIRE_LADY: /* vampire lords/ladies or Vlad can become wolf */
         if (!rn2(wolfchance) && !uppercase_only) {
-            mndx = PM_WOLF;
+            if (IS_AIR(levl[mon->mx][mon->my].typ))
+                mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
+            else
+                mndx = PM_WOLF;
             break;
         }
     /*FALLTHRU*/
@@ -4155,7 +4168,10 @@ struct monst *mon;
     case PM_VAMPIRE_QUEEN:
     case PM_VAMPIRE_MAGE: /* vampire kings/queens and mages can become a warg */
         if (!rn2(wolfchance) && !uppercase_only) {
-            mndx = PM_WARG;
+            if (IS_AIR(levl[mon->mx][mon->my].typ))
+                mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
+            else
+                mndx = PM_WARG;
             break;
         }
     /*FALLTHRU*/

@@ -303,7 +303,7 @@ INSTDUNGEONFILES1= \
 	$(SLIB)wizard2.lev	$(SLIB)wizard3.lev      $(SLIB)castle-2.lev \
         $(SLIB)castle-3.lev     $(SLIB)knox-2.lev       $(SLIB)knox-3.lev \
         $(SLIB)hellfill.lev     $(SLIB)demogor.lev      $(SLIB)dis.lev \
-        $(SLIB)yeenoghu.lev     $(SLIB)geryon.lev \
+        $(SLIB)yeenoghu.lev     $(SLIB)geryon.lev	$(SLIB)tower4.lev \
 	$(XDFILES)
 
 INSTDUNGEONFILES= $(NETHACK)NetHack.cnf $(INSTDUNGEONFILES1)
@@ -389,7 +389,7 @@ spotless:  clean
 	-delete $(SLIB)quest.dat $(SLIB)wizhelp
 #	-delete $(SLIB)earth.lev $(SLIB)air.lev $(SLIB)fire.lev
 #	-delete $(SLIB)water.lev $(SLIB)astral.lev
-#	-delete $(SLIB)tower1.lev $(SLIB)tower2.lev $(SLIB)tower3.lev
+#	-delete $(SLIB)tower1.lev $(SLIB)tower2.lev $(SLIB)tower3.lev $(SLIB)tower4.lev
 #	-delete $(SLIB)fakewiz1.lev $(SLIB)fakewiz2.lev
 #	-delete $(SLIB)medusa-1.lev $(SLIB)medusa-2.lev
 #	-delete $(SLIB)oracle.lev $(SLIB)wizard1.lev $(SLIB)wizard2.lev
@@ -793,7 +793,7 @@ $(ENDGAME1):	$(SLIB)astral.lev
 $(SLIB)astral.lev:	$(DAT)endgame.des $(SBIN)lev_comp
 
 GEHENNOM1= $(SLIB)asmodeus.lev $(SLIB)baalz.lev $(SLIB)juiblex.lev \
-  $(SLIB)orcus.lev $(SLIB)sanctum.lev 
+  $(SLIB)orcus.lev $(SLIB)sanctum.lev
 $(GEHENNOM1):	$(SLIB)valley.lev
 
 $(SLIB)valley.lev:	$(DAT)gehennom.des $(SBIN)lev_comp
@@ -807,10 +807,10 @@ $(SLIB)minefill.lev: $(DAT)mines.des $(SBIN)lev_comp
 
 $(SLIB)oracle.lev: $(DAT)oracle.des $(SBIN)lev_comp
 
-TOWER1= $(SLIB)tower1.lev $(SLIB)tower2.lev
-$(TOWER1): $(SLIB)tower3.lev
+TOWER1= $(SLIB)tower1.lev $(SLIB)tower2.lev $(SLIB)tower3.lev
+$(TOWER1): $(SLIB)tower4.lev
 
-$(SLIB)tower3.lev: $(DAT)tower.des $(SBIN)lev_comp
+$(SLIB)tower4.lev: $(DAT)tower.des $(SBIN)lev_comp
 
 WIZARD1= $(SLIB)wizard1.lev $(SLIB)wizard2.lev $(SLIB)wizard3.lev \
 	$(SLIB)fakewiz1.lev

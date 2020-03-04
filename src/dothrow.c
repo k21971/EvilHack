@@ -767,6 +767,16 @@ int x, y;
         Norep("You move over some lava.");
     }
 
+    if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
+        && !Levitation && !Flying) {
+        pline("Unfortunately, you don't know how to fly.");
+        You("plummet a few thousand feet to your death.");
+        Sprintf(killer.name,
+                "fell to %s death", uhis());
+        killer.format = NO_KILLER_PREFIX;
+        done(DIED);
+    }
+
     /* FIXME:
      * Each trap should really trigger on the recoil if it would
      * trigger during normal movement. However, not all the possible
@@ -1095,6 +1105,11 @@ boolean hitsroof;
             thrownobj = 0;  /* now either gone or on floor */
             done(STONING);
             return obj ? TRUE : FALSE;
+        }
+        if (IS_AIR(levl[bhitpos.x][bhitpos.y].typ) && In_V_tower(&u.uz)) {
+            thrownobj = 0;
+            losehp(Maybe_Half_Phys(dmg), "falling object", KILLED_BY_AN);
+            return FALSE;
         }
         hitfloor(obj, TRUE);
         thrownobj = 0;

@@ -52,7 +52,7 @@ DUNGEON:	"Gehennom" "G" (25, 5)
 DESCRIPTION:	mazelike
 DESCRIPTION:	hellish
 ALIGNMENT:	noalign
-BRANCH:		"Vlad's Tower" @ (9, 5) up
+BRANCH:		"Vlad's Tower" @ (9, 5) down
 LEVEL:		"valley" "V" @ (1, 0)
 LEVEL:		"demogor" "D" @ (-5, 3)
 LEVEL:		"dis" "I" @ (16, 4)
@@ -117,7 +117,7 @@ RNDLEVEL:	"knox" "K" @ (-1, 0) 3
 #	It has been removed from Gehennom, and it is surrounded by stone.
 #	Must not allow bones files for its top level.
 #
-DUNGEON:	"Vlad's Tower" "T" (3, 0)
+DUNGEON:	"Vlad's Tower" "T" (4, 0)
 PROTOFILE:	"tower"
 DESCRIPTION:	mazelike
 ALIGNMENT:	chaotic
@@ -127,7 +127,7 @@ LEVEL:		"tower1" "none" @ (1, 0)
 # show up in ^O output and in the level teleport menu
 LEVEL:		"tower2" "none" @ (2, 0)
 LEVEL:		"tower3" "none" @ (3, 0)
-
+LEVEL:          "tower4" "none" @ (4, 0)
 #
 #	The Endgame levels
 #

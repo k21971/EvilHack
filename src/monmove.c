@@ -528,6 +528,17 @@ register struct monst *mtmp;
     if (!mwalk_sewage)
         mon_adjust_speed(mtmp, 3, (struct obj *) 0);
 
+    /* being in midair where gravity is still in effect can be lethal */
+    if (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
+        && !(is_flyer(mdat) || is_floater(mdat)
+            || noncorporeal(mdat) || is_whirly(mdat))) {
+        if (canseemon(mtmp))
+            pline("%s plummets a few thousand feet to its death.",
+                  Monnam(mtmp));
+        /* no corpse or objects as both are now several thousand feet down */
+        mongone(mtmp);
+    }
+
     /* sick monsters can die from their illness */
     if (mtmp->msick && !rn2(10)) {
         if (resists_sick(mtmp)) {
@@ -1326,6 +1337,13 @@ register int after;
                        is insufficient for deciding whether to do so */
                     if ((is_pool(xx, yy) && !is_swimmer(ptr))
                         || (is_lava(xx, yy) && !likes_lava(ptr)))
+                        continue;
+
+                    /* if open air and can't fly/float and gravity
+                       is in effect */
+                    if (IS_AIR(levl[xx][yy].typ) && In_V_tower(&u.uz)
+                        && !(is_flyer(ptr) || is_floater(ptr)
+                             || noncorporeal(ptr) || is_whirly(ptr)))
                         continue;
 
                     /* ignore sokoban prizes */

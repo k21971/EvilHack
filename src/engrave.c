@@ -185,7 +185,7 @@ register int x, y;
 
     if (x == u.ux && y == u.uy && u.uswallow && is_animal(u.ustuck->data))
         return "maw";
-    else if (IS_AIR(lev->typ) && Is_airlevel(&u.uz))
+    else if (IS_AIR(lev->typ) && (Is_airlevel(&u.uz) || In_V_tower(&u.uz)))
         return "air";
     else if (is_damp_terrain(x, y))
         return (Underwater && !Is_waterlevel(&u.uz))
@@ -232,9 +232,12 @@ register int x, y;
     else if (Is_waterlevel(&u.uz))
         /* water plane has no surface; its air bubbles aren't below sky */
         what = "water above";
-    else if (IS_AIR(lev->typ))
-        what = "sky";
-    else if (Underwater)
+    else if (IS_AIR(lev->typ)) {
+        if (In_V_tower(&u.uz))
+            what = "rock cavern";
+        else
+            what = "sky";
+    } else if (Underwater)
         what = "water's surface";
     else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz))
              || IS_WALL(lev->typ) || IS_DOOR(lev->typ) || lev->typ == SDOOR)
@@ -580,7 +583,8 @@ doengrave()
         You_cant("write on the %s!", surface(u.ux, u.uy));
         return 0;
     }
-    if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz) /* in bubble */) {
+    if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz) /* in bubble */
+        || (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz))) {
         You_cant("write in thin air!");
         return 0;
     } else if (!accessible(u.ux, u.uy)) {

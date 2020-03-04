@@ -6,24 +6,33 @@
 MAZE:"tower1",' '
 FLAGS: noteleport,hardfloor,solidify
 GEOMETRY:half-left,center
+#         1         2         3
+#123456789012345678901234567890
 MAP
-  --- --- ---  
-  |.| |.| |.|  
----S---S---S---
-|.......+.+...|
----+-----.-----
-  |...\.|.+.|  
----+-----.-----
-|.......+.+...|
----S---S---S---
-  |.| |.| |.|  
-  --- --- ---  
+  --- ---   ------   --- ---
+  |.| |.|  -|....|-  |.| |.|
+---S---S---|--SS--|---S---S---
+|..........S......|.........\|
+|..........|......|..........|
+----....---|--++--|----++-----
+   |....|  |......|  |....|
+   |....|  |......|  |....|
+   |....|  |......|  |....|
+   |....|  |......|  |....|
+-----++----|--++--|---....----
+|..........|......|..........|
+|..........|......S..........|
+---S---S---|--SS--|---S---S---
+  |.| |.|  -|....|-  |.| |.|
+  --- ---   ------   --- ---
 ENDMAP
-$niches = { (03,01), (03,09), (07,01), (07,09), (11,01), (11,09) }
+# Random 8 niches
+$niches = { (03,01),(07,01),(22,01),(26,01),
+           (03,14),(07,14),(22,14),(26,14) }
 SHUFFLE: $niches
-LADDER:(11,05),down
+LADDER:(01,12),down
 # The lord and his court
-MONSTER:('V',"Vlad the Impaler"),(06,05) {
+MONSTER:('V',"Vlad the Impaler"),(28,03) {
   OBJECT:(')',"two-handed sword"),1d3,name:"Lifestealer",cursed,erodeproof
   OBJECT:('(',"Candelabrum of Invocation")
 }
@@ -33,111 +42,243 @@ MONSTER:'V',$niches[2]
 MONSTER:'V',$niches[3]
 MONSTER:'V',$niches[4]
 MONSTER:'V',$niches[5]
-# The doors
-DOOR:closed,(08,03)
-DOOR:closed,(10,03)
-DOOR:closed,(03,04)
-DOOR:locked,(10,05)
-DOOR:locked,(08,07)
-DOOR:locked,(10,07)
-DOOR:closed,(03,06)
+MONSTER:'e',$niches[6]
+MONSTER:'&',$niches[7]
+MONSTER:('U',"shambling horror"),(14,01)
+MONSTER:('U',"shambling horror"),(15,14)
+MONSTER:('Z',"skeleton"),(13,07)
+MONSTER:('Z',"skeleton"),(13,08)
+MONSTER:('V',"vampire king"),(14,07)
+MONSTER:('V',"vampire mage"),(14,08)
+MONSTER:('V',"vampire queen"),(15,07)
+MONSTER:('V',"vampire mage"),(15,08)
+MONSTER:('Z',"skeleton"),(16,07)
+MONSTER:('Z',"skeleton"),(16,08)
+MONSTER:('d',"hell hound"),(23,04)
+MONSTER:('d',"hell hound"),(24,04)
+# Locked doors
+DOOR:locked,(05,10)
+DOOR:locked,(06,10)
+DOOR:locked,(14,05)
+DOOR:locked,(15,05)
+DOOR:locked,(14,10)
+DOOR:locked,(15,10)
+DOOR:locked,(23,05)
+DOOR:locked,(24,05)
 # treasures
-OBJECT:('(',"chest"),(07,05)
+OBJECT:('(',"chest"),(28,04)
+OBJECT:('(',"iron safe"),(13,01)
+OBJECT:('(',"crystal chest"),(16,14)
 
 OBJECT:('(',"chest"),$niches[0]
 OBJECT:('(',"chest"),$niches[1]
 OBJECT:('(',"chest"),$niches[2]
 OBJECT:('(',"chest"),$niches[3]
-CONTAINER:('(',"chest"),$niches[4] {
+OBJECT:('(',"chest"),$niches[4]
+CONTAINER:('(',"chest"),$niches[5] {
+  OBJECT:('"', "amulet of flying")
+}
+CONTAINER:('(',"chest"),$niches[6] {
   OBJECT:('(', "wax candle"), quantity:4d2
 }
-CONTAINER:('(',"chest"),$niches[5] {
+CONTAINER:('(',"chest"),$niches[7] {
   OBJECT:('(', "tallow candle"), quantity:4d2
 }
-# We have to protect the tower against outside attacks
-NON_DIGGABLE:(00,00,14,10)
+# Random corpses of past adventurers
+OBJECT:('%',"corpse"),random,montype:"monk"
+OBJECT:('%',"corpse"),random,montype:"caveman"
+OBJECT:('%',"corpse"),random,montype:"healer"
+OBJECT:('%',"corpse"),random,montype:"wizard"
+OBJECT:('%',"corpse"),random,montype:"rogue"
+OBJECT:('%',"corpse"),random,montype:"archeologist"
+OBJECT:('%',"corpse"),random,montype:"tourist"
+OBJECT:('%',"corpse"),random,montype:"samurai"
+OBJECT:('%',"corpse"),random,montype:"priestess"
+OBJECT:('%',"corpse"),random,montype:"ranger"
+# Walls in the tower are non diggable and non passable
+NON_DIGGABLE:(00,00,29,15)
+NON_PASSWALL:(00,00,29,15)
 
 
 # Intermediate stage of Vlad's tower
 MAZE:"tower2",' '
 FLAGS: noteleport,hardfloor,solidify
 GEOMETRY:half-left,center
+#         1         2         3
+#123456789012345678901234567890
 MAP
-  --- --- ---  
-  |.| |.| |.|  
----S---S---S---
-|.S.........S.|
----.------+----
-  |......|..|  
---------.------
-|.S......+..S.|
----S---S---S---
-  |.| |.| |.|  
-  --- --- ---  
+  --- ---   ------   --- ---
+  |.| |.|  -|....|-  |.| |.|
+---S---S---|......|---S---S---
+|..........S......S..........|
+|..........|......|..........|
+------------......------------
+   |......................|
+   |......................|
+   |......................|
+   |......................|
+--------------++--------------
+|..........|......|..........|
+|..........S......S..........|
+---S---S---|......|---S---S---
+  |.| |.|  -|....|-  |.| |.|
+  --- ---   ------   --- ---
 ENDMAP
-# Random places are the 10 niches
-$place = { (03,01),(07,01),(11,01),(01,03),(13,03),
-	   (01,07),(13,07),(03,09),(07,09),(11,09) }
+# Random places are the 8 niches
+$place = { (03,01),(07,01),(22,01),(26,01),
+	   (03,14),(07,14),(22,14),(26,14) }
 SHUFFLE: $place
-LADDER:(11,05),up
-LADDER:(03,07),down
-DOOR:locked,(10,04)
-DOOR:locked,(09,07)
+LADDER:(01,03),down
+LADDER:(28,12),up
+# Locked doors
+DOOR:locked,(03,02)
+DOOR:locked,(07,02)
+DOOR:locked,(22,02)
+DOOR:locked,(26,02)
+DOOR:locked,(03,13)
+DOOR:locked,(07,13)
+DOOR:locked,(22,13)
+DOOR:locked,(26,13)
+DOOR:locked,(14,10)
+DOOR:locked,(15,10)
+# Monsters and objects in the niches
 MONSTER:'&',$place[0]
 MONSTER:'&',$place[1]
-MONSTER:('d',"hell hound pup"),$place[2]
-MONSTER:('d',"hell hound pup"),$place[3]
-MONSTER:('d',"winter wolf"),$place[4]
-CONTAINER:('(',"chest"),$place[5] {
+MONSTER:('d',"hell hound"),$place[2]
+MONSTER:('d',"hell hound"),$place[3]
+MONSTER:'J',$place[4]
+CONTAINER:('(',"chest"),$place[6] {
   OBJECT:('"',"amulet of life saving")
 }
-CONTAINER:('(',"chest"),$place[6] {
+CONTAINER:('(',"chest"),$place[7] {
   OBJECT:('"',"amulet of strangulation")
 }
-OBJECT:('[',"water walking boots"),$place[7]
-OBJECT:('[',"crystal plate mail"),$place[8]
-OBJECT:('+',"invisibility"),$place[9]
-# Walls in the tower are non diggable
-NON_DIGGABLE:(00,00,14,10)
+OBJECT:('[',"water walking boots"),$place[2]
+OBJECT:('[',"crystal plate mail"),$place[3]
+OBJECT:('+',"magic missile"),$place[4]
+# Random noncorporeal undead
+MONSTER:' ',(05,04)
+MONSTER:' ',(24,04)
+MONSTER:' ',(05,11)
+MONSTER:' ',(24,11)
+# Vampire nests with demonic pets
+MONSTER:'&',(06,07)
+MONSTER:'&',(06,08)
+MONSTER:('V',"vampire lord"),(07,07)
+MONSTER:('V',"vampire lady"),(07,08)
+MONSTER:('V',"vampire lord"),(08,07)
+MONSTER:('V',"vampire lady"),(08,08)
+MONSTER:('V',"vampire lord"),(09,07)
+MONSTER:('V',"vampire lady"),(09,08)
+MONSTER:('V',"vampire lord"),(20,07)
+MONSTER:('V',"vampire lady"),(20,08)
+MONSTER:('V',"vampire lord"),(21,07)
+MONSTER:('V',"vampire lady"),(21,08)
+MONSTER:('V',"vampire lord"),(22,07)
+MONSTER:('V',"vampire lady"),(22,08)
+MONSTER:'&',(23,07)
+MONSTER:'&',(23,08)
+# More vampires
+MONSTER:('V',"vampire queen"),(12,13)
+MONSTER:('V',"vampire king"),(14,14)
+MONSTER:('V',"vampire queen"),(15,14)
+MONSTER:('V',"vampire king"),(17,13)
+# Random corpses of past adventurers
+OBJECT:('%',"corpse"),random,montype:"monk"
+OBJECT:('%',"corpse"),random,montype:"cavewoman"
+OBJECT:('%',"corpse"),random,montype:"knight"
+OBJECT:('%',"corpse"),random,montype:"wizard"
+OBJECT:('%',"corpse"),random,montype:"rogue"
+OBJECT:('%',"corpse"),random,montype:"archeologist"
+OBJECT:('%',"corpse"),random,montype:"tourist"
+# Walls in the tower are non diggable and non passable
+NON_DIGGABLE:(00,00,29,15)
+NON_PASSWALL:(00,00,29,15)
 
 
 # Bottom most stage of Vlad's tower
 MAZE:"tower3",' '
 FLAGS: noteleport,hardfloor,solidify
 GEOMETRY:half-left,center
+#         1         2         3         4         5
+#1234567890123456789012345678901234567890123456789012
 MAP
-    --- --- ---  
-    |.| |.| |.|    
-  ---S---S---S---
-  |.S.........S.|  
------.........-----
-|...|.........+...|
-|.---.........---.|
-|.|.S.........S.|.|
-|.---S---S---S---.|
-|...|.|.|.|.|.|...|
----.---.---.---.---
-  |.............|  
-  ---------------  
+-----------  --- ---   ------   --- ---  -----------
+|.........|  |.| |.|  -|....|-  |.| |.|  |.........|
+|...---...|---S---S---|......|---S---S---|...---...|
+|.........|...........S......S.....................|
+|...---...|...........|......|...............---...|
+|.........|--+---------|....|------------|.........|
+----...----...|........------........|...----...----
+   |...|......|.............................|...|   
+   |...|......|.............................|...|   
+----...----...|........--++--........|...----...----
+|.........|--+---------|....|------------|.........|
+|...---...............|......|...............---...|
+|.....................|......S.....................|
+|...---...|---S---S---|......|---S---S---|...---...|
+|.........|  |.| |.|  -|....|-  |.| |.|  |.........|
+-----------  --- ---   ------   --- ---  -----------
 ENDMAP
-# Random places are the 10 niches
-$place = { (05,01),(09,01),(13,01),(03,03),(15,03),
-	   (03,07),(15,07),(05,09),(09,09),(13,09) }
+# Random places are the 8 niches
+$place = { (14,01),(18,01),(33,01),(37,01),
+	   (14,14),(18,14),(33,14),(37,14) }
 SHUFFLE: $place
-BRANCH:(02,05,02,05),(00,00,00,00)
-LADDER:(05,07),up
-# Entry door is, of course, locked
-DOOR:locked,(14,05)
-# Let's put a dragon behind the door, just for the fun...
-MONSTER:'D',(13,05)
-MONSTER:random,(12,04)
-MONSTER:random,(12,06)
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
+LADDER:(05,03),down
+LADDER:(43,07),up
+# Locked doors
+DOOR:locked,(13,05)
+DOOR:locked,(13,10)
+DOOR:locked,(25,09)
+DOOR:locked,(26,09)
+DOOR:locked,(22,03)
+DOOR:locked,(29,03)
+DOOR:locked,(29,12)
+# Gargoyles in the four corners
+MONSTER:('g',"winged gargoyle"),(01,01)
+MONSTER:('g',"winged gargoyle"),(01,14)
+MONSTER:('g',"winged gargoyle"),(50,01)
+MONSTER:('g',"winged gargoyle"),(50,14)
+# Zombies and skeletons patrol the hallways
+MONSTER:('Z',"human zombie"),(13,03)
+MONSTER:('Z',"ettin zombie"),(14,04)
+MONSTER:('Z',"skeleton"),(15,03)
+MONSTER:('Z',"giant zombie"),(16,04)
+MONSTER:('Z',"human zombie"),(32,03)
+MONSTER:('Z',"human zombie"),(34,04)
+MONSTER:('Z',"skeleton"),(35,03)
+MONSTER:('Z',"giant zombie"),(36,04)
+MONSTER:('Z',"human zombie"),(13,11)
+MONSTER:('Z',"ettin zombie"),(14,12)
+MONSTER:('Z',"skeleton"),(15,11)
+MONSTER:('Z',"giant zombie"),(16,12)
+MONSTER:('Z',"human zombie"),(32,11)
+MONSTER:('Z',"human zombie"),(34,12)
+MONSTER:('Z',"skeleton"),(35,11)
+MONSTER:('Z',"giant zombie"),(36,12)
+# Liches reside in the center chambers
+# along with some noncorporeal undead
+MONSTER:'L',(26,03)
+MONSTER:'L',(26,12)
+MONSTER:' ',(25,03)
+MONSTER:' ',(25,12)
+# The werewolf horde guards the very center
+# with their vampire masters
+MONSTER:('@',"werewolf"),(17,07)
+MONSTER:('@',"werewolf"),(17,08)
+MONSTER:('@',"werewolf"),(18,07)
+MONSTER:('@',"werewolf"),(18,08)
+MONSTER:('@',"werewolf"),(19,07)
+MONSTER:('@',"werewolf"),(19,08)
+MONSTER:('@',"werewolf"),(32,07)
+MONSTER:('@',"werewolf"),(32,08)
+MONSTER:('@',"werewolf"),(33,07)
+MONSTER:('@',"werewolf"),(33,08)
+MONSTER:('@',"werewolf"),(34,07)
+MONSTER:('@',"werewolf"),(34,08)
+MONSTER:('V',"vampire lord"),(42,07)
+MONSTER:('V',"vampire lady"),(42,08)
+# Random objects and traps in the niches
 OBJECT:(')',"long sword"),$place[0]
 TRAP:random,$place[0]
 OBJECT:('(',"lock pick"),$place[1]
@@ -146,5 +287,134 @@ OBJECT:('[',"elven cloak"),$place[2]
 TRAP:random,$place[2]
 OBJECT:('(',"blindfold"),$place[3]
 TRAP:random,$place[3]
-# Walls in the tower are non diggable
-NON_DIGGABLE:(00,00,18,12)
+OBJECT:('=',"levitation"),$place[4]
+TRAP:random,$place[4]
+OBJECT:('(',"iron safe"),$place[5]
+TRAP:random,$place[5]
+# Random corpses of past adventurers
+OBJECT:('%',"corpse"),(38,06),montype:"wizard"
+OBJECT:('%',"corpse"),(38,09),montype:"samurai"
+OBJECT:('%',"corpse"),random,montype:"barbarian"
+OBJECT:('%',"corpse"),random,montype:"convict"
+OBJECT:('%',"corpse"),random,montype:"knight"
+OBJECT:('%',"corpse"),random,montype:"priest"
+OBJECT:('%',"corpse"),random,montype:"rogue"
+OBJECT:('%',"corpse"),random,montype:"valkyrie"
+OBJECT:('%',"corpse"),random,montype:"healer"
+# Some random traps
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+# Walls in the tower are non diggable and non passable
+NON_DIGGABLE:(00,00,51,15)
+NON_PASSWALL:(00,00,51,15)
+
+
+# Bottomless cavern below Vlad's tower
+# Several vampires roost here, surrounding the ladder up
+# Gravity is in full effect here
+MAZE:"tower4",' '
+FLAGS: noteleport,hardfloor,nommap,graveyard,shortsighted,solidify
+MESSAGE: "You enter an enormous rock cavern, the bottom of which you cannot see."
+MESSAGE: "Off in the distance, you can barely make out what appears to be a ladder dangling from a hole in the cavern ceiling."
+GEOMETRY:center,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAA.....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....AAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAA
+.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+..AAAAAAAAAAAAAAAAAAAAAAAAAAAA.....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+...AAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+.....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+.......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ENDMAP
+TELEPORT_REGION:(01,17,04,19),(00,00,00,00)
+BRANCH:(01,18,01,18),(00,00,00,00)
+LADDER:(74,01),up
+REGION:(00,00,75,19),unlit,"morgue",unfilled
+REGION:(01,18,01,18),lit,"ordinary"
+REGION:(74,01,74,01),lit,"ordinary"
+ENGRAVING:(04,17), engrave, "Watch your step..."
+# Vampire nests
+MONSTER:('V',"vampire"),(64,00),asleep
+MONSTER:('V',"vampire"),(65,00),asleep
+MONSTER:('V',"vampire"),(63,01),asleep
+MONSTER:('V',"vampire"),(64,01),asleep
+MONSTER:('V',"vampire"),(65,01),asleep
+MONSTER:('V',"vampire"),(66,01),asleep
+MONSTER:('V',"vampire"),(62,02),asleep
+MONSTER:('V',"vampire"),(63,02),asleep
+MONSTER:('V',"vampire lord"),(64,02),asleep
+MONSTER:('V',"vampire lady"),(65,02),asleep
+MONSTER:('V',"vampire"),(66,02),asleep
+MONSTER:('V',"vampire"),(67,02),asleep
+MONSTER:('V',"vampire"),(63,03),asleep
+MONSTER:('V',"vampire"),(64,03),asleep
+MONSTER:('V',"vampire"),(65,03),asleep
+MONSTER:('V',"vampire"),(66,03),asleep
+MONSTER:('V',"vampire"),(64,04),asleep
+MONSTER:('V',"vampire"),(65,04),asleep
+
+MONSTER:('V',"vampire"),(67,03),asleep
+MONSTER:('V',"vampire"),(68,03),asleep
+MONSTER:('V',"vampire"),(66,04),asleep
+MONSTER:('V',"vampire"),(67,04),asleep
+MONSTER:('V',"vampire"),(68,04),asleep
+MONSTER:('V',"vampire"),(69,04),asleep
+MONSTER:('V',"vampire"),(65,05),asleep
+MONSTER:('V',"vampire"),(66,05),asleep
+MONSTER:('V',"vampire lord"),(67,05),asleep
+MONSTER:('V',"vampire lady"),(68,05),asleep
+MONSTER:('V',"vampire"),(69,05),asleep
+MONSTER:('V',"vampire"),(70,05),asleep
+MONSTER:('V',"vampire"),(66,06),asleep
+MONSTER:('V',"vampire"),(67,06),asleep
+MONSTER:('V',"vampire"),(68,06),asleep
+MONSTER:('V',"vampire"),(69,06),asleep
+MONSTER:('V',"vampire"),(67,07),asleep
+MONSTER:('V',"vampire"),(68,07),asleep
+
+MONSTER:('V',"vampire"),(70,06),asleep
+MONSTER:('V',"vampire"),(71,06),asleep
+MONSTER:('V',"vampire lord"),(72,06),asleep
+MONSTER:('V',"vampire lady"),(73,06),asleep
+MONSTER:('V',"vampire"),(74,06),asleep
+MONSTER:('V',"vampire"),(75,06),asleep
+MONSTER:('V',"vampire"),(69,07),asleep
+MONSTER:('V',"vampire"),(70,07),asleep
+MONSTER:('V',"vampire"),(71,07),asleep
+MONSTER:('V',"vampire"),(72,07),asleep
+MONSTER:('V',"vampire"),(73,07),asleep
+MONSTER:('V',"vampire"),(74,07),asleep
+
+# Demons
+MONSTER:('&',"nalfeshnee"),(21,05),hostile
+MONSTER:('&',"pit fiend"),(32,15),hostile
+# Random vampires
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+# Random corpses of past adventurers
+OBJECT:('%',"corpse"),(01,16),montype:"archeologist"
+OBJECT:('%',"corpse"),(05,18),montype:"priestess"
+OBJECT:('%',"corpse"),(67,12),montype:"monk"

@@ -112,6 +112,7 @@
     <Levfiles Include = "tower1.lev"/>
     <Levfiles Include = "tower2.lev"/>
     <Levfiles Include = "tower3.lev"/>
+    <Levfiles Include = "tower4.lev"/>
     <Levfiles Include = "fakewiz1.lev"/>
     <Levfiles Include = "fakewiz2.lev"/>
     <Levfiles Include = "wizard1.lev"/>
