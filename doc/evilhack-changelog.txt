@@ -736,5 +736,6 @@ Version 0.4.2
 - Fix: placing defunct monster onto map, mstate:%lx, on Dlvl:%s
 - Apply non save-breaking bugfixes from 0.5.0 branch
 - Apply a few more non save-breaking bugfixes from 0.5.0 branch
+- Apply even more non save-brekaing bugfixes from 0.5.0 branch
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 

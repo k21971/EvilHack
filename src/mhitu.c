@@ -1685,7 +1685,7 @@ register struct attack *mattk;
                     done(DROWNING);
                 } else if (is_lava(mtmp->mx, mtmp->my)) {
                     pline("%s pulls you into the lava...", Monnam(mtmp));
-                    killer.format = KILLED_BY_AN;
+                    killer.format = KILLED_BY;
                     Sprintf(killer.name, "%s by %s",
                             "being pulled into molten lava",
                             an(mtmp->data->mname));

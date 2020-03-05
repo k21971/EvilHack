@@ -545,7 +545,8 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                 }
             }
         }
-        if (mon_hates_material(mtmp, otmp->material)) {
+        if (!DEADMONSTER(mtmp)
+            && mon_hates_material(mtmp, otmp->material)) {
             /* Extra damage is already handled in dmgval(). */
             if (otmp->material == SILVER) {
                 if (vis)

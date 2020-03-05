@@ -3462,37 +3462,37 @@ struct monst *mon;
 
     otmp = NULL;
 
-    i = rn2(17);
+    i = rnd(17);
     switch (i) {
-        case 0:
+        case 1:
             for (cnt = 0; cnt < 1 + rn2(3); cnt++) {
                 otmp = mksobj(POT_GAIN_LEVEL, FALSE, FALSE);
                 bless(otmp);
                 (void) mpickobj(mon, otmp);
             }
             break;
-        case 1:
-            f = rn2(4);
+        case 2:
+            f = rnd(4);
             switch (f) {
-                case 0:
+                case 1:
                     otmp = mksobj(FIGURINE, FALSE, FALSE);
                     otmp->corpsenm = PM_ARCHON;
                     bless(otmp);
                     (void) mpickobj(mon, otmp);
                     break;
-                case 1:
+                case 2:
                     otmp = mksobj(FIGURINE, FALSE, FALSE);
                     otmp->corpsenm = PM_BALROG;
                     bless(otmp);
                     (void) mpickobj(mon, otmp);
                     break;
-                case 2:
+                case 3:
                     otmp = mksobj(FIGURINE, FALSE, FALSE);
                     otmp->corpsenm = PM_VORPAL_JABBERWOCK;
                     bless(otmp);
                     (void) mpickobj(mon, otmp);
                     break;
-                default:
+                case 4:
                     otmp = mksobj(FIGURINE, FALSE, FALSE);
                     otmp->corpsenm = PM_WOODCHUCK;
                     bless(otmp);
@@ -3500,14 +3500,14 @@ struct monst *mon;
                     break;
             }
             break;
-        case 2:
+        case 3:
             otmp = mksobj(AMULET_OF_LIFE_SAVING, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = 1;
             (void) mpickobj(mon, otmp);
             wearable = TRUE;
             break;
-        case 3:
+        case 4:
             otmp = mksobj(CLOAK_OF_DISPLACEMENT, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = 1;
@@ -3515,7 +3515,7 @@ struct monst *mon;
             (void) mpickobj(mon, otmp);
             wearable = TRUE;
             break;
-        case 4:
+        case 5:
             if (!resists_magm(mon)) {
                 if (humanoid(mon->data))
                     otmp = mksobj(GRAY_DRAGON_SCALE_MAIL, FALSE, FALSE);
@@ -3532,7 +3532,7 @@ struct monst *mon;
                 (void) mpickobj(mon, otmp);
             }
             break;
-        case 5:
+        case 6:
             if (!resists_magm(mon)) {
                 if (humanoid(mon->data))
                     otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
@@ -3547,7 +3547,7 @@ struct monst *mon;
                 otmp = mksobj(WAN_CREATE_MONSTER, FALSE, FALSE);
             }
             break;
-        case 6:
+        case 7:
             if (!mon_reflects(mon, (char *) 0)) {
                 if (humanoid(mon->data))
                     otmp = mksobj(SILVER_DRAGON_SCALE_MAIL, FALSE, FALSE);
@@ -3564,14 +3564,14 @@ struct monst *mon;
                 otmp->oerodeproof = 1;
             }
             break;
-        case 7:
+        case 8:
             otmp = mksobj(AMULET_OF_FLYING, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = 1;
             (void) mpickobj(mon, otmp);
             wearable = TRUE;
             break;
-        case 8:
+        case 9:
             otmp = mksobj(WATER_WALKING_BOOTS, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = 1;
@@ -3579,7 +3579,7 @@ struct monst *mon;
             (void) mpickobj(mon, otmp);
             wearable = TRUE;
             break;
-        case 9:
+        case 10:
             if (!mon_reflects(mon, (char *) 0)) {
                 if (humanoid(mon->data))
                     otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE);
@@ -3596,7 +3596,7 @@ struct monst *mon;
                 (void) mpickobj(mon, otmp);
             }
             break;
-        case 10:
+        case 11:
             otmp = mksobj(GAUNTLETS_OF_POWER, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = 1;
@@ -3604,7 +3604,7 @@ struct monst *mon;
             (void) mpickobj(mon, otmp);
             wearable = TRUE;
             break;
-        case 11:
+        case 12:
             otmp = mksobj(SPEED_BOOTS, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = 1;
@@ -3612,7 +3612,7 @@ struct monst *mon;
             (void) mpickobj(mon, otmp);
             wearable = TRUE;
             break;
-        case 12:
+        case 13:
             otmp = mksobj(HELM_OF_TELEPATHY, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = 1;
@@ -3620,7 +3620,7 @@ struct monst *mon;
             (void) mpickobj(mon, otmp);
             wearable = TRUE;
             break;
-        case 13:
+        case 14:
             otmp = mksobj(HELM_OF_BRILLIANCE, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = 1;
@@ -3628,7 +3628,7 @@ struct monst *mon;
             (void) mpickobj(mon, otmp);
             wearable = TRUE;
             break;
-        case 14:
+        case 15:
             otmp = mksobj(CLOAK_OF_PROTECTION, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = 1;
@@ -3636,7 +3636,7 @@ struct monst *mon;
             (void) mpickobj(mon, otmp);
             wearable = TRUE;
             break;
-        case 15: /* Monsters can wish for certain artifacts */
+        case 16: /* Monsters can wish for certain artifacts */
             otmp = mk_artifact((struct obj *) 0, mon->malign);
             if (otmp) {
                 bless(otmp);
@@ -3646,20 +3646,24 @@ struct monst *mon;
                 wearable = TRUE;
                 break;
             }
-        /* FALLTHRU */
-        default:
-            j = rn2(3);
+            break;
+        case 17:
+            j = rnd(3);
             switch (j) {
-                case 0:
-                    otmp = mksobj(WAN_CANCELLATION, FALSE, FALSE);
-                    break;
                 case 1:
-                    otmp = mksobj(WAN_POLYMORPH, FALSE, FALSE);
+                    otmp = mksobj(WAN_CANCELLATION, FALSE, FALSE);
+                    (void) mpickobj(mon, otmp);
                     break;
-                default:
+                case 2:
+                    otmp = mksobj(WAN_POLYMORPH, FALSE, FALSE);
+                    (void) mpickobj(mon, otmp);
+                    break;
+                case 3:
                     otmp = mksobj(WAN_DEATH, FALSE, FALSE);
+                    (void) mpickobj(mon, otmp);
                     break;
             }
+            break;
     }
     if (otmp)
         str = an(xname(otmp));

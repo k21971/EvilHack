@@ -245,10 +245,12 @@ struct inv_sub {
     { PM_DWARF, LEMBAS_WAFER, CRAM_RATION },
     { PM_GNOME, BOW, CROSSBOW },
     { PM_GNOME, ARROW, CROSSBOW_BOLT },
+    /* Giants have special considerations */
     { PM_GIANT, ROBE, HIGH_BOOTS },
     { PM_GIANT, RING_MAIL, HELMET },
     { PM_GIANT, ARMOR, HELMET },
     { PM_GIANT, CLOAK_OF_MAGIC_RESISTANCE, LOW_BOOTS },
+    { PM_GIANT, RIN_STEALTH, RIN_SEARCHING },
     /* Hobbits have a thing for elven gear */
     { PM_HOBBIT, DAGGER, ELVEN_DAGGER },
     { PM_HOBBIT, SPEAR, ELVEN_SPEAR },
