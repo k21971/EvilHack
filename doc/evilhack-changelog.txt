@@ -790,6 +790,7 @@ Version 0.5.0
   a cursed potion of gain level
 - Gehennom changes (round four) - Vlad's tower
 - Fix: address some issues found with Vlad's tower revamp
-- Fix: verbage when being killed by a salamnder when it pulls you into lava
+- Fix: verbage when being killed by a salamander when it pulls you into lava
 - Fix: prevent pets that aren't sick resistant from attacking gray fungi
 - Juiblex tweak
+- Fix: crash regarding booby-trapped doors

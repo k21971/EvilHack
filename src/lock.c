@@ -154,7 +154,6 @@ picklock(VOID_ARGS)
     if (xlock.door) {
         if ((xlock.door->doormask & D_TRAPPED && !In_sokoban(&u.uz))) {
             b_trapped("door", FINGER);
-            xlock.door->doormask = D_NODOOR;
             unblock_point(u.ux + u.dx, u.uy + u.dy);
             if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
                 add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
