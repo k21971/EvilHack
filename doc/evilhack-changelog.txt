@@ -794,4 +794,6 @@ Version 0.5.0
 - Fix: prevent pets that aren't sick resistant from attacking gray fungi
 - Juiblex tweak
 - Fix: crash regarding booby-trapped doors
+- Prevent the Amulet of Yendor or any of the invocation items from being destroyed
+  if dropped in Vlad's cavern
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

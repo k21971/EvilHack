@@ -378,9 +378,31 @@ const char *verb;
         }
         return (boolean) !obj;
     } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
-        if (!Blind)
+        /* Dropping the Amulet or any of the invocation
+           items teleports them to a random level rather
+           than destroying them.
+           TODO: exclude and/or specify certain levels */
+        if (obj->otyp == AMULET_OF_YENDOR
+            || obj->otyp == BELL_OF_OPENING
+            || obj->otyp == CANDELABRUM_OF_INVOCATION
+            || obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+            int newlev = random_teleport_level();
+            d_level dest;
+
+            add_to_migration(obj);
+            get_level(&dest, newlev);
+            obj->ox = dest.dnum;
+            obj->oy = dest.dlevel;
+            obj->owornmask = (long) MIGR_RANDOM;
+            if (wizard)
+                pline("%d:%d", obj->ox, obj->oy);
+            if (!Blind)
+                pline("%s %s away and %s.  Perhaps it wound up elsewhere in the dungeon...", The(xname(obj)),
+                      otense(obj, "fall"), otense(obj, "disappear"));
+        } else if (!Blind) {
             pline("%s %s away and %s.", The(xname(obj)),
                   otense(obj, "fall"), otense(obj, "disappear"));
+        }
         return TRUE;
     }
     return FALSE;
