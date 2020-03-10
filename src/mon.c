@@ -2633,6 +2633,8 @@ register struct monst *mtmp;
         set_mon_data(mtmp, &mons[PM_HUMAN_WEREWOLF]);
     else if (mtmp->data == &mons[PM_WERERAT])
         set_mon_data(mtmp, &mons[PM_HUMAN_WERERAT]);
+    else if (mtmp->data == &mons[PM_WEREDEMON])
+        set_mon_data(mtmp, &mons[PM_DEMON_WEREDEMON]);
 
     /*
      * mvitals[].died does double duty as total number of dead monsters
@@ -5003,9 +5005,11 @@ struct permonst *mdat;
         case PM_HUMAN_WEREJACKAL:
         case PM_HUMAN_WERERAT:
         case PM_HUMAN_WEREWOLF:
+        case PM_DEMON_WEREDEMON:
         case PM_WEREJACKAL:
         case PM_WERERAT:
         case PM_WEREWOLF:
+        case PM_WEREDEMON:
         case PM_OWLBEAR:
             You("detect an odor reminiscent of an animal's den.");
             msg_given = TRUE;

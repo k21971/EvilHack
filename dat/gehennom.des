@@ -213,7 +213,9 @@ MONSTER:'M',(62,04)
 MONSTER:'M',(64,04)
 MONSTER:'M',(36,03)
 MONSTER:'M',(38,03)
-
+# And a couple weredemons too
+MONSTER:('&',"weredemon"),(34,04)
+MONSTER:('&',"weredemon"),(64,03)
 
 #
 # The Juiblex level
@@ -633,6 +635,7 @@ TRAP:"magic beam", random
 MONSTER:(' ',"spectre"),(37,07)
 MONSTER:('&',"horned devil"),(32,05)
 MONSTER:('&',"barbed devil"),(38,07)
+MONSTER:('&',"weredemon"),random
 MONSTER:'L',random
 
 LOOP [ 10 + 4d7 ] {

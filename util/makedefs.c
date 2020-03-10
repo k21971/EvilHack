@@ -2398,6 +2398,8 @@ do_permonst()
             Fprintf(ofp, "\n#define\tPM_");
         if (mons[i].mlet == S_HUMAN && !strncmp(mons[i].mname, "were", 4))
             Fprintf(ofp, "HUMAN_");
+        if (mons[i].mlet == S_DEMON && !strncmp(mons[i].mname, "were", 4))
+            Fprintf(ofp, "DEMON_");
         for (nam = c = tmpdup(mons[i].mname); *c; c++)
             if (*c >= 'a' && *c <= 'z')
                 *c -= (char) ('a' - 'A');

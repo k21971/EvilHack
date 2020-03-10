@@ -12,7 +12,7 @@ register struct monst *mon;
     if (!is_were(mon->data))
         return;
 
-    if (is_human(mon->data)) {
+    if (is_human(mon->data) || is_demon(mon->data)) {
         if (mon->data == &mons[PM_RAT_KING])
             return;
         if (!Protection_from_shape_changers
@@ -28,6 +28,9 @@ register struct monst *mon;
                     break;
                 case PM_WEREJACKAL:
                     howler = "jackal";
+                    break;
+                case PM_WEREDEMON:
+                    howler = "hell hound";
                     break;
                 default:
                     howler = (char *) 0;
@@ -61,6 +64,10 @@ int pm;
         return PM_HUMAN_WERERAT;
     case PM_HUMAN_WERERAT:
         return PM_WERERAT;
+    case PM_WEREDEMON:
+        return PM_DEMON_WEREDEMON;
+    case PM_DEMON_WEREDEMON:
+        return PM_WEREDEMON;
     default:
         return NON_PM;
     }
@@ -89,6 +96,9 @@ int pm;
     case PM_WARG:
     case PM_WINTER_WOLF:
         return PM_WEREWOLF;
+    case PM_WEREDEMON:
+    case PM_HELL_HOUND:
+        return PM_WEREDEMON;
     default:
         break;
     }
@@ -112,7 +122,8 @@ register struct monst *mon;
 
     if (canseemon(mon) && !Hallucination)
         pline("%s changes into a %s.", Monnam(mon),
-              is_human(&mons[pm]) ? "human" : mons[pm].mname + 4);
+              is_human(&mons[pm]) ? "human" :
+              is_demon(&mons[pm]) ? "demon" : mons[pm].mname + 4);
 
     set_mon_data(mon, &mons[pm]);
     if (mon->msleeping || !mon->mcanmove) {
@@ -168,6 +179,12 @@ char *genbuf;
             typ = rn2(5) ? PM_WOLF : rn2(2) ? PM_WARG : PM_WINTER_WOLF;
             if (genbuf)
                 Strcpy(genbuf, "wolf");
+            break;
+        case PM_WEREDEMON:
+        case PM_DEMON_WEREDEMON:
+            typ = PM_HELL_HOUND;
+            if (genbuf)
+                Strcpy(genbuf, "hell hound");
             break;
         default:
             continue;

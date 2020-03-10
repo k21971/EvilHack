@@ -262,19 +262,19 @@ MONSTER:'L',(26,03)
 MONSTER:'L',(26,12)
 MONSTER:' ',(25,03)
 MONSTER:' ',(25,12)
-# The werewolf horde guards the very center
+# The lycan horde guards the very center
 # with their vampire masters
 MONSTER:('@',"werewolf"),(17,07)
-MONSTER:('@',"werewolf"),(17,08)
-MONSTER:('@',"werewolf"),(18,07)
-MONSTER:('@',"werewolf"),(18,08)
+MONSTER:('&',"weredemon"),(17,08)
+MONSTER:('&',"weredemon"),(18,07)
+MONSTER:('&',"weredemon"),(18,08)
 MONSTER:('@',"werewolf"),(19,07)
 MONSTER:('@',"werewolf"),(19,08)
 MONSTER:('@',"werewolf"),(32,07)
 MONSTER:('@',"werewolf"),(32,08)
-MONSTER:('@',"werewolf"),(33,07)
-MONSTER:('@',"werewolf"),(33,08)
-MONSTER:('@',"werewolf"),(34,07)
+MONSTER:('&',"weredemon"),(33,07)
+MONSTER:('&',"weredemon"),(33,08)
+MONSTER:('&',"weredemon"),(34,07)
 MONSTER:('@',"werewolf"),(34,08)
 MONSTER:('V',"vampire lord"),(42,07)
 MONSTER:('V',"vampire lady"),(42,08)
@@ -405,6 +405,7 @@ MONSTER:('V',"vampire"),(74,07),asleep
 # Demons
 MONSTER:('&',"nalfeshnee"),(21,05),hostile
 MONSTER:('&',"pit fiend"),(32,15),hostile
+MONSTER:('&',"weredemon"),(67,11),hostile
 # Random vampires
 MONSTER:'V',random
 MONSTER:'V',random
