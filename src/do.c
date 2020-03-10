@@ -379,18 +379,16 @@ const char *verb;
         return (boolean) !obj;
     } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
         /* Dropping the Amulet or any of the invocation
-           items teleports them to a random level rather
-           than destroying them.
-           TODO: exclude and/or specify certain levels */
+           items teleports them to the deepest demon lords
+           lair rather than destroying them */
         if (obj->otyp == AMULET_OF_YENDOR
             || obj->otyp == BELL_OF_OPENING
             || obj->otyp == CANDELABRUM_OF_INVOCATION
             || obj->otyp == SPE_BOOK_OF_THE_DEAD) {
-            int newlev = random_teleport_level();
-            d_level dest;
+            d_level dest = demogor_level;
 
             add_to_migration(obj);
-            get_level(&dest, newlev);
+            assign_level(&dest, &dest);
             obj->ox = dest.dnum;
             obj->oy = dest.dlevel;
             obj->owornmask = (long) MIGR_RANDOM;
