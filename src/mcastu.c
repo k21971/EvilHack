@@ -616,7 +616,8 @@ int spellnum;
 	oatmp = some_armor(&youmonst);
 	if (oatmp) {
             if (any_quest_artifact(oatmp)) {
-                pline("The %s shines brightly.", xname(oatmp));
+                if (!Blind)
+                    pline("The %s shines brightly.", xname(oatmp));
                 pline("The %s is immune to %s destructive magic.", xname(oatmp),
                       s_suffix(mon_nam(mtmp)));
                 return;
@@ -632,17 +633,16 @@ int spellnum;
 		destroy_arm(oatmp);
 	    } else {
 		while (erodelvl-- > 0) {
-                if (is_corrodeable(oatmp)) {
+                if (is_corrodeable(oatmp))
                     (void) erode_obj(oatmp, (char *) 0, ERODE_CORRODE, EF_VERBOSE);
-                } else if (is_flammable(oatmp)) {
+                else if (is_flammable(oatmp))
                     (void) erode_obj(oatmp, (char *) 0, ERODE_BURN, EF_VERBOSE);
-                } else if (is_glass(oatmp)) {
+                else if (is_glass(oatmp))
                     (void) erode_obj(oatmp, (char *) 0, ERODE_FRACTURE, EF_VERBOSE);
-                } else if (is_supermaterial(oatmp)) {
+                else if (is_supermaterial(oatmp))
                     (void) erode_obj(oatmp, (char *) 0, ERODE_DETERIORATE, EF_VERBOSE);
-                } else {
+                else
                     (void) erode_obj(oatmp, (char *) 0, ERODE_ROT, EF_VERBOSE);
-                    }
 		}
 	    }
 	} else {
@@ -779,17 +779,17 @@ int spellnum;
         if (is_demon(mtmp->data))
             return;
 
-        if (mtmp->ispriest) {
-	    aligntype = EPRI(mtmp)->shralign;
-	} else {
-	    aligntype = sgn(mtmp->data->maligntyp);
-        }
+        if (mtmp->ispriest)
+            aligntype = EPRI(mtmp)->shralign;
+        else
+            aligntype = sgn(mtmp->data->maligntyp);
+
         if (aligntype == A_NONE) {
             pline("A vassal of %s appears!", Moloch);
-                  summon_minion(aligntype, TRUE);
+            summon_minion(aligntype, TRUE);
         } else {
 	    pline("A servant of %s appears!", aligns[1 - aligntype].noun);
-	          summon_minion(aligntype, TRUE);
+	    summon_minion(aligntype, TRUE);
         }
 	break;
     case CLC_GEYSER:
@@ -987,33 +987,37 @@ int spellnum;
         dmg = m_cure_self(mtmp, dmg);
         break;
     case CLC_VULN_YOU:
-	dmg = rnd(4);
-	pline("A %s film oozes over your skin!", Blind ? "slimy" : vulntext[dmg]);
-	switch (dmg) {
-	    case 1:
-		if (Vulnerable_fire) return;
-		    incr_itimeout(&HVulnerable_fire, rnd(100) + 150);
-		    You_feel("more inflammable.");
-		break;
-	    case 2:
-		if (Vulnerable_cold) return;
-		    incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
-		    You_feel("extremely chilly.");
-		break;
-	    case 3:
-		if (Vulnerable_elec) return;
-		    incr_itimeout(&HVulnerable_elec, rnd(100) + 150);
-		    You_feel("overly conductive.");
-		break;
-	    case 4:
-		if (Vulnerable_acid) return;
-		    incr_itimeout(&HVulnerable_acid, rnd(100) + 150);
-		    You_feel("easily corrodable.");
-		break;
-	    default:
-		break;
-	}
-	break;
+        dmg = rnd(4);
+        pline("A %s film oozes over your skin!", Blind ? "slimy" : vulntext[dmg]);
+        switch (dmg) {
+            case 1:
+                if (Vulnerable_fire)
+                    return;
+                incr_itimeout(&HVulnerable_fire, rnd(100) + 150);
+                You_feel("more inflammable.");
+                break;
+            case 2:
+                if (Vulnerable_cold)
+                    return;
+                incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
+                You_feel("extremely chilly.");
+                break;
+            case 3:
+                if (Vulnerable_elec)
+                    return;
+                incr_itimeout(&HVulnerable_elec, rnd(100) + 150);
+                You_feel("overly conductive.");
+                break;
+            case 4:
+                if (Vulnerable_acid)
+                    return;
+                incr_itimeout(&HVulnerable_acid, rnd(100) + 150);
+                You_feel("easily corrodable.");
+                break;
+            default:
+                break;
+        }
+        break;
     case CLC_OPEN_WOUNDS:
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
@@ -1376,9 +1380,9 @@ register struct attack *mattk;
    	switch (mattk->adtyp) {
    	    case AD_FIRE:
    	        if (canspotmon(mdef)) {
-                is_demon(mtmp->data)
-   		         ? pline("%s is enveloped in flames.", Monnam(mdef))
-                         : pline("%s is enveloped in a pillar of hellfire!", Monnam(mdef));
+                    is_demon(mtmp->data)
+   		             ? pline("%s is enveloped in flames.", Monnam(mdef))
+                             : pline("%s is enveloped in a pillar of hellfire!", Monnam(mdef));
                 }
                 if (is_demon(mtmp->data) && resists_fire(mdef)) {
                     dmg = (dmg + 1) / 2;
@@ -1394,12 +1398,12 @@ register struct attack *mattk;
    	    case AD_COLD:
    	        if (canspotmon(mdef))
    	  	    pline("%s is covered in frost.", Monnam(mdef));
-       		  if (resists_cold(mdef)) {
-         	      shieldeff(mdef->mx, mdef->my);
-         	      if (canspotmon(mdef))
-         	          pline("But %s resists the effects.", mhe(mdef));
-                      dmg = 0;
-       	          }
+       	        if (resists_cold(mdef)) {
+                    shieldeff(mdef->mx, mdef->my);
+                    if (canspotmon(mdef))
+                        pline("But %s resists the effects.", mhe(mdef));
+                    dmg = 0;
+       	        }
                 break;
             case AD_ACID:
                 if (canspotmon(mdef))
@@ -1446,10 +1450,11 @@ register struct attack *mattk;
    	}
    	if (dmg > 0 && mdef->mhp > 0) {
             mdef->mhp -= dmg;
- 	    if (mdef->mhp < 1) monkilled(mdef, "", mattk->adtyp);
+ 	    if (mdef->mhp < 1)
+                monkilled(mdef, "", mattk->adtyp);
    	}
    	if (mdef && mdef->mhp < 1)
-        return 2;
+            return 2;
         return (ret);
 }
 
@@ -1542,35 +1547,43 @@ register struct attack *mattk;
 
     switch (mattk->adtyp) {
         case AD_FIRE:
-            pline("%s is enveloped in flames.", Monnam(mtmp));
+            if (canseemon(mtmp))
+                pline("%s is enveloped in flames.", Monnam(mtmp));
             if (resists_fire(mtmp)) {
                 shieldeff(mtmp->mx, mtmp->my);
-           	pline("But %s resists the effects.", mhe(mtmp));
-            dmg = 0;
+                if (canseemon(mtmp))
+           	    pline("But %s resists the effects.", mhe(mtmp));
+                dmg = 0;
             }
             break;
    	case AD_COLD:
-            pline("%s is covered in frost.", Monnam(mtmp));
+            if (canseemon(mtmp))
+                pline("%s is covered in frost.", Monnam(mtmp));
             if (resists_cold(mtmp)) {
          	shieldeff(mtmp->mx, mtmp->my);
-         	pline("But %s resists the effects.", mhe(mtmp));
-            dmg = 0;
+                if (canseemon(mtmp))
+         	    pline("But %s resists the effects.", mhe(mtmp));
+                dmg = 0;
             }
             break;
         case AD_ACID:
-            pline("%s is covered in acid.", Monnam(mtmp));
+            if (canseemon(mtmp))
+                pline("%s is covered in acid.", Monnam(mtmp));
             if (resists_acid(mtmp)) {
                 shieldeff(mtmp->mx, mtmp->my);
-                pline("But %s resists the effects.", mhe(mtmp));
-            dmg = 0;
+                if (canseemon(mtmp))
+                    pline("But %s resists the effects.", mhe(mtmp));
+                dmg = 0;
             }
             break;
    	case AD_MAGM:
-            pline("%s is hit by a shower of missiles!", Monnam(mtmp));
+            if (canseemon(mtmp))
+                pline("%s is hit by a shower of missiles!", Monnam(mtmp));
             dmg = d((int)ml / 2 + 1, 6);
             if (resists_magm(mtmp)) {
                 shieldeff(mtmp->mx, mtmp->my);
-                pline("Some missiles bounce off!");
+                if (canseemon(mtmp))
+                    pline("Some missiles bounce off!");
                 dmg = (dmg + 1) / 2;
             }
             break;
@@ -1588,7 +1601,8 @@ register struct attack *mattk;
 
     if (mtmp && dmg > 0 && mtmp->mhp > 0) {
    	mtmp->mhp -= dmg;
-   	if (mtmp->mhp < 1) killed(mtmp);
+   	if (mtmp->mhp < 1)
+            killed(mtmp);
     }
     if (mtmp && mtmp->mhp < 1)
         return 2;
@@ -1689,7 +1703,8 @@ int spellnum;
             You("douse %s in a torrent of acid!", mon_nam(mtmp));
         if (resists_acid(mtmp)) {
             shieldeff(mtmp->mx, mtmp->my);
-            pline("But the acid dissipates harmlessly.");
+            if (canseemon(mtmp))
+                pline("But the acid dissipates harmlessly.");
             dmg = 0;
         }
         explode(mtmp->mx, mtmp->my, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
@@ -1702,8 +1717,10 @@ int spellnum;
         register struct monst *mpet;
 
         if (!rn2(10) && Inhell) {
-     	    if (yours) demonpet();
-        else msummon(mattk);
+     	    if (yours)
+                demonpet();
+            else
+                msummon(mattk);
      	} else {
      	    register int i, j;
             int makeindex, tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
@@ -1713,21 +1730,21 @@ int spellnum;
      	        bypos.x = mtmp->mx, bypos.y = mtmp->my;
      	    else if (yours)
      	        bypos.x = u.ux, bypos.y = u.uy;
-                 else
+            else
      	        bypos.x = mattk->mx, bypos.y = mattk->my;
 
      	    for (i = rnd(tmp); i > 0; --i)
-     	        for(j=0; j<20; j++) {
+     	        for (j = 0; j < 20; j++) {
      	            do {
      	                makeindex = pick_nasty();
-     	            } while (attacktype(&mons[makeindex], AT_MAGC) &&
-     	                     mons[makeindex].difficulty >= mons[u.umonnum].difficulty);
-                        if (yours &&
-     		            !enexto(&bypos, u.ux, u.uy, &mons[makeindex]))
-     		        continue;
-                        if (!yours &&
-     		            !enexto(&bypos, mattk->mx, mattk->my, &mons[makeindex]))
-     		        continue;
+     	            } while (attacktype(&mons[makeindex], AT_MAGC)
+     	                     && mons[makeindex].difficulty >= mons[u.umonnum].difficulty);
+                        if (yours
+     		            && !enexto(&bypos, u.ux, u.uy, &mons[makeindex]))
+     		            continue;
+                        if (!yours
+     		            && !enexto(&bypos, mattk->mx, mattk->my, &mons[makeindex]))
+     		            continue;
      		    if ((mpet = makemon(&mons[makeindex], bypos.x, bypos.y,
      			(yours || mattk->mtame) ? MM_EDOG : NO_MM_FLAGS)) != 0) {
                         mpet->msleeping = 0;
@@ -1735,7 +1752,8 @@ int spellnum;
      			    initedog(mpet);
      			else if (mattk->mpeaceful)
      			    mpet->mpeaceful = 1;
-     			else mpet->mpeaceful = mpet->mtame = 0;
+     			else
+                            mpet->mpeaceful = mpet->mtame = 0;
                         set_malign(mpet);
                     } else /* GENOD? */
                         mpet = makemon((struct permonst *)0,
@@ -1745,7 +1763,7 @@ int spellnum;
                         || sgn(mpet->data->maligntyp) == sgn(u.ualign.type))) {
                         count++;
                         break;
-                     }
+                    }
                 }
 
      	    const char *mappear =
@@ -1789,29 +1807,26 @@ int spellnum;
             register struct obj *otmp = some_armor(mtmp);
 
 #define oresist_disintegration(obj) \
- 		(objects[obj->otyp].oc_oprop == DISINT_RES || \
- 		 obj_resists(obj, 0, 90) || is_quest_artifact(obj))
+ 		(objects[obj->otyp].oc_oprop == DISINT_RES \
+ 		 || obj_resists(obj, 0, 90) || is_quest_artifact(obj))
 
-       	    if (otmp &&
-       	        !oresist_disintegration(otmp)) {
-       	        pline("%s %s %s!",
-                      s_suffix(Monnam(mtmp)),
-                      xname(otmp),
-                      is_cloak(otmp)  ? "crumbles and turns to dust" :
-                      is_shirt(otmp)  ? "crumbles into tiny threads" :
-                      is_helmet(otmp) ? "turns to dust and is blown away" :
-                      is_gloves(otmp) ? "vanish" :
-                      is_boots(otmp)  ? "disintegrate" :
-                      is_shield(otmp) ? "crumbles away" :
-                                        "turns to dust"
-                     );
+       	    if (otmp && !oresist_disintegration(otmp)) {
+                if (canseemon(mtmp))
+       	            pline("%s %s %s!",
+                          s_suffix(Monnam(mtmp)),
+                          xname(otmp),
+                          is_cloak(otmp) ? "crumbles and turns to dust" :
+                          is_shirt(otmp) ? "crumbles into tiny threads" :
+                          is_helmet(otmp) ? "turns to dust and is blown away" :
+                          is_gloves(otmp) ? "vanish" :
+                          is_boots(otmp) ? "disintegrate" :
+                          is_shield(otmp) ? "crumbles away" : "turns to dust");
                 obj_extract_self(otmp);
                 mtmp->misc_worn_check &= ~otmp->owornmask;
                 update_mon_intrinsics(mtmp, otmp, FALSE, TRUE);
                 otmp->owornmask = 0L; /* obfree() expects this */
                 obfree(otmp, (struct obj *) 0);
-            }
-            else if (yours || canseemon(mtmp))
+            } else if (yours || canseemon(mtmp))
        	        pline("%s skin looks flaky.", s_suffix(Monnam(mtmp)));
         }
        	dmg = 0;
@@ -1981,17 +1996,17 @@ int spellnum;
         if (is_demon(mtmp->data))
             return;
 
-        if (mtmp->ispriest) {
+        if (mtmp->ispriest)
             aligntype = EPRI(mtmp)->shralign;
-        } else {
+        else
             aligntype = sgn(mtmp->data->maligntyp);
-        }
+
         if (aligntype == A_NONE) {
             pline("A vassal of %s appears!", Moloch);
-                  summon_minion(aligntype, TRUE);
+            summon_minion(aligntype, TRUE);
         } else {
             pline("A servant of %s appears!", aligns[1 - aligntype].noun);
-                  summon_minion(aligntype, TRUE);
+            summon_minion(aligntype, TRUE);
         }
         break;
     case CLC_GEYSER:
@@ -2185,34 +2200,38 @@ int spellnum;
         }
 
         if (yours || canseemon(mtmp)) {
-	    dmg = rnd(4);
-	    pline("A %s film oozes over its skin!", Blind ? "slimy" : vulntext[dmg]);
-	    switch (dmg) {
-	        case 1:
-		    if (vulnerable_to(mtmp, AD_FIRE)) return;
-		        incr_itimeout(&HVulnerable_fire, rnd(100)+150);
-		        pline("%s is more inflammable.", Monnam(mtmp));
-		    break;
-	        case 2:
-		    if (vulnerable_to(mtmp, AD_COLD)) return;
-		        incr_itimeout(&HVulnerable_cold, rnd(100)+150);
-		        pline("%s is extremely chilly.", Monnam(mtmp));
-		    break;
-	        case 3:
-		    if (vulnerable_to(mtmp, AD_ELEC)) return;
-		        incr_itimeout(&HVulnerable_elec, rnd(100)+150);
-		        pline("%s is overly conductive.", Monnam(mtmp));
-		    break;
-	        case 4:
-		    if (vulnerable_to(mtmp, AD_ACID)) return;
-		        incr_itimeout(&HVulnerable_acid, rnd(100)+150);
-		        pline("%s is easily corrodable.", Monnam(mtmp));
-		    break;
-	        default:
-		    break;
+            dmg = rnd(4);
+            pline("A %s film oozes over its skin!", Blind ? "slimy" : vulntext[dmg]);
+            switch (dmg) {
+                case 1:
+                    if (vulnerable_to(mtmp, AD_FIRE))
+                        return;
+                    incr_itimeout(&HVulnerable_fire, rnd(100)+150);
+                    pline("%s is more inflammable.", Monnam(mtmp));
+                    break;
+                case 2:
+                    if (vulnerable_to(mtmp, AD_COLD))
+                        return;
+                    incr_itimeout(&HVulnerable_cold, rnd(100)+150);
+                    pline("%s is extremely chilly.", Monnam(mtmp));
+                    break;
+                case 3:
+                    if (vulnerable_to(mtmp, AD_ELEC))
+                        return;
+                    incr_itimeout(&HVulnerable_elec, rnd(100)+150);
+                    pline("%s is overly conductive.", Monnam(mtmp));
+                    break;
+                case 4:
+                    if (vulnerable_to(mtmp, AD_ACID))
+                        return;
+                    incr_itimeout(&HVulnerable_acid, rnd(100)+150);
+                    pline("%s is easily corrodable.", Monnam(mtmp));
+                    break;
+                default:
+                   break;
             }
-	}
-	break;
+        }
+        break;
     case CLC_OPEN_WOUNDS:
         if (!mtmp || mtmp->mhp < 1) {
        	    impossible("wound spell with no mtmp");
@@ -2243,8 +2262,10 @@ int spellnum;
     if (dmg > 0 && mtmp->mhp > 0) {
         mtmp->mhp -= dmg;
         if (mtmp->mhp < 1) {
-       	    if (yours) killed(mtmp);
-       	    else monkilled(mtmp, "", AD_CLRC);
+       	    if (yours)
+                killed(mtmp);
+       	    else
+                monkilled(mtmp, "", AD_CLRC);
 	}
     }
 }

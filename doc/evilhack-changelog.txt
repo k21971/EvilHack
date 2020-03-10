@@ -798,4 +798,5 @@ Version 0.5.0
   if dropped in Vlad's cavern
 - Sokoban prizes made of metal spawn made of a neutral material
 - Redo of the Amulet/invocation items handling if dropped in Vlad's cavern
+- Fix: feedback from various monster spells
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
