@@ -3356,33 +3356,26 @@ struct obj* obj;
 
     /* Otherwise, select an appropriate list, or return NULL if no appropriate
      * list exists. */
-    if (is_elven_obj(obj) && default_material != CLOTH) {
+    if (is_elven_obj(obj) && default_material != CLOTH)
         return elven_materials;
-    }
-    else if (is_dwarvish_obj(obj) && default_material != CLOTH) {
+    else if (is_dwarvish_obj(obj) && default_material != CLOTH)
         return dwarvish_materials;
-    }
-    else if (is_orcish_obj(obj) && default_material != CLOTH) {
+    else if (is_orcish_obj(obj) && default_material != CLOTH)
         return orcish_materials;
-    }
     else if (obj->oclass == AMULET_CLASS && otyp != AMULET_OF_YENDOR
-             && otyp != FAKE_AMULET_OF_YENDOR) {
+             && otyp != FAKE_AMULET_OF_YENDOR)
         /* could use metal_materials too */
         return shiny_materials;
-    }
     else if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
              || obj->oclass == ARMOR_CLASS) {
-        if (default_material == IRON || default_material == METAL) {
+        if (default_material == IRON || default_material == METAL)
             return metal_materials;
-        }
-        else if (default_material == WOOD) {
+        else if (default_material == WOOD)
             return wood_materials;
-        }
-        else if (default_material == CLOTH) {
+        else if (default_material == CLOTH)
             return cloth_materials;
-        } else if (default_material == LEATHER) {
+        else if (default_material == LEATHER)
             return leather_materials;
-        }
     }
     return NULL;
 }
@@ -3409,17 +3402,20 @@ struct obj* obj;
         else
             /* can use a 0 in the list to default to the base material */
             set_material(obj, objects[obj->otyp].oc_material);
-    }
-    else {
+    } else {
         /* default case for other items: always use base material... */
         set_material(obj, objects[obj->otyp].oc_material);
     }
 
     /* Do any post-fixups here for bad or illogical material combinations */
     if ((otyp == PICK_AXE || otyp == DWARVISH_MATTOCK)
-        && (obj->material == PLASTIC || obj->material == GLASS)) {
+        && (obj->material == PLASTIC || obj->material == GLASS))
         set_material(obj, objects[obj->otyp].oc_material);
-    }
+
+    if ((otyp == iflags.soko_prize_type2
+        || otyp == iflags.soko_prize_type3 || otyp == iflags.soko_prize_type5)
+        && (obj->material == IRON || obj->material == MITHRIL))
+        set_material(obj, METAL);
 }
 
 /* Return TRUE if mat is a valid material for a given object of obj's type
@@ -3438,8 +3434,7 @@ int mat;
      * with lists */
     if (objects[obj->otyp].oc_material == mat) {
         return TRUE;
-    }
-    else {
+    } else {
         const struct icp* materials = material_list(obj);
 
         if (materials) {
@@ -3465,10 +3460,10 @@ set_material(otmp, material)
 struct obj* otmp;
 int material;
 {
-    if (!valid_obj_material(otmp, material)) {
+    if (!valid_obj_material(otmp, material))
         impossible("setting material of %s to invalid material %d",
                    OBJ_NAME(objects[otmp->otyp]), material);
-    }
+
     otmp->material = material;
     otmp->owt = weight(otmp);
     if ((otmp->oeroded) && !is_rustprone(otmp) && !is_flammable(otmp))
