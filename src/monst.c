@@ -1226,12 +1226,13 @@ NEARDATA struct permonst mons[] = {
     /*
      * zruty
      */
-    MON("zruty", S_ZRUTY, LVL(9, 8, 3, 0, 0), (G_GENO | 2),
-        A(ATTK(AT_CLAW, AD_PHYS, 3, 4), ATTK(AT_CLAW, AD_PHYS, 3, 4),
-          ATTK(AT_BITE, AD_PHYS, 3, 6), NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(1200, 600, MS_SILENT, MZ_LARGE), 0, 0,
-        M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE, M2_HOSTILE | M2_STRONG,
-        M3_INFRAVISIBLE, 0, 0, 11, CLR_BROWN),
+    MON("zruty", S_ZRUTY, LVL(9, 12, 2, 30, 0), (G_GENO | 2),
+        A(ATTK(AT_BITE, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 3, 6),
+          ATTK(AT_CLAW, AD_CLOB, 3, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1800, 1000, MS_GROWL, MZ_HUGE), 0, 0,
+        M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE, M2_HOSTILE | M2_STRONG
+            | M2_NASTY,
+        M3_INFRAVISIBLE | M3_BERSERK, 0, 0, 12, CLR_BROWN),
     /*
      * Angels and other lawful minions
      */

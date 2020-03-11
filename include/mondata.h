@@ -62,9 +62,10 @@
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
-#define is_jumper(ptr) ((ptr) == &mons[PM_HUMAN_KNIGHT]        \
-                        || (ptr) == &mons[PM_JUMPING_SPIDER]   \
-                        || (ptr) == &mons[PM_GIANT_CENTIPEDE])
+#define is_jumper(ptr) ((ptr) == &mons[PM_HUMAN_KNIGHT]       \
+                        || (ptr) == &mons[PM_JUMPING_SPIDER]  \
+                        || (ptr) == &mons[PM_GIANT_CENTIPEDE] \
+                        || (ptr) == &mons[PM_ZRUTY])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */

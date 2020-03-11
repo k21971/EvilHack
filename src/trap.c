@@ -3011,10 +3011,10 @@ register struct monst *mtmp;
 	    }
 	    break;
         case MAGIC_BEAM_TRAP:
-            if (distu(trap->tx, trap->ty) < 4) You_hear("a faint click.");
-	    if (in_sight) {
+            if (distu(trap->tx, trap->ty) < 4)
+                You_hear("a faint click.");
+	    if (in_sight)
 	        seetrap(trap);
-	    }
 	    if (isok(trap->launch.x,trap->launch.y)
                 && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
 	        buzz(trap->launch_otyp, 8,

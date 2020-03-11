@@ -591,48 +591,50 @@ struct obj *otmp;
 
     int i = 0;
 
-    if (wep)
-    {
-        if (wep == otmp) return TRUE;
+    if (wep) {
+        if (wep == otmp)
+            return TRUE;
 
-        if (wep->oartifact) return FALSE;
+        if (wep->oartifact)
+            return FALSE;
 
-        if (mtmp->data->mlet == S_KOP &&  wep->otyp == CREAM_PIE) return FALSE;
-        if (mtmp->data->mlet == S_KOP && otmp->otyp == CREAM_PIE) return TRUE;
+        if (mtmp->data->mlet == S_KOP && wep->otyp == CREAM_PIE)
+            return FALSE;
+        if (mtmp->data->mlet == S_KOP && otmp->otyp == CREAM_PIE)
+            return TRUE;
 
-        if (throws_rocks(mtmp->data) &&  wep->otyp == BOULDER) return FALSE;
-        if (throws_rocks(mtmp->data) && otmp->otyp == BOULDER) return TRUE;
+        if (throws_rocks(mtmp->data) && wep->otyp == BOULDER)
+            return FALSE;
+        if (throws_rocks(mtmp->data) && otmp->otyp == BOULDER)
+            return TRUE;
     }
 
     if (((strongmonst(mtmp->data) && (mtmp->misc_worn_check & W_ARMS) == 0)
-	    || !objects[pwep[i]].oc_bimanual) &&
-        (objects[pwep[i]].oc_material != SILVER
- 	    || !mon_hates_material(mtmp, otmp->material)))
-    {
-        for (i = 0; i < SIZE(pwep); i++)
-        {
-            if ( wep &&
-	         wep->otyp == pwep[i] &&
-               !(otmp->otyp == pwep[i] &&
-	         dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
+	  || !objects[pwep[i]].oc_bimanual)
+        && (objects[pwep[i]].oc_material != SILVER
+ 	    || !mon_hates_material(mtmp, otmp->material))) {
+        for (i = 0; i < SIZE(pwep); i++) {
+            if (wep && wep->otyp == pwep[i]
+                && !(otmp->otyp == pwep[i]
+	        && dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
 	        return FALSE;
-            if (otmp->otyp == pwep[i]) return TRUE;
+            if (otmp->otyp == pwep[i])
+                return TRUE;
         }
     }
 
-    if (is_pole(otmp)) return FALSE; /* If we get this far,
-                                        we failed the polearm strength check */
+    if (is_pole(otmp))
+        return FALSE; /* If we get this far,
+                         we failed the polearm strength check */
 
-    for (i = 0; i < SIZE(rwep); i++)
-    {
-        if ( wep &&
-             wep->otyp == rwep[i] &&
-           !(otmp->otyp == rwep[i] &&
-	     dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
+    for (i = 0; i < SIZE(rwep); i++) {
+        if (wep && wep->otyp == rwep[i]
+            && !(otmp->otyp == rwep[i]
+	         && dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
 	    return FALSE;
-        if (otmp->otyp == rwep[i]) return TRUE;
+        if (otmp->otyp == rwep[i])
+            return TRUE;
     }
-
     return FALSE;
 }
 
@@ -799,28 +801,30 @@ struct obj *otmp;
 
     int i = 0;
 
-    if (wep)
-    {
-       if (wep == otmp) return TRUE;
+    if (wep) {
+       if (wep == otmp)
+           return TRUE;
 
-       if (wep->oartifact) return FALSE;
+       if (wep->oartifact)
+           return FALSE;
 
-       if (is_giant(mtmp->data) &&  wep->otyp == CLUB) return FALSE;
-       if (is_giant(mtmp->data) && otmp->otyp == CLUB) return TRUE;
+       if (is_giant(mtmp->data) && wep->otyp == CLUB)
+           return FALSE;
+       if (is_giant(mtmp->data) && otmp->otyp == CLUB)
+           return TRUE;
    }
 
     for (i = 0; i < SIZE(hwep); i++) {
       	if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG))
       	    continue;
 
-        if (wep && wep->otyp == hwep[i] &&
-            !(otmp->otyp == hwep[i] &&
-  	        dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
-  	        return FALSE;
+        if (wep && wep->otyp == hwep[i]
+            && !(otmp->otyp == hwep[i]
+                 && dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
+  	    return FALSE;
         if (otmp->otyp == hwep[i])
             return TRUE;
     }
-
     return FALSE;
 }
 
