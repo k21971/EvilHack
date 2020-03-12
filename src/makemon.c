@@ -290,114 +290,114 @@ unsigned short chance;
     memcpy(&temptrop, origtrop, sizeof(struct trobj));
 
     while (origtrop->trclass) {
-	   if ((chance <= 0) || !rn2(chance)) {
-	       if (trop->trotyp != UNDEF_TYP) {
-		   otyp = (int)trop->trotyp;
-		   obj = mksobj(otyp, TRUE, FALSE);
-	       } else {	/* UNDEF_TYP */
-	           static NEARDATA short nocreate = STRANGE_OBJECT;
-		   static NEARDATA short nocreate2 = STRANGE_OBJECT;
-		   static NEARDATA short nocreate3 = STRANGE_OBJECT;
-		   static NEARDATA short nocreate4 = STRANGE_OBJECT;
-	           /*
-		    * For random objects, do not create certain overly powerful
-		    * items: wand of wishing, ring of levitation, or the
-		    * polymorph/polymorph control combination.  Specific objects,
-		    * i.e. the discovery wishing, are still OK.
-		    * Also, don't get a couple of really useless items.  (Note:
-		    * punishment isn't "useless".  Some players who start out with
-		    * one will immediately read it and use the iron ball as a
-		    * weapon.)
-		    */
-		   obj = mkobj(trop->trclass, FALSE);
-			       otyp = obj->otyp;
-		   while (otyp == WAN_WISHING
-			  || otyp == nocreate
-			  || otyp == nocreate2
-			  || otyp == nocreate3
-			  || otyp == nocreate4
-			  || otyp == RIN_LEVITATION
-			  /* 'useless' items */
-			  || otyp == POT_HALLUCINATION
-			  || otyp == POT_ACID
-			  || otyp == SCR_AMNESIA
-			  || otyp == SCR_FIRE
-			  || otyp == SCR_BLANK_PAPER
-			  || otyp == SPE_BLANK_PAPER
-			  || otyp == RIN_AGGRAVATE_MONSTER
-			  || otyp == RIN_HUNGER
-			  || otyp == WAN_NOTHING
-			  || (otyp == SCR_ENCHANT_WEAPON
-			      && mtmp->mnum == PM_HUMAN_MONK)
-			  || (otyp == SPE_FORCE_BOLT
-			      && mtmp->mnum == PM_HUMAN_WIZARD)
-			  || (obj->oclass == SPBOOK_CLASS
-			      && objects[otyp].oc_level > 3)) {
-				 dealloc_obj(obj);
-				 obj = mkobj(trop->trclass, FALSE);
-				 otyp = obj->otyp;
-		   }
+        if ((chance <= 0) || !rn2(chance)) {
+            otyp = (int) trop->trotyp;
+            if (otyp != UNDEF_TYP) {
+                obj = mksobj(otyp, TRUE, FALSE);
+            } else { /* UNDEF_TYP */
+                static NEARDATA short nocreate = STRANGE_OBJECT;
+                static NEARDATA short nocreate2 = STRANGE_OBJECT;
+                static NEARDATA short nocreate3 = STRANGE_OBJECT;
+                static NEARDATA short nocreate4 = STRANGE_OBJECT;
+                /*
+                 * For random objects, do not create certain overly powerful
+                 * items: wand of wishing, ring of levitation, or the
+                 * polymorph/polymorph control combination.  Specific objects,
+                 * i.e. the discovery wishing, are still OK.
+                 * Also, don't get a couple of really useless items.  (Note:
+                 * punishment isn't "useless".  Some players who start out with
+                 * one will immediately read it and use the iron ball as a
+                 * weapon.)
+                 */
+                obj = mkobj(trop->trclass, FALSE);
+                otyp = obj->otyp;
+                while (otyp == WAN_WISHING || otyp == nocreate
+                       || otyp == nocreate2 || otyp == nocreate3
+                       || otyp == nocreate4 || otyp == RIN_LEVITATION
+                       /* 'useless' items */
+                       || otyp == POT_HALLUCINATION
+                       || otyp == POT_ACID
+                       || otyp == SCR_AMNESIA
+                       || otyp == SCR_FIRE
+                       || otyp == SCR_BLANK_PAPER
+                       || otyp == SPE_BLANK_PAPER
+                       || otyp == RIN_AGGRAVATE_MONSTER
+                       || otyp == RIN_HUNGER
+                       || otyp == WAN_NOTHING
+                       || (otyp == SCR_ENCHANT_WEAPON
+                           && mtmp->mnum == PM_HUMAN_MONK)
+                       || (otyp == SPE_FORCE_BOLT
+                           && mtmp->mnum == PM_HUMAN_WIZARD)
+                       || (obj->oclass == SPBOOK_CLASS
+                           && objects[otyp].oc_level > 3)) {
+                       dealloc_obj(obj);
+                       obj = mkobj(trop->trclass, FALSE);
+                       otyp = obj->otyp;
+                }
 
-		   if (objects[otyp].oc_charged && obj->spe <= 0)
-		       obj->spe = rne(3);
+                if (objects[otyp].oc_charged && obj->spe <= 0)
+                    obj->spe = rne(3);
 
-                   /* Heavily relies on the fact that 1) we create wands
-                    * before rings, 2) that we create rings before
-                    * spellbooks, and that 3) not more than 1 object of a
-                    * particular symbol is to be prohibited.  (For more
-                    * objects, we need more nocreate variables...)
-                    */
-                   switch (otyp) {
-	               case WAN_POLYMORPH:
-		       case RIN_POLYMORPH:
-	               case POT_POLYMORPH:
-		           nocreate = RIN_POLYMORPH_CONTROL;
-		           break;
-		       case RIN_POLYMORPH_CONTROL:
-		           nocreate = RIN_POLYMORPH;
-		           nocreate2 = SPE_POLYMORPH;
-		           nocreate3 = POT_POLYMORPH;
-                   }
-                   /* Don't have 2 of the same ring or spellbook */
-                   if (obj->oclass == RING_CLASS
-                       || obj->oclass == SPBOOK_CLASS)
-                       nocreate4 = otyp;
-                   }
+                /* Heavily relies on the fact that 1) we create wands
+                 * before rings, 2) that we create rings before
+                 * spellbooks, and that 3) not more than 1 object of a
+                 * particular symbol is to be prohibited.  (For more
+                 * objects, we need more nocreate variables...)
+                 */
+                switch (otyp) {
+                case WAN_POLYMORPH:
+                case RIN_POLYMORPH:
+                case POT_POLYMORPH:
+                    nocreate = RIN_POLYMORPH_CONTROL;
+                    break;
+                case RIN_POLYMORPH_CONTROL:
+                    nocreate = RIN_POLYMORPH;
+                    nocreate2 = SPE_POLYMORPH;
+                    nocreate3 = POT_POLYMORPH;
+                }
+                /* Don't have 2 of the same ring or spellbook */
+                if (obj->oclass == RING_CLASS
+                    || obj->oclass == SPBOOK_CLASS)
+                    nocreate4 = otyp;
+            }
 
-		   if (trop->trclass == COIN_CLASS) {
-		       /* no "blessed" or "identified" money */
-		       obj->quan = u.umoney0;
-		   } else {
-		       obj->cursed = 0;
-		   if (obj->opoisoned && u.ualign.type != A_CHAOTIC)
-		       obj->opoisoned = 0;
-		   if (obj->oclass == WEAPON_CLASS
-		       || obj->oclass == TOOL_CLASS) {
-		       obj->quan = (long) trop->trquan;
-		       trop->trquan = 1;
-		   } else if (obj->oclass == GEM_CLASS &&
-			      is_graystone(obj) && obj->otyp != FLINT) {
-			      obj->quan = 1L;
-		   }
-		   if (trop->trspe != UNDEF_SPE) {
-		       obj->spe = (trop->trspe & ~RND_SPE);
-		       if (trop->trspe & RND_SPE) {
-		           obj->spe--;
-			   obj->spe += rn2(3);
-		       }
-		   }
-		   if (trop->trbless != UNDEF_BLESS)
-		       obj->blessed = trop->trbless;
-		   if ((obj->oclass == WEAPON_CLASS
-	               || obj->oclass == ARMOR_CLASS)
-		       && chance > 1) {
-		       obj->spe = (obj->spe * rn2(chance)) / chance;
-		       }
-                   }
-		   /* defined after setting otyp+quan + blessedness */
-		   obj->owt = weight(obj);
-		   (void) mpickobj(mtmp, obj);
-	       }
+            if (trop->trclass == COIN_CLASS) {
+                /* no "blessed" or "identified" money */
+                obj->quan = u.umoney0;
+            } else {
+                obj->cursed = 0;
+                if (obj->opoisoned && u.ualign.type != A_CHAOTIC)
+                    obj->opoisoned = 0;
+                if (obj->oclass == WEAPON_CLASS
+                    || obj->oclass == TOOL_CLASS) {
+                    obj->quan = (long) trop->trquan;
+                    trop->trquan = 1;
+                } else if (obj->oclass == GEM_CLASS
+                    && is_graystone(obj) && obj->otyp != FLINT) {
+                    obj->quan = 1L;
+                }
+                if (obj->otyp == STRIPED_SHIRT)
+                    obj->cursed = TRUE;
+                if (trop->trspe != UNDEF_SPE) {
+                    obj->spe = (trop->trspe & ~RND_SPE);
+                    if (trop->trspe & RND_SPE) {
+                        obj->spe--;
+                        obj->spe += rn2(3);
+                    }
+                }
+                if (trop->trbless != UNDEF_BLESS)
+                    obj->blessed = trop->trbless;
+                if ((obj->oclass == WEAPON_CLASS
+                     || obj->oclass == ARMOR_CLASS)
+                    && chance > 1) {
+                    obj->spe = (obj->spe * rn2(chance)) / chance;
+                }
+            }
+            /* defined after setting otyp+quan + blessedness */
+            obj->owt = weight(obj);
+            (void) mpickobj(mtmp, obj);
+            mon_wield_item(mtmp);
+        }
 
 #if !defined(PYRAMID_BUG) && !defined(MAC)
         if (--trop->trquan)
@@ -409,8 +409,8 @@ unsigned short chance;
                 continue; /* make a similar object */
         }
 #endif
-    origtrop++;
-    memcpy(&temptrop, origtrop, sizeof(struct trobj));
+        origtrop++;
+        memcpy(&temptrop, origtrop, sizeof(struct trobj));
     }
 }
 
@@ -428,169 +428,172 @@ register struct monst *mtmp;
 
     /* treat mplayers differently */
     if (is_mplayer(mtmp->data) && !In_endgame(&u.uz)) {
-	if (mtmp->m_lev > 1) {
-	    if (mtmp->m_lev > 10 || !rn2(10)) {
-                if (rn2(2)) {
-		    ini_mon_inv(mtmp, !rn2(2) ? Level20Kit1 : Level20Kit2,
+        if (mtmp->m_lev > 1) {
+            if (mtmp->m_lev > 10 || !rn2(10)) {
+                if (rn2(2))
+                    ini_mon_inv(mtmp, !rn2(2) ? Level20Kit1 : Level20Kit2,
                                 (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
-                } else {
+                else
                     ini_mon_inv(mtmp, !rn2(2) ? Level20Kit3 : Level20Kit4,
                                 (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
-                }
             }
-	    ini_mon_inv(mtmp, !rn2(2) ? Level10Kit1 : Level10Kit2,
-	                (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
+            ini_mon_inv(mtmp, !rn2(2) ? Level10Kit1 : Level10Kit2,
+                        (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
         }
 
-    switch (mtmp->mnum) {
+        switch (mtmp->mnum) {
         case PM_HUMAN_ARCHEOLOGIST:
-	    ini_mon_inv(mtmp, Archeologist, 1);
-	    if (!rn2(10)) ini_mon_inv(mtmp, Tinopener);
-	    else if (!rn2(4)) ini_mon_inv(mtmp, Lamp);
-            else if (rn2(3)) ini_mon_inv(mtmp, Pickaxe);
+            ini_mon_inv(mtmp, Archeologist, 1);
+            if (!rn2(10))
+                ini_mon_inv(mtmp, Tinopener);
+            else if (!rn2(4))
+                ini_mon_inv(mtmp, Lamp);
+            else if (rn2(3))
+                ini_mon_inv(mtmp, Pickaxe);
             mongets(mtmp, SKELETON_KEY);
-	    break;
-	case PM_HUMAN_BARBARIAN:
-	    if (rn2(100) >= 50) {
-		Barbarian[B_MAJOR].trotyp = BATTLE_AXE;
-		Barbarian[B_MINOR].trotyp = SHORT_SWORD;
-	    }
-	    else {
-		Barbarian[B_MAJOR].trotyp = TWO_HANDED_SWORD;
-		Barbarian[B_MINOR].trotyp = AXE;
-	    }
-	    ini_mon_inv(mtmp, Barbarian, 1);
-	    ini_mon_inv(mtmp, Lamp, 6);
+            break;
+        case PM_HUMAN_BARBARIAN:
+            if (rn2(100) >= 50) {
+                Barbarian[B_MAJOR].trotyp = BATTLE_AXE;
+                Barbarian[B_MINOR].trotyp = SHORT_SWORD;
+            } else {
+                Barbarian[B_MAJOR].trotyp = TWO_HANDED_SWORD;
+                Barbarian[B_MINOR].trotyp = AXE;
+            }
+            ini_mon_inv(mtmp, Barbarian, 1);
+            ini_mon_inv(mtmp, Lamp, 6);
             mongets(mtmp, SKELETON_KEY);
-	    break;
+            break;
         case PM_HUMAN_CAVEMAN:
-	case PM_HUMAN_CAVEWOMAN:
-	    Cave_man[C_AMMO].trquan = rn1(11, 10);	/* 10..20 */
-	    ini_mon_inv(mtmp, Cave_man, 1);
-	    break;
+        case PM_HUMAN_CAVEWOMAN:
+            Cave_man[C_AMMO].trquan = rn1(11, 10);	/* 10..20 */
+            ini_mon_inv(mtmp, Cave_man, 1);
+            break;
         case PM_HUMAN_CONVICT:
             ini_mon_inv(mtmp, Convict, 1);
             mongets(mtmp, SKELETON_KEY);
             mongets(mtmp, GRAPPLING_HOOK);
             break;
-	case PM_HUMAN_HEALER:
-	    mkmonmoney(mtmp, (long) rn1(1000, 1001));
-	    ini_mon_inv(mtmp, Healer, 1);
-	    ini_mon_inv(mtmp, Lamp, 25);
+        case PM_HUMAN_HEALER:
+            mkmonmoney(mtmp, (long) rn1(1000, 1001));
+            ini_mon_inv(mtmp, Healer, 1);
+            ini_mon_inv(mtmp, Lamp, 25);
             mongets(mtmp, SKELETON_KEY);
-	    break;
-	case PM_HUMAN_KNIGHT:
-	    ini_mon_inv(mtmp, Knight, 1);
+            break;
+        case PM_HUMAN_KNIGHT:
+            ini_mon_inv(mtmp, Knight, 1);
             mongets(mtmp, SKELETON_KEY);
-	    break;
-	case PM_HUMAN_MONK:
-	    switch (rn2(90) / 30) {
-		case 0: Monk[M_BOOK].trotyp = SPE_HEALING;
+            break;
+        case PM_HUMAN_MONK:
+            switch (rn2(90) / 30) {
+                case 0: Monk[M_BOOK].trotyp = SPE_HEALING;
                     break;
-		case 1: Monk[M_BOOK].trotyp = SPE_PROTECTION;
+                case 1: Monk[M_BOOK].trotyp = SPE_PROTECTION;
                     break;
-		case 2: Monk[M_BOOK].trotyp = SPE_SLEEP;
+                case 2: Monk[M_BOOK].trotyp = SPE_SLEEP;
                     break;
-	    }
-	    ini_mon_inv(mtmp, Monk, 1);
-	    ini_mon_inv(mtmp, Lamp, 10);
+            }
+            ini_mon_inv(mtmp, Monk, 1);
+            ini_mon_inv(mtmp, Lamp, 10);
             mongets(mtmp, SKELETON_KEY);
-	    break;
+            break;
         case PM_HUMAN_PRIEST:
-	case PM_HUMAN_PRIESTESS:
+        case PM_HUMAN_PRIESTESS:
             mkmonmoney(mtmp, (long) rn1(10, 20));
-	    ini_mon_inv(mtmp, Priest, 1);
-	    ini_mon_inv(mtmp, Lamp, 10);
+            ini_mon_inv(mtmp, Priest, 1);
+            ini_mon_inv(mtmp, Lamp, 10);
             mongets(mtmp, SKELETON_KEY);
-	    break;
-	case PM_HUMAN_RANGER:
-	    Ranger[RAN_TWO_ARROWS].trquan = rn1(10, 50);
-	    Ranger[RAN_ZERO_ARROWS].trquan = rn1(10, 30);
-	    ini_mon_inv(mtmp, Ranger, 1);
+            break;
+        case PM_HUMAN_RANGER:
+            Ranger[RAN_TWO_ARROWS].trquan = rn1(10, 50);
+            Ranger[RAN_ZERO_ARROWS].trquan = rn1(10, 30);
+            ini_mon_inv(mtmp, Ranger, 1);
             mongets(mtmp, SKELETON_KEY);
-	    break;
-	case PM_HUMAN_ROGUE:
+            break;
+        case PM_HUMAN_ROGUE:
             mkmonmoney(mtmp, (long) rn1(1000, 500));
-	    Rogue[R_DAGGERS].trquan = rn1(10, 6);
-	    ini_mon_inv(mtmp, Rogue, 1);
-	    ini_mon_inv(mtmp, Blindfold, 5);
-	    break;
-	case PM_HUMAN_SAMURAI:
-	    Samurai[S_ARROWS].trquan = rn1(20, 26);
-	    ini_mon_inv(mtmp, Samurai, 1);
-	    ini_mon_inv(mtmp, Blindfold, 5);
+            Rogue[R_DAGGERS].trquan = rn1(10, 6);
+            ini_mon_inv(mtmp, Rogue, 1);
+            ini_mon_inv(mtmp, Blindfold, 5);
+            break;
+        case PM_HUMAN_SAMURAI:
+            Samurai[S_ARROWS].trquan = rn1(20, 26);
+            ini_mon_inv(mtmp, Samurai, 1);
+            ini_mon_inv(mtmp, Blindfold, 5);
             mongets(mtmp, SKELETON_KEY);
-	    break;
-	case PM_HUMAN_TOURIST:
-	    Tourist[T_DARTS].trquan = rn1(20, 21);
-	    mkmonmoney(mtmp, (long) rn1(1000, 1001));
-	    ini_mon_inv(mtmp, Tourist, 1);
-	    if (!rn2(25)) ini_mon_inv(mtmp, Tinopener, 1);
-	    else if (!rn2(25)) ini_mon_inv(mtmp, Leash, 1);
-	    else if (!rn2(25)) ini_mon_inv(mtmp, Towel, 1);
-	    break;
-	case PM_HUMAN_VALKYRIE:
-	    ini_mon_inv(mtmp, Valkyrie, 1);
-	    ini_mon_inv(mtmp, Lamp, 6);
+            break;
+        case PM_HUMAN_TOURIST:
+            Tourist[T_DARTS].trquan = rn1(20, 21);
+            mkmonmoney(mtmp, (long) rn1(1000, 1001));
+            ini_mon_inv(mtmp, Tourist, 1);
+            if (!rn2(25))
+                ini_mon_inv(mtmp, Tinopener, 1);
+            else if (!rn2(25))
+                ini_mon_inv(mtmp, Leash, 1);
+            else if (!rn2(25))
+                ini_mon_inv(mtmp, Towel, 1);
+            break;
+        case PM_HUMAN_VALKYRIE:
+            ini_mon_inv(mtmp, Valkyrie, 1);
+            ini_mon_inv(mtmp, Lamp, 6);
             mongets(mtmp, SKELETON_KEY);
-	    break;
-	case PM_HUMAN_WIZARD:
-	    ini_mon_inv(mtmp, Wizard, 1);
-	    ini_mon_inv(mtmp, Blindfold, 5);
+            break;
+        case PM_HUMAN_WIZARD:
+            ini_mon_inv(mtmp, Wizard, 1);
+            ini_mon_inv(mtmp, Blindfold, 5);
             mongets(mtmp, SKELETON_KEY);
-	    break;
-	default: /* impossible */
-	    break;
-    }
-
-    {
-        struct obj *bag = (struct obj *) 0;
-	if (mtmp->m_lev > 1) {
-	    for (; otmp; otmp = otmp->nobj) {
-	        if (otmp->oclass == WEAPON_CLASS) {
-		    if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
-		        if (!rn2(100 + 10 * nartifact_exist())) {
-			    mk_artifact(otmp, sgn(mtmp->data->maligntyp));
-                        } else if (!rn2(40)) {
-                            create_oprop(otmp, FALSE);
-			}
-		    }
-		}
-	    }
-	}
-
-        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-	    if (Is_container(otmp) && otmp->otyp != BAG_OF_TRICKS)
-	        bag = otmp;
-	    if (otmp->otyp == BAG_OF_HOLDING)
-		break;
-	}
-	if (bag) {
-	    int count = (mtmp->m_lev * mtmp->m_lev) / 25;
-	    if (count < 1)
-                count = 1;
-	    if (count > 10)
-                count = 10;
-	    count += rn2((mtmp->m_lev / 10) + 2);
-	    while (count-- > 0) {
-	        int otyp =
-		        (rn2(2) ? rnd_offensive_item(mtmp) :
-			 rn2(2) ? rnd_defensive_item(mtmp) : rnd_misc_item(mtmp));
-		otmp = mksobj(otyp, FALSE, FALSE);
-	    if (otmp->oclass == WAND_CLASS) {
-		int lim = (otmp->otyp == WAN_WISHING) ? 3
-			   : (objects[otmp->otyp].oc_dir != NODIR) ? 8 : 15;
-			   otmp->spe = rn2(lim);
-	    }
-	    if (otmp->otyp == WAN_CANCELLATION || otmp->otyp == BAG_OF_TRICKS)
-		(void) mpickobj(mtmp, otmp);
-	    else
-		(void) add_to_container(bag, otmp);
-	    }
+            break;
+        default: /* impossible */
+            break;
         }
+
+        {
+            struct obj *bag = (struct obj *) 0;
+            if (mtmp->m_lev > 1) {
+                for (; otmp; otmp = otmp->nobj) {
+                    if (otmp->oclass == WEAPON_CLASS) {
+                        if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
+                            if (!rn2(100 + 10 * nartifact_exist()))
+                                mk_artifact(otmp, sgn(mtmp->data->maligntyp));
+                            else if (!rn2(40))
+                                create_oprop(otmp, FALSE);
+                        }
+                    }
+                }
+            }
+
+            for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+                if (Is_container(otmp) && otmp->otyp != BAG_OF_TRICKS)
+                    bag = otmp;
+                if (otmp->otyp == BAG_OF_HOLDING)
+                    break;
+            }
+
+            if (bag) {
+                int count = (mtmp->m_lev * mtmp->m_lev) / 25;
+                if (count < 1)
+                    count = 1;
+                if (count > 10)
+                    count = 10;
+                count += rn2((mtmp->m_lev / 10) + 2);
+                while (count-- > 0) {
+                    int otyp = (rn2(2) ? rnd_offensive_item(mtmp) :
+                                rn2(2) ? rnd_defensive_item(mtmp) : rnd_misc_item(mtmp));
+                    otmp = mksobj(otyp, FALSE, FALSE);
+                    if (otmp->oclass == WAND_CLASS) {
+                        int lim = (otmp->otyp == WAN_WISHING) ? 3 :
+                                   (objects[otmp->otyp].oc_dir != NODIR) ? 8 : 15;
+                        otmp->spe = rn2(lim);
+                    }
+                    if (otmp->otyp == WAN_CANCELLATION || otmp->otyp == BAG_OF_TRICKS)
+                        (void) mpickobj(mtmp, otmp);
+                    else
+                        (void) add_to_container(bag, otmp);
+                }
+            }
+        }
+        return;
     }
-    return;
-}
 
     /*
      *  First a few special cases:

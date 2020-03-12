@@ -803,4 +803,5 @@ Version 0.5.0
 - Zruty tweak
 - Fix: rumors concerning Fire/Frost Brand
 - Fix: ignore gold in n/52 items display
+- Clean up player monster code/formatting in src/makemon.c
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
