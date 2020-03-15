@@ -160,7 +160,7 @@ static void FDECL(build_bmfh, (BITMAPFILEHEADER *));
 static void FDECL(build_bmih, (BITMAPINFOHEADER *));
 static void FDECL(build_bmptile, (pixel(*) [TILE_X]));
 
-char *tilefiles[] = {
+const char *tilefiles[] = {
 #if (TILE_X == 32)
     "../win/share/mon32.txt", "../win/share/obj32.txt",
     "../win/share/oth32.txt",

@@ -42,6 +42,7 @@ struct conditionals {
     int sequence, predecessor;
     const char *name;
 } conditionals[] = {
+#if 0 /* these all exist in-game now */
 #ifndef CHARON /* not supported */
     { MON_GLYPH, PM_HELL_HOUND, "Cerberus" },
 #endif
@@ -54,6 +55,7 @@ struct conditionals {
 #ifndef CHARON /* not supported yet */
     { MON_GLYPH, PM_CROESUS, "Charon" },
 #endif
+#endif
 #ifndef MAIL
     { MON_GLYPH, PM_FAMINE, "mail daemon" },
 #endif
@@ -63,9 +65,11 @@ struct conditionals {
     /* commented out in monst.c at present */
     { MON_GLYPH, PM_TIAMAT, "Goblin King" },
     { MON_GLYPH, PM_NEANDERTHAL, "High-elf" },
+#if 0 /* these exist in-game now also */
     /* objects commented out in objects.c at present */
     { OBJ_GLYPH, SILVER_DRAGON_SCALE_MAIL, "shimmering dragon scale mail" },
     { OBJ_GLYPH, SILVER_DRAGON_SCALES, "shimmering dragon scales" },
+#endif
 /* allow slime mold to look like slice of pizza, since we
  * don't know what a slime mold should look like when renamed anyway
  */
@@ -568,8 +572,11 @@ struct {
 {S_hcdbridge, "horizontal closed drawbridge", "raised drawbridge"},
 {S_air,      "air", "air"},
 {S_cloud,    "cloud", "cloud"},
+{S_puddle,   "shallow water", "shallow water"},
+{S_sewage,   "sewage", "sewage"},
 {S_water,    "water", "water"},
 {S_arrow_trap,           "arrow trap", "arrow trap"},
+{S_bolt_trap,           "bolt trap", "bolt trap"},
 {S_dart_trap,            "dart trap", "dart trap"},
 {S_falling_rock_trap,    "falling rock trap", "falling rock trap"},
 {S_squeaky_board,        "squeaky board", "squeaky board"},
@@ -591,29 +598,31 @@ struct {
 {S_magic_trap,           "magic trap", "magic trap"},
 {S_anti_magic_trap,      "anti magic trap", "anti-magic field"},
 {S_polymorph_trap,       "polymorph trap", "polymorph trap"},
+{S_spear_trap,           "spear trap", "spear trap"},
+{S_magic_beam_trap,      "magic beam trap", "magic beam trap"},
 {S_vibrating_square,     "vibrating square", "vibrating square"},
-{S_vbeam,    "vertical beam", "cmap 65"},
-{S_hbeam,    "horizontal beam", "cmap 66"},
-{S_lslant,   "left slant beam", "cmap 67"},
-{S_rslant,   "right slant beam", "cmap 68"},
-{S_digbeam,  "dig beam", "cmap 69"},
-{S_flashbeam, "flash beam", "cmap 70"},
-{S_boomleft, "boom left", "cmap 71"},
-{S_boomright, "boom right", "cmap 72"},
-{S_ss1,      "shield1", "cmap 73"},
-{S_ss2,      "shield2", "cmap 74"},
-{S_ss3,      "shield3", "cmap 75"},
-{S_ss4,      "shield4", "cmap 76"},
+{S_vbeam,    "vertical beam", "cmap 71"},
+{S_hbeam,    "horizontal beam", "cmap 72"},
+{S_lslant,   "left slant beam", "cmap 73"},
+{S_rslant,   "right slant beam", "cmap 74"},
+{S_digbeam,  "dig beam", "cmap 75"},
+{S_flashbeam, "flash beam", "cmap 76"},
+{S_boomleft, "boom left", "cmap 77"},
+{S_boomright, "boom right", "cmap 78"},
+{S_ss1,      "shield1", "cmap 79"},
+{S_ss2,      "shield2", "cmap 80"},
+{S_ss3,      "shield3", "cmap 81"},
+{S_ss4,      "shield4", "cmap 82"},
 {S_poisoncloud, "poison cloud", "poison cloud"},
 {S_goodpos,  "valid position", "valid position"},
-{S_sw_tl,    "swallow top left", "cmap 79"},
-{S_sw_tc,    "swallow top center", "cmap 80"},
-{S_sw_tr,    "swallow top right", "cmap 81"},
-{S_sw_ml,    "swallow middle left", "cmap 82"},
-{S_sw_mr,    "swallow middle right", "cmap 83"},
-{S_sw_bl,    "swallow bottom left ", "cmap 84"},
-{S_sw_bc,    "swallow bottom center", "cmap 85"},
-{S_sw_br,    "swallow bottom right", "cmap 86"},
+{S_sw_tl,    "swallow top left", "cmap 85"},
+{S_sw_tc,    "swallow top center", "cmap 86"},
+{S_sw_tr,    "swallow top right", "cmap 87"},
+{S_sw_ml,    "swallow middle left", "cmap 88"},
+{S_sw_mr,    "swallow middle right", "cmap 89"},
+{S_sw_bl,    "swallow bottom left ", "cmap 90"},
+{S_sw_bc,    "swallow bottom center", "cmap 91"},
+{S_sw_br,    "swallow bottom right", "cmap 92"},
 {S_explode1, "explosion top left", "explosion dark 0"},
 {S_explode2, "explosion top centre", "explosion dark 1"},
 {S_explode3, "explosion top right", "explosion dark 2"},

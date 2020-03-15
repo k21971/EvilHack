@@ -155,6 +155,7 @@ start: Blank
         S_bear_trap: \032
         S_blcorn: \032
         S_blob: \032
+        S_bolt_trap: \032
         S_book: \032
         S_boomleft: \032
         S_boomright: \032
@@ -227,6 +228,7 @@ start: Blank
         S_litcorr: \032
         S_lizard: \032
         S_lslant: \032
+        S_magic_beam_trap: \032
         S_magic_portal: \032
         S_magic_trap: \032
         S_mimic: \032
@@ -260,6 +262,7 @@ start: Blank
         S_sink: \032
         S_sleeping_gas_trap: \032
         S_snake: \032
+        S_spear_trap: \032
         S_spider: \032
         S_spiked_pit: \032
         S_squeaky_board: \032
