@@ -131,7 +131,7 @@ GAMEPERM = 0700
 VARFILEPERM = 0600
 VARDIRPERM = 0700
 ifdef WANT_WIN_X11
-# XXX install nethack.rc as ~/.nethackrc if no ~/.nethackrc exists
+# XXX install nethack.rc as ~/.evilhackrc if no ~/.evilhackrc exists
 endif
 endif
 

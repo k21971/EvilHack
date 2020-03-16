@@ -280,7 +280,7 @@ stat.h
 
 sys/winnt:
 (files for Windows 7/8.x/10 version)
-.nethackrc.template  Install.nt           Makefile.gcc
+.evilhackrc.template  Install.nt           Makefile.gcc
 Makefile.msc         console.rc           nethack.def
 nh340key.c           nhdefkey.c           nhico.uu
 nhraykey.c           nhsetup.bat          ntsound.c

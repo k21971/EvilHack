@@ -46,7 +46,7 @@ To use this code on UNIX (not Mac OS X):
    5. Follow all the instructions in ../../sys/unix/Install.unx for
       the remainder of the installation process.
 
-   6. Consider adding the lines below to your .nethackrc, as they are
+   6. Consider adding the lines below to your .evilhackrc, as they are
       likely to give the best interface for this window port:
 
         OPTIONS=name:player,number_pad,menustyle:partial,!time,showexp

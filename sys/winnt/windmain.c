@@ -383,7 +383,7 @@ void copy_config_content()
         fqn_prefix[DATAPREFIX], CONFIG_TEMPLATE, FALSE);
 
     /* If the required early game file does not exist, copy it */
-    /* NOTE: We never replace .nethackrc or sysconf */
+    /* NOTE: We never replace .evilhackrc or sysconf */
     copy_file(fqn_prefix[CONFIGPREFIX], CONFIG_FILE,
         fqn_prefix[DATAPREFIX], CONFIG_TEMPLATE);
 }

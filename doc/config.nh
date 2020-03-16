@@ -10,7 +10,7 @@
 #
 # Copy the contents of this file into
 # * defaults.nh, same folder as nethack.exe or nethackW.exe (DOS, Windows)
-# * ~/.nethackrc (Unix, linux, Mac OS X)
+# * ~/.evilhackrc (Unix, linux, Mac OS X)
 # * "NetHack Defaults" on pre-OSX Mac and BeOS
 # * NetHack.cnf on Amiga, Atari, OS/2, and VMS
 #

@@ -205,8 +205,8 @@ GAMEPERM = 0700
 VARFILEPERM = 0600
 VARDIRPERM = 0700
 ifdef WANT_WIN_X11
-# install nethack.rc as ~/.nethackrc if no ~/.nethackrc exists
-PREINSTALL= cp -n win/X11/nethack.rc ~/.nethackrc || true
+# install nethack.rc as ~/.evilhackrc if no ~/.evilhackrc exists
+PREINSTALL= cp -n win/X11/nethack.rc ~/.evilhackrc || true
 endif	# WANT_WIN_X11
 POSTINSTALL+= sys/unix/hints/macosx.sh editsysconf sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf;
 CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE

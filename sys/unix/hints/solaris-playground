@@ -7,7 +7,7 @@
 # This hints file provides a shared playground build for Solaris, specifically
 # for Solaris 10 and 11, but should work just fine on older versions
 
-# Nethack will install suid games, and will expect to read a users .nethackrc file from
+# Nethack will install suid games, and will expect to read a users .evilhackrc file from
 # their home directory which may be a problem on secure systems with read restricted home
 # directories,  not that you would problably run NetHack on such a system anyway.  :)
 
