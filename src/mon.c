@@ -2754,6 +2754,7 @@ boolean was_swallowed; /* digestion */
     if (mon->mextra && ERID(mon) && ERID(mon)->m1 != NULL) {
         place_monster(ERID(mon)->m1, mon->mx, mon->my);
         ERID(mon)->m1->monmount = 0;
+        newsym(ERID(mon)->m1->mx, ERID(mon)->m1->my);
     }
     free_erid(mon);
 

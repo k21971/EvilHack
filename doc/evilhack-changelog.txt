@@ -807,4 +807,5 @@ Version 0.5.0
 - Fix: a proper tileset can now be created
 - Change .nethackrc to .evilhackrc
 - Tweak damage output when digging your way out of an engulfer
+- Fix: attempt to prevent monster steeds from disappearing when their rider dies
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
