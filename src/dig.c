@@ -1420,10 +1420,7 @@ zap_dig()
             if (is_animal(mtmp->data) || is_dragon(mtmp->data))
                 You("pierce %s %s wall!", s_suffix(mon_nam(mtmp)),
                     mbodypart(mtmp, STOMACH));
-            if (mtmp->mhp > 40)
-                mtmp->mhp = rn2(11) + 30;
-            else
-                mtmp->mhp = 1; /* almost dead */
+            mtmp->mhp = (mtmp->mhp + 1) / 2; /* not almost dead */
             expels(mtmp, mtmp->data,
                    !(is_animal(mtmp->data) || is_dragon(mtmp->data)));
         }
