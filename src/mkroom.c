@@ -24,6 +24,7 @@ STATIC_DCL void NDECL(mktemple);
 STATIC_DCL coord *FDECL(shrine_pos, (int));
 STATIC_DCL struct permonst *NDECL(morguemon);
 STATIC_DCL struct permonst *NDECL(squadmon);
+STATIC_DCL struct permonst *NDECL(armorymon);
 STATIC_DCL void FDECL(save_room, (int, struct mkroom *));
 STATIC_DCL void FDECL(rest_room, (int, struct mkroom *));
 
@@ -83,6 +84,9 @@ int roomtype;
         case OWLBNEST:
             mkzoo(OWLBNEST);
             break;
+        case ARMORY:
+            mkzoo(ARMORY);
+            break;
         default:
             impossible("Tried to make a room of type %d.", roomtype);
         }
@@ -134,6 +138,10 @@ mkshop()
             }
             if (*ep == 'y' || *ep == 'Y') {
                 mkzoo(OWLBNEST);
+                return;
+            }
+            if (*ep == 'r' || *ep == 'R') {
+                mkzoo(ARMORY);
                 return;
             }
             if (*ep == '_') {
@@ -338,30 +346,37 @@ struct mkroom *sroom;
             /* don't place monster on explicitly placed throne */
             if (type == COURT && IS_THRONE(levl[sx][sy].typ))
                 continue;
-            mon = makemon((type == COURT)
-                           ? courtmon()
-                           : (type == BARRACKS)
-                              ? squadmon()
-                              : (type == MORGUE)
-                                 ? morguemon()
-                                 : (type == BEEHIVE)
+            mon = ((struct monst *) 0);
+            if (type == ARMORY) {
+                /* armories don't contain as many monsters */
+                if (!rn2(3))
+                    mon = makemon(armorymon(), sx, sy, NO_MM_FLAGS);
+            } else {
+                mon = makemon((type == COURT)
+                ? courtmon()
+                : (type == BARRACKS)
+                   ? squadmon()
+                   : (type == MORGUE)
+                      ? morguemon()
+                      : (type == BEEHIVE)
+                         ? (sx == tx && sy == ty
+                            ? &mons[PM_QUEEN_BEE]
+                            : &mons[PM_KILLER_BEE])
+                         : (type == LEPREHALL)
+                            ? &mons[PM_LEPRECHAUN]
+                            : (type == COCKNEST)
+                               ? &mons[PM_COCKATRICE]
+                               : (type == ANTHOLE)
+                                  ? (sx == tx && sy == ty
+                                     ? &mons[PM_QUEEN_ANT]
+                                     : antholemon())
+                                  : (type == OWLBNEST)
                                      ? (sx == tx && sy == ty
-                                         ? &mons[PM_QUEEN_BEE]
-                                         : &mons[PM_KILLER_BEE])
-                                     : (type == LEPREHALL)
-                                         ? &mons[PM_LEPRECHAUN]
-                                         : (type == COCKNEST)
-                                             ? &mons[PM_COCKATRICE]
-                                             : (type == ANTHOLE)
-                                                 ? (sx == tx && sy == ty
-                                                     ? &mons[PM_QUEEN_ANT]
-                                                     : antholemon())
-                                                 : (type == OWLBNEST)
-                                                     ? (sx == tx && sy == ty
-                                                         ? &mons[PM_OWLBEAR]
-                                                         : &mons[PM_BABY_OWLBEAR])
-                                                     : (struct permonst *) 0,
-                          sx, sy, MM_ASLEEP);
+                                        ? &mons[PM_OWLBEAR]
+                                        : &mons[PM_BABY_OWLBEAR])
+                                     : (struct permonst *) 0, sx, sy, MM_ASLEEP);
+            }
+
             if (mon) {
                 mon->msleeping = 1;
                 if (type == COURT && mon->mpeaceful) {
@@ -425,6 +440,25 @@ struct mkroom *sroom;
                 if (!rn2(5)) {
                     oegg = mksobj_at(EGG, sx, sy, TRUE, FALSE);
                     set_corpsenm(oegg, PM_OWLBEAR);
+                }
+                break;
+            case ARMORY:
+                {
+                    struct obj *otmp;
+                    if (rn2(4)) {
+                        if (rn2(2)) {
+                            if (rn2(4))
+                                otmp = mkobj_at(WEAPON_CLASS, sx, sy, FALSE);
+                            else
+                                otmp = mkobj_at(TOOL_CLASS, sx, sy, FALSE);
+                        } else
+                            otmp = mkobj_at(ARMOR_CLASS, sx, sy, FALSE);
+                        otmp->spe = 0;
+                        if (is_rustprone(otmp) || is_flammable(otmp))
+                            otmp->oeroded = rn2(4);
+                        else if (is_corrodeable(otmp) || is_rottable(otmp))
+                            otmp->oeroded2 = rn2(4);
+                    }
                 }
                 break;
             }
@@ -543,6 +577,13 @@ antholemon()
 
     return ((mvitals[mtyp].mvflags & G_GONE) ? (struct permonst *) 0
                                              : &mons[mtyp]);
+}
+
+static struct permonst *
+armorymon()
+{
+    return (!rn2(5) ? mkclass(S_RUSTMONST, 0)
+                    : rn2(6) ? &mons[PM_BROWN_PUDDING] : &mons[PM_BLACK_PUDDING]);
 }
 
 STATIC_OVL void

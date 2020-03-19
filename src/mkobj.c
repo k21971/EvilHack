@@ -1912,7 +1912,8 @@ boolean
 is_rottable(otmp)
 register struct obj *otmp;
 {
-    return (boolean) (otmp->material <= WOOD && otmp->material != LIQUID);
+    return (boolean) (otmp->material <= WOOD && otmp->material != LIQUID
+                      && otmp->material != BONE);
 }
 
 /*

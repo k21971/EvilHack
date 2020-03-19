@@ -939,6 +939,9 @@ makelevel()
             mkroom(LEPREHALL);
         else if (u_depth > 6 && !rn2(7))
             mkroom(ZOO);
+        else if (u_depth > 7 && !rn2(6)
+                 && !(mvitals[PM_RUST_MONSTER].mvflags & G_GONE))
+            mkroom(ARMORY);
         else if (u_depth > 8 && !rn2(5))
             mkroom(TEMPLE);
         else if (u_depth > 9 && !rn2(5)

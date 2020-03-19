@@ -171,6 +171,8 @@ unsigned mgflags;
                 color = HI_METAL;
             else if (*in_rooms(x, y, OWLBNEST))
                 color = CLR_BLACK;
+            else if (*in_rooms(x, y, ARMORY))
+                color = HI_METAL;
             else
                 cmap_color(offset);
         }
