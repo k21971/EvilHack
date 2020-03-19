@@ -809,4 +809,5 @@ Version 0.5.0
 - Tweak damage output when digging your way out of an engulfer
 - Fix: attempt to prevent monster steeds from disappearing when their rider dies
 - Dilapidated armories
+- Fix: safety valve against candelabrum's age becoming 0
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
