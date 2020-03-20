@@ -812,4 +812,5 @@ Version 0.5.0
 - Fix: safety valve against candelabrum's age becoming 0
 - Fix: correct timing when attaching lit candles to the candelabrum
 - Valkyrie quest artifact changes
+- Minor adjustments to Valkyrie quest artifact changes
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

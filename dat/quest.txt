@@ -3290,8 +3290,8 @@ Once again, you stand in sight of %ns lair.
 "So!  %lC has finally sent %ca to challenge me!
 
 "I thought that using %o would enable me to start Ragnarok, 
-but I see that first I must kill you!  So come, little 
-%s.  Once I defeat you, I can at last begin the final battle with %d."
+but I see that first I must kill you!  So come, little %s.
+Once I defeat you, I can at last begin the final battle with %d."
 %E ["%oC has shown me that I must kill you."]
 %Cp Val 00051
 "Again you challenge me, %r.  Good.  I will kill you now."
