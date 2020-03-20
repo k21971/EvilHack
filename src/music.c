@@ -613,7 +613,8 @@ struct obj *instr;
     case TOOLED_HORN: /* Awaken or scare monsters */
         if (!Deaf) {
             if (instr->oartifact == ART_GJALLAR) {
-                You("produce an awesome, resounding sound!");
+                You("produce an awesome, %s!",
+                    rn2(2) ? "resounding tone" : "reverberating sound");
                 if (!rn2(10) && !Role_if(PM_VALKYRIE))
                     incr_itimeout(&HDeaf, rn1(10, 10));
             } else
@@ -626,7 +627,7 @@ struct obj *instr;
                 if (DEADMONSTER(mtmp))
                     continue;
                 if ((distm = distu(mtmp->mx, mtmp->my)) <= 3
-                    && instr->blessed && !rn2(3)) {
+                    && instr->blessed && !rn2(5)) {
                     if (!mtmp->mstun) {
                         pline("%s %s from the intense blast of sound!", Monnam(mtmp),
                               makeplural(stagger(mtmp->data, "stagger")));
