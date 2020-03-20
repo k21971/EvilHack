@@ -365,7 +365,7 @@ struct obj {
     ((otmp)->otyp == FORTUNE_COOKIE || (otmp)->otyp == T_SHIRT               \
      || (otmp)->otyp == ALCHEMY_SMOCK || (otmp)->otyp == CREDIT_CARD         \
      || (otmp)->otyp == CAN_OF_GREASE || (otmp)->otyp == MAGIC_MARKER        \
-     || (otmp)->oclass == COIN_CLASS || (otmp)->oartifact == ART_ORB_OF_FATE \
+     || (otmp)->oclass == COIN_CLASS || (otmp)->oartifact == ART_GJALLAR     \
      || (otmp)->otyp == CANDY_BAR || (otmp)->oartifact == ART_MAGIC___BALL   \
      || (otmp)->otyp == STRIPED_SHIRT)
 

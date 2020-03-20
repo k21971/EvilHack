@@ -568,7 +568,7 @@ const struct Role roles[] = {
       PM_FIRE_GIANT,
       S_ANT,
       S_GIANT,
-      ART_ORB_OF_FATE,
+      ART_GJALLAR,
       MH_HUMAN | MH_DWARF | MH_GIANT | MH_CENTAUR,
       ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */

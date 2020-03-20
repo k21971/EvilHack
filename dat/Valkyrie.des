@@ -228,7 +228,7 @@ IF [75%] {
    DRAWBRIDGE:(17,14),north,random
 }
 # Objects
-OBJECT:('(',"crystal ball"),(17,08),blessed,5,name:"The Orb of Fate"
+OBJECT:('(',"tooled horn"),(17,08),blessed,5,name:"Gjallar"
 OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random

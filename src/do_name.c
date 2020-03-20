@@ -1389,6 +1389,9 @@ const char *name;
         case ART_IRON_BALL_OF_LIBERATION:
             set_material(obj, IRON);
             break;
+        case ART_GJALLAR:
+            set_material(obj, BONE);
+            break;
         default:
             /* prevent any wishes for materials on an artifact */
             set_material(obj, objects[obj->otyp].oc_material);

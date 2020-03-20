@@ -344,15 +344,15 @@ doread()
             livelog_write_string(LL_CONDUCT,
                     "became literate by reading a coin's engravings");
         return 1;
-    } else if (scroll->oartifact == ART_ORB_OF_FATE) {
+    } else if (scroll->oartifact == ART_GJALLAR) {
         if (Blind)
             You("feel the engraved signature:");
         else
             pline("It is signed:");
-        pline("\"Odin.\"");
+        pline("\"Heimdallr.\"");
         if (!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
-                    "became literate by reading the divine signature of Odin");
+                    "became literate by reading the divine signature of Heimdallr");
         return 1;
     } else if (scroll->oartifact == ART_MAGIC___BALL) {
         if (Blind)

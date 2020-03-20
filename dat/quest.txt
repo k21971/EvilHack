@@ -3289,8 +3289,8 @@ Once again, you stand in sight of %ns lair.
 %Cc Val 00050
 "So!  %lC has finally sent %ca to challenge me!
 
-"I thought that mastering %o would enable me to challenge
-%d, but it has shown me that first I must kill you!  So come, little
+"I thought that using %o would enable me to start Ragnarok, 
+but I see that first I must kill you!  So come, little 
 %s.  Once I defeat you, I can at last begin the final battle with %d."
 %E ["%oC has shown me that I must kill you."]
 %Cp Val 00051
@@ -3306,7 +3306,7 @@ Once again, you stand in sight of %ns lair.
 "I am your death, %c."
 %E
 %Cp Val 00061
-"You cannot prevail, %r.  I have foreseen your every move."
+"You cannot prevail, %r.  I can predict your every move."
 %E
 %Cp Val 00062
 "With you out of the way, Valhalla will be mine for the taking."
@@ -3334,15 +3334,15 @@ Do you really think that one %c can stand against me?"
 "Your body I destroy now, your soul when my hordes overrun Valhalla!"
 %E
 %Cc Val 00070
-As you pick up %o, your mind is suddenly filled with images,
-and you perceive all of the possibilities of each potential choice you
-could make.  As you begin to control and channel your thoughts, you
+As you pick up %o, your mind is suddenly filled with images 
+of the final battle and what could come to pass should Ragnarok 
+begin.  As you begin to control and channel your thoughts, you
 realize that you must return %o to %l immediately.
 %E [You must return %o to %l.]
 %Cc Val 00080
 A look of surprise and horror appears on %ns face.
 
-    "No!!!  %o has lied to me!  I have been misled!"
+    "No!!!  Loki has lied to me!  Ragnarok must come to pass!"
 
 Suddenly, %n grasps his head and screams in agony, then dies.
 %E [%nC dies.]
@@ -3350,16 +3350,14 @@ Suddenly, %n grasps his head and screams in agony, then dies.
 As you approach, %l rises and touches %o.
 
 "You may take %o with you, %p.  I have removed from
-it the power to foretell the future, for that power no mortal should
+it the power to start Ragnarok, for that power no mortal should
 have.  Its other abilities, however, you have at your disposal.
 
 "You must now begin in %ds name to search for the Amulet of Yendor.
 May your steps be guided by %d, my %S."
 %E [Take %o.  Search for the Amulet.]
-# assumes Orb of Fate (glass object)
 %Cc Val 00082
-"Careful, %p!  %oC might break, and that would be
-a tragic loss.  You are its keeper now, and the time has come to
+"You are its keeper now, and the time has come to
 resume your search for the Amulet.  %Z await your
 return through the magic portal that brought you here."
 %E [You are %os keeper now.  Return through the portal and find the Amulet.]

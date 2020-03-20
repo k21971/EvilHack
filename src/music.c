@@ -477,8 +477,9 @@ STATIC_OVL int
 do_improvisation(instr)
 struct obj *instr;
 {
-    int damage, mode, do_spec = !(Stunned || Confusion);
+    int damage, mode, distm, do_spec = !(Stunned || Confusion);
     struct obj itmp;
+    struct monst *mtmp;
     boolean mundane = FALSE;
 
     itmp = *instr;
@@ -610,11 +611,31 @@ struct obj *instr;
         makeknown(instr->otyp);
         break;
     case TOOLED_HORN: /* Awaken or scare monsters */
-        if (!Deaf)
-            You("produce a frightful, grave sound.");
-        else
+        if (!Deaf) {
+            if (instr->oartifact == ART_GJALLAR) {
+                You("produce an awesome, resounding sound!");
+                if (!rn2(10) && !Role_if(PM_VALKYRIE))
+                    incr_itimeout(&HDeaf, rn1(10, 10));
+            } else
+                You("produce a frightful, grave sound.");
+        } else
             You("blow into the horn.");
-        awaken_monsters(u.ulevel * 30);
+        if (instr->oartifact == ART_GJALLAR) {
+            awaken_monsters(ROWNO * COLNO);
+            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                if (DEADMONSTER(mtmp))
+                    continue;
+                if ((distm = distu(mtmp->mx, mtmp->my)) <= 3
+                    && instr->blessed && !rn2(3)) {
+                    if (!mtmp->mstun) {
+                        pline("%s %s from the intense blast of sound!", Monnam(mtmp),
+                              makeplural(stagger(mtmp->data, "stagger")));
+                        mtmp->mstun = 1;
+                    }
+                }
+            }
+        } else
+            awaken_monsters(u.ulevel * 30);
         exercise(A_WIS, FALSE);
         break;
     case BUGLE: /* Awaken & attract soldiers */

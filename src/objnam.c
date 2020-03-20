@@ -4581,7 +4581,7 @@ struct obj *no_wish;
                 case ART_VORPAL_BLADE:
                     pm = PM_HUMAN_TOURIST;
                     break;
-                case ART_ORB_OF_FATE:
+                case ART_GJALLAR:
                 case ART_GIANTSLAYER:
                 case ART_MJOLLNIR:
                     pm = PM_HUMAN_VALKYRIE;
