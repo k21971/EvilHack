@@ -1041,6 +1041,7 @@ u_init()
         knows_object(ORCISH_CLOAK);
         knows_object(ORCISH_SCIMITAR);
         knows_object(ORCISH_BOOTS);
+        knows_object(ORCISH_MORNING_STAR);
         break;
 
     default: /* impossible */
