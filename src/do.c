@@ -341,6 +341,22 @@ const char *verb;
         bury_objs(x, y);
         newsym(x, y);
         return TRUE;
+    } else if (obj->otyp == AMULET_OF_YENDOR
+               && (obj->cursed ? rn2(3) : obj->blessed
+                               ? !rn2(16) : !rn2(4))
+               && !(IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz))) {
+        /* prevent recursive call of teleportation through flooreffects */
+        if (!obj->orecursive) {
+            if (cansee(x, y))
+                pline("As the amulet touches the %s, it teleports away!",
+                      surface(x, y));
+            obj->orecursive = TRUE;
+            rloco(obj);
+            obj->orecursive = FALSE;
+            return TRUE;
+        } else {
+            return FALSE;
+        }
     } else if (is_lava(x, y)) {
         return lava_damage(obj, x, y);
     } else if (is_damp_terrain(x, y)) {

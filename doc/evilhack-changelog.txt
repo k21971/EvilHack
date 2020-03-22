@@ -818,4 +818,5 @@ Version 0.5.0
 - Occasional earthquake during the ascension run
 - Changes to covetous monster behavior
 - Projectiles fired from its proper launcher get a range increase
+- Chance the Amulet of Yendor will teleport away if dropped
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
