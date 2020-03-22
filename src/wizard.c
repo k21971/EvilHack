@@ -403,7 +403,7 @@ register struct monst *mtmp;
             nx = rnd(COLNO - 1);
             ny = rn2(ROWNO);
             if (rloc_pos_ok(nx, ny, mtmp)
-                && distu(nx, ny) > 64) {
+                && distu(nx, ny) > (BOLT_LIM * BOLT_LIM)) {
                 rloc_to(mtmp, nx, ny);
                 if (mtmp->mhp <= mtmp->mhpmax - 8)
                     mtmp->mhp += rnd(8);

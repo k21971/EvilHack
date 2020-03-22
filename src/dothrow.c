@@ -1269,6 +1269,13 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
         crossbowing = (ammo_and_launcher(obj, uwep)
                        && weapon_type(uwep) == P_CROSSBOW);
         urange = (crossbowing ? 18 : (int) ACURRSTR) / 2;
+
+        /* hard limit this so crossbows will fire further
+         * than anything except a superstrong elf wielding a
+         * racial bow, or a samurai with his yumi */
+        if (urange > 9)
+            urange = 9;
+
         /* balls are easy to throw or at least roll;
          * also, this insures the maximum range of a ball is greater
          * than 1, so the effects from throwing attached balls are
@@ -1289,10 +1296,33 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
 
         if (is_ammo(obj)) {
             if (ammo_and_launcher(obj, uwep)) {
-                if (crossbowing)
-                    range = BOLT_LIM;
-                else
-                    range++;
+                if (crossbowing) {
+                    if (uwep->oartifact == ART_CROSSBOW_OF_CARL)
+                        range =+ 12; /* divine workmanship */
+                    else
+                        range += 10; /* not strength dependent */
+                } else {
+                    switch (uwep->otyp) {
+                        case ELVEN_BOW:
+                        case YUMI:
+                            range += urange + 2; /* better workmanship */
+                            break;
+                        case ORCISH_BOW:
+                            range += urange - 2; /* orcish gear sucks */
+                            break;
+                        case BOW:
+                            if (uwep->oartifact == ART_LONGBOW_OF_DIANA)
+                                range += urange + 3; /* divine workmanship */
+                            else
+                                range += urange;
+                            break;
+                        case SLING:
+                            range += (int) urange / 2;
+                            break;
+                        default:
+                            break;
+                    }
+                }
             } else if (obj->oclass != GEM_CLASS)
                 range /= 2;
         }
