@@ -1487,7 +1487,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, SKELETON_KEY);
             if (rn2(4))
                 (void) mongets(mtmp, rn2(3) ? ELVEN_HELM : HELMET);
-            (void) mongets(mtmp, rn2(8) ? DAGGER : CRYSKNIFE);
+            (void) mongets(mtmp, rn2(8) ? QUARTERSTAFF : BROADSWORD);
             switch (rn2(4)) {
             /* MAJOR fall through ... */
             case 0:
@@ -1500,7 +1500,7 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, POT_HEALING);
                 /*FALLTHRU*/
             case 3:
-                (void) mongets(mtmp, WAN_STRIKING);
+                (void) mongets(mtmp, WAN_SLEEP);
             }
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_PRIEST)) {
