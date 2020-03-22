@@ -389,9 +389,32 @@ register struct monst *mtmp;
 {
     unsigned long strat = strategy(mtmp);
     xchar sx = 0, sy = 0, mx, my;
+    schar nx, ny;
+    int j;
 
     mtmp->mstrategy =
         (mtmp->mstrategy & (STRAT_WAITMASK | STRAT_APPEARMSG)) | strat;
+
+    /* if monster is magically scared, don't 'flee' right next
+     * to the player */
+    if (mtmp->mflee) {
+        mtmp->mavenge = 1;
+        for (j = 0; j < 400; j++) {
+            nx = rnd(COLNO - 1);
+            ny = rn2(ROWNO);
+            if (rloc_pos_ok(nx, ny, mtmp)
+                && distu(nx, ny) > 64) {
+                rloc_to(mtmp, nx, ny);
+                if (mtmp->mhp <= mtmp->mhpmax - 8)
+                    mtmp->mhp += rnd(8);
+                return 1;
+            }
+        }
+        /* we couldn't find someplace far enough away from the player
+         * to run to, which should be very rare, but...
+         * and in that case, just fall through so we do something */
+        pline("%s looks around nervously.", Monnam(mtmp));
+    }
 
     switch (strat) {
     case STRAT_HEAL: /* hide and recover */
@@ -422,23 +445,50 @@ register struct monst *mtmp;
         /*FALLTHRU*/
 
     case STRAT_NONE: /* harass */
-        if (!rn2(!mtmp->mflee ? 5 : 33))
+    {
+        xchar tx = STRAT_GOALX(strat), ty = STRAT_GOALY(strat),
+                   dx = 0, dy = 0, stx = tx, sty = ty;
+
+        /* If we're close enough, pounce */
+        if (distu(mtmp->mx, mtmp->my) <= 25) {
             mnexto(mtmp);
+        } else {
+            /* figure out what direction the player's in */
+            dx = sgn(u.ux - mtmp->mx);
+            dy = sgn(u.uy - mtmp->my);
+            /* since we're not close enough, use short jumps to change that */
+            stx = mtmp->mx + ((rn2(3) + 4) * dx);
+            sty = mtmp->my + ((rn2(3) + 3) * dy);
+            mnearto(mtmp, stx, sty, TRUE);
+        }
         return 0;
+    }
 
     default: /* kill, maim, pillage! */
     {
         long where = (strat & STRAT_STRATMASK);
-        xchar tx = STRAT_GOALX(strat), ty = STRAT_GOALY(strat);
+        xchar tx = STRAT_GOALX(strat), ty = STRAT_GOALY(strat),
+                   dx = 0, dy = 0, stx = tx, sty = ty;
         int targ = (int) (strat & STRAT_GOAL);
         struct obj *otmp;
 
         if (!targ) { /* simply wants you to close */
             return 0;
         }
+        /* player is standing on it (or has it) */
         if ((u.ux == tx && u.uy == ty) || where == STRAT_PLAYER) {
-            /* player is standing on it (or has it) */
-            mnexto(mtmp);
+            /* If we're close enough, pounce */
+            if (distu(mtmp->mx, mtmp->my) <= 25) {
+                mnexto(mtmp);
+            } else {
+                /* figure out what direction the player's in */
+                dx = sgn(u.ux - mtmp->mx);
+                dy = sgn(u.uy - mtmp->my);
+                /* since we're not close enough, use short jumps to change that */
+                stx = mtmp->mx + ((rn2(3) + 4) * dx);
+                sty = mtmp->my + ((rn2(3) + 3) * dy);
+                mnearto(mtmp, stx, sty, TRUE);
+            }
             return 0;
         }
         if (where == STRAT_GROUND) {

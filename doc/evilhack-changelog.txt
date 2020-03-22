@@ -816,4 +816,5 @@ Version 0.5.0
 - More minor adjustments to Valkyrie quest artifact changes
 - Fix: add a missing weapon that orcs should always know
 - Occasional earthquake during the ascension run
+- Changes to covetous monster behavior
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
