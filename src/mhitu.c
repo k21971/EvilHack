@@ -1543,8 +1543,10 @@ register struct attack *mattk;
             break;
         } else {
             (void) adjattrib(A_INT, -rnd(2), FALSE);
-            forget_levels(25);  /* lose memory of 25% of levels */
-            forget_objects(25); /* lose memory of 25% of objects */
+            forget_traps();
+            if (rn2(2))
+                losespells();
+            drain_weapon_skill(rnd(u.uluck <= 0 ? 5 : 3));
             break;
         }
     case AD_PLYS:

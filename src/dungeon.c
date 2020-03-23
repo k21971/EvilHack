@@ -2132,35 +2132,6 @@ const char *s;
 
 
 void
-forget_mapseen(ledger_num)
-int ledger_num;
-{
-    mapseen *mptr;
-    struct cemetery *bp;
-
-    for (mptr = mapseenchn; mptr; mptr = mptr->next)
-        if (dungeons[mptr->lev.dnum].ledger_start + mptr->lev.dlevel
-            == ledger_num)
-            break;
-
-    /* if not found, then nothing to forget */
-    if (mptr) {
-        mptr->flags.forgot = 1;
-        mptr->br = (branch *) 0;
-
-        /* custom names are erased, not just forgotten until revisited */
-        if (mptr->custom) {
-            mptr->custom_lth = 0;
-            free((genericptr_t) mptr->custom);
-            mptr->custom = (char *) 0;
-        }
-        (void) memset((genericptr_t) mptr->msrooms, 0, sizeof mptr->msrooms);
-        for (bp = mptr->final_resting_place; bp; bp = bp->next)
-            bp->bonesknown = FALSE;
-    }
-}
-
-void
 rm_mapseen(ledger_num)
 int ledger_num;
 {

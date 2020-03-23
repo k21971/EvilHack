@@ -820,4 +820,5 @@ Version 0.5.0
 - Projectiles fired from its proper launcher get a range increase
 - Chance the Amulet of Yendor will teleport away if dropped
 - Adjust shopkeepers starting gear again
+- Major amnesia revamp
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
