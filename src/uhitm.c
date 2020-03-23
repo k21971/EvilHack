@@ -655,6 +655,7 @@ struct attack *uattk;
     boolean malive, wep_was_destroyed = FALSE;
     struct obj *wepbefore = uwep;
     struct obj *wearshield = uarms;
+    struct obj *weararmor = uarm;
     int armorpenalty, attknum = 0, x = u.ux + u.dx, y = u.uy + u.dy,
                       tmp = find_roll_to_hit(mon, uattk->aatyp, uwep,
                                              &attknum, &armorpenalty);
@@ -710,6 +711,26 @@ struct attack *uattk;
             /* second passive counter-attack only occurs if second attack hits */
             if (mhit)
                 (void) passive(mon, uwep, mhit, malive, AT_CLAW, FALSE);
+        }
+    }
+
+    /* random kick attack for a Monk who has reached Master skill
+       or greater in martial arts */
+    if (!rn2(3) && !uwep && P_BARE_HANDED_COMBAT && Role_if(PM_MONK)
+        && P_SKILL(P_MARTIAL_ARTS) >= P_MASTER
+        && malive && m_at(x, y) == mon) {
+        if (weararmor) {
+            if (!rn2(8))
+                pline("Your extra kick attack is ineffective while wearing %s.",
+                      xname(weararmor));
+        } else {
+            tmp = find_roll_to_hit(mon, uattk->aatyp, uarmf, &attknum,
+                                   &armorpenalty);
+            dieroll = rnd(20);
+            mhit = (tmp > dieroll || u.uswallow);
+            /* kick passive counter-attack only occurs if kick attack hits */
+            if (mhit && !DEADMONSTER(mon))
+                kick_monster(mon, x, y);
         }
     }
     return malive;

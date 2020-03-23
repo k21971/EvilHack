@@ -565,6 +565,7 @@ E void FDECL(finish_meating, (struct monst *));
 
 /* ### dokick.c ### */
 
+E void FDECL(kick_monster, (struct monst *, XCHAR_P, XCHAR_P));
 E boolean FDECL(ghitm, (struct monst *, struct obj *));
 E void FDECL(container_impact_dmg, (struct obj *, XCHAR_P, XCHAR_P));
 E int NDECL(dokick);
