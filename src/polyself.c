@@ -1526,7 +1526,8 @@ dohide()
     }
     /* note: the eel and hides_under cases are hypothetical;
        such critters aren't offered the option of hiding via #monster */
-    if (youmonst.data->mlet == S_EEL && !is_pool(u.ux, u.uy)) {
+    if (youmonst.data->mlet == S_EEL
+        && !(is_pool(u.ux, u.uy) || is_puddle(u.ux, u.uy))) {
         if (IS_FOUNTAIN(levl[u.ux][u.uy].typ))
             The("fountain is not deep enough to hide in.");
         else
@@ -1798,7 +1799,8 @@ int part;
     }
     if (mptr == &mons[PM_STALKER] && part == HEAD)
         return "head";
-    if (mptr->mlet == S_EEL && mptr != &mons[PM_JELLYFISH])
+    if (mptr->mlet == S_EEL && mptr != &mons[PM_JELLYFISH]
+        && mptr != &mons[PM_MIND_FLAYER_LARVA])
         return fish_parts[part];
     if (mptr->mlet == S_WORM)
         return worm_parts[part];

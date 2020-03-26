@@ -60,7 +60,7 @@ unsigned gpflags;
             return FALSE;
 
         mdat = mtmp->data;
-        if (is_pool(x, y) && !ignorewater) {
+        if ((is_pool(x, y) || is_puddle(x, y)) && !ignorewater) {
             /* [what about Breathless?] */
             if (mtmp == &youmonst)
                 return (Swimming || Amphibious
@@ -74,7 +74,7 @@ unsigned gpflags;
                             && (is_floater(mdat) || is_flyer(mdat)
                                 || is_clinger(mdat))));
         } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater
-                   && (!is_puddle(x, y) || !is_sewage(x, y))) {
+                   && !is_puddle(x, y)) {
             return FALSE;
         } else if (is_lava(x, y)) {
             /* 3.6.3: floating eye can levitate over lava but it avoids

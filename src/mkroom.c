@@ -87,6 +87,9 @@ int roomtype;
         case ARMORY:
             mkzoo(ARMORY);
             break;
+        case NURSERY:
+            mkzoo(NURSERY);
+            break;
         default:
             impossible("Tried to make a room of type %d.", roomtype);
         }
@@ -142,6 +145,10 @@ mkshop()
             }
             if (*ep == 'r' || *ep == 'R') {
                 mkzoo(ARMORY);
+                return;
+            }
+            if (*ep == 'h' || *ep == 'H' || *ep == ';') {
+                mkzoo(NURSERY);
                 return;
             }
             if (*ep == '_') {
@@ -309,6 +316,7 @@ struct mkroom *sroom;
         mk_zoo_thronemon(tx, ty);
         break;
     case OWLBNEST:
+    case NURSERY:
     case ANTHOLE:
     case BEEHIVE:
         tx = sroom->lx + (sroom->hx - sroom->lx + 1) / 2;
@@ -346,6 +354,8 @@ struct mkroom *sroom;
             /* don't place monster on explicitly placed throne */
             if (type == COURT && IS_THRONE(levl[sx][sy].typ))
                 continue;
+            if (type == NURSERY)
+                levl[sx][sy].typ = PUDDLE;
             mon = ((struct monst *) 0);
             if (type == ARMORY) {
                 /* armories don't contain as many monsters */
@@ -374,7 +384,11 @@ struct mkroom *sroom;
                                      ? (sx == tx && sy == ty
                                         ? &mons[PM_OWLBEAR]
                                         : &mons[PM_BABY_OWLBEAR])
-                                     : (struct permonst *) 0, sx, sy, MM_ASLEEP);
+                                     : (type == NURSERY)
+                                        ? (sx == tx && sy == ty
+                                           ? &mons[PM_MIND_FLAYER]
+                                           : &mons[PM_MIND_FLAYER_LARVA])
+                                        : (struct permonst *) 0, sx, sy, MM_ASLEEP);
             }
 
             if (mon) {

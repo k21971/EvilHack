@@ -125,15 +125,12 @@
 #define perceives(ptr) (((ptr)->mflags1 & M1_SEE_INVIS) != 0L)
 #define can_teleport(ptr) (((ptr)->mflags1 & M1_TPORT) != 0L)
 #define control_teleport(ptr) (((ptr)->mflags1 & M1_TPORT_CNTRL) != 0L)
-#define telepathic(ptr)                                                \
-    ((ptr) == &mons[PM_FLOATING_EYE] || (ptr) == &mons[PM_MIND_FLAYER] \
-     || (ptr) == &mons[PM_MASTER_MIND_FLAYER]                          \
-     || (ptr) == &mons[PM_GOBLIN_SHAMAN]                               \
-     || (ptr) == &mons[PM_KOBOLD_SHAMAN]                               \
-     || (ptr) == &mons[PM_ORC_SHAMAN]                                  \
-     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN]                           \
-     || (ptr) == &mons[PM_ELVEN_WIZARD]                                \
-     || (ptr) == &mons[PM_GNOMISH_WIZARD])
+#define telepathic(ptr) \
+    ((ptr) == &mons[PM_FLOATING_EYE] || (ptr) == &mons[PM_MIND_FLAYER]            \
+     || (ptr) == &mons[PM_MASTER_MIND_FLAYER] || (ptr) == &mons[PM_GOBLIN_SHAMAN] \
+     || (ptr) == &mons[PM_KOBOLD_SHAMAN] || (ptr) == &mons[PM_ORC_SHAMAN]         \
+     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN] || (ptr) == &mons[PM_ELVEN_WIZARD]   \
+     || (ptr) == &mons[PM_GNOMISH_WIZARD] || (ptr) == &mons[PM_ALHOON])
 #define has_claws(ptr) \
     ((ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE     \
      || (ptr)->mlet == S_GREMLIN || (ptr)->mlet == S_IMP        \
@@ -196,7 +193,8 @@
                                || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_VAMPIRE]          \
                                || (ptr) == &mons[PM_VAMPIRE_MAGE] || (ptr) == &mons[PM_WRAITH]      \
                                || (ptr)->mlet == S_MUMMY || is_zombie(ptr)                          \
-                               || (ptr) == &mons[PM_BARROW_WIGHT] || (ptr) == &mons[PM_GREEN_SLIME])
+                               || (ptr) == &mons[PM_BARROW_WIGHT] || (ptr) == &mons[PM_GREEN_SLIME] \
+                               || (ptr) == &mons[PM_MIND_FLAYER])
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
 #define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 #define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)
@@ -312,7 +310,8 @@
      || (ptr) == &mons[PM_BASILISK])
 
 #define is_mind_flayer(ptr) \
-    ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER])
+    ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \
+     || (ptr) == &mons[PM_ALHOON])
 
 #define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
 

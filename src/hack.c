@@ -2775,6 +2775,9 @@ register boolean newlev;
         case ARMORY:
             You("enter a dilapidated armory.");
             break;
+        case NURSERY:
+            You("enter a mind flayer nursery!");
+            break;
         case BARRACKS:
             if (monstinroom(&mons[PM_HUMAN_SOLDIER], roomno)
                 || monstinroom(&mons[PM_ELVEN_SOLDIER], roomno)

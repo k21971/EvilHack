@@ -457,6 +457,8 @@ MONSTER:('V',"vampire"),(35,16)
 MONSTER:('V',"vampire"),(35,14)
 MONSTER:('V',"vampire lord"),(36,14)
 MONSTER:('V',"vampire lady"),(36,15)
+# Watches the sanctum
+MONSTER:('h',"alhoon"),(24,07)
 # Randomly placed companions
 MONSTER:('Z',"skeleton"),random
 MONSTER:('Z',"skeleton"),random
@@ -735,6 +737,7 @@ MONSTER:('&',"balrog"),(18,08),hostile
 MONSTER:('&',"erinys"),(10,04),hostile
 MONSTER:('&',"marilith"),(07,09),hostile
 MONSTER:('&',"nalfeshnee"),(27,08),hostile
+MONSTER:('h',"alhoon"),(17,07),hostile
 # Moloch's horde
 MONSTER:('@',"aligned priest"),(20,03),noalign,hostile
 MONSTER:('@',"aligned priest"),(15,04),noalign,hostile
@@ -1412,6 +1415,7 @@ IF [50%] {
 } ELSE {
   MONSTER:random,random,hostile
 }
+
 # some flavor from GruntHack
 IF [50%] {
   MONSTER:(' ',"shade"),random,hostile
@@ -1420,6 +1424,7 @@ IF [50%] {
   MONSTER:('Z',"skeleton"),random,hostile
   MONSTER:('Z',"skeleton"),random,hostile
 }
+
 IF [66%] {
 # could be a snark now, so up the percentage a bit
   MONSTER:'J',random,hostile
@@ -1433,6 +1438,12 @@ IF [75%] {
 } ELSE {
   MONSTER:(':',"salamander"),random,hostile
   MONSTER:('&',"lava demon"),random,hostile
+}
+
+IF [20%] {
+  MONSTER:('h',"alhoon"),random,hostile
+} ELSE {
+  MONSTER:random,random,hostile
 }
 
 # SporkHack (and then UnNetHack) used a custom-made

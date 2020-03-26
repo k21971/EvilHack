@@ -616,6 +616,8 @@ int how;
         u.ugrave_arise = PM_SPECTRE;
     else if (mptr == &mons[PM_NAZGUL])
         u.ugrave_arise = PM_BARROW_WIGHT;
+    else if (mptr == &mons[PM_MIND_FLAYER_LARVA])
+        u.ugrave_arise = PM_MIND_FLAYER;
     /* this could happen if a high-end vampire kills the hero
        when ordinary vampires are genocided; ditto for wraiths */
     if (u.ugrave_arise >= LOW_PM

@@ -1822,7 +1822,7 @@ long flag;
                 && !(is_flyer(mdat) || is_floater(mdat)
                      || noncorporeal(mdat) || is_whirly(mdat)))
                 continue;
-            if ((is_pool(nx, ny) == wantpool || poolok)
+            if (((is_pool(nx, ny) || is_puddle(nx, ny)) == wantpool || poolok)
                 && (is_lava(nx, ny) == wantlava || lavaok)
                 && (is_sewage(nx, ny) == wantsewage || !wantsewage)
                 /* iron golems and longworms avoid shallow water */
@@ -1956,7 +1956,8 @@ long flag;
                 cnt++;
             }
         }
-    if (!cnt && wantpool && !is_pool(x, y)) {
+    if (!cnt && wantpool
+        && !(is_pool(x, y) || is_puddle(x, y))) {
         wantpool = FALSE;
         goto nexttry;
     }
@@ -2758,7 +2759,8 @@ boolean was_swallowed; /* digestion */
     }
     free_erid(mon);
 
-    if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH) {
+    if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH
+        || mdat == &mons[PM_ALHOON]) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
             pline("%s body crumbles into dust.", s_suffix(Monnam(mon)));
         return FALSE;
@@ -3981,7 +3983,8 @@ struct monst *mtmp;
                        && !is_pit(t->ttyp))) {
         ; /* can't hide while stuck in a non-pit trap */
     } else if (mtmp->data->mlet == S_EEL) {
-        undetected = (is_pool(x, y) && !Is_waterlevel(&u.uz));
+        undetected = ((is_pool(x, y) || is_puddle(x, y))
+                      && !Is_waterlevel(&u.uz));
     } else if (mtmp->data == &mons[PM_GIANT_LEECH]) {
         undetected = (is_sewage(x, y));
     } else if (hides_under(mtmp->data) && OBJ_AT(x, y)) {

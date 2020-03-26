@@ -962,6 +962,9 @@ makelevel()
         else if (u_depth > 16 && !rn2(8)
                  && !(mvitals[PM_COCKATRICE].mvflags & G_GONE))
             mkroom(COCKNEST);
+        else if (u_depth > 19 && !rn2(8)
+                 && !(mvitals[PM_MIND_FLAYER_LARVA].mvflags & G_GONE))
+            mkroom(NURSERY);
     }
 
  skip0:

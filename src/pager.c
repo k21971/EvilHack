@@ -150,6 +150,8 @@ char *outbuf;
         } else {
             if (mon->data->mlet == S_EEL && is_pool(x, y))
                 Strcat(outbuf, " in murky water");
+            if (mon->data->mlet == S_EEL && is_puddle(x, y))
+                Strcat(outbuf, " in a murky puddle");
             if (mon->data == &mons[PM_GIANT_LEECH] && is_sewage(x, y))
                 Strcat(outbuf, " in raw sewage");
         }

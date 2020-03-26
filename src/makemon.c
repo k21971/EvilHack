@@ -1044,10 +1044,18 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, !rn2(3) ? PICK_AXE : DAGGER);
             }
         } else if (mm == PM_MINER) {
-            (void)mongets(mtmp, PICK_AXE);
+            (void) mongets(mtmp, PICK_AXE);
             otmp = mksobj(LANTERN, TRUE, FALSE);
             (void) mpickobj(mtmp, otmp);
             begin_burn(otmp, FALSE);
+        } else if (mm == PM_ALHOON && !rn2(3)) {
+            otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, TRUE,
+                          rn2(13) ? FALSE : TRUE);
+            if (otmp->spe < 2)
+                otmp->spe = rnd(3);
+            if (!rn2(4))
+                otmp->oerodeproof = 1;
+            (void) mpickobj(mtmp, otmp);
         }
         break;
     case S_KOP:

@@ -198,6 +198,8 @@ static struct {
     { "cocknest", COCKNEST },
     { "leprehall", LEPREHALL },
     { "owlbnest", OWLBNEST },
+    { "armory", ARMORY },
+    { "nursery", NURSERY },
     { "shop", SHOPBASE },
     { "armor shop", ARMORSHOP },
     { "scroll shop", SCROLLSHOP },

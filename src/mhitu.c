@@ -600,8 +600,8 @@ register struct monst *mtmp;
                 /* a fish won't voluntarily swap positions
                    when it's in water and hero is over land */
                 || (mtmp->data->mlet == S_EEL
-                    && is_pool(mtmp->mx, mtmp->my)
-                    && !is_pool(u.ux, u.uy))
+                    && (is_pool(mtmp->mx, mtmp->my) || is_puddle(mtmp->mx, mtmp->my))
+                    && !(is_pool(u.ux, u.uy) || is_puddle(u.ux, u.uy)))
                 || (mtmp->data == &mons[PM_GIANT_LEECH]
                     && is_sewage(mtmp->mx, mtmp->my)
                     && !is_sewage(u.ux, u.uy))) {
@@ -663,7 +663,7 @@ register struct monst *mtmp;
 
                 if (obj || u.umonnum == PM_TRAPPER
                     || (youmonst.data->mlet == S_EEL
-                        && is_pool(u.ux, u.uy))
+                        && (is_pool(u.ux, u.uy) || is_puddle(u.ux, u.uy)))
                     || (u.umonnum == PM_GIANT_LEECH
                         && is_sewage(u.ux, u.uy))) {
                     int save_spe = 0; /* suppress warning */
@@ -1047,7 +1047,8 @@ struct attack *mattk;
 
     if (!obj)
         obj = uarmu;
-    if (mattk->adtyp == AD_DRIN)
+    if (mattk->adtyp == AD_DRIN
+        || (mattk->aatyp == AT_TENT && mattk->adtyp == AD_WRAP))
         obj = uarmh;
 
     /* if your cloak/armor is greased, monster slips off; this
@@ -1056,8 +1057,9 @@ struct attack *mattk;
         || (obj->oprops & ITEM_OILSKIN))
         && (!obj->cursed || rn2(3))) {
         pline("%s %s your %s %s!", Monnam(mtmp),
-              (mattk->adtyp == AD_WRAP) ? "slips off of"
-                                        : "grabs you, but cannot hold onto",
+              (mattk->adtyp == AD_WRAP
+               && mtmp->data != &mons[PM_SALAMANDER]) ? "slips off of"
+                                                      : "grabs you, but cannot hold onto",
               obj->greased ? "greased" : "slippery",
               /* avoid "slippery slippery cloak"
                  for undiscovered oilskin cloak */
@@ -1179,6 +1181,8 @@ register struct attack *mattk;
                     what = something;
                 else if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
                     what = "the water";
+                else if (is_puddle(mtmp->mx, mtmp->my))
+                    what = "the shallow water";
                 else if (is_sewage(mtmp->mx, mtmp->my))
                     what = "the raw sewage";
                 else
@@ -1685,11 +1689,15 @@ register struct attack *mattk;
                 if (u_slip_free(mtmp, mattk)) {
                     dmg = 0;
                 } else {
-                    pline("%s %s around you!", Monnam(mtmp),
-                          mtmp->data == &mons[PM_GIANT_CENTIPEDE]
-                          ? "coils its body"
-                              : mtmp->data == &mons[PM_SALAMANDER]
-                                  ? "wraps its arms" : "swings itself");
+                    if (mtmp->data == &mons[PM_MIND_FLAYER_LARVA])
+                        pline("%s wraps its tentacles around your %s, attaching itself to your %s!", Monnam(mtmp),
+                              body_part(HEAD), body_part(FACE));
+                    else
+                        pline("%s %s around you!", Monnam(mtmp),
+                              mtmp->data == &mons[PM_GIANT_CENTIPEDE]
+                              ? "coils its body"
+                                  : mtmp->data == &mons[PM_SALAMANDER]
+                                      ? "wraps its arms" : "swings itself");
                     u.ustuck = mtmp;
                 }
             } else if (u.ustuck == mtmp) {
@@ -1712,14 +1720,23 @@ register struct attack *mattk;
                             "being pulled into molten lava",
                             an(mtmp->data->mname));
                     done(BURNING);
-                } else if (mattk->aatyp == AT_HUGS)
+                } else if (mattk->aatyp == AT_HUGS) {
                     You("are being crushed.");
+                } else if (mattk->aatyp == AT_TENT) {
+                    pline("%s burrows itself into your brain through your ear!",
+                          Monnam(mtmp));
+                    Your("last thoughts fade away as your begin your transformation...");
+                    done_in_by(mtmp, DIED);
+                }
             } else {
                 dmg = 0;
                 if (flags.verbose) {
                     if (mtmp->data == &mons[PM_SALAMANDER])
                         pline("%s tries to grab you!",
                                Monnam(mtmp));
+                    else if (mtmp->data == &mons[PM_MIND_FLAYER_LARVA])
+                        pline("%s reaches out with its tentacles, trying to attach itself to your %s!",
+                               Monnam(mtmp), body_part(FACE));
                     else
                         pline("%s brushes against your %s.", Monnam(mtmp),
                               mtmp->data == &mons[PM_GIANT_CENTIPEDE]
