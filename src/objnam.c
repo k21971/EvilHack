@@ -714,7 +714,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             else if (is_cloak(obj))
                 Strcat(buf, "cloak");
             else if (is_helmet(obj))
-                Strcat(buf, "helmet");
+                Strcat(buf, helm_simple_name(obj));
             else if (is_shield(obj))
                 Strcat(buf, "shield");
             else
@@ -3735,10 +3735,7 @@ struct obj *no_wish;
         && strncmpi(bp, "tooled horn", 11)
         && strncmpi(bp, "ring of p'", 10)
         && strncmpi(bp, "food ration", 11)
-        && strncmpi(bp, "meat ring", 9)
-        && strncmpi(bp, "helm", 4)
-        && strncmpi(bp, "gauntlets", 9)
-        && strncmpi(bp, "cloak", 5))
+        && strncmpi(bp, "meat ring", 9))
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
             register int j = strlen(wrp[i]);
 
@@ -3752,7 +3749,13 @@ struct obj *no_wish;
                     /* else if(*bp) ?? */
                 } else
                     actualn = bp;
-                goto srch;
+                if (oclass != ARMOR_CLASS || !material)
+                    goto srch;
+                else {
+                    oclass = 0;
+                    typ = ARMOR;
+                    goto typfnd;
+                }
             }
             /* check for "something <class>" */
             if (!BSTRCMPI(bp, p - j, wrp[i])) {
@@ -3776,7 +3779,13 @@ struct obj *no_wish;
                     }
                 }
                 actualn = dn = bp;
-                goto srch;
+                if (oclass != ARMOR_CLASS || !material)
+                    goto srch;
+                else {
+                    oclass = 0;
+                    typ = ARMOR;
+                    goto typfnd;
+                }
             }
         }
 
