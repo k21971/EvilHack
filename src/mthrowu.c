@@ -948,13 +948,13 @@ struct attack *mattk;
             impossible("bad attack type in spitmu");
             /*FALLTHRU*/
         }
-        if (!rn2(BOLT_LIM-distmin(mtmp->mx,mtmp->my,mtarg->mx,mtarg->my))) {
+        if (!rn2((BOLT_LIM * 2) - distmin(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my))) {
             if (canseemon(mtmp))
                 pline("%s spits venom!", Monnam(mtmp));
             target = mtarg;
             m_throw(mtmp, mtmp->mx, mtmp->my, sgn(tbx), sgn(tby),
-                    distmin(mtmp->mx,mtmp->my,mtarg->mx,mtarg->my), otmp, TRUE);
-            target = (struct monst *)0;
+                    distmin(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my), otmp, TRUE);
+            target = (struct monst *) 0;
             nomul(0);
 
             /* If this is a pet, it'll get hungry. Minions and
@@ -966,7 +966,6 @@ struct attack *mattk;
                 if (dog->hungrytime > 1)
                     dog->hungrytime -= 5;
             }
-
             return 1;
         }
     }
@@ -1201,7 +1200,7 @@ struct attack *mattk;
             otmp = mksobj(ACID_VENOM, TRUE, FALSE); */
             break;
         }
-        if (!rn2(BOLT_LIM
+        if (!rn2((BOLT_LIM * 2)
                  - distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy))) {
             if (canseemon(mtmp))
                 pline("%s spits venom!", Monnam(mtmp));
