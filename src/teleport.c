@@ -287,11 +287,13 @@ boolean trapok;
 }
 
 void
-teleds(nux, nuy, allow_drag)
-register int nux, nuy;
-boolean allow_drag;
+teleds(nux, nuy, teleds_flags)
+int nux, nuy;
+int teleds_flags;
 {
-    boolean ball_active, ball_still_in_range;
+    boolean ball_active, ball_still_in_range = FALSE,
+            allow_drag = (teleds_flags & TELEDS_ALLOW_DRAG) != 0,
+            is_teleport = (teleds_flags & TELEDS_TELEPORT) != 0;
     struct monst *vault_guard = vault_occupied(u.urooms) ? findgd() : 0;
 
     if (u.utraptype == TT_BURIEDBALL) {
@@ -299,7 +301,10 @@ boolean allow_drag;
         buried_ball_to_punishment();
     }
     ball_active = (Punished && uball->where != OBJ_FREE);
-    ball_still_in_range = FALSE;
+    if (!ball_active
+        || near_capacity() > SLT_ENCUMBER
+        || distmin(u.ux, u.uy, nux, nuy) > 1)
+        allow_drag = FALSE;
 
     /* If they have to move the ball, then drag if allow_drag is true;
      * otherwise they are teleporting, so unplacebc().
@@ -317,18 +322,10 @@ boolean allow_drag;
      * rock in the way), in which case it teleports the ball on its own.
      */
     if (ball_active) {
-        if (!carried(uball) && distmin(nux, nuy, uball->ox, uball->oy) <= 2) {
+        if (!carried(uball) && distmin(nux, nuy, uball->ox, uball->oy) <= 2)
             ball_still_in_range = TRUE; /* don't have to move the ball */
-        } else {
-            /* have to move the ball */
-            if (!allow_drag || distmin(u.ux, u.uy, nux, nuy) > 1) {
-                /* we should not have dist > 1 and allow_drag at the same
-                 * time, but just in case, we must then revert to teleport.
-                 */
-                allow_drag = FALSE;
-                unplacebc();
-            }
-        }
+        else if (!allow_drag)
+            unplacebc(); /* have to move the ball */
     }
     reset_utrap(FALSE);
     u.ux0 = u.ux;
@@ -340,13 +337,13 @@ boolean allow_drag;
     }
 
     if (u.uswallow) {
-        if (Punished) {
+        if (Punished) { /* ball&chain are off map while swallowed */
             /* unstuck calls placebc() so have to unplace it here to avoid a
              * panic, though this will not affect the actual final placement of
              * the ball - see below */
             unplacebc();
-            ball_active = TRUE;
-            allow_drag = FALSE;
+            ball_active = TRUE; /* to put chain and non-carried ball on map */
+            ball_still_in_range = allow_drag = FALSE; /* (redundant) */
         }
         unstuck(u.ustuck);
         /* ...and then we have to unplacebc() after this, because unstuck places
@@ -359,30 +356,28 @@ boolean allow_drag;
         docrt();
     }
     u.ustuck = 0;
-    if (ball_active) {
-        if (ball_still_in_range || allow_drag) {
-            int bc_control;
-            xchar ballx, bally, chainx, chainy;
-            boolean cause_delay;
+    if (ball_active && (ball_still_in_range || allow_drag)) {
+        int bc_control;
+        xchar ballx, bally, chainx, chainy;
+        boolean cause_delay;
 
-            if (drag_ball(nux, nuy, &bc_control, &ballx, &bally, &chainx,
-                          &chainy, &cause_delay, allow_drag)) {
-                move_bc(0, bc_control, ballx, bally, chainx, chainy);
-            } else {
-                /* dragging fails if hero is encumbered beyond 'burdened' */
-                allow_drag = FALSE; /* teleport b&c to hero's new spot */
-                unplacebc(); /* to match placebc() below */
-            }
-        }
+        if (drag_ball(nux, nuy, &bc_control, &ballx, &bally, &chainx,
+                      &chainy, &cause_delay, allow_drag))
+            move_bc(0, bc_control, ballx, bally, chainx, chainy);
+        else /* dragging fails if hero is encumbered beyond 'burdened' */
+            unplacebc(); /* to match placebc() below */
     }
+
+    if (is_teleport && flags.verbose)
+        You("materialize in %s location!",
+            (nux == u.ux0 && nuy == u.uy0) ? "the same" : "a different");
+
     /* must set u.ux, u.uy after drag_ball(), which may need to know
        the old position if allow_drag is true... */
     u_on_newpos(nux, nuy); /* set u.<x,y>, usteed-><mx,my>; cliparound() */
     fill_pit(u.ux0, u.uy0);
-    if (ball_active) {
-        if (!ball_still_in_range && !allow_drag)
-            placebc();
-    }
+    if (ball_active && uchain->where == OBJ_FREE)
+        placebc(); /* put back the ball&chain if they were taken off map */
     initrack(); /* teleports mess up tracking monsters without this */
     update_player_regions();
     /* Move your steed, too */
@@ -435,8 +430,8 @@ boolean allow_drag;
 }
 
 boolean
-safe_teleds(allow_drag)
-boolean allow_drag;
+safe_teleds(teleds_flags)
+int teleds_flags;
 {
     register int nux, nuy, tcnt = 0;
 
@@ -446,7 +441,7 @@ boolean allow_drag;
     } while (!teleok(nux, nuy, (boolean) (tcnt > 200)) && ++tcnt <= 400);
 
     if (tcnt <= 400) {
-        teleds(nux, nuy, allow_drag);
+        teleds(nux, nuy, teleds_flags);
         return TRUE;
     } else
         return FALSE;
@@ -459,7 +454,7 @@ vault_tele()
     coord c;
 
     if (croom && somexy(croom, &c) && teleok(c.x, c.y, FALSE)) {
-        teleds(c.x, c.y, FALSE);
+        teleds(c.x, c.y, TELEDS_TELEPORT);
         return;
     }
     tele();
@@ -559,7 +554,7 @@ struct obj *scroll;
                 /* for scroll, discover it regardless of destination */
                 if (scroll)
                     learnscroll(scroll);
-                teleds(cc.x, cc.y, FALSE);
+                teleds(cc.x, cc.y, TELEDS_TELEPORT);
                 return TRUE;
             }
             pline("Sorry...");
@@ -573,7 +568,7 @@ struct obj *scroll;
     }
 
     telescroll = scroll;
-    (void) safe_teleds(FALSE);
+    (void) safe_teleds(TELEDS_TELEPORT);
     /* teleds() will leave telescroll intact iff random destination
        is far enough away for scroll discovery to be warranted */
     if (telescroll)
@@ -809,6 +804,7 @@ boolean break_the_rules; /* True: wizard mode ^T */
 void
 level_tele()
 {
+    static const char get_there_from[] = "get there from %s.";
     struct monst *mtmp;
     register int newlev;
     d_level newlevel;
@@ -923,7 +919,7 @@ level_tele()
         }
 
         /* if in Knox or the Valley of the Dead and the requested level > 0,
-         * stay put. we let negative values requests fall into the "heaven" loop.
+         * stay put. we let negative values requests fall into the "heaven" handling.
          */
         if ((Is_knox(&u.uz) || Is_valley(&u.uz))
             && newlev > 0 && !force_dest) {
@@ -960,7 +956,7 @@ level_tele()
         int llimit = dunlevs_in_dungeon(&u.uz);
 
         if (newlev >= 0 || newlev <= -llimit) {
-            You_cant("get there from here.");
+            You_cant(get_there_from, "here");
             return;
         }
         newlevel.dnum = u.uz.dnum;
@@ -1027,25 +1023,34 @@ level_tele()
     /* calls done(ESCAPED) if newlevel==0 */
     if (escape_by_flying) {
         You("%s.", escape_by_flying);
-        newlevel.dnum = 0;   /* specify main dungeon */
-        newlevel.dlevel = 0; /* escape the dungeon */
         /* [dlevel used to be set to 1, but it doesn't make sense to
             teleport out of the dungeon and float or fly down to the
             surface but then actually arrive back inside the dungeon] */
+        newlevel.dnum = 0;   /* specify main dungeon */
+        newlevel.dlevel = 0; /* escape the dungeon */
+    } else if (force_dest) {
+        /* wizard mode menu; no further validation needed */
+        ;
     } else if (u.uz.dnum == medusa_level.dnum
                && newlev >= dungeons[u.uz.dnum].depth_start
                                 + dunlevs_in_dungeon(&u.uz)) {
-        if (!(wizard && force_dest))
-            find_hell(&newlevel);
+        find_hell(&newlevel);
     } else {
+        /* FIXME: we should avoid using hard-coded knowledge of
+           which branches don't connect to anything deeper;
+           mainly used to distinguish "can't get there from here"
+           vs "from anywhere" rather than to control destination */
+        d_level *dbranch = In_quest(&u.uz) ? &qstart_level
+                          : In_mines(&u.uz) ? &mineend_level
+                            : &sanctum_level;
+        int deepest = dungeons[dbranch->dnum].depth_start
+                      + dunlevs_in_dungeon(dbranch) - 1;
+
         /* if invocation did not yet occur, teleporting into
          * the last level of Gehennom is forbidden.
          */
-        if (!wizard && Inhell && !u.uevent.invoked
-            && newlev >= (dungeons[u.uz.dnum].depth_start
-                          + dunlevs_in_dungeon(&u.uz) - 1)) {
-            newlev = dungeons[u.uz.dnum].depth_start
-                     + dunlevs_in_dungeon(&u.uz) - 2;
+        if (!wizard && Inhell && !u.uevent.invoked && newlev >= deepest) {
+            newlev = deepest - 1;
             pline("Sorry...");
         }
         /* no teleporting out of quest dungeon */
@@ -1055,10 +1060,19 @@ level_tele()
          * we must translate newlev to a number relative to the
          * current dungeon.
          */
-        if (!(wizard && force_dest))
-            get_level(&newlevel, newlev);
+        get_level(&newlevel, newlev);
+
+        if (on_level(&newlevel, &u.uz) && newlev != depth(&u.uz)) {
+            You_cant(get_there_from,
+                     (newlev > deepest) ? "anywhere" : "here");
+            return;
+        }
     }
-    schedule_goto(&newlevel, FALSE, FALSE, 0, (char *) 0, (char *) 0);
+
+    schedule_goto(&newlevel, FALSE, FALSE, 0, (char *) 0,
+                  flags.verbose ? "You materialize on a different level!"
+                                : (char *) 0);
+
     /* in case player just read a scroll and is about to be asked to
        call it something, we can't defer until the end of the turn */
     if (u.utotype && !context.mon_moving)

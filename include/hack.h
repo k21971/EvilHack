@@ -459,6 +459,11 @@ enum bodypart_types {
 #define MENU_SELECTED TRUE
 #define MENU_UNSELECTED FALSE
 
+/* flags to control teleds() */
+#define TELEDS_NO_FLAGS 0
+#define TELEDS_ALLOW_DRAG 1
+#define TELEDS_TELEPORT 2
+
 /*
  * Option flags
  * Each higher number includes the characteristics of the numbers

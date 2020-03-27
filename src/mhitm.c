@@ -915,7 +915,7 @@ register struct attack *mattk;
     remove_monster(dx, dy);
     remove_monster(ax, ay);
     if (u.usteed && magr == u.usteed) {
-	teleds(dx, dy, FALSE);
+	teleds(dx, dy, TELEDS_NO_FLAGS);
     } else {
         place_monster(magr, dx, dy);
         newsym(ax, ay); /* erase old position */
@@ -937,7 +937,7 @@ register struct attack *mattk;
          *  put it back and display it.  -kd
          */
 	if (u.usteed && magr == u.usteed) {
-	    teleds(dx, dy, FALSE);
+	    teleds(dx, dy, TELEDS_NO_FLAGS);
 	} else {
             place_monster(magr, dx, dy);
             newsym(dx, dy);
@@ -962,7 +962,7 @@ register struct attack *mattk;
         remove_monster(dx, dy);
 
 	if (u.usteed && magr == u.usteed) {
-	    teleds(ax, ay, FALSE);
+	    teleds(ax, ay, TELEDS_NO_FLAGS);
 	} else {
             place_monster(magr, ax, ay);
             newsym(ax, ay);
