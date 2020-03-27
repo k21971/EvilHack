@@ -1723,10 +1723,17 @@ register struct attack *mattk;
                 } else if (mattk->aatyp == AT_HUGS) {
                     You("are being crushed.");
                 } else if (mattk->aatyp == AT_TENT) {
-                    pline("%s burrows itself into your brain through your ear!",
-                          Monnam(mtmp));
-                    Your("last thoughts fade away as your begin your transformation...");
-                    done_in_by(mtmp, DIED);
+                    if (Race_if(PM_ILLITHID) || is_mind_flayer(youmonst.data)) {
+                        pline("%s senses you are kin, and releases its grip.",
+                              Monnam(mtmp));
+                        u.ustuck = 0;
+                        dmg = 0;
+                    } else {
+                        pline("%s burrows itself into your brain through your ear!",
+                              Monnam(mtmp));
+                        Your("last thoughts fade away as your begin your transformation...");
+                        done_in_by(mtmp, DIED);
+                    }
                 }
             } else {
                 dmg = 0;
