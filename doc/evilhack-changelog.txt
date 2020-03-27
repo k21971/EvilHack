@@ -824,4 +824,5 @@ Version 0.5.0
 - Monks receive a random extra kick attack using martial arts at Master level or higher
 - New monsters: mind flayer larva and alhoon
 - Mind flayer larva won't infiltrate its own kind
+- Re-order monsters in src/monst.c for mkclass
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
