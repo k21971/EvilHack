@@ -614,8 +614,11 @@ register struct monst *magr, *mdef;
         /* return if aggressor can no longer attack */
         if (!magr->mcanmove || magr->msleeping)
             return res[i];
-        if (res[i] & MM_HIT)
+        if (res[i] & MM_HIT) {
             struck = 1; /* at least one hit */
+            if (mdef->mtame)
+                wounds_message(mdef);
+        }
     }
 
     return (struck ? MM_HIT : MM_MISS);

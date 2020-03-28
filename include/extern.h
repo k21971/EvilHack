@@ -925,6 +925,8 @@ E boolean NDECL(u_rooted);
 E void NDECL(domove);
 E boolean NDECL(overexertion);
 E void NDECL(invocation_message);
+E void FDECL(wounds_message, (struct monst *));
+E char *FDECL(mon_wounds, (struct monst *));
 E void NDECL(switch_terrain);
 E boolean FDECL(pooleffects, (BOOLEAN_P));
 E void FDECL(spoteffects, (BOOLEAN_P));

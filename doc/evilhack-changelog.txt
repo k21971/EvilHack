@@ -829,4 +829,5 @@ Version 0.5.0
 - Fix: impossible rn2() when monster uses its spit attack
 - Tweaks to wishing for certain objects
 - Better feedback with corpses being destroyed and artifacts
+- Healers can sense how injured a monster is
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

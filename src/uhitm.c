@@ -1526,6 +1526,9 @@ int dieroll;
         Your("%s %s no longer poisoned.", saved_oname,
              vtense(saved_oname, "are"));
 
+    if (!destroyed)
+        wounds_message(mon);
+
     return destroyed ? FALSE : TRUE;
 }
 

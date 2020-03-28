@@ -299,6 +299,10 @@ int x, y;
         Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->m1));
     if (mtmp->monmount)
         Sprintf(eos(buf), ", being ridden");
+    if (mon_wounds(mtmp)) {
+        Strcat(buf, ", ");
+        Strcat(buf, mon_wounds(mtmp));
+    }
     if (u.ustuck == mtmp) {
         if (u.uswallow || iflags.save_uswallow) /* monster detection */
             Strcat(buf, is_animal(mtmp->data)

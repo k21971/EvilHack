@@ -2781,7 +2781,7 @@ boolean was_swallowed; /* digestion */
         && ((uwep && uwep->oartifact == ART_SUNSWORD)
             || (u.twoweap && uswapwep->oartifact == ART_SUNSWORD))) {
         if (cansee(mon->mx, mon->my))
-            pline("In the presence of Sunsword, %s corpse dissolves into nothingess.",
+            pline("In the presence of Sunsword, %s corpse dissolves into nothingness.",
                   s_suffix(mon_nam(mon)));
         return FALSE;
     }
