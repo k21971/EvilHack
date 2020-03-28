@@ -19,7 +19,6 @@ extern boolean notonhead; /* for long worms */
 STATIC_DCL void FDECL(kickdmg, (struct monst *, BOOLEAN_P));
 STATIC_DCL boolean FDECL(maybe_kick_monster, (struct monst *,
                                               XCHAR_P, XCHAR_P));
-/* STATIC_DCL void FDECL(kick_monster, (struct monst *, XCHAR_P, XCHAR_P)); */
 STATIC_DCL int FDECL(kick_object, (XCHAR_P, XCHAR_P, char *));
 STATIC_DCL int FDECL(really_kick_object, (XCHAR_P, XCHAR_P));
 STATIC_DCL char *FDECL(kickstr, (char *, const char *));
