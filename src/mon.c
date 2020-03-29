@@ -3262,14 +3262,17 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     /* malign was already adjusted for u.ualign.type and randomization */
     adjalign(mtmp->malign);
 
-    if (zombifying) {
+    if (zombifying)
         zombify(mtmp);
-    }
 
     if (is_bones_monster(mtmp->data)
         && mtmp->former_rank && strlen(mtmp->former_rank) > 0) {
-        livelog_printf(LL_UMONST, "destroyed %s, the former %s",
-                       noit_mon_nam(mtmp), mtmp->former_rank);
+        if (mtmp->data == &mons[PM_GHOST])
+            livelog_printf(LL_UMONST, "destroyed %s, the former %s",
+                           noit_mon_nam(mtmp), mtmp->former_rank);
+        else
+            livelog_printf(LL_UMONST, "destroyed %s, and former %s",
+                           noit_mon_nam(mtmp), mtmp->former_rank);
     }
 }
 
