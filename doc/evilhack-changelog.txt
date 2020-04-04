@@ -835,4 +835,5 @@ Version 0.5.0
 - Fix: seeing feedback from monster vs monster AD_CLOB attacks when they weren't
   visible
 - Fix: monsters shouldn't be able to unlock crystal chests
+- Fix: iron ball being deallocated when saving
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
