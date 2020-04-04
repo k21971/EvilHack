@@ -4122,6 +4122,11 @@ struct obj *no_wish;
             pline("%s.", IS_GRAVE(lev->typ) ? "A grave"
                                             : "Can't place a grave here");
             madeterrain = TRUE;
+        } else if (!BSTRCMPI(bp, p - 9, "dead tree")) {
+            lev->typ = DEADTREE;
+            pline("A dead tree.");
+            block_point(x, y);
+            madeterrain = TRUE;
         } else if (!BSTRCMPI(bp, p - 4, "tree")) {
             lev->typ = TREE;
             pline("A tree.");

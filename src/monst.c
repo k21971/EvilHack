@@ -346,13 +346,30 @@ NEARDATA struct permonst mons[] = {
         SIZ(600, 300, MS_BARK, MZ_LARGE), MR_FIRE, MR_FIRE,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE | M2_STRONG,
         M3_INFRAVISIBLE, M4_VULNERABLE_COLD, 0, 14, CLR_RED),
-    MON("weredemon", S_DOG, LVL(15, 16, 0, 40, -7), (G_NOGEN | G_NOCORPSE),
+    MON("weredemon", S_DOG, LVL(15, 16, 0, 40, -7),
+        (G_NOGEN | G_NOCORPSE),
         A(ATTK(AT_BITE, AD_WERE, 4, 6), ATTK(AT_BREA, AD_FIRE, 4, 6), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(600, 300, MS_BARK, MZ_LARGE), MR_FIRE | MR_POISON, MR_FIRE,
         M1_NOHANDS | M1_POIS | M1_REGEN | M1_CARNIVORE,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG,
         M3_INFRAVISIBLE, M4_VULNERABLE_COLD, MH_WERE, 16, CLR_RED),
+    MON("Koa", S_DOG, LVL(20, 20, 2, 40, 0), (G_NOGEN | G_UNIQ),
+        A(ATTK(AT_BITE, AD_PHYS, 4, 6), ATTK(AT_CLAW, AD_PHYS, 3, 4),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(500, 250, MS_BARK, MZ_MEDIUM),
+        MR_STONE | MR_SLEEP | MR_COLD, MR_COLD,
+        M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE | M2_STRONG
+            | M2_NOPOLY | M2_NASTY | M2_PNAME | M2_FEMALE,
+        M3_INFRAVISION | M3_WAITFORU | M3_BERSERK, 0, 0, 22, CLR_BROWN),
+    MON("Ozzy", S_DOG, LVL(22, 14, 0, 40, 0), (G_NOGEN | G_UNIQ),
+        A(ATTK(AT_BITE, AD_PHYS, 6, 8), ATTK(AT_CLAW, AD_PHYS, 4, 4),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(850, 400, MS_BARK, MZ_LARGE),
+        MR_STONE | MR_SLEEP | MR_COLD, MR_COLD,
+        M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE | M2_STRONG
+            | M2_NOPOLY | M2_NASTY | M2_PNAME | M2_MALE,
+        M3_INFRAVISION | M3_WAITFORU | M3_BERSERK, 0, 0, 24, CLR_BROWN),
     MON("Cerberus", S_DOG, LVL(27, 20, -7, 90, -7),
         (G_NOGEN | G_UNIQ | G_HELL),
         A(ATTK(AT_BITE, AD_PHYS, 3, 6), ATTK(AT_BITE, AD_PHYS, 3, 6),
@@ -470,7 +487,14 @@ NEARDATA struct permonst mons[] = {
           ATTK(AT_BITE, AD_PHYS, 1, 10), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(600, 300, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, M3_INFRAVISIBLE,
-        0, 0, 8, CLR_YELLOW),
+        0, 0, 8, CLR_ORANGE),
+    MON("saber-toothed tiger", S_FELINE, LVL(12, 14, 2, 0, 0), (G_GENO | 2),
+        A(ATTK(AT_CLAW, AD_PHYS, 3, 4), ATTK(AT_CLAW, AD_PHYS, 3, 4),
+          ATTK(AT_BITE, AD_PHYS, 4, 4), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1000, 600, MS_ROAR, MZ_HUGE), MR_COLD, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE | M1_THICK_HIDE,
+        M2_HOSTILE, M3_INFRAVISIBLE | M3_BERSERK,
+        0, 0, 14, CLR_YELLOW),
     /*
      * gremlins and gargoyles
      */
@@ -732,6 +756,12 @@ NEARDATA struct permonst mons[] = {
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(600, 300, MS_SEDUCE, MZ_HUMAN), 0, 0, M1_HUMANOID | M1_TPORT,
         M2_HOSTILE | M2_FEMALE | M2_COLLECT, M3_INFRAVISIBLE, 0, 0, 5, CLR_BROWN),
+    MON("ice nymph", S_NYMPH, LVL(3, 12, 9, 20, 0), (G_NOHELL | G_GENO | 2),
+        A(ATTK(AT_CLAW, AD_SITM, 0, 0), ATTK(AT_CLAW, AD_SEDU, 0, 0), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(600, 300, MS_SEDUCE, MZ_HUMAN), MR_COLD, MR_COLD,
+        M1_HUMANOID | M1_TPORT, M2_HOSTILE | M2_FEMALE | M2_COLLECT,
+        M3_INFRAVISION, M4_VULNERABLE_FIRE, 0, 5, DRAGON_SILVER),
     /*
      * orcs
      */
@@ -1071,6 +1101,13 @@ NEARDATA struct permonst mons[] = {
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_POISON, MR_POISON,
         M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE,
         M2_WANDER | M2_STRONG | M2_DOMESTIC, M3_INFRAVISIBLE, 0, 0, 10, CLR_GREEN),
+    MON("pegasus", S_UNICORN, LVL(18, 24, -4, 50, 0), (G_NOGEN),
+        A(ATTK(AT_KICK, AD_PHYS, 2, 6), ATTK(AT_KICK, AD_PHYS, 2, 6),
+          ATTK(AT_BITE, AD_PHYS, 4, 4), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_SLEEP | MR_POISON, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_HERBIVORE,
+        M2_NOPOLY | M2_NASTY | M2_DOMESTIC | M2_PEACEFUL | M2_STRONG | M2_MALE,
+        M3_INFRAVISION | M3_INFRAVISIBLE, 0, 0, 20, CLR_WHITE),
     /* From SpliceHack
      * The Horses of the Riders - these have been tweaked and buffed up
      * a bit from their original template. It's the end game, and the Riders
@@ -1106,7 +1143,8 @@ NEARDATA struct permonst mons[] = {
         A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
           ATTK(AT_BITE, AD_FIRE, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_FIRE | MR_POISON, 0,
-        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_SEE_INVIS,
+        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_SEE_INVIS
+            | M1_HERBIVORE,
         M2_NOPOLY | M2_NASTY | M2_DOMESTIC | M2_PEACEFUL | M2_STRONG,
         M3_INFRAVISION | M3_INFRAVISIBLE, 0, 0, 32, CLR_RED),
     /*
@@ -1818,7 +1856,8 @@ struct permonst _mons2[] = {
         SIZ(2200, 700, MS_BOAST, MZ_HUGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
         M2_STRONG | M2_ROCKTHROW | M2_NASTY | M2_COLLECT | M2_JEWELS,
         M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_GIANT, 10, CLR_CYAN),
-    MON("fire giant", S_GIANT, LVL(9, 12, 4, 5, 2), (G_GENO | G_SGROUP | 1),
+    MON("fire giant", S_GIANT, LVL(9, 12, 4, 5, 2),
+        (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_CLOB, 2, 10), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(2250, 750, MS_BOAST, MZ_HUGE), MR_FIRE, MR_FIRE,
@@ -2484,6 +2523,15 @@ struct permonst _mons2[] = {
         SIZ(1550, 750, MS_GROWL, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_HUMANOID | M1_SEE_INVIS | M1_OMNIVORE, M2_STRONG,
         M3_INFRAVISIBLE | M3_BERSERK, 0, 0, 9, CLR_GRAY),
+    MON("Abominable Snowman", S_YETI, LVL(25, 12, 0, 50, 0), (G_UNIQ | G_NOGEN),
+        A(ATTK(AT_BITE, AD_PHYS, 8, 4), ATTK(AT_WEAP, AD_PHYS, 6, 6),
+          ATTK(AT_CLAW, AD_CLOB, 6, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(5000, 2000, MS_GROWL, MZ_GIGANTIC),
+        MR_SLEEP | MR_POISON | MR_STONE | MR_COLD, MR_COLD,
+        M1_ANIMAL | M1_HUMANOID | M1_CARNIVORE | M1_REGEN | M1_THICK_HIDE,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_ROCKTHROW,
+        M3_INFRAVISION | M3_BERSERK | M3_WAITFORU, M4_VULNERABLE_FIRE,
+        0, 27, DRAGON_SILVER),
     /*
      * Zombies
      */
@@ -2576,6 +2624,16 @@ struct permonst _mons2[] = {
         M2_WANDER | M2_HOSTILE | M2_STRONG | M2_COLLECT
             | M2_NASTY,
         M3_INFRAVISION, M4_VULNERABLE_FIRE, MH_UNDEAD, 14, CLR_WHITE),
+    MON("revenant", S_ZOMBIE, LVL(12, 9, 1, 30, 0),
+        (G_GENO | G_NOCORPSE | G_NOHELL | 1),
+        A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_TUCH, AD_PLYS, 1, 6), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(300, 5, MS_BONES, MZ_HUMAN),
+        MR_COLD | MR_SLEEP | MR_POISON | MR_STONE, 0,
+        M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_THICK_HIDE,
+        M2_WANDER | M2_HOSTILE | M2_STRONG | M2_COLLECT
+            | M2_NASTY,
+        M3_INFRAVISION, M4_VULNERABLE_FIRE, MH_UNDEAD, 15, CLR_BRIGHT_BLUE),
     /*
      * golems
      */
@@ -2648,6 +2706,15 @@ struct permonst _mons2[] = {
         MR_FIRE | MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON, 0,
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_THICK_HIDE | M1_POIS,
         M2_HOSTILE | M2_STRONG | M2_COLLECT, 0, M4_VULNERABLE_ACID, 0, 22, HI_METAL),
+    MON("snow golem", S_GOLEM, LVL(22, 8, -3, 80, 0),
+        (G_NOCORPSE | G_SGROUP | 4),
+        A(ATTK(AT_BREA, AD_COLD, 6, 8), ATTK(AT_CLAW, AD_CLOB, 8, 10),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(2800, 0, MS_SILENT, MZ_HUGE),
+        MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON, 0,
+        M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_THICK_HIDE,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_COLLECT, 0,
+        M4_VULNERABLE_FIRE, 0, 25, CLR_BRIGHT_CYAN),
     /*
      * humans, including elves and were-critters
      */
@@ -3080,6 +3147,32 @@ struct permonst _mons2[] = {
             | M2_MALE | M2_GREEDY | M2_COLLECT,
         M3_WAITFORU | M3_INFRAVISIBLE,
         0, MH_HUMAN | MH_WERE, 14, CLR_BLACK),
+    MON("Kathryn the Ice Queen", S_HUMAN, LVL(32, 15, 0, 80, 0),
+        (G_UNIQ | G_NOCORPSE | G_NOGEN),
+        A(ATTK(AT_WEAP, AD_PHYS, 3, 4), ATTK(AT_TUCH, AD_COLD, 8, 8),
+          ATTK(AT_MAGC, AD_CLRC, 3, 8), ATTK(AT_MAGC, AD_SPEL, 3, 8),
+          NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_CUSS, MZ_HUMAN),
+        MR_STONE | MR_SLEEP | MR_COLD, 0,
+        M1_HUMANOID | M1_REGEN | M1_OMNIVORE | M1_SEE_INVIS
+            | M1_FLY,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_PNAME
+            | M2_FEMALE | M2_GREEDY | M2_COLLECT | M2_MAGIC | M2_STALK,
+        M3_WAITFORU | M3_INFRAVISION | M3_ACCURATE,
+        M4_VULNERABLE_FIRE, MH_HUMAN, 36, DRAGON_SILVER),
+    MON("Kathryn the Enchantress", S_HUMAN, LVL(100, 9, 0, 100, 15),
+        (G_UNIQ | G_NOCORPSE | G_NOGEN),
+        A(ATTK(AT_WEAP, AD_PHYS, 10, 10), ATTK(AT_MAGC, AD_CLRC, 10, 10),
+          ATTK(AT_MAGC, AD_SPEL, 10, 10), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_CUSS, MZ_HUMAN),
+        MR_STONE | MR_SLEEP | MR_COLD | MR_FIRE | MR_ELEC | MR_POISON
+            | MR_ACID | MR_DISINT | MR_PSYCHIC, 0,
+        M1_HUMANOID | M1_REGEN | M1_OMNIVORE | M1_SEE_INVIS
+            | M1_FLY,
+        M2_NOPOLY | M2_PEACEFUL | M2_STRONG | M2_NASTY | M2_PNAME
+            | M2_FEMALE | M2_GREEDY | M2_COLLECT | M2_MAGIC,
+        M3_CLOSE | M3_INFRAVISION | M3_ACCURATE,
+        0, MH_HUMAN, 104, CLR_YELLOW),
     /*
      * ghosts
      */
@@ -3502,12 +3595,20 @@ struct permonst _mons2[] = {
         M2_HOSTILE | M2_STRONG, 0, 0, 0, 8, CLR_BRIGHT_GREEN),
     MON("salamander", S_LIZARD, LVL(8, 12, -1, 0, -9), (G_HELL | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_TUCH, AD_FIRE, 1, 6),
-          ATTK(AT_HUGS, AD_FIRE, 3, 6), ATTK(AT_HUGS, AD_WRAP, 2, 6), NO_ATTK,
-          NO_ATTK),
+          ATTK(AT_HUGS, AD_FIRE, 3, 6), ATTK(AT_HUGS, AD_WRAP, 2, 6),
+          NO_ATTK, NO_ATTK),
         SIZ(1500, 400, MS_MUMBLE, MZ_HUMAN), MR_SLEEP | MR_FIRE, MR_FIRE,
         M1_HUMANOID | M1_SLITHY | M1_THICK_HIDE | M1_POIS,
         M2_STALK | M2_HOSTILE | M2_COLLECT | M2_MAGIC, M3_INFRAVISIBLE,
         M4_VULNERABLE_COLD, 0, 12, CLR_ORANGE),
+    MON("frost salamander", S_LIZARD, LVL(10, 12, -3, 0, -3), (G_NOHELL | 1),
+        A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_TUCH, AD_COLD, 1, 8),
+          ATTK(AT_HUGS, AD_COLD, 3, 6), ATTK(AT_HUGS, AD_COLD, 2, 6),
+          NO_ATTK, NO_ATTK),
+        SIZ(1500, 400, MS_MUMBLE, MZ_HUMAN), MR_SLEEP | MR_COLD, MR_COLD,
+        M1_HUMANOID | M1_SLITHY | M1_THICK_HIDE | M1_POIS,
+        M2_STALK | M2_HOSTILE | M2_STRONG | M2_COLLECT | M2_MAGIC,
+        M3_INFRAVISION, M4_VULNERABLE_FIRE, 0, 13, CLR_BRIGHT_BLUE),
     MON("giant crocodile", S_LIZARD, LVL(12, 9, 1, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 4, 4), ATTK(AT_CLAW, AD_PHYS, 3, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),

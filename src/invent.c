@@ -3410,6 +3410,8 @@ char *buf;
         cmap = S_tree; /* "tree" */
     else if (ltyp == IRONBARS)
         dfeature = "set of iron bars";
+    else if (ltyp == DEADTREE)
+        cmap = S_deadtree; /* "dead tree" */
 
     if (cmap >= 0)
         dfeature = defsyms[cmap].explanation;

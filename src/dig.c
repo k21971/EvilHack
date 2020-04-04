@@ -158,7 +158,7 @@ xchar x, y;
                   ? DIGTYP_BOULDER
                   : closed_door(x, y)
                      ? DIGTYP_DOOR
-                     : IS_TREE(levl[x][y].typ)
+                     : IS_TREES(levl[x][y].typ)
                         ? (ispick ? DIGTYP_UNDIGGABLE : DIGTYP_TREE)
                         : (ispick && IS_ROCK(levl[x][y].typ)
                            && (!level.flags.arboreal
@@ -258,7 +258,7 @@ dig(VOID_ARGS)
         if (!dig_check(BY_YOU, TRUE, u.ux, u.uy))
             return 0;
     } else { /* !context.digging.down */
-        if (IS_TREE(lev->typ) && !may_dig(dpx, dpy)
+        if (IS_TREES(lev->typ) && !may_dig(dpx, dpy)
             && dig_typ(uwep, dpx, dpy) == DIGTYP_TREE) {
             pline("This tree seems to be petrified.");
             return 0;
@@ -299,10 +299,13 @@ dig(VOID_ARGS)
 
     context.digging.effort +=
         10 + rn2(5) + abon() + uwep->spe - greatest_erosion(uwep) + u.udaminc;
-    if (Race_if(PM_DWARF) || Race_if(PM_GIANT) || P_SKILL(P_PICK_AXE) == P_SKILLED)
+    if (Race_if(PM_DWARF) || Race_if(PM_GIANT)
+        || P_SKILL(P_PICK_AXE) == P_SKILLED)
         context.digging.effort *= 2;
     if (P_SKILL(P_PICK_AXE) == P_EXPERT)
         context.digging.effort *= 4;
+    if (lev->typ == DEADTREE)
+        context.digging.effort *= 2;
     if (context.digging.down) {
         struct trap *ttmp = t_at(dpx, dpy);
 
@@ -386,7 +389,7 @@ dig(VOID_ARGS)
             }
             digtxt = "The boulder falls apart.";
         } else if (lev->typ == STONE || lev->typ == SCORR
-                   || IS_TREE(lev->typ)) {
+                   || IS_TREES(lev->typ)) {
             if (Is_earthlevel(&u.uz)) {
                 if (uwep->blessed && !rn2(3)) {
                     mkcavearea(FALSE);
@@ -397,7 +400,7 @@ dig(VOID_ARGS)
                     goto cleanup;
                 }
             }
-            if (IS_TREE(lev->typ)) {
+            if (IS_TREES(lev->typ)) {
                 digtxt = "You cut down the tree.";
                 lev->typ = ROOM, lev->flags = 0;
                 if (!rn2(5))
@@ -1088,7 +1091,7 @@ struct obj *obj;
             } else if (lev->typ == IRONBARS) {
                 pline("Clang!");
                 wake_nearby();
-            } else if (IS_TREE(lev->typ)) {
+            } else if (IS_TREES(lev->typ)) {
                 You("need an axe to cut down a tree.");
             } else if (IS_ROCK(lev->typ)) {
                 You("need a pick to dig rock.");

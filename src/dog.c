@@ -918,7 +918,8 @@ register struct obj *obj;
 {
     /* The Wiz, Medusa and the quest nemeses aren't even made peaceful. */
     if (mtmp->iswiz || mtmp->data == &mons[PM_MEDUSA]
-        || (mtmp->data->mflags3 & M3_WANTSARTI))
+        || (mtmp->data->mflags3 & M3_WANTSARTI)
+        || unique_corpstat(mtmp->data))
         return FALSE;
 
     /* Knights can never tame dragons.  Natural enemies, y'see. */
@@ -931,8 +932,7 @@ register struct obj *obj;
         || mtmp->data == &mons[PM_PALE_HORSE]
         || mtmp->data == &mons[PM_WHITE_HORSE]
         || mtmp->data == &mons[PM_BLACK_HORSE]
-        || mtmp->data == &mons[PM_CERBERUS]
-        || mtmp->data == &mons[PM_CHARON])
+        || mtmp->data == &mons[PM_SNOW_GOLEM])
         return FALSE;
 
     /* Only orcs can tame the savage warg... */

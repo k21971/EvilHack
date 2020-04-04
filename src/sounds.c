@@ -301,6 +301,14 @@ dosounds()
         }
         return;
     }
+    if (Is_medusa_level(&u.uz) - 1 && !rn2(200)) {
+        static const char* const icequeenbranch_msg[] = {
+            "an eerie, ominous wail.",
+            "a howling wind.",
+            "someone singing \"Do You Want to Build a Snowman\"."
+        };
+        You_hear1(icequeenbranch_msg[rn2(2 + hallu)]);
+    }
 }
 
 static const char *const h_sounds[] = {

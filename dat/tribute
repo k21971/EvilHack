@@ -8639,6 +8639,102 @@ survived long enough.
 %e passage
 %e title
 #
+#
+# Not a Terry Pratchett novel - this is an
+# adventurer's journal left with its corpse
+# on the first Ice Queen level. This journal
+# provides some helpful tips for our brave hero. 
+#
+%title The Adventurer's Journal (5)
+#
+%passage 1
+First entry - Carl the Excavator
+
+While exploring the Dungeons of Doom, I stumbled upon a magical portal,
+transporting me to an inhospitable, frigid wasteland.  It looks as if
+the forest here died ages ago... so many dead trees.  The freezing cold
+is unbearable - I must find a means to keep myself warm, or I may freeze
+to death.
+
+There is a frozen river nearby, perhaps it leads somewhere?  I shall
+investigate, and may Quetzalcoatl protect me.  
+
+  [The Adventurer's Journal]
+%e passage
+#
+%passage 2
+Second entry - Carl the Excavator
+
+So many strange and exotic creatures in this dead forest!  All of them
+adapted to the extreme conditions here.  I thought salamanders prefered
+only the extreme heat of the lava caves... who knew?  And I swear to
+whoever may read this, I have seen the largest cat anyone has ever laid
+eyes on.  As big as a warhorse, and its fangs were the size of swords,
+Quetzalcoatl as my witness!
+
+My intellect tells me to turn around and leave this place immediately,
+but my gut tells me I am on to something much more important.  I will
+continue my explorations.
+
+  [The Adventurer's Journal]
+%e passage
+#
+%passage 3
+Third entry - Carl the Excavator
+
+I have searched this forsaken forest for nearly three days, and finally
+I believe I have found a way forward.  I stumbled upon a thicket of dead
+trees to the northwest whilst fleeing from yet another pack of hungry
+winter wolves.  In a last-ditch attempt to save myself, I chopped my way
+through the thicket, which revealed a small clearing.  In this clearing
+was a path leading out of the forest.  As I was about to make my way
+through, I caught a glipse of something huge moving towards me.  I couldn't
+quite make out what it was, it seemed as if it blended right in with the
+surrounding snow.  I ran for my life and hid, and only now have I dared to
+venture out and try for the clearing again.  May the Luck of the Grasshopper
+be with me!
+  
+  [The Adventurer's Journal]
+%e passage
+#
+%passage 4
+Fourth entry - Carl the Excavator
+
+I have left one place of immense danger, only to stumble into another place
+even more dangerous than the first.  The dead forest has given way to an
+utterly barren icy plain, with a deep gorge running through the middle of it.
+A very narrow ice bridge connects this side to the other, but I fear I
+cannot cross.  Some enormous monster guards this ice bridge; I dared not get
+close enough to find out what this immense creature might be.  I fear I may
+have to turn back, otherwise I could very well die in this godforsaken place.
+
+  [The Adventurer's Journal]
+%e passage
+#
+%passage 5
+Fifth entry - Carl the Excavator
+
+This may be my last entry, but I pray to Quetzalcoatl that it is not.  I am
+attempting to make my way back to the magical portal that transported me
+here, but I am pursued at every turn.  The terrifying undead creatures that
+inhabit this place are relentless, and their very touch paralyzes you with
+fear.
+
+Whilst fleeing, I stumbled across the corpse of another adventurer,
+a powerful wizard.  His journal described a castle that resides even further
+in, beyond the ice bridge that I did not cross.  He made mention of a powerful
+sorceress that lives in this castle, and she is the one responsible for this
+never-ending winter that afflicts this land.  She is guarded by extremely
+vicious monsters, and he went on to mention that she had in her possession
+some sort of prize that was beyond the wealth of even the most powerful kings.
+
+Tempting to be sure, but I wish to live.  I will return to this realm and seek
+out these riches.  I just need to make it out of this place alive first...
+
+  [The Adventurer's Journal]
+%e passage
+%e title
+#
 %e section
 #
 #-----------------------------------------------------

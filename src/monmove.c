@@ -152,17 +152,10 @@ struct monst *mtmp;
      * priests inside their own temple, the quest leaders and nemesis
      */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
-        || mtmp->data == &mons[PM_ARCHANGEL]
-        || mtmp->data == &mons[PM_HONEY_BADGER]
-        || mtmp->data == &mons[PM_CERBERUS]
-        || mtmp->data == &mons[PM_CHARON]
-        || mindless(mtmp->data)
-        || is_mplayer(mtmp->data)
-        || is_dlord(mtmp->data)
-        || is_dprince(mtmp->data)
+        || mtmp->data == &mons[PM_ARCHANGEL] || mtmp->data == &mons[PM_HONEY_BADGER]
+        || mindless(mtmp->data) || is_mplayer(mtmp->data)
         || is_rider(mtmp->data)
-        || mtmp->data->msound == MS_LEADER
-        || mtmp->data->msound == MS_NEMESIS
+        || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
         || (mtmp->isshk && inhishop(mtmp))
         || (mtmp->ispriest && inhistemple(mtmp)))
         return FALSE;
@@ -201,6 +194,7 @@ struct monst *mtmp;
                  || mtmp->mpeaceful || mtmp->data->mlet == S_HUMAN
                  || mtmp->data == &mons[PM_MINOTAUR]
                  || mtmp->data == &mons[PM_ELDER_MINOTAUR]
+                 || unique_corpstat(mtmp->data)
                  || Inhell || In_endgame(&u.uz)));
 }
 
@@ -894,6 +888,11 @@ toofar:
     if (inrange && mtmp->data->msound == MS_CUSS && !mtmp->mpeaceful
         && couldsee(mtmp->mx, mtmp->my) && !mtmp->minvis && !rn2(5))
         cuss(mtmp);
+    /* freeing the Ice Queen from her curse */
+    if (inrange && mtmp->data->msound == MS_CUSS && mtmp->mpeaceful
+        && mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]
+        && couldsee(mtmp->mx, mtmp->my) && !mtmp->minvis && !rn2(5))
+        cuss(mtmp);
 
     return (tmp == 2);
 }
@@ -975,13 +974,13 @@ xchar nix,niy;
 
     if (can_tunnel && needspick(mtmp->data) && !mwelded(mw_tmp)
         && (may_dig(nix, niy) || closed_door(nix, niy))) {
-        /* may_dig() is either IS_STWALL or IS_TREE */
+        /* may_dig() is either IS_STWALL or IS_TREES */
         if (closed_door(nix, niy)) {
             if (!mw_tmp
                 || !is_pick(mw_tmp)
                 || !is_axe(mw_tmp))
                 mtmp->weapon_check = NEED_PICK_OR_AXE;
-        } else if (IS_TREE(levl[nix][niy].typ)) {
+        } else if (IS_TREES(levl[nix][niy].typ)) {
             if (!(mw_tmp = MON_WEP(mtmp)) || !is_axe(mw_tmp))
                 mtmp->weapon_check = NEED_AXE;
         } else if (IS_STWALL(levl[nix][niy].typ)) {

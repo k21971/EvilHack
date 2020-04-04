@@ -95,25 +95,32 @@ struct attack *mattk;
             break;
         case AT_WEAP:
             if (!MON_WEP(mtmp)) { /* AT_WEAP but isn't wielding anything */
-                pline("%s %ss you!", Monnam(mtmp), mwep_none[rn2(SIZE(mwep_none))]);
-            } else if (is_pierce(MON_WEP(mtmp))) {
-                pline("%s %ss you!", Monnam(mtmp), mwep_pierce[rn2(SIZE(mwep_pierce))]);
-            } else if (is_slash(MON_WEP(mtmp))) {
-                       pline("%s %ss you!", Monnam(mtmp), mwep_slash[rn2(SIZE(mwep_slash))]);
-            } else if (is_whack(MON_WEP(mtmp))) {
-                       pline("%s %ss you!", Monnam(mtmp), mwep_whack[rn2(SIZE(mwep_whack))]);
-            } else {
+                if (has_claws(mtmp->data))
+                    pfmt = "%s claws you!";
+                else if (has_claws_undead(mtmp->data))
+                    pfmt = "%s scratches you!";
+                else
+                    pline("%s %ss you!", Monnam(mtmp),
+                          mwep_none[rn2(SIZE(mwep_none))]);
+            } else if (is_pierce(MON_WEP(mtmp)))
+                pline("%s %ss you!", Monnam(mtmp),
+                      mwep_pierce[rn2(SIZE(mwep_pierce))]);
+            else if (is_slash(MON_WEP(mtmp)))
+                pline("%s %ss you!", Monnam(mtmp),
+                      mwep_slash[rn2(SIZE(mwep_slash))]);
+            else if (is_whack(MON_WEP(mtmp)))
+                pline("%s %ss you!", Monnam(mtmp),
+                      mwep_whack[rn2(SIZE(mwep_whack))]);
+            else
                 pfmt = "%s hits you!";
-            }
             break;
         case AT_CLAW:
-            if (has_claws(mtmp->data)) {
+            if (has_claws(mtmp->data))
                 pfmt = "%s claws you!";
-            } else if (has_claws_undead(mtmp->data)) {
-                       pfmt = "%s scratches you!";
-            } else {
+            else if (has_claws_undead(mtmp->data))
+                pfmt = "%s scratches you!";
+            else
                 pfmt = "%s hits!";
-            }
             break;
         default:
             pfmt = "%s hits!";

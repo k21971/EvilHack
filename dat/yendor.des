@@ -384,19 +384,22 @@ MONSTER:(':',"salamander"),(12,12)
 MONSTER:(':',"salamander"),(01,10)
 MONSTER:(':',"salamander"),(19,10)
 # Archers in the watch towers
-MONSTER:('&',"marilith"),(03,10),awake
-MONSTER:('&',"marilith"),(17,10),awake
-MONSTER:('&',"marilith"),(10,03),awake
-MONSTER:('&',"marilith"),(10,17),awake
-# Archers need bows and arrows
-OBJECT:(')', "orcish bow"),(03,10)
-OBJECT:(')', "orcish arrow"),(03,10),quantity:100
-OBJECT:(')', "orcish bow"),(17,10)
-OBJECT:(')', "orcish arrow"),(17,10),quantity:100
-OBJECT:(')', "orcish bow"),(10,03)
-OBJECT:(')', "orcish arrow"),(10,03),quantity:100
-OBJECT:(')', "orcish bow"),(10,17)
-OBJECT:(')', "orcish arrow"),(10,17),quantity:100
+MONSTER:('&',"marilith"),(03,10),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('&',"marilith"),(17,10),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('&',"marilith"),(10,03),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('&',"marilith"),(10,17),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
 # And to make things a little harder.
 TRAP:"board",(10,09)
 TRAP:"board",(10,11)
@@ -494,19 +497,22 @@ MONSTER:(':',"salamander"),(12,12)
 MONSTER:(':',"salamander"),(01,10)
 MONSTER:(':',"salamander"),(19,10)
 # Archers in the watch towers
-MONSTER:('&',"marilith"),(03,10),awake
-MONSTER:('&',"marilith"),(17,10),awake
-MONSTER:('&',"marilith"),(10,03),awake
-MONSTER:('&',"marilith"),(10,17),awake
-# Archers need bows and arrows
-OBJECT:(')', "orcish bow"),(03,10)
-OBJECT:(')', "orcish arrow"),(03,10),quantity:100
-OBJECT:(')', "orcish bow"),(17,10)
-OBJECT:(')', "orcish arrow"),(17,10),quantity:100
-OBJECT:(')', "orcish bow"),(10,03)
-OBJECT:(')', "orcish arrow"),(10,03),quantity:100
-OBJECT:(')', "orcish bow"),(10,17)
-OBJECT:(')', "orcish arrow"),(10,17),quantity:100
+MONSTER:('&',"marilith"),(03,10),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('&',"marilith"),(17,10),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('&',"marilith"),(10,03),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('&',"marilith"),(10,17),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
 # And to make things a little harder.
 TRAP:"board",(10,09)
 TRAP:"board",(10,11)

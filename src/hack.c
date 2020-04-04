@@ -418,7 +418,7 @@ xchar x, y;
         You("hurt your teeth on the %s.",
             (lev->typ == IRONBARS)
                 ? "bars"
-                : IS_TREE(lev->typ)
+                : IS_TREES(lev->typ)
                     ? "tree"
                     : "hard stone");
         nomul(0);
@@ -433,14 +433,14 @@ xchar x, y;
         assign_level(&context.digging.level, &u.uz);
         /* solid rock takes more work & time to dig through */
         context.digging.effort =
-            (IS_ROCK(lev->typ) && !IS_TREE(lev->typ) ? 30 : 60) + u.udaminc;
+            (IS_ROCK(lev->typ) && !IS_TREES(lev->typ) ? 30 : 60) + u.udaminc;
         You("start chewing %s %s.",
-            (boulder || IS_TREE(lev->typ) || lev->typ == IRONBARS)
+            (boulder || IS_TREES(lev->typ) || lev->typ == IRONBARS)
                 ? "on a"
                 : "a hole in the",
             boulder
                 ? "boulder"
-                : IS_TREE(lev->typ)
+                : IS_TREES(lev->typ)
                     ? "tree"
                     : IS_ROCK(lev->typ)
                         ? "rock"
@@ -455,7 +455,7 @@ xchar x, y;
                 context.digging.chew ? "continue" : "begin",
                 boulder
                     ? "boulder"
-                    : IS_TREE(lev->typ)
+                    : IS_TREES(lev->typ)
                         ? "tree"
                         : IS_ROCK(lev->typ)
                             ? "rock"
@@ -468,11 +468,11 @@ xchar x, y;
     }
 
     /* Okay, you've chewed through something */
-    if(!u.uconduct.food++)
+    if (!u.uconduct.food++)
         livelog_printf(LL_CONDUCT, "ate for the first time, by chewing through %s",
                 boulder
                     ? "a boulder"
-                    : IS_TREE(lev->typ)
+                    : IS_TREES(lev->typ)
                         ? "a tree"
                         : IS_ROCK(lev->typ)
                             ? "rock"
@@ -516,7 +516,7 @@ xchar x, y;
             lev->typ = DOOR;
             lev->doormask = D_NODOOR;
         }
-    } else if (IS_TREE(lev->typ)) {
+    } else if (IS_TREES(lev->typ)) {
         digtxt = "chew through the tree.";
         lev->typ = ROOM;
     } else if (lev->typ == IRONBARS) {
@@ -782,7 +782,7 @@ register xchar x, y;
 {
     struct rm *lev = &levl[x][y];
 
-    return (boolean) !((IS_STWALL(lev->typ) || IS_TREE(lev->typ))
+    return (boolean) !((IS_STWALL(lev->typ) || IS_TREES(lev->typ))
                        && (lev->wall_info & W_NONDIGGABLE));
 }
 
@@ -907,7 +907,7 @@ int mode;
                 else if (iflags.mention_walls)
                     pline("It's %s.",
                           (IS_WALL(tmpr->typ) || tmpr->typ == SDOOR) ? "a wall"
-                          : IS_TREE(tmpr->typ) ? "a tree"
+                          : IS_TREES(tmpr->typ) ? "a tree"
                           : "solid stone");
             }
             return FALSE;
@@ -2059,7 +2059,7 @@ domove_core()
                        killed() so we duplicate some of the latter here */
                     int tmp, mndx;
 
-                    if(!u.uconduct.killer++)
+                    if (!u.uconduct.killer++)
                         livelog_write_string (LL_CONDUCT, "killed for the first time");
                     mndx = monsndx(mtmp->data);
                     tmp = experience(mtmp, (int) mvitals[mndx].died);
@@ -2140,6 +2140,15 @@ domove_core()
         if (!is_pool(u.ux0, u.uy0) && !is_ice(u.ux0, u.uy0))
             pline("The pool crackles and freezes under your feet.");
     }
+
+    /* Running around in Gehennom without 100% fire resistance */
+    if (Inhell && !Is_valley(&u.uz))
+        in_hell_effects();
+
+    /* Running around in the Ice Queen branch without
+       100% cold resistance */
+    if (Iniceq)
+        in_iceq_effects();
 
     if (u.umoved)
         spoteffects(TRUE);

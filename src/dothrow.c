@@ -638,7 +638,7 @@ int x, y;
             if (odoor_diag)
                 You("hit the door edge!");
             pline("Ouch!");
-            if (IS_TREE(levl[x][y].typ))
+            if (IS_TREES(levl[x][y].typ))
                 s = "bumping into a tree";
             else if (IS_ROCK(levl[x][y].typ))
                 s = "bumping into a wall";

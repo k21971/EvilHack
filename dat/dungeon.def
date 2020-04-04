@@ -27,6 +27,7 @@ CHAINBRANCH:	"The Quest" "oracle" + (6, 2) portal
 BRANCH:		"Fort Ludios" @ (18, 4) portal
 RNDLEVEL:	"medusa" "none" @ (-5, 4) 4
 LEVALIGN:	chaotic
+CHAINBRANCH:	"The Ice Queen's Realm" "medusa" + (-1, 0) portal
 RNDLEVEL:	"castle" "none" @ (-1, 0) 3
 CHAINBRANCH:	"Gehennom" "castle" + (0, 0) down
 BRANCH:		"The Elemental Planes" @ (1, 0) no_down up
@@ -111,6 +112,18 @@ DUNGEON:	"Fort Ludios" "K" (1, 0)
 DESCRIPTION:	mazelike
 ALIGNMENT:	unaligned
 RNDLEVEL:	"knox" "K" @ (-1, 0) 3
+
+#
+#       The Ice Queen's Realm.
+#
+DUNGEON:        "The Ice Queen's Realm" "none" (3, 0)
+DESCRIPTION:    mazelike
+DESCRIPTION:    iceq
+ALIGNMENT:      unaligned
+LEVEL:          "icequeen-1" "none" @ (1, 0)
+LEVEL:          "icequeen-2" "none" @ (2, 0)
+LEVEL:          "icequeen-3" "none" @ (3, 0)
+
 #
 #	Vlad's Tower
 #
@@ -123,7 +136,7 @@ DESCRIPTION:	mazelike
 ALIGNMENT:	chaotic
 ENTRY:		-1
 LEVEL:		"tower1" "none" @ (1, 0)
-# it isn't necessary to list these last two, but doing so makes them
+# it isn't necessary to list these last three, but doing so makes them
 # show up in ^O output and in the level teleport menu
 LEVEL:		"tower2" "none" @ (2, 0)
 LEVEL:		"tower3" "none" @ (3, 0)

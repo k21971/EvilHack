@@ -830,7 +830,7 @@ cast_protection()
                                    ? hliquid("water")
                                    : (rmtyp == CLOUD)
                                       ? "cloud"
-                                      : IS_TREE(rmtyp)
+                                      : IS_TREES(rmtyp)
                                          ? "vegetation"
                                          : IS_STWALL(rmtyp)
                                             ? "stone"

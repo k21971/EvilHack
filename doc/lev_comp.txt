@@ -488,6 +488,9 @@ GRAMMAR
        '-'     horizontal wall
        '|'     vertical wall
        '+'     a doorway (state is specified in a DOOR declaration)
+       's'     sewage
+       't'     a dead tree
+       'w'     shallow water
        'A'     open air
        'B'     boundary room location (for bounding unwalled irregular regions)
        'C'     cloudy air
@@ -500,8 +503,6 @@ GRAMMAR
        'K'     a sink
        '}'     a part of a moat or other deep water
        'P'     a pool
-       'w'     shallow water
-       's'     sewage
        'L'     lava
        'W'     water (yes, different from a pool)
        'T'     a tree

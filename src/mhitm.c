@@ -716,25 +716,32 @@ struct attack *mattk;
                 break;
             case AT_WEAP:
                 if (!MON_WEP(magr)) { /* AT_WEAP but isn't wielding anything */
-                    Sprintf(buf, "%s %ss", magr_name, mwep_none[rn2(SIZE(mwep_none))]);
-                } else if (is_pierce(MON_WEP(magr))) {
-                           Sprintf(buf, "%s %ss", magr_name, mwep_pierce[rn2(SIZE(mwep_pierce))]);
-                } else if (is_slash(MON_WEP(magr))) {
-                           Sprintf(buf, "%s %ss", magr_name, mwep_slash[rn2(SIZE(mwep_slash))]);
-                } else if (is_whack(MON_WEP(magr))) {
-                           Sprintf(buf, "%s %ss", magr_name, mwep_whack[rn2(SIZE(mwep_whack))]);
-                } else {
+                    if (has_claws(magr->data))
+                        Sprintf(buf, "%s claws", magr_name);
+                    else if (has_claws_undead(magr->data))
+                        Sprintf(buf, "%s scratches", magr_name);
+                    else
+                        Sprintf(buf, "%s %ss", magr_name,
+                                mwep_none[rn2(SIZE(mwep_none))]);
+                } else if (is_pierce(MON_WEP(magr)))
+                    Sprintf(buf, "%s %ss", magr_name,
+                            mwep_pierce[rn2(SIZE(mwep_pierce))]);
+                else if (is_slash(MON_WEP(magr)))
+                    Sprintf(buf, "%s %ss", magr_name,
+                            mwep_slash[rn2(SIZE(mwep_slash))]);
+                else if (is_whack(MON_WEP(magr)))
+                    Sprintf(buf, "%s %ss", magr_name,
+                            mwep_whack[rn2(SIZE(mwep_whack))]);
+                else
                     Sprintf(buf, "%s hits", magr_name);
-                }
                 break;
             case AT_CLAW:
-                if (has_claws(magr->data)) {
+                if (has_claws(magr->data))
                     Sprintf(buf, "%s claws", magr_name);
-                } else if (has_claws_undead(magr->data)) {
-                           Sprintf(buf, "%s scratches", magr_name);
-                } else {
+                else if (has_claws_undead(magr->data))
+                    Sprintf(buf, "%s scratches", magr_name);
+                else
                     Sprintf(buf, "%s hits", magr_name);
-                }
                 break;
             default:
                 Sprintf(buf, "%s hits", magr_name);
@@ -847,7 +854,7 @@ struct monst *magr, *mdef;
     if (mdef == &youmonst)
         dx = u.ux, dy = u.uy;
     lev = &levl[dx][dy];
-    if (IS_ROCK(lev->typ) || closed_door(dx, dy) || IS_TREE(lev->typ)
+    if (IS_ROCK(lev->typ) || closed_door(dx, dy) || IS_TREES(lev->typ)
         /* not passes_bars(); engulfer isn't squeezing through */
         || (lev->typ == IRONBARS && !is_whirly(magr->data)))
         return FALSE;

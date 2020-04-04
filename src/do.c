@@ -1890,13 +1890,23 @@ boolean at_stairs, falling, portal;
             You_hear("groans and moans everywhere.");
         } else
             pline("It is hot here.  You smell smoke...");
-        if(!u.uachieve.enter_gehennom)
+        if (!u.uachieve.enter_gehennom)
             livelog_write_string(LL_ACHIEVE, "entered Gehennom");
         u.uachieve.enter_gehennom = 1;
     }
     /* in case we've managed to bypass the Valley's stairway down */
     if (Inhell && !Is_valley(&u.uz))
         u.uevent.gehennom_entered = 1;
+
+    if (!In_icequeen_branch(&u.uz0) && Iniceq) {
+        You("arrive in a frozen, barren wasteland.");
+        pline_The("remnants of a once majestic forest stretch out before you.");
+#ifdef MICRO
+        display_nhwindow(WIN_MESSAGE, FALSE);
+#endif
+        if (!Deaf)
+            You_hear("the distant howl of hungry wolves.");
+    }
 
     if (familiar) {
         static const char *const fam_msgs[4] = {

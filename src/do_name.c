@@ -2315,7 +2315,9 @@ static const char *const sir_Terry_novels[] = {
     "Night Watch", "The Wee Free Men", "Monstrous Regiment",
     "A Hat Full of Sky", "Going Postal", "Thud!", "Wintersmith",
     "Making Money", "Unseen Academicals", "I Shall Wear Midnight", "Snuff",
-    "Raising Steam", "The Shepherd's Crown"
+    "Raising Steam", "The Shepherd's Crown",
+    /* Specific journal for the ICE Queen side branch */
+    "The Adventurer's Journal"
 };
 
 const char *

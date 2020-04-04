@@ -9,6 +9,7 @@
 typedef struct d_flags {     /* dungeon/level type flags */
     Bitfield(town, 1);       /* is this a town? (levels only) */
     Bitfield(hellish, 1);    /* is this part of hell? */
+    Bitfield(iceq, 1);       /* is this part of the Ice Queen brnach? */
     Bitfield(maze_like, 1);  /* is this a maze? */
     Bitfield(rogue_like, 1); /* is this an old-fashioned presentation? */
     Bitfield(align, 3);      /* dungeon alignment. */
@@ -132,6 +133,7 @@ typedef struct branch {
 #define In_sokoban(x) ((x)->dnum == sokoban_dnum)
 #define In_tower(x) ((x)->dnum == tower_dnum)
 #define Inhell In_hell(&u.uz) /* now gehennom */
+#define Iniceq In_icequeen_branch(&u.uz)
 #define In_endgame(x) ((x)->dnum == astral_level.dnum)
 
 #define within_bounded_area(X, Y, LX, LY, HX, HY) \

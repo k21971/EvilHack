@@ -1756,6 +1756,9 @@ xchar x, y;
     case TREE:
         idx = S_tree;
         break;
+    case DEADTREE:
+        idx = S_deadtree;
+        break;
     case POOL:
     case MOAT:
         idx = S_pool;
@@ -1992,9 +1995,9 @@ static const char *type_names[MAX_TYPE] = {
     "STONE", "VWALL", "HWALL", "TLCORNER", "TRCORNER", "BLCORNER", "BRCORNER",
     "CROSSWALL", "TUWALL", "TDWALL", "TLWALL", "TRWALL", "DBWALL", "TREE",
     "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP", "LAVAPOOL",
-    "IRON_BARS", "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FORGE", "FOUNTAIN",
-    "THRONE", "SINK", "GRAVE", "ALTAR", "ICE", "DRAWBRIDGE_DOWN", "AIR",
-    "CLOUD", "PUDDLE", "SEWAGE"
+    "IRON_BARS", "DEADTREE" "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FORGE",
+    "FOUNTAIN", "THRONE", "SINK", "GRAVE", "ALTAR", "ICE", "DRAWBRIDGE_DOWN",
+    "AIR", "CLOUD", "PUDDLE", "SEWAGE"
 };
 
 static const char *

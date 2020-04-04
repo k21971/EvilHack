@@ -5870,6 +5870,101 @@ unconscious()
                               || !strncmp(nomovemsg, "You are consci", 14))));
 }
 
+
+/* Derived from lava_effects(), hero can burn in Gehennom
+   without adequate fire resistance */
+static const char in_hell_killer[] = "roasting in hell";
+
+boolean
+in_hell_effects()
+{
+    int dmg = resist_reduce(d(1, 6), FIRE_RES);
+    boolean usurvive, boil_away;
+
+    if (likes_lava(youmonst.data))
+        return FALSE;
+
+    usurvive = how_resistant(FIRE_RES) == 100 || (dmg < u.uhp);
+
+    if (how_resistant(FIRE_RES) < 100) {
+        if (how_resistant(FIRE_RES) >= 50) {
+            if (rn2(3))
+                pline_The("flames of hell are slowly roasting you alive!");
+        } else if (how_resistant(FIRE_RES) < 50)
+            pline_The("flames of hell are roasting you alive!");
+        if (usurvive) {
+            losehp(dmg, in_hell_killer, KILLED_BY);
+            return FALSE;
+        }
+        usurvive = Lifesaved;
+        if (wizard)
+            usurvive = TRUE;
+
+        boil_away = (u.umonnum == PM_WATER_ELEMENTAL
+                     || u.umonnum == PM_STEAM_VORTEX
+                     || u.umonnum == PM_WATER_TROLL
+                     || u.umonnum == PM_BABY_SEA_DRAGON
+                     || u.umonnum == PM_SEA_DRAGON
+                     || u.umonnum == PM_FOG_CLOUD);
+        for (;;) {
+            u.uhp = -1;
+            killer.format = KILLED_BY;
+            Strcpy(killer.name, in_hell_killer);
+            You("%s...", boil_away ? "boil away" : "are roasted alive");
+            done(DIED);
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Also derived from lava_effects(), hero can freeze in
+   the Ice Queen branch without adequate cold resistance */
+static const char in_iceq_killer[] = "freezing to death";
+
+boolean
+in_iceq_effects()
+{
+    int dmg = resist_reduce(d(1, 6), COLD_RES);
+    boolean usurvive, freeze_solid;
+
+    if (likes_iceq(youmonst.data))
+        return FALSE;
+
+    usurvive = how_resistant(COLD_RES) == 100 || (dmg < u.uhp);
+
+    if (how_resistant(COLD_RES) < 100) {
+        if (how_resistant(COLD_RES) >= 50) {
+            if (rn2(3))
+                You("are slowly freezing to death.");
+        } else if (how_resistant(COLD_RES) < 50)
+            You("are freezing to death!");
+        if (usurvive) {
+            losehp(dmg, in_iceq_killer, KILLED_BY);
+            return FALSE;
+        }
+        usurvive = Lifesaved;
+        if (wizard)
+            usurvive = TRUE;
+
+        freeze_solid = (u.umonnum == PM_WATER_ELEMENTAL
+                        || u.umonnum == PM_STEAM_VORTEX
+                        || u.umonnum == PM_WATER_TROLL
+                        || u.umonnum == PM_BABY_SEA_DRAGON
+                        || u.umonnum == PM_SEA_DRAGON
+                        || u.umonnum == PM_FOG_CLOUD);
+        for (;;) {
+            u.uhp = -1;
+            killer.format = KILLED_BY;
+            Strcpy(killer.name, in_iceq_killer);
+            You("%s...", freeze_solid ? "freeze_solid" : "freeze to death");
+            done(DIED);
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static const char lava_killer[] = "molten lava";
 
 boolean
@@ -6003,9 +6098,8 @@ lava_effects()
         if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
                      || uarm->otyp == WHITE_DRAGON_SCALES)) {
 	    levl[u.ux][u.uy].typ = ROOM;
-	    if (!rn2(4)) {
+	    if (!rn2(4))
 		pline_The("lava cools and solidifies under your feet.");
-	    }
 	    return TRUE;
 	}
     }

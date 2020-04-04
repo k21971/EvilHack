@@ -40,14 +40,12 @@
 #define has_displacement(mon) \
     ((mon_resistancebits(mon) & MR2_DISPLACED) != 0)
 
-#define resists_sick(mon) ((mon)->data->mlet == S_FUNGUS                \
-                           || nonliving((mon)->data)                    \
-                           || (mon)->data == &mons[PM_ARCHANGEL]        \
-                           || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
-                           || (mon)->data == &mons[PM_GOLD_DRAGON]      \
-                           || (mon)->data == &mons[PM_GIANT_LEECH]      \
-                           || (mon)->data == &mons[PM_GIANT_COCKROACH]  \
-                           || (mon)->data == &mons[PM_LOCUST])
+#define resists_sick(mon) \
+    ((mon)->data->mlet == S_FUNGUS || nonliving((mon)->data)                            \
+     || (mon)->data == &mons[PM_ARCHANGEL] || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
+     || (mon)->data == &mons[PM_GOLD_DRAGON] || (mon)->data == &mons[PM_GIANT_LEECH]    \
+     || (mon)->data == &mons[PM_GIANT_COCKROACH] || (mon)->data == &mons[PM_LOCUST]     \
+     || (mon)->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
 
 /* as of 3.2.0:  gray dragons, Angels, Oracle, Yeenoghu */
 #define resists_mgc(ptr) \
@@ -183,7 +181,9 @@
 #define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_illithid(ptr) (((ptr)->mhflags & MH_ILLITHID) != 0L)
-#define is_not_zombie(ptr) ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON])
+#define is_not_zombie(ptr) \
+    ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON] \
+     || (ptr) == &mons[PM_REVENANT])
 #define is_zombie(ptr) ((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr))
 #define can_become_zombie(ptr) ((ptr)->mlet == S_KOBOLD || (ptr)->mlet == S_GIANT      \
                                 || (ptr)->mlet == S_HUMAN || (ptr)->mlet == S_KOP      \
@@ -194,7 +194,7 @@
                                || (ptr) == &mons[PM_VAMPIRE_MAGE] || (ptr) == &mons[PM_WRAITH]      \
                                || (ptr)->mlet == S_MUMMY || is_zombie(ptr)                          \
                                || (ptr) == &mons[PM_BARROW_WIGHT] || (ptr) == &mons[PM_GREEN_SLIME] \
-                               || (ptr) == &mons[PM_MIND_FLAYER])
+                               || (ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_REVENANT])
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
 #define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 #define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)
@@ -275,9 +275,34 @@
     ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]     \
      || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]  \
      || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_ILLITHID])
+
+/* Ice Queen branch defines */
+#define is_iceq_only(ptr) \
+    ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_WOOLLY_MAMMOTH]           \
+     || (ptr) == &mons[PM_SABER_TOOTHED_TIGER] || (ptr) == &mons[PM_ICE_NYMPH]    \
+     || (ptr) == &mons[PM_FROST_SALAMANDER] || (ptr) == &mons[PM_REVENANT])
+#define likes_iceq(ptr) \
+    ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_OWLBEAR]                  \
+     || (ptr) == &mons[PM_WOLF] || (ptr) == &mons[PM_WEREWOLF]                    \
+     || (ptr) == &mons[PM_WINTER_WOLF_CUB] || (ptr) == &mons[PM_WINTER_WOLF]      \
+     || (ptr) == &mons[PM_WARG] || (ptr) == &mons[PM_FREEZING_SPHERE]             \
+     || (ptr) == &mons[PM_LYNX] || (ptr) == &mons[PM_BLUE_JELLY]                  \
+     || (ptr) == &mons[PM_GOBLIN_OUTRIDER] || (ptr) == &mons[PM_GOBLIN_CAPTAIN]   \
+     || (ptr) == &mons[PM_MASTODON] || (ptr) == &mons[PM_WOOLLY_MAMMOTH]          \
+     || (ptr) == &mons[PM_ICE_VORTEX] || (ptr) == &mons[PM_MOUNTAIN_CENTAUR]      \
+     || (ptr) == &mons[PM_BABY_WHITE_DRAGON] || (ptr) == &mons[PM_WHITE_DRAGON]   \
+     || (ptr) == &mons[PM_BABY_SILVER_DRAGON] || (ptr) == &mons[PM_SILVER_DRAGON] \
+     || (ptr) == &mons[PM_BROWN_MOLD] || (ptr) == &mons[PM_FROST_GIANT]           \
+     || (ptr) == &mons[PM_ICE_TROLL] || (ptr) == &mons[PM_YETI]                   \
+     || (ptr) == &mons[PM_SASQUATCH] || (ptr) == &mons[PM_SABER_TOOTHED_TIGER]    \
+     || (ptr) == &mons[PM_FROST_SALAMANDER] || (ptr) == &mons[PM_ICE_NYMPH]       \
+     || (ptr) == &mons[PM_REVENANT] || (ptr) == &mons[PM_BABY_OWLBEAR]            \
+     || (ptr) == &mons[PM_HUMAN_ZOMBIE] || (ptr) == &mons[PM_GIANT_ZOMBIE]        \
+     || (ptr) == &mons[PM_LICH])
+
 /* return TRUE if the monster tends to revive */
 #define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL \
-                        || is_zombie(ptr))
+                         || is_zombie(ptr))
 /* monsters whose corpses and statues need special handling;
    note that high priests and the Wizard of Yendor are flagged
    as unique even though they really aren't; that's ok here */
@@ -285,7 +310,7 @@
 
 /* this returns the light's range, or 0 if none; if we add more light emitting
    monsters, we'll likely have to add a new light range field to mons[] */
-#define emits_light(ptr)                                          \
+#define emits_light(ptr) \
     (((ptr)->mlet == S_LIGHT || (ptr) == &mons[PM_FLAMING_SPHERE] \
       || (ptr) == &mons[PM_SHOCKING_SPHERE]                       \
       || (ptr) == &mons[PM_GOLD_DRAGON]                           \
@@ -294,16 +319,19 @@
          ? 1                                                      \
          : ((ptr) == &mons[PM_FIRE_ELEMENTAL]) ? 1 : 0)
 /*	[note: the light ranges above were reduced to 1 for performance...] */
-#define likes_lava(ptr)                                             \
-    (ptr == &mons[PM_FIRE_ELEMENTAL]                                \
-     || ptr == &mons[PM_SALAMANDER] || ptr == &mons[PM_LAVA_DEMON])
+#define likes_lava(ptr) \
+    ((ptr) == &mons[PM_FIRE_ELEMENTAL]                                  \
+     || (ptr) == &mons[PM_SALAMANDER] || (ptr) == &mons[PM_LAVA_DEMON])
 #define pm_invisible(ptr) \
     ((ptr) == &mons[PM_STALKER] || (ptr) == &mons[PM_BLACK_LIGHT])
 
 /* could probably add more */
-#define likes_fire(ptr)                                                  \
+#define likes_fire(ptr) \
     ((ptr) == &mons[PM_FIRE_VORTEX] || (ptr) == &mons[PM_FLAMING_SPHERE] \
      || likes_lava(ptr))
+
+#define likes_ice(ptr) \
+    ((ptr) == &mons[PM_FROST_SALAMANDER])
 
 #define touch_petrifies(ptr) \
     ((ptr) == &mons[PM_COCKATRICE] || (ptr) == &mons[PM_CHICKATRICE] \

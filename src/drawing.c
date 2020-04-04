@@ -159,8 +159,9 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '+', "closed door", C(CLR_BROWN) },         /* hcdoor */
        { '#', "iron bars", C(HI_METAL) },            /* bars */
        { '#', "tree", C(CLR_GREEN) },                /* tree */
-       { '.', "floor of a room", C(CLR_GRAY) },      /* room */
-/*20*/ { '.', "dark part of a room", C(CLR_BLACK) }, /* dark room */
+       { '#', "dead tree", C(CLR_BLACK) },           /* dead tree */
+/*20*/ { '.', "floor of a room", C(CLR_GRAY) },      /* room */
+       { '.', "dark part of a room", C(CLR_BLACK) }, /* dark room */
        { '#', "corridor", C(CLR_GRAY) },             /* dark corr */
        { '#', "lit corridor", C(CLR_GRAY) },   /* lit corr (see mapglyph.c) */
        { '<', "staircase up", C(CLR_GRAY) },         /* upstair */
@@ -169,8 +170,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '>', "ladder down", C(CLR_BROWN) },         /* dnladder */
        { '_', "altar", C(CLR_GRAY) },                /* altar */
        { '|', "grave", C(CLR_WHITE) },               /* grave */
-       { '\\', "opulent throne", C(HI_GOLD) },       /* throne */
-/*30*/ { '#', "sink", C(CLR_GRAY) },                 /* sink */
+/*30*/ { '\\', "opulent throne", C(HI_GOLD) },       /* throne */
+       { '#', "sink", C(CLR_GRAY) },                 /* sink */
        { '{', "forge", C(CLR_ORANGE) },              /* forge */
        { '{', "fountain", C(CLR_BRIGHT_BLUE) },      /* fountain */
        { '}', "water", C(CLR_BLUE) },                /* pool */
@@ -179,8 +180,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '.', "lowered drawbridge", C(CLR_BROWN) },  /* vodbridge */
        { '.', "lowered drawbridge", C(CLR_BROWN) },  /* hodbridge */
        { '#', "raised drawbridge", C(CLR_BROWN) },   /* vcdbridge */
-       { '#', "raised drawbridge", C(CLR_BROWN) },   /* hcdbridge */
-/*40*/ { ' ', "air", C(CLR_CYAN) },                  /* open air */
+/*40*/ { '#', "raised drawbridge", C(CLR_BROWN) },   /* hcdbridge */
+       { ' ', "air", C(CLR_CYAN) },                  /* open air */
        { '#', "cloud", C(CLR_GRAY) },                /* [part of] a cloud */
        { '}', "shallow water", C(CLR_CYAN) },        /* puddle */
        { '}', "sewage", C(CLR_GREEN) },              /* sewage */
@@ -189,8 +190,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '^', "bolt trap", C(HI_METAL) },            /* trap */
        { '^', "dart trap", C(HI_METAL) },            /* trap */
        { '^', "falling rock trap", C(CLR_GRAY) },    /* trap */
-       { '^', "squeaky board", C(CLR_BROWN) },       /* trap */
-/*50*/ { '^', "bear trap", C(HI_METAL) },            /* trap */
+/*50*/ { '^', "squeaky board", C(CLR_BROWN) },       /* trap */
+       { '^', "bear trap", C(HI_METAL) },            /* trap */
        { '^', "land mine", C(CLR_RED) },             /* trap */
        { '^', "rolling boulder trap", C(CLR_GRAY) }, /* trap */
        { '^', "sleeping gas trap", C(HI_ZAP) },      /* trap */
@@ -199,8 +200,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '^', "pit", C(CLR_BLACK) },                 /* trap */
        { '^', "spiked pit", C(CLR_BLACK) },          /* trap */
        { '^', "hole", C(CLR_BROWN) },                /* trap */
-       { '^', "trap door", C(CLR_BROWN) },           /* trap */
-/*60*/ { '^', "teleportation trap", C(CLR_MAGENTA) },  /* trap */
+/*60*/ { '^', "trap door", C(CLR_BROWN) },           /* trap */
+       { '^', "teleportation trap", C(CLR_MAGENTA) },  /* trap */
        { '^', "level teleporter", C(CLR_MAGENTA) },    /* trap */
        { '^', "magic portal", C(CLR_BRIGHT_MAGENTA) }, /* trap */
        { '"', "web", C(CLR_GRAY) },                    /* web */
@@ -209,8 +210,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '^', "anti-magic field", C(HI_ZAP) },         /* trap */
        { '^', "polymorph trap", C(CLR_BRIGHT_GREEN) }, /* trap */
        { '^', "spear trap", C(CLR_BROWN) },            /* trap */
-       { '^', "magic beam trap", C(CLR_YELLOW) },      /* trap */
-/*70*/ { '~', "vibrating square", C(CLR_MAGENTA) },    /* "trap" */
+/*70*/ { '^', "magic beam trap", C(CLR_YELLOW) },      /* trap */
+       { '~', "vibrating square", C(CLR_MAGENTA) },    /* "trap" */
        /* zap colors are changed by mapglyph() to match type of beam */
        { '|', "", C(CLR_GRAY) },                /* vbeam */
        { '-', "", C(CLR_GRAY) },                /* hbeam */
@@ -220,8 +221,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '!', "", C(CLR_WHITE) },               /* camera flash beam */
        { ')', "", C(HI_WOOD) },                 /* boomerang open left */
        { '(', "", C(HI_WOOD) },                 /* boomerang open right */
-       { '0', "", C(HI_ZAP) },                  /* 4 magic shield symbols */
-/*80*/ { '#', "", C(HI_ZAP) },
+/*80*/ { '0', "", C(HI_ZAP) },                  /* 4 magic shield symbols */
+       { '#', "", C(HI_ZAP) },
        { '@', "", C(HI_ZAP) },
        { '*', "", C(HI_ZAP) },
        { '#', "poison cloud", C(CLR_BRIGHT_GREEN) },   /* part of a cloud */
@@ -231,8 +232,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '-', "", C(CLR_GREEN) },         /* swallow top center    */
        { '\\', "", C(CLR_GREEN) },        /* swallow top right     */
        { '|', "", C(CLR_GREEN) },         /* swallow middle left   */
-       { '|', "", C(CLR_GREEN) },         /* swallow middle right  */
-/*90*/ { '\\', "", C(CLR_GREEN) },        /* swallow bottom left   */
+/*90*/ { '|', "", C(CLR_GREEN) },         /* swallow middle right  */
+       { '\\', "", C(CLR_GREEN) },        /* swallow bottom left   */
        { '-', "", C(CLR_GREEN) },         /* swallow bottom center */
        { '/', "", C(CLR_GREEN) },         /* swallow bottom right  */
        /* explosion colors are changed by mapglyph() to match type of expl. */
@@ -242,8 +243,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '|', "", C(CLR_ORANGE) },        /* explosion middle left  */
        { ' ', "", C(CLR_ORANGE) },        /* explosion middle center*/
        { '|', "", C(CLR_ORANGE) },        /* explosion middle right */
-       { '\\', "", C(CLR_ORANGE) },       /* explosion bottom left  */
-/*100*/{ '-', "", C(CLR_ORANGE) },        /* explosion bottom center*/
+/*100*/{ '\\', "", C(CLR_ORANGE) },       /* explosion bottom left  */
+       { '-', "", C(CLR_ORANGE) },        /* explosion bottom center*/
        { '/', "", C(CLR_ORANGE) },        /* explosion bottom right */
 };
 
@@ -666,6 +667,7 @@ struct symparse loadsyms[] = {
     { SYM_PCHAR, S_hcdoor, "S_hcdoor" },
     { SYM_PCHAR, S_bars, "S_bars" },
     { SYM_PCHAR, S_tree, "S_tree" },
+    { SYM_PCHAR, S_deadtree, "S_deadtree" },
     { SYM_PCHAR, S_room, "S_room" },
     { SYM_PCHAR, S_darkroom, "S_darkroom" },
     { SYM_PCHAR, S_corr, "S_corr" },

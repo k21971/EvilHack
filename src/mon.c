@@ -1714,7 +1714,7 @@ long flag;
     int cnt = 0;
     uchar ntyp;
     uchar nowtyp;
-    boolean wantpool, wantlava, wantsewage;
+    boolean wantpool, wantlava, wantsewage, wantice;
     boolean poolok, lavaok, nodiag;
     boolean rockok = FALSE, treeok = FALSE, thrudoor;
     int maxx, maxy;
@@ -1731,6 +1731,7 @@ long flag;
                 || mdat == &mons[PM_SEA_DRAGON]);
     wantlava = (mdat == &mons[PM_SALAMANDER]);
     wantsewage = (mdat == &mons[PM_GIANT_LEECH]);
+    wantice = (mdat == &mons[PM_FROST_SALAMANDER]);
     poolok = ((!Is_waterlevel(&u.uz)
                && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)))
               || (is_swimmer(mdat) && !wantpool));
@@ -1768,8 +1769,8 @@ long flag;
     }
 
  nexttry: /* Eels prefer the water, but if there is no water nearby,
-             they will crawl over land. Salamanders are the same way
-             about lava */
+             they will crawl over land. Salamander types are the same
+             way about lava and ice */
     if (mon->mconf) {
         flag |= ALLOW_ALL;
         flag &= ~NOTONL;
@@ -1785,7 +1786,7 @@ long flag;
             ntyp = levl[nx][ny].typ;
             if (IS_ROCK(ntyp)
                 && !((flag & ALLOW_WALL) && may_passwall(nx, ny))
-                && !((IS_TREE(ntyp) ? treeok : rockok) && may_dig(nx, ny)))
+                && !((IS_TREES(ntyp) ? treeok : rockok) && may_dig(nx, ny)))
                 continue;
             /* KMH -- Added iron bars */
             if (ntyp == IRONBARS
@@ -1824,6 +1825,7 @@ long flag;
                 continue;
             if (((is_pool(nx, ny) || is_puddle(nx, ny)) == wantpool || poolok)
                 && (is_lava(nx, ny) == wantlava || lavaok)
+                && (is_ice(nx, ny) == wantice || !wantice)
                 && (is_sewage(nx, ny) == wantsewage || !wantsewage)
                 /* iron golems and longworms avoid shallow water */
                 && ((mon->data != &mons[PM_IRON_GOLEM] && !is_longworm(mdat)
@@ -1967,6 +1969,10 @@ long flag;
     }
     if (!cnt && wantsewage && !is_sewage(x, y)) {
         wantsewage = FALSE;
+        goto nexttry;
+    }
+    if (!cnt && wantice && !is_ice(x, y)) {
+        wantice = FALSE;
         goto nexttry;
     }
     return cnt;
@@ -2532,6 +2538,37 @@ register struct monst *mtmp;
         }
     }
 
+    /* our hero has freed the Ice Queen from her curse */
+    if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        pline("But wait!  %s is not dead!", mon_nam(mtmp));
+        pline("What was thought to be a fatal blow has actually released %s from a powerful curse.", mon_nam(mtmp));
+        mtmp->mcanmove = 1;
+        mtmp->mfrozen = 0;
+        mtmp->mstone = 0;
+        mtmp->msick = 0;
+        mtmp->mdiseased = 0;
+        mtmp->mpeaceful = 1;
+        newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
+        mtmp->mhp = mtmp->mhpmax = 7500;
+        if (mtmp == u.ustuck) {
+            if (u.uswallow)
+                expels(mtmp, mtmp->data, FALSE);
+            else
+                uunstick();
+        }
+        verbalize("Thank you for freeing me from this awful curse!");
+        verbalize("Long ago, a powerful and evil witch cast a spell on me, which transformed me into the Ice Queen.");
+        verbalize("She controlled my every thought, causing me to bring winter permanently to this land.");
+        verbalize("Only by being defeated in combat could I be free from her wretched malediction.");
+        verbalize("I am forever in your debt.  But before I can repay that debt, I must undo the damage I have caused here.");
+        verbalize("And please free the captive pegasus, I am certain he will be extremely grateful.");
+        verbalize("Fare thee well, brave adventurer.  Until we meet again...");
+        newsym(mtmp->mx, mtmp->my);
+        adjalign(2);
+        change_luck(2);
+        return;
+    }
+
     if (is_vampshifter(mtmp) || is_changeling(mtmp)) {
         int mndx = mtmp->cham;
         int x = mtmp->mx, y = mtmp->my;
@@ -2686,6 +2723,8 @@ register struct monst *mtmp;
     if (mtmp->data == &mons[PM_MEDUSA] && !u.uachieve.killed_medusa) {
         u.uachieve.killed_medusa = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Medusa");
+    } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        livelog_printf(LL_UMONST, "defeated %s", noit_mon_nam(mtmp));
     } else if (mtmp->data == &mons[PM_DEATH]) {
         switch (mvitals[tmp].died) {
             case 1:

@@ -1375,7 +1375,7 @@ boolean your_fault, from_invent;
 {
     struct obj *otmp = *objp;
     int obj_type = otmp->otyp;
-    boolean unbreakable = (levl[barsx][barsy].wall_info & W_NONDIGGABLE) != 0;
+    boolean unbreakable = ((levl[barsx][barsy].wall_info & W_NONDIGGABLE) != 0) && !Iniceq;
 
     if (your_fault
         ? hero_breaks(otmp, objx, objy, from_invent)

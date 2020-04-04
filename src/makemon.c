@@ -879,6 +879,20 @@ register struct monst *mtmp;
         } else if (mm == PM_CHARON) {
             (void) mongets(mtmp, WAN_OPENING);
             mkmonmoney(mtmp, (long) rn1(100, 100));
+        } else if (mm == PM_KATHRYN_THE_ICE_QUEEN) {
+            otmp = mksobj(ATHAME, FALSE, FALSE);
+            bless(otmp);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = ITEM_FROST;
+            otmp->oerodeproof = TRUE;
+            otmp->spe = rnd(3) + 4;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, AMULET_OF_REFLECTION);
+            (void) mongets(mtmp, GLOVES);
+            (void) mongets(mtmp, HIGH_BOOTS);
+            (void) mongets(mtmp, RIN_SLOW_DIGESTION);
+            (void) mongets(mtmp, rn2(2) ? CLOAK_OF_MAGIC_RESISTANCE
+                                        : CLOAK_OF_DISPLACEMENT);
         } else if (ptr->msound == MS_GUARDIAN) {
             /* quest "guardians" */
             switch (mm) {
@@ -1185,6 +1199,8 @@ register struct monst *mtmp;
         if (mm == PM_SALAMANDER)
             (void) mongets(mtmp,
                            (rn2(7) ? SPEAR : rn2(3) ? TRIDENT : STILETTO));
+        if (mm == PM_FROST_SALAMANDER)
+            (void) mongets(mtmp, (rn2(4) ? HALBERD : SPETUM));
         break;
     case S_DEMON:
         switch (mm) {
@@ -2514,9 +2530,15 @@ rndmonst()
                 continue;
             if (Inhell && (ptr->geno & G_NOHELL))
                 continue;
+            if (Iniceq && !likes_iceq(ptr))
+                continue;
+            if (!Iniceq && is_iceq_only(ptr))
+                continue;
             ct = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
 	    if (!is_mplayer(ptr))
 	        ct *= 3;
+            if (Iniceq && likes_iceq(ptr))
+                ct *= 5;
             if (ct < 0 || ct > 127)
                 panic("rndmonst: bad count [#%d: %d]", mndx, ct);
             rndmonst_state.choice_count += ct;
@@ -2989,6 +3011,8 @@ int type;
         return 60;
     case PM_IRON_GOLEM:
         return 80;
+    case PM_SNOW_GOLEM:
+        return 150;
     default:
         return 0;
     }

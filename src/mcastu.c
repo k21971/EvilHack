@@ -153,7 +153,10 @@ int spellval;
         i = rn2(3);
         switch (i) {
             case 2:
-                return MGC_FIRE_BOLT;
+                if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+                    return MGC_ICE_BOLT;
+                else
+                    return MGC_FIRE_BOLT;
             case 1:
                 return MGC_ICE_BOLT;
             case 0:
@@ -202,7 +205,10 @@ int spellval;
         i = rn2(3);
         switch (i) {
             case 2:
-                return MGC_FIRE_BOLT;
+                if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+                    return MGC_ICE_BOLT;
+                else
+                    return MGC_FIRE_BOLT;
             case 1:
                 return MGC_ICE_BOLT;
             case 0:
@@ -226,9 +232,8 @@ int spellnum;
         spellnum = rn2(spellnum);
 
     /* If we're hurt, seriously consider giving fixing ourselves priority */
-    if ((mtmp->mhp * 4) <= mtmp->mhpmax) {
+    if ((mtmp->mhp * 4) <= mtmp->mhpmax)
         spellnum = 1;
-    }
 
     switch (spellnum) {
     case 15:
@@ -237,17 +242,27 @@ int spellnum;
             return CLC_OPEN_WOUNDS;
         /*FALLTHRU*/
     case 13:
-        return CLC_SUMMON_ELM;
+        if (is_demon(mtmp->data))
+            return CLC_FIRE_PILLAR;
+        else
+            return CLC_SUMMON_ELM;
     case 12:
         return CLC_GEYSER;
     case 11:
-        return CLC_FIRE_PILLAR;
+        if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+            return CLC_LIGHTNING;
+        else
+            return CLC_FIRE_PILLAR;
     case 10:
         return CLC_LIGHTNING;
     case 9:
         return CLC_CURSE_ITEMS;
     case 8:
-        return CLC_INSECTS;
+        if (is_demon(mtmp->data)
+            || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+            return CLC_VULN_YOU;
+        else
+            return CLC_INSECTS;
     case 7:
     case 6:
         return CLC_BLIND_YOU;
@@ -534,34 +549,28 @@ int spellnum;
         dmg = 0;
         break;
     case MGC_ACID_BLAST:
-        if (mtmp->iswiz || is_prince(mtmp->data)
-            || is_lord(mtmp->data) || mtmp->data->msound == MS_NEMESIS
-            || mtmp->data->msound == MS_LEADER
-            || mtmp->data == &mons[PM_MASTER_LICH]
-            || mtmp->data == &mons[PM_ARCH_LICH]) {
-            if (m_canseeu(mtmp)) {
-                pline("%s douses you in a torrent of acid!", Monnam(mtmp));
-                explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
-                        MON_CASTBALL, EXPL_ACID);
-                if (how_resistant(ACID_RES) == 100) {
-                    shieldeff(u.ux, u.uy);
-                    pline("The acid dissipates harmlessly.");
-                    monstseesu(M_SEEN_ACID);
-                    dmg = 0;
-                }
-                if (rn2(u.twoweap ? 2 : 3))
-                    acid_damage(uwep);
-                if (u.twoweap && rn2(2))
-                    acid_damage(uswapwep);
-                if (rn2(4))
-                    erode_armor(&youmonst, ERODE_CORRODE);
+        if (m_canseeu(mtmp)) {
+            pline("%s douses you in a torrent of acid!", Monnam(mtmp));
+            explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
+                    MON_CASTBALL, EXPL_ACID);
+            if (how_resistant(ACID_RES) == 100) {
+                shieldeff(u.ux, u.uy);
+                pline("The acid dissipates harmlessly.");
+                monstseesu(M_SEEN_ACID);
+                dmg = 0;
+            }
+            if (rn2(u.twoweap ? 2 : 3))
+                acid_damage(uwep);
+            if (u.twoweap && rn2(2))
+                acid_damage(uswapwep);
+            if (rn2(4))
+                erode_armor(&youmonst, ERODE_CORRODE);
+        } else {
+            if (canspotmon(mtmp)) {
+                pline("%s blasts the %s with %s and curses!", Monnam(mtmp),
+                      rn2(2) ? "ceiling" : "floor", "acid");
             } else {
-                if (canspotmon(mtmp)) {
-                    pline("%s blasts the %s with %s and curses!", Monnam(mtmp),
-                          rn2(2) ? "ceiling" : "floor", "acid");
-                } else {
-                    You_hear("some cursing!");
-                }
+                You_hear("some cursing!");
             }
         }
         break;
@@ -579,6 +588,8 @@ int spellnum;
         count = nasty(mtmp, FALSE); /* summon something nasty */
         if (mtmp->iswiz) {
             verbalize("Destroy the thief, my pet%s!", plur(count));
+        } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+            verbalize("Defend me, my minion%s!", plur(count));
         } else {
             const char *mappear = (count == 1) ? "A monster appears"
                                                : "Monsters appear";
@@ -776,9 +787,6 @@ int spellnum;
 
     switch (spellnum) {
     case CLC_SUMMON_ELM:
-        if (is_demon(mtmp->data))
-            return;
-
         if (mtmp->ispriest)
             aligntype = EPRI(mtmp)->shralign;
         else
@@ -788,24 +796,40 @@ int spellnum;
             pline("A vassal of %s appears!", Moloch);
             summon_minion(aligntype, TRUE);
         } else {
-	    pline("A servant of %s appears!", aligns[1 - aligntype].noun);
-	    summon_minion(aligntype, TRUE);
+            if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+                coord bypos;
+                if (!enexto(&bypos, mtmp->mx, mtmp->my, mtmp->data))
+                    break;
+                pline("A minion of %s appears!", mon_nam(mtmp));
+                makemon(&mons[PM_SNOW_GOLEM], bypos.x, bypos.y, MM_ANGRY);
+            } else {
+	        pline("A servant of %s appears!", aligns[1 - aligntype].noun);
+	        summon_minion(aligntype, TRUE);
+            }
         }
 	break;
     case CLC_GEYSER:
         /* this is physical damage (force not heat),
          * not magical damage or fire damage
          */
-        pline("A sudden geyser slams into you from nowhere!");
-        dmg = d(8, 6);
-        if (Half_physical_damage)
-            dmg = (dmg + 1) / 2;
-        if (u.umonnum == PM_IRON_GOLEM) {
-            You("rust!");
-            rehumanize();
-            break;
+        if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+            pline("An avalanche of ice and snow slams into you from nowhere!");
+            dmg = d(8, 8);
+            if (Half_physical_damage)
+                dmg = (dmg + 1) / 2;
+            destroy_item(POTION_CLASS, AD_COLD);
+        } else {
+            pline("A sudden geyser slams into you from nowhere!");
+            dmg = d(8, 6);
+            if (Half_physical_damage)
+                dmg = (dmg + 1) / 2;
+            if (u.umonnum == PM_IRON_GOLEM) {
+                You("rust!");
+                rehumanize();
+                break;
+            }
+            (void) erode_armor(&youmonst, ERODE_RUST);
         }
-        (void) erode_armor(&youmonst, ERODE_RUST);
         break;
     case CLC_FIRE_PILLAR:
         pline("A pillar of fire strikes all around you!");
@@ -857,10 +881,7 @@ int spellnum;
         rndcurse();
         dmg = 0;
         break;
-    case CLC_INSECTS:
-        if (is_demon(mtmp->data))
-            return;
-
+    case CLC_INSECTS: {
         /* Try for insects, and if there are none
            left, go for (sticks to) snakes.  -3. */
         struct permonst *pm = mkclass(S_ANT, 0);
@@ -931,6 +952,7 @@ int spellnum;
 
         dmg = 0;
         break;
+    }
     case CLC_BLIND_YOU:
         /* note: resists_blnd() doesn't apply here */
         if (!Blinded) {
@@ -991,10 +1013,19 @@ int spellnum;
         pline("A %s film oozes over your skin!", Blind ? "slimy" : vulntext[dmg]);
         switch (dmg) {
             case 1:
-                if (Vulnerable_fire)
-                    return;
-                incr_itimeout(&HVulnerable_fire, rnd(100) + 150);
-                You_feel("more inflammable.");
+                if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+                    if (Vulnerable_cold)
+                        return;
+                    incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
+                    You_feel("extremely chilly.");
+                    break;
+                } else {
+                    if (Vulnerable_fire)
+                        return;
+                    incr_itimeout(&HVulnerable_fire, rnd(100) + 150);
+                    You_feel("more inflammable.");
+                    break;
+                }
                 break;
             case 2:
                 if (Vulnerable_cold)

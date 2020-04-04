@@ -1191,6 +1191,8 @@ wiz_map_levltyp(VOID_ARGS)
                 Strcat(dsc, " mazelike");
             if (slev->flags.hellish)
                 Strcat(dsc, " hellish");
+            if (slev->flags.iceq)
+                Strcat(dsc, " Ice Queen branch");
             if (slev->flags.town)
                 Strcat(dsc, " town");
             if (slev->flags.rogue_like)

@@ -520,7 +520,11 @@ int how;
         Strcat(buf, "the ");
         killer.format = KILLED_BY;
     }
-    if (mtmp->minvis)
+    if (mptr == &mons[PM_ABOMINABLE_SNOWMAN]) {
+        Strcat(buf, "the ");
+        killer.format = KILLED_BY;
+    }
+    if (mtmp->minvis && !unique_corpstat(mptr))
         Strcat(buf, "invisible ");
     if (distorted)
         Strcat(buf, "hallucinogen-distorted ");
@@ -578,10 +582,10 @@ int how;
 
     Strcpy(killer.name, buf);
     ukiller = mtmp;
-    if (ukiller && (likes_gold(ukiller->data) || likes_gems(ukiller->data) ||
-		    likes_objs(ukiller->data) || likes_magic(ukiller->data) ||
-		    is_covetous(ukiller->data))) {
-	pline("%s starts to %s your possessions...", Monnam(ukiller),
+    if (ukiller && (likes_gold(ukiller->data) || likes_gems(ukiller->data)
+                    || likes_objs(ukiller->data) || likes_magic(ukiller->data)
+                    || is_covetous(ukiller->data))) {
+        pline("%s starts to %s your possessions...", Monnam(ukiller),
               rn2(2) ? "ransack" : "rummage through");
     }
 
@@ -601,7 +605,8 @@ int how;
         u.ugrave_arise = urace.mummynum;
     else if (is_zombie(mptr))
         u.ugrave_arise = urace.zombienum;
-    /* Vampire Mages can produce more of their kind if conditions are just right */
+    /* Vampire Mages can produce more of their kind if
+       conditions are just right */
     else if (mptr == &mons[PM_VAMPIRE_MAGE] && Race_if(PM_HUMAN)
              && Role_if(PM_WIZARD))
         u.ugrave_arise = PM_VAMPIRE_MAGE;
@@ -618,6 +623,8 @@ int how;
         u.ugrave_arise = PM_BARROW_WIGHT;
     else if (mptr == &mons[PM_MIND_FLAYER_LARVA])
         u.ugrave_arise = PM_MIND_FLAYER;
+    else if (mptr->mlet == S_LICH)
+        u.ugrave_arise = PM_REVENANT;
     /* this could happen if a high-end vampire kills the hero
        when ordinary vampires are genocided; ditto for wraiths */
     if (u.ugrave_arise >= LOW_PM

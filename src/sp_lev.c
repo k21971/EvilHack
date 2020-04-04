@@ -646,7 +646,7 @@ int prop;
     for (y = y1; y <= y2; y++)
         for (x = x1; x <= x2; x++) {
             lev = &levl[x][y];
-            if (IS_STWALL(lev->typ) || IS_TREE(lev->typ)
+            if (IS_STWALL(lev->typ) || IS_TREES(lev->typ)
                 /* 3.6.2: made iron bars eligible to be flagged nondiggable
                    (checked by chewing(hack.c) and zap_over_floor(zap.c)) */
                 || lev->typ == IRONBARS)
@@ -1937,8 +1937,13 @@ struct mkroom *croom;
     }
     /* set_corpsenm() took care of egg hatch and corpse timers */
 
-    if (named)
+    if (named) {
         otmp = oname(otmp, o->name.str);
+        if (otmp->otyp == SPE_NOVEL) {
+            /* needs to be an existing title */
+            (void) lookup_novel(o->name.str, &otmp->novelidx);
+        }
+    }
 
     if (o->eroded) {
         if (o->eroded < 0) {

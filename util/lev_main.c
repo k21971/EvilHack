@@ -260,7 +260,8 @@ char **argv;
         ":dat:Wizard.des",  ":dat:bigroom.des",  ":dat:castle.des",
         ":dat:endgame.des", ":dat:gehennom.des", ":dat:knox.des",
         ":dat:medusa.des",  ":dat:mines.des",    ":dat:oracle.des",
-        ":dat:sokoban.des", ":dat:tower.des",    ":dat:yendor.des"
+        ":dat:sokoban.des", ":dat:tower.des",    ":dat:yendor.des",
+        ":dat:icequeen.des"
     };
 
     argc = SIZE(mac_argv);
@@ -1336,6 +1337,8 @@ char c;
         return (WATER);
     case 'T':
         return (TREE);
+    case 't':
+        return (DEADTREE);
     case 'F':
         return (IRONBARS); /* Fe = iron */
     case 'x':

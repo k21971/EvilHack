@@ -4619,6 +4619,16 @@ boolean say; /* Announce out of sight hit/miss events if true */
             nomul(0);
         }
 
+        if (levl[sx][sy].typ == TREE && abstype == ZT_DEATH && abs(type) != ZT_BREATH(ZT_DEATH)) {
+            levl[sx][sy].typ = DEADTREE;
+            if (cansee(sx, sy)) {
+                pline("The tree withers and dies!");
+                newsym(sx, sy);
+            }
+            range = 0;
+            break;
+        }
+
         if (!ZAP_POS(levl[sx][sy].typ)
             || (closed_door(sx, sy) && range >= 0)) {
             int bounce, bchance;

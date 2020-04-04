@@ -26,6 +26,7 @@ STATIC_DCL unsigned long FDECL(strategy, (struct monst *));
    only four lawful candidates, so lawful summoners tended to summon more
    (trying to get lawful or neutral but obtaining chaotic instead) than
    their chaotic counterparts */
+
 static NEARDATA const int nasties[] = {
     /* neutral */
     PM_COCKATRICE, PM_ETTIN, PM_STALKER, PM_MINOTAUR,
@@ -47,6 +48,16 @@ static NEARDATA const int nasties[] = {
     PM_HORNED_DEVIL, PM_BARBED_DEVIL,
     /* (titans, ki-rin, and golden nagas are suitably nasty, but
        they're summoners so would aggravate excessive summoning) */
+};
+
+static NEARDATA const int ice_nasties[] = {
+    PM_WHITE_DRAGON, PM_SILVER_DRAGON, PM_LYNX,
+    PM_MASTODON, PM_WOOLLY_MAMMOTH, PM_WINTER_WOLF,
+    PM_WOLF, PM_WARG, PM_ICE_TROLL, PM_FROST_GIANT,
+    PM_WEREWOLF, PM_YETI, PM_SASQUATCH, PM_ICE_VORTEX,
+    PM_GELATINOUS_CUBE, PM_OWLBEAR, PM_GOBLIN_CAPTAIN,
+    PM_SABER_TOOTHED_TIGER, PM_FROST_SALAMANDER,
+    PM_ICE_NYMPH,
 };
 
 static NEARDATA const unsigned wizapp[] = {
@@ -606,6 +617,14 @@ pick_nasty()
     return res;
 }
 
+int
+pick_nasty_ice()
+{
+    int res = ice_nasties[rn2(SIZE(ice_nasties))];
+
+    return res;
+}
+
 /* create some nasty monsters, aligned with the caster or neutral; chaotic
    and unaligned are treated as equivalent; if summoner is Null, this is
    for late-game harassment (after the Wizard has been killed at least once
@@ -671,7 +690,8 @@ BOOLEAN_P centered_on_stairs;
                  * higher--avoids chain summoners filling up the level.
                  */
                 do {
-                    makeindex = pick_nasty();
+                    makeindex = (summoner->data == &mons[PM_KATHRYN_THE_ICE_QUEEN] ? pick_nasty_ice()
+                                                                                   : pick_nasty());
                     m_cls = mons[makeindex].mlet;
                 } while (summoner
                          && ((attacktype(&mons[makeindex], AT_MAGC)
@@ -834,6 +854,22 @@ const char *const random_malediction[] = {
     "Verily, thou shalt be one dead"
 };
 
+const char *const random_icequeen[] = {
+    "My magic is greater than yours", "You will never defeat me",
+    "Winter shall last forever", "The cold never bothered me anyway",
+    "Muahahahah", "I am even more powerful than the Wizard himself",
+    "Run while you still can, fool", "Let's build a snowman",
+    "The pegasus belongs to me"
+};
+
+const char *const random_enchantress[] = {
+    "Thank you again for freeing me", "I have so much damage to undo",
+    "I apologize for any harm I may have caused you",
+    "Be careful leaving this place, I have no control over the monsters that still lurk here",
+    "Please treat the pegasus well, he has been through a lot",
+    "It will take a long time to regrow the forest"
+};
+
 /* Insult or intimidate the player */
 void
 cuss(mtmp)
@@ -861,6 +897,18 @@ register struct monst *mtmp;
                && !(mtmp->isminion && EMIN(mtmp)->renegade)) {
         com_pager(rn2(QTN_ANGELIC - 1 + (Hallucination ? 1 : 0))
                   + QT_ANGELIC);
+    } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        if (!rn2(5))
+            pline("%s points and giggles at you.", Monnam(mtmp));
+        else
+            verbalize("%s!",
+                      random_icequeen[rn2(SIZE(random_icequeen))]);
+    } else if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
+        if (!rn2(5))
+            pline("%s waves to you.", Monnam(mtmp));
+        else
+            verbalize("%s.",
+                      random_enchantress[rn2(SIZE(random_enchantress))]);
     } else {
         if (!rn2(is_minion(mtmp->data) ? 100 : 5))
             pline("%s casts aspersions on your ancestry.", Monnam(mtmp));

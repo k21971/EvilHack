@@ -1,0 +1,324 @@
+# NetHack 3.6  icequeen.des  $NHDT-Date: 1585495923 2020/03/29 15:32:03 $  $NHDT-Branch: master $:$NHDT-Revision: 1.9 $
+#	Copyright (c) 2020 by Keith Simpson
+# NetHack may be freely redistributed.  See license for details.
+#
+#	The start level for this branch - the player must traverse
+#	this icy wasteland to find their way to the Ice Queen.
+#
+MAZE: "icequeen-1",' '
+FLAGS: noteleport,hardfloor,icedpools,shortsighted
+
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+ttttttttttttt.....ttttt......tttttttT...tttttttt......ttttttttttttttttt..tTt
+ttI.Ittttt..........tt.........ttttt.....ttt.....tt......ttt..tt...tt.....tt
+tIIIIIttt..ttt..T..t.....tt......................IIIII..........tt.........t
+ttIIIIttt...tt.......t.t.......ttt..ttt.......IIIIIIIIII..tt....t.....ttt..t
+tttIIIttt........tt.............tt.........IIIIIIIIIIIIII..........T.......t
+tTtttttt..t........t....t..............ttIIIIIIIIIIIIIIIII.t...tt....t.....t
+tttIIttt...t...tt.....t....T...tt.....IIIIIIII.......IIIIIt..............ttt
+tttIIttttt...t....tt.......tt.......tIIIIII.....ttt...IIIII..t......ttt....t
+IIIIIIIIII............tttt..ttt...IIIIIIIt.....ttTtt...IIII.t..ttt.........t
+IIIIIIIIIIIt..tt..IIIIIIIIIIIIIIIIIIIIIIt.......ttt....IIII...........T....t
+tttIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII.................III.t...ttttt.....tt
+tT..tt..IIIIIIIIIIIIIIII....tt.............tttt....t....IIIIIIIIIIIIII..tttt
+t........tt.....tttt.............tt...tt....ttttt........IIIIIIIIIIIIIIIIIII
+t.ttt........t.................tttt....t...........tt....t....tt..IIIIIIIIII
+t.......tt...........t......................t......................tttt....I
+t...ttt..ttt.....tt.....ttttt...........tT...tt.......ttttt.............tT.t
+t............t...tt......ttttt................ttt.....ttt.........tt.......t
+t........Tt.........................ttt...............................T....t
+tt...tttt.......ttt........ttttt..tt.....tttt....ttttt....ttt......ttt....Tt
+tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+ENDMAP
+TELEPORT_REGION:(70,16,74,18),(00,00,00,00)
+REGION:(00,00,75,19),lit,"ordinary"
+# Portal arrival point
+BRANCH:(72,18,72,18),(0,0,0,0)
+# Stairs
+STAIR:(03,02),down
+# Hint
+OBJECT:('+',"novel"),(69,16),uncursed,name:"The Adventurer's Journal"
+OBJECT:('[',"fedora"),(69,16),uncursed
+OBJECT:('%',"corpse"),(69,16),montype:"archeologist",name:"Carl the Excavator" 
+
+# Objects
+OBJECT:(')',"axe"),random
+OBJECT:(')',"battle-axe"),random
+OBJECT:('(',"crystal chest"),random
+
+# Random traps
+TRAP:"bear",random
+TRAP:"bear",random
+TRAP:"bear",random
+TRAP:"bear",random
+TRAP:"bear",random
+TRAP:"spear",random
+TRAP:"spear",random
+TRAP:"spear",random
+
+# Frost salamanders patrol the frozen river
+MONSTER:(':',"frost salamander"),(03,10)
+MONSTER:(':',"frost salamander"),(26,11)
+MONSTER:(':',"frost salamander"),(51,04)
+MONSTER:(':',"frost salamander"),(67,13)
+
+# Goblin outrider patrol
+MONSTER:('o',"goblin outrider"),(09,04),hostile
+MONSTER:('o',"goblin outrider"),(10,03),hostile
+MONSTER:('o',"goblin outrider"),(10,04),hostile
+MONSTER:('o',"goblin-captain"),(09,03),hostile
+
+# Guards the stairs
+MONSTER:(''',"snow golem"),(03,03)
+
+# Random monsters
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+
+# None shall pass
+NON_DIGGABLE:(00,00,75,19)
+NON_PASSWALL:(00,00,75,19)
+
+
+#
+#	The middle level for this branch.
+#
+#	The player exits the dead forest and
+#	finds themselves overlooking a vast icy
+#	landscape. A gorge runs through the middle
+#	of the map, with only one way across.
+#	The way across is defended...
+#
+
+MAZE: "icequeen-2", ' '
+FLAGS: noteleport,hardfloor,icedpools,shortsighted
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+IIIIIIIIIIIIIIIIIIII                               IIIIIIIIII..ttttttttttttt
+IItIIIIIIIIIItIIIIIII                          IIIIIIIIIIIIII....tttttt...tt
+IIIIIIIttIIIIIIIIIIIII                      IIIIIIIIIIIIIIIII......tttttt.tt
+IIIIIIIIIIIIIIIIIIIIIIII                  tIIIIIIIIIIIIIIIIIII........ttt..t
+IIIIttIIIIIIIIIIIIIIIIIIIII             IIIIIIIIIIIIIIIIIIIIII.t.......tt..t
+IIIIIIIIIIIIIIIIIIIItIIIIIIII          IItIIIIIIIIIIIIIIIIIIII...tt....tt..t
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIII      tIIIttIIIIIIIIIIIIIIIIIII.........tt..t
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII    ttIIIttIIIIIIIIIIIIIIIII.........tttt.tt
+IIIIIIIItttIIIIIIIIIIIIIIIIIIIIIIIIIIIIIItIIIIIIIIIIIIIIIIII........tttt...t
+IItIIIIIItIIIIIIIIIIIIIIIIIIIIII     ttIItIIIIIIIIIIIIIIIIIII........ttt...t
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIII        tIIIIIIIIIIIIIIIIIIIIII........tt...t
+IIIIItIIIIIIIIIIIIIIIIIIIIIIII           IIIIIIIIIIIIIIIIIIIII........ttt..t
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIII            IIIIIIIIIIIIIIIIIIII........ttt..t
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIII            tIIIIIIIIIIIIIIIIII........ttt...t
+IIIIIItIIIIIttIIIIIIIIIIIIII                IIIIIIIIIIIIIIII....t....ttttt.t
+IItIIIttIIIIIIIIIIIIIIIIIII                  IIIIIIIIIIIIIII...tt.....ttt..t
+IItttItIItIIIIIIIIIIIIIIIII                    IIIIIIIIIIIIII.............tt
+IIIIIIIIItIIIIItIIIIIIII                       IIIIIIIIIIIIII..........tt..t
+II.IIItIIIIIIIIIIIIIII                            IIIIIIIIII..t.......ttt..t
+IIIIItttIIIIIIIIIIIII                              IIIIIIIIII......tttttt..t
+tIIIIIIIIIIIIIIIIIII                                IIIIIIIII...tttttttttttt
+ENDMAP
+$spawn = { (02,07),(07,08),(21,12),(22,05),
+           (46,03),(47,12),(64,06),(65,16) }
+SHUFFLE: $spawn
+TELEPORT_REGION:(72,08,74,10),(00,00,00,00)
+REGION:(00,00,75,19),lit,"ordinary"
+# Stairs
+STAIR:(71,01),up
+STAIR:(02,18),down
+
+# Traps
+TRAP:"spear",(32,08)
+TRAP:"spiked pit",(33,08)
+TRAP:"bear",(73,07)
+
+# Another dead adventurer
+OBJECT:('[',"cornuthaum"),(73,19),uncursed
+OBJECT:'+',(73,19),uncursed
+OBJECT:('%',"corpse"),(73,19),montype:"wizard",name:"Tim the Enchanter"
+
+# Monsters
+MONSTER:('Y',"Abominable Snowman"),(34,08) {
+  OBJECT:('`',"boulder"),quantity:12
+}
+
+MONSTER:('Z',"revenant"),(73,05)
+MONSTER:('Z',"revenant"),(73,06)
+MONSTER:('Z',"revenant"),(74,06)
+MONSTER:(':',"frost salamander"),(10,03)
+MONSTER:(':',"frost salamander"),(10,15)
+MONSTER:(':',"frost salamander"),(50,03)
+MONSTER:(':',"frost salamander"),(50,15)
+MONSTER:('q',"mastodon"),(02,17)
+MONSTER:('H',"frost giant"),(03,17)
+MONSTER:('f',"saber-toothed tiger"),(74,19)
+
+# Random monsters
+MONSTER:random,$spawn[0]
+MONSTER:random,$spawn[1]
+MONSTER:random,$spawn[2]
+MONSTER:random,$spawn[3]
+MONSTER:random,$spawn[4]
+MONSTER:random,$spawn[5]
+MONSTER:random,$spawn[6]
+MONSTER:random,$spawn[7]
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+
+# None shall pass
+NON_DIGGABLE:(00,00,75,19)
+NON_PASSWALL:(00,00,75,19)
+
+
+#
+#       The final level for this branch.
+#
+#       The player discovers the ice castle of
+#       Kathryn the Ice Queen. Can they defeat her
+#       before winter permanently sets in?
+#
+
+MAZE: "icequeen-3", ' '
+FLAGS: noteleport,hardfloor,icedpools,shortsighted
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+IIIIIIIIIIIIIIIIIIII                                                      II
+IIIIIIIIIIIIIIIIIIII -----------  -------   ------   -------  ----------- II
+IIIIIIIIIIIIIIIIIIIII|..|......|  |.....|  -|....|-  |.....|  |.........| II
+IIIIIIIIIIIIIIIIIIIIIF..|---...----.....---|......|---.....----...---...| II
+IIIIIIIIIIIIIIIIIIIIIF..S..................+......+.....................| II
+IIIIIIIIIIIIIIIIIIIIIF..|---...------------|......|------------...---...| II
+IIIIIIIIIIIIIIIIIIIII|..|......|...........-|....|-...........|.........| II
+IIIIIIIIIIIIIIIIIIII ----...----............|----|............|......---- II
+IIIIIIIIIIIIIIIIIIIIIIII+...|..F............S....+............+......|    II
+IIIIIIIIIIIIIIIIIIIIIIII+...|..F............S....+............+......|    II
+IIIIIIIIIIIIIIIIIIII ----...----............|----|............|......---- II
+IIIIIIIIIIIIIIIIIIIII|..|......|...........-|....|-...........|.........| II
+IIIIIIIIIIIIIIIIIIIIIF..|---...------------|......|------------...---...| II
+IIIIIIIIIIIIIIIIIIIIIF..S..................+......+.....................| II
+IIIIIIIIIIIIIIIIIIIIIF..|---...----.....---|......|---.....----...---...| II
+IIIIIIIIIIIIIIIIIIIII|..|......|  |.....|  -|....|-  |.....|  |.........| II
+IIIIIIIIIIIIIIIIIIII -----------  -------   ------   -------  ----------- II
+II.IIIIIIIIIIIIIIIII                                                      II
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+ENDMAP
+$spawn = { (29,05),(29,14),(37,04),(37,15),
+           (56,04),(56,15),(64,05),(64,14) }
+SHUFFLE: $spawn
+REGION:(00,00,75,19),lit,"ordinary"
+REGION:(45,03,48,07),unlit,"zoo"
+REGION:(45,12,48,16),unlit,"zoo"
+REGION:(51,07,61,12),unlit,"zoo"
+# Stairs
+STAIR:(02,18),up
+
+# Castle entrance
+DOOR:locked,(24,09)
+DOOR:locked,(24,10)
+
+# Doors
+DOOR:locked,(43,05)
+DOOR:locked,(43,14)
+DOOR:locked,(44,09)
+DOOR:locked,(44,10)
+DOOR:locked,(49,09)
+DOOR:locked,(49,10)
+DOOR:locked,(50,05)
+DOOR:locked,(50,14)
+DOOR:locked,(62,09)
+DOOR:locked,(62,10)
+
+# Traps
+TRAP:"spear",(23,09)
+TRAP:"spear",(23,10)
+
+# Objects and terrain
+OBJECT:'$',(29,09),quantity:2000
+OBJECT:'$',(29,10),quantity:2000
+OBJECT:'$',(30,09),quantity:2000
+OBJECT:'$',(30,10),quantity:2000
+TERRAIN:(34,09),'\'
+OBJECT:('(',"crystal chest"),(32,07)
+OBJECT:('(',"crystal chest"),(32,12)
+OBJECT:('(',"crystal chest"),(42,07)
+CONTAINER:('(',"crystal chest"),(42,12) {
+  OBJECT:('%',"apple"),quantity:3
+  OBJECT:('%',"carrot"),quantity:3
+  OBJECT:('(',"saddle"),uncursed
+  OBJECT:('!',"acid"),quantity:3
+}
+FOUNTAIN:(37,08)
+FOUNTAIN:(37,11)
+
+# Random monsters
+MONSTER:random,$spawn[0]
+MONSTER:random,$spawn[1]
+MONSTER:random,$spawn[2]
+MONSTER:random,$spawn[3]
+MONSTER:random,$spawn[4]
+MONSTER:random,$spawn[5]
+MONSTER:random,$spawn[6]
+MONSTER:random,$spawn[7]
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+
+# Out front
+MONSTER:('q',"woolly mammoth"),(18,09)
+MONSTER:('H',"frost giant"),(18,10)
+MONSTER:('f',"saber-toothed tiger"),(19,09)
+
+# Watch towers
+MONSTER:('T',"ice troll"),(22,05) {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('T',"ice troll"),(22,14) {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+
+# Outside the main zoo
+MONSTER:('&',"ice devil"),(66,09)
+MONSTER:('&',"ice devil"),(66,10)
+
+# Main zoo augment
+MONSTER:('q',"mastodon"),(50,08)
+MONSTER:('T',"ice troll"),(50,09)
+MONSTER:('T',"ice troll"),(50,10)
+MONSTER:('q',"woolly mammoth"),(50,11)
+
+# Mini-foyer
+MONSTER:(''',"snow golem"),(47,09)
+MONSTER:(''',"snow golem"),(47,10)
+
+# The Ice Queen and her pets
+MONSTER:('@',"Kathryn the Ice Queen"),(34,09),hostile
+MONSTER:('d',"Koa"),(37,09),hostile
+MONSTER:('d',"Ozzy"),(37,10),hostile
+
+# The prize
+MONSTER:('u',"pegasus"),(29,10),peaceful,asleep
+
+# None shall pass
+NON_DIGGABLE:(00,00,75,19)
+NON_PASSWALL:(00,00,75,19)
+
