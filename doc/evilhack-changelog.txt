@@ -832,4 +832,6 @@ Version 0.5.0
 - Healers can sense how injured a monster is
 - Fix: 'You slip the leash around your Fiesty's gnome mummy'
 - New branch: The Ice Queen's Realm
+- Fix: seeing feedback from monster vs monster AD_CLOB attacks when they weren't
+  visible
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
