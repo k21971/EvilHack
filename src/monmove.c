@@ -824,7 +824,8 @@ toofar:
             }
         }
 
-        if (mtmp->monmount != 1)
+        /* TODO: Update with a more elegant solution allowing for steed ranged attacks */
+        if (!tmp && !mtmp->rider_id)
             tmp = m_move(mtmp, 0);
         else
             tmp = 0;

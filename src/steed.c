@@ -22,7 +22,7 @@ rider_cant_reach()
 void update_monsteed(mtmp)
 struct monst *mtmp;
 {
-    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1 != NULL) {
+    if (has_erid(mtmp)) {
         ERID(mtmp)->m1->mx = mtmp->mx;
         ERID(mtmp)->m1->my = mtmp->my;
         ERID(mtmp)->m1->mpeaceful = mtmp->mpeaceful;
@@ -34,19 +34,22 @@ int pm;
 {
     register struct monst *mount;
 
-    newerid(mtmp);
     /* small hack here: make it in a random spot to avoid failures due to there
        not being enough room. */
     mount = makemon(&mons[pm], 0, 0, MM_ADJACENTOK);
+    if (!mount || is_covetous(mount->data)) {
+        return;
+    } else {
+        remove_monster(mount->mx, mount->my);
+        newsym(mount->mx, mount->my);
+    }
+    newerid(mtmp);
     ERID(mtmp)->m1 = mount;
     ERID(mtmp)->mid = mount->m_id;
-    remove_monster(ERID(mtmp)->m1->mx, ERID(mtmp)->m1->my);
-    if (cansee(ERID(mtmp)->m1->mx, ERID(mtmp)->m1->my))
-        newsym(ERID(mtmp)->m1->mx, ERID(mtmp)->m1->my);
-    ERID(mtmp)->m1->monmount = 1;
+    ERID(mtmp)->m1->rider_id = mtmp->m_id;
     ERID(mtmp)->m1->mx = mtmp->mx;
     ERID(mtmp)->m1->my = mtmp->my;
-    context.botl = TRUE;
+    newsym(mtmp->mx, mtmp->my);
 
     if (can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
         struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
@@ -70,17 +73,46 @@ free_erid(mtmp)
 struct monst *mtmp;
 {
     if (mtmp->mextra && ERID(mtmp)) {
+        ERID(mtmp)->m1->rider_id = 0; /* Remove pointer to monster in steed */
         free((genericptr_t) ERID(mtmp));
         ERID(mtmp) = (struct erid *) 0;
     }
 }
 
+void
+separate_steed_and_rider(rider)
+struct monst *rider;
+{
+    struct monst *steed;
+    coord cc;
+    if (!has_erid(rider))
+        return;
+    steed = ERID(rider)->m1;
+    free_erid(rider);
+    /* TODO: Figure out what's going on here */
+    if (!DEADMONSTER(rider)) {
+        enexto(&cc, rider->mx, rider->my, rider->data);
+        rloc_to(rider, cc.x, cc.y);
+    }
+    if (!DEADMONSTER(steed)) {
+        enexto(&cc, steed->mx, steed->my, steed->data);
+        rloc_to(steed, cc.x, cc.y);
+    }
+    update_monster_region(rider);
+    update_monster_region(steed);
+}
+
 struct monst*
-get_mount(mtmp)
+get_mon_rider(mtmp)
 struct monst *mtmp;
 {
-    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1 != NULL) {
-        return ERID(mtmp)->m1;
+    struct monst *mtmp2;
+
+    if (!mtmp->rider_id)
+        return (struct monst *) 0;
+    for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+        if (mtmp->rider_id == mtmp2->m_id)
+            return mtmp2;
     }
     return (struct monst *) 0;
 }

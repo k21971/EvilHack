@@ -842,6 +842,10 @@ struct monst *magr, *mdef;
     if (mdef->data->msize >= MZ_HUGE)
         return FALSE;
 
+    /* can't swallow something if riding / being ridden */
+    if (magr->rider_id || mdef->rider_id || has_erid(magr))
+        return FALSE;
+
     /* (hypothetical) engulfers who can pass through walls aren't
      limited by rock|trees|bars */
     if ((magr == &youmonst) ? Passes_walls : passes_walls(magr->data))
@@ -877,13 +881,10 @@ register struct attack *mattk;
     if (!engulf_target(magr, mdef))
         return MM_MISS;
 
-    if (mdef->mextra && ERID(mdef) && ERID(mdef)->m1 != NULL) {
-        msteed = ERID(mdef)->m1;
-        ERID(mdef)->m1->monmount = 0;
-        if (vis) {
+    if (has_erid(mdef)) {
+        if (vis)
             pline("%s plucks %s right off %s mount!", Monnam(magr), mon_nam(mdef), mhis(mdef));
-        }
-        free_erid(mdef);
+        separate_steed_and_rider(mdef);
     }
 
     if (vis) {

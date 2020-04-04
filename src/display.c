@@ -486,7 +486,7 @@ xchar worm_tail;            /* mon is actually a worm tail */
                 num = petnum_to_glyph(PM_LONG_WORM_TAIL);
             else
                 num = pet_to_glyph(mon, rn2_on_display_rng);
-        } else if (has_erid(mon) || mon->monmount) {
+        } else if (has_erid(mon) || mon->rider_id) {
             num = ridden_mon_to_glyph(mon, rn2_on_display_rng);
         } else if (sightflags == DETECTED) {
             if (worm_tail)

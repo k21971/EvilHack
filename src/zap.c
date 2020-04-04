@@ -3668,8 +3668,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
                    it causes massive problems if the
                    mount dies before the rider... */
 
-                if (obj->otyp == WAN_PROBING &&
-                      has_erid(mtmp) && ERID(mtmp)->m1) {
+                if (obj->otyp == WAN_PROBING && has_erid(mtmp)) {
                     (*fhitm)(ERID(mtmp)->m1, obj);
                     range -= 1;
                 }

@@ -836,4 +836,5 @@ Version 0.5.0
   visible
 - Fix: monsters shouldn't be able to unlock crystal chests
 - Fix: iron ball being deallocated when saving
+- Rewrite monster steed / monster rider handling (SpliceHack)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

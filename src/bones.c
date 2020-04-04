@@ -416,9 +416,8 @@ struct obj *corpse;
             mongone(mtmp);
 
         /* monster steeds tend to wander off */
-        if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1 != NULL) {
+        if (has_erid(mtmp)) {
             msteed = ERID(mtmp)->m1;
-            ERID(mtmp)->m1->monmount = 0;
             cc.x = msteed->mx;
             cc.y = msteed->my;
             enexto(&cc, u.ux, u.uy, msteed->data);

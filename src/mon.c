@@ -109,7 +109,7 @@ mon_sanity_check()
             if (x != u.ux || y != u.uy)
                 impossible("steed (%s) claims to be at <%d,%d>?",
                            fmt_ptr((genericptr_t) mtmp), x, y);
-        } else if (mtmp->monmount) {
+        } else if (mtmp->rider_id) {
             continue;
         } else if (level.monsters[x][y] != mtmp) {
             impossible("mon (%s) at <%d,%d> is not there!",
@@ -2212,7 +2212,7 @@ struct monst *mtmp, *mtmp2;
     relmon(mtmp, (struct monst **) 0);
 
     /* finish adding its replacement */
-    if (mtmp != u.usteed && mtmp->monmount !=1) /* don't place steed onto the map */
+    if (mtmp != u.usteed && !mtmp->rider_id) /* don't place steed onto the map */
         place_monster(mtmp2, mtmp2->mx, mtmp2->my);
     if (mtmp2->wormno)      /* update level.monsters[wseg->wx][wseg->wy] */
         place_wsegs(mtmp2, NULL); /* locations to mtmp2 not mtmp. */
@@ -2410,6 +2410,13 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
         del_light_source(LS_MONSTER, monst_to_any(mtmp));
     if (M_AP_TYPE(mtmp))
         seemimic(mtmp);
+    if (has_erid(mtmp))
+        separate_steed_and_rider(mtmp);
+    if (mtmp->rider_id) {
+        struct monst *mtmp2 = get_mon_rider(mtmp);
+        if (mtmp2) free_erid(mtmp2);
+        newsym(mtmp->mx, mtmp->my);
+    }
     if (onmap)
         newsym(mtmp->mx, mtmp->my);
     unstuck(mtmp);
@@ -2645,16 +2652,6 @@ register struct monst *mtmp;
     if (mtmp == u.usteed)
         dismount_steed(DISMOUNT_GENERIC);
 
-    /* Likewise, if it's a mon-steed */
-    if (mtmp->monmount) {
-        struct monst *mtmp2;
-        for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon)
-            if (get_mount(mtmp2) == mtmp) {
-                free_erid(mtmp2);
-                break;
-            }
-    }
-
     /* extinguish monster's armor */
     if ((otmp = which_armor(mtmp, W_ARM))
         && (otmp->otyp==GOLD_DRAGON_SCALE_MAIL
@@ -2791,14 +2788,6 @@ boolean was_swallowed; /* digestion */
     struct permonst *mdat = mon->data;
     int i, tmp;
 
-    /* If mounted, the mount appears after death of its rider */
-    if (mon->mextra && ERID(mon) && ERID(mon)->m1 != NULL) {
-        place_monster(ERID(mon)->m1, mon->mx, mon->my);
-        ERID(mon)->m1->monmount = 0;
-        newsym(ERID(mon)->m1->mx, ERID(mon)->m1->my);
-    }
-    free_erid(mon);
-
     if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH
         || mdat == &mons[PM_ALHOON]) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
@@ -2891,8 +2880,6 @@ void
 mondied(mdef)
 register struct monst *mdef;
 {
-    struct monst *msteed = NULL;
-
     mondead(mdef);
     if (!DEADMONSTER(mdef))
         return; /* lifesaved */
@@ -2900,14 +2887,6 @@ register struct monst *mdef;
     if (corpse_chance(mdef, (struct monst *) 0, FALSE)
         && (accessible(mdef->mx, mdef->my) || is_pool(mdef->mx, mdef->my)))
         (void) make_corpse(mdef, CORPSTAT_NONE);
-
-    if (mdef->mextra && ERID(mdef) && ERID(mdef)->m1 != NULL) {
-        msteed = ERID(mdef)->m1;
-        ERID(mdef)->m1->monmount = 0;
-        place_monster(msteed, mdef->mx, mdef->my);
-        newsym(mdef->mx, mdef->my);
-        free_erid(mdef);
-    }
 }
 
 /* monster disappears, not dies */
@@ -3548,6 +3527,7 @@ struct monst *mtmp;
             pline("%s suddenly %s!", Amonnam(mtmp),
                   !Blind ? "appears" : "arrives");
     }
+    update_monsteed(mtmp);
     return;
 }
 
