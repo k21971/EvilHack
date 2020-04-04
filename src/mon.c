@@ -1445,9 +1445,10 @@ register const char *str;
             if (otmp->olocked) {
                 if ((nohands(mtmp->data) || verysmall(mtmp->data)
                     || otmp->otyp == IRON_SAFE
+                    || otmp->otyp == CRYSTAL_CHEST
                     || (!m_carrying(mtmp, SKELETON_KEY)
-                    && !m_carrying(mtmp, LOCK_PICK)
-                    && !m_carrying(mtmp, CREDIT_CARD)))
+                        && !m_carrying(mtmp, LOCK_PICK)
+                        && !m_carrying(mtmp, CREDIT_CARD)))
                     && !mtmp->iswiz && !is_rider(mtmp->data))
                     continue;
                 waslocked = TRUE;

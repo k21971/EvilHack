@@ -954,7 +954,7 @@ boolean artif;
                 mkbox_cnts(otmp);
                 break;
             case CRYSTAL_CHEST:
-                otmp->olocked = !!(rn2(5));
+                otmp->olocked = 1;
                 otmp->otrapped = 0;
                 mkbox_cnts(otmp);
                 break;

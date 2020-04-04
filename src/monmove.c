@@ -1003,7 +1003,8 @@ register struct obj *container;
     register int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
     register struct obj *otmp;
 
-    can_open = !(nohands(mtmp->data) || verysmall(mtmp->data));
+    can_open = !(nohands(mtmp->data) || verysmall(mtmp->data)
+                 || container->otyp == IRON_SAFE || container->otyp == CRYSTAL_CHEST);
     can_unlock = ((can_open
                   && (m_carrying(mtmp, SKELETON_KEY)
                       || m_carrying(mtmp, LOCK_PICK)
