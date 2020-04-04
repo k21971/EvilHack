@@ -694,7 +694,7 @@ struct attack *uattk;
 
     /* second attack for a Monk who has reached Grand Master skill
        in martial arts */
-    if (!uwep && P_BARE_HANDED_COMBAT && Role_if(PM_MONK)
+    if (!uwep && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
         && malive && m_at(x, y) == mon) {
         if (wearshield) {
@@ -716,7 +716,7 @@ struct attack *uattk;
 
     /* random kick attack for a Monk who has reached Master skill
        or greater in martial arts */
-    if (!rn2(3) && !uwep && P_BARE_HANDED_COMBAT && Role_if(PM_MONK)
+    if (!rn2(3) && !uwep && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) >= P_MASTER
         && malive && m_at(x, y) == mon) {
         if (weararmor) {
@@ -828,14 +828,13 @@ int dieroll;
         thievery = Role_if(PM_ROGUE) && context.forcefight && !Upolyd;
 
         /* don't increment thievery skill for regular bare handed attacks */
-        if (!uwep && Role_if(PM_ROGUE) && P_BARE_HANDED_COMBAT
-            && !context.forcefight)
+        if (!uwep && Role_if(PM_ROGUE) && !context.forcefight)
             use_skill(P_THIEVERY, -1);
 
         /* monks have a chance to break their opponents wielded weapon
          * under certain conditions */
         if ((dieroll == 5 && unarmed
-            && Role_if(PM_MONK) && P_BARE_HANDED_COMBAT
+            && Role_if(PM_MONK)
             && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER)
             && ((monwep = MON_WEP(mon)) != 0
                 && !is_flimsy(monwep))
@@ -1452,7 +1451,7 @@ int dieroll;
             hit(mshot_xname(obj), mon, exclam(tmp));
         else if (!flags.verbose)
             You("hit it.");
-        else if (!uwep && P_BARE_HANDED_COMBAT && Role_if(PM_MONK) && !Upolyd) {
+        else if (!uwep && Role_if(PM_MONK) && !Upolyd) {
             if (!Blind && Hallucination) {
                 You("%s %s%s", hmonkattacks[rn2(SIZE(hmonkattacks))],
                     mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");

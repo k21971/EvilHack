@@ -1806,7 +1806,7 @@ struct obj *obj;
                 }
                 if (golem_xform)
                     ptr = &mons[PM_FLESH_GOLEM];
-                mon = makemon(ptr, oox, ooy, NO_MINVENT || MM_REVIVE);
+                mon = makemon(ptr, oox, ooy, (NO_MINVENT | MM_REVIVE));
                 if (mon) {
                     if (costly_spot(oox, ooy)
                         && (carried(obj) ? obj->unpaid : !obj->no_charge)) {
@@ -5898,7 +5898,7 @@ blindingflash()
         /* if it can't see the flash, don't bother */
         if (DEADMONSTER(mtmp) || mtmp->msleeping
             || !haseyes(mtmp->data) || !mtmp->mcansee
-            || mtmp->mblinded || !&youmonst.data)
+            || mtmp->mblinded || mtmp != &youmonst)
             continue;
 
         /* must be able to see our location... */

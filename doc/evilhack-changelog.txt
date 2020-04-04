@@ -838,4 +838,5 @@ Version 0.5.0
 - Fix: iron ball being deallocated when saving
 - Rewrite monster steed / monster rider handling (SpliceHack)
 - Tweaks to a few random vaults
+- Fix: various compile warnings (clang)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
