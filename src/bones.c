@@ -412,7 +412,9 @@ struct obj *corpse;
         if (mtmp->iswiz || mptr == &mons[PM_MEDUSA]
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
             || mptr == &mons[PM_VLAD_THE_IMPALER]
-            || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp)))
+            || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))
+            || mptr == &mons[PM_CERBERUS] || mptr == &mons[PM_RAT_KING]
+            || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN])
             mongone(mtmp);
 
         /* monster steeds tend to wander off */

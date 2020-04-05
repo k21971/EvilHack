@@ -3157,7 +3157,7 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_REGEN | M1_OMNIVORE | M1_SEE_INVIS
             | M1_FLY,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_PNAME
-            | M2_FEMALE | M2_GREEDY | M2_COLLECT | M2_MAGIC | M2_STALK,
+            | M2_FEMALE | M2_GREEDY | M2_COLLECT | M2_MAGIC,
         M3_WAITFORU | M3_INFRAVISION | M3_ACCURATE,
         M4_VULNERABLE_FIRE, MH_HUMAN, 36, DRAGON_SILVER),
     MON("Kathryn the Enchantress", S_HUMAN, LVL(100, 9, 0, 100, 15),
@@ -3168,7 +3168,7 @@ struct permonst _mons2[] = {
         MR_STONE | MR_SLEEP | MR_COLD | MR_FIRE | MR_ELEC | MR_POISON
             | MR_ACID | MR_DISINT | MR_PSYCHIC, 0,
         M1_HUMANOID | M1_REGEN | M1_OMNIVORE | M1_SEE_INVIS
-            | M1_FLY,
+            | M1_FLY | M1_TPORT_CNTRL,
         M2_NOPOLY | M2_PEACEFUL | M2_STRONG | M2_NASTY | M2_PNAME
             | M2_FEMALE | M2_GREEDY | M2_COLLECT | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISION | M3_ACCURATE,

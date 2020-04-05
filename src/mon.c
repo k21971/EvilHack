@@ -2556,6 +2556,7 @@ register struct monst *mtmp;
         mtmp->msick = 0;
         mtmp->mdiseased = 0;
         mtmp->mpeaceful = 1;
+        livelog_printf(LL_UMONST, "defeated %s", noit_mon_nam(mtmp));
         newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
         mtmp->mhp = mtmp->mhpmax = 7500;
         if (mtmp == u.ustuck) {
@@ -2721,8 +2722,6 @@ register struct monst *mtmp;
     if (mtmp->data == &mons[PM_MEDUSA] && !u.uachieve.killed_medusa) {
         u.uachieve.killed_medusa = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Medusa");
-    } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
-        livelog_printf(LL_UMONST, "defeated %s", noit_mon_nam(mtmp));
     } else if (mtmp->data == &mons[PM_DEATH]) {
         switch (mvitals[tmp].died) {
             case 1:

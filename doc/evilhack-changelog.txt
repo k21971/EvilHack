@@ -840,4 +840,5 @@ Version 0.5.0
 - Tweaks to a few random vaults
 - Fix: various compile warnings (clang)
 - Fix: minor fix that allows mkstairs() to run prior to find_branch_room()
+- Fix: small fixes regarding the Ice Queen's Realm branch
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
