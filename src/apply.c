@@ -318,7 +318,7 @@ struct obj* tobj;
             pline("You attempt to crack the safe using the combination... %s?",
                   rndcolor());
         } else {
-	    pick_lock(tobj, rx, ry);
+	    pick_lock(tobj, rx, ry, NULL);
 	    return TRUE;
         }
     }
@@ -3735,7 +3735,7 @@ doapply()
     case LOCK_PICK:
     case CREDIT_CARD:
     case SKELETON_KEY:
-        res = (pick_lock(obj, 0, 0) != 0);
+        res = (pick_lock(obj, 0, 0, NULL) != 0);
         break;
     case PICK_AXE:
     case DWARVISH_MATTOCK:

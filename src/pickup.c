@@ -1741,6 +1741,7 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
     if (!cobj)
         return 0;
     if (cobj->olocked) {
+        struct obj *unlocktool;
         if (ccount < 2)
             pline("%s locked.",
                   cobj->lknown ? "It is" : "Hmmm, it turns out to be");
@@ -1749,6 +1750,18 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
         else
             pline("Hmmm, %s turns out to be locked.", the(xname(cobj)));
         cobj->lknown = 1;
+        if (flags.autounlock && (unlocktool = carrying(STETHOSCOPE)) != 0) {
+            if (cobj->otyp == IRON_SAFE) {
+                /* pass ox and oy to avoid direction prompt */
+                pick_lock(unlocktool, cobj->ox, cobj->oy, cobj);
+            }
+        }
+        if (flags.autounlock && (unlocktool = autokey(TRUE)) != 0) {
+            if (cobj->otyp == LARGE_BOX || cobj->otyp == CHEST) {
+                /* pass ox and oy to avoid direction prompt */
+                return (pick_lock(unlocktool, cobj->ox, cobj->oy, cobj) != 0);
+            }
+        }
         return 0;
     }
     cobj->lknown = 1; /* floor container, so no need for update_inventory() */

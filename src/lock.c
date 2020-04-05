@@ -300,6 +300,66 @@ struct obj *container; /* passed from obfree() */
         reset_pick();
 }
 
+/* pick a tool for autounlock */
+struct obj *
+autokey(opening)
+boolean opening; /* True: key, pick, or card; False: key or pick */
+{
+    struct obj *o, *key, *pick, *card, *akey, *apick, *acard;
+
+    /* mundane item or regular artifact or own role's quest artifact */
+    key = pick = card = (struct obj *) 0;
+    /* other role's quest artifact (Rogue's Key or Tourist's Credit Card) */
+    akey = apick = acard = (struct obj *) 0;
+    for (o = invent; o; o = o->nobj) {
+        if (any_quest_artifact(o) && !is_quest_artifact(o)) {
+            switch (o->otyp) {
+            case SKELETON_KEY:
+                if (!akey)
+                    akey = o;
+                break;
+            case LOCK_PICK:
+                if (!apick)
+                    apick = o;
+                break;
+            case CREDIT_CARD:
+                if (!acard)
+                    acard = o;
+                break;
+            default:
+                break;
+            }
+        } else {
+            switch (o->otyp) {
+            case SKELETON_KEY:
+                if (!key || is_magic_key(&youmonst, o))
+                    key = o;
+                break;
+            case LOCK_PICK:
+                if (!pick)
+                    pick = o;
+                break;
+            case CREDIT_CARD:
+                if (!card)
+                    card = o;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    if (!opening)
+        card = acard = 0;
+    /* only resort to other role's quest artifact if no other choice */
+    if (!key && !pick && !card)
+        key = akey;
+    if (!pick && !card)
+        pick = apick;
+    if (!card)
+        card = acard;
+    return key ? key : pick ? pick : card ? card : 0;
+}
+
 /* for doapply(); if player gives a direction or resumes an interrupted
    previous attempt then it costs hero a move even if nothing ultimately
    happens; when told "can't do that" before being asked for direction
@@ -310,15 +370,18 @@ struct obj *container; /* passed from obfree() */
 
 /* player is applying a key, lock pick, or credit card */
 int
-pick_lock(pick, rx, ry)
+pick_lock(pick, rx, ry, container)
 struct obj *pick;
-int rx, ry;
+xchar rx, ry; /* coordinates of doors/container, for autounlock: does not
+                 prompt for direction if these are set */
+struct obj *container; /* container, for autounlock */
 {
     int picktyp, c, ch;
     coord cc;
     struct rm *door;
     struct obj *otmp;
     char qbuf[QBUFSZ];
+    boolean autounlock = (rx != 0 && ry != 0) || (container != NULL);
 
     picktyp = pick->otyp;
 
@@ -368,12 +431,12 @@ int rx, ry;
     }
     ch = 0; /* lint suppression */
 
-    /* If this is a stethoscope, we know where we came from */
-    if (picktyp == STETHOSCOPE) {
-	cc.x = rx; cc.y = ry;
-    } else {
-	if (!get_adjacent_loc((char *) 0, "Invalid location!", u.ux, u.uy, &cc))
-            return PICKLOCK_DID_NOTHING;
+    if (rx != 0 && ry != 0) { /* autounlock; caller has provided coordinates */
+        cc.x = rx;
+        cc.y = ry;
+    } else if (!get_adjacent_loc((char *) 0, "Invalid location!",
+                                 u.ux, u.uy, &cc)) {
+        return PICKLOCK_DID_NOTHING;
     }
 
     /* Very clumsy special case for this, but forcing the player to
@@ -399,7 +462,9 @@ int rx, ry;
         count = 0;
         c = 'n'; /* in case there are no boxes here */
         for (otmp = level.objects[cc.x][cc.y]; otmp; otmp = otmp->nexthere)
-            if (Is_box(otmp)) {
+            /* autounlock on boxes: only the one that just informed you it was
+             * locked. Don't include any other boxes which might be here. */
+            if ((!autounlock && Is_box(otmp)) || (otmp == container)) {
                 ++count;
                 if (!can_reach_floor(TRUE)) {
                     You_cant("reach %s from up here.", the(xname(otmp)));
@@ -417,17 +482,25 @@ int rx, ry;
                 else
                     verb = "pick";
 
-                /* "There is <a box> here; <verb> <it|its lock>?" */
-                Sprintf(qsfx, " here; %s %s?", verb, it ? "it" : "its lock");
-                (void) safe_qbuf(qbuf, "There is ", qsfx, otmp, doname,
-                                 ansimpleoname, "a box");
-                otmp->lknown = 1;
+                if (autounlock) {
+                    Sprintf(qbuf, "Unlock it with %s?", yname(pick));
+                    c = yn(qbuf);
+                    if (c == 'n')
+                        return 0;
+                } else {
+                    /* "There is <a box> here; <verb> <it|its lock>?" */
+                    Sprintf(qsfx, " here; %s %s?",
+                            verb, it ? "it" : "its lock");
+                    (void) safe_qbuf(qbuf, "There is ", qsfx, otmp, doname,
+                                     ansimpleoname, "a box");
+                    otmp->lknown = 1;
 
-                c = ynq(qbuf);
-                if (c == 'q')
-                    return 0;
-                if (c == 'n')
-                    continue;
+                    c = ynq(qbuf);
+                    if (c == 'q')
+                        return 0;
+                    if (c == 'n')
+                        continue;
+                }
 
 		if (otmp->otyp == IRON_SAFE && picktyp != STETHOSCOPE) {
 		    You("aren't sure how to go about opening the safe that way.");
@@ -457,6 +530,9 @@ int rx, ry;
                     You_cant("do that with %s.",
                              an(simple_typename(picktyp)));
                     return PICKLOCK_LEARNED_SOMETHING;
+                } else if (autounlock && !touch_artifact(pick, &youmonst)) {
+                    /* note: for !autounlock, apply already did touch check */
+                    return PICKLOCK_DID_SOMETHING;
                 }
                 switch (picktyp) {
                 case CREDIT_CARD:
@@ -536,12 +612,18 @@ int rx, ry;
                 return PICKLOCK_LEARNED_SOMETHING;
             }
 
-            Sprintf(qbuf, "%s it?",
-                    (door->doormask & D_LOCKED) ? "Unlock" : "Lock");
+            Sprintf(qbuf, "%s it%s%s?",
+                    (door->doormask & D_LOCKED) ? "Unlock" : "Lock",
+                    autounlock ? " with " : "",
+                    autounlock ? yname(pick) : "");
 
             c = yn(qbuf);
             if (c == 'n')
                 return 0;
+
+            /* note: for !autounlock, 'apply' already did touch check */
+            if (autounlock && !touch_artifact(pick, &youmonst))
+                return PICKLOCK_DID_SOMETHING;
 
             switch (picktyp) {
             case CREDIT_CARD:
@@ -745,6 +827,8 @@ int x, y;
 
     if (!(door->doormask & D_CLOSED)) {
         const char *mesg;
+        boolean locked = FALSE;
+        struct obj* unlocktool;
 
         switch (door->doormask) {
         case D_BROKEN:
@@ -758,9 +842,13 @@ int x, y;
             break;
         default:
             mesg = " is locked";
+            locked = TRUE;
             break;
         }
         pline("This door%s.", mesg);
+        if (locked && flags.autounlock && (unlocktool = autokey(TRUE)) != 0) {
+            res = pick_lock(unlocktool, cc.x, cc.y, (struct obj *) 0);
+        }
         return res;
     }
 
