@@ -843,5 +843,6 @@ Version 0.5.0
 - Fix: small fixes regarding the Ice Queen's Realm branch
 - Some tweaks to the Ice Queen's Realm branch 
 - Adjust illithid race starting statistics
+- Mummies have a constitution-draining attack
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
