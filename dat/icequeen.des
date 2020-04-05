@@ -202,16 +202,16 @@ IIIIIIIIIIIIIIIIIIII                                                      II
 IIIIIIIIIIIIIIIIIIII -----------  -------   ------   -------  ----------- II
 IIIIIIIIIIIIIIIIIIIII|..|......|  |.....|  -|....|-  |.....|  |.........| II
 IIIIIIIIIIIIIIIIIIIIIF..|---...----.....---|......|---.....----...---...| II
-IIIIIIIIIIIIIIIIIIIIIF..S..................+......+.....................| II
-IIIIIIIIIIIIIIIIIIIIIF..|---...------------|......|------------...---...| II
-IIIIIIIIIIIIIIIIIIIII|..|......|...........-|....|-...........|.........| II
-IIIIIIIIIIIIIIIIIIII ----...----............|----|............|......---- II
-IIIIIIIIIIIIIIIIIIIIIIII+...|..F............S....+............+......|    II
-IIIIIIIIIIIIIIIIIIIIIIII+...|..F............S....+............+......|    II
-IIIIIIIIIIIIIIIIIIII ----...----............|----|............|......---- II
-IIIIIIIIIIIIIIIIIIIII|..|......|...........-|....|-...........|.........| II
-IIIIIIIIIIIIIIIIIIIIIF..|---...------------|......|------------...---...| II
-IIIIIIIIIIIIIIIIIIIIIF..S..................+......+.....................| II
+IIIIIIIIIIIIIIIIIIIIIF..S..................+......+.....................|  I
+IIIIIIIIIIIIIIIIIIIIIF..|---...------------|......|------------....------- I
+IIIIIIIIIIIIIIIIIIIII|..|......|...........-|....|-...........|....|.....| I
+IIIIIIIIIIIIIIIIIIII ----...----............|----|............|....|.....| I
+IIIIIIIIIIIIIIIIIIIIIIII+...|..F............S....+............+....S.....| I
+IIIIIIIIIIIIIIIIIIIIIIII+...|..F............S....+............+....S.....| I
+IIIIIIIIIIIIIIIIIIII ----...----............|----|............|....|.....| I
+IIIIIIIIIIIIIIIIIIIII|..|......|...........-|....|-...........|....|.....| I
+IIIIIIIIIIIIIIIIIIIIIF..|---...------------|......|------------....------- I
+IIIIIIIIIIIIIIIIIIIIIF..S..................+......+.....................|  I
 IIIIIIIIIIIIIIIIIIIIIF..|---...----.....---|......|---.....----...---...| II
 IIIIIIIIIIIIIIIIIIIII|..|......|  |.....|  -|....|-  |.....|  |.........| II
 IIIIIIIIIIIIIIIIIIII -----------  -------   ------   -------  ----------- II
@@ -226,6 +226,7 @@ REGION:(00,00,75,19),lit,"ordinary"
 REGION:(45,03,48,07),unlit,"zoo"
 REGION:(45,12,48,16),unlit,"zoo"
 REGION:(51,07,61,12),unlit,"zoo"
+REGION:(68,07,72,12),lit,"temple"
 # Stairs
 STAIR:(02,18),up
 
@@ -244,11 +245,16 @@ DOOR:locked,(50,05)
 DOOR:locked,(50,14)
 DOOR:locked,(62,09)
 DOOR:locked,(62,10)
+DOOR:locked,(67,09)
+DOOR:locked,(67,10)
 
 # Traps
 TRAP:"spear",(23,09)
 TRAP:"spear",(23,10)
 
+# Evil altar
+ALTAR:(70,10),noalign,shrine
+ 
 # Objects and terrain
 OBJECT:'$',(29,09),quantity:2000
 OBJECT:'$',(29,10),quantity:2000
@@ -296,9 +302,11 @@ MONSTER:('T',"ice troll"),(22,14) {
   OBJECT:(')',"orcish arrow"),uncursed,quantity:100
 }
 
-# Outside the main zoo
-MONSTER:('&',"ice devil"),(66,09)
-MONSTER:('&',"ice devil"),(66,10)
+# Outside the main zoo and inside the temple
+MONSTER:('&',"ice devil"),(65,09)
+MONSTER:('&',"ice devil"),(65,10)
+MONSTER:('&',"ice devil"),(70,07)
+MONSTER:('&',"ice devil"),(70,12)
 
 # Main zoo augment
 MONSTER:('q',"mastodon"),(50,08)

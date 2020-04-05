@@ -3147,7 +3147,7 @@ struct permonst _mons2[] = {
             | M2_MALE | M2_GREEDY | M2_COLLECT,
         M3_WAITFORU | M3_INFRAVISIBLE,
         0, MH_HUMAN | MH_WERE, 14, CLR_BLACK),
-    MON("Kathryn the Ice Queen", S_HUMAN, LVL(32, 15, 0, 80, 0),
+    MON("Kathryn the Ice Queen", S_HUMAN, LVL(32, 15, 0, 80, A_NONE),
         (G_UNIQ | G_NOCORPSE | G_NOGEN),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 4), ATTK(AT_TUCH, AD_COLD, 8, 8),
           ATTK(AT_MAGC, AD_CLRC, 3, 8), ATTK(AT_MAGC, AD_SPEL, 3, 8),
