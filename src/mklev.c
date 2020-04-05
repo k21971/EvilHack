@@ -859,9 +859,9 @@ makelevel()
     do {
         croom = &rooms[rn2(nroom)];
     } while (!croom->needjoining && ++tryct < 500);
-    if (!Is_botlevel(&u.uz)
-        || !is_puddle(pos.x, pos.y) || !is_sewage(pos.x, pos.y)) {
-	if (!somexyspace(croom, &pos, 0)) {
+    if (!Is_botlevel(&u.uz)) {
+	if (!somexyspace(croom, &pos, 0)
+            || !is_puddle(pos.x, pos.y) || !is_sewage(pos.x, pos.y)) {
             pos.x = somex(croom);
             pos.y = somey(croom);
 	}
@@ -875,9 +875,9 @@ makelevel()
         } while ((!croom->needjoining || (croom == troom)) && ++tryct < 500);
     }
 
-    if (u.uz.dlevel != 1
-        || !is_puddle(pos.x, pos.y) || !is_sewage(pos.x, pos.y)) {
-	if (!somexyspace(croom, &pos, 0)) {
+    if (u.uz.dlevel != 1) {
+	if (!somexyspace(croom, &pos, 0)
+            || !is_puddle(pos.x, pos.y) || !is_sewage(pos.x, pos.y)) {
             if (!somexy(croom, &pos)) {
                 pos.x = somex(croom);
                 pos.y = somey(croom);
