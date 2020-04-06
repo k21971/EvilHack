@@ -847,5 +847,6 @@ Version 0.5.0
 - Autounlock doors and containers
 - Fix: add dead trees to win/share/tilemap.c
 - Don't 'kill' the Ice Queen's dogs
+- Fix: level sounds indicating portal to the Ice Queen's realm 
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
