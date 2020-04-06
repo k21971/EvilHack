@@ -2578,6 +2578,26 @@ register struct monst *mtmp;
         return;
     }
 
+    /* special handling for the Ice Queen's dogs */
+    if (mtmp->data == &mons[PM_KOA]  || mtmp->data == &mons[PM_OZZY]) {
+        pline("But wait!  Instead of delivering the final, fatal strike, you show mercy, and have made %s submit.", mon_nam(mtmp));
+        mtmp->mcanmove = 1;
+        mtmp->mfrozen = 0;
+        mtmp->mstone = 0;
+        mtmp->msick = 0;
+        mtmp->mdiseased = 0;
+        mtmp->mpeaceful = 1;
+        mtmp->mhp = mtmp->mhpmax;
+        if (mtmp == u.ustuck) {
+            if (u.uswallow)
+                expels(mtmp, mtmp->data, FALSE);
+            else
+                uunstick();
+        }
+        newsym(mtmp->mx, mtmp->my);
+        return;
+    }
+
     if (is_vampshifter(mtmp) || is_changeling(mtmp)) {
         int mndx = mtmp->cham;
         int x = mtmp->mx, y = mtmp->my;
