@@ -845,5 +845,6 @@ Version 0.5.0
 - Adjust illithid race starting statistics
 - Mummies have a constitution-draining attack
 - Autounlock doors and containers
+- Fix: add dead trees to win/share/tilemap.c
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
