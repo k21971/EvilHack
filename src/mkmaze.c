@@ -23,6 +23,7 @@ STATIC_DCL boolean FDECL(put_lregion_here, (XCHAR_P, XCHAR_P, XCHAR_P,
                                             XCHAR_P, XCHAR_P, XCHAR_P,
                                             XCHAR_P, BOOLEAN_P, d_level *));
 STATIC_DCL void NDECL(baalz_fixup);
+STATIC_DCL void NDECL(fixup_special);
 STATIC_DCL void NDECL(setup_waterlevel);
 STATIC_DCL void NDECL(unsetup_waterlevel);
 STATIC_DCL void FDECL(check_ransacked, (char *));
@@ -461,7 +462,7 @@ baalz_fixup()
 }
 
 /* this is special stuff that the level compiler cannot (yet) handle */
-void
+STATIC_OVL void
 fixup_special()
 {
     lev_region *r = lregions;
@@ -1014,6 +1015,7 @@ const char *s;
         Strcat(protofile, LEV_EXT);
         in_mk_rndvault = FALSE;
         if (load_special(protofile)) {
+            fixup_special();
             /* some levels can end up with monsters
                on dead mon list, including light source monsters */
             dmonsfree();
