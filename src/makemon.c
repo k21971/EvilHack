@@ -214,7 +214,7 @@ struct trobj Level20Kit2[] = {
 	{ ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
 	{ AMULET_OF_REFLECTION, 0, AMULET_CLASS, 1, UNDEF_BLESS },
-	{ BAG_OF_HOLDING, 0, TOOL_CLASS, 1, 1 },
+	{ OILSKIN_SACK, 0, TOOL_CLASS, 1, 1 },
 	{ 0, 0, 0, 0, 0 }
 };
 
@@ -225,7 +225,7 @@ struct trobj Level20Kit3[] = {
         { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
         { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, UNDEF_BLESS },
-        { BAG_OF_HOLDING, 0, TOOL_CLASS, 1, 1 },
+        { OILSKIN_SACK, 0, TOOL_CLASS, 1, 1 },
         { 0, 0, 0, 0, 0 }
 };
 
@@ -236,7 +236,7 @@ struct trobj Level20Kit4[] = {
         { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
         { AMULET_OF_FLYING, 0, AMULET_CLASS, 1, UNDEF_BLESS },
-        { BAG_OF_HOLDING, 0, TOOL_CLASS, 1, 1 },
+        { OILSKIN_SACK, 0, TOOL_CLASS, 1, 1 },
         { 0, 0, 0, 0, 0 }
 };
 
@@ -555,7 +555,7 @@ register struct monst *mtmp;
                         if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
                             if (!rn2(100 + 10 * nartifact_exist()))
                                 mk_artifact(otmp, sgn(mtmp->data->maligntyp));
-                            else if (!rn2(40))
+                            else if (!rn2(30))
                                 create_oprop(otmp, FALSE);
                         }
                     }
@@ -981,7 +981,7 @@ register struct monst *mtmp;
                              artiname(ART_SUNSWORD));
                 if (!otmp->oartifact) {
                     otmp = oname(otmp, "");
-                    if (!rn2(20))
+                    if (!rn2(16))
                         create_oprop(otmp, FALSE);
                 }
             }

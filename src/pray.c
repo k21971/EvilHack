@@ -2132,7 +2132,7 @@ dosacrifice()
                         }
 
                         if (otmp) {
-                            if (!rn2(12))
+                            if (!rn2(8))
                                 otmp = create_oprop(otmp, FALSE);
                             bless(otmp);
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */

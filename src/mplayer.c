@@ -286,7 +286,7 @@ struct obj *obj;
                 if (!obj) {
                     if (!rn2(5))
                         otmp = mk_artifact(otmp, A_NONE);
-                    else if (!rn2(40))
+                    else if (!rn2(20))
                         otmp = create_oprop(otmp, FALSE);
                 }
             }
