@@ -391,4 +391,9 @@
     ((ptr)->msound ? ((ptr)->msize * 2 + 1) * ((ptr)->msize * 2 + 1) \
                    : ((ptr)->msize + 1) * ((ptr)->msize + 1))
 
+/* monsters not technically killed, but defeated  instead */
+#define is_defeated(ptr) \
+    ((ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN] || (ptr) == &mons[PM_KOA] \
+     || (ptr) == &mons[PM_OZZY])
+
 #endif /* MONDATA_H */

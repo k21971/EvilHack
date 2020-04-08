@@ -2548,8 +2548,7 @@ register struct monst *mtmp;
 
     /* our hero has freed the Ice Queen from her curse */
     if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
-        pline("But wait!  %s is not dead!", mon_nam(mtmp));
-        pline("What was thought to be a fatal blow has actually released %s from a powerful curse.", mon_nam(mtmp));
+        Your("actions have released %s from a powerful curse!", mon_nam(mtmp));
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         mtmp->mstone = 0;
@@ -2580,7 +2579,7 @@ register struct monst *mtmp;
 
     /* special handling for the Ice Queen's dogs */
     if (mtmp->data == &mons[PM_KOA]  || mtmp->data == &mons[PM_OZZY]) {
-        pline("But wait!  Instead of delivering the final, fatal strike, you show mercy, and have made %s submit.", mon_nam(mtmp));
+        You("have made %s submit, and %s is no longer hostile.", mon_nam(mtmp), mhe(mtmp));
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         mtmp->mstone = 0;
@@ -3115,6 +3114,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         boolean namedpet = has_mname(mtmp) && !Hallucination;
 
         You("%s %s!",
+            is_defeated(mtmp->data) ? "defeat" :
             nonliving(mtmp->data) ? "destroy" : "kill",
             !(wasinside || canspotmon(mtmp)) ? "it"
               : !mtmp->mtame ? mon_nam(mtmp)
