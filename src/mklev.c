@@ -1952,13 +1952,13 @@ register struct mkroom *croom;
     do {
         if (!is_damp_terrain(m.x, m.y)) {
             puddles++;
-            levl[m.x][m.y].typ = (depth(&u.uz) > 9 && !rn2(4)
+            levl[m.x][m.y].typ = (depth(&u.uz) > 9 && !rn2(7)
                                   ? POOL : PUDDLE);
         }
 
         if (puddles > 4 && depth(&u.uz) > 4) {
             (void) makemon(is_pool(m.x, m.y)
-                           ? mkclass(S_EEL, 0) : &mons[PM_PIRANHA], m.x, m.y, NO_MM_FLAGS);
+                           ? &mons[PM_GIANT_EEL] : &mons[PM_PIRANHA], m.x, m.y, NO_MM_FLAGS);
             puddles -= 2; /* puddles created should always exceed piranhas */
         }
 

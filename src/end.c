@@ -614,17 +614,17 @@ int how;
         u.ugrave_arise = PM_VAMPIRE;
     else if (mptr == &mons[PM_GHOUL])
         u.ugrave_arise = PM_GHOUL;
-    /* The player will rise as a spectre if killed by one
-       or if their experience level was rank 7 (level 22)
-       or higher when they died */
-    else if (mptr == &mons[PM_SPECTRE] || u.ulevel > 21)
-        u.ugrave_arise = PM_SPECTRE;
     else if (mptr == &mons[PM_NAZGUL])
         u.ugrave_arise = PM_BARROW_WIGHT;
     else if (mptr == &mons[PM_MIND_FLAYER_LARVA])
         u.ugrave_arise = PM_MIND_FLAYER;
     else if (mptr->mlet == S_LICH)
         u.ugrave_arise = PM_REVENANT;
+    /* The player will rise as a spectre if killed by one
+       or if their experience level was rank 7 (level 22)
+       or higher when they died */
+    else if (mptr == &mons[PM_SPECTRE] || u.ulevel > 21)
+        u.ugrave_arise = PM_SPECTRE;
     /* this could happen if a high-end vampire kills the hero
        when ordinary vampires are genocided; ditto for wraiths */
     if (u.ugrave_arise >= LOW_PM

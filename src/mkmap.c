@@ -552,7 +552,7 @@ boolean notpool;
         if (levl[cx][cy].typ == POOL || levl[cx][cy].typ == MOAT
             || levl[cx][cy].typ == PUDDLE) {
             (void) makemon(&mons[PM_JELLYFISH +
-                           rn2(PM_SHARK - PM_JELLYFISH)], cx, cy, NO_MM_FLAGS);
+                           rn2(PM_MIND_FLAYER_LARVA - PM_JELLYFISH)], cx, cy, NO_MM_FLAGS);
             monstcount--;
         } else if (levl[cx][cy].typ == SEWAGE) {
             (void) makemon(rn2(3) ? &mons[PM_GIANT_LEECH]

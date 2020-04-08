@@ -1708,7 +1708,8 @@ register struct attack *mattk;
                     u.ustuck = mtmp;
                 }
             } else if (u.ustuck == mtmp) {
-                if (is_pool(mtmp->mx, mtmp->my) && !Swimming && !Amphibious) {
+                if (is_pool(mtmp->mx, mtmp->my) && !Swimming && !Amphibious
+                    && mtmp->data != &mons[PM_MIND_FLAYER_LARVA]) {
                     boolean moat = (levl[mtmp->mx][mtmp->my].typ != POOL)
                                    && (levl[mtmp->mx][mtmp->my].typ != WATER)
                                    && !Is_medusa_level(&u.uz)

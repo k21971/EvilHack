@@ -849,5 +849,6 @@ Version 0.5.0
 - Don't 'kill' the Ice Queen's dogs
 - Fix: level sounds indicating portal to the Ice Queen's realm 
 - Some tweaks to player monster container types, object property odds
+- Fix: three separate issues concerning mind flayer larva
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
