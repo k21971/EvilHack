@@ -852,5 +852,6 @@ Version 0.5.0
 - Fix: three separate issues concerning mind flayer larva
 - Defeating the Ice Queen should not produce a 'You killed' message
 - Proper attack feedback from Koa/Ozzy
+- Some monsters should never randomly spawn in Gehennom; sea dragon tweak
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

@@ -1714,7 +1714,10 @@ register int after;
             } else if (levl[mtmp->mx][mtmp->my].typ == IRONBARS) {
                 /* As of 3.6.2: was using may_dig() but it doesn't handle bars */
                 if (!(levl[mtmp->mx][mtmp->my].wall_info & W_NONDIGGABLE)
-                    && (dmgtype(ptr, AD_RUST) || dmgtype(ptr, AD_CORR))) {
+                    && (dmgtype(ptr, AD_RUST) || dmgtype(ptr, AD_CORR))
+                    && !(mtmp->data == &mons[PM_WATER_ELEMENTAL]
+                         || mtmp->data == &mons[PM_BABY_SEA_DRAGON]
+                         || mtmp->data == &mons[PM_SEA_DRAGON])) {
                     if (canseemon(mtmp))
                         pline("%s eats through the iron bars.", Monnam(mtmp));
                     dissolve_bars(mtmp->mx, mtmp->my);
@@ -1723,7 +1726,7 @@ register int after;
                     Norep("%s %s %s the iron bars.", Monnam(mtmp),
                           /* pluralization fakes verb conjugation */
                           makeplural(locomotion(ptr, "pass")),
-                          passes_walls(ptr) ? "through" : "between");
+                          (passes_walls(ptr) || unsolid(ptr)) ? "through" : "between");
             }
 
             /* possibly dig */
