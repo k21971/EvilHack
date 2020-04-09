@@ -851,5 +851,6 @@ Version 0.5.0
 - Some tweaks to player monster container types, object property odds
 - Fix: three separate issues concerning mind flayer larva
 - Defeating the Ice Queen should not produce a 'You killed' message
+- Proper attack feedback from Koa/Ozzy
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
