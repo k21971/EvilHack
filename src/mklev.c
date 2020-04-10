@@ -1571,7 +1571,7 @@ coord *tm;
                     kind = NO_TRAP;
                 break;
             case FIRE_TRAP:
-                if (!Inhell && Iniceq)
+                if (!Inhell)
                     kind = NO_TRAP;
                 break;
             case TELEP_TRAP:
