@@ -1663,6 +1663,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
     /* Seventh basic attack - disease */
     if (attacks(AD_DISE, otmp)) {
+        if (Role_if(PM_SAMURAI)) {
+            You("dishonorably use a diseased weapon!");
+            adjalign(-sgn(u.ualign.type));
+        } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
+            You_feel("like an evil coward for using a diseased weapon.");
+            adjalign(Role_if(PM_KNIGHT) ? -10 : -1);
+        }
         if (realizes_damage)
             pline_The("filthy dagger %s %s%c",
                       resists_sick(mdef)
