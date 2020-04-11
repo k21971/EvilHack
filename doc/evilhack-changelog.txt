@@ -860,5 +860,6 @@ Version 0.5.0
 - Grimtooth is treated just as poisoned weapons are (player alignment)
 - Remove monster projectile range changes
 - Fix: crash when wielding a weapon as a priest and polymorphed into something else
+- Fix: check for and prevent multiple light sources on the same object/monster
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

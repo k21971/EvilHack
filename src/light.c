@@ -59,13 +59,25 @@ int range, type;
 anything *id;
 {
     light_source *ls;
+    boolean duplicate = FALSE;
 
     if (range > MAX_RADIUS || range < 1) {
         impossible("new_light_source:  illegal range %d", range);
         return;
     }
 
-    ls = (light_source *) alloc(sizeof *ls);
+    /* check that this is a unique lightsource */
+    for (ls = light_base; ls; ls = ls->next) {
+        if ((ls->type == LS_OBJECT && ls->id.a_obj == id->a_obj)
+            || (ls->type == LS_MONSTER && ls->id.a_monst == id->a_monst)) {
+            duplicate = TRUE;
+            impossible("duplicate lightsource attempting to be created, type %d", type);
+            break;
+        }
+    }
+
+    if (!duplicate)
+        ls = (light_source *) alloc(sizeof *ls);
 
     ls->next = light_base;
     ls->x = x;
@@ -90,6 +102,7 @@ anything *id;
 {
     light_source *curr, *prev;
     anything tmp_id;
+    boolean found_it = FALSE;
 
     tmp_id = zeroany;
     /* need to be prepared for dealing a with light source which
@@ -119,11 +132,14 @@ anything *id;
 
             free((genericptr_t) curr);
             vision_full_recalc = 1;
-            return;
+            if (found_it)
+                impossible("multiple ls attached to type %d", type);
+            found_it = TRUE;
         }
     }
-    impossible("del_light_source: not found type=%d, id=%s", type,
-               fmt_ptr((genericptr_t) id->a_obj));
+    if (!found_it)
+        impossible("del_light_source: not found type=%d, id=%s", type,
+                   fmt_ptr((genericptr_t) id->a_obj));
 }
 
 /* Mark locations that are temporarily lit via mobile light sources. */
