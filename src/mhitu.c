@@ -975,6 +975,7 @@ register struct monst *mtmp;
 		    || (is_launcher(MON_WEP(mtmp)))) {
 		    /* implies we could not find a HTH weapon */
 		    thrwmu(mtmp);
+                    break;
 	        }
                 if (foundyou) {
                     mon_currwep = MON_WEP(mtmp);
