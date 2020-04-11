@@ -861,5 +861,6 @@ Version 0.5.0
 - Remove monster projectile range changes
 - Fix: crash when wielding a weapon as a priest and polymorphed into something else
 - Fix: check for and prevent multiple light sources on the same object/monster
+- Fix: proper checking deleted light sources
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

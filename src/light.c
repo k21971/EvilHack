@@ -100,7 +100,7 @@ del_light_source(type, id)
 int type;
 anything *id;
 {
-    light_source *curr, *prev;
+    light_source *curr, *prev, *next;
     anything tmp_id;
     boolean found_it = FALSE;
 
@@ -120,7 +120,8 @@ anything *id;
         break;
     }
 
-    for (prev = 0, curr = light_base; curr; prev = curr, curr = curr->next) {
+    for (prev = 0, curr = light_base; curr; prev = curr, curr = next) {
+        next = curr->next;
         if (curr->type != type)
             continue;
         if (curr->id.a_obj
@@ -131,6 +132,7 @@ anything *id;
                 light_base = curr->next;
 
             free((genericptr_t) curr);
+            curr = prev; /* retain prev for next loop */
             vision_full_recalc = 1;
             if (found_it)
                 impossible("multiple ls attached to type %d", type);
