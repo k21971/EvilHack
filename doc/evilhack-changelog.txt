@@ -856,5 +856,6 @@ Version 0.5.0
 - Fix: fire traps appearing where they shouldn't
 - Fix: hobbit rogues shouldn't be lawful
 - Fix: displaced monster attacking the player by surprise if they are immobile
+- Fix: poisoned weapons other than projectiles were not flagged correctly
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
