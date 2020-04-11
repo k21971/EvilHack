@@ -1798,14 +1798,14 @@ struct obj *weapon;
 
     /* Priests using edged weapons is frowned upon by their deity */
     if (uwep && Role_if(PM_PRIEST)
-        && (is_pierce(weapon) || is_slash(weapon) || is_ammo(weapon))) {
+        && (is_pierce(uwep) || is_slash(uwep) || is_ammo(uwep))) {
         if (!rn2(4))
             pline("%s has %s you from using %s weapons such as %s!",
                   align_gname(u.ualign.type), rn2(2) ? "forbidden" : "prohibited",
-                  is_slash(weapon) ? "edged" : "piercing",
-                  (is_ammo(weapon)
-                   || (weapon->oartifact && (is_pierce(weapon) || is_slash(weapon))))
-                  ? xname(weapon) : makeplural(xname(weapon)));
+                  is_slash(uwep) ? "edged" : "piercing",
+                  (is_ammo(uwep)
+                   || (weapon->oartifact && (is_pierce(uwep) || is_slash(uwep))))
+                  ? xname(uwep) : makeplural(xname(uwep)));
         exercise(A_WIS, FALSE);
         if (!rn2(10)) {
             Your("behavior has displeased %s.",
@@ -1814,7 +1814,6 @@ struct obj *weapon;
         }
         bonus = -30;
     }
-
     return bonus;
 }
 
