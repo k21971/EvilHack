@@ -854,5 +854,6 @@ Version 0.5.0
 - Proper attack feedback from Koa/Ozzy
 - Some monsters should never randomly spawn in Gehennom; sea dragon tweak
 - Fix: fire traps appearing where they shouldn't
+- Fix: hobbit rogues shouldn't be lawful
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
