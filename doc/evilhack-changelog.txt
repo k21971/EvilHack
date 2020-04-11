@@ -858,5 +858,6 @@ Version 0.5.0
 - Fix: displaced monster attacking the player by surprise if they are immobile
 - Fix: poisoned weapons other than projectiles were not flagged correctly
 - Grimtooth is treated just as poisoned weapons are (player alignment)
+- Remove monster projectile range changes
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

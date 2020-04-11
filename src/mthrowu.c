@@ -15,7 +15,7 @@ STATIC_DCL int FDECL(drop_throw, (struct obj *, BOOLEAN_P, int, int));
 
 #define POLE_LIM 5 /* How far monsters can use pole-weapons */
 
-#define PET_MISSILE_RANGE2 144 /* Square of distance within which pets shoot */
+#define PET_MISSILE_RANGE2 36 /* Square of distance within which pets shoot */
 
 /*
  * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h.
@@ -311,7 +311,6 @@ struct obj *otmp, *mwep;
     } else {
         m_shot.o = STRANGE_OBJECT; /* don't give multishot feedback */
     }
-
     m_shot.n = multishot;
     for (m_shot.i = 1; m_shot.i <= m_shot.n; m_shot.i++) {
         m_throw(mtmp, mtmp->mx, mtmp->my, sgn(tbx), sgn(tby), dm, otmp, TRUE);
@@ -344,7 +343,7 @@ struct monst *mtmp;
     int i;
     struct monst *mat, *mret = (struct monst *) 0, *oldmret = (struct monst *) 0;
     boolean conflicted = Conflict && couldsee(mtmp->mx, mtmp->my)
-                                  && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM)
+                                  && (distu(mtmp->mx, mtmp->my) <= (BOLT_LIM * BOLT_LIM))
                                   && !resist(mtmp, RING_CLASS, 0, 0);
 
     if (is_covetous(mtmp->data) && !mtmp->mtame) {
@@ -492,7 +491,8 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                 pline("It is missed.");
         }
         if (!range) { /* Last position; object drops */
-            if (is_pole(otmp)) return 1;
+            if (is_pole(otmp))
+                return 1;
             (void) drop_throw(otmp, 0, mtmp->mx, mtmp->my);
             return 1;
         }
@@ -902,7 +902,7 @@ struct monst *mtmp, *mtarg;
     mwep = MON_WEP(mtmp); /* wielded weapon */
 
     if (!ispole && mlined_up(mtmp, mtarg, FALSE)) {
-        int chance = max((BOLT_LIM * 2) - distmin(x, y, mtarg->mx, mtarg->my), 1);
+        int chance = max(BOLT_LIM - distmin(x, y, mtarg->mx, mtarg->my), 1);
 
         if (!mtarg->mflee || !rn2(chance)) {
             if (ammo_and_launcher(otmp, mwep)
@@ -948,7 +948,7 @@ struct attack *mattk;
             impossible("bad attack type in spitmu");
             /*FALLTHRU*/
         }
-        if (!rn2((BOLT_LIM * 2) - distmin(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my))) {
+        if (!rn2(BOLT_LIM - distmin(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my))) {
             if (canseemon(mtmp))
                 pline("%s spits venom!", Monnam(mtmp));
             target = mtarg;
@@ -1071,7 +1071,6 @@ struct monst *mtmp;
     struct obj *otmp, *mwep;
     xchar x, y;
     const char *onm;
-    int maxrange;
 
     /* Rearranged beginning so monsters can use polearms not in a line */
     if ((mtmp->weapon_check == NEED_WEAPON
@@ -1123,38 +1122,8 @@ struct monst *mtmp;
         return;
     }
 
-    mwep = MON_WEP(mtmp); /* wielded weapon */
     x = mtmp->mx;
     y = mtmp->my;
-
-    /* critters get to shoot things further, too */
-    maxrange = BOLT_LIM;
-    if (ammo_and_launcher(otmp, mwep)) {
-        switch (mwep->otyp) {
-            case ELVEN_BOW:
-            case YUMI:
-                maxrange += 6;
-                break;
-            case ORCISH_BOW:
-            case SLING:
-                maxrange += 2;
-		break;
-            case BOW:
-                if (mwep->oartifact == ART_LONGBOW_OF_DIANA)
-                    maxrange += 7;
-                else
-                    maxrange += 4;
-                break;
-            case CROSSBOW:
-                if (mwep->oartifact == ART_CROSSBOW_OF_CARL)
-                    maxrange *= 2 + 2;
-                else
-                    maxrange *= 2;
-                break;
-            default:
-                break;
-        }
-    }
 
     /* If you are coming toward the monster, the monster
      * should try to soften you up with missiles.  If you are
@@ -1163,9 +1132,10 @@ struct monst *mtmp;
      */
     if (!lined_up(mtmp)
         || (URETREATING(x, y)
-            && rn2((BOLT_LIM * 2) - distmin(x, y, mtmp->mux, mtmp->muy))))
+            && rn2(BOLT_LIM - distmin(x, y, mtmp->mux, mtmp->muy))))
         return;
 
+    mwep = MON_WEP(mtmp); /* wielded weapon */
     monshoot(mtmp, otmp, mwep); /* multishot shooting or throwing */
     nomul(0);
 }
@@ -1200,7 +1170,7 @@ struct attack *mattk;
             otmp = mksobj(ACID_VENOM, TRUE, FALSE); */
             break;
         }
-        if (!rn2((BOLT_LIM * 2)
+        if (!rn2(BOLT_LIM
                  - distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy))) {
             if (canseemon(mtmp))
                 pline("%s spits venom!", Monnam(mtmp));
@@ -1274,7 +1244,7 @@ int boulderhandling; /* 0=block, 1=ignore, 2=conditionally block */
         return FALSE;
 
     if ((!tbx || !tby || abs(tbx) == abs(tby)) /* straight line or diagonal */
-        && distmin(tbx, tby, 0, 0) < (BOLT_LIM * 2)) {
+        && distmin(tbx, tby, 0, 0) < BOLT_LIM) {
         if ((ax == u.ux && ay == u.uy) ? (boolean) couldsee(bx, by)
                                        : clear_path(ax, ay, bx, by))
             return TRUE;
