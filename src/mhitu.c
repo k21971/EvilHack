@@ -971,12 +971,11 @@ register struct monst *mtmp;
                     if (mon_wield_item(mtmp) != 0)
                         break;
                 }
-		if ((!MON_WEP(mtmp))
-		    || (is_launcher(MON_WEP(mtmp)))) {
-		    /* implies we could not find a HTH weapon */
-		    thrwmu(mtmp);
-                    break;
-	        }
+                if (!MON_WEP(mtmp)
+                    || is_launcher(MON_WEP(mtmp))) {
+                    /* implies we could not find a HTH weapon */
+                    thrwmu(mtmp);
+                }
                 if (foundyou) {
                     mon_currwep = MON_WEP(mtmp);
                     if (mon_currwep) {
