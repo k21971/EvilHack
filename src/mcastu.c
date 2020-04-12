@@ -242,7 +242,8 @@ int spellnum;
             return CLC_OPEN_WOUNDS;
         /*FALLTHRU*/
     case 13:
-        if (is_demon(mtmp->data))
+        if (is_demon(mtmp->data)
+            || mtmp->mtame)
             return CLC_FIRE_PILLAR;
         else
             return CLC_SUMMON_ELM;
@@ -259,6 +260,7 @@ int spellnum;
         return CLC_CURSE_ITEMS;
     case 8:
         if (is_demon(mtmp->data)
+            || mtmp->mtame
             || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
             return CLC_VULN_YOU;
         else
@@ -2024,9 +2026,6 @@ int spellnum;
             return;
         }
 
-        if (is_demon(mtmp->data))
-            return;
-
         if (mtmp->ispriest)
             aligntype = EPRI(mtmp)->shralign;
         else
@@ -2069,8 +2068,7 @@ int spellnum;
        	destroy_mitem(mtmp, SPBOOK_CLASS, AD_FIRE);
        	(void) burn_floor_objects(mtmp->mx, mtmp->my, TRUE, FALSE);
        	break;
-    case CLC_LIGHTNING:
-    {
+    case CLC_LIGHTNING: {
        	boolean reflects;
        	if (!mtmp || mtmp->mhp < 1) {
        	    impossible("lightning spell with no mtmp");
@@ -2102,14 +2100,11 @@ int spellnum;
        	mrndcurse(mtmp);
        	dmg = 0;
        	break;
-    case CLC_INSECTS:
-        if (is_demon(mtmp->data))
-            return;
-
+    case CLC_INSECTS: {
         /* Try for insects, and if there are none
            left, go for (sticks to) snakes.  -3. */
-        struct permonst *pm = mkclass(S_ANT,0);
-        struct monst *mtmp2 = (struct monst *)0;
+        struct permonst *pm = mkclass(S_ANT, 0);
+        struct monst *mtmp2 = (struct monst *) 0;
         char let = (pm ? S_ANT : S_SNAKE);
         boolean success;
         int i;
@@ -2121,6 +2116,13 @@ int spellnum;
             return;
         }
 
+        if (mtmp)
+            bypos.x = mtmp->mx, bypos.y = mtmp->my;
+        else if (yours)
+            bypos.x = u.ux, bypos.y = u.uy;
+        else
+            bypos.x = mattk->mx, bypos.y = mattk->my;
+
         quan = (mons[u.umonnum].mlevel < 2) ? 1 :
          	rnd(mons[u.umonnum].mlevel / 2);
         if (quan < 3) quan = 3;
@@ -2128,16 +2130,16 @@ int spellnum;
         for (i = 0; i <= quan; i++) {
             if (!enexto(&bypos, mtmp->mx, mtmp->my, mtmp->data))
          	break;
-            if ((pm = mkclass(let,0)) != 0
+            if ((pm = mkclass(let, 0)) != 0
                 && (mtmp2 = makemon(pm, bypos.x, bypos.y, NO_MM_FLAGS)) != 0) {
          	success = TRUE;
          	mtmp2->msleeping = 0;
          	if (yours || mattk->mtame)
-         	    (void) tamedog(mtmp2, (struct obj *)0);
+         	    (void) tamedog(mtmp2, (struct obj *) 0);
          	else if (mattk->mpeaceful)
-                    mattk->mpeaceful = 1;
-         	else mattk->mpeaceful = 0;
-
+                    mtmp2->mpeaceful = 1;
+         	else
+                    mtmp2->mpeaceful = 0;
          	set_malign(mtmp2);
             }
         }
@@ -2159,6 +2161,7 @@ int spellnum;
         }
         dmg = 0;
         break;
+    }
     case CLC_BLIND_YOU:
         if (!mtmp || mtmp->mhp < 1) {
             impossible("blindness spell with no mtmp");
@@ -2169,13 +2172,12 @@ int spellnum;
             && haseyes(mtmp->data)) {
             if (!resists_blnd(mtmp)) {
          	int num_eyes = eyecount(mtmp->data);
-         	pline("Scales cover %s %s!", s_suffix(mon_nam(mtmp)),
-         	      (num_eyes == 1) ? "eye" : "eyes");
-
+                if (yours || canseemon(mtmp))
+         	    pline("Scales cover %s %s!", s_suffix(mon_nam(mtmp)),
+         	          (num_eyes == 1) ? "eye" : "eyes");
                 mtmp->mblinded = 127;
             }
-        dmg = 0;
-
+            dmg = 0;
         } else
             impossible("no reason for monster to cast blindness spell?");
         break;
