@@ -678,12 +678,16 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 || dump_prop_flag))
             Strcat(buf, "oilskin ");
 
-        if (obj->material != objects[obj->otyp].oc_material) {
-            Strcat(buf, materialnm[obj->material]);
-            Strcat(buf, " ");
-        } else if (obj->otyp == ARMOR || obj->otyp == JACKET
-            || obj->otyp == GLOVES || obj->otyp == GAUNTLETS
-            || obj->otyp == CLOAK) {
+        if (obj->material != objects[obj->otyp].oc_material
+            /* force rendering of material on certain types of armor where the
+             * name is more nonsensical without any prefix */
+            || obj->otyp == ARMOR || obj->otyp == STUDDED_ARMOR
+            || obj->otyp == JACKET || obj->otyp == CLOAK
+            /* GLOVES and GAUNTLETS have a randomized description when not identified;
+             * "leather padded gloves" would give the game away if we did not
+             * check their identification status */
+            || (obj->otyp == GLOVES && objects[GLOVES].oc_name_known)
+            || (obj->otyp == GAUNTLETS && objects[GAUNTLETS].oc_name_known)) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }

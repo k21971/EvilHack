@@ -867,5 +867,6 @@ Version 0.5.0
 - Reverse 'prevent monsters using close-quarters range attack from getting free
   melee attack'
 - Fix: a couple issues with monsters casting spells against other monsters
+- Fix: don't show material on randomized types of armor if not known
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
