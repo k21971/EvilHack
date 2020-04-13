@@ -555,7 +555,7 @@ unsigned long *colormasks UNUSED;
         { BL_MASK_HALLU, F_HALLU },
         { BL_MASK_LEV, F_LEV },
         { BL_MASK_FLY, F_FLY },
-        { BL_MASK_RIDE, F_RIDE }
+        { BL_MASK_RIDE, F_RIDE },
         { BL_MASK_SLOW, F_SLOW }
     };
     int i;
