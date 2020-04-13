@@ -1323,37 +1323,38 @@ const char *name;
                wishing for one... not as bad as spawning a player
                monster or quest nemesis, but you're still not
                getting these for free */
-            if (rn2(3))
+            if (rn2(3)) {
                 mtmp = makemon(&mons[PM_GREY_ELF], u.ux, u.uy, MM_ADJACENTOK);
-            if (mtmp) {
-                if (Blind && !Deaf) {
-                    if (Hallucination)
-                        You("hear the sounds of silence.");
-                    else
-                        You("hear movement nearby.");
-                    You("hear somebody say: %s is not yours to take! %s it!",
-                        artiname(obj->oartifact),
-                        rn2(2) ? "Relinquish" : "Return");
-                } else {
-                    if (Hallucination)
-                        You("see the second coming of the Prophet.");
-                    else
-                        You("see %s step out of the shadows.",
-                            a_monnam(mtmp));
-                    if (!Deaf)
-                        pline("%s says: %s is not yours to take! %s it!",
-                              Monnam(mtmp),
-                              artiname(obj->oartifact),
-                              rn2(2) ? "Relinquish" : "Return");
+                if (mtmp) {
+                    if (Blind && !Deaf) {
+                        if (Hallucination)
+                            You("hear the sounds of silence.");
+                        else
+                            You("hear movement nearby.");
+                        You("hear somebody say: %s is not yours to take! %s it!",
+                            artiname(obj->oartifact),
+                            rn2(2) ? "Relinquish" : "Return");
+                    } else {
+                        if (Hallucination)
+                            You("see the second coming of the Prophet.");
+                        else
+                            You("see %s step out of the shadows.",
+                                a_monnam(mtmp));
+                        if (!Deaf)
+                            pline("%s says: %s is not yours to take! %s it!",
+                                  Monnam(mtmp),
+                                  artiname(obj->oartifact),
+                                  rn2(2) ? "Relinquish" : "Return");
+                    }
+                    /* random chance of some helpers */
+                    if (rn2(3))
+                        (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);
+                    if (rn2(3))
+                        (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);
+                    mtmp->mpeaceful = mtmp->msleeping = 0;
+                    m_dowear(mtmp, TRUE);
+                    mon_wield_item(mtmp);
                 }
-                /* random chance of some helpers */
-                if (rn2(3))
-                    (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);
-                if (rn2(3))
-                    (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);
-                mtmp->mpeaceful = mtmp->msleeping = 0;
-                m_dowear(mtmp, TRUE);
-                mon_wield_item(mtmp);
             }
             /* violate illiteracy conduct since successfully wrote arti-name */
             u.uconduct.literate++;

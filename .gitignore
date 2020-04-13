@@ -29,6 +29,7 @@ evilhack
 vaults.dat
 *.diff
 *.log
+input.txt
 # CVS default ignores end
 .*.swp
 
