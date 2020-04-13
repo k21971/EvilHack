@@ -1182,7 +1182,7 @@ register struct monst *mtmp;
 
     for (iter = 0; iter < nummons; iter++) {
         if (perform_bwrite(mode))
-            bwrite(fd, (genericptr_t) &mons[iter] + namesize, sizeof(struct permonst) - namesize);
+            bwrite(fd, (genericptr_t) ((char *) &mons[iter] + namesize), sizeof(struct permonst) - namesize);
     }
 }
 

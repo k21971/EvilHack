@@ -495,7 +495,7 @@ boolean ghostly;
         impossible("Restmonchn: number of permonst stored doesn't match current NUMMONS. Using default permonst");
     } else {
         for (iter = 0; iter < NUMMONS; iter++) {
-            mread(fd, (genericptr_t) &mons[iter] + namesize, sizeof(struct permonst) - namesize);
+            mread(fd, (genericptr_t) ((char *) &mons[iter] + namesize), sizeof(struct permonst) - namesize);
         }
     }
 
