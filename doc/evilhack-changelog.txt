@@ -878,5 +878,7 @@ Version 0.5.0
 - Potential fix: src\do_name.c(1328) : error C4703: potentially uninitialized local
   pointer variable 'mtmp' used (windows/visual studio build)
 - Update travis.yml file
+- Potential fix: src\mthrowu.c(955 and 1177) : error C4703: potentially uninitialized
+  local pointer variable 'otmp' used (windows/visual studio build)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

@@ -935,6 +935,8 @@ struct attack *mattk;
                   s_suffix(mon_nam(mtmp)));
         return 0;
     }
+
+    otmp = (struct obj *) 0;
     if (mlined_up(mtmp, mtarg, FALSE)) {
         switch (mattk->adtyp) {
         case AD_BLND:
@@ -1154,6 +1156,7 @@ struct attack *mattk;
                   s_suffix(mon_nam(mtmp)));
         return 0;
     }
+    otmp = (struct obj *) 0;
     if (lined_up(mtmp)) {
         switch (mattk->adtyp) {
         case AD_BLND:
