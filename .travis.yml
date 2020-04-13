@@ -1,16 +1,31 @@
 language: c
 matrix:
   include:
-    - os: linux
-      env: DESCR=linux-xenial-gcc HINTS=linux-debug
+    - name: linux-xenial-gcc
+      os: linux
+      env: HINTS=linux
       compiler: gcc
-      script: "cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../ && make install"
-    - os: linux
-      env: DESCR=linux-xenial-clang HINTS=linux
+      script:
+        - cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../
+        - make install
+    - name: linux-bionic-gcc
+      os: linux
+      env: HINTS=linux
+      dist: bionic
+      compiler: gcc
+      script:
+        - cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../
+        - make install
+    - name: linux-xenial-clang
+      os: linux
+      env: HINTS=linux
       compiler: clang
-      script: "cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../ && make install"
-    - os: linux
-      env: DESCR=linux-xenial-gcc-x11 HINTS=linux-x11
+      script:
+        - cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../
+        - make install
+    - name: linux-xenial-gcc-x11
+      os: linux
+      env: HINTS=linux-x11
       compiler: gcc
       addons:
         apt:
@@ -18,9 +33,12 @@ matrix:
             - libx11-dev
             - libxaw7-dev
             - xfonts-utils
-      script: "cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../ && make install"
-    - os: linux
-      env: DESCR=linux-xenial-gcc-qt5 HINTS=linux-qt5
+      script:
+        - cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../
+        - make install
+    - name: linux-xenial-gcc-qt5
+      os: linux
+      env: HINTS=linux-qt5
       compiler: gcc
       addons:
         apt:
@@ -31,9 +49,12 @@ matrix:
             - qtbase5-dev
             - qtmultimedia5-dev
             - qtbase5-dev-tools
-      script: "cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../ && QT_SELECT=5 make MOC=moc install"
-    - os: linux
-      env: DESCR=linux-bionic-gcc-x11 HINTS=linux-x11
+      script:
+        - cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../
+        - make QT_SELECT=5 MOC=moc install
+    - name: linux-bionic-gcc-x11
+      os: linux
+      env: HINTS=linux-x11
       dist: bionic
       compiler: gcc
       addons:
@@ -42,9 +63,12 @@ matrix:
             - libx11-dev
             - libxaw7-dev
             - xfonts-utils
-      script: "cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../ && make install"
-    - os: linux
-      env: DESCR=linux-xenial-gcc-minimal HINTS=linux-minimal
+      script:
+        - cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../
+        - make install
+    - name: linux-xenial-gcc-minimal
+      os: linux
+      env: HINTS=linux-minimal
       compiler: gcc
       script: |
               cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../
@@ -62,25 +86,25 @@ matrix:
               sed -i '/^#define SYSCF/d'          include/config.h
               sed -i '/^#define USER_SOUNDS/d'    include/config.h
               sed -i '/^#define XLOGFILE/d'       include/config.h
-
               sed -i '/^#define MAIL/d'           include/unixconf.h
               sed -i '/^#define SHELL/d'          include/unixconf.h
               sed -i '/^#define SUSPEND/d'        include/unixconf.h
               sed -i 's/^#define TEXTCOLOR//'     include/unixconf.h
               make install
               cat dat/options
-    - os: windows
-      env: DESCR=windows-visualstudio
+    - name: windows-visualstudio
+      os: windows
       language: shell
       script:
         - ./win/win32/vs2017/travisci.sh
-    - os: windows
+    - name: windows-mingw
+      os: windows
 #     install: choco install mingw
-      env: DESCR=windows-mingw
       script:
-        - git clone --depth 1 https://github.com/wmcbrine/PDCurses.git ../pdcurses
         - export ADD_CURSES=Y
-        - export PDCURSES_TOP=../../pdcurses
+        - export PDCURSES_TOP=../lib/pdcurses
+        - sh sys/winnt/travis-gcc.sh
+        - test -d "lib/pdcurses" || exit 0
         - cd src
         - cp ../sys/winnt/Makefile.gcc ./Makefile
         - mingw32-make install
