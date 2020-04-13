@@ -2,7 +2,7 @@ language: c
 matrix:
   include:
     - os: linux
-      env: DESCR=linux-xenial-gcc HINTS=linux
+      env: DESCR=linux-xenial-gcc HINTS=linux-debug
       compiler: gcc
       script: "cd sys/unix/ && sh setup.sh hints/$HINTS && cd ../../ && make install"
     - os: linux
