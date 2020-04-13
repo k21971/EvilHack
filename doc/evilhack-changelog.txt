@@ -872,5 +872,6 @@ Version 0.5.0
 - Update build files for other operating systems
 - Bit of formatting clean-up in src/trap.c
 - Edit of stock hints/linux file
+- Fix: self-induced error in sys/share/dgn_lex.c
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
