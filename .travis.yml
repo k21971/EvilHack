@@ -100,7 +100,7 @@ sudo: false
 notifications:
   email:
     recipients:
-      - devteam@nethack.org
+      - admin@hardfought.org
 #
 deploy:
   provider: releases
@@ -113,5 +113,5 @@ deploy:
   on:
     tags: true
   prerelease: false
-  name: "Release build of NetHack 3.6.6"
-  body: "This is an auto generated Release build of NetHack 3.6.6"
+  name: "Release build of EvilHack 0.5.0"
+  body: "This is an auto generated Release build of EvilHack 0.5.0"
