@@ -1286,16 +1286,16 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\bigrm-*.lev	   del $(W_DAT)\bigrm-*.lev
 	if exist $(W_DAT)\castle-?.lev	   del $(W_DAT)\castle-?.lev
 	if exist $(W_DAT)\data		   del $(W_DAT)\data
-        if exist $(W_DAT)\demogor.lev      del $(W_DAT)\demogor.lev
-        if exist $(W_DAT)\dis.lev          del $(W_DAT)\dis.lev
+	if exist $(W_DAT)\demogor.lev      del $(W_DAT)\demogor.lev
+	if exist $(W_DAT)\dis.lev          del $(W_DAT)\dis.lev
 	if exist $(W_DAT)\dungeon          del $(W_DAT)\dungeon
 	if exist $(W_DAT)\dungeon.pdf	   del $(W_DAT)\dungeon.pdf
 	if exist $(W_DAT)\earth.lev	   del $(W_DAT)\earth.lev
 	if exist $(W_DAT)\fakewiz?.lev	   del $(W_DAT)\fakewiz?.lev
 	if exist $(W_DAT)\fire.lev	   del $(W_DAT)\fire.lev
-        if exist $(W_DAT)\geryon.lev       del $(W_DAT)\geryon.lev
-        if exist $(W_DAT)\hellfill.lev     del $(W_DAT)\hellfill.lev
-        if exist $(W_DAT)\icequeen-?.lev   del $(W_DAT)\icequeen-?.lev
+	if exist $(W_DAT)\geryon.lev       del $(W_DAT)\geryon.lev
+	if exist $(W_DAT)\hellfill.lev     del $(W_DAT)\hellfill.lev
+	if exist $(W_DAT)\icequeen-?.lev   del $(W_DAT)\icequeen-?.lev
 	if exist $(W_DAT)\juiblex.lev	   del $(W_DAT)\juiblex.lev
 	if exist $(W_DAT)\knox-?.lev	   del $(W_DAT)\knox-?.lev
 	if exist $(W_DAT)\medusa-?.lev	   del $(W_DAT)\medusa-?.lev
@@ -1312,11 +1312,11 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\soko?-?.lev	   del $(W_DAT)\soko?-?.lev
 	if exist $(W_DAT)\tower?.lev	   del $(W_DAT)\tower?.lev
 	if exist $(W_DAT)\valley.lev	   del $(W_DAT)\valley.lev
-        if exist $(W_DAT)\vaults.dat       del $(W_DAT)\vaults.dat
-        if exist $(W_DAT)\vlt-????.lev     del $(W_DAT)\vlt-????.lev
+	if exist $(W_DAT)\vaults.dat       del $(W_DAT)\vaults.dat
+	if exist $(W_DAT)\vlt-????.lev     del $(W_DAT)\vlt-????.lev
 	if exist $(W_DAT)\water.lev	   del $(W_DAT)\water.lev
 	if exist $(W_DAT)\wizard?.lev	   del $(W_DAT)\wizard?.lev
-        if exist $(W_DAT)\yeenoghu.lev     del $(W_DAT)\yeenoghu.lev
+	if exist $(W_DAT)\yeenoghu.lev     del $(W_DAT)\yeenoghu.lev
 	if exist $(W_DAT)\dlb.lst          del $(W_DAT)\dlb.lst
 	if exist $(W_DAT)\porthelp	   del $(W_DAT)\porthelp
 endif
@@ -1417,7 +1417,7 @@ ifneq "$(W_OBJ)" ""
 endif
 	rem
 	rem defer to the steps in ../win/win32/levstuff-mingw32.mak
-	rem 
+	rem
 	mingw32-make -f ../win/win32/levstuff-mingw32.mak clean
 	rem
 	rem defer to the steps in ../win/win32/dgnstuff-mingw32.mak
@@ -1435,7 +1435,7 @@ endif
 #	-del $(SRC)/*.map
 #	-test -f $(TILEBMP16) && del $(TILEBMP16)
 #	-test -f $(TILEBMP32) && del $(TILEBMP32)
-# 
+#
 #===================================================================
 # OTHER DEPENDENCIES
 #===================================================================
