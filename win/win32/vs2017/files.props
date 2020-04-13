@@ -21,6 +21,8 @@
     <Defs Include = "$(DatDir)bogusmon"/>
 	<!-- -q -->
     <Defs Include = "$(DatDir)quest.dat"/>
+	<!-- -v -->
+    <Defs Include = "$(DatDir)vaults.dat"/>
 	<!-- -h -->
     <Defs Include = "$(DatDir)oracles"/>
 	<!-- -e -->
@@ -32,9 +34,11 @@
     <Desfiles Include = "bigroom.des"/>
     <Desfiles Include = "castle.des"/>
     <Desfiles Include = "caveman.des"/>
+    <Desfiles Include = "convict.des"/>
     <Desfiles Include = "endgame.des"/>
     <Desfiles Include = "gehennom.des"/>
     <Desfiles Include = "healer.des"/>
+    <Desfiles Include = "icequeen.des"/>
     <Desfiles Include = "knight.des"/>
     <Desfiles Include = "knox.des"/>
     <Desfiles Include = "medusa.des"/>
@@ -49,6 +53,7 @@
     <Desfiles Include = "tourist.des"/>
     <Desfiles Include = "tower.des"/>
     <Desfiles Include = "valkyrie.des"/>
+    <Desfiles Include = "vaults.des"/>
     <Desfiles Include = "wizard.des"/>	
     <Desfiles Include = "yendor.des"/>
   </ItemGroup>
@@ -73,15 +78,18 @@
     <Levfiles Include = "water.lev"/>
     <Levfiles Include = "asmodeus.lev"/>
     <Levfiles Include = "baalz.lev"/>
-    <Levfiles Include = "juiblex.lev"/>
-    <Levfiles Include = "orcus.lev"/>
     <Levfiles Include = "demogor.lev"/>
     <Levfiles Include = "dis.lev"/>
     <Levfiles Include = "geryon.lev"/>
-    <Levfiles Include = "yeenoghu.lev"/>
+    <Levfiles Include = "hellfill.lev"/>
+    <Levfiles Include = "juiblex.lev"/>
+    <Levfiles Include = "orcus.lev"/>
     <Levfiles Include = "sanctum.lev"/>
     <Levfiles Include = "valley.lev"/>
-    <Levfiles Include = "hellfill.lev"/>
+    <Levfiles Include = "yeenoghu.lev"/>
+    <Levfiles Include = "icequeen-1.lev"/>
+    <Levfiles Include = "icequeen-2.lev"/>
+    <Levfiles Include = "icequeen-3.lev"/>
     <Levfiles Include = "knox-1.lev"/>
     <Levfiles Include = "knox-2.lev"/>
     <Levfiles Include = "knox-3.lev"/>
@@ -89,6 +97,8 @@
     <Levfiles Include = "minend-1.lev"/>
     <Levfiles Include = "minend-2.lev"/>
     <Levfiles Include = "minend-3.lev"/>
+    <Levfiles Include = "minend-4.lev"/>
+    <Levfiles Include = "minend-5.lev"/>
     <Levfiles Include = "minetn-1.lev"/>
     <Levfiles Include = "minetn-2.lev"/>
     <Levfiles Include = "minetn-3.lev"/>
@@ -96,6 +106,7 @@
     <Levfiles Include = "minetn-5.lev"/>
     <Levfiles Include = "minetn-6.lev"/>
     <Levfiles Include = "minetn-7.lev"/>
+    <Levfiles Include = "minetn-8.lev"/>
     <Levfiles Include = "medusa-1.lev"/>
     <Levfiles Include = "medusa-2.lev"/>
     <Levfiles Include = "medusa-3.lev"/>
@@ -113,6 +124,38 @@
     <Levfiles Include = "tower2.lev"/>
     <Levfiles Include = "tower3.lev"/>
     <Levfiles Include = "tower4.lev"/>
+    <Levfiles Include = "vlt-0000.lev"/>
+    <Levfiles Include = "vlt-0001.lev"/>
+    <Levfiles Include = "vlt-0002.lev"/>
+    <Levfiles Include = "vlt-0003.lev"/>
+    <Levfiles Include = "vlt-0004.lev"/>
+    <Levfiles Include = "vlt-0005.lev"/>
+    <Levfiles Include = "vlt-0006.lev"/>
+    <Levfiles Include = "vlt-0007.lev"/>
+    <Levfiles Include = "vlt-0008.lev"/>
+    <Levfiles Include = "vlt-0009.lev"/>
+    <Levfiles Include = "vlt-0010.lev"/>
+    <Levfiles Include = "vlt-0011.lev"/>
+    <Levfiles Include = "vlt-0012.lev"/>
+    <Levfiles Include = "vlt-0013.lev"/>
+    <Levfiles Include = "vlt-0014.lev"/>
+    <Levfiles Include = "vlt-0015.lev"/>
+    <Levfiles Include = "vlt-0016.lev"/>
+    <Levfiles Include = "vlt-0017.lev"/>
+    <Levfiles Include = "vlt-0018.lev"/>
+    <Levfiles Include = "vlt-0019.lev"/>
+    <Levfiles Include = "vlt-0020.lev"/>
+    <Levfiles Include = "vlt-0021.lev"/>
+    <Levfiles Include = "vlt-0022.lev"/>
+    <Levfiles Include = "vlt-0023.lev"/>
+    <Levfiles Include = "vlt-0024.lev"/>
+    <Levfiles Include = "vlt-0025.lev"/>
+    <Levfiles Include = "vlt-0026.lev"/>
+    <Levfiles Include = "vlt-0027.lev"/>
+    <Levfiles Include = "vlt-0028.lev"/>
+    <Levfiles Include = "vlt-0029.lev"/>
+    <Levfiles Include = "vlt-0030.lev"/>
+    <Levfiles Include = "vlt-0031.lev"/>
     <Levfiles Include = "fakewiz1.lev"/>
     <Levfiles Include = "fakewiz2.lev"/>
     <Levfiles Include = "wizard1.lev"/>
@@ -133,6 +176,11 @@
     <Levfiles Include = "cav-goal.lev"/>
     <Levfiles Include = "cav-loca.lev"/>
     <Levfiles Include = "cav-strt.lev"/>
+    <Levfiles Include = "con-fila.lev"/>
+    <Levfiles Include = "con-filb.lev"/>
+    <Levfiles Include = "con-goal.lev"/>
+    <Levfiles Include = "con-loca.lev"/>
+    <Levfiles Include = "con-strt.lev"/>
     <Levfiles Include = "hea-fila.lev"/>
     <Levfiles Include = "hea-filb.lev"/>
     <Levfiles Include = "hea-goal.lev"/>

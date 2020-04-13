@@ -5,7 +5,7 @@
 # Build Tools Environment
 #
 #       NetHack 3.6.x Makefile for MS Visual Studio Visual C++ compiler
-#  
+#
 #       Visual Studio Compilers Tested:
 #            - Microsoft Visual Studio 2017 Community Edition
 #            - Microsoft Visual Studio 2019 Community Edition
@@ -26,12 +26,12 @@
 #              .y                           yacc   (such as bison)
 #              .l                           lex    (such as flex)
 #
-#   If you have any questions read the sys/winnt/Install.nt file included 
+#   If you have any questions read the sys/winnt/Install.nt file included
 #   with the distribution.
 #========================================================================================
 # BUILD DECISIONS SECTION
 #
-# There are currently only 4 decisions that you can choose to make, and none are 
+# There are currently only 4 decisions that you can choose to make, and none are
 # absolutely required because defaults are in place:
 #	1. Where do you want your build to end up?
 #	2. Do you want debug information in the executable?
@@ -677,7 +677,7 @@ install: $(O)envchk.tag $(O)obj.tag $(O)utility.tag $(GAMEDIR)\NetHack.exe $(GAM
 	 @echo Done.
 
 $(O)install.tag: 	$(DAT)\data	$(DAT)\rumors	 $(DAT)\dungeon \
-	 	$(DAT)\oracles	$(DAT)\quest.dat $(O)sp_lev.tag $(DLB)
+	 	$(DAT)\oracles	$(DAT)\quest.dat $(DAT)\vaults.dat $(O)sp_lev.tag $(DLB)
 ! IF ("$(USE_DLB)"=="Y")
 	copy nhdat$(NHV)          $(GAMEDIR)
 	copy $(DAT)\license       $(GAMEDIR)
@@ -705,10 +705,11 @@ recover: $(U)recover.exe
 	if exist $(DOC)\recover.txt copy $(DOC)\recover.txt $(GAMEDIR)\recover.txt
 
 $(O)sp_lev.tag: $(O)utility.tag $(DAT)\bigroom.des  $(DAT)\castle.des \
-	$(DAT)\endgame.des $(DAT)\gehennom.des $(DAT)\knox.des   \
-	$(DAT)\medusa.des  $(DAT)\oracle.des   $(DAT)\tower.des  \
-	$(DAT)\yendor.des  $(DAT)\arch.des     $(DAT)\barb.des   \
-	$(DAT)\caveman.des $(DAT)\healer.des   $(DAT)\knight.des \
+	$(DAT)\endgame.des $(DAT)\gehennom.des $(DAT)\icequeen.des \
+	$(DAT)\knox.des    $(DAT)\medusa.des   $(DAT)\oracle.des \
+	$(DAT)\tower.des   $(DAT)\vaults.des   $(DAT)\yendor.des \
+	$(DAT)\arch.des    $(DAT)\barb.des     $(DAT)\caveman.des \
+	$(DAT)\convict.des $(DAT)\healer.des   $(DAT)\knight.des \
 	$(DAT)\monk.des    $(DAT)\priest.des   $(DAT)\ranger.des \
 	$(DAT)\rogue.des   $(DAT)\samurai.des  $(DAT)\sokoban.des \
 	$(DAT)\tourist.des $(DAT)\valkyrie.des $(DAT)\wizard.des
@@ -717,16 +718,19 @@ $(O)sp_lev.tag: $(O)utility.tag $(DAT)\bigroom.des  $(DAT)\castle.des \
 	$(U)levcomp castle.des
 	$(U)levcomp endgame.des
 	$(U)levcomp gehennom.des
+	$(U)levcomp icequeen.des
 	$(U)levcomp knox.des
 	$(U)levcomp mines.des
 	$(U)levcomp medusa.des
 	$(U)levcomp oracle.des
 	$(U)levcomp sokoban.des
 	$(U)levcomp tower.des
+	$(U)levcomp vaults.des
 	$(U)levcomp yendor.des
 	$(U)levcomp arch.des
 	$(U)levcomp barb.des
 	$(U)levcomp caveman.des
+	$(U)levcomp convict.des
 	$(U)levcomp healer.des
 	$(U)levcomp knight.des
 	$(U)levcomp monk.des
@@ -1127,8 +1131,8 @@ $(DAT)\porthelp: $(MSWSYS)\porthelp
 	@copy $(MSWSYS)\porthelp $@ >nul
 
 nhdat$(NHV):	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(OPTIONS_FILE) \
-	$(DAT)\quest.dat $(DAT)\rumors $(DAT)\help $(DAT)\hh $(DAT)\cmdhelp $(DAT)\keyhelp \
-	$(DAT)\history $(DAT)\opthelp $(DAT)\wizhelp $(DAT)\dungeon $(DAT)\porthelp \
+	$(DAT)\quest.dat $(DAT)\vaults.dat $(DAT)\rumors $(DAT)\help $(DAT)\hh $(DAT)\cmdhelp \
+	$(DAT)\keyhelp $(DAT)\history $(DAT)\opthelp $(DAT)\wizhelp $(DAT)\dungeon $(DAT)\porthelp \
 	$(DAT)\license $(DAT)\engrave $(DAT)\epitaph $(DAT)\bogusmon $(DAT)\tribute $(O)sp_lev.tag
 	cd $(DAT)
 	echo data >dlb.lst
@@ -1321,6 +1325,7 @@ spotless: clean
 	if exist $(DAT)\fire.lev	 del $(DAT)\fire.lev
         if exist $(DAT)\geryon.lev       del $(DAT)\geryon.lev
         if exist $(DAT)\hellfill.lev     del $(DAT)\hellfill.lev
+        if exist $(DAT)\icequeen-?.lev   del $(DAT)\icequeen-?.lev
 	if exist $(DAT)\juiblex.lev	 del $(DAT)\juiblex.lev
 	if exist $(DAT)\knox-?.lev	 del $(DAT)\knox-?.lev
 	if exist $(DAT)\medusa-?.lev	 del $(DAT)\medusa-?.lev
@@ -1337,6 +1342,8 @@ spotless: clean
 	if exist $(DAT)\soko?-?.lev	 del $(DAT)\soko?-?.lev
 	if exist $(DAT)\tower?.lev	 del $(DAT)\tower?.lev
 	if exist $(DAT)\valley.lev	 del $(DAT)\valley.lev
+        if exist $(DAT)\vaults.dat       del $(DAT)\vaults.dat
+        if exist $(DAT)\vlt-????.lev     del $(DAT)\vlt-????.lev
 	if exist $(DAT)\water.lev	 del $(DAT)\water.lev
 	if exist $(DAT)\wizard?.lev	 del $(DAT)\wizard?.lev
         if exist $(DAT)\yeenoghu.lev     del $(DAT)\yeenoghu.lev
@@ -1433,6 +1440,9 @@ $(DAT)\rumors: $(O)utility.tag    $(DAT)\rumors.tru   $(DAT)\rumors.fal
 
 $(DAT)\quest.dat: $(O)utility.tag  $(DAT)\quest.txt
 	$(U)makedefs -q
+
+$(DAT)\vaults.dat: $(O)utility.tag  $(U)makedefs.exe
+	$(U)makedefs -v
 
 $(DAT)\oracles: $(O)utility.tag    $(DAT)\oracles.txt
 	$(U)makedefs -h

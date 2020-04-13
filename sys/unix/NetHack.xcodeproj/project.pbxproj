@@ -1246,6 +1246,7 @@
 				"$(NH_DAT_DIR)/oracle.des",
 				"$(NH_DAT_DIR)/sokoban.des",
 				"$(NH_DAT_DIR)/tower.des",
+				"$(NH_DAT_DIR)/vaults.des",
 				"$(NH_DAT_DIR)/yendor.des",
 			);
 			name = "Build special levels";
@@ -1256,7 +1257,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp bigroom.des\n${NH_UTIL_DIR}/lev_comp castle.des\n${NH_UTIL_DIR}/lev_comp endgame.des\n${NH_UTIL_DIR}/lev_comp gehennom.des\n${NH_UTIL_DIR}/lev_comp icequeen.des\n${NH_UTIL_DIR}/lev_comp knox.des\n${NH_UTIL_DIR}/lev_comp medusa.des\n${NH_UTIL_DIR}/lev_comp mines.des\n${NH_UTIL_DIR}/lev_comp oracle.des\n${NH_UTIL_DIR}/lev_comp sokoban.des\n${NH_UTIL_DIR}/lev_comp tower.des\n${NH_UTIL_DIR}/lev_comp yendor.des\ntouch spec_levs\n";
+			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp bigroom.des\n${NH_UTIL_DIR}/lev_comp castle.des\n${NH_UTIL_DIR}/lev_comp endgame.des\n${NH_UTIL_DIR}/lev_comp gehennom.des\n${NH_UTIL_DIR}/lev_comp icequeen.des\n${NH_UTIL_DIR}/lev_comp knox.des\n${NH_UTIL_DIR}/lev_comp medusa.des\n${NH_UTIL_DIR}/lev_comp mines.des\n${NH_UTIL_DIR}/lev_comp oracle.des\n${NH_UTIL_DIR}/lev_comp sokoban.des\n${NH_UTIL_DIR}/lev_comp tower.des\n${NH_UTIL_DIR}/lev_comp vaults.des\n${NH_UTIL_DIR}/lev_comp yendor.des\ntouch spec_levs\n";
 		};
 		317E7C4B21A35F0500F6E4E5 /* Copy makedefs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1310,6 +1311,7 @@
 				"$(NH_DAT_DIR)/Arch.des",
 				"$(NH_DAT_DIR)/Barb.des",
 				"$(NH_DAT_DIR)/Caveman.des",
+				"$(NH_DAT_DIR)/Convict.des",
 				"$(NH_DAT_DIR)/Healer.des",
 				"$(NH_DAT_DIR)/Knight.des",
 				"$(NH_DAT_DIR)/Monk.des",
@@ -1329,7 +1331,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp Arch.des\n${NH_UTIL_DIR}/lev_comp Barb.des\n${NH_UTIL_DIR}/lev_comp Caveman.des\n${NH_UTIL_DIR}/lev_comp Healer.des\n${NH_UTIL_DIR}/lev_comp Knight.des\n${NH_UTIL_DIR}/lev_comp Monk.des\n${NH_UTIL_DIR}/lev_comp Priest.des\n${NH_UTIL_DIR}/lev_comp Ranger.des\n${NH_UTIL_DIR}/lev_comp Rogue.des\n${NH_UTIL_DIR}/lev_comp Samurai.des\n${NH_UTIL_DIR}/lev_comp Tourist.des\n${NH_UTIL_DIR}/lev_comp Valkyrie.des\n${NH_UTIL_DIR}/lev_comp Wizard.des\ntouch quest_levs\n";
+			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp Arch.des\n${NH_UTIL_DIR}/lev_comp Barb.des\n${NH_UTIL_DIR}/lev_comp Caveman.des\n${NH_UTIL_DIR}/lev_comp  Convict.des\n${NH_UTIL_DIR}/lev_comp Healer.des\n${NH_UTIL_DIR}/lev_comp Knight.des\n${NH_UTIL_DIR}/lev_comp Monk.des\n${NH_UTIL_DIR}/lev_comp Priest.des\n${NH_UTIL_DIR}/lev_comp Ranger.des\n${NH_UTIL_DIR}/lev_comp Rogue.des\n${NH_UTIL_DIR}/lev_comp Samurai.des\n${NH_UTIL_DIR}/lev_comp Tourist.des\n${NH_UTIL_DIR}/lev_comp Valkyrie.des\n${NH_UTIL_DIR}/lev_comp Wizard.des\ntouch quest_levs\n";
 		};
 		317E7C4E21A3697300F6E4E5 /* Build options and headers */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1468,6 +1470,11 @@
 				"$(NH_DAT_DIR)/Cav-goal.lev",
 				"$(NH_DAT_DIR)/Cav-loca.lev",
 				"$(NH_DAT_DIR)/Cav-strt.lev",
+				"$(NH_DAT_DIR)/Con-fila.lev",
+				"$(NH_DAT_DIR)/Con-filb.lev",
+				"$(NH_DAT_DIR)/Con-goal.lev",
+				"$(NH_DAT_DIR)/Con-loca.lev",
+				"$(NH_DAT_DIR)/Con-strt.lev",
 				"$(NH_DAT_DIR)/Hea-fila.lev",
 				"$(NH_DAT_DIR)/Hea-filb.lev",
 				"$(NH_DAT_DIR)/Hea-goal.lev",
@@ -1533,9 +1540,13 @@
 				"$(NH_DAT_DIR)/bigrm-8.lev",
 				"$(NH_DAT_DIR)/bigrm-9.lev",
 				"$(NH_DAT_DIR)/bogusmon",
-				"$(NH_DAT_DIR)/castle.lev",
+				"$(NH_DAT_DIR)/castle-1.lev",
+				"$(NH_DAT_DIR)/castle-2.lev",
+				"$(NH_DAT_DIR)/castle-3.lev",
 				"$(NH_DAT_DIR)/cmdhelp",
 				"$(NH_DAT_DIR)/data",
+				"$(NH_DAT_DIR)/demogor.lev",
+				"$(NH_DAT_DIR)/dis.lev",
 				"$(NH_DAT_DIR)/dungeon",
 				"$(NH_DAT_DIR)/earth.lev",
 				"$(NH_DAT_DIR)/engrave",
@@ -1543,12 +1554,19 @@
 				"$(NH_DAT_DIR)/fakewiz1.lev",
 				"$(NH_DAT_DIR)/fakewiz2.lev",
 				"$(NH_DAT_DIR)/fire.lev",
+				"$(NH_DAT_DIR)/geryon.lev",
+				"$(NH_DAT_DIR)/hellfill.lev",
 				"$(NH_DAT_DIR)/help",
 				"$(NH_DAT_DIR)/hh",
 				"$(NH_DAT_DIR)/history",
+				"$(NH_DAT_DIR)/icequeen-1.lev",
+				"$(NH_DAT_DIR)/icequeen-2.lev",
+				"$(NH_DAT_DIR)/icequeen-3.lev",
 				"$(NH_DAT_DIR)/juiblex.lev",
 				"$(NH_DAT_DIR)/keyhelp",
-				"$(NH_DAT_DIR)/knox.lev",
+				"$(NH_DAT_DIR)/knox-1.lev",
+				"$(NH_DAT_DIR)/knox-2.lev",
+				"$(NH_DAT_DIR)/knox-3.lev",
 				"$(NH_DAT_DIR)/medusa-1.lev",
 				"$(NH_DAT_DIR)/medusa-2.lev",
 				"$(NH_DAT_DIR)/medusa-3.lev",
@@ -1557,6 +1575,8 @@
 				"$(NH_DAT_DIR)/minend-1.lev",
 				"$(NH_DAT_DIR)/minend-2.lev",
 				"$(NH_DAT_DIR)/minend-3.lev",
+				"$(NH_DAT_DIR)/minend-4.lev",
+				"$(NH_DAT_DIR)/minend-5.lev",
 				"$(NH_DAT_DIR)/minetn-1.lev",
 				"$(NH_DAT_DIR)/minetn-2.lev",
 				"$(NH_DAT_DIR)/minetn-3.lev",
@@ -1564,6 +1584,7 @@
 				"$(NH_DAT_DIR)/minetn-5.lev",
 				"$(NH_DAT_DIR)/minetn-6.lev",
 				"$(NH_DAT_DIR)/minetn-7.lev",
+				"$(NH_DAT_DIR)/minetn-8.lev",
 				"$(NH_DAT_DIR)/opthelp",
 				"$(NH_DAT_DIR)/options",
 				"$(NH_DAT_DIR)/oracle.lev",
@@ -1586,11 +1607,45 @@
 				"$(NH_DAT_DIR)/tower4.lev",
 				"$(NH_DAT_DIR)/tribute",
 				"$(NH_DAT_DIR)/valley.lev",
+				"$(NH_DAT_DIR)/vaults.dat",
+				"$(NH_DAT_DIR)/vlt-0000.lev",
+				"$(NH_DAT_DIR)/vlt-0001.lev",
+				"$(NH_DAT_DIR)/vlt-0002.lev",
+				"$(NH_DAT_DIR)/vlt-0003.lev",
+				"$(NH_DAT_DIR)/vlt-0004.lev",
+				"$(NH_DAT_DIR)/vlt-0005.lev",
+				"$(NH_DAT_DIR)/vlt-0006.lev",
+				"$(NH_DAT_DIR)/vlt-0007.lev",
+				"$(NH_DAT_DIR)/vlt-0008.lev",
+				"$(NH_DAT_DIR)/vlt-0009.lev",
+				"$(NH_DAT_DIR)/vlt-0010.lev",
+				"$(NH_DAT_DIR)/vlt-0011.lev",
+				"$(NH_DAT_DIR)/vlt-0012.lev",
+				"$(NH_DAT_DIR)/vlt-0013.lev",
+				"$(NH_DAT_DIR)/vlt-0014.lev",
+				"$(NH_DAT_DIR)/vlt-0015.lev",
+				"$(NH_DAT_DIR)/vlt-0016.lev",
+				"$(NH_DAT_DIR)/vlt-0017.lev",
+				"$(NH_DAT_DIR)/vlt-0018.lev",
+				"$(NH_DAT_DIR)/vlt-0019.lev",
+				"$(NH_DAT_DIR)/vlt-0020.lev",
+				"$(NH_DAT_DIR)/vlt-0021.lev",
+				"$(NH_DAT_DIR)/vlt-0022.lev",
+				"$(NH_DAT_DIR)/vlt-0023.lev",
+				"$(NH_DAT_DIR)/vlt-0024.lev",
+				"$(NH_DAT_DIR)/vlt-0025.lev",
+				"$(NH_DAT_DIR)/vlt-0026.lev",
+				"$(NH_DAT_DIR)/vlt-0027.lev",
+				"$(NH_DAT_DIR)/vlt-0028.lev",
+				"$(NH_DAT_DIR)/vlt-0029.lev",
+				"$(NH_DAT_DIR)/vlt-0030.lev",
+				"$(NH_DAT_DIR)/vlt-0031.lev",
 				"$(NH_DAT_DIR)/water.lev",
 				"$(NH_DAT_DIR)/wizard1.lev",
 				"$(NH_DAT_DIR)/wizard2.lev",
 				"$(NH_DAT_DIR)/wizard3.lev",
 				"$(NH_DAT_DIR)/wizhelp",
+				"$(NH_DAT_DIR)/yeenoghu.lev",
 			);
 			name = "Build nhdat";
 			outputFileListPaths = (
@@ -1600,7 +1655,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/dlb cf nhdat help hh cmdhelp keyhelp history opthelp wizhelp dungeon tribute asmodeus.lev baalz.lev bigrm-*.lev castle.lev fakewiz?.lev juiblex.lev knox.lev medusa-?.lev minend-?.lev minefill.lev minetn-?.lev oracle.lev orcus.lev sanctum.lev soko?-?.lev tower?.lev valley.lev wizard?.lev astral.lev air.lev earth.lev fire.lev water.lev ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev bogusmon data engrave epitaph oracles options quest.dat rumors\n\n";
+			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/dlb cf nhdat help hh cmdhelp keyhelp history opthelp wizhelp dungeon tribute asmodeus.lev baalz.lev bigrm-*.lev castle-?.lev demogor.lev dis.lev fakewiz?.lev geryon.lev hellfill.lev icequeen-?.lev juiblex.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev minetn-?.lev oracle.lev orcus.lev sanctum.lev soko?-?.lev tower?.lev valley.lev vlt-????.lev wizard?.lev yeenogho.lev astral.lev air.lev earth.lev fire.lev water.lev ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev bogusmon data engrave epitaph oracles options quest.dat rumors vaults.dat\n\n";
 		};
 		3192867021A39F6A00325BEB /* Install */ = {
 			isa = PBXShellScriptBuildPhase;
