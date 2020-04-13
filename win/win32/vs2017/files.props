@@ -21,7 +21,6 @@
     <Defs Include = "$(DatDir)bogusmon"/>
 	<!-- -q -->
     <Defs Include = "$(DatDir)quest.dat"/>
-	<!-- -v -->
     <Defs Include = "$(DatDir)vaults.dat"/>
 	<!-- -h -->
     <Defs Include = "$(DatDir)oracles"/>

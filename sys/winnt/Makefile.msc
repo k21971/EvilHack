@@ -1441,9 +1441,6 @@ $(DAT)\rumors: $(O)utility.tag    $(DAT)\rumors.tru   $(DAT)\rumors.fal
 $(DAT)\quest.dat: $(O)utility.tag  $(DAT)\quest.txt
 	$(U)makedefs -q
 
-$(DAT)\vaults.dat: $(O)utility.tag  $(U)makedefs.exe
-	$(U)makedefs -v
-
 $(DAT)\oracles: $(O)utility.tag    $(DAT)\oracles.txt
 	$(U)makedefs -h
 
