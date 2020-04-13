@@ -1883,6 +1883,7 @@ struct monst *mtmp;
         return i;
     oseen = otmp && canseemon(mtmp);
 
+    maxdmg = 0;
     for (i = 0; i < NATTK; i++) {
 	mattk = &mtmp->data->mattk[i];
 	maxdmg += mattk->damn * mattk->damd;	/* total up the possible damage for just swinging */
@@ -3667,8 +3668,7 @@ struct monst *mon;
             }
             break;
     }
-    if (otmp)
-        str = an(xname(otmp));
+    str = an(xname(otmp));
     if (canseemon(mon))
         pline("%s makes a wish for %s!", Monnam(mon), str);
     if (wearable)
