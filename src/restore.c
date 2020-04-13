@@ -423,7 +423,7 @@ boolean ghostly;
     int namesize = sizeof(monbegin->mname);
 
     /* get the original base address */
-    mread(fd, (void *) &monbegin, sizeof(monbegin));
+    mread(fd, (genericptr_t)&monbegin, sizeof(monbegin));
 
     while (1) {
         mread(fd, (genericptr_t) &buflen, sizeof(buflen));
@@ -489,13 +489,13 @@ boolean ghostly;
     }
 
     /* get the permonst chain back */
-    mread(fd, (void *) &monstoread, sizeof(int));
+    mread(fd, (genericptr_t) &monstoread, sizeof(int));
 
     if (monstoread != NUMMONS) {
         impossible("Restmonchn: number of permonst stored doesn't match current NUMMONS. Using default permonst");
     } else {
         for (iter = 0; iter < NUMMONS; iter++) {
-            mread(fd, (void *) &mons[iter] + namesize, sizeof(struct permonst) - namesize);
+            mread(fd, (genericptr_t) &mons[iter] + namesize, sizeof(struct permonst) - namesize);
         }
     }
 
