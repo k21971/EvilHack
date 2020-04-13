@@ -2985,46 +2985,42 @@ register struct monst *mtmp;
             }
             break;
         case SPEAR_TRAP:
-	    if (in_sight) {
-		seetrap(trap);
-		pline("A spear stabs up from a hole in the ground!");
-	    }
-	    if (thick_skinned(mptr)) {
-		if (in_sight) {
-		    pline("But it breaks off against %s.", mon_nam(mtmp));
-		}
-	    deltrap(trap);
-	    } else if (unsolid(mptr)) {
-		if (in_sight) {
-		    pline("It passes right through %s!", mon_nam(mtmp));
-		}
-	    } else if (is_flyer(mptr)) {
-		if (in_sight) {
-		    pline("The spear isn't long enough to reach %s.", mon_nam(mtmp));
-		}
+            if (in_sight) {
+                seetrap(trap);
+                pline("A spear stabs up from a hole in the ground!");
+            }
+            if (thick_skinned(mptr)) {
+                if (in_sight)
+                    pline("But it breaks off against %s.", mon_nam(mtmp));
+                deltrap(trap);
+            } else if (unsolid(mptr)) {
+                if (in_sight)
+                    pline("It passes right through %s!", mon_nam(mtmp));
+            } else if (is_flyer(mptr)) {
+                if (in_sight)
+                    pline("The spear isn't long enough to reach %s.", mon_nam(mtmp));
 	    } else {
-		if (thitm(0, mtmp, (struct obj *) 0, rnd(10) + 10, FALSE))
+                if (thitm(0, mtmp, (struct obj *) 0, rnd(10) + 10, FALSE))
                     trapkilled = TRUE;
-		else if (in_sight) {
-		    pline("%s is skewered!", Monnam(mtmp));
-                }
+                else if (in_sight)
+                    pline("%s is skewered!", Monnam(mtmp));
 	    }
 	    break;
         case MAGIC_BEAM_TRAP:
             if (distu(trap->tx, trap->ty) < 4)
                 You_hear("a faint click.");
-	    if (in_sight)
-	        seetrap(trap);
-	    if (isok(trap->launch.x,trap->launch.y)
+            if (in_sight)
+                seetrap(trap);
+            if (isok(trap->launch.x,trap->launch.y)
                 && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
-	        buzz(trap->launch_otyp, 8,
-	    	     trap->launch.x, trap->launch.y,
-	             sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y));
-		trap->once = 1;
-	    } else {
-	        deltrap(trap);
-	        newsym(u.ux, u.uy);
-	    }
+                buzz(trap->launch_otyp, 8,
+                     trap->launch.x, trap->launch.y,
+                     sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y));
+                trap->once = 1;
+            } else {
+                deltrap(trap);
+                newsym(u.ux, u.uy);
+            }
 	    break;
         case VIBRATING_SQUARE:
             if (see_it && !Blind) {
