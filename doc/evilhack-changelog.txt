@@ -871,5 +871,6 @@ Version 0.5.0
 - Fix: monsters being knocked off their steeds
 - Update build files for other operating systems
 - Bit of formatting clean-up in src/trap.c
+- Edit of stock hints/linux file
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
