@@ -886,5 +886,7 @@ Version 0.5.0
 - Fix: missing separators in sys/winnt/Makefile.gcc
 - Potential fix: warning: implicit declaration of function 'strcasestr'
   in src/engrave.c:410 (windows-mingw build)
+- Potential fix: src\restore.c(498): error C2036: 'genericptr_t': unknown size
+  (windows/visual studio build)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
