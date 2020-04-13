@@ -74,14 +74,15 @@
 #define F_LEV      27
 #define F_FLY      28
 #define F_RIDE     29
+#define F_SLOW     30
 
-#define F_BLIND    30
-#define F_DEAF     31
-#define F_STUN     32
-#define F_CONF     33
-#define F_HALLU    34
+#define F_BLIND    31
+#define F_DEAF     32
+#define F_STUN     33
+#define F_CONF     34
+#define F_HALLU    35
 
-#define NUM_STATS 35
+#define NUM_STATS 36
 
 static void FDECL(update_fancy_status, (struct xwindow *));
 static void FDECL(update_fancy_status_field, (int));
