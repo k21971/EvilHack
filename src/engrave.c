@@ -6,8 +6,6 @@
 #include "hack.h"
 #include "lev.h"
 
-#define _GNU_SOURCE
-
 STATIC_VAR NEARDATA struct engr *head_engr;
 STATIC_DCL const char *NDECL(blengr);
 
