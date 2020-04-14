@@ -1715,7 +1715,7 @@ long flag;
     int cnt = 0;
     uchar ntyp;
     uchar nowtyp;
-    boolean wantpool, wantlava, wantsewage, wantice;
+    boolean wantpool, wantpuddle, wantlava, wantsewage, wantice;
     boolean poolok, lavaok, nodiag;
     boolean rockok = FALSE, treeok = FALSE, thrudoor;
     int maxx, maxy;
@@ -1730,6 +1730,7 @@ long flag;
     nodiag = NODIAG(mdat - mons);
     wantpool = (mdat->mlet == S_EEL || mdat == &mons[PM_BABY_SEA_DRAGON]
                 || mdat == &mons[PM_SEA_DRAGON]);
+    wantpuddle = (mdat->mlet == S_EEL);
     wantlava = (mdat == &mons[PM_SALAMANDER]);
     wantsewage = (mdat == &mons[PM_GIANT_LEECH]);
     wantice = (mdat == &mons[PM_FROST_SALAMANDER]);
@@ -1824,10 +1825,11 @@ long flag;
                 && !(is_flyer(mdat) || is_floater(mdat)
                      || noncorporeal(mdat) || is_whirly(mdat)))
                 continue;
-            if (((is_pool(nx, ny) || is_puddle(nx, ny)) == wantpool || poolok)
+            if ((is_pool(nx, ny) == wantpool || poolok)
                 && (is_lava(nx, ny) == wantlava || lavaok)
                 && (is_ice(nx, ny) == wantice || !wantice)
                 && (is_sewage(nx, ny) == wantsewage || !wantsewage)
+                && (is_puddle(nx, ny) == wantpuddle || !wantpuddle)
                 /* iron golems and longworms avoid shallow water */
                 && ((mon->data != &mons[PM_IRON_GOLEM] && !is_longworm(mdat)
                     && !vs_cantflyorswim(mdat))
@@ -1959,9 +1961,12 @@ long flag;
                 cnt++;
             }
         }
-    if (!cnt && wantpool
-        && !(is_pool(x, y) || is_puddle(x, y))) {
+    if (!cnt && wantpool && !is_pool(x, y)) {
         wantpool = FALSE;
+        goto nexttry;
+    }
+    if (!cnt && wantpuddle && !is_puddle(x, y)) {
+        wantpuddle = FALSE;
         goto nexttry;
     }
     if (!cnt && wantlava && !is_lava(x, y)) {

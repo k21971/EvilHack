@@ -887,5 +887,6 @@ Version 0.5.0
 - Fix: some errors during compile (windows/visual studio and mingw builds)
 - Fix: self-induced error with sys/winnt/Makefile.*
 - Update travis.yml file
+- Fix: monsters not walking across shallow water/sewage
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
