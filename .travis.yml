@@ -94,6 +94,7 @@ matrix:
       cat dat/options
   - name: windows-visualstudio
     os: windows
+    install: choco install winflexbison
     language: shell
     script:
     - "./win/win32/vs2017/travisci.sh"
