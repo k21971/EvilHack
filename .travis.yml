@@ -131,6 +131,6 @@ deploy:
     tags: true
     repo: k21971/EvilHack
     branch: master
-  prerelease: false
-  name: "Release build of EvilHack 0.5.0"
-  body: "This is an auto generated Release build of EvilHack 0.5.0"
+  prerelease: true
+  name: "Test release build of EvilHack 0.5.0"
+  body: "This is an auto generated test release build of EvilHack 0.5.0"
