@@ -77,7 +77,7 @@ OPTIONS=time,noshowexp,number_pad:2,lit_corridor
 #
 # The default location for everything.
 # Note: On Windows HACKDIR defaults to the location 
-#       of the NetHack.exe or NetHackw.exe file so
+#       of the EvilHack.exe or NetHackw.exe file so
 #       setting HACKDIR below to override that is 
 #       not usually necessary or recommended.
 #HACKDIR=c:\games\nethack

@@ -74,7 +74,7 @@ OPTIONS=windowcolors:status white/#000000 message white/#000000 menu white/#0000
 #HACKDIR=c:\games\nethack
 # 
 # Note: On Windows HACKDIR defaults to the location 
-#       of the NetHack.exe or NetHackw.exe file. 
+#       of the EvilHack.exe or NetHackw.exe file. 
 #       Setting HACKDIR above will override that.
 #
 #   LEVELS and SAVE default to HACKDIR

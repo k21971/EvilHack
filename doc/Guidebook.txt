@@ -3067,7 +3067,7 @@
 
           HACKDIR
             Default  location  of  files  NetHack needs. On Windows HACKDIR
-            defaults to the location of  the  NetHack.exe  or  NetHackw.exe
+            defaults to the location of  the  EvilHack.exe  or  NetHackw.exe
             file  so setting HACKDIR to override that is not usually neces-
             sary or recommended.
 

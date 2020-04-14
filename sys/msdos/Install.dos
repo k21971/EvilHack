@@ -152,7 +152,7 @@ II. To compile your copy of NetHack on a DOS machine:
     Depending on your particular machine and compiler, you can either
     grab a cup of coffee or go home for the day.  Your computer will be
     occupied for quite some time.  If all goes well, you will get an
-    NetHack executable.
+    EvilHack.executable.
 
 9.  If you chose DLB support (recommended), make sure that the file nhdat 
     got copied into the game directory.

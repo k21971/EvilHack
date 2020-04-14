@@ -6,7 +6,7 @@ NetHack may be freely distributed.  See license for details.
 
 New players should be sure to read GuideBoo.txt which contains essential
 information about playing NetHack.  It can be found in the same
-directory as your NetHack executable.
+directory as your EvilHack.executable.
 
 The MSDOS port of NetHack supports some additional or enhanced commands
 as well as some defaults.nh file options specific to configuration choices 

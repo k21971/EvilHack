@@ -83,7 +83,7 @@ TARGET_CPU=x86
 #
 # 4. Uncomment these and set them appropriately if you want to
 #    include curses port support alongside TTY support in your
-#    NetHack.exe binary. 
+#    EvilHack.exe binary. 
 #
 #    You'll have to set PDCURSES_H to the correct location of the 
 #    PDCurses header (.h) files and PDCURSES_C to the location
@@ -716,7 +716,7 @@ $(QT4)/%.moc : $(QT4)/%.h
 ifeq "$(SKIP_NETHACKW)" "Y"
 NETHACKW_EXE =
 else
-NETHACKW_EXE = $(GAMEDIR)/NetHack.exe
+NETHACKW_EXE = $(GAMEDIR)/EvilHack.exe
 endif
 
 SHELL=CMD.EXE
@@ -742,7 +742,7 @@ default : install
 
 all :   install
 
-install: initialchk $(O)utility.tag $(GAMEDIR)/NetHack.exe $(NETHACKW_EXE) \
+install: initialchk $(O)utility.tag $(GAMEDIR)/EvilHack.exe $(NETHACKW_EXE) \
 	$(O)install.tag $(EXTRA_FILES)
 	@echo NetHack is up to date.
 	@echo Done.
@@ -847,7 +847,7 @@ gamedir.tag:
 	test -d $(GAMEDIR) || mkdir $(W_GAMEDIR)
 	test -d $(GAMEDIR) && echo directory created > $@
 
-$(GAMEDIR)/NetHack.exe : gamedir.tag $(PDCLIB) $(O)tile.o $(O)nttty.o $(O)guistub.o \
+$(GAMEDIR)/EvilHack.exe : gamedir.tag $(PDCLIB) $(O)tile.o $(O)nttty.o $(O)guistub.o \
 			$(ALLOBJ) $(TTYOBJ) $(GUIOBJ) $(O)conres.o $(KEYDLLS)
 	@echo Linking $@...
 	$(link) $(lflags) -o$@ $(ALLOBJ) $(TTYOBJ) $(O)nttty.o $(O)tile.o \
@@ -1252,11 +1252,11 @@ spotless: clean
 	if exist objdir.tag del objdir.tag
 	if exist gamedir.tag del gamedir.tag
 ifneq "$(W_GAMEDIR)" ""
-	if exist $(W_GAMEDIR)\NetHack.exe  del $(W_GAMEDIR)\NetHack.exe
+	if exist $(W_GAMEDIR)\EvilHack.exe  del $(W_GAMEDIR)\EvilHack.exe
 	if exist $(W_GAMEDIR)\nhdefkey.dll del $(W_GAMEDIR)\nhdefkey.dll
 	if exist $(W_GAMEDIR)\nh340key.dll del $(W_GAMEDIR)\nh340key.dll
 	if exist $(W_GAMEDIR)\nhraykey.dll del $(W_GAMEDIR)\nhraykey.dll
-	if exist $(W_GAMEDIR)\NetHack.exe  del $(W_GAMEDIR)\NetHack.exe
+	if exist $(W_GAMEDIR)\EvilHack.exe  del $(W_GAMEDIR)\EvilHack.exe
 	if exist $(W_GAMEDIR)\NetHack.pdb  del $(W_GAMEDIR)\NetHack.pdb
 	if exist $(W_GAMEDIR)\nhdat$(NHV)  del $(W_GAMEDIR)\nhdat$(NHV)
 endif

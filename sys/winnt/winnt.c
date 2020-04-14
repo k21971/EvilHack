@@ -321,7 +321,7 @@ genericptr_t ptr2;
                     "displayed\n"
                     "inside an unzip utility.\n\n"
                     "You have to unzip the contents of the zip file into a\n"
-                    "folder on your system, and then run \"NetHack.exe\" or "
+                    "folder on your system, and then run \"EvilHack.exe\" or "
                     "\n"
                     "\"NetHackW.exe\" from there.\n\n"
                     "If that is not the situation, you are encouraged to\n"

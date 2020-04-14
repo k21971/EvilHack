@@ -890,5 +890,6 @@ Version 0.5.0
 - Fix: monsters not walking across shallow water/sewage
 - Tweak various files for windows/visual studio build (travis-ci)
 - More tweaks to various files for windows/visual studio build (travis-ci)
+- Rename windows build binaries and rc files to reflect variant name (tty)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

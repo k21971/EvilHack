@@ -97,7 +97,7 @@ CFLAGS = -O3 -I $(I)
 #   output file should appear immediately after $(LNSPEC).  $(LIN) should
 #   appear before the list of object files in each link command.  $(LLINK)
 #   should appear as the list of object files in the link command line that
-#   creates the NetHack executable.  $(LLIB) should appear at the end of each
+#   creates the EvilHack.executable.  $(LLIB) should appear at the end of each
 #   link command line.
 
 LINK = gcc -noixemul -O3

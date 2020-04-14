@@ -14,7 +14,7 @@
 #   This is used for building two versions of NetHack:
 #
 #   A tty port utilizing the Win32 Console I/O subsystem, Console
-#       NetHack.exe
+#       EvilHack.exe
 #
 #   A Win32 native port built on the Windows API, Graphical NetHack or
 #       NetHackW.exe
@@ -66,7 +66,7 @@ DEBUGINFO = Y
 #
 # 4. Uncomment these and set them appropriately if you want to
 #    include curses port support alongside TTY support in your
-#    NetHack.exe binary. 
+#    EvilHack.exe binary. 
 #
 #    You'll have to set PDCURSES_H to the correct location of the 
 #    PDCurses header (.h) files and PDCURSES_C to the location
@@ -674,7 +674,7 @@ default : install
 
 all :	install
 
-install: $(O)envchk.tag $(O)obj.tag $(O)utility.tag $(GAMEDIR)\NetHack.exe $(GAMEDIR)\NetHackW.exe $(O)install.tag
+install: $(O)envchk.tag $(O)obj.tag $(O)utility.tag $(GAMEDIR)\EvilHack.exe $(GAMEDIR)\NetHackW.exe $(O)install.tag
 	 @echo Done.
 
 $(O)install.tag: 	$(DAT)\data	$(DAT)\rumors	 $(DAT)\dungeon \
@@ -809,7 +809,7 @@ GAMEOBJ=$(GAMEOBJ:^ =^
 #    objs: $(GAMEOBJ) $(TTYOBJ) $(O)tile.o $(O)guistub.o
 
 
-$(GAMEDIR)\NetHack.exe : $(O)gamedir.tag $(PDCLIB) $(O)tile.o $(O)nttty.o $(O)guistub.o \
+$(GAMEDIR)\EvilHack.exe : $(O)gamedir.tag $(PDCLIB) $(O)tile.o $(O)nttty.o $(O)guistub.o \
 			$(ALLOBJ) $(TTYOBJ) $(GUIOBJ) $(O)console.res $(KEYDLLS)
 	@if not exist $(GAMEDIR)\*.* mkdir $(GAMEDIR)
         @echo Linking $(@:\=/)
@@ -1290,7 +1290,7 @@ spotless: clean
 	if exist $(GAMEDIR)\nhdefkey.dll del $(GAMEDIR)\nhdefkey.dll
 	if exist $(GAMEDIR)\nh340key.dll del $(GAMEDIR)\nh340key.dll
 	if exist $(GAMEDIR)\nhraykey.dll del $(GAMEDIR)\nhraykey.dll
-	if exist $(GAMEDIR)\NetHack.exe  del $(GAMEDIR)\NetHack.exe
+	if exist $(GAMEDIR)\EvilHack.exe  del $(GAMEDIR)\EvilHack.exe
 	if exist $(GAMEDIR)\NetHack.pdb  del $(GAMEDIR)\NetHack.pdb
 	if exist $(GAMEDIR)\nhdat$(NHV)  del $(GAMEDIR)\nhdat$(NHV)
 ! ENDIF
