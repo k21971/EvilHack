@@ -119,12 +119,19 @@ notifications:
   email:
     recipients:
     - admin@hardfought.org
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name "k21971"
+  - git config --local user.email "keith.simpson1971@gmail.com"
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - git tag $TRAVIS_TAG
 deploy:
   provider: releases
   api_key:
     secure: Jw7YZTwL2BYZ52FAxrkDfXOdZnPRVnLMNDWIKqR6BrZEECp4HZmkWJFvCl1rMivz27d/O15x37U5UgWGPLz8TUYTOt+6Da24jRLL2hQKA+DUjqDqrnnKztrtkntvBWJaffvTWjL4w0B3dmjeZv7klAgmQEKQW/A4B943vnYgsZl5H/dxlRH1QnGpTK0xQZkj4Z/bfsrCYjaPv9JCfbtbXhJtj5Cz+oW4e8KKAFhThqxcwmuIVAzC/K4hmh8LjtfUHTehCmIC7THSYi+uHlHyjnPb4aSaNop7FtC/XS/wLwnJGZE4zo66BCFkSFi5fNF5niLpW/JlweG0CA0eZyrqbdn1uM5msn5MOi4vvbRU5mIBci2w0/tmWfaZEm6EHa0b5xJ7zggzpqMw/tuuN9iE7sjC7KsXvB267kl3B4MmfcR4O0sz6tG6OAgd971FUMfKMDbjkQlLZZl06idM8OYN/vE9cFjnwXWylvHNxYcNWyrhhPiwFP+EzQnCXRZBAqZZL8Vq3Xr46ZzcBlY65T6w7B14IJ0OYXIbbvYjkwQkcRs7hh9CZ0H6JWfagq6ZVNOrrGfJeSXjK2Zy5KmfANBN8Za9dfFHAuq/wzcgeTm+exRUfQ+/UwVqPYwCW0v3IJopptktgXunf2+n+QcHIAEtPZ1ScdZ7CJtqUcLUTVOOwZM=
   file: "$TRAVIS_TAG.x86.zip"
   skip_cleanup: true
+  draft: true
   on:
     tags: true
     repo: k21971/EvilHack
