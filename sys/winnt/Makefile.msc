@@ -1143,6 +1143,7 @@ nhdat$(NHV):	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(OPTIONS_FILE) \
 	if exist guioptions echo guioptions >>dlb.lst
 	if exist porthelp echo porthelp >>dlb.lst
 	echo quest.dat >>dlb.lst
+	echo vaults.dat >>dlb.lst
 	echo rumors >>dlb.lst
 	echo engrave >>dlb.lst
 	echo epitaph >>dlb.lst
@@ -1441,6 +1442,8 @@ $(DAT)\rumors: $(O)utility.tag    $(DAT)\rumors.tru   $(DAT)\rumors.fal
 
 $(DAT)\quest.dat: $(O)utility.tag  $(DAT)\quest.txt
 	$(U)makedefs -q
+
+$(DAT)\vaults.dat: $(O)sp_lev.tag
 
 $(DAT)\oracles: $(O)utility.tag    $(DAT)\oracles.txt
 	$(U)makedefs -h

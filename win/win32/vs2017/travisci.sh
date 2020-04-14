@@ -39,4 +39,4 @@ mkdir ../binary
 cp ../sys/winnt/Makefile.msc ./Makefile
 nmake install
 cd ..
-powershell -Command "Compress-Archive -U -Path binary/* -DestinationPath $TRAVIS_TAG.x86.zip"
+powershell -Command "Compress-Archive -U -Path binary/* -DestinationPath EvilHack-0.5.0.x86.zip"

@@ -264,6 +264,7 @@
     <DlbList Include = "$(DatDir)ttyoptions" Condition="Exists('$(DatDir)ttyoptions')"/>
     <DlbList Include = "$(DatDir)guioptions" Condition="Exists('$(DatDir)guioptions')"/>
     <DlbList Include = "$(DatDir)quest.dat"/>
+    <DlbList Include = "$(DatDir)vaults.dat"/>
     <DlbList Include = "$(DatDir)rumors"/>
     <DlbList Include = "$(DatDir)engrave"/>
     <DlbList Include = "$(DatDir)epitaph"/>
