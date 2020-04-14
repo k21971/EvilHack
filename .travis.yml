@@ -123,10 +123,10 @@ deploy:
   provider: releases
   api_key:
     secure: Jw7YZTwL2BYZ52FAxrkDfXOdZnPRVnLMNDWIKqR6BrZEECp4HZmkWJFvCl1rMivz27d/O15x37U5UgWGPLz8TUYTOt+6Da24jRLL2hQKA+DUjqDqrnnKztrtkntvBWJaffvTWjL4w0B3dmjeZv7klAgmQEKQW/A4B943vnYgsZl5H/dxlRH1QnGpTK0xQZkj4Z/bfsrCYjaPv9JCfbtbXhJtj5Cz+oW4e8KKAFhThqxcwmuIVAzC/K4hmh8LjtfUHTehCmIC7THSYi+uHlHyjnPb4aSaNop7FtC/XS/wLwnJGZE4zo66BCFkSFi5fNF5niLpW/JlweG0CA0eZyrqbdn1uM5msn5MOi4vvbRU5mIBci2w0/tmWfaZEm6EHa0b5xJ7zggzpqMw/tuuN9iE7sjC7KsXvB267kl3B4MmfcR4O0sz6tG6OAgd971FUMfKMDbjkQlLZZl06idM8OYN/vE9cFjnwXWylvHNxYcNWyrhhPiwFP+EzQnCXRZBAqZZL8Vq3Xr46ZzcBlY65T6w7B14IJ0OYXIbbvYjkwQkcRs7hh9CZ0H6JWfagq6ZVNOrrGfJeSXjK2Zy5KmfANBN8Za9dfFHAuq/wzcgeTm+exRUfQ+/UwVqPYwCW0v3IJopptktgXunf2+n+QcHIAEtPZ1ScdZ7CJtqUcLUTVOOwZM=
-  file: "$TRAVIS_TAG.x86.zip"
+  file: "EvilHack-0.5.0.x86.zip"
   skip_cleanup: true
   on:
-    tags: true
+    #tags: true
     repo: k21971/EvilHack
   prerelease: false
   name: "Release build of EvilHack 0.5.0"
