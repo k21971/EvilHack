@@ -886,5 +886,6 @@ Version 0.5.0
 - Fix: missing separators in sys/winnt/Makefile.gcc
 - Fix: some errors during compile (windows/visual studio and mingw builds)
 - Fix: self-induced error with sys/winnt/Makefile.*
+- Update travis.yml file
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

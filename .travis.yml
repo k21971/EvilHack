@@ -97,16 +97,16 @@ matrix:
     language: shell
     script:
     - "./win/win32/vs2017/travisci.sh"
-  - name: windows-mingw
-    os: windows
-    script:
-    - export ADD_CURSES=Y
-    - export PDCURSES_TOP=../lib/pdcurses
-    - sh sys/winnt/travis-gcc.sh
-    - test -d "lib/pdcurses" || exit 0
-    - cd src
-    - cp ../sys/winnt/Makefile.gcc ./Makefile
-    - mingw32-make install
+#  - name: windows-mingw
+#    os: windows
+#    script:
+#    - export ADD_CURSES=Y
+#    - export PDCURSES_TOP=../lib/pdcurses
+#    - sh sys/winnt/travis-gcc.sh
+#    - test -d "lib/pdcurses" || exit 0
+#    - cd src
+#    - cp ../sys/winnt/Makefile.gcc ./Makefile
+#    - mingw32-make install
   exclude:
   - os: osx
     osx_image: xcode10.2
@@ -125,7 +125,7 @@ deploy:
   file: "$TRAVIS_TAG.x86.zip"
   skip_cleanup: true
   on:
-    repo: k21971/EvilHack
+    tags: true
   prerelease: false
   name: "Release build of EvilHack 0.5.0"
   body: "This is an auto generated Release build of EvilHack 0.5.0"
