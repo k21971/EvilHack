@@ -125,7 +125,7 @@ deploy:
   file_glob: true
   file:
     - "$TRAVIS_TAG.x86.zip"
-  cleanup: false
+  skip_cleanup: true
   on:
     tags: true
   prerelease: true
