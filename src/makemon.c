@@ -763,20 +763,17 @@ register struct monst *mtmp;
                 w1 = rn2(2) ? LONG_SWORD : BATTLE_AXE;
                 mongets(mtmp, BOULDER);
                 break;
-            case PM_HUMAN_CAPTAIN:
-            case PM_DWARVISH_CAPTAIN:
-            case PM_GNOMISH_CAPTAIN:
-                w1 = rn2(2) ? LONG_SWORD : SABER;
-                mongets(mtmp, SKELETON_KEY);
-                break;
             case PM_ELVEN_CAPTAIN:
-                mongets(mtmp, ELVEN_LONG_SWORD);
+                w1 = ELVEN_LONG_SWORD;
                 mongets(mtmp, SKELETON_KEY);
                 break;
             case PM_GIANT_CAPTAIN:
                 w1 = rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
                 mongets(mtmp, SKELETON_KEY);
                 break;
+            case PM_HUMAN_CAPTAIN:
+            case PM_DWARVISH_CAPTAIN:
+            case PM_GNOMISH_CAPTAIN:
             case PM_PRISON_GUARD:
             case PM_WATCH_CAPTAIN:
                 w1 = rn2(2) ? LONG_SWORD : SABER;
