@@ -1161,7 +1161,7 @@ register struct monst *mtmp2;
 boolean ranged;
 {
     /* from xNetHack...
-     * weight the audacity of the pet to attack a differently-leveled
+     * weigh the audacity of the pet to attack a differently-leveled
      * foe based on its fraction of max HP:
      *       100%:  up to level + 2
      * 80% and up:  up to level + 1
@@ -1189,8 +1189,8 @@ boolean ranged;
        || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
        || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
        || ((mtmp->mhp * 4 < mtmp->mhpmax || mtmp2->data->msound == MS_GUARDIAN
-           || mtmp2->data->msound == MS_LEADER || always_peaceful(mtmp2->data))
-       && mtmp2->mpeaceful && !grudge && !Conflict)
+           || mtmp2->data->msound == MS_LEADER)
+       && !ranged && mtmp2->mpeaceful && !grudge && !Conflict)
        || (!ranged && touch_petrifies(mtmp2->data) && !resists_ston(mtmp))
        || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp)));
 }

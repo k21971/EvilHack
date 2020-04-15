@@ -2103,7 +2103,8 @@ struct monst *magr, /* monster that is currently deciding where to move */
     /* berserk monsters sometimes lash out at everything
        when trying to attack you  */
     if (is_berserker(ma) && m_canseeu(magr)
-        && !rn2(7) && (magr->mhp < (magr->mhpmax / 3))) {
+        && magr->mpeaceful == FALSE && !rn2(7)
+        && (magr->mhp < (magr->mhpmax / 3))) {
         if (ma->mlet == S_HUMAN || ma->mlet == S_ORC
             || ma->mlet == S_GIANT || ma->mlet == S_OGRE)
             pline("%s flies into a berserker rage!", Monnam(magr));
