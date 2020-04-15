@@ -17,7 +17,7 @@
 #
 # Use the IBM character set rather than just plain ascii characters
 # for tty window-port.
-OPTIONS=symset:IBMGraphics_2,roguesymset:RogueEpyx
+OPTIONS=symset:IBMGraphics,roguesymset:RogueEpyx
 
 # Here is a suggested symbol set from Michael Feir, 
 # for use by blind NetHack players
@@ -83,14 +83,14 @@ MENUCOLOR=" cursed .* (being worn)" = orange&underline
 #
 # number_pad option can have an optional value of 0 (off), 1 (on), 
 # or 2(on,legacy-mode) which causes 5='g', alt-5='G', alt-0='I'
-OPTIONS=time,noshowexp,number_pad:2,lit_corridor,mouse_support:1
+OPTIONS=time,noshowexp,number_pad:1,lit_corridor,mouse_support:1
 
 # Make commands that ask for an inventory item pop up a menu
 OPTIONS=force_invmenu
 
 #
 # If you want to get rid of "use #quit to quit..." use:
-OPTIONS=suppress_alert:3.3.1
+OPTIONS=suppress_alert:0.5.0
 #
 # Note: the rest_on_space in the next line may not be
 #       appropriate for a beginning NetHack player, since
