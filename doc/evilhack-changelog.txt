@@ -894,5 +894,6 @@ Version 0.5.0
 - Remove duplicate code block in makemon.c
 - Fix: pets not melee attacking peaceful targets
 - Fix: Sunsword should only destroy zombie corpses, not everything under S_ZOMBIE
+- Fix: rename .nethackrc.template to .evilhackrc.template (windows builds)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
