@@ -2830,7 +2830,7 @@ boolean was_swallowed; /* digestion */
     }
 
     /* Zombies don't leave a corpse when the player is wielding Sunsword */
-    if (mdat->mlet == S_ZOMBIE
+    if (is_zombie(mdat)
         && ((uwep && uwep->oartifact == ART_SUNSWORD)
             || (u.twoweap && uswapwep->oartifact == ART_SUNSWORD))) {
         if (cansee(mon->mx, mon->my))

@@ -891,6 +891,8 @@ Version 0.5.0
 - Tweak various files for windows/visual studio build (travis-ci)
 - More tweaks to various files for windows/visual studio build (travis-ci)
 - Rename windows build binaries and rc files to reflect variant name (tty)
+- Remove duplicate code block in makemon.c
 - Fix: pets not melee attacking peaceful targets
+- Fix: Sunsword should only destroy zombie corpses, not everything under S_ZOMBIE
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
