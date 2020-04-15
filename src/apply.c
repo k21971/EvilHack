@@ -318,11 +318,10 @@ struct obj* tobj;
             pline("You attempt to crack the safe using the combination... %s?",
                   rndcolor());
         } else {
-	    pick_lock(tobj, rx, ry, NULL);
-	    return TRUE;
+            pick_lock(tobj, rx, ry, safe);
+            return TRUE;
         }
     }
-
     return FALSE; /* no corpse or statue */
 }
 
