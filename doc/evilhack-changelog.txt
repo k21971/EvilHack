@@ -900,5 +900,6 @@ Version 0.5.0
 - Fix: prevent 'placing shambling horror' program in disorder errors
 - Even more tweaks to various files for windows/visual studio build (windows builds)
 - Edit default folder creation (windows builds)
+- Fix: can't chop down a dead tree on a no-dig level
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

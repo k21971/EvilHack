@@ -21,6 +21,8 @@ STATIC_DCL void NDECL(domove_core);
 
 #define IS_SHOP(x) (rooms[x].rtype >= SHOPBASE)
 
+#define GIANT_BLDR_WEIGHT 8
+
 /* mode values for findtravelpath() */
 #define TRAVP_TRAVEL 0
 #define TRAVP_GUESS  1
@@ -3463,7 +3465,7 @@ inv_weight()
         if (otmp->oclass == COIN_CLASS)
             wt += (int) (((long) otmp->quan + 50L) / 100L);
         else if (otmp->otyp == BOULDER && throws_rocks(youmonst.data))
-            wt += otmp->owt / 750;
+            wt += GIANT_BLDR_WEIGHT;
         else if (otmp->otyp != BOULDER || !throws_rocks(youmonst.data))
             wt += otmp->owt;
         otmp = otmp->nobj;

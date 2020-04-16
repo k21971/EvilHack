@@ -258,7 +258,7 @@ dig(VOID_ARGS)
         if (!dig_check(BY_YOU, TRUE, u.ux, u.uy))
             return 0;
     } else { /* !context.digging.down */
-        if (IS_TREES(lev->typ) && !may_dig(dpx, dpy)
+        if (IS_TREE(lev->typ) && !may_dig(dpx, dpy)
             && dig_typ(uwep, dpx, dpy) == DIGTYP_TREE) {
             pline("This tree seems to be petrified.");
             return 0;
