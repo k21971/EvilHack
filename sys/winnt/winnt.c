@@ -323,7 +323,7 @@ genericptr_t ptr2;
                     "You have to unzip the contents of the zip file into a\n"
                     "folder on your system, and then run \"EvilHack.exe\" or "
                     "\n"
-                    "\"NetHackW.exe\" from there.\n\n"
+                    "\"EvilHackW.exe\" from there.\n\n"
                     "If that is not the situation, you are encouraged to\n"
                     "report the error as shown above.\n\n",
                     1023);

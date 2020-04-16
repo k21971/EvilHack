@@ -192,7 +192,7 @@ END
 
 IDD_SPLASH DIALOG 0, 0, 281, 257
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Welcome to NetHack"
+CAPTION "Welcome to EvilHack"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,224,236,50,14
@@ -320,8 +320,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,6,6,0
- PRODUCTVERSION 3,6,6,0
+ FILEVERSION 0,5,0,0
+ PRODUCTVERSION 0,5,0,0
  FILEFLAGSMASK 0x1fL
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -336,14 +336,14 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "NetHack for Windows - Graphical Interface"
-            VALUE "FileVersion", "3.6.6"
-            VALUE "InternalName", "NetHackW"
-            VALUE "LegalCopyright", "Copyright (C) 1985 - 2020.  By Stichting Mathematisch Centrum and M. Stephenson.  See license for details."
-            VALUE "OriginalFilename", "NetHackW.exe"
+            VALUE "FileDescription", "EvilHack for Windows - Graphical Interface"
+            VALUE "FileVersion", "0.5.0"
+            VALUE "InternalName", "EvilHackW"
+            VALUE "LegalCopyright", "Copyright (C) 2020 by Keith Simpson - a NetHack 3.6.x variant, copyright (C) 1985 - 2020.  By Stichting Mathematisch Centrum and M. Stephenson.  See license for details."
+            VALUE "OriginalFilename", "EvilHackW.exe"
             VALUE "PrivateBuild", "140606"
-            VALUE "ProductName", "NetHack"
-            VALUE "ProductVersion", "3.6.6"
+            VALUE "ProductName", "EvilHack"
+            VALUE "ProductVersion", "0.5.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -371,9 +371,9 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_APP_TITLE           "NetHack for Windows - Graphical Interface"
+    IDS_APP_TITLE           "EvilHack for Windows - Graphical Interface"
     IDC_NETHACKW            "NETHACKW"
-    IDS_APP_TITLE_SHORT     "NetHack for Windows"
+    IDS_APP_TITLE_SHORT     "EvilHack for Windows"
 END
 
 #endif    // English (United States) resources

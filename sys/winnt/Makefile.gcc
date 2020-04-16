@@ -15,10 +15,10 @@
 #   This is used for building two versions of NetHack:
 #
 #   A tty port utilizing the Win32 Console I/O subsystem, Console
-#       NetHack.
+#       EvilHack.
 #
 #   A Win32 native port built on the Windows API, Graphical NetHack or
-#       NetHackW.
+#       EvilHackW.
 #
 #   In addition to your C compiler,
 #
@@ -139,7 +139,7 @@ SKIP_NETHACKW=Y
 #==============================================================================
 
 #  The version of the game this Makefile was designed for
-NETHACK_VERSION="3.6.6"
+NETHACK_VERSION="0.5.0"
 
 # A brief version for use in macros
 NHV1=$(subst .,,$(NETHACK_VERSION))
@@ -158,8 +158,8 @@ NHV=$(subst ",,$(NHV1))
 # MSWSYS  - mswin specific files
 # TTY     - window port files (tty)
 # MSWIN   - window port files (win32)
-# WCURSES - window port files (curses) 
-# WSHR    - Tile support files 
+# WCURSES - window port files (curses)
+# WSHR    - Tile support files
 
 INCL    =../include
 DAT     =../dat
@@ -329,7 +329,7 @@ CURSESOBJ=
 endif
 
 SOBJ   = $(O)windmain.o $(O)winnt.o $(O)win10.o \
-	$(O)safeproc.o $(O)nhlan.o $(SOUND) 
+	$(O)safeproc.o $(O)nhlan.o $(SOUND)
 
 OBJS   = $(VOBJ01) $(VOBJ02) $(VOBJ03) $(VOBJ04) $(VOBJ05) \
 	 $(VOBJ06) $(VOBJ07) $(VOBJ08) $(VOBJ09) $(VOBJ10) \
@@ -748,7 +748,7 @@ install: initialchk $(O)utility.tag $(GAMEDIR)/EvilHack.exe $(NETHACKW_EXE) \
 	@echo Done.
 
 $(O)install.tag:  $(DAT)/data    $(DAT)/rumors    $(DAT)/dungeon \
-	       $(DAT)/oracles $(DAT)/quest.dat $(O)sp_lev.tag $(DLB)
+	       $(DAT)/oracles $(DAT)/quest.dat $(DAT)/vaults.dat $(O)sp_lev.tag $(DLB)
 ifdef TRAVIS_COMPILER
 	ls -l $(SRC)
 	ls -l $(DAT)
@@ -829,11 +829,11 @@ $(O)utility.tag: $(INCL)/date.h $(INCL)/onames.h $(INCL)/pm.h \
 tileutil: $(U)gif2txt.exe $(U)gif2tx32.exe $(U)txt2ppm.exe
 	@echo Optional tile development utilities are up to date.
 
-$(O)winres.o: $(TILEBMP16) $(MSWIN)/NetHackW.rc $(MSWIN)/mnsel.bmp \
+$(O)winres.o: $(TILEBMP16) $(MSWIN)/EvilHackW.rc $(MSWIN)/mnsel.bmp \
 	 $(MSWIN)/mnselcnt.bmp $(MSWIN)/mnunsel.bmp \
 	 $(MSWIN)/petmark.bmp $(MSWIN)/pilemark.bmp $(MSWIN)/NetHack.ico $(MSWIN)/rip.bmp \
 	 $(MSWIN)/splash.bmp
-	$(rc) -o$@ --include-dir $(MSWIN) -i $(MSWIN)/NetHackW.rc
+	$(rc) -o$@ --include-dir $(MSWIN) -i $(MSWIN)/EvilHackW.rc
 
 $(O)conres.o: $(MSWSYS)/console.rc $(MSWSYS)/NetHack.ico
 	$(rc) -o$@ --include-dir $(MSWSYS) -i $(MSWSYS)/console.rc
@@ -854,7 +854,7 @@ $(GAMEDIR)/EvilHack.exe : gamedir.tag $(PDCLIB) $(O)tile.o $(O)nttty.o $(O)guist
 		$(O)guistub.o $(O)conres.o $(PDCLIB) $(conlibs) -static -lstdc++
 	$(subst /,\,@if exist $(O)install.tag del $(O)install.tag)
 
-# NetHackW
+# EvilHackW
 # full tty linkage libs:
 #    libs: $(LIBS) $(guilibs) $(COMCTRL)
 #    objs: $(GAMEOBJ) $(GUIOBJ) $(TTYOBJ) $(O)tile.o $(O)nttty.o
@@ -863,7 +863,7 @@ $(GAMEDIR)/EvilHack.exe : gamedir.tag $(PDCLIB) $(O)tile.o $(O)nttty.o $(O)guist
 #    objs: $(GAMEOBJ) $(GUIOBJ) $(O)tile.o $(O)ttystub.o
 
 ifneq "$(SKIP_NETHACKW)" "Y"
-$(GAMEDIR)/NetHackW.exe : gamedir.tag $(PDCLIB) $(O)tile.o $(O)ttystub.o \
+$(GAMEDIR)/EvilHackW.exe : gamedir.tag $(PDCLIB) $(O)tile.o $(O)ttystub.o \
 			$(ALLOBJ) $(TTYOBJ) $(GUIOBJ) $(O)winres.o $(KEYDLLS)
 	@echo Linking $@...
 	$(link) $(lflags) -mwindows -o$@ $(ALLOBJ) $(GUIOBJ) $(O)tile.o $(O)ttystub.o \
@@ -956,6 +956,8 @@ $(DAT)/rumors: $(O)utility.tag    $(DAT)/rumors.tru   $(DAT)/rumors.fal
 
 $(DAT)/quest.dat: $(O)utility.tag  $(DAT)/quest.txt
 	$(subst /,\,$(U)makedefs -q)
+
+$(DAT)/vaults.dat: $(O)sp_lev.tag
 
 $(DAT)/oracles: $(O)utility.tag    $(DAT)/oracles.txt
 	$(subst /,\,$(U)makedefs -h)
@@ -1122,9 +1124,9 @@ $(DAT)/porthelp: $(MSWSYS)/porthelp
 	$(subst /,\,@copy $(MSWSYS)/porthelp $@ >nul)
 
 nhdat$(NHV):  $(U)dlb_main.exe $(DAT)/data $(DAT)/oracles $(OPTIONS_FILE) \
-	 $(DAT)/quest.dat $(DAT)/rumors $(DAT)/help $(DAT)/hh $(DAT)/cmdhelp $(DAT)/keyhelp \
-	 $(DAT)/history $(DAT)/opthelp $(DAT)/wizhelp $(DAT)/dungeon \
-	 $(DAT)/porthelp $(DAT)/license $(DAT)/engrave \
+	 $(DAT)/quest.dat $(DAT)/vaults.dat $(DAT)/rumors $(DAT)/help $(DAT)/hh \
+	 $(DAT)/cmdhelp $(DAT)/keyhelp $(DAT)/history $(DAT)/opthelp $(DAT)/wizhelp \
+	 $(DAT)/dungeon $(DAT)/porthelp $(DAT)/license $(DAT)/engrave \
 	 $(DAT)/epitaph $(DAT)/bogusmon $(DAT)/tribute $(O)sp_lev.tag
 	$(subst /,\,echo data >$(DAT)/dlb.lst)
 	$(subst /,\,echo oracles >>$(DAT)/dlb.lst)
@@ -1133,6 +1135,7 @@ nhdat$(NHV):  $(U)dlb_main.exe $(DAT)/data $(DAT)/oracles $(OPTIONS_FILE) \
 	$(subst /,\,if exist $(DAT)/guioptions echo guioptions >>$(DAT)/dlb.lst)
 	$(subst /,\,if exist $(DAT)/porthelp echo porthelp >>$(DAT)/dlb.lst)
 	$(subst /,\,echo quest.dat >>$(DAT)/dlb.lst)
+	$(subst /,\,echo vaults.dat >>$(DAT)/dlb.lst)
 	$(subst /,\,echo rumors >>$(DAT)/dlb.lst)
 	$(subst /,\,echo help >>$(DAT)/dlb.lst)
 	$(subst /,\,echo hh >>$(DAT)/dlb.lst)

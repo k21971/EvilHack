@@ -898,5 +898,6 @@ Version 0.5.0
 - Fix: stethoscopes not unlocking an iron safe via apply
 - Tweak various settings in evilhackrc (windows builds)
 - Fix: prevent 'placing shambling horror' program in disorder errors
+- Even more tweaks to various files for windows/visual studio build (windows builds)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

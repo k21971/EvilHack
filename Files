@@ -369,7 +369,7 @@ getline.c  termcap.c  topl.c     wintty.c
 
 win/win32:
 (files for Windows versions - tested up to Windows 10)
-NetHackW.c             NetHackW.exe.manifest  NetHackW.rc
+NetHackW.c             EvilHackW.exe.manifest EvilHackW.rc
 dgnstuff-mingw32.mak   dgnstuff.mak           levstuff-mingw32.mak
 levstuff.mak           mhaskyn.c              mhaskyn.h
 mhdlg.c                mhdlg.h                mhfont.c

@@ -112,7 +112,7 @@
 #ifndef DEFAULT_WINDOW_SYS
 #define DEFAULT_WINDOW_SYS "mswin"
 #endif
-#define HACKDIR "\\nethack"
+#define HACKDIR "\\evilhack"
 #endif
 
 #ifndef DEFAULT_WINDOW_SYS

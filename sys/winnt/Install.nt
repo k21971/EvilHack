@@ -136,13 +136,13 @@ THE COMMAND LINE."
 Two different versions of NetHack will be built for Windows from the
 command line using the Makefile approach:
     A tty port utilizing the Win32 Console I/O subsystem, Console
-        NetHack;
+        EvilHack;
     A Win32 native port built on the Windows API, Graphical NetHack or
-        NetHackW.
+        EvilHackW.
 
 The executable for Console NetHack will be named EvilHack.exe. The
-executable for Graphical NetHack will be named NetHackW.exe. The 
-Makefile configuration will build both; NetHackW.exe and EvilHack.exe
+executable for Graphical NetHack will be named EvilHackW.exe. The 
+Makefile configuration will build both; EvilHackW.exe and EvilHack.exe
 will be able to use the same datafiles, save files and bones files.
 
 Since the last official release of NetHack, compilers and computer 
@@ -310,7 +310,7 @@ Notes:
     Note that saved games are NOT compatible between the 32-bit and the
     64-bit versions at this time.
 
-EvilHack.exe is the tty version. NetHackW.exe is the graphical version.
+EvilHack.exe is the tty version. EvilHackW.exe is the graphical version.
 Play NetHack. 
 
 PROBLEMS

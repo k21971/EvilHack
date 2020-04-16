@@ -32,7 +32,8 @@ WIZARDS=*
 #   %D current time, YYYYMMDDhhmmss format
 #   %n player name
 #   %N first character of player name
-#DUMPLOGFILE=nethack-%n-%d.log
+DUMPLOGFILE=nethack-%n-%d.log
+DUMPHTMLFILE=nethack-%n-%d.html
 
 # Number of bones file pools.
 # The pool you belong to is determined at game start. You will
@@ -95,32 +96,32 @@ WIZARDS=*
 
 # *** LOCATIONS ***
 # IMPORTANT: If you change any of these locations, the directories they
-# point at must exist.  NetHack will not create them for you.
+# point at must exist.  EvilHack will not create them for you.
 #
 # Before adjusting, you can verify the default locations for files with:
-#       nethack --showpaths
+#       evilhack --showpaths
 #
 # The location that users can adjust their config file startup options
-#CONFIGDIR=%USERPROFILE%\NetHack
+CONFIGDIR=%USERPROFILE%\EvilHack
 #
 # The location that a record of game aborts and self-diagnosed game problems
 # is kept (default=HACKDIR, writeable)
-#TROUBLEDIR=%USERPROFILE%\NetHack\3.6
+TROUBLEDIR=%USERPROFILE%\EvilHack\0.5.0
 #
 # The location that documentation and helps files are placed
-#HACKDIR=%USERPROFILE%\NetHack\3.6
+HACKDIR=%USERPROFILE%\EvilHack\0.5.0
 #
 # The location that level files in progress are stored (writeable)
-#LEVELDIR=%USERPROFILE%\AppData\Local\NetHack\3.6
+LEVELDIR=%USERPROFILE%\AppData\Local\EvilHack\0.5.0
 #
 # The location where saved games are kept (writeable)
-#SAVEDIR=%USERPROFILE%\AppData\Local\NetHack\3.6
+SAVEDIR=%USERPROFILE%\AppData\Local\EvilHack\0.5.0
 #
 # The location that bones files are kept (writeable)
-#BONESDIR=c:\ProgramData\NetHack\3.6
+BONESDIR=c:\ProgramData\EvilHack\0.5.0
 #
 # The location that score files are kept (writeable)
-#SCOREDIR=c:\ProgramData\NetHack\3.6
+SCOREDIR=c:\ProgramData\EvilHack\0.5.0
 #
 # The location that file synchronization locks are stored (writeable)
-#LOCKDIR=c:\ProgramData\NetHack\3.6
+LOCKDIR=c:\ProgramData\EvilHack\0.5.0
