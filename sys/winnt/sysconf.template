@@ -102,26 +102,26 @@ DUMPHTMLFILE=nethack-%n-%d.html
 #       evilhack --showpaths
 #
 # The location that users can adjust their config file startup options
-CONFIGDIR=%USERPROFILE%\EvilHack
+#CONFIGDIR=%USERPROFILE%\EvilHack
 #
 # The location that a record of game aborts and self-diagnosed game problems
 # is kept (default=HACKDIR, writeable)
-TROUBLEDIR=%USERPROFILE%\EvilHack\0.5
+#TROUBLEDIR=%USERPROFILE%\EvilHack\0.5
 #
 # The location that documentation and helps files are placed
-HACKDIR=%USERPROFILE%\EvilHack\0.5
+#HACKDIR=%USERPROFILE%\EvilHack\0.5
 #
 # The location that level files in progress are stored (writeable)
-LEVELDIR=%USERPROFILE%\AppData\Local\EvilHack\0.5
+#LEVELDIR=%USERPROFILE%\AppData\Local\EvilHack\0.5
 #
 # The location where saved games are kept (writeable)
-SAVEDIR=%USERPROFILE%\AppData\Local\EvilHack\0.5
+#SAVEDIR=%USERPROFILE%\AppData\Local\EvilHack\0.5
 #
 # The location that bones files are kept (writeable)
-BONESDIR=c:\ProgramData\EvilHack\0.5
+#BONESDIR=c:\ProgramData\EvilHack\0.5
 #
 # The location that score files are kept (writeable)
-SCOREDIR=c:\ProgramData\EvilHack\0.5
+#SCOREDIR=c:\ProgramData\EvilHack\0.5
 #
 # The location that file synchronization locks are stored (writeable)
-LOCKDIR=c:\ProgramData\EvilHack\0.5
+#LOCKDIR=c:\ProgramData\EvilHack\0.5
