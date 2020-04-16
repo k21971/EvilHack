@@ -103,7 +103,7 @@ matrix:
     script:
     - git clone --depth 1 https://github.com/wmcbrine/PDCurses.git ../pdcurses
     - export ADD_CURSES=Y
-    - export PDCURSES_TOP=../lib/pdcurses
+    - export PDCURSES_TOP=../../pdcurses
     - cd src
     - cp ../sys/winnt/Makefile.gcc ./Makefile
     - mingw32-make install
