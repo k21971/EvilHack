@@ -98,16 +98,15 @@ matrix:
     language: shell
     script:
     - "./win/win32/vs2017/travisci.sh"
-#  - name: windows-mingw
-#    os: windows
-#    script:
-#    - export ADD_CURSES=Y
-#    - export PDCURSES_TOP=../lib/pdcurses
-#    - sh sys/winnt/travis-gcc.sh
-#    - test -d "lib/pdcurses" || exit 0
-#    - cd src
-#    - cp ../sys/winnt/Makefile.gcc ./Makefile
-#    - mingw32-make install
+  - name: windows-mingw
+    os: windows
+    script:
+    - git clone --depth 1 https://github.com/wmcbrine/PDCurses.git ../pdcurses
+    - export ADD_CURSES=Y
+    - export PDCURSES_TOP=../lib/pdcurses
+    - cd src
+    - cp ../sys/winnt/Makefile.gcc ./Makefile
+    - mingw32-make install
   exclude:
   - os: osx
     osx_image: xcode10.2
