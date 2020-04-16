@@ -958,6 +958,7 @@ $(DAT)/quest.dat: $(O)utility.tag  $(DAT)/quest.txt
 	$(subst /,\,$(U)makedefs -q)
 
 $(DAT)/vaults.dat: $(O)sp_lev.tag
+	$(subst /,\,$(U)makedefs)
 
 $(DAT)/oracles: $(O)utility.tag    $(DAT)/oracles.txt
 	$(subst /,\,$(U)makedefs -h)
