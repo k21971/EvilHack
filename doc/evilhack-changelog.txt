@@ -909,5 +909,7 @@ Version 0.5.0
 - Refactor shambling horror logic into its own function
 - Adjust odds of various events when dipping an object into a forge
 - Prevent the Ice Queen from leaving her realm via magical means
+- Fix: 'You die... The <foo> starts to ransack your possessions' while wearing
+  an amulet of life saving
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
