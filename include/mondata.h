@@ -152,12 +152,42 @@
 #define is_shapeshifter(ptr) (((ptr)->mflags2 & M2_SHAPESHIFTER) != 0L)
 #define is_undead(ptr) (((ptr)->mhflags & MH_UNDEAD) != 0L)
 #define is_were(ptr) (((ptr)->mhflags & MH_WERE) != 0L)
-#define is_elf(ptr) (((ptr)->mhflags & MH_ELF) != 0L)
+/*#define is_elf(ptr) (((ptr)->mhflags & MH_ELF) != 0L)
 #define is_hobbit(ptr) (((ptr)->mhflags & MH_HOBBIT) != 0L)
 #define is_dwarf(ptr) (((ptr)->mhflags & MH_DWARF) != 0L)
 #define is_gnome(ptr) (((ptr)->mhflags & MH_GNOME) != 0L)
 #define is_orc(ptr) (((ptr)->mhflags & MH_ORC) != 0L)
 #define is_human(ptr) (((ptr)->mhflags & MH_HUMAN) != 0L)
+#define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
+#define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
+#define is_illithid(ptr) (((ptr)->mhflags & MH_ILLITHID) != 0L) */
+#define is_elf(ptr) \
+    ((((ptr)->mhflags & MH_ELF) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ELF)))
+#define is_dwarf(ptr) \
+    ((((ptr)->mhflags & MH_DWARF) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_DWARF)))
+#define is_gnome(ptr) \
+    ((((ptr)->mhflags & MH_GNOME) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GNOME)))
+#define is_orc(ptr) \
+    ((((ptr)->mhflags & MH_ORC) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ORC)))
+#define is_human(ptr) \
+    ((((ptr)->mhflags & MH_HUMAN) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_HUMAN)))
+#define is_hobbit(ptr) \
+    ((((ptr)->mhflags & MH_HOBBIT) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_HOBBIT)))
+#define is_giant(ptr) \
+    ((((ptr)->mhflags & MH_GIANT) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
+#define is_centaur(ptr) \
+    ((((ptr)->mhflags & MH_CENTAUR) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_CENTAUR)))
+#define is_illithid(ptr) \
+    ((((ptr)->mhflags & MH_ILLITHID) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ILLITHID)))
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define is_bat(ptr)                                         \
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
@@ -176,12 +206,9 @@
 #define has_trunk(ptr) ((ptr) == &mons[PM_MUMAK]       \
                         || (ptr) == &mons[PM_MASTODON] \
                         || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
-#define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
-#define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
-#define is_illithid(ptr) (((ptr)->mhflags & MH_ILLITHID) != 0L)
 #define is_not_zombie(ptr) \
     ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON] \
      || (ptr) == &mons[PM_REVENANT])
@@ -234,7 +261,8 @@
 #define cantwield(ptr) (nohands(ptr) || verysmall(ptr))
 #define could_twoweap(ptr) ((ptr)->mattk[1].aatyp == AT_WEAP)
 #define cantweararm(ptr) (breakarm(ptr) || sliparm(ptr))
-#define throws_rocks(ptr) (((ptr)->mflags2 & M2_ROCKTHROW) != 0L)
+#define throws_rocks(ptr) \
+    ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) || Race_if(PM_GIANT))
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
 #define is_lord(ptr) (((ptr)->mflags2 & M2_LORD) != 0L)
 #define is_prince(ptr) (((ptr)->mflags2 & M2_PRINCE) != 0L)
@@ -256,7 +284,8 @@
      || ((ptr) == &mons[PM_LONG_WORM_TAIL]))
 #define is_covetous(ptr) (((ptr)->mflags3 & M3_COVETOUS))
 #define is_skittish(ptr) (((ptr)->mflags3 & M3_SKITTISH))
-#define is_accurate(ptr) (((ptr)->mflags3 & M3_ACCURATE))
+#define is_accurate(ptr) \
+    (((ptr)->mflags3 & M3_ACCURATE) || Race_if(PM_CENTAUR))
 #define is_berserker(ptr) (((ptr)->mflags3 & M3_BERSERK))
 #define infravision(ptr) (((ptr)->mflags3 & M3_INFRAVISION))
 #define infravisible(ptr) (((ptr)->mflags3 & M3_INFRAVISIBLE))

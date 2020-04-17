@@ -1383,7 +1383,7 @@ NEARDATA struct permonst mons[] = {
     MON("centaur", S_CENTAUR, LVL(4, 18, 4, 0, 0), (G_GENO | G_NOGEN | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_KICK, AD_PHYS, 1, 6), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(2500, 500, MS_HUMANOID, MZ_LARGE), 0, 0,
+        SIZ(2200, 500, MS_HUMANOID, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_OMNIVORE, M2_STRONG | M2_GREEDY | M2_COLLECT,
         M3_ACCURATE | M3_INFRAVISIBLE | M3_SKITTISH, 0, MH_CENTAUR, 6, CLR_RED),
     MON("plains centaur", S_CENTAUR, LVL(4, 18, 4, 0, 0), (G_GENO | 1),
@@ -1831,10 +1831,10 @@ struct permonst _mons2[] = {
     /*
      * giant Humanoids
      */
-    MON("giant", S_GIANT, LVL(6, 6, 0, 0, 2), (G_GENO | G_NOGEN | 1),
+    MON("giant", S_GIANT, LVL(6, 10, 0, 0, 2), (G_GENO | G_NOGEN | 1),
         A(ATTK(AT_WEAP, AD_CLOB, 2, 10), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
-        SIZ(2250, 750, MS_BOAST, MZ_HUGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
+        SIZ(2200, 700, MS_BOAST, MZ_HUGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
         M2_STRONG | M2_ROCKTHROW | M2_NASTY | M2_COLLECT | M2_JEWELS,
         M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_GIANT, 8, CLR_RED),
     MON("stone giant", S_GIANT, LVL(6, 6, 0, 0, 2), (G_GENO | G_SGROUP | 1),
