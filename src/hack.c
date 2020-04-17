@@ -2804,7 +2804,10 @@ register boolean newlev;
          * but everything else gives a message only the first time */
         switch (rt) {
         case ZOO:
-            pline("Welcome to David's treasure zoo!");
+            if (Iniceq)
+                You("enter an ice cave full of monsters!");
+            else
+                pline("Welcome to David's treasure zoo!");
             break;
         case SWAMP:
             pline("It %s rather %s down here.", Blind ? "feels" : "looks",
