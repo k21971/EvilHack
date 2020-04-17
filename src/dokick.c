@@ -237,7 +237,7 @@ xchar x, y;
 
     if (i < (j * 3) / 10) {
         if (!rn2((i < j / 10) ? 2 : (i < j / 5) ? 3 : 4)) {
-            if (martial() /* && !rn2(2) */)   /* if you're a martial artist, you're not a clumsy kicker */
+            if (martial())   /* if you're a martial artist, you're not a clumsy kicker */
                 goto doit;
             Your("clumsy kick does no damage.");
             (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
@@ -260,12 +260,12 @@ xchar x, y;
     else
         You("kick %s.", mon_nam(mon));
 
-    if (!rn2(clumsy ? 3 : 4) && (clumsy || !bigmonst(mon->data))
+    if (!rn2(martial() ? 50 : clumsy ? 3 : 4) && (clumsy || !bigmonst(mon->data))
         && mon->mcansee && !mon->mtrapped && !thick_skinned(mon->data)
         && mon->data->mlet != S_EEL && haseyes(mon->data) && mon->mcanmove
         && !mon->mstun && !mon->mconf && !mon->msleeping
         && mon->data->mmove >= 12) {
-        if (!nohands(mon->data) && !rn2(martial() ? 5 : 3)) {
+        if (!nohands(mon->data) && !rn2(martial() ? 10 : 3)) {
             pline("%s blocks your %skick.", Monnam(mon),
                   clumsy ? "clumsy " : "");
             (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);

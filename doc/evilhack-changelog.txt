@@ -912,5 +912,7 @@ Version 0.5.0
 - Fix: 'You die... The <foo> starts to ransack your possessions' while wearing
   an amulet of life saving
 - Fix: any monster could pick up a boulder if the player was giant race
+- Greatly reduce the chance of a kick missing if the player is skilled in
+  martial arts
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
