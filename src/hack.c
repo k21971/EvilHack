@@ -3415,6 +3415,10 @@ weight_cap()
         || (maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))) {
         carrcap += 100;
         maxcarrcap += 400;
+        /* super-hacky bit right here, OMG */
+        youmonst.data->cwt = 2200;
+        youmonst.data->mmove = (Race_if(PM_GIANT) ? 10 : 18);
+        youmonst.data->msize = (Race_if(PM_GIANT) ? MZ_HUGE : MZ_LARGE);
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (youmonst.data->mlet == S_NYMPH)

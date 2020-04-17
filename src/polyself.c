@@ -45,21 +45,6 @@ set_uasmon()
 
     set_mon_data(&youmonst, mdat);
 
-    if (!Upolyd) {
-        if (Race_if(PM_GIANT)) {
-            youmonst.data->mhflags |= MH_GIANT;
-            youmonst.data->msize |= MZ_HUGE;
-            youmonst.data->mmove = 10;
-            youmonst.data->cwt = 2200;
-        }
-        if (Race_if(PM_CENTAUR)) {
-            youmonst.data->mhflags |= MH_CENTAUR;
-            youmonst.data->msize |= MZ_LARGE;
-            youmonst.data->mmove = 18;
-            youmonst.data->cwt = 2200;
-        }
-    }
-
 #define PROPSET(PropIndx, ON)                          \
     do {                                               \
         if (ON)                                        \
