@@ -98,15 +98,18 @@ matrix:
     language: shell
     script:
     - "./win/win32/vs2017/travisci.sh"
-  - name: windows-mingw
-    os: windows
-    script:
-    - git clone --depth 1 https://github.com/wmcbrine/PDCurses.git ../pdcurses
-    - export ADD_CURSES=Y
-    - export PDCURSES_TOP=../../pdcurses
-    - cd src
-    - cp ../sys/winnt/Makefile.gcc ./Makefile
-    - mingw32-make install
+# this is correct for compiling windows-mingw,
+# but an issue regarding vaults.dat still exists
+# in sys/winnt/makefile.msc
+#  - name: windows-mingw
+#    os: windows
+#    script:
+#    - git clone --depth 1 https://github.com/wmcbrine/PDCurses.git ../pdcurses
+#    - export ADD_CURSES=Y
+#    - export PDCURSES_TOP=../../pdcurses
+#    - cd src
+#    - cp ../sys/winnt/Makefile.gcc ./Makefile
+#    - mingw32-make install
   exclude:
   - os: osx
     osx_image: xcode10.2

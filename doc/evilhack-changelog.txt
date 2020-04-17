@@ -902,5 +902,6 @@ Version 0.5.0
 - Edit default folder creation (windows builds)
 - Fix: can't chop down a dead tree on a no-dig level
 - More tweaks (windows builds)
+- Disable travis-ci compiling for windows-mingw
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
