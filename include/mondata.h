@@ -152,15 +152,6 @@
 #define is_shapeshifter(ptr) (((ptr)->mflags2 & M2_SHAPESHIFTER) != 0L)
 #define is_undead(ptr) (((ptr)->mhflags & MH_UNDEAD) != 0L)
 #define is_were(ptr) (((ptr)->mhflags & MH_WERE) != 0L)
-/*#define is_elf(ptr) (((ptr)->mhflags & MH_ELF) != 0L)
-#define is_hobbit(ptr) (((ptr)->mhflags & MH_HOBBIT) != 0L)
-#define is_dwarf(ptr) (((ptr)->mhflags & MH_DWARF) != 0L)
-#define is_gnome(ptr) (((ptr)->mhflags & MH_GNOME) != 0L)
-#define is_orc(ptr) (((ptr)->mhflags & MH_ORC) != 0L)
-#define is_human(ptr) (((ptr)->mhflags & MH_HUMAN) != 0L)
-#define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
-#define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
-#define is_illithid(ptr) (((ptr)->mhflags & MH_ILLITHID) != 0L) */
 #define is_elf(ptr) \
     ((((ptr)->mhflags & MH_ELF) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ELF)))
