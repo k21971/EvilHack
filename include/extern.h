@@ -2656,6 +2656,7 @@ E void NDECL(sokoban_guilt);
 /* ### u_init.c ### */
 
 E void NDECL(u_init);
+E void NDECL(shambler_init);
 
 /* ### uhitm.c ### */
 
