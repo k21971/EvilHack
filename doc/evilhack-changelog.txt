@@ -911,5 +911,6 @@ Version 0.5.0
 - Prevent the Ice Queen from leaving her realm via magical means
 - Fix: 'You die... The <foo> starts to ransack your possessions' while wearing
   an amulet of life saving
+- Fix: any monster could pick up a boulder if the player was giant race
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

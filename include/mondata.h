@@ -253,7 +253,8 @@
 #define could_twoweap(ptr) ((ptr)->mattk[1].aatyp == AT_WEAP)
 #define cantweararm(ptr) (breakarm(ptr) || sliparm(ptr))
 #define throws_rocks(ptr) \
-    ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) || Race_if(PM_GIANT))
+    ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) \
+     || ((ptr) == youmonst.data && Race_if(PM_GIANT)))
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
 #define is_lord(ptr) (((ptr)->mflags2 & M2_LORD) != 0L)
 #define is_prince(ptr) (((ptr)->mflags2 & M2_PRINCE) != 0L)
@@ -276,7 +277,8 @@
 #define is_covetous(ptr) (((ptr)->mflags3 & M3_COVETOUS))
 #define is_skittish(ptr) (((ptr)->mflags3 & M3_SKITTISH))
 #define is_accurate(ptr) \
-    (((ptr)->mflags3 & M3_ACCURATE) || Race_if(PM_CENTAUR))
+    (((ptr)->mflags3 & M3_ACCURATE) \
+     || ((ptr) == youmonst.data && Race_if(PM_CENTAUR)))
 #define is_berserker(ptr) (((ptr)->mflags3 & M3_BERSERK))
 #define infravision(ptr) (((ptr)->mflags3 & M3_INFRAVISION))
 #define infravisible(ptr) (((ptr)->mflags3 & M3_INFRAVISIBLE))
