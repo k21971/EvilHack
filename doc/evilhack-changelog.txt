@@ -917,5 +917,6 @@ Version 0.5.0
 - Fix: various room/level generation improvements
 - Adjust amount of AC dragonhide provides
 - Fix: seeing 'It looks diseased' when defending monster is not in sight
+- Adjust loot in special room for the Mines' End 'sewers' level
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
