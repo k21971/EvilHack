@@ -860,10 +860,11 @@ makelevel()
         croom = &rooms[rn2(nroom)];
     } while (!croom->needjoining && ++tryct < 500);
     if (!Is_botlevel(&u.uz)) {
-	if (!somexyspace(croom, &pos, 0)
-            || !is_puddle(pos.x, pos.y) || !is_sewage(pos.x, pos.y)) {
-            pos.x = somex(croom);
-            pos.y = somey(croom);
+	if (!somexyspace(croom, &pos, 0)) {
+            if (!is_damp_terrain(pos.x, pos.y)) {
+                pos.x = somex(croom);
+                pos.y = somey(croom);
+            }
 	}
         mkstairs(pos.x, pos.y, 0, croom); /* down */
     }
@@ -876,11 +877,12 @@ makelevel()
     }
 
     if (u.uz.dlevel != 1) {
-	if (!somexyspace(croom, &pos, 0)
-            || !is_puddle(pos.x, pos.y) || !is_sewage(pos.x, pos.y)) {
+	if (!somexyspace(croom, &pos, 0)) {
             if (!somexy(croom, &pos)) {
-                pos.x = somex(croom);
-                pos.y = somey(croom);
+                if (!is_damp_terrain(pos.x, pos.y)) {
+                    pos.x = somex(croom);
+                    pos.y = somey(croom);
+                }
             }
         }
 	mkstairs(pos.x, pos.y, 1, croom); /* up */
@@ -1950,7 +1952,9 @@ register struct mkroom *croom;
     } while (occupied(m.x, m.y));
 
     do {
-        if (!is_damp_terrain(m.x, m.y)) {
+        if (!is_damp_terrain(m.x, m.y)
+            && !nexttodoor(m.x, m.y) && !IS_WALL(levl[m.x][m.y].typ)
+            && !IS_ROCK(levl[m.x][m.y].typ) && !IS_FURNITURE(levl[m.x][m.y].typ)) {
             puddles++;
             levl[m.x][m.y].typ = (depth(&u.uz) > 9 && !rn2(7)
                                   ? POOL : PUDDLE);
