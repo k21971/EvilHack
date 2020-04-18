@@ -19,8 +19,16 @@ STATIC_DCL void FDECL(kops_gone, (BOOLEAN_P));
 #define ANGRY(mon) (!NOTANGRY(mon))
 #define IS_SHOP(x) (rooms[x].rtype >= SHOPBASE)
 
-#define match_shkrace(mon) ((urace.malenum == (mon)->mnum) || \
-			    (urace.malenum == PM_ELF && (mon)->mnum == PM_GREEN_ELF))
+#define match_shkrace(mon) \
+    ((urace.malenum == (mon)->mnum) \
+     || (urace.malenum == PM_ELF && is_elf(mon->data)) \
+     || (urace.malenum == PM_DWARF && is_dwarf(mon->data)) \
+     || (urace.malenum == PM_ORC && is_orc(mon->data)) \
+     || (urace.malenum == PM_GNOME && is_gnome(mon->data)) \
+     || (urace.malenum == PM_ILLITHID && is_illithid(mon->data)) \
+     || (urace.malenum == PM_CENTAUR && is_centaur(mon->data)) \
+     || (urace.malenum == PM_HOBBIT && is_hobbit(mon->data)) \
+     || (urace.malenum == PM_GIANT && is_giant(mon->data)))
 
 #define muteshk(shkp)                       \
     ((shkp)->msleeping || !(shkp)->mcanmove \
