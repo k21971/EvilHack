@@ -957,6 +957,7 @@ $(DAT)/rumors: $(O)utility.tag    $(DAT)/rumors.tru   $(DAT)/rumors.fal
 $(DAT)/quest.dat: $(O)utility.tag  $(DAT)/quest.txt
 	$(subst /,\,$(U)makedefs -q)
 
+# this doesn't work for vaults.dat, game will not compile
 $(DAT)/vaults.dat: $(O)sp_lev.tag
 
 $(DAT)/oracles: $(O)utility.tag    $(DAT)/oracles.txt

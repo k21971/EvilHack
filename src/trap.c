@@ -580,7 +580,7 @@ unsigned ftflags;
     else if (Levitation || u.ustuck
              || (!Can_fall_thru(&u.uz) && !levl[u.ux][u.uy].candig)
              || ((Flying || is_clinger(youmonst.data)
-                  || is_giant(youmonst.data)
+                  || maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
                   || (ceiling_hider(youmonst.data) && u.uundetected))
                  && !(ftflags & TOOKPLUNGE))
              || (Inhell && !u.uevent.invoked && newlevel == bottom)) {
@@ -590,7 +590,7 @@ unsigned ftflags;
         else
             dont_fall = "don't fall in.";
     } else if (youmonst.data->msize >= MZ_HUGE
-               && !is_giant(youmonst.data)) {
+               && !maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) {
         dont_fall = "don't fit through.";
     } else if (!next_to_u()) {
         dont_fall = "are jerked back by your pet!";
@@ -605,7 +605,8 @@ unsigned ftflags;
         }
         return;
     }
-    if ((Flying || is_clinger(youmonst.data) || is_giant(youmonst.data))
+    if ((Flying || is_clinger(youmonst.data)
+        || maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
         && (ftflags & TOOKPLUNGE) && td && t)
         You("%s down %s!",
             Flying ? "swoop" : "deliberately drop",
@@ -1494,7 +1495,7 @@ unsigned trflags;
 
         /* Time stuck in the web depends on your/steed strength. */
         {
-            int tim, str = is_giant(youmonst.data) ? 125 : ACURR(A_STR);
+            int tim, str = maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)) ? 125 : ACURR(A_STR);
 
             /* If mounted, the steed gets trapped.  Use mintrap
              * to do all the work.  If mtrapped is set as a result,

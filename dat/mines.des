@@ -1573,6 +1573,7 @@ OBJECT:('*',"loadstone"),$place[1]
 # Traps
 TRAP:"teleport",(05,04)
 TRAP:"teleport",(12,08)
+TRAP:"teleport",(68,13)
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
@@ -1582,16 +1583,31 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Objects
-OBJECT:('(',"chest"),trapped,(19,06)
-OBJECT:('(',"crystal chest"),(19,08)
+CONTAINER:('(',"chest"),trapped,(19,06) {
+  OBJECT:'/'
+  OBJECT:'+'
+  OBJECT:'('
+  OBJECT:'('
+  OBJECT:'('
+}
+CONTAINER:('(',"crystal chest"),(19,08) {
+  OBJECT:('*',"ruby")
+  OBJECT:('*',"emerald")
+  OBJECT:'/'
+  OBJECT:'!'
+  OBJECT:'='
+  OBJECT:'?'
+  OBJECT:'+'
+  OBJECT:'$',quantity:5000
+}
 CONTAINER:('(',"iron safe"),(19,07) {
-OBJECT:('*',"diamond")
-OBJECT:('*',"dilithium crystal")
-OBJECT:'/'
-OBJECT:'!'
-OBJECT:'='
-OBJECT:'?'
-OBJECT:'+'
+  OBJECT:('*',"diamond")
+  OBJECT:('*',"dilithium crystal")
+  OBJECT:'/'
+  OBJECT:'!'
+  OBJECT:'='
+  OBJECT:'?'
+  OBJECT:'+'
 }
 OBJECT:'*',random
 OBJECT:'*',random

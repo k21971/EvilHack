@@ -792,7 +792,8 @@ register boolean verbose;
                 }
                 if (dam < 1)
                     dam = 1;
-                if ((is_giant(youmonst.data)) && MON_WEP(mon) && MON_WEP(mon)->otyp == SLING)
+                if ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
+                    && MON_WEP(mon) && MON_WEP(mon)->otyp == SLING)
                     dam *= 2;
                 hitu = thitu(hitv, dam, &singleobj, (char *) 0);
             }

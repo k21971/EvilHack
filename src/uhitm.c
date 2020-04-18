@@ -908,7 +908,7 @@ int dieroll;
                  * of 4.444 rather than 3 against large monsters, and 6.4725
                  * rather than 4.5 against small.
                  **/
-                if (is_giant(youmonst.data)) {
+                if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) {
                     int tmp2 = dmgval(obj, mon);
                     if (tmp < tmp2)
                         tmp = tmp2;
@@ -2895,8 +2895,7 @@ register struct monst *mon;
             /*FALLTHRU*/
         case AT_TENT:
             if ((uwep || (u.twoweap && uswapwep) || uarmg)
-                && (is_illithid(youmonst.data)
-                    || Race_if(PM_ILLITHID))
+                && (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID)))
                 && (touch_petrifies(mon->data)
                     || is_rider(mon->data)
                     || mon->data == &mons[PM_MEDUSA]

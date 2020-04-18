@@ -2804,7 +2804,10 @@ register boolean newlev;
          * but everything else gives a message only the first time */
         switch (rt) {
         case ZOO:
-            pline("Welcome to David's treasure zoo!");
+            if (Iniceq)
+                You("enter an ice cave full of monsters!");
+            else
+                pline("Welcome to David's treasure zoo!");
             break;
         case SWAMP:
             pline("It %s rather %s down here.", Blind ? "feels" : "looks",
@@ -3411,9 +3414,14 @@ weight_cap()
     BLevitation &= ~I_SPECIAL;
 
     carrcap = 25 * (ACURRSTR + ACURR(A_CON)) + 50;
-    if ((is_giant(youmonst.data)) || (is_centaur(youmonst.data))) {
+    if ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
+        || (maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))) {
         carrcap += 100;
         maxcarrcap += 400;
+        /* super-hacky bit right here, OMG */
+        youmonst.data->cwt = 2200;
+        youmonst.data->mmove = (Race_if(PM_GIANT) ? 10 : 18);
+        youmonst.data->msize = (Race_if(PM_GIANT) ? MZ_HUGE : MZ_LARGE);
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (youmonst.data->mlet == S_NYMPH)

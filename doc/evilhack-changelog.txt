@@ -902,5 +902,23 @@ Version 0.5.0
 - Edit default folder creation (windows builds)
 - Fix: can't chop down a dead tree on a no-dig level
 - More tweaks (windows builds)
+- Disable travis-ci compiling for windows-mingw
+- Partial fix: certain giant player race flags returning FALSE when entering bones
+  level of a non-giant race player
+- Hacky fix for remaining race flags for giant/centaur being wiped by restmonchn()
+- Refactor shambling horror logic into its own function
+- Adjust odds of various events when dipping an object into a forge
+- Prevent the Ice Queen from leaving her realm via magical means
+- Fix: 'You die... The <foo> starts to ransack your possessions' while wearing
+  an amulet of life saving
+- Fix: any monster could pick up a boulder if the player was giant race
+- Greatly reduce the chance of a kick missing if the player is skilled in
+  martial arts
+- Fix: various room/level generation improvements
+- Adjust amount of AC dragonhide provides
+- Fix: seeing 'It looks diseased' when defending monster is not in sight
+- Adjust loot in special room for the Mines' End 'sewers' level
+- Fix: Double hit messages (monsters wielding certain artifacts against other
+  monsters)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

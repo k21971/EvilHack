@@ -44,23 +44,6 @@ set_uasmon()
     struct permonst *mdat = &mons[u.umonnum];
 
     set_mon_data(&youmonst, mdat);
-    if (!Upolyd) {
-        if (Race_if(PM_GIANT)) {
-            youmonst.data->mhflags = MH_GIANT;
-            youmonst.data->mflags2 = M2_ROCKTHROW;
-            youmonst.data->msize = MZ_HUGE;
-            youmonst.data->mmove = 10;
-            youmonst.data->cwt = 2200;
-        }
-
-        if (Race_if(PM_CENTAUR)) {
-            youmonst.data->mhflags = MH_CENTAUR;
-            youmonst.data->mflags3 = M3_ACCURATE;
-            youmonst.data->msize = MZ_LARGE;
-            youmonst.data->mmove = 18;
-            youmonst.data->cwt = 2200;
-        }
-    }
 
 #define PROPSET(PropIndx, ON)                          \
     do {                                               \
@@ -86,12 +69,26 @@ set_uasmon()
         PROPSET(DRAIN_RES, resists_drli(&youmonst));
         uwep = save_uwep;
     }
+    /* Vulnerablilties */
+    PROPSET(VULN_FIRE, vulnerable_to(&youmonst, AD_FIRE));
+    PROPSET(VULN_COLD, vulnerable_to(&youmonst, AD_COLD));
+    PROPSET(VULN_ELEC, vulnerable_to(&youmonst, AD_ELEC));
+    PROPSET(VULN_ACID, vulnerable_to(&youmonst, AD_ACID));
     /* resists_magm() takes wielded, worn, and carried equipment into
        into account; cheat and duplicate its monster-specific part */
     PROPSET(ANTIMAGIC, (dmgtype(mdat, AD_MAGM)
                         || mdat == &mons[PM_BABY_GRAY_DRAGON]
+                        || mdat == &mons[PM_ARCHON]
+                        || mdat == &mons[PM_ARCHANGEL]
                         || dmgtype(mdat, AD_RBRE)));
-    PROPSET(SICK_RES, (mdat->mlet == S_FUNGUS || mdat == &mons[PM_GHOUL]));
+    PROPSET(SICK_RES, (mdat->mlet == S_FUNGUS || nonliving(mdat)
+                       || mdat == &mons[PM_ARCHANGEL]
+                       || mdat == &mons[PM_BABY_GOLD_DRAGON]
+                       || mdat == &mons[PM_GOLD_DRAGON]
+                       || mdat == &mons[PM_GIANT_LEECH]
+                       || mdat == &mons[PM_GIANT_COCKROACH]
+                       || mdat == &mons[PM_LOCUST]
+                       || mdat == &mons[PM_KATHRYN_THE_ICE_QUEEN]));
 
     PROPSET(STUNNED, (mdat == &mons[PM_STALKER] || is_bat(mdat)));
     PROPSET(HALLUC_RES, dmgtype(mdat, AD_HALU));

@@ -653,9 +653,6 @@ u_init()
 {
     register int i;
     struct u_roleplay tmpuroleplay = u.uroleplay; /* set by rcfile options */
-    struct permonst* shambler = &mons[PM_SHAMBLING_HORROR];
-    struct attack* attkptr;
-    int shambler_attacks;
 
     flags.female = flags.initgend;
     flags.beginner = 1;
@@ -1101,6 +1098,17 @@ u_init()
         /* only get here when didn't boost strength or constitution */
         break;
     }
+
+    return;
+}
+
+void
+shambler_init()
+{
+    register int i;
+    struct permonst* shambler = &mons[PM_SHAMBLING_HORROR];
+    struct attack* attkptr;
+    int shambler_attacks;
 
     /* what a horrible night to have a curse */
     shambler->mlevel += rnd(15) - 3;	/* shuffle level */

@@ -906,6 +906,14 @@ struct monst *mtmp;
                 pline("%s seems disoriented for a moment.", Monnam(mtmp));
             return 2;
         }
+        if (Iniceq && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+            if (vismon) {
+                pline("A powerful curse prevents %s from teleporting!",
+                      mon_nam(mtmp));
+                verbalize("Nooooo!");
+            }
+            return 2;
+        }
         if (oseen && how)
             makeknown(how);
         (void) rloc(mtmp, TRUE);
@@ -940,12 +948,20 @@ struct monst *mtmp;
                 return 2;
             }
             if (!decide_to_teleport(mtmp))
-            nlev = random_teleport_level();
+                nlev = random_teleport_level();
             else
                 return 2;
             if (nlev == depth(&u.uz)) {
                 if (vismon)
                     pline("%s shudders for a moment.", Monnam(mtmp));
+                return 2;
+            }
+            if (Iniceq && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+                if (vismon) {
+                    pline("A powerful curse prevents %s from leaving this place!",
+                          mon_nam(mtmp));
+                    verbalize("Nooooo!");
+                }
                 return 2;
             }
             get_level(&flev, nlev);
@@ -2484,7 +2500,8 @@ struct monst *mtmp;
 
                 get_level(&tolevel, tolev);
                 /* insurance against future changes... */
-                if (on_level(&tolevel, &u.uz))
+                if (on_level(&tolevel, &u.uz)
+                    || (Iniceq && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]))
                     goto skipmsg;
                 if (vismon) {
                     pline("%s rises up, through the %s!", Monnam(mtmp),
