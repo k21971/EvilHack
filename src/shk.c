@@ -45,6 +45,7 @@ STATIC_DCL void FDECL(clear_unpaid_obj, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(clear_unpaid, (struct monst *, struct obj *));
 STATIC_DCL long FDECL(check_credit, (long, struct monst *));
 STATIC_DCL void FDECL(pay, (long, struct monst *));
+STATIC_DCL void FDECL(shk_racial_adjustments, (short, long *, long *));
 STATIC_DCL long FDECL(get_cost, (struct obj *, struct monst *));
 STATIC_DCL long FDECL(set_cost, (struct obj *, struct monst *));
 STATIC_DCL const char *FDECL(shk_embellish, (struct obj *, long));
@@ -2077,6 +2078,150 @@ unsigned oid;
     return res;
 }
 
+/* Do racial adjustments to price, based on the race of the shopkeeper and the
+ * player's race, as well as other factors.
+ *
+ * Returns a fraction, representing how much the shk will inflate the price of
+ * something they're selling, as returned in *numerator and *denominator.
+ *
+ * E.g. if a human shopkeeper hates orcish characters and charges them a 4/3
+ * markup on anything they buy, this should return *numerator = 4 and
+ * *denominator = 3.
+ */
+void
+shk_racial_adjustments(mnum, numerator, denominator)
+short mnum; /* shkp->mnum, not player */
+long *numerator, *denominator;
+{
+    const struct permonst *shkdat = &mons[mnum];
+    *numerator = 1L;
+    *denominator = 1L;
+
+    if (is_human(shkdat)) {
+        if (Race_if(PM_ORC) || Race_if(PM_GNOME)) {
+            /* nasty, brutish, and short */
+            *numerator = 4L;
+            *denominator = 3L;
+        }
+        else if (Race_if(PM_CENTAUR)) {
+            /* "smelly and four-legged" */
+            *numerator = 3L;
+            *denominator = 2L;
+        }
+    }
+    else if (is_elf(shkdat)) {
+        if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
+            *numerator = 2L;
+        }
+        else if (Race_if(PM_DWARF)) {
+            /* "lawn ornament" */
+            *numerator = 4L;
+            *denominator = 3L;
+        }
+    }
+    else if (is_dwarf(shkdat)) {
+        if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
+            *numerator = 2L;
+        }
+        else if (Race_if(PM_ELF)) {
+            /* "pointy-eared tree hugger" */
+            *numerator = 4L;
+            *denominator = 3L;
+        }
+        else if (Race_if(PM_GIANT)) {
+            /* "big, dumb and smelly" */
+            *numerator = 3L;
+            *denominator = 2L;
+        }
+    }
+    else if (is_orc(shkdat)) {
+        if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) {
+            *numerator = 3L;
+        }
+        else if (Race_if(PM_DWARF)) {
+            *numerator = 5L;
+            *denominator = 3L;
+        }
+        else if (Race_if(PM_HUMAN)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        }
+        else if (Race_if(PM_ORC)) {
+            /* big discount on top of professional courtesy */
+            *numerator = 2L;
+            *denominator = 3L;
+        }
+    }
+    else if (is_gnome(shkdat)) {
+        /* Gnomes are crafty. They don't really have racial animosities, but
+         * it's going to be a lot harder to get a good deal out of a gnome unless
+         * you're remarkably shrewd yourself */
+        if (ACURR(A_INT) < 15) {
+            *numerator = 3L;
+            *denominator = 2L;
+        }
+        else if (ACURR(A_INT) < 18) {
+            *numerator = 4L;
+            *denominator = 3L;
+        }
+    }
+    else if (is_illithid(shkdat)) {
+        if (mnum < PM_MIND_FLAYER) {
+            impossible("mnum for illithid shopkeeper is too low!");
+            return;
+        }
+        /* They'd prefer not to sell their libraries */
+        if (!Race_if(PM_ILLITHID))
+            *numerator = ((mnum - PM_MIND_FLAYER + 1) * 10);
+    }
+    else if (is_centaur(shkdat)) {
+        /* Centaurs don't care much for most humanoid races */
+        if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+            || Race_if(PM_DWARF) || Race_if(PM_ORC)
+            || Race_if(PM_ILLITHID)) {
+            *numerator = 3L;
+            *denominator = 2L;
+        }
+    }
+    else if (is_hobbit(shkdat)) {
+        if (Race_if(PM_ORC)) {
+            *numerator = 3L;
+        }
+    }
+    else if (shkdat->mlet == S_NYMPH) {
+        if (mnum < PM_WOOD_NYMPH) {
+            impossible("mnum for nymph shopkeeper is too low!");
+            return;
+        }
+        if (ACURR(A_CHA) > 14) {
+            /* Pretty people don't get gouged TOO badly... */
+            *numerator = (mnum - PM_WOOD_NYMPH + 8);
+            *denominator = 6L;
+        } else {
+            /* ... but if you don't measure up... */
+            *numerator = (mnum - PM_WOOD_NYMPH + 5);
+            *denominator = 3L;
+        }
+    }
+    else if (is_giant(shkdat)) {
+        /* Non-Elder-Race humanoids are not thought of highly */
+        if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+            || Race_if(PM_HOBBIT) || Race_if(PM_ILLITHID)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        }
+        if (Race_if(PM_DWARF)) {
+            /* "dwarf tossing, only thing they're good for" */
+            *numerator = 3L;
+            *denominator = 2L;
+        }
+    }
+    else {
+        ; /* other monsters are possible (e.g. polyed shopkeeper); don't do any
+             adjustment in that case */
+    }
+}
+
 /* Relative prices for the different materials.
  * Units for this are much more poorly defined than for weights; the best
  * approximation would be something like "zorkmids per aum".
@@ -2195,130 +2340,15 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 
     /* possible additional surcharges based on shk race, if one was passed in */
     if (shkp) {
-	switch (shkp->mnum) {
-	    default:
-	    case PM_HUMAN:
-	    case PM_HUMAN_SERGEANT:
-	    case PM_HUMAN_LIEUTENANT:
-	    case PM_HUMAN_CAPTAIN:
-		if (Race_if(PM_ORC) || Race_if(PM_GNOME)) {
-                    tmp += tmp / 3L; /* nasty, brutish, and short */
-                }
-                if (Race_if(PM_CENTAUR)) {
-                    tmp += tmp / 2L; /* "smelly and four-legged" */
-                }
-		break;
-            case PM_WOODLAND_ELF:
-            case PM_GREEN_ELF:
-	    case PM_GREY_ELF:
-	    case PM_ELF_LORD:
-            case PM_ELF_LADY:
-            case PM_ELVEN_WIZARD:
-            case PM_ELVEN_SERGEANT:
-            case PM_ELVEN_LIEUTENANT:
-            case PM_ELVEN_CAPTAIN:
-		if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
-                    tmp *= 2L;
-                }
-		if (Race_if(PM_DWARF)) {
-                    tmp += tmp / 3L; /* "lawn ornament" */
-                }
-		break;
-	    case PM_DWARF:
-            case PM_DWARF_LORD:
-            case PM_DWARF_LADY:
-            case PM_DWARVISH_SERGEANT:
-            case PM_DWARVISH_LIEUTENANT:
-            case PM_DWARVISH_CAPTAIN:
-		if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
-                    tmp *= 2L;
-                }
-		if (Race_if(PM_ELF)) {
-                    tmp += tmp / 3L; /* "pointy-eared tree hugger" */
-                }
-                if (Race_if(PM_GIANT)) {
-                    tmp += tmp / 2L; /* "big, dumb and smelly" */
-                }
-		break;
-	    case PM_ORC:
-		if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) {
-                    tmp *= 3L;
-                }
-		if (Race_if(PM_DWARF)) {
-                    tmp += (tmp * 2L) / 3L;
-                }
-		if (Race_if(PM_HUMAN)) {
-                    tmp += tmp / 3L;
-                }
-		if (Race_if(PM_ORC)) {
-                    tmp -= tmp / 3L; /* big discount on top of professional courtesy */
-                }
-		break;
-	    case PM_GNOME:
-	    case PM_GNOME_LORD:
-            case PM_GNOME_LADY:
-            case PM_GNOMISH_WIZARD:
-		/* Gnomes are crafty. They don't really have racial animosities, but
-		 * it's going to be a lot harder to get a good deal out of a gnome unless
-		 * you're remarkably shrewd yourself */
-		if (ACURR(A_INT) < 15) {
-                    tmp += tmp / 2L;
-                }
-		else if (ACURR(A_INT) < 18) {
-                    tmp += tmp / 3L;
-                }
-                break;
-	    case PM_MIND_FLAYER:
-	    case PM_MASTER_MIND_FLAYER:
-		/* They'd prefer not to sell their libraries */
-                if (!Race_if(PM_ILLITHID))
-		    tmp *= ((shkp->mnum - PM_MIND_FLAYER + 1) * 10);
-		break;
-	    case PM_CENTAUR:
-                /* Centaurs don't care much for most humanoid races */
-                if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                    || Race_if(PM_DWARF) || Race_if(PM_ORC)
-                    || Race_if(PM_ILLITHID)) {
-                    tmp += tmp / 2L;
-                }
-		break;
-            case PM_HOBBIT:
-                if (Race_if(PM_ORC)) {
-                    tmp *= 3L;
-                }
-                break;
-	    case PM_WOOD_NYMPH:
-	    case PM_MOUNTAIN_NYMPH:
-	    case PM_WATER_NYMPH:
-		if (ACURR(A_CHA) > 14) {
-		    /* Pretty people don't get gouged TOO badly... */
-		    tmp += (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 6L);
-		} else {
-		    /* ... but if you don't measure up... */
-		    tmp += (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 3L);
-		}
-		break;
-	    case PM_STONE_GIANT:
-	    case PM_HILL_GIANT_SHAMAN:
-	    case PM_HILL_GIANT:
-	    case PM_FIRE_GIANT:
-	    case PM_FROST_GIANT:
-	    case PM_STORM_GIANT:
-		/* Non-Elder-Race humanoids are not thought of highly */
-		if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                    || Race_if(PM_HOBBIT) || Race_if(PM_ILLITHID)) {
-                    tmp += tmp / 3L;
-                }
-                if (Race_if(PM_DWARF)) {
-                    tmp += tmp / 2L; /* "dwarf tossing, only thing they're good for" */
-                }
-		break;
-	}
-    }
+        long numer, denom;
+        shk_racial_adjustments(shkp->mnum, &numer, &denom);
+        multiplier *= numer;
+        divisor *= denom;
 
-    /* professional courtesy if nonhuman */
-    if (shkp && shkp->mnum != PM_HUMAN && match_shkrace(shkp))
-        tmp -= tmp / 2L;
+        /* professional courtesy if nonhuman */
+        if (!is_human(shkp->data) && match_shkrace(shkp))
+            divisor *= 2;
+    }
 
     /* and just make sure we haven't dealt ourselves out of money */
     if (tmp < 1)
@@ -2539,131 +2569,28 @@ register struct monst *shkp;
             multiplier *= 3L, divisor *= 4L;
     }
 
-    /* possible additional adjustments based on shk race.. */
-    switch (shkp->mnum) {
-	default:
-	case PM_HUMAN:
-	case PM_HUMAN_SERGEANT:
-	case PM_HUMAN_LIEUTENANT:
-	case PM_HUMAN_CAPTAIN:
-	    if (Race_if(PM_ORC) || Race_if(PM_GNOME)) {
-                tmp -= tmp / 3L; /* nasty, brutish, and short */
-            }
-            if (Race_if(PM_CENTAUR)) {
-                tmp -= tmp / 2L; /* "smelly and four-legged" */
-            }
-	    break;
-	case PM_WOODLAND_ELF:
-	case PM_GREEN_ELF:
-	case PM_GREY_ELF:
-	case PM_ELF_LORD:
-        case PM_ELF_LADY:
-        case PM_ELVEN_WIZARD:
-        case PM_ELVEN_SERGEANT:
-        case PM_ELVEN_LIEUTENANT:
-        case PM_ELVEN_CAPTAIN:
-	    if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
-                tmp /= 2L;
-            }
-	    if (Race_if(PM_DWARF)) {
-                tmp -= tmp / 3L; /* "lawn ornament" */
-            }
-	    break;
-	case PM_DWARF:
-        case PM_DWARF_LORD:
-        case PM_DWARF_LADY:
-        case PM_DWARVISH_SERGEANT:
-        case PM_DWARVISH_LIEUTENANT:
-        case PM_DWARVISH_CAPTAIN:
-	    if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
-                tmp /= 2L;
-            }
-	    if (Race_if(PM_ELF)) {
-                tmp -= tmp / 3L; /* "pointy-eared tree hugger" */
-            }
-            if (Race_if(PM_GIANT)) {
-                tmp -= tmp / 2L; /* "big, dumb and smelly" */
-            }
-	    break;
-	case PM_ORC:
-	    if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) {
-                tmp /= 3L;
-            }
-	    if (Race_if(PM_DWARF)) {
-                tmp -= (tmp * 2L) / 3L;
-            }
-	    if (Race_if(PM_HUMAN)) {
-                tmp -= tmp / 3L;
-            }
-	    if (Race_if(PM_ORC)) {
-                tmp += tmp / 3L; /* on top of prof. courtesy */
-            }
-	    break;
-	case PM_GNOME:
-        case PM_GNOME_LORD:
-        case PM_GNOME_LADY:
-        case PM_GNOMISH_WIZARD:
-	    /* Gnomes are crafty. They don't really have racial animosities, but
-	     * it's going to be a lot harder to get a good deal out of a gnome unless
-	     * you're remarkably shrewd yourself */
-	    if (ACURR(A_INT) < 15) {
-                tmp -= tmp / 2L;
-            } else if (ACURR(A_INT) < 18) {
-                tmp -= tmp / 3L;
-            }
-	    break;
-	case PM_MIND_FLAYER:
-	case PM_MASTER_MIND_FLAYER:
-	    /* They don't mind acquiring more books...
-	     * ...and yes, this is correct, older mind flayers would value the books
-	     * more than younger ones */
-            if (!Race_if(PM_ILLITHID))
-	        tmp -= tmp / ((shkp->mnum - PM_MIND_FLAYER + 1) * 10);
-	    break;
-        case PM_CENTAUR:
-            /* Centaurs don't care much for most humanoid races. */
-            if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                || Race_if(PM_DWARF) || Race_if(PM_ORC)
-                || Race_if(PM_ILLITHID)) {
-                tmp -= tmp / 2L;
-            }
-            break;
-        case PM_HOBBIT:
-            if (Race_if(PM_ORC)) {
-                tmp /= 3L;
-            }
-            break;
-	case PM_WOOD_NYMPH:
-	case PM_MOUNTAIN_NYMPH:
-	case PM_WATER_NYMPH:
-	    if (ACURR(A_CHA) > 14) {
-		/* Pretty people don't get gouged TOO badly... */
-		tmp -= (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 6L);
-	    } else {
-		/* ... but if you don't measure up... */
-		tmp -= (shkp->mnum - PM_WOOD_NYMPH + 2) * (tmp / 4L);
-	    }
-	    break;
-	case PM_STONE_GIANT:
-	case PM_HILL_GIANT_SHAMAN:
-	case PM_HILL_GIANT:
-	case PM_FIRE_GIANT:
-	case PM_FROST_GIANT:
-	case PM_STORM_GIANT:
-	    /* Non-Elder-Race humanoids are not thought of highly */
-	    if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-                || Race_if(PM_HOBBIT) || Race_if(PM_ILLITHID)) {
-                tmp -= tmp / 3L;
-            }
-            if (Race_if(PM_DWARF)) {
-                tmp -= tmp / 2L; /* "dwarf tossing, only thing they're good for" */
-            }
-	    break;
-    }
+    /* possible additional surcharges based on shk race, if one was passed in */
+    if (shkp) {
+        long numer, denom;
+        shk_racial_adjustments(shkp->mnum, &numer, &denom);
 
-    /* professional courtesy if nonhuman, but not _that_ much */
-    if (shkp->mnum != PM_HUMAN && match_shkrace(shkp))
-        tmp += tmp / 3L;
+        /* Illithids are very reticent to let their books go and thus they
+         * charge exorbitantly for them. However, they do want to acquire more
+         * books - therefore, the inverse rule which would normally have them
+         * make exorbitantly *low* offers for the player selling things
+         * shouldn't apply. They'll pay fair market value.
+         */
+        if (!is_illithid(shkp->data)) {
+            /* The racial modifiers for sell price are just the reciprocal of those
+             * for the buy price. So we just reverse num and denom's meaning. */
+            multiplier *= denom;
+            divisor *= numer;
+        }
+
+        /* professional courtesy if nonhuman, but not _that_ much */
+        if (!is_human(shkp->data) && match_shkrace(shkp))
+            multiplier *= 4L, divisor *= 3L;
+    }
 
     /* Final quick check; if we're about to buy this for more than we'd sell
      * it for in the first place, let's arrange to, er, not do that.  */
@@ -5226,7 +5153,7 @@ struct obj *obj_absorber, *obj_absorbed;
 
         if (bp_absorber) {
             /* the absorber has a billing record */
-            bp_absorber->price += amount;           
+            bp_absorber->price += amount;
         } else {
             /* the absorber has no billing record */
             ;
@@ -5234,7 +5161,7 @@ struct obj *obj_absorber, *obj_absorbed;
         return;
     }
     /**************************************************************
-     * Scenario 2. Player-owned glob absorbing into shop-owned glob 
+     * Scenario 2. Player-owned glob absorbing into shop-owned glob
      **************************************************************/
     if (!bp_absorber && !bp && !obj_absorber->no_charge) {
         /* there are no billing records */
