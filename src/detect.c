@@ -254,19 +254,7 @@ boolean magic;
     glyph = glyph_at(x, y);
     if (glyph_is_object(glyph)) {
         /* there's some object shown here */
-            if (magic) {
-                /* the object shown here is of interest because it is magical */
-                for (otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere)
-                    if (is_magic(otmp))
-                        return FALSE;
-                /* didn't find it; perhaps a monster is carrying it */
-                if ((mtmp = m_at(x, y)) != 0) {
-                    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
-                        if (is_magic(otmp)) return FALSE;
-                }
-                /* detection indicates removal of this object from the map */
-                return TRUE;
-            } else if (oclass == ALL_CLASSES) {
+        if (oclass == ALL_CLASSES) {
             return (boolean) !(level.objects[x][y] /* stale if nothing here */
                                || ((mtmp = m_at(x, y)) != 0 && mtmp->minvent));
         } else {
@@ -294,6 +282,20 @@ boolean magic;
                 if ((mtmp = m_at(x, y)) != 0) {
                     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
                         if (o_in(otmp, oclass))
+                            return FALSE;
+                }
+                /* detection indicates removal of this object from the map */
+                return TRUE;
+            }
+            if (magic) {
+                /* the object shown here is of interest because it is magical */
+                for (otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere)
+                    if (is_magic(otmp))
+                        return FALSE;
+                /* didn't find it; perhaps a monster is carrying it */
+                if ((mtmp = m_at(x, y)) != 0) {
+                    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
+                        if (is_magic(otmp))
                             return FALSE;
                 }
                 /* detection indicates removal of this object from the map */

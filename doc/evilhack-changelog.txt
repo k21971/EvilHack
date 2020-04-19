@@ -922,5 +922,7 @@ Version 0.5.0
   monsters)
 - Fix: racial shopkeepers not always giving same-race discounts
 - Fix: vulnerabilities and resistances while in monster form
+- Fix: reading scroll of magic detection blanking out locations of known non-magical
+  objects
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
