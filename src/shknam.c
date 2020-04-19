@@ -596,7 +596,6 @@ int shp_indx;
     struct monst *shk;
     struct eshk *eshkp;
     struct permonst* mdat;
-    const char *shname = 0;
 
     /* place the shopkeeper in the given room */
     sh = sroom->fdoor;
@@ -701,8 +700,13 @@ int shp_indx;
 	    srace = PM_WOODLAND_ELF + rn2(5);
 	    break;
 	case TOOL_CLASS:
-	    /* Izchak is always human */
-            if ((shname = "+Izchak")) {
+            if (shp->shknms == shklight && In_mines(&u.uz)) {
+                /* Izchak is always human.
+                 * At this point we haven't actually named the shk yet, so we
+                 * just check if we're a lighting store in the mines. This
+                 * doesn't actually check to see if we're in Minetown, so
+                 * this technically makes any lighting store in the Mines have a
+                 * human shopkeeper. */
                 srace = PM_HUMAN;
             } else {
 		srace = PM_GNOME_LORD + rn2(2);
