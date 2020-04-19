@@ -2722,13 +2722,13 @@ int final;
     if (u.uedibility)
         you_can("recognize detrimental food", "");
     if (Vulnerable_fire)
-        you_are("vulnerable to fire", "");
+        you_are("vulnerable to fire", from_what(VULN_FIRE));
     if (Vulnerable_cold)
-        you_are("vulnerable to cold", "");
+        you_are("vulnerable to cold", from_what(VULN_COLD));
     if (Vulnerable_elec)
-        you_are("vulnerable to electricity", "");
+        you_are("vulnerable to electricity", from_what(VULN_ELEC));
     if (Vulnerable_acid)
-        you_are("vulnerable to acid", "");
+        you_are("vulnerable to acid", from_what(VULN_ACID));
 
     /*** Vision and senses ***/
     if (!Blind && (Blinded || !haseyes(youmonst.data)))

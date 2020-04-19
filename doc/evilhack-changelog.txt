@@ -921,5 +921,6 @@ Version 0.5.0
 - Fix: Double hit messages (monsters wielding certain artifacts against other
   monsters)
 - Fix: racial shopkeepers not always giving same-race discounts
+- Fix: vulnerabilities and resistances while in monster form
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
