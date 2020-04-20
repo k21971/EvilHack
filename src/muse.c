@@ -2136,7 +2136,12 @@ struct monst *mtmp;
     case 9:
         return WAN_SLEEP;
     case 10:
-        return WAN_FIRE;
+        if (Iniceq)
+            return rn2(6) ? WAN_SLEEP
+                          : rn2(3) ? WAN_LIGHTNING
+                                   : WAN_FIRE;
+        else
+            return WAN_FIRE;
     case 11:
         return WAN_COLD;
     case 12:

@@ -927,5 +927,8 @@ Version 0.5.0
 - Some adjustments and improvements to the Ice Queen's realm
 - Remove a bit of unnecessary code from the last commit 
 - Cursed wand backfire patch
+- Adjust odds of a wand of fire randomly appearing in a monster's inventory while
+  in the Ice Queen's realm
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
+
 
