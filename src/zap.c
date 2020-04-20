@@ -2332,8 +2332,10 @@ dozap()
         if (!Blind)
             pline("%s glows and fades.", The(xname(obj)));
         /* make him pay for knowing !NODIR */
-    } else if (!u.dx && !u.dy && !u.dz
+    } else if (((!u.dx && !u.dy && !u.dz) || (obj->cursed && !rn2(8)))
                && !(objects[obj->otyp].oc_dir == NODIR)) {
+        if (u.dx || u.dy || u.dz)
+            pline("%s backfires!", The(xname(obj)));
         if ((damage = zapyourself(obj, TRUE)) != 0) {
             char buf[BUFSZ];
 
