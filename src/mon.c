@@ -1736,7 +1736,7 @@ long flag;
     wantice = (mdat == &mons[PM_FROST_SALAMANDER]);
     poolok = ((!Is_waterlevel(&u.uz)
                && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)))
-              || (is_swimmer(mdat) && !wantpool));
+              || ((is_swimmer(mdat) || freeze_step(mdat)) && !wantpool));
     /* note: floating eye is the only is_floater() so this could be
        simplified, but then adding another floater would be error prone */
     lavaok = (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)
@@ -2554,7 +2554,14 @@ register struct monst *mtmp;
 
     /* our hero has freed the Ice Queen from her curse */
     if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        struct monst *mon;
+        struct permonst *koa = &mons[PM_KOA];
+        struct permonst *ozzy = &mons[PM_OZZY];
+
         Your("actions have released %s from a powerful curse!", mon_nam(mtmp));
+        if (!Blind)
+            You("watch as %s undergoes a transformation, back into her original form.",
+                mon_nam(mtmp));
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         mtmp->mstone = 0;
@@ -2569,6 +2576,17 @@ register struct monst *mtmp;
                 expels(mtmp, mtmp->data, FALSE);
             else
                 uunstick();
+        }
+        if (!Blind)
+            pline("%s motions for Koa and Ozzy to heel and stop their attack.",
+                  Monnam(mtmp));
+        for (mon = fmon; mon; mon = mon->nmon) {
+            if (DEADMONSTER(mon))
+                continue;
+            if (mon->data == koa)
+                mon->mpeaceful = 1;
+            if (mon->data == ozzy)
+                mon->mpeaceful = 1;
         }
         verbalize("Thank you for freeing me from this awful curse!");
         verbalize("Long ago, a powerful and evil witch cast a spell on me, which transformed me into the Ice Queen.");
@@ -3735,6 +3753,29 @@ boolean via_attack;
         del_engr_at(u.ux, u.uy);
     }
 
+    if (via_attack
+        && (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])) {
+        struct monst *mon;
+        struct permonst *koa = &mons[PM_KOA];
+        struct permonst *ozzy = &mons[PM_OZZY];
+
+        for (mon = fmon; mon; mon = mon->nmon) {
+            if (DEADMONSTER(mon))
+                continue;
+            if (mon->data == koa && mon->mpeaceful) {
+                mon->mstrategy &= ~STRAT_WAITMASK;
+                mon->mpeaceful = 0;
+                growl(mon);
+            }
+            if (mon->data == ozzy && mon->mpeaceful) {
+                mon->mstrategy &= ~STRAT_WAITMASK;
+                mon->mpeaceful = 0;
+                growl(mon);
+            }
+        }
+    }
+
     /* AIS: Should this be in both places, or just in wakeup()? */
     if (!(via_attack
         && (Role_if(PM_ROGUE) && context.forcefight && !Upolyd))) {
@@ -3808,6 +3849,9 @@ boolean via_attack;
                         if (is_watch(mon->data)) {
                             verbalize("Halt!  You're under arrest!");
                             (void) angry_guards(!!Deaf);
+                        } else if (mon->data == &mons[PM_KOA]) {
+                            mon->mpeaceful = 0;
+                            growl(mon);
                         } else {
                             if (!rn2(5)) {
                                 verbalize("%s", Exclam[mon->m_id % SIZE(Exclam)]);

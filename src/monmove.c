@@ -533,6 +533,15 @@ register struct monst *mtmp;
         mongone(mtmp);
     }
 
+    if (is_damp_terrain(mtmp->mx, mtmp->my)
+        && freeze_step(mdat)) {
+        levl[mtmp->mx][mtmp->my].typ = ICE;
+        if (canseemon(mtmp))
+            pline("The %s crackles and freezes under %s %s.",
+                  is_sewage(mtmp->mx, mtmp->my) ? "sewage" : "water",
+                  s_suffix(mon_nam(mtmp)), makeplural(body_part(FOOT)));
+    }
+
     /* sick monsters can die from their illness */
     if (mtmp->msick && !rn2(10)) {
         if (resists_sick(mtmp)) {

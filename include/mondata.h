@@ -301,9 +301,12 @@
 
 /* Ice Queen branch defines */
 #define is_iceq_only(ptr) \
-    ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_WOOLLY_MAMMOTH]           \
-     || (ptr) == &mons[PM_SABER_TOOTHED_TIGER] || (ptr) == &mons[PM_ICE_NYMPH]    \
+    ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_WOOLLY_MAMMOTH]        \
+     || (ptr) == &mons[PM_SABER_TOOTHED_TIGER] || (ptr) == &mons[PM_ICE_NYMPH] \
      || (ptr) == &mons[PM_FROST_SALAMANDER] || (ptr) == &mons[PM_REVENANT])
+#define freeze_step(ptr) \
+    ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_FROST_SALAMANDER] \
+     || (ptr) == &mons[PM_ABOMINABLE_SNOWMAN])
 #define likes_iceq(ptr) \
     ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_OWLBEAR]                  \
      || (ptr) == &mons[PM_WOLF] || (ptr) == &mons[PM_WEREWOLF]                    \

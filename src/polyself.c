@@ -1764,7 +1764,8 @@ int part;
             && !index(not_claws, mptr->mlet) && mptr != &mons[PM_STONE_GOLEM]
             && mptr != &mons[PM_INCUBUS] && mptr != &mons[PM_SUCCUBUS]))
         return (part == HAND) ? "claw" : "clawed";
-    if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON])
+    if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON]
+         || mptr == &mons[PM_WOOLLY_MAMMOTH])
         && part == NOSE)
         return "trunk";
     if (mptr == &mons[PM_SHARK] && part == HAIR)

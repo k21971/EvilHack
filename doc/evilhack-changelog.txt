@@ -924,5 +924,6 @@ Version 0.5.0
 - Fix: vulnerabilities and resistances while in monster form
 - Fix: reading scroll of magic detection blanking out locations of known non-magical
   objects
+- Some adjustments and improvements to the Ice Queen's realm
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

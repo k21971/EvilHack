@@ -2163,6 +2163,10 @@ int mmflags;
                 rn2(2) ? mount_monster(mtmp, PM_HORSE)
                        : mount_monster(mtmp, PM_WARHORSE);
                 break;
+            case PM_FROST_GIANT:
+                if (Iniceq && !rn2(5))
+                    mount_monster(mtmp, PM_WOOLLY_MAMMOTH);
+                break;
         }
     }
 
