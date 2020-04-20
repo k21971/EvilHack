@@ -3849,9 +3849,6 @@ boolean via_attack;
                         if (is_watch(mon->data)) {
                             verbalize("Halt!  You're under arrest!");
                             (void) angry_guards(!!Deaf);
-                        } else if (mon->data == &mons[PM_KOA]) {
-                            mon->mpeaceful = 0;
-                            growl(mon);
                         } else {
                             if (!rn2(5)) {
                                 verbalize("%s", Exclam[mon->m_id % SIZE(Exclam)]);
