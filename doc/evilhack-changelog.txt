@@ -929,6 +929,7 @@ Version 0.5.0
 - Cursed wand backfire patch
 - Adjust odds of a wand of fire randomly appearing in a monster's inventory while
   in the Ice Queen's realm
+- Trees and dead trees are affected by fire
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
 

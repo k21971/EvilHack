@@ -4630,6 +4630,31 @@ boolean say; /* Announce out of sight hit/miss events if true */
             break;
         }
 
+        if (levl[sx][sy].typ == TREE && abstype == ZT_FIRE) {
+            levl[sx][sy].typ = DEADTREE;
+            if (cansee(sx, sy)) {
+                pline("The tree burns to a crisp!");
+                newsym(sx, sy);
+            }
+            range = 0;
+            break;
+        }
+
+        if (levl[sx][sy].typ == DEADTREE && abstype == ZT_FIRE) {
+            if (!may_dig(sx, sy)) {
+                /* nothing happens - it's petrified */
+                ;
+            } else {
+                levl[sx][sy].typ = ROOM;
+                if (cansee(sx, sy)) {
+                    pline("The dead tree burns to ashes!");
+                    newsym(sx, sy);
+                }
+            }
+            range = 0;
+            break;
+        }
+
         if (!ZAP_POS(levl[sx][sy].typ)
             || (closed_door(sx, sy) && range >= 0)) {
             int bounce, bchance;
