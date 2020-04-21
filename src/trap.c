@@ -5789,6 +5789,17 @@ boom:
             TRAPPED_DOOR, EXPL_FIERY);
     scatter(u.ux, u.uy, dmg,
             VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
+    for (; ty < ROWNO; ty++) {
+        for (tx = 0; tx < COLNO; tx++) {
+            lev = &levl[tx][ty];
+            if (lev->typ == DOOR
+                && (lev->doormask & (D_CLOSED | D_TRAPPED))) {
+                lev->doormask = D_NODOOR;
+                if (cansee(tx, ty))
+                    newsym(tx, ty);
+            }
+        }
+    }
     wake_nearby();
     exercise(A_STR, FALSE);
     if (bodypart)
