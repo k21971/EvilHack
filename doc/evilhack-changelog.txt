@@ -932,6 +932,7 @@ Version 0.5.0
 - Trees and dead trees are affected by fire
 - Fix: booby-trapped doors still exist after blowing up
 - Fix: slightly better fix for booby-trapped doors still exist after blowing up
+- Fix: event feedback player shouldn't get if blind
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
 

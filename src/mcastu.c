@@ -373,9 +373,9 @@ boolean foundyou;
             pline_The("air crackles around %s.", mon_nam(mtmp));
         return 0;
     }
-    if (canspotmon(mtmp) || !is_undirected_spell(mattk->adtyp, spellnum)) {
+    if (canseemon(mtmp) || !is_undirected_spell(mattk->adtyp, spellnum)) {
         pline("%s casts a spell%s!",
-              canspotmon(mtmp) ? Monnam(mtmp) : "Something",
+              canseemon(mtmp) ? Monnam(mtmp) : "Something",
               is_undirected_spell(mattk->adtyp, spellnum)
                   ? ""
                   : (Invis && !mon_prop(mtmp, SEE_INVIS)
@@ -568,7 +568,7 @@ int spellnum;
             if (rn2(4))
                 erode_armor(&youmonst, ERODE_CORRODE);
         } else {
-            if (canspotmon(mtmp)) {
+            if (canseemon(mtmp)) {
                 pline("%s blasts the %s with %s and curses!", Monnam(mtmp),
                       rn2(2) ? "ceiling" : "floor", "acid");
             } else {
@@ -729,7 +729,7 @@ int spellnum;
                 dmg = 0;
             }
         } else {
-            if (canspotmon(mtmp)) {
+            if (canseemon(mtmp)) {
                 pline("%s blasts the %s with %s and curses!", Monnam(mtmp), rn2(2) ? "ceiling" : "floor",
                       (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
             } else {
@@ -1412,7 +1412,7 @@ register struct attack *mattk;
 
    	switch (mattk->adtyp) {
    	    case AD_FIRE:
-   	        if (canspotmon(mdef)) {
+   	        if (canseemon(mdef)) {
                     is_demon(mtmp->data)
    		             ? pline("%s is enveloped in flames.", Monnam(mdef))
                              : pline("%s is enveloped in a pillar of hellfire!", Monnam(mdef));
@@ -1423,38 +1423,38 @@ register struct attack *mattk;
                 }
        	        if(resists_fire(mdef)) {
          	   shieldeff(mdef->mx, mdef->my);
-         	   if (canspotmon(mdef))
+         	   if (canseemon(mdef))
          	       pline("But %s resists the effects.", mhe(mdef));
                    dmg = 0;
    	        }
    	        break;
    	    case AD_COLD:
-   	        if (canspotmon(mdef))
+   	        if (canseemon(mdef))
    	  	    pline("%s is covered in frost.", Monnam(mdef));
        	        if (resists_cold(mdef)) {
                     shieldeff(mdef->mx, mdef->my);
-                    if (canspotmon(mdef))
+                    if (canseemon(mdef))
                         pline("But %s resists the effects.", mhe(mdef));
                     dmg = 0;
        	        }
                 break;
             case AD_ACID:
-                if (canspotmon(mdef))
+                if (canseemon(mdef))
                     pline("%s is covered in acid.", Monnam(mdef));
                 if (resists_acid(mdef)) {
                     shieldeff(mdef->mx, mdef->my);
-                    if (canspotmon(mdef))
+                    if (canseemon(mdef))
                         pline("But %s resists the effects.", mhe(mdef));
                     dmg = 0;
                 }
                 break;
    	    case AD_MAGM:
-                if (canspotmon(mdef))
+                if (canseemon(mdef))
                     pline("%s is hit by a shower of missiles!", Monnam(mdef));
                 dmg = d((int)mtmp->m_lev / 2 + 1, 6);
                 if (resists_magm(mdef)) {
            	    shieldeff(mdef->mx, mdef->my);
-           	    if (canspotmon(mdef))
+           	    if (canseemon(mdef))
                         pline("Some missiles bounce off!");
            	    dmg = (dmg + 1) / 2;
                 }

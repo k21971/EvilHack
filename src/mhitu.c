@@ -1584,9 +1584,13 @@ register struct attack *mattk;
                                   rn2(2) ? "the shadows" : "nowhere");
                         scary_ghost(mtmp);
                     } else {
-                        pline("%s becomes visible!", Monnam(mtmp));
-                        if (!rn2(3))
-                            You("aren't %s.", rn2(2) ? "afraid" : "scared");
+                        if (Blind) {
+                            pline("%s seems easier to spot.", Monnam(mtmp));
+                        } else {
+                            pline("%s becomes visible!", Monnam(mtmp));
+                            if (!rn2(3))
+                                You("aren't %s.", rn2(2) ? "afraid" : "scared");
+                        }
                     }
                 }
             }
