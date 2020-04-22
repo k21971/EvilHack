@@ -227,9 +227,11 @@ struct attack *mattk;
             pline("%s is stopped by your golden haze.", Monnam(mtmp));
         else
             Your("%s %s%s %s attack.",
-                 simple_typename(blocker->otyp),
+                 blocker->oartifact ? xname(blocker)
+                                    : simple_typename(blocker->otyp),
                  rn2(2) ? "block" : "deflect",
-                 (blocker == uarmg || blocker == uarmf) ? "" : "s",
+                 ((blocker == uarmg && blocker->oartifact != ART_DRAGONBANE)
+                  || blocker == uarmf) ? "" : "s",
                  s_suffix(mon_nam(mtmp)));
     }
     stop_occupation();

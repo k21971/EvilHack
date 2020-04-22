@@ -935,6 +935,8 @@ Version 0.5.0
 - Fix: event feedback player shouldn't get if blind
 - Zombies will always be visible via warning
 - Fix: several artifact weapons that were supposed to do double damage were not
+- Artifact armor uses its artifact name when it blocks an attack instead of a
+  simple name
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
 
