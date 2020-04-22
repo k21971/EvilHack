@@ -50,7 +50,7 @@
 
 #define mon_warning(mon)                                                 \
     (Warning && !(mon)->mpeaceful && (distu((mon)->mx, (mon)->my) < 100) \
-     && (((int) ((mon)->m_lev / 4)) >= context.warnlevel))
+     && (((int) ((mon)->m_lev / 4)) >= (is_zombie(mon->data) ? context.warnlevel - 1 : context.warnlevel)))
 
 /*
  * mon_visible()
