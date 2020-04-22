@@ -941,5 +941,6 @@ Version 0.5.0
 - Fix: crash when summoning nasties
 - Fix: fire damage (Gehennom) and cold damage (Ice Queen branch) only occurs if
   the player moves
+- Fix: handling of monster riders if polymorphed and still riding their steed
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

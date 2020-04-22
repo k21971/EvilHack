@@ -920,9 +920,10 @@ int dx, dy, range;
         return;
 
     /* Is the monster riding another monster? */
-    if (has_erid(mon) && canseemon(mon)) {
-        pline("%s is knocked straight off %s %s!",
-              Monnam(mon), mhis(mon), l_monnam(ERID(mon)->m1));
+    if (has_erid(mon)) {
+        if (canseemon(mon))
+            pline("%s is knocked straight off %s %s!",
+                  Monnam(mon), mhis(mon), l_monnam(ERID(mon)->m1));
         separate_steed_and_rider(mon);
     }
 
