@@ -2805,7 +2805,7 @@ register boolean newlev;
         switch (rt) {
         case ZOO:
             if (Iniceq)
-                You("enter an ice cave full of monsters!");
+                You("enter an ice cave!");
             else
                 pline("Welcome to David's treasure zoo!");
             break;
