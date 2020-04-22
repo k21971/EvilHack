@@ -938,6 +938,6 @@ Version 0.5.0
 - Artifact armor uses its artifact name when it blocks an attack instead of a
   simple name
 - Edit 'you enter an ice cave full of monsters!'
+- Fix: crash when summoning nasties
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
-
 
