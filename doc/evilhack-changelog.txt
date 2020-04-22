@@ -939,5 +939,7 @@ Version 0.5.0
   simple name
 - Edit 'you enter an ice cave full of monsters!'
 - Fix: crash when summoning nasties
+- Fix: fire damage (Gehennom) and cold damage (Ice Queen branch) only occurs if
+  the player moves
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

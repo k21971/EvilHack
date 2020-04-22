@@ -2143,15 +2143,6 @@ domove_core()
             pline("The pool crackles and freezes under your feet.");
     }
 
-    /* Running around in Gehennom without 100% fire resistance */
-    if (Inhell && !Is_valley(&u.uz))
-        in_hell_effects();
-
-    /* Running around in the Ice Queen branch without
-       100% cold resistance */
-    if (Iniceq)
-        in_iceq_effects();
-
     if (u.umoved)
         spoteffects(TRUE);
 
