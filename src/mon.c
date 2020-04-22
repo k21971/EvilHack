@@ -710,13 +710,14 @@ register struct monst *mtmp;
         mtmp->mhp -= dam;
         if (mtmp->mhpmax > dam)
             mtmp->mhpmax -= (dam + 1) / 2;
-        if (mtmp->mhp < 1) {
+        if (DEADMONSTER(mtmp)) {
             if (canseemon(mtmp))
                 pline("%s dies.", Monnam(mtmp));
             mondead(mtmp);
-            if (mtmp->mhp < 1)
+            if (DEADMONSTER(mtmp))
                 return 1;
         }
+        return 0;
     }
 
     if (inlava) {
@@ -808,7 +809,7 @@ register struct monst *mtmp;
     } else {
         /* but eels have a difficult time outside */
         if (mtmp->data->mlet == S_EEL && !Is_waterlevel(&u.uz)
-            && !is_puddle(mtmp->mx, mtmp->my) && !is_sewage(mtmp->mx, mtmp->my)) {
+            && !(is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my))) {
             /* as mhp gets lower, the rate of further loss slows down */
             if (mtmp->mhp > 1 && rn2(mtmp->mhp) > rn2(8))
                 damage_mon(mtmp, 1, AD_PHYS);

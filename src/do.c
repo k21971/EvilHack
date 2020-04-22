@@ -372,7 +372,7 @@ const char *verb;
                     pline("Plop!");
                 }
             }
-            /* map_background(x, y, 0); */ /* can't tell what kind of water it is */
+            map_background(x, y, 0); /* can't tell what kind of water it is */
             newsym(x, y);
         }
         return water_damage(obj, NULL, FALSE) == ER_DESTROYED;
