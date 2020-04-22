@@ -1232,9 +1232,9 @@ register int after;
     gx = mtmp->mux;
     gy = mtmp->muy;
     appr = mtmp->mflee ? -1 : 1;
-    /* does this monster like to play keep-away? */
+   /* does this monster like to play keep-away? */
     if (is_skittish(ptr)
-        && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 10))
+        && (dist2(omx, omy, gx, gy) < 10))
 	appr = -1;
     if (mtmp->mconf || (u.uswallow && mtmp == u.ustuck)) {
         appr = 0;
