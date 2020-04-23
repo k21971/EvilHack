@@ -2602,6 +2602,31 @@ register struct monst *mtmp;
         return;
     }
 
+    /* our hero decided to choose poorly and attempt to kill
+       Kathryn the Enchantress */
+    if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
+        pline("But wait!  %s is not truly dead!", mon_nam(mtmp));
+        pline("Not even death can overcome her magic!");
+        mtmp->mcanmove = 1;
+        mtmp->mfrozen = 0;
+        mtmp->mstone = 0;
+        mtmp->msick = 0;
+        mtmp->mdiseased = 0;
+        mtmp->mpeaceful = 0;
+        mtmp->m_lev = 100;
+        mtmp->mhp = mtmp->mhpmax = 7500;
+        if (mtmp == u.ustuck) {
+            if (u.uswallow)
+                expels(mtmp, mtmp->data, FALSE);
+            else
+                uunstick();
+        }
+        newsym(mtmp->mx, mtmp->my);
+        adjalign(-15);
+        change_luck(-15);
+        return;
+    }
+
     /* special handling for the Ice Queen's dogs */
     if (mtmp->data == &mons[PM_KOA]  || mtmp->data == &mons[PM_OZZY]) {
         You("have made %s submit, and %s is no longer hostile.", mon_nam(mtmp), mhe(mtmp));
