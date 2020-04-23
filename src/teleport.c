@@ -920,11 +920,21 @@ level_tele()
 
         /* if in Knox or the Valley of the Dead and the requested level > 0,
          * stay put. we let negative values requests fall into the "heaven" handling.
-         */
-        if ((Is_knox(&u.uz) || Is_valley(&u.uz))
-            && newlev > 0 && !force_dest) {
-            You1(shudder_for_moment);
-            return;
+         * while Cerberus is alive, levelporting past the Valley is impossible,
+         * but once he is defeated, the ability opens back up */
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (mtmp->data == &mons[PM_CERBERUS]) {
+                if ((Is_knox(&u.uz) || Is_valley(&u.uz))
+                    && newlev > 0 && !force_dest) {
+                    You1(shudder_for_moment);
+                    return;
+                }
+            } else if (DEADMONSTER(mtmp)) {
+                if (Is_knox(&u.uz) && newlev > 0 && !force_dest) {
+                    You1(shudder_for_moment);
+                    return;
+                }
+            }
         }
         /* if in Quest, the player sees "Home 1", etc., on the status
          * line, instead of the logical depth of the level.  controlled

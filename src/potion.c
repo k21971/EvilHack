@@ -1133,8 +1133,18 @@ register struct obj *otmp;
                         pline("It tasted bad.");
                         break;
                     } else if (Is_valley(&u.uz)) {
-                        You("have an uneasy feeling.");
-                        break;
+                        /* while Cerberus lives, the effects of a
+                           cursed potion of gain level are nullified
+                           in the Valley. Killing him restores the effect */
+                        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                            if (mtmp->data == &mons[PM_CERBERUS]) {
+                                You("have an uneasy feeling.");
+                                goto no_rise;
+                            } else if (DEADMONSTER(mtmp)) {
+                                You(riseup, ceiling(u.ux, u.uy));
+                                goto_level(&newlevel, FALSE, FALSE, FALSE);
+                            }
+                        }
                     } else if (Is_valley(&newlevel) + 1) {
                         You(riseup, ceiling(u.ux, u.uy));
                         goto_level(&newlevel, TRUE, FALSE, FALSE);
