@@ -951,6 +951,8 @@ register struct monst *mtmp;
             cuss(mtmp);
         else if (is_lminion(mtmp))
             verbl_msg = "It's not too late.";
+        else if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+            verbl_msg = "Koa!  Stop trying to eat Ozzy's face!";
         else
             verbl_msg = "We're all doomed.";
         break;

@@ -946,5 +946,6 @@ Version 0.5.0
   resume once Cerberus is defeated
 - Closing off one more Cerberus bypass
 - Fix: Kathryn the Enchantress cannot be killed
+- Specific chat feedback for Kathryn the Enchantress
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
