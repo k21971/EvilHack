@@ -1,10 +1,11 @@
                      EvilHack -- General information
 
-EvilHack is a NetHack variant that attempts to incorporate many of the best
-features of the variants GruntHack and SporkHack, as well as other interesting
-bits of code from other variants (Slash'EM, Splicehack, UnNetHack, xNetHack).
-Wrap all that up along with some custom/unique content never seen in any other
-variant, and you have EvilHack.
+EvilHack is a NetHack variant that is designed to be a much more challenging
+experience that the original, drawing inspiration from and incorporating some
+of the best features from variants such as GruntHack and SporkHack, as well
+as other interesting bits of code from other variants (Slash'EM, Splicehack,
+UnNetHack, xNetHack). Wrap all that up along with some custom/unique content
+never seen before in any other variant, and you have EvilHack.
 
 EvilHack was initially built off of the NetHack 3.6.2 codebase, and will be
 updated accordingly as NetHack 3.6.x progresses and evolves.
