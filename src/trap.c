@@ -4082,6 +4082,7 @@ int count;
 boolean do_container;
 {
     struct obj *otmp = obj;
+    struct obj *nobj;
     int i = 0, j;
     struct obj** to_damage = NULL;
 
@@ -4108,7 +4109,10 @@ boolean do_container;
     acid_ctx.dkn_boom = acid_ctx.unk_boom = 0;
     acid_ctx.ctx_valid = TRUE;
 
-    for (otmp = obj; otmp; otmp = (here ? otmp->nexthere : otmp->nobj)) {
+    for (otmp = obj; otmp; otmp = nobj) {
+        /* if acid explodes or other item destruction happens, otmp will be
+         * deleted. Avoid reading garbage data from it. */
+        nobj = (here ? otmp->nexthere : otmp->nobj);
         if (!do_container && Is_container(otmp))
             continue;
         if (count < 1) {
