@@ -951,5 +951,7 @@ Version 0.5.0
 - Fix: couple more issues regarding ball & chain
 - Fix: livelog - revise spelling to more correct but less aesthetically
   pleasing "mimicking"
+- Fix: resolve some issues with the Enchantress and both dogs still attacking once
+  the ice queen branch is completed
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

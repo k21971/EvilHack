@@ -231,6 +231,8 @@ struct monst* mdef;
             mdef->mstone = 0;
             mdef->msick = 0;
             mdef->mdiseased = 0;
+            mdef->mconf = 0;
+            mdef->mstun = 0;
             newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
             mdef->mhp = mdef->mhpmax = 1500;
             newsym(mdef->mx, mdef->my);
@@ -2538,6 +2540,8 @@ register struct monst *mtmp;
             mtmp->mstone = 0;
             mtmp->msick = 0;
             mtmp->mdiseased = 0;
+            mtmp->mconf = 0;
+            mtmp->mstun = 0;
             if (!mtmp->mpeaceful)
                 hot_pursuit(mtmp);
             newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
@@ -2568,6 +2572,8 @@ register struct monst *mtmp;
         mtmp->mstone = 0;
         mtmp->msick = 0;
         mtmp->mdiseased = 0;
+        mtmp->mconf = 0;
+        mtmp->mstun = 0;
         mtmp->mpeaceful = 1;
         livelog_printf(LL_UMONST, "defeated %s", noit_mon_nam(mtmp));
         newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
@@ -2584,10 +2590,25 @@ register struct monst *mtmp;
         for (mon = fmon; mon; mon = mon->nmon) {
             if (DEADMONSTER(mon))
                 continue;
-            if (mon->data == koa)
+            /* cure any ailments the dogs may have also */
+            if (mon->data == koa) {
+                mtmp->mfrozen = 0;
+                mtmp->mstone = 0;
+                mtmp->msick = 0;
+                mtmp->mdiseased = 0;
+                mtmp->mconf = 0;
+                mtmp->mstun = 0;
                 mon->mpeaceful = 1;
-            if (mon->data == ozzy)
+            }
+            if (mon->data == ozzy) {
+                mtmp->mfrozen = 0;
+                mtmp->mstone = 0;
+                mtmp->msick = 0;
+                mtmp->mdiseased = 0;
+                mtmp->mconf = 0;
+                mtmp->mstun = 0;
                 mon->mpeaceful = 1;
+            }
         }
         verbalize("Thank you for freeing me from this awful curse!");
         verbalize("Long ago, a powerful and evil witch cast a spell on me, which transformed me into the Ice Queen.");
@@ -2612,6 +2633,8 @@ register struct monst *mtmp;
         mtmp->mstone = 0;
         mtmp->msick = 0;
         mtmp->mdiseased = 0;
+        mtmp->mconf = 0;
+        mtmp->mstun = 0;
         mtmp->mpeaceful = 0;
         mtmp->m_lev = 100;
         mtmp->mhp = mtmp->mhpmax = 7500;
@@ -2635,6 +2658,8 @@ register struct monst *mtmp;
         mtmp->mstone = 0;
         mtmp->msick = 0;
         mtmp->mdiseased = 0;
+        mtmp->mconf = 0;
+        mtmp->mstun = 0;
         mtmp->mpeaceful = 1;
         mtmp->mhp = mtmp->mhpmax;
         if (mtmp == u.ustuck) {
