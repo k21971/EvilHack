@@ -731,8 +731,9 @@ int x, y;
         }
     }
 
-    /* Caller has already determined that dragging the ball is allowed */
-    if (Punished && uball->where == OBJ_FLOOR) {
+    /* caller has already determined that dragging the ball is allowed;
+       if ball is carried we might still need to drag the chain */
+    if (Punished) {
         int bc_control;
         xchar ballx, bally, chainx, chainy;
         boolean cause_delay;
