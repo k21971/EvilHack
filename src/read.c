@@ -163,6 +163,12 @@ char *buf;
         "Licky Chewy's Pogey Bait",
         "Space Force Gunnery School",
         "Mandatory Fun Shirt",
+        /* more random stuff */
+        "Alhoons really suck",
+        "I love magic lamp",
+        "The Ice Queen Snow Cone Stand, est. 2020",
+        "Cerberus ate my homework",
+        "My firstborn for a magic marker",
     };
 
     Strcpy(buf, shirt_msgs[tshirt->o_id % SIZE(shirt_msgs)]);
