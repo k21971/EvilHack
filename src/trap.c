@@ -5957,7 +5957,7 @@ in_iceq_effects()
             You("are freezing to death!");
         if (usurvive) {
             losehp(dmg, in_iceq_killer, KILLED_BY);
-            return FALSE;
+            goto false;
         }
 
         if (wizard)
@@ -5979,6 +5979,7 @@ in_iceq_effects()
         }
         return TRUE;
     }
+false:
     return FALSE;
 }
 
