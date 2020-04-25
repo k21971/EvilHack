@@ -574,8 +574,8 @@ register struct monst *mon;
     }
 
     /* Tweak the monster's AC a bit according to its level */
-    div = mon->m_lev > 20 ? 5 : 4;
-    bonus = ((mon->m_lev / 2) ^2) / div;
+    div = mon->m_lev > 20 ? 4 : 3;
+    bonus = ((mon->m_lev / 2)) / div;
     if (bonus > 20)
         bonus = 20;
     if (bonus < 0)

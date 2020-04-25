@@ -5910,9 +5910,6 @@ in_hell_effects()
             losehp(dmg, in_hell_killer, KILLED_BY);
             return FALSE;
         }
-        usurvive = Lifesaved;
-        if (wizard)
-            usurvive = TRUE;
 
         boil_away = (u.umonnum == PM_WATER_ELEMENTAL
                      || u.umonnum == PM_STEAM_VORTEX
@@ -5957,9 +5954,6 @@ in_iceq_effects()
             losehp(dmg, in_iceq_killer, KILLED_BY);
             return FALSE;
         }
-        usurvive = Lifesaved;
-        if (wizard)
-            usurvive = TRUE;
 
         freeze_solid = (u.umonnum == PM_WATER_ELEMENTAL
                         || u.umonnum == PM_STEAM_VORTEX

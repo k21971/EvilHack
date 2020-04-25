@@ -1887,7 +1887,7 @@ uchar m_lev; /* not just a struct mon because polyself code also uses this */
         if (is_home_elemental(ptr))
             hpmax *= 3;
         if (is_mplayer(ptr))
-            hpmax *= 1.25;
+            hpmax = ((hpmax * 5) + 1) / 4;
         return hpmax;
     }
 }

@@ -1118,10 +1118,10 @@ dbon()
         dbon = 0;
     else if (str <= 18)
         dbon = 1;
+    else if (str <= STR18(50))
+        dbon = 2; /* up to 18/50 */
     else if (str <= STR18(75))
-        dbon = 2; /* up to 18/75 */
-    else if (str <= STR18(90))
-        dbon = 3; /* up to 18/90 */
+        dbon = 3; /* up to 18/75 */
     else if (str < STR18(100))
         dbon = 4; /* up to 18/99 */
     else if (str == STR18(100))
@@ -1129,10 +1129,13 @@ dbon()
     else
         dbon = 6;
 
-    if (uwep && bimanual(uwep)) {
-        dbon *= 1.5;
-    }
-	return dbon;
+    /* damage bonus is multiplied 1.5 times when wielding
+       a weapon using two hands, or if you're a giant
+       one-handing a two-handed weapon (they're heavy) */
+    if (uwep && objects[uwep->otyp].oc_bimanual)
+        dbon = ((dbon * 3) + 1) / 2;
+
+    return dbon;
 }
 
 /* increase a towel's wetness */

@@ -954,5 +954,6 @@ Version 0.5.0
 - Fix: resolve some issues with the Enchantress and both dogs still attacking once
   the ice queen branch is completed
 - Update the README file
+- Tweak damage bonus for using two-handed weapons, other code clean-up
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

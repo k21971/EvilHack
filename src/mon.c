@@ -5021,9 +5021,9 @@ struct monst* mon;
 int amount;
 int type;
 {
-    if (vulnerable_to(mon, type)) {
-	amount *= 1.5;
-    }
+    if (vulnerable_to(mon, type))
+	amount = ((amount * 3) + 1) / 2;
+
     mon->mhp -= amount;
     return (mon->mhp < 1);
 }
