@@ -5908,8 +5908,11 @@ in_hell_effects()
             pline_The("flames of hell are roasting you alive!");
         if (usurvive) {
             losehp(dmg, in_hell_killer, KILLED_BY);
-            return FALSE;
+            goto false;
         }
+
+        if (wizard)
+            usurvive = TRUE;
 
         boil_away = (u.umonnum == PM_WATER_ELEMENTAL
                      || u.umonnum == PM_STEAM_VORTEX
@@ -5923,9 +5926,11 @@ in_hell_effects()
             Strcpy(killer.name, in_hell_killer);
             You("%s...", boil_away ? "boil away" : "are roasted alive");
             done(DIED);
+            break;
         }
         return TRUE;
     }
+false:
     return FALSE;
 }
 
@@ -5955,6 +5960,9 @@ in_iceq_effects()
             return FALSE;
         }
 
+        if (wizard)
+            usurvive = TRUE;
+
         freeze_solid = (u.umonnum == PM_WATER_ELEMENTAL
                         || u.umonnum == PM_STEAM_VORTEX
                         || u.umonnum == PM_WATER_TROLL
@@ -5965,8 +5973,9 @@ in_iceq_effects()
             u.uhp = -1;
             killer.format = KILLED_BY;
             Strcpy(killer.name, in_iceq_killer);
-            You("%s...", freeze_solid ? "freeze_solid" : "freeze to death");
+            You("%s...", freeze_solid ? "freeze solid" : "freeze to death");
             done(DIED);
+            break;
         }
         return TRUE;
     }
