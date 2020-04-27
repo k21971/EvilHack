@@ -219,7 +219,7 @@ struct trobj Level20Kit2[] = {
 };
 
 struct trobj Level20Kit3[] = {
-        { GOLD_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { ORANGE_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GLOVES, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
