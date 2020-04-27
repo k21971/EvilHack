@@ -959,5 +959,6 @@ Version 0.5.0
 - Fix: dying and then being life-saved via roasting/freezing to death
 - Adjust one type of DSM for player monsters
 - Fix: duplicate-ls-catcher crashing
+- Fix: spcial artifacts should not be wished for
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

@@ -4482,6 +4482,8 @@ struct obj *no_wish;
      * with its previous owner
      */
     if ((is_quest_artifact(otmp)
+        || otmp->oartifact == ART_MAGIC___BALL
+        || otmp->oartifact == ART_LIFESTEALER
         || (otmp->oartifact && rn2(nartifact_exist()) > 1)) && !wizard) {
         artifact_exists(otmp, ONAME(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
@@ -4525,10 +4527,6 @@ struct obj *no_wish;
 
         if (pm < 0) {
             switch(otmp->oartifact) {
-                case ART_LIFESTEALER:
-                    pm = PM_BALROG;
-                    voice = "The Envoy of Vlad the Impaler";
-                    break;
                 case ART_XIUHCOATL:
                 case ART_SUNSWORD:
                 case ART_GRAYSWANDIR:
@@ -4596,7 +4594,6 @@ struct obj *no_wish;
                     pm = PM_HUMAN_SAMURAI;
                     break;
                 case ART_YENDORIAN_EXPRESS_CARD:
-                case ART_MAGIC___BALL:
                 case ART_VORPAL_BLADE:
                     pm = PM_HUMAN_TOURIST;
                     break;
