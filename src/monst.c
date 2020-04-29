@@ -3356,7 +3356,7 @@ struct permonst _mons2[] = {
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_ENGL, AD_DISE, 4, 10), ATTK(AT_TUCH, AD_ACID, 4, 6),
           ATTK(AT_SPIT, AD_ACID, 3, 6), ATTK(AT_MAGC, AD_CLRC, 2, 6),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_NONE, AD_ACID, 0, 1), ATTK(AT_BOOM, AD_ACID, 4, 6)),
         SIZ(1500, 0, MS_GURGLE, MZ_GIGANTIC),
         MR_FIRE | MR_POISON | MR_ACID | MR_STONE, 0,
         M1_AMPHIBIOUS | M1_AMORPHOUS | M1_NOHEAD | M1_FLY | M1_SEE_INVIS

@@ -12,6 +12,7 @@
  * indicate that the monster should be disintegrated.
  */
 #define MAGIC_COOKIE 1000
+#define DEATH_PROOF 500 /* nod to Quentin Tarantino */
 
 static NEARDATA boolean obj_zapped;
 static NEARDATA int poly_zapped;
@@ -3944,8 +3945,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             tmp = d(4, 6);
             if (mon->data == &mons[PM_DEATH]) {
                 mon->mhpmax += mon->mhpmax / 2;
-                if (mon->mhpmax >= MAGIC_COOKIE)
-                    mon->mhpmax = MAGIC_COOKIE - 1;
+                if (mon->mhpmax > DEATH_PROOF)
+                    mon->mhpmax = DEATH_PROOF;
                 mon->mhp = mon->mhpmax;
                 tmp = 0;
                 break;
