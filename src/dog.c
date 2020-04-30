@@ -1163,6 +1163,8 @@ gain_guardian_steed()
                 u.uconduct.pets++;
             }
             EDOG(mtmp)->apport = ACURR(A_CHA);
+            /* make sure our steed isn't starving to death when we arrive */
+            EDOG(mtmp)->hungrytime = 1000 + monstermoves;
             mtmp->mstrategy &= ~STRAT_APPEARMSG;
             if (!Blind)
                 pline("The Red Horse appears near you.");
