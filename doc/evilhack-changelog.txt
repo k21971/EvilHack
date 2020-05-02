@@ -963,5 +963,6 @@ Version 0.5.0
 - Fix: Death becoming ultra-uber from death rays
 - Another Juiblex tweak
 - Fix: prevent the Red Horse from already being starved upon creation
+- Remove Luck Blade's intelligent flag
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

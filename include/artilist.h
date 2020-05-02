@@ -219,7 +219,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     /* Convict role first artifact weapon should they altar sacrifice for one.
      * Acts like a luckstone.
      */
-    A("Luck Blade", BROADSWORD, (SPFX_RESTR | SPFX_LUCK | SPFX_INTEL), 0, 0,
+    A("Luck Blade", BROADSWORD, (SPFX_RESTR | SPFX_LUCK), 0, 0,
       PHYS(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_CONVICT, NON_PM, 3000L,
       NO_COLOR),
 
