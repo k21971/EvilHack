@@ -313,7 +313,7 @@ struct obj* tobj;
     }
 
     /* using a stethoscope on a safe?  You safe-cracker, you. */
-    if (safe) {
+    if (safe && (rx == u.ux && ry == u.uy)) {
         if (Hallucination || Confusion || tobj->cursed) {
             pline("You attempt to crack the safe using the combination... %s?",
                   rndcolor());
