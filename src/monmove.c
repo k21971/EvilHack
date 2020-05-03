@@ -785,17 +785,20 @@ toofar:
         || find_offensive(mtmp))
         && mtmp->mlstmv != monstermoves) {
         register struct monst *mtmp2 = mfind_target(mtmp);
+        /* the > value is important here - if it's not just right,
+           the attacking monster can get stuck in a loop switching
+           back and forth between its melee weapon and launcher */
         if (mtmp2
             && (mtmp2 != &youmonst
-    	        || dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 2)
-    	    && (mtmp2 != mtmp)) {
+                || dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 4)
+            && (mtmp2 != mtmp)) {
             int res;
             res = (mtmp2 == &youmonst) ? mattacku(mtmp)
-          	                       : mattackm(mtmp, mtmp2);
+                                       : mattackm(mtmp, mtmp2);
             if (res & MM_AGR_DIED)
-    	        return 1; /* Oops. */
+                return 1; /* Oops. */
 
-    	    return 0; /* that was our move for the round */
+            return 0; /* that was our move for the round */
         }
     }
 
