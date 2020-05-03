@@ -75,13 +75,13 @@ hack_artifacts()
        Dirge also... */
     if (!Role_if(PM_KNIGHT)) {
         artilist[ART_EXCALIBUR].role = NON_PM;
-	    artilist[ART_DIRGE].role = NON_PM;
-	}
+        artilist[ART_DIRGE].role = NON_PM;
+    }
 
     /* Demonbane should always be in the Priest's list of available toys
      * even though this might look a little odd when it comes out Chaotic */
     if (Role_if(PM_PRIEST)) {
-            artilist[ART_DEMONBANE].alignment = alignmnt;
+        artilist[ART_DEMONBANE].alignment = alignmnt;
     }
 
     /* Fix up the quest artifact */
@@ -284,7 +284,7 @@ boolean allow_detrimental;
                     && P_SKILL(i) >= threshold)
                     candidates[ccount++] = i;
                 if (ccount >= 128)
-                     break;
+                    break;
             }
             if (ccount == 0) {
                 threshold--;
@@ -379,8 +379,9 @@ boolean allow_detrimental;
             bless(otmp);
     }
 
-    if (otmp->oprops && (otmp->oclass == WEAPON_CLASS
-        || otmp->oclass == ARMOR_CLASS)) {
+    if (otmp->oprops
+        && (otmp->oclass == WEAPON_CLASS
+            || otmp->oclass == ARMOR_CLASS)) {
         if (otmp->spe < 0)
             otmp->spe = 0;
         else if (otmp->spe == 0)
@@ -388,8 +389,10 @@ boolean allow_detrimental;
     }
 
     if (otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER)
-        && allow_detrimental)
+        && allow_detrimental) {
         curse(otmp);
+        otmp->spe -= rnd(3);
+    }
     return otmp;
 }
 

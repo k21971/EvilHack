@@ -965,5 +965,7 @@ Version 0.5.0
 - Fix: prevent the Red Horse from already being starved upon creation
 - Remove Luck Blade's intelligent flag
 - Fix: monsters switching back and forth between melee and ranged
+- Items with detrimental object properties should sometimes spawn cursed and have a
+  negative enchantment
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
