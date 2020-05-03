@@ -187,7 +187,7 @@ register int x, y;
         return "maw";
     else if (IS_AIR(lev->typ) && (Is_airlevel(&u.uz) || In_V_tower(&u.uz)))
         return "air";
-    else if (is_damp_terrain(x, y))
+    else if (is_pool(x, y))
         return (Underwater && !Is_waterlevel(&u.uz))
             ? "bottom" : hliquid("water");
     else if (is_ice(x, y))
@@ -203,7 +203,7 @@ register int x, y;
     else if (IS_FOUNTAIN(levl[x][y].typ))
         return "fountain";
     else if (IS_PUDDLE(levl[x][y].typ))
-        return "water";
+        return hliquid("water");
     else if (IS_SEWAGE(levl[x][y].typ))
         return "raw sewage";
     else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz))

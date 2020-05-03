@@ -967,5 +967,6 @@ Version 0.5.0
 - Fix: monsters switching back and forth between melee and ranged
 - Items with detrimental object properties should sometimes spawn cursed and have a
   negative enchantment
+- Fix: 'You try to feel what is lying here on the water' when feeling sewage
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
