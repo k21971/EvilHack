@@ -1801,6 +1801,7 @@ struct obj *weapon;
 
     /* Priests using edged weapons is frowned upon by their deity */
     if (uwep && Role_if(PM_PRIEST)
+        && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
         && (is_pierce(uwep) || is_slash(uwep) || is_ammo(uwep))) {
         if (!rn2(4))
             pline("%s has %s you from using %s weapons such as %s!",

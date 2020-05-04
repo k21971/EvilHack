@@ -969,5 +969,7 @@ Version 0.5.0
   negative enchantment
 - Fix: 'You try to feel what is lying here on the water' when feeling sewage
 - Fix: applying a stethoscope to an iron safe while adjacent to it
+- Fix: 'Chih Sung-tzu has forbidden you from using edged weapons such as wands of
+  slow monster!'
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
