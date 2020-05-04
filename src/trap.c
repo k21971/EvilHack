@@ -1346,6 +1346,9 @@ unsigned trflags;
             }
             break;
         }
+        /* is the pit an "open grave"? (if it's in a graveyard, yes) */
+        boolean is_grave = (getroomtype(u.ux, u.uy) == MORGUE
+                            && ttype != SPIKED_PIT);
         if (!Sokoban) {
             char verbbuf[BUFSZ];
 
@@ -1369,7 +1372,8 @@ unsigned trflags;
                        !plunged ? "fall" : (Flying ? "dive" : "plunge"));
             }
             if (*verbbuf)
-                You("%s into %s pit!", verbbuf, a_your[trap->madeby_u]);
+                You("%s into %s %s!", verbbuf, a_your[trap->madeby_u],
+                    (is_grave ? "open grave" : "pit"));
         }
         /* wumpus reference */
         if (Role_if(PM_RANGER) && !trap->madeby_u && !trap->once
@@ -1378,6 +1382,11 @@ unsigned trflags;
             trap->once = 1;
         } else if (u.umonnum == PM_PIT_VIPER || u.umonnum == PM_PIT_FIEND) {
             pline("How pitiful.  Isn't that the pits?");
+        } else if (is_grave) {
+            if (is_undead(youmonst.data))
+                pline("It seems quite cozy down here.");
+            else
+                pline("It's a little early for a dirt nap, isn't it?");
         }
         if (ttype == SPIKED_PIT) {
             const char *predicament = "on a set of sharp iron spikes";

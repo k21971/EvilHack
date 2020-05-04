@@ -934,6 +934,7 @@ E void FDECL(spoteffects, (BOOLEAN_P));
 E char *FDECL(in_rooms, (XCHAR_P, XCHAR_P, int));
 E boolean FDECL(in_town, (int, int));
 E void FDECL(check_special_room, (BOOLEAN_P));
+E int FDECL(getroomtype, (xchar, xchar));
 E int NDECL(dopickup);
 E void NDECL(lookaround);
 E boolean FDECL(crawl_destination, (int, int));

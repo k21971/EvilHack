@@ -2930,6 +2930,22 @@ register boolean newlev;
     return;
 }
 
+/* Given an x and y space, return the type of the room there.
+ * Uses orig_rtyp, so ignores things like the room type being cleared
+ * after the player first enters it. */
+int
+getroomtype(x, y)
+xchar x;
+xchar y;
+{
+    int rno = levl[x][y].roomno;
+    if (rno >= ROOMOFFSET) {
+        return rooms[rno - ROOMOFFSET].orig_rtype;
+    }
+    /* not a room */
+    return OROOM;
+}
+
 /* returns
    1 = cannot pickup, time taken
    0 = cannot pickup, no time taken

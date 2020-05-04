@@ -157,21 +157,21 @@ unsigned mgflags;
                 color = CLR_BROWN;
             else if (Is_astralevel(&u.uz))
                 color = CLR_WHITE;
-            else if (*in_rooms(x, y, BEEHIVE))
+            else if (getroomtype(x, y) == BEEHIVE)
                 color = CLR_YELLOW;
-            else if (*in_rooms(x, y, COCKNEST))
+            else if (getroomtype(x, y) == COCKNEST)
                 color = CLR_GREEN;
-            else if (*in_rooms(x, y, ANTHOLE))
+            else if (getroomtype(x, y) == ANTHOLE)
                 color = CLR_BROWN;
-            else if (*in_rooms(x, y, SWAMP))
+            else if (getroomtype(x, y) == SWAMP)
                 color = CLR_GREEN;
-            else if (*in_rooms(x, y, LEPREHALL))
+            else if (getroomtype(x, y) == LEPREHALL)
                 color = CLR_BRIGHT_GREEN;
-            else if (*in_rooms(x, y, VAULT))
+            else if (getroomtype(x, y) == VAULT)
                 color = HI_METAL;
-            else if (*in_rooms(x, y, OWLBNEST))
+            else if (getroomtype(x, y) == OWLBNEST)
                 color = CLR_BLACK;
-            else if (*in_rooms(x, y, ARMORY))
+            else if (getroomtype(x, y) == ARMORY)
                 color = HI_METAL;
             else
                 cmap_color(offset);
