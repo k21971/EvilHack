@@ -2805,7 +2805,7 @@ struct attack *mattk;
                           Monnam(mtmp), mhis(mtmp));
                 break;
             }
-            if (!rn2(20)) {
+            if (!rn2(12)) {
                 if (useeit)
                     pline("%s is turned to stone!", Monnam(mtmp));
                 stoned = TRUE;

@@ -973,5 +973,6 @@ Version 0.5.0
   slow monster!'
 - Fix: colored walls in special rooms not holding their color
 - Fix: bug with Medusa's gaze being reflected back and the player being blind
+- Adjust odds for Medusa to stone herself with her reflected gaze
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
