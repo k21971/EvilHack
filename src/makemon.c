@@ -863,7 +863,8 @@ register struct monst *mtmp;
             (void) mongets(mtmp, LARGE_SHIELD);
         } else if (mm == PM_MEDUSA) {
             (void) mongets(mtmp, ORCISH_BOW);
-            m_initthrow(mtmp, ORCISH_ARROW, 24);
+            /* 25 to 40 arrows */
+            m_initthrow(mtmp, ORCISH_ARROW, rn2(16) + 25);
         } else if (mm == PM_RAT_KING) {
             otmp = mksobj(SCIMITAR, FALSE, FALSE);
             bless(otmp);

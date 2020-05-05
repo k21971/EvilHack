@@ -972,5 +972,6 @@ Version 0.5.0
 - Fix: 'Chih Sung-tzu has forbidden you from using edged weapons such as wands of
   slow monster!'
 - Fix: colored walls in special rooms not holding their color
+- Fix: bug with Medusa's gaze being reflected back and the player being blind
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

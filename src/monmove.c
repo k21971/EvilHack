@@ -774,7 +774,8 @@ toofar:
 
     /* Look for other monsters to fight (at a distance) */
     if ((((attacktype(mtmp->data, AT_BREA)
-        || attacktype(mtmp->data, AT_GAZE)
+        || (attacktype(mtmp->data, AT_GAZE)
+            && mtmp->data != &mons[PM_MEDUSA])
         || attacktype(mtmp->data, AT_SPIT)
         || attacktype(mtmp->data, AT_SCRE)
         || (attacktype(mtmp->data, AT_MAGC)
