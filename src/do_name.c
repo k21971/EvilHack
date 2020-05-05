@@ -1373,12 +1373,20 @@ const char *name;
             set_material(obj, SILVER);
             break;
         case ART_DIRGE:
+            set_material(obj, MITHRIL);
+            break;
         case ART_FIRE_BRAND:
         case ART_FROST_BRAND:
-            set_material(obj, MITHRIL);
+        case ART_STORMBRINGER:
+        case ART_LUCK_BLADE:
+        case ART_VORPAL_BLADE:
+        case ART_SCEPTRE_OF_MIGHT:
+        case ART_MITRE_OF_HOLINESS:
+            set_material(obj, METAL);
             break;
         case ART_SUNSWORD:
         case ART_SWORD_OF_BHELEU:
+        case ART_RING_OF_P_HUL:
             set_material(obj, GEMSTONE);
             break;
         case ART_YENDORIAN_EXPRESS_CARD:

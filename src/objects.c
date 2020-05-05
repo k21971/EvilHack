@@ -268,7 +268,7 @@ WEAPON("bec de corbin", "beaked polearm",
 
 /* bludgeons */
 WEAPON("mace", None,
-       1, 0, 0, 40,  30,   5,  6,  6, 0, B,   P_MACE, IRON, HI_METAL),
+       1, 0, 0, 30,  30,   5,  6,  6, 0, B,   P_MACE, IRON, HI_METAL),
         /* +1 small */
 WEAPON("morning star", None,
        1, 0, 0, 12, 120,  10,  4,  6, 0, B,   P_MORNING_STAR, IRON, HI_METAL),
@@ -281,7 +281,7 @@ WEAPON("war hammer", None,
         /* +1 small */
 /* Base weapon for artifact weapon (Mjollnir/Ogresmasher) */
 WEAPON("heavy war hammer", None,
-       1, 0, 0, 0,  60,   10,  8, 10, 0, B,   P_HAMMER, IRON, HI_METAL),
+       1, 0, 0, 10,  60,   10,  8, 10, 0, B,   P_HAMMER, IRON, HI_METAL),
 /* ------------------------------------------------------ */
 WEAPON("club", None,
        1, 0, 0, 12,  30,   3,  6,  3, 0, B,   P_CLUB, WOOD, HI_WOOD),
