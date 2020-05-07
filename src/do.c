@@ -872,7 +872,7 @@ register struct obj *obj;
         return 0;
     if (!canletgo(obj, "drop"))
         return 0;
-    if (In_sokoban(&u.uz) && obj->otyp == BOULDER) {
+    if (Sokoban && obj->otyp == BOULDER) {
         pline("Some magical force is preventing you from dropping %s.",
               the(xname(obj)));
         return 0;
