@@ -975,5 +975,6 @@ Version 0.5.0
 - Fix: bug with Medusa's gaze being reflected back and the player being blind
 - Adjust odds for Medusa to stone herself with her reflected gaze
 - Adjust material for various artifacts
+- Fix: prevent giants from cheating in Sokoban
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

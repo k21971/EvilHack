@@ -70,6 +70,11 @@ int shotlimit;
 
     if (!canletgo(obj, "throw"))
         return 0;
+    if (In_sokoban(&u.uz) && obj->otyp == BOULDER) {
+        pline("Some magical force is preventing you from throwing %s.",
+              the(xname(obj)));
+        return 0;
+    }
     if ((obj->oartifact == ART_MJOLLNIR || obj->oartifact == ART_XIUHCOATL) && obj != uwep) {
         pline("%s must be wielded before it can be thrown.", The(xname(obj)));
         return 0;
