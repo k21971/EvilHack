@@ -978,5 +978,6 @@ Version 0.5.0
 - Fix: prevent giants from cheating in Sokoban
 - Tweak to bringing in your own boulders to Sokoban
 - Redo what happens when giants bring boulders into Sokoban to drop/throw
+- Fix: zombified monsters kept their mextra structs
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

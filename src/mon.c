@@ -244,6 +244,31 @@ struct monst* mdef;
         mdef->mfrozen = 0;
         mdef->mtame = mdef->mpeaceful = 0;
 
+        /* clear other data structures tracking shk information */
+        if (mdef->isshk)
+            shkgone(mdef);
+
+        /* wipe all mextra structs (to prevent a zombified shk/priest/guard/etc
+         * from continuing to behave as what it used to be), then restore name
+         * if present */
+        char name[PL_PSIZ];
+        name[0] = '\0';
+        if (has_eshk(mdef) && !Hallucination) {
+            /* shkname() will give a random name for hallucination. It probably
+             * isn't worth refactoring it to allow overriding hallucination, so
+             * if the player is hallucinating, just don't name the zombie. */
+            Strcpy(name, shkname(mdef));
+        } else if (has_mname(mdef)) {
+            Strcpy(name, MNAME(mdef));
+        }
+        dealloc_mextra(mdef);
+        if (name[0] != '\0') {
+            christen_monst(mdef, name);
+        }
+        mdef->isshk = mdef->isminion = mdef->isgd = mdef->ispriest = 0;
+        /* if mdef->iswiz, leave that alone - the Wizard doesn't have any mextra
+         * structs and can handle being transformed into other monster types */
+
         newsym(mdef->mx, mdef->my); /* cover bases */
 
         /* The mhp is presumably the fraction of what it was before -
