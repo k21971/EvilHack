@@ -1357,8 +1357,8 @@ int dieroll;
         hittxt = TRUE;
     } else if (unarmed && tmp > 1 && !thrown && !obj && !Upolyd && !thievery) {
         /* VERY small chance of stunning or confusing opponent if unarmed. */
-        if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT) && !biggermonst(mdat)
-            && !thick_skinned(mdat)) {
+        if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT)
+            && !biggermonst(mdat) && !thick_skinned(mdat)) {
             if (rn2(2)) {
                 if (canspotmon(mon))
                     pline("%s %s from your powerful strike!", Monnam(mon),
@@ -2769,8 +2769,8 @@ boolean wouldhavehit;
         You("pretend to be friendly to %s.", mon_nam(mdef));
     else if (canspotmon(mdef) && flags.verbose) {
         if (Role_if(PM_ROGUE)
-            && context.forcefight && !Upolyd) {
-            Your("pickpocketing attempt fails %s",
+            && !uwep && context.forcefight && !Upolyd) {
+            Your("pickpocketing attempt fails %s.",
                  rn2(2) ? "horribly" : "miserably");
         } else {
             You("miss %s.", mon_nam(mdef));
