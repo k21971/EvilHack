@@ -977,5 +977,6 @@ Version 0.5.0
 - Adjust material for various artifacts
 - Fix: prevent giants from cheating in Sokoban
 - Tweak to bringing in your own boulders to Sokoban
+- Redo what happens when giants bring boulders into Sokoban to drop/throw
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

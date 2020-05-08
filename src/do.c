@@ -872,11 +872,6 @@ register struct obj *obj;
         return 0;
     if (!canletgo(obj, "drop"))
         return 0;
-    if (Sokoban && obj->otyp == BOULDER) {
-        pline("Some magical force is preventing you from dropping %s.",
-              the(xname(obj)));
-        return 0;
-    }
     if (obj == uwep) {
         if (welded(uwep)) {
             weldmsg(obj);
@@ -908,6 +903,8 @@ register struct obj *obj;
             dosinkring(obj);
             return 1;
         }
+        if (Sokoban && obj->otyp == BOULDER)
+            change_luck(-2);
         if (!can_reach_floor(TRUE)) {
             /* we might be levitating due to #invoke Heart of Ahriman;
                if so, levitation would end during call to freeinv()

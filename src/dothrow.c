@@ -70,11 +70,6 @@ int shotlimit;
 
     if (!canletgo(obj, "throw"))
         return 0;
-    if (Sokoban && obj->otyp == BOULDER) {
-        pline("Some magical force is preventing you from throwing %s.",
-              the(xname(obj)));
-        return 0;
-    }
     if ((obj->oartifact == ART_MJOLLNIR || obj->oartifact == ART_XIUHCOATL) && obj != uwep) {
         pline("%s must be wielded before it can be thrown.", The(xname(obj)));
         return 0;
@@ -109,6 +104,8 @@ int shotlimit;
     }
     if (is_wet_towel(obj))
         dry_a_towel(obj, -1, FALSE);
+    if (Sokoban && obj->otyp == BOULDER)
+        change_luck(-2);
 
     /* Multishot calculations
      * (potential volley of up to N missiles; default for N is 1)
