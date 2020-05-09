@@ -3509,6 +3509,9 @@ boolean wep_was_destroyed;
             monstseesu(M_SEEN_MAGR);
             pline("A hail of magic missiles narrowly misses you!");
         } else {
+            if (Role_if(PM_ROGUE) && !uwep
+                && context.forcefight && !Upolyd && mon->mpeaceful)
+                pline_The("gods notice your deception!");
             You("are hit by magic missiles appearing from thin air!");
             mdamageu(mon, tmp);
         }

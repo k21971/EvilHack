@@ -3854,7 +3854,7 @@ boolean via_attack;
 
     /* AIS: Should this be in both places, or just in wakeup()? */
     if (!(via_attack
-        && (Role_if(PM_ROGUE) && context.forcefight && !Upolyd))) {
+        && (Role_if(PM_ROGUE) && !uwep && context.forcefight && !Upolyd))) {
         mtmp->mstrategy &= ~STRAT_WAITMASK;
         if (!mtmp->mpeaceful)
             return;
