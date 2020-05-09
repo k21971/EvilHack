@@ -814,11 +814,13 @@ intervene()
         resurrect();
         break;
     case 6:
-	pline_The("entire dungeon starts shaking around you!");
-	do_earthquake((MAXULEV - 1) / 3 + 1);
-	/* shake up monsters in a much larger radius... */
-	awaken_monsters(ROWNO * COLNO);
-	break;
+        if (u.uhave.amulet) {
+            pline_The("entire dungeon starts shaking around you!");
+            do_earthquake((MAXULEV - 1) / 3 + 1);
+            /* shake up monsters in a much larger radius... */
+            awaken_monsters(ROWNO * COLNO);
+        }
+        break;
     case 7:
         (void) nasty((struct monst *) 0, TRUE);
         break;
