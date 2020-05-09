@@ -814,7 +814,7 @@ intervene()
         resurrect();
         break;
     case 6:
-        if (u.uhave.amulet) {
+        if (u.uevent.invoked) {
             pline_The("entire dungeon starts shaking around you!");
             do_earthquake((MAXULEV - 1) / 3 + 1);
             /* shake up monsters in a much larger radius... */

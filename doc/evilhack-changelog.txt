@@ -985,5 +985,6 @@ Version 0.5.0
   not making the peaceful monster angry
 - Earthquakes that can occur after the Wizard has been killed won't happen unless
   the player has the Amulet of Yendor
+- Change earthquake event from having the Amulet to having performed the invocation
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
