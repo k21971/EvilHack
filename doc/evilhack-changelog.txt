@@ -980,5 +980,6 @@ Version 0.5.0
 - Redo what happens when giants bring boulders into Sokoban to drop/throw
 - Fix: zombified monsters kept their mextra structs
 - Fix: incorrect feedback when attacking via shift+f as rogue while twoweaponing
+- Fix: certain metallic shields did not incur a substantial casting penalty
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
