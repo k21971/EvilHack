@@ -254,7 +254,7 @@
 #define cantweararm(ptr) (breakarm(ptr) || sliparm(ptr))
 #define throws_rocks(ptr) \
     ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) \
-     || ((ptr) == youmonst.data && Race_if(PM_GIANT)))
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
 #define is_lord(ptr) (((ptr)->mflags2 & M2_LORD) != 0L)
 #define is_prince(ptr) (((ptr)->mflags2 & M2_PRINCE) != 0L)
@@ -278,7 +278,7 @@
 #define is_skittish(ptr) (((ptr)->mflags3 & M3_SKITTISH))
 #define is_accurate(ptr) \
     (((ptr)->mflags3 & M3_ACCURATE) \
-     || ((ptr) == youmonst.data && Race_if(PM_CENTAUR)))
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_CENTAUR)))
 #define is_berserker(ptr) (((ptr)->mflags3 & M3_BERSERK))
 #define infravision(ptr) (((ptr)->mflags3 & M3_INFRAVISION))
 #define infravisible(ptr) (((ptr)->mflags3 & M3_INFRAVISIBLE))
