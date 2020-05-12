@@ -991,5 +991,6 @@ Version 0.5.0
 - Fix: make prayer timeouts longer in very long games
 - Monster steeds can use special attacks, and monsters will dynamically mount nearby
   steeds
+- Allow player monsters to also randomly mount and ride a steed
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

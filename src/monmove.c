@@ -822,8 +822,8 @@ toofar:
         /* arbitrary distance restriction to keep monster far away
            from you from having cast dozens of sticks-to-snakes
            or similar spells by the time you reach it */
-        if (dist2(mtmp->mx, mtmp->my, u.ux, u.uy) <= 49
-            && !mtmp->mspec_used) {
+        if (!mtmp->mspec_used
+            && dist2(mtmp->mx, mtmp->my, u.ux, u.uy) <= 49) {
             struct attack *a;
 
             for (a = &mdat->mattk[0]; a < &mdat->mattk[NATTK]; a++) {
@@ -885,12 +885,14 @@ toofar:
     /*  Now, attack the player if possible - one attack set per monst
      */
 
-    if (!mtmp->mpeaceful || (Conflict && !resist_conflict(mtmp))) {
-        if (inrange && !noattacks(mdat)
-            && (Upolyd ? u.mh : u.uhp) > 0 && !scared && tmp != 3)
+    if (tmp != 3 && (!mtmp->mpeaceful
+                     || (Conflict && !resist_conflict(mtmp)))) {
+        if (inrange && !scared && !noattacks(mdat)
+            /* [is this hp check really needed?] */
+            && (Upolyd ? u.mh : u.uhp) > 0) {
             if (mattacku(mtmp))
                 return 1; /* monster died (e.g. exploded) */
-
+        }
         if (mtmp->wormno)
             wormhitu(mtmp);
     }
@@ -907,6 +909,7 @@ toofar:
         && couldsee(mtmp->mx, mtmp->my) && !mtmp->minvis && !rn2(5))
         cuss(mtmp);
 
+    /* note: can't get here when tmp==2 so this always returns 0 */
     return (tmp == 2);
 }
 
