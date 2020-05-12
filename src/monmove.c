@@ -837,8 +837,7 @@ toofar:
             }
         }
 
-        /* TODO: Update with a more elegant solution allowing for steed ranged attacks */
-        if (!tmp && !mtmp->rider_id)
+        if (!tmp)
             tmp = m_move(mtmp, 0);
         else
             tmp = 0;
@@ -1097,6 +1096,9 @@ register int after;
             return 0; /* still in trap, so didn't move */
     }
     ptr = mtmp->data; /* mintrap() can change mtmp->data -dlc */
+
+    if (mtmp->rider_id)
+        return 0;
 
     if (mtmp->meating) {
         mtmp->meating--;

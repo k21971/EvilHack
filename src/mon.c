@@ -1086,6 +1086,13 @@ movemon()
                 continue;
         }
 
+
+        if ((mtmp->data == &mons[PM_WIZARD_OF_YENDOR]
+            && !rn2(5)) || !rn2(75)) {
+            if (mount_up(mtmp))
+                continue;
+        }
+
         /* continue if the monster died fighting */
         if (Conflict && !mtmp->iswiz && m_canseeu(mtmp)) {
             /* Note:

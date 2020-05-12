@@ -51,10 +51,49 @@ int pm;
     ERID(mtmp)->m1->my = mtmp->my;
     newsym(mtmp->mx, mtmp->my);
 
-    if (can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
+    if (!rn2(3) && can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
         struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
         put_saddle_on_mon(otmp, mount);
     }
+}
+
+boolean mount_up(rider)
+struct monst *rider;
+{
+    register struct monst *steed, *nmon;
+
+    if (rider->mtame || rider == u.ustuck || rider->mpeaceful || has_erid(rider)
+        || !humanoid(rider->data) || rider->mtrapped)
+        return FALSE;
+
+    for (steed = fmon; steed; steed = nmon) {
+        nmon = steed->nmon;
+        if (nmon == rider)
+            nmon = rider->nmon;
+        if (monnear(rider, steed->mx, steed->my) && can_saddle(steed)
+            && !is_covetous(steed->data) && !steed->mtame
+            && steed != u.ustuck && !rider->mtrapped) {
+            break;
+        }
+    }
+    if (!steed)
+        return FALSE;
+    if (canseemon(rider)) {
+        pline("%s clambers onto %s!", Monnam(rider),
+              canseemon(steed) ?  mon_nam(steed) : "something");
+    } else if (!Deaf) {
+        You_hear("someone %s.", Hallucination ? "getting on their high horse" : "jump into a saddle");
+    }
+    remove_monster(steed->mx, steed->my);
+    newsym(steed->mx, steed->my);
+    newerid(rider);
+    ERID(rider)->m1 = steed;
+    ERID(rider)->mid = steed->m_id;
+    ERID(rider)->m1->rider_id = rider->m_id;
+    ERID(rider)->m1->mx = rider->mx;
+    ERID(rider)->m1->my = rider->my;
+    newsym(rider->mx, rider->my);
+    return TRUE;
 }
 
 void
