@@ -988,5 +988,6 @@ Version 0.5.0
 - Change earthquake event from having the Amulet to having performed the invocation
 - Fix: playing as giant race, polymorphing into another form and can still throw
   boulders
+- Fix: make prayer timeouts longer in very long games
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
