@@ -992,5 +992,6 @@ Version 0.5.0
 - Monster steeds can use special attacks, and monsters will dynamically mount nearby
   steeds
 - Allow player monsters to also randomly mount and ride a steed
+- Fix: scattered objects landing on water or lava without being affected
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

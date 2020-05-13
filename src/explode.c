@@ -789,8 +789,10 @@ struct obj *obj; /* only scatter this obj        */
         if (stmp->obj) {
             if (x != sx || y != sy)
                 total += stmp->obj->quan;
-            place_object(stmp->obj, x, y);
-            stackobj(stmp->obj);
+            if (!flooreffects(stmp->obj, x, y, "land")) {
+                place_object(stmp->obj, x, y);
+                stackobj(stmp->obj);
+            }
         }
         free((genericptr_t) stmp);
         newsym(x, y);
