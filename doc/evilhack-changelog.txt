@@ -995,5 +995,6 @@ Version 0.5.0
 - Fix: scattered objects landing on water or lava without being affected
 - Fix: prevent monsters from mounting steeds they shouldn't
 - Steel
+- Fix: weird monster/steed combinations
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
