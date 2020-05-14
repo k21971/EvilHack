@@ -3161,9 +3161,9 @@ struct obj *otmp2;
 }
 
 /* Object material probabilities. */
-/* for objects which are normally iron or metal */
+/* for objects which are normally iron or steel */
 static const struct icp metal_materials[] = {
-    {65, 0}, /* default to base type, iron or metal */
+    {65, 0}, /* default to base type, iron or steel */
     {10, METAL},
     { 5, BONE},
     { 5, WOOD},
