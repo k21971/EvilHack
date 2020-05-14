@@ -20,8 +20,8 @@ enum obj_material_types {
     WOOD        =  8,
     BONE        =  9,
     DRAGON_HIDE = 10, /* not leather! */
-    IRON        = 11, /* Fe - includes steel */
-    METAL       = 12, /* Sn, &c. */
+    IRON        = 11, /* Fe */
+    METAL       = 12, /* Stainless steel, Sn, &c. */
     COPPER      = 13, /* Cu - includes brass */
     SILVER      = 14, /* Ag */
     GOLD        = 15, /* Au */
@@ -112,7 +112,8 @@ struct objclass {
 #define is_supermaterial(otmp) \
     (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL \
      || otmp->material == GOLD || otmp->material == PLATINUM    \
-     || otmp->material == SILVER || otmp->material == MINERAL)
+     || otmp->material == SILVER || otmp->material == MINERAL   \
+     || otmp->material == METAL)
 
 #define is_damageable(otmp)                                        \
     (is_rustprone(otmp) || is_flammable(otmp) || is_rottable(otmp) \

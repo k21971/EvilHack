@@ -329,7 +329,8 @@ BOW("crossbow", None,          1, 1, 45, 50, 40, 0, WOOD, P_CROSSBOW, HI_WOOD),
 #undef BOW
 
 /* armor ... */
-        /* IRON denotes ferrous metals, including steel.
+        /* IRON denotes ferrous metals.
+         * METAL denotes stainless steel.
          * Only IRON weapons and armor can rust.
          * Only COPPER (including brass) corrodes.
          * Some creatures are vulnerable to SILVER.
@@ -1079,13 +1080,13 @@ WAND("teleportation", "iridium", 45, 200, 1, IMMEDIATE, METAL,
 WAND("opening",          "zinc", 25, 150, 1, IMMEDIATE, METAL, HI_METAL),
 WAND("locking",      "aluminum", 25, 150, 1, IMMEDIATE, METAL, HI_METAL),
 WAND("probing",       "uranium", 30, 150, 1, IMMEDIATE, METAL, HI_METAL),
-WAND("digging",          "iron", 55, 150, 1, RAY, IRON, HI_METAL),
-WAND("magic missile",   "steel", 50, 150, 1, RAY, IRON, HI_METAL),
-WAND("fire",        "hexagonal", 40, 175, 1, RAY, IRON, HI_METAL),
-WAND("cold",            "short", 40, 175, 1, RAY, IRON, HI_METAL),
-WAND("sleep",           "runed", 50, 175, 1, RAY, IRON, HI_METAL),
-WAND("death",            "long",  5, 500, 1, RAY, IRON, HI_METAL),
-WAND("lightning",      "curved", 40, 175, 1, RAY, IRON, HI_METAL),
+WAND("digging",          "iron", 55, 150, 1, RAY, IRON,  HI_METAL),
+WAND("magic missile",   "steel", 50, 150, 1, RAY, METAL, HI_METAL),
+WAND("fire",        "hexagonal", 40, 175, 1, RAY, IRON,  HI_METAL),
+WAND("cold",            "short", 40, 175, 1, RAY, IRON,  HI_METAL),
+WAND("sleep",           "runed", 50, 175, 1, RAY, IRON,  HI_METAL),
+WAND("death",            "long",  5, 500, 1, RAY, IRON,  HI_METAL),
+WAND("lightning",      "curved", 40, 175, 1, RAY, IRON,  HI_METAL),
 /* extra descriptions, shuffled into use at start of new game */
 WAND(None,             "forked",  0, 150, 1, 0, WOOD, HI_WOOD),
 WAND(None,             "spiked",  0, 150, 1, 0, IRON, HI_METAL),

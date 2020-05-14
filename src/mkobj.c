@@ -1523,7 +1523,7 @@ const int matdensities[] = {
     25,  // BONE
     20,  // DRAGON_HIDE
     80,  // IRON
-    70,  // METAL
+    75,  // METAL
     85,  // COPPER
     90,  // SILVER
     120, // GOLD
@@ -3163,7 +3163,8 @@ struct obj *otmp2;
 /* Object material probabilities. */
 /* for objects which are normally iron or metal */
 static const struct icp metal_materials[] = {
-    {75, 0}, /* default to base type, iron or metal */
+    {65, 0}, /* default to base type, iron or metal */
+    {10, METAL},
     { 5, BONE},
     { 5, WOOD},
     { 4, SILVER},
@@ -3178,8 +3179,9 @@ static const struct icp metal_materials[] = {
 /* for objects which are normally wooden */
 static const struct icp wood_materials[] = {
     {80, WOOD},
-    {10, MINERAL},
+    { 8, MINERAL},
     { 4, IRON},
+    { 2, METAL},
     { 2, MITHRIL},
     { 2, BONE},
     { 1, COPPER},
@@ -3202,7 +3204,8 @@ static const struct icp leather_materials[] = {
 
 /* for objects of dwarvish make */
 static const struct icp dwarvish_materials[] = {
-    {80, IRON},
+    {60, IRON},
+    {20, METAL},
     {15, MITHRIL},
     { 3, SILVER},
     { 1, GOLD},
@@ -3235,7 +3238,7 @@ static const struct icp shiny_materials[] = {
     {15, GOLD},
     { 5, MITHRIL},
     { 4, COPPER},
-    { 4, METAL}, /* aluminum, or similar */
+    { 4, METAL},
     { 2, PLATINUM}
 };
 
@@ -3243,9 +3246,10 @@ static const struct icp shiny_materials[] = {
  * or metal.  Wood and glass in other lists precludes us from using those. */
 static const struct icp resonant_materials[] = {
     {55, 0}, /* use base material */
-    {25, COPPER},
+    {20, COPPER},
     { 6, SILVER},
     { 5, IRON},
+    { 5, METAL},
     { 5, MITHRIL},
     { 3, GOLD},
     { 1, PLATINUM}
@@ -3270,8 +3274,9 @@ static const struct icp elven_helm_boots_materials[] = {
 };
 
 static const struct icp dwarvish_weapon_materials[] = {
-    {70, IRON},
-    {25, MITHRIL},
+    {50, IRON},
+    {25, METAL},
+    {20, MITHRIL},
     { 5, GEMSTONE} /* gemstone is very hard and very sharp */
 };
 

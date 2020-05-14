@@ -272,7 +272,7 @@ struct c_common_strings c_common_strings = { "Nothing happens.",
 const char *materialnm[] = { "mysterious", "liquid",  "wax",        "organic",
                              "flesh",      "paper",   "cloth",      "leather",
                              "wooden",     "bone",    "dragonhide", "iron",
-                             "metal",      "copper",  "silver",     "gold",
+                             "steel",      "copper",  "silver",     "gold",
                              "platinum",   "mithril", "plastic",    "glass",
                              "crystal",    "stone" };
 
