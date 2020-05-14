@@ -64,9 +64,10 @@ struct monst *rider;
 
     if (rider->mtame || rider == u.ustuck || rider->mpeaceful || has_erid(rider)
         || rider->mtrapped || !humanoid(rider->data) || is_zombie(rider->data)
-        || bigmonst(rider->data) || is_animal(rider->data) || rider->data->mlet == S_MUMMY
-        || rider->data->mlet == S_WRAITH || rider->data->mlet == S_GHOST
-        || rider->data->mlet == S_LIZARD)
+        || bigmonst(rider->data) || is_animal(rider->data) || is_were(rider->data)
+        || rider->data->mlet == S_MUMMY || rider->data->mlet == S_WRAITH
+        || rider->data->mlet == S_GHOST || rider->data->mlet == S_LIZARD
+        || is_shapeshifter(rider->data))
         return FALSE;
 
     for (steed = fmon; steed; steed = nmon) {
@@ -76,7 +77,9 @@ struct monst *rider;
         if (monnear(rider, steed->mx, steed->my) && can_saddle(steed)
             && !is_covetous(steed->data) && !steed->mtame
             && steed != u.ustuck && steed->mcanmove
-            && !steed->msleeping && !steed->rider_id) {
+            && !steed->msleeping && !steed->rider_id
+            && !is_shapeshifter(steed->data) && !is_were(steed->data)
+            && steed->data->mlet != S_DOG) {
             break;
         }
     }

@@ -996,5 +996,6 @@ Version 0.5.0
 - Fix: prevent monsters from mounting steeds they shouldn't
 - Steel
 - Fix: weird monster/steed combinations
+- More adjustments to possible monster/steed combinations
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
