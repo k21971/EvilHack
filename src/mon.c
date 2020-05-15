@@ -4269,7 +4269,9 @@ int shiftflags;
 
     if (!is_vampshifter(mon)) {
         /* regular shapeshifter */
-        if (!rn2(6))
+        if (mon->data == &mons[PM_CHAMELEON] && mon->mtame)
+            dochng = FALSE;
+        else if (!rn2(6))
             dochng = TRUE;
     } else {
         /* The vampire has to be in good health (mhp) to maintain
