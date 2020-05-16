@@ -1671,7 +1671,7 @@ int
 weapon_hit_bonus(weapon)
 struct obj *weapon;
 {
-    int type, wep_type, skill, bonus;
+    int type, wep_type, skill, bonus = 0;
     size_t maxweight = 0;
     static const char bad_skill[] = "weapon_hit_bonus: bad skill %d";
 

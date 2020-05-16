@@ -1892,7 +1892,7 @@ register struct obj *obj;
                                   || u.umonnum == PM_VIOLET_FUNGUS
                                   || dmgtype(youmonst.data, AD_STUN));
         if (!not_affected) {
-            boolean chg;
+            boolean chg = FALSE;
             if (!Hallucination)
                 chg =
                     make_hallucinated(HHallucination + (long) rn1(10, 5), FALSE, 0L);
