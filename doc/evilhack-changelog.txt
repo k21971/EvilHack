@@ -1000,5 +1000,6 @@ Version 0.5.0
 - A few more adjustments to possible monster/steed combinations
 - Adjust the price of steel (METAL)
 - Fix: tame chameleons able to shapeshift after being 'killed' after a save/reload
+- Adjust how often a monster could randomly mount a suitable steed
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

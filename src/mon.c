@@ -1089,7 +1089,7 @@ movemon()
 
         if ((mtmp->data == &mons[PM_WIZARD_OF_YENDOR] && !rn2(5))
             || (is_mplayer(mtmp->data) && !rn2(16))
-            || !rn2(75)) {
+            || !rn2(200)) {
             if (mount_up(mtmp))
                 continue;
         }
