@@ -334,6 +334,9 @@
    as unique even though they really aren't; that's ok here */
 #define unique_corpstat(ptr) (((ptr)->geno & G_UNIQ) != 0)
 
+/* never leaves a corpse */
+#define no_corpse(ptr) (((ptr)->geno & G_NOCORPSE) != 0)
+
 /* this returns the light's range, or 0 if none; if we add more light emitting
    monsters, we'll likely have to add a new light range field to mons[] */
 #define emits_light(ptr) \

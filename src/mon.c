@@ -2943,7 +2943,7 @@ boolean was_swallowed; /* digestion */
 
     /* Corpses don't hover in midair in the presence of gravity */
     if (IS_AIR(levl[mon->mx][mon->my].typ) && In_V_tower(&u.uz)) {
-        if (cansee(mon->mx, mon->my))
+        if (cansee(mon->mx, mon->my) && !no_corpse(mdat))
             pline("%s corpse falls away and disappears.", s_suffix(Monnam(mon)));
         return FALSE;
     }
