@@ -767,6 +767,21 @@ static const char *const hmonkattacks[] = {
     "lightly caress", "tickle", "gently stroke", "massage", "snuggle"
 };
 
+/* piercing weapons */
+static const char *const wep_pierce[] = {
+    "pierce", "gore", "stab", "impale", "hit"
+};
+
+/* slashing weapons */
+static const char *const wep_slash[] = {
+    "strike", "slash", "cut", "lacerate", "hit"
+};
+
+/* blunt weapons and shields */
+static const char *const wep_whack[] = {
+    "smash", "whack", "bludgeon", "bash", "hit"
+};
+
 /* guts of hmon() */
 STATIC_OVL boolean
 hmon_hitmon(mon, obj, thrown, dieroll)
@@ -1461,10 +1476,16 @@ int dieroll;
             } else
                 You("%s %s%s", monkattacks[rn2(SIZE(monkattacks))],
                      mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
+        } else if (Role_if(PM_BARBARIAN)) {
+            /* smite me, oh mighty smiter! */
+            You("smite %s%s", mon_nam(mon),
+                canseemon(mon) ? exclam(tmp) : ".");
         } else
             You("%s %s%s",
-                (obj && (is_shield(obj) || obj->otyp == HEAVY_IRON_BALL))
-                  ? "bash" : Role_if(PM_BARBARIAN) ? "smite" : "hit",
+                (obj && (is_shield(obj) || is_whack(obj)))
+                ? wep_whack[rn2(SIZE(wep_whack))] : (obj && is_pierce(obj))
+                    ? wep_pierce[rn2(SIZE(wep_pierce))] : (obj && is_slash(obj))
+                        ? wep_slash[rn2(SIZE(wep_slash))] : "hit",
                 mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
     }
 

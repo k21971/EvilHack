@@ -54,10 +54,10 @@ WINLIB = $(WINTTYLIB) $(WINCURSESLIB)
 WINSRC += tile.c
 WINOBJ += tile.o
 
-WINTTYLIB=-lcurses
+WINTTYLIB=-lcurses -ltinfo
 
-CHOWN=chown
-CHGRP=chgrp
+CHOWN=true
+CHGRP=true
 
 GAMEUID=games
 GAMEGRP=bin
