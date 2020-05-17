@@ -1003,5 +1003,6 @@ Version 0.5.0
 - Adjust how often a monster could randomly mount a suitable steed
 - Fix: player could hit incorporeal monsters with their bare hands
 - Descriptive hit messages for player attacks
+- Fix: allow a bit of insanity for monster steed location
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

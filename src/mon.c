@@ -132,7 +132,7 @@ mon_sanity_check()
                     impossible("steed (%s) is on the map at <%d,%d>!",
                                fmt_ptr((genericptr_t) mtmp), x, y);
                 else if ((mtmp->mx != x || mtmp->my != y)
-                         && mtmp->data != &mons[PM_LONG_WORM])
+                         && mtmp->data != &mons[PM_LONG_WORM] && !mtmp->rider_id)
                     impossible("map mon (%s) at <%d,%d> is found at <%d,%d>?",
                                fmt_ptr((genericptr_t) mtmp),
                                mtmp->mx, mtmp->my, x, y);

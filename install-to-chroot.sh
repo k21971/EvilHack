@@ -1,5 +1,5 @@
 #!/bin/bash
-# 
+#
 # Ideas and some parts from the original dgl-create-chroot (by joshk@triplehelix.org, modifications by jilles@stack.nl)
 # More by <paxed@alt.org>
 # More by Michael Andrew Streib <dtype@dtype.org>
