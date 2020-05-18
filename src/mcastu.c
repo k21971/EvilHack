@@ -2220,7 +2220,7 @@ int spellnum;
        	if (u.mh < u.mhmax) {
        	    You("feel better.");
        	    /* note: player healing does 6d4; this used to do 1d8 */
-       	    if ((u.mh += d(3,6)) > u.mhmax)
+       	    if ((u.mh += d(3, 6)) > u.mhmax)
        		u.mh = u.mhmax;
        	    context.botl = 1;
        	    dmg = 0;
@@ -2237,31 +2237,31 @@ int spellnum;
             pline("A %s film oozes over its skin!", Blind ? "slimy" : vulntext[dmg]);
             switch (dmg) {
                 case 1:
-                    if (vulnerable_to(mtmp, AD_FIRE))
+                    if (mtmp->data->mflags4 & M4_VULNERABLE_FIRE)
                         return;
-                    incr_itimeout(&HVulnerable_fire, rnd(100)+150);
+                    mtmp->data->mflags4 |= M4_VULNERABLE_FIRE;
                     pline("%s is more inflammable.", Monnam(mtmp));
                     break;
                 case 2:
-                    if (vulnerable_to(mtmp, AD_COLD))
+                    if (mtmp->data->mflags4 & M4_VULNERABLE_COLD)
                         return;
-                    incr_itimeout(&HVulnerable_cold, rnd(100)+150);
+                    mtmp->data->mflags4 |= M4_VULNERABLE_COLD;
                     pline("%s is extremely chilly.", Monnam(mtmp));
                     break;
                 case 3:
-                    if (vulnerable_to(mtmp, AD_ELEC))
+                    if (mtmp->data->mflags4 & M4_VULNERABLE_ELEC)
                         return;
-                    incr_itimeout(&HVulnerable_elec, rnd(100)+150);
+                    mtmp->data->mflags4 |= M4_VULNERABLE_ELEC;
                     pline("%s is overly conductive.", Monnam(mtmp));
                     break;
                 case 4:
-                    if (vulnerable_to(mtmp, AD_ACID))
+                    if (mtmp->data->mflags4 & M4_VULNERABLE_ACID)
                         return;
-                    incr_itimeout(&HVulnerable_acid, rnd(100)+150);
+                    mtmp->data->mflags4 |= M4_VULNERABLE_ACID;
                     pline("%s is easily corrodable.", Monnam(mtmp));
                     break;
                 default:
-                   break;
+                    break;
             }
         }
         break;
