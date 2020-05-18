@@ -1006,5 +1006,6 @@ Version 0.5.0
 - Fix: allow a bit of insanity for monster steed location
 - Fix: 'The <monster's> corpse falls away and disappears' for monsters that can't
   leave a corpse
+- Adjust some of the monsters found in 'Zootown'
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

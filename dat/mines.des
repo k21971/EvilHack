@@ -754,10 +754,18 @@ MONSTER: ('@', "watchman"), rndcoord($outside), peaceful
 MONSTER: ('@', "watch captain"), rndcoord($outside), peaceful
 MONSTER: ('@', "watch captain"), rndcoord($outside), peaceful
 # The zoo needs some stuff...
-MONSTER: ('f', "tiger"), rndcoord($in_zoo), hostile
+IF [65%] {
+  MONSTER: ('f', "tiger"), rndcoord($in_zoo), hostile
+} ELSE {
+  MONSTER: ('f', "saber-toothed tiger"), rndcoord($in_zoo), hostile
+}
 MONSTER: ('f', "jaguar"), rndcoord($in_zoo), hostile
-MONSTER: ('q', "mastodon"), rndcoord($in_zoo), hostile
 MONSTER: ('S', "giant anaconda"), rndcoord($in_zoo), hostile
+IF [85%] {
+  MONSTER: ('q', "mumak"), rndcoord($in_zoo), hostile
+} ELSE {
+  MONSTER: ('q', "mastodon"), rndcoord($in_zoo), hostile
+}
 # and a couple token handlers
 MONSTER: ('o', "Mordor orc"), rndcoord($in_zoo), hostile {
   OBJECT:(')', "bullwhip")
