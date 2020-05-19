@@ -301,7 +301,6 @@ int ef_flags;
         } else {
             setnotworn(otmp);
             delobj(otmp);
-            otmp->nobj = 0;
         }
         return ER_DESTROYED;
     } else {
