@@ -1129,10 +1129,7 @@ register struct obj *otmp;
                     d_level newlevel;
 
                     get_level(&newlevel, newlev);
-                    if (on_level(&newlevel, &u.uz)) {
-                        pline("It tasted bad.");
-                        break;
-                    } else if (Is_valley(&u.uz)) {
+                    if (Is_valley(&u.uz)) {
                         /* while Cerberus lives, the effects of a
                            cursed potion of gain level are nullified
                            in the Valley. Killing him restores the effect */
@@ -1145,9 +1142,10 @@ register struct obj *otmp;
                                 goto_level(&newlevel, FALSE, FALSE, FALSE);
                             }
                         }
-                    } else if (Is_valley(&newlevel) + 1) {
-                        You(riseup, ceiling(u.ux, u.uy));
-                        goto_level(&newlevel, TRUE, FALSE, FALSE);
+                    }
+                    if (on_level(&newlevel, &u.uz)) {
+                        pline("It tasted bad.");
+                        break;
                     } else
                         You(riseup, ceiling(u.ux, u.uy));
                     goto_level(&newlevel, FALSE, FALSE, FALSE);

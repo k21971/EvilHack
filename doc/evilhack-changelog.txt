@@ -1008,5 +1008,7 @@ Version 0.5.0
   leave a corpse
 - Adjust some of the monsters found in 'Zootown'
 - Fix: monster spell 'vulnerability' not working vs other monsters
+- Fix: quirk with cursed potions of gain level depositing the player on the
+  staircase going down
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
