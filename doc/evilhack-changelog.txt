@@ -1011,5 +1011,6 @@ Version 0.5.0
 - Fix: quirk with cursed potions of gain level depositing the player on the
   staircase going down
 - Fix: heap corruption regarding objects eroding away completely
+- Record amount of gold in hero's possession in xlogfile
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
