@@ -2255,7 +2255,12 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         tmp = 0;
         break;
     case AD_CURS:
-        if (night() && !rn2(10) && !mdef->mcan) {
+    	if ((youmonst.data == &mons[PM_GREMLIN] && !night()) ||
+            (youmonst.data == &mons[PM_LAVA_GREMLIN] && night())){
+            tmp = 0;
+            break;
+    	}
+        if (!rn2(10) && !mdef->mcan) {
             if (pd == &mons[PM_CLAY_GOLEM]) {
                 if (!Blind)
                     pline("Some writing vanishes from %s head!",

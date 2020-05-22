@@ -716,6 +716,12 @@ register struct monst *mtmp;
         if (inpool)
             water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         return 0;
+    } else if (mtmp->data == &mons[PM_LAVA_GREMLIN] && (inlava) && rn2(3)) {
+        if (split_mon(mtmp, (struct monst *) 0))
+            dryup(mtmp->mx, mtmp->my, FALSE);
+        // no lava damage chain func (yet), so this is commented out
+        // water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
+        return 0;
     } else if (mtmp->data == &mons[PM_IRON_GOLEM]
                && ((inpool && !rn2(5)) || (inshallow && rn2(2)))) {
         int dam = d(2, 6);

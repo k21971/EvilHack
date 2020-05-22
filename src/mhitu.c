@@ -2014,6 +2014,8 @@ do_rust:
         hitmsg(mtmp, mattk);
         if (!night() && mdat == &mons[PM_GREMLIN])
             break;
+        if (night() && mdat == &mons[PM_LAVA_GREMLIN])
+            break;
         if (!mtmp->mcan && !rn2(10)) {
             if (!Deaf) {
                 if (Blind)
