@@ -1013,5 +1013,6 @@ Version 0.5.0
 - Fix: heap corruption regarding objects eroding away completely
 - Record amount of gold in hero's possession in xlogfile
 - Fix: address some 'read/write after free' issues 
+- Fix: weird behavior with monster steed/rider pair and the rider is zombified
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

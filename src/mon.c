@@ -262,6 +262,15 @@ struct monst* mdef;
         } else if (has_mname(mdef)) {
             Strcpy(name, MNAME(mdef));
         }
+
+        /* in case a rider becomes a zombie */
+        if (has_erid(mdef)) {
+            if (canseemon(mdef))
+                pline("%s climbs off its %s.",
+                      Monnam(mdef), l_monnam(ERID(mdef)->m1));
+            separate_steed_and_rider(mdef);
+        }
+
         dealloc_mextra(mdef);
         if (name[0] != '\0') {
             christen_monst(mdef, name);
