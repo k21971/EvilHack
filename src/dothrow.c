@@ -1309,7 +1309,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             if (ammo_and_launcher(obj, uwep)) {
                 if (crossbowing) {
                     if (uwep->oartifact == ART_CROSSBOW_OF_CARL)
-                        range =+ 12; /* divine workmanship */
+                        range += 12; /* divine workmanship */
                     else
                         range += 10; /* not strength dependent */
                 } else {

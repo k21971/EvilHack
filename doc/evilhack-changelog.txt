@@ -1015,5 +1015,6 @@ Version 0.5.0
 - Fix: address some 'read/write after free' issues 
 - Fix: weird behavior with monster steed/rider pair and the rider is zombified
 - Fix: minor inventory issues with player monster archeologists
+- Fix: typo in src/dothrow.c and the Crossbow of Carl
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
