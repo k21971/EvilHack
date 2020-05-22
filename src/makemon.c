@@ -445,11 +445,9 @@ register struct monst *mtmp;
         case PM_HUMAN_ARCHEOLOGIST:
             ini_mon_inv(mtmp, Archeologist, 1);
             if (!rn2(10))
-                ini_mon_inv(mtmp, Tinopener);
+                ini_mon_inv(mtmp, Tinopener, 1);
             else if (!rn2(4))
-                ini_mon_inv(mtmp, Lamp);
-            else if (rn2(3))
-                ini_mon_inv(mtmp, Pickaxe);
+                ini_mon_inv(mtmp, Lamp, 1);
             mongets(mtmp, SKELETON_KEY);
             break;
         case PM_HUMAN_BARBARIAN:
