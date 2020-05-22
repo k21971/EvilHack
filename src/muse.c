@@ -2835,7 +2835,8 @@ struct obj *obj;
     case SCROLL_CLASS:
         if (typ == SCR_TELEPORTATION || typ == SCR_CREATE_MONSTER
             || typ == SCR_EARTH || typ == SCR_FIRE || typ == SCR_REMOVE_CURSE
-            || (typ == SCR_STINKING_CLOUD && mon->mcansee) || SCR_CHARGING)
+            || (typ == SCR_STINKING_CLOUD && mon->mcansee)
+            || typ == SCR_CHARGING)
             return TRUE;
         break;
     case AMULET_CLASS:
