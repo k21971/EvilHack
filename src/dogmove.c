@@ -518,7 +518,8 @@ boolean devour;
                   currency(oprice));
             /* delobj->obfree will handle actual shop billing update */
         }
-        delobj(obj);
+        delobj(obj); /* pet can get this later */
+        obj = NULL;
     }
 
 #if 0 /* pet is eating, so slime recovery is not feasible... */
@@ -548,7 +549,7 @@ boolean devour;
         mcureblindness(mtmp, canseemon(mtmp));
     if (deadmimic)
         quickmimic(mtmp);
-    if (obj->otyp == CORPSE)
+    if (obj && obj->otyp == CORPSE)
         dog_givit(mtmp, &mons[obj->corpsenm]);
     return 1;
 }

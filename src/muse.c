@@ -3113,6 +3113,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
             lizard = food && obj->corpsenm == PM_LIZARD,
             leaf = obj->otyp == EUCALYPTUS_LEAF;
     int nutrit = food ? dog_nutrition(mon, obj) : 0; /* also sets meating */
+    char *distantname = distant_name(obj, doname);
 
     /* give a "<mon> is slowing down" message and also remove
        intrinsic speed (comparable to similar effect on the hero) */
@@ -3126,7 +3127,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
                   ? "quaffs"
                   : (obj->otyp == TIN) ? "opens and eats the contents of"
                                        : "eats",
-              distant_name(obj, doname));
+              distantname);
         obj->quan = save_quan;
     } else if (!Deaf)
         You_hear("%s.",
@@ -3162,7 +3163,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
         mon->mconf = 0;
         mon->mstun = 0;
         if (vis && !is_bat(mon->data) && mon->data != &mons[PM_STALKER])
-            pline("%s eats %s.", Monnam(mon), distant_name(obj, doname));
+            pline("%s eats %s.", Monnam(mon), distantname);
         pline("%s seems steadier now.", Monnam(mon));
     }
     if (leaf && mon->msick) {

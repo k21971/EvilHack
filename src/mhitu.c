@@ -1291,20 +1291,21 @@ register struct attack *mattk;
                         && artifact_hit(mtmp, &youmonst, otmp, &dmg, dieroll)))
                     hitmsg(mtmp, mattk);
 
+                unsigned int material = otmp->material;
                 /* glass breakage from the attack */
                 break_glass_obj(MON_WEP(mtmp));
                 break_glass_obj(some_armor(&youmonst));
 
                 if (!dmg)
                     break;
-                if (Hate_material(otmp->material)) {
-                    if (otmp->material == SILVER)
+                if (Hate_material(material)) {
+                    if (material == SILVER)
                         pline_The("silver sears your flesh!");
                     else
                         You("recoil at the touch of %s!",
-                            materialnm[otmp->material]);
+                            materialnm[material]);
                     exercise(A_CON, FALSE);
-                    dmg += rnd(sear_damage(otmp->material));
+                    dmg += rnd(sear_damage(material));
                 }
                 /* this redundancy necessary because you have
                    to take the damage _before_ being cloned;
@@ -1315,7 +1316,7 @@ register struct attack *mattk;
                 if (tmp < 1)
                     tmp = 1;
                 if (u.mh - tmp > 1
-                    && (otmp->material == IRON || otmp->material == METAL)
+                    && (material == IRON || material == METAL)
                         /* relevant 'metal' objects are scalpel and tsurugi */
                     && (u.umonnum == PM_BLACK_PUDDING
                         || u.umonnum == PM_BROWN_PUDDING)) {

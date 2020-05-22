@@ -302,6 +302,9 @@ int ef_flags;
             setnotworn(otmp);
             delobj(otmp);
         }
+        if (victim == &youmonst)
+            update_inventory();
+
         return ER_DESTROYED;
     } else {
         if (flags.verbose && print) {
@@ -3938,6 +3941,7 @@ boolean force;
     if (!ostr)
         ostr = cxname(obj);
 
+    boolean ucarried = carried(obj);
     if (obj->otyp == CAN_OF_GREASE && obj->spe > 0) {
         return ER_NOTHING;
     } else if (obj->otyp == TOWEL && obj->spe < 7) {
@@ -3946,20 +3950,20 @@ boolean force;
     } else if (obj->greased) {
         if (!rn2(2))
             obj->greased = 0;
-        if (carried(obj))
+        if (ucarried)
             update_inventory();
         return ER_GREASED;
     } else if (Is_container(obj) && !Is_box(obj)
                && (!(obj->otyp == OILSKIN_SACK
                    || obj->oprops & ITEM_OILSKIN)
                || (obj->cursed && !rn2(3)))) {
-        if (carried(obj))
+        if (ucarried)
             pline("Water gets into your %s!", ostr);
 
         water_damage_chain(obj->cobj, FALSE, 0, TRUE);
         return ER_DAMAGED; /* contents were damaged */
     } else if (obj->otyp == OILSKIN_SACK) {
-        if (carried(obj))
+        if (ucarried)
             pline("Some water slides right off your %s.", ostr);
         makeknown(OILSKIN_SACK);
         /* not actually damaged, but because we /didn't/ get the "water
@@ -3980,13 +3984,13 @@ boolean force;
             || obj->otyp == SCR_MAIL
 #endif
            ) return 0;
-        if (carried(obj))
+        if (ucarried)
             pline("Your %s %s.", ostr, vtense(ostr, "fade"));
 
         obj->otyp = SCR_BLANK_PAPER;
         obj->dknown = 0;
         obj->spe = 0;
-        if (carried(obj))
+        if (ucarried)
             update_inventory();
         return ER_DAMAGED;
     } else if (obj->oclass == SPBOOK_CLASS) {
@@ -3996,7 +4000,7 @@ boolean force;
         } else if (obj->otyp == SPE_BLANK_PAPER) {
             return 0;
         }
-        if (carried(obj))
+        if (ucarried)
             pline("Your %s %s.", ostr, vtense(ostr, "fade"));
 
         if (obj->otyp == SPE_NOVEL) {
@@ -4006,7 +4010,7 @@ boolean force;
 
         obj->otyp = SPE_BLANK_PAPER;
         obj->dknown = 0;
-        if (carried(obj))
+        if (ucarried)
             update_inventory();
         return ER_DAMAGED;
     } else if (obj->oclass == POTION_CLASS) {
@@ -4015,7 +4019,7 @@ boolean force;
             boolean one = (obj->quan == 1L), update = carried(obj),
                     exploded = FALSE;
 
-            if (Blind && !carried(obj))
+            if (Blind && !ucarried)
                 obj->dknown = 0;
             if (acid_ctx.ctx_valid)
                 exploded = ((obj->dknown ? acid_ctx.dkn_boom
@@ -4047,26 +4051,28 @@ boolean force;
                 update_inventory();
             return ER_DESTROYED;
         } else if (obj->odiluted) {
-            if (carried(obj))
+            if (ucarried)
                 pline("Your %s %s further.", ostr, vtense(ostr, "dilute"));
 
             obj->otyp = POT_WATER;
             obj->dknown = 0;
             obj->blessed = obj->cursed = 0;
             obj->odiluted = 0;
-            if (carried(obj))
+            if (ucarried)
                 update_inventory();
             return ER_DAMAGED;
         } else if (obj->otyp != POT_WATER) {
-            if (carried(obj))
+            if (ucarried)
                 pline("Your %s %s.", ostr, vtense(ostr, "dilute"));
 
             obj->odiluted++;
-            if (carried(obj))
+            if (ucarried)
                 update_inventory();
             return ER_DAMAGED;
         } else if (obj->otyp == HEAVY_IRON_BALL
                    || obj->otyp == IRON_CHAIN) {
+            if (ucarried)
+                update_inventory();
             return ER_DAMAGED;
         }
     } else {

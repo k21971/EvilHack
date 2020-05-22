@@ -1394,7 +1394,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
         (void) snuff_candle(obj);
         notonhead = (bhitpos.x != mon->mx || bhitpos.y != mon->my);
         obj_gone = thitmonst(mon, obj);
-        if (stack)
+        if (!obj_gone && stack)
             stack->oprops_known |= obj->oprops_known;
         /* Monster may have been tamed; this frees old mon [obsolete] */
         mon = m_at(bhitpos.x, bhitpos.y);
@@ -2282,23 +2282,20 @@ struct obj* obj;
             setworn(NULL, unwornmask);
         }
         update_inventory();
-    }
-    else if (mcarried(obj)) { /* monster's item */
+    } else if (mcarried(obj)) { /* monster's item */
         if (obj->quan == 1L) {
             struct monst* mon = obj->ocarry;
             mon->misc_worn_check &= ~unwornmask;
             if (unwornmask & W_WEP) {
                 setmnotwielded(mon, obj);
                 possibly_unwield(mon, FALSE);
-            }
-            else if (unwornmask & W_ARMG) {
+            } else if (unwornmask & W_ARMG) {
                 mselftouch(mon, NULL, TRUE);
             }
             /* shouldn't really be needed but... */
             update_mon_intrinsics(mon, obj, FALSE, FALSE);
         }
-    }
-    else {
+    } else {
         impossible("breaking glass obj not in inventory?");
         return FALSE;
     }
@@ -2307,12 +2304,12 @@ struct obj* obj;
         obj->owornmask = 0;
         pline("%s breaks into pieces!", upstart(yname(obj)));
         obj_extract_self(obj); /* it's being destroyed */
-    }
-    else {
+    } else {
         pline("One of %s breaks into pieces!", yname(obj));
     }
+    boolean ucarried = carried(obj);
     breakobj(obj, obj->ox, obj->oy, your_fault, TRUE);
-    if (carried(obj))
+    if (ucarried)
         update_inventory();
     return TRUE;
 }

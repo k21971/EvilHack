@@ -468,25 +468,36 @@ register struct monst *magr, *mdef;
                 strike = FALSE;
             }
             if (strike) {
+                short type = 0;
+                int corpsenm = 0;
+                unsigned int material = 0;
+
+                if (otmp && otmp->otyp)
+                    type = otmp->otyp;
+                if (otmp && otmp->corpsenm)
+                    corpsenm = otmp->corpsenm;
+                if (otmp && otmp->material)
+                    material = otmp->material;
+
                 res[i] = hitmm(magr, mdef, mattk);
-		if((res[i]) == MM_HIT && otmp
-		    && otmp->otyp == CORPSE
-		    && otmp->corpsenm
-		    && touch_petrifies(&mons[otmp->corpsenm])
+		if ((res[i]) == MM_HIT && otmp
+                    && type == CORPSE
+                    && corpsenm
+                    && touch_petrifies(&mons[corpsenm])
 	            && !resists_ston(mdef)) {
-			if (poly_when_stoned(mdef->data)) {
-			    mon_to_stone(mdef);
-			} else {
-			    mdef->mstone = 5;
-			    mdef->mstonebyu = FALSE;
-			}
-			break;
-		}
+                    if (poly_when_stoned(mdef->data)) {
+                        mon_to_stone(mdef);
+                    } else {
+                       mdef->mstone = 5;
+                       mdef->mstonebyu = FALSE;
+                    }
+                    break;
+                }
 
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
-                    && (otmp && (otmp->material == IRON
-                                 || otmp->material == METAL))
+                    && (otmp && (material == IRON
+                                 || material == METAL))
                     && mdef->mhp > 1 && !mdef->mcan) {
                     struct monst *mclone;
 

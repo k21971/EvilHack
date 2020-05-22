@@ -111,8 +111,9 @@ mon_sanity_check()
                            fmt_ptr((genericptr_t) mtmp), x, y);
         } else if (mtmp->rider_id) {
             continue;
-        } else if (level.monsters[x][y] != mtmp) {
-            impossible("mon (%s) at <%d,%d> is not there!",
+        } else if (mtmp != (m = level.monsters[x][y])) {
+            if (!m || m->rider_id != mtmp->m_id)
+                impossible("mon (%s) at <%d,%d> is not there!",
                        fmt_ptr((genericptr_t) mtmp), x, y);
         } else if (mtmp->wormno) {
             sanity_check_worm(mtmp);
@@ -2211,7 +2212,7 @@ int x, y;
 void
 dmonsfree()
 {
-    struct monst **mtmp, *freetmp;
+    struct monst **mtmp, *freetmp, *ridertmp;
     int count = 0;
     char buf[QBUFSZ];
 
@@ -2221,6 +2222,9 @@ dmonsfree()
         if (DEADMONSTER(freetmp) && !freetmp->isgd) {
             *mtmp = freetmp->nmon;
             freetmp->nmon = NULL;
+            if (!!(ridertmp = get_mon_rider(freetmp))) {
+                separate_steed_and_rider(ridertmp);
+            }
             dealloc_monst(freetmp);
             count++;
         } else

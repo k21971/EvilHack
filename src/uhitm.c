@@ -802,8 +802,11 @@ int dieroll;
     boolean get_dmg_bonus = TRUE;
     boolean ispoisoned = FALSE, needpoismsg = FALSE, poiskilled = FALSE,
             unpoisonmsg = FALSE;
+    boolean ispotion = FALSE;
     boolean lightobj = FALSE;
     boolean thievery = FALSE;
+    boolean isbheleu = FALSE;
+    boolean isvenom  = FALSE;
     boolean valid_weapon_attack = FALSE;
     boolean unarmed = !uwep && !uarm && !uarms;
     boolean hand_to_hand = (thrown == HMON_MELEE
@@ -878,6 +881,10 @@ int dieroll;
         tmp += special_dmgval(&youmonst, mon, (W_ARMG | W_RINGL | W_RINGR),
                               &hated_obj);
     } else {
+        if (obj->oartifact == ART_SWORD_OF_BHELEU)
+            isbheleu = TRUE;
+        if (obj->oprops & ITEM_VENOM)
+            isvenom = TRUE;
         if (!(artifact_light(obj) && obj->lamplit))
             Strcpy(saved_oname, cxname(obj));
         else
@@ -1051,6 +1058,7 @@ int dieroll;
             freeinv(obj);
             potionhit(mon, obj,
                       hand_to_hand ? POTHIT_HERO_BASH : POTHIT_HERO_THROW);
+            obj = NULL;
             if (DEADMONSTER(mon))
                 return FALSE; /* killed */
             hittxt = TRUE;
@@ -1314,9 +1322,8 @@ int dieroll;
         use_skill(wtype, 1);
     }
 
-    if (ispoisoned
-        || (obj && obj->oartifact == ART_SWORD_OF_BHELEU)
-        || (obj && (obj->oprops & ITEM_VENOM))) {
+    if (!ispotion && obj /* potion obj will have been freed by here */
+        && (ispoisoned || isbheleu || isvenom)) {
         int nopoison = (10 - (obj->owt / 10));
 
         if (nopoison < 2)
@@ -1329,8 +1336,7 @@ int dieroll;
             adjalign(Role_if(PM_KNIGHT) ? -10 : -1);
         }
         if (obj && !rn2(nopoison)
-            && obj->oartifact != ART_SWORD_OF_BHELEU
-            && (!(obj->oprops & ITEM_VENOM))) {
+            && !isbheleu && !isvenom) {
             /* remove poison now in case obj ends up in a bones file */
             obj->opoisoned = FALSE;
             /* defer "obj is no longer poisoned" until after hit message */
@@ -1443,9 +1449,10 @@ int dieroll;
         /* iron weapon using melee or polearm hit [3.6.1: metal weapon too;
            also allow either or both weapons to cause split when twoweap] */
         && obj && (obj == uwep || (u.twoweap && obj == uswapwep))
-        && ((obj->material == IRON
-             /* allow scalpel and tsurugi to split puddings */
-             || obj->material == METAL)
+        && ((!ispotion /* potion obj will have been freed by here */
+            && (obj->material == IRON
+                /* allow scalpel and tsurugi to split puddings */
+                || obj->material == METAL))
             /* but not bashing with darts, arrows or ya */
             && !(is_ammo(obj) || is_missile(obj)))
         && hand_to_hand) {
@@ -3807,8 +3814,7 @@ struct attack *mattk;     /* null means we find one internally */
         break;
     }
 
-    if (carried(obj))
-        update_inventory();
+    update_inventory();
 }
 
 /* Note: caller must ascertain mtmp is mimicking... */
