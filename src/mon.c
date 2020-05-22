@@ -736,11 +736,11 @@ register struct monst *mtmp;
             }
         }
         if (inshallow)
-            water_damage(which_armor(mtmp, W_ARMF), FALSE, FALSE);
+            water_damage(which_armor(mtmp, W_ARMF), 0, FALSE);
         else
             water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         return 0;
-    } else if  (is_longworm(mtmp->data) && inshallow) {
+    } else if (is_longworm(mtmp->data) && inshallow) {
         int dam = d(3, 12);
         if (canseemon(mtmp))
             pline("The water burns %s flesh!", s_suffix(mon_nam(mtmp)));
