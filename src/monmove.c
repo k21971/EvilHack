@@ -525,10 +525,11 @@ register struct monst *mtmp;
     /* being in midair where gravity is still in effect can be lethal */
     if (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
         && !(is_flyer(mdat) || is_floater(mdat)
-            || noncorporeal(mdat) || is_whirly(mdat))) {
+             || noncorporeal(mdat) || is_whirly(mdat)
+             || ((mtmp == u.usteed) && Flying))) {
         if (canseemon(mtmp))
-            pline("%s plummets a few thousand feet to its death.",
-                  Monnam(mtmp));
+            pline("%s plummets a few thousand feet to %s death.",
+                  Monnam(mtmp), mhis(mtmp));
         /* no corpse or objects as both are now several thousand feet down */
         mongone(mtmp);
     }
