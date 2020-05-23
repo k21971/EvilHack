@@ -684,7 +684,7 @@ int
 minliquid(mtmp)
 register struct monst *mtmp;
 {
-    boolean inpool, inlava, infountain, inshallow;
+    boolean inpool, inlava, infountain, inshallow, inforge;
 
     /* [ceiling clingers are handled below] */
     inpool = (is_pool(mtmp->mx, mtmp->my)
@@ -694,8 +694,10 @@ register struct monst *mtmp;
     inlava = (is_lava(mtmp->mx, mtmp->my)
               && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
     infountain = IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ);
+    inforge = IS_FORGE(levl[mtmp->mx][mtmp->my].typ);
     inshallow = ((is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my))
                  && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
+    
 
     /* Flying and levitation keeps our steed out of the liquid
        (but not water-walking or swimming; note: if hero is in a
@@ -716,11 +718,13 @@ register struct monst *mtmp;
         if (inpool)
             water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         return 0;
-    } else if (mtmp->data == &mons[PM_LAVA_GREMLIN] && (inlava) && rn2(3)) {
+    } else if (mtmp->data == &mons[PM_LAVA_GREMLIN] && (inlava || inforge) && rn2(3)) {
         if (split_mon(mtmp, (struct monst *) 0))
             dryup(mtmp->mx, mtmp->my, FALSE);
         // no lava damage chain func (yet), so this is commented out
         // water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
+        if (inforge && !rn2(3))
+        	blowupforge(mtmp->mx, mtmp->my);
         return 0;
     } else if (mtmp->data == &mons[PM_IRON_GOLEM]
                && ((inpool && !rn2(5)) || (inshallow && rn2(2)))) {

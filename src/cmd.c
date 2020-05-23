@@ -713,6 +713,12 @@ domonability(VOID_ARGS)
                 dryup(u.ux, u.uy, TRUE);
         } else
             There("is no fountain here.");
+    } else if (u.umonnum == PM_LAVA_GREMLIN) {
+        if (IS_FORGE(levl[u.ux][u.uy].typ)) {
+            if (split_mon(&youmonst, (struct monst *) 0) && !rn2(3))
+                blowupforge(u.ux, u.uy);
+        } else
+            There("is no fountain here.");
     } else if (is_unicorn(youmonst.data)) {
         use_unicorn_horn((struct obj *) 0);
         return 1;

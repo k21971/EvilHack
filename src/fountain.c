@@ -12,7 +12,6 @@ STATIC_DCL void NDECL(dowaternymph);
 STATIC_DCL void NDECL(dolavademon);
 STATIC_PTR void FDECL(gush, (int, int, genericptr_t));
 STATIC_DCL void NDECL(dofindgem);
-STATIC_DCL void FDECL(blowupforge, (int, int));
 
 /* used when trying to dip in or drink from fountain or sink or pool while
    levitating above it, or when trying to move downwards in that state */
