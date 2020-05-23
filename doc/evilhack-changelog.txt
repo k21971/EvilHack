@@ -1020,6 +1020,5 @@ Version 0.5.0
 - Fix: incorrect value in water_damage() in src/mon.c
 - Fix: non-flying steeds falling to their death in Vlad's cavern 
 - Fix: monster rider/steed tweaks and fixes
-- Potential fix: placing monster over another monster
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

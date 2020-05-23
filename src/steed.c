@@ -930,8 +930,8 @@ int x, y;
         return;
     }
     if (((othermon = level.monsters[x][y]) != 0) && !((has_erid(level.monsters[x][y])
-        /*&& ERID(level.monsters[x][y])->m1 == mon)*/
-        || (has_erid(mon) && ERID(mon)->m1 == level.monsters[x][y])))) {
+        && ERID(level.monsters[x][y])->m1 == mon)
+        || (has_erid(mon) && ERID(mon)->m1 == level.monsters[x][y]))) {
         describe_level(buf);
         monnm = minimal_monnam(mon, FALSE);
         othnm = (mon != othermon) ? minimal_monnam(othermon, TRUE) : "itself";
