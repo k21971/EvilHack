@@ -660,6 +660,11 @@ register struct monst *mtmp;
         long gdemand = 500 * u.ulevel;
         long goffer = 0;
 
+        if (!money_cnt(invent)) { /* can't bribe with no money */
+            mtmp->mspec_used = 1000;
+            return 0;
+        }
+
         pline("%s demands %ld %s to avoid re-arrest.", Amonnam(mtmp),
               gdemand, currency(gdemand));
         if ((goffer = bribe(mtmp)) >= gdemand) {
