@@ -243,7 +243,7 @@ int spellnum;
         /*FALLTHRU*/
     case 13:
         if (is_demon(mtmp->data)
-            || mtmp->mtame)
+            || mtmp->mtame || mtmp->mpeaceful)
             return CLC_FIRE_PILLAR;
         else
             return CLC_SUMMON_ELM;
@@ -260,7 +260,7 @@ int spellnum;
         return CLC_CURSE_ITEMS;
     case 8:
         if (is_demon(mtmp->data)
-            || mtmp->mtame
+            || mtmp->mtame || mtmp->mpeaceful
             || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
             return CLC_VULN_YOU;
         else
