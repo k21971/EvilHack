@@ -1023,5 +1023,6 @@ Version 0.5.0
 - Fix: peaceful spellcasters casting summon elemental/summon insects against player
 - Fix: impossible() when prison guard tries to initiate a bribe while carrying
   no gold
+- Fix: heavy iron ball and chain are always rustproof
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
