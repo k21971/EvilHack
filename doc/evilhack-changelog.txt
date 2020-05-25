@@ -1027,5 +1027,7 @@ Version 0.5.0
 - Proper xlogfile death reason when decapitated via AD_BHED damage
 - Fix: 'read after free' with pets gaining intrinsics from corpses
 - Fix: some tweaks to 'read/write after free' issues
+- Minor tweak to livelog message for player losing their long sword via dipping in a
+  fountain
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

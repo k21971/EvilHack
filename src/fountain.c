@@ -491,7 +491,7 @@ register struct obj *obj;
                 pline("From the mist, a hand reaches forth and wrests your %s from your grasp!",
                       xname(obj));
                 livelog_printf(LL_ARTIFACT,
-                               "was denied Excalibur! The Lady of the Lake has removed %s %s from existence!",
+                               "was denied Excalibur! The Lady of the Lake has removed %s %s from existence",
                                uhis(), xname(obj));
                 if (carried(obj))
                     useup(obj);
