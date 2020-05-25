@@ -1271,6 +1271,7 @@ register struct attack *mattk;
             if (mattk->aatyp == AT_WEAP && otmp) {
                 struct obj *marmg;
                 int tmp;
+                int wepmaterial = otmp->material;
 
                 if (otmp->otyp == CORPSE
                     && touch_petrifies(&mons[otmp->corpsenm])) {
@@ -1291,21 +1292,21 @@ register struct attack *mattk;
                         && artifact_hit(mtmp, &youmonst, otmp, &dmg, dieroll)))
                     hitmsg(mtmp, mattk);
 
-                unsigned int material = otmp->material;
                 /* glass breakage from the attack */
-                break_glass_obj(MON_WEP(mtmp));
                 break_glass_obj(some_armor(&youmonst));
+                if (break_glass_obj(MON_WEP(mtmp)))
+                    otmp = NULL;
 
                 if (!dmg)
                     break;
-                if (Hate_material(material)) {
-                    if (material == SILVER)
+                if (Hate_material(wepmaterial)) {
+                    if (wepmaterial == SILVER)
                         pline_The("silver sears your flesh!");
                     else
                         You("recoil at the touch of %s!",
-                            materialnm[material]);
+                            materialnm[wepmaterial]);
                     exercise(A_CON, FALSE);
-                    dmg += rnd(sear_damage(material));
+                    dmg += rnd(sear_damage(wepmaterial));
                 }
                 /* this redundancy necessary because you have
                    to take the damage _before_ being cloned;
@@ -1316,7 +1317,7 @@ register struct attack *mattk;
                 if (tmp < 1)
                     tmp = 1;
                 if (u.mh - tmp > 1
-                    && (material == IRON || material == METAL)
+                    && (wepmaterial == IRON || wepmaterial == METAL)
                         /* relevant 'metal' objects are scalpel and tsurugi */
                     && (u.umonnum == PM_BLACK_PUDDING
                         || u.umonnum == PM_BROWN_PUDDING)) {
@@ -1329,7 +1330,7 @@ register struct attack *mattk;
                     if (cloneu())
                         You("divide as %s hits you!", mon_nam(mtmp));
                 }
-                rustm(&youmonst, otmp);
+                rustm(&youmonst, otmp); /* safe if otmp is NULL */
             } else if (mattk->aatyp != AT_TUCH || dmg != 0
                        || mtmp != u.ustuck) {
                 hitmsg(mtmp, mattk);
