@@ -1025,5 +1025,6 @@ Version 0.5.0
   no gold
 - Fix: heavy iron ball and chain are always rustproof
 - Proper xlogfile death reason when decapitated via AD_BHED damage
+- Fix: 'read after free' with pets gaining intrinsics from corpses
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
