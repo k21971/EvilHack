@@ -2187,10 +2187,15 @@ do_rust:
             }
             pline("%s %ss you!", Monnam(mtmp),
                   rn2(2) ? "behead" : "decapitate");
-            if (Upolyd)
+            if (Upolyd) {
                 rehumanize();
-            else done_in_by(mtmp, DIED);
-                dmg = 0;
+            } else {
+                killer.format = NO_KILLER_PREFIX;
+                Sprintf(killer.name, "decapitated by %s",
+                        an(l_monnam(mtmp)));
+                done(DIED);
+            }
+            dmg = 0;
         }
         else hitmsg(mtmp, mattk);
         break;
