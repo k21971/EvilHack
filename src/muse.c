@@ -1909,7 +1909,6 @@ struct monst *mtmp;
     for (i = 0; i < NATTK; i++) {
         mattk = &mtmp->data->mattk[i];
         maxdmg += mattk->damn * mattk->damd; /* total up the possible damage for just swinging */
-        pline("%d max damage.", maxdmg);
     }
 
     /* If the monsters' combined damage from a melee attack exceeds nine, or if
