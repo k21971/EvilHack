@@ -1425,7 +1425,7 @@ boolean reflection_skip;
 	    if (obj->otyp == WAN_DEATH) {
 		if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR)
                     && (!m_seenres(mtmp, M_SEEN_REFL)
-                    || nonliving(mtmp->data) || mtmp->data->msound == MS_LEADER)) {
+                        || nonliving(mtmp->data) || mtmp->data->msound == MS_LEADER)) {
 	            m.offensive = obj;
 	            m.has_offense = MUSE_WAN_DEATH;
 		} else if (!m.tocharge || obj->spe < 1) {
@@ -1509,7 +1509,7 @@ boolean reflection_skip;
 	    }
 	    nomore(MUSE_WAN_MAGIC_MISSILE);
 	    if (obj->otyp == WAN_MAGIC_MISSILE) {
-		if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR)) {
+		if (obj->spe > 0) {
 	            m.offensive = obj;
 	            m.has_offense = MUSE_WAN_MAGIC_MISSILE;
 		} else if (!m.tocharge || obj->spe < 1
@@ -1890,7 +1890,7 @@ int
 use_offensive(mtmp)
 struct monst *mtmp;
 {
-    int i, maxdmg;
+    int i, maxdmg = 0;
     struct obj *otmp = m.offensive;
     boolean oseen;
     struct attack* mattk;
@@ -1900,17 +1900,33 @@ struct monst *mtmp;
         return i;
     oseen = otmp && canseemon(mtmp);
 
-    maxdmg = 0;
+    /* From SporkHack (modified): some monsters would be better served if they
+       were to melee attack instead using whatever offensive item they possess
+       (read: master mind flayer zapping a wand of striking at the player repeatedly
+       while in melee range). If the monster has an attack that is potentially
+       better than its offensive item, or if it's wielding an artifact, and they're
+       in melee range, don't give priority to the offensive item */
     for (i = 0; i < NATTK; i++) {
-	mattk = &mtmp->data->mattk[i];
-	maxdmg += mattk->damn * mattk->damd;	/* total up the possible damage for just swinging */
+        mattk = &mtmp->data->mattk[i];
+        maxdmg += mattk->damn * mattk->damd; /* total up the possible damage for just swinging */
+        pline("%d max damage.", maxdmg);
     }
 
-    if ((maxdmg > 36 || (MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact))
-	&& (monnear(mtmp, mtmp->mux, mtmp->muy)
-	&& m.has_offense != MUSE_WAN_DEATH
-	&& m.has_offense != MUSE_WAN_SLEEP)) {
-	return 0;
+    /* If the monsters' combined damage from a melee attack exceeds nine, or if
+       their wielded weapon is an artifact, use it if close enough. Exception
+       being certain wands that can incapacitate or can already do significant
+       damage. Because intelligent monsters know not to use a certain attack if
+       they've seen that the player is resistant to it, the monster will switch
+       offensive items appropriately */
+    if ((maxdmg > 9
+        || (MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact))
+        && (monnear(mtmp, mtmp->mux, mtmp->muy)
+            && m.has_offense != MUSE_WAN_DEATH
+            && m.has_offense != MUSE_WAN_SLEEP
+            && m.has_offense != MUSE_WAN_FIRE
+            && m.has_offense != MUSE_WAN_COLD
+            && m.has_offense != MUSE_WAN_LIGHTNING)) {
+        return 0;
     }
 
     switch (m.has_offense) {

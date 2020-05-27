@@ -1029,5 +1029,6 @@ Version 0.5.0
 - Fix: some tweaks to 'read/write after free' issues
 - Minor tweak to livelog message for player losing their long sword via dipping in a
   fountain
+- Tweak monster AI logic concerning wand use
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
