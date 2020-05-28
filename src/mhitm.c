@@ -231,7 +231,7 @@ boolean quietly;
     int tx, ty, fx, fy;
 
     /* sanity checks; could matter if we unexpectedly get a long worm */
-    if (!magr || !mdef || magr == mdef)
+    if (!magr || !mdef || magr == mdef || has_erid(mdef))
         return MM_MISS;
     pa = magr->data, pd = mdef->data;
     tx = mdef->mx, ty = mdef->my; /* destination */
