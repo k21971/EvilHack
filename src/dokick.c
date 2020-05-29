@@ -724,7 +724,8 @@ xchar x, y;
                    : thitmonst(mon, kickedobj)) /* hit && used up? */
             return 1;
     }
-
+    // kickedobj might be disint'd by a black D, or some such that makes this unsafe - RW
+	if (!kickedobj) return 1;
     /* the object might have fallen down a hole;
        ship_object() will have taken care of shop billing */
     if (kickedobj->where == OBJ_MIGRATING)
