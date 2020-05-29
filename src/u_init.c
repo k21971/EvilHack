@@ -1202,7 +1202,6 @@ shambler_init()
     shambler->mflags3 &= ~M3_WANTSALL;
     shambler->mflags3 &= ~M3_COVETOUS;          /* no covetous behavior */
     shambler->mflags3 &= ~M3_WAITMASK;          /* no waiting either */
-    shambler->mflags3 &= ~M3_DISPLACES;         /* no shoving. I said no shoving! */
 
     return;
 }
