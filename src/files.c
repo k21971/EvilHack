@@ -737,15 +737,15 @@ int fd;
 
 #ifdef WISH_TRACKER
 const char* wish_tracker_file =
-# ifdef UNIX
-		"wishtracker";
-# else
-#  if defined(MAC) || defined(__BEOS__)
-		"Wish Tracker";
-#  else
-		"wishes.txt";
-#  endif
-# endif
+#ifdef UNIX
+    "wishtracker";
+#else
+#if defined(MAC) || defined(__BEOS__)
+    "Wish Tracker";
+#else
+    "wishes.txt";
+#endif
+#endif /* WISH_TRACKER */
 
 void
 trackwish(wishstring)
@@ -757,12 +757,12 @@ char* wishstring;
 
     fp = fopen_datafile(wish_tracker_file, "a+", LEVELPREFIX);
     if (fp) {
-	Sprintf(bigbuf,"%s wished for %s (%ld%s wish, on T:%ld on %08ld at %06ld hrs)\n",
-			plname, wishstring, u.uconduct.wishes,
-			u.uconduct.wishes == 1 ? "st" : u.uconduct.wishes == 2 ? "nd" :
-			u.uconduct.wishes == 3 ? "rd" : "th", moves, yyyymmdd(now), hhmmss(now));
-	fwrite(bigbuf, strlen(bigbuf), 1, fp);
-	fclose(fp);
+        Sprintf(bigbuf,"%s wished for %s (%ld%s wish, on T:%ld on %08ld at %06ld hrs)\n",
+                plname, wishstring, u.uconduct.wishes,
+                u.uconduct.wishes == 1 ? "st" : u.uconduct.wishes == 2 ? "nd" :
+                u.uconduct.wishes == 3 ? "rd" : "th", moves, yyyymmdd(now), hhmmss(now));
+        fwrite(bigbuf, strlen(bigbuf), 1, fp);
+        fclose(fp);
     }
 }
 #endif
@@ -772,23 +772,25 @@ char* wishstring;
 void
 set_whereisfile()
 {
-	char *p = (char *) strstr(whereis_file, "%n");
-	if (p) {
-		int new_whereis_len = strlen(whereis_file)+strlen(plname)-2; /* %n */
-		char *new_whereis_fn = (char *) alloc((unsigned)(new_whereis_len+1));
-		char *q = new_whereis_fn;
-		strncpy(q, whereis_file, p-whereis_file);
-		q += p-whereis_file;
-		strncpy(q, plname, strlen(plname) + 1);
-		regularize(q);
-		q[strlen(plname)] = '\0';
-		q += strlen(q);
-		p += 2;   /* skip "%n" */
-		strncpy(q, p, strlen(p));
-		new_whereis_fn[new_whereis_len] = '\0';
-		Sprintf(whereis_file, "%s", new_whereis_fn);
-		free(new_whereis_fn); /* clean up the pointer */
-	}
+    char *p = (char *) strstr(whereis_file, "%n");
+
+    if (p) {
+        int new_whereis_len = strlen(whereis_file) + strlen(plname) - 2; /* %n */
+        char *new_whereis_fn = (char *) alloc((unsigned) (new_whereis_len + 1));
+        char *q = new_whereis_fn;
+
+        strncpy(q, whereis_file, p-whereis_file);
+        q += p - whereis_file;
+        strncpy(q, plname, strlen(plname) + 1);
+        regularize(q);
+        q[strlen(plname)] = '\0';
+        q += strlen(q);
+        p += 2;   /* skip "%n" */
+        strncpy(q, p, strlen(p));
+        new_whereis_fn[new_whereis_len] = '\0';
+        Sprintf(whereis_file, "%s", new_whereis_fn);
+        free(new_whereis_fn); /* clean up the pointer */
+    }
 }
 
 /** Write out information about current game to plname.whereis. */
@@ -796,48 +798,50 @@ void
 write_whereis(playing)
 boolean playing; /**< True if game is running.  */
 {
-	FILE* fp;
-	char whereis_work[511];
-	if (strstr(whereis_file, "%n")) set_whereisfile();
-	Sprintf(whereis_work,
-	        "player=%s:depth=%d:dnum=%d:dname=%s:hp=%d:maxhp=%d:turns=%ld:score=%ld:role=%s:race=%s:gender=%s:align=%s:conduct=0x%lx:amulet=%d:ascended=%d:playing=%d\n",
-	        plname,
-	        depth(&u.uz),
-	        u.uz.dnum,
-	        dungeons[u.uz.dnum].dname,
-	        u.uhp,
-	        u.uhpmax,
-	        moves,
-#ifdef SCORE_ON_BOTL
-	        botl_score(),
-#else
-	        0L,
-#endif
-	        urole.filecode,
-	        urace.filecode,
-	        genders[flags.female].filecode,
-	        aligns[1-u.ualign.type].filecode,
-#ifdef RECORD_CONDUCT
-	        encodeconduct(),
-#else
-	        0L,
-#endif
-	        u.uhave.amulet ? 1 : 0,
-	        u.uevent.ascended ? 2 : killer.name ? 1 : 0,
-	        playing);
+    FILE* fp;
+    char whereis_work[511];
 
-	fp = fopen_datafile(whereis_file,"w",LEVELPREFIX);
-	if (fp) {
-#ifdef UNIX
-		mode_t whereismode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
-		chmod(fqname(whereis_file, LEVELPREFIX, 2), whereismode);
+    if (strstr(whereis_file, "%n"))
+        set_whereisfile();
+    Sprintf(whereis_work,
+            "player=%s:depth=%d:dnum=%d:dname=%s:hp=%d:maxhp=%d:turns=%ld:score=%ld:role=%s:race=%s:gender=%s:align=%s:conduct=0x%lx:amulet=%d:ascended=%d:playing=%d\n",
+            plname,
+            depth(&u.uz),
+            u.uz.dnum,
+            dungeons[u.uz.dnum].dname,
+            u.uhp,
+            u.uhpmax,
+            moves,
+#ifdef SCORE_ON_BOTL
+            botl_score(),
+#else
+            0L,
 #endif
-		fwrite(whereis_work,strlen(whereis_work),1,fp);
-		fclose(fp);
-	} else {
-		pline("Can't open %s for output.", whereis_file);
-		pline("No whereis file created.");
-	}
+            urole.filecode,
+            urace.filecode,
+            genders[flags.female].filecode,
+            aligns[1-u.ualign.type].filecode,
+#ifdef RECORD_CONDUCT
+            encodeconduct(),
+#else
+            0L,
+#endif
+            u.uhave.amulet ? 1 : 0,
+            u.uevent.ascended ? 2 : *killer.name ? 1 : 0,
+            playing);
+
+    fp = fopen_datafile(whereis_file,"w",LEVELPREFIX);
+    if (fp) {
+#ifdef UNIX
+        mode_t whereismode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+        chmod(fqname(whereis_file, LEVELPREFIX, 2), whereismode);
+#endif
+        fwrite(whereis_work,strlen(whereis_work),1,fp);
+        fclose(fp);
+    } else {
+        pline("Can't open %s for output.", whereis_file);
+        pline("No whereis file created.");
+    }
 }
 
 /** Signal handler to update whereis information. */
@@ -845,19 +849,19 @@ void
 signal_whereis(sig_unused)
 int sig_unused UNUSED;
 {
-	touch_whereis();
+    touch_whereis();
 }
 
 void
 touch_whereis()
 {
-	write_whereis(TRUE);
+    write_whereis(TRUE);
 }
 
 void
 delete_whereis()
 {
-	write_whereis(FALSE);
+    write_whereis(FALSE);
 }
 #endif /* WHEREIS_FILE */
 
