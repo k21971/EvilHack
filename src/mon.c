@@ -3024,7 +3024,7 @@ register struct monst *mdef;
         return; /* lifesaved */
 
     if (corpse_chance(mdef, (struct monst *) 0, FALSE)
-        && (accessible(mdef->mx, mdef->my) || is_pool(mdef->mx, mdef->my)))
+        && (accessible(mdef->mx, mdef->my) || is_damp_terrain(mdef->mx, mdef->my)))
         (void) make_corpse(mdef, CORPSTAT_NONE);
 }
 
@@ -3309,7 +3309,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         stackobj(mksobj_at(SCR_MAIL, x, y, FALSE, FALSE));
     }
 #endif
-    if ((accessible(x, y) || is_pool(x, y)) && !zombifying) {
+    if ((accessible(x, y) || is_damp_terrain(x, y)) && !zombifying) {
         struct obj *cadaver;
         int otyp;
 

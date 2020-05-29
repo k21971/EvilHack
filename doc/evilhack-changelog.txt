@@ -1033,5 +1033,7 @@ Version 0.5.0
 - Proper xlogfile death reason when disintegrated by a black dragon's passive attack
 - Fix: metallic armor should always give at least one point of AC if unenchanted
 - Fix: "warning: address of array 'killer.name' will always evaluate to 'true'"
+- Fix: monsters killed while standing on shallow water or sewage weren't leaving
+  a corpse
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
