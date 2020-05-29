@@ -3490,7 +3490,10 @@ boolean wep_was_destroyed;
                     You("disintegrate yourself off of the %s hide!",
                         s_suffix(mon_nam(mon)));
                     u.ugrave_arise = -3;
-                    done_in_by(mon, DIED);
+                    killer.format = NO_KILLER_PREFIX;
+                    Sprintf(killer.name, "disintegrated by %s",
+                            an(l_monnam(mon)));
+                    done(DIED);
                     return 2;
                 }
             }
