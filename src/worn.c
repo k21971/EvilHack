@@ -561,8 +561,7 @@ register struct monst *mon;
 {
     register struct obj *obj;
     int base = mon->data->ac;
-    float bonus;
-    int div;
+    int bonus, div;
     long mwflags = mon->misc_worn_check;
 
     for (obj = mon->minvent; obj; obj = obj->nobj) {

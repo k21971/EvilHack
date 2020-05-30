@@ -1036,5 +1036,6 @@ Version 0.5.0
 - Fix: monsters killed while standing on shallow water or sewage weren't leaving
   a corpse
 - Wizmode wishing for 'puddle' creates shallow water terrain
+- Fix: "warning C4244: '=': conversion from 'int' to 'float', possible loss of data"
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

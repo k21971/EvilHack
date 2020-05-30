@@ -138,7 +138,7 @@ int which;
 }
 
 /* Handles the damage-reduction shuffle necessary to convert 80% resistance
- * into 20% damage (and keeps the floating-point silliness out of the main lines */
+ * into 20% damage (and keeps the floating-point silliness out of the main lines) */
 int
 resist_reduce(amount, which)
 int amount, which;
@@ -147,7 +147,8 @@ int amount, which;
 
     tmp /= 100;
     /* debug line */
-    /* pline("incoming: %d  outgoing: %d", amount, (int)((float)amount*tmp)); */
+    /*pline("incoming: %d  outgoing: %d",
+            amount, (int) ((float) amount * tmp));*/
     return (int) ((float) amount * tmp);
 }
 
