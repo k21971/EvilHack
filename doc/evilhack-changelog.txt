@@ -1035,5 +1035,6 @@ Version 0.5.0
 - Fix: "warning: address of array 'killer.name' will always evaluate to 'true'"
 - Fix: monsters killed while standing on shallow water or sewage weren't leaving
   a corpse
+- Wizmode wishing for 'puddle' creates shallow water terrain
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

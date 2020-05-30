@@ -4083,7 +4083,8 @@ struct obj *no_wish;
             /* Must manually make kelp! */
             water_damage_chain(level.objects[x][y], TRUE, 0, TRUE);
             madeterrain = TRUE;
-        } else if (!BSTRCMPI(bp, p - 13, "shallow water")) {
+        } else if (!BSTRCMPI(bp, p - 13, "shallow water")
+                   || !BSTRCMPI(bp, p - 6, "puddle")) {
             lev->typ = PUDDLE;
             del_engr_at(x, y);
             pline("Shallow water.");
