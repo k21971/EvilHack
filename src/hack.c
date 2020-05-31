@@ -2402,22 +2402,20 @@ boolean newspot;             /* true if called by spoteffects */
             }
         } else if ((is_puddle(u.ux, u.uy)
                    || is_sewage(u.ux, u.uy)) && !Wwalking) {
-            if (!rn2(12) && is_puddle(u.ux, u.uy))
+            if (is_puddle(u.ux, u.uy) && u.umoved && !rn2(12))
                 pline("You %s through the shallow water.",
                       vs_cantflyorswim(youmonst.data) ? "wade" : "splash");
 
-            if (!Levitation && is_sewage(u.ux, u.uy)) {
-                if (!rn2(4)) {
-                    pline("%s %s difficulty %s through %s.",
-                          u.usteed ? upstart(x_monnam(u.usteed,
-                                             (has_mname(u.usteed)) ? ARTICLE_NONE
-                                                                   : ARTICLE_THE,
-                                             (char *) 0, SUPPRESS_SADDLE, FALSE))
-                                   : "You",
-                          u.usteed ? "has" : "have",
-                          rn2(2) ? "wading" : "trudging",
-                          rn2(2) ? "this sludge" : "the muck");
-                }
+            if (is_sewage(u.ux, u.uy) && u.umoved && !rn2(4)) {
+                pline("%s %s difficulty %s through %s.",
+                      u.usteed ? upstart(x_monnam(u.usteed,
+                                         (has_mname(u.usteed)) ? ARTICLE_NONE
+                                                               : ARTICLE_THE,
+                                         (char *) 0, SUPPRESS_SADDLE, FALSE))
+                               : "You",
+                      u.usteed ? "has" : "have",
+                      rn2(2) ? "wading" : "trudging",
+                      rn2(2) ? "this sludge" : "the muck");
             }
 
             if (!verysmall(youmonst.data) && !rn2(4))
