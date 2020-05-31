@@ -1731,11 +1731,10 @@ register struct attack *mattk;
                     done(DROWNING);
                 } else if (is_lava(mtmp->mx, mtmp->my)) {
                     pline("%s pulls you into the lava...", Monnam(mtmp));
-                    killer.format = KILLED_BY;
-                    Sprintf(killer.name, "%s by %s",
-                            "being pulled into molten lava",
+                    killer.format = NO_KILLER_PREFIX;
+                    Sprintf(killer.name, "incinerated in molten lava by %s",
                             an(mtmp->data->mname));
-                    done(BURNING);
+                    done(DIED);
                 } else if (mattk->aatyp == AT_HUGS) {
                     You("are being crushed.");
                 } else if (mattk->aatyp == AT_TENT) {
@@ -1748,7 +1747,10 @@ register struct attack *mattk;
                         pline("%s burrows itself into your brain through your ear!",
                               Monnam(mtmp));
                         Your("last thoughts fade away as your begin your transformation...");
-                        done_in_by(mtmp, DIED);
+                        killer.format = NO_KILLER_PREFIX;
+                        Sprintf(killer.name, "became a parasitic host to %s",
+                                an(mtmp->data->mname));
+                        done(DIED);
                     }
                 }
             } else {

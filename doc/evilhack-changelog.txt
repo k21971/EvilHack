@@ -1037,5 +1037,6 @@ Version 0.5.0
   a corpse
 - Wizmode wishing for 'puddle' creates shallow water terrain
 - Fix: "warning C4244: '=': conversion from 'int' to 'float', possible loss of data"
+- Tweak some xlogfile death messages
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
