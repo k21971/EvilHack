@@ -130,6 +130,6 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-  prerelease: true
-  name: "Test release build of EvilHack 0.5.0"
-  body: "This is an auto generated test release build of EvilHack 0.5.0"
+  prerelease: false
+  name: "Release build of EvilHack 0.5.0"
+  body: "This is an auto generated message - release build of EvilHack 0.5.0"
