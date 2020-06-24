@@ -414,9 +414,11 @@ deletedwithboulder:
             if (!Blind)
                 pline("%s %s away and %s.  Perhaps it wound up elsewhere in the dungeon...", The(xname(obj)),
                       otense(obj, "fall"), otense(obj, "disappear"));
-        } else if (!Blind) {
-            pline("%s %s away and %s.", The(xname(obj)),
-                  otense(obj, "fall"), otense(obj, "disappear"));
+        } else {
+            if (!Blind)
+                pline("%s %s away and %s.", The(xname(obj)),
+                      otense(obj, "fall"), otense(obj, "disappear"));
+            delobj(obj);
         }
         return TRUE;
     }

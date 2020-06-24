@@ -1039,5 +1039,6 @@ Version 0.5.0
 - Fix: "warning C4244: '=': conversion from 'int' to 'float', possible loss of data"
 - Tweak some xlogfile death messages
 - Fix: movement messages while standing still in shallow water or sewage
+- Fix: segfault when dropping objects with timers in Vlad's cavern
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
