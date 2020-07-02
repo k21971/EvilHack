@@ -3805,7 +3805,8 @@ struct attack *mattk;     /* null means we find one internally */
                       rn2(2) ? "whole" : "intact");
                 break;
             }
-            pline("%s disintegrates!", Yname2(obj));
+            if (cansee(mon->mx, mon->my))
+                pline("%s disintegrates!", Yname2(obj));
             if (carried(obj))
                 useup(obj);
             else
