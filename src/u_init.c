@@ -330,6 +330,7 @@ static const struct def_skill Skill_C[] = {
     { P_SLING, P_EXPERT },
     { P_BOOMERANG, P_EXPERT },
     { P_UNICORN_HORN, P_BASIC },
+    { P_RIDING, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_MASTER },
     { P_NONE, 0 }
 };
@@ -347,6 +348,7 @@ static const struct def_skill Skill_Con[] = {
     { P_SLING, P_SKILLED },
     { P_ATTACK_SPELL, P_BASIC },
     { P_ESCAPE_SPELL, P_EXPERT },
+    { P_RIDING, P_BASIC },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_SKILLED },
     { P_NONE, 0 }
@@ -395,7 +397,8 @@ static const struct def_skill Skill_K[] = {
     { P_LANCE, P_EXPERT },
     { P_BOW, P_BASIC },
     { P_CROSSBOW, P_SKILLED },
-    { P_HEALING_SPELL, P_SKILLED },
+    { P_ATTACK_SPELL, P_BASIC },
+    { P_HEALING_SPELL, P_BASIC },
     { P_CLERIC_SPELL, P_SKILLED },
     { P_RIDING, P_EXPERT },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },

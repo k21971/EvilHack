@@ -149,7 +149,7 @@ const struct Role roles[] = {
       1,
       8,
       A_INT,
-      SPE_DIG,
+      0,
       -4 },
     { { "Convict", 0 },
       { { "Detainee", 0 },
