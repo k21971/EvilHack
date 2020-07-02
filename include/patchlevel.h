@@ -5,7 +5,7 @@
 
 /* NetHack 3.6.x */
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 5
+#define VERSION_MINOR 6
 /*
  * PATCHLEVEL is updated for each release.
  */
@@ -32,7 +32,7 @@
  * PP = patch level, ee = edit level, L = literal suffix "L",
  * with all four numbers specified as two hexadecimal digits.
  */
-#define VERSION_COMPATIBILITY 0x00050000L
+#define VERSION_COMPATIBILITY 0x00060000L
 
 /****************************************************************************/
 /* Version 3.6.x */

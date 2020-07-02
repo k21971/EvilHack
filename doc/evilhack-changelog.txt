@@ -1051,3 +1051,4 @@ Version 0.6.0
 - Fix: seeing feedback about an object disintegrating off of a black dragon's scales when
   the event wasn't witnessed
 - Fix: death rays were killing monsters that should be immune to death magic
+- Update include/patchlevel.h for version 0.6.0
