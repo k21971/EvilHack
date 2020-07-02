@@ -2031,12 +2031,13 @@ int specialdmg; /* blessed and/or silver bonus against various things */
             }
             if (noncorporeal(mdef->data) || amorphous(mdef->data)) {
                 pline("You slice through %s %s.",
-                      s_suffix(mon_nam(mdef)), mbodypart(mdef,NECK));
+                      s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
                 goto physical;
             }
             pline("You %s %s!",
                   rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
-            if (is_zombie(mdef->data) || is_troll(mdef->data))
+            if (is_zombie(mdef->data)
+                || (is_troll(mdef->data) && !mlifesaver(mdef)))
                 mdef->mcan = 1; /* no head? no reviving */
             xkilled(mdef, 0);
             tmp = 0;
