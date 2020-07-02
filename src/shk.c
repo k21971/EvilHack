@@ -2110,70 +2110,57 @@ long *numerator, *denominator;
             /* nasty, brutish, and short */
             *numerator = 4L;
             *denominator = 3L;
-        }
-        else if (Race_if(PM_CENTAUR)) {
+        } else if (Race_if(PM_CENTAUR)) {
             /* "smelly and four-legged" */
             *numerator = 3L;
             *denominator = 2L;
         }
-    }
-    else if (is_elf(shkdat)) {
+    } else if (is_elf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
             *numerator = 2L;
-        }
-        else if (Race_if(PM_DWARF)) {
+        } else if (Race_if(PM_DWARF)) {
             /* "lawn ornament" */
             *numerator = 4L;
             *denominator = 3L;
         }
-    }
-    else if (is_dwarf(shkdat)) {
+    } else if (is_dwarf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
             *numerator = 2L;
-        }
-        else if (Race_if(PM_ELF)) {
+        } else if (Race_if(PM_ELF)) {
             /* "pointy-eared tree hugger" */
             *numerator = 4L;
             *denominator = 3L;
-        }
-        else if (Race_if(PM_GIANT)) {
+        } else if (Race_if(PM_GIANT)) {
             /* "big, dumb and smelly" */
             *numerator = 3L;
             *denominator = 2L;
         }
-    }
-    else if (is_orc(shkdat)) {
+    } else if (is_orc(shkdat)) {
         if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) {
             *numerator = 3L;
-        }
-        else if (Race_if(PM_DWARF)) {
+        } else if (Race_if(PM_DWARF)) {
             *numerator = 5L;
             *denominator = 3L;
-        }
-        else if (Race_if(PM_HUMAN)) {
+        } else if (Race_if(PM_HUMAN)) {
             *numerator = 4L;
             *denominator = 3L;
-        }
-        else if (Race_if(PM_ORC)) {
+        } else if (Race_if(PM_ORC)) {
             /* big discount on top of professional courtesy */
             *numerator = 2L;
             *denominator = 3L;
         }
-    }
-    else if (is_gnome(shkdat)) {
+    } else if (is_gnome(shkdat)) {
         /* Gnomes are crafty. They don't really have racial animosities, but
          * it's going to be a lot harder to get a good deal out of a gnome unless
          * you're remarkably shrewd yourself */
         if (ACURR(A_INT) < 15) {
             *numerator = 3L;
             *denominator = 2L;
-        }
-        else if (ACURR(A_INT) < 18) {
+        } else if (ACURR(A_INT) < 18) {
             *numerator = 4L;
             *denominator = 3L;
         }
-    }
-    else if (is_illithid(shkdat)) {
+    } else if (is_illithid(shkdat)) {
         if (mnum < PM_MIND_FLAYER) {
             impossible("mnum for illithid shopkeeper is too low!");
             return;
@@ -2181,8 +2168,7 @@ long *numerator, *denominator;
         /* They'd prefer not to sell their libraries */
         if (!Race_if(PM_ILLITHID))
             *numerator = ((mnum - PM_MIND_FLAYER + 1) * 10);
-    }
-    else if (is_centaur(shkdat)) {
+    } else if (is_centaur(shkdat)) {
         /* Centaurs don't care much for most humanoid races */
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
             || Race_if(PM_DWARF) || Race_if(PM_ORC)
@@ -2190,13 +2176,11 @@ long *numerator, *denominator;
             *numerator = 3L;
             *denominator = 2L;
         }
-    }
-    else if (is_hobbit(shkdat)) {
+    } else if (is_hobbit(shkdat)) {
         if (Race_if(PM_ORC)) {
             *numerator = 3L;
         }
-    }
-    else if (shkdat->mlet == S_NYMPH) {
+    } else if (shkdat->mlet == S_NYMPH) {
         if (mnum < PM_WOOD_NYMPH) {
             impossible("mnum for nymph shopkeeper is too low!");
             return;
@@ -2210,21 +2194,23 @@ long *numerator, *denominator;
             *numerator = (mnum - PM_WOOD_NYMPH + 5);
             *denominator = 3L;
         }
-    }
-    else if (is_giant(shkdat)) {
+    } else if (is_giant(shkdat)) {
         /* Non-Elder-Race humanoids are not thought of highly */
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-            || Race_if(PM_HOBBIT) || Race_if(PM_ILLITHID)) {
+            || Race_if(PM_HOBBIT) || Race_if(PM_ILLITHID)
+            || Race_if(PM_ORC)) {
             *numerator = 4L;
             *denominator = 3L;
-        }
-        if (Race_if(PM_DWARF)) {
+        } else if (Race_if(PM_DWARF)) {
             /* "dwarf tossing, only thing they're good for" */
             *numerator = 3L;
             *denominator = 2L;
+        } else if (Race_if(PM_GIANT)) {
+            /* cater to their own kind */
+            *numerator = 3L;
+            *denominator = 4L;
         }
-    }
-    else {
+    } else {
         ; /* other monsters are possible (e.g. polyed shopkeeper); don't do any
              adjustment in that case */
     }
