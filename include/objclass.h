@@ -91,6 +91,7 @@ struct objclass {
 #define is_wood(otmp) (otmp->material == WOOD)
 #define is_bone(otmp) (otmp->material == BONE)
 #define is_stone(otmp) (otmp->material == MINERAL)
+#define is_crystal(otmp) (otmp->material == GEMSTONE)
 #define is_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= MITHRIL)
 #define is_heavy_metallic(otmp) \

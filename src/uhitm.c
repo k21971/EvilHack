@@ -858,7 +858,9 @@ int dieroll;
             && Role_if(PM_MONK)
             && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER)
             && ((monwep = MON_WEP(mon)) != 0
-                && !is_flimsy(monwep))
+                && !is_flimsy(monwep)
+                && !is_mithril(monwep)
+                && !is_crystal(monwep))
                 && !obj_resists(monwep,
                         50 + 15 * (greatest_erosion(monwep)), 100)) {
             setmnotwielded(mon, monwep);
@@ -866,7 +868,9 @@ int dieroll;
             You("%s your qi.  %s from the force of your blow!",
                   rn2(2) ? "channel" : "focus",
                   Yobjnam2(monwep, (monwep->material == WOOD || monwep->material == BONE)
-                           ? "splinter" : "shatter"));
+                           ? "splinter" : (monwep->material == PLATINUM || monwep->material == GOLD
+                                           || monwep->material == SILVER || monwep->material == COPPER)
+                           ? "break" : "shatter"));
             m_useupall(mon, monwep);
             /* If someone just shattered MY weapon, I'd flee! */
             if (!rn2(4))
@@ -967,6 +971,8 @@ int dieroll;
                                    && P_SKILL(wtype) >= P_EXPERT)))
                            && ((monwep = MON_WEP(mon)) != 0
                                && !is_flimsy(monwep)
+                               && !is_mithril(monwep) /* mithril is super-strong */
+                               && !is_crystal(monwep) /* so are weapons made of gemstone */
                                && !obj_resists(monwep,
                                        50 + 15 * (greatest_erosion(obj) - greatest_erosion(monwep)), 100))) {
                     /*
@@ -994,7 +1000,9 @@ int dieroll;
                     mon->weapon_check = NEED_WEAPON;
                     pline("%s from the force of your blow!",
                           Yobjnam2(monwep, (monwep->material == WOOD || monwep->material == BONE)
-                                   ? "splinter" : "shatter"));
+                                   ? "splinter" : (monwep->material == PLATINUM || monwep->material == GOLD
+                                                   || monwep->material == SILVER || monwep->material == COPPER)
+                                   ? "break" : "shatter"));
                     m_useupall(mon, monwep);
                     /* If someone just shattered MY weapon, I'd flee! */
                     if (!rn2(4))

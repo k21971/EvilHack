@@ -1054,3 +1054,5 @@ Version 0.6.0
 - Update include/patchlevel.h for version 0.6.0
 - Some racial shopkeeper tweaks
 - Fix: correct misspelling with Werebane extra damage feedback
+- Fix: The gnome lord's silver pick-axe shatters from the force of your blow!
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
