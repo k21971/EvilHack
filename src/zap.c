@@ -3955,6 +3955,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 || is_vampshifter(mon) || mon->data->msound == MS_LEADER
                 || mon->data == &mons[PM_CERBERUS]) {
                 sho_shieldeff = TRUE;
+                tmp = 0;
                 break;
             }
             if (resists_magm(mon)) {

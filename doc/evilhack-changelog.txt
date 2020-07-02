@@ -1050,3 +1050,4 @@ Version 0.6.0
 - Fix: address skill issues of various roles
 - Fix: seeing feedback about an object disintegrating off of a black dragon's scales when
   the event wasn't witnessed
+- Fix: death rays were killing monsters that should be immune to death magic
