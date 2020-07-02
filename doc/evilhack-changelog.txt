@@ -1053,3 +1053,4 @@ Version 0.6.0
 - Fix: death rays were killing monsters that should be immune to death magic
 - Update include/patchlevel.h for version 0.6.0
 - Some racial shopkeeper tweaks
+- Fix: correct misspelling with Werebane extra damage feedback

@@ -1866,11 +1866,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         switch (otmp->oartifact) {
             case ART_WEREBANE:
                 if (youattack && is_were(mdef->data) && j) {
-                    You("severly burn %s with your silver blade!", mon_nam(mdef));
+                    You("severely burn %s with your silver blade!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (!youattack && magr && cansee(magr->mx, magr->my)
                            && is_were(mdef->data) && j) {
-                    pline("%s severly burns %s with its silver blade!",
+                    pline("%s severely burns %s with its silver blade!",
                           Monnam(magr), mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && is_were(youmonst.data) && k) {
