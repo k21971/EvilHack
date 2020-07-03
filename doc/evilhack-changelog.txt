@@ -1058,4 +1058,5 @@ Version 0.6.0
 - Fix: beheading a troll that was wearing an amulet of life saving shouldn't cancel it
 - Fix: monsters leaving corpses after being disintegrated by black dragon's passive attack
 - Fix: aged corpses placed inside an ice box show as 'burnt'
+- All spell staves are now properly magical
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
