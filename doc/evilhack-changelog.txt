@@ -1059,4 +1059,5 @@ Version 0.6.0
 - Fix: monsters leaving corpses after being disintegrated by black dragon's passive attack
 - Fix: aged corpses placed inside an ice box show as 'burnt'
 - All spell staves are now properly magical
+- Various objects.c edits
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

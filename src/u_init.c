@@ -1415,9 +1415,8 @@ register struct trobj *origtrop;
                        && obj->otyp != FLINT) {
                 obj->quan = 1L;
             }
-            if (obj->otyp == STRIPED_SHIRT ) {
+            if (obj->otyp == STRIPED_SHIRT)
                 obj->cursed = TRUE;
-            }
             if (trop->trspe != UNDEF_SPE)
                 obj->spe = trop->trspe;
             if (trop->trbless != UNDEF_BLESS)
