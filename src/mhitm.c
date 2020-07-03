@@ -2006,7 +2006,7 @@ int mdead;
             acid_damage(MON_WEP(magr));
         goto assess_dmg;
     case AD_DISN:
-        if (mhit && !mdef->mcan && !rn2(20)) {
+        if (mhit && !mdef->mcan && rn2(20)) {
             if (resists_disint(magr)) {
                 if (canseemon(magr)) {
                     shieldeff(magr->mx, magr->my);
@@ -2017,7 +2017,7 @@ int mdead;
                 if (canseemon(magr))
                     pline("%s deadly hide disintegrates %s!",
                           s_suffix(Monnam(mdef)), mon_nam(magr));
-                monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+                mongone(magr); /* being disintegrated means nothing is left behind */
                 return (mdead | mhit | MM_AGR_DIED);
             }
         }

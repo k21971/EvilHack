@@ -3113,7 +3113,10 @@ struct attack *mattk;
                     (void) destroy_arm(uarmu);
                 /* when killed by a disintegration beam, don't leave a corpse */
                 u.ugrave_arise = -3;
-                done_in_by(mtmp, DIED);
+                killer.format = NO_KILLER_PREFIX;
+                Sprintf(killer.name, "disintegrated by %s",
+                        an(mtmp->data->mname));
+                done(DIED);
             }
         }
         break;

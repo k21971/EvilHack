@@ -1056,4 +1056,5 @@ Version 0.6.0
 - Fix: correct misspelling with Werebane extra damage feedback
 - Fix: The gnome lord's silver pick-axe shatters from the force of your blow!
 - Fix: beheading a troll that was wearing an amulet of life saving shouldn't cancel it
+- Fix: monsters leaving corpses after being disintegrated by black dragon's passive attack
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
