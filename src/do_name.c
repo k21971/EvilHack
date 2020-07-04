@@ -1382,6 +1382,7 @@ const char *name;
         case ART_VORPAL_BLADE:
         case ART_SCEPTRE_OF_MIGHT:
         case ART_MITRE_OF_HOLINESS:
+        case ART_SNICKERSNEE:
             set_material(obj, METAL);
             break;
         case ART_SUNSWORD:
