@@ -45,7 +45,8 @@
      || (mon)->data == &mons[PM_ARCHANGEL] || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
      || (mon)->data == &mons[PM_GOLD_DRAGON] || (mon)->data == &mons[PM_GIANT_LEECH]    \
      || (mon)->data == &mons[PM_GIANT_COCKROACH] || (mon)->data == &mons[PM_LOCUST]     \
-     || (mon)->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+     || (mon)->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]                                  \
+     || (mon)->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
 
 /* as of 3.2.0:  gray dragons, Angels, Oracle, Yeenoghu */
 #define resists_mgc(ptr) \
@@ -54,8 +55,10 @@
      || dmgtype(ptr, AD_RBRE)) /* Chromatic Dragon */
 
 #define resists_drain(ptr) \
-    (is_undead(ptr) || is_demon(ptr) || is_were(ptr) \
-     || ptr == &mons[PM_DEATH])
+    (is_undead(ptr) || is_demon(ptr) || is_were(ptr)        \
+     || ptr == &mons[PM_DEATH] || ptr == &mons[PM_CERBERUS] \
+     || ptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]              \
+     || ptr == &mons[PM_KATHRYN_THE_ENCHANTRESS])
 /* is_were() doesn't handle hero in human form */
 
 #define is_lminion(mon) \
