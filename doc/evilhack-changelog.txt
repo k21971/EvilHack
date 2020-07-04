@@ -1067,4 +1067,6 @@ Version 0.6.0
 - Add a couple monsters to the 'can never be tamed' list
 - Additions to which monsters resist_sick() and resist_drain()
 - Add M1_TPORT_CNTRL flag to the ice queen
+- Monsters that are M3_BERSERK should only 'howl with rage' when attacking and at
+  low health, not *just* low health
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
