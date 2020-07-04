@@ -251,7 +251,27 @@ dipforge(obj)
 register struct obj *obj;
 {
     burn_away_slime();
+    /* Dipping something you're still wearing into a forge filled with
+     * lava, probably not the smartest thing to do. This is gonna hurt.
+     * Non-metallic objects are handled by lava_damage().
+     */
+    if (is_metallic(obj) && (((obj->owornmask & W_ARM) && (obj == uarm))
+        || ((obj->owornmask & W_ARMC) && (obj == uarmc))
+        || ((obj->owornmask & W_ARMU) && (obj == uarmu))
+        || ((obj->owornmask & W_ARMG) && (obj == uarmg))
+        || ((obj->owornmask & W_ARMH) && (obj == uarmh))
+        || ((obj->owornmask & W_ARMF) && (obj == uarmf))
+        || ((obj->owornmask & W_ARMS) && (obj == uarms)))) {
+        if (!rn2(3) && (how_resistant(FIRE_RES) < 100))
+            You("may want to remove your %s first...",
+                xname(obj));
+        losehp(resist_reduce(d(1, 8), FIRE_RES),
+               "dipping a worn object into a forge", KILLED_BY);
+    }
+
     switch (rnd(30)) {
+        case 6:
+        case 7:
         case 8:
         case 9: /* Strange feeling */
             pline("A weird sensation runs up your %s.", body_part(ARM));
@@ -267,6 +287,19 @@ register struct obj *obj;
         case 18:
             if (!is_metallic(obj))
                 goto lava;
+
+            /* Ever try doing metalwork on something still being worn?
+             * Yeah didn't think so */
+            if (((obj->owornmask & W_ARM) && (obj == uarm))
+                || ((obj->owornmask & W_ARMC) && (obj == uarmc))
+                || ((obj->owornmask & W_ARMU) && (obj == uarmu))
+                || ((obj->owornmask & W_ARMG) && (obj == uarmg))
+                || ((obj->owornmask & W_ARMH) && (obj == uarmh))
+                || ((obj->owornmask & W_ARMF) && (obj == uarmf))
+                || ((obj->owornmask & W_ARMS) && (obj == uarms))) {
+                You("can't reforge something you're wearing.");
+                break;
+            }
 
             if (is_metallic(obj) && Luck > 0) {
                 if (greatest_erosion(obj) > 0) {
@@ -298,16 +331,24 @@ register struct obj *obj;
             }
             break;
         case 21: /* Lava Demon */
-            dolavademon();
+            if (!rn2(8))
+                dolavademon();
+            else
+                pline_The("forge violently spews lava for a moment, then settles.");
             break;
-        case 27:
-            if (Luck < 1) {
+        case 22:
+            if (Luck < 0) {
                 blowupforge(u.ux, u.uy);
             } else {
                pline("Molten lava surges up and splashes all over you!");
                losehp(resist_reduce(d(3, 8), FIRE_RES), "dipping into a forge", KILLED_BY);
             }
             break;
+        case 23:
+        case 24:
+        case 25:
+        case 26:
+        case 27:
         case 28:
         case 29:
         case 30: /* Strange feeling */

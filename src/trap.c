@@ -3859,10 +3859,21 @@ xchar x, y;
             if (obj == thrownobj || obj == kickedobj)
                 pline("%s %s up!", is_plural(obj) ? "They" : "It",
                       otense(obj, "burn"));
-            else if (IS_FORGE(levl[u.ux][u.uy].typ))
+            else if (IS_FORGE(levl[u.ux][u.uy].typ)) {
+                if (((obj->owornmask & W_ARM) && (obj == uarm))
+                    || ((obj->owornmask & W_ARMC) && (obj == uarmc))
+                    || ((obj->owornmask & W_ARMU) && (obj == uarmu))
+                    || ((obj->owornmask & W_ARMG) && (obj == uarmg))
+                    || ((obj->owornmask & W_ARMH) && (obj == uarmh))
+                    || ((obj->owornmask & W_ARMF) && (obj == uarmf))
+                    || ((obj->owornmask & W_ARMS) && (obj == uarms))) {
+                    You("were still wearing your %s!", xname(obj));
+                    losehp(resist_reduce(d(2, 6), FIRE_RES),
+                           "dipping a worn object into a forge", KILLED_BY);
+                }
                 pline_The("molten lava in the forge incinerates the %s.",
                           xname(obj));
-            else
+            } else
                 You_see("%s hit lava and burn up!", doname(obj));
         }
         if (carried(obj)) { /* shouldn't happen */
