@@ -491,6 +491,8 @@ encodeachieve()
         r |= 1L << 10;
     if (u.uachieve.killed_medusa)
         r |= 1L << 11;
+    if (u.uachieve.defeat_icequeen)
+        r |= 1L << 12;
 
     return r;
 }

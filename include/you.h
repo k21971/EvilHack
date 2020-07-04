@@ -61,12 +61,13 @@ struct u_achieve {
     Bitfield(book, 1);    /* touched Book */
     Bitfield(menorah, 1); /* touched Candelabrum */
     Bitfield(enter_gehennom,
-             1);           /* entered Gehennom (or Valley) by any means */
+             1);           /* entered Gehennom by any means */
     Bitfield(ascended, 1); /* not quite the same as u.uevent.ascended */
     Bitfield(mines_luckstone, 1); /* got a luckstone at end of mines */
     Bitfield(finish_sokoban, 1);  /* obtained the sokoban prize */
 
     Bitfield(killed_medusa, 1);
+    Bitfield(defeat_icequeen, 1);
 };
 
 struct u_realtime {

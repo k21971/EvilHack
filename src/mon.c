@@ -2632,6 +2632,9 @@ register struct monst *mtmp;
         mtmp->mconf = 0;
         mtmp->mstun = 0;
         mtmp->mpeaceful = 1;
+        if (!u.uachieve.defeat_icequeen)
+            u.uachieve.defeat_icequeen = 1;
+        mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
         livelog_printf(LL_UMONST, "defeated %s", noit_mon_nam(mtmp));
         newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
         mtmp->mhp = mtmp->mhpmax = 7500;

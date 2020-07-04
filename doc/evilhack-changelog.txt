@@ -1072,4 +1072,5 @@ Version 0.6.0
 - Some forge adjustments
 - Cursed weapons get to-hit/damage bonuses to angelic beings
 - Fix: passive AD_DISE attack to properly use diseasemu()
+- Defeating Kathryn the Ice Queen now counts as an achievement
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
