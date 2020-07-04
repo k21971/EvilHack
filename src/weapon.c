@@ -158,6 +158,10 @@ struct monst *mon;
         && (is_demon(ptr) || is_undead(ptr) || is_vampshifter(mon)))
         tmp += 2;
 
+    /* Cursed weapons used against angelic beings */
+    if (Is_weapon && otmp->cursed && is_angel(ptr))
+        tmp += 2;
+
     if (is_spear(otmp) && index(kebabable, ptr->mlet))
         tmp += 2;
 
@@ -362,6 +366,8 @@ struct monst *mon;
         if (otmp->blessed
             && (is_undead(ptr) || is_demon(ptr) || is_vampshifter(mon)))
             bonus += rnd(4);
+        if (otmp->cursed && is_angel(ptr))
+            bonus += rnd(4);
         if (is_axe(otmp) && is_wooden(ptr))
             bonus += rnd(4);
         if (mon_hates_material(mon, otmp->material))
@@ -436,6 +442,8 @@ struct obj **out_obj; /* ptr to offending object, can be NULL if not wanted */
     if (obj) {
         if (obj->blessed
             && (is_undead(ptr) || is_demon(ptr) || is_vampshifter(mdef)))
+            bonus += rnd(4);
+        if (obj->cursed && is_angel(ptr))
             bonus += rnd(4);
         if (mon_hates_material(mdef, obj->material)) {
             bonus += rnd(sear_damage(obj->material));

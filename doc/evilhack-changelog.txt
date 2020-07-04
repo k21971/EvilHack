@@ -1070,4 +1070,5 @@ Version 0.6.0
 - Monsters that are M3_BERSERK should only 'howl with rage' when attacking and at
   low health, not *just* low health
 - Some forge adjustments
+- Cursed weapons get to-hit/damage bonuses to angelic beings
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
