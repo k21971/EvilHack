@@ -1060,4 +1060,6 @@ Version 0.6.0
 - Fix: aged corpses placed inside an ice box show as 'burnt'
 - All spell staves are now properly magical
 - Various objects.c edits
+- New monster: lava gremlin
+- Some tweaks to the lava gremlin pull request
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

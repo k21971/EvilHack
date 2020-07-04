@@ -2264,11 +2264,6 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         tmp = 0;
         break;
     case AD_CURS:
-    	if ((youmonst.data == &mons[PM_GREMLIN] && !night()) ||
-            (youmonst.data == &mons[PM_LAVA_GREMLIN] && night())){
-            tmp = 0;
-            break;
-    	}
         if (!rn2(10) && !mdef->mcan) {
             if (pd == &mons[PM_CLAY_GOLEM]) {
                 if (!Blind)
@@ -2276,7 +2271,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
                           s_suffix(mon_nam(mdef)));
                 xkilled(mdef, XKILL_NOMSG);
                 /* Don't return yet; keep hp<1 and tmp=0 for pet msg */
-            } else {
+            } else if ((youmonst.data == &mons[PM_GREMLIN] && night())
+                       || (youmonst.data == &mons[PM_LAVA_GREMLIN] && !night())) {
                 mdef->mcan = 1;
                 You("chuckle.");
             }

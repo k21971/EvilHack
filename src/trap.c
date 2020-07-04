@@ -6008,10 +6008,10 @@ lava_effects()
 
     feel_newsym(u.ux, u.uy); /* in case Blind, map the lava here */
     burn_away_slime();
-    
-    if (Upolyd && youmonst.data  == &mons[PM_LAVA_GREMLIN])
+
+    if (Upolyd && youmonst.data == &mons[PM_LAVA_GREMLIN])
         (void) split_mon(&youmonst, NULL);
-    
+
     if (likes_lava(youmonst.data))
         return FALSE;
 
