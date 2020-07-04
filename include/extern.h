@@ -896,6 +896,7 @@ E void FDECL(dogushforth, (int));
 E void FDECL(gush, (int, int, genericptr_t));
 #endif
 E void FDECL(dryup, (XCHAR_P, XCHAR_P, BOOLEAN_P));
+E void FDECL(blowupforge, (int, int));
 E void NDECL(drinkfountain);
 E void FDECL(dipfountain, (struct obj *));
 E void FDECL(breakforge, (int, int));
