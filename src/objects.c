@@ -212,7 +212,7 @@ WEAPON("two-handed sword", None,
                                                             IRON, HI_METAL),
         /* +2d6 large */
 WEAPON("katana", "samurai sword",
-       0, 0, 0, 0,  4,  40,  80, 10, 12, 1, S,   P_LONG_SWORD, IRON, HI_METAL),
+       0, 0, 0, 0,  4,  40,  80, 10, 12, 1, S,   P_LONG_SWORD, METAL, HI_METAL),
 /* special swords set up for artifacts */
 WEAPON("tsurugi", "long samurai sword",
        0, 0, 0, 1,  0,  60, 500, 16,  8, 2, S,   P_TWO_HANDED_SWORD,
