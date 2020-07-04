@@ -3167,7 +3167,7 @@ struct permonst _mons2[] = {
         SIZ(WT_HUMAN, 400, MS_CUSS, MZ_HUMAN),
         MR_STONE | MR_SLEEP | MR_COLD, 0,
         M1_HUMANOID | M1_REGEN | M1_OMNIVORE | M1_SEE_INVIS
-            | M1_FLY,
+            | M1_FLY | M1_TPORT_CNTRL,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_PNAME
             | M2_FEMALE | M2_GREEDY | M2_COLLECT | M2_MAGIC,
         M3_WAITFORU | M3_INFRAVISION | M3_ACCURATE,
