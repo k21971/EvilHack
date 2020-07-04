@@ -3686,13 +3686,7 @@ boolean wep_was_destroyed;
             mdamageu(mon, tmp);
 	    break;
 	case AD_DISE: /* specifically gray fungus */
-	    if (Sick_resistance) {
-		You("are infected, but it appears you are immune.");
-	    } else {
-		You("are diseased!");
-		mdamageu(mon, tmp);
-		make_sick(20, "severe case of the plague", TRUE, SICK_NONVOMITABLE);
-	    }
+            diseasemu(ptr);
             break;
         case AD_DRST: /* specifically green dragons */
             if (how_resistant(POISON_RES) == 100) {
