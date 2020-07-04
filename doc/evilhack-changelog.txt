@@ -1064,4 +1064,5 @@ Version 0.6.0
 - Some tweaks to the lava gremlin pull request
 - Change katana's base material from iron to steel
 - Ensure the artifact Snickersnee is always made of steel
+- Add a couple monsters to the 'can never be tamed' list
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

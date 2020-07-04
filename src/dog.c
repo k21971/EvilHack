@@ -931,7 +931,9 @@ register struct obj *obj;
         || mtmp->data == &mons[PM_PALE_HORSE]
         || mtmp->data == &mons[PM_WHITE_HORSE]
         || mtmp->data == &mons[PM_BLACK_HORSE]
-        || mtmp->data == &mons[PM_SNOW_GOLEM])
+        || mtmp->data == &mons[PM_SNOW_GOLEM]
+        || mtmp->data == &mons[PM_ALHOON]
+        || mtmp->data == &mons[PM_SHAMBLING_HORROR])
         return FALSE;
 
     /* Only orcs can tame the savage warg... */
