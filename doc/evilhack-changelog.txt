@@ -1074,4 +1074,5 @@ Version 0.6.0
 - Fix: passive AD_DISE attack to properly use diseasemu()
 - Defeating Kathryn the Ice Queen now counts as an achievement
 - Encode minor/major oracle consultations into the xlogfile
+- Disclose achievements
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

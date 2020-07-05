@@ -195,6 +195,7 @@ STATIC_DCL void FDECL(characteristics_enlightenment, (int, int));
 STATIC_DCL void FDECL(one_characteristic, (int, int, int));
 STATIC_DCL void FDECL(status_enlightenment, (int, int));
 STATIC_DCL void FDECL(attributes_enlightenment, (int, int));
+STATIC_DCL void FDECL(show_achievements, (int));
 
 STATIC_DCL void FDECL(add_herecmd_menuitem, (winid, int NDECL((*)),
                                              const char *));
@@ -3146,119 +3147,6 @@ int final;
     }
 }
 
-#if 0  /* no longer used */
-STATIC_DCL boolean NDECL(minimal_enlightenment);
-
-/*
- * Courtesy function for non-debug, non-explorer mode players
- * to help refresh them about who/what they are.
- * Returns FALSE if menu cancelled (dismissed with ESC), TRUE otherwise.
- */
-STATIC_OVL boolean
-minimal_enlightenment()
-{
-    winid tmpwin;
-    menu_item *selected;
-    anything any;
-    int genidx, n;
-    char buf[BUFSZ], buf2[BUFSZ];
-    static const char untabbed_fmtstr[] = "%-15s: %-12s";
-    static const char untabbed_deity_fmtstr[] = "%-17s%s";
-    static const char tabbed_fmtstr[] = "%s:\t%-12s";
-    static const char tabbed_deity_fmtstr[] = "%s\t%s";
-    static const char *fmtstr;
-    static const char *deity_fmtstr;
-
-    fmtstr = iflags.menu_tab_sep ? tabbed_fmtstr : untabbed_fmtstr;
-    deity_fmtstr = iflags.menu_tab_sep ? tabbed_deity_fmtstr
-                                       : untabbed_deity_fmtstr;
-    any = zeroany;
-    buf[0] = buf2[0] = '\0';
-    tmpwin = create_nhwindow(NHW_MENU);
-    start_menu(tmpwin);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
-             "Starting", FALSE);
-
-    /* Starting name, race, role, gender */
-    Sprintf(buf, fmtstr, "name", plname);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-    Sprintf(buf, fmtstr, "race", urace.noun);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-    Sprintf(buf, fmtstr, "role",
-            (flags.initgend && urole.name.f) ? urole.name.f : urole.name.m);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-    Sprintf(buf, fmtstr, "gender", genders[flags.initgend].adj);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-    /* Starting alignment */
-    Sprintf(buf, fmtstr, "alignment", align_str(u.ualignbase[A_ORIGINAL]));
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-    /* Current name, race, role, gender */
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
-             "Current", FALSE);
-    Sprintf(buf, fmtstr, "race", Upolyd ? youmonst.data->mname : urace.noun);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-    if (Upolyd) {
-        Sprintf(buf, fmtstr, "role (base)",
-                (u.mfemale && urole.name.f) ? urole.name.f
-                                            : urole.name.m);
-        add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-    } else {
-        Sprintf(buf, fmtstr, "role",
-                (flags.female && urole.name.f) ? urole.name.f
-                                               : urole.name.m);
-        add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-    }
-    /* don't want poly_gender() here; it forces `2' for non-humanoids */
-    genidx = is_neuter(youmonst.data) ? 2 : flags.female;
-    Sprintf(buf, fmtstr, "gender", genders[genidx].adj);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-    if (Upolyd && (int) u.mfemale != genidx) {
-        Sprintf(buf, fmtstr, "gender (base)", genders[u.mfemale].adj);
-        add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-    }
-
-    /* Current alignment */
-    Sprintf(buf, fmtstr, "alignment", align_str(u.ualign.type));
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-    /* Deity list */
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
-             "Deities", FALSE);
-    Sprintf(buf2, deity_fmtstr, align_gname(A_CHAOTIC),
-            (u.ualignbase[A_ORIGINAL] == u.ualign.type
-             && u.ualign.type == A_CHAOTIC)               ? " (s,c)"
-                : (u.ualignbase[A_ORIGINAL] == A_CHAOTIC) ? " (s)"
-                : (u.ualign.type   == A_CHAOTIC)          ? " (c)" : "");
-    Sprintf(buf, fmtstr, "Chaotic", buf2);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-    Sprintf(buf2, deity_fmtstr, align_gname(A_NEUTRAL),
-            (u.ualignbase[A_ORIGINAL] == u.ualign.type
-             && u.ualign.type == A_NEUTRAL)               ? " (s,c)"
-                : (u.ualignbase[A_ORIGINAL] == A_NEUTRAL) ? " (s)"
-                : (u.ualign.type   == A_NEUTRAL)          ? " (c)" : "");
-    Sprintf(buf, fmtstr, "Neutral", buf2);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-    Sprintf(buf2, deity_fmtstr, align_gname(A_LAWFUL),
-            (u.ualignbase[A_ORIGINAL] == u.ualign.type
-             && u.ualign.type == A_LAWFUL)                ? " (s,c)"
-                : (u.ualignbase[A_ORIGINAL] == A_LAWFUL)  ? " (s)"
-                : (u.ualign.type   == A_LAWFUL)           ? " (c)" : "");
-    Sprintf(buf, fmtstr, "Lawful", buf2);
-    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-    end_menu(tmpwin, "Base Attributes");
-    n = select_menu(tmpwin, PICK_NONE, &selected);
-    destroy_nhwindow(tmpwin);
-    return (boolean) (n != -1);
-}
-#endif /*0*/
-
 /* ^X command */
 STATIC_PTR int
 doattributes(VOID_ARGS)
@@ -3463,14 +3351,94 @@ int final;
                     " for any artifacts", "");
     }
 
-    if (!u.uconduct.pets) {
+    if (!u.uconduct.pets)
        you_have_never("owned a pet");
-    }
+
+    show_achievements(final);
 
     /* Pop up the window and wait for a key */
     display_nhwindow(en_win, TRUE);
     destroy_nhwindow(en_win);
     en_win = WIN_ERR;
+}
+
+STATIC_OVL void
+show_achievements(final)
+int final;
+{
+    winid awin = WIN_ERR;
+    int acnt = 0;
+
+    /* In vanilla NetHack (3.7.0), achievements are only shown at the end
+       of the game or in wizard mode. Reason being - concern over giving
+       away the ID of the Mine's End luckstone, or the real Amulet of Yendor.
+       Personally I feel these concerns are unwarranted, as livelogging
+       already reveals the Mine's End luckstone, and the high priest of Moloch
+       in the sanctum only ever has the real Amulet. Let the player see
+       what they've achieved during the course of the game */
+#if 0
+    if (!final && !wizard)
+        return;
+#endif
+    if (en_win != WIN_ERR) {
+        awin = en_win;
+        putstr(awin, 0, "");
+    } else {
+        awin = create_nhwindow(NHW_MENU);
+    }
+    putstr(awin, 0, "Achievements completed:");
+    /* arranged in approximate order of difficulty */
+    if (u.uevent.minor_oracle)
+        enl_msg(You_, "have ", "",
+                "received a minor consultation from the Oracle", ""), ++acnt;
+    if (u.uevent.major_oracle)
+        enl_msg(You_, "have ", "",
+                "received a major consultation from the Oracle", ""), ++acnt;
+    if (u.uachieve.mines_luckstone)
+        enl_msg(You_, "have ", "",
+                "completed the Gnomish Mines", ""), ++acnt;
+    if (u.uachieve.finish_sokoban)
+        enl_msg(You_, "have ", "",
+                "completed Sokoban", ""), ++acnt;
+    if (u.uachieve.killed_medusa)
+        enl_msg(You_, "have ", "",
+                "defeated Medusa", ""), ++acnt;
+    if (u.uachieve.defeat_icequeen)
+        enl_msg(You_, "have ", "",
+                "defeated Kathryn the Ice Queen", ""), ++acnt;
+    if (u.uachieve.bell)
+        enl_msg(You_, "have ", "",
+                "handled the Bell of Opening", ""), ++acnt;
+    if (u.uachieve.enter_gehennom)
+        enl_msg(You_, "have ", "",
+                "entered Gehennom", ""), ++acnt;
+    if (u.uachieve.menorah)
+        enl_msg(You_, "have ", "",
+                "handled the Candelabrum of Invocation", ""), ++acnt;
+    if (u.uachieve.book)
+        enl_msg(You_, "have ", "",
+                "handled the Book of the Dead", ""), ++acnt;
+    if (u.uevent.invoked)
+        enl_msg(You_, "have ", "",
+                "gained access to Moloch's Sanctum", ""), ++acnt;
+    if (u.uachieve.amulet)
+        enl_msg(You_, "have ", "",
+                "obtained the Amulet of Yendor", ""), ++acnt;
+    if (In_endgame(&u.uz))
+        enl_msg(You_, "have ", "",
+                "reached the Elemental Planes", ""), ++acnt;
+    if (Is_astralevel(&u.uz))
+        enl_msg(You_, "have ", "",
+                "reached the Astral Plane", ""), ++acnt;
+    if (u.uachieve.ascended)
+        enlght_out(" You ascended!"), ++acnt;
+    if (!acnt)
+        enlght_out(" You have no achievements.");
+
+    if (awin != en_win) {
+        display_nhwindow(awin, TRUE);
+        destroy_nhwindow(awin);
+    }
 }
 
 /* ordered by command name */
@@ -3493,7 +3461,7 @@ struct ext_func_tab extcmdlist[] = {
     { 'Z', "cast", "zap (cast) a spell", docast, IFBURIED },
     { M('c'), "chat", "talk to someone", dotalk, IFBURIED | AUTOCOMPLETE },
     { 'c', "close", "close a door", doclose },
-    { M('C'), "conduct", "list voluntary challenges you have maintained",
+    { M('C'), "conduct", "list voluntary challenges you have maintained and completed achievements",
             doconduct, IFBURIED | AUTOCOMPLETE },
     { M('d'), "dip", "dip an object into something", dodip, AUTOCOMPLETE },
     { '>', "down", "go down a staircase", dodown },
