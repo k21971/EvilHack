@@ -850,8 +850,8 @@ struct obj *obj;
         set_artifact_intrinsic(obj, 1, W_ART);
     }
 
-    /* "special achievements" aren't discoverable during play, they
-       end up being recorded in XLOGFILE at end of game, nowhere else;
+    /* "special achievements"; revealed in end of game disclosure and
+       dumplog or using #conduct, originally just recorded in XLOGFILE;
        record_achieve_special overloads corpsenm which is ordinarily
        initialized to NON_PM (-1) rather than to 0; any special prize
        must never be a corpse, egg, tin, figurine, or statue because
