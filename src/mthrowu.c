@@ -31,6 +31,22 @@ STATIC_VAR int mesg_given; /* for m_throw()/thitu() 'miss' message */
 
 extern struct obj *stack;
 
+boolean
+m_has_launcher_and_ammo(mtmp)
+struct monst *mtmp;
+{
+    struct obj *mwep = MON_WEP(mtmp);
+
+    if (mwep && is_launcher(mwep)) {
+        struct obj *otmp;
+
+        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
+            if (ammo_and_launcher(otmp, mwep))
+                return TRUE;
+    }
+    return FALSE;
+}
+
 /* hero is hit by something other than a monster */
 int
 thitu(tlev, dam, objp, name)
