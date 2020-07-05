@@ -493,6 +493,10 @@ encodeachieve()
         r |= 1L << 11;
     if (u.uachieve.defeat_icequeen)
         r |= 1L << 12;
+    if (u.uevent.minor_oracle)
+        r |= 1L << 13;
+    if (u.uevent.major_oracle)
+        r |= 1L << 14;
 
     return r;
 }
