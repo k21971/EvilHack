@@ -162,7 +162,7 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '#', "dead tree", C(CLR_BLACK) },           /* dead tree */
 /*20*/ { '.', "floor of a room", C(CLR_GRAY) },      /* room */
        { '.', "dark part of a room", C(CLR_BLACK) }, /* dark room */
-       { '#', "corridor", C(CLR_GRAY) },             /* dark corr */
+       { '#', "corridor", C(CLR_BLACK) },             /* dark corr */
        { '#', "lit corridor", C(CLR_GRAY) },   /* lit corr (see mapglyph.c) */
        { '<', "staircase up", C(CLR_GRAY) },         /* upstair */
        { '>', "staircase down", C(CLR_GRAY) },       /* dnstair */
