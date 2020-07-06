@@ -1204,6 +1204,9 @@ dospit()
         case AD_ACID:
             otmp = mksobj(ACID_VENOM, TRUE, FALSE);
             break;
+        case AD_COLD:
+            otmp = mksobj(SNOWBALL, TRUE, FALSE);
+            break;
         }
         otmp->spe = 1; /* to indicate it's yours */
         stack = (struct obj *) 0;

@@ -1078,4 +1078,5 @@ Version 0.6.0
 - Record number of wishes and artifact wishes in xlogfile
 - Make hostile monsters with launcher and ammo keep away
 - Dark/unlit corridors are actually dark
+- Snow golems can throw snowballs
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

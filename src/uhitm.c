@@ -1211,15 +1211,18 @@ int dieroll;
                     break;
                 case CREAM_PIE:
                 case BLINDING_VENOM:
+                case SNOWBALL:
                     mon->msleeping = 0;
                     if (can_blnd(&youmonst, mon,
-                                 (uchar) ((obj->otyp == BLINDING_VENOM)
-                                             ? AT_SPIT
-                                             : AT_WEAP),
+                                 (uchar) (((obj->otyp == BLINDING_VENOM)
+                                          || (obj->otyp == SNOWBALL))
+                                               ? AT_SPIT
+                                               : AT_WEAP),
                                  obj)) {
                         if (Blind) {
                             pline(obj->otyp == CREAM_PIE ? "Splat!"
-                                                         : "Splash!");
+                                  : obj->otyp == SNOWBALL ? "Thwap!"
+                                                          : "Splash!");
                         } else if (obj->otyp == BLINDING_VENOM) {
                             pline_The("venom blinds %s%s!", mon_nam(mon),
                                       mon->mcansee ? "" : " further");
@@ -1235,7 +1238,7 @@ int dieroll;
                                 whom = strcat(strcat(s_suffix(whom), " "),
                                               mbodypart(mon, FACE));
                             pline("%s %s over %s!", what,
-                                  vtense(what, "splash"), whom);
+                                  vtense(what, (obj->otyp == SNOWBALL) ? "spread" : "splash"), whom);
                         }
                         setmangry(mon, TRUE);
                         mon->mcansee = 0;
@@ -1245,7 +1248,8 @@ int dieroll;
                         else
                             mon->mblinded += tmp;
                     } else {
-                        pline(obj->otyp == CREAM_PIE ? "Splat!" : "Splash!");
+                        pline(obj->otyp == CREAM_PIE ? "Splat!"
+                              : obj->otyp == SNOWBALL ? "Thwap!" : "Splash!");
                         setmangry(mon, TRUE);
                     }
                     if (thrown)

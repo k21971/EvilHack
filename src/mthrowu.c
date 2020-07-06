@@ -614,8 +614,9 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
            that the target is still alive anyway */
         if (!DEADMONSTER(mtmp)
             && can_blnd((struct monst *) 0, mtmp,
-                        (uchar) ((otmp->otyp == BLINDING_VENOM) ? AT_SPIT
-                                                                : AT_WEAP),
+                        (uchar) (((otmp->otyp == BLINDING_VENOM)
+                                 || (otmp->otyp == SNOWBALL)) ? AT_SPIT
+                                                              : AT_WEAP),
                         otmp)) {
             if (vis && mtmp->mcansee)
                 pline("%s is blinded by %s.", Monnam(mtmp), the(xname(otmp)));
@@ -824,9 +825,10 @@ register boolean verbose;
                          (u.umortality > oldumort) ? 0 : 10, TRUE);
             }
             if (hitu && can_blnd((struct monst *) 0, &youmonst,
-                                 (uchar) ((singleobj->otyp == BLINDING_VENOM)
-                                             ? AT_SPIT
-                                             : AT_WEAP),
+                                 (uchar) (((singleobj->otyp == BLINDING_VENOM)
+                                          || (singleobj->otyp == SNOWBALL))
+                                               ? AT_SPIT
+                                               : AT_WEAP),
                                  singleobj)) {
                 blindinc = rnd(25);
                 if (singleobj->otyp == CREAM_PIE) {
@@ -835,15 +837,19 @@ register boolean verbose;
                     else
                         pline("There's %s sticky all over your %s.",
                               something, body_part(FACE));
-                } else if (singleobj->otyp == BLINDING_VENOM) {
+                } else if (singleobj->otyp == BLINDING_VENOM
+                           || singleobj->otyp == SNOWBALL) {
                     const char *eyes = body_part(EYE);
 
                     if (eyecount(youmonst.data) != 1)
                         eyes = makeplural(eyes);
                     /* venom in the eyes */
-                    if (!Blind)
-                        pline_The("venom blinds you.");
-                    else
+                    if (!Blind) {
+                        if (singleobj->otyp == SNOWBALL)
+                            pline_The("snowball blinds you.");
+                        else
+                            pline_The("venom blinds you.");
+                    } else
                         Your("%s %s.", eyes, vtense(eyes, "sting"));
                 }
             }
@@ -947,9 +953,13 @@ struct attack *mattk;
     struct obj *otmp;
 
     if (mtmp->mcan) {
-        if (!Deaf)
-            pline("A dry rattle comes from %s throat.",
-                  s_suffix(mon_nam(mtmp)));
+        if (!Deaf) {
+            if (mtmp && mtmp->data == &mons[PM_SNOW_GOLEM])
+                ;
+            else
+                pline("A dry rattle comes from %s throat.",
+                      s_suffix(mon_nam(mtmp)));
+        }
         return 0;
     }
 
@@ -963,13 +973,20 @@ struct attack *mattk;
         case AD_ACID:
             otmp = mksobj(ACID_VENOM, TRUE, FALSE);
             break;
+        case AD_COLD:
+            otmp = mksobj(SNOWBALL, TRUE, FALSE);
+            break;
         default:
             impossible("bad attack type in spitmu");
             /*FALLTHRU*/
         }
         if (!rn2(BOLT_LIM - distmin(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my))) {
-            if (canseemon(mtmp))
-                pline("%s spits venom!", Monnam(mtmp));
+            if (canseemon(mtmp)) {
+                if (mtmp && mtmp->data == &mons[PM_SNOW_GOLEM])
+                    pline("%s throws a snowball!", Monnam(mtmp));
+                else
+                    pline("%s spits venom!", Monnam(mtmp));
+            }
             target = mtarg;
             m_throw(mtmp, mtmp->mx, mtmp->my, sgn(tbx), sgn(tby),
                     distmin(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my), otmp, TRUE);
@@ -1168,9 +1185,13 @@ struct attack *mattk;
     struct obj *otmp;
 
     if (mtmp->mcan) {
-        if (!Deaf)
-            pline("A dry rattle comes from %s throat.",
-                  s_suffix(mon_nam(mtmp)));
+        if (!Deaf) {
+            if (mtmp && mtmp->data == &mons[PM_SNOW_GOLEM])
+                ;
+            else
+                pline("A dry rattle comes from %s throat.",
+                      s_suffix(mon_nam(mtmp)));
+        }
         return 0;
     }
     otmp = (struct obj *) 0;
@@ -1183,6 +1204,9 @@ struct attack *mattk;
         case AD_ACID:
             otmp = mksobj(ACID_VENOM, TRUE, FALSE);
             break;
+        case AD_COLD:
+            otmp = mksobj(SNOWBALL, TRUE, FALSE);
+            break;
         default:
             impossible("bad attack type in spitmu");
             /* fall through */
@@ -1192,8 +1216,12 @@ struct attack *mattk;
         }
         if (!rn2(BOLT_LIM
                  - distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy))) {
-            if (canseemon(mtmp))
-                pline("%s spits venom!", Monnam(mtmp));
+            if (canseemon(mtmp)) {
+                if (mtmp && mtmp->data == &mons[PM_SNOW_GOLEM])
+                    pline("%s throws a snowball!", Monnam(mtmp));
+                else
+                    pline("%s spits venom!", Monnam(mtmp));
+            }
             m_throw(mtmp, mtmp->mx, mtmp->my, sgn(tbx), sgn(tby),
                     distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy), otmp, TRUE);
             nomul(0);

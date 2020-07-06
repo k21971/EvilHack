@@ -1022,7 +1022,7 @@ boolean hitsroof;
         int blindinc;
 
         /* need to check for blindness result prior to destroying obj */
-        blindinc = ((otyp == CREAM_PIE || otyp == BLINDING_VENOM)
+        blindinc = ((otyp == CREAM_PIE || otyp == BLINDING_VENOM || otyp == SNOWBALL)
                     /* AT_WEAP is ok here even if attack type was AT_SPIT */
                     && can_blnd(&youmonst, &youmonst, AT_WEAP, obj))
                        ? rnd(25)
@@ -1044,9 +1044,11 @@ boolean hitsroof;
             /*FALLTHRU*/
         case CREAM_PIE:
         case BLINDING_VENOM:
-            pline("You've got it all over your %s!", body_part(FACE));
+        case SNOWBALL:
+            pline("You've got %s all over your %s!",
+                  (otyp == SNOWBALL) ? "snow" : "it", body_part(FACE));
             if (blindinc) {
-                if (otyp == BLINDING_VENOM && !Blind)
+                if ((otyp == BLINDING_VENOM || otyp == SNOWBALL) && !Blind)
                     pline("It blinds you!");
                 u.ucreamed += blindinc;
                 make_blinded(Blinded + (long) blindinc, FALSE);
@@ -1886,7 +1888,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         }
 
     } else if ((otyp == EGG || otyp == CREAM_PIE || otyp == BLINDING_VENOM
-                || otyp == ACID_VENOM)
+                || otyp == ACID_VENOM || otyp == SNOWBALL)
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
         (void) hmon(mon, obj, hmode, dieroll);
         return 1; /* hmon used it up */
@@ -2206,6 +2208,7 @@ struct obj *obj;
     case MELON:
     case ACID_VENOM:
     case BLINDING_VENOM:
+    case SNOWBALL:
         return 1;
     default:
         return 0;
@@ -2249,6 +2252,9 @@ boolean in_view;
     case ACID_VENOM:
     case BLINDING_VENOM:
         pline("Splash!");
+        break;
+    case SNOWBALL:
+        pline("Thwap!");
         break;
     }
 }
