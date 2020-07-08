@@ -848,6 +848,8 @@ u_init()
         break;
     case PM_INFIDEL:
         u.umoney0 = rn1(251, 250);
+        if (Race_if(PM_ILLITHID))
+            ini_inv(Psionics);
         ini_inv(Infidel);
         knows_object(SCR_CHARGING);
         skill_init(Skill_Inf);
