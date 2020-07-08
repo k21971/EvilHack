@@ -191,7 +191,7 @@ int expltype;
                 case AD_DISN:
                     explmask[i][j] = (olet == WAND_CLASS)
                                          ? !!(nonliving(youmonst.data)
-                                              || is_demon(youmonst.data))
+                                              || is_demon(raceptr(&youmonst)))
                                          : (how_resistant(DISINT_RES) > 50);
                     break;
                 case AD_ELEC:

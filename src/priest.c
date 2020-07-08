@@ -4,6 +4,7 @@
 
 #include "hack.h"
 #include "mfndpos.h"
+#include "qtext.h"
 
 /* these match the categorizations shown by enlightenment */
 #define ALGN_SINNED (-4) /* worse than strayed (-1..-3) */
@@ -268,7 +269,7 @@ boolean sanctum; /* is it the seat of the high priest? */
 
         /* now his/her goodies... */
         if (sanctum && EPRI(priest)->shralign == A_NONE
-            && on_level(&sanctum_level, &u.uz)) {
+            && on_level(&sanctum_level, &u.uz) && !Role_if(PM_INFIDEL)) {
             (void) mongets(priest, AMULET_OF_YENDOR);
             (void) mongets(priest, MAGIC_MARKER);
         }
@@ -412,7 +413,7 @@ int roomno;
 {
     struct monst *priest, *mtmp;
     struct epri *epri_p;
-    boolean shrined, sanctum, can_speak;
+    boolean shrined, sanctum, can_speak, call_guards;
     long *this_time, *other_time;
     const char *msg1, *msg2;
     char buf[BUFSZ];
@@ -429,6 +430,7 @@ int roomno;
         sanctum = (priest->data == &mons[PM_HIGH_PRIEST]
                    && (Is_sanctum(&u.uz) || In_endgame(&u.uz)));
         can_speak = (priest->mcanmove && !priest->msleeping);
+        call_guards = FALSE;
         if (can_speak && !Deaf && moves >= epri_p->intone_time) {
             unsigned save_priest = priest->ispriest;
 
@@ -446,11 +448,20 @@ int roomno;
             epri_p->enter_time = 0L;
         }
         msg1 = msg2 = 0;
-        if (sanctum && Is_sanctum(&u.uz)) {
+        if (((sanctum && Is_sanctum(&u.uz)) || u.ualign.type == A_NONE)
+            && !p_coaligned(priest)) {
+            /* either a non-Infidel in the Sanctum, or an Infidel in any
+             * non-Moloch temple; either way, the priest is not happy */
             if (priest->mpeaceful) {
                 /* first time inside */
-                msg1 = "Infidel, you have entered Moloch's Sanctum!";
-                msg2 = "Be gone!";
+                if (u.ualign.type == A_NONE) {
+                    msg1 = "Begone, infidel!";
+                    msg2 = "This place is barred for your cult!";
+                    call_guards = in_town(priest->mx, priest->my);
+                } else {
+                    msg1 = "Infidel, you have entered Moloch's Sanctum!";
+                    msg2 = "Be gone!";
+                }
                 priest->mpeaceful = 0;
                 /* became angry voluntarily; no penalty for attacking him */
                 set_malign(priest);
@@ -468,6 +479,11 @@ int roomno;
             if (msg2)
                 verbalize1(msg2);
             epri_p->enter_time = moves + (long) d(10, 100); /* ~505 */
+        }
+        /* for Infidels, visiting the Minetown temple is a very bad idea */
+        if (call_guards) {
+            pline("%s calls for guards!", Monnam(priest));
+            (void) angry_guards(FALSE);
         }
         if (!sanctum) {
             if (!shrined || !p_coaligned(priest)
@@ -586,7 +602,8 @@ register struct monst *priest;
 
     /* priests don't chat unless peaceful and in their own temple */
     if (!inhistemple(priest) || !priest->mpeaceful
-        || !priest->mcanmove || priest->msleeping) {
+        || !priest->mcanmove || priest->msleeping
+        || (u.ualign.type == A_NONE && !coaligned)) {
         static const char *cranky_msg[3] = {
             "Thou wouldst have words, eh?  I'll give thee a word or two!",
             "Talk?  Here is what I have to say!",
@@ -614,7 +631,19 @@ register struct monst *priest;
         return;
     }
     if (!money_cnt(invent)) {
-        if (coaligned && !strayed) {
+        if (Role_if(PM_INFIDEL) && u.uachieve.amulet
+            && priest->data == &mons[PM_HIGH_PRIEST] && Is_sanctum(&u.uz)) {
+            /* give a hint about the correct high altar */
+            aligntyp saved_align = u.ualignbase[A_ORIGINAL];
+            uchar saved_godgend = quest_status.godgend;
+            /* a hack for displaying a different god's name in the message */
+            u.ualignbase[A_ORIGINAL] = inf_align(3);
+            /* "god"[3] == 0; "goddess"[3] != 0 */
+            quest_status.godgend = !!align_gtitle(inf_align(3))[3];
+            qt_pager(QT_MOLOCH_3);
+            u.ualignbase[A_ORIGINAL] = saved_align;
+            quest_status.godgend = saved_godgend;
+        } else if (coaligned && !strayed) {
             long pmoney = money_cnt(priest->minvent);
             if (pmoney > 0L) {
                 /* Note: two bits is actually 25 cents.  Hmm. */

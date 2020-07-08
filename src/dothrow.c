@@ -121,6 +121,7 @@ int shotlimit;
         /* some roles don't get a volley bonus until becoming expert */
         weakmultishot = (Role_if(PM_WIZARD) || Role_if(PM_PRIEST)
                          || (Role_if(PM_HEALER) && skill != P_KNIFE)
+                         || (Role_if(PM_INFIDEL) && skill != P_DAGGER)
                          || (Role_if(PM_TOURIST) && skill != -P_DART)
                          /* poor dexterity also inhibits multishot */
                          || Fumbling || ACURR(A_DEX) <= 6);
@@ -1936,7 +1937,7 @@ register struct monst *mon;
 register struct obj *obj;
 {
     char buf[BUFSZ];
-    boolean is_buddy = sgn(mon->data->maligntyp) == sgn(u.ualign.type);
+    boolean is_buddy = sgn(mon->data->maligntyp) == u.ualign.type;
     boolean is_gem = obj->material == GEMSTONE;
     int ret = 0;
     static NEARDATA const char nogood[] = " is not interested in your junk.";

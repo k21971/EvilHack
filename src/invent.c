@@ -818,7 +818,8 @@ struct obj *obj;
         /* for the first time */
         if(!u.uachieve.amulet)
             livelog_write_string(LL_ACHIEVE, "acquired the Amulet of Yendor");
-        u.uachieve.amulet = 1;
+        if (!Role_if(PM_INFIDEL))
+            u.uachieve.amulet = 1;
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
         if (u.uhave.menorah)
             impossible("already have candelabrum?");
@@ -845,6 +846,8 @@ struct obj *obj;
             if (u.uhave.questart)
                 impossible("already have quest artifact?");
             u.uhave.questart = 1;
+            if (Role_if(PM_INFIDEL) && obj->spe)
+                u.uhave.amulet = 1;
             artitouch(obj);
         }
         set_artifact_intrinsic(obj, 1, W_ART);
@@ -1045,7 +1048,7 @@ const char *drop_fmt, *drop_arg, *hold_msg;
             drop_arg = strcpy(buf, drop_arg);
 
         obj = addinv(obj);
-        if (inv_cnt(FALSE) > 52 || ((obj->otyp != LOADSTONE || !obj->cursed)
+        if (inv_cnt(FALSE) > 52 || ((obj->otyp != LOADSTONE || !cursed(obj, TRUE))
                                     && near_capacity() > prev_encumbr)) {
             /* undo any merge which took place */
             if (obj->quan > oquan)
@@ -1149,6 +1152,8 @@ struct obj *obj;
             if (!u.uhave.questart)
                 impossible("don't have quest artifact?");
             u.uhave.questart = 0;
+            if (Role_if(PM_INFIDEL) && obj->spe)
+                u.uhave.amulet = 0;
         }
         set_artifact_intrinsic(obj, 0, W_ART);
     }
@@ -1198,6 +1203,7 @@ register struct obj *obj;
     boolean update_map;
 
     if (obj->otyp == AMULET_OF_YENDOR
+        || (Role_if(PM_INFIDEL) && is_quest_artifact(obj) && obj->spe)
         || obj->otyp == CANDELABRUM_OF_INVOCATION
         || obj->otyp == BELL_OF_OPENING
         || obj->otyp == SPE_BOOK_OF_THE_DEAD) {
@@ -1410,7 +1416,7 @@ boolean
 splittable(obj)
 struct obj *obj;
 {
-    return !((obj->otyp == LOADSTONE && obj->cursed)
+    return !((obj->otyp == LOADSTONE && cursed(obj, TRUE))
              || (obj == uwep && welded(uwep)));
 }
 
@@ -1618,10 +1624,11 @@ register const char *let, *word;
              || (!strncmp(word, "rub on the stone", 16)
                  && *let == GEM_CLASS && otmp->dknown
                  && objects[otyp].oc_name_known)
-             /* suppress corpses on astral, amulets elsewhere */
+             /* suppress corpses on astral (or sanctum), amulets elsewhere */
              || (!strcmp(word, "sacrifice")
                  /* (!astral && amulet) || (astral && !amulet) */
-                 && (!Is_astralevel(&u.uz) ^ (otmp->oclass != AMULET_CLASS)))
+                 && ((!Is_astralevel(&u.uz) && !Is_sanctum(&u.uz))
+                     ^ (otmp->oclass != AMULET_CLASS)))
              /* suppress container being stashed into */
              || (!strcmp(word, "stash") && !ck_bag(otmp))
              /* worn armor (shirt, suit) covered by worn armor (suit, cloak)
@@ -1837,7 +1844,7 @@ register const char *let, *word;
             /* don't split a stack of cursed loadstones */
             if (splittable(otmp))
                 otmp = splitobj(otmp, cnt);
-            else if (otmp->otyp == LOADSTONE && otmp->cursed)
+            else if (otmp->otyp == LOADSTONE && cursed(otmp, TRUE))
                 /* kludge for canletgo()'s can't-drop-this message */
                 otmp->corpsenm = (int) cnt;
         }

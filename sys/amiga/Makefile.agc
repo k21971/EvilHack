@@ -228,6 +228,10 @@ HDFILES1= $(SLIB)Hea-fila.lev $(SLIB)Hea-filb.lev $(SLIB)Hea-loca.lev \
 	$(SLIB)Hea-strt.lev
 HDFILES= $(SLIB)Hea-goal.lev $(HDFILES1)
 
+IDFILES1= $(SLIB)Inf-fila.lev $(SLIB)Inf-filb.lev $(SLIB)Inf-loca.lev \
+	$(SLIB)Inf-strt.lev
+IDFILES= $(SLIB)Inf-goal.lev $(IDFILES1)
+
 KDFILES1= $(SLIB)Kni-fila.lev $(SLIB)Kni-filb.lev $(SLIB)Kni-loca.lev \
 	$(SLIB)Kni-strt.lev
 KDFILES= $(SLIB)Kni-goal.lev $(KDFILES1)
@@ -264,7 +268,7 @@ WDFILES1= $(SLIB)Wiz-fila.lev $(SLIB)Wiz-filb.lev $(SLIB)Wiz-loca.lev \
 	$(SLIB)Wiz-strt.lev
 WDFILES= $(SLIB)Wiz-goal.lev $(WDFILES1)
 
-XDFILES=	$(ADFILES) $(BDFILES) $(CDFILES) $(HDFILES) $(KDFILES) \
+XDFILES=	$(ADFILES) $(BDFILES) $(CDFILES) $(HDFILES) $(IDFILES) $(KDFILES) \
 		$(MDFILES) $(PDFILES) $(RDFILES) $(RANFILES) $(SDFILES) $(TDFILES) \
 		$(VDFILES) $(WDFILES)
 
@@ -845,6 +849,10 @@ $(SLIB)Cav-goal.lev:	$(DAT)Caveman.des $(SBIN)lev_comp
 $(HDFILES1):	$(SLIB)Hea-goal.lev
 
 $(SLIB)Hea-goal.lev:	$(DAT)Healer.des $(SBIN)lev_comp
+
+$(IDFILES1):   $(SLIB)Inf-goal.lev
+
+$(SLIB)Inf-goal.lev:   $(DAT)Infidel.des $(SBIN)lev_comp
 
 $(KDFILES1):	$(SLIB)Kni-goal.lev
 

@@ -10,7 +10,7 @@
 #	QT_FIRSTTIME	 1
 #	QT_NEXTTIME	 2
 #	QT_OTHERTIME	 3
-#
+#	QT_ALTSTART	 4	/* alternate game start message (optional) */
 #	QT_GUARDTALK	 5	/* 5 random things guards say before quest */
 #	QT_GUARDTALK2	10	/* 5 random things guards say after quest */
 #
@@ -41,6 +41,10 @@
 #
 #	QT_GOTIT	70
 #
+#				/* For Infidels: Moloch's dialogue */
+#	QT_MOLOCH_1	71	/* offered Amulet, no Idol */
+#	QT_MOLOCH_2	72	/* offered Amulet, got Idol */
+#	QT_MOLOCH_3	73	/* high priest's altar hint */
 #	QT_KILLEDNEM	80
 #	QT_OFFEREDIT	81
 #	QT_OFFEREDIT2	82	/* if you throw artifact to leader after #81 */
@@ -1386,6 +1390,353 @@ absence, yes?  How fare you upon your quest for the Amulet?"
 to the Astral, and there return the Amulet to %d.  Go forth and
 may our prayers be as a wind upon your back."
 %E ["You have recovered the Amulet.  Travel to the Astral Plane and return it to %d."]
+#
+#	Infidel
+#
+%Cc Inf 00001
+You arrive at the mouth of a cave that hosts %H.  This is
+the place where %l taught you the glory of %d,
+where you studied black arts with your fellow %gp,
+and where you were chosen for your unholy mission.
+
+You did not expect to be back so soon.
+Why has %l called you?
+
+It is nighttime, and the moonlight is scattered by clouds.  You make sure
+to stay in the shadows, for even here you are likely to be ambushed
+for your precious cargo.  The surface is never safe for you now.
+%E [You arrive near %H.  Talk to %l to find out why %lh called you.]
+%Cp Inf 00002
+Once again, you near %H.
+%E
+%Cp Inf 00003
+Again you face %H.  %dS presence feels fainter than usual.
+You wonder if you'll be allowed to return here yet again.
+%E
+# Note: %lh is just to randomize the pronoun,
+# the unlucky hero was not actually your leader
+%Cc Inf 00004
+It is written in the Book of %d:
+
+    After the Creation, the mighty %G %d rebelled
+    against the tyranny of Marduk the Creator.  %d
+    defeated Marduk and obtained from him the most powerful
+    of all the artifacts of the gods, the Amulet of Yendor,
+    and %dH hid it in %dJ dark domain of Gehennom, the
+    Under World, where %dH now gathers power and prepares for
+    the final confrontation.
+
+Many fools were sent by the gods of the heaven after the Amulet,
+only to die in the underground mazes.  By pure luck, one of them
+has succeeded; thankfully, %lh was ambushed on the way back
+and the Amulet was recovered by %ds Cult.
+
+You, a newly trained %r, have been heralded
+from birth as the instrument of %d.  You are destined
+to return the Amulet to its rightful owner, or die in the
+attempt.  Your hour of destiny has come.  For the sake
+of us all:  Go bravely with %d!
+%E [%dC has chosen you to return the Amulet of Yendor to %dI.]
+%Cp Inf 00005
+"Agents of the false gods are everywhere!  I got my purse stolen!"
+%E
+%Cp Inf 00006
+"I was once biten by a werewolf in %i.
+It's not nearly as glamorous as the books make it sound."
+%E
+%Cp Inf 00007
+"I just noticed a pile of skulls in that corner.  %pC... are we the baddies?"
+%E
+# Note: this will obviously need to be rewritten
+# if the Paladin's gender changes
+%Cp Inf 00008
+"%nC of %D acts all high and mighty, but %nh's still just a woman."
+%E
+%Cp Inf 00009
+"We were THIS close to recovering %o by ourselves!
+The church of %D just got lucky... and a better funding."
+%E
+%Cp Inf 00010
+"Agents of the false gods are everywhere!  I got my purse stolen!"
+%E
+%Cp Inf 00011
+"Glory to %d, %s!  Let's drink elf blood together!"
+%E
+%Cp Inf 00012
+"I just noticed a pile of skulls in that corner.  %pC... are we the baddies?"
+%E
+%Cp Inf 00013
+"Have you made sure to properly desecrate %ns corpse?
+Appearances are important!"
+%E
+%Cp Inf 00014
+"%oC is ours!  Take that, professional archeology!"
+%E
+%Cc Inf 00015
+"My %S, welcome back.  You must be wondering why I have interrupted
+your mission!  As it happens, another quest has arisen that
+only you can undertake.  Let me see if you're up to the challenge."
+%E [I have another important mission for you, if you're ready.]
+%Cp Inf 00016
+"Welcome again, %p.  I hope you're ready this time."
+%E
+%Cp Inf 00017
+"Again you return, %p.  %nC won't wait forever!  Are you ready now?"
+%E
+%Cc Inf 00018
+"I am most disappointed, %p.  The fire of %d no longer
+burns in your breast!  How could you abandon your faith so easily?
+You're no longer our %s.  Begone and never return!  We will
+find someone else to finish your quest."
+%E [You're exiled from the Cult for your lack of faith.]
+%Cc Inf 00019
+"Alas, %p, you're still weak.  I cannot in good faith send you
+against %n of %D now; %nh'll squash you
+like an insect!  You must train and attain more skill;
+come back when you're a proper %R."
+%E [%rA has no chance against %n.  Come back when you are %Ra.]
+%Cc Inf 00020
+"No, that will not do.  The fire of %d within you is too weak.
+Only with the support of our faith can you hope to prevail!
+Go back to %Z and perform more sacrifices to
+honor %d.  When your devotion is strong again, you may return."
+%E [Your faith is too weak.  Return when you're sufficently %a.]
+%Cc Inf 00021
+"Yes, my %S.  You are now as ready as you'll ever be.  Listen
+carefully as I explain the current situation and your new quest.
+
+"As you must know, we have long searched for the lost %ot,
+for it is vitally important both to our faith and the ultimate plan
+of our %GC %d.  But the church of %D
+has learned of our efforts and sponsored a team of professional
+archeologists to find %O first.  Unfortunately, it seems
+they were succesful.
+
+"A week ago, the Cult has received a message from a prominent %nt
+of %D.  %nH claims that %O is in
+%nj posession, and challenges you to a `honorable duel' for the artifact.
+%nC was adamant in dueling you specifically, so it's
+clearly a ploy to obtain the Amulet of Yendor that was entrusted to you.
+
+"We have no choice but to accept, as without %O %ds plan
+cannot be completed.  %nC of %D
+waits for you in the ancient ruins amidst %i, which
+can be reached through the underground complex below our temple.
+You must travel there and retrieve %o by any means.
+
+"%dC be your strength, %p.  Go with %dJ blessing."
+%E [%nC of %D found %o and challenged you to a duel.  Kill %ni by any means.]
+%Cp Inf 00025
+"As long as the fire of %d burns within your chest, you will prevail."
+%E
+%Cp Inf 00026
+"%nC of %D is a capable spellcaster as well as a powerful warrior.
+Approach %ni with care and think before acting."
+%E
+%Cp Inf 00027
+"%nC of %Ds faith is very strong, and as such %nh knows no fear."
+%E
+%Cp Inf 00028
+"%iC is plagued by werewolves.  If you can wield silver weapons, do so."
+%E
+%Cp Inf 00029
+"If you know how to evoke fireballs, it will be your greatest aid.
+%nC may be well-armored, but that won't protect %ni from burning alive!"
+%E
+%Cp Inf 00030
+"%oC protects %oi holder from many harmful magics.
+Unfortunately, %oi current holder is %n.
+If you can somehow steal %oh, it will aid you greatly."
+%E
+%Cp Inf 00031
+"When you obtain %o, you may call for %ds aid at any time.
+Even at the surface, you will be answered."
+%E
+%Cp Inf 00032
+"Watch where you aim your wands: %n of %D has a magical reflective shield."
+%E
+%Cp Inf 00033
+"The church of %D wouldn't risk %O if they weren't sure %n can defeat you
+in a fair fight.  So don't fight fair!"
+%E
+%Cp Inf 00034
+"%nC of %D is immune to mundane poisons, but a paralyzing venom
+will work wonders on %ni."
+%E
+%Cc Inf 00035
+The gloom and stillness of the underground caves gives way to moonlight,
+hooting of owls, and an occasional blood-chilling howl.
+
+%iC lies ahead.  Somewhere in these woods
+%n of %D awaits you.
+%E [You have reached %i.  %nC is somewhere ahead.]
+%Cp Inf 00036
+Again, you stand at the edge of %i.
+%E
+%Cc Inf 00040
+You've reached a clearing in the forest.  In the distance, you can %x
+the ancient ruins where %n of %D
+has challenged you to the duel.
+
+It's still nighttime.  Hopefully you can sneak up unnoticed, but what then?
+%E [You have found the dueling field.  You must proceed carefully.]
+%Cp Inf 00041
+Once again, you approach the ancient ruins.
+%E
+%Cc Inf 00050
+"Ah, %p.  You've answered my challenge, after all.
+It seems that your vile cult has at least some recognition of honor.
+
+"But no matter.  Your malignant existence is an affront to
+%D, and it is by my hand that it will end today.
+
+"And after I defeat you and take the Amulet from your undeserving grasp,
+I will destroy %o once and for all, and your cult
+shall soon follow!
+
+"Prepare yourself, villian, for your final judgement!"
+%E [I shall defeat you and then destroy %o and your cult.]
+%Cp Inf 00051
+"Again you return, %p.  Did you think running away could help you somehow?"
+%E
+%Cp Inf 00052
+"Surely by now you understand that you haven't got a chance.
+Accept your fate and die, coward!"
+%E
+%Cp Inf 00053
+"Wha-- how?  Get back here, thief!  We're not done yet!"
+%E
+%Cp Inf 00060
+"%dC is a coward who can but hide underground.  Aren't you ashamed
+to be %dj slave?"
+%E
+%Cp Inf 00061
+"You're a disgrace both as a combatant and as %ra.  Why do I even bother?"
+%E
+%Cp Inf 00062
+"I hope you like fire, because that's how you're going to spend
+the rest of eternity."
+%E
+%Cp Inf 00063
+"Ready to give up, %p?  You know your %G can't help you here."
+%E
+%Cp Inf 00064
+"The judgement of %D is upon you now!"
+%E
+%Cp Inf 00065
+"When I claim the Amulet of Yendor for %D,
+%d will become but a footnote in a history book."
+%E
+%Cp Inf 00066
+"Did %l really think %ra could even reach the bottom of Gehennom?
+The Amulet will be much safer with me."
+%E
+%Cp Inf 00067
+"None of your fellow %gp will survive my wrath.  This I promise."
+%E
+%Cp Inf 00068
+"For your sins, you will die today!"
+%E
+%Cp Inf 00069
+"You will never have %o, and soon, you will lose your life."
+%E
+%Cc Inf 00070
+As you pick up %o, you feel the presence of %d clearer
+than ever.  The power of %d encompasses your soul, and you instantly
+understand why your Cult was searching for %O, and why
+%n of %D wanted to destroy %oi.
+
+You must return to %l at once.  With %O,
+the Cult will be more powerful than ever!
+%E [You feel the power of %d as you touch %O; return to %l with %oi.]
+%Cc Inf 00071
+Very good, My pawn.  Thou hast finally reached here.  But where is
+Mine %Ot that was entrusted to thee?  Thou wast told to bring %oi here.
+For thy sake, I hope thou hast not lost it!
+
+Return with %O and invoke My name here, and do not falter.
+%E [Fetch %o and invoke %oi on My high altar.]
+%Cc Inf 00072
+"My pawn, thou hast done well.  Now listen carefully, for the time
+for thy final test has come.
+
+"A deity who wields the Amulet of Yendor can claim dominion over
+the gods of the heaven, the position that is Mine by right.  But I am
+no longer welcome among them, so I must take My place by force.
+
+"%OC that thou carriest is a vessel for My power, and now I shall
+make %oi the vessel for the Amulet's true power as well.  Carrying %oi
+will allow thee to journey to the Astral Plane in the heaven.  There,
+the false gods reside.
+
+"Find the weakest among them and invoke Mine %Ot in their temple.
+I will take their place, and all will bow to My rule, as they should.
+
+"Which deity is the weakest, thou must find out thyself.  Perhaps My
+servants can advise you."
+%E [Travel to Astral Plane and convert one of the high altars.]
+# Note: in this message, %a and %d refer
+# to one of the aligned gods at random.
+# Consequently, "Moloch" is typed directly,
+# which may break hypothetical aligned Infidels.
+%Cc Inf 00073
+"My %S, we all pray for thy success on thy quest.  The false gods
+posess power beyond any mere mortal, and even with Moloch's help
+overthrowing one of them will be a challenge.  Chose thine opponent wisely.
+
+"I shall offer thee an advice.  Last night, I had a vision.  There was
+a great battle in the heaven; the forces of our Lord Moloch were besieging
+a fortress of %d.  But %dj %a minions held their
+ground for thirty days and nights and, sadly, the fortress was not taken.
+
+"The meaning here is clear: when in thy mission thou reachest the heaven,
+challenging %d will likely be futile.  Keep this in mind."
+%E [You should avoid invoking %o on the %a high altar.]
+%Cc Inf 00080
+%nC falls to %ni knees.  With %ni last breath, %nh whispers:
+
+    "Don't... think you've won just yet.  I am but one servant of
+    %D out of many, and other gods are...
+    after you as well.  You will... never reach %d alive.
+    The justice will..."
+
+A ray of bright light pierces the dawning sky, and %ns body is gone.
+%E [%nC of %D dies, but others are after the Amulet.]
+%Cc Inf 00081
+"%pC, you are victorous!  Well done.  %dC is pleased
+by your success.  All of us are proud of you as well.
+
+"You must now continue on your original mission.  But along with
+the Amulet, you must also deliver %O to %ds Sanctum.
+Such is %dJ will, and such is %dJ plan.
+
+"When you reach the high altar, the final phase of the plan will be
+revealed to you.  Remember to keep %o on you
+at all times!  If %oh's lost, all our preparations will be ruined."
+%E [You must bring %O to %d along with the Amulet.]
+%Cc Inf 00082
+"You're %Os keeper now, but %d alone is %oj owner.
+You must bring %oh to %dI along with the Amulet of Yendor.
+%Z await your return through
+the magic portal that brought you here."
+%E [%OC is your responsibility now.  Bring it to %d along with the Amulet.]
+%Cp Inf 00090
+"Welcome back, my %S.  Have you found your way to Sanctum yet?"
+%E
+# Note: in this message, %a and %d refer
+# to one of the aligned gods at random.
+# Consequently, "Moloch" is typed directly,
+# which may break hypothetical aligned Infidels.
+%Cc Inf 00091
+"Congratulations, %p!  We are closer than ever to the ultimate victory.
+
+"As Moloch has told you, you must now bring %O to one of the high altars
+on the Astral Plane.  It's hard to say which deity will be more susceptible
+to Moloch's power, but in all my years fending off non-believers,
+I have noticed that %ap are unusually resistant to my clerical magic.
+
+"Perhaps that extends to %d %diself, as well."
+%E [You should avoid invoking %o on the %a high altar.]
 #
 #	Knight
 #

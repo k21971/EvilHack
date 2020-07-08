@@ -1164,6 +1164,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                 uncurse(otmp);
             otmp->known = 1;
             setworn(otmp, W_ARM);
+            check_wings(TRUE);
             if (otmp->unpaid)
                 alter_cost(otmp, 0L); /* shop bill */
             break;
@@ -2264,7 +2265,9 @@ do_class_genocide()
                         /* non-leader/nemesis/guardian role-specific monster
                            */
                         && (i != PM_NINJA /* nuisance */
-                            || Role_if(PM_SAMURAI))) {
+                            || Role_if(PM_SAMURAI))
+                        && ((i != PM_TEMPLAR && i != PM_CHAMPION
+                            && i != PM_AGENT) || Role_if(PM_INFIDEL))) {
                         boolean named, uniq;
 
                         named = type_is_pname(&mons[i]) ? TRUE : FALSE;

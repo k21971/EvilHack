@@ -375,7 +375,13 @@ boolean resuming;
                         && ((wtcap < MOD_ENCUMBER
                              && (!(moves % ((MAXULEV + 8 - u.ulevel)
                                             * (Role_if(PM_WIZARD) ? 3 : 4)
-                                            / 6)))) || Energy_regeneration)) {
+                                            / 6)))) || Energy_regeneration
+                    /* the Idol grants energy regen to piously unaligned;
+                     * it really shouldn't be restricted to Infidels,
+                     * but so far we have no other unaligned roles */
+                            || (Role_if(PM_INFIDEL) && u.uhave.questart
+                               && u.ualign.type == A_NONE
+                               && u.ualign.record > rn2(20)))) {
                         u.uen += rn1(
                             (int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1, 1);
                         if (u.uen > u.uenmax)
@@ -383,6 +389,48 @@ boolean resuming;
                         context.botl = TRUE;
                         if (u.uen == u.uenmax)
                             interrupt_multi("You feel full of energy.");
+                    }
+
+                    /* Moloch demands regular sacrifices! */
+                    if (context.next_moloch_offering <= moves) {
+                        if (context.next_moloch_offering == moves
+                            && (u.ualign.type == A_NONE
+                                || u.ualignbase[A_CURRENT] == A_NONE)) {
+                            You_feel("%s urge to perform a sacrifice.",
+                                     u.ualign.type == A_NONE ? "an"
+                                                             : "a faint");
+                            stop_occupation();
+                        }
+                        if (u.ualign.type == A_NONE && !rn2(10)
+                            && rn2(moves - context.next_moloch_offering
+                                   + 1000) >= 1000) {
+                            if (u.ualign.record > -99)
+                                adjalign(-1);
+                            if (u.ualign.record < -10 && !rn2(u.ugangr + 1)
+                                && rn2(-u.ualign.record + 90) >= 100) {
+                                const char *angry = (char *) 0;
+                                u.ugangr++;
+                                /* avoid repetitive messages */
+                                switch (u.ugangr) {
+                                /* same values as in cmd.c */
+                                case 1:
+                                    angry = "";
+                                    break;
+                                case 4:
+                                    angry = "very ";
+                                    break;
+                                case 7:
+                                    angry = "extremely ";
+                                    break;
+                                }
+                                if (angry) {
+                                    You_feel("that %s is %sangry at your "
+                                             "lack of offerings.", u_gname(),
+                                             angry);
+                                    stop_occupation();
+                                }
+                            }
+                        }
                     }
 
                     if (!u.uinvulnerable) {
@@ -494,6 +542,7 @@ boolean resuming;
             /* when/if hero escapes from lava, he can't just stay there */
             else if (!u.umoved)
                 (void) pooleffects(FALSE);
+            context.coward = FALSE;
 
         } /* actual time passed */
 
@@ -767,6 +816,9 @@ newgame()
     context.next_attrib_check = 600L; /* arbitrary first setting */
     context.tribute.enabled = TRUE;   /* turn on 3.6 tributes    */
     context.tribute.tributesz = sizeof(struct tribute_info);
+    context.inf_aligns = rn2(6);      /* randomness for the Infidel role */
+    context.next_moloch_offering = 6000; /* give a grace period before
+                                          * the first sacrifice */
 
     for (i = LOW_PM; i < NUMMONS; i++)
         mvitals[i].mvflags = mons[i].geno & G_NOCORPSE;

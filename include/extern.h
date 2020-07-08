@@ -51,6 +51,7 @@ E boolean FDECL(check_mon_jump, (struct monst *, int, int));
 E boolean FDECL(snuff_lit, (struct obj *));
 E boolean FDECL(catch_lit, (struct obj *));
 E void FDECL(use_unicorn_horn, (struct obj *));
+E void FDECL(use_figurine, (struct obj **));
 E boolean FDECL(tinnable, (struct obj *));
 E void NDECL(reset_trapset);
 E void FDECL(fig_transform, (ANY_P *, long));
@@ -76,6 +77,7 @@ E boolean FDECL(confers_luck, (struct obj *));
 E boolean FDECL(arti_reflects, (struct obj *));
 E boolean FDECL(shade_glare, (struct obj *));
 E boolean FDECL(restrict_name, (struct obj *, const char *));
+E boolean FDECL(attacks, (int, struct obj *));
 E boolean FDECL(defends, (int, struct obj *));
 E boolean FDECL(defends_when_carried, (int, struct obj *));
 E boolean FDECL(protects, (struct obj *, BOOLEAN_P));
@@ -499,6 +501,7 @@ E void NDECL(cancel_don);
 E int FDECL(stop_donning, (struct obj *));
 E int NDECL(Armor_off);
 E int NDECL(Armor_gone);
+E void FDECL(check_wings, (BOOLEAN_P));
 E int NDECL(Helmet_off);
 E int NDECL(Gloves_off);
 E int NDECL(Boots_on);
@@ -514,7 +517,7 @@ E void FDECL(Blindf_on, (struct obj *));
 E void FDECL(Blindf_off, (struct obj *));
 E int NDECL(dotakeoff);
 E int NDECL(doremring);
-E int FDECL(cursed, (struct obj *));
+E int FDECL(cursed, (struct obj *, BOOLEAN_P));
 E int FDECL(armoroff, (struct obj *));
 E int FDECL(canwearobj, (struct obj *, long *, BOOLEAN_P));
 E int NDECL(dowear);
@@ -1582,7 +1585,7 @@ E boolean FDECL(big_little_match, (int, int));
 E const char *FDECL(locomotion, (const struct permonst *, const char *));
 E const char *FDECL(stagger, (const struct permonst *, const char *));
 E const char *FDECL(on_fire, (struct permonst *, struct attack *));
-E const struct permonst *FDECL(raceptr, (struct monst *));
+E struct permonst *FDECL(raceptr, (struct monst *));
 E boolean FDECL(olfaction, (struct permonst *));
 E int FDECL(monmaterial, (int));
 
@@ -2077,6 +2080,8 @@ E boolean NDECL(stuck_in_wall);
 #ifdef USE_TRAMPOLI
 E int NDECL(prayer_done);
 #endif
+E void FDECL(god_zaps_you, (ALIGNTYP_P));
+E void FDECL(godvoice, (ALIGNTYP_P, const char *));
 E int NDECL(dosacrifice);
 E boolean FDECL(can_pray, (BOOLEAN_P));
 E int NDECL(dopray);
@@ -2088,6 +2093,7 @@ E const char *FDECL(a_gname_at, (XCHAR_P x, XCHAR_P y));
 E const char *FDECL(align_gname, (ALIGNTYP_P));
 E const char *FDECL(halu_gname, (ALIGNTYP_P));
 E const char *FDECL(align_gtitle, (ALIGNTYP_P));
+E aligntyp FDECL(inf_align, (int));
 E void FDECL(altar_wrath, (int, int));
 
 /* ### priest.c ### */
@@ -2245,6 +2251,7 @@ E int FDECL(rnz, (int));
 
 /* ### role.c ### */
 
+E int FDECL(special_alignment, (int, int));
 E boolean FDECL(validrole, (int));
 E boolean FDECL(validrace, (int, int));
 E boolean FDECL(validgend, (int, int, int));

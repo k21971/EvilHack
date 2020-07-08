@@ -97,7 +97,7 @@ boolean
 resists_drli(mon)
 struct monst *mon;
 {
-    struct permonst *ptr = mon->data;
+    struct permonst *ptr = raceptr(mon); /* handle demonic race */
     struct obj *wep;
 
     if (resists_drain(ptr) || is_vampshifter(mon)
@@ -534,8 +534,7 @@ register struct permonst *ptr;
     return (boolean) (bigmonst(ptr)
                       || (ptr->msize > MZ_SMALL && !humanoid(ptr))
                       /* special cases of humanoids that cannot wear suits */
-                      || ptr == &mons[PM_MARILITH]
-                      || ptr == &mons[PM_WINGED_GARGOYLE]);
+                      || ptr == &mons[PM_MARILITH]);
 }
 
 /* creature sticks other creatures it hits */
@@ -1224,7 +1223,7 @@ int montyp1, montyp2;
  * Returns correct pointer for non-polymorphed and polymorphed
  * player.  It does not return a pointer to player role character.
  */
-const struct permonst *
+struct permonst *
 raceptr(mtmp)
 struct monst *mtmp;
 {

@@ -96,7 +96,7 @@ char *nam;
     else
         mtmp->female = 0;
     Strcat(nam, " the ");
-    Strcat(nam, rank_of((int) mtmp->m_lev, monsndx(mtmp->data) + 17,
+    Strcat(nam, rank_of((int) mtmp->m_lev, monsndx(mtmp->data) + 18,
                         (boolean) mtmp->female));
 }
 
@@ -199,6 +199,16 @@ struct obj *obj;
                 weapon = QUARTERSTAFF;
             else if (rn2(2))
                 weapon = rn2(2) ? UNICORN_HORN : SCALPEL;
+            if (rn2(4))
+                helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
+            if (rn2(2))
+                shield = STRANGE_OBJECT;
+            break;
+        case PM_HUMAN_INFIDEL:
+            if (!rn2(4))
+                weapon = CRYSKNIFE;
+            if (rn2(3))
+                cloak = CLOAK_OF_PROTECTION;
             if (rn2(4))
                 helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
             if (rn2(2))

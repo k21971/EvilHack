@@ -23,7 +23,6 @@ STATIC_DCL void FDECL(use_lamp, (struct obj *));
 STATIC_DCL void FDECL(light_cocktail, (struct obj **));
 STATIC_PTR void FDECL(display_jump_positions, (int));
 STATIC_DCL void FDECL(use_tinning_kit, (struct obj *));
-STATIC_DCL void FDECL(use_figurine, (struct obj **));
 STATIC_DCL void FDECL(use_grease, (struct obj *));
 STATIC_DCL void FDECL(use_trap, (struct obj *));
 STATIC_DCL void FDECL(use_stone, (struct obj *));
@@ -2197,6 +2196,7 @@ long timeout;
     boolean cansee_spot, silent, okay_spot;
     boolean redraw = FALSE;
     boolean suppress_see = FALSE;
+    boolean idol = figurine && figurine->oartifact == ART_IDOL_OF_MOLOCH;
     char monnambuf[BUFSZ], carriedby[BUFSZ];
 
     if (!figurine) {
@@ -2207,7 +2207,8 @@ long timeout;
     okay_spot = get_obj_location(figurine, &cc.x, &cc.y, 0);
     if (figurine->where == OBJ_INVENT || figurine->where == OBJ_MINVENT)
         okay_spot = enexto(&cc, cc.x, cc.y, &mons[figurine->corpsenm]);
-    if (!okay_spot || !figurine_location_checks(figurine, &cc, TRUE)) {
+    if ((idol && figurine->age > timeout) || !okay_spot
+        || !figurine_location_checks(figurine, &cc, TRUE)) {
         /* reset the timer to try again later */
         (void) start_timer((long) rnd(5000), TIMER_OBJECT, FIG_TRANSFORM,
                            obj_to_any(figurine));
@@ -2251,9 +2252,14 @@ long timeout;
 
         case OBJ_FLOOR:
             if (cansee_spot && !silent) {
-                if (suppress_see)
+                if (idol) {
+                    if (!suppress_see)
+                        You_see("a cloud of %s mist coagulate "
+                                "into the shape of %s%s!",
+                                hcolor("crimson"), monnambuf, and_vanish);
+                } else if (suppress_see) {
                     pline("%s suddenly vanishes!", an(xname(figurine)));
-                else
+                } else
                     You_see("a figurine transform into %s%s!", monnambuf,
                             and_vanish);
                 redraw = TRUE; /* update figurine's map location */
@@ -2289,12 +2295,20 @@ long timeout;
             break;
         }
     }
-    /* free figurine now */
-    if (carried(figurine)) {
-        useup(figurine);
+    if (idol) {
+        long cooldown = rnz(100);
+        figurine->age = timeout + cooldown;
+        /* still cursed */
+        (void) start_timer((long) rnd(9000) + cooldown, TIMER_OBJECT,
+                           FIG_TRANSFORM, obj_to_any(figurine));
     } else {
-        obj_extract_self(figurine);
-        obfree(figurine, (struct obj *) 0);
+        /* free figurine now */
+        if (carried(figurine)) {
+            useup(figurine);
+        } else {
+            obj_extract_self(figurine);
+            obfree(figurine, (struct obj *) 0);
+        }
     }
     if (redraw)
         newsym(cc.x, cc.y);
@@ -2336,14 +2350,25 @@ boolean quietly;
     return TRUE;
 }
 
-STATIC_OVL void
+void
 use_figurine(optr)
 struct obj **optr;
 {
     register struct obj *obj = *optr;
+    boolean idol = obj->oartifact == ART_IDOL_OF_MOLOCH;
     xchar x, y;
     coord cc;
+    const char *release_figurine;
 
+    if (idol) {
+        /* copied from artifact.c */
+        if (obj->age > monstermoves) {
+            You_feel("that %s %s ignoring you.", the(xname(obj)),
+                     otense(obj, "are"));
+            obj->age += (long) d(3, 10);
+            return;
+        }
+    }
     if (u.uswallow) {
         /* can't activate a figurine while swallowed */
         if (!figurine_location_checks(obj, (coord *) 0, FALSE))
@@ -2360,17 +2385,34 @@ struct obj **optr;
     /* Passing FALSE arg here will result in messages displayed */
     if (!figurine_location_checks(obj, &cc, FALSE))
         return;
-    You("%s and it %stransforms.",
-        (u.dx || u.dy) ? "set the figurine beside you"
-                       : (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)
-                          || is_damp_terrain(cc.x, cc.y))
-                             ? "release the figurine"
-                             : (u.dz < 0 ? "toss the figurine into the air"
-                                         : "set the figurine on the ground"),
-        Blind ? "supposedly " : "");
+    if (u.dx || u.dy)
+        release_figurine = "set the figurine beside you";
+    else if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)
+             || is_pool(cc.x, cc.y))
+        release_figurine = "release the figurine";
+    else if (u.dz < 0)
+        release_figurine = "toss the figurine into the air";
+    else
+        release_figurine = "set the figurine on the ground";
+    if (idol) {
+        if (Blind)
+            You("%s and feel an unholy aura emanate from it.",
+                release_figurine);
+        else
+            You("%s and a cloud of %s mist arises from it.",
+                release_figurine, hcolor("crimson"));
+    } else
+        You("%s and it %stransforms.", release_figurine,
+            Blind ? "supposedly " : "");
     (void) make_familiar(obj, cc.x, cc.y, FALSE);
-    (void) stop_timer(FIG_TRANSFORM, obj_to_any(obj));
-    useup(obj);
+    if (idol) {
+        obj->age = monstermoves + rnz(100);
+        freeinv(obj);
+        place_object(obj, cc.x, cc.y);
+    } else {
+        (void) stop_timer(FIG_TRANSFORM, obj_to_any(obj));
+        useup(obj);
+    }
     if (Blind)
         map_invisible(cc.x, cc.y);
     *optr = 0;
@@ -3694,7 +3736,7 @@ doapply()
     case BLINDFOLD:
     case LENSES:
         if (obj == ublindf) {
-            if (!cursed(obj))
+            if (!cursed(obj, FALSE))
                 Blindf_off(obj);
         } else if (!ublindf) {
             Blindf_on(obj);

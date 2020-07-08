@@ -171,6 +171,7 @@ struct trobj {
 #define UNDEF_SPE	'\177'
 #define RND_SPE         (0x80)
 #define UNDEF_BLESS	2
+#define CURSED 3
 
 extern struct trobj Archeologist[];
 extern struct trobj Barbarian[];
@@ -195,6 +196,25 @@ extern struct trobj Towel[];
 extern struct trobj Wishing[];
 extern struct trobj Money[];
 extern struct trobj Pickaxe[];
+
+/* We can't set up an external struct for an actual
+ * Infidel's starting inventory, as they start with
+ * the _actual_ Amulet of Yendor. We'll set up a
+ * struct here specifically for player monster
+ * Infidel's, who are perpetually stuck with a cheap
+ * imitation of said amulet. */
+struct trobj subInfidel[] = {
+    { FAKE_AMULET_OF_YENDOR, 0, AMULET_CLASS, 1, 0 },
+    { DAGGER, 1, WEAPON_CLASS, 1, 0 },
+    { JACKET, 1, ARMOR_CLASS, 1, CURSED },
+    { CLOAK_OF_PROTECTION, 0, ARMOR_CLASS, 1, CURSED },
+    { POT_WATER, 0, POTION_CLASS, 3, CURSED },
+    { SPE_DRAIN_LIFE, 0, SPBOOK_CLASS, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+    { FIRE_HORN, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+    { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
 
 struct trobj Level20Kit1[] = {
 	{ SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -328,6 +348,8 @@ unsigned short chance;
                            && mtmp->mnum == PM_HUMAN_MONK)
                        || (otyp == SPE_FORCE_BOLT
                            && mtmp->mnum == PM_HUMAN_WIZARD)
+                       || (otyp == SPE_DRAIN_LIFE
+                           && mtmp->mnum == PM_HUMAN_INFIDEL)
                        || (obj->oclass == SPBOOK_CLASS
                            && objects[otyp].oc_level > 3)) {
                        dealloc_obj(obj);
@@ -365,8 +387,8 @@ unsigned short chance;
                 /* no "blessed" or "identified" money */
                 obj->quan = u.umoney0;
             } else {
-                obj->cursed = 0;
-                if (obj->opoisoned && u.ualign.type != A_CHAOTIC)
+                obj->cursed = (trop->trbless == CURSED);
+                if (obj->opoisoned && u.ualign.type > A_CHAOTIC)
                     obj->opoisoned = 0;
                 if (obj->oclass == WEAPON_CLASS
                     || obj->oclass == TOOL_CLASS) {
@@ -376,6 +398,9 @@ unsigned short chance;
                     && is_graystone(obj) && obj->otyp != FLINT) {
                     obj->quan = 1L;
                 }
+                if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
+                    && obj->oclass == ARMOR_CLASS)
+                    obj->oerodeproof = 1;
                 if (obj->otyp == STRIPED_SHIRT)
                     obj->cursed = TRUE;
                 if (trop->trspe != UNDEF_SPE) {
@@ -386,7 +411,7 @@ unsigned short chance;
                     }
                 }
                 if (trop->trbless != UNDEF_BLESS)
-                    obj->blessed = trop->trbless;
+                    obj->blessed = (trop->trbless == 1);
                 if ((obj->oclass == WEAPON_CLASS
                      || obj->oclass == ARMOR_CLASS)
                     && chance > 1) {
@@ -476,6 +501,11 @@ register struct monst *mtmp;
             mkmonmoney(mtmp, (long) rn1(1000, 1001));
             ini_mon_inv(mtmp, Healer, 1);
             ini_mon_inv(mtmp, Lamp, 25);
+            mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_HUMAN_INFIDEL:
+            mkmonmoney(mtmp, (long) rn1(251, 250));
+            ini_mon_inv(mtmp, subInfidel, 1);
             mongets(mtmp, SKELETON_KEY);
             break;
         case PM_HUMAN_KNIGHT:
@@ -608,7 +638,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, (mm != PM_ETTIN) ? BOULDER : CLUB);
         break;
     case S_HUMAN:
-        if (is_mercenary(ptr)) {
+        if (is_mercenary(ptr) || mm == PM_TEMPLAR) {
             w1 = w2 = 0;
             switch (mm) {
             case PM_WATCHMAN:
@@ -774,6 +804,7 @@ register struct monst *mtmp;
             case PM_GNOMISH_CAPTAIN:
             case PM_PRISON_GUARD:
             case PM_WATCH_CAPTAIN:
+            case PM_TEMPLAR:
                 w1 = rn2(2) ? LONG_SWORD : SABER;
                 mongets(mtmp, SKELETON_KEY);
                 break;
@@ -849,6 +880,14 @@ register struct monst *mtmp;
         } else if (mm == PM_NINJA) { /* extra quest villains */
             (void) mongets(mtmp, rn2(4) ? SHURIKEN : DART);
             (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : AXE);
+        } else if (mm == PM_CHAMPION) {
+            (void) mongets(mtmp, rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE);
+            (void) mongets(mtmp, rn2(3) ? RING_MAIL : CHAIN_MAIL);
+        } else if (mm == PM_AGENT) {
+            (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : DAGGER);
+            if (!rn2(3))
+                (void) mongets(mtmp, ARMOR);
+            (void) mongets(mtmp, POT_INVISIBILITY);
         } else if (mm == PM_KING_ARTHUR) {
             /* If it has not yet been generated, of course
                Arthur gets Excalibur */
@@ -894,6 +933,7 @@ register struct monst *mtmp;
             switch (mm) {
             case PM_STUDENT:
             case PM_ATTENDANT:
+            case PM_CULTIST:
             case PM_ABBOT:
             case PM_ACOLYTE:
             case PM_GUIDE:
@@ -1302,7 +1342,7 @@ register struct monst *mtmp;
      */
     switch (ptr->mlet) {
     case S_HUMAN:
-        if (is_mercenary(ptr)) {
+        if (is_mercenary(ptr) || monsndx(ptr) == PM_TEMPLAR) {
             register int mac;
 
             switch (monsndx(ptr)) {
@@ -1396,6 +1436,9 @@ register struct monst *mtmp;
             case PM_WATCH_CAPTAIN:
                 mac = -2;
                 break;
+            case PM_TEMPLAR:
+                mac = -3;
+                break;
             default:
                 impossible("odd mercenary %d?", monsndx(ptr));
                 mac = 0;
@@ -1488,6 +1531,10 @@ register struct monst *mtmp;
             } else if (ptr == &mons[PM_WATCHMAN]) {
                 if (rn2(3)) /* most watchmen carry a whistle */
                     (void) mongets(mtmp, PEA_WHISTLE);
+            } else if (ptr == &mons[PM_TEMPLAR]) {
+                if (rn2(3)) /* being in a holy order has its benefits */
+                    (void) mongets(mtmp, rn2(4) ? POT_HEALING
+                                                : POT_EXTRA_HEALING);
             } else if (ptr == &mons[PM_GUARD]) {
                 /* if hero teleports out of a vault while being confronted
                    by the vault's guard, there is a shrill whistling sound,
@@ -1537,6 +1584,22 @@ register struct monst *mtmp;
             mkmonmoney(mtmp, (long) rn1(10, 20));
         } else if (quest_mon_represents_role(ptr, PM_MONK)) {
             (void) mongets(mtmp, rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE);
+        } else if (ptr == &mons[PM_PREACHER_OF_MOLOCH]) {
+            (void) mongets(mtmp, QUARTERSTAFF);
+            (void) mongets(mtmp, rn2(3) ? ROBE : CLOAK_OF_PROTECTION);
+        } else if (ptr == &mons[PM_PALADIN]) {
+            otmp = mksobj(MORNING_STAR, FALSE, FALSE);
+            otmp->blessed = otmp->oerodeproof = 1;
+            otmp->spe = rn1(3, 3);
+            (void) mpickobj(mtmp, otmp);
+            /* the Paladin wears no helmet
+             * because she looks cooler without a helmet */
+            (void) mongets(mtmp, GLOVES);
+            (void) mongets(mtmp, SHIELD_OF_REFLECTION);
+            (void) mongets(mtmp, CLOAK);
+            (void) mongets(mtmp, CRYSTAL_PLATE_MAIL);
+            (void) mongets(mtmp, HIGH_BOOTS);
+            (void) mongets(mtmp, POT_SPEED);
         }
         break;
     case S_NYMPH:
@@ -2219,7 +2282,7 @@ int mmflags;
             mtmp->mpeaceful = FALSE;
         break;
     case S_UNICORN:
-        if (is_unicorn(ptr) && sgn(u.ualign.type) == sgn(ptr->maligntyp))
+        if (is_unicorn(ptr) && u.ualign.type == sgn(ptr->maligntyp))
             mtmp->mpeaceful = TRUE;
         break;
     case S_BAT:
@@ -2319,6 +2382,13 @@ int mmflags;
         mtmp->mpeaceful = (eminp->min_align == u.ualign.type)
                               ? !eminp->renegade
                               : eminp->renegade;
+    }
+    /* these monsters are normally affiliated with a deity */
+    if ((mndx == PM_PALADIN || mndx == PM_TEMPLAR || mndx == PM_CHAMPION
+         || mndx == PM_AGENT) && !(mmflags & MM_EMIN)) {
+        newemin(mtmp);
+        mtmp->isminion = 1;
+        EMIN(mtmp)->min_align = sgn(ptr->maligntyp);
     }
     set_malign(mtmp); /* having finished peaceful changes */
     if (anymon && !(mmflags & MM_NOGRP)) {
@@ -3030,7 +3100,11 @@ register struct permonst *ptr;
 
     if (always_peaceful(ptr))
         return TRUE;
-    if (always_hostile(ptr))
+    /* Major demons will sometimes be peaceful to unaligned Infidels.
+     * They must pass this 50% check, then the 50% check for chaotics
+     * being non-hostile to unaligned, then the usual check for coaligned.
+     * For crowned Infidels, the last two checks are bypassed. */
+    if (always_hostile(ptr) && (ual != A_NONE || !is_demon(ptr) || rn2(2)))
         return FALSE;
     if (ptr->msound == MS_LEADER || ptr->msound == MS_GUARDIAN)
         return TRUE;
@@ -3047,8 +3121,12 @@ register struct permonst *ptr;
     if (sgn(mal) != sgn(ual))
         return FALSE;
 
-    /* Negative monster hostile to player with Amulet. */
-    if (mal < A_NEUTRAL && u.uhave.amulet)
+    /* Not all chaotics support Moloch.  This goes especially for elves. */
+    if (ual == A_NONE && (is_elf(ptr) || rn2(2)))
+        return FALSE;
+
+    /* Chaotic monsters hostile to players with Amulet, except Infidels. */
+    if (mal < A_NEUTRAL && u.uhave.amulet && ual != A_NONE)
         return FALSE;
 
     /* minions are hostile to players that have strayed at all */
@@ -3093,7 +3171,7 @@ struct monst *mtmp;
             mal *= 5;
     }
 
-    coaligned = (sgn(mal) == sgn(u.ualign.type));
+    coaligned = (sgn(mal) == u.ualign.type);
     if (mtmp->data->msound == MS_LEADER) {
         mtmp->malign = -20;
     } else if (mal == A_NONE) {
@@ -3101,6 +3179,8 @@ struct monst *mtmp;
             mtmp->malign = 0;
         else
             mtmp->malign = 20; /* really hostile */
+        if (u.ualign.type == A_NONE)
+            mtmp->malign -= 20; /* reverse */
     } else if (always_peaceful(mtmp->data)) {
         int absmal = abs(mal);
         if (mtmp->mpeaceful)

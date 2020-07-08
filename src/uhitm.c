@@ -21,7 +21,7 @@ STATIC_DCL int FDECL(explum, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(start_engulf, (struct monst *));
 STATIC_DCL void NDECL(end_engulf);
 STATIC_DCL int FDECL(gulpum, (struct monst *, struct attack *));
-STATIC_DCL boolean FDECL(hmonas, (struct monst *));
+STATIC_DCL boolean FDECL(hmonas, (struct monst *, int, boolean));
 STATIC_DCL void FDECL(nohandglow, (struct monst *));
 STATIC_DCL boolean FDECL(shade_aware, (struct obj *));
 
@@ -482,8 +482,8 @@ register struct monst *mtmp;
         return FALSE;
     }
 
-    if (Upolyd || (Race_if(PM_ILLITHID) && !rn2(4)))
-        (void) hmonas(mtmp);
+    if (Upolyd)
+        (void) hmonas(mtmp, NON_PM, TRUE);
     else
         (void) hitum(mtmp, youmonst.data->mattk);
     mtmp->mstrategy &= ~STRAT_WAITMASK;
@@ -733,6 +733,24 @@ struct attack *uattk;
                 kick_monster(mon, x, y);
         }
     }
+
+    /* Your race may grant extra attacks.
+     * Illithids don't use their tentacle attack every turn */
+    if (!Upolyd && malive) {
+        int i;
+        int race = (flags.female && urace.femalenum != NON_PM)
+                    ? urace.femalenum : urace.malenum;
+        struct attack *attacks = mons[race].mattk;
+        if (Race_if(PM_ILLITHID) && rn2(4))
+            return 0;
+        for (i = 0; i < NATTK; i++) {
+            if (attacks[i].aatyp != AT_WEAP && attacks[i].aatyp != AT_NONE) {
+                malive = hmonas(mon, race, FALSE);
+                break;
+            }
+        }
+    }
+
     return malive;
 }
 
@@ -1564,6 +1582,16 @@ int dieroll;
                 pline("%s appears confused.", Monnam(mon));
         }
     }
+    if (DEADMONSTER(mon) && (uwep || (u.twoweap && uswapwep))
+        && attacks(AD_DREN, obj) && !nonliving(mdat) && u.uen < u.uenmax) {
+        int energy = mon->m_lev + 1;
+        energy += rn2(energy);
+        pline_The("ritual knife captures the evanescent life force.");
+        u.uen += energy;
+        if (u.uen > u.uenmax)
+            u.uen = u.uenmax;
+        context.botl = TRUE;
+    }
     if (unpoisonmsg)
         Your("%s %s no longer poisoned.", saved_oname,
              vtense(saved_oname, "are"));
@@ -2007,7 +2035,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
 
     if (is_demon(youmonst.data) && !rn2(13) && !uwep
         && u.umonnum != PM_SUCCUBUS && u.umonnum != PM_INCUBUS
-        && u.umonnum != PM_BALROG) {
+        && u.umonnum != PM_BALROG && u.umonnum != PM_DEMON) {
         demonpet();
         return 0;
     }
@@ -2828,13 +2856,15 @@ boolean wouldhavehit;
 
 /* attack monster as a monster; returns True if mon survives */
 STATIC_OVL boolean
-hmonas(mon)
+hmonas(mon, as, weapon_attacks)
 register struct monst *mon;
+int as;
+boolean weapon_attacks; /* skip weapon attacks if false */
 {
     struct attack *mattk, alt_attk;
     struct obj *weapon, **originalweapon;
-    boolean altwep = FALSE, weapon_used = FALSE, odd_claw = TRUE,
-            stop_attacking = FALSE;
+    boolean altwep = FALSE, weapon_used = !weapon_attacks,
+            odd_claw = TRUE, stop_attacking = FALSE;
     int i, tmp, armorpenalty, sum[NATTK], nsum = 0, dhit = 0, attknum = 0;
     int dieroll, multi_claw = 0;
     boolean Old_Upolyd = Upolyd;
@@ -2844,8 +2874,11 @@ register struct monst *mon;
        whether silver ring causes successful hit */
     for (i = 0; i < NATTK; i++) {
         sum[i] = 0;
-        mattk = getmattk(&youmonst, mon, i, sum, &alt_attk);
-        if (mattk->aatyp == AT_WEAP
+        if (as != NON_PM)
+            mattk = &mons[as].mattk[i];
+        else
+            mattk = getmattk(&youmonst, mon, i, sum, &alt_attk);
+        if ((mattk->aatyp == AT_WEAP && weapon_attacks)
             || mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH)
             ++multi_claw;
     }
@@ -2853,11 +2886,16 @@ register struct monst *mon;
 
     for (i = 0; i < NATTK; i++) {
         /* sum[i] = 0; -- now done above */
-        mattk = getmattk(&youmonst, mon, i, sum, &alt_attk);
+        if (as != NON_PM)
+            mattk = &mons[as].mattk[i];
+        else
+            mattk = getmattk(&youmonst, mon, i, sum, &alt_attk);
         weapon = 0;
         switch (mattk->aatyp) {
         case AT_WEAP:
             /* if (!uwep) goto weaponless; */
+            if (!weapon_attacks)
+                continue;
  use_weapon:
             odd_claw = !odd_claw; /* see case AT_CLAW,AT_TUCH below */
             /* if we've already hit with a two-handed weapon, we don't

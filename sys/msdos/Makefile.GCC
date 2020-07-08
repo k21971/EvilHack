@@ -1013,10 +1013,10 @@ $(O)sp_lev.tag: $(O)utility.tag \
 	$(DAT)/endgame.des $(DAT)/gehennom.des $(DAT)/knox.des \
 	$(DAT)/medusa.des  $(DAT)/oracle.des   $(DAT)/tower.des \
 	$(DAT)/yendor.des  $(DAT)/arch.des     $(DAT)/barb.des \
-	$(DAT)/caveman.des   $(DAT)/healer.des   $(DAT)/knight.des \
-	$(DAT)/monk.des      $(DAT)/priest.des   $(DAT)/ranger.des \
-	$(DAT)/rogue.des     $(DAT)/samurai.des  $(DAT)/tourist.des \
-	$(DAT)/valkyrie.des  $(DAT)/wizard.des
+	$(DAT)/caveman.des $(DAT)/healer.des   $(DAT)/infidel.des \
+	$(DAT)/knight.des  $(DAT)/monk.des     $(DAT)/priest.des \
+	$(DAT)/ranger.des  $(DAT)/rogue.des    $(DAT)/samurai.des \
+	$(DAT)/tourist.des $(DAT)/valkyrie.des $(DAT)/wizard.des
 	@$(subst /,\,cd $(DAT))
 	@$(subst /,\,$(U)lev_comp bigroom.des)
 	@$(subst /,\,$(U)lev_comp castle.des)
@@ -1033,6 +1033,7 @@ $(O)sp_lev.tag: $(O)utility.tag \
 	@$(subst /,\,$(U)lev_comp barb.des)
 	@$(subst /,\,$(U)lev_comp caveman.des)
 	@$(subst /,\,$(U)lev_comp healer.des)
+	@$(subst /,\,$(U)lev_comp infidel.des)
 	@$(subst /,\,$(U)lev_comp knight.des)
 	@$(subst /,\,$(U)lev_comp monk.des)
 	@$(subst /,\,$(U)lev_comp priest.des)

@@ -21,6 +21,7 @@ STATIC_DCL boolean FDECL(restricted_spell_discipline, (int));
 #define UNDEF_TYP 0
 #define UNDEF_SPE '\177'
 #define UNDEF_BLESS 2
+#define CURSED 3
 
 /*
  *      Initial inventory for the various roles.
@@ -73,6 +74,18 @@ struct trobj Healer[] = {
     { SPE_EXTRA_HEALING, 0, SPBOOK_CLASS, 1, 1 },
     { SPE_STONE_TO_FLESH, 0, SPBOOK_CLASS, 1, 1 },
     { APPLE, 0, FOOD_CLASS, 5, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+struct trobj Infidel[] = {
+    { AMULET_OF_YENDOR, 0, AMULET_CLASS, 1, 0 },
+    { DAGGER, 1, WEAPON_CLASS, 1, 0 },
+    { JACKET, 1, ARMOR_CLASS, 1, CURSED },
+    { CLOAK_OF_PROTECTION, 0, ARMOR_CLASS, 1, CURSED },
+    { POT_WATER, 0, POTION_CLASS, 3, CURSED },
+    { SPE_DRAIN_LIFE, 0, SPBOOK_CLASS, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+    { FIRE_HORN, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+    { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
 struct trobj Knight[] = {
@@ -373,6 +386,30 @@ static const struct def_skill Skill_H[] = {
     { P_CLERIC_SPELL, P_SKILLED },
     { P_RIDING, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_BASIC },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Inf[] = {
+    { P_DAGGER, P_EXPERT },
+    { P_KNIFE, P_EXPERT },
+    { P_SHORT_SWORD, P_SKILLED },
+    { P_BROAD_SWORD, P_BASIC },
+    { P_SCIMITAR, P_SKILLED },
+    { P_SABER, P_BASIC },
+    { P_CLUB, P_BASIC },
+    { P_HAMMER, P_BASIC },
+    { P_QUARTERSTAFF, P_SKILLED },
+    { P_POLEARMS, P_SKILLED },
+    { P_SPEAR, P_BASIC },
+    { P_SLING, P_BASIC },
+    { P_CROSSBOW, P_SKILLED },
+    { P_DART, P_BASIC },
+    { P_WHIP, P_SKILLED },
+    { P_ATTACK_SPELL, P_EXPERT },
+    { P_DIVINATION_SPELL, P_SKILLED },
+    { P_ENCHANTMENT_SPELL, P_BASIC },
+    { P_CLERIC_SPELL, P_EXPERT },
+    { P_BARE_HANDED_COMBAT, P_SKILLED },
+    { P_RIDING, P_SKILLED },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_K[] = {
@@ -808,6 +845,12 @@ u_init()
         knows_object(POT_FULL_HEALING);
         skill_init(Skill_H);
         break;
+    case PM_INFIDEL:
+        u.umoney0 = rn1(251, 250);
+        ini_inv(Infidel);
+        knows_object(SCR_CHARGING);
+        skill_init(Skill_Inf);
+        break;
     case PM_KNIGHT:
         ini_inv(Knight);
         knows_class(WEAPON_CLASS);
@@ -1233,6 +1276,9 @@ int otyp;
     case PM_HEALER:
         skills = Skill_H;
         break;
+    case PM_INFIDEL:
+        skills = Skill_Inf;
+        break;
     case PM_KNIGHT:
         skills = Skill_K;
         break;
@@ -1325,6 +1371,8 @@ register struct trobj *origtrop;
                    || (otyp == SCR_ENCHANT_WEAPON && Role_if(PM_MONK))
                    /* wizard patch -- they already have one */
                    || (otyp == SPE_FORCE_BOLT && Role_if(PM_WIZARD))
+                   /* same for infidels */
+                   || (otyp == SPE_DRAIN_LIFE && Role_if(PM_INFIDEL))
                    /* powerful spells are either useless to
                       low level players or unbalancing; also
                       spells in restricted skill categories */
@@ -1405,8 +1453,8 @@ register struct trobj *origtrop;
                 obj->cknown = obj->lknown = 1;
                 obj->otrapped = 0;
             }
-            obj->cursed = 0;
-            if (obj->opoisoned && u.ualign.type != A_CHAOTIC)
+            obj->cursed = (trop->trbless == CURSED);
+            if (obj->opoisoned && u.ualign.type > A_CHAOTIC)
                 obj->opoisoned = 0;
             if (obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS) {
                 obj->quan = (long) trop->trquan;
@@ -1415,12 +1463,16 @@ register struct trobj *origtrop;
                        && obj->otyp != FLINT) {
                 obj->quan = 1L;
             }
+            if (Role_if(PM_INFIDEL) && obj->oclass == ARMOR_CLASS) {
+                /* Infidels are used to playing with fire */
+                obj->oerodeproof = 1;
+            }
             if (obj->otyp == STRIPED_SHIRT)
                 obj->cursed = TRUE;
             if (trop->trspe != UNDEF_SPE)
                 obj->spe = trop->trspe;
             if (trop->trbless != UNDEF_BLESS)
-                obj->blessed = trop->trbless;
+                obj->blessed = (trop->trbless == 1);
         }
         /* defined after setting otyp+quan + blessedness */
         obj->owt = weight(obj);

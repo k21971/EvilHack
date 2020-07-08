@@ -1181,7 +1181,8 @@ boolean at_stairs;
         /* Taking an up dungeon branch. */
         /* KMH -- Upwards branches are okay if not level 1 */
         /* (Just make sure it doesn't go above depth 1) */
-        if (!u.uz.dnum && u.uz.dlevel == 1 && !u.uhave.amulet)
+        if (!u.uz.dnum && u.uz.dlevel == 1
+            && !(u.uhave.amulet && u.uachieve.amulet))
             done(ESCAPED);
         else
             goto_level(&sstairs.tolev, at_stairs, FALSE, FALSE);
@@ -2991,8 +2992,11 @@ boolean printdun;
             else
                 ADDNTOBUF("temple", mptr->feat.ntemple);
 
-            /* only print out altar's god if they are all to your god */
-            if (Amask2align(Msa2amask(mptr->feat.msalign)) == u.ualign.type)
+            /* only print out altar's god if they are all to your god
+             * For Infidels, only print Moloch if there's exactly one altar;
+             * this is a technical resriction (i.e. I'm too lazy to fix it) */
+            if (Amask2align(Msa2amask(mptr->feat.msalign)) == u.ualign.type
+                && (u.ualign.type != A_NONE || mptr->feat.naltar == 1))
                 Sprintf(eos(buf), " to %s", align_gname(u.ualign.type));
         }
         ADDNTOBUF("throne", mptr->feat.nthrone);

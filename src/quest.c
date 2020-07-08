@@ -228,9 +228,22 @@ finish_quest(obj)
 struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
 {
     struct obj *otmp;
+    aligntyp saved_align;
+    uchar saved_godgend;
 
-    if (u.uhave.amulet) { /* unlikely but not impossible */
-        qt_pager(QT_HASAMULET);
+    if (u.uachieve.amulet) { /* unlikely but not impossible */
+        if (Role_if(PM_INFIDEL)) {
+            saved_align = u.ualignbase[A_ORIGINAL];
+            saved_godgend = quest_status.godgend;
+            /* a hack for displaying a different god's name in the message */
+            u.ualignbase[A_ORIGINAL] = inf_align(2);
+            /* "god"[3] == 0; "goddess"[3] != 0 */
+            quest_status.godgend = !!align_gtitle(inf_align(2))[3];
+            qt_pager(QT_HASAMULET);
+            u.ualignbase[A_ORIGINAL] = saved_align;
+            quest_status.godgend = saved_godgend;
+        } else
+            qt_pager(QT_HASAMULET);
         /* leader IDs the real amulet but ignores any fakes */
         if ((otmp = carrying(AMULET_OF_YENDOR)) != 0)
             fully_identify_obj(otmp);
@@ -266,7 +279,7 @@ chat_with_leader()
      */
     if (Qstat(got_thanks)) {
         /* Rule 1: You've gone back with/without the amulet. */
-        if (u.uhave.amulet)
+        if (u.uachieve.amulet)
             finish_quest((struct obj *) 0);
 
         /* Rule 2: You've gone back before going for the amulet. */

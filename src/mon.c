@@ -3388,7 +3388,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     }
     if ((mtmp->mpeaceful && !rn2(2)) || mtmp->mtame)
         change_luck(-1);
-    if (is_unicorn(mdat) && sgn(u.ualign.type) == sgn(mdat->maligntyp)) {
+    if (is_unicorn(mdat) && u.ualign.type == sgn(mdat->maligntyp)) {
         change_luck(-5);
         You_feel("guilty...");
     }
@@ -3416,7 +3416,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         /* cancel divine protection for killing your priest */
         if (p_coaligned(mtmp))
             u.ublessed = 0;
-        if (mdat->maligntyp == A_NONE)
+        else if (mdat->maligntyp == A_NONE)
             adjalign((int) (ALIGNLIM / 4)); /* BIG bonus */
     } else if (mtmp->mtame) {
         adjalign(-15); /* bad!! */
@@ -3848,7 +3848,6 @@ boolean via_attack;
         /* only hypocritical if monster is vulnerable to Elbereth (or
            peaceful--not vulnerable but attacking it is hypocritical) */
         && (onscary(u.ux, u.uy, mtmp) || mtmp->mpeaceful)) {
-        You_feel("like a hypocrite.");
         /* AIS: Yes, I know alignment penalties and bonuses aren't balanced
            at the moment. This is about correct relative to other "small"
            penalties; it should be fairly large, as attacking while standing
@@ -3857,7 +3856,11 @@ boolean via_attack;
            it's intentionally larger than the 1s and 2s that are normally
            given for this sort of thing. */
         /* reduce to 3 (average) when alignment is already very low */
-        adjalign((u.ualign.record > 5) ? -5 : -rnd(5));
+        if (u.ualign.type != A_NONE) {
+            You_feel("like a hypocrite.");
+            adjalign((u.ualign.record > 5) ? -5 : -rnd(5));
+        } else
+            You_feel("wily."); /* no alignment penalty */
 
         if (!Blind)
             pline("The engraving beneath you fades.");

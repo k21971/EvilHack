@@ -2183,11 +2183,12 @@ register struct obj *obj;
         Norep("You cannot %s %s you are wearing.",
               Icebox ? "refrigerate" : "stash", something);
         return 0;
-    } else if ((obj->otyp == LOADSTONE) && obj->cursed) {
+    } else if ((obj->otyp == LOADSTONE) && cursed(obj, TRUE)) {
         set_bknown(obj, 1);
         pline_The("stone%s won't leave your person.", plur(obj->quan));
         return 0;
     } else if (obj->otyp == AMULET_OF_YENDOR
+               || (Role_if(PM_INFIDEL) && is_quest_artifact(obj) && obj->spe)
                || obj->otyp == CANDELABRUM_OF_INVOCATION
                || obj->otyp == BELL_OF_OPENING
                || obj->otyp == SPE_BOOK_OF_THE_DEAD) {

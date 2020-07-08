@@ -599,7 +599,7 @@ void
 com_pager(msgnum)
 int msgnum;
 {
-    struct qtmsg *qt_msg;
+    struct qtmsg *qt_msg, *alt_qt_msg;
 
     if (skip_pager(TRUE))
         return;
@@ -608,6 +608,10 @@ int msgnum;
         impossible("com_pager: message %d not found.", msgnum);
         return;
     }
+
+    /* optional alternate game start message; currently only Inf use it */
+    if (msgnum == 1 && (alt_qt_msg = msg_in(qt_list.chrole, QT_ALTSTART)))
+        qt_msg = alt_qt_msg;
 
     (void) dlb_fseek(msg_file, qt_msg->offset, SEEK_SET);
     if (qt_msg->delivery == 'p')

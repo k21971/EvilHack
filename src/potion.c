@@ -784,8 +784,9 @@ register struct obj *otmp;
             break;
         }
         unkn++;
-        if (is_undead(youmonst.data) || is_demon(youmonst.data)
-            || u.ualign.type == A_CHAOTIC) {
+        if (is_undead(youmonst.data) || is_demon(raceptr(&youmonst))
+            || u.ualign.type <= A_CHAOTIC) {
+            int dice = (u.ualign.type == A_NONE) ? 4 : 2;
             if (otmp->blessed) {
                 pline("This burns like %s!", hliquid("acid"));
                 exercise(A_CON, FALSE);
@@ -796,11 +797,11 @@ register struct obj *otmp;
                         you_unwere(FALSE);
                     set_ulycn(NON_PM); /* cure lycanthropy */
                 }
-                losehp(Maybe_Half_Phys(d(2, 6)), "potion of holy water",
+                losehp(Maybe_Half_Phys(d(dice, 6)), "potion of holy water",
                        KILLED_BY_AN);
             } else if (otmp->cursed) {
                 You_feel("quite proud of yourself.");
-                healup(d(2, 6), 0, 0, 0);
+                healup(d(dice, 6), 0, 0, 0);
                 if (u.ulycn >= LOW_PM && !Upolyd)
                     you_were();
                 exercise(A_CON, TRUE);

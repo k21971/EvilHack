@@ -4191,10 +4191,10 @@ boolean *lostsome;
                  * in removing them + loadstone and other cursed stuff
                  * for obvious reasons.
                  */
-                if (!((obj->otyp == LOADSTONE && obj->cursed) || obj == uamul
-                      || obj == uleft || obj == uright || obj == ublindf
-                      || obj == uarm || obj == uarmc || obj == uarmg
-                      || obj == uarmf || obj == uarmu
+                if (!((obj->otyp == LOADSTONE && cursed(obj, TRUE))
+                      || obj == uamul || obj == uleft || obj == uright
+                      || obj == ublindf || obj == uarm || obj == uarmc
+                      || obj == uarmg || obj == uarmf || obj == uarmu
                       || (obj->cursed && (obj == uarmh || obj == uarms))
                       || welded(obj)))
                     otmp = obj;

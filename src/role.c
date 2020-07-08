@@ -235,6 +235,48 @@ const struct Role roles[] = {
       A_WIS,
       SPE_CURE_SICKNESS,
       -4 },
+    { { "Infidel", 0 },
+      { { "Apostate", 0 },
+        { "Heathen", 0 },
+        { "Heretic", 0 },
+        { "Idolater", "Idolatress" },
+        { "Cultist", 0 },
+        { "Splanchomancer", 0 },
+        { "Maleficus", "Malefica" },
+        { "Demonologist", 0 },
+        { "Heresiarch", 0 } },
+      0, 0, 0, /* uses a random role's pantheon */
+      "Inf",
+      "the Hidden Temple",
+      "the Howling Forest",
+      PM_INFIDEL,
+      NON_PM,
+      PM_HOMUNCULUS,
+      PM_PREACHER_OF_MOLOCH,
+      PM_CULTIST,
+      PM_PALADIN,
+      PM_AGENT,
+      PM_CHAMPION,
+      S_DOG,
+      S_UNICORN,
+      ART_IDOL_OF_MOLOCH,                         /* actually unaligned */
+      MH_HUMAN | MH_ORC,
+      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 7, 7, 10, 7, 7, 7 },
+      { 20, 10, 25, 15, 20, 10 },
+      /* Init   Lower  Higher */
+      { 10, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 4, 3, 0, 1, 0, 2 },
+      10, /* Energy */
+      10,
+      3,
+      1,
+      2,
+      10,
+      A_WIS,
+      SPE_FIREBALL,
+      -4 },
     { { "Knight", 0 },
       { { "Gallant", 0 },
         { "Esquire", 0 },
@@ -955,6 +997,30 @@ const struct Race races[] = {
     { 0, 0, 0, 0 }
 };
 
+/* Special race for crowned Infidels. */
+struct Race race_demon = {
+    "demon",
+    "demonic",
+    "demonkind",
+    "Dem",
+    { 0, 0 },
+    PM_DEMON,
+    NON_PM,
+    NON_PM,
+    NON_PM,
+    MH_DEMON | ROLE_MALE | ROLE_FEMALE, /* not available at start */
+    MH_DEMON,
+    MH_DEMON,
+    MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+        | MH_GIANT | MH_CENTAUR,
+    /*  Str    Int Wis Dex Con Cha */
+    { 3, 3, 3, 3, 3, 3 },
+    { STR18(100), 18, 18, 20, 20, 18 },
+    /* Init   Lower  Higher */
+    { 8, 0, 0, 8, 4, 0 }, /* Hit points */
+    { 4, 0, 6, 0, 6, 0 }  /* Energy */
+};
+
 /* The player's race, created at runtime from initial
  * choices.  This may be munged in role_init().
  */
@@ -1008,6 +1074,16 @@ STATIC_DCL int FDECL(race_alignmentcount, (int));
 
 /* used by str2XXX() */
 static char NEARDATA randomstr[] = "random";
+
+/* Inf are listed as chaotic above, but actually are unaligned. */
+int
+special_alignment(rolenum, alignnum)
+int rolenum, alignnum;
+{
+    if (roles[rolenum].malenum == PM_INFIDEL)
+        return 3; /* aligns[unaligned] */
+    return alignnum;
+}
 
 boolean
 validrole(rolenum)
@@ -1750,12 +1826,12 @@ int buflen, rolenum, racenum, gendnum, alignnum;
         if ((racenum >= 0) && (aligncount > 1)) {
             if (donefirst)
                 Strcat(buf, " ");
-            Strcat(buf, aligns[alignnum].adj);
+            Strcat(buf, aligns[special_alignment(rolenum, alignnum)].adj);
             donefirst = TRUE;
         } else {
             if (donefirst)
                 Strcat(buf, " ");
-            Strcat(buf, aligns[alignnum].adj);
+            Strcat(buf, aligns[special_alignment(rolenum, alignnum)].adj);
             donefirst = TRUE;
         }
     } else {
@@ -2071,6 +2147,7 @@ winid where;
             a = 2; /* aligns[chaotic] */
         /* [c never forces gender] */
     }
+    a = special_alignment(r, a); /* special case (Infidel) */
     /* [g and a don't constrain anything sufficiently
        to narrow something down to a single choice] */
 
@@ -2206,6 +2283,7 @@ boolean preselect;
                 a = 1; /* aligns[neutral] */
             else if (allowmask == AM_CHAOTIC)
                 a = 2; /* aligns[chaotic] */
+            a = special_alignment(r, a); /* special case (Infidel) */
             if (a >= 0)
                 constrainer = "role";
         }
@@ -2286,7 +2364,7 @@ boolean preselect;
 void
 role_init()
 {
-    int alignmnt;
+    int alignmnt, malignmnt;
     struct permonst *pm;
 
     /* Strip the role letter out of the player name.
@@ -2325,11 +2403,21 @@ role_init()
     if (!validalign(flags.initrole, flags.initrace, flags.initalign))
         /* Pick a random alignment */
         flags.initalign = randalign(flags.initrole, flags.initrace);
-    alignmnt = aligns[flags.initalign].value;
+    /* Infidels are actually unaligned */
+    flags.initalign = special_alignment(flags.initrole, flags.initalign);
+    alignmnt = malignmnt = aligns[flags.initalign].value;
+    if (alignmnt != A_NONE)
+        malignmnt *= 3;
 
     /* Initialize urole and urace */
     urole = roles[flags.initrole];
-    urace = races[flags.initrace];
+    if (u.uevent.uhand_of_elbereth == 4) { /* crowned as a demon */
+        urace = race_demon;
+        /* mental faculties are not changed by demonization */
+        urace.attrmax[A_INT] = races[flags.initrace].attrmax[A_INT];
+        urace.attrmax[A_WIS] = races[flags.initrace].attrmax[A_WIS];
+    } else
+        urace = races[flags.initrace];
 
     /* kick it over to alternate-alignment role */
     if (alignmnt == A_CHAOTIC && Role_if(PM_KNIGHT)) {
@@ -2346,7 +2434,7 @@ role_init()
         pm->msound = MS_LEADER;
         pm->mflags2 |= (M2_PEACEFUL);
         pm->mflags3 |= M3_CLOSE;
-        pm->maligntyp = alignmnt * 3;
+        pm->maligntyp = malignmnt;
         /* if gender is random, we choose it now instead of waiting
            until the leader monster is created */
         quest_status.ldrgend =
@@ -2359,7 +2447,7 @@ role_init()
     if (urole.guardnum != NON_PM) {
         pm = &mons[urole.guardnum];
         pm->mflags2 |= (M2_PEACEFUL);
-        pm->maligntyp = alignmnt * 3;
+        pm->maligntyp = malignmnt;
     }
 
     /* Fix up the quest nemesis */
@@ -2374,6 +2462,14 @@ role_init()
            until the nemesis monster is created */
         quest_status.nemgend = is_neuter(pm) ? 2 : is_female(pm) ? 1
                                    : is_male(pm) ? 0 : (rn2(100) < 50);
+    }
+
+    /* Enable special Inf enemies */
+    if (Role_if(PM_INFIDEL)) {
+        if (urole.enemy1num != NON_PM)
+            mons[urole.enemy1num].geno &= ~G_NOGEN;
+        if (urole.enemy2num != NON_PM)
+            mons[urole.enemy2num].geno &= ~G_NOGEN;
     }
 
     /* Fix up the god names */

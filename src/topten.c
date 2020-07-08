@@ -378,7 +378,7 @@ int how;
             (long) ubirthday, XLOG_SEP, (long) urealtime.finish_time);
     Fprintf(rfile, "%cgender0=%s%calign0=%s", XLOG_SEP,
             genders[flags.initgend].filecode, XLOG_SEP,
-            aligns[1 - u.ualignbase[A_ORIGINAL]].filecode);
+            aligns[1 - sgn(u.ualignbase[A_ORIGINAL])].filecode);
     Fprintf(rfile, "%cflags=0x%lx", XLOG_SEP, encodexlogflags());
     Fprintf(rfile, "%cgold=%ld", XLOG_SEP, money_cnt(invent) + hidden_gold());
     Fprintf(rfile, "%cwish_cnt=%ld", XLOG_SEP, u.uconduct.wishes);
@@ -614,7 +614,7 @@ time_t when;
     copynchars(t0->plrole, urole.filecode, ROLESZ);
     copynchars(t0->plrace, urace.filecode, ROLESZ);
     copynchars(t0->plgend, genders[flags.female].filecode, ROLESZ);
-    copynchars(t0->plalign, aligns[1 - u.ualign.type].filecode, ROLESZ);
+    copynchars(t0->plalign, aligns[1 - sgn(u.ualign.type)].filecode, ROLESZ);
     copynchars(t0->name, plname, NAMSZ);
     formatkiller(t0->death, sizeof t0->death, how, TRUE);
     t0->birthdate = yyyymmdd(ubirthday);

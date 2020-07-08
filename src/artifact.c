@@ -6,6 +6,7 @@
 #include "hack.h"
 #include "artifact.h"
 #include "artilist.h"
+#include "qtext.h"
 
 /*
  * Note:  both artilist[] and artiexist[] have a dummy element #0,
@@ -50,7 +51,7 @@ static boolean artiexist[1 + NROFARTIFACTS + 1];
 STATIC_OVL xchar artidisco[NROFARTIFACTS];
 
 STATIC_DCL void NDECL(hack_artifacts);
-STATIC_DCL boolean FDECL(attacks, (int, struct obj *));
+STATIC_DCL void FDECL(fix_artifact, (struct obj *));
 
 boolean
 exclude_nartifact_exist(i)
@@ -118,6 +119,19 @@ int fd;
     hack_artifacts(); /* redo non-saved special cases */
 }
 
+/* Some artifacts may need additional tweaking when created.
+ * Called when the artifact is christened.
+ */
+STATIC_DCL void
+fix_artifact(otmp)
+struct obj *otmp;
+{
+    if (otmp->oartifact == ART_IDOL_OF_MOLOCH) {
+        set_corpsenm(otmp, PM_HORNED_DEVIL);
+        otmp->spe = 0;
+    }
+}
+
 const char *
 artiname(artinum)
 int artinum;
@@ -177,8 +191,8 @@ aligntyp alignment; /* target alignment, or A_NONE */
 {
     const struct artifact *a;
     int m, n, altn;
-    boolean by_align = (alignment != A_NONE);
-    short o_typ = (by_align || !otmp) ? 0 : otmp->otyp;
+    boolean by_align = alignment != A_NONE || !otmp;
+    short o_typ = by_align ? 0 : otmp->otyp;
     boolean unique = !by_align && otmp && objects[o_typ].oc_unique;
     short eligible[NROFARTIFACTS];
 
@@ -255,6 +269,7 @@ aligntyp alignment; /* target alignment, or A_NONE */
             otmp = oname(otmp, a->name);
             otmp->oartifact = m;
             artiexist[m] = TRUE;
+            fix_artifact(otmp);
         }
     } else {
         otmp = create_oprop(otmp, FALSE);
@@ -459,6 +474,8 @@ boolean mod;
                 if (otmp->otyp == RIN_INCREASE_DAMAGE)
                     otmp->spe = 0;
                 artiexist[m] = mod;
+                if (mod)
+                    fix_artifact(otmp);
                 break;
             }
     return;
@@ -594,7 +611,7 @@ const char *name;
     return FALSE;
 }
 
-STATIC_OVL boolean
+boolean
 attacks(adtyp, otmp)
 int adtyp;
 struct obj *otmp;
@@ -1063,6 +1080,8 @@ struct monst *mtmp;
             return !(!yours ? resists_poison(mtmp) : (how_resistant(POISON_RES) > 99) ? TRUE : FALSE);
         case AD_DRLI:
             return !(yours ? Drain_resistance : resists_drli(mtmp));
+        case AD_DREN:
+            return !nonliving(ptr);
         case AD_STON:
             return !(yours ? Stone_resistance : resists_ston(mtmp));
         case AD_ACID:
@@ -2414,6 +2433,89 @@ struct obj *obj;
             }
             incr_itimeout(&HPasses_walls, (50 + rnd(100)));
             obj->age += HPasses_walls; /* Time begins after phasing ends */
+            break;
+        case CHANNEL:
+            /* Should this break atheist conduct?  Currently it doesn't,
+             * under the excuse of being necessary to ascend.
+             * But still, we're channeling a god's power here... */
+            if (IS_ALTAR(levl[u.ux][u.uy].typ)) {
+                aligntyp altar_align = Amask2align(levl[u.ux][u.uy].altarmask
+                                                   & AM_MASK);
+                boolean high_altar = (Is_astralevel(&u.uz)
+                                      || Is_sanctum(&u.uz))
+                                     && (levl[u.ux][u.uy].altarmask
+                                         & AM_SHRINE);
+                if (!Blind)
+                    pline("Tendrils of %s mist seep out of %s "
+                          "and into the altar below...",
+                          hcolor("crimson"), the(xname(obj)));
+                else
+                    You_feel("something flow from %s.", the(xname(obj)));
+                if (altar_align == A_NONE) {
+                    if (high_altar && Role_if(PM_INFIDEL)
+                        && u.uachieve.amulet && !obj->spe) {
+                        godvoice(A_NONE, (char *) 0);
+                        qt_pager(QT_MOLOCH_2);
+                        You_feel("strange energies envelop %s.",
+                                 the(xname(obj)));
+                        obj->spe = 1;
+                        u.uhave.amulet = 1;
+                        break;
+                    }
+                    if (!Blind)
+                        pline_The("altar glows for a moment.");
+                    /* nothing happens */
+                    break;
+                }
+                if (high_altar) {
+                    /* messages yoinked from pray.c */
+                    You("sense a conflict between %s and %s.",
+                        align_gname(A_NONE), a_gname());
+                    if (obj->spe && altar_align == inf_align(1)) {
+                        You_feel("the power of %s increase.",
+                                 align_gname(A_NONE));
+                    } else {
+                        pline("%s feel the power of %s decrease.",
+                              u.ualign.type == A_NONE ? "Unluckily, you"
+                                                      : "You",
+                              align_gname(A_NONE));
+                        godvoice(altar_align, "So, mortal!  You dare "
+                                              "desecrate my High Temple!");
+                        god_zaps_you(altar_align);
+                        break;
+                    }
+                }
+                levl[u.ux][u.uy].altarmask &= AM_SHRINE;
+                levl[u.ux][u.uy].altarmask |= AM_NONE;
+                if (!Blind)
+                    pline_The("altar glows %s.", hcolor(NH_RED));
+                if (!high_altar) {
+                    /* the Idol does all the work for you,
+                     * so you don't get a luck increase;
+                     * but you don't get a hostile minion, either */
+                    struct monst *pri = findpriest(temple_occupied(u.urooms));
+                    if (pri && mon_aligntyp(pri) != A_NONE)
+                        angry_priest();
+                } else {
+                    /* At this point, the player must be an Infidel.
+                     * Should we still check for opposite alignment?
+                     * Currently, Moloch doesn't care. */
+                    adjalign(10);
+                    u.uachieve.ascended = 1;
+                    pline1("A sinister laughter echoes through the temple, "
+                           "and you're bathed in darkness...");
+                    godvoice(A_NONE, "My pawn, thou hast done well!");
+                    display_nhwindow(WIN_MESSAGE, FALSE);
+                    verbalize("In return for thy service, "
+                              "I grant thee a part of My domain!");
+                    You("ascend to the status of Demon %s...",
+                        flags.female ? "Lady" : "Lord");
+                    done(ASCENDED);
+                }
+            } else {
+                obj->age = 0; /* will be set below */
+                use_figurine(&obj);
+            }
             break;
         }
     } else {

@@ -5,7 +5,7 @@
 #ifndef QTEXT_H
 #define QTEXT_H
 
-#define N_HDR 17 /* Maximum number of categories */
+#define N_HDR 18 /* Maximum number of categories */
 /* (i.e., num roles + 1) */
 #define LEN_HDR 3 /* Maximum length of a category name */
 
@@ -64,7 +64,7 @@ struct qtlists {
 #define QT_FIRSTTIME 1
 #define QT_NEXTTIME 2
 #define QT_OTHERTIME 3
-
+#define QT_ALTSTART 4    /* alternate game start message (optional) */
 #define QT_GUARDTALK 5   /* 5 random things guards say before quest */
 #define QT_GUARDTALK2 10 /* 5 random things guards say after quest */
 
@@ -93,6 +93,11 @@ struct qtlists {
 #define QT_DISCOURAGE 60 /* 1-10 random maledictive messages */
 
 #define QT_GOTIT 70
+
+/* For Infidels: Moloch's dialogue */
+#define QT_MOLOCH_1 71 /* offered Amulet, no Idol */
+#define QT_MOLOCH_2 72 /* offered Amulet, got Idol */
+#define QT_MOLOCH_3 73 /* high priest's altar hint */
 
 #define QT_KILLEDNEM 80
 #define QT_OFFEREDIT 81

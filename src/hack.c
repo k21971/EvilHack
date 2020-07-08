@@ -2225,7 +2225,7 @@ invocation_message()
             Sprintf(buf, "under your %s", makeplural(body_part(FOOT)));
 
         You_feel("a strange vibration %s.", buf);
-        u.uevent.uvibrated = 1;
+        u.uachieve.vibrating_square = 1;
         if (otmp && otmp->spe == 7 && otmp->lamplit)
             pline("%s %s!", The(xname(otmp)),
                   Blind ? "throbs palpably" : "glows with a strange light");
@@ -2318,7 +2318,7 @@ switch_terrain()
         /* [minor bug: we don't know whether this is beginning flight or
            resuming it; that could be tracked so that this message could
            be adjusted to "resume flying", but isn't worth the effort...] */
-        if (Flying)
+        if (Flying && !was_flying)
             You("start flying.");
     }
     if ((!Levitation ^ was_levitating) || (!Flying ^ was_flying))

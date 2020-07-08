@@ -75,10 +75,16 @@ boolean quietly;
     struct permonst *pm;
     struct monst *mtmp = 0;
     int chance, trycnt = 100;
+    boolean idol = otmp && otmp->oartifact == ART_IDOL_OF_MOLOCH;
 
     do {
         if (otmp) { /* figurine; otherwise spell */
             int mndx = otmp->corpsenm;
+            if (idol) {
+                mndx = ndemon(A_NONE);
+                if (mndx == NON_PM) /* just in case */
+                    continue;
+            }
 
             pm = &mons[mndx];
             /* activating a figurine provides one way to exceed the
@@ -86,10 +92,14 @@ boolean quietly;
                it has a special limit (erinys, Nazgul) */
             if ((mvitals[mndx].mvflags & G_EXTINCT)
                 && mbirth_limit(mndx) != MAXMONNO) {
-                if (!quietly)
+                if (!quietly) {
                     /* have just been given "You <do something with>
                        the figurine and it transforms." message */
-                    pline("... into a pile of dust.");
+                    if (!idol)
+                        pline("... into a pile of dust.");
+                    else if (!Blind)
+                        pline_The("cloud disperses.");
+                }
                 break; /* mtmp is null */
             }
         } else if (!rn2(3)) {
@@ -103,16 +113,30 @@ boolean quietly;
             }
         }
 
-        mtmp = makemon(pm, x, y, MM_EDOG | MM_IGNOREWATER | NO_MINVENT);
+        mtmp = makemon(pm, x, y, MM_EDOG | MM_IGNOREWATER
+                                         | (!idol * NO_MINVENT));
         if (otmp && !mtmp) { /* monster was genocided or square occupied */
-            if (!quietly)
-                pline_The("figurine writhes and then shatters into pieces!");
+            if (!quietly) {
+                if (!idol)
+                    pline_The("figurine writhes and then shatters "
+                              "into pieces!");
+                else if (!Blind)
+                    pline_The("cloud disperses.");
+            }
             break;
         }
     } while (!mtmp && --trycnt > 0);
 
     if (!mtmp)
         return (struct monst *) 0;
+
+    if (idol && !quietly && !Blind) {
+        pline_The("mist coagulates into the shape of %s%s.",
+                  x_monnam(mtmp, ARTICLE_A, (char *) 0, SUPPRESS_IT
+                           | SUPPRESS_INVISIBLE | SUPPRESS_SADDLE
+                           | SUPPRESS_NAME, FALSE),
+                  canspotmon(mtmp) ? "" : " and vanishes");
+    }
 
     if (is_pool(mtmp->mx, mtmp->my) && minliquid(mtmp))
         return (struct monst *) 0;
@@ -139,7 +163,7 @@ boolean quietly;
             }
         }
         /* if figurine has been named, give same name to the monster */
-        if (has_oname(otmp))
+        if (has_oname(otmp) && !idol)
             mtmp = christen_monst(mtmp, ONAME(otmp));
     }
     set_malign(mtmp); /* more alignment changes */
@@ -571,6 +595,19 @@ long nmv; /* number of moves */
         m_unleash(mtmp, FALSE);
     }
 
+    /* maybe pick up the abandoned Amulet */
+    if (mtmp->data == &mons[PM_AGENT] && !mtmp->mpeaceful
+        && !mon_has_amulet(mtmp) && rn2(imv + 1) > 300) {
+        struct obj *otmp;
+        for (otmp = level.objlist; otmp; otmp = otmp->nobj)
+            if (otmp->otyp == AMULET_OF_YENDOR
+                || otmp->otyp == FAKE_AMULET_OF_YENDOR) {
+                obj_extract_self(otmp);
+                (void) mpickobj(mtmp, otmp);
+                break;
+            }
+    }
+
     /* recover lost hit points */
     if (!mon_prop(mtmp, REGENERATION))
         imv /= 20;
@@ -998,7 +1035,7 @@ register struct obj *obj;
         || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion
         || is_covetous(mtmp->data) || is_human(mtmp->data)
         || (is_demon(mtmp->data) && mtmp->data != &mons[PM_LAVA_DEMON]
-            && !is_demon(youmonst.data))
+            && !is_demon(raceptr(&youmonst)))
         || (obj && dogfood(mtmp, obj) >= MANFOOD))
         return FALSE;
 

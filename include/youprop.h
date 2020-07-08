@@ -254,7 +254,9 @@
 #define HLevitation u.uprops[LEVITATION].intrinsic
 #define ELevitation u.uprops[LEVITATION].extrinsic
 /* BLevitation has I_SPECIAL set if trapped in the floor,
-   FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
+   FROMOUTSIDE set if inside solid rock (or in water on Plane of Water)
+   W_ARM set if in big_wings() form and wearing blocking body armor
+   (the last one obviously won't block the steed from flying) */
 #define BLevitation u.uprops[LEVITATION].blocked
 #define Levitation ((HLevitation || ELevitation) && !BLevitation)
 /* Can't touch surface, can't go under water; overrides all others */
@@ -269,9 +271,9 @@
 /* BFlying has I_SPECIAL set if levitating or trapped in the floor or both,
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BFlying u.uprops[FLYING].blocked
-#define Flying                                                      \
-    ((HFlying || EFlying || (u.usteed && is_flyer(u.usteed->data))) \
-     && !BFlying)
+#define Flying                                                             \
+    ((((HFlying || EFlying) && !BFlying)                                   \
+      || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR))
 /* May touch surface; does not override any others */
 
 #define EWwalking u.uprops[WWALKING].extrinsic

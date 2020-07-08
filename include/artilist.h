@@ -32,6 +32,7 @@ static const char *artifact_names[] = {
 #define     DRST(a,b)   {0,AD_DRST,a,b}         /* poison attack */
 #define     ACID(a,b)   {0,AD_ACID,a,b}         /* acid attack */
 #define     DISE(a,b)   {0,AD_DISE,a,b}         /* disease attack */
+#define     DREN(a,b)   {0,AD_DREN,a,b}         /* drains energy */
 /* clang-format on */
 
 STATIC_OVL NEARDATA struct artifact artilist[] = {
@@ -223,6 +224,12 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       PHYS(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_CONVICT, NON_PM, 3000L,
       NO_COLOR),
 
+    /* The energy drain only works if the artifact kills its victim.
+     * Also increases sacrifice value while wielded. */
+    A("Secespita", KNIFE, (SPFX_RESTR | SPFX_ATTK), 0, 0,
+      DREN(5, 1), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_INFIDEL, NON_PM,
+      1000L, NO_COLOR),
+
     /*
      *      The artifacts for the quest dungeon, all self-willed.
      */
@@ -364,6 +371,13 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_STLTH | SPFX_SEARCH | SPFX_WARN), 0,
       NO_ATTK, NO_DFNS, CARY(AD_MAGM), PHASING,
       A_CHAOTIC, PM_CONVICT, NON_PM, 10000L, NO_COLOR),
+
+    /* Infidel role quest artifact. Confers energy regeneration,
+     * but only to those in good standing with Moloch. */
+    A("The Idol of Moloch", FIGURINE,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL), SPFX_HSPDAM, 0,
+      NO_ATTK, NO_DFNS, CARY(AD_MAGM), CHANNEL, A_CHAOTIC, PM_INFIDEL, NON_PM,
+      4000L, NO_COLOR),
 
     /*
      *  terminator; otyp must be zero

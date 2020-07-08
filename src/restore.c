@@ -620,11 +620,11 @@ unsigned int *stuckid, *steedid;
     mread(fd, (genericptr_t) &sysflags, sizeof(struct sysflag));
 #endif
 
-    role_init(); /* Reset the initial role, race, gender, and alignment */
 #ifdef AMII_GRAPHICS
     amii_setpens(amii_numcolors); /* use colors from save file */
 #endif
     mread(fd, (genericptr_t) &u, sizeof(struct you));
+    role_init(); /* Reset the initial role, race, gender, and alignment */
 
 #define ReadTimebuf(foo)                   \
     mread(fd, (genericptr_t) timebuf, 14); \

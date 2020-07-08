@@ -862,7 +862,7 @@ time_t when; /* date+time at end of game */
 
     /* character name and basic role info */
     Sprintf(pbuf, "%s, %s %s %s %s", plname,
-            aligns[1 - u.ualign.type].adj,
+            aligns[1 - sgn(u.ualign.type)].adj,
             genders[flags.female].adj,
             urace.adj,
             (flags.female && urole.name.f) ? urole.name.f : urole.name.m);
@@ -1052,6 +1052,8 @@ struct obj *list; /* inventory or container contents */
         } else if (obj->oartifact) {
             continue;
         } else if (obj->oclass == AMULET_CLASS) {
+            if (Role_if(PM_INFIDEL) && obj->otyp == AMULET_OF_YENDOR)
+                continue; /* starting inventory */
             i = ((obj->otyp - FIRST_AMULET) * NUM_MATERIAL_TYPES)
                 + obj->material;
             if (!amulets[i].count) {
@@ -1639,7 +1641,9 @@ int how;
                 ? (const char *) ((flags.female && urole.name.f)
                     ? urole.name.f
                     : urole.name.m)
-                : (const char *) (flags.female ? "Demigoddess" : "Demigod"));
+                : Role_if(PM_INFIDEL) /* can only ascend via Moloch */
+                    ? (const char *) (flags.female ? "Demon Lady" : "Demon Lord")
+                    : (const char *) (flags.female ? "Demigoddess" : "Demigod"));
 
 #if defined(DUMPLOG) || defined(DUMPHTML)
     dump_redirect(TRUE);

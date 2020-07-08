@@ -238,13 +238,14 @@ all :	$(INCL)\date.h	$(INCL)\onames.h $(INCL)\pm.h \
 	@echo Done!
 
 $(O)sp_lev.tag:  $(DAT)\bigroom.des  $(DAT)\castle.des \
-	$(DAT)\endgame.des $(DAT)\gehennom.des $(DAT)\knox.des   \
-	$(DAT)\medusa.des  $(DAT)\oracle.des   $(DAT)\tower.des  \
-	$(DAT)\yendor.des  $(DAT)\arch.des     $(DAT)\barb.des   \
-	$(DAT)\caveman.des $(DAT)\healer.des   $(DAT)\knight.des \
-	$(DAT)\monk.des    $(DAT)\priest.des   $(DAT)\ranger.des \
-	$(DAT)\rogue.des   $(DAT)\samurai.des  $(DAT)\sokoban.des \
-	$(DAT)\tourist.des $(DAT)\valkyrie.des $(DAT)\wizard.des
+	$(DAT)\endgame.des  $(DAT)\gehennom.des $(DAT)\knox.des    \
+	$(DAT)\medusa.des   $(DAT)\oracle.des   $(DAT)\tower.des   \
+	$(DAT)\yendor.des   $(DAT)\arch.des     $(DAT)\barb.des    \
+	$(DAT)\caveman.des  $(DAT)\convict.des  $(DAT)\healer.des  \ 
+	$(DAT)\infidel.des  $(DAT)\knight.des   $(DAT)\monk.des    \
+	$(DAT)\priest.des   $(DAT)\ranger.des   $(DAT)\rogue.des   \
+	$(DAT)\samurai.des  $(DAT)\sokoban.des  $(DAT)\tourist.des \
+	$(DAT)\valkyrie.des $(DAT)\wizard.des
 	cd $(DAT)
 	$(U)lev_comp bigroom.des
 	$(U)lev_comp castle.des
@@ -260,7 +261,9 @@ $(O)sp_lev.tag:  $(DAT)\bigroom.des  $(DAT)\castle.des \
 	$(U)lev_comp arch.des
 	$(U)lev_comp barb.des
 	$(U)lev_comp caveman.des
+	$(U)lev_comp convict.des
 	$(U)lev_comp healer.des
+	$(U)lev_comp infidel.des
 	$(U)lev_comp knight.des
 	$(U)lev_comp monk.des
 	$(U)lev_comp priest.des

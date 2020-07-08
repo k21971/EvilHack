@@ -4552,6 +4552,10 @@ struct obj *no_wish;
                 case ART_STAFF_OF_AESCULAPIUS:
                     pm = PM_HUMAN_HEALER;
                     break;
+                case ART_IDOL_OF_MOLOCH:
+                case ART_SECESPITA:
+                    pm = PM_HUMAN_INFIDEL;
+                    break;
                 case ART_MAGIC_MIRROR_OF_MERLIN:
                 case ART_EXCALIBUR:
                 case ART_DIRGE:

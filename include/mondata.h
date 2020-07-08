@@ -68,6 +68,9 @@
                         || (ptr) == &mons[PM_GIANT_CENTIPEDE] \
                         || (ptr) == &mons[PM_ZRUTY])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
+/* flight blocked by most body armor */
+#define big_wings(ptr) ((ptr) == &mons[PM_WINGED_GARGOYLE] \
+                        || (ptr) == &mons[PM_DEMON])
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
@@ -151,6 +154,8 @@
 #define carnivorous(ptr) (((ptr)->mflags1 & M1_CARNIVORE) != 0L)
 #define herbivorous(ptr) (((ptr)->mflags1 & M1_HERBIVORE) != 0L)
 #define metallivorous(ptr) (((ptr)->mflags1 & M1_METALLIVORE) != 0L)
+#define inediate(ptr) (((ptr)->mflags1 & (M1_CARNIVORE | M1_HERBIVORE \
+                                          | M1_METALLIVORE)) == 0L)
 #define polyok(ptr) (((ptr)->mflags2 & M2_NOPOLY) == 0L)
 #define is_shapeshifter(ptr) (((ptr)->mflags2 & M2_SHAPESHIFTER) != 0L)
 #define is_undead(ptr) (((ptr)->mhflags & MH_UNDEAD) != 0L)

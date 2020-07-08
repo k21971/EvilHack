@@ -64,6 +64,8 @@ STATIC_DCL int FDECL(ready_weapon, (struct obj *));
 /* used by welded(), and also while wielding */
 #define will_weld(optr) \
     ((optr)->cursed && (erodeable_wep(optr) || (optr)->otyp == TIN_OPENER))
+/* Infidels are immune to curses */
+#define will_weld_to_you(optr) (will_weld(optr) && !Role_if(PM_INFIDEL))
 
 /*** Functions that place a given item in a slot ***/
 /* Proper usage includes:
@@ -166,7 +168,7 @@ struct obj *wep;
     } else {
         /* Weapon WILL be wielded after this point */
         res++;
-        if (will_weld(wep)) {
+        if (will_weld_to_you(wep)) {
             const char *tmp = xname(wep), *thestr = "The ";
 
             if (strncmp(tmp, thestr, 4) && !strncmp(The(tmp), thestr, 4))
@@ -603,7 +605,7 @@ const char *verb; /* "rub",&c */
     } else {
         struct obj *oldwep = uwep;
 
-        if (will_weld(obj)) {
+        if (will_weld_to_you(obj)) {
             /* hope none of ready_weapon()'s early returns apply here... */
             (void) ready_weapon(obj);
         } else {
@@ -771,7 +773,7 @@ register int amount;
     if (!uwep || (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep))) {
         char buf[BUFSZ];
 
-        if (amount >= 0 && uwep && will_weld(uwep)) { /* cursed tin opener */
+        if (amount >= 0 && uwep && will_weld_to_you(uwep)) { /* cursed tin opener */
             if (!Blind) {
                 Sprintf(buf, "%s with %s aura.",
                         Yobjnam2(uwep, "glow"), an(hcolor(NH_AMBER)));
@@ -899,7 +901,7 @@ int
 welded(obj)
 register struct obj *obj;
 {
-    if (obj && obj == uwep && will_weld(obj)) {
+    if (obj && obj == uwep && will_weld_to_you(obj)) {
         set_bknown(obj, 1);
         return 1;
     }

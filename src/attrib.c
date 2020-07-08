@@ -46,6 +46,11 @@ static const struct innate {
                  { 15, &(HSick_resistance), "hale", "" },
                  { 0, 0, 0, 0 } },
 
+  inf_abil[] = { { 1, &(HFire_resistance), "", "" },
+                 { 15, &(HWarning), "sensitive", "" },
+                 { 20, &(HShock_resistance), "insulated", "conductive" },
+                 { 0, 0, 0, 0 } },
+
   kni_abil[] = { { 7, &(HFast), "quick", "slow" }, { 0, 0, 0, 0 } },
 
   mon_abil[] = { { 1, &(HFast), "", "" },
@@ -125,6 +130,15 @@ static const struct innate {
                  { 1, &(HTelepat), "", "" },
                  { 1, &(HPsychic_resistance), "", "" },
                  { 12, &(HFlying), "lighter than air", "gravity's pull" },
+                 { 0, 0, 0, 0 } },
+
+  dem_abil[] = { { 1, &(HInfravision), "", "" },
+                 { 1, &(HFire_resistance), "", "" },
+                 { 1, &(HPoison_resistance), "", "" },
+                 { 1, &(HDrain_resistance), "", "" },
+                 { 1, &(HSee_invisible), "", "" },
+                 { 1, &(HFlying), "", "" },
+                 /* also inediate */
                  { 0, 0, 0, 0 } },
 
   hum_abil[] = { { 0, 0, 0, 0 } };
@@ -764,6 +778,7 @@ int r;
         { PM_CAVEMAN, cav_abil },
         { PM_CONVICT, con_abil},
         { PM_HEALER, hea_abil },
+        { PM_INFIDEL, inf_abil },
         { PM_KNIGHT, kni_abil },
         { PM_MONK, mon_abil },
         { PM_PRIEST, pri_abil },
@@ -816,6 +831,9 @@ long frommask;
             break;
         case PM_ILLITHID:
             abil = ill_abil;
+            break;
+        case PM_DEMON:
+            abil = dem_abil;
             break;
         case PM_HUMAN:
             abil = hum_abil;
@@ -870,6 +888,8 @@ int propidx;
         return FROM_LYCN;
     if (propidx == FAST && Very_fast)
         return FROM_NONE; /* can't become very fast innately */
+    if (propidx == FLYING && (BFlying & W_ARMOR))
+        return FROM_NONE; /* not from form, as that is blocked */
     if ((innateness = innately(&u.uprops[propidx].intrinsic)) != FROM_NONE)
         return innateness;
     if (propidx == JUMPING && Role_if(PM_KNIGHT)

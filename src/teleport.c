@@ -877,12 +877,25 @@ level_tele()
 
                 newlevel.dnum = destdnum;
                 newlevel.dlevel = destlev;
-                if (In_endgame(&newlevel) && !In_endgame(&u.uz)) {
+                if (In_endgame(&newlevel) && !In_endgame(&u.uz)
+                    && !u.uhave.amulet) {
                     struct obj *amu;
 
-                    if (!u.uhave.amulet
-                        && (amu = mksobj(AMULET_OF_YENDOR, TRUE, FALSE))
-                               != 0) {
+                    if (!Role_if(PM_INFIDEL)) {
+                        amu = mksobj(AMULET_OF_YENDOR, TRUE, FALSE);
+                    } else if ((amu = find_quest_artifact(1 << OBJ_INVENT))) {
+                        obj_extract_self(amu); /* may be contained */
+                        amu->spe = 1;
+                    } else {
+                        const char *idol = artiname(ART_IDOL_OF_MOLOCH);
+                        amu = mksobj(FIGURINE, TRUE, FALSE);
+                        artifact_exists(amu, idol, TRUE);
+                        new_oname(amu, strlen(idol) + 1);
+                        Strcpy(ONAME(amu), idol);
+                        amu->spe = 1;
+                    }
+
+                    if (amu) {
                         /* ordinarily we'd use hold_another_object()
                            for something like this, but we don't want
                            fumbling or already full pack to interfere */

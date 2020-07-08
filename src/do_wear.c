@@ -533,13 +533,13 @@ Helmet_on(VOID_ARGS)
            by hero falling onto a polymorph trap or into water (emergency
            disrobe) or maybe lava (probably not, helm isn't 'organic') */
         uchangealign((u.ualign.type != A_NEUTRAL)
-                         ? -u.ualign.type
+                         ? -sgn(u.ualign.type)
                          : (uarmh->o_id % 2) ? A_CHAOTIC : A_LAWFUL,
                      1);
         /* makeknown(HELM_OF_OPPOSITE_ALIGNMENT); -- below, after Tobjnam() */
     /*FALLTHRU*/
     case DUNCE_CAP:
-        if (uarmh && !uarmh->cursed) {
+        if (uarmh && cursed(uarmh, FALSE)) {
             if (Blind)
                 pline("%s for a moment.", Tobjnam(uarmh, "vibrate"));
             else
@@ -894,6 +894,7 @@ Armor_on(VOID_ARGS)
         uarm->known = 1; /* suit's +/- evident because of status line AC */
         oprops_on(uarm, W_ARM);
     }
+    check_wings(FALSE);
     if (Role_if(PM_MONK))
         You_feel("extremely uncomfortable wearing such armor.");
     return 0;
@@ -962,6 +963,7 @@ Armor_off(VOID_ARGS)
     context.takeoff.mask &= ~W_ARM;
     setworn((struct obj *) 0, W_ARM);
     context.takeoff.cancelled_don = FALSE;
+    check_wings(FALSE);
     if (Role_if(PM_MONK))
         You_feel("much more comfortable and free now.");
     return 0;
@@ -1032,9 +1034,44 @@ Armor_gone()
     context.takeoff.mask &= ~W_ARM;
     setnotworn(uarm);
     context.takeoff.cancelled_don = FALSE;
+    check_wings(FALSE);
     if (Role_if(PM_MONK))
         You_feel("much more comfortable and free now.");
     return 0;
+}
+
+/* Some monster forms' flight is blocked by most body armor. */
+void
+check_wings(silent)
+boolean silent; /* we assume a wardrobe change if false */
+{
+    static struct obj *last_worn_armor;
+    boolean old_flying = Flying;
+
+    BFlying &= ~W_ARM;
+    if (!big_wings(raceptr(&youmonst)))
+        return;
+
+    if (!uarm) {
+        if (!silent && Flying && !old_flying)
+            You("spread your wings and take flight.");
+    } else if (Is_dragon_scales(uarm)) {
+        if (!silent && uarm != last_worn_armor)
+            You("arrange the scales around your wings.");
+    } else if (uarm->otyp == JACKET) {
+        if (!silent && uarm != last_worn_armor)
+            pline1("This jacket seems to have holes for wings.");
+    } else {
+        BFlying |= W_ARM;
+        if (!silent)
+            You("fold your wings under your suit.");
+    }
+
+    if (uarm)
+        last_worn_armor = uarm;
+
+    if (Flying != old_flying)
+        context.botl = TRUE;
 }
 
 STATIC_OVL void
@@ -1889,31 +1926,35 @@ doremring()
 
 /* Check if something worn is cursed _and_ unremovable. */
 int
-cursed(otmp)
+cursed(otmp, silent)
 struct obj *otmp;
+boolean silent;
 {
     if (!otmp) {
         impossible("cursed without otmp");
         return 0;
     }
-    /* Curses, like chickens, come home to roost. */
-    if ((otmp == uwep) ? welded(otmp) : (int) otmp->cursed) {
-        boolean use_plural = (is_boots(otmp) || is_gloves(otmp)
-                              || otmp->otyp == LENSES || otmp->quan > 1L);
-
-        /* might be trying again after applying grease to hands */
-        if (Glib && otmp->bknown
-            /* for weapon, we'll only get here via 'A )' */
-            && (uarmg ? (otmp == uwep)
-                      : ((otmp->owornmask & (W_WEP | W_RING)) != 0)))
-            pline("Despite your slippery %s, you can't.",
-                  fingers_or_gloves(TRUE));
-        else
-            You("can't.  %s cursed.", use_plural ? "They are" : "It is");
-        set_bknown(otmp, 1);
+    /* Inf are immune to curses. */
+    if (Role_if(PM_INFIDEL) || !otmp->cursed || (otmp == uwep && !welded(otmp)))
+        return 0;
+    if (silent)
         return 1;
-    }
-    return 0;
+
+    /* Curses, like chickens, come home to roost. */
+    boolean use_plural = (is_boots(otmp) || is_gloves(otmp)
+                          || otmp->otyp == LENSES || otmp->quan > 1L);
+
+    /* might be trying again after applying grease to hands */
+    if (Glib && otmp->bknown
+        /* for weapon, we'll only get here via 'A )' */
+        && (uarmg ? (otmp == uwep)
+            : ((otmp->owornmask & (W_WEP | W_RING)) != 0)))
+        pline("Despite your slippery %s, you can't.",
+              fingers_or_gloves(TRUE));
+    else
+        You("can't.  %s cursed.", use_plural ? "They are" : "It is");
+    set_bknown(otmp, 1);
+    return 1;
 }
 
 int
@@ -1924,7 +1965,7 @@ struct obj *otmp;
     int delay = -objects[otmp->otyp].oc_delay;
     const char *what = 0;
 
-    if (cursed(otmp))
+    if (cursed(otmp, FALSE))
         return 0;
     /* this used to make assumptions about which types of armor had
        delays and which didn't; now both are handled for all types */
@@ -2718,13 +2759,13 @@ int otyp;
         /* reasons ring can't be removed match those checked by select_off();
            limbless case has extra checks because ordinarily it's temporary */
         if (nolimbs(youmonst.data) && uamul
-            && uamul->otyp == AMULET_OF_UNCHANGING && uamul->cursed)
+            && uamul->otyp == AMULET_OF_UNCHANGING && cursed(uamul, TRUE))
             return uamul;
         if (welded(uwep) && (ring == uright || bimanual(uwep)))
             return uwep;
-        if (uarmg && uarmg->cursed)
+        if (uarmg && cursed(uarmg, TRUE))
             return uarmg;
-        if (ring->cursed)
+        if (cursed(ring, TRUE))
             return ring;
         /* normally outermost layer is processed first, but slippery gloves
            wears off quickly so uncurse ring itself before handling those */
@@ -2769,7 +2810,7 @@ register struct obj *otmp;
         if (welded(uwep) && (otmp == uright || bimanual(uwep))) {
             Sprintf(buf, "free a weapon %s", body_part(HAND));
             why = uwep;
-        } else if (uarmg && (uarmg->cursed || Glib)) {
+        } else if (uarmg && (cursed(uarmg, TRUE) || Glib)) {
             Sprintf(buf, "take off your %s%s",
                     Glib ? "slippery " : "", gloves_simple_name(uarmg));
             why = !Glib ? uarmg : &glibdummy;
@@ -2809,10 +2850,10 @@ register struct obj *otmp;
     /* special suit and shirt checks */
     if (otmp == uarm || otmp == uarmu) {
         why = 0; /* the item which prevents disrobing */
-        if (uarmc && uarmc->cursed) {
+        if (uarmc && cursed(uarmc, TRUE)) {
             Sprintf(buf, "remove your %s", cloak_simple_name(uarmc));
             why = uarmc;
-        } else if (otmp == uarmu && uarm && uarm->cursed) {
+        } else if (otmp == uarmu && uarm && cursed(uarm, TRUE)) {
             Sprintf(buf, "remove your %s", c_suit);
             why = uarm;
         } else if (welded(uwep) && bimanual(uwep)) {
@@ -2833,7 +2874,7 @@ register struct obj *otmp;
         ; /* some items can be removed even when cursed */
     } else {
         /* otherwise, this is fundamental */
-        if (cursed(otmp))
+        if (cursed(otmp, FALSE))
             return 0;
     }
 
@@ -2880,7 +2921,7 @@ do_takeoff()
 
     context.takeoff.mask |= I_SPECIAL; /* set flag for cancel_doff() */
     if (doff->what == W_WEP) {
-        if (!cursed(uwep)) {
+        if (!cursed(uwep, FALSE)) {
             setuwep((struct obj *) 0);
             You("are empty %s.", body_part(HANDED));
             u.twoweap = FALSE;
@@ -2894,46 +2935,46 @@ do_takeoff()
         You("no longer have ammunition readied.");
     } else if (doff->what == WORN_ARMOR) {
         otmp = uarm;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Armor_off();
     } else if (doff->what == WORN_CLOAK) {
         otmp = uarmc;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Cloak_off();
     } else if (doff->what == WORN_BOOTS) {
         otmp = uarmf;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Boots_off();
     } else if (doff->what == WORN_GLOVES) {
         otmp = uarmg;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Gloves_off();
     } else if (doff->what == WORN_HELMET) {
         otmp = uarmh;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Helmet_off();
     } else if (doff->what == WORN_SHIELD) {
         otmp = uarms;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Shield_off();
     } else if (doff->what == WORN_SHIRT) {
         otmp = uarmu;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Shirt_off();
     } else if (doff->what == WORN_AMUL) {
         otmp = uamul;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             Amulet_off();
     } else if (doff->what == LEFT_RING) {
         otmp = uleft;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             Ring_off(uleft);
     } else if (doff->what == RIGHT_RING) {
         otmp = uright;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             Ring_off(uright);
     } else if (doff->what == WORN_BLINDF) {
-        if (!cursed(ublindf))
+        if (!cursed(ublindf, FALSE))
             Blindf_off(ublindf);
     } else {
         impossible("do_takeoff: taking off %lx", doff->what);

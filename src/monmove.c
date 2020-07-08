@@ -402,6 +402,14 @@ int *inrange, *nearby, *scared;
                     || (!mtmp->mpeaceful && in_your_sanctuary(mtmp, 0, 0)))) {
         *scared = 1;
         monflee(mtmp, rnd(rn2(7) ? 10 : 100), TRUE, TRUE);
+        if (u.ualign.type == A_NONE && !context.coward
+            && sengr_at("Elbereth", seescaryx, seescaryy, TRUE)) {
+            /* Followers of Moloch aren't supposed
+             * to hide behind other gods. */
+            You_feel("like a coward.");
+            context.coward = TRUE; /* once per move */
+            adjalign(-5);
+        }
     } else
         *scared = 0;
 }
@@ -1279,6 +1287,9 @@ register int after;
             && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 5*5)
             && m_canseeu(mtmp) && m_has_launcher_and_ammo(mtmp))
             appr = -1;
+
+        if (monsndx(ptr) == PM_AGENT && mon_has_amulet(mtmp))
+            appr = -1; /* objective secured, retreat */
 
         if (!should_see && can_track(ptr)) {
             register coord *cp;

@@ -1253,6 +1253,7 @@ struct obj *obj;
 int ochance, achance; /* percent chance for ordinary objects, artifacts */
 {
     if (obj->otyp == AMULET_OF_YENDOR
+        || (Role_if(PM_INFIDEL) && is_quest_artifact(obj))
         || obj->otyp == SPE_BOOK_OF_THE_DEAD
         || obj->otyp == CANDELABRUM_OF_INVOCATION
         || obj->otyp == BELL_OF_OPENING
@@ -2615,7 +2616,7 @@ boolean ordinary;
 
     case WAN_DEATH:
     case SPE_FINGER_OF_DEATH:
-        if (nonliving(youmonst.data) || is_demon(youmonst.data)) {
+        if (nonliving(youmonst.data) || is_demon(raceptr(&youmonst))) {
             pline((obj->otyp == WAN_DEATH)
                       ? "The wand shoots an apparently harmless beam at you."
                       : "You seem no more dead than before.");
@@ -4171,7 +4172,7 @@ xchar sx, sy;
                 if (uarmu)
                     (void) destroy_arm(uarmu);
             }
-        } else if (nonliving(youmonst.data) || is_demon(youmonst.data)) {
+        } else if (nonliving(youmonst.data) || is_demon(raceptr(&youmonst))) {
             shieldeff(sx, sy);
             You("seem unaffected.");
             break;

@@ -267,7 +267,7 @@ register struct monst *mtmp;
         }
         newsym(mtmp->mx, mtmp->my);
     }
-    if (youmonst.data->mlet == S_DEMON) { /* Won't blackmail their own. */
+    if (is_demon(raceptr(&youmonst))) { /* Won't blackmail their own. */
         if (!Deaf)
             pline("%s says, \"Good hunting, %s.\"", Amonnam(mtmp),
                   flags.female ? "Sister" : "Brother");

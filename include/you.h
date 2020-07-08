@@ -48,15 +48,14 @@ struct u_event {
     Bitfield(uopened_dbridge, 1);   /* opened the drawbridge */
     Bitfield(invoked, 1);           /* invoked Gate to the Sanctum level */
     Bitfield(gehennom_entered, 1);  /* entered Gehennom via Valley */
-    Bitfield(uhand_of_elbereth, 2); /* became Hand of Elbereth */
+    Bitfield(uhand_of_elbereth, 3); /* became Hand of Elbereth */
     Bitfield(udemigod, 1);          /* killed the wiz */
-    Bitfield(uvibrated, 1);         /* stepped on "vibrating square" */
     Bitfield(ascended, 1);          /* has offered the Amulet */
     Bitfield(ulearned_elbereth, 1); /* Evilhack: Learned how to write Elbereth */
 };
 
 struct u_achieve {
-    Bitfield(amulet, 1);  /* touched Amulet */
+    Bitfield(amulet, 1);  /* touched (for Infidels: offered) Amulet */
     Bitfield(bell, 1);    /* touched Bell */
     Bitfield(book, 1);    /* touched Book */
     Bitfield(menorah, 1); /* touched Candelabrum */
@@ -68,6 +67,8 @@ struct u_achieve {
 
     Bitfield(killed_medusa, 1);
     Bitfield(defeat_icequeen, 1);
+
+    Bitfield(vibrating_square, 1); /* stepped on "vibrating square" */
 };
 
 struct u_realtime {
@@ -227,6 +228,7 @@ struct Race {
 };
 
 extern const struct Race races[]; /* Table of available races */
+extern struct Race race_demon;    /* used in pray.c */
 extern struct Race urace;
 #define Race_if(X) (urace.malenum == (X))
 #define Race_switch (urace.malenum)

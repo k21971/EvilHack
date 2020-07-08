@@ -1402,6 +1402,9 @@ const char *name;
         case ART_GJALLAR:
             set_material(obj, BONE);
             break;
+        case ART_SECESPITA:
+            set_material(obj, COPPER);
+            break;
         default:
             /* prevent any wishes for materials on an artifact */
             set_material(obj, objects[obj->otyp].oc_material);

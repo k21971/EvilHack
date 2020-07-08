@@ -925,6 +925,7 @@ tty_player_selection()
      */
     getconfirmation = (picksomething && pick4u != 'a' && !flags.randomall);
     while (getconfirmation) {
+        int real_algn = special_alignment(ROLE, ALGN);
         tty_clear_nhwindow(BASE_WINDOW);
         role_selection_prolog(ROLE_NONE, BASE_WINDOW);
         win = create_nhwindow(NHW_MENU);
@@ -937,7 +938,7 @@ tty_player_selection()
             Sprintf(plbuf, " %s", genders[GEND].adj);
         else
             *plbuf = '\0'; /* omit redundant gender */
-        Sprintf(pbuf, "%s, %s%s %s %s", plname, aligns[ALGN].adj, plbuf,
+        Sprintf(pbuf, "%s, %s%s %s %s", plname, aligns[real_algn].adj, plbuf,
                 races[RACE].adj,
                 (GEND == 1 && roles[ROLE].name.f) ? roles[ROLE].name.f
                                                   : roles[ROLE].name.m);

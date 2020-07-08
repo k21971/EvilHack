@@ -531,6 +531,7 @@ QUEST_LEVS = \
  Bar-goal.lev Bar-fila.lev Bar-filb.lev Bar-loca.lev Bar-strt.lev \
  Cav-goal.lev Cav-fila.lev Cav-filb.lev Cav-loca.lev Cav-strt.lev \
  Hea-goal.lev Hea-fila.lev Hea-filb.lev Hea-loca.lev Hea-strt.lev \
+ Inf-goal.lev Inf-fila.lev Inf-filb.lev Inf-loca.lev Inf-strt.lev \
  Kni-goal.lev Kni-fila.lev Kni-filb.lev Kni-loca.lev Kni-strt.lev \
  Mon-goal.lev Mon-fila.lev Mon-filb.lev Mon-loca.lev Mon-strt.lev \
  Pri-goal.lev Pri-fila.lev Pri-filb.lev Pri-loca.lev Pri-strt.lev \
@@ -1281,6 +1282,7 @@ AFILES = $(GAMEDIR)\Arc-goal.lev
 BFILES = $(GAMEDIR)\Bar-goal.lev
 CFILES = $(GAMEDIR)\Cav-goal.lev
 HFILES = $(GAMEDIR)\Hea-goal.lev
+IFILES = $(GAMEDIR)\Inf-goal.lev
 KFILES = $(GAMEDIR)\Kni-goal.lev
 MFILES = $(GAMEDIR)\Mon-goal.lev
 PFILES = $(GAMEDIR)\Pri-goal.lev
@@ -1291,7 +1293,7 @@ TFILES = $(GAMEDIR)\Tou-goal.lev
 VFILES = $(GAMEDIR)\Val-goal.lev
 WFILES = $(GAMEDIR)\Wiz-goal.lev
 
-XFILES = $(AFILES) $(BFILES) $(CFILES) $(HFILES) $(KFILES) $(MFILES) \
+XFILES = $(AFILES) $(BFILES) $(CFILES) $(HFILES) $(IFILES) $(KFILES) $(MFILES) \
 	 $(PFILES) $(RANFILES) $(RFILES) $(SFILES) $(TFILES) $(VFILES) $(WFILES)
 
 spec_lev : $(GAMEDIR)\astral.lev $(GAMEDIR)\bigrm-1.lev $(GAMEDIR)\castle.lev \
@@ -1390,6 +1392,8 @@ $(CFILES) : $(DAT)\Caveman.des $(TEMP)\lev_comp.exe
 	$(MAKEB) QQ=Cav QF=Caveman do_quest
 $(HFILES) : $(DAT)\Healer.des $(TEMP)\lev_comp.exe
 	$(MAKEB) QQ=Hea QF=Healer do_quest
+$(IFILES) : $(DAT)\Infidel.des $(TEMP)\lev_comp.exe
+	$(MAKEB) QQ=Inf QF=Infidel do_quest
 $(KFILES) : $(DAT)\Knight.des $(TEMP)\lev_comp.exe
 	$(MAKEB) QQ=Kni QF=Knight do_quest
 $(MFILES) : $(DAT)\Monk.des $(TEMP)\lev_comp.exe

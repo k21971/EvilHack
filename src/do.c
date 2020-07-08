@@ -780,7 +780,7 @@ const char *word;
             Norep("You cannot %s %s you are wearing.", word, something);
         return FALSE;
     }
-    if (obj->otyp == LOADSTONE && obj->cursed) {
+    if (obj->otyp == LOADSTONE && cursed(obj, TRUE)) {
         /* getobj() kludge sets corpsenm to user's specified count
            when refusing to split a stack of cursed loadstones */
         if (*word) {
@@ -1186,7 +1186,7 @@ int retry;
                 if (cnt < otmp->quan) {
                     if (welded(otmp)) {
                         ; /* don't split */
-                    } else if (otmp->otyp == LOADSTONE && otmp->cursed) {
+                    } else if (otmp->otyp == LOADSTONE && cursed(otmp, TRUE)) {
                         /* same kludge as getobj(), for canletgo()'s use */
                         otmp->corpsenm = (int) cnt; /* don't split */
                     } else {
@@ -1591,10 +1591,12 @@ boolean at_stairs, falling, portal;
      *   -1   11.46  12.50  12.5
      *   -2    5.21   4.17   0.0
      *   -3    2.08   0.0    0.0
+     *
+     *   Infidels (unaligned) are spared from the mysterious force.
      */
     if (Inhell && up && u.uhave.amulet && !newdungeon && !portal
         && (dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz) - 3)) {
-        if (!rn2(4)) {
+        if (u.ualign.type != A_NONE && !rn2(4)) {
             int odds = 3 + (int) u.ualign.type,   /* 2..4 */
                 diff = odds <= 1 ? 0 : rn2(odds); /* paranoia */
 
@@ -2026,7 +2028,8 @@ final_level()
     create_mplayers(rn1(5, 4), TRUE);
 
     /* create a guardian steed next to player, if worthy */
-    gain_guardian_steed();
+    if (u.ualign.type != A_NONE)
+        gain_guardian_steed();
 }
 
 static char *dfr_pre_msg = 0,  /* pline() before level change */

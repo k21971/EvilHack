@@ -1313,6 +1313,7 @@
 				"$(NH_DAT_DIR)/Caveman.des",
 				"$(NH_DAT_DIR)/Convict.des",
 				"$(NH_DAT_DIR)/Healer.des",
+				"$(NH_DAT_DIR)/Infidel.des",
 				"$(NH_DAT_DIR)/Knight.des",
 				"$(NH_DAT_DIR)/Monk.des",
 				"$(NH_DAT_DIR)/Priest.des",
@@ -1331,7 +1332,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp Arch.des\n${NH_UTIL_DIR}/lev_comp Barb.des\n${NH_UTIL_DIR}/lev_comp Caveman.des\n${NH_UTIL_DIR}/lev_comp  Convict.des\n${NH_UTIL_DIR}/lev_comp Healer.des\n${NH_UTIL_DIR}/lev_comp Knight.des\n${NH_UTIL_DIR}/lev_comp Monk.des\n${NH_UTIL_DIR}/lev_comp Priest.des\n${NH_UTIL_DIR}/lev_comp Ranger.des\n${NH_UTIL_DIR}/lev_comp Rogue.des\n${NH_UTIL_DIR}/lev_comp Samurai.des\n${NH_UTIL_DIR}/lev_comp Tourist.des\n${NH_UTIL_DIR}/lev_comp Valkyrie.des\n${NH_UTIL_DIR}/lev_comp Wizard.des\ntouch quest_levs\n";
+			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp Arch.des\n${NH_UTIL_DIR}/lev_comp Barb.des\n${NH_UTIL_DIR}/lev_comp Caveman.des\n${NH_UTIL_DIR}/lev_comp  Convict.des\n${NH_UTIL_DIR}/lev_comp Healer.des\n${NH_UTIL_DIR}/lev_comp Infidel.des\n${NH_UTIL_DIR}/lev_comp Knight.des\n${NH_UTIL_DIR}/lev_comp Monk.des\n${NH_UTIL_DIR}/lev_comp Priest.des\n${NH_UTIL_DIR}/lev_comp Ranger.des\n${NH_UTIL_DIR}/lev_comp Rogue.des\n${NH_UTIL_DIR}/lev_comp Samurai.des\n${NH_UTIL_DIR}/lev_comp Tourist.des\n${NH_UTIL_DIR}/lev_comp Valkyrie.des\n${NH_UTIL_DIR}/lev_comp Wizard.des\ntouch quest_levs\n";
 		};
 		317E7C4E21A3697300F6E4E5 /* Build options and headers */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1480,6 +1481,11 @@
 				"$(NH_DAT_DIR)/Hea-goal.lev",
 				"$(NH_DAT_DIR)/Hea-loca.lev",
 				"$(NH_DAT_DIR)/Hea-strt.lev",
+				"$(NH_DAT_DIR)/Inf-fila.lev",
+				"$(NH_DAT_DIR)/Inf-filb.lev",
+				"$(NH_DAT_DIR)/Inf-goal.lev",
+				"$(NH_DAT_DIR)/Inf-loca.lev",
+				"$(NH_DAT_DIR)/Inf-strt.lev",
 				"$(NH_DAT_DIR)/Kni-fila.lev",
 				"$(NH_DAT_DIR)/Kni-filb.lev",
 				"$(NH_DAT_DIR)/Kni-goal.lev",

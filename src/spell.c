@@ -55,6 +55,7 @@ STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
  *      Bar abhor magic (Conan finds it "interferes with his animal instincts")
  *      Cav are ignorant to magic
  *      Hea are very aware of healing magic through medical research
+ *      Inf learned a lot of black magic from their cult
  *      Kni are moderately aware of healing from Paladin training
  *      Mon use magic to attack and defend in lieu of weapons and armor
  *      Pri are very aware of healing magic through theological research
@@ -73,8 +74,8 @@ STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
  *  spelspec, spelsbon:
  *      Arc map masters (SPE_MAGIC_MAPPING)
  *      Bar to see their enemies driven before them (SPE_CAUSE_FEAR)
- *      Cav born to dig (SPE_DIG)
  *      Hea to heal (SPE_CURE_SICKNESS)
+ *      Inf to channel hellfire (SPE_FIREBALL)
  *      Kni to turn back evil (SPE_TURN_UNDEAD)
  *      Mon to preserve their abilities (SPE_RESTORE_ABILITY)
  *      Pri to bless (SPE_REMOVE_CURSE)
@@ -1837,6 +1838,25 @@ int spell;
         splcaster += uarmgbon;
     if (uarmf && is_metallic(uarmf) && !paladin_bonus)
         splcaster += uarmfbon;
+
+    /* Infidels have a special penalty for wearing blessed armor. */
+    if (Role_if(PM_INFIDEL)) {
+        static struct obj **const armor[] = { &uarm, &uarmc, &uarmh, &uarms,
+                                              &uarmg, &uarmf, &uarmu };
+        int penalty = 0;
+        int i;
+
+        for (i = 0; i < SIZE(armor); i++) {
+            if (!*armor[i])
+                continue;
+            if ((*armor[i])->blessed)
+                penalty += 2;
+            else if ((*armor[i])->cursed)
+                penalty--;
+        }
+        if (penalty > 0)
+            splcaster += penalty;
+    }
 
     if (spellid(spell) == urole.spelspec)
         splcaster += urole.spelsbon;

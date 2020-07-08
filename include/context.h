@@ -118,6 +118,9 @@ struct context_info {
     long next_attrib_check; /* next attribute check */
     long stethoscope_move;
     short stethoscope_movement;
+    long next_moloch_offering; /* Moloch demands regular sacrifices */
+    char inf_aligns; /* random alignment permutation number for Infidels */
+    boolean coward;  /* restrict Infidel Elbereth penalty to once per move */
     boolean travel;  /* find way automatically to u.tx,u.ty */
     boolean travel1; /* first travel step */
     boolean forcefight;

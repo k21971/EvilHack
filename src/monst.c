@@ -2772,6 +2772,27 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_POIS | M1_REGEN | M1_OMNIVORE,
         M2_NOPOLY | M2_HOSTILE | M2_COLLECT,
         M3_INFRAVISIBLE, 0, MH_HUMAN | MH_WERE, 6, CLR_ORANGE),
+    /* Only generated when playing as Infidel.
+     * Has emin, so always appears as a "champion of [deity]".
+     * Note: the difficulty is purposefully lowered. */
+    MON("champion", S_HUMAN, LVL(12, 12, 6, 10, 0), (G_NOGEN | G_NOHELL | 2),
+        A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_WEAP, AD_PHYS, 2, 6), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), MR_POISON, 0,
+        M1_HUMANOID | M1_OMNIVORE,
+        M2_NOPOLY | M2_HOSTILE | M2_NASTY | M2_STRONG | M2_COLLECT,
+        M3_INFRAVISIBLE, 0, MH_HUMAN, 6, CLR_GRAY),
+    /* Only generated when playing as Infidel.
+     * Has emin, so always appears as an "agent of [deity]".
+     * Note: the difficulty is purposefully lowered. */
+    MON("agent", S_HUMAN, LVL(6, 18, 10, 10, -7), (G_NOGEN | G_NOHELL | 3),
+        A(ATTK(AT_WEAP, AD_SAMU, 1, 4), ATTK(AT_CLAW, AD_SAMU, 1, 1),
+          ATTK(AT_CLAW, AD_SAMU, 1, 1), ATTK(AT_CLAW, AD_SAMU, 1, 1),
+          NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), 0, 0,
+        M1_HUMANOID | M1_OMNIVORE | M1_TPORT,
+        M2_NOPOLY | M2_HOSTILE | M2_STALK | M2_STRONG | M2_COLLECT,
+        M3_INFRAVISIBLE, 0, MH_HUMAN, 6, CLR_BLACK),
     MON("elf", S_HUMAN, LVL(10, 12, 10, 2, -3), G_NOGEN, /* for corpses */
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -3499,6 +3520,14 @@ struct permonst _mons2[] = {
         SIZ(1500, 400, MS_DJINNI, MZ_HUMAN), MR_POISON | MR_STONE, 0,
         M1_HUMANOID | M1_FLY | M1_POIS, M2_NOPOLY | M2_STALK | M2_COLLECT,
         M3_INFRAVISIBLE, 0, 0, 8, CLR_YELLOW),
+    /* racial monster for crowned Infidels */
+    MON("demon", S_DEMON, LVL(10, 12, 10, 10, A_NONE), (G_NOGEN | G_NOCORPSE),
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 8), ATTK(AT_STNG, AD_DRST, 2, 4),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_GRUNT, MZ_HUMAN), MR_FIRE | MR_POISON, 0,
+        M1_HUMANOID | M1_FLY | M1_SEE_INVIS | M1_POIS,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_COLLECT,
+        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_DEMON, 13, CLR_RED),
     /*
      * sea monsters
      */
@@ -3675,6 +3704,13 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
         MH_HUMAN, 12, CLR_YELLOW),
+    MON("human infidel", S_HUMAN, LVL(10, 12, 10, 2, A_NONE), (1),
+        A(ATTK(AT_WEAP, AD_SAMU, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), MR_FIRE, 0,
+        M1_HUMANOID | M1_OMNIVORE,
+        M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
+        MH_HUMAN, 12, CLR_YELLOW),
     MON("human knight", S_HUMAN, LVL(10, 15, 10, 1, 3), (1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_WEAP, AD_SAMU, 1, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -3804,6 +3840,13 @@ struct permonst _mons2[] = {
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), MR_POISON, 0,
+        M1_HUMANOID | M1_OMNIVORE,
+        M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
+        MH_HUMAN, 12, HI_DOMESTIC),
+    MON("infidel", S_HUMAN, LVL(10, 12, 10, 2, A_NONE), G_NOGEN,
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), MR_FIRE, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
         MH_HUMAN, 12, HI_DOMESTIC),
@@ -3945,6 +3988,18 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_PNAME | M2_PEACEFUL | M2_STRONG | M2_MALE
             | M2_COLLECT | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISIBLE, 0, MH_HUMAN, 22, HI_LORD),
+    /* apparently she should be a "preacheress" if female,
+     * but that word just sounds silly, imo */
+    MON("preacher of Moloch", S_HUMAN, LVL(20, 15, 0, 90, A_NONE),
+        (G_NOGEN | G_UNIQ),
+        A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_MAGC, AD_CLRC, 2, 8), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_LEADER, MZ_HUMAN),
+        MR_FIRE | MR_ELEC | MR_SLEEP | MR_POISON | MR_STONE, 0,
+        M1_HUMANOID | M1_OMNIVORE,
+        M2_NOPOLY | M2_PEACEFUL | M2_STRONG | M2_COLLECT
+            | M2_MAGIC,
+        M3_CLOSE | M3_INFRAVISIBLE, 0, MH_HUMAN, 23, CLR_RED),
     MON("King Arthur", S_HUMAN, LVL(20, 15, 0, 90, 20), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_WEAP, AD_PHYS, 4, 10), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
@@ -4099,6 +4154,18 @@ struct permonst _mons2[] = {
             | M2_HOSTILE | M2_NASTY | M2_MALE | M2_JEWELS | M2_COLLECT,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISION | M3_INFRAVISIBLE, 0,
         MH_GIANT, 23, CLR_GRAY),
+    /* Has emin, so always appears as the "Paladin of [deity]". */
+    MON("Paladin", S_HUMAN, LVL(24, 12, 0, 50, 20),
+        (G_NOGEN | G_UNIQ | G_NOCORPSE),
+        A(ATTK(AT_WEAP, AD_PHYS, 4, 4), ATTK(AT_WEAP, AD_STUN, 2, 6),
+          ATTK(AT_MAGC, AD_CLRC, 1, 8), ATTK(AT_CLAW, AD_SAMU, 1, 6),
+          NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_NEMESIS, MZ_HUMAN), MR_POISON | MR_STONE, 0,
+        M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS,
+        M2_NOPOLY | M2_MINION | M2_LORD | M2_STRONG | M2_FEMALE
+            | M2_STALK | M2_HOSTILE | M2_NASTY | M2_COLLECT | M2_MAGIC,
+        M3_WANTSARTI | M3_WANTSAMUL | M3_WAITFORU | M3_INFRAVISIBLE,
+        0, MH_HUMAN, 29, HI_GOLD),
     /* Since regular dragons have an engulf attack, makes sense for
      * Ixoth to have it also.
      */
@@ -4230,6 +4297,21 @@ struct permonst _mons2[] = {
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_GUARDIAN, MZ_HUMAN), MR_POISON, 0,
+        M1_HUMANOID | M1_OMNIVORE,
+        M2_NOPOLY | M2_PEACEFUL | M2_STRONG | M2_COLLECT,
+        M3_INFRAVISIBLE, 0, MH_HUMAN, 7, HI_DOMESTIC),
+    /* Has emin, so always appears as a "templar of [deity]". */
+    MON("templar", S_HUMAN, LVL(12, 10, 10, 20, 10), G_NOGEN,
+        A(ATTK(AT_WEAP, AD_PHYS, 3, 4), ATTK(AT_WEAP, AD_PHYS, 3, 4), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), 0, 0,
+        M1_HUMANOID | M1_OMNIVORE,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_COLLECT,
+        M3_INFRAVISIBLE, 0, MH_HUMAN, 14, CLR_BLUE),
+    MON("cultist", S_HUMAN, LVL(5, 12, 10, 10, A_NONE), G_NOGEN,
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_GUARDIAN, MZ_HUMAN), MR_FIRE, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_PEACEFUL | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE, 0, MH_HUMAN, 7, HI_DOMESTIC),

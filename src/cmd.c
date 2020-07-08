@@ -1862,7 +1862,7 @@ int unused_mode UNUSED;
 int final;
 {
     const char *role_titl, *rank_titl;
-    int innategend, difgend, difalgn;
+    int innategend, difgend, difalgn, difrace;
     char buf[BUFSZ], tmpbuf[BUFSZ];
 
     /* note that if poly'd, we need to use u.mfemale instead of flags.female
@@ -1940,12 +1940,14 @@ int final;
        trailing "and" on all three aligned entries but looks too verbose] */
     Sprintf(buf, " who %s opposed by", !final ? "is" : "was");
     if (u.ualign.type != A_LAWFUL)
-        Sprintf(eos(buf), " %s (%s) and", align_gname(A_LAWFUL),
-                align_str(A_LAWFUL));
+        Sprintf(eos(buf), " %s (%s)%s", align_gname(A_LAWFUL),
+                align_str(A_LAWFUL),
+                (u.ualign.type != A_NONE) ? " and" : ",");
     if (u.ualign.type != A_NEUTRAL)
         Sprintf(eos(buf), " %s (%s)%s", align_gname(A_NEUTRAL),
                 align_str(A_NEUTRAL),
-                (u.ualign.type != A_CHAOTIC) ? " and" : "");
+                (u.ualign.type == A_NONE) ? ", and" /* oxford comma */
+                                          : (u.ualign.type != A_CHAOTIC) ? " and" : "");
     if (u.ualign.type != A_CHAOTIC)
         Sprintf(eos(buf), " %s (%s)", align_gname(A_CHAOTIC),
                 align_str(A_CHAOTIC));
@@ -1960,12 +1962,26 @@ int final;
     difalgn = (((u.ualign.type != u.ualignbase[A_CURRENT]) ? 1 : 0)
                + ((u.ualignbase[A_CURRENT] != u.ualignbase[A_ORIGINAL])
                   ? 2 : 0));
+    difrace = urace.malenum != races[flags.initrace].malenum;
     if (difalgn & 1) { /* have temporary alignment so report permanent one */
         Sprintf(buf, "actually %s", align_str(u.ualignbase[A_CURRENT]));
         you_are(buf, "");
         difalgn &= ~1; /* suppress helm from "started out <foo>" message */
     }
-    if (difgend || difalgn) { /* sex change or perm align change or both */
+    if (difrace) { /* permanent race change (Inf crowning) */
+        buf[0] = '\0';
+        if (difalgn) {
+            Strcat(buf, align_str(u.ualignbase[A_ORIGINAL]));
+            Strcat(buf, " ");
+        }
+        if (difgend) {
+            Strcat(buf, genders[flags.initgend].adj);
+            Strcat(buf, " ");
+        }
+        Strcat(buf, races[flags.initrace].noun);
+        Sprintf(buf, " You started out as %s.", an(buf));
+        enlght_out(buf);
+    } else if (difgend || difalgn) { /* sex change or perm align change */
         Sprintf(buf, " You started out %s%s%s.",
                 difgend ? genders[flags.initgend].adj : "",
                 (difgend && difalgn) ? " and " : "",
@@ -2534,6 +2550,25 @@ int final;
             enl_msg("You ", "fall", "fell", " asleep uncontrollably", buf);
         }
     }
+    /* In case the player missed the "urge to perform a sacrifice",
+     * put a reminder here. */
+    if (u.ualign.type == A_NONE) {
+        long due = moves - context.next_moloch_offering;
+        if (due < 0) {
+            if (wizard) {
+                Sprintf(buf, "%ld turns until your next "
+                        "mandatory sacrifice to ", -due);
+                you_have(buf, u_gname());
+            }
+        } else {
+            if (wizard && due > 0)
+                Sprintf(buf, "%ld turns late for your "
+                        "next sacrifice to ", due);
+            else
+                Strcpy(buf, "due for a sacrifice to ");
+            you_are(buf, u_gname());
+        }
+    }
     /* hunger/nutrition */
     if (Hunger) {
         if (magic || cause_known(HUNGER))
@@ -2664,9 +2699,10 @@ int final;
     enlght_out_attr(ATR_SUBHEAD, final ? "Final Attributes:" : "Current Attributes:");
 
     if (u.uevent.uhand_of_elbereth) {
-        static const char *const hofe_titles[3] = { "the Hand of Elbereth",
+        static const char *const hofe_titles[4] = { "the Hand of Elbereth",
                                                     "the Envoy of Balance",
-                                                    "the Glory of Arioch" };
+                                                    "the Glory of Arioch",
+                                                    "a demon of Moloch" };
         you_are(hofe_titles[u.uevent.uhand_of_elbereth - 1], "");
     }
 
@@ -2887,7 +2923,7 @@ int final;
         BLevitation = save_BLev;
     }
     /* actively flying handled earlier as a status condition */
-    if (BFlying) { /* flight is blocked */
+    if (BFlying && !Flying) { /* flight is blocked */
         long save_BFly = BFlying;
 
         BFlying = 0L;
@@ -2909,7 +2945,9 @@ int final;
                              ? if_surroundings_permitted
                              /* two or more of levitation, surroundings,
                                 and being trapped in the floor */
-                             : " if circumstances permitted",
+                             : (save_BFly == W_ARM)
+                                ? " if your wings weren't confined"
+                                : " if circumstances permitted",
                     "");
         }
         BFlying = save_BFly;

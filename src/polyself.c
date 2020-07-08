@@ -42,8 +42,10 @@ void
 set_uasmon()
 {
     struct permonst *mdat = &mons[u.umonnum];
+    struct permonst *racedat; /* for infravision, flying */
 
     set_mon_data(&youmonst, mdat);
+    racedat = raceptr(&youmonst);
 
 #define PROPSET(PropIndx, ON)                          \
     do {                                               \
@@ -96,7 +98,7 @@ set_uasmon()
     PROPSET(SEE_INVIS, perceives(mdat));
     PROPSET(TELEPAT, telepathic(mdat));
     /* note that Infravision uses mons[race] rather than usual mons[role] */
-    PROPSET(INFRAVISION, infravision(Upolyd ? mdat : &mons[urace.malenum]));
+    PROPSET(INFRAVISION, infravision(racedat));
     PROPSET(INVIS, pm_invisible(mdat));
     PROPSET(TELEPORT, can_teleport(mdat));
     PROPSET(TELEPORT_CONTROL, control_teleport(mdat));
@@ -104,7 +106,9 @@ set_uasmon()
     /* floating eye is the only 'floater'; it is also flagged as a 'flyer';
        suppress flying for it so that enlightenment doesn't confusingly
        show latent flight capability always blocked by levitation */
-    PROPSET(FLYING, (is_flyer(mdat) && !is_floater(mdat)));
+    /* this property also checks race instead of role */
+    PROPSET(FLYING, (is_flyer(racedat) && !is_floater(racedat)));
+    check_wings(TRUE);
     PROPSET(SWIMMING, is_swimmer(mdat));
     /* [don't touch MAGICAL_BREATHING here; both Amphibious and Breathless
        key off of it but include different monster forms...] */

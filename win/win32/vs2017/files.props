@@ -38,6 +38,7 @@
     <Desfiles Include = "gehennom.des"/>
     <Desfiles Include = "healer.des"/>
     <Desfiles Include = "icequeen.des"/>
+    <Desfiles Include = "infidel.des"/>
     <Desfiles Include = "knight.des"/>
     <Desfiles Include = "knox.des"/>
     <Desfiles Include = "medusa.des"/>
@@ -185,6 +186,11 @@
     <Levfiles Include = "hea-goal.lev"/>
     <Levfiles Include = "hea-loca.lev"/>
     <Levfiles Include = "hea-strt.lev"/>
+    <Levfiles Include = "inf-fila.lev"/>
+    <Levfiles Include = "inf-filb.lev"/>
+    <Levfiles Include = "inf-goal.lev"/>
+    <Levfiles Include = "inf-loca.lev"/>
+    <Levfiles Include = "inf-strt.lev"/>
     <Levfiles Include = "kni-fila.lev"/>
     <Levfiles Include = "kni-filb.lev"/>
     <Levfiles Include = "kni-goal.lev"/>

@@ -1,0 +1,385 @@
+#  The "start" level for the quest.
+#
+#  Here you meet your class leader, the preacher of Moloch,
+#  and receive an invitation to a duel with the Paladin.
+#
+MAZE: "Inf-strt", ' '
+FLAGS: noteleport, hardfloor
+GEOMETRY: right, center
+#          1         2         3         4         5         6
+#01234567890123456789012345678901234567890123456789012345678901
+MAP
+                                    |.........................
+                                    |.........................
+                  -----             --........................
+   ----         ---...-----         --........................
+   |..|        --.........|         |.........................
+   |..|        |..........|        --.........................
+   -+--      ---..........----     |..........................
+    #      ---...............|     --.........................
+    #      |.................---    |.........................
+ ---S-   ---...................|    |-........................
+ |...|   |.....................+####S.........................
+ |...+###+.....................|    |.........................
+ |...|   |....................--    |.........................
+ -----   ----.................|    --.........................
+            |.................|    |..........................
+     ---- ##S...............---   --..........................
+     |..| # ---............--     |...........................
+     |..+##   |........-----      --..........................
+     |..|     ----------           |..........................
+     |..|                          |-.........................
+     ----                          |..........................
+ENDMAP
+NON_DIGGABLE: (00, 00, 37, 20)
+
+# You arrive at a sparsely wooded cliffside.
+REPLACE_TERRAIN: (35, 00, 61, 20), '.', 'T', 1%
+BRANCH: (38, 00, 61, 20), (00, 00, 00, 00)
+$outside = selection: filter('.', fillrect(35, 00, 61, 20))
+LOOP [3d4] { MONSTER: 'd', rndcoord($outside) }
+[20%]: MONSTER: "black unicorn", rndcoord($outside)
+TRAP: random, rndcoord($outside)
+TRAP: random, rndcoord($outside)
+TRAP: random, rndcoord($outside)
+
+# The Hidden Temple is behind a secret door.
+# The altar is coaligned, but haunted,
+# presumably having been forcibly converted in the past.
+TRAP: "dart", (37, 10)
+DOOR: locked, (31, 10)
+REGION: (20, 10, 20, 10), lit, "temple", irregular
+ALTAR: (20, 10), coaligned, altar
+MONSTER: "preacher of Moloch", (20, 10)
+MONSTER: "cultist", (20, 07)
+MONSTER: "cultist", (23, 08)
+MONSTER: "cultist", (24, 10)
+MONSTER: "cultist", (23, 12)
+MONSTER: "cultist", (20, 13)
+MONSTER: "cultist", (17, 12)
+MONSTER: "cultist", (16, 10)
+MONSTER: "cultist", (17, 08)
+
+# Some "decorations".
+$around_altar = selection: ellipse((20, 10), 4, 3)
+OBJECT: "corpse", montype: "elf", rndcoord($around_altar)
+OBJECT: "corpse", montype: "elf", rndcoord($around_altar)
+OBJECT: "corpse", montype: "elf", rndcoord($around_altar)
+OBJECT: "corpse", montype: "human", rndcoord($around_altar)
+OBJECT: "corpse", montype: "human", rndcoord($around_altar)
+$statues = { (20, 04), (24, 05), (27, 08), (28, 13),
+             (25, 15), (19, 16), (14, 14), (13, 09) }
+SHUFFLE: $statues
+CONTAINER: "statue", montype: "horned devil", $statues[0] {}
+CONTAINER: "statue", montype: "barbed devil", $statues[1] {}
+CONTAINER: "statue", montype: "marilith", $statues[2] {}
+CONTAINER: "statue", montype: "vrock", $statues[3] {}
+CONTAINER: "statue", montype: "hezrou", $statues[4] {}
+CONTAINER: "statue", montype: "bone devil", $statues[5] {}
+CONTAINER: "statue", montype: "ice devil", $statues[6] {}
+CONTAINER: "statue", montype: "pit fiend", $statues[7] {}
+
+# Entrance to the underground complex leading to the Howling Forest.
+DOOR: closed, (09, 11)
+DOOR: closed, (05, 11)
+REGION: (02, 10, 04, 12), lit, "ordinary"
+STAIR: (03, 11), down
+
+# Unholy water supply.
+DOOR: locked, (04, 06)
+REGION: (04, 04, 05, 05), lit, "ordinary"
+OBJECT: ('!', "water"), cursed, quantity: 1d2, (04, 04)
+OBJECT: ('!', "water"), cursed, quantity: 1d2, (05, 04)
+
+# A small cache of valuables.
+DOOR: locked, (08, 17)
+REGION: (06, 16, 07, 19), lit, "ordinary"
+OBJECT: random, (06, 16)
+OBJECT: random, (06, 17)
+OBJECT: "axe", (06, 18)
+OBJECT: random, (06, 19)
+
+#
+#  The "locate" level for the quest.
+#
+#  This is the edge of the Howling Forest.
+#  Somewhere in here the Paladin awaits you.
+
+MAZE: "Inf-loca", ' '
+FLAGS: hardfloor
+INIT_MAP: mines, '.', 'T', true, true, unlit, true
+GEOMETRY: (49, 00)
+#         1         2
+#12345678901234567890123456789
+MAP
+xxxx.|            ----        
+xxx..--           |..|        
+x.....---         |..|        
+...}}...|         -+--        
+...}}}..--         #          
+..}}}....|         #          
+...}}....|       --S-         
+.........--      |..|         
+..........--     |..|         
+...........|     |..+####     
+...........+#####+..|   #     
+...........|     |..|   #     
+...........|     ----   #     
+..........--            #     
+.........--             #     
+.........|              #     
+........-|            --+--   
+.........|            |...|   
+x......---            |...|   
+xxx.----              -----   
+xxxx|                         
+ENDMAP
+NON_DIGGABLE: (05, 00, 29, 20)
+
+# Upstairs to (rest of) the underground complex.
+REGION: (23, 17, 25, 18), random, "ordinary"
+STAIR: (24, 18), up
+MONSTER: 'k', rndcoord(fillrect(23, 17, 25, 18))
+DOOR: random, (24, 16)
+
+# The last room before the Forest!
+DOOR: random, (20, 09)
+REGION: (18, 07, 19, 11), random, "ordinary"
+MONSTER: 'h', rndcoord(fillrect(18, 07, 19, 11))
+DOOR: random, (17, 10)
+DOOR: random, (11, 10)
+
+# An ogre guards some treasure.
+DOOR: locked, (19, 03)
+REGION: (19, 01, 20, 02), random, "ordinary"
+MONSTER: 'O', (19, 02)
+OBJECT: "chest", (19, 01)
+OBJECT: "chest", (20, 01)
+
+# The lake.
+MONSTER: "piranha", (03, 03)
+MONSTER: "piranha", (04, 04)
+MONSTER: "piranha", (04, 05)
+
+# The forest's edge.
+REPLACE_TERRAIN: (00, 00, 10, 20), '.', 'T', 5%
+NOMAP
+STAIR: (00, 00, 39, 20), (0, 0, 0, 0), down
+$forest = selection: filter('.', fillrect(00, 00, 60, 20))
+MONSTER: "werewolf", rndcoord($forest)
+MONSTER: "werewolf", rndcoord($forest)
+MONSTER: "werewolf", rndcoord($forest)
+LOOP [4d4] { MONSTER: 'd', rndcoord($forest) }
+MONSTER: 'u', rndcoord($forest)
+MONSTER: 'u', rndcoord($forest)
+[65%]: MONSTER: "forest centaur", rndcoord($forest)
+[40%]: MONSTER: "woodchuck", rndcoord($forest)
+
+# Some traps and a little loot.
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+
+#
+#  The "goal" level for the quest.
+#
+#  In this part of the Howling Forest the Paladin awaits you for a duel
+#  amidst some ancient ruins.  Kill her to claim the Idol of Moloch!
+#
+#  Note: some may find the Paladin a tough opponent.  It's intentional!
+#  You come here to duel her at HER behest, on HER conditions.
+#  She expects to defeat you and came prepared.  To win, you need to
+#  outwit her.
+#
+
+MAZE: "Inf-goal", ' '
+FLAGS: hardfloor
+INIT_MAP: mines, '.', 'T', true, true, unlit, true
+GEOMETRY: half-left, center
+#          1         2
+#0123456789012345678901234567
+MAP
+xxxxxxxxxx........xxxxxxxxxx
+xxxxxxx..............xxxxxxx
+xxxx....................xxxx
+xx........--..-...........xx
+x.........|.....|..........x
+.............--.|...........
+x........--................x
+xx........|..|...--.......xx
+xxxx.........|..........xxxx
+xxxxxxx..............xxxxxxx
+xxxxxxxxxx........xxxxxxxxxx
+ENDMAP
+
+# The Paladin and her entourage.
+MONSTER: "Paladin", (13, 06)
+OBJECT: "figurine", name: "The Idol of Moloch", cursed, (13, 06)
+MONSTER: "templar", (13, 03), asleep
+MONSTER: "templar", (15, 04), asleep
+MONSTER: "templar", (17, 06), asleep
+MONSTER: "aligned priest", (16, 08), law, hostile, asleep
+MONSTER: "templar", (13, 09), asleep
+MONSTER: "templar", (10, 08), asleep
+MONSTER: "templar", (09, 05), asleep
+MONSTER: "aligned priest", (11, 04), law, hostile, asleep
+
+# Just pretend they're tripwires.
+$around = selection: filter('.', filter(ellipse((13, 05), 9, 5),
+                                        complement(ellipse((13, 05), 4, 3))))
+TRAP: "board", rndcoord($around)
+TRAP: "board", rndcoord($around)
+TRAP: "board", rndcoord($around)
+TRAP: "board", rndcoord($around)
+
+# There's still some treasure buried in the ruins.
+$ruins = selection: circle((13, 06), 4)
+OBJECT: "gold piece", quantity: 10d100, buried, rndcoord($ruins)
+OBJECT: "gold piece", quantity: 10d100, buried, rndcoord($ruins)
+OBJECT: '*', buried, rndcoord($ruins)
+OBJECT: '*', buried, rndcoord($ruins)
+OBJECT: '*', buried, rndcoord($ruins)
+[60%]: OBJECT: '=', buried, rndcoord($ruins)
+[50%]: OBJECT: '=', buried, rndcoord($ruins)
+[40%]: OBJECT: '"', buried, rndcoord($ruins)
+
+# The surrounding woods.
+NOMAP
+STAIR: (45, 0, 79, 20), (0, 0, 0, 0), up
+MONSTER: "werewolf", random
+MONSTER: "werewolf", random
+MONSTER: "werewolf", random
+MONSTER: "werewolf", random
+LOOP [5d4] { MONSTER: 'd', random }
+MONSTER: 'u', random
+MONSTER: 'u', random
+MONSTER: 'u', random
+[80%]: MONSTER: "forest centaur", random
+[50%]: MONSTER: "woodchuck", random
+
+# And a bit of random junk.
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+
+#
+#  The "fill" levels for the quest.
+#
+#  These levels are used to fill out any levels not occupied by specific
+#  levels as defined above. "fila" is the upper filler, between the
+#  start and locate levels, and "filb" the lower between the locate
+#  and goal levels.
+#
+#  The upper filler is the underground complex that leads to the Forest.
+#  It's a standard room-and-corridor dungeon populated with hkO.
+#
+
+LEVEL: "Inf-fila"
+FLAGS: hardfloor
+
+ROOM: "ordinary", random, random, random, random {
+  STAIR: random, up
+  OBJECT: random, random
+  MONSTER: 'k', random
+}
+
+ROOM: "ordinary", random, random, random, random {
+  STAIR: random, down
+  OBJECT: random, random
+  TRAP: random, random
+  MONSTER: 'h', random
+  MONSTER: 'k', random
+}
+
+# Quest dungeons always seem so empty, so here's a fountain.
+ROOM: "ordinary", random, random, random, random {
+  FOUNTAIN: random
+  OBJECT: random, random
+  MONSTER: 'h', random
+}
+
+# Throne monsters roughly suit the hkO theme.
+ROOM: "throne" [25%], random, random, random, random {
+  OBJECT: random, random
+  TRAP: random, random
+}
+
+ROOM: "ordinary", random, random, random, random {
+  OBJECT: random, random
+  TRAP: random, random
+  MONSTER: 'k', random
+  MONSTER: 'k', random
+}
+
+ROOM: "ordinary", random, random, random, random {
+  OBJECT: random, random
+  OBJECT: random, random
+  TRAP: random, random
+  TRAP: random, random
+  MONSTER: 'O', random
+  MONSTER: 'h', random
+}
+
+ROOM: "ordinary", random, random, random, random {
+  OBJECT: random, random
+  OBJECT: random, random
+  TRAP: random, random
+  TRAP: random, random
+  MONSTER: 'O', random
+  MONSTER: 'k', random
+}
+
+RANDOM_CORRIDORS
+
+#
+#  The lower fillers are some nondescript areas of the Howling Forest.
+#  There's a lot of werewolves and other d and perhaps a woodchuck.
+#
+
+MAZE: "Inf-filb", ' '
+FLAGS: hardfloor
+INIT_MAP: mines, '.', 'T', true, true, unlit, true
+NOMAP
+
+STAIR: (45, 00, 79, 20), (0, 0, 0, 0), up
+STAIR: (00, 00, 34, 20), (0, 0, 0, 0), down
+
+MONSTER: "werewolf", random
+MONSTER: "werewolf", random
+MONSTER: "werewolf", random
+MONSTER: "werewolf", random
+MONSTER: "werewolf", random
+LOOP [6d4] { MONSTER: 'd', random }
+MONSTER: 'u', random
+MONSTER: 'u', random
+MONSTER: 'u', random
+MONSTER: 'u', random
+MONSTER: "forest centaur", random
+[60%]: MONSTER: "woodchuck", random
+
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random

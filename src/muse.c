@@ -2492,6 +2492,8 @@ struct monst *mtmp;
         int mndx = otmp->corpsenm;
 
         pm = &mons[mndx];
+        if (otmp && otmp->oartifact == ART_IDOL_OF_MOLOCH)
+            break;
         if (vismon)
             pline("%s activates a figurine!", Monnam(mtmp));
         else if (!Deaf)
@@ -2860,9 +2862,11 @@ struct obj *obj;
             return (boolean) !(nonliving(mon->data) || is_vampshifter(mon));
         if (typ == AMULET_OF_REFLECTION
             || typ == AMULET_OF_FLYING
-            || typ == AMULET_OF_MAGIC_RESISTANCE
-            || typ == AMULET_OF_YENDOR) /* who doesn't want the ultimate amulet? */
+            || typ == AMULET_OF_MAGIC_RESISTANCE)
             return TRUE;
+        /* who doesn't want the ultimate amulet? and they can br fooled also */
+        if (typ == AMULET_OF_YENDOR || typ == FAKE_AMULET_OF_YENDOR)
+            return (boolean) !mon_has_amulet(mon);
         break;
     case TOOL_CLASS:
         if (typ == PICK_AXE)

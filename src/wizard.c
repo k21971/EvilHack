@@ -80,7 +80,8 @@ amulet()
         return;
 #endif
     if ((((amu = uamul) != 0 && amu->otyp == AMULET_OF_YENDOR)
-         || ((amu = uwep) != 0 && amu->otyp == AMULET_OF_YENDOR))
+         || ((amu = uwep) != 0 && (amu->otyp == AMULET_OF_YENDOR
+                                   || (amu->oartifact == ART_IDOL_OF_MOLOCH && amu->spe))))
         && !rn2(15)) {
         for (ttmp = ftrap; ttmp; ttmp = ttmp->ntrap) {
             if (ttmp->ttyp == MAGIC_PORTAL) {
@@ -120,7 +121,8 @@ register struct monst *mtmp;
     register struct obj *otmp;
 
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
-        if (otmp->otyp == AMULET_OF_YENDOR)
+        if (otmp->otyp == AMULET_OF_YENDOR
+            || (otmp->oartifact == ART_IDOL_OF_MOLOCH && otmp->spe))
             return 1;
     return 0;
 }

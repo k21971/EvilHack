@@ -726,6 +726,10 @@ boolean racialexception;
                 continue;
             if (racialexception && (racial_exception(mon, obj) < 1))
                 continue;
+            /* monsters won't sacrifice flight for AC */
+            if (big_wings(mon->data) && !Is_dragon_scales(obj)
+                && obj->otyp != JACKET)
+                continue;
             break;
         case W_RINGL:
         case W_RINGR:
