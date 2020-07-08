@@ -975,10 +975,9 @@ boolean atme;
        in and no turn will be consumed; however, when it does kick in,
        the attempt may fail due to lack of energy after the draining, in
        which case a turn will be used up in addition to the energy loss */
-    if (((Role_if(PM_INFIDEL) && u.uachieve.amulet && u.uhave.amulet)
-        || (!Role_if(PM_INFIDEL) && u.uhave.amulet)) && u.uen >= energy) {
+    if (u.uhave.amulet && u.uen >= energy) {
         if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
-            You_feel("the idol draining your energy away.");
+            ; /* nothing happens */
         else
             You_feel("the amulet draining your energy away.");
         /* this used to be 'energy += rnd(2 * energy)' (without 'res'),
@@ -987,7 +986,15 @@ boolean atme;
            and player could just try again (and again and again...);
            now we drain some energy immediately, which has a
            side-effect of not increasing the hunger aspect of casting */
-        u.uen -= rnd(2 * energy);
+
+        /* In regards to Infidels: once the Amulet has been sacrificed
+           to Moloch and their quest artifact is imbued with its power,
+           Moloch's influence suppresses the spell power draining effect
+           and allows the Infidel to realize their full potential */
+        if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
+            ; /* nothing happens */
+        else
+            u.uen -= rnd(2 * energy);
         if (u.uen < 0)
             u.uen = 0;
         context.botl = 1;

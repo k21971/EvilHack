@@ -658,7 +658,7 @@ OBJECT(OBJ("cheap plastic imitation of the Amulet of Yendor",
        0, AMULET_CLASS, 0, 0, 20, 0, 0, 0, 0, 0, 1, HI_METAL),
 OBJECT(OBJ("Amulet of Yendor", /* note: description == name */
            "Amulet of Yendor"),
-       BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, MITHRIL),
+       BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, GEMSTONE),
        0, AMULET_CLASS, 0, 0, 20, 30000, 0, 0, 0, 0, 20, HI_METAL),
 #undef AMULET
 
