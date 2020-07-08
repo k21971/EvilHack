@@ -862,7 +862,7 @@ time_t when; /* date+time at end of game */
 
     /* character name and basic role info */
     Sprintf(pbuf, "%s, %s %s %s %s", plname,
-            aligns[1 - sgn(u.ualign.type)].adj,
+            aligns[u.ualign.type == A_NONE ? 3 : 1 - u.ualign.type].adj,
             genders[flags.female].adj,
             urace.adj,
             (flags.female && urole.name.f) ? urole.name.f : urole.name.m);

@@ -773,7 +773,7 @@ register int amount;
     if (!uwep || (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep))) {
         char buf[BUFSZ];
 
-        if (amount >= 0 && uwep && will_weld_to_you(uwep)) { /* cursed tin opener */
+        if (amount >= 0 && uwep && will_weld(uwep)) { /* cursed tin opener */
             if (!Blind) {
                 Sprintf(buf, "%s with %s aura.",
                         Yobjnam2(uwep, "glow"), an(hcolor(NH_AMBER)));

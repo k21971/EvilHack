@@ -6,8 +6,8 @@
 MAZE: "Inf-strt", ' '
 FLAGS: noteleport, hardfloor
 GEOMETRY: right, center
-#          1         2         3         4         5         6
-#01234567890123456789012345678901234567890123456789012345678901
+#         1         2         3         4         5         6
+#1234567890123456789012345678901234567890123456789012345678901
 MAP
                                     |.........................
                                     |.........................
@@ -203,8 +203,8 @@ MAZE: "Inf-goal", ' '
 FLAGS: hardfloor
 INIT_MAP: mines, '.', 'T', true, true, unlit, true
 GEOMETRY: half-left, center
-#          1         2
-#0123456789012345678901234567
+#         1         2
+#123456789012345678901234567
 MAP
 xxxxxxxxxx........xxxxxxxxxx
 xxxxxxx..............xxxxxxx

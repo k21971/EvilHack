@@ -1081,4 +1081,5 @@ Version 0.6.0
 - Snow golems can throw snowballs
 - Show skill caps and percentage towards next level in #enhance
 - New player role: Infidel (by Tomsod)
+- Various fixes and tweaks to the Infidel role
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

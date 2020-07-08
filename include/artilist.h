@@ -227,7 +227,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     /* The energy drain only works if the artifact kills its victim.
      * Also increases sacrifice value while wielded. */
     A("Secespita", KNIFE, (SPFX_RESTR | SPFX_ATTK), 0, 0,
-      DREN(5, 1), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_INFIDEL, NON_PM,
+      DREN(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_INFIDEL, NON_PM,
       1000L, NO_COLOR),
 
     /*
@@ -402,6 +402,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
 #undef DRST
 #undef ACID
 #undef DISE
+#undef DREN
 #endif
 
 /*artilist.h*/

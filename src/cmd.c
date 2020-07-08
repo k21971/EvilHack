@@ -2702,7 +2702,7 @@ int final;
         static const char *const hofe_titles[4] = { "the Hand of Elbereth",
                                                     "the Envoy of Balance",
                                                     "the Glory of Arioch",
-                                                    "a demon of Moloch" };
+                                                    "the Archfiend of Moloch" };
         you_are(hofe_titles[u.uevent.uhand_of_elbereth - 1], "");
     }
 
@@ -3459,9 +3459,14 @@ int final;
     if (u.uevent.invoked)
         enl_msg(You_, "have ", "",
                 "gained access to Moloch's Sanctum", ""), ++acnt;
-    if (u.uachieve.amulet)
-        enl_msg(You_, "have ", "",
-                "obtained the Amulet of Yendor", ""), ++acnt;
+    if (u.uachieve.amulet) {
+        if (Role_if(PM_INFIDEL))
+            enl_msg(You_, "have ", "",
+                    "imbued the Idol of Moloch", ""), ++acnt;
+        else
+            enl_msg(You_, "have ", "",
+                    "obtained the Amulet of Yendor", ""), ++acnt;
+    }
     if (In_endgame(&u.uz))
         enl_msg(You_, "have ", "",
                 "reached the Elemental Planes", ""), ++acnt;

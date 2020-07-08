@@ -539,7 +539,7 @@ Helmet_on(VOID_ARGS)
         /* makeknown(HELM_OF_OPPOSITE_ALIGNMENT); -- below, after Tobjnam() */
     /*FALLTHRU*/
     case DUNCE_CAP:
-        if (uarmh && cursed(uarmh, FALSE)) {
+        if (uarmh && !uarmh->cursed) {
             if (Blind)
                 pline("%s for a moment.", Tobjnam(uarmh, "vibrate"));
             else
@@ -2336,7 +2336,7 @@ struct obj *obj;
                      gloves_simple_name(uarmg));
                 return 1; /* always uses move */
             }
-            if (uarmg && uarmg->cursed) {
+            if (uarmg && cursed(uarmg, TRUE)) {
                 res = !uarmg->bknown;
                 set_bknown(uarmg, 1);
                 You("cannot remove your %s to put on the ring.", c_gloves);
@@ -2638,9 +2638,9 @@ glibr()
     boolean leftfall, rightfall, wastwoweap = FALSE;
     const char *otherwep = 0, *thiswep, *which, *hand;
 
-    leftfall = (uleft && !uleft->cursed
+    leftfall = (uleft && !cursed(uleft, TRUE)
                 && (!uwep || !welded(uwep) || !bimanual(uwep)));
-    rightfall = (uright && !uright->cursed && (!welded(uwep)));
+    rightfall = (uright && !cursed(uright, TRUE) && (!welded(uwep)));
     if (!uarmg && (leftfall || rightfall) && !nolimbs(youmonst.data)) {
         /* changed so cursed rings don't fall off, GAN 10/30/86 */
         Your("%s off your %s.",
@@ -3283,7 +3283,7 @@ boolean only_if_known_cursed; /* ignore covering unless known to be cursed */
         "need to take off %s to %s %s.";
     char buf[BUFSZ];
     boolean anycovering = !only_if_known_cursed; /* more comprehensible... */
-#define BLOCKSACCESS(x) (anycovering || ((x)->cursed && (x)->bknown))
+#define BLOCKSACCESS(x) (anycovering || (cursed((x), TRUE) && (x)->bknown))
 
     if (!obj || !obj->owornmask)
         return FALSE; /* not inaccessible */

@@ -866,9 +866,8 @@ gcrownu()
         break;
     case A_NONE:
         u.uevent.uhand_of_elbereth = 4;
-        verbalize("I grant thee the gift of Demonhood!");
-        livelog_printf(LL_DIVINEGIFT, "became %s <something something here>",
-                s_suffix(u_gname()));
+        verbalize("Thou shalt be my vassal of suffering and terror!");
+        livelog_printf(LL_DIVINEGIFT, "became the Archfiend of Moloch");
         class_gift = SPE_FIREBALL; /* no special weapon */
         if (Upolyd)
             rehumanize(); /* return to human/orcish form -- not a demon yet */

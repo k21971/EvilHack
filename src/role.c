@@ -259,9 +259,9 @@ const struct Role roles[] = {
       PM_CHAMPION,
       S_DOG,
       S_UNICORN,
-      ART_IDOL_OF_MOLOCH,                         /* actually unaligned */
-      MH_HUMAN | MH_ORC,
-      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+      ART_IDOL_OF_MOLOCH,
+      MH_HUMAN | MH_ORC | MH_ILLITHID,
+      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC, /* actually unaligned */
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 10, 7, 7, 7 },
       { 20, 10, 25, 15, 20, 10 },
@@ -1080,7 +1080,7 @@ int
 special_alignment(rolenum, alignnum)
 int rolenum, alignnum;
 {
-    if (roles[rolenum].malenum == PM_INFIDEL)
+    if (rolenum >= 0 && roles[rolenum].malenum == PM_INFIDEL)
         return 3; /* aligns[unaligned] */
     return alignnum;
 }

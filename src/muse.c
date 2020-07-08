@@ -2864,7 +2864,7 @@ struct obj *obj;
             || typ == AMULET_OF_FLYING
             || typ == AMULET_OF_MAGIC_RESISTANCE)
             return TRUE;
-        /* who doesn't want the ultimate amulet? and they can br fooled also */
+        /* who doesn't want the ultimate amulet? and they can be fooled also */
         if (typ == AMULET_OF_YENDOR || typ == FAKE_AMULET_OF_YENDOR)
             return (boolean) !mon_has_amulet(mon);
         break;

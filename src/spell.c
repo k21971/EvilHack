@@ -975,8 +975,12 @@ boolean atme;
        in and no turn will be consumed; however, when it does kick in,
        the attempt may fail due to lack of energy after the draining, in
        which case a turn will be used up in addition to the energy loss */
-    if (u.uhave.amulet && u.uen >= energy) {
-        You_feel("the amulet draining your energy away.");
+    if (((Role_if(PM_INFIDEL) && u.uachieve.amulet && u.uhave.amulet)
+        || (!Role_if(PM_INFIDEL) && u.uhave.amulet)) && u.uen >= energy) {
+        if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
+            You_feel("the idol draining your energy away.");
+        else
+            You_feel("the amulet draining your energy away.");
         /* this used to be 'energy += rnd(2 * energy)' (without 'res'),
            so if amulet-induced cost was more than u.uen, nothing
            (except the "don't have enough energy" message) happened

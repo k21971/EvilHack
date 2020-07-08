@@ -399,6 +399,7 @@ deletedwithboulder:
            items teleports them to the deepest demon lords
            lair rather than destroying them */
         if (obj->otyp == AMULET_OF_YENDOR
+            || (Role_if(PM_INFIDEL) && obj->oartifact == ART_IDOL_OF_MOLOCH)
             || obj->otyp == BELL_OF_OPENING
             || obj->otyp == CANDELABRUM_OF_INVOCATION
             || obj->otyp == SPE_BOOK_OF_THE_DEAD) {
