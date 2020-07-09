@@ -2880,7 +2880,8 @@ register struct monst *mtmp;
         switch (mvitals[tmp].died) {
             case 1:
                 livelog_printf(LL_UMONST, "put %s down for a little nap",
-                               noit_mon_nam(mtmp));
+                               x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                                        SUPPRESS_IT | SUPPRESS_HALLUCINATION, FALSE));
                 break;
             case 5:
             case 10:
@@ -2890,7 +2891,9 @@ register struct monst *mtmp;
             case 200:
             case 250:
                 livelog_printf(LL_UMONST, "put %s down for a little nap (%d times)",
-                               noit_mon_nam(mtmp), mvitals[tmp].died);
+                               x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                                        SUPPRESS_IT | SUPPRESS_HALLUCINATION, FALSE),
+                               mvitals[tmp].died);
                 break;
             default:
                 /* don't spam the log every time */
@@ -2906,7 +2909,8 @@ register struct monst *mtmp;
                 } else {
                     livelog_printf(LL_UMONST, "%s %s",
                         nonliving(mtmp->data) ? "destroyed" : "killed",
-                        noit_mon_nam(mtmp));
+                        x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                                 SUPPRESS_IT | SUPPRESS_HALLUCINATION, FALSE));
                     break;
                 }
             case 5:
@@ -2918,7 +2922,9 @@ register struct monst *mtmp;
             case 250:
                 livelog_printf(LL_UMONST, "%s %s (%d times)",
                     nonliving(mtmp->data) ? "destroyed" : "killed",
-                    noit_mon_nam(mtmp), mvitals[tmp].died);
+                    x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                             SUPPRESS_IT | SUPPRESS_HALLUCINATION, FALSE),
+                    mvitals[tmp].died);
                 break;
             default:
                 /* don't spam the log every time */
