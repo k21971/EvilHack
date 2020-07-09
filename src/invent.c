@@ -816,7 +816,7 @@ struct obj *obj;
         /* Player will be able to discover if s/he has the real amulet */
         /* by monitoring the livelog - but only when it was picked up */
         /* for the first time */
-        if(!u.uachieve.amulet)
+        if (!u.uachieve.amulet && !Role_if(PM_INFIDEL))
             livelog_write_string(LL_ACHIEVE, "acquired the Amulet of Yendor");
         if (!Role_if(PM_INFIDEL))
             u.uachieve.amulet = 1;
@@ -824,7 +824,7 @@ struct obj *obj;
         if (u.uhave.menorah)
             impossible("already have candelabrum?");
         u.uhave.menorah = 1;
-        if(!u.uachieve.menorah)
+        if (!u.uachieve.menorah)
             livelog_write_string(LL_ACHIEVE, "acquired the Candelabrum of Invocation");
         u.uachieve.menorah = 1;
     } else if (obj->otyp == BELL_OF_OPENING) {

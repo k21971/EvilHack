@@ -1792,6 +1792,7 @@ dosacrifice()
                         otmp->spe = 1;
                         if (otmp->where == OBJ_INVENT)
                             u.uhave.amulet = 1;
+                        livelog_write_string(LL_ACHIEVE, "imbued the Idol of Moloch");
                     }
                     return 1;
                 }

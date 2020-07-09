@@ -1084,4 +1084,5 @@ Version 0.6.0
 - Various fixes and tweaks to the Infidel role
 - Fix: illithids playing as Infidel weren't starting with their 'psionic wave' spell
 - Realizing the Infidel role author's intent
+- Fix: a few more incorrect alignment type reporting, livelogging (Infidel role)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

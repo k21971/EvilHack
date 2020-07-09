@@ -820,7 +820,7 @@ boolean playing; /**< True if game is running.  */
             urole.filecode,
             urace.filecode,
             genders[flags.female].filecode,
-            aligns[1-u.ualign.type].filecode,
+            aligns[u.ualign.type == A_NONE ? 3 : 1 - u.ualign.type].filecode,
 #ifdef RECORD_CONDUCT
             encodeconduct(),
 #else
@@ -4686,7 +4686,7 @@ const char *buffer;
                      LLOG_SEP,
                      genders[flags.female].filecode,
                      LLOG_SEP,
-                     aligns[1-u.ualign.type].filecode,
+                     aligns[u.ualign.type == A_NONE ? 3 : 1 - u.ualign.type].filecode,
                      LLOG_SEP,
                      moves,
                      LLOG_SEP,

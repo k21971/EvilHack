@@ -614,7 +614,8 @@ time_t when;
     copynchars(t0->plrole, urole.filecode, ROLESZ);
     copynchars(t0->plrace, urace.filecode, ROLESZ);
     copynchars(t0->plgend, genders[flags.female].filecode, ROLESZ);
-    copynchars(t0->plalign, aligns[1 - sgn(u.ualign.type)].filecode, ROLESZ);
+    copynchars(t0->plalign,
+               aligns[u.ualign.type == A_NONE ? 3 : 1 - u.ualign.type].filecode, ROLESZ);
     copynchars(t0->name, plname, NAMSZ);
     formatkiller(t0->death, sizeof t0->death, how, TRUE);
     t0->birthdate = yyyymmdd(ubirthday);
