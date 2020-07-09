@@ -1087,4 +1087,5 @@ Version 0.6.0
 - Fix: a few more incorrect alignment type reporting, livelogging (Infidel role)
 - Fix: killed uniques livelogged as bogusmons if player was hallucinating
 - Fix: three bugs with ghosts displaying as I incorrectly
+- Effects of praying/sacrificing as an Infidel
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

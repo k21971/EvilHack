@@ -1123,24 +1123,33 @@ aligntyp g_align;
                 if (uwep->cursed) {
                     if (!Blind) {
                         pline("%s %s%s.", Yobjnam2(uwep, "softly glow"),
-                              hcolor(NH_AMBER), repair_buf);
+                              (Role_if(PM_INFIDEL) ? hcolor(NH_BLACK)
+                                                   : hcolor(NH_AMBER)), repair_buf);
                         iflags.last_msg = PLNMSG_OBJ_GLOWS;
                     } else
                         You_feel("the power of %s over %s.", u_gname(),
                                  yname(uwep));
-                    uncurse(uwep);
+                    if (Role_if(PM_INFIDEL))
+                        ; /* already cursed */
+                    else
+                        uncurse(uwep);
                     uwep->bknown = 1; /* ok to bypass set_bknown() */
                     *repair_buf = '\0';
                 } else if (!uwep->blessed) {
                     if (!Blind) {
                         pline("%s with %s aura%s.",
                               Yobjnam2(uwep, "softly glow"),
-                              an(hcolor(NH_LIGHT_BLUE)), repair_buf);
+                              (Role_if(PM_INFIDEL) ? an(hcolor(NH_BLACK))
+                                                   : an(hcolor(NH_LIGHT_BLUE))), repair_buf);
                         iflags.last_msg = PLNMSG_OBJ_GLOWS;
                     } else
-                        You_feel("the blessing of %s over %s.", u_gname(),
+                        You_feel("the %s of %s over %s.",
+                                 (Role_if(PM_INFIDEL) ? "power" : "blessing"), u_gname(),
                                  yname(uwep));
-                    bless(uwep);
+                    if (Role_if(PM_INFIDEL))
+                        curse(uwep);
+                    else
+                        bless(uwep);
                     uwep->bknown = 1; /* ok to bypass set_bknown() */
                     *repair_buf = '\0';
                 }
@@ -1183,7 +1192,9 @@ aligntyp g_align;
             /*FALLTHRU*/
         case 2:
             if (!Blind)
-                You("are surrounded by %s glow.", an(hcolor(NH_GOLDEN)));
+                You("are surrounded by %s %s.",
+                    (Role_if(PM_INFIDEL) ? an(hcolor(NH_BLACK)) : an(hcolor(NH_GOLDEN))),
+                    (Role_if(PM_INFIDEL) ? "mist" : "glow"));
             /* if any levels have been lost (and not yet regained),
                treat this effect like blessed full healing */
             if (u.ulevel < u.ulevelmax) {
@@ -1223,7 +1234,8 @@ aligntyp g_align;
             if (Blind)
                 You_feel("the power of %s.", u_gname());
             else
-                You("are surrounded by %s aura.", an(hcolor(NH_LIGHT_BLUE)));
+                You("are surrounded by %s aura.",
+                    (Role_if(PM_INFIDEL) ? an(hcolor(NH_BLACK)) : an(hcolor(NH_LIGHT_BLUE))));
             for (otmp = invent; otmp; otmp = otmp->nobj) {
                 if (otmp->cursed
                     /* Inf benefit from wearing cursed armor */
@@ -2234,6 +2246,13 @@ dosacrifice()
                             }
                         }
 
+                        if (Role_if(PM_INFIDEL)) {
+                            while (otmp->material == SILVER && ncount++ < 500) {
+                                otmp = mksobj(typ, FALSE, FALSE);
+                                /* keep trying for non-silver */
+                            }
+                        }
+
                         if (otmp) {
                             if (!rn2(8))
                                 otmp = create_oprop(otmp, FALSE);
@@ -2245,7 +2264,10 @@ dosacrifice()
                             otmp->oerodeproof = TRUE;
                             at_your_feet("An object");
                             dropy(otmp);
-                            godvoice(u.ualign.type, "Use this gift valorously!");
+                            if (Role_if(PM_INFIDEL))
+                                godvoice(u.ualign.type, "Use this gift ominously!");
+                            else
+                                godvoice(u.ualign.type, "Use this gift valorously!");
                             u.ugifts++;
                             u.ublesscnt = rnz(300 + (50 * u.ugifts));
                             exercise(A_WIS, TRUE);
@@ -2404,8 +2426,12 @@ dopray()
 
     if (p_type == 3 && (!Inhell || u.ualign.type == A_NONE)) {
         /* if you've been true to your god you can't die while you pray */
-        if (!Blind)
-            You("are surrounded by a shimmering light.");
+        if (!Blind) {
+            if (Role_if(PM_INFIDEL))
+                You("are surrounded by an ominous crimson glow.");
+            else
+                You("are surrounded by a shimmering light.");
+        }
         u.uinvulnerable = TRUE;
     }
 
@@ -2477,8 +2503,13 @@ prayer_done() /* M. Stephenson (1.0.3b) */
             pleased(alignment);
     } else {
         /* coaligned */
-        if (on_altar())
-            (void) water_prayer(TRUE);
+        if (Role_if(PM_INFIDEL)) {
+            if (on_altar())
+                (void) water_prayer(FALSE);
+        } else {
+            if (on_altar())
+                (void) water_prayer(TRUE);
+        }
         pleased(alignment); /* nice */
     }
     return 1;
