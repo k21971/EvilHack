@@ -1238,8 +1238,10 @@ aligntyp g_align;
                     (Role_if(PM_INFIDEL) ? an(hcolor(NH_BLACK)) : an(hcolor(NH_LIGHT_BLUE))));
             for (otmp = invent; otmp; otmp = otmp->nobj) {
                 if (otmp->cursed
-                    /* Inf benefit from wearing cursed armor */
-                    && !(Role_if(PM_INFIDEL) && (otmp->owornmask & W_ARMOR))
+                    /* Infidels benefit from wearing cursed armor
+                       as well as wielding cursed weapons */
+                    && !(Role_if(PM_INFIDEL)
+                         && (otmp->owornmask & (W_ARMOR | W_WEAPONS)))
                     && (otmp != uarmh /* [see worst_cursed_item()] */
                         || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)) {
                     if (!Blind) {

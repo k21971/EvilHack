@@ -162,6 +162,13 @@ struct monst *mon;
     if (Is_weapon && otmp->cursed && is_angel(ptr))
         tmp += 2;
 
+    /* Infidels get a slight bonus against lawful or
+       neutral monsters when using cursed weapons */
+    if (Is_weapon && otmp->cursed
+        && Role_if(PM_INFIDEL) && (mon_aligntyp(mon) == A_LAWFUL
+                                   || mon_aligntyp(mon) == A_NEUTRAL))
+        tmp += 1;
+
     if (is_spear(otmp) && index(kebabable, ptr->mlet))
         tmp += 2;
 
@@ -368,6 +375,9 @@ struct monst *mon;
             bonus += rnd(4);
         if (otmp->cursed && is_angel(ptr))
             bonus += rnd(4);
+        if (otmp->cursed && Role_if(PM_INFIDEL)
+            && (mon_aligntyp(mon) == A_LAWFUL || mon_aligntyp(mon) == A_NEUTRAL))
+            bonus += rnd(2);
         if (is_axe(otmp) && is_wooden(ptr))
             bonus += rnd(4);
         if (mon_hates_material(mon, otmp->material))
