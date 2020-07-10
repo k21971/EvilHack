@@ -1091,4 +1091,5 @@ Version 0.6.0
 - Crowned Infidels (demonic form) can never handle silver objects
 - Infidels can train trident weapon skill
 - A couple more minor Infidel tweaks
+- Show if inediate via enlightenment
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

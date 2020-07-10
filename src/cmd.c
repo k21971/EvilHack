@@ -2972,6 +2972,8 @@ int final;
     if (!orc_can_regen()) you_are("in direct contact with mithril", "");
     if (Slow_digestion)
         you_have("slower digestion", from_what(SLOW_DIGESTION));
+    if (inediate(raceptr(&youmonst)))
+        you_can("survive without having to eat", "");
     if (u.uhitinc)
         you_have(enlght_combatinc("to hit", u.uhitinc, final, buf), "");
     if (u.udaminc)
