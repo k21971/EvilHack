@@ -418,7 +418,7 @@ boolean ghostly;
 {
     register struct monst *mtmp, *mtmp2 = 0;
     register struct monst *first = (struct monst *) 0;
-    int offset, buflen, monstoread, iter;
+    int offset, buflen;
     struct permonst *monbegin;
     int namesize = sizeof(monbegin->mname);
 
@@ -488,16 +488,9 @@ boolean ghostly;
         mtmp2->nmon = 0;
     }
 
-    /* get the permonst chain back */
-    mread(fd, (genericptr_t) &monstoread, sizeof(int));
-
-    if (monstoread != NUMMONS) {
-        impossible("Restmonchn: number of permonst stored doesn't match current NUMMONS. Using default permonst");
-    } else {
-        for (iter = 0; iter < NUMMONS; iter++) {
-            mread(fd, (genericptr_t) ((char *) &mons[iter] + namesize), sizeof(struct permonst) - namesize);
-        }
-    }
+    /* Bring RNGesus' most abominable creation back to life */
+    mread(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
+          sizeof(struct permonst) - namesize);
 
     return first;
 }

@@ -1093,4 +1093,5 @@ Version 0.6.0
 - A couple more minor Infidel tweaks
 - Show if inediate via enlightenment
 - Fix: Demonbane not suppressing demon gating when in offhand while twoweaponing
+- Fix: proper way of saving shambling horror data across save/restore
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
