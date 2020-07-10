@@ -59,7 +59,9 @@ struct monst *mon;
     if (mon) {
         ptr = mon->data;
 
-        if (uwep && uwep->oartifact == ART_DEMONBANE && is_demon(ptr)) {
+        if ((uwep || (u.twoweap && uswapwep))
+            && (uwep->oartifact == ART_DEMONBANE
+                || (u.twoweap && uswapwep->oartifact == ART_DEMONBANE)) && is_demon(ptr)) {
             if (canseemon(mon))
                 pline("%s looks puzzled for a moment.", Monnam(mon));
             return 0;
