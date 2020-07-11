@@ -969,7 +969,7 @@ do_rnd_access_file(fname, deflt_content)
 const char *fname;
 const char *deflt_content;
 {
-    char *line;
+    char *line, buf[BUFSZ];
 
     Sprintf(filename, DATA_IN_TEMPLATE, fname);
     Strcat(filename, ".txt");
@@ -987,6 +987,10 @@ const char *deflt_content;
         exit(EXIT_FAILURE);
     }
     Fprintf(ofp, "%s", Dont_Edit_Data);
+    /* lines from the file include trailing newline so make sure that the
+       default one does too */
+    if (!index(deflt_content, '\n'))
+        deflt_content = strcat(strcpy(buf, deflt_content), "\n");
     /* write out the default content entry unconditionally instead of
        waiting to see whether there are no regular output lines; if it
        matches a regular entry (bogusmon "grue"), that entry will become

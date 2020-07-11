@@ -1094,4 +1094,5 @@ Version 0.6.0
 - Show if inediate via enlightenment
 - Fix: Demonbane not suppressing demon gating when in offhand while twoweaponing
 - Fix: proper way of saving shambling horror data across save/restore
+- Fix: default engraving/epitaph/bogusmon corruption
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
