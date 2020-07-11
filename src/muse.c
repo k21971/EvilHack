@@ -2862,6 +2862,7 @@ struct obj *obj;
             return (boolean) !(nonliving(mon->data) || is_vampshifter(mon));
         if (typ == AMULET_OF_REFLECTION
             || typ == AMULET_OF_FLYING
+            || typ == AMULET_OF_GUARDING
             || typ == AMULET_OF_MAGIC_RESISTANCE)
             return TRUE;
         /* who doesn't want the ultimate amulet? and they can be fooled also */
