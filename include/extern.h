@@ -493,6 +493,7 @@ E int NDECL(take_off);
 #endif
 E const char *FDECL(fingers_or_gloves, (BOOLEAN_P));
 E void FDECL(off_msg, (struct obj *));
+E void FDECL(toggle_displacement, (struct obj *, long, BOOLEAN_P));
 E void FDECL(set_wear, (struct obj *));
 E boolean FDECL(donning, (struct obj *));
 E boolean FDECL(doffing, (struct obj *));
@@ -1275,10 +1276,11 @@ E int FDECL(castum, (struct monst *, struct attack *));
 /* ### mhitm.c ### */
 
 E int FDECL(fightm, (struct monst *));
+E int FDECL(mdisplacem, (struct monst *, struct monst *, BOOLEAN_P));
 E boolean FDECL(resist_conflict, (struct monst *));
 E int FDECL(mattackm, (struct monst *, struct monst *));
 E boolean FDECL(engulf_target, (struct monst *, struct monst *));
-E int FDECL(mdisplacem, (struct monst *, struct monst *, BOOLEAN_P));
+E int FDECL(mon_poly, (struct monst *, struct monst *, int));
 E void FDECL(paralyze_monst, (struct monst *, int));
 E int FDECL(sleep_monst, (struct monst *, int, int));
 E void FDECL(slept_monst, (struct monst *));

@@ -648,7 +648,7 @@ AMULET("amulet of reflection",        "hexagonal", REFLECTING, 75),
 AMULET("amulet of magical breathing", "octagonal", MAGICAL_BREATHING, 75),
 AMULET("amulet of magic resistance",     "oblong", ANTIMAGIC, 30),
         /* +2 AC and +2 MC; +2 takes naked hero past 'warded' to 'guarded' */
-AMULET("amulet of guarding",         "pentagonal", PROTECTION, 75),
+AMULET("amulet of guarding",         "perforated", PROTECTION, 75),
         /* cubical: some descriptions are already three dimensional and
            parallelogrammatical (real word!) would be way over the top */
 AMULET("amulet of flying",              "cubical", FLYING, 60),

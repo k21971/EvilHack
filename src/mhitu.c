@@ -2214,6 +2214,11 @@ do_rust:
         }
         else hitmsg(mtmp, mattk);
         break;
+    case AD_POLY:
+        hitmsg(mtmp, mattk);
+        if (uncancelled && Maybe_Half_Phys(dmg) < (Upolyd ? u.mh : u.uhp))
+            dmg = mon_poly(mtmp, &youmonst, dmg);
+        break;
     default:
         dmg = 0;
         break;

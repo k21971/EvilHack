@@ -1190,12 +1190,20 @@ int pm;
     case PM_CHAMELEON:
     case PM_DOPPELGANGER:
     case PM_SANDESTIN: /* moot--they don't leave corpses */
+    case PM_GENETIC_ENGINEER:
         if (Unchanging) {
             You_feel("momentarily different."); /* same as poly trap */
         } else {
-            You_feel("a change coming over you.");
+            You("%s.", (pm == PM_GENETIC_ENGINEER)
+                          ? "undergo a freakish metamorphosis"
+                          : "feel a change coming over you");
             polyself(0);
         }
+        break;
+    case PM_DISPLACER_BEAST:
+        if (!Displaced) /* give a message (before setting the timeout) */
+            toggle_displacement((struct obj *) 0, 0L, TRUE);
+        incr_itimeout(&HDisplaced, d(6, 6));
         break;
     case PM_DISENCHANTER:
         /* picks an intrinsic at random and removes it; there's

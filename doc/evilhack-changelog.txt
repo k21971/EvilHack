@@ -1096,4 +1096,5 @@ Version 0.6.0
 - Fix: proper way of saving shambling horror data across save/restore
 - Fix: default engraving/epitaph/bogusmon corruption
 - Add amulet of guarding from NetHack 3.7.0
+- Add new monsters from NetHack 3.7.0
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

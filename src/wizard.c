@@ -35,6 +35,7 @@ static NEARDATA const int nasties[] = {
     PM_GIANT_CENTIPEDE, PM_FIRE_ELEMENTAL, PM_JABBERWOCK,
     PM_IRON_GOLEM, PM_OCHRE_JELLY, PM_GREEN_SLIME,
     PM_GELATINOUS_CUBE, PM_MAGICAL_EYE,
+    PM_DISPLACER_BEAST, PM_GENETIC_ENGINEER,
     /* chaotic */
     PM_BLACK_DRAGON, PM_RED_DRAGON, PM_LICH, PM_VAMPIRE_KING,
     PM_VAMPIRE_QUEEN, PM_MASTER_MIND_FLAYER, PM_DISENCHANTER,
@@ -44,8 +45,8 @@ static NEARDATA const int nasties[] = {
     /* lawful */
     PM_SILVER_DRAGON, PM_ORANGE_DRAGON, PM_GREEN_DRAGON,
     PM_YELLOW_DRAGON, PM_SHIMMERING_DRAGON, PM_GRAY_DRAGON,
-    PM_GUARDIAN_NAGA, PM_FIRE_GIANT, PM_ALEAX, PM_COUATL,
-    PM_HORNED_DEVIL, PM_BARBED_DEVIL,
+    PM_GUARDIAN_NAGA, PM_FIRE_GIANT, PM_ALEAX, PM_ANGEL,
+    PM_COUATL, PM_HORNED_DEVIL, PM_BARBED_DEVIL,
     /* (titans, ki-rin, and golden nagas are suitably nasty, but
        they're summoners so would aggravate excessive summoning) */
 };
@@ -669,16 +670,16 @@ BOOLEAN_P centered_on_stairs;
             bypos.y = u.uy;
         }
         for (i = rnd(tmp); i > 0 && count < MAXNASTIES; --i)
-            /* Of the 42 nasties[], 10 are lawful, 14 are chaotic,
-             * and 18 are neutral.
+            /* Of the 54 nasties[], 13 are lawful, 19 are chaotic,
+             * and 22 are neutral.
              *
              * Neutral caster, used for late-game harrassment,
-             * has 18/42 chance to stop the inner loop on each
-             * critter, 24/42 chance for another iteration.
-             * Lawful caster has 28/42 chance to stop unless the
+             * has 22/54 chance to stop the inner loop on each
+             * critter, 28/54 chance for another iteration.
+             * Lawful caster has 26/54 chance to stop unless the
              * summoner is an angel or demon, in which case the
-             * chance is 26/42.
-             * Chaotic or unaligned caster has 32/42 chance to
+             * chance is 24/54.
+             * Chaotic or unaligned caster has 19/54 chance to
              * stop, so will summon fewer creatures on average.
              *
              * The outer loop potentially gives chaotic/unaligned

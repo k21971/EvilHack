@@ -85,6 +85,7 @@
 #define AD_PSYC 47  /* psionic attack */
 #define AD_LOUD 48  /* sound damage */
 #define AD_CLOB 49  /* knock-back attack */
+#define AD_POLY 50  /* polymorph the target (genetic engineer) */
 
 #define AD_CLRC 240 /* random clerical spell */
 #define AD_SPEL 241 /* random magic spell */
