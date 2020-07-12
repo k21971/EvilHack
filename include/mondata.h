@@ -301,13 +301,14 @@
     (((ptr) >= &mons[PM_HUMAN_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_HUMAN_WIZARD]))
 #define is_watch(ptr) \
     ((ptr) == &mons[PM_WATCHMAN] || (ptr) == &mons[PM_WATCH_CAPTAIN])
-#define is_rider(ptr)                                      \
+#define is_rider(ptr) \
     ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
      || (ptr) == &mons[PM_PESTILENCE])
-#define is_placeholder(ptr)                                 \
-    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]     \
-     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]  \
-     || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_ILLITHID])
+#define is_placeholder(ptr) \
+    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]        \
+     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]     \
+     || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON] \
+     || (ptr) == &mons[PM_ILLITHID])
 
 /* Ice Queen branch defines */
 #define is_iceq_only(ptr) \
@@ -359,10 +360,8 @@
          : ((ptr) == &mons[PM_FIRE_ELEMENTAL]) ? 1 : 0)
 /*	[note: the light ranges above were reduced to 1 for performance...] */
 #define likes_lava(ptr) \
-    ((ptr) == &mons[PM_FIRE_ELEMENTAL]                                 \
-     || (ptr) == &mons[PM_SALAMANDER]                                  \
-     || (ptr) == &mons[PM_LAVA_DEMON]                                  \
-     || (ptr) == &mons[PM_LAVA_GREMLIN])
+    ((ptr) == &mons[PM_FIRE_ELEMENTAL] || (ptr) == &mons[PM_SALAMANDER]   \
+     || (ptr) == &mons[PM_LAVA_DEMON] || (ptr) == &mons[PM_LAVA_GREMLIN])
 
 #define pm_invisible(ptr) \
     ((ptr) == &mons[PM_STALKER] || (ptr) == &mons[PM_BLACK_LIGHT])

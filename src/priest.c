@@ -271,7 +271,6 @@ boolean sanctum; /* is it the seat of the high priest? */
         if (sanctum && EPRI(priest)->shralign == A_NONE
             && on_level(&sanctum_level, &u.uz) && !Role_if(PM_INFIDEL)) {
             (void) mongets(priest, AMULET_OF_YENDOR);
-            (void) mongets(priest, MAGIC_MARKER);
         }
         /* some insurance against 'purple rain' */
         if (on_level(&astral_level, &u.uz)) {

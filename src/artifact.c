@@ -2508,8 +2508,8 @@ struct obj *obj;
                     display_nhwindow(WIN_MESSAGE, FALSE);
                     verbalize("In return for thy service, "
                               "I grant thee a part of My domain!");
-                    You("ascend to the status of Demon %s...",
-                        flags.female ? "Lady" : "Lord");
+                    You("ascend to the status of %s of Moloch...",
+                        Race_if(PM_DEMON) ? "Archfiend" : "Emissary");
                     done(ASCENDED);
                 }
             } else {

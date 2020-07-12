@@ -1098,4 +1098,5 @@ Version 0.6.0
 - Add amulet of guarding from NetHack 3.7.0
 - Add new monsters from NetHack 3.7.0
 - Fix: weapon skill in ^X status output was wrong
+- More tweaks, fixes, and changes with Infidel role
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

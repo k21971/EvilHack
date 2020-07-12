@@ -1585,7 +1585,7 @@ register struct monst *mtmp;
             mkmonmoney(mtmp, (long) rn1(10, 20));
         } else if (quest_mon_represents_role(ptr, PM_MONK)) {
             (void) mongets(mtmp, rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE);
-        } else if (ptr == &mons[PM_PREACHER_OF_MOLOCH]) {
+        } else if (ptr == &mons[PM_MAGISTRA_OF_MOLOCH]) {
             (void) mongets(mtmp, QUARTERSTAFF);
             (void) mongets(mtmp, rn2(3) ? ROBE : CLOAK_OF_PROTECTION);
         } else if (ptr == &mons[PM_PALADIN]) {
@@ -3184,9 +3184,12 @@ struct monst *mtmp;
             mtmp->malign -= 20; /* reverse */
     } else if (always_peaceful(mtmp->data)) {
         int absmal = abs(mal);
-        if (mtmp->mpeaceful)
-            mtmp->malign = -3 * max(5, absmal);
-        else
+        if (mtmp->mpeaceful) {
+            if (Role_if(PM_INFIDEL))
+                mtmp->malign += 1; /* Moloch's will */
+            else
+                mtmp->malign = -3 * max(5, absmal);
+        } else
             mtmp->malign = 3 * max(5, absmal); /* renegade */
     } else if (always_hostile(mtmp->data)) {
         int absmal = abs(mal);

@@ -2680,7 +2680,10 @@ register struct monst *mtmp;
         verbalize("And please free the captive pegasus, I am certain he will be extremely grateful.");
         verbalize("Fare thee well, brave adventurer.  Until we meet again...");
         newsym(mtmp->mx, mtmp->my);
-        adjalign(2);
+        if (Role_if(PM_INFIDEL))
+            adjalign(-2); /* doing good things as an agent of Moloch? pfft */
+        else
+            adjalign(2);
         change_luck(2);
         return;
     }
@@ -2707,7 +2710,10 @@ register struct monst *mtmp;
                 uunstick();
         }
         newsym(mtmp->mx, mtmp->my);
-        adjalign(-15);
+        if (Role_if(PM_INFIDEL))
+            adjalign(10);
+        else
+            adjalign(-15);
         change_luck(-15);
         return;
     }
@@ -3387,7 +3393,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
      */
     if (((always_peaceful(mdat) && mtmp->malign <= 0)
         || (mtmp->isshk && !is_zombie(mdat)))
-        && u.ualign.type != A_CHAOTIC) {
+        && u.ualign.type != A_CHAOTIC
+        && u.ualign.type != A_NONE) {
         HTelepat &= ~INTRINSIC;
         change_luck(-2);
         You("murderer!");
@@ -3426,6 +3433,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             u.ublessed = 0;
         else if (mdat->maligntyp == A_NONE)
             adjalign((int) (ALIGNLIM / 4)); /* BIG bonus */
+        else if (Role_if(PM_INFIDEL) && mdat->maligntyp == A_LAWFUL)
+            adjalign((int) (ALIGNLIM / 4)); /* Infidel-only BIG bonus */
     } else if (mtmp->mtame) {
         adjalign(-15); /* bad!! */
         /* your god is mighty displeased... */
@@ -3437,8 +3446,10 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             livelog_printf(LL_KILLEDPET, "murdered %s, %s faithful %s",
                            MNAME(mtmp), uhis(), mdat->mname);
         }
-    } else if (mtmp->mpeaceful)
-        adjalign(-5);
+    } else if (mtmp->mpeaceful) {
+        if (!Role_if(PM_INFIDEL))
+            adjalign(-5);
+    }
 
     /* malign was already adjusted for u.ualign.type and randomization */
     adjalign(mtmp->malign);
@@ -3868,7 +3879,7 @@ boolean via_attack;
             You_feel("like a hypocrite.");
             adjalign((u.ualign.record > 5) ? -5 : -rnd(5));
         } else
-            You_feel("wily."); /* no alignment penalty */
+            You_feel("clever."); /* no alignment penalty */
 
         if (!Blind)
             pline("The engraving beneath you fades.");
@@ -3912,8 +3923,10 @@ boolean via_attack;
                 adjalign(-5); /* very bad */
             else
                 adjalign(2);
-        } else
-            adjalign(-1); /* attacking peaceful monsters is bad */
+        } else {
+            if (!Role_if(PM_INFIDEL)) /* Infidels are supposed to be bad */
+                adjalign(-1); /* attacking peaceful monsters is bad */
+        }
         if (couldsee(mtmp->mx, mtmp->my)) {
             if (humanoid(mtmp->data) || mtmp->isshk || mtmp->isgd)
                 pline("%s gets angry!", Monnam(mtmp));
@@ -3990,7 +4003,8 @@ boolean via_attack;
                                    perhaps reduce tameness? */
                             } else {
                                 mon->mpeaceful = 0;
-                                adjalign(-1);
+                                if (!Role_if(PM_INFIDEL))
+                                    adjalign(-1);
                                 if (!exclaimed)
                                     pline("%s gets angry!", Monnam(mon));
                             }

@@ -1426,10 +1426,10 @@ It is written in the Book of %d:
     Under World, where %dH now gathers power and prepares for
     the final confrontation.
 
-Many fools were sent by the gods of the heaven after the Amulet,
-only to die in the underground mazes.  By pure luck, one of them
-has succeeded; thankfully, %lh was ambushed on the way back
-and the Amulet was recovered by %ds Cult.
+Many fools were sent by the gods of heaven after the Amulet,
+only to die in the underground mazes.  By pure luck, one of
+them has succeeded; thankfully, %lh was ambushed on the way
+back and the Amulet was recovered by %ds Cult.
 
 You, a newly trained %r, have been heralded
 from birth as the instrument of %d.  You are destined
@@ -1450,11 +1450,11 @@ It's not nearly as glamorous as the books make it sound."
 # Note: this will obviously need to be rewritten
 # if the Paladin's gender changes
 %Cp Inf 00008
-"%nC of %D acts all high and mighty, but %nh's still just a woman."
+"%nC of %D acts all high and mighty, but %nh's still mortal, and can be killed."
 %E
 %Cp Inf 00009
 "We were THIS close to recovering %o by ourselves!
-The church of %D just got lucky... and a better funding."
+The church of %D just got lucky... and had better funding."
 %E
 %Cp Inf 00010
 "Agents of the false gods are everywhere!  I got my purse stolen!"
@@ -1507,22 +1507,22 @@ carefully as I explain the current situation and your new quest.
 
 "As you must know, we have long searched for the lost %ot,
 for it is vitally important both to our faith and the ultimate plan
-of our %GC %d.  But the church of %D
-has learned of our efforts and sponsored a team of professional
+of our %GC %d.  But the church of %D has learned
+of our efforts and has sponsored a team of professional
 archeologists to find %O first.  Unfortunately, it seems
 they were succesful.
 
 "A week ago, the Cult has received a message from a prominent %nt
-of %D.  %nH claims that %O is in
-%nj posession, and challenges you to a `honorable duel' for the artifact.
-%nC was adamant in dueling you specifically, so it's
-clearly a ploy to obtain the Amulet of Yendor that was entrusted to you.
+of %D.  %nH claims that %O is in %nj posession, and challenges
+you to a 'honorable duel' for the artifact.  %nC was adamant in dueling
+you specifically, so it's clearly a ploy to obtain the Amulet of Yendor
+that was entrusted to you.
 
 "We have no choice but to accept, as without %O %ds plan
-cannot be completed.  %nC of %D
-waits for you in the ancient ruins amidst %i, which
-can be reached through the underground complex below our temple.
-You must travel there and retrieve %o by any means.
+cannot be completed.  %nC of %D waits for you
+in the ancient ruins amidst %i, which
+can be reached through the underground complex below our
+temple.  You must travel there and retrieve %o by any means.
 
 "%dC be your strength, %p.  Go with %dJ blessing."
 %E [%nC of %D found %o and challenged you to a duel.  Kill %ni by any means.]
@@ -1564,8 +1564,8 @@ in a fair fight.  So don't fight fair!"
 will work wonders on %ni."
 %E
 %Cc Inf 00035
-The gloom and stillness of the underground caves gives way to moonlight,
-hooting of owls, and an occasional blood-chilling howl.
+The gloom and stillness of the underground caves gives way to
+moonlight, hooting of owls, and an occasional blood-chilling howl.
 
 %iC lies ahead.  Somewhere in these woods
 %n of %D awaits you.
@@ -1575,8 +1575,8 @@ Again, you stand at the edge of %i.
 %E
 %Cc Inf 00040
 You've reached a clearing in the forest.  In the distance, you can %x
-the ancient ruins where %n of %D
-has challenged you to the duel.
+the ancient ruins where %n of %D has challenged
+you to the duel.
 
 It's still nighttime.  Hopefully you can sneak up unnoticed, but what then?
 %E [You have found the dueling field.  You must proceed carefully.]
@@ -1615,7 +1615,7 @@ to be %dj slave?"
 %E
 %Cp Inf 00062
 "I hope you like fire, because that's how you're going to spend
-the rest of eternity."
+the rest of eternity... in hell!"
 %E
 %Cp Inf 00063
 "Ready to give up, %p?  You know your %G can't help you here."
@@ -1661,12 +1661,12 @@ Return with %O and invoke My name here, and do not falter.
 for thy final test has come.
 
 "A deity who wields the Amulet of Yendor can claim dominion over
-the gods of the heaven, the position that is Mine by right.  But I am
+the gods of heaven, the position that is Mine by right.  But I am
 no longer welcome among them, so I must take My place by force.
 
 "%OC that thou carriest is a vessel for My power, and now I shall
 make %oi the vessel for the Amulet's true power as well.  Carrying %oi
-will allow thee to journey to the Astral Plane in the heaven.  There,
+will allow thee to journey to the Astral Plane in heaven.  There,
 the false gods reside.
 
 "Find the weakest among them and invoke Mine %Ot in their temple.
@@ -1685,11 +1685,11 @@ posess power beyond any mere mortal, and even with Moloch's help
 overthrowing one of them will be a challenge.  Chose thine opponent wisely.
 
 "I shall offer thee an advice.  Last night, I had a vision.  There was
-a great battle in the heaven; the forces of our Lord Moloch were besieging
+a great battle in heaven; the forces of our Lord Moloch were besieging
 a fortress of %d.  But %dj %a minions held their
 ground for thirty days and nights and, sadly, the fortress was not taken.
 
-"The meaning here is clear: when in thy mission thou reachest the heaven,
+"The meaning here is clear: when in thy mission thou reachest heaven,
 challenging %d will likely be futile.  Keep this in mind."
 %E [You should avoid invoking %o on the %a high altar.]
 %Cc Inf 00080
@@ -1698,7 +1698,7 @@ challenging %d will likely be futile.  Keep this in mind."
     "Don't... think you've won just yet.  I am but one servant of
     %D out of many, and other gods are...
     after you as well.  You will... never reach %d alive.
-    The justice will..."
+    Justice will..."
 
 A ray of bright light pierces the dawning sky, and %ns body is gone.
 %E [%nC of %D dies, but others are after the Amulet.]
@@ -1721,7 +1721,7 @@ You must bring %oh to %dI along with the Amulet of Yendor.
 the magic portal that brought you here."
 %E [%OC is your responsibility now.  Bring it to %d along with the Amulet.]
 %Cp Inf 00090
-"Welcome back, my %S.  Have you found your way to Sanctum yet?"
+"Welcome back, my %S.  Have you found your way to the Sanctum yet?"
 %E
 # Note: in this message, %a and %d refer
 # to one of the aligned gods at random.

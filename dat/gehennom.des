@@ -724,6 +724,10 @@ OBJECT:'?',random
 OBJECT:'?',random
 OBJECT:'?',random
 OBJECT:'?',random
+# Chest by the altar
+CONTAINER:('(',"crystal chest"),(17,08) {
+OBJECT:('(',"magic marker")
+}
 # Inner sanctum guards
 MONSTER:(':',"salamander"),(13,05),hostile
 MONSTER:(':',"salamander"),(23,05),hostile

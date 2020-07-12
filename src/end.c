@@ -516,11 +516,9 @@ int how;
         Strcat(buf, "the ");
         killer.format = KILLED_BY;
     }
-    if (mptr == &mons[PM_RAT_KING]) {
-        Strcat(buf, "the ");
-        killer.format = KILLED_BY;
-    }
-    if (mptr == &mons[PM_ABOMINABLE_SNOWMAN]) {
+    if (mptr == &mons[PM_RAT_KING]
+        || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
+        || mptr == &mons[PM_MAGISTRA_OF_MOLOCH]) {
         Strcat(buf, "the ");
         killer.format = KILLED_BY;
     }
@@ -1627,7 +1625,10 @@ int how;
     }
 #endif
     if (u.uhave.amulet) {
-        Strcat(killer.name, " (with the Amulet)");
+        if (Role_if(PM_INFIDEL)) /* ascends with the Idol of Moloch */
+            Strcat(killer.name, " (with the Idol)");
+        else
+            Strcat(killer.name, " (with the Amulet)");
     } else if (how == ESCAPED) {
         if (Is_astralevel(&u.uz)) /* offered Amulet to wrong deity */
             Strcat(killer.name, " (in celestial disgrace)");
@@ -1639,10 +1640,10 @@ int how;
     Sprintf(pbuf, "%s %s the %s...", Goodbye(), plname,
             (how != ASCENDED)
                 ? (const char *) ((flags.female && urole.name.f)
-                    ? urole.name.f
-                    : urole.name.m)
+                    ? urole.name.f : urole.name.m)
                 : Role_if(PM_INFIDEL) /* can only ascend via Moloch */
-                    ? (const char *) (flags.female ? "Demon Lady" : "Demon Lord")
+                    ? (const char *) (Race_if(PM_DEMON) ? "Archfiend of Moloch"
+                                                        : "Emissary of Moloch")
                     : (const char *) (flags.female ? "Demigoddess" : "Demigod"));
 
 #if defined(DUMPLOG) || defined(DUMPHTML)
