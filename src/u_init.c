@@ -265,6 +265,7 @@ struct inv_sub {
     { PM_GIANT, ARMOR, HELMET },
     { PM_GIANT, CLOAK_OF_MAGIC_RESISTANCE, LOW_BOOTS },
     { PM_GIANT, RIN_STEALTH, RIN_SEARCHING },
+    { PM_GIANT, SPLINT_MAIL, LARGE_SPLINT_MAIL },
     /* Hobbits have a thing for elven gear */
     { PM_HOBBIT, DAGGER, ELVEN_DAGGER },
     { PM_HOBBIT, SPEAR, ELVEN_SPEAR },

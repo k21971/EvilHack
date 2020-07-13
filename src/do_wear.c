@@ -2136,7 +2136,9 @@ boolean noisy;
     if (which && cantweararm(youmonst.data)
         /* same exception for cloaks as used in m_dowear() */
         && (which != c_cloak || youmonst.data->msize != MZ_SMALL)
-        && (racial_exception(&youmonst, otmp) < 1)) {
+        && (racial_exception(&youmonst, otmp) < 1)
+        && !(Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
+             && otmp && otmp->otyp == LARGE_SPLINT_MAIL)) {
         if (noisy)
             pline_The("%s will not fit on your body.", which);
         return 0;
@@ -2271,7 +2273,15 @@ boolean noisy;
             if (noisy)
                 already_wearing("some armor");
             err++;
+        } else if (youmonst.data->msize < MZ_HUGE
+                   && otmp && otmp->otyp == LARGE_SPLINT_MAIL) {
+            if (noisy)
+                You("are too small to wear such a suit or armor.");
+            err++;
         } else
+            *mask = W_ARM;
+        if (Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
+            && otmp && otmp->otyp == LARGE_SPLINT_MAIL)
             *mask = W_ARM;
     } else {
         /* getobj can't do this after setting its allow_all flag; that

@@ -1103,4 +1103,5 @@ Version 0.6.0
 - Mummies have a withering attack
 - Let monsters use wand of undead turning
 - Wearing mud boots negates being slowed when walking through sewage
+- Allow giant race to play as Samurai, tweak to the Tsurugi of Muramasa
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

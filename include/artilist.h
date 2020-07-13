@@ -321,9 +321,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
 
     A("The Tsurugi of Muramasa", TSURUGI,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_BEHEAD | SPFX_LUCK
-       | SPFX_PROTECT),
-      0, 0, PHYS(3, 8), NO_DFNS, NO_CARY, 0, A_LAWFUL, PM_SAMURAI, NON_PM,
-      4500L, NO_COLOR),
+       | SPFX_PROTECT), SPFX_HPHDAM, 0,
+      PHYS(3, 8), NO_DFNS, NO_CARY, 0, A_LAWFUL, PM_SAMURAI, NON_PM,
+      6000L, NO_COLOR),
 
     A("The Platinum Yendorian Express Card", CREDIT_CARD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DEFN),
