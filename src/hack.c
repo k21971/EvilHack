@@ -1604,7 +1604,7 @@ domove_core()
                 || (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
                              || uarm->otyp == WHITE_DRAGON_SCALES))) {
                 walk_sewage = FALSE;
-            } else {
+            } else if (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4)) {
                 HSlow |= FROMOUTSIDE;
                 HSlow &= ~TIMEOUT;
                 HSlow += 3; /* slowed on next move */
@@ -2406,7 +2406,8 @@ boolean newspot;             /* true if called by spoteffects */
                 pline("You %s through the shallow water.",
                       vs_cantflyorswim(youmonst.data) ? "wade" : "splash");
 
-            if (is_sewage(u.ux, u.uy) && u.umoved && !rn2(4)) {
+            if (is_sewage(u.ux, u.uy) && u.umoved && !rn2(4)
+                && (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
                 pline("%s %s difficulty %s through %s.",
                       u.usteed ? upstart(x_monnam(u.usteed,
                                          (has_mname(u.usteed)) ? ARTICLE_NONE

@@ -1102,4 +1102,5 @@ Version 0.6.0
 - Fix: a couple 'oops' from the last commit
 - Mummies have a withering attack
 - Let monsters use wand of undead turning
+- Wearing mud boots negates being slowed when walking through sewage
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
