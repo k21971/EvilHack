@@ -2805,6 +2805,7 @@ static mswin_condition_field _condition_fields[BL_MASK_BITS] = {
     { BL_MASK_STRNGL, "Strngl" },
     { BL_MASK_FOODPOIS, "FoodPois" },
     { BL_MASK_TERMILL, "TermIll" },
+    { BL_MASK_WITHER, "Wither" },
     { BL_MASK_BLIND, "Blind" },
     { BL_MASK_DEAF, "Deaf" },
     { BL_MASK_STUN, "Stun" },
@@ -2812,7 +2813,8 @@ static mswin_condition_field _condition_fields[BL_MASK_BITS] = {
     { BL_MASK_HALLU, "Hallu" },
     { BL_MASK_LEV, "Lev" },
     { BL_MASK_FLY, "Fly" },
-    { BL_MASK_RIDE, "Ride" }
+    { BL_MASK_RIDE, "Ride" },
+    { BL_MASK_RIDE, "Slow" }
 };
 
 
@@ -3002,11 +3004,11 @@ status_update(int fldindex, genericptr_t ptr, int chg, int percent, int color, u
                    BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
                    BL_LEVELDESC, BL_EXP, BL_CONDITION
 		-- fldindex could also be BL_FLUSH, which is not really
-		   a field index, but is a special trigger to tell the 
+		   a field index, but is a special trigger to tell the
 		   windowport that it should output all changes received
                    to this point. It marks the end of a bot() cycle.
 		-- fldindex could also be BL_RESET, which is not really
-		   a field index, but is a special advisory to to tell the 
+		   a field index, but is a special advisory to to tell the
 		   windowport that it should redisplay all its status fields,
 		   even if no changes have been presented to it.
                 -- ptr is usually a "char *", unless fldindex is BL_CONDITION.
@@ -3026,6 +3028,7 @@ status_update(int fldindex, genericptr_t ptr, int chg, int percent, int color, u
                         BL_MASK_FLY             0x00000800L
                         BL_MASK_RIDE            0x00001000L
                         BL_MASK_SLOW            0x00002000L
+                        BL_MASK_WITHER          0x00004000L
                 -- The value passed for BL_GOLD includes an encoded leading
                    symbol for GOLD "\GXXXXNNNN:nnn". If window port needs
                    textual gold amount without the leading "$:" the port will

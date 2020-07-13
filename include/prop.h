@@ -87,11 +87,12 @@ enum prop_types {
     REFLECTING        = 67,
     FREE_ACTION       = 68,
     FIXED_ABIL        = 69,
-    LIFESAVED         = 70,
-    VULN_FIRE         = 71,
-    VULN_COLD         = 72,
-    VULN_ELEC         = 73,
-    VULN_ACID         = 74
+    WITHERING         = 70,
+    LIFESAVED         = 71,
+    VULN_FIRE         = 72,
+    VULN_COLD         = 73,
+    VULN_ELEC         = 74,
+    VULN_ACID         = 75
 };
 #define LAST_PROP (VULN_ACID)
 

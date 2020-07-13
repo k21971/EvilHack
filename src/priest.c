@@ -1058,6 +1058,8 @@ struct monst *mtmp;
     }
     if (mtmp->mdiseased)
         Strcat(info, ", dying from disease");
+    if (mtmp->mwither)
+        Strcat(info, ", withering away");
     if (mtmp->msleeping)
         Strcat(info, ", asleep");
     if (mtmp->mstone > 0)

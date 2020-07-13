@@ -353,6 +353,12 @@ boolean resuming;
                         regen_hp(wtcap);
                     }
 
+                    if (Withering && !Regeneration) {
+                        losehp(1, "withering away", KILLED_BY);
+                        context.botl = TRUE;
+                        interrupt_multi("You are slowly withering away.");
+                    }
+
                     /* moving around while encumbered is hard work */
                     if (wtcap > MOD_ENCUMBER && u.umoved) {
                         if (!(wtcap < EXT_ENCUMBER ? moves % 30
@@ -714,7 +720,7 @@ int wtcap;
            once u.mh reached u.mhmax; that may have been convenient
            for the player, but it didn't make sense for gameplay...] */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
-            && (encumbrance_ok || Regeneration)) {
+            && (encumbrance_ok || Regeneration) && !Withering) {
             if (u.ulevel > 9) {
                 if (!(moves % 3L)) {
                     int Con = (int) ACURR(A_CON);
@@ -731,7 +737,7 @@ int wtcap;
                 if (!(moves % (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1)))
                     heal = 1;
             }
-            if (Regeneration && !heal)
+            if (Regeneration && !Withering && !heal)
                 heal = 1;
 
             if (heal) {

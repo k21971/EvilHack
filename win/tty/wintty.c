@@ -3702,6 +3702,7 @@ static struct condition_t {
     { BL_MASK_STRNGL,   { "Strngl",   "Stngl", "Str" } },
     { BL_MASK_FOODPOIS, { "FoodPois", "Fpois", "Poi" } },
     { BL_MASK_TERMILL,  { "TermIll" , "Ill",   "Ill" } },
+    { BL_MASK_WITHER,   { "Wither",   "Wthr",  "Wth" } },
     { BL_MASK_BLIND,    { "Blind",    "Blnd",  "Bl"  } },
     { BL_MASK_DEAF,     { "Deaf",     "Def",   "Df"  } },
     { BL_MASK_STUN,     { "Stun",     "Stun",  "St"  } },
@@ -3849,6 +3850,7 @@ boolean enable;
  *              BL_MASK_FLY             0x00000800L
  *              BL_MASK_RIDE            0x00001000L
  *              BL_MASK_SLOW            0x00002000L
+ *              BL_MASK_WITHER          0x00004000L
  *      -- The value passed for BL_GOLD usually includes an encoded leading
  *         symbol for GOLD "\GXXXXNNNN:nnn". If the window port needs to use
  *         the textual gold amount without the leading "$:" the port will

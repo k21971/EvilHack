@@ -503,6 +503,13 @@ register struct monst *mtmp;
         }
     }
 
+    /* wither away */
+    if (mtmp->mwither) {
+        mtmp->mhp -= 1;
+        if (DEADMONSTER(mtmp))
+            monkilled(mtmp, "", AD_DETH);
+    }
+
     /* confused monsters get unconfused with small probability */
     if (mtmp->mconf && !rn2(50))
         mtmp->mconf = 0;
@@ -516,7 +523,7 @@ register struct monst *mtmp;
         return 1; /* this is its move */
     }
 
-    /* some monsters get slowed down if wading through sewage */
+    /* some monsters are slowed down if wading through sewage */
     if (mwalk_sewage) {
         if (is_flyer(mdat) || is_floater(mdat)
             || is_clinger(mdat) || is_swimmer(mdat)
@@ -590,6 +597,10 @@ register struct monst *mtmp;
             return (mtmp->mhp > 0) ? 0 : 1;
         }
     }
+
+    /* withering monsters stop withering with high probability */
+    if (mtmp->mwither && !rn2(5))
+        mtmp->mwither = 0;
 
     /* some monsters teleport */
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz

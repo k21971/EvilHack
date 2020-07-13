@@ -1809,6 +1809,13 @@ msickness:
         if (!magr->mcan && tmp < mdef->mhp)
             tmp = mon_poly(magr, mdef, tmp);
         break;
+    case AD_WTHR:
+        if (!rn2(3) && !nonliving(mdef->data)) {
+            if (canseemon(mdef))
+                pline("%s is withering away!", Monnam(mdef));
+            mdef->mwither = 1;
+        }
+        break;
     default:
         tmp = 0;
         break;

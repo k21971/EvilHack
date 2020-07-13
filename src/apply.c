@@ -2092,6 +2092,8 @@ struct obj *obj;
         && !(u.uswallow
              && attacktype_fordmg(u.ustuck->data, AT_ENGL, AD_BLND)))
         prop_trouble(BLINDED);
+    if (TimedTrouble(HWithering))
+        prop_trouble(WITHERING);
     if (TimedTrouble(HHallucination))
         prop_trouble(HALLUC);
     if (TimedTrouble(Vomiting))
@@ -2138,6 +2140,11 @@ end:
         switch (idx) {
         case prop2trbl(SICK):
             make_sick(0L, (char *) 0, TRUE, SICK_ALL);
+            did_prop++;
+            break;
+        case prop2trbl(WITHERING):
+            You("are no longer withering away.");
+            set_itimeout(&HWithering, (long) 0);
             did_prop++;
             break;
         case prop2trbl(BLINDED):

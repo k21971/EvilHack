@@ -2219,6 +2219,13 @@ do_rust:
         if (uncancelled && Maybe_Half_Phys(dmg) < (Upolyd ? u.mh : u.uhp))
             dmg = mon_poly(mtmp, &youmonst, dmg);
         break;
+    case AD_WTHR:
+        hitmsg(mtmp, mattk);
+        if (!rn2(3) && !nonliving(youmonst.data)) {
+            You("are withering away!");
+            incr_itimeout(&HWithering, rnd(dmg) + 3);
+        }
+        break;
     default:
         dmg = 0;
         break;
