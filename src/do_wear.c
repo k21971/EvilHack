@@ -2276,7 +2276,7 @@ boolean noisy;
         } else if (youmonst.data->msize < MZ_HUGE
                    && otmp && otmp->otyp == LARGE_SPLINT_MAIL) {
             if (noisy)
-                You("are too small to wear such a suit or armor.");
+                You("are too small to wear such a suit of armor.");
             err++;
         } else
             *mask = W_ARM;
