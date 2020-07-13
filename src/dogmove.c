@@ -150,6 +150,7 @@ boolean check_if_better;
  	     || otmp->otyp == WAN_TELEPORTATION
 	     || otmp->otyp == WAN_POLYMORPH
 	     || otmp->otyp == WAN_CANCELLATION
+             || otmp->otyp == WAN_UNDEAD_TURNING
  	     || otmp->otyp == POT_HEALING
  	     || otmp->otyp == POT_EXTRA_HEALING
  	     || otmp->otyp == POT_FULL_HEALING

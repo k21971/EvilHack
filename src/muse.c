@@ -29,6 +29,7 @@ STATIC_DCL void FDECL(mbhit, (struct monst *, int,
                               int FDECL((*), (MONST_P, OBJ_P)),
                               int FDECL((*), (OBJ_P, OBJ_P)), struct obj *));
 void FDECL(you_aggravate, (struct monst *));
+STATIC_DCL boolean FDECL(necrophiliac, (struct obj *, BOOLEAN_P));
 STATIC_DCL void FDECL(mon_consume_unstone, (struct monst *, struct obj *,
                                             BOOLEAN_P, BOOLEAN_P));
 STATIC_DCL boolean FDECL(cures_stoning, (struct monst *, struct obj *,
@@ -197,6 +198,10 @@ struct monst *mtmp;
 struct obj *otmp;
 boolean self;
 {
+    if (otmp->spe < 1) {
+        impossible("Mon zapping wand with %d charges?", otmp->spe);
+        return;
+    }
     if (!canseemon(mtmp)) {
         int range = couldsee(mtmp->mx, mtmp->my) /* 9 or 5 */
                        ? (BOLT_LIM + 1) : (BOLT_LIM - 3);
@@ -332,6 +337,7 @@ struct obj *otmp;
 #define MUSE_ACID_BLOB_CORPSE 20
 #define MUSE_BAG_OF_TRICKS 21
 #define MUSE_EUCALYPTUS_LEAF 22
+#define MUSE_WAN_UNDEAD_TURNING 23 /* also an offensive item */
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -378,10 +384,9 @@ struct monst *mtmp;
 {
     register struct obj *obj = 0;
     struct trap *t;
-    int x = mtmp->mx, y = mtmp->my;
-    boolean stuck = (mtmp == u.ustuck);
-    boolean immobile = (mtmp->data->mmove == 0);
-    int fraction;
+    int fraction, x = mtmp->mx, y = mtmp->my;
+    boolean stuck = (mtmp == u.ustuck),
+            immobile = (mtmp->data->mmove == 0);
 
     if (is_animal(mtmp->data) || mindless(mtmp->data))
         return FALSE;
@@ -467,6 +472,24 @@ struct monst *mtmp;
         && mtmp->data != &mons[PM_PESTILENCE]) {
         if (m_use_healing(mtmp))
             return TRUE;
+    }
+
+    /* monsters aren't given wands of undead turning but if they
+       happen to have picked one up, use it against corpse wielder;
+       when applicable, use it now even if 'mtmp' isn't wounded */
+    if (!mtmp->mpeaceful && !nohands(mtmp->data)
+        && uwep && uwep->otyp == CORPSE
+        && touch_petrifies(&mons[uwep->corpsenm])
+        && !poly_when_stoned(mtmp->data) && !resists_ston(mtmp)
+        && lined_up(mtmp)) { /* only lines up if distu range is within 5*5 */
+        /* could use m_carrying(), then nxtobj() when matching wand
+           is empty, but direct traversal is actually simpler here */
+        for (obj = mtmp->minvent; obj; obj = obj->nobj)
+            if (obj->otyp == WAN_UNDEAD_TURNING && obj->spe > 0) {
+                m.defensive = obj;
+                m.has_defense = MUSE_WAN_UNDEAD_TURNING;
+                return TRUE;
+            }
     }
 
     fraction = u.ulevel < 10 ? 5 : u.ulevel < 14 ? 4 : 3;
@@ -1012,14 +1035,19 @@ struct monst *mtmp;
                          (coord *) 0);
         return 2;
     }
+    case MUSE_WAN_UNDEAD_TURNING:
+        zap_oseen = oseen;
+        mzapwand(mtmp, otmp, FALSE);
+        m_using = TRUE;
+        mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
+        m_using = FALSE;
+        return 2;
     case MUSE_BAG_OF_TRICKS: {
         coord cc;
-        /* pm: 0 => random, eel => aquatic, croc => amphibious */
-        struct permonst *pm =
-            !is_pool(mtmp->mx, mtmp->my)
-                ? 0
-                : &mons[u.uinwater ? PM_GIANT_EEL : PM_CROCODILE];
         struct monst *mon;
+        /* pm: 0 => random, eel => aquatic, croc => amphibious */
+        struct permonst *pm = !is_pool(mtmp->mx, mtmp->my) ? 0
+                            : &mons[u.uinwater ? PM_GIANT_EEL : PM_CROCODILE];
 
         if (!enexto(&cc, mtmp->mx, mtmp->my, pm))
             return 0;
@@ -1032,12 +1060,10 @@ struct monst *mtmp;
     }
     case MUSE_WAN_CREATE_MONSTER: {
         coord cc;
-        /* pm: 0 => random, eel => aquatic, croc => amphibious */
-        struct permonst *pm =
-            !is_pool(mtmp->mx, mtmp->my)
-                ? 0
-                : &mons[u.uinwater ? PM_GIANT_EEL : PM_CROCODILE];
         struct monst *mon;
+        /* pm: 0 => random, eel => aquatic, croc => amphibious */
+        struct permonst *pm = !is_pool(mtmp->mx, mtmp->my) ? 0
+                            : &mons[u.uinwater ? PM_GIANT_EEL : PM_CROCODILE];
 
         if (!enexto(&cc, mtmp->mx, mtmp->my, pm))
             return 0;
@@ -1360,6 +1386,7 @@ struct monst *mtmp;
 #define MUSE_POT_POLYMORPH_THROW 21
 #define MUSE_POT_HALLUCINATION 22
 #define MUSE_WAN_POLYMORPH 23
+#define MUSE_WAN_UNDEAD_TURNING_OFF 24
 
 /* Select an offensive item/action for a monster.  Returns TRUE iff one is
  * found.
@@ -1524,6 +1551,35 @@ boolean reflection_skip;
 		}
 	    }
 	}
+        nomore(MUSE_WAN_UNDEAD_TURNING_OFF);
+        if (obj->otyp == WAN_UNDEAD_TURNING && obj->spe > 0
+            /* not necrophiliac(); unlike deciding whether to pick this
+               type of wand up, we aren't interested in corpses within
+               carried containers until they're moved into open inventory;
+               we don't check whether hero is poly'd into an undead--the
+               wand's turning effect is too weak to be a useful direct
+               attack--only whether hero is carrying at least one corpse */
+            && carrying(CORPSE)) {
+            /*
+             * Hero is carrying one or more corpses but isn't wielding
+             * a cockatrice corpse (unless being hit by one won't do
+             * the monster much harm); otherwise we'd be using this wand
+             * as a defensive item with higher priority.
+             *
+             * Might be cockatrice intended as a weapon (or being denied
+             * to glove-wearing monsters for use as a weapon) or lizard
+             * intended as a cure or lichen intended as veggy food or
+             * sacrifice fodder being lugged to an altar.  Zapping with
+             * this will deprive hero of one from each stack although
+             * they might subsequently be recovered after killing again.
+             * In the sacrifice fodder case, it could even be to the
+             * player's advantage (fresher corpse if a new one gets
+             * dropped; player might not choose to spend a wand charge
+             * on that when/if hero acquires this wand).
+             */
+            m.offensive = obj;
+            m.has_offense = MUSE_WAN_UNDEAD_TURNING_OFF;
+        }
 	nomore(MUSE_WAN_CANCELLATION);
 	if (obj->otyp == WAN_CANCELLATION) {
 	    if (obj->spe > 0) {
@@ -1674,9 +1730,9 @@ register struct monst *mtmp;
 register struct obj *otmp;
 {
     int tmp;
-    boolean reveal_invis = FALSE;
+    boolean reveal_invis = FALSE, hits_you = (mtmp == &youmonst);
 
-    if (mtmp != &youmonst) {
+    if (!hits_you && otmp->otyp != WAN_UNDEAD_TURNING) {
         mtmp->msleeping = 0;
         if (mtmp->m_ap_type)
             seemimic(mtmp);
@@ -1684,7 +1740,7 @@ register struct obj *otmp;
     switch (otmp->otyp) {
     case WAN_STRIKING:
         reveal_invis = TRUE;
-        if (mtmp == &youmonst) {
+        if (hits_you) {
             if (zap_oseen)
                 makeknown(WAN_STRIKING);
             if (Antimagic) {
@@ -1718,10 +1774,10 @@ register struct obj *otmp;
         break;
 #if 0   /* disabled because find_offensive() never picks WAN_TELEPORTATION */
     case WAN_TELEPORTATION:
-        if (mtmp == &youmonst) {
+        if (hits_you) {
+            tele();
             if (zap_oseen)
                 makeknown(WAN_TELEPORTATION);
-            tele();
         } else {
             /* for consistency with zap.c, don't identify */
             if (mtmp->ispriest && *in_rooms(mtmp->mx, mtmp->my, TEMPLE)) {
@@ -1733,7 +1789,7 @@ register struct obj *otmp;
         break;
 #endif
     case WAN_POLYMORPH:
-	if (mtmp == &youmonst) {
+	if (hits_you) {
 	    if (Antimagic) {
 		shieldeff(u.ux, u.uy);
 		You_feel("momentarily different.");
@@ -1780,12 +1836,42 @@ register struct obj *otmp;
     case SPE_CANCELLATION:
         (void) cancel_monst(mtmp, otmp, FALSE, TRUE, FALSE);
         break;
+    case WAN_UNDEAD_TURNING: {
+        boolean learnit = FALSE;
+
+        if (hits_you) {
+            unturn_you();
+            learnit = zap_oseen;
+        } else {
+            boolean wake = FALSE;
+
+            if (unturn_dead(mtmp)) /* affects mtmp's invent, not mtmp */
+                wake = TRUE;
+            if (is_undead(mtmp->data) || is_vampshifter(mtmp)) {
+                wake = reveal_invis = TRUE;
+                /* context.bypasses=True: if resist() happens to be fatal,
+                   make_corpse() will set obj->bypass on the new corpse
+                   so that mbhito() will skip it instead of reviving it */
+                context.bypasses = TRUE; /* for make_corpse() */
+                (void) resist(mtmp, WAND_CLASS, rnd(8), NOTELL);
+            }
+            if (wake) {
+                if (!DEADMONSTER(mtmp))
+                    wakeup(mtmp, FALSE);
+                learnit = zap_oseen;
+            }
+        }
+        if (learnit)
+            makeknown(WAN_UNDEAD_TURNING);
+        break;
     }
-    if (reveal_invis) {
-        if (!DEADMONSTER(mtmp) && cansee(bhitpos.x, bhitpos.y)
-            && !canspotmon(mtmp))
-            map_invisible(bhitpos.x, bhitpos.y);
+    default:
+        break;
     }
+    if (reveal_invis && !DEADMONSTER(mtmp)
+        && cansee(bhitpos.x, bhitpos.y) && !canspotmon(mtmp))
+        map_invisible(bhitpos.x, bhitpos.y);
+
     return 0;
 }
 
@@ -1975,6 +2061,7 @@ struct monst *mtmp;
     case MUSE_WAN_CANCELLATION:
     case MUSE_WAN_TELEPORTATION:
     case MUSE_WAN_POLYMORPH:
+    case MUSE_WAN_UNDEAD_TURNING_OFF:
     case MUSE_WAN_STRIKING:
         zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
@@ -2811,6 +2898,23 @@ struct monst *mtmp;
     return 0;
 }
 
+/* check whether hero is carrying a corpse or contained petrifier corpse */
+STATIC_OVL boolean
+necrophiliac(objlist, any_corpse)
+struct obj *objlist;
+boolean any_corpse;
+{
+    while (objlist) {
+        if (objlist->otyp == CORPSE
+            && (any_corpse || touch_petrifies(&mons[objlist->corpsenm])))
+            return TRUE;
+        if (Has_contents(objlist) && necrophiliac(objlist->cobj, FALSE))
+            return TRUE;
+        objlist = objlist->nobj;
+    }
+    return FALSE;
+}
+
 boolean
 searches_for_item(mon, obj)
 struct monst *mon;
@@ -2839,6 +2943,9 @@ struct obj *obj;
             || typ == WAN_CANCELLATION || typ == WAN_WISHING
             || typ == WAN_POLYMORPH)
             return TRUE;
+        if (typ == WAN_UNDEAD_TURNING)
+            return (necrophiliac(invent, TRUE)
+                    || (Upolyd && is_undead(youmonst.data)));
         break;
     case POTION_CLASS:
         if (typ == POT_HEALING || typ == POT_EXTRA_HEALING
