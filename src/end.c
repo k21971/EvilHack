@@ -518,7 +518,7 @@ int how;
     }
     if (mptr == &mons[PM_RAT_KING]
         || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
-        || mptr == &mons[PM_MAGISTRA_OF_MOLOCH]) {
+        || mptr == &mons[PM_ARCHBISHOP_OF_MOLOCH]) {
         Strcat(buf, "the ");
         killer.format = KILLED_BY;
     }
@@ -1642,8 +1642,7 @@ int how;
                 ? (const char *) ((flags.female && urole.name.f)
                     ? urole.name.f : urole.name.m)
                 : Role_if(PM_INFIDEL) /* can only ascend via Moloch */
-                    ? (const char *) (Race_if(PM_DEMON) ? "Archfiend of Moloch"
-                                                        : "Emissary of Moloch")
+                    ? (const char *) ("Archfiend of Moloch")
                     : (const char *) (flags.female ? "Demigoddess" : "Demigod"));
 
 #if defined(DUMPLOG) || defined(DUMPHTML)

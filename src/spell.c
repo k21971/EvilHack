@@ -669,6 +669,12 @@ rejectcasting()
          */
         Your("arms are not free to cast!");
         return TRUE;
+    /* Infidels cannot cast their spells if they are not holding onto
+       the amulet (or imbued idol) */
+    } else if (Role_if(PM_INFIDEL) && !u.uhave.amulet) {
+        You("are unable to channel your magic without the %s.",
+            u.uachieve.amulet ? "idol" : "amulet");
+        return TRUE;
     }
     return FALSE;
 }
@@ -944,6 +950,10 @@ boolean atme;
         pline("It invokes nightmarish images in your mind...");
         spell_backfire(spell);
         return 1;
+    /* Infidel illithid became crowned and is no longer an illithid */
+    } else if (spellid(spell) == SPE_PSIONIC_WAVE && Race_if(PM_DEMON)) {
+        You("lack the psychic ability to use this power.");
+        return 1;
     } else if (spellknow(spell) <= KEEN / 200) { /* 100 turns left */
         You("strain to recall the spell.");
     } else if (spellknow(spell) <= KEEN / 40) { /* 500 turns left */
@@ -977,7 +987,7 @@ boolean atme;
        which case a turn will be used up in addition to the energy loss */
     if (u.uhave.amulet && u.uen >= energy) {
         if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
-            ; /* nothing happens */
+            You_feel("the idol draining your energy away.");
         else
             You_feel("the amulet draining your energy away.");
         /* this used to be 'energy += rnd(2 * energy)' (without 'res'),
@@ -987,14 +997,13 @@ boolean atme;
            now we drain some energy immediately, which has a
            side-effect of not increasing the hunger aspect of casting */
 
-        /* In regards to Infidels: once the Amulet has been sacrificed
-           to Moloch and their quest artifact is imbued with its power,
-           Moloch's influence suppresses the spell power draining effect
-           and allows the Infidel to realize their full potential */
-        if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
-            ; /* nothing happens */
-        else
-            u.uen -= rnd(2 * energy);
+        /* In regards to Infidels: they suffer a power drain from casting
+           just as other roles do, but the effect is lessened. The maximum
+           potential power drain is roughly 2x of normal versus 3x. Also,
+           Infidels cannot cast spells at all unless they have the Amulet
+           (or Idol after it's been imbued) on them */
+        u.uen -= rnd((Role_if(PM_INFIDEL) ? 1 : 2) * energy)
+                     - ((Role_if(PM_INFIDEL) ? spellev(spell) : 0));
         if (u.uen < 0)
             u.uen = 0;
         context.botl = 1;

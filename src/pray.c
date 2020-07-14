@@ -867,8 +867,10 @@ gcrownu()
     case A_NONE:
         u.uevent.uhand_of_elbereth = 4;
         verbalize("Thou shalt be my vassal of suffering and terror!");
-        livelog_printf(LL_DIVINEGIFT, "became the Archfiend of Moloch");
+        livelog_printf(LL_DIVINEGIFT, "became the Emissary of Moloch");
         class_gift = SPE_FIREBALL; /* no special weapon */
+        unrestrict_weapon_skill(P_TRIDENT);
+        P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
         if (Upolyd)
             rehumanize(); /* return to human/orcish form -- not a demon yet */
         pline1("Wings sprout from your back and you grow a barbed tail!");
@@ -1289,7 +1291,7 @@ aligntyp g_align;
         }
         case 7:
         case 8:
-            if (u.ualign.record >= PIOUS && !u.uevent.uhand_of_elbereth) {
+            if (/*u.ualign.record >= PIOUS && */!u.uevent.uhand_of_elbereth) {
                 gcrownu();
                 break;
             }

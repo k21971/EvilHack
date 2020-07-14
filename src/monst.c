@@ -4001,7 +4001,7 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_PNAME | M2_PEACEFUL | M2_STRONG | M2_MALE
             | M2_COLLECT | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISIBLE, 0, MH_HUMAN, 22, HI_LORD),
-    MON("Magistra of Moloch", S_HUMAN, LVL(20, 15, 0, 90, A_NONE),
+    MON("Archbishop of Moloch", S_HUMAN, LVL(20, 15, 0, 90, A_NONE),
         (G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_MAGC, AD_CLRC, 2, 8), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
@@ -4009,7 +4009,7 @@ struct permonst _mons2[] = {
         MR_FIRE | MR_ELEC | MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_PEACEFUL | M2_STRONG | M2_COLLECT
-            | M2_MAGIC | M2_FEMALE,
+            | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISIBLE, 0, MH_HUMAN, 23, CLR_RED),
     MON("King Arthur", S_HUMAN, LVL(20, 15, 0, 90, 20), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_WEAP, AD_PHYS, 4, 10), NO_ATTK,

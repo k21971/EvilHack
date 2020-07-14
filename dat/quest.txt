@@ -1512,7 +1512,7 @@ of our efforts and has sponsored a team of professional
 archeologists to find %O first.  Unfortunately, it seems
 they were succesful.
 
-"A week ago, the Cult has received a message from a prominent %nt
+"A week ago, the Cult had received a message from a prominent %nt
 of %D.  %nH claims that %O is in %nj posession, and challenges
 you to a 'honorable duel' for the artifact.  %nC was adamant in dueling
 you specifically, so it's clearly a ploy to obtain the Amulet of Yendor

@@ -1,6 +1,6 @@
 #  The "start" level for the quest.
 #
-#  Here you meet your class leader, the Magistra of Moloch,
+#  Here you meet your class leader, the Archbishop of Moloch,
 #  and receive an invitation to a duel with the Paladin.
 #
 MAZE: "Inf-strt", ' '
@@ -50,7 +50,7 @@ TRAP: "dart", (37, 10)
 DOOR: locked, (31, 10)
 REGION: (20, 10, 20, 10), lit, "temple", irregular
 ALTAR: (20, 10), coaligned, altar
-MONSTER: "Magistra of Moloch", (20, 10)
+MONSTER: "Archbishop of Moloch", (20, 10)
 MONSTER: "cultist", (20, 07)
 MONSTER: "cultist", (23, 08)
 MONSTER: "cultist", (24, 10)

@@ -1585,7 +1585,7 @@ register struct monst *mtmp;
             mkmonmoney(mtmp, (long) rn1(10, 20));
         } else if (quest_mon_represents_role(ptr, PM_MONK)) {
             (void) mongets(mtmp, rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE);
-        } else if (ptr == &mons[PM_MAGISTRA_OF_MOLOCH]) {
+        } else if (ptr == &mons[PM_ARCHBISHOP_OF_MOLOCH]) {
             (void) mongets(mtmp, QUARTERSTAFF);
             (void) mongets(mtmp, rn2(3) ? ROBE : CLOAK_OF_PROTECTION);
         } else if (ptr == &mons[PM_PALADIN]) {

@@ -252,7 +252,7 @@ const struct Role roles[] = {
       PM_INFIDEL,
       NON_PM,
       PM_HOMUNCULUS,
-      PM_MAGISTRA_OF_MOLOCH,
+      PM_ARCHBISHOP_OF_MOLOCH,
       PM_CULTIST,
       PM_PALADIN,
       PM_AGENT,
