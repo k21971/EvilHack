@@ -1291,7 +1291,7 @@ aligntyp g_align;
         }
         case 7:
         case 8:
-            if (/*u.ualign.record >= PIOUS && */!u.uevent.uhand_of_elbereth) {
+            if (u.ualign.record >= PIOUS && !u.uevent.uhand_of_elbereth) {
                 gcrownu();
                 break;
             }
