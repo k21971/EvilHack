@@ -2047,7 +2047,8 @@ dosacrifice()
             boolean primary_casters, primary_casters_priest;
 
             /* Primary casting roles */
-            primary_casters = Role_if(PM_HEALER) || Role_if(PM_WIZARD);
+            primary_casters = Role_if(PM_HEALER)
+                                      || Role_if(PM_WIZARD) || Role_if(PM_INFIDEL);
             primary_casters_priest = Role_if(PM_PRIEST);
 
             /* you were already in pretty good standing
@@ -2227,6 +2228,8 @@ dosacrifice()
                                 typ = 0;
                             else if (is_dwarvish_armor(otmp) && !Race_if(PM_DWARF))
                                 typ = 0;
+                            else if (otmp->otyp == LARGE_SPLINT_MAIL && !Race_if(PM_GIANT))
+                                typ = 0;
 
                             otmp = (struct obj *) 0;
 
@@ -2293,7 +2296,9 @@ dosacrifice()
                 if (otmp) {
                     if (otmp->spe < 0)
                         otmp->spe = 0;
-                    if (!Role_if(PM_INFIDEL))
+                    if (Role_if(PM_INFIDEL))
+                        curse(otmp);
+                    else
                         bless(otmp);
                     otmp->oerodeproof = TRUE;
                     at_your_feet("An object");

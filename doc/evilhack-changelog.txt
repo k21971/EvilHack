@@ -1105,4 +1105,5 @@ Version 0.6.0
 - Wearing mud boots negates being slowed when walking through sewage
 - Allow giant race to play as Samurai, tweak to the Tsurugi of Muramasa
 - Even more Infidel role changes
+- Reverting spell power drain for Infidels; minor altar sacrifice tweaks
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
