@@ -380,7 +380,8 @@ boolean resuming;
                     if (u.uen < u.uenmax
                         && ((wtcap < MOD_ENCUMBER
                              && (!(moves % ((MAXULEV + 8 - u.ulevel)
-                                            * (Role_if(PM_WIZARD) ? 3 : 4)
+                                            * ((Role_if(PM_WIZARD) || Role_if(PM_INFIDEL))
+                                                       ? 3 : 4)
                                             / 6)))) || Energy_regeneration
                     /* the Idol grants energy regen to piously unaligned;
                      * it really shouldn't be restricted to Infidels,

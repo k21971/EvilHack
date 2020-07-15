@@ -2508,8 +2508,7 @@ struct obj *obj;
                     display_nhwindow(WIN_MESSAGE, FALSE);
                     verbalize("In return for thy service, "
                               "I grant thee a part of My domain!");
-                    You("ascend to the status of the %s of Moloch...",
-                        Race_if(PM_DEMON) ? "Archfiend" : "Emissary");
+                    You("ascend to the status of the Archfiend of Moloch...");
                     done(ASCENDED);
                 }
             } else {
