@@ -269,6 +269,8 @@ WEAPON("bec de corbin", "beaked polearm",
 /* bludgeons */
 WEAPON("mace", None,
        1, 0, 0, 0, 30,  30,   5,  6,  6, 0, B,   P_MACE, IRON, HI_METAL),
+WEAPON("heavy mace", None,
+       1, 0, 0, 0, 15,  50,   5, 10, 10, 0, B,   P_MACE, IRON, HI_METAL),
         /* +1 small */
 WEAPON("morning star", None,
        1, 0, 0, 0, 12, 120,  10,  4,  6, 0, B,   P_MORNING_STAR, IRON, HI_METAL),
@@ -281,7 +283,7 @@ WEAPON("war hammer", None,
         /* +1 small */
 /* Base weapon for artifact weapon (Mjollnir/Ogresmasher) */
 WEAPON("heavy war hammer", None,
-       1, 0, 0, 0, 10,  60,   10,  8, 10, 0, B,   P_HAMMER, IRON, HI_METAL),
+       1, 0, 0, 0, 10,  60,  10,  8, 10, 0, B,   P_HAMMER, IRON, HI_METAL),
 /* ------------------------------------------------------ */
 WEAPON("club", None,
        1, 0, 0, 0, 12,  30,   3,  6,  3, 0, B,   P_CLUB, WOOD, HI_WOOD),
@@ -307,6 +309,10 @@ WEAPON("aklys", "thonged club",
 WEAPON("flail", None,
        1, 0, 0, 0, 40,  15,   4,  6,  4, 0, B,   P_FLAIL, IRON, HI_METAL),
         /* +1 small, +1d4 large */
+/* template for Yeenoghu's artifact weapon; does not spawn randomly */
+WEAPON("triple-headed flail", None,
+       1, 0, 1, 0,  0,  60,  30, 12,  6, 3, B,   P_FLAIL, BONE, CLR_WHITE),
+        /* +d4 small, +3d6 large */
 
 /* misc */
 WEAPON("bullwhip", None,

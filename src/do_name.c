@@ -1388,18 +1388,22 @@ const char *name;
         case ART_SUNSWORD:
         case ART_SWORD_OF_BHELEU:
         case ART_RING_OF_P_HUL:
+        case ART_WAND_OF_ORCUS:
             set_material(obj, GEMSTONE);
             break;
         case ART_YENDORIAN_EXPRESS_CARD:
             set_material(obj, PLATINUM);
             break;
         case ART_DRAGONBANE:
+        case ART_BAG_OF_THE_HESPERIDES:
             set_material(obj, DRAGON_HIDE);
             break;
         case ART_IRON_BALL_OF_LIBERATION:
+        case ART_ANGELSLAYER:
             set_material(obj, IRON);
             break;
         case ART_GJALLAR:
+        case ART_BUTCHER:
             set_material(obj, BONE);
             break;
         case ART_SECESPITA:

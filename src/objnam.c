@@ -3740,6 +3740,7 @@ struct obj *no_wish;
         && strncmpi(bp, "armor", 5)
         && strncmpi(bp, "tooled horn", 11)
         && strncmpi(bp, "ring of p'", 10)
+        && strncmpi(bp, "wand of orcus", 13)
         && strncmpi(bp, "food ration", 11)
         && strncmpi(bp, "meat ring", 9))
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
@@ -4484,8 +4485,7 @@ struct obj *no_wish;
      * with its previous owner
      */
     if ((is_quest_artifact(otmp)
-        || otmp->oartifact == ART_MAGIC___BALL
-        || otmp->oartifact == ART_LIFESTEALER
+        || non_wishable_artifact(otmp)
         || (otmp->oartifact && rn2(nartifact_exist()) > 1)) && !wizard) {
         artifact_exists(otmp, ONAME(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
@@ -4555,6 +4555,7 @@ struct obj *no_wish;
                     break;
                 case ART_IDOL_OF_MOLOCH:
                 case ART_SECESPITA:
+                case ART_ANGELSLAYER:
                     pm = PM_HUMAN_INFIDEL;
                     break;
                 case ART_MAGIC_MIRROR_OF_MERLIN:

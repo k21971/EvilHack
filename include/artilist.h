@@ -33,6 +33,8 @@ static const char *artifact_names[] = {
 #define     ACID(a,b)   {0,AD_ACID,a,b}         /* acid attack */
 #define     DISE(a,b)   {0,AD_DISE,a,b}         /* disease attack */
 #define     DREN(a,b)   {0,AD_DREN,a,b}         /* drains energy */
+#define     STON(a,b)   {0,AD_STON,a,b}         /* petrification */
+#define     DETH(a,b)   {0,AD_DETH,a,b}         /* special death attack */
 /* clang-format on */
 
 STATIC_OVL NEARDATA struct artifact artilist[] = {
@@ -223,12 +225,44 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("Luck Blade", BROADSWORD, (SPFX_RESTR | SPFX_LUCK), 0, 0,
       PHYS(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_CONVICT, NON_PM, 3000L,
       NO_COLOR),
-
     /* The energy drain only works if the artifact kills its victim.
      * Also increases sacrifice value while wielded. */
     A("Secespita", KNIFE, (SPFX_RESTR | SPFX_ATTK), 0, 0,
       DREN(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_INFIDEL, NON_PM,
       1000L, NO_COLOR),
+    /* Bag of the Hesperides - this is the magicbal bag obtained by Perseus
+     * from the Hesperides (nymphs) to contain and transport Medusa's head.
+     * The bag naturally repels water, and it has greater weight reduction
+     * than a regular bag of holding. Found at the end of the Ice Queen branch
+     * with the captive pegasus.
+     */
+    A("Bag of the Hesperides", BAG_OF_HOLDING,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_PROTECT), SPFX_EXCLUDE, 0,
+      NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM,
+      8000L, NO_COLOR),
+    /* The quasi-evil twin of Demonbane, Angelslayer is an unholy trident
+     * geared towards the destruction of all angelic beings */
+    A("Angelslayer", TRIDENT,
+      (SPFX_RESTR | SPFX_WARN | SPFX_ATTK), (SPFX_SEARCH | SPFX_HSPDAM),
+      MH_ANGEL, FIRE(5, 10), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
+      5000L, NO_COLOR),
+    /* Yeenoghu's infamous triple-headed flail, also known as 'Butcher'.
+     * A massive weapon reputed to have been created from the thighbone and
+     * torn flesh of an ancient god he slew. An extremely lethal artifact */
+    A("Butcher", TRIPLE_HEADED_FLAIL,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
+      SPFX_EXCLUDE, 0, STUN(5, 8), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
+      NON_PM, NON_PM, 4000L, NO_COLOR),
+    /* Orcus' true 'Wand of Death', a truly terrifying weapon that can kill
+     * those it strikes with one blow. In the form of a giant mace, the Wand
+     * of Orcus is 'a rod of obsidian topped by a skull. This instrument causes
+     * death (or annihilation) to any creature, save those of like status
+     * merely by touching their flesh'. Can only be wielded by Orcus or others
+     * of his ilk */
+    A("Wand of Orcus", HEAVY_MACE,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
+      SPFX_EXCLUDE, 0, DETH(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
+      NON_PM, NON_PM, 10000L, CLR_BLACK),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.
@@ -403,6 +437,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
 #undef ACID
 #undef DISE
 #undef DREN
+#undef STON
+#undef DETH
 #endif
 
 /*artilist.h*/

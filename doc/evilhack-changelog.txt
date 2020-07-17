@@ -1107,4 +1107,5 @@ Version 0.6.0
 - Even more Infidel role changes
 - Reverting spell power drain for Infidels; minor altar sacrifice tweaks
 - Infidel ascension feedback correction, power regen tweak
+- New artifacts: Angelslayer, Bag of the Hesperides, Butcher, Wand of Orcus
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

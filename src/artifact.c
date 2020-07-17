@@ -951,7 +951,8 @@ struct monst *mon;
         badalign = bane_applies(oart, mon);
 
     if (((badclass || badalign) && self_willed)
-        || (badalign && (!yours || !rn2(4)))) {
+        || (badalign && (!yours || !rn2(4)))
+        || (yours && obj->oartifact == ART_WAND_OF_ORCUS)) {
         int dmg;
         char buf[BUFSZ];
 
@@ -970,7 +971,8 @@ struct monst *mon;
     }
 
     /* can pick it up unless you're totally non-synch'd with the artifact */
-    if (badclass && badalign && self_willed) {
+    if ((badclass && badalign && self_willed)
+        || (yours && obj->oartifact == ART_WAND_OF_ORCUS)) {
         if (yours) {
             if (!carried(obj))
                 pline("%s your grasp!", Tobjnam(obj, "evade"));
@@ -1088,6 +1090,8 @@ struct monst *mtmp;
             return !(yours ? Acid_resistance : resists_acid(mtmp));
         case AD_DISE:
             return !(yours ? Sick_resistance : resists_sick(mtmp));
+        case AD_DETH:
+            return !(nonliving(ptr) || is_demon(ptr));
         default:
             impossible("Weird weapon special attack.");
         }
@@ -1149,7 +1153,9 @@ int tmp;
                                         || (attacks(AD_ACID, otmp)
                                             && ((yours) ? (!Acid_resistance) : (!resists_acid(mon))))
                                                 || (attacks(AD_DISE, otmp)
-                                                    && ((yours) ? (!Sick_resistance) : (!resists_sick(mon))))) {
+                                                    && ((yours) ? (!Sick_resistance) : (!resists_sick(mon))))
+                                                        || (attacks(AD_DETH, otmp)
+                                                            && !(nonliving(mon->data) || is_demon(mon->data)))) {
 
 
             spec_dbon_applies = TRUE;
@@ -1280,11 +1286,11 @@ static const char *const mb_verb[2][NUM_MB_INDICES] = {
     { "prod", "amaze", "tickle", "purge" },
 };
 
-/* called when someone is being hit by Magicbane */
+/* called when someone is being hit by Magicbane or Butcher */
 STATIC_OVL boolean
 Mb_hit(magr, mdef, mb, dmgptr, dieroll, vis, hittee)
 struct monst *magr, *mdef; /* attacker and defender */
-struct obj *mb;            /* Magicbane */
+struct obj *mb;            /* Magicbane or Butcher */
 int *dmgptr;               /* extra damage target will suffer */
 int dieroll;               /* d20 that has already scored a hit */
 boolean vis;               /* whether the action can be seen */
@@ -1325,11 +1331,13 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
         *dmgptr += rnd(4); /* (3..4)d4 */
     }
     if (dieroll <= scare_dieroll
-        && !mindless(mdef->data) && !unique_corpstat(mdef->data)) {
+        && !mindless(mdef->data) && !unique_corpstat(mdef->data)
+        && mb->oartifact != ART_BUTCHER) {
         attack_indx = MB_INDEX_SCARE;
         *dmgptr += rnd(4); /* (3..5)d4 */
     }
-    if (dieroll <= (scare_dieroll / 2)) {
+    if (dieroll <= (scare_dieroll / 2)
+        && mb->oartifact != ART_BUTCHER) {
         attack_indx = MB_INDEX_CANCEL;
         *dmgptr += rnd(4); /* (4..6)d4 */
     }
@@ -1338,8 +1346,12 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
     verb = mb_verb[!!Hallucination][attack_indx];
     if (youattack || youdefend || vis) {
         result = TRUE;
-        pline_The("magic-absorbing staff %s %s!",
-                  vtense((const char *) 0, verb), hittee);
+        if (mb->oartifact == ART_MAGICBANE)
+            pline_The("magic-absorbing staff %s %s!",
+                      vtense((const char *) 0, verb), hittee);
+        else
+            pline_The("massive triple-headed flail %s %s!",
+                      vtense((const char *) 0, verb), hittee);
         /* assume probing has some sort of noticeable feedback
            even if it is being done by one monster to another */
         if (attack_indx == MB_INDEX_PROBE && !canspotmon(mdef))
@@ -1488,7 +1500,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     static const char you[] = "you";
     char hittee[BUFSZ];
     struct artifact* atmp;
-    int j, k;
+    int j, k, permdmg;
 
     Strcpy(hittee, youdefend ? you : mon_nam(mdef));
 
@@ -1497,6 +1509,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
      * handled.  Messages are done in this function, however.
      */
     *dmgptr += spec_dbon(otmp, mdef, *dmgptr);
+    permdmg = 0;
 
     if (youattack && youdefend) {
         impossible("attacking yourself with weapon?");
@@ -1550,6 +1563,31 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                   hittee, !spec_dbon_applies ? '.' : '!');
                 } else {
                     pline_The("flaming spear %s %s%c",
+                              !spec_dbon_applies
+                                  ? "hits"
+                                  : (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                     || mdef->data == &mons[PM_BABY_SEA_DRAGON]
+                                     || mdef->data == &mons[PM_SEA_DRAGON]
+                                     || mdef->data == &mons[PM_ICE_VORTEX])
+                                     ? "vaporizes part of"
+                                     : "burns",
+                              hittee, !spec_dbon_applies ? '.' : '!');
+                }
+            } else if (otmp->oartifact == ART_ANGELSLAYER) {
+                if (!youattack && magr && cansee(magr->mx, magr->my)) {
+                    if (!spec_dbon_applies)
+                        /* no feedback */
+                        ;
+                    else
+                        pline_The("infernal trident %s %s%c",
+                                  (mdef->data == &mons[PM_WATER_ELEMENTAL]
+                                   || mdef->data == &mons[PM_BABY_SEA_DRAGON]
+                                   || mdef->data == &mons[PM_SEA_DRAGON]
+                                   || mdef->data == &mons[PM_ICE_VORTEX])
+                                   ? "vaporizes part of" : "burns",
+                                  hittee, !spec_dbon_applies ? '.' : '!');
+                } else {
+                    pline_The("infernal trident %s %s%c",
                               !spec_dbon_applies
                                   ? "hits"
                                   : (mdef->data == &mons[PM_WATER_ELEMENTAL]
@@ -1732,6 +1770,98 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           ? ""
                           : "!  A hail of magic missiles strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
+        msgprinted = TRUE;
+        return realizes_damage;
+    }
+    if (attacks(AD_DETH, otmp)) {
+        if (realizes_damage) {
+            /* currently the only object that uses this
+               is Orcus' Wand of Death artifact */
+            if (!vis)
+                pline_The("heavy mace %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits"
+                              : rn2(2) ? "bashes" : "bludgeons",
+                          hittee, !spec_dbon_applies ? '.' : '!');
+        }
+        if (youdefend && (!(nonliving(mdef->data) || is_demon(mdef->data)))) {
+            switch (rn2(20)) {
+            case 19:
+            case 18:
+            case 17:
+                You_feel("the %s trying to annihilate your soul!",
+                         distant_name(otmp, xname));
+                if (!Antimagic) {
+                    killer.format = KILLED_BY;
+                    Strcpy(killer.name, "Orcus' Wand of Death");
+                    ukiller = magr;
+                    done(DIED);
+                    *dmgptr = 0;
+                    break;
+                }
+                /*FALLTHRU*/
+            default: /* case 16: ... case 0: */
+                You_feel("your life force draining away...");
+                permdmg = 1; /* actual damage done below */
+                break;
+            }
+            if (permdmg) {
+                int lowerlimit, *hpmax_p;
+                /*
+                 * Apply some of the damage to permanent hit points:
+                 *  polymorphed         100% against poly'd hpmax
+                 *  hpmax > 25*lvl      100% against normal hpmax
+                 *  hpmax > 10*lvl  50..100%
+                 *  hpmax >  5*lvl  25..75%
+                 *  otherwise        0..50%
+                 * Never reduces hpmax below 1 hit point per level.
+                 */
+                permdmg = rn2(*dmgptr / 2 + 1);
+                if (Upolyd || u.uhpmax > 25 * u.ulevel)
+                    permdmg = *dmgptr;
+                else if (u.uhpmax > 10 * u.ulevel)
+                    permdmg += *dmgptr / 2;
+                else if (u.uhpmax > 5 * u.ulevel)
+                    permdmg += *dmgptr / 4;
+
+                if (Upolyd) {
+                    hpmax_p = &u.mhmax;
+                    /* [can't use youmonst.m_lev] */
+                    lowerlimit = min((int) youmonst.data->mlevel, u.ulevel);
+                } else {
+                    hpmax_p = &u.uhpmax;
+                    lowerlimit = u.ulevel;
+                }
+                if (*hpmax_p - permdmg > lowerlimit)
+                    *hpmax_p -= permdmg;
+                else if (*hpmax_p > lowerlimit)
+                    *hpmax_p = lowerlimit;
+                /* else unlikely...
+                 * already at or below minimum threshold; do nothing */
+                context.botl = 1;
+            }
+        } else if (vis && (!(nonliving(mdef->data) || is_demon(mdef->data)))) {
+            switch (rn2(20)) {
+            case 19:
+            case 18:
+            case 17:
+                if (!resists_magm(mdef) && !resist(mdef, 0, 0, 0)) {
+                    mdef->mhp = 0;
+                    monkilled(mdef, "", AD_DETH);
+                    if (!DEADMONSTER(mdef))
+                        return 0;
+                    return (MM_DEF_DIED
+                            | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+                }
+                break;
+            default: /* case 16 through case 0 */
+                if (vis)
+                    pline("%s looks weaker!", Monnam(mdef));
+                /* mhp will then still be less than this value*/
+                mdef->mhpmax -= rn2(*dmgptr / 2 + 1);
+                break;
+            }
+        }
         msgprinted = TRUE;
         return realizes_damage;
     }
@@ -2000,6 +2130,23 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && is_undead(youmonst.data) && k) {
                     pline("The holy power of Sunsword incinerates your undead flesh!");
+                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                } else
+                    return FALSE;
+                return TRUE;
+            case ART_ANGELSLAYER:
+                if (youattack && is_angel(mdef->data) && j) {
+                    pline("Angelslayer's eldritch flame consumes %s!",
+                          mon_nam(mdef));
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+               } else if (!youattack && magr && cansee(magr->mx, magr->my)
+                           && is_angel(mdef->data) && j) {
+                    pline("Angelslayer's eldritch flame consumes %s!",
+                          mon_nam(mdef));
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                /* player can't poly into any type of angel, just here for completeness */
+                } else if (youdefend && is_angel(youmonst.data) && k) {
+                    pline("The eldritch flame of Angelslayer consumes you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else
                     return FALSE;
@@ -2508,7 +2655,7 @@ struct obj *obj;
                     display_nhwindow(WIN_MESSAGE, FALSE);
                     verbalize("In return for thy service, "
                               "I grant thee a part of My domain!");
-                    You("ascend to the status of the Archfiend of Moloch...");
+                    You("ascend, becoming the Archfiend of Moloch...");
                     done(ASCENDED);
                 }
             } else {

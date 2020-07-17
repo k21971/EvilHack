@@ -1246,7 +1246,11 @@ register struct monst *mtmp;
             (void) mongets(mtmp, BROADSWORD);
             break;
         case PM_ORCUS:
-            (void) mongets(mtmp, WAN_DEATH); /* the Wand of Orcus */
+            otmp = mksobj(HEAVY_MACE, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_WAND_OF_ORCUS));
+            curse(otmp);
+            otmp->spe = rnd(4) + 1;
+            (void) mpickobj(mtmp, otmp);
             break;
         case PM_HORNED_DEVIL:
             (void) mongets(mtmp, rn2(4) ? TRIDENT : BULLWHIP);
@@ -1255,7 +1259,12 @@ register struct monst *mtmp;
             (void) mongets(mtmp, WAN_STRIKING);
             break;
         case PM_YEENOGHU:
-            (void) mongets(mtmp, FLAIL);
+            otmp = mksobj(TRIPLE_HEADED_FLAIL, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_BUTCHER));
+            curse(otmp);
+            otmp->oerodeproof = TRUE;
+            otmp->spe = rnd(4) + 1;
+            (void) mpickobj(mtmp, otmp);
             break;
         }
         /* prevent djinn and mail daemons from leaving objects when

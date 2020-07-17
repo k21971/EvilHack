@@ -2937,6 +2937,8 @@ int final;
         you_are("aware of the presence of trolls because of Trollsbane", "");
     if (Warn_of_mon && (context.warntype.obj & MH_DEMON))
         you_are("aware of the presence of demons because of Demonbane", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_ANGEL))
+        you_are("aware of the presence of angels because of Angelslayer", "");
 
     if (Warn_of_mon && context.warntype.polyd) {
         Sprintf(buf, "aware of the presence of %s",
@@ -2953,17 +2955,19 @@ int final;
                                             ? "the undead"
                                             : (context.warntype.polyd & MH_GIANT)
                                                   ? "giants"
-                                                  : (context.warntype.polyd & MH_WERE)
-                                                        ? "werecreatures"
-                                                        : (context.warntype.polyd & MH_DRAGON)
-                                                              ? "dragons"
-                                                              : (context.warntype.polyd & MH_OGRE)
-                                                                    ? "ogres"
-                                                                    : (context.warntype.polyd & MH_TROLL)
-                                                                          ? "trolls"
-                                                                          : (context.warntype.polyd & MH_DEMON)
-                                                                                ? "demons"
-                                                                                : "certain monsters");
+                    : (context.warntype.polyd & MH_WERE)
+                          ? "werecreatures"
+                          : (context.warntype.polyd & MH_DRAGON)
+                                ? "dragons"
+                                : (context.warntype.polyd & MH_OGRE)
+                                      ? "ogres"
+                                      : (context.warntype.polyd & MH_TROLL)
+                                            ? "trolls"
+                                            : (context.warntype.polyd & MH_DEMON)
+                                                  ? "demons"
+                                                  : (context.warntype.polyd & MH_ANGEL)
+                                                        ? "angels"
+                                                        : "certain monsters");
         you_are(buf, "");
     }
     if (Warn_of_mon && context.warntype.speciesidx >= LOW_PM) {

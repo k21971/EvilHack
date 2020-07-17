@@ -2092,7 +2092,8 @@ do_rust:
         dmg = 0;
         break;
     case AD_DETH:
-        pline("%s reaches out with its deadly touch.", Monnam(mtmp));
+        if (mtmp && mdat == &mons[PM_DEATH])
+            pline("%s reaches out with its deadly touch.", Monnam(mtmp));
         if (is_undead(youmonst.data)) {
             /* Still does normal damage */
             pline("Was that the touch of death?");

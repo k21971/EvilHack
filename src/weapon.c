@@ -268,6 +268,10 @@ struct monst *mon;
         case TWO_HANDED_SWORD:
             tmp += d(2, 6);
             break;
+
+        case TRIPLE_HEADED_FLAIL:
+            tmp += d(3, 6);
+            break;
         }
     } else {
         if (objects[otyp].oc_wsdam)
@@ -276,9 +280,11 @@ struct monst *mon;
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
         case MACE:
+        case HEAVY_MACE:
         case WAR_HAMMER:
         case HEAVY_WAR_HAMMER:
         case FLAIL:
+        case TRIPLE_HEADED_FLAIL:
         case SPETUM:
         case TRIDENT:
             tmp++;

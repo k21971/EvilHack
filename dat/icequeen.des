@@ -271,6 +271,12 @@ CONTAINER:('(',"crystal chest"),(42,12) {
   OBJECT:('!',"acid"),quantity:3
   OBJECT:('(',"bag of holding"),uncursed
 }
+CONTAINER:('(',"crystal chest"),(29,10) {
+  IF [10%] {
+    OBJECT:('(',"magic marker"),uncursed
+  }
+  OBJECT:('(',"bag of holding"),uncursed,name:"Bag of the Hesperides"
+}
 FOUNTAIN:(37,08)
 FOUNTAIN:(37,11)
 
