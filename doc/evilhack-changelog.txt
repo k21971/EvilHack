@@ -1109,4 +1109,5 @@ Version 0.6.0
 - Infidel ascension feedback correction, power regen tweak
 - New artifacts: Angelslayer, Bag of the Hesperides, Butcher, Wand of Orcus
 - Fix: various issues from the previous new artifact commit
+- Fix: issues with centaur race and kicking
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

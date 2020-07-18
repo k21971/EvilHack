@@ -723,6 +723,10 @@ struct attack *uattk;
             if (!rn2(8))
                 pline("Your extra kick attack is ineffective while wearing %s.",
                       xname(weararmor));
+        } else if (Race_if(PM_CENTAUR)
+                   && touch_petrifies(mon->data)) {
+            /* kick doesn't happen - centaurs can't wear boots */
+            ;
         } else {
             tmp = find_roll_to_hit(mon, uattk->aatyp, uarmf, &attknum,
                                    &armorpenalty);
@@ -734,14 +738,16 @@ struct attack *uattk;
         }
     }
 
-    /* Your race may grant extra attacks.
-     * Illithids don't use their tentacle attack every turn */
+    /* Your race may grant extra attacks. Illithids don't use
+     * their tentacle attack every turn, Centaurs are strong
+     * enough to not need their extra kick attack */
     if (!Upolyd && malive) {
         int i;
         int race = (flags.female && urace.femalenum != NON_PM)
                     ? urace.femalenum : urace.malenum;
         struct attack *attacks = mons[race].mattk;
-        if (Race_if(PM_ILLITHID) && rn2(4))
+        if ((Race_if(PM_ILLITHID) && rn2(4))
+            || Race_if(PM_CENTAUR))
             return 0;
         for (i = 0; i < NATTK; i++) {
             if (attacks[i].aatyp != AT_WEAP && attacks[i].aatyp != AT_NONE) {
