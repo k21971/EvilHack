@@ -1525,105 +1525,94 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (realizes_damage) {
             if (otmp->oartifact == ART_FIRE_BRAND) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("fiery blade hits %s.", hittee);
+                    } else {
                         pline_The("fiery blade %s %s%c",
-                                  (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                   || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_ICE_VORTEX])
-                                   ? "vaporizes part of" : "burns",
+                                  can_vaporize(mdef->data)
+                                      ? "vaporizes part of" : "burns",
                                   hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
                     pline_The("fiery blade %s %s%c",
                               !spec_dbon_applies
                                   ? "hits"
-                                  : (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                     || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_ICE_VORTEX])
-                                     ? "vaporizes part of"
-                                     : "burns",
+                                  : can_vaporize(mdef->data)
+                                      ? "vaporizes part of"
+                                      : "burns",
                               hittee, !spec_dbon_applies ? '.' : '!');
                 }
             } else if (otmp->oartifact == ART_XIUHCOATL) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("flaming spear hits %s.", hittee);
+                    } else {
                         pline_The("flaming spear %s %s%c",
-                                  (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                   || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_ICE_VORTEX])
-                                   ? "vaporizes part of" : "burns",
+                                  can_vaporize(mdef->data)
+                                      ? "vaporizes part of" : "burns",
                                   hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
                     pline_The("flaming spear %s %s%c",
                               !spec_dbon_applies
                                   ? "hits"
-                                  : (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                     || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_ICE_VORTEX])
-                                     ? "vaporizes part of"
-                                     : "burns",
+                                  : can_vaporize(mdef->data)
+                                      ? "vaporizes part of"
+                                      : "burns",
                               hittee, !spec_dbon_applies ? '.' : '!');
                 }
             } else if (otmp->oartifact == ART_ANGELSLAYER) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("infernal trident hits %s.", hittee);
+                    } else {
                         pline_The("infernal trident %s %s%c",
-                                  (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                   || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_ICE_VORTEX])
-                                   ? "vaporizes part of" : "burns",
+                                  can_vaporize(mdef->data)
+                                      ? "vaporizes part of" : "burns",
                                   hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
                     pline_The("infernal trident %s %s%c",
                               !spec_dbon_applies
                                   ? "hits"
-                                  : (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                     || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_ICE_VORTEX])
-                                     ? "vaporizes part of"
-                                     : "burns",
+                                  : can_vaporize(mdef->data)
+                                      ? "vaporizes part of"
+                                      : "burns",
                               hittee, !spec_dbon_applies ? '.' : '!');
                 }
             } else if (otmp->oclass == WEAPON_CLASS
                        && (otmp->oprops & ITEM_FIRE)) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("%s hits %s.",
+                                      distant_name(otmp, xname), hittee);
+                    } else {
                         pline_The("%s %s %s%c",
                                   distant_name(otmp, xname),
-                                  (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                   || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_ICE_VORTEX])
-                                   ? "vaporizes part of" : "burns",
+                                  can_vaporize(mdef->data)
+                                      ? "vaporizes part of" : "burns",
                                   hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
                     pline_The("%s %s %s%c",
                               distant_name(otmp, xname),
                               !spec_dbon_applies
                                   ? "hits"
-                                  : (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                     || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_ICE_VORTEX])
-                                     ? "vaporizes part of"
-                                     : "burns",
+                                  : can_vaporize(mdef->data)
+                                      ? "vaporizes part of"
+                                      : "burns",
                               hittee, !spec_dbon_applies ? '.' : '!');
                 }
             }
@@ -1656,53 +1645,52 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (realizes_damage) {
             if (otmp->oartifact == ART_FROST_BRAND) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("ice-cold blade hits %s.", hittee);
+                    } else {
                         pline_The("ice-cold blade %s %s%c",
-                                  (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                   || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_SEA_DRAGON])
-                                   ? "freezes part of"
-                                   : "freezes",
+                                  can_freeze(mdef->data)
+                                      ? "freezes part of"
+                                      : "freezes",
                                   hittee,  !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
                     pline_The("ice-cold blade %s %s%c",
                               !spec_dbon_applies
                                   ? "hits"
-                                  : (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                     || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_SEA_DRAGON])
-                                     ? "freezes part of"
-                                     : "freezes",
+                                  : can_freeze(mdef->data)
+                                      ? "freezes part of"
+                                      : "freezes",
                               hittee,  !spec_dbon_applies ? '.' : '!');
                 }
             } else if (otmp->oclass == WEAPON_CLASS
                        && (otmp->oprops & ITEM_FROST)) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("%s hits %s.",
+                                      distant_name(otmp, xname), hittee);
+                    } else {
                         pline_The("%s %s %s%c",
                                   distant_name(otmp, xname),
-                                  (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                   || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                   || mdef->data == &mons[PM_SEA_DRAGON])
-                                   ? "freezes part of"
-                                   : "freezes",
+                                  can_freeze(mdef->data)
+                                      ? "freezes part of"
+                                      : "freezes",
                                   hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
                     pline_The("%s %s %s%c",
                               distant_name(otmp, xname),
                               !spec_dbon_applies
                                   ? "hits"
-                                  : (mdef->data == &mons[PM_WATER_ELEMENTAL]
-                                     || mdef->data == &mons[PM_BABY_SEA_DRAGON]
-                                     || mdef->data == &mons[PM_SEA_DRAGON])
-                                     ? "freezes part of"
-                                     : "freezes",
+                                  : can_freeze(mdef->data)
+                                      ? "freezes part of"
+                                      : "freezes",
                               hittee, !spec_dbon_applies ? '.' : '!');
                 }
             }
@@ -1718,12 +1706,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (realizes_damage) {
             if (otmp->oartifact == ART_MJOLLNIR) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("massive hammer hits %s.", hittee);
+                    } else {
                         pline_The("massive hammer hits!  Lightning strikes %s%c",
                                   hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
                     pline_The("massive hammer hits%s %s%c",
                               !spec_dbon_applies
@@ -1734,14 +1725,18 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (otmp->oclass == WEAPON_CLASS
                        && (otmp->oprops & ITEM_SHOCK)) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("%s hits %s.",
+                                      distant_name(otmp, xname), hittee);
+                    } else {
                         pline_The("%s %s %s%c",
                                   distant_name(otmp, xname),
                                   rn2(2) ? "jolts" : "shocks",
                                   hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
                     pline_The("%s %s %s%c",
                               distant_name(otmp, xname),
@@ -1840,7 +1835,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                  * already at or below minimum threshold; do nothing */
                 context.botl = 1;
             }
-        } else if (vis && (!(nonliving(mdef->data) || is_demon(mdef->data)))) {
+        } else if (!youdefend && (!(nonliving(mdef->data) || is_demon(mdef->data)))) {
             switch (rn2(20)) {
             case 19:
             case 18:
@@ -1869,24 +1864,25 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (attacks(AD_ACID, otmp)) {
         if (realizes_damage) {
             if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                if (!spec_dbon_applies)
-                    /* no feedback */
-                    ;
-                else
+                if (!spec_dbon_applies) {
+                    if (!youdefend)
+                        ;
+                    else
+                        pline_The("acidic blade hits %s.", hittee);
+                } else {
                     pline_The("acidic blade %s %s%c",
-                              (mdef->data == &mons[PM_IRON_GOLEM]
-                               || mdef->data == &mons[PM_IRON_PIERCER])
-                               ? "eats away part of"
-                               : "burns",
+                              can_corrode(mdef->data)
+                                  ? "eats away part of"
+                                  : "burns",
                               hittee, !spec_dbon_applies ? '.' : '!');
+                }
             } else {
                 pline_The("acidic blade %s %s%c",
                           !spec_dbon_applies
                               ? "hits"
-                              : (mdef->data == &mons[PM_IRON_GOLEM]
-                                 || mdef->data == &mons[PM_IRON_PIERCER])
-                                 ? "eats away part of"
-                                 : "burns",
+                              : can_corrode(mdef->data)
+                                  ? "eats away part of"
+                                  : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             }
         }
@@ -1900,13 +1896,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 	if (realizes_damage) {
             if (otmp->oartifact == ART_SWORD_OF_BHELEU) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("gigantic blade hits %s.", hittee);
+                    } else {
                         pline_The("gigantic blade %s %s%c",
                                   rn2(2) ? "poisons" : "eviscerates",
                                   hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
 	            pline_The("gigantic blade %s %s%c",
                               resists_poison(mdef)
@@ -1917,14 +1916,18 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (otmp->oclass == WEAPON_CLASS
                        && (otmp->oprops & ITEM_VENOM)) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies)
-                        /* no feedback */
-                        ;
-                    else
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("%s hits %s.",
+                                      distant_name(otmp, xname), hittee);
+                    } else {
                         pline_The("%s %s %s%c",
                                   distant_name(otmp, xname),
                                   rn2(2) ? "taints" : "poisons",
                                   hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 } else {
                     pline_The("%s %s %s%c",
                               distant_name(otmp, xname),
@@ -1955,13 +1958,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
         if (realizes_damage) {
             if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                if (!spec_dbon_applies)
-                    /* no feedback */
-                    ;
-                else
+                if (!spec_dbon_applies) {
+                    if (!youdefend)
+                        ;
+                    else
+                        pline_The("filthy dagger hits %s.", hittee);
+                } else {
                     pline_The("filthy dagger %s %s%c",
                               rn2(2) ? "contaminates" : "infects",
                               hittee, !spec_dbon_applies ? '.' : '!');
+                }
             } else {
                 pline_The("filthy dagger %s %s%c",
                           resists_sick(mdef)

@@ -1242,8 +1242,18 @@ register struct monst *mtmp;
     case S_DEMON:
         switch (mm) {
         case PM_BALROG:
+            if (!rn2(20)) {
+                otmp = mksobj(TRIDENT, FALSE, FALSE);
+                otmp = oname(otmp,
+                             artiname(ART_ANGELSLAYER));
+                curse(otmp);
+                otmp->oerodeproof = TRUE;
+                otmp->spe = rn2(4);
+                (void) mpickobj(mtmp, otmp);
+            } else {
+                (void) mongets(mtmp, BROADSWORD);
+            }
             (void) mongets(mtmp, BULLWHIP);
-            (void) mongets(mtmp, BROADSWORD);
             break;
         case PM_ORCUS:
             otmp = mksobj(HEAVY_MACE, FALSE, FALSE);

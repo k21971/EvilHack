@@ -1587,7 +1587,7 @@ register struct obj *obj;
         if (obj->oartifact == ART_BAG_OF_THE_HESPERIDES)
             cwt = obj->cursed ? (cwt * 4) : obj->blessed ? ((cwt + 3) / 6)
                                                          : ((cwt + 1) / 3);
-        if (obj->otyp == BAG_OF_HOLDING)
+        else if (obj->otyp == BAG_OF_HOLDING)
             cwt = obj->cursed ? (cwt * 2) : obj->blessed ? ((cwt + 3) / 4)
                                                          : ((cwt + 1) / 2);
 

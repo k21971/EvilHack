@@ -132,7 +132,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Demonbane from SporkHack is a silver mace with an extra property.
      *      Also the first sacrifice gift for a priest.
      */
-    A("Demonbane", MACE, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_DEMON,
+    A("Demonbane", HEAVY_MACE, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_DEMON,
       PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_LAWFUL, PM_PRIEST, NON_PM, 3000L,
       NO_COLOR),
 
