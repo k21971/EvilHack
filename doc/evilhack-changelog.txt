@@ -1111,4 +1111,5 @@ Version 0.6.0
 - Fix: various issues from the previous new artifact commit
 - Fix: issues with centaur race and kicking
 - New monster: eldritch ki-rin
+- Herbivore pets consider more types of food as treats
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

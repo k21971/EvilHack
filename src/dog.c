@@ -895,6 +895,11 @@ register struct obj *obj;
         case TIN:
             return metallivorous(mptr) ? ACCFOOD : MANFOOD;
         case APPLE:
+        case ORANGE:
+        case PEAR:
+        case MELON:
+        case KELP_FROND:
+        case SLIME_MOLD:
             return herbi ? DOGFOOD : starving ? ACCFOOD : MANFOOD;
         case CARROT:
             return (herbi || mblind) ? DOGFOOD : starving ? ACCFOOD : MANFOOD;
