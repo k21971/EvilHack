@@ -149,9 +149,16 @@ boolean quietly;
         if (chance > 2)
             chance = otmp->blessed ? 0 : !otmp->cursed ? 1 : 2;
         /* 0,1,2:  b=80%,10,10; nc=10%,80,10; c=10%,10,80 */
-	if (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_DRAGON) {
-	    chance = 2;
-	}
+        if ((Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL)
+            && (mtmp->data->mlet == S_DRAGON
+                || mtmp->data == &mons[PM_ELDRITCH_KI_RIN]))
+            chance = 2;
+
+        if ((Role_if(PM_KNIGHT) && u.ualign.type == A_CHAOTIC)
+            && (mtmp->data->mlet == S_DRAGON
+                || mtmp->data == &mons[PM_KI_RIN]))
+            chance = 2;
+
         if (chance > 0) {
             mtmp->mtame = 0;   /* not tame after all */
             u.uconduct.pets--; /* doesn't count as creating a pet */
@@ -200,12 +207,10 @@ makedog()
         petname = ratname;
     else if (pettype == PM_PONY) {
         petname = horsename;
-	/* hijack creation for chaotic knights */
-	if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)) {
+        /* hijack creation for chaotic knights */
+        if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT))
             pettype = PM_LESSER_NIGHTMARE;
-	}
-    }
-    else
+    } else
         petname = catname;
 
     /* default pet names */
@@ -962,6 +967,16 @@ register struct obj *obj;
 
     /* Knights can never tame dragons.  Natural enemies, y'see. */
     if (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_DRAGON)
+        return FALSE;
+
+    /* Dark knights cannot tame ki-rin, lawful knights cannot
+       tame eldritch ki-rin */
+    if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL
+        && mtmp->data == &mons[PM_ELDRITCH_KI_RIN])
+        return FALSE;
+
+    if (Role_if(PM_KNIGHT) && u.ualign.type == A_CHAOTIC
+        && mtmp->data == &mons[PM_KI_RIN])
         return FALSE;
 
     /* These monsters should never be able to be tamed. Ever. Just no */

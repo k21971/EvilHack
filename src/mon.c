@@ -2063,7 +2063,8 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* angels vs demons */
-    if (is_angel(ma) && is_demon(md))
+    if ((is_angel(ma) && ma != &mons[PM_ELDRITCH_KI_RIN])
+        && is_demon(md))
         return ALLOW_M | ALLOW_TM;
 
     /* zombies vs all living things */
@@ -2089,6 +2090,11 @@ struct monst *magr, *mdef;
        this; they hate shambling horrors too */
     if (ma == &mons[PM_SHAMBLING_HORROR]
         && mdef->mtame)
+        return ALLOW_M | ALLOW_TM;
+
+    /* ki-rin vs eldritch ki-rin */
+    if (ma == &mons[PM_KI_RIN]
+        && md == &mons[PM_ELDRITCH_KI_RIN])
         return ALLOW_M | ALLOW_TM;
 
     return 0;
