@@ -1113,4 +1113,5 @@ Version 0.6.0
 - New monster: eldritch ki-rin
 - Herbivore pets consider more types of food as treats
 - New level (nymph) and new special room (garden)
+- Change the Sceptre of Might's base item to heavy mace
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
