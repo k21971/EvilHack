@@ -1116,4 +1116,5 @@ Version 0.6.0
 - Change the Sceptre of Might's base item to heavy mace
 - Using a cursed key/lock pick/credit card has a chance to break if used
 - Extended achievement and conduct fields for xlogfile
+- Added new event to extended achievement and conduct fields
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

@@ -445,6 +445,7 @@ encode_extended_achievements()
     add_achieveX(buf, "entered_quest_portal_level", u.uevent.qcalled);
     add_achieveX(buf, "accepted_for_quest", (quest_status.got_quest || quest_status.got_thanks));
     add_achieveX(buf, "defeated_quest_nemesis", quest_status.killed_nemesis);
+    add_achieveX(buf, "defeated_quest_leader", quest_status.leader_is_dead);
     add_achieveX(buf, "quest_completed", u.uevent.qcompleted);
 
     /* other notable achievements */
