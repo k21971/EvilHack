@@ -697,7 +697,6 @@ register struct monst *mtmp;
     inforge = IS_FORGE(levl[mtmp->mx][mtmp->my].typ);
     inshallow = ((is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my))
                  && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
-    
 
     /* Flying and levitation keeps our steed out of the liquid
        (but not water-walking or swimming; note: if hero is in a

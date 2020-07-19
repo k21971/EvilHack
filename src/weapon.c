@@ -416,7 +416,7 @@ struct monst *mon;
             tmp = 1;
     }
 
-    return  tmp;
+    return tmp;
 }
 
 /* check whether blessed and/or silver damage applies for *non-weapon* hit;

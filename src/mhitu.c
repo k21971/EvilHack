@@ -140,14 +140,13 @@ int target;
 int roll;
 struct attack *mattk;
 {
-
     register boolean nearmiss = (target == roll);
     register struct obj *blocker = (struct obj *) 0;
-	/* 3 values for blocker
-	 *	No blocker:  (struct obj *) 0
-	 * 	Piece of armour:  object
-	 *	magical: &zeroobj
-	 */
+    /* 3 values for blocker
+     * No blocker: (struct obj *) 0
+     * Piece of armour: object
+     * magical: &zeroobj
+     */
 
     if (target < roll) {
         /* get object responsible
@@ -158,14 +157,14 @@ struct attack *mattk;
         if (uarmu && target <= roll) {
             target += ARM_BONUS(uarmu);
             if (target > roll)
-                 blocker = uarmu;
+                blocker = uarmu;
         }
 
         /* Try body armour */
         if (uarm && target <= roll) {
             target += ARM_BONUS(uarm);
             if (target > roll)
-                 blocker = uarm;
+                blocker = uarm;
         }
 
         if (uarmg && !rn2(10)) {
@@ -233,7 +232,22 @@ struct attack *mattk;
                  ((blocker == uarmg && blocker->oartifact != ART_DRAGONBANE)
                   || blocker == uarmf) ? "" : "s",
                  s_suffix(mon_nam(mtmp)));
+        if (!blocker)
+            goto end;
+        /* called if attacker hates the material of the armor
+           that deflected their attack */
+        if ((blocker == uarm || blocker == uarmf
+            || blocker == uarmu || blocker == uarmh
+            || blocker == uarmg || blocker == uarmc || blocker == uarms)
+            && (!MON_WEP(mtmp) && which_armor(mtmp, W_ARMG) == 0)
+            && mon_hates_material(mtmp, blocker->material)) {
+            searmsg(&youmonst, mtmp, blocker);
+            mtmp->mhp -= rnd(sear_damage(blocker->material));
+            if (DEADMONSTER(mtmp))
+                killed(mtmp);
+        }
     }
+end:
     stop_occupation();
 }
 
@@ -892,8 +906,17 @@ register struct monst *mtmp;
                                 return 1;
                             }
                         }
-                    } else
+                    } else {
                         missmu(mtmp, tmp, j, mattk);
+                        /* if the attacker dies from a glancing blow off
+                           of a piece of the player's armor, and said armor
+                           is made of a material the attacker hates, this
+                           check is necessary to prevent a dmonsfree error
+                           if the attacker has multiple attacks and they
+                           died before their attack chain completed */
+                        if (DEADMONSTER(mtmp))
+                            return 1;
+                    }
                 } else {
                     wildmiss(mtmp, mattk);
                     /* skip any remaining non-spell attacks */
