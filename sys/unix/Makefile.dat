@@ -130,7 +130,8 @@ options:	../util/makedefs
 
 spec_levs: ../util/lev_comp \
 	bigroom.des castle.des endgame.des gehennom.des icequeen.des knox.des \
-	medusa.des mines.des oracle.des sokoban.des tower.des yendor.des vaults.des
+	medusa.des mines.des nymph.des oracle.des sokoban.des tower.des \
+        yendor.des vaults.des
 	-rm -f vaults.dat
 	../util/lev_comp bigroom.des
 	../util/lev_comp castle.des
@@ -140,6 +141,7 @@ spec_levs: ../util/lev_comp \
 	../util/lev_comp knox.des
 	../util/lev_comp medusa.des
 	../util/lev_comp mines.des
+	../util/lev_comp nymph.des
 	../util/lev_comp oracle.des
 	../util/lev_comp sokoban.des
 	../util/lev_comp tower.des

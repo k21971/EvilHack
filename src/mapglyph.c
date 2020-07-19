@@ -159,6 +159,8 @@ unsigned mgflags;
                 color = CLR_WHITE;
             else if (getroomtype(x, y) == BEEHIVE)
                 color = CLR_YELLOW;
+            else if (getroomtype(x, y) == GARDEN)
+                color = CLR_GREEN;
             else if (getroomtype(x, y) == COCKNEST)
                 color = CLR_GREEN;
             else if (getroomtype(x, y) == ANTHOLE)
@@ -189,18 +191,14 @@ unsigned mgflags;
         else if (iflags.use_color && offset == S_altar) {
             if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz)) {
                 color = CLR_BRIGHT_MAGENTA;
-            }
-            else {
+            } else {
                 if (a_align(x, y) == A_LAWFUL) {
                     color = CLR_WHITE;
-                }
-                else if (a_align(x, y) == A_NEUTRAL) {
+                } else if (a_align(x, y) == A_NEUTRAL) {
                     color = CLR_GRAY;
-                }
-                else if (a_align(x, y) == A_CHAOTIC) {
+                } else if (a_align(x, y) == A_CHAOTIC) {
                     color = CLR_BLACK;
-                }
-                else if (a_align(x, y) == A_NONE) {
+                } else if (a_align(x, y) == A_NONE) {
                     color = CLR_RED;
                 }
             }

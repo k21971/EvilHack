@@ -78,6 +78,16 @@ dosounds()
             }
         }
     }
+    if (level.flags.has_garden && !rn2(200)) {
+        static const char *garden_msg[4] = {
+            "hear crickets chirping!",
+            "hear birds singing!",
+            "hear grass growing!",
+            "hear wind in the willows!",
+        };
+        You1(garden_msg[rn2(2) + 2 * hallu]);
+        return;
+    }
     if (level.flags.has_swamp && !rn2(200)) {
         static const char *const swamp_msg[3] = {
             "hear mosquitoes!", "smell marsh gas!", /* so it's a smell...*/

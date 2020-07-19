@@ -1243,6 +1243,7 @@
 				"$(NH_DAT_DIR)/knox.des",
 				"$(NH_DAT_DIR)/medusa.des",
 				"$(NH_DAT_DIR)/mines.des",
+				"$(NH_DAT_DIR)/nymph.des",
 				"$(NH_DAT_DIR)/oracle.des",
 				"$(NH_DAT_DIR)/sokoban.des",
 				"$(NH_DAT_DIR)/tower.des",
@@ -1257,7 +1258,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp bigroom.des\n${NH_UTIL_DIR}/lev_comp castle.des\n${NH_UTIL_DIR}/lev_comp endgame.des\n${NH_UTIL_DIR}/lev_comp gehennom.des\n${NH_UTIL_DIR}/lev_comp icequeen.des\n${NH_UTIL_DIR}/lev_comp knox.des\n${NH_UTIL_DIR}/lev_comp medusa.des\n${NH_UTIL_DIR}/lev_comp mines.des\n${NH_UTIL_DIR}/lev_comp oracle.des\n${NH_UTIL_DIR}/lev_comp sokoban.des\n${NH_UTIL_DIR}/lev_comp tower.des\n${NH_UTIL_DIR}/lev_comp vaults.des\n${NH_UTIL_DIR}/lev_comp yendor.des\ntouch spec_levs\n";
+			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp bigroom.des\n${NH_UTIL_DIR}/lev_comp castle.des\n${NH_UTIL_DIR}/lev_comp endgame.des\n${NH_UTIL_DIR}/lev_comp gehennom.des\n${NH_UTIL_DIR}/lev_comp icequeen.des\n${NH_UTIL_DIR}/lev_comp knox.des\n${NH_UTIL_DIR}/lev_comp medusa.des\n${NH_UTIL_DIR}/lev_comp mines.des\n${NH_UTIL_DIR}/lev_comp nymph.des\n${NH_UTIL_DIR}/lev_comp oracle.des\n${NH_UTIL_DIR}/lev_comp sokoban.des\n${NH_UTIL_DIR}/lev_comp tower.des\n${NH_UTIL_DIR}/lev_comp vaults.des\n${NH_UTIL_DIR}/lev_comp yendor.des\ntouch spec_levs\n";
 		};
 		317E7C4B21A35F0500F6E4E5 /* Copy makedefs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1591,6 +1592,7 @@
 				"$(NH_DAT_DIR)/minetn-6.lev",
 				"$(NH_DAT_DIR)/minetn-7.lev",
 				"$(NH_DAT_DIR)/minetn-8.lev",
+				"$(NH_DAT_DIR)/nymph.lev",
 				"$(NH_DAT_DIR)/opthelp",
 				"$(NH_DAT_DIR)/options",
 				"$(NH_DAT_DIR)/oracle.lev",
@@ -1661,7 +1663,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/dlb cf nhdat help hh cmdhelp keyhelp history opthelp wizhelp dungeon tribute asmodeus.lev baalz.lev bigrm-*.lev castle-?.lev demogor.lev dis.lev fakewiz?.lev geryon.lev hellfill.lev icequeen-?.lev juiblex.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev minetn-?.lev oracle.lev orcus.lev sanctum.lev soko?-?.lev tower?.lev valley.lev vlt-????.lev wizard?.lev yeenogho.lev astral.lev air.lev earth.lev fire.lev water.lev ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev bogusmon data engrave epitaph oracles options quest.dat rumors vaults.dat\n\n";
+			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/dlb cf nhdat help hh cmdhelp keyhelp history opthelp wizhelp dungeon tribute asmodeus.lev baalz.lev bigrm-*.lev castle-?.lev demogor.lev dis.lev fakewiz?.lev geryon.lev hellfill.lev icequeen-?.lev juiblex.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev minetn-?.lev nymph.lev oracle.lev orcus.lev sanctum.lev soko?-?.lev tower?.lev valley.lev vlt-????.lev wizard?.lev yeenogho.lev astral.lev air.lev earth.lev fire.lev water.lev ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev bogusmon data engrave epitaph oracles options quest.dat rumors vaults.dat\n\n";
 		};
 		3192867021A39F6A00325BEB /* Install */ = {
 			isa = PBXShellScriptBuildPhase;

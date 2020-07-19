@@ -762,6 +762,7 @@ clear_level_structures()
     level.flags.has_barracks = 0;
     level.flags.has_temple = 0;
     level.flags.has_swamp = 0;
+    level.flags.has_garden = 0;
     level.flags.noteleport = 0;
     level.flags.hardfloor = 0;
     level.flags.nommap = 0;
@@ -941,6 +942,8 @@ makelevel()
             mkroom(LEPREHALL);
         else if (u_depth > 6 && !rn2(7))
             mkroom(ZOO);
+        else if (u_depth > 7 && !rn2(6))
+            mkroom(GARDEN);
         else if (u_depth > 7 && !rn2(6)
                  && !(mvitals[PM_RUST_MONSTER].mvflags & G_GONE))
             mkroom(ARMORY);

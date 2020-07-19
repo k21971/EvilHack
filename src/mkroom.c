@@ -21,6 +21,7 @@ STATIC_DCL boolean FDECL(isbig, (struct mkroom *));
 STATIC_DCL struct mkroom *FDECL(pick_room, (BOOLEAN_P));
 STATIC_DCL void NDECL(mkshop), FDECL(mkzoo, (int)), NDECL(mkswamp);
 STATIC_DCL void NDECL(mktemple);
+STATIC_DCL void FDECL(mkgarden, (struct mkroom *));
 STATIC_DCL coord *FDECL(shrine_pos, (int));
 STATIC_DCL struct permonst *NDECL(morguemon);
 STATIC_DCL struct permonst *NDECL(squadmon);
@@ -68,6 +69,9 @@ int roomtype;
             break;
         case SWAMP:
             mkswamp();
+            break;
+        case GARDEN:
+            mkgarden((struct mkroom *) 0);
             break;
         case TEMPLE:
             mktemple();
@@ -153,6 +157,10 @@ mkshop()
             }
             if (*ep == '_') {
                 mktemple();
+                return;
+            }
+            if (*ep == 'n') {
+                mkgarden((struct mkroom *) 0);
                 return;
             }
             if (*ep == '}') {
@@ -299,6 +307,10 @@ struct mkroom *sroom;
 
     sh = sroom->fdoor;
     switch (type) {
+    case GARDEN:
+        mkgarden(sroom);
+        /* mkgarden() sets flags and we don't want other fillings */
+        return;
     case COURT:
         if (level.flags.is_maze_lev) {
             for (tx = sroom->lx; tx <= sroom->hx; tx++)
@@ -598,6 +610,58 @@ armorymon()
 {
     return (!rn2(5) ? mkclass(S_RUSTMONST, 0)
                     : rn2(6) ? &mons[PM_BROWN_PUDDING] : &mons[PM_BLACK_PUDDING]);
+}
+
+/** Create a special room with trees, fountains and nymphs.
+ * @author Pasi Kallinen
+ */
+STATIC_OVL void
+mkgarden(croom)
+struct mkroom *croom; /* NULL == choose random room */
+{
+    register int tryct = 0;
+    boolean maderoom = FALSE;
+    coord pos;
+    register int i, tried;
+
+    while ((tryct++ < 25) && !maderoom) {
+        register struct mkroom *sroom = croom ? croom : &rooms[rn2(nroom)];
+
+        if (sroom->hx < 0
+            || (!croom && (sroom->rtype != OROOM || !sroom->rlit
+                           || has_upstairs(sroom) || has_dnstairs(sroom))))
+            continue;
+
+        sroom->rtype = GARDEN;
+        maderoom = TRUE;
+        level.flags.has_garden = 1;
+
+        tried = 0;
+        i = rn1(5, 3);
+        while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+            struct permonst *pmon;
+
+            if (!MON_AT(pos.x, pos.y) && (pmon = mkclass(S_NYMPH, 0))) {
+                struct monst *mtmp = makemon(pmon, pos.x,pos.y, NO_MM_FLAGS);
+                mtmp->msleeping = 1;
+                i--;
+            }
+        }
+        tried = 0;
+        i = rn1(3, 3);
+        while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+            if (levl[pos.x][pos.y].typ == ROOM && !MON_AT(pos.x, pos.y)
+                && !nexttodoor(pos.x, pos.y)) {
+                if (rn2(3)) {
+                    levl[pos.x][pos.y].typ = TREE;
+                } else {
+                    levl[pos.x][pos.y].typ = FOUNTAIN;
+                    level.flags.nfountains++;
+                }
+                i--;
+            }
+        }
+    }
 }
 
 STATIC_OVL void

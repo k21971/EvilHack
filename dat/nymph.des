@@ -1,0 +1,92 @@
+# NetHack 3.6  nymph.des  $NHDT-Date: 1595116228 2020/07/18 23:50:28 $  $NHDT-Branch: master $:$NHDT-Revision: 1.9 $
+#
+# Nymph level (from UnNetHack, which came from Slash'EM)
+# Level is slightly modified from the original
+#
+
+LEVEL: "nymph"
+ROOM: "ordinary", unlit, random, random, (12,7)
+{
+TRAP:"board",random
+TRAP:"board",random
+TERRAIN: random, 'T'
+TERRAIN: random, 'T'
+[30%]: TERRAIN: random, 'T'
+[30%]: TERRAIN: random, 'T'
+[30%]: TERRAIN: random, 'T'
+[30%]: TERRAIN: random, 'T'
+FOUNTAIN: random
+OBJECT:('(',"chest"),random
+OBJECT:('(',"chest"),random
+OBJECT:('(',"chest"),random
+OBJECT:('(',"crystal chest"),random
+OBJECT:'=', random
+OBJECT:'=', random
+OBJECT:'=', random
+OBJECT:'=', random
+OBJECT:'*', random
+OBJECT:'*', random
+OBJECT:'*', random
+OBJECT:'*', random
+OBJECT:'*', random
+OBJECT:random, random
+OBJECT:random, random
+OBJECT:random, random
+OBJECT:random, random
+MONSTER: 'n', random, hostile
+MONSTER: 'n', random, hostile
+MONSTER: 'n', random, hostile
+MONSTER: 'n', random, hostile
+MONSTER: 'n', random, hostile
+MONSTER:('n',"Aphrodite"), random, hostile
+}
+
+ROOM: "ordinary", random, random, random, random
+{
+STAIR: random, up
+TRAP:"board",random
+OBJECT:random,random
+MONSTER: 'n', random, hostile
+TERRAIN: random, 'T'
+}
+
+ROOM: "ordinary", random, random, random, random
+{
+STAIR: random, down
+TRAP:"board",random
+OBJECT:random, random
+TRAP: random, random
+MONSTER: 'n', random, hostile
+[30%]: TERRAIN: random, 'T'
+[30%]: TERRAIN: random, 'T'
+}
+
+ROOM: "ordinary", random, random, random, random
+{
+TRAP:"board",random
+OBJECT:random, random
+OBJECT:random, random
+MONSTER: 'n', random, hostile
+[40%]: TERRAIN: random, 'T'
+[30%]: TERRAIN: random, 'T'
+}
+
+ROOM: "ordinary", random, random, random, random
+{
+TRAP:"board",random
+OBJECT:random, random
+TRAP: random, random
+MONSTER: 'n', random, hostile
+[30%]: TERRAIN: random, 't'
+[30%]: TERRAIN: random, 'T'
+}
+
+ROOM: "ordinary", random, random, random, random
+{
+TRAP:"board",random
+OBJECT:random, random
+TRAP: random, random
+MONSTER: 'n', random, hostile
+}
+
+RANDOM_CORRIDORS

@@ -200,6 +200,7 @@ static struct {
     { "owlbnest", OWLBNEST },
     { "armory", ARMORY },
     { "nursery", NURSERY },
+    { "garden",	GARDEN },
     { "shop", SHOPBASE },
     { "armor shop", ARMORSHOP },
     { "scroll shop", SCROLLSHOP },
@@ -260,8 +261,9 @@ char **argv;
         ":dat:Tourist.des",  ":dat:Valkyrie.des", ":dat:Wizard.des",
         ":dat:bigroom.des",  ":dat:castle.des",   ":dat:endgame.des",
         ":dat:gehennom.des", ":dat:icequeen.des", ":dat:knox.des",
-        ":dat:medusa.des",   ":dat:mines.des",    ":dat:oracle.des",
-        ":dat:sokoban.des",  ":dat:tower.des",    ":dat:yendor.des"
+        ":dat:medusa.des",   ":dat:mines.des",    ":dat:nymph.des",
+        ":dat:oracle.des",   ":dat:sokoban.des",  ":dat:tower.des",
+        ":dat:yendor.des"
     };
 
     argc = SIZE(mac_argv);

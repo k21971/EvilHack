@@ -2546,6 +2546,7 @@ boolean prefilled;
                     (void) mkgold((long) rn1(abs(depth(&u.uz)) * 100, 51),
                                   x, y);
             break;
+        case GARDEN:
         case COURT:
         case ZOO:
         case BEEHIVE:
@@ -2566,6 +2567,9 @@ boolean prefilled;
         break;
     case ZOO:
         level.flags.has_zoo = TRUE;
+        break;
+    case GARDEN:
+        level.flags.has_garden = TRUE;
         break;
     case COURT:
         level.flags.has_court = TRUE;
