@@ -1119,4 +1119,5 @@ Version 0.6.0
 - Added new event to extended achievement and conduct fields
 - Armor made of a hated material deflecting a monsters attack 
 - Tiamat's stinger is supposed to be poisonous
+- Tiamat's engulf attack should be last in the attack chain
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

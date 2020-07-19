@@ -4145,7 +4145,7 @@ struct permonst _mons2[] = {
         (G_NOGEN | G_UNIQ),
         A(ATTK(AT_BREA, AD_RBRE, 6, 6), ATTK(AT_MAGC, AD_SPEL, 0, 0),
           ATTK(AT_CLAW, AD_SAMU, 2, 8), ATTK(AT_BITE, AD_PHYS, 4, 8),
-          ATTK(AT_ENGL, AD_DGST, 4, 6), ATTK(AT_STNG, AD_DRST, 1, 6)),
+          ATTK(AT_STNG, AD_DRST, 1, 6), ATTK(AT_ENGL, AD_DGST, 4, 6)),
         SIZ(WT_DRAGON, 1700, MS_NEMESIS, MZ_GIGANTIC),
         MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
             | MR_ACID | MR_STONE,
