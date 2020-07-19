@@ -553,6 +553,19 @@ struct obj *container; /* container, for autounlock */
                 if (otmp->cursed)
                     ch /= 2;
 
+                /* small chance a cursed locking tool will break on use */
+                if (pick->cursed && !rn2(5)
+                    && picktyp != STETHOSCOPE
+                    && pick->oartifact != ART_MASTER_KEY_OF_THIEVERY
+                    && pick->oartifact != ART_YENDORIAN_EXPRESS_CARD) {
+                    pline("As you start to %s the %s, your %s breaks!",
+                          (otmp->olocked ? "unlock" : "lock"),
+                          xname(otmp), xname(pick));
+                    delobj(pick);
+                    nomul(0);
+                    return PICKLOCK_DID_NOTHING;
+                }
+
                 xlock.box = otmp;
                 xlock.door = 0;
                 break;

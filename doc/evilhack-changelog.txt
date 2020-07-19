@@ -1114,4 +1114,5 @@ Version 0.6.0
 - Herbivore pets consider more types of food as treats
 - New level (nymph) and new special room (garden)
 - Change the Sceptre of Might's base item to heavy mace
+- Using a cursed key/lock pick/credit card has a chance to break if used
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
