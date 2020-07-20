@@ -524,7 +524,7 @@ int dieroll;
     }
 
     if (!*mhit) {
-        missum(mon, uattk, (rollneeded + armorpenalty > dieroll));
+        missum(mon, rollneeded, dieroll, uattk, (rollneeded + armorpenalty > dieroll));
     } else {
         int oldhp = mon->mhp;
         long oldweaphit = u.uconduct.weaphit;
@@ -557,7 +557,7 @@ int dieroll;
             if (mon->wormno && *mhit)
                 cutworm(mon, bhitpos.x, bhitpos.y, slice_or_chop);
         }
-        if(u.uconduct.weaphit && !oldweaphit)
+        if (u.uconduct.weaphit && !oldweaphit)
             livelog_write_string(LL_CONDUCT,
                     "hit with a wielded weapon for the first time");
     }
@@ -2851,11 +2851,35 @@ register struct attack *mattk;
 }
 
 void
-missum(mdef, mattk, wouldhavehit)
+missum(mdef, target, roll, mattk, wouldhavehit)
 register struct monst *mdef;
 register struct attack *mattk;
+register int target;
+register int roll;
 boolean wouldhavehit;
 {
+    register boolean nearmiss = (target == roll);
+    register struct obj *blocker = (struct obj *) 0;
+    long mwflags = mdef->misc_worn_check;
+
+    /* 3 values for blocker:
+     * No blocker: (struct obj *) 0
+     * Piece of armour: object
+     */
+
+    /* This is a hack,  since there is no fast equivalent for uarm, uarms, etc.
+     * Technically, we really should check from the inside out...
+     */
+    if (target < roll) {
+        for (blocker = mdef->minvent; blocker; blocker = blocker->nobj) {
+            if (blocker->owornmask & mwflags) {
+                target += ARM_BONUS(blocker);
+                if (target > roll)
+                    break;
+            }
+        }
+    }
+
     if (wouldhavehit) /* monk is missing due to penalty for wearing suit */
         Your("armor is rather cumbersome...");
 
@@ -2866,11 +2890,18 @@ boolean wouldhavehit;
             && !uwep && context.forcefight && !Upolyd) {
             Your("pickpocketing attempt fails %s.",
                  rn2(2) ? "horribly" : "miserably");
+        } else if (nearmiss || !blocker) {
+            You("%smiss %s.",
+                (nearmiss ? "just " : ""), mon_nam(mdef));
         } else {
-            You("miss %s.", mon_nam(mdef));
+            /* Blocker */
+            pline("%s %s %s your attack.",
+                  s_suffix(Monnam(mdef)),
+                  aobjnam(blocker, (char *) 0),
+                  (rn2(2) ? "blocks" : "deflects"));
         }
     } else
-          You("miss it.");
+        You("%smiss it.", ((flags.verbose && nearmiss) ? "just " : ""));
     if (!mdef->msleeping && mdef->mcanmove)
         wakeup(mdef, TRUE);
 }
@@ -3111,7 +3142,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                     sum[i] = damageum(mon, mattk, specialdmg);
                 }
             } else { /* !dhit */
-                missum(mon, mattk, (tmp + armorpenalty > dieroll));
+                missum(mon, tmp, dieroll, mattk, (tmp + armorpenalty > dieroll));
             }
             break;
 
@@ -3225,7 +3256,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                     }
                 }
             } else {
-                missum(mon, mattk, FALSE);
+                missum(mon, tmp, dieroll, mattk, FALSE);
             }
             break;
 

@@ -2683,7 +2683,7 @@ E boolean FDECL(hmon, (struct monst *, struct obj *, int, int));
 E boolean FDECL(shade_miss, (struct monst *, struct monst *, struct obj *,
                              BOOLEAN_P, BOOLEAN_P));
 E int FDECL(damageum, (struct monst *, struct attack *, int));
-E void FDECL(missum, (struct monst *, struct attack *, BOOLEAN_P));
+E void FDECL(missum, (struct monst *, int, int, struct attack *, BOOLEAN_P));
 E int FDECL(passive, (struct monst *, struct obj *, BOOLEAN_P, int,
                       UCHAR_P, BOOLEAN_P));
 E void FDECL(passive_obj, (struct monst *, struct obj *, struct attack *));

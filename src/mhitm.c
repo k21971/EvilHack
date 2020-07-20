@@ -29,7 +29,7 @@ STATIC_DCL void FDECL(mswingsm, (struct monst *, struct monst *,
                                  struct obj *));
 STATIC_DCL void FDECL(noises, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(missmm, (struct monst *, struct monst *,
-                               struct attack *));
+                               int, int, struct attack *));
 STATIC_DCL int FDECL(passivemm, (struct monst *, struct monst *,
                                  BOOLEAN_P, int));
 
@@ -74,13 +74,36 @@ register struct attack *mattk;
 
 STATIC_OVL
 void
-missmm(magr, mdef, mattk)
+missmm(magr, mdef, target, roll, mattk)
 register struct monst *magr, *mdef;
 struct attack *mattk;
+int target, roll;
 {
+    boolean nearmiss = (target == roll);
     const char *fmt;
     char buf[BUFSZ];
     boolean showit = FALSE;
+
+    register struct obj *blocker = (struct obj *) 0;
+    long mwflags = mdef->misc_worn_check;
+
+    /* 3 values for blocker:
+     * No blocker: (struct obj *) 0
+     * Piece of armour: object
+     */
+
+    /* This is a hack, since there is no fast equivalent for uarm, uarms, etc.
+     * Technically, we really should check from the inside out...
+     */
+    if (target < roll) {
+        for (blocker = mdef->minvent; blocker; blocker = blocker->nobj) {
+            if (blocker->owornmask & mwflags) {
+                target += ARM_BONUS(blocker);
+                if (target > roll)
+                    break;
+            }
+        }
+    }
 
     /* unhiding or unmimicking happens even if hero can't see it
        because the formerly concealed monster is now in action */
@@ -109,11 +132,19 @@ struct attack *mattk;
         else if (showit)
             newsym(mdef->mx, mdef->my);
 
-        fmt = (could_seduce(magr, mdef, mattk) && !magr->mcan)
-                  ? "%s pretends to be friendly to"
-                  : "%s misses";
-        Sprintf(buf, fmt, Monnam(magr));
-        pline("%s %s.", buf, mon_nam_too(mdef, magr));
+        if (flags.verbose && !nearmiss && blocker) {
+            fmt = "%s %s %s";
+            Sprintf(buf, fmt, s_suffix(Monnam(mdef)),
+                    aobjnam(blocker, (char *) 0),
+                    (rn2(2) ? "blocks" : "deflects"));
+            pline("%s %s attack.", buf, s_suffix(mon_nam_too(magr, mdef)));
+        } else {
+            fmt = (could_seduce(magr, mdef, mattk) && !magr->mcan)
+                      ? "%s pretends to be friendly to"
+                      : "%s %smisses";
+            Sprintf(buf, fmt, Monnam(magr), (nearmiss ? "just " : ""));
+            pline("%s %s.", buf, mon_nam_too(mdef, magr));
+        }
     } else
         noises(magr, mattk);
 }
@@ -513,7 +544,7 @@ register struct monst *magr, *mdef;
                     }
                 }
             } else
-                missmm(magr, mdef, mattk);
+                missmm(magr, mdef, tmp, dieroll, mattk);
             break;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
@@ -568,7 +599,7 @@ register struct monst *magr, *mdef;
             else if ((strike = (tmp > rnd(20 + i))) != 0)
                 res[i] = gulpmm(magr, mdef, mattk);
             else
-                missmm(magr, mdef, mattk);
+                missmm(magr, mdef, tmp, dieroll, mattk);
             break;
 
         case AT_BREA:

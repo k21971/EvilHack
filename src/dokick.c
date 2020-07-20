@@ -225,7 +225,7 @@ xchar x, y;
                 if (sum == 2)
                     break; /* Defender died */
             } else {
-                missum(mon, uattk, (tmp + armorpenalty > kickdieroll));
+                missum(mon, tmp, kickdieroll, uattk, (tmp + armorpenalty > kickdieroll));
                 (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
             }
         }
