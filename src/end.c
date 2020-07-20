@@ -1627,7 +1627,8 @@ int how;
     if (u.uhave.amulet) {
         if (Role_if(PM_INFIDEL) && u.uachieve.amulet) /* ascends with the Idol of Moloch */
             Strcat(killer.name, " (with the Idol)");
-        else
+        /* lets not spam the xlogfile with a bunch of 'with the amulet' deaths */
+        else if (!Role_if(PM_INFIDEL))
             Strcat(killer.name, " (with the Amulet)");
     } else if (how == ESCAPED) {
         if (Is_astralevel(&u.uz)) /* offered Amulet to wrong deity */
