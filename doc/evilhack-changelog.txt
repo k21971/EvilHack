@@ -1121,4 +1121,5 @@ Version 0.6.0
 - Tiamat's stinger is supposed to be poisonous
 - Tiamat's engulf attack should be last in the attack chain
 - Descriptive miss messages (player vs monster, monster vs monster)
+- Fix: minor bug reporting amulet or idol in Infidel's possession upon death
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

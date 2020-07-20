@@ -1625,7 +1625,7 @@ int how;
     }
 #endif
     if (u.uhave.amulet) {
-        if (Role_if(PM_INFIDEL)) /* ascends with the Idol of Moloch */
+        if (Role_if(PM_INFIDEL) && u.uachieve.amulet) /* ascends with the Idol of Moloch */
             Strcat(killer.name, " (with the Idol)");
         else
             Strcat(killer.name, " (with the Amulet)");
