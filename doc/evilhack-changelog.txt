@@ -1123,4 +1123,5 @@ Version 0.6.0
 - Descriptive miss messages (player vs monster, monster vs monster)
 - Fix: minor bug reporting amulet or idol in Infidel's possession upon death
 - Fix: suppress 'with the amulet' death messages for Infidels
+- Specific sacrifice offering being consumed message for unaligned altars
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

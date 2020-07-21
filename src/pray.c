@@ -1493,10 +1493,12 @@ register struct obj *otmp;
     else
         Your("sacrifice is consumed in a %s!",
              u.ualign.type == A_LAWFUL
-                ? "flash of light"
-                : u.ualign.type == A_NEUTRAL
-                    ? "cloud of smoke"
-                    : "burst of flame");
+                 ? "flash of light"
+                 : u.ualign.type == A_NEUTRAL
+                     ? "cloud of smoke"
+                     : u.ualign.type == A_NONE
+                         ? "torrent of hellfire"
+                         : "burst of flame");
     if (carried(otmp))
         useup(otmp);
     else
