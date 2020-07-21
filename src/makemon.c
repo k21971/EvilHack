@@ -400,8 +400,13 @@ unsigned short chance;
                     obj->quan = 1L;
                 }
                 if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
-                    && obj->oclass == ARMOR_CLASS)
+                    && obj->oclass == ARMOR_CLASS) {
                     obj->oerodeproof = 1;
+                    obj->cursed = TRUE;
+                }
+                if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
+                    && obj->oclass == WEAPON_CLASS)
+                    obj->cursed = TRUE;
                 if (obj->otyp == STRIPED_SHIRT)
                     obj->cursed = TRUE;
                 if (trop->trspe != UNDEF_SPE) {
