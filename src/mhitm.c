@@ -1189,17 +1189,20 @@ register struct attack *mattk;
         if ((!rn2(15) || mdef->data->mlet == S_JABBERWOCK) && !magr->mcan) {
             Strcpy(buf, Monnam(magr));
             if (!has_head(mdef->data)) {
-                pline("Somehow, %s misses %s wildly.", buf, mon_nam(mdef));
+                if (canseemon(mdef))
+                    pline("Somehow, %s misses %s wildly.", buf, mon_nam(mdef));
                 tmp = 0;
                 break;
             }
             if (noncorporeal(mdef->data) || amorphous(mdef->data)) {
-                pline("%s slices through %s %s.",
-                      buf, s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
+                if (canseemon(mdef))
+                    pline("%s slices through %s %s.",
+                          buf, s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
                 goto physical;
             }
-            pline("%s %ss %s!", buf,
-                  rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
+            if (canseemon(mdef))
+                pline("%s %ss %s!", buf,
+                      rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
             mondied(mdef);
             if (mdef->mhp > 0)
                 return 0;
@@ -1767,12 +1770,14 @@ post_stone:
     case AD_PEST:
         Strcpy(buf, mon_nam(mdef));
         if (vis) {
-            if (resists_sick(mdef))
-                pline("%s reaches out, but %s looks unaffected.",
-                      Monnam(magr), buf);
-            else
-                pline("%s reaches out, and %s looks rather ill.",
-                      Monnam(magr), buf);
+            if (resists_sick(mdef)) {
+                if (canseemon(mdef))
+                    pline("%s reaches out, but %s looks unaffected.",
+                          Monnam(magr), buf);
+                else
+                    pline("%s reaches out, and %s looks rather ill.",
+                          Monnam(magr), buf);
+            }
         }
         if ((mdef->mhpmax > 3) && !resist(mdef, 0, 0, NOTELL))
             mdef->mhpmax /= 2;

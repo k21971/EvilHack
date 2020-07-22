@@ -1202,7 +1202,7 @@ register struct monst *mtmp;
                 if (cansee(mtmp->mx, mtmp->my) && flags.verbose)
                     pline("%s eats %s!", Monnam(mtmp),
                           distant_name(otmp, doname));
-                else if (flags.verbose)
+                else if (!Deaf && flags.verbose)
                     You_hear("a crunching sound.");
                 mtmp->meating = otmp->owt / 2 + 1;
                 /* Heal up to the object's weight in hp */
@@ -1338,7 +1338,7 @@ struct monst *mtmp;
                     && !strcmpi(OBJ_DESCR(objects[otmp->otyp]), "YUM YUM"))
                     pline("Yum%c", otmp->blessed ? '!' : '.');
             } else {
-                if (flags.verbose)
+                if (!Deaf && flags.verbose)
                     You_hear("a slurping sound.");
             }
             /* Heal up to the object's weight in hp */
@@ -1390,7 +1390,7 @@ struct monst *mtmp;
     if (ecount > 0) {
         if (cansee(mtmp->mx, mtmp->my) && flags.verbose && buf[0])
             pline1(buf);
-        else if (flags.verbose)
+        else if (!Deaf && flags.verbose)
             You_hear("%s slurping sound%s.",
                      (ecount == 1) ? "a" : "several", plur(ecount));
     }
@@ -1441,7 +1441,7 @@ register struct monst *mtmp;
                 if (cansee(mtmp->mx, mtmp->my) && flags.verbose)
                     pline("%s eats %s!", Monnam(mtmp),
                           distant_name(otmp, doname));
-                else if (flags.verbose)
+                else if (!Deaf && flags.verbose)
                     You_hear("a smacking sound.");
                 mtmp->meating = otmp->owt / 2 + 1;
                 /* Heal up to the object's weight in hp */
@@ -1517,8 +1517,7 @@ register const char *str;
                           waslocked ? "." : "...");
                 } else if (!Deaf && flags.verbose) {
                     You_hear("%s being %s.",
-                             (distu(mtmp->mx, mtmp->my) <= 5)
-                             ? an(xname(otmp)) : an(distant_name(otmp, xname)),
+                             ansimpleoname(otmp),
                              waslocked ? "unlocked" : "opened");
                 }
                 otmp->olocked = 0;
@@ -1552,8 +1551,7 @@ register const char *str;
                                   ? the(xname(otmp)) : the(distant_name(otmp, xname)));
                         } else if (!Deaf && flags.verbose) {
                             You_hear("%s being %s.",
-                                     (distu(mtmp->mx, mtmp->my) <= 5)
-                                     ? an(xname(otmp)) : an(distant_name(otmp, xname)),
+                                     ansimpleoname(otmp),
                                      waslocked ? "unlocked" : "opened");
                         }
                         otmp->olocked = 0;
@@ -1565,8 +1563,7 @@ register const char *str;
                                   ? the(xname(otmp)) : the(distant_name(otmp, xname)));
                         } else if (!Deaf && flags.verbose) {
                             You_hear("something rummaging through %s.",
-                                     (distu(mtmp->mx, mtmp->my) <= 5)
-                                     ? an(xname(otmp)) : an(distant_name(otmp, xname)));
+                                     ansimpleoname(otmp));
                         }
                     }
                     obj_extract_self(otmp3);
@@ -3010,7 +3007,8 @@ boolean was_swallowed; /* digestion */
                             s_suffix(mdat->mname));
                     losehp(Maybe_Half_Phys(tmp), killer.name, KILLED_BY_AN);
                 } else {
-                    You_hear("an explosion.");
+                    if (!Deaf)
+                        You_hear("an explosion.");
                     damage_mon(magr, tmp, AD_PHYS);
                     if (DEADMONSTER(magr))
                         mondied(magr);
@@ -3443,10 +3441,12 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     } else if (mtmp->mtame) {
         adjalign(-15); /* bad!! */
         /* your god is mighty displeased... */
-        if (!Hallucination)
-            You_hear("the rumble of distant thunder...");
-        else
-            You_hear("the studio audience applaud!");
+        if (!Deaf) {
+            if (!Hallucination)
+                You_hear("the rumble of distant thunder...");
+            else
+                You_hear("the studio audience applaud!");
+        }
         if (!unique_corpstat(mdat) && has_mname(mtmp)) {
             livelog_printf(LL_KILLEDPET, "murdered %s, %s faithful %s",
                            MNAME(mtmp), uhis(), mdat->mname);

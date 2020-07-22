@@ -2067,17 +2067,20 @@ int specialdmg; /* blessed and/or silver bonus against various things */
     case AD_BHED:
         if (!rn2(15) || mdef->data->mlet == S_JABBERWOCK) {
             if (!has_head(mdef->data)) {
-                pline("Somehow, you miss %s wildly.", mon_nam(mdef));
+                if (canseemon(mdef))
+                    pline("Somehow, you miss %s wildly.", mon_nam(mdef));
                 tmp = 0;
                 break;
             }
             if (noncorporeal(mdef->data) || amorphous(mdef->data)) {
-                pline("You slice through %s %s.",
-                      s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
+                if (canseemon(mdef))
+                    pline("You slice through %s %s.",
+                          s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
                 goto physical;
             }
-            pline("You %s %s!",
-                  rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
+            if (canseemon(mdef))
+                pline("You %s %s!",
+                      rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
             if (is_zombie(mdef->data)
                 || (is_troll(mdef->data) && !mlifesaver(mdef)))
                 mdef->mcan = 1; /* no head? no reviving */
@@ -2202,7 +2205,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
             tmp = 0;
             break;
         }
-        if (!Deaf)
+        if (!Deaf && !Blind)
             pline("%s reels from the noise!", Monnam(mdef));
         if (!rn2(6))
             erode_armor(mdef, ERODE_FRACTURE);
@@ -2211,7 +2214,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         tmp += destroy_mitem(mdef, WAND_CLASS, AD_LOUD);
         tmp += destroy_mitem(mdef, POTION_CLASS, AD_LOUD);
         if (pd == &mons[PM_GLASS_GOLEM]) {
-            pline("%s shatters into a million pieces!", Monnam(mdef));
+            if (canseemon(mdef))
+                pline("%s shatters into a million pieces!", Monnam(mdef));
             xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
             tmp = 0;
             break;
@@ -2325,7 +2329,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         if (!negated && !rn2(3) && !resists_drli(mdef)) {
             int xtmp = d(2, 6);
 
-            pline("%s suddenly seems weaker!", Monnam(mdef));
+            if (canseemon(mdef))
+                pline("%s suddenly seems weaker!", Monnam(mdef));
             mdef->mhpmax -= xtmp;
             damage_mon(mdef, xtmp, AD_DRLI);
             /* !m_lev: level 0 monster is killed regardless of hit points
@@ -2341,7 +2346,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
     case AD_RUST:
 do_rust:
         if (pd == &mons[PM_IRON_GOLEM]) {
-            pline("%s falls to pieces!", Monnam(mdef));
+            if (canseemon(mdef))
+                pline("%s falls to pieces!", Monnam(mdef));
             xkilled(mdef, XKILL_NOMSG);
         }
         erode_armor(mdef, ERODE_RUST);
@@ -2353,7 +2359,8 @@ do_rust:
         break;
     case AD_DCAY:
         if (pd == &mons[PM_WOOD_GOLEM] || pd == &mons[PM_LEATHER_GOLEM]) {
-            pline("%s falls to pieces!", Monnam(mdef));
+            if (canseemon(mdef))
+                pline("%s falls to pieces!", Monnam(mdef));
             xkilled(mdef, XKILL_NOMSG);
         }
         erode_armor(mdef, ERODE_ROT);
@@ -2382,8 +2389,9 @@ do_rust:
         break;
     case AD_DISE:
         if (!resists_sick(mdef)) {
-            pline("%s looks %s.", Monnam(mdef),
-                  mdef->mdiseased ? "even worse" : "diseased");
+            if (canseemon(mdef))
+                pline("%s looks %s.", Monnam(mdef),
+                      mdef->mdiseased ? "even worse" : "diseased");
             mdef->mdiseased = 1;
         }
         break;
@@ -2392,15 +2400,17 @@ do_rust:
 
         if (is_zombie(youmonst.data) && rn2(5)) {
             if (!resists_sick(mdef)) {
-                pline("%s looks %s.", Monnam(mdef),
-                      mdef->msick ? "much worse" : "rather ill");
+                if (canseemon(mdef))
+                    pline("%s looks %s.", Monnam(mdef),
+                          mdef->msick ? "much worse" : "rather ill");
                 mdef->msick = 3;
             }
             break;
         }
 
         if (notonhead || !has_head(pd)) {
-            pline("%s doesn't seem harmed.", Monnam(mdef));
+            if (canseemon(mdef))
+                pline("%s doesn't seem harmed.", Monnam(mdef));
             tmp = 0;
             if (!Unchanging && pd == &mons[PM_GREEN_SLIME]) {
                 if (!Slimed) {
@@ -2414,9 +2424,10 @@ do_rust:
             break;
 
         if ((helmet = which_armor(mdef, W_ARMH)) != 0 && rn2(8)) {
-            pline("%s %s blocks your attack to %s head.",
-                  s_suffix(Monnam(mdef)), helm_simple_name(helmet),
-                  mhis(mdef));
+            if (!Blind)
+                pline("%s %s blocks your attack to %s head.",
+                      s_suffix(Monnam(mdef)), helm_simple_name(helmet),
+                      mhis(mdef));
             break;
         }
 
@@ -2493,8 +2504,10 @@ do_rust:
             unsigned int oldspeed = mdef->mspeed;
 
             mon_adjust_speed(mdef, -1, (struct obj *) 0);
-            if (mdef->mspeed != oldspeed && canseemon(mdef))
-                pline("%s slows down.", Monnam(mdef));
+            if (mdef->mspeed != oldspeed && canseemon(mdef)) {
+                if (canseemon(mdef))
+                    pline("%s slows down.", Monnam(mdef));
+            }
         }
         break;
     case AD_CONF:
