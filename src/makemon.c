@@ -2694,6 +2694,8 @@ int mndx, mvflagsmask, genomask;
         return FALSE;
     if (is_placeholder(ptr))
         return FALSE;
+    if (!In_icequeen_branch(&u.uz) && ptr == &mons[PM_ICE_NYMPH])
+        return FALSE;
 #ifdef MAIL
     /* special levels might ask for random demon type; reject this one */
     if (ptr == &mons[PM_MAIL_DAEMON])

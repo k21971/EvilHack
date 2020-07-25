@@ -1127,4 +1127,5 @@ Version 0.6.0
 - Player monster Infidel's weapon and armor should spawn cursed
 - Fix: monsters riding steeds and polymorph traps
 - Fix: several instances of incorrectly receiving visual feedback
+- Fix: prevent ice nymphs from spawning where they shouldn't
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
