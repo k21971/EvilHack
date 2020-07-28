@@ -1129,4 +1129,5 @@ Version 0.6.0
 - Fix: several instances of incorrectly receiving visual feedback
 - Fix: prevent ice nymphs from spawning where they shouldn't
 - Fix: crowned infidel's stinger attack against monsters whose touch petrifies
+- Fix: incorrect crowned infidel title via enlightenment
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
