@@ -3043,7 +3043,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
             /*FALLTHRU*/
         case AT_TENT:
             if ((uwep || (u.twoweap && uswapwep) || uarmg)
-                && (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID)))
+                && (maybe_polyd(is_illithid(youmonst.data),
+                    Race_if(PM_ILLITHID)))
                 && (touch_petrifies(mon->data)
                     || is_rider(mon->data)
                     || mon->data == &mons[PM_MEDUSA]
@@ -3053,14 +3054,17 @@ boolean weapon_attacks; /* skip weapon attacks if false */
         case AT_BITE:
             if ((uwep || (u.twoweap && uswapwep) || uarmg)
                 && is_vampire(youmonst.data)
-                && (touch_petrifies(mon->data)
-                    || is_rider(mon->data)
-                    || mon->data == &mons[PM_MEDUSA]
-                    || mon->data == &mons[PM_GREEN_SLIME]))
+                && (touch_petrifies(mon->data)))
+                break;
+            /*FALLTHRU*/
+        case AT_STNG:
+            if ((uwep || (u.twoweap && uswapwep) || uarmg)
+                && (maybe_polyd(is_demon(youmonst.data),
+                    Race_if(PM_DEMON)))
+                && (touch_petrifies(mon->data)))
                 break;
             /*FALLTHRU*/
         case AT_KICK:
-        case AT_STNG:
         case AT_BUTT:
         /*weaponless:*/
             tmp = find_roll_to_hit(mon, mattk->aatyp, (struct obj *) 0,
