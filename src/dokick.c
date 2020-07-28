@@ -530,6 +530,12 @@ xchar x, y;
         return 1;
     }
 
+    if (is_demon(raceptr(&youmonst))
+        && kickedobj->material == SILVER) {
+        You_cant("bring yourself to kick anything made of silver.");
+        return 1;
+    }
+
     if (kickedobj->oartifact)
         u.uconduct.artitouch++;
 

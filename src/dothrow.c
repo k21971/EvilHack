@@ -87,6 +87,10 @@ int shotlimit;
         You("cannot throw an object at yourself.");
         return 0;
     }
+    if (is_demon(raceptr(&youmonst)) && obj->material == SILVER) {
+        retouch_object(&obj, TRUE);
+        return 0;
+    }
     u_wipe_engr(2);
     if (!uarmg && obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm])
         && !Stone_resistance) {
