@@ -50,16 +50,21 @@
 
 /* as of 3.2.0:  gray dragons, Angels, Oracle, Yeenoghu */
 #define resists_mgc(ptr) \
-    (dmgtype(ptr, AD_MAGM) || ptr == &mons[PM_BABY_GRAY_DRAGON] \
-     || ptr == &mons[PM_ARCHON] || ptr == &mons[PM_ARCHANGEL]   \
-     || dmgtype(ptr, AD_RBRE)) /* Chromatic Dragon */
+    (dmgtype((ptr), AD_MAGM) || (ptr) == &mons[PM_BABY_GRAY_DRAGON] \
+     || (ptr) == &mons[PM_ARCHON] || (ptr) == &mons[PM_ARCHANGEL]   \
+     || dmgtype((ptr), AD_RBRE)) /* Chromatic Dragon */
 
 #define resists_drain(ptr) \
-    (is_undead(ptr) || is_demon(ptr) || is_were(ptr)        \
-     || ptr == &mons[PM_DEATH] || ptr == &mons[PM_CERBERUS] \
-     || ptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]              \
-     || ptr == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+    (is_undead(ptr) || is_demon(ptr) || is_were(ptr)            \
+     || (ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_CERBERUS] \
+     || (ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN]                \
+     || (ptr) == &mons[PM_KATHRYN_THE_ENCHANTRESS])
 /* is_were() doesn't handle hero in human form */
+
+/* is_vampshifter(mon) in handled explicitly in zap.c */
+#define immune_death_magic(ptr) \
+    (nonliving(ptr) || is_demon(ptr) \
+     || (ptr)->msound == MS_LEADER || (ptr) == &mons[PM_CERBERUS])
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)

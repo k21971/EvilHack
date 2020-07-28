@@ -3991,9 +3991,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 tmp = 0;
                 break;
             }
-            if (nonliving(mon->data) || is_demon(mon->data)
-                || is_vampshifter(mon) || mon->data->msound == MS_LEADER
-                || mon->data == &mons[PM_CERBERUS]) {
+            if (immune_death_magic(mon->data)
+                || is_vampshifter(mon)) {
                 sho_shieldeff = TRUE;
                 tmp = 0;
                 break;
