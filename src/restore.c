@@ -690,6 +690,10 @@ unsigned int *stuckid, *steedid;
         if (otmp->owornmask)
             setworn(otmp, otmp->owornmask);
 
+    /* after inventory has been loaded and setworn() is in effect, check
+       crowned infidels (demonic form) for its wings, ensure they stay
+       tucked away under their body armor upon reload */
+    check_wings(TRUE);
     /* reset weapon so that player will get a reminder about "bashing"
        during next fight when bare-handed or wielding an unconventional
        item; for pick-axe, we aren't able to distinguish between having
