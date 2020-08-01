@@ -1841,12 +1841,13 @@ int spell;
     paladin_bonus = Role_if(PM_KNIGHT) && spell_skilltype(spellid(spell)) == P_CLERIC_SPELL;
 
     /* Casting roles */
-    primary_casters = Role_if(PM_HEALER) || Role_if(PM_PRIEST) || Role_if(PM_WIZARD);
+    primary_casters = (Role_if(PM_HEALER) || Role_if(PM_PRIEST)
+                       || Role_if(PM_WIZARD) || Role_if(PM_INFIDEL));
 
-    non_casters = Role_if(PM_ARCHEOLOGIST) || Role_if(PM_BARBARIAN) || Role_if(PM_CAVEMAN)
-                  || Role_if(PM_KNIGHT) || Role_if(PM_MONK) || Role_if(PM_RANGER)
-                  || Role_if(PM_ROGUE) || Role_if(PM_SAMURAI) || Role_if(PM_TOURIST)
-                  || Role_if(PM_VALKYRIE);
+    non_casters = (Role_if(PM_ARCHEOLOGIST) || Role_if(PM_BARBARIAN) || Role_if(PM_CAVEMAN)
+                   || Role_if(PM_CONVICT) || Role_if(PM_KNIGHT) || Role_if(PM_MONK)
+                   || Role_if(PM_RANGER) || Role_if(PM_ROGUE) || Role_if(PM_SAMURAI)
+                   || Role_if(PM_TOURIST) || Role_if(PM_VALKYRIE));
 
     if (uarm && is_metallic(uarm) && !paladin_bonus)
         splcaster += (uarmc && uarmc->otyp == ROBE) ? urole.spelarmr / 2

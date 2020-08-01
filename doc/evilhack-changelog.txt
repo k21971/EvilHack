@@ -1134,4 +1134,5 @@ Version 0.6.0
 - Show if immune to death magic via enlightenment
 - Fix: crowned infidel's wings stay confined under their body armor on save/restore
 - Fix: trees spawning on stairs on the nymph level
+- Fix: add missing roles to appropriate casting type
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
