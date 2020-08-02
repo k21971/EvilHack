@@ -1135,4 +1135,5 @@ Version 0.6.0
 - Fix: crowned infidel's wings stay confined under their body armor on save/restore
 - Fix: trees spawning on stairs on the nymph level
 - Fix: add missing roles to appropriate casting type
+- Fix: infidels and spell casting bonuses/penalties
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
