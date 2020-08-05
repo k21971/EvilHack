@@ -1136,4 +1136,5 @@ Version 0.6.0
 - Fix: trees spawning on stairs on the nymph level
 - Fix: add missing roles to appropriate casting type
 - Fix: infidels and spell casting bonuses/penalties
+- Fix: stop demon lords/princes from being so damn chatty to infidels they like
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
