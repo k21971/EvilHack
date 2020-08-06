@@ -1881,8 +1881,6 @@ int spell;
         }
         if (penalty > 0)
             splcaster += penalty;
-        else
-            splcaster = splcaster;
     }
 
     if (spellid(spell) == urole.spelspec)
