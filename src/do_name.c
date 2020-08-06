@@ -1326,15 +1326,7 @@ const char *name;
             if (rn2(3)) {
                 mtmp = makemon(&mons[PM_GREY_ELF], u.ux, u.uy, MM_ADJACENTOK);
                 if (mtmp) {
-                    if (Blind && !Deaf) {
-                        if (Hallucination)
-                            You("hear the sounds of silence.");
-                        else
-                            You("hear movement nearby.");
-                        You("hear somebody say: %s is not yours to take! %s it!",
-                            artiname(obj->oartifact),
-                            rn2(2) ? "Relinquish" : "Return");
-                    } else {
+                    if (!Blind) {
                         if (Hallucination)
                             You("see the second coming of the Prophet.");
                         else
@@ -1345,6 +1337,14 @@ const char *name;
                                   Monnam(mtmp),
                                   artiname(obj->oartifact),
                                   rn2(2) ? "Relinquish" : "Return");
+                    } else if (!Deaf) {
+                        if (Hallucination)
+                            You("hear the sounds of silence.");
+                        else
+                            You("hear movement nearby.");
+                        You("hear somebody say: %s is not yours to take! %s it!",
+                            artiname(obj->oartifact),
+                            rn2(2) ? "Relinquish" : "Return");
                     }
                     /* random chance of some helpers */
                     if (rn2(3))
