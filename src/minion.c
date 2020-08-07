@@ -270,10 +270,10 @@ register struct monst *mtmp;
         newsym(mtmp->mx, mtmp->my);
     }
     if (is_demon(raceptr(&youmonst))) { /* Won't blackmail their own. */
-        if (!Deaf && !rn2(20))
+        if (canseemon(mtmp) && !Deaf && !rn2(20))
             pline("%s says, \"Good hunting, %s.\"", Amonnam(mtmp),
                   flags.female ? "Sister" : "Brother");
-        else if (canseemon(mtmp) && !rn2(20))
+        else if (canseemon(mtmp) && Deaf && !rn2(20))
             pline("%s says something.", Amonnam(mtmp));
         if (!tele_restrict(mtmp))
             (void) rloc(mtmp, TRUE);
