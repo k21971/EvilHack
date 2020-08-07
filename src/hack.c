@@ -113,7 +113,7 @@ moverock()
 
     sx = u.ux + u.dx, sy = u.uy + u.dy; /* boulder starting position */
     while ((otmp = sobj_at(BOULDER, sx, sy)) != 0) {
-        // required to make sure you don't push around stacks of boulders
+        /* required to make sure you don't push around stacks of boulders */
         if (otmp->quan > 1)
             otmp = splitobj(otmp, 1L);
 
@@ -3493,7 +3493,7 @@ inv_weight()
         if (otmp->oclass == COIN_CLASS)
             wt += (int) (((long) otmp->quan + 50L) / 100L);
         else if (otmp->otyp == BOULDER && throws_rocks(youmonst.data))
-            wt += GIANT_BLDR_WEIGHT*otmp->quan;
+            wt += GIANT_BLDR_WEIGHT * otmp->quan;
         else if (otmp->otyp != BOULDER || !throws_rocks(youmonst.data))
             wt += otmp->owt;
         otmp = otmp->nobj;

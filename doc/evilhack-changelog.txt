@@ -1137,6 +1137,10 @@ Version 0.6.0
 - Fix: add missing roles to appropriate casting type
 - Fix: infidels and spell casting bonuses/penalties
 - Fix: stop demon lords/princes from being so damn chatty to infidels they like
+- Fix deaf & blind hero 'seeing' monster (artifact owner appearance)
 - Remove bit from a previous fix that does absolutely nothing
+- Don't push around stacks of boulders as one
 - Fix: tweak to chatty demon lords that like you
+- Make boulders weigh 8 aum EACH, not together, for giant PCs
+- Bit of formatting housekeeping
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
