@@ -113,6 +113,10 @@ moverock()
 
     sx = u.ux + u.dx, sy = u.uy + u.dy; /* boulder starting position */
     while ((otmp = sobj_at(BOULDER, sx, sy)) != 0) {
+		// required to make sure you don't push around stacks of boulders
+	    if (otmp->quan > 1)
+        	otmp = splitobj(otmp, 1L);
+
         /* make sure that this boulder is visible as the top object */
         if (otmp != level.objects[sx][sy])
             movobj(otmp, sx, sy);
