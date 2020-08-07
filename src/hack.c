@@ -3493,7 +3493,7 @@ inv_weight()
         if (otmp->oclass == COIN_CLASS)
             wt += (int) (((long) otmp->quan + 50L) / 100L);
         else if (otmp->otyp == BOULDER && throws_rocks(youmonst.data))
-            wt += GIANT_BLDR_WEIGHT;
+            wt += GIANT_BLDR_WEIGHT*otmp->quan;
         else if (otmp->otyp != BOULDER || !throws_rocks(youmonst.data))
             wt += otmp->owt;
         otmp = otmp->nobj;
