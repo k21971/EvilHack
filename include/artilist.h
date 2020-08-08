@@ -237,7 +237,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * with the captive pegasus.
      */
     A("Bag of the Hesperides", BAG_OF_HOLDING,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_PROTECT), SPFX_EXCLUDE, 0,
+      (SPFX_NOGEN | SPFX_RESTR), (SPFX_EXCLUDE | SPFX_PROTECT), 0,
       NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM,
       8000L, NO_COLOR),
     /* The quasi-evil twin of Demonbane, Angelslayer is an unholy trident

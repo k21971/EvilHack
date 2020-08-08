@@ -1143,4 +1143,5 @@ Version 0.6.0
 - Fix: tweak to chatty demon lords that like you
 - Make boulders weigh 8 aum EACH, not together, for giant PCs
 - Bit of formatting housekeeping
+- Fix: the Bag of the Hesperides was not granting MC1 when carried
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
