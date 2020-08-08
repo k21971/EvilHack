@@ -938,10 +938,20 @@ break_armor()
         if ((otmp = uarm) != 0) {
             if (donning(otmp))
                 cancel_don();
-            You("break out of your armor!");
-            exercise(A_STR, FALSE);
-            (void) Armor_gone();
-            useup(otmp);
+            if (bigmonst(youmonst.data) && otmp->otyp == LARGE_SPLINT_MAIL) {
+                if (humanoid(youmonst.data)) {
+                    ; /* nothing bad happens, armor is still worn */
+                } else if (!humanoid(youmonst.data)) {
+                    Your("armor falls off!");
+                    (void) Armor_gone();
+                    dropp(otmp);
+                }
+            } else {
+                You("break out of your armor!");
+                exercise(A_STR, FALSE);
+                (void) Armor_gone();
+                useup(otmp);
+            }
         }
         if ((otmp = uarmc) != 0) {
             if (otmp->oartifact) {

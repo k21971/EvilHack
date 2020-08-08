@@ -1144,4 +1144,5 @@ Version 0.6.0
 - Make boulders weigh 8 aum EACH, not together, for giant PCs
 - Bit of formatting housekeeping
 - Fix: the Bag of the Hesperides was not granting MC1 when carried
+- Fix: giant samurai breaking out of their large armor when poly'd into a large form
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
