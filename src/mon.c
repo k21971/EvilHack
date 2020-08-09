@@ -2244,7 +2244,7 @@ dmonsfree()
     buf[0] = '\0';
     for (mtmp = &fmon; *mtmp;) {
         freetmp = *mtmp;
-        if (freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) 
+        if (DEADMONSTER(freetmp) && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) 
             icequeenrevive(freetmp);
         
         if (DEADMONSTER(freetmp) && !freetmp->isgd) {
