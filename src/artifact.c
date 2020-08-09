@@ -952,7 +952,8 @@ struct monst *mon;
 
     if (((badclass || badalign) && self_willed)
         || (badalign && (!yours || !rn2(4)))
-        || (yours && obj->oartifact == ART_WAND_OF_ORCUS)) {
+        || ((yours || !is_demon(mon->data))
+            && obj->oartifact == ART_WAND_OF_ORCUS)) {
         int dmg;
         char buf[BUFSZ];
 
@@ -1771,13 +1772,25 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (attacks(AD_DETH, otmp)) {
         if (realizes_damage) {
             /* currently the only object that uses this
-               is Orcus' Wand of Death artifact */
-            if (!vis)
+               is the Wand of Orcus artifact */
+            if (!youattack && magr && cansee(magr->mx, magr->my)) {
+                if (!spec_dbon_applies) {
+                    if (!youdefend)
+                        ;
+                    else
+                        pline_The("heavy mace hits %s.", hittee);
+                } else {
+                    pline_The("heavy mace %s %s%c",
+                              rn2(2) ? "bashes" : "bludgeons",
+                              hittee, !spec_dbon_applies ? '.' : '!');
+                }
+            } else {
                 pline_The("heavy mace %s %s%c",
                           !spec_dbon_applies
                               ? "hits"
                               : rn2(2) ? "bashes" : "bludgeons",
                           hittee, !spec_dbon_applies ? '.' : '!');
+            }
         }
         if (youdefend && (!(nonliving(mdef->data) || is_demon(mdef->data)))) {
             switch (rn2(20)) {
@@ -1788,7 +1801,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                          distant_name(otmp, xname));
                 if (!Antimagic) {
                     killer.format = KILLED_BY;
-                    Strcpy(killer.name, "Orcus' Wand of Death");
+                    Strcpy(killer.name, "the Wand of Orcus");
                     ukiller = magr;
                     done(DIED);
                     *dmgptr = 0;

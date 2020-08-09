@@ -1148,4 +1148,5 @@ Version 0.6.0
 - Make the Ice Queen not aggro on multihits
 - Some slight code improvements (ice queen branch)
 - Fix: your deity probably shouldn't gift the player a helm of opposite alignment
+- Fix: only demons can wield the Wand of Orcus
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
