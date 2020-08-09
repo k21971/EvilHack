@@ -2244,17 +2244,18 @@ dmonsfree()
     buf[0] = '\0';
     for (mtmp = &fmon; *mtmp;) {
         freetmp = *mtmp;
-        if (freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) 
-            icequeenrevive(freetmp);
-        
         if (DEADMONSTER(freetmp) && !freetmp->isgd) {
             *mtmp = freetmp->nmon;
-            freetmp->nmon = NULL;
-            if (!!(ridertmp = get_mon_rider(freetmp))) {
-                separate_steed_and_rider(ridertmp);
+            if (freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+                icequeenrevive(freetmp);
+            } else {
+                freetmp->nmon = NULL;
+                if (!!(ridertmp = get_mon_rider(freetmp))) {
+                    separate_steed_and_rider(ridertmp);
+                }
+                dealloc_monst(freetmp);
+                count++;
             }
-            dealloc_monst(freetmp);
-            count++;
         } else
             mtmp = &(freetmp->nmon);
     }
