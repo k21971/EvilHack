@@ -2622,9 +2622,10 @@ register struct monst *mtmp;
             return;
         }
     }
-    if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]){
-        if (!u.uachieve.defeat_icequeen) u.uachieve.defeat_icequeen = 1;
-        return; // handled in dmonsfree
+    if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        if (!u.uachieve.defeat_icequeen)
+            u.uachieve.defeat_icequeen = 1;
+        return; /* handled in dmonsfree */
     }
     /* our hero decided to choose poorly and attempt to kill
        Kathryn the Enchantress */
@@ -3197,8 +3198,9 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     if (!noconduct) /* KMH, conduct */
         if(!u.uconduct.killer++)
             livelog_write_string (LL_CONDUCT,"killed for the first time");
-    
-    if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN] && u.uachieve.defeat_icequeen)
+
+    if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+        && u.uachieve.defeat_icequeen)
         return;
 
     if (!nomsg) {
@@ -5290,7 +5292,7 @@ struct monst *mtmp;
     /* our hero has freed the Ice Queen from her curse */
     if (mtmp->data != &mons[PM_KATHRYN_THE_ICE_QUEEN])
         return;
-    
+
     struct monst *mon;
     struct permonst *koa = &mons[PM_KOA];
     struct permonst *ozzy = &mons[PM_OZZY];
@@ -5307,10 +5309,10 @@ struct monst *mtmp;
     mtmp->mconf = 0;
     mtmp->mstun = 0;
     mtmp->mpeaceful = 1;
-    
-    if (!u.uachieve.defeat_icequeen) // should be redundant, but in case of funky business
+
+    if (!u.uachieve.defeat_icequeen) /* should be redundant, but in case of funky business */
         u.uachieve.defeat_icequeen = 1;
-    
+
     mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
     livelog_printf(LL_UMONST, "defeated %s", noit_mon_nam(mtmp));
     newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
@@ -5321,23 +5323,16 @@ struct monst *mtmp;
         else
             uunstick();
     }
+
     if (!Blind)
         pline("%s motions for Koa and Ozzy to heel and stop their attack.",
               Monnam(mtmp));
+
     for (mon = fmon; mon; mon = mon->nmon) {
         if (DEADMONSTER(mon))
             continue;
         /* cure any ailments the dogs may have also */
-        if (mon->data == koa) {
-            mtmp->mfrozen = 0;
-            mtmp->mstone = 0;
-            mtmp->msick = 0;
-            mtmp->mdiseased = 0;
-            mtmp->mconf = 0;
-            mtmp->mstun = 0;
-            mon->mpeaceful = 1;
-        }
-        if (mon->data == ozzy) {
+        if (mon->data == koa || mon->data == ozzy) {
             mtmp->mfrozen = 0;
             mtmp->mstone = 0;
             mtmp->msick = 0;
@@ -5347,13 +5342,14 @@ struct monst *mtmp;
             mon->mpeaceful = 1;
         }
     }
-    verbalize("Thank you for freeing me from this awful curse!");
+    com_pager(200);
+    /*verbalize("Thank you for freeing me from this awful curse!");
     verbalize("Long ago, a powerful and evil witch cast a spell on me, which transformed me into the Ice Queen.");
     verbalize("She controlled my every thought, causing me to bring winter permanently to this land.");
     verbalize("Only by being defeated in combat could I be free from her wretched malediction.");
     verbalize("I am forever in your debt.  But before I can repay that debt, I must undo the damage I have caused here.");
     verbalize("And please free the captive pegasus, I am certain he will be extremely grateful.");
-    verbalize("Fare thee well, brave adventurer.  Until we meet again...");
+    verbalize("Fare thee well, brave adventurer.  Until we meet again...");*/
     newsym(mtmp->mx, mtmp->my);
     if (Role_if(PM_INFIDEL))
         adjalign(-2); /* doing good things as an agent of Moloch? pfft */

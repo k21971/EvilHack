@@ -4198,3 +4198,18 @@ determined to recover the Amulet for your deity, or die
 in the attempt.  Your hour of destiny has come.  For
 the sake of us all:  Go bravely with %d!
 %E [%dC has chosen you to recover the Amulet of Yendor for %dI.]
+#
+# Ice Queen branch text (lifting the curse)
+#
+%Cc - 00200
+Thank you for freeing me from this awful curse!  Long ago,
+a powerful and evil witch cast a spell on me, which
+transformed me into the Ice Queen.  She controlled my every
+thought, causing me to bring winter permanently to this land.
+Only by being defeated in combat could I be free from her
+wretched malediction.  I am forever in your debt.  But before
+I can repay that debt, I must undo the damage I have caused
+here.  And please free the captive pegasus, I am certain he
+will be extremely grateful.  Fare thee well, brave adventurer.
+Until we meet again...
+%E [You have freed Kathryn the Enchantress from a terrible curse.]
