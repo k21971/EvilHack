@@ -1149,4 +1149,6 @@ Version 0.6.0
 - Some slight code improvements (ice queen branch)
 - Fix: your deity probably shouldn't gift the player a helm of opposite alignment
 - Fix: only demons can wield the Wand of Orcus
+- Fix: only transform a dead ice queen
+- Clear up a couple extra conditions on transformation
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

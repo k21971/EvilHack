@@ -233,6 +233,7 @@ struct monst* mdef;
             mdef->mstone = 0;
             mdef->msick = 0;
             mdef->mdiseased = 0;
+            mdef->mwither = 0;
             mdef->mconf = 0;
             mdef->mstun = 0;
             newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
@@ -2607,6 +2608,7 @@ register struct monst *mtmp;
             mtmp->mstone = 0;
             mtmp->msick = 0;
             mtmp->mdiseased = 0;
+            mtmp->mwither = 0;
             mtmp->mconf = 0;
             mtmp->mstun = 0;
             if (!mtmp->mpeaceful)
@@ -5307,6 +5309,7 @@ struct monst *mtmp;
     mtmp->mstone = 0;
     mtmp->msick = 0;
     mtmp->mdiseased = 0;
+    mtmp->mwither = 0;
     mtmp->mconf = 0;
     mtmp->mstun = 0;
     mtmp->mpeaceful = 1;
@@ -5334,23 +5337,18 @@ struct monst *mtmp;
             continue;
         /* cure any ailments the dogs may have also */
         if (mon->data == koa || mon->data == ozzy) {
+            mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
             mtmp->mstone = 0;
             mtmp->msick = 0;
             mtmp->mdiseased = 0;
+            mtmp->mwither = 0;
             mtmp->mconf = 0;
             mtmp->mstun = 0;
             mon->mpeaceful = 1;
         }
     }
     com_pager(200);
-    /*verbalize("Thank you for freeing me from this awful curse!");
-    verbalize("Long ago, a powerful and evil witch cast a spell on me, which transformed me into the Ice Queen.");
-    verbalize("She controlled my every thought, causing me to bring winter permanently to this land.");
-    verbalize("Only by being defeated in combat could I be free from her wretched malediction.");
-    verbalize("I am forever in your debt.  But before I can repay that debt, I must undo the damage I have caused here.");
-    verbalize("And please free the captive pegasus, I am certain he will be extremely grateful.");
-    verbalize("Fare thee well, brave adventurer.  Until we meet again...");*/
     newsym(mtmp->mx, mtmp->my);
     if (Role_if(PM_INFIDEL))
         adjalign(-2); /* doing good things as an agent of Moloch? pfft */
