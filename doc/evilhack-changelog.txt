@@ -1145,4 +1145,8 @@ Version 0.6.0
 - Bit of formatting housekeeping
 - Fix: the Bag of the Hesperides was not granting MC1 when carried
 - Fix: giant samurai breaking out of their large armor when poly'd into a large form
+- Make the Ice Queen not aggro on multihits
+- Some slight code improvements (ice queen branch)
+- Fix: your deity probably shouldn't gift the player a helm of opposite alignment
+- Fix: only demons can wield the Wand of Orcus
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

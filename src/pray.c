@@ -2222,7 +2222,7 @@ dosacrifice()
                                 }
                             }
 
-                            /* if we have the WRONG race, then let's not do that */
+                            /* if we have the WRONG object, then let's not do that */
                             otmp = mksobj(typ, FALSE, FALSE);
                             if (is_elven_armor(otmp) && !Race_if(PM_ELF))
                                 typ = 0;
@@ -2230,7 +2230,10 @@ dosacrifice()
                                 typ = 0;
                             else if (is_dwarvish_armor(otmp) && !Race_if(PM_DWARF))
                                 typ = 0;
-                            else if (otmp->otyp == LARGE_SPLINT_MAIL && !Race_if(PM_GIANT))
+                            else if (otmp->otyp == LARGE_SPLINT_MAIL && !Race_if(PM_GIANT)
+                                     && !Role_if(PM_SAMURAI))
+                                typ = 0;
+                            else if (otmp->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
                                 typ = 0;
 
                             otmp = (struct obj *) 0;
