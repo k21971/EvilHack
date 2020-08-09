@@ -1147,4 +1147,5 @@ Version 0.6.0
 - Fix: giant samurai breaking out of their large armor when poly'd into a large form
 - Make the Ice Queen not aggro on multihits
 - Some slight code improvements (ice queen branch)
+- Fix: your deity probably shouldn't gift the player a helm of opposite alignment
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
