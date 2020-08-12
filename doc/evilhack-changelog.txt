@@ -1151,4 +1151,5 @@ Version 0.6.0
 - Fix: only demons can wield the Wand of Orcus
 - Fix: only transform a dead ice queen
 - Clear up a couple extra conditions on transformation
+- The Wand of Orcus is always known
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
