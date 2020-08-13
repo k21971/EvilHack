@@ -16,7 +16,7 @@ const char *const enc_stat[] = { "",         "Burdened",  "Stressed",
 STATIC_OVL NEARDATA int mrank_sz = 0; /* loaded by max_rank_sz (from u_init) */
 STATIC_DCL void NDECL(bot_via_windowport);
 STATIC_DCL void NDECL(stat_update_time);
-STATIC_DCL const char *FDECL(rank_of_role, (int, struct Role *, boolean));
+STATIC_DCL const char *FDECL(rank_of_role, (int, const struct Role *, boolean));
 
 /* limit of the player's name in the status window */
 #define BOTL_NSIZ 16
@@ -293,7 +293,6 @@ short monnum;
 boolean female;
 {
     register const struct Role *role;
-    register int i;
 
     /* Find the role */
     for (role = roles; role->name.m; role++)
@@ -316,7 +315,6 @@ short monnum;
 boolean female;
 {
     register const struct Role *role;
-    register int i;
 
     /* Find the role */
     for (role = roles; role->name.m; role++)
@@ -324,7 +322,15 @@ boolean female;
             break;
     if (!role->name.m)
         role = &urole;
-
+    
+    // convert knights -> dark knights for lawfuls
+     if (role->malenum == PM_KNIGHT){
+          if (u.ualignbase[A_ORIGINAL] == A_LAWFUL)
+               role = &align_roles[0];
+          else if (u.ualignbase[A_ORIGINAL] == A_NEUTRAL && rn2(2))
+               role = &align_roles[0];
+          // otherwise (chaotic, unaligned) keep the standard knight role titles
+     }
     return rank_of_role(lev, role, female);
 }
 
