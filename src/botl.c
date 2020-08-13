@@ -16,6 +16,7 @@ const char *const enc_stat[] = { "",         "Burdened",  "Stressed",
 STATIC_OVL NEARDATA int mrank_sz = 0; /* loaded by max_rank_sz (from u_init) */
 STATIC_DCL void NDECL(bot_via_windowport);
 STATIC_DCL void NDECL(stat_update_time);
+STATIC_DCL const char *FDECL(rank_of_role, (int, struct Role *, boolean));
 
 /* limit of the player's name in the status window */
 #define BOTL_NSIZ 16
@@ -286,7 +287,7 @@ int rank;
 #endif
 
 const char *
-rank_of(lev, monnum, female)
+rank_of(lev, monnum, female) // for the PC only
 int lev;
 short monnum;
 boolean female;
@@ -305,6 +306,37 @@ boolean female;
         role = &urole;
     }
 
+    return rank_of_role(lev, role, female);
+}
+
+const char *
+rank_of_mplayer(lev, monnum, female)
+int lev;
+short monnum;
+boolean female;
+{
+    register const struct Role *role;
+    register int i;
+
+    /* Find the role */
+    for (role = roles; role->name.m; role++)
+        if (monnum == role->malenum || monnum == role->femalenum)
+            break;
+    if (!role->name.m)
+        role = &urole;
+
+    return rank_of_role(lev, role, female);
+}
+
+
+const char *
+rank_of_role(lev, role, female)
+int lev;
+const struct Role *role;
+boolean female;
+{
+    register int i;
+    
     /* Find the rank */
     for (i = xlev_to_rank((int) lev); i >= 0; i--) {
         if (female && role->rank[i].f)
@@ -320,6 +352,8 @@ boolean female;
         return role->name.m;
     return "Player";
 }
+
+
 
 const char *
 rank()
