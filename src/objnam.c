@@ -3560,7 +3560,7 @@ struct obj *no_wish;
                 if ((mntmp = name_to_mon(p + of)) >= LOW_PM) {
                     *p = 0;
                     p = 0;
-                } else if (!strncmpi((p + of), "fire", l = 4)) {
+                } else if (!strncmpi((p + of), "fire", l = 4) && strncmpi(bp, "scroll", l = 5)) {
                     if (!objpropcount || wizard)
                         objprops |= ITEM_FIRE;
                     objpropcount++;
