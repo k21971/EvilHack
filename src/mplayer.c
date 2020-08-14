@@ -96,7 +96,7 @@ char *nam;
     else
         mtmp->female = 0;
     Strcat(nam, " the ");
-    Strcat(nam, rank_of((int) mtmp->m_lev, monsndx(mtmp->data) + 18,
+    Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, monsndx(mtmp->data) + 18,
                         (boolean) mtmp->female));
 }
 
