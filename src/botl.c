@@ -287,7 +287,7 @@ int rank;
 #endif
 
 const char *
-rank_of(lev, monnum, female) // for the PC only
+rank_of(lev, monnum, female) /* for the PC only */
 int lev;
 short monnum;
 boolean female;
@@ -301,9 +301,8 @@ boolean female;
     if (!role->name.m)
         role = &urole;
 
-    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)) {
+    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT))
         role = &urole;
-    }
 
     return rank_of_role(lev, role, female);
 }
@@ -320,17 +319,18 @@ boolean female;
     for (role = roles; role->name.m; role++)
         if (monnum == role->malenum || monnum == role->femalenum)
             break;
+
     if (!role->name.m)
         role = &urole;
-    
-    // convert knights -> dark knights for lawfuls
-     if (role->malenum == PM_KNIGHT){
-          if (u.ualignbase[A_ORIGINAL] == A_LAWFUL)
-               role = &align_roles[0];
-          else if (u.ualignbase[A_ORIGINAL] == A_NEUTRAL && rn2(2))
-               role = &align_roles[0];
-          // otherwise (chaotic, unaligned) keep the standard knight role titles
-     }
+
+    /* convert knights -> dark knights for lawfuls */
+    if (role->malenum == PM_KNIGHT) {
+        if (u.ualignbase[A_ORIGINAL] == A_LAWFUL)
+            role = &align_roles[0];
+        else if (u.ualignbase[A_ORIGINAL] == A_NEUTRAL && rn2(2))
+            role = &align_roles[0];
+        /* otherwise (chaotic, unaligned) keep the standard knight role titles */
+    }
     return rank_of_role(lev, role, female);
 }
 
@@ -342,7 +342,7 @@ const struct Role *role;
 boolean female;
 {
     register int i;
-    
+
     /* Find the rank */
     for (i = xlev_to_rank((int) lev); i >= 0; i--) {
         if (female && role->rank[i].f)
@@ -358,8 +358,6 @@ boolean female;
         return role->name.m;
     return "Player";
 }
-
-
 
 const char *
 rank()

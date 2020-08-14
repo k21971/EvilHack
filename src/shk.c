@@ -259,7 +259,7 @@ restshk(shkp, ghostly)
 struct monst *shkp;
 boolean ghostly;
 {
-	shkp->data->msound = MS_SELL;
+    shkp->data->msound = MS_SELL;
     if (u.uz.dlevel) {
         struct eshk *eshkp = ESHK(shkp);
 

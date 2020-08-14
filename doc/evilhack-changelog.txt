@@ -1152,4 +1152,7 @@ Version 0.6.0
 - Fix: only transform a dead ice queen
 - Clear up a couple extra conditions on transformation
 - The Wand of Orcus is always known
+- Fix: make scrolls of fire wishable again
+- Fix: make player monsters show the right rank titles
+- Code formatting tweaks
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

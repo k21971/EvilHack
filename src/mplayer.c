@@ -97,7 +97,7 @@ char *nam;
         mtmp->female = 0;
     Strcat(nam, " the ");
     Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, monsndx(mtmp->data) + 18,
-                        (boolean) mtmp->female));
+                                (boolean) mtmp->female));
 }
 
 STATIC_OVL void
