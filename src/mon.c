@@ -4263,6 +4263,7 @@ int shiftflags;
     int mndx;
     unsigned was_female = mon->female;
     boolean msg = FALSE, dochng = FALSE;
+    boolean tame_vamp = (mon->data->mlet == S_VAMPIRE && mon->mtame);
 
     if ((shiftflags & SHIFT_MSG)
         || ((shiftflags & SHIFT_SEENMSG) && sensemon(mon)))
@@ -4281,12 +4282,7 @@ int shiftflags;
          * If we're shifted and getting low on hp, maybe shift back, or
          * if we're a fog cloud at full hp, maybe pick a different shape.
          * If we're not already shifted and in good health, maybe shift.
-         *
-         * If we're already in vampire form and are tame, don't shift
-         * back to an animal/fog form.
          */
-        if (mon->data->mlet == S_VAMPIRE && mon->mtame)
-            dochng = FALSE;
 
         if (mon->data->mlet != S_VAMPIRE) {
             if ((mon->mhp <= (mon->mhpmax + 5) / 6) && rn2(4)
@@ -4308,9 +4304,14 @@ int shiftflags;
                 }
             }
         } else {
-            if (mon->mhp >= 9 * mon->mhpmax / 10 && !rn2(6)
+            /* If we're already in vampire form and are tame, don't shift
+               back to an animal/fog form */
+            if (tame_vamp)
+                dochng = FALSE;
+            else if (mon->mhp >= 9 * mon->mhpmax / 10 && !rn2(6)
                 && (!canseemon(mon)
-                    || distu(mon->mx, mon->my) > BOLT_LIM * BOLT_LIM))
+                    || distu(mon->mx, mon->my) > BOLT_LIM * BOLT_LIM)
+                && !tame_vamp)
                 dochng = TRUE; /* 'ptr' stays Null */
         }
     }

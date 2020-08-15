@@ -1155,4 +1155,5 @@ Version 0.6.0
 - Fix: make scrolls of fire wishable again
 - Fix: make player monsters show the right rank titles
 - Code formatting tweaks
+- Fix: tame vampires no longer revert back to animal/fog form
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
