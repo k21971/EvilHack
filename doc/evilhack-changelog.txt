@@ -1156,5 +1156,7 @@ Version 0.6.0
 - Fix: make player monsters show the right rank titles
 - Code formatting tweaks
 - Fix: tame vampires no longer revert back to animal/fog form
-- Fix proper handling of monster's weapon/gloves with attacking a black dragon
+- Fix: proper handling of monster's weapon/gloves when attacking a black dragon
+- Fix: correct feedback when a monster dies due to wearing a cursed amulet of
+  life saving
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

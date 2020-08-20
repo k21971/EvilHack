@@ -2546,9 +2546,10 @@ struct monst *mtmp;
                 pline("%s medallion glows white-hot!", s_suffix(Monnam(mtmp)));
                 if (!Deaf)
                     You("hear diabolical laughter in the distance...");
-                pline("%s body turns to dust and blows away.", s_suffix(Monnam(mtmp)));
+                pline("%s dies!", Monnam(mtmp));
                 m_useup(mtmp, lifesave);
                 mtmp->mhp = 0;
+                pline_The("medallion crumbles to dust!");
                 return;
             } else if (canseemon(mtmp)) {
                 if (attacktype(mtmp->data, AT_EXPL)
