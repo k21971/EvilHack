@@ -2126,7 +2126,7 @@ int mdead;
             acid_damage(MON_WEP(magr));
         goto assess_dmg;
     case AD_DISN:
-        if (mhit && !mdef->mcan && rn2(20)) {
+        if (mhit && !mdef->mcan && !rn2(20)) {
             if (resists_disint(magr)) {
                 if (canseemon(magr)) {
                     shieldeff(magr->mx, magr->my);
@@ -2134,11 +2134,25 @@ int mdead;
                           s_suffix(Monnam(mdef)), mon_nam(magr));
                 }
             } else {
-                if (canseemon(magr))
-                    pline("%s deadly hide disintegrates %s!",
-                          s_suffix(Monnam(mdef)), mon_nam(magr));
-                mongone(magr); /* being disintegrated means nothing is left behind */
-                return (mdead | mhit | MM_AGR_DIED);
+                /* if magr is wielding a weapon, that disintegrates first before
+                   the actual monster. Same if magr is wearing gloves */
+                if (MON_WEP(magr)) {
+                    if (canseemon(magr))
+                        pline("%s %s is disintegrated!",
+                              s_suffix(Monnam(magr)), xname(MON_WEP(magr)));
+                    m_useup(magr, MON_WEP(magr));
+                } else if ((magr->misc_worn_check & W_ARMG) && !MON_WEP(magr)) {
+                    if (canseemon(magr))
+                        pline("%s %s are disintegrated!",
+                              s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMG)));
+                    m_useup(magr, which_armor(magr, W_ARMG));
+                } else {
+                    if (canseemon(magr))
+                        pline("%s deadly hide disintegrates %s!",
+                              s_suffix(Monnam(mdef)), mon_nam(magr));
+                    mongone(magr); /* being disintegrated means nothing is left behind */
+                    return (mdead | mhit | MM_AGR_DIED);
+                }
             }
         }
         break;

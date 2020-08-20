@@ -3935,13 +3935,27 @@ struct attack *mattk;
                           mon_nam(mtmp));
                 }
             } else {
-                if (canseemon(mtmp)) {
-                    Your("deadly hide disintegrates %s!",
-                          mon_nam(mtmp));
-                    xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
-                    if (!DEADMONSTER(mtmp))
-                        return 1;
-                    return 2;
+                /* if mtmp is wielding a weapon, that disintegrates first before
+                   the actual monster. Same if mtmp is wearing gloves */
+                if (MON_WEP(mtmp)) {
+                    if (canseemon(mtmp))
+                        pline("%s %s is disintegrated!",
+                              s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
+                    m_useup(mtmp, MON_WEP(mtmp));
+                } else if ((mtmp->misc_worn_check & W_ARMG) && !MON_WEP(mtmp)) {
+                    if (canseemon(mtmp))
+                        pline("%s %s are disintegrated!",
+                              s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
+                    m_useup(mtmp, which_armor(mtmp, W_ARMG));
+                } else {
+                    if (canseemon(mtmp)) {
+                        Your("deadly hide disintegrates %s!",
+                              mon_nam(mtmp));
+                        xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                        if (!DEADMONSTER(mtmp))
+                            return 1;
+                        return 2;
+                    }
                 }
             }
         }
