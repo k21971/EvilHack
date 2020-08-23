@@ -1160,4 +1160,5 @@ Version 0.6.0
 - Fix: correct feedback when a monster dies due to wearing a cursed amulet of
   life saving
 - Fix: player monster infidel armor/weapon objects not truly cursed
+- Player monster infidels won't use scrolls of remove curse
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

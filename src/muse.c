@@ -2406,18 +2406,19 @@ struct monst *mtmp;
             m.has_misc = MUSE_POT_POLYMORPH;
         }
      	nomore(MUSE_SCR_REMOVE_CURSE);
-     	if (obj->otyp == SCR_REMOVE_CURSE) {
+     	if (obj->otyp == SCR_REMOVE_CURSE
+            && mtmp->mnum != PM_HUMAN_INFIDEL) {
             register struct obj *otmp;
        	    for (otmp = mtmp->minvent;
        	         otmp; otmp = otmp->nobj) {
        	        if (otmp->cursed
        	            && (otmp->otyp == LOADSTONE
-       		    || otmp->owornmask)) {
+       	                || otmp->owornmask)) {
        	            m.misc = obj;
-       		    m.has_misc = MUSE_SCR_REMOVE_CURSE;
+       	            m.has_misc = MUSE_SCR_REMOVE_CURSE;
        	        }
        	    }
-     	}
+        }
     }
     return find_misc_recurse(mtmp, mtmp->minvent);
 #undef nomore
@@ -2516,18 +2517,19 @@ struct obj *start;
             m.has_misc = MUSE_POT_POLYMORPH;
         }
      	nomore(MUSE_SCR_REMOVE_CURSE);
-     	if (obj->otyp == SCR_REMOVE_CURSE) {
+     	if (obj->otyp == SCR_REMOVE_CURSE
+            && mtmp->mnum != PM_HUMAN_INFIDEL) {
             register struct obj *otmp;
        	    for (otmp = mtmp->minvent;
-       	        otmp; otmp = otmp->nobj) {
-       		if (otmp->cursed
+       	         otmp; otmp = otmp->nobj) {
+       	        if (otmp->cursed
        	            && (otmp->otyp == LOADSTONE
-       		    || otmp->owornmask)) {
-       		    m.misc = obj;
+       	                || otmp->owornmask)) {
+       	            m.misc = obj;
        	            m.has_misc = MUSE_SCR_REMOVE_CURSE;
        	        }
        	    }
-     	}
+        }
     }
     if (mtmp->mfrozen) {
 	m.misc = (struct obj *)0;
@@ -2724,20 +2726,20 @@ struct monst *mtmp;
      		&& !objects[SCR_REMOVE_CURSE].oc_uname)
      		docall(otmp);
      	}
-    {
-        register struct obj *obj;
-        for (obj = mtmp->minvent; obj; obj = obj->nobj) {
-     	    /* gold isn't subject to cursing and blessing */
-     	    if (obj->oclass == COIN_CLASS)
-                continue;
-     	    if (otmp->blessed || otmp->owornmask
-     	        || obj->otyp == LOADSTONE) {
-     	        if (mtmp->mconf)
-                    blessorcurse(obj, 2);
-     	        else uncurse(obj);
-     	    }
-     	}
-    }
+        {
+            register struct obj *obj;
+            for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+     	        /* gold isn't subject to cursing and blessing */
+     	        if (obj->oclass == COIN_CLASS)
+                    continue;
+     	        if (otmp->blessed || otmp->owornmask
+     	            || obj->otyp == LOADSTONE) {
+     	            if (mtmp->mconf)
+                        blessorcurse(obj, 2);
+     	            else uncurse(obj);
+     	        }
+            }
+        }
      	m_useup(mtmp, otmp);
      	return 0;
     case MUSE_POLY_TRAP:
