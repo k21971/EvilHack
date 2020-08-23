@@ -95,10 +95,10 @@ FLAGS:rndvault
 MINDEPTH:2
 ROOM:"rndvault", random, random, random, random {
     $mon = MONSTER: { '@', "apprentice", "warrior", "ninja", "thug", "hunter", "acolyte", "abbot",
-             "page", "attendant", "neanderthal", "chieftain", "student", "human wizard", "human valkyrie",
-	     "human tourist", "human samurai", "human rogue", "human ranger", "human priestess",
-             "human monk", "human knight", "human healer", "human cavewoman", "human barbarian",
-             "human archeologist" }
+             "page", "attendant", "neanderthal", "chieftain", "student", "inmate", "cultist",
+             "wizard", "valkyrie", "tourist", "samurai", "rogue", "ranger", "priest", "priestess",
+             "monk", "knight", "healer", "caveman", "cavewoman", "barbarian", "archeologist",
+             "convict", "infidel" }
   SHUFFLE: $mon
   LOOP [5d5] {
     IF [25%] { SHUFFLE: $mon }
@@ -177,6 +177,7 @@ REGION:(1,1,3,3),random,"rndvault",irregular { }
 # Split horizontally
 LEVEL:"vlt-0010"
 FLAGS:rndvault
+MINDEPTH:5
 GEOMETRY:random
 MAP
 --------
@@ -199,6 +200,7 @@ REGION:(1,4,6,6),random,"ordinary",unfilled { }
 # Split vertically
 LEVEL:"vlt-0011"
 FLAGS:rndvault
+MINDEPTH:5
 GEOMETRY:random
 MAP
 ---------

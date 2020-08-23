@@ -1161,4 +1161,5 @@ Version 0.6.0
   life saving
 - Fix: player monster infidel armor/weapon objects not truly cursed
 - Player monster infidels won't use scrolls of remove curse
+- Some tweaks to random vaults
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
