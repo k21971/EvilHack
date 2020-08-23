@@ -1159,4 +1159,5 @@ Version 0.6.0
 - Fix: proper handling of monster's weapon/gloves when attacking a black dragon
 - Fix: correct feedback when a monster dies due to wearing a cursed amulet of
   life saving
+- Fix: player monster infidel armor/weapon objects not truly cursed
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

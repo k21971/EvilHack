@@ -399,6 +399,16 @@ unsigned short chance;
                     && is_graystone(obj) && obj->otyp != FLINT) {
                     obj->quan = 1L;
                 }
+                if (trop->trspe != UNDEF_SPE) {
+                    obj->spe = (trop->trspe & ~RND_SPE);
+                    if (trop->trspe & RND_SPE) {
+                        obj->spe--;
+                        obj->spe += rn2(3);
+                    }
+                }
+                if (trop->trbless != UNDEF_BLESS
+                    && mtmp && mtmp->mnum != PM_HUMAN_INFIDEL)
+                    obj->blessed = (trop->trbless == 1);
                 if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
                     && obj->oclass == ARMOR_CLASS) {
                     obj->oerodeproof = 1;
@@ -409,15 +419,6 @@ unsigned short chance;
                     obj->cursed = TRUE;
                 if (obj->otyp == STRIPED_SHIRT)
                     obj->cursed = TRUE;
-                if (trop->trspe != UNDEF_SPE) {
-                    obj->spe = (trop->trspe & ~RND_SPE);
-                    if (trop->trspe & RND_SPE) {
-                        obj->spe--;
-                        obj->spe += rn2(3);
-                    }
-                }
-                if (trop->trbless != UNDEF_BLESS)
-                    obj->blessed = (trop->trbless == 1);
                 if ((obj->oclass == WEAPON_CLASS
                      || obj->oclass == ARMOR_CLASS)
                     && chance > 1) {
