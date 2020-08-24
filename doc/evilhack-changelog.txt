@@ -1164,4 +1164,5 @@ Version 0.6.0
 - Some tweaks to random vaults
 - Fix: huge/gigantic monsters 'squashing' tiny monsters in their way
 - Running and traveling no longer push boulders
+- Allow skilled attack spell casters to cast 'basic' level for various attack spells
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
