@@ -2178,7 +2178,8 @@ struct monst *magr, /* monster that is currently deciding where to move */
     /* The Riders, and huge/gigantic monsters
        will step on the bugs to get to you */
     if ((is_rider(ma) || ma->msize >= MZ_HUGE)
-        && m_canseeu(magr) && md->msize == MZ_TINY)
+        && m_canseeu(magr) && magr->mpeaceful == FALSE
+        && md->msize == MZ_TINY)
         return ALLOW_M | ALLOW_TM;
 
     /* covetous/player monsters will attack
