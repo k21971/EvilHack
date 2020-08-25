@@ -1168,4 +1168,5 @@ Version 0.6.0
 - Fix: guardians could attack hostile quest leader
 - Conflict negates Elbereth and scare monster
 - Lifesaving livelog shows the would-be killer
+- Allow teleportation into unteleportable spots in wizard mode
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
