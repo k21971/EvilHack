@@ -1170,4 +1170,5 @@ Version 0.6.0
 - Lifesaving livelog shows the would-be killer
 - Allow teleportation into unteleportable spots in wizard mode
 - Unify monnam calls for livelogs that should ignore hallucination
+- Fix: livelog for killing pet should happen even if pet is unnamed
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
