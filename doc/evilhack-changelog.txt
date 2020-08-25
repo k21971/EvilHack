@@ -1166,4 +1166,5 @@ Version 0.6.0
 - Running and traveling no longer push boulders
 - Allow skilled attack spell casters to cast 'basic' level for various attack spells
 - Fix: guardians could attack hostile quest leader
+- Conflict negates Elbereth and scare monster
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
