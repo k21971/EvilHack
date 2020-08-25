@@ -1169,4 +1169,5 @@ Version 0.6.0
 - Conflict negates Elbereth and scare monster
 - Lifesaving livelog shows the would-be killer
 - Allow teleportation into unteleportable spots in wizard mode
+- Unify monnam calls for livelogs that should ignore hallucination
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

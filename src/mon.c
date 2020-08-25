@@ -38,6 +38,13 @@ STATIC_DCL void FDECL(icequeenrevive, (struct monst *));
     (Is_rogue_level(&u.uz)            \
      || (level.flags.graveyard && is_undead(mdat) && rn2(3)))
 
+/* A specific combination of x_monnam flags for livelogging. The livelog
+ * shouldn't show that you killed a hallucinatory monster and not what it
+ * actually is. */
+#define livelog_mon_nam(mtmp) \
+    x_monnam(mtmp, ARTICLE_THE, (char *) 0,                 \
+             (SUPPRESS_IT | SUPPRESS_HALLUCINATION), FALSE)
+
 #if 0
 /* part of the original warning code which was replaced in 3.3.1 */
 const char *warnings[] = {
@@ -2832,8 +2839,7 @@ register struct monst *mtmp;
         switch (mvitals[tmp].died) {
             case 1:
                 livelog_printf(LL_UMONST, "put %s down for a little nap",
-                               x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                                        SUPPRESS_IT | SUPPRESS_HALLUCINATION, FALSE));
+                               livelog_mon_nam(mtmp));
                 break;
             case 5:
             case 10:
@@ -2843,9 +2849,7 @@ register struct monst *mtmp;
             case 200:
             case 250:
                 livelog_printf(LL_UMONST, "put %s down for a little nap (%d times)",
-                               x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                                        SUPPRESS_IT | SUPPRESS_HALLUCINATION, FALSE),
-                               mvitals[tmp].died);
+                               livelog_mon_nam(mtmp), mvitals[tmp].died);
                 break;
             default:
                 /* don't spam the log every time */
@@ -2860,9 +2864,8 @@ register struct monst *mtmp;
                     break;
                 } else {
                     livelog_printf(LL_UMONST, "%s %s",
-                        nonliving(mtmp->data) ? "destroyed" : "killed",
-                        x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                                 SUPPRESS_IT | SUPPRESS_HALLUCINATION, FALSE));
+                                   nonliving(mtmp->data) ? "destroyed" : "killed",
+                                   livelog_mon_nam(mtmp));
                     break;
                 }
             case 5:
@@ -2873,10 +2876,8 @@ register struct monst *mtmp;
             case 200:
             case 250:
                 livelog_printf(LL_UMONST, "%s %s (%d times)",
-                    nonliving(mtmp->data) ? "destroyed" : "killed",
-                    x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                             SUPPRESS_IT | SUPPRESS_HALLUCINATION, FALSE),
-                    mvitals[tmp].died);
+                               nonliving(mtmp->data) ? "destroyed" : "killed",
+                               livelog_mon_nam(mtmp), mvitals[tmp].died);
                 break;
             default:
                 /* don't spam the log every time */
@@ -3412,10 +3413,10 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         && mtmp->former_rank && strlen(mtmp->former_rank) > 0) {
         if (mtmp->data == &mons[PM_GHOST])
             livelog_printf(LL_UMONST, "destroyed %s, the former %s",
-                           noit_mon_nam(mtmp), mtmp->former_rank);
+                           livelog_mon_nam(mtmp), mtmp->former_rank);
         else
             livelog_printf(LL_UMONST, "destroyed %s, and former %s",
-                           noit_mon_nam(mtmp), mtmp->former_rank);
+                           livelog_mon_nam(mtmp), mtmp->former_rank);
     }
 }
 
