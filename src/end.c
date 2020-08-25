@@ -1329,7 +1329,10 @@ int how;
                 && !Levitation && !Flying) {
                 pline("Unfortunately the impact was too great...");
             } else {
-                livelog_write_string(LL_LIFESAVE, "averted death");
+                char killbuf[BUFSZ];
+                formatkiller(killbuf, BUFSZ, how, FALSE);
+                livelog_printf(LL_LIFESAVE, "averted death (%s)", killbuf);
+                pline("averted death (%s)", killbuf);
                 ukiller = (struct monst*) 0;
                 survive = TRUE;
             }
