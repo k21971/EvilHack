@@ -1174,4 +1174,5 @@ Version 0.6.0
 - Elven/orcish undead are unaffected by the materials their living counterparts hate
 - Fix: prevent potential segfault using a stethoscope to listen to eggs
 - Angel tweaks and adjustments
+- All demon lords/princes have at least a base speed of 12
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
