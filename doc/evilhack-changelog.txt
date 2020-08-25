@@ -1175,4 +1175,5 @@ Version 0.6.0
 - Fix: prevent potential segfault using a stethoscope to listen to eggs
 - Angel tweaks and adjustments
 - All demon lords/princes have at least a base speed of 12
+- Player monsters that spawn in the endgame use names from the topten list
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

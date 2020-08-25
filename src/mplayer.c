@@ -82,10 +82,13 @@ char *nam;
 {
     boolean fmlkind = is_female(mtmp->data);
     const char *devnam;
+    char* ttname = tt_name();
 
     devnam = dev_name();
     if (!devnam)
         Strcpy(nam, fmlkind ? "Eve" : "Adam");
+    else if (In_endgame(&u.uz))
+        Sprintf(nam, "%s", (ttname != 0) ? upstart(ttname) : developers[rn2(SIZE(developers))]);
     else if (fmlkind && !!strcmp(devnam, "Janet"))
         Sprintf(nam, "%s", fem_names[rn2(SIZE(fem_names))]);
     else
