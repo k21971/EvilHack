@@ -2657,7 +2657,8 @@ boolean ordinary;
 
     case WAN_DEATH:
     case SPE_FINGER_OF_DEATH:
-        if (nonliving(youmonst.data) || is_demon(raceptr(&youmonst))) {
+        if (nonliving(youmonst.data) || is_demon(raceptr(&youmonst))
+            || is_angel(raceptr(&youmonst))) {
             pline((obj->otyp == WAN_DEATH)
                       ? "The wand shoots an apparently harmless beam at you."
                       : "You seem no more dead than before.");
@@ -4210,7 +4211,8 @@ xchar sx, sy;
                 if (uarmu)
                     (void) destroy_arm(uarmu);
             }
-        } else if (nonliving(youmonst.data) || is_demon(raceptr(&youmonst))) {
+        } else if (nonliving(youmonst.data) || is_demon(raceptr(&youmonst))
+                   || is_angel(raceptr(&youmonst))) {
             shieldeff(sx, sy);
             You("seem unaffected.");
             break;

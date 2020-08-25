@@ -514,7 +514,8 @@ int spellnum;
     switch (spellnum) {
     case MGC_DEATH_TOUCH:
         pline("Oh no, %s's using the touch of death!", mhe(mtmp));
-        if (nonliving(youmonst.data) || is_demon(raceptr(&youmonst))) {
+        if (nonliving(youmonst.data) || is_demon(raceptr(&youmonst))
+            || is_angel(raceptr(&youmonst))) {
             You("seem no more dead than before.");
         } else {
             if (Hallucination) {
@@ -1684,20 +1685,20 @@ int spellnum;
        	    pline("You're using the touch of death!");
        	else if (canseemon(mattk)) {
        	    char buf[BUFSZ];
-       	    Sprintf(buf, "%s%s", mtmp->mtame ? "Oh no, " : "",
-       	                         mhe(mattk));
+       	    Sprintf(buf, "%s%s",
+                    mtmp->mtame ? "Oh no, " : "", mhe(mattk));
        	    if (!mtmp->mtame)
        	        *buf = highc(*buf);
 
        	    pline("%s's using the touch of death!", buf);
        	}
 
-       	if (nonliving(mtmp->data) || is_demon(mtmp->data)) {
+       	if (immune_death_magic(mtmp->data) || is_vampshifter(mtmp)) {
        	    if (yours || canseemon(mtmp))
        	        pline("%s seems no more dead than before.", Monnam(mtmp));
-       	} else if (!(resisted = resist(mtmp, 0, 0, FALSE)) ||
-       	           rn2(mons[u.umonnum].mlevel) > 12) {
-                   mtmp->mhp = -1;
+       	} else if (!(resisted = resist(mtmp, 0, 0, FALSE))
+       	           || rn2(mons[u.umonnum].mlevel) > 12) {
+            mtmp->mhp = -1;
        	    if (yours)
                 killed(mtmp);
        	    else monkilled(mtmp, "", AD_SPEL);

@@ -191,7 +191,8 @@ int expltype;
                 case AD_DISN:
                     explmask[i][j] = (olet == WAND_CLASS)
                                          ? !!(nonliving(youmonst.data)
-                                              || is_demon(raceptr(&youmonst)))
+                                              || is_demon(raceptr(&youmonst))
+                                              || is_angel(raceptr(&youmonst)))
                                          : (how_resistant(DISINT_RES) > 50);
                     break;
                 case AD_ELEC:
@@ -231,9 +232,7 @@ int expltype;
                         break;
                     case AD_DISN:
                         explmask[i][j] |= (olet == WAND_CLASS)
-                                              ? (nonliving(mtmp->data)
-                                                 || is_demon(mtmp->data)
-                                                 || is_vampshifter(mtmp))
+                                              ? immune_death_magic(mtmp->data)
                                               : resists_disint(mtmp);
                         break;
                     case AD_ELEC:
