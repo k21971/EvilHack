@@ -346,9 +346,13 @@ int material;
                 || is_demon(ptr) || ptr == &mons[PM_SHADE]
                 || (ptr->mlet == S_IMP));
     } else if (material == IRON) {
+        if (is_undead(ptr))
+            return FALSE;
         /* cold iron: elves hate it */
         return (is_elf(ptr));
     } else if (material == MITHRIL) {
+        if (is_undead(ptr))
+            return FALSE;
         /* mithril: orcs hate it */
         return (is_orc(ptr));
     }
