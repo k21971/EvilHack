@@ -299,6 +299,9 @@ int ef_flags;
             otmp->owornmask = 0; /* obfree() expects this */
             obfree(otmp, (struct obj *) 0);
         } else {
+            if ((otmp == uarmg) && uarmg)
+                /* calls Gloves_off() to handle wielded cockatrice corpse */
+                remove_worn_item(uarmg, FALSE);
             setnotworn(otmp);
             delobj(otmp);
         }
