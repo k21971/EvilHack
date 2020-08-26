@@ -1180,4 +1180,5 @@ Version 0.6.0
 - Fix: proper handling of wielding a chickatrice/cockatrice corpse if worn gloves
   erode away
 - Fix: 'Boyabai the dwarf lady swings his staff at the orc zombie'
+- Infidel player monsters can cast spells
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
