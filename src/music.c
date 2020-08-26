@@ -624,6 +624,12 @@ struct obj *instr;
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                 if (DEADMONSTER(mtmp))
                     continue;
+                /* Gjallar's sound is so awesome, even those
+                   predisposed to wait decide to take action */
+                if ((mtmp->mstrategy & STRAT_WAITMASK) != 0) {
+                    You_feel("as if you've drawn unwanted attention to yourself.");
+                    mtmp->mstrategy &= ~STRAT_WAITMASK;
+                }
                 if ((distm = distu(mtmp->mx, mtmp->my)) <= 3
                     && instr->blessed && !rn2(5)) {
                     if (!mtmp->mstun) {

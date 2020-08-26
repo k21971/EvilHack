@@ -1176,4 +1176,5 @@ Version 0.6.0
 - Angel tweaks and adjustments
 - All demon lords/princes have at least a base speed of 12
 - Player monsters that spawn in the endgame use names from the topten list
+- Fix: Gjallar not affecting various monsters predisposed to wait
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
