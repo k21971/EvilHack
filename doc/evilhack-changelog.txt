@@ -1179,4 +1179,5 @@ Version 0.6.0
 - Fix: Gjallar not affecting various monsters predisposed to wait
 - Fix: proper handling of wielding a chickatrice/cockatrice corpse if worn gloves
   erode away
+- Fix: 'Boyabai the dwarf lady swings his staff at the orc zombie'
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
