@@ -3405,14 +3405,14 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_POIS | M1_REGEN | M1_OMNIVORE,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_COLLECT | M2_STRONG| M2_NASTY,
         M3_INFRAVISION | M3_INFRAVISIBLE, 0, MH_DEMON | MH_WERE, 19, CLR_BLACK),
-    MON("balrog", S_DEMON, LVL(16, 9, -2, 75, -14), (G_HELL | G_NOCORPSE | 1),
+    MON("balrog", S_DEMON, LVL(18, 12, -2, 75, -14), (G_HELL | G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 8, 4), ATTK(AT_WEAP, AD_PHYS, 4, 6), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_ROAR, MZ_HUGE), MR_FIRE | MR_POISON, 0,
-        M1_FLY | M1_SEE_INVIS | M1_POIS,
+        M1_FLY | M1_SEE_INVIS | M1_POIS | M1_THICK_HIDE,
         M2_STALK | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION | M3_BERSERK,
-        0, MH_DEMON, 20, CLR_RED),
+        0, MH_DEMON, 22, CLR_RED),
     /* Named demon lords & princes plus Arch-Devils.
      * (their order matters; see minion.c)
      */

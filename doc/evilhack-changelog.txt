@@ -1181,4 +1181,5 @@ Version 0.6.0
   erode away
 - Fix: 'Boyabai the dwarf lady swings his staff at the orc zombie'
 - Infidel player monsters can cast spells
+- Balrog adjustments
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

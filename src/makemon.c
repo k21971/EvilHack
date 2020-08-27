@@ -1254,18 +1254,26 @@ register struct monst *mtmp;
                              artiname(ART_ANGELSLAYER));
                 curse(otmp);
                 otmp->oerodeproof = TRUE;
-                otmp->spe = rn2(4);
+                otmp->spe = rnd(3);
                 (void) mpickobj(mtmp, otmp);
             } else {
-                (void) mongets(mtmp, BROADSWORD);
+                otmp = mksobj(BROADSWORD, FALSE, FALSE);
+                create_oprop(otmp, FALSE);
+                otmp->oprops = ITEM_FIRE;
+                otmp->spe = rnd(3) + 2;
+                (void) mpickobj(mtmp, otmp);
             }
-            (void) mongets(mtmp, BULLWHIP);
+            otmp = mksobj(BULLWHIP, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = ITEM_FIRE;
+            otmp->spe = rnd(3) + 2;
+            (void) mpickobj(mtmp, otmp);
             break;
         case PM_ORCUS:
             otmp = mksobj(HEAVY_MACE, FALSE, FALSE);
             otmp = oname(otmp, artiname(ART_WAND_OF_ORCUS));
             curse(otmp);
-            otmp->spe = rnd(4) + 1;
+            otmp->spe = rnd(4) + 3;
             fully_identify_obj(otmp);
             (void) mpickobj(mtmp, otmp);
             break;
@@ -1280,7 +1288,7 @@ register struct monst *mtmp;
             otmp = oname(otmp, artiname(ART_BUTCHER));
             curse(otmp);
             otmp->oerodeproof = TRUE;
-            otmp->spe = rnd(4) + 1;
+            otmp->spe = rnd(3) + 2;
             (void) mpickobj(mtmp, otmp);
             break;
         }
