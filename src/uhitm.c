@@ -3056,6 +3056,12 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 && is_vampire(youmonst.data)
                 && (touch_petrifies(mon->data)))
                 break;
+            if (is_zombie(youmonst.data) && rn2(3)
+                && mon->data->msize <= MZ_SMALL) {
+                pline("%s nimbly %s your bite!", Monnam(mon),
+                      rn2(2) ? "dodges" : "evades");
+                break;
+            }
             /*FALLTHRU*/
         case AT_STNG:
             if ((uwep || (u.twoweap && uswapwep) || uarmg)

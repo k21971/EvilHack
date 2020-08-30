@@ -885,6 +885,16 @@ register struct monst *mtmp;
             if (!range2 && (!MON_WEP(mtmp) || mtmp->mconf || Conflict
                             || !touch_petrifies(youmonst.data))) {
                 if (foundyou) {
+                    /* if our hero is sized tiny/small and unencumbered,
+                       they have a decent chance of evading a zombie's
+                       bite attack */
+                    if (is_zombie(mdat) && mattk->aatyp == AT_BITE
+                        && (youmonst.data)->msize <= MZ_SMALL
+                        && (near_capacity() == UNENCUMBERED) && rn2(3)) {
+                        You("nimbly %s %s bite!",
+                            rn2(2) ? "dodge" : "evade", s_suffix(mon_nam(mtmp)));
+                        return 0;
+                    }
                     if (tmp > (j = rnd(20 + i))) {
                         if (mattk->aatyp != AT_KICK
                             || !thick_skinned(youmonst.data))

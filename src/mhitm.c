@@ -498,6 +498,16 @@ register struct monst *magr, *mdef;
                       Monnam(magr), mon_nam(mdef));
                 strike = FALSE;
             }
+            /* tiny/small monsters have a chance to dodge
+               a zombies bite attack due to zombies being
+               mindless and slow */
+            if (is_zombie(pa) && mattk->aatyp == AT_BITE
+                && mdef->data->msize <= MZ_SMALL && rn2(3)) {
+                if (vis && canspotmon(mdef))
+                    pline("%s nimbly %s %s bite!", Monnam(mdef),
+                          rn2(2) ? "dodges" : "evades", s_suffix(mon_nam(magr)));
+                strike = FALSE;
+            }
             if (strike) {
                 short type = 0;
                 int corpsenm = 0;
@@ -1720,11 +1730,13 @@ post_stone:
             }
             break;
         }
-        if (is_zombie(pd) && rn2(5)) {
-            if (vis && canspotmon(mdef) && !resists_sick(mdef))
-                pline("%s looks %s.", Monnam(mdef),
-                      mdef->msick ? "much worse" : "rather ill");
-            goto msickness;
+        if (is_zombie(pa) && rn2(5)) {
+            if (!resists_sick(mdef)) {
+                if (vis && canspotmon(mdef))
+                    pline("%s looks %s.", Monnam(mdef),
+                          mdef->msick ? "much worse" : "rather ill");
+                goto msickness;
+            }
         }
         res = eat_brains(magr, mdef, vis, &tmp);
         break;
