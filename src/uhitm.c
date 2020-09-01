@@ -1322,8 +1322,8 @@ int dieroll;
                      * so we need another check for that.
                      */
                     if (mon_hates_material(mon, obj->material)) {
+                        /* dmgval() already added damage, but track hated_obj */
                         hated_obj = obj;
-                        tmp += rnd(sear_damage(obj->material));
                     }
                 }
             }
@@ -2912,6 +2912,15 @@ boolean wouldhavehit;
                   s_suffix(Monnam(mdef)),
                   aobjnam(blocker, (char *) 0),
                   (rn2(2) ? "blocks" : "deflects"));
+            if (blocker && !uwep && !uarmg
+                && Hate_material(blocker->material)) {
+                /*searmsg(mdef, mdef, blocker);*/
+                You("%s %s %s!", rn2(2) ? "recoil from" : "are burned by",
+                    s_suffix(mon_nam(mdef)),
+                    aobjnam(blocker, (char *) 0));
+                losehp(rnd(sear_damage(blocker->material)),
+                       "hitting an adverse material", KILLED_BY);
+            }
         }
     } else
         You("%smiss it.", ((flags.verbose && nearmiss) ? "just " : ""));

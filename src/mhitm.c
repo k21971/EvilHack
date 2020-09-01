@@ -10,28 +10,23 @@ extern boolean notonhead;
 
 static NEARDATA boolean vis, far_noise;
 static NEARDATA long noisetime;
-static NEARDATA struct obj *otmp;
 
 static const char brief_feeling[] =
     "have a %s feeling for a moment, then it passes.";
 
 STATIC_DCL int FDECL(hitmm, (struct monst *, struct monst *,
-                             struct attack *));
-STATIC_DCL int FDECL(gazemm, (struct monst *, struct monst *,
-                              struct attack *));
-STATIC_DCL int FDECL(gulpmm, (struct monst *, struct monst *,
-                              struct attack *));
-STATIC_DCL int FDECL(explmm, (struct monst *, struct monst *,
-                              struct attack *));
+                             struct attack *, struct obj *, int));
+STATIC_DCL int FDECL(gazemm, (struct monst *, struct monst *, struct attack *));
+STATIC_DCL int FDECL(gulpmm, (struct monst *, struct monst *, struct attack *));
+STATIC_DCL int FDECL(explmm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(mdamagem, (struct monst *, struct monst *,
-                                struct attack *));
-STATIC_DCL void FDECL(mswingsm, (struct monst *, struct monst *,
-                                 struct obj *));
+                                struct attack *, struct obj *, int));
+STATIC_DCL void FDECL(mswingsm, (struct monst *, struct monst *, struct obj *));
 STATIC_DCL void FDECL(noises, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(missmm, (struct monst *, struct monst *,
                                int, int, struct attack *));
 STATIC_DCL int FDECL(passivemm, (struct monst *, struct monst *,
-                                 BOOLEAN_P, int));
+                                 BOOLEAN_P, int, struct obj *));
 
 static const char *const mwep_pierce[] = {
     "pierce", "gore", "stab", "impale", "hit"
@@ -48,13 +43,6 @@ static const char *const mwep_whack[] = {
 static const char *const mwep_none[] = {
     "punche", "pummel", "hit"
 };
-
-
-/* Needed for the special case of monsters wielding vorpal blades (rare).
- * If we use this a lot it should probably be a parameter to mdamagem()
- * instead of a global variable.
- */
-static int dieroll;
 
 STATIC_OVL void
 noises(magr, mattk)
@@ -138,6 +126,14 @@ int target, roll;
                     aobjnam(blocker, (char *) 0),
                     (rn2(2) ? "blocks" : "deflects"));
             pline("%s %s attack.", buf, s_suffix(mon_nam_too(magr, mdef)));
+            if (blocker
+                && (!MON_WEP(magr) && which_armor(magr, W_ARMG) == 0)
+                && mon_hates_material(magr, blocker->material)) {
+                searmsg(mdef, magr, blocker);
+                magr->mhp -= rnd(sear_damage(blocker->material));
+                if (DEADMONSTER(magr))
+                    killed(magr);
+            }
         } else {
             fmt = (could_seduce(magr, mdef, mattk) && !magr->mcan)
                       ? "%s pretends to be friendly to"
@@ -371,8 +367,10 @@ register struct monst *magr, *mdef;
         strike = 0, /* hit this attack */
         attk,       /* attack attempted this time */
         struck = 0, /* hit at least once */
-        res[NATTK]; /* results of all attacks */
+        res[NATTK], /* results of all attacks */
+        dieroll = 0;
     struct attack *mattk, alt_attk;
+    struct obj *mwep;
     struct permonst *pa, *pd;
 
     if (!magr || !mdef)
@@ -440,7 +438,7 @@ register struct monst *magr, *mdef;
     for (i = 0; i < NATTK; i++) {
         res[i] = MM_MISS;
         mattk = getmattk(magr, mdef, i, res, &alt_attk);
-        otmp = (struct obj *) 0;
+        mwep = (struct obj *) 0;
         attk = 1;
         switch (mattk->aatyp) {
         case AT_WEAP: /* weapon attacks */
@@ -459,12 +457,10 @@ register struct monst *magr, *mdef;
                     return 0;
             }
             possibly_unwield(magr, FALSE);
-            otmp = MON_WEP(magr);
-
-            if (otmp) {
+            if ((mwep = MON_WEP(magr)) != 0) {
                 if (vis)
-                    mswingsm(magr, mdef, otmp);
-                tmp += hitval(otmp, mdef);
+                    mswingsm(magr, mdef, mwep);
+                tmp += hitval(mwep, mdef);
             }
             /*FALLTHRU*/
         case AT_CLAW:
@@ -482,7 +478,7 @@ register struct monst *magr, *mdef;
              * have a weapon instead.  This instinct doesn't work for
              * players, or under conflict or confusion.
              */
-            if (!magr->mconf && !Conflict && otmp && mattk->aatyp != AT_WEAP
+            if (!magr->mconf && !Conflict && mwep && mattk->aatyp != AT_WEAP
                 && touch_petrifies(mdef->data)) {
                 strike = 0;
                 break;
@@ -490,8 +486,8 @@ register struct monst *magr, *mdef;
             dieroll = rnd(20 + i);
             strike = (tmp > dieroll);
             /* KMH -- don't accumulate to-hit bonuses */
-            if (otmp)
-                tmp -= hitval(otmp, mdef);
+            if (mwep)
+                tmp -= hitval(mwep, mdef);
             if ((is_displaced(mdef->data) || has_displacement(mdef))
                 && rn2(4)) {
                 pline("%s attacks the displaced image of %s.",
@@ -513,15 +509,15 @@ register struct monst *magr, *mdef;
                 int corpsenm = 0;
                 unsigned int material = 0;
 
-                if (otmp && otmp->otyp)
-                    type = otmp->otyp;
-                if (otmp && otmp->corpsenm)
-                    corpsenm = otmp->corpsenm;
-                if (otmp && otmp->material)
-                    material = otmp->material;
+                if (mwep && mwep->otyp)
+                    type = mwep->otyp;
+                if (mwep && mwep->corpsenm)
+                    corpsenm = mwep->corpsenm;
+                if (mwep && mwep->material)
+                    material = mwep->material;
 
-                res[i] = hitmm(magr, mdef, mattk);
-		if ((res[i]) == MM_HIT && otmp
+                res[i] = hitmm(magr, mdef, mattk, mwep, dieroll);
+		if ((res[i]) == MM_HIT && mwep
                     && type == CORPSE
                     && corpsenm
                     && touch_petrifies(&mons[corpsenm])
@@ -537,7 +533,7 @@ register struct monst *magr, *mdef;
 
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
-                    && (otmp && (material == IRON
+                    && (mwep && (material == IRON
                                  || material == METAL))
                     && mdef->mhp > 1 && !mdef->mcan) {
                     struct monst *mclone;
@@ -553,8 +549,17 @@ register struct monst *magr, *mdef;
                         mintrap(mclone);
                     }
                 }
-            } else
+            } else {
                 missmm(magr, mdef, tmp, dieroll, mattk);
+                /* if the attacker dies from a glancing blow off
+                   of a piece of the defender's armor, and said armor
+                   is made of a material the attacker hates, this
+                   check is necessary to prevent a dmonsfree error
+                   if the attacker has multiple attacks and they
+                   died before their attack chain completed */
+                if (DEADMONSTER(magr))
+                    return 1;
+            }
             break;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
@@ -566,7 +571,7 @@ register struct monst *magr, *mdef;
                 strike = FALSE;
             }
             if (strike)
-                res[i] = hitmm(magr, mdef, mattk);
+                res[i] = hitmm(magr, mdef, mattk, (struct obj *) 0, 0);
 
             break;
 
@@ -577,7 +582,7 @@ register struct monst *magr, *mdef;
 
         case AT_EXPL:
             /* D: Prevent explosions from a distance */
-            if (distmin(magr->mx,magr->my,mdef->mx,mdef->my) > 1)
+            if (distmin(magr->mx, magr->my, mdef->mx, mdef->my) > 1)
                 continue;
 
             res[i] = explmm(magr, mdef, mattk);
@@ -657,7 +662,8 @@ register struct monst *magr, *mdef;
 
         if (attk && !(res[i] & MM_AGR_DIED)
             && distmin(magr->mx, magr->my, mdef->mx, mdef->my) <= 1)
-            res[i] = passivemm(magr, mdef, strike, res[i] & MM_DEF_DIED);
+            res[i] = passivemm(magr, mdef, strike,
+                               (res[i] & MM_DEF_DIED), mwep);
 
         if (res[i] & MM_DEF_DIED)
             return res[i];
@@ -678,9 +684,11 @@ register struct monst *magr, *mdef;
 
 /* Returns the result of mdamagem(). */
 STATIC_OVL int
-hitmm(magr, mdef, mattk)
+hitmm(magr, mdef, mattk, mwep, dieroll)
 register struct monst *magr, *mdef;
 struct attack *mattk;
+struct obj *mwep;
+int dieroll;
 {
     /* Possibly awaken nearby monsters */
     if ((!is_silent(magr->data) || !helpless(mdef)) && rn2(10)) {
@@ -688,7 +696,7 @@ struct attack *mattk;
     }
 
     boolean weaponhit = ((mattk->aatyp == AT_WEAP
-                          || (mattk->aatyp == AT_CLAW && otmp))),
+                          || (mattk->aatyp == AT_CLAW && mwep))),
             showit = FALSE;
 
     /* unhiding or unmimicking happens even if hero can't see it
@@ -726,7 +734,7 @@ struct attack *mattk;
                     mdef->mcansee ? "smiles at" : "talks to");
             pline("%s %s %s.", buf, mon_nam(mdef),
                   compat == 2 ? "engagingly" : "seductively");
-        } else if (shade_miss(magr, mdef, otmp, FALSE, TRUE)) {
+        } else if (shade_miss(magr, mdef, mwep, FALSE, TRUE)) {
             return MM_MISS; /* bypass mdamagem() */
         } else {
             char magr_name[BUFSZ];
@@ -800,7 +808,7 @@ struct attack *mattk;
             }
             pline("%s %s.", buf, mon_nam_too(mdef, magr));
 
-            if (weaponhit && otmp && mon_hates_material(mdef, otmp->material)) {
+            if (weaponhit && mwep && mon_hates_material(mdef, mwep->material)) {
                 char *mdef_name = mon_nam_too(mdef, magr);
 
                 /* note: mon_nam_too returns a modifiable buffer; so
@@ -819,13 +827,13 @@ struct attack *mattk;
                 }
 
                 pline("%s %s sears %s!", magr_name, /*s_suffix(magr_name), */
-                      simpleonames(otmp), mdef_name);
+                      simpleonames(mwep), mdef_name);
             }
         }
     } else
         noises(magr, mattk);
 
-    return mdamagem(magr, mdef, mattk);
+    return mdamagem(magr, mdef, mattk, mwep, dieroll);
 }
 
 /* Returns the same values as mdamagem(). */
@@ -879,7 +887,7 @@ struct attack *mattk;
         }
     }
 
-    return mdamagem(magr, mdef, mattk);
+    return mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
 }
 
 /* return True if magr is allowed to swallow mdef, False otherwise */
@@ -988,7 +996,7 @@ register struct attack *mattk;
     if (msteed != NULL)
         place_monster(msteed, ax, ay);
 
-    status = mdamagem(magr, mdef, mattk);
+    status = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
 
     if ((status & (MM_AGR_DIED | MM_DEF_DIED))
         == (MM_AGR_DIED | MM_DEF_DIED)) {
@@ -1051,7 +1059,7 @@ struct attack *mattk;
     else
         noises(magr, mattk);
 
-    result = mdamagem(magr, mdef, mattk);
+    result = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
 
     /* Kill off aggressor if it didn't die. */
     if (!(result & MM_AGR_DIED)) {
@@ -1077,9 +1085,11 @@ struct attack *mattk;
  *  See comment at top of mattackm(), for return values.
  */
 STATIC_OVL int
-mdamagem(magr, mdef, mattk)
-register struct monst *magr, *mdef;
-register struct attack *mattk;
+mdamagem(magr, mdef, mattk, mwep, dieroll)
+struct monst *magr, *mdef;
+struct attack *mattk;
+struct obj *mwep;
+int dieroll;
 {
     struct obj *obj;
     char buf[BUFSZ];
@@ -1096,7 +1106,7 @@ register struct attack *mattk;
              wornitems = magr->misc_worn_check;
 
         /* wielded weapon gives same protection as gloves here */
-        if (otmp != 0)
+        if (mwep)
             wornitems |= W_ARMG;
 
         if (protector == 0L
@@ -1152,7 +1162,7 @@ register struct attack *mattk;
             verbalize("Burrrrp!");
         tmp = mdef->mhp;
         /* Use up amulet of life saving */
-        if (!!(obj = mlifesaver(mdef)))
+        if ((obj = mlifesaver(mdef)) != 0)
             m_useup(mdef, obj);
 
         /* Is a corpse for nutrition possible?  It may kill magr */
@@ -1226,36 +1236,36 @@ register struct attack *mattk;
     case AD_CLOB:
     case AD_PHYS:
  physical:
-        obj = (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW) ? otmp : 0;
-        if (shade_miss(magr, mdef, obj, FALSE, TRUE)) {
+        if (mattk->aatyp != AT_WEAP && mattk->aatyp != AT_CLAW)
+            mwep = 0;
+
+        if (shade_miss(magr, mdef, mwep, FALSE, TRUE)) {
             tmp = 0;
         } else if (mattk->aatyp == AT_KICK && thick_skinned(pd)) {
+            /* [no 'kicking boots' check needed; monsters with kick attacks
+               can't wear boots and monsters that wear boots don't kick] */
             tmp = 0;
-        } else if (mattk->aatyp == AT_WEAP
-                   || (mattk->aatyp == AT_CLAW && otmp)) {
-            if (otmp) {
-                struct obj *marmg;
+        } else if (mwep) { /* non-Null 'mwep' implies AT_WEAP || AT_CLAW */
+            struct obj *marmg;
 
-                if (otmp->otyp == CORPSE
-                    && touch_petrifies(&mons[otmp->corpsenm]))
-                    goto do_stone;
+            if (mwep->otyp == CORPSE
+                && touch_petrifies(&mons[mwep->corpsenm]))
+                goto do_stone;
 
-                tmp += dmgval(otmp, mdef);
-                if ((marmg = which_armor(magr, W_ARMG)) != 0
-                    && marmg->otyp == GAUNTLETS_OF_POWER)
-                    tmp += rn1(4, 3); /* 3..6 */
-                if (tmp < 1) /* is this necessary?  mhitu.c has it... */
-                    tmp = 1;
-                if ((otmp->oclass == WEAPON_CLASS && otmp->oprops)
-                    || otmp->oartifact) {
-                    (void) artifact_hit(magr, mdef, otmp, &tmp, dieroll);
-                    if (DEADMONSTER(mdef))
-                        return (MM_DEF_DIED
-                                | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
-                }
-                if (tmp)
-                    rustm(mdef, otmp);
+            tmp += dmgval(mwep, mdef);
+            if ((marmg = which_armor(magr, W_ARMG)) != 0
+                && marmg->otyp == GAUNTLETS_OF_POWER)
+                tmp += rn1(4, 3); /* 3..6 */
+            if (tmp < 1) /* is this necessary?  mhitu.c has it... */
+                tmp = 1;
+            if (mwep->oartifact) {
+                (void) artifact_hit(magr, mdef, mwep, &tmp, dieroll);
+                if (DEADMONSTER(mdef))
+                    return (MM_DEF_DIED
+                            | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
             }
+            if (tmp)
+                rustm(mdef, mwep);
         } else if (pa == &mons[PM_PURPLE_WORM] && pd == &mons[PM_SHRIEKER]) {
             /* hack to enhance mm_aggression(); we don't want purple
                worm's bite attack to kill a shrieker because then it
@@ -1634,25 +1644,24 @@ post_stone:
             Strcpy(mdefnambuf,
                    x_monnam(mdef, ARTICLE_THE, (char *) 0, 0, FALSE));
 
-            otmp = obj;
-            if (u.usteed == mdef && otmp == which_armor(mdef, W_SADDLE))
+            if (u.usteed == mdef && obj == which_armor(mdef, W_SADDLE))
                 /* "You can no longer ride <steed>." */
                 dismount_steed(DISMOUNT_POLY);
-            obj_extract_self(otmp);
-            if (otmp->owornmask) {
-                mdef->misc_worn_check &= ~otmp->owornmask;
-                if (otmp->owornmask & W_WEP)
+            obj_extract_self(obj);
+            if (obj->owornmask) {
+                mdef->misc_worn_check &= ~obj->owornmask;
+                if (obj->owornmask & W_WEP)
                     mwepgone(mdef);
-                otmp->owornmask = 0L;
-                update_mon_intrinsics(mdef, otmp, FALSE, FALSE);
+                obj->owornmask = 0L;
+                update_mon_intrinsics(mdef, obj, FALSE, FALSE);
                 /* give monster a chance to wear other equipment on its next
                    move instead of waiting until it picks something up */
                 mdef->misc_worn_check |= I_SPECIAL;
             }
-            /* add_to_minv() might free otmp [if it merges] */
+            /* add_to_minv() might free obj [if it merges] */
             if (vis)
-                Strcpy(onambuf, doname(otmp));
-            (void) add_to_minv(magr, otmp);
+                Strcpy(onambuf, doname(obj));
+            (void) add_to_minv(magr, obj);
             if (vis && canseemon(mdef)) {
                 Strcpy(buf, Monnam(magr));
                 pline("%s steals %s from %s!", buf, onambuf, mdefnambuf);
@@ -2094,10 +2103,11 @@ struct obj *otemp;
  * handled above.  Returns same values as mattackm.
  */
 STATIC_OVL int
-passivemm(magr, mdef, mhit, mdead)
+passivemm(magr, mdef, mhit, mdead, mwep)
 register struct monst *magr, *mdef;
 boolean mhit;
 int mdead;
+struct obj *mwep;
 {
     register struct permonst *mddat = mdef->data;
     register struct permonst *madat = magr->data;
@@ -2210,8 +2220,8 @@ int mdead;
         }
         break;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
-        if (mhit && !mdef->mcan && otmp) {
-            (void) drain_item(otmp, FALSE);
+        if (mhit && !mdef->mcan && mwep) {
+            (void) drain_item(mwep, FALSE);
             /* No message */
         }
         break;
@@ -2219,7 +2229,7 @@ int mdead;
         if (mhit && !rn2(6)) {
             pline("%s hide absorbs magical energy from %s.",
                   s_suffix(Monnam(mdef)), mon_nam(magr));
-            (void) cancel_monst(magr, otmp, FALSE, TRUE, FALSE);
+            (void) cancel_monst(magr, mwep, FALSE, TRUE, FALSE);
         }
     default:
         break;
