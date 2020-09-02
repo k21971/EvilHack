@@ -98,7 +98,7 @@ boolean clumsy;
         dmg += uarmf->spe;
     }
     if (specialdmg && hated_obj)
-        searmsg(&youmonst, mon, hated_obj);
+        searmsg(&youmonst, mon, hated_obj, TRUE);
     dmg += u.udaminc; /* add ring(s) of increase damage */
     if (dmg > 0)
         damage_mon(mon, dmg, AD_PHYS);
@@ -211,7 +211,8 @@ xchar x, y;
                 continue;
 
             kickdieroll = rnd(20);
-            specialdmg = special_dmgval(&youmonst, mon, W_ARMF, NULL);
+            struct obj* hated_obj;
+            specialdmg = special_dmgval(&youmonst, mon, W_ARMF, &hated_obj);
             if (noncorporeal(mon->data) && !specialdmg) {
                 /* doesn't matter whether it would have hit or missed,
                    and shades have no passive counterattack */
@@ -220,6 +221,9 @@ xchar x, y;
             } else if (tmp > kickdieroll) {
                 You("kick %s.", mon_nam(mon));
                 sum = damageum(mon, uattk, specialdmg);
+                if (hated_obj) {
+                    searmsg(&youmonst, mon, hated_obj, FALSE);
+                }
                 (void) passive(mon, uarmf, (boolean) (sum > 0),
                                (sum != 2), AT_KICK, FALSE);
                 if (sum == 2)
@@ -552,6 +556,12 @@ xchar x, y;
                     killer_xname(kickedobj));
             instapetrify(killer.name);
         }
+    }
+
+    if (!uarmf && Hate_material(kickedobj->material)) {
+        searmsg(NULL, &youmonst, kickedobj, FALSE);
+        losehp(rnd(sear_damage(kickedobj->material)),
+               "kicking an adverse material", KILLED_BY);
     }
 
     isgold = (kickedobj->oclass == COIN_CLASS);

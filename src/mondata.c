@@ -326,6 +326,12 @@ int material;
     /* extra case: shapeshifted vampires still hate silver */
     if (material == SILVER && is_vampshifter(mon))
         return TRUE;
+
+    /* extra extra case: lycanthrope player (monster lycanthropes all fall under
+     * hates_material, and non-lycanthropes can't currently be infected) */
+    if (mon == &youmonst && material == SILVER && u.ulycn >= LOW_PM)
+        return TRUE;
+
     return FALSE;
 }
 
@@ -370,7 +376,7 @@ int material;
         return 20;
     case IRON:
     case MITHRIL:
-        return rnd(4) + 2;
+        return rnd(3) + 3;
     default:
         return 6;
     }

@@ -1183,5 +1183,6 @@ Version 0.6.0
 - Infidel player monsters can cast spells
 - Balrog adjustments
 - Increase starting pets survivability versus zombies
-- Object materials: fixes for material hatred (round one) 
+- Object materials: fixes for material hatred (round one)
+- Object materials: fixes for material hatred (round two)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

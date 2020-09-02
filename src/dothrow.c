@@ -657,8 +657,14 @@ int x, y;
             return FALSE;
         }
         if (levl[x][y].typ == IRONBARS) {
-            You("crash into some iron bars.  Ouch!");
+            You("crash into some iron bars.");
             dmg = rnd(2 + *range);
+            if (Hate_material(IRON)) {
+                pline("The iron hurts to touch!");
+                dmg += sear_damage(IRON);
+            } else {
+                pline("Ouch!");
+            }
             losehp(Maybe_Half_Phys(dmg), "crashing into iron bars",
                    KILLED_BY);
             wake_nearto(x,y, 20);
@@ -1123,6 +1129,10 @@ boolean hitsroof;
             thrownobj = 0;  /* now either gone or on floor */
             done(STONING);
             return obj ? TRUE : FALSE;
+        } else if (Hate_material(obj->material)) {
+            /* dmgval() already added extra damage */
+            searmsg(&youmonst, &youmonst, obj, FALSE);
+            exercise(A_CON, FALSE);
         }
         if (IS_AIR(levl[bhitpos.x][bhitpos.y].typ) && In_V_tower(&u.uz)) {
             thrownobj = 0;
@@ -1447,6 +1457,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                         setuqwep((struct obj *) 0);
                     setuwep(obj);
                     u.twoweap = twoweap;
+                    retouch_object(&obj, TRUE);
                     if (cansee(bhitpos.x, bhitpos.y))
                         newsym(bhitpos.x, bhitpos.y);
                 } else {
@@ -1467,6 +1478,11 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                         if (obj->oartifact)
                             (void) artifact_hit((struct monst *) 0, &youmonst,
                                                 obj, &dmg, 0);
+                        if (Hate_material(obj->material)) {
+                            dmg += rnd(sear_damage(obj->material));
+                            exercise(A_CON, FALSE);
+                            searmsg(NULL, &youmonst, obj, TRUE);
+                        }
                         losehp(Maybe_Half_Phys(dmg), killer_xname(obj),
                                KILLED_BY);
                     }
