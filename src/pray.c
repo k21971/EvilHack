@@ -2171,7 +2171,12 @@ dosacrifice()
                             switch (Race_if(PM_GIANT) ? rn1(4, 2) : rn2(6)) {
                                 case 0:
                                     /* body armor (inc. shirts) */
-                                    typ = rnd_class(PLATE_MAIL, T_SHIRT);
+                                    if (primary_casters || primary_casters_priest)
+                                        typ = rn2(2) ? rnd_class(ARMOR, JACKET)
+                                                     : rn2(6) ? typ == STUDDED_ARMOR
+                                                              : typ == CRYSTAL_PLATE_MAIL;
+                                    else
+                                        typ = rnd_class(PLATE_MAIL, T_SHIRT);
                                     if (!Role_if(PM_MONK)
                                         || (typ == T_SHIRT || typ == HAWAIIAN_SHIRT)) {
                                         break; /* monks only can have shirts */
@@ -2183,25 +2188,44 @@ dosacrifice()
                                     break;
                                 case 2:
                                     /* boots */
-                                    typ = rnd_class(LOW_BOOTS, LEVITATION_BOOTS);
+                                    if (primary_casters || primary_casters_priest)
+                                        typ = !rn2(3) ? typ == LOW_BOOTS
+                                                      : rnd_class(HIGH_BOOTS, LEVITATION_BOOTS);
+                                    else
+                                        typ = rnd_class(LOW_BOOTS, LEVITATION_BOOTS);
                                     if (!Race_if(PM_CENTAUR)) {
                                         break;
                                     } /* centaurs have double chances to get a shield */
                                     /* FALLTHRU */
                                 case 3:
                                     /* shield */
-                                    typ = rnd_class(SMALL_SHIELD, SHIELD_OF_REFLECTION);
+                                    if (primary_casters || primary_casters_priest)
+                                        typ = rn2(8) ? typ == SMALL_SHIELD
+                                                     : typ == SHIELD_OF_REFLECTION;
+                                    else
+                                        typ = rnd_class(SMALL_SHIELD, SHIELD_OF_REFLECTION);
                                     if (!Role_if(PM_MONK)) {
                                         break;
                                     } /* monks have double chances to get gloves */
                                     /* FALLTHRU */
                                 case 4:
                                     /* gloves */
-                                    typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
+                                    if (primary_casters || primary_casters_priest)
+                                        typ = rn2(3) ? typ == GLOVES
+                                                     : rnd_class(GAUNTLETS_OF_FUMBLING,
+                                                                 GAUNTLETS_OF_DEXTERITY);
+                                    else
+                                        typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
                                     break;
                                 case 5:
                                     /* helm */
-                                    typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
+                                    if (primary_casters || primary_casters_priest)
+                                        typ = rn2(2) ? typ == ELVEN_HELM
+                                                     : rn2(2) ? rnd_class(FEDORA, DUNCE_CAP)
+                                                              : rnd_class(HELM_OF_BRILLIANCE,
+                                                                          HELM_OF_TELEPATHY);
+                                    else
+                                        typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
                                     break;
                                 default:
                                     typ = HAWAIIAN_SHIRT; /* Ace Ventura approved. Alrighty then. */

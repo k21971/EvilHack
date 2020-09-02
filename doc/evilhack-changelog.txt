@@ -1185,4 +1185,5 @@ Version 0.6.0
 - Increase starting pets survivability versus zombies
 - Object materials: fixes for material hatred (round one)
 - Object materials: fixes for material hatred (round two)
+- No, really. Wizards shouldn't receive plate mail as an altar sacrifice gift
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
