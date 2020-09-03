@@ -3826,6 +3826,10 @@ struct monst *mon;
     if (canseemon(mon))
         pline("%s makes a wish for %s!", Monnam(mon), str);
     if (wearable)
+        /* we won't use check_gear_next_turn() here
+           as any item an intelligent monster makes
+           a wish for, they'll want to equip it ASAP */
         m_dowear(mon, FALSE);
 }
+
 /*muse.c*/

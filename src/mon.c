@@ -1088,11 +1088,18 @@ movemon()
         if (mtmp->misc_worn_check & I_SPECIAL) {
             long oldworn;
 
-            mtmp->misc_worn_check &= ~I_SPECIAL;
-            oldworn = mtmp->misc_worn_check;
-            m_dowear(mtmp, FALSE);
-            if (mtmp->misc_worn_check != oldworn || !mtmp->mcanmove)
-                continue;
+            /* hostiles only try to equip things if they think hero isn't
+             * nearby; if they think hero is nearby, leave the flag intact so
+             * that it can be checked again on subsequent moves until the hero
+             * is perceived to be farther away. */
+            if (mtmp->mpeaceful || mtmp->mtame
+                || dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > (3 * 3)) {
+                mtmp->misc_worn_check &= ~I_SPECIAL;
+                oldworn = mtmp->misc_worn_check;
+                m_dowear(mtmp, FALSE);
+                if (mtmp->misc_worn_check != oldworn || !mtmp->mcanmove)
+                    continue; /* is spending this turn equipping */
+            }
         }
 
         if (is_hider(mtmp->data)) {
@@ -1576,8 +1583,8 @@ register const char *str;
                         }
                     }
                     obj_extract_self(otmp3);
-                    (void) mpickobj(mtmp, otmp3);	/* may merge and free otmp */
-                    m_dowear(mtmp, FALSE);
+                    (void) mpickobj(mtmp, otmp3); /* may merge and free otmp */
+                    check_gear_next_turn(mtmp);
                     newsym(mtmp->mx, mtmp->my);
                     /* loot the entire container if we can */
                     pickedup = TRUE;
@@ -1617,7 +1624,8 @@ register const char *str;
                           : distant_name(otmp3, doname));
             obj_extract_self(otmp3);      /* remove from floor */
             (void) mpickobj(mtmp, otmp3); /* may merge and free otmp3 */
-            m_dowear(mtmp, FALSE);
+            /* let them try and equip it on the next turn */
+            check_gear_next_turn(mtmp);
             newsym(mtmp->mx, mtmp->my);
             return TRUE; /* pick only one object */
         }
@@ -2570,9 +2578,7 @@ struct monst *mtmp;
         }
         m_useup(mtmp, lifesave);
         /* equip replacement amulet, if any, on next move */
-        mtmp->misc_worn_check |= I_SPECIAL;
-        /* check remaining gear */
-        m_dowear(mtmp, FALSE);
+        check_gear_next_turn(mtmp);
 
         surviver = !(mvitals[monsndx(mtmp->data)].mvflags & G_GENOD);
         if (!mtmp->mstone || mtmp->mstone > 2)
@@ -4847,7 +4853,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     if (!(mtmp->misc_worn_check & W_ARMG))
         mselftouch(mtmp, "No longer petrify-resistant, ",
                    !context.mon_moving);
-    m_dowear(mtmp, FALSE);
+    check_gear_next_turn(mtmp);
 
     /* This ought to re-test can_carry() on each item in the inventory
      * rather than just checking ex-giants & boulders, but that'd be
@@ -5363,6 +5369,16 @@ struct monst *mtmp;
         adjalign(2);
     change_luck(2);
     return;
+}
+
+/* The I_SPECIAL bit of misc_worn_check is used to flag a monster that should
+ * reassess and potentially reequip gear at the start of its next move. This is
+ * just a function that sets it and gives it a clear name. */
+void
+check_gear_next_turn(mon)
+struct monst *mon;
+{
+    mon->misc_worn_check |= I_SPECIAL;
 }
 
 /*mon.c*/
