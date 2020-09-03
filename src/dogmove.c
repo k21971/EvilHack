@@ -1193,7 +1193,7 @@ boolean ranged;
        || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
        || ((mtmp->mhp * 4 < mtmp->mhpmax || mtmp2->data->msound == MS_GUARDIAN
            || mtmp2->data->msound == MS_LEADER)
-       && !ranged && mtmp2->mpeaceful && !grudge && !Conflict)
+           && mtmp2->mpeaceful && !grudge && !Conflict)
        || (!ranged && touch_petrifies(mtmp2->data) && !resists_ston(mtmp))
        || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp)));
 }
