@@ -1546,8 +1546,7 @@ register const char *str;
                          : !!(index(str, otmp3->oclass))
                     || (otmp3->oclass == COIN_CLASS
                     && likes_gold(mtmp->data))) {
-                    if ((otmp3->otyp == CORPSE
-                        || (otmp3->otyp == ROCK && otmp3->corpsenm != 0))
+                    if (otmp3->otyp == CORPSE
                         && mtmp->data->mlet != S_NYMPH
                         && !touch_petrifies(&mons[otmp3->corpsenm])
                         && otmp3->corpsenm != PM_LIZARD
@@ -1564,7 +1563,8 @@ register const char *str;
 		            pline("%s %s opens %s...", Monnam(mtmp),
                                   waslocked ? "unlocks and" : "carefully",
                                   (distu(mtmp->mx, mtmp->my) <= 5)
-                                  ? the(xname(otmp)) : the(distant_name(otmp, xname)));
+                                   ? the(xname(otmp))
+                                   : the(distant_name(otmp, xname)));
                         } else if (!Deaf && flags.verbose) {
                             You_hear("%s being %s.",
                                      ansimpleoname(otmp),
@@ -1574,9 +1574,11 @@ register const char *str;
                         if (cansee(mtmp->mx, mtmp->my) && flags.verbose) {
                             pline("%s retrieves %s from %s.", Monnam(mtmp),
                                   (distu(mtmp->mx, mtmp->my) <= 5)
-                                  ? doname(otmp3) : distant_name(otmp3, doname),
+                                   ? doname(otmp3)
+                                   : distant_name(otmp3, doname),
                                   (distu(mtmp->mx, mtmp->my) <= 5)
-                                  ? the(xname(otmp)) : the(distant_name(otmp, xname)));
+                                   ? the(xname(otmp))
+                                   : the(distant_name(otmp, xname)));
                         } else if (!Deaf && flags.verbose) {
                             You_hear("something rummaging through %s.",
                                      ansimpleoname(otmp));
