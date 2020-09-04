@@ -2555,28 +2555,35 @@ struct monst *mtmp;
          * to show this for a long worm with only a tail visible.
          * Nor do you check invisibility, because glowing and
          * disintegrating amulets are always visible. */
-        if (cansee(mtmp->mx, mtmp->my)) {
-            pline("But wait...");
-            pline("%s medallion begins to glow!", s_suffix(Monnam(mtmp)));
-            makeknown(AMULET_OF_LIFE_SAVING);
-            /* amulet is visible, but monster might not be */
-            if (canseemon(mtmp) && lifesave->cursed) {
+        if (lifesave->cursed) {
+            if (cansee(mtmp->mx, mtmp->my)) {
+                pline("But wait...");
                 pline("%s medallion glows white-hot!", s_suffix(Monnam(mtmp)));
-                if (!Deaf)
-                    You("hear diabolical laughter in the distance...");
-                pline("%s dies!", Monnam(mtmp));
-                m_useup(mtmp, lifesave);
-                mtmp->mhp = 0;
-                pline_The("medallion crumbles to dust!");
-                return;
-            } else if (canseemon(mtmp)) {
-                if (attacktype(mtmp->data, AT_EXPL)
-                    || attacktype(mtmp->data, AT_BOOM))
-                    pline("%s reconstitutes!", Monnam(mtmp));
-                else
-                    pline("%s looks much better!", Monnam(mtmp));
+                makeknown(AMULET_OF_LIFE_SAVING);
             }
-            pline_The("medallion crumbles to dust!");
+            if (!Deaf)
+                You("hear diabolical laughter in the distance...");
+            pline("%s dies!", Monnam(mtmp));
+            if (cansee(mtmp->mx, mtmp->my))
+                pline_The("medallion crumbles to dust!");
+            m_useup(mtmp, lifesave);
+            mtmp->mhp = 0;
+            return;
+        } else {
+            if (cansee(mtmp->mx, mtmp->my)) {
+                pline("But wait...");
+                pline("%s medallion begins to glow!", s_suffix(Monnam(mtmp)));
+                makeknown(AMULET_OF_LIFE_SAVING);
+                /* amulet is visible, but monster might not be */
+                if (canseemon(mtmp)) {
+                    if (attacktype(mtmp->data, AT_EXPL)
+                        || attacktype(mtmp->data, AT_BOOM))
+                        pline("%s reconstitutes!", Monnam(mtmp));
+                    else
+                        pline("%s looks much better!", Monnam(mtmp));
+                }
+                pline_The("medallion crumbles to dust!");
+            }
         }
         m_useup(mtmp, lifesave);
         /* equip replacement amulet, if any, on next move */
