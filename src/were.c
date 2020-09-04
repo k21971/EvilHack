@@ -123,7 +123,8 @@ register struct monst *mon;
     if (canseemon(mon) && !Hallucination)
         pline("%s changes into a %s.", Monnam(mon),
               is_human(&mons[pm]) ? "human" :
-              is_demon(&mons[pm]) ? "demon" : mons[pm].mname + 4);
+              is_demon(&mons[pm]) ? "demon" :
+              pm == PM_WEREDEMON  ? "hell hound" : mons[pm].mname + 4);
 
     set_mon_data(mon, &mons[pm]);
     if (mon->msleeping || !mon->mcanmove) {

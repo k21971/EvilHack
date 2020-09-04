@@ -1190,4 +1190,5 @@ Version 0.6.0
 - Fix: monsters using ranged weapon at melee range
 - Fix: possible 'glorkum' event
 - Fix: pets attacking peaceful quest guardians/leader with ranged attacks
+- Fix: the weredemon turns into a demon
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
