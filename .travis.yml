@@ -126,10 +126,10 @@ deploy:
     secure: oySSfgCNflAimBvpw3nbgM2Dde5QuradhT6KCwaMFCH/vszqmJAOsr5OVUmZAbvBoy4ajAImixsAJR70ULr0VdWLo7cnOHfnPN6aOU48gl2iwgD9hmg+XTpkdWqATa2nVHbt0ZvHnhv8KaT25BLrF7b85DeVBJaZtbl+kSSYrQeUUBIDVU3Wa2xbhtlTNcIso2MeSRaFMNS3sAtOXtxWFgfSs3mQvPTxV5qtW7ydpIqjNkppTV3OWwZiC0MAmvQCErDhoswyxDUgTc05M4wxvy7fNZWDUt/o3prGZd2yCDDabcV0SJP2xBlLdfW4pY2U5CxJAtmkdx6JREZBM1RB2oaoNHwLhznrmNHqE46xCXp/9Lo+B+Oy40ZmFBJqYWVdXRT0bEBBN5GRs2s63NN/VhsBkF/SnF0AQIeLvH2ahKRuN+kAOqea6LVZJxrxCA3LmNMRT3BUCMqc2V3FQV7yC1/KtqxmWOYav6bnO294cxHf9cS6vXO633IMpJ8pmUzzJrLEDzZ8HDc8IxB7xpvDz5BKRJe2hkl/MpWuBP00jltaRZdt7Rt13AafAlcTmLSzzOCoJmMjKjC3bHozPUBbxnAnNML+4l57v1ie7GYW7nLtOs2clFGQSc14/mXsm53uOM/lFTxE2suyr160JzVYeiXx7r9bavy9tmPh55JrWqg=
   file_glob: true
   file:
-    - "$TRAVIS_TAG.x86.zip"
+    - "EvilHack-$TRAVIS_TAG.x86.zip"
   skip_cleanup: true
   on:
     tags: true
   prerelease: false
-  name: "Release build of EvilHack 0.5.0"
-  body: "This is an auto generated message - release build of EvilHack 0.5.0"
+  name: "Release build of EvilHack 0.6.0"
+  body: "This is an auto generated message - release build of EvilHack 0.6.0"
