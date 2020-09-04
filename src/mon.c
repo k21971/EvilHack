@@ -2815,9 +2815,6 @@ register struct monst *mtmp;
     if (mvitals[tmp].died < 255)
         mvitals[tmp].died++;
 
-    /* if it's a (possibly polymorphed) quest leader, mark him as dead */
-    if (mtmp->m_id == quest_status.leader_m_id)
-        quest_status.leader_is_dead = TRUE;
 #ifdef MAIL
     /* if the mail daemon dies, no more mail delivery.  -3. */
     if (tmp == PM_MAIL_DAEMON)
@@ -3380,6 +3377,9 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
 
     /* adjust alignment points */
     if (mtmp->m_id == quest_status.leader_m_id) { /* REAL BAD! */
+        if (mtmp->m_id == quest_status.leader_m_id)
+            quest_status.leader_is_dead = TRUE;
+
         adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
         pline("That was %sa bad idea...",
               u.uevent.qcompleted ? "probably " : "");
