@@ -311,44 +311,46 @@ struct monst *mon;
     }
     if (Is_weapon) {
         tmp += otmp->spe;
-    }
 
-    /* adjust for various materials */
+        /* adjust for various materials */
 #define is_odd_material(obj, mat) \
     ((obj)->material == (mat) && !(objects[(obj)->otyp].oc_material == (mat)))
-    if ((is_odd_material(otmp, GLASS) || is_odd_material(otmp, GEMSTONE))
-        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH))) {
-        /* glass and gemstone are extremely sharp */
-        tmp += 3;
-    } else if (is_odd_material(otmp, GOLD) || is_odd_material(otmp, PLATINUM)) {
-        /* heavy metals, but softer than stone */
-        if (objects[otmp->otyp].oc_dir & WHACK) {
+        if ((is_odd_material(otmp, GLASS) || is_odd_material(otmp, GEMSTONE))
+            && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH))) {
+            /* glass and gemstone are extremely sharp */
+            tmp += 3;
+        } else if (is_odd_material(otmp, GOLD) || is_odd_material(otmp, PLATINUM)) {
+            /* heavy metals, but softer than stone */
+            if (objects[otmp->otyp].oc_dir & WHACK) {
+                tmp += 1;
+            }
+        } else if (is_odd_material(otmp, MITHRIL)) {
+            /* light and sharp */
+            if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)) {
+                tmp += 2;
+            }
+        } else if (is_odd_material(otmp, MINERAL)) {
+            /* stone is heavy */
+            if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
+                tmp += 2;
+            }
+        } else if (is_odd_material(otmp, PLASTIC) || is_odd_material(otmp, PAPER)) {
+            /* just terrible weapons all around */
+            tmp -= 2;
+        } else if (is_odd_material(otmp, WOOD) && !is_elven_weapon(otmp)) {
+            /* poor at holding an edge */
+            if (is_blade(otmp)) {
+                tmp -= 1;
+            }
+        } else if (is_odd_material(otmp, METAL)) {
+            /* steel has roughly the same density as iron,
+               but is stronger and makes for a finer edge
+               on bladed weapons */
             tmp += 1;
         }
-    } else if (is_odd_material(otmp, MITHRIL)) {
-        /* light and sharp */
-        if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)) {
-            tmp += 2;
-        }
-    } else if (is_odd_material(otmp, MINERAL)) {
-        /* stone is heavy */
-        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
-            tmp += 2;
-        }
-    } else if (is_odd_material(otmp, PLASTIC) || is_odd_material(otmp, PAPER)) {
-        /* just terrible weapons all around */
-        tmp -= 2;
-    } else if (is_odd_material(otmp, WOOD) && !is_elven_weapon(otmp)) {
-        /* poor at holding an edge */
-        if (is_blade(otmp)) {
-            tmp -= 1;
-        }
-    } else if (is_odd_material(otmp, METAL)) {
-        /* steel has roughly the same density as iron,
-           but is stronger and makes for a finer edge
-           on bladed weapons */
-        tmp += 1;
+#undef is_odd_material
     }
+
     /* negative modifiers mustn't produce negative damage */
     if (tmp < 0)
         tmp = 0;
