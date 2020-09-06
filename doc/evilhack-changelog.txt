@@ -1194,4 +1194,5 @@ Version 0.6.0
 - Fix: monster wearing a cursed amulet of life saving wouldn't die from it if hero
   was blind
 - Preparation for official version 0.6.0 release
+- Fix: sear messages for items made of non-hated material
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
