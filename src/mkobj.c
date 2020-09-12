@@ -3330,6 +3330,7 @@ struct obj* obj;
         case LAND_MINE:
         case BEARTRAP:
         case TOWEL:
+        case SADDLE:
         case AMULET_OF_YENDOR:
         case FAKE_AMULET_OF_YENDOR:
             return NULL;

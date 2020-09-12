@@ -1197,4 +1197,5 @@ Version 0.6.0
 - Fix: sear messages for items made of non-hated material
 - Fix: material bonuses in dmgval applied to more than weapons
 - Fix: mind flayer types being zombified
+- Fix: you see here a cloth saddle
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
