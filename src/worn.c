@@ -1178,9 +1178,6 @@ extra_pref(mon, obj)
 struct monst *mon;
 struct obj *obj;
 {
-    /* currently only does speed boots, but might be expanded if monsters
-     * get to use more armor abilities
-     */
     struct obj *old;
     int rc = 1;
 
@@ -1200,34 +1197,43 @@ struct obj *obj;
 
     /* Find out whether the monster already has some resistance. */
     old = which_armor(mon, W_RINGL);
-    if (old) update_mon_intrinsics(mon, old, FALSE, TRUE);
-        old = which_armor(mon, W_RINGR);
-    if (old) update_mon_intrinsics(mon, old, FALSE, TRUE);
+    if (old)
+        update_mon_intrinsics(mon, old, FALSE, TRUE);
+    old = which_armor(mon, W_RINGR);
+    if (old)
+        update_mon_intrinsics(mon, old, FALSE, TRUE);
     /* This list should match the list in m_dowear_type. */
     switch (obj->otyp) {
         case RIN_FIRE_RESISTANCE:
             if (!resists_fire(mon))
-                rc =  dmgtype(youmonst.data, AD_FIRE)
-		      || (uwep && uwep->oartifact == ART_FIRE_BRAND) ? 20 : 12;
+                rc = (dmgtype(youmonst.data, AD_FIRE)
+		      || (uwep && uwep->oartifact == ART_FIRE_BRAND)
+                      || (uwep && uwep->oartifact == ART_XIUHCOATL)
+                      || (uwep && uwep->oartifact == ART_ANGELSLAYER)
+                      || (uwep && uwep->oartifact == ART_FIRE_BRAND)
+                      || (uwep && uwep->oprops & ITEM_FIRE)) ? 20 : 12;
             break;
         case RIN_COLD_RESISTANCE:
             if (!resists_cold(mon))
-                rc = dmgtype(youmonst.data, AD_COLD)
-		     || (uwep && uwep->oartifact == ART_FROST_BRAND) ? 20 : 12;
+                rc = (dmgtype(youmonst.data, AD_COLD)
+		      || (uwep && uwep->oartifact == ART_FROST_BRAND)
+                      || (uwep && uwep->oprops & ITEM_FROST)) ? 20 : 12;
             break;
 	case RIN_POISON_RESISTANCE:
             if (!resists_poison(mon))
-                rc = dmgtype(youmonst.data, AD_DRST)
-		     || dmgtype(youmonst.data, AD_DRCO)
-		     || dmgtype(youmonst.data, AD_DRDX) ? 20 : 10;
+                rc = (dmgtype(youmonst.data, AD_DRST)
+		      || dmgtype(youmonst.data, AD_DRCO)
+		      || dmgtype(youmonst.data, AD_DRDX)
+                      || (uwep && uwep->oprops & ITEM_VENOM)) ? 20 : 10;
             break;
 	case RIN_SHOCK_RESISTANCE:
             if (!resists_elec(mon))
-                rc = dmgtype(youmonst.data, AD_ELEC)
-		     || (uwep && uwep->oartifact == ART_MJOLLNIR) ? 20 : 10;
+                rc = (dmgtype(youmonst.data, AD_ELEC)
+		      || (uwep && uwep->oartifact == ART_MJOLLNIR)
+                      || (uwep && uwep->oprops & ITEM_SHOCK)) ? 20 : 10;
             break;
 	case RIN_REGENERATION:
-            rc = !mon_prop(mon, REGENERATION) ? 20 : 0;
+            rc = !mon_prop(mon, REGENERATION) ? 25 : 0;
 	    break;
 	case RIN_INVISIBILITY:
             if (mon->mtame || mon->mpeaceful)
@@ -1236,14 +1242,16 @@ struct obj *obj;
 		 * we'll make reservations.
 		 */
                 rc = See_invisible ? 10 : 0;
-            else rc = 30;
+            else
+                rc = 30;
             break;
 	case RIN_INCREASE_DAMAGE:
 	case RIN_INCREASE_ACCURACY:
 	case RIN_PROTECTION:
             if (obj->spe > 0)
                 rc = 10 + 3 * (obj->spe);
-            else rc = 0;
+            else
+                rc = 0;
             break;
         case RIN_TELEPORTATION:
             if (!mon_prop(mon, TELEPORT))
@@ -1254,14 +1262,16 @@ struct obj *obj;
 	        rc = mon_prop(mon, TELEPORT) ? 20 : 5;
 	    break;
         case RIN_SLOW_DIGESTION:
-            rc = dmgtype(youmonst.data, AD_DGST) ? 25 : 0;
+            rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
             break;
 	}
 	old = which_armor(mon, W_RINGL);
-	if (old) update_mon_intrinsics(mon, old, TRUE, TRUE);
-	    old = which_armor(mon, W_RINGR);
-	if (old) update_mon_intrinsics(mon, old, TRUE, TRUE);
-	    return rc;
+	if (old)
+            update_mon_intrinsics(mon, old, TRUE, TRUE);
+	old = which_armor(mon, W_RINGR);
+	if (old)
+            update_mon_intrinsics(mon, old, TRUE, TRUE);
+	return rc;
 }
 
 /*
