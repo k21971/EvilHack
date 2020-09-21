@@ -473,13 +473,16 @@ struct mkroom *sroom;
                     struct obj *otmp;
                     if (rn2(4)) {
                         if (rn2(2)) {
-                            if (rn2(4))
+                            if (rn2(4)) {
                                 otmp = mkobj_at(WEAPON_CLASS, sx, sy, FALSE);
-                            else
+                                otmp->spe = 0;
+                            } else {
                                 otmp = mkobj_at(TOOL_CLASS, sx, sy, FALSE);
-                        } else
+                            }
+                        } else {
                             otmp = mkobj_at(ARMOR_CLASS, sx, sy, FALSE);
-                        otmp->spe = 0;
+                            otmp->spe = 0;
+                        }
                         if (is_rustprone(otmp) || is_flammable(otmp))
                             otmp->oeroded = rn2(4);
                         else if (is_corrodeable(otmp) || is_rottable(otmp))

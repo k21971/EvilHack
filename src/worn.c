@@ -1207,7 +1207,7 @@ struct obj *obj;
         case RIN_FIRE_RESISTANCE:
             if (!resists_fire(mon))
                 rc = (dmgtype(youmonst.data, AD_FIRE)
-		      || (uwep && uwep->oartifact == ART_FIRE_BRAND)
+                      || (uwep && uwep->oartifact == ART_FIRE_BRAND)
                       || (uwep && uwep->oartifact == ART_XIUHCOATL)
                       || (uwep && uwep->oartifact == ART_ANGELSLAYER)
                       || (uwep && uwep->oartifact == ART_FIRE_BRAND)
@@ -1216,20 +1216,20 @@ struct obj *obj;
         case RIN_COLD_RESISTANCE:
             if (!resists_cold(mon))
                 rc = (dmgtype(youmonst.data, AD_COLD)
-		      || (uwep && uwep->oartifact == ART_FROST_BRAND)
+                      || (uwep && uwep->oartifact == ART_FROST_BRAND)
                       || (uwep && uwep->oprops & ITEM_FROST)) ? 20 : 12;
             break;
 	case RIN_POISON_RESISTANCE:
             if (!resists_poison(mon))
                 rc = (dmgtype(youmonst.data, AD_DRST)
-		      || dmgtype(youmonst.data, AD_DRCO)
-		      || dmgtype(youmonst.data, AD_DRDX)
+                      || dmgtype(youmonst.data, AD_DRCO)
+                      || dmgtype(youmonst.data, AD_DRDX)
                       || (uwep && uwep->oprops & ITEM_VENOM)) ? 20 : 10;
             break;
 	case RIN_SHOCK_RESISTANCE:
             if (!resists_elec(mon))
                 rc = (dmgtype(youmonst.data, AD_ELEC)
-		      || (uwep && uwep->oartifact == ART_MJOLLNIR)
+                      || (uwep && uwep->oartifact == ART_MJOLLNIR)
                       || (uwep && uwep->oprops & ITEM_SHOCK)) ? 20 : 10;
             break;
 	case RIN_REGENERATION:
@@ -1265,11 +1265,11 @@ struct obj *obj;
             rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
             break;
 	}
-	old = which_armor(mon, W_RINGL);
-	if (old)
+        old = which_armor(mon, W_RINGL);
+        if (old)
             update_mon_intrinsics(mon, old, TRUE, TRUE);
-	old = which_armor(mon, W_RINGR);
-	if (old)
+        old = which_armor(mon, W_RINGR);
+        if (old)
             update_mon_intrinsics(mon, old, TRUE, TRUE);
 	return rc;
 }
