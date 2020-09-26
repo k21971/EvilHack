@@ -1264,14 +1264,14 @@ struct obj *obj;
         case RIN_SLOW_DIGESTION:
             rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
             break;
-	}
-        old = which_armor(mon, W_RINGL);
-        if (old)
-            update_mon_intrinsics(mon, old, TRUE, TRUE);
-        old = which_armor(mon, W_RINGR);
-        if (old)
-            update_mon_intrinsics(mon, old, TRUE, TRUE);
-	return rc;
+    }
+    old = which_armor(mon, W_RINGL);
+    if (old)
+        update_mon_intrinsics(mon, old, TRUE, TRUE);
+    old = which_armor(mon, W_RINGR);
+    if (old)
+        update_mon_intrinsics(mon, old, TRUE, TRUE);
+    return rc;
 }
 
 /*
