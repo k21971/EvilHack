@@ -1201,4 +1201,5 @@ Version 0.6.0
 - Tweak extra_pref()
 - Fix: prevent tools that spawn inside a dilapidated armory from having zero charges
 - Fix: heap use after free (sp_lev.c)
+- Fix: killed by the the <foo>
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

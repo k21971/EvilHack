@@ -1884,7 +1884,9 @@ boolean called;
 
     if (name_at_start && (article == ARTICLE_YOUR || !has_adjectives)) {
         if (mdat == &mons[PM_WIZARD_OF_YENDOR]
-            || mdat == &mons[PM_RAT_KING])
+            || mdat == &mons[PM_RAT_KING]
+            || mdat == &mons[PM_ABOMINABLE_SNOWMAN]
+            || mdat == &mons[PM_ARCHBISHOP_OF_MOLOCH])
             article = ARTICLE_THE;
         else
             article = ARTICLE_NONE;

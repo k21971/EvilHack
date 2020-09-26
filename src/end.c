@@ -516,12 +516,6 @@ int how;
         Strcat(buf, "the ");
         killer.format = KILLED_BY;
     }
-    if (mptr == &mons[PM_RAT_KING]
-        || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
-        || mptr == &mons[PM_ARCHBISHOP_OF_MOLOCH]) {
-        Strcat(buf, "the ");
-        killer.format = KILLED_BY;
-    }
     if (mtmp->minvis && !unique_corpstat(mptr))
         Strcat(buf, "invisible ");
     if (distorted)
