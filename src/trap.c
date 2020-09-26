@@ -5815,7 +5815,8 @@ int bodypart;
             for (tx = 0; tx < COLNO; tx++) {
                 lev = &levl[tx][ty];
                 if (lev->typ == DOOR
-                    && (lev->doormask & (D_CLOSED | D_TRAPPED))) {
+                    && (lev->doormask & D_CLOSED)
+                    && (lev->doormask & D_TRAPPED)) {
                     lev->typ = VWALL;
                     lev->doormask = D_NODOOR;
                     lev->wall_info |= (W_NONDIGGABLE | W_NONPASSWALL);
