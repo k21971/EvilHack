@@ -1203,4 +1203,5 @@ Version 0.6.0
 - Fix: heap use after free (sp_lev.c)
 - Fix: killed by the the <foo>
 - Fix: Sokoban zoo entrance door could become sealed shut while retrieving the prize
+- Fix: pet location inconsistency
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
