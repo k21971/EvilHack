@@ -3737,6 +3737,12 @@ xchar x, y;
     if (is_flammable(obj) && obj->oerodeproof)
         return FALSE;
 
+    /* Container might be made of a material that isn't flammable.
+       The line below technically protects any container made of plastic,
+       but that currently isn't possible. We'll let it slide for now */
+    if (Is_container(obj) && obj->material >= DRAGON_HIDE)
+        return FALSE;
+
     /* object might light in a controlled manner */
     if (catch_lit(obj))
         return FALSE;
