@@ -1208,4 +1208,5 @@ Version 0.6.0
 - More tweaks to tool class object materials
 - Fix: prevent shape-changing pets from reverting back to their original form while
   wearing a ring of protection from shape changers
+- Prevent the Mitre of Holiness from blocking an illithid's psionic attack
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
