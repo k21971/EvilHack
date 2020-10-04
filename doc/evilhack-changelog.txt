@@ -1206,4 +1206,6 @@ Version 0.6.0
 - Fix: pet location inconsistency
 - Fix: containers made of non-flammable materials catching fire and burning up
 - More tweaks to tool class object materials
+- Fix: prevent shape-changing pets from reverting back to their original form while
+  wearing a ring of protection from shape changers
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

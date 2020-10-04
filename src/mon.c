@@ -1249,10 +1249,6 @@ register struct monst *mtmp;
                             mon_to_stone(mtmp);
                             ptr = mtmp->data;
                         } else if (!resists_ston(mtmp)) {
-                            /* if (canseemon(mtmp))
-                                pline("%s turns to stone!", Monnam(mtmp));
-                            monstone(mtmp);
-                            ptr = (struct permonst *) 0; */
 			    mtmp->mstone = 5;
 			    mtmp->mstonebyu = FALSE;
                         }
@@ -4081,7 +4077,7 @@ rescham()
     int mcham;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp))
+        if (DEADMONSTER(mtmp) || mtmp->mtame)
             continue;
         mcham = (int) mtmp->cham;
         if (mcham >= LOW_PM) {
