@@ -1205,4 +1205,5 @@ Version 0.6.0
 - Fix: Sokoban zoo entrance door could become sealed shut while retrieving the prize
 - Fix: pet location inconsistency
 - Fix: containers made of non-flammable materials catching fire and burning up
+- More tweaks to tool class object materials
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

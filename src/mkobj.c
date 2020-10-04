@@ -3194,7 +3194,7 @@ static const struct icp wood_materials[] = {
     { 1, SILVER}
 };
 
-/* for objects which are normally cloth */
+/* for most objects which are normally cloth */
 static const struct icp cloth_materials[] = {
     {80, CLOTH},
     {19, LEATHER},
@@ -3279,6 +3279,12 @@ static const struct icp elven_helm_boots_materials[] = {
     { 1, DRAGON_HIDE}
 };
 
+static const struct icp portable_container_materials[] = {
+    {93, CLOTH},
+    { 6, LEATHER},
+    { 1, DRAGON_HIDE}
+};
+
 static const struct icp dwarvish_weapon_materials[] = {
     {50, IRON},
     {25, METAL},
@@ -3330,7 +3336,10 @@ struct obj* obj;
         case LAND_MINE:
         case BEARTRAP:
         case TOWEL:
+        case BLINDFOLD:
+        case LEASH:
         case SADDLE:
+        case TINNING_KIT:
         case AMULET_OF_YENDOR:
         case FAKE_AMULET_OF_YENDOR:
             return NULL;
@@ -3373,6 +3382,11 @@ struct obj* obj;
         case FROST_HORN:
         case HORN_OF_PLENTY:
             return horn_materials;
+        case SACK:
+        case OILSKIN_SACK:
+        case BAG_OF_HOLDING:
+        case BAG_OF_TRICKS:
+            return portable_container_materials;
         default:
             break;
     }
