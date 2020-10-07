@@ -1210,4 +1210,5 @@ Version 0.6.0
   wearing a ring of protection from shape changers
 - Prevent the Mitre of Holiness from blocking an illithid's psionic attack
 - Fix: strength attribute abuse (giants)
+- Fix: champions/agents spawning when the player is not playing as an infidel
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
