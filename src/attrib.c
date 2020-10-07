@@ -247,8 +247,8 @@ boolean givemsg;
         else
             num = 1;
         if (Race_if(PM_GIANT) && (ABASE(A_STR) < STR18(100)))
-            num += d(2,2);
-        if ((ABASE(A_STR) < STR18(100)) && (ABASE(A_STR)+num > STR18(100)))
+            num += d(2, 2);
+        if ((ABASE(A_STR) < STR18(100)) && (ABASE(A_STR) + num > STR18(100)))
             num = STR18(100) - ABASE(A_STR);
     }
     return adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num,
@@ -1004,7 +1004,6 @@ int oldlevel, newlevel;
 {
     register const struct innate *abil, *rabil;
     long prevabil, mask = FROMEXPER;
-    int bShowMsgAnyway = 0;
 
     abil = role_abil(Role_switch);
 
@@ -1036,7 +1035,6 @@ int oldlevel, newlevel;
     }
 
     while (abil || rabil) {
-        bShowMsgAnyway = 0;
         /* Have we finished with the intrinsics list? */
         if (!abil || !abil->ability) {
             /* Try the race intrinsics */
@@ -1048,33 +1046,28 @@ int oldlevel, newlevel;
         }
         prevabil = *(abil->ability);
         if (!(Race_if(PM_GIANT) && (abil->ability == &HStealth))) {
-        if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {
-	    /* Must do this check before we set the FROMEXPER flag */
-	    if ((*(abil->ability) & TIMEOUT) < 100) {
-	        bShowMsgAnyway = 1;
-	    }
-
-            if (abil->ulevel == 1)
-            /* Abilities gained at level 1 can never be lost
-             * via level loss, only via means that remove _any_
-             * sort of ability.  A "gain" of such an ability from
-             * an outside source is devoid of meaning, so we set
-             * FROMOUTSIDE to avoid such gains.
-             */
-                *(abil->ability) |= (mask | FROMOUTSIDE);
-            else
-                *(abil->ability) |= mask;
-            if (bShowMsgAnyway || !(*(abil->ability) & INTRINSIC & ~mask)) {
-                if (*(abil->gainstr))
-                    You_feel("%s!", abil->gainstr);
-            }
-        } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
-            *(abil->ability) &= ~mask;
-            if (!(*(abil->ability) & INTRINSIC)) {
-                if (*(abil->losestr))
-                    You_feel("%s!", abil->losestr);
-                else if (*(abil->gainstr))
-                    You_feel("less %s!", abil->gainstr);
+            if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {
+                /* Abilities gained at level 1 can never be lost
+                 * via level loss, only via means that remove _any_
+                 * sort of ability.  A "gain" of such an ability from
+                 * an outside source is devoid of meaning, so we set
+                 * FROMOUTSIDE to avoid such gains.
+                 */
+                if (abil->ulevel == 1)
+                    *(abil->ability) |= (mask | FROMOUTSIDE);
+                else
+                    *(abil->ability) |= mask;
+                if (!(*(abil->ability) & INTRINSIC & ~mask)) {
+                    if (*(abil->gainstr))
+                        You_feel("%s!", abil->gainstr);
+                }
+            } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
+                *(abil->ability) &= ~mask;
+                if (!(*(abil->ability) & INTRINSIC)) {
+                    if (*(abil->losestr))
+                        You_feel("%s!", abil->losestr);
+                    else if (*(abil->gainstr))
+                        You_feel("less %s!", abil->gainstr);
                 }
             }
         }

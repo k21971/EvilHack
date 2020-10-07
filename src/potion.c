@@ -1065,8 +1065,7 @@ register struct obj *otmp;
                 if (i == A_STR) {
                     if (gainstr(otmp, 1, (itmp == 0)) && !otmp->blessed)
                         break;
-                }
-                else {
+                } else {
                     if (adjattrib(i, 1, itmp) && !otmp->blessed)
                         break;
                 }
