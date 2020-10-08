@@ -1211,4 +1211,5 @@ Version 0.6.0
 - Prevent the Mitre of Holiness from blocking an illithid's psionic attack
 - Fix: strength attribute abuse (giants)
 - Fix: champions/agents spawning when the player is not playing as an infidel
+- Fix: The elven king's ring of protection blocks the warg's attack
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

@@ -73,7 +73,6 @@ int target, roll;
     boolean showit = FALSE;
 
     register struct obj *blocker = (struct obj *) 0;
-    long mwflags = mdef->misc_worn_check;
 
     /* 3 values for blocker:
      * No blocker: (struct obj *) 0
@@ -85,7 +84,7 @@ int target, roll;
      */
     if (target < roll) {
         for (blocker = mdef->minvent; blocker; blocker = blocker->nobj) {
-            if (blocker->owornmask & mwflags) {
+            if (blocker->owornmask & W_ARMOR) {
                 target += ARM_BONUS(blocker);
                 if (target > roll)
                     break;

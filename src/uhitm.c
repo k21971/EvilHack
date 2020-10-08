@@ -2877,7 +2877,6 @@ boolean wouldhavehit;
 {
     register boolean nearmiss = (target == roll);
     register struct obj *blocker = (struct obj *) 0;
-    long mwflags = mdef->misc_worn_check;
 
     /* 3 values for blocker:
      * No blocker: (struct obj *) 0
@@ -2889,7 +2888,7 @@ boolean wouldhavehit;
      */
     if (target < roll) {
         for (blocker = mdef->minvent; blocker; blocker = blocker->nobj) {
-            if (blocker->owornmask & mwflags) {
+            if (blocker->owornmask & W_ARMOR) {
                 target += ARM_BONUS(blocker);
                 if (target > roll)
                     break;
