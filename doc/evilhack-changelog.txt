@@ -1213,4 +1213,5 @@ Version 0.6.0
 - Fix: champions/agents spawning when the player is not playing as an infidel
 - Fix: The elven king's ring of protection blocks the warg's attack
 - Fix: debug pline left in death-aversion livelog code
+- Fix: You crush the the ogre's skull!
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

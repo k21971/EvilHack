@@ -2029,8 +2029,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     atmp = &artilist[(unsigned char) otmp->oartifact];
 
     if (atmp->spfx & (SPFX_DFLAGH | SPFX_DCLAS)) {
-	j = !rn2(10);	  /* 10% chance of instakill for some artifacts */
-        k = !rn2(20);     /* 5% chance if same weapon is used against the player */
+	j = !rn2(10); /* 10% chance of instakill for some artifacts */
+        k = !rn2(20); /* 5% chance if same weapon is used against the player */
         switch (otmp->oartifact) {
             case ART_WEREBANE:
                 if (youattack && is_were(mdef->data) && j) {
@@ -2064,11 +2064,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 return TRUE;
             case ART_OGRESMASHER:
                 if (youattack && is_ogre(mdef->data) && j) {
-                    You("crush the %s skull!", s_suffix(mon_nam(mdef)));
+                    You("crush %s skull!", s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (!youattack && magr && cansee(magr->mx, magr->my)
                            && is_ogre(mdef->data) && j) {
-                    pline("%s crushes the %s skull!",
+                    pline("%s crushes %s skull!",
                           Monnam(magr), s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && is_ogre(youmonst.data) && k) {
