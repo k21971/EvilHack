@@ -4071,6 +4071,12 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         break;
     case ZT_WATER:
         tmp = d(nd, 8);
+        if (mon->data == &mons[PM_WATER_ELEMENTAL]
+            || mon->data == &mons[PM_BABY_SEA_DRAGON]
+            || mon->data == &mons[PM_SEA_DRAGON]) {
+            tmp = 0;
+            break;
+        }
         if (mon->data == &mons[PM_IRON_GOLEM]) {
             if (canseemon(mon))
                 pline("%s falls to pieces!", Monnam(mon));
@@ -4278,6 +4284,14 @@ xchar sx, sy;
         dam = d(nd, 8);
         if (Half_physical_damage)
             dam = (dam + 1) / 2;
+        if (u.umonnum == PM_WATER_ELEMENTAL
+            || u.umonnum == PM_BABY_SEA_DRAGON
+            || u.umonnum == PM_SEA_DRAGON) {
+            You("%sabsorb the blast of water into your body.",
+                Reflecting ? "partially " : "");
+            dam = 0;
+            break;
+        }
         if (u.umonnum == PM_IRON_GOLEM) {
             You("rust!");
             rehumanize();
@@ -4594,6 +4608,16 @@ boolean say; /* Announce out of sight hit/miss events if true */
                         }
                         break; /* Out of while loop */
                     }
+                    if (abstype == ZT_WATER
+                        && (mon->data == &mons[PM_WATER_ELEMENTAL]
+                            || mon->data == &mons[PM_BABY_SEA_DRAGON]
+                            || mon->data == &mons[PM_SEA_DRAGON])) {
+                        if (canseemon(mon))
+                            pline("%s aborbs the blast of water into its body.",
+                                  Monnam(mon));
+                        range = 0;
+                        break; /* Out of while loop */
+                    }
 
                     if (tmp == MAGIC_COOKIE) { /* disintegration */
                         disintegrate_mon(mon, type, fltxt);
@@ -4646,6 +4670,12 @@ boolean say; /* Announce out of sight hit/miss events if true */
                 range -= 2;
                 pline("%s %s you!", The(fltxt),
                       abstype == ZT_WATER ? "slams into" : "hits");
+                if (abstype == ZT_WATER
+                    && (u.umonnum == PM_WATER_ELEMENTAL
+                        || u.umonnum == PM_BABY_SEA_DRAGON
+                        || u.umonnum == PM_SEA_DRAGON)) {
+                    range = 0;
+                }
                 if (Reflecting) {
                     if (!Blind) {
                         (void) ureflects("Some of %s reflects from your %s!",
