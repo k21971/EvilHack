@@ -311,7 +311,7 @@ WEAPON("flail", None,
         /* +1 small, +1d4 large */
 /* template for Yeenoghu's artifact weapon; does not spawn randomly */
 WEAPON("triple-headed flail", None,
-       1, 0, 1, 0,  0,  60,  30, 12,  6, 3, B,   P_FLAIL, BONE, CLR_WHITE),
+       1, 0, 1, 0,  0, 150,  30, 12,  6, 3, B,   P_FLAIL, BONE, CLR_WHITE),
         /* +d4 small, +3d6 large */
 
 /* misc */
