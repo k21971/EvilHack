@@ -213,18 +213,24 @@ struct obj *wep;
                       arti_light_description(wep));
         }
 
-        if (Race_if(PM_ELF) && !wep->oartifact
+        if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
             && wep->material == IRON) {
             /* Elves are averse to wielding cold iron */
-            You("have an uneasy feeling about wielding cold iron.");
-            change_luck(-1);
+            You("%s wielding cold iron.",
+                uarmg ? "have an uneasy feeling about"
+                      : "feel extremely uncomfortable");
+            if (!uarmg)
+                change_luck(-1);
         }
 
-        if (Race_if(PM_ORC) && !wep->oartifact
+        if (maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC))
             && wep->material == MITHRIL) {
             /* Orcs are averse to wielding mithril */
-            You("have a weird feeling about wielding mithril.");
-            change_luck(-1);
+            You("%s wielding mithril.",
+                uarmg ? "have a weird feeling about"
+                      : "feel extremely uncomfortable");
+            if (!uarmg)
+                change_luck(-1);
         }
 
         if (wep->unpaid) {
