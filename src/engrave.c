@@ -386,7 +386,8 @@ int x, y;
                 et = ep->engr_txt;
             }
             You("%s: \"%s\".", (Blind) ? "feel the words" : "read", et);
-            maybe_learn_elbereth(et);
+            if (ep->engr_type != HEADSTONE)
+                maybe_learn_elbereth(et);
             if (context.run > 0)
                 nomul(0);
         }
