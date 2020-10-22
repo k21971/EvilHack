@@ -386,7 +386,8 @@ int x, y;
                 et = ep->engr_txt;
             }
             You("%s: \"%s\".", (Blind) ? "feel the words" : "read", et);
-            maybe_learn_elbereth(et);
+            if (ep->engr_type != HEADSTONE)
+                maybe_learn_elbereth(et);
             if (context.run > 0)
                 nomul(0);
         }
@@ -443,7 +444,7 @@ xchar e_type;
 
     if ((ep = engr_at(x, y)) != 0)
         del_engr(ep);
-    if (!in_mklev && strstri(s, "Elbereth")) {
+    if (!in_mklev && e_type != HEADSTONE && strstri(s, "Elbereth")) {
         if (!u.uevent.ulearned_elbereth) {
            s = bogus_elbereth[rn2(N_BOGUS_ELBERETH)];
            pline("%s", cannot_write[rn2(N_CANNOT_WRITE)]);
