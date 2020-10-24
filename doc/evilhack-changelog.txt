@@ -1218,4 +1218,5 @@ Version 0.6.0
 - Fix: Butcher weight adjustment
 - Fix: slight revamp of wielding objects made of an adverse material
 - Fix: Butcher is supposed to be two-handed
+- Fix: 'Your wooden shield smoulders' with non-wooden shields
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
