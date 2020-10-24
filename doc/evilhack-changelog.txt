@@ -1217,4 +1217,5 @@ Version 0.6.0
 - Fix: water-based monsters being hurt or killed by blasts of water
 - Fix: Butcher weight adjustment
 - Fix: slight revamp of wielding objects made of an adverse material
+- Fix: Butcher is supposed to be two-handed
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
