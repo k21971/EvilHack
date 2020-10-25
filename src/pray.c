@@ -94,7 +94,6 @@ static int p_type; /* (-2)-3: (-1)=really naughty, 3=really good */
 #define ugod_is_angry() (u.ualign.record < 0)
 #define on_altar() IS_ALTAR(levl[u.ux][u.uy].typ)
 #define on_shrine() ((levl[u.ux][u.uy].altarmask & AM_SHRINE) != 0)
-#define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
 
 /* critically low hit points if hp <= 5 or hp <= maxhp/N for some N */
 boolean
@@ -1597,8 +1596,8 @@ dosacrifice()
             } else if (altaralign != A_CHAOTIC && altaralign != A_NONE) {
                 /* curse the lawful/neutral altar */
                 pline_The("altar is stained with %s blood.", urace.adj);
-                levl[u.ux][u.uy].altarmask = u.ualign.type == A_NONE
-                                             ? AM_NONE : AM_CHAOTIC;
+                levl[u.ux][u.uy].altarmask = (u.ualign.type == A_NONE)
+                                              ? AM_NONE : AM_CHAOTIC;
                 angry_priest();
                 if (!canspotself())
                     /* with colored altars, regular newsym() doesn't cut it -

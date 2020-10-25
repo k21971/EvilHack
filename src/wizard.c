@@ -278,8 +278,6 @@ register struct monst *mtmp;
             return STRAT(STRAT_MONSTR, mtmp2->mx, mtmp2->my, mask);
     }
 
-#define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
-
     /* Do we have the Amulet? Alrighty then... */
     if (Is_astralevel(&u.uz)) {
 	int targetx = u.ux, targety = u.uy;

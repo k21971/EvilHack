@@ -19,8 +19,6 @@ STATIC_DCL int FDECL(vamp_shift, (struct monst *, struct permonst *,
                                   BOOLEAN_P));
 STATIC_DCL boolean FDECL(likes_contents, (struct monst *, struct obj *));
 
-#define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
-
 /* True if mtmp died */
 boolean
 mb_trapped(mtmp)
