@@ -262,7 +262,6 @@ int force;
     for (x = start_x; x <= end_x; x++)
         for (y = start_y; y <= end_y; y++) {
             if ((mtmp = m_at(x, y)) != 0) {
-                wakeup(mtmp, TRUE); /* peaceful monster will become hostile */
                 if (mtmp->mundetected && is_hider(mtmp->data)) {
                     mtmp->mundetected = 0;
                     if (cansee(x, y))
@@ -682,6 +681,11 @@ struct obj *instr;
         You("produce a heavy, thunderous rolling!");
         pline_The("entire %s is shaking around you!", generic_lvl_desc());
         do_earthquake((u.ulevel - 1) / 3 + 1);
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (DEADMONSTER(mtmp))
+                continue;
+            wakeup(mtmp, TRUE); /* peaceful monster will become hostile */
+        }
         /* shake up monsters in a much larger radius... */
         awaken_monsters(ROWNO * COLNO);
         makeknown(DRUM_OF_EARTHQUAKE);
