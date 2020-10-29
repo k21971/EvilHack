@@ -3436,7 +3436,7 @@ struct permonst _mons2[] = {
         SIZ(900, 500, MS_ORC, MZ_LARGE), MR_FIRE | MR_POISON, 0,
         M1_FLY | M1_SEE_INVIS | M1_POIS,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
-            | M2_LORD | M2_MALE | M2_COLLECT,
+            | M2_LORD | M2_MALE | M2_COLLECT | M2_STRONG,
         M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
         0, MH_DEMON, 31, HI_LORD),
     MON("Orcus", S_DEMON, LVL(66, 15, -6, 85, -20),
