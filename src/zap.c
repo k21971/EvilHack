@@ -4560,6 +4560,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
         }
 
         if (mon) {
+            int saved_mhp = mon->mhp; /* for print_mon_wounded() */
             if (type == ZT_SPELL(ZT_FIRE))
                 break;
             if (type >= 0)
@@ -4641,9 +4642,10 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     } else {
                         if (!otmp) {
                             /* normal non-fatal hit */
-                            if (say || canseemon(mon))
+                            if (say || canseemon(mon)) {
                                 hit(fltxt, mon, exclam(tmp));
-                            wounds_message(mon);
+                                print_mon_wounded(mon, saved_mhp);
+                            }
                         } else {
                             /* some armor was destroyed; no damage done */
                             if (canseemon(mon))
@@ -5825,14 +5827,16 @@ int damage, tell;
     }
 
     if (damage) {
+        int saved_mhp = mtmp->mhp;
         damage_mon(mtmp, damage, AD_RBRE);
         if (DEADMONSTER(mtmp)) {
             if (m_using)
                 monkilled(mtmp, "", AD_RBRE);
             else
                 killed(mtmp);
-        } else
-            wounds_message(mtmp);
+        } else {
+            print_mon_wounded(mtmp, saved_mhp);
+        }
     }
     return resisted;
 }

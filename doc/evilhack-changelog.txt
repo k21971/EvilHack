@@ -1224,4 +1224,5 @@ Version 0.6.0
 - Fix: random earthquakes caused after performing the invocation were making peaceful
   monsters angry at the player
 - Fix: Yeenoghu wasn't spawning with Butcher
+- Improvements to how healers can sense injuries
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

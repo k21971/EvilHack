@@ -278,6 +278,7 @@ int x, y;
 {
     char *name, monnambuf[BUFSZ];
     boolean accurate = !Hallucination;
+    char *mwounds;
 
     if (!mon_visible(mtmp) && has_erid(mtmp) && mon_visible(ERID(mtmp)->m1))
         mtmp = ERID(mtmp)->m1;
@@ -299,9 +300,10 @@ int x, y;
         Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->m1));
     if (mtmp->rider_id)
         Sprintf(eos(buf), ", being ridden");
-    if (mon_wounds(mtmp)) {
+    mwounds = mon_wounds(mtmp);
+    if (mwounds) {
         Strcat(buf, ", ");
-        Strcat(buf, mon_wounds(mtmp));
+        Strcat(buf, mwounds);
     }
     if (u.ustuck == mtmp) {
         if (u.uswallow || iflags.save_uswallow) /* monster detection */
