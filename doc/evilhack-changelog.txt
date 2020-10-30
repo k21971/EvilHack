@@ -1225,4 +1225,5 @@ Version 0.6.0
   monsters angry at the player
 - Fix: Yeenoghu wasn't spawning with Butcher
 - Improvements to how healers can sense injuries
+- Fix: half spell damage stacking twice for player against magic missile attack
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

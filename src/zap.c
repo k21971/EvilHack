@@ -3938,12 +3938,12 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     switch (abstype) {
     case ZT_MAGIC_MISSILE:
         tmp = d(nd, 6);
-        if (resists_magm(mon)) {
-            sho_shieldeff = TRUE;
-            tmp = (tmp + 1) / 2;
-        }
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
+        if (resists_magm(mon)) {
+            tmp = (tmp + 1) / 2;
+            sho_shieldeff = TRUE;
+        }
         break;
     case ZT_FIRE:
         if (resists_fire(mon)) {
@@ -4128,15 +4128,15 @@ xchar sx, sy;
     switch (abstyp % 10) {
     case ZT_MAGIC_MISSILE:
         dam = d(nd, 6);
+        exercise(A_STR, FALSE);
         if (Antimagic) {
             shieldeff(sx, sy);
             pline("Some missiles bounce off!");
             monstseesu(M_SEEN_MAGR);
             dam = (dam + 1) / 2;
         }
-        if (Half_spell_damage) /* stacks, effectively 1/4 damage */
-            dam = (dam + 1) / 2;
-        exercise(A_STR, FALSE);
+        /* Half spell damage stacks here, but is factored
+           in after this switch statement */
         break;
     case ZT_FIRE:
         if (how_resistant(FIRE_RES) == 100) {
