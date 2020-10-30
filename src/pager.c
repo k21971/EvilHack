@@ -316,7 +316,7 @@ int x, y;
     if (mtmp->mleashed)
         Strcat(buf, ", leashed to you");
 
-    if (mtmp->misc_worn_check && canseemon(mtmp) && !Blind)
+    if (which_armor(mtmp, W_ARMOR) && canseemon(mtmp) && !Blind)
         Strcat(buf, ", wearing armor");
 
     if (MON_WEP(mtmp) && canseemon(mtmp) && !Blind)

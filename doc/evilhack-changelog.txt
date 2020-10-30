@@ -1227,4 +1227,5 @@ Version 0.6.0
 - Improvements to how healers can sense injuries
 - Fix: half spell damage stacking twice for player against magic missile attack
 - Fix: possible to destroy the Amulet and the invocation items in sewage
+- Fix: looking at monsters wearing armor
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
