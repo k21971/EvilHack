@@ -2177,14 +2177,14 @@ dodip()
                 rider_cant_reach(); /* not skilled enough to reach */
             } else if (IS_SEWAGE(here)) {
                 if (rn2(3)) {
-                    You("see something moving under the surface and abruptly pull your %s back.",
+                    You("see something moving under the surface and abruptly pull away your %s.",
                         xname(obj));
-                } else if (obj == uball
+                } else if (obj_resists(obj, 0, 0) || obj == uball
                            || (is_worn(obj) && obj->cursed)) {
                     pline("A creature hiding under the surface tries to grab your %s, but cannot!",
                           xname(obj));
                 } else {
-                    pline("Without warning, a creature hiding in the muck snatches your %s away!",
+                    pline("Without warning, a creature hiding in the muck snatches away your %s!",
                           xname(obj));
                     useupall(obj);
                 }

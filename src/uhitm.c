@@ -3887,11 +3887,7 @@ struct attack *mattk;     /* null means we find one internally */
     case AD_DISN:
         if (!mon->mcan) {
             /* lets not make the game unwinnable... */
-            if (obj->otyp == AMULET_OF_YENDOR
-                || (Role_if(PM_INFIDEL) && obj->oartifact == ART_IDOL_OF_MOLOCH)
-                || obj->otyp == BELL_OF_OPENING
-                || obj->otyp == SPE_BOOK_OF_THE_DEAD
-                || obj->otyp == CANDELABRUM_OF_INVOCATION
+            if (obj_resists(obj, 0, 0)
                 || obj->oartifact == ART_DRAGONBANE) {
                 pline_The("%s %s and cannot be disintegrated.",
                           xname(obj), rn2(2) ? "resists completely" : "defies physics");
