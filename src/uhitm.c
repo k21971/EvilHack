@@ -962,7 +962,8 @@ int dieroll;
                  * of 4.444 rather than 3 against large monsters, and 6.4725
                  * rather than 4.5 against small.
                  **/
-                if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) {
+                if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
+                    && !noncorporeal(mdat)) {
                     int tmp2 = dmgval(obj, mon);
                     if (tmp < tmp2)
                         tmp = tmp2;

@@ -363,46 +363,49 @@ int mndx, mode;
     switch (mndx) {
     /* Quest guardians */
     case PM_STUDENT:
-        mndx = mode ? PM_HUMAN_ARCHEOLOGIST : PM_HUMAN;
+        mndx = mode ? PM_ARCHEOLOGIST : PM_HUMAN;
         break;
     case PM_CHIEFTAIN:
-        mndx = mode ? PM_HUMAN_BARBARIAN : PM_HUMAN;
+        mndx = mode ? PM_BARBARIAN : PM_HUMAN;
         break;
     case PM_NEANDERTHAL:
-        mndx = mode ? PM_HUMAN_CAVEMAN : PM_HUMAN;
+        mndx = mode ? PM_CAVEMAN : PM_HUMAN;
         break;
     case PM_INMATE:
-        mndx = mode ? PM_HUMAN_CONVICT : PM_HUMAN;
+        mndx = mode ? PM_CONVICT : PM_HUMAN;
         break;
     case PM_ATTENDANT:
-        mndx = mode ? PM_HUMAN_HEALER : PM_HUMAN;
+        mndx = mode ? PM_HEALER : PM_HUMAN;
+        break;
+    case PM_CULTIST:
+        mndx = mode ? PM_INFIDEL : PM_HUMAN;
         break;
     case PM_PAGE:
-        mndx = mode ? PM_HUMAN_KNIGHT : PM_HUMAN;
+        mndx = mode ? PM_KNIGHT : PM_HUMAN;
         break;
     case PM_ABBOT:
-        mndx = mode ? PM_HUMAN_MONK : PM_HUMAN;
+        mndx = mode ? PM_MONK : PM_HUMAN;
         break;
     case PM_ACOLYTE:
-        mndx = mode ? PM_HUMAN_PRIEST : PM_HUMAN;
+        mndx = mode ? PM_PRIEST : PM_HUMAN;
         break;
     case PM_HUNTER:
-        mndx = mode ? PM_HUMAN_RANGER : PM_HUMAN;
+        mndx = mode ? PM_RANGER : PM_HUMAN;
         break;
     case PM_THUG:
-        mndx = mode ? PM_HUMAN_ROGUE : PM_HUMAN;
+        mndx = mode ? PM_ROGUE : PM_HUMAN;
         break;
     case PM_ROSHI:
-        mndx = mode ? PM_HUMAN_SAMURAI : PM_HUMAN;
+        mndx = mode ? PM_SAMURAI : PM_HUMAN;
         break;
     case PM_GUIDE:
-        mndx = mode ? PM_HUMAN_TOURIST : PM_HUMAN;
+        mndx = mode ? PM_TOURIST : PM_HUMAN;
         break;
     case PM_APPRENTICE:
-        mndx = mode ? PM_HUMAN_WIZARD : PM_HUMAN;
+        mndx = mode ? PM_WIZARD : PM_HUMAN;
         break;
     case PM_WARRIOR:
-        mndx = mode ? PM_HUMAN_VALKYRIE : PM_HUMAN;
+        mndx = mode ? PM_VALKYRIE : PM_HUMAN;
         break;
     default:
         if (mndx >= LOW_PM && mndx < NUMMONS) {
@@ -418,6 +421,14 @@ int mndx, mode;
                 mndx = PM_GNOME;
             else if (is_orc(ptr))
                 mndx = PM_ORC;
+            else if (is_centaur(ptr))
+                mndx = PM_CENTAUR;
+            else if (is_giant(ptr))
+                mndx = PM_GIANT;
+            else if (is_hobbit(ptr))
+                mndx = PM_HOBBIT;
+            else if (is_illithid(ptr))
+                mndx = PM_ILLITHID;
         }
         break;
     }

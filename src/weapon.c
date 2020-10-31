@@ -1927,9 +1927,8 @@ struct obj *weapon;
         bonus = max(bonus, P_UNSKILLED) - 1; /* unskilled => 0 */
         bonus = ((bonus + 2) * (martial_bonus() ? 2 : 1)) / 2;
         /* extra boost for master/GM */
-        if (bonus > 5) {
+        if (bonus > 5)
             bonus += ((bonus - 5) * 2);
-        }
 
         if (Race_if(PM_GIANT))
             bonus += martial_bonus() ? 1 : 2;
