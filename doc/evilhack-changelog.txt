@@ -1229,4 +1229,5 @@ Version 0.6.0
 - Fix: possible to destroy the Amulet and the invocation items in sewage
 - Fix: looking at monsters wearing armor
 - Fix: giants could hit incorporeal monsters with anything
+- Fix: check_wings() function could sometimes cause crash on game restore
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
