@@ -630,7 +630,6 @@ unsigned int *stuckid, *steedid;
     /* current time is the time to use for next urealtime.realtime update */
     urealtime.start_timing = getnow();
 
-    set_uasmon();
 #ifdef CLIPPING
     cliparound(u.ux, u.uy);
 #endif
@@ -690,10 +689,6 @@ unsigned int *stuckid, *steedid;
         if (otmp->owornmask)
             setworn(otmp, otmp->owornmask);
 
-    /* after inventory has been loaded and setworn() is in effect, check
-       crowned infidels (demonic form) for its wings, ensure they stay
-       tucked away under their body armor upon reload */
-    check_wings(TRUE);
     /* reset weapon so that player will get a reminder about "bashing"
        during next fight when bare-handed or wielding an unconventional
        item; for pick-axe, we aren't able to distinguish between having
@@ -885,6 +880,8 @@ register int fd;
         return 0;
     }
     restlevelstate(stuckid, steedid);
+    set_uasmon();
+
 #ifdef INSURANCE
     savestateinlock();
 #endif
