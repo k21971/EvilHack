@@ -140,6 +140,15 @@ boolean restore;
                 free_oname(otmp);
             }
 
+            /* Prevent non-wishable artifacts that are
+               meant to be found with their owners or at
+               the end of a specific quest from winding up
+               in a bones pile */
+            if (non_wishable_artifact(otmp)) {
+                otmp->oartifact = 0;
+                free_oname(otmp);
+            }
+
             if (otmp->otyp == SLIME_MOLD) {
                 goodfruit(otmp->spe);
 #ifdef MAIL
