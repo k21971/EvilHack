@@ -308,7 +308,7 @@ const char *verb;
                 }
                 mtmp->mtrapped = 0;
             } else {
-                if (!Passes_walls && !throws_rocks(youmonst.data)) {
+                if (!Passes_walls && !(throws_rocks(youmonst.data) || (Race_if(PM_GIANT) && !Upolyd))) {
                     losehp(Maybe_Half_Phys(rnd(15)),
                            "squished under a boulder", NO_KILLER_PREFIX);
                     goto deletedwithboulder;

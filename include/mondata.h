@@ -183,9 +183,7 @@
 #define is_hobbit(ptr) \
     ((((ptr)->mhflags & MH_HOBBIT) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_HOBBIT)))
-#define is_giant(ptr) \
-    ((((ptr)->mhflags & MH_GIANT) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
+#define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_centaur(ptr) \
     ((((ptr)->mhflags & MH_CENTAUR) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_CENTAUR)))
@@ -265,9 +263,7 @@
 #define cantwield(ptr) (nohands(ptr) || verysmall(ptr))
 #define could_twoweap(ptr) ((ptr)->mattk[1].aatyp == AT_WEAP)
 #define cantweararm(ptr) (breakarm(ptr) || sliparm(ptr))
-#define throws_rocks(ptr) \
-    ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
+#define throws_rocks(ptr) (((ptr)->mflags2 & M2_ROCKTHROW) != 0L)
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
 #define is_lord(ptr) (((ptr)->mflags2 & M2_LORD) != 0L)
 #define is_prince(ptr) (((ptr)->mflags2 & M2_PRINCE) != 0L)

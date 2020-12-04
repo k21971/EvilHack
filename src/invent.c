@@ -1493,7 +1493,7 @@ register const char *let, *word;
 
     /* another ugly check: show boulders (not statues) */
     if (*let == WEAPON_CLASS && !strcmp(word, "throw")
-        && throws_rocks(youmonst.data))
+        && ((throws_rocks(youmonst.data) || (Race_if(PM_GIANT) && !Upolyd))))
         useboulder = TRUE;
 
     if (allownone)

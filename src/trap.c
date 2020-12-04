@@ -590,7 +590,7 @@ unsigned ftflags;
                  && !(ftflags & TOOKPLUNGE))
              || (Inhell && !u.uevent.invoked && newlevel == bottom)) {
         /* Give player giants a hint... */
-        if (is_giant(youmonst.data))
+        if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
             dont_fall = "don't fall, but you can climb down.";
         else
             dont_fall = "don't fall in.";
