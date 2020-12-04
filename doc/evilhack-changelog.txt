@@ -1232,4 +1232,5 @@ Version 0.6.0
 - Fix: check_wings() function could sometimes cause crash on game restore
 - Fix: prevent non-wishable artifacts from appearing in bones pile
 - Fix: missing ranks from enemy samurai during the samurai quest
+- Colored altars revamp (part 1?)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

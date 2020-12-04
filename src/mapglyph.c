@@ -137,14 +137,12 @@ unsigned mgflags;
                    && showsyms[idx] == showsyms[S_corr + SYM_OFF_P]) {
             color = CLR_WHITE;
         /* show branch stairs in a different color */
-        } else if (iflags.use_color &&
-                 (offset == S_upstair || offset == S_dnstair) &&
-                 (x == sstairs.sx && y == sstairs.sy)) {
+        } else if (iflags.use_color
+                   && (offset == S_upstair || offset == S_dnstair)
+                   && (x == sstairs.sx && y == sstairs.sy)) {
             color = CLR_YELLOW;
-
-        }
         /* Colored Walls and Floors Patch */
-        else if (iflags.use_color && offset >= S_vwall && offset <= S_trwall) {
+        } else if (iflags.use_color && offset >= S_vwall && offset <= S_trwall) {
             if (In_W_tower(x, y, &u.uz))
                 color = CLR_MAGENTA;
             else if (In_tower(&u.uz)) /* Vlad's */
@@ -177,38 +175,66 @@ unsigned mgflags;
                 color = HI_METAL;
             else
                 cmap_color(offset);
-        }
 
-        else if (iflags.use_color && (offset == S_room)) {
+        } else if (iflags.use_color && (offset == S_room)) {
             if (In_hell(&u.uz) && !In_W_tower(x, y, &u.uz) && !Is_valley(&u.uz))
                 color = (Is_juiblex_level(&u.uz) || Is_baal_level(&u.uz))
                          ? CLR_GREEN : CLR_ORANGE;
             else
                 cmap_color(offset);
-        }
-
-        /* color altars */
-        else if (iflags.use_color && offset == S_altar) {
-            if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz)) {
-                color = CLR_BRIGHT_MAGENTA;
-            } else {
-                if (a_align(x, y) == A_LAWFUL) {
-                    color = CLR_WHITE;
-                } else if (a_align(x, y) == A_NEUTRAL) {
-                    color = CLR_GRAY;
-                } else if (a_align(x, y) == A_CHAOTIC) {
-                    color = CLR_BLACK;
-                } else if (a_align(x, y) == A_NONE) {
-                    color = CLR_RED;
-                }
-            }
 #endif
         /* try to provide a visible difference between water and lava
            if they use the same symbol and color is disabled */
         } else if (!iflags.use_color && offset == S_lava
                    && (showsyms[idx] == showsyms[S_pool + SYM_OFF_P]
-                       || showsyms[idx] == showsyms[S_water + SYM_OFF_P])) {
+                       || showsyms[idx]
+                          == showsyms[S_water + SYM_OFF_P])) {
             special |= MG_BW_LAVA;
+        } else if (offset == S_altar && iflags.use_color) {
+            int amsk = altarmask_at(x, y); /* might be a mimic */
+
+            if ((Is_astralevel(&u.uz) || Is_sanctum(&u.uz))
+                && (amsk & AM_SHRINE) != 0) {
+                /* high altar */
+                color = CLR_BRIGHT_MAGENTA;
+            } else {
+                switch (amsk & AM_MASK) {
+        /*
+         * On OSX with TERM=xterm-color256 these render as
+         *  white -> tty: gray, curses: ok
+         *  gray  -> both tty and curses: black
+         *  black -> both tty and curses: blue
+         *  red   -> both tty and curses: ok.
+         * Since the colors have specific associations (with the
+         * unicorns matched with each alignment), we shouldn't use
+         * scrambled colors and we don't have sufficient information
+         * to handle platform-specific color variations.
+         */
+                case AM_LAWFUL:  /* 4 */
+                    color = CLR_WHITE;
+                    break;
+                case AM_NEUTRAL: /* 2 */
+                    color = CLR_GRAY;
+                    break;
+                case AM_CHAOTIC: /* 1 */
+                    color = CLR_BLACK;
+                    break;
+#if 0
+                case AM_LAWFUL:  /* 4 */
+                case AM_NEUTRAL: /* 2 */
+                case AM_CHAOTIC: /* 1 */
+                    cmap_color(S_altar); /* gray */
+                    break;
+#endif /* 0 */
+                case AM_NONE:    /* 0 */
+                    color = CLR_RED;
+                    break;
+                default: /* 3, 5..7 -- shouldn't happen but 3 was possible
+                          * prior to 3.6.3 (due to faulty sink polymorph) */
+                    color = NO_COLOR;
+                    break;
+                }
+            }
         } else {
             cmap_color(offset);
         }

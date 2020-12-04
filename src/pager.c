@@ -512,11 +512,8 @@ char *buf, *monbuf;
 
         switch (glyph_to_cmap(glyph)) {
         case S_altar:
-            amsk = ((mtmp = m_at(x, y)) != 0 && has_mcorpsenm(mtmp)
-                    && M_AP_TYPE(mtmp) == M_AP_FURNITURE
-                    && mtmp->mappearance == S_altar) ? MCORPSENM(mtmp)
-                   : levl[x][y].altarmask;
-            algn = Amask2align(amsk & ~AM_SHRINE);
+            amsk = altarmask_at(x, y);
+            algn = Amask2align(amsk & AM_MASK);
             Sprintf(buf, "%s %saltar",
                     /* like endgame high priests, endgame high altars
                        are only recognizable when immediately adjacent */

@@ -1598,6 +1598,7 @@ dosacrifice()
                 pline_The("altar is stained with %s blood.", urace.adj);
                 levl[u.ux][u.uy].altarmask = (u.ualign.type == A_NONE)
                                               ? AM_NONE : AM_CHAOTIC;
+                newsym(u.ux, u.uy); /* in case Invisible to self */
                 angry_priest();
                 if (!canspotself())
                     /* with colored altars, regular newsym() doesn't cut it -
@@ -1940,15 +1941,16 @@ dosacrifice()
                          && !(Role_if(PM_INFIDEL) && u.uhave.questart)
                          && depth(&u.uz) < depth(&valley_level) && rn2(5))) {
                     struct monst *pri;
+                    boolean shrine;
+
                     You_feel("the power of %s increase.", u_gname());
                     exercise(A_WIS, TRUE);
                     change_luck(1);
-                    /* Yes, this is supposed to be &=, not |= */
-                    levl[u.ux][u.uy].altarmask &= AM_SHRINE;
-                    /* the following accommodates stupid compilers */
-                    levl[u.ux][u.uy].altarmask =
-                        levl[u.ux][u.uy].altarmask
-                        | (Align2amask(u.ualign.type));
+                    shrine = on_shrine();
+                    levl[u.ux][u.uy].altarmask = Align2amask(u.ualign.type);
+                    if (shrine)
+                        levl[u.ux][u.uy].altarmask |= AM_SHRINE;
+                    newsym(u.ux, u.uy); /* in case Invisible to self */
                     if (!Blind)
                         pline_The("altar glows %s.",
                                   hcolor((u.ualign.type == A_LAWFUL)
@@ -2700,6 +2702,24 @@ doturn()
     multi_reason = "trying to turn the monsters";
     nomovemsg = You_can_move_again;
     return 1;
+}
+
+int
+altarmask_at(x, y)
+int x, y;
+{
+    int res = 0;
+
+    if (isok(x, y)) {
+        struct monst *mon = m_at(x, y);
+
+        if (mon && M_AP_TYPE(mon) == M_AP_FURNITURE
+            && mon->mappearance == S_altar)
+            res = has_mcorpsenm(mon) ? MCORPSENM(mon) : 0;
+        else if (IS_ALTAR(levl[x][y].typ))
+            res = levl[x][y].altarmask;
+    }
+    return res;
 }
 
 const char *
