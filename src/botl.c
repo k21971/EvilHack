@@ -315,6 +315,9 @@ boolean female;
 {
     register const struct Role *role;
 
+	if (monnum == PM_RONIN)
+		monnum = PM_SAMURAI;
+
     /* Find the role */
     for (role = roles; role->name.m; role++)
         if (monnum == role->malenum || monnum == role->femalenum)

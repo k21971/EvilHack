@@ -227,12 +227,12 @@ MONSTER:('E',"stalker"),random
 MONSTER:('E',"stalker"),random
 MONSTER:('E',"stalker"),random
 #	"guards" for the central courtyard.
-MONSTER:('@',"samurai"),(30,05),hostile
-MONSTER:('@',"samurai"),(31,05),hostile
-MONSTER:('@',"samurai"),(32,05),hostile
-MONSTER:('@',"samurai"),(32,14),hostile
-MONSTER:('@',"samurai"),(33,14),hostile
-MONSTER:('@',"samurai"),(34,14),hostile
+MONSTER:('@',"ronin"),(30,05),hostile
+MONSTER:('@',"ronin"),(31,05),hostile
+MONSTER:('@',"ronin"),(32,05),hostile
+MONSTER:('@',"ronin"),(32,14),hostile
+MONSTER:('@',"ronin"),(33,14),hostile
+MONSTER:('@',"ronin"),(34,14),hostile
 
 #
 #	The "goal" level for the quest.
@@ -322,11 +322,11 @@ TRAP:random,random
 TRAP:random,random
 # Random monsters.
 MONSTER:('@',"Ashikaga Takauji"),(22,10)
-MONSTER:('@',"samurai"),random,hostile
-MONSTER:('@',"samurai"),random,hostile
-MONSTER:('@',"samurai"),random,hostile
-MONSTER:('@',"samurai"),random,hostile
-MONSTER:('@',"samurai"),random,hostile
+MONSTER:('@',"ronin"),random,hostile
+MONSTER:('@',"ronin"),random,hostile
+MONSTER:('@',"ronin"),random,hostile
+MONSTER:('@',"ronin"),random,hostile
+MONSTER:('@',"ronin"),random,hostile
 MONSTER:('@',"ninja"),random,hostile
 MONSTER:('@',"ninja"),random,hostile
 MONSTER:('@',"ninja"),random,hostile
