@@ -1233,4 +1233,6 @@ Version 0.6.0
 - Fix: prevent non-wishable artifacts from appearing in bones pile
 - Fix: missing ranks from enemy samurai during the samurai quest
 - Colored altars revamp (part 1?)
+- Fix: Angelslayer and the Tsurugi of Muramasa were conferring properties on carry
+  when it should have been on wield
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
