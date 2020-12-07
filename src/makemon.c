@@ -1069,8 +1069,11 @@ register struct monst *mtmp;
             }
             if (!rn2(10))
                 (void) mongets(mtmp, DWARVISH_CLOAK);
-            if (mm == PM_HOBBIT_ROGUE)
+            if (mm == PM_HOBBIT_ROGUE) {
                 mkmonmoney(mtmp, (long) rn1(100, 20));
+                if (!rn2(6))
+                    (void) mongets(mtmp, LOCK_PICK);
+            }
         } else if (is_dwarf(ptr)) {
             if (rn2(7))
                 (void) mongets(mtmp, DWARVISH_CLOAK);

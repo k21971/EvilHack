@@ -1237,4 +1237,5 @@ Version 0.6.0
   when it should have been on wield
 - Fix: prevent vampire mages from spawning in Mines End catacombs
 - Fix: prevent master mind flayers or alhoons from spawning in the Gnomish Mines
+- Chance for a hobbit rogue to spawn with a lock pick
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
