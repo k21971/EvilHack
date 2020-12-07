@@ -2709,6 +2709,8 @@ int mndx, mvflagsmask, genomask;
     if (!Role_if(PM_INFIDEL)
         && (ptr == &mons[PM_AGENT] || ptr == &mons[PM_CHAMPION]))
         return FALSE;
+    if (Is_mineend_level(&u.uz) && ptr == &mons[PM_VAMPIRE_MAGE])
+        return FALSE;
 #ifdef MAIL
     /* special levels might ask for random demon type; reject this one */
     if (ptr == &mons[PM_MAIL_DAEMON])

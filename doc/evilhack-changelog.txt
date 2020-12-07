@@ -1235,4 +1235,5 @@ Version 0.6.0
 - Colored altars revamp (part 1?)
 - Fix: Angelslayer and the Tsurugi of Muramasa were conferring properties on carry
   when it should have been on wield
+- Fix: prevent vampire mages from spawning in Mines End catacombs
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
