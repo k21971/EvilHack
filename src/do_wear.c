@@ -2742,8 +2742,13 @@ glibr()
     if (otmp && !welded(otmp)) {
         long savequan = otmp->quan;
 
-        /* nice wording if both weapons are the same type */
-        thiswep = is_sword(otmp) ? c_sword : weapon_descr(otmp);
+        /* nice wording if both weapons are the same type.
+           special case handling for Convicts and wielding
+           a heavy iron ball is only necessary for the right
+           hand, as you can't dual-wield a non-weapon object */
+        thiswep = is_sword(otmp) ? c_sword
+                                 : (Role_if(PM_CONVICT) && otmp->oclass == BALL_CLASS)
+                                 ? "iron ball" : weapon_descr(otmp);
         if (otherwep && strcmp(thiswep, makesingular(otherwep)))
             otherwep = 0;
         if (otmp->quan > 1L) {

@@ -1239,4 +1239,5 @@ Version 0.6.0
 - Fix: prevent master mind flayers or alhoons from spawning in the Gnomish Mines
 - Chance for a hobbit rogue to spawn with a lock pick
 - Fix: Genetic engineers dropping Schroedinger's cat box
+- Fix: Getting 'Your flail slips from your hand' as a Convict wielding a heavy iron ball
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
