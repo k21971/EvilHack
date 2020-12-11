@@ -832,7 +832,9 @@ int after, udist, whappr;
                 if (!could_reach_item(mtmp, nx, ny)
                     || !can_reach_location(mtmp, mtmp->mx, mtmp->my, nx, ny))
                     continue;
-                if (otyp < MANFOOD) {
+                if (otyp < MANFOOD
+                    && (otyp < ACCFOOD || edog->hungrytime <= monstermoves)
+                    && edog->hungrytime < monstermoves + DOG_SATIATED) {
                     if (otyp < gtyp || DDIST(nx, ny) < DDIST(gx, gy)) {
                         gx = nx;
                         gy = ny;
