@@ -41,11 +41,11 @@
     ((mon_resistancebits(mon) & MR2_DISPLACED) != 0)
 
 #define resists_sick(mon) \
-    ((mon)->data->mlet == S_FUNGUS || nonliving((mon)->data)                            \
-     || (mon)->data == &mons[PM_ARCHANGEL] || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] \
-     || (mon)->data == &mons[PM_GOLD_DRAGON] || (mon)->data == &mons[PM_GIANT_LEECH]    \
-     || (mon)->data == &mons[PM_GIANT_COCKROACH] || (mon)->data == &mons[PM_LOCUST]     \
-     || (mon)->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]                                  \
+    ((mon)->data->mlet == S_FUNGUS || nonliving((mon)->data)                              \
+     || is_angel((mon)->data) || is_demon((mon)->data) || is_rider((mon)->data)           \
+     || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] || (mon)->data == &mons[PM_GOLD_DRAGON] \
+     || (mon)->data == &mons[PM_GIANT_LEECH] || (mon)->data == &mons[PM_GIANT_COCKROACH]  \
+     || (mon)->data == &mons[PM_LOCUST] || (mon)->data == &mons[PM_KATHRYN_THE_ICE_QUEEN] \
      || (mon)->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
 
 /* as of 3.2.0:  gray dragons, Angels, Oracle, Yeenoghu */
