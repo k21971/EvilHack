@@ -1075,7 +1075,8 @@ unsigned trflags;
     switch (ttype) {
     case ARROW_TRAP:
         if (trap->once && trap->tseen && !rn2(15)) {
-            You_hear("a loud click!");
+            if (!Deaf)
+                You_hear("a loud click!");
             deltrap(trap);
             newsym(u.ux, u.uy);
             break;
@@ -1101,7 +1102,8 @@ unsigned trflags;
 
     case BOLT_TRAP:
         if (trap->once && trap->tseen && !rn2(15)) {
-            You_hear("a loud click!");
+            if (!Deaf)
+                You_hear("a loud click!");
             deltrap(trap);
             newsym(u.ux, u.uy);
             break;
@@ -1126,7 +1128,8 @@ unsigned trflags;
         break;
 
     case MAGIC_BEAM_TRAP:
-	You_hear("a soft click.");
+        if (!Deaf)
+	    You_hear("a soft click.");
 	seetrap(trap);
 	if (isok(trap->launch.x, trap->launch.y)
             && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
@@ -1142,7 +1145,8 @@ unsigned trflags;
 
     case DART_TRAP:
         if (trap->once && trap->tseen && !rn2(15)) {
-            You_hear("a soft click.");
+            if (!Deaf)
+                You_hear("a soft click.");
             deltrap(trap);
             newsym(u.ux, u.uy);
             break;
@@ -2050,8 +2054,9 @@ int style;
     switch (style) {
     case ROLL | LAUNCH_UNSEEN:
         if (otyp == BOULDER) {
-            You_hear(Hallucination ? "someone bowling."
-                                   : "rumbling in the distance.");
+            if (!Deaf)
+                You_hear(Hallucination ? "someone bowling."
+                                       : "rumbling in the distance.");
         }
         style &= ~LAUNCH_UNSEEN;
         goto roll;
@@ -2155,10 +2160,12 @@ int style;
                     break;
                 case LEVEL_TELEP:
                 case TELEP_TRAP:
-                    if (cansee(bhitpos.x, bhitpos.y))
+                    if (cansee(bhitpos.x, bhitpos.y)) {
                         pline("Suddenly the rolling boulder disappears!");
-                    else
-                        You_hear("a rumbling stop abruptly.");
+                    } else {
+                        if (!Deaf)
+                            You_hear("a rumbling stop abruptly.");
+                    }
                     singleobj->otrapped = 0;
                     if (t->ttyp == TELEP_TRAP)
                         (void) rloco(singleobj);
@@ -2208,8 +2215,9 @@ int style;
                     || IS_ROCK(levl[bhitpos.x + dx][bhitpos.y + dy].typ))
                     bmsg = " as one boulder hits another";
 
-                You_hear("a loud crash%s!",
-                         cansee(bhitpos.x, bhitpos.y) ? bmsg : "");
+                if (!Deaf)
+                    You_hear("a loud crash%s!",
+                             cansee(bhitpos.x, bhitpos.y) ? bmsg : "");
                 obj_extract_self(otmp2);
                 /* pass off the otrapped flag to the next boulder */
                 otmp2->otrapped = singleobj->otrapped;
@@ -2544,9 +2552,10 @@ register struct monst *mtmp;
                 int range = couldsee(mtmp->mx, mtmp->my) /* 9 or 5 */
                                ? (BOLT_LIM + 1) : (BOLT_LIM - 3);
 
-                You_hear("a %s squeak %s.", trapnote(trap, 1),
-                         (distu(mtmp->mx, mtmp->my) <= range * range)
-                            ? "nearby" : "in the distance");
+                if (!Deaf)
+                    You_hear("a %s squeak %s.", trapnote(trap, 1),
+                             (distu(mtmp->mx, mtmp->my) <= range * range)
+                                ? "nearby" : "in the distance");
             }
             /* wake up nearby monsters */
             wake_nearto(mtmp->mx, mtmp->my, 40);
@@ -2561,8 +2570,10 @@ register struct monst *mtmp;
                     seetrap(trap);
                 } else {
                     if (mptr == &mons[PM_OWLBEAR]
-                        || mptr == &mons[PM_BUGBEAR])
-                        You_hear("the roaring of an angry bear!");
+                        || mptr == &mons[PM_BUGBEAR]) {
+                        if (!Deaf)
+                            You_hear("the roaring of an angry bear!");
+                    }
                 }
             } else if (force_mintrap) {
                 if (in_sight) {
@@ -2822,7 +2833,8 @@ register struct monst *mtmp;
             case PM_OWLBEAR: /* Eric Backus */
             case PM_BUGBEAR:
                 if (!in_sight) {
-                    You_hear("the roaring of a confused bear!");
+                    if (!Deaf)
+                        You_hear("the roaring of a confused bear!");
                     mtmp->mtrapped = 1;
                     break;
                 }
@@ -3030,8 +3042,10 @@ register struct monst *mtmp;
 	    }
 	    break;
         case MAGIC_BEAM_TRAP:
-            if (distu(trap->tx, trap->ty) < 4)
-                You_hear("a faint click.");
+            if (distu(trap->tx, trap->ty) < 4) {
+                if (!Deaf)
+                    You_hear("a faint click.");
+            }
             if (in_sight)
                 seetrap(trap);
             if (isok(trap->launch.x,trap->launch.y)
@@ -3601,7 +3615,8 @@ domagictrap()
         case 10:
 	case 11:
             /* toggle any intrinsic invisibility */
-	    You_hear("a low hum.");
+            if (!Deaf)
+	        You_hear("a low hum.");
 	    if (!Invis) {
 		if (!Blind) {
                     self_invis_message();
@@ -3630,8 +3645,9 @@ domagictrap()
             pline("A shiver runs up and down your %s!", body_part(SPINE));
             break;
         case 14:
-            You_hear(Hallucination ? "the moon howling at you."
-                                   : "distant howling.");
+            if (!Deaf)
+                You_hear(Hallucination ? "the moon howling at you."
+                                       : "distant howling.");
             break;
         case 15:
             if (on_level(&u.uz, &qstart_level))
@@ -3681,7 +3697,6 @@ domagictrap()
             see_monsters();
             newsym(u.ux, u.uy);
             break;
-
         /* very occasionally something nice happens. */
         case 19: { /* tame nearby monsters */
             int i, j;
