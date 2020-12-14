@@ -2635,7 +2635,8 @@ int final;
        described as a long sword, for instance; mattock and hook are
        exceptions), or wielded non-weapon item by its object class */
     } else {
-        const char *what = weapon_descr(uwep);
+        const char *what = (Role_if(PM_CONVICT) && uwep->oclass == BALL_CLASS)
+                            ? "iron ball" : weapon_descr(uwep);
 
         if (!strcmpi(what, "armor") || !strcmpi(what, "food")
             || !strcmpi(what, "venom"))
