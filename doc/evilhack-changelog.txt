@@ -1244,4 +1244,5 @@ Version 0.6.0
 - Fix: Convict wielding a heavy iron ball, showing as a flail via enlightenment
 - Fix: several cases in trap.c where the player could hear events while deaf
 - Prevent certain extraplanar beings from being diseased
+- Fix: altars changing from aligned to unaligned when a booby-trapped door exploded
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

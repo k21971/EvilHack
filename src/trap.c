@@ -5826,10 +5826,7 @@ int bodypart;
     int lvl = level_difficulty(),
         dmg = rnd(5 + (lvl < 5 ? lvl : 2 + lvl / 2));
 
-    if (tin)
-        goto boom;
-
-    if (In_sokoban(&u.uz)) {
+    if (!tin && In_sokoban(&u.uz)) {
         pline("As the door gives way, you %s the other doors sealing.",
               Deaf ? "sense" : "hear");
         for (; ty < ROWNO; ty++) {
@@ -5848,25 +5845,12 @@ int bodypart;
         }
         return;
     }
-boom:
+
     pline("KABOOM!!  %s was booby-trapped!", The(item));
     explode(u.ux, u.uy, AD_FIRE - 1, resist_reduce(dmg, FIRE_RES),
             TRAPPED_DOOR, EXPL_FIERY);
     scatter(u.ux, u.uy, dmg,
             VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
-    if (!tin) {
-        for (; ty < ROWNO; ty++) {
-            for (tx = 0; tx < COLNO; tx++) {
-                lev = &levl[tx][ty];
-                if (item
-                    && (lev->doormask & TRAPPED_DOOR)) {
-                    lev->doormask = D_NODOOR;
-                    if (cansee(tx, ty))
-                        newsym(tx, ty);
-                }
-            }
-        }
-    }
     wake_nearby();
     exercise(A_STR, FALSE);
     if (bodypart)
