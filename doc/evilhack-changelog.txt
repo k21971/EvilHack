@@ -1246,3 +1246,8 @@ Version 0.6.0
 - Prevent certain extraplanar beings from being diseased
 - Fix: altars changing from aligned to unaligned when a booby-trapped door exploded
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
+
+--------------------------------------------------------------------------------------------
+
+Version 0.7.0
+-------------
