@@ -315,8 +315,10 @@ boolean female;
 {
     register const struct Role *role;
 
-	if (monnum == PM_RONIN)
-		monnum = PM_SAMURAI;
+    /* ronin in the samurai quest share same titles
+       as their samurai counterparts */
+    if (monnum == PM_RONIN)
+        monnum = PM_SAMURAI;
 
     /* Find the role */
     for (role = roles; role->name.m; role++)
