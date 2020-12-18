@@ -108,6 +108,11 @@ register struct obj *obj;
         && ((uwep && uwep->oartifact == ART_GIANTSLAYER)
             || (olduwep && olduwep->oartifact == ART_GIANTSLAYER)))
         context.botl = 1;
+
+    if (uwep == obj
+        && ((uwep && (uwep->oprops & ITEM_EXCEL))
+            || (olduwep && (olduwep->oprops & ITEM_EXCEL))))
+        context.botl = 1;
     /* Note: Explicitly wielding a pick-axe will not give a "bashing"
      * message.  Wielding one via 'a'pplying it will.
      * 3.2.2:  Wielding arbitrary objects will give bashing message too.
@@ -271,6 +276,10 @@ register struct obj *obj;
 
     if (uswapwep == obj
         && (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
+        context.botl = 1;
+
+    if (uswapwep == obj
+        && (u.twoweap && (uswapwep->oprops & ITEM_EXCEL)))
         context.botl = 1;
     return;
 }

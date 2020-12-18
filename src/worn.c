@@ -360,6 +360,8 @@ register int which;
             return !!(obj->oprops & ITEM_FUMBLING);
         case HUNGER:
             return !!(obj->oprops & ITEM_HUNGER);
+        case ADORNED:
+            return !!(obj->oprops & ITEM_EXCEL);
     }
     return FALSE;
 }
@@ -426,6 +428,7 @@ new_property:
         case STEALTH:
         case TELEPAT:
         case HUNGER:
+        case ADORNED:
             break;
         /* properties which should have an effect but aren't implemented */
         case LEVITATION:
@@ -540,6 +543,12 @@ new_property:
                     break;
                 case ITEM_FUMBLING:
                     which = FUMBLING;
+                    break;
+                case ITEM_HUNGER:
+                    which = HUNGER;
+                    break;
+                case ITEM_EXCEL:
+                    which = ADORNED;
                     break;
             }
             if (which)

@@ -1254,3 +1254,4 @@ Version 0.7.0
 
 - Replace 'samurai' in the samurai quest with new monster - Ronin
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
+- New object property - Excellence

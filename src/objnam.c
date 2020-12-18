@@ -522,6 +522,14 @@ boolean has_of;
             Strcpy(of, " and");
         }
     }
+    if (props & ITEM_EXCEL) {
+        if ((props_known & ITEM_EXCEL)
+            || dump_prop_flag) {
+            Strcat(buf, of),
+            Strcat(buf, " excellence"),
+            Strcpy(of, " and");
+        }
+    }
 }
 
 char *
@@ -3605,6 +3613,10 @@ struct obj *no_wish;
                     if (!objpropcount || wizard)
                         objprops |= ITEM_HUNGER;
                     objpropcount++;
+                } else if (!strncmpi((p + of), "excellence", l = 10)) {
+                    if (!objpropcount || wizard)
+                        objprops |= ITEM_EXCEL;
+                    objpropcount++;
                 } else
                     l = 0;
 
@@ -4724,12 +4736,12 @@ struct obj *no_wish;
         if (objects[otmp->otyp].oc_magic)
             objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_SHOCK
                           | ITEM_VENOM | ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
-                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER);
+                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER | ITEM_EXCEL);
 
         if (Is_dragon_armor(otmp))
             objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_SHOCK
                           | ITEM_VENOM | ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
-                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER);
+                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER | ITEM_EXCEL);
 
         if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
             objprops &= ~(ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER);
@@ -4740,7 +4752,7 @@ struct obj *no_wish;
 
         if (is_ammo(otmp) || is_missile(otmp))
             objprops &= ~(ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
-                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER);
+                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER | ITEM_EXCEL);
 
         if (otmp->material != CLOTH)
             objprops &= ~ITEM_OILSKIN;

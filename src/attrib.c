@@ -1161,6 +1161,15 @@ int x;
             && (youmonst.data->mlet == S_NYMPH || u.umonnum == PM_SUCCUBUS
                 || u.umonnum == PM_INCUBUS))
             return (schar) 18;
+        if ((uwep && (uwep->oprops & ITEM_EXCEL))
+            || (u.twoweap && (uswapwep->oprops & ITEM_EXCEL))) {
+            if (tmp > 6 && (uwep->cursed || (u.twoweap && uswapwep->cursed)))
+                return (schar) 6;
+            else if (tmp < 18 && (!uwep->blessed || (u.twoweap && !uswapwep->blessed)))
+                return (schar) 18;
+            else if (uwep->blessed || (u.twoweap && uswapwep->blessed))
+                return (schar) 25;
+        }
     } else if (x == A_CON) {
         if ((uwep && uwep->oartifact == ART_OGRESMASHER)
             || (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER))

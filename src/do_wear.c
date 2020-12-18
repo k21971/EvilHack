@@ -173,6 +173,8 @@ register struct obj *otmp;
 long mask;
 {
     long props = otmp->oprops;
+    int old_attrib, which;
+    boolean observable;
 
     if (props & ITEM_FIRE)
         EFire_resistance |= mask;
@@ -205,6 +207,17 @@ long mask;
     }
     if (props & ITEM_HUNGER)
         EHunger |= mask;
+    if (props & ITEM_EXCEL) {
+        /* borrowing this from Ring_on() as I may want
+           to add other attributes in the future */
+        which = A_CHA;
+        old_attrib = ACURR(which);
+        ABON(which) += otmp->spe;
+        observable = (old_attrib != ACURR(which));
+        if (observable || !extremeattr(which))
+            learnring(otmp, observable);
+        context.botl = 1;
+    }
 }
 
 int
@@ -281,6 +294,8 @@ register struct obj *otmp;
 long mask;
 {
     long props = otmp->oprops;
+    int old_attrib, which;
+    boolean observable;
 
     if (props & ITEM_FIRE)
         EFire_resistance &= ~mask;
@@ -311,6 +326,17 @@ long mask;
     }
     if (props & ITEM_HUNGER)
         EHunger &= ~mask;
+    if (props & ITEM_EXCEL) {
+        /* borrowing this from Ring_off() as I may want
+           to add other attributes in the future */
+        which = A_CHA;
+        old_attrib = ACURR(which);
+        ABON(which) -= otmp->spe;
+        observable = (old_attrib != ACURR(which));
+        if (observable || !extremeattr(which))
+            learnring(otmp, observable);
+        context.botl = 1;
+    }
 }
 
 int

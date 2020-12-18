@@ -371,7 +371,7 @@ boolean allow_detrimental;
            continue;
 
        if ((is_ammo(otmp) || is_missile(otmp))
-           && (j & (ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP
+           && (j & (ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP | ITEM_EXCEL
                     | ITEM_SEARCHING | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER)))
            continue;
 
@@ -513,6 +513,9 @@ struct obj *obj;
 {
     /* might as well check for this too */
     if (obj->otyp == LUCKSTONE)
+        return TRUE;
+
+    if (obj->oprops == ITEM_EXCEL)
         return TRUE;
 
     return (boolean) (obj->oartifact && spec_ability(obj, SPFX_LUCK));

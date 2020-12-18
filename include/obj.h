@@ -468,13 +468,14 @@ struct obj {
 #define ITEM_ESP       0x00000040L /* extrinsic telepathy */
 #define ITEM_SEARCHING 0x00000080L /* extrinsic searching */
 #define ITEM_WARNING   0x00000100L /* extrinsic warning */
-#define ITEM_FUMBLING  0x00000200L /* extrinsic fumbling */
-#define ITEM_HUNGER    0x00000400L /* extrinsic hunger */
+#define ITEM_EXCEL     0x00000200L /* confers luck, charisma boost */
+#define ITEM_FUMBLING  0x00000400L /* extrinsic fumbling */
+#define ITEM_HUNGER    0x00000800L /* extrinsic hunger */
 
 #define ITEM_MAGICAL   0x80000000L /* known to have magical properties */
 
-#define ITEM_PROP_MASK 0x000007FFL /* all current properties */
-#define MAX_ITEM_PROPS 11
+#define ITEM_PROP_MASK 0x00000FFFL /* all current properties */
+#define MAX_ITEM_PROPS 12
 
 /*
  *  Notes for adding new oextra structures:
