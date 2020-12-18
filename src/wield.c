@@ -111,8 +111,10 @@ register struct obj *obj;
 
     if (uwep == obj
         && ((uwep && (uwep->oprops & ITEM_EXCEL))
-            || (olduwep && (olduwep->oprops & ITEM_EXCEL))))
+            || (olduwep && (olduwep->oprops & ITEM_EXCEL)))) {
+        uwep->oprops_known |= ITEM_EXCEL;
         context.botl = 1;
+    }
     /* Note: Explicitly wielding a pick-axe will not give a "bashing"
      * message.  Wielding one via 'a'pplying it will.
      * 3.2.2:  Wielding arbitrary objects will give bashing message too.
@@ -279,8 +281,10 @@ register struct obj *obj;
         context.botl = 1;
 
     if (uswapwep == obj
-        && (u.twoweap && (uswapwep->oprops & ITEM_EXCEL)))
+        && (u.twoweap && (uswapwep->oprops & ITEM_EXCEL))) {
+        uswapwep->oprops_known |= ITEM_EXCEL;
         context.botl = 1;
+    }
     return;
 }
 

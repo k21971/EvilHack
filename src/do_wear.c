@@ -215,7 +215,7 @@ long mask;
         ABON(which) += otmp->spe;
         observable = (old_attrib != ACURR(which));
         if (observable || !extremeattr(which))
-            learnring(otmp, observable);
+            otmp->oprops_known |= ITEM_EXCEL;
         context.botl = 1;
     }
 }
@@ -334,7 +334,7 @@ long mask;
         ABON(which) -= otmp->spe;
         observable = (old_attrib != ACURR(which));
         if (observable || !extremeattr(which))
-            learnring(otmp, observable);
+            otmp->oprops_known |= ITEM_EXCEL;
         context.botl = 1;
     }
 }
