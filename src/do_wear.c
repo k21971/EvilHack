@@ -216,6 +216,7 @@ long mask;
         observable = (old_attrib != ACURR(which));
         if (observable || !extremeattr(which))
             otmp->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
         context.botl = 1;
     }
 }
@@ -335,6 +336,7 @@ long mask;
         observable = (old_attrib != ACURR(which));
         if (observable || !extremeattr(which))
             otmp->oprops_known |= ITEM_EXCEL;
+        u.moreluck = 0; /* TODO: this will override another luck item in inventory */
         context.botl = 1;
     }
 }

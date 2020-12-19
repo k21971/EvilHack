@@ -1256,3 +1256,4 @@ Version 0.7.0
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 - New object property - Excellence
 - Fix: correctly handle how <foo> of excellence becomes known when worn/wielded
+- More tweaks to 'excellence' object property

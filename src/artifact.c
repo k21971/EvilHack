@@ -353,60 +353,58 @@ boolean allow_detrimental;
         i = rn2(MAX_ITEM_PROPS);
         j = 1 << i; /* pick an object property */
 
-       if (otmp->oprops & j)
-           continue;
+        if (otmp->oprops & j)
+            continue;
 
-       if ((j & (ITEM_FUMBLING | ITEM_HUNGER))
-           && !allow_detrimental)
-           continue;
+        if ((j & (ITEM_FUMBLING | ITEM_HUNGER))
+            && !allow_detrimental)
+            continue;
 
-       /* check for restrictions */
-       if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
-           && (j & (ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER)))
-           continue;
+        /* check for restrictions */
+        if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+            && (j & (ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER)))
+            continue;
 
-       if (is_launcher(otmp)
-           &&  (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK
-                     | ITEM_VENOM | ITEM_DRLI | ITEM_OILSKIN)))
-           continue;
+        if (is_launcher(otmp)
+            &&  (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK
+                      | ITEM_VENOM | ITEM_DRLI | ITEM_OILSKIN)))
+            continue;
 
-       if ((is_ammo(otmp) || is_missile(otmp))
-           && (j & (ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP | ITEM_EXCEL
-                    | ITEM_SEARCHING | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER)))
-           continue;
+        if ((is_ammo(otmp) || is_missile(otmp))
+            && (j & (ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP | ITEM_EXCEL
+                     | ITEM_SEARCHING | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER)))
+            continue;
 
-       if ((otmp->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK | ITEM_VENOM | ITEM_DRLI))
-           && (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK | ITEM_VENOM | ITEM_DRLI)))
-           continue; /* these are mutually exclusive */
+        if ((otmp->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK | ITEM_VENOM | ITEM_DRLI))
+            && (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK | ITEM_VENOM | ITEM_DRLI)))
+            continue; /* these are mutually exclusive */
 
-       if (otmp->material != CLOTH
-           && (j & ITEM_OILSKIN))
-           continue;
+        if (otmp->material != CLOTH
+            && (j & ITEM_OILSKIN))
+            continue;
 
-       otmp->oprops |= j;
+        otmp->oprops |= j;
     }
 
     /* Fix it up as necessary */
-    if (otmp->oprops && !allow_detrimental) {
-        if (otmp->cursed)
-            uncurse(otmp);
-        else
-            bless(otmp);
-    }
-
     if (otmp->oprops
         && (otmp->oclass == WEAPON_CLASS
-            || otmp->oclass == ARMOR_CLASS)) {
-        if (otmp->spe < 0)
-            otmp->spe = 0;
-        else if (otmp->spe == 0)
-            otmp->spe = rn2(2) + 1;
+            || otmp->oclass == ARMOR_CLASS)
+        && !(otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER))) {
+        if (!rn2(8)) {
+            otmp->spe = rne(3);
+            otmp->blessed = rn2(2);
+        } else if (!rn2(8)) {
+            curse(otmp);
+            otmp->spe = -rne(3);
+        } else {
+            blessorcurse(otmp, 8);
+        }
     }
 
-    if (otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER)
-        && allow_detrimental) {
+    if (otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER)) {
         curse(otmp);
-        otmp->spe -= rnd(3);
+        otmp->spe = -rne(3);
     }
     return otmp;
 }
@@ -515,7 +513,8 @@ struct obj *obj;
     if (obj->otyp == LUCKSTONE)
         return TRUE;
 
-    if (obj->oprops == ITEM_EXCEL)
+    if (obj->oprops & ITEM_EXCEL
+        && obj->owornmask & (W_ARMOR | W_WEP | W_SWAPWEP))
         return TRUE;
 
     return (boolean) (obj->oartifact && spec_ability(obj, SPFX_LUCK));

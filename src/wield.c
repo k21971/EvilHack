@@ -109,10 +109,15 @@ register struct obj *obj;
             || (olduwep && olduwep->oartifact == ART_GIANTSLAYER)))
         context.botl = 1;
 
-    if (uwep == obj
-        && ((uwep && (uwep->oprops & ITEM_EXCEL))
-            || (olduwep && (olduwep->oprops & ITEM_EXCEL)))) {
+    if (uwep && uwep == obj && (uwep->oprops & ITEM_EXCEL)) {
         uwep->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
+        context.botl = 1;
+    }
+
+    if (olduwep && (olduwep->oprops & ITEM_EXCEL)) {
+        olduwep->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
         context.botl = 1;
     }
     /* Note: Explicitly wielding a pick-axe will not give a "bashing"
@@ -283,6 +288,7 @@ register struct obj *obj;
     if (uswapwep == obj
         && (u.twoweap && (uswapwep->oprops & ITEM_EXCEL))) {
         uswapwep->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
         context.botl = 1;
     }
     return;

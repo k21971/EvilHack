@@ -890,7 +890,7 @@ void
 addinv_core2(obj)
 struct obj *obj;
 {
-    if (confers_luck(obj)) {
+    if (confers_luck(obj) || (obj->oprops & ITEM_EXCEL)) {
         /* new luckstone must be in inventory by this point
          * for correct calculation */
         set_moreluck();
@@ -1160,7 +1160,7 @@ struct obj *obj;
 
     if (obj->otyp == LOADSTONE) {
         curse(obj);
-    } else if (confers_luck(obj)) {
+    } else if (confers_luck(obj) || (obj->oprops & ITEM_EXCEL)) {
         set_moreluck();
         context.botl = 1;
     } else if (obj->otyp == FIGURINE && obj->timed) {
