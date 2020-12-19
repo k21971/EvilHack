@@ -838,9 +838,9 @@ boolean artif;
             if (is_poisonable(otmp) && !rn2(100))
                 otmp->opoisoned = 1;
 
-            if (artif && !rn2(20))
+            if (artif && !rn2(30))
                 otmp = mk_artifact(otmp, (aligntyp) A_NONE);
-            else if (rn2(150) < (level_difficulty() / 2))
+            else if (rn2(175) < (level_difficulty() / 2))
                 otmp = create_oprop(otmp, TRUE);
 
             if (Is_medusa_level(&u.uz) && otmp->otyp == ORCISH_ARROW) {

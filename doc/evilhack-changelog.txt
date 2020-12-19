@@ -1253,7 +1253,9 @@ Version 0.7.0
 -------------
 
 - Replace 'samurai' in the samurai quest with new monster - Ronin
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 - New object property - Excellence
 - Fix: correctly handle how <foo> of excellence becomes known when worn/wielded
 - More tweaks to 'excellence' object property
+- Adjust odds of artifact weapon and weapon with object property generation
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
+
