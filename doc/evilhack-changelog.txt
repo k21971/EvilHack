@@ -1258,5 +1258,6 @@ Version 0.7.0
 - More tweaks to 'excellence' object property
 - Adjust odds of artifact weapon and weapon with object property generation
 - Fix: proper handing of luck adjustment when removing <armor> of excellence
+- Minor formatting tweak in makewish()
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
