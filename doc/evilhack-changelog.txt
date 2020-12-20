@@ -1260,5 +1260,6 @@ Version 0.7.0
 - Fix: proper handing of luck adjustment when removing <armor> of excellence
 - Minor formatting tweak in makewish()
 - Fix: timed clairvoyance, add 'quick_farsight' option
+- Fix: Oracle not defending itself against the player when being attacked
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
