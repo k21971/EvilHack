@@ -111,14 +111,15 @@ struct context_info {
     unsigned run;           /* 0: h (etc), 1: H (etc), 2: fh (etc) */
                             /* 3: FH, 4: ff+, 5: ff-, 6: FF+, 7: FF- */
                             /* 8: travel */
-    unsigned startingpet_mid;
-    int current_fruit; /* fruit->fid corresponding to pl_fruit[] */
-    int warnlevel;
+    unsigned startingpet_mid; /* monster id number for initial pet */
+    int current_fruit;      /* fruit->fid corresponding to pl_fruit[] */
+    int warnlevel;          /* threshold (digit) to warn about unseen mons */
     int rndencode;          /* randomized escape sequence introducer */
     long next_attrib_check; /* next attribute check */
-    long stethoscope_move;
-    short stethoscope_movement;
-    long next_moloch_offering; /* Moloch demands regular sacrifices */
+    long seer_turn;         /* when random clairvoyance will next kick in */
+    long stethoscope_move;  /* when a stethoscope was last used */
+    short stethoscope_movement; /* to track multiple moves on same turn */
+    long next_moloch_offering;  /* Moloch demands regular sacrifices */
     char inf_aligns; /* random alignment permutation number for Infidels */
     boolean coward;  /* restrict Infidel Elbereth penalty to once per move */
     boolean travel;  /* find way automatically to u.tx,u.ty */

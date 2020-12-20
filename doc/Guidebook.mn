@@ -3426,6 +3426,14 @@ something pushes the old item into your alternate weapon slot (default off).
 Likewise for the \(oqa\(cq (apply) command if it causes the applied item to
 become wielded.
 Persistent.
+.lp quick_farsight
+When set, usually prevents the \(lqyou sense your surroundings\(rq message
+where play pauses to allow you to browse the map whenever clairvoyance
+randomly activates.
+Some situations, such as being underwater or engulfed, ignore this option.
+It does not affect the clairvoyance spell where pausing to examine revealed
+objects or monsters is less intrusive.
+Default is off.  Persistent.
 .lp "race    "
 Selects your race (for example, \(lqrace:human\(rq).
 Default is random.
