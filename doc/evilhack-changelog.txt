@@ -1262,5 +1262,6 @@ Version 0.7.0
 - Fix: timed clairvoyance, add 'quick_farsight' option
 - Fix: Oracle not defending itself against the player when being attacked
 - Several changes to the Oracle
+- Ronin (samurai quest) spawn with basic kit
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

@@ -887,6 +887,14 @@ register struct monst *mtmp;
         } else if (mm == PM_NINJA) { /* extra quest villains */
             (void) mongets(mtmp, rn2(4) ? SHURIKEN : DART);
             (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : AXE);
+        } else if (mm == PM_RONIN) {
+            (void) mongets(mtmp, rn2(4) ? KATANA : SHORT_SWORD);
+            if (!rn2(4)) {
+                (void) mongets(mtmp, YUMI);
+                /* 10 to 25 arrows */
+                m_initthrow(mtmp, YA, rn2(16) + 10);
+            }
+            (void) mongets(mtmp, rn2(3) ? SPLINT_MAIL : CHAIN_MAIL);
         } else if (mm == PM_CHAMPION) {
             (void) mongets(mtmp, rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE);
             (void) mongets(mtmp, rn2(3) ? RING_MAIL : CHAIN_MAIL);
