@@ -1018,6 +1018,17 @@ register struct monst *mtmp;
             received = m_carrying(mtmp, item);
             if (received)
                 set_material(received, GOLD);
+        } else if (mm == PM_WIZARD_OF_YENDOR) {
+            otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = (rn2(3) ? ITEM_FIRE : rn2(2) ? ITEM_FROST : ITEM_SHOCK);
+            otmp->spe = rnd(4) + 1;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, ROBE);
+            (void) mongets(mtmp, CORNUTHAUM);
+            if (rn2(2))
+                (void) mongets(mtmp, rn2(2) ? AMULET_OF_REFLECTION
+                                            : AMULET_OF_MAGIC_RESISTANCE);
         }
         break;
 
