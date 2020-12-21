@@ -3889,8 +3889,9 @@ boolean via_attack;
     /* AIS: Should this be in both places, or just in wakeup()? */
     if (!(via_attack
         && (Role_if(PM_ROGUE) && !uwep && context.forcefight && !Upolyd))) {
-        mtmp->mstrategy &= ~STRAT_WAITMASK;
         struct permonst* oracle = &mons[PM_ORACLE];
+        struct permonst* charon = &mons[PM_CHARON];
+        mtmp->mstrategy &= ~STRAT_WAITMASK;
         if (!mtmp->mpeaceful)
             return;
         if (mtmp->mtame)
@@ -3905,7 +3906,7 @@ boolean via_attack;
             if (!Role_if(PM_INFIDEL)) /* Infidels are supposed to be bad */
                 adjalign(-1); /* attacking peaceful monsters is bad */
         }
-        if (mtmp->data == oracle)
+        if (mtmp->data == oracle || mtmp->data == charon)
             oracle->mmove = 18;
         if (couldsee(mtmp->mx, mtmp->my)) {
             if (humanoid(mtmp->data) || mtmp->isshk || mtmp->isgd)

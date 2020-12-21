@@ -1264,5 +1264,6 @@ Version 0.7.0
 - Several changes to the Oracle
 - Ronin (samurai quest) spawn with basic kit
 - Wizard of Yendor buff
+- Keep Charon stationary unless he becomes hostile
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
