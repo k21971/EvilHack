@@ -3199,7 +3199,7 @@ struct permonst _mons2[] = {
             | M2_PNAME | M2_PRINCE | M2_MALE | M2_GREEDY | M2_JEWELS
             | M2_COLLECT | M2_MAGIC,
         M3_INFRAVISIBLE | M3_DISPLACES, 0, MH_HUMAN, 22, HI_LORD),
-    MON("Charon", S_HUMAN, LVL(76, 18, -5, 120, 0),
+    MON("Charon", S_HUMAN, LVL(76, 0, -5, 120, 0),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), ATTK(AT_TUCH, AD_PLYS, 1, 8),
           ATTK(AT_MAGC, AD_CLRC, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK),
