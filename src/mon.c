@@ -3906,7 +3906,7 @@ boolean via_attack;
             if (!Role_if(PM_INFIDEL)) /* Infidels are supposed to be bad */
                 adjalign(-1); /* attacking peaceful monsters is bad */
         }
-        if (mtmp->data == oracle)
+        if (mtmp->data == oracle || mtmp->data == charon)
             oracle->mmove = 18;
         if (mtmp->data == charon)
             charon->mmove = 18;
