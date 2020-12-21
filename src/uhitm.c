@@ -3532,8 +3532,11 @@ boolean wep_was_destroyed;
         /* wrath of gods for attacking Oracle */
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
+            You("are hit by magic missiles appearing from thin air!");
+            pline("Some missiles bounce off!");
             monstseesu(M_SEEN_MAGR);
-            pline("A hail of magic missiles narrowly misses you!");
+            tmp = (tmp + 1) / 2;
+            mdamageu(mon, tmp);
         } else {
             if (Role_if(PM_ROGUE) && !uwep
                 && context.forcefight && !Upolyd && mon->mpeaceful)

@@ -2201,8 +2201,11 @@ struct obj *mwep;
         if (resists_magm(magr)) {
             if (canseemon(magr)) {
                 shieldeff(magr->mx, magr->my);
-                pline("A hail of magic missiles narrowly misses %s!",
-                      mon_nam(magr));
+                pline(magr->data == &mons[PM_WOODCHUCK] ? "ZOT!" :
+                      "%s is hit by magic missiles appearing from thin air!",
+                      Monnam(magr));
+                pline("Some missiles bounce off!");
+                tmp = (tmp + 1) / 2;
             }
         } else {
             if (canseemon(magr))

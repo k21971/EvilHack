@@ -155,6 +155,8 @@ unsigned mgflags;
                 color = CLR_BROWN;
             else if (Is_astralevel(&u.uz))
                 color = CLR_WHITE;
+            else if (getroomtype(x, y) == DELPHI)
+                color = CLR_BRIGHT_BLUE;
             else if (getroomtype(x, y) == BEEHIVE)
                 color = CLR_YELLOW;
             else if (getroomtype(x, y) == GARDEN)

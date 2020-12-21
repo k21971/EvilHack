@@ -2928,12 +2928,12 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_PEACEFUL | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE | M3_CLOSE, 0, MH_HUMAN, 14, HI_DOMESTIC),
     MON("Oracle", S_HUMAN, LVL(12, 0, 0, 50, 0), (G_NOGEN | G_UNIQ),
-        A(ATTK(AT_NONE, AD_MAGM, 6, 8), NO_ATTK, NO_ATTK, NO_ATTK,
-          NO_ATTK, NO_ATTK),
-        SIZ(WT_HUMAN, 400, MS_ORACLE, MZ_HUMAN), MR_POISON | MR_SLEEP, 0,
-        M1_HUMANOID | M1_OMNIVORE,
+        A(ATTK(AT_MAGC, AD_CLRC, 2, 6), ATTK(AT_MAGC, AD_SPEL, 2, 6),
+          ATTK(AT_NONE, AD_MAGM, 8, 8), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_ORACLE, MZ_HUMAN), MR_POISON | MR_SLEEP
+            | MR_STONE, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_PEACEFUL | M2_FEMALE, M3_INFRAVISIBLE, 0,
-        MH_HUMAN, 13, HI_ZAP),
+        MH_HUMAN, 16, HI_ZAP),
     /* aligned priests always have the epri extension attached;
        individual instantiations should always have either ispriest
        or isminion set */

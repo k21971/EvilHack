@@ -3890,6 +3890,7 @@ boolean via_attack;
     if (!(via_attack
         && (Role_if(PM_ROGUE) && !uwep && context.forcefight && !Upolyd))) {
         mtmp->mstrategy &= ~STRAT_WAITMASK;
+        struct permonst* oracle = &mons[PM_ORACLE];
         if (!mtmp->mpeaceful)
             return;
         if (mtmp->mtame)
@@ -3904,6 +3905,8 @@ boolean via_attack;
             if (!Role_if(PM_INFIDEL)) /* Infidels are supposed to be bad */
                 adjalign(-1); /* attacking peaceful monsters is bad */
         }
+        if (mtmp->data == oracle)
+            oracle->mmove = 18;
         if (couldsee(mtmp->mx, mtmp->my)) {
             if (humanoid(mtmp->data) || mtmp->isshk || mtmp->isgd)
                 pline("%s gets angry!", Monnam(mtmp));

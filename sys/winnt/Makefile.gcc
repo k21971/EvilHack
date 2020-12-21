@@ -1304,11 +1304,13 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\knox-?.lev	   del $(W_DAT)\knox-?.lev
 	if exist $(W_DAT)\medusa-?.lev	   del $(W_DAT)\medusa-?.lev
 	if exist $(W_DAT)\mine*.lev	   del $(W_DAT)\mine*.lev
-        if exist $(W_DAT)\nymph.lev        del $(W_DAT)\nymph.lev
+	if exist $(W_DAT)\nymph.lev        del $(W_DAT)\nymph.lev
 	if exist $(W_DAT)\options          del $(W_DAT)\options
 	if exist $(W_DAT)\ttyoptions	   del $(W_DAT)\ttyoptions
 	if exist $(W_DAT)\guioptions       del $(W_DAT)\guioptions
-	if exist $(W_DAT)\oracle.lev       del $(W_DAT)\oracle.lev
+	if exist $(W_DAT)\oracle-1.lev     del $(W_DAT)\oracle-1.lev
+	if exist $(W_DAT)\oracle-2.lev     del $(W_DAT)\oracle-2.lev
+	if exist $(W_DAT)\oracle-3.lev     del $(W_DAT)\oracle-3.lev
 	if exist $(W_DAT)\oracles          del $(W_DAT)\oracles
 	if exist $(W_DAT)\orcus.lev	   del $(W_DAT)\orcus.lev
 	if exist $(W_DAT)\rumors           del $(W_DAT)\rumors
