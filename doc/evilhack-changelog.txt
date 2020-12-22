@@ -1265,5 +1265,6 @@ Version 0.7.0
 - Ronin (samurai quest) spawn with basic kit
 - Wizard of Yendor buff
 - Keep Charon stationary unless he becomes hostile
+- Improvements to monster wishing
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
