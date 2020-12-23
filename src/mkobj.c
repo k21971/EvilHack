@@ -3473,6 +3473,7 @@ int mat;
     if ((obj->otyp == iflags.soko_prize_type2
         || obj->otyp == iflags.soko_prize_type3
         || obj->otyp == iflags.soko_prize_type5)
+        && is_soko_prize_flag(obj)
         && (mat == IRON || mat == MITHRIL || mat == SILVER))
         return TRUE;
 
