@@ -630,6 +630,7 @@ unsigned int *stuckid, *steedid;
     /* current time is the time to use for next urealtime.realtime update */
     urealtime.start_timing = getnow();
 
+    set_uasmon();
 #ifdef CLIPPING
     cliparound(u.ux, u.uy);
 #endif
@@ -880,7 +881,10 @@ register int fd;
         return 0;
     }
     restlevelstate(stuckid, steedid);
-    set_uasmon();
+    /* check crowned infidels (demonic form) for its wings,
+       ensure they stay tucked away under their body armor
+       upon reload */
+    check_wings(TRUE);
 
 #ifdef INSURANCE
     savestateinlock();
