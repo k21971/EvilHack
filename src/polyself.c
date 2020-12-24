@@ -108,7 +108,6 @@ set_uasmon()
        show latent flight capability always blocked by levitation */
     /* this property also checks race instead of role */
     PROPSET(FLYING, (is_flyer(racedat) && !is_floater(racedat)));
-    check_wings(TRUE);
     PROPSET(SWIMMING, is_swimmer(mdat));
     /* [don't touch MAGICAL_BREATHING here; both Amphibious and Breathless
        key off of it but include different monster forms...] */

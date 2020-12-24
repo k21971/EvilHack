@@ -1267,5 +1267,6 @@ Version 0.7.0
 - Keep Charon stationary unless he becomes hostile
 - Improvements to monster wishing
 - Fix: material restirctions for sokoban prize objects
+- Fix: crash on reloading game while wielding Grayswandir
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
