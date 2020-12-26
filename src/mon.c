@@ -934,54 +934,56 @@ mcalcdistress()
         if (DEADMONSTER(mtmp))
             continue;
 
-	if (mtmp->mstone > 0) {
-	    if (resists_ston(mtmp)) {
-	        mtmp->mstone = 0;
-	    } else if (poly_when_stoned(mtmp->data)) {
-	        mtmp->mstone = 0;
-	        mon_to_stone(mtmp);
-	    } else {
-	        switch (mtmp->mstone--) {
-	            case 5:
-		        /* "<mon> is slowing down.";
-		         * also removes intrinsic speed */
-		        mon_adjust_speed(mtmp, -3, (struct obj *)0);
-		        break;
-		    case 4:
-		        if (canspotmon(mtmp))
-			    pline("%s %s are stiffening.",
-			          s_suffix(Monnam(mtmp)),
-				  nolimbs(mtmp->data) ? "extremities"
-				                      : "limbs");
-			break;
-		    case 3:
-		        if (canspotmon(mtmp))
-			    pline("%s %s have turned to stone.",
-			          s_suffix(Monnam(mtmp)),
-				  nolimbs(mtmp->data) ? "extremities"
-				                      : "limbs");
-			mtmp->mcanmove = 0;
-			break;
-		    case 2:
-		        if (canspotmon(mtmp))
-			    pline("%s has almost completely turned to stone.",
-                                   Monnam(mtmp)),
-			mtmp->mcanmove = 0;
-			break;
-		    case 1:
-		        if (canspotmon(mtmp))
-			    pline("%s is a statue.", Monnam(mtmp));
-			if (mtmp->mstonebyu) {
-			    stoned = TRUE;
-			    xkilled(mtmp, AD_STON);
-			} else monstone(mtmp);
-		}
-	    }
-	    if (!mtmp->mstone && !mtmp->mfrozen)
-	        mtmp->mcanmove = 1;
-	    if (DEADMONSTER(mtmp))
+        if (mtmp->mstone > 0) {
+            if (resists_ston(mtmp)) {
+                mtmp->mstone = 0;
+            } else if (poly_when_stoned(mtmp->data)) {
+                mtmp->mstone = 0;
+                mon_to_stone(mtmp);
+            } else {
+                switch (mtmp->mstone--) {
+                case 5:
+                    /* "<mon> is slowing down.";
+                     * also removes intrinsic speed */
+                    mon_adjust_speed(mtmp, -3, (struct obj *) 0);
+                    break;
+                case 4:
+                    if (canspotmon(mtmp))
+                        pline("%s %s are stiffening.",
+                              s_suffix(Monnam(mtmp)),
+                              nolimbs(mtmp->data) ? "extremities"
+                                                  : "limbs");
+                    break;
+                case 3:
+                    if (canspotmon(mtmp))
+                        pline("%s %s have turned to stone.",
+                              s_suffix(Monnam(mtmp)),
+                              nolimbs(mtmp->data) ? "extremities"
+                                                  : "limbs");
+                    mtmp->mcanmove = 0;
+                    break;
+                case 2:
+                    if (canspotmon(mtmp))
+                        pline("%s has almost completely turned to stone.",
+                              Monnam(mtmp));
+                    mtmp->mcanmove = 0;
+                    break;
+                case 1:
+                    if (canspotmon(mtmp))
+                        pline("%s is a statue.", Monnam(mtmp));
+                    if (mtmp->mstonebyu) {
+                        stoned = TRUE;
+                        xkilled(mtmp, AD_STON);
+                    } else {
+                        monstone(mtmp);
+                    }
+                }
+            }
+            if (!mtmp->mstone && !mtmp->mfrozen)
+                mtmp->mcanmove = 1;
+            if (DEADMONSTER(mtmp))
                 continue;
-	}
+        }
 
         /* must check non-moving monsters once/turn in case they managed
            to end up in water or lava; note: when not in liquid they regen,
@@ -1001,14 +1003,14 @@ mcalcdistress()
             decide_to_shapeshift(mtmp, (canspotmon(mtmp)
                                         || (u.uswallow && mtmp == u.ustuck))
                                           ? SHIFT_MSG : 0);
+        were_change(mtmp);
 
+        /* special handling for Izchak */
         if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
             if (mtmp->data == &mons[PM_HUMAN]
                 && (mtmp->mstone > 3 || mtmp->msick > 0))
                 mondead(mtmp);
         }
-
-        were_change(mtmp);
 
         /* gradually time out temporary problems */
         if (mtmp->mblinded && !--mtmp->mblinded)
