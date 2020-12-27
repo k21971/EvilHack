@@ -1247,4 +1247,5 @@ Version 0.6.0
 - Fix: altars changing from aligned to unaligned when a booby-trapped door exploded
 - Fix: Oracle not defending itself against the player when being attacked
 - Fix: crash on reloading game while wielding Grayswandir
+- Fix: Sceptre of Might as 'heavy mace' in Caveman.des
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
