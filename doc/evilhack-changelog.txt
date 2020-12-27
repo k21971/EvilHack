@@ -1269,5 +1269,6 @@ Version 0.7.0
 - Fix: material restirctions for sokoban prize objects
 - Fix: crash on reloading game while wielding Grayswandir
 - Bit of code cleanup in mcalcdistress()
+- Fix: Sceptre of Might as 'heavy mace' in Caveman.des
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
