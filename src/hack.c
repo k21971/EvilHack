@@ -112,6 +112,14 @@ moverock()
     register struct monst *mtmp;
 
     sx = u.ux + u.dx, sy = u.uy + u.dy; /* boulder starting position */
+
+    if (maybe_polyd(throws_rocks(youmonst.data), Race_if(PM_GIANT))
+        && context.nopick) {
+        if (In_sokoban(&u.uz) && sobj_at(BOULDER, sx, sy))
+            change_luck(-2);
+        return 0;
+    }
+
     while ((otmp = sobj_at(BOULDER, sx, sy)) != 0) {
         /* required to make sure you don't push around stacks of boulders */
         if (otmp->quan > 1)
