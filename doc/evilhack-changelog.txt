@@ -1271,5 +1271,6 @@ Version 0.7.0
 - Bit of code cleanup in mcalcdistress()
 - Fix: Sceptre of Might as 'heavy mace' in Caveman.des
 - Allow player as a giant to force-move onto a boulder without having to push it
+- Fix: Monks were getting their extra kick attack while riding on a steed
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
