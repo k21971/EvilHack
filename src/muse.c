@@ -3091,6 +3091,11 @@ const char *str;
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "scales");
         return TRUE;
+    } else if (has_reflection(mon)) {
+        /* specifically for the monster spell MGC_REFLECTION */
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)), "shimmering globe");
+        return TRUE;
     }
     return FALSE;
 }

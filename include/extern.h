@@ -2482,6 +2482,7 @@ E void FDECL(book_substitution, (struct obj *, struct obj *));
 E void NDECL(age_spells);
 E int NDECL(docast);
 E int FDECL(spell_skilltype, (int));
+E void FDECL(cast_reflection, (struct monst *));
 E int FDECL(spelleffects, (int, BOOLEAN_P));
 E int FDECL(tport_spell, (int));
 E void NDECL(losespells);

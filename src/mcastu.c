@@ -25,6 +25,7 @@ enum mcast_mage_spells {
     MGC_SUMMON_MONS,
     MGC_CLONE_WIZ,
     MGC_CANCELLATION,
+    MGC_REFLECTION,
     MGC_DEATH_TOUCH
 };
 
@@ -180,7 +181,14 @@ int spellval;
     case 14:
         return MGC_ACID_BLAST;
     case 13:
-        return MGC_AGGRAVATION;
+        i = rnd(2);
+        switch (i) {
+            case 1:
+                return MGC_AGGRAVATION;
+            case 2:
+                return MGC_REFLECTION;
+        }
+        return i;
     case 12:
     case 11:
         return MGC_CURSE_ITEMS;
@@ -549,6 +557,10 @@ int spellnum;
                          rn2(2) ? "spoken" : "uttered");
             (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
         }
+        dmg = 0;
+        break;
+    case MGC_REFLECTION:
+        (void) cast_reflection(mtmp);
         dmg = 0;
         break;
     case MGC_ACID_BLAST:
@@ -1095,6 +1107,7 @@ int spellnum;
         case MGC_FIRE_BOLT:
         case MGC_ICE_BOLT:
         case MGC_CANCELLATION:
+        case MGC_REFLECTION:
             return TRUE;
         default:
             break;
@@ -1131,6 +1144,10 @@ int spellnum;
       	/* invisibility when already invisible */
       	if ((mtmp->minvis || mtmp->invis_blkd) && spellnum == MGC_DISAPPEAR)
       	    return TRUE;
+        /* reflection when already reflecting */
+        if ((has_reflection(mtmp) || mon_reflects(mtmp, (char *) 0))
+            && spellnum == MGC_REFLECTION)
+            return TRUE;
       	/* healing when already healed */
       	if (mtmp->mhp == mtmp->mhpmax && spellnum == MGC_CURE_SELF)
       	    return TRUE;
@@ -1226,6 +1243,9 @@ int spellnum;
             return TRUE;
         /* invisibility when already invisible */
         if ((mtmp->minvis || mtmp->invis_blkd) && spellnum == MGC_DISAPPEAR)
+            return TRUE;
+        if ((has_reflection(mtmp) || mon_reflects(mtmp, (char *) 0))
+            && spellnum == MGC_REFLECTION)
             return TRUE;
         /* peaceful monster won't cast invisibility if you can't see
            invisible,

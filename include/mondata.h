@@ -39,6 +39,8 @@
     ((mon_resistancebits(mon) & MR2_JUMPING) != 0)
 #define has_displacement(mon) \
     ((mon_resistancebits(mon) & MR2_DISPLACED) != 0)
+#define has_reflection(mon) \
+    ((mon_resistancebits(mon) & MR2_REFLECTION) != 0)
 
 #define resists_sick(mon) \
     ((mon)->data->mlet == S_FUNGUS || nonliving((mon)->data)                              \

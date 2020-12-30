@@ -41,7 +41,6 @@ STATIC_DCL int FDECL(percent_success, (int));
 STATIC_DCL char *FDECL(spellretention, (int, char *));
 STATIC_DCL int NDECL(throwspell);
 STATIC_DCL void NDECL(cast_protection);
-STATIC_DCL void NDECL(cast_reflection);
 STATIC_DCL void FDECL(spell_backfire, (int));
 STATIC_DCL const char *FDECL(spelltypemnemonic, (int));
 STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
@@ -860,21 +859,31 @@ cast_protection()
     }
 }
 
-STATIC_OVL void
-cast_reflection()
+void
+cast_reflection(mdef)
+register struct monst *mdef;
 {
-    if (HReflecting) {
+    boolean youdefend = (mdef == &youmonst);
+
+    if (youdefend) {
+        if (HReflecting) {
+            if (!Blind)
+	        pline("The shimmering globe around you becomes slightly brighter.");
+            else
+                You_feel("slightly more smooth");
+        } else {
+            if (!Blind)
+	        pline("A shimmering globe appears around you!");
+            else
+                You_feel("smooth.");
+        }
+        incr_itimeout(&HReflecting, rn1(10, HReflecting ? 50 : 250));
+    } else if (!youdefend) {
         if (!Blind)
-	    pline("The shimmering globe around you becomes slightly brighter.");
-        else
-            You_feel("slightly more smooth");
-    } else {
-        if (!Blind)
-	    pline("A shimmering globe appears around you!");
-        else
-            You_feel("smooth.");
+            pline("A shimmering globe appears around %s!", mon_nam(mdef));
+        /* monster reflection is handled in mon_reflects() */
+        mdef->mextrinsics |= MR2_REFLECTION;
     }
-    incr_itimeout(&HReflecting, rn1(10, HReflecting ? 50 : 250));
 }
 
 /* attempting to cast a forgotten spell will cause disorientation */
@@ -1289,7 +1298,7 @@ boolean atme;
         }
         break;
     case SPE_REFLECTION:
-        cast_reflection();
+        cast_reflection(&youmonst);
 	break;
     default:
         impossible("Unknown spell %d attempted.", spell);
