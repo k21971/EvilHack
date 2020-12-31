@@ -3491,12 +3491,12 @@ boolean wep_was_destroyed;
             }
         }
         if (mhit && !mon->mcan && !rn2(10)) {
-            if (!uwep && !wep_was_destroyed
+            if ((!uwep || !(u.twoweap && uswapwep)) && !wep_was_destroyed
                 && (aatyp == AT_WEAP || aatyp == AT_CLAW
-                || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
+                    || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
                 if (uarmg) {
                     if (rn2(2) && (uarmg->oerodeproof
-                        || is_supermaterial(uarmg)))
+                                   || is_supermaterial(uarmg)))
                         pline("%s being disintegrated!",
                               Yobjnam2(uarmg, "resist"));
                     else
@@ -3504,28 +3504,29 @@ boolean wep_was_destroyed;
                 }
                 break;
             }
-        }
-        if (mhit && !mon->mcan && weapon && !rn2(10)) {
             if (aatyp == AT_KICK) {
                 if (uarmf) {
                     if (rn2(2) && (uarmf->oerodeproof
-                        || is_supermaterial(uarmf)))
+                                   || is_supermaterial(uarmf)))
                         pline("%s being disintegrated!",
                               Yobjnam2(uarmf, "resist"));
                     else
                         (void) destroy_arm(uarmf);
                 }
                 break;
-            } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
-                       || aatyp == AT_MAGC || aatyp == AT_TUCH) {
+            }
+        }
+        if (mhit && !mon->mcan && weapon && !rn2(10)) {
+            if (aatyp == AT_WEAP || aatyp == AT_CLAW
+                || aatyp == AT_MAGC || aatyp == AT_TUCH) {
                 if (rn2(2) && (weapon->oerodeproof
-                    || is_supermaterial(weapon)))
+                               || is_supermaterial(weapon)))
                     pline("%s being disintegrated!",
                           Yobjnam2(weapon, "resist"));
                 else
                     passive_obj(mon, weapon, &(ptr->mattk[i]));
-                break;
             }
+            break;
         }
         break;
     case AD_MAGM:
@@ -3732,24 +3733,109 @@ boolean wep_was_destroyed;
                     break;
                 case BLACK_DRAGON_SCALE_MAIL:
                 case BLACK_DRAGON_SCALES:
-                    if (how_resistant(DISINT_RES) == 100) {
-                        You("are unaffected by %s deadly armor.",
-                            s_suffix(mon_nam(mon)));
-                        monstseesu(M_SEEN_DISINT);
-                        break;
-                    } else {
-                        i = rn2(40);
-                        if (i) {
-                            You("partially disintegrate!");
-                            t = resist_reduce(t, DISINT_RES);
-                            mdamageu(mon, t);
-                        } else {
-                            pline("%s deadly armor disintegrates you!",
-                                  s_suffix(Monnam(mon)));
-                            u.ugrave_arise = -3;
-                            done_in_by(mon, DIED);
-                            return 2;
+                    {
+                        long protector = attk_protection((int) aatyp);
+
+                        /* hero using monsters' AT_MAGC attack is hitting hand to
+                           hand rather than casting a spell */
+                        if (aatyp == AT_MAGC)
+                            protector = W_ARMG;
+
+                        if (protector == 0L /* no protection */
+                            || (protector == W_ARMG && !uarmg
+                                && !uwep && !wep_was_destroyed)
+                            || (protector == W_ARMF && !uarmf)
+                            || (protector == W_ARMH && !uarmh)
+                            || (protector == (W_ARMC | W_ARMG) && (!uarmc || !uarmg))) {
+                            if (how_resistant(DISINT_RES) == 100) {
+                                You("are unaffected by %s deadly armor.",
+                                    s_suffix(mon_nam(mon)));
+                                monstseesu(M_SEEN_DISINT);
+                                break;
+                            } else {
+                                i = rn2(40);
+                                if (i) {
+                                    You("partially disintegrate!");
+                                    t = resist_reduce(t, DISINT_RES);
+                                    mdamageu(mon, t);
+                                } else {
+                                    pline("%s deadly armor disintegrates you!",
+                                          s_suffix(Monnam(mon)));
+                                    u.ugrave_arise = -3;
+                                    done_in_by(mon, DIED);
+                                    return 2;
+                                }
+                            }
                         }
+                    }
+                    if (!rn2(10)) {
+                        if ((!uwep || !(u.twoweap && uswapwep)) && !wep_was_destroyed
+                            && (aatyp == AT_WEAP || aatyp == AT_CLAW
+                                || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
+                            if (uarmg) {
+                                if (rn2(2) && (uarmg->oerodeproof
+                                               || is_supermaterial(uarmg)))
+                                    pline("%s being disintegrated!",
+                                          Yobjnam2(uarmg, "resist"));
+                                else
+                                    (void) destroy_arm(uarmg);
+                            }
+                            break;
+                        }
+                        if (aatyp == AT_KICK) {
+                            if (uarmf) {
+                                if (rn2(2) && (uarmf->oerodeproof
+                                               || is_supermaterial(uarmf)))
+                                    pline("%s being disintegrated!",
+                                          Yobjnam2(uarmf, "resist"));
+                                else
+                                    (void) destroy_arm(uarmf);
+                            }
+                            break;
+                        }
+                    }
+                    if (weapon && !rn2(10)) {
+                        if (aatyp == AT_WEAP || aatyp == AT_CLAW
+                            || aatyp == AT_MAGC || aatyp == AT_TUCH) {
+                            if (rn2(2) && (weapon->oerodeproof
+                                           || is_supermaterial(weapon))) {
+                                pline("%s being disintegrated!",
+                                      Yobjnam2(weapon, "resist"));
+                            } else {
+                                /* passive_obj() doesn't quite work here for worn armor,
+                                   so we'll copy the relevant bits from it to here */
+                                /* lets not make the game unwinnable... */
+                                if (obj_resists(weapon, 0, 0)
+                                    || weapon->oartifact == ART_DRAGONBANE) {
+                                    pline_The("%s %s and cannot be disintegrated.",
+                                              xname(weapon), rn2(2) ? "resists completely"
+                                                                    : "defies physics");
+                                    break;
+                                }
+                                /* nope */
+                                if (weapon->otyp == BLACK_DRAGON_SCALES
+                                    || weapon->otyp == BLACK_DRAGON_SCALE_MAIL) {
+                                    pline("%s disintegration-proof and %s intact.",
+                                          Yobjnam2(weapon, "are"), otense(weapon, "remain"));
+                                    break;
+                                }
+                                if (weapon->oartifact && rn2(50)) {
+                                    pline("%s %s, but remains %s.", Yname2(weapon),
+                                          rn2(2) ? "shudders violently" : "vibrates unexpectedly",
+                                          rn2(2) ? "whole" : "intact");
+                                    break;
+                                }
+                                if (cansee(mon->mx, mon->my))
+                                    pline("%s disintegrates!", Yname2(weapon));
+                                if (carried(weapon))
+                                    useup(weapon);
+                                else
+                                    delobj(weapon);
+                                break;
+                            }
+                            update_inventory();
+                        }
+                        break;
                     }
                     break;
                 case ORANGE_DRAGON_SCALE_MAIL:

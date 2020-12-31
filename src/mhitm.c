@@ -2150,12 +2150,17 @@ struct obj *mwep;
                 }
             } else {
                 /* if magr is wielding a weapon, that disintegrates first before
-                   the actual monster. Same if magr is wearing gloves */
+                   the actual monster. Same if magr is wearing gloves or boots */
                 if (MON_WEP(magr)) {
                     if (canseemon(magr))
                         pline("%s %s is disintegrated!",
                               s_suffix(Monnam(magr)), xname(MON_WEP(magr)));
                     m_useup(magr, MON_WEP(magr));
+                } else if ((magr->misc_worn_check & W_ARMF)) {
+                    if (canseemon(magr))
+                        pline("%s %s are disintegrated!",
+                              s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMF)));
+                    m_useup(magr, which_armor(magr, W_ARMF));
                 } else if ((magr->misc_worn_check & W_ARMG) && !MON_WEP(magr)) {
                     if (canseemon(magr))
                         pline("%s %s are disintegrated!",
