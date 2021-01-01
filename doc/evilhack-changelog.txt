@@ -24,6 +24,7 @@ The following changes to date are:
 Version 0.1.1
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.2 (as of January 1st, 2019)
 - Allow two-weaponing with an artifact weapon in each hand
 - Allow passive properties of an off-hand magical or artifact weapon to function
 - Artifact additions and changes (affects some quest artifacts)
@@ -45,13 +46,13 @@ Version 0.1.1
 - Dragon armor and secondary extrinsics (from SporkHack, modified)
 - Spell casting while wearing body armor (from SporkHack, modified)
 - Pet behavior/AI revamp (from SpliceHack/GruntHack)
-- Latest merges from 'vanilla' NetHack 3.6.2 (as of January 1st, 2019)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.1.2
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.2 (as of March 11th, 2019)
 - 'Give' extended command (from SpliceHack)
 - Displace peaceful monsters (from xNetHack)
 - Unicorn horns are one-handed, no longer cure attribute loss
@@ -106,13 +107,13 @@ Version 0.1.2
 - New item: amulet of flying (from UnNetHack)
 - Monster Ring patch
 - More new monster spells
-- Latest merges from 'vanilla' NetHack 3.6.2 (as of March 11th, 2019)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.2.0
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.2 (as of April 6th, 2019)
 - Object Materials patch (from xNetHack)
 - Several tweaks and adjustments to various things to take the new object materials patch
   into account
@@ -154,13 +155,13 @@ Version 0.2.0
 - Blessed stethoscopes can reveal egg contents
 - Wresting a wand is directly affected by its BUC status
 - Livelog additions and updates
-- Latest merges from 'vanilla' NetHack 3.6.2 (as of April 6th, 2019)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.2.1
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.2 (as of April 12th, 2019)
 - Significant changes to some of the gnomish mines towns (especially Orcish Town)
 - Iron bars can be blown apart by wands of striking or force bolt spell
 - Booby-trapped doors actually explode and can cause fire damage
@@ -183,26 +184,26 @@ Version 0.2.1
 - Viewing monsters via farlook provides a bit more basic information
 - Players cannot successfully engrave Elbereth until they have learned it in-game (thank you Tangles)
 - Various bug fixes and code clean-up throughout
-- Latest merges from 'vanilla' NetHack 3.6.2 (as of April 12th, 2019)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.3.0
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.2 (as of April 16th, 2019)
 - Zombie movement speed and corpse revival time adjusted
 - Significant changes to zombie claw/bite attack and zombie sickness
 - Peaceful monsters no longer get angry if damaged by a hostile monsters AoE spell
 - Eating a zombie corpse infects you with their zombie sickness
 - Multitude of various fixes to player races, monster players, livelogging, tool use,
   random vault room selection, rivers in the gnomish mines, and descriptive hit messages
-- Latest merges from 'vanilla' NetHack 3.6.2 (as of April 16th, 2019)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.3.1
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.2 (as of May 5th, 2019)
 - Another major fix for mplayer monsters using the correct rank based on their role
   (more of a kludge, but it works)
 - Fix racial shopkeeper pricing (mind flayers were only charging 3 zm for anything,
@@ -236,13 +237,13 @@ Version 0.3.1
 - Fix: monsters using a bag of tricks would show as '<monster> reads a bag of tricks'
 - Fix: properly map steed ids when loading bones files to prevent panic()
 - Fix: priests and shopkleepers stepping on zombies
-- Latest merges from 'vanilla' NetHack 3.6.2 (as of May 5th, 2019)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.3.2
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of August 31st, 2019)
 - Fix: correctly handle player and steed getting polymorphed on a trap
 - Change status lines' "End Game" behavior back to old method
 - Elder minotaurs will spawn with wands of digging
@@ -386,13 +387,13 @@ Version 0.3.2
 - A mounted steed will attack hostiles on its own without having to be attacked first
   if its tameness is high enough
 - Player race orc can ride tame wargs
-- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of August 31st, 2019)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.4.0
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st, 2019)
 - Amulet material fixes (by ogmobot)
 - Object properties patch
 - Adjust material frequency for items regularly made of iron/metal, orcish gear, dwarvish weapons
@@ -551,13 +552,13 @@ Version 0.4.0
 - Fix: Convicts aren't supposed to spawn with anything extra in inventory
 - Fix: proper feedback when eating zombie corpses while having sickness resistance
 - Monster steeds will spawn wearing a saddle if they are allowed to wear one
-- Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st, 2019)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.4.1
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 17th, 2019)
 - Prep for version 0.4.1
 - Zombies can make other monsters ill, not just the player
 - Grimtooth now has a disease attack
@@ -592,13 +593,13 @@ Version 0.4.1
 - Fix: heavy iron ball rusting away while attached if being dragged on floor
 - Reorganization of server-side config and hints files
 - Cure sickness is now directional and can be used to cure monsters as well as yourself
-- Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 17th, 2019)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.4.2
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 - Prep for version 0.4.2
 - All types of healing potions, unicorn horns, and eucalyptus leaves can cure ill monsters 
 - Fix: prevent 'destroyed it' when livelogging destroying the ghost/undead of another player
@@ -734,13 +735,13 @@ Version 0.4.2
 - Fix: monsters kept displacement extrinsic after removing a worn cloak of displacement
 - Fix: getting reflection from Dragonbane if wielded
 - Fix: placing defunct monster onto map, mstate:%lx, on Dlvl:%s
-- Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.5.0
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 - Prep for version 0.5.0
 - Gehennom changes (round one) - area around the wizard towers
 - Gehennom changes (round two) - Cerberus guards the entrance to Gehennom
@@ -1040,13 +1041,13 @@ Version 0.5.0
 - Tweak some xlogfile death messages
 - Fix: movement messages while standing still in shallow water or sewage
 - Fix: segfault when dropping objects with timers in Vlad's cavern
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.6.0
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 - Fix: address skill issues of various roles
 - Fix: seeing feedback about an object disintegrating off of a black dragon's scales when
   the event wasn't witnessed
@@ -1245,13 +1246,13 @@ Version 0.6.0
 - Fix: several cases in trap.c where the player could hear events while deaf
 - Prevent certain extraplanar beings from being diseased
 - Fix: altars changing from aligned to unaligned when a booby-trapped door exploded
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
 --------------------------------------------------------------------------------------------
 
 Version 0.7.0
 -------------
 
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 - Replace 'samurai' in the samurai quest with new monster - Ronin
 - New object property - Excellence
 - Fix: correctly handle how <foo> of excellence becomes known when worn/wielded
@@ -1275,5 +1276,4 @@ Version 0.7.0
 - New monster spell: reflection
 - Bring secondary effects of worn black dragon scales/scale mail inline with black
   dragons
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
-
+- Fix: most armor special properties were still in effect if it eroded away
