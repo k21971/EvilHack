@@ -170,6 +170,7 @@ E void FDECL(drop_upon_death, (struct monst *, struct obj *, int, int));
 E boolean NDECL(can_make_bones);
 E void FDECL(savebones, (int, time_t, struct obj *));
 E int NDECL(getbones);
+E boolean FDECL(bones_include_name, (const char *));
 
 /* ### botl.c ### */
 
@@ -1538,7 +1539,6 @@ E void NDECL(kill_genocided_monsters);
 E void FDECL(golemeffects, (struct monst *, int, int));
 E boolean FDECL(angry_guards, (BOOLEAN_P));
 E void NDECL(pacify_guards);
-E struct monst *FDECL(find_ghost_with_name, (char *));
 E void FDECL(decide_to_shapeshift, (struct monst *, int));
 E boolean FDECL(vamp_stone, (struct monst *));
 E boolean FDECL(damage_mon, (struct monst*, int, int));
