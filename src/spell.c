@@ -40,7 +40,6 @@ STATIC_DCL boolean FDECL(dospellmenu, (const char *, int, int *));
 STATIC_DCL int FDECL(percent_success, (int));
 STATIC_DCL char *FDECL(spellretention, (int, char *));
 STATIC_DCL int NDECL(throwspell);
-STATIC_DCL void NDECL(cast_protection);
 STATIC_DCL void FDECL(spell_backfire, (int));
 STATIC_DCL const char *FDECL(spelltypemnemonic, (int));
 STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
@@ -779,7 +778,7 @@ int booktype;
     return objects[booktype].oc_skill;
 }
 
-STATIC_OVL void
+void
 cast_protection()
 {
     int l = u.ulevel, loglev = 0,

@@ -985,6 +985,22 @@ mcalcdistress()
                 continue;
         }
 
+        if (mtmp->mprotection) {
+            if (mtmp->mprottime-- == 0) {
+                mtmp->mprotection--;
+                if (canseemon(mtmp))
+                    pline_The("%s haze around %s %s.",
+                              hcolor(NH_GOLDEN), mon_nam(mtmp),
+                              mtmp->mprotection ? "becomes less dense"
+                                                : "disappears");
+                if (mtmp->mprotection)
+                    mtmp->mprottime = (mtmp->iswiz ||is_prince(mtmp->data)
+                                       || mtmp->data->msound == MS_NEMESIS
+                                       || mtmp->data->msound == MS_LEADER)
+                                      ? 20 : 10;
+            }
+        }
+
         /* must check non-moving monsters once/turn in case they managed
            to end up in water or lava; note: when not in liquid they regen,
            shape-shift, timeout temporary maladies just like other monsters */

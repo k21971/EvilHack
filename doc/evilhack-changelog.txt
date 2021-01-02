@@ -1277,3 +1277,4 @@ Version 0.7.0
 - Bring secondary effects of worn black dragon scales/scale mail inline with black
   dragons
 - Fix: most armor special properties were still in effect if it eroded away
+- New monster spell: protection

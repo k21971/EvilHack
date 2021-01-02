@@ -33,6 +33,7 @@ enum mcast_mage_spells {
 enum mcast_cleric_spells {
     CLC_OPEN_WOUNDS = 0,
     CLC_CURE_SELF,
+    CLC_PROTECTION,
     CLC_CONFUSE_YOU,
     CLC_PARALYZE,
     CLC_VULN_YOU,
@@ -281,8 +282,9 @@ int spellnum;
     case 4:
         return CLC_PARALYZE;
     case 3:
-    case 2:
         return CLC_CONFUSE_YOU;
+    case 2:
+        return CLC_PROTECTION;
     case 1:
         return CLC_CURE_SELF;
     case 0:
@@ -1079,6 +1081,34 @@ int spellnum;
         else
             Your("body is covered with painful wounds!");
         break;
+    case CLC_PROTECTION: {
+        int natac = find_mac(mtmp) + mtmp->mprotection;
+        int loglev = 0, l = mtmp->m_lev;
+        int gain = 0;
+
+        dmg = 0;
+
+        for (; l > 0; l /=2)
+            loglev++;
+
+        gain = loglev - mtmp->mprotection / (4 - min(3, (10 - natac) / 10));
+
+        if (gain && canseemon(mtmp)) {
+            if (mtmp->mprotection) {
+                pline_The("%s haze around %s becomes more dense.",
+                          hcolor(NH_GOLDEN), mon_nam(mtmp));
+            } else {
+                mtmp->mprottime = (mtmp->iswiz || is_prince(mtmp->data)
+                                   || mtmp->data->msound == MS_NEMESIS
+                                   || mtmp->data->msound == MS_LEADER)
+                                   ? 20 : 10;
+                pline_The("air around %s begins to shimmer with a %s haze.",
+                          mon_nam(mtmp), hcolor(NH_GOLDEN));
+            }
+        }
+        mtmp->mprotection += gain;
+        break;
+    }
     default:
         impossible("mcastu: invalid clerical spell (%d)", spellnum);
         dmg = 0;
@@ -1116,6 +1146,7 @@ int spellnum;
         switch (spellnum) {
         case CLC_INSECTS:
         case CLC_CURE_SELF:
+        case CLC_PROTECTION:
             return TRUE;
         default:
             break;
@@ -1686,7 +1717,7 @@ int spellnum;
     boolean yours = (mattk == &youmonst);
 
     if (dmg == 0 && !is_undirected_spell(AD_SPEL, spellnum)) {
- 	impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
+ 	impossible("cast directed wizard spell (%d) with dmg = 0?", spellnum);
  	return;
     }
 
@@ -1736,7 +1767,7 @@ int spellnum;
        	dmg = 0;
        	break;
     case MGC_CANCELLATION:
-        if (!mtmp) {
+        if (!mtmp || mtmp->mhp < 1) {
             impossible("cancellation with no mtmp");
             return;
         }
@@ -1747,6 +1778,16 @@ int spellnum;
             pline("%s %s a cancellation spell!", Monnam(mattk),
                   rn2(2) ? "evokes" : "conjures up");
         (void) cancel_monst(mtmp, (struct obj *) 0, FALSE, TRUE, FALSE);
+        break;
+    case MGC_REFLECTION:
+        if (!mtmp || mtmp->mhp < 1) {
+            impossible("reflection with no mtmp");
+            return;
+        }
+        if (yours)
+            (void) cast_reflection(&youmonst);
+        else
+            (void) cast_reflection(mtmp);
         break;
     case MGC_ACID_BLAST:
         if (!mtmp || mtmp->mhp < 1) {
@@ -2307,6 +2348,14 @@ int spellnum;
        	        pline("%s is covered in wounds!", Monnam(mtmp));
        	}
        	break;
+    case CLC_PROTECTION:
+        if (!mtmp || mtmp->mhp < 1) {
+            impossible("protection with no mtmp");
+            return;
+        }
+        if (yours)
+            (void) cast_protection();
+        break;
     default:
        	impossible("ucastm: invalid clerical spell (%d)", spellnum);
        	dmg = 0;
