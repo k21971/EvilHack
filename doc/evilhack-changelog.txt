@@ -1277,5 +1277,6 @@ Version 0.7.0
 - Bring secondary effects of worn black dragon scales/scale mail inline with black
   dragons
 - Fix: most armor special properties were still in effect if it eroded away
-- Check bones data directly for deja vu messages
 - New monster spell: protection
+- Check bones data directly for deja vu messages
+- Copyright info update for 2021
