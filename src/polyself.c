@@ -1803,6 +1803,8 @@ int part;
         return "beak";
     if (mptr->mlet == S_CENTAUR || Race_if(PM_CENTAUR)
         || mptr->mlet == S_UNICORN
+        || mptr == &mons[PM_KI_RIN]
+        || mptr == &mons[PM_ELDRITCH_KI_RIN]
         || (mptr == &mons[PM_ROTHE] && part != HAIR))
         return horse_parts[part];
     if (mptr->mlet == S_LIGHT) {

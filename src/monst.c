@@ -1345,9 +1345,9 @@ NEARDATA struct permonst mons[] = {
         A(ATTK(AT_KICK, AD_PHYS, 2, 4), ATTK(AT_KICK, AD_PHYS, 2, 4),
           ATTK(AT_BUTT, AD_PHYS, 3, 6), ATTK(AT_MAGC, AD_SPEL, 2, 6), NO_ATTK,
           NO_ATTK),
-        SIZ(WT_HUMAN, 400, MS_NEIGH, MZ_LARGE),
+        SIZ(WT_HUMAN, 400, MS_SPELL, MZ_LARGE),
         MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON, 0,
-        M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_SEE_INVIS,
+        M1_FLY | M1_NOHANDS | M1_SEE_INVIS,
         M2_NOPOLY | M2_MINION | M2_STALK | M2_STRONG | M2_NASTY | M2_LORD,
         M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ANGEL, 21, HI_GOLD),
     /* Eldritch ki-rin are those who have fallen and have decided to
@@ -1358,9 +1358,9 @@ NEARDATA struct permonst mons[] = {
         A(ATTK(AT_KICK, AD_PHYS, 2, 4), ATTK(AT_KICK, AD_PHYS, 2, 4),
           ATTK(AT_BUTT, AD_PHYS, 3, 6), ATTK(AT_MAGC, AD_SPEL, 2, 6), NO_ATTK,
           NO_ATTK),
-        SIZ(WT_HUMAN, 400, MS_NEIGH, MZ_LARGE),
+        SIZ(WT_HUMAN, 400, MS_SPELL, MZ_LARGE),
         MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON, 0,
-        M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_SEE_INVIS,
+        M1_FLY | M1_NOHANDS | M1_SEE_INVIS,
         M2_NOPOLY | M2_MINION | M2_STALK | M2_STRONG | M2_NASTY | M2_LORD,
         M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ANGEL, 21, CLR_BLACK),
     /* You'll only ever be graced by the presence of an Archangel

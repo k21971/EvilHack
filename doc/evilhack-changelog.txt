@@ -1281,3 +1281,4 @@ Version 0.7.0
 - Check bones data directly for deja vu messages
 - Copyright info update for 2021
 - Wand wresting change
+- Ki-rin changes
