@@ -64,6 +64,11 @@ static const struct innate {
                  { 13, &(HCold_resistance), "warm", "cooler" },
                  { 15, &(HShock_resistance), "insulated", "conductive" },
                  { 17, &(HTeleport_control), "controlled", "uncontrolled" },
+                 { 20, &(HTelepat), "a strange mental acuity", "mentally dulled" },
+                 { 23, &(HWwalking), "unsinkable", "like you might sink" },
+                 { 25, &(HStone_resistance), "limber", "stiff" },
+                 { 27, &(HDisint_resistance), "firm", "less firm" },
+                 { 30, &(HSick_resistance), "hale", "" },
                  { 0, 0, 0, 0 } },
 
   pri_abil[] = { { 15, &(HWarning), "sensitive", "" },
@@ -76,14 +81,14 @@ static const struct innate {
                  { 0, 0, 0, 0 } },
 
   rog_abil[] = { { 1, &(HStealth), "", "" },
-                 { 10, &(HSearching), "perceptive", "" },
+                 { 10, &(HSearching), "perceptive", "unaware" },
                  { 0, 0, 0, 0 } },
 
   sam_abil[] = { { 1, &(HFast), "", "" },
                  { 15, &(HStealth), "stealthy", "" },
                  { 0, 0, 0, 0 } },
 
-  tou_abil[] = { { 10, &(HSearching), "perceptive", "" },
+  tou_abil[] = { { 10, &(HSearching), "perceptive", "unaware" },
                  { 20, &(HPoison_resistance), "hardy", "" },
                  { 0, 0, 0, 0 } },
 
@@ -118,7 +123,7 @@ static const struct innate {
   hob_abil[] = { { 1, &(HFood_sense), "", "" },
                  { 1, &(HHunger), "", "" },
                  { 4, &(HFast), "quick", "slow" },
-                 { 7, &(HSearching), "perceptive", "" },
+                 { 7, &(HSearching), "perceptive", "unaware" },
                  { 0, 0, 0, 0 } },
 
   cen_abil[] = { { 1, &(HFast), "", "" },

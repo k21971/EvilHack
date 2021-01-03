@@ -100,6 +100,8 @@
                          || youmonst.data->mlet == S_GHOST              \
                          || youmonst.data->mlet == S_MUMMY              \
                          || youmonst.data->mlet == S_LICH               \
+                         || youmonst.data->mlet == S_ANGEL              \
+                         || youmonst.data->mlet == S_DEMON              \
                          || youmonst.data == &mons[PM_BABY_GOLD_DRAGON] \
                          || youmonst.data == &mons[PM_GOLD_DRAGON]      \
                          || defends(AD_DISE, uwep))
@@ -277,8 +279,9 @@
       || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR))
 /* May touch surface; does not override any others */
 
+#define HWwalking u.uprops[WWALKING].intrinsic
 #define EWwalking u.uprops[WWALKING].extrinsic
-#define Wwalking (EWwalking && !Is_waterlevel(&u.uz))
+#define Wwalking ((HWwalking || EWwalking) && !Is_waterlevel(&u.uz))
 /* Don't get wet, can't go under water; overrides others except levitation */
 /* Wwalking is meaningless on water level */
 

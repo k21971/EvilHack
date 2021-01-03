@@ -600,20 +600,20 @@ boolean resuming;
         }
 
 	if (elf_regen != elf_can_regen()) {
-            if (!Hallucination) {
+            if (!Hallucination)
 	        You_feel("%s.", (elf_regen) ? "itchy" : "relief");
-            } else {
-                You_feel("%s.", (elf_can_regen()) ? "magnetic" : "like you are no longer failing Organic Chemistry");
-            }
+            else
+                You_feel("%s.", (elf_can_regen()) ? "magnetic"
+                                                  : "like... gnarly dude");
 	    elf_regen = elf_can_regen();
 	}
 
 	if (orc_regen != orc_can_regen()) {
-            if (!Hallucination) {
+            if (!Hallucination)
 	        You_feel("%s.", (orc_regen) ? "tingly" : "relief");
-            } else {
-                You_feel("%s.", (orc_can_regen()) ? "non-magnetic" : "like you are no longer failing Organic Chemistry");
-            }
+            else
+                You_feel("%s.", (orc_can_regen()) ? "non-magnetic"
+                                                  : "like... whoa");
 	    orc_regen = orc_can_regen();
 	}
 

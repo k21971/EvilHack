@@ -1282,3 +1282,4 @@ Version 0.7.0
 - Copyright info update for 2021
 - Wand wresting change
 - Ki-rin changes
+- Extra Monk abilities at higher experience levels
