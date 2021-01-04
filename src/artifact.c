@@ -623,6 +623,9 @@ struct obj *otmp;
     if ((weap = get_artifact(otmp)) != 0)
         return (boolean) (weap->attk.adtyp == adtyp);
 
+    if (!weap && adtyp == AD_DREN)
+        return TRUE;
+
     if (!weap && otmp->oprops
         && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))) {
         if (adtyp == AD_FIRE
@@ -638,6 +641,7 @@ struct obj *otmp;
             && (otmp->oprops & ITEM_VENOM))
             return TRUE;
     }
+
     return FALSE;
 }
 
