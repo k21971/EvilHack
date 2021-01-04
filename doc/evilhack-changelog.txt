@@ -1285,3 +1285,4 @@ Version 0.7.0
 - Extra Monk abilities at higher experience levels
 - Fix: crash when killing monster with a wielded potion
 - Fix: better handling making ball/chain rustproof
+- Remove mkpuddles() function
