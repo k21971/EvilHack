@@ -1288,3 +1288,5 @@ Version 0.7.0
 - Remove mkpuddles() function
 - Prevent rust monsters from 'unfixing' fixed heavy iron ball/chain
 - Some object tweaks
+- Fix: monsters wearing gray dragon scales/scale mail passive attack happening
+  too often

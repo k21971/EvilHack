@@ -3896,7 +3896,7 @@ boolean wep_was_destroyed;
                     break;
                 case GRAY_DRAGON_SCALE_MAIL:
                 case GRAY_DRAGON_SCALES:
-                    if (rn2(4)) {
+                    if (!rn2(6)) {
                         (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
                     }
                     break;
