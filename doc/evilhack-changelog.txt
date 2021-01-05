@@ -1287,3 +1287,4 @@ Version 0.7.0
 - Fix: better handling making ball/chain rustproof
 - Remove mkpuddles() function
 - Prevent rust monsters from 'unfixing' fixed heavy iron ball/chain
+- Some object tweaks
