@@ -3725,23 +3725,47 @@ struct attack *mattk;
 		break;
             case BLACK_DRAGON_SCALE_MAIL:
             case BLACK_DRAGON_SCALES:
-                if (resists_disint(mtmp))
-                    return 1;
-
-                i = rn2(40);
-                if (i) {
-                    if (!rn2(3)) {
-                        if (canseemon(mtmp))
-                            pline("%s partially disintegrates!", Monnam(mtmp));
-                        mtmp->mhp -= rnd(4);
-                    }
-                } else {
-                    if (canseemon(mtmp))
-                        pline("%s is disintegrated completely!", Monnam(mtmp));
-                    xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
-                    if (!DEADMONSTER(mtmp))
+                if (!rn2(20)) {
+                    if (resists_disint(mtmp)) {
                         return 1;
-                    return 2;
+                        if (canseemon(mtmp)) {
+                            shieldeff(mtmp->mx, mtmp->my);
+                            Your("armor does not appear to affect %s",
+                                 mon_nam(mtmp));
+                        }
+                    } else {
+                        /* if mtmp is wielding a weapon, that disintegrates first before
+                           the actual monster. Same if mtmp is wearing gloves or boots */
+                        if (MON_WEP(mtmp)) {
+                            if (canseemon(mtmp))
+                                pline("%s %s is disintegrated!",
+                                      s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
+                            m_useup(mtmp, MON_WEP(mtmp));
+                        } else if ((mtmp->misc_worn_check & W_ARMF)) {
+                            if (canseemon(mtmp))
+                                pline("%s %s are disintegrated!",
+                                      s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMF)));
+                            m_useup(mtmp, which_armor(mtmp, W_ARMF));
+                        } else if ((mtmp->misc_worn_check & W_ARMG) && !MON_WEP(mtmp)) {
+                            if (canseemon(mtmp))
+                                pline("%s %s are disintegrated!",
+                                      s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
+                            m_useup(mtmp, which_armor(mtmp, W_ARMG));
+                        } else {
+                            if (rn2(10)) {
+                                if (canseemon(mtmp))
+                                    pline("%s partially disintegrates!", Monnam(mtmp));
+                                mtmp->mhp -= rnd(4);
+                            } else {
+                                if (canseemon(mtmp))
+                                    pline("%s is disintegrated completely!", Monnam(mtmp));
+                                xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                                if (!DEADMONSTER(mtmp))
+                                    return 1;
+                                return 2;
+                            }
+                        }
+                    }
                 }
                 if (mtmp->mhp < 1) {
                     if (canseemon(mtmp))
@@ -3910,12 +3934,17 @@ struct attack *mattk;
                 }
             } else {
                 /* if mtmp is wielding a weapon, that disintegrates first before
-                   the actual monster. Same if mtmp is wearing gloves */
+                   the actual monster. Same if mtmp is wearing gloves or boots */
                 if (MON_WEP(mtmp)) {
                     if (canseemon(mtmp))
                         pline("%s %s is disintegrated!",
                               s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
                     m_useup(mtmp, MON_WEP(mtmp));
+                } else if ((mtmp->misc_worn_check & W_ARMF)) {
+                    if (canseemon(mtmp))
+                        pline("%s %s are disintegrated!",
+                              s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMF)));
+                    m_useup(mtmp, which_armor(mtmp, W_ARMF));
                 } else if ((mtmp->misc_worn_check & W_ARMG) && !MON_WEP(mtmp)) {
                     if (canseemon(mtmp))
                         pline("%s %s are disintegrated!",

@@ -1249,4 +1249,6 @@ Version 0.6.0
 - Fix: crash on reloading game while wielding Grayswandir
 - Fix: Sceptre of Might as 'heavy mace' in Caveman.des
 - Fix: most armor special properties were still in effect if it eroded away
+- Bring secondary effects of worn black dragon scales/scale mail inline with
+  black dragons
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
