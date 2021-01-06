@@ -621,7 +621,7 @@ struct obj *otmp;
     if ((weap = get_artifact(otmp)) != 0)
         return (boolean) (weap->attk.adtyp == adtyp);
 
-    if (!weap && adtyp == AD_DREN)
+    if (weap && adtyp == AD_DREN)
         return TRUE;
 
     if (!weap && otmp->oprops

@@ -1254,4 +1254,6 @@ Version 0.6.0
 - Fix: monsters wearing gray dragon scales/scale mail passive attack happening
   too often
 - Fix: crash when killing monster with a wielded potion
+- Fix: non-artifact weapons behaving as the Secespita artifact weapon if power
+  was not 100%
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
