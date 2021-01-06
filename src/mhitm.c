@@ -490,8 +490,9 @@ register struct monst *magr, *mdef;
                 tmp -= hitval(mwep, mdef);
             if ((is_displaced(mdef->data) || has_displacement(mdef))
                 && rn2(4)) {
-                pline("%s attacks the displaced image of %s.",
-                      Monnam(magr), mon_nam(mdef));
+                if (vis && canspotmon(mdef))
+                    pline("%s attacks the displaced image of %s.",
+                          Monnam(magr), mon_nam(mdef));
                 strike = FALSE;
             }
             /* tiny/small monsters have a chance to dodge
@@ -564,10 +565,11 @@ register struct monst *magr, *mdef;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
             strike = (i >= 2 && res[i - 1] == MM_HIT && res[i - 2] == MM_HIT);
-            if ((is_displaced(magr->data) || has_displacement(magr))
+            if ((is_displaced(mdef->data) || has_displacement(mdef))
                 && rn2(4)) {
-                pline("%s attacks the displaced image of %s.",
-                      Monnam(magr), mon_nam(mdef));
+                if (vis && canspotmon(mdef))
+                    pline("%s attacks the displaced image of %s.",
+                          Monnam(magr), mon_nam(mdef));
                 strike = FALSE;
             }
             if (strike)
