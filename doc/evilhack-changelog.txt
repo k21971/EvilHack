@@ -1251,4 +1251,6 @@ Version 0.6.0
 - Fix: most armor special properties were still in effect if it eroded away
 - Bring secondary effects of worn black dragon scales/scale mail inline with
   black dragons
+- Fix: monsters wearing gray dragon scales/scale mail passive attack happening
+  too often
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
