@@ -1598,8 +1598,9 @@ int dieroll;
                 pline("%s appears confused.", Monnam(mon));
         }
     }
-    if (DEADMONSTER(mon) && (uwep || (u.twoweap && uswapwep))
-        && attacks(AD_DREN, obj) && !nonliving(mdat) && u.uen < u.uenmax) {
+    if (DEADMONSTER(mon) && !ispotion /* potion obj will have been freed by here */
+        && (uwep || (u.twoweap && uswapwep)) && attacks(AD_DREN, obj)
+        && !nonliving(mdat) && u.uen < u.uenmax) {
         int energy = mon->m_lev + 1;
         energy += rn2(energy);
         pline_The("ritual knife captures the evanescent life force.");

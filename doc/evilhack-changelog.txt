@@ -1253,4 +1253,5 @@ Version 0.6.0
   black dragons
 - Fix: monsters wearing gray dragon scales/scale mail passive attack happening
   too often
+- Fix: crash when killing monster with a wielded potion
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
