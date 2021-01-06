@@ -1295,3 +1295,5 @@ Version 0.7.0
   to fire
 - Correction to chances for passive attack from BDSM (monster vs player)
 - Exploding Bag of the Hesperides
+- Fix: non-artifact weapons behaving as the Secespita artifact weapon if power
+  was not 100%
