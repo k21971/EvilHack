@@ -1291,3 +1291,5 @@ Version 0.7.0
 - Fix: monsters wearing gray dragon scales/scale mail passive attack happening
   too often
 - Mind flayer larva nurseries to show up a bit sooner in the dungeon
+- Fix: some monsters that are resistant to fire were also flagged as vulnerable
+  to fire

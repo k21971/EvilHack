@@ -205,8 +205,8 @@ NEARDATA struct permonst mons[] = {
         MR_FIRE | MR_COLD | MR_ELEC | MR_SLEEP,
         M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS | M1_OMNIVORE
             | M1_ACID,
-        M2_WANDER | M2_HOSTILE | M2_NASTY | M2_NEUTER, 0,
-        M4_VULNERABLE_FIRE, 0, 10, CLR_CYAN),
+        M2_WANDER | M2_HOSTILE | M2_NASTY | M2_NEUTER,
+        0, 0, 0, 10, CLR_CYAN),
     /*
      * cockatrice
      */
@@ -608,7 +608,7 @@ NEARDATA struct permonst mons[] = {
             | M1_REGEN,
         M2_HOSTILE | M2_NASTY | M2_MAGIC | M2_GREEDY | M2_JEWELS
             | M2_COLLECT,
-        M3_WANTSBOOK | M3_INFRAVISIBLE | M3_INFRAVISION, M4_VULNERABLE_FIRE,
+        M3_WANTSBOOK | M3_INFRAVISIBLE | M3_INFRAVISION, 0,
         MH_ILLITHID | MH_UNDEAD, 30, CLR_GRAY),
     /* Place-holder for player race Illithid, not generated at random */
     MON("illithid", S_HUMANOID, LVL(0, 12, 10, 0, -8), (G_GENO | G_NOGEN),
@@ -2048,7 +2048,7 @@ struct permonst _mons2[] = {
         MR_FIRE | MR_COLD | MR_SLEEP | MR_POISON, MR_FIRE | MR_COLD,
         M1_BREATHLESS | M1_HUMANOID | M1_POIS | M1_REGEN,
         M2_HOSTILE | M2_MAGIC, M3_WANTSBOOK | M3_INFRAVISION,
-        M4_VULNERABLE_FIRE, MH_UNDEAD, 21, HI_LORD),
+        0, MH_UNDEAD, 21, HI_LORD),
     MON("arch-lich", S_LICH, LVL(25, 9, -6, 90, -15),
         (G_HELL | G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_TUCH, AD_COLD, 5, 6), ATTK(AT_MAGC, AD_SPEL, 0, 0), NO_ATTK,
@@ -2057,7 +2057,7 @@ struct permonst _mons2[] = {
         MR_FIRE | MR_COLD | MR_SLEEP | MR_ELEC | MR_POISON, MR_FIRE | MR_COLD,
         M1_BREATHLESS | M1_HUMANOID | M1_POIS | M1_REGEN,
         M2_HOSTILE | M2_MAGIC, M3_WANTSBOOK | M3_INFRAVISION,
-        M4_VULNERABLE_FIRE, MH_UNDEAD, 29, HI_LORD),
+        0, MH_UNDEAD, 29, HI_LORD),
     /*
      * Mummies
      */
@@ -2229,7 +2229,7 @@ struct permonst _mons2[] = {
         MR_FIRE | MR_COLD | MR_POISON,
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_OMNIVORE | M1_ACID,
-        M2_HOSTILE | M2_NEUTER, 0, M4_VULNERABLE_FIRE, 0, 4, CLR_GRAY),
+        M2_HOSTILE | M2_NEUTER, 0, M4_VULNERABLE_ELEC, 0, 4, CLR_GRAY),
     MON("brown pudding", S_PUDDING, LVL(5, 3, 8, 0, 0),
         (G_GENO | G_NOCORPSE | 1), A(ATTK(AT_BITE, AD_DCAY, 0, 0), NO_ATTK,
                                      NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
