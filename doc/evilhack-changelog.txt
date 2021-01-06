@@ -1297,3 +1297,4 @@ Version 0.7.0
 - Exploding Bag of the Hesperides
 - Fix: non-artifact weapons behaving as the Secespita artifact weapon if power
   was not 100%
+- Fix: ensure that only zombie corpses confer zombie sickness when eaten

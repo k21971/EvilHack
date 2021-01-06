@@ -1765,7 +1765,7 @@ struct obj *otmp;
                       TRUE, SICK_VOMITABLE);
 
             pline("(It must have died too long ago to be safe to eat.)");
-        } else {
+        } else if (otmp->zombie_corpse) {
             if (Sick_resistance) {
                 You_feel("an odd sensation for a brief moment, but it soon passes.");
             } else {
