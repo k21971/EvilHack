@@ -1293,3 +1293,4 @@ Version 0.7.0
 - Mind flayer larva nurseries to show up a bit sooner in the dungeon
 - Fix: some monsters that are resistant to fire were also flagged as vulnerable
   to fire
+- Correction to chances for passive attack from BDSM (monster vs player)

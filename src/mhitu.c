@@ -3725,7 +3725,7 @@ struct attack *mattk;
 		break;
             case BLACK_DRAGON_SCALE_MAIL:
             case BLACK_DRAGON_SCALES:
-                if (rn2(20)) {
+                if (!rn2(20)) {
                     if (resists_disint(mtmp)) {
                         return 1;
                         if (canseemon(mtmp)) {
@@ -3733,7 +3733,7 @@ struct attack *mattk;
                             Your("armor does not appear to affect %s",
                                  mon_nam(mtmp));
                         }
-                    } else if (!rn2(3)) {
+                    } else {
                         /* if mtmp is wielding a weapon, that disintegrates first before
                            the actual monster. Same if mtmp is wearing gloves or boots */
                         if (MON_WEP(mtmp)) {
