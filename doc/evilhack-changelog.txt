@@ -1294,3 +1294,4 @@ Version 0.7.0
 - Fix: some monsters that are resistant to fire were also flagged as vulnerable
   to fire
 - Correction to chances for passive attack from BDSM (monster vs player)
+- Exploding Bag of the Hesperides

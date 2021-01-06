@@ -62,6 +62,7 @@ STATIC_DCL void NDECL(del_soko_prizes);
 static NEARDATA struct obj *current_container;
 static NEARDATA boolean abort_looting;
 #define Icebox (current_container->otyp == ICE_BOX)
+#define BotH (current_container->oartifact == ART_BAG_OF_THE_HESPERIDES)
 
 static const char
         moderateloadmsg[] = "You have a little trouble lifting",
@@ -2272,7 +2273,8 @@ register struct obj *obj;
 	    makeknown(obj->otyp);
 	}
         obfree(obj, (struct obj *) 0);
-        livelog_printf(LL_ACHIEVE, "just blew up %s bag of holding", uhis());
+        livelog_printf(LL_ACHIEVE, "just blew up %s %s", uhis(),
+                       BotH ? "Bag of the Hesperides" : "bag of holding");
         /* if carried, shop goods will be flagged 'unpaid' and obfree() will
            handle bill issues, but if on floor, we need to put them on bill
            before deleting them (non-shop items will be flagged 'no_charge') */
@@ -2293,7 +2295,10 @@ register struct obj *obj;
         }
 	scatter(u.ux, u.uy, rn2(10), VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
 
-        losehp(Maybe_Half_Phys(d(8, 10)), "exploding magical bag", KILLED_BY_AN);
+        if (BotH)
+            losehp(Maybe_Half_Phys(d(12, 12)), "exploding magical artifact bag", KILLED_BY_AN);
+        else
+            losehp(Maybe_Half_Phys(d(8, 10)), "exploding magical bag", KILLED_BY_AN);
         current_container = 0; /* baggone = TRUE; */
     }
 
