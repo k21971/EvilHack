@@ -1299,3 +1299,5 @@ Version 0.7.0
   was not 100%
 - Fix: ensure that only zombie corpses confer zombie sickness when eaten
 - Fix: "It attacks the displaced image of it."
+- Fix: expelled hero kept suffocating when levelporting or branchporting
+  out of the engulfer
