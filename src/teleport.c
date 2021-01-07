@@ -976,6 +976,12 @@ level_tele()
     if (u.utrap && u.utraptype == TT_BURIEDBALL)
         buried_ball_to_punishment();
 
+    if (u.uswallow) {
+        unstuck(u.ustuck);
+        docrt();
+    }
+    u.ustuck = 0;
+
     if (!next_to_u() && !force_dest) {
         You1(shudder_for_moment);
         return;
