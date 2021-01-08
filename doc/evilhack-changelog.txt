@@ -1301,3 +1301,4 @@ Version 0.7.0
 - Fix: "It attacks the displaced image of it."
 - Fix: expelled hero kept suffocating when levelporting or branchporting
   out of the engulfer
+- Prevent monsters from using weapons made of a material they hate

@@ -662,6 +662,8 @@ int x;
             /* never select non-cockatrice corpses */
             && !((x == CORPSE || x == EGG)
                  && !touch_petrifies(&mons[otmp->corpsenm]))
+            /* never select a weapon made of a hated material */
+            && !mon_hates_material(mtmp, otmp->material)
             && (!otmp->oartifact || touch_artifact(otmp, mtmp))) {
        	        if (!obest || dmgval(otmp, &youmonst) > dmgval(obest, &youmonst))
                     obest = otmp;
