@@ -614,6 +614,8 @@ register struct monst *mtmp;
                 while (count-- > 0) {
                     int otyp = (rn2(2) ? rnd_offensive_item(mtmp) :
                                 rn2(2) ? rnd_defensive_item(mtmp) : rnd_misc_item(mtmp));
+                    if (!otyp)
+                        continue;
                     otmp = mksobj(otyp, FALSE, FALSE);
                     if (otmp->oclass == WAND_CLASS) {
                         int lim = (otmp->otyp == WAN_WISHING) ? 3 :
