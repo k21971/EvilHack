@@ -1303,4 +1303,4 @@ Version 0.7.0
   out of the engulfer
 - Prevent monsters from using weapons made of a material they hate
 - Fix: The iron of your helm blocks your psionic attack.  The watchman gets angry!
-
+- Fix: various artifacts 'incinerating' a monster but they still left a corpse 
