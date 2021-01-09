@@ -1302,3 +1302,5 @@ Version 0.7.0
 - Fix: expelled hero kept suffocating when levelporting or branchporting
   out of the engulfer
 - Prevent monsters from using weapons made of a material they hate
+- Fix: The iron of your helm blocks your psionic attack.  The watchman gets angry!
+

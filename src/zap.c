@@ -186,6 +186,8 @@ struct obj *otmp;
             pline_The("%s of your %s blocks your psionic attack.",
                       materialnm[uarmh->material],
                       helm_simple_name(uarmh));
+            dmg = 0;
+            wake = FALSE;
         } else {
             You("mentally %s %s!",
                 rn2(2) ? "attack" : "assault", mon_nam(mtmp));
