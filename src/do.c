@@ -992,7 +992,7 @@ boolean with_impact;
             if (is_unpaid(obj))
                 (void) stolen_value(obj, u.ux, u.uy, TRUE, FALSE);
             (void) mpickobj(u.ustuck, obj);
-            if (is_animal(u.ustuck->data)) {
+            if (is_swallower(u.ustuck->data)) {
                 if (could_poly || could_slime) {
                     (void) newcham(u.ustuck,
                                    could_poly ? (struct permonst *) 0
@@ -1290,7 +1290,7 @@ dodown()
 
     if (u.ustuck) {
         You("are %s, and cannot go down.",
-            !u.uswallow ? "being held" : is_animal(u.ustuck->data)
+            !u.uswallow ? "being held" : is_swallower(u.ustuck->data)
                                              ? "swallowed"
                                              : "engulfed");
         return 1;
@@ -1400,7 +1400,7 @@ doup()
     }
     if (u.ustuck) {
         You("are %s, and cannot go up.",
-            !u.uswallow ? "being held" : is_animal(u.ustuck->data)
+            !u.uswallow ? "being held" : is_swallower(u.ustuck->data)
                                              ? "swallowed"
                                              : "engulfed");
         return 1;

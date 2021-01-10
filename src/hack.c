@@ -2926,7 +2926,7 @@ pickup_checks()
     /* uswallow case added by GAN 01/29/87 */
     if (u.uswallow) {
         if (!u.ustuck->minvent) {
-            if (is_animal(u.ustuck->data)) {
+            if (is_swallower(u.ustuck->data)) {
                 You("pick up %s tongue.", s_suffix(mon_nam(u.ustuck)));
                 pline("But it's kind of slimy, so you drop it.");
             } else

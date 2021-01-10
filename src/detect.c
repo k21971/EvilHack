@@ -1831,7 +1831,7 @@ openit()
     int num = 0;
 
     if (u.uswallow) {
-        if (is_animal(u.ustuck->data)) {
+        if (is_swallower(u.ustuck->data)) {
             if (Blind)
                 pline("Its mouth opens!");
             else
