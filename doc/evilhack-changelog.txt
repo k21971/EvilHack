@@ -1305,3 +1305,4 @@ Version 0.7.0
 - Fix: The iron of your helm blocks your psionic attack.  The watchman gets angry!
 - Fix: various artifacts 'incinerating' a monster but they still left a corpse 
 - Fix: 'glorkum' from appearing in player monsters inventory
+- Fix: black dragon/BDSM passive attacks disintegrating wrong armor pieces

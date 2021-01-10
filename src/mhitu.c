@@ -3741,12 +3741,14 @@ struct attack *mattk;
                                 pline("%s %s is disintegrated!",
                                       s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
                             m_useup(mtmp, MON_WEP(mtmp));
-                        } else if ((mtmp->misc_worn_check & W_ARMF)) {
+                        } else if ((mtmp->misc_worn_check & W_ARMF) && mattk->aatyp == AT_KICK) {
                             if (canseemon(mtmp))
                                 pline("%s %s are disintegrated!",
                                       s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMF)));
                             m_useup(mtmp, which_armor(mtmp, W_ARMF));
-                        } else if ((mtmp->misc_worn_check & W_ARMG) && !MON_WEP(mtmp)) {
+                        } else if ((mtmp->misc_worn_check & W_ARMG)
+                                   && (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW)
+                                   && !MON_WEP(mtmp)) {
                             if (canseemon(mtmp))
                                 pline("%s %s are disintegrated!",
                                       s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
@@ -3940,12 +3942,14 @@ struct attack *mattk;
                         pline("%s %s is disintegrated!",
                               s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
                     m_useup(mtmp, MON_WEP(mtmp));
-                } else if ((mtmp->misc_worn_check & W_ARMF)) {
+                } else if ((mtmp->misc_worn_check & W_ARMF) && mattk->aatyp == AT_KICK) {
                     if (canseemon(mtmp))
                         pline("%s %s are disintegrated!",
                               s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMF)));
                     m_useup(mtmp, which_armor(mtmp, W_ARMF));
-                } else if ((mtmp->misc_worn_check & W_ARMG) && !MON_WEP(mtmp)) {
+                } else if ((mtmp->misc_worn_check & W_ARMG)
+                           && (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW)
+                           && !MON_WEP(mtmp)) {
                     if (canseemon(mtmp))
                         pline("%s %s are disintegrated!",
                               s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
