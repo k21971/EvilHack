@@ -3148,7 +3148,7 @@ struct monst *mdef;
         wasinside = TRUE;
     mondead(mdef);
     if (wasinside) {
-        if (is_animal(mdef->data))
+        if (is_swallower(mdef->data))
             You("%s through an opening in the new %s.",
                 locomotion(youmonst.data, "jump"), xname(otmp));
     }
@@ -4829,7 +4829,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
                     if (is_vampshifter(mtmp)) {
                         Sprintf(msgtrail, " which was a shapeshifted %s",
                                 noname_monnam(mtmp, ARTICLE_NONE));
-                    } else if (is_animal(mdat)) {
+                    } else if (is_swallower(mdat)) {
                         Strcpy(msgtrail, "'s stomach");
                     } else {
                         msgtrail[0] = '\0';

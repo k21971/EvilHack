@@ -1090,7 +1090,8 @@ struct monst *mtmp;
                       : !u.uswallow ? ", holding you"
                          : attacktype_fordmg(u.ustuck->data, AT_ENGL, AD_DGST)
                             ? ", digesting you"
-                            : is_animal(u.ustuck->data) ? ", swallowing you"
+                            : is_swallower(u.ustuck->data)
+                               ? ", swallowing you"
                                : ", engulfing you");
     if (mtmp == u.usteed)
         Strcat(info, ", carrying you");

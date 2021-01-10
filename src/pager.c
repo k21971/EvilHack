@@ -307,7 +307,7 @@ int x, y;
     }
     if (u.ustuck == mtmp) {
         if (u.uswallow || iflags.save_uswallow) /* monster detection */
-            Strcat(buf, is_animal(mtmp->data)
+            Strcat(buf, is_swallower(mtmp->data)
                           ? ", swallowing you" : ", engulfing you");
         else
             Strcat(buf, (Upolyd && sticks(youmonst.data))

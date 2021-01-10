@@ -377,7 +377,7 @@ struct obj *otmp;
     case SPE_KNOCK:
         wake = FALSE; /* don't want immediate counterattack */
         if (u.uswallow && mtmp == u.ustuck) {
-            if (is_animal(mtmp->data)) {
+            if (is_swallower(mtmp->data)) {
                 if (Blind)
                     You_feel("a sudden rush of air!");
                 else
