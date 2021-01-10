@@ -26,7 +26,7 @@ STATIC_DCL void FDECL(noises, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(missmm, (struct monst *, struct monst *,
                                int, int, struct attack *));
 STATIC_DCL int FDECL(passivemm, (struct monst *, struct monst *,
-                                 BOOLEAN_P, int, struct obj *));
+                                 BOOLEAN_P, int, struct obj *, int));
 
 static const char *const mwep_pierce[] = {
     "pierce", "gore", "stab", "impale", "hit"
@@ -663,7 +663,7 @@ register struct monst *magr, *mdef;
         if (attk && !(res[i] & MM_AGR_DIED)
             && distmin(magr->mx, magr->my, mdef->mx, mdef->my) <= 1)
             res[i] = passivemm(magr, mdef, strike,
-                               (res[i] & MM_DEF_DIED), mwep);
+                               (res[i] & MM_DEF_DIED), mwep, mattk->aatyp);
 
         if (res[i] & MM_DEF_DIED)
             return res[i];
@@ -2096,10 +2096,10 @@ struct obj *otemp;
  * handled above.  Returns same values as mattackm.
  */
 STATIC_OVL int
-passivemm(magr, mdef, mhit, mdead, mwep)
+passivemm(magr, mdef, mhit, mdead, mwep, aatyp)
 register struct monst *magr, *mdef;
 boolean mhit;
-int mdead;
+int mdead, aatyp;
 struct obj *mwep;
 {
     register struct permonst *mddat = mdef->data;
@@ -2156,12 +2156,15 @@ struct obj *mwep;
                         pline("%s %s is disintegrated!",
                               s_suffix(Monnam(magr)), xname(MON_WEP(magr)));
                     m_useup(magr, MON_WEP(magr));
-                } else if ((magr->misc_worn_check & W_ARMF)) {
+                } else if ((magr->misc_worn_check & W_ARMF)
+                           && aatyp == AT_KICK) {
                     if (canseemon(magr))
                         pline("%s %s are disintegrated!",
                               s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMF)));
                     m_useup(magr, which_armor(magr, W_ARMF));
-                } else if ((magr->misc_worn_check & W_ARMG) && !MON_WEP(magr)) {
+                } else if ((magr->misc_worn_check & W_ARMG)
+                           && (aatyp == AT_WEAP || aatyp == AT_CLAW)
+                           && !MON_WEP(magr)) {
                     if (canseemon(magr))
                         pline("%s %s are disintegrated!",
                               s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMG)));

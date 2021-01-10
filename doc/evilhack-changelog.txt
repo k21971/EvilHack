@@ -1259,4 +1259,5 @@ Version 0.6.0
 - Fix: expelled hero kept suffocating when levelporting or branchporting
   out of the engulfer
 - Fix: 'glorkum' from appearing in player monsters inventory
+- Fix: black dragon/BDSM passive attacks disintegrating wrong armor pieces
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

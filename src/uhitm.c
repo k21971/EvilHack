@@ -3492,7 +3492,7 @@ boolean wep_was_destroyed;
             }
         }
         if (mhit && !mon->mcan && !rn2(10)) {
-            if ((!uwep || !(u.twoweap && uswapwep)) && !wep_was_destroyed
+            if (!(uwep || (u.twoweap && uswapwep)) && !wep_was_destroyed
                 && (aatyp == AT_WEAP || aatyp == AT_CLAW
                     || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
                 if (uarmg) {
@@ -3767,7 +3767,7 @@ boolean wep_was_destroyed;
                         }
                     }
                     if (!rn2(10)) {
-                        if ((!uwep || !(u.twoweap && uswapwep)) && !wep_was_destroyed
+                        if (!(uwep || (u.twoweap && uswapwep)) && !wep_was_destroyed
                             && (aatyp == AT_WEAP || aatyp == AT_CLAW
                                 || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
                             if (uarmg) {
