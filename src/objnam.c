@@ -620,7 +620,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, known ? actualn : dn);
         else if (nn && !is_soko_prize_flag(obj))
             Strcat(buf, actualn);
-        else if (un)
+        else if (un && !is_soko_prize_flag(obj))
             Sprintf(eos(buf), "amulet called %s", un);
 	else if (is_soko_prize_flag(obj))
 	    Strcpy(buf, "sokoban prize amulet");
@@ -647,7 +647,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, dn);
         else if (nn && !is_soko_prize_flag(obj))
             Strcat(buf, actualn);
-        else if (un) {
+        else if (un && !is_soko_prize_flag(obj)) {
             Strcat(buf, dn);
             Strcat(buf, " called ");
             Strcat(buf, un);
@@ -718,7 +718,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, actualn);
             propnames(buf, obj->oprops, obj->oprops_known,
                       FALSE, !!strstri(actualn, " of "));
-        } else if (un) {
+        } else if (un && !is_soko_prize_flag(obj)) {
             if (is_boots(obj))
                 Strcat(buf, "boots");
             else if (is_gloves(obj))

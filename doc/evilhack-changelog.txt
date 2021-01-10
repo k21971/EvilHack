@@ -1306,3 +1306,5 @@ Version 0.7.0
 - Fix: various artifacts 'incinerating' a monster but they still left a corpse 
 - Fix: 'glorkum' from appearing in player monsters inventory
 - Fix: black dragon/BDSM passive attacks disintegrating wrong armor pieces
+- Fix: naming an object will apply to the same type of object if it's one of the
+  undiscovered sokoban prizes, giving away what it is before it's been obtained
