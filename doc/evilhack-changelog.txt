@@ -1265,4 +1265,5 @@ Version 0.6.0
 - Check bones data directly for deja vu messages
 - Copyright info update for 2021
 - Fix: better handling making ball/chain rustproof
+- Prevent rust monsters from 'unfixing' fixed heavy iron ball/chain
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
