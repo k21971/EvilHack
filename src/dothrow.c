@@ -1932,7 +1932,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         /* this assumes that guaranteed_hit is due to swallowing */
         wakeup(mon, TRUE);
         if (obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm])) {
-            if (is_animal(u.ustuck->data)) {
+            if (is_swallower(u.ustuck->data)) {
                 minstapetrify(u.ustuck, TRUE);
                 /* Don't leave a cockatrice corpse available in a statue */
                 if (!u.uswallow) {
@@ -1943,7 +1943,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         }
         pline("%s into %s %s.", Tobjnam(obj, "vanish"),
               s_suffix(mon_nam(mon)),
-              is_animal(u.ustuck->data) ? "entrails" : "currents");
+              is_swallower(u.ustuck->data) ? "entrails" : "currents");
     } else {
         tmiss(obj, mon, TRUE);
     }
@@ -2354,8 +2354,8 @@ struct obj *obj;
     }
     freeinv(obj);
     if (u.uswallow) {
-        pline(is_animal(u.ustuck->data) ? "%s in the %s's entrails."
-                                        : "%s into %s.",
+        pline(is_swallower(u.ustuck->data) ? "%s in the %s's entrails."
+                                           : "%s into %s.",
               "The money disappears", mon_nam(u.ustuck));
         add_to_minv(u.ustuck, obj);
         return 1;

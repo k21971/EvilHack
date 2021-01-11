@@ -2860,9 +2860,10 @@ register struct attack *mattk;
                 if (DEADMONSTER(mdef)) /* not lifesaved */
                     return 2;
             }
-            You("%s %s!", is_animal(youmonst.data) ? "regurgitate" : "expel",
+            You("%s %s!", is_swallower(youmonst.data) ? "regurgitate"
+                                                      : "expel",
                 mon_nam(mdef));
-            if (Slow_digestion || is_animal(youmonst.data)) {
+            if (Slow_digestion || is_swallower(youmonst.data)) {
                 pline("Obviously, you didn't like %s taste.",
                       s_suffix(mon_nam(mdef)));
             }

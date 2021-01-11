@@ -1425,12 +1425,11 @@ zap_dig()
         mtmp = u.ustuck;
 
         if (!is_whirly(mtmp->data)) {
-            if (is_animal(mtmp->data) || is_dragon(mtmp->data))
+            if (is_swallower(mtmp->data))
                 You("pierce %s %s wall!", s_suffix(mon_nam(mtmp)),
                     mbodypart(mtmp, STOMACH));
             mtmp->mhp = (mtmp->mhp + 1) / 2; /* not almost dead */
-            expels(mtmp, mtmp->data,
-                   !(is_animal(mtmp->data) || is_dragon(mtmp->data)));
+            expels(mtmp, mtmp->data, !is_swallower(mtmp->data));
         }
         return;
     } /* swallowed */

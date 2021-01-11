@@ -2645,8 +2645,8 @@ struct obj *otmp;
     else if (Stunned)
         what = "while stunned";
     else if (u.uswallow)
-        what =
-            is_animal(u.ustuck->data) ? "while swallowed" : "while engulfed";
+        what = is_swallower(u.ustuck->data) ? "while swallowed"
+                                            : "while engulfed";
     else if (Underwater)
         what = "underwater";
     else if (Levitation)

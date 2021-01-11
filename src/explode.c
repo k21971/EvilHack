@@ -349,7 +349,7 @@ int expltype;
                 if (u.uswallow && mtmp == u.ustuck) {
                     const char *adj = (char *) 0;
 
-                    if (is_animal(u.ustuck->data)) {
+                    if (is_swallower(u.ustuck->data)) {
                         switch (adtyp) {
                         case AD_FIRE:
                             adj = "heartburn";

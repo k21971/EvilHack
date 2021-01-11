@@ -833,7 +833,7 @@ cast_protection()
                                    ? "mist"
                                    : is_whirly(u.ustuck->data)
                                       ? "maelstrom"
-                                      : is_animal(u.ustuck->data)
+                                      : is_swallower(u.ustuck->data)
                                          ? "maw"
                                          : "ooze")
                                 : (u.uinwater

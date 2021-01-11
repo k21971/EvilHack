@@ -1256,7 +1256,7 @@ dospinweb()
     }
     if (u.uswallow) {
         You("release web fluid inside %s.", mon_nam(u.ustuck));
-        if (is_animal(u.ustuck->data)) {
+        if (is_swallower(u.ustuck->data)) {
             expels(u.ustuck, u.ustuck->data, TRUE);
             return 0;
         }
@@ -1527,8 +1527,8 @@ dohide()
     if (u.ustuck || (u.utrap && (u.utraptype != TT_PIT || on_ceiling))) {
         You_cant("hide while you're %s.",
                  !u.ustuck ? "trapped"
-                   : u.uswallow ? (is_animal(u.ustuck->data) ? "swallowed"
-                                                             : "engulfed")
+                   : u.uswallow ? (is_swallower(u.ustuck->data) ? "swallowed"
+                                                                : "engulfed")
                      : !sticks(youmonst.data) ? "being held"
                        : (humanoid(u.ustuck->data) ? "holding someone"
                                                    : "holding that creature"));

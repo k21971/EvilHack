@@ -2052,7 +2052,7 @@ struct obj *obj;
         if (u.uswallow) {
             if (Blind)
                 ; /* no feedback */
-            else if (is_animal(u.ustuck->data))
+            else if (is_swallower(u.ustuck->data))
                 pline("%s %s is lit.", s_suffix(Monnam(u.ustuck)),
                       mbodypart(u.ustuck, STOMACH));
             else if (is_whirly(u.ustuck->data))

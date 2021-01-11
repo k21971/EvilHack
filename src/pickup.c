@@ -942,7 +942,7 @@ boolean FDECL((*allow), (OBJ_P)); /* allow function */
         any = zeroany;
         if (sorted && n > 1) {
             Sprintf(buf, "%s Creatures",
-                    is_animal(u.ustuck->data) ? "Swallowed" : "Engulfed");
+                    is_swallower(u.ustuck->data) ? "Swallowed" : "Engulfed");
             add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings, buf,
                      MENU_UNSELECTED);
         }

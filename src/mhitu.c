@@ -399,7 +399,7 @@ struct permonst *mdat; /* if mtmp is polymorphed, mdat != mtmp->data */
 boolean message;
 {
     if (message) {
-        if (is_animal(mdat)) {
+        if (is_swallower(mdat)) {
             You("get regurgitated!");
         } else {
             char blast[40];
@@ -966,7 +966,7 @@ register struct monst *mtmp;
                     } else {
                         missmu(mtmp, tmp, j, mattk);
                     }
-                } else if (is_animal(mtmp->data)) {
+                } else if (is_swallower(mtmp->data)) {
                     pline("%s gulps some air!", Monnam(mtmp));
                 } else {
                     if (youseeit)
@@ -2387,7 +2387,7 @@ struct attack *mattk;
         place_monster(mtmp, u.ux, u.uy);
         u.ustuck = mtmp;
         newsym(mtmp->mx, mtmp->my);
-        if (is_animal(mtmp->data) && u.usteed) {
+        if (is_swallower(mtmp->data) && u.usteed) {
             char buf[BUFSZ];
 
             /* Too many quirks presently if hero and steed
@@ -2648,7 +2648,7 @@ struct attack *mattk;
         ; /* life-saving has already expelled swallowed hero */
     } else if (touch_petrifies(youmonst.data) && !resists_ston(mtmp)) {
         pline("%s very hurriedly %s you!", Monnam(mtmp),
-              is_animal(mtmp->data) ? "regurgitates" : "expels");
+              is_swallower(mtmp->data) ? "regurgitates" : "expels");
         expels(mtmp, mtmp->data, FALSE);
     } else if (!u.uswldtim || youmonst.data->msize >= MZ_HUGE) {
         /* As of 3.6.2: u.uswldtim used to be set to 0 by life-saving but it
@@ -2657,7 +2657,7 @@ struct attack *mattk;
            swallowed is still possible */
         expels(mtmp, mtmp->data, TRUE);
         if (flags.verbose
-            && (is_animal(mtmp->data)
+            && (is_swallower(mtmp->data)
                 || (dmgtype(mtmp->data, AD_DGST) && Slow_digestion)))
             pline("Obviously %s doesn't like your taste.", mon_nam(mtmp));
     }

@@ -183,7 +183,7 @@ register int x, y;
 {
     register struct rm *lev = &levl[x][y];
 
-    if (x == u.ux && y == u.uy && u.uswallow && is_animal(u.ustuck->data))
+    if (x == u.ux && y == u.uy && u.uswallow && is_swallower(u.ustuck->data))
         return "maw";
     else if (IS_AIR(lev->typ) && (Is_airlevel(&u.uz) || In_V_tower(&u.uz)))
         return "air";
@@ -569,7 +569,7 @@ doengrave()
     /* Can the adventurer engrave at all? */
 
     if (u.uswallow) {
-        if (is_animal(u.ustuck->data)) {
+        if (is_swallower(u.ustuck->data)) {
             pline("What would you write?  \"Jonah was here\"?");
             return 0;
         } else if (is_whirly(u.ustuck->data)) {
