@@ -1268,4 +1268,5 @@ Version 0.6.0
 - Prevent rust monsters from 'unfixing' fixed heavy iron ball/chain
 - Fix: ensure that only zombie corpses confer zombie sickness when eaten
 - Fix: "It attacks the displaced image of it."
+- Prevent monsters from using weapons made of a material they hate
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
