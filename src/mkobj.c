@@ -1019,34 +1019,16 @@ boolean artif;
         case VENOM_CLASS:
             break;
         case CHAIN_CLASS:
-            /* since it's fairly easy for objects to erode/burn
-             * completely away, this need to be fooproofed
-             * at the start of the game */
+            otmp->oerodeproof = 1;
             if (Role_if(PM_CONVICT) && otmp->otyp == IRON_CHAIN
-                && (moves <= 1)) {
-#ifdef UNIXPC
-                /* optimizer bitfield bug */
-                otmp->oerodeproof = 1;
+                && (moves <= 1))
                 otmp->rknown = 1;
-#else
-                otmp->oerodeproof = otmp->rknown = 1;
-#endif
-            }
             break;
         case BALL_CLASS:
-            /* since it's fairly easy for objects to erode/burn
-             * completely away, this need to be fooproofed
-             * at the start of the game */
+            otmp->oerodeproof = 1;
             if (Role_if(PM_CONVICT) && otmp->otyp == HEAVY_IRON_BALL
-                && (moves <= 1)) {
-#ifdef UNIXPC
-                /* optimizer bitfield bug */
-                otmp->oerodeproof = 1;
+                && (moves <= 1))
                 otmp->rknown = 1;
-#else
-                otmp->oerodeproof = otmp->rknown = 1;
-#endif
-            }
             break;
         case POTION_CLASS: /* note: potions get some additional init below */
         case SCROLL_CLASS:
