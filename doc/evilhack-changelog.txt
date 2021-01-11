@@ -1270,5 +1270,6 @@ Version 0.6.0
 - Fix: "It attacks the displaced image of it."
 - Prevent monsters from using weapons made of a material they hate
 - Fix: The iron of your helm blocks your psionic attack.  The watchman gets angry!
+- Fix: various artifacts 'incinerating' a monster but they still left a corpse
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
