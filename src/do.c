@@ -1748,7 +1748,7 @@ boolean at_stairs, falling, portal;
         mklev();
         new = TRUE; /* made the level */
 
-        familiar = (find_ghost_with_name(plname) != (struct monst *) 0);
+        familiar = bones_include_name(plname);
         livelog_printf (LL_DEBUG, "entered new level %d, %s.", dunlev(&u.uz),dungeons[u.uz.dnum].dname );
     } else {
         /* returning to previously visited level; reload it */
