@@ -114,7 +114,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "System"
 BEGIN
-    LTEXT           "NetHack",IDC_ABOUT_VERSION,10,10,170,15,SS_NOPREFIX
+    LTEXT           "EvilHack",IDC_ABOUT_VERSION,10,10,170,15,SS_NOPREFIX
     LTEXT           "Copyright",IDC_ABOUT_COPYRIGHT,10,30,210,40
     DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
 END
@@ -339,7 +339,7 @@ BEGIN
             VALUE "FileDescription", "EvilHack for Windows - Graphical Interface"
             VALUE "FileVersion", "0.6.0"
             VALUE "InternalName", "EvilHackW"
-            VALUE "LegalCopyright", "Copyright (C) 2020 by Keith Simpson - a NetHack 3.6.x variant, copyright (C) 1985 - 2020.  By Stichting Mathematisch Centrum and M. Stephenson.  See license for details."
+            VALUE "LegalCopyright", "Copyright (C) 2018 - 2021 by Keith Simpson - a NetHack 3.6.x variant, copyright (C) 1985 - 2021.  By Stichting Mathematisch Centrum and M. Stephenson.  See license for details."
             VALUE "OriginalFilename", "EvilHackW.exe"
             VALUE "PrivateBuild", "140606"
             VALUE "ProductName", "EvilHack"

@@ -1263,4 +1263,5 @@ Version 0.6.0
 - Fix: material restirctions for sokoban prize objects
 - Fix: Monks were getting their extra kick attack while riding on a steed
 - Check bones data directly for deja vu messages
+- Copyright info update for 2021
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
