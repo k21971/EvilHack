@@ -1261,4 +1261,5 @@ Version 0.6.0
 - Fix: 'glorkum' from appearing in player monsters inventory
 - Fix: black dragon/BDSM passive attacks disintegrating wrong armor pieces
 - Fix: material restirctions for sokoban prize objects
+- Fix: Monks were getting their extra kick attack while riding on a steed
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)

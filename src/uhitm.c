@@ -718,7 +718,7 @@ struct attack *uattk;
        or greater in martial arts */
     if (!rn2(3) && !uwep && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) >= P_MASTER
-        && malive && m_at(x, y) == mon) {
+        && !u.usteed && malive && m_at(x, y) == mon) {
         if (weararmor) {
             if (!rn2(8))
                 pline("Your extra kick attack is ineffective while wearing %s.",
