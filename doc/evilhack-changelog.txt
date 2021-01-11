@@ -1266,4 +1266,5 @@ Version 0.6.0
 - Copyright info update for 2021
 - Fix: better handling making ball/chain rustproof
 - Prevent rust monsters from 'unfixing' fixed heavy iron ball/chain
+- Fix: ensure that only zombie corpses confer zombie sickness when eaten
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
