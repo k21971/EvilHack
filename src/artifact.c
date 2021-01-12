@@ -2043,10 +2043,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     You("severely burn %s with your silver blade!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (!youattack && !youdefend
-                           && magr && cansee(magr->mx, magr->my)
-                           && is_were(mdef->data) && j) {
-                    pline("%s severely burns %s with its silver blade!",
-                          Monnam(magr), mon_nam(mdef));
+                           && magr && is_were(mdef->data) && j) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("%s severely burns %s with its silver blade!",
+                              Monnam(magr), mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && is_were(youmonst.data) && k) {
                     pline("The silver blade gravely burns you!");
@@ -2059,10 +2059,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     You("eviscerate %s with a fatal swing!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (!youattack && !youdefend
-                           && magr && cansee(magr->mx, magr->my)
-                           && is_giant(mdef->data) && j) {
-                    pline("%s eviscerates %s with a fatal swing!",
-                          Monnam(magr), mon_nam(mdef));
+                           && magr && is_giant(mdef->data) && j) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("%s eviscerates %s with a fatal swing!",
+                              Monnam(magr), mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)) && k) {
                     pline("The magical sword eviscerates you!");
@@ -2075,10 +2075,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     You("crush %s skull!", s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (!youattack && !youdefend
-                           && magr && cansee(magr->mx, magr->my)
-                           && is_ogre(mdef->data) && j) {
-                    pline("%s crushes %s skull!",
-                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                           && magr && is_ogre(mdef->data) && j) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("%s crushes %s skull!",
+                              Monnam(magr), s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && is_ogre(youmonst.data) && k) {
                     pline("The monstrous hammer crushes your skull!");
@@ -2092,10 +2092,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                     mongone(mdef);
                 } else if (!youattack && !youdefend
-                           && magr && cansee(magr->mx, magr->my)
-                           && is_troll(mdef->data) && j) {
-                    pline("As %s strikes %s, it bursts into flame!",
-                          mon_nam(magr), mon_nam(mdef));
+                           && magr && is_troll(mdef->data) && j) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("As %s strikes %s, it bursts into flame!",
+                              mon_nam(magr), mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                     mongone(mdef);
                 } else if (youdefend && is_troll(youmonst.data) && k) {
@@ -2110,12 +2110,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     You("slice open %s throat!", s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (!youattack && !youdefend
-                           && magr && cansee(magr->mx, magr->my)
-                           && is_orc(mdef->data) && j) {
-                    pline("%s slices open %s throat!",
-                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                           && magr && is_orc(mdef->data) && j) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("%s slices open %s throat!",
+                              Monnam(magr), s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC)) && k) {
+                } else if (youdefend && maybe_polyd(is_orc(youmonst.data),
+                           Race_if(PM_ORC)) && k) {
                     You("feel Orcrist slice deep across your neck!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else
@@ -2126,12 +2127,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     You("stab deep into %s heart!", s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                } else if (!youattack && !youdefend
-                          && magr && cansee(magr->mx, magr->my)
-                          && is_orc(mdef->data) && j) {
-                    pline("%s stabs deep into %s heart!",
-                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                          && magr && is_orc(mdef->data) && j) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("%s stabs deep into %s heart!",
+                              Monnam(magr), s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC)) && k) {
+                } else if (youdefend && maybe_polyd(is_orc(youmonst.data),
+                           Race_if(PM_ORC)) && k) {
                     You("feel Sting stab deep into your heart!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else
@@ -2142,12 +2144,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     You("push Grimtooth deep into the bowels of %s!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                } else if (!youattack && !youdefend
-                          && magr && cansee(magr->mx, magr->my)
-                          && is_elf(mdef->data) && j) {
-                    pline("%s pushes Grimtooth deep into %s bowels!",
-                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                          && magr && is_elf(mdef->data) && j) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("%s pushes Grimtooth deep into %s bowels!",
+                              Monnam(magr), s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)) && k) {
+                } else if (youdefend && maybe_polyd(is_elf(youmonst.data),
+                           Race_if(PM_ELF)) && k) {
                     pline("Grimtooth penetrates your soft flesh, disembowelling you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else
@@ -2160,10 +2163,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                     mongone(mdef);
                } else if (!youattack && !youdefend
-                          && magr && cansee(magr->mx, magr->my)
-                          && is_undead(mdef->data) && j) {
-                    pline("Sunsword flares brightly as it incinerates %s!",
-                          mon_nam(mdef));
+                          && magr && is_undead(mdef->data) && j) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("Sunsword flares brightly as it incinerates %s!",
+                              mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                     mongone(mdef);
                 } else if (youdefend && is_undead(youmonst.data) && k) {
@@ -2180,10 +2183,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                     mongone(mdef);
                } else if (!youattack && !youdefend
-                          && magr && cansee(magr->mx, magr->my)
-                          && is_angel(mdef->data) && j) {
-                    pline("Angelslayer's eldritch flame consumes %s!",
-                          mon_nam(mdef));
+                          && magr && is_angel(mdef->data) && j) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("Angelslayer's eldritch flame consumes %s!",
+                              mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                     mongone(mdef);
                 /* player can't poly into any type of angel, just here for completeness */
