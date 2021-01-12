@@ -1309,4 +1309,5 @@ Version 0.7.0
 - Fix: naming an object will apply to the same type of object if it's one of the
   undiscovered sokoban prizes, giving away what it is before it's been obtained
 - Fix: certain artifact attacks wouldn't kick in unless target monster was seen
+- Fix: crash when monster threw glass weapon into iron bars
 - Revamp dragon engulfing/post-death ransacking feedback

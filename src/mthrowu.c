@@ -707,7 +707,12 @@ register boolean verbose;
     }
 
     if (MT_FLIGHTCHECK(TRUE)) {
-        (void) drop_throw(singleobj, 0, bhitpos.x, bhitpos.y);
+        /* MT_FLIGHTCHECK includes a call to hits_bars, which can end up
+         * destroying singleobj and set it to null if it's any of certain
+         * breakable objects like glass weapons. */
+        if (singleobj) {
+            (void) drop_throw(singleobj, 0, bhitpos.x, bhitpos.y);
+        }
         return;
     }
     mesg_given = 0; /* a 'missile misses' message has not yet been shown */
