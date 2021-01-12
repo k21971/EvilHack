@@ -1275,5 +1275,6 @@ Version 0.6.0
   undiscovered sokoban prizes, giving away what it is before it's been obtained
 - Revamp dragon engulfing/post-death ransacking feedback
 - Fix: certain artifact attacks wouldn't kick in unless target monster was seen
+- Fix: crash when monster threw glass weapon into iron bars
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
