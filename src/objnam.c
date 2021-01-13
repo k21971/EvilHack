@@ -548,6 +548,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     register int typ = obj->otyp;
     register struct objclass *ocl = &objects[typ];
     int nn = ocl->oc_name_known, omndx = obj->corpsenm;
+    long orig_opknwn = obj->oprops_known;
     const char *actualn = OBJ_NAME(*ocl);
     const char *dn = OBJ_DESCR(*ocl);
     const char *un = ocl->oc_uname;
@@ -926,6 +927,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
     if (!strncmpi(buf, "the ", 4))
         buf += 4;
+
+    /* reset oprops_known to avoid side-effects from debug identification
+     * command (^I) */
+    obj->oprops_known = orig_opknwn;
+
     return buf;
 }
 
@@ -1136,6 +1142,7 @@ unsigned doname_flags;
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
             weightshown = FALSE;
     boolean known, dknown, cknown, bknown, lknown;
+    long orig_opknwn = obj->oprops_known;
     int omndx = obj->corpsenm;
     char prefix[PREFIX], globbuf[QBUFSZ];
     char tmpbuf[PREFIX + 1]; /* for when we have to add something at
@@ -1507,6 +1514,9 @@ unsigned doname_flags;
     }
 
     bp = strprepend(bp, prefix);
+
+    obj->oprops_known = orig_opknwn;
+
     return bp;
 }
 
