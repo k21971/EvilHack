@@ -636,9 +636,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     case VENOM_CLASS:
     case TOOL_CLASS:
         if (typ == LENSES)
-            Strcpy(buf, "pair of ");
+            Strcat(buf, "pair of ");
         else if (is_wet_towel(obj))
-            Strcpy(buf, (obj->spe < 3) ? "moist " : "wet ");
+            Strcat(buf, (obj->spe < 3) ? "moist " : "wet ");
 
         if (dknown && obj->material != objects[obj->otyp].oc_material) {
             Strcat(buf, materialnm[obj->material]);
@@ -752,9 +752,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
             if (!f) {
                 impossible("Bad fruit #%d?", obj->spe);
-                Strcpy(buf, "fruit");
+                Strcat(buf, "fruit");
             } else {
-                Strcpy(buf, f->fname);
+                Strcat(buf, f->fname);
                 if (pluralize) {
                     /* ick; already pluralized fruit names
                        are allowed--we want to try to avoid
@@ -766,7 +766,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             break;
         }
         if (obj->globby) {
-            Sprintf(buf, "%s%s",
+            Sprintf(eos(buf), "%s%s",
                     (obj->owt <= 100)
                        ? "small "
                        : (obj->owt > 500)
@@ -778,7 +778,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             break;
         }
 
-        Strcpy(buf, actualn);
+        Strcat(buf, actualn);
         if (typ == TIN && known)
             tin_details(obj, omndx, buf);
         break;
@@ -790,7 +790,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         if (typ == STATUE && omndx != NON_PM) {
             char anbuf[10];
 
-            Sprintf(buf, "%s%s of %s%s",
+            Sprintf(eos(buf), "%s%s of %s%s",
                     (Role_if(PM_ARCHEOLOGIST) && (obj->spe & STATUE_HISTORIC))
                        ? "historic "
                        : "",
@@ -802,19 +802,21 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                           : just_an(anbuf, mons[omndx].mname),
                     mons[omndx].mname);
         } else
-            Strcpy(buf, actualn);
+            Strcat(buf, actualn);
         break;
     case BALL_CLASS:
-        Sprintf(buf, "%sheavy iron ball",
+        Sprintf(eos(buf), "%sheavy iron ball",
                 (obj->owt > ocl->oc_weight) ? "very " : "");
         break;
     case POTION_CLASS:
-        if (dknown && obj->odiluted)
-            Strcpy(buf, "diluted ");
-        if (nn || un || !dknown) {
+        if (!dknown) {
             Strcat(buf, "potion");
-            if (!dknown)
-                break;
+            break;
+        }
+        if (obj->odiluted)
+            Strcat(buf, "diluted ");
+        if (nn || un) {
+            Strcat(buf, "potion");
             if (nn) {
                 Strcat(buf, " of ");
                 if (typ == POT_WATER && bknown
@@ -832,7 +834,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
         break;
     case SCROLL_CLASS:
-        Strcpy(buf, "scroll");
+        Strcat(buf, "scroll");
         if (!dknown)
             break;
         if (nn) {
@@ -853,44 +855,44 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         if (!dknown)
             Strcpy(buf, "wand");
         else if (nn)
-            Sprintf(buf, "wand of %s", actualn);
+            Sprintf(eos(buf), "wand of %s", actualn);
         else if (un)
-            Sprintf(buf, "wand called %s", un);
+            Sprintf(eos(buf), "wand called %s", un);
         else
-            Sprintf(buf, "%s wand", dn);
+            Sprintf(eos(buf), "%s wand", dn);
         break;
     case SPBOOK_CLASS:
         if (typ == SPE_NOVEL) { /* 3.6 tribute */
             if (!dknown)
                 Strcpy(buf, "book");
             else if (nn)
-                Strcpy(buf, actualn);
+                Strcat(buf, actualn);
             else if (un)
-                Sprintf(buf, "novel called %s", un);
+                Sprintf(eos(buf), "novel called %s", un);
             else
-                Sprintf(buf, "%s book", dn);
+                Sprintf(eos(buf), "%s book", dn);
             break;
             /* end of tribute */
         } else if (!dknown) {
             Strcpy(buf, "spellbook");
         } else if (nn) {
             if (typ != SPE_BOOK_OF_THE_DEAD)
-                Strcpy(buf, "spellbook of ");
+                Strcat(buf, "spellbook of ");
             Strcat(buf, actualn);
         } else if (un) {
-            Sprintf(buf, "spellbook called %s", un);
+            Sprintf(eos(buf), "spellbook called %s", un);
         } else
-            Sprintf(buf, "%s spellbook", dn);
+            Sprintf(eos(buf), "%s spellbook", dn);
         break;
     case RING_CLASS:
         if (!dknown)
             Strcpy(buf, "ring");
         else if (nn)
-            Sprintf(buf, "ring of %s", actualn);
+            Sprintf(eos(buf), "ring of %s", actualn);
         else if (un)
-            Sprintf(buf, "ring called %s", un);
+            Sprintf(eos(buf), "ring called %s", un);
         else
-            Sprintf(buf, "%s ring", dn);
+            Sprintf(eos(buf), "%s ring", dn);
         break;
     case GEM_CLASS: {
         const char *rock = (ocl->oc_material == MINERAL) ? "stone" : "gem";
@@ -899,11 +901,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcpy(buf, rock);
         } else if (!nn) {
             if (un)
-                Sprintf(buf, "%s called %s", rock, un);
+                Sprintf(eos(buf), "%s called %s", rock, un);
             else
-                Sprintf(buf, "%s %s", dn, rock);
+                Sprintf(eos(buf), "%s %s", dn, rock);
         } else {
-            Strcpy(buf, actualn);
+            Strcat(buf, actualn);
             if (GemStone(typ))
                 Strcat(buf, " stone");
         }
