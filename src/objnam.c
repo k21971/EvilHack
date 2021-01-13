@@ -578,8 +578,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         obj->dknown = 1;
     if (Role_if(PM_WIZARD)
         && ((obj->oprops & ITEM_PROP_MASK)
-            || (objects[obj->otyp].oc_magic
-                && !objects[obj->otyp].oc_name_known)))
+            || (objects[obj->otyp].oc_magic && !nn)
+            || obj->oartifact))
         obj->oprops_known |= ITEM_MAGICAL;
     if (Role_if(PM_PRIEST))
         obj->bknown = 1; /* actively avoid set_bknown();
@@ -604,8 +604,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         && (((obj->oprops && !(obj->oprops_known & ~ITEM_MAGICAL))
 	    && (!objects[obj->otyp].oc_magic
 	        || !objects[obj->otyp].oc_name_known))
-	        || (!obj->oprops && objects[obj->otyp].oc_magic
-	            && !objects[obj->otyp].oc_name_known)))
+            || (!obj->oprops && objects[obj->otyp].oc_magic
+                && !objects[obj->otyp].oc_name_known)
+            || (obj->oartifact && not_fully_identified(obj))))
         Strcat(buf, "magical ");
 
     switch (obj->oclass) {
