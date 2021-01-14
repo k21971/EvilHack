@@ -1310,4 +1310,7 @@ Version 0.7.0
   undiscovered sokoban prizes, giving away what it is before it's been obtained
 - Fix: certain artifact attacks wouldn't kick in unless target monster was seen
 - Fix: crash when monster threw glass weapon into iron bars
+- Changes to 'magical' item xname for Wizards
+- Fix: don't leak identity of soko prize tool
+- Add 'readable' Hawaiian shirt designs
 - Revamp dragon engulfing/post-death ransacking feedback

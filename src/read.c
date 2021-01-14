@@ -338,7 +338,7 @@ doread()
                                                 : apron_text(scroll, buf);
 
         if (scroll->otyp == HAWAIIAN_SHIRT) {
-            pline("%s features %s", flags.verbose ? "The design" : "It",
+            pline("%s features %s.", flags.verbose ? "The design" : "It",
                     mesg);
         } else {
             if (!u.uconduct.literate++)

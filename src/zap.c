@@ -2056,7 +2056,7 @@ struct obj *obj, *otmp;
             res = !obj->dknown;
             /* target object has now been "seen (up close)" */
             obj->dknown = 1;
-            if (Is_container(obj) || obj->otyp == STATUE) {
+            if (Is_nonprize_container(obj) || obj->otyp == STATUE) {
                 if (obj->otyp != CRYSTAL_CHEST)
                     obj->cknown = obj->lknown = 1;
                 if (obj->otyp == CRYSTAL_CHEST) {
