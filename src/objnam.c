@@ -548,6 +548,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     register int typ = obj->otyp;
     register struct objclass *ocl = &objects[typ];
     int nn = ocl->oc_name_known, omndx = obj->corpsenm;
+    long orig_opknwn = obj->oprops_known;
     const char *actualn = OBJ_NAME(*ocl);
     const char *dn = OBJ_DESCR(*ocl);
     const char *un = ocl->oc_uname;
@@ -577,8 +578,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         obj->dknown = 1;
     if (Role_if(PM_WIZARD)
         && ((obj->oprops & ITEM_PROP_MASK)
-            || (objects[obj->otyp].oc_magic
-                && !objects[obj->otyp].oc_name_known)))
+            || (objects[obj->otyp].oc_magic && !nn)
+            || obj->oartifact))
         obj->oprops_known |= ITEM_MAGICAL;
     if (Role_if(PM_PRIEST))
         obj->bknown = 1; /* actively avoid set_bknown();
@@ -599,12 +600,13 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     if (obj_is_pname(obj))
         goto nameit;
 
-    if (obj->oprops_known & ITEM_MAGICAL
+    if (dknown && (obj->oprops_known & ITEM_MAGICAL)
         && (((obj->oprops && !(obj->oprops_known & ~ITEM_MAGICAL))
-	    && (!objects[obj->otyp].oc_magic
-	        || !objects[obj->otyp].oc_name_known))
-	        || (!obj->oprops && objects[obj->otyp].oc_magic
-	            && !objects[obj->otyp].oc_name_known)))
+                && (!objects[obj->otyp].oc_magic
+                    || !objects[obj->otyp].oc_name_known))
+            || (!obj->oprops && objects[obj->otyp].oc_magic
+                && !objects[obj->otyp].oc_name_known)
+            || (obj->oartifact && not_fully_identified(obj))))
         Strcat(buf, "magical ");
 
     switch (obj->oclass) {
@@ -614,7 +616,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, " ");
         }
         if (!dknown)
-            Strcat(buf, "amulet");
+            Strcpy(buf, "amulet");
         else if (typ == AMULET_OF_YENDOR || typ == FAKE_AMULET_OF_YENDOR)
             /* each must be identified individually */
             Strcat(buf, known ? actualn : dn);
@@ -622,8 +624,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, actualn);
         else if (un && !is_soko_prize_flag(obj))
             Sprintf(eos(buf), "amulet called %s", un);
-	else if (is_soko_prize_flag(obj))
-	    Strcpy(buf, "sokoban prize amulet");
+        else if (is_soko_prize_flag(obj))
+            Strcpy(buf, "sokoban prize amulet");
         else
             Sprintf(eos(buf), "%s amulet", dn);
         break;
@@ -634,11 +636,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     case VENOM_CLASS:
     case TOOL_CLASS:
         if (typ == LENSES)
-            Strcpy(buf, "pair of ");
+            Strcat(buf, "pair of ");
         else if (is_wet_towel(obj))
-            Strcpy(buf, (obj->spe < 3) ? "moist " : "wet ");
+            Strcat(buf, (obj->spe < 3) ? "moist " : "wet ");
 
-        if (obj->material != objects[obj->otyp].oc_material) {
+        if (dknown && obj->material != objects[obj->otyp].oc_material) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
@@ -686,16 +688,17 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 || dump_prop_flag))
             Strcat(buf, "oilskin ");
 
-        if (obj->material != objects[obj->otyp].oc_material
-            /* force rendering of material on certain types of armor where the
-             * name is more nonsensical without any prefix */
-            || obj->otyp == ARMOR || obj->otyp == STUDDED_ARMOR
-            || obj->otyp == JACKET || obj->otyp == CLOAK
-            /* GLOVES and GAUNTLETS have a randomized description when not identified;
-             * "leather padded gloves" would give the game away if we did not
-             * check their identification status */
-            || (obj->otyp == GLOVES && objects[GLOVES].oc_name_known)
-            || (obj->otyp == GAUNTLETS && objects[GAUNTLETS].oc_name_known)) {
+        if (dknown
+                && (obj->material != objects[obj->otyp].oc_material
+                /* force rendering of material on certain types of armor where
+                 * the name is more nonsensical without any prefix */
+                || obj->otyp == ARMOR || obj->otyp == STUDDED_ARMOR
+                || obj->otyp == JACKET || obj->otyp == CLOAK
+                /* GLOVES and GAUNTLETS have a randomized description when not
+                 * identified; "leather padded gloves" would give the game
+                 * away if we did not check their identification status */
+                || ((obj->otyp == GLOVES || obj->otyp == GAUNTLETS) 
+                    && objects[obj->otyp].oc_name_known))) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
@@ -749,9 +752,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
             if (!f) {
                 impossible("Bad fruit #%d?", obj->spe);
-                Strcpy(buf, "fruit");
+                Strcat(buf, "fruit");
             } else {
-                Strcpy(buf, f->fname);
+                Strcat(buf, f->fname);
                 if (pluralize) {
                     /* ick; already pluralized fruit names
                        are allowed--we want to try to avoid
@@ -763,7 +766,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             break;
         }
         if (obj->globby) {
-            Sprintf(buf, "%s%s",
+            Sprintf(eos(buf), "%s%s",
                     (obj->owt <= 100)
                        ? "small "
                        : (obj->owt > 500)
@@ -775,7 +778,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             break;
         }
 
-        Strcpy(buf, actualn);
+        Strcat(buf, actualn);
         if (typ == TIN && known)
             tin_details(obj, omndx, buf);
         break;
@@ -787,7 +790,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         if (typ == STATUE && omndx != NON_PM) {
             char anbuf[10];
 
-            Sprintf(buf, "%s%s of %s%s",
+            Sprintf(eos(buf), "%s%s of %s%s",
                     (Role_if(PM_ARCHEOLOGIST) && (obj->spe & STATUE_HISTORIC))
                        ? "historic "
                        : "",
@@ -799,19 +802,21 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                           : just_an(anbuf, mons[omndx].mname),
                     mons[omndx].mname);
         } else
-            Strcpy(buf, actualn);
+            Strcat(buf, actualn);
         break;
     case BALL_CLASS:
-        Sprintf(buf, "%sheavy iron ball",
+        Sprintf(eos(buf), "%sheavy iron ball",
                 (obj->owt > ocl->oc_weight) ? "very " : "");
         break;
     case POTION_CLASS:
-        if (dknown && obj->odiluted)
-            Strcpy(buf, "diluted ");
-        if (nn || un || !dknown) {
+        if (!dknown) {
             Strcat(buf, "potion");
-            if (!dknown)
-                break;
+            break;
+        }
+        if (obj->odiluted)
+            Strcat(buf, "diluted ");
+        if (nn || un) {
+            Strcat(buf, "potion");
             if (nn) {
                 Strcat(buf, " of ");
                 if (typ == POT_WATER && bknown
@@ -829,7 +834,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
         break;
     case SCROLL_CLASS:
-        Strcpy(buf, "scroll");
+        Strcat(buf, "scroll");
         if (!dknown)
             break;
         if (nn) {
@@ -850,44 +855,44 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         if (!dknown)
             Strcpy(buf, "wand");
         else if (nn)
-            Sprintf(buf, "wand of %s", actualn);
+            Sprintf(eos(buf), "wand of %s", actualn);
         else if (un)
-            Sprintf(buf, "wand called %s", un);
+            Sprintf(eos(buf), "wand called %s", un);
         else
-            Sprintf(buf, "%s wand", dn);
+            Sprintf(eos(buf), "%s wand", dn);
         break;
     case SPBOOK_CLASS:
         if (typ == SPE_NOVEL) { /* 3.6 tribute */
             if (!dknown)
                 Strcpy(buf, "book");
             else if (nn)
-                Strcpy(buf, actualn);
+                Strcat(buf, actualn);
             else if (un)
-                Sprintf(buf, "novel called %s", un);
+                Sprintf(eos(buf), "novel called %s", un);
             else
-                Sprintf(buf, "%s book", dn);
+                Sprintf(eos(buf), "%s book", dn);
             break;
             /* end of tribute */
         } else if (!dknown) {
             Strcpy(buf, "spellbook");
         } else if (nn) {
             if (typ != SPE_BOOK_OF_THE_DEAD)
-                Strcpy(buf, "spellbook of ");
+                Strcat(buf, "spellbook of ");
             Strcat(buf, actualn);
         } else if (un) {
-            Sprintf(buf, "spellbook called %s", un);
+            Sprintf(eos(buf), "spellbook called %s", un);
         } else
-            Sprintf(buf, "%s spellbook", dn);
+            Sprintf(eos(buf), "%s spellbook", dn);
         break;
     case RING_CLASS:
         if (!dknown)
             Strcpy(buf, "ring");
         else if (nn)
-            Sprintf(buf, "ring of %s", actualn);
+            Sprintf(eos(buf), "ring of %s", actualn);
         else if (un)
-            Sprintf(buf, "ring called %s", un);
+            Sprintf(eos(buf), "ring called %s", un);
         else
-            Sprintf(buf, "%s ring", dn);
+            Sprintf(eos(buf), "%s ring", dn);
         break;
     case GEM_CLASS: {
         const char *rock = (ocl->oc_material == MINERAL) ? "stone" : "gem";
@@ -896,11 +901,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcpy(buf, rock);
         } else if (!nn) {
             if (un)
-                Sprintf(buf, "%s called %s", rock, un);
+                Sprintf(eos(buf), "%s called %s", rock, un);
             else
-                Sprintf(buf, "%s %s", dn, rock);
+                Sprintf(eos(buf), "%s %s", dn, rock);
         } else {
-            Strcpy(buf, actualn);
+            Strcat(buf, actualn);
             if (GemStone(typ))
                 Strcat(buf, " stone");
         }
@@ -926,6 +931,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
     if (!strncmpi(buf, "the ", 4))
         buf += 4;
+
+    /* reset oprops_known to avoid side-effects from debug identification
+     * command (^I) */
+    obj->oprops_known = orig_opknwn;
+
     return buf;
 }
 
@@ -1136,6 +1146,7 @@ unsigned doname_flags;
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
             weightshown = FALSE;
     boolean known, dknown, cknown, bknown, lknown;
+    long orig_opknwn = obj->oprops_known;
     int omndx = obj->corpsenm;
     char prefix[PREFIX], globbuf[QBUFSZ];
     char tmpbuf[PREFIX + 1]; /* for when we have to add something at
@@ -1507,6 +1518,9 @@ unsigned doname_flags;
     }
 
     bp = strprepend(bp, prefix);
+
+    obj->oprops_known = orig_opknwn;
+
     return bp;
 }
 
