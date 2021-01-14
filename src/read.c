@@ -266,6 +266,7 @@ striped_text(striped, buf)
 struct obj *striped;
 char *buf;
 {
+    unsigned msgidx;
     static const char *const striped_msgs[] = {
         "AZ# 85",    /* Al Capone */
         "AZ# 117",   /* George 'Machine Gun' Kelly */
@@ -279,7 +280,10 @@ char *buf;
         "1027820",   /* O.J. Simpson */
     };
 
-    Strcpy(buf, striped_msgs[rn2(SIZE(striped_msgs))]);
+
+    msgidx = striped->o_id ^ (unsigned) ubirthday;
+
+    Strcpy(buf, striped_msgs[msgidx % SIZE(striped_msgs)]);
     return erode_obj_text(striped, buf);
 }
 
