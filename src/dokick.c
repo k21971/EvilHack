@@ -419,7 +419,7 @@ xchar x, y; /* coordinates where object was before the impact, not after */
     boolean costly, insider, frominv;
 
     /* only consider normal containers */
-    if (!Is_container(obj) || !Has_contents(obj) || Is_mbag(obj))
+    if (!Is_nonprize_container(obj) || !Has_contents(obj) || Is_mbag(obj))
         return;
 
     costly = ((shkp = shop_keeper(*in_rooms(x, y, SHOPBASE)))

@@ -1055,7 +1055,7 @@ register struct obj *container;
                       || m_carrying(mtmp, CREDIT_CARD)))
                   || mtmp->iswiz || is_rider(mtmp->data));
 
-    if (!Is_container(container))
+    if (!Is_nonprize_container(container))
         return FALSE;
 
     if (container->olocked && !can_unlock)

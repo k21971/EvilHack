@@ -1677,7 +1677,7 @@ boolean countem;
 
     for (cobj = level.objects[x][y]; cobj; cobj = nobj) {
         nobj = cobj->nexthere;
-        if (Is_container(cobj)) {
+        if (Is_nonprize_container(cobj)) {
             container_count++;
             if (!countem)
                 break;
@@ -1866,7 +1866,7 @@ doloot()
 
             for (cobj = level.objects[cc.x][cc.y]; cobj;
                  cobj = cobj->nexthere)
-                if (Is_container(cobj)) {
+                if (Is_nonprize_container(cobj)) {
                     any.a_obj = cobj;
                     add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
                              doname(cobj), MENU_UNSELECTED);
@@ -1893,7 +1893,7 @@ doloot()
             for (cobj = level.objects[cc.x][cc.y]; cobj; cobj = nobj) {
                 nobj = cobj->nexthere;
 
-                if (Is_container(cobj)) {
+                if (Is_nonprize_container(cobj)) {
                     c = ynq(safe_qbuf(qbuf, "There is ", " here, loot it?",
                                       cobj, doname, ansimpleoname,
                                       "a container"));
@@ -3040,7 +3040,7 @@ dotip()
 
                 for (cobj = level.objects[cc.x][cc.y], i = 0; cobj;
                      cobj = cobj->nexthere)
-                    if (Is_container(cobj)) {
+                    if (Is_nonprize_container(cobj)) {
                         ++i;
                         any.a_obj = cobj;
                         add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
@@ -3082,7 +3082,7 @@ dotip()
             } else {
                 for (cobj = level.objects[cc.x][cc.y]; cobj; cobj = nobj) {
                     nobj = cobj->nexthere;
-                    if (!Is_container(cobj))
+                    if (!Is_nonprize_container(cobj))
                         continue;
                     c = ynq(safe_qbuf(qbuf, "There is ", " here, tip it?",
                                       cobj,
@@ -3105,7 +3105,7 @@ dotip()
         return 0;
 
     /* normal case */
-    if (Is_container(cobj) || cobj->otyp == HORN_OF_PLENTY) {
+    if (Is_nonprize_container(cobj) || cobj->otyp == HORN_OF_PLENTY) {
         tipcontainer(cobj);
         return 1;
     }
@@ -3166,7 +3166,7 @@ boolean creation;
     register struct obj *obj, *nobj, *bag = (struct obj *) 0;
     struct obj *wep = bag, *hwep = bag, *rwep = bag, *proj = bag;
     for (obj = mon->minvent; obj; obj = obj->nobj) {
-        if (!Is_container(obj)
+        if (!Is_nonprize_container(obj)
             || obj->otyp == BAG_OF_TRICKS)
             continue;
         if (obj->otyp == BAG_OF_HOLDING) {

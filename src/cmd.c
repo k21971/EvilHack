@@ -5807,7 +5807,7 @@ boolean doit;
         Sprintf(buf, "Pick up %s", otmp->nexthere ? "items" : doname(otmp));
         add_herecmd_menuitem(win, dopickup, buf);
 
-        if (Is_container(otmp)) {
+        if (Is_nonprize_container(otmp)) {
             Sprintf(buf, "Loot %s", doname(otmp));
             add_herecmd_menuitem(win, doloot, buf);
         }
@@ -5905,8 +5905,9 @@ int x, y, mod;
                 cmd[0] = cmd_from_func(dodown);
                 return cmd;
             } else if (OBJ_AT(u.ux, u.uy)) {
-                cmd[0] = cmd_from_func(Is_container(level.objects[u.ux][u.uy])
-                                       ? doloot : dopickup);
+                cmd[0] = cmd_from_func(
+                            Is_nonprize_container(level.objects[u.ux][u.uy])
+                                ? doloot : dopickup);
                 return cmd;
             } else {
                 cmd[0] = cmd_from_func(donull); /* just rest */
