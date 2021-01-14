@@ -601,7 +601,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         goto nameit;
 
     if (dknown && (obj->oprops_known & ITEM_MAGICAL)
-        && (((obj->oprops && !(obj->oprops_known & ~ITEM_MAGICAL))
+        && (((obj->oprops && !(obj->oprops_known & ~ITEM_MAGICAL
+                               || dump_prop_flag))
                 && (!objects[obj->otyp].oc_magic
                     || !objects[obj->otyp].oc_name_known))
             || (!obj->oprops && objects[obj->otyp].oc_magic
