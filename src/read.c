@@ -20,8 +20,7 @@ static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
 
 STATIC_DCL boolean FDECL(learnscrolltyp, (SHORT_P));
 STATIC_DCL char *FDECL(erode_obj_text, (struct obj *, char *));
-STATIC_DCL char *FDECL(apron_text, (struct obj *, char *buf));
-STATIC_DCL char *FDECL(striped_text, (struct obj *, char *buf));
+STATIC_DCL char *FDECL(hawaiian_design, (struct obj *, char *));
 STATIC_DCL void FDECL(stripspe, (struct obj *));
 STATIC_DCL void FDECL(p_glow1, (struct obj *));
 STATIC_DCL void FDECL(p_glow2, (struct obj *, const char *));
@@ -71,6 +70,72 @@ char *buf;
     if (erosion)
         wipeout_text(buf, (int) (strlen(buf) * erosion / (2 * MAX_ERODE)),
                      otmp->o_id ^ (unsigned) ubirthday);
+    return buf;
+}
+
+char *
+hawaiian_motif(shirt, buf)
+struct obj *shirt;
+char *buf;
+{
+    unsigned motif;
+    static const char *hawaiian_motifs[] = {
+        /* birds */
+        "flamingo",
+        "parrot",
+        "toucan",
+        "bird of paradise", /* could be a bird or a flower */
+        /* sea creatures */
+        "sea turtle",
+        "tropical fish",
+        "jellyfish",
+        "giant eel",
+        "water nymph",
+        /* plants */
+        "plumeria",
+        "orchid",
+        "hibiscus flower",
+        "palm tree",
+        /* other */
+        "hula dancer",
+        "sailboat",
+        "ukulele",
+    };
+
+    /* tourists' starting shirt always has a consistent o_id, so we need to
+    * introduce additional randomness or else its design will never differ */
+    motif = shirt->o_id ^ (unsigned) ubirthday;
+
+    Strcpy(buf, hawaiian_motifs[motif % SIZE(hawaiian_motifs)]);
+    return buf;
+}
+
+STATIC_OVL char *
+hawaiian_design(shirt, buf)
+struct obj *shirt;
+char *buf;
+{
+    unsigned bg;
+    static const char *hawaiian_bgs[] = {
+        /* solid colors */
+        "purple",
+        "yellow",
+        "red",
+        "blue",
+        "orange",
+        "black",
+        "green",
+        /* adjectives */
+        "abstract",
+        "geometric",
+        "patterned",
+        "naturalistic",
+    };
+
+    bg = shirt->o_id ^ (unsigned) ~ubirthday;
+    Sprintf(buf, "%s on %s background",
+            makeplural(hawaiian_motif(shirt, buf)),
+            an(hawaiian_bgs[bg % SIZE(hawaiian_bgs)]));
     return buf;
 }
 
@@ -175,7 +240,7 @@ char *buf;
     return erode_obj_text(tshirt, buf);
 }
 
-STATIC_OVL char *
+char *
 apron_text(apron, buf)
 struct obj *apron;
 char *buf;
@@ -196,7 +261,7 @@ char *buf;
     return erode_obj_text(apron, buf);
 }
 
-STATIC_OVL char *
+char *
 striped_text(striped, buf)
 struct obj *striped;
 char *buf;
@@ -243,7 +308,8 @@ doread()
         useup(scroll);
         return 1;
     } else if (scroll->otyp == T_SHIRT || scroll->otyp == ALCHEMY_SMOCK
-               || scroll->otyp == STRIPED_SHIRT) {
+               || scroll->otyp == STRIPED_SHIRT
+               || scroll->otyp == HAWAIIAN_SHIRT) {
         char buf[BUFSZ];
         const char *endpunct;
 
@@ -252,34 +318,45 @@ doread()
             return 0;
         }
         /* can't read shirt worn under suit (under cloak is ok though) */
-        if ((scroll->otyp == T_SHIRT || scroll->otyp == STRIPED_SHIRT)
-            && uarm && scroll == uarmu) {
+        if ((scroll->otyp == T_SHIRT || scroll->otyp == STRIPED_SHIRT
+            || scroll->otyp == HAWAIIAN_SHIRT) && uarm && scroll == uarmu) {
             pline("%s shirt is obscured by %s%s.",
                   scroll->unpaid ? "That" : "Your", shk_your(buf, uarm),
                   suit_simple_name(uarm));
             return 0;
         }
-        if (!u.uconduct.literate++)
-            livelog_printf(LL_CONDUCT, "became literate by reading %s",
-                    (scroll->otyp == T_SHIRT) ? "a T-shirt"
-                                              : (scroll->otyp == STRIPED_SHIRT) ? "a striped shirt"
-                                                                                : "an apron");
         /* populate 'buf[]' */
         mesg = (scroll->otyp == T_SHIRT) ? tshirt_text(scroll, buf)
-                                         : (scroll->otyp == STRIPED_SHIRT) ? striped_text(scroll, buf)
-                                                                           : apron_text(scroll, buf);
+                                         : (scroll->otyp == STRIPED_SHIRT)
+                                            ? striped_text(scroll, buf)
+                                            : (scroll->otyp == HAWAIIAN_SHIRT)
+                                                ? hawaiian_design(scroll, buf)
+                                                : apron_text(scroll, buf);
 
-        endpunct = "";
-        if (flags.verbose) {
-            int ln = (int) strlen(mesg);
+        if (scroll->otyp == HAWAIIAN_SHIRT) {
+            pline("%s features %s", flags.verbose ? "The design" : "It",
+                    mesg);
+        } else {
+            if (!u.uconduct.literate++)
+                livelog_printf(LL_CONDUCT, "became literate by reading %s",
+                        (scroll->otyp == T_SHIRT)
+                            ? "a T-shirt"
+                            : (scroll->otyp == STRIPED_SHIRT)
+                                ? "a striped shirt"
+                                : "an apron");
 
-            /* we will be displaying a sentence; need ending punctuation */
-            if (ln > 0 && !index(".!?", mesg[ln - 1]))
-                endpunct = ".";
-            pline("It reads:");
+            endpunct = "";
+            if (flags.verbose) {
+                int ln = (int) strlen(mesg);
+
+                /* we will be displaying a sentence; need ending punctuation */
+                if (ln > 0 && !index(".!?", mesg[ln - 1]))
+                    endpunct = ".";
+                pline("It reads:");
+            }
+            pline("\"%s\"%s", mesg, endpunct);
+            maybe_learn_elbereth(mesg);
         }
-        pline("\"%s\"%s", mesg, endpunct);
-        maybe_learn_elbereth(mesg);
         return 1;
     } else if (scroll->otyp == CREDIT_CARD) {
         static const char *card_msgs[] = {

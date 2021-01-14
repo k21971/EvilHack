@@ -374,11 +374,11 @@ struct obj {
 /* things that can be read */
 #define is_readable(otmp)                                                    \
     ((otmp)->otyp == FORTUNE_COOKIE || (otmp)->otyp == T_SHIRT               \
-     || (otmp)->otyp == ALCHEMY_SMOCK || (otmp)->otyp == CREDIT_CARD         \
-     || (otmp)->otyp == CAN_OF_GREASE || (otmp)->otyp == MAGIC_MARKER        \
-     || (otmp)->oclass == COIN_CLASS || (otmp)->oartifact == ART_GJALLAR     \
-     || (otmp)->otyp == CANDY_BAR || (otmp)->oartifact == ART_MAGIC___BALL   \
-     || (otmp)->otyp == STRIPED_SHIRT)
+     || (otmp)->otyp == ALCHEMY_SMOCK || (otmp)->otyp == HAWAIIAN_SHIRT      \
+     || (otmp)->otyp == CREDIT_CARD || (otmp)->otyp == CAN_OF_GREASE         \
+     || (otmp)->otyp == MAGIC_MARKER || (otmp)->oclass == COIN_CLASS         \
+     || (otmp)->oartifact == ART_GJALLAR || (otmp)->otyp == STRIPED_SHIRT    \
+     || (otmp)->oartifact == ART_MAGIC___BALL || (otmp)->otyp == CANDY_BAR)
 
 /* special stones */
 #define is_graystone(obj)                                 \
