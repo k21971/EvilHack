@@ -743,7 +743,7 @@ register struct monst *mtmp;
         // no lava damage chain func (yet), so this is commented out
         // water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         if (inforge && !rn2(3))
-        	blowupforge(mtmp->mx, mtmp->my);
+                blowupforge(mtmp->mx, mtmp->my);
         return 0;
     } else if (mtmp->data == &mons[PM_IRON_GOLEM]
                && ((inpool && !rn2(5)) || (inshallow && rn2(2)))) {
@@ -1031,8 +1031,8 @@ mcalcdistress()
         /* gradually time out temporary problems */
         if (mtmp->mblinded && !--mtmp->mblinded)
             mtmp->mcansee = 1;
-	if (mtmp->mfrozen && !--mtmp->mfrozen
-	    && (!mtmp->mstone || mtmp->mstone > 2))
+        if (mtmp->mfrozen && !--mtmp->mfrozen
+            && (!mtmp->mstone || mtmp->mstone > 2))
             mtmp->mcanmove = 1;
         if (mtmp->mfleetim && !--mtmp->mfleetim)
             mtmp->mflee = 0;
@@ -1279,8 +1279,8 @@ register struct monst *mtmp;
                             mon_to_stone(mtmp);
                             ptr = mtmp->data;
                         } else if (!resists_ston(mtmp)) {
-			    mtmp->mstone = 5;
-			    mtmp->mstonebyu = FALSE;
+                            mtmp->mstone = 5;
+                            mtmp->mstonebyu = FALSE;
                         }
                     } else if (heal) {
                         mtmp->mhp = mtmp->mhpmax;
@@ -1504,8 +1504,8 @@ register struct monst *mtmp;
                     mon_to_stone(mtmp);
                     ptr = mtmp->data;
                 } else if (!resists_ston(mtmp)) {
-		    mtmp->mstone = 5;
-		    mtmp->mstonebyu = FALSE;
+                    mtmp->mstone = 5;
+                    mtmp->mstonebyu = FALSE;
                 }
             } else if (heal) {
                 mtmp->mhp = mtmp->mhpmax;
@@ -1586,7 +1586,7 @@ register const char *str;
                         continue;
                     if (!pickedup) {
                         if (cansee(mtmp->mx, mtmp->my) && flags.verbose) {
-		            pline("%s %s opens %s...", Monnam(mtmp),
+                            pline("%s %s opens %s...", Monnam(mtmp),
                                   waslocked ? "unlocks and" : "carefully",
                                   (distu(mtmp->mx, mtmp->my) <= 5)
                                    ? the(xname(otmp))
@@ -1896,7 +1896,7 @@ long flag;
                 continue;
             if (IS_DOOR(ntyp) && !(amorphous(mdat) || can_fog(mon))
                 && (((In_sokoban(&u.uz) && levl[nx][ny].doormask & D_TRAPPED))
-	        || ((levl[nx][ny].doormask & D_CLOSED && !(flag & OPENDOOR))
+                || ((levl[nx][ny].doormask & D_CLOSED && !(flag & OPENDOOR))
                 || (levl[nx][ny].doormask & D_LOCKED && !(flag & UNLOCKDOOR))))
                 && !thrudoor)
                 continue;
@@ -2180,11 +2180,11 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* woodchucks vs The Oracle */
     if (ma == &mons[PM_WOODCHUCK] && md == &mons[PM_ORACLE])
-  	return ALLOW_M | ALLOW_TM;
+        return ALLOW_M | ALLOW_TM;
 
     /* ravens like eyes */
     if (ma == &mons[PM_RAVEN] && md == &mons[PM_FLOATING_EYE])
-  	return ALLOW_M | ALLOW_TM;
+        return ALLOW_M | ALLOW_TM;
 
     /* insect-eating bugs vs insects */
     if (ma->mlet == S_SPIDER && (md->mlet == S_ANT || md->mlet == S_XAN))
@@ -3827,12 +3827,12 @@ struct monst *mtmp;
     }
     if (mtmp->data == &mons[PM_QUIVERING_BLOB] &&
         canseemon(mtmp)) {
-	pline("%s quivers.", Monnam(mtmp));
+        pline("%s quivers.", Monnam(mtmp));
     }
     if (is_zombie(mtmp->data)) {
         if (canseemon(mtmp) && !Deaf)
             pline("%s %s.", Monnam(mtmp),
-	          !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :
+                  !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :
                   !rn2(3) ? "groans" :
                   rn2(2) ? "moans" : "shuffles in your direction");
         else if (!rn2(4) && !Deaf)
@@ -5115,7 +5115,7 @@ int amount;
 int type;
 {
     if (vulnerable_to(mon, type))
-	amount = ((amount * 3) + 1) / 2;
+        amount = ((amount * 3) + 1) / 2;
 
     mon->mhp -= amount;
     return (mon->mhp < 1);
