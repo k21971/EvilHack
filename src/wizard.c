@@ -914,11 +914,13 @@ register struct monst *mtmp;
             verbalize("%s!",
                       random_icequeen[rn2(SIZE(random_icequeen))]);
     } else if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
-        if (!rn2(5))
-            pline("%s waves to you.", Monnam(mtmp));
-        else
-            verbalize("%s.",
-                      random_enchantress[rn2(SIZE(random_enchantress))]);
+        if (mtmp->mpeaceful) {
+            if (!rn2(5))
+                pline("%s waves to you.", Monnam(mtmp));
+            else
+                verbalize("%s.",
+                        random_enchantress[rn2(SIZE(random_enchantress))]);
+        }
     } else {
         if (!rn2(is_minion(mtmp->data) ? 100 : 5))
             pline("%s casts aspersions on your ancestry.", Monnam(mtmp));
