@@ -2652,7 +2652,10 @@ register struct monst *mtmp;
     /* someone or something decided to mess with Izchak. oops... */
     if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
         if (mtmp->data == &mons[PM_HUMAN]) {
-            pline("But wait!  %s rises and transforms into his true form!", mon_nam(mtmp));
+            if (canspotmon(mtmp)) {
+                pline("But wait!  %s rises and transforms into his true form!", mon_nam(mtmp));
+                rise_msg = TRUE;
+            }
             mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
             mtmp->mstone = 0;
@@ -2672,7 +2675,6 @@ register struct monst *mtmp;
                     uunstick();
             }
             newsym(mtmp->mx, mtmp->my);
-            rise_msg = TRUE;
             return;
         }
     }
@@ -2684,8 +2686,11 @@ register struct monst *mtmp;
     /* our hero decided to choose poorly and attempt to kill
        Kathryn the Enchantress */
     if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
-        pline("But wait!  %s is not truly dead!", mon_nam(mtmp));
-        pline("Not even death can overcome her magic!");
+        if (canspotmon(mtmp)) {
+            pline("But wait!  %s is not truly dead!", mon_nam(mtmp));
+            pline("Not even death can overcome her magic!");
+            rise_msg = TRUE;
+        }
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         mtmp->mstone = 0;
@@ -2708,13 +2713,14 @@ register struct monst *mtmp;
         else
             adjalign(-15);
         change_luck(-15);
-        rise_msg = TRUE;
         return;
     }
 
     /* special handling for the Ice Queen's dogs */
     if (mtmp->data == &mons[PM_KOA]  || mtmp->data == &mons[PM_OZZY]) {
-        You("have made %s submit, and %s is no longer hostile.", mon_nam(mtmp), mhe(mtmp));
+        if (canspotmon(mtmp)) {
+            You("have made %s submit, and %s is no longer hostile.", mon_nam(mtmp), mhe(mtmp));
+        }
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         mtmp->mstone = 0;
@@ -5342,7 +5348,7 @@ struct monst *mtmp;
     struct permonst *ozzy = &mons[PM_OZZY];
 
     Your("actions have released %s from a powerful curse!", mon_nam(mtmp));
-    if (!Blind)
+    if (canspotmon(mtmp))
         You("watch as %s undergoes a transformation, back into her original form.",
             mon_nam(mtmp));
     mtmp->mcanmove = 1;
@@ -5369,7 +5375,7 @@ struct monst *mtmp;
             uunstick();
     }
 
-    if (!Blind)
+    if (canspotmon(mtmp))
         pline("%s motions for Koa and Ozzy to heel and stop their attack.",
               Monnam(mtmp));
 
