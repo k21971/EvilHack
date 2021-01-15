@@ -12,7 +12,7 @@
 #include "mfndpos.h"
 #include <ctype.h>
 
-STATIC_VAR boolean vamp_rise_msg, disintegested;
+STATIC_VAR boolean rise_msg, disintegested;
 
 STATIC_DCL void FDECL(sanity_check_single_mon, (struct monst *, BOOLEAN_P,
                                                 const char *));
@@ -2672,6 +2672,7 @@ register struct monst *mtmp;
                     uunstick();
             }
             newsym(mtmp->mx, mtmp->my);
+            rise_msg = TRUE;
             return;
         }
     }
@@ -2707,6 +2708,7 @@ register struct monst *mtmp;
         else
             adjalign(-15);
         change_luck(-15);
+        rise_msg = TRUE;
         return;
     }
 
@@ -2729,6 +2731,7 @@ register struct monst *mtmp;
                 uunstick();
         }
         newsym(mtmp->mx, mtmp->my);
+        rise_msg = TRUE;
         return;
     }
 
@@ -2790,7 +2793,7 @@ register struct monst *mtmp;
                       x_monnam(mtmp, ARTICLE_A, (char *) 0,
                                (SUPPRESS_NAME | SUPPRESS_IT
                                 | SUPPRESS_INVISIBLE), FALSE));
-                vamp_rise_msg = TRUE;
+                rise_msg = TRUE;
             }
             newsym(x, y);
             return;
@@ -3287,7 +3290,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         thrownobj = 0;
     }
 
-    vamp_rise_msg = FALSE; /* might get set in mondead(); only checked below */
+    rise_msg = FALSE; /* might get set in mondead(); only checked below */
     disintegested = nocorpse; /* alternate vamp_rise message needed if true */
     /* dispose of monster and make cadaver */
     if (!zombifying) {
@@ -3304,7 +3307,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
          * kill it (as opposed to visible lifesaving which always appears).
          */
         stoned = FALSE;
-        if (!cansee(x, y) && !vamp_rise_msg)
+        if (!cansee(x, y) && !rise_msg)
             pline("Maybe not...");
         return;
     }
