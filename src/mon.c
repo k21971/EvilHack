@@ -12,7 +12,7 @@
 #include "mfndpos.h"
 #include <ctype.h>
 
-STATIC_VAR boolean vamp_rise_msg, disintegested;
+STATIC_VAR boolean rise_msg, disintegested;
 
 STATIC_DCL void FDECL(sanity_check_single_mon, (struct monst *, BOOLEAN_P,
                                                 const char *));
@@ -743,7 +743,7 @@ register struct monst *mtmp;
         // no lava damage chain func (yet), so this is commented out
         // water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         if (inforge && !rn2(3))
-        	blowupforge(mtmp->mx, mtmp->my);
+                blowupforge(mtmp->mx, mtmp->my);
         return 0;
     } else if (mtmp->data == &mons[PM_IRON_GOLEM]
                && ((inpool && !rn2(5)) || (inshallow && rn2(2)))) {
@@ -1031,8 +1031,8 @@ mcalcdistress()
         /* gradually time out temporary problems */
         if (mtmp->mblinded && !--mtmp->mblinded)
             mtmp->mcansee = 1;
-	if (mtmp->mfrozen && !--mtmp->mfrozen
-	    && (!mtmp->mstone || mtmp->mstone > 2))
+        if (mtmp->mfrozen && !--mtmp->mfrozen
+            && (!mtmp->mstone || mtmp->mstone > 2))
             mtmp->mcanmove = 1;
         if (mtmp->mfleetim && !--mtmp->mfleetim)
             mtmp->mflee = 0;
@@ -1279,8 +1279,8 @@ register struct monst *mtmp;
                             mon_to_stone(mtmp);
                             ptr = mtmp->data;
                         } else if (!resists_ston(mtmp)) {
-			    mtmp->mstone = 5;
-			    mtmp->mstonebyu = FALSE;
+                            mtmp->mstone = 5;
+                            mtmp->mstonebyu = FALSE;
                         }
                     } else if (heal) {
                         mtmp->mhp = mtmp->mhpmax;
@@ -1504,8 +1504,8 @@ register struct monst *mtmp;
                     mon_to_stone(mtmp);
                     ptr = mtmp->data;
                 } else if (!resists_ston(mtmp)) {
-		    mtmp->mstone = 5;
-		    mtmp->mstonebyu = FALSE;
+                    mtmp->mstone = 5;
+                    mtmp->mstonebyu = FALSE;
                 }
             } else if (heal) {
                 mtmp->mhp = mtmp->mhpmax;
@@ -1586,7 +1586,7 @@ register const char *str;
                         continue;
                     if (!pickedup) {
                         if (cansee(mtmp->mx, mtmp->my) && flags.verbose) {
-		            pline("%s %s opens %s...", Monnam(mtmp),
+                            pline("%s %s opens %s...", Monnam(mtmp),
                                   waslocked ? "unlocks and" : "carefully",
                                   (distu(mtmp->mx, mtmp->my) <= 5)
                                    ? the(xname(otmp))
@@ -1896,7 +1896,7 @@ long flag;
                 continue;
             if (IS_DOOR(ntyp) && !(amorphous(mdat) || can_fog(mon))
                 && (((In_sokoban(&u.uz) && levl[nx][ny].doormask & D_TRAPPED))
-	        || ((levl[nx][ny].doormask & D_CLOSED && !(flag & OPENDOOR))
+                || ((levl[nx][ny].doormask & D_CLOSED && !(flag & OPENDOOR))
                 || (levl[nx][ny].doormask & D_LOCKED && !(flag & UNLOCKDOOR))))
                 && !thrudoor)
                 continue;
@@ -2180,11 +2180,11 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* woodchucks vs The Oracle */
     if (ma == &mons[PM_WOODCHUCK] && md == &mons[PM_ORACLE])
-  	return ALLOW_M | ALLOW_TM;
+        return ALLOW_M | ALLOW_TM;
 
     /* ravens like eyes */
     if (ma == &mons[PM_RAVEN] && md == &mons[PM_FLOATING_EYE])
-  	return ALLOW_M | ALLOW_TM;
+        return ALLOW_M | ALLOW_TM;
 
     /* insect-eating bugs vs insects */
     if (ma->mlet == S_SPIDER && (md->mlet == S_ANT || md->mlet == S_XAN))
@@ -2652,7 +2652,10 @@ register struct monst *mtmp;
     /* someone or something decided to mess with Izchak. oops... */
     if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
         if (mtmp->data == &mons[PM_HUMAN]) {
-            pline("But wait!  %s rises and transforms into his true form!", mon_nam(mtmp));
+            if (canspotmon(mtmp)) {
+                pline("But wait!  %s rises and transforms into his true form!", mon_nam(mtmp));
+                rise_msg = TRUE;
+            }
             mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
             mtmp->mstone = 0;
@@ -2683,8 +2686,11 @@ register struct monst *mtmp;
     /* our hero decided to choose poorly and attempt to kill
        Kathryn the Enchantress */
     if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
-        pline("But wait!  %s is not truly dead!", mon_nam(mtmp));
-        pline("Not even death can overcome her magic!");
+        if (canspotmon(mtmp)) {
+            pline("But wait!  %s is not truly dead!", mon_nam(mtmp));
+            pline("Not even death can overcome her magic!");
+            rise_msg = TRUE;
+        }
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         mtmp->mstone = 0;
@@ -2712,7 +2718,9 @@ register struct monst *mtmp;
 
     /* special handling for the Ice Queen's dogs */
     if (mtmp->data == &mons[PM_KOA]  || mtmp->data == &mons[PM_OZZY]) {
-        You("have made %s submit, and %s is no longer hostile.", mon_nam(mtmp), mhe(mtmp));
+        if (canspotmon(mtmp)) {
+            You("have made %s submit, and %s is no longer hostile.", mon_nam(mtmp), mhe(mtmp));
+        }
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         mtmp->mstone = 0;
@@ -2729,6 +2737,7 @@ register struct monst *mtmp;
                 uunstick();
         }
         newsym(mtmp->mx, mtmp->my);
+        rise_msg = TRUE;
         return;
     }
 
@@ -2790,7 +2799,7 @@ register struct monst *mtmp;
                       x_monnam(mtmp, ARTICLE_A, (char *) 0,
                                (SUPPRESS_NAME | SUPPRESS_IT
                                 | SUPPRESS_INVISIBLE), FALSE));
-                vamp_rise_msg = TRUE;
+                rise_msg = TRUE;
             }
             newsym(x, y);
             return;
@@ -3287,7 +3296,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         thrownobj = 0;
     }
 
-    vamp_rise_msg = FALSE; /* might get set in mondead(); only checked below */
+    rise_msg = FALSE; /* might get set in mondead(); only checked below */
     disintegested = nocorpse; /* alternate vamp_rise message needed if true */
     /* dispose of monster and make cadaver */
     if (!zombifying) {
@@ -3304,7 +3313,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
          * kill it (as opposed to visible lifesaving which always appears).
          */
         stoned = FALSE;
-        if (!cansee(x, y) && !vamp_rise_msg)
+        if (!cansee(x, y) && !rise_msg)
             pline("Maybe not...");
         return;
     }
@@ -3824,12 +3833,12 @@ struct monst *mtmp;
     }
     if (mtmp->data == &mons[PM_QUIVERING_BLOB] &&
         canseemon(mtmp)) {
-	pline("%s quivers.", Monnam(mtmp));
+        pline("%s quivers.", Monnam(mtmp));
     }
     if (is_zombie(mtmp->data)) {
         if (canseemon(mtmp) && !Deaf)
             pline("%s %s.", Monnam(mtmp),
-	          !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :
+                  !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :
                   !rn2(3) ? "groans" :
                   rn2(2) ? "moans" : "shuffles in your direction");
         else if (!rn2(4) && !Deaf)
@@ -5112,7 +5121,7 @@ int amount;
 int type;
 {
     if (vulnerable_to(mon, type))
-	amount = ((amount * 3) + 1) / 2;
+        amount = ((amount * 3) + 1) / 2;
 
     mon->mhp -= amount;
     return (mon->mhp < 1);
@@ -5339,7 +5348,7 @@ struct monst *mtmp;
     struct permonst *ozzy = &mons[PM_OZZY];
 
     Your("actions have released %s from a powerful curse!", mon_nam(mtmp));
-    if (!Blind)
+    if (canspotmon(mtmp))
         You("watch as %s undergoes a transformation, back into her original form.",
             mon_nam(mtmp));
     mtmp->mcanmove = 1;
@@ -5366,7 +5375,7 @@ struct monst *mtmp;
             uunstick();
     }
 
-    if (!Blind)
+    if (canspotmon(mtmp))
         pline("%s motions for Koa and Ozzy to heel and stop their attack.",
               Monnam(mtmp));
 
