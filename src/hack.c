@@ -2031,6 +2031,7 @@ domove_core()
                        || mtmp->ispriest
                        || mtmp->isshk
                        || mtmp->data == &mons[PM_ORACLE]
+                       || mtmp->data == &mons[PM_CHARON]
                        || mtmp->m_id == quest_status.leader_m_id)) {
             /* displacing peaceful into unsafe or trapped space, or trying to
              * displace quest leader, Oracle, shopkeeper, or priest */

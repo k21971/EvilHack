@@ -492,6 +492,13 @@ boolean ghostly;
     mread(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
           sizeof(struct permonst) - namesize);
 
+    /* Preserve changes to other defined monsters here */
+    mread(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
+          sizeof(struct permonst) - namesize);
+
+    mread(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
+          sizeof(struct permonst) - namesize);
+
     return first;
 }
 
