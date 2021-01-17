@@ -920,6 +920,9 @@ register struct monst *mtmp;
             else
                 verbalize("%s.",
                         random_enchantress[rn2(SIZE(random_enchantress))]);
+        } else {
+            if (!rn2(7))
+                pline("%s waves to you.", Monnam(mtmp));
         }
     } else {
         if (!rn2(is_minion(mtmp->data) ? 100 : 5))
