@@ -639,7 +639,6 @@ struct obj *otmp;
             && (otmp->oprops & ITEM_VENOM))
             return TRUE;
     }
-
     return FALSE;
 }
 

@@ -830,6 +830,7 @@ int dieroll;
     boolean lightobj = FALSE;
     boolean thievery = FALSE;
     boolean isbheleu = FALSE;
+    boolean issecespita = FALSE;
     boolean isvenom  = FALSE;
     boolean valid_weapon_attack = FALSE;
     boolean unarmed = !uwep && !uarm && !uarms;
@@ -912,6 +913,8 @@ int dieroll;
     } else {
         if (obj->oartifact == ART_SWORD_OF_BHELEU)
             isbheleu = TRUE;
+        if (obj->oartifact == ART_SECESPITA)
+            issecespita = TRUE;
         if (obj->oprops & ITEM_VENOM)
             isvenom = TRUE;
         if (!(artifact_light(obj) && obj->lamplit))
@@ -1598,8 +1601,8 @@ int dieroll;
                 pline("%s appears confused.", Monnam(mon));
         }
     }
-    if (DEADMONSTER(mon) && !ispotion /* potion obj will have been freed by here */
-        && (uwep || (u.twoweap && uswapwep)) && attacks(AD_DREN, obj)
+    if (DEADMONSTER(mon) && !ispotion && obj /* potion obj will have been freed by here */
+        && (obj == uwep || (u.twoweap && obj == uswapwep)) && issecespita
         && !nonliving(mdat) && u.uen < u.uenmax) {
         int energy = mon->m_lev + 1;
         energy += rn2(energy);
