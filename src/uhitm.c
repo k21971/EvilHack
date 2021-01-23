@@ -3521,7 +3521,8 @@ boolean wep_was_destroyed;
                 break;
             }
         }
-        if (mhit && !mon->mcan && weapon && !rn2(10)) {
+        /* odds of obj disintegrating handled in passive_obj() */
+        if (mhit && !mon->mcan && weapon) {
             if (aatyp == AT_WEAP || aatyp == AT_CLAW
                 || aatyp == AT_MAGC || aatyp == AT_TUCH) {
                 if (rn2(2) && (weapon->oerodeproof
@@ -3979,7 +3980,7 @@ struct attack *mattk;     /* null means we find one internally */
         }
         break;
     case AD_DISN:
-        if (!mon->mcan) {
+        if (!rn2(6) && !mon->mcan) {
             /* lets not make the game unwinnable... */
             if (obj_resists(obj, 0, 0)
                 || obj->oartifact == ART_DRAGONBANE) {

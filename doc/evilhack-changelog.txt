@@ -1318,3 +1318,5 @@ Version 0.7.0
 - Kathryn the Enchantress will still wave to you if hostile
 - Fix: the Oracle and Charon changed states not restored on save
 - Fix: better fix for crash when killing monster with a wielded potion
+- Fix: thrown/kicked objects hitting a black dragon would disintigrate 100%
+  of the time
