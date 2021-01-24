@@ -1277,5 +1277,7 @@ Version 0.6.0
 - Fix: certain artifact attacks wouldn't kick in unless target monster was seen
 - Fix: crash when monster threw glass weapon into iron bars
 - Fix: better fix for crash when killing monster with a wielded potion
+- Fix: thrown/kicked objects hitting a black dragon would disintigrate 100%
+  of the time
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
