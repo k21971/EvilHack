@@ -1709,7 +1709,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         break;
     case SCR_AMNESIA:
         known = TRUE;
-        if (Race_if(PM_ILLITHID)) {
+        if (!Upolyd && Race_if(PM_ILLITHID)) {
             Your("psionic abilities ward off the scroll's magic.");
             break;
         } else {

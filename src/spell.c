@@ -957,7 +957,10 @@ boolean atme;
      * decrement of spell knowledge is done every turn.
      */
     if (spellknow(spell) <= 0) {
-        Your("knowledge of this spell is twisted.");
+        if (spellid(spell) == SPE_PSIONIC_WAVE)
+            You("have somehow lost your psychic ability!");
+        else
+            Your("knowledge of this spell is twisted.");
         pline("It invokes nightmarish images in your mind...");
         spell_backfire(spell);
         return 1;

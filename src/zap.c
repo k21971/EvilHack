@@ -181,7 +181,12 @@ struct obj *otmp;
         learn_it = TRUE;
         break;
     case SPE_PSIONIC_WAVE:
-        if (uarmh && is_heavy_metallic(uarmh)
+        if (!(maybe_polyd(is_illithid(youmonst.data),
+            Race_if(PM_ILLITHID)))) {
+            Your("mind is not capable of using psionic abilities.");
+            dmg = 0;
+            wake = FALSE;
+        } else if (uarmh && is_heavy_metallic(uarmh)
             && uarmh->oartifact != ART_MITRE_OF_HOLINESS) {
             pline_The("%s of your %s blocks your psionic attack.",
                       materialnm[uarmh->material],
@@ -2538,7 +2543,10 @@ boolean ordinary;
 
     case SPE_PSIONIC_WAVE:
         learn_it = TRUE;
-        if (uarmh && is_heavy_metallic(uarmh)
+        if (!(maybe_polyd(is_illithid(youmonst.data),
+            Race_if(PM_ILLITHID)))) {
+            Your("mind is not capable of using psionic abilities.");
+        } else if (uarmh && is_heavy_metallic(uarmh)
             && uarmh->oartifact != ART_MITRE_OF_HOLINESS) {
             pline_The("%s of your %s blocks your psionic attack.",
                       materialnm[uarmh->material],

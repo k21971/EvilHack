@@ -1551,7 +1551,7 @@ register struct attack *mattk;
             break;
         }
 
-        if (Race_if(PM_ILLITHID) && !is_zombie(mdat)) {
+        if (!Upolyd && Race_if(PM_ILLITHID) && !is_zombie(mdat)) {
             Your("psionic abilities shield your brain.");
             break;
         }

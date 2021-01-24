@@ -1321,3 +1321,4 @@ Version 0.7.0
 - Fix: thrown/kicked objects hitting a black dragon would disintigrate 100%
   of the time
 - Fix: check_wings() doesn't respect if an amulet of flying is being worn or not
+- Fix: Illithids can still use psionic blast if poly'd into a non-illithid form
