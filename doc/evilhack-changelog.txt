@@ -1279,5 +1279,6 @@ Version 0.6.0
 - Fix: better fix for crash when killing monster with a wielded potion
 - Fix: thrown/kicked objects hitting a black dragon would disintigrate 100%
   of the time
+- Fix: check_wings() doesn't respect if an amulet of flying is being worn or not
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
