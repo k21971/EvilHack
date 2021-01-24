@@ -1084,8 +1084,9 @@ boolean silent; /* we assume a wardrobe change if false */
         return;
 
     if (!uarm) {
-        if (!silent && Flying && !old_flying)
-            You("spread your wings and take flight.");
+        if (!silent && Flying)
+            You("spread your wings%s.",
+                old_flying ? "" : " and take flight");
     } else if (Is_dragon_scales(uarm)) {
         if (!silent && uarm != last_worn_armor)
             You("arrange the scales around your wings.");
@@ -1093,7 +1094,8 @@ boolean silent; /* we assume a wardrobe change if false */
         if (!silent && uarm != last_worn_armor)
             pline1("This jacket seems to have holes for wings.");
     } else {
-        BFlying |= W_ARM;
+        if (!(uamul && uamul->otyp == AMULET_OF_FLYING))
+            BFlying |= W_ARM;
         if (!silent)
             You("fold your wings under your suit.");
     }
@@ -1185,6 +1187,8 @@ Amulet_on()
     case AMULET_OF_FLYING:
         /* setworn() has already set extrinisic flying */
         float_vs_flight(); /* block flying if levitating */
+        check_wings(TRUE); /* are we in a form that has wings and can already fly? */
+
         if (Flying) {
             boolean already_flying;
 
@@ -1207,14 +1211,6 @@ Amulet_on()
         break;
     case AMULET_OF_YENDOR:
         break;
-    /*case AMULET_OF_FLYING:
-        if (!(EFlying & ~W_AMUL) && !is_flyer(youmonst.data)) {
-            You_feel("like flying!");
-            if (!Levitation)
-                float_up();
-            makeknown(AMULET_OF_FLYING);
-        }
-        break;*/
     }
 }
 
@@ -1273,6 +1269,7 @@ Amulet_off()
         /* remove amulet 'early' to determine whether Flying changes */
         setworn((struct obj *) 0, W_AMUL);
         float_vs_flight(); /* probably not needed here */
+        check_wings(TRUE); /* are we in a form that has wings and can already fly? */
         if (was_flying && !Flying) {
             makeknown(AMULET_OF_FLYING);
             context.botl = TRUE; /* status: 'Fly' Off */
@@ -1290,11 +1287,6 @@ Amulet_off()
     case AMULET_OF_YENDOR:
         break;
     }
-    /*case AMULET_OF_FLYING:
-        setworn((struct obj *) 0, W_AMUL);
-        (void) float_down(0L, 0L);
-        return;
-    }*/
     setworn((struct obj *) 0, W_AMUL);
     return;
 }
