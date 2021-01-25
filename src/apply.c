@@ -315,7 +315,7 @@ struct obj* tobj;
             pline("You attempt to crack the safe using the combination... %s?",
                   rndcolor());
         } else {
-            pick_lock(tobj, rx, ry, safe);
+            pick_lock(tobj, 0, 0, NULL);
             return TRUE;
         }
     }
