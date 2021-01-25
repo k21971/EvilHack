@@ -434,14 +434,18 @@ struct obj *container; /* container, for autounlock */
     if (rx != 0 && ry != 0) { /* autounlock; caller has provided coordinates */
         cc.x = rx;
         cc.y = ry;
+    } else if (picktyp == STETHOSCOPE) { 
+        /* skip directional prompt for stethoscope when not called via
+         * autounlock; a direction (down) was already selected in
+         * use_stethoscope */
+        cc.x = u.ux;
+        cc.y = u.uy;
     } else if (!get_adjacent_loc((char *) 0, "Invalid location!",
                                  u.ux, u.uy, &cc)) {
         return PICKLOCK_DID_NOTHING;
     }
 
-    /* Very clumsy special case for this, but forcing the player to
-     * a)pply > just to open a safe, when a)pply . works in all other cases? */
-    if ((cc.x == u.ux && cc.y == u.uy) || picktyp == STETHOSCOPE) {	/* pick lock on a container */
+    if (cc.x == u.ux && cc.y == u.uy) {	/* pick lock on a container */
         const char *verb;
         char qsfx[QBUFSZ];
         boolean it;
@@ -483,7 +487,9 @@ struct obj *container; /* container, for autounlock */
                     verb = "pick";
 
                 if (autounlock) {
-                    Sprintf(qbuf, "Unlock it with %s?", yname(pick));
+                    Sprintf(qbuf, "%s it with %s?",
+                            otmp->otyp == IRON_SAFE ? "Crack" : "Unlock",
+                            yname(pick));
                     c = yn(qbuf);
                     if (c == 'n')
                         return 0;
@@ -502,26 +508,6 @@ struct obj *container; /* container, for autounlock */
                         continue;
                 }
 
-		if (otmp->otyp == IRON_SAFE && picktyp != STETHOSCOPE) {
-		    You("aren't sure how to go about opening the safe that way.");
-		    return PICKLOCK_LEARNED_SOMETHING;
-		}
-
-		if (!otmp->olocked && otmp->otyp == IRON_SAFE) {
-		    You_cant("change the combination.");
-		    return PICKLOCK_LEARNED_SOMETHING;
-		}
-
-                if (otmp->olocked && otmp->otyp == CRYSTAL_CHEST) {
-                    You_cant("unlock such a container via physical means.");
-                    return PICKLOCK_LEARNED_SOMETHING;
-                }
-
-                if (!otmp->olocked && otmp->otyp == CRYSTAL_CHEST) {
-                    You_cant("lock such a container via physical means.");
-                    return PICKLOCK_LEARNED_SOMETHING;
-                }
-
                 if (otmp->obroken) {
                     You_cant("fix its broken lock with %s.", doname(pick));
                     return PICKLOCK_LEARNED_SOMETHING;
@@ -534,6 +520,26 @@ struct obj *container; /* container, for autounlock */
                     /* note: for !autounlock, apply already did touch check */
                     return PICKLOCK_DID_SOMETHING;
                 }
+
+                if (otmp->otyp == IRON_SAFE) {
+                    if (!otmp->olocked) {
+                        pline_The("safe door is already hanging wide open.");
+                        return PICKLOCK_LEARNED_SOMETHING;
+                    } else if (picktyp != STETHOSCOPE) {
+                        You("don't %s a %s that would fit %s.",
+                            Blind ? "feel" : "see",
+                            (picktyp == CREDIT_CARD) ? "gap" : "keyhole",
+                            an(simple_typename(picktyp)));
+                        return PICKLOCK_LEARNED_SOMETHING;
+                    }
+                } 
+
+                if (otmp->otyp == CRYSTAL_CHEST) {
+                    You_cant("%s %ssuch a container via physical means.",
+                             verb, it ? "" : "the lock on");
+                    return PICKLOCK_LEARNED_SOMETHING;
+                }
+
                 switch (picktyp) {
                 case CREDIT_CARD:
                     ch = ACURR(A_DEX) + 20 * Role_if(PM_ROGUE);
