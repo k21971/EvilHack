@@ -1763,6 +1763,9 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
                 unlocktool = autokey(TRUE);
                 break;
             default:
+                /* Don't prompt for crystal chest; only artifact unlocking
+                 * tools can unlock it, and we don't want to give that away
+                 * by suggesting them automatically to the user. */
                 break;
             }
  

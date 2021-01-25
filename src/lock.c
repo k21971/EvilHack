@@ -534,9 +534,11 @@ struct obj *container; /* container, for autounlock */
                     }
                 } 
 
-                if (otmp->otyp == CRYSTAL_CHEST) {
-                    You_cant("%s %ssuch a container via physical means.",
-                             verb, it ? "" : "the lock on");
+                /* crystal chest can only be opened by magical means */
+                if (otmp->otyp == CRYSTAL_CHEST && !pick->oartifact) {
+                    You_cant("%s %ssuch a container with a mundane %s.",
+                             verb, it ? "" : "the lock on ",
+                             simple_typename(picktyp));
                     return PICKLOCK_LEARNED_SOMETHING;
                 }
 
