@@ -153,6 +153,7 @@ picklock(VOID_ARGS)
     You("succeed in %s.", lock_action());
     if (xlock.door) {
         if ((xlock.door->doormask & D_TRAPPED && !In_sokoban(&u.uz))) {
+            xlock.door->doormask = D_NODOOR; /* this has to occur before b_trapped() */
             b_trapped("door", FINGER);
             unblock_point(u.ux + u.dx, u.uy + u.dy);
             if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
