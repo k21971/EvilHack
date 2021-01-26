@@ -1323,3 +1323,5 @@ Version 0.7.0
 - Fix: check_wings() doesn't respect if an amulet of flying is being worn or not
 - Fix: Illithids can still use psionic blast if poly'd into a non-illithid form
 - Fix: actual proper fix for booby-trapped doors still existing after blowing up
+- Fix: Stormbringer wasn't doing its 'bloodthirsty' attack against tame/peaceful
+  targets while being dual-wielded in the offhand position 

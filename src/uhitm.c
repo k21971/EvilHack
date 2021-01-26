@@ -211,7 +211,8 @@ struct obj *wep; /* uwep for attack(), null for kick_monster() */
     if (flags.confirm && mtmp->mpeaceful
         && !Confusion && !Hallucination && !Stunned) {
         /* Intelligent chaotic weapons (Stormbringer) want blood */
-        if (wep && wep->oartifact == ART_STORMBRINGER) {
+        if (wep && (wep->oartifact == ART_STORMBRINGER
+                    || (u.twoweap && uswapwep->oartifact == ART_STORMBRINGER))) {
             override_confirmation = TRUE;
             return FALSE;
         }
@@ -380,7 +381,8 @@ register struct monst *mtmp;
      */
     /* Intelligent chaotic weapons (Stormbringer) want blood */
     if (is_safepet(mtmp) && !context.forcefight) {
-        if (!uwep || uwep->oartifact != ART_STORMBRINGER) {
+        if (!uwep || !(uwep->oartifact == ART_STORMBRINGER
+                       || (u.twoweap && uswapwep->oartifact == ART_STORMBRINGER))) {
             /* There are some additional considerations: this won't work
              * if in a shop or Punished or you miss a random roll or
              * if you can walk thru walls and your pet cannot (KAA) or
@@ -678,9 +680,10 @@ struct attack *uattk;
     (void) passive(mon, uwep, mhit, malive, AT_WEAP, wep_was_destroyed);
 
     /* second attack for two-weapon combat; won't occur if Stormbringer
-       overrode confirmation (assumes Stormbringer is primary weapon)
-       or if the monster was killed or knocked to different location */
-    if (u.twoweap && !override_confirmation && malive && m_at(x, y) == mon) {
+       overrode confirmation (assumes Stormbringer is primary weapon
+       or offhand weapon) or if the monster was killed or knocked to
+       different location */
+    if (u.twoweap && malive && m_at(x, y) == mon) {
         tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
                                &armorpenalty);
         dieroll = rnd(20);
