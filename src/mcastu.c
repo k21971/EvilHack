@@ -552,7 +552,7 @@ int spellnum;
         dmg = 0;
         break;
     case MGC_ACID_BLAST:
-        if (m_canseeu(mtmp)) {
+        if (m_canseeu(mtmp) && distu(mtmp->mx, mtmp->my) <= 192) {
             pline("%s douses you in a torrent of acid!", Monnam(mtmp));
             explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
                     MON_CASTBALL, EXPL_ACID);
@@ -575,6 +575,7 @@ int spellnum;
             } else {
                 You_hear("some cursing!");
             }
+            dmg = 0;
         }
         break;
     case MGC_CLONE_WIZ:
@@ -718,7 +719,7 @@ int spellnum;
     case MGC_ICE_BOLT:
         /* hotwire these to only go off if the critter can see you
          * to avoid bugs WRT the Eyes and detect monsters */
-        if (m_canseeu(mtmp)) {
+        if (m_canseeu(mtmp) && distu(mtmp->mx, mtmp->my) <= 192) {
             pline("%s blasts you with %s!", Monnam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
             explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
                     resist_reduce(d((mtmp->m_lev / 5) + 1, 8), (spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES),
@@ -736,6 +737,7 @@ int spellnum;
             } else {
                 You_hear("some cursing!");
             }
+            dmg = 0;
         }
         break;
     case MGC_PSI_BOLT:
