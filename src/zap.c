@@ -2605,7 +2605,7 @@ boolean ordinary;
         }
 	/* wand and potion now only do temporary invis,
 	 * to make the cloak and ring more useful */
-        incr_itimeout(&HInvis, d(obj->spe, 250));
+        incr_itimeout(&HInvis, d(1 + obj->spe, 250));
         if (msg) {
             learn_it = TRUE;
             newsym(u.ux, u.uy);

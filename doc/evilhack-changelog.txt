@@ -1281,6 +1281,7 @@ Version 0.6.0
   of the time
 - Fix: check_wings() doesn't respect if an amulet of flying is being worn or not
 - Fix: actual proper fix for booby-trapped doors still existing after blowing up
+- Fix: prevent 'impossible d(-1,250) attempted'
 - Fix: player taking damage from missed fire/ice bolt monster spell
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
