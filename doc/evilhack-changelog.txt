@@ -1325,3 +1325,4 @@ Version 0.7.0
 - Fix: actual proper fix for booby-trapped doors still existing after blowing up
 - Fix: Stormbringer wasn't doing its 'bloodthirsty' attack against tame/peaceful
   targets while being dual-wielded in the offhand position 
+- Fix: prevent 'impossible d(-1,250) attempted'
