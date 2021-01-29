@@ -1327,3 +1327,4 @@ Version 0.7.0
   targets while being dual-wielded in the offhand position 
 - Fix: prevent 'impossible d(-1,250) attempted'
 - Fix: player taking damage from missed fire/ice bolt monster spell
+- Encyclopedia update: round one (monsters)
