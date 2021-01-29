@@ -1283,5 +1283,6 @@ Version 0.6.0
 - Fix: actual proper fix for booby-trapped doors still existing after blowing up
 - Fix: prevent 'impossible d(-1,250) attempted'
 - Fix: player taking damage from missed fire/ice bolt monster spell
+- Encyclopedia update: round one (monsters)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
