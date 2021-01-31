@@ -168,7 +168,7 @@ amulet of yendor
 	immortality to the adventurer who can deliver it from the
 	depths of Moloch's Sanctum and offer it on the appropriate high
 	altar on the Astral Plane.
-angel*
+angel
 	He answered and said unto them, he that soweth the good seed
 	is the Son of man; the field is the world, and the good seed
 	are the children of the kingdom; but the weeds are the
@@ -181,6 +181,11 @@ angel*
 	and shall cast them into the furnace of fire; there shall be
 	wailing and gnashing of teeth.
 		[ The Gospel According to Matthew, 13:37-42, 49-50 ]
+angelslayer
+	An artifact trident that warns of Angels, confers automatic
+	searching and half-spell damage, and does extra fire damage
+	to targets that are susceptible.  Rumor has is that demons,
+	especially Balrogs, are fond of this weapon.
 angry god*
 	Cold wind blows.
 	The gods look down in anger on this poor child.
@@ -365,6 +370,12 @@ athen*
 	sprang forth from his head completely armed.  Her favourite
 	bird was the owl, and the plant sacred to her is the olive.
 	    [ Bulfinch's Mythology, by Thomas Bulfinch ]
+atlatl
+	Among the arsenal of Aztec weapons were obsidian-bladed swords
+	and an array of clubs, bows and arrows and spears.  Perhaps the
+	most prestigious was the spear thrower known by its Nahuatl name
+	atlatl and used to hurl lethal darts.
+		[ Ancient American Art in Detail, by Colin McEwan ]
 axe
 	"For ev'ry silver ringing blow,
 	Cities and palaces shall grow!"
@@ -726,6 +737,10 @@ bullwhip
 	a round of rotted cheese.  "What did your keeper use on you?
 	A bullwhip?"
 		[ Melusine, by Sarah Monette ]
+butcher
+	Legend states that the demon lord Yeenoghu himself crafted this
+	triple-headed flail from the thighbone and flayed skin of an
+	ancient god he slew.
 *camaxtli
 	A classical Mesoamerican Aztec god, also known as Mixcoatl-
 	Camaxtli (the Cloud Serpent), Camaxtli is the god of war.  He
@@ -903,7 +918,7 @@ charo*n
 	man, advanced in age, was called Charon.  The deceased's next-
 	of-kin would place a coin under his tongue, to pay the ferry-
 	man.
-chest
+*chest
 large box
 	Dantes rapidly cleared away the earth around the chest.  Soon
 	the center lock appeared, then the handles at each end, all
@@ -1068,6 +1083,11 @@ tiff
 	Blind Pew:  Oh.  Must have been more of a tiff then.
 		[ Yellowbeard, directed by Mel Damski, screenplay
 		  by Graham Chapman, Peter Cook, Bernard McKenna ]
+convict
+	In the darkest region of the political field, the condemned man
+	represents the symmetrical, inverted figure of the king.
+	   [ Discipline and Punish: The Birth of the Prison,
+		by Michel Foucault, translated by Alan Sheridan ]
 cope
 * cope
 	The cope is a liturgical vestment which may be worn by any
@@ -1163,9 +1183,10 @@ crossbow*
 	I shot the Albatross.
 	  [ The Rime of the Ancient Mariner, by Samuel Taylor Coleridge ]
 *crossbow of carl
-	This awesome crossbow grants ESP when carried and can reflect magical
-	attacks when wielded.  When invoked it provides a supply of crossbow
-	bolts. It is also about half the weight of a regular crossbow.
+	This awesome crossbow grants ESP when carried and can reflect
+	magical attacks when wielded.  When invoked it provides a supply
+	of crossbow bolts. It is also about half the weight of a regular
+	crossbow when wielded by one deemed worthy of Carl.
 crystal ball
 	You look into one of these and see _vapours swirling like
 	clouds_.  These shortly clear away to show a sort of video
@@ -1335,6 +1356,8 @@ dingo
 	introduced by the aborigines.
 		[ Webster's Encyclopedic Unabridged Dictionary
 		    of the English Language ]
+dirge
+	... DIRGE \o/
 disenchanter
 	Ask not, what your magic can do to it.  Ask what it can do
 	to your magic.
@@ -1778,6 +1801,11 @@ f* brand
 	Is also great
 	And would suffice.
 		[ Fire and Ice, by Robert Frost ]
+*flail
+	When you are swinging a spiky ball on a chain, the only
+	realistic option is to keep moving.  Standing still is an
+	interesting but brief demonstration of a spiral in action.
+		[ Men at Arms, by Terry Pratchett ]
 flesh golem
 	With an anxiety that almost amounted to agony, I collected
 	the instruments of life around me, that I might infuse a spark
@@ -1846,6 +1874,16 @@ fog* cloud
 	Dorothy found them all to be delicious, and she ate every bit
 	of luncheon in the box before she had finished.
 		[ Ozma of Oz, by L. Frank Baum ]
+forge
+	Vulcan: You were woont to say that the beating of hammers made
+	your head ake, and the smoake of the forge your eies water, and
+	euery coale was a blocke in your way.  You weepe rose water,
+	when you aske, and spitte vinegar, when you haue obteined.  What
+	would you now, with new arrowes? [...] But I will not chide Venus.
+	Come Cyclops, my wife must haue her will: let vs doe that in earth,
+	which the Gods cannot vndoe in heauen.
+	Venus: Gramercie sweete Vulcan: to your worke!
+		[ Sapho and Phao, by John Lyly ]
 fountain
 	Rest! This little Fountain runs
 	Thus for aye: -- It never stays
@@ -1932,6 +1970,10 @@ fox
 	taken care not to take off my hat or veil, and so have
 	escaped their suspicions.
 		[ Dracula, by Bram Stoker ]
+gauntlet*
+	A type of armored glove designed to protect the wrist and hand,
+	usually made of metal or hardened leather and intended to be
+	worn as part of a full suit of armor.
 # gas spore -- see *spore
 gehenn*
 *h?nnom
@@ -2034,6 +2076,13 @@ hill giant shaman
 	boulders as weapons, hurling them over large distances.  All
 	types of giants share a love for men - roasted, boiled, or
 	fried.  Their table manners are legendary.
+gjallar
+	Fast move the sons of Mim and fate
+	Is heard in the note of the Gjallarhorn;
+	Loud blows Heimdall, the horn is aloft,
+	In fear quake all who on Hel-roads are.
+	   [ Voluspa, from the Poetic Edda,
+		translated by Henry Adams Bellows ]
 # note: "gnomish wizard" is a monster
 ~gnome ??m*
 #~gnom* cave*man
@@ -2186,6 +2235,11 @@ grid bug
 	beam connection -- to which he'd given no thought whatsoever
 	until this moment -- was healthy and sound."
 	    [ Tron, novel by Brian Daley, story by Steven Lisberger ]
+grumbar
+	Much like earth itself, Grumbar may seem indifferent, uncaring,
+	and resistant to change, but also represents a stability,
+	consistency, and resolution that is especially appealing to
+	those followers who worship him as the Elemental Lord of Earth.
 gunyoki
 	The samurai's last meal before battle.  It was usually made
 	up of cooked chestnuts, dried seaweed, and sake.
@@ -2309,6 +2363,15 @@ hermes
 	to the underworld ferry of Charon and back again.  He is said
 	to have invented, among other things, the lyre, Pan's Pipes,
 	numbers, the alphabet, weights and measures, and sacrificing.
+*hesperides
+	Perseus got possession of the eye and the tooth, and when they
+	asked them back, he said he would give them up if they would
+	show him the way to the nymphs [the Hesperides].  Now these
+	nymphs had winged sandals and the kibisis, which they say was a
+	wallet.  [...] The kibisis is so called because dress and food
+	are deposited in it.
+	   [ Bibliotheca of Pseudo-Apollodorus,
+		translated by James George Frazer ]
 hezrou
 	"Hezrou" is the common name for the type II demon.  It is
 	among the weaker of demons, but still quite formidable.
@@ -2562,6 +2625,13 @@ idefix
 	aboveground.  By drawing on Moloch's power, the faithful are able
 	to summon demons, defile shrines, and replenish their magical
 	energy.  The Idol also protects its holder from hostile magics.
+ilmater
+	Known by many names -- the Crying God, the Lord on the Rack,
+	the One Who Endures, and more -- Ilmater is a god worshipped
+	everywhere there is suffering, poverty, and desperation.  Known
+	for his willingness to suffer on behalf of others -- a trait his
+	followers aspire to emulate -- he is often portrayed as covered
+	in scars, burns, and weeping sores.
 # takes "imp or minor demon" when specifying 'i'
 imp
 imp or minor demon
@@ -2624,7 +2694,7 @@ malefic*
 	that they were upon the earth unto this day.  And he turned
 	himself, and went out from Pharaoh.
 		[ Exodus, 10:4-6 ]
-*iron ball
+*iron ball*
 *iron chain
 	"You are fettered, " said Scrooge, trembling.  "Tell me why?"
 	"I wear the chain I forged in life," replied the Ghost.  "I
@@ -2840,6 +2910,13 @@ kelp*
 	I had studied on the _Nautilus_ -- but the fresh, living
 	specimens in their native setting.
 		[ 20,000 Leagues Under the Sea, by Jules Verne ]
+keolewa
+	At the place ever afterwards famous as Lamakee he kills with
+	his spear the warrior Paopele, who wields a club named Keolewa
+	so great that it extends over a whole district in length,
+	reaches up to the clouds of heaven, and takes four thousand men
+	to carry.
+		[ Hawaiian Mythology, by Martha Beckwith ]
 *ki-rin
 	The ki-rin is a strange-looking flying creature.  It has
 	scales, a mane like a lion, a tail, hooves, and a horn.  It
@@ -3184,6 +3261,17 @@ lichen
 	moss was in abundant life, some feathering, and some
 	gobleted, and some with fringe of red to it.
 		[ Lorna Doone, by R.D. Blackmore ]
+lifestealer
+	Legend has it that there was once an ambitious king who wanted
+	the powers of the undead at his command.  He commissioned a 
+	powerful wizard to make his dreams a reality.  The wizard set
+	out to fulfill the wishes of the king by capturing an ancient
+	vampire and transferring its essence into a fearsome two-handed
+	sword.  The king tested the powers of the blade on the wizard
+	that created it, then used it to conquer his enemies, and finally
+	all within his reach.  The legend goes on to say that the king
+	became so consumed with using the power of the sword that he
+	completely succumbed to it, and became a vampire himself...
 # takes "light" when specifying 'y'
 ~* of light
 * light
@@ -3291,7 +3379,7 @@ lord surt*
 	world with fire.
 			[ The Prose Edda, by Snorri Sturluson ]
 # if a quote for good luck gets added, make this one exclusively bad luck
-luck
+luck *
 bad luck
 	"[...]  We'll succeed and you'll get all the fortune you came
 	seeking."
@@ -3352,7 +3440,7 @@ lynx
 	will overcome her rival.
 		[ 10,000 Dreams Interpreted, by Gustavus Hindman Miller ]
 ~*sceptre of might
-mace
+*mace
 sceptre
 	Originally a club armed with iron, and used in war; now a staff
 	of office pertaining to certain dignitaries, as the Speaker of
@@ -3361,6 +3449,8 @@ sceptre
 	about in armour, and sovereigns needed champions to vindicate
 	their rights.
 		[ Brewer's Concise Dictionary of Phrase and Fable ]
+magic 8-ball
+	Reply hazy, try again.
 magic marker
 	The pen is mightier than the sword.
 		[ Richelieu, by Edward Bulwer-Lytton ]
@@ -3391,8 +3481,8 @@ magical eye
 	kill.  Eating its corpse will randomly increase or decrease the
 	player's luck by two points.
 magicbane
-	A highly enchanted athame said to hold the power to channel
-	and direct magical energy.
+	A highly enchanted quarterstaff said to hold the power to
+	channel and direct magical energy.
 mail d*emon
 	It is rumoured that these strange creatures can be harmed by
 	domesticated canines only.
@@ -3725,7 +3815,7 @@ monkey
 	where the monkeys drink; we do not go where the monkeys go;
 	we do not hunt where they hunt; we do not die where they die...."
 		[ The Jungle Book, by Rudyard Kipling ]
-morning star
+*morning star
 	The morning star was a medieval weapon resembling a mace, but
 	with a large spike on the end and smaller spikes around the
 	circumference.  It was also known as the goedendag (from the
@@ -4076,7 +4166,7 @@ orcrist
 	Goblin-cleaver, but the goblins called it simply Biter.
 	They hated it and hated worse any one that carried it.
 		[ The Hobbit, by J.R.R. Tolkien ]
-orcus
+*orcus
 	Orcus, Prince of the Undead, has a ram's head and a poison
 	stinger.  He is most feared, though, for his powerful magic
 	abilities.  His wand causes death to those he chooses.
@@ -4658,19 +4748,19 @@ ring of invisibility
 	leadership."
 		[ The Republic, by Plato, translated by James Adam ]
 ring of p'hul
-        Shandiph rose again; his knees were growing tired. "That's all
-        right.  Yes, we already possess one; it was the Ring of P'hul
-        that first permitted the Council of the Most High to gain what
-        power we now hold, at the end of the Twelfth Age.  It has been
-        kept carefully hidden ever since, because it is far too dangerous
-        to use; it was the Ring which caused the Great Plague that wiped
-        out the Royal Eramman Army and thereby put an end to the Racial
-        Wars before the overmen could be wiped out.  It was the Ring that
-        laid waste the Plain of Derbarok.  It always did what was asked
-        of it, but never in the way desired; it ended the Racial Wars only
-        by killing the army and ended the war with Orun only by ruining
-        what both sides fought for."
-                [ The Sword of Bheleu, by Lawrence Watt-Evans ]
+	Shandiph rose again; his knees were growing tired. "That's all
+	right.  Yes, we already possess one; it was the Ring of P'hul
+	that first permitted the Council of the Most High to gain what
+	power we now hold, at the end of the Twelfth Age.  It has been
+	kept carefully hidden ever since, because it is far too dangerous
+	to use; it was the Ring which caused the Great Plague that wiped
+	out the Royal Eramman Army and thereby put an end to the Racial
+	Wars before the overmen could be wiped out.  It was the Ring that
+	laid waste the Plain of Derbarok.  It always did what was asked
+	of it, but never in the way desired; it ended the Racial Wars only
+	by killing the army and ended the war with Orun only by ruining
+	what both sides fought for."
+		[ The Sword of Bheleu, by Lawrence Watt-Evans ]
 robe
 	Robes are the only garments, apart from Shirts, ever to have
 	sleeves.  They have three uses:
@@ -4840,6 +4930,14 @@ saddle
 	Things are in the saddle,
 	And ride mankind.
 		[ Ode, by Ralph Waldo Emerson ]
+*safe
+	Theo, are we on schedule?
+	One more to go then it's up to you.  And you better be right,
+	because it looks like this last one is going to take a miracle.
+	It's Christmas, Theo.  It's the time of miracles.  So be of
+	good cheer... and call me when you hit the last lock.
+	   [ Die Hard, directed by John McTiernan, written by
+		Roderick Thorp, Jeb Stuart, and Steven E. de Souza ]
 sake
 	Japanese rice wine.
 *salamander
@@ -4921,13 +5019,13 @@ scalpel
 	curved for greater precision when cutting through tissue.
 		[ Wikipedia, the free encyclopedia ]
 *sceptre of might
-	This mace was created aeons ago in some unknown cave,
+	This heavy mace was created aeons ago in some unknown cave,
 	and has been passed down from generation to generation of
 	cave dwellers.  It is a very mighty mace indeed, and in
 	addition will protect anyone who wields it from magic
 	missile attacks.  When invoked, it causes conflict in the
 	area around it.
-scimitar
+*scimitar
 	Oh, how handsome, how noble was the Vizier Ali Tebelin,
 	my father, as he stood there in the midst of the shot, his
 	scimitar in his hand, his face black with powder!  How his
@@ -5291,7 +5389,19 @@ squeaky board
 	and this time so fairly that he fell heels over head into the
 	water, as the queen pin falls in a game of bowls.
 		[ The Merry Adventures of Robin Hood, by Howard Pyle ]
-*staff of aesculapius
+~*staff of aesculapius
+staff of *
+	Ged stooped and plucked a blade of wild grass that poked up
+	dry and frail out of the snow where the otak had lain dead.
+	This blade he held up, and as he spoke aloud to it in the
+	True Speech it lengthened, and thickened, and when he was done
+	he held a great staff, a wizard’s staff, in his hand.  No
+	banefire burned red along it when the black, flapping creatures
+	from the Court of the Terrenon swooped over him and he struck
+	their wings with it: it blazed only with the white magefire that
+	does not burn but drives away the dark.
+		[ A Wizard of Earthsea, by Ursula K. LeGuin ]
+staff of aesculapius
 	This staff is considered sacred to all healers, as it truly
 	holds the powers of life and death.  When wielded, it
 	protects its user from all life draining attacks, and
@@ -5386,6 +5496,13 @@ straw golem
 	figure was raised above the stalks of corn by means of the
 	pole stuck up its back.
 		[ The Wonderful Wizard of Oz, by L. Frank Baum ]
+striped shirt
+	After about one hour's ride, we arrived at the so-called
+	penitentiary.  [...] Here I was put into a suit of "stripes"
+	--no underwear or socks-- just a two-piece suit of cotton
+	"stripes."
+	   [ I Am a Fugitive from a Georgia Chain Gang!,
+		by Robert Elliott Burns ]
 sunsword
 	What you seek is a blade of light,
 	a weapon for vengeance.
@@ -5399,14 +5516,17 @@ susano*o
 	up residence on earth.
 		[ Encyclopedia of Gods, by Michael Jordan ]
 sword of bheleu
-        The sword that Garth had stolen from Dusarra marked him as the
-        chosen of Bheleu, god of destruction, and gave him immense power.
-        This power could only be used to destroy, and Garth wanted to build.
-        He chose to refuse the god's gift.  Bheleu did not intend to
-        allow that.
-                [ The Sword of Bheleu, by Lawrence Watt-Evans ]
+	The sword that Garth had stolen from Dusarra marked him as the
+	chosen of Bheleu, god of destruction, and gave him immense power.
+	This power could only be used to destroy, and Garth wanted to
+	build.  He chose to refuse the god's gift.  Bheleu did not intend
+	to allow that.
+		[ The Sword of Bheleu, by Lawrence Watt-Evans ]
 tanko
 	Samurai plate armor of the Yamato period (AD 300 - 710).
+tekko
+	Samurai gauntlets made of textiles layered with metal plates
+	or animal hide.
 templar
 templar of *
 	Above all things, whosoever would be a knight of Christ,
@@ -5734,6 +5854,12 @@ guide
 	Weasel are always getting involved in.  You know --
 	_excitement_."
 		[ The Colour of Magic, by Terry Pratchett ]
+tymora
+	Tymora, the goddess of good fortune, smiles on risk-takers,
+	the reckless and foolhardy, and other charming ne'er-do-wells.
+	Born from the cleaving in two of the luck goddess Tyche, she is
+	frequently locked in struggle with her twin sister Beshaba,
+	goddess of ill fortune.
 tyr
 	Yet remains that one of the Aesir who is called Tyr:
 	he is most daring, and best in stoutness of heart, and he
@@ -5907,7 +6033,7 @@ warg
 	where the warg howls, there also the orc prowls."
 		[ The Fellowship of the Ring, by J.R.R. Tolkien ]
 ~mjollnir
-war*hammer
+*war*hammer
 	They had come together at the ford of the Trident while the
 	battle crashed around them, Robert with his warhammer and his
 	great antlered helm, the Targaryen prince armored all in
@@ -6141,14 +6267,14 @@ xan
 	man next to him asked, "Gathered Blood, what's wrong?"  So
 	he flew along the row stinging all the seated men until he
 	knew the names of all twelve.
-			[ Popul Vuh, as translated by Ralph Nelson ]
+		[ Popul Vuh, as translated by Ralph Nelson ]
 xiuhcoatl
-        Xiuhcoatl was considered to be the nahual, or spirit form,
-        of the Aztec fire god Xiuhtecuhtli.  It was a lightning-like
-        weapon borne by Huitzilopochtli.  With it, soon after his birth
-        he pierced his sister Coyolxauhqui, destroying her, and also
-        defeated the Centzon Huitznahua.
-                [ Dioses Prehispanicos de Mexico, by Adela Fernandez ]
+	Xiuhcoatl was considered to be the nahual, or spirit form,
+	of the Aztec fire god Xiuhtecuhtli.  It was a lightning-like
+	weapon borne by Huitzilopochtli.  With it, soon after his birth
+	he pierced his sister Coyolxauhqui, destroying her, and also
+	defeated the Centzon Huitznahua.
+	   [ Dioses Prehispanicos de Mexico, by Adela Fernandez ]
 xorn
 	A distant cousin of the earth elemental, the xorn has the
 	ability to shift the cells of its body around in such a way
