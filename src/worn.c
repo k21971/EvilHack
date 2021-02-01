@@ -437,12 +437,22 @@ new_property:
         case FUMBLING:
         case PROTECTION:
             break;
-        default:
-            if (which <= 8) { /* 1 thru 9 correspond to MR_xxx mask values */
+        case FIRE_RES:
+        case COLD_RES:
+        case SLEEP_RES:
+        case DISINT_RES:
+        case SHOCK_RES:
+        case POISON_RES:
+        case ACID_RES:
+        case STONE_RES:
+        case PSYCHIC_RES:
+            if (which <= 9) { /* 1 thru 9 correspond to MR_xxx mask values */
                 /* FIRE,COLD,SLEEP,DISINT,SHOCK,POISON,ACID,STONE,PSYCHIC */
                 mask = (uchar) (1 << (which - 1));
                 mon->mextrinsics |= (unsigned long) mask;
             }
+            break;
+        default:
             break;
         }
     } else { /* off */

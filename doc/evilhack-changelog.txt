@@ -1329,3 +1329,5 @@ Version 0.7.0
 - Fix: player taking damage from missed fire/ice bolt monster spell
 - Encyclopedia update: round one (monsters)
 - Encyclopedia update: round two (objects and miscellaneous)
+- Fix: The black dragon eats a black dragon corpse. The black dragon looks very
+  firm.
