@@ -604,15 +604,21 @@ struct permonst* ptr;
         }
     }
 
-    /* Don't give message if it already had this intrinsic */
+    /* Don't give intrinsic and subsequent message
+       if it already has this intrinsic */
     if (mtmp->mintrinsics & intrinsic)
         return;
 
     if (intrinsic)
         mtmp->mintrinsics |= intrinsic;
 
-    if (vis && msg)
-        pline(msg, Monnam(mtmp));
+    if (vis && msg) {
+        /* suppress message if mtmp already has this
+           resistance via another source (worn object,
+           or natively has this intrinsic/resistance) */
+        if (!((mtmp->mextrinsics || mtmp->data->mresists) & intrinsic))
+            pline(msg, Monnam(mtmp));
+    }
 }
 
 /* hunger effects -- returns TRUE on starvation */
@@ -627,25 +633,25 @@ struct edog *edog;
     if (monstermoves > edog->hungrytime) {
   	/* We're hungry; check if we're carrying anything we can eat
   	 * Intelligent pets should be able to carry such food */
-  	register struct obj *otmp, *obest = (struct obj *)0;
+  	register struct obj *otmp, *obest = (struct obj *) 0;
   	int cur_nutrit = -1, best_nutrit = -1;
         int cur_food = APPORT, best_food = APPORT;
 
         for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
     	    cur_nutrit = dog_nutrition(mtmp, otmp);
             cur_food = dogfood(mtmp, otmp);
-        if (cur_food < best_food && cur_nutrit > best_nutrit) {
-            best_nutrit = cur_nutrit;
-            best_food = cur_food;
-            obest = otmp;
+            if (cur_food < best_food && cur_nutrit > best_nutrit) {
+                best_nutrit = cur_nutrit;
+                best_food = cur_food;
+                obest = otmp;
+            }
         }
-    }
-    if (obest != (struct obj *)0) {
-    	obj_extract_self(obest);
-        place_object(obest, mtmp->mx, mtmp->my);
-    	if (dog_eat(mtmp, obest, mtmp->mx, mtmp->my, FALSE) == 2)
-    	    return(TRUE);
-    	return(FALSE);
+        if (obest != (struct obj *) 0) {
+    	    obj_extract_self(obest);
+            place_object(obest, mtmp->mx, mtmp->my);
+    	    if (dog_eat(mtmp, obest, mtmp->mx, mtmp->my, FALSE) == 2)
+    	        return(TRUE);
+    	    return(FALSE);
     	}
     }
 #endif

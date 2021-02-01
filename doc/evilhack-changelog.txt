@@ -1307,5 +1307,7 @@ Version 0.6.0
 - Fix: tweak some incorrect flags with player monster templates
 - Fix: monsters turned into zombies still showed as 'turning into a
   zombie' via probing or stethoscope
+- Fix: The black dragon eats a black dragon corpse. The black dragon looks very
+  firm.
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
