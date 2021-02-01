@@ -1331,3 +1331,4 @@ Version 0.7.0
 - Encyclopedia update: round two (objects and miscellaneous)
 - Fix: The black dragon eats a black dragon corpse. The black dragon looks very
   firm.
+- Adjustments to throne wishes
