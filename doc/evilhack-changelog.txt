@@ -1285,5 +1285,7 @@ Version 0.6.0
 - Fix: player taking damage from missed fire/ice bolt monster spell
 - Encyclopedia update: round one (monsters)
 - Encyclopedia update: round two (objects and miscellaneous)
+- Fix: some monsters that are resistant to fire were also flagged as vulnerable
+  to fire
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
