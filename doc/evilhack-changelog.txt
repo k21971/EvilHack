@@ -1333,3 +1333,4 @@ Version 0.7.0
   firm.
 - Adjustments to throne wishes
 - Shallow water is a finite resource
+- Fix: rabid dog encyclopedia entry
