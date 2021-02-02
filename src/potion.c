@@ -2188,6 +2188,14 @@ dodip()
                           xname(obj));
                     useupall(obj);
                 }
+            } else if (IS_PUDDLE(here) && !rn2(3)) {
+                /* shallow water isn't an endless resource like a pool/moat */
+                levl[u.ux][u.uy].typ = ROOM;
+                newsym(u.ux, u.uy);
+                if (cansee(u.ux, u.uy)) {
+                    pline("There isn't enough water left to use.");
+                    pline_The("puddle dries up.");
+                }
             } else {
                 if (obj->otyp == POT_ACID)
                     obj->in_use = 1;

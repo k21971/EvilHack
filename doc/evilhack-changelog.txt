@@ -1332,3 +1332,4 @@ Version 0.7.0
 - Fix: The black dragon eats a black dragon corpse. The black dragon looks very
   firm.
 - Adjustments to throne wishes
+- Shallow water is a finite resource
