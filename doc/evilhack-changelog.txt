@@ -1335,3 +1335,4 @@ Version 0.7.0
 - Shallow water is a finite resource
 - Fix: rabid dog encyclopedia entry
 - Fix: containers made of iron would rust away and not drop their contents
+- Redo encyclopedia entry for turtle
