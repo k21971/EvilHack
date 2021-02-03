@@ -1287,5 +1287,6 @@ Version 0.6.0
 - Encyclopedia update: round two (objects and miscellaneous)
 - Fix: some monsters that are resistant to fire were also flagged as vulnerable
   to fire
+- Fix: rabid dog encyclopedia entry
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
