@@ -1289,23 +1289,26 @@ unsigned trflags;
         switch (rn2(5)) {
         case 0:
             pline("%s you on the %s!", A_gush_of_water_hits, body_part(HEAD));
-            (void) water_damage(uarmh, helm_simple_name(uarmh), TRUE);
+            (void) water_damage(uarmh, helm_simple_name(uarmh),
+                                TRUE, u.ux, u.uy);
             break;
         case 1:
             pline("%s your left %s!", A_gush_of_water_hits, body_part(ARM));
-            if (water_damage(uarms, "shield", TRUE) != ER_NOTHING)
+            if (water_damage(uarms, "shield",
+                             TRUE, u.ux, u.uy) != ER_NOTHING)
                 break;
             if (u.twoweap || (uwep && bimanual(uwep)))
-                (void) water_damage(u.twoweap ? uswapwep : uwep, 0, TRUE);
+                (void) water_damage(u.twoweap ? uswapwep : uwep, 0,
+                                    TRUE, u.ux, u.uy);
         glovecheck:
-            (void) water_damage(uarmg, "gauntlets", TRUE);
+            (void) water_damage(uarmg, "gauntlets", TRUE, u.ux, u.uy);
             /* Not "metal gauntlets" since it gets called
              * even if it's leather for the message
              */
             break;
         case 2:
             pline("%s your right %s!", A_gush_of_water_hits, body_part(ARM));
-            (void) water_damage(uwep, 0, TRUE);
+            (void) water_damage(uwep, 0, TRUE, u.ux, u.uy);
             goto glovecheck;
         default:
             pline("%s you!", A_gush_of_water_hits);
@@ -1314,11 +1317,13 @@ unsigned trflags;
                     && (otmp != uswapwep || !u.twoweap))
                     (void) snuff_lit(otmp);
             if (uarmc)
-                (void) water_damage(uarmc, cloak_simple_name(uarmc), TRUE);
+                (void) water_damage(uarmc, cloak_simple_name(uarmc),
+                                    TRUE, u.ux, u.uy);
             else if (uarm)
-                (void) water_damage(uarm, suit_simple_name(uarm), TRUE);
+                (void) water_damage(uarm, suit_simple_name(uarm),
+                                    TRUE, u.ux, u.uy);
             else if (uarmu)
-                (void) water_damage(uarmu, "shirt", TRUE);
+                (void) water_damage(uarmu, "shirt", TRUE, u.ux, u.uy);
         }
         update_inventory();
 
@@ -2605,27 +2610,32 @@ register struct monst *mtmp;
                     pline("%s %s on the %s!", A_gush_of_water_hits,
                           mon_nam(mtmp), mbodypart(mtmp, HEAD));
                 target = which_armor(mtmp, W_ARMH);
-                (void) water_damage(target, helm_simple_name(target), TRUE);
+                (void) water_damage(target, helm_simple_name(target),
+                                    TRUE, mtmp->mx, mtmp->my);
                 break;
             case 1:
                 if (in_sight)
                     pline("%s %s's left %s!", A_gush_of_water_hits,
                           mon_nam(mtmp), mbodypart(mtmp, ARM));
                 target = which_armor(mtmp, W_ARMS);
-                if (water_damage(target, "shield", TRUE) != ER_NOTHING)
+                if (water_damage(target, "shield",
+                                 TRUE, mtmp->mx, mtmp->my) != ER_NOTHING)
                     break;
                 target = MON_WEP(mtmp);
                 if (target && bimanual(target))
-                    (void) water_damage(target, 0, TRUE);
+                    (void) water_damage(target, 0,
+                                        TRUE, mtmp->mx, mtmp->my);
             glovecheck:
                 target = which_armor(mtmp, W_ARMG);
-                (void) water_damage(target, "gauntlets", TRUE);
+                (void) water_damage(target, "gauntlets",
+                                    TRUE, mtmp->mx, mtmp->my);
                 break;
             case 2:
                 if (in_sight)
                     pline("%s %s's right %s!", A_gush_of_water_hits,
                           mon_nam(mtmp), mbodypart(mtmp, ARM));
-                (void) water_damage(MON_WEP(mtmp), 0, TRUE);
+                (void) water_damage(MON_WEP(mtmp), 0,
+                                    TRUE, mtmp->mx, mtmp->my);
                 goto glovecheck;
             default:
                 if (in_sight)
@@ -2636,12 +2646,13 @@ register struct monst *mtmp;
                         (void) snuff_lit(otmp);
                 if ((target = which_armor(mtmp, W_ARMC)) != 0)
                     (void) water_damage(target, cloak_simple_name(target),
-                                        TRUE);
+                                        TRUE, mtmp->mx, mtmp->my);
                 else if ((target = which_armor(mtmp, W_ARM)) != 0)
                     (void) water_damage(target, suit_simple_name(target),
-                                        TRUE);
+                                        TRUE, mtmp->mx, mtmp->my);
                 else if ((target = which_armor(mtmp, W_ARMU)) != 0)
-                    (void) water_damage(target, "shirt", TRUE);
+                    (void) water_damage(target, "shirt",
+                                        TRUE, mtmp->mx, mtmp->my);
             }
 
             if (mptr == &mons[PM_IRON_GOLEM]) {
@@ -3967,14 +3978,20 @@ static struct h2o_ctx {
  *   "ostr", if present, is used instead of the object name in some
  *     messages.
  *   "force" means not to roll luck to protect some objects.
+ *   "x" and "y" are the coordinates to dump the contents of a
+ *     container, if it rusts away.
  * Returns an erosion return value (ER_*)
  */
 int
-water_damage(obj, ostr, force)
+water_damage(obj, ostr, force, x, y)
 struct obj *obj;
 const char *ostr;
 boolean force;
+xchar x, y;
 {
+    struct obj *otmp, *ncobj;
+    int in_sight = !Blind && couldsee(x, y); /* Don't care if it's lit */
+
     if (!obj)
         return ER_NOTHING;
 
@@ -4004,7 +4021,7 @@ boolean force;
         if (ucarried)
             pline("Water gets into your %s!", ostr);
 
-        water_damage_chain(obj->cobj, FALSE, 0, TRUE);
+        water_damage_chain(obj->cobj, FALSE, 0, TRUE, x, y);
         return ER_DAMAGED; /* contents were damaged */
     } else if (obj->otyp == OILSKIN_SACK
                || obj->oartifact == ART_BAG_OF_THE_HESPERIDES) {
@@ -4017,6 +4034,31 @@ boolean force;
            thus we need to waste any potion they may have used (also,
            flavourwise the water is now on the floor) */
         return ER_DAMAGED;
+    } else if (Is_box(obj) && greatest_erosion(obj) == MAX_ERODE) {
+        if (obj->otyp == IRON_SAFE && rn2(50)) {
+            if (in_sight)
+                pline("%s is still completely rusted.", Yname2(obj));
+            return ER_DAMAGED;
+        } else {
+            /* Container has rusted away - dump contents out */
+            if (in_sight)
+                pline("%s rusts completely away!", Yname2(obj));
+            if (Has_contents(obj)) {
+                if (in_sight)
+                    pline("Its contents fall out.");
+                for (otmp = obj->cobj; otmp; otmp = ncobj) {
+                    ncobj = otmp->nobj;
+                    obj_extract_self(otmp);
+                    if (!flooreffects(otmp, x, y, ""))
+                        place_object(otmp, x, y);
+                }
+            }
+            setnotworn(obj);
+            delobj(obj);
+            if (ucarried)
+                update_inventory();
+            return ER_DESTROYED;
+        }
     } else if (!force && (Luck + 5) > rn2(20)) {
         /*  chance per item of sustaining damage:
             *   max luck:               10%
@@ -4135,11 +4177,12 @@ boolean force;
  * If trying to wet everything (e.g. falling into water), set count < 1.
  */
 void
-water_damage_chain(obj, here, count, do_container)
+water_damage_chain(obj, here, count, do_container, x, y)
 struct obj *obj;
 boolean here;
 int count;
 boolean do_container;
+xchar x, y;
 {
     struct obj *otmp = obj;
     struct obj *nobj;
@@ -4176,7 +4219,7 @@ boolean do_container;
         if (!do_container && Is_container(otmp))
             continue;
         if (count < 1) {
-            water_damage(otmp, (char *) 0, FALSE);
+            water_damage(otmp, (char *) 0, FALSE, x, y);
         }
         else {
             /* reservoir sampling: replace elements with lowering probability */
@@ -4190,7 +4233,7 @@ boolean do_container;
 
     if (count >= 1) {
         for (i = 0; i < count; i++) {
-            water_damage(to_damage[i], (char *) 0, FALSE);
+            water_damage(to_damage[i], (char *) 0, FALSE, x, y);
         }
         free((genericptr_t) to_damage);
     }
@@ -4279,7 +4322,7 @@ drown()
             You("sink like %s.", Hallucination ? "the Titanic" : "a rock");
     }
 
-    water_damage_chain(invent, FALSE, 0, TRUE);
+    water_damage_chain(invent, FALSE, 0, TRUE, u.ux, u.uy);
 
     if (u.umonnum == PM_GREMLIN && rn2(3))
         (void) split_mon(&youmonst, (struct monst *) 0);

@@ -2544,7 +2544,7 @@ struct attack *mattk;
         }
         if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
             || mtmp->data == &mons[PM_SEA_DRAGON])
-            water_damage_chain(invent, FALSE, rnd(3), FALSE);
+            water_damage_chain(invent, FALSE, rnd(3), FALSE, u.ux, u.uy);
         break;
     case AD_ACID:
         if (Acid_resistance) {

@@ -735,15 +735,17 @@ register struct monst *mtmp;
         if (split_mon(mtmp, (struct monst *) 0))
             dryup(mtmp->mx, mtmp->my, FALSE);
         if (inpool)
-            water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
+            water_damage_chain(mtmp->minvent, FALSE, 0,
+                               TRUE, mtmp->mx, mtmp->my);
         return 0;
-    } else if (mtmp->data == &mons[PM_LAVA_GREMLIN] && (inlava || inforge) && rn2(3)) {
+    } else if (mtmp->data == &mons[PM_LAVA_GREMLIN]
+               && (inlava || inforge) && rn2(3)) {
         if (split_mon(mtmp, (struct monst *) 0))
             dryup(mtmp->mx, mtmp->my, FALSE);
-        // no lava damage chain func (yet), so this is commented out
-        // water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
+        /* no lava damage chain func (yet), so this is commented out
+           water_damage_chain(mtmp->minvent, FALSE, 0, TRUE); */
         if (inforge && !rn2(3))
-                blowupforge(mtmp->mx, mtmp->my);
+            blowupforge(mtmp->mx, mtmp->my);
         return 0;
     } else if (mtmp->data == &mons[PM_IRON_GOLEM]
                && ((inpool && !rn2(5)) || (inshallow && rn2(2)))) {
@@ -765,9 +767,11 @@ register struct monst *mtmp;
             }
         }
         if (inshallow)
-            water_damage(which_armor(mtmp, W_ARMF), 0, FALSE);
+            water_damage(which_armor(mtmp, W_ARMF), 0,
+                         FALSE, mtmp->mx, mtmp->my);
         else
-            water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
+            water_damage_chain(mtmp->minvent, FALSE, 0,
+                               TRUE, mtmp->mx, mtmp->my);
         return 0;
     } else if (is_longworm(mtmp->data) && inshallow) {
         int dam = d(3, 12);
@@ -865,7 +869,8 @@ register struct monst *mtmp;
             else
                 xkilled(mtmp, XKILL_NOMSG);
             if (!DEADMONSTER(mtmp)) {
-                water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
+                water_damage_chain(mtmp->minvent, FALSE, 0,
+                                   TRUE, mtmp->mx, mtmp->my);
                 if (!rloc(mtmp, TRUE))
                     deal_with_overcrowding(mtmp);
                 return 0;

@@ -1694,7 +1694,7 @@ struct obj *obj;
         pline_The("world spins and %s %s.", what, where);
         if (!Levitation && !Flying && !u.usteed
             && is_damp_terrain(u.ux, u.uy))
-            water_damage_chain(invent, FALSE, rnd(3), FALSE);
+            water_damage_chain(invent, FALSE, rnd(3), FALSE, u.ux, u.uy);
         incr_itimeout(&HDeaf, duration);
         context.botl = TRUE;
         nomul(-duration);

@@ -2402,10 +2402,12 @@ boolean newspot;             /* true if called by spoteffects */
                 losehp(dam, "contact with water", NO_KILLER_PREFIX);
             }
             if (verysmall(youmonst.data))
-                water_damage_chain(invent, FALSE, rnd(3), FALSE);
+                water_damage_chain(invent, FALSE, rnd(3),
+                                   FALSE, u.ux, u.uy);
             if (!u.usteed) {
                 if (!rn2(3))
-                    (void) water_damage(uarmf, "boots", TRUE);
+                    (void) water_damage(uarmf, "boots",
+                                        TRUE, u.ux, u.uy);
             }
         }
     }

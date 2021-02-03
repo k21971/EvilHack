@@ -578,9 +578,9 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
     }
     /* dragging ball or chain through water */
     if (is_damp_terrain(ballx, bally))
-        water_damage(uball, (char *) 0, FALSE);
+        water_damage(uball, (char *) 0, FALSE, ballx, bally);
     if (is_damp_terrain(chainx, chainy))
-        water_damage(uchain, (char *) 0, FALSE);
+        water_damage(uchain, (char *) 0, FALSE, chainx, chainy);
 }
 
 /* return TRUE if the caller needs to place the ball and chain down again */

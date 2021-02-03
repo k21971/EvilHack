@@ -4128,20 +4128,20 @@ struct obj *no_wish;
             del_engr_at(x, y);
             pline("A %s.", (lev->typ == POOL) ? "pool" : "moat");
             /* Must manually make kelp! */
-            water_damage_chain(level.objects[x][y], TRUE, 0, TRUE);
+            water_damage_chain(level.objects[x][y], TRUE, 0, TRUE, x, y);
             madeterrain = TRUE;
         } else if (!BSTRCMPI(bp, p - 13, "shallow water")
                    || !BSTRCMPI(bp, p - 6, "puddle")) {
             lev->typ = PUDDLE;
             del_engr_at(x, y);
             pline("Shallow water.");
-            water_damage(level.objects[x][y], 0, TRUE);
+            water_damage(level.objects[x][y], 0, TRUE, x, y);
             madeterrain = TRUE;
         } else if (!BSTRCMPI(bp, p - 6, "sewage")) {
             lev->typ = SEWAGE;
             del_engr_at(x, y);
             pline("Sewage.");
-            water_damage(level.objects[x][y], 0, TRUE);
+            water_damage(level.objects[x][y], 0, TRUE, x, y);
             madeterrain = TRUE;
 
         /* also matches "molten lava" */

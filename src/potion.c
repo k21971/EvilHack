@@ -1451,7 +1451,7 @@ const char *objphrase; /* "Your widget glows" or "Steed's saddle glows" */
     } else {
         /* dipping into uncursed water; carried() check skips steed saddle */
         if (carried(targobj)) {
-            if (water_damage(targobj, 0, TRUE) != ER_NOTHING)
+            if (water_damage(targobj, 0, TRUE, u.ux, u.uy) != ER_NOTHING)
                 res = TRUE;
         }
     }
@@ -2199,7 +2199,8 @@ dodip()
             } else {
                 if (obj->otyp == POT_ACID)
                     obj->in_use = 1;
-                if (water_damage(obj, 0, TRUE) != ER_DESTROYED && obj->in_use)
+                if (water_damage(obj, 0, TRUE, u.ux, u.uy) != ER_DESTROYED
+                    && obj->in_use)
                     useup(obj);
             }
             return 1;

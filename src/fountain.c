@@ -168,7 +168,7 @@ genericptr_t poolcnt;
     levl[x][y].typ = PUDDLE, levl[x][y].flags = 0;
     /* No kelp! */
     del_engr_at(x, y);
-    water_damage_chain(level.objects[x][y], TRUE, 0, TRUE);
+    water_damage_chain(level.objects[x][y], TRUE, 0, TRUE, x, y);
 
     if ((mtmp = m_at(x, y)) != 0)
         (void) minliquid(mtmp);
@@ -576,7 +576,7 @@ dip_end:
             (void) angry_guards(FALSE);
         return;
     } else {
-        int er = water_damage(obj, NULL, TRUE);
+        int er = water_damage(obj, NULL, TRUE, u.ux, u.uy);
 
         if (obj->otyp == POT_ACID
             && er != ER_DESTROYED) { /* Acid and water don't mix */

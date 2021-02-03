@@ -4099,7 +4099,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             break;
         }
         if (!rn2(6))
-            water_damage(MON_WEP(mon), 0, TRUE);
+            water_damage(MON_WEP(mon), 0, TRUE, mon->mx, mon->my);
         if (!rn2(6))
             erode_armor(mon, ERODE_RUST);
         break;
@@ -4313,9 +4313,9 @@ xchar sx, sy;
         if (!Reflecting) {
             /* using two weapons at once makes both of them more vulnerable */
             if (!rn2(u.twoweap ? 3 : 6))
-                water_damage(uwep, 0, TRUE);
+                water_damage(uwep, 0, TRUE, u.ux, u.uy);
             if (u.twoweap && !rn2(3))
-                water_damage(uswapwep, 0, TRUE);
+                water_damage(uswapwep, 0, TRUE, u.ux, u.uy);
             if (!rn2(6))
                 erode_armor(&youmonst, ERODE_RUST);
         }
