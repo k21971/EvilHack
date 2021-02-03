@@ -1288,5 +1288,6 @@ Version 0.6.0
 - Fix: some monsters that are resistant to fire were also flagged as vulnerable
   to fire
 - Fix: rabid dog encyclopedia entry
+- Redo encyclopedia entry for turtle
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
