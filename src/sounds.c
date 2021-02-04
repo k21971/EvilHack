@@ -711,9 +711,19 @@ register struct monst *mtmp;
             pline_msg = "squawks.";
         break;
     case MS_HISS:
-        if (!mtmp->mpeaceful)
+        if (mtmp->mtame && is_pseudodragon(ptr)) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mtame < 5)
+                pline_msg = "snarls.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "rumbles.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "purrs.";
+            else
+                pline_msg = "softly hisses.";
+        } else if (!mtmp->mpeaceful) {
             pline_msg = "hisses!";
-        else
+        } else
             return 0; /* no sound */
         break;
     case MS_BUZZ:
