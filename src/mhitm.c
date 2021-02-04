@@ -1273,6 +1273,10 @@ int dieroll;
             if (vis && canseemon(mdef))
                 pline("%s knocks %s back with a %s %s!", Monnam(magr), mon_nam(mdef),
                       rn2(2) ? "forceful" : "powerful", rn2(2) ? "blow" : "strike");
+            if (mdef == u.usteed) {
+                newsym(u.usteed->mx, u.usteed->my);
+                dismount_steed(DISMOUNT_FELL);
+            }
             mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my, rnd(2));
         }
         break;
