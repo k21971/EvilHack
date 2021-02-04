@@ -892,6 +892,14 @@ boolean verbose;
         return;
     }
 
+    /* was our hero knocked off their steed? */
+    if (u.usteed) {
+        newsym(u.ux, u.uy);
+        dismount_steed(DISMOUNT_FELL);
+        nomul(0);
+        return;
+    }
+
     /* make sure dx and dy are [-1,0,1] */
     dx = sgn(dx);
     dy = sgn(dy);

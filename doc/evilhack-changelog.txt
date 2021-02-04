@@ -1289,5 +1289,6 @@ Version 0.6.0
   to fire
 - Fix: rabid dog encyclopedia entry
 - Redo encyclopedia entry for turtle
+- Fix: another case of 'placing steed onto map, mstate:0, on Dlvl:() ?'
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
