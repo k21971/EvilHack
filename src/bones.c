@@ -15,6 +15,8 @@ STATIC_DCL boolean FDECL(no_bones_level, (d_level *));
 STATIC_DCL void FDECL(goodfruit, (int));
 STATIC_DCL void FDECL(resetobjs, (struct obj *, BOOLEAN_P));
 STATIC_DCL boolean FDECL(fixuporacle, (struct monst *));
+STATIC_DCL boolean FDECL(in_owner_lair, (struct obj *));
+STATIC_DCL struct monst *FDECL(find_owner_on_level, (struct obj *));
 
 STATIC_OVL boolean
 no_bones_level(lev)
@@ -145,8 +147,19 @@ boolean restore;
                the end of a specific quest from winding up
                in a bones pile */
             if (non_wishable_artifact(otmp)) {
-                otmp->oartifact = 0;
-                free_oname(otmp);
+                struct monst *mtmp;
+                mtmp = find_owner_on_level(otmp);
+                if (mtmp) {
+                    /* return special artifact to its owner when they are on
+                     * the bones level, if they aren't carrying it already */
+                    if (!mcarried(otmp) || otmp->ocarry != mtmp) {
+                        obj_extract_self(otmp);
+                        (void) mpickobj(mtmp, otmp);
+                    }
+                } else if (!in_owner_lair(otmp)) {
+                    otmp->oartifact = 0;
+                    free_oname(otmp);
+                }
             }
 
             if (otmp->otyp == SLIME_MOLD) {
@@ -341,6 +354,72 @@ struct monst *oracle;
     return TRUE; /* keep oracle in new bones file */
 }
 
+STATIC_OVL boolean
+in_owner_lair(obj)
+struct obj *obj;
+{
+    d_level *lair;
+
+    if (!obj || !obj->oartifact)
+        return FALSE;
+
+    switch (obj->oartifact) {
+    case ART_MAGIC___BALL:
+        lair = &oracle_level;
+        break;
+    case ART_BUTCHER:
+        lair = &yeenoghu_level;
+        break;
+    case ART_WAND_OF_ORCUS:
+        lair = &orcus_level;
+        break;
+    case ART_BAG_OF_THE_HESPERIDES:
+    case ART_LIFESTEALER:
+    default:
+        return FALSE;
+        break;
+    }
+
+    return (Lcheck(&u.uz, lair));
+}
+
+STATIC_OVL struct monst *
+find_owner_on_level(obj)
+struct obj *obj;
+{
+    struct monst *mtmp;
+    int owner = NON_PM;
+
+    if (!obj || !obj->oartifact)
+        return (struct monst *) 0;
+
+    switch (obj->oartifact) {
+    case ART_MAGIC___BALL:
+        owner = PM_ORACLE;
+        break;
+    case ART_BUTCHER:
+        owner = PM_YEENOGHU;
+        break;
+    case ART_LIFESTEALER:
+        owner = PM_VLAD_THE_IMPALER;
+        break;
+    case ART_WAND_OF_ORCUS:
+        owner = PM_ORCUS;
+        break;
+    default:
+        break;
+    }
+
+    if (owner != NON_PM) {
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (monsndx(mtmp->data) == owner)
+                return mtmp;
+        }
+    }
+
+    return (struct monst *) 0;
+}
+
 /* check whether bones are feasible */
 boolean
 can_make_bones()
@@ -422,8 +501,12 @@ struct obj *corpse;
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
             || mptr == &mons[PM_VLAD_THE_IMPALER]
             || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))
-            || mptr == &mons[PM_CERBERUS] || mptr == &mons[PM_RAT_KING]
-            || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+            || (mptr == &mons[PM_CERBERUS] && !Is_valley(&u.uz))
+            || (mptr == &mons[PM_CHARON] && !Is_valley(&u.uz))
+            || mptr == &mons[PM_RAT_KING]
+            || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
+            || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS])
             mongone(mtmp);
 
         /* monster steeds tend to wander off */
@@ -497,9 +580,10 @@ struct obj *corpse;
 
 	for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp2) {
 	     otmp2 = otmp->nexthere; /* mpickobj might free otmp */
-	if (!rn2(8) || (greedy && rn2(2) && (otmp->oartifact || Is_dragon_armor(otmp)
-			|| otmp->otyp == AMULET_OF_LIFE_SAVING || Is_allbag(otmp)
-			|| otmp->otyp == MAGIC_MARKER || otmp->otyp == UNICORN_HORN))) {
+        if (!rn2(8) || find_owner_on_level(otmp) == ukiller
+            || (greedy && rn2(2) && (otmp->oartifact || Is_dragon_armor(otmp)
+                || otmp->otyp == AMULET_OF_LIFE_SAVING || Is_allbag(otmp)
+                || otmp->otyp == MAGIC_MARKER || otmp->otyp == UNICORN_HORN))) {
 	    if (!touch_artifact(otmp, ukiller))
                 continue;
 	    if (!can_carry(ukiller, otmp))

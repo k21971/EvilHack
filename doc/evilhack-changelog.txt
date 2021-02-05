@@ -1338,3 +1338,6 @@ Version 0.7.0
 - Redo encyclopedia entry for turtle
 - Fix: another case of 'placing steed onto map, mstate:0, on Dlvl:() ?'
 - Pseudodragons given a range of different sounds
+- Fix: prevent removal of special artifacts on bones level and the
+  owner is present
+
