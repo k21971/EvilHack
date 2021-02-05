@@ -1341,4 +1341,5 @@ Version 0.7.0
 - Fix: prevent removal of special artifacts on bones level and the
   owner is present
 - Fix: Oracle missing its artifact on the new oracle levels
+- Fix: Oracle stayed peaceful when the gods took notice of thievery
 

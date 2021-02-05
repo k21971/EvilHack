@@ -3551,6 +3551,8 @@ boolean wep_was_destroyed;
             if (Role_if(PM_ROGUE) && !uwep
                 && context.forcefight && !Upolyd && mon->mpeaceful)
                 pline_The("gods notice your deception!");
+            /* The Oracle notices too... */
+            setmangry(mon, FALSE);
             You("are hit by magic missiles appearing from thin air!");
             mdamageu(mon, tmp);
         }
