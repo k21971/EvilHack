@@ -1290,5 +1290,7 @@ Version 0.6.0
 - Fix: rabid dog encyclopedia entry
 - Redo encyclopedia entry for turtle
 - Fix: another case of 'placing steed onto map, mstate:0, on Dlvl:() ?'
+- Fix: prevent removal of special artifacts on bones level and the
+  owner is present
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
