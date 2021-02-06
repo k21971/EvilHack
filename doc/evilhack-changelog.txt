@@ -1292,5 +1292,6 @@ Version 0.6.0
 - Fix: another case of 'placing steed onto map, mstate:0, on Dlvl:() ?'
 - Fix: prevent removal of special artifacts on bones level and the
   owner is present
+- Fix: instances where article was missing from the Bag of the Hesperides
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
