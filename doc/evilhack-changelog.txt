@@ -1342,4 +1342,5 @@ Version 0.7.0
   owner is present
 - Fix: Oracle missing its artifact on the new oracle levels
 - Fix: Oracle stayed peaceful when the gods took notice of thievery
+- Fix: Cerberus was still susceptible to AD_BHED attack
 

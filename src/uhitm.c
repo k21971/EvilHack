@@ -2088,13 +2088,21 @@ int specialdmg; /* blessed and/or silver bonus against various things */
             }
             if (noncorporeal(mdef->data) || amorphous(mdef->data)) {
                 if (canseemon(mdef))
-                    pline("You slice through %s %s.",
-                          s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
+                    You("slice through %s %s.",
+                        s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
+                goto physical;
+            }
+            if (mdef->data == &mons[PM_CERBERUS]) {
+                You("remove one of %s heads!",
+                    s_suffix(mon_nam(mdef)));
+                if (canseemon(mdef))
+                    You("watch in horror as it quickly grows back.");
+                tmp = rn2(15) + 10;
                 goto physical;
             }
             if (canseemon(mdef))
-                pline("You %s %s!",
-                      rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
+                You("%s %s!",
+                    rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
             if (is_zombie(mdef->data)
                 || (is_troll(mdef->data) && !mlifesaver(mdef)))
                 mdef->mcan = 1; /* no head? no reviving */

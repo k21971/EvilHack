@@ -1211,6 +1211,14 @@ int dieroll;
                           buf, s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
                 goto physical;
             }
+            if (mdef->data == &mons[PM_CERBERUS]) {
+                pline("%s removes one of %s heads!", buf,
+                      s_suffix(mon_nam(mdef)));
+                if (canseemon(mdef))
+                    You("watch in horror as it quickly grows back.");
+                tmp = rn2(15) + 10;
+                goto physical;
+            }
             if (canseemon(mdef))
                 pline("%s %ss %s!", buf,
                       rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
