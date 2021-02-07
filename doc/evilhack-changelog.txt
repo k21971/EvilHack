@@ -1350,4 +1350,5 @@ Version 0.7.0
 - Fix: ensure cursed flag is set for infidel NPC water potions
 - Some tweaks to infidel NPC gear
 - Fix: snow golem entry for the encyclopedia
+- Honey badger adjustments
 
