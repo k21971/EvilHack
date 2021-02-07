@@ -1348,3 +1348,5 @@ Version 0.7.0
 - Slight changes to intrinsics gained via crowning for infidel role
 - Extra effects/consequences for wielding or wearing any of the 'banes 
 - Fix: ensure cursed flag is set for infidel NPC water potions
+- Some tweaks to infidel NPC gear
+
