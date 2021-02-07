@@ -1293,5 +1293,6 @@ Version 0.6.0
 - Fix: prevent removal of special artifacts on bones level and the
   owner is present
 - Fix: instances where article was missing from the Bag of the Hesperides
+- Fix: ensure cursed flag is set for infidel NPC water potions
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
