@@ -1347,4 +1347,4 @@ Version 0.7.0
 - Create three tiers of homunculus, Infidel now has a pet that can grow
 - Slight changes to intrinsics gained via crowning for infidel role
 - Extra effects/consequences for wielding or wearing any of the 'banes 
-
+- Fix: ensure cursed flag is set for infidel NPC water potions

@@ -406,8 +406,7 @@ unsigned short chance;
                         obj->spe += rn2(3);
                     }
                 }
-                if (trop->trbless != UNDEF_BLESS
-                    && mtmp && mtmp->mnum != PM_HUMAN_INFIDEL)
+                if (trop->trbless != UNDEF_BLESS)
                     obj->blessed = (trop->trbless == 1);
                 if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
                     && obj->oclass == ARMOR_CLASS) {
@@ -415,7 +414,8 @@ unsigned short chance;
                     obj->cursed = TRUE;
                 }
                 if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
-                    && obj->oclass == WEAPON_CLASS)
+                    && (obj->oclass == WEAPON_CLASS
+                        || obj->otyp == POT_WATER))
                     obj->cursed = TRUE;
                 if (obj->otyp == STRIPED_SHIRT)
                     obj->cursed = TRUE;
