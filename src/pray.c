@@ -780,7 +780,9 @@ gcrownu()
 #define ok_wep(o) ((o) && ((o)->oclass == WEAPON_CLASS || is_weptool(o)))
 
     HSee_invisible |= FROMOUTSIDE;
-    if (!rn2(10))
+    /* small chance to obtain sick resistance, but not
+       this way if infidel (see below) */
+    if (!rn2(10) && !Role_if(PM_INFIDEL))
         HSick_resistance |= FROMOUTSIDE;
     incr_resistance(&HFire_resistance, 100);
     if (u.ualign.type != A_NONE) {
@@ -790,6 +792,11 @@ gcrownu()
         incr_resistance(&HSleep_resistance, 100);
     }
     incr_resistance(&HPoison_resistance, 100);
+    if (u.ualign.type == A_NONE) {
+        HSick_resistance |= FROMRACE;
+        if (Race_if(PM_ILLITHID)) /* demons don't have the correct brain structure */
+            HPsychic_resistance &= ~INTRINSIC;
+    }
     if (u.ualign.type != A_NONE)
         monstseesu(M_SEEN_FIRE | M_SEEN_COLD | M_SEEN_ELEC | M_SEEN_SLEEP | M_SEEN_POISON);
     else
