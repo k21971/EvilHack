@@ -1295,5 +1295,6 @@ Version 0.6.0
 - Fix: instances where article was missing from the Bag of the Hesperides
 - Fix: ensure cursed flag is set for infidel NPC water potions
 - Some tweaks to infidel NPC gear
+- Fix: snow golem entry for the encyclopedia
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
