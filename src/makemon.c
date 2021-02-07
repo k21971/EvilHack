@@ -409,16 +409,22 @@ unsigned short chance;
                 if (trop->trbless != UNDEF_BLESS)
                     obj->blessed = (trop->trbless == 1);
                 if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
-                    && obj->oclass == ARMOR_CLASS) {
+                    && obj->oclass == ARMOR_CLASS
+                    && is_flammable(obj)) {
                     obj->oerodeproof = 1;
+                    obj->blessed = FALSE;
                     obj->cursed = TRUE;
                 }
                 if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
                     && (obj->oclass == WEAPON_CLASS
-                        || obj->otyp == POT_WATER))
+                        || obj->otyp == POT_WATER)) {
+                    obj->blessed = FALSE;
                     obj->cursed = TRUE;
-                if (obj->otyp == STRIPED_SHIRT)
+                }
+                if (obj->otyp == STRIPED_SHIRT) {
+                    obj->blessed = FALSE;
                     obj->cursed = TRUE;
+                }
                 if ((obj->oclass == WEAPON_CLASS
                      || obj->oclass == ARMOR_CLASS)
                     && chance > 1) {
