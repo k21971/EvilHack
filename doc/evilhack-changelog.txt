@@ -1344,4 +1344,5 @@ Version 0.7.0
 - Fix: Oracle stayed peaceful when the gods took notice of thievery
 - Fix: Cerberus was still susceptible to AD_BHED attack
 - Fix: instances where article was missing from the Bag of the Hesperides
+- Create three tiers of homunculus, Infidel now has a pet that can grow
 

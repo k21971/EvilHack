@@ -205,6 +205,8 @@ makedog()
         petname = pseudoname;
     else if (pettype == PM_SEWER_RAT)
         petname = ratname;
+    else if (pettype == PM_LESSER_HOMUNCULUS)
+        petname = homunname;
     else if (pettype == PM_PONY) {
         petname = horsename;
         /* hijack creation for chaotic knights */

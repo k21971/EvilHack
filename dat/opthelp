@@ -223,6 +223,11 @@ gender     Your starting gender (male, female, or random).         [random]
            boolean options, the "gender" option will take precedence.
 horsename  the name of your first horse                              [none]
 pseudoname the name of your first pseudodragon                       [none]
+ratname    the name of your first rat                                [none]
+           Convicts are the only role to have a sewer rat as a
+           starting pet.  Its default starting name is "Nicodemus"
+           unless specified.
+homunname  the name of your first homunculus                         [none]
 menu_*     specify single character accelerators for menu commands.
            Here is a list of all commands with their default keystroke
            followed by a list of window-ports that implement them:

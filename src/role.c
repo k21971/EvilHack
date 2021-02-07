@@ -251,7 +251,7 @@ const struct Role roles[] = {
       "the Howling Forest",
       PM_INFIDEL,
       NON_PM,
-      PM_HOMUNCULUS,
+      PM_LESSER_HOMUNCULUS,
       PM_ARCHBISHOP_OF_MOLOCH,
       PM_CULTIST,
       PM_PALADIN,

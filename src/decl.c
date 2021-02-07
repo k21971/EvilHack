@@ -217,7 +217,8 @@ NEARDATA char catname[PL_PSIZ] = DUMMY;
 NEARDATA char horsename[PL_PSIZ] = DUMMY;
 NEARDATA char pseudoname[PL_PSIZ] = DUMMY;
 NEARDATA char ratname[PL_PSIZ] = DUMMY;
-char preferred_pet; /* '\0', 'c', 'd', 'h', 'p', 'n' (none) */
+NEARDATA char homunname[PL_PSIZ] = DUMMY;
+char preferred_pet; /* '\0', 'c', 'd', 'h', 'i', 'p', 'r', 'n' (none) */
 /* monsters that went down/up together with @ */
 NEARDATA struct monst *mydogs = (struct monst *) 0;
 /* monsters that are moving to another dungeon level */
