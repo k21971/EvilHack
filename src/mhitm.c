@@ -1197,7 +1197,7 @@ int dieroll;
         }
         goto physical;
     case AD_BHED:
-        if ((!rn2(15) || mdef->data->mlet == S_JABBERWOCK) && !magr->mcan) {
+        if ((!rn2(15) || is_jabberwock(mdef->data)) && !magr->mcan) {
             Strcpy(buf, Monnam(magr));
             if (!has_head(mdef->data)) {
                 if (canseemon(mdef))

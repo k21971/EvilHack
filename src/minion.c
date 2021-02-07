@@ -240,7 +240,8 @@ register struct monst *mtmp;
 {
     long cash, demand, offer;
 
-    if (uwep && uwep->oartifact == ART_EXCALIBUR) {
+    if (uwep && (uwep->oartifact == ART_EXCALIBUR
+                 || (u.twoweap && uswapwep->oartifact == ART_EXCALIBUR))) {
         pline("%s looks very angry.", Amonnam(mtmp));
         mtmp->mpeaceful = mtmp->mtame = 0;
         set_malign(mtmp);

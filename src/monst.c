@@ -1990,7 +1990,7 @@ struct permonst _mons2[] = {
         SIZ(1300, 600, MS_BURBLE, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_FLY | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_COLLECT, M3_INFRAVISIBLE,
-        0, 0, 18, CLR_ORANGE),
+        0, MH_JABBERWOCK, 18, CLR_ORANGE),
     /* boojum only come from snarks */
     MON("boojum", S_JABBERWOCK, LVL(18, 15, 0, 90, 0), G_NOGEN,
         A(ATTK(AT_BITE, AD_PHYS, 3, 10), ATTK(AT_CLAW, AD_PHYS, 3, 10),
@@ -2008,7 +2008,7 @@ struct permonst _mons2[] = {
         SIZ(1300, 600, MS_BURBLE, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_FLY | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_COLLECT, M3_INFRAVISIBLE,
-        0, 0, 26, HI_LORD),
+        0, MH_JABBERWOCK, 26, HI_LORD),
     /*
      * Kops
      */

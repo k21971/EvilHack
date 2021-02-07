@@ -290,6 +290,7 @@
 #define is_longworm(ptr)                                                   \
     (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
      || ((ptr) == &mons[PM_LONG_WORM_TAIL]))
+#define is_jabberwock(ptr) (((ptr)->mhflags & MH_JABBERWOCK) != 0L)
 #define is_covetous(ptr) (((ptr)->mflags3 & M3_COVETOUS))
 #define is_skittish(ptr) (((ptr)->mflags3 & M3_SKITTISH))
 #define is_accurate(ptr) \

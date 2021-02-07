@@ -973,7 +973,7 @@ register struct obj *obj;
         return FALSE;
 
     /* Knights can never tame dragons.  Natural enemies, y'see. */
-    if (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_DRAGON)
+    if (Role_if(PM_KNIGHT) && is_dragon(mtmp->data))
         return FALSE;
 
     /* Dark knights cannot tame ki-rin, lawful knights cannot
@@ -999,6 +999,69 @@ register struct obj *obj;
 
     /* Only orcs can tame the savage warg... */
     if (!Race_if(PM_ORC) && mtmp->data == &mons[PM_WARG])
+        return FALSE;
+
+    /* If wielding/wearing any of the 'banes, taming becomes
+       impossible */
+    if (uwep && (uwep->oartifact == ART_STING
+                 || (u.twoweap && uswapwep->oartifact == ART_STING))
+        && is_orc(mtmp->data))
+        return FALSE;
+
+    if (uwep && (uwep->oartifact == ART_ORCRIST
+                 || (u.twoweap && uswapwep->oartifact == ART_ORCRIST))
+        && is_orc(mtmp->data))
+        return FALSE;
+
+    if (uwep && (uwep->oartifact == ART_GRIMTOOTH
+                 || (u.twoweap && uswapwep->oartifact == ART_GRIMTOOTH))
+        && is_elf(mtmp->data))
+        return FALSE;
+
+    if (uwep && (uwep->oartifact == ART_GIANTSLAYER
+                 || (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
+        && is_giant(mtmp->data))
+        return FALSE;
+
+    if (uwep && (uwep->oartifact == ART_TROLLSBANE
+                 || (u.twoweap && uswapwep->oartifact == ART_TROLLSBANE))
+        && is_troll(mtmp->data))
+        return FALSE;
+
+    if (uwep && (uwep->oartifact == ART_OGRESMASHER
+                 || (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER))
+        && is_ogre(mtmp->data))
+        return FALSE;
+
+    if (uwep && (uwep->oartifact == ART_SUNSWORD
+                 || (u.twoweap && uswapwep->oartifact == ART_SUNSWORD))
+        && is_undead(mtmp->data))
+        return FALSE;
+
+    if (uwep && (uwep->oartifact == ART_WEREBANE
+                 || (u.twoweap && uswapwep->oartifact == ART_WEREBANE))
+        && is_were(mtmp->data))
+        return FALSE;
+
+    /* can't really tame demons, but this is here for completeness sake */
+    if (uwep && (uwep->oartifact == ART_DEMONBANE
+                 || (u.twoweap && uswapwep->oartifact == ART_DEMONBANE))
+        && is_demon(mtmp->data))
+        return FALSE;
+
+    /* same for angels */
+    if (uwep && (uwep->oartifact == ART_ANGELSLAYER
+                 || (u.twoweap && uswapwep->oartifact == ART_ANGELSLAYER))
+        && is_angel(mtmp->data))
+        return FALSE;
+
+    if (uwep && (uwep->oartifact == ART_VORPAL_BLADE
+                 || (u.twoweap && uswapwep->oartifact == ART_VORPAL_BLADE))
+        && is_jabberwock(mtmp->data))
+        return FALSE;
+
+    if (uarmg && uarmg->oartifact == ART_DRAGONBANE
+        && is_dragon(mtmp->data))
         return FALSE;
 
     /* worst case, at least it'll be peaceful. */

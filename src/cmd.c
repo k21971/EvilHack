@@ -2940,6 +2940,8 @@ int final;
         you_are("aware of the presence of demons because of Demonbane", "");
     if (Warn_of_mon && (context.warntype.obj & MH_ANGEL))
         you_are("aware of the presence of angels because of Angelslayer", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_JABBERWOCK))
+        you_are("aware of the presence of jabberwocks because of Vorpal Blade", "");
 
     if (Warn_of_mon && context.warntype.polyd) {
         Sprintf(buf, "aware of the presence of %s",
@@ -2968,7 +2970,9 @@ int final;
                                                   ? "demons"
                                                   : (context.warntype.polyd & MH_ANGEL)
                                                         ? "angels"
-                                                        : "certain monsters");
+                                                        : (context.warntype.polyd & MH_JABBERWOCK)
+                                                              ? "jabberwocks"
+                                                              : "certain monsters");
         you_are(buf, "");
     }
     if (Warn_of_mon && context.warntype.speciesidx >= LOW_PM) {

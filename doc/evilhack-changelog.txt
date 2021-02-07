@@ -1346,4 +1346,5 @@ Version 0.7.0
 - Fix: instances where article was missing from the Bag of the Hesperides
 - Create three tiers of homunculus, Infidel now has a pet that can grow
 - Slight changes to intrinsics gained via crowning for infidel role
+- Extra effects/consequences for wielding or wearing any of the 'banes 
 

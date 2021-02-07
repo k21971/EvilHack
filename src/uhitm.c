@@ -2079,7 +2079,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
 #endif
         goto physical;
     case AD_BHED:
-        if (!rn2(15) || mdef->data->mlet == S_JABBERWOCK) {
+        if (!rn2(15) || is_jabberwock(mdef->data)) {
             if (!has_head(mdef->data)) {
                 if (canseemon(mdef))
                     pline("Somehow, you miss %s wildly.", mon_nam(mdef));

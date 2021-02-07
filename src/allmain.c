@@ -532,6 +532,50 @@ boolean resuming;
                        100% cold resistance */
                     if (Iniceq)
                         in_iceq_effects();
+
+                    /* If wielding/wearing any of the 'banes, make those
+                       monsters that they are against hostile should they
+                       be tame or peaceful */
+                    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                        if ((uarmg && uarmg->oartifact == ART_DRAGONBANE
+                             && is_dragon(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_STING
+                                         || (u.twoweap && uswapwep->oartifact == ART_STING))
+                                && is_orc(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_ORCRIST
+                                         || (u.twoweap && uswapwep->oartifact == ART_ORCRIST))
+                                && is_orc(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_GRIMTOOTH
+                                         || (u.twoweap && uswapwep->oartifact == ART_GRIMTOOTH))
+                                && is_elf(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_GIANTSLAYER
+                                         || (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
+                                && is_giant(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_TROLLSBANE
+                                         || (u.twoweap && uswapwep->oartifact == ART_TROLLSBANE))
+                                && is_troll(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_OGRESMASHER
+                                         || (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER))
+                                && is_ogre(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_SUNSWORD
+                                         || (u.twoweap && uswapwep->oartifact == ART_SUNSWORD))
+                                && is_undead(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_WEREBANE
+                                         || (u.twoweap && uswapwep->oartifact == ART_WEREBANE))
+                                && is_were(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_DEMONBANE
+                                         || (u.twoweap && uswapwep->oartifact == ART_DEMONBANE))
+                                && is_demon(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_ANGELSLAYER
+                                         || (u.twoweap && uswapwep->oartifact == ART_ANGELSLAYER))
+                                && is_angel(mtmp->data))
+                            || (uwep && (uwep->oartifact == ART_VORPAL_BLADE
+                                         || (u.twoweap && uswapwep->oartifact == ART_VORPAL_BLADE))
+                                && is_jabberwock(mtmp->data))) {
+                            if (mtmp->mpeaceful || mtmp->mtame)
+                                mtmp->mpeaceful = mtmp->mtame = 0;
+                        }
+                    }
                 }
             } while (youmonst.movement < NORMAL_SPEED); /* hero can't move */
 

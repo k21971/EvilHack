@@ -2210,7 +2210,7 @@ do_rust:
         }
         break;
     case AD_BHED:
-        if ((!rn2(15) || youmonst.data->mlet == S_JABBERWOCK) && !mtmp->mcan) {
+        if ((!rn2(15) || is_jabberwock(youmonst.data)) && !mtmp->mcan) {
             if (!has_head(youmonst.data)) {
                 pline("Somehow, %s misses you wildly.", mon_nam(mtmp));
                 dmg = 0;
