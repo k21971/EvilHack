@@ -1349,4 +1349,5 @@ Version 0.7.0
 - Extra effects/consequences for wielding or wearing any of the 'banes 
 - Fix: ensure cursed flag is set for infidel NPC water potions
 - Some tweaks to infidel NPC gear
+- Fix: snow golem entry for the encyclopedia
 
