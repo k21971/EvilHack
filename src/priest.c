@@ -292,90 +292,94 @@ boolean sanctum; /* is it the seat of the high priest? */
         }
     }
 
-    /* set priest's race */
-    if (prace) {
-        /* on the odd chance that it hit one that was genoed,
-           leave it a normal priest */
-        if (!(mvitals[prace].mvflags & G_GONE)) {
-            mdat = &mons[prace];
-            priest->mnum = prace;
-            set_mon_data(priest, mdat);
-        }
-    } else {
-        prace = rnd(6);
+    /* set priest's race - except on astral plane, otherwise
+       it makes it too easy for the player to determine the
+       correct altar to go to */
+    if (!(on_level(&astral_level, &u.uz))) {
         if (prace) {
-            switch (prace) {
-            /* not all races can tend any aligned (or unaligned)
-               altar. Elves can only be assigned chaotic altars,
-               dwarves and hobbits lawful or neutral, centaurs
-               neutral or chaotic, orcs and illithids chaotic or
-               unaligned, and humans are unrestricted */
-            case 1:
-                if (EPRI(priest)->shralign == A_CHAOTIC) {
-                    mdat = &mons[PM_GREEN_ELF];
-                    priest->mnum = PM_GREEN_ELF;
-                } else if (EPRI(priest)->shralign == A_LAWFUL) {
-                    mdat = &mons[PM_HOBBIT];
-                    priest->mnum = PM_HOBBIT;
-                } else {
-                    mdat = &mons[PM_HUMAN];
-                    priest->mnum = PM_HUMAN;
-                }
-                break;
-            case 2:
-                if (EPRI(priest)->shralign == A_LAWFUL
-                    || EPRI(priest)->shralign == A_NEUTRAL) {
-                    mdat = &mons[PM_DWARF];
-                    priest->mnum = PM_DWARF;
-                } else if (EPRI(priest)->shralign == A_CHAOTIC) {
-                    mdat = &mons[PM_GREEN_ELF];
-                    priest->mnum = PM_GREEN_ELF;
-                } else {
-                    mdat = &mons[PM_ILLITHID];
-                    priest->mnum = PM_ILLITHID;
-                }
-                break;
-            case 3:
-                if (EPRI(priest)->shralign == A_CHAOTIC
-                    || EPRI(priest)->shralign == A_NONE) {
-                    mdat = &mons[PM_ORC];
-                    priest->mnum = PM_ORC;
-                } else {
-                    mdat = &mons[PM_HOBBIT];
-                    priest->mnum = PM_HOBBIT;
-                }
-                break;
-            case 4:
-                if (EPRI(priest)->shralign == A_CHAOTIC
-                    || EPRI(priest)->shralign == A_NONE) {
-                    mdat = &mons[PM_ILLITHID];
-                    priest->mnum = PM_ILLITHID;
-                } else {
-                    mdat = &mons[PM_HUMAN];
-                    priest->mnum = PM_HUMAN;
-                }
-                break;
-            case 5:
-                if (EPRI(priest)->shralign == A_CHAOTIC
-                    || EPRI(priest)->shralign == A_NEUTRAL) {
-                    mdat = &mons[PM_CENTAUR];
-                    priest->mnum = PM_CENTAUR;
-                } else if (EPRI(priest)->shralign == A_LAWFUL) {
-                    mdat = &mons[PM_DWARF];
-                    priest->mnum = PM_DWARF;
-                } else {
-                    mdat = &mons[PM_ORC];
-                    priest->mnum = PM_ORC;
-                }
-                break;
-            case 6:
-                mdat = &mons[PM_HUMAN];
-                priest->mnum = PM_HUMAN;
-                break;
+            /* on the odd chance that it hit one that was genoed,
+               leave it a normal priest */
+            if (!(mvitals[prace].mvflags & G_GONE)) {
+                mdat = &mons[prace];
+                priest->mnum = prace;
+                set_mon_data(priest, mdat);
             }
-            set_mon_data(priest, mdat);
-            priest->ispriest = 1;
-            priest->data->msound = MS_PRIEST;
+        } else {
+            prace = rnd(6);
+            if (prace) {
+                switch (prace) {
+                /* not all races can tend any aligned (or unaligned)
+                   altar. Elves can only be assigned chaotic altars,
+                   dwarves and hobbits lawful or neutral, centaurs
+                   neutral or chaotic, orcs and illithids chaotic or
+                   unaligned, and humans are unrestricted */
+                case 1:
+                    if (EPRI(priest)->shralign == A_CHAOTIC) {
+                        mdat = &mons[PM_GREEN_ELF];
+                        priest->mnum = PM_GREEN_ELF;
+                    } else if (EPRI(priest)->shralign == A_LAWFUL) {
+                        mdat = &mons[PM_HOBBIT];
+                        priest->mnum = PM_HOBBIT;
+                    } else {
+                        mdat = &mons[PM_HUMAN];
+                        priest->mnum = PM_HUMAN;
+                    }
+                    break;
+                case 2:
+                    if (EPRI(priest)->shralign == A_LAWFUL
+                        || EPRI(priest)->shralign == A_NEUTRAL) {
+                        mdat = &mons[PM_DWARF];
+                        priest->mnum = PM_DWARF;
+                    } else if (EPRI(priest)->shralign == A_CHAOTIC) {
+                        mdat = &mons[PM_GREEN_ELF];
+                        priest->mnum = PM_GREEN_ELF;
+                    } else {
+                        mdat = &mons[PM_ILLITHID];
+                        priest->mnum = PM_ILLITHID;
+                    }
+                    break;
+                case 3:
+                    if (EPRI(priest)->shralign == A_CHAOTIC
+                        || EPRI(priest)->shralign == A_NONE) {
+                        mdat = &mons[PM_ORC];
+                        priest->mnum = PM_ORC;
+                    } else {
+                        mdat = &mons[PM_HOBBIT];
+                        priest->mnum = PM_HOBBIT;
+                    }
+                    break;
+                case 4:
+                    if (EPRI(priest)->shralign == A_CHAOTIC
+                        || EPRI(priest)->shralign == A_NONE) {
+                        mdat = &mons[PM_ILLITHID];
+                        priest->mnum = PM_ILLITHID;
+                    } else {
+                        mdat = &mons[PM_HUMAN];
+                        priest->mnum = PM_HUMAN;
+                    }
+                    break;
+                case 5:
+                    if (EPRI(priest)->shralign == A_CHAOTIC
+                        || EPRI(priest)->shralign == A_NEUTRAL) {
+                        mdat = &mons[PM_CENTAUR];
+                        priest->mnum = PM_CENTAUR;
+                    } else if (EPRI(priest)->shralign == A_LAWFUL) {
+                        mdat = &mons[PM_DWARF];
+                        priest->mnum = PM_DWARF;
+                    } else {
+                        mdat = &mons[PM_ORC];
+                        priest->mnum = PM_ORC;
+                    }
+                    break;
+                case 6:
+                    mdat = &mons[PM_HUMAN];
+                    priest->mnum = PM_HUMAN;
+                    break;
+                }
+                set_mon_data(priest, mdat);
+                priest->ispriest = 1;
+                priest->data->msound = MS_PRIEST;
+            }
         }
     }
 }
@@ -448,6 +452,8 @@ char *pname; /* caller-supplied output buffer */
         else if (mon->data == &mons[PM_HUMAN])
             Strcat(pname, "human ");
     }
+    if (on_level(&sanctum_level, &u.uz))
+        Strcat(pname, "high ");
 
     if (mon->ispriest || aligned_priest) { /* high_priest implies ispriest */
         if (!aligned_priest && !high_priest && !racial_priest) {

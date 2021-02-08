@@ -1352,4 +1352,5 @@ Version 0.7.0
 - Fix: snow golem entry for the encyclopedia
 - Honey badger adjustments
 - Racial priests and priestesses
+- Some minor fixes to the racial priests and priestesses commit
 
