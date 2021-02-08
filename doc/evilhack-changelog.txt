@@ -1351,4 +1351,5 @@ Version 0.7.0
 - Some tweaks to infidel NPC gear
 - Fix: snow golem entry for the encyclopedia
 - Honey badger adjustments
+- Racial priests and priestesses
 

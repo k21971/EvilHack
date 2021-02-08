@@ -247,13 +247,15 @@ boolean sanctum; /* is it the seat of the high priest? */
 {
     struct monst *priest;
     struct obj *otmp;
-    int cnt;
+    struct permonst* mdat;
+    int cnt, prace = 0;
 
     if (MON_AT(sx + 1, sy))
         (void) rloc(m_at(sx + 1, sy), FALSE); /* insurance */
 
     priest = makemon(&mons[sanctum ? PM_HIGH_PRIEST : PM_ALIGNED_PRIEST],
                      sx + 1, sy, MM_EPRI);
+
     if (priest) {
         EPRI(priest)->shroom = (schar) ((sroom - rooms) + ROOMOFFSET);
         EPRI(priest)->shralign = Amask2align(levl[sx][sy].altarmask);
@@ -289,6 +291,93 @@ boolean sanctum; /* is it the seat of the high priest? */
                 curse(otmp);
         }
     }
+
+    /* set priest's race */
+    if (prace) {
+        /* on the odd chance that it hit one that was genoed,
+           leave it a normal priest */
+        if (!(mvitals[prace].mvflags & G_GONE)) {
+            mdat = &mons[prace];
+            priest->mnum = prace;
+            set_mon_data(priest, mdat);
+        }
+    } else {
+        prace = rnd(6);
+        if (prace) {
+            switch (prace) {
+            /* not all races can tend any aligned (or unaligned)
+               altar. Elves can only be assigned chaotic altars,
+               dwarves and hobbits lawful or neutral, centaurs
+               neutral or chaotic, orcs and illithids chaotic or
+               unaligned, and humans are unrestricted */
+            case 1:
+                if (EPRI(priest)->shralign == A_CHAOTIC) {
+                    mdat = &mons[PM_GREEN_ELF];
+                    priest->mnum = PM_GREEN_ELF;
+                } else if (EPRI(priest)->shralign == A_LAWFUL) {
+                    mdat = &mons[PM_HOBBIT];
+                    priest->mnum = PM_HOBBIT;
+                } else {
+                    mdat = &mons[PM_HUMAN];
+                    priest->mnum = PM_HUMAN;
+                }
+                break;
+            case 2:
+                if (EPRI(priest)->shralign == A_LAWFUL
+                    || EPRI(priest)->shralign == A_NEUTRAL) {
+                    mdat = &mons[PM_DWARF];
+                    priest->mnum = PM_DWARF;
+                } else if (EPRI(priest)->shralign == A_CHAOTIC) {
+                    mdat = &mons[PM_GREEN_ELF];
+                    priest->mnum = PM_GREEN_ELF;
+                } else {
+                    mdat = &mons[PM_ILLITHID];
+                    priest->mnum = PM_ILLITHID;
+                }
+                break;
+            case 3:
+                if (EPRI(priest)->shralign == A_CHAOTIC
+                    || EPRI(priest)->shralign == A_NONE) {
+                    mdat = &mons[PM_ORC];
+                    priest->mnum = PM_ORC;
+                } else {
+                    mdat = &mons[PM_HOBBIT];
+                    priest->mnum = PM_HOBBIT;
+                }
+                break;
+            case 4:
+                if (EPRI(priest)->shralign == A_CHAOTIC
+                    || EPRI(priest)->shralign == A_NONE) {
+                    mdat = &mons[PM_ILLITHID];
+                    priest->mnum = PM_ILLITHID;
+                } else {
+                    mdat = &mons[PM_HUMAN];
+                    priest->mnum = PM_HUMAN;
+                }
+                break;
+            case 5:
+                if (EPRI(priest)->shralign == A_CHAOTIC
+                    || EPRI(priest)->shralign == A_NEUTRAL) {
+                    mdat = &mons[PM_CENTAUR];
+                    priest->mnum = PM_CENTAUR;
+                } else if (EPRI(priest)->shralign == A_LAWFUL) {
+                    mdat = &mons[PM_DWARF];
+                    priest->mnum = PM_DWARF;
+                } else {
+                    mdat = &mons[PM_ORC];
+                    priest->mnum = PM_ORC;
+                }
+                break;
+            case 6:
+                mdat = &mons[PM_HUMAN];
+                priest->mnum = PM_HUMAN;
+                break;
+            }
+            set_mon_data(priest, mdat);
+            priest->ispriest = 1;
+            priest->data->msound = MS_PRIEST;
+        }
+    }
 }
 
 /* get a monster's alignment type without caller needing EPRI & EMIN */
@@ -322,7 +411,14 @@ char *pname; /* caller-supplied output buffer */
 {
     boolean do_hallu = Hallucination,
             aligned_priest = mon->data == &mons[PM_ALIGNED_PRIEST],
-            high_priest = mon->data == &mons[PM_HIGH_PRIEST];
+            high_priest = mon->data == &mons[PM_HIGH_PRIEST],
+            racial_priest = (mon->data == &mons[PM_GREEN_ELF]
+                             || mon->data == &mons[PM_DWARF]
+                             || mon->data == &mons[PM_ORC]
+                             || mon->data == &mons[PM_ILLITHID]
+                             || mon->data == &mons[PM_CENTAUR]
+                             || mon->data == &mons[PM_HOBBIT]
+                             || mon->data == &mons[PM_HUMAN]);
     char whatcode = '\0';
     const char *what = do_hallu ? rndmonnam(&whatcode) : mon->data->mname;
 
@@ -336,9 +432,25 @@ char *pname; /* caller-supplied output buffer */
         Strcat(pname, "invisible ");
     if (mon->isminion && EMIN(mon)->renegade)
         Strcat(pname, "renegade ");
+    if (mon->data->mname) {
+        if (mon->data == &mons[PM_GREEN_ELF])
+            Strcat(pname, "elven ");
+        else if (mon->data == &mons[PM_DWARF])
+            Strcat(pname, "dwarvish ");
+        else if (mon->data == &mons[PM_ORC])
+            Strcat(pname, "orcish ");
+        else if (mon->data == &mons[PM_ILLITHID])
+            Strcat(pname, "illithid ");
+        else if (mon->data == &mons[PM_CENTAUR])
+            Strcat(pname, "centaurian ");
+        else if (mon->data == &mons[PM_HOBBIT])
+            Strcat(pname, "hobbit ");
+        else if (mon->data == &mons[PM_HUMAN])
+            Strcat(pname, "human ");
+    }
 
     if (mon->ispriest || aligned_priest) { /* high_priest implies ispriest */
-        if (!aligned_priest && !high_priest) {
+        if (!aligned_priest && !high_priest && !racial_priest) {
             ; /* polymorphed priest; use ``what'' as is */
         } else {
             if (high_priest)
