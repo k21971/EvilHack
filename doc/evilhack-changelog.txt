@@ -1353,4 +1353,5 @@ Version 0.7.0
 - Honey badger adjustments
 - Racial priests and priestesses
 - Some minor fixes to the racial priests and priestesses commit
+- Bit of code formatting clean-up (racial shopkeepers)
 

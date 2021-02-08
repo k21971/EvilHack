@@ -661,118 +661,118 @@ int shp_indx;
     /* change the shopkeeper to a particular race */
     switch (shtypes[shp_indx].symb) {
 	/* armors and weaponry are similar... */
-	case ARMOR_CLASS:
-	case WEAPON_CLASS:
-	    switch (rn2(4)) {
-		case 0:
-    		    srace = PM_HUMAN_SERGEANT + rn2(3);
-	    	    break;
-		case 1:
-		    srace = PM_STONE_GIANT + rn2(5);
-		    break;
-                case 2:
-                    srace = PM_CENTAUR;
-                    break;
-		default:
-	            srace = PM_DWARF_LORD + rn2(2);
-		    break;
-	    }
-	    break;
-	case FOOD_CLASS:
-            switch (rn2(3)) {
-                case 0:
-	            srace = PM_HOBBIT;
-	            break;
-                case 1:
-                    srace = PM_GNOME;
-                    break;
-                default:
-                    srace = PM_HUMAN;
-                    break;
-            }
+    case ARMOR_CLASS:
+    case WEAPON_CLASS:
+        switch (rnd(4)) {
+        case 1:
+            srace = PM_HUMAN_SERGEANT + rn2(3);
             break;
-	case RING_CLASS:
-	    srace = PM_WOOD_NYMPH + rn2(3);
-	    break;
-	/* wands and potions also similar... */
-	case WAND_CLASS:
-	case POTION_CLASS:
-	    srace = PM_WOODLAND_ELF + rn2(5);
-	    break;
-	case TOOL_CLASS:
-            if (shp->shknms == shklight && In_mines(&u.uz)) {
-                /* Izchak is always human.
-                 * At this point we haven't actually named the shk yet, so we
-                 * just check if we're a lighting store in the mines. This
-                 * doesn't actually check to see if we're in Minetown, so
-                 * this technically makes any lighting store in the Mines have a
-                 * human shopkeeper. */
-                srace = PM_HUMAN;
-            } else {
-		srace = PM_GNOME_LORD + rn2(2);
-	    }
-	    break;
-	/* and scrolls and books fall to spellcasters */
-	case SCROLL_CLASS:
-	case SPBOOK_CLASS:
-            switch (rn2(4)) {
-                case 0:
-                    srace = PM_MIND_FLAYER + rn2(2);
-                    break;
-                case 1:
-	            srace = PM_HILL_GIANT_SHAMAN;
-	            break;
-                case 2:
-                    srace = PM_GNOMISH_WIZARD;
-                    break;
-                default:
-                    srace = PM_ELVEN_WIZARD;
-                    break;
-            }
+        case 2:
+            srace = PM_STONE_GIANT + rn2(5);
             break;
-	default:
-	    break;
+        case 3:
+            srace = PM_CENTAUR;
+            break;
+        case 4:
+            srace = PM_DWARF_LORD + rn2(2);
+            break;
+        }
+        break;
+    case FOOD_CLASS:
+        switch (rnd(3)) {
+        case 1:
+            srace = PM_HOBBIT;
+            break;
+        case 2:
+            srace = PM_GNOME;
+            break;
+        case 3:
+            srace = PM_HUMAN;
+            break;
+        }
+        break;
+    case RING_CLASS:
+        srace = PM_WOOD_NYMPH + rn2(3);
+        break;
+    /* wands and potions also similar... */
+    case WAND_CLASS:
+    case POTION_CLASS:
+	srace = PM_WOODLAND_ELF + rn2(5);
+        break;
+    case TOOL_CLASS:
+        if (shp->shknms == shklight && In_mines(&u.uz)) {
+            /* Izchak is always human.
+             * At this point we haven't actually named the shk yet, so we
+             * just check if we're a lighting store in the mines. This
+             * doesn't actually check to see if we're in Minetown, so
+             * this technically makes any lighting store in the Mines have a
+             * human shopkeeper. */
+            srace = PM_HUMAN;
+        } else {
+            srace = PM_GNOME_LORD + rn2(2);
+        }
+        break;
+    /* and scrolls and books fall to spellcasters */
+    case SCROLL_CLASS:
+    case SPBOOK_CLASS:
+        switch (rnd(4)) {
+        case 1:
+            srace = PM_MIND_FLAYER + rn2(2);
+            break;
+        case 2:
+            srace = PM_HILL_GIANT_SHAMAN;
+            break;
+        case 3:
+            srace = PM_GNOMISH_WIZARD;
+            break;
+        case 4:
+            srace = PM_ELVEN_WIZARD;
+            break;
+        }
+        break;
+    default:
+        break;
     }
 
     /* if we picked a specific monster, use that... */
     if (srace) {
-	/* on the odd chance that it hit one that was genoed, leave it a normal shk */
-	if (!(mvitals[srace].mvflags & G_GONE)) {
-	    mdat = &mons[srace];
-	    shk->mnum = srace;
-	    set_mon_data(shk, mdat);
+        /* on the odd chance that it hit one that was genoed, leave it a normal shk */
+        if (!(mvitals[srace].mvflags & G_GONE)) {
+            mdat = &mons[srace];
+            shk->mnum = srace;
+            set_mon_data(shk, mdat);
         }
     } else {
-	srace = rn2(6);
-	if (srace) {
-	    switch (srace) {
-		case 0:
-		    mdat = &mons[PM_GREEN_ELF];
-		    shk->mnum = PM_GREEN_ELF;
-		    break;
-		case 1:
-		    mdat = &mons[PM_DWARF];
-		    shk->mnum = PM_DWARF;
-		    break;
-		case 2:
-		    mdat = &mons[PM_ORC];
-		    shk->mnum = PM_ORC;
-		    break;
-		case 3:
-		    mdat = &mons[PM_GNOME];
-		    shk->mnum = PM_GNOME;
-		    break;
-                case 4:
-                    mdat = &mons[PM_GIANT];
-                    shk->mnum = PM_GIANT;
-                    break;
-		default:
-                    mdat = &mons[PM_HUMAN];
-                    shk->mnum = PM_HUMAN;
-		    break;
-	    }
-	set_mon_data(shk, mdat);
-	}
+        srace = rnd(6);
+        if (srace) {
+            switch (srace) {
+            case 1:
+                mdat = &mons[PM_GREEN_ELF];
+                shk->mnum = PM_GREEN_ELF;
+                break;
+            case 2:
+                mdat = &mons[PM_DWARF];
+                shk->mnum = PM_DWARF;
+                break;
+            case 3:
+                mdat = &mons[PM_ORC];
+                shk->mnum = PM_ORC;
+                break;
+            case 4:
+                mdat = &mons[PM_GNOME];
+                shk->mnum = PM_GNOME;
+                break;
+            case 5:
+                mdat = &mons[PM_GIANT];
+                shk->mnum = PM_GIANT;
+                break;
+            case 6:
+                mdat = &mons[PM_HUMAN];
+                shk->mnum = PM_HUMAN;
+                break;
+            }
+        set_mon_data(shk, mdat);
+        }
     }
 
     shk->isshk = shk->mpeaceful = 1;
@@ -798,23 +798,23 @@ int shp_indx;
     nameshk(shk, shp->shknms);
 
     if (!strcmp(shkname(shk), "Izchak")) {
-	struct obj *otmp;
+        struct obj *otmp;
 
-	otmp = mksobj(LONG_SWORD, FALSE, FALSE);
-	if (otmp) {
+        otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+        if (otmp) {
             create_oprop(otmp, FALSE);
             bless(otmp);
-	    otmp->spe = rn2(4) + 1;
-	    otmp->oerodeproof = TRUE;
-	    (void) mpickobj(shk, otmp);
-	}
-	otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE);
-	if (otmp) {
-	    bless(otmp);
-	    otmp->spe = rn2(4);
-	    otmp->oerodeproof = TRUE;
-	    (void) mpickobj(shk, otmp);
-	}
+            otmp->spe = rn2(4) + 1;
+            otmp->oerodeproof = TRUE;
+            (void) mpickobj(shk, otmp);
+        }
+        otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE);
+        if (otmp) {
+            bless(otmp);
+            otmp->spe = rn2(4);
+            otmp->oerodeproof = TRUE;
+            (void) mpickobj(shk, otmp);
+        }
         otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
         if (otmp) {
             bless(otmp);
@@ -835,7 +835,7 @@ int shp_indx;
             otmp->oerodeproof = TRUE;
             (void) mpickobj(shk, otmp);
         }
-	m_dowear(shk, TRUE);
+        m_dowear(shk, TRUE);
         mon_wield_item(shk);
     }
     return sh;
