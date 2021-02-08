@@ -1354,4 +1354,4 @@ Version 0.7.0
 - Racial priests and priestesses
 - Some minor fixes to the racial priests and priestesses commit
 - Bit of code formatting clean-up (racial shopkeepers)
-
+- More tweaks to racial priests/priestesses

@@ -310,16 +310,16 @@ boolean sanctum; /* is it the seat of the high priest? */
                 switch (prace) {
                 /* not all races can tend any aligned (or unaligned)
                    altar. Elves can only be assigned chaotic altars,
-                   dwarves and hobbits lawful or neutral, centaurs
-                   neutral or chaotic, orcs and illithids chaotic or
-                   unaligned, and humans are unrestricted */
+                   centaurs neutral or chaotic, orcs and illithids
+                   chaotic or unaligned, giants the three aligned altars,
+                   and humans are unrestricted */
                 case 1:
                     if (EPRI(priest)->shralign == A_CHAOTIC) {
-                        mdat = &mons[PM_GREEN_ELF];
-                        priest->mnum = PM_GREEN_ELF;
+                        mdat = &mons[PM_ELF];
+                        priest->mnum = PM_ELF;
                     } else if (EPRI(priest)->shralign == A_LAWFUL) {
-                        mdat = &mons[PM_HOBBIT];
-                        priest->mnum = PM_HOBBIT;
+                        mdat = &mons[PM_GIANT];
+                        priest->mnum = PM_GIANT;
                     } else {
                         mdat = &mons[PM_HUMAN];
                         priest->mnum = PM_HUMAN;
@@ -328,11 +328,11 @@ boolean sanctum; /* is it the seat of the high priest? */
                 case 2:
                     if (EPRI(priest)->shralign == A_LAWFUL
                         || EPRI(priest)->shralign == A_NEUTRAL) {
-                        mdat = &mons[PM_DWARF];
-                        priest->mnum = PM_DWARF;
+                        mdat = &mons[PM_GIANT];
+                        priest->mnum = PM_GIANT;
                     } else if (EPRI(priest)->shralign == A_CHAOTIC) {
-                        mdat = &mons[PM_GREEN_ELF];
-                        priest->mnum = PM_GREEN_ELF;
+                        mdat = &mons[PM_ELF];
+                        priest->mnum = PM_ELF;
                     } else {
                         mdat = &mons[PM_ILLITHID];
                         priest->mnum = PM_ILLITHID;
@@ -343,9 +343,12 @@ boolean sanctum; /* is it the seat of the high priest? */
                         || EPRI(priest)->shralign == A_NONE) {
                         mdat = &mons[PM_ORC];
                         priest->mnum = PM_ORC;
+                    } else if (EPRI(priest)->shralign == A_NEUTRAL) {
+                        mdat = &mons[PM_CENTAUR];
+                        priest->mnum = PM_CENTAUR;
                     } else {
-                        mdat = &mons[PM_HOBBIT];
-                        priest->mnum = PM_HOBBIT;
+                        mdat = &mons[PM_HUMAN];
+                        priest->mnum = PM_HUMAN;
                     }
                     break;
                 case 4:
@@ -353,6 +356,9 @@ boolean sanctum; /* is it the seat of the high priest? */
                         || EPRI(priest)->shralign == A_NONE) {
                         mdat = &mons[PM_ILLITHID];
                         priest->mnum = PM_ILLITHID;
+                    } else if (EPRI(priest)->shralign == A_LAWFUL) {
+                        mdat = &mons[PM_GIANT];
+                        priest->mnum = PM_GIANT;
                     } else {
                         mdat = &mons[PM_HUMAN];
                         priest->mnum = PM_HUMAN;
@@ -364,8 +370,8 @@ boolean sanctum; /* is it the seat of the high priest? */
                         mdat = &mons[PM_CENTAUR];
                         priest->mnum = PM_CENTAUR;
                     } else if (EPRI(priest)->shralign == A_LAWFUL) {
-                        mdat = &mons[PM_DWARF];
-                        priest->mnum = PM_DWARF;
+                        mdat = &mons[PM_GIANT];
+                        priest->mnum = PM_GIANT;
                     } else {
                         mdat = &mons[PM_ORC];
                         priest->mnum = PM_ORC;
@@ -379,7 +385,38 @@ boolean sanctum; /* is it the seat of the high priest? */
                 set_mon_data(priest, mdat);
                 priest->ispriest = 1;
                 priest->data->msound = MS_PRIEST;
+                priest->data->geno &= ~G_GENO;
             }
+        }
+    }
+
+    /* the routine in makemon.c that determines gear
+       executes before a priest is initialized, so to
+       avoid giant priests using gear they're not
+       supposed to (robes), reinitialize their gear
+       once its mnum has been set */
+    if (priest->mnum == PM_GIANT) {
+        discard_minvent(priest);
+        (void) mongets(priest, rn2(7) ? HIGH_BOOTS
+                                      : rn2(3) ? GAUNTLETS_OF_PROTECTION
+                                               : AMULET_OF_MAGIC_RESISTANCE);
+        (void) mongets(priest, LARGE_SHIELD);
+        (void) mongets(priest, rn2(2) ? HEAVY_MACE : HEAVY_WAR_HAMMER);
+        (void) mongets(priest, BOULDER);
+        mkmonmoney(priest, (long) rn1(10, 20));
+        m_dowear(priest, FALSE);
+
+        /* 2 to 4 spellbooks */
+        for (cnt = rn1(3, 2); cnt > 0; --cnt) {
+            (void) mpickobj(priest, mkobj(SPBOOK_CLASS, FALSE));
+        }
+        /* gloves  and boots */
+        if (rn2(2) && ((otmp = which_armor(priest, W_ARMG)) != 0
+                       || (otmp = which_armor(priest, W_ARMF)) != 0)) {
+            if (p_coaligned(priest))
+                uncurse(otmp);
+            else
+                curse(otmp);
         }
     }
 }
@@ -416,12 +453,11 @@ char *pname; /* caller-supplied output buffer */
     boolean do_hallu = Hallucination,
             aligned_priest = mon->data == &mons[PM_ALIGNED_PRIEST],
             high_priest = mon->data == &mons[PM_HIGH_PRIEST],
-            racial_priest = (mon->data == &mons[PM_GREEN_ELF]
-                             || mon->data == &mons[PM_DWARF]
+            racial_priest = (mon->data == &mons[PM_ELF]
                              || mon->data == &mons[PM_ORC]
                              || mon->data == &mons[PM_ILLITHID]
                              || mon->data == &mons[PM_CENTAUR]
-                             || mon->data == &mons[PM_HOBBIT]
+                             || mon->data == &mons[PM_GIANT]
                              || mon->data == &mons[PM_HUMAN]);
     char whatcode = '\0';
     const char *what = do_hallu ? rndmonnam(&whatcode) : mon->data->mname;
@@ -437,18 +473,16 @@ char *pname; /* caller-supplied output buffer */
     if (mon->isminion && EMIN(mon)->renegade)
         Strcat(pname, "renegade ");
     if (mon->data->mname) {
-        if (mon->data == &mons[PM_GREEN_ELF])
+        if (mon->data == &mons[PM_ELF])
             Strcat(pname, "elven ");
-        else if (mon->data == &mons[PM_DWARF])
-            Strcat(pname, "dwarvish ");
         else if (mon->data == &mons[PM_ORC])
             Strcat(pname, "orcish ");
         else if (mon->data == &mons[PM_ILLITHID])
             Strcat(pname, "illithid ");
         else if (mon->data == &mons[PM_CENTAUR])
             Strcat(pname, "centaurian ");
-        else if (mon->data == &mons[PM_HOBBIT])
-            Strcat(pname, "hobbit ");
+        else if (mon->data == &mons[PM_GIANT])
+            Strcat(pname, "giant ");
         else if (mon->data == &mons[PM_HUMAN])
             Strcat(pname, "human ");
     }
@@ -1036,6 +1070,8 @@ restpriest(mtmp, ghostly)
 register struct monst *mtmp;
 boolean ghostly;
 {
+    mtmp->data->msound = MS_PRIEST; /* racial priests */
+    mtmp->data->geno &= ~G_GENO;
     if (u.uz.dlevel) {
         if (ghostly)
             assign_level(&(EPRI(mtmp)->shrlevel), &u.uz);

@@ -1640,7 +1640,7 @@ register struct monst *mtmp;
                                         : rn2(3) ? CLOAK_OF_PROTECTION
                                                  : CLOAK_OF_MAGIC_RESISTANCE);
             (void) mongets(mtmp, SMALL_SHIELD);
-            (void) mongets(mtmp, rn2(2) ? MACE : QUARTERSTAFF);
+            (void) mongets(mtmp, rn2(2) ? MACE : HEAVY_MACE);
             /* some insurance against 'purple rain' */
             if (on_level(&astral_level, &u.uz) && rn2(2)) {
                 (void) mongets(mtmp, RIN_SLOW_DIGESTION);

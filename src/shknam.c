@@ -697,7 +697,7 @@ int shp_indx;
     /* wands and potions also similar... */
     case WAND_CLASS:
     case POTION_CLASS:
-	srace = PM_WOODLAND_ELF + rn2(5);
+        srace = PM_WOODLAND_ELF + rn2(5);
         break;
     case TOOL_CLASS:
         if (shp->shknms == shklight && In_mines(&u.uz)) {
