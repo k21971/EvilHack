@@ -1332,20 +1332,19 @@ const char *name;
                         else
                             You("see %s step out of the shadows.",
                                 a_monnam(mtmp));
-                        if (!Deaf)
-                            pline("%s says: %s is not yours to take! %s it!",
-                                  Monnam(mtmp),
-                                  artiname(obj->oartifact),
-                                  rn2(2) ? "Relinquish" : "Return");
                     } else if (!Deaf) {
                         if (Hallucination)
                             You("hear the sounds of silence.");
                         else
                             You("hear movement nearby.");
-                        You("hear somebody say: %s is not yours to take! %s it!",
-                            artiname(obj->oartifact),
-                            rn2(2) ? "Relinquish" : "Return");
                     }
+                    if (!Deaf) {
+                        pline("%s says:", Blind ? "Someone" : Monnam(mtmp));
+                        verbalize("%s is not yours to take! %s it!",
+                                    artiname(obj->oartifact),
+                                    rn2(2) ? "Relinquish" : "Return");
+                    }
+
                     /* random chance of some helpers */
                     if (rn2(3))
                         (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);

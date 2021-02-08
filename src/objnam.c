@@ -4548,7 +4548,6 @@ struct obj *no_wish;
         int pm = -1;
         int strategy = NEED_HTH_WEAPON;
         struct monst *mtmp;
-        const char *voice = NULL;
         struct obj *otmp2 = (struct obj *) 0;
         /* You can use otmp2 to give the owner some other item you want to.
            Used here to give ammunition for the Ranger artifacts. */
@@ -4701,23 +4700,22 @@ struct obj *no_wish;
             if (Blind) {
                 if (Hallucination)
                     pline("Smells like teen spirit...");
-                else if (!Deaf)
-                    You("hear a small explosion and smell smoke.");
-                if (!Deaf)
-                    You("hear somebody say: Did you think that I would %s %s %s?",
-                        rn2(2) ? "relinquish"
-                               : rn2(2) ? "hand over" : "give you",
-                        aname, rn2(2) ? "so easily" : "without a fight");
+                else
+                    You("%ssmell smoke.",
+                        Deaf ? "" : "hear a small explosion and ");
             } else {
                 if (Hallucination)
-                    pline("Nice colors, but the sound could have been more mellow.");
+                    pline("Nice colors, but %s.",
+                          Deaf ? "funky smell"
+                               : "the sound could have been more mellow");
                 else
                     pline("There is a puff of smoke and a figure appears!");
-                if (!Deaf)
-                    pline("%s says: Did you think that I would %s %s %s?",
-                          voice ? voice : Monnam(mtmp),
+            }
+            if (!Deaf) {
+                pline("%s says:", Blind ? "Someone" : Monnam(mtmp));
+                verbalize("Did you think that I would %s %s %s?",
                           rn2(2) ? "relinquish"
-                                 : rn2(2) ? "hand over" : "give you",
+                                 : (rn2(2) ? "hand over" : "give you"),
                           aname, rn2(2) ? "so easily" : "without a fight");
             }
             (void) mpickobj(mtmp, otmp);
