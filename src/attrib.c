@@ -1151,9 +1151,8 @@ int x;
     register int tmp = (u.abon.a[x] + u.atemp.a[x] + u.acurr.a[x]);
 
     if (x == A_STR) {
-        if (tmp >= 125 || ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
-            || (uwep && uwep->oartifact == ART_GIANTSLAYER)
-            || (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER)))
+      if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+          || wielding_artifact(ART_GIANTSLAYER))
             return (schar) 125;
         else
 #ifdef WIN32_BUG
@@ -1176,8 +1175,7 @@ int x;
                 return (schar) 25;
         }
     } else if (x == A_CON) {
-        if ((uwep && uwep->oartifact == ART_OGRESMASHER)
-            || (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER))
+        if (wielding_artifact(ART_OGRESMASHER))
             return (schar) 25;
     } else if (x == A_INT || x == A_WIS) {
         /* yes, this may raise int/wis if player is sufficiently
@@ -1222,10 +1220,11 @@ int attrindx;
     if (attrindx == A_STR) {
         hilimit = STR19(25); /* 125 */
         /* lower limit for Str can also be 25 */
-        if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER) || (uwep && uwep->oartifact == ART_GIANTSLAYER))
+        if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+            || wielding_artifact(ART_GIANTSLAYER))
             lolimit = hilimit;
     } else if (attrindx == A_CON) {
-        if (uwep && uwep->oartifact == ART_OGRESMASHER)
+        if (wielding_artifact(ART_OGRESMASHER))
             lolimit = hilimit;
     }
     /* this exception is hypothetical; the only other worn item affecting

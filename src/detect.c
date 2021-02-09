@@ -1957,8 +1957,11 @@ register int aflag; /* intrinsic autosearch vs explicit searching */
         if (!aflag)
             pline("What are you looking for?  The exit?");
     } else {
-        int fund = (uwep && uwep->oartifact
-                    && spec_ability(uwep, SPFX_SEARCH)) ? uwep->spe : 0;
+        int fund = ((uwep && uwep->oartifact
+                     && spec_ability(uwep, SPFX_SEARCH))
+                    || (u.twoweap && uswapwep->oartifact
+                        && spec_ability(uswapwep, SPFX_SEARCH))) ? uwep->spe
+                                                                 : 0;
 
         if (ublindf && ublindf->otyp == LENSES && !Blind)
             fund += 2; /* JDS: lenses help searching */
