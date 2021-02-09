@@ -1003,65 +1003,42 @@ register struct obj *obj;
 
     /* If wielding/wearing any of the 'banes, taming becomes
        impossible */
-    if (uwep && (uwep->oartifact == ART_STING
-                 || (u.twoweap && uswapwep->oartifact == ART_STING))
-        && is_orc(mtmp->data))
+    if (wielding_artifact(ART_STING) && is_orc(mtmp->data))
         return FALSE;
 
-    if (uwep && (uwep->oartifact == ART_ORCRIST
-                 || (u.twoweap && uswapwep->oartifact == ART_ORCRIST))
-        && is_orc(mtmp->data))
+    if (wielding_artifact(ART_ORCRIST) && is_orc(mtmp->data))
         return FALSE;
 
-    if (uwep && (uwep->oartifact == ART_GRIMTOOTH
-                 || (u.twoweap && uswapwep->oartifact == ART_GRIMTOOTH))
-        && is_elf(mtmp->data))
+    if (wielding_artifact(ART_GRIMTOOTH) && is_elf(mtmp->data))
         return FALSE;
 
-    if (uwep && (uwep->oartifact == ART_GIANTSLAYER
-                 || (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
-        && is_giant(mtmp->data))
+    if (wielding_artifact(ART_GIANTSLAYER) && is_giant(mtmp->data))
         return FALSE;
 
-    if (uwep && (uwep->oartifact == ART_TROLLSBANE
-                 || (u.twoweap && uswapwep->oartifact == ART_TROLLSBANE))
-        && is_troll(mtmp->data))
+    if (wielding_artifact(ART_TROLLSBANE) && is_troll(mtmp->data))
         return FALSE;
 
-    if (uwep && (uwep->oartifact == ART_OGRESMASHER
-                 || (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER))
-        && is_ogre(mtmp->data))
+    if (wielding_artifact(ART_OGRESMASHER) && is_ogre(mtmp->data))
         return FALSE;
 
-    if (uwep && (uwep->oartifact == ART_SUNSWORD
-                 || (u.twoweap && uswapwep->oartifact == ART_SUNSWORD))
-        && is_undead(mtmp->data))
+    if (wielding_artifact(ART_SUNSWORD) && is_undead(mtmp->data))
         return FALSE;
 
-    if (uwep && (uwep->oartifact == ART_WEREBANE
-                 || (u.twoweap && uswapwep->oartifact == ART_WEREBANE))
-        && is_were(mtmp->data))
+    if (wielding_artifact(ART_WEREBANE) && is_were(mtmp->data))
         return FALSE;
 
     /* can't really tame demons, but this is here for completeness sake */
-    if (uwep && (uwep->oartifact == ART_DEMONBANE
-                 || (u.twoweap && uswapwep->oartifact == ART_DEMONBANE))
-        && is_demon(mtmp->data))
+    if (wielding_artifact(ART_DEMONBANE) && is_demon(mtmp->data))
         return FALSE;
 
     /* same for angels */
-    if (uwep && (uwep->oartifact == ART_ANGELSLAYER
-                 || (u.twoweap && uswapwep->oartifact == ART_ANGELSLAYER))
-        && is_angel(mtmp->data))
+    if (wielding_artifact(ART_ANGELSLAYER) && is_angel(mtmp->data))
         return FALSE;
 
-    if (uwep && (uwep->oartifact == ART_VORPAL_BLADE
-                 || (u.twoweap && uswapwep->oartifact == ART_VORPAL_BLADE))
-        && is_jabberwock(mtmp->data))
+    if (wielding_artifact(ART_VORPAL_BLADE) && is_jabberwock(mtmp->data))
         return FALSE;
 
-    if (uarmg && uarmg->oartifact == ART_DRAGONBANE
-        && is_dragon(mtmp->data))
+    if (uarmg && uarmg->oartifact == ART_DRAGONBANE && is_dragon(mtmp->data))
         return FALSE;
 
     /* worst case, at least it'll be peaceful. */

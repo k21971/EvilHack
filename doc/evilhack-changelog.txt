@@ -1358,4 +1358,4 @@ Version 0.7.0
 - True dwarf/gnome placeholder templates, bit of a racial shopkeeper
   revamp
 - Fix: crash when setting nudist option in config
-
+- Artifact wielding function
