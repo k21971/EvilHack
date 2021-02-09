@@ -1357,4 +1357,5 @@ Version 0.7.0
 - More tweaks to racial priests/priestesses
 - True dwarf/gnome placeholder templates, bit of a racial shopkeeper
   revamp
+- Fix: crash when setting nudist option in config
 
