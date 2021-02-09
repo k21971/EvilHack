@@ -544,7 +544,15 @@ NEARDATA struct permonst mons[] = {
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(500, 200, MS_HUMANOID, MZ_SMALL), 0, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_HOBBIT, 3, CLR_BLACK),
-    MON("dwarf", S_HUMANOID, LVL(2, 6, 10, 10, 4), (G_GENO | 3),
+    MON("dwarf", S_HUMANOID, LVL(0, 6, 10, 10, 4), G_NOGEN, /* placeholder */
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(900, 300, MS_HUMANOID, MZ_HUMAN), 0, 0,
+        M1_TUNNEL | M1_NEEDPICK | M1_HUMANOID | M1_OMNIVORE,
+        M2_NOPOLY | M2_STRONG | M2_GREEDY | M2_JEWELS | M2_COLLECT,
+        M3_INFRAVISIBLE | M3_INFRAVISION | M3_BERSERK,
+        0, MH_DWARF, 2, CLR_RED),
+    MON("mountain dwarf", S_HUMANOID, LVL(2, 6, 10, 10, 4), (G_GENO | 3),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(900, 300, MS_HUMANOID, MZ_HUMAN), 0, 0,
@@ -610,8 +618,8 @@ NEARDATA struct permonst mons[] = {
             | M2_COLLECT,
         M3_WANTSBOOK | M3_INFRAVISIBLE | M3_INFRAVISION, 0,
         MH_ILLITHID | MH_UNDEAD, 30, CLR_GRAY),
-    /* Place-holder for player race Illithid, not generated at random */
-    MON("illithid", S_HUMANOID, LVL(0, 12, 10, 0, -8), (G_GENO | G_NOGEN),
+    /* Placeholder for player race Illithid, not generated at random */
+    MON("illithid", S_HUMANOID, LVL(0, 12, 10, 0, -8), G_NOGEN,
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_TENT, AD_DRIN, 2, 1),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), MR_PSYCHIC, 0,
@@ -824,12 +832,12 @@ NEARDATA struct permonst mons[] = {
         M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ORC, 5, CLR_GREEN),
     /* plain "orc" for zombie corpses only; not created at random
      */
-    MON("orc", S_ORC, LVL(1, 9, 10, 0, -3), (G_GENO | G_NOGEN | G_LGROUP),
+    MON("orc", S_ORC, LVL(0, 9, 10, 0, -3), G_NOGEN, /* placeholder */
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(850, 150, MS_ORC, MZ_HUMAN), MR_POISON, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_GREEDY | M2_JEWELS | M2_COLLECT,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ORC, 3, CLR_RED),
+        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ORC, 2, CLR_RED),
     MON("hill orc", S_ORC, LVL(2, 9, 10, 0, -4), (G_GENO | G_LGROUP | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -1433,12 +1441,12 @@ NEARDATA struct permonst mons[] = {
     /*
      * Centaurs
      */
-    MON("centaur", S_CENTAUR, LVL(4, 18, 4, 0, 0), (G_GENO | G_NOGEN | 1),
+    MON("centaur", S_CENTAUR, LVL(0, 18, 4, 0, 0), G_NOGEN, /* placeholder */
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_KICK, AD_PHYS, 1, 6), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(2200, 500, MS_HUMANOID, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_OMNIVORE, M2_STRONG | M2_GREEDY | M2_COLLECT,
-        M3_ACCURATE | M3_INFRAVISIBLE, 0, MH_CENTAUR, 6, CLR_RED),
+        M3_ACCURATE | M3_INFRAVISIBLE, 0, MH_CENTAUR, 2, CLR_RED),
     MON("plains centaur", S_CENTAUR, LVL(4, 18, 4, 0, 0), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_KICK, AD_PHYS, 1, 6), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
@@ -1827,7 +1835,13 @@ NEARDATA struct permonst mons[] = {
     /*
      * Gnomes
      */
-    MON("gnome", S_GNOME, LVL(1, 6, 10, 4, 0), (G_GENO | G_SGROUP | 1),
+    MON("gnome", S_GNOME, LVL(0, 6, 10, 4, 0), G_NOGEN, /* placeholder */
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(650, 100, MS_HUMANOID, MZ_SMALL), 0, 0, M1_HUMANOID | M1_OMNIVORE,
+        M2_NOPOLY | M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION, 0,
+        MH_GNOME, 2, CLR_BROWN),
+    MON("rock gnome", S_GNOME, LVL(1, 6, 10, 4, 0), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(650, 100, MS_HUMANOID, MZ_SMALL), 0, 0, M1_HUMANOID | M1_OMNIVORE,
@@ -1884,12 +1898,12 @@ struct permonst _mons2[] = {
     /*
      * giant Humanoids
      */
-    MON("giant", S_GIANT, LVL(6, 10, 0, 0, 2), (G_GENO | G_NOGEN | 1),
+    MON("giant", S_GIANT, LVL(0, 10, 0, 0, 2), G_NOGEN, /* placeholder */
         A(ATTK(AT_WEAP, AD_CLOB, 2, 10), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(2200, 700, MS_BOAST, MZ_HUGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
         M2_STRONG | M2_ROCKTHROW | M2_NASTY | M2_COLLECT | M2_JEWELS,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_GIANT, 8, CLR_RED),
+        M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_GIANT, 2, CLR_RED),
     MON("stone giant", S_GIANT, LVL(6, 6, 0, 0, 2), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_CLOB, 2, 10), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -2845,13 +2859,13 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE | M1_TPORT,
         M2_NOPOLY | M2_HOSTILE | M2_STALK | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE, 0, MH_HUMAN, 6, CLR_BLACK),
-    MON("elf", S_HUMAN, LVL(10, 12, 10, 2, -3), G_NOGEN, /* for corpses */
+    MON("elf", S_HUMAN, LVL(0, 12, 10, 2, -3), G_NOGEN, /* placeholder */
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
         M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS,
         M2_NOPOLY | M2_STRONG | M2_COLLECT,
-        M3_ACCURATE | M3_INFRAVISION | M3_INFRAVISIBLE, 0, MH_ELF, 12,
+        M3_ACCURATE | M3_INFRAVISION | M3_INFRAVISIBLE, 0, MH_ELF, 2,
         CLR_BRIGHT_GREEN),
     MON("Woodland-elf", S_HUMAN, LVL(4, 12, 10, 10, -5),
         (G_GENO | G_SGROUP | 2), A(ATTK(AT_WEAP, AD_PHYS, 2, 4), NO_ATTK,

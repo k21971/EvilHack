@@ -1517,6 +1517,7 @@ forge
 ~dwarf ??m*
 #~dwar* cave*man
 dwarf*
+* dwarf
 	Dwarfs have faces like men (ugly men, with wrinkled, leathery
 	skins), but are generally either flat-footed, duck-footed, or
 	have feet pointing backwards.  They are of the earth, earthy,
@@ -2088,6 +2089,7 @@ gjallar
 ~gnome ??m*
 #~gnom* cave*man
 gnome*
+* gnome
 gnomish wizard
 	...  And then a gnome came by, carrying a bundle, an old
 	fellow three times as large as an imp and wearing clothes of

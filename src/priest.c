@@ -317,9 +317,10 @@ boolean sanctum; /* is it the seat of the high priest? */
                     if (EPRI(priest)->shralign == A_CHAOTIC) {
                         mdat = &mons[PM_ELF];
                         priest->mnum = PM_ELF;
-                    } else if (EPRI(priest)->shralign == A_LAWFUL) {
-                        mdat = &mons[PM_GIANT];
-                        priest->mnum = PM_GIANT;
+                    } else if (EPRI(priest)->shralign == A_LAWFUL
+                               || EPRI(priest)->shralign == A_NEUTRAL) {
+                        mdat = &mons[PM_DWARF];
+                        priest->mnum = PM_DWARF;
                     } else {
                         mdat = &mons[PM_HUMAN];
                         priest->mnum = PM_HUMAN;
@@ -357,8 +358,8 @@ boolean sanctum; /* is it the seat of the high priest? */
                         mdat = &mons[PM_ILLITHID];
                         priest->mnum = PM_ILLITHID;
                     } else if (EPRI(priest)->shralign == A_LAWFUL) {
-                        mdat = &mons[PM_GIANT];
-                        priest->mnum = PM_GIANT;
+                        mdat = &mons[PM_DWARF];
+                        priest->mnum = PM_DWARF;
                     } else {
                         mdat = &mons[PM_HUMAN];
                         priest->mnum = PM_HUMAN;
@@ -385,7 +386,6 @@ boolean sanctum; /* is it the seat of the high priest? */
                 set_mon_data(priest, mdat);
                 priest->ispriest = 1;
                 priest->data->msound = MS_PRIEST;
-                priest->data->geno &= ~G_GENO;
             }
         }
     }
@@ -454,6 +454,7 @@ char *pname; /* caller-supplied output buffer */
             aligned_priest = mon->data == &mons[PM_ALIGNED_PRIEST],
             high_priest = mon->data == &mons[PM_HIGH_PRIEST],
             racial_priest = (mon->data == &mons[PM_ELF]
+                             || mon->data == &mons[PM_DWARF]
                              || mon->data == &mons[PM_ORC]
                              || mon->data == &mons[PM_ILLITHID]
                              || mon->data == &mons[PM_CENTAUR]
@@ -475,6 +476,8 @@ char *pname; /* caller-supplied output buffer */
     if (mon->data->mname) {
         if (mon->data == &mons[PM_ELF])
             Strcat(pname, "elven ");
+        else if (mon->data == &mons[PM_ORC])
+            Strcat(pname, "dwarvish ");
         else if (mon->data == &mons[PM_ORC])
             Strcat(pname, "orcish ");
         else if (mon->data == &mons[PM_ILLITHID])
@@ -1071,7 +1074,6 @@ register struct monst *mtmp;
 boolean ghostly;
 {
     mtmp->data->msound = MS_PRIEST; /* racial priests */
-    mtmp->data->geno &= ~G_GENO;
     if (u.uz.dlevel) {
         if (ghostly)
             assign_level(&(EPRI(mtmp)->shrlevel), &u.uz);

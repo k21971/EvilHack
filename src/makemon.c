@@ -1116,7 +1116,7 @@ register struct monst *mtmp;
                     (void) mongets(mtmp, DWARVISH_ROUNDSHIELD);
                 }
                 (void) mongets(mtmp, DWARVISH_HELM);
-                if (!rn2(3) && mm != PM_DWARF) {
+                if (!rn2(3) && mm != PM_MOUNTAIN_DWARF) {
                     (void) mongets(mtmp, DWARVISH_CHAIN_MAIL);
                     if ((ptr == &mons[PM_DWARF_LORD] && !rn2(4))
                         || (ptr == &mons[PM_DWARF_LADY] && !rn2(4))

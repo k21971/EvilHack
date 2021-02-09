@@ -24,16 +24,16 @@ OBJECT: random, random
 OBJECT: random, random
 OBJECT: random, random
 #
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
 MONSTER: ('G', "gnome lady"), random
 MONSTER: ('G', "gnome lord"), random
-MONSTER: ('h', "dwarf"), random
-MONSTER: ('h', "dwarf"), random
+MONSTER: ('h', "mountain dwarf"), random
+MONSTER: ('h', "mountain dwarf"), random
 MONSTER: 'G', random
 MONSTER: 'G', random
 MONSTER: 'h', random
@@ -258,7 +258,7 @@ FOUNTAIN: (13, 8)
 
 [75%]: SUBROOM: "ordinary", random, (22,0), (2,2) {
   ROOMDOOR: false, locked, south, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 [75%]: SUBROOM: "ordinary", unlit, (25,0), (2,2) {
@@ -275,7 +275,7 @@ FOUNTAIN: (13, 8)
 
 [75%]: SUBROOM: "ordinary", random, (8,5), (2,2) {
   ROOMDOOR: false, locked, north, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 SUBROOM: "shop" [90%] , lit, (2,10), (4,3) {
@@ -296,7 +296,7 @@ SUBROOM: "candle shop", lit, (11,10), (4,3) {
 
 [75%]: SUBROOM: "ordinary", unlit, (7,10), (3,3) {
   ROOMDOOR: false, locked, north, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 SUBROOM: "temple", lit, (19,5), (4,4) {
@@ -327,17 +327,17 @@ ROOM: "ordinary" , random, random, random, random {
 ROOM: "ordinary" , random, random, random, random {
   STAIR: random, down
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
-  MONSTER: ('h', "dwarf"), random
+  MONSTER: ('h', "mountain dwarf"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 RANDOM_CORRIDORS
@@ -436,17 +436,17 @@ ROOM: "ordinary", random, random, random, random {
 ROOM: "ordinary" , random, random, random, random {
   STAIR: random, down
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
-  MONSTER: ('h', "dwarf"), random
+  MONSTER: ('h', "mountain dwarf"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 RANDOM_CORRIDORS
@@ -533,17 +533,17 @@ ROOM: "ordinary" , random, random, random, random {
 ROOM: "ordinary" , random, random, random, random {
   STAIR: random, down
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
-  MONSTER: ('h', "dwarf"), random
+  MONSTER: ('h', "mountain dwarf"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 RANDOM_CORRIDORS
@@ -624,17 +624,17 @@ MONSTER: ('@', "watchman"), random, peaceful
 MONSTER: ('@', "watchman"), random, peaceful
 MONSTER: ('@', "watchman"), random, peaceful
 MONSTER: ('@', "watch captain"), random, peaceful
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
-MONSTER: ('G', "gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
+MONSTER: ('G', "rock gnome"), random
 MONSTER: ('G', "gnome lady"), random
 MONSTER: ('G', "gnome lord"), random
-MONSTER: ('h', "dwarf"), random
-MONSTER: ('h', "dwarf"), random
-MONSTER: ('h', "dwarf"), random
+MONSTER: ('h', "mountain dwarf"), random
+MONSTER: ('h', "mountain dwarf"), random
+MONSTER: ('h', "mountain dwarf"), random
 
 # The shops
 REGION:(25,17,28,19),lit,"candle shop"
@@ -737,16 +737,16 @@ $in_zoo = selection:floodfill(18,4)
 $outside = selection: filter(floodfill(18,8), fillrect (1,0,37,15))
 
 LOOP [4 + 1d8] {
-  MONSTER: ('G', "gnome"), rndcoord($outside)
+  MONSTER: ('G', "rock gnome"), rndcoord($outside)
 }
-MONSTER: ('G', "gnome"), rndcoord($outside)
+MONSTER: ('G', "rock gnome"), rndcoord($outside)
 MONSTER: ('G', "gnome lady"), rndcoord($outside)
-MONSTER: ('G', "gnome"), rndcoord($outside)
+MONSTER: ('G', "rock gnome"), rndcoord($outside)
 MONSTER: ('G', "gnome lord"), rndcoord($outside)
 MONSTER: ('G', "gnome lord"), rndcoord($outside)
 MONSTER: ('G', "gnomish wizard"), rndcoord($outside)
 MONSTER: ('G', "gnomish wizard"), rndcoord($outside)
-MONSTER: ('h', "dwarf"), rndcoord($outside)
+MONSTER: ('h', "mountain dwarf"), rndcoord($outside)
 
 MONSTER: ('@', "watchman"), rndcoord($outside), peaceful
 MONSTER: ('@', "watchman"), rndcoord($outside), peaceful
@@ -798,7 +798,7 @@ FOUNTAIN: (11, 13)
 }
 
 [75%]: SUBROOM: "ordinary", lit, (10,2), (3,4) {
-  MONSTER:('G',"gnome"),random
+  MONSTER:('G',"rock gnome"),random
   MONSTER:('Y',"monkey"),random
   MONSTER:('Y',"monkey"),random
   MONSTER:('Y',"monkey"),random
@@ -873,8 +873,8 @@ MONSTER: ('@', "watchman"), random, peaceful
 MONSTER: ('@', "watchman"), random, peaceful
 MONSTER: ('@', "watchman"), random, peaceful
 MONSTER: ('@', "watch captain"), random, peaceful
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
 MONSTER:('G',"gnome lady"),random
 MONSTER:('G',"gnome lord"),random
 MONSTER:('Y',"monkey"),random
@@ -889,17 +889,17 @@ ROOM: "ordinary" , random, random, random, random {
 ROOM: "ordinary" , random, random, random, random {
   STAIR: random, down
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
-  MONSTER: ('h', "dwarf"), random
+  MONSTER: ('h', "mountain dwarf"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 RANDOM_CORRIDORS
@@ -945,12 +945,12 @@ SUBROOM: "candle shop", lit, (22,2), (3,3) {
 
 SUBROOM: "ordinary", unlit, (10,10), (2,3) {
   ROOMDOOR: false, locked, east, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 SUBROOM: "ordinary", lit, (19,2),  (2,3) {
   ROOMDOOR: false, locked, west, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 SUBROOM: "temple", lit, (15,9), (4,4) {
@@ -982,17 +982,17 @@ ROOM: "ordinary" , random, random, random, random {
 ROOM: "ordinary" , random, random, random, random {
   STAIR: random, down
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
-  MONSTER: ('h', "dwarf"), random
+  MONSTER: ('h', "mountain dwarf"), random
 }
 
 ROOM: "ordinary" , random, random, random, random {
   TRAP: random, random
-  MONSTER: ('G', "gnome"), random
+  MONSTER: ('G', "rock gnome"), random
 }
 
 RANDOM_CORRIDORS
@@ -1095,20 +1095,20 @@ MONSTER:('G',"gnome lady"),random
 MONSTER:('G',"gnome lord"),random
 MONSTER:('G',"gnomish wizard"),random
 MONSTER:('G',"gnomish wizard"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
 MONSTER:('h',"hobbit"),random
 MONSTER:('h',"hobbit rogue"),random
-MONSTER:('h',"dwarf"),random
-MONSTER:('h',"dwarf"),random
-MONSTER:('h',"dwarf"),random
+MONSTER:('h',"mountain dwarf"),random
+MONSTER:('h',"mountain dwarf"),random
+MONSTER:('h',"mountain dwarf"),random
 MONSTER:'h',random
 
 
@@ -1247,20 +1247,20 @@ MONSTER:('G',"gnome lady"),random
 MONSTER:('G',"gnome lord"),random
 MONSTER:('G',"gnomish wizard"),random
 MONSTER:('G',"gnomish wizard"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
-MONSTER:('G',"gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
+MONSTER:('G',"rock gnome"),random
 MONSTER:('h',"hobbit"),random
 MONSTER:('h',"hobbit rogue"),random
-MONSTER:('h',"dwarf"),random
-MONSTER:('h',"dwarf"),random
-MONSTER:('h',"dwarf"),random
+MONSTER:('h',"mountain dwarf"),random
+MONSTER:('h',"mountain dwarf"),random
+MONSTER:('h',"mountain dwarf"),random
 MONSTER:'h',random
 
 

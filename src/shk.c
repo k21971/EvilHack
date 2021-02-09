@@ -27,7 +27,7 @@ STATIC_DCL void FDECL(kops_gone, (BOOLEAN_P));
      || (urace.malenum == PM_GNOME && is_gnome(mon->data)) \
      || (urace.malenum == PM_ILLITHID && is_illithid(mon->data)) \
      || (urace.malenum == PM_CENTAUR && is_centaur(mon->data)) \
-     || (urace.malenum == PM_HOBBIT && is_hobbit(mon->data)) \
+     || (urace.malenum == PM_HUMAN && is_human(mon->data)) \
      || (urace.malenum == PM_GIANT && is_giant(mon->data)))
 
 #define muteshk(shkp)                       \
@@ -2137,7 +2137,7 @@ long *numerator, *denominator;
             *denominator = 2L;
         }
     } else if (is_orc(shkdat)) {
-        if (Race_if(PM_ELF) || Race_if(PM_HOBBIT)) {
+        if (Race_if(PM_ELF) || Race_if(PM_GNOME)) {
             *numerator = 3L;
         } else if (Race_if(PM_DWARF)) {
             *numerator = 5L;
@@ -2162,13 +2162,13 @@ long *numerator, *denominator;
             *denominator = 3L;
         }
     } else if (is_illithid(shkdat)) {
-        if (mnum < PM_MIND_FLAYER) {
+        if (mnum < PM_ILLITHID) {
             impossible("mnum for illithid shopkeeper is too low!");
             return;
         }
         /* They'd prefer not to sell their libraries */
         if (!Race_if(PM_ILLITHID))
-            *numerator = ((mnum - PM_MIND_FLAYER + 1) * 10);
+            *numerator = ((mnum - PM_ILLITHID + 1) * 10);
     } else if (is_centaur(shkdat)) {
         /* Centaurs don't care much for most humanoid races */
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
@@ -2177,29 +2177,10 @@ long *numerator, *denominator;
             *numerator = 3L;
             *denominator = 2L;
         }
-    } else if (is_hobbit(shkdat)) {
-        if (Race_if(PM_ORC)) {
-            *numerator = 3L;
-        }
-    } else if (shkdat->mlet == S_NYMPH) {
-        if (mnum < PM_WOOD_NYMPH) {
-            impossible("mnum for nymph shopkeeper is too low!");
-            return;
-        }
-        if (ACURR(A_CHA) > 14) {
-            /* Pretty people don't get gouged TOO badly... */
-            *numerator = (mnum - PM_WOOD_NYMPH + 8);
-            *denominator = 6L;
-        } else {
-            /* ... but if you don't measure up... */
-            *numerator = (mnum - PM_WOOD_NYMPH + 5);
-            *denominator = 3L;
-        }
     } else if (is_giant(shkdat)) {
         /* Non-Elder-Race humanoids are not thought of highly */
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-            || Race_if(PM_HOBBIT) || Race_if(PM_ILLITHID)
-            || Race_if(PM_ORC)) {
+            || Race_if(PM_ILLITHID) || Race_if(PM_ORC)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_DWARF)) {

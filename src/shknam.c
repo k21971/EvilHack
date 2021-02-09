@@ -665,23 +665,23 @@ int shp_indx;
     case WEAPON_CLASS:
         switch (rnd(4)) {
         case 1:
-            srace = PM_HUMAN_SERGEANT + rn2(3);
+            srace = PM_HUMAN;
             break;
         case 2:
-            srace = PM_STONE_GIANT + rn2(5);
+            srace = PM_GIANT;
             break;
         case 3:
             srace = PM_CENTAUR;
             break;
         case 4:
-            srace = PM_DWARF_LORD + rn2(2);
+            srace = PM_DWARF;
             break;
         }
         break;
     case FOOD_CLASS:
         switch (rnd(3)) {
         case 1:
-            srace = PM_HOBBIT;
+            srace = PM_DWARF;
             break;
         case 2:
             srace = PM_GNOME;
@@ -692,12 +692,22 @@ int shp_indx;
         }
         break;
     case RING_CLASS:
-        srace = PM_WOOD_NYMPH + rn2(3);
+        srace = PM_ELF;
         break;
     /* wands and potions also similar... */
     case WAND_CLASS:
     case POTION_CLASS:
-        srace = PM_WOODLAND_ELF + rn2(5);
+        switch (rnd(3)) {
+        case 1:
+            srace = PM_ELF;
+            break;
+        case 2:
+            srace = PM_GNOME;
+            break;
+        case 3:
+            srace = PM_HUMAN;
+            break;
+        }
         break;
     case TOOL_CLASS:
         if (shp->shknms == shklight && In_mines(&u.uz)) {
@@ -709,7 +719,7 @@ int shp_indx;
              * human shopkeeper. */
             srace = PM_HUMAN;
         } else {
-            srace = PM_GNOME_LORD + rn2(2);
+            srace = PM_GNOME;
         }
         break;
     /* and scrolls and books fall to spellcasters */
@@ -717,16 +727,16 @@ int shp_indx;
     case SPBOOK_CLASS:
         switch (rnd(4)) {
         case 1:
-            srace = PM_MIND_FLAYER + rn2(2);
+            srace = PM_ILLITHID;
             break;
         case 2:
-            srace = PM_HILL_GIANT_SHAMAN;
+            srace = PM_HUMAN;
             break;
         case 3:
-            srace = PM_GNOMISH_WIZARD;
+            srace = PM_GNOME;
             break;
         case 4:
-            srace = PM_ELVEN_WIZARD;
+            srace = PM_ELF;
             break;
         }
         break;
@@ -747,8 +757,8 @@ int shp_indx;
         if (srace) {
             switch (srace) {
             case 1:
-                mdat = &mons[PM_GREEN_ELF];
-                shk->mnum = PM_GREEN_ELF;
+                mdat = &mons[PM_ELF];
+                shk->mnum = PM_ELF;
                 break;
             case 2:
                 mdat = &mons[PM_DWARF];

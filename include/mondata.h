@@ -317,6 +317,7 @@
     ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]        \
      || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]     \
      || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON] \
+     || (ptr) == &mons[PM_DWARF] || (ptr) == &mons[PM_GNOME]   \
      || (ptr) == &mons[PM_ILLITHID])
 
 /* Ice Queen branch defines */
