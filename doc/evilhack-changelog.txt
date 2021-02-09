@@ -1296,5 +1296,6 @@ Version 0.6.0
 - Fix: ensure cursed flag is set for infidel NPC water potions
 - Some tweaks to infidel NPC gear
 - Fix: snow golem entry for the encyclopedia
+- Fix: crash when setting nudist option in config
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

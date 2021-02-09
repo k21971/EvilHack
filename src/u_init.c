@@ -1442,7 +1442,8 @@ register struct trobj *origtrop;
         /* nudist gets no armor */
         if (u.uroleplay.nudist && obj->oclass == ARMOR_CLASS) {
             dealloc_obj(obj);
-            trop++;
+            origtrop++;
+            memcpy(&temptrop, origtrop, sizeof(struct trobj));
             continue;
         }
 
