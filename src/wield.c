@@ -275,7 +275,21 @@ register struct obj *obj;
     if (u.twoweap && obj && (obj->oartifact || obj->oprops))
         set_artifact_intrinsic(obj, 1, W_SWAPWEP);
 
+    if (obj != uswapwep && artifact_light(uswapwep) && uswapwep->lamplit) {
+        end_burn(uswapwep, FALSE);
+        if (!Blind)
+            pline("%s shining.", Tobjnam(uswapwep, "stop"));
+    }
+
     setworn(obj, W_SWAPWEP);
+
+    if (u.twoweap && uswapwep == obj && artifact_light(uswapwep)
+        && !uswapwep->lamplit) {
+        begin_burn(uswapwep, FALSE);
+        if (!Blind)
+            pline("%s to shine %s!", Tobjnam(uswapwep, "begin"),
+                    arti_light_description(uswapwep));
+    }
 
     if (uswapwep == obj
         && (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER))
@@ -759,6 +773,11 @@ void
 uswapwepgone()
 {
     if (uswapwep) {
+        if (artifact_light(uswapwep) && uswapwep->lamplit) {
+            end_burn(uswapwep, FALSE);
+            if (!Blind)
+                pline("%s shining.", Tobjnam(uswapwep, "stop"));
+        }
         setworn((struct obj *) 0, W_SWAPWEP);
         update_inventory();
     }
