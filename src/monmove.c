@@ -318,10 +318,14 @@ boolean fleemsg;
             if (!mtmp->mcanmove || !mtmp->data->mmove) {
                 pline("%s seems to flinch.", Adjmonnam(mtmp, "immobile"));
             } else if (flees_light(mtmp)) {
-                if (rn2(10) || Deaf)
+                if (rn2(10) || Deaf) {
+                    struct obj *litwep;
+                    litwep = (uwep && artifact_light(uwep)
+                              && uwep->lamplit) ? uwep : uswapwep;
                     pline("%s flees from the painful light of %s.",
-                          Monnam(mtmp), bare_artifactname(uwep));
-                else
+                            Monnam(mtmp),
+                            bare_artifactname(litwep));
+                } else
                     verbalize("Bright light!");
             } else if (!rn2(5) && !Deaf && !mindless(mtmp->data) && !is_silent(mtmp->data)) {
                        if (mtmp->data->msound == MS_BARK

@@ -1359,3 +1359,5 @@ Version 0.7.0
   revamp
 - Fix: crash when setting nudist option in config
 - Artifact wielding function
+- Enable sunsword's shining effect when wielded in the offhand
+
