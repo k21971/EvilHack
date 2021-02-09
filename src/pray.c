@@ -831,11 +831,11 @@ gcrownu()
         u.uevent.uhand_of_elbereth = 2;
         /* priests aren't supposed to use edged weapons */
         if (Role_if(PM_PRIEST)) {
-            in_hand = (uwep && uwep->oartifact == ART_MJOLLNIR);
+            in_hand = wielding_artifact(ART_MJOLLNIR);
             already_exists =
                 exist_artifact(HEAVY_WAR_HAMMER, artiname(ART_MJOLLNIR));
         } else {
-            in_hand = (uwep && uwep->oartifact == ART_VORPAL_BLADE);
+            in_hand = wielding_artifact(ART_VORPAL_BLADE);
             already_exists =
                 exist_artifact(LONG_SWORD, artiname(ART_VORPAL_BLADE));
         }
@@ -847,11 +847,11 @@ gcrownu()
         u.uevent.uhand_of_elbereth = 3;
         /* priests aren't supposed to use edged weapons */
         if (Role_if(PM_PRIEST)) {
-            in_hand = (uwep && uwep->oartifact == ART_MJOLLNIR);
+            in_hand = wielding_artifact(ART_MJOLLNIR);
             already_exists =
                 exist_artifact(HEAVY_WAR_HAMMER, artiname(ART_MJOLLNIR));
         } else {
-            in_hand = (uwep && uwep->oartifact == ART_STORMBRINGER);
+            in_hand = wielding_artifact(ART_STORMBRINGER);
             already_exists =
                 exist_artifact(RUNESWORD, artiname(ART_STORMBRINGER));
         }
@@ -1574,7 +1574,7 @@ dosacrifice()
                 value += 1;
             if (is_unicorn(ptr))
                 value += 3;
-            if (uwep && uwep->oartifact == ART_SECESPITA)
+            if (wielding_artifact(ART_SECESPITA))
                 value += value / 2;
             if (otmp->oeaten)
                 value = eaten_stat(value, otmp);

@@ -1226,16 +1226,17 @@ struct obj *obj;
         case RIN_FIRE_RESISTANCE:
             if (!resists_fire(mon))
                 rc = (dmgtype(youmonst.data, AD_FIRE)
-                      || (uwep && uwep->oartifact == ART_FIRE_BRAND)
-                      || (uwep && uwep->oartifact == ART_XIUHCOATL)
-                      || (uwep && uwep->oartifact == ART_ANGELSLAYER)
-                      || (uwep && uwep->oartifact == ART_FIRE_BRAND)
+                      || wielding_artifact(ART_FIRE_BRAND)
+                      || wielding_artifact(ART_XIUHCOATL)
+                      || wielding_artifact(ART_ANGELSLAYER)
+                      || (u.twoweap && uswapwep->oprops & ITEM_FIRE)
                       || (uwep && uwep->oprops & ITEM_FIRE)) ? 20 : 12;
             break;
         case RIN_COLD_RESISTANCE:
             if (!resists_cold(mon))
                 rc = (dmgtype(youmonst.data, AD_COLD)
-                      || (uwep && uwep->oartifact == ART_FROST_BRAND)
+                      || wielding_artifact(ART_FROST_BRAND)
+                      || (u.twoweap && uswapwep->oprops & ITEM_FROST)
                       || (uwep && uwep->oprops & ITEM_FROST)) ? 20 : 12;
             break;
 	case RIN_POISON_RESISTANCE:
@@ -1243,12 +1244,14 @@ struct obj *obj;
                 rc = (dmgtype(youmonst.data, AD_DRST)
                       || dmgtype(youmonst.data, AD_DRCO)
                       || dmgtype(youmonst.data, AD_DRDX)
+                      || (u.twoweap && uswapwep->oprops & ITEM_VENOM)
                       || (uwep && uwep->oprops & ITEM_VENOM)) ? 20 : 10;
             break;
 	case RIN_SHOCK_RESISTANCE:
             if (!resists_elec(mon))
                 rc = (dmgtype(youmonst.data, AD_ELEC)
-                      || (uwep && uwep->oartifact == ART_MJOLLNIR)
+                      || wielding_artifact(ART_MJOLLNIR)
+                      || (u.twoweap && uswapwep->oprops & ITEM_SHOCK)
                       || (uwep && uwep->oprops & ITEM_SHOCK)) ? 20 : 10;
             break;
 	case RIN_REGENERATION:

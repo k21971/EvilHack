@@ -539,38 +539,27 @@ boolean resuming;
                     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                         if ((uarmg && uarmg->oartifact == ART_DRAGONBANE
                              && is_dragon(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_STING
-                                         || (u.twoweap && uswapwep->oartifact == ART_STING))
+                            || (wielding_artifact(ART_STING)
                                 && is_orc(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_ORCRIST
-                                         || (u.twoweap && uswapwep->oartifact == ART_ORCRIST))
+                            || (wielding_artifact(ART_ORCRIST)
                                 && is_orc(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_GRIMTOOTH
-                                         || (u.twoweap && uswapwep->oartifact == ART_GRIMTOOTH))
+                            || (wielding_artifact(ART_GRIMTOOTH)
                                 && is_elf(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_GIANTSLAYER
-                                         || (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
+                            || (wielding_artifact(ART_GIANTSLAYER)
                                 && is_giant(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_TROLLSBANE
-                                         || (u.twoweap && uswapwep->oartifact == ART_TROLLSBANE))
+                            || (wielding_artifact(ART_TROLLSBANE)
                                 && is_troll(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_OGRESMASHER
-                                         || (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER))
+                            || (wielding_artifact(ART_OGRESMASHER)
                                 && is_ogre(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_SUNSWORD
-                                         || (u.twoweap && uswapwep->oartifact == ART_SUNSWORD))
+                            || (wielding_artifact(ART_SUNSWORD)
                                 && is_undead(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_WEREBANE
-                                         || (u.twoweap && uswapwep->oartifact == ART_WEREBANE))
+                            || (wielding_artifact(ART_WEREBANE)
                                 && is_were(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_DEMONBANE
-                                         || (u.twoweap && uswapwep->oartifact == ART_DEMONBANE))
+                            || (wielding_artifact(ART_DEMONBANE)
                                 && is_demon(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_ANGELSLAYER
-                                         || (u.twoweap && uswapwep->oartifact == ART_ANGELSLAYER))
+                            || (wielding_artifact(ART_ANGELSLAYER)
                                 && is_angel(mtmp->data))
-                            || (uwep && (uwep->oartifact == ART_VORPAL_BLADE
-                                         || (u.twoweap && uswapwep->oartifact == ART_VORPAL_BLADE))
+                            || (wielding_artifact(ART_VORPAL_BLADE)
                                 && is_jabberwock(mtmp->data))) {
                             if (mtmp->mpeaceful || mtmp->mtame)
                                 mtmp->mpeaceful = mtmp->mtame = 0;

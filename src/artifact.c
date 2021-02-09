@@ -3380,4 +3380,15 @@ struct monst *mon; /* if null, hero assumed */
     return (struct obj *) 0;
 }
 
+boolean
+wielding_artifact(art)
+int art;
+{
+    if (!art)
+        return FALSE;
+
+    return ((uwep && uwep->oartifact == art)
+            || (u.twoweap && uswapwep->oartifact == art));
+}
+
 /*artifact.c*/
