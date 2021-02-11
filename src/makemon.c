@@ -987,6 +987,12 @@ register struct monst *mtmp;
             (void) mongets(mtmp, RIN_SLOW_DIGESTION);
             (void) mongets(mtmp, rn2(2) ? CLOAK_OF_MAGIC_RESISTANCE
                                         : CLOAK_OF_DISPLACEMENT);
+            /* The ice queen is a much more deadly opponent
+               on her birthday */
+            if (kathryn_bday()) {
+                mtmp->mhp = mtmp->mhpmax = 500;
+                (void) mongets(mtmp, POT_FULL_HEALING);
+            }
         } else if (ptr->msound == MS_GUARDIAN) {
             /* quest "guardians" */
             switch (mm) {

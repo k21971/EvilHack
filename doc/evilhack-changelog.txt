@@ -1363,4 +1363,4 @@ Version 0.7.0
 - New weapon: dwarvish beared axe
 - Fix: A shimmering globe appears around it!
 - Fix: typo in objects.txt for dwarvish bearded axe
-
+- Kathryn's birthday

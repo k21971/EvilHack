@@ -1009,6 +1009,8 @@ E void FDECL(init_random, (int FDECL((*fn), (int))));
 E void FDECL(reseed_random, (int FDECL((*fn), (int))));
 E time_t NDECL(getnow);
 E int NDECL(getyear);
+E int NDECL(getmonth);
+E int NDECL(getmday);
 #if 0
 E char *FDECL(yymmdd, (time_t));
 #endif
@@ -1020,6 +1022,7 @@ E int NDECL(phase_of_the_moon);
 E boolean NDECL(friday_13th);
 E int NDECL(night);
 E int NDECL(midnight);
+E boolean NDECL(kathryn_bday);
 E void FDECL(strbuf_init, (strbuf_t *));
 E void FDECL(strbuf_append, (strbuf_t *, const char *));
 E void FDECL(strbuf_reserve, (strbuf_t *, int));

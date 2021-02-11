@@ -908,16 +908,20 @@ register struct monst *mtmp;
         com_pager(rn2(QTN_ANGELIC - 1 + (Hallucination ? 1 : 0))
                   + QT_ANGELIC);
     } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
-        if (!rn2(5))
+        if (!rn2(5)) {
             pline("%s points and giggles at you.", Monnam(mtmp));
-        else
+            if (kathryn_bday())
+                verbalize("It's my birthday!  Woohoo!!");
+        } else
             verbalize("%s!",
                       random_icequeen[rn2(SIZE(random_icequeen))]);
     } else if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
         if (mtmp->mpeaceful) {
-            if (!rn2(5))
+            if (!rn2(5)) {
                 pline("%s waves to you.", Monnam(mtmp));
-            else
+                if (kathryn_bday())
+                    verbalize("You freed me on my birthday!  Thank you so much!!");
+            } else
                 verbalize("%s.",
                         random_enchantress[rn2(SIZE(random_enchantress))]);
         } else {

@@ -55,6 +55,8 @@
         void            reseed_random   (fn)
         time_t          getnow          (void)
         int             getyear         (void)
+        int             getmonth        (void)
+        int             getmday         (void)
         char *          yymmdd          (time_t)
         long            yyyymmdd        (time_t)
         long            hhmmss          (time_t)
@@ -64,6 +66,7 @@
         boolean         friday_13th     (void)
         int             night           (void)
         int             midnight        (void)
+        boolean         kathryn_bday    (void)
         void            strbuf_init     (strbuf *, const char *)
         void            strbuf_append   (strbuf *, const char *)
         void            strbuf_reserve  (strbuf *, int)
@@ -944,6 +947,18 @@ getyear()
     return (1900 + getlt()->tm_year);
 }
 
+int
+getmonth()
+{
+    return (1 + getlt()->tm_mon);
+}
+
+int
+getmday()
+{
+    return (getlt()->tm_mday);
+}
+
 #if 0
 /* This routine is no longer used since in 20YY it yields "1YYmmdd". */
 char *
@@ -1138,6 +1153,12 @@ int
 midnight()
 {
     return (getlt()->tm_hour == 0);
+}
+
+boolean
+kathryn_bday()
+{
+    return (boolean) ((getmday() == 12) && (getmonth() == 2));
 }
 
 /* strbuf_init() initializes strbuf state for use */

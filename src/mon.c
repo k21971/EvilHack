@@ -5370,7 +5370,11 @@ struct monst *mtmp;
     mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
     livelog_printf(LL_UMONST, "defeated %s", noit_mon_nam(mtmp));
     newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
-    mtmp->mhp = mtmp->mhpmax = 7500;
+    if (kathryn_bday()) {
+        mtmp->mhp = mtmp->mhpmax = 15000;
+    } else {
+        mtmp->mhp = mtmp->mhpmax = 7500;
+    }
     if (mtmp == u.ustuck) {
         if (u.uswallow)
             expels(mtmp, mtmp->data, FALSE);
