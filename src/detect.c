@@ -900,13 +900,13 @@ int mclass;                /* monster class, 0 for all */
  */
 int
 magic_detect(detector)
-struct obj *detector;	/* object doing the detecting */
+struct obj *detector;   /* object doing the detecting */
 {
     register int x, y;
     char stuff[BUFSZ];
     int is_cursed = (detector && detector->cursed);
     int do_pknown = (detector && (detector->oclass == SCROLL_CLASS)
-    		     && detector->blessed);
+                     && detector->blessed);
     int ct = 0, ctu = 0;
     register struct obj *obj;
     struct obj otmp;
@@ -915,79 +915,79 @@ struct obj *detector;	/* object doing the detecting */
     boolean woken = FALSE;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-    	if (!DEADMONSTER(mtmp) && MAGICMONSTER(mtmp)) {
+        if (!DEADMONSTER(mtmp) && MAGICMONSTER(mtmp)) {
             ter_typ |= TER_MON;
-	    ct++;
-	    break;
+            ct++;
+            break;
         }
 
     if (Upolyd
         && attacktype(youmonst.data, AT_MAGC))
-	ctu++;
+        ctu++;
 
     if (Hallucination || Confusion)
-	Strcpy(stuff, something);
+        Strcpy(stuff, something);
     else
-    	Strcpy(stuff, "magic");
+        Strcpy(stuff, "magic");
 
     for (obj = invent; obj; obj = obj->nobj)
         if (is_magic(obj)) {
-	    obj->oprops_known |= ITEM_MAGICAL;
-	    if (do_pknown)
-	        do_dknown_of(obj, TRUE);
-	}
+            obj->oprops_known |= ITEM_MAGICAL;
+            if (do_pknown)
+                do_dknown_of(obj, TRUE);
+        }
 
     for (obj = fobj; obj; obj = obj->nobj) {
         if (!is_magic(obj))
             continue;
-	if (obj->ox == u.ux && obj->oy == u.uy)
+        if (obj->ox == u.ux && obj->oy == u.uy)
             ctu++;
-	else
+        else
             ct++;
-	obj->oprops_known |= ITEM_MAGICAL;
-	if (do_pknown)
+        obj->oprops_known |= ITEM_MAGICAL;
+        if (do_pknown)
             do_dknown_of(obj, TRUE);
     }
 
     for (obj = level.buriedobjlist; obj; obj = obj->nobj) {
         if (!is_magic(obj))
             continue;
-	if (obj->ox == u.ux && obj->oy == u.uy)
+        if (obj->ox == u.ux && obj->oy == u.uy)
             ctu++;
-	else
+        else
             ct++;
-	obj->oprops_known |= ITEM_MAGICAL;
-	if (do_pknown)
+        obj->oprops_known |= ITEM_MAGICAL;
+        if (do_pknown)
             do_dknown_of(obj, TRUE);
     }
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-	if (DEADMONSTER(mtmp))
+        if (DEADMONSTER(mtmp))
             continue;
-	for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+        for (obj = mtmp->minvent; obj; obj = obj->nobj) {
             if (!is_magic(obj))
                 continue;
-	    ct++;
-	    obj->oprops_known |= ITEM_MAGICAL;
-	    if (do_pknown)
+            ct++;
+            obj->oprops_known |= ITEM_MAGICAL;
+            if (do_pknown)
                 do_dknown_of(obj, TRUE);
-	}
-	if (is_cursed && mtmp->m_ap_type == M_AP_OBJECT
-	    && objects[mtmp->mappearance].oc_magic) {
-	    ct++;
-	    break;
-	}
+        }
+        if (is_cursed && mtmp->m_ap_type == M_AP_OBJECT
+            && objects[mtmp->mappearance].oc_magic) {
+            ct++;
+            break;
+        }
     }
 
     if (!clear_stale_map(ALL_CLASSES, 0, TRUE) && !ct) {
-	if (!ctu) {
-	    if (detector)
-		strange_feeling(detector, "You feel mundane.");
-	    return 1;
-	}
+        if (!ctu) {
+            if (detector)
+                strange_feeling(detector, "You feel mundane.");
+            return 1;
+        }
 
-	You("sense %s nearby.", stuff);
-	return 0;
+        You("sense %s nearby.", stuff);
+        return 0;
     }
 
     cls();
@@ -996,9 +996,9 @@ struct obj *detector;	/* object doing the detecting */
     (void) unconstrain_map();
     /* Map all buried objects first */
     for (obj = level.buriedobjlist; obj; obj = obj->nobj)
-	if (is_magic(obj)) {
-	    map_object(obj, 1);
-	}
+        if (is_magic(obj)) {
+            map_object(obj, 1);
+        }
     /*
      * If we are mapping all objects, map only the top object of a pile or
      * the first object in a monster's inventory.  Otherwise, go looking
@@ -1008,34 +1008,34 @@ struct obj *detector;	/* object doing the detecting */
      * Objects on the floor override buried objects.
      */
     for (x = 1; x < COLNO; x++)
-	for (y = 0; y < ROWNO; y++)
-	    for (obj = level.objects[x][y]; obj; obj = obj->nexthere)
-		if (is_magic(obj)) {
-		    map_object(obj, 1);
-		    break;
-		}
+        for (y = 0; y < ROWNO; y++)
+            for (obj = level.objects[x][y]; obj; obj = obj->nexthere)
+                if (is_magic(obj)) {
+                    map_object(obj, 1);
+                    break;
+                }
 
     /* Objects in the monster's inventory override floor objects */
     for (mtmp = fmon ; mtmp ; mtmp = mtmp->nmon) {
-	if (DEADMONSTER(mtmp))
+        if (DEADMONSTER(mtmp))
             continue;
-	for (obj = mtmp->minvent; obj; obj = obj->nobj)
-	    if (is_magic(obj)) {
-		otmp = *obj;
-		otmp.ox = mtmp->mx; /* at monster location */
-		otmp.oy = mtmp->my;
-		map_object(&otmp, 1);
-		break;
-	    }
-	/* Allow a mimic to override the detected objects it is carrying */
-	if (is_cursed && mtmp->m_ap_type == M_AP_OBJECT
+        for (obj = mtmp->minvent; obj; obj = obj->nobj)
+            if (is_magic(obj)) {
+                otmp = *obj;
+                otmp.ox = mtmp->mx; /* at monster location */
+                otmp.oy = mtmp->my;
+                map_object(&otmp, 1);
+                break;
+            }
+        /* Allow a mimic to override the detected objects it is carrying */
+        if (is_cursed && mtmp->m_ap_type == M_AP_OBJECT
             && (objects[mtmp->mappearance].oc_magic)) {
-	    otmp.otyp = mtmp->mappearance; /* needed for obj_to_glyph() */
-	    otmp.ox = mtmp->mx;
-	    otmp.oy = mtmp->my;
-	    otmp.corpsenm = PM_TENGU; /* if mimicing a corpse */
-	    map_object(&otmp, 1);
-	}
+            otmp.otyp = mtmp->mappearance; /* needed for obj_to_glyph() */
+            otmp.ox = mtmp->mx;
+            otmp.oy = mtmp->my;
+            otmp.corpsenm = PM_TENGU; /* if mimicing a corpse */
+            map_object(&otmp, 1);
+        }
     }
 
     /* Magical monsters override objects */
@@ -1044,9 +1044,9 @@ struct obj *detector;	/* object doing the detecting */
             continue;
         map_monst(mtmp, TRUE);
         if (is_cursed && (mtmp->msleeping || !mtmp->mcanmove)) {
-	    mtmp->msleeping = mtmp->mfrozen = 0;
-	    mtmp->mcanmove = 1;
-	    woken = TRUE;
+            mtmp->msleeping = mtmp->mfrozen = 0;
+            mtmp->mcanmove = 1;
+            woken = TRUE;
         }
     }
     if (!glyph_is_object(glyph_at(u.ux, u.uy))) {
@@ -1057,7 +1057,7 @@ struct obj *detector;	/* object doing the detecting */
     You("detect the %s of %s.",
         ct ? "presence" : "absence", stuff);
     if (woken)
-	 pline("%s detects the presence of you.", upstart(stuff));
+        pline("%s detects the presence of you.", upstart(stuff));
     if (!ct)
         display_nhwindow(WIN_MAP, TRUE);
     else {
