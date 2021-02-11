@@ -889,6 +889,9 @@ int mclass;                /* monster class, 0 for all */
     return 0;
 }
 
+/* TODO: other magical types of creature? */
+#define MAGICMONSTER(mon) (attacktype(mon->data, AT_MAGC))
+
 /*
  * Used for scrolls.  Returns:
  *
@@ -912,9 +915,8 @@ struct obj *detector;	/* object doing the detecting */
     boolean woken = FALSE;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-    	if (!DEADMONSTER(mtmp)
-	    /* TODO: other magical types of creature? */
-	    && attacktype(mtmp->data, AT_MAGC)) {
+    	if (!DEADMONSTER(mtmp) && MAGICMONSTER(mtmp)) {
+            ter_typ |= TER_MON;
 	    ct++;
 	    break;
         }
@@ -1038,17 +1040,10 @@ struct obj *detector;	/* object doing the detecting */
 
     /* Magical monsters override objects */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp)
-	    || !attacktype(mtmp->data, AT_MAGC))
+        if (DEADMONSTER(mtmp) || !MAGICMONSTER(mtmp))
             continue;
-        if (mtmp->mx > 0) {
-            show_glyph(mtmp->mx, mtmp->my, mon_to_glyph(mtmp, newsym_rn2));
-            /* don't be stingy - display entire worm */
-            if (mtmp->data == &mons[PM_LONG_WORM])
-                detect_wsegs(mtmp, 0);
-        }
-        if (detector && detector->cursed
-	    && (mtmp->msleeping || !mtmp->mcanmove)) {
+        map_monst(mtmp, TRUE);
+        if (is_cursed && (mtmp->msleeping || !mtmp->mcanmove)) {
 	    mtmp->msleeping = mtmp->mfrozen = 0;
 	    mtmp->mcanmove = 1;
 	    woken = TRUE;
@@ -1062,11 +1057,15 @@ struct obj *detector;	/* object doing the detecting */
     You("detect the %s of %s.",
         ct ? "presence" : "absence", stuff);
     if (woken)
-	 pline("Magic senses the presence of you.");
+	 pline("%s detects the presence of you.", upstart(stuff));
     if (!ct)
         display_nhwindow(WIN_MAP, TRUE);
-    else
+    else {
+        EDetect_monsters |= I_SPECIAL;
         browse_map(ter_typ, "magical object");
+        EDetect_monsters &= ~I_SPECIAL;
+    }
+
     /*
      * What are we going to do when the hero does an object detect while blind
      * and the detected object covers a known pool?
