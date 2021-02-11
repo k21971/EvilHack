@@ -1361,4 +1361,5 @@ Version 0.7.0
 - Artifact wielding function
 - Enable sunsword's shining effect when wielded in the offhand
 - New weapon: dwarvish beared axe
+- Fix: A shimmering globe appears around it!
 

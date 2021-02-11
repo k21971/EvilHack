@@ -878,7 +878,7 @@ register struct monst *mdef;
         }
         incr_itimeout(&HReflecting, rn1(10, HReflecting ? 50 : 250));
     } else if (!youdefend) {
-        if (!Blind)
+        if (canseemon(mdef))
             pline("A shimmering globe appears around %s!", mon_nam(mdef));
         /* monster reflection is handled in mon_reflects() */
         mdef->mextrinsics |= MR2_REFLECTION;
