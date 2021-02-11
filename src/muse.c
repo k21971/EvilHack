@@ -2282,6 +2282,8 @@ struct monst *mtmp;
 #define MUSE_SCR_REMOVE_CURSE 10
 #define MUSE_WAN_WISHING 11
 #define MUSE_FIGURINE 12
+#define MUSE_DWARVISH_BEARDED_AXE_WEAPON 13
+#define MUSE_DWARVISH_BEARDED_AXE_SHIELD 14
 
 boolean
 find_misc(mtmp)
@@ -2375,6 +2377,35 @@ struct monst *mtmp;
                 || (u.twoweap && canletgo(uswapwep, "")))) {
             m.misc = obj;
             m.has_misc = MUSE_BULLWHIP;
+        }
+        nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
+        if (obj->otyp == DWARVISH_BEARDED_AXE
+            && !mtmp->mpeaceful
+            /* the random test prevents axe-wielding
+               monster from attempting disarm every turn */
+            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
+            /* hero's location must be known and adjacent */
+            && mtmp->mux == u.ux && mtmp->muy == u.uy
+            && distu(mtmp->mx, mtmp->my) <= 2
+            /* don't bother if it can't work (this doesn't
+               prevent cursed weapons from being targetted) */
+            && (canletgo(uwep, "")
+                || (u.twoweap && canletgo(uswapwep, "")))) {
+            m.misc = obj;
+            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_WEAPON;
+        }
+        nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
+        if (obj->otyp == DWARVISH_BEARDED_AXE
+            && !mtmp->mpeaceful
+            /* the random test prevents axe-wielding
+               monster from attempting shield removal every
+               turn - shields are harder to disarm than weapons */
+            && uarms && !rn2(7) && obj == MON_WEP(mtmp)
+            /* hero's location must be known and adjacent */
+            && mtmp->mux == u.ux && mtmp->muy == u.uy
+            && distu(mtmp->mx, mtmp->my) <= 2) {
+            m.misc = obj;
+            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_SHIELD;
         }
         /* Note: peaceful/tame monsters won't make themselves
          * invisible unless you can see them.  Not really right, but...
@@ -2486,6 +2517,35 @@ struct obj *start;
                 || (u.twoweap && canletgo(uswapwep, "")))) {
             m.misc = obj;
             m.has_misc = MUSE_BULLWHIP;
+        }
+        nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
+        if (obj->otyp == DWARVISH_BEARDED_AXE
+            && !mtmp->mpeaceful
+            /* the random test prevents axe-wielding
+               monster from attempting disarm every turn */
+            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
+            /* hero's location must be known and adjacent */
+            && mtmp->mux == u.ux && mtmp->muy == u.uy
+            && distu(mtmp->mx, mtmp->my) <= 2
+            /* don't bother if it can't work (this doesn't
+               prevent cursed weapons from being targetted) */
+            && (canletgo(uwep, "")
+                || (u.twoweap && canletgo(uswapwep, "")))) {
+            m.misc = obj;
+            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_WEAPON;
+        }
+        nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
+        if (obj->otyp == DWARVISH_BEARDED_AXE
+            && !mtmp->mpeaceful
+            /* the random test prevents axe-wielding
+               monster from attempting shield removal every
+               turn - shields are harder to disarm than weapons */
+            && uarms && !rn2(7) && obj == MON_WEP(mtmp)
+            /* hero's location must be known and adjacent */
+            && mtmp->mux == u.ux && mtmp->muy == u.uy
+            && distu(mtmp->mx, mtmp->my) <= 2) {
+            m.misc = obj;
+            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_SHIELD;
         }
         /* Note: peaceful/tame monsters won't make themselves
          * invisible unless you can see them.  Not really right, but...
@@ -2836,6 +2896,139 @@ struct monst *mtmp;
                 break;
             case 3: /* into mon's inventory */
                 pline("%s snatches %s!", Monnam(mtmp), the_weapon);
+                (void) mpickobj(mtmp, obj);
+                break;
+            }
+            return 1;
+        }
+        return 0;
+    case MUSE_DWARVISH_BEARDED_AXE_WEAPON:
+        /* attempt to disarm hero */
+        {
+            const char *The_axe = vismon ? "The axe" : "An axe";
+            int where_to = rn2(4);
+            struct obj *obj = uwep;
+            const char *hand;
+            char the_weapon[BUFSZ];
+
+            if (!obj || !canletgo(obj, "")
+                || (u.twoweap && canletgo(uswapwep, "") && rn2(2)))
+                obj = uswapwep;
+            if (!obj)
+                break; /* shouldn't happen after find_misc() */
+
+            Strcpy(the_weapon, the(xname(obj)));
+            hand = body_part(HAND);
+            if (bimanual(obj))
+                hand = makeplural(hand);
+
+            if (vismon)
+                pline("%s swings its axe towards your %s!", Monnam(mtmp),
+                      hand);
+            if (obj->otyp == HEAVY_IRON_BALL) {
+                pline("%s glances off of %s.", The_axe, the_weapon);
+                return 1;
+            }
+            if (is_flimsy(obj)) {
+                pline("%s is unable to hook onto %s.", The_axe, the_weapon);
+                return 1;
+            }
+            pline("%s hooks onto %s you're wielding!", The_axe,
+                  the_weapon);
+            if (welded(obj)) {
+                pline("%s welded to your %s%c",
+                      !is_plural(obj) ? "It is" : "They are", hand,
+                      !obj->bknown ? '!' : '.');
+                /* obj->bknown = 1; */ /* welded() takes care of this */
+                where_to = 0;
+            }
+            if (!where_to) {
+                pline_The("axe comes free."); /* not `The_whip' */
+                return 1;
+            } else if (where_to == 3
+                       && mon_hates_material(mtmp, obj->material)) {
+                /* this monster won't want to catch a silver
+                   weapon; drop it at hero's feet instead */
+                where_to = 2;
+            }
+            remove_worn_item(obj, FALSE);
+            freeinv(obj);
+            switch (where_to) {
+            case 1: /* onto floor beneath mon */
+                pline("%s pulls %s from your %s!", Monnam(mtmp), the_weapon,
+                      hand);
+                place_object(obj, mtmp->mx, mtmp->my);
+                break;
+            case 2: /* onto floor beneath you */
+                pline("%s pulls %s to the %s!", Monnam(mtmp), the_weapon,
+                      surface(u.ux, u.uy));
+                dropy(obj);
+                break;
+            case 3: /* into mon's inventory */
+                pline("%s disarms you, and snatches %s!", Monnam(mtmp), the_weapon);
+                (void) mpickobj(mtmp, obj);
+                break;
+            }
+            return 1;
+        }
+        return 0;
+    case MUSE_DWARVISH_BEARDED_AXE_SHIELD:
+        /* attempt to remove the heroes shield */
+        {
+            const char *The_axe = vismon ? "The axe" : "An axe";
+            int where_to = rn2(4);
+            struct obj *obj = uarms;
+            const char *hand;
+            char the_shield[BUFSZ];
+
+            if (!obj)
+                break; /* shouldn't happen after find_misc() */
+
+            Strcpy(the_shield, the(xname(obj)));
+            hand = body_part(HAND);
+            if (bimanual(obj))
+                hand = makeplural(hand);
+
+            if (vismon)
+                pline("%s swings its axe towards your off%s!", Monnam(mtmp),
+                      hand);
+            if (is_flimsy(obj)) {
+                pline("%s is unable to hook onto %s.", The_axe, the_shield);
+                return 1;
+            }
+            pline("%s hooks onto %s!", The_axe,
+                  the_shield);
+            if (cursed(obj, TRUE)) {
+                pline("%s welded to your off%s%c",
+                      !is_plural(obj) ? "It is" : "They are", hand,
+                      !obj->bknown ? '!' : '.');
+                /* obj->bknown = 1; */ /* welded() takes care of this */
+                where_to = 0;
+            }
+            if (!where_to) {
+                pline_The("axe comes free."); /* not `The_whip' */
+                return 1;
+            } else if (where_to == 3
+                       && mon_hates_material(mtmp, obj->material)) {
+                /* this monster won't want to catch a silver
+                   weapon; drop it at hero's feet instead */
+                where_to = 2;
+            }
+            remove_worn_item(obj, FALSE);
+            freeinv(obj);
+            switch (where_to) {
+            case 1: /* onto floor beneath mon */
+                pline("%s pulls %s from your off%s!", Monnam(mtmp), the_shield,
+                      hand);
+                place_object(obj, mtmp->mx, mtmp->my);
+                break;
+            case 2: /* onto floor beneath you */
+                pline("%s pulls %s to the %s!", Monnam(mtmp), the_shield,
+                      surface(u.ux, u.uy));
+                dropy(obj);
+                break;
+            case 3: /* into mon's inventory */
+                pline("%s removes and snatches %s!", Monnam(mtmp), the_shield);
                 (void) mpickobj(mtmp, obj);
                 break;
             }

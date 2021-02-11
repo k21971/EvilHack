@@ -28,6 +28,7 @@ STATIC_DCL void FDECL(use_trap, (struct obj *));
 STATIC_DCL void FDECL(use_stone, (struct obj *));
 STATIC_PTR int NDECL(set_trap); /* occupation callback */
 STATIC_DCL int FDECL(use_whip, (struct obj *));
+STATIC_DCL int FDECL(use_axe, (struct obj *));
 STATIC_PTR void FDECL(display_polearm_positions, (int));
 STATIC_DCL int FDECL(use_pole, (struct obj *));
 STATIC_DCL int FDECL(use_cream_pie, (struct obj *));
@@ -3037,6 +3038,261 @@ struct obj *obj;
     return 1;
 }
 
+STATIC_OVL int
+use_axe(obj)
+struct obj *obj;
+{
+    char buf[BUFSZ];
+    struct monst *mtmp;
+    struct obj *otmp;
+    int rx, ry, proficient, res = 0;
+    const char *msg_comesfree = "The axe comes free.";
+    const char *msg_swoosh = "Swoosh!";
+
+    if (obj != uwep) {
+        if (!wield_tool(obj, "lash"))
+            return 0;
+        else
+            res = 1;
+    }
+    if (!getdir((char *) 0))
+        return res;
+
+    if (u.uswallow) {
+        mtmp = u.ustuck;
+        rx = mtmp->mx;
+        ry = mtmp->my;
+    } else {
+        if (Stunned || (Confusion && !rn2(5)))
+            confdir();
+        rx = u.ux + u.dx;
+        ry = u.uy + u.dy;
+        if (!isok(rx, ry)) {
+            You("miss.");
+            return res;
+        }
+        mtmp = m_at(rx, ry);
+    }
+
+    /* fake some proficiency checks */
+    proficient = 0;
+    if (Role_if(PM_VALKYRIE))
+        ++proficient;
+    if (ACURR(A_STR) < 9)
+        proficient--;
+    else if (ACURR(A_STR) >= 15)
+        proficient += (ACURR(A_STR) - 15);
+    if (Fumbling)
+        --proficient;
+    if (proficient > 3)
+        proficient = 3;
+    if (proficient < 0)
+        proficient = 0;
+
+    if (u.uswallow && attack(u.ustuck)) {
+        There("is not enough room to use your axe.");
+
+    } else if (Underwater) {
+        There("is too much resistance to use your axe.");
+
+    } else if (u.dz < 0) {
+        You("chip away a part of the %s.", ceiling(u.ux, u.uy));
+
+    } else if ((!u.dx && !u.dy) || (u.dz > 0)) {
+        int dam;
+
+        /* Sometimes you hit your steed by mistake */
+        if (u.usteed && !rn2(proficient + 4)) {
+            You("smack %s!", mon_nam(u.usteed));
+            kick_steed();
+            return 1;
+        }
+        dam = rnd(8) + dbon() + obj->spe;
+        if (dam <= 0)
+            dam = 1;
+        You("hit your %s with your axe.", body_part(FOOT));
+        Sprintf(buf, "killed %sself with %s axe", uhim(), uhis());
+        losehp(Maybe_Half_Phys(dam), buf, NO_KILLER_PREFIX);
+        return 1;
+
+    } else if ((Fumbling || Glib) && !rn2(5)) {
+        pline_The("axe slips out of your %s.", body_part(HAND));
+        dropx(obj);
+
+    } else if (u.utrap && u.utraptype == TT_PIT) {
+        /*
+         * Assumptions:
+         *
+         * if you're in a pit
+         *    - you are attempting to get out of the pit
+         * or, if you are applying it towards a small monster
+         *    - then it is assumed that you are trying to hit it
+         * else if the monster is wielding a weapon
+         *    - you are attempting to disarm a monster
+         * else
+         *    - you are attempting to hit the monster.
+         *
+         * if you're confused (and thus off the mark)
+         *    - you only end up hitting.
+         *
+         */
+        const char *hooked_what = (char *) 0;
+
+        if (mtmp) {
+            if (bigmonst(mtmp->data)) {
+                hooked_what = strcpy(buf, mon_nam(mtmp));
+            } else if (proficient) {
+                if (attack(mtmp))
+                    return 1;
+                else
+                    pline1(msg_swoosh);
+            }
+        }
+        if (!hooked_what) {
+            if (IS_FURNITURE(levl[rx][ry].typ))
+                hooked_what = something;
+        }
+        if (hooked_what) {
+            coord cc;
+
+            cc.x = rx;
+            cc.y = ry;
+            You("hook your axe onto %s.", hooked_what);
+            if (proficient && rn2(proficient + 2)) {
+                if (!mtmp || enexto(&cc, rx, ry, youmonst.data)) {
+                    You("pull yourself out of the pit!");
+                    teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG);
+                    reset_utrap(TRUE);
+                    vision_full_recalc = 1;
+                }
+            } else {
+                pline1(msg_comesfree);
+            }
+            if (mtmp)
+                wakeup(mtmp, TRUE);
+        } else
+            pline1(msg_swoosh);
+
+    } else if (mtmp) {
+        if (!canspotmon(mtmp) && !glyph_is_invisible(levl[rx][ry].glyph)) {
+            pline("A monster is there that you couldn't see.");
+            map_invisible(rx, ry);
+        }
+        otmp = rn2(4) ? MON_WEP(mtmp) : which_armor(mtmp, W_ARMS); /* can be null */
+        if (otmp) {
+            char onambuf[BUFSZ];
+            const char *mon_hand;
+            boolean gotit = proficient && (!Fumbling || !rn2(10));
+
+            Strcpy(onambuf, cxname(otmp));
+            if (gotit) {
+                mon_hand = mbodypart(mtmp, HAND);
+                if (bimanual(otmp))
+                    mon_hand = makeplural(mon_hand);
+            } else
+                mon_hand = 0; /* lint suppression */
+
+            You("hook your axe onto %s.", yname(otmp));
+            if (gotit && (mwelded(otmp) || cursed(otmp, TRUE))) {
+                pline("%s welded to %s %s%c",
+                      (otmp->quan == 1L) ? "It is" : "They are", mhis(mtmp),
+                      mon_hand, !otmp->bknown ? '!' : '.');
+                set_bknown(otmp, 1);
+                gotit = FALSE; /* can't pull it free */
+            }
+            if (gotit) {
+                obj_extract_self(otmp);
+                possibly_unwield(mtmp, FALSE);
+                if (otmp == MON_WEP(mtmp)) {
+                    setmnotwielded(mtmp, otmp);
+                } else {
+                    mtmp->misc_worn_check &= ~W_ARMS;
+                    update_mon_intrinsics(mtmp, otmp, FALSE, TRUE);
+                    otmp->owornmask = 0;
+                }
+
+                switch (rn2(proficient + 1)) {
+                case 2:
+                    /* to floor near you */
+                    You("pull %s to the %s!", yname(otmp),
+                        surface(u.ux, u.uy));
+                    place_object(otmp, u.ux, u.uy);
+                    stackobj(otmp);
+                    break;
+                case 3:
+#if 0
+                    /* right to you */
+                    if (!rn2(25)) {
+                        /* proficient with axe, but maybe not
+                           so proficient at catching weapons */
+                        int hitu, hitvalu;
+
+                        hitvalu = 8 + otmp->spe;
+                        hitu = thitu(hitvalu, dmgval(otmp, &youmonst),
+                                     &otmp, (char *)0);
+                        if (hitu) {
+                            pline_The("%s hits you as you try to snatch it!",
+                                      the(onambuf));
+                        }
+                        place_object(otmp, u.ux, u.uy);
+                        stackobj(otmp);
+                        break;
+                    }
+#endif /* 0 */
+                    /* right into your inventory */
+                    You("snatch %s!", yname(otmp));
+                    if (otmp->otyp == CORPSE
+                        && touch_petrifies(&mons[otmp->corpsenm]) && !uarmg
+                        && !Stone_resistance
+                        && !(poly_when_stoned(youmonst.data)
+                             && polymon(PM_STONE_GOLEM))) {
+                        char kbuf[BUFSZ];
+
+                        Sprintf(kbuf, "%s corpse",
+                                an(mons[otmp->corpsenm].mname));
+                        pline("Snatching %s is a fatal mistake.", kbuf);
+                        instapetrify(kbuf);
+                    }
+                    (void) hold_another_object(otmp, "You drop %s!",
+                                               doname(otmp), (const char *) 0);
+                    break;
+                default:
+                    /* to floor beneath mon */
+                    You("pull %s from %s %s!", the(onambuf),
+                        s_suffix(mon_nam(mtmp)), mon_hand);
+                    obj_no_longer_held(otmp);
+                    place_object(otmp, mtmp->mx, mtmp->my);
+                    stackobj(otmp);
+                    break;
+                }
+            } else {
+                pline1(msg_comesfree);
+            }
+            wakeup(mtmp, TRUE);
+        } else {
+            if (M_AP_TYPE(mtmp) && !Protection_from_shape_changers
+                && !sensemon(mtmp))
+                stumble_onto_mimic(mtmp);
+            else
+                You("swing your axe towards %s.", mon_nam(mtmp));
+            if (proficient) {
+                if (attack(mtmp))
+                    return 1;
+                else
+                    pline1(msg_swoosh);
+            }
+        }
+
+    } else if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)) {
+        /* it must be air -- water checked above */
+        You("swing your axe through thin air.");
+
+    } else {
+        pline1(msg_swoosh);
+    }
+    return 1;
+}
+
 static const char
     not_enough_room[] = "There's not enough room here to use that.",
     where_to_hit[] = "Where do you want to hit?",
@@ -3758,6 +4014,9 @@ doapply()
         break;
     case BULLWHIP:
         res = use_whip(obj);
+        break;
+    case DWARVISH_BEARDED_AXE:
+        res = use_axe(obj);
         break;
     case GRAPPLING_HOOK:
         res = use_grapple(obj);

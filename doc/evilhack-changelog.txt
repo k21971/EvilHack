@@ -1360,4 +1360,5 @@ Version 0.7.0
 - Fix: crash when setting nudist option in config
 - Artifact wielding function
 - Enable sunsword's shining effect when wielded in the offhand
+- New weapon: dwarvish beared axe
 

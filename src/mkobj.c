@@ -3338,6 +3338,7 @@ struct obj* obj;
         case DWARVISH_SPEAR:
         case DWARVISH_SHORT_SWORD:
         case DWARVISH_MATTOCK:
+        case DWARVISH_BEARDED_AXE:
             return dwarvish_weapon_materials;
         case CHEST:
         case LARGE_BOX:

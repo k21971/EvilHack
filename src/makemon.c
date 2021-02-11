@@ -727,7 +727,6 @@ register struct monst *mtmp;
                 mongets(mtmp, BOULDER);
                 break;
             case PM_HUMAN_LIEUTENANT:
-            case PM_DWARVISH_LIEUTENANT:
             case PM_GNOMISH_LIEUTENANT:
             case PM_CENTAURIAN_LIEUTENANT:
                 w1 = rn2(2) ? BROADSWORD : LONG_SWORD;
@@ -799,6 +798,41 @@ register struct monst *mtmp;
                     (void) mongets(mtmp, randwand);
                 }
                 break;
+            case PM_DWARVISH_LIEUTENANT:
+                w1 = rn2(2) ? DWARVISH_SHORT_SWORD : DWARVISH_BEARDED_AXE;
+                if (Is_stronghold(&u.uz)) {
+                    w2 = BOW;
+                    m_initthrow(mtmp, ARROW, 30);
+                do {
+                    randwand = rn2(7);
+                } while (randwand > 5 && rn2(14));
+                    switch (randwand) {
+                        case 1:
+                            randwand = WAN_MAGIC_MISSILE;
+                            break;
+                        case 2:
+                            randwand = WAN_SLEEP;
+                            break;
+                        case 3:
+                            randwand = WAN_FIRE;
+                            break;
+                        case 4:
+                            randwand = WAN_COLD;
+                            break;
+                        case 5:
+                            randwand = WAN_LIGHTNING;
+                            break;
+                        case 6:
+                            randwand = WAN_DEATH;
+                            break;
+                        case 0:
+                        default:
+                            randwand = WAN_STRIKING;
+                            break;
+                    }
+                    (void) mongets(mtmp, randwand);
+                }
+                break;
             case PM_ORCISH_LIEUTENANT:
                 w1 = rn2(2) ? BROADSWORD : ORCISH_SCIMITAR;
                 break;
@@ -814,8 +848,10 @@ register struct monst *mtmp;
                 w1 = rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
                 mongets(mtmp, SKELETON_KEY);
                 break;
-            case PM_HUMAN_CAPTAIN:
             case PM_DWARVISH_CAPTAIN:
+                w1 = rn2(4) ? DWARVISH_BEARDED_AXE : BATTLE_AXE;
+                break;
+            case PM_HUMAN_CAPTAIN:
             case PM_GNOMISH_CAPTAIN:
             case PM_PRISON_GUARD:
             case PM_WATCH_CAPTAIN:
@@ -1107,7 +1143,8 @@ register struct monst *mtmp;
             if (rn2(7))
                 (void) mongets(mtmp, DWARVISH_BOOTS);
             if (!rn2(4)) {
-                (void) mongets(mtmp, DWARVISH_SHORT_SWORD);
+                (void) mongets(mtmp, rn2(5) ? DWARVISH_SHORT_SWORD
+                                            : DWARVISH_BEARDED_AXE);
                 /* note: you can't use a mattock with a shield */
                 if (rn2(2))
                     (void) mongets(mtmp, DWARVISH_MATTOCK);

@@ -257,6 +257,7 @@ struct inv_sub {
     /* { PM_DWARF, SMALL_SHIELD, DWARVISH_ROUNDSHIELD }, */
     /* { PM_DWARF, PICK_AXE, DWARVISH_MATTOCK }, */
     { PM_DWARF, LEMBAS_WAFER, CRAM_RATION },
+    { PM_DWARF, LONG_SWORD, DWARVISH_BEARDED_AXE },
     { PM_GNOME, BOW, CROSSBOW },
     { PM_GNOME, ARROW, CROSSBOW_BOLT },
     /* Giants have special considerations */
