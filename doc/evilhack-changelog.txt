@@ -1364,3 +1364,5 @@ Version 0.7.0
 - Fix: A shimmering globe appears around it!
 - Fix: typo in objects.txt for dwarvish bearded axe
 - Kathryn's birthday
+- Fix: adjust ACCESSIBLE to accept shallow water and sewage tiles
+
