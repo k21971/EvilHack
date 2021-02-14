@@ -606,8 +606,10 @@ lev_init *init_lev;
     if (join)
         join_map(bg_typ, fg_typ);
 
-    if (In_mines(&u.uz) && !In_hell(&u.uz))
-        mkrivers();
+    if (In_mines(&u.uz) && !In_hell(&u.uz)) {
+        if (!(Is_minetn_level(&u.uz)))
+            mkrivers();
+    }
 
     finish_map(fg_typ, bg_typ, (boolean) lit, (boolean) walled,
                init_lev->icedpools);

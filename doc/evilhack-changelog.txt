@@ -1372,3 +1372,5 @@ Version 0.7.0
 - Fix: prevent rangers from wishing for their other quest artifact
 - Fix: remove chokepoint final ranger quest level (centaurs)
 - Fix: random monster cannot spawn if unaligned (A_NONE)
+- Fix: game freeze with rivers spawning in certain versions of minetown
+
