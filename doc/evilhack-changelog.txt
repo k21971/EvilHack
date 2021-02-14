@@ -1367,4 +1367,6 @@ Version 0.7.0
 - Fix: adjust ACCESSIBLE to accept shallow water and sewage tiles
 - Fix: wrong race with racial identifier for racial priests
 - Racial player monsters
+- Fix: make sure iflags.use_color is enabled when changing player monster
+  color
 

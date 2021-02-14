@@ -2480,7 +2480,8 @@ int mmflags;
         get_mplname(mtmp, nam);
         mtmp = christen_monst(mtmp, nam);
 
-        ptr->mcolor = CLR_YELLOW;
+        if (iflags.use_color)
+            ptr->mcolor = CLR_YELLOW;
 
         switch (mndx) {
         case PM_ARCHEOLOGIST:
