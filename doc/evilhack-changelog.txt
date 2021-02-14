@@ -1297,5 +1297,6 @@ Version 0.6.0
 - Some tweaks to infidel NPC gear
 - Fix: snow golem entry for the encyclopedia
 - Fix: crash when setting nudist option in config
+- Fix: prevent rangers from wishing for their other quest artifact
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
