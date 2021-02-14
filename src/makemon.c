@@ -582,7 +582,7 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, BOULDER);
             } else {
                 if (mtmp->m_lev > 10 || !rn2(15)) {
-                    switch (rnd(3)) {
+                    switch (rnd(4)) {
                     case 1:
                         ini_mon_inv(mtmp, rn2(2) ? Level20Kit1 : Level20Kit2,
                                     (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
