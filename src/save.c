@@ -1175,6 +1175,10 @@ register struct monst *mtmp;
         bwrite(fd, (genericptr_t) &minusone, sizeof (int));
 
     if (perform_bwrite(mode)) {
+        /* If any of the monsters below have their templates changed
+           in monst.c, that could break saves, so be mindful of any
+           template edits in monst.c */
+
         /* Preserve our delectable abberation so the player can
            experience the same joy upon reload */
         bwrite(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
@@ -1185,6 +1189,43 @@ register struct monst *mtmp;
         bwrite(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
                sizeof(struct permonst) - namesize);
         bwrite(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
+               sizeof(struct permonst) - namesize);
+
+        /* Need to do this for racial player monsters. Pretty sure
+           I said earlier to not make this a habit... */
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_ARCHEOLOGIST] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_BARBARIAN] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CAVEMAN] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CAVEWOMAN] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CONVICT] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_HEALER] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_INFIDEL] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_KNIGHT] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_MONK] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_PRIEST] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_PRIESTESS] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_RANGER] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_ROGUE] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_SAMURAI] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_TOURIST] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_VALKYRIE] + namesize),
+               sizeof(struct permonst) - namesize);
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_WIZARD] + namesize),
                sizeof(struct permonst) - namesize);
     }
 }

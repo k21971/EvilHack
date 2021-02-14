@@ -2450,7 +2450,7 @@ struct monst *mtmp;
         }
      	nomore(MUSE_SCR_REMOVE_CURSE);
      	if (obj->otyp == SCR_REMOVE_CURSE
-            && mtmp->mnum != PM_HUMAN_INFIDEL) {
+            && mtmp->mnum != PM_INFIDEL) {
             register struct obj *otmp;
        	    for (otmp = mtmp->minvent;
        	         otmp; otmp = otmp->nobj) {
@@ -2590,7 +2590,7 @@ struct obj *start;
         }
      	nomore(MUSE_SCR_REMOVE_CURSE);
      	if (obj->otyp == SCR_REMOVE_CURSE
-            && mtmp->mnum != PM_HUMAN_INFIDEL) {
+            && mtmp->mnum != PM_INFIDEL) {
             register struct obj *otmp;
        	    for (otmp = mtmp->minvent;
        	         otmp; otmp = otmp->nobj) {

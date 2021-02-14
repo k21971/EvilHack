@@ -146,32 +146,26 @@ int shotlimit;
         switch (Role_switch) {
         case PM_CAVEMAN:
         case PM_CAVEWOMAN:
-        case PM_HUMAN_CAVEMAN:
-        case PM_HUMAN_CAVEWOMAN:
             /* give bonus for low-tech gear */
             if (skill == -P_SLING || skill == P_SPEAR)
                 multishot++;
             break;
         case PM_MONK:
-        case PM_HUMAN_MONK:
             /* allow higher volley count despite skill limitation */
             if (skill == -P_SHURIKEN)
                 multishot++;
             break;
         case PM_RANGER:
-        case PM_HUMAN_RANGER:
             /* arbitrary; encourage use of other missiles beside daggers */
             if (skill != P_DAGGER)
                 multishot++;
             break;
         case PM_ROGUE:
-        case PM_HUMAN_ROGUE:
             /* possibly should add knives... */
             if (skill == P_DAGGER)
                 multishot++;
             break;
         case PM_SAMURAI:
-        case PM_HUMAN_SAMURAI:
             /* role-specific launcher and its ammo */
             if (obj->otyp == YA && uwep && uwep->otyp == YUMI)
                 multishot++;

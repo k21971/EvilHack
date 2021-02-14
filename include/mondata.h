@@ -48,7 +48,8 @@
      || (mon)->data == &mons[PM_BABY_GOLD_DRAGON] || (mon)->data == &mons[PM_GOLD_DRAGON] \
      || (mon)->data == &mons[PM_GIANT_LEECH] || (mon)->data == &mons[PM_GIANT_COCKROACH]  \
      || (mon)->data == &mons[PM_LOCUST] || (mon)->data == &mons[PM_KATHRYN_THE_ICE_QUEEN] \
-     || (mon)->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+     || (mon)->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]                                  \
+     || (mon)->data == &mons[PM_CONVICT])
 
 /* as of 3.2.0:  gray dragons, Angels, Oracle, Yeenoghu */
 #define resists_mgc(ptr) \
@@ -70,7 +71,7 @@
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
-#define is_jumper(ptr) ((ptr) == &mons[PM_HUMAN_KNIGHT]       \
+#define is_jumper(ptr) ((ptr) == &mons[PM_KNIGHT]             \
                         || (ptr) == &mons[PM_JUMPING_SPIDER]  \
                         || (ptr) == &mons[PM_GIANT_CENTIPEDE] \
                         || (ptr) == &mons[PM_ZRUTY])
@@ -252,8 +253,7 @@
 #define is_captain(ptr) ((ptr) == &mons[PM_HUMAN_CAPTAIN] || (ptr) == &mons[PM_ELVEN_CAPTAIN]         \
                          || (ptr) == &mons[PM_DWARVISH_CAPTAIN] || (ptr) == &mons[PM_GNOMISH_CAPTAIN] \
                          || (ptr) == &mons[PM_GIANT_CAPTAIN])
-#define is_rogue(ptr) ((ptr) == &mons[PM_ROGUE] || (ptr) == &mons[PM_HOBBIT_ROGUE] \
-                       || (ptr) == &mons[PM_HUMAN_ROGUE])
+#define is_rogue(ptr) ((ptr) == &mons[PM_ROGUE] || (ptr) == &mons[PM_HOBBIT_ROGUE])
 #define is_male(ptr) (((ptr)->mflags2 & M2_MALE) != 0L)
 #define is_female(ptr) (((ptr)->mflags2 & M2_FEMALE) != 0L)
 #define is_neuter(ptr) (((ptr)->mflags2 & M2_NEUTER) != 0L)
@@ -304,10 +304,8 @@
     ((ptr) == &mons[PM_SHIMMERING_DRAGON]         \
      || (ptr) == &mons[PM_BABY_SHIMMERING_DRAGON] \
      || (ptr) == &mons[PM_DISPLACER_BEAST])
-#define is_actual_player(ptr) \
-    (((ptr) >= &mons[PM_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_WIZARD]))
 #define is_mplayer(ptr) \
-    (((ptr) >= &mons[PM_HUMAN_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_HUMAN_WIZARD]))
+    (((ptr) >= &mons[PM_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_WIZARD]))
 #define is_watch(ptr) \
     ((ptr) == &mons[PM_WATCHMAN] || (ptr) == &mons[PM_WATCH_CAPTAIN])
 #define is_rider(ptr) \

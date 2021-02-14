@@ -1366,4 +1366,5 @@ Version 0.7.0
 - Kathryn's birthday
 - Fix: adjust ACCESSIBLE to accept shallow water and sewage tiles
 - Fix: wrong race with racial identifier for racial priests
+- Racial player monsters
 

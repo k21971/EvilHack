@@ -99,7 +99,7 @@ char *nam;
     else
         mtmp->female = 0;
     Strcat(nam, " the ");
-    Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, monsndx(mtmp->data) + 18,
+    Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, monsndx(mtmp->data),
                                 (boolean) mtmp->female));
 }
 
@@ -147,7 +147,9 @@ struct obj *obj;
         int quan;
         struct obj *otmp;
 
-        mtmp->m_lev = (special ? (ascending ? rn1(16, 15) : min(30, u.ulevel + rn1(4, 4))) : rnd(16));
+        mtmp->m_lev = (special ? (ascending ? rn1(16, 15)
+                                            : min(30, u.ulevel + rn1(4, 4)))
+                               : rnd(16));
         mtmp->mhp = mtmp->mhpmax = d((int)mtmp->m_lev, 10) +
                     (ascending ? (30 + rnd(30)) : 30);
         if (ascending) {
@@ -160,7 +162,7 @@ struct obj *obj;
         set_malign(mtmp); /* peaceful may have changed again */
 
         /* default equipment; much of it will be overridden below */
-        weapon = !rn2(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);
+        weapon = rn2(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);
         armor  = rnd_class(GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALE_MAIL);
         cloak  = !rn2(8) ? STRANGE_OBJECT
                          : rnd_class(OILSKIN_CLOAK, CLOAK_OF_DISPLACEMENT);
@@ -170,11 +172,11 @@ struct obj *obj;
                          : rnd_class(ELVEN_SHIELD, SHIELD_OF_REFLECTION);
 
         switch (monsndx(ptr)) {
-        case PM_HUMAN_ARCHEOLOGIST:
+        case PM_ARCHEOLOGIST:
             if (rn2(2))
                 weapon = BULLWHIP;
             break;
-        case PM_HUMAN_BARBARIAN:
+        case PM_BARBARIAN:
             if (rn2(2)) {
                 weapon = rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
                 shield = STRANGE_OBJECT;
@@ -184,8 +186,8 @@ struct obj *obj;
             if (helm == HELM_OF_BRILLIANCE)
                 helm = STRANGE_OBJECT;
             break;
-        case PM_HUMAN_CAVEMAN:
-        case PM_HUMAN_CAVEWOMAN:
+        case PM_CAVEMAN:
+        case PM_CAVEWOMAN:
             if (rn2(4))
                 weapon = MACE;
             else if (rn2(2))
@@ -193,11 +195,11 @@ struct obj *obj;
             if (helm == HELM_OF_BRILLIANCE)
                 helm = STRANGE_OBJECT;
             break;
-        case PM_HUMAN_CONVICT:
+        case PM_CONVICT:
             if (rn2(2))
                 weapon = FLAIL;
             break;
-        case PM_HUMAN_HEALER:
+        case PM_HEALER:
             if (rn2(4))
                 weapon = QUARTERSTAFF;
             else if (rn2(2))
@@ -207,7 +209,7 @@ struct obj *obj;
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
-        case PM_HUMAN_INFIDEL:
+        case PM_INFIDEL:
             if (!rn2(4))
                 weapon = CRYSKNIFE;
             if (rn2(3))
@@ -217,21 +219,21 @@ struct obj *obj;
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
-        case PM_HUMAN_KNIGHT:
+        case PM_KNIGHT:
             if (rn2(4))
                 weapon = LONG_SWORD;
             if (rn2(2))
                 armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
             break;
-        case PM_HUMAN_MONK:
+        case PM_MONK:
             weapon = !rn2(3) ? SHURIKEN : STRANGE_OBJECT;
             armor = STRANGE_OBJECT;
             cloak = ROBE;
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
-        case PM_HUMAN_PRIEST:
-        case PM_HUMAN_PRIESTESS:
+        case PM_PRIEST:
+        case PM_PRIESTESS:
             if (rn2(2))
                 weapon = MACE;
             if (rn2(2))
@@ -243,28 +245,28 @@ struct obj *obj;
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
-        case PM_HUMAN_RANGER:
+        case PM_RANGER:
             if (rn2(2))
                 weapon = ELVEN_DAGGER;
             break;
-        case PM_HUMAN_ROGUE:
+        case PM_ROGUE:
             if (rn2(2))
                 weapon = rn2(2) ? SHORT_SWORD : ORCISH_DAGGER;
             break;
-        case PM_HUMAN_SAMURAI:
+        case PM_SAMURAI:
             if (rn2(2))
                 weapon = KATANA;
             break;
-        case PM_HUMAN_TOURIST:
+        case PM_TOURIST:
             (void) mongets(mtmp, EXPENSIVE_CAMERA);
             break;
-        case PM_HUMAN_VALKYRIE:
+        case PM_VALKYRIE:
             if (rn2(2))
                 weapon = WAR_HAMMER;
             if (rn2(2))
                 armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
             break;
-        case PM_HUMAN_WIZARD:
+        case PM_WIZARD:
             if (rn2(4))
                 weapon = rn2(2) ? QUARTERSTAFF : ATHAME;
             if (rn2(2)) {
@@ -299,7 +301,7 @@ struct obj *obj;
                 if (!obj) {
                     if (!rn2(5))
                         otmp = mk_artifact(otmp, A_NONE);
-                    else if (!rn2(20))
+                    else
                         otmp = create_oprop(otmp, FALSE);
                 }
             }
@@ -332,9 +334,9 @@ struct obj *obj;
             mon_wield_item(mtmp);
 
             /* done after wearing any dragon mail so the resists checks work */
-            if (rn2(8) || monsndx(ptr) == PM_HUMAN_WIZARD) {
+            if (rn2(8) || monsndx(ptr) == PM_WIZARD) {
                 int i, ring;
-                for (i=0; i<2 && (rn2(2) || monsndx(ptr) == PM_HUMAN_WIZARD); i++) {
+                for (i = 0; i < 2 && (rn2(2) || monsndx(ptr) == PM_WIZARD); i++) {
                     do ring = !rn2(9) ? RIN_INVISIBILITY :
                               !rn2(8) ? RIN_TELEPORT_CONTROL :
                               !rn2(7) ? RIN_FIRE_RESISTANCE :
@@ -374,7 +376,6 @@ struct obj *obj;
         while (quan--)
             (void) mongets(mtmp, rnd_misc_item(mtmp));
     }
-
     return (mtmp);
 }
 
@@ -398,7 +399,7 @@ boolean special;
         int tryct = 0;
 
         /* roll for character class */
-        pm = rn1(PM_HUMAN_WIZARD - PM_HUMAN_ARCHEOLOGIST + 1, PM_HUMAN_ARCHEOLOGIST);
+        pm = rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
         set_mon_data(&fakemon, &mons[pm]);
 
         /* roll for an available location */

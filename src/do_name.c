@@ -1829,6 +1829,27 @@ boolean called;
     if (do_saddle && (mtmp->misc_worn_check & W_SADDLE) && !Blind
         && !Hallucination)
         Strcat(buf, "saddled ");
+    if (is_mplayer(mdat) && !type_is_pname(mdat)
+        && (!(do_name && has_mname(mtmp)) || called)) {
+        if (is_elf(mdat))
+            Strcat(buf, "elven ");
+        else if (is_dwarf(mdat))
+            Strcat(buf, "dwarvish ");
+        else if (is_orc(mdat))
+            Strcat(buf, "orcish ");
+        else if (is_gnome(mdat))
+            Strcat(buf, "gnomish ");
+        else if (is_hobbit(mdat))
+            Strcat(buf, "hobbit ");
+        else if (is_giant(mdat))
+            Strcat(buf, "giant ");
+        else if (is_illithid(mdat))
+            Strcat(buf, "illithid ");
+        else if (is_centaur(mdat))
+            Strcat(buf, "centaurian ");
+        else if (is_human(mdat))
+            Strcat(buf, "human ");
+    }
     has_adjectives = (buf[0] != '\0');
 
     /* Put the actual monster name or type into the buffer now.
@@ -1869,7 +1890,8 @@ boolean called;
             Strcat(buf, name);
             name_at_start = TRUE;
         }
-    } else if ((is_mplayer(mdat) || is_actual_player(mdat) || mdat == &mons[PM_RONIN]) && !In_endgame(&u.uz)) {
+    } else if ((is_mplayer(mdat) || mdat == &mons[PM_RONIN])
+               && !In_endgame(&u.uz)) {
         char pbuf[BUFSZ];
 
         Strcpy(pbuf, rank_of_mplayer((int) mtmp->m_lev, monsndx(mdat),

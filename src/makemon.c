@@ -167,10 +167,10 @@ struct trobj {
     Bitfield(trbless, 2);
 };
 
-#define UNDEF_TYP	0
-#define UNDEF_SPE	'\177'
-#define RND_SPE         (0x80)
-#define UNDEF_BLESS	2
+#define UNDEF_TYP 0
+#define UNDEF_SPE '\177'
+#define RND_SPE (0x80)
+#define UNDEF_BLESS 2
 #define CURSED 3
 
 extern struct trobj Archeologist[];
@@ -217,14 +217,90 @@ struct trobj subInfidel[] = {
     { 0, 0, 0, 0, 0 }
 };
 
+/* Specialized structs for giant player monsters */
+struct trobj giantBarbarian[] = {
+    { TWO_HANDED_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { AXE, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj giantCave_man[] = {
+    { CLUB, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { SLING, 2, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { FLINT, 0, GEM_CLASS, 15, UNDEF_BLESS }, /* quan is variable */
+    { ROCK, 0, GEM_CLASS, 3, 0 },             /* yields 18..33 */
+    { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj giantMonk[] = {
+    { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+    { POT_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
+    { APPLE, 0, FOOD_CLASS, 5, UNDEF_BLESS },
+    { ORANGE, 0, FOOD_CLASS, 5, UNDEF_BLESS },
+    { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj giantPriest[] = {
+    { MACE, 1, WEAPON_CLASS, 1, 1 },
+    { HIGH_BOOTS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { POT_WATER, 0, POTION_CLASS, 4, 1 }, /* holy water */
+    { CLOVE_OF_GARLIC, 0, FOOD_CLASS, 1, 0 },
+    { SPRIG_OF_WOLFSBANE, 0, FOOD_CLASS, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 2, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj giantSamurai[] = {
+    { KATANA, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS }, /* wakizashi */
+    { YUMI, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { YA, 0, WEAPON_CLASS, 25, UNDEF_BLESS }, /* variable quan */
+    { LARGE_SPLINT_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj giantWizard[] = {
+    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
+    { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 3, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 3, UNDEF_BLESS },
+    { SPE_FORCE_BOLT, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level10KitGiant[] = {
+        { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20KitGiant[] = {
+        { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+/* end giant structs */
+
 struct trobj Level20Kit1[] = {
 	{ SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ AMULET_OF_LIFE_SAVING, 0, AMULET_CLASS, 1, UNDEF_BLESS },
-	{ BAG_OF_HOLDING, 0, TOOL_CLASS, 1, 1 },
 	{ 0, 0, 0, 0, 0 }
 };
 
@@ -234,8 +310,6 @@ struct trobj Level20Kit2[] = {
 	{ JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
 	{ HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ AMULET_OF_REFLECTION, 0, AMULET_CLASS, 1, UNDEF_BLESS },
-	{ OILSKIN_SACK, 0, TOOL_CLASS, 1, 1 },
 	{ 0, 0, 0, 0, 0 }
 };
 
@@ -245,8 +319,6 @@ struct trobj Level20Kit3[] = {
         { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, UNDEF_BLESS },
-        { OILSKIN_SACK, 0, TOOL_CLASS, 1, 1 },
         { 0, 0, 0, 0, 0 }
 };
 
@@ -256,8 +328,42 @@ struct trobj Level20Kit4[] = {
         { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { AMULET_OF_FLYING, 0, AMULET_CLASS, 1, UNDEF_BLESS },
-        { OILSKIN_SACK, 0, TOOL_CLASS, 1, 1 },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20Kit5[] = {
+        { SHIMMERING_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { KICKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { ALCHEMY_SMOCK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20Kit6[] = {
+        { YELLOW_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HIGH_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { OILSKIN_CLOAK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20Kit7[] = {
+        { SEA_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CORNUTHAUM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20Kit8[] = {
+        { GOLD_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CLOAK_OF_INVISIBILITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { ELVEN_HELM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
         { 0, 0, 0, 0, 0 }
 };
 
@@ -266,7 +372,6 @@ struct trobj Level10Kit1[] = {
 	{ HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
 	{ HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
 	{ GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ SACK, 0, TOOL_CLASS, 1, UNDEF_BLESS },
 	{ 0, 0, 0, 0, 0 }
 };
 
@@ -275,7 +380,6 @@ struct trobj Level10Kit2[] = {
         { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
         { LOW_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
         { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { OILSKIN_SACK, 0, TOOL_CLASS, 1, UNDEF_BLESS },
         { 0, 0, 0, 0, 0 }
 };
 
@@ -346,11 +450,11 @@ unsigned short chance;
                        || otyp == RIN_HUNGER
                        || otyp == WAN_NOTHING
                        || (otyp == SCR_ENCHANT_WEAPON
-                           && mtmp->mnum == PM_HUMAN_MONK)
+                           && mtmp->mnum == PM_MONK)
                        || (otyp == SPE_FORCE_BOLT
-                           && mtmp->mnum == PM_HUMAN_WIZARD)
+                           && mtmp->mnum == PM_WIZARD)
                        || (otyp == SPE_DRAIN_LIFE
-                           && mtmp->mnum == PM_HUMAN_INFIDEL)
+                           && mtmp->mnum == PM_INFIDEL)
                        || (obj->oclass == SPBOOK_CLASS
                            && objects[otyp].oc_level > 3)) {
                        dealloc_obj(obj);
@@ -408,14 +512,14 @@ unsigned short chance;
                 }
                 if (trop->trbless != UNDEF_BLESS)
                     obj->blessed = (trop->trbless == 1);
-                if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
+                if (mtmp && mtmp->mnum == PM_INFIDEL
                     && obj->oclass == ARMOR_CLASS
                     && is_flammable(obj)) {
                     obj->oerodeproof = 1;
                     obj->blessed = FALSE;
                     obj->cursed = TRUE;
                 }
-                if (mtmp && mtmp->mnum == PM_HUMAN_INFIDEL
+                if (mtmp && mtmp->mnum == PM_INFIDEL
                     && (obj->oclass == WEAPON_CLASS
                         || obj->otyp == POT_WATER)) {
                     obj->blessed = FALSE;
@@ -459,28 +563,51 @@ register struct monst *mtmp;
     register struct permonst *ptr = mtmp->data;
     register int mm = monsndx(ptr);
     struct obj *otmp = mtmp->minvent;
-    int bias, w1, w2, randwand;
+    int bias, w1, w2, randwand, quan;
 
     if (Is_rogue_level(&u.uz))
         return;
 
     /* treat mplayers differently */
-    if (is_mplayer(mtmp->data) && !In_endgame(&u.uz)) {
+    if (is_mplayer(ptr) && !In_endgame(&u.uz)) {
         if (mtmp->m_lev > 1) {
-            if (mtmp->m_lev > 10 || !rn2(10)) {
-                if (rn2(2))
-                    ini_mon_inv(mtmp, !rn2(2) ? Level20Kit1 : Level20Kit2,
-                                (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
-                else
-                    ini_mon_inv(mtmp, !rn2(2) ? Level20Kit3 : Level20Kit4,
-                                (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+            if (ptr->mhflags & MH_GIANT) {
+                if (mtmp->m_lev > 1) {
+                    if (mtmp->m_lev > 10 || !rn2(15))
+                        ini_mon_inv(mtmp, Level20KitGiant,
+                                    (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                }
+                ini_mon_inv(mtmp, Level10KitGiant,
+                            (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
+                (void) mongets(mtmp, BOULDER);
+            } else {
+                if (mtmp->m_lev > 10 || !rn2(15)) {
+                    switch (rnd(3)) {
+                    case 1:
+                        ini_mon_inv(mtmp, rn2(2) ? Level20Kit1 : Level20Kit2,
+                                    (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                        break;
+                    case 2:
+                        ini_mon_inv(mtmp, rn2(2) ? Level20Kit3 : Level20Kit4,
+                                    (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                        break;
+                    case 3:
+                        ini_mon_inv(mtmp, rn2(2) ? Level20Kit5 : Level20Kit6,
+                                    (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                        break;
+                    case 4:
+                        ini_mon_inv(mtmp, rn2(2) ? Level20Kit7 : Level20Kit8,
+                                    (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                        break;
+                    }
+                }
+                ini_mon_inv(mtmp, rn2(2) ? Level10Kit1 : Level10Kit2,
+                            (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
             }
-            ini_mon_inv(mtmp, !rn2(2) ? Level10Kit1 : Level10Kit2,
-                        (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
         }
 
         switch (mtmp->mnum) {
-        case PM_HUMAN_ARCHEOLOGIST:
+        case PM_ARCHEOLOGIST:
             ini_mon_inv(mtmp, Archeologist, 1);
             if (!rn2(10))
                 ini_mon_inv(mtmp, Tinopener, 1);
@@ -488,44 +615,47 @@ register struct monst *mtmp;
                 ini_mon_inv(mtmp, Lamp, 1);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_BARBARIAN:
+        case PM_BARBARIAN:
             if (rn2(100) >= 50) {
                 Barbarian[B_MAJOR].trotyp = BATTLE_AXE;
                 Barbarian[B_MINOR].trotyp = SHORT_SWORD;
-            } else {
-                Barbarian[B_MAJOR].trotyp = TWO_HANDED_SWORD;
-                Barbarian[B_MINOR].trotyp = AXE;
             }
-            ini_mon_inv(mtmp, Barbarian, 1);
+            if (ptr->mhflags & MH_GIANT)
+                ini_mon_inv(mtmp, giantBarbarian, 1);
+            else
+                ini_mon_inv(mtmp, Barbarian, 1);
             ini_mon_inv(mtmp, Lamp, 6);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_CAVEMAN:
-        case PM_HUMAN_CAVEWOMAN:
-            Cave_man[C_AMMO].trquan = rn1(11, 10);	/* 10..20 */
-            ini_mon_inv(mtmp, Cave_man, 1);
+        case PM_CAVEMAN:
+        case PM_CAVEWOMAN:
+            Cave_man[C_AMMO].trquan = rn1(11, 10); /* 10..20 */
+            if (ptr->mhflags & MH_GIANT)
+                ini_mon_inv(mtmp, giantCave_man, 1);
+            else
+                ini_mon_inv(mtmp, Cave_man, 1);
             break;
-        case PM_HUMAN_CONVICT:
+        case PM_CONVICT:
             ini_mon_inv(mtmp, Convict, 1);
             mongets(mtmp, SKELETON_KEY);
             mongets(mtmp, GRAPPLING_HOOK);
             break;
-        case PM_HUMAN_HEALER:
+        case PM_HEALER:
             mkmonmoney(mtmp, (long) rn1(1000, 1001));
             ini_mon_inv(mtmp, Healer, 1);
             ini_mon_inv(mtmp, Lamp, 25);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_INFIDEL:
+        case PM_INFIDEL:
             mkmonmoney(mtmp, (long) rn1(251, 250));
             ini_mon_inv(mtmp, subInfidel, 1);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_KNIGHT:
+        case PM_KNIGHT:
             ini_mon_inv(mtmp, Knight, 1);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_MONK:
+        case PM_MONK:
             switch (rn2(90) / 30) {
                 case 0: Monk[M_BOOK].trotyp = SPE_HEALING;
                     break;
@@ -534,36 +664,45 @@ register struct monst *mtmp;
                 case 2: Monk[M_BOOK].trotyp = SPE_SLEEP;
                     break;
             }
-            ini_mon_inv(mtmp, Monk, 1);
+            if (ptr->mhflags & MH_GIANT)
+                ini_mon_inv(mtmp, giantMonk, 1);
+            else
+                ini_mon_inv(mtmp, Monk, 1);
             ini_mon_inv(mtmp, Lamp, 10);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_PRIEST:
-        case PM_HUMAN_PRIESTESS:
+        case PM_PRIEST:
+        case PM_PRIESTESS:
             mkmonmoney(mtmp, (long) rn1(10, 20));
-            ini_mon_inv(mtmp, Priest, 1);
+            if (ptr->mhflags & MH_GIANT)
+                ini_mon_inv(mtmp, giantPriest, 1);
+            else
+                ini_mon_inv(mtmp, Priest, 1);
             ini_mon_inv(mtmp, Lamp, 10);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_RANGER:
+        case PM_RANGER:
             Ranger[RAN_TWO_ARROWS].trquan = rn1(10, 50);
             Ranger[RAN_ZERO_ARROWS].trquan = rn1(10, 30);
             ini_mon_inv(mtmp, Ranger, 1);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_ROGUE:
+        case PM_ROGUE:
             mkmonmoney(mtmp, (long) rn1(1000, 500));
             Rogue[R_DAGGERS].trquan = rn1(10, 6);
             ini_mon_inv(mtmp, Rogue, 1);
             ini_mon_inv(mtmp, Blindfold, 5);
             break;
-        case PM_HUMAN_SAMURAI:
+        case PM_SAMURAI:
             Samurai[S_ARROWS].trquan = rn1(20, 26);
-            ini_mon_inv(mtmp, Samurai, 1);
+            if (ptr->mhflags & MH_GIANT)
+                ini_mon_inv(mtmp, giantSamurai, 1);
+            else
+                ini_mon_inv(mtmp, Samurai, 1);
             ini_mon_inv(mtmp, Blindfold, 5);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_TOURIST:
+        case PM_TOURIST:
             Tourist[T_DARTS].trquan = rn1(20, 21);
             mkmonmoney(mtmp, (long) rn1(1000, 1001));
             ini_mon_inv(mtmp, Tourist, 1);
@@ -574,13 +713,16 @@ register struct monst *mtmp;
             else if (!rn2(25))
                 ini_mon_inv(mtmp, Towel, 1);
             break;
-        case PM_HUMAN_VALKYRIE:
+        case PM_VALKYRIE:
             ini_mon_inv(mtmp, Valkyrie, 1);
             ini_mon_inv(mtmp, Lamp, 6);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_HUMAN_WIZARD:
-            ini_mon_inv(mtmp, Wizard, 1);
+        case PM_WIZARD:
+            if (ptr->mhflags & MH_GIANT)
+                ini_mon_inv(mtmp, giantWizard, 1);
+            else
+                ini_mon_inv(mtmp, Wizard, 1);
             ini_mon_inv(mtmp, Blindfold, 5);
             mongets(mtmp, SKELETON_KEY);
             break;
@@ -588,53 +730,40 @@ register struct monst *mtmp;
             break;
         }
 
-        {
-            struct obj *bag = (struct obj *) 0;
-            if (mtmp->m_lev > 1) {
-                for (; otmp; otmp = otmp->nobj) {
-                    if (otmp->oclass == WEAPON_CLASS) {
-                        if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
-                            if (!rn2(100 + 10 * nartifact_exist()))
-                                mk_artifact(otmp, sgn(mtmp->data->maligntyp));
-                            else if (!rn2(30))
-                                create_oprop(otmp, FALSE);
-                        }
+        /* other items all player monsters can receive at various exp levels */
+        if (mtmp->m_lev > 10) {
+            (void) mongets(mtmp, !rn2(5) ? SACK
+                                         : rn2(4) ? OILSKIN_SACK
+                                                  : BAG_OF_HOLDING);
+            for (; otmp; otmp = otmp->nobj) {
+                if (otmp->oclass == WEAPON_CLASS) {
+                    if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
+                        if (!rn2(100 + 10 * nartifact_exist()))
+                            mk_artifact(otmp, sgn(mtmp->data->maligntyp));
+                        else if (!rn2(8))
+                            create_oprop(otmp, FALSE);
                     }
-                }
-            }
-
-            for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-                if (Is_container(otmp) && otmp->otyp != BAG_OF_TRICKS)
-                    bag = otmp;
-                if (otmp->otyp == BAG_OF_HOLDING)
-                    break;
-            }
-
-            if (bag) {
-                int count = (mtmp->m_lev * mtmp->m_lev) / 25;
-                if (count < 1)
-                    count = 1;
-                if (count > 10)
-                    count = 10;
-                count += rn2((mtmp->m_lev / 10) + 2);
-                while (count-- > 0) {
-                    int otyp = (rn2(2) ? rnd_offensive_item(mtmp) :
-                                rn2(2) ? rnd_defensive_item(mtmp) : rnd_misc_item(mtmp));
-                    if (!otyp)
-                        continue;
-                    otmp = mksobj(otyp, FALSE, FALSE);
-                    if (otmp->oclass == WAND_CLASS) {
-                        int lim = (otmp->otyp == WAN_WISHING) ? 3 :
-                                   (objects[otmp->otyp].oc_dir != NODIR) ? 8 : 15;
-                        otmp->spe = rn2(lim);
-                    }
-                    if (otmp->otyp == WAN_CANCELLATION || otmp->otyp == BAG_OF_TRICKS)
-                        (void) mpickobj(mtmp, otmp);
-                    else
-                        (void) add_to_container(bag, otmp);
                 }
             }
         }
+        if (mtmp->m_lev >= 20) {
+            (void) mongets(mtmp, rn2(2) ? AMULET_OF_REFLECTION
+                                        : rn2(4) ? AMULET_OF_MAGIC_RESISTANCE
+                                                 : AMULET_OF_LIFE_SAVING);
+            (void) mongets(mtmp, rnd_class(RIN_ADORNMENT, RIN_PROTECTION_FROM_SHAPE_CHAN));
+
+            quan = rnd(3);
+            while (quan--)
+                (void) mongets(mtmp, rnd_offensive_item(mtmp));
+            quan = rnd(3);
+            while (quan--)
+                (void) mongets(mtmp, rnd_defensive_item(mtmp));
+            quan = rnd(3);
+            while (quan--)
+                (void) mongets(mtmp, rnd_misc_item(mtmp));
+        }
+        m_dowear(mtmp, TRUE);
+        mon_wield_item(mtmp);
         return;
     }
 
@@ -2311,32 +2440,591 @@ int mmflags;
     /* Here is where we match riding monsters with their mounts */
     if (!(mmflags & MM_REVIVE)) {
         switch (mndx) {
-            case PM_DEATH:
-                mount_monster(mtmp, PM_PALE_HORSE);
+        case PM_DEATH:
+            mount_monster(mtmp, PM_PALE_HORSE);
+            break;
+        case PM_FAMINE:
+            mount_monster(mtmp, PM_BLACK_HORSE);
+            break;
+        case PM_PESTILENCE:
+            mount_monster(mtmp, PM_WHITE_HORSE);
+            break;
+        case PM_NAZGUL:
+            mount_monster(mtmp, PM_FELL_BEAST);
+            break;
+        case PM_GOBLIN_OUTRIDER:
+            mount_monster(mtmp, PM_WOLF);
+            break;
+        case PM_GOBLIN_CAPTAIN:
+            mount_monster(mtmp, PM_WARG);
+            break;
+        case PM_KNIGHT:
+            rn2(2) ? mount_monster(mtmp, PM_HORSE)
+                   : mount_monster(mtmp, PM_WARHORSE);
+            break;
+        case PM_FROST_GIANT:
+            if (Iniceq && !rn2(5))
+                mount_monster(mtmp, PM_WOOLLY_MAMMOTH);
+            break;
+        }
+    }
+
+    /* set player monsters rank/title, race flags, and any
+       appropriate flags that go along with their race.
+
+       FIXME: if two or more of the same type of player monster
+       spawns, whichever flags the newest one spawns with, the
+       older one(s) will assume */
+    if (is_mplayer(ptr)) {
+        char nam[PL_NSIZ];
+        get_mplname(mtmp, nam);
+        mtmp = christen_monst(mtmp, nam);
+
+        ptr->mcolor = CLR_YELLOW;
+
+        switch (mndx) {
+        case PM_ARCHEOLOGIST:
+            /* flags for all archeologists regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_PHYS;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_WEAP;
+            ptr->mattk[1].adtyp = AD_SAMU;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            ptr->mflags1 |= M1_TUNNEL;
+            ptr->mflags1 |= M1_NEEDPICK;
+            /* specific flags per race */
+            switch (rnd(4)) {
+            case 1:
+                /* M1 flags already set as archeologist */
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags3 |= M3_INFRAVISION;
                 break;
-            case PM_FAMINE:
-                mount_monster(mtmp, PM_BLACK_HORSE);
+            case 2:
+                ptr->mhflags |= MH_GNOME;
+                ptr->mflags3 |= M3_INFRAVISION;
                 break;
-            case PM_PESTILENCE:
-                mount_monster(mtmp, PM_WHITE_HORSE);
+            case 3:
+                ptr->mhflags |= MH_HOBBIT;
+                ptr->mflags3 |= M3_INFRAVISION;
                 break;
-            case PM_NAZGUL:
-                mount_monster(mtmp, PM_FELL_BEAST);
+            case 4:
+                ptr->mhflags |= MH_HUMAN;
                 break;
-            case PM_GOBLIN_OUTRIDER:
-                mount_monster(mtmp, PM_WOLF);
+            }
+            break;
+        case PM_BARBARIAN:
+            /* flags for all barbarians regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_PHYS;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_WEAP;
+            ptr->mattk[1].adtyp = AD_SAMU;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            ptr->mresists |= MR_POISON;
+            ptr->mflags3 |= M3_BERSERK;
+            /* specific flags per race */
+            switch (rnd(5)) {
+            case 1:
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags1 |= M1_TUNNEL;
+                ptr->mflags1 |= M1_NEEDPICK;
+                ptr->mflags3 |= M3_INFRAVISION;
                 break;
-            case PM_GOBLIN_CAPTAIN:
-                mount_monster(mtmp, PM_WARG);
+            case 2:
+                /* MR_POISON flag already set as convict */
+                ptr->mhflags |= MH_ORC;
+                ptr->mflags3 |= M3_INFRAVISION;
                 break;
-            case PM_HUMAN_KNIGHT:
-                rn2(2) ? mount_monster(mtmp, PM_HORSE)
-                       : mount_monster(mtmp, PM_WARHORSE);
+            case 3:
+                ptr->mhflags |= MH_GIANT;
+                ptr->mflags2 |= M2_ROCKTHROW;
+                ptr->mflags3 |= M3_INFRAVISION;
                 break;
-            case PM_FROST_GIANT:
-                if (Iniceq && !rn2(5))
-                    mount_monster(mtmp, PM_WOOLLY_MAMMOTH);
+            case 4:
+                ptr->mhflags |= MH_CENTAUR;
+                ptr->mflags3 |= M3_ACCURATE;
                 break;
+            case 5:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_CAVEMAN:
+        case PM_CAVEWOMAN:
+            /* flags for all cavepersons regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_SAMU;
+            ptr->mattk[0].damn = 2;
+            ptr->mattk[0].damd = 4;
+            /* specific flags per race */
+            switch (rnd(4)) {
+            case 1:
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags1 |= M1_TUNNEL;
+                ptr->mflags1 |= M1_NEEDPICK;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_GNOME;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_GIANT;
+                ptr->mflags2 |= M2_ROCKTHROW;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 4:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_CONVICT:
+            /* flags for all convicts regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_PHYS;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_WEAP;
+            ptr->mattk[1].adtyp = AD_SAMU;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            ptr->mresists |= MR_POISON;
+            /* specific flags per race */
+            switch (rnd(5)) {
+            case 1:
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags1 |= M1_TUNNEL;
+                ptr->mflags1 |= M1_NEEDPICK;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                /* MR_POISON flag already set as convict */
+                ptr->mhflags |= MH_ORC;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_GNOME;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 4:
+                ptr->mhflags |= MH_HOBBIT;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 5:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_HEALER:
+            /* flags for all healers regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_SAMU;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_MAGC;
+            ptr->mattk[1].adtyp = AD_CLRC;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            ptr->mresists |= MR_POISON;
+            /* specific flags per race */
+            switch (rnd(5)) {
+            case 1:
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags1 |= M1_TUNNEL;
+                ptr->mflags1 |= M1_NEEDPICK;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_ELF;
+                ptr->mresists |= MR_SLEEP;
+                ptr->mflags3 |= M3_ACCURATE;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_GNOME;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 4:
+                ptr->mhflags |= MH_HOBBIT;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 5:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_INFIDEL:
+            /* flags for all infidels regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_SAMU;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_MAGC;
+            ptr->mattk[1].adtyp = AD_SPEL;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            ptr->mresists |= MR_FIRE;
+            /* specific flags per race */
+            switch (rnd(3)) {
+            case 1:
+                ptr->mhflags |= MH_ORC;
+                ptr->mresists |= MR_POISON;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_ILLITHID;
+                ptr->mattk[2].aatyp = AT_TENT;
+                ptr->mattk[2].adtyp = AD_DRIN;
+                ptr->mattk[2].damn = 2;
+                ptr->mattk[2].damd = 1;
+                ptr->mresists |= MR_PSYCHIC;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_KNIGHT:
+            /* flags for all knights regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_PHYS;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_WEAP;
+            ptr->mattk[1].adtyp = AD_SAMU;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            /* specific flags per race */
+            switch (rnd(2)) {
+            case 1:
+                ptr->mhflags |= MH_ELF;
+                ptr->mresists |= MR_SLEEP;
+                ptr->mflags3 |= M3_ACCURATE;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_MONK:
+            /* flags for all monks regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_SAMU;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 8;
+            ptr->mattk[1].aatyp = AT_KICK;
+            ptr->mattk[1].adtyp = AD_CLOB;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 8;
+            ptr->mresists |= MR_POISON;
+            ptr->mresists |= MR_SLEEP;
+            ptr->mflags1 |= M1_SEE_INVIS;
+            /* specific flags per race */
+            switch (rnd(5)) {
+            case 1:
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags1 |= M1_TUNNEL;
+                ptr->mflags1 |= M1_NEEDPICK;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                /* MR_SLEEP flag already set as monk */
+                ptr->mhflags |= MH_ELF;
+                ptr->mflags3 |= M3_ACCURATE;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_GIANT;
+                ptr->mflags2 |= M2_ROCKTHROW;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 4:
+                ptr->mhflags |= MH_CENTAUR;
+                ptr->mflags3 |= M3_ACCURATE;
+                break;
+            case 5:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_PRIEST:
+        case PM_PRIESTESS:
+            /* flags for all priests regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_SAMU;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_MAGC;
+            ptr->mattk[1].adtyp = AD_CLRC;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            /* specific flags per race */
+            switch (rnd(8)) {
+            case 1:
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags1 |= M1_TUNNEL;
+                ptr->mflags1 |= M1_NEEDPICK;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_ELF;
+                ptr->mresists |= MR_SLEEP;
+                ptr->mflags3 |= M3_ACCURATE;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_GIANT;
+                ptr->mflags2 |= M2_ROCKTHROW;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 4:
+                ptr->mhflags |= MH_HOBBIT;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 5:
+                ptr->mhflags |= MH_CENTAUR;
+                ptr->mflags3 |= M3_ACCURATE;
+                break;
+            case 6:
+                ptr->mhflags |= MH_ORC;
+                ptr->mresists |= MR_POISON;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 7:
+                ptr->mhflags |= MH_ILLITHID;
+                ptr->mattk[2].aatyp = AT_TENT;
+                ptr->mattk[2].adtyp = AD_DRIN;
+                ptr->mattk[2].damn = 2;
+                ptr->mattk[2].damd = 1;
+                ptr->mresists |= MR_PSYCHIC;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 8:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_RANGER:
+            /* flags for all rangers regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_PHYS;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_WEAP;
+            ptr->mattk[1].adtyp = AD_SAMU;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            ptr->mflags3 |= M3_ACCURATE;
+            /* specific flags per race */
+            switch (rnd(6)) {
+            case 1:
+                /* M3_ACCURATE flag already set as ranger */
+                ptr->mhflags |= MH_ELF;
+                ptr->mresists |= MR_SLEEP;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_GNOME;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_HOBBIT;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 4:
+                /* M3_ACCURATE flag already set as ranger */
+                ptr->mhflags |= MH_CENTAUR;
+                break;
+            case 5:
+                ptr->mhflags |= MH_ORC;
+                ptr->mresists |= MR_POISON;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 6:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_ROGUE:
+            /* flags for all rogues regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_SAMU;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_WEAP;
+            ptr->mattk[1].adtyp = AD_SITM;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            ptr->mflags3 |= M3_ACCURATE;
+            /* specific flags per race */
+            switch (rnd(4)) {
+            case 1:
+                /* M3_ACCURATE flag already set as rogue */
+                ptr->mhflags |= MH_ELF;
+                ptr->mresists |= MR_SLEEP;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_HOBBIT;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_ORC;
+                ptr->mresists |= MR_POISON;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 4:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_SAMURAI:
+            /* flags for all samurai regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_PHYS;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 8;
+            ptr->mattk[1].aatyp = AT_WEAP;
+            ptr->mattk[1].adtyp = AD_SAMU;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 8;
+            /* specific flags per race */
+            switch (rnd(3)) {
+            case 1:
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags1 |= M1_TUNNEL;
+                ptr->mflags1 |= M1_NEEDPICK;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_GIANT;
+                ptr->mflags2 |= M2_ROCKTHROW;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_TOURIST:
+            /* flags for all tourists regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_PHYS;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_WEAP;
+            ptr->mattk[1].adtyp = AD_SAMU;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            /* specific flags per race */
+            switch (rnd(2)) {
+            case 1:
+                ptr->mhflags |= MH_HOBBIT;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_VALKYRIE:
+            /* flags for all valkyrie regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_PHYS;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 8;
+            ptr->mattk[1].aatyp = AT_WEAP;
+            ptr->mattk[1].adtyp = AD_SAMU;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 8;
+            ptr->mresists |= MR_COLD;
+            /* specific flags per race */
+            switch (rnd(4)) {
+            case 1:
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags1 |= M1_TUNNEL;
+                ptr->mflags1 |= M1_NEEDPICK;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_GIANT;
+                ptr->mflags2 |= M2_ROCKTHROW;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_CENTAUR;
+                ptr->mflags3 |= M3_ACCURATE;
+                break;
+            case 4:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        case PM_WIZARD:
+            /* flags for all wizards regardless of race */
+            ptr->mattk[0].aatyp = AT_WEAP;
+            ptr->mattk[0].adtyp = AD_SAMU;
+            ptr->mattk[0].damn = 1;
+            ptr->mattk[0].damd = 6;
+            ptr->mattk[1].aatyp = AT_MAGC;
+            ptr->mattk[1].adtyp = AD_SPEL;
+            ptr->mattk[1].damn = 1;
+            ptr->mattk[1].damd = 6;
+            /* specific flags per race */
+            switch (rnd(8)) {
+            case 1:
+                ptr->mhflags |= MH_DWARF;
+                ptr->mflags1 |= M1_TUNNEL;
+                ptr->mflags1 |= M1_NEEDPICK;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 2:
+                ptr->mhflags |= MH_ELF;
+                ptr->mresists |= MR_SLEEP;
+                ptr->mflags3 |= M3_ACCURATE;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 3:
+                ptr->mhflags |= MH_GIANT;
+                ptr->mflags2 |= M2_ROCKTHROW;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 4:
+                ptr->mhflags |= MH_GNOME;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 5:
+                ptr->mhflags |= MH_HOBBIT;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 6:
+                ptr->mhflags |= MH_ORC;
+                ptr->mresists |= MR_POISON;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 7:
+                ptr->mhflags |= MH_ILLITHID;
+                ptr->mattk[2].aatyp = AT_TENT;
+                ptr->mattk[2].adtyp = AD_DRIN;
+                ptr->mattk[2].damn = 2;
+                ptr->mattk[2].damd = 1;
+                ptr->mresists |= MR_PSYCHIC;
+                ptr->mflags3 |= M3_INFRAVISION;
+                break;
+            case 8:
+                ptr->mhflags |= MH_HUMAN;
+                break;
+            }
+            break;
+        default:
+            break;
         }
     }
 
@@ -2542,12 +3230,6 @@ int mmflags;
 
     if (allow_minvent && migrating_objs)
         deliver_obj_to_mon(mtmp, 1, DF_NONE); /* in case of waiting items */
-
-    if (is_mplayer(ptr)) {
-	char nam[PL_NSIZ];
-        get_mplname(mtmp, nam);
-	mtmp = christen_monst(mtmp, nam);
-    }
 
     if (!in_mklev)
         newsym(mtmp->mx, mtmp->my); /* make sure the mon shows up */

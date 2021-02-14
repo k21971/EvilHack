@@ -111,7 +111,7 @@ const struct class_sym def_monsyms[MAXMCLASSES] = {
     { DEF_XORN, "", "xorn" },
     { DEF_YETI, "", "apelike creature" },
     { DEF_ZOMBIE, "", "zombie" },
-    { DEF_HUMAN, "", "human or elf" },
+    { DEF_HUMAN, "", "human or other humanoid" },
     { DEF_GHOST, "", "ghost" },
     { DEF_GOLEM, "", "golem" },
     { DEF_DEMON, "", "major demon" },

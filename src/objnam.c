@@ -4579,43 +4579,43 @@ struct obj *no_wish;
                 case ART_XIUHCOATL:
                 case ART_SUNSWORD:
                 case ART_GRAYSWANDIR:
-                    pm = PM_HUMAN_ARCHEOLOGIST;
+                    pm = PM_ARCHEOLOGIST;
                     break;
                 case ART_RING_OF_P_HUL:
                 case ART_CLEAVER:
                 case ART_STORMBRINGER:
                 case ART_OGRESMASHER:
                 case ART_SWORD_OF_BHELEU:
-                    pm = PM_HUMAN_BARBARIAN;
+                    pm = PM_BARBARIAN;
                     break;
                 case ART_KEOLEWA:
                 case ART_DRAGONBANE:
                 case ART_SCEPTRE_OF_MIGHT:
-                    pm = PM_HUMAN_CAVEMAN;
+                    pm = PM_CAVEMAN;
                     break;
                 case ART_LUCK_BLADE:
                 case ART_IRON_BALL_OF_LIBERATION:
-                    pm = PM_HUMAN_CONVICT;
+                    pm = PM_CONVICT;
                     break;
                 case ART_STAFF_OF_AESCULAPIUS:
-                    pm = PM_HUMAN_HEALER;
+                    pm = PM_HEALER;
                     break;
                 case ART_IDOL_OF_MOLOCH:
                 case ART_SECESPITA:
                 case ART_ANGELSLAYER:
-                    pm = PM_HUMAN_INFIDEL;
+                    pm = PM_INFIDEL;
                     break;
                 case ART_MAGIC_MIRROR_OF_MERLIN:
                 case ART_EXCALIBUR:
                 case ART_DIRGE:
-                    pm = PM_HUMAN_KNIGHT;
+                    pm = PM_KNIGHT;
                     break;
                 case ART_EYES_OF_THE_OVERWORLD:
-                    pm = PM_HUMAN_MONK;
+                    pm = PM_MONK;
                     break;
                 case ART_MITRE_OF_HOLINESS:
                 case ART_TROLLSBANE:
-                    pm = PM_HUMAN_PRIEST;
+                    pm = PM_PRIEST;
                     break;
                 case ART_LONGBOW_OF_DIANA:
                     otmp2 = mksobj(ARROW, TRUE, FALSE);
@@ -4624,7 +4624,7 @@ struct obj *no_wish;
                     otmp2->blessed = otmp2->cursed = 0;
                     otmp2->spe = rn2(3);
                     strategy = NEED_RANGED_WEAPON;
-                    pm = PM_HUMAN_RANGER;
+                    pm = PM_RANGER;
                     break;
                 case ART_CROSSBOW_OF_CARL:
                     otmp2 = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
@@ -4633,65 +4633,65 @@ struct obj *no_wish;
                     otmp2->blessed = otmp2->cursed = 0;
                     otmp2->spe = rn2(3);
                     strategy = NEED_RANGED_WEAPON;
-                    pm = PM_HUMAN_RANGER;
+                    pm = PM_RANGER;
                     break;
                 case ART_ORCRIST:
-                    pm = PM_HUMAN_RANGER;
+                    pm = PM_RANGER;
                     break;
                 case ART_MASTER_KEY_OF_THIEVERY:
                 case ART_STING:
                 case ART_GRIMTOOTH:
-                    pm = PM_HUMAN_ROGUE;
+                    pm = PM_ROGUE;
                     break;
                 case ART_TSURUGI_OF_MURAMASA:
                 case ART_SNICKERSNEE:
-                    pm = PM_HUMAN_SAMURAI;
+                    pm = PM_SAMURAI;
                     break;
                 case ART_YENDORIAN_EXPRESS_CARD:
                 case ART_VORPAL_BLADE:
-                    pm = PM_HUMAN_TOURIST;
+                    pm = PM_TOURIST;
                     break;
                 case ART_GJALLAR:
                 case ART_GIANTSLAYER:
                 case ART_MJOLLNIR:
-                    pm = PM_HUMAN_VALKYRIE;
+                    pm = PM_VALKYRIE;
                     break;
                 case ART_EYE_OF_THE_AETHIOPICA:
                 case ART_MAGICBANE:
-                    pm = PM_HUMAN_WIZARD;
+                    pm = PM_WIZARD;
                     break;
                 case ART_FROST_BRAND:
                     if (u.ualign.type == A_NEUTRAL)
-                        pm = PM_HUMAN_TOURIST;
+                        pm = PM_TOURIST;
                     else
-                        pm = PM_HUMAN_KNIGHT;
+                        pm = PM_KNIGHT;
                     break;
                 case ART_FIRE_BRAND:
                     if (u.ualign.type == A_CHAOTIC)
-                        pm = PM_HUMAN_BARBARIAN;
+                        pm = PM_BARBARIAN;
                     else
-                        pm = PM_HUMAN_ARCHEOLOGIST;
+                        pm = PM_ARCHEOLOGIST;
                     break;
                 case ART_DEMONBANE:
                     if (u.ualign.type == A_NEUTRAL)
-                        pm = PM_HUMAN_HEALER;
+                        pm = PM_HEALER;
                     else
-                        pm = PM_HUMAN_PRIEST;
+                        pm = PM_PRIEST;
                     break;
                 case ART_WEREBANE:
                     if (u.ualign.type == A_CHAOTIC)
-                        pm = PM_HUMAN_BARBARIAN;
+                        pm = PM_BARBARIAN;
                     else
-                        pm = PM_HUMAN_CAVEMAN;
+                        pm = PM_CAVEMAN;
                     break;
                 default:
                     impossible("Unknown artifact!");
                     break;
             }
-            if (pm == PM_HUMAN_CAVEMAN && rn2(2))
-                pm = PM_HUMAN_CAVEWOMAN;
-            if (pm == PM_HUMAN_PRIEST && rn2(2))
-                pm = PM_HUMAN_PRIESTESS;
+            if (pm == PM_CAVEMAN && rn2(2))
+                pm = PM_CAVEWOMAN;
+            if (pm == PM_PRIEST && rn2(2))
+                pm = PM_PRIESTESS;
         }
 
         mtmp = mk_mplayer(&mons[pm], u.ux, u.uy, TRUE, otmp);

@@ -2253,7 +2253,7 @@ do_rust:
     }
 
     /* player monster monks can sometimes stun with their kick attack */
-    if (mattk->aatyp == AT_KICK && mdat == &mons[PM_HUMAN_MONK]
+    if (mattk->aatyp == AT_KICK && mdat == &mons[PM_MONK]
         && !rn2(10) && youmonst.data->msize < MZ_HUGE) {
         You("reel from %s powerful kick!", s_suffix(mon_nam(mtmp)));
         make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);

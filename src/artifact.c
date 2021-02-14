@@ -3356,7 +3356,7 @@ struct obj *obj;
 {
     if (((obj && obj->oartifact == ART_MASTER_KEY_OF_THIEVERY)
          && ((mon == &youmonst) ? Role_if(PM_ROGUE)
-                                : (mon && mon->data == &mons[PM_HUMAN_ROGUE])))
+                                : (mon && mon->data == &mons[PM_ROGUE])))
         ? !obj->cursed : obj->blessed)
         return TRUE;
     return FALSE;

@@ -4536,7 +4536,7 @@ struct monst *mon;
         if (!rn2(7)) {
             mndx = pick_nasty();
         } else if (rn2(3)) { /* role monsters */
-            mndx = rn1(PM_HUMAN_WIZARD - PM_HUMAN_ARCHEOLOGIST + 1, PM_HUMAN_ARCHEOLOGIST);
+            mndx = rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
         } else if (!rn2(3)) { /* quest guardians */
             mndx = rn1(PM_APPRENTICE - PM_STUDENT + 1, PM_STUDENT);
             /* avoid own role's guardian */
@@ -4673,12 +4673,10 @@ int mndx;
         return 0;
     if (is_placeholder(mdat))
         return 0;
-    if (is_mplayer(mdat))
-        return 0;
     /* select_newcham_form() might deliberately pick a player
        character type (random selection never does) which
        polyok() rejects, so we need a special case here */
-    if (is_actual_player(mdat))
+    if (is_mplayer(mdat))
         return mdat;
     /* shapeshifters are rejected by polyok() but allow a shapeshifter
        to take on its 'natural' form */

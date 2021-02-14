@@ -601,7 +601,7 @@ const struct Role roles[] = {
       "the Shrine of Destiny",
       "the cave of Surtur",
       PM_VALKYRIE,
-      NON_PM | PM_HUMAN_VALKYRIE,
+      NON_PM,
       NON_PM /*PM_WINTER_WOLF_CUB*/,
       PM_NORN,
       PM_WARRIOR,

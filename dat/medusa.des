@@ -49,7 +49,7 @@ BRANCH:levregion(01,00,79,20),(30,06,46,13)
 # Non diggable walls
 NON_DIGGABLE:(30,06,46,13)
 # Objects
-CONTAINER:('`',"statue"),(38,10),uncursed,montype:"human knight",3,name:"Perseus" {
+CONTAINER:('`',"statue"),(38,10),uncursed,montype:"knight",3,name:"Perseus" {
   [75%]: OBJECT:('[',"shield of reflection"),cursed,+0
   [25%]: OBJECT:('[',"levitation boots"),+0
   [50%]: OBJECT:(')',"saber"),blessed,+2
@@ -154,7 +154,7 @@ BRANCH:levregion(01,00,79,20),(59,01,73,17)
 NON_DIGGABLE:(01,02,06,17)
 NON_DIGGABLE:(60,02,73,17)
 # Objects
-CONTAINER:('`',"statue"),(67,09),uncursed,montype:"human knight",3,name:"Perseus" {
+CONTAINER:('`',"statue"),(67,09),uncursed,montype:"knight",3,name:"Perseus" {
   [25%]: OBJECT:('[',"shield of reflection"),cursed,+0
   [75%]: OBJECT:('[',"levitation boots"),+0
   [50%]: OBJECT:(')',"saber"),blessed,+2
@@ -274,7 +274,7 @@ DOOR:locked,(48,15)
 # 
 FOUNTAIN:$place[1]
 #
-CONTAINER:('`',"statue"),$place[2],uncursed,montype:"human knight",3,name:"Perseus" {
+CONTAINER:('`',"statue"),$place[2],uncursed,montype:"knight",3,name:"Perseus" {
   [75%]: OBJECT: ('[',"shield of reflection"),cursed,+0
   [25%]: OBJECT: ('[',"levitation boots"),+0
   [50%]: OBJECT: (')',"saber"),blessed,+2
@@ -372,7 +372,7 @@ NON_DIGGABLE:(01,01,22,14)
 #
 OBJECT:('(',"crystal ball"),(07,08)
 #
-CONTAINER:('`',"statue"),$place[1],uncursed,montype:"human knight",3,name:"Perseus" {
+CONTAINER:('`',"statue"),$place[1],uncursed,montype:"knight",3,name:"Perseus" {
   [75%]: OBJECT: ('[',"shield of reflection"),cursed,+0
   [25%]: OBJECT: ('[',"levitation boots"),+0
   [50%]: OBJECT: (')',"saber"),blessed,+2
