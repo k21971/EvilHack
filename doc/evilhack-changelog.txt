@@ -1370,4 +1370,5 @@ Version 0.7.0
 - Fix: make sure iflags.use_color is enabled when changing player monster
   color
 - Fix: prevent rangers from wishing for their other quest artifact
+- Fix: remove chokepoint final ranger quest level (centaurs)
 
