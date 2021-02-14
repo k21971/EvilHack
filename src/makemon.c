@@ -2672,6 +2672,7 @@ int mmflags;
             ptr->mattk[1].damn = 1;
             ptr->mattk[1].damd = 6;
             ptr->mresists |= MR_FIRE;
+            ptr->maligntyp = A_NONE;
             /* specific flags per race */
             switch (rnd(3)) {
             case 1:
