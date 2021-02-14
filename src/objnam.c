@@ -4534,6 +4534,8 @@ struct obj *no_wish;
      */
     if ((is_quest_artifact(otmp)
         || non_wishable_artifact(otmp)
+        || (Role_if(PM_RANGER) && ((Race_if(PM_GNOME) && otmp->oartifact == ART_LONGBOW_OF_DIANA)
+                                   || (!Race_if(PM_GNOME) && otmp->oartifact == ART_CROSSBOW_OF_CARL)))
         || (otmp->oartifact && rn2(nartifact_exist()) > 1)) && !wizard) {
         artifact_exists(otmp, ONAME(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
@@ -4554,7 +4556,7 @@ struct obj *no_wish;
            Used here to give ammunition for the Ranger artifacts. */
         const char *aname = artiname(otmp->oartifact);
 
-        /* Wishing for a quest artifact may summon its nemesis (and quest enemies?) */
+        /* Wishing for a quest artifact may summon its rightful owner */
         if (any_quest_artifact(otmp)) {
             const struct Role *role = roles;
             while ((role->name.m) && (role->questarti != otmp->oartifact))
