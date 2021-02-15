@@ -2212,7 +2212,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
        when trying to attack you  */
     if (is_berserker(ma) && m_canseeu(magr)
         && magr->mpeaceful == FALSE && !rn2(7)
-        && (magr->mhp < (magr->mhpmax / 3))
+        && (magr->mhp < (magr->mhpmax / 5))
         && ma->mattk) {
         if (ma->mlet == S_HUMAN || ma->mlet == S_ORC
             || ma->mlet == S_GIANT || ma->mlet == S_OGRE)
@@ -2227,6 +2227,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
        will step on the bugs to get to you */
     if ((is_rider(ma) || ma->msize >= MZ_HUGE)
         && m_canseeu(magr) && magr->mpeaceful == FALSE
+        && distu(magr->mx, magr->my) <= 5
         && md->msize == MZ_TINY)
         return ALLOW_M | ALLOW_TM;
 

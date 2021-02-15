@@ -1374,4 +1374,5 @@ Version 0.7.0
 - Fix: random monster cannot spawn if unaligned (A_NONE)
 - Fix: game freeze with rivers spawning in certain versions of minetown
 - Add elementals to the list of monsters that are sick resistant
+- Some minor adjustments to certain monster grudges
 

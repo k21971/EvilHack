@@ -489,7 +489,7 @@ register struct monst *mtmp;
     /* special snark code; if it's next to you, you might discover
      * that it's a Boojum, and we need to swap out monsters in that case
      */
-    if (mtmp->mnum == PM_SNARK && distu(mtmp->mx,mtmp->my) <= 2) {
+    if (mtmp->mnum == PM_SNARK && distu(mtmp->mx, mtmp->my) <= 2) {
         if (mtmp->m_id % 3 < 1) {
             oldx = mtmp->mx; oldy = mtmp->my;
             mongone(mtmp);
