@@ -2192,6 +2192,20 @@ long *numerator, *denominator;
             *numerator = 3L;
             *denominator = 4L;
         }
+    } else if (shkdat == &mons[PM_NYMPH]) {
+        if (mnum < PM_NYMPH) {
+            impossible("mnum for nymph shopkeeper is too low!");
+            return;
+        }
+        if (ACURR(A_CHA) > 14) {
+            /* Pretty people don't get gouged TOO badly... */
+            *numerator = (mnum - PM_NYMPH + 8);
+            *denominator = 6L;
+        } else {
+            /* ... but if you don't measure up... */
+            *numerator = (mnum - PM_NYMPH + 5);
+            *denominator = 3L;
+        }
     } else {
         ; /* other monsters are possible (e.g. polyed shopkeeper); don't do any
              adjustment in that case */

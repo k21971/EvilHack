@@ -313,11 +313,11 @@
     ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
      || (ptr) == &mons[PM_PESTILENCE])
 #define is_placeholder(ptr) \
-    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]        \
-     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]     \
-     || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON] \
-     || (ptr) == &mons[PM_DWARF] || (ptr) == &mons[PM_GNOME]   \
-     || (ptr) == &mons[PM_ILLITHID])
+    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]          \
+     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]       \
+     || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON]   \
+     || (ptr) == &mons[PM_DWARF] || (ptr) == &mons[PM_GNOME]     \
+     || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_NYMPH])
 
 /* Ice Queen branch defines */
 #define is_iceq_only(ptr) \

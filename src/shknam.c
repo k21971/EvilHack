@@ -692,12 +692,12 @@ int shp_indx;
         }
         break;
     case RING_CLASS:
-        srace = PM_ELF;
+        srace = PM_NYMPH;
         break;
     /* wands and potions also similar... */
     case WAND_CLASS:
     case POTION_CLASS:
-        switch (rnd(3)) {
+        switch (rnd(4)) {
         case 1:
             srace = PM_ELF;
             break;
@@ -705,6 +705,9 @@ int shp_indx;
             srace = PM_GNOME;
             break;
         case 3:
+            srace = PM_NYMPH;
+            break;
+        case 4:
             srace = PM_HUMAN;
             break;
         }
