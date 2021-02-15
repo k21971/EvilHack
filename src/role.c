@@ -840,7 +840,7 @@ const struct Race races[] = {
         MH_ORC,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { 18, 20, 20, 18, 16, 18 },
+        { 18, 20, 20, 20, 16, 18 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 1, 0 }, /* Hit points */
         { 2, 0, 3, 0, 3, 0 }  /* Energy */
@@ -903,7 +903,7 @@ const struct Race races[] = {
         MH_HUMAN | MH_ELF | MH_DWARF | MH_HOBBIT,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { STR18(50), 16, 16, 18, 18, 16 },
+        { STR18(50), 16, 16, 18, 19, 16 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 0, 0 }, /* Hit points */
         { 1, 0, 1, 0, 1, 0 }  /* Energy */

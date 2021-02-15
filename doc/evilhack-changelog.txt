@@ -1375,4 +1375,5 @@ Version 0.7.0
 - Fix: game freeze with rivers spawning in certain versions of minetown
 - Add elementals to the list of monsters that are sick resistant
 - Some minor adjustments to certain monster grudges
+- Small adjustment to elves and orcs starting stats, searching for elves
 

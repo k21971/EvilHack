@@ -25,7 +25,7 @@ static const struct innate {
     const char *gainstr, *losestr;
 } arc_abil[] = { { 1, &(HStealth), "", "" },
                  { 1, &(HFast), "", "" },
-                 { 10, &(HSearching), "perceptive", "" },
+                 { 10, &(HSearching), "perceptive", "unaware" },
                  { 0, 0, 0, 0 } },
 
   bar_abil[] = { { 1, &(HPoison_resistance), "", "" },
@@ -107,6 +107,7 @@ static const struct innate {
 
   elf_abil[] = { { 1, &(HInfravision), "", "" },
                  { 4, &(HSleep_resistance), "awake", "tired" },
+                 { 9, &(HSearching), "perceptive", "unaware" },
                  { 0, 0, 0, 0 } },
 
   gno_abil[] = { { 1, &(HInfravision), "", "" },
