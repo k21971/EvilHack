@@ -95,7 +95,7 @@ enum levl_typ_types {
     ((typ) == TREE || (level.flags.arboreal && (typ) == STONE))
 #define IS_DEADTREE(typ) ((typ) == DEADTREE)
 #define IS_TREES(typ) (IS_TREE(typ) || IS_DEADTREE(typ))
-#define ACCESSIBLE(typ) ((typ) >= DOOR && (typ) <= SEWAGE) /* good position */
+#define ACCESSIBLE(typ) ((typ) >= DOOR && (typ) <= CLOUD) /* good position */
 #define IS_ROOM(typ) ((typ) >= ROOM)    /* ROOM, STAIRS, furniture.. */
 #define ZAP_POS(typ) ((typ) >= POOL)
 #define SPACE_POS(typ) ((typ) > DOOR)
