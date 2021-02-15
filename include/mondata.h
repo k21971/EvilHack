@@ -144,7 +144,8 @@
      || (ptr) == &mons[PM_MASTER_MIND_FLAYER] || (ptr) == &mons[PM_GOBLIN_SHAMAN] \
      || (ptr) == &mons[PM_KOBOLD_SHAMAN] || (ptr) == &mons[PM_ORC_SHAMAN]         \
      || (ptr) == &mons[PM_HILL_GIANT_SHAMAN] || (ptr) == &mons[PM_ELVEN_WIZARD]   \
-     || (ptr) == &mons[PM_GNOMISH_WIZARD] || (ptr) == &mons[PM_ALHOON])
+     || (ptr) == &mons[PM_GNOMISH_WIZARD] || (ptr) == &mons[PM_ALHOON]            \
+     || (ptr) == &mons[PM_ILLITHID])
 #define has_claws(ptr) \
     ((ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE    \
      || (ptr)->mlet == S_GREMLIN || (ptr)->mlet == S_IMP       \
