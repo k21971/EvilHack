@@ -884,7 +884,7 @@ register struct obj *obj;
             else if (humanoid(mptr) && same_race(mptr, fptr)
                      && (!is_undead(mptr) && fptr->mlet != S_KOBOLD
                          && fptr->mlet != S_ORC && fptr->mlet != S_OGRE))
-                return (starving && carni && !is_elf(mptr)) ? ACCFOOD : TABU;
+                return (starving && carni && !racial_elf(mon)) ? ACCFOOD : TABU;
             else
                 return carni ? CADAVER : MANFOOD;
         case CLOVE_OF_GARLIC:
@@ -916,14 +916,14 @@ register struct obj *obj;
         case CRAM_RATION:
         case LEMBAS_WAFER:
         case FOOD_RATION:
-            if (is_human(mon->data)
-          	|| is_elf(mon->data)
-          	|| is_dwarf(mon->data)
-          	|| is_gnome(mon->data)
-          	|| is_orc(mon->data)
-                || is_hobbit(mon->data)
-                || is_giant(mon->data)
-                || is_centaur(mon->data))
+            if (racial_human(mon)
+          	|| racial_elf(mon)
+          	|| racial_dwarf(mon)
+          	|| racial_gnome(mon)
+          	|| racial_orc(mon)
+                || racial_hobbit(mon)
+                || racial_giant(mon)
+                || racial_centaur(mon))
                 return ACCFOOD;
             /*FALLTHRU*/
         default:
@@ -1003,16 +1003,16 @@ register struct obj *obj;
 
     /* If wielding/wearing any of the 'banes, taming becomes
        impossible */
-    if (wielding_artifact(ART_STING) && is_orc(mtmp->data))
+    if (wielding_artifact(ART_STING) && racial_orc(mtmp))
         return FALSE;
 
-    if (wielding_artifact(ART_ORCRIST) && is_orc(mtmp->data))
+    if (wielding_artifact(ART_ORCRIST) && racial_orc(mtmp))
         return FALSE;
 
-    if (wielding_artifact(ART_GRIMTOOTH) && is_elf(mtmp->data))
+    if (wielding_artifact(ART_GRIMTOOTH) && racial_elf(mtmp))
         return FALSE;
 
-    if (wielding_artifact(ART_GIANTSLAYER) && is_giant(mtmp->data))
+    if (wielding_artifact(ART_GIANTSLAYER) && racial_giant(mtmp))
         return FALSE;
 
     if (wielding_artifact(ART_TROLLSBANE) && is_troll(mtmp->data))

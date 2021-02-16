@@ -299,7 +299,7 @@ int *attk_count, *role_roll_penalty;
         else if (!uwep && !uarms)
             tmp += (u.ulevel / 3) + 2;
     }
-    if (is_orc(mtmp->data)
+    if (racial_orc(mtmp)
         && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
         tmp++;
 

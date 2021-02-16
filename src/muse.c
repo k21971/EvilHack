@@ -3810,7 +3810,7 @@ struct monst *mon;
     case PM_WOOD_NYMPH:
         return TRUE;
     default:
-        if (is_elf(ptr) && !is_prince(ptr) && !is_lord(ptr)
+        if (racial_elf(mon) && !is_prince(ptr) && !is_lord(ptr)
             && ptr != &mons[PM_GREY_ELF])
             return TRUE;
         break;

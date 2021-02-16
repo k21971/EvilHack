@@ -1831,23 +1831,23 @@ boolean called;
         Strcat(buf, "saddled ");
     if (is_mplayer(mdat) && !type_is_pname(mdat)
         && (!(do_name && has_mname(mtmp)) || called)) {
-        if (is_elf(mdat))
+        if (racial_elf(mtmp))
             Strcat(buf, "elven ");
-        else if (is_dwarf(mdat))
+        else if (racial_dwarf(mtmp))
             Strcat(buf, "dwarvish ");
-        else if (is_orc(mdat))
+        else if (racial_orc(mtmp))
             Strcat(buf, "orcish ");
-        else if (is_gnome(mdat))
+        else if (racial_gnome(mtmp))
             Strcat(buf, "gnomish ");
-        else if (is_hobbit(mdat))
+        else if (racial_hobbit(mtmp))
             Strcat(buf, "hobbit ");
-        else if (is_giant(mdat))
+        else if (racial_giant(mtmp))
             Strcat(buf, "giant ");
-        else if (is_illithid(mdat))
+        else if (racial_illithid(mtmp))
             Strcat(buf, "illithid ");
-        else if (is_centaur(mdat))
+        else if (racial_centaur(mtmp))
             Strcat(buf, "centaurian ");
-        else if (is_human(mdat))
+        else if (racial_human(mtmp))
             Strcat(buf, "human ");
     }
     has_adjectives = (buf[0] != '\0');

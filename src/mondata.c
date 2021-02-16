@@ -332,6 +332,14 @@ int material;
     if (mon == &youmonst && material == SILVER && u.ulycn >= LOW_PM)
         return TRUE;
 
+    if (has_erac(mon)) {
+        if (material == IRON) {
+            return (racial_elf(mon));
+        } else if (material == MITHRIL) {
+            return (racial_orc(mon));
+        }
+    }
+
     return FALSE;
 }
 

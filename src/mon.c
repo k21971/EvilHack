@@ -2105,7 +2105,7 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* elves vs orcs */
-    if (is_elf(ma) && is_orc(md))
+    if (racial_elf(magr) && racial_orc(mdef))
         return ALLOW_M | ALLOW_TM;
 
     /* angels vs demons */
@@ -2123,7 +2123,7 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* Nazgul vs hobbits */
-    if (ma == &mons[PM_NAZGUL] && is_hobbit(md))
+    if (ma == &mons[PM_NAZGUL] && racial_hobbit(mdef))
         return ALLOW_M | ALLOW_TM;
 
     /* bees and honey badgers don't play nice */

@@ -420,7 +420,7 @@ register struct monst *magr, *mdef;
     }
 
     /* Elves hate orcs. */
-    if (is_elf(pa) && is_orc(pd))
+    if (racial_elf(magr) && racial_orc(mdef))
         tmp++;
 
     /* Set up the visibility of action */
