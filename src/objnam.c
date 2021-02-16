@@ -2016,7 +2016,8 @@ const char *verb;
      * "your" for unique objects and "foo of bar" quest artifacts */
     if (!carried(obj) || !obj_is_pname(obj)
         || obj->oartifact >= ART_XIUHCOATL
-        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES) {
+        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
+        || obj->oartifact == ART_MAGIC___BALL) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - strlen(outbuf);
 
@@ -2098,7 +2099,8 @@ struct obj *obj;
      * "your" for unique objects and "foo of bar" quest artifacts */
     if (!carried(obj) || !obj_is_pname(obj)
         || obj->oartifact >= ART_XIUHCOATL
-        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES) {
+        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
+        || obj->oartifact == ART_MAGIC___BALL) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - strlen(outbuf);
 
