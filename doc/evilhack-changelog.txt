@@ -1379,4 +1379,6 @@ Version 0.7.0
 - Reintroduce nymph shopkeepers
 - Make sure illithids fall under telepathic()
 - Racial shopkeeper dialogue based on racial love/hatred
+- Small tweak to feedback - ensure magic traps ignore (see) invisible
+  timeouts
 
