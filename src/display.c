@@ -1302,7 +1302,13 @@ see_monsters()
         newsym(mon->mx, mon->my);
         if (mon->wormno)
             see_wsegs(mon);
-        if (Warn_of_mon && (context.warntype.obj & mon->data->mhflags) != 0L)
+
+        unsigned long raceflags;
+        if (has_erac(mon))
+            raceflags = ERAC(mon)->mrace;
+        else
+            raceflags = mon->data->mhflags;
+        if (Warn_of_mon && (context.warntype.obj & raceflags) != 0L)
             new_warn_obj_cnt++;
     }
     /*
