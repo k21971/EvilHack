@@ -1383,4 +1383,5 @@ Version 0.7.0
   timeouts
 - Fix: 'The skeleton's skin looks flaky'
 - Fix: another missing article with an artifact
+- Fix: 'Your pair of leather gloves looks completely burnt' printing twice
 
