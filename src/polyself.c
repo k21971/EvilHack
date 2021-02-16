@@ -1684,70 +1684,70 @@ int part;
                               "fingertip", "foot", "hand",         "handed",
                               "head",      "leg",  "light headed", "neck",
                               "spine",     "toe",  "hair",         "blood",
-                              "lung",      "nose", "stomach" },
+                              "lung",      "nose", "stomach",      "skin" },
         *jelly_parts[] = { "pseudopod", "dark spot", "front",
                            "pseudopod extension", "pseudopod extremity",
                            "pseudopod root", "grasp", "grasped",
                            "cerebral area", "lower pseudopod", "viscous",
                            "middle", "surface", "pseudopod extremity",
                            "ripples", "juices", "surface", "sensor",
-                           "stomach" },
+                           "stomach", "surface" },
         *animal_parts[] = { "forelimb",  "eye",           "face",
                             "foreclaw",  "claw tip",      "rear claw",
                             "foreclaw",  "clawed",        "head",
                             "rear limb", "light headed",  "neck",
                             "spine",     "rear claw tip", "fur",
                             "blood",     "lung",          "nose",
-                            "stomach" },
+                            "stomach",   "hide" },
         *bird_parts[] = { "wing",     "eye",  "face",         "wing",
                           "wing tip", "foot", "wing",         "winged",
                           "head",     "leg",  "light headed", "neck",
                           "spine",    "toe",  "feathers",     "blood",
-                          "lung",     "bill", "stomach" },
+                          "lung",     "bill", "stomach",      "skin" },
         *horse_parts[] = { "foreleg",  "eye",           "face",
                            "forehoof", "hoof tip",      "rear hoof",
                            "forehoof", "hooved",        "head",
                            "rear leg", "light headed",  "neck",
                            "backbone", "rear hoof tip", "mane",
                            "blood",    "lung",          "nose",
-                           "stomach" },
+                           "stomach",  "hide" },
         *sphere_parts[] = { "appendage", "optic nerve", "body", "tentacle",
                             "tentacle tip", "lower appendage", "tentacle",
                             "tentacled", "body", "lower tentacle",
                             "rotational", "equator", "body",
                             "lower tentacle tip", "cilia", "life force",
-                            "retina", "olfactory nerve", "interior" },
+                            "retina", "olfactory nerve", "interior", "skin" },
         *fungus_parts[] = { "mycelium", "visual area", "front",
                             "hypha",    "hypha",       "root",
                             "strand",   "stranded",    "cap area",
                             "rhizome",  "sporulated",  "stalk",
                             "root",     "rhizome tip", "spores",
                             "juices",   "gill",        "gill",
-                            "interior" },
+                            "interior", "spores" },
         *vortex_parts[] = { "region",        "eye",           "front",
                             "minor current", "minor current", "lower current",
                             "swirl",         "swirled",       "central core",
                             "lower current", "addled",        "center",
                             "currents",      "edge",          "currents",
                             "life force",    "center",        "leading edge",
-                            "interior" },
+                            "interior",      "exterior" },
         *snake_parts[] = { "vestigial limb", "eye", "face", "large scale",
                            "large scale tip", "rear region", "scale gap",
                            "scale gapped", "head", "rear region",
                            "light headed", "neck", "length", "rear scale",
                            "scales", "blood", "lung", "forked tongue",
-                           "stomach" },
+                           "stomach", "scales" },
         *worm_parts[] = { "anterior segment", "light sensitive cell",
                           "clitellum", "setae", "setae", "posterior segment",
                           "segment", "segmented", "anterior segment",
                           "posterior", "over stretched", "clitellum",
                           "length", "posterior setae", "setae", "blood",
-                          "skin", "prostomium", "stomach" },
+                          "skin", "prostomium", "stomach", "skin" },
         *fish_parts[] = { "fin", "eye", "premaxillary", "pelvic axillary",
                           "pelvic fin", "anal fin", "pectoral fin", "finned",
                           "head", "peduncle", "played out", "gills",
                           "dorsal fin", "caudal fin", "scales", "blood",
-                          "gill", "nostril", "stomach" };
+                          "gill", "nostril", "stomach", "scales" };
     /* claw attacks are overloaded in mons[]; most humanoids with
        such attacks should still reference hands rather than claws */
     static const char not_claws[] = {
@@ -1788,6 +1788,8 @@ int part;
         return "trunk";
     if (mptr == &mons[PM_SHARK] && part == HAIR)
         return "skin"; /* sharks don't have scales */
+    if (mptr == &mons[PM_SKELETON] && part == SKIN)
+        return "bones"; /* skeletons don't have skin */
     if ((mptr == &mons[PM_JELLYFISH] || mptr == &mons[PM_KRAKEN])
         && (part == ARM || part == FINGER || part == HAND || part == FOOT
             || part == TOE || part == FINGERTIP))
@@ -1823,7 +1825,8 @@ int part;
         return fish_parts[part];
     if (mptr->mlet == S_WORM)
         return worm_parts[part];
-    if (slithy(mptr) || (mptr->mlet == S_DRAGON && part == HAIR))
+    if (slithy(mptr) || (mptr->mlet == S_DRAGON
+                         && (part == HAIR || part == SKIN)))
         return snake_parts[part];
     if (mptr->mlet == S_EYE)
         return sphere_parts[part];

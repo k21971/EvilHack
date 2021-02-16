@@ -675,7 +675,7 @@ int spellnum;
 		}
 	    }
 	} else {
-	    Your("skin itches.");
+	    Your("body itches.");
         }
         dmg = 0;
         break;
@@ -1029,7 +1029,8 @@ int spellnum;
         break;
     case CLC_VULN_YOU:
         dmg = rnd(4);
-        pline("A %s film oozes over your skin!", Blind ? "slimy" : vulntext[dmg]);
+        pline("A %s film oozes over your %s!", Blind ? "slimy" : vulntext[dmg],
+              body_part(SKIN));
         switch (dmg) {
             case 1:
                 if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
@@ -1924,7 +1925,7 @@ int spellnum;
                 otmp->owornmask = 0L; /* obfree() expects this */
                 obfree(otmp, (struct obj *) 0);
             } else if (yours || canseemon(mtmp))
-       	        pline("%s skin looks flaky.", s_suffix(Monnam(mtmp)));
+       	        pline("%s seems irritated.", Monnam(mtmp));
         }
        	dmg = 0;
        	break;
@@ -2298,7 +2299,7 @@ int spellnum;
 
         if (yours || canseemon(mtmp)) {
             dmg = rnd(4);
-            pline("A %s film oozes over its skin!", Blind ? "slimy" : vulntext[dmg]);
+            pline("A %s film oozes over its exterior!", Blind ? "slimy" : vulntext[dmg]);
             switch (dmg) {
                 case 1:
                     if (mtmp->data->mflags4 & M4_VULNERABLE_FIRE)

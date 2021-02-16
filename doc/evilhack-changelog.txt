@@ -1381,4 +1381,5 @@ Version 0.7.0
 - Racial shopkeeper dialogue based on racial love/hatred
 - Small tweak to feedback - ensure magic traps ignore (see) invisible
   timeouts
+- Fix: 'The skeleton's skin looks flaky'
 
