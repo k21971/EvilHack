@@ -3713,7 +3713,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
                    prepared for multiple hits so just get first one
                    that's either visible or could see its invisible
                    self.  [No tmp_at() cleanup is needed here.] */
-                if (!mtmp->minvis || perceives(mtmp->data)) {
+                if (!mtmp->minvis || racial_perceives(mtmp)) {
                     result = mtmp;
                     goto bhit_done;
                 }

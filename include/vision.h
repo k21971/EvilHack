@@ -50,7 +50,7 @@ extern char *viz_rmax;			/* max could see indices */
      && couldsee((m)->mx, (m)->my))
 #else   /* without 'uburied' and 'mburied' */
 #define m_canseeu(m) \
-    ((!Invis || perceives((m)->data))                      \
+    ((!Invis || racial_perceives(m))                       \
      && !Underwater                                        \
      && couldsee((m)->mx, (m)->my))
 #endif

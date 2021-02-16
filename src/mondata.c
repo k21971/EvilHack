@@ -493,7 +493,7 @@ int prop;
                 return TRUE;
 	    break;
 	case SEE_INVIS:
-	    if (perceives(mon->data))
+	    if (racial_perceives(mon))
                 return TRUE;
 	    break;
 	case TELEPORT:

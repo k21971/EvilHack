@@ -143,6 +143,9 @@
     (lays_eggs(ptr) && (ptr)->mlet == S_EEL && is_swimmer(ptr))
 #define regenerates(ptr) (((ptr)->mflags1 & M1_REGEN) != 0L)
 #define perceives(ptr) (((ptr)->mflags1 & M1_SEE_INVIS) != 0L)
+#define racial_perceives(mon) \
+    (has_erac(mon) && (ERAC(mon)->mflags1 & M1_SEE_INVIS) \
+     || perceives(mon->data))
 #define can_teleport(ptr) (((ptr)->mflags1 & M1_TPORT) != 0L)
 #define control_teleport(ptr) (((ptr)->mflags1 & M1_TPORT_CNTRL) != 0L)
 #define telepathic(ptr) \

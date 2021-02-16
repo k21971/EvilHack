@@ -837,7 +837,7 @@ struct attack *mattk;
     }
 
     if (magr->mcan || !magr->mcansee || !mdef->mcansee
-        || (magr->minvis && !perceives(mdef->data)) || mdef->msleeping) {
+        || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
         if (vis && canspotmon(mdef))
             pline("but nothing happens.");
         return MM_MISS;
@@ -853,7 +853,7 @@ struct attack *mattk;
                                       "The gaze is reflected away by %s %s.");
                 return MM_MISS;
             }
-            if (mdef->minvis && !perceives(magr->data)) {
+            if (mdef->minvis && !racial_perceives(magr)) {
                 if (canseemon(magr)) {
                     pline(
                       "%s doesn't seem to notice that %s gaze was reflected.",
@@ -2265,7 +2265,7 @@ struct obj *mwep;
                 if (!rn2(4))
                     tmp = 127;
                 if (magr->mcansee && haseyes(madat) && mdef->mcansee
-                    && (perceives(madat) || !mdef->minvis)) {
+                    && (racial_perceives(magr) || !mdef->minvis)) {
                     /* construct format string; guard against '%' in Monnam */
                     Strcpy(buf, s_suffix(Monnam(mdef)));
                     (void) strNsubst(buf, "%", "%%", 0);
