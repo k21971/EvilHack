@@ -113,7 +113,7 @@ moverock()
 
     sx = u.ux + u.dx, sy = u.uy + u.dy; /* boulder starting position */
 
-    if (maybe_polyd(throws_rocks(youmonst.data), Race_if(PM_GIANT))
+    if (maybe_polyd(racial_throws_rocks(&youmonst), Race_if(PM_GIANT))
         && context.nopick) {
         if (In_sokoban(&u.uz) && sobj_at(BOULDER, sx, sy))
             change_luck(-2);
@@ -317,8 +317,8 @@ moverock()
                 if (!u.usteed) {
                     if (moves > lastmovetime + 2 || moves < lastmovetime)
                         pline("With %s effort you move %s.",
-                              throws_rocks(youmonst.data) ? "little"
-                                                          : "great",
+                              racial_throws_rocks(&youmonst) ? "little"
+                                                             : "great",
                               the(xname(otmp)));
                     exercise(A_STR, TRUE);
                 } else
@@ -347,7 +347,7 @@ moverock()
             if (Blind)
                 feel_location(sx, sy);
  cannot_push:
-            if (throws_rocks(youmonst.data)) {
+            if (racial_throws_rocks(&youmonst)) {
                 boolean
                     canpickup = (!Sokoban
                                  /* similar exception as in can_lift():
@@ -3450,9 +3450,9 @@ inv_weight()
     while (otmp) {
         if (otmp->oclass == COIN_CLASS)
             wt += (int) (((long) otmp->quan + 50L) / 100L);
-        else if (otmp->otyp == BOULDER && throws_rocks(youmonst.data))
+        else if (otmp->otyp == BOULDER && racial_throws_rocks(&youmonst))
             wt += GIANT_BLDR_WEIGHT * otmp->quan;
-        else if (otmp->otyp != BOULDER || !throws_rocks(youmonst.data))
+        else if (otmp->otyp != BOULDER || racial_throws_rocks(&youmonst))
             wt += otmp->owt;
         otmp = otmp->nobj;
     }

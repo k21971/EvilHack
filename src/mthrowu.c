@@ -1354,7 +1354,7 @@ register struct monst *mtmp;
                               && U_AP_TYPE != M_AP_MONSTER)))
         return FALSE;
 
-    ignore_boulders = (throws_rocks(mtmp->data)
+    ignore_boulders = (racial_throws_rocks(mtmp)
                        || m_carrying(mtmp, WAN_STRIKING));
     return linedup(mtmp->mux, mtmp->muy, mtmp->mx, mtmp->my,
                    ignore_boulders ? 1 : 2);

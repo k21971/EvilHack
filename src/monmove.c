@@ -1322,7 +1322,7 @@ register int after;
     if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))) {
         boolean in_line = (lined_up(mtmp)
                && (distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy)
-                   <= (throws_rocks(youmonst.data) ? 20 : ACURRSTR / 2 + 1)));
+                   <= (racial_throws_rocks(&youmonst) ? 20 : ACURRSTR / 2 + 1)));
 
         if (appr != 1 || !in_line) {
             /* Monsters in combat won't pick stuff up, avoiding the
@@ -1338,7 +1338,7 @@ register int after;
             uses_items = (!mindless(ptr) && !is_animal(ptr) && pctload < 75);
             likeobjs = (likes_objs(ptr) && pctload < 75);
             likemagic = (likes_magic(ptr) && pctload < 85);
-            likerock = (throws_rocks(ptr) && pctload < 50 && !Sokoban);
+            likerock = (racial_throws_rocks(mtmp) && pctload < 50 && !Sokoban);
             conceals = hides_under(ptr);
             setlikes = TRUE;
         }
@@ -1428,7 +1428,7 @@ register int after;
                              && touch_petrifies(&mons[otmp->corpsenm]))))
                         && touch_artifact(otmp, mtmp)) {
                         if (((can_carry(mtmp, otmp) > 0 || (Is_container(otmp)))
-                            && ((throws_rocks(ptr)) || !sobj_at(BOULDER, xx, yy)))
+                            && ((racial_throws_rocks(mtmp)) || !sobj_at(BOULDER, xx, yy)))
                             && ((!is_unicorn(ptr)
                                 || (otmp->material == GEMSTONE)))
                             /* Don't get stuck circling an Elbereth */
@@ -1492,7 +1492,7 @@ register int after;
         flag |= ALLOW_SSM;
     if ((is_undead(ptr) && ptr->mlet != S_GHOST) || is_vampshifter(mtmp))
         flag |= NOGARLIC;
-    if (throws_rocks(ptr))
+    if (racial_throws_rocks(mtmp))
         flag |= ALLOW_ROCK;
     if (can_open)
         flag |= OPENDOOR;
@@ -1816,7 +1816,7 @@ register int after;
                     (!mindless(ptr) && !is_animal(ptr) && pctload < 75);
                 likeobjs = (likes_objs(ptr) && pctload < 75);
                 likemagic = (likes_magic(ptr) && pctload < 85);
-                likerock = (throws_rocks(ptr) && pctload < 50 && !Sokoban);
+                likerock = (racial_throws_rocks(mtmp) && pctload < 50 && !Sokoban);
                 conceals = hides_under(ptr);
             }
 

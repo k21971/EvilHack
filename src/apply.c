@@ -1639,7 +1639,7 @@ int x, y;
     /* let giants jump over boulders (what about Flying?
        and is there really enough head room for giants to jump
        at all, let alone over something tall?) */
-    if (sobj_at(BOULDER, x, y) && !throws_rocks(youmonst.data))
+    if (sobj_at(BOULDER, x, y) && !racial_throws_rocks(&youmonst))
         return FALSE;
     return TRUE;
 }

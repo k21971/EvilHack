@@ -156,7 +156,7 @@ stuck_in_wall()
             if (!isok(x, y)
                 || (IS_ROCK(levl[x][y].typ)
                     && (levl[x][y].typ != SDOOR && levl[x][y].typ != SCORR))
-                || (blocked_boulder(i, j) && !throws_rocks(youmonst.data)))
+                || (blocked_boulder(i, j) && !racial_throws_rocks(&youmonst)))
                 ++count;
         }
     }

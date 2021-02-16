@@ -542,7 +542,7 @@ struct monst *mtmp;
         /* Note: trap doors take precedence over teleport traps. */
         int xx, yy, i, locs[10][2];
         boolean ignore_boulders = (verysmall(mtmp->data)
-                                   || throws_rocks(mtmp->data)
+                                   || racial_throws_rocks(mtmp)
                                    || passes_walls(mtmp->data)),
             diag_ok = !NODIAG(monsndx(mtmp->data));
 
@@ -2313,7 +2313,7 @@ struct monst *mtmp;
 
     if (!stuck && !immobile && (mtmp->cham == NON_PM)
         && mons[(pmidx = monsndx(mdat))].difficulty < 6) {
-        boolean ignore_boulders = (verysmall(mdat) || throws_rocks(mdat)
+        boolean ignore_boulders = (verysmall(mdat) || racial_throws_rocks(mtmp)
                                    || passes_walls(mdat)),
             diag_ok = !NODIAG(pmidx);
 

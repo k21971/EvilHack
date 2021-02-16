@@ -708,9 +708,9 @@ struct obj *otmp;
         if (mtmp->data->mlet == S_KOP && otmp->otyp == CREAM_PIE)
             return TRUE;
 
-        if (throws_rocks(mtmp->data) && wep->otyp == BOULDER)
+        if (racial_throws_rocks(mtmp) && wep->otyp == BOULDER)
             return FALSE;
-        if (throws_rocks(mtmp->data) && otmp->otyp == BOULDER)
+        if (racial_throws_rocks(mtmp) && otmp->otyp == BOULDER)
             return TRUE;
     }
 
@@ -763,7 +763,7 @@ register struct monst *mtmp;
     Oselect(EGG);      /* cockatrice egg */
     if (mlet == S_KOP) /* pies are first choice for Kops */
         Oselect(CREAM_PIE);
-    if (throws_rocks(mtmp->data)) /* ...boulders for giants */
+    if (racial_throws_rocks(mtmp)) /* ...boulders for giants */
         Oselect(BOULDER);
 
     /* Select polearms first; they do more damage and aren't expendable.

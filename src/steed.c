@@ -620,7 +620,7 @@ int forceit;
                         || (distance == min_distance && rn2(2))) {
                         if (i > 0 || (((t = t_at(x, y)) == 0 || !t->tseen)
                                       && (!sobj_at(BOULDER, x, y)
-                                          || throws_rocks(youmonst.data)))) {
+                                          || racial_throws_rocks(&youmonst)))) {
                             spot->x = x;
                             spot->y = y;
                             min_distance = distance;

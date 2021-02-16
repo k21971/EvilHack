@@ -1281,7 +1281,7 @@ int after; /* this is extra fast monster movement */
         allowflags |= (ALLOW_ROCK | ALLOW_WALL);
     if (passes_bars(mtmp->data))
         allowflags |= ALLOW_BARS;
-    if (throws_rocks(mtmp->data))
+    if (racial_throws_rocks(mtmp))
         allowflags |= ALLOW_ROCK;
     if (is_displacer(mtmp->data))
         allowflags |= ALLOW_MDISP;
@@ -1652,7 +1652,7 @@ xchar nx, ny;
 {
     if ((!is_pool(nx, ny) || is_swimmer(mon->data))
         && (!is_lava(nx, ny) || likes_lava(mon->data))
-        && (!sobj_at(BOULDER, nx, ny) || throws_rocks(mon->data)))
+        && (!sobj_at(BOULDER, nx, ny) || racial_throws_rocks(mon)))
         return TRUE;
     return FALSE;
 }

@@ -75,7 +75,7 @@ int shotlimit;
         return 0;
     }
     if ((obj->oartifact == ART_MJOLLNIR && ACURR(A_STR) < STR19(25))
-        || (obj->otyp == BOULDER && !throws_rocks(youmonst.data))) {
+        || (obj->otyp == BOULDER && !racial_throws_rocks(&youmonst))) {
         pline("It's too heavy.");
         return 1;
     }

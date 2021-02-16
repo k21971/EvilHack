@@ -2107,7 +2107,7 @@ int style;
         bhitpos.y += dy;
 
         if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
-            if (otyp == BOULDER && throws_rocks(mtmp->data)) {
+            if (otyp == BOULDER && racial_throws_rocks(mtmp)) {
                 if (rn2(3)) {
                     if (cansee(bhitpos.x, bhitpos.y))
                         pline("%s snatches the boulder.", Monnam(mtmp));

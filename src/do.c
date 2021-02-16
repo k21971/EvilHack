@@ -277,7 +277,7 @@ const char *verb;
                       vtense((const char *) 0, verb),
                       mtmp ? "" : " with you");
             if (mtmp) {
-                if (!passes_walls(mtmp->data) && !throws_rocks(mtmp->data)) {
+                if (!passes_walls(mtmp->data) && !racial_throws_rocks(mtmp)) {
                     /* dieroll was rnd(20); 1: maximum chance to hit
                        since trapped target is a sitting duck */
                     int damage, dieroll = 1;
@@ -308,7 +308,7 @@ const char *verb;
                 }
                 mtmp->mtrapped = 0;
             } else {
-                if (!Passes_walls && !throws_rocks(youmonst.data)) {
+                if (!Passes_walls && !racial_throws_rocks(&youmonst)) {
                     losehp(Maybe_Half_Phys(rnd(15)),
                            "squished under a boulder", NO_KILLER_PREFIX);
                     goto deletedwithboulder;
