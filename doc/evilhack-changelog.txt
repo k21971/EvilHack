@@ -1378,4 +1378,5 @@ Version 0.7.0
 - Small adjustment to elves and orcs starting stats, searching for elves
 - Reintroduce nymph shopkeepers
 - Make sure illithids fall under telepathic()
+- Racial shopkeeper dialogue based on racial love/hatred
 

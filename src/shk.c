@@ -96,6 +96,8 @@ STATIC_DCL const char *FDECL(cad, (BOOLEAN_P));
 
 static const char *angrytexts[] = { "quite upset", "ticked off", "furious" };
 
+static const char *hatesrace[] = { "scum", "vermin", "peasant", "scalawag",
+                                   "wretch", "miscreant", "maggot", "lowlife" };
 /*
  *  Transfer money from inventory to monster when paying
  *  shopkeepers, priests, oracle, succubus, and other demons.
@@ -630,15 +632,20 @@ char *enterstring;
             pline("%s is combing through %s inventory list.",
                   Shknam(shkp), noit_mhis(shkp));
     } else {
+        const char *punct = (race_hostile(shkp->data) ? "." : "!");
+
         if (!Deaf && !muteshk(shkp) && !eshkp->pbanned)
-            verbalize("%s, %s!  Welcome%s to %s %s!", Hello(shkp), plname,
+            verbalize("%s, %s%s  Welcome%s to %s %s%s", Hello(shkp),
+                      race_hostile(shkp->data) ? hatesrace[rn2(SIZE(hatesrace))]
+                                               : plname, punct,
                       eshkp->visitct++ ? " again" : "",
-                      s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name);
+                      s_suffix(shkname(shkp)),
+                      shtypes[rt - SHOPBASE].name, punct);
         else
-            You("enter %s %s%s!",
+            You("enter %s %s%s%s",
                 s_suffix(shkname(shkp)),
                 shtypes[rt - SHOPBASE].name,
-                eshkp->visitct++ ? " again" : "");
+                eshkp->visitct++ ? " again" : "", punct);
     }
     /* can't do anything about blocking if teleported in */
     if (!inside_shop(u.ux, u.uy)) {
@@ -669,14 +676,15 @@ char *enterstring;
                     makeknown(DWARVISH_MATTOCK);
             }
             if (!Deaf && !muteshk(shkp))
-                verbalize(NOTANGRY(shkp)
-                              ? "Will you please leave your %s%s outside?"
-                              : "Leave the %s%s outside.",
+                verbalize(NOTANGRY(shkp) && !race_hostile(shkp->data)
+                                     ? "Will you please leave your %s%s outside?"
+                                     : "Leave the %s%s outside.",
                           tool, plur(cnt));
             else
                 pline("%s %s to let you in with your %s%s.",
                       Shknam(shkp),
-                      NOTANGRY(shkp) ? "is hesitant" : "refuses",
+                      NOTANGRY(shkp) && !race_hostile(shkp->data)
+                                 ? "is hesitant" : "refuses",
                       tool, plur(cnt));
             should_block = TRUE;
         } else if (eshkp->pbanned && !ANGRY(shkp)) {
@@ -684,13 +692,15 @@ char *enterstring;
             should_block = TRUE;
         } else if (u.usteed) {
             if (!Deaf && !muteshk(shkp))
-                verbalize(NOTANGRY(shkp) ? "Will you please leave %s outside?"
+                verbalize(NOTANGRY(shkp) && !race_hostile(shkp->data)
+                                     ? "Will you please leave %s outside?"
                                      : "Leave %s outside.",
                           y_monnam(u.usteed));
             else
                 pline("%s %s to let you in while you're riding %s.",
                       Shknam(shkp),
-                      NOTANGRY(shkp) ? "doesn't want" : "refuses",
+                      NOTANGRY(shkp) && !race_hostile(shkp->data)
+                                 ? "doesn't want" : "refuses",
                       y_monnam(u.usteed));
             should_block = TRUE;
         } else {
@@ -1584,14 +1594,23 @@ dopay()
             update_inventory(); /* Done in dopayobj() if itemize. */
     }
     if (!ANGRY(shkp) && paid) {
-        if (!Deaf && !muteshk(shkp))
-            verbalize("Thank you for shopping in %s %s!",
+        const char *punct = (race_hostile(shkp->data) ? "." : "!");
+
+        if (!Deaf && !muteshk(shkp)) {
+            verbalize("%s for shopping in %s %s%s",
+                      race_hostile(shkp->data) ? "Yeah, thanks" : "Thank you",
                       s_suffix(shkname(shkp)),
-                      shtypes[eshkp->shoptype - SHOPBASE].name);
-        else
-            pline("%s nods appreciatively at you for shopping in %s %s!",
-                  Shknam(shkp), noit_mhis(shkp),
-                  shtypes[eshkp->shoptype - SHOPBASE].name);
+                      shtypes[eshkp->shoptype - SHOPBASE].name, punct);
+            if (race_hostile(shkp->data))
+                verbalize("%s", rn2(2) ? "Move along now..."
+                                       : "Feel free to leave anytime.");
+        } else {
+            pline("%s nods %sat you for shopping in %s %s%s",
+                  Shknam(shkp),
+                  race_hostile(shkp->data) ? "" : "appreciatively ",
+                  noit_mhis(shkp),
+                  shtypes[eshkp->shoptype - SHOPBASE].name, punct);
+        }
     }
     return 1;
 }
@@ -1656,13 +1675,15 @@ boolean itemize;
             obj->quan = bp->bquan - save_quan;      /* used up amount */
             if (!Deaf && !muteshk(shkp)) {
                 verbalize("%s for the other %s before buying %s.",
-                      ANGRY(shkp) ? "Pay" : "Please pay",
+                      (ANGRY(shkp) || race_hostile(shkp->data))
+                               ? "Pay" : "Please pay",
                       simpleonames(obj), /* short name suffices */
                       save_quan > 1L ? "these" : "this one");
             } else {
                 pline("%s %s%s your bill for the other %s first.",
                       Shknam(shkp),
-                      ANGRY(shkp) ? "angrily " : "",
+                      (ANGRY(shkp) || race_hostile(shkp->data))
+                               ? "angrily " : "",
                       nolimbs(shkp->data) ? "motions to" : "points out",
                       simpleonames(obj));
             }
@@ -1849,8 +1870,10 @@ boolean silently;
         && !eshkp->following && u.ugrave_arise < LOW_PM) {
         taken = (invent != 0);
         if (taken && !silently)
-            pline("%s gratefully inherits all your possessions.",
-                  Shknam(shkp));
+            pline("%s %s inherits all your possessions.",
+                  Shknam(shkp),
+                  race_hostile(shkp->data) ? "disapprovingly"
+                                           : "gratefully");
         set_repo_loc(shkp);
         goto clear;
     }
@@ -2935,8 +2958,9 @@ boolean ininv, dummy, silent;
             long save_quan = obj->quan;
 
             Strcpy(buf, "\"For you, ");
-            if (ANGRY(shkp)) {
-                Strcat(buf, "scum;");
+            if (ANGRY(shkp) || race_hostile(shkp->data)) {
+                Strcat(buf, hatesrace[rn2(SIZE(hatesrace))]);
+                Strcat(buf, ";");
             } else {
                 append_honorific(buf);
                 Strcat(buf, "; only");
@@ -4232,10 +4256,13 @@ register int fall;
                 if (u.utraptype == TT_PIT)
                     verbalize(
                         "Be careful, %s, or you might fall through the floor.",
-                        flags.female ? "madam" : "sir");
+                        race_hostile(shkp->data) ? hatesrace[rn2(SIZE(hatesrace))]
+                                                 : flags.female ? "madam" : "sir");
                 else
-                    verbalize("%s, do not damage the floor here!",
-                        flags.female ? "Madam" : "Sir");
+                    verbalize("%s%s, do not damage the floor here!",
+                        race_hostile(shkp->data) ? "Hey " : "",
+                        race_hostile(shkp->data) ? hatesrace[rn2(SIZE(hatesrace))]
+                                                 : flags.female ? "Madam" : "Sir");
             }
         }
         if (Role_if(PM_KNIGHT)) {
@@ -4670,7 +4697,7 @@ struct monst *shkp;
     }
 
     eshk = ESHK(shkp);
-    if (ANGRY(shkp)) {
+    if (ANGRY(shkp) || race_hostile(shkp->data)) {
         pline("%s %s how much %s dislikes %s customers.",
               Shknam(shkp),
               (!Deaf && !muteshk(shkp)) ? "mentions" : "indicates",
@@ -5204,8 +5231,10 @@ struct obj *obj_absorber, *obj_absorbed;
         bill_dummy_object(obj_absorbed);
         verbalize("You owe me %ld %s for my %s that you %s with your%s",
                   amount, currency(amount), obj_typename(obj_absorbed->otyp),
-                  ANGRY(shkp) ? "had the audacity to mix" : "just mixed",
-                  ANGRY(shkp) ? " stinking batch!" : "s.");
+                  (ANGRY(shkp) || race_hostile(shkp->data))
+                           ? "had the audacity to mix" : "just mixed",
+                  (ANGRY(shkp) || race_hostile(shkp->data))
+                           ? " stinking batch!" : "s.");
         return;
     }
     /**************************************************************
