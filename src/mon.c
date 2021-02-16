@@ -454,6 +454,7 @@ int mndx;
 /* for deciding whether corpse will carry along full monster data */
 #define KEEPTRAITS(mon)                                                 \
     ((mon)->isshk || (mon)->mtame || unique_corpstat((mon)->data)       \
+     || is_mplayer((mon)->data)                                         \
      || is_reviver((mon)->data)                                         \
         /* normally quest leader will be unique, */                     \
         /* but he or she might have been polymorphed  */                \
@@ -2463,6 +2464,11 @@ struct monst *mtmp2, *mtmp1;
             newerid(mtmp2);
         *ERID(mtmp2) = *ERID(mtmp1);
     }
+    if (ERAC(mtmp1)) {
+        if (!ERAC(mtmp2))
+            newerac(mtmp2);
+        *ERAC(mtmp2) = *ERAC(mtmp1);
+    }
     if (has_mcorpsenm(mtmp1))
         MCORPSENM(mtmp2) = MCORPSENM(mtmp1);
 }
@@ -2488,6 +2494,8 @@ struct monst *m;
             free((genericptr_t) x->edog);
         if (x->erid)
             free((genericptr_t) x->erid);
+        if (x->erac)
+            free((genericptr_t) x->erac);
         /* [no action needed for x->mcorpsenm] */
 
         free((genericptr_t) x);
