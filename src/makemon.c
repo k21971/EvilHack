@@ -2483,6 +2483,7 @@ int mmflags;
 
         newerac(mtmp);
         ERAC(mtmp)->mrace = ptr->mhflags;
+        memcpy(ERAC(mtmp)->mattk, ptr->mattk, sizeof(struct attack) * NATTK);
 #ifdef TEXTCOLOR
         if (iflags.use_color)
             ptr->mcolor = CLR_YELLOW;
