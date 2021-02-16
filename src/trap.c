@@ -3690,9 +3690,9 @@ domagictrap()
                 }
             } else {
                 /* If we can see invisible from another source */
-                You_feel("a bit more %s now.",
-                         (HSee_invisible & ~TIMEOUT) ? "focused"
-                                                     : "perceptive");
+                You_feel("a bit %s now.",
+                         (HSee_invisible & ~TIMEOUT) ? "less focused"
+                                                     : "more focused");
             }
             HSee_invisible = (HSee_invisible & ~TIMEOUT)
                                 ? (HSee_invisible & TIMEOUT)

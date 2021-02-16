@@ -1301,5 +1301,8 @@ Version 0.6.0
 - Fix: another missing article with an artifact
 - Fix: 'Your pair of leather gloves looks completely burnt' printing twice
 - Fix: silence a few warnings (clang)
+- Fix: ensure magic traps ignore (see) invisible timeouts
+- Small tweak to feedback - ensure magic traps ignore (see) invisible
+  timeouts
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
