@@ -291,11 +291,13 @@ int element;
 
 /* returns True if monster can attack at range */
 boolean
-ranged_attk(ptr)
-struct permonst *ptr;
+ranged_attk(mtmp)
+struct monst *mtmp;
 {
     register int i, atyp;
     long atk_mask = (1L << AT_BREA) | (1L << AT_SPIT) | (1L << AT_GAZE);
+    struct attack *mattk;
+    mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk : mtmp->data->mattk;
 
     /* was: (attacktype(ptr, AT_BREA) || attacktype(ptr, AT_WEAP)
      *       || attacktype(ptr, AT_SPIT) || attacktype(ptr, AT_GAZE)
@@ -303,7 +305,7 @@ struct permonst *ptr;
      * but that's too slow -dlc
      */
     for (i = 0; i < NATTK; i++) {
-        atyp = ptr->mattk[i].aatyp;
+        atyp = mattk[i].aatyp;
         if (atyp >= AT_WEAP)
             return TRUE;
         /* assert(atyp < 32); */

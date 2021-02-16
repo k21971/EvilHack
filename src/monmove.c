@@ -855,9 +855,10 @@ toofar:
            or similar spells by the time you reach it */
         if (!mtmp->mspec_used
             && dist2(mtmp->mx, mtmp->my, u.ux, u.uy) <= 49) {
-            struct attack *a;
+            struct attack *mattk, *a;
+            mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk: mdat->mattk;
 
-            for (a = &mdat->mattk[0]; a < &mdat->mattk[NATTK]; a++) {
+            for (a = &mattk[0]; a < &mattk[NATTK]; a++) {
                 if (a->aatyp == AT_MAGC
                     && (a->adtyp == AD_SPEL || a->adtyp == AD_CLRC)) {
                     if (castmu(mtmp, a, FALSE, FALSE)) {
@@ -894,7 +895,7 @@ toofar:
                 return 0;
             /* Monsters can move and then shoot on same turn;
                our hero can't.  Is that fair? */
-            if (!nearby && (ranged_attk(mdat) || find_offensive(mtmp)))
+            if (!nearby && (ranged_attk(mtmp) || find_offensive(mtmp)))
                 break;
             /* engulfer/grabber checks */
             if (mtmp == u.ustuck) {

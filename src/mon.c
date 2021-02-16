@@ -454,7 +454,7 @@ int mndx;
 /* for deciding whether corpse will carry along full monster data */
 #define KEEPTRAITS(mon)                                                 \
     ((mon)->isshk || (mon)->mtame || unique_corpstat((mon)->data)       \
-     || is_mplayer((mon)->data)                                         \
+     || has_erac(mon)                                                   \
      || is_reviver((mon)->data)                                         \
         /* normally quest leader will be unique, */                     \
         /* but he or she might have been polymorphed  */                \
@@ -806,7 +806,9 @@ register struct monst *mtmp;
             }
             if (!resists_fire(mtmp)) {
                 if (cansee(mtmp->mx, mtmp->my)) {
-                    struct attack *dummy = &mtmp->data->mattk[0];
+                    struct attack *dummy;
+                    dummy = has_erac(mtmp) ? &ERAC(mtmp)->mattk[0]
+                                           : &mtmp->data->mattk[0];
                     const char *how = on_fire(mtmp->data, dummy);
 
                     pline("%s %s.", Monnam(mtmp),
@@ -1769,12 +1771,15 @@ struct obj *otmp;
             && (otmp->oclass == COIN_CLASS
                 || otmp->oclass == GEM_CLASS))
             glomper = TRUE;
-        else
+        else {
+            struct attack *mattk;
+            mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk : mtmp->data->mattk;
             for (nattk = 0; nattk < NATTK; nattk++)
-                if (mtmp->data->mattk[nattk].aatyp == AT_ENGL) {
+                if (mattk[nattk].aatyp == AT_ENGL) {
                     glomper = TRUE;
                     break;
                 }
+        }
         if ((mtmp->data->mflags1 & M1_NOHANDS) && !glomper)
             return 1;
     }

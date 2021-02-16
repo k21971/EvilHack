@@ -1272,7 +1272,7 @@ E void FDECL(genl_putmixed, (winid, int, const char *));
 
 /* ### mcastu.c ### */
 
-E boolean FDECL(is_spellcaster, (struct permonst *));
+E boolean FDECL(is_spellcaster, (struct monst *));
 E boolean FDECL(can_cast_spells, (struct monst *));
 E int FDECL(maxspelltimeout, (struct monst *));
 E int FDECL(spelltimeout, (struct monst *, int));
@@ -1563,7 +1563,7 @@ E boolean FDECL(resists_blnd, (struct monst *));
 E boolean FDECL(vulnerable_to, (struct monst *, int));
 E boolean FDECL(can_blnd, (struct monst *, struct monst *,
                            UCHAR_P, struct obj *));
-E boolean FDECL(ranged_attk, (struct permonst *));
+E boolean FDECL(ranged_attk, (struct monst *));
 E boolean FDECL(hates_material, (struct permonst *, int));
 E boolean FDECL(mon_hates_material, (struct monst *, int));
 E int FDECL(sear_damage, (int));

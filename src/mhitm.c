@@ -2120,22 +2120,24 @@ struct obj *mwep;
     register struct permonst *madat = magr->data;
     char buf[BUFSZ];
     int i, tmp;
+    struct attack *mdattk;
+    mdattk = has_erac(mdef) ? ERAC(mdef)->mattk : mddat->mattk;
 
     for (i = 0;; i++) {
         if (i >= NATTK)
             return (mdead | mhit); /* no passive attacks */
-        if (mddat->mattk[i].aatyp == AT_NONE)
+        if (mdattk[i].aatyp == AT_NONE)
             break;
     }
-    if (mddat->mattk[i].damn)
-        tmp = d((int) mddat->mattk[i].damn, (int) mddat->mattk[i].damd);
-    else if (mddat->mattk[i].damd)
-        tmp = d((int) mddat->mlevel + 1, (int) mddat->mattk[i].damd);
+    if (mdattk[i].damn)
+        tmp = d((int) mdattk[i].damn, (int) mdattk[i].damd);
+    else if (mdattk[i].damd)
+        tmp = d((int) mddat->mlevel + 1, (int) mdattk[i].damd);
     else
         tmp = 0;
 
     /* These affect the enemy even if defender killed */
-    switch (mddat->mattk[i].adtyp) {
+    switch (mdattk[i].adtyp) {
     case AD_ACID:
         if (mhit && !rn2(2)) {
             Strcpy(buf, Monnam(magr));
@@ -2209,7 +2211,7 @@ struct obj *mwep;
                         if (canseemon(magr)) {
                             pline("%s poisonous hide was deadly...",
                                   s_suffix(Monnam(mdef)));
-                            monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+                            monkilled(magr, "", (int) mdattk[i].adtyp);
                             return (mdead | mhit | MM_AGR_DIED);
                         }
                     }
@@ -2257,7 +2259,7 @@ struct obj *mwep;
 
     /* These affect the enemy only if defender is still alive */
     if (rn2(3))
-        switch (mddat->mattk[i].adtyp) {
+        switch (mdattk[i].adtyp) {
         case AD_PLYS: /* Floating eye */
             if (tmp > 127)
                 tmp = 127;
@@ -2376,8 +2378,8 @@ struct obj *mwep;
         tmp = 0;
 
  assess_dmg:
-    if (damage_mon(magr, tmp, (int) mddat->mattk[i].adtyp)) {
-        monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+    if (damage_mon(magr, tmp, (int) mdattk[i].adtyp)) {
+        monkilled(magr, "", (int) mdattk[i].adtyp);
         return (mdead | mhit | MM_AGR_DIED);
     }
     return (mdead | mhit);
