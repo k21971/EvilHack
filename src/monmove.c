@@ -1017,9 +1017,9 @@ xchar nix,niy;
     struct obj *mw_tmp = MON_WEP(mtmp);
 
     if (!Is_rogue_level(&u.uz))
-        can_tunnel = tunnels(mtmp->data);
+        can_tunnel = racial_tunnels(mtmp);
 
-    if (can_tunnel && needspick(mtmp->data) && !mwelded(mw_tmp)
+    if (can_tunnel && racial_needspick(mtmp) && !mwelded(mw_tmp)
         && (may_dig(nix, niy) || closed_door(nix, niy))) {
         /* may_dig() is either IS_STWALL or IS_TREES */
         if (closed_door(nix, niy)) {
@@ -1157,11 +1157,11 @@ register int after;
      * other calls of m_move (ex. leprechauns dodging)
      */
     if (!Is_rogue_level(&u.uz))
-        can_tunnel = tunnels(ptr);
+        can_tunnel = racial_tunnels(mtmp);
     can_open = !(nohands(ptr) || verysmall(ptr));
     can_unlock =
         ((can_open && monhaskey(mtmp, TRUE)) || mtmp->iswiz || is_rider(ptr));
-    doorbuster = is_giant(ptr);
+    doorbuster = racial_giant(mtmp);
     if (mtmp->wormno)
         goto not_special;
     /* my dog gets special treatment */
@@ -1465,7 +1465,7 @@ register int after;
     }
 
     /* don't tunnel if hostile and close enough to prefer a weapon */
-    if (can_tunnel && needspick(ptr)
+    if (can_tunnel && racial_needspick(mtmp)
         && ((!mtmp->mpeaceful || Conflict)
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8))
         can_tunnel = FALSE;

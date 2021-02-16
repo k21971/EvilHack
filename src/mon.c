@@ -174,33 +174,33 @@ struct permonst * pm;
  * If a zombie gets passed to this function, it should return NON_PM, not the
  * same monster again. */
 int
-zombie_form(pm)
-struct permonst * pm;
+zombie_form(mtmp)
+struct monst *mtmp;
 {
-    switch(pm->mlet) {
+    switch (mtmp->data->mlet) {
     case S_KOBOLD:
         return PM_KOBOLD_ZOMBIE;
     case S_ORC:
         return PM_ORC_ZOMBIE;
     case S_GIANT:
-        if (pm == &mons[PM_ETTIN])
+        if (mtmp->data == &mons[PM_ETTIN])
             return PM_ETTIN_ZOMBIE;
         return PM_GIANT_ZOMBIE;
     case S_HUMAN:
     case S_KOP:
-        if (is_elf(pm))
+        if (racial_elf(mtmp))
             return PM_ELF_ZOMBIE;
-        if (is_dwarf(pm))
+        if (racial_dwarf(mtmp))
             return PM_DWARF_ZOMBIE;
-        if (is_gnome(pm))
+        if (racial_gnome(mtmp))
             return PM_GNOME_ZOMBIE;
-        if (is_orc(pm))
+        if (racial_orc(mtmp))
             return PM_ORC_ZOMBIE;
         return PM_HUMAN_ZOMBIE;
     case S_HUMANOID:
-        if (is_dwarf(pm))
+        if (racial_dwarf(mtmp))
             return PM_DWARF_ZOMBIE;
-        if (is_hobbit(pm))
+        if (racial_hobbit(mtmp))
             return PM_HOBBIT_ZOMBIE;
         else
             break;
@@ -221,7 +221,7 @@ struct monst* mdef;
     /* Due to messaging sequencing, we want to print the "rises" message
      * before calling newcham. To do this, momentarily turn mdef into a
      * zombie, save its canspotmon, and then put it back. */
-    mdef->data = &mons[zombie_form(mdat)];
+    mdef->data = &mons[zombie_form(mdef)];
     boolean willspot = canspotmon(mdef);
     mdef->data = mdat;
 
@@ -231,7 +231,7 @@ struct monst* mdef;
         pline("%s rises again as a zombie!", Monnam(mdef));
     }
 
-    if (newcham(mdef, &mons[zombie_form(mdat)], FALSE, FALSE)) {
+    if (newcham(mdef, &mons[zombie_form(mdef)], FALSE, FALSE)) {
         /* off-chance Izchak succumbs to a zombie's physical attack */
         if (mdef->isshk && !strcmp(shkname(mdef), "Izchak")) {
             pline("But wait!  %s transforms again into his true form!", mon_nam(mdef));
@@ -1688,7 +1688,7 @@ struct monst *mtmp;
     long maxload;
     long maxcarrcap = MAX_CARR_CAP;
 
-    if ((is_giant(mtmp->data)) || (is_centaur(mtmp->data)))
+    if (racial_giant(mtmp) || racial_centaur(mtmp))
         maxcarrcap += 400;
 
     /* Base monster carrying capacity is equal to human maximum
@@ -1855,7 +1855,7 @@ long flag;
         struct obj *mw_tmp;
 
         /* need to be specific about what can currently be dug */
-        if (!needspick(mdat)) {
+        if (!racial_needspick(mon)) {
             rockok = treeok = TRUE;
         } else if ((mw_tmp = MON_WEP(mon)) && mw_tmp->cursed
                    && mon->weapon_check == NO_WEAPON_WANTED) {
@@ -2018,8 +2018,8 @@ long flag;
                     info[cnt] |= NOTONL;
                 }
                 /* check for diagonal tight squeeze */
-                if (nx != x && ny != y && bad_rock(mdat, x, ny)
-                    && bad_rock(mdat, nx, y) && cant_squeeze_thru(mon))
+                if (nx != x && ny != y && bad_rock(mon, x, ny)
+                    && bad_rock(mon, nx, y) && cant_squeeze_thru(mon))
                     continue;
                 /* The monster avoids a particular type of trap if it's
                  * familiar with the trap type.  Pets get ALLOW_TRAPS
@@ -3249,7 +3249,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
             noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
             zombifying = (zombie_maker(youmonst.data)
-                          && zombie_form(mtmp->data) != NON_PM);
+                          && zombie_form(mtmp) != NON_PM);
 
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) /* KMH, conduct */
@@ -4177,7 +4177,7 @@ struct monst *mon;
         if (mcham >= LOW_PM) {
             mon->cham = NON_PM;
             (void) newcham(mon, &mons[mcham], FALSE, FALSE);
-        } else if (is_were(mon->data) && !is_human(mon->data)) {
+        } else if (is_were(mon->data) && !racial_human(mon)) {
             new_were(mon);
         }
     } else if (mon->cham == NON_PM) {

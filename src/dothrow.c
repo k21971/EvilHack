@@ -680,8 +680,8 @@ int x, y;
             wake_nearto(x,y, 10);
             return FALSE;
         }
-        if ((u.ux - x) && (u.uy - y) && bad_rock(youmonst.data, u.ux, y)
-            && bad_rock(youmonst.data, x, u.uy)) {
+        if ((u.ux - x) && (u.uy - y) && bad_rock(&youmonst, u.ux, y)
+            && bad_rock(&youmonst, x, u.uy)) {
             boolean too_much = (invent && (inv_weight() + weight_cap() > 600));
 
             /* Move at a diagonal. */
@@ -729,8 +729,8 @@ int x, y;
     }
 
     if ((u.ux - x) && (u.uy - y)
-        && bad_rock(youmonst.data, u.ux, y)
-        && bad_rock(youmonst.data, x, u.uy)) {
+        && bad_rock(&youmonst, u.ux, y)
+        && bad_rock(&youmonst, x, u.uy)) {
         /* Move at a diagonal. */
         if (Sokoban) {
             You("come to an abrupt halt!");

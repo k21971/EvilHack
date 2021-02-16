@@ -3185,7 +3185,7 @@ struct obj *obj;
         break;
     case TOOL_CLASS:
         if (typ == PICK_AXE)
-            return (boolean) needspick(mon->data);
+            return (boolean) racial_needspick(mon);
         if (typ == UNICORN_HORN)
             return (boolean) (!obj->cursed && !is_unicorn(mon->data)
                               && mon->data != &mons[PM_KI_RIN]

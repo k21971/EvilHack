@@ -589,7 +589,7 @@ register struct monst *mtmp;
             /* Your steed won't attack you */
             return 0;
         /* Orcs like to steal and eat horses and the like */
-        if (!rn2(is_orc(mtmp->data) ? 2 : 4)
+        if (!rn2(racial_orc(mtmp) ? 2 : 4)
             && distu(mtmp->mx, mtmp->my) <= 2) {
             /* Attack your steed instead */
             i = mattackm(mtmp, u.usteed);
@@ -772,7 +772,8 @@ register struct monst *mtmp;
         tmp -= 2;
     if (mtmp->mtrapped)
         tmp -= 2;
-    if (is_accurate(mdat)) /* M3_ACCURATE monsters get a to-hit bonus */
+    if ((has_erac(mtmp) && (ERAC(mtmp)->mflags3 & M3_ACCURATE))
+        || is_accurate(mdat)) /* M3_ACCURATE monsters get a to-hit bonus */
         tmp += 5;
     if (tmp <= 0)
         tmp = 1;

@@ -571,7 +571,7 @@ register struct monst *mtmp;
     /* treat mplayers differently */
     if (is_mplayer(ptr) && !In_endgame(&u.uz)) {
         if (mtmp->m_lev > 1) {
-            if (ptr->mhflags & MH_GIANT) {
+            if (racial_giant(mtmp)) {
                 if (mtmp->m_lev > 1) {
                     if (mtmp->m_lev > 10 || !rn2(15))
                         ini_mon_inv(mtmp, Level20KitGiant,
@@ -620,7 +620,7 @@ register struct monst *mtmp;
                 Barbarian[B_MAJOR].trotyp = BATTLE_AXE;
                 Barbarian[B_MINOR].trotyp = SHORT_SWORD;
             }
-            if (ptr->mhflags & MH_GIANT)
+            if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantBarbarian, 1);
             else
                 ini_mon_inv(mtmp, Barbarian, 1);
@@ -630,7 +630,7 @@ register struct monst *mtmp;
         case PM_CAVEMAN:
         case PM_CAVEWOMAN:
             Cave_man[C_AMMO].trquan = rn1(11, 10); /* 10..20 */
-            if (ptr->mhflags & MH_GIANT)
+            if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantCave_man, 1);
             else
                 ini_mon_inv(mtmp, Cave_man, 1);
@@ -664,7 +664,7 @@ register struct monst *mtmp;
                 case 2: Monk[M_BOOK].trotyp = SPE_SLEEP;
                     break;
             }
-            if (ptr->mhflags & MH_GIANT)
+            if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantMonk, 1);
             else
                 ini_mon_inv(mtmp, Monk, 1);
@@ -674,7 +674,7 @@ register struct monst *mtmp;
         case PM_PRIEST:
         case PM_PRIESTESS:
             mkmonmoney(mtmp, (long) rn1(10, 20));
-            if (ptr->mhflags & MH_GIANT)
+            if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantPriest, 1);
             else
                 ini_mon_inv(mtmp, Priest, 1);
@@ -695,7 +695,7 @@ register struct monst *mtmp;
             break;
         case PM_SAMURAI:
             Samurai[S_ARROWS].trquan = rn1(20, 26);
-            if (ptr->mhflags & MH_GIANT)
+            if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantSamurai, 1);
             else
                 ini_mon_inv(mtmp, Samurai, 1);
@@ -719,7 +719,7 @@ register struct monst *mtmp;
             mongets(mtmp, SKELETON_KEY);
             break;
         case PM_WIZARD:
-            if (ptr->mhflags & MH_GIANT)
+            if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantWizard, 1);
             else
                 ini_mon_inv(mtmp, Wizard, 1);

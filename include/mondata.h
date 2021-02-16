@@ -91,7 +91,13 @@
 #define amorphous(ptr) (((ptr)->mflags1 & M1_AMORPHOUS) != 0L)
 #define noncorporeal(ptr) ((ptr)->mlet == S_GHOST)
 #define tunnels(ptr) (((ptr)->mflags1 & M1_TUNNEL) != 0L)
+#define racial_tunnels(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mflags1 & M1_TUNNEL)) \
+     || tunnels((mon)->data))
 #define needspick(ptr) (((ptr)->mflags1 & M1_NEEDPICK) != 0L)
+#define racial_needspick(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mflags1 & M1_NEEDPICK)) \
+     || needspick((mon)->data))
 /* hides_under() requires an object at the location in order to hide */
 #define hides_under(ptr) (((ptr)->mflags1 & M1_CONCEAL) != 0L)
 /* is_hider() is True for mimics but when hiding they appear as something

@@ -925,7 +925,7 @@ E boolean FDECL(revive_nasty, (int, int, const char *));
 E void FDECL(movobj, (struct obj *, XCHAR_P, XCHAR_P));
 E boolean FDECL(may_dig, (XCHAR_P, XCHAR_P));
 E boolean FDECL(may_passwall, (XCHAR_P, XCHAR_P));
-E boolean FDECL(bad_rock, (struct permonst *, XCHAR_P, XCHAR_P));
+E boolean FDECL(bad_rock, (struct monst *, XCHAR_P, XCHAR_P));
 E int FDECL(cant_squeeze_thru, (struct monst *));
 E boolean FDECL(invocation_pos, (XCHAR_P, XCHAR_P));
 E boolean FDECL(test_move, (int, int, int, int, int));
@@ -1482,7 +1482,7 @@ E int FDECL(cmap_to_type, (int));
 
 E void NDECL(mon_sanity_check);
 E boolean FDECL(zombie_maker, (struct permonst *));
-E int FDECL(zombie_form, (struct permonst *));
+E int FDECL(zombie_form, (struct monst *));
 E void FDECL(zombify, (struct monst *));
 E int FDECL(undead_to_corpse, (int));
 E int FDECL(genus, (int, int));

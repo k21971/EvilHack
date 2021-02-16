@@ -230,7 +230,7 @@ struct monst *mon;
         pickaxe = unihorn = key = &dummy; /* act as if already have them */
     } else {
         /* don't hang on to pick-axe if can't use one or don't need one */
-        if (!tunnels(mon->data) || !needspick(mon->data))
+        if (!racial_tunnels(mon) || !racial_needspick(mon))
             pickaxe = &dummy;
         /* don't hang on to key if can't open doors */
         if (nohands(mon->data) || verysmall(mon->data))
