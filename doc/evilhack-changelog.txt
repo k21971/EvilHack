@@ -1382,4 +1382,5 @@ Version 0.7.0
 - Small tweak to feedback - ensure magic traps ignore (see) invisible
   timeouts
 - Fix: 'The skeleton's skin looks flaky'
+- Fix: another missing article with an artifact
 
