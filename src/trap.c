@@ -3613,29 +3613,30 @@ domagictrap()
     } else
         switch (fate) {
         case 10:
-	case 11:
+        case 11:
             /* toggle any intrinsic invisibility */
             if (!Deaf)
-	        You_hear("a low hum.");
-	    if (!Invis) {
-		if (!Blind) {
+                You_hear("a low hum.");
+            if (!Invis) {
+                if (!Blind)
                     self_invis_message();
+            } else if (!EInvis && !(HInvis & TIMEOUT)
+                       && !pm_invisible(youmonst.data)) {
+                if (!Blind) {
+                    if (!See_invisible)
+                        pline("You can see yourself again!");
+                    else
+                        pline("You can't see through yourself anymore.");
                 }
-	    } else if (!EInvis && !pm_invisible(youmonst.data)) {
-		if (!Blind) {
-		    if (!See_invisible) {
-			pline("You can see yourself again!");
-		    } else {
-			pline("You can't see through yourself anymore.");
-		    }
-		}
-	    } else {
-		/* If we're invisible from another source */
-		You_feel("a little more %s now.", HInvis ? "obvious" : "hidden");
-	    }
-	    HInvis = HInvis ? 0 : HInvis | FROMOUTSIDE;
+            } else {
+                /* If we're invisible from another source */
+                You_feel("a little more %s now.",
+                         (HInvis & ~TIMEOUT) ? "obvious" : "hidden");
+            }
+            HInvis = (HInvis & ~TIMEOUT) ? (HInvis & TIMEOUT)
+                                         : (HInvis | FROMOUTSIDE);
             newsym(u.ux, u.uy);
-	    break;
+            break;
         case 12: /* a flash of fire */
             dofiretrap((struct obj *) 0);
             break;
@@ -3674,25 +3675,28 @@ domagictrap()
             You_feel("an odd sensation.");
             if (!See_invisible) {
                 if (!Blind) {
-                    if (Invis) {
-                        You("can see right through yourself!");
-                    } else {
+                    if (Invis)
+                        You("can see through yourself, but you are visible!");
+                    else
                         Your("eyes tingle for a brief moment.");
-                    }
                 }
-            } else if (!ESee_invisible && !perceives(youmonst.data)) {
+            } else if (!ESee_invisible && !(HSee_invisible & TIMEOUT)
+                       && !perceives(youmonst.data)) {
                 if (!Blind) {
-                    if (Invis) {
-                        You("can no longer see through yourself!");
-                    } else {
+                    if (Invis)
+                        You("can no longer see yourself.");
+                    else
                         Your("eyesight feels diminished.");
-                    }
                 }
             } else {
                 /* If we can see invisible from another source */
-                You_feel("a bit more %s now.", HSee_invisible ? "perceptive" : "focused");
+                You_feel("a bit more %s now.",
+                         (HSee_invisible & ~TIMEOUT) ? "focused"
+                                                     : "perceptive");
             }
-            HSee_invisible = HSee_invisible ? 0 : HSee_invisible | FROMOUTSIDE;
+            HSee_invisible = (HSee_invisible & ~TIMEOUT)
+                                ? (HSee_invisible & TIMEOUT)
+                                : (HSee_invisible | FROMOUTSIDE);
             set_mimic_blocking();
             see_monsters();
             newsym(u.ux, u.uy);
