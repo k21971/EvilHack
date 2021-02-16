@@ -2221,6 +2221,7 @@ newmextra()
     mextra->emin = 0;
     mextra->edog = 0;
     mextra->erid = 0;
+    mextra->erac = 0;
     mextra->mcorpsenm = NON_PM;
     return mextra;
 }
@@ -2480,6 +2481,8 @@ int mmflags;
         get_mplname(mtmp, nam);
         mtmp = christen_monst(mtmp, nam);
 
+        newerac(mtmp);
+        ERAC(mtmp)->mrace = ptr->mhflags;
 #ifdef TEXTCOLOR
         if (iflags.use_color)
             ptr->mcolor = CLR_YELLOW;
@@ -2487,543 +2490,394 @@ int mmflags;
 
         switch (mndx) {
         case PM_ARCHEOLOGIST:
-            /* flags for all archeologists regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_PHYS;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_WEAP;
-            ptr->mattk[1].adtyp = AD_SAMU;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
-            ptr->mflags1 |= M1_TUNNEL;
-            ptr->mflags1 |= M1_NEEDPICK;
             /* specific flags per race */
             switch (rnd(4)) {
             case 1:
                 /* M1 flags already set as archeologist */
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_GNOME;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GNOME;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_HOBBIT;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_HOBBIT;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_BARBARIAN:
-            /* flags for all barbarians regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_PHYS;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_WEAP;
-            ptr->mattk[1].adtyp = AD_SAMU;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
-            ptr->mresists |= MR_POISON;
-            ptr->mflags3 |= M3_BERSERK;
             /* specific flags per race */
             switch (rnd(5)) {
             case 1:
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags1 |= M1_TUNNEL;
-                ptr->mflags1 |= M1_NEEDPICK;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags1 |= M1_TUNNEL;
+                ERAC(mtmp)->mflags1 |= M1_NEEDPICK;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 /* MR_POISON flag already set as convict */
-                ptr->mhflags |= MH_ORC;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ORC;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_GIANT;
-                ptr->mflags2 |= M2_ROCKTHROW;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GIANT;
+                ERAC(mtmp)->mflags2 |= M2_ROCKTHROW;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
-                ptr->mhflags |= MH_CENTAUR;
-                ptr->mflags3 |= M3_ACCURATE;
+                ERAC(mtmp)->mrace = MH_CENTAUR;
+                ERAC(mtmp)->mflags3 |= M3_ACCURATE;
                 break;
             case 5:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_CAVEMAN:
         case PM_CAVEWOMAN:
-            /* flags for all cavepersons regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_SAMU;
-            ptr->mattk[0].damn = 2;
-            ptr->mattk[0].damd = 4;
             /* specific flags per race */
             switch (rnd(4)) {
             case 1:
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags1 |= M1_TUNNEL;
-                ptr->mflags1 |= M1_NEEDPICK;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags1 |= M1_TUNNEL;
+                ERAC(mtmp)->mflags1 |= M1_NEEDPICK;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_GNOME;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GNOME;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_GIANT;
-                ptr->mflags2 |= M2_ROCKTHROW;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GIANT;
+                ERAC(mtmp)->mflags2 |= M2_ROCKTHROW;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_CONVICT:
-            /* flags for all convicts regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_PHYS;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_WEAP;
-            ptr->mattk[1].adtyp = AD_SAMU;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
-            ptr->mresists |= MR_POISON;
             /* specific flags per race */
             switch (rnd(5)) {
             case 1:
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags1 |= M1_TUNNEL;
-                ptr->mflags1 |= M1_NEEDPICK;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags1 |= M1_TUNNEL;
+                ERAC(mtmp)->mflags1 |= M1_NEEDPICK;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 /* MR_POISON flag already set as convict */
-                ptr->mhflags |= MH_ORC;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ORC;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_GNOME;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GNOME;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
-                ptr->mhflags |= MH_HOBBIT;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_HOBBIT;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 5:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_HEALER:
-            /* flags for all healers regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_SAMU;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_MAGC;
-            ptr->mattk[1].adtyp = AD_CLRC;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
-            ptr->mresists |= MR_POISON;
             /* specific flags per race */
             switch (rnd(5)) {
             case 1:
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags1 |= M1_TUNNEL;
-                ptr->mflags1 |= M1_NEEDPICK;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags1 |= M1_TUNNEL;
+                ERAC(mtmp)->mflags1 |= M1_NEEDPICK;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_ELF;
-                ptr->mresists |= MR_SLEEP;
-                ptr->mflags3 |= M3_ACCURATE;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ELF;
+                mtmp->mintrinsics |= MR_SLEEP;
+                ERAC(mtmp)->mflags3 |= M3_ACCURATE;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_GNOME;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GNOME;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
-                ptr->mhflags |= MH_HOBBIT;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_HOBBIT;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 5:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_INFIDEL:
-            /* flags for all infidels regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_SAMU;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_MAGC;
-            ptr->mattk[1].adtyp = AD_SPEL;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
-            ptr->mresists |= MR_FIRE;
-            ptr->maligntyp = A_NONE;
             /* specific flags per race */
             switch (rnd(3)) {
             case 1:
-                ptr->mhflags |= MH_ORC;
-                ptr->mresists |= MR_POISON;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ORC;
+                mtmp->mintrinsics |= MR_POISON;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_ILLITHID;
-                ptr->mattk[2].aatyp = AT_TENT;
-                ptr->mattk[2].adtyp = AD_DRIN;
-                ptr->mattk[2].damn = 2;
-                ptr->mattk[2].damd = 1;
-                ptr->mresists |= MR_PSYCHIC;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ILLITHID;
+                mtmp->mintrinsics |= MR_POISON;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_KNIGHT:
-            /* flags for all knights regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_PHYS;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_WEAP;
-            ptr->mattk[1].adtyp = AD_SAMU;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
             /* specific flags per race */
             switch (rnd(2)) {
             case 1:
-                ptr->mhflags |= MH_ELF;
-                ptr->mresists |= MR_SLEEP;
-                ptr->mflags3 |= M3_ACCURATE;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ELF;
+                mtmp->mintrinsics |= MR_SLEEP;
+                ERAC(mtmp)->mflags3 |= M3_ACCURATE;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_MONK:
-            /* flags for all monks regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_SAMU;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 8;
-            ptr->mattk[1].aatyp = AT_KICK;
-            ptr->mattk[1].adtyp = AD_CLOB;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 8;
-            ptr->mresists |= MR_POISON;
-            ptr->mresists |= MR_SLEEP;
-            ptr->mflags1 |= M1_SEE_INVIS;
             /* specific flags per race */
             switch (rnd(5)) {
             case 1:
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags1 |= M1_TUNNEL;
-                ptr->mflags1 |= M1_NEEDPICK;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags1 |= M1_TUNNEL;
+                ERAC(mtmp)->mflags1 |= M1_NEEDPICK;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 /* MR_SLEEP flag already set as monk */
-                ptr->mhflags |= MH_ELF;
-                ptr->mflags3 |= M3_ACCURATE;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ELF;
+                ERAC(mtmp)->mflags3 |= M3_ACCURATE;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_GIANT;
-                ptr->mflags2 |= M2_ROCKTHROW;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GIANT;
+                ERAC(mtmp)->mflags2 |= M2_ROCKTHROW;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
-                ptr->mhflags |= MH_CENTAUR;
-                ptr->mflags3 |= M3_ACCURATE;
+                ERAC(mtmp)->mrace = MH_CENTAUR;
+                ERAC(mtmp)->mflags3 |= M3_ACCURATE;
                 break;
             case 5:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_PRIEST:
         case PM_PRIESTESS:
-            /* flags for all priests regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_SAMU;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_MAGC;
-            ptr->mattk[1].adtyp = AD_CLRC;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
             /* specific flags per race */
             switch (rnd(8)) {
             case 1:
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags1 |= M1_TUNNEL;
-                ptr->mflags1 |= M1_NEEDPICK;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags1 |= M1_TUNNEL;
+                ERAC(mtmp)->mflags1 |= M1_NEEDPICK;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_ELF;
-                ptr->mresists |= MR_SLEEP;
-                ptr->mflags3 |= M3_ACCURATE;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ELF;
+                mtmp->mintrinsics |= MR_SLEEP;
+                ERAC(mtmp)->mflags3 |= M3_ACCURATE;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_GIANT;
-                ptr->mflags2 |= M2_ROCKTHROW;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GIANT;
+                ERAC(mtmp)->mflags2 |= M2_ROCKTHROW;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
-                ptr->mhflags |= MH_HOBBIT;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_HOBBIT;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 5:
-                ptr->mhflags |= MH_CENTAUR;
-                ptr->mflags3 |= M3_ACCURATE;
+                ERAC(mtmp)->mrace = MH_CENTAUR;
+                ERAC(mtmp)->mflags3 |= M3_ACCURATE;
                 break;
             case 6:
-                ptr->mhflags |= MH_ORC;
-                ptr->mresists |= MR_POISON;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ORC;
+                mtmp->mintrinsics |= MR_POISON;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 7:
-                ptr->mhflags |= MH_ILLITHID;
-                ptr->mattk[2].aatyp = AT_TENT;
-                ptr->mattk[2].adtyp = AD_DRIN;
-                ptr->mattk[2].damn = 2;
-                ptr->mattk[2].damd = 1;
-                ptr->mresists |= MR_PSYCHIC;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ILLITHID;
+                ERAC(mtmp)->mattk[2].aatyp = AT_TENT;
+                ERAC(mtmp)->mattk[2].adtyp = AD_DRIN;
+                ERAC(mtmp)->mattk[2].damn = 2;
+                ERAC(mtmp)->mattk[2].damd = 1;
+                mtmp->mintrinsics |= MR_PSYCHIC;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 8:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_RANGER:
-            /* flags for all rangers regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_PHYS;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_WEAP;
-            ptr->mattk[1].adtyp = AD_SAMU;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
-            ptr->mflags3 |= M3_ACCURATE;
             /* specific flags per race */
             switch (rnd(6)) {
             case 1:
                 /* M3_ACCURATE flag already set as ranger */
-                ptr->mhflags |= MH_ELF;
-                ptr->mresists |= MR_SLEEP;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ELF;
+                mtmp->mintrinsics |= MR_SLEEP;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_GNOME;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GNOME;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_HOBBIT;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_HOBBIT;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 /* M3_ACCURATE flag already set as ranger */
-                ptr->mhflags |= MH_CENTAUR;
+                ERAC(mtmp)->mrace = MH_CENTAUR;
                 break;
             case 5:
-                ptr->mhflags |= MH_ORC;
-                ptr->mresists |= MR_POISON;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ORC;
+                mtmp->mintrinsics |= MR_POISON;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 6:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_ROGUE:
-            /* flags for all rogues regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_SAMU;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_WEAP;
-            ptr->mattk[1].adtyp = AD_SITM;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
-            ptr->mflags3 |= M3_ACCURATE;
             /* specific flags per race */
             switch (rnd(4)) {
             case 1:
                 /* M3_ACCURATE flag already set as rogue */
-                ptr->mhflags |= MH_ELF;
-                ptr->mresists |= MR_SLEEP;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ELF;
+                mtmp->mintrinsics |= MR_SLEEP;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_HOBBIT;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_HOBBIT;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_ORC;
-                ptr->mresists |= MR_POISON;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ORC;
+                mtmp->mintrinsics |= MR_POISON;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_SAMURAI:
-            /* flags for all samurai regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_PHYS;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 8;
-            ptr->mattk[1].aatyp = AT_WEAP;
-            ptr->mattk[1].adtyp = AD_SAMU;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 8;
             /* specific flags per race */
             switch (rnd(3)) {
             case 1:
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags1 |= M1_TUNNEL;
-                ptr->mflags1 |= M1_NEEDPICK;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags1 |= M1_TUNNEL;
+                ERAC(mtmp)->mflags1 |= M1_NEEDPICK;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_GIANT;
-                ptr->mflags2 |= M2_ROCKTHROW;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GIANT;
+                ERAC(mtmp)->mflags2 |= M2_ROCKTHROW;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_TOURIST:
-            /* flags for all tourists regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_PHYS;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_WEAP;
-            ptr->mattk[1].adtyp = AD_SAMU;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
             /* specific flags per race */
             switch (rnd(2)) {
             case 1:
-                ptr->mhflags |= MH_HOBBIT;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_HOBBIT;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_VALKYRIE:
-            /* flags for all valkyrie regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_PHYS;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 8;
-            ptr->mattk[1].aatyp = AT_WEAP;
-            ptr->mattk[1].adtyp = AD_SAMU;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 8;
-            ptr->mresists |= MR_COLD;
             /* specific flags per race */
             switch (rnd(4)) {
             case 1:
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags1 |= M1_TUNNEL;
-                ptr->mflags1 |= M1_NEEDPICK;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags1 |= M1_TUNNEL;
+                ERAC(mtmp)->mflags1 |= M1_NEEDPICK;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_GIANT;
-                ptr->mflags2 |= M2_ROCKTHROW;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GIANT;
+                ERAC(mtmp)->mflags2 |= M2_ROCKTHROW;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_CENTAUR;
-                ptr->mflags3 |= M3_ACCURATE;
+                ERAC(mtmp)->mrace = MH_CENTAUR;
+                ERAC(mtmp)->mflags3 |= M3_ACCURATE;
                 break;
             case 4:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
         case PM_WIZARD:
-            /* flags for all wizards regardless of race */
-            ptr->mattk[0].aatyp = AT_WEAP;
-            ptr->mattk[0].adtyp = AD_SAMU;
-            ptr->mattk[0].damn = 1;
-            ptr->mattk[0].damd = 6;
-            ptr->mattk[1].aatyp = AT_MAGC;
-            ptr->mattk[1].adtyp = AD_SPEL;
-            ptr->mattk[1].damn = 1;
-            ptr->mattk[1].damd = 6;
             /* specific flags per race */
             switch (rnd(8)) {
             case 1:
-                ptr->mhflags |= MH_DWARF;
-                ptr->mflags1 |= M1_TUNNEL;
-                ptr->mflags1 |= M1_NEEDPICK;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_DWARF;
+                ERAC(mtmp)->mflags1 |= M1_TUNNEL;
+                ERAC(mtmp)->mflags1 |= M1_NEEDPICK;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
-                ptr->mhflags |= MH_ELF;
-                ptr->mresists |= MR_SLEEP;
-                ptr->mflags3 |= M3_ACCURATE;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ELF;
+                mtmp->mintrinsics |= MR_SLEEP;
+                ERAC(mtmp)->mflags3 |= M3_ACCURATE;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
-                ptr->mhflags |= MH_GIANT;
-                ptr->mflags2 |= M2_ROCKTHROW;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GIANT;
+                ERAC(mtmp)->mflags2 |= M2_ROCKTHROW;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
-                ptr->mhflags |= MH_GNOME;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_GNOME;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 5:
-                ptr->mhflags |= MH_HOBBIT;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_HOBBIT;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 6:
-                ptr->mhflags |= MH_ORC;
-                ptr->mresists |= MR_POISON;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ORC;
+                mtmp->mintrinsics |= MR_POISON;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 7:
-                ptr->mhflags |= MH_ILLITHID;
-                ptr->mattk[2].aatyp = AT_TENT;
-                ptr->mattk[2].adtyp = AD_DRIN;
-                ptr->mattk[2].damn = 2;
-                ptr->mattk[2].damd = 1;
-                ptr->mresists |= MR_PSYCHIC;
-                ptr->mflags3 |= M3_INFRAVISION;
+                ERAC(mtmp)->mrace = MH_ILLITHID;
+                ERAC(mtmp)->mattk[2].aatyp = AT_TENT;
+                ERAC(mtmp)->mattk[2].adtyp = AD_DRIN;
+                ERAC(mtmp)->mattk[2].damn = 2;
+                ERAC(mtmp)->mattk[2].damd = 1;
+                mtmp->mintrinsics |= MR_PSYCHIC;
+                ERAC(mtmp)->mflags3 |= M3_INFRAVISION;
                 break;
             case 8:
-                ptr->mhflags |= MH_HUMAN;
+                ERAC(mtmp)->mrace = MH_HUMAN;
                 break;
             }
             break;
@@ -4027,6 +3881,29 @@ struct monst *mtmp;
 {
     if (has_mcorpsenm(mtmp))
         MCORPSENM(mtmp) = NON_PM;
+}
+
+void
+newerac(mtmp)
+struct monst *mtmp;
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+
+    if (!ERAC(mtmp)) {
+        ERAC(mtmp) = (struct erac *) alloc(sizeof(struct erac));
+        (void) memset((genericptr_t) ERAC(mtmp), 0, sizeof(struct erac));
+    }
+}
+
+void
+free_erac(mtmp)
+struct monst *mtmp;
+{
+    if (mtmp->mextra && ERAC(mtmp)) {
+        free((genericptr_t) ERAC(mtmp));
+        ERAC(mtmp) = (struct erac *) 0;
+    }
 }
 
 static NEARDATA char syms[] = {
