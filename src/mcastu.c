@@ -622,14 +622,14 @@ int spellnum;
         dmg = 0;
         break;
     case MGC_DESTRY_ARMR:
-	erodelvl = rnd(3);
+        erodelvl = rnd(3);
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
             monstseesu(M_SEEN_MAGR);
-	    erodelvl = 1;
-	}
-	oatmp = some_armor(&youmonst);
-	if (oatmp) {
+            erodelvl = 1;
+        }
+        oatmp = some_armor(&youmonst);
+        if (oatmp) {
             if (any_quest_artifact(oatmp)) {
                 if (!Blind)
                     pline("The %s shines brightly.", xname(oatmp));
@@ -638,30 +638,30 @@ int spellnum;
                 return;
             } else if (oatmp->oerodeproof && !any_quest_artifact(oatmp)) {
                 if (!Blind) {
-		    pline("Your %s glows brown for a moment.", xname(oatmp));
+                    pline("Your %s glows brown for a moment.", xname(oatmp));
                 } else {
                     pline("Your %s briefly emits an odd smell.", xname(oatmp));
                 }
-		oatmp->oerodeproof = 0;
-	    }
-	    if (greatest_erosion(oatmp) == MAX_ERODE) {
-		destroy_arm(oatmp);
-	    } else {
-		while (erodelvl-- > 0) {
-                if (is_corrodeable(oatmp))
-                    (void) erode_obj(oatmp, (char *) 0, ERODE_CORRODE, EF_VERBOSE);
-                else if (is_flammable(oatmp))
-                    (void) erode_obj(oatmp, (char *) 0, ERODE_BURN, EF_VERBOSE);
-                else if (is_glass(oatmp))
-                    (void) erode_obj(oatmp, (char *) 0, ERODE_FRACTURE, EF_VERBOSE);
-                else if (is_supermaterial(oatmp))
-                    (void) erode_obj(oatmp, (char *) 0, ERODE_DETERIORATE, EF_VERBOSE);
-                else
-                    (void) erode_obj(oatmp, (char *) 0, ERODE_ROT, EF_VERBOSE);
-		}
-	    }
-	} else {
-	    Your("skin itches.");
+                oatmp->oerodeproof = 0;
+            }
+            if (greatest_erosion(oatmp) == MAX_ERODE) {
+                destroy_arm(oatmp);
+            } else {
+                while (erodelvl-- > 0) {
+                    if (is_corrodeable(oatmp))
+                        (void) erode_obj(oatmp, (char *) 0, ERODE_CORRODE, EF_NONE);
+                    else if (is_flammable(oatmp))
+                        (void) erode_obj(oatmp, (char *) 0, ERODE_BURN, EF_NONE);
+                    else if (is_glass(oatmp))
+                        (void) erode_obj(oatmp, (char *) 0, ERODE_FRACTURE, EF_NONE);
+                    else if (is_supermaterial(oatmp))
+                        (void) erode_obj(oatmp, (char *) 0, ERODE_DETERIORATE, EF_NONE);
+                    else
+                        (void) erode_obj(oatmp, (char *) 0, ERODE_ROT, EF_NONE);
+                }
+            }
+        } else {
+            Your("body itches.");
         }
         dmg = 0;
         break;
