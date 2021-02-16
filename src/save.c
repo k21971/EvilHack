@@ -1117,7 +1117,6 @@ struct monst *mtmp;
         bwrite(fd, (genericptr_t) &buflen, sizeof(int));
         if (buflen > 0)
             bwrite(fd, (genericptr_t) EDOG(mtmp), buflen);
-
         if (ERID(mtmp))
             buflen = sizeof(struct erid);
         else
@@ -1125,6 +1124,11 @@ struct monst *mtmp;
         bwrite(fd, (genericptr_t) &buflen, sizeof(int));
         if (buflen > 0)
             bwrite(fd, (genericptr_t) ERID(mtmp), buflen);
+        buflen = ERAC(mtmp) ? (int) sizeof (struct erac) : 0;
+        bwrite(fd, (genericptr_t) &buflen, sizeof(int));
+        if (buflen > 0)
+            bwrite(fd, (genericptr_t) ERAC(mtmp), buflen);
+
 
         /* mcorpsenm is inline int rather than pointer to something,
            so doesn't need to be preceded by a length field */
