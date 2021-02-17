@@ -1829,7 +1829,7 @@ boolean called;
     if (do_saddle && (mtmp->misc_worn_check & W_SADDLE) && !Blind
         && !Hallucination)
         Strcat(buf, "saddled ");
-    if (is_mplayer(mdat) && !type_is_pname(mdat)
+    if (has_erac(mtmp) && !type_is_pname(mdat)
         && (!(do_name && has_mname(mtmp)) || called)) {
         if (racial_elf(mtmp))
             Strcat(buf, "elven ");
