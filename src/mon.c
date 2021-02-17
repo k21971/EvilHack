@@ -2219,7 +2219,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (is_berserker(ma) && m_canseeu(magr)
         && magr->mpeaceful == FALSE && !rn2(7)
         && (magr->mhp < (magr->mhpmax / 5))
-        && ma->mattk) {
+        && !noattacks(ma)) {
         if (ma->mlet == S_HUMAN || ma->mlet == S_ORC
             || ma->mlet == S_GIANT || ma->mlet == S_OGRE)
             pline("%s flies into a berserker rage!", Monnam(magr));

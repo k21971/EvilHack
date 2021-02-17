@@ -2491,17 +2491,19 @@ int mmflags;
             ptr->mcolor = CLR_YELLOW;
 #endif
 
+        /* default player monster attacks */
+        rptr->mattk[0].aatyp = AT_WEAP;
+        rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[0].damn = 1;
+        rptr->mattk[0].damd = 6;
+        rptr->mattk[1].aatyp = AT_WEAP;
+        rptr->mattk[1].adtyp = AD_SITM;
+        rptr->mattk[1].damn = 1;
+        rptr->mattk[1].damd = 6;
+
         switch (mndx) {
         case PM_ARCHEOLOGIST:
             /* flags for all archeologists regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_PHYS;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 6;
-            rptr->mattk[1].aatyp = AT_WEAP;
-            rptr->mattk[1].adtyp = AD_SAMU;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 6;
             rptr->mflags1 |= M1_TUNNEL;
             rptr->mflags1 |= M1_NEEDPICK;
             /* specific flags per race */
@@ -2509,31 +2511,27 @@ int mmflags;
             case 1:
                 /* M1 flags already set as archeologist */
                 rptr->mrace = MH_DWARF;
+                rptr->r_id = PM_DWARF;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_GNOME;
+                rptr->r_id = PM_GNOME;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_HOBBIT;
+                rptr->r_id = PM_HOBBIT;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_BARBARIAN:
             /* flags for all barbarians regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_PHYS;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 6;
-            rptr->mattk[1].aatyp = AT_WEAP;
-            rptr->mattk[1].adtyp = AD_SAMU;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 6;
             rptr->mflags3 |= M3_BERSERK;
             mtmp->mintrinsics |= MR_POISON;
             /* specific flags per race */
@@ -2547,21 +2545,26 @@ int mmflags;
             case 2:
                 /* MR_POISON flag already set as convict */
                 rptr->mrace = MH_ORC;
+                rptr->r_id = PM_ORC;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_GIANT;
+                rptr->r_id = PM_GIANT;
                 rptr->mflags2 |= M2_ROCKTHROW;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 rptr->mrace = MH_CENTAUR;
+                rptr->r_id = PM_CENTAUR;
                 rptr->mflags3 |= M3_ACCURATE;
                 break;
             case 5:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
+            rptr->r_id = PM_DWARF;
             break;
         case PM_CAVEMAN:
         case PM_CAVEWOMAN:
@@ -2574,39 +2577,36 @@ int mmflags;
             switch (rnd(4)) {
             case 1:
                 rptr->mrace = MH_DWARF;
+                rptr->r_id = PM_DWARF;
                 rptr->mflags1 |= M1_TUNNEL;
                 rptr->mflags1 |= M1_NEEDPICK;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_GNOME;
+                rptr->r_id = PM_GNOME;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_GIANT;
+                rptr->r_id = PM_GIANT;
                 rptr->mflags2 |= M2_ROCKTHROW;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_CONVICT:
             /* flags for all convicts regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_PHYS;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 6;
-            rptr->mattk[1].aatyp = AT_WEAP;
-            rptr->mattk[1].adtyp = AD_SAMU;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 6;
             mtmp->mintrinsics |= MR_POISON;
             /* specific flags per race */
             switch (rnd(5)) {
             case 1:
                 rptr->mrace = MH_DWARF;
+                rptr->r_id = PM_DWARF;
                 rptr->mflags1 |= M1_TUNNEL;
                 rptr->mflags1 |= M1_NEEDPICK;
                 rptr->mflags3 |= M3_INFRAVISION;
@@ -2614,108 +2614,103 @@ int mmflags;
             case 2:
                 /* MR_POISON flag already set as convict */
                 rptr->mrace = MH_ORC;
+                rptr->r_id = PM_ORC;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_GNOME;
+                rptr->r_id = PM_GNOME;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 rptr->mrace = MH_HOBBIT;
+                rptr->r_id = PM_HOBBIT;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 5:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_HEALER:
             /* flags for all healers regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
             rptr->mattk[0].adtyp = AD_SAMU;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 6;
             rptr->mattk[1].aatyp = AT_MAGC;
             rptr->mattk[1].adtyp = AD_CLRC;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 6;
             mtmp->mintrinsics |= MR_POISON;
             /* specific flags per race */
             switch (rnd(5)) {
             case 1:
                 rptr->mrace = MH_DWARF;
+                rptr->r_id = PM_DWARF;
                 rptr->mflags1 |= M1_TUNNEL;
                 rptr->mflags1 |= M1_NEEDPICK;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_ELF;
+                rptr->r_id = PM_ELF;
                 mtmp->mintrinsics |= MR_SLEEP;
                 rptr->mflags3 |= M3_ACCURATE;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_GNOME;
+                rptr->r_id = PM_GNOME;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 rptr->mrace = MH_HOBBIT;
+                rptr->r_id = PM_HOBBIT;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 5:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_INFIDEL:
             /* flags for all infidels regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
             rptr->mattk[0].adtyp = AD_SAMU;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 6;
             rptr->mattk[1].aatyp = AT_MAGC;
             rptr->mattk[1].adtyp = AD_SPEL;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 6;
             ptr->maligntyp = A_NONE;
             mtmp->mintrinsics |= MR_FIRE;
             /* specific flags per race */
             switch (rnd(3)) {
             case 1:
                 rptr->mrace = MH_ORC;
+                rptr->r_id = PM_ORC;
                 mtmp->mintrinsics |= MR_POISON;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_ILLITHID;
+                rptr->r_id = PM_MIND_FLAYER;
                 mtmp->mintrinsics |= MR_POISON;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_KNIGHT:
-            /* flags for all knights regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_PHYS;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 6;
-            rptr->mattk[1].aatyp = AT_WEAP;
-            rptr->mattk[1].adtyp = AD_SAMU;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 6;
             /* specific flags per race */
             switch (rnd(2)) {
             case 1:
                 rptr->mrace = MH_ELF;
+                rptr->r_id = PM_ELF;
                 mtmp->mintrinsics |= MR_SLEEP;
                 rptr->mflags3 |= M3_ACCURATE;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
@@ -2734,6 +2729,7 @@ int mmflags;
             switch (rnd(5)) {
             case 1:
                 rptr->mrace = MH_DWARF;
+                rptr->r_id = PM_DWARF;
                 rptr->mflags1 |= M1_TUNNEL;
                 rptr->mflags1 |= M1_NEEDPICK;
                 rptr->mflags3 |= M3_INFRAVISION;
@@ -2741,20 +2737,24 @@ int mmflags;
             case 2:
                 /* MR_SLEEP flag already set as monk */
                 rptr->mrace = MH_ELF;
+                rptr->r_id = PM_ELF;
                 rptr->mflags3 |= M3_ACCURATE;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_GIANT;
+                rptr->r_id = PM_GIANT;
                 rptr->mflags2 |= M2_ROCKTHROW;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 rptr->mrace = MH_CENTAUR;
+                rptr->r_id = PM_CENTAUR;
                 rptr->mflags3 |= M3_ACCURATE;
                 break;
             case 5:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
@@ -2773,36 +2773,43 @@ int mmflags;
             switch (rnd(8)) {
             case 1:
                 rptr->mrace = MH_DWARF;
+                rptr->r_id = PM_DWARF;
                 rptr->mflags1 |= M1_TUNNEL;
                 rptr->mflags1 |= M1_NEEDPICK;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_ELF;
+                rptr->r_id = PM_ELF;
                 mtmp->mintrinsics |= MR_SLEEP;
                 rptr->mflags3 |= M3_ACCURATE;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_GIANT;
+                rptr->r_id = PM_GIANT;
                 rptr->mflags2 |= M2_ROCKTHROW;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 rptr->mrace = MH_HOBBIT;
+                rptr->r_id = PM_HOBBIT;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 5:
                 rptr->mrace = MH_CENTAUR;
+                rptr->r_id = PM_CENTAUR;
                 rptr->mflags3 |= M3_ACCURATE;
                 break;
             case 6:
                 rptr->mrace = MH_ORC;
+                rptr->r_id = PM_ORC;
                 mtmp->mintrinsics |= MR_POISON;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 7:
                 rptr->mrace = MH_ILLITHID;
+                rptr->r_id = PM_MIND_FLAYER;
                 rptr->mattk[2].aatyp = AT_TENT;
                 rptr->mattk[2].adtyp = AD_DRIN;
                 rptr->mattk[2].damn = 2;
@@ -2812,140 +2819,126 @@ int mmflags;
                 break;
             case 8:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_RANGER:
             /* flags for all rangers regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_PHYS;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 6;
-            rptr->mattk[1].aatyp = AT_WEAP;
-            rptr->mattk[1].adtyp = AD_SAMU;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 6;
             rptr->mflags3 |= M3_ACCURATE;
             /* specific flags per race */
             switch (rnd(6)) {
             case 1:
                 /* M3_ACCURATE flag already set as ranger */
                 rptr->mrace = MH_ELF;
+                rptr->r_id = PM_ELF;
                 mtmp->mintrinsics |= MR_SLEEP;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_GNOME;
+                rptr->r_id = PM_GNOME;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_HOBBIT;
+                rptr->r_id = PM_HOBBIT;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 /* M3_ACCURATE flag already set as ranger */
                 rptr->mrace = MH_CENTAUR;
+                rptr->r_id = PM_CENTAUR;
                 break;
             case 5:
                 rptr->mrace = MH_ORC;
+                rptr->r_id = PM_ORC;
                 mtmp->mintrinsics |= MR_POISON;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 6:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_ROGUE:
             /* flags for all rogues regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_SAMU;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 6;
-            rptr->mattk[1].aatyp = AT_WEAP;
-            rptr->mattk[1].adtyp = AD_SITM;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 6;
             rptr->mflags3 |= M3_ACCURATE;
             /* specific flags per race */
             switch (rnd(4)) {
             case 1:
                 /* M3_ACCURATE flag already set as rogue */
                 rptr->mrace = MH_ELF;
+                rptr->r_id = PM_ELF;
                 mtmp->mintrinsics |= MR_SLEEP;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_HOBBIT;
+                rptr->r_id = PM_HOBBIT;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_ORC;
+                rptr->r_id = PM_ORC;
                 mtmp->mintrinsics |= MR_POISON;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_SAMURAI:
             /* flags for all samurai regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_PHYS;
+            /* samurai do 1d8 instead of 1d6 */
             rptr->mattk[0].damn = 1;
             rptr->mattk[0].damd = 8;
-            rptr->mattk[1].aatyp = AT_WEAP;
-            rptr->mattk[1].adtyp = AD_SAMU;
             rptr->mattk[1].damn = 1;
             rptr->mattk[1].damd = 8;
             /* specific flags per race */
             switch (rnd(3)) {
             case 1:
                 rptr->mrace = MH_DWARF;
+                rptr->r_id = PM_DWARF;
                 rptr->mflags1 |= M1_TUNNEL;
                 rptr->mflags1 |= M1_NEEDPICK;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_GIANT;
+                rptr->r_id = PM_GIANT;
                 rptr->mflags2 |= M2_ROCKTHROW;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_TOURIST:
             /* flags for all tourists regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_PHYS;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 6;
-            rptr->mattk[1].aatyp = AT_WEAP;
-            rptr->mattk[1].adtyp = AD_SAMU;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 6;
             /* specific flags per race */
             switch (rnd(2)) {
             case 1:
                 rptr->mrace = MH_HOBBIT;
+                rptr->r_id = PM_HOBBIT;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
         case PM_VALKYRIE:
             /* flags for all valkyrie regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_PHYS;
+            /* valkyrie do 1d8 instead of 1d6 */
             rptr->mattk[0].damn = 1;
             rptr->mattk[0].damd = 8;
-            rptr->mattk[1].aatyp = AT_WEAP;
-            rptr->mattk[1].adtyp = AD_SAMU;
             rptr->mattk[1].damn = 1;
             rptr->mattk[1].damd = 8;
             mtmp->mintrinsics |= MR_COLD;
@@ -2953,21 +2946,25 @@ int mmflags;
             switch (rnd(4)) {
             case 1:
                 rptr->mrace = MH_DWARF;
+                rptr->r_id = PM_DWARF;
                 rptr->mflags1 |= M1_TUNNEL;
                 rptr->mflags1 |= M1_NEEDPICK;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_GIANT;
+                rptr->r_id = PM_GIANT;
                 rptr->mflags2 |= M2_ROCKTHROW;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_CENTAUR;
+                rptr->r_id = PM_CENTAUR;
                 rptr->mflags3 |= M3_ACCURATE;
                 break;
             case 4:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
@@ -2985,36 +2982,43 @@ int mmflags;
             switch (rnd(8)) {
             case 1:
                 rptr->mrace = MH_DWARF;
+                rptr->r_id = PM_DWARF;
                 rptr->mflags1 |= M1_TUNNEL;
                 rptr->mflags1 |= M1_NEEDPICK;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 2:
                 rptr->mrace = MH_ELF;
+                rptr->r_id = PM_ELF;
                 mtmp->mintrinsics |= MR_SLEEP;
                 rptr->mflags3 |= M3_ACCURATE;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 3:
                 rptr->mrace = MH_GIANT;
+                rptr->r_id = PM_GIANT;
                 rptr->mflags2 |= M2_ROCKTHROW;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 4:
                 rptr->mrace = MH_GNOME;
+                rptr->r_id = PM_GNOME;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 5:
                 rptr->mrace = MH_HOBBIT;
+                rptr->r_id = PM_HOBBIT;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 6:
                 rptr->mrace = MH_ORC;
+                rptr->r_id = PM_ORC;
                 mtmp->mintrinsics |= MR_POISON;
                 rptr->mflags3 |= M3_INFRAVISION;
                 break;
             case 7:
                 rptr->mrace = MH_ILLITHID;
+                rptr->r_id = PM_MIND_FLAYER;
                 rptr->mattk[2].aatyp = AT_TENT;
                 rptr->mattk[2].adtyp = AD_DRIN;
                 rptr->mattk[2].damn = 2;
@@ -3024,6 +3028,7 @@ int mmflags;
                 break;
             case 8:
                 rptr->mrace = MH_HUMAN;
+                rptr->r_id = PM_HUMAN;
                 break;
             }
             break;
