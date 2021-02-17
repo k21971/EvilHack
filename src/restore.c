@@ -504,41 +504,6 @@ boolean ghostly;
     mread(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
           sizeof(struct permonst) - namesize);
 
-    mread(fd, (genericptr_t) ((char *) &mons[PM_ARCHEOLOGIST] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_BARBARIAN] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_CAVEMAN] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_CAVEWOMAN] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_CONVICT] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_HEALER] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_INFIDEL] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_KNIGHT] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_MONK] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_PRIEST] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_PRIESTESS] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_RANGER] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_ROGUE] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_SAMURAI] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_TOURIST] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_VALKYRIE] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_WIZARD] + namesize),
-          sizeof(struct permonst) - namesize);
-
     return first;
 }
 
