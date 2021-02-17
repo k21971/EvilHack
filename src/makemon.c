@@ -2624,7 +2624,6 @@ int mmflags;
             rptr->mattk[0].adtyp = AD_SAMU;
             rptr->mattk[1].aatyp = AT_MAGC;
             rptr->mattk[1].adtyp = AD_SPEL;
-            ptr->maligntyp = A_NONE;
             mtmp->mintrinsics |= MR_FIRE;
             /* specific flags per race */
             switch (rnd(3)) {
