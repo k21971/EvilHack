@@ -3395,7 +3395,7 @@ boolean by_you;
         return FALSE;
     mon->mstrategy &= ~STRAT_WAITFORU;
 
-    if (is_spellcaster(mon->data) && !mon->mcan
+    if (is_spellcaster(mon) && !mon->mcan
 	&& can_cast_spells(mon) && !mon->mconf
         && mon->m_lev >= 5) {
 

@@ -371,14 +371,14 @@ register struct monst *magr, *mdef;
         saved_mhp = (mdef ? mdef->mhp : 0); /* for print_mon_wounded() */
     struct attack *mattk, alt_attk;
     struct obj *mwep;
-    struct permonst *pa, *pd;
+    struct permonst *pa; /* *pd no longer used (for now) */
 
     if (!magr || !mdef)
         return MM_MISS; /* mike@genat */
     if (!magr->mcanmove || magr->msleeping)
         return MM_MISS;
     pa = magr->data;
-    pd = mdef->data;
+    /* pd = mdef->data; */
 
     /* Grid bugs cannot attack at an angle. */
     if (pa == &mons[PM_GRID_BUG] && magr->mx != mdef->mx
@@ -1901,7 +1901,7 @@ msickness:
          * turn it into a zombie instead of killing it.
          * If it's determined later that the zombie revival process should
          * happen less than 100% of the time, add a limiting clause here. */
-        if (zombie_maker(pa) && zombie_form(pd) != NON_PM
+        if (zombie_maker(pa) && zombie_form(mdef) != NON_PM
             && !mlifesaver(mdef)) {
             if (canspotmon(mdef)) {
                 /* Since we're not going to call monkilled, need to give the
