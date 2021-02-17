@@ -2000,7 +2000,10 @@ struct obj *obj;
     if ((can = mksobj(TIN, FALSE, FALSE)) != 0) {
         static const char you_buy_it[] = "You tin it, you bought it!";
 
-        can->corpsenm = corpse->corpsenm;
+        if (has_omonst(corpse) && has_erac(OMONST(corpse)))
+            can->corpsenm = ERAC(OMONST(corpse))->r_id;
+        else
+            can->corpsenm = corpse->corpsenm;
         can->cursed = obj->cursed;
         can->blessed = obj->blessed;
         can->owt = weight(can);
