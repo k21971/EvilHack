@@ -2504,8 +2504,7 @@ int mmflags;
         switch (mndx) {
         case PM_ARCHEOLOGIST:
             /* flags for all archeologists regardless of race */
-            rptr->mflags1 |= M1_TUNNEL;
-            rptr->mflags1 |= M1_NEEDPICK;
+            rptr->mflags1 |= (M1_TUNNEL | M1_NEEDPICK);
             /* specific flags per race */
             switch (rnd(4)) {
             case 1:
@@ -2550,10 +2549,12 @@ int mmflags;
         case PM_CAVEMAN:
         case PM_CAVEWOMAN:
             /* flags for all cavepersons regardless of race */
-            rptr->mattk[0].aatyp = AT_WEAP;
-            rptr->mattk[0].adtyp = AD_SAMU;
+            /* cavepeople only have a single attack, but it does 2d4 */
             rptr->mattk[0].damn = 2;
             rptr->mattk[0].damd = 4;
+            rptr->mattk[0].adtyp = AD_SAMU;
+            rptr->mattk[1].aatyp = rptr->mattk[1].adtyp = 0;
+            rptr->mattk[1].damn = rptr->mattk[1].damd = 0;
             /* specific flags per race */
             switch (rnd(4)) {
             case 1:
@@ -2579,7 +2580,6 @@ int mmflags;
                 apply_race(mtmp, PM_DWARF);
                 break;
             case 2:
-                /* MR_POISON flag already set as convict */
                 apply_race(mtmp, PM_ORC);
                 break;
             case 3:
@@ -2656,12 +2656,11 @@ int mmflags;
         case PM_MONK:
             /* flags for all monks regardless of race */
             rptr->mattk[0].adtyp = AD_SAMU;
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 8;
             rptr->mattk[1].aatyp = AT_KICK;
             rptr->mattk[1].adtyp = AD_CLOB;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 8;
+            /* monks do 1d8 instead of 1d6 */
+            rptr->mattk[0].damn = rptr->mattk[1].damn = 1;
+            rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
             mtmp->mintrinsics |= (MR_POISON | MR_SLEEP);
             /* specific flags per race */
             switch (rnd(5)) {
@@ -2669,7 +2668,6 @@ int mmflags;
                 apply_race(mtmp, PM_DWARF);
                 break;
             case 2:
-                /* MR_SLEEP flag already set as monk */
                 apply_race(mtmp, PM_ELF);
                 break;
             case 3:
@@ -2727,7 +2725,6 @@ int mmflags;
             /* specific flags per race */
             switch (rnd(6)) {
             case 1:
-                /* M3_ACCURATE flag already set as ranger */
                 apply_race(mtmp, PM_ELF);
                 break;
             case 2:
@@ -2737,7 +2734,6 @@ int mmflags;
                 apply_race(mtmp, PM_HOBBIT);
                 break;
             case 4:
-                /* M3_ACCURATE flag already set as ranger */
                 apply_race(mtmp, PM_CENTAUR);
                 break;
             case 5:
@@ -2772,10 +2768,8 @@ int mmflags;
         case PM_SAMURAI:
             /* flags for all samurai regardless of race */
             /* samurai do 1d8 instead of 1d6 */
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 8;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 8;
+            rptr->mattk[0].damn = rptr->mattk[1].damn = 1;
+            rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
             /* specific flags per race */
             switch (rnd(3)) {
             case 1:
@@ -2790,7 +2784,6 @@ int mmflags;
             }
             break;
         case PM_TOURIST:
-            /* flags for all tourists regardless of race */
             /* specific flags per race */
             switch (rnd(2)) {
             case 1:
@@ -2804,10 +2797,8 @@ int mmflags;
         case PM_VALKYRIE:
             /* flags for all valkyrie regardless of race */
             /* valkyries do 1d8 instead of 1d6 */
-            rptr->mattk[0].damn = 1;
-            rptr->mattk[0].damd = 8;
-            rptr->mattk[1].damn = 1;
-            rptr->mattk[1].damd = 8;
+            rptr->mattk[0].damn = rptr->mattk[1].damn = 1;
+            rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
             mtmp->mintrinsics |= MR_COLD;
             /* specific flags per race */
             switch (rnd(4)) {
