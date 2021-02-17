@@ -1386,4 +1386,5 @@ Version 0.7.0
 - Fix: 'Your pair of leather gloves looks completely burnt' printing twice
 - Fix: racial player monster fixup
 - Fix: clean-up a few warnings from the last PR
+- Fix: spelling error in README
 
