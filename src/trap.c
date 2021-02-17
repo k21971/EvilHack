@@ -2107,7 +2107,7 @@ int style;
         bhitpos.y += dy;
 
         if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
-            if (otyp == BOULDER && throws_rocks(mtmp->data)) {
+            if (otyp == BOULDER && racial_throws_rocks(mtmp)) {
                 if (rn2(3)) {
                     if (cansee(bhitpos.x, bhitpos.y))
                         pline("%s snatches the boulder.", Monnam(mtmp));
@@ -4627,8 +4627,8 @@ boolean force_failure;
         return 0;
     }
     /* duplicate tight-space checks from test_move */
-    if (u.dx && u.dy && bad_rock(youmonst.data, u.ux, ttmp->ty)
-        && bad_rock(youmonst.data, ttmp->tx, u.uy)) {
+    if (u.dx && u.dy && bad_rock(&youmonst, u.ux, ttmp->ty)
+        && bad_rock(&youmonst, ttmp->tx, u.uy)) {
         if ((invent && (inv_weight() + weight_cap() > 600))
             || bigmonst(youmonst.data)) {
             /* don't allow untrap if they can't get thru to it */

@@ -405,6 +405,12 @@ struct monst *mtmp;
             newerid(mtmp);
             mread(fd, (genericptr_t) ERID(mtmp), sizeof(struct erid));
         }
+        /* edog - pet */
+        mread(fd, (genericptr_t) &buflen, sizeof(buflen));
+        if (buflen > 0) {
+            newerac(mtmp);
+            mread(fd, (genericptr_t) ERAC(mtmp), sizeof(struct erac));
+        }
         /* mcorpsenm - obj->corpsenm for mimic posing as corpse or
            statue (inline int rather than pointer to something) */
         mread(fd, (genericptr_t) &MCORPSENM(mtmp), sizeof MCORPSENM(mtmp));
@@ -496,41 +502,6 @@ boolean ghostly;
     mread(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
           sizeof(struct permonst) - namesize);
     mread(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
-          sizeof(struct permonst) - namesize);
-
-    mread(fd, (genericptr_t) ((char *) &mons[PM_ARCHEOLOGIST] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_BARBARIAN] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_CAVEMAN] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_CAVEWOMAN] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_CONVICT] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_HEALER] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_INFIDEL] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_KNIGHT] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_MONK] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_PRIEST] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_PRIESTESS] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_RANGER] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_ROGUE] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_SAMURAI] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_TOURIST] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_VALKYRIE] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_WIZARD] + namesize),
           sizeof(struct permonst) - namesize);
 
     return first;

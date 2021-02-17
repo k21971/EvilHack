@@ -388,7 +388,8 @@ int x, y;
                 } else {
                     unsigned long mW = (context.warntype.obj
                                         | context.warntype.polyd),
-                                  mh = mtmp->data->mhflags;
+                                  mh = has_erac(mtmp) ? ERAC(mtmp)->mrace
+                                                      : mtmp->data->mhflags;
                     const char *whom = ((mW & MH_HUMAN & mh) ? "human"
                                         : (mW & MH_ELF & mh) ? "elf"
                                           : (mW & MH_ORC & mh) ? "orc"

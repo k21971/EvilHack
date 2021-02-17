@@ -452,7 +452,8 @@ int indx, prev_result[];
 struct attack *alt_attk_buf;
 {
     struct permonst *mptr = magr->data;
-    struct attack *attk = &mptr->mattk[indx];
+    struct attack *mattk = has_erac(magr) ? ERAC(magr)->mattk : mptr->mattk;
+    struct attack *attk = &mattk[indx];
     struct obj *weap = (magr == &youmonst) ? uwep : MON_WEP(magr);
 
     /* honor SEDUCE=0 */
@@ -462,7 +463,7 @@ struct attack *alt_attk_buf;
         /* if the first attack is for SSEX damage, all six attacks will be
            substituted (expected succubus/incubus handling); if it isn't
            but another one is, only that other one will be substituted */
-        if (mptr->mattk[0].adtyp == AD_SSEX) {
+        if (mattk[0].adtyp == AD_SSEX) {
             *alt_attk_buf = sa_no[indx];
             attk = alt_attk_buf;
         } else if (attk->adtyp == AD_SSEX) {
@@ -478,7 +479,7 @@ struct attack *alt_attk_buf;
     if (indx > 0 && prev_result[indx - 1] > 0
         && (attk->adtyp == AD_DISE || attk->adtyp == AD_PEST
             || attk->adtyp == AD_FAMN)
-        && attk->adtyp == mptr->mattk[indx - 1].adtyp) {
+        && attk->adtyp == mattk[indx - 1].adtyp) {
         *alt_attk_buf = *attk;
         attk = alt_attk_buf;
         attk->adtyp = AD_STUN;
@@ -524,8 +525,8 @@ struct attack *alt_attk_buf;
        doesn't--avoid forcing physical damage for those */
     } else if (indx == 0 && magr != &youmonst
                && attk->aatyp == AT_WEAP && attk->adtyp != AD_PHYS
-               && !(mptr->mattk[1].aatyp == AT_WEAP
-                    && mptr->mattk[1].adtyp == AD_PHYS)
+               && !(mattk[1].aatyp == AT_WEAP
+                    && mattk[1].adtyp == AD_PHYS)
                && (magr->mcan
                    || (weap && ((weap->otyp == CORPSE
                                  && touch_petrifies(&mons[weap->corpsenm]))
@@ -588,7 +589,7 @@ register struct monst *mtmp;
             /* Your steed won't attack you */
             return 0;
         /* Orcs like to steal and eat horses and the like */
-        if (!rn2(is_orc(mtmp->data) ? 2 : 4)
+        if (!rn2(racial_orc(mtmp) ? 2 : 4)
             && distu(mtmp->mx, mtmp->my) <= 2) {
             /* Attack your steed instead */
             i = mattackm(mtmp, u.usteed);
@@ -771,7 +772,8 @@ register struct monst *mtmp;
         tmp -= 2;
     if (mtmp->mtrapped)
         tmp -= 2;
-    if (is_accurate(mdat)) /* M3_ACCURATE monsters get a to-hit bonus */
+    if ((has_erac(mtmp) && (ERAC(mtmp)->mflags3 & M3_ACCURATE))
+        || is_accurate(mdat)) /* M3_ACCURATE monsters get a to-hit bonus */
         tmp += 5;
     if (tmp <= 0)
         tmp = 1;

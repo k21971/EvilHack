@@ -75,7 +75,7 @@ int shotlimit;
         return 0;
     }
     if ((obj->oartifact == ART_MJOLLNIR && ACURR(A_STR) < STR19(25))
-        || (obj->otyp == BOULDER && !throws_rocks(youmonst.data))) {
+        || (obj->otyp == BOULDER && !racial_throws_rocks(&youmonst))) {
         pline("It's too heavy.");
         return 1;
     }
@@ -680,8 +680,8 @@ int x, y;
             wake_nearto(x,y, 10);
             return FALSE;
         }
-        if ((u.ux - x) && (u.uy - y) && bad_rock(youmonst.data, u.ux, y)
-            && bad_rock(youmonst.data, x, u.uy)) {
+        if ((u.ux - x) && (u.uy - y) && bad_rock(&youmonst, u.ux, y)
+            && bad_rock(&youmonst, x, u.uy)) {
             boolean too_much = (invent && (inv_weight() + weight_cap() > 600));
 
             /* Move at a diagonal. */
@@ -729,8 +729,8 @@ int x, y;
     }
 
     if ((u.ux - x) && (u.uy - y)
-        && bad_rock(youmonst.data, u.ux, y)
-        && bad_rock(youmonst.data, x, u.uy)) {
+        && bad_rock(&youmonst, u.ux, y)
+        && bad_rock(&youmonst, x, u.uy)) {
         /* Move at a diagonal. */
         if (Sokoban) {
             You("come to an abrupt halt!");
@@ -1721,7 +1721,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
     }
 
     tmp += omon_adj(mon, obj, TRUE);
-    if (is_orc(mon->data)
+    if (racial_orc(mon)
         && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
         tmp++;
     if (guaranteed_hit) {

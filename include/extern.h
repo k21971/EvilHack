@@ -925,7 +925,7 @@ E boolean FDECL(revive_nasty, (int, int, const char *));
 E void FDECL(movobj, (struct obj *, XCHAR_P, XCHAR_P));
 E boolean FDECL(may_dig, (XCHAR_P, XCHAR_P));
 E boolean FDECL(may_passwall, (XCHAR_P, XCHAR_P));
-E boolean FDECL(bad_rock, (struct permonst *, XCHAR_P, XCHAR_P));
+E boolean FDECL(bad_rock, (struct monst *, XCHAR_P, XCHAR_P));
 E int FDECL(cant_squeeze_thru, (struct monst *));
 E boolean FDECL(invocation_pos, (XCHAR_P, XCHAR_P));
 E boolean FDECL(test_move, (int, int, int, int, int));
@@ -1253,6 +1253,8 @@ E boolean FDECL(peace_minded, (struct permonst *));
 E void FDECL(set_malign, (struct monst *));
 E void FDECL(newmcorpsenm, (struct monst *));
 E void FDECL(freemcorpsenm, (struct monst *));
+E void FDECL(newerac, (struct monst *));
+E void FDECL(free_erac, (struct monst *));
 E void FDECL(set_mimic_sym, (struct monst *));
 E int FDECL(mbirth_limit, (int));
 E void FDECL(mimic_hit_msg, (struct monst *, SHORT_P));
@@ -1270,7 +1272,7 @@ E void FDECL(genl_putmixed, (winid, int, const char *));
 
 /* ### mcastu.c ### */
 
-E boolean FDECL(is_spellcaster, (struct permonst *));
+E boolean FDECL(is_spellcaster, (struct monst *));
 E boolean FDECL(can_cast_spells, (struct monst *));
 E int FDECL(maxspelltimeout, (struct monst *));
 E int FDECL(spelltimeout, (struct monst *, int));
@@ -1480,7 +1482,7 @@ E int FDECL(cmap_to_type, (int));
 
 E void NDECL(mon_sanity_check);
 E boolean FDECL(zombie_maker, (struct permonst *));
-E int FDECL(zombie_form, (struct permonst *));
+E int FDECL(zombie_form, (struct monst *));
 E void FDECL(zombify, (struct monst *));
 E int FDECL(undead_to_corpse, (int));
 E int FDECL(genus, (int, int));
@@ -1547,6 +1549,7 @@ E void FDECL(decide_to_shapeshift, (struct monst *, int));
 E boolean FDECL(vamp_stone, (struct monst *));
 E boolean FDECL(damage_mon, (struct monst*, int, int));
 E void FDECL(check_gear_next_turn, (struct monst *));
+E void FDECL(apply_race, (struct monst *, int));
 
 /* ### mondata.c ### */
 
@@ -1561,7 +1564,7 @@ E boolean FDECL(resists_blnd, (struct monst *));
 E boolean FDECL(vulnerable_to, (struct monst *, int));
 E boolean FDECL(can_blnd, (struct monst *, struct monst *,
                            UCHAR_P, struct obj *));
-E boolean FDECL(ranged_attk, (struct permonst *));
+E boolean FDECL(ranged_attk, (struct monst *));
 E boolean FDECL(hates_material, (struct permonst *, int));
 E boolean FDECL(mon_hates_material, (struct monst *, int));
 E int FDECL(sear_damage, (int));

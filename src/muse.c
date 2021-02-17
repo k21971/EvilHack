@@ -542,7 +542,7 @@ struct monst *mtmp;
         /* Note: trap doors take precedence over teleport traps. */
         int xx, yy, i, locs[10][2];
         boolean ignore_boulders = (verysmall(mtmp->data)
-                                   || throws_rocks(mtmp->data)
+                                   || racial_throws_rocks(mtmp)
                                    || passes_walls(mtmp->data)),
             diag_ok = !NODIAG(monsndx(mtmp->data));
 
@@ -2313,7 +2313,7 @@ struct monst *mtmp;
 
     if (!stuck && !immobile && (mtmp->cham == NON_PM)
         && mons[(pmidx = monsndx(mdat))].difficulty < 6) {
-        boolean ignore_boulders = (verysmall(mdat) || throws_rocks(mdat)
+        boolean ignore_boulders = (verysmall(mdat) || racial_throws_rocks(mtmp)
                                    || passes_walls(mdat)),
             diag_ok = !NODIAG(pmidx);
 
@@ -3185,7 +3185,7 @@ struct obj *obj;
         break;
     case TOOL_CLASS:
         if (typ == PICK_AXE)
-            return (boolean) needspick(mon->data);
+            return (boolean) racial_needspick(mon);
         if (typ == UNICORN_HORN)
             return (boolean) (!obj->cursed && !is_unicorn(mon->data)
                               && mon->data != &mons[PM_KI_RIN]
@@ -3810,7 +3810,7 @@ struct monst *mon;
     case PM_WOOD_NYMPH:
         return TRUE;
     default:
-        if (is_elf(ptr) && !is_prince(ptr) && !is_lord(ptr)
+        if (racial_elf(mon) && !is_prince(ptr) && !is_lord(ptr)
             && ptr != &mons[PM_GREY_ELF])
             return TRUE;
         break;

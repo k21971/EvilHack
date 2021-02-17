@@ -61,14 +61,17 @@ STATIC_DCL void FDECL(ucast_wizard_spell, (struct monst *, struct monst *, int, 
 STATIC_DCL void FDECL(ucast_cleric_spell, (struct monst *, struct monst *, int, int));
 
 boolean
-is_spellcaster(ptr)
-register struct permonst *ptr;
+is_spellcaster(mtmp)
+register struct monst *mtmp;
 {
     int i = 0;
+    struct attack *mattk;
+    mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk : mtmp->data->mattk;
+
     for (; i < NATTK; i++) {
-        if (ptr->mattk[i].aatyp == AT_MAGC
-            && (ptr->mattk[i].adtyp == AD_SPEL
-                || ptr->mattk[i].adtyp == AD_CLRC)) {
+        if (mattk[i].aatyp == AT_MAGC
+            && (mattk[i].adtyp == AD_SPEL
+                || mattk[i].adtyp == AD_CLRC)) {
             return TRUE;
         }
     }

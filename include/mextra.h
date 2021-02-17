@@ -175,6 +175,16 @@ struct erid {
     unsigned int mid;   /* pointer to attached monster id */
 };
 
+/* racial characteristics */
+struct erac {
+    unsigned long mrace;
+    int r_id; 
+    struct attack mattk[NATTK]; /* attacks matrix */
+    unsigned long mflags1;
+    unsigned long mflags2;
+    unsigned long mflags3;
+};
+
 /***
  **     mextra.h -- collection of all monster extensions
  */
@@ -186,6 +196,7 @@ struct mextra {
     struct emin *emin;
     struct edog *edog;
     struct erid *erid;
+    struct erac *erac;
     int mcorpsenm; /* obj->corpsenm for mimic posing as statue or corpse,
                     * obj->spe (fruit index) for one posing as a slime mold,
                     * or an alignment mask for one posing as an altar */
@@ -198,6 +209,7 @@ struct mextra {
 #define EMIN(mon) ((mon)->mextra->emin)
 #define EDOG(mon) ((mon)->mextra->edog)
 #define ERID(mon) ((mon)->mextra->erid)
+#define ERAC(mon) ((mon)->mextra->erac)
 #define MCORPSENM(mon) ((mon)->mextra->mcorpsenm)
 
 #define has_mname(mon) ((mon)->mextra && MNAME(mon))
@@ -207,6 +219,7 @@ struct mextra {
 #define has_emin(mon)  ((mon)->mextra && EMIN(mon))
 #define has_edog(mon)  ((mon)->mextra && EDOG(mon))
 #define has_erid(mon)  ((mon)->mextra && ERID(mon))
+#define has_erac(mon) ((mon)->mextra && ERAC(mon))
 #define has_mcorpsenm(mon) ((mon)->mextra && MCORPSENM(mon) != NON_PM)
 
 #endif /* MEXTRA_H */

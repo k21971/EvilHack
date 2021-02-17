@@ -420,7 +420,7 @@ register struct monst *magr, *mdef;
     }
 
     /* Elves hate orcs. */
-    if (is_elf(pa) && is_orc(pd))
+    if (racial_elf(magr) && racial_orc(mdef))
         tmp++;
 
     /* Set up the visibility of action */
@@ -837,7 +837,7 @@ struct attack *mattk;
     }
 
     if (magr->mcan || !magr->mcansee || !mdef->mcansee
-        || (magr->minvis && !perceives(mdef->data)) || mdef->msleeping) {
+        || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
         if (vis && canspotmon(mdef))
             pline("but nothing happens.");
         return MM_MISS;
@@ -853,7 +853,7 @@ struct attack *mattk;
                                       "The gaze is reflected away by %s %s.");
                 return MM_MISS;
             }
-            if (mdef->minvis && !perceives(magr->data)) {
+            if (mdef->minvis && !racial_perceives(magr)) {
                 if (canseemon(magr)) {
                     pline(
                       "%s doesn't seem to notice that %s gaze was reflected.",
@@ -2120,22 +2120,24 @@ struct obj *mwep;
     register struct permonst *madat = magr->data;
     char buf[BUFSZ];
     int i, tmp;
+    struct attack *mdattk;
+    mdattk = has_erac(mdef) ? ERAC(mdef)->mattk : mddat->mattk;
 
     for (i = 0;; i++) {
         if (i >= NATTK)
             return (mdead | mhit); /* no passive attacks */
-        if (mddat->mattk[i].aatyp == AT_NONE)
+        if (mdattk[i].aatyp == AT_NONE)
             break;
     }
-    if (mddat->mattk[i].damn)
-        tmp = d((int) mddat->mattk[i].damn, (int) mddat->mattk[i].damd);
-    else if (mddat->mattk[i].damd)
-        tmp = d((int) mddat->mlevel + 1, (int) mddat->mattk[i].damd);
+    if (mdattk[i].damn)
+        tmp = d((int) mdattk[i].damn, (int) mdattk[i].damd);
+    else if (mdattk[i].damd)
+        tmp = d((int) mddat->mlevel + 1, (int) mdattk[i].damd);
     else
         tmp = 0;
 
     /* These affect the enemy even if defender killed */
-    switch (mddat->mattk[i].adtyp) {
+    switch (mdattk[i].adtyp) {
     case AD_ACID:
         if (mhit && !rn2(2)) {
             Strcpy(buf, Monnam(magr));
@@ -2209,7 +2211,7 @@ struct obj *mwep;
                         if (canseemon(magr)) {
                             pline("%s poisonous hide was deadly...",
                                   s_suffix(Monnam(mdef)));
-                            monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+                            monkilled(magr, "", (int) mdattk[i].adtyp);
                             return (mdead | mhit | MM_AGR_DIED);
                         }
                     }
@@ -2257,7 +2259,7 @@ struct obj *mwep;
 
     /* These affect the enemy only if defender is still alive */
     if (rn2(3))
-        switch (mddat->mattk[i].adtyp) {
+        switch (mdattk[i].adtyp) {
         case AD_PLYS: /* Floating eye */
             if (tmp > 127)
                 tmp = 127;
@@ -2265,7 +2267,7 @@ struct obj *mwep;
                 if (!rn2(4))
                     tmp = 127;
                 if (magr->mcansee && haseyes(madat) && mdef->mcansee
-                    && (perceives(madat) || !mdef->minvis)) {
+                    && (racial_perceives(magr) || !mdef->minvis)) {
                     /* construct format string; guard against '%' in Monnam */
                     Strcpy(buf, s_suffix(Monnam(mdef)));
                     (void) strNsubst(buf, "%", "%%", 0);
@@ -2376,8 +2378,8 @@ struct obj *mwep;
         tmp = 0;
 
  assess_dmg:
-    if (damage_mon(magr, tmp, (int) mddat->mattk[i].adtyp)) {
-        monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+    if (damage_mon(magr, tmp, (int) mdattk[i].adtyp)) {
+        monkilled(magr, "", (int) mdattk[i].adtyp);
         return (mdead | mhit | MM_AGR_DIED);
     }
     return (mdead | mhit);

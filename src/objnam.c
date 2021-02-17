@@ -1640,7 +1640,36 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         omit_corpse = (cxn_flags & CXN_NOCORPSE) != 0,
         possessive = FALSE,
         glob = (otmp->otyp != CORPSE && otmp->globby);
+
     const char *mname;
+    char mrace[BUFSZ];
+
+    *mrace = '\0';
+    if (has_omonst(otmp)) {
+        struct monst *mtmp;
+        mtmp = OMONST(otmp);
+
+        if (has_erac(mtmp)) {
+            if (racial_elf(mtmp))
+                Strcat(mrace, "elven ");
+            else if (racial_dwarf(mtmp))
+                Strcat(mrace, "dwarvish ");
+            else if (racial_orc(mtmp))
+                Strcat(mrace, "orcish ");
+            else if (racial_gnome(mtmp))
+                Strcat(mrace, "gnomish ");
+            else if (racial_hobbit(mtmp))
+                Strcat(mrace, "hobbit ");
+            else if (racial_giant(mtmp))
+                Strcat(mrace, "giant ");
+            else if (racial_illithid(mtmp))
+                Strcat(mrace, "illithid ");
+            else if (racial_centaur(mtmp))
+                Strcat(mrace, "centaurian ");
+            else if (racial_human(mtmp))
+                Strcat(mrace, "human ");
+        }
+    }
 
     if (glob) {
         mname = OBJ_NAME(objects[otmp->otyp]); /* "glob of <monster>" */
@@ -1680,13 +1709,14 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
     if (!adjective || !*adjective) {
         /* normal case:  newt corpse */
+        Strcat(nambuf, mrace);
         Strcat(nambuf, mname);
     } else {
         /* adjective positioning depends upon format of monster name */
         if (possessive) /* Medusa's cursed partly eaten corpse */
-            Sprintf(eos(nambuf), "%s %s", mname, adjective);
+            Sprintf(eos(nambuf), "%s%s %s", mrace, mname, adjective);
         else /* cursed partly eaten troll corpse */
-            Sprintf(eos(nambuf), "%s %s", adjective, mname);
+            Sprintf(eos(nambuf), "%s %s%s", adjective, mrace, mname);
         /* in case adjective has a trailing space, squeeze it out */
         mungspaces(nambuf);
         /* doname() might include a count in the adjective argument;

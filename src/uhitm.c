@@ -299,7 +299,7 @@ int *attk_count, *role_roll_penalty;
         else if (!uwep && !uarms)
             tmp += (u.ulevel / 3) + 2;
     }
-    if (is_orc(mtmp->data)
+    if (racial_orc(mtmp)
         && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
         tmp++;
 
@@ -3365,24 +3365,26 @@ boolean wep_was_destroyed;
     register struct permonst *ptr = mon->data;
     register struct obj *m_armor;
     register int i, t, tmp;
+    register struct attack *mattk;
+    mattk = has_erac(mon) ? ERAC(mon)->mattk : ptr->mattk;
 
     for (i = 0;; i++) {
         if (i >= NATTK)
             return (malive | mhit); /* no passive attacks */
-        if (ptr->mattk[i].aatyp == AT_NONE)
+        if (mattk[i].aatyp == AT_NONE)
             break; /* try this one */
     }
     /* Note: tmp not always used */
-    if (ptr->mattk[i].damn)
-        tmp = d((int) ptr->mattk[i].damn, (int) ptr->mattk[i].damd);
-    else if (ptr->mattk[i].damd)
-        tmp = d((int) mon->m_lev + 1, (int) ptr->mattk[i].damd);
+    if (mattk[i].damn)
+        tmp = d((int) mattk[i].damn, (int) mattk[i].damd);
+    else if (mattk[i].damd)
+        tmp = d((int) mon->m_lev + 1, (int) mattk[i].damd);
     else
         tmp = 0;
 
     /*  These affect you even if they just died.
      */
-    switch (ptr->mattk[i].adtyp) {
+    switch (mattk[i].adtyp) {
     case AD_FIRE:
         if (mhit && !mon->mcan && weapon) {
             if (aatyp == AT_KICK) {
@@ -3391,7 +3393,7 @@ boolean wep_was_destroyed;
                                      EF_GREASE | EF_VERBOSE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(ptr->mattk[i]));
+                passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_ACID:
@@ -3416,7 +3418,7 @@ boolean wep_was_destroyed;
                                      EF_GREASE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(ptr->mattk[i]));
+                passive_obj(mon, weapon, &(mattk[i]));
         }
         exercise(A_STR, FALSE);
         break;
@@ -3460,7 +3462,7 @@ boolean wep_was_destroyed;
                                      EF_GREASE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(ptr->mattk[i]));
+                passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_CORR:
@@ -3471,7 +3473,7 @@ boolean wep_was_destroyed;
                                      EF_GREASE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(ptr->mattk[i]));
+                passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_DISN:
@@ -3541,7 +3543,7 @@ boolean wep_was_destroyed;
                     pline("%s being disintegrated!",
                           Yobjnam2(weapon, "resist"));
                 else
-                    passive_obj(mon, weapon, &(ptr->mattk[i]));
+                    passive_obj(mon, weapon, &(mattk[i]));
             }
             break;
         }
@@ -3574,7 +3576,7 @@ boolean wep_was_destroyed;
                        || (aatyp >= AT_STNG && aatyp < AT_WEAP)) {
                 break; /* no object involved */
             }
-            passive_obj(mon, weapon, &(ptr->mattk[i]));
+            passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_CNCL:
@@ -3589,7 +3591,7 @@ boolean wep_was_destroyed;
     /*  These only affect you if they still live.
      */
     if (malive && !mon->mcan && rn2(3)) {
-        switch (ptr->mattk[i].adtyp) {
+        switch (mattk[i].adtyp) {
         case AD_PLYS:
             if (ptr == &mons[PM_FLOATING_EYE]) {
                 if (!canseemon(mon)) {

@@ -1117,7 +1117,6 @@ struct monst *mtmp;
         bwrite(fd, (genericptr_t) &buflen, sizeof(int));
         if (buflen > 0)
             bwrite(fd, (genericptr_t) EDOG(mtmp), buflen);
-
         if (ERID(mtmp))
             buflen = sizeof(struct erid);
         else
@@ -1125,6 +1124,11 @@ struct monst *mtmp;
         bwrite(fd, (genericptr_t) &buflen, sizeof(int));
         if (buflen > 0)
             bwrite(fd, (genericptr_t) ERID(mtmp), buflen);
+        buflen = ERAC(mtmp) ? (int) sizeof (struct erac) : 0;
+        bwrite(fd, (genericptr_t) &buflen, sizeof(int));
+        if (buflen > 0)
+            bwrite(fd, (genericptr_t) ERAC(mtmp), buflen);
+
 
         /* mcorpsenm is inline int rather than pointer to something,
            so doesn't need to be preceded by a length field */
@@ -1189,43 +1193,6 @@ register struct monst *mtmp;
         bwrite(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
                sizeof(struct permonst) - namesize);
         bwrite(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
-               sizeof(struct permonst) - namesize);
-
-        /* Need to do this for racial player monsters. Pretty sure
-           I said earlier to not make this a habit... */
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_ARCHEOLOGIST] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_BARBARIAN] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CAVEMAN] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CAVEWOMAN] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CONVICT] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_HEALER] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_INFIDEL] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_KNIGHT] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_MONK] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_PRIEST] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_PRIESTESS] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_RANGER] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_ROGUE] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_SAMURAI] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_TOURIST] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_VALKYRIE] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_WIZARD] + namesize),
                sizeof(struct permonst) - namesize);
     }
 }

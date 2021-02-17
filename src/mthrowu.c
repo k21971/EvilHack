@@ -261,11 +261,11 @@ struct obj *otmp, *mwep;
             break;
         }
         /* racial bonus */
-        if ((is_elf(mtmp->data) && otmp->otyp == ELVEN_ARROW
+        if ((racial_elf(mtmp) && otmp->otyp == ELVEN_ARROW
             && mwep->otyp == ELVEN_BOW)
-            || (is_orc(mtmp->data) && otmp->otyp == ORCISH_ARROW
+            || (racial_orc(mtmp) && otmp->otyp == ORCISH_ARROW
                 && mwep->otyp == ORCISH_BOW)
-            || (is_gnome(mtmp->data) && otmp->otyp == CROSSBOW_BOLT
+            || (racial_gnome(mtmp) && otmp->otyp == CROSSBOW_BOLT
                 && mwep->otyp == CROSSBOW))
             multishot++;
     }
@@ -778,7 +778,7 @@ register boolean verbose;
                 hitv = 3 - distmin(u.ux, u.uy, mon->mx, mon->my);
                 if (hitv < -4)
                     hitv = -4;
-                if (is_elf(mon->data)
+                if (racial_elf(mon)
                     && objects[singleobj->otyp].oc_skill == P_BOW) {
                     hitv++;
                     if (MON_WEP(mon) && MON_WEP(mon)->otyp == ELVEN_BOW)
@@ -790,7 +790,8 @@ register boolean verbose;
                     hitv++;
                 hitv += 8 + singleobj->spe;
                     /* M3_ACCURATE monsters get a significant bonus here */
-                if (is_accurate(mon->data)) {
+                if ((has_erac(mon) && (ERAC(mon)->mflags3 & M3_ACCURATE))
+                    || (!has_erac(mon) && is_accurate(mon->data))) {
                     hitv += mon->m_lev;
                 }
                 if (dam < 1)
@@ -1353,7 +1354,7 @@ register struct monst *mtmp;
                               && U_AP_TYPE != M_AP_MONSTER)))
         return FALSE;
 
-    ignore_boulders = (throws_rocks(mtmp->data)
+    ignore_boulders = (racial_throws_rocks(mtmp)
                        || m_carrying(mtmp, WAN_STRIKING));
     return linedup(mtmp->mux, mtmp->muy, mtmp->mx, mtmp->my,
                    ignore_boulders ? 1 : 2);

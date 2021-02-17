@@ -91,7 +91,13 @@
 #define amorphous(ptr) (((ptr)->mflags1 & M1_AMORPHOUS) != 0L)
 #define noncorporeal(ptr) ((ptr)->mlet == S_GHOST)
 #define tunnels(ptr) (((ptr)->mflags1 & M1_TUNNEL) != 0L)
+#define racial_tunnels(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mflags1 & M1_TUNNEL)) \
+     || tunnels((mon)->data))
 #define needspick(ptr) (((ptr)->mflags1 & M1_NEEDPICK) != 0L)
+#define racial_needspick(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mflags1 & M1_NEEDPICK)) \
+     || needspick((mon)->data))
 /* hides_under() requires an object at the location in order to hide */
 #define hides_under(ptr) (((ptr)->mflags1 & M1_CONCEAL) != 0L)
 /* is_hider() is True for mimics but when hiding they appear as something
@@ -137,6 +143,9 @@
     (lays_eggs(ptr) && (ptr)->mlet == S_EEL && is_swimmer(ptr))
 #define regenerates(ptr) (((ptr)->mflags1 & M1_REGEN) != 0L)
 #define perceives(ptr) (((ptr)->mflags1 & M1_SEE_INVIS) != 0L)
+#define racial_perceives(mon) \
+    (has_erac(mon) && (ERAC(mon)->mflags1 & M1_SEE_INVIS) \
+     || perceives(mon->data))
 #define can_teleport(ptr) (((ptr)->mflags1 & M1_TPORT) != 0L)
 #define control_teleport(ptr) (((ptr)->mflags1 & M1_TPORT_CNTRL) != 0L)
 #define telepathic(ptr) \
@@ -174,31 +183,61 @@
 #define is_elf(ptr) \
     ((((ptr)->mhflags & MH_ELF) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ELF)))
+#define racial_elf(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & MH_ELF)) \
+     || (!has_erac(mon) && is_elf((mon)->data)))
 #define is_dwarf(ptr) \
     ((((ptr)->mhflags & MH_DWARF) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_DWARF)))
+#define racial_dwarf(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & MH_DWARF)) \
+     || (!has_erac(mon) && is_dwarf((mon)->data)))
 #define is_gnome(ptr) \
     ((((ptr)->mhflags & MH_GNOME) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GNOME)))
+#define racial_gnome(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & MH_GNOME)) \
+     || (!has_erac(mon) && is_gnome((mon)->data)))
 #define is_orc(ptr) \
     ((((ptr)->mhflags & MH_ORC) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ORC)))
+#define racial_orc(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & MH_ORC)) \
+     || (!has_erac(mon) && is_orc((mon)->data)))
 #define is_human(ptr) \
     ((((ptr)->mhflags & MH_HUMAN) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_HUMAN)))
+#define racial_human(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & MH_HUMAN)) \
+     || (!has_erac(mon) && is_human((mon)->data)))
 #define is_hobbit(ptr) \
     ((((ptr)->mhflags & MH_HOBBIT) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_HOBBIT)))
+#define racial_hobbit(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & MH_HOBBIT)) \
+     || (!has_erac(mon) && is_hobbit((mon)->data)))
 #define is_giant(ptr) \
     ((((ptr)->mhflags & MH_GIANT) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
+#define racial_giant(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & MH_GIANT)) \
+     || (!has_erac(mon) && is_giant((mon)->data)))
 #define is_centaur(ptr) \
     ((((ptr)->mhflags & MH_CENTAUR) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_CENTAUR)))
+#define racial_centaur(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & MH_CENTAUR)) \
+     || (!has_erac(mon) && is_centaur((mon)->data)))
 #define is_illithid(ptr) \
     ((((ptr)->mhflags & MH_ILLITHID) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ILLITHID)))
+#define racial_illithid(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & MH_ILLITHID)) \
+     || (!has_erac(mon) && is_illithid((mon)->data)))
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
+#define racial_match(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mrace & urace.selfmask)) \
+     || (!has_erac(mon) && your_race((mon)->data)))
 #define is_bat(ptr)                                         \
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
      || (ptr) == &mons[PM_VAMPIRE_BAT])
@@ -273,6 +312,9 @@
 #define throws_rocks(ptr) \
     ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
+#define racial_throws_rocks(mon) \
+    ((has_erac(mon) && ERAC(mon)->mflags2 & M2_ROCKTHROW) \
+     || throws_rocks((mon)->data))
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
 #define is_lord(ptr) (((ptr)->mflags2 & M2_LORD) != 0L)
 #define is_prince(ptr) (((ptr)->mflags2 & M2_PRINCE) != 0L)

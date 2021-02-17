@@ -1639,7 +1639,7 @@ int x, y;
     /* let giants jump over boulders (what about Flying?
        and is there really enough head room for giants to jump
        at all, let alone over something tall?) */
-    if (sobj_at(BOULDER, x, y) && !throws_rocks(youmonst.data))
+    if (sobj_at(BOULDER, x, y) && !racial_throws_rocks(&youmonst))
         return FALSE;
     return TRUE;
 }
@@ -2000,7 +2000,10 @@ struct obj *obj;
     if ((can = mksobj(TIN, FALSE, FALSE)) != 0) {
         static const char you_buy_it[] = "You tin it, you bought it!";
 
-        can->corpsenm = corpse->corpsenm;
+        if (has_omonst(corpse) && has_erac(OMONST(corpse)))
+            can->corpsenm = ERAC(OMONST(corpse))->r_id;
+        else
+            can->corpsenm = corpse->corpsenm;
         can->cursed = obj->cursed;
         can->blessed = obj->blessed;
         can->owt = weight(can);

@@ -291,11 +291,13 @@ int element;
 
 /* returns True if monster can attack at range */
 boolean
-ranged_attk(ptr)
-struct permonst *ptr;
+ranged_attk(mtmp)
+struct monst *mtmp;
 {
     register int i, atyp;
     long atk_mask = (1L << AT_BREA) | (1L << AT_SPIT) | (1L << AT_GAZE);
+    struct attack *mattk;
+    mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk : mtmp->data->mattk;
 
     /* was: (attacktype(ptr, AT_BREA) || attacktype(ptr, AT_WEAP)
      *       || attacktype(ptr, AT_SPIT) || attacktype(ptr, AT_GAZE)
@@ -303,7 +305,7 @@ struct permonst *ptr;
      * but that's too slow -dlc
      */
     for (i = 0; i < NATTK; i++) {
-        atyp = ptr->mattk[i].aatyp;
+        atyp = mattk[i].aatyp;
         if (atyp >= AT_WEAP)
             return TRUE;
         /* assert(atyp < 32); */
@@ -331,6 +333,14 @@ int material;
      * hates_material, and non-lycanthropes can't currently be infected) */
     if (mon == &youmonst && material == SILVER && u.ulycn >= LOW_PM)
         return TRUE;
+
+    if (has_erac(mon)) {
+        if (material == IRON) {
+            return (racial_elf(mon));
+        } else if (material == MITHRIL) {
+            return (racial_orc(mon));
+        }
+    }
 
     return FALSE;
 }
@@ -485,7 +495,7 @@ int prop;
                 return TRUE;
 	    break;
 	case SEE_INVIS:
-	    if (perceives(mon->data))
+	    if (racial_perceives(mon))
                 return TRUE;
 	    break;
 	case TELEPORT:

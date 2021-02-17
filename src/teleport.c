@@ -110,7 +110,7 @@ unsigned gpflags;
             return FALSE;
     }
 
-    if (sobj_at(BOULDER, x, y) && (!mdat || !throws_rocks(mdat)))
+    if (sobj_at(BOULDER, x, y) && (!mdat || !racial_throws_rocks(mtmp)))
         return FALSE;
     return TRUE;
 }

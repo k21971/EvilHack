@@ -174,33 +174,33 @@ struct permonst * pm;
  * If a zombie gets passed to this function, it should return NON_PM, not the
  * same monster again. */
 int
-zombie_form(pm)
-struct permonst * pm;
+zombie_form(mtmp)
+struct monst *mtmp;
 {
-    switch(pm->mlet) {
+    switch (mtmp->data->mlet) {
     case S_KOBOLD:
         return PM_KOBOLD_ZOMBIE;
     case S_ORC:
         return PM_ORC_ZOMBIE;
     case S_GIANT:
-        if (pm == &mons[PM_ETTIN])
+        if (mtmp->data == &mons[PM_ETTIN])
             return PM_ETTIN_ZOMBIE;
         return PM_GIANT_ZOMBIE;
     case S_HUMAN:
     case S_KOP:
-        if (is_elf(pm))
+        if (racial_elf(mtmp))
             return PM_ELF_ZOMBIE;
-        if (is_dwarf(pm))
+        if (racial_dwarf(mtmp))
             return PM_DWARF_ZOMBIE;
-        if (is_gnome(pm))
+        if (racial_gnome(mtmp))
             return PM_GNOME_ZOMBIE;
-        if (is_orc(pm))
+        if (racial_orc(mtmp))
             return PM_ORC_ZOMBIE;
         return PM_HUMAN_ZOMBIE;
     case S_HUMANOID:
-        if (is_dwarf(pm))
+        if (racial_dwarf(mtmp))
             return PM_DWARF_ZOMBIE;
-        if (is_hobbit(pm))
+        if (racial_hobbit(mtmp))
             return PM_HOBBIT_ZOMBIE;
         else
             break;
@@ -221,7 +221,7 @@ struct monst* mdef;
     /* Due to messaging sequencing, we want to print the "rises" message
      * before calling newcham. To do this, momentarily turn mdef into a
      * zombie, save its canspotmon, and then put it back. */
-    mdef->data = &mons[zombie_form(mdat)];
+    mdef->data = &mons[zombie_form(mdef)];
     boolean willspot = canspotmon(mdef);
     mdef->data = mdat;
 
@@ -231,7 +231,7 @@ struct monst* mdef;
         pline("%s rises again as a zombie!", Monnam(mdef));
     }
 
-    if (newcham(mdef, &mons[zombie_form(mdat)], FALSE, FALSE)) {
+    if (newcham(mdef, &mons[zombie_form(mdef)], FALSE, FALSE)) {
         /* off-chance Izchak succumbs to a zombie's physical attack */
         if (mdef->isshk && !strcmp(shkname(mdef), "Izchak")) {
             pline("But wait!  %s transforms again into his true form!", mon_nam(mdef));
@@ -454,6 +454,7 @@ int mndx;
 /* for deciding whether corpse will carry along full monster data */
 #define KEEPTRAITS(mon)                                                 \
     ((mon)->isshk || (mon)->mtame || unique_corpstat((mon)->data)       \
+     || has_erac(mon)                                                   \
      || is_reviver((mon)->data)                                         \
         /* normally quest leader will be unique, */                     \
         /* but he or she might have been polymorphed  */                \
@@ -805,7 +806,9 @@ register struct monst *mtmp;
             }
             if (!resists_fire(mtmp)) {
                 if (cansee(mtmp->mx, mtmp->my)) {
-                    struct attack *dummy = &mtmp->data->mattk[0];
+                    struct attack *dummy;
+                    dummy = has_erac(mtmp) ? &ERAC(mtmp)->mattk[0]
+                                           : &mtmp->data->mattk[0];
                     const char *how = on_fire(mtmp->data, dummy);
 
                     pline("%s %s.", Monnam(mtmp),
@@ -1674,7 +1677,7 @@ struct monst *mtmp;
     struct obj *obj;
 
     for (obj = mtmp->minvent; obj; obj = obj->nobj) {
-        if (obj->otyp != BOULDER || !throws_rocks(mtmp->data))
+        if (obj->otyp != BOULDER || !racial_throws_rocks(mtmp))
             curload += obj->owt;
     }
 
@@ -1688,7 +1691,7 @@ struct monst *mtmp;
     long maxload;
     long maxcarrcap = MAX_CARR_CAP;
 
-    if ((is_giant(mtmp->data)) || (is_centaur(mtmp->data)))
+    if (racial_giant(mtmp) || racial_centaur(mtmp))
         maxcarrcap += 400;
 
     /* Base monster carrying capacity is equal to human maximum
@@ -1768,12 +1771,15 @@ struct obj *otmp;
             && (otmp->oclass == COIN_CLASS
                 || otmp->oclass == GEM_CLASS))
             glomper = TRUE;
-        else
+        else {
+            struct attack *mattk;
+            mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk : mtmp->data->mattk;
             for (nattk = 0; nattk < NATTK; nattk++)
-                if (mtmp->data->mattk[nattk].aatyp == AT_ENGL) {
+                if (mattk[nattk].aatyp == AT_ENGL) {
                     glomper = TRUE;
                     break;
                 }
+        }
         if ((mtmp->data->mflags1 & M1_NOHANDS) && !glomper)
             return 1;
     }
@@ -1790,7 +1796,7 @@ struct obj *otmp;
      */
 
     /* special--boulder throwers carry unlimited amounts of boulders */
-    if (throws_rocks(mdat) && otyp == BOULDER)
+    if (racial_throws_rocks(mtmp) && otyp == BOULDER)
         return iquan;
 
     /* nymphs deal in stolen merchandise, but not boulders or statues */
@@ -1855,7 +1861,7 @@ long flag;
         struct obj *mw_tmp;
 
         /* need to be specific about what can currently be dug */
-        if (!needspick(mdat)) {
+        if (!racial_needspick(mon)) {
             rockok = treeok = TRUE;
         } else if ((mw_tmp = MON_WEP(mon)) && mw_tmp->cursed
                    && mon->weapon_check == NO_WEAPON_WANTED) {
@@ -2018,8 +2024,8 @@ long flag;
                     info[cnt] |= NOTONL;
                 }
                 /* check for diagonal tight squeeze */
-                if (nx != x && ny != y && bad_rock(mdat, x, ny)
-                    && bad_rock(mdat, nx, y) && cant_squeeze_thru(mon))
+                if (nx != x && ny != y && bad_rock(mon, x, ny)
+                    && bad_rock(mon, nx, y) && cant_squeeze_thru(mon))
                     continue;
                 /* The monster avoids a particular type of trap if it's
                  * familiar with the trap type.  Pets get ALLOW_TRAPS
@@ -2105,7 +2111,7 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* elves vs orcs */
-    if (is_elf(ma) && is_orc(md))
+    if (racial_elf(magr) && racial_orc(mdef))
         return ALLOW_M | ALLOW_TM;
 
     /* angels vs demons */
@@ -2123,7 +2129,7 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* Nazgul vs hobbits */
-    if (ma == &mons[PM_NAZGUL] && is_hobbit(md))
+    if (ma == &mons[PM_NAZGUL] && racial_hobbit(mdef))
         return ALLOW_M | ALLOW_TM;
 
     /* bees and honey badgers don't play nice */
@@ -2213,7 +2219,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (is_berserker(ma) && m_canseeu(magr)
         && magr->mpeaceful == FALSE && !rn2(7)
         && (magr->mhp < (magr->mhpmax / 5))
-        && ma->mattk) {
+        && !noattacks(ma)) {
         if (ma->mlet == S_HUMAN || ma->mlet == S_ORC
             || ma->mlet == S_GIANT || ma->mlet == S_OGRE)
             pline("%s flies into a berserker rage!", Monnam(magr));
@@ -2463,6 +2469,11 @@ struct monst *mtmp2, *mtmp1;
             newerid(mtmp2);
         *ERID(mtmp2) = *ERID(mtmp1);
     }
+    if (ERAC(mtmp1)) {
+        if (!ERAC(mtmp2))
+            newerac(mtmp2);
+        *ERAC(mtmp2) = *ERAC(mtmp1);
+    }
     if (has_mcorpsenm(mtmp1))
         MCORPSENM(mtmp2) = MCORPSENM(mtmp1);
 }
@@ -2488,6 +2499,8 @@ struct monst *m;
             free((genericptr_t) x->edog);
         if (x->erid)
             free((genericptr_t) x->erid);
+        if (x->erac)
+            free((genericptr_t) x->erac);
         /* [no action needed for x->mcorpsenm] */
 
         free((genericptr_t) x);
@@ -3249,7 +3262,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
             noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
             zombifying = (zombie_maker(youmonst.data)
-                          && zombie_form(mtmp->data) != NON_PM);
+                          && zombie_form(mtmp) != NON_PM);
 
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) /* KMH, conduct */
@@ -4177,7 +4190,7 @@ struct monst *mon;
         if (mcham >= LOW_PM) {
             mon->cham = NON_PM;
             (void) newcham(mon, &mons[mcham], FALSE, FALSE);
-        } else if (is_were(mon->data) && !is_human(mon->data)) {
+        } else if (is_were(mon->data) && !racial_human(mon)) {
             new_were(mon);
         }
     } else if (mon->cham == NON_PM) {
@@ -4913,7 +4926,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
      * minvent should be sorted in order to drop heaviest items first.
      */
     /* former giants can't continue carrying boulders */
-    if (mtmp->minvent && !throws_rocks(mdat)) {
+    if (mtmp->minvent && !racial_throws_rocks(mtmp)) {
         register struct obj *otmp, *otmp2;
 
         for (otmp = mtmp->minvent; otmp; otmp = otmp2) {
@@ -5419,6 +5432,39 @@ check_gear_next_turn(mon)
 struct monst *mon;
 {
     mon->misc_worn_check |= I_SPECIAL;
+}
+
+void
+apply_race(mtmp, raceidx)
+struct monst *mtmp;
+int raceidx;
+{
+    register struct erac *rptr;
+    register struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->m_id];
+
+    boolean init = FALSE;
+    if (!has_erac(mtmp)) {
+        newerac(mtmp);
+        init = TRUE;
+    }
+
+    rptr = ERAC(mtmp);
+
+    if (init) {
+        memcpy(rptr->mattk, mptr->mattk, sizeof(struct attack) * NATTK);
+        rptr->mflags1 = mptr->mflags1;
+        rptr->mflags2 = mptr->mflags2;
+        rptr->mflags3 = mptr->mflags3;
+    }
+
+    mtmp->mintrinsics |= ptr->mresists;
+    rptr->mrace = ptr->mhflags;
+    rptr->r_id = raceidx;
+    /* racial mflags are cumulative with mflags from the base monster, rather
+     * than overwriting them entirely */
+    rptr->mflags1 |= ptr->mflags1;
+    rptr->mflags2 |= ptr->mflags2;
+    rptr->mflags3 |= ptr->mflags3;
 }
 
 /*mon.c*/

@@ -855,9 +855,10 @@ toofar:
            or similar spells by the time you reach it */
         if (!mtmp->mspec_used
             && dist2(mtmp->mx, mtmp->my, u.ux, u.uy) <= 49) {
-            struct attack *a;
+            struct attack *mattk, *a;
+            mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk: mdat->mattk;
 
-            for (a = &mdat->mattk[0]; a < &mdat->mattk[NATTK]; a++) {
+            for (a = &mattk[0]; a < &mattk[NATTK]; a++) {
                 if (a->aatyp == AT_MAGC
                     && (a->adtyp == AD_SPEL || a->adtyp == AD_CLRC)) {
                     if (castmu(mtmp, a, FALSE, FALSE)) {
@@ -894,7 +895,7 @@ toofar:
                 return 0;
             /* Monsters can move and then shoot on same turn;
                our hero can't.  Is that fair? */
-            if (!nearby && (ranged_attk(mdat) || find_offensive(mtmp)))
+            if (!nearby && (ranged_attk(mtmp) || find_offensive(mtmp)))
                 break;
             /* engulfer/grabber checks */
             if (mtmp == u.ustuck) {
@@ -1017,9 +1018,9 @@ xchar nix,niy;
     struct obj *mw_tmp = MON_WEP(mtmp);
 
     if (!Is_rogue_level(&u.uz))
-        can_tunnel = tunnels(mtmp->data);
+        can_tunnel = racial_tunnels(mtmp);
 
-    if (can_tunnel && needspick(mtmp->data) && !mwelded(mw_tmp)
+    if (can_tunnel && racial_needspick(mtmp) && !mwelded(mw_tmp)
         && (may_dig(nix, niy) || closed_door(nix, niy))) {
         /* may_dig() is either IS_STWALL or IS_TREES */
         if (closed_door(nix, niy)) {
@@ -1157,11 +1158,11 @@ register int after;
      * other calls of m_move (ex. leprechauns dodging)
      */
     if (!Is_rogue_level(&u.uz))
-        can_tunnel = tunnels(ptr);
+        can_tunnel = racial_tunnels(mtmp);
     can_open = !(nohands(ptr) || verysmall(ptr));
     can_unlock =
         ((can_open && monhaskey(mtmp, TRUE)) || mtmp->iswiz || is_rider(ptr));
-    doorbuster = is_giant(ptr);
+    doorbuster = racial_giant(mtmp);
     if (mtmp->wormno)
         goto not_special;
     /* my dog gets special treatment */
@@ -1322,7 +1323,7 @@ register int after;
     if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))) {
         boolean in_line = (lined_up(mtmp)
                && (distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy)
-                   <= (throws_rocks(youmonst.data) ? 20 : ACURRSTR / 2 + 1)));
+                   <= (racial_throws_rocks(&youmonst) ? 20 : ACURRSTR / 2 + 1)));
 
         if (appr != 1 || !in_line) {
             /* Monsters in combat won't pick stuff up, avoiding the
@@ -1338,7 +1339,7 @@ register int after;
             uses_items = (!mindless(ptr) && !is_animal(ptr) && pctload < 75);
             likeobjs = (likes_objs(ptr) && pctload < 75);
             likemagic = (likes_magic(ptr) && pctload < 85);
-            likerock = (throws_rocks(ptr) && pctload < 50 && !Sokoban);
+            likerock = (racial_throws_rocks(mtmp) && pctload < 50 && !Sokoban);
             conceals = hides_under(ptr);
             setlikes = TRUE;
         }
@@ -1428,7 +1429,7 @@ register int after;
                              && touch_petrifies(&mons[otmp->corpsenm]))))
                         && touch_artifact(otmp, mtmp)) {
                         if (((can_carry(mtmp, otmp) > 0 || (Is_container(otmp)))
-                            && ((throws_rocks(ptr)) || !sobj_at(BOULDER, xx, yy)))
+                            && ((racial_throws_rocks(mtmp)) || !sobj_at(BOULDER, xx, yy)))
                             && ((!is_unicorn(ptr)
                                 || (otmp->material == GEMSTONE)))
                             /* Don't get stuck circling an Elbereth */
@@ -1465,7 +1466,7 @@ register int after;
     }
 
     /* don't tunnel if hostile and close enough to prefer a weapon */
-    if (can_tunnel && needspick(ptr)
+    if (can_tunnel && racial_needspick(mtmp)
         && ((!mtmp->mpeaceful || Conflict)
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8))
         can_tunnel = FALSE;
@@ -1492,7 +1493,7 @@ register int after;
         flag |= ALLOW_SSM;
     if ((is_undead(ptr) && ptr->mlet != S_GHOST) || is_vampshifter(mtmp))
         flag |= NOGARLIC;
-    if (throws_rocks(ptr))
+    if (racial_throws_rocks(mtmp))
         flag |= ALLOW_ROCK;
     if (can_open)
         flag |= OPENDOOR;
@@ -1816,7 +1817,7 @@ register int after;
                     (!mindless(ptr) && !is_animal(ptr) && pctload < 75);
                 likeobjs = (likes_objs(ptr) && pctload < 75);
                 likemagic = (likes_magic(ptr) && pctload < 85);
-                likerock = (throws_rocks(ptr) && pctload < 50 && !Sokoban);
+                likerock = (racial_throws_rocks(mtmp) && pctload < 50 && !Sokoban);
                 conceals = hides_under(ptr);
             }
 

@@ -113,7 +113,7 @@ moverock()
 
     sx = u.ux + u.dx, sy = u.uy + u.dy; /* boulder starting position */
 
-    if (maybe_polyd(throws_rocks(youmonst.data), Race_if(PM_GIANT))
+    if (maybe_polyd(racial_throws_rocks(&youmonst), Race_if(PM_GIANT))
         && context.nopick) {
         if (In_sokoban(&u.uz) && sobj_at(BOULDER, sx, sy))
             change_luck(-2);
@@ -317,8 +317,8 @@ moverock()
                 if (!u.usteed) {
                     if (moves > lastmovetime + 2 || moves < lastmovetime)
                         pline("With %s effort you move %s.",
-                              throws_rocks(youmonst.data) ? "little"
-                                                          : "great",
+                              racial_throws_rocks(&youmonst) ? "little"
+                                                             : "great",
                               the(xname(otmp)));
                     exercise(A_STR, TRUE);
                 } else
@@ -347,7 +347,7 @@ moverock()
             if (Blind)
                 feel_location(sx, sy);
  cannot_push:
-            if (throws_rocks(youmonst.data)) {
+            if (racial_throws_rocks(&youmonst)) {
                 boolean
                     canpickup = (!Sokoban
                                  /* similar exception as in can_lift():
@@ -809,15 +809,15 @@ register xchar x, y;
 }
 
 boolean
-bad_rock(mdat, x, y)
-struct permonst *mdat;
+bad_rock(mtmp, x, y)
+struct monst *mtmp;
 register xchar x, y;
 {
     return (boolean) ((Sokoban && sobj_at(BOULDER, x, y))
                       || (IS_ROCK(levl[x][y].typ)
-                          && (!tunnels(mdat) || needspick(mdat)
+                          && (!racial_tunnels(mtmp) || racial_needspick(mtmp)
                               || !may_dig(x, y))
-                          && !(passes_walls(mdat) && may_passwall(x, y))));
+                          && !(passes_walls(mtmp->data) && may_passwall(x, y))));
 }
 
 /* caller has already decided that it's a tight diagonal; check whether a
@@ -984,8 +984,8 @@ int mode;
             }
         }
     }
-    if (dx && dy && bad_rock(youmonst.data, ux, y)
-        && bad_rock(youmonst.data, x, uy)) {
+    if (dx && dy && bad_rock(&youmonst, ux, y)
+        && bad_rock(&youmonst, x, uy)) {
         /* Move at a diagonal. */
         switch (cant_squeeze_thru(&youmonst)) {
         case 3:
@@ -1637,7 +1637,7 @@ domove_core()
                 confdir();
                 x = u.ux + u.dx;
                 y = u.uy + u.dy;
-            } while (!isok(x, y) || bad_rock(youmonst.data, x, y));
+            } while (!isok(x, y) || bad_rock(&youmonst, x, y));
         }
         /* turbulence might alter your actual destination */
         if (u.uinwater) {
@@ -2011,8 +2011,8 @@ domove_core()
                 u.usteed->mx = u.ux, u.usteed->my = u.uy;
             You("stop.  %s won't fit into the same spot that you're at.",
                  upstart(y_monnam(mtmp)));
-        } else if (u.ux0 != x && u.uy0 != y && bad_rock(mtmp->data, x, u.uy0)
-                   && bad_rock(mtmp->data, u.ux0, y)
+        } else if (u.ux0 != x && u.uy0 != y && bad_rock(mtmp, x, u.uy0)
+                   && bad_rock(mtmp, u.ux0, y)
                    && (bigmonst(mtmp->data) || (curr_mon_load(mtmp) > 600))) {
             /* can't swap places when pet won't fit thru the opening */
             You("stop.  %s won't fit through.", upstart(y_monnam(mtmp)));
@@ -3226,8 +3226,8 @@ int x, y;
     if (IS_DOOR(levl[x][y].typ) && (!doorless_door(x, y) || block_door(x, y)))
         return FALSE;
     /* finally, are we trying to squeeze through a too-narrow gap? */
-    return !(bad_rock(youmonst.data, u.ux, y)
-             && bad_rock(youmonst.data, x, u.uy));
+    return !(bad_rock(&youmonst, u.ux, y)
+             && bad_rock(&youmonst, x, u.uy));
 }
 
 /* something like lookaround, but we are not running */
@@ -3450,9 +3450,9 @@ inv_weight()
     while (otmp) {
         if (otmp->oclass == COIN_CLASS)
             wt += (int) (((long) otmp->quan + 50L) / 100L);
-        else if (otmp->otyp == BOULDER && throws_rocks(youmonst.data))
+        else if (otmp->otyp == BOULDER && racial_throws_rocks(&youmonst))
             wt += GIANT_BLDR_WEIGHT * otmp->quan;
-        else if (otmp->otyp != BOULDER || !throws_rocks(youmonst.data))
+        else if (otmp->otyp != BOULDER || racial_throws_rocks(&youmonst))
             wt += otmp->owt;
         otmp = otmp->nobj;
     }

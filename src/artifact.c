@@ -1056,11 +1056,15 @@ struct monst *mtmp;
     if (weap->spfx & SPFX_DMONS) {
         return (ptr == &mons[(int) weap->mtype]);
     } else if (weap->spfx & SPFX_DCLAS) {
-        return (weap->mtype == (unsigned long) ptr->mlet);
+        return ((weap->mtype == (unsigned long) ptr->mlet)
+                || (has_erac(mtmp) && weap->mtype ==
+                    (unsigned long) mons[ERAC(mtmp)->r_id].mlet));
     } else if (weap->spfx & SPFX_DFLAG1) {
-        return ((ptr->mflags1 & weap->mtype) != 0L);
+        return (((has_erac(mtmp) && (ERAC(mtmp)->mflags1 & weap->mtype))
+                || (ptr->mflags1 & weap->mtype) != 0L));
     } else if (weap->spfx & SPFX_DFLAGH) {
-        return ((ptr->mhflags & weap->mtype)
+        return ((has_erac(mtmp) && (ERAC(mtmp)->mrace & weap->mtype))
+                || (!has_erac(mtmp) && (ptr->mhflags & weap->mtype))
                 || (yours
                     && ((!Upolyd && (urace.selfmask & weap->mtype))
                         || ((weap->mtype & MH_WERE) && u.ulycn >= LOW_PM))));
@@ -2054,11 +2058,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     return FALSE;
                 return TRUE;
             case ART_GIANTSLAYER:
-                if (youattack && is_giant(mdef->data) && j) {
+                if (youattack && racial_giant(mdef) && j) {
                     You("eviscerate %s with a fatal swing!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (!youattack && !youdefend
-                           && magr && is_giant(mdef->data) && j) {
+                           && magr && racial_giant(mdef) && j) {
                     if (cansee(magr->mx, magr->my))
                         pline("%s eviscerates %s with a fatal swing!",
                               Monnam(magr), mon_nam(mdef));
@@ -2105,11 +2109,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     return FALSE;
                 return TRUE;
             case ART_ORCRIST:
-                if (youattack && is_orc(mdef->data) && j) {
+                if (youattack && racial_orc(mdef) && j) {
                     You("slice open %s throat!", s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (!youattack && !youdefend
-                           && magr && is_orc(mdef->data) && j) {
+                           && magr && racial_orc(mdef) && j) {
                     if (cansee(magr->mx, magr->my))
                         pline("%s slices open %s throat!",
                               Monnam(magr), s_suffix(mon_nam(mdef)));
@@ -2122,11 +2126,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     return FALSE;
                 return TRUE;
             case ART_STING:
-                if (youattack && is_orc(mdef->data) && j) {
+                if (youattack && racial_orc(mdef) && j) {
                     You("stab deep into %s heart!", s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                } else if (!youattack && !youdefend
-                          && magr && is_orc(mdef->data) && j) {
+                          && magr && racial_orc(mdef) && j) {
                     if (cansee(magr->mx, magr->my))
                         pline("%s stabs deep into %s heart!",
                               Monnam(magr), s_suffix(mon_nam(mdef)));
@@ -2139,11 +2143,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     return FALSE;
                 return TRUE;
             case ART_GRIMTOOTH:
-                if (youattack && is_elf(mdef->data) && j) {
+                if (youattack && racial_elf(mdef) && j) {
                     You("push Grimtooth deep into the bowels of %s!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                } else if (!youattack && !youdefend
-                          && magr && is_elf(mdef->data) && j) {
+                          && magr && racial_elf(mdef) && j) {
                     if (cansee(magr->mx, magr->my))
                         pline("%s pushes Grimtooth deep into %s bowels!",
                               Monnam(magr), s_suffix(mon_nam(mdef)));
