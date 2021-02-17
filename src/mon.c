@@ -5434,4 +5434,37 @@ struct monst *mon;
     mon->misc_worn_check |= I_SPECIAL;
 }
 
+void
+apply_race(mtmp, raceidx)
+struct monst *mtmp;
+int raceidx;
+{
+    register struct erac *rptr;
+    register struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->m_id];
+
+    boolean init = FALSE;
+    if (!has_erac(mtmp)) {
+        newerac(mtmp);
+        init = TRUE;
+    }
+
+    rptr = ERAC(mtmp);
+
+    if (init) {
+        memcpy(rptr->mattk, mptr->mattk, sizeof(struct attack) * NATTK);
+        rptr->mflags1 = mptr->mflags1;
+        rptr->mflags2 = mptr->mflags2;
+        rptr->mflags3 = mptr->mflags3;
+    }
+
+    mtmp->mintrinsics |= ptr->mresists;
+    rptr->mrace = ptr->mhflags;
+    rptr->r_id = raceidx;
+    /* racial mflags are cumulative with mflags from the base monster, rather
+     * than overwriting them entirely */
+    rptr->mflags1 |= ptr->mflags1;
+    rptr->mflags2 |= ptr->mflags2;
+    rptr->mflags3 |= ptr->mflags3;
+}
+
 /*mon.c*/
