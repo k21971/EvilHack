@@ -3141,6 +3141,9 @@ register struct permonst *ptr;
     static NEARDATA long oldmoves = 0L; /* != 1, starting value of moves */
     static NEARDATA s_level *lev;
     register int alshift;
+    /* the only randomly generated A_NONE monster is the infidel; use a more
+     * reasonable value for purposes of generation frequency */
+    aligntyp ma = (ptr->maligntyp == A_NONE) ? -3 : ptr->maligntyp;
 
     if (oldmoves != moves) {
         lev = Is_special(&u.uz);
@@ -3152,13 +3155,13 @@ register struct permonst *ptr;
         alshift = 0;
         break;
     case AM_LAWFUL:
-        alshift = (ptr->maligntyp + 20) / (2 * ALIGNWEIGHT);
+        alshift = (ma + 20) / (2 * ALIGNWEIGHT);
         break;
     case AM_NEUTRAL:
-        alshift = (20 - abs(ptr->maligntyp)) / ALIGNWEIGHT;
+        alshift = (20 - abs(ma)) / ALIGNWEIGHT;
         break;
     case AM_CHAOTIC:
-        alshift = (-(ptr->maligntyp - 20)) / (2 * ALIGNWEIGHT);
+        alshift = (-(ma - 20)) / (2 * ALIGNWEIGHT);
         break;
     }
     return alshift;
