@@ -468,9 +468,12 @@ boolean message;
     } else if (message)
         You("finish eating %s.", food_xname(piece, TRUE));
 
-    if (piece->otyp == CORPSE || piece->globby)
-        cpostfx(piece->corpsenm);
-    else
+    if (piece->otyp == CORPSE || piece->globby) {
+        if (has_omonst(piece) && has_erac(OMONST(piece)))
+            cpostfx(ERAC(OMONST(piece))->r_id);
+        else
+            cpostfx(piece->corpsenm);
+    } else
         fpostfx(piece);
 
     if (carried(piece))
