@@ -1392,4 +1392,6 @@ Version 0.7.0
 - Rename 'hobbit rogue' to 'hobbit pickpocket'
 - Racial soldiers and other mercenary types
 - Tweaks to player monster alignments
+- Add and use 'rndrace' function for picking races
+- A couple more minor tweaks to player monster alignment
 

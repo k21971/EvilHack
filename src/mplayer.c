@@ -192,6 +192,10 @@ struct monst *mtmp;
         rptr->mattk[0].damn = rptr->mattk[1].damn = 1;
         rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
         mtmp->mintrinsics |= (MR_POISON | MR_SLEEP);
+        if (race == PM_DWARF)
+            rptr->ralign = 3;
+        if (race == PM_ELF)
+            rptr->ralign = -3;
         break;
     case PM_PRIEST:
     case PM_PRIESTESS:
@@ -213,8 +217,8 @@ struct monst *mtmp;
         rptr->mattk[0].adtyp = AD_SAMU;
         rptr->mattk[1].adtyp = AD_SITM;
         rptr->mflags3 |= M3_ACCURATE;
-        if (race == PM_DWARF)
-            rptr->ralign = 3;
+        if (race == PM_HOBBIT)
+            rptr->ralign = 0;
         break;
     case PM_SAMURAI:
         /* flags for all samurai regardless of race */
@@ -231,6 +235,8 @@ struct monst *mtmp;
         rptr->mattk[0].damn = rptr->mattk[1].damn = 1;
         rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
         mtmp->mintrinsics |= MR_COLD;
+        if (race == PM_DWARF)
+            rptr->ralign = 3;
         break;
     case PM_WIZARD:
         /* flags for all wizards regardless of race */
