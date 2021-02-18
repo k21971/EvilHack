@@ -2342,11 +2342,6 @@ int mmflags;
         rptr->mrace = ptr->mhflags;
         memcpy(rptr->mattk, ptr->mattk, sizeof(struct attack) * NATTK);
 
-#if 0
-        if (iflags.use_color)
-            ptr->mcolor = CLR_YELLOW;
-#endif
-
         /* default player monster attacks */
         rptr->mattk[0].aatyp = AT_WEAP;
         rptr->mattk[0].adtyp = AD_PHYS;
