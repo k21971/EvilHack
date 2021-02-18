@@ -1388,4 +1388,5 @@ Version 0.7.0
 - Fix: clean-up a few warnings from the last PR
 - Fix: spelling error in README
 - Remove M3_SKITTISH from ranger monster template
+- State gender for monster using a portable container
 

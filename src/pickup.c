@@ -3196,7 +3196,7 @@ boolean creation;
         return 0;
 
     if (bag)
-	Strcpy(buf, the(xname(bag)));
+        Sprintf(buf, "%s %s", mhis(mon), xname(bag));
 
     if (attacktype(mon->data, AT_WEAP)) {
 	wep = MON_WEP(mon);
