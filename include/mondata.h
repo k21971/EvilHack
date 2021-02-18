@@ -486,4 +486,6 @@
     ((ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN] || (ptr) == &mons[PM_KOA] \
      || (ptr) == &mons[PM_OZZY])
 
+#define is_racialmon(ptr) (is_mplayer(ptr) || is_mercenary(ptr))
+
 #endif /* MONDATA_H */
