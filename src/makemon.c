@@ -2471,11 +2471,7 @@ int mmflags;
     }
 
     /* set player monsters rank/title, race flags, and any
-       appropriate flags that go along with their race.
-
-       FIXME: if two or more of the same type of player monster
-       spawns, whichever flags the newest one spawns with, the
-       older one(s) will assume */
+       appropriate flags that go along with their race */
     if (is_mplayer(ptr)) {
         char nam[PL_NSIZ];
         get_mplname(mtmp, nam);
@@ -2533,7 +2529,6 @@ int mmflags;
                 apply_race(mtmp, PM_DWARF);
                 break;
             case 2:
-                /* MR_POISON flag already set as convict */
                 apply_race(mtmp, PM_ORC);
                 break;
             case 3:
