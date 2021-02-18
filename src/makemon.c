@@ -2332,6 +2332,7 @@ int mmflags;
                 break;
             case 2:
                 apply_race(mtmp, PM_GNOME);
+                rptr->ralign = 0;
                 break;
             case 3:
                 apply_race(mtmp, PM_HOBBIT);
@@ -2349,6 +2350,7 @@ int mmflags;
             switch (rnd(5)) {
             case 1:
                 apply_race(mtmp, PM_DWARF);
+                rptr->ralign = 0;
                 break;
             case 2:
                 apply_race(mtmp, PM_ORC);
@@ -2380,6 +2382,7 @@ int mmflags;
                 break;
             case 2:
                 apply_race(mtmp, PM_GNOME);
+                rptr->ralign = 0;
                 break;
             case 3:
                 apply_race(mtmp, PM_GIANT);
@@ -2524,9 +2527,11 @@ int mmflags;
                 break;
             case 6:
                 apply_race(mtmp, PM_ORC);
+                rptr->ralign = -3;
                 break;
             case 7:
                 apply_race(mtmp, PM_ILLITHID);
+                rptr->ralign = -3;
                 rptr->mattk[2].aatyp = AT_TENT;
                 rptr->mattk[2].adtyp = AD_DRIN;
                 rptr->mattk[2].damn = 2;
@@ -2550,6 +2555,7 @@ int mmflags;
                 break;
             case 3:
                 apply_race(mtmp, PM_HOBBIT);
+                rptr->ralign = 0;
                 break;
             case 4:
                 apply_race(mtmp, PM_CENTAUR);
@@ -2574,6 +2580,7 @@ int mmflags;
                 break;
             case 2:
                 apply_race(mtmp, PM_HOBBIT);
+                rptr->ralign = 0;
                 break;
             case 3:
                 apply_race(mtmp, PM_ORC);
@@ -2622,6 +2629,7 @@ int mmflags;
             switch (rnd(4)) {
             case 1:
                 apply_race(mtmp, PM_DWARF);
+                rptr->ralign = 3;
                 break;
             case 2:
                 apply_race(mtmp, PM_GIANT);
@@ -2658,9 +2666,11 @@ int mmflags;
                 break;
             case 6:
                 apply_race(mtmp, PM_ORC);
+                rptr->ralign = -3;
                 break;
             case 7:
                 apply_race(mtmp, PM_ILLITHID);
+                rptr->ralign = -3;
                 rptr->mattk[2].aatyp = AT_TENT;
                 rptr->mattk[2].adtyp = AD_DRIN;
                 rptr->mattk[2].damn = 2;
@@ -2677,8 +2687,6 @@ int mmflags;
     }
 
     if (is_mercenary(ptr)) {
-        newerac(mtmp);
-
         switch (mndx) {
         case PM_SOLDIER:
         case PM_SERGEANT:

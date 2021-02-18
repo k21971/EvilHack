@@ -1391,4 +1391,5 @@ Version 0.7.0
 - State gender for monster using a portable container
 - Rename 'hobbit rogue' to 'hobbit pickpocket'
 - Racial soldiers and other mercenary types
+- Tweaks to player monster alignments
 
