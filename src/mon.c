@@ -5531,11 +5531,11 @@ int raceidx;
 {
     register struct erac *rptr;
     register struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->mnum];
+    boolean init = FALSE;
 
     if (!mtmp || raceidx == NON_PM)
         return;
 
-    boolean init = FALSE;
     if (!has_erac(mtmp)) {
         newerac(mtmp);
         init = TRUE;
