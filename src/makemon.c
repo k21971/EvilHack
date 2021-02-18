@@ -121,7 +121,7 @@ int x, y, n, mmflags;
     mm.x = x;
     mm.y = y;
     while (cnt--) {
-        if (peace_minded(mtmp->data))
+        if (peace_minded(mtmp))
             continue;
         /* Don't create groups of peaceful monsters since they'll get
          * in our way.  If the monster has a percentage chance so some
@@ -739,7 +739,7 @@ register struct monst *mtmp;
                 if (otmp->oclass == WEAPON_CLASS) {
                     if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
                         if (!rn2(100 + 10 * nartifact_exist()))
-                            mk_artifact(otmp, sgn(mtmp->data->maligntyp));
+                            mk_artifact(otmp, sgn(mon_aligntyp(mtmp)));
                         else if (!rn2(8))
                             create_oprop(otmp, FALSE);
                     }
@@ -2295,57 +2295,20 @@ int mmflags;
     place_monster(mtmp, x, y);
     mtmp->mcansee = mtmp->mcanmove = TRUE;
     mtmp->seen_resistance = M_SEEN_NOTHING;
-    mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(ptr);
-
-    /* Here is where we match riding monsters with their mounts */
-    if (!(mmflags & MM_REVIVE)) {
-        switch (mndx) {
-        case PM_DEATH:
-            mount_monster(mtmp, PM_PALE_HORSE);
-            break;
-        case PM_FAMINE:
-            mount_monster(mtmp, PM_BLACK_HORSE);
-            break;
-        case PM_PESTILENCE:
-            mount_monster(mtmp, PM_WHITE_HORSE);
-            break;
-        case PM_NAZGUL:
-            mount_monster(mtmp, PM_FELL_BEAST);
-            break;
-        case PM_GOBLIN_OUTRIDER:
-            mount_monster(mtmp, PM_WOLF);
-            break;
-        case PM_GOBLIN_CAPTAIN:
-            mount_monster(mtmp, PM_WARG);
-            break;
-        case PM_KNIGHT:
-            rn2(2) ? mount_monster(mtmp, PM_HORSE)
-                   : mount_monster(mtmp, PM_WARHORSE);
-            break;
-        case PM_FROST_GIANT:
-            if (Iniceq && !rn2(5))
-                mount_monster(mtmp, PM_WOOLLY_MAMMOTH);
-            break;
-        }
-    }
 
     /* set player monsters rank/title, race flags, and any
        appropriate flags that go along with their race */
     if (is_mplayer(ptr)) {
         char nam[PL_NSIZ];
+        struct erac *rptr;
         get_mplname(mtmp, nam);
         mtmp = christen_monst(mtmp, nam);
 
         newerac(mtmp);
-        struct erac *rptr;
         rptr = ERAC(mtmp);
         rptr->mrace = ptr->mhflags;
+        rptr->ralign = ptr->maligntyp;
         memcpy(rptr->mattk, ptr->mattk, sizeof(struct attack) * NATTK);
-
-#if 0
-        if (iflags.use_color)
-            ptr->mcolor = CLR_YELLOW;
-#endif
 
         /* default player monster attacks */
         rptr->mattk[0].aatyp = AT_WEAP;
@@ -2501,6 +2464,7 @@ int mmflags;
             switch (rnd(2)) {
             case 1:
                 apply_race(mtmp, PM_ELF);
+                rptr->ralign = -3;
                 break;
             case 2:
                 apply_race(mtmp, PM_HUMAN);
@@ -2771,6 +2735,40 @@ int mmflags;
         }
     }
 
+    mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(mtmp);
+
+    /* Here is where we match riding monsters with their mounts */
+    if (!(mmflags & MM_REVIVE)) {
+        switch (mndx) {
+        case PM_DEATH:
+            mount_monster(mtmp, PM_PALE_HORSE);
+            break;
+        case PM_FAMINE:
+            mount_monster(mtmp, PM_BLACK_HORSE);
+            break;
+        case PM_PESTILENCE:
+            mount_monster(mtmp, PM_WHITE_HORSE);
+            break;
+        case PM_NAZGUL:
+            mount_monster(mtmp, PM_FELL_BEAST);
+            break;
+        case PM_GOBLIN_OUTRIDER:
+            mount_monster(mtmp, PM_WOLF);
+            break;
+        case PM_GOBLIN_CAPTAIN:
+            mount_monster(mtmp, PM_WARG);
+            break;
+        case PM_KNIGHT:
+            rn2(2) ? mount_monster(mtmp, PM_HORSE)
+                   : mount_monster(mtmp, PM_WARHORSE);
+            break;
+        case PM_FROST_GIANT:
+            if (Iniceq && !rn2(5))
+                mount_monster(mtmp, PM_WOOLLY_MAMMOTH);
+            break;
+        }
+    }
+
     switch (ptr->mlet) {
     case S_MIMIC:
         set_mimic_sym(mtmp);
@@ -2925,9 +2923,10 @@ int mmflags;
     /* these monsters are normally affiliated with a deity */
     if ((mndx == PM_PALADIN || mndx == PM_TEMPLAR || mndx == PM_CHAMPION
          || mndx == PM_AGENT) && !(mmflags & MM_EMIN)) {
+        aligntyp mal = has_erac(mtmp) ? ERAC(mtmp)->ralign : ptr->maligntyp;
         newemin(mtmp);
         mtmp->isminion = 1;
-        EMIN(mtmp)->min_align = sgn(ptr->maligntyp);
+        EMIN(mtmp)->min_align = sgn(mal);
     }
     set_malign(mtmp); /* having finished peaceful changes */
     if (anymon && !(mmflags & MM_NOGRP)) {
@@ -3639,10 +3638,12 @@ int type;
  *      (Some "animal" types are co-aligned, but also hungry.)
  */
 boolean
-peace_minded(ptr)
-register struct permonst *ptr;
+peace_minded(mtmp)
+register struct monst *mtmp;
 {
-    aligntyp mal = ptr->maligntyp, ual = u.ualign.type;
+    register struct permonst *ptr = mtmp->data;
+    aligntyp mal = has_erac(mtmp) ? ERAC(mtmp)->ralign : ptr->maligntyp,
+             ual = u.ualign.type;
 
     if (always_peaceful(ptr))
         return TRUE;
@@ -3702,7 +3703,7 @@ void
 set_malign(mtmp)
 struct monst *mtmp;
 {
-    schar mal = mtmp->data->maligntyp;
+    schar mal = has_erac(mtmp) ? ERAC(mtmp)->ralign : mtmp->data->maligntyp;
     boolean coaligned;
 
     if (mtmp->ispriest || mtmp->isminion) {

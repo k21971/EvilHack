@@ -1070,8 +1070,8 @@ struct monst *mtmp;
                         || ((weap->mtype & MH_WERE) && u.ulycn >= LOW_PM))));
     } else if (weap->spfx & SPFX_DALIGN) {
         return yours ? (u.ualign.type != weap->alignment)
-                     : (ptr->maligntyp == A_NONE
-                        || sgn(ptr->maligntyp) != weap->alignment);
+                     : (mon_aligntyp(mtmp) == A_NONE
+                        || sgn(mon_aligntyp(mtmp)) != weap->alignment);
     } else if (weap->spfx & SPFX_ATTK) {
         struct obj *defending_weapon = (yours ? uwep : MON_WEP(mtmp));
 

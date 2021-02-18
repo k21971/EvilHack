@@ -71,11 +71,7 @@ struct monst *mon;
         if (Iniceq && is_demon(ptr))
             dtype = PM_ICE_DEVIL;
 
-        atyp = mon->ispriest ? EPRI(mon)->shralign
-                             : mon->isminion ? EMIN(mon)->min_align
-                                             : (ptr->maligntyp == A_NONE)
-                                                   ? A_NONE
-                                                   : sgn(ptr->maligntyp);
+        atyp = mon_aligntyp(mon);
     } else {
         ptr = &mons[PM_WIZARD_OF_YENDOR];
         atyp = (ptr->maligntyp == A_NONE) ? A_NONE : sgn(ptr->maligntyp);
@@ -282,7 +278,7 @@ register struct monst *mtmp;
 
     cash = money_cnt(invent);
     demand = rn1(4000, 1000)
-           + (1000 * (1 + (sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))));
+           + (1000 * (1 + (sgn(u.ualign.type) == sgn(mon_aligntyp(mtmp)))));
 
     if (!demand || multi < 0 || cash <= 0) { /* you have no gold or can't move */
         mtmp->mpeaceful = 0;

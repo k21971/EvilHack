@@ -3417,7 +3417,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     }
     if ((mtmp->mpeaceful && !rn2(2)) || mtmp->mtame)
         change_luck(-1);
-    if (is_unicorn(mdat) && u.ualign.type == sgn(mdat->maligntyp)) {
+    if (is_unicorn(mdat) && u.ualign.type == mon_aligntyp(mtmp)) {
         change_luck(-5);
         You_feel("guilty...");
     }
@@ -5451,6 +5451,7 @@ int raceidx;
     rptr = ERAC(mtmp);
 
     if (init) {
+        rptr->ralign = mptr->maligntyp;
         memcpy(rptr->mattk, mptr->mattk, sizeof(struct attack) * NATTK);
         rptr->mflags1 = mptr->mflags1;
         rptr->mflags2 = mptr->mflags2;

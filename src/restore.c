@@ -1210,9 +1210,9 @@ boolean ghostly;
             if (!mtmp->isshk)
                 mtmp->mpeaceful =
                     (is_unicorn(mtmp->data)
-                     && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))
+                     && sgn(u.ualign.type) == mon_aligntyp(mtmp))
                         ? TRUE
-                        : peace_minded(mtmp->data);
+                        : peace_minded(mtmp);
             set_malign(mtmp);
         } else if (elapsed > 0L) {
             mon_catchup_elapsed_time(mtmp, elapsed);

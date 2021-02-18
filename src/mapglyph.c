@@ -330,8 +330,8 @@ unsigned mgflags;
         } else {
             mon_color(glyph);
 #ifdef TEXTCOLOR
-            /* special case the hero for `showrace' option */
-            if (iflags.use_color && is_you && flags.showrace && !Upolyd)
+            /* special case for the hero in their normal form */
+            if (iflags.use_color && is_you && !Upolyd)
                 color = HI_DOMESTIC;
 #endif
         }

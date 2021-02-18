@@ -28,6 +28,7 @@ struct monst *mtmp;
         ERID(mtmp)->m1->mpeaceful = mtmp->mpeaceful;
     }
 }
+
 void mount_monster(mtmp, pm)
 struct monst *mtmp;
 int pm;
@@ -50,6 +51,9 @@ int pm;
     ERID(mtmp)->m1->mx = mtmp->mx;
     ERID(mtmp)->m1->my = mtmp->my;
     newsym(mtmp->mx, mtmp->my);
+
+    /* rider over'rides' horse's natural inclinations */
+    mount->mpeaceful = mtmp->mpeaceful;
 
     if (!rn2(3) && can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
         struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);

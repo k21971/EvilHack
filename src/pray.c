@@ -1390,9 +1390,11 @@ int
 check_malign(mtmp)
 register struct monst *mtmp;
 {
-    if (mtmp->data->maligntyp < 0) {
+    aligntyp mon_align = has_erac(mtmp) ? ERAC(mtmp)->ralign
+                                        : mtmp->data->maligntyp;
+    if (mon_align < 0) {
         return A_CHAOTIC;
-    } else if (mtmp->data->maligntyp > 0) {
+    } else if (mon_align > 0) {
         return A_LAWFUL;
     } else {
         return A_NEUTRAL;
@@ -1647,7 +1649,7 @@ dosacrifice()
                     else
                         dmon->mstrategy &= ~STRAT_APPEARMSG;
                     You("have summoned %s!", dbuf);
-                    if (sgn(u.ualign.type) == sgn(dmon->data->maligntyp))
+                    if (sgn(u.ualign.type) == sgn(check_malign(dmon)))
                         dmon->mpeaceful = TRUE;
                     You("are terrified, and unable to move.");
                     nomul(-3);

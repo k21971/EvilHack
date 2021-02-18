@@ -179,6 +179,7 @@ struct erid {
 struct erac {
     unsigned long mrace;
     int r_id;
+    aligntyp ralign; 
     struct attack mattk[NATTK]; /* attacks matrix */
     unsigned long mflags1;
     unsigned long mflags2;

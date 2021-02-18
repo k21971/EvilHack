@@ -281,7 +281,7 @@ register struct monst *mtmp;
     /* Do we have the Amulet? Alrighty then... */
     if (Is_astralevel(&u.uz)) {
 	int targetx = u.ux, targety = u.uy;
-	aligntyp malign = sgn(mtmp->data->maligntyp);
+	aligntyp malign = sgn(mon_aligntyp(mtmp));
 
 	if (IS_ALTAR(levl[10][10].typ)
             && a_align(10, 10) == malign)
@@ -640,7 +640,7 @@ BOOLEAN_P centered_on_stairs;
 {
     register struct monst *mtmp;
     register int i, j, tmp;
-    int castalign = (summoner ? sgn(summoner->data->maligntyp) : 0);
+    int castalign = (summoner ? sgn(mon_aligntyp(summoner)) : 0);
     coord bypos;
     int count, census, s_cls, m_cls;
 
@@ -718,8 +718,8 @@ BOOLEAN_P centered_on_stairs;
                     /* delay first use of spell or breath attack */
                     mtmp->mspec_used = rnd(4);
                     if (++count >= MAXNASTIES
-                        || mtmp->data->maligntyp == 0
-                        || sgn(mtmp->data->maligntyp) == castalign)
+                        || mon_aligntyp(mtmp) == 0
+                        || sgn(mon_aligntyp(mtmp)) == castalign)
                         break;
                 }
             }

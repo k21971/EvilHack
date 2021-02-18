@@ -1249,7 +1249,7 @@ E int FDECL(adj_lev, (struct permonst *));
 E struct permonst *FDECL(grow_up, (struct monst *, struct monst *));
 E int FDECL(mongets, (struct monst *, int));
 E int FDECL(golemhp, (int));
-E boolean FDECL(peace_minded, (struct permonst *));
+E boolean FDECL(peace_minded, (struct monst *));
 E void FDECL(set_malign, (struct monst *));
 E void FDECL(newmcorpsenm, (struct monst *));
 E void FDECL(freemcorpsenm, (struct monst *));
