@@ -4786,14 +4786,21 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
         return 0; /* still the same monster */
 
     mgender_from_permonst(mtmp, mdat);
-    /* Endgame mplayers start out as "Foo the Bar", but some of the
-     * titles are inappropriate when polymorphed, particularly into
-     * the opposite sex.  Player characters don't use ranks when
-     * polymorphed, so dropping rank for mplayers seems reasonable.
+    /* mplayers start out as "Foo the Bar", but some of the titles are
+     * inappropriate when polymorphed, particularly into the opposite sex.
+     * Player characters don't use ranks when polymorphed, so dropping rank
+     * for mplayers seems reasonable.
      */
-    if (In_endgame(&u.uz) && is_mplayer(olddata)
-        && has_mname(mtmp) && (p = strstr(MNAME(mtmp), " the ")) != 0)
+    if (is_mplayer(olddata) && has_mname(mtmp)
+        && (p = strstr(MNAME(mtmp), " the ")) != 0)
         *p = '\0';
+
+    /* handle racial characteristics -- remove an old race if it exists,
+     * and add a new random race if polymorphing into a racial monster */
+    if (has_erac(mtmp))
+        free_erac(mtmp);
+    if (is_racialmon(mdat))
+        apply_race(mtmp, rndrace(mtmp->mnum));
 
     if (mtmp->wormno) { /* throw tail away */
         wormgone(mtmp);
