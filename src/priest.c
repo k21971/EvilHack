@@ -428,7 +428,9 @@ struct monst *mon;
 {
     aligntyp algn = mon->ispriest ? EPRI(mon)->shralign
                                   : mon->isminion ? EMIN(mon)->min_align
-                                                  : mon->data->maligntyp;
+                                                  : has_erac(mon)
+                                                      ? ERAC(mon)->ralign
+                                                      : mon->data->maligntyp;
 
     if (algn == A_NONE)
         return A_NONE; /* negative but differs from chaotic */

@@ -812,7 +812,7 @@ int spellnum;
         if (mtmp->ispriest)
             aligntype = EPRI(mtmp)->shralign;
         else
-            aligntype = sgn(mtmp->data->maligntyp);
+            aligntype = sgn(mon_aligntyp(mtmp));
 
         if (aligntype == A_NONE) {
             pline("A vassal of %s appears!", Moloch);
@@ -1860,8 +1860,8 @@ int spellnum;
                         mpet = makemon((struct permonst *)0,
                                        bypos.x, bypos.y, NO_MM_FLAGS);
                     if (mpet && (u.ualign.type == 0
-     		        || mpet->data->maligntyp == 0
-                        || sgn(mpet->data->maligntyp) == sgn(u.ualign.type))) {
+     		        || mon_aligntyp(mpet) == 0
+                        || sgn(mon_aligntyp(mpet)) == sgn(u.ualign.type))) {
                         count++;
                         break;
                     }
@@ -2097,7 +2097,7 @@ int spellnum;
         if (mtmp->ispriest)
             aligntype = EPRI(mtmp)->shralign;
         else
-            aligntype = sgn(mtmp->data->maligntyp);
+            aligntype = sgn(mon_aligntyp(mtmp));
 
         if (aligntype == A_NONE) {
             pline("A vassal of %s appears!", Moloch);

@@ -28,6 +28,7 @@ struct monst *mtmp;
         ERID(mtmp)->m1->mpeaceful = mtmp->mpeaceful;
     }
 }
+
 void mount_monster(mtmp, pm)
 struct monst *mtmp;
 int pm;

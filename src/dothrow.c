@@ -1954,7 +1954,7 @@ register struct monst *mon;
 register struct obj *obj;
 {
     char buf[BUFSZ];
-    boolean is_buddy = sgn(mon->data->maligntyp) == u.ualign.type;
+    boolean is_buddy = (sgn(mon_aligntyp(mon)) == u.ualign.type);
     boolean is_gem = obj->material == GEMSTONE;
     int ret = 0;
     static NEARDATA const char nogood[] = " is not interested in your junk.";
