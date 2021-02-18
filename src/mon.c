@@ -5434,13 +5434,99 @@ struct monst *mon;
     mon->misc_worn_check |= I_SPECIAL;
 }
 
+int
+rndrace(mndx)
+int mndx;
+{
+#define NUM_RACES 9
+    int i, count = 0, race = NON_PM,
+        mraces[NUM_RACES] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME, PM_ORC,
+                              PM_GIANT, PM_HOBBIT, PM_CENTAUR, PM_ILLITHID };
+    unsigned long permitted = MH_HUMAN;
+
+    switch (mndx) {
+    case PM_SOLDIER:
+    case PM_SERGEANT:
+    case PM_LIEUTENANT:
+    case PM_WATCHMAN:
+    case PM_GUARD:
+    case PM_PRISON_GUARD:
+        permitted |= (MH_CENTAUR | MH_ORC);
+        /* fallthru */
+    case PM_CAPTAIN:
+    case PM_WATCH_CAPTAIN:
+        permitted |= (MH_DWARF | MH_ELF | MH_GNOME | MH_GIANT);
+        break;
+    case PM_ARCHEOLOGIST:
+        permitted |= (MH_DWARF | MH_GNOME | MH_HOBBIT);
+        break;
+    case PM_BARBARIAN:
+    case PM_MONK:
+        permitted |= (MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR);
+        break;
+    case PM_CAVEMAN:
+    case PM_CAVEWOMAN:
+        permitted |= (MH_DWARF | MH_GNOME | MH_GIANT);
+        break;
+    case PM_CONVICT:
+    case PM_HEALER:
+        permitted |= (MH_DWARF | MH_ORC | MH_GNOME | MH_HOBBIT);
+        break;
+    case PM_INFIDEL:
+        permitted |= (MH_ORC | MH_ILLITHID);
+        break;
+    case PM_KNIGHT:
+        permitted |= MH_ELF;
+        break;
+    case PM_PRIEST:
+    case PM_PRIESTESS:
+        permitted |=
+            (MH_DWARF | MH_ELF | MH_GIANT | MH_HOBBIT | MH_CENTAUR | MH_ORC);
+        break;
+    case PM_RANGER:
+        permitted |= (MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR | MH_ORC);
+        break;
+    case PM_ROGUE:
+        permitted |= (MH_ELF | MH_HOBBIT | MH_ORC);
+        break;
+    case PM_SAMURAI:
+        permitted |= (MH_DWARF | MH_GIANT);
+        break;
+    case PM_TOURIST:
+        permitted |= MH_HOBBIT;
+        break;
+    case PM_VALKYRIE:
+        permitted |= (MH_DWARF | MH_GIANT | MH_CENTAUR);
+        break;
+    case PM_WIZARD:
+        permitted |=
+          (MH_DWARF | MH_ELF | MH_GIANT | MH_GNOME | MH_HOBBIT | MH_ILLITHID);
+        break;
+    default:
+        break;
+    }
+
+    for (i = 0; i < NUM_RACES; i++) {
+        if (permitted & mons[mraces[i]].mhflags) {
+            count++;
+            if (!rn2(count))
+                race = mraces[i];
+        }
+    }
+
+    return race;
+}
+
 void
 apply_race(mtmp, raceidx)
 struct monst *mtmp;
 int raceidx;
 {
     register struct erac *rptr;
-    register struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->m_id];
+    register struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->mnum];
+
+    if (!mtmp || raceidx == NON_PM)
+        return;
 
     boolean init = FALSE;
     if (!has_erac(mtmp)) {

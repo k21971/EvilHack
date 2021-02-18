@@ -1549,6 +1549,7 @@ E void FDECL(decide_to_shapeshift, (struct monst *, int));
 E boolean FDECL(vamp_stone, (struct monst *));
 E boolean FDECL(damage_mon, (struct monst*, int, int));
 E void FDECL(check_gear_next_turn, (struct monst *));
+E int FDECL(rndrace, (int));
 E void FDECL(apply_race, (struct monst *, int));
 
 /* ### mondata.c ### */
