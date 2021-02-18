@@ -1390,4 +1390,5 @@ Version 0.7.0
 - Remove M3_SKITTISH from ranger monster template
 - State gender for monster using a portable container
 - Rename 'hobbit rogue' to 'hobbit pickpocket'
+- Racial soldiers and other mercenary types
 

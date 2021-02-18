@@ -374,13 +374,13 @@ register struct obj *gold;
             long goldreqd = 0L;
 
             if (rn2(3)) {
-                if (is_soldier(mtmp->data))
+                if (mtmp->data == &mons[PM_SOLDIER])
                     goldreqd = 100L;
-                else if (is_sergeant(mtmp->data))
+                else if (mtmp->data == &mons[PM_SERGEANT])
                     goldreqd = 250L;
-                else if (is_lieutenant(mtmp->data))
+                else if (mtmp->data == &mons[PM_LIEUTENANT])
                     goldreqd = 500L;
-                else if (is_captain(mtmp->data))
+                else if (mtmp->data == &mons[PM_CAPTAIN])
                     goldreqd = 750L;
                 else if (mtmp->data == &mons[PM_PRISON_GUARD])
                     goldreqd = 200L;

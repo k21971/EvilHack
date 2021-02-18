@@ -1189,8 +1189,9 @@ NON_DIGGABLE:(61,15,61,16)
 # the Trespassers sign used to be a long-running joke...
 ENGRAVING:(12,03),engrave,"You are now entering the Gnome King's wine cellar."
 ENGRAVING:(12,04),engrave,"Trespassers will be persecuted!"
-MONSTER:('@',"gnomish sergeant"),(14,04),hostile
-MONSTER:('@',"gnomish soldier"),(14,05),hostile
+# hired mercenaries, courtesy of the Yendorian Army
+MONSTER:('@',"sergeant"),(14,04),hostile
+MONSTER:('@',"soldier"),(14,05),hostile
 OBJECT:('!',"booze"),(10,07)
 OBJECT:('!',"booze"),(10,07)
 OBJECT:'!',(10,07)
