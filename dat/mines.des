@@ -1105,7 +1105,7 @@ MONSTER:('G',"rock gnome"),random
 MONSTER:('G',"rock gnome"),random
 MONSTER:('G',"rock gnome"),random
 MONSTER:('h',"hobbit"),random
-MONSTER:('h',"hobbit rogue"),random
+MONSTER:('h',"hobbit pickpocket"),random
 MONSTER:('h',"mountain dwarf"),random
 MONSTER:('h',"mountain dwarf"),random
 MONSTER:('h',"mountain dwarf"),random
@@ -1257,7 +1257,7 @@ MONSTER:('G',"rock gnome"),random
 MONSTER:('G',"rock gnome"),random
 MONSTER:('G',"rock gnome"),random
 MONSTER:('h',"hobbit"),random
-MONSTER:('h',"hobbit rogue"),random
+MONSTER:('h',"hobbit pickpocket"),random
 MONSTER:('h',"mountain dwarf"),random
 MONSTER:('h',"mountain dwarf"),random
 MONSTER:('h',"mountain dwarf"),random

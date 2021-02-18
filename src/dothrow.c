@@ -191,11 +191,6 @@ int shotlimit;
                 if (skill == -P_CROSSBOW)
                     multishot++;
                 break;
-            case PM_HOBBIT_ROGUE:
-                /* Hobbit rogues are good with slings and small blades */
-                if ((skill == -P_SLING) || (skill == -P_KNIFE) || (skill == -P_DAGGER))
-                    multishot++;
-                break;
             case PM_HUMAN:
             case PM_DWARF:
             default:
