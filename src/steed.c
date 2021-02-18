@@ -51,6 +51,9 @@ int pm;
     ERID(mtmp)->m1->my = mtmp->my;
     newsym(mtmp->mx, mtmp->my);
 
+    /* rider over'rides' horse's natural inclinations */
+    mount->mpeaceful = mtmp->mpeaceful;
+
     if (!rn2(3) && can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
         struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
         put_saddle_on_mon(otmp, mount);
