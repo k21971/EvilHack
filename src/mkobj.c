@@ -1494,28 +1494,28 @@ unsigned onoff; /* 1 or 0 */
  * Instead, use arbitrary units. */
 STATIC_DCL
 const int matdensities[] = {
-    0,   // will cause div/0 errors if anything is this material
-    10,  // LIQUID
-    15,  // WAX
-    10,  // VEGGY
-    10,  // FLESH
-    5,   // PAPER
-    10,  // CLOTH
-    15,  // LEATHER
-    30,  // WOOD
-    25,  // BONE
-    20,  // DRAGON_HIDE
-    80,  // IRON
-    75,  // METAL
-    85,  // COPPER
-    90,  // SILVER
-    120, // GOLD
-    120, // PLATINUM
-    30,  // MITHRIL
-    20,  // PLASTIC
-    60,  // GLASS
-    55,  // GEMSTONE
-    70   // MINERAL
+    0,   /* will cause div/0 errors if anything is this material */
+    10,  /* LIQUID */
+    15,  /* WAX */
+    10,  /* VEGGY */
+    10,  /* FLESH */
+    5,   /* PAPER */
+    10,  /* CLOTH */
+    15,  /* LEATHER */
+    30,  /* WOOD */
+    25,  /* BONE */
+    20,  /* DRAGON_HIDE */
+    80,  /* IRON */
+    75,  /* METAL */
+    85,  /* COPPER */
+    90,  /* SILVER */
+    120, /* GOLD */
+    120, /* PLATINUM */
+    30,  /* MITHRIL */
+    20,  /* PLASTIC */
+    60,  /* GLASS */
+    55,  /* GEMSTONE */
+    70   /* MINERAL */
 };
 
 /*
@@ -1602,27 +1602,27 @@ register struct obj *obj;
  * matters.) */
 const int matac[] = {
      0,
-     0,  // LIQUID
-     1,  // WAX
-     1,  // VEGGY
-     3,  // FLESH
-     1,  // PAPER
-     2,  // CLOTH
-     3,  // LEATHER
-     4,  // WOOD
-     5,  // BONE
-     8,  // DRAGON_HIDE
-     5,  // IRON - de facto baseline for metal armor
-     5,  // METAL
-     4,  // COPPER
-     5,  // SILVER
-     3,  // GOLD
-     4,  // PLATINUM
-     6,  // MITHRIL
-     3,  // PLASTIC
-     5,  // GLASS
-     7,  // GEMSTONE
-     6   // MINERAL
+     0,  /* LIQUID */
+     1,  /* WAX */
+     1,  /* VEGGY */
+     3,  /* FLESH */
+     1,  /* PAPER */
+     2,  /* CLOTH */
+     3,  /* LEATHER */
+     4,  /* WOOD */
+     5,  /* BONE */
+     8,  /* DRAGON_HIDE */
+     5,  /* IRON - de facto baseline for metal armor */
+     5,  /* METAL */
+     4,  /* COPPER */
+     5,  /* SILVER */
+     3,  /* GOLD */
+     4,  /* PLATINUM */
+     6,  /* MITHRIL */
+     3,  /* PLASTIC */
+     5,  /* GLASS */
+     7,  /* GEMSTONE */
+     6   /* MINERAL */
 };
 
 /* Compute the bonus or penalty to AC an armor piece should get for being a
