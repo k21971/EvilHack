@@ -1398,4 +1398,5 @@ Version 0.7.0
 - Fix: knight player monster titles match their alignment
 - Adjust centaurian race player monster gear
 - Player can't regen hit points while in the Valley of the Dead
+- Wand of death acts like full healing if used against undead
 

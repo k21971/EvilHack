@@ -4007,6 +4007,18 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 tmp = 0;
                 break;
             }
+            if (is_undead(mon->data)) {
+                /* wand of death acts like a potion of full healing
+                   for the undead, especially whilst in the VotD */
+                if (Is_valley(&u.uz)) {
+                    mon->mhpmax += mon->mhpmax / 6;
+                    if (mon->mhpmax > 200)
+                        mon->mhpmax = 200;
+                }
+                mon->mhp = mon->mhpmax;
+                tmp = 0;
+                break;
+            }
             if (immune_death_magic(mon->data)
                 || is_vampshifter(mon)) {
                 sho_shieldeff = TRUE;
