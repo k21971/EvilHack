@@ -1396,4 +1396,5 @@ Version 0.7.0
 - A couple more minor tweaks to player monster alignment
 - Fix: silence a few warnings (clang)
 - Fix: knight player monster titles match their alignment
+- Adjust centaurian race player monster gear
 

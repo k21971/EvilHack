@@ -217,6 +217,40 @@ struct trobj subInfidel[] = {
     { 0, 0, 0, 0, 0 }
 };
 
+/* Specialized structs for centaurian player monsters */
+struct trobj Level10KitCentaur1[] = {
+        { ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level10KitCentaur2[] = {
+        { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { ELVEN_CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20KitCentaur1[] = {
+        { SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20KitCentaur2[] = {
+        { GRAY_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+/* end centaur structs */
+
 /* Specialized structs for giant player monsters */
 struct trobj giantBarbarian[] = {
     { TWO_HANDED_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
@@ -572,14 +606,20 @@ register struct monst *mtmp;
     if (is_mplayer(ptr) && !In_endgame(&u.uz)) {
         if (mtmp->m_lev > 1) {
             if (racial_giant(mtmp)) {
-                if (mtmp->m_lev > 1) {
-                    if (mtmp->m_lev > 10 || !rn2(15))
-                        ini_mon_inv(mtmp, Level20KitGiant,
-                                    (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
-                }
+                if (mtmp->m_lev > 10 || !rn2(15))
+                    ini_mon_inv(mtmp, Level20KitGiant,
+                                (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
                 ini_mon_inv(mtmp, Level10KitGiant,
                             (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
                 (void) mongets(mtmp, BOULDER);
+            } else if (racial_centaur(mtmp)) {
+                if (mtmp->m_lev > 10 || !rn2(15))
+                    ini_mon_inv(mtmp, rn2(2) ? Level20KitCentaur1
+                                             : Level20KitCentaur2,
+                                (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                ini_mon_inv(mtmp, rn2(2) ? Level10KitCentaur1
+                                         : Level10KitCentaur2,
+                            (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
             } else {
                 if (mtmp->m_lev > 10 || !rn2(15)) {
                     switch (rnd(4)) {
