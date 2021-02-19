@@ -2329,7 +2329,6 @@ dosacrifice()
                     }
                     debugpline0("Failed to create item from typ - no typ");
                 }
-
             } else if (u.uluck >= 0 && !rn2(10 + (2 * nartifacts))) {
                 otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
                 if (otmp) {

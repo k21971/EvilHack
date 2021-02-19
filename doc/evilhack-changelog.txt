@@ -1397,4 +1397,5 @@ Version 0.7.0
 - Fix: silence a few warnings (clang)
 - Fix: knight player monster titles match their alignment
 - Adjust centaurian race player monster gear
+- Player can't regen hit points while in the Valley of the Dead
 

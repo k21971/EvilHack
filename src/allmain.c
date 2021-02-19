@@ -770,7 +770,7 @@ int wtcap;
            once u.mh reached u.mhmax; that may have been convenient
            for the player, but it didn't make sense for gameplay...] */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
-            && (encumbrance_ok || Regeneration) && !Withering) {
+            && (encumbrance_ok || Regeneration) && !Withering && !Is_valley(&u.uz)) {
             if (u.ulevel > 9) {
                 if (!(moves % 3L)) {
                     int Con = (int) ACURR(A_CON);
