@@ -16,7 +16,8 @@ const char *const enc_stat[] = { "",         "Burdened",  "Stressed",
 STATIC_OVL NEARDATA int mrank_sz = 0; /* loaded by max_rank_sz (from u_init) */
 STATIC_DCL void NDECL(bot_via_windowport);
 STATIC_DCL void NDECL(stat_update_time);
-STATIC_DCL const char *FDECL(rank_of_role, (int, const struct Role *, boolean));
+STATIC_DCL const char *FDECL(rank_of_role, (int, const struct Role *,
+                                            BOOLEAN_P));
 
 /* limit of the player's name in the status window */
 #define BOTL_NSIZ 16
@@ -308,12 +309,13 @@ boolean female;
 }
 
 const char *
-rank_of_mplayer(lev, monnum, female)
+rank_of_mplayer(lev, mtmp, female)
 int lev;
-short monnum;
+struct monst *mtmp;
 boolean female;
 {
     register const struct Role *role;
+    short monnum = mtmp->mnum;
 
     /* ronin in the samurai quest share same titles
        as their samurai counterparts */
@@ -328,14 +330,10 @@ boolean female;
     if (!role->name.m)
         role = &urole;
 
-    /* convert knights -> dark knights for lawfuls */
-    if (role->malenum == PM_KNIGHT) {
-        if (u.ualignbase[A_ORIGINAL] == A_LAWFUL)
-            role = &align_roles[0];
-        else if (u.ualignbase[A_ORIGINAL] == A_NEUTRAL && rn2(2))
-            role = &align_roles[0];
-        /* otherwise (chaotic, unaligned) keep the standard knight role titles */
-    }
+    /* use dark knight rank titles for chaotic mplayer knights */
+    if (role->malenum == PM_KNIGHT && mon_aligntyp(mtmp) < 0)
+        role = &align_roles[0];
+
     return rank_of_role(lev, role, female);
 }
 

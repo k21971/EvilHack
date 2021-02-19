@@ -1894,8 +1894,8 @@ boolean called;
                && !In_endgame(&u.uz)) {
         char pbuf[BUFSZ];
 
-        Strcpy(pbuf, rank_of_mplayer((int) mtmp->m_lev, monsndx(mdat),
-                             (boolean) mtmp->female));
+        Strcpy(pbuf, rank_of_mplayer((int) mtmp->m_lev, mtmp,
+                                     (boolean) mtmp->female));
         Strcat(buf, lcase(pbuf));
         name_at_start = FALSE;
     } else {

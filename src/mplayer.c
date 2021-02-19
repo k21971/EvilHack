@@ -100,7 +100,7 @@ char *nam;
     else
         mtmp->female = 0;
     Strcat(nam, " the ");
-    Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, monsndx(mtmp->data),
+    Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, mtmp,
                                 (boolean) mtmp->female));
 }
 
@@ -113,8 +113,6 @@ struct monst *mtmp;
     struct erac *rptr;
     int mndx = mtmp->mnum;
     struct permonst *ptr = &mons[mndx];
-    get_mplname(mtmp, nam);
-    mtmp = christen_monst(mtmp, nam);
 
     newerac(mtmp);
     rptr = ERAC(mtmp);
@@ -249,6 +247,9 @@ struct monst *mtmp;
     default:
         break;
     }
+
+    get_mplname(mtmp, nam);
+    mtmp = christen_monst(mtmp, nam);
 }
 
 
