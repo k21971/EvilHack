@@ -3430,7 +3430,7 @@ inv_weight()
             wt += (int) (((long) otmp->quan + 50L) / 100L);
         else if (otmp->otyp == BOULDER && racial_throws_rocks(&youmonst))
             wt += GIANT_BLDR_WEIGHT * otmp->quan;
-        else if (otmp->otyp != BOULDER || racial_throws_rocks(&youmonst))
+        else /*if (otmp->otyp != BOULDER || !racial_throws_rocks(&youmonst)) */
             wt += otmp->owt;
         otmp = otmp->nobj;
     }
