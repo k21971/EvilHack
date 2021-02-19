@@ -1399,4 +1399,5 @@ Version 0.7.0
 - Adjust centaurian race player monster gear
 - Player can't regen hit points while in the Valley of the Dead
 - Wand of death acts like full healing if used against undead
+- Give players a hint about no hit point regen when entering the VotD
 

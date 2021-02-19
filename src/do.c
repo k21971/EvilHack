@@ -1909,7 +1909,9 @@ boolean at_stairs, falling, portal;
 #ifdef MICRO
             display_nhwindow(WIN_MESSAGE, FALSE);
 #endif
-            You_hear("groans and moans everywhere.");
+            if (!Deaf)
+                You_hear("groans and moans everywhere.");
+            You("feel unable to rest or recuperate here.");
         } else
             pline("It is hot here.  You smell smoke...");
     }
