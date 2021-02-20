@@ -4800,7 +4800,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     if (has_erac(mtmp))
         free_erac(mtmp);
     if (is_racialmon(mdat))
-        apply_race(mtmp, rndrace(mtmp->mnum));
+        apply_race(mtmp, m_randrace(mtmp->mnum));
 
     if (mtmp->wormno) { /* throw tail away */
         wormgone(mtmp);
@@ -5441,14 +5441,14 @@ struct monst *mon;
     mon->misc_worn_check |= I_SPECIAL;
 }
 
-int
-rndrace(mndx)
-int mndx;
+short
+m_randrace(mndx)
+short mndx;
 {
-#define NUM_RACES 9
-    int i, count = 0, race = NON_PM,
-        mraces[NUM_RACES] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME, PM_ORC,
-                              PM_GIANT, PM_HOBBIT, PM_CENTAUR, PM_ILLITHID };
+    int i, count = 0;
+    short race = NON_PM;
+    const short mraces[] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME, PM_ORC,
+                           PM_GIANT, PM_HOBBIT, PM_CENTAUR, PM_ILLITHID, 0 };
     unsigned long permitted = MH_HUMAN;
 
     switch (mndx) {
@@ -5513,7 +5513,7 @@ int mndx;
         break;
     }
 
-    for (i = 0; i < NUM_RACES; i++) {
+    for (i = 0; mraces[i]; i++) {
         if (permitted & mons[mraces[i]].mhflags) {
             count++;
             if (!rn2(count))
@@ -5527,7 +5527,7 @@ int mndx;
 void
 apply_race(mtmp, raceidx)
 struct monst *mtmp;
-int raceidx;
+short raceidx;
 {
     register struct erac *rptr;
     register struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->mnum];
