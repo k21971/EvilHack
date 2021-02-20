@@ -1402,4 +1402,5 @@ Version 0.7.0
 - Give players a hint about no hit point regen when entering the VotD
 - Fix: all races could carry boulders like a giant
 - Cerberus can be put to sleep with a magic flute
+- Hit point adjustments placed in correct spot
 

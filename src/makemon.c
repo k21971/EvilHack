@@ -1091,12 +1091,6 @@ register struct monst *mtmp;
             (void) mongets(mtmp, RIN_SLOW_DIGESTION);
             (void) mongets(mtmp, rn2(2) ? CLOAK_OF_MAGIC_RESISTANCE
                                         : CLOAK_OF_DISPLACEMENT);
-            /* The ice queen is a much more deadly opponent
-               on her birthday */
-            if (kathryn_bday()) {
-                mtmp->mhp = mtmp->mhpmax = 500;
-                (void) mongets(mtmp, POT_FULL_HEALING);
-            }
         } else if (ptr->msound == MS_GUARDIAN) {
             /* quest "guardians" */
             switch (mm) {
@@ -2346,6 +2340,20 @@ int mmflags;
         apply_race(mtmp, m_randrace(mndx));
 
     mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(mtmp);
+
+    /* The ice queen is a much more deadly opponent
+       on her birthday */
+    if (ptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+        && kathryn_bday()) {
+        mtmp->mhp = mtmp->mhpmax = 500;
+        (void) mongets(mtmp, POT_FULL_HEALING);
+    }
+
+    /* Beef up Cerberus a bit without jacking up
+       his level so high that pets won't attempt
+       to take him on */
+    if (ptr == &mons[PM_CERBERUS])
+        mtmp->mhp = mtmp->mhpmax = 300 + rnd(50);
 
     /* Here is where we match riding monsters with their mounts */
     if (!(mmflags & MM_REVIVE)) {

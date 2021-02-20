@@ -2302,15 +2302,15 @@ dmonsfree()
     for (mtmp = &fmon; *mtmp;) {
         freetmp = *mtmp;
 
-        if (DEADMONSTER(freetmp) && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) 
+        if (DEADMONSTER(freetmp)
+            && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
             icequeenrevive(freetmp);
-        
+
         if (DEADMONSTER(freetmp) && !freetmp->isgd) {
             *mtmp = freetmp->nmon;
             freetmp->nmon = NULL;
             if (!!(ridertmp = get_mon_rider(freetmp)))
                 separate_steed_and_rider(ridertmp);
-            
             dealloc_monst(freetmp);
             count++;
 
