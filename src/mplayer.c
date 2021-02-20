@@ -130,7 +130,7 @@ struct monst *mtmp;
     rptr->mattk[1].damn = 1;
     rptr->mattk[1].damd = 6;
 
-    race = rndrace(mndx);
+    race = m_randrace(mndx);
     apply_race(mtmp, race);
 
     switch (mndx) {

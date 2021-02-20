@@ -2343,7 +2343,7 @@ int mmflags;
         init_mplayer_erac(mtmp);
 
     if (is_mercenary(ptr))
-        apply_race(mtmp, rndrace(mndx));
+        apply_race(mtmp, m_randrace(mndx));
 
     mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(mtmp);
 

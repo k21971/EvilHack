@@ -178,7 +178,7 @@ struct erid {
 /* racial characteristics */
 struct erac {
     unsigned long mrace;
-    int r_id;
+    short r_id;
     aligntyp ralign; 
     struct attack mattk[NATTK]; /* attacks matrix */
     unsigned long mflags1;
