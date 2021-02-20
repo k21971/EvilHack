@@ -2037,15 +2037,19 @@ sleep_monst(mon, amt, how)
 struct monst *mon;
 int amt, how;
 {
-    if (resists_sleep(mon)
-        || (how >= 0 && resist(mon, (char) how, 0, NOTELL))) {
+    if ((resists_sleep(mon)
+         || (how >= 0 && resist(mon, (char) how, 0, NOTELL)))
+        && !(mon->data == &mons[PM_CERBERUS] && how == TOOL_CLASS)) {
         shieldeff(mon->mx, mon->my);
     } else if (mon->mcanmove) {
         finish_meating(mon); /* terminate any meal-in-progress */
         amt += (int) mon->mfrozen;
         if (amt > 0) { /* sleep for N turns */
             mon->mcanmove = 0;
-            mon->mfrozen = min(amt, 127);
+            if (mon && mon->data == &mons[PM_CERBERUS])
+                mon->mfrozen = min(amt, 8);
+            else
+                mon->mfrozen = min(amt, 127);
         } else { /* sleep until awakened */
             mon->msleeping = 1;
         }

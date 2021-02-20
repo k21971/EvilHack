@@ -99,6 +99,8 @@ int distance;
         if (distu(mtmp->mx, mtmp->my) < distance
             && sleep_monst(mtmp, d(10, 10), TOOL_CLASS)) {
             mtmp->msleeping = 1; /* 10d10 turns + wake_nearby to rouse */
+            if (mtmp->data == &mons[PM_CERBERUS])
+                pline("%s settles in for a quick nap.", Monnam(mtmp));
             slept_monst(mtmp);
         }
     }

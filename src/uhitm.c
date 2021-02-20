@@ -2063,6 +2063,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         demonpet();
         return 0;
     }
+
     switch (mattk->adtyp) {
     case AD_STUN:
         if (!Blind)

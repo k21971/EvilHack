@@ -1401,4 +1401,5 @@ Version 0.7.0
 - Wand of death acts like full healing if used against undead
 - Give players a hint about no hit point regen when entering the VotD
 - Fix: all races could carry boulders like a giant
+- Cerberus can be put to sleep with a magic flute
 
