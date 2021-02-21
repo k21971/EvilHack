@@ -1650,24 +1650,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         mtmp = OMONST(otmp);
 
         if (has_erac(mtmp)) {
-            if (racial_elf(mtmp))
-                Strcat(mrace, "elven ");
-            else if (racial_dwarf(mtmp))
-                Strcat(mrace, "dwarvish ");
-            else if (racial_orc(mtmp))
-                Strcat(mrace, "orcish ");
-            else if (racial_gnome(mtmp))
-                Strcat(mrace, "gnomish ");
-            else if (racial_hobbit(mtmp))
-                Strcat(mrace, "hobbit ");
-            else if (racial_giant(mtmp))
-                Strcat(mrace, "giant ");
-            else if (racial_illithid(mtmp))
-                Strcat(mrace, "illithid ");
-            else if (racial_centaur(mtmp))
-                Strcat(mrace, "centaurian ");
-            else if (racial_human(mtmp))
-                Strcat(mrace, "human ");
+            int r_id = ERAC(mtmp)->r_id;
+            Sprintf(mrace, "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
+                                             : races[r_id].adj);
         }
     }
 

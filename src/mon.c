@@ -32,6 +32,7 @@ STATIC_DCL void FDECL(migrate_mon, (struct monst *, XCHAR_P, XCHAR_P));
 STATIC_DCL boolean FDECL(ok_to_obliterate, (struct monst *));
 STATIC_DCL void FDECL(deal_with_overcrowding, (struct monst *));
 STATIC_DCL void FDECL(icequeenrevive, (struct monst *));
+STATIC_DCL int FDECL(pm_to_race, (SHORT_P));
 
 /* note: duplicated in dog.c */
 #define LEVEL_SPECIFIC_NOCORPSE(mdat) \
@@ -5441,6 +5442,19 @@ struct monst *mon;
     mon->misc_worn_check |= I_SPECIAL;
 }
 
+STATIC_OVL int
+pm_to_race(mndx)
+short mndx;
+{
+    int i;
+    for (i = 0; races[i].adj; i++) {
+        if (races[i].malenum == mndx || races[i].femalenum == mndx)
+            return i;
+    }
+
+    return NON_PM;
+}
+
 short
 m_randrace(mndx)
 short mndx;
@@ -5552,8 +5566,9 @@ short raceidx;
     }
 
     mtmp->mintrinsics |= ptr->mresists;
+    rptr->r_id = pm_to_race(raceidx);
     rptr->mrace = ptr->mhflags;
-    rptr->r_id = raceidx;
+    rptr->rmnum = raceidx;
     /* racial mflags are cumulative with mflags from the base monster, rather
      * than overwriting them entirely */
     rptr->mflags1 |= ptr->mflags1;

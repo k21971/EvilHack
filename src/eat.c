@@ -470,7 +470,7 @@ boolean message;
 
     if (piece->otyp == CORPSE || piece->globby) {
         if (has_omonst(piece) && has_erac(OMONST(piece)))
-            cpostfx(ERAC(OMONST(piece))->r_id);
+            cpostfx(ERAC(OMONST(piece))->rmnum);
         else
             cpostfx(piece->corpsenm);
     } else
@@ -611,7 +611,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
         /* targetting another mind flayer or your own underlying species
            is cannibalism */
         if (has_erac(mdef))
-            (void) maybe_cannibal(ERAC(mdef)->r_id, TRUE);
+            (void) maybe_cannibal(ERAC(mdef)->rmnum, TRUE);
         else
             (void) maybe_cannibal(monsndx(pd), TRUE);
 
@@ -1753,7 +1753,7 @@ struct obj *otmp;
 
         boolean cannibal;
         if (has_omonst(otmp) && has_erac(OMONST(otmp)))
-            cannibal = maybe_cannibal(ERAC(OMONST(otmp))->r_id, FALSE);
+            cannibal = maybe_cannibal(ERAC(OMONST(otmp))->rmnum, FALSE);
         else
             cannibal = maybe_cannibal(mnum, FALSE);
 
@@ -1905,7 +1905,7 @@ boolean already_partly_eaten;
 
     if (otmp->otyp == CORPSE || otmp->globby) {
         if (has_omonst(otmp) && has_erac(OMONST(otmp)))
-            cprefx(ERAC(OMONST(otmp))->r_id);
+            cprefx(ERAC(OMONST(otmp))->rmnum);
         else
             cprefx(context.victual.piece->corpsenm);
         if (!context.victual.piece || !context.victual.eating) {

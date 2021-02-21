@@ -2001,7 +2001,7 @@ struct obj *obj;
         static const char you_buy_it[] = "You tin it, you bought it!";
 
         if (has_omonst(corpse) && has_erac(OMONST(corpse)))
-            can->corpsenm = ERAC(OMONST(corpse))->r_id;
+            can->corpsenm = ERAC(OMONST(corpse))->rmnum;
         else
             can->corpsenm = corpse->corpsenm;
         can->cursed = obj->cursed;
