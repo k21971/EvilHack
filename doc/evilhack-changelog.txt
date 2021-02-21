@@ -1403,4 +1403,5 @@ Version 0.7.0
 - Fix: all races could carry boulders like a giant
 - Cerberus can be put to sleep with a magic flute
 - Hit point adjustments placed in correct spot
+- Have to be close to hear a monster 'jump into a saddle'
 

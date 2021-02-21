@@ -2313,9 +2313,9 @@ dmonsfree()
                 separate_steed_and_rider(ridertmp);
             dealloc_monst(freetmp);
             count++;
-
-        } else
+        } else {
             mtmp = &(freetmp->nmon);
+        }
     }
 
     if (count != iflags.purge_monsters) {

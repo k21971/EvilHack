@@ -95,8 +95,9 @@ struct monst *rider;
     if (canseemon(rider)) {
         pline("%s clambers onto %s!", Monnam(rider),
               canseemon(steed) ?  mon_nam(steed) : "something");
-    } else if (!Deaf) {
-        You_hear("someone %s.", Hallucination ? "getting on their high horse" : "jump into a saddle");
+    } else if (!Deaf && distu(rider->mx, rider->my) <= 5) {
+        You_hear("someone %s.", Hallucination ? "getting on their high horse"
+                                              : "jump into a saddle");
     }
     remove_monster(steed->mx, steed->my);
     newsym(steed->mx, steed->my);
