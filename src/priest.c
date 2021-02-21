@@ -476,20 +476,9 @@ char *pname; /* caller-supplied output buffer */
     if (mon->isminion && EMIN(mon)->renegade)
         Strcat(pname, "renegade ");
     if (mon->data->mname) {
-        if (mon->data == &mons[PM_ELF])
-            Strcat(pname, "elven ");
-        else if (mon->data == &mons[PM_DWARF])
-            Strcat(pname, "dwarven ");
-        else if (mon->data == &mons[PM_ORC])
-            Strcat(pname, "orcish ");
-        else if (mon->data == &mons[PM_ILLITHID])
-            Strcat(pname, "illithid ");
-        else if (mon->data == &mons[PM_CENTAUR])
-            Strcat(pname, "centaurian ");
-        else if (mon->data == &mons[PM_GIANT])
-            Strcat(pname, "giant ");
-        else if (mon->data == &mons[PM_HUMAN])
-            Strcat(pname, "human ");
+        int rid = pm_to_race(mon->mnum);
+        if (rid >= 0)
+            Sprintf(eos(pname), "%s ", races[rid].adj);
     }
     if (on_level(&sanctum_level, &u.uz))
         Strcat(pname, "high ");

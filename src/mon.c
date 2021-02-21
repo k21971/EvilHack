@@ -32,7 +32,6 @@ STATIC_DCL void FDECL(migrate_mon, (struct monst *, XCHAR_P, XCHAR_P));
 STATIC_DCL boolean FDECL(ok_to_obliterate, (struct monst *));
 STATIC_DCL void FDECL(deal_with_overcrowding, (struct monst *));
 STATIC_DCL void FDECL(icequeenrevive, (struct monst *));
-STATIC_DCL int FDECL(pm_to_race, (SHORT_P));
 
 /* note: duplicated in dog.c */
 #define LEVEL_SPECIFIC_NOCORPSE(mdat) \
@@ -5442,7 +5441,7 @@ struct monst *mon;
     mon->misc_worn_check |= I_SPECIAL;
 }
 
-STATIC_OVL int
+int
 pm_to_race(mndx)
 short mndx;
 {

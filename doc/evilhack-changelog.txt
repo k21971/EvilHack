@@ -1406,4 +1406,5 @@ Version 0.7.0
 - Have to be close to hear a monster 'jump into a saddle'
 - Use player racial adjectives for monsters
 - Tweak racial adjectives (dwarves, centaurs)
+- Racial priests to use player racial adjectives
 
