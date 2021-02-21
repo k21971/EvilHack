@@ -953,7 +953,7 @@ const struct Race races[] = {
     },
     {
         "centaur",
-        "centaur",
+        "centaurian",
         "centaurian",
         "Cen",
         { 0, 0 },

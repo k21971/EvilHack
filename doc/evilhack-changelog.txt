@@ -1404,4 +1404,6 @@ Version 0.7.0
 - Cerberus can be put to sleep with a magic flute
 - Hit point adjustments placed in correct spot
 - Have to be close to hear a monster 'jump into a saddle'
+- Use player racial adjectives for monsters
+- Tweak racial adjectives (dwarves, centaurs)
 

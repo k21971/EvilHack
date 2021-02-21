@@ -479,7 +479,7 @@ char *pname; /* caller-supplied output buffer */
         if (mon->data == &mons[PM_ELF])
             Strcat(pname, "elven ");
         else if (mon->data == &mons[PM_DWARF])
-            Strcat(pname, "dwarvish ");
+            Strcat(pname, "dwarven ");
         else if (mon->data == &mons[PM_ORC])
             Strcat(pname, "orcish ");
         else if (mon->data == &mons[PM_ILLITHID])
