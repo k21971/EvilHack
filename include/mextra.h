@@ -177,10 +177,10 @@ struct erid {
 
 /* racial characteristics */
 struct erac {
-    unsigned long mrace;
-    int r_id;
-    short rmnum;
-    aligntyp ralign; 
+    unsigned long mrace; /* equivalent to mhflags */
+    int r_id; /* index in races, used for races[r_id].adj */
+    short rmnum; /* index in mons, e.g. PM_HOBBIT */
+    aligntyp ralign; /* equivalent to maligntyp */
     struct attack mattk[NATTK]; /* attacks matrix */
     unsigned long mflags1;
     unsigned long mflags2;
