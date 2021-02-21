@@ -1831,24 +1831,9 @@ boolean called;
         Strcat(buf, "saddled ");
     if (has_erac(mtmp) && !type_is_pname(mdat)
         && (!(do_name && has_mname(mtmp)) || called)) {
-        if (racial_elf(mtmp))
-            Strcat(buf, "elven ");
-        else if (racial_dwarf(mtmp))
-            Strcat(buf, "dwarvish ");
-        else if (racial_orc(mtmp))
-            Strcat(buf, "orcish ");
-        else if (racial_gnome(mtmp))
-            Strcat(buf, "gnomish ");
-        else if (racial_hobbit(mtmp))
-            Strcat(buf, "hobbit ");
-        else if (racial_giant(mtmp))
-            Strcat(buf, "giant ");
-        else if (racial_illithid(mtmp))
-            Strcat(buf, "illithid ");
-        else if (racial_centaur(mtmp))
-            Strcat(buf, "centaurian ");
-        else if (racial_human(mtmp))
-            Strcat(buf, "human ");
+        int r_id = ERAC(mtmp)->r_id;
+        Sprintf(buf, "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
+                                       : races[r_id].adj);
     }
     has_adjectives = (buf[0] != '\0');
 

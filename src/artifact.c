@@ -1058,7 +1058,7 @@ struct monst *mtmp;
     } else if (weap->spfx & SPFX_DCLAS) {
         return ((weap->mtype == (unsigned long) ptr->mlet)
                 || (has_erac(mtmp) && weap->mtype ==
-                    (unsigned long) mons[ERAC(mtmp)->r_id].mlet));
+                    (unsigned long) mons[ERAC(mtmp)->rmnum].mlet));
     } else if (weap->spfx & SPFX_DFLAG1) {
         return (((has_erac(mtmp) && (ERAC(mtmp)->mflags1 & weap->mtype))
                 || (ptr->mflags1 & weap->mtype) != 0L));
