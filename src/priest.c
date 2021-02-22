@@ -1258,7 +1258,7 @@ struct monst *mtmp;
                                (SUPPRESS_IT | SUPPRESS_INVISIBLE), FALSE));
 
     pline("Status of %s (%s, %s):  Level %d  HP %d(%d)  AC %d%s.", monnambuf,
-          mtmp->female ? "female" : "male", align_str(alignment),
+          genders[gender(mtmp)].adj, align_str(alignment),
           mtmp->m_lev, mtmp->mhp, mtmp->mhpmax, find_mac(mtmp), info);
 }
 
@@ -1267,6 +1267,8 @@ void
 ustatusline()
 {
     char info[BUFSZ];
+    int gend = (Upolyd && is_neuter(youmonst.data)) ? 2
+                                                    : (flags.female ? 1 : 0);
 
     info[0] = '\0';
     if (Sick) {
@@ -1331,7 +1333,7 @@ ustatusline()
     }
 
     pline("Status of %s (%s, %s):  Level %d  HP %d(%d)  AC %d%s.", plname,
-          flags.female ? "female" : "male", piousness(FALSE, align_str(u.ualign.type)),
+          genders[gend].adj, piousness(FALSE, align_str(u.ualign.type)),
           Upolyd ? mons[u.umonnum].mlevel : u.ulevel, Upolyd ? u.mh : u.uhp,
           Upolyd ? u.mhmax : u.uhpmax, u.uac, info);
 }
