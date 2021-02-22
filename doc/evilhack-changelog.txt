@@ -1409,4 +1409,6 @@ Version 0.7.0
 - Racial priests to use player racial adjectives
 - Create proper racial names for player monsters
 - Fix: missing 'end of string' in do_name.c
+- Fix: monsters turned into zombies still showed as 'turning into a
+  zombie' via probing or stethoscope
 
