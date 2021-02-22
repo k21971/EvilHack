@@ -1408,4 +1408,5 @@ Version 0.7.0
 - Tweak racial adjectives (dwarves, centaurs)
 - Racial priests to use player racial adjectives
 - Create proper racial names for player monsters
+- Fix: missing 'end of string' in do_name.c
 

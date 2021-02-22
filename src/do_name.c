@@ -1832,8 +1832,8 @@ boolean called;
     if (has_erac(mtmp) && !type_is_pname(mdat)
         && (!(do_name && has_mname(mtmp)) || called)) {
         int r_id = ERAC(mtmp)->r_id;
-        Sprintf(buf, "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
-                                       : races[r_id].adj);
+        Sprintf(eos(buf), "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
+                                            : races[r_id].adj);
     }
     has_adjectives = (buf[0] != '\0');
 
