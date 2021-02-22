@@ -258,6 +258,10 @@ struct monst* mdef;
         if (mdef->isshk)
             shkgone(mdef);
 
+        /* now that the monster in question has become a zombie,
+         * they're no longer sick or 'turning into a zombie' still */
+        mdef->msick = 0;
+
         /* wipe all mextra structs (to prevent a zombified shk/priest/guard/etc
          * from continuing to behave as what it used to be), then restore name
          * if present */
