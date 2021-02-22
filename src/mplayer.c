@@ -128,50 +128,40 @@ static const char *illithid_female_names[] = {
     "Tazili",       "Tralq",       "Uthilith",   "Velbobar",   "Viduz"
 };
 
+struct mfnames {
+    const char **male;
+    const char **female;
+};
+
+/* indexing must match races[] in role.c */
+static const struct mfnames namelists[] = {
+    { human_male_names, human_female_names },
+    { elf_male_names, elf_female_names },
+    { dwarf_male_names, dwarf_female_names },
+    { gnome_male_names, gnome_female_names },
+    { orc_male_names, orc_female_names },
+    { giant_male_names, giant_female_names },
+    { hobbit_male_names, hobbit_female_names },
+    { centaur_male_names, centaur_female_names },
+    { illithid_male_names, illithid_female_names }
+};
+
 void
 get_mplname(mtmp, nam)
 register struct monst *mtmp;
 char *nam;
 {
-    boolean fmlkind = mtmp->female; /* gender is determined in makemon.c */
-    boolean elf = racial_elf(mtmp);
-    boolean dwarf = racial_dwarf(mtmp);
-    boolean centaur = racial_centaur(mtmp);
-    boolean giant = racial_giant(mtmp);
-    boolean orc = racial_orc(mtmp);
-    boolean gnome = racial_gnome(mtmp);
-    boolean hobbit = racial_hobbit(mtmp);
-    boolean illithid = racial_illithid(mtmp);
     char* ttname = tt_name(); /* record file */
+    const char **mp_names;
+    int r_id = 0;
 
-    if (In_endgame(&u.uz))
-        Sprintf(nam, "%s",
-                (ttname != 0) ? upstart(ttname)
-                              : fmlkind ? human_female_names[rn2(SIZE(human_female_names))]
-                                        : human_male_names[rn2(SIZE(human_male_names))]);
-    else if (fmlkind)
-        Sprintf(nam, "%s",
-                elf ? elf_female_names[rn2(SIZE(elf_female_names))]
-                    : dwarf ? dwarf_female_names[rn2(SIZE(dwarf_female_names))]
-                            : giant ? giant_female_names[rn2(SIZE(giant_female_names))]
-                                    : centaur ? centaur_female_names[rn2(SIZE(centaur_female_names))]
-                                              : orc ? orc_female_names[rn2(SIZE(orc_female_names))]
-                    : gnome ? gnome_female_names[rn2(SIZE(gnome_female_names))]
-                            : hobbit ? hobbit_female_names[rn2(SIZE(hobbit_female_names))]
-                                     : illithid ? illithid_female_names[rn2(SIZE(illithid_female_names))]
-                                                : human_female_names[rn2(SIZE(human_female_names))]);
-    else
-        Sprintf(nam, "%s",
-                elf ? elf_male_names[rn2(SIZE(elf_male_names))]
-                    : dwarf ? dwarf_male_names[rn2(SIZE(dwarf_male_names))]
-                            : giant ? giant_male_names[rn2(SIZE(giant_male_names))]
-                                    : centaur ? centaur_male_names[rn2(SIZE(centaur_male_names))]
-                                              : orc ? orc_male_names[rn2(SIZE(orc_male_names))]
-                    : gnome ? gnome_male_names[rn2(SIZE(gnome_male_names))]
-                            : hobbit ? hobbit_male_names[rn2(SIZE(hobbit_male_names))]
-                                     : illithid ? illithid_male_names[rn2(SIZE(illithid_male_names))]
-                                                : human_male_names[rn2(SIZE(human_male_names))]);
+    if (has_erac(mtmp) && ERAC(mtmp)->r_id >= 0)
+        r_id = ERAC(mtmp)->r_id;
 
+    mp_names = mtmp->female ? namelists[r_id].female : namelists[r_id].male;
+
+    Strcpy(nam, (In_endgame(&u.uz) && ttname != 0)
+                    ? upstart(ttname) : mp_names[rn2(SIZE(mp_names))]);
     Strcat(nam, " the ");
     Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, mtmp,
                                 (boolean) mtmp->female));

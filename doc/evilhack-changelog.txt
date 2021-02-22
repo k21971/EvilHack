@@ -1411,4 +1411,6 @@ Version 0.7.0
 - Fix: missing 'end of string' in do_name.c
 - Fix: monsters turned into zombies still showed as 'turning into a
   zombie' via probing or stethoscope
+- Handle M2_NEUTER monsters when using a stethoscope
+- Cleaner way of processing racial player monster names
 
