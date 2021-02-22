@@ -4,101 +4,174 @@
 
 #include "hack.h"
 
-STATIC_DCL const char *NDECL(dev_name);
 void FDECL(get_mplname, (struct monst *, char *));
 void FDECL(init_mplayer_erac, (struct monst *));
 STATIC_DCL void FDECL(mk_mplayer_armor, (struct monst *, SHORT_P));
 
-/* These are the names of those who
- * contributed to the development of NetHack 3.2/3.3/3.4/3.6.
- *
- * Keep in alphabetical order within teams.
- * Same first name is entered once within each team.
- */
-static const char *developers[] = {
-    /* devteam */
-    "Alex",    "Dave",   "Dean",    "Derek",   "Eric",    "Izchak",
-    "Janet",   "Jessie", "Ken",     "Kevin",   "Michael", "Mike",
-    "Pasi",    "Pat",    "Patric",  "Paul",    "Sean",    "Steve",
-    "Timo",    "Warwick",
-    /* PC team */
-    "Bill",    "Eric",   "Keizo",   "Ken",    "Kevin",    "Michael",
-    "Mike",    "Paul",   "Stephen", "Steve",  "Timo",     "Yitzhak",
-    /* Amiga team */
-    "Andy",    "Gregg",  "Janne",   "Keni",   "Mike",     "Olaf",
-    "Richard",
-    /* Mac team */
-    "Andy",    "Chris",  "Dean",    "Jon",    "Jonathan", "Kevin",
-    "Wang",
-    /* Atari team */
-    "Eric",    "Marvin", "Warwick",
-    /* NT team */
-    "Alex",    "Dion",   "Michael",
-    /* OS/2 team */
-    "Helge",   "Ron",    "Timo",
-    /* VMS team */
-    "Joshua",  "Pat",    ""
+/* Human male struct - These are the names of those who
+ * contributed to the development of NetHack 3.2 through 3.7.
+ * Janet has been included in the human female struct. This
+ * struct includes every name in alphabetical order, regardless
+ * of which team they worked on. */
+static const char *human_male_names[] = {
+    /* devteam et al */
+    "Andy",         "Alex",        "Bart",       "Bill",       "Chris",
+    "Dave",         "Dean",        "Derek",      "Dion",       "Eric",
+    "Gregg",        "Helge",       "Izchak",     "Janne",      "Jessie",
+    "Jon",          "Jonathan",    "Joshua",     "Keizo",      "Ken",
+    "Keni",         "Kevin",       "Marvin",     "Michael",    "Mike",
+    "Olaf",         "Pasi",        "Pat",        "Patric",     "Paul",
+    "Richard",      "Ron",         "Sean",       "Stephen",    "Steve",
+    "Timo",         "Wang",        "Warwick",    "Yitzhak",
+    /* don't forget Carl */
+    "Carl"
 };
 
-static const char *fem_names[] = {
+static const char *human_female_names[] = {
     "Alexandria",   "Anna",        "Ariel",      "Betty",      "Charlotte",
-    "Ella",         "Gabrielle",   "Inez",       "Isabella",   "Kathryn",
+    "Ella",         "Gabrielle",   "Inez",       "Isabella",   "Janet", /* devteam */
     "Lillianna",    "Joanna",      "Mary",       "Nancy",      "Natasha",
     "Olivia",       "Penny",       "Rosa",       "Sally",      "Sierra",
     "Sophia",       "Tabitha",     "Veronica",   "Yvette",     "Zoey"
 };
 
-/* return a randomly chosen developer name */
-STATIC_OVL const char *
-dev_name()
-{
-    register int i, m = 0, n = SIZE(developers);
-    register struct monst *mtmp;
-    register boolean match;
+static const char *elf_male_names[] = {
+    "Aelion",       "Aphedir",     "Caeleben",   "Eliion",     "Erwarthon",
+    "Eston",        "Harnedir",    "Harnon",     "Laerchon",   "Lassendaer",
+    "Meremen",      "Miluichon",   "Nimen",      "Nithor",     "Padrion",
+    "Peldaer",      "Pendor",      "Silon",      "Sogrion",    "Tyalion"
+};
 
-    do {
-        match = FALSE;
-        i = rn2(n);
-        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-            if (!is_mplayer(mtmp->data))
-                continue;
-            if (!strncmp(developers[i], (has_mname(mtmp)) ? MNAME(mtmp) : "",
-                         strlen(developers[i]))) {
-                match = TRUE;
-                break;
-            }
-        }
-        m++;
-    } while (match && m < 100); /* m for insurance */
+static const char *elf_female_names[] = {
+    "Arthil",       "Calassel",    "Cureth",     "Dewrien",    "Eilianniel",
+    "Gelinnasbes",  "Gwaerenil",   "Harnith",    "Hwiniril",   "Linnriel",
+    "Liririen",     "Luthadis",    "Luthril",    "Mialel",     "Maechenebeth",
+    "Raegeth",      "Remlasbes",   "Solnissien", "Theririen",  "Tolneth"
+};
 
-    if (match)
-        return (const char *) 0;
-    return (developers[i]);
-}
+static const char *dwarf_male_names[] = {
+    "Brambin",      "Bromlar",     "Drandar",    "Dulbor",     "Dwusrun",
+    "Flel",         "Flumbin",     "Frelrur",    "Frerbun",    "Glelrir",
+    "Glomik",       "Glorvor",     "Grinir",     "Grundig",    "Khel",
+    "Krandar",      "Tham",        "Tharlor",    "Thorak",     "Thrun"
+};
+
+static const char *dwarf_female_names[] = {
+    "Agahildr",     "Bryldana",    "Dourdoulin", "Erigruigit", "Glarnirgith",
+    "Grordrabyrn",  "Hjara",       "Kanolsia",   "Kaldana",    "Kherebyrn",
+    "Orirodeth",    "Radgrarra",   "Skafadrid",  "Thrurja",    "Umirsila"
+};
+
+static const char *centaur_male_names[] = {
+    "Ajalus",       "Cephagio",    "Danasius",   "Erymanus",   "Koretrius",
+    "Linasio",      "Sofrasos",    "Tymysus",    "Yorgoneus",  "Zerelous"
+};
+
+static const char *centaur_female_names[] = {
+    "Agaraia",      "Eidone",      "Hekasia",    "Mellaste",   "Nemolea",
+    "Olamna",       "Phaeraris",   "Rhodora",    "Theladina",  "Typheis"
+};
+
+static const char *giant_male_names[] = {
+    "Agant",        "Clobos",      "Creswor",    "Cuzwar",     "Dlifur",
+    "Dlimohr",      "Doxroch",     "Falwar",     "Fexsal",     "Grorlith",
+    "Hefvog",       "Iziar",       "Jazbarg",    "Karog",      "Kolog",
+    "Kruxfum",      "Vovog",       "Xalgi",      "Zovoq",      "Zuksag"
+};
+
+static const char *giant_female_names[] = {
+    "Asdius",       "Clewar",      "Clisor",     "Crerlog",    "Dithor",
+    "Demhroq",      "Giwbog",      "Huwfur",     "Javar",      "Jowwor",
+    "Larog",        "Lifgant",     "Riwbof",     "Talrion",    "Valas",
+    "Vlinrion",     "Vrebog",      "Vrurym",     "Wenfir",     "Xenghaf"
+};
+
+static const char *orc_male_names[] = {
+    "Agbo",         "Auzzaf",      "Bolgorg",    "Cracbac",    "Crazza",
+    "Dergi",        "Durcad",      "Gazru",      "Kozbugh",    "Oddugh",
+    "Ogrogh",       "Orboth",      "Rozgi",      "Uglaudh",    "Urdi"
+};
+
+static const char *orc_female_names[] = {
+    "Athri",        "Auzgut",      "Azrauth",    "Becradh",    "Bridbosh",
+    "Crilgi",       "Ghulgaf",     "Gihaush",    "Ohadiz",     "Rardith",
+    "Sraglikh",     "Sruzdith",    "Sugdol",     "Udbe",       "Uggudh"
+};
+
+static const char *gnome_male_names[] = {
+    "Bengnomer",    "Clieddwess",  "Darbick",    "Frialewost", "Hembaz",
+    "Hiempess",     "Knoobbrekur", "Slykwass",   "Smoofamurt", "Tivignap"
+};
+
+static const char *gnome_female_names[] = {
+    "Amanbin",      "Bluprell",    "Clamwal",    "Clekmit",    "Flegbibis",
+    "Fobnass",      "Fyhipraal",   "Glidwi",     "Gninklidli", "Pyiqaglim"
+};
+
+static const char *hobbit_male_names[] = {
+    "Bilbo",        "Blutmund",    "Cyr",        "Faramond",   "Frodo",
+    "Nob",          "Theodoric",   "Samwise",    "Uffo",       "Wulfram"
+};
+
+static const char *hobbit_female_names[] = {
+    "Athalia",      "Bave",        "Gerda",      "Guntheuc",   "Kunegund",
+    "Malva",        "Menegilda",   "Merofled",   "Peony",      "Ruothilde"
+};
+
+static const char *illithid_male_names[] = {
+    "Druphrilt",    "Gzur",        "Gudanilz",   "Kaddudun",   "Reddin",
+    "Tagangask",    "Usder",       "Vaggask",    "Vossk",      "Zuzchigoz"
+};
+
+static const char *illithid_female_names[] = {
+    "Cliloduzak",   "Druzzusk",    "Gusgamiyi",  "Qoss",       "Slilithindi",
+    "Tazili",       "Tralq",       "Uthilith",   "Velbobar",   "Viduz"
+};
 
 void
 get_mplname(mtmp, nam)
 register struct monst *mtmp;
 char *nam;
 {
-    boolean fmlkind = is_female(mtmp->data);
-    const char *devnam;
-    char* ttname = tt_name();
+    boolean fmlkind = mtmp->female; /* gender is determined in makemon.c */
+    boolean elf = racial_elf(mtmp);
+    boolean dwarf = racial_dwarf(mtmp);
+    boolean centaur = racial_centaur(mtmp);
+    boolean giant = racial_giant(mtmp);
+    boolean orc = racial_orc(mtmp);
+    boolean gnome = racial_gnome(mtmp);
+    boolean hobbit = racial_hobbit(mtmp);
+    boolean illithid = racial_illithid(mtmp);
+    char* ttname = tt_name(); /* record file */
 
-    devnam = dev_name();
-    if (!devnam)
-        Strcpy(nam, fmlkind ? "Eve" : "Adam");
-    else if (In_endgame(&u.uz))
-        Sprintf(nam, "%s", (ttname != 0) ? upstart(ttname) : developers[rn2(SIZE(developers))]);
-    else if (fmlkind && !!strcmp(devnam, "Janet"))
-        Sprintf(nam, "%s", fem_names[rn2(SIZE(fem_names))]);
+    if (In_endgame(&u.uz))
+        Sprintf(nam, "%s",
+                (ttname != 0) ? upstart(ttname)
+                              : fmlkind ? human_female_names[rn2(SIZE(human_female_names))]
+                                        : human_male_names[rn2(SIZE(human_male_names))]);
+    else if (fmlkind)
+        Sprintf(nam, "%s",
+                elf ? elf_female_names[rn2(SIZE(elf_female_names))]
+                    : dwarf ? dwarf_female_names[rn2(SIZE(dwarf_female_names))]
+                            : giant ? giant_female_names[rn2(SIZE(giant_female_names))]
+                                    : centaur ? centaur_female_names[rn2(SIZE(centaur_female_names))]
+                                              : orc ? orc_female_names[rn2(SIZE(orc_female_names))]
+                    : gnome ? gnome_female_names[rn2(SIZE(gnome_female_names))]
+                            : hobbit ? hobbit_female_names[rn2(SIZE(hobbit_female_names))]
+                                     : illithid ? illithid_female_names[rn2(SIZE(illithid_female_names))]
+                                                : human_female_names[rn2(SIZE(human_female_names))]);
     else
-        Strcpy(nam, devnam);
+        Sprintf(nam, "%s",
+                elf ? elf_male_names[rn2(SIZE(elf_male_names))]
+                    : dwarf ? dwarf_male_names[rn2(SIZE(dwarf_male_names))]
+                            : giant ? giant_male_names[rn2(SIZE(giant_male_names))]
+                                    : centaur ? centaur_male_names[rn2(SIZE(centaur_male_names))]
+                                              : orc ? orc_male_names[rn2(SIZE(orc_male_names))]
+                    : gnome ? gnome_male_names[rn2(SIZE(gnome_male_names))]
+                            : hobbit ? hobbit_male_names[rn2(SIZE(hobbit_male_names))]
+                                     : illithid ? illithid_male_names[rn2(SIZE(illithid_male_names))]
+                                                : human_male_names[rn2(SIZE(human_male_names))]);
 
-    if (fmlkind || !strcmp(nam, "Janet"))
-        mtmp->female = 1;
-    else
-        mtmp->female = 0;
     Strcat(nam, " the ");
     Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, mtmp,
                                 (boolean) mtmp->female));

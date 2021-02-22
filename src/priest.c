@@ -1257,9 +1257,9 @@ struct monst *mtmp;
     Strcpy(monnambuf, x_monnam(mtmp, ARTICLE_THE, (char *) 0,
                                (SUPPRESS_IT | SUPPRESS_INVISIBLE), FALSE));
 
-    pline("Status of %s (%s):  Level %d  HP %d(%d)  AC %d%s.", monnambuf,
-          align_str(alignment), mtmp->m_lev, mtmp->mhp, mtmp->mhpmax,
-          find_mac(mtmp), info);
+    pline("Status of %s (%s, %s):  Level %d  HP %d(%d)  AC %d%s.", monnambuf,
+          mtmp->female ? "female" : "male", align_str(alignment),
+          mtmp->m_lev, mtmp->mhp, mtmp->mhpmax, find_mac(mtmp), info);
 }
 
 /* stethoscope or probing applied to hero -- one-line feedback */
@@ -1330,8 +1330,8 @@ ustatusline()
         Strcat(info, mon_nam(u.ustuck));
     }
 
-    pline("Status of %s (%s):  Level %d  HP %d(%d)  AC %d%s.", plname,
-          piousness(FALSE, align_str(u.ualign.type)),
+    pline("Status of %s (%s, %s):  Level %d  HP %d(%d)  AC %d%s.", plname,
+          flags.female ? "female" : "male", piousness(FALSE, align_str(u.ualign.type)),
           Upolyd ? mons[u.umonnum].mlevel : u.ulevel, Upolyd ? u.mh : u.uhp,
           Upolyd ? u.mhmax : u.uhpmax, u.uac, info);
 }

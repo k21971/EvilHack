@@ -1407,4 +1407,5 @@ Version 0.7.0
 - Use player racial adjectives for monsters
 - Tweak racial adjectives (dwarves, centaurs)
 - Racial priests to use player racial adjectives
+- Create proper racial names for player monsters
 
