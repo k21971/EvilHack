@@ -880,6 +880,26 @@ register struct permonst *ptr;
     return res;
 }
 
+boolean
+can_give_new_mintrinsic(ptr, mon)
+struct permonst *ptr;
+struct monst *mon;
+{
+#define mon_has_intrinsic(intrinsic, mon) \
+    (((mon)->mintrinsics | (mon)->data->mresists) & intrinsic)
+    int i;
+    for (i = 1; i <= STONE_RES; i++) {
+        if (intrinsic_possible(i, ptr) && !mon_has_intrinsic((1 << i), mon)) {
+            return TRUE;
+        }
+    }
+    if (intrinsic_possible(TELEPAT, ptr)
+        && !(mon_has_intrinsic(MR2_TELEPATHY, mon) || telepathic(mon->data)))
+        return TRUE;
+
+    return FALSE;
+}
+
 /* The "do we or do we not give the intrinsic" logic from givit(), extracted
  * into its own function. Depends on the monster's level and the type of
  * intrinsic it is trying to give you.

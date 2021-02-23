@@ -878,7 +878,9 @@ register struct obj *obj;
             else if (is_shapeshifter(fptr))
                 return starving ? ACCFOOD : MANFOOD;
             else if (vegan(fptr))
-                return herbi ? CADAVER : MANFOOD;
+                return herbi ? (can_give_new_mintrinsic(fptr, mon) ? DOGFOOD
+                                                                   : CADAVER)
+                             : MANFOOD;
             /* most humanoids will avoid cannibalism unless starving;
                arbitrary: elves won't eat other elves even then */
             else if (humanoid(mptr) && same_race(mptr, fptr)
@@ -886,7 +888,9 @@ register struct obj *obj;
                          && fptr->mlet != S_ORC && fptr->mlet != S_OGRE))
                 return (starving && carni && !racial_elf(mon)) ? ACCFOOD : TABU;
             else
-                return carni ? CADAVER : MANFOOD;
+                return carni ? (can_give_new_mintrinsic(fptr, mon) ? DOGFOOD
+                                                                   : CADAVER)
+                             : MANFOOD;
         case CLOVE_OF_GARLIC:
             return (is_undead(mptr) || is_vampshifter(mon))
                       ? TABU
