@@ -273,6 +273,7 @@ struct monst *mtmp;
         /* monks do 1d8 instead of 1d6 */
         rptr->mattk[0].damn = rptr->mattk[1].damn = 1;
         rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
+        rptr->mflags1 |= M1_SEE_INVIS;
         mtmp->mintrinsics |= (MR_POISON | MR_SLEEP);
         if (race == PM_DWARF)
             rptr->ralign = 3;
