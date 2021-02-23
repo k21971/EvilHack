@@ -1304,5 +1304,6 @@ Version 0.6.0
 - Fix: ensure magic traps ignore (see) invisible timeouts
 - Small tweak to feedback - ensure magic traps ignore (see) invisible
   timeouts
+- Fix: tweak some incorrect flags with player monster templates
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
