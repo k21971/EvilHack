@@ -1415,4 +1415,5 @@ Version 0.7.0
 - Cleaner way of processing racial player monster names
 - Silence warning from last commit
 - Fix: tweaks to player monster flags and allowed races
+- Properly set status of 0.7.0
 
