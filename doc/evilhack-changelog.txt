@@ -1413,4 +1413,5 @@ Version 0.7.0
   zombie' via probing or stethoscope
 - Handle M2_NEUTER monsters when using a stethoscope
 - Cleaner way of processing racial player monster names
+- Silence warning from last commit
 

@@ -24,7 +24,8 @@ static const char *human_male_names[] = {
     "Richard",      "Ron",         "Sean",       "Stephen",    "Steve",
     "Timo",         "Wang",        "Warwick",    "Yitzhak",
     /* don't forget Carl */
-    "Carl"
+    "Carl",
+    0
 };
 
 static const char *human_female_names[] = {
@@ -32,100 +33,117 @@ static const char *human_female_names[] = {
     "Ella",         "Gabrielle",   "Inez",       "Isabella",   "Janet", /* devteam */
     "Lillianna",    "Joanna",      "Mary",       "Nancy",      "Natasha",
     "Olivia",       "Penny",       "Rosa",       "Sally",      "Sierra",
-    "Sophia",       "Tabitha",     "Veronica",   "Yvette",     "Zoey"
+    "Sophia",       "Tabitha",     "Veronica",   "Yvette",     "Zoey",
+    0
 };
 
 static const char *elf_male_names[] = {
     "Aelion",       "Aphedir",     "Caeleben",   "Eliion",     "Erwarthon",
     "Eston",        "Harnedir",    "Harnon",     "Laerchon",   "Lassendaer",
     "Meremen",      "Miluichon",   "Nimen",      "Nithor",     "Padrion",
-    "Peldaer",      "Pendor",      "Silon",      "Sogrion",    "Tyalion"
+    "Peldaer",      "Pendor",      "Silon",      "Sogrion",    "Tyalion",
+    0
 };
 
 static const char *elf_female_names[] = {
     "Arthil",       "Calassel",    "Cureth",     "Dewrien",    "Eilianniel",
     "Gelinnasbes",  "Gwaerenil",   "Harnith",    "Hwiniril",   "Linnriel",
     "Liririen",     "Luthadis",    "Luthril",    "Mialel",     "Maechenebeth",
-    "Raegeth",      "Remlasbes",   "Solnissien", "Theririen",  "Tolneth"
+    "Raegeth",      "Remlasbes",   "Solnissien", "Theririen",  "Tolneth",
+    0
 };
 
 static const char *dwarf_male_names[] = {
     "Brambin",      "Bromlar",     "Drandar",    "Dulbor",     "Dwusrun",
     "Flel",         "Flumbin",     "Frelrur",    "Frerbun",    "Glelrir",
     "Glomik",       "Glorvor",     "Grinir",     "Grundig",    "Khel",
-    "Krandar",      "Tham",        "Tharlor",    "Thorak",     "Thrun"
+    "Krandar",      "Tham",        "Tharlor",    "Thorak",     "Thrun",
+    0
 };
 
 static const char *dwarf_female_names[] = {
     "Agahildr",     "Bryldana",    "Dourdoulin", "Erigruigit", "Glarnirgith",
     "Grordrabyrn",  "Hjara",       "Kanolsia",   "Kaldana",    "Kherebyrn",
-    "Orirodeth",    "Radgrarra",   "Skafadrid",  "Thrurja",    "Umirsila"
+    "Orirodeth",    "Radgrarra",   "Skafadrid",  "Thrurja",    "Umirsila",
+    0
 };
 
 static const char *centaur_male_names[] = {
     "Ajalus",       "Cephagio",    "Danasius",   "Erymanus",   "Koretrius",
-    "Linasio",      "Sofrasos",    "Tymysus",    "Yorgoneus",  "Zerelous"
+    "Linasio",      "Sofrasos",    "Tymysus",    "Yorgoneus",  "Zerelous",
+    0
 };
 
 static const char *centaur_female_names[] = {
     "Agaraia",      "Eidone",      "Hekasia",    "Mellaste",   "Nemolea",
-    "Olamna",       "Phaeraris",   "Rhodora",    "Theladina",  "Typheis"
+    "Olamna",       "Phaeraris",   "Rhodora",    "Theladina",  "Typheis",
+    0
 };
 
 static const char *giant_male_names[] = {
     "Agant",        "Clobos",      "Creswor",    "Cuzwar",     "Dlifur",
     "Dlimohr",      "Doxroch",     "Falwar",     "Fexsal",     "Grorlith",
     "Hefvog",       "Iziar",       "Jazbarg",    "Karog",      "Kolog",
-    "Kruxfum",      "Vovog",       "Xalgi",      "Zovoq",      "Zuksag"
+    "Kruxfum",      "Vovog",       "Xalgi",      "Zovoq",      "Zuksag",
+    0
 };
 
 static const char *giant_female_names[] = {
     "Asdius",       "Clewar",      "Clisor",     "Crerlog",    "Dithor",
     "Demhroq",      "Giwbog",      "Huwfur",     "Javar",      "Jowwor",
     "Larog",        "Lifgant",     "Riwbof",     "Talrion",    "Valas",
-    "Vlinrion",     "Vrebog",      "Vrurym",     "Wenfir",     "Xenghaf"
+    "Vlinrion",     "Vrebog",      "Vrurym",     "Wenfir",     "Xenghaf",
+    0
 };
 
 static const char *orc_male_names[] = {
     "Agbo",         "Auzzaf",      "Bolgorg",    "Cracbac",    "Crazza",
     "Dergi",        "Durcad",      "Gazru",      "Kozbugh",    "Oddugh",
-    "Ogrogh",       "Orboth",      "Rozgi",      "Uglaudh",    "Urdi"
+    "Ogrogh",       "Orboth",      "Rozgi",      "Uglaudh",    "Urdi",
+    0
 };
 
 static const char *orc_female_names[] = {
     "Athri",        "Auzgut",      "Azrauth",    "Becradh",    "Bridbosh",
     "Crilgi",       "Ghulgaf",     "Gihaush",    "Ohadiz",     "Rardith",
-    "Sraglikh",     "Sruzdith",    "Sugdol",     "Udbe",       "Uggudh"
+    "Sraglikh",     "Sruzdith",    "Sugdol",     "Udbe",       "Uggudh",
+    0
 };
 
 static const char *gnome_male_names[] = {
     "Bengnomer",    "Clieddwess",  "Darbick",    "Frialewost", "Hembaz",
-    "Hiempess",     "Knoobbrekur", "Slykwass",   "Smoofamurt", "Tivignap"
+    "Hiempess",     "Knoobbrekur", "Slykwass",   "Smoofamurt", "Tivignap",
+    0
 };
 
 static const char *gnome_female_names[] = {
     "Amanbin",      "Bluprell",    "Clamwal",    "Clekmit",    "Flegbibis",
-    "Fobnass",      "Fyhipraal",   "Glidwi",     "Gninklidli", "Pyiqaglim"
+    "Fobnass",      "Fyhipraal",   "Glidwi",     "Gninklidli", "Pyiqaglim",
+    0
 };
 
 static const char *hobbit_male_names[] = {
     "Bilbo",        "Blutmund",    "Cyr",        "Faramond",   "Frodo",
-    "Nob",          "Theodoric",   "Samwise",    "Uffo",       "Wulfram"
+    "Nob",          "Theodoric",   "Samwise",    "Uffo",       "Wulfram",
+    0
 };
 
 static const char *hobbit_female_names[] = {
     "Athalia",      "Bave",        "Gerda",      "Guntheuc",   "Kunegund",
-    "Malva",        "Menegilda",   "Merofled",   "Peony",      "Ruothilde"
+    "Malva",        "Menegilda",   "Merofled",   "Peony",      "Ruothilde",
+    0
 };
 
 static const char *illithid_male_names[] = {
     "Druphrilt",    "Gzur",        "Gudanilz",   "Kaddudun",   "Reddin",
-    "Tagangask",    "Usder",       "Vaggask",    "Vossk",      "Zuzchigoz"
+    "Tagangask",    "Usder",       "Vaggask",    "Vossk",      "Zuzchigoz",
+    0
 };
 
 static const char *illithid_female_names[] = {
     "Cliloduzak",   "Druzzusk",    "Gusgamiyi",  "Qoss",       "Slilithindi",
-    "Tazili",       "Tralq",       "Uthilith",   "Velbobar",   "Viduz"
+    "Tazili",       "Tralq",       "Uthilith",   "Velbobar",   "Viduz",
+    0
 };
 
 struct mfnames {
@@ -153,15 +171,18 @@ char *nam;
 {
     char* ttname = tt_name(); /* record file */
     const char **mp_names;
-    int r_id = 0;
+    int r_id = 0, ncnt;
 
     if (has_erac(mtmp) && ERAC(mtmp)->r_id >= 0)
         r_id = ERAC(mtmp)->r_id;
 
     mp_names = mtmp->female ? namelists[r_id].female : namelists[r_id].male;
 
+    for (ncnt = 0; mp_names[ncnt]; ncnt++)
+        ; /* count the number of names in the list */
+
     Strcpy(nam, (In_endgame(&u.uz) && ttname != 0)
-                    ? upstart(ttname) : mp_names[rn2(SIZE(mp_names))]);
+                    ? upstart(ttname) : mp_names[rn2(ncnt)]);
     Strcat(nam, " the ");
     Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, mtmp,
                                 (boolean) mtmp->female));
