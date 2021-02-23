@@ -616,7 +616,7 @@ struct permonst* ptr;
         /* suppress message if mtmp already has this
            resistance via another source (worn object,
            or natively has this intrinsic/resistance) */
-        if (!((mtmp->mextrinsics || mtmp->data->mresists) & intrinsic))
+        if (!((mtmp->mextrinsics | mtmp->data->mresists) & intrinsic))
             pline(msg, Monnam(mtmp));
     }
 }
