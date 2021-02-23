@@ -723,6 +723,7 @@ E void FDECL(food_substitution, (struct obj *, struct obj *));
 E void FDECL(eating_conducts, (struct permonst *));
 E int FDECL(eat_brains, (struct monst *, struct monst *, BOOLEAN_P, int *));
 E void NDECL(fix_petrification);
+E boolean FDECL(can_give_new_mintrinsic, (struct permonst *, struct monst *));
 E boolean FDECL(should_givit, (int, struct permonst *));
 E int FDECL(corpse_intrinsic, (struct permonst *));
 E void FDECL(consume_oeaten, (struct obj *, int));
