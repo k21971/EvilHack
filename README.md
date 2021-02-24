@@ -27,7 +27,7 @@ More information regarding this variant can be accessed at the NetHackWiki -
 https://nethackwiki.com/wiki/EvilHack - or by visiting channels #evilhack
 or #hardfought on Freenode IRC.
 
-### Design Philosophy
+## Design Philosophy
 
 As stated before, the overall design goal for EvilHack is that it's a more
 difficult and challenging game than vanilla NetHack or other variants,
@@ -37,20 +37,20 @@ In short:
 - EvilHack is meant to be very difficult and challenging
 - EvilHack is meant to be fun, even though it is difficult
 - Any changes should be balanced
-- Replayablilty/randomness is a priority design goal to ensure unpredictable
+- Replayablilty/randomness is a priority design goal to ensure unpredictable  
   outcomes and to keep the experience fresh
 - Addressing bugs/balance issues will always be an ongoing process
 - Player feedback/constructive criticism is welcome and encouraged
 
-### Installation
+## Installation
 
 Each OS type found under the `sys` folder has an installation guide for that
 particular operating system. Pre-compiled binaries (linux and windows) can be
 found here - https://github.com/k21971/EvilHack/releases
 
 For Linux (TL;DR version):
-- From the desired directory, git clone https://github.com/k21971/EvilHack.git
-- Navigate to the `sys/unix` folder, then `./setup.sh hints/linux-debug`
+- From the desired directory, `git clone https://github.com/k21971/EvilHack.git`
+- Navigate to the `sys/unix` folder, then `./setup.sh hints/linux-debug`  
   (edit the install paths in the hints file to your liking)
 - Navigate back to the root EvilHack folder, and `make all && make install`
 - execute the `evilhack` binary
