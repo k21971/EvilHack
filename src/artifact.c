@@ -2093,14 +2093,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (youattack && is_troll(mdef->data) && j) {
                     pline("As you strike %s, it bursts into flame!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    mongone(mdef);
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 } else if (!youattack && !youdefend
                            && magr && is_troll(mdef->data) && j) {
                     if (cansee(magr->mx, magr->my))
                         pline("As %s strikes %s, it bursts into flame!",
                               mon_nam(magr), mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    mongone(mdef);
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 } else if (youdefend && is_troll(youmonst.data) && k) {
                     You("burst into flame as you are hit!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
@@ -2164,14 +2164,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     pline("Sunsword flares brightly as it incinerates %s!",
                           mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    mongone(mdef);
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                } else if (!youattack && !youdefend
                           && magr && is_undead(mdef->data) && j) {
                     if (cansee(magr->mx, magr->my))
                         pline("Sunsword flares brightly as it incinerates %s!",
                               mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    mongone(mdef);
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 } else if (youdefend && is_undead(youmonst.data) && k) {
                     pline("The holy power of Sunsword incinerates your undead flesh!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
@@ -2184,14 +2184,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     pline("Angelslayer's eldritch flame consumes %s!",
                           mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    mongone(mdef);
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                } else if (!youattack && !youdefend
                           && magr && is_angel(mdef->data) && j) {
                     if (cansee(magr->mx, magr->my))
                         pline("Angelslayer's eldritch flame consumes %s!",
                               mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    mongone(mdef);
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 /* player can't poly into any type of angel, just here for completeness */
                 } else if (youdefend && is_angel(youmonst.data) && k) {
                     pline("The eldritch flame of Angelslayer consumes you!");

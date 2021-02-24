@@ -1418,4 +1418,5 @@ Version 0.7.0
 - Properly set status of 0.7.0
 - Prevent centaur monks from using random kick attack against certain
   targets
+- Proper handling of monsters killed via artifact special fatal attacks
 
