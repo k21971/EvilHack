@@ -1311,5 +1311,6 @@ Version 0.6.0
   firm.
 - Prevent centaur monks from using random kick attack against certain
   targets
+- Proper handling of monsters killed via artifact special fatal attacks
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
