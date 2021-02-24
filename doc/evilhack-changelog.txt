@@ -1421,4 +1421,5 @@ Version 0.7.0
 - Proper handling of monsters killed via artifact special fatal attacks
 - Fix: giant samurai wearing large splint mail and polyform
 - Fix: add/remove a few M2_NOPOLY flags (monst.c)
+- More better grammar
 
