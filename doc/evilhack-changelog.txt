@@ -1416,4 +1416,6 @@ Version 0.7.0
 - Silence warning from last commit
 - Fix: tweaks to player monster flags and allowed races
 - Properly set status of 0.7.0
+- Prevent centaur monks from using random kick attack against certain
+  targets
 

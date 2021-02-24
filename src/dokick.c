@@ -259,7 +259,13 @@ xchar x, y;
     else if (uarm && objects[uarm->otyp].oc_bulky && ACURR(A_DEX) < rnd(25))
         clumsy = TRUE;
  doit:
-    if (Role_if(PM_MONK) || Role_if(PM_SAMURAI))
+    if (Role_if(PM_MONK) && Race_if(PM_CENTAUR)
+        && (touch_petrifies(mon->data)
+            || (how_resistant(DISINT_RES) == 0
+                && (mon->data == &mons[PM_BLACK_DRAGON]
+                    || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
+        return;
+    else if (Role_if(PM_MONK) || Role_if(PM_SAMURAI))
         You("%s %s!", martial_arts_kick[rn2(SIZE(martial_arts_kick))], mon_nam(mon));
     else
         You("kick %s.", mon_nam(mon));

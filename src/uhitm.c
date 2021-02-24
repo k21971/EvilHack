@@ -3055,19 +3055,25 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 goto use_weapon;
             /*FALLTHRU*/
         case AT_TENT:
-            if ((uwep || (u.twoweap && uswapwep) || uarmg)
+            if ((uwep || !uwep || (u.twoweap && uswapwep))
                 && (maybe_polyd(is_illithid(youmonst.data),
                     Race_if(PM_ILLITHID)))
                 && (touch_petrifies(mon->data)
                     || is_rider(mon->data)
                     || mon->data == &mons[PM_MEDUSA]
-                    || mon->data == &mons[PM_GREEN_SLIME]))
+                    || mon->data == &mons[PM_GREEN_SLIME]
+                    || (how_resistant(DISINT_RES) == 0
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
                 break;
             /*FALLTHRU*/
         case AT_BITE:
-            if ((uwep || (u.twoweap && uswapwep) || uarmg)
+            if ((uwep || !uwep || (u.twoweap && uswapwep))
                 && is_vampire(youmonst.data)
-                && (touch_petrifies(mon->data)))
+                && (touch_petrifies(mon->data)
+                    || (how_resistant(DISINT_RES) == 0
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
                 break;
             if (is_zombie(youmonst.data) && rn2(3)
                 && mon->data->msize <= MZ_SMALL) {
@@ -3077,10 +3083,13 @@ boolean weapon_attacks; /* skip weapon attacks if false */
             }
             /*FALLTHRU*/
         case AT_STNG:
-            if ((uwep || (u.twoweap && uswapwep) || uarmg)
+            if ((uwep || !uwep || (u.twoweap && uswapwep))
                 && (maybe_polyd(is_demon(youmonst.data),
                     Race_if(PM_DEMON)))
-                && (touch_petrifies(mon->data)))
+                && (touch_petrifies(mon->data)
+                    || (how_resistant(DISINT_RES) == 0
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
                 break;
             /*FALLTHRU*/
         case AT_KICK:
