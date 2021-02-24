@@ -3493,7 +3493,7 @@ boolean wep_was_destroyed;
                     monstseesu(M_SEEN_DISINT);
                     stop_occupation();
                 } else if (!Disint_resistance || !resists_disint(&youmonst)) {
-                    You("disintegrate yourself off of the %s hide!",
+                    You("are disintegrated by the %s hide!",
                         s_suffix(mon_nam(mon)));
                     u.ugrave_arise = -3;
                     killer.format = NO_KILLER_PREFIX;
