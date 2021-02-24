@@ -1309,5 +1309,7 @@ Version 0.6.0
   zombie' via probing or stethoscope
 - Fix: The black dragon eats a black dragon corpse. The black dragon looks very
   firm.
+- Prevent centaur monks from using random kick attack against certain
+  targets
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
