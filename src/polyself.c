@@ -937,7 +937,8 @@ break_armor()
         if ((otmp = uarm) != 0) {
             if (donning(otmp))
                 cancel_don();
-            if (bigmonst(youmonst.data) && otmp->otyp == LARGE_SPLINT_MAIL) {
+            if (youmonst.data->msize >= MZ_HUGE
+                && otmp->otyp == LARGE_SPLINT_MAIL) {
                 if (humanoid(youmonst.data)) {
                     ; /* nothing bad happens, armor is still worn */
                 } else if (!humanoid(youmonst.data)) {
@@ -945,6 +946,11 @@ break_armor()
                     (void) Armor_gone();
                     dropp(otmp);
                 }
+            } else if (youmonst.data->msize <= MZ_LARGE
+                       && otmp->otyp == LARGE_SPLINT_MAIL) {
+                Your("armor falls off!");
+                (void) Armor_gone();
+                dropp(otmp);
             } else {
                 You("break out of your armor!");
                 exercise(A_STR, FALSE);
@@ -989,6 +995,15 @@ break_armor()
             else
                 You("become much too small for your shirt!");
             setworn((struct obj *) 0, otmp->owornmask & W_ARMU);
+            dropp(otmp);
+        }
+    /* catch what breakarm() and sliparm() doesn't handle */
+    } else if (youmonst.data->msize <= MZ_LARGE) {
+        if ((otmp = uarm) != 0 && otmp->otyp == LARGE_SPLINT_MAIL) {
+            if (donning(otmp))
+                cancel_don();
+            Your("armor falls around you!");
+            (void) Armor_gone();
             dropp(otmp);
         }
     }
