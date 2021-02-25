@@ -331,10 +331,8 @@ int mndx;
         mndx = PM_HOBBIT;
         break;
     case PM_VAMPIRE:
-    case PM_VAMPIRE_LORD:
-    case PM_VAMPIRE_LADY:
-    case PM_VAMPIRE_KING:
-    case PM_VAMPIRE_QUEEN:
+    case PM_VAMPIRE_NOBLE:
+    case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_MAGE:
     case PM_HUMAN_ZOMBIE:
     case PM_HUMAN_MUMMY:
@@ -525,10 +523,8 @@ unsigned corpseflags;
         (void) mksobj_at(WORM_TOOTH, x, y, TRUE, FALSE);
         goto default_1;
     case PM_VAMPIRE:
-    case PM_VAMPIRE_LORD:
-    case PM_VAMPIRE_LADY:
-    case PM_VAMPIRE_KING:
-    case PM_VAMPIRE_QUEEN:
+    case PM_VAMPIRE_NOBLE:
+    case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_MAGE:
         /* include mtmp in the mkcorpstat() call */
         num = undead_to_corpse(mndx);
@@ -4424,8 +4420,7 @@ struct monst *mon;
             break; /* leave mndx as is */
         wolfchance = 3;
     /*FALLTHRU*/
-    case PM_VAMPIRE_LORD:
-    case PM_VAMPIRE_LADY: /* vampire lords/ladies or Vlad can become wolf */
+    case PM_VAMPIRE_NOBLE: /* vampire lords/ladies or Vlad can become wolf */
         if (!rn2(wolfchance) && !uppercase_only) {
             if (IS_AIR(levl[mon->mx][mon->my].typ))
                 mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
@@ -4434,8 +4429,7 @@ struct monst *mon;
             break;
         }
     /*FALLTHRU*/
-    case PM_VAMPIRE_KING:
-    case PM_VAMPIRE_QUEEN:
+    case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_MAGE: /* vampire kings/queens and mages can become a warg */
         if (!rn2(wolfchance) && !uppercase_only) {
             if (IS_AIR(levl[mon->mx][mon->my].typ))
@@ -4577,10 +4571,8 @@ struct monst *mon;
         break;
     case PM_VLAD_THE_IMPALER:
     case PM_VAMPIRE_MAGE:
-    case PM_VAMPIRE_QUEEN:
-    case PM_VAMPIRE_KING:
-    case PM_VAMPIRE_LADY:
-    case PM_VAMPIRE_LORD:
+    case PM_VAMPIRE_ROYAL:
+    case PM_VAMPIRE_NOBLE:
     case PM_VAMPIRE:
         mndx = pickvampshape(mon);
         break;

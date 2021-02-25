@@ -1888,6 +1888,16 @@ boolean called;
         name_at_start = (boolean) type_is_pname(mdat);
     }
 
+    /* lords and ladies, kings and queens */
+    if (is_lord(mtmp->data) && mtmp->female)
+        strsubst(buf, " noble", " lady");
+    else if (is_prince(mtmp->data) && mtmp->female)
+        strsubst(buf, " royal", " queen");
+    else if (is_lord(mtmp->data) && !mtmp->female)
+        strsubst(buf, " noble", " lord");
+    else if (is_prince(mtmp->data) && !mtmp->female)
+        strsubst(buf, " royal", " king");
+
     if (name_at_start && (article == ARTICLE_YOUR || !has_adjectives)) {
         if (mdat == &mons[PM_WIZARD_OF_YENDOR]
             || mdat == &mons[PM_RAT_KING]

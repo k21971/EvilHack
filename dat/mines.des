@@ -30,8 +30,8 @@ MONSTER: ('G', "rock gnome"), random
 MONSTER: ('G', "rock gnome"), random
 MONSTER: ('G', "rock gnome"), random
 MONSTER: ('G', "rock gnome"), random
-MONSTER: ('G', "gnome lady"), random
-MONSTER: ('G', "gnome lord"), random
+MONSTER: ('G', "gnome noble"), random
+MONSTER: ('G', "gnome noble"), random
 MONSTER: ('h', "mountain dwarf"), random
 MONSTER: ('h', "mountain dwarf"), random
 MONSTER: 'G', random
@@ -308,7 +308,7 @@ SUBROOM: "temple", lit, (19,5), (4,4) {
 
 [75%]: SUBROOM: "ordinary", lit, (18,10), (4,3) {
   ROOMDOOR: false, locked, west, random
-  MONSTER: ('G', "gnome lord"), random
+  MONSTER: ('G', "gnome noble"), random
 }
 
 # The Town Watch
@@ -630,8 +630,8 @@ MONSTER: ('G', "rock gnome"), random
 MONSTER: ('G', "rock gnome"), random
 MONSTER: ('G', "rock gnome"), random
 MONSTER: ('G', "rock gnome"), random
-MONSTER: ('G', "gnome lady"), random
-MONSTER: ('G', "gnome lord"), random
+MONSTER: ('G', "gnome noble"), random
+MONSTER: ('G', "gnome noble"), random
 MONSTER: ('h', "mountain dwarf"), random
 MONSTER: ('h', "mountain dwarf"), random
 MONSTER: ('h', "mountain dwarf"), random
@@ -667,12 +667,12 @@ DOOR:closed,(67,16)
 MONSTER: ('G', "gnomish wizard"), (67,14)
 OBJECT: '=', (70,14)
 DOOR:locked,(69,18)
-MONSTER: ('G', "gnome lord"), (71,19)
+MONSTER: ('G', "gnome noble"), (71,19)
 DOOR:locked,(73,18)
 OBJECT: ('(', "chest"), (73,19)
 DOOR:locked,(50,06)
 OBJECT: '(', (50,03)
-OBJECT: ('`', "statue"), (38,15), montype:"gnome king", 1
+OBJECT: ('`', "statue"), (38,15), montype:"gnome royal", 1
 # Temple
 REGION:(29,02,33,04),lit,"temple"
 DOOR:closed,(31,05)
@@ -740,10 +740,10 @@ LOOP [4 + 1d8] {
   MONSTER: ('G', "rock gnome"), rndcoord($outside)
 }
 MONSTER: ('G', "rock gnome"), rndcoord($outside)
-MONSTER: ('G', "gnome lady"), rndcoord($outside)
+MONSTER: ('G', "gnome noble"), rndcoord($outside)
 MONSTER: ('G', "rock gnome"), rndcoord($outside)
-MONSTER: ('G', "gnome lord"), rndcoord($outside)
-MONSTER: ('G', "gnome lord"), rndcoord($outside)
+MONSTER: ('G', "gnome noble"), rndcoord($outside)
+MONSTER: ('G', "gnome noble"), rndcoord($outside)
 MONSTER: ('G', "gnomish wizard"), rndcoord($outside)
 MONSTER: ('G', "gnomish wizard"), rndcoord($outside)
 MONSTER: ('h', "mountain dwarf"), rndcoord($outside)
@@ -816,7 +816,7 @@ FOUNTAIN: (11, 13)
 
 [75%]: SUBROOM: "ordinary", unlit, (19,2), (2,2) {
   ROOMDOOR: false, locked, east, random
-  MONSTER: ('G',"gnome king"),random
+  MONSTER: ('G',"gnome royal"),random
 }
 
 SUBROOM: "food shop" [50%], lit, (19,5), (2,3) {
@@ -875,8 +875,8 @@ MONSTER: ('@', "watchman"), random, peaceful
 MONSTER: ('@', "watch captain"), random, peaceful
 MONSTER:('G',"rock gnome"),random
 MONSTER:('G',"rock gnome"),random
-MONSTER:('G',"gnome lady"),random
-MONSTER:('G',"gnome lord"),random
+MONSTER:('G',"gnome noble"),random
+MONSTER:('G',"gnome noble"),random
 MONSTER:('Y',"monkey"),random
 MONSTER:('Y',"monkey"),random
 
@@ -966,7 +966,7 @@ SUBROOM: "ordinary", lit, (22,10), (2,3) {
 
 SUBROOM: "ordinary", lit, (26,2), (3,3) {
   ROOMDOOR: false, closed, south, random
-  MONSTER: ('G', "gnome lord"), random
+  MONSTER: ('G', "gnome noble"), random
 }
 
 SUBROOM: "ordinary", unlit, (25,10), (4,3) {
@@ -1089,10 +1089,10 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters
-MONSTER:('G',"gnome king"),random
-MONSTER:('G',"gnome queen"),random
-MONSTER:('G',"gnome lady"),random
-MONSTER:('G',"gnome lord"),random
+MONSTER:('G',"gnome royal"),random
+MONSTER:('G',"gnome royal"),random
+MONSTER:('G',"gnome noble"),random
+MONSTER:('G',"gnome noble"),random
 MONSTER:('G',"gnomish wizard"),random
 MONSTER:('G',"gnomish wizard"),random
 MONSTER:('G',"rock gnome"),random
@@ -1113,7 +1113,7 @@ MONSTER:'h',random
 
 
 # Mine end level variant 2
-# "Gnome King's Wine Cellar"
+# "Gnome King's/Queen's Wine Cellar" (gender is selected randomly)
 #
 MAZE: "minend-2", ' '
 GEOMETRY:center,center
@@ -1185,13 +1185,14 @@ NON_DIGGABLE:(53,07,53,07)
 NON_DIGGABLE:(58,12,58,13)
 NON_DIGGABLE:(53,14,61,14)
 NON_DIGGABLE:(61,15,61,16)
-# The Gnome King's wine cellar.
+# The Gnome King's/Queen's wine cellar.
 # the Trespassers sign used to be a long-running joke...
-ENGRAVING:(12,03),engrave,"You are now entering the Gnome King's wine cellar."
+ENGRAVING:(12,03),engrave,"You are now entering the royal wine cellar."
 ENGRAVING:(12,04),engrave,"Trespassers will be persecuted!"
 # hired mercenaries, courtesy of the Yendorian Army
 MONSTER:('@',"sergeant"),(14,04),hostile
 MONSTER:('@',"soldier"),(14,05),hostile
+MONSTER:('G',"gnome royal"),(14,08),hostile
 OBJECT:('!',"booze"),(10,07)
 OBJECT:('!',"booze"),(10,07)
 OBJECT:'!',(10,07)
@@ -1242,10 +1243,10 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:('G',"gnome king"),random
-MONSTER:('G',"gnome queen"),random
-MONSTER:('G',"gnome lady"),random
-MONSTER:('G',"gnome lord"),random
+MONSTER:('G',"gnome royal"),random
+MONSTER:('G',"gnome noble"),random
+MONSTER:('G',"gnome noble"),random
+MONSTER:('G',"gnome noble"),random
 MONSTER:('G',"gnomish wizard"),random
 MONSTER:('G',"gnomish wizard"),random
 MONSTER:('G',"rock gnome"),random

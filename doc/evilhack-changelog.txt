@@ -1423,4 +1423,5 @@ Version 0.7.0
 - Fix: add/remove a few M2_NOPOLY flags (monst.c)
 - More better grammar
 - Addition of README.md
+- Dynamically name noble/royal monsters
 

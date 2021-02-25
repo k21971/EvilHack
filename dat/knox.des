@@ -470,11 +470,11 @@ MONSTER:('@',"elven wizard"),(60,07),hostile
 MONSTER:('@',"Green-elf"),   (60,08),hostile
 MONSTER:('@',"Grey-elf"),    (60,09),hostile
 MONSTER:('@',"Woodland-elf"),(60,10),hostile
-MONSTER:('@',"elven king"),  (60,11),hostile
+MONSTER:('@',"elven royal"), (60,11),hostile
 MONSTER:('@',"Grey-elf"),    (60,12),hostile
 MONSTER:('@',"elven wizard"),(60,13),hostile
 MONSTER:('@',"Green-elf"),   (60,14),hostile
-MONSTER:('@',"elf-lady"),    (60,15),hostile
+MONSTER:('@',"elven noble"), (60,15),hostile
 MONSTER:('@',"Grey-elf"),    (60,16),hostile
 MONSTER:('@',"Woodland-elf"),(60,17),hostile
 # Soldiers guarding the fort in front of ringwalls

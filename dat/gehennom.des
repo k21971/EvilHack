@@ -455,8 +455,8 @@ MONSTER:(' ',"shade"),(32,14)
 MONSTER:(' ',"shade"),(32,16)
 MONSTER:('V',"vampire"),(35,16)
 MONSTER:('V',"vampire"),(35,14)
-MONSTER:('V',"vampire lord"),(36,14)
-MONSTER:('V',"vampire lady"),(36,15)
+MONSTER:('V',"vampire noble"),(36,14)
+MONSTER:('V',"vampire noble"),(36,15)
 # Watches the sanctum
 MONSTER:('h',"alhoon"),(24,07)
 # Randomly placed companions
@@ -479,10 +479,10 @@ MONSTER:('Z',"human zombie"),random
 MONSTER:('Z',"human zombie"),random
 MONSTER:('Z',"human zombie"),random
 MONSTER:('V',"vampire"),random
-MONSTER:('V',"vampire lord"),random
-MONSTER:('V',"vampire lady"),random
-MONSTER:('V',"vampire king"),random
-MONSTER:('V',"vampire queen"),random
+MONSTER:('V',"vampire noble"),random
+MONSTER:('V',"vampire noble"),random
+MONSTER:('V',"vampire royal"),random
+MONSTER:('V',"vampire royal"),random
 # A few more for the party
 MONSTER:random,random
 MONSTER:random,random

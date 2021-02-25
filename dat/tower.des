@@ -48,9 +48,9 @@ MONSTER:('U',"shambling horror"),(14,01)
 MONSTER:('U',"shambling horror"),(15,14)
 MONSTER:('Z',"skeleton"),(13,07)
 MONSTER:('Z',"skeleton"),(13,08)
-MONSTER:('V',"vampire king"),(14,07)
+MONSTER:('V',"vampire royal"),(14,07)
 MONSTER:('V',"vampire mage"),(14,08)
-MONSTER:('V',"vampire queen"),(15,07)
+MONSTER:('V',"vampire royal"),(15,07)
 MONSTER:('V',"vampire mage"),(15,08)
 MONSTER:('Z',"skeleton"),(16,07)
 MONSTER:('Z',"skeleton"),(16,08)
@@ -164,25 +164,25 @@ MONSTER:' ',(24,11)
 # Vampire nests with demonic pets
 MONSTER:'&',(06,07)
 MONSTER:'&',(06,08)
-MONSTER:('V',"vampire lord"),(07,07)
-MONSTER:('V',"vampire lady"),(07,08)
-MONSTER:('V',"vampire lord"),(08,07)
-MONSTER:('V',"vampire lady"),(08,08)
-MONSTER:('V',"vampire lord"),(09,07)
-MONSTER:('V',"vampire lady"),(09,08)
-MONSTER:('V',"vampire lord"),(20,07)
-MONSTER:('V',"vampire lady"),(20,08)
-MONSTER:('V',"vampire lord"),(21,07)
-MONSTER:('V',"vampire lady"),(21,08)
-MONSTER:('V',"vampire lord"),(22,07)
-MONSTER:('V',"vampire lady"),(22,08)
+MONSTER:('V',"vampire noble"),(07,07)
+MONSTER:('V',"vampire noble"),(07,08)
+MONSTER:('V',"vampire noble"),(08,07)
+MONSTER:('V',"vampire noble"),(08,08)
+MONSTER:('V',"vampire noble"),(09,07)
+MONSTER:('V',"vampire noble"),(09,08)
+MONSTER:('V',"vampire noble"),(20,07)
+MONSTER:('V',"vampire noble"),(20,08)
+MONSTER:('V',"vampire noble"),(21,07)
+MONSTER:('V',"vampire noble"),(21,08)
+MONSTER:('V',"vampire noble"),(22,07)
+MONSTER:('V',"vampire noble"),(22,08)
 MONSTER:'&',(23,07)
 MONSTER:'&',(23,08)
 # More vampires
-MONSTER:('V',"vampire queen"),(12,13)
-MONSTER:('V',"vampire king"),(14,14)
-MONSTER:('V',"vampire queen"),(15,14)
-MONSTER:('V',"vampire king"),(17,13)
+MONSTER:('V',"vampire royal"),(12,13)
+MONSTER:('V',"vampire royal"),(14,14)
+MONSTER:('V',"vampire royal"),(15,14)
+MONSTER:('V',"vampire royal"),(17,13)
 # Random corpses of past adventurers
 OBJECT:('%',"corpse"),random,montype:"monk"
 OBJECT:('%',"corpse"),random,montype:"cavewoman"
@@ -276,8 +276,8 @@ MONSTER:('&',"weredemon"),(33,07)
 MONSTER:('&',"weredemon"),(33,08)
 MONSTER:('&',"weredemon"),(34,07)
 MONSTER:('@',"werewolf"),(34,08)
-MONSTER:('V',"vampire lord"),(42,07)
-MONSTER:('V',"vampire lady"),(42,08)
+MONSTER:('V',"vampire noble"),(42,07)
+MONSTER:('V',"vampire noble"),(42,08)
 # Random objects and traps in the niches
 OBJECT:(')',"long sword"),$place[0]
 TRAP:random,$place[0]
@@ -359,8 +359,8 @@ MONSTER:('V',"vampire"),(65,01),asleep
 MONSTER:('V',"vampire"),(66,01),asleep
 MONSTER:('V',"vampire"),(62,02),asleep
 MONSTER:('V',"vampire"),(63,02),asleep
-MONSTER:('V',"vampire lord"),(64,02),asleep
-MONSTER:('V',"vampire lady"),(65,02),asleep
+MONSTER:('V',"vampire noble"),(64,02),asleep
+MONSTER:('V',"vampire noble"),(65,02),asleep
 MONSTER:('V',"vampire"),(66,02),asleep
 MONSTER:('V',"vampire"),(67,02),asleep
 MONSTER:('V',"vampire"),(63,03),asleep
@@ -378,8 +378,8 @@ MONSTER:('V',"vampire"),(68,04),asleep
 MONSTER:('V',"vampire"),(69,04),asleep
 MONSTER:('V',"vampire"),(65,05),asleep
 MONSTER:('V',"vampire"),(66,05),asleep
-MONSTER:('V',"vampire lord"),(67,05),asleep
-MONSTER:('V',"vampire lady"),(68,05),asleep
+MONSTER:('V',"vampire noble"),(67,05),asleep
+MONSTER:('V',"vampire noble"),(68,05),asleep
 MONSTER:('V',"vampire"),(69,05),asleep
 MONSTER:('V',"vampire"),(70,05),asleep
 MONSTER:('V',"vampire"),(66,06),asleep
@@ -391,8 +391,8 @@ MONSTER:('V',"vampire"),(68,07),asleep
 
 MONSTER:('V',"vampire"),(70,06),asleep
 MONSTER:('V',"vampire"),(71,06),asleep
-MONSTER:('V',"vampire lord"),(72,06),asleep
-MONSTER:('V',"vampire lady"),(73,06),asleep
+MONSTER:('V',"vampire noble"),(72,06),asleep
+MONSTER:('V',"vampire noble"),(73,06),asleep
 MONSTER:('V',"vampire"),(74,06),asleep
 MONSTER:('V',"vampire"),(75,06),asleep
 MONSTER:('V',"vampire"),(69,07),asleep

@@ -69,7 +69,7 @@ NON_PASSWALL:(22,01,28,11)
 # The wizard and his guards
 MONSTER:('@',"Wizard of Yendor"),(17,06),asleep
 MONSTER:('d',"hell hound"),(16,06)
-MONSTER:('V',"vampire king"),(18,06)
+MONSTER:('V',"vampire royal"),(18,06)
 # The local treasure
 OBJECT:('+',"Book of the Dead"),(17,06)
 # Surrounding terror
@@ -281,7 +281,7 @@ NON_PASSWALL:(17,03,28,13)
 NON_PASSWALL:(07,13,17,13)
 #
 MONSTER:'L',(11,08)
-MONSTER:('V',"vampire lord"),(13,08)
+MONSTER:('V',"vampire noble"),(13,08)
 # Some surrounding horrors
 MONSTER:(';',"kraken"),(09,06)
 MONSTER:(';',"giant eel"),(09,09)
@@ -378,7 +378,7 @@ IF [50%] {
 } ELSE {
   MONSTER:('J',"vorpal jabberwock"),(10,10)
 }
-MONSTER:('V',"vampire lady"),(09,10)
+MONSTER:('V',"vampire noble"),(09,10)
 MONSTER:(':',"salamander"),(08,08)
 MONSTER:(':',"salamander"),(12,12)
 MONSTER:(':',"salamander"),(01,10)
@@ -491,7 +491,7 @@ TERRAIN: floodfill (20,20), 'L'
 
 # Tower monsters
 MONSTER:('&',"balrog"),(10,10)
-MONSTER:('V',"vampire queen"),(09,10)
+MONSTER:('V',"vampire royal"),(09,10)
 MONSTER:(':',"salamander"),(08,08)
 MONSTER:(':',"salamander"),(12,12)
 MONSTER:(':',"salamander"),(01,10)
