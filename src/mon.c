@@ -2627,6 +2627,7 @@ mondead(mtmp)
 register struct monst *mtmp;
 {
     struct permonst *mptr;
+    struct monst *rider;
     int tmp;
     struct obj* otmp;
 
@@ -2792,6 +2793,10 @@ register struct monst *mtmp;
     /* Player is thrown from his steed when it dies */
     if (mtmp == u.usteed)
         dismount_steed(DISMOUNT_GENERIC);
+    /* The same is true for monsters riding steeds */
+    rider = get_mon_rider(mtmp);
+    if (rider)
+        separate_steed_and_rider(rider);
 
     /* extinguish monster's armor */
     if ((otmp = which_armor(mtmp, W_ARM))
@@ -3031,6 +3036,7 @@ void
 mongone(mdef)
 struct monst *mdef;
 {
+    struct monst *rider;
     mdef->mhp = 0; /* can skip some inventory bookkeeping */
 
     /* dead vault guard is actually kept at coordinate <0,0> until
@@ -3040,6 +3046,11 @@ struct monst *mdef;
     /* hero is thrown from his steed when it disappears */
     if (mdef == u.usteed)
         dismount_steed(DISMOUNT_GENERIC);
+    /* The same is true for monsters riding steeds */
+    rider = get_mon_rider(mdef);
+    if (rider)
+        separate_steed_and_rider(rider);
+
     /* stuck to you? release */
     unstuck(mdef);
     /* drop special items like the Amulet so that a dismissed Kop or nurse
