@@ -4,8 +4,6 @@
 
 #include "hack.h"
 
-void FDECL(get_mplname, (struct monst *, char *));
-void FDECL(init_mplayer_erac, (struct monst *));
 STATIC_DCL void FDECL(mk_mplayer_armor, (struct monst *, SHORT_P));
 
 /* Human male struct - These are the names of those who
@@ -336,7 +334,6 @@ struct monst *mtmp;
     get_mplname(mtmp, nam);
     mtmp = christen_monst(mtmp, nam);
 }
-
 
 STATIC_OVL void
 mk_mplayer_armor(mon, typ)

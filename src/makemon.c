@@ -2179,9 +2179,6 @@ coord *cc;
     return FALSE;
 }
 
-extern void FDECL(get_mplname, (struct monst *, char *));
-extern void FDECL(init_mplayer_erac, (struct monst *));
-
 /*
  * called with [x,y] = coordinates;
  *      [0,0] means anyplace
