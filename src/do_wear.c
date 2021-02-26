@@ -975,8 +975,7 @@ Armor_off(VOID_ARGS)
             ESwimming &= ~W_ARM;
             if (Underwater) {
                 setworn((struct obj *) 0, W_ARM);
-                if (!breathless(youmonst.data) && !amphibious(youmonst.data)
-                    && !Swimming) {
+                if (!breathless(youmonst.data) && !Amphibious && !Swimming) {
                     You("suddenly inhale an unhealthy amount of %s!",
                         hliquid("water"));
                     (void) drown();
@@ -1047,8 +1046,7 @@ Armor_gone()
             ESwimming &= ~W_ARM;
             if (Underwater) {
                 setworn((struct obj *) 0, W_ARM);
-                if (!breathless(youmonst.data) && !amphibious(youmonst.data)
-                    && !Swimming) {
+                if (!breathless(youmonst.data) && !Amphibious && !Swimming) {
                     You("suddenly inhale an unhealthy amount of %s!",
                         hliquid("water"));
                     (void) drown();
@@ -1238,8 +1236,7 @@ Amulet_off()
             /* HMagical_breathing must be set off
                 before calling drown() */
             setworn((struct obj *) 0, W_AMUL);
-            if (!breathless(youmonst.data) && !amphibious(youmonst.data)
-                && !Swimming) {
+            if (!breathless(youmonst.data) && !Amphibious && !Swimming) {
                 You("suddenly inhale an unhealthy amount of %s!",
                     hliquid("water"));
                 (void) drown();
