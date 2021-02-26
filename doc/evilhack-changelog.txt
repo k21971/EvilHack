@@ -1425,4 +1425,5 @@ Version 0.7.0
 - Addition of README.md
 - Dynamically name noble/royal monsters
 - Fix: force monster rider from steed if under influence of conflict
+- Fix: 'three rooms' random vault sometimes not spawning any doors
 

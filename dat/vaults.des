@@ -448,9 +448,9 @@ MAP
 |...|..|
 --------
 ENDMAP
-REGION:(1,1,3,6),random,"rndvault" { }
-REGION:(5,1,6,2),random,"rndvault" { }
-REGION:(5,4,6,6),random,"rndvault" { }
+REGION:(1,1,3,6),random,"rndvault",irregular { }
+REGION:(5,1,6,2),random,"rndvault",irregular { }
+REGION:(5,4,6,6),random,"rndvault",irregular { }
 
 # Cross
 LEVEL:"vlt-0023"
