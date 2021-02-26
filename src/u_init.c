@@ -839,10 +839,10 @@ u_init()
         urace.lovemask = 0; /* Convicts are pariahs of their race */
         break;
     case PM_HEALER:
-        if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
         u.umoney0 = rn1(1000, 1001);
         ini_inv(Healer);
+        if (Race_if(PM_ILLITHID))
+            ini_inv(Psionics);
         if (!rn2(25))
             ini_inv(Lamp);
         knows_object(POT_FULL_HEALING);
@@ -850,9 +850,9 @@ u_init()
         break;
     case PM_INFIDEL:
         u.umoney0 = rn1(251, 250);
+        ini_inv(Infidel);
         if (Race_if(PM_ILLITHID))
             ini_inv(Psionics);
-        ini_inv(Infidel);
         knows_object(SCR_CHARGING);
         skill_init(Skill_Inf);
         break;
@@ -880,9 +880,9 @@ u_init()
     case PM_PRIEST:
 	if (Race_switch == PM_ELF)
             Priest[PRI_MACE].trotyp = QUARTERSTAFF;
+        ini_inv(Priest);
         if (Race_if(PM_ILLITHID))
             ini_inv(Psionics);
-        ini_inv(Priest);
         if (!rn2(4))
             ini_inv(Lamp);
         knows_object(POT_WATER);
@@ -950,11 +950,11 @@ u_init()
         skill_init(Skill_V);
         break;
     case PM_WIZARD:
+        ini_inv(Wizard);
         if (Race_if(PM_GIANT))
             ini_inv(AoMR);
         if (Race_if(PM_ILLITHID))
             ini_inv(Psionics);
-        ini_inv(Wizard);
         if (!rn2(5))
             ini_inv(Lamp);
         if (!rn2(5))
