@@ -1315,5 +1315,6 @@ Version 0.6.0
 - Fix: giant samurai wearing large splint mail and polyform
 - More better grammar
 - Fix: force monster rider from steed if under influence of conflict
+- Fix: 'three rooms' random vault sometimes not spawning any doors
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
