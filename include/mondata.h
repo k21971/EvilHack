@@ -131,7 +131,8 @@
 #define mindless(ptr) (((ptr)->mflags1 & M1_MINDLESS) != 0L)
 #define humanoid(ptr) (((ptr)->mflags1 & M1_HUMANOID) != 0L)
 #define is_animal(ptr) (((ptr)->mflags1 & M1_ANIMAL) != 0L)
-#define is_swallower(ptr) (is_animal(ptr) || is_dragon(ptr))
+#define is_swallower(ptr) ((is_dragon(ptr) && (ptr) != &mons[PM_SEA_DRAGON]) \
+                           || is_animal(ptr))
 #define slithy(ptr) (((ptr)->mflags1 & M1_SLITHY) != 0L)
 #define is_wooden(ptr) ((ptr) == &mons[PM_WOOD_GOLEM])
 #define thick_skinned(ptr) (((ptr)->mflags1 & M1_THICK_HIDE) != 0L)
