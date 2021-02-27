@@ -24,12 +24,16 @@ STATIC_DCL void FDECL(mbagmsg, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mreadmsg, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mquaffmsg, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(m_use_healing, (struct monst *));
+STATIC_DCL boolean FDECL(linedup_chk_corpse, (int, int));
+STATIC_DCL void FDECL(m_use_undead_turning, (struct monst *, struct obj *));
 STATIC_PTR int FDECL(mbhitm, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mbhit, (struct monst *, int,
                               int FDECL((*), (MONST_P, OBJ_P)),
                               int FDECL((*), (OBJ_P, OBJ_P)), struct obj *));
 void FDECL(you_aggravate, (struct monst *));
+#if 0
 STATIC_DCL boolean FDECL(necrophiliac, (struct obj *, BOOLEAN_P));
+#endif
 STATIC_DCL void FDECL(mon_consume_unstone, (struct monst *, struct obj *,
                                             BOOLEAN_P, BOOLEAN_P));
 STATIC_DCL boolean FDECL(cures_stoning, (struct monst *, struct obj *,
@@ -337,7 +341,7 @@ struct obj *otmp;
 #define MUSE_ACID_BLOB_CORPSE 20
 #define MUSE_BAG_OF_TRICKS 21
 #define MUSE_EUCALYPTUS_LEAF 22
-#define MUSE_WAN_UNDEAD_TURNING 23 /* also an offensive item */
+#define MUSE_WAN_UNDEAD_TURNING 24 /* also an offensive item */
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -1398,7 +1402,62 @@ struct monst *mtmp;
 #define MUSE_POT_POLYMORPH_THROW 21
 #define MUSE_POT_HALLUCINATION 22
 #define MUSE_WAN_POLYMORPH 23
-#define MUSE_WAN_UNDEAD_TURNING_OFF 24
+/*#define MUSE_WAN_UNDEAD_TURNING 24*/ /* also a defensive item so don't
+                                        * redefine; nonconsecutive value is ok */
+
+static boolean
+linedup_chk_corpse(x, y)
+int x, y;
+{
+    return (sobj_at(CORPSE, x, y) != 0);
+}
+
+static void
+m_use_undead_turning(mtmp, obj)
+struct monst *mtmp;
+struct obj *obj;
+{
+    int ax = u.ux + sgn(mtmp->mux - mtmp->mx) * 3,
+        ay = u.uy + sgn(mtmp->muy - mtmp->my) * 3;
+    int bx = mtmp->mx, by = mtmp->my;
+
+    if (!(obj->otyp == WAN_UNDEAD_TURNING && obj->spe > 0))
+        return;
+
+    /* not necrophiliac(); unlike deciding whether to pick this
+       type of wand up, we aren't interested in corpses within
+       carried containers until they're moved into open inventory;
+       we don't check whether hero is poly'd into an undead--the
+       wand's turning effect is too weak to be a useful direct
+       attack--only whether hero is carrying at least one corpse */
+    if (carrying(CORPSE)) {
+        /*
+         * Hero is carrying one or more corpses but isn't wielding
+         * a cockatrice corpse (unless being hit by one won't do
+         * the monster much harm); otherwise we'd be using this wand
+         * as a defensive item with higher priority.
+         *
+         * Might be cockatrice intended as a weapon (or being denied
+         * to glove-wearing monsters for use as a weapon) or lizard
+         * intended as a cure or lichen intended as veggy food or
+         * sacrifice fodder being lugged to an altar.  Zapping with
+         * this will deprive hero of one from each stack although
+         * they might subsequently be recovered after killing again.
+         * In the sacrifice fodder case, it could even be to the
+         * player's advantage (fresher corpse if a new one gets
+         * dropped; player might not choose to spend a wand charge
+         * on that when/if hero acquires this wand).
+         */
+        m.offensive = obj;
+        m.has_offense = MUSE_WAN_UNDEAD_TURNING;
+    } else if (linedup_callback(ax, ay, bx, by, linedup_chk_corpse)) {
+        /* There's a corpse on the ground in a direct line from the
+         * monster to the hero, and up to 3 steps beyond.
+         */
+        m.offensive = obj;
+        m.has_offense = MUSE_WAN_UNDEAD_TURNING;
+    }
+}
 
 /* Select an offensive item/action for a monster.  Returns TRUE iff one is
  * found.
@@ -1563,35 +1622,8 @@ boolean reflection_skip;
 		}
 	    }
 	}
-        nomore(MUSE_WAN_UNDEAD_TURNING_OFF);
-        if (obj->otyp == WAN_UNDEAD_TURNING && obj->spe > 0
-            /* not necrophiliac(); unlike deciding whether to pick this
-               type of wand up, we aren't interested in corpses within
-               carried containers until they're moved into open inventory;
-               we don't check whether hero is poly'd into an undead--the
-               wand's turning effect is too weak to be a useful direct
-               attack--only whether hero is carrying at least one corpse */
-            && carrying(CORPSE)) {
-            /*
-             * Hero is carrying one or more corpses but isn't wielding
-             * a cockatrice corpse (unless being hit by one won't do
-             * the monster much harm); otherwise we'd be using this wand
-             * as a defensive item with higher priority.
-             *
-             * Might be cockatrice intended as a weapon (or being denied
-             * to glove-wearing monsters for use as a weapon) or lizard
-             * intended as a cure or lichen intended as veggy food or
-             * sacrifice fodder being lugged to an altar.  Zapping with
-             * this will deprive hero of one from each stack although
-             * they might subsequently be recovered after killing again.
-             * In the sacrifice fodder case, it could even be to the
-             * player's advantage (fresher corpse if a new one gets
-             * dropped; player might not choose to spend a wand charge
-             * on that when/if hero acquires this wand).
-             */
-            m.offensive = obj;
-            m.has_offense = MUSE_WAN_UNDEAD_TURNING_OFF;
-        }
+        nomore(MUSE_WAN_UNDEAD_TURNING);
+        m_use_undead_turning(mtmp, obj);
 	nomore(MUSE_WAN_CANCELLATION);
 	if (obj->otyp == WAN_CANCELLATION) {
 	    if (obj->spe > 0) {
@@ -2073,7 +2105,7 @@ struct monst *mtmp;
     case MUSE_WAN_CANCELLATION:
     case MUSE_WAN_TELEPORTATION:
     case MUSE_WAN_POLYMORPH:
-    case MUSE_WAN_UNDEAD_TURNING_OFF:
+    case MUSE_WAN_UNDEAD_TURNING:
     case MUSE_WAN_STRIKING:
         zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
@@ -3105,6 +3137,7 @@ struct monst *mtmp;
     return 0;
 }
 
+#if 0
 /* check whether hero is carrying a corpse or contained petrifier corpse */
 STATIC_OVL boolean
 necrophiliac(objlist, any_corpse)
@@ -3121,6 +3154,7 @@ boolean any_corpse;
     }
     return FALSE;
 }
+#endif
 
 boolean
 searches_for_item(mon, obj)
@@ -3148,11 +3182,8 @@ struct obj *obj;
         if (objects[typ].oc_dir == RAY || typ == WAN_STRIKING
             || typ == WAN_TELEPORTATION || typ == WAN_CREATE_MONSTER
             || typ == WAN_CANCELLATION || typ == WAN_WISHING
-            || typ == WAN_POLYMORPH)
+            || typ == WAN_POLYMORPH || typ == WAN_UNDEAD_TURNING)
             return TRUE;
-        if (typ == WAN_UNDEAD_TURNING)
-            return (necrophiliac(invent, TRUE)
-                    || (Upolyd && is_undead(youmonst.data)));
         break;
     case POTION_CLASS:
         if (typ == POT_HEALING || typ == POT_EXTRA_HEALING

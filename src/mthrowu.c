@@ -1264,6 +1264,43 @@ struct attack *mattk;
     return 1;
 }
 
+/* Move from (ax,ay) to (bx,by), but only if distance is up to BOLT_LIM
+   and only in straight line or diagonal, calling fnc for each step.
+   Stops if fnc return TRUE, or if step was blocked by wall or closed door.
+   Returns TRUE if fnc returned TRUE. */
+boolean
+linedup_callback(ax, ay, bx, by, fnc)
+xchar ax, ay, bx, by;
+boolean FDECL((*fnc), (int, int));
+{
+    int dx, dy;
+
+    /* These two values are set for use after successful return. */
+    tbx = ax - bx;
+    tby = ay - by;
+
+    /* sometimes displacement makes a monster think that you're at its
+       own location; prevent it from throwing and zapping in that case */
+    if (!tbx && !tby)
+        return FALSE;
+
+    if ((!tbx || !tby || abs(tbx) == abs(tby)) /* straight line or diagonal */
+        && distmin(tbx, tby, 0, 0) < BOLT_LIM) {
+        dx = sgn(ax - bx), dy = sgn(ay - by);
+        do {
+            /* <bx,by> is guaranteed to eventually converge with <ax,ay> */
+            bx += dx, by += dy;
+            if (!isok(bx, by))
+                return FALSE;
+            if (IS_ROCK(levl[bx][by].typ) || closed_door(bx, by))
+                return FALSE;
+            if ((*fnc)(bx, by))
+                return TRUE;
+        } while (bx != ax || by != ay);
+    }
+    return FALSE;
+}
+
 boolean
 linedup(ax, ay, bx, by, boulderhandling)
 register xchar ax, ay, bx, by;
