@@ -1429,4 +1429,6 @@ Version 0.7.0
 - Prevent cannibalism from illithid tentacle attack against
   werecreatures if infected with lycanthropy
 - Monsters can revive corpses on floor with undead turning
+- Spheres cause real explosions / new spells: flame sphere and freeze
+  sphere
 

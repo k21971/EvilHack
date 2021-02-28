@@ -547,6 +547,7 @@ E void FDECL(free_edog, (struct monst *));
 E void FDECL(initedog, (struct monst *));
 E struct monst *FDECL(make_familiar,
                       (struct obj *, XCHAR_P, XCHAR_P, BOOLEAN_P));
+E struct monst *FDECL(make_helper, (int, XCHAR_P, XCHAR_P));
 E struct monst *NDECL(makedog);
 E void NDECL(update_mlstmv);
 E void NDECL(losedogs);
@@ -804,6 +805,8 @@ E void FDECL(explode, (int, int, int, int, CHAR_P, int));
 E long FDECL(scatter, (int, int, int, unsigned int, struct obj *));
 E void FDECL(splatter_burning_oil, (int, int, BOOLEAN_P));
 E void FDECL(explode_oil, (struct obj *, int, int));
+E int FDECL(adtyp_to_expltype, (int));
+E void FDECL(mon_explodes, (struct monst *, struct attack *));
 
 /* ### extralev.c ### */
 
@@ -1514,6 +1517,7 @@ E void FDECL(mondied, (struct monst *));
 E void FDECL(mongone, (struct monst *));
 E void FDECL(monstone, (struct monst *));
 E void FDECL(monkilled, (struct monst *, const char *, int));
+E void FDECL(mon_xkilled, (struct monst *, const char *, int));
 E void FDECL(unstuck, (struct monst *));
 E void FDECL(killed, (struct monst *));
 E void FDECL(xkilled, (struct monst *, int));
@@ -2708,6 +2712,7 @@ E boolean FDECL(hmon, (struct monst *, struct obj *, int, int));
 E boolean FDECL(shade_miss, (struct monst *, struct monst *, struct obj *,
                              BOOLEAN_P, BOOLEAN_P));
 E int FDECL(damageum, (struct monst *, struct attack *, int));
+E int FDECL(explum, (struct monst *, struct attack *));
 E void FDECL(missum, (struct monst *, int, int, struct attack *, BOOLEAN_P));
 E int FDECL(passive, (struct monst *, struct obj *, BOOLEAN_P, int,
                       UCHAR_P, BOOLEAN_P));

@@ -146,6 +146,8 @@ struct monst {
     Bitfield(mpeaceful, 1); /* does not attack unprovoked */
     Bitfield(mtrapped, 1);  /* trapped in a pit, web or bear trap */
     Bitfield(mleashed, 1);  /* monster is on a leash */
+    Bitfield(isspell, 1);   /* is a temporary spell being */
+    Bitfield(uexp, 1);      /* you get experience for its kills */
     Bitfield(isshk, 1);     /* is shopkeeper */
     Bitfield(isminion, 1);  /* is a minion */
     Bitfield(isgd, 1);      /* is guard */
@@ -157,7 +159,7 @@ struct monst {
     Bitfield(mstonebyu, 1); /* you caused the monster to start stoning */
 
     Bitfield(mstone, 3);    /* monster is turning to stone */
-    /* 2 free bits */
+    /* 0 free bits */
 
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 

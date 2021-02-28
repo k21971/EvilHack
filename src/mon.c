@@ -3034,11 +3034,7 @@ boolean was_swallowed; /* digestion */
                 return FALSE;
             }
 
-            Sprintf(killer.name, "%s explosion", s_suffix(mdat->mname));
-            killer.format = KILLED_BY_AN;
-            explode(mon->mx, mon->my, -1, tmp, MON_EXPLODE, EXPL_NOXIOUS);
-            killer.name[0] = '\0';
-            killer.format = 0;
+            mon_explodes(mon, &mdat->mattk[i]);
             return FALSE;
         }
     }
@@ -3206,7 +3202,7 @@ int how;
               nonliving(mdef->data) ? "destroyed" : "killed",
               *fltxt ? " by the " : "", fltxt);
     else
-        be_sad = (mdef->mtame != 0);
+        be_sad = (mdef->mtame != 0 && !mdef->isspell);
 
     /* no corpses if digested or disintegrated */
     disintegested = (how == AD_DGST || how == -AD_RBRE);
@@ -3214,6 +3210,35 @@ int how;
         mondead(mdef);
     else
         mondied(mdef);
+
+    if (be_sad && DEADMONSTER(mdef))
+        You("have a sad feeling for a moment, then it passes.");
+}
+
+/* another monster has killed the monster mdef,
+   player gets the experience */
+void
+mon_xkilled(mdef, fltxt, how)
+struct monst *mdef;
+const char *fltxt;
+int how;
+{
+    boolean be_sad = FALSE; /* true if unseen pet is killed */
+
+    if ((mdef->wormno ? worm_known(mdef) : cansee(mdef->mx, mdef->my))
+        && fltxt)
+        pline("%s is %s%s%s!", Monnam(mdef),
+              nonliving(mdef->data) ? "destroyed" : "killed",
+              *fltxt ? " by the " : "", fltxt);
+    else
+        be_sad = (mdef->mtame != 0 && !mdef->isspell);
+
+    /* no corpses if digested or disintegrated */
+    disintegested = (how == AD_DGST || how == -AD_RBRE);
+    if (disintegested)
+        xkilled(mdef, XKILL_NOCORPSE);
+    else
+        xkilled(mdef, XKILL_NOMSG);
 
     if (be_sad && DEADMONSTER(mdef))
         You("have a sad feeling for a moment, then it passes.");

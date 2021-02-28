@@ -1182,13 +1182,13 @@ boolean ranged;
      * 25% to 40%:  up to level - 2
      *  below 25%:  prevented from attacking at all by a different case
      */
-    int balk = mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
+    int balk = !mtmp->isspell && mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
     boolean grudge = FALSE;
 
     /* Grudges override level checks. */
     if (mm_aggression(mtmp, mtmp2) & ALLOW_M) {
         grudge = TRUE;
-        balk = mtmp2->m_lev + 1;
+        balk = !mtmp->isspell && mtmp2->m_lev + 1;
     }
 
     return
@@ -1219,7 +1219,7 @@ int after; /* this is extra fast monster movement */
     register struct edog *edog = EDOG(mtmp);
     struct obj *obj = (struct obj *) 0;
     xchar otyp;
-    boolean has_edog, cursemsg[9], do_eat = FALSE;
+    boolean has_edog, cursemsg[9], has_spell, do_eat = FALSE;
     boolean better_with_displacing = FALSE;
     xchar nix, niy;      /* position mtmp is (considering) moving to */
     register int nx, ny; /* temporary coordinates */
@@ -1238,9 +1238,17 @@ int after; /* this is extra fast monster movement */
      */
     has_edog = !mtmp->isminion;
 
+    /*
+     * Similar to Angels and Guardians are spell beings - temporary
+     * magical manifestations of the spellcaster's mind.
+     * They don't eat/pickup objects - only fight.
+     * But, they aren't dismissed by conflict.
+     */
+    has_spell = !mtmp->isspell;
+
     omx = mtmp->mx;
     omy = mtmp->my;
-    if (has_edog && dog_hunger(mtmp, edog))
+    if ((has_edog || has_spell) && dog_hunger(mtmp, edog))
         return 2; /* starved */
 
     udist = distu(omx, omy);
@@ -1260,7 +1268,7 @@ int after; /* this is extra fast monster movement */
     cursemsg[0] = FALSE; /* lint suppression */
     info[0] = 0;         /* ditto */
 
-    if (has_edog) {
+    if (has_edog || has_spell) {
         j = dog_invent(mtmp, edog, udist);
         if (j == 2)
             return 2; /* died */
@@ -1271,8 +1279,9 @@ int after; /* this is extra fast monster movement */
     } else
         whappr = 0;
 
-    appr = dog_goal(mtmp, has_edog ? edog : (struct edog *) 0, after, udist,
-                    whappr);
+    appr = dog_goal(mtmp, (has_edog || has_spell) ? edog
+                                                  : (struct edog *) 0,
+                                                    after, udist, whappr);
     if (appr == -2)
         return 0;
 
@@ -1382,7 +1391,8 @@ int after; /* this is extra fast monster movement */
             continue;
 
         /* if a guardian, try to stay close by choice */
-        if (!has_edog && (j = distu(nx, ny)) > 16 && j >= udist)
+        if (!has_edog
+            && (j = distu(nx, ny)) > 16 && j >= udist)
             continue;
 
         if ((info[i] & ALLOW_M) && MON_AT(nx, ny)) {
@@ -1449,7 +1459,7 @@ int after; /* this is extra fast monster movement */
 
         /* dog eschews cursed objects, but likes dog food */
         /* (minion isn't interested; `cursemsg' stays FALSE) */
-        if (has_edog)
+        if (has_edog || has_spell)
             for (obj = level.objects[nx][ny]; obj; obj = obj->nexthere) {
                 if (obj->cursed) {
                     cursemsg[i] = TRUE;
@@ -1478,7 +1488,7 @@ int after; /* this is extra fast monster movement */
            the hero. Thus, only run it if not leashed and >5 tiles
            away. */
         if (!mtmp->mleashed && distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 5) {
-            k = has_edog ? uncursedcnt : cnt;
+            k = (has_edog || has_spell) ? uncursedcnt : cnt;
             for (j = 0; j < MTSZ && j < k - 1; j++)
                 if (nx == mtmp->mtrack[j].x && ny == mtmp->mtrack[j].y)
                     if (rn2(MTSZ * (k - j)))
@@ -1557,7 +1567,7 @@ int after; /* this is extra fast monster movement */
 
             /* pet moved when attacking */
             if (mtmp->mx != omx || mtmp->my != omy)
-                return 0; 
+                return 0;
        }
     }
 

@@ -1032,7 +1032,7 @@ explmm(magr, mdef, mattk)
 struct monst *magr, *mdef;
 struct attack *mattk;
 {
-    int result;
+    int result, mndx, tmp;
 
     if (magr->mcan)
         return MM_MISS;
@@ -1042,7 +1042,23 @@ struct attack *mattk;
     else
         noises(magr, mattk);
 
-    result = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
+    /* monster explosion types which actually create an explosion */
+    if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
+        || mattk->adtyp == AD_ELEC) {
+        mon_explodes(magr, mattk);
+        /* unconditionally set AGR_DIED here; lifesaving is accounted below */
+        result = MM_AGR_DIED | (DEADMONSTER(mdef) ? MM_DEF_DIED : 0);
+        /* kludge to ensure the player gets experience if spheres
+           were generated via spell */
+        if (magr->uexp && (result & MM_DEF_DIED)) {
+            mndx = monsndx(mdef->data);
+            tmp = experience(mdef, (int) mvitals[mndx].died + 1);
+            more_experienced(tmp, 0);
+            newexplevel();
+        }
+    } else {
+        result = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
+    }
 
     /* Kill off aggressor if it didn't die. */
     if (!(result & MM_AGR_DIED)) {
@@ -1058,7 +1074,10 @@ struct attack *mattk;
         if (was_leashed)
             Your("leash falls slack.");
     }
-    if (magr->mtame) /* give this one even if it was visible */
+    /* KMH -- Player gets blame for flame/freezing sphere */
+    if (magr->isspell && !(result & MM_DEF_DIED))
+        setmangry(mdef, TRUE);
+    if (magr->mtame && !magr->isspell) /* give this one even if it was visible */
         You(brief_feeling, "melancholy");
 
     return result;
@@ -1920,7 +1939,11 @@ msickness:
             return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
         }
 
-        monkilled(mdef, "", (int) mattk->adtyp);
+        if (magr->uexp)
+            mon_xkilled(mdef, "", (int) mattk->adtyp);
+        else
+            monkilled(mdef, "", (int) mattk->adtyp);
+
         if (!DEADMONSTER(mdef))
             return res; /* mdef lifesaved */
         else if (res == MM_AGR_DIED)
@@ -2383,7 +2406,10 @@ struct obj *mwep;
 
  assess_dmg:
     if (damage_mon(magr, tmp, (int) mdattk[i].adtyp)) {
-        monkilled(magr, "", (int) mdattk[i].adtyp);
+        if (mdef->uexp)
+            mon_xkilled(magr, "", (int) mdattk[i].adtyp);
+        else
+            monkilled(magr, "", (int) mdattk[i].adtyp);
         return (mdead | mhit | MM_AGR_DIED);
     }
     return (mdead | mhit);

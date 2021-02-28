@@ -729,6 +729,8 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
         mtmp2->mconf = 0;
         mtmp2->msick = 0;
         mtmp2->mdiseased = 0;
+        mtmp2->isspell = 0;
+        mtmp2->uexp = 0;
         /* when traits are for a shopeekper, dummy monster 'mtmp' won't
            have necessary eshk data for replmon() -> replshk() */
         if (mtmp2->isshk) {
@@ -4978,6 +4980,11 @@ boolean moncast;
     struct rm *lev = &levl[x][y];
     boolean see_it = cansee(x, y), yourzap;
     int rangemod = 0, abstype = abs(type) % 10;
+
+    if (type == PHYS_EXPL_TYPE) {
+        /* this won't have any effect on the floor */
+        return -1000; /* not a zap anyway, shouldn't matter */
+    }
 
     switch (abstype) {
     case ZT_FIRE:

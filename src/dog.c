@@ -184,6 +184,38 @@ boolean quietly;
     return mtmp;
 }
 
+/* from Slash'EM */
+struct monst *
+make_helper(mnum, x, y)
+int mnum;
+xchar x, y;
+{
+    struct permonst *pm;
+    struct monst *mtmp = 0;
+    int trycnt = 100;
+
+    do {
+        pm = &mons[mnum];
+        mtmp = makemon(pm, x, y, MM_EDOG | MM_IGNOREWATER);
+    } while (!mtmp && --trycnt > 0);
+
+    if (!mtmp)
+        return (struct monst *) 0; /* genocided */
+
+    initedog(mtmp);
+    u.uconduct.pets++;
+    mtmp->msleeping = 0;
+    set_malign(mtmp); /* more alignment changes */
+    newsym(mtmp->mx, mtmp->my);
+
+    /* must wield weapon immediately since pets will otherwise drop it */
+    if (mtmp->mtame && attacktype(mtmp->data, AT_WEAP)) {
+        mtmp->weapon_check = NEED_HTH_WEAPON;
+        (void) mon_wield_item(mtmp);
+    }
+    return mtmp;
+}
+
 struct monst *
 makedog()
 {

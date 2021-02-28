@@ -2674,10 +2674,13 @@ struct monst *mtmp;
 struct attack *mattk;
 boolean ufound;
 {
-    boolean physical_damage = TRUE, kill_agr = TRUE;
+    boolean kill_agr = TRUE;
 
     if (mtmp->mcan)
         return 0;
+
+    int tmp = d((int) mattk->damn, (int) mattk->damd);
+    boolean not_affected = defends((int) mattk->adtyp, uwep);
 
     if (!ufound) {
         pline("%s explodes at a spot in %s!",
@@ -2685,90 +2688,58 @@ boolean ufound;
               levl[mtmp->mux][mtmp->muy].typ == WATER ? "empty water"
                                                       : "thin air");
     } else {
-        int tmp = d((int) mattk->damn, (int) mattk->damd);
-        boolean not_affected = defends((int) mattk->adtyp, uwep);
-
         hitmsg(mtmp, mattk);
-
-        switch (mattk->adtyp) {
-        case AD_COLD:
-            physical_damage = FALSE;
-            not_affected |= (how_resistant(COLD_RES) == 100);
-            goto common;
-        case AD_FIRE:
-            physical_damage = FALSE;
-            not_affected |= (how_resistant(FIRE_RES) == 100);
-            goto common;
-        case AD_ELEC:
-            physical_damage = FALSE;
-            not_affected |= (how_resistant(SHOCK_RES) == 100);
-            goto common;
-        case AD_PHYS:
-            /* there aren't any exploding creatures with AT_EXPL attack
-               for AD_PHYS damage but there might be someday; without this,
-               static analysis complains that 'physical_damage' is always
-               False when tested below; it's right, but having that in
-               place means one less thing to update if AD_PHYS gets added */
- common:
-
-            if (!not_affected) {
-                if (ACURR(A_DEX) > rnd(20)) {
-                    You("duck some of the blast.");
-                    tmp = (tmp + 1) / 2;
-                } else {
-                    if (flags.verbose)
-                        You("get blasted!");
-                }
-                if (mattk->adtyp == AD_FIRE)
-                    burn_away_slime();
-                if (physical_damage)
-                    tmp = Maybe_Half_Phys(tmp);
-                mdamageu(mtmp, tmp);
-		} else {
-		    monstseesu(1 << (mattk->adtyp-1));
-            }
-            break;
-
-        case AD_BLND:
-            not_affected = resists_blnd(&youmonst);
-            if (!not_affected) {
-                /* sometimes you're affected even if it's invisible */
-                if (mon_visible(mtmp) || (rnd(tmp /= 2) > u.ulevel)) {
-                    You("are blinded by a blast of light!");
-                    make_blinded((long) tmp, FALSE);
-                    if (!Blind)
-                        Your1(vision_clears);
-                } else if (flags.verbose)
-                    You("get the impression it was not terribly bright.");
-            }
-            break;
-
-        case AD_HALU:
-            not_affected |= Blind || (u.umonnum == PM_BLACK_LIGHT
-                                      || u.umonnum == PM_VIOLET_FUNGUS
-                                      || dmgtype(youmonst.data, AD_STUN));
-            if (!not_affected) {
-                boolean chg;
-                if (!Hallucination)
-                    You("are caught in a blast of kaleidoscopic light!");
-                /* avoid hallucinating the black light as it dies */
-                mondead(mtmp);    /* remove it from map now */
-                kill_agr = FALSE; /* already killed (maybe lifesaved) */
-                chg =
-                    make_hallucinated(HHallucination + (long) tmp, FALSE, 0L);
-                You("%s.", chg ? "are freaked out" : "seem unaffected");
-            }
-            break;
-
-        default:
-            break;
-        }
-        if (not_affected) {
-            You("seem unaffected by it.");
-            ugolemeffects((int) mattk->adtyp, tmp);
-        }
     }
-    if (kill_agr)
+
+    switch (mattk->adtyp) {
+    case AD_COLD:
+    case AD_FIRE:
+    case AD_ELEC:
+        mon_explodes(mtmp, mattk);
+        if (!DEADMONSTER(mtmp)) {
+            kill_agr = FALSE; /* lifesaving? */
+        }
+        break;
+    case AD_BLND:
+        not_affected = resists_blnd(&youmonst);
+        if (ufound && !not_affected) {
+            /* sometimes you're affected even if it's invisible */
+            if (mon_visible(mtmp) || (rnd(tmp /= 2) > u.ulevel)) {
+                You("are blinded by a blast of light!");
+                make_blinded((long) tmp, FALSE);
+                if (!Blind)
+                    Your1(vision_clears);
+            } else if (flags.verbose)
+                You("get the impression it was not terribly bright.");
+        }
+        break;
+
+    case AD_HALU:
+        not_affected |= Blind || (u.umonnum == PM_BLACK_LIGHT
+                                  || u.umonnum == PM_VIOLET_FUNGUS
+                                  || dmgtype(youmonst.data, AD_STUN));
+        if (ufound && !not_affected) {
+            boolean chg;
+            if (!Hallucination)
+                You("are caught in a blast of kaleidoscopic light!");
+            /* avoid hallucinating the black light as it dies */
+            mondead(mtmp);    /* remove it from map now */
+            kill_agr = FALSE; /* already killed (maybe lifesaved) */
+            chg =
+                make_hallucinated(HHallucination + (long) tmp, FALSE, 0L);
+            You("%s.", chg ? "are freaked out" : "seem unaffected");
+        }
+        break;
+
+    default:
+        impossible("unknown exploder damage type %d", mattk->adtyp);
+        break;
+    }
+    if (not_affected) {
+        You("seem unaffected by it.");
+        ugolemeffects((int) mattk->adtyp, tmp);
+    }
+    if (kill_agr && !DEADMONSTER(mtmp))
         mondead(mtmp);
     wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
     return (!DEADMONSTER(mtmp)) ? 0 : 2;

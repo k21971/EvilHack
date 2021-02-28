@@ -469,6 +469,13 @@ enum bodypart_types {
 #define TELEDS_ALLOW_DRAG 1
 #define TELEDS_TELEPORT 2
 
+/* constant passed to explode() for gas spores because gas spores are weird
+ * Specifically, this is an exception to the whole "explode() uses dobuzz types"
+ * system (the range -1 to -9 isn't used by it, for some reason), where this is
+ * effectively an extra dobuzz type, and some zap.c code needs to be aware of
+ * it.  */
+#define PHYS_EXPL_TYPE -1
+
 /*
  * Option flags
  * Each higher number includes the characteristics of the numbers

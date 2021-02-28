@@ -1050,14 +1050,12 @@ SPELL("repair armor",	 "platinum",
       P_MATTER_SPELL,      20,  6, 3, 1, IMMEDIATE, HI_PAPER),
 SPELL("reflection",	 "decrepit",
       P_MATTER_SPELL,      20,  3, 5, 1, IMMEDIATE, CLR_BROWN),
-#if 0 /* DEFERRED */
 /* from slash'em, create a tame critter which explodes when attacking,
    damaging adjacent creatures--friend or foe--and dying in the process */
 SPELL("flame sphere",    "canvas",
-      P_MATTER_SPELL,      20,  2, 1, 1, NODIR, CLR_BROWN),
+      P_MATTER_SPELL,      16,  2, 2, 1, NODIR, CLR_BROWN),
 SPELL("freeze sphere",   "hardcover",
-      P_MATTER_SPELL,      20,  2, 1, 1, NODIR, CLR_BROWN),
-#endif
+      P_MATTER_SPELL,      16,  2, 2, 1, NODIR, CLR_BROWN),
 /* books with fixed descriptions
  */
 SPELL("blank paper", "plain", P_NONE, 18, 0, 0, 0, 0, HI_PAPER),
