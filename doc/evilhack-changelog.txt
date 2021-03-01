@@ -1431,4 +1431,5 @@ Version 0.7.0
 - Monsters can revive corpses on floor with undead turning
 - Spheres cause real explosions / new spells: flame sphere and freeze
   sphere
+- Some tweaks to sphere spells
 

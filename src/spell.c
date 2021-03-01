@@ -937,6 +937,7 @@ boolean atme;
     boolean physical_damage = FALSE;
     struct obj *pseudo;
     struct obj* otmp;
+    struct monst *mtmp;
     coord cc;
 
     /*
@@ -1303,25 +1304,22 @@ boolean atme;
         cast_reflection(&youmonst);
 	break;
     case SPE_FLAME_SPHERE:
-    case SPE_FREEZE_SPHERE: {
-        register int cnt = 1;
-        struct monst *mtmp;
-
-        if (role_skill >= P_SKILLED)
-            cnt += (role_skill - P_BASIC);
-
-        while (cnt--) {
+    case SPE_FREEZE_SPHERE:
+        pline("You conjure elemental energy...");
+        for (n = 0; n < max(role_skill - 1, 1); n++) {
             mtmp = make_helper((pseudo->otyp == SPE_FLAME_SPHERE) ?
                                PM_FLAMING_SPHERE : PM_FREEZING_SPHERE, u.ux, u.uy);
-            if (!mtmp)
-                continue;
-            mtmp->mtame = 10;
-            mtmp->mhpmax = mtmp->mhp = 1;
-            mtmp->isspell = 1;
-            mtmp->uexp = 1;
-        } /* end while... */
+            if (!mtmp) {
+                pline("But it quickly fades away.");
+                break;
+            } else {
+                mtmp->mtame = 10;
+                mtmp->mhpmax = mtmp->mhp = 1;
+                mtmp->isspell = 1;
+                mtmp->uexp = 1;
+            }
+        }
         break;
-    }
     default:
         impossible("Unknown spell %d attempted.", spell);
         obfree(pseudo, (struct obj *) 0);

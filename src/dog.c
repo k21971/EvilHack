@@ -196,7 +196,8 @@ xchar x, y;
 
     do {
         pm = &mons[mnum];
-        mtmp = makemon(pm, x, y, MM_EDOG | MM_IGNOREWATER);
+        mtmp = makemon(pm, x, y,
+                       MM_EDOG | MM_IGNOREWATER | NO_MINVENT);
     } while (!mtmp && --trycnt > 0);
 
     if (!mtmp)
