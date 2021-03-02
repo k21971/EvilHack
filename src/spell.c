@@ -1315,7 +1315,10 @@ boolean atme;
             } else {
                 mtmp->mtame = 10;
                 mtmp->mhpmax = mtmp->mhp = 1;
-                mtmp->isspell = 1;
+                if (role_skill >= P_SKILLED)
+                    mtmp->msummoned = rnd(100) + 100;
+                else
+                    mtmp->msummoned = rnd(50) + 50;
                 mtmp->uexp = 1;
             }
         }

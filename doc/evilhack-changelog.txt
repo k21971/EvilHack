@@ -1432,4 +1432,5 @@ Version 0.7.0
 - Spheres cause real explosions / new spells: flame sphere and freeze
   sphere
 - Some tweaks to sphere spells
+- Proper timeout for sphere spells
 

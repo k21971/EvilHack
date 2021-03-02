@@ -587,6 +587,12 @@ long nmv; /* number of moves */
         else
             mtmp->mfleetim -= imv;
     }
+    if (mtmp->msummoned) {
+        if (imv >= (int) mtmp->msummoned)
+            mtmp->msummoned = 1;
+        else
+            mtmp->msummoned -= imv;
+    }
 
     /* might recover from temporary trouble */
     if (mtmp->mtrapped && rn2(imv + 1) > 40 / 2)

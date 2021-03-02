@@ -937,6 +937,7 @@ void
 mcalcdistress()
 {
     struct monst *mtmp;
+    struct obj *obj, *otmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -1021,6 +1022,21 @@ mcalcdistress()
 
         /* regenerate hit points */
         mon_regen(mtmp, FALSE);
+
+        if (mtmp->msummoned && mtmp->msummoned == 1) {
+            if (canseemon(mtmp))
+                pline(Hallucination ? "%s folds in on itself!"
+                                    : "%s winks out of existience.", Monnam(mtmp));
+            for (obj = mtmp->minvent; obj; obj = otmp) {
+                otmp = obj->nobj;
+                obj_extract_self(obj);
+                if (mtmp->mx) {
+                    mdrop_obj(mtmp, obj, FALSE);
+                }
+            }
+            mongone(mtmp);
+            continue;
+        }
 
         /* possibly polymorph shapechangers and lycanthropes */
         if (mtmp->cham >= LOW_PM)
@@ -3202,7 +3218,7 @@ int how;
               nonliving(mdef->data) ? "destroyed" : "killed",
               *fltxt ? " by the " : "", fltxt);
     else
-        be_sad = (mdef->mtame != 0 && !mdef->isspell);
+        be_sad = (mdef->mtame != 0 && !mdef->msummoned);
 
     /* no corpses if digested or disintegrated */
     disintegested = (how == AD_DGST || how == -AD_RBRE);
@@ -3231,7 +3247,7 @@ int how;
               nonliving(mdef->data) ? "destroyed" : "killed",
               *fltxt ? " by the " : "", fltxt);
     else
-        be_sad = (mdef->mtame != 0 && !mdef->isspell);
+        be_sad = (mdef->mtame != 0 && !mdef->msummoned);
 
     /* no corpses if digested or disintegrated */
     disintegested = (how == AD_DGST || how == -AD_RBRE);

@@ -1075,9 +1075,9 @@ struct attack *mattk;
             Your("leash falls slack.");
     }
     /* KMH -- Player gets blame for flame/freezing sphere */
-    if (magr->isspell && !(result & MM_DEF_DIED))
+    if (magr->msummoned && !(result & MM_DEF_DIED))
         setmangry(mdef, TRUE);
-    if (magr->mtame && !magr->isspell) /* give this one even if it was visible */
+    if (magr->mtame && !magr->msummoned) /* give this one even if it was visible */
         You(brief_feeling, "melancholy");
 
     return result;

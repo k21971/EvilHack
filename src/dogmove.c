@@ -1182,29 +1182,35 @@ boolean ranged;
      * 25% to 40%:  up to level - 2
      *  below 25%:  prevented from attacking at all by a different case
      */
-    int balk = !mtmp->isspell && mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
+    int balk = !mtmp->msummoned && mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
     boolean grudge = FALSE;
 
     /* Grudges override level checks. */
     if (mm_aggression(mtmp, mtmp2) & ALLOW_M) {
         grudge = TRUE;
-        balk = !mtmp->isspell && mtmp2->m_lev + 1;
+        balk = !mtmp->msummoned && mtmp2->m_lev + 1;
     }
 
     return
     !((!ranged && (int) mtmp2->m_lev >= balk
        && !attacktype(mtmp->data, AT_EXPL))
-       || (!ranged && mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
+       || (!ranged && !mtmp->msummoned
+           && mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
            && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
            && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis))
-       || (!ranged && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
-       || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
-       || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
+       || (!ranged && !mtmp->msummoned
+           && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
+       || (!ranged && !mtmp->msummoned
+           && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
+       || (!ranged && !mtmp->msummoned
+           && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
        || ((mtmp->mhp * 4 < mtmp->mhpmax || mtmp2->data->msound == MS_GUARDIAN
            || mtmp2->data->msound == MS_LEADER)
            && mtmp2->mpeaceful && !grudge && !Conflict)
-       || (!ranged && touch_petrifies(mtmp2->data) && !resists_ston(mtmp))
-       || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp)));
+       || (!ranged && !mtmp->msummoned
+           && touch_petrifies(mtmp2->data) && !resists_ston(mtmp))
+       || (!ranged && !mtmp->msummoned
+           && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp)));
 }
 
 /* return 0 (no move), 1 (move) or 2 (dead) */
@@ -1219,7 +1225,7 @@ int after; /* this is extra fast monster movement */
     register struct edog *edog = EDOG(mtmp);
     struct obj *obj = (struct obj *) 0;
     xchar otyp;
-    boolean has_edog, cursemsg[9], has_spell, do_eat = FALSE;
+    boolean has_edog, cursemsg[9], summoned, do_eat = FALSE;
     boolean better_with_displacing = FALSE;
     xchar nix, niy;      /* position mtmp is (considering) moving to */
     register int nx, ny; /* temporary coordinates */
@@ -1244,11 +1250,11 @@ int after; /* this is extra fast monster movement */
      * They don't eat/pickup objects - only fight.
      * But, they aren't dismissed by conflict.
      */
-    has_spell = !mtmp->isspell;
+    summoned = !mtmp->msummoned;
 
     omx = mtmp->mx;
     omy = mtmp->my;
-    if ((has_edog || has_spell) && dog_hunger(mtmp, edog))
+    if ((has_edog || summoned) && dog_hunger(mtmp, edog))
         return 2; /* starved */
 
     udist = distu(omx, omy);
@@ -1268,7 +1274,7 @@ int after; /* this is extra fast monster movement */
     cursemsg[0] = FALSE; /* lint suppression */
     info[0] = 0;         /* ditto */
 
-    if (has_edog || has_spell) {
+    if (has_edog || summoned) {
         j = dog_invent(mtmp, edog, udist);
         if (j == 2)
             return 2; /* died */
@@ -1279,7 +1285,7 @@ int after; /* this is extra fast monster movement */
     } else
         whappr = 0;
 
-    appr = dog_goal(mtmp, (has_edog || has_spell) ? edog
+    appr = dog_goal(mtmp, (has_edog || summoned) ? edog
                                                   : (struct edog *) 0,
                                                     after, udist, whappr);
     if (appr == -2)
@@ -1459,7 +1465,7 @@ int after; /* this is extra fast monster movement */
 
         /* dog eschews cursed objects, but likes dog food */
         /* (minion isn't interested; `cursemsg' stays FALSE) */
-        if (has_edog || has_spell)
+        if (has_edog || summoned)
             for (obj = level.objects[nx][ny]; obj; obj = obj->nexthere) {
                 if (obj->cursed) {
                     cursemsg[i] = TRUE;
@@ -1488,7 +1494,7 @@ int after; /* this is extra fast monster movement */
            the hero. Thus, only run it if not leashed and >5 tiles
            away. */
         if (!mtmp->mleashed && distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 5) {
-            k = (has_edog || has_spell) ? uncursedcnt : cnt;
+            k = (has_edog || summoned) ? uncursedcnt : cnt;
             for (j = 0; j < MTSZ && j < k - 1; j++)
                 if (nx == mtmp->mtrack[j].x && ny == mtmp->mtrack[j].y)
                     if (rn2(MTSZ * (k - j)))

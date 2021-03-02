@@ -211,6 +211,8 @@ boolean digest_meal;
         mon->mhp++;
     if (mon->mspec_used)
         mon->mspec_used--;
+    if (mon->msummoned)
+        mon->msummoned--;
     if (digest_meal) {
         if (mon->meating) {
             mon->meating--;
@@ -606,18 +608,6 @@ register struct monst *mtmp;
     /* withering monsters stop withering with high probability */
     if (mtmp->mwither && !rn2(5))
         mtmp->mwither = 0;
-
-    /* certain monsters summoned via spell will disappear
-       if not used after a random number of turns */
-    if (mtmp->isspell && !rn2(200)) { /* TODO: probably a better way to do this */
-        if (canseemon(mtmp))
-            /* currently it's just various spheres */
-            pline("%s winks out of existience.",
-                  Monnam(mtmp));
-        mtmp->isspell = 0;
-        mongone(mtmp); /* doesn't die, just goes away */
-        return (mtmp->mhp > 0) ? 0 : 1;
-    }
 
     /* some monsters teleport */
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz
