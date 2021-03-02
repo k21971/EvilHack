@@ -772,9 +772,11 @@ register struct monst *mtmp;
 
         /* other items all player monsters can receive at various exp levels */
         if (mtmp->m_lev > 10) {
+            /* spawn with some type of portable container */
             (void) mongets(mtmp, !rn2(5) ? SACK
                                          : rn2(4) ? OILSKIN_SACK
-                                                  : BAG_OF_HOLDING);
+                                                  : rn2(7) ? BAG_OF_HOLDING
+                                                           : BAG_OF_TRICKS);
             for (; otmp; otmp = otmp->nobj) {
                 if (otmp->oclass == WEAPON_CLASS) {
                     if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {

@@ -130,6 +130,7 @@ boolean check_if_better;
              || otmp->otyp == AMULET_OF_MAGIC_RESISTANCE
 	     /* bags */
 	     || otmp->otyp == BAG_OF_HOLDING
+             || otmp->otyp == BAG_OF_TRICKS
 	     || otmp->otyp == OILSKIN_SACK
 	     || otmp->otyp == SACK
  	     /* misc magic items that muse can use */

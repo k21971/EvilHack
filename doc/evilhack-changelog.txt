@@ -1437,4 +1437,5 @@ Version 0.7.0
 - Fix: feedback with spear traps and flying steeds
 - Fix: You start playing your Gjallar
 - The spotted jelly flollops!
+- Small chance a player monster's container is a bag of tricks
 
