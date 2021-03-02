@@ -1319,5 +1319,6 @@ Version 0.6.0
 - Prevent cannibalism from illithid tentacle attack against
   werecreatures if infected with lycanthropy
 - Fix: feedback with spear traps and flying steeds
+- Fix: You start playing your Gjallar
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
