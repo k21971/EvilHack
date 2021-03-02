@@ -1433,4 +1433,6 @@ Version 0.7.0
   sphere
 - Some tweaks to sphere spells
 - Proper timeout for sphere spells
+- Magic 8-ball tweaks
+- Fix: feedback with spear traps and flying steeds
 
