@@ -460,7 +460,7 @@ doread()
             return 0;
         }
         if (flags.verbose) {
-            pline("You turn over the Magic 8-Ball and read:");
+            pline("You turn over %s and read:", the(xname(scroll)));
         }
         pline("\"%s\".", eightball_msgs[rn2(SIZE(eightball_msgs))]);
         if (!u.uconduct.literate++) {
