@@ -1738,13 +1738,13 @@ unsigned trflags;
     case SPEAR_TRAP:
         feeltrap(trap);
         pline("A spear shoots up from a hole in the ground at you!");
-        if (thick_skinned(youmonst.data)) {
+        if (Levitation || Flying) {
+            pline("But it isn't long enough to reach you.");
+        } else if (thick_skinned(youmonst.data)) {
             pline("But it breaks off against your thick hide.");
             deltrap(trap);
         } else if (unsolid(youmonst.data)) {
             pline("But it passes right through you!");
-        } else if (Levitation || Flying) {
-            pline("But it isn't long enough to reach you.");
         } else {
             pline("It %s %s!  Ouch, that hurts!",
                   rn2(2) ? "pierces your" : "stabs you in the",
@@ -1852,13 +1852,15 @@ struct obj *otmp;
         steedhit = TRUE;
         break;
     case SPEAR_TRAP:
-        pline("The spear stabs %s also!", mon_nam(steed));
-        if (thick_skinned(steed->data)) {
-            pline("But it breaks off against %s thick hide.", s_suffix(mon_nam(steed)));
-            deltrap(trap);
-        } else if (is_flyer(steed->data)) {
+        pline("The spear stabs %s%s as well!",
+              (is_flyer(steed->data) || Levitation || Flying) ? "at " : "",
+              mon_nam(steed));
+        if (is_flyer(steed->data) || Levitation || Flying) {
             pline("But it isn't long enough to reach %s.", mon_nam(steed));
             break;
+        } else if (thick_skinned(steed->data)) {
+            pline("But it breaks off against %s thick hide.", s_suffix(mon_nam(steed)));
+            deltrap(trap);
         } else {
 	    trapkilled = thitm(0, steed, (struct obj*) 0, rnd(10) + 10, FALSE);
 	    steedhit = TRUE;
@@ -3024,16 +3026,16 @@ register struct monst *mtmp;
                 seetrap(trap);
                 pline("A spear stabs up from a hole in the ground!");
             }
-            if (thick_skinned(mptr)) {
+            if (is_flyer(mptr)) {
+                if (in_sight)
+                    pline("The spear isn't long enough to reach %s.", mon_nam(mtmp));
+            } else if (thick_skinned(mptr)) {
                 if (in_sight)
                     pline("But it breaks off against %s.", mon_nam(mtmp));
                 deltrap(trap);
             } else if (unsolid(mptr)) {
                 if (in_sight)
                     pline("It passes right through %s!", mon_nam(mtmp));
-            } else if (is_flyer(mptr)) {
-                if (in_sight)
-                    pline("The spear isn't long enough to reach %s.", mon_nam(mtmp));
 	    } else {
                 if (thitm(0, mtmp, (struct obj *) 0, rnd(10) + 10, FALSE))
                     trapkilled = TRUE;

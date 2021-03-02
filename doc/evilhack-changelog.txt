@@ -1318,5 +1318,6 @@ Version 0.6.0
 - Fix: 'three rooms' random vault sometimes not spawning any doors
 - Prevent cannibalism from illithid tentacle attack against
   werecreatures if infected with lycanthropy
+- Fix: feedback with spear traps and flying steeds
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
