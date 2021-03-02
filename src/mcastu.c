@@ -2048,7 +2048,9 @@ int spellnum;
        	    dmg = (dmg + 1) / 2;
        	}
        	if (yours || canseemon(mtmp))
-       	    pline("%s winces%s", Monnam(mtmp), (dmg <= 5) ? "." : "!");
+       	    pline("%s %s%s", Monnam(mtmp),
+                  can_flollop(mtmp->data) ? "flollops" : "winces",
+                  (dmg <= 5) ? "." : "!");
        	break;
     default:
        	impossible("ucastm: invalid magic spell (%d)", spellnum);

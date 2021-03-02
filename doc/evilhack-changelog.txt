@@ -1436,4 +1436,5 @@ Version 0.7.0
 - Magic 8-ball tweaks
 - Fix: feedback with spear traps and flying steeds
 - Fix: You start playing your Gjallar
+- The spotted jelly flollops!
 
