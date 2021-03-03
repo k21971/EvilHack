@@ -4706,11 +4706,9 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     range = 0;
                 }
                 if (Reflecting) {
-                    if (!Blind) {
+                    if (!Blind)
                         (void) ureflects("Some of %s reflects from your %s!",
                                          "it");
-                    } else
-                        pline("You appear to only be partially affected.");
                     dx = -dx;
                     dy = -dy;
                     /* water is reflected but doesn't bounce */
@@ -4732,7 +4730,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
             nomul(0);
         }
 
-        if (levl[sx][sy].typ == TREE && abstype == ZT_DEATH && abs(type) != ZT_BREATH(ZT_DEATH)) {
+        if (levl[sx][sy].typ == TREE && abstype == ZT_DEATH
+            && abs(type) != ZT_BREATH(ZT_DEATH)) {
             levl[sx][sy].typ = DEADTREE;
             if (cansee(sx, sy)) {
                 pline("The tree withers and dies!");
