@@ -1736,8 +1736,8 @@ NEARDATA struct permonst mons[] = {
      * are a serious threat. Pulled over from GruntHack.
      */
     MON("fire elemental", S_ELEMENTAL, LVL(8, 12, 2, 30, 0), (G_NOCORPSE | 1),
-        A(ATTK(AT_CLAW, AD_FIRE, 3, 6), ATTK(AT_NONE, AD_FIRE, 0, 4),
-          ATTK(AT_ENGL, AD_FIRE, 4, 4), NO_ATTK, NO_ATTK, NO_ATTK),
+        A(ATTK(AT_CLAW, AD_FIRE, 3, 6), ATTK(AT_ENGL, AD_FIRE, 4, 4),
+          ATTK(AT_NONE, AD_FIRE, 0, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(0, 0, MS_SILENT, MZ_HUGE), MR_FIRE | MR_POISON | MR_STONE, 0,
         M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS | M1_BREATHLESS
             | M1_UNSOLID | M1_FLY | M1_NOTAKE,
@@ -2234,8 +2234,8 @@ struct permonst _mons2[] = {
      */
     MON("green slime", S_PUDDING, LVL(6, 6, 6, 0, 0),
         (G_HELL | G_GENO | G_NOCORPSE | 1),
-        A(ATTK(AT_TUCH, AD_SLIM, 1, 4), ATTK(AT_NONE, AD_SLIM, 0, 0),
-          ATTK(AT_ENGL, AD_SLIM, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
+        A(ATTK(AT_TUCH, AD_SLIM, 1, 4), ATTK(AT_ENGL, AD_SLIM, 2, 4),
+          ATTK(AT_NONE, AD_SLIM, 0, 0), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(400, 150, MS_SILENT, MZ_LARGE),
         MR_COLD | MR_ELEC | MR_POISON | MR_ACID | MR_STONE, 0,
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
@@ -3221,8 +3221,8 @@ struct permonst _mons2[] = {
      */
     MON("Juiblex", S_DEMON, LVL(50, 12, -7, 65, -15),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
-        A(ATTK(AT_ENGL, AD_DISE, 4, 10), ATTK(AT_TUCH, AD_ACID, 4, 6),
-          ATTK(AT_SPIT, AD_ACID, 3, 6), ATTK(AT_MAGC, AD_CLRC, 2, 6),
+        A(ATTK(AT_ENGL, AD_DISE, 4, 10), ATTK(AT_SPIT, AD_ACID, 3, 6),
+          ATTK(AT_TUCH, AD_ACID, 4, 6), ATTK(AT_MAGC, AD_CLRC, 2, 6),
           ATTK(AT_NONE, AD_ACID, 0, 1), ATTK(AT_BOOM, AD_ACID, 4, 6)),
         SIZ(1500, 0, MS_GURGLE, MZ_GIGANTIC),
         MR_FIRE | MR_POISON | MR_ACID | MR_STONE, 0,

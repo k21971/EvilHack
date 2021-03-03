@@ -883,6 +883,8 @@ const int adtyp;
         return EXPL_FIERY;
     case AD_COLD:
         return EXPL_FROSTY;
+    case AD_ACID:
+        return EXPL_ACID;
     case AD_DRST:
     case AD_DRDX:
     case AD_DRCO:

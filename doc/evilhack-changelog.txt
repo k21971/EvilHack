@@ -1439,4 +1439,5 @@ Version 0.7.0
 - The spotted jelly flollops!
 - Small chance a player monster's container is a bag of tricks
 - Suppress 'You appear to be only partially affected.  You aren't affected.'
+- Fix: DOORMAX exceeded issue / acid explode type
 

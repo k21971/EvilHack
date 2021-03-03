@@ -2528,16 +2528,14 @@ struct attack *mattk;
                     /* test this one first, in case breathless and also wearing
                      * magical breathing */
                     You("can't breathe, but you don't need to.");
-                }
-                else {
+                } else {
                     You("can still breathe, though.");
                     if (uamul && uamul->otyp == AMULET_OF_MAGICAL_BREATHING)
                         makeknown(AMULET_OF_MAGICAL_BREATHING);
                 }
             }
             tmp = 0;
-        }
-        else if (!Strangled) {
+        } else if (!Strangled) {
             if (!old_uswallow)
                 pline("It's impossible to breathe in here!");
             Strangled = 4; /* xNetHack sets this timer for 5, GruntHack had it for 3.
