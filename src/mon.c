@@ -4843,12 +4843,9 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
         && (p = strstr(MNAME(mtmp), " the ")) != 0)
         *p = '\0';
 
-    /* handle racial characteristics -- remove an old race if it exists,
-     * and add a new random race if polymorphing into a racial monster */
+    /* ditch the old monster's race if it exists */
     if (has_erac(mtmp))
         free_erac(mtmp);
-    if (is_racialmon(mdat))
-        apply_race(mtmp, m_randrace(mtmp->mnum));
 
     if (mtmp->wormno) { /* throw tail away */
         wormgone(mtmp);
@@ -4879,6 +4876,10 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
 
     /* take on the new form... */
     set_mon_data(mtmp, mdat);
+
+    /* add a new random race if polymorphing into a racial monster */
+    if (is_racialmon(mdat))
+        apply_race(mtmp, m_randrace(mtmp->mnum));
 
     if (mtmp->mleashed && !leashable(mtmp))
         m_unleash(mtmp, TRUE);
