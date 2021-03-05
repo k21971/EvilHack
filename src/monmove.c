@@ -553,10 +553,20 @@ register struct monst *mtmp;
 
     if (is_damp_terrain(mtmp->mx, mtmp->my)
         && freeze_step(mdat)) {
-        levl[mtmp->mx][mtmp->my].typ = ICE;
+        struct rm *lev = &levl[mtmp->mx][mtmp->my];
+        if (lev->typ == DRAWBRIDGE_UP) {
+            lev->drawbridgemask &= ~DB_UNDER;
+            lev->drawbridgemask |= DB_ICE;
+        } else {
+            lev->icedpool = (lev->typ == POOL) ? ICED_POOL
+                                : (lev->typ == PUDDLE) ? ICED_PUDDLE
+                                    : (lev->typ == SEWAGE) ? ICED_SEWAGE
+                                                           : ICED_MOAT;
+            lev->typ = ICE;
+        }
         if (canseemon(mtmp))
             pline("The %s crackles and freezes under %s %s.",
-                  is_sewage(mtmp->mx, mtmp->my) ? "sewage" : "water",
+                  hliquid(is_sewage(mtmp->mx, mtmp->my) ? "sewage" : "water"),
                   s_suffix(mon_nam(mtmp)), makeplural(body_part(FOOT)));
     }
 

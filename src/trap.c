@@ -3364,8 +3364,19 @@ long hmask, emask; /* might cancel timeout */
         if (is_damp_terrain(u.ux, u.uy) && uarm
             && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
                 || uarm->otyp == WHITE_DRAGON_SCALES)) {
-	    levl[u.ux][u.uy].typ = ICE;
-	    pline("The pool crackles and freezes under your feet.");
+            struct rm *lev = &levl[u.ux][u.uy];
+            if (lev->typ == DRAWBRIDGE_UP) {
+                lev->drawbridgemask &= ~DB_UNDER;
+                lev->drawbridgemask |= DB_ICE;
+            } else {
+                lev->icedpool = (lev->typ == POOL) ? ICED_POOL
+                                    : (lev->typ == PUDDLE) ? ICED_PUDDLE
+                                        : (lev->typ == SEWAGE) ? ICED_SEWAGE
+                                                               : ICED_MOAT;
+                lev->typ = ICE;
+            }
+            pline("The %s crackles and freezes under your feet.",
+                  hliquid(is_sewage(u.ux, u.uy) ? "sewage" : "pool"));
 	}
 
         if (is_lava(u.ux, u.uy)) {

@@ -2142,9 +2142,20 @@ domove_core()
     if (is_damp_terrain(u.ux, u.uy) && uarm
         && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
             || uarm->otyp == WHITE_DRAGON_SCALES)) {
-	levl[u.ux][u.uy].typ = ICE;
+        struct rm *lev = &levl[u.ux][u.uy];
+        if (lev->typ == DRAWBRIDGE_UP) {
+            lev->drawbridgemask &= ~DB_UNDER;
+            lev->drawbridgemask |= DB_ICE;
+        } else {
+            lev->icedpool = (lev->typ == POOL) ? ICED_POOL
+                              : (lev->typ == PUDDLE) ? ICED_PUDDLE
+                                 : (lev->typ == SEWAGE) ? ICED_SEWAGE
+                                                        : ICED_MOAT;
+            lev->typ = ICE;
+        }
         if (!is_pool(u.ux0, u.uy0) && !is_ice(u.ux0, u.uy0))
-            pline("The pool crackles and freezes under your feet.");
+            pline("The %s crackles and freezes under your feet.",
+                  hliquid(is_sewage(u.ux, u.uy) ? "sewage" : "pool"));
     }
 
     if (u.umoved)
