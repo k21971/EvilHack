@@ -1444,4 +1444,5 @@ Version 0.7.0
 - Fix: drawbridge stuck if water underneath were frozen by a monster via
   moving over it
 - Tweaks to last commit (drawbridge)
+- Even more tweaks to last commit (drawbridge)
 
