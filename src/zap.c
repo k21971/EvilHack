@@ -5041,8 +5041,8 @@ boolean moncast;
                                                                               : ICED_MOAT;
                     lev->typ = lava ? ROOM : ICE;
                 }
-                if (lev->icedpool != ICED_PUDDLE
-                    || lev->icedpool != ICED_SEWAGE)
+                if (!(lev->icedpool == ICED_PUDDLE
+                      || lev->icedpool == ICED_SEWAGE))
                     bury_objs(x, y);
                 if (see_it) {
                     if (lava)

@@ -564,8 +564,8 @@ register struct monst *mtmp;
                                                            : ICED_MOAT;
             lev->typ = ICE;
         }
-        if (lev->icedpool != ICED_PUDDLE
-            || lev->icedpool != ICED_SEWAGE)
+        if (!(lev->icedpool == ICED_PUDDLE
+              || lev->icedpool == ICED_SEWAGE))
             bury_objs(mtmp->mx, mtmp->my);
         if (canseemon(mtmp))
             pline("The %s crackles and freezes under %s %s.",

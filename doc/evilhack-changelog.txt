@@ -1323,5 +1323,6 @@ Version 0.6.0
 - Fix: drawbridge stuck if water underneath were frozen by a monster via
   moving over it
 - Tweaks to last commit (drawbridge)
+- Even more tweaks to last commit (drawbridge)
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 

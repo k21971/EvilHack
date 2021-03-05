@@ -2153,8 +2153,8 @@ domove_core()
                                                         : ICED_MOAT;
             lev->typ = ICE;
         }
-        if (lev->icedpool != ICED_PUDDLE
-            || lev->icedpool != ICED_SEWAGE)
+        if (!(lev->icedpool == ICED_PUDDLE
+              || lev->icedpool == ICED_SEWAGE))
             bury_objs(u.ux, u.uy);
         if (!is_pool(u.ux0, u.uy0) && !is_ice(u.ux0, u.uy0))
             pline("The %s crackles and freezes under your feet.",
