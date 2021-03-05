@@ -1594,8 +1594,8 @@ domove_core()
             if ((uarmf && uarmf->otyp == skates) || resists_cold(&youmonst)
                 || Flying || is_floater(youmonst.data)
                 || is_clinger(youmonst.data) || is_whirly(youmonst.data)
-		|| (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL ||
-	                     uarm->otyp == WHITE_DRAGON_SCALES))) {
+		|| (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
+	                     || uarm->otyp == WHITE_DRAGON_SCALES))) {
                 on_ice = FALSE;
             } else if (!rn2((how_resistant(COLD_RES) > 50) ? 3 : 2)) {
                 HFumbling |= FROMOUTSIDE;
@@ -2166,9 +2166,14 @@ domove_core()
                                                         : ICED_MOAT;
             lev->typ = ICE;
         }
+        if (lev->icedpool != ICED_PUDDLE
+            || lev->icedpool != ICED_SEWAGE)
+            bury_objs(u.ux, u.uy);
         if (!is_pool(u.ux0, u.uy0) && !is_ice(u.ux0, u.uy0))
             pline("The %s crackles and freezes under your feet.",
-                  hliquid(is_sewage(u.ux, u.uy) ? "sewage" : "pool"));
+                  hliquid(is_sewage(u.ux, u.uy) ? "sewage" : "water"));
+         start_melt_ice_timeout(u.ux, u.uy, 0L);
+         obj_ice_effects(u.ux, u.uy, TRUE);
     }
 
     if (u.umoved)

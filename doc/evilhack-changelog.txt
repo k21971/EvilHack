@@ -1443,4 +1443,5 @@ Version 0.7.0
 - Fix: 'Swallower has no engulfing attack?' impossible
 - Fix: drawbridge stuck if water underneath were frozen by a monster via
   moving over it
+- Tweaks to last commit (drawbridge)
 

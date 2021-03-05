@@ -3386,8 +3386,13 @@ long hmask, emask; /* might cancel timeout */
                                                                : ICED_MOAT;
                 lev->typ = ICE;
             }
+            if (lev->icedpool != ICED_PUDDLE
+                || lev->icedpool != ICED_SEWAGE)
+                bury_objs(u.ux, u.uy);
             pline("The %s crackles and freezes under your feet.",
-                  hliquid(is_sewage(u.ux, u.uy) ? "sewage" : "pool"));
+                  hliquid(is_sewage(u.ux, u.uy) ? "sewage" : "water"));
+            start_melt_ice_timeout(u.ux, u.uy, 0L);
+            obj_ice_effects(u.ux, u.uy, TRUE);
 	}
 
         if (is_lava(u.ux, u.uy)) {
@@ -6145,7 +6150,8 @@ lava_effects()
 
     if (how_resistant(FIRE_RES) < 100) {
         if (Wwalking) {
-	    if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL || uarm->otyp == WHITE_DRAGON_SCALES)) {
+	    if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
+                         || uarm->otyp == WHITE_DRAGON_SCALES)) {
 		levl[u.ux][u.uy].typ = ROOM;
 		if (!rn2(4)) {
 	            pline_The("lava cools and solidifies under your feet.");
