@@ -83,7 +83,7 @@ picklock(VOID_ARGS)
     if (xlock.box) {
         if ((((xlock.box->where != OBJ_FLOOR
             || (xlock.box->ox != u.ux || (xlock.box->oy != u.uy)))
-            && (xlock.box->otyp != IRON_SAFE || xlock.box->otyp != CRYSTAL_CHEST
+            && (!(xlock.box->otyp == IRON_SAFE || xlock.box->otyp == CRYSTAL_CHEST)
                 || abs(xlock.box->oy - u.uy) > 1 || abs(xlock.box->ox - u.ux) > 1)))) {
            return ((xlock.usedtime = 0)); /* you or it moved */
         }
