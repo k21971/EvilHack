@@ -1441,4 +1441,6 @@ Version 0.7.0
 - Suppress 'You appear to be only partially affected.  You aren't affected.'
 - Fix: DOORMAX exceeded issue / acid explode type
 - Fix: 'Swallower has no engulfing attack?' impossible
+- Fix: drawbridge stuck if water underneath were frozen by a monster via
+  moving over it
 
