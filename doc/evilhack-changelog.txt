@@ -1445,4 +1445,5 @@ Version 0.7.0
   moving over it
 - Tweaks to last commit (drawbridge)
 - Even more tweaks to last commit (drawbridge)
+- Fix: tautological statement in lock.c
 
