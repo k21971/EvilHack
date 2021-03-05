@@ -564,10 +564,15 @@ register struct monst *mtmp;
                                                            : ICED_MOAT;
             lev->typ = ICE;
         }
+        if (lev->icedpool != ICED_PUDDLE
+            || lev->icedpool != ICED_SEWAGE)
+            bury_objs(mtmp->mx, mtmp->my);
         if (canseemon(mtmp))
             pline("The %s crackles and freezes under %s %s.",
                   hliquid(is_sewage(mtmp->mx, mtmp->my) ? "sewage" : "water"),
                   s_suffix(mon_nam(mtmp)), makeplural(body_part(FOOT)));
+        start_melt_ice_timeout(mtmp->mx, mtmp->my, 0L);
+        obj_ice_effects(mtmp->mx, mtmp->my, TRUE);
     }
 
     /* sick monsters can die from their illness */
