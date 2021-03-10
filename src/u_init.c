@@ -117,7 +117,6 @@ struct trobj Monk[] = {
     { 0, 0, 0, 0, 0 }
 };
 struct trobj Priest[] = {
-#define PRI_MACE 0
     { MACE, 1, WEAPON_CLASS, 1, 1 },
     { ROBE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -877,8 +876,7 @@ u_init()
         break;
     }
     case PM_PRIEST:
-	if (Race_switch == PM_ELF)
-            Priest[PRI_MACE].trotyp = QUARTERSTAFF;
+        ini_inv(Priest);
         if (Race_if(PM_ILLITHID))
             ini_inv(Psionics);
         ini_inv(Priest);
@@ -1337,8 +1335,6 @@ register struct trobj *origtrop;
         otyp = (int) trop->trotyp;
         if (otyp != UNDEF_TYP) {
             obj = mksobj(otyp, TRUE, FALSE);
-            /* Don't allow materials to be start scummed for */
-            set_material(obj, objects[otyp].oc_material);
         } else { /* UNDEF_TYP */
             static NEARDATA short nocreate = STRANGE_OBJECT;
             static NEARDATA short nocreate2 = STRANGE_OBJECT;
@@ -1382,18 +1378,20 @@ register struct trobj *origtrop;
                       spells in restricted skill categories */
                    || (obj->oclass == SPBOOK_CLASS
                        && (objects[otyp].oc_level > 3
-                           || restricted_spell_discipline(otyp)))) {
+                           || restricted_spell_discipline(otyp)))
+                   || otyp == SPE_NOVEL
+                   /* items that will be iron for elves (rings/wands perhaps)
+                    * that can't become copper */
+                   || (Race_if(PM_ELF) && objects[otyp].oc_material == IRON
+                       && !valid_obj_material(obj, COPPER))
+                   /* items that will be mithril for orcs (rings/wands perhaps)
+                    * that can't become iron */
+                   || (Race_if(PM_ORC) && objects[otyp].oc_material == MITHRIL
+                       && !valid_obj_material(obj, IRON))) {
                 dealloc_obj(obj);
                 obj = mkobj(trop->trclass, FALSE);
                 otyp = obj->otyp;
             }
-
-            /* Don't allow materials to be start scummed for */
-            set_material(obj, objects[otyp].oc_material);
-
-            /* Don't start with +0 or negative rings */
-            if (objects[otyp].oc_charged && obj->spe <= 0)
-                obj->spe = rne(3);
 
             /* Heavily relies on the fact that 1) we create wands
              * before rings, 2) that we create rings before
@@ -1416,6 +1414,25 @@ register struct trobj *origtrop;
             if (obj->oclass == RING_CLASS || obj->oclass == SPBOOK_CLASS)
                 nocreate4 = otyp;
         }
+
+        /* Put post-creation object adjustments that don't depend on whether it
+         * was UNDEF_TYP or not after this */
+
+        /* Don't start with +0 or negative rings */
+        if (objects[otyp].oc_charged && obj->spe <= 0)
+            obj->spe = rne(3);
+
+        /* Don't allow materials to be start scummed for */
+        set_material(obj, objects[otyp].oc_material);
+
+        /* Replace iron objects (e.g. Priest's mace) with copper for elves */
+        if (Race_if(PM_ELF) && obj->material == IRON)
+            set_material(obj, COPPER);
+
+        /* Do the same for orcs and mithril objects.
+           Currently not a concern, but may be in the future */
+        if (Race_if(PM_ORC) && obj->material == MITHRIL)
+            set_material(obj, IRON);
 
         if (urace.malenum != PM_HUMAN) {
             /* substitute race-specific items; this used to be in
