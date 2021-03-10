@@ -6001,7 +6001,7 @@ unconscious()
 
 /* Derived from lava_effects(), hero can burn in Gehennom
    without adequate fire resistance */
-static const char in_hell_killer[] = "roasting in hell";
+static const char in_hell_killer[] = "burning in hell";
 
 boolean
 in_hell_effects()
@@ -6017,9 +6017,11 @@ in_hell_effects()
     if (how_resistant(FIRE_RES) < 100) {
         if (how_resistant(FIRE_RES) >= 50) {
             if (rn2(3))
-                pline_The("flames of hell are slowly roasting you alive!");
+                pline_The("flames of hell are slowly %s you alive!",
+                          rn2(2) ? "roasting" : "burning");
         } else if (how_resistant(FIRE_RES) < 50)
-            pline_The("flames of hell are roasting you alive!");
+            pline_The("flames of hell are %s you alive!",
+                      rn2(2) ? "roasting" : "burning");
         if (usurvive) {
             losehp(dmg, in_hell_killer, KILLED_BY);
             goto false;

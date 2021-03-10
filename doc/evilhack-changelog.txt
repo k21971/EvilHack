@@ -1446,4 +1446,5 @@ Version 0.7.0
 - Tweaks to last commit (drawbridge)
 - Even more tweaks to last commit (drawbridge)
 - Fix: tautological statement in lock.c
+- Yet another Gehennom revamp
 

@@ -368,7 +368,7 @@ struct obj *obj;
         lair = &oracle_level;
         break;
     case ART_BUTCHER:
-        lair = &yeenoghu_level;
+        lair = &hellb_level;
         break;
     case ART_WAND_OF_ORCUS:
         lair = &orcus_level;

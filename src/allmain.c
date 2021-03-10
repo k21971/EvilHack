@@ -250,7 +250,7 @@ boolean resuming;
                         if (monclock > MIN_MONGEN_RATE / 2 && (depth(&u.uz) > depth(&stronghold_level)
                                                                || u.uevent.uhand_of_elbereth))
                             monclock = MIN_MONGEN_RATE / 2;
-                        if (monclock > MIN_MONGEN_RATE / 3 && depth(&u.uz) > depth(&juiblex_level))
+                        if (monclock > MIN_MONGEN_RATE / 3 && depth(&u.uz) > depth(&hella_level))
                             monclock = MIN_MONGEN_RATE / 3;
                         if (monclock > MIN_MONGEN_RATE / 4 && depth(&u.uz) > depth(&wiz1_level))
                             monclock = MIN_MONGEN_RATE / 4;

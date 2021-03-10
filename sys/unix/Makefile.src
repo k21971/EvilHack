@@ -324,7 +324,7 @@ WINGNOMELIB = -lgnomeui -lgnome -lart_lgpl -lgtk -lgdk -lpopt
 # libraries for Gem port
 WINGEMLIB = -le_gem -lgem
 #
-# libraries for BeOS 
+# libraries for BeOS
 WINBELIB = -lbe
 #
 # libraries for curses port

@@ -217,10 +217,15 @@ MONSTER:'M',(38,03)
 MONSTER:('&',"weredemon"),(34,04)
 MONSTER:('&',"weredemon"),(64,03)
 
+
+#######################
+# First Tier (hella-?)
+#######################
+
 #
-# The Juiblex level
+# Previously the Juiblex level
 #
-MAZE:"juiblex",' '
+MAZE:"hella-1",' '
 FLAGS:noteleport,shortsighted
 INIT_MAP:mines,'.','}',true,true,unlit,false
 # guarantee at least one open spot to ensure successful stair placement
@@ -284,8 +289,20 @@ FOUNTAIN:$place[0]
 MONSTER:('m',"giant mimic"),$place[1],m_feature "fountain"
 MONSTER:('m',"giant mimic"),$place[2],m_feature "fountain"
 MONSTER:('m',"giant mimic"),$place[3],m_feature "fountain"
-# The demon of the swamp
-MONSTER:('&',"Juiblex"),(25,08)
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Juiblex"),(25,08)
+  } ELSE {
+    MONSTER:('&',"Baalzebub"),(25,08)
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Geryon"),(25,08)
+  } ELSE {
+    MONSTER:('&',"Baphomet"),(25,08)
+  }
+}
 # And a couple demons
 MONSTER:('i',"lemure"),(43,08)
 MONSTER:('i',"lemure"),(44,08)
@@ -348,169 +365,26 @@ TRAP:"magic",random
 
 
 #
-# The Orcus Level
+# Previously the Asmodeus Level
 #
-MAZE:"orcus",random
+MAZE:"hella-2",random
 FLAGS: noteleport,shortsighted
-GEOMETRY:right,center
-# A ghost town
-MAP
-.|....|....|....|..............|....|........
-.|....|....|....|..............|....|........
-.|....|....|....|--...-+-------|.............
-.|....|....|....|..............+.............
-.|.........|....|..............|....|........
-.--+-...-+----+--....-------...--------.-+---
-.....................|.....|.................
-.....................|.....|.................
-.--+----....-+---....|.....|...----------+---
-.|....|....|....|....---+---...|......|......
-.|.........|....|..............|......|......
-.----...---------.....-----....+......|......
-.|........................|....|......|......
-.----------+-...--+--|....|....----------+---
-.|....|..............|....+....|.............
-.|....+.......|......|....|....|.............
-.|....|.......|......|....|....|.............
-ENDMAP
-MAZEWALK:(00,06),west
-# Entire main area
-REGION:(01,00,44,16),unlit,"ordinary"
-STAIR:(33,15),down
-STAIR:levregion(01,00,12,20),levregion(20,01,70,20),up
-BRANCH:levregion(01,00,12,20),levregion(20,01,70,20)
-TELEPORT_REGION:levregion(01,00,12,20),levregion(20,01,70,20)
-# Wall "ruins"
-OBJECT:('`',"boulder"),(19,02)
-OBJECT:('`',"boulder"),(20,02)
-OBJECT:('`',"boulder"),(21,02)
-OBJECT:('`',"boulder"),(36,02)
-OBJECT:('`',"boulder"),(36,03)
-OBJECT:('`',"boulder"),(06,04)
-OBJECT:('`',"boulder"),(05,05)
-OBJECT:('`',"boulder"),(06,05)
-OBJECT:('`',"boulder"),(07,05)
-OBJECT:('`',"boulder"),(39,05)
-OBJECT:('`',"boulder"),(08,08)
-OBJECT:('`',"boulder"),(09,08)
-OBJECT:('`',"boulder"),(10,08)
-OBJECT:('`',"boulder"),(11,08)
-OBJECT:('`',"boulder"),(06,10)
-OBJECT:('`',"boulder"),(05,11)
-OBJECT:('`',"boulder"),(06,11)
-OBJECT:('`',"boulder"),(07,11)
-OBJECT:('`',"boulder"),(21,11)
-OBJECT:('`',"boulder"),(21,12)
-OBJECT:('`',"boulder"),(13,13)
-OBJECT:('`',"boulder"),(14,13)
-OBJECT:('`',"boulder"),(15,13)
-OBJECT:('`',"boulder"),(14,14)
-# Doors
-DOOR:closed,(23,02)
-DOOR:open,(31,03)
-DOOR:nodoor,(03,05)
-DOOR:closed,(09,05)
-DOOR:closed,(14,05)
-DOOR:closed,(41,05)
-DOOR:open,(03,08)
-DOOR:nodoor,(13,08)
-DOOR:open,(41,08)
-DOOR:closed,(24,09)
-DOOR:closed,(31,11)
-DOOR:open,(11,13)
-DOOR:closed,(18,13)
-DOOR:closed,(41,13)
-DOOR:open,(26,14)
-DOOR:closed,(06,15)
-# Special rooms
-ALTAR:(24,07),noalign,sanctum
-REGION:(22,12,25,16),unlit,"morgue"
-REGION:(32,09,37,12),lit,"shop"
-REGION:(12,00,15,04),lit,"shop"
-# Some traps.
-TRAP:"spiked pit", random
-TRAP:"sleep gas", random
-TRAP:"anti magic", random
-TRAP:"fire", random
-TRAP:"fire", random
-TRAP:"fire", random
-TRAP:"magic", random
-TRAP:"magic", random
-# Some random objects
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-# The resident nasty
-MONSTER:('&',"Orcus"),(33,15)
-# And its preferred companions
-MONSTER:('Z',"human zombie"),(32,15)
-MONSTER:(' ',"shade"),(32,14)
-MONSTER:(' ',"shade"),(32,16)
-MONSTER:('V',"vampire"),(35,16)
-MONSTER:('V',"vampire"),(35,14)
-MONSTER:('V',"vampire noble"),(36,14)
-MONSTER:('V',"vampire noble"),(36,15)
-# Watches the sanctum
-MONSTER:('h',"alhoon"),(24,07)
-# Randomly placed companions
-MONSTER:('Z',"skeleton"),random
-MONSTER:('Z',"skeleton"),random
-MONSTER:('Z',"skeleton"),random
-MONSTER:('Z',"skeleton"),random
-MONSTER:('Z',"skeleton"),random
-MONSTER:(' ',"shade"),random
-MONSTER:(' ',"shade"),random
-MONSTER:(' ',"shade"),random
-MONSTER:(' ',"spectre"),random
-MONSTER:('Z',"giant zombie"),random
-MONSTER:('Z',"giant zombie"),random
-MONSTER:('Z',"giant zombie"),random
-MONSTER:('Z',"ettin zombie"),random
-MONSTER:('Z',"ettin zombie"),random
-MONSTER:('Z',"ettin zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('V',"vampire"),random
-MONSTER:('V',"vampire noble"),random
-MONSTER:('V',"vampire noble"),random
-MONSTER:('V',"vampire royal"),random
-MONSTER:('V',"vampire royal"),random
-# A few more for the party
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-
-
-#
-# The Asmodeus Level
-#
-MAZE:"asmodeus",random
-FLAGS: noteleport
 # First part
+INIT_MAP:mines,'.','}',false,true,lit,false
 GEOMETRY:half-left,center
 MAP
----------------------
+-------FFFF------FF--
 |.............|.....|
 |.............S.....|
 |---+------------...|
 |.....|.........|-+--
-|..---|.........|....
-|..|..S.........|....
+F..---|.........|....
+F..|..S.........|....
 |..|..|.........|....
 |..|..|.........|-+--
 |..|..-----------...|
 |..S..........|.....|
----------------------
+-------FFFF------FF--
 ENDMAP
 STAIR:levregion(01,00,6,20),levregion(6,1,70,16),up
 BRANCH:levregion(01,00,6,20),levregion(6,1,70,16)
@@ -520,14 +394,32 @@ TELEPORT_REGION:levregion(01,00,6,20),levregion(6,1,70,16)
 DOOR:closed,(04,03)
 DOOR:locked,(18,04)
 DOOR:closed,(18,08)
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+TRAP:"anti magic", random
+TRAP:"fire", random
+TRAP:"magic beam", random
 #
 STAIR:(13,07),down
 # Non diggable walls
 NON_DIGGABLE:(00,00,20,11)
 # Entire main area
 REGION:(01,01,20,10),unlit,"ordinary"
-# The fellow in residence
-MONSTER:('&',"Asmodeus"),(12,07)
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Juiblex"),(12,07)
+  } ELSE {
+    MONSTER:('&',"Baalzebub"),(12,07)
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Geryon"),(12,07)
+  } ELSE {
+    MONSTER:('&',"Baphomet"),(12,07)
+  }
+}
 # Some random weapons and armor.
 OBJECT:'[',random
 OBJECT:'[',random
@@ -546,7 +438,7 @@ TRAP:"sleep gas", random
 TRAP:"anti magic", random
 TRAP:"fire", random
 TRAP:"magic", random
-TRAP:"magic", random
+TRAP:"spear", random
 # Random monsters.
 MONSTER:(' ',"ghost"),(11,07)
 MONSTER:('&',"horned devil"),(10,05)
@@ -558,31 +450,32 @@ MONSTER:'V',random
 # Second part
 GEOMETRY:half-right,center
 MAP
----------------------------------
+---FFFF-------FFFF-------FFFF----
 ................................|
-................................+
 ................................|
----------------------------------
+................................|
+---FFFF-------FFFF-------FFFF----
 ENDMAP
 MAZEWALK:(32,02),east
 # Non diggable walls
 NON_DIGGABLE:(00,00,32,04)
-DOOR:closed,(32,02)
+DRAWBRIDGE:(33,02),west,closed
 MONSTER:'&',random
 MONSTER:'&',random
 MONSTER:'&',random
 TRAP:"anti magic", random
 TRAP:"fire", random
-TRAP:"magic", random
+TRAP:"magic beam", random
 
 
 #
-# The Baalzebub level
+# Previously the Baalzebub level
 #
-MAZE:"baalz",' '
+MAZE:"hella-3",' '
 FLAGS: noteleport,shortsighted
 TERRAIN: fillrect(00,00,78,20),('.',unlit)
 TERRAIN: filter(33%,fillrect(00,00,78,20)),('}',unlit)
+TERRAIN: filter(15%,fillrect(00,00,78,20)),('s',unlit)
 GEOMETRY:center,center
 MAP
 xxxxxxxxxxxxxxxxxxxxxxxFxxxxxxxxxxxxxxxxxxFxxxxxx
@@ -612,8 +505,20 @@ IF [50%] {
    TERRAIN:(29,05),'|'
    TERRAIN:(29,07),'S'
 }
-# The fellow in residence
-MONSTER:('&',"Baalzebub"),(35,06)
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Juiblex"),(35,06)
+  } ELSE {
+    MONSTER:('&',"Baalzebub"),(35,06)
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Geryon"),(35,06)
+  } ELSE {
+    MONSTER:('&',"Baphomet"),(35,06)
+  }
+}
 # Some random weapons and armor.
 OBJECT:'[',random
 OBJECT:'[',random
@@ -653,134 +558,153 @@ MONSTER:'V',random
 
 
 #
-# The Sanctum Level
+# The isle of Erytheia, previously Geryon's domain
 #
-MAZE:"sanctum", ' '
-FLAGS: noteleport,hardfloor,nommap
-# This is outside the main map, below, so we must do it before adding
-# that map and anchoring coordinates to it. This extends the invisible
-# barrier up to the top row, which falls outside the drawn map.
-NON_PASSWALL:(39,00,41,00)
-GEOMETRY:center,center
+MAZE:"hella-4",'W'
+FLAGS:noteleport
+INIT_MAP:mines,'.','}',false,true,lit,false
+GEOMETRY:right, center
 MAP
-LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
-LLLLLLLLLLLLLL----F----F----LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
-LLLLLLLLLLLLLL|............|LLLLLLLLLLLLL-------LLLLLLLLLLLLLLLLLLLLLLLLLLLL
-LLLLLLLL---F---............---F-LLLLLLLLLF.....FLLLLLLLLLLLLLLLLLLLLLLLLLLLL
-LLLLLLLL|......................|LLLLLLLL--.....|LLLLLLLLLLLL--F---F--LLLLLLL
-LLLLL-F--....LLLLLLLLLLL.......-F-----LL|......----LLLLLLLLL|.......|LLLLLLL
-LLLLL|.......L---------L.........|...|LL|.........|--F----F---+---..FLLLLLLL
-LLL---.......L|.......|L.........--S--LL|.........|.....S........|..|LLLLLLL
-LLLF.........L|.......|L............|LLLF.........---S---..-----S----LLLLLLL
-LLL|.........L|.......|L.........----LLL|..........|....|..|......|LLLLLLLLL
-LLL|.........L|.......|L.........FLLLLLL--.......----+---S---S--..FLLLLLLLLL
-LLLF.........L---------L.........|LLLLLLLF.......|.............|..|LLLLLLLLL
-LLL---.......LLLLLLLLLLL.........|LLLLLLL-----+-------S---------S---LLLLLLLL
-LLLLL|...........................FLLLLLLLLLL|...F.F......|....|....|--LLLLLL
-LLLLL-F--.....................----LLLLLLLLLLF...-F-....------S-......FLLLLLL
-LLLLLLLL|.....................|LLLLLLLLLLLLL|..........|LLLL|.....----LLLLLL
-LLLLLLLL---F---...........---F-LLLLLLLLLLLLL--...----F--LLLLF.....|LLLLLLLLL
-LLLLLLLLLLLLLL|...........|LLLLLLLLLLLLLLLLLLF...FLLLLLLLLLL|.....FLLLLLLLLL
-LLLLLLLLLLLLLL----F----F---LLLLLLLLLLLLLLLLLL-----LLLLLLLLLL-------LLLLLLLLL
-LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+}}}}}}}}}}}}w.......T...........................w}}}}}}}}}}}
+}}}wwww}}}www....................................wwwww}}}}}}
+}ww....ww}}}}w..........FFFFFFFFFF....................wwww}}
+w........www}}w.........F........F......T.................ww
+...........Tw}}w........F........F..........................
+.............w}}w.......F........F...........----------.....
+..............w}}}www...F........F...........|...|....|.....
+...............ww}}}}w..FFFF++FFFF...........|...|....|.....
+.................www}w.......................|...|....|.....
+....T..............w}}wwwwwwwwwwwww..........+...|....|....T
+....................w}}w}}}}}}}}}}}www.......--+----+--.....
+.....................w}w}wwwwwwwww}}}}wwwwwww|........|.....
+.................T....wwwwwwwwwwwwwww}}}}}}}}|........|.....
+...................wwwwww}}}}}ww}}}}}}wwwwwww----------.....
+...............wwww}}}}}}}www}w}}wwwww.T....................
+wwww........T.w}}}}}}wwwww..wwwww......................wwwww
+}}}}wwww..wwww}}wwwww.................................w}}}}}
+}}}}}}}}ww}}}}}w..............T....................www}}}}}}
+}}}}}}}}}}}}wwwww........................wwwwwwwwww}}}}}}}}}
+}}}}}}}}}}}}}}}}}w...T..................w}}}}}}}}}}}}}}}}}}}
 ENDMAP
-REGION:(15,07,21,10),lit,"temple"
-ALTAR:(18,08),noalign,sanctum
-REGION:(41,06,48,11),unlit,"morgue",filled,irregular
-# Non diggable walls
-NON_DIGGABLE:(00,00,75,19)
-# Invisible barrier separating the left & right halves of the level
-NON_PASSWALL:(37,00,39,19)
-# Drawbridges
-DRAWBRIDGE:(38,06),west,closed
-DRAWBRIDGE:(39,06),east,closed
-# Doors
-DOOR:locked,(62,06)
-DOOR:closed,(46,12)
-DOOR:closed,(53,10)
-# Some traps.
-TRAP:"spiked pit", random
-TRAP:"fire", random
-TRAP:"sleep gas", random
-TRAP:"anti magic", random
-TRAP:"fire", random
-TRAP:"magic", random
-TRAP:"spear", random
-TRAP:"magic beam", random
-# Some random objects
-OBJECT:'[',random
-OBJECT:'[',random
-OBJECT:'[',random
-OBJECT:'[',random
-OBJECT:')',random
-OBJECT:')',random
-OBJECT:'*',random
-OBJECT:'!',random
-OBJECT:'!',random
-OBJECT:'!',random
-OBJECT:'!',random
-OBJECT:'?',random
-OBJECT:'?',random
-OBJECT:'?',random
-OBJECT:'?',random
-OBJECT:'?',random
-# Chest by the altar
-CONTAINER:('(',"crystal chest"),(17,08) {
-OBJECT:('(',"magic marker")
+DOOR:closed,(28,07)
+DOOR:closed,(29,07)
+DOOR:locked,(45,09)
+DOOR:closed,(47,10)
+DOOR:closed,(52,10)
+STAIR:levregion(01,01,20,19),(00,00,59,19),up
+STAIR:(50,07),down
+REGION:(00,00,59,19),lit,"ordinary"
+REGION:(46,06,53,12),unlit,"ordinary"
+NON_DIGGABLE:(45,05,54,13)
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Juiblex"),(51,08)
+  } ELSE {
+    MONSTER:('&',"Baalzebub"),(51,08)
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Geryon"),(51,08)
+  } ELSE {
+    MONSTER:('&',"Baphomet"),(51,08)
+  }
 }
-# Inner sanctum guards
-MONSTER:(':',"salamander"),(13,05),hostile
-MONSTER:(':',"salamander"),(23,05),hostile
-MONSTER:(':',"salamander"),(13,12),hostile
-MONSTER:(':',"salamander"),(23,12),hostile
-MONSTER:('&',"lava demon"),(18,05),hostile
-MONSTER:('&',"lava demon"),(18,12),hostile
-# Some monsters.
-MONSTER:('&',"pit fiend"),(14,12),hostile
-MONSTER:('&',"balrog"),(18,08),hostile
-MONSTER:('&',"erinys"),(10,04),hostile
-MONSTER:('&',"marilith"),(07,09),hostile
-MONSTER:('&',"nalfeshnee"),(27,08),hostile
-MONSTER:('h',"alhoon"),(17,07),hostile
-# Moloch's horde
-MONSTER:('@',"aligned priest"),(20,03),noalign,hostile
-MONSTER:('@',"aligned priest"),(15,04),noalign,hostile
-MONSTER:('@',"aligned priest"),(11,05),noalign,hostile
-MONSTER:('@',"aligned priest"),(11,07),noalign,hostile
-MONSTER:('@',"aligned priest"),(11,09),noalign,hostile
-MONSTER:('@',"aligned priest"),(11,12),noalign,hostile
-MONSTER:('@',"aligned priest"),(15,13),noalign,hostile
-MONSTER:('@',"aligned priest"),(17,13),noalign,hostile
-MONSTER:('@',"aligned priest"),(21,13),noalign,hostile
-# A few nasties
-MONSTER:'L',random
-MONSTER:'L',random
-MONSTER:'V',random
-MONSTER:'V',random
-MONSTER:'V',random
-MONSTER:('U',"shambling horror"),random
-MONSTER:('U',"shambling horror"),random
-MONSTER:('U',"shambling horror"),random
-# Lava nasties
-MONSTER:(':',"salamander"),(01,01),hostile
-MONSTER:(':',"salamander"),(74,01),hostile
-MONSTER:(':',"salamander"),(01,18),hostile
-MONSTER:(':',"salamander"),(74,18),hostile
-MONSTER:(':',"salamander"),(38,04),hostile
-MONSTER:(':',"salamander"),(38,08),hostile
-MONSTER:('&',"lava demon"),(60,03),hostile
-MONSTER:('&',"lava demon"),(30,17),hostile
-# Exit
-STAIR:(63,15),up
-# Teleporting to this level is allowed after the invocation creates its
-# entrance.  Force arrival in that case to be on rightmost third of level.
-TELEPORT_REGION:levregion(54,1,79,18),(0,0,0,0),down
+# the herd
+MONSTER:'q',(25,03),hostile
+MONSTER:'q',(27,03),hostile
+MONSTER:'q',(29,03),hostile
+MONSTER:'q',(31,03),hostile
+MONSTER:'q',(26,04),hostile
+MONSTER:'q',(28,04),hostile
+MONSTER:'q',(30,04),hostile
+MONSTER:'q',(32,04),hostile
+MONSTER:'q',(25,05),hostile
+MONSTER:'q',(27,05),hostile
+MONSTER:'q',(29,05),hostile
+MONSTER:'q',(31,05),hostile
+MONSTER:'q',(26,06),hostile
+MONSTER:'q',(28,06),hostile
+MONSTER:'q',(30,06),hostile
+MONSTER:'q',(32,06),hostile
+# its guard
+MONSTER:('d',"hell hound"),(28,08),hostile
+# the eponymous residents
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+MONSTER:'n',random
+# some other denizens
+MONSTER:'&',random,hostile
+MONSTER:'&',random,hostile
+MONSTER:'&',random,hostile
+MONSTER:'&',random,hostile
+MONSTER:'&',random,hostile
+MONSTER:'i',random,hostile
+MONSTER:'i',random,hostile
+MONSTER:'i',random,hostile
+MONSTER:'i',random,hostile
+MONSTER:'i',random,hostile
+MONSTER:'i',random,hostile
+MONSTER:'i',random,hostile
+MONSTER:'i',random,hostile
+MONSTER:'i',random,hostile
+MONSTER:'i',random,hostile
+# a bit of loot
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:')',random
+OBJECT:')',random
+OBJECT:'(',random
+OBJECT:'/',random
+OBJECT:'=',random
+OBJECT:'?',random
+OBJECT:'?',random
+OBJECT:'!',random
+OBJECT:'!',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+OBJECT:'*',random
+# traps!
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "magic", random
+TRAP: "magic", random
+TRAP: "magic", random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
 
 
-## New demon lord/prince levels
-## From GruntHack
-# Yeenoghu's realm
-MAZE:"yeenoghu", random
+########################
+# Second Tier (hellb-?)
+########################
+
+#
+# Previously Yeenoghu's realm
+#
+MAZE:"hellb-1", random
 FLAGS:noteleport
 INIT_MAP:mines,'.','}',false,true,lit,false
 GEOMETRY:right,center
@@ -823,9 +747,21 @@ DOOR:locked,(12,13)
 REGION:(00,00,21,16),lit,"ordinary"
 REGION:(10,07,14,09),lit,"throne",unfilled
 NON_DIGGABLE:(01,01,15,15)
-# the owner of the mansion
-MONSTER:('&',"Yeenoghu"),(12,08)
-# his minions
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Mephistopheles"),(12,08)
+  } ELSE {
+    MONSTER:('&',"Yeenoghu"),(12,08)
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Dispater"),(12,08)
+  } ELSE {
+    MONSTER:('&',"Lolth"),(12,08)
+  }
+}
+# minions
 MONSTER:('d',"hell hound"),(11,08),hostile
 MONSTER:('d',"hell hound"),(13,08),hostile
 MONSTER:('T',"Olog-hai"),(11,07),hostile
@@ -836,7 +772,7 @@ MONSTER:'G',(10,08),hostile
 MONSTER:'G',(14,12),hostile
 
 NOMAP
-# his slaves
+# slaves
 MONSTER:'@',random
 MONSTER:'@',random
 MONSTER:'@',random
@@ -926,135 +862,10 @@ TRAP: random, random
 TRAP: random, random
 TRAP: random, random
 
-
-# the isle of Erytheia, Geryon's domain
-MAZE:"geryon",'W'
-FLAGS:noteleport
-INIT_MAP:mines,'.','}',false,true,lit,false
-GEOMETRY:right, center
-MAP
-}}}}}}}}}}}}w.......T...........................w}}}}}}}}}}}
-}}}wwww}}}www....................................wwwww}}}}}}
-}ww....ww}}}}w..........FFFFFFFFFF....................wwww}}
-w........www}}w.........F........F......T.................ww
-...........Tw}}w........F........F..........................
-.............w}}w.......F........F...........----------.....
-..............w}}}www...F........F...........|...|....|.....
-...............ww}}}}w..FFFF++FFFF...........|...|....|.....
-.................www}w.......................|...|....|.....
-....T..............w}}wwwwwwwwwwwww..........+...|....|....T
-....................w}}w}}}}}}}}}}}www.......--+----+--.....
-.....................w}w}wwwwwwwww}}}}wwwwwww|........|.....
-.................T....wwwwwwwwwwwwwww}}}}}}}}|........|.....
-...................wwwwww}}}}}ww}}}}}}wwwwwww----------.....
-...............wwww}}}}}}}www}w}}wwwww.T....................
-wwww........T.w}}}}}}wwwww..wwwww......................wwwww
-}}}}wwww..wwww}}wwwww.................................w}}}}}
-}}}}}}}}ww}}}}}w..............T....................www}}}}}}
-}}}}}}}}}}}}wwwww........................wwwwwwwwww}}}}}}}}}
-}}}}}}}}}}}}}}}}}w...T..................w}}}}}}}}}}}}}}}}}}}
-ENDMAP
-DOOR:closed,(28,07)
-DOOR:closed,(29,07)
-DOOR:locked,(45,09)
-DOOR:closed,(47,10)
-DOOR:closed,(52,10)
-STAIR:levregion(01,01,20,19),(00,00,59,19),up
-STAIR:(50,07),down
-REGION:(00,00,59,19),lit,"ordinary"
-REGION:(46,06,53,12),unlit,"ordinary"
-NON_DIGGABLE:(45,05,54,13)
-# the fellow in residence
-MONSTER:('&',"Geryon"),(51,08)
-# his herd
-MONSTER:'q',(25,03),hostile
-MONSTER:'q',(27,03),hostile
-MONSTER:'q',(29,03),hostile
-MONSTER:'q',(31,03),hostile
-MONSTER:'q',(26,04),hostile
-MONSTER:'q',(28,04),hostile
-MONSTER:'q',(30,04),hostile
-MONSTER:'q',(32,04),hostile
-MONSTER:'q',(25,05),hostile
-MONSTER:'q',(27,05),hostile
-MONSTER:'q',(29,05),hostile
-MONSTER:'q',(31,05),hostile
-MONSTER:'q',(26,06),hostile
-MONSTER:'q',(28,06),hostile
-MONSTER:'q',(30,06),hostile
-MONSTER:'q',(32,06),hostile
-# its guard
-MONSTER:('d',"hell hound"),(28,08),hostile
-# the eponymous residents
-MONSTER:'n',random
-MONSTER:'n',random
-MONSTER:'n',random
-MONSTER:'n',random
-MONSTER:'n',random
-MONSTER:'n',random
-MONSTER:'n',random
-MONSTER:'n',random
-MONSTER:'n',random
-MONSTER:'n',random
-# some other denizens
-MONSTER:'&',random,hostile
-MONSTER:'&',random,hostile
-MONSTER:'&',random,hostile
-MONSTER:'&',random,hostile
-MONSTER:'&',random,hostile
-MONSTER:'i',random,hostile
-MONSTER:'i',random,hostile
-MONSTER:'i',random,hostile
-MONSTER:'i',random,hostile
-MONSTER:'i',random,hostile
-MONSTER:'i',random,hostile
-MONSTER:'i',random,hostile
-MONSTER:'i',random,hostile
-MONSTER:'i',random,hostile
-MONSTER:'i',random,hostile
-# a bit of loot
-OBJECT:'[',random
-OBJECT:'[',random
-OBJECT:')',random
-OBJECT:')',random
-OBJECT:'(',random
-OBJECT:'/',random
-OBJECT:'=',random
-OBJECT:'?',random
-OBJECT:'?',random
-OBJECT:'!',random
-OBJECT:'!',random
-OBJECT:'*',random
-OBJECT:'*',random
-OBJECT:'*',random
-OBJECT:'*',random
-OBJECT:'*',random
-OBJECT:'*',random
-OBJECT:'*',random
-OBJECT:'*',random
-# traps!
-TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "magic", random
-TRAP: "magic", random
-TRAP: "magic", random
-TRAP: random, random
-TRAP: random, random
-TRAP: random, random
-TRAP: random, random
-TRAP: random, random
-
-
-# the city of Dis
-MAZE:"dis", ' ' 
+#
+# The City of Dis, previously Dispater's domain
+#
+MAZE:"hellb-2", ' ' 
 FLAGS:noteleport,shortsighted
 INIT_MAP:mines,'.',' ',true,true,unlit,true
 GEOMETRY:center,center
@@ -1099,9 +910,21 @@ TERRAIN: floodfill (36,00), 'L'
 TERRAIN: floodfill (00,20), 'L'
 TERRAIN: floodfill (36,20), 'L'
 
-# the guy in charge
-MONSTER:('&',"Dispater"),(18,10)
-# his minions
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Mephistopheles"),(18,10)
+  } ELSE {
+    MONSTER:('&',"Yeenoghu"),(18,10)
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Dispater"),(18,10)
+  } ELSE {
+    MONSTER:('&',"Lolth"),(18,10)
+  }
+}
+# their minions
 MONSTER:(''',"iron golem"),(18,09),hostile
 MONSTER:('&',"pit fiend"),(18,11),hostile
 MONSTER:('&',"bone devil"),(17,10),hostile
@@ -1202,10 +1025,144 @@ TRAP: random, random
 TRAP: random, random
 TRAP: random, random
 
+#
+# Previously Mephistopheles' lair
+#
+MAZE: "hellb-3", ' '
+FLAGS: noteleport
+INIT_MAP:mines,'.',' ',true,true,unlit,true
+GEOMETRY:center,center
+MAP
+ LLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLL....-------------....LLLL
+LL...---|...........|---...LL
+LL...|.................|...LL
+LL..|-...LL.......LL...--..LL
+LL..|...LLLL.....LLLL...|..LL
+LL..|...LLLL.....LLLL...|..LL
+LL..|-...LL.......LL...-|..LL
+LL...|........L........|...LL
+LL...---.....LLL.....---...LL
+LL.....|---.......---|.....LL
+LL........|.|.|.|.|........LL
+LL........|...|...|........LL
+LL........|-------|........LL
+LL.........LLL|LLL.........LL
+LLLL.....................LLLL
+ LLLLLLLLLLLLLLLLLLLLLLLLLLL
+ENDMAP
+NON_DIGGABLE:(00,00,28,16)
+REGION:(00,00,28,16),unlit,"ordinary"
+STAIR:levregion(01,01,79,20),levregion(21,1,59,20),up
+STAIR: (14,03), down
 
-# Demogorgon's towers
-MAZE:"demogor", ' '
-FLAGS:noteleport,shortsighted
+TERRAIN: (00,00), ' '
+TERRAIN: (28,00), ' '
+TERRAIN: (00,16), ' '
+TERRAIN: (28,16), ' '
+
+TERRAIN: floodfill (00,00), 'L'
+TERRAIN: floodfill (28,00), 'L'
+TERRAIN: floodfill (00,16), 'L'
+TERRAIN: floodfill (28,16), 'L'
+
+# two drawbridges
+DRAWBRIDGE:(12,14),north,closed
+DRAWBRIDGE:(16,14),north,closed
+# random demons
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+MONSTER:'&',random
+# random monsters
+MONSTER: random, random
+MONSTER: random, random
+MONSTER: random, random
+MONSTER: random, random
+MONSTER: random, random
+MONSTER: random, random
+MONSTER: random, random
+MONSTER: random, random
+MONSTER: random, random
+MONSTER: random, random
+MONSTER: random, random
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Mephistopheles"),(14,03)
+    #entourage
+    MONSTER:('&',"marilith"),(12,03),hostile
+    MONSTER:('&',"balrog"),(16,03),hostile
+  } ELSE {
+    MONSTER:('&',"Yeenoghu"),(14,03)
+    #entourage
+    MONSTER:('&',"nalfeshnee"),(12,03),hostile
+    MONSTER:('&',"pit fiend"),(16,03),hostile
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Dispater"),(14,03)
+    #entourage
+    MONSTER:('&',"vrock"),(12,03),hostile
+    MONSTER:('&',"balrog"),(16,03),hostile
+  } ELSE {
+    MONSTER:('&',"Lolth"),(14,03)
+    #entourage
+    MONSTER:('&',"marilith"),(12,03),hostile
+    MONSTER:('&',"pit fiend"),(16,03),hostile
+  }
+}
+# lava
+MONSTER:(':',"salamander"),(14,08)
+MONSTER:(':',"salamander"),(11,05)
+MONSTER:(':',"salamander"),(17,05)
+# random objects
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+# various traps
+TRAP: "land mine", random
+TRAP: "land mine", random
+TRAP: "fire", random
+TRAP: "magic beam", random
+TRAP: "spear", random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+
+
+#######################
+# Third Tier (hellc-?)
+#######################
+
+#
+# Previously Demogorgon's towers
+#
+MAZE:"hellc-1", ' '
+FLAGS:noteleport,hardfloor,shortsighted
 INIT_MAP:mines,'.','}',true,true,lit,false
 GEOMETRY:center,center
 MAP
@@ -1250,16 +1207,52 @@ IF [50%] {
 } ELSE {
   TERRAIN: (57,09), '|'
 }
-# the fellow in residence
-MONSTER:('&',"Demogorgon"),(50,09)
-# some tough guards
-MONSTER:('&',"nalfeshnee"),(49,08),hostile
-MONSTER:('&',"balrog"),(51,08),hostile
-MONSTER:('&',"nalfeshnee"),(49,10),hostile
-MONSTER:('&',"balrog"),(51,10),hostile
-MONSTER:('&',"pit fiend"),(50,08),hostile
-MONSTER:('H',"elder minotaur"),(49,09),hostile
-MONSTER:('&',"pit fiend"),(50,10),hostile
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Demogorgon"),(50,09)
+    # entourage
+    MONSTER:('&',"nalfeshnee"),(49,08),hostile
+    MONSTER:('&',"balrog"),(51,08),hostile
+    MONSTER:('&',"nalfeshnee"),(49,10),hostile
+    MONSTER:('&',"balrog"),(51,10),hostile
+    MONSTER:('&',"pit fiend"),(50,08),hostile
+    MONSTER:('H',"elder minotaur"),(49,09),hostile
+    MONSTER:('&',"pit fiend"),(50,10),hostile
+  } ELSE {
+    MONSTER:('D',"Tiamat"),(50,09)
+    # entourage - chaotic aligned dragons
+    MONSTER:('D',"blue dragon"),(49,08),hostile
+    MONSTER:('D',"gold dragon"),(51,08),hostile
+    MONSTER:('D',"white dragon"),(49,10),hostile
+    MONSTER:('D',"black dragon"),(51,10),hostile
+    MONSTER:('D',"sea dragon"),(50,08),hostile
+    MONSTER:('&',"balrog"),(49,09),hostile
+    MONSTER:('D',"red dragon"),(50,10),hostile
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Asmodeus"),(50,09)
+    # entourage
+    MONSTER:('&',"marilith"),(49,08),hostile
+    MONSTER:('&',"balrog"),(51,08),hostile
+    MONSTER:('&',"ice devil"),(49,10),hostile
+    MONSTER:('&',"balrog"),(51,10),hostile
+    MONSTER:('&',"weredemon"),(50,08),hostile
+    MONSTER:('&',"horned devil"),(49,09),hostile
+    MONSTER:('&',"marilith"),(50,10),hostile
+  } ELSE {
+    MONSTER:('&',"Graz'zt"),(50,09)
+    #entourage
+    MONSTER:('&',"marilith"),(49,08),hostile
+    MONSTER:('&',"balrog"),(51,08),hostile
+    MONSTER:('&',"nalfeshnee"),(49,10),hostile
+    MONSTER:('&',"balrog"),(51,10),hostile
+    MONSTER:('&',"pit fiend"),(50,08),hostile
+    MONSTER:('&',"barbed devil"),(49,09),hostile
+    MONSTER:('&',"pit fiend"),(50,10),hostile
+  }
+}
 # and some other denizens
 MONSTER:'&',random,hostile
 MONSTER:'&',random,hostile
@@ -1359,6 +1352,521 @@ TRAP: "spear", random
 TRAP: "spear", random
 
 
+#
+# Previously the New Asmodeus Level
+#
+MAZE:"hellc-2",random
+FLAGS: noteleport,hardfloor
+# First part
+GEOMETRY:half-left,center
+MAP
+                                          }}}}                          ----
+--------------------    -------         |}}}}--                         |..|
+|............S.....|    |.....|------   --}}}}--------------       #####+..|
+|---+-----------...|    |.....|.....|------}}}}|...........|       #    |..|
+|.....|........|-+------|.....|.....|.....F}}}}F...........|    ---+--- ----
+|..---|........|........|.....|.....|.....|}}}}|..{..{..{..|    |.....|     
+|..|..S........|..........................|}.|}............+##H#S.....S#    
+|..|..|........|........|.....|.....|.....|}}}}|..{..{..{..|    |.....|     
+|..|..|........|-+------|.....|.....|.....F}}}}F...........|    ---+---     
+|..|..-----S----...|    |.....|.....|------}}}}|...........|       H        
+|..S.....|...|.....|    |.....|------    |}}}}--------------       H        
+---------|...|------    -------         --}}}}|  --------          H        
+         |...|            ###           |}}}}----|......|          #        
+         |...|              #  ###       }}}}| |.+......+###########        
+     -----+++-----    ####  #  #         }}}}  |.+......+###########        
+     |...........|    #     ######  ----  }}}} --|......|          #        
+     |...........S#####     #    #  |..|  }}}}   --------       ---+---     
+     |...........|    #     #    ###+..|   }}}}                 |.....|     
+     |.....\.....|    #######       |..|   }}}}                 |.....|     
+     -------------                  ----  }}}}                  -------     
+ENDMAP
+STAIR:(65,17),up
+STAIR:(11,16),down
+BRANCH:(73,01,74,03),(00,00,00,00)
+TELEPORT_REGION:(60,12,65,14),(00,00,00,00)
+ # Doors
+DOOR:locked,(67,16)
+DOOR:locked,(56,14)
+DOOR:locked,(56,13)
+DOOR:locked,(49,14)
+DOOR:locked,(49,13)
+DOOR:locked,(67,08)
+DOOR:locked,(67,04)
+DOOR:locked,(72,02)
+DOOR:locked,(64,06)
+DOOR:locked,(70,06)
+DOOR:locked,(17,08)
+DOOR:locked,(17,04)
+DOOR:locked,(13,02)
+DOOR:locked,(04,03)
+DOOR:locked,(03,10)
+DOOR:locked,(06,06)
+DOOR:locked,(11,09)
+DOOR:closed,(10,14)
+DOOR:closed,(11,14)
+DOOR:closed,(12,14)
+DOOR:locked,(17,16)
+DOOR:locked,(36,17)
+# Drawbridges
+DRAWBRIDGE:(46,06),west,closed
+DRAWBRIDGE:(43,06),west,closed
+  # Non diggable walls
+NON_DIGGABLE:(00,00,75,19)
+ # Regions of light and dark
+REGION:(00,00,75,19),unlit,"ordinary"
+REGION:(25,02,29,05),unlit,"lemurepit"
+REGION:(31,03,35,05),unlit,"lemurepit"
+REGION:(37,04,41,05),unlit,"lemurepit"
+REGION:(37,07,41,08),unlit,"lemurepit"
+REGION:(31,07,35,09),unlit,"lemurepit"
+REGION:(25,07,29,10),unlit,"lemurepit"
+REGION:(48,03,58,09),lit,"ordinary"
+REGION:(06,15,16,18),lit,"ordinary"
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Demogorgon"),(11,16)
+    # entourage
+    MONSTER:('&',"balrog"),(08,16),"Xennulig",asleep
+    MONSTER:('&',"pit fiend"),(09,17),"Brarkonod",asleep
+    MONSTER:('&',"succubus"),(14,16),asleep
+    MONSTER:('&',"succubus"),(13,17),asleep
+    MONSTER:('&',"incubus"),(11,18),asleep
+    MONSTER:('&',"sandestin"),(10,13),"Izamon",asleep
+    MONSTER:('&',"horned devil"),(12,13),"Arozud",asleep
+  } ELSE {
+    MONSTER:('D',"Tiamat"),(11,16)
+    # entourage - chaotic aligned dragons
+    MONSTER:('D',"black dragon"),(08,16),asleep
+    MONSTER:('D',"gold dragon"),(09,17),asleep
+    MONSTER:('D',"red dragon"),(14,16),asleep
+    MONSTER:('D',"sea dragon"),(13,17),asleep
+    MONSTER:('&',"Balrog"),(11,18),"Dagul",asleep
+    MONSTER:('D',"blue dragon"),(10,13),asleep
+    MONSTER:('D',"white dragon"),(12,13),asleep
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Asmodeus"),(11,16)
+    # entourage
+    MONSTER:('&',"marilith"),(08,16),"Voran",asleep
+    MONSTER:('&',"marilith"),(09,17),"Joggeruuth",asleep
+    MONSTER:('&',"succubus"),(14,16),asleep
+    MONSTER:('&',"succubus"),(13,17),asleep
+    MONSTER:('&',"incubus"),(11,18),asleep
+    MONSTER:('&',"barbed devil"),(10,13),"Gogmelon",asleep
+    MONSTER:('&',"barbed devil"),(12,13),"Ulgaxicus",asleep
+  } ELSE {
+    MONSTER:('&',"Graz'zt"),(11,16)
+    # entourage
+    MONSTER:('&',"nalfeshnee"),(08,16),"Dirozius",asleep
+    MONSTER:('&',"nalfeshnee"),(09,17),"Thorakoth",asleep
+    MONSTER:('&',"succubus"),(14,16),asleep
+    MONSTER:('&',"succubus"),(13,17),asleep
+    MONSTER:('&',"incubus"),(11,18),asleep
+    MONSTER:('&',"vrock"),(10,13),"Ugek",asleep
+    MONSTER:('&',"vrock"),(12,13),"Ozroth",asleep
+  }
+}
+ # A few traps on the way in
+TRAP:"board",(10,12)
+TRAP:"board",(11,12)
+TRAP:"board",(12,12)
+TRAP:"fire",(11,11)
+TRAP:"fire",(10,10)
+TRAP:"fire",(12,10)
+# The 'fake' throne room
+MONSTER:'&',(07,04)
+MONSTER:'&',(14,04)
+MONSTER:'&',(07,08)
+MONSTER:'&',(14,08)
+OBJECT:('!',"invisibility"),(07,04)
+OBJECT:('!',"invisibility"),(14,04)
+OBJECT:('!',"invisibility"),(07,08)
+OBJECT:('!',"invisibility"),(14,08)
+MONSTER:('m',"giant mimic"),(11,06), m_feature "staircase down"
+TRAP:"magic",(09,06)
+TRAP:"magic",(13,06)
+TRAP:"magic",(11,05)
+TRAP:"magic beam",(11,07)
+ # Some random weapons and armor.
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:')',random
+OBJECT:')',random
+OBJECT:')',random
+OBJECT:')',random
+OBJECT:'!',random
+OBJECT:'!',random
+OBJECT:'?',random
+OBJECT:'?',random
+OBJECT:'?',random
+# Traps in the outer chambers
+TRAP:"spiked pit",(02,08)
+TRAP:"anti magic",(21,06)
+TRAP:"sleep gas",(19,05)
+TRAP:"fire",(56,06)
+TRAP:"spear",(53,06)
+TRAP:"spiked pit",(50,03)
+TRAP:"polymorph",(69,02)
+# Teleport scrolls are kept in a closet
+OBJECT:('?',"teleportation"),(63,06)
+# Traps in the inner spiral
+TRAP:"magic",(22,14)
+TRAP:"anti magic",(26,18)
+TRAP:"fire",(28,13)
+TRAP:"spiked pit",(32,13)
+# Treasure room
+GOLD:500,(38,16)
+GOLD:500,(38,17)
+GOLD:500,(38,18)
+OBJECT:('"',"amulet of change"),(37,16)
+OBJECT:('=',"hunger"),(37,18),cursed,0
+OBJECT:('*',"diamond"),(38,16),cursed,0,name:"The Tears of Koth"
+OBJECT:('*',"ruby"),(38,17),cursed,0,name:"The Heart of Cassanova" 
+OBJECT:('*',"emerald"),(38,18),cursed,0,name:"The Eye of Hera"
+MONSTER:'&',(38,16)
+MONSTER:'&',(38,17)
+MONSTER:'&',(38,18)
+# Outer Trap Room 
+GOLD:1,(48,13)
+GOLD:1,(48,14)
+OBJECT:('?',"fire"),(48,13),cursed,0
+OBJECT:('?',"earth"),(48,14),cursed,0
+TRAP:"magic",(48,13)
+TRAP:"land mine",(48,14)
+GOLD:1,(51,12)
+GOLD:1,(50,14)
+GOLD:1,(52,15)
+GOLD:1,(53,13)
+TRAP:"fire",(54,13)
+TRAP:"fire",(54,14)
+TRAP:"magic",(52,12)
+TRAP:"magic beam",(52,15)
+TRAP:"spiked pit",(51,13)
+TRAP:"anti magic",(50,14)
+OBJECT:('!',"polymorph"),(50,13)
+OBJECT:('?',"create monster"),(50,12),cursed,0
+OBJECT:('?',"amnesia"),(50,12),cursed,0
+# Guardians in the fountain room
+MONSTER:'&',(49,04)
+MONSTER:'&',(49,08)
+MONSTER:'&',(52,04)
+MONSTER:'&',(52,08)
+MONSTER:'V',(55,04)
+MONSTER:'V',(55,08)
+# Guardians in the outer chamber
+MONSTER:('d',"hell hound"),(67,06)
+MONSTER:('d',"hell hound"),(69,06)
+MONSTER:('d',"hell hound"),(68,05)
+MONSTER:('d',"hell hound"),(68,07)
+# Guardian in the branch chamber
+MONSTER:('j',"blue jelly"),(73,02)
+# Greeting in the outer chamber
+MONSTER:('i',"imp"),(69,17)
+OBJECT:('[',"helm of opposite alignment"),(65,17),cursed,-2
+OBJECT:('*',"loadstone"),(65,18),cursed,0
+OBJECT:('"',"amulet of strangulation"),(65,18),cursed,0
+
+
+#######################
+# Other maps
+#######################
+
+#
+# The Orcus Level
+#
+MAZE:"orcus",random
+FLAGS: noteleport,shortsighted
+INIT_MAP:mines,'.',' ',true,true,unlit,true
+GEOMETRY:right,center
+# A ghost town
+MAP
+ LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL 
+.---------------------------------------------L
+.|....|....|....|..............|....|........|L
+.|....|....|....|..............|....|........|L
+.|....|....|....|--...-+-------|.............|L
+.|....|....|....|..............+.............|L
+.|.........|....|..............|....|........|L
+.--+-...-+----+--....-------...--------.-+----L
+.....................|.....|.................LL
+.....................|.....|.................LL
+.--+----....-+---....|.....|...----------+----L
+.|....|....|....|....---+---...|......|......|L
+.|.........|....|..............|......|......|L
+.----...---------.....-----....+......|......|L
+.|........................|....|......|......|L
+.----------+-...--+--|....|....----------+---|L
+.|....|..............|....+....|.............|L
+.|....+.......|......|....|....|.............|L
+.|....|.......|......|....|....|.............|L
+.---------------------------------------------L
+ LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL 
+ENDMAP
+#MAZEWALK:(00,08),west
+# Entire main area
+REGION:(01,00,46,18),unlit,"ordinary"
+STAIR:(33,17),down
+STAIR:levregion(01,00,12,20),levregion(20,01,70,20),up
+BRANCH:levregion(01,00,12,20),levregion(20,01,70,20)
+TELEPORT_REGION:levregion(01,00,12,20),levregion(20,01,70,20)
+
+TERRAIN: (00,00), ' '
+TERRAIN: (46,00), ' '
+TERRAIN: (00,18), ' '
+TERRAIN: (46,18), ' '
+
+TERRAIN: floodfill (00,00), 'L'
+TERRAIN: floodfill (46,00), 'L'
+TERRAIN: floodfill (00,18), 'L'
+TERRAIN: floodfill (46,18), 'L'
+
+# Wall "ruins"
+OBJECT:('`',"boulder"),(19,04)
+OBJECT:('`',"boulder"),(20,04)
+OBJECT:('`',"boulder"),(21,04)
+OBJECT:('`',"boulder"),(36,04)
+OBJECT:('`',"boulder"),(36,05)
+OBJECT:('`',"boulder"),(06,06)
+OBJECT:('`',"boulder"),(05,07)
+OBJECT:('`',"boulder"),(06,07)
+OBJECT:('`',"boulder"),(07,07)
+OBJECT:('`',"boulder"),(39,07)
+OBJECT:('`',"boulder"),(08,10)
+OBJECT:('`',"boulder"),(09,10)
+OBJECT:('`',"boulder"),(10,10)
+OBJECT:('`',"boulder"),(11,10)
+OBJECT:('`',"boulder"),(06,12)
+OBJECT:('`',"boulder"),(05,13)
+OBJECT:('`',"boulder"),(06,13)
+OBJECT:('`',"boulder"),(07,13)
+OBJECT:('`',"boulder"),(21,13)
+OBJECT:('`',"boulder"),(21,14)
+OBJECT:('`',"boulder"),(13,15)
+OBJECT:('`',"boulder"),(14,15)
+OBJECT:('`',"boulder"),(15,15)
+OBJECT:('`',"boulder"),(14,16)
+# Doors
+DOOR:closed,(23,04)
+DOOR:open,(31,05)
+DOOR:nodoor,(03,07)
+DOOR:closed,(09,07)
+DOOR:closed,(14,07)
+DOOR:closed,(41,07)
+DOOR:open,(03,10)
+DOOR:nodoor,(13,10)
+DOOR:open,(41,10)
+DOOR:closed,(24,11)
+DOOR:closed,(31,13)
+DOOR:open,(11,15)
+DOOR:closed,(18,15)
+DOOR:closed,(41,15)
+DOOR:open,(26,16)
+DOOR:closed,(06,17)
+# Special rooms
+ALTAR:(24,09),noalign,sanctum
+REGION:(22,14,25,18),unlit,"morgue"
+REGION:(32,11,37,14),lit,"shop"
+REGION:(12,02,15,06),lit,"shop"
+# Some traps.
+TRAP:"spiked pit", random
+TRAP:"sleep gas", random
+TRAP:"anti magic", random
+TRAP:"fire", random
+TRAP:"fire", random
+TRAP:"fire", random
+TRAP:"magic", random
+TRAP:"magic", random
+# Some random objects
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+# The resident nasty
+MONSTER:('&',"Orcus"),(33,17)
+# And its preferred companions
+MONSTER:('Z',"human zombie"),(32,17)
+MONSTER:(' ',"shade"),(32,16)
+MONSTER:(' ',"shade"),(32,18)
+MONSTER:('V',"vampire"),(35,18)
+MONSTER:('V',"vampire"),(35,16)
+MONSTER:('V',"vampire noble"),(36,16)
+MONSTER:('V',"vampire noble"),(36,17)
+# Watches the sanctum
+MONSTER:('h',"alhoon"),(24,09)
+# Randomly placed companions
+MONSTER:('Z',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
+MONSTER:(' ',"shade"),random
+MONSTER:(' ',"shade"),random
+MONSTER:(' ',"shade"),random
+MONSTER:(' ',"spectre"),random
+MONSTER:('Z',"giant zombie"),random
+MONSTER:('Z',"giant zombie"),random
+MONSTER:('Z',"giant zombie"),random
+MONSTER:('Z',"ettin zombie"),random
+MONSTER:('Z',"ettin zombie"),random
+MONSTER:('Z',"ettin zombie"),random
+MONSTER:('Z',"human zombie"),random
+MONSTER:('Z',"revenant"),random
+MONSTER:('Z',"revenant"),random
+MONSTER:('V',"vampire"),random
+MONSTER:('V',"vampire noble"),random
+MONSTER:('V',"vampire noble"),random
+MONSTER:('V',"vampire royal"),random
+MONSTER:('V',"vampire royal"),random
+# Lava
+MONSTER:(':',"salamander"),(46,01),hostile
+MONSTER:(':',"salamander"),(46,17),hostile
+IF [20%] {
+  MONSTER:('g',"lava gremlin"),(46,09),hostile
+} 
+# A few more for the party
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+
+
+#
+# The Sanctum Level
+#
+MAZE:"sanctum", ' '
+FLAGS: noteleport,hardfloor,nommap
+# This is outside the main map, below, so we must do it before adding
+# that map and anchoring coordinates to it. This extends the invisible
+# barrier up to the top row, which falls outside the drawn map.
+NON_PASSWALL:(39,00,41,00)
+GEOMETRY:center,center
+MAP
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLL----F----F----LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLL|............|LLLLLLLLLLLLL-------LLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLL---F---............---F-LLLLLLLLLF.....FLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLL|......................|LLLLLLLL--.....|LLLLLLLLLLLL--F---F--LLLLLLL
+LLLLL-F--....LLLLLLLLLLL.......-F-----LL|......----LLLLLLLLL|.......|LLLLLLL
+LLLLL|.......L---------L.........|...|LL|.........|--F----F---+---..FLLLLLLL
+LLL---.......L|.......|L.........--S--LL|.........|.....S........|..|LLLLLLL
+LLLF.........L|.......|L............|LLLF.........---S---..-----S----LLLLLLL
+LLL|.........L|.......|L.........----LLL|..........|....|..|......|LLLLLLLLL
+LLL|.........L|.......|L.........FLLLLLL--.......----+---S---S--..FLLLLLLLLL
+LLLF.........L---------L.........|LLLLLLLF.......|.............|..|LLLLLLLLL
+LLL---.......LLLLLLLLLLL.........|LLLLLLL-----+-------S---------S---LLLLLLLL
+LLLLL|...........................FLLLLLLLLLL|...F.F......|....|....|--LLLLLL
+LLLLL-F--.....................----LLLLLLLLLLF...-F-....------S-......FLLLLLL
+LLLLLLLL|.....................|LLLLLLLLLLLLL|..........|LLLL|.....----LLLLLL
+LLLLLLLL---F---...........---F-LLLLLLLLLLLLL--...----F--LLLLF.....|LLLLLLLLL
+LLLLLLLLLLLLLL|...........|LLLLLLLLLLLLLLLLLLF...FLLLLLLLLLL|.....FLLLLLLLLL
+LLLLLLLLLLLLLL----F----F---LLLLLLLLLLLLLLLLLL-----LLLLLLLLLL-------LLLLLLLLL
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+ENDMAP
+REGION:(15,07,21,10),lit,"temple"
+ALTAR:(18,08),noalign,sanctum
+REGION:(41,06,48,11),unlit,"morgue",filled,irregular
+# Non diggable walls
+NON_DIGGABLE:(00,00,75,19)
+# Invisible barrier separating the left & right halves of the level
+NON_PASSWALL:(37,00,39,19)
+# Drawbridges
+DRAWBRIDGE:(38,06),west,closed
+DRAWBRIDGE:(39,06),east,closed
+# Doors
+DOOR:locked,(62,06)
+DOOR:closed,(46,12)
+DOOR:closed,(53,10)
+# Some traps.
+TRAP:"spiked pit", random
+TRAP:"fire", random
+TRAP:"sleep gas", random
+TRAP:"anti magic", random
+TRAP:"fire", random
+TRAP:"magic", random
+TRAP:"spear", random
+TRAP:"magic beam", random
+# Some random objects
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:'[',random
+OBJECT:')',random
+OBJECT:')',random
+OBJECT:'*',random
+OBJECT:'!',random
+OBJECT:'!',random
+OBJECT:'!',random
+OBJECT:'!',random
+OBJECT:'?',random
+OBJECT:'?',random
+OBJECT:'?',random
+OBJECT:'?',random
+OBJECT:'?',random
+# Chest by the altar
+CONTAINER:('(',"crystal chest"),(17,08) {
+  OBJECT:('(',"magic marker")
+}
+# Inner sanctum guards
+MONSTER:(':',"salamander"),(13,05),hostile
+MONSTER:(':',"salamander"),(23,05),hostile
+MONSTER:(':',"salamander"),(13,12),hostile
+MONSTER:(':',"salamander"),(23,12),hostile
+MONSTER:('&',"lava demon"),(18,05),hostile
+MONSTER:('&',"lava demon"),(18,12),hostile
+# Some monsters.
+MONSTER:('&',"pit fiend"),(14,12),hostile
+MONSTER:('&',"balrog"),(18,08),hostile
+MONSTER:('&',"erinys"),(10,04),hostile
+MONSTER:('&',"marilith"),(07,09),hostile
+MONSTER:('&',"nalfeshnee"),(27,08),hostile
+MONSTER:('h',"alhoon"),(17,07),hostile
+# Moloch's horde
+MONSTER:('@',"aligned priest"),(20,03),noalign,hostile
+MONSTER:('@',"aligned priest"),(15,04),noalign,hostile
+MONSTER:('@',"aligned priest"),(11,05),noalign,hostile
+MONSTER:('@',"aligned priest"),(11,07),noalign,hostile
+MONSTER:('@',"aligned priest"),(11,09),noalign,hostile
+MONSTER:('@',"aligned priest"),(11,12),noalign,hostile
+MONSTER:('@',"aligned priest"),(15,13),noalign,hostile
+MONSTER:('@',"aligned priest"),(17,13),noalign,hostile
+MONSTER:('@',"aligned priest"),(21,13),noalign,hostile
+# A few nasties
+MONSTER:'L',random
+MONSTER:'L',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:('U',"shambling horror"),random
+MONSTER:('U',"shambling horror"),random
+MONSTER:('U',"shambling horror"),random
+# Lava nasties
+MONSTER:(':',"salamander"),(01,01),hostile
+MONSTER:(':',"salamander"),(74,01),hostile
+MONSTER:(':',"salamander"),(01,18),hostile
+MONSTER:(':',"salamander"),(74,18),hostile
+MONSTER:(':',"salamander"),(38,04),hostile
+MONSTER:(':',"salamander"),(38,08),hostile
+MONSTER:('&',"lava demon"),(60,03),hostile
+MONSTER:('&',"lava demon"),(30,17),hostile
+# Exit
+STAIR:(63,15),up
+# Teleporting to this level is allowed after the invocation creates its
+# entrance.  Force arrival in that case to be on rightmost third of level.
+TELEPORT_REGION:levregion(54,1,79,18),(0,0,0,0),down
+
+
 #	The "fill" level for Gehennom
 #
 #	This level is used to fill out any levels not occupied by
@@ -1450,6 +1958,7 @@ IF [20%] {
   MONSTER:random,random,hostile
 }
 
+#
 # SporkHack (and then UnNetHack) used a custom-made
 # opcode called SPILL that would fill in any 'dead
 # space' with lava outside the walls. That opcode never
@@ -1459,6 +1968,7 @@ IF [20%] {
 # blank terrain coordinates prevent floodfill from
 # filling the interior with lava should the map
 # generate a wall or floor tile in the same spot.  
+#
 TERRAIN: (19,00), ' '
 TERRAIN: (39,00), ' '
 TERRAIN: (59,00), ' '

@@ -94,7 +94,7 @@ WALLIFY
 #
 #	The "locate" level for the quest.
 #
-#	Here you have to find the lair of Tiamat to go
+#	Here you have to find the lair of Annam to go
 #	further towards your assigned quest.
 #
 
@@ -189,8 +189,8 @@ WALLIFY
 #
 #	The "goal" level for the quest.
 #
-#	Here you meet Tiamat your nemesis monster.  You have to
-#	defeat Tiamat in combat to gain the artifact you have
+#	Here you meet Annam your nemesis monster.  You have to
+#	defeat Annam in combat to gain the artifact you have
 #	been assigned to retrieve.
 #
 
@@ -241,7 +241,9 @@ OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
 # monsters.
-MONSTER:('D',"Tiamat"),(23,10),asleep
+MONSTER:('H',"Annam"),(23,10),asleep {
+  OBJECT:('`',"boulder"),quantity:6
+}
 MONSTER:('F',"shrieker"),(26,13)
 MONSTER:('F',"shrieker"),(25,8)
 MONSTER:('F',"shrieker"),(45,11)

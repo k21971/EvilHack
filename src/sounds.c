@@ -162,6 +162,42 @@ dosounds()
             }
         }
     }
+    if (level.flags.has_lemurepit && !rn2(20)) {
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (DEADMONSTER(mtmp))
+                continue;
+            if (mtmp->data == &mons[PM_LEMURE]
+                && mon_in_room(mtmp, LEMUREPIT)) {
+                switch (rn2(6) + hallu) {
+                case 0:
+                    You_hear("the crack of a barbed whip!");
+                    break;
+                case 1:
+                    You_hear("the screams of tortured souls!");
+                    break;
+                case 2:
+                    You_hear("a wail of eternal anguish!");
+                    break;
+                case 3:
+                    You_hear("diabolical laughter...");
+                    break;
+                case 4:
+                    You_hear("cries of repentance!");
+                    break;
+                case 5:
+                    You_hear("futile pleas for mercy!");
+                    break;
+                case 6:
+                    You_hear("screams of lust!");
+                    break;
+                case 7:
+                    You_hear("a weeping willow!");
+                    break;
+                }
+                return;
+            }
+        }
+    }
     if (level.flags.has_morgue && !rn2(200)) {
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
             if (DEADMONSTER(mtmp))

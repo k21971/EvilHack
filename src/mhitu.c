@@ -83,8 +83,12 @@ struct attack *mattk;
             break;
         case AT_TENT:
             if (mtmp->data == &mons[PM_MEDUSA])
-                pline_The("venomous snakes on %s head %s you!", s_suffix(mon_nam(mtmp)),
+                pline_The("venomous snakes on %s head %s you!",
+                          s_suffix(mon_nam(mtmp)),
                           rn2(2) ? "lash out at" : "bite");
+            else if (mtmp->data == &mons[PM_DEMOGORGON])
+                pline("%s tentacles lash out at you!",
+                      s_suffix(Monnam(mtmp)));
             else
                 pfmt = "%s tentacles suck you!";
             Monst_name = s_suffix(Monst_name);

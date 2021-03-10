@@ -2805,6 +2805,9 @@ register boolean newlev;
             } else
                 You("have an uncanny feeling...");
             break;
+        case LEMUREPIT:
+            You("enter a pit of tortured lemures!");
+            break;
         case BEEHIVE:
             You("enter a giant beehive!");
             break;
@@ -2880,6 +2883,9 @@ register boolean newlev;
                     break;
                 case TEMPLE:
                     level.flags.has_temple = 0;
+                    break;
+                case LEMUREPIT:
+                    level.flags.has_lemurepit = 0;
                     break;
                 case BEEHIVE:
                     level.flags.has_beehive = 0;

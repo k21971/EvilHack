@@ -56,14 +56,10 @@ E struct dgn_topology { /* special dungeon levels for speed */
     d_level d_wiz1_level;
     d_level d_wiz2_level;
     d_level d_wiz3_level;
-    d_level d_juiblex_level;
+    d_level d_hella_level;
+    d_level d_hellb_level;
+    d_level d_hellc_level;
     d_level d_orcus_level;
-    d_level d_baalzebub_level; /* unused */
-    d_level d_asmodeus_level;  /* unused */
-    d_level d_demogor_level;
-    d_level d_dis_level;
-    d_level d_yeenoghu_level;
-    d_level d_geryon_level;
     d_level d_portal_level;    /* only in goto_level() [do.c] */
     d_level d_sanctum_level;
     d_level d_earth_level;
@@ -91,14 +87,10 @@ E struct dgn_topology { /* special dungeon levels for speed */
 #define wiz1_level              (dungeon_topology.d_wiz1_level)
 #define wiz2_level              (dungeon_topology.d_wiz2_level)
 #define wiz3_level              (dungeon_topology.d_wiz3_level)
-#define juiblex_level           (dungeon_topology.d_juiblex_level)
 #define orcus_level             (dungeon_topology.d_orcus_level)
-#define baalzebub_level         (dungeon_topology.d_baalzebub_level)
-#define asmodeus_level          (dungeon_topology.d_asmodeus_level)
-#define demogor_level           (dungeon_topology.d_demogor_level)
-#define dis_level               (dungeon_topology.d_dis_level)
-#define yeenoghu_level          (dungeon_topology.d_yeenoghu_level)
-#define geryon_level            (dungeon_topology.d_geryon_level)
+#define hella_level             (dungeon_topology.d_hella_level)
+#define hellb_level             (dungeon_topology.d_hellb_level)
+#define hellc_level             (dungeon_topology.d_hellc_level)
 #define portal_level            (dungeon_topology.d_portal_level)
 #define sanctum_level           (dungeon_topology.d_sanctum_level)
 #define earth_level             (dungeon_topology.d_earth_level)

@@ -63,7 +63,7 @@ struct conditionals {
     { MON_GLYPH, PM_SHAMAN_KARNOV, "Earendil" },
     { MON_GLYPH, PM_SHAMAN_KARNOV, "Elwing" },
     /* commented out in monst.c at present */
-    { MON_GLYPH, PM_TIAMAT, "Goblin King" },
+    { MON_GLYPH, PM_ANNAM, "Goblin King" },
     { MON_GLYPH, PM_NEANDERTHAL, "High-elf" },
 #if 0 /* these exist in-game now also */
     /* objects commented out in objects.c at present */

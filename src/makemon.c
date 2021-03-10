@@ -1461,6 +1461,33 @@ register struct monst *mtmp;
             otmp->spe = rnd(3) + 2;
             (void) mpickobj(mtmp, otmp);
             break;
+        case PM_BAPHOMET:
+            otmp = mksobj(BARDICHE, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = ITEM_SHOCK;
+            curse(otmp);
+            otmp->oerodeproof = TRUE;
+            otmp->spe = rnd(3) + 2;
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_MEPHISTOPHELES:
+            otmp = mksobj(TRIDENT, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = ITEM_FIRE;
+            curse(otmp);
+            otmp->oerodeproof = TRUE;
+            otmp->spe = rnd(3) + 2;
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_GRAZ_ZT:
+            otmp = mksobj(RUNESWORD, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = ITEM_FIRE;
+            curse(otmp);
+            otmp->oerodeproof = TRUE;
+            otmp->spe = rnd(3) + 2;
+            (void) mpickobj(mtmp, otmp);
+            break;
         }
         /* prevent djinn and mail daemons from leaving objects when
          * they vanish
@@ -1804,6 +1831,8 @@ register struct monst *mtmp;
         } else if (ptr == &mons[PM_ASMODEUS]) {
             (void) mongets(mtmp, WAN_COLD);
             (void) mongets(mtmp, WAN_FIRE);
+        } else if (ptr == &mons[PM_GRAZ_ZT]) {
+            (void) mongets(mtmp, SHIELD_OF_REFLECTION);
         }
         break;
     case S_GNOME:
@@ -2068,7 +2097,12 @@ uchar m_lev; /* not just a struct mon because polyself code also uses this */
          * the hit points are encoded in the mlevel in a somewhat strange
          * way to fit in the 50..127 positive range of a signed character
          * above the 1..49 that indicate "normal" monster levels */
-        return 2 * (ptr->mlevel - 6);
+        if (is_dprince(ptr))
+            return 100 + (2 * (ptr->mlevel - 6));
+        else if (is_dlord(ptr))
+            return 50 + (2 * (ptr->mlevel - 6));
+        else
+            return 2 * (ptr->mlevel - 6);
     } else if (m_lev == 0) {
         return rnd(4);
     } else {

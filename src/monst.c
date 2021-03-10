@@ -3230,18 +3230,83 @@ struct permonst _mons2[] = {
             | M1_ACID | M1_POIS,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_LORD | M2_MALE,
-        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISION, 0, MH_DEMON, 27, CLR_BRIGHT_GREEN),
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISION,
+        0, MH_DEMON, 27, CLR_BRIGHT_GREEN),
+    MON("Baphomet", S_DEMON, LVL(54, 18, -4, 75, -15),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
+        A(ATTK(AT_WEAP, AD_PHYS, 6, 6), ATTK(AT_CLAW, AD_PHYS, 6, 6),
+          ATTK(AT_MAGC, AD_CLRC, 2, 6), ATTK(AT_BUTT, AD_CLOB, 8, 6),
+          NO_ATTK, NO_ATTK),
+        SIZ(2200, 900, MS_ROAR, MZ_HUGE), MR_FIRE | MR_POISON, 0,
+        M1_FLY | M1_SEE_INVIS | M1_POIS | M1_THICK_HIDE,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
+            | M2_LORD | M2_MALE | M2_COLLECT | M2_STRONG,
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION
+            | M3_BERSERK,
+        0, MH_DEMON, 30, HI_LORD),
     MON("Yeenoghu", S_DEMON, LVL(56, 18, -5, 80, -15),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 6), ATTK(AT_WEAP, AD_CONF, 2, 8),
-          ATTK(AT_CLAW, AD_PLYS, 1, 6), ATTK(AT_MAGC, AD_MAGM, 6, 6), NO_ATTK,
-          NO_ATTK),
+          ATTK(AT_CLAW, AD_PLYS, 1, 6), ATTK(AT_MAGC, AD_MAGM, 6, 6),
+          NO_ATTK, NO_ATTK),
         SIZ(900, 500, MS_ORC, MZ_LARGE), MR_FIRE | MR_POISON, 0,
         M1_FLY | M1_SEE_INVIS | M1_POIS,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_LORD | M2_MALE | M2_COLLECT | M2_STRONG,
         M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
         0, MH_DEMON, 31, HI_LORD),
+    MON("Lolth", S_DEMON, LVL(67, 12, -10, 70, -15),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
+        A(ATTK(AT_BITE, AD_DRST, 5, 6), ATTK(AT_BITE, AD_PLYS, 3, 4),
+          ATTK(AT_MAGC, AD_CLRC, 4, 6), ATTK(AT_MAGC, AD_SPEL, 4, 6),
+          NO_ATTK, NO_ATTK),
+        SIZ(1800, 600, MS_SILENT, MZ_HUGE), MR_FIRE | MR_POISON | MR_SLEEP, 0,
+        M1_NOHANDS | M1_SEE_INVIS | M1_POIS,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
+            | M2_STRONG | M2_LORD | M2_FEMALE,
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, MH_DEMON, 36, HI_LORD),
+    MON("Geryon", S_DEMON, LVL(72, 12, -3, 75, 15),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
+        A(ATTK(AT_CLAW, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 3, 6),
+          ATTK(AT_STNG, AD_DRST, 2, 4), ATTK(AT_MAGC, AD_CLRC, 4, 6),
+          NO_ATTK, NO_ATTK),
+        SIZ(1500, 500, MS_BRIBE, MZ_HUGE), MR_FIRE | MR_POISON, 0,
+        M1_FLY | M1_SEE_INVIS | M1_POIS | M1_SLITHY,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
+            | M2_LORD | M2_MALE,
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, MH_DEMON, 36, HI_LORD),
+    MON("Dispater", S_DEMON, LVL(78, 15, -2, 80, 15),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
+        A(ATTK(AT_WEAP, AD_PHYS, 4, 6), ATTK(AT_MAGC, AD_CLRC, 6, 6), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1500, 500, MS_BRIBE, MZ_HUMAN), MR_FIRE | MR_POISON, 0,
+        M1_FLY | M1_SEE_INVIS | M1_POIS | M1_HUMANOID,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
+            | M2_LORD | M2_MALE | M2_COLLECT,
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, MH_DEMON, 40, HI_LORD),
+    MON("Baalzebub", S_DEMON, LVL(89, 12, -5, 85, 20),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
+        A(ATTK(AT_BITE, AD_DRST, 2, 6), ATTK(AT_GAZE, AD_STUN, 2, 6),
+          ATTK(AT_MAGC, AD_CLRC, 4, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1500, 500, MS_BRIBE, MZ_LARGE), MR_FIRE | MR_POISON, 0,
+        M1_FLY | M1_SEE_INVIS | M1_POIS,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
+            | M2_LORD | M2_MALE,
+        M3_WANTSAMUL | M3_WAITFORU | M3_INFRAVISIBLE | M3_INFRAVISION, 0,
+        MH_DEMON, 45, HI_LORD),
+    MON("Mephistopheles", S_DEMON, LVL(80, 12, -6, 90, 15),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
+        A(ATTK(AT_WEAP, AD_PHYS, 4, 6), ATTK(AT_CLAW, AD_ENCH, 3, 4),
+          ATTK(AT_MAGC, AD_SPEL, 3, 4), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1500, 500, MS_BRIBE, MZ_HUMAN), MR_FIRE | MR_POISON, 0,
+        M1_FLY | M1_SEE_INVIS | M1_POIS | M1_HUMANOID,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
+            | M2_LORD | M2_MALE | M2_COLLECT,
+        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, MH_DEMON, 42, HI_LORD),
     MON("Orcus", S_DEMON, LVL(66, 15, -6, 85, -20),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 3, 4),
@@ -3254,37 +3319,35 @@ struct permonst _mons2[] = {
         M3_WAITFORU | M3_WANTSBOOK | M3_WANTSAMUL | M3_INFRAVISIBLE
             | M3_INFRAVISION, 0,
         MH_DEMON, 36, HI_LORD),
-    MON("Geryon", S_DEMON, LVL(72, 12, -3, 75, 15),
-        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
-        A(ATTK(AT_CLAW, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 3, 6),
-          ATTK(AT_STNG, AD_DRST, 2, 4), ATTK(AT_MAGC, AD_CLRC, 4, 6),
-          NO_ATTK, NO_ATTK),
-        SIZ(1500, 500, MS_BRIBE, MZ_HUGE), MR_FIRE | MR_POISON, 0,
-        M1_FLY | M1_SEE_INVIS | M1_POIS | M1_SLITHY,
-        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
-            | M2_PRINCE | M2_MALE,
-        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
-        0, MH_DEMON, 36, HI_LORD),
-    MON("Dispater", S_DEMON, LVL(78, 15, -2, 80, 15),
-        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
-        A(ATTK(AT_WEAP, AD_PHYS, 4, 6), ATTK(AT_MAGC, AD_CLRC, 6, 6), NO_ATTK,
-          NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(1500, 500, MS_BRIBE, MZ_HUMAN), MR_FIRE | MR_POISON, 0,
-        M1_FLY | M1_SEE_INVIS | M1_POIS | M1_HUMANOID,
-        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
-            | M2_PRINCE | M2_MALE | M2_COLLECT,
-        M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
-        0, MH_DEMON, 40, HI_LORD),
-    MON("Baalzebub", S_DEMON, LVL(89, 12, -5, 85, 20),
-        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
-        A(ATTK(AT_BITE, AD_DRST, 2, 6), ATTK(AT_GAZE, AD_STUN, 2, 6),
-          ATTK(AT_MAGC, AD_CLRC, 4, 6), NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(1500, 500, MS_BRIBE, MZ_LARGE), MR_FIRE | MR_POISON, 0,
-        M1_FLY | M1_SEE_INVIS | M1_POIS,
-        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
-            | M2_PRINCE | M2_MALE,
+    /* Multi-headed, possessing the breath attacks of all the other dragons
+     * (selected at random when attacking).
+     */
+    MON("Tiamat", S_DRAGON, LVL(103, 15, -8, 80, -20),
+        (G_NOGEN | G_UNIQ),
+        A(ATTK(AT_BREA, AD_RBRE, 6, 6), ATTK(AT_MAGC, AD_SPEL, 2, 4),
+          ATTK(AT_CLAW, AD_SAMU, 4, 4), ATTK(AT_BITE, AD_PHYS, 6, 6),
+          ATTK(AT_BITE, AD_PHYS, 6, 6), ATTK(AT_STNG, AD_PHYS, 2, 4)),
+        SIZ(WT_DRAGON, 1700, MS_ROAR, MZ_GIGANTIC),
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
+            | MR_ACID | MR_STONE,
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
+            | MR_STONE,
+        M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_SEE_INVIS | M1_POIS,
+        M2_NOPOLY | M2_HOSTILE | M2_FEMALE | M2_STALK | M2_STRONG | M2_NASTY
+            | M2_PNAME | M2_PRINCE | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         M3_WANTSAMUL | M3_WAITFORU | M3_INFRAVISIBLE | M3_INFRAVISION, 0,
-        MH_DEMON, 45, HI_LORD),
+        MH_DEMON | MH_DRAGON, 53, HI_LORD),
+    MON("Graz'zt", S_DEMON, LVL(105, 12, -9, 85, -20),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
+        A(ATTK(AT_WEAP, AD_PHYS, 4, 8), ATTK(AT_CLAW, AD_STUN, 6, 6),
+          ATTK(AT_CLAW, AD_SITM, 6, 6), ATTK(AT_MAGC, AD_CLRC, 4, 6),
+          NO_ATTK, NO_ATTK),
+        SIZ(1500, 500, MS_CUSS, MZ_HUGE), MR_FIRE | MR_COLD | MR_POISON, 0,
+        M1_FLY | M1_SEE_INVIS | M1_HUMANOID | M1_POIS,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_STRONG
+            | M2_NASTY | M2_PRINCE | M2_MALE,
+        M3_WANTSAMUL | M3_WAITFORU | M3_INFRAVISIBLE | M3_INFRAVISION, 0,
+        MH_DEMON, 53, HI_LORD),
     MON("Asmodeus", S_DEMON, LVL(105, 12, -7, 90, 20),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_CLAW, AD_PHYS, 4, 4), ATTK(AT_MAGC, AD_COLD, 6, 6),
@@ -3298,13 +3361,13 @@ struct permonst _mons2[] = {
     MON("Demogorgon", S_DEMON, LVL(106, 15, -8, 95, -20),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_MAGC, AD_SPEL, 8, 6), ATTK(AT_STNG, AD_DRLI, 1, 4),
-          ATTK(AT_CLAW, AD_DISE, 1, 6), ATTK(AT_CLAW, AD_DISE, 1, 6), NO_ATTK,
-          NO_ATTK),
+          ATTK(AT_TENT, AD_DISE, 1, 6), ATTK(AT_TENT, AD_DISE, 1, 6),
+          NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_GROWL, MZ_HUGE), MR_FIRE | MR_POISON
             | MR_PSYCHIC, 0,
         M1_FLY | M1_SEE_INVIS | M1_NOHANDS | M1_POIS,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
-            | M2_PRINCE | M2_MALE,
+            | M2_STRONG | M2_PRINCE | M2_MALE,
         M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
         0, MH_DEMON, 57, HI_LORD),
     /* Riders -- the Four Horsemen of the Apocalypse ("War" == player);
@@ -3818,25 +3881,20 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_PNAME | M2_STRONG | M2_MALE | M2_STALK
             | M2_HOSTILE | M2_NASTY | M2_COLLECT | M2_MAGIC,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISIBLE, 0, MH_HUMAN, 22, HI_LORD),
-    /* Multi-headed, possessing the breath attacks of all the other dragons
-     * (selected at random when attacking).
-     * Giving Tiamat an engulf attack, keeps it in-line
-     * with regular dragons attack capabilities.
-     */
-    MON("Tiamat", S_DRAGON, LVL(16, 12, 0, 30, -14),
+    MON("Annam", S_GIANT, LVL(16, 15, 0, 30, -14),
         (G_NOGEN | G_UNIQ),
-        A(ATTK(AT_BREA, AD_RBRE, 6, 6), ATTK(AT_MAGC, AD_SPEL, 0, 0),
-          ATTK(AT_CLAW, AD_SAMU, 2, 8), ATTK(AT_BITE, AD_PHYS, 4, 8),
-          ATTK(AT_STNG, AD_DRST, 1, 6), ATTK(AT_ENGL, AD_DGST, 4, 6)),
-        SIZ(WT_DRAGON, 1700, MS_NEMESIS, MZ_GIGANTIC),
-        MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
+        A(ATTK(AT_CLAW, AD_SAMU, 4, 8), ATTK(AT_CLAW, AD_CLOB, 4, 8),
+          ATTK(AT_MAGC, AD_SPEL, 0, 0), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(2500, 1800, MS_NEMESIS, MZ_GIGANTIC),
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_ELEC | MR_POISON
             | MR_ACID | MR_STONE,
-        MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_ELEC | MR_POISON
             | MR_STONE,
-        M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_SEE_INVIS | M1_POIS,
-        M2_NOPOLY | M2_HOSTILE | M2_FEMALE | M2_STALK | M2_STRONG | M2_NASTY
-            | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISIBLE, 0, MH_DRAGON, 23, HI_LORD),
+        M1_CARNIVORE | M1_SEE_INVIS,
+        M2_NOPOLY | M2_HOSTILE | M2_MALE | M2_STALK | M2_STRONG | M2_NASTY
+            | M2_PNAME | M2_ROCKTHROW | M2_GREEDY | M2_JEWELS | M2_MAGIC,
+        M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISIBLE | M3_BERSERK,
+        0, MH_GIANT, 23, HI_LORD),
 #if 0 /* OBSOLETE */
     MON("Goblin King", S_ORC,
         LVL(15, 12, 10, 0, -15), (G_NOGEN | G_UNIQ),
@@ -3879,13 +3937,10 @@ struct permonst _mons2[] = {
             | M2_STALK | M2_HOSTILE | M2_NASTY | M2_COLLECT | M2_MAGIC,
         M3_WANTSARTI | M3_WANTSAMUL | M3_WAITFORU | M3_INFRAVISIBLE,
         0, MH_HUMAN, 29, HI_GOLD),
-    /* Since regular dragons have an engulf attack, makes sense for
-     * Ixoth to have it also.
-     */
     MON("Ixoth", S_DRAGON, LVL(15, 12, -1, 20, -14), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_BREA, AD_FIRE, 8, 6), ATTK(AT_BITE, AD_PHYS, 4, 8),
           ATTK(AT_MAGC, AD_SPEL, 0, 0), ATTK(AT_CLAW, AD_PHYS, 4, 4),
-          ATTK(AT_CLAW, AD_SAMU, 4, 4), ATTK(AT_ENGL, AD_DGST, 4, 6)),
+          ATTK(AT_CLAW, AD_SAMU, 4, 4), NO_ATTK),
         SIZ(WT_DRAGON, 1600, MS_NEMESIS, MZ_GIGANTIC),
         MR_FIRE | MR_STONE | MR_POISON, MR_FIRE,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_SEE_INVIS,

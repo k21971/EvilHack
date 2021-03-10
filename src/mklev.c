@@ -757,6 +757,7 @@ clear_level_structures()
     level.flags.has_zoo = 0;
     level.flags.has_court = 0;
     level.flags.has_morgue = level.flags.graveyard = 0;
+    level.flags.has_lemurepit = 0;
     level.flags.has_beehive = 0;
     level.flags.has_barracks = 0;
     level.flags.has_temple = 0;

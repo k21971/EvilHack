@@ -262,7 +262,8 @@ int spellnum;
     case 12:
         return CLC_GEYSER;
     case 11:
-        if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+        if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mtmp->data == &mons[PM_ASMODEUS])
             return CLC_LIGHTNING;
         else
             return CLC_FIRE_PILLAR;
@@ -834,7 +835,8 @@ int spellnum;
         /* this is physical damage (force not heat),
          * not magical damage or fire damage
          */
-        if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mtmp->data == &mons[PM_ASMODEUS]) {
             pline("An avalanche of ice and snow slams into you from nowhere!");
             dmg = d(8, 8);
             if (Half_physical_damage)
@@ -1036,7 +1038,8 @@ int spellnum;
               body_part(SKIN));
         switch (dmg) {
             case 1:
-                if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+                if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+                    || mtmp->data == &mons[PM_ASMODEUS]) {
                     if (Vulnerable_cold)
                         return;
                     incr_itimeout(&HVulnerable_cold, rnd(100) + 150);

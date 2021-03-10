@@ -70,19 +70,20 @@ enum roomtype_types {
     ARMORY     = 15, /* weapons, armor, tools and rust monsters */
     NURSERY    = 16, /* mind flayer larva nursery */
     GARDEN     = 17, /* nymphs, trees and fountains */
-    RNDVAULT   = 18, /* random vault, not to be confused with VAULT */
-    SHOPBASE   = 19, /* everything above this is a shop */
-    ARMORSHOP  = 20, /* specific shop defines for level compiler */
-    SCROLLSHOP = 21,
-    POTIONSHOP = 22,
-    WEAPONSHOP = 23,
-    FOODSHOP   = 24,
-    RINGSHOP   = 25,
-    WANDSHOP   = 26,
-    TOOLSHOP   = 27,
-    BOOKSHOP   = 28,
-    FODDERSHOP = 29, /* health food store */
-    CANDLESHOP = 30
+    LEMUREPIT  = 18, /* contains lemures and horned devils */
+    RNDVAULT   = 19, /* random vault, not to be confused with VAULT */
+    SHOPBASE   = 20, /* everything above this is a shop */
+    ARMORSHOP  = 21, /* specific shop defines for level compiler */
+    SCROLLSHOP = 22,
+    POTIONSHOP = 23,
+    WEAPONSHOP = 24,
+    FOODSHOP   = 25,
+    RINGSHOP   = 26,
+    WANDSHOP   = 27,
+    TOOLSHOP   = 28,
+    BOOKSHOP   = 29,
+    FODDERSHOP = 30, /* health food store */
+    CANDLESHOP = 31
 };
 
 #define MAXRTYPE (CANDLESHOP) /* maximum valid room type */

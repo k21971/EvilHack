@@ -399,7 +399,7 @@ deletedwithboulder:
            items teleports them to the deepest demon lords
            lair rather than destroying them */
         if (obj_resists(obj, 0, 0)) {
-            d_level dest = demogor_level;
+            d_level dest = hellc_level;
 
             add_to_migration(obj);
             assign_level(&dest, &dest);

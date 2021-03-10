@@ -610,7 +610,7 @@ fixup_special()
             if (mtmp->isshk)
                 mongone(mtmp);
         }
-    } else if (on_level(&u.uz, &baalzebub_level)) {
+    } else if (on_level(&u.uz, &hella_level)) {
         /* custom wallify the "beetle" potion of the level */
         baalz_fixup();
     } else if (u.uz.dnum == mines_dnum && ransacked) {
@@ -1668,7 +1668,7 @@ xchar x, y;
         return "pool of raw sewage";
     else if (ltyp == WATER || Is_waterlevel(&u.uz))
         ; /* fall through to default return value */
-    else if (Is_juiblex_level(&u.uz))
+    else if (Is_hella_level(&u.uz))
         return "swamp";
     else if (ltyp == MOAT && !Is_medusa_level(&u.uz))
         return "moat";

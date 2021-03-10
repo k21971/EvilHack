@@ -594,7 +594,7 @@ enter %H.
 off our access to the outer world."
 %E
 %Cp Cav 00006
-"Since %n sent her minions, we have been constantly fighting."
+"Since %n sent his minions, we have been constantly fighting."
 %E
 %Cp Cav 00007
 "I have heard your vision quest was successful.  Is this so?"
@@ -648,7 +648,7 @@ the path of the %C over the true path of the %L.
 a difficult quest as that I propose to give you.
 
 "%rA could not possibly survive the rigors demanded to find
-%i, never mind to confront %n herself.
+%i, never mind to confront %n himself.
 
 "Adventure some more, and you will learn the skills you will require.
 %d decrees it."
@@ -666,22 +666,22 @@ great suffering among your people:
 "Shortly after you left on your vision quest, the caves were invaded by
 the creatures sent against us by %n.
 
-"She, herself, could not attack us due to her great size, but her minions
+"He, himself, could not attack us due to his great size, but his minions
 have harassed us ever since.  In the first attacks, many died, and the
 minions of %n managed to steal %o.
 They took it to %i and there, none of our
 %g warriors have been able to go.
 
 "You must find %i, and within it wrest
-%o from %n.  She guards it as
-jealously as she guards all treasures she attains.  But with it,
+%o from %n.  He guards it as
+jealously as he guards all treasures he attains.  But with it,
 we can make our caves safe once more.
 
 "Please, %p, recover %o for us, and return it here."
 %E [Find and defeat %n, recover %o, and return with it.]
 %Cp Cav 00025
-"%nC is immune to her own breath weapons.
-You should use magic upon her that she does not use herself."
+"%nC is immune to many of the elements.
+You should use magic upon him that he does not use himself."
 %E
 %Cp Cav 00026
 "When you encounter %n, call upon %d for assistance."
@@ -700,8 +700,8 @@ Concentrate on %o."
 "%oC is the only object that %n truly fears."
 %E
 %Cp Cav 00031
-"Do not be fooled by %ns size.  She is fast, and it is
-rumored that she uses magic."
+"Do not be fooled by %ns size.  He is fast, and it is
+rumored that he uses magic."
 %E
 %Cp Cav 00032
 "I would send a party of %gP with you, but we will need all
@@ -711,16 +711,16 @@ of our strength to defend ourselves."
 "Remember, be %a at all times.  This is your strength."
 %E
 %Cp Cav 00034
-"If only we had an amulet of reflection, this would not have happened."
+"If only we had a wand of death, this would not have happened."
 %E
 %Cc Cav 00035
-You %x many large claw marks on the ground.  The tunnels ahead
+You %x many enormous footprints on the ground.  The tunnels ahead
 of you are larger than most of those in any cave complex you have
 ever been in before.
 
 Your nose detects the smell of carrion from within, and bones litter
 the sides of the tunnels.
-%E [You %x many large claw marks, smell carrion, and notice bones.]
+%E [You %x many enormous footprints, smell carrion, and notice bones.]
 %Cp Cav 00036
 Once again, you approach %i.
 %E
@@ -729,10 +729,10 @@ You find yourself in a large cavern, with neatly polished walls, that
 nevertheless show signs of being scorched by fire.
 
 Bones litter the floor, and there are objects scattered everywhere.
-The air is close with the stench of sulphurous fumes.
+The air is close with the stench of rotting corpses.
 
 %nC is clearly visible, but %nh seems to be asleep.
-%E [You enter a large cavern.  %nC is present.]
+%E [You enter a large cavern.  %n is present.]
 %Cp Cav 00041
 Once again, you find yourself in the lair of %n.
 %E
@@ -752,7 +752,7 @@ Now I shall kill you."
 "I'll have %o from you, %c.  You shall die."
 %E
 %Cp Cav 00060
-"You are weak, %c.  No challenge for the Mother of all Dragons."
+"You are weak, %c.  No challenge for the Father of all Giants."
 %E
 %Cp Cav 00061
 "I grow hungry, %r.  You look like a nice appetizer!"
@@ -773,10 +773,10 @@ Now I shall kill you."
 "You, a mere %r challenge the might of %n?  Hah!"
 %E
 %Cp Cav 00067
-"I am the Mother of all Dragons!  You cannot hope to defeat me."
+"I am the Father of all Giants!  You cannot hope to defeat me."
 %E
 %Cp Cav 00068
-"My claws are sharp now.  I shall rip you to shreds!"
+"I am famished, %r.  I shall rip the meat from your bones!"
 %E
 %Cp Cav 00069
 "%d has deserted you, %c.  This is my domain."
@@ -789,8 +789,8 @@ You suddenly feel full of power, as if nothing could possibly stand
 in your path.
 %E [%oC fills you with a feeling of power.]
 %Cp Cav 00080
-%nC sinks to the ground, her heads flailing about.
-As she dies, a cloud of noxious fumes billows about her.
+%nC crashes to the ground, his great limbs splayed out.
+As he dies, a cloud of noxious fumes billows about him.
 %E
 %Cc Cav 00081
 %lC glimpses %o in your possession.

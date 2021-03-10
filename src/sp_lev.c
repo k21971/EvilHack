@@ -2558,6 +2558,7 @@ boolean prefilled;
         case BARRACKS:
         case OWLBNEST:
         case NURSERY:
+        case LEMUREPIT:
             fill_zoo(croom);
             break;
         }
@@ -2577,6 +2578,9 @@ boolean prefilled;
         break;
     case MORGUE:
         level.flags.has_morgue = TRUE;
+        break;
+    case LEMUREPIT:
+        level.flags.has_lemurepit = TRUE;
         break;
     case BEEHIVE:
         level.flags.has_beehive = TRUE;
