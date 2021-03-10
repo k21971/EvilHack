@@ -1448,4 +1448,5 @@ Version 0.7.0
 - Fix: tautological statement in lock.c
 - Yet another Gehennom revamp
 - Fix: monsters.txt incorrect order
+- Fix: another monsters.txt error
 
