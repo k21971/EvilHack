@@ -1447,4 +1447,5 @@ Version 0.7.0
 - Even more tweaks to last commit (drawbridge)
 - Fix: tautological statement in lock.c
 - Yet another Gehennom revamp
+- Fix: monsters.txt incorrect order
 

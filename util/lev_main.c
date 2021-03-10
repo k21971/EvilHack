@@ -200,7 +200,7 @@ static struct {
     { "owlbnest", OWLBNEST },
     { "armory", ARMORY },
     { "nursery", NURSERY },
-    { "garden",	GARDEN },
+    { "garden", GARDEN },
     { "lemurepit", LEMUREPIT },
     { "shop", SHOPBASE },
     { "armor shop", ARMORSHOP },
