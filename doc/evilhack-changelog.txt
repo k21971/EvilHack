@@ -1450,4 +1450,5 @@ Version 0.7.0
 - Fix: monsters.txt incorrect order
 - Fix: another monsters.txt error
 - Fix: rearrange the logic of starting inventory adjustments
+- Demon boss/lair adjustments, new object
 

@@ -272,7 +272,8 @@ int spellnum;
     case 9:
         return CLC_CURSE_ITEMS;
     case 8:
-        if (is_demon(mtmp->data)
+        if ((is_demon(mtmp->data)
+             && mtmp->data != &mons[PM_LOLTH])
             || mtmp->mtame || mtmp->mpeaceful
             || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
             return CLC_VULN_YOU;
@@ -312,6 +313,11 @@ boolean foundyou;
     int ret;
     int spellnum = 0;
 
+    /* Some boss type monsters can exceed level 50; cap mtmp->m_lev
+       at 50, otherwise some of this spell damage output can get a
+       bit out of hand (read: acid blast and Demogorgon) */
+    if (ml > 50)
+        ml = 50;
     /* Three cases:
      * -- monster is attacking you.  Search for a useful spell.
      * -- monster thinks it's attacking you.  Search for a useful spell,
@@ -361,12 +367,13 @@ boolean foundyou;
         mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
         if (mtmp->mspec_used < 2)
             mtmp->mspec_used = 2;
-        for (obj = mtmp->minvent; obj; obj = obj->nobj)
-	    if (obj->oartifact
-		&& obj->oartifact == ART_EYE_OF_THE_AETHIOPICA) {
-		mtmp->mspec_used = 0;
-		break;
-	    }
+        for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+            if (obj->oartifact
+                && obj->oartifact == ART_EYE_OF_THE_AETHIOPICA) {
+                mtmp->mspec_used = 0;
+                break;
+            }
+        }
     }
 
     /* monster can cast spells, but is casting a directed spell at the
@@ -454,12 +461,12 @@ boolean foundyou;
             monstseesu(M_SEEN_ACID);
             dmg = 0;
         } else {
-            dmg = d((int) mtmp->m_lev / 2 + 1, 8);
+            dmg = d((int) ml / 2 + 1, 8);
         }
         break;
     case AD_MAGM:
         You("are hit by a shower of missiles!");
-        dmg = d((int) mtmp->m_lev / 2 + 1, 6);
+        dmg = d((int) ml / 2 + 1, 6);
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
             pline("Some missiles bounce off!");
@@ -519,6 +526,10 @@ int spellnum;
 {
     struct obj* oatmp;
     int erodelvl;
+
+    /* Make sure to cap monster level calc at 50 - see castmu() */
+    if (mtmp->m_lev > 50)
+        mtmp->m_lev = 50;
 
     if (dmg == 0 && !is_undirected_spell(AD_SPEL, spellnum)) {
         impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
@@ -803,6 +814,10 @@ int spellnum;
     int aligntype;
     static const char *Moloch = "Moloch";
 
+    /* Make sure to cap monster level calc at 50 - see castmu() */
+    if (mtmp->m_lev > 50)
+        mtmp->m_lev = 50;
+
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
         impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
         return;
@@ -906,11 +921,12 @@ int spellnum;
         dmg = 0;
         break;
     case CLC_INSECTS: {
-        /* Try for insects, and if there are none
+        /* Try for bugs, and if there are none
            left, go for (sticks to) snakes.  -3. */
-        struct permonst *pm = mkclass(S_ANT, 0);
+        boolean spiders = (mtmp->data == &mons[PM_LOLTH]);
+        struct permonst *pm = mkclass(spiders ? S_SPIDER : S_ANT, 0);
         struct monst *mtmp2 = (struct monst *) 0;
-        char let = (pm ? S_ANT : S_SNAKE);
+        char let = (pm ? (spiders ? S_SPIDER : S_ANT) : S_SNAKE);
         boolean success = FALSE, seecaster;
         int i, quan, oldseen, newseen;
         coord bypos;
@@ -939,7 +955,9 @@ int spellnum;
         fmt = 0;
         if (!seecaster) {
             char *arg; /* [not const: upstart(N==1 ? an() : makeplural())] */
-            const char *what = (let == S_SNAKE) ? "snake" : "insect";
+            const char *what = (let == S_SNAKE) ? "snake"
+                                                : (let == S_SPIDER) ? "arachnid"
+                                                                    : "insect";
 
             if (newseen <= oldseen || Unaware) {
                 /* unseen caster fails or summons unseen critters,
@@ -964,6 +982,8 @@ int spellnum;
             fmt = "%s casts at a clump of sticks, but nothing happens.";
         else if (let == S_SNAKE)
             fmt = "%s transforms a clump of sticks into snakes!";
+        else if (let == S_SPIDER)
+            fmt = "%s summons arachnids!";
         else if (Invis && !mon_prop(mtmp, SEE_INVIS)
                  && (mtmp->mux != u.ux || mtmp->muy != u.uy))
             fmt = "%s summons insects around a spot near you!";
@@ -1399,6 +1419,10 @@ register struct attack *mattk;
     int ret;
     int spellnum = 0;
 
+    /* Make sure to cap monster level calc at 50 - see castmu() */
+    if (ml > 50)
+        ml = 50;
+
     if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) && ml) {
    	int cnt = 40;
 
@@ -1439,14 +1463,14 @@ register struct attack *mattk;
             mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
             if (mtmp->mspec_used < 2)
                 mtmp->mspec_used = 2;
-            for (obj = mtmp->minvent; obj; obj = obj->nobj)
+            for (obj = mtmp->minvent; obj; obj = obj->nobj) {
                 if (obj->oartifact
                     && obj->oartifact == ART_EYE_OF_THE_AETHIOPICA) {
                     mtmp->mspec_used = 0;
                     break;
+                }
             }
-
-   	}
+        }
 
    	if (rn2(ml*10) < (mtmp->mconf ? 100 : 20)) {	/* fumbled attack */
    	    if (canseemon(mtmp))
@@ -1465,9 +1489,9 @@ register struct attack *mattk;
    	}
 
    	if (mattk->damd)
-   	    dmg = d((int)((ml/2) + mattk->damn), (int)mattk->damd);
+   	    dmg = d((int) ((ml / 2) + mattk->damn), (int) mattk->damd);
    	else
-            dmg = d((int)((ml/2) + 1), 6);
+            dmg = d((int) ((ml / 2) + 1), 6);
 
    	ret = 1;
 
@@ -1512,7 +1536,7 @@ register struct attack *mattk;
    	    case AD_MAGM:
                 if (canseemon(mdef))
                     pline("%s is hit by a shower of missiles!", Monnam(mdef));
-                dmg = d((int)mtmp->m_lev / 2 + 1, 6);
+                dmg = d((int) ml / 2 + 1, 6);
                 if (resists_magm(mdef)) {
            	    shieldeff(mdef->mx, mdef->my);
            	    if (canseemon(mdef))
@@ -1633,9 +1657,9 @@ register struct attack *mattk;
     /* As these are spells, the damage is related to the level
      * of the monster casting the spell. */
     if (mattk->damd)
-   	dmg = d((int)((ml/2) + mattk->damn), (int)mattk->damd);
+   	dmg = d((int) ((ml / 2) + mattk->damn), (int) mattk->damd);
     else
-        dmg = d((int)((ml/2) + 1), 6);
+        dmg = d((int) ((ml / 2) + 1), 6);
 
     ret = 1;
 

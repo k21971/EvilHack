@@ -78,13 +78,15 @@ struct monst *mon;
     }
 
     if (is_dprince(ptr) || (ptr == &mons[PM_WIZARD_OF_YENDOR])) {
-        dtype = (!rn2(20)) ? dprince(atyp) : (!rn2(4)) ? dlord(atyp)
-                                                       : ndemon(atyp);
+        dtype = (!rn2(20) && u.uevent.hellc_entered)
+                 ? dprince(atyp) : (!rn2(4)) ? dlord(atyp)
+                                             : ndemon(atyp);
         cnt = ((dtype != NON_PM)
                && !rn2(4) && is_ndemon(&mons[dtype])) ? 2 : 1;
     } else if (is_dlord(ptr)) {
-        dtype = (!rn2(50)) ? dprince(atyp) : (!rn2(20)) ? dlord(atyp)
-                                                        : ndemon(atyp);
+        dtype = (!rn2(50) && u.uevent.hellc_entered)
+                 ? dprince(atyp) : (!rn2(20)) ? dlord(atyp)
+                                              : ndemon(atyp);
         cnt = ((dtype != NON_PM)
                && !rn2(4) && is_ndemon(&mons[dtype])) ? 2 : 1;
     } else if (is_ndemon(ptr)) {

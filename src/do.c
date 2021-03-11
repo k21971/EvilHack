@@ -1919,6 +1919,11 @@ boolean at_stairs, falling, portal;
     if (Inhell && !Is_valley(&u.uz))
         u.uevent.gehennom_entered = 1;
 
+    /* made it to the final demon boss lair? */
+    if (!Is_hellc_level(&u.uz0) && Is_hellc_level(&u.uz)
+        && !u.uevent.hellc_entered)
+        u.uevent.hellc_entered = 1;
+
     if (!In_icequeen_branch(&u.uz0) && Iniceq) {
         You("arrive in a frozen, barren wasteland.");
         pline_The("remnants of a once majestic forest stretch out before you.");

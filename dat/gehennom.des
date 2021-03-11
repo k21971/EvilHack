@@ -226,7 +226,7 @@ MONSTER:('&',"weredemon"),(64,03)
 # Previously the Juiblex level
 #
 MAZE:"hella-1",' '
-FLAGS:noteleport,shortsighted
+FLAGS:noteleport,hardfloor,shortsighted
 INIT_MAP:mines,'.','}',true,true,unlit,false
 # guarantee at least one open spot to ensure successful stair placement
 GEOMETRY:left,bottom
@@ -368,7 +368,7 @@ TRAP:"magic",random
 # Previously the Asmodeus Level
 #
 MAZE:"hella-2",random
-FLAGS: noteleport,shortsighted
+FLAGS: noteleport,hardfloor,shortsighted
 # First part
 INIT_MAP:mines,'.','}',false,true,lit,false
 GEOMETRY:half-left,center
@@ -472,7 +472,7 @@ TRAP:"magic beam", random
 # Previously the Baalzebub level
 #
 MAZE:"hella-3",' '
-FLAGS: noteleport,shortsighted
+FLAGS: noteleport,hardfloor,shortsighted
 TERRAIN: fillrect(00,00,78,20),('.',unlit)
 TERRAIN: filter(33%,fillrect(00,00,78,20)),('}',unlit)
 TERRAIN: filter(15%,fillrect(00,00,78,20)),('s',unlit)
@@ -561,7 +561,7 @@ MONSTER:'V',random
 # The isle of Erytheia, previously Geryon's domain
 #
 MAZE:"hella-4",'W'
-FLAGS:noteleport
+FLAGS:noteleport,hardfloor
 INIT_MAP:mines,'.','}',false,true,lit,false
 GEOMETRY:right, center
 MAP
@@ -705,7 +705,7 @@ TRAP: random, random
 # Previously Yeenoghu's realm
 #
 MAZE:"hellb-1", random
-FLAGS:noteleport
+FLAGS:noteleport,hardfloor
 INIT_MAP:mines,'.','}',false,true,lit,false
 GEOMETRY:right,center
 MAP
@@ -866,7 +866,7 @@ TRAP: random, random
 # The City of Dis, previously Dispater's domain
 #
 MAZE:"hellb-2", ' ' 
-FLAGS:noteleport,shortsighted
+FLAGS:noteleport,hardfloor,shortsighted
 INIT_MAP:mines,'.',' ',true,true,unlit,true
 GEOMETRY:center,center
 MAP
@@ -1029,7 +1029,7 @@ TRAP: random, random
 # Previously Mephistopheles' lair
 #
 MAZE: "hellb-3", ' '
-FLAGS: noteleport
+FLAGS: noteleport,hardfloor
 INIT_MAP:mines,'.',' ',true,true,unlit,true
 GEOMETRY:center,center
 MAP

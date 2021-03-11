@@ -513,7 +513,8 @@ struct attack *alt_attk_buf;
         *alt_attk_buf = *attk;
         attk = alt_attk_buf;
         if (attk->adtyp == AD_ACID || attk->adtyp == AD_ELEC
-            || attk->adtyp == AD_COLD || attk->adtyp == AD_FIRE) {
+            || attk->adtyp == AD_COLD || attk->adtyp == AD_FIRE
+            || attk->adtyp == AD_DISE) {
             attk->aatyp = AT_TUCH;
         } else {
             attk->aatyp = AT_CLAW; /* attack message will be "<foo> hits" */

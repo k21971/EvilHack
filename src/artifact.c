@@ -1787,14 +1787,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (!youdefend)
                         ;
                     else
-                        pline_The("heavy mace hits %s.", hittee);
+                        pline_The("ornate mace hits %s.", hittee);
                 } else {
-                    pline_The("heavy mace %s %s%c",
+                    pline_The("ornate mace %s %s%c",
                               rn2(2) ? "bashes" : "bludgeons",
                               hittee, !spec_dbon_applies ? '.' : '!');
                 }
             } else {
-                pline_The("heavy mace %s %s%c",
+                pline_The("ornate mace %s %s%c",
                           !spec_dbon_applies
                               ? "hits"
                               : rn2(2) ? "bashes" : "bludgeons",

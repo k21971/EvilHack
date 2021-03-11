@@ -1417,6 +1417,9 @@ register struct monst *mtmp;
         break;
     case S_DEMON:
         switch (mm) {
+        case PM_HORNED_DEVIL:
+            (void) mongets(mtmp, rn2(4) ? TRIDENT : BULLWHIP);
+            break;
         case PM_BALROG:
             if (!rn2(20)) {
                 otmp = mksobj(TRIDENT, FALSE, FALSE);
@@ -1440,18 +1443,30 @@ register struct monst *mtmp;
             (void) mpickobj(mtmp, otmp);
             break;
         case PM_ORCUS:
-            otmp = mksobj(HEAVY_MACE, FALSE, FALSE);
+            otmp = mksobj(ROD, FALSE, FALSE);
             otmp = oname(otmp, artiname(ART_WAND_OF_ORCUS));
             curse(otmp);
             otmp->spe = rnd(4) + 3;
             fully_identify_obj(otmp);
             (void) mpickobj(mtmp, otmp);
             break;
-        case PM_HORNED_DEVIL:
-            (void) mongets(mtmp, rn2(4) ? TRIDENT : BULLWHIP);
-            break;
         case PM_DISPATER:
+            otmp = mksobj(ROD, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            curse(otmp);
+            otmp->spe = rnd(3) + 2;
+            set_material(otmp, GOLD);
+            (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, WAN_STRIKING);
+            break;
+        case PM_GERYON:
+            otmp = mksobj(BATTLE_AXE, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = ITEM_SHOCK;
+            curse(otmp);
+            otmp->spe = rnd(3) + 2;
+            set_material(otmp, METAL);
+            (void) mpickobj(mtmp, otmp);
             break;
         case PM_YEENOGHU:
             otmp = mksobj(TRIPLE_HEADED_FLAIL, FALSE, FALSE);
@@ -1464,14 +1479,14 @@ register struct monst *mtmp;
         case PM_BAPHOMET:
             otmp = mksobj(BARDICHE, FALSE, FALSE);
             create_oprop(otmp, FALSE);
-            otmp->oprops = ITEM_SHOCK;
+            otmp->oprops = ITEM_VENOM;
             curse(otmp);
             otmp->oerodeproof = TRUE;
             otmp->spe = rnd(3) + 2;
             (void) mpickobj(mtmp, otmp);
             break;
         case PM_MEPHISTOPHELES:
-            otmp = mksobj(TRIDENT, FALSE, FALSE);
+            otmp = mksobj(RANSEUR, FALSE, FALSE);
             create_oprop(otmp, FALSE);
             otmp->oprops = ITEM_FIRE;
             curse(otmp);
@@ -1480,12 +1495,21 @@ register struct monst *mtmp;
             (void) mpickobj(mtmp, otmp);
             break;
         case PM_GRAZ_ZT:
-            otmp = mksobj(RUNESWORD, FALSE, FALSE);
-            create_oprop(otmp, FALSE);
-            otmp->oprops = ITEM_FIRE;
+            /* If it has not yet been generated,
+               Graz'zt gets Dirge */
+            otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_DIRGE));
             curse(otmp);
-            otmp->oerodeproof = TRUE;
-            otmp->spe = rnd(3) + 2;
+            otmp->spe = rnd(4) + 1;
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_ASMODEUS:
+            otmp = mksobj(ROD, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = ITEM_FROST;
+            curse(otmp);
+            otmp->spe = rnd(3) + 4;
+            set_material(otmp, GEMSTONE);
             (void) mpickobj(mtmp, otmp);
             break;
         }
@@ -1504,13 +1528,15 @@ register struct monst *mtmp;
         bias = is_lord(ptr) + is_prince(ptr) * 2 + extra_nasty(ptr);
         switch (rnd(14 - (2 * bias))) {
         case 1:
-            if (strongmonst(ptr))
+            if (strongmonst(ptr)
+                && !(is_dlord(ptr) || is_dprince(ptr)))
                 (void) mongets(mtmp, BATTLE_AXE);
             else
                 m_initthrow(mtmp, DART, 12);
             break;
         case 2:
-            if (strongmonst(ptr))
+            if (strongmonst(ptr)
+                && !(is_dlord(ptr) || is_dprince(ptr)))
                 (void) mongets(mtmp, TWO_HANDED_SWORD);
             else {
                 (void) mongets(mtmp, CROSSBOW);
@@ -1522,13 +1548,15 @@ register struct monst *mtmp;
             m_initthrow(mtmp, ARROW, 12);
             break;
         case 4:
-            if (strongmonst(ptr))
+            if (strongmonst(ptr)
+                && !(is_dlord(ptr) || is_dprince(ptr)))
                 (void) mongets(mtmp, LONG_SWORD);
             else
                 m_initthrow(mtmp, DAGGER, 3);
             break;
         case 5:
-            if (strongmonst(ptr))
+            if (strongmonst(ptr)
+                && !(is_dlord(ptr) || is_dprince(ptr)))
                 (void) mongets(mtmp, LUCERN_HAMMER);
             else
                 (void) mongets(mtmp, AKLYS);

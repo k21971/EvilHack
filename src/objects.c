@@ -272,8 +272,11 @@ WEAPON("bec de corbin", "beaked polearm",
 WEAPON("mace", None,
        1, 0, 0, 0, 30,  30,   5,  6,  6, 0, B,   P_MACE, IRON, HI_METAL),
 WEAPON("heavy mace", None,
-       1, 0, 0, 0, 15,  50,   5, 10, 10, 0, B,   P_MACE, IRON, HI_METAL),
+       1, 0, 0, 0, 15,  50,  10, 10, 10, 0, B,   P_MACE, IRON, HI_METAL),
         /* +1 small */
+/* placeholder for certain special weapons; does not spawn randomly */
+WEAPON("rod", "ornate mace",
+       0, 0, 0, 0,  0,  40, 250,  6,  8, 0, B,   P_MACE, GEMSTONE, CLR_RED),
 WEAPON("morning star", None,
        1, 0, 0, 0, 12, 120,  10,  4,  6, 0, B,   P_MORNING_STAR, IRON, HI_METAL),
         /* +d4 small, +1 large */
@@ -283,10 +286,8 @@ WEAPON("orcish morning star", "crude morning star",
 WEAPON("war hammer", None,
        1, 0, 0, 0, 15,  50,   5,  4,  4, 0, B,   P_HAMMER, IRON, HI_METAL),
         /* +1 small */
-/* Base weapon for artifact weapon (Mjollnir/Ogresmasher) */
 WEAPON("heavy war hammer", None,
        1, 0, 0, 0, 10,  60,  10,  8, 10, 0, B,   P_HAMMER, IRON, HI_METAL),
-/* ------------------------------------------------------ */
 WEAPON("club", None,
        1, 0, 0, 0, 12,  30,   3,  6,  3, 0, B,   P_CLUB, WOOD, HI_WOOD),
 WEAPON("rubber hose", None,

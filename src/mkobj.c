@@ -3285,6 +3285,15 @@ static const struct icp bow_materials[] = {
     { 1, GOLD}
 };
 
+/* not really necessary to set more than one material, but we'll
+   create the array for possible future use */
+static const struct icp rod_materials[] = {
+    {90, GEMSTONE},
+    { 4, GOLD},
+    { 3, SILVER},
+    { 3, PLATINUM},
+};
+
 /* Return the appropriate above list for a given object, or NULL if there isn't
  * an appropriate list. */
 const struct icp*
@@ -3370,6 +3379,8 @@ struct obj* obj;
         case BAG_OF_HOLDING:
         case BAG_OF_TRICKS:
             return portable_container_materials;
+        case ROD:
+            return rod_materials;
         default:
             break;
     }
