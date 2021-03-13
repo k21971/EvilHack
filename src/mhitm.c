@@ -2212,7 +2212,7 @@ struct obj *mwep;
                     if (canseemon(magr))
                         pline("%s poisonous hide was deadly...",
                               s_suffix(Monnam(mdef)));
-                    monkilled(magr, "", (int) mattk[i].adtyp);
+                    monkilled(magr, "", (int) mdattk[i].adtyp);
                     return (mdead | mhit | MM_AGR_DIED);
                 }
             }
