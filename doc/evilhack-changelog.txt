@@ -1453,4 +1453,5 @@ Version 0.7.0
 - Demon boss/lair adjustments, new object
 - Minor tweaks to last commit (demon boss templates)
 - Fix: Dragonbane could still be disintegrated by attacking a black dragon
+- Encyclopedia entries for newer monsters/objects
 

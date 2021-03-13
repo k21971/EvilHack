@@ -3668,7 +3668,7 @@ struct attack *mattk;
     struct attack *oldu_mattk = 0;
 
     if (uarm) {
-	switch (uarm->otyp) {
+        switch (uarm->otyp) {
         case GREEN_DRAGON_SCALE_MAIL:
         case GREEN_DRAGON_SCALES:
             if (resists_poison(mtmp))
