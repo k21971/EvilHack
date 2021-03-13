@@ -2184,9 +2184,9 @@ struct obj *mwep;
             acid_damage(MON_WEP(magr));
         goto assess_dmg;
     case AD_DISN:
-        if (mhit && !mdef->mcan && !rn2(20)) {
+        if (mhit && !mdef->mcan) {
             if (resists_disint(magr)) {
-                if (canseemon(magr)) {
+                if (canseemon(magr) && !rn2(3)) {
                     shieldeff(magr->mx, magr->my);
                     pline("%s deadly hide does not appear to affect %s",
                           s_suffix(Monnam(mdef)), mon_nam(magr));
@@ -2194,30 +2194,39 @@ struct obj *mwep;
             } else {
                 /* if magr is wielding a weapon, that disintegrates first before
                    the actual monster. Same if magr is wearing gloves or boots */
-                if (MON_WEP(magr)) {
+                if (MON_WEP(magr) && !rn2(6)) {
                     if (canseemon(magr))
                         pline("%s %s is disintegrated!",
                               s_suffix(Monnam(magr)), xname(MON_WEP(magr)));
                     m_useup(magr, MON_WEP(magr));
                 } else if ((magr->misc_worn_check & W_ARMF)
-                           && aatyp == AT_KICK) {
+                           && aatyp == AT_KICK && !rn2(6)) {
                     if (canseemon(magr))
                         pline("%s %s are disintegrated!",
                               s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMF)));
                     m_useup(magr, which_armor(magr, W_ARMF));
                 } else if ((magr->misc_worn_check & W_ARMG)
-                           && (aatyp == AT_WEAP || aatyp == AT_CLAW)
-                           && !MON_WEP(magr)) {
+                           && (aatyp == AT_WEAP || aatyp == AT_CLAW
+                               || aatyp == AT_TUCH)
+                           && !MON_WEP(magr) && !rn2(6)) {
                     if (canseemon(magr))
                         pline("%s %s are disintegrated!",
                               s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMG)));
                     m_useup(magr, which_armor(magr, W_ARMG));
                 } else {
-                    if (canseemon(magr))
-                        pline("%s deadly hide disintegrates %s!",
-                              s_suffix(Monnam(mdef)), mon_nam(magr));
-                    mongone(magr); /* being disintegrated means nothing is left behind */
-                    return (mdead | mhit | MM_AGR_DIED);
+                    if (rn2(20)) {
+                        if (canseemon(magr))
+                            pline("%s hide partially disintegrates %s!",
+                                  s_suffix(Monnam(mdef)), mon_nam(magr));
+                        tmp = rn2(6) + 1;
+                        goto assess_dmg;
+                    } else {
+                        if (canseemon(magr))
+                            pline("%s deadly hide disintegrates %s!",
+                                  s_suffix(Monnam(mdef)), mon_nam(magr));
+                        mongone(magr); /* being disintegrated means nothing is left behind */
+                        return (mdead | mhit | MM_AGR_DIED);
+                    }
                 }
             }
         }
@@ -2225,23 +2234,23 @@ struct obj *mwep;
     case AD_DRST:
         if (mhit && !mdef->mcan && !rn2(3)) {
             if (resists_poison(magr)) {
-                if (canseemon(magr)) {
+                if (canseemon(magr) && !rn2(3)) {
                     shieldeff(magr->mx, magr->my);
                     pline("%s poisonous hide doesn't seem to affect %s.",
                               s_suffix(Monnam(mdef)), mon_nam(magr));
                 }
             } else {
-                if (canseemon(magr)) {
-                    if (rn2(20)) {
+                if (rn2(20)) {
+                    if (canseemon(magr))
                         pline("%s is poisoned!", Monnam(magr));
-                    } else {
-                        if (canseemon(magr)) {
-                            pline("%s poisonous hide was deadly...",
-                                  s_suffix(Monnam(mdef)));
-                            monkilled(magr, "", (int) mdattk[i].adtyp);
-                            return (mdead | mhit | MM_AGR_DIED);
-                        }
-                    }
+                    tmp = rn2(4) + 1;
+                    goto assess_dmg;
+                } else {
+                    if (canseemon(magr))
+                        pline("%s poisonous hide was deadly...",
+                              s_suffix(Monnam(mdef)));
+                    monkilled(magr, "", (int) mdattk[i].adtyp);
+                    return (mdead | mhit | MM_AGR_DIED);
                 }
             }
         }
@@ -2250,13 +2259,13 @@ struct obj *mwep;
     case AD_MAGM:
       /* wrath of gods for attacking Oracle */
         if (resists_magm(magr)) {
+            tmp = (tmp + 1) / 2;
             if (canseemon(magr)) {
                 shieldeff(magr->mx, magr->my);
                 pline(magr->data == &mons[PM_WOODCHUCK] ? "ZOT!" :
                       "%s is hit by magic missiles appearing from thin air!",
                       Monnam(magr));
                 pline("Some missiles bounce off!");
-                tmp = (tmp + 1) / 2;
             }
         } else {
             if (canseemon(magr))
@@ -2274,8 +2283,9 @@ struct obj *mwep;
         break;
     case AD_CNCL:
         if (mhit && !rn2(6)) {
-            pline("%s hide absorbs magical energy from %s.",
-                  s_suffix(Monnam(mdef)), mon_nam(magr));
+            if (canseemon(magr))
+                pline("%s hide absorbs magical energy from %s.",
+                      s_suffix(Monnam(mdef)), mon_nam(magr));
             (void) cancel_monst(magr, mwep, FALSE, TRUE, FALSE);
         }
     default:
