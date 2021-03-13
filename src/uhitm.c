@@ -3529,7 +3529,7 @@ boolean wep_was_destroyed;
                 }
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH) {
-                passive_obj(mon, weapon, &(mattk[i]));
+                passive_obj(mon, weapon, &(ptr->mattk[i]));
             }
             break;
         }
