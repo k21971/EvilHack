@@ -2017,8 +2017,9 @@ const char *verb;
     if (!carried(obj) || !obj_is_pname(obj)
         || (obj->oartifact >= ART_XIUHCOATL
             && obj->oartifact != ART_GJALLAR)
-        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
-        || obj->oartifact == ART_MAGIC___BALL) {
+        || obj->oartifact == ART_DRAGONBANE
+        || obj->oartifact == ART_MAGIC___BALL
+        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - strlen(outbuf);
 
@@ -2101,8 +2102,9 @@ struct obj *obj;
     if (!carried(obj) || !obj_is_pname(obj)
         || (obj->oartifact >= ART_XIUHCOATL
             && obj->oartifact != ART_GJALLAR)
-        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
-        || obj->oartifact == ART_MAGIC___BALL) {
+        || obj->oartifact == ART_DRAGONBANE
+        || obj->oartifact == ART_MAGIC___BALL
+        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - strlen(outbuf);
 

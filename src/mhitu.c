@@ -3693,195 +3693,187 @@ struct attack *mattk;
 
     if (uarm) {
 	switch (uarm->otyp) {
-	    case GREEN_DRAGON_SCALE_MAIL:
-	    case GREEN_DRAGON_SCALES:
-		if (resists_poison(mtmp))
-                    return 1;
-
-		i = rn2(20);
-		if (i) {
-		    if (!rn2(3)) {
-                        if (canseemon(mtmp))
-                            pline("%s staggers from the poison!", Monnam(mtmp));
-                        damage_mon(mtmp, rnd(4), AD_DRST);
-                    }
-		} else {
-                    if (canseemon(mtmp))
-		        pline("%s is fatally poisoned!", Monnam(mtmp));
-                    mtmp->mhp = -1;
-                    xkilled(mtmp, XKILL_NOMSG);
-                    if (!DEADMONSTER(mtmp))
-                        return 1;
-                    return 2;
-		}
-                if (mtmp->mhp < 1) {
-                    if (canseemon(mtmp))
-                        pline("%s dies!", Monnam(mtmp));
-                    xkilled(mtmp, XKILL_NOMSG);
-                    if (!DEADMONSTER(mtmp))
-                        return 1;
-                    return 2;
-                }
+        case GREEN_DRAGON_SCALE_MAIL:
+        case GREEN_DRAGON_SCALES:
+            if (resists_poison(mtmp))
                 return 1;
-		break;
-            case BLACK_DRAGON_SCALE_MAIL:
-            case BLACK_DRAGON_SCALES:
-                if (!rn2(20)) {
-                    if (resists_disint(mtmp)) {
-                        return 1;
-                        if (canseemon(mtmp)) {
-                            shieldeff(mtmp->mx, mtmp->my);
-                            Your("armor does not appear to affect %s",
-                                 mon_nam(mtmp));
-                        }
+            if (rn2(20)) {
+                if (!rn2(3)) {
+                    if (canseemon(mtmp))
+                        pline("%s staggers from the poison!", Monnam(mtmp));
+                    damage_mon(mtmp, rnd(4), AD_DRST);
+                }
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s is fatally poisoned!", Monnam(mtmp));
+                mtmp->mhp = -1;
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
+                    return 1;
+                return 2;
+            }
+            if (mtmp->mhp < 1) {
+                if (canseemon(mtmp))
+                    pline("%s dies!", Monnam(mtmp));
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
+                    return 1;
+                return 2;
+            }
+            return 1;
+            break;
+        case BLACK_DRAGON_SCALE_MAIL:
+        case BLACK_DRAGON_SCALES:
+            if (resists_disint(mtmp)) {
+                return 1;
+                if (canseemon(mtmp) && !rn2(3)) {
+                    shieldeff(mtmp->mx, mtmp->my);
+                    Your("armor does not appear to affect %s",
+                         mon_nam(mtmp));
+                }
+            } else {
+                /* if mtmp is wielding a weapon, that disintegrates first before
+                   the actual monster. Same if mtmp is wearing gloves or boots */
+                if (MON_WEP(mtmp) && !rn2(12)) {
+                    if (canseemon(mtmp))
+                        pline("%s %s is disintegrated!",
+                              s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
+                    m_useup(mtmp, MON_WEP(mtmp));
+                } else if ((mtmp->misc_worn_check & W_ARMF)
+                           && mattk->aatyp == AT_KICK && !rn2(12)) {
+                    if (canseemon(mtmp))
+                        pline("%s %s are disintegrated!",
+                              s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMF)));
+                    m_useup(mtmp, which_armor(mtmp, W_ARMF));
+                } else if ((mtmp->misc_worn_check & W_ARMG)
+                           && (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
+                               || mattk->aatyp == AT_TUCH)
+                           && !MON_WEP(mtmp) && !rn2(12)) {
+                    if (canseemon(mtmp))
+                        pline("%s %s are disintegrated!",
+                              s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
+                    m_useup(mtmp, which_armor(mtmp, W_ARMG));
+                } else {
+                    if (rn2(40)) {
+                        if (canseemon(mtmp))
+                            pline("%s partially disintegrates!", Monnam(mtmp));
+                        mtmp->mhp -= rnd(4);
                     } else {
-                        /* if mtmp is wielding a weapon, that disintegrates first before
-                           the actual monster. Same if mtmp is wearing gloves or boots */
-                        if (MON_WEP(mtmp)) {
-                            if (canseemon(mtmp))
-                                pline("%s %s is disintegrated!",
-                                      s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
-                            m_useup(mtmp, MON_WEP(mtmp));
-                        } else if ((mtmp->misc_worn_check & W_ARMF) && mattk->aatyp == AT_KICK) {
-                            if (canseemon(mtmp))
-                                pline("%s %s are disintegrated!",
-                                      s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMF)));
-                            m_useup(mtmp, which_armor(mtmp, W_ARMF));
-                        } else if ((mtmp->misc_worn_check & W_ARMG)
-                                   && (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW)
-                                   && !MON_WEP(mtmp)) {
-                            if (canseemon(mtmp))
-                                pline("%s %s are disintegrated!",
-                                      s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
-                            m_useup(mtmp, which_armor(mtmp, W_ARMG));
-                        } else {
-                            if (rn2(10)) {
-                                if (canseemon(mtmp))
-                                    pline("%s partially disintegrates!", Monnam(mtmp));
-                                mtmp->mhp -= rnd(4);
-                            } else {
-                                if (canseemon(mtmp))
-                                    pline("%s is disintegrated completely!", Monnam(mtmp));
-                                xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
-                                if (!DEADMONSTER(mtmp))
-                                    return 1;
-                                return 2;
-                            }
-                        }
-                    }
-                }
-                if (mtmp->mhp < 1) {
-                    if (canseemon(mtmp))
-                        pline("%s dies!", Monnam(mtmp));
-                    xkilled(mtmp, XKILL_NOMSG);
-                    if (!DEADMONSTER(mtmp))
-                        return 1;
-                    return 2;
-                }
-                return 1;
-                break;
-	    case ORANGE_DRAGON_SCALE_MAIL:
-	    case ORANGE_DRAGON_SCALES:
-		if (resists_sleep(mtmp))
-                    return 1;
-
-		if (!rn2(3) && mtmp->mspeed != MSLOW) {
-                    if (canseemon(mtmp))
-		        pline("%s looks a little sluggish...", Monnam(mtmp));
-                    mtmp->mspeed = MSLOW;
-                }
-		return 1;
-		break;
-            case WHITE_DRAGON_SCALE_MAIL:
-            case WHITE_DRAGON_SCALES:
-                if (resists_cold(mtmp))
-                    return 1;
-
-                i = rn2(50);
-                if (i) {
-                    if (!rn2(3)) {
                         if (canseemon(mtmp))
-                            pline("%s flinches from the cold!", Monnam(mtmp));
-                        damage_mon(mtmp, rnd(4), AD_COLD);
+                            pline("%s is disintegrated completely!", Monnam(mtmp));
+                        xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                        if (!DEADMONSTER(mtmp))
+                            return 1;
+                        return 2;
                     }
-                } else {
-                    if (canseemon(mtmp))
-                        pline("%s is frozen solid!", Monnam(mtmp));
-                    damage_mon(mtmp, d(6, 6), AD_COLD);
                 }
-                if (mtmp->mhp < 1) {
-                    if (canseemon(mtmp))
-                        pline("%s dies!", Monnam(mtmp));
-                    xkilled(mtmp, XKILL_NOMSG);
-                    if (!DEADMONSTER(mtmp))
-                        return 1;
-                    return 2;
-                }
-                return 1;
-                break;
-            case RED_DRAGON_SCALE_MAIL:
-            case RED_DRAGON_SCALES:
-                if (resists_fire(mtmp))
+            }
+            if (mtmp->mhp < 1) {
+                if (canseemon(mtmp))
+                    pline("%s dies!", Monnam(mtmp));
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
                     return 1;
-
-                i = rn2(50);
-                if (i) {
-                    if (!rn2(3)) {
-                        if (canseemon(mtmp))
-                            pline("%s is burned!", Monnam(mtmp));
-                        damage_mon(mtmp, rnd(4), AD_FIRE);
-                    }
-                } else {
-                    if (canseemon(mtmp))
-                        pline("%s is severely burned!", Monnam(mtmp));
-                    damage_mon(mtmp, d(6, 6), AD_FIRE);
-                }
-                if (mtmp->mhp < 1) {
-                    if (canseemon(mtmp))
-                        pline("%s dies!", Monnam(mtmp));
-                    xkilled(mtmp, XKILL_NOMSG);
-                    if (!DEADMONSTER(mtmp))
-                        return 1;
-                    return 2;
-                }
+                return 2;
+            }
+            return 1;
+            break;
+        case ORANGE_DRAGON_SCALE_MAIL:
+        case ORANGE_DRAGON_SCALES:
+            if (resists_sleep(mtmp))
                 return 1;
-                break;
-            case GRAY_DRAGON_SCALE_MAIL:
-            case GRAY_DRAGON_SCALES:
-                if (!rn2(6))
-                    (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);
+            if (!rn2(3) && mtmp->mspeed != MSLOW) {
+                if (canseemon(mtmp))
+                    pline("%s looks a little sluggish...", Monnam(mtmp));
+                mtmp->mspeed = MSLOW;
+            }
+            return 1;
+            break;
+        case WHITE_DRAGON_SCALE_MAIL:
+        case WHITE_DRAGON_SCALES:
+            if (resists_cold(mtmp))
                 return 1;
-                break;
-	    default:	  /* all other types of armor, just pass on through */
-	        break;
-	}
+            if (rn2(20)) {
+                if (!rn2(3)) {
+                    if (canseemon(mtmp))
+                        pline("%s flinches from the cold!", Monnam(mtmp));
+                    damage_mon(mtmp, rnd(4), AD_COLD);
+                }
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s is frozen solid!", Monnam(mtmp));
+                damage_mon(mtmp, d(6, 6), AD_COLD);
+            }
+            if (mtmp->mhp < 1) {
+                if (canseemon(mtmp))
+                    pline("%s dies!", Monnam(mtmp));
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
+                    return 1;
+                return 2;
+            }
+            return 1;
+            break;
+        case RED_DRAGON_SCALE_MAIL:
+        case RED_DRAGON_SCALES:
+            if (resists_fire(mtmp))
+                return 1;
+            if (rn2(20)) {
+                if (!rn2(3)) {
+                    if (canseemon(mtmp))
+                        pline("%s is burned!", Monnam(mtmp));
+                    damage_mon(mtmp, rnd(4), AD_FIRE);
+                }
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s is severely burned!", Monnam(mtmp));
+                damage_mon(mtmp, d(6, 6), AD_FIRE);
+            }
+            if (mtmp->mhp < 1) {
+                if (canseemon(mtmp))
+                    pline("%s dies!", Monnam(mtmp));
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
+                    return 1;
+                return 2;
+            }
+            return 1;
+            break;
+        case GRAY_DRAGON_SCALE_MAIL:
+        case GRAY_DRAGON_SCALES:
+            if (!rn2(6))
+                (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);
+            return 1;
+            break;
+        default: /* all other types of armor, just pass on through */
+            break;
+        }
     }
 
     if (uarmg) {
         switch (uarmg->otyp) {
-            case GLOVES:
-                if (!is_dragon(mtmp->data))
-                    return 1;
-
-                if (!rn2(3) && is_dragon(mtmp->data)
-                    && uarmg->oartifact == ART_DRAGONBANE) {
-                    if (canseemon(mtmp))
-                        pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
-                    mtmp->mhp -= rnd(6) + 2;
-                }
-                if (mtmp->mhp < 1) {
-                    if (canseemon(mtmp))
-                        pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
-                    pline("%s dies!", Monnam(mtmp));
-                    xkilled(mtmp, XKILL_NOMSG);
-                    if (!DEADMONSTER(mtmp))
-                        return 1;
-                    return 2;
-                }
+        case GLOVES:
+            if (!is_dragon(mtmp->data))
                 return 1;
-                break;
-            default:          /* all other types of armor, just pass on through */
-                break;
+            if (!rn2(3) && is_dragon(mtmp->data)
+                && uarmg->oartifact == ART_DRAGONBANE) {
+                if (canseemon(mtmp))
+                    pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
+                mtmp->mhp -= rnd(6) + 2;
+            }
+            if (mtmp->mhp < 1) {
+                if (canseemon(mtmp))
+                    pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
+                pline("%s dies!", Monnam(mtmp));
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
+                    return 1;
+                return 2;
+            }
+            return 1;
+            break;
+        default: /* all other types of armor, just pass on through */
+            break;
         }
     }
 
@@ -3928,33 +3920,41 @@ struct attack *mattk;
             acid_damage(MON_WEP(mtmp));
         goto assess_dmg;
     case AD_DISN:
-        if (!rn2(20)) {
-            if (resists_disint(mtmp)) {
-                if (canseemon(mtmp)) {
-                    shieldeff(mtmp->mx, mtmp->my);
-                    Your("deadly hide does not appear to affect %s",
-                          mon_nam(mtmp));
-                }
+        if (resists_disint(mtmp)) {
+            if (canseemon(mtmp) && !rn2(3)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                Your("deadly hide does not appear to affect %s",
+                     mon_nam(mtmp));
+            }
+        } else {
+            /* if mtmp is wielding a weapon, that disintegrates first before
+               the actual monster. Same if mtmp is wearing gloves or boots */
+            if (MON_WEP(mtmp) && !rn2(6)) {
+                if (canseemon(mtmp))
+                    pline("%s %s is disintegrated!",
+                          s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
+                m_useup(mtmp, MON_WEP(mtmp));
+            } else if ((mtmp->misc_worn_check & W_ARMF)
+                       && mattk->aatyp == AT_KICK && !rn2(6)) {
+                if (canseemon(mtmp))
+                    pline("%s %s are disintegrated!",
+                          s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMF)));
+                m_useup(mtmp, which_armor(mtmp, W_ARMF));
+            } else if ((mtmp->misc_worn_check & W_ARMG)
+                       && (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
+                           || mattk->aatyp == AT_TUCH)
+                       && !MON_WEP(mtmp) && !rn2(6)) {
+                if (canseemon(mtmp))
+                    pline("%s %s are disintegrated!",
+                          s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
+                m_useup(mtmp, which_armor(mtmp, W_ARMG));
             } else {
-                /* if mtmp is wielding a weapon, that disintegrates first before
-                   the actual monster. Same if mtmp is wearing gloves or boots */
-                if (MON_WEP(mtmp)) {
+                if (rn2(20)) {
                     if (canseemon(mtmp))
-                        pline("%s %s is disintegrated!",
-                              s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
-                    m_useup(mtmp, MON_WEP(mtmp));
-                } else if ((mtmp->misc_worn_check & W_ARMF) && mattk->aatyp == AT_KICK) {
-                    if (canseemon(mtmp))
-                        pline("%s %s are disintegrated!",
-                              s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMF)));
-                    m_useup(mtmp, which_armor(mtmp, W_ARMF));
-                } else if ((mtmp->misc_worn_check & W_ARMG)
-                           && (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW)
-                           && !MON_WEP(mtmp)) {
-                    if (canseemon(mtmp))
-                        pline("%s %s are disintegrated!",
-                              s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
-                    m_useup(mtmp, which_armor(mtmp, W_ARMG));
+                        Your("hide partially disintegrates %s!",
+                             mon_nam(mtmp));
+                    tmp = rn2(6) + 1;
+                    goto assess_dmg;
                 } else {
                     if (canseemon(mtmp)) {
                         Your("deadly hide disintegrates %s!",
