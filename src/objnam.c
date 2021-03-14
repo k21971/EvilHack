@@ -675,7 +675,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         break;
     case ARMOR_CLASS:
         /* depends on order of the dragon scales objects */
-        if (typ >= GRAY_DRAGON_SCALES && typ <= YELLOW_DRAGON_SCALES) {
+        if (typ >= GRAY_DRAGON_SCALES && typ <= CHROMATIC_DRAGON_SCALES) {
             Strcat(buf, "set of ");
             Strcat(buf, actualn);
             break;
@@ -3047,9 +3047,9 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
     { "cloak", ARMOR_CLASS, MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT },
     { "shirt", ARMOR_CLASS, HAWAIIAN_SHIRT, T_SHIRT },
     { "dragon scales", ARMOR_CLASS, GRAY_DRAGON_SCALES,
-      YELLOW_DRAGON_SCALES },
+      CHROMATIC_DRAGON_SCALES },
     { "dragon scale mail", ARMOR_CLASS, GRAY_DRAGON_SCALE_MAIL,
-      YELLOW_DRAGON_SCALE_MAIL },
+      CHROMATIC_DRAGON_SCALE_MAIL },
     { "sword", WEAPON_CLASS, SHORT_SWORD, KATANA },
     { "venom", VENOM_CLASS, BLINDING_VENOM, SNOWBALL },
     { "gray stone", GEM_CLASS, LUCKSTONE, FLINT },
@@ -4270,6 +4270,12 @@ struct obj *no_wish;
             break;
         case SPE_BOOK_OF_THE_DEAD:
             typ = SPE_BLANK_PAPER;
+            break;
+        case CHROMATIC_DRAGON_SCALES:
+            typ = rnd_class(GRAY_DRAGON_SCALES, YELLOW_DRAGON_SCALES);
+            break;
+        case CHROMATIC_DRAGON_SCALE_MAIL:
+            typ = rnd_class(GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALE_MAIL);
             break;
         default:
             /* catch any other non-wishable objects (venom) */

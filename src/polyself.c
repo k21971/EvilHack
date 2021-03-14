@@ -1948,6 +1948,10 @@ int atyp;
     case YELLOW_DRAGON_SCALE_MAIL:
     case YELLOW_DRAGON_SCALES:
         return PM_YELLOW_DRAGON;
+    case CHROMATIC_DRAGON_SCALE_MAIL:
+    case CHROMATIC_DRAGON_SCALES:
+        /* TODO: randomize this */
+        return PM_RED_DRAGON;
     default:
         return -1;
     }

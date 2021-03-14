@@ -3319,7 +3319,9 @@ const char *str;
         return TRUE;
     } else if ((orefl = which_armor(mon, W_ARM))
                && (orefl->otyp == SILVER_DRAGON_SCALES
-                   || orefl->otyp == SILVER_DRAGON_SCALE_MAIL)) {
+                   || orefl->otyp == SILVER_DRAGON_SCALE_MAIL
+                   || orefl->otyp == CHROMATIC_DRAGON_SCALES
+                   || orefl->otyp == CHROMATIC_DRAGON_SCALE_MAIL)) {
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "armor");
         return TRUE;

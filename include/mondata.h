@@ -56,7 +56,7 @@
 #define resists_mgc(ptr) \
     (dmgtype((ptr), AD_MAGM) || (ptr) == &mons[PM_BABY_GRAY_DRAGON] \
      || (ptr) == &mons[PM_ARCHON] || (ptr) == &mons[PM_ARCHANGEL]   \
-     || dmgtype((ptr), AD_RBRE)) /* Chromatic Dragon */
+     || dmgtype((ptr), AD_RBRE)) /* Tiamat */
 
 #define resists_drain(ptr) \
     (is_undead(ptr) || is_demon(ptr) || is_were(ptr)            \

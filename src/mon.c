@@ -506,6 +506,14 @@ unsigned corpseflags;
             obj->cursed = obj->blessed = FALSE;
         }
         goto default_1;
+    case PM_TIAMAT:
+        /* Make chromatic dragon scales */
+        if (!rn2(3)) { /* Tiamat cannot be revived, no corpse */
+            obj = mksobj_at(CHROMATIC_DRAGON_SCALES, x, y, FALSE, FALSE);
+            obj->spe = 0;
+            obj->cursed = obj->blessed = FALSE;
+        }
+        goto default_1;
     case PM_WHITE_UNICORN:
     case PM_GRAY_UNICORN:
     case PM_BLACK_UNICORN:

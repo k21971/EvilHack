@@ -912,6 +912,19 @@ Armor_on(VOID_ARGS)
             }
             ESwimming |= W_ARM;
             break;
+        case CHROMATIC_DRAGON_SCALE_MAIL:
+        case CHROMATIC_DRAGON_SCALES:
+            /* poison res handled in objects.c */
+            EFire_resistance   |= W_ARM;
+            ECold_resistance   |= W_ARM;
+            ESleep_resistance  |= W_ARM;
+            EDisint_resistance |= W_ARM;
+            EShock_resistance  |= W_ARM;
+            EAcid_resistance   |= W_ARM;
+            EStone_resistance  |= W_ARM;
+            EReflecting        |= W_ARM;
+            EAntimagic         |= W_ARM;
+            break;
         default:
             break;
         }
@@ -983,6 +996,19 @@ Armor_off(VOID_ARGS)
                 return 0;
             }
             break;
+        case CHROMATIC_DRAGON_SCALE_MAIL:
+        case CHROMATIC_DRAGON_SCALES:
+            /* poison res handled in objects.c */
+            EFire_resistance   &= ~W_ARM;
+            ECold_resistance   &= ~W_ARM;
+            ESleep_resistance  &= ~W_ARM;
+            EDisint_resistance &= ~W_ARM;
+            EShock_resistance  &= ~W_ARM;
+            EAcid_resistance   &= ~W_ARM;
+            EStone_resistance  &= ~W_ARM;
+            EReflecting        &= ~W_ARM;
+            EAntimagic         &= ~W_ARM;
+            break;
         default:
             break;
         }
@@ -1053,6 +1079,19 @@ Armor_gone()
                 }
                 return 0;
             }
+            break;
+        case CHROMATIC_DRAGON_SCALE_MAIL:
+        case CHROMATIC_DRAGON_SCALES:
+            /* poison res handled in objects.c */
+            EFire_resistance   &= ~W_ARM;
+            ECold_resistance   &= ~W_ARM;
+            ESleep_resistance  &= ~W_ARM;
+            EDisint_resistance &= ~W_ARM;
+            EShock_resistance  &= ~W_ARM;
+            EAcid_resistance   &= ~W_ARM;
+            EStone_resistance  &= ~W_ARM;
+            EReflecting        &= ~W_ARM;
+            EAntimagic         &= ~W_ARM;
             break;
         default:
             break;
@@ -2157,7 +2196,10 @@ boolean noisy;
         && (which != c_cloak || youmonst.data->msize != MZ_SMALL)
         && (racial_exception(&youmonst, otmp) < 1)
         && !(Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
-             && otmp && otmp->otyp == LARGE_SPLINT_MAIL)) {
+             && otmp && otmp->otyp == LARGE_SPLINT_MAIL)
+        && !(Race_if(PM_GIANT) && otmp
+             && (otmp->otyp == CHROMATIC_DRAGON_SCALES
+                 || otmp->otyp == CHROMATIC_DRAGON_SCALE_MAIL))) {
         if (noisy)
             pline_The("%s will not fit on your body.", which);
         return 0;
@@ -2302,6 +2344,13 @@ boolean noisy;
         if (Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
             && otmp && otmp->otyp == LARGE_SPLINT_MAIL)
             *mask = W_ARM;
+        if (Race_if(PM_GIANT) && otmp
+            && (otmp->otyp == CHROMATIC_DRAGON_SCALES
+                || otmp->otyp == CHROMATIC_DRAGON_SCALE_MAIL)) {
+            *mask = W_ARM;
+            if (noisy)
+                pline_The("scales are just large enough to fit your body.");
+        }
     } else {
         /* getobj can't do this after setting its allow_all flag; that
            happens if you have armor for slots that are covered up or

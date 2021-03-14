@@ -3224,7 +3224,7 @@ struct permonst _mons2[] = {
         A(ATTK(AT_ENGL, AD_DISE, 4, 10), ATTK(AT_SPIT, AD_ACID, 3, 6),
           ATTK(AT_TUCH, AD_ACID, 4, 6), ATTK(AT_MAGC, AD_CLRC, 2, 6),
           ATTK(AT_NONE, AD_ACID, 0, 1), ATTK(AT_BOOM, AD_ACID, 4, 6)),
-        SIZ(1500, 0, MS_GURGLE, MZ_GIGANTIC),
+        SIZ(2000, 0, MS_GURGLE, MZ_GIGANTIC),
         MR_FIRE | MR_POISON | MR_ACID | MR_STONE, 0,
         M1_AMPHIBIOUS | M1_AMORPHOUS | M1_NOHEAD | M1_FLY | M1_SEE_INVIS
             | M1_ACID | M1_POIS,
@@ -3281,7 +3281,7 @@ struct permonst _mons2[] = {
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 6), ATTK(AT_WEAP, AD_PHYS, 4, 6),
           ATTK(AT_MAGC, AD_CLRC, 6, 6), NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(1500, 500, MS_BRIBE, MZ_HUMAN), MR_FIRE | MR_POISON, 0,
+        SIZ(900, 500, MS_BRIBE, MZ_HUMAN), MR_FIRE | MR_POISON, 0,
         M1_FLY | M1_SEE_INVIS | M1_POIS | M1_HUMANOID,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_STRONG | M2_LORD | M2_MALE | M2_COLLECT,
@@ -3291,7 +3291,7 @@ struct permonst _mons2[] = {
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_BITE, AD_DRST, 4, 6), ATTK(AT_GAZE, AD_STUN, 2, 6),
           ATTK(AT_MAGC, AD_CLRC, 4, 6), NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(1500, 500, MS_BRIBE, MZ_LARGE), MR_FIRE | MR_POISON, 0,
+        SIZ(1000, 500, MS_BRIBE, MZ_LARGE), MR_FIRE | MR_POISON, 0,
         M1_FLY | M1_SEE_INVIS | M1_POIS,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_LORD | M2_MALE,
@@ -3302,7 +3302,7 @@ struct permonst _mons2[] = {
         A(ATTK(AT_WEAP, AD_PHYS, 4, 6), ATTK(AT_CLAW, AD_ENCH, 3, 4),
           ATTK(AT_MAGC, AD_SPEL, 3, 4), ATTK(AT_NONE, AD_FIRE, 0, 6),
           NO_ATTK, NO_ATTK),
-        SIZ(1500, 500, MS_BRIBE, MZ_HUMAN), MR_FIRE | MR_COLD | MR_POISON, 0,
+        SIZ(1000, 500, MS_BRIBE, MZ_LARGE), MR_FIRE | MR_COLD | MR_POISON, 0,
         M1_FLY | M1_SEE_INVIS | M1_POIS | M1_HUMANOID,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
             | M2_STRONG | M2_LORD | M2_MALE | M2_COLLECT,
@@ -3324,11 +3324,11 @@ struct permonst _mons2[] = {
      * (selected at random when attacking).
      */
     MON("Tiamat", S_DRAGON, LVL(103, 15, -8, 80, -20),
-        (G_NOGEN | G_UNIQ),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_BREA, AD_RBRE, 6, 6), ATTK(AT_MAGC, AD_SPEL, 2, 4),
           ATTK(AT_CLAW, AD_SAMU, 4, 6), ATTK(AT_BITE, AD_PHYS, 6, 6),
           ATTK(AT_BITE, AD_PHYS, 6, 6), ATTK(AT_STNG, AD_DRST, 2, 4)),
-        SIZ(WT_DRAGON, 1700, MS_ROAR, MZ_GIGANTIC),
+        SIZ(6000, 3000, MS_ROAR, MZ_GIGANTIC),
         MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
             | MR_ACID | MR_STONE,
         MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
@@ -3343,7 +3343,7 @@ struct permonst _mons2[] = {
         A(ATTK(AT_WEAP, AD_PHYS, 4, 8), ATTK(AT_CLAW, AD_STUN, 6, 6),
           ATTK(AT_MAGC, AD_CLRC, 4, 6), ATTK(AT_CLAW, AD_SITM, 3, 6),
           NO_ATTK, NO_ATTK),
-        SIZ(1500, 500, MS_CUSS, MZ_HUGE), MR_FIRE | MR_COLD | MR_POISON, 0,
+        SIZ(1000, 500, MS_CUSS, MZ_LARGE), MR_FIRE | MR_COLD | MR_POISON, 0,
         M1_FLY | M1_SEE_INVIS | M1_HUMANOID | M1_POIS,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_STRONG
             | M2_NASTY | M2_PRINCE | M2_MALE,
