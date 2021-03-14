@@ -896,7 +896,7 @@ MAZEWALK:(18,01),north
 MAZEWALK:(18,19),south
 DRAWBRIDGE:(18,01),south,closed
 DRAWBRIDGE:(18,19),north,closed
-STAIR:levregion(01,01,79,20),levregion(21,1,59,20),up
+STAIR:levregion(01,01,79,20),levregion(21,01,59,20),up
 STAIR:(18,10),down
 NON_DIGGABLE:(00,00,36,20)
 
@@ -1053,7 +1053,7 @@ LLLL.....................LLLL
 ENDMAP
 NON_DIGGABLE:(00,00,28,16)
 REGION:(00,00,28,16),unlit,"ordinary"
-STAIR:levregion(01,01,79,20),levregion(21,1,59,20),up
+STAIR:levregion(01,01,79,20),levregion(21,01,59,20),up
 STAIR: (14,03), down
 
 TERRAIN: (00,00), ' '
@@ -1210,7 +1210,7 @@ IF [50%] {
 # random demon boss
 IF [50%] {
   IF [50%] {
-    MONSTER:('&',"Demogorgon"),(50,09)
+    MONSTER:('&',"Demogorgon"),(50,09),hostile
     # entourage
     MONSTER:('&',"nalfeshnee"),(49,08),hostile
     MONSTER:('&',"balrog"),(51,08),hostile
@@ -1220,7 +1220,7 @@ IF [50%] {
     MONSTER:('H',"elder minotaur"),(49,09),hostile
     MONSTER:('&',"pit fiend"),(50,10),hostile
   } ELSE {
-    MONSTER:('D',"Tiamat"),(50,09)
+    MONSTER:('D',"Tiamat"),(50,09),hostile
     # entourage - chaotic aligned dragons
     MONSTER:('D',"blue dragon"),(49,08),hostile
     MONSTER:('D',"gold dragon"),(51,08),hostile
@@ -1232,7 +1232,7 @@ IF [50%] {
   }
 } ELSE {
   IF [50%] {
-    MONSTER:('&',"Asmodeus"),(50,09)
+    MONSTER:('&',"Asmodeus"),(50,09),hostile
     # entourage
     MONSTER:('&',"marilith"),(49,08),hostile
     MONSTER:('&',"balrog"),(51,08),hostile
@@ -1242,7 +1242,7 @@ IF [50%] {
     MONSTER:('&',"horned devil"),(49,09),hostile
     MONSTER:('&',"marilith"),(50,10),hostile
   } ELSE {
-    MONSTER:('&',"Graz'zt"),(50,09)
+    MONSTER:('&',"Graz'zt"),(50,09),hostile
     #entourage
     MONSTER:('&',"marilith"),(49,08),hostile
     MONSTER:('&',"balrog"),(51,08),hostile
@@ -1426,7 +1426,7 @@ REGION:(06,15,16,18),lit,"ordinary"
 # random demon boss
 IF [50%] {
   IF [50%] {
-    MONSTER:('&',"Demogorgon"),(11,16)
+    MONSTER:('&',"Demogorgon"),(11,16),hostile
     # entourage
     MONSTER:('&',"balrog"),(08,16),"Xennulig",asleep
     MONSTER:('&',"pit fiend"),(09,17),"Brarkonod",asleep
@@ -1436,7 +1436,7 @@ IF [50%] {
     MONSTER:('&',"sandestin"),(10,13),"Izamon",asleep
     MONSTER:('&',"horned devil"),(12,13),"Arozud",asleep
   } ELSE {
-    MONSTER:('D',"Tiamat"),(11,16)
+    MONSTER:('D',"Tiamat"),(11,16),hostile
     # entourage - chaotic aligned dragons
     MONSTER:('D',"black dragon"),(08,16),asleep
     MONSTER:('D',"gold dragon"),(09,17),asleep
@@ -1448,7 +1448,7 @@ IF [50%] {
   }
 } ELSE {
   IF [50%] {
-    MONSTER:('&',"Asmodeus"),(11,16)
+    MONSTER:('&',"Asmodeus"),(11,16),hostile
     # entourage
     MONSTER:('&',"marilith"),(08,16),"Voran",asleep
     MONSTER:('&',"marilith"),(09,17),"Joggeruuth",asleep
@@ -1458,7 +1458,7 @@ IF [50%] {
     MONSTER:('&',"barbed devil"),(10,13),"Gogmelon",asleep
     MONSTER:('&',"barbed devil"),(12,13),"Ulgaxicus",asleep
   } ELSE {
-    MONSTER:('&',"Graz'zt"),(11,16)
+    MONSTER:('&',"Graz'zt"),(11,16),hostile
     # entourage
     MONSTER:('&',"nalfeshnee"),(08,16),"Dirozius",asleep
     MONSTER:('&',"nalfeshnee"),(09,17),"Thorakoth",asleep
@@ -1572,6 +1572,148 @@ OBJECT:('*',"loadstone"),(65,18),cursed,0
 OBJECT:('"',"amulet of strangulation"),(65,18),cursed,0
 
 
+#
+# Stronghold
+#
+MAZE:"hellc-3", ' '
+FLAGS: noteleport,hardfloor
+INIT_MAP:mines,'.',' ',true,true,unlit,true
+GEOMETRY:center,center
+#         1         2         3
+#123456789012345678901234567890123
+MAP
+ LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL 
+LLL-------LLL-FFFF-LLL---L---LLL
+LLL|..\..|LL-|....|-LL|.|L|.|LLL
+L---.....---|-FFFF-|---S---S---L
+L|..........|......S..........|L
+L|..........|......|..........|L
+L-----++----|--++--|---....----L
+LLLL|....|LL|......|LL|....|LLLL
+LLLLF....|LLS......SLL|....FLLLL
+LLLLF....|LL|......|LL|....FLLLL
+LLLL|....|LL|......|LL|....|LLLL
+L----....---|--++--|----++-----L
+L|..........|......|..........|L
+L|..........S......|..........|L
+L---S---S---|-FFFF-|---S---S---L
+LLL|.|L|.|LL-|....|-LL|.|L|.|LLL
+LLL---L---LLL-FFFF-LLL---L---LLL
+ LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL 
+ENDMAP
+REGION:(01,01,30,16),unlit,"ordinary"
+STAIR:levregion(01,01,79,20),levregion(30,01,79,20),up
+STAIR:(04,02),down
+#MAZEWALK:(31,12),east
+NON_DIGGABLE:(00,00,29,15)
+
+TERRAIN: (00,00), ' '
+TERRAIN: (31,00), ' '
+TERRAIN: (00,17), ' '
+TERRAIN: (31,17), ' '
+
+TERRAIN: floodfill (00,00), 'L'
+TERRAIN: floodfill (31,00), 'L'
+TERRAIN: floodfill (00,17), 'L'
+TERRAIN: floodfill (31,17), 'L'
+
+# Random 6 niches
+$niches = { (23,02),(27,02),(04,15),
+            (08,15),(23,15),(27,15) }
+SHUFFLE: $niches
+
+# Drawbridges
+DRAWBRIDGE:(31,12),west,closed
+DRAWBRIDGE:(31,13),west,closed
+
+# random demon boss
+IF [50%] {
+  IF [50%] {
+    MONSTER:('&',"Demogorgon"),(06,02),hostile
+    # entourage
+    MONSTER:('&',"balrog"),(04,02),"Brulvon",asleep
+    MONSTER:('&',"pit fiend"),(08,02),"Dungrinoch",asleep
+    MONSTER:('&',"succubus"),(02,05),asleep
+    MONSTER:('&',"incubus"),(11,05),asleep
+    MONSTER:('&',"sandestin"),(05,04),"Anedak",asleep
+    MONSTER:('&',"horned devil"),(07,04),"Tholmennauth",asleep
+  } ELSE {
+    MONSTER:('D',"Tiamat"),(06,02),hostile
+    # entourage - chaotic aligned dragons
+    MONSTER:('D',"black dragon"),(04,02),asleep
+    MONSTER:('D',"gold dragon"),(08,02),asleep
+    MONSTER:('D',"red dragon"),(02,05),asleep
+    MONSTER:('D',"sea dragon"),(11,05),asleep
+    MONSTER:('D',"blue dragon"),(05,04),asleep
+    MONSTER:('D',"white dragon"),(07,04),asleep
+  }
+} ELSE {
+  IF [50%] {
+    MONSTER:('&',"Asmodeus"),(06,02),hostile
+    # entourage
+    MONSTER:('&',"marilith"),(04,02),"Aglud",asleep
+    MONSTER:('&',"marilith"),(08,02),"Gaglokon",asleep
+    MONSTER:('&',"succubus"),(02,05),asleep
+    MONSTER:('&',"incubus"),(11,05),asleep
+    MONSTER:('&',"barbed devil"),(05,04),"Segmunich",asleep
+    MONSTER:('&',"barbed devil"),(07,04),"Volmimath",asleep
+  } ELSE {
+    MONSTER:('&',"Graz'zt"),(06,02),hostile
+    # entourage
+    MONSTER:('&',"nalfeshnee"),(04,02),"Xarkadon",asleep
+    MONSTER:('&',"nalfeshnee"),(08,02),"Kerkunal",asleep
+    MONSTER:('&',"succubus"),(02,05),asleep
+    MONSTER:('&',"incubus"),(11,05),asleep
+    MONSTER:('&',"vrock"),(05,04),"Brorzos",asleep
+    MONSTER:('&',"vrock"),(07,04),"Tiglomil",asleep
+  }
+}
+
+# monsters
+MONSTER:'&',$niches[0]
+MONSTER:'&',$niches[1]
+MONSTER:'V',$niches[2]
+MONSTER:'&',$niches[3]
+MONSTER:'&',$niches[4]
+MONSTER:'D',$niches[5]
+MONSTER:random,(14,08)
+MONSTER:random,(14,09)
+MONSTER:random,(15,08)
+MONSTER:random,(15,09)
+MONSTER:random,(16,08)
+MONSTER:random,(16,09)
+MONSTER:random,(17,08)
+MONSTER:random,(17,09)
+MONSTER:random,(24,05)
+MONSTER:random,(25,05)
+# surprise monsters
+MONSTER:(':',"salamander"),(11,08)
+MONSTER:(':',"salamander"),(20,08)
+MONSTER:('&',"marilith"),(15,02),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('&',"marilith"),(16,15),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+# Locked doors
+DOOR:locked,(06,06)
+DOOR:locked,(07,06)
+DOOR:locked,(15,06)
+DOOR:locked,(16,06)
+DOOR:locked,(15,11)
+DOOR:locked,(16,11)
+DOOR:locked,(24,11)
+DOOR:locked,(25,11)
+# treasures
+OBJECT:('(',"chest"),$niches[0]
+OBJECT:('(',"chest"),$niches[1]
+OBJECT:('(',"chest"),$niches[2]
+OBJECT:('(',"chest"),$niches[3]
+OBJECT:('(',"iron safe"),$niches[4]
+OBJECT:('(',"crystal chest"),$niches[5]
+
 #######################
 # Other maps
 #######################
@@ -1607,7 +1749,6 @@ MAP
 .---------------------------------------------L
  LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL 
 ENDMAP
-#MAZEWALK:(00,08),west
 # Entire main area
 REGION:(01,00,46,18),unlit,"ordinary"
 STAIR:(33,17),down
@@ -1693,7 +1834,7 @@ OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
 # The resident nasty
-MONSTER:('&',"Orcus"),(33,17)
+MONSTER:('&',"Orcus"),(33,17),hostile
 # And its preferred companions
 MONSTER:('Z',"human zombie"),(32,17)
 MONSTER:(' ',"shade"),(32,16)

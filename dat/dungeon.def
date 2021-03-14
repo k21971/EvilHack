@@ -58,7 +58,7 @@ BRANCH:		"Vlad's Tower" @ (9, 5) down
 LEVEL:		"valley" "V" @ (1, 0)
 RNDLEVEL:	"hella" "A" @ (2, 6) 4
 RNDLEVEL:	"hellb" "B" @ (5, 4) 3
-RNDLEVEL:	"hellc" "C" @ (14, 4) 2
+RNDLEVEL:	"hellc" "C" @ (14, 4) 3
 LEVEL:		"orcus" "O" @ (8, 4)
 LEVEL:		"sanctum" "none" @ (-1, 0)
 LEVEL:		"wizard1" "none" @ (11, 6)

@@ -1455,4 +1455,5 @@ Version 0.7.0
 - Fix: Dragonbane could still be disintegrated by attacking a black dragon
 - Encyclopedia entries for newer monsters/objects
 - Tiamat has a chance to drop chromatic dragon scales upon death
+- Addition of a third tier 3 demon prince level
 
