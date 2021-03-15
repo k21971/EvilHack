@@ -1165,6 +1165,27 @@ register struct obj *obj;
         break;
         /* case RIN_PROTECTION:  not needed */
     }
+    /* Small chance DSM can revert to scales if cancelled */
+    if (!rn2(6) && obj->otyp >= GRAY_DRAGON_SCALE_MAIL
+        && obj->otyp <= CHROMATIC_DRAGON_SCALE_MAIL) {
+        boolean worn = (obj == uarm);
+
+        if (!Blind) {
+            char buf[BUFSZ];
+            pline("%s%s reverts to its natural state.",
+                  Shk_Your(buf, obj), xname(obj));
+        }
+        if (worn)
+            Your("armor feels more loose.");
+        costly_alteration(obj, COST_CANCEL);
+        if (worn)
+            setworn((struct obj *) 0, W_ARM);
+        /* assumes same order */
+        obj->otyp = (GRAY_DRAGON_SCALES +
+                     obj->otyp - GRAY_DRAGON_SCALE_MAIL);
+        if (worn)
+            setworn(obj, W_ARM);
+    }
     if (objects[otyp].oc_magic
         || (obj->spe && (obj->oclass == ARMOR_CLASS
                          || obj->oclass == WEAPON_CLASS || is_weptool(obj)))
