@@ -367,6 +367,20 @@ boolean foundyou;
         mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
         if (mtmp->mspec_used < 2)
             mtmp->mspec_used = 2;
+        /* many boss-type monsters than have two or more spell attacks
+           per turn are never able to fire off their second attack due
+           to mspec always being greater than 0, so set to 0 for those
+           types of monsters */
+        if (is_dlord(mtmp->data) || is_dprince(mtmp->data)
+            || mtmp->data->msound == MS_LEADER
+            || mtmp->data->msound == MS_NEMESIS
+            || mtmp->data == &mons[PM_ORACLE]
+            || mtmp->data == &mons[PM_HIGH_PRIEST]
+            || mtmp->data == &mons[PM_WIZARD_OF_YENDOR]
+            || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+            mtmp->mspec_used = 0;
+        /* Having the EotA in inventory drops mspec to 0 */
         for (obj = mtmp->minvent; obj; obj = obj->nobj) {
             if (obj->oartifact
                 && obj->oartifact == ART_EYE_OF_THE_AETHIOPICA) {

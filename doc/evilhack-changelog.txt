@@ -1459,4 +1459,5 @@ Version 0.7.0
 - Tweaks to hellc-2 map
 - A couple more tweaks to hellc-2 map
 - Lolth has two arms
+- Set mspec for several spellcasting boss-type monsters to 0
 
