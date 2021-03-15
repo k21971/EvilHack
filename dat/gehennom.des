@@ -1359,9 +1359,9 @@ MAZE:"hellc-2",random
 FLAGS: noteleport,hardfloor
 GEOMETRY:half-left,center
 MAP
-LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL--LLLLLLLLLLLLLLLLLLLLLLLLL----
---------------------LLLL---F---LLLLLLLLL|LLLL--LLLLLLLLLLLLLLLLLLL------|..|
-|............S.....|LLLL|.....|--F---LLL--LLLL--------------LLLLLL|#####+..|
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL  LLLLLLLLLLLLLLLLLLLLLLLLL----
+--------------------LLLL---F---LLLLLLLLL|LLLL  LLLLLLLLLLLLLLLLLLL------|..|
+|............S.....|LLLL|.....|--F---LLL|LLLLL -------------LLLLLL|#####+..|
 |---+-----------...|LLLL|.....|.....|------LLLL|...........|LLLLLL|#----|..|
 |.....|........|-+------|.....|.....|.....FLLLLF...........|LLLL---+---L----
 |..---|........|........|.....|.....|.....|LLLL|..{..{..{..|LLLL|.....|LLLLL
@@ -1369,10 +1369,10 @@ LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL--LLLLLLLLLLLLLLLLLLLLLLLLL----
 |..|..|........|........|.....|.....|.....|LLLL|..{..{..{..|LLLL|.....|LLLLL
 |..|..|........|-+------|.....|.....|.....FLLLLF...........|LLLL---+---LLLLL
 |..|..-----S----...|LLLL|.....|.....|------LLLL|...........|LLLLLL|H|LLLLLLL
-|..S.....|...|.....|LLLL|.....|--F---LLLL|LLLL--------------LLLLLL|#|LLLLLLL
+|..S.....|...|.....|LLLL|.....|--F---LLLL|LLLLL-------------LLLLLL|#|LLLLLLL
 ---------|...|------LLLL---F---LLLLLLLLL--LLLLLLL--------LLLLLLLLL|#|LLLLLLL
-LLLLLLLLL|...|LLLLLLLLLLLL###LLLLLLLLLLL|LLLL----|......|----------#|LLLLLLL
-LLLLLLLLL|...|LLLLLLLLLLLLLL#LL###LLLLLL|LLLL|L|.+......+###########|LLLLLLL
+LLLLLLLLL|...|LLLLLLLLLLLL###LLLLLLLLLLL|LLLLLL--|......|----------#|LLLLLLL
+LLLLLLLLL|...|LLLLLLLLLLLLLL#LL###LLLLLL|LLLLLL|.+......+###########|LLLLLLL
 LLLLL-----+++-----LLLL####LL#LL#LLLLLLLL|LLLLLL|.+......+###########|LLLLLLL
 LLLLL|...........|LLLL#LLLLL######LL-----LLLLLL--|......|----------#|LLLLLLL
 LLLLLF...........S#####LLLLL#LLLL#LL|..|LLLLLLLLL---FF---LLLLLLL---+---LLLLL

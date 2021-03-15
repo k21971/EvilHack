@@ -1457,4 +1457,5 @@ Version 0.7.0
 - Tiamat has a chance to drop chromatic dragon scales upon death
 - Addition of a third tier 3 demon prince level
 - Tweaks to hellc-2 map
+- A couple more tweaks to hellc-2 map
 
