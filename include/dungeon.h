@@ -9,7 +9,7 @@
 typedef struct d_flags {     /* dungeon/level type flags */
     Bitfield(town, 1);       /* is this a town? (levels only) */
     Bitfield(hellish, 1);    /* is this part of hell? */
-    Bitfield(iceq, 1);       /* is this part of the Ice Queen brnach? */
+    Bitfield(iceq, 1);       /* is this part of the Ice Queen branch? */
     Bitfield(maze_like, 1);  /* is this a maze? */
     Bitfield(rogue_like, 1); /* is this an old-fashioned presentation? */
     Bitfield(align, 3);      /* dungeon alignment. */

@@ -1464,4 +1464,6 @@ Version 0.7.0
 - Update level data on various platforms (Gehennom revamp)
 - Small chance dragon scale mail will revert back to a set of scales
   if cancelled
+- Fix: entry message repeating every time the player enters the Ice
+  Queen's realm
 
