@@ -1533,9 +1533,7 @@
 				"$(NH_DAT_DIR)/Wiz-loca.lev",
 				"$(NH_DAT_DIR)/Wiz-strt.lev",
 				"$(NH_DAT_DIR)/air.lev",
-				"$(NH_DAT_DIR)/asmodeus.lev",
 				"$(NH_DAT_DIR)/astral.lev",
-				"$(NH_DAT_DIR)/baalz.lev",
 				"$(NH_DAT_DIR)/bigrm-1.lev",
 				"$(NH_DAT_DIR)/bigrm-10.lev",
 				"$(NH_DAT_DIR)/bigrm-2.lev",
@@ -1552,8 +1550,6 @@
 				"$(NH_DAT_DIR)/castle-3.lev",
 				"$(NH_DAT_DIR)/cmdhelp",
 				"$(NH_DAT_DIR)/data",
-				"$(NH_DAT_DIR)/demogor.lev",
-				"$(NH_DAT_DIR)/dis.lev",
 				"$(NH_DAT_DIR)/dungeon",
 				"$(NH_DAT_DIR)/earth.lev",
 				"$(NH_DAT_DIR)/engrave",
@@ -1561,7 +1557,16 @@
 				"$(NH_DAT_DIR)/fakewiz1.lev",
 				"$(NH_DAT_DIR)/fakewiz2.lev",
 				"$(NH_DAT_DIR)/fire.lev",
-				"$(NH_DAT_DIR)/geryon.lev",
+				"$(NH_DAT_DIR)/hella-1.lev",
+				"$(NH_DAT_DIR)/hella-2.lev",
+				"$(NH_DAT_DIR)/hella-3.lev",
+				"$(NH_DAT_DIR)/hella-4.lev",
+				"$(NH_DAT_DIR)/hellb-1.lev",
+				"$(NH_DAT_DIR)/hellb-2.lev",
+				"$(NH_DAT_DIR)/hellb-3.lev",
+				"$(NH_DAT_DIR)/hellc-1.lev",
+				"$(NH_DAT_DIR)/hellc-2.lev",
+				"$(NH_DAT_DIR)/hellc-3.lev",
 				"$(NH_DAT_DIR)/hellfill.lev",
 				"$(NH_DAT_DIR)/help",
 				"$(NH_DAT_DIR)/hh",
@@ -1569,7 +1574,6 @@
 				"$(NH_DAT_DIR)/icequeen-1.lev",
 				"$(NH_DAT_DIR)/icequeen-2.lev",
 				"$(NH_DAT_DIR)/icequeen-3.lev",
-				"$(NH_DAT_DIR)/juiblex.lev",
 				"$(NH_DAT_DIR)/keyhelp",
 				"$(NH_DAT_DIR)/knox-1.lev",
 				"$(NH_DAT_DIR)/knox-2.lev",
@@ -1655,7 +1659,6 @@
 				"$(NH_DAT_DIR)/wizard2.lev",
 				"$(NH_DAT_DIR)/wizard3.lev",
 				"$(NH_DAT_DIR)/wizhelp",
-				"$(NH_DAT_DIR)/yeenoghu.lev",
 			);
 			name = "Build nhdat";
 			outputFileListPaths = (
@@ -1665,7 +1668,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/dlb cf nhdat help hh cmdhelp keyhelp history opthelp wizhelp dungeon tribute asmodeus.lev baalz.lev bigrm-*.lev castle-?.lev demogor.lev dis.lev fakewiz?.lev geryon.lev hellfill.lev icequeen-?.lev juiblex.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev minetn-?.lev nymph.lev oracle-1.lev oracle-2.lev oracle-3.lev orcus.lev sanctum.lev soko?-?.lev tower?.lev valley.lev vlt-????.lev wizard?.lev yeenogho.lev astral.lev air.lev earth.lev fire.lev water.lev ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev bogusmon data engrave epitaph oracles options quest.dat rumors vaults.dat\n\n";
+			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/dlb cf nhdat help hh cmdhelp keyhelp history opthelp wizhelp dungeon tribute bigrm-*.lev castle-?.lev fakewiz?.lev hella-?.lev hellb-?.lev hellc-?.lev hellfill.lev icequeen-?.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev minetn-?.lev nymph.lev oracle-1.lev oracle-2.lev oracle-3.lev orcus.lev sanctum.lev soko?-?.lev tower?.lev valley.lev vlt-????.lev wizard?.lev astral.lev air.lev earth.lev fire.lev water.lev ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev bogusmon data engrave epitaph oracles options quest.dat rumors vaults.dat\n\n";
 		};
 		3192867021A39F6A00325BEB /* Install */ = {
 			isa = PBXShellScriptBuildPhase;

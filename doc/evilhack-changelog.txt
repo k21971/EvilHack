@@ -1461,4 +1461,5 @@ Version 0.7.0
 - Lolth has two arms
 - Set mspec for several spellcasting boss-type monsters to 0
 - Fix: 'Couldn't place lregion type %d!' for various gehennom levels
+- Update level data on various platforms (Gehennom revamp)
 
