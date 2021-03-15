@@ -1476,6 +1476,15 @@ register struct monst *mtmp;
             otmp->spe = rnd(3) + 2;
             (void) mpickobj(mtmp, otmp);
             break;
+        case PM_LOLTH:
+            otmp = mksobj(SCIMITAR, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = ITEM_VENOM;
+            curse(otmp);
+            otmp->oerodeproof = TRUE;
+            otmp->spe = rnd(3) + 2;
+            (void) mpickobj(mtmp, otmp);
+            break;
         case PM_BAPHOMET:
             otmp = mksobj(BARDICHE, FALSE, FALSE);
             create_oprop(otmp, FALSE);
