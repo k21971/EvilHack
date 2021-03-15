@@ -1357,29 +1357,28 @@ TRAP: "spear", random
 #
 MAZE:"hellc-2",random
 FLAGS: noteleport,hardfloor
-# First part
 GEOMETRY:half-left,center
 MAP
-                                          }}}}                          ----
---------------------    -------         |}}}}--                         |..|
-|............S.....|    |.....|------   --}}}}--------------       #####+..|
-|---+-----------...|    |.....|.....|------}}}}|...........|       #    |..|
-|.....|........|-+------|.....|.....|.....F}}}}F...........|    ---+--- ----
-|..---|........|........|.....|.....|.....|}}}}|..{..{..{..|    |.....|     
-|..|..S........|..........................|}.|}............+##H#S.....S#    
-|..|..|........|........|.....|.....|.....|}}}}|..{..{..{..|    |.....|     
-|..|..|........|-+------|.....|.....|.....F}}}}F...........|    ---+---     
-|..|..-----S----...|    |.....|.....|------}}}}|...........|       H        
-|..S.....|...|.....|    |.....|------    |}}}}--------------       H        
----------|...|------    -------         --}}}}|  --------          H        
-         |...|            ###           |}}}}----|......|          #        
-         |...|              #  ###       }}}}| |.+......+###########        
-     -----+++-----    ####  #  #         }}}}  |.+......+###########        
-     |...........|    #     ######  ----  }}}} --|......|          #        
-     |...........S#####     #    #  |..|  }}}}   --------       ---+---     
-     |...........|    #     #    ###+..|   }}}}                 |.....|     
-     |.....\.....|    #######       |..|   }}}}                 |.....|     
-     -------------                  ----  }}}}                  -------     
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL--LLLLLLLLLLLLLLLLLLLLLLLLL----
+--------------------LLLL---F---LLLLLLLLL|LLLL--LLLLLLLLLLLLLLLLLLL------|..|
+|............S.....|LLLL|.....|--F---LLL--LLLL--------------LLLLLL|#####+..|
+|---+-----------...|LLLL|.....|.....|------LLLL|...........|LLLLLL|#----|..|
+|.....|........|-+------|.....|.....|.....FLLLLF...........|LLLL---+---L----
+|..---|........|........|.....|.....|.....|LLLL|..{..{..{..|LLLL|.....|LLLLL
+|..|..S........|..........................|L.|L............+####S.....S#LLLL
+|..|..|........|........|.....|.....|.....|LLLL|..{..{..{..|LLLL|.....|LLLLL
+|..|..|........|-+------|.....|.....|.....FLLLLF...........|LLLL---+---LLLLL
+|..|..-----S----...|LLLL|.....|.....|------LLLL|...........|LLLLLL|H|LLLLLLL
+|..S.....|...|.....|LLLL|.....|--F---LLLL|LLLL--------------LLLLLL|#|LLLLLLL
+---------|...|------LLLL---F---LLLLLLLLL--LLLLLLL--------LLLLLLLLL|#|LLLLLLL
+LLLLLLLLL|...|LLLLLLLLLLLL###LLLLLLLLLLL|LLLL----|......|----------#|LLLLLLL
+LLLLLLLLL|...|LLLLLLLLLLLLLL#LL###LLLLLL|LLLL|L|.+......+###########|LLLLLLL
+LLLLL-----+++-----LLLL####LL#LL#LLLLLLLL|LLLLLL|.+......+###########|LLLLLLL
+LLLLL|...........|LLLL#LLLLL######LL-----LLLLLL--|......|----------#|LLLLLLL
+LLLLLF...........S#####LLLLL#LLLL#LL|..|LLLLLLLLL---FF---LLLLLLL---+---LLLLL
+LLLLLF...........|LLLL#LLLLL#LLLL###+..FLLLLLLLLLLLLLLLLLLLLLLLL|.....|LLLLL
+LLLLL|.....\.....|LLLL#######LLLLLLL|..|LLLLLLLLLLLLLLLLLLLLLLLL|.....|LLLLL
+LLLLL-------------LLLLLLLLLLLLLLLLLL----LLLLLLLLLLLLLLLLLLLLLLLL-------LLLLL
 ENDMAP
 STAIR:(65,17),up
 STAIR:(11,16),down
@@ -1570,6 +1569,16 @@ MONSTER:('i',"imp"),(69,17)
 OBJECT:('[',"helm of opposite alignment"),(65,17),cursed,-2
 OBJECT:('*',"loadstone"),(65,18),cursed,0
 OBJECT:('"',"amulet of strangulation"),(65,18),cursed,0
+# Drawbridge sentinels
+MONSTER:(':',"salamander"),(45,05)
+MONSTER:(':',"salamander"),(45,07)
+MONSTER:(':',"salamander"),(20,13)
+MONSTER:(':',"salamander"),(30,17)
+MONSTER:(':',"salamander"),(36,12)
+MONSTER:(':',"salamander"),(61,04)
+MONSTER:(':',"salamander"),(61,08)
+MONSTER:(':',"salamander"),(73,08)
+MONSTER:(':',"salamander"),(73,14)
 
 
 #
@@ -1713,6 +1722,16 @@ OBJECT:('(',"chest"),$niches[2]
 OBJECT:('(',"chest"),$niches[3]
 OBJECT:('(',"iron safe"),$niches[4]
 OBJECT:('(',"crystal chest"),$niches[5]
+# some traps
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "fire", random
+TRAP: "magic", random
+TRAP: "magic beam", random
+TRAP: "spear", random
+TRAP: "spear", random
+
 
 #######################
 # Other maps
