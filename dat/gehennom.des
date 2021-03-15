@@ -386,9 +386,9 @@ F..|..S.........|....
 |..S..........|.....|
 -------FFFF------FF--
 ENDMAP
-STAIR:levregion(01,00,6,20),levregion(6,1,70,16),up
-BRANCH:levregion(01,00,6,20),levregion(6,1,70,16)
-TELEPORT_REGION:levregion(01,00,6,20),levregion(6,1,70,16)
+STAIR:levregion(01,00,12,20),levregion(12,01,70,16),up
+BRANCH:levregion(01,00,12,20),levregion(12,01,70,16)
+TELEPORT_REGION:levregion(01,00,12,20),levregion(12,01,70,16)
 
 # Doors
 DOOR:closed,(04,03)
@@ -456,6 +456,8 @@ MAP
 ................................|
 ---FFFF-------FFFF-------FFFF----
 ENDMAP
+#BRANCH:(29,01,31,03),(00,00,00,00)
+#TELEPORT_REGION:(29,01,31,03),(00,00,00,00)
 MAZEWALK:(32,02),east
 # Non diggable walls
 NON_DIGGABLE:(00,00,32,04)
@@ -492,9 +494,9 @@ xxxxxxxxxxxFFFFxxxxxFxxxx------------xxFxxxxxxxxx
 xxxxxxxxxxxFxxxxxxxxFFFxxxxxxxxxxxxxxxxFFFFxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxFxxxxxxxxxxxxxxxxxxFxxxxxx
 ENDMAP
-STAIR:levregion(01,00,15,20),levregion(15,1,70,16),up
-BRANCH:levregion(01,00,15,20),levregion(15,1,70,16)
-TELEPORT_REGION:levregion(01,00,15,20),levregion(15,1,70,16)
+STAIR:levregion(01,00,15,20),levregion(15,01,70,16),up
+BRANCH:levregion(01,00,15,20),levregion(15,01,70,16)
+TELEPORT_REGION:levregion(01,00,15,20),levregion(15,01,70,16)
 # this actually leaves the farthest right column diggable
 NON_DIGGABLE:(00,00,47,12)
 STAIR:(44,06),down
@@ -592,6 +594,8 @@ DOOR:locked,(45,09)
 DOOR:closed,(47,10)
 DOOR:closed,(52,10)
 STAIR:levregion(01,01,20,19),(00,00,59,19),up
+BRANCH:levregion(01,01,20,19),(00,00,59,19)
+TELEPORT_REGION:levregion(01,01,20,19),(00,00,59,19)
 STAIR:(50,07),down
 REGION:(00,00,59,19),lit,"ordinary"
 REGION:(46,06,53,12),unlit,"ordinary"
@@ -730,6 +734,7 @@ ENDMAP
 
 STAIR:levregion(01,01,19,19),levregion(01,01,01,01),up
 BRANCH:levregion(01,01,19,19),levregion(01,01,01,01)
+TELEPORT_REGION:levregion(01,01,19,19),levregion(01,01,01,01)
 STAIR:(14,08),down
 DOOR:locked,(07,03)
 DOOR:locked,(10,03)
@@ -896,8 +901,10 @@ MAZEWALK:(18,01),north
 MAZEWALK:(18,19),south
 DRAWBRIDGE:(18,01),south,closed
 DRAWBRIDGE:(18,19),north,closed
-STAIR:levregion(01,01,79,20),levregion(21,01,59,20),up
 STAIR:(18,10),down
+STAIR:levregion(01,01,79,20),levregion(21,01,59,20),up
+BRANCH:levregion(01,01,79,20),levregion(21,01,59,20)
+TELEPORT_REGION:levregion(01,01,79,20),levregion(21,01,59,20)
 NON_DIGGABLE:(00,00,36,20)
 
 TERRAIN: (00,00), ' '
@@ -1025,6 +1032,14 @@ TRAP: random, random
 TRAP: random, random
 TRAP: random, random
 
+# the lava river
+IF [50%] {
+  TERRAIN: grow(north | west, randline (36,00),(50,20), 10), 'L'
+} ELSE {
+  TERRAIN: grow(north | west, randline (50,00),(36,20), 10), 'L'
+}
+
+
 #
 # Previously Mephistopheles' lair
 #
@@ -1053,8 +1068,10 @@ LLLL.....................LLLL
 ENDMAP
 NON_DIGGABLE:(00,00,28,16)
 REGION:(00,00,28,16),unlit,"ordinary"
-STAIR:levregion(01,01,79,20),levregion(21,01,59,20),up
 STAIR: (14,03), down
+STAIR:levregion(01,01,79,20),levregion(21,01,54,20),up
+BRANCH:levregion(01,01,79,20),levregion(21,01,54,20)
+TELEPORT_REGION:levregion(01,01,79,20),levregion(21,01,54,20)
 
 TERRAIN: (00,00), ' '
 TERRAIN: (28,00), ' '
@@ -1152,6 +1169,13 @@ TRAP: random, random
 TRAP: random, random
 TRAP: random, random
 TRAP: random, random
+
+# the lava river
+IF [50%] {
+  TERRAIN: grow(north | west, randline (36,00),(50,20), 10), 'L'
+} ELSE {
+  TERRAIN: grow(north | west, randline (50,00),(36,20), 10), 'L'
+}
 
 
 #######################
@@ -1611,9 +1635,10 @@ LLL---L---LLL-FFFF-LLL---L---LLL
  LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL 
 ENDMAP
 REGION:(01,01,30,16),unlit,"ordinary"
-STAIR:levregion(01,01,79,20),levregion(30,01,79,20),up
 STAIR:(04,02),down
-#MAZEWALK:(31,12),east
+STAIR:levregion(01,01,79,20),levregion(23,01,79,20),up
+BRANCH:levregion(01,01,79,20),levregion(23,01,79,20)
+TELEPORT_REGION:levregion(01,01,79,20),levregion(23,01,79,20)
 NON_DIGGABLE:(00,00,29,15)
 
 TERRAIN: (00,00), ' '
@@ -1732,6 +1757,13 @@ TRAP: "magic beam", random
 TRAP: "spear", random
 TRAP: "spear", random
 
+# the lava river
+IF [50%] {
+  TERRAIN: grow(north | west, randline (36,00),(50,20), 10), 'L'
+} ELSE {
+  TERRAIN: grow(north | west, randline (50,00),(36,20), 10), 'L'
+}
+
 
 #######################
 # Other maps
@@ -1771,9 +1803,9 @@ ENDMAP
 # Entire main area
 REGION:(01,00,46,18),unlit,"ordinary"
 STAIR:(33,17),down
-STAIR:levregion(01,00,12,20),levregion(20,01,70,20),up
-BRANCH:levregion(01,00,12,20),levregion(20,01,70,20)
-TELEPORT_REGION:levregion(01,00,12,20),levregion(20,01,70,20)
+STAIR:levregion(01,01,20,20),levregion(20,01,79,20),up
+BRANCH:levregion(01,01,20,20),levregion(20,01,79,20)
+TELEPORT_REGION:levregion(01,01,20,20),levregion(20,01,79,20)
 
 TERRAIN: (00,00), ' '
 TERRAIN: (46,00), ' '
@@ -2024,7 +2056,7 @@ MONSTER:('&',"lava demon"),(30,17),hostile
 STAIR:(63,15),up
 # Teleporting to this level is allowed after the invocation creates its
 # entrance.  Force arrival in that case to be on rightmost third of level.
-TELEPORT_REGION:levregion(54,1,79,18),(0,0,0,0),down
+TELEPORT_REGION:levregion(54,01,79,18),(0,0,0,0),down
 
 
 #	The "fill" level for Gehennom
