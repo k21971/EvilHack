@@ -316,8 +316,8 @@ NON_PASSWALL:(00,00,51,15)
 # Gravity is in full effect here
 MAZE:"tower4",' '
 FLAGS: noteleport,hardfloor,nommap,graveyard,shortsighted,solidify
-MESSAGE: "You enter an enormous rock cavern, the bottom of which you cannot see."
-MESSAGE: "Off in the distance, you can barely make out what appears to be a ladder dangling from a hole in the cavern ceiling."
+#MESSAGE: "You enter an enormous rock cavern, the bottom of which you cannot see."
+#MESSAGE: "Off in the distance, you can barely make out what appears to be a ladder dangling from a hole in the cavern ceiling."
 GEOMETRY:center,center
 #         1         2         3         4         5         6         7    7
 #123456789012345678901234567890123456789012345678901234567890123456789012345

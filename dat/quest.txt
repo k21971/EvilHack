@@ -4213,3 +4213,14 @@ here.  And please free the captive pegasus, I am certain he
 will be extremely grateful.  Fare thee well, brave adventurer.
 Until we meet again...
 %E [You have freed Kathryn the Enchantress from a terrible curse.]
+#
+# Entering Vlad's tower (cavern level)
+#
+%Cc - 00300
+You enter an enormous rock cavern, the bottom of which you
+cannot see.  Off in the distance, you can barely make out
+what appears to be a ladder dangling from a hole in the
+cavern ceiling.  You catch yourself and regain your balance
+as you step precariously close to the cliff's edge, careful
+not to fall over the edge.
+%E [You have just entered an rock cavern, which appears bottomless.]

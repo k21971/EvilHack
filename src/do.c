@@ -1919,6 +1919,18 @@ boolean at_stairs, falling, portal;
     if (Inhell && !Is_valley(&u.uz))
         u.uevent.gehennom_entered = 1;
 
+    /* entered Vlad's tower (cavern level). Technically this
+       message would display upon entering any of the four
+       tower levels if entering this branch for the first time,
+       but during normal game play the player has to access
+       the cavern level first */
+    if (!In_tower(&u.uz0) && In_tower(&u.uz)
+        && !u.uevent.tower_entered) {
+        u.uevent.tower_entered = 1;
+        if (!Blind)
+            com_pager(300);
+    }
+
     /* made it to the final demon boss lair? */
     if (!Is_hellc_level(&u.uz0) && Is_hellc_level(&u.uz)
         && !u.uevent.hellc_entered)

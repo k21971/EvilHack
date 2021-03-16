@@ -1467,4 +1467,5 @@ Version 0.7.0
 - Fix: entry message repeating every time the player enters the Ice
   Queen's realm
 - New branch: Vecna's domain (part one)
+- More verbose message when entering Vlad's cavern for the first time
 

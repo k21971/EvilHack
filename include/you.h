@@ -48,6 +48,7 @@ struct u_event {
     Bitfield(uopened_dbridge, 1);   /* opened the drawbridge */
     Bitfield(invoked, 1);           /* invoked Gate to the Sanctum level */
     Bitfield(gehennom_entered, 1);  /* entered Gehennom via Valley */
+    Bitfield(tower_entered, 1);     /* entered Vlad's tower (cavern level) */
     Bitfield(hellc_entered, 1);     /* entered one of the demon prince lairs */
     Bitfield(iceq_entered, 1);      /* entered the Ice Queen's realm */
     Bitfield(uhand_of_elbereth, 3); /* became Hand of Elbereth */
