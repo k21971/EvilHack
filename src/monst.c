@@ -2061,6 +2061,19 @@ struct permonst _mons2[] = {
         M1_BREATHLESS | M1_HUMANOID | M1_POIS | M1_REGEN,
         M2_HOSTILE | M2_MAGIC, M3_WANTSBOOK | M3_INFRAVISION,
         0, MH_UNDEAD, 29, HI_LORD),
+    MON("Vecna", S_LICH, LVL(99, 12, -10, 90, -20),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
+        A(ATTK(AT_TUCH, AD_COLD, 8, 6), ATTK(AT_TUCH, AD_WTHR, 6, 6),
+          ATTK(AT_MAGC, AD_SPEL, 4, 6), ATTK(AT_MAGC, AD_CLRC, 4, 6),
+          NO_ATTK, NO_ATTK),
+        SIZ(1200, 100, MS_CUSS, MZ_HUMAN),
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_ELEC | MR_POISON, MR_FIRE | MR_COLD,
+        M1_FLY | M1_SEE_INVIS | M1_BREATHLESS | M1_HUMANOID
+            | M1_POIS | M1_REGEN,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_STRONG
+            | M2_MAGIC | M2_NASTY | M2_PRINCE | M2_MALE,
+        M3_WANTSBOOK | M3_WAITFORU | M3_INFRAVISION,
+        0, MH_UNDEAD, 50, CLR_BRIGHT_MAGENTA),
     /*
      * Mummies
      */

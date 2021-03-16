@@ -1011,10 +1011,10 @@ mcalcdistress()
                               mtmp->mprotection ? "becomes less dense"
                                                 : "disappears");
                 if (mtmp->mprotection)
-                    mtmp->mprottime = (mtmp->iswiz ||is_prince(mtmp->data)
+                    mtmp->mprottime = (mtmp->iswiz || is_prince(mtmp->data)
                                        || mtmp->data->msound == MS_NEMESIS
                                        || mtmp->data->msound == MS_LEADER)
-                                      ? 20 : 10;
+                                       ? 20 : 10;
             }
         }
 
@@ -2680,6 +2680,13 @@ struct monst *mtmp;
 }
 
 void
+vecnadead()
+{
+    if (!u.uevent.uvecna)
+        u.uevent.uvecna = TRUE;
+}
+
+void
 mondead(mtmp)
 register struct monst *mtmp;
 {
@@ -2919,17 +2926,22 @@ register struct monst *mtmp;
     }
     if (mtmp->iswiz)
         wizdead();
+    if (mtmp->isvecna)
+        vecnadead();
     if (tmp == urole.neminum)
         nemdead();
     if (mtmp->data->msound == MS_LEADER)
         leaddead();
-    /* Medusa falls into two livelog categories,
+    /* Medusa and Vecna fall into two livelog categories,
      * we log one message flagged for both categories,
      * but only for the first kill. Subsequent kills are not an achievement.
      */
     if (mtmp->data == &mons[PM_MEDUSA] && !u.uachieve.killed_medusa) {
         u.uachieve.killed_medusa = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Medusa");
+    } else if (mtmp->data == &mons[PM_VECNA] && !u.uachieve.killed_vecna) {
+        u.uachieve.killed_vecna = 1;
+        livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vecna");
     } else if (mtmp->data == &mons[PM_DEATH]) {
         switch (mvitals[tmp].died) {
             case 1:

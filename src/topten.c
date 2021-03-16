@@ -450,6 +450,7 @@ encode_extended_achievements()
 
     /* other notable achievements */
     add_achieveX(buf, "defeated_ice_queen", u.uachieve.defeat_icequeen);
+    add_achieveX(buf, "defeated_vecna", u.uachieve.killed_vecna);
     add_achieveX(buf, "got_crowned", u.uevent.uhand_of_elbereth);
 
 #if 0
@@ -601,6 +602,8 @@ encodeachieve()
         r |= 1L << 13;
     if (u.uevent.major_oracle)
         r |= 1L << 14;
+    if (u.uachieve.killed_vecna)
+        r |= 1L << 15;
 
     return r;
 }

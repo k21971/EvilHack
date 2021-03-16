@@ -2187,6 +2187,13 @@ do_class_genocide()
             || !strcmpi(buf, "nothing"))
             return;
 
+        /* Liches and the like are immune to genocide until Vecna
+           is destroyed */
+        if (!u.uevent.uvecna && !strcmpi(buf, "L")) {
+            pline("Such creatures cannot be destroyed while Vecna exists!");
+            return;
+        }
+
         class = name_to_monclass(buf, (int *) 0);
         if (class == 0 && (i = name_to_mon(buf)) != NON_PM)
             class = mons[i].mlet;
@@ -2372,6 +2379,15 @@ int how;
                 if (!(how & REALLY) && (ptr = rndmonst()) != 0)
                     break; /* remaining checks don't apply */
 
+                return;
+            }
+
+            /* Liches and the like are immune to genocide until Vecna
+               is destroyed */
+            if (!u.uevent.uvecna
+                && (!strcmpi(buf, "lich") || !strcmpi(buf, "demilich")
+                    || !strcmpi(buf, "master lich") || !strcmpi(buf, "arch-lich"))) {
+                pline("Such creatures cannot be destroyed while Vecna exists!");
                 return;
             }
 

@@ -1466,4 +1466,5 @@ Version 0.7.0
   if cancelled
 - Fix: entry message repeating every time the player enters the Ice
   Queen's realm
+- New branch: Vecna's domain (part one)
 

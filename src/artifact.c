@@ -2161,17 +2161,32 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 return TRUE;
             case ART_SUNSWORD:
                 if (youattack && is_undead(mdef->data) && j) {
-                    pline("Sunsword flares brightly as it incinerates %s!",
-                          mon_nam(mdef));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-               } else if (!youattack && !youdefend
-                          && magr && is_undead(mdef->data) && j) {
-                    if (cansee(magr->mx, magr->my))
+                    if (mdef->isvecna) {
+                        pline("Sunsword flares brightly, severely wounding %s!",
+                              mon_nam(mdef));
+                        *dmgptr *= 3;
+                        return TRUE;
+                    } else {
                         pline("Sunsword flares brightly as it incinerates %s!",
                               mon_nam(mdef));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    }
+                } else if (!youattack && !youdefend
+                           && magr && is_undead(mdef->data) && j) {
+                    if (mdef->isvecna) {
+                        if (cansee(magr->mx, magr->my))
+                            pline("Sunsword flares brightly, severely wounding %s!",
+                                  mon_nam(mdef));
+                        *dmgptr *= 3;
+                        return TRUE;
+                    } else {
+                        if (cansee(magr->mx, magr->my))
+                            pline("Sunsword flares brightly as it incinerates %s!",
+                                  mon_nam(mdef));
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    }
                 } else if (youdefend && is_undead(youmonst.data) && k) {
                     pline("The holy power of Sunsword incinerates your undead flesh!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);

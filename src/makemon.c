@@ -2417,7 +2417,11 @@ int mmflags;
        his level so high that pets won't attempt
        to take him on */
     if (ptr == &mons[PM_CERBERUS])
-        mtmp->mhp = mtmp->mhpmax = 300 + rnd(50);
+        mtmp->mhp = mtmp->mhpmax = 250 + rnd(50);
+
+    /* Vecna also gets a bit of a boost */
+    if (ptr == &mons[PM_VECNA])
+        mtmp->mhp = mtmp->mhpmax = 350 + rnd(50);
 
     /* Here is where we match riding monsters with their mounts */
     if (!(mmflags & MM_REVIVE)) {
@@ -2537,6 +2541,8 @@ int mmflags;
                Let newcham() pick the shape. */
             && newcham(mtmp, (struct permonst *) 0, FALSE, FALSE))
             allow_minvent = FALSE;
+    } else if (mndx == PM_VECNA) {
+        mtmp->isvecna = TRUE;
     } else if (mndx == PM_WIZARD_OF_YENDOR) {
         mtmp->iswiz = TRUE;
         context.no_of_wizards++;

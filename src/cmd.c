@@ -3587,6 +3587,9 @@ int final;
     if (u.uachieve.killed_medusa)
         enl_msg(You_, "have ", "",
                 "defeated Medusa", ""), ++acnt;
+    if (u.uachieve.killed_vecna)
+        enl_msg(You_, "have ", "",
+                "defeated Vecna", ""), ++acnt;
     if (u.uachieve.defeat_icequeen)
         enl_msg(You_, "have ", "",
                 "defeated Kathryn the Ice Queen", ""), ++acnt;

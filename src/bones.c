@@ -497,7 +497,7 @@ struct obj *corpse;
         if (DEADMONSTER(mtmp))
             continue;
         mptr = mtmp->data;
-        if (mtmp->iswiz || mptr == &mons[PM_MEDUSA]
+        if (mtmp->iswiz || mtmp->isvecna || mptr == &mons[PM_MEDUSA]
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
             || mptr == &mons[PM_VLAD_THE_IMPALER]
             || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))
