@@ -2532,8 +2532,8 @@ int mmflags;
         && (mcham = pm_to_cham(mndx)) != NON_PM) {
         /* this is a shapechanger after all */
         mtmp->cham = mcham;
-        /* Vlad stays in his normal shape so he can carry the Candelabrum */
-        if (mndx != PM_VLAD_THE_IMPALER
+        /* Vlad and Kas stay in their normal shape so they can carry inventory */
+        if (mndx != PM_VLAD_THE_IMPALER && mndx != PM_KAS
             /* Note:  shapechanger's initial form used to be chosen here
                with rndmonst(), yielding a monster which was appropriate
                to the level's difficulty but ignoring the changer's usual

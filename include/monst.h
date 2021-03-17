@@ -217,7 +217,7 @@ struct monst {
 #define is_vampshifter(mon) \
     ((mon)->cham == PM_VAMPIRE || (mon)->cham == PM_VAMPIRE_NOBLE         \
      || (mon)->cham == PM_VAMPIRE_ROYAL || (mon)->cham == PM_VAMPIRE_MAGE \
-     || (mon)->cham == PM_VLAD_THE_IMPALER)
+     || (mon)->cham == PM_KAS || (mon)->cham == PM_VLAD_THE_IMPALER)
 #define is_changeling(mon)                                          \
     ((mon)->cham == PM_CHAMELEON || (mon)->cham == PM_DOPPELGANGER  \
      || (mon)->cham == PM_SANDESTIN)
