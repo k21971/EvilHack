@@ -109,6 +109,11 @@ register struct obj *obj;
             || (olduwep && olduwep->oartifact == ART_GIANTSLAYER)))
         context.botl = 1;
 
+    if (uwep == obj
+        && ((uwep && uwep->oartifact == ART_SWORD_OF_KAS)
+            || (olduwep && olduwep->oartifact == ART_SWORD_OF_KAS)))
+        context.botl = 1;
+
     if (uwep && uwep == obj && (uwep->oprops & ITEM_EXCEL)) {
         uwep->oprops_known |= ITEM_EXCEL;
         set_moreluck();
@@ -297,6 +302,10 @@ register struct obj *obj;
 
     if (uswapwep == obj
         && (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
+        context.botl = 1;
+
+    if (uswapwep == obj
+        && (u.twoweap && uswapwep->oartifact == ART_SWORD_OF_KAS))
         context.botl = 1;
 
     if (uswapwep == obj

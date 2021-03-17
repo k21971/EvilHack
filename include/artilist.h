@@ -203,14 +203,16 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      ACID(5, 10), DFNS(AD_ACID), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
      4000L, NO_COLOR),
     /*
-     *      The Sword of Bheleu - from 'The Lords of Dus' series by Lawrence Watt-Evans.
-     *      If I were to add all of the powers and abilities this sword possesses from the book,
-     *      it would be way over-powered. It will be a worthy two-handed sword to try to obtain however...
+     * The Sword of Kas - the sword forged by Vecna and given to his top
+     * lieutenant, Kas. This sword's specs have changed throughout ad&d
+     * editions, so we'll take some creative license here while trying to
+     * stay true to some of its abilities from ad&d.
      */
-    A("The Sword of Bheleu", TWO_HANDED_SWORD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL | SPFX_DALIGN), 0, 0,
+    A("The Sword of Kas", TWO_HANDED_SWORD,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL
+          | SPFX_DALIGN), 0, 0,
       DRST(10, 0), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
-      12000L, NO_COLOR),
+      15000L, NO_COLOR),
     /* Thought the Oracle just knew everything on her own? Guess again. Should
      * anyone ever be foolhardy enough to take on the Oracle and succeed,
      * they might discover the true source of her knowledge.
@@ -263,6 +265,14 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
       SPFX_EXCLUDE, 0, DETH(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
       NON_PM, NON_PM, 10000L, CLR_BLACK),
+    /* The Eye of Vecna, which can only be obtained by decapitating
+       Vecna, removing his head from his body as he is destroyed before
+       the rest of his body crumbles to dust */
+    A("The Eye of Vecna", EYEBALL,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL),
+      (SPFX_XRAY | SPFX_ESP | SPFX_HSPDAM), 0, NO_ATTK, NO_DFNS,
+      CARY(AD_COLD), DEATH_GAZE, A_NONE, NON_PM, NON_PM,
+      50000L, NO_COLOR),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

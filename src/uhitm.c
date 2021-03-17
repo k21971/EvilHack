@@ -26,7 +26,8 @@ STATIC_DCL boolean FDECL(shade_aware, (struct obj *));
 
 extern boolean notonhead; /* for long worms */
 
-/* Used to flag attacks caused by Stormbringer's maliciousness. */
+/* Used to flag attacks caused by Stormbringer's
+ * or The Sword of Kas maliciousness. */
 static boolean override_confirmation = FALSE;
 
 #define PROJECTILE(obj) ((obj) && is_ammo(obj))
@@ -209,9 +210,11 @@ struct obj *wep; /* uwep for attack(), null for kick_monster() */
 
     if (flags.confirm && mtmp->mpeaceful
         && !Confusion && !Hallucination && !Stunned) {
-        /* Intelligent chaotic weapons (Stormbringer) want blood */
+        /* Intelligent chaotic weapons (Stormbringer, The Sword of Kas) want blood */
         if (wep && (wep->oartifact == ART_STORMBRINGER
-                    || (u.twoweap && uswapwep->oartifact == ART_STORMBRINGER))) {
+                    || wep->oartifact == ART_SWORD_OF_KAS
+                    || (u.twoweap && uswapwep->oartifact == ART_STORMBRINGER)
+                    || (u.twoweap && uswapwep->oartifact == ART_SWORD_OF_KAS))) {
             override_confirmation = TRUE;
             return FALSE;
         }
@@ -378,10 +381,12 @@ register struct monst *mtmp;
      * 07/92) then we assume that you're not trying to attack. Instead,
      * you'll usually just swap places if this is a movement command
      */
-    /* Intelligent chaotic weapons (Stormbringer) want blood */
+    /* Intelligent chaotic weapons (Stormbringer, The Sword of Kas) want blood */
     if (is_safepet(mtmp) && !context.forcefight) {
         if (!uwep || !(uwep->oartifact == ART_STORMBRINGER
-                       || (u.twoweap && uswapwep->oartifact == ART_STORMBRINGER))) {
+                       || uwep->oartifact == ART_SWORD_OF_KAS
+                       || (u.twoweap && uswapwep->oartifact == ART_STORMBRINGER)
+                       || (u.twoweap && uswapwep->oartifact == ART_SWORD_OF_KAS))) {
             /* There are some additional considerations: this won't work
              * if in a shop or Punished or you miss a random roll or
              * if you can walk thru walls and your pet cannot (KAA) or
@@ -520,8 +525,12 @@ int dieroll;
     if (override_confirmation) {
         /* this may need to be generalized if weapons other than
            Stormbringer acquire similar anti-social behavior... */
-        if (flags.verbose)
-            Your("bloodthirsty blade attacks!");
+        if (flags.verbose) {
+            if (weapon->oartifact == ART_STORMBRINGER)
+                Your("bloodthirsty blade attacks!");
+            else
+                Your("vicious blade attacks!");
+        }
     }
 
     if (!*mhit) {
@@ -679,8 +688,8 @@ struct attack *uattk;
     (void) passive(mon, uwep, mhit, malive, AT_WEAP, wep_was_destroyed);
 
     /* second attack for two-weapon combat; won't occur if Stormbringer
-       overrode confirmation (assumes Stormbringer is primary weapon
-       or offhand weapon) or if the monster was killed or knocked to
+       or the Sword of Kas overrode confirmation (assumes both are primary
+       weapon or offhand weapon) or if the monster was killed or knocked to
        different location */
     if (u.twoweap && malive && m_at(x, y) == mon) {
         tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
@@ -831,7 +840,7 @@ int dieroll;
     boolean ispotion = FALSE;
     boolean lightobj = FALSE;
     boolean thievery = FALSE;
-    boolean isbheleu = FALSE;
+    boolean iskas = FALSE;
     boolean issecespita = FALSE;
     boolean isvenom  = FALSE;
     boolean valid_weapon_attack = FALSE;
@@ -913,8 +922,8 @@ int dieroll;
         tmp += special_dmgval(&youmonst, mon, (W_ARMG | W_RINGL | W_RINGR),
                               &hated_obj);
     } else {
-        if (obj->oartifact == ART_SWORD_OF_BHELEU)
-            isbheleu = TRUE;
+        if (obj->oartifact == ART_SWORD_OF_KAS)
+            iskas = TRUE;
         if (obj->oartifact == ART_SECESPITA)
             issecespita = TRUE;
         if (obj->oprops & ITEM_VENOM)
@@ -1354,9 +1363,17 @@ int dieroll;
             tmp += dbon();
     }
 
+    /* wearing red dragon scales/scales gives the wearer
+       a slight damage boost */
     if (uarm && (uarm->otyp == RED_DRAGON_SCALE_MAIL
                  || uarm->otyp == RED_DRAGON_SCALES))
 	tmp += rnd(6);
+
+    /* wielding The Sword of Kas against Vecna does
+       triple damage. Has to be wielded in primary hand */
+    if (uwep && uwep->oartifact == ART_SWORD_OF_KAS
+        && mon && mdat == &mons[PM_VECNA])
+        tmp *= 3;
 
     if (valid_weapon_attack) {
         struct obj *wep;
@@ -1370,7 +1387,7 @@ int dieroll;
     }
 
     if (!ispotion && obj /* potion obj will have been freed by here */
-        && (ispoisoned || isbheleu || isvenom)) {
+        && (ispoisoned || iskas || isvenom)) {
         int nopoison = (10 - (obj->owt / 10));
 
         if (nopoison < 2)
@@ -1383,7 +1400,7 @@ int dieroll;
             adjalign(Role_if(PM_KNIGHT) ? -10 : -1);
         }
         if (obj && !rn2(nopoison)
-            && !isbheleu && !isvenom) {
+            && !iskas && !isvenom) {
             /* remove poison now in case obj ends up in a bones file */
             obj->opoisoned = FALSE;
             /* defer "obj is no longer poisoned" until after hit message */

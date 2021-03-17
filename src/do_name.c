@@ -1385,7 +1385,7 @@ const char *name;
             set_material(obj, METAL);
             break;
         case ART_SUNSWORD:
-        case ART_SWORD_OF_BHELEU:
+        case ART_SWORD_OF_KAS:
         case ART_RING_OF_P_HUL:
         case ART_WAND_OF_ORCUS:
             set_material(obj, GEMSTONE);

@@ -791,6 +791,8 @@ OBJECT(OBJ("Bell of Opening", "engraved silver bell"),
 /* meat */
 FOOD("tripe ration",        140,  2, 10, 0, FLESH, 200, CLR_BROWN),
 FOOD("corpse",                0,  1,  0, 0, FLESH,   0, CLR_BROWN),
+/* body parts (currently only for base object: the Eye of Vecna) */
+FOOD("eyeball",               0,  1,  1, 0, FLESH,   5, CLR_WHITE),
 FOOD("egg",                  85,  1,  1, 1, FLESH,  80, CLR_WHITE),
 FOOD("meatball",              0,  1,  1, 0, FLESH,   5, CLR_BROWN),
 FOOD("meat stick",            0,  1,  1, 0, FLESH,   5, CLR_BROWN),

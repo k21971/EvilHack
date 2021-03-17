@@ -375,11 +375,12 @@ struct obj *obj;
         break;
     case ART_BAG_OF_THE_HESPERIDES:
     case ART_LIFESTEALER:
+    case ART_EYE_OF_VECNA:
+    case ART_SWORD_OF_KAS:
     default:
         return FALSE;
         break;
     }
-
     return (Lcheck(&u.uz, lair));
 }
 
@@ -406,6 +407,12 @@ struct obj *obj;
     case ART_WAND_OF_ORCUS:
         owner = PM_ORCUS;
         break;
+    case ART_EYE_OF_VECNA:
+        owner = PM_VECNA;
+        break;
+    case ART_SWORD_OF_KAS:
+        owner = PM_KAS;
+        break;
     default:
         break;
     }
@@ -416,7 +423,6 @@ struct obj *obj;
                 return mtmp;
         }
     }
-
     return (struct monst *) 0;
 }
 

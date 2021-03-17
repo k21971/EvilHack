@@ -3576,9 +3576,11 @@ struct obj *no_wish;
          * Find corpse type using "of" (figurine of an orc, tin of orc meat)
          * Don't check if it's a wand or spellbook.
          * (avoid "wand/finger of death" confusion).
+         * (also avoid "sword of kas" or "eye of vecna" issues)
          */
         if (!strstri(bp, "wand ") && !strstri(bp, "spellbook ")
-            && !strstri(bp, "finger ")) {
+            && !strstri(bp, "finger ") && !strstri(bp, "eye ")
+            && !strstri(bp, "sword ")) {
             if ((p = strstri(bp, "tin of ")) != 0) {
                 if (!strcmpi(p + 7, "spinach")) {
                     contents = SPINACH;
@@ -3686,11 +3688,11 @@ struct obj *no_wish;
         }
     }
     /* Find corpse type w/o "of" (red dragon scale mail, yeti corpse) */
-    if (strncmpi(bp, "samurai sword", 13)  /* not the "samurai" monster! */
-        && strncmpi(bp, "wizard lock", 11) /* not the "wizard" monster! */
-        && strncmpi(bp, "ninja-to", 8)     /* not the "ninja" rank */
-        && strncmpi(bp, "master key", 10)  /* not the "master" rank */
-        && strncmpi(bp, "magenta", 7)) {   /* not the "mage" rank */
+    if (strncmpi(bp, "samurai sword", 13)   /* not the "samurai" monster! */
+        && strncmpi(bp, "wizard lock", 11)  /* not the "wizard" monster! */
+        && strncmpi(bp, "ninja-to", 8)      /* not the "ninja" rank */
+        && strncmpi(bp, "master key", 10)   /* not the "master" rank */
+        && strncmpi(bp, "magenta", 7)) {    /* not the "mage" rank */
         if (mntmp < LOW_PM && strlen(bp) > 2
             && (mntmp = name_to_mon(bp)) >= LOW_PM) {
             int mntmptoo, mntmplen; /* double check for rank title */
@@ -4605,117 +4607,126 @@ struct obj *no_wish;
 
         if (pm < 0) {
             switch(otmp->oartifact) {
-                case ART_XIUHCOATL:
-                case ART_SUNSWORD:
-                case ART_GRAYSWANDIR:
-                    pm = PM_ARCHEOLOGIST;
-                    break;
-                case ART_RING_OF_P_HUL:
-                case ART_CLEAVER:
-                case ART_STORMBRINGER:
-                case ART_OGRESMASHER:
-                case ART_SWORD_OF_BHELEU:
-                    pm = PM_BARBARIAN;
-                    break;
-                case ART_KEOLEWA:
-                case ART_DRAGONBANE:
-                case ART_SCEPTRE_OF_MIGHT:
-                    pm = PM_CAVEMAN;
-                    break;
-                case ART_LUCK_BLADE:
-                case ART_IRON_BALL_OF_LIBERATION:
-                    pm = PM_CONVICT;
-                    break;
-                case ART_STAFF_OF_AESCULAPIUS:
-                    pm = PM_HEALER;
-                    break;
-                case ART_IDOL_OF_MOLOCH:
-                case ART_SECESPITA:
-                case ART_ANGELSLAYER:
-                    pm = PM_INFIDEL;
-                    break;
-                case ART_MAGIC_MIRROR_OF_MERLIN:
-                case ART_EXCALIBUR:
-                case ART_DIRGE:
-                    pm = PM_KNIGHT;
-                    break;
-                case ART_EYES_OF_THE_OVERWORLD:
-                    pm = PM_MONK;
-                    break;
-                case ART_MITRE_OF_HOLINESS:
-                case ART_TROLLSBANE:
-                    pm = PM_PRIEST;
-                    break;
-                case ART_LONGBOW_OF_DIANA:
-                    otmp2 = mksobj(ARROW, TRUE, FALSE);
-                    otmp2->quan = (long) rn1(20, 10);
-                    otmp2->owt = weight(otmp2);
-                    otmp2->blessed = otmp2->cursed = 0;
-                    otmp2->spe = rn2(3);
-                    strategy = NEED_RANGED_WEAPON;
-                    pm = PM_RANGER;
-                    break;
-                case ART_CROSSBOW_OF_CARL:
-                    otmp2 = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
-                    otmp2->quan = (long) rn1(20, 10);
-                    otmp2->owt = weight(otmp2);
-                    otmp2->blessed = otmp2->cursed = 0;
-                    otmp2->spe = rn2(3);
-                    strategy = NEED_RANGED_WEAPON;
-                    pm = PM_RANGER;
-                    break;
-                case ART_ORCRIST:
-                    pm = PM_RANGER;
-                    break;
-                case ART_MASTER_KEY_OF_THIEVERY:
-                case ART_STING:
-                case ART_GRIMTOOTH:
-                    pm = PM_ROGUE;
-                    break;
-                case ART_TSURUGI_OF_MURAMASA:
-                case ART_SNICKERSNEE:
-                    pm = PM_SAMURAI;
-                    break;
-                case ART_YENDORIAN_EXPRESS_CARD:
-                case ART_VORPAL_BLADE:
+            case ART_XIUHCOATL:
+            case ART_SUNSWORD:
+            case ART_GRAYSWANDIR:
+                pm = PM_ARCHEOLOGIST;
+                break;
+            case ART_RING_OF_P_HUL:
+            case ART_CLEAVER:
+            case ART_STORMBRINGER:
+            case ART_OGRESMASHER:
+                pm = PM_BARBARIAN;
+                break;
+            case ART_KEOLEWA:
+            case ART_DRAGONBANE:
+            case ART_SCEPTRE_OF_MIGHT:
+                pm = PM_CAVEMAN;
+                break;
+            case ART_LUCK_BLADE:
+            case ART_IRON_BALL_OF_LIBERATION:
+                pm = PM_CONVICT;
+                break;
+            case ART_STAFF_OF_AESCULAPIUS:
+                pm = PM_HEALER;
+                break;
+            case ART_IDOL_OF_MOLOCH:
+            case ART_SECESPITA:
+            case ART_ANGELSLAYER:
+                pm = PM_INFIDEL;
+                break;
+            case ART_MAGIC_MIRROR_OF_MERLIN:
+            case ART_EXCALIBUR:
+            case ART_DIRGE:
+                pm = PM_KNIGHT;
+                break;
+            case ART_EYES_OF_THE_OVERWORLD:
+                pm = PM_MONK;
+                break;
+            case ART_MITRE_OF_HOLINESS:
+            case ART_TROLLSBANE:
+                pm = PM_PRIEST;
+                break;
+            case ART_LONGBOW_OF_DIANA:
+                otmp2 = mksobj(ARROW, TRUE, FALSE);
+                otmp2->quan = (long) rn1(20, 10);
+                otmp2->owt = weight(otmp2);
+                otmp2->blessed = otmp2->cursed = 0;
+                otmp2->spe = rn2(3);
+                strategy = NEED_RANGED_WEAPON;
+                pm = PM_RANGER;
+                break;
+            case ART_CROSSBOW_OF_CARL:
+                otmp2 = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
+                otmp2->quan = (long) rn1(20, 10);
+                otmp2->owt = weight(otmp2);
+                otmp2->blessed = otmp2->cursed = 0;
+                otmp2->spe = rn2(3);
+                strategy = NEED_RANGED_WEAPON;
+                pm = PM_RANGER;
+                break;
+            case ART_ORCRIST:
+                pm = PM_RANGER;
+                break;
+            case ART_MASTER_KEY_OF_THIEVERY:
+            case ART_STING:
+            case ART_GRIMTOOTH:
+                pm = PM_ROGUE;
+                break;
+            case ART_TSURUGI_OF_MURAMASA:
+            case ART_SNICKERSNEE:
+                pm = PM_SAMURAI;
+                break;
+            case ART_YENDORIAN_EXPRESS_CARD:
+            case ART_VORPAL_BLADE:
+                pm = PM_TOURIST;
+                break;
+            case ART_GJALLAR:
+            case ART_GIANTSLAYER:
+            case ART_MJOLLNIR:
+                pm = PM_VALKYRIE;
+                break;
+            case ART_EYE_OF_THE_AETHIOPICA:
+            case ART_MAGICBANE:
+                pm = PM_WIZARD;
+                break;
+            case ART_FROST_BRAND:
+                if (u.ualign.type == A_NEUTRAL)
                     pm = PM_TOURIST;
-                    break;
-                case ART_GJALLAR:
-                case ART_GIANTSLAYER:
-                case ART_MJOLLNIR:
-                    pm = PM_VALKYRIE;
-                    break;
-                case ART_EYE_OF_THE_AETHIOPICA:
-                case ART_MAGICBANE:
-                    pm = PM_WIZARD;
-                    break;
-                case ART_FROST_BRAND:
-                    if (u.ualign.type == A_NEUTRAL)
-                        pm = PM_TOURIST;
-                    else
-                        pm = PM_KNIGHT;
-                    break;
-                case ART_FIRE_BRAND:
-                    if (u.ualign.type == A_CHAOTIC)
-                        pm = PM_BARBARIAN;
-                    else
-                        pm = PM_ARCHEOLOGIST;
-                    break;
-                case ART_DEMONBANE:
-                    if (u.ualign.type == A_NEUTRAL)
-                        pm = PM_HEALER;
-                    else
-                        pm = PM_PRIEST;
-                    break;
-                case ART_WEREBANE:
-                    if (u.ualign.type == A_CHAOTIC)
-                        pm = PM_BARBARIAN;
-                    else
-                        pm = PM_CAVEMAN;
-                    break;
-                default:
-                    impossible("Unknown artifact!");
-                    break;
+                else
+                    pm = PM_KNIGHT;
+                break;
+            case ART_FIRE_BRAND:
+                if (u.ualign.type == A_CHAOTIC)
+                    pm = PM_BARBARIAN;
+                else
+                    pm = PM_ARCHEOLOGIST;
+                break;
+            case ART_DEMONBANE:
+                if (u.ualign.type == A_NEUTRAL)
+                    pm = PM_HEALER;
+                else
+                    pm = PM_PRIEST;
+                break;
+            case ART_WEREBANE:
+                if (u.ualign.type == A_CHAOTIC)
+                    pm = PM_BARBARIAN;
+                else
+                    pm = PM_CAVEMAN;
+                break;
+            /* non-wishable artifacts (wizmode only) */
+            case ART_MAGIC___BALL:
+            case ART_LIFESTEALER:
+            case ART_BAG_OF_THE_HESPERIDES:
+            case ART_BUTCHER:
+            case ART_WAND_OF_ORCUS:
+            case ART_EYE_OF_VECNA:
+            case ART_SWORD_OF_KAS:
+                pm = PM_SAMURAI;
+                break;
+            default:
+                impossible("Unknown artifact!");
+                break;
             }
             if (pm == PM_CAVEMAN && rn2(2))
                 pm = PM_CAVEWOMAN;

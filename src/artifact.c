@@ -1916,7 +1916,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     /* Sixth basic attack - poison */
     if (attacks(AD_DRST, otmp)) {
 	if (realizes_damage) {
-            if (otmp->oartifact == ART_SWORD_OF_BHELEU) {
+            if (otmp->oartifact == ART_SWORD_OF_KAS) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
                     if (!spec_dbon_applies) {
                         if (!youdefend)
@@ -2431,6 +2431,8 @@ arti_invoke(obj)
 struct obj *obj;
 {
     register const struct artifact *oart = get_artifact(obj);
+    register struct monst *mtmp;
+
     if (!obj) {
         impossible("arti_invoke without obj");
         return 0;
@@ -2730,6 +2732,37 @@ struct obj *obj;
                 obj->age = 0; /* will be set below */
                 use_figurine(&obj);
             }
+            break;
+        case DEATH_GAZE:
+            if (u.uluck < -9) {
+                pline("%s turns on you!", The(xname(obj)));
+                u.uhp = 0;
+                killer.format = KILLED_BY;
+                Strcpy(killer.name, "the Eye of Vecna");
+                done(DIED);
+            } else {
+                pline("%s looks around with its icy gaze!",
+                      The(xname(obj)));
+                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                    if (DEADMONSTER(mtmp))
+                        continue;
+                    /* The eye is never blind ... */
+                    if (couldsee(mtmp->mx, mtmp->my)
+                        && !nonliving(mtmp->data)) {
+                        if (!Deaf)
+                            pline("%s screams in agony!", Monnam(mtmp));
+                        else if (cansee(mtmp->mx, mtmp->my))
+                            pline("%s trembles in agony!", Monnam(mtmp));
+                        mtmp->mhp /= 3;
+                        if (mtmp->mhp < 1)
+                            mtmp->mhp = 1;
+                    }
+                }
+            }
+	    /* Use at your own risk... */
+            adjalign(-3);
+            u.uluck -= 3;
+            exercise(A_WIS, FALSE);
             break;
         }
     } else {

@@ -1153,7 +1153,8 @@ int x;
 
     if (x == A_STR) {
       if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
-          || wielding_artifact(ART_GIANTSLAYER))
+          || wielding_artifact(ART_GIANTSLAYER)
+          || wielding_artifact(ART_SWORD_OF_KAS))
             return (schar) 125;
         else
 #ifdef WIN32_BUG
@@ -1222,7 +1223,8 @@ int attrindx;
         hilimit = STR19(25); /* 125 */
         /* lower limit for Str can also be 25 */
         if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
-            || wielding_artifact(ART_GIANTSLAYER))
+            || wielding_artifact(ART_GIANTSLAYER)
+            || wielding_artifact(ART_SWORD_OF_KAS))
             lolimit = hilimit;
     } else if (attrindx == A_CON) {
         if (wielding_artifact(ART_OGRESMASHER))

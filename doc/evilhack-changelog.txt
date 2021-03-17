@@ -1468,4 +1468,5 @@ Version 0.7.0
   Queen's realm
 - New branch: Vecna's domain (part one)
 - More verbose message when entering Vlad's cavern for the first time
+- New branch: Vecna's domain (part two) - artifacts, Kas (unique monster)
 

@@ -2398,8 +2398,22 @@ struct obj *otmp;
     case FORTUNE_COOKIE:
         outrumor(bcsign(otmp), BY_COOKIE);
         if (!Blind)
-            if(!u.uconduct.literate++)
+            if (!u.uconduct.literate++)
                 livelog_write_string(LL_CONDUCT, "became literate by reading the fortune inside a cookie");
+        break;
+    case EYEBALL:
+        if (!otmp->oartifact)
+            break;
+        You("feel a burning deep inside your %s!", body_part(STOMACH));
+        if (otmp->cursed)
+            u.uhp -= rn1(150, 250);
+        else
+            u.uhp -= rn1(50, 150);
+        if (u.uhp <= 0) {
+            killer.format = KILLED_BY;
+            Strcpy(killer.name, "eating the Eye of Vecna");
+            done(DIED);
+        }
         break;
     case LUMP_OF_ROYAL_JELLY:
         /* This stuff seems to be VERY healthy! */
