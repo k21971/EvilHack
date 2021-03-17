@@ -1470,4 +1470,6 @@ Version 0.7.0
 - More verbose message when entering Vlad's cavern for the first time
 - New branch: Vecna's domain (part two) - artifacts, Kas (unique monster)
 - Fix: Kas not flagged as a vampshifter, pets would eat the Eye of Vecna
-
+- Cover all the bases for lich/alhoon genocide prevention while Vecna
+  exists, switch Vecna's gaze attack to a death gaze
+  

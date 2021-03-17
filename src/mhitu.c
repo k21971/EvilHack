@@ -2148,8 +2148,10 @@ do_rust:
         case 2:
         case 1:
         case 0:
-            if (Antimagic)
+            if (Antimagic) {
                 shieldeff(u.ux, u.uy);
+                monstseesu(M_SEEN_MAGR);
+            }
             pline("Lucky for you, it didn't work!");
             dmg = 0;
             break;
@@ -3017,7 +3019,6 @@ struct attack *mattk;
         }
         break;
     /* Comment out the PM_BEHOLDER indef here so the below attack types function */
-    /* #ifdef PM_BEHOLDER */
     case AD_SLEE:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
             && multi >= 0 && !rn2(5) && (how_resistant(SLEEP_RES) < 100)) {
@@ -3142,7 +3143,85 @@ struct attack *mattk;
             }
         }
 	break;
-    /* #endif */ /* BEHOLDER */
+    case AD_DETH:
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
+            && mtmp->mcansee && rn2(4)) {
+            /* currently only Vecna has the gaze of death */
+            if (mtmp && mtmp->data == &mons[PM_VECNA])
+                You("meet %s deadly gaze!", s_suffix(mon_nam(mtmp)));
+            if (is_undead(youmonst.data)) {
+                /* Still does normal damage */
+                pline("Was that the gaze of death?");
+                break;
+            }
+            int dmg, permdmg;
+            switch (rn2(20)) {
+            case 19:
+            case 18:
+            case 17:
+                if (!Antimagic) {
+                    killer.format = KILLED_BY_AN;
+                    Strcpy(killer.name, "gaze of death");
+                    ukiller = mtmp;
+                    done(DIED);
+                    dmg = 0;
+                    break;
+                }
+                /*FALLTHRU*/
+            default: /* case 16: ... case 2: */
+                You_feel("your life force draining away...");
+                permdmg = 1; /* actual damage done below */
+                break;
+            case 1:
+            case 0:
+                if (Antimagic) {
+                    shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_MAGR);
+                }
+                pline("Lucky for you, it didn't work!");
+                dmg = 0;
+                break;
+            }
+
+            if (permdmg) { /* Vecna's life force drain */
+                int lowerlimit, *hpmax_p;
+                /*
+                 * Apply some of the damage to permanent hit points:
+                 *  polymorphed         100% against poly'd hpmax
+                 *  hpmax > 25*lvl      100% against normal hpmax
+                 *  hpmax > 10*lvl  50..100%
+                 *  hpmax >  5*lvl  25..75%
+                 *  otherwise        0..50%
+                 * Never reduces hpmax below 1 hit point per level.
+                 */
+                dmg = d((int) mattk->damn, (int) mattk->damd);
+                permdmg = rn2(dmg / 2 + 1);
+                if (Upolyd || u.uhpmax > 25 * u.ulevel)
+                    permdmg = dmg;
+                else if (u.uhpmax > 10 * u.ulevel)
+                    permdmg += dmg / 2;
+                else if (u.uhpmax > 5 * u.ulevel)
+                    permdmg += dmg / 4;
+
+                if (Upolyd) {
+                    hpmax_p = &u.mhmax;
+                    /* [can't use youmonst.m_lev] */
+                    lowerlimit = min((int) youmonst.data->mlevel, u.ulevel);
+                } else {
+                    hpmax_p = &u.uhpmax;
+                    lowerlimit = u.ulevel;
+                }
+                if (*hpmax_p - permdmg > lowerlimit)
+                    *hpmax_p -= permdmg;
+                else if (*hpmax_p > lowerlimit)
+                    *hpmax_p = lowerlimit;
+                /* else unlikely...
+                 * already at or below minimum threshold; do nothing */
+                context.botl = 1;
+            }
+            mdamageu(mtmp, dmg);
+        }
+        break;
     default:
         impossible("Gaze attack %d?", mattk->adtyp);
         break;

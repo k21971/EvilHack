@@ -2190,7 +2190,7 @@ do_class_genocide()
         /* Liches and the like are immune to genocide until Vecna
            is destroyed */
         if (!u.uevent.uvecna && !strcmpi(buf, "L")) {
-            pline("Such creatures cannot be destroyed while Vecna exists!");
+            pline("An ominous dark magic prevents you from genociding those creatures.");
             return;
         }
 
@@ -2243,7 +2243,10 @@ do_class_genocide()
                  * from both race and role; thus genocide affects either.
                  */
                 candidates++;
-                if (Your_Own_Role(i) || Your_Own_Race(i)
+                if (!u.uevent.uvecna && i == PM_ALHOON) {
+                    if (!gameover)
+                        pline("An ominous dark magic prevents you from genociding alhoons.");
+                } else if (Your_Own_Role(i) || Your_Own_Race(i)
                     || ((mons[i].geno & G_GENO)
                         && !(mvitals[i].mvflags & G_GENOD))) {
                     /* This check must be first since player monsters might
@@ -2386,8 +2389,10 @@ int how;
                is destroyed */
             if (!u.uevent.uvecna
                 && (!strcmpi(buf, "lich") || !strcmpi(buf, "demilich")
-                    || !strcmpi(buf, "master lich") || !strcmpi(buf, "arch-lich"))) {
-                pline("Such creatures cannot be destroyed while Vecna exists!");
+                    || !strcmpi(buf, "master lich") || !strcmpi(buf, "arch-lich")
+                    || !strcmpi(buf, "arch lich") || !strcmpi(buf, "alhoon"))) {
+                pline("An ominous dark magic prevents you from genociding %s.",
+                       makeplural(buf));
                 return;
             }
 

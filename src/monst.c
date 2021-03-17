@@ -2064,7 +2064,7 @@ struct permonst _mons2[] = {
     MON("Vecna", S_LICH, LVL(99, 12, -10, 90, -20),
         (G_NOGEN | G_NOCORPSE | G_UNIQ),
         A(ATTK(AT_TUCH, AD_COLD, 8, 6), ATTK(AT_TUCH, AD_WTHR, 6, 6),
-          ATTK(AT_GAZE, AD_STUN, 3, 4), ATTK(AT_MAGC, AD_SPEL, 4, 6),
+          ATTK(AT_GAZE, AD_DETH, 3, 4), ATTK(AT_MAGC, AD_SPEL, 4, 6),
           ATTK(AT_MAGC, AD_CLRC, 4, 6), NO_ATTK),
         SIZ(1200, 100, MS_CUSS, MZ_HUMAN),
         MR_FIRE | MR_COLD | MR_SLEEP | MR_ELEC | MR_POISON, MR_FIRE | MR_COLD,
