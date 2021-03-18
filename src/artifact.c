@@ -2751,13 +2751,39 @@ struct obj *obj;
                     /* The eye is never blind ... */
                     if (couldsee(mtmp->mx, mtmp->my)
                         && !nonliving(mtmp->data)) {
-                        if (!Deaf)
-                            pline("%s screams in agony!", Monnam(mtmp));
-                        else if (cansee(mtmp->mx, mtmp->my))
-                            pline("%s trembles in agony!", Monnam(mtmp));
-                        mtmp->mhp /= 3;
-                        if (mtmp->mhp < 1)
-                            mtmp->mhp = 1;
+                        int tmp = 12;
+                        switch (rn2(20)) {
+                        case 19:
+                        case 18:
+                        case 17:
+                            if (!resists_magm(mtmp) && !resist(mtmp, 0, 0, 0)) {
+                                mtmp->mhp = 0;
+                                monkilled(mtmp, "", AD_DETH);
+                                if (!DEADMONSTER(mtmp))
+                                    return 0;
+                                return MM_DEF_DIED;
+                            }
+                            break;
+                        default: /* case 16 through case 2 */
+                            if (!Deaf)
+                                pline("%s screams in agony!", Monnam(mtmp));
+                            else if (cansee(mtmp->mx, mtmp->my))
+                                pline("%s trembles in agony!", Monnam(mtmp));
+                            /* mhp will then still be less than this value*/
+                            mtmp->mhpmax -= rn2(tmp / 2 + 1);
+                            mtmp->mhp /= 3;
+                            if (mtmp->mhp < 1)
+                                mtmp->mhp = 1;
+                            break;
+                        case 1:
+                        case 0:
+                            if (resists_magm(mtmp))
+                                shieldeff(mtmp->mx, mtmp->my);
+                            pline("%s resists %s deadly gaze.",
+                                  Monnam(mtmp), the(s_suffix(xname(obj))));
+                            tmp = 0;
+                            break;
+                        }
                     }
                 }
             }

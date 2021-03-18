@@ -1473,4 +1473,5 @@ Version 0.7.0
 - Cover all the bases for lich/alhoon genocide prevention while Vecna
   exists, switch Vecna's gaze attack to a death gaze
 - Refactor tracking Cerberus alive/dead state for opening up Gehennom  
+- Invoking the Eye of Vecna uses actual death magic
 

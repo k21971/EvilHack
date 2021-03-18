@@ -1209,7 +1209,6 @@ int
 dodown()
 {
     struct trap *trap = 0;
-    /*struct monst *mtmp;*/
     boolean stairs_down = ((u.ux == xdnstair && u.uy == ydnstair)
                            || (u.ux == sstairs.sx && u.uy == sstairs.sy
                                && !sstairs.up)),
