@@ -2758,10 +2758,12 @@ struct obj *obj;
                         case 17:
                             if (!resists_magm(mtmp) && !resist(mtmp, 0, 0, 0)) {
                                 mtmp->mhp = 0;
-                                monkilled(mtmp, "", AD_DETH);
-                                if (!DEADMONSTER(mtmp))
-                                    return 0;
-                                return MM_DEF_DIED;
+                                if (DEADMONSTER(mtmp)) {
+                                    if (context.mon_moving)
+                                        monkilled(mtmp, (char *) 0, AD_DETH);
+                                    else
+                                        killed(mtmp);
+                                }
                             }
                             break;
                         default: /* case 16 through case 2 */
