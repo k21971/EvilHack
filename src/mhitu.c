@@ -1277,11 +1277,13 @@ register struct attack *mattk;
         if (!rn2(7) && (mtmp->mhp < (mtmp->mhpmax / 3))) {
             if (mdat->mlet == S_HUMAN || mdat->mlet == S_ORC
                 || mdat->mlet == S_GIANT || mdat->mlet == S_OGRE
-                || mdat->mlet == S_HUMANOID)
-                pline("%s flies into a berserker rage!", Monnam(mtmp));
-            else
-                pline("%s %s with rage!", Monnam(mtmp),
-                      rn2(2) ? "roars" : "howls");
+                || mdat->mlet == S_HUMANOID) {
+                if (cansee(mtmp->mx, mtmp->my))
+                    pline("%s flies into a berserker rage!", Monnam(mtmp));
+                else if (!Deaf)
+                    pline("%s %s with rage!", Amonnam(mtmp),
+                          rn2(2) ? "roars" : "howls");
+            }
             dmg += d((int) mattk->damn, (int) mattk->damd);
         }
     }
