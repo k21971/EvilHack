@@ -1209,7 +1209,7 @@ int
 dodown()
 {
     struct trap *trap = 0;
-    struct monst *mtmp;
+    /*struct monst *mtmp;*/
     boolean stairs_down = ((u.ux == xdnstair && u.uy == ydnstair)
                            || (u.ux == sstairs.sx && u.uy == sstairs.sy
                                && !sstairs.up)),
@@ -1314,13 +1314,10 @@ dodown()
     if (on_level(&valley_level, &u.uz) && !u.uevent.gehennom_entered) {
         /* The gates of hell remain closed to the living
            while Cerberus is still alive to guard them */
-        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-            if (mtmp->data == &mons[PM_CERBERUS]) {
-                You("are standing at the gate to Gehennom.");
-                pline("These gates are closed to the living while %s still lives.",
-                      noit_mon_nam(mtmp));
-                return 0;
-            }
+        if (!u.uevent.ucerberus) {
+            You("are standing at the gate to Gehennom.");
+            pline("These gates are closed to the living while Cerberus still lives.");
+            return 0;
         }
         You("are standing at the gate to Gehennom.");
         pline("Unspeakable cruelty and harm lurk down there.");

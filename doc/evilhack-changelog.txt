@@ -1472,4 +1472,5 @@ Version 0.7.0
 - Fix: Kas not flagged as a vampshifter, pets would eat the Eye of Vecna
 - Cover all the bases for lich/alhoon genocide prevention while Vecna
   exists, switch Vecna's gaze attack to a death gaze
-  
+- Refactor tracking Cerberus alive/dead state for opening up Gehennom  
+

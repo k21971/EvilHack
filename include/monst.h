@@ -152,14 +152,15 @@ struct monst {
     Bitfield(isgd, 1);      /* is guard */
     Bitfield(ispriest, 1);  /* is an aligned priest or high priest */
 
-    Bitfield(isvecna, 1);   /* is Vecna */
-    Bitfield(iswiz, 1);     /* is the Wizard of Yendor */
-    Bitfield(wormno, 5);    /* at most 31 worms on any level */
-    Bitfield(mwither, 1);   /* is withering */
-    Bitfield(mstonebyu, 1); /* you caused the monster to start stoning */
+    Bitfield(iscerberus, 1); /* is Cerberus */
+    Bitfield(isvecna, 1);    /* is Vecna */
+    Bitfield(iswiz, 1);      /* is the Wizard of Yendor */
+    Bitfield(wormno, 5);     /* at most 31 worms on any level */
+    Bitfield(mwither, 1);    /* is withering */
+    Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
 
-    Bitfield(mstone, 3);    /* monster is turning to stone */
-    /* 0 free bits */
+    Bitfield(mstone, 3);     /* monster is turning to stone */
+    /* 7 free bits */
 
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 

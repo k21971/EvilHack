@@ -2541,6 +2541,8 @@ int mmflags;
                Let newcham() pick the shape. */
             && newcham(mtmp, (struct permonst *) 0, FALSE, FALSE))
             allow_minvent = FALSE;
+    } else if (mndx == PM_CERBERUS) {
+        mtmp->iscerberus = TRUE;
     } else if (mndx == PM_VECNA) {
         mtmp->isvecna = TRUE;
     } else if (mndx == PM_WIZARD_OF_YENDOR) {

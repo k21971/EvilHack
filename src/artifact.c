@@ -2294,9 +2294,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (mdef->data == &mons[PM_CERBERUS]) {
                     pline("%s removes one of %s heads!", wepdesc,
                           s_suffix(mon_nam(mdef)));
-                    if (canseemon(mdef))
-                        You("watch in horror as it quickly grows back.");
                     *dmgptr = rn2(15) + 10;
+                    if (!DEADMONSTER(mdef)) {
+                        if (canseemon(mdef))
+                            You("watch in horror as it quickly grows back.");
+                    }
                     return TRUE;
                 }
                 *dmgptr = 2 * mdef->mhp + FATAL_DAMAGE_MODIFIER;

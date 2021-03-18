@@ -507,7 +507,7 @@ struct obj *corpse;
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
             || mptr == &mons[PM_VLAD_THE_IMPALER]
             || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))
-            || (mptr == &mons[PM_CERBERUS] && !Is_valley(&u.uz))
+            || (mtmp->iscerberus && !Is_valley(&u.uz))
             || (mptr == &mons[PM_CHARON] && !Is_valley(&u.uz))
             || mptr == &mons[PM_RAT_KING]
             || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
