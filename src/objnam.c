@@ -698,7 +698,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 /* GLOVES and GAUNTLETS have a randomized description when not
                  * identified; "leather padded gloves" would give the game
                  * away if we did not check their identification status */
-                || ((obj->otyp == GLOVES || obj->otyp == GAUNTLETS) 
+                || ((obj->otyp == GLOVES || obj->otyp == GAUNTLETS)
                     && objects[obj->otyp].oc_name_known))) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");

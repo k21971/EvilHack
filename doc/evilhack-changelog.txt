@@ -1476,4 +1476,5 @@ Version 0.7.0
 - Invoking the Eye of Vecna uses actual death magic
 - Fix: invoking the Eye of Vecna and it killing a monster
 - Fix: 'It flies into a berserker rage!'
+- Kit out Vecna and Kas, other tweaks and adjustments
 

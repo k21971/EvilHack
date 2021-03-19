@@ -2801,6 +2801,16 @@ register struct monst *mtmp;
         return;
     }
 
+    /*if (mtmp->isvecna && !rn2(4)) {
+        if (!Blind)
+            pline("As the remnants of %s body vanish, you notice something was left behind...",
+                  s_suffix(mon_nam(mtmp)));
+        otmp = mksobj(EYEBALL, FALSE, FALSE);
+        otmp = oname(otmp, artiname(ART_EYE_OF_VECNA));
+        curse(otmp);
+        mdrop_obj(mtmp, otmp, FALSE);
+    }*/
+
     if (is_vampshifter(mtmp) || is_changeling(mtmp)) {
         int mndx = mtmp->cham;
         int x = mtmp->mx, y = mtmp->my;
@@ -3019,12 +3029,22 @@ struct monst *magr;    /* killer, if swallowed */
 boolean was_swallowed; /* digestion */
 {
     struct permonst *mdat = mon->data;
+    struct obj *otmp;
     int i, tmp;
 
     if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH
         || mdat == &mons[PM_ALHOON] || mdat == &mons[PM_KAS]) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
             pline("%s body crumbles into dust.", s_suffix(Monnam(mon)));
+        if (mon->isvecna && !rn2(4)) {
+            if (!Blind)
+                pline("As the remnants of %s body vanish, you notice something was left behind...",
+                      s_suffix(mon_nam(mon)));
+            otmp = mksobj(EYEBALL, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_EYE_OF_VECNA));
+            curse(otmp);
+            mdrop_obj(mon, otmp, FALSE);
+        }
         return FALSE;
     }
 

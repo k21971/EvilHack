@@ -1533,42 +1533,50 @@ register struct monst *mtmp;
          * Now the general case, some chance of getting some type
          * of weapon for "normal" monsters.  Certain special types
          * of monsters will get a bonus chance or different selections.
+         * Unique monsters are typically kitted out in specific and
+         * deliberate gear, so exclude them.
          */
         bias = is_lord(ptr) + is_prince(ptr) * 2 + extra_nasty(ptr);
         switch (rnd(14 - (2 * bias))) {
         case 1:
-            if (strongmonst(ptr)
-                && !(is_dlord(ptr) || is_dprince(ptr)))
-                (void) mongets(mtmp, BATTLE_AXE);
-            else
-                m_initthrow(mtmp, DART, 12);
+            if (!unique_corpstat(ptr)) {
+                if (strongmonst(ptr))
+                    (void) mongets(mtmp, BATTLE_AXE);
+                else
+                    m_initthrow(mtmp, DART, 12);
+            }
             break;
         case 2:
-            if (strongmonst(ptr)
-                && !(is_dlord(ptr) || is_dprince(ptr)))
-                (void) mongets(mtmp, TWO_HANDED_SWORD);
-            else {
-                (void) mongets(mtmp, CROSSBOW);
-                m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+            if (!unique_corpstat(ptr)) {
+                if (strongmonst(ptr))
+                    (void) mongets(mtmp, TWO_HANDED_SWORD);
+                else {
+                    (void) mongets(mtmp, CROSSBOW);
+                    m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+                }
             }
             break;
         case 3:
-            (void) mongets(mtmp, BOW);
-            m_initthrow(mtmp, ARROW, 12);
+            if (!unique_corpstat(ptr)) {
+                (void) mongets(mtmp, BOW);
+                m_initthrow(mtmp, ARROW, 12);
+            }
             break;
         case 4:
-            if (strongmonst(ptr)
-                && !(is_dlord(ptr) || is_dprince(ptr)))
-                (void) mongets(mtmp, LONG_SWORD);
-            else
-                m_initthrow(mtmp, DAGGER, 3);
+            if (!unique_corpstat(ptr)) {
+                if (strongmonst(ptr))
+                    (void) mongets(mtmp, LONG_SWORD);
+                else
+                    m_initthrow(mtmp, DAGGER, 3);
+            }
             break;
         case 5:
-            if (strongmonst(ptr)
-                && !(is_dlord(ptr) || is_dprince(ptr)))
-                (void) mongets(mtmp, LUCERN_HAMMER);
-            else
-                (void) mongets(mtmp, AKLYS);
+            if (!unique_corpstat(ptr)) {
+                if (strongmonst(ptr))
+                    (void) mongets(mtmp, LUCERN_HAMMER);
+                else
+                    (void) mongets(mtmp, AKLYS);
+            }
             break;
         default:
             break;
@@ -1821,9 +1829,9 @@ register struct monst *mtmp;
         }
         break;
     case S_LICH:
-        if (ptr == &mons[PM_MASTER_LICH] && !rn2(13))
+        if (ptr == &mons[PM_MASTER_LICH] && !rn2(13)) {
             (void) mongets(mtmp, (rn2(7) ? ATHAME : WAN_NOTHING));
-        else if (ptr == &mons[PM_ARCH_LICH] && !rn2(3)) {
+        } else if (ptr == &mons[PM_ARCH_LICH] && !rn2(3)) {
             otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, TRUE,
                           rn2(13) ? FALSE : TRUE);
             if (otmp->spe < 2)
@@ -1831,6 +1839,14 @@ register struct monst *mtmp;
             if (!rn2(4))
                 otmp->oerodeproof = 1;
             (void) mpickobj(mtmp, otmp);
+        } else if (ptr == &mons[PM_VECNA]) {
+            otmp = mksobj(ROBE, FALSE, FALSE);
+            create_oprop(otmp, FALSE);
+            otmp->oprops = ITEM_DRLI;
+            otmp->oeroded2 = TRUE;
+            curse(otmp);
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, RIN_SLOW_DIGESTION);
         }
         break;
     case S_MUMMY:
@@ -1896,6 +1912,20 @@ register struct monst *mtmp;
                 otmp->spe = 0;
                 (void) mpickobj(mtmp, otmp);
             }
+        }
+        break;
+    case S_VAMPIRE:
+        if (ptr == &mons[PM_KAS]) {
+            otmp = mksobj(TWO_HANDED_SWORD, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_SWORD_OF_KAS));
+            curse(otmp);
+            otmp->spe = rnd(4) + 1;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, PLATE_MAIL);
+            (void) mongets(mtmp, HELMET);
+            (void) mongets(mtmp, GAUNTLETS);
+            (void) mongets(mtmp, DWARVISH_BOOTS);
+            (void) mongets(mtmp, RIN_SLOW_DIGESTION);
         }
         break;
     default:

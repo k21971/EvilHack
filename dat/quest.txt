@@ -4222,5 +4222,5 @@ cannot see.  Off in the distance, you can barely make out
 what appears to be a ladder dangling from a hole in the
 cavern ceiling.  You catch yourself and regain your balance
 as you step precariously close to the cliff's edge, careful
-not to fall over the edge.
+not to fall into the abyss.
 %E [You have just entered an rock cavern, which appears bottomless.]

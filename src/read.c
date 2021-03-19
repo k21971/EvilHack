@@ -2190,7 +2190,17 @@ do_class_genocide()
         /* Liches and the like are immune to genocide until Vecna
            is destroyed */
         if (!u.uevent.uvecna && !strcmpi(buf, "L")) {
-            pline("An ominous dark magic prevents you from genociding those creatures.");
+            pline_The("voice of Vecna fills your mind:");
+            verbalize("Thou shalt do no harm to my kind whilst I exist!");
+            /* the dark magic causes the scroll to burn */
+            pline("A dark magic catches the scroll on fire and you burn your %s.",
+                  makeplural(body_part(HAND)));
+            if (how_resistant(FIRE_RES) == 100) {
+                shieldeff(u.ux, u.uy);
+                monstseesu(M_SEEN_FIRE);
+            } else {
+                losehp(rnd(3), "burning scroll of genocide", KILLED_BY_AN);
+            }
             return;
         }
 
@@ -2245,7 +2255,8 @@ do_class_genocide()
                 candidates++;
                 if (!u.uevent.uvecna && i == PM_ALHOON) {
                     if (!gameover)
-                        pline("An ominous dark magic prevents you from genociding alhoons.");
+                        pline("A dark magic prevents you from genociding alhoons.");
+                    return;
                 } else if (Your_Own_Role(i) || Your_Own_Race(i)
                     || ((mons[i].geno & G_GENO)
                         && !(mvitals[i].mvflags & G_GENOD))) {
@@ -2391,8 +2402,18 @@ int how;
                 && (!strcmpi(buf, "lich") || !strcmpi(buf, "demilich")
                     || !strcmpi(buf, "master lich") || !strcmpi(buf, "arch-lich")
                     || !strcmpi(buf, "arch lich") || !strcmpi(buf, "alhoon"))) {
-                pline("An ominous dark magic prevents you from genociding %s.",
-                       makeplural(buf));
+                pline_The("voice of Vecna fills your mind:");
+                verbalize("Thou shalt do no harm to %s whilst I exist!",
+                          makeplural(buf));
+                /* the dark magic causes the scroll to burn */
+                pline("A dark magic catches the scroll on fire and you burn your %s.",
+                      makeplural(body_part(HAND)));
+                if (how_resistant(FIRE_RES) == 100) {
+                    shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_FIRE);
+                } else {
+                    losehp(rnd(3), "burning scroll of genocide", KILLED_BY_AN);
+                }
                 return;
             }
 

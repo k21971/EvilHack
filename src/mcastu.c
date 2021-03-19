@@ -872,7 +872,8 @@ int spellnum;
          * not magical damage or fire damage
          */
         if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-            || mtmp->data == &mons[PM_ASMODEUS]) {
+            || mtmp->data == &mons[PM_ASMODEUS]
+            || mtmp->data == &mons[PM_VECNA]) {
             pline("An avalanche of ice and snow slams into you from nowhere!");
             dmg = d(8, 8);
             if (Half_physical_damage)
@@ -1080,7 +1081,8 @@ int spellnum;
         switch (dmg) {
             case 1:
                 if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-                    || mtmp->data == &mons[PM_ASMODEUS]) {
+                    || mtmp->data == &mons[PM_ASMODEUS]
+                    || mtmp->data == &mons[PM_VECNA]) {
                     if (Vulnerable_cold)
                         return;
                     incr_itimeout(&HVulnerable_cold, rnd(100) + 150);

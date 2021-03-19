@@ -210,7 +210,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      */
     A("The Sword of Kas", TWO_HANDED_SWORD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL
-          | SPFX_DALIGN), 0, 0,
+          | SPFX_DALIGN), SPFX_EXCLUDE, 0,
       DRST(10, 0), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
       15000L, NO_COLOR),
     /* Thought the Oracle just knew everything on her own? Guess again. Should
