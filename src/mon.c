@@ -2801,16 +2801,6 @@ register struct monst *mtmp;
         return;
     }
 
-    /*if (mtmp->isvecna && !rn2(4)) {
-        if (!Blind)
-            pline("As the remnants of %s body vanish, you notice something was left behind...",
-                  s_suffix(mon_nam(mtmp)));
-        otmp = mksobj(EYEBALL, FALSE, FALSE);
-        otmp = oname(otmp, artiname(ART_EYE_OF_VECNA));
-        curse(otmp);
-        mdrop_obj(mtmp, otmp, FALSE);
-    }*/
-
     if (is_vampshifter(mtmp) || is_changeling(mtmp)) {
         int mndx = mtmp->cham;
         int x = mtmp->mx, y = mtmp->my;

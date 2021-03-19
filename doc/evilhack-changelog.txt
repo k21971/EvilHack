@@ -1477,4 +1477,6 @@ Version 0.7.0
 - Fix: invoking the Eye of Vecna and it killing a monster
 - Fix: 'It flies into a berserker rage!'
 - Kit out Vecna and Kas, other tweaks and adjustments
+- Fix: 'The seemingly dead warg suddenly transforms and rises as a
+  vampire royal!'
 
