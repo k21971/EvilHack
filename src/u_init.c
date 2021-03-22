@@ -879,7 +879,6 @@ u_init()
         ini_inv(Priest);
         if (Race_if(PM_ILLITHID))
             ini_inv(Psionics);
-        ini_inv(Priest);
         if (!rn2(4))
             ini_inv(Lamp);
         knows_object(POT_WATER);

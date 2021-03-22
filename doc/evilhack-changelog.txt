@@ -1328,5 +1328,6 @@ Version 0.6.0
 - Fix: rearrange the logic of starting inventory adjustments
 - Fix: Dragonbane could still be disintegrated by attacking a black dragon
 - Fix: segfault if killed by certain monsters that go through your possessions
+- Fix: priests getting double inventory
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 
