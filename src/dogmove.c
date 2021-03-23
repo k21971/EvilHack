@@ -195,7 +195,15 @@ boolean check_if_better, stashing;
                Prevent hoarding of multiple, identical items. */
             register struct obj *otmp2;
             for (otmp2 = mtmp->minvent; otmp2; otmp2 = otmp2->nobj) {
-                if (otmp->o_id != otmp2->o_id && otmp->otyp == otmp2->otyp) {
+                if (otmp->o_id == otmp2->o_id)
+                    continue;
+                if (Is_nonprize_container(otmp)) {
+                    if (stashing)
+                        return TRUE; /* don't stash one bag in another */
+                    if (otmp2->otyp >= SACK && otmp2->otyp <= BAG_OF_HOLDING
+                        && otmp->otyp < otmp2->otyp)
+                        return FALSE;
+                } if (otmp->otyp == otmp2->otyp) {
                     if (stashing)
                         goto hero_dupe_check;
                     return FALSE;
@@ -213,11 +221,23 @@ boolean check_if_better, stashing;
              * to steal an important item from the hero. */
 hero_dupe_check:
             for (otmp2 = invent; otmp2; otmp2 = otmp2->nobj) {
-                /* don't take an item that cures stoning unless the hero
-                 * already has one */
                 if (cures_stoning(mtmp, otmp, FALSE)) {
+                    /* don't take an item that cures stoning unless the hero
+                    * already has one */
                     if (cures_stoning(&youmonst, otmp2, FALSE)) {
                         return stashing ? FALSE : TRUE;
+                    }
+                } else if (Is_nonprize_container(otmp)) {
+                    if (stashing)
+                        return TRUE; /* don't stash one bag in another */
+                    /* 
+                     * don't take a bag unless the hero has one that is of the
+                     * same quality or better -- this relies on the fact that
+                     * bag otyps are contiguous and in order of preference.
+                     */
+                    if (otmp2->otyp >= SACK && otmp2->otyp <= BAG_OF_HOLDING
+                        && otmp->otyp <= otmp2->otyp) {
+                        return TRUE;
                     }
                 } else if (otmp->otyp == otmp2->otyp
                            || (otmp->oclass == FOOD_CLASS
