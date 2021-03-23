@@ -4044,6 +4044,7 @@ struct attack *mattk;
             }
             pline("%s turns to stone!", Monnam(mtmp));
             stoned = 1;
+            mtmp->mstone = 0; /* end any lingering timer */
             xkilled(mtmp, XKILL_NOMSG);
             if (!DEADMONSTER(mtmp))
                 return 1;

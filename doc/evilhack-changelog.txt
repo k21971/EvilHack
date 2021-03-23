@@ -1482,4 +1482,6 @@ Version 0.7.0
 - New branch: Vecna's domain (part three) - levels, minor tweaks
 - Fix: mstone timer still active on monster that was stoned and then
   unstoned
+- Fix: part two of mstone timer still active on monster that was stoned
+  and then unstoned
 
