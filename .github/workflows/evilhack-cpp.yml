@@ -1,0 +1,21 @@
+name: EvilHack
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    env:
+      HINTS_FILE: linux-debug
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup
+      run: ./sys/unix/setup.sh sys/unix/hints/$HINTS_FILE
+    - name: make all
+      run: make -j8 all
+    - name: make install
+      run: make install
