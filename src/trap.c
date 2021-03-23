@@ -3130,6 +3130,8 @@ minstapetrify(mon, byplayer)
 struct monst *mon;
 boolean byplayer;
 {
+    mon->mstone = 0; /* end any lingering timer */
+
     if (resists_ston(mon))
         return;
     if (poly_when_stoned(mon->data)) {
@@ -3138,10 +3140,6 @@ boolean byplayer;
     }
     if (!vamp_stone(mon))
         return;
-
-    /* give a "<mon> is slowing down" message and also remove
-       intrinsic speed (comparable to similar effect on the hero) */
-    /* mon_adjust_speed(mon, -3, (struct obj *) 0); */
 
     if (cansee(mon->mx, mon->my))
         pline("%s turns to stone.", Monnam(mon));
