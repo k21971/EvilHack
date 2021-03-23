@@ -10,7 +10,7 @@ jobs:
   linux-build:
     runs-on: ubuntu-latest
     env:
-      HINTS_FILE: linux-debug
+      HINTS_FILE: linux-debug.gha
     steps:
     - uses: actions/checkout@v2
     - name: setup

@@ -1487,4 +1487,5 @@ Version 0.7.0
 - Fix: tame monsters stashing gear into locked containers without
   unlocking it first
 - Fix: vaults.dat being copied twice during build, tweak .yml file
+- Create hints file specifically for github actions
 
