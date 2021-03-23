@@ -264,7 +264,7 @@ char **argv;
         ":dat:gehennom.des", ":dat:icequeen.des", ":dat:knox.des",
         ":dat:medusa.des",   ":dat:mines.des",    ":dat:nymph.des",
         ":dat:oracle.des",   ":dat:sokoban.des",  ":dat:tower.des",
-        ":dat:yendor.des"
+        ":dat:vecna.des",    ":dat:yendor.des"
     };
 
     argc = SIZE(mac_argv);

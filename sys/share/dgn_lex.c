@@ -888,75 +888,74 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-{ yylval.i=ICEQ ; return(DESCRIPTOR); }
-        YY_BREAK
-case 17:
-YY_RULE_SETUP
 { yylval.i=MAZELIKE ; return(DESCRIPTOR); }
 	YY_BREAK
-case 18:
+case 17:
 YY_RULE_SETUP
 { yylval.i=ROGUELIKE ; return(DESCRIPTOR); }
 	YY_BREAK
+case 18:
+YY_RULE_SETUP
+{ yylval.i=ICEQ ; return(DESCRIPTOR); }
+        YY_BREAK
 case 19:
 YY_RULE_SETUP
-{ yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
-	YY_BREAK
+{ yylval.i=VECNAD ; return(DESCRIPTOR); }
+        YY_BREAK
 case 20:
 YY_RULE_SETUP
 { yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-{ yylval.i=D_ALIGN_LAWFUL ; return(DESCRIPTOR); }
+{ yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-{ yylval.i=D_ALIGN_NEUTRAL ; return(DESCRIPTOR); }
+{ yylval.i=D_ALIGN_LAWFUL ; return(DESCRIPTOR); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-{ yylval.i=D_ALIGN_CHAOTIC ; return(DESCRIPTOR); }
+{ yylval.i=D_ALIGN_NEUTRAL ; return(DESCRIPTOR); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-return(BRANCH);
+{ yylval.i=D_ALIGN_CHAOTIC ; return(DESCRIPTOR); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-return(CHBRANCH);
+return(BRANCH);
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-return(LEVEL);
+return(CHBRANCH);
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-return(RNDLEVEL);
+return(LEVEL);
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-return(CHLEVEL);
+return(RNDLEVEL);
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-return(RNDCHLEVEL);
+return(CHLEVEL);
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-{ yylval.i=atoi(yytext); return(INTEGER); }
+return(RNDCHLEVEL);
 	YY_BREAK
 case 31:
-/* rule 30 can match eol */
 YY_RULE_SETUP
-{ yytext[yyleng - 1] = '\0'; /* discard the trailing \" */
-		  yylval.str = dupstr(yytext + 1); /* skip the first \" */
-		  return STRING; }
+{ yylval.i=atoi(yytext); return(INTEGER); }
 	YY_BREAK
 case 32:
 /* rule 31 can match eol */
 YY_RULE_SETUP
-{ nh_line_number++; }
+{ yytext[yyleng - 1] = '\0'; /* discard the trailing \" */
+		  yylval.str = dupstr(yytext + 1); /* skip the first \" */
+		  return STRING; }
 	YY_BREAK
 case 33:
 /* rule 32 can match eol */
@@ -964,14 +963,19 @@ YY_RULE_SETUP
 { nh_line_number++; }
 	YY_BREAK
 case 34:
+/* rule 33 can match eol */
 YY_RULE_SETUP
-;	/* skip trailing tabs & spaces */
+{ nh_line_number++; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-{ return yytext[0]; }
+;	/* skip trailing tabs & spaces */
 	YY_BREAK
 case 36:
+YY_RULE_SETUP
+{ return yytext[0]; }
+	YY_BREAK
+case 37:
 YY_RULE_SETUP
 ECHO;
 	YY_BREAK

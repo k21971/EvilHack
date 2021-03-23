@@ -66,6 +66,7 @@ CHAINLEVEL:	"wizard2" "X" "wizard1" + (1, 0)
 CHAINLEVEL:	"wizard3" "Y" "wizard1" + (2, 0)
 LEVEL:		"fakewiz1" "F" @ (-6, 4)
 LEVEL:		"fakewiz2" "G" @ (-6, 4)
+CHAINBRANCH:    "Vecna's Domain" "valley" + (1, 0) portal
 
 #
 #	The Mines of the Gnomes of Zurich.
@@ -120,6 +121,17 @@ ALIGNMENT:      unaligned
 LEVEL:          "icequeen-1" "none" @ (1, 0)
 LEVEL:          "icequeen-2" "none" @ (2, 0)
 LEVEL:          "icequeen-3" "none" @ (3, 0)
+
+#
+#       Vecna's Domain.
+#
+DUNGEON:        "Vecna's Domain" "none" (3, 0)
+DESCRIPTION:    mazelike
+DESCRIPTION:    vecnad
+ALIGNMENT:      chaotic
+LEVEL:          "vecna-1" "none" @ (1, 0)
+LEVEL:          "vecna-2" "none" @ (2, 0)
+LEVEL:          "vecna-3" "none" @ (3, 0)
 
 #
 #	Vlad's Tower

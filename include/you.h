@@ -51,6 +51,7 @@ struct u_event {
     Bitfield(tower_entered, 1);     /* entered Vlad's tower (cavern level) */
     Bitfield(hellc_entered, 1);     /* entered one of the demon prince lairs */
     Bitfield(iceq_entered, 1);      /* entered the Ice Queen's realm */
+    Bitfield(vecnad_entered, 1);    /* entered Vecna's domain */
     Bitfield(uhand_of_elbereth, 3); /* became Hand of Elbereth */
     Bitfield(ucerberus, 1);         /* killed Cerberus */
     Bitfield(uvecna, 1);            /* killed Vecna */

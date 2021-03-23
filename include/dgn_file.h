@@ -53,21 +53,24 @@ struct tmpbranch {
  */
 #define TOWN 1 /* levels only */
 #define HELLISH 2
-#define ICEQ 4
-#define MAZELIKE 8
-#define ROGUELIKE 16
+#define MAZELIKE 4
+#define ROGUELIKE 8
+#define ICEQ 16
+#define VECNAD 32
 
+/* if you add flags up above, the values for bit shifting
+   also have to be adjusted */
 #define D_ALIGN_NONE 0
-#define D_ALIGN_CHAOTIC (AM_CHAOTIC << 4)
-#define D_ALIGN_NEUTRAL (AM_NEUTRAL << 4)
-#define D_ALIGN_LAWFUL (AM_LAWFUL << 4)
+#define D_ALIGN_CHAOTIC (AM_CHAOTIC << 6) /* 64 */
+#define D_ALIGN_NEUTRAL (AM_NEUTRAL << 6) /* 128 */
+#define D_ALIGN_LAWFUL (AM_LAWFUL << 6)   /* 256 */
 
-#define D_ALIGN_MASK 0x70
+#define D_ALIGN_MASK 0x1C0 /* total D_ALIGN_x values */
 
 /*
  *	Max number of prototype levels and branches.
  */
-#define LEV_LIMIT 50
+#define LEV_LIMIT 99
 #define BRANCH_LIMIT 32
 
 #endif /* DGN_FILE_H */

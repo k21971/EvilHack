@@ -879,6 +879,14 @@ const char *const random_enchantress[] = {
     "It will take a long time to regrow the forest"
 };
 
+const char *const random_vecna[] = {
+    "I am Vecna the Unholy", "Kneel before me, wretched mortal",
+    "You have no idea what true power is!  I will show you",
+    "Your suffering will be legendary, even in hell",
+    "Ah, the suffering.  The sweet, sweet suffering",
+    "I will rip your soul to shreds"
+};
+
 /* Insult or intimidate the player */
 void
 cuss(mtmp)
@@ -927,6 +935,9 @@ register struct monst *mtmp;
             if (!rn2(7))
                 pline("%s waves to you.", Monnam(mtmp));
         }
+    } else if (mtmp->isvecna) {
+        verbalize("%s!",
+                  random_vecna[rn2(SIZE(random_vecna))]);
     } else {
         if (!rn2(is_minion(mtmp->data) ? 100 : 5))
             pline("%s casts aspersions on your ancestry.", Monnam(mtmp));

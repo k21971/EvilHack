@@ -97,9 +97,10 @@ ALIGNMENT       return(ALIGNMENT);
 LEVALIGN        return(LEVALIGN);
 town		{ yylval.i=TOWN ; return(DESCRIPTOR); }
 hellish		{ yylval.i=HELLISH ; return(DESCRIPTOR); }
-iceq		{ yylval.i=ICEQ ; return(DESCRIPTOR); }
 mazelike	{ yylval.i=MAZELIKE ; return(DESCRIPTOR); }
 roguelike	{ yylval.i=ROGUELIKE ; return(DESCRIPTOR); }
+iceq            { yylval.i=ICEQ ; return(DESCRIPTOR); }
+vecnad          { yylval.i=VECNAD ; return(DESCRIPTOR); }
 unaligned       { yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 noalign         { yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 lawful          { yylval.i=D_ALIGN_LAWFUL ; return(DESCRIPTOR); }

@@ -1944,6 +1944,16 @@ boolean at_stairs, falling, portal;
             You_hear("the distant howl of hungry wolves.");
     }
 
+    if (!In_vecna_branch(&u.uz0) && Invecnad
+        && !u.uevent.vecnad_entered) {
+        u.uevent.vecnad_entered = 1;
+        You("enter a desolate landscape, completely devoid of life.");
+        pline("Every fiber of your being tells you to leave this evil place, now.");
+#ifdef MICRO
+        display_nhwindow(WIN_MESSAGE, FALSE);
+#endif
+    }
+
     if (familiar) {
         static const char *const fam_msgs[4] = {
             "You have a sense of deja vu.",

@@ -1,0 +1,384 @@
+# NetHack 3.6  vecna.des  $NHDT-Date: 1616171562 2020/03/19 12:32:42 $  $NHDT-Branch: master $:$NHDT-Revision: 1.9 $
+#       Copyright (c) 2021 by Keith Simpson
+# NetHack may be freely redistributed.  See license for details.
+#
+#       Vecna's graveyard - the player must discover
+#       which one of four mausoleums to enter to progress
+#
+MAZE: "vecna-1",' '
+FLAGS: noteleport,hardfloor,shortsighted,nommap,graveyard
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+t.................ttttt......ttttttt....tttttttt......ttttttttt............t
+t.--------..........tt.........ttttt.....ttt.....tt......ttt..t...--------.t
+t.|......S.ttt.....t.....tt.....................................t.S......|.t
+t.|......|..tt.......t.t.......ttt..ttt...........tt......tt....tt|......|.t
+t.|...----.......tt.............tt.................ttt............----...|.t
+t.|...|...t........t....t.......tttttt.tttttt..............t...tt....|...|.t
+t.|...|....t...tt.....t........tt...........tt............t..........|...|.t
+t.-----......t....tt.......tt.tt.............tt.ttt..........t......t-----.t
+...t..................tttt..ttt...............t.............t..ttt..........
+...........t..tt............t...................ttt.........................
+t.............................t...............t.............t...ttttt......t
+t.-----.....................tttt.............tt....t............tt...-----.t
+t.|...|..tt.....tttt...........tt...........ttttt....................|...|..
+t.|...|......t.................ttttttt.tttttt......tt....t....tt.....|...|..
+t.|...----...........t......................t.....................----...|..
+t.|......|tt.....tt.....ttttt.........ttt....tt.......ttttt.......|......|.t
+t.|......S...t...tt......ttttt................ttt.....ttt.........S......|.t
+t.--------t.........................ttt...........................--------.t
+t...............ttt........ttttt..tt.....tttt....ttttt....ttt..............t
+tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+ENDMAP
+$stairs = { (04,06),(04,14),(71,06),(71,14) }
+$liches = { (03,07),(03,13),(72,07),(72,13) }
+SHUFFLE: $stairs
+SHUFFLE: $liches
+TELEPORT_REGION:(33,07,43,13),(00,00,00,00)
+REGION:(00,00,75,20),unlit,"ordinary"
+REGION:(13,03,27,17),unlit,"morgue",filled
+REGION:(49,03,62,17),unlit,"morgue",filled
+REGION:(03,03,05,05),unlit,"morgue",filled
+REGION:(03,15,05,17),unlit,"morgue",filled
+REGION:(70,03,72,05),unlit,"morgue",filled
+REGION:(70,15,72,17),unlit,"morgue",filled
+
+# Portal arrival point
+BRANCH:(38,10,38,10),(0,0,0,0)
+
+# Stairs (random)
+STAIR:$stairs[0],down
+
+# 'Fake' stairs
+MONSTER:('m',"giant mimic"),$stairs[1],m_feature "staircase down"
+MONSTER:('m',"giant mimic"),$stairs[2],m_feature "staircase down"
+MONSTER:('m',"giant mimic"),$stairs[3],m_feature "staircase down"
+
+# Liches
+MONSTER:('L',"lich"),$liches[0],asleep
+MONSTER:('L',"lich"),$liches[1],asleep
+MONSTER:('L',"demilich"),$liches[2],asleep
+MONSTER:('L',"demilich"),$liches[3],asleep
+
+# Secret Doors
+DOOR:locked,(09,03)
+DOOR:locked,(09,17)
+DOOR:locked,(66,03)
+DOOR:locked,(66,17)
+
+# Random monsters
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'V',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:' ',random
+MONSTER:' ',random
+MONSTER:' ',random
+MONSTER:' ',random
+
+# Random traps
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+
+# None shall pass
+NON_DIGGABLE:(00,00,75,20)
+NON_PASSWALL:(00,00,75,20)
+
+
+#
+# The Stronghold of Kas
+#
+MAZE: "vecna-2",' '
+FLAGS: noteleport,hardfloor,shortsighted,nommap
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLL--FF----FFF----FF--LLLLLLLL--F--LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLL-|.................|-LLLLLLL|...|LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLL-|...................|-LLLLLL|...|LLLLLLLLLLLLLLLLLLLL----FF----LLLLL
+LLLLLL-|...---.........---...|-LLLLL|...|LLLLLLLLLLLLLLLLLLLL|........|LLLLL
+LL----|....- -.........- -....|------...-------LLLLLLLLLLL----...--...----LL
+LL|...F....---.........---....S..|............|LLLLLLLLLLL|......--......|-L
+LL|-FFF.......................|..|............|LLLL---FF---...............|L
+LLF...........................|..|..--------..|LLLL|......................FL
+LLF...........................|..|.........|......L|......................FL
+LLF...........................|..|.........|..|LLLL|......................FL
+LL|-FFF.......................|..--------..|FF|LLLL---FF---...............|L
+LL|...F....---.........---....|............|..|LLLLLLLLLLL|......--......|-L
+LL----|....- -.........- -....|------...----FF-LLLLLLLLLLL----...--...----LL
+LLLLLL-|...---.........---...|-LLLLL|...|LLLLLLLLLLLLLLLLLLLL|........|LLLLL
+LLLLLLL-|...................|-LLLLLL|...|LLLLLLLLLLLLLLLLLLLL----FF----LLLLL
+LLLLLLLL-|.................|-LLLLLLL|...|LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLL--FF----FFF----FF--LLLLLLLL--F--LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+ENDMAP
+TELEPORT_REGION:(03,09,07,11),(00,00,00,00)
+REGION:(00,00,75,20),unlit,"ordinary"
+STAIR:(03,10),up
+STAIR:(72,10),down
+
+# Drawbridges
+DRAWBRIDGE:(50,10),east,closed
+
+# Secret Doors
+DOOR:locked,(30,07)
+
+# Monsters
+MONSTER:(':',"salamander"),(48,09),hostile
+MONSTER:(':',"salamander"),(48,11),hostile
+MONSTER:(':',"salamander"),(51,03),hostile
+MONSTER:(':',"salamander"),(51,17),hostile
+MONSTER:('&',"marilith"),(04,07),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:50
+}
+MONSTER:('&',"marilith"),(04,13),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:50
+}
+MONSTER:('&',"marilith"),(44,13),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('e',"beholder"),(18,04),awake
+MONSTER:('e',"beholder"),(18,16),awake
+MONSTER:('L',"master lich"),(38,03),asleep
+MONSTER:('L',"master lich"),(38,04),asleep
+MONSTER:('L',"master lich"),(38,16),asleep
+MONSTER:('L',"master lich"),(38,17),asleep
+MONSTER:('&',"weredemon"),(54,10),hostile
+MONSTER:('V',"vampire royal"),(55,09),hostile
+MONSTER:('V',"vampire mage"),(55,11),hostile
+MONSTER:('V',"vampire royal"),(63,07),hostile
+MONSTER:('V',"vampire royal"),(63,13),hostile
+MONSTER:('&',"balrog"),(66,10),hostile
+MONSTER:('V',"vampire royal"),(65,09),hostile
+MONSTER:('V',"vampire royal"),(65,11),hostile
+MONSTER:('L',"demilich"),(72,07),hostile
+MONSTER:('L',"demilich"),(72,13),hostile
+# Kas
+MONSTER:('V',"Kas"),(72,10),asleep
+
+# Kas' loot
+OBJECT:('(',"iron safe"),(72,09)
+OBJECT:('(',"chest"),(72,11)
+
+# Random monsters
+MONSTER:'V',(09,05)
+MONSTER:'V',(10,08)
+MONSTER:'V',(26,06)
+MONSTER:'V',(27,09)
+MONSTER:'V',(15,11)
+MONSTER:'V',(23,10)
+MONSTER:'Z',(14,03)
+MONSTER:'Z',(20,17)
+MONSTER:'Z',(31,08)
+MONSTER:'Z',(44,10)
+MONSTER:'Z',(18,10)
+MONSTER:'Z',(17,11)
+MONSTER:'Z',(13,12)
+MONSTER:'Z',(28,14)
+MONSTER:'M',(17,07)
+MONSTER:'M',(17,13)
+MONSTER:'M',(36,10)
+MONSTER:'M',(34,08)
+MONSTER:'M',(09,16)
+MONSTER:'M',(07,07)
+MONSTER:'M',(12,12)
+MONSTER:' ',random
+MONSTER:' ',random
+MONSTER:' ',random
+MONSTER:' ',random
+
+# Random traps
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+
+# None shall pass
+NON_DIGGABLE:(00,00,75,20)
+NON_PASSWALL:(00,00,75,20)
+
+
+#
+# Vecna's domain
+#
+MAZE: "vecna-3",' '
+FLAGS: noteleport,hardfloor,shortsighted,nommap
+INIT_MAP:mines,'.',' ',true,true,unlit,true
+GEOMETRY:left,top
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+ LLLLLLLLLLLLLLLLLLLLLLL 
+LL-------LLLLLLLLL------L
+L-|.....|-FF--LLLL|....|L
+L|......|....|-----....FL
+L|......|....S.........FL
+L|......|....|.........|L
+L----SS-|....|....------L
+LLL|....|....|....|LLLLLL
+LLL---S-|....|....FLLLLLL
+LLLL|...|....|....|LLLLLL
+L----...S....|....|-----L
+L|......|....|....S....|L
+L---------FF------------L
+ LLLLLLLLLLLLLLLLLLLLLLL 
+ENDMAP
+STAIR:levregion(01,01,79,20),levregion(01,01,64,20),up
+TELEPORT_REGION:levregion(01,01,79,20),levregion(01,01,64,20)
+
+TERRAIN: (00,00), ' '
+TERRAIN: (24,00), ' '
+TERRAIN: (00,13), ' '
+TERRAIN: (24,13), ' '
+
+TERRAIN: floodfill (00,00), 'L'
+TERRAIN: floodfill (24,00), 'L'
+TERRAIN: floodfill (00,13), 'L'
+TERRAIN: floodfill (24,13), 'L'
+
+# Doors and drawbridges
+DRAWBRIDGE:(24,11),west,closed
+DOOR:locked,(05,06)
+DOOR:locked,(06,06)
+DOOR:locked,(06,08)
+DOOR:locked,(08,10)
+DOOR:locked,(13,04)
+DOOR:locked,(18,11)
+
+# Monsters
+MONSTER:(':',"salamander"),(00,00),hostile
+MONSTER:(':',"salamander"),(24,00),hostile
+MONSTER:(':',"salamander"),(00,13),hostile
+MONSTER:(':',"salamander"),(24,13),hostile
+MONSTER:('L',"master lich"),(10,04),asleep
+MONSTER:('L',"demilich"),(11,04),asleep
+MONSTER:('Z',"skeleton"),(10,06),asleep
+MONSTER:('&',"balrog"),(11,06),asleep
+MONSTER:('Z',"skeleton"),(10,07),asleep
+MONSTER:('&',"pit fiend"),(11,07),asleep
+MONSTER:('L',"demilich"),(10,10),asleep
+MONSTER:('L',"arch-lich"),(11,10),asleep
+MONSTER:('U',"shambling horror"),(05,09)
+MONSTER:('h',"alhoon"),(16,05),asleep
+MONSTER:('Z',"skeleton"),(15,07),asleep
+MONSTER:('V',"vampire royal"),(16,07),asleep
+MONSTER:('Z',"skeleton"),(15,08),asleep
+MONSTER:('V',"vampire royal"),(16,08),asleep
+MONSTER:('&',"marilith"),(20,03),asleep
+MONSTER:('&',"nalfeshnee"),(21,03),asleep
+MONSTER:('H',"elder minotaur"),(20,11),hostile
+# Vecna
+MONSTER:('L',"Vecna"),(03,02),asleep
+TERRAIN:(03,02),'\'
+
+# Random monsters
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'Z',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:' ',random
+MONSTER:' ',random
+MONSTER:('e',"beholder"),random
+MONSTER:('L',"lich"),random
+MONSTER:('L',"lich"),random
+MONSTER:('L',"demilich"),random
+MONSTER:('L',"demilich"),random
+
+# Vecna's loot
+CONTAINER:('(',"crystal chest"),(02,03) {
+  IF [20%] {
+    OBJECT:('(',"magic marker"),uncursed
+  }
+  OBJECT:'+',uncursed
+  OBJECT:'+',uncursed
+  OBJECT:'+',uncursed
+  OBJECT:'+',cursed
+  OBJECT:'+',blessed
+}
+CONTAINER:('(',"crystal chest"),(02,04) {
+  OBJECT:'?',uncursed
+  OBJECT:'?',uncursed
+  OBJECT:'?',blessed
+  OBJECT:'=',cursed
+  OBJECT:'=',blessed
+  OBJECT:'=',uncursed
+  OBJECT:'"',uncursed
+  OBJECT:'"',blessed
+  OBJECT:'!',cursed
+  OBJECT:'!',blessed
+}
+CONTAINER:('(',"crystal chest"),(02,05) {
+  OBJECT:'$',quantity:20000
+  OBJECT:'*',uncursed
+  OBJECT:'*',uncursed
+  OBJECT:'*',uncursed
+  OBJECT:'*',uncursed
+  OBJECT:'*',uncursed
+}
+
+# Random traps
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+TRAP:random, random
+
+# None shall pass
+NON_DIGGABLE:(00,00,75,20)
+NON_PASSWALL:(00,00,75,20)
+
+# the lava river
+IF [50%] {
+  TERRAIN: grow(north | west, randline (36,00),(50,20), 10), 'L'
+} ELSE {
+  TERRAIN: grow(north | west, randline (50,00),(36,20), 10), 'L'
+}
+

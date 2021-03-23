@@ -355,6 +355,17 @@ dosounds()
             "someone singing \"Do You Want to Build a Snowman\"."
         };
         You_hear1(icequeenbranch_msg[rn2(2 + hallu)]);
+        return;
+    }
+    if (ledger_no(&u.uz) == ledger_no(&valley_level) + 1
+        && !rn2(200)) {
+        static const char* const vecnabranch_msg[] = {
+            "a mysterious chanting.",
+            "the tortured cries of the damned.",
+            "\"Dead man walking\"..."
+        };
+        You_hear1(vecnabranch_msg[rn2(2 + hallu)]);
+        return;
     }
 }
 

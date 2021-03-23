@@ -4513,7 +4513,7 @@ struct monst *mon;
     case PM_KAS:
     case PM_VLAD_THE_IMPALER:
         /* ensure Vlad can keep carrying the Candelabrum */
-        if (mon_has_special(mon))
+        if (mon_has_special(mon) || mon->data == &mons[PM_KAS])
             break; /* leave mndx as is */
         wolfchance = 3;
     /*FALLTHRU*/

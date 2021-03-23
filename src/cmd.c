@@ -1200,6 +1200,8 @@ wiz_map_levltyp(VOID_ARGS)
                 Strcat(dsc, " hellish");
             if (slev->flags.iceq)
                 Strcat(dsc, " Ice Queen branch");
+            if (slev->flags.vecnad)
+                Strcat(dsc, " Vecna's branch");
             if (slev->flags.town)
                 Strcat(dsc, " town");
             if (slev->flags.rogue_like)

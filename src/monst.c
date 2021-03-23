@@ -2072,7 +2072,7 @@ struct permonst _mons2[] = {
             | M1_POIS | M1_REGEN,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_STRONG
             | M2_MAGIC | M2_NASTY | M2_PRINCE | M2_MALE,
-        M3_WANTSBOOK | M3_WAITFORU | M3_INFRAVISION,
+        M3_WANTSBOOK | M3_WAITFORU | M3_CLOSE | M3_INFRAVISION,
         0, MH_UNDEAD, 50, CLR_BRIGHT_MAGENTA),
     /*
      * Mummies

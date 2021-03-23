@@ -1479,4 +1479,5 @@ Version 0.7.0
 - Kit out Vecna and Kas, other tweaks and adjustments
 - Fix: 'The seemingly dead warg suddenly transforms and rises as a
   vampire royal!'
+- New branch: Vecna's domain (part three) - levels, minor tweaks
 
