@@ -103,10 +103,10 @@ register struct obj *otmp;
 * See if a monst could use this item in an offensive or defensive capacity.
 */
 boolean
-could_use_item(mtmp, otmp, check_if_better)
+could_use_item(mtmp, otmp, check_if_better, stashing)
 register struct monst *mtmp;
 register struct obj *otmp;
-boolean check_if_better;
+boolean check_if_better, stashing;
 {
     boolean can_use =
         /* make sure this is an intelligent monster */
@@ -180,7 +180,7 @@ boolean check_if_better;
              || otmp->otyp == FIGURINE
              || otmp->otyp == EUCALYPTUS_LEAF
              || otmp->otyp == UNICORN_HORN
-             || (otmp->otyp == CORPSE && otmp->corpsenm == PM_LIZARD)));
+             || cures_stoning(mtmp, otmp, FALSE)));
 
     if (can_use) {
         /* arbitrary - greedy monsters keep any item you can use */
@@ -195,16 +195,37 @@ boolean check_if_better;
                Prevent hoarding of multiple, identical items. */
             register struct obj *otmp2;
             for (otmp2 = mtmp->minvent; otmp2; otmp2 = otmp2->nobj) {
-                if (otmp->o_id != otmp2->o_id
-                    && (otmp->otyp == otmp2->otyp
-                        || (otmp->oclass == FOOD_CLASS
-                            && otmp2->oclass == FOOD_CLASS
-                            && !(otmp->otyp == CORPSE
-                                 && otmp->corpsenm == PM_LIZARD))))
+                if (otmp->o_id != otmp2->o_id && otmp->otyp == otmp2->otyp) {
+                    if (stashing)
+                        goto hero_dupe_check;
                     return FALSE;
+                }
             }
 
-            return TRUE;
+            /* if item is already in monster's inventory and we are
+             * considering whether to stash it in a bag, at this point we can
+             * be satisfied that it should stay out. */
+            if (stashing)
+                return TRUE;
+
+            /* on the other hand, if considering whether to pick the item up
+             * or drop it, only do so if the hero has one already, so as not
+             * to steal an important item from the hero. */
+hero_dupe_check:
+            for (otmp2 = invent; otmp2; otmp2 = otmp2->nobj) {
+                /* don't take an item that cures stoning unless the hero
+                 * already has one */
+                if (cures_stoning(mtmp, otmp, FALSE)) {
+                    if (cures_stoning(&youmonst, otmp2, FALSE)) {
+                        return stashing ? FALSE : TRUE;
+                    }
+                } else if (otmp->otyp == otmp2->otyp
+                           || (otmp->oclass == FOOD_CLASS
+                               && otmp2->oclass == FOOD_CLASS)) {
+                    return stashing ? FALSE : TRUE;
+                }
+            }
+            return stashing ? TRUE : FALSE;
         }
     }
     return FALSE;
@@ -318,7 +339,7 @@ struct monst *mon;
          		    && ((rwep != &zeroobj) ||
          		        (!is_ammo(obj) && !is_launcher(obj)))
          		    && (rwep == &zeroobj || !ammo_and_launcher(obj, rwep))
-         		    && !could_use_item(mon, obj, TRUE))))
+         		    && !could_use_item(mon, obj, TRUE, FALSE))))
      		            return obj;
     }
 
@@ -754,7 +775,7 @@ int udist;
             carryamt = can_carry(mtmp, obj);
             if (carryamt > 0 && !obj->cursed && !obj->zombie_corpse
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
-                boolean can_use = could_use_item(mtmp, obj, TRUE);
+                boolean can_use = could_use_item(mtmp, obj, TRUE, FALSE);
                 if (can_use || (rn2(20) < edog->apport + 3)) {
                     if (can_use || rn2(udist) || !rn2(edog->apport)) {
                         otmp = obj;
@@ -854,7 +875,7 @@ int after, udist, whappr;
                         gtyp = otyp;
                     }
                 } else if (gtyp == UNDEF && in_masters_sight
-                           && ((can_use = could_use_item(mtmp, obj, TRUE))
+                           && ((can_use = could_use_item(mtmp, obj, TRUE, FALSE))
                    	       || !dog_has_minvent)
                            && (!levl[omx][omy].lit || levl[u.ux][u.uy].lit)
                            && (otyp == MANFOOD || m_cansee(mtmp, nx, ny))

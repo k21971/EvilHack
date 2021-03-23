@@ -36,8 +36,6 @@ STATIC_DCL boolean FDECL(necrophiliac, (struct obj *, BOOLEAN_P));
 #endif
 STATIC_DCL void FDECL(mon_consume_unstone, (struct monst *, struct obj *,
                                             BOOLEAN_P, BOOLEAN_P));
-STATIC_DCL boolean FDECL(cures_stoning, (struct monst *, struct obj *,
-                                         BOOLEAN_P));
 STATIC_DCL boolean FDECL(mcould_eat_tin, (struct monst *));
 STATIC_DCL boolean FDECL(muse_unslime, (struct monst *, struct obj *,
                                         struct trap *, BOOLEAN_P));
@@ -3561,7 +3559,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
 }
 
 /* decide whether obj can cure petrification; also used when picking up */
-STATIC_OVL boolean
+boolean
 cures_stoning(mon, obj, tinok)
 struct monst *mon;
 struct obj *obj;

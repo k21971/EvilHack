@@ -1772,8 +1772,8 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
 
     if (mon->mtame && mon->mcanmove &&
             (!is_animal(mon->data)) && (!mindless(mon->data)) &&
-            could_use_item(mon, obj, FALSE)) {
-       if (could_use_item(mon, obj, TRUE)) {
+            could_use_item(mon, obj, FALSE, FALSE)) {
+       if (could_use_item(mon, obj, TRUE, FALSE)) {
            pline("%s catches %s.", Monnam(mon), the(xname(obj)));
            obj_extract_self(obj);
            (void) mpickobj(mon,obj);

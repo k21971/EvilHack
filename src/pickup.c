@@ -3211,7 +3211,7 @@ boolean creation;
             || obj->owornmask
             || obj == wep || obj == hwep || obj == rwep || obj == proj
             || (!mon->mtame && searches_for_item(mon, obj))
-            || (mon->mtame && could_use_item(mon, obj, TRUE))
+            || (mon->mtame && could_use_item(mon, obj, TRUE, TRUE))
             || (bag && Is_mbag(bag) && mbag_explodes(obj, 0))
             || (obj->otyp == LOADSTONE && obj->cursed)
             || (obj->otyp == AMULET_OF_YENDOR
