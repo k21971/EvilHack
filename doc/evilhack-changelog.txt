@@ -1488,4 +1488,6 @@ Version 0.7.0
   unlocking it first
 - Fix: vaults.dat being copied twice during build, tweak .yml file
 - Create hints file specifically for github actions
+- Fix: 'The goblin outrider is burned by your invisible vampire mage's
+  pair of mithril tekko!'
 

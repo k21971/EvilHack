@@ -569,7 +569,7 @@ boolean minimal;        /* print a shorter message leaving out obj details */
             impossible("searmsg: non-weapon attack with no aggressor?");
             return;
         } else {
-            Strcpy(whose, s_suffix(y_monnam(magr)));
+            Strcpy(whose, s_suffix(mon_nam(magr)));
             Strcat(whose, " ");
         }
     } else {
@@ -623,9 +623,10 @@ boolean minimal;        /* print a shorter message leaving out obj details */
     }
 
     char* whom = mon_nam(mdef);
-    if (youdefend) {
+    if (youdefend)
         Strcpy(whom, "you");
-    }
+    if (!youdefend && !youattack)
+        Sprintf(whose, "%s ", s_suffix(mon_nam(magr)));
 
     if (mat == SILVER) { /* more dramatic effects than other materials */
         /* note: s_suffix returns a modifiable buffer */
