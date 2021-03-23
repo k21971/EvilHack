@@ -1484,4 +1484,6 @@ Version 0.7.0
   unstoned
 - Fix: part two of mstone timer still active on monster that was stoned
   and then unstoned
+- Fix: tame monsters stashing gear into locked containers without
+  unlocking it first
 
