@@ -16,6 +16,6 @@ jobs:
     - name: setup
       run: ./sys/unix/setup.sh sys/unix/hints/$HINTS_FILE
     - name: make all
-      run: make -j8 all
+      run: make all
     - name: make install
       run: make install

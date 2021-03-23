@@ -92,7 +92,7 @@ SPEC_LEVS = bigrm-*.lev castle-?.lev fakewiz?.lev hellfill.lev \
 QUEST_LEVS = ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev
 
 DATNODLB = $(VARDATND) license symbols
-DATDLB = $(DATHELP) dungeon tribute $(SPEC_LEVS) $(QUEST_LEVS) $(VARDATD) vaults.dat
+DATDLB = $(DATHELP) dungeon tribute $(SPEC_LEVS) $(QUEST_LEVS) $(VARDATD)
 DAT = $(DATNODLB) $(DATDLB)
 
 $(GAME):

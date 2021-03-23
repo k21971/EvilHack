@@ -1486,4 +1486,5 @@ Version 0.7.0
   and then unstoned
 - Fix: tame monsters stashing gear into locked containers without
   unlocking it first
+- Fix: vaults.dat being copied twice during build, tweak .yml file
 
