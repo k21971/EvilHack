@@ -179,7 +179,8 @@ boolean check_if_better;
              || otmp->otyp == DRUM_OF_EARTHQUAKE
              || otmp->otyp == FIGURINE
              || otmp->otyp == EUCALYPTUS_LEAF
- 	     || otmp->otyp == UNICORN_HORN));
+             || otmp->otyp == UNICORN_HORN
+             || (otmp->otyp == CORPSE && otmp->corpsenm == PM_LIZARD)));
 
     if (can_use) {
         /* arbitrary - greedy monsters keep any item you can use */
@@ -187,20 +188,24 @@ boolean check_if_better;
             return TRUE;
         if (otmp->oclass == ARMOR_CLASS) {
  	    return !check_if_better || !is_better_armor(&youmonst, otmp);
-        } else if ((otmp->oclass == WAND_CLASS
-                   || otmp->oclass == TOOL_CLASS
-                   || otmp->oclass == RING_CLASS)
-                   && otmp->spe <= 0)
+        } else if (is_chargeable(otmp) && otmp->spe <= 0) {
             return FALSE;  /* used charges or was cancelled? */
-        else {
+        } else {
        	    /* Check if you've got one.
        	       If you don't, don't hoard it. */
             register struct obj *otmp2;
-       	    for (otmp2 = invent; otmp2; otmp2 = otmp2->nobj)
-       	        if (otmp->otyp == otmp2->otyp ||
-       	            (otmp->otyp == FOOD_CLASS && otmp2->otyp == FOOD_CLASS))
-       	            return TRUE;
-       	}
+            for (otmp2 = mtmp->minvent; otmp2; otmp2 = otmp2->nobj) {
+                if (otmp->o_id != otmp2->o_id
+                        && (otmp->otyp == otmp2->otyp
+                            || (otmp->oclass == FOOD_CLASS
+                                && otmp2->oclass == FOOD_CLASS
+                                && !(otmp->otyp == CORPSE
+                                     && otmp->corpsenm == PM_LIZARD))))
+                    return FALSE;
+            }
+            return TRUE;
+
+        }
     }
     return FALSE;
 }
