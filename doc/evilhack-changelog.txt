@@ -1491,4 +1491,5 @@ Version 0.7.0
 - Fix: 'The goblin outrider is burned by your invisible vampire mage's
   pair of mithril tekko!'
 - Update level data on various platforms (Vecna branch).
+- Fix: segfault if killed by certain monsters that go through your possessions
 
