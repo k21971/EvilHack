@@ -559,7 +559,8 @@ E int FDECL(dogfood, (struct monst *, struct obj *));
 E boolean FDECL(tamedog, (struct monst *, struct obj *));
 E void FDECL(abuse_dog, (struct monst *));
 E void FDECL(wary_dog, (struct monst *, BOOLEAN_P));
-E boolean FDECL(could_use_item, (struct monst*, struct obj*, BOOLEAN_P));
+E boolean FDECL(could_use_item, (struct monst*, struct obj*, BOOLEAN_P,
+                                 BOOLEAN_P));
 
 /* ### dogmove.c ### */
 
@@ -1748,6 +1749,7 @@ E boolean FDECL(mon_reflects, (struct monst *, const char *));
 E boolean FDECL(ureflects, (const char *, const char *));
 E void FDECL(mcureblindness, (struct monst *, BOOLEAN_P));
 E boolean FDECL(munstone, (struct monst *, BOOLEAN_P));
+E boolean FDECL(cures_stoning, (struct monst *, struct obj *, BOOLEAN_P));
 E boolean FDECL(munslime, (struct monst *, BOOLEAN_P));
 E void FDECL(mmake_wish, (struct monst *));
 
