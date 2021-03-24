@@ -1492,4 +1492,6 @@ Version 0.7.0
   pair of mithril tekko!'
 - Update level data on various platforms (Vecna branch).
 - Fix: segfault if killed by certain monsters that go through your possessions
+- Fix: better grammar/object handling (priest attacking with forbidden
+  weapons)
 
