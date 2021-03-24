@@ -1490,4 +1490,5 @@ Version 0.7.0
 - Create hints file specifically for github actions
 - Fix: 'The goblin outrider is burned by your invisible vampire mage's
   pair of mithril tekko!'
+- Update level data on various platforms (Vecna branch).
 
