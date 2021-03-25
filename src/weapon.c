@@ -1317,21 +1317,20 @@ skill_training_percent(int skill)
     int i;
 
     if (P_RESTRICTED(skill))
-	return 0;
+        return 0;
 
     for (i = P_SKILL(skill); i < P_MAX_SKILL(skill); i++) {
-	if (P_ADVANCE(skill) >= practice_needed_to_advance(i)) {
-	    percent += 100;
-	} else {
-	    int mintrain = (i == P_UNSKILLED) ? 0 :
-			   practice_needed_to_advance(i - 1);
-	    int partial = (P_ADVANCE(skill) - mintrain) * 100 /
-			  (practice_needed_to_advance(i) - mintrain);
-	    percent += min(partial, 100);
-	    break;
-	}
+        if (P_ADVANCE(skill) >= practice_needed_to_advance(i)) {
+            percent += 100;
+        } else {
+            int mintrain = (i == P_UNSKILLED) ? 0 :
+                            practice_needed_to_advance(i - 1);
+            int partial = (P_ADVANCE(skill) - mintrain) * 100 /
+                           (practice_needed_to_advance(i) - mintrain);
+            percent += min(partial, 100);
+            break;
+        }
     }
-
     return percent;
 }
 
@@ -1763,8 +1762,7 @@ void
 drain_weapon_skill(n)
 int n; /* number of skills to drain */
 {
-    int skill;
-    int i;
+    int skill, i, curradv, prevadv;
     int tmpskills[P_NUM_SKILLS];
 
     (void) memset((genericptr_t) tmpskills, 0, sizeof(tmpskills));
@@ -1784,9 +1782,11 @@ int n; /* number of skills to drain */
             P_SKILL(skill)--;   /* drop skill one level */
             /* refund slots used for skill */
             u.weapon_slots += slots_required(skill);
-            /* drain a random proportion of skill training */
-            if (P_ADVANCE(skill))
-                P_ADVANCE(skill) = rn2(P_ADVANCE(skill));
+            /* drain skill training to a value appropriate for new level */
+            curradv = practice_needed_to_advance(P_SKILL(skill));
+            prevadv = practice_needed_to_advance(P_SKILL(skill) - 1);
+            if (P_ADVANCE(skill) >= curradv)
+                P_ADVANCE(skill) = prevadv + rn2(curradv - prevadv);
         }
     }
 

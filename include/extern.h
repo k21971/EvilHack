@@ -2204,6 +2204,7 @@ E int NDECL(doread);
 E boolean FDECL(is_chargeable, (struct obj *));
 E void FDECL(recharge, (struct obj *, int, struct monst *));
 E void NDECL(forget_traps);
+E void FDECL(forget, (int));
 E int FDECL(seffects, (struct obj *));
 E void FDECL(drop_boulder_on_player,
              (BOOLEAN_P, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P));

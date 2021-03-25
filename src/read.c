@@ -26,10 +26,6 @@ STATIC_DCL void FDECL(p_glow1, (struct obj *));
 STATIC_DCL void FDECL(p_glow2, (struct obj *, const char *));
 STATIC_DCL void FDECL(mp_glow1, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mp_glow2, (struct monst *, struct obj *, const char *));
-#if 0 /* currently not used (amnesia revamp) */
-STATIC_DCL void FDECL(randomize, (int *, int));
-#endif
-STATIC_DCL void FDECL(forget, (int));
 STATIC_DCL int FDECL(maybe_tame, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(get_valid_stinking_cloud_pos, (int, int));
 STATIC_DCL boolean FDECL(is_valid_stinking_cloud_pos, (int, int, BOOLEAN_P));
@@ -948,25 +944,6 @@ struct monst *mtmp;
     }
 }
 
-#if 0 /* currently not used (amnesia revamp) */
-/* randomize the given list of numbers  0 <= i < count */
-STATIC_OVL void
-randomize(indices, count)
-int *indices;
-int count;
-{
-    int i, iswap, temp;
-
-    for (i = count - 1; i > 0; i--) {
-        if ((iswap = rn2(i + 1)) == i)
-            continue;
-        temp = indices[i];
-        indices[i] = indices[iswap];
-        indices[iswap] = temp;
-    }
-}
-#endif
-
 /* Forget all traps on the level. */
 void
 forget_traps()
@@ -989,7 +966,7 @@ forget_traps()
  * Other things are subject to flags:
  *      howmuch & ALL_SPELLS    = forget all spells
  */
-STATIC_OVL void
+/*STATIC_OVL */void
 forget(howmuch)
 int howmuch;
 {

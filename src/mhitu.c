@@ -1597,8 +1597,7 @@ register struct attack *mattk;
             (void) adjattrib(A_INT, -rnd(2), FALSE);
             forget_traps();
             if (rn2(2))
-                losespells();
-            drain_weapon_skill(rnd(u.uluck <= 0 ? 5 : 3));
+                forget(rnd(u.uluck <= 0 ? 4 : 2));
             break;
         }
     case AD_PLYS:

@@ -1497,4 +1497,5 @@ Version 0.7.0
 - Redo vecna-3 map
 - Fix: Caveperson quest nemesis not spawning with the Bell of Opening
 - Some rumor tweaks
+- Fix: drain_weapon_skill() irregularities, tone down occurence of the same
 
