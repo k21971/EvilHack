@@ -1494,4 +1494,5 @@ Version 0.7.0
 - Fix: segfault if killed by certain monsters that go through your possessions
 - Fix: better grammar/object handling (priest attacking with forbidden
   weapons)
+- Redo vecna-3 map
 

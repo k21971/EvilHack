@@ -3026,7 +3026,7 @@ boolean was_swallowed; /* digestion */
         || mdat == &mons[PM_ALHOON] || mdat == &mons[PM_KAS]) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
             pline("%s body crumbles into dust.", s_suffix(Monnam(mon)));
-        if (mon->isvecna && !rn2(4)) {
+        if (mon->isvecna && rn2(2)) {
             if (!Blind)
                 pline("As the remnants of %s body vanish, you notice something was left behind...",
                       s_suffix(mon_nam(mon)));
