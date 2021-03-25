@@ -1375,6 +1375,15 @@ int dieroll;
         && mon && mdat == &mons[PM_VECNA])
         tmp *= 3;
 
+    /* Even though the Sword of Kas is attuned to Vecna,
+       it does extra harm to creatures that draw their
+       power from him also */
+    if (uwep && uwep->oartifact == ART_SWORD_OF_KAS && mon
+        && (mdat == &mons[PM_LICH] || mdat == &mons[PM_DEMILICH]
+            || mdat == &mons[PM_MASTER_LICH] || mdat == &mons[PM_ARCH_LICH]
+            || mdat == &mons[PM_ALHOON]))
+        tmp *= 2;
+
     if (valid_weapon_attack) {
         struct obj *wep;
 
