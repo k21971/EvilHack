@@ -1496,4 +1496,5 @@ Version 0.7.0
   weapons)
 - Redo vecna-3 map
 - Fix: Caveperson quest nemesis not spawning with the Bell of Opening
+- Some rumor tweaks
 
