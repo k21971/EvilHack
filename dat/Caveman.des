@@ -226,6 +226,9 @@ STAIR:random,up
 NON_DIGGABLE:(00,00,75,19)
 # Objects
 OBJECT:(')',"heavy mace"),(23,10),blessed,0,name:"The Sceptre of Might"
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
 OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
@@ -240,10 +243,21 @@ OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
+# Bodies of past victims
+OBJECT:('%',"corpse"),random,montype:"caveman"
+OBJECT:('%',"corpse"),random,montype:"cavewoman"
+OBJECT:('%',"corpse"),random,montype:"caveman"
+OBJECT:('%',"corpse"),random,montype:"cavewoman"
+OBJECT:('%',"corpse"),random,montype:"neanderthal"
+OBJECT:('%',"corpse"),random,montype:"neanderthal"
+OBJECT:('%',"corpse"),random,montype:"neanderthal"
+OBJECT:('%',"corpse"),random,montype:"neanderthal"
+OBJECT:('%',"corpse"),random,montype:"neanderthal"
+OBJECT:('%',"corpse"),random,montype:"neanderthal"
+OBJECT:('%',"corpse"),random,montype:"neanderthal"
+OBJECT:('%',"corpse"),random,montype:"neanderthal"
 # monsters.
-MONSTER:('H',"Annam"),(23,10),asleep {
-  OBJECT:('`',"boulder"),quantity:6
-}
+MONSTER:('H',"Annam"),(23,10),asleep
 MONSTER:('F',"shrieker"),(26,13)
 MONSTER:('F',"shrieker"),(25,8)
 MONSTER:('F',"shrieker"),(45,11)

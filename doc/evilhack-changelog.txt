@@ -1495,4 +1495,5 @@ Version 0.7.0
 - Fix: better grammar/object handling (priest attacking with forbidden
   weapons)
 - Redo vecna-3 map
+- Fix: Caveperson quest nemesis not spawning with the Bell of Opening
 
