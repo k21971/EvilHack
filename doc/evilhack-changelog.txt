@@ -1502,4 +1502,5 @@ Version 0.7.0
 - Small tweak to is_lord() gear enchantments, monsters receive racial bonus
   for wearing aligned armor 
 - Fix: impossible/panic when monster dies to self-read scroll of earth
+- Don't allow the debug fuzzer to enter explore mode
 

@@ -750,6 +750,8 @@ enter_explore_mode(VOID_ARGS)
         You("are in debug mode.");
     } else if (discover) {
         You("are already in explore mode.");
+    } else if (iflags.debug_fuzzer) {
+        ; /* do nothing; explore mode significantly limits the fuzzer */
     } else {
 #ifdef SYSCF
 #if defined(UNIX)
