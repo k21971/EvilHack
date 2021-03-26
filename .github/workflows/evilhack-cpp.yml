@@ -42,7 +42,9 @@ jobs:
         choco install winflexbison
     - name: make install
       run: |
-        ./sys/winnt/nhsetup.bat
+        cp ../sys/winnt/Makefile.msc ./Makefile
+        cd src
+        nmake install
     - uses: papeloto/action-zip@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
