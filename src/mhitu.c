@@ -1353,7 +1353,7 @@ register struct attack *mattk;
                     break;
                 if (Hate_material(wepmaterial)) {
                     /* dmgval() already added extra damage */
-                    searmsg(mtmp, &youmonst, otmp, TRUE);
+                    searmsg(mtmp, &youmonst, otmp, FALSE);
                     exercise(A_CON, FALSE);
                 }
                 /* this redundancy necessary because you have

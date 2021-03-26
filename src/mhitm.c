@@ -1284,7 +1284,7 @@ int dieroll;
             }
             if (mon_hates_material(mdef, mwep->material)) {
                 /* extra damage already applied by dmgval() */
-                searmsg(magr, mdef, mwep, TRUE);
+                searmsg(magr, mdef, mwep, FALSE);
             }
             if (tmp)
                 rustm(mdef, mwep);

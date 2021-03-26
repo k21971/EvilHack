@@ -625,8 +625,14 @@ boolean minimal;        /* print a shorter message leaving out obj details */
     char* whom = mon_nam(mdef);
     if (youdefend)
         Strcpy(whom, "you");
-    if (!youdefend && !youattack)
-        Sprintf(whose, "%s ", s_suffix(mon_nam(magr)));
+    if (youattack) {
+        Strcpy(whose, "your ");
+    } else if (!magr) { /* thrown objects */
+        Strcpy(whose, "the ");
+    } else {
+        Strcpy(whose, s_suffix(mon_nam(magr)));
+        Strcat(whose, " ");
+    }
 
     if (mat == SILVER) { /* more dramatic effects than other materials */
         /* note: s_suffix returns a modifiable buffer */
