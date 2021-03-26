@@ -1504,4 +1504,5 @@ Version 0.7.0
 - Fix: impossible/panic when monster dies to self-read scroll of earth
 - Don't allow the debug fuzzer to enter explore mode
 - Fix: segfault caused by thrown objects calling searmsg()
+- Fix: account for hiding monsters in mdisplacem
 
