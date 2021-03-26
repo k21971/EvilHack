@@ -844,13 +844,13 @@ const char *in_str;
     if ((s = strstri(str, "vortices")) != 0)
         Strcpy(s + 4, "ex");
     /* nobles and royalty */
-    if ((s = strstri(term - 5, " lady")) != 0)
+    if (slen > 5 && (s = strstri(term - 5, " lady")) != 0)
         Strcpy(term - 4, "noble");
-    else if ((s = strstri(term - 5, " lord")) != 0)
+    else if (slen > 5 && (s = strstri(term - 5, " lord")) != 0)
         Strcpy(term - 4, "noble");
-    else if ((s = strstri(term - 6, " queen")) != 0)
+    else if (slen > 6 && (s = strstri(term - 6, " queen")) != 0)
         Strcpy(term - 4, "royal");
-    else if ((s = strstri(term - 5, " king")) != 0)
+    else if (slen > 5 && (s = strstri(term - 5, " king")) != 0)
         Strcpy(term - 4, "royal");
     /* be careful with "ies"; "priest", "zombies" */
     else if (slen > 3 && !strcmpi(term - 3, "ies")
