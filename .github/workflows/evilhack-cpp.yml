@@ -24,7 +24,7 @@ jobs:
     runs-on: windows-latest
     env:
         ADD_CURSES: Y
-        PDCURSES_TOP: ../submodules/pdcurses
+        PDCURSES_TOP: ../../pdcurses
         YACC: win_bison -y
         LEX: win_flex.exe
         YTABC: y.tab.c
