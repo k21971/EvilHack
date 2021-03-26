@@ -23,6 +23,8 @@ jobs:
   windows-build:
     runs-on: windows-latest
     env:
+        TRAVIS_COMPILER: 1
+        ZIP_NAME: evilhack-0.6.0.zip
     steps:
     - uses: actions/checkout@v2
       with:
