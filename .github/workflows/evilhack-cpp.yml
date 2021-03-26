@@ -40,6 +40,7 @@ jobs:
     - name: setup
       run: |
         choco install winflexbison
+        ./sys/winnt/nhsetup.bat
     - name: make install
       run: |
         cp ./sys/winnt/Makefile.msc ./Makefile
