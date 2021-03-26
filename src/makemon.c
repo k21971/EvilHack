@@ -3265,11 +3265,17 @@ int otyp;
 
         /* leaders don't tolerate inferior quality battle gear
          * in fact, they don't settle for non-enchanted gear period */
-        if (is_prince(mtmp->data) || is_lord(mtmp->data)) {
+        if (is_prince(mtmp->data)) {
             if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1)
                 otmp->spe = rn2(3) + 1;
             else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 1)
                 otmp->spe = rn2(4) + 1;
+        }
+        if (is_lord(mtmp->data)) {
+            if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1)
+                otmp->spe = rn2(2) + 1;
+            else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 1)
+                otmp->spe = rn2(2) + 1;
         }
 
         /* Medusa's bow and arrows are also high quality */

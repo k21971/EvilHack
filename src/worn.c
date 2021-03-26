@@ -580,7 +580,7 @@ register struct monst *mon;
 {
     register struct obj *obj;
     int base = mon->data->ac - mon->mprotection;
-    int bonus, div;
+    int bonus, div, racial_bonus;
     long mwflags = mon->misc_worn_check;
 
     for (obj = mon->minvent; obj; obj = obj->nobj) {
@@ -590,8 +590,44 @@ register struct monst *mon;
             if (obj->otyp == AMULET_OF_GUARDING)
                 base -= 2; /* fixed amount, not impacted by erosion */
             else
+                /* since ARM_BONUS is positive, subtracting it increases AC */
                 base -= ARM_BONUS(obj);
-            /* since ARM_BONUS is positive, subtracting it increases AC */
+            /* racial armor bonuses, separate from regular bonuses */
+            racial_bonus = 1;
+            if (which_armor(mon, W_ARM)) {
+                if ((is_orc(mon->data)
+                     && (obj->otyp == ORCISH_CHAIN_MAIL
+                         || obj->otyp == ORCISH_RING_MAIL))
+                    || (is_elf(mon->data) && obj->otyp == ELVEN_CHAIN_MAIL)
+                    || (is_dwarf(mon->data) && obj->otyp == DWARVISH_CHAIN_MAIL))
+                    base -= racial_bonus;
+            }
+            if (which_armor(mon, W_ARMC)) {
+                if ((is_orc(mon->data) && obj->otyp == ORCISH_CLOAK)
+                    || (is_elf(mon->data) && obj->otyp == ELVEN_CLOAK)
+                    || (is_dwarf(mon->data) && obj->otyp == DWARVISH_CLOAK))
+                    base -= racial_bonus;
+            }
+            if (which_armor(mon, W_ARMH)) {
+                if ((is_orc(mon->data) && obj->otyp == ORCISH_HELM)
+                    || (is_elf(mon->data) && obj->otyp == ELVEN_HELM)
+                    || (is_dwarf(mon->data) && obj->otyp == DWARVISH_HELM))
+                    base -= racial_bonus;
+            }
+            if (which_armor(mon, W_ARMF)) {
+                if ((is_orc(mon->data) && obj->otyp == ORCISH_BOOTS)
+                    || (is_elf(mon->data) && obj->otyp == ELVEN_BOOTS)
+                    || (is_dwarf(mon->data) && obj->otyp == DWARVISH_BOOTS))
+                    base -= racial_bonus;
+            }
+            if (which_armor(mon, W_ARMS)) {
+                if ((is_orc(mon->data)
+                     && (obj->otyp == ORCISH_SHIELD
+                         || obj->otyp == URUK_HAI_SHIELD))
+                    || (is_elf(mon->data) && obj->otyp == ELVEN_SHIELD)
+                    || (is_dwarf(mon->data) && obj->otyp == DWARVISH_ROUNDSHIELD))
+                    base -= racial_bonus;
+            }
         }
     }
 

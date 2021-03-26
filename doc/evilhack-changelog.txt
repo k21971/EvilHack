@@ -1499,4 +1499,6 @@ Version 0.7.0
 - Some rumor tweaks
 - Fix: drain_weapon_skill() irregularities, tone down occurence of the same
 - The Sword of Kas adjustment
+- Small tweak to is_lord() gear enchantments, monsters receive racial bonus
+  for wearing aligned armor 
 
