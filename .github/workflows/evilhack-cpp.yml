@@ -31,7 +31,7 @@ jobs:
         YTABH: y.tab.h
         LEXYYC: lex.yy.c
         ADD_CURSES: Y
-        PDCURSES_TOP: ../submodules/pdcurses
+        PDCURSES_TOP: ../../pdcurses
         TRAVIS_COMPILER: 1
         ZIP_NAME: evilhack-0.6.0.zip
     steps:
@@ -42,6 +42,7 @@ jobs:
     - name: setup
       run: |
         choco install winflexbison
+        git clone --depth 1 https://github.com/wmcbrine/PDCurses.git ../pdcurses
         ./sys/winnt/nhsetup.bat
     - name: make install
       run: |
