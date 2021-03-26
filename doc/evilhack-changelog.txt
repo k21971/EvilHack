@@ -1507,4 +1507,5 @@ Version 0.7.0
 - Fix: account for hiding monsters in mdisplacem
 - Fix: buffer underflow with gendered monster names
 - Better handling of dead trees and digging
+- Attempt windows build via github actions
 
