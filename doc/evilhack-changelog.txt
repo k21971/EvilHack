@@ -1514,4 +1514,5 @@ Version 0.7.0
 - Potential fix for missing file/folder location
 - Second try, potential fix for missing file/folder location
 - Correct version number in sys/winnt Makefiles
+- Update version number in windows build files
 
