@@ -383,7 +383,7 @@ boolean sanctum; /* is it the seat of the high priest? */
                     priest->mnum = PM_HUMAN;
                     break;
                 }
-                set_mon_data(priest, mdat);
+                set_mon_data(priest, &mons[priest->mnum]);
                 priest->ispriest = 1;
                 priest->data->msound = MS_PRIEST;
             }
