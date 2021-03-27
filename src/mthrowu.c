@@ -114,7 +114,7 @@ const char *name; /* if null, then format `*objp' */
                 /* extra damage already applied by dmgval();
                  * dmgval is not called in this function but we assume that the
                  * caller used it when constructing the dmg parameter */
-                searmsg((struct monst *) 0, &youmonst, obj, TRUE);
+                searmsg((struct monst *) 0, &youmonst, obj, FALSE);
                 exercise(A_CON, FALSE);
             }
             if (is_acid)
@@ -557,7 +557,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         if (!DEADMONSTER(mtmp)
             && mon_hates_material(mtmp, otmp->material)) {
             /* Extra damage is already handled in dmgval(). */
-            searmsg((struct monst *) 0, mtmp, otmp, vis);
+            searmsg((struct monst *) 0, mtmp, otmp, FALSE);
         }
         if (otmp->otyp == ACID_VENOM && cansee(mtmp->mx, mtmp->my)) {
             if (resists_acid(mtmp)) {

@@ -1270,11 +1270,13 @@ register struct attack *mattk;
         if (!rn2(7) && (mtmp->mhp < (mtmp->mhpmax / 3))) {
             if (mdat->mlet == S_HUMAN || mdat->mlet == S_ORC
                 || mdat->mlet == S_GIANT || mdat->mlet == S_OGRE
-                || mdat->mlet == S_HUMANOID)
-                pline("%s flies into a berserker rage!", Monnam(mtmp));
-            else
-                pline("%s %s with rage!", Monnam(mtmp),
-                      rn2(2) ? "roars" : "howls");
+                || mdat->mlet == S_HUMANOID) {
+                if (cansee(mtmp->mx, mtmp->my))
+                    pline("%s flies into a berserker rage!", Monnam(mtmp));
+                else if (!Deaf)
+                    pline("%s %s with rage!", Amonnam(mtmp),
+                          rn2(2) ? "roars" : "howls");
+            }
             dmg += d((int) mattk->damn, (int) mattk->damd);
         }
     }
@@ -1344,7 +1346,7 @@ register struct attack *mattk;
                     break;
                 if (Hate_material(wepmaterial)) {
                     /* dmgval() already added extra damage */
-                    searmsg(mtmp, &youmonst, otmp, TRUE);
+                    searmsg(mtmp, &youmonst, otmp, FALSE);
                     exercise(A_CON, FALSE);
                 }
                 /* this redundancy necessary because you have
@@ -1588,8 +1590,7 @@ register struct attack *mattk;
             (void) adjattrib(A_INT, -rnd(2), FALSE);
             forget_traps();
             if (rn2(2))
-                losespells();
-            drain_weapon_skill(rnd(u.uluck <= 0 ? 5 : 3));
+                forget(rnd(u.uluck <= 0 ? 4 : 2));
             break;
         }
     case AD_PLYS:
@@ -3987,6 +3988,7 @@ struct attack *mattk;
             }
             pline("%s turns to stone!", Monnam(mtmp));
             stoned = 1;
+            mtmp->mstone = 0; /* end any lingering timer */
             xkilled(mtmp, XKILL_NOMSG);
             if (!DEADMONSTER(mtmp))
                 return 1;

@@ -408,7 +408,7 @@ dig(VOID_ARGS)
             if (IS_TREES(lev->typ)) {
                 digtxt = "You cut down the tree.";
                 lev->typ = ROOM, lev->flags = 0;
-                if (!rn2(5))
+                if (!rn2(5) && !IS_DEADTREE(lev->typ))
                     (void) rnd_treefruit_at(dpx, dpy);
             } else {
                 digtxt = "You succeed in cutting away some rock.";
@@ -1237,7 +1237,7 @@ boolean zap;
 
     if (in_town(x, y)
         && (closed_door(x, y) || lev->typ == SDOOR || IS_WALL(lev->typ)
-            || IS_FOUNTAIN(lev->typ) || IS_TREE(lev->typ))) {
+            || IS_FOUNTAIN(lev->typ) || IS_TREE(lev->typ))) { /* dead trees are fine */
         if (!mtmp) {
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                 if (DEADMONSTER(mtmp))
@@ -1308,7 +1308,7 @@ register struct monst *mtmp;
         newsym(mtmp->mx, mtmp->my);
         draft_message(FALSE); /* "You feel a draft." */
         return FALSE;
-    } else if (!IS_ROCK(here->typ) && !IS_TREE(here->typ)) { /* no dig */
+    } else if (!IS_ROCK(here->typ) && !IS_TREES(here->typ)) { /* no dig */
         return FALSE;
     }
 
@@ -1316,7 +1316,7 @@ register struct monst *mtmp;
     if ((here->wall_info & W_NONDIGGABLE) != 0) {
         impossible("mdig_tunnel:  %s at (%d,%d) is undiggable",
                    (IS_WALL(here->typ) ? "wall"
-                    : IS_TREE(here->typ) ? "tree" : "stone"),
+                    : IS_TREES(here->typ) ? "tree" : "stone"),
                    (int) mtmp->mx, (int) mtmp->my);
         return FALSE; /* still alive */
     }
@@ -1335,9 +1335,9 @@ register struct monst *mtmp;
         } else {
             here->typ = DOOR, here->doormask = D_NODOOR;
         }
-    } else if (IS_TREE(here->typ)) {
+    } else if (IS_TREES(here->typ)) {
         here->typ = ROOM, here->flags = 0;
-        if (pile && pile < 5)
+        if (pile && pile < 5 && !IS_DEADTREE(here->typ))
             (void) rnd_treefruit_at(mtmp->mx, mtmp->my);
     } else {
         here->typ = CORR, here->flags = 0;
@@ -1558,6 +1558,10 @@ zap_dig()
                 } else if (!Blind)
                     pline_The("tree shudders but is unharmed.");
                 break;
+            } else if (IS_DEADTREE(room->typ)) { /* dead trees are special */
+                room->typ = ROOM, room->flags = 0;
+                unblock_point(zx, zy); /* vision */
+                break;
             } else if (room->typ == STONE || room->typ == SCORR) {
                 if (!(room->wall_info & W_NONDIGGABLE)) {
                     room->typ = CORR, room->flags = 0;
@@ -1581,7 +1585,7 @@ zap_dig()
                     room->typ = DOOR, room->doormask = D_NODOOR;
                 }
                 digdepth -= 2;
-            } else if (IS_TREE(room->typ)) {
+            } else if (IS_TREES(room->typ)) {
                 room->typ = ROOM, room->flags = 0;
                 digdepth -= 2;
             } else { /* IS_ROCK but not IS_WALL or SDOOR */
@@ -1647,7 +1651,7 @@ char *msg;
         /* if (room->wall_info & W_NONDIGGABLE) */
         Strcpy(msg, foundation_msg);
         return FALSE;
-    } else if (IS_TREE(ltyp)) { /* check trees before stone */
+    } else if (IS_TREES(ltyp)) { /* check trees before stone */
         /* if (room->wall_info & W_NONDIGGABLE) */
         Strcpy(msg, "The tree's roots glow then fade.");
         return FALSE;

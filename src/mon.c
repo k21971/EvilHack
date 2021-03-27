@@ -2196,11 +2196,13 @@ struct monst *magr, /* monster that is currently deciding where to move */
         && (magr->mhp < (magr->mhpmax / 3))
         && ma->mattk) {
         if (ma->mlet == S_HUMAN || ma->mlet == S_ORC
-            || ma->mlet == S_GIANT || ma->mlet == S_OGRE)
-            pline("%s flies into a berserker rage!", Monnam(magr));
-        else
-            pline("%s %s with rage!", Monnam(magr),
-                  rn2(2) ? "roars" : "howls");
+            || ma->mlet == S_GIANT || ma->mlet == S_OGRE) {
+            if (cansee(magr->mx, magr->my))
+                pline("%s flies into a berserker rage!", Monnam(magr));
+            else if (!Deaf)
+                pline("%s %s with rage!", Amonnam(magr),
+                      rn2(2) ? "roars" : "howls");
+        }
         return ALLOW_M | ALLOW_TM;
     }
 

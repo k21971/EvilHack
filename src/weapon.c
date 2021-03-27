@@ -568,7 +568,7 @@ boolean minimal;        /* print a shorter message leaving out obj details */
             impossible("searmsg: non-weapon attack with no aggressor?");
             return;
         } else {
-            Strcpy(whose, s_suffix(y_monnam(magr)));
+            Strcpy(whose, s_suffix(mon_nam(magr)));
             Strcat(whose, " ");
         }
     } else {
@@ -622,8 +622,15 @@ boolean minimal;        /* print a shorter message leaving out obj details */
     }
 
     char* whom = mon_nam(mdef);
-    if (youdefend) {
+    if (youdefend)
         Strcpy(whom, "you");
+    if (youattack) {
+        Strcpy(whose, "your ");
+    } else if (!magr) { /* thrown objects */
+        Strcpy(whose, "the ");
+    } else {
+        Strcpy(whose, s_suffix(mon_nam(magr)));
+        Strcat(whose, " ");
     }
 
     if (mat == SILVER) { /* more dramatic effects than other materials */
@@ -1761,8 +1768,7 @@ void
 drain_weapon_skill(n)
 int n; /* number of skills to drain */
 {
-    int skill;
-    int i;
+    int skill, i, curradv, prevadv;
     int tmpskills[P_NUM_SKILLS];
 
     (void) memset((genericptr_t) tmpskills, 0, sizeof(tmpskills));
@@ -1782,9 +1788,11 @@ int n; /* number of skills to drain */
             P_SKILL(skill)--;   /* drop skill one level */
             /* refund slots used for skill */
             u.weapon_slots += slots_required(skill);
-            /* drain a random proportion of skill training */
-            if (P_ADVANCE(skill))
-                P_ADVANCE(skill) = rn2(P_ADVANCE(skill));
+            /* drain skill training to a value appropriate for new level */
+            curradv = practice_needed_to_advance(P_SKILL(skill));
+            prevadv = practice_needed_to_advance(P_SKILL(skill) - 1);
+            if (P_ADVANCE(skill) >= curradv)
+                P_ADVANCE(skill) = prevadv + rn2(curradv - prevadv);
         }
     }
 
@@ -1962,10 +1970,7 @@ struct obj *weapon;
         if (!rn2(4))
             pline("%s has %s you from using %s weapons such as %s!",
                   align_gname(u.ualign.type), rn2(2) ? "forbidden" : "prohibited",
-                  is_slash(uwep) ? "edged" : "piercing",
-                  (is_ammo(uwep)
-                   || (weapon->oartifact && (is_pierce(uwep) || is_slash(uwep))))
-                  ? xname(uwep) : makeplural(xname(uwep)));
+                  is_slash(uwep) ? "edged" : "piercing", ansimpleoname(uwep));
         exercise(A_WIS, FALSE);
         if (!rn2(10)) {
             Your("behavior has displeased %s.",

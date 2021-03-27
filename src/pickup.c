@@ -3162,7 +3162,8 @@ boolean creation;
     struct obj *wep = bag, *hwep = bag, *rwep = bag, *proj = bag;
     for (obj = mon->minvent; obj; obj = obj->nobj) {
         if (!Is_container(obj)
-            || obj->otyp == BAG_OF_TRICKS)
+            || obj->otyp == BAG_OF_TRICKS
+            || obj->olocked)
             continue;
         if (obj->otyp == BAG_OF_HOLDING) {
             bag = obj;
