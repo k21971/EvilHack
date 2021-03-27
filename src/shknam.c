@@ -784,7 +784,7 @@ int shp_indx;
                 shk->mnum = PM_HUMAN;
                 break;
             }
-        set_mon_data(shk, mdat);
+        set_mon_data(shk, &mons[shk->mnum]);
         }
     }
 

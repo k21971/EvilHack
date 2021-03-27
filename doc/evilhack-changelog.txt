@@ -1508,6 +1508,7 @@ Version 0.7.0
 - Fix: buffer underflow with gendered monster names
 - Better handling of dead trees and digging
 - Attempt windows build via github actions
-- Potential fix: error C4703: potentially uninitialized local pointer
-  variable 'mdat' used
+- Fix: error C4703: potentially uninitialized local pointer variable
+  'mdat' used
+- Fix: another 'error C4703' case
 
