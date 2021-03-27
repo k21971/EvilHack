@@ -1513,4 +1513,5 @@ Version 0.7.0
 - Fix: another 'error C4703' case
 - Potential fix for missing file/folder location
 - Second try, potential fix for missing file/folder location
+- Correct version number in sys/winnt Makefiles
 

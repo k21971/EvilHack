@@ -46,7 +46,6 @@ jobs:
         ./sys/winnt/nhsetup.bat
     - name: make install
       run: |
-        mkdir ./binary
         cp ./sys/winnt/Makefile.msc ./Makefile
         cd src
         nmake install
