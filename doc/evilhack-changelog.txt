@@ -1515,4 +1515,5 @@ Version 0.7.0
 - Second try, potential fix for missing file/folder location
 - Correct version number in sys/winnt Makefiles
 - Update version number in windows build files
+- Fix: water_damage_chain could wet some objects twice
 

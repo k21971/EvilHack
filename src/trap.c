@@ -4232,6 +4232,7 @@ xchar x, y;
     acid_ctx.dkn_boom = acid_ctx.unk_boom = 0;
     acid_ctx.ctx_valid = TRUE;
 
+    i = 0;
     for (otmp = obj; otmp; otmp = nobj) {
         /* if acid explodes or other item destruction happens, otmp will be
          * deleted. Avoid reading garbage data from it. */
@@ -4240,10 +4241,15 @@ xchar x, y;
             continue;
         if (count < 1) {
             water_damage(otmp, (char *) 0, FALSE, x, y);
-        }
-        else {
+        } else {
             /* reservoir sampling: replace elements with lowering probability */
-            i++; /* i should start this loop equal to count */
+            i++;
+            if (i <= count) {
+                /* skip the first count items of the object list since they're
+                 * already in to_damage; this avoids putting the same object in
+                 * to_damage twice */
+                continue;
+            }
             j = rn2(i);
             if (j < count) {
                 to_damage[j] = otmp;
