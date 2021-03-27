@@ -46,8 +46,9 @@ jobs:
         ./sys/winnt/nhsetup.bat
     - name: make install
       run: |
-        cp ./sys/winnt/Makefile.msc ./Makefile
         cd src
+        mkdir ../binary
+        cp ./sys/winnt/Makefile.msc ./Makefile
         nmake install
     - uses: papeloto/action-zip@v1
       if: startsWith(github.ref, 'refs/tags/')

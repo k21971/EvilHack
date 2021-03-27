@@ -1511,4 +1511,5 @@ Version 0.7.0
 - Fix: error C4703: potentially uninitialized local pointer variable
   'mdat' used
 - Fix: another 'error C4703' case
+- Potential fix for missing file/folder location
 
