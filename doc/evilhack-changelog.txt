@@ -1512,4 +1512,5 @@ Version 0.7.0
   'mdat' used
 - Fix: another 'error C4703' case
 - Potential fix for missing file/folder location
+- Second try, potential fix for missing file/folder location
 
