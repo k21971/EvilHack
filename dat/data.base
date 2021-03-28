@@ -1770,6 +1770,13 @@ eyes of the overworld
 	Usually, there is nothing to be seen.  However, the wearer
 	is also able to look back and see the area around herself,
 	much like looking on a map.  Why anyone would want to ...
+eye of vecna
+hand of vecna
+	The Eye of Vecna and the Hand of Vecna were the only remnants
+	of the powerful lich Vecna, after he was betrayed and killed by
+	his lieutenant Kas.  The two appendages were left with a
+	fragment of the lich's will and attempted to work his deeds
+	wherever they went.
 fedora
 	Some hats can only be worn if you're willing to be jaunty, to set
 	them at an angle and to walk beneath them with a spring in your
@@ -2924,6 +2931,14 @@ kathryn*
 	between the tree tops.
 	   [ The Lion, the Witch and the Wardrobe,
 		by C.S. Lewis ]
+kas
+sword of kas
+	Kas the Bloody-Handed was the most trusted lieutenant of the
+	despotic lich Vecna, and wielder of the Sword of Kas.
+
+	After many years of loyal service to Vecna, Kas eventually
+	betrayed his master.  It is said that the sword itself whispered
+	to Kas, convincing him to slay his master and usurp his power.
 kelp*
 *frond
 	I noticed that all the plants were attached to the soil by
@@ -6005,6 +6020,22 @@ vampire *
 	corpse), supposed to seek nourishment, or do harm, by sucking
 	the blood of sleeping persons. ..."
 		[]
+~eye of vecna
+~hand of vecna
+vecna
+	Vecna's early life was clouded in legend and contradiction.
+	Most accounts stated that he was originally a human wizard
+	from Oerth, although some reports claimed that he was a half-elf.
+	After having become an extremely powerful wizard and starting to
+	fear for his own mortality, Vecna was taught by Orcus how to
+	achieve undeath, later becoming one of the most powerful liches
+	ever in existence.
+
+	During his reign, Vecna trusted his lieutenant Kas with most
+	administrative tasks.  He forged the powerful Sword of Kas as an
+	instrument of his lieutenant's authority.  However, Vecna's evil,
+	manifested in the sword, seduced Kas into usurping and killing his
+	master. 
 venus
 	Venus, the goddess of love and beauty, was the daughter of
 	Jupiter and Dione.  Others say that Venus sprang from the

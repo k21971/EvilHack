@@ -1516,4 +1516,5 @@ Version 0.7.0
 - Correct version number in sys/winnt Makefiles
 - Update version number in windows build files
 - Fix: water_damage_chain could wet some objects twice
+- Encyclopedia entries for Vecna, Kas, and associated artifacts
 

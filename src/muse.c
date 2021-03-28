@@ -41,7 +41,6 @@ STATIC_DCL boolean FDECL(muse_unslime, (struct monst *, struct obj *,
                                         struct trap *, BOOLEAN_P));
 STATIC_DCL int FDECL(cures_sliming, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(green_mon, (struct monst *));
-/* STATIC_DCL void FDECL(mmake_wish, (struct monst *)); */
 
 STATIC_DCL boolean FDECL(find_offensive_recurse, (struct monst *, struct obj *,
 	                                          struct monst *, BOOLEAN_P));

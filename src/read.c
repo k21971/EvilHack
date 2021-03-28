@@ -966,7 +966,7 @@ forget_traps()
  * Other things are subject to flags:
  *      howmuch & ALL_SPELLS    = forget all spells
  */
-/*STATIC_OVL */void
+void
 forget(howmuch)
 int howmuch;
 {
