@@ -367,6 +367,12 @@ BOW("crossbow", None,          1, 1, 45, 50, 40, 0, WOOD, P_CROSSBOW, HI_WOOD),
           cost, ac, can, ARM_BOOTS, metal, c)
 
 /* helmets */
+HELM("dunce cap", "conical hat",
+     0, 1,           0,  3, 1,  4,  1, 10, 0, CLOTH, CLR_BLUE),
+HELM("cornuthaum", "conical hat",
+     0, 1, CLAIRVOYANT,  3, 1,  4, 80, 10, 1, CLOTH, CLR_BLUE),
+        /* name coined by devteam; confers clairvoyance for wizards,
+           blocks clairvoyance if worn by role other than wizard */
 HELM("elven helm", "hat",
      0, 0,           0,  6, 1,  3,  8,  9, 0, LEATHER, HI_LEATHER),
 HELM("orcish helm", "skull cap",
@@ -375,12 +381,6 @@ HELM("dwarvish helm", "hard hat",
      0, 0,           0,  6, 1, 40, 20,  8, 0, IRON, HI_METAL),
 HELM("fedora", None,
      1, 0,           0,  0, 0,  3,  1, 10, 0, CLOTH, CLR_BROWN),
-HELM("cornuthaum", "conical hat",
-     0, 1, CLAIRVOYANT,  3, 1,  4, 80, 10, 1, CLOTH, CLR_BLUE),
-        /* name coined by devteam; confers clairvoyance for wizards,
-           blocks clairvoyance if worn by role other than wizard */
-HELM("dunce cap", "conical hat",
-     0, 1,           0,  3, 1,  4,  1, 10, 0, CLOTH, CLR_BLUE),
 HELM("dented pot", None,
      1, 0,           0,  2, 0, 10,  8,  9, 0, IRON, CLR_BLACK),
 /* with shuffled appearances... */
@@ -537,12 +537,12 @@ GLOVES("gauntlets", "falconry gloves",
        0, 0,          0, 12, 1, 30,  50, 9, 0,  IRON, CLR_BROWN),
 GLOVES("gauntlets of power", "riding gloves",
        0, 1,          0,  8, 1, 30,  50, 9, 0,  IRON, CLR_BROWN),
-GLOVES("gauntlets of fumbling", "padded gloves",
-       0, 1,   FUMBLING,  8, 1, 10,  50, 9, 0,  LEATHER, HI_LEATHER),
 GLOVES("gauntlets of protection", "boxing gloves",
        0, 1, PROTECTION,  4, 1, 10,  60, 8, 3,  CLOTH, CLR_BROWN),
 GLOVES("gauntlets of dexterity", "fencing gloves",
        0, 1,          0,  8, 1, 10,  50, 9, 0,  LEATHER, HI_LEATHER),
+GLOVES("gauntlets of fumbling", "padded gloves",
+       0, 1,   FUMBLING,  8, 1, 10,  50, 9, 0,  LEATHER, HI_LEATHER),
 
 /* boots */
 BOOTS("low boots", "walking shoes",
@@ -565,10 +565,10 @@ BOOTS("elven boots", "mud boots",
 BOOTS("kicking boots", "buckled boots",
       0, 1,          0, 12, 2, 50,  8, 9, 0, IRON, CLR_BROWN),
         /* CLR_BROWN for same reason as gauntlets of power */
-BOOTS("fumble boots", "riding boots",
-      0, 1,   FUMBLING, 12, 2, 20, 30, 9, 0, LEATHER, HI_LEATHER),
 BOOTS("levitation boots", "snow boots",
       0, 1, LEVITATION, 12, 2, 15, 30, 9, 0, LEATHER, HI_LEATHER),
+BOOTS("fumble boots", "riding boots",
+      0, 1,   FUMBLING, 12, 2, 20, 30, 9, 0, LEATHER, HI_LEATHER),
 #undef HELM
 #undef CLOAK
 #undef SHIELD

@@ -1521,4 +1521,6 @@ Version 0.7.0
   the quest artifact
 - Fix: mon 457 doesn't like any materials for obj 269
 - Fix: incorrect MC calculation
+- Exclude fumble boots/gauntlets and dunce cap from regular item sacrifice
+  gift selection
 

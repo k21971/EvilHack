@@ -2093,7 +2093,7 @@ dosacrifice()
              * level  4: 10% chance  level  9: 20% chance  level 12: 30% chance
              * level 14: 40% chance  level 17: 50% chance  level 19: 60% chance
              * level 21: 70% chance  level 23: 80% chance  level 24: 90% chance
-             * level 26: 100% chance
+             * level 26 or greater: 100% chance
              */
             if (rn2(10) >= (int) ((nchance * nchance) / 100)) {
                 if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
@@ -2107,7 +2107,8 @@ dosacrifice()
                             else if (primary_casters_priest)
                                 typ = rnd_class(MACE, FLAIL);
                             else if (Role_if(PM_MONK))
-                                typ = rnd_class(QUARTERSTAFF, STAFF_OF_WAR);
+                                typ = rn2(4) ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
+                                             : typ == BROADSWORD;
                             else
                                 typ = rnd_class(SPEAR, KATANA);
 
@@ -2137,11 +2138,6 @@ dosacrifice()
                             if (typ && !P_RESTRICTED(objects[typ].oc_skill))
                                 break;
                         } while (ncount++ < 1000);
-
-                        if (ncount > 999) {
-                            debugpline0("Ran out of tries making weapon");
-                            return 1;
-                        }
                     } else if ((primary_casters || primary_casters_priest) && !rn2(3)) {
                         /* Making a spellbook */
                         int sp_no, trycnt = u.ulevel + 1;
@@ -2190,67 +2186,66 @@ dosacrifice()
                              * monks and centaurs end up more likely to receive certain
                              * kinds, but them's the breaks */
                             switch (Race_if(PM_GIANT) ? rn1(4, 2) : rn2(6)) {
-                                case 0:
-                                    /* body armor (inc. shirts) */
-                                    if (primary_casters || primary_casters_priest)
-                                        typ = rn2(2) ? rnd_class(ARMOR, JACKET)
-                                                     : rn2(6) ? typ == STUDDED_ARMOR
-                                                              : typ == CRYSTAL_PLATE_MAIL;
-                                    else
-                                        typ = rnd_class(PLATE_MAIL, T_SHIRT);
-                                    if (!Role_if(PM_MONK)
-                                        || (typ == T_SHIRT || typ == HAWAIIAN_SHIRT)) {
-                                        break; /* monks only can have shirts */
-                                    } /* monks have (almost) double chance for cloaks */
-                                    /* FALLTHRU */
-                                case 1:
-                                    /* cloak */
-                                    typ = rnd_class(MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT);
+                            case 0:
+                                /* body armor (inc. shirts) */
+                                if (primary_casters || primary_casters_priest)
+                                    typ = rn2(2) ? rnd_class(ARMOR, JACKET)
+                                                 : rn2(6) ? typ == STUDDED_ARMOR
+                                                          : typ == CRYSTAL_PLATE_MAIL;
+                                else
+                                    typ = rnd_class(PLATE_MAIL, T_SHIRT);
+                                if (!Role_if(PM_MONK)
+                                    || (typ == T_SHIRT || typ == HAWAIIAN_SHIRT)) {
+                                    break; /* monks only can have shirts */
+                                } /* monks have (almost) double chance for cloaks */
+                                /* FALLTHRU */
+                            case 1:
+                                /* cloak */
+                                typ = rnd_class(MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT);
+                                break;
+                            case 2:
+                                /* boots */
+                                if (primary_casters || primary_casters_priest)
+                                    typ = !rn2(3) ? typ == LOW_BOOTS
+                                                  : rnd_class(HIGH_BOOTS, LEVITATION_BOOTS);
+                                else
+                                    typ = rnd_class(LOW_BOOTS, LEVITATION_BOOTS);
+                                if (!Race_if(PM_CENTAUR)) {
                                     break;
-                                case 2:
-                                    /* boots */
-                                    if (primary_casters || primary_casters_priest)
-                                        typ = !rn2(3) ? typ == LOW_BOOTS
-                                                      : rnd_class(HIGH_BOOTS, LEVITATION_BOOTS);
-                                    else
-                                        typ = rnd_class(LOW_BOOTS, LEVITATION_BOOTS);
-                                    if (!Race_if(PM_CENTAUR)) {
-                                        break;
-                                    } /* centaurs have double chances to get a shield */
-                                    /* FALLTHRU */
-                                case 3:
-                                    /* shield */
-                                    if (primary_casters || primary_casters_priest)
-                                        typ = rn2(8) ? typ == SMALL_SHIELD
-                                                     : typ == SHIELD_OF_REFLECTION;
-                                    else
-                                        typ = rnd_class(SMALL_SHIELD, SHIELD_OF_REFLECTION);
-                                    if (!Role_if(PM_MONK)) {
-                                        break;
-                                    } /* monks have double chances to get gloves */
-                                    /* FALLTHRU */
-                                case 4:
-                                    /* gloves */
-                                    if (primary_casters || primary_casters_priest)
-                                        typ = rn2(3) ? typ == GLOVES
-                                                     : rnd_class(GAUNTLETS_OF_FUMBLING,
-                                                                 GAUNTLETS_OF_DEXTERITY);
-                                    else
-                                        typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
+                                } /* centaurs have double chances to get a shield */
+                                /* FALLTHRU */
+                            case 3:
+                                /* shield */
+                                if (primary_casters || primary_casters_priest)
+                                    typ = rn2(8) ? typ == SMALL_SHIELD
+                                                 : typ == SHIELD_OF_REFLECTION;
+                                else
+                                    typ = rnd_class(SMALL_SHIELD, SHIELD_OF_REFLECTION);
+                                if (!Role_if(PM_MONK)) {
                                     break;
-                                case 5:
-                                    /* helm */
-                                    if (primary_casters || primary_casters_priest)
-                                        typ = rn2(2) ? typ == ELVEN_HELM
-                                                     : rn2(2) ? rnd_class(FEDORA, DUNCE_CAP)
-                                                              : rnd_class(HELM_OF_BRILLIANCE,
-                                                                          HELM_OF_TELEPATHY);
-                                    else
-                                        typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
-                                    break;
-                                default:
-                                    typ = HAWAIIAN_SHIRT; /* Ace Ventura approved. Alrighty then. */
-                                    break;
+                                } /* monks have double chances to get gloves */
+                                /* FALLTHRU */
+                            case 4:
+                                /* gloves */
+                                if (primary_casters || primary_casters_priest)
+                                    typ = rn2(3) ? typ == GLOVES
+                                                 : rnd_class(GAUNTLETS_OF_POWER,
+                                                             GAUNTLETS_OF_DEXTERITY);
+                                else
+                                    typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
+                                break;
+                            case 5:
+                                /* helm */
+                                if (primary_casters || primary_casters_priest)
+                                    typ = rn2(2) ? rnd_class(CORNUTHAUM, ELVEN_HELM)
+                                                 : rnd_class(HELM_OF_BRILLIANCE,
+                                                             HELM_OF_TELEPATHY);
+                                else
+                                    typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
+                                break;
+                            default:
+                                typ = HAWAIIAN_SHIRT; /* Ace Ventura approved. Alrighty then. */
+                                break;
                             }
 
                             /* Same as weapons, but not as badly obviously
@@ -2338,7 +2333,6 @@ dosacrifice()
                             return 1;
                         }
                     }
-                    debugpline0("Failed to create item from typ - no typ");
                 }
             } else if (u.uluck >= 0 && !rn2(10 + (2 * nartifacts))) {
                 otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
