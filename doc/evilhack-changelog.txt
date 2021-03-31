@@ -1519,4 +1519,5 @@ Version 0.7.0
 - Encyclopedia entries for Vecna, Kas, and associated artifacts
 - Abusing your alignment can cause your quest leader to ask you to return
   the quest artifact
+- Fix: mon 457 doesn't like any materials for obj 269
 

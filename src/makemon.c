@@ -3293,7 +3293,8 @@ int otyp;
         tryct = 0;
         if (otmp->oclass == WEAPON_CLASS
             || is_weptool(otmp) || otmp->oclass == ARMOR_CLASS
-            || otmp->oclass == AMULET_CLASS || otmp->oclass == TOOL_CLASS) {
+            || otmp->oclass == AMULET_CLASS
+            || (otmp->oclass == TOOL_CLASS && otmp->otyp != BELL_OF_OPENING)) {
             while (mon_hates_material(mtmp, otmp->material)) {
                 init_obj_material(otmp);
                 tryct++;
