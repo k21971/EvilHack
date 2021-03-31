@@ -1160,6 +1160,16 @@ struct obj **optr;
             obj->age = moves;
             learno = TRUE;
             wakem = TRUE;
+            /* The Bell of Opening has been cursed by the quest nemesis,
+               it will not be freed from that curse until the quest has
+               been completed (either talking to the quest leader with
+               the quest artifact in open inventory, or killing both the
+               quest leader and nemesis) */
+            if (!u.uevent.qcompleted) {
+                curse(obj);
+                pline("%s has not been freed of its curse!", The(xname(obj)));
+                You("must complete your quest for %s to work!", the(xname(obj)));
+            }
 
         } else if (obj->blessed) {
             int res = 0;

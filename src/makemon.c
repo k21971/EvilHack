@@ -2582,6 +2582,8 @@ int mmflags;
             mitem = SPE_DIG;
     } else if (mndx == PM_GHOST && !(mmflags & MM_NONAME)) {
         mtmp = christen_monst(mtmp, rndghostname());
+    } else if (mndx == urole.ldrnum) {
+        mtmp->isqldr = TRUE;
     } else if (mndx == urole.neminum) {
         mitem = BELL_OF_OPENING;
     } else if (mndx == PM_PESTILENCE) {

@@ -151,6 +151,7 @@ struct monst {
     Bitfield(isminion, 1);  /* is a minion */
     Bitfield(isgd, 1);      /* is guard */
     Bitfield(ispriest, 1);  /* is an aligned priest or high priest */
+    Bitfield(isqldr, 1);    /* is quest leader */
 
     Bitfield(iscerberus, 1); /* is Cerberus */
     Bitfield(isvecna, 1);    /* is Vecna */
@@ -160,7 +161,7 @@ struct monst {
     Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
 
     Bitfield(mstone, 3);     /* monster is turning to stone */
-    /* 7 free bits */
+    /* 6 free bits */
 
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 

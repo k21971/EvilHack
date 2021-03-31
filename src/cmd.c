@@ -2857,6 +2857,11 @@ int final;
         enl_msg("Your alignment ", "is", "was", buf, "");
     }
 
+    if (wizard) {
+        Sprintf(buf, " %d", (u.ualign.abuse * -1)); /* don't show negative value */
+        enl_msg("Your alignment abuse value ", "is", "was", buf, "");
+    }
+
     if (monclock > 0) {
         Sprintf(buf, "%2.2fx", (float) MIN_MONGEN_RATE / monclock);
         enl_msg("Monster generation rate ", "is ", "was ", buf, "");
@@ -3482,6 +3487,9 @@ int final;
         you_have_X(buf);
     }
 
+    if (u.ualign.abuse == 0)
+        you_have_never("abused your alignment");
+
     ngenocided = num_genocides();
     if (ngenocided == 0) {
         you_have_never("genocided any monsters");
@@ -3592,6 +3600,15 @@ int final;
     if (u.uachieve.finish_sokoban)
         enl_msg(You_, "have ", "",
                 "completed Sokoban", ""), ++acnt;
+    if (u.uevent.qcompleted)
+        enl_msg(You_, "have ", "",
+                "completed the Quest", ""), ++acnt;
+    if (quest_status.killed_nemesis)
+        enl_msg(You_, "have ", "",
+                "defeated your quest nemesis", ""), ++acnt;
+    if (quest_status.leader_is_dead)
+        enl_msg(You_, "have ", "",
+                "defeated your quest leader", ""), ++acnt;
     if (u.uachieve.killed_medusa)
         enl_msg(You_, "have ", "",
                 "defeated Medusa", ""), ++acnt;

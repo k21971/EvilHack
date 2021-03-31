@@ -76,7 +76,7 @@ struct qtlists {
 #define QT_BADALIGN 20
 #define QT_ASSIGNQUEST 21
 
-#define QT_ENCOURAGE 25 /* 1-10 random encouragement messages */
+#define QT_ENCOURAGE 24 /* 1-11 random encouragement messages */
 
 #define QT_FIRSTLOCATE 35
 #define QT_NEXTLOCATE 36
@@ -93,15 +93,18 @@ struct qtlists {
 #define QT_DISCOURAGE 60 /* 1-10 random maledictive messages */
 
 #define QT_GOTIT 70
+#define QT_GOTIT2 71 /* got it, but the quest leader is dead */
 
 /* For Infidels: Moloch's dialogue */
-#define QT_MOLOCH_1 71 /* offered Amulet, no Idol */
-#define QT_MOLOCH_2 72 /* offered Amulet, got Idol */
-#define QT_MOLOCH_3 73 /* high priest's altar hint */
+#define QT_MOLOCH_1 72 /* offered Amulet, no Idol */
+#define QT_MOLOCH_2 73 /* offered Amulet, got Idol */
+#define QT_MOLOCH_3 74 /* high priest's altar hint */
 
 #define QT_KILLEDNEM 80
 #define QT_OFFEREDIT 81
 #define QT_OFFEREDIT2 82
+#define QT_WANTSIT 83
+#define QT_GAVEITUP 84
 
 #define QT_POSTHANKS 90
 #define QT_HASAMULET 91

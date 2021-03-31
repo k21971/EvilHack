@@ -110,6 +110,11 @@ nemdead()
     if (!Qstat(killed_nemesis)) {
         Qstat(killed_nemesis) = TRUE;
         qt_pager(QT_KILLEDNEM);
+        /* player had to kill the quest leader to
+           continue - in this case, killing the quest
+           nemesis marks the quest as complete */
+        if (quest_status.leader_is_dead)
+            u.uevent.qcompleted = 1;
     }
 }
 
@@ -118,6 +123,13 @@ leaddead()
 {
     if (!Qstat(killed_leader)) {
         Qstat(killed_leader) = TRUE;
+        /* player killed the quest nemesis,
+           came back with the quest artifact,
+           but made the quest leader angry
+           before talking to them to flag
+           quest as complete */
+        if (quest_status.killed_nemesis)
+            u.uevent.qcompleted = 1;
     }
 }
 
@@ -131,7 +143,10 @@ struct obj *obj;
         obj->dknown = 1;
         /* only give this message once */
         Qstat(touched_artifact) = TRUE;
-        qt_pager(QT_GOTIT);
+        if (quest_status.leader_is_dead)
+            qt_pager(QT_GOTIT2);
+        else
+            qt_pager(QT_GOTIT);
         exercise(A_WIS, TRUE);
     }
 }
@@ -228,8 +243,11 @@ finish_quest(obj)
 struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
 {
     struct obj *otmp;
+    struct monst *mtmp;
+    struct permonst *q_guardian = &mons[quest_info(MS_GUARDIAN)];
     aligntyp saved_align;
     uchar saved_godgend;
+    int i, alignabuse;
 
     if (u.uachieve.amulet) { /* unlikely but not impossible */
         if (Role_if(PM_INFIDEL)) {
@@ -248,21 +266,90 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
         if ((otmp = carrying(AMULET_OF_YENDOR)) != 0)
             fully_identify_obj(otmp);
     } else {
-        qt_pager(!Qstat(got_thanks) ? QT_OFFEREDIT : QT_OFFEREDIT2);
-        /* should have obtained bell during quest;
-           if not, suggest returning for it now */
-        if ((otmp = carrying(BELL_OF_OPENING)) == 0)
-            com_pager(5);
+        /* if the player has never abused their alignment by
+           this point, don't ask for the quest artifact. Also
+           excluding Infidels (for now) since potentially
+           having to give up their quest artifact could make
+           the game unwinnable */
+        if (u.ualign.abuse == 0 || Role_if(PM_INFIDEL))
+            goto noabuse;
+        /* the more often the player abuses their alignment,
+           the greater the odds of their quest leader demanding
+           that they forfeit the quest artifact */
+        i = 51 + u.ualign.abuse; /* a single transgression will make i = 50 */
+        if (i < 1)
+            i = 1; /* clamp lower limit to avoid panic */
+        alignabuse = !rn2(i);
+        if (alignabuse) {
+            /* quest leader decides they want the quest artifact */
+            qt_pager(QT_WANTSIT);
+            if (yn("Forfeit the quest artifact to your quest leader?") == 'y') {
+                qt_pager(QT_GAVEITUP);
+                if (obj) {
+                    u.uevent.qcompleted = 1; /* you did it! */
+                    /* completing the quest frees the bell of opening
+                       from its 'curse' */
+                    if ((otmp = carrying(BELL_OF_OPENING)) != 0)
+                        otmp->blessed = 1;
+                    adjalign(5); /* god happy, much yay */
+                    u.uluck += 3; /* increase luck */
+                    /* Leader still gives the artifact their special treatment */
+                    fully_identify_obj(obj);
+                    obj->oeroded = obj->oeroded2 = 0; /* undo any damage */
+                    obj->oerodeproof = 1;
+                    freeinv(obj);
+                    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                        if (DEADMONSTER(mtmp))
+                            continue;
+                        if (mtmp->isqldr)
+                            (void) mpickobj(mtmp, obj);
+                    }
+                    update_inventory();
+                }
+                /* should have obtained bell during quest;
+                   if not, suggest returning for it now */
+                if ((otmp = carrying(BELL_OF_OPENING)) == 0)
+                    com_pager(5);
+            } else {
+                /* the quest is still complete (will fall through
+                   to 'if (obj)' below), but now the quest leader
+                   and his guardians are grumpy */
+                Qstat(pissed_off) = 1;
+                adjalign(-10); /* god less happy, much sad */
+                verbalize(
+                    "You deny my request to safeguard our sacred artifact?  Your bones shall serve to warn others.");
+                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                    if (DEADMONSTER(mtmp))
+                        continue;
+                    /* quest guardians become angry */
+                    if (mtmp->data == q_guardian)
+                        setmangry(mtmp, FALSE);
+                }
+            }
+        } else {
+noabuse:
+            qt_pager(!Qstat(got_thanks) ? QT_OFFEREDIT : QT_OFFEREDIT2);
+            /* should have obtained bell during quest;
+               if not, suggest returning for it now */
+            if ((otmp = carrying(BELL_OF_OPENING)) == 0)
+                com_pager(5);
+        }
     }
     Qstat(got_thanks) = TRUE;
 
     if (obj) {
         u.uevent.qcompleted = 1; /* you did it! */
+        /* completing the quest frees the bell of opening
+           from its 'curse' */
+        if ((otmp = carrying(BELL_OF_OPENING)) != 0)
+            otmp->blessed = 1;
         /* behave as if leader imparts sufficient info about the
            quest artifact */
-        fully_identify_obj(obj);
-            obj->oeroded = obj->oeroded2 = 0;   /* undo any damage */
-	    obj->oerodeproof = 1;		/* Leader 'fixes' it for you */
+        if (!Qstat(pissed_off)) {
+            fully_identify_obj(obj);
+            obj->oeroded = obj->oeroded2 = 0; /* undo any damage */
+            obj->oerodeproof = 1; /* Leader 'fixes' it for you */
+        }
         update_inventory();
     }
 }

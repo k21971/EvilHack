@@ -1250,8 +1250,10 @@ int n;
     int newalign = u.ualign.record + n;
 
     if (n < 0) {
-        if (newalign < u.ualign.record)
+        if (newalign < u.ualign.record) {
             u.ualign.record = newalign;
+            u.ualign.abuse += n;
+        }
     } else if (newalign > u.ualign.record) {
         u.ualign.record = newalign;
         if (u.ualign.record > ALIGNLIM)

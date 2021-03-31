@@ -495,6 +495,7 @@ encode_extended_conducts()
     add_achieveX(buf, "deaf",                       u.uroleplay.deaf);
     add_achieveX(buf, "bonesless",                 !u.uroleplay.numbones);
     add_achieveX(buf, "never_died",                 u.umortality == 0);
+    add_achieveX(buf, "never_abused_alignment",     u.ualign.abuse == 0);
 
     return buf;
 }
@@ -564,6 +565,8 @@ encodeconduct()
         e |= 1L << 18;
     if (u.umortality == 0)
         e |= 1L << 19;
+    if (u.ualign.abuse == 0)
+        e |= 1L << 20;
 
     return e;
 }

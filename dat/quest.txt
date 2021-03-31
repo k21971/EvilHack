@@ -22,7 +22,7 @@
 #	QT_BADALIGN	20
 #	QT_ASSIGNQUEST	21
 #
-#	QT_ENCOURAGE	25	/* 1-10 random encouragement messages */
+#	QT_ENCOURAGE	24	/* 1-11 random encouragement messages */
 #
 #	QT_FIRSTLOCATE	35
 #	QT_NEXTLOCATE	36
@@ -40,14 +40,17 @@
 #	QT_DISCOURAGE	60	/* 1-10 random maledictive messages */
 #
 #	QT_GOTIT	70
+#	QT_GOTIT2	71	/* got it, but the quest leader is dead */
 #
 #				/* For Infidels: Moloch's dialogue */
-#	QT_MOLOCH_1	71	/* offered Amulet, no Idol */
-#	QT_MOLOCH_2	72	/* offered Amulet, got Idol */
-#	QT_MOLOCH_3	73	/* high priest's altar hint */
+#	QT_MOLOCH_1	72	/* offered Amulet, no Idol */
+#	QT_MOLOCH_2	73	/* offered Amulet, got Idol */
+#	QT_MOLOCH_3	74	/* high priest's altar hint */
 #	QT_KILLEDNEM	80
 #	QT_OFFEREDIT	81
 #	QT_OFFEREDIT2	82	/* if you throw artifact to leader after #81 */
+#	QT_WANTSIT	83	/* quest leader wants to keep the quest artifact */
+#	QT_GAVEITUP	84	/* player forfeits quest artifact to their quest leader */
 #
 #	QT_POSTHANKS	90
 #	QT_HASAMULET	91
@@ -145,13 +148,17 @@ the university will soon have no choice but to revoke our research grants.
 you will find %n.
 
 "You must then defeat %n and return %o
-to me.
+to me.  Only with %o can we lift the curse from the silver
+bell.  Otherwise, all hope of finding the Amulet of Yendor is lost.
 
 "Only in this way will we be able to prevent the budget cuts that could
 close this college.
 
 "May the wisdom of %d be your guide."
 %E [%nC has stolen %o.  Locate %i, defeat %ni, and return %O.]
+%Cp Arc 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Arc 00025
 "Beware, for %n is powerful and cunning."
 %E
@@ -264,6 +271,10 @@ The power of %o flows through your body!  You feel
 as if you could now take on the Wizard of Yendor himself and win, but
 you know you must return %o to %l.
 %E [The power of %o flows through your body!  You must return it to %l.]
+%Cc Arc 00071
+The power of %o flows through your body!  You feel
+as if you could now take on the Wizard of Yendor himself and win.
+%E [The power of %o flows through your body!]
 %Cp Arc 00080
 The body of %n dissipates in a cloud of noxious fumes.
 %E
@@ -272,8 +283,9 @@ The body of %n dissipates in a cloud of noxious fumes.
 then smiles at you and says:
 
 "Well done, %p.  You have defeated %n and
-recovered %o.  But I fear that it shall never be safe
-here.
+recovered %o, and we have lifted the curse from
+the silver bell.  Alas, I fear that %o shall
+never be safe here.
 
 Please take %o with you.  You, %p, can
 guard it now far better than I.
@@ -287,9 +299,26 @@ May the blessings of %d follow you and guard you."
 "Of all the items that have been excavated from %i,
 this one has given us the greatest insight into Toltec civilisation.
 Understand that guarding this artifact is no small responsibility,
-%p. Now, it is time that you resumed your expedition for the
-Amulet. %Z await you through the portal which brought you here."
+%p. Now, with the curse lifted from the silver bell, it is time
+that you resumed your expedition for the Amulet.
+%Z await you through the portal which brought you here."
 %E ["Resume your search for the Amulet beyond the magic portal to %Z."]
+%Cc Arc 00083
+%l looks intently at %o.
+
+"Well done, %p.  You have defeated %n and
+recovered %o, and we have lifted the curse from
+the silver bell.  Alas, I fear that %o shall
+never be truly safe unless it is kept here with
+us at %H.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Arc 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
 %Cc Arc 00090
 "Welcome back, %p.  Have you progressed with your quest to
 regain the Amulet of Yendor for %d?"
@@ -400,6 +429,10 @@ about %ni.
 
 "At about the same time, these people you once rode with `liberated' a
 potent magical ring, %o, from a Turanian caravan.
+Also in %nj possession is the silver bell, which has been
+cursed.  We cannot lift the curse from the bell unless you return
+%o, otherwise all hope of finding the Amulet of
+Yendor is lost.
 
 "%nC and %nj Black Horde swept down upon %i and defeated
 the people there, driving them out into the desert.  He has taken
@@ -416,6 +449,9 @@ and with %d behind you, you alone can defeat %n.
 %n, defeat %ni, and return %o to us.  Only
 then will the world be safe."
 %E ["Find %n, defeat %ni, and return %o to us."]
+%Cp Bar 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Bar 00025
 "%nC is strong in the dark arts, but not immune to cold steel."
 %E
@@ -515,6 +551,11 @@ As you pick up %o, you feel the power of it
 flowing through your entire body.  You feel as though no ailment
 can befall you, nor would any wound be too great to heal.
 %E [You feel the power of %o flowing through your body.]
+%Cc Bar 00071
+As you pick up %o, you feel the power of it
+flowing through your entire body.  You feel as though no ailment
+can befall you, nor would any wound be too great to heal.
+%E [You feel the power of %o flowing through your body.]
 %Cc Bar 00080
 %nC falls to the ground, and utters a last curse at you.  Then %nj
 body fades slowly, seemingly dispersing into the air around you.  You
@@ -531,8 +572,9 @@ When %l sees %o, he smiles, and says:
     other sorcerers who will detect it, as surely as %n did.
 
     Take %o with you, %p.  It will guard you in
-    your adventures, and you can best guard it.  You embark on a
-    quest far greater than you realize.
+    your adventures, and you can best guard it.  The curse on the
+    silver bell has been lifted.  You embark on a quest far greater
+    than you realize.
 
     Remember me, %p, and return when you have triumphed.  I
     will tell you then of what you must do.  You will understand when the
@@ -541,10 +583,27 @@ When %l sees %o, he smiles, and says:
 %Cc Bar 00082
 %l gazes reverently at %o, then back at you.
 
-"You are its keeper now, and the time has come to resume your search
-for the Amulet.  %Z await your return through the
-magic portal which brought you here."
+"You are its keeper now, and with the curse lifted from the silver
+bell, the time has come to resume your search for the Amulet.
+%Z await your return through the magic portal which
+brought you here."
 %E ["You keep %o.  Return to %Z to search for the Amulet."]
+%Cc Bar 00083
+%l gazes intently at %o, then back at you
+
+"Well done, %p.  You have defeated %n and
+recovered %o, and we have lifted the curse from
+the silver bell.  Alas, I fear that %o shall
+never be truly safe unless it is kept here with
+us at %H.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Bar 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
 %Cp Bar 00090
 "Tell us, %p, have you fared well on your great quest?"
 %E
@@ -674,11 +733,17 @@ They took it to %i and there, none of our
 
 "You must find %i, and within it wrest
 %o from %n.  He guards it as
-jealously as he guards all treasures he attains.  But with it,
+jealously as he guards all treasures he attains, including the silver
+bell which %n has cursed.  But with it,
 we can make our caves safe once more.
 
-"Please, %p, recover %o for us, and return it here."
+"Please, %p, recover %o for us, and return it here.
+We can lift the curse from the silver bell so that you may find
+the Amulet of Yendor."
 %E [Find and defeat %n, recover %o, and return with it.]
+%Cp Cav 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Cav 00025
 "%nC is immune to many of the elements.
 You should use magic upon him that he does not use himself."
@@ -788,6 +853,13 @@ hold it strength flows into your arms.
 You suddenly feel full of power, as if nothing could possibly stand
 in your path.
 %E [%oC fills you with a feeling of power.]
+%Cc Cav 00071
+As you pick up %o it seems heavy at first, but as you
+hold it strength flows into your arms.
+
+You suddenly feel full of power, as if nothing could possibly stand
+in your path.
+%E [%oC fills you with a feeling of power.]
 %Cp Cav 00080
 %nC crashes to the ground, his great limbs splayed out.
 As he dies, a cloud of noxious fumes billows about him.
@@ -801,16 +873,36 @@ He smiles and says:
     own.
 
     To prevent further trouble, I would like you, %p,
-    to take %o away with you.  It will help you as you
+    to take %o away with you.  The curse has also been
+    lifted from the silver bell.  Both will help as you
     quest for the Amulet of Yendor.
 %E ["Take %o with you.  It will help in your quest for the Amulet of Yendor."]
 %Cc Cav 00082
 %l grasps %o proudly for a moment, then looks at you.
 
 "You are its keeper now, and the time has come to resume your search
-for the Amulet.  %Z await your return through the
-magic portal which brought you here."
+for the Amulet.  The curse has been lifted from the silver bell.
+%Z await your return through the magic portal which
+brought you here."
 %E ["You are the keeper of %o now.  Return to %Z to search for the Amulet.]
+%Cc Cav 00083
+%lC glimpses %o in your possession.
+He looks at you and says:
+
+    "You have done it!  You have defeated %n and
+    recovered %o, and we have lifted the curse from
+    the silver bell.  Alas, I fear that %o will always
+    be a target for %C forces who will want it for their
+    own.  I believe that keeping %o
+    here with us at %H is for the best.
+
+    Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Cav 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
 %Cp Cav 00090
 "%pC!  Welcome back.
 How goes your quest to recover the Amulet for %d?"
@@ -942,8 +1034,14 @@ likely using it for dark, twisted purposes.
 "We need your help to go down to the warden's level
 to defeat the corrupt %n and recover
 %o for us so that
-%H will be safe again."
+%H will be safe again.  Grab the silver
+bell while you're there, I can lift the curse
+%o put on it, you can use it to find
+the Amulet of Yendor."
 %E [Journey downward to recover %o from %n.]
+%Cp Con 00024
+"Remember, you must return with %o
+so that I can lift the curse from the silver bell."
 %Cp Con 00025
 "The sooner you are able to recover %o,
 the better off we will be."
@@ -1074,6 +1172,11 @@ more aware of your surroundings.  You know that
 you need to get it back to %l as soon
 as possible now.
 %E [You feel the power of %o, and know that you must return it to %l.]
+%Cc Con 00071
+As you pick up %o, you feel its power
+flow through you, protecting you, and making you
+more aware of your surroundings.
+%E [You feel the power of %o.]
 %Cc Con 00080
 As %n approaches death, you see sudden
 clarity in her eyes.
@@ -1096,8 +1199,9 @@ life should go back to normal before long.
 
 "Whether I like it or not, I know my place is here.  I
 see that %o has already attuned
-itself to you.  I offer it to you in hopes that
-it will aid in your quest to recover the Amulet
+itself to you.  The curse on the silver bell has also
+been lifted.  I offer both to you in hopes that
+they will aid in your quest to recover the Amulet
 of Yendor." 
 %E [%lC tells you to take %o.]
 %Cc Con 00082
@@ -1105,8 +1209,28 @@ of Yendor."
 with fondness.
 "You are its keeper now.  Take it with you back to
 %Z, through the magic portal
-that brought you here."
+that brought you here.  I have lifted the curse
+from the silver bell, use it to find the Amulet
+of Yendor."
 %E [%lC tells you that you are the keeper of %o.]
+%Cc Con 00083
+%l looks upon %o
+with fondness.
+"Great job, %p.  You have defeated %n and
+recovered %o, and
+we have lifted the curse from the silver bell.
+However, I fear that %o
+will never be truly safe unless it is kept here
+with us at %H.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Con 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o
+will be safe with us."
+%E ["You give %o to %l."]
 %Cc Con 00090
 "Welcome back, %p.  We have done well in your
 absence.  How far have you come with your quest to
@@ -1236,11 +1360,16 @@ For the first time, you sense a smile on %ls face.
 
     "He has exhausted %nj own supply of healthy people and now %nh seeks to
     extend %nj influence into our world.  You must recover from %ni
-    %o and break the spell.
+    %o and break the spell.  Recover the silver bell as well, for it is
+    cursed and must be restored.  Without it, you will never find the
+    Amulet of Yendor.
 
     "You must travel into the swamps to %i, and from there
     follow the trail to %ns island lair.  Be careful."
 %E [Travel to %i on your way to recover %o from %n.]
+%Cp Hea 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Hea 00025
 "Remember, %p, to always wash your hands before operating."
 %E
@@ -1348,6 +1477,10 @@ warm your soul.  You curse Zeus for taking it from its rightful owner,
 but at least you hope that %l can put it to good use once
 again.
 %E [You feel the healing power of %o and should return it to %l.]
+%Cc Hea 00071
+As you pick up %o, you feel its healing begin to
+warm your soul.  You curse Zeus for taking it from its rightful owner.
+%E [You feel the healing power of %o warm your soul.]
 %Cc Hea 00080
 The battered body of %n slumps to the ground and gasps
 out one last curse:
@@ -1368,17 +1501,35 @@ has finished %lh speaks to you.
 
     "Now that we have been replenished we can defeat this plague.  You must
     take %o with you and replenish the worlds you have
-    been called upon to travel next.  I wish you could ride Chiron to the
-    end of your journey, but I need him to help me spread the cure.  Go
-    now and continue your journey."
+    been called upon to travel next.  The silver bell has also been restored.
+    I wish you could ride Chiron to the end of your journey, but I need him
+    to help me spread the cure.  Go now and continue your journey."
 %E [%l touches %o and tells %lj %gP to do so too, then tells you to take it with you.]
 %Cc Hea 00082
 %l cautiously handles %o while watching you.
 
 "You are its keeper now, and the time has come to resume your search
-for the Amulet.  %Z await your return through the
-magic portal which brought you here."
+for the Amulet.  The silver bell will aid you in your search, as its
+curse has been lifted.  %Z await your return
+through the magic portal which brought you here."
 %E [%l tells you to keep %o and return to %Z to search for the Amulet.]
+%Cc Hea 00083
+%l looks intently at %o.
+
+"Well done, %p.  You have defeated %n and
+recovered %o, and we have lifted
+the curse from the silver bell.  Alas, I fear
+that %o shall never be truly
+safe unless it is kept here with us
+at %H.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Hea 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
 %Cp Hea 00090
 "You have again returned to us, %p.  We have done well in your
 absence, yes?  How fare you upon your quest for the Amulet?"
@@ -1392,6 +1543,10 @@ may our prayers be as a wind upon your back."
 %E ["You have recovered the Amulet.  Travel to the Astral Plane and return it to %d."]
 #
 #	Infidel
+#	Currently, the quest leader will not ask
+#	our Infidel for the quest artifact. Adding
+#	the entries for that regardless should
+#	they ever be used in the future.
 #
 %Cc Inf 00001
 You arrive at the mouth of a cave that hosts %H.  This is
@@ -1523,9 +1678,15 @@ cannot be completed.  %nC of %D waits for you
 in the ancient ruins amidst %i, which
 can be reached through the underground complex below our
 temple.  You must travel there and retrieve %o by any means.
+While there, retrieve the silver bell, as you will need it
+to enter the sanctum and rendezvous with our High Priest.
+%nH has defiled the bell, but it's nothing we cannot remedy.
 
 "%dC be your strength, %p.  Go with %dJ blessing."
 %E [%nC of %D found %o and challenged you to a duel.  Kill %ni by any means.]
+%Cp Inf 00024
+"Remember, you must return with %o so
+that we can remove the blasphemous magic from the silver bell."
 %Cp Inf 00025
 "As long as the fire of %d burns within your chest, you will prevail."
 %E
@@ -1650,13 +1811,21 @@ You must return to %l at once.  With %O,
 the Cult will be more powerful than ever!
 %E [You feel the power of %d as you touch %O; return to %l with %oi.]
 %Cc Inf 00071
+As you pick up %o, you feel the presence of %d clearer
+than ever.  The power of %d encompasses your soul, and you instantly
+understand why your Cult was searching for %O, and why
+%n of %D wanted to destroy %oi.
+
+With %O, the Cult will be more powerful than ever!
+%E [You feel the power of %d as you touch %O.]
+%Cc Inf 00072
 Very good, My pawn.  Thou hast finally reached here.  But where is
 Mine %Ot that was entrusted to thee?  Thou wast told to bring %oi here.
 For thy sake, I hope thou hast not lost it!
 
 Return with %O and invoke My name here, and do not falter.
 %E [Fetch %o and invoke %oi on My high altar.]
-%Cc Inf 00072
+%Cc Inf 00073
 "My pawn, thou hast done well.  Now listen carefully, for the time
 for thy final test has come.
 
@@ -1679,7 +1848,7 @@ servants can advise you."
 # to one of the aligned gods at random.
 # Consequently, "Moloch" is typed directly,
 # which may break hypothetical aligned Infidels.
-%Cc Inf 00073
+%Cc Inf 00074
 "My %S, we all pray for thy success on thy quest.  The false gods
 posess power beyond any mere mortal, and even with Moloch's help
 overthrowing one of them will be a challenge.  Chose thine opponent wisely.
@@ -1708,6 +1877,7 @@ by your success.  All of us are proud of you as well.
 
 "You must now continue on your original mission.  But along with
 the Amulet, you must also deliver %O to %ds Sanctum.
+We have restored the silver bell, which will aid you on your quest.
 Such is %dJ will, and such is %dJ plan.
 
 "When you reach the high altar, the final phase of the plan will be
@@ -1717,9 +1887,24 @@ at all times!  If %oh's lost, all our preparations will be ruined."
 %Cc Inf 00082
 "You're %Os keeper now, but %d alone is %oj owner.
 You must bring %oh to %dI along with the Amulet of Yendor.
-%Z await your return through
+We have restored the silver bell, use it to reach
+%ds Sanctum.  %Z await your return through
 the magic portal that brought you here."
 %E [%OC is your responsibility now.  Bring it to %d along with the Amulet.]
+%Cc Inf 00083
+%l stares intently at %o.
+
+"Impressive, %p.  You have defeated %n and
+recovered %oh, and we have restored the silver bell.
+However, I have lost confidence in you %p.  I will
+deliver %oh to %ds Sanctum myself.
+
+%pC, give %oh to me, now!
+%E ["%lC demands that you forfeit %oh."]
+%Cc Inf 00084
+"You are a disappointment %p, but you chose wisely.
+%dC may spare you yet.
+%E ["You give %oh to %l."]
 %Cp Inf 00090
 "Welcome back, my %S.  Have you found your way to the Sanctum yet?"
 %E
@@ -1837,8 +2022,12 @@ Merlin will not regain his health.
 "Go forth from this place, to the fens, and there thou wilt find
 %i.  From there, thou must track down %n.  Destroy the
 beast, and return to Us %o.  Only then can
-We restore Merlin to health."
+We restore Merlin to health.  Thou must also retrieve the silver
+bell, which the foul beast %n hath cursed."
 %E [Pass through %i to reach %n.  Destroy %ni and return with %o.]
+%Cp Kni 00024
+"Remember, thou must return with %o so
+that We mayst lift the curse from the silver bell."
 %Cp Kni 00025
 "Remember, %p, follow always the path of %d."
 %E
@@ -1940,6 +2129,12 @@ form around your body.  You also feel a faint stirring in your mind, as
 if you are in two places at once, and in the second, you are waking from
 a long sleep.
 %E [You feel the magic of %o.]
+%Cc Kni 00071
+As you pick up %o, you feel its protective fields
+form around your body.  You also feel a faint stirring in your mind, as
+if you are in two places at once, and in the second, you are waking from
+a long sleep.
+%E [You feel the magic of %o.]
 %Cc Kni 00080
 As %n sinks to the ground, blood gushing from %nj open mouth, %nh
 defiantly curses you and %l:
@@ -1960,16 +2155,33 @@ As you approach %l, %lh beams at you and says:
     "He hath instructed Us that thou art now to be the guardian of
     %o.  He feeleth that thou mayst have need of
     its powers in thine adventures.  It is Our wish that thou keepest
-    %o with thee as thou searchest for the fabled
-    Amulet of Yendor."
+    %o with thee as thou searchest for the fabled Amulet of Yendor.
+    The wretched curse hath been removed from the silver bell."
 %E [%oC is yours now.  It will aid in your search for the Amulet.]
 # assumes Magic Mirror of Merlin (glass object)
 %Cc Kni 00082
 "Careful, %p!  %oC might break, and that would
 be a tragic loss.  Thou art its keeper now, and the time hath come
-to resume thy search for the Amulet.  %Z await thy
+to resume thy search for the Amulet.  The wretched curse hath been
+removed from the silver bell. %Z await thy
 return through the magic portal that brought thee here."
 %E [You are the keeper of %o.  Return to %Z and find the Amulet.]
+%Cc Kni 00083
+%l gazes intently at %o.
+
+"Thou hast done well, %p.  Thou hast defeated
+%n and recovered %o, and We hast lifted the curse
+from the silver bell.  Alas, We fear that %o shall
+ne'r be forsooth safe 'lest it is kept hither with
+Us at %H.
+
+Please %p, return %o to Us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Kni 00084
+"Bless thee %p for thy sacrifice, We know this must have been
+difficult to do. Rest assured, %d smiles down
+upon thee this day.  %o shall be safe with Us."
+%E ["You give %o to %l."]
 %Cp Kni 00090
 "Well met, %p.  How goeth thy search for the Amulet of Yendor?"
 %E
@@ -2078,10 +2290,16 @@ at bay.
 "We need you to find %i, then, from there,
 travel to %ns lair.  If you can manage to defeat %n and
 return %o here, we can then drive off the legions
-of elementals that slay our students.
+of elementals that slay our students.  While there,
+you must also locate the silver bell and return with it.
+%nC has placed a curse upon the bell, but we cannot remove
+this malediction without the aid of %o.
 
 "Go with %d as your guide, %p."
 %E [Find %i, then continue to %ns lair.  Defeat %ni and return with %o.]
+%Cp Mon 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Mon 00025
 "You can prevail, if you rely on %d."
 %E
@@ -2187,6 +2405,12 @@ You sense a message from %d.  Though not verbal, you
 get the impression that you must return to %l as soon
 as possible.
 %E [You feel the essence of %d and realize that you should take %o to %l.]
+%Cc Mon 00071
+As you pick up %o, you feel the essence of
+%d fill your soul.  You know now why %n stole %oi from
+%H, for with %oi, %ca of %d could
+easily defeat his plans.
+%E [You feel the essence of %d.]
 %Cc Mon 00080
 %nC gasps:
 
@@ -2202,7 +2426,7 @@ Congratulations.
 "I have been in meditation, and have received direction from
 a minion of %d.  %d commands that you retain
 %o.  With %oi, you must recover the Amulet
-of Yendor.
+of Yendor.  The curse has been lifted from the silver bell.
 
 "Go forth, and let %d guide your steps."
 %E [Keep %o.  %oH will help you recover the Amulet of Yendor.]
@@ -2211,10 +2435,27 @@ of Yendor.
 then returns his gaze to you.
 
 "%oC must remain with you.  Use %oi
-as you resume your search for the Amulet.
-%Z await your return through the magic portal
-that brought you here."
+as you resume your search for the Amulet.  The curse has
+been lifted from the silver bell. %Z await
+your return through the magic portal that brought you here."
 %E [Keep %o and return to %Z to search for the Amulet.]
+%Cc Mon 00083
+%lC studies %o for a moment,
+then returns his gaze to you.
+
+"Well done, %p.  You have defeated %n and
+recovered %o, and I have lifted the curse from
+the silver bell.  However, %d has
+directed that %o shall be kept
+here with us at %H.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Mon 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
 %Cp Mon 00090
 "Welcome back, %p.  How is your quest for the Amulet going?"
 %E
@@ -2320,10 +2561,15 @@ barely enough %gP left to keep the undead at bay.
 "We need you to find %i, then, from there, travel
 to %ns lair.  If you can manage to defeat %n and return
 %o here, we can then drive off the legions of
-undead that befoul the land.
+undead that befoul the land.  The silver bell is also
+in %ns possession; return with it, so that we may lift
+the curse that %n has placed upon it.
 
 "Go with %d as your guide, %p."
 %E [%nC invaded %H and captured %o.  Defeat %ni and retrieve %oh.]
+%Cp Pri 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Pri 00025
 "You can prevail, if you rely on %d."
 %E
@@ -2432,6 +2678,12 @@ You sense a message from %d.  Though not verbal, you
 get the impression that you must return to %l as soon
 as possible.
 %E [You feel %d as you pick up %o; return %oh to %l.]
+%Cc Pri 00071
+As you pick up %o, you feel the essence of
+%d fill your soul.  You know now why %n stole it from
+%H, for with it, %ca of %d could
+easily defeat his plans.
+%E [You feel %d as you pick up %o.]
 %Cc Pri 00080
 You feel a wrenching shift in the ether as %ns body dissolves
 into a cloud of noxious gas.
@@ -2452,7 +2704,7 @@ Congratulations.
 "I have been in meditation, and have received direction from
 a minion of %d.  %d commands that you retain
 %o.  With it, you must recover the Amulet
-of Yendor.
+of Yendor.  The curse has been lifted from the silver bell.
 
 "Go forth, and let %d guide your steps."
 %E [Congratulations, %p.  Keep %o; go and recover the Amulet.]
@@ -2460,9 +2712,27 @@ of Yendor.
 %lC reiterates that %o is yours now.
 
 "The time has come to resume your search for the Amulet.
+The curse has been lifted from the silver bell.
 %Z await your return through the magic portal
 that brought you here."
 %E [%oC is yours now.  Return to %Z and find the Amulet.]
+%Cc Pri 00083
+"You have returned, %p.  And with %o, I see.
+Congratulations.
+
+"Well done, %p.  You have defeated %n and
+recovered %o, and I have lifted the curse from
+the silver bell.  However, %d has
+directed that %o shall be kept
+here with us at %H.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Pri 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
 %Cp Pri 00090
 "Welcome back, %p.  How is your quest for the Amulet going?"
 %E
@@ -2571,10 +2841,16 @@ we will be able to maintain our magical barriers.
 "If we are to survive, you, %p, must infiltrate
 %i.  There, you will find a pathway down, to the
 underground cavern of %n.  He has always coveted
-%o, and will surely keep it.
+%o, and will surely keep it.  There you will
+also find the silver bell.  Return with it so
+that we can lift the curse that %n
+has placed upon it.
 
 "Recover %o for us, %p!  Only then will %d be safe."
 %E [%nC has stolen %o.  Infiltrate %i and retrieve %oh for us.]
+%Cp Ran 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Ran 00025
 "It is rumored that the Forest and Mountain Centaurs have resolved
 their ancient feud and now band together against us."
@@ -2692,6 +2968,11 @@ your %sp against their enemies for so long.
 You must now return it to %l without delay -- their lives depend
 on your speed.
 %E [You pick up %o and feel power.  It's time to return %oh to %l.]
+%Cc Ran 00071
+As you pick up %o, it seems to glow, and a warmth
+fills you completely.  You realize that its power is what has protected
+your %sp against their enemies for so long.
+%E [You pick up %o and feel power.]
 %Cc Ran 00080
 %nC collapses to the ground, cursing you and %l, then says:
 
@@ -2706,6 +2987,7 @@ on your speed.
 "I fear, now, that the Centaurs will regroup and plot yet another raid.
 This will take some time, but if you can recover the Amulet of Yendor
 for %d before that happens, we will be eternally safe.
+We have removed the curse from the silver bell.
 
 "Take %o with you.  It will aid in your quest for
 the Amulet."
@@ -2715,9 +2997,26 @@ the Amulet."
 
 "With this wondrous weapon, one need never run out of ammunition.
 You are its keeper now, and the time has come to resume your
-search for the Amulet.  %Z await your return
+search for the Amulet.  We have removed the curse from the silver
+bell.  %Z await your return
 through the magic portal that brought you here."
 %E [You are the keeper of %o now.  Go and find the Amulet.]
+%Cc Ran 00083
+%l inspects %o reverently.
+
+"Well done, %p.  You have defeated %n and
+recovered %o, and we have lifted the curse from
+the silver bell.  Alas, I fear that %o shall
+never be truly safe unless it is kept here with
+us at %H.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Ran 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
 %Cp Ran 00090
 "Welcome, %p.  How have you fared on your quest for the Amulet
 of Yendor?"
@@ -2829,8 +3128,11 @@ are too valuable to me.
 "Here's the deal.  I want %o, %n
 has %o.  You are going to get %o
 and bring it back to me.  So simple an assignment even you can understand
-it."
+it.  Bring back the silver bell while you're at it so we can uncurse it."
 %E [Get %o from %n and bring it to %l.]
+%Cp Rog 00024
+"Can you remember to come back with %o
+so we can uncurse the silver bell?  Can you do that?"
 %Cp Rog 00025
 "You don't seem to understand,
 %o isn't here so neither should you be!"
@@ -2929,6 +3231,12 @@ neck fall out.  At once you realize why %n was
 willing to die to keep it out of %ls hands.  Somehow
 you know that you must do likewise.
 %E [You pick up %o and know that %l should not have it.]
+%Cc Rog 00071
+As you pick up %o, the hairs on the back of your
+neck fall out.  At once you realize why %n was
+willing to die to keep it out of %ls hands.  Good
+thing %l is already dead...
+%E [You pick up %o, relieved that %l is already dead.]
 %Cc Rog 00080
 "I know what you are thinking, %p.  It is not too late for you
 to use %o wisely.  For the sake of your guild
@@ -2958,6 +3266,21 @@ evidently chickens out.
 "Go filch the Amulet before someone else beats you to it.
 %Z are back the way you came, through the magic portal."
 %E [Take %o and acquire the Amulet.]
+%Cc Rog 00083
+%lC eyes %o intently, like
+he's about to take it from you.
+
+"Leave %o, you're not taking it with you.
+And go filch the Amulet before someone else beats you to it.
+The silver bell is uncursed now, so easy task for you, yeah?
+%Z are back the way you came, through the magic portal."
+%E [%lC demands you forfeit %o.]
+%Cc Rog 00084
+"Seriously?  You gave up %o
+without a fight?  You're weaker than I thought.
+Leave now before I decide to put you out of
+everyone else's misery."
++%E ["You give %o to %l."]
 %Cc Rog 00090
 "Quite the little thief, aren't we, %p.  Can I interest you in a
 swap for %o?  Look around, anything in the keep
@@ -3065,7 +3388,8 @@ it is that I require of you.
 
 "The daimyo, %n, has betrayed us.  He has stolen from us
 %o and taken it to his donjon deep within
-%i.
+%i.  The silver bell is there as well, and has been
+cursed by %n.
 
 "If I cannot show the emperor %o when he comes
 for the festival he will know that I have failed in my duty, and
@@ -3077,6 +3401,9 @@ cha-no-you in 5 sticks.
 
 "Wakarimasu ka?"
 %E [You must enter %i, then regain %o from %n.]
+%Cp Sam 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Sam 00025
 "To defeat %n you must overcome the seven emotions:
 hate, adoration, joy, anxiety, anger, grief, and fear."
@@ -3184,6 +3511,12 @@ You realize at once why so many good samurai had to die to defend it.
 You are humbled knowing that you hold one of the artifacts of the
 sun goddess.
 %E [You feel the power of %o and are humbled.]
+%Cc Sam 00071
+As you pick up %o, you feel the strength of its karma.
+You realize at once why so many good samurai had to die to defend it.
+You are humbled knowing that you hold one of the artifacts of the
+sun goddess.
+%E [You feel the power of %o and are humbled.]
 %Cc Sam 00080
 Your healing skills tell you that %ns wounds are mortal.
 
@@ -3206,9 +3539,10 @@ As you bow before %l, he welcomes you:
 
     "Because you have shown such fidelity, the emperor requests
     that you take leave of other obligations and continue on the
-    road that fate has set your feet upon.  I would consider it
-    an honor if you would allow me to watch your household until
-    you return with the Amulet."
+    road that fate has set your feet upon.  I have removed the
+    curse from the silver bell, which will aid you on your quest.
+    I would consider it an honor if you would allow me to watch
+    your household until you return with the Amulet."
 
 With that, %l bows, and places his sword atop
 %o.
@@ -3217,10 +3551,28 @@ With that, %l bows, and places his sword atop
 %l holds %o tightly for a moment, then returns
 his gaze to you.
 
-"The time is ripe to recover the Amulet.  Return to %Z
-through the magic portal that transported you here so that you may
-achieve the destiny which awaits you."
+"The time is ripe to recover the Amulet.  With the curse removed
+from the silver bell, this should be a simple task.  Return to
+%Z through the magic portal that transported you here
+so that you may achieve the destiny which awaits you."
 %E [Take %o, return to %Z, and recover the Amulet.]
+%Cc Sam 00083
+%l holds %o tightly for a moment, then returns
+his gaze to you.
+
+"Well done, %p-san.  You have defeated %n and
+recovered %o, and I have lifted the curse from
+the silver bell.  Alas, the emperor has decreed
+that %o shall remain here with us at %H.
+
+%p-san, return %o to us now kudasai.
+%E ["%lC asks you to forfeit %o."]
+%Cc Sam 00084
+"You have chosen wisely %p-san.
+I know this must have been difficult to do.
+Rest assured, %d smiles down upon you this day.
+%o will be safe with us."
+%E ["You give %o to %l."]
 %Cp Sam 00090
 %lC bows.  "%p-sama, tell us of your search for the Amulet."
 %E
@@ -3328,12 +3680,16 @@ help us in our time of need.  After you left us we elected a new mayor,
 "Soon after taking office he absconded with %o
 and fled town, leaving behind his henchmen to rule over us.  In order
 for us to regain control of our town, you must enter %i
-and recover %o.
+and recover %o.  Be sure to recover the silver bell
+as well.  A curse has been placed upon it that we must remove.
 
 "Do not be distracted on your quest.  If you do not return quickly I fear
 that all will be lost.  Let us both pray now that %d will guide you
 and keep you safe."
 %E [Enter %i and recover %o from %n.]
+%Cp Tou 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Tou 00025
 "Do not be fooled by the false promises of %n."
 %E
@@ -3448,6 +3804,11 @@ As you pick up %o, you feel a great
 weight has been lifted from your shoulders.  Your only thoughts are
 to quickly return to %H and find %l.
 %E [You pick up %o and feel relief.  Return it to %l.]
+%Cc Tou 00071
+As you pick up %o, you feel a great
+weight has been lifted from your shoulders.  Your only thoughts are
+to quickly return to %H.
+%E [You pick up %o and feel relief.]
 %Cc Tou 00080
 You turn in the direction of %n.  As his earthly body begins
 to vanish before your eyes, you hear him curse:
@@ -3464,12 +3825,35 @@ As he looks up from %o he says:
     "You have recovered %o.  You are its
     owner now, but not its master.  Let it work with you as you continue
     your journey.  With its help, and %d to guide you on the
-    %a path, you may yet recover the Amulet of Yendor."
+    %a path, you may yet recover the Amulet of Yendor, especially
+    now that the curse on the silver bell has been removed."
 %E [Take %o and with %ds guidance, recover the Amulet.]
 %Cc Tou 00082
 "%oC is yours now.  %Z
-await your return through the magic portal that brought you here."
+await your return through the magic portal that brought you here.
+The curse on the silver bell has been removed."
 %E [Keep %o and return to %Z through the portal.]
+%Cc Tou 00083
+As %l detects the presence of %o,
+he almost smiles for the first time in many a full moon.
+
+As he looks up from %o he says:
+
+    "Well done, %p.  You have defeated %n and
+    recovered %o, and we
+    have lifted the curse from the silver bell.
+    However, I fear that %o
+    shall never be truly safe unless it is kept
+    here with us at %H.
+
+    Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Tou 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will
+be safe with us."
+%E ["You give %o to %l."]
 %Cp Tou 00090
 "I could not be more proud than if you were my own %S, %p!
 Tell me of your adventures in quest of the Amulet of Yendor."
@@ -3586,8 +3970,13 @@ and unless %oh is returned into my care, %n may start Ragnarok.
 
 "You must find the entrance to %i.  Travel downward
 from there and you will find %ns lair.  Defeat him and
-return %o to me."
+return %o to me, as well as the silver bell.  I must
+remove the curse placed upon it so that you may retrieve
+the Amulet of Yendor."
 %E [Find %i; defeat %n; return with %o.]
+%Cp Val 00024
+"Remember, you must return with %o so
+that I may lift the curse from the silver bell."
 %Cp Val 00025
 "Go with the blessings of %d."
 %E
@@ -3690,6 +4079,11 @@ of the final battle and what could come to pass should Ragnarok
 begin.  As you begin to control and channel your thoughts, you
 realize that you must return %o to %l immediately.
 %E [You must return %o to %l.]
+%Cc Val 00071
+As you pick up %o, your mind is suddenly filled with images
+of the final battle and what could come to pass should Ragnarok
+begin.
+%E [You must return with %o.]
 %Cc Val 00080
 A look of surprise and horror appears on %ns face.
 
@@ -3705,13 +4099,34 @@ it the power to start Ragnarok, for that power no mortal should
 have.  Its other abilities, however, you have at your disposal.
 
 "You must now begin in %ds name to search for the Amulet of Yendor.
-May your steps be guided by %d, my %S."
+With the curse lifted from the silver bell, this should be a simple
+task for someone of your ability.  May your steps be guided
+by %d, my %S."
 %E [Take %o.  Search for the Amulet.]
 %Cc Val 00082
 "You are its keeper now, and the time has come to
-resume your search for the Amulet.  %Z await your
-return through the magic portal that brought you here."
+resume your search for the Amulet.  With the curse lifted from the
+silver bell, this should be a simple task for someone of your
+ability.  %Z await your return through the magic portal
+that brought you here."
 %E [You are %os keeper now.  Return through the portal and find the Amulet.]
+%Cc Val 00083
+As you approach, %l rises and touches %o.
+
+"Outstanding, %p.  You have defeated %n and
+recovered %o, and I have lifted the curse from
+the silver bell.  Alas, I fear that %o shall
+never be truly safe unless it is kept here with
+us at %H.  Ragnarok must not
+come to pass.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Val 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
 %Cp Val 00090
 "Greetings, %p.  I have not been able to pay as much attention to
 your search for the Amulet as I have wished.  How do you fare?"
@@ -3825,6 +4240,9 @@ not the case.
 minion, mindless and ensorcelled, and thus, in the confusion, it was
 able to penetrate our defenses.  Alas, this creature has stolen
 %o and I fear has delivered %oh to %n.
+%nC is also in possession of the silver bell, and has
+placed a curse upon it. Return it as well, so we can lift its curse,
+which will then allow you to find the Amulet of Yendor.
 
 "Over the years, I had woven most of my power into this amulet, and thus,
 without it, I have but a shadow of my former power, and I fear that I
@@ -3835,6 +4253,9 @@ find and overcome %n, and return %o to me.
 
 "Go now, with %d, and complete this quest before it is too late."
 %E [Travel to %i; overcome %n; return with %o.]
+%Cp Wiz 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
 %Cp Wiz 00025
 "Beware, for %n is immune to most magical attacks."
 %E
@@ -3940,6 +4361,12 @@ through it.  Although you yearn to wear %o and
 attack the Wizard of Yendor, you know you must return it to its rightful
 owner, %l.
 %E [You feel %os power and know you should return %oh to %l.]
+%Cc Wiz 00071
+As you touch %o, its comforting power infuses you
+with new energy.  You feel as if you can detect others' thoughts flowing
+through it.  You yearn to wear %o and show
+the Wizard of Yendor what a true wizard looks like.
+%E [You feel %os power.]
 %Cc Wiz 00080
 %nC, whose body begins to shrivel up, croaks out:
 
@@ -3958,14 +4385,33 @@ beams at you and says:
 
     "Take %oh with you in your quest for the Amulet of Yendor.
     I can sense that it has attuned %oiself to you already.
+    We have also removed the curse from the silver bell.
 
     "May %d guide you in your quest, and keep you from harm."
 %E [Take %o with you in your quest for the Amulet.]
 %Cc Wiz 00082
-"You are the keeper of %o now.  It is time to
-recover the /other/ Amulet.  %Z await your return through
-the magic portal which brought you here."
+"You are the keeper of %o now.  We have also removed the
+curse from the silver bell.  It is time to recover the
+/other/ Amulet.  %Z await your return
+through the magic portal which brought you here."
 %E [Keep %o, return through the portal to %Z; find the other Amulet.]
+%Cc Wiz 00083
+%lC notices %o in your possession,
+looks at you and says:
+
+"Well done, %p.  You have defeated %n and
+recovered %o, and we have lifted the curse from
+the silver bell.  Alas, I fear that
+%o shall never be truly safe unless
+it is kept here with us at %H.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Wiz 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
 %Cp Wiz 00090
 "Come near, my %S, and share your adventures with me.
 So, have you succeeded in your quest for the Amulet of Yendor?"
@@ -4016,11 +4462,12 @@ You again sense %l pleading for help.
 You again sense %l demanding your attendance.
 %E
 # Completed the quest by returning with artifact, but not carrying
-# the Bell of Opening; quest leader lets you know that it is needed.
+# the bell of Opening; quest leader lets you know that it is needed.
 #[ Should this be role-specific so that each leader has variant text? ]
 %Cp - 00005
-"The silver bell which was hoarded by %n will be
-essential in locating the Amulet of Yendor."
+"The silver bell which was hoarded and cursed by
+%n will be essential in locating
+the Amulet of Yendor."
 %E
 #
 #	Angelic maledictions.
@@ -4127,7 +4574,7 @@ My allegiance to %d holds fast and I cannot condone or accept what you
 have done.
 
 Leave this place.  For as long as I live, you shall never set foot at %H again.
-That which you seek is now lost forever, for without the Bell of Opening,
+That which you seek is now lost forever, for without the bell of Opening,
 you will never be able to enter the place where he who has the Amulet
 resides.
 
