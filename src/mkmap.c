@@ -553,7 +553,7 @@ boolean notpool;
         cy = 1 + rn2(ROWNO - 2);
         if (levl[cx][cy].typ == POOL || levl[cx][cy].typ == MOAT
             || levl[cx][cy].typ == PUDDLE) {
-            if (depth(&u.uz) >= 9) {
+            if (u.uz.dlevel >= 5) {
                 (void) makemon(rn2(20) ? &mons[PM_JELLYFISH +
                                                rn2(PM_MIND_FLAYER_LARVA - PM_JELLYFISH)]
                                        : rn2(8) ? &mons[PM_WATER_MOCCASIN]
@@ -564,7 +564,7 @@ boolean notpool;
             }
             monstcount--;
         } else if (levl[cx][cy].typ == SEWAGE) {
-            if (depth(&u.uz) >= 9) {
+            if (u.uz.dlevel >= 5) {
                 (void) makemon(rn2(3) ? &mons[PM_GIANT_LEECH]
                                       : rn2(8) ? &mons[PM_GIANT_COCKROACH]
                                                : &mons[PM_CROCODILE], cx, cy, NO_MM_FLAGS);
@@ -621,11 +621,9 @@ lev_init *init_lev;
     if (join)
         join_map(bg_typ, fg_typ);
 
-    /* TODO: specify relative mines level
-       depth, don't use abolsute value */
     if (In_mines(&u.uz) && !In_hell(&u.uz)) {
         if (!(Is_minetn_level(&u.uz))) {
-            if (rn2(depth(&u.uz) - 1))
+            if (rn2(u.uz.dlevel + 1))
                 mkrivers();
         }
     }

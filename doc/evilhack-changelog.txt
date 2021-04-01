@@ -1532,4 +1532,5 @@ Version 0.7.0
 - The Dark One's familiar
 - Fix: The Grey-elf resists the death magic, but appears drained!
   The death ray hits the Grey-elf! 
+- Improvement to random river generation in the gnomish mines
 
