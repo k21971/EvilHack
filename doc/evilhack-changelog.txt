@@ -1529,4 +1529,5 @@ Version 0.7.0
   teleportation or cursed potions of gain level
 - Wizard quest leader/nemesis tweaks, MR2_TELEPATHY extrinsic for monsters
   from worn objects
+- The Dark One's familiar
 
