@@ -1523,4 +1523,5 @@ Version 0.7.0
 - Fix: incorrect MC calculation
 - Exclude fumble boots/gauntlets and dunce cap from regular item sacrifice
   gift selection
+- Randomize odds of a river forming in the gnomish mines
 

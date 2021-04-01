@@ -544,19 +544,34 @@ boolean notpool;
         else if (cy >= ROWNO)
             cy = ROWNO - 1;
     }
-    /* loop through and spawn some monsters */
+    /* Loop through and spawn some monsters. Since rivers are
+       currently only made in the gnomish mines, no need to
+       specify In_mines(&u.uz) */
     count = 0;
     while (count++ < 2000 && monstcount > 0) {
         cx = 1 + rn2(COLNO - 2);
         cy = 1 + rn2(ROWNO - 2);
         if (levl[cx][cy].typ == POOL || levl[cx][cy].typ == MOAT
             || levl[cx][cy].typ == PUDDLE) {
-            (void) makemon(&mons[PM_JELLYFISH +
-                           rn2(PM_MIND_FLAYER_LARVA - PM_JELLYFISH)], cx, cy, NO_MM_FLAGS);
+            if (depth(&u.uz) >= 9) {
+                (void) makemon(rn2(20) ? &mons[PM_JELLYFISH +
+                                               rn2(PM_MIND_FLAYER_LARVA - PM_JELLYFISH)]
+                                       : rn2(8) ? &mons[PM_WATER_MOCCASIN]
+                                                : &mons[PM_WATER_TROLL], cx, cy, NO_MM_FLAGS);
+            } else {
+                (void) makemon(&mons[PM_JELLYFISH +
+                               rn2(PM_MIND_FLAYER_LARVA - PM_JELLYFISH)], cx, cy, NO_MM_FLAGS);
+            }
             monstcount--;
         } else if (levl[cx][cy].typ == SEWAGE) {
-            (void) makemon(rn2(3) ? &mons[PM_GIANT_LEECH]
-                                  : &mons[PM_GIANT_COCKROACH], cx, cy, NO_MM_FLAGS);
+            if (depth(&u.uz) >= 9) {
+                (void) makemon(rn2(3) ? &mons[PM_GIANT_LEECH]
+                                      : rn2(8) ? &mons[PM_GIANT_COCKROACH]
+                                               : &mons[PM_CROCODILE], cx, cy, NO_MM_FLAGS);
+            } else {
+                (void) makemon(rn2(3) ? &mons[PM_GIANT_LEECH]
+                                      : &mons[PM_GIANT_COCKROACH], cx, cy, NO_MM_FLAGS);
+            }
             monstcount--;
         }
     }
@@ -606,9 +621,13 @@ lev_init *init_lev;
     if (join)
         join_map(bg_typ, fg_typ);
 
+    /* TODO: specify relative mines level
+       depth, don't use abolsute value */
     if (In_mines(&u.uz) && !In_hell(&u.uz)) {
-        if (!(Is_minetn_level(&u.uz)))
-            mkrivers();
+        if (!(Is_minetn_level(&u.uz))) {
+            if (rn2(depth(&u.uz) - 1))
+                mkrivers();
+        }
     }
 
     finish_map(fg_typ, bg_typ, (boolean) lit, (boolean) walled,
