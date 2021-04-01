@@ -4052,8 +4052,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 /* similar to player */
                 sho_shieldeff = TRUE;
                 tmp = (tmp + 1) / 2;
-                pline("%s resists the death magic, but appears drained!",
-                      Monnam(mon));
                 if (spellcaster)
                     tmp = spell_damage_bonus(tmp);
                 break;
@@ -4632,8 +4630,17 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     boolean mon_could_move = mon->mcanmove;
                     int tmp = zhitm(mon, type, nd, &otmp);
 
+                    if (resists_magm(mon)
+                        && abs(type) != ZT_BREATH(ZT_DEATH)) { /* death */
+                        if (canseemon(mon)) {
+                            hit(fltxt, mon, ".");
+                            pline("%s resists the death magic, but appears drained!",
+                                  Monnam(mon));
+                        }
+                        break; /* Out of while loop */
+                    }
                     if (is_rider(mon->data)
-                        && abs(type) == ZT_BREATH(ZT_DEATH)) {
+                        && abs(type) == ZT_BREATH(ZT_DEATH)) { /* disintegration */
                         if (canseemon(mon)) {
                             hit(fltxt, mon, ".");
                             pline("%s disintegrates.", Monnam(mon));

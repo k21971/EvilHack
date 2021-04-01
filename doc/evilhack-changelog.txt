@@ -1530,4 +1530,6 @@ Version 0.7.0
 - Wizard quest leader/nemesis tweaks, MR2_TELEPATHY extrinsic for monsters
   from worn objects
 - The Dark One's familiar
+- Fix: The Grey-elf resists the death magic, but appears drained!
+  The death ray hits the Grey-elf! 
 

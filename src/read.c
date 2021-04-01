@@ -446,7 +446,7 @@ doread()
             "Reply hazy, try again", "Ask again later",
             "Better not tell you now", "Cannot predict now",
             "Concentrate and ask again",
-            /* Negative */ 
+            /* Negative */
             "Don't count on it", "Outlook not so good", "Very doubtful",
             "My reply is no", "My sources say no",
         };
