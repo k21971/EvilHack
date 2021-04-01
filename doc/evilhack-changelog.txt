@@ -1525,4 +1525,6 @@ Version 0.7.0
   gift selection
 - Randomize odds of a river forming in the gnomish mines
 - Tweak Wizard of Yendor's kit
+- Give the player a chance to escape from a demon lord/prince using
+  teleportation or cursed potions of gain level
 

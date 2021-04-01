@@ -1109,9 +1109,14 @@ register struct obj *otmp;
             unkn++;
 
             /* Being in the presence of demon lords/princes
-               negates cursed potions of gain level */
+               can negate cursed potions of gain level most
+               of the time */
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-                if (is_dlord(mtmp->data) || is_dprince(mtmp->data)) {
+                if (is_dlord(mtmp->data) && rn2(5)) {
+                    pline("Demonic forces prevent you from rising up.");
+                    goto no_rise;
+                }
+                if (is_dprince(mtmp->data) && rn2(20)) {
                     pline("Demonic forces prevent you from rising up.");
                     goto no_rise;
                 }
