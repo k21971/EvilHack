@@ -1527,4 +1527,6 @@ Version 0.7.0
 - Tweak Wizard of Yendor's kit
 - Give the player a chance to escape from a demon lord/prince using
   teleportation or cursed potions of gain level
+- Wizard quest leader/nemesis tweaks, MR2_TELEPATHY extrinsic for monsters
+  from worn objects
 

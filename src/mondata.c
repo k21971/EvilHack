@@ -135,7 +135,8 @@ struct monst *mon;
         slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
-             && obj_has_prop(o, ANTIMAGIC))
+             && (obj_has_prop(o, ANTIMAGIC)
+                 || defends(AD_MAGM, o)))
             || (o->oartifact && defends_when_carried(AD_MAGM, o)))
             return TRUE;
     return FALSE;

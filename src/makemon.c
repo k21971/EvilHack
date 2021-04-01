@@ -1062,6 +1062,18 @@ register struct monst *mtmp;
             otmp->spe = rnd(4) + 1;
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, LARGE_SHIELD);
+        } else if (mm == PM_DARK_ONE) {
+            otmp = mksobj(QUARTERSTAFF, FALSE, FALSE);
+            otmp->spe = rnd(2) + 1;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, CLOAK_OF_MAGIC_RESISTANCE);
+            (void) mongets(mtmp, CORNUTHAUM);
+        } else if (mm == PM_NEFERET_THE_GREEN) {
+            otmp = mksobj(QUARTERSTAFF, FALSE, FALSE);
+            otmp->spe = rnd(2) + 1;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, ROBE);
+            (void) mongets(mtmp, CORNUTHAUM);
         } else if (mm == PM_MEDUSA) {
             (void) mongets(mtmp, ORCISH_BOW);
             /* 25 to 40 arrows */

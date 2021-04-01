@@ -128,6 +128,8 @@ boolean check_if_better, stashing;
              || otmp->otyp == AMULET_OF_REFLECTION
              || otmp->otyp == AMULET_OF_FLYING
              || otmp->otyp == AMULET_OF_MAGIC_RESISTANCE
+             || otmp->otyp == AMULET_OF_GUARDING
+             || otmp->otyp == AMULET_OF_ESP
              /* bags */
              || otmp->otyp == BAG_OF_HOLDING
              || otmp->otyp == BAG_OF_TRICKS
@@ -230,8 +232,7 @@ hero_dupe_check:
                 } else if (Is_nonprize_container(otmp)) {
                     if (stashing)
                         return TRUE; /* don't stash one bag in another */
-                    /* 
-                     * don't take a bag unless the hero has one that is of the
+                    /* don't take a bag unless the hero has one that is of the
                      * same quality or better -- this relies on the fact that
                      * bag otyps are contiguous and in order of preference.
                      */
@@ -350,17 +351,17 @@ struct monst *mon;
             break;
         }
 
-        if (!obj->owornmask && obj != wep &&
-     		    (!intelligent ||
-         		    (obj != rwep
-         		    && obj != proj && obj != hwep
-         		    && !would_prefer_hwep(mon, obj) /*cursed item in hand?*/
-         		    && !would_prefer_rwep(mon, obj)
-         		    && ((rwep != &zeroobj) ||
-         		        (!is_ammo(obj) && !is_launcher(obj)))
-         		    && (rwep == &zeroobj || !ammo_and_launcher(obj, rwep))
-         		    && !could_use_item(mon, obj, TRUE, FALSE))))
-     		            return obj;
+        if (!obj->owornmask && obj != wep
+            && (!intelligent
+                || (obj != rwep
+                    && obj != proj && obj != hwep
+                    && !would_prefer_hwep(mon, obj) /*cursed item in hand?*/
+                    && !would_prefer_rwep(mon, obj)
+                    && ((rwep != &zeroobj)
+                || (!is_ammo(obj) && !is_launcher(obj)))
+                    && (rwep == &zeroobj || !ammo_and_launcher(obj, rwep))
+                    && !could_use_item(mon, obj, TRUE, FALSE))))
+            return obj;
     }
 
     return (struct obj *) 0; /* don't drop anything */

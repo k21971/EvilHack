@@ -669,8 +669,8 @@ struct monst *mtmp;
                 || !(mtmp->mtrapseen & (1 << (TELEP_TRAP - 1)))) {
                 m.defensive = obj;
                 m.has_defense = (mon_has_amulet(mtmp))
-                                    ? MUSE_WAN_TELEPORTATION
-                                    : MUSE_WAN_TELEPORTATION_SELF;
+                                 ? MUSE_WAN_TELEPORTATION
+                                 : MUSE_WAN_TELEPORTATION_SELF;
             }
         }
         nomore(MUSE_SCR_TELEPORTATION);
@@ -3206,7 +3206,9 @@ struct obj *obj;
         if (typ == AMULET_OF_REFLECTION
             || typ == AMULET_OF_FLYING
             || typ == AMULET_OF_GUARDING
-            || typ == AMULET_OF_MAGIC_RESISTANCE)
+            || typ == AMULET_OF_ESP
+            || typ == AMULET_OF_MAGIC_RESISTANCE
+            || obj->oartifact == ART_EYE_OF_THE_AETHIOPICA)
             return TRUE;
         /* who doesn't want the ultimate amulet? and they can be fooled also */
         if (typ == AMULET_OF_YENDOR || typ == FAKE_AMULET_OF_YENDOR)

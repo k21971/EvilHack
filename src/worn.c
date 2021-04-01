@@ -419,6 +419,9 @@ new_property:
         case DISPLACED:
             mon->mextrinsics |= MR2_DISPLACED;
             break;
+        case TELEPAT:
+            mon->mextrinsics |= MR2_TELEPATHY;
+            break;
         /* properties handled elsewhere */
         case ANTIMAGIC:
         case REFLECTING:
@@ -426,7 +429,6 @@ new_property:
         /* properties which have no effect for monsters */
         case CLAIRVOYANT:
         case STEALTH:
-        case TELEPAT:
         case HUNGER:
         case ADORNED:
             break;
@@ -476,6 +478,9 @@ new_property:
             break;
         case DISPLACED:
             mon->mextrinsics &= ~(MR2_DISPLACED);
+            break;
+        case TELEPAT:
+            mon->mextrinsics &= ~(MR2_TELEPATHY);
             break;
         case FIRE_RES:
         case COLD_RES:
@@ -528,38 +533,38 @@ new_property:
             which = 0;
             props &= ~(i);
             switch (i) {
-                case ITEM_FIRE:
-                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
-                        which = FIRE_RES;
-                    break;
-                case ITEM_FROST:
-                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
-                        which = COLD_RES;
-                    break;
-                case ITEM_DRLI:
-                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
-                        which = DRAIN_RES;
-                    break;
-                case ITEM_SHOCK:
-                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
-                        which = SHOCK_RES;
-                    break;
-                case ITEM_VENOM:
-                    if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
-                        which = POISON_RES;
-                    break;
-                case ITEM_ESP:
-                    which = TELEPAT;
-                    break;
-                case ITEM_FUMBLING:
-                    which = FUMBLING;
-                    break;
-                case ITEM_HUNGER:
-                    which = HUNGER;
-                    break;
-                case ITEM_EXCEL:
-                    which = ADORNED;
-                    break;
+            case ITEM_FIRE:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = FIRE_RES;
+                break;
+            case ITEM_FROST:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = COLD_RES;
+                break;
+            case ITEM_DRLI:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = DRAIN_RES;
+                break;
+            case ITEM_SHOCK:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = SHOCK_RES;
+                break;
+            case ITEM_VENOM:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = POISON_RES;
+                break;
+            case ITEM_ESP:
+                which = TELEPAT;
+                break;
+            case ITEM_FUMBLING:
+                which = FUMBLING;
+                break;
+            case ITEM_HUNGER:
+                which = HUNGER;
+                break;
+            case ITEM_EXCEL:
+                which = ADORNED;
+                break;
             }
             if (which)
                 goto new_property;
@@ -748,7 +753,9 @@ boolean racialexception;
                 || (obj->otyp != AMULET_OF_LIFE_SAVING
                     && obj->otyp != AMULET_OF_REFLECTION
                     && obj->otyp != AMULET_OF_MAGIC_RESISTANCE
-                    && obj->otyp != AMULET_OF_GUARDING))
+                    && obj->otyp != AMULET_OF_GUARDING
+                    && obj->otyp != AMULET_OF_ESP
+                    && obj->oartifact != ART_EYE_OF_THE_AETHIOPICA))
                 continue;
             /* for 'best' to be non-Null, it must be an amulet of guarding;
                life-saving and reflection don't get here due to early return

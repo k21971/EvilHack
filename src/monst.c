@@ -3876,8 +3876,8 @@ struct permonst _mons2[] = {
         M3_CLOSE | M3_INFRAVISIBLE, 0, MH_HUMAN, 23, HI_LORD),
     MON("Neferet the Green", S_HUMAN, LVL(20, 15, 0, 90, 0),
         (G_NOGEN | G_UNIQ),
-        A(ATTK(AT_MAGC, AD_SPEL, 2, 8), ATTK(AT_MAGC, AD_SPEL, 2, 8), NO_ATTK,
-          NO_ATTK, NO_ATTK, NO_ATTK),
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_MAGC, AD_SPEL, 2, 8),
+          ATTK(AT_MAGC, AD_SPEL, 2, 8), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_LEADER, MZ_HUMAN), MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_FEMALE | M2_PNAME | M2_PEACEFUL | M2_STRONG
@@ -4037,9 +4037,9 @@ struct permonst _mons2[] = {
         MH_GIANT, 19, HI_LORD),
     MON("Dark One", S_HUMAN, LVL(15, 12, 0, 80, -10),
         (G_NOGEN | G_UNIQ | G_NOCORPSE),
-        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_WEAP, AD_PHYS, 1, 6),
-          ATTK(AT_CLAW, AD_SAMU, 1, 4), ATTK(AT_MAGC, AD_SPEL, 0, 0), NO_ATTK,
-          NO_ATTK),
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_SAMU, 1, 4),
+          ATTK(AT_MAGC, AD_SPEL, 0, 0), ATTK(AT_MAGC, AD_SPEL, 0, 0),
+          NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_NEMESIS, MZ_HUMAN), MR_STONE, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_HOSTILE | M2_STALK | M2_NASTY
