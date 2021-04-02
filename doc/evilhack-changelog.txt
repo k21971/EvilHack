@@ -1535,4 +1535,5 @@ Version 0.7.0
 - Improvement to random river generation in the gnomish mines
 - Adjust wand creation probabilities
 - Some minor curses mode fixes
+- Fix: wish prompt
 

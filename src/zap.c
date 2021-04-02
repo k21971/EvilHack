@@ -5978,6 +5978,7 @@ makewish()
     Strcpy(promptbuf, "For what do you wish");
     if (iflags.cmdassist && tries > 0)
         Strcat(promptbuf, " (enter 'help' for assistance)");
+    tries++;
     Strcat(promptbuf, "?");
     getlin(promptbuf, buf);
     (void) mungspaces(buf);
@@ -5989,11 +5990,18 @@ makewish()
         goto retry;
     }
     if (buf[0] == '\0') {
-        if (yn("Really forfeit this wish?") == 'y') {
+        if (wizard
+            || yn("Really forfeit this wish?") == 'y' || tries >= 50) {
             Strcpy(buf, "nothing");
         }
-        else
+#ifdef HANGUPHANDLING
+        else if (program_state.done_hup) {
+            Strcpy(buf, "nothing");
+        }
+#endif
+        else {
             goto retry;
+        }
     }
     /*
      *  Note: if they wished for and got a non-object successfully,
@@ -6003,7 +6011,12 @@ makewish()
      */
     strcpy(bufcpy, buf);
     otmp = readobjnam(buf, &nothing);
-    if (!otmp) {
+    if (!otmp && iflags.debug_fuzzer) {
+        /* allow the fuzzer, and only the fuzzer, to get a random object from a
+         * random input string that corresponds to nothing. */
+        buf[0] = '\0';
+        otmp = readobjnam(buf, &nothing);
+    } else if (!otmp) {
         pline("Nothing fitting that description exists in the game.");
         if (++tries < MAXWISHTRY)
             goto retry;
@@ -6019,10 +6032,11 @@ makewish()
 
     /* KMH, conduct */
     if (!u.uconduct.wishes++)
-        livelog_printf(LL_CONDUCT|LL_WISH | (prev_artwish < u.uconduct.wisharti ? LL_ARTIFACT : 0),
+        livelog_printf(LL_CONDUCT | LL_WISH | (prev_artwish < u.uconduct.wisharti ? LL_ARTIFACT : 0),
                        "made %s first wish - \"%s\"", uhis(), bufcpy);
     else if (!prev_artwish && u.uconduct.wisharti) /* arti conduct handled in readobjnam() above */
-        livelog_printf(LL_CONDUCT|LL_WISH|LL_ARTIFACT, "made %s first artifact wish - \"%s\"", uhis(), bufcpy);
+        livelog_printf(LL_CONDUCT | LL_WISH | LL_ARTIFACT,
+                       "made %s first artifact wish - \"%s\"", uhis(), bufcpy);
     else
         livelog_printf(LL_WISH | (prev_artwish < u.uconduct.wisharti ? LL_ARTIFACT : 0),
                        "wished for \"%s\"", bufcpy);
