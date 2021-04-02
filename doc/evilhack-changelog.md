@@ -1509,4 +1509,5 @@ The following changes to date are:
 - Some minor curses mode fixes
 - Fix: wish prompt
 - New command (^U) to remove remembered 'I' monster markers from the map
+- Rename EvilHack changelog extension to .md and update formatting
 
