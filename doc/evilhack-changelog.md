@@ -1,8 +1,6 @@
-EvilHack Changelog
-============================================================================================
+## EvilHack Changelog
 
-Version 0.1.0
--------------
+### Version 0.1.0
 
 First version of EvilHack, which was forked off of NetHack 362-hdf as of October 20th, 2018.
 Commits from NetHack 3.6.2 beta (vanilla) will be incorporated on a regular basis so as to
@@ -19,10 +17,8 @@ The following changes to date are:
 - adjust install script for EvilHack for use on public server
 - significant merges of latest 'vanilla' NetHack 3.6.2 code
 
---------------------------------------------------------------------------------------------
 
-Version 0.1.1
--------------
+### Version 0.1.1
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of January 1st, 2019)
 - Allow two-weaponing with an artifact weapon in each hand
@@ -47,10 +43,8 @@ Version 0.1.1
 - Spell casting while wearing body armor (from SporkHack, modified)
 - Pet behavior/AI revamp (from SpliceHack/GruntHack)
 
---------------------------------------------------------------------------------------------
 
-Version 0.1.2
--------------
+### Version 0.1.2
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of March 11th, 2019)
 - 'Give' extended command (from SpliceHack)
@@ -108,10 +102,8 @@ Version 0.1.2
 - Monster Ring patch
 - More new monster spells
 
---------------------------------------------------------------------------------------------
 
-Version 0.2.0
--------------
+### Version 0.2.0
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of April 6th, 2019)
 - Object Materials patch (from xNetHack)
@@ -156,10 +148,8 @@ Version 0.2.0
 - Wresting a wand is directly affected by its BUC status
 - Livelog additions and updates
 
---------------------------------------------------------------------------------------------
 
-Version 0.2.1
--------------
+### Version 0.2.1
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of April 12th, 2019)
 - Significant changes to some of the gnomish mines towns (especially Orcish Town)
@@ -185,10 +175,8 @@ Version 0.2.1
 - Players cannot successfully engrave Elbereth until they have learned it in-game (thank you Tangles)
 - Various bug fixes and code clean-up throughout
 
---------------------------------------------------------------------------------------------
 
-Version 0.3.0
--------------
+### Version 0.3.0
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of April 16th, 2019)
 - Zombie movement speed and corpse revival time adjusted
@@ -198,10 +186,8 @@ Version 0.3.0
 - Multitude of various fixes to player races, monster players, livelogging, tool use,
   random vault room selection, rivers in the gnomish mines, and descriptive hit messages
 
---------------------------------------------------------------------------------------------
 
-Version 0.3.1
--------------
+### Version 0.3.1
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of May 5th, 2019)
 - Another major fix for mplayer monsters using the correct rank based on their role
@@ -238,10 +224,8 @@ Version 0.3.1
 - Fix: properly map steed ids when loading bones files to prevent panic()
 - Fix: priests and shopkleepers stepping on zombies
 
---------------------------------------------------------------------------------------------
 
-Version 0.3.2
--------------
+### Version 0.3.2
 
 - Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of August 31st, 2019)
 - Fix: correctly handle player and steed getting polymorphed on a trap
@@ -388,10 +372,8 @@ Version 0.3.2
   if its tameness is high enough
 - Player race orc can ride tame wargs
 
---------------------------------------------------------------------------------------------
 
-Version 0.4.0
--------------
+### Version 0.4.0
 
 - Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st, 2019)
 - Amulet material fixes (by ogmobot)
@@ -553,10 +535,8 @@ Version 0.4.0
 - Fix: proper feedback when eating zombie corpses while having sickness resistance
 - Monster steeds will spawn wearing a saddle if they are allowed to wear one
 
---------------------------------------------------------------------------------------------
 
-Version 0.4.1
--------------
+### Version 0.4.1
 
 - Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 17th, 2019)
 - Prep for version 0.4.1
@@ -594,10 +574,8 @@ Version 0.4.1
 - Reorganization of server-side config and hints files
 - Cure sickness is now directional and can be used to cure monsters as well as yourself
 
---------------------------------------------------------------------------------------------
 
-Version 0.4.2
--------------
+### Version 0.4.2
 
 - Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
 - Prep for version 0.4.2
@@ -736,10 +714,8 @@ Version 0.4.2
 - Fix: getting reflection from Dragonbane if wielded
 - Fix: placing defunct monster onto map, mstate:%lx, on Dlvl:%s
 
---------------------------------------------------------------------------------------------
 
-Version 0.5.0
--------------
+### Version 0.5.0
 
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 - Prep for version 0.5.0
@@ -1042,10 +1018,8 @@ Version 0.5.0
 - Fix: movement messages while standing still in shallow water or sewage
 - Fix: segfault when dropping objects with timers in Vlad's cavern
 
---------------------------------------------------------------------------------------------
 
-Version 0.6.0
--------------
+### Version 0.6.0
 
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 - Fix: address skill issues of various roles
@@ -1247,10 +1221,8 @@ Version 0.6.0
 - Prevent certain extraplanar beings from being diseased
 - Fix: altars changing from aligned to unaligned when a booby-trapped door exploded
 
---------------------------------------------------------------------------------------------
 
-Version 0.7.0
--------------
+### Version 0.7.0
 
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 - Replace 'samurai' in the samurai quest with new monster - Ronin
