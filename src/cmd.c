@@ -3774,7 +3774,7 @@ struct ext_func_tab extcmdlist[] = {
     { C('r'), "redraw", "redraw screen", doredraw, IFBURIED | GENERALCMD },
     { 'R', "remove", "remove an accessory (ring, amulet, etc)", doremring },
     { C('u'), "removeimarkers", "remove remembered 'I' monster markers",
-            doremoveimarkers, IFBURIED | GENERALCMD },
+            doremoveimarkers, IFBURIED | AUTOCOMPLETE | GENERALCMD },
     { M('R'), "ride", "mount or dismount a saddled steed",
             doride, AUTOCOMPLETE },
     { M('r'), "rub", "rub a lamp or a stone", dorub, AUTOCOMPLETE },

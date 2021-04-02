@@ -1510,4 +1510,5 @@ The following changes to date are:
 - Fix: wish prompt
 - New command (^U) to remove remembered 'I' monster markers from the map
 - Rename EvilHack changelog extension to .md and update formatting
+- Add AUTOCOMPLETE to new 'remove remembered 'I' monster markers' command
 
