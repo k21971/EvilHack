@@ -99,9 +99,9 @@ curses_add_inv(int y,
 #else
         /* despite being shown as a menu, nothing is selectable from the
            persistent inventory window so don't highlight inventory letters */
-        wprintw(win, "%c) ", accelerator);
+        wprintw(win, " %c) ", accelerator);
 #endif
-        available_width -= 3; /* letter+parenthesis+space */
+        available_width -= 4; /* space+letter+parenthesis+space */
 
         /* narrow the entries to fit more of the interesting text; do so
            unconditionally rather than trying to figure whether it's needed;
