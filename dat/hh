@@ -43,6 +43,7 @@ V       history display game history
 Game commands:
 ^D      kick    kick (a door, or something else)
 ^T      'port   teleport (if you can)
+^U      removeimarkers remove remembered 'I' monster markers
 ^X      show    show your attributes
 a       apply   apply or use a tool (pick-axe, key, camera, etc.)
 A       armor   take off all armor

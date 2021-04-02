@@ -241,6 +241,7 @@ E void FDECL(parseautocomplete, (char *, BOOLEAN_P));
 E void FDECL(reset_commands, (BOOLEAN_P));
 E void FDECL(rhack, (char *));
 E int NDECL(doextlist);
+E int NDECL(doremoveimarkers);
 E int NDECL(extcmd_via_menu);
 E int NDECL(enter_explore_mode);
 E void FDECL(enlightenment, (int, int));

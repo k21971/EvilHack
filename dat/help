@@ -1,6 +1,6 @@
-        Welcome to NetHack!                ( description of version 3.6 )
+        Welcome to EvilHack!            ( description of current version )
 
-        NetHack is a Dungeons and Dragons like game where you (the adventurer)
+        EvilHack is a Dungeons and Dragons like game where you (the adventurer)
 descend into the depths of the dungeon in search of the Amulet of Yendor,
 reputed to be hidden somewhere below the twentieth level.  You begin your
 adventure with a pet that can help you in many ways, and can be trained
@@ -10,10 +10,10 @@ attack a monster by trying to move onto the space a monster is on (but often
 it is much wiser to leave it alone).
 
         Unlike most adventure games, which give you a verbal description of
-your location, NetHack gives you a visual image of the dungeon level you are
+your location, EvilHack gives you a visual image of the dungeon level you are
 on.
 
-        NetHack uses the following symbols:
+        EvilHack uses the following symbols:
 
         - and |  The walls of a room, possibly also open doors or a grave.
         .        The floor of a room or a doorway.
@@ -76,7 +76,7 @@ b j n   1 2 3           g<dir>:   run in direction <dir> until something
                 used but 'y' and 'z' are swapped.
 
 Commands:
-        NetHack knows the following commands:
+        EvilHack knows the following commands:
         ?       Help menu.
         /       What-is, tell what a symbol represents.  You may choose to
                 specify a location or give a symbol argument.  Enabling the
@@ -147,6 +147,7 @@ Commands:
         t       Throw an object or shoot a projectile.
         T       Take off armor.
         ^T      Teleport, if you are able.
+        ^U      Remove remembered 'I' monster markers from the map.
         v       Displays the version number.
         V       Display a longer identification of the version, including the
                 history of the game.

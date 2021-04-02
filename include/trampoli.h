@@ -19,6 +19,7 @@
 /* ### cmd.c ### */
 #define doextcmd() doextcmd_()
 #define doextlist() doextlist_()
+#define doremoveimarkers() doremoveimarkers_()
 #define domonability() domonability_()
 #define enter_explore_mode() enter_explore_mode_()
 #define doprev_message() doprev_message_()

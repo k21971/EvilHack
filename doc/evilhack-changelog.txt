@@ -1536,4 +1536,5 @@ Version 0.7.0
 - Adjust wand creation probabilities
 - Some minor curses mode fixes
 - Fix: wish prompt
+- New command (^U) to remove remembered 'I' monster markers from the map
 

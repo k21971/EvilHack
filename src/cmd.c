@@ -127,6 +127,7 @@ extern int NDECL(dowield);            /**/
 extern int NDECL(dowieldquiver);      /**/
 extern int NDECL(dozap);              /**/
 extern int NDECL(doorganize);         /**/
+extern int NDECL(doremoveimarkers);   /**/
 #endif /* DUMB */
 
 static int NDECL((*timed_occ_fn));
@@ -539,6 +540,25 @@ doextlist(VOID_ARGS)
         }
     }
     destroy_nhwindow(menuwin);
+    return 0;
+}
+
+int
+doremoveimarkers(VOID_ARGS)
+{
+    int x, y;
+
+    for (x = 0; x < COLNO; x++) {
+        for (y = 0; y < ROWNO; y++) {
+            if (isok(x, y)) {
+                if (glyph_is_invisible(levl[x][y].glyph)) {
+                    unmap_object(x, y);
+                    newsym(x, y);
+                }
+            }
+        }
+    }
+    pline("Remembered monster markers removed.");
     return 0;
 }
 
@@ -3753,6 +3773,8 @@ struct ext_func_tab extcmdlist[] = {
     { 'r', "read", "read a scroll or spellbook", doread },
     { C('r'), "redraw", "redraw screen", doredraw, IFBURIED | GENERALCMD },
     { 'R', "remove", "remove an accessory (ring, amulet, etc)", doremring },
+    { C('u'), "removeimarkers", "remove remembered 'I' monster markers",
+            doremoveimarkers, IFBURIED | GENERALCMD },
     { M('R'), "ride", "mount or dismount a saddled steed",
             doride, AUTOCOMPLETE },
     { M('r'), "rub", "rub a lamp or a stone", dorub, AUTOCOMPLETE },
