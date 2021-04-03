@@ -3474,7 +3474,7 @@ struct permonst _mons2[] = {
             | M1_CARNIVORE | M1_OVIPAROUS | M1_NOTAKE,
         M2_HOSTILE, 0, M4_VULNERABLE_ELEC, 0, 6, CLR_RED),
     MON("mind flayer larva", S_EEL, LVL(5, 15, 8, 60, -8), (G_GENO | G_NOGEN),
-        A(ATTK(AT_TENT, AD_WRAP, 1, 3), NO_ATTK, NO_ATTK, NO_ATTK,
+        A(ATTK(AT_TENT, AD_WRAP, 1, 2), NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK, NO_ATTK),
         SIZ(20, 5, MS_SILENT, MZ_TINY), MR_PSYCHIC, 0,
         M1_SWIM | M1_AMPHIBIOUS | M1_SLITHY | M1_NOLIMBS | M1_NOTAKE

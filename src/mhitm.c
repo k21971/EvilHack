@@ -1888,6 +1888,32 @@ msickness:
                 && breathless(mdef->data))) {
             tmp = 0;
         }
+        if (magr->data == &mons[PM_MIND_FLAYER_LARVA]) {
+            if (can_become_flayer(mdef->data)) {
+                if (rn2(6)) {
+                    if (canseemon(mdef))
+                        pline("%s tries to attach itself to %s %s!",
+                              Monnam(magr), s_suffix(mon_nam(mdef)),
+                              mbodypart(mdef, FACE));
+                } else {
+                    if (canseemon(mdef)) {
+                        pline("%s wraps its tentacles around %s %s, attaching itself to its %s!",
+                              Monnam(magr), s_suffix(mon_nam(mdef)),
+                              mbodypart(mdef, HEAD), mbodypart(mdef, FACE));
+                        pline("%s burrows itself into %s brain!",
+                              Monnam(magr), s_suffix(the(mon_nam(mdef))));
+                    }
+                    if (!mlifesaver(mdef)) {
+                        mongone(magr); /* mind flayer larva transforms */
+                        become_flayer(mdef);
+                        return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+                        break;
+                    } else {
+                        tmp = mdef->mhp;
+                    }
+                }
+            }
+        }
         break;
     case AD_ENCH:
         /* there's no msomearmor() function, so just do damage */

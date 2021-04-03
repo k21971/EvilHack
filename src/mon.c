@@ -300,6 +300,76 @@ struct monst* mdef;
     }
 }
 
+void
+become_flayer(mdef)
+struct monst* mdef;
+{
+    struct permonst* mdat = mdef->data;
+    boolean couldspot = canspotmon(mdef);
+    mdef->data = &mons[PM_MIND_FLAYER];
+    boolean willspot = canspotmon(mdef);
+    mdef->data = mdat;
+
+    if (couldspot && willspot) {
+        /* only print if you can spot both the dying monster and the arising
+         * zombie */
+        pline("%s transforms into a mind flayer!", Monnam(mdef));
+    }
+
+    if (newcham(mdef, &mons[PM_MIND_FLAYER], FALSE, FALSE)) {
+        /* off-chance Izchak succumbs to a mind flayer larva's physical attack */
+        if (mdef->isshk && !strcmp(shkname(mdef), "Izchak")) {
+            pline("But wait!  %s transforms again into his true form!", mon_nam(mdef));
+            mdef->mcanmove = 1;
+            mdef->mfrozen = 0;
+            mdef->mstone = 0;
+            mdef->msick = 0;
+            mdef->mdiseased = 0;
+            mdef->mwither = 0;
+            mdef->mconf = 0;
+            mdef->mstun = 0;
+            newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
+            mdef->mhp = mdef->mhpmax = 1500;
+            newsym(mdef->mx, mdef->my);
+            return;
+        }
+
+        /* don't continue if failed to turn into a mind flayer (extinct?) */
+        mdef->mcanmove = 1;
+        mdef->mfrozen = 0;
+        mdef->mtame = mdef->mpeaceful = 0;
+
+        /* clear other data structures tracking shk information */
+        if (mdef->isshk)
+            shkgone(mdef);
+
+        /* wipe all mextra structs (to prevent a compromised shk/priest/guard/etc
+         * from continuing to behave as what it used to be), then restore name
+         * if present */
+        char name[PL_PSIZ];
+        name[0] = '\0';
+        if (has_eshk(mdef) && !Hallucination) {
+            Strcpy(name, shkname(mdef));
+        } else if (has_mname(mdef)) {
+            Strcpy(name, MNAME(mdef));
+        }
+
+        dealloc_mextra(mdef);
+        if (name[0] != '\0') {
+            christen_monst(mdef, name);
+        }
+        mdef->isshk = mdef->isminion = mdef->isgd = mdef->ispriest = 0;
+        /* if mdef->iswiz, leave that alone - the Wizard doesn't have any mextra
+         * structs and can handle being transformed into other monster types */
+
+        newsym(mdef->mx, mdef->my); /* cover bases */
+
+        /* The mhp is presumably the fraction of what it was before -
+         * less than zero. Set it to full. */
+        mdef->mhp = mdef->mhpmax;
+    }
+}
+
 /* convert the monster index of an undead to its living counterpart */
 int
 undead_to_corpse(mndx)
@@ -2271,6 +2341,11 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* Endgame amulet theft / fleeing */
     if (mon_has_amulet(magr) && In_endgame(&u.uz))
+        return ALLOW_M | ALLOW_TM;
+
+    /* mindflayer larvae need live humanoids as hosts
+       so they can mature into adult flayers */
+    if (ma == &mons[PM_MIND_FLAYER_LARVA] && can_become_flayer(md))
         return ALLOW_M | ALLOW_TM;
 
     /* now test all two-way aggressions both ways */

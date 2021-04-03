@@ -1744,14 +1744,15 @@ register struct attack *mattk;
                     dmg = 0;
                 } else {
                     if (mtmp->data == &mons[PM_MIND_FLAYER_LARVA])
-                        pline("%s wraps its tentacles around your %s, attaching itself to your %s!", Monnam(mtmp),
-                              body_part(HEAD), body_part(FACE));
+                        pline("%s wraps its tentacles around your %s, attaching itself to your %s!",
+                              Monnam(mtmp), body_part(HEAD), body_part(FACE));
                     else
                         pline("%s %s around you!", Monnam(mtmp),
                               mtmp->data == &mons[PM_GIANT_CENTIPEDE]
                               ? "coils its body"
                                   : mtmp->data == &mons[PM_SALAMANDER]
                                       ? "wraps its arms" : "swings itself");
+                    stop_occupation();
                     u.ustuck = mtmp;
                 }
             } else if (u.ustuck == mtmp) {
@@ -1783,9 +1784,10 @@ register struct attack *mattk;
                         u.ustuck = 0;
                         dmg = 0;
                     } else {
-                        pline("%s burrows itself into your brain through your ear!",
+                        pline("%s burrows itself into your brain!",
                               Monnam(mtmp));
                         Your("last thoughts fade away as your begin your transformation...");
+                        mongone(mtmp); /* mind flayer larva just took over your body */
                         killer.format = NO_KILLER_PREFIX;
                         Sprintf(killer.name, "became a parasitic host to %s",
                                 an(mtmp->data->mname));
@@ -1799,8 +1801,8 @@ register struct attack *mattk;
                         pline("%s tries to grab you!",
                                Monnam(mtmp));
                     else if (mtmp->data == &mons[PM_MIND_FLAYER_LARVA])
-                        pline("%s reaches out with its tentacles, trying to attach itself to your %s!",
-                               Monnam(mtmp), body_part(FACE));
+                        pline("%s tries to attach itself to your %s!",
+                              Monnam(mtmp), body_part(FACE));
                     else
                         pline("%s brushes against your %s.", Monnam(mtmp),
                               mtmp->data == &mons[PM_GIANT_CENTIPEDE]

@@ -1721,7 +1721,8 @@ struct attack *mattk;
 {
     struct obj *obj;
 
-    if (mattk->adtyp == AD_DRIN) {
+    if (mattk->adtyp == AD_DRIN
+        || (mattk->aatyp == AT_TENT && mattk->adtyp == AD_WRAP)) {
         /* intelligence drain attacks the head */
         obj = which_armor(mdef, W_ARMH);
     } else {
@@ -1738,8 +1739,9 @@ struct attack *mattk;
     if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK)
         && (!obj->cursed || rn2(3))) {
         You("%s %s %s %s!",
-            mattk->adtyp == AD_WRAP ? "slip off of"
-                                    : "grab, but cannot hold onto",
+            (mattk->adtyp == AD_WRAP
+             && youmonst.data != &mons[PM_SALAMANDER]) ? "slip off of"
+                                                       : "grab, but cannot hold onto",
             s_suffix(mon_nam(mdef)), obj->greased ? "greased" : "slippery",
             /* avoid "slippery slippery cloak"
                for undiscovered oilskin cloak */
@@ -2492,22 +2494,67 @@ do_rust:
                 if (m_slips_free(mdef, mattk)) {
                     tmp = 0;
                 } else {
-                    You("swing yourself around %s!", mon_nam(mdef));
+                    if (youmonst.data == &mons[PM_MIND_FLAYER_LARVA])
+                        You("wrap your tentacles around %s %s, attaching yourself to its %s!",
+                            s_suffix(mon_nam(mdef)), mbodypart(mdef, HEAD),
+                            mbodypart(mdef, FACE));
+                    else
+                        You("%s %s!",
+                            youmonst.data == &mons[PM_GIANT_CENTIPEDE]
+                            ? "coil yourself around"
+                                : youmonst.data == &mons[PM_SALAMANDER]
+                                    ? "wrap your arms around" : "swing yourself around",
+                            mon_nam(mdef));
                     u.ustuck = mdef;
                 }
             } else if (u.ustuck == mdef) {
                 /* Monsters don't wear amulets of magical breathing */
                 if (is_pool(u.ux, u.uy) && !is_swimmer(pd)
-                    && !amphibious(pd)) {
+                    && !amphibious(pd)
+                    && youmonst.data != &mons[PM_MIND_FLAYER_LARVA]) {
                     You("drown %s...", mon_nam(mdef));
                     tmp = mdef->mhp;
-                } else if (mattk->aatyp == AT_HUGS)
+                } else if (is_lava(u.ux, u.uy)
+                           && !likes_fire(mdef->data)) {
+                    You("pull %s into the lava...", mon_nam(mdef));
+                    tmp = 0;
+                    xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
+                    break;
+                } else if (mattk->aatyp == AT_HUGS) {
                     pline("%s is being crushed.", Monnam(mdef));
+                } else if (mattk->aatyp == AT_TENT) {
+                    if (is_illithid(mdef->data)) {
+                        You("sense %s is kin, and release your grip.",
+                            mon_nam(mdef));
+                        u.ustuck = 0;
+                        tmp = 0;
+                    } else if (can_become_flayer(mdef->data)) {
+                        You("burrow into %s brain, taking over its body!",
+                            s_suffix(mon_nam(mdef)));
+                        You("begin to transform...");
+                        tmp = 0;
+                        xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
+                        (void) polymon(PM_MIND_FLAYER);
+                        break;
+                    } else {
+                        You("burrow into %s brain!",
+                            s_suffix(mon_nam(mdef)));
+                        tmp = mdef->mhp;
+                    }
+                }
             } else {
                 tmp = 0;
-                if (flags.verbose)
-                    You("brush against %s %s.", s_suffix(mon_nam(mdef)),
-                        mbodypart(mdef, LEG));
+                if (flags.verbose) {
+                    if (youmonst.data == &mons[PM_SALAMANDER])
+                        You("try to grab %s", mon_nam(mdef));
+                    else if (youmonst.data == &mons[PM_MIND_FLAYER_LARVA])
+                        You("try to attach yourself to %s %s!",
+                            s_suffix(mon_nam(mdef)), mbodypart(mdef, FACE));
+                    else
+                        You("brush against %s %s.", s_suffix(mon_nam(mdef)),
+                            youmonst.data == &mons[PM_GIANT_CENTIPEDE]
+                            ? "body" : mbodypart(mdef, LEG));
+                }
             }
         } else
             tmp = 0;
