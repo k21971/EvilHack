@@ -16,7 +16,6 @@ STATIC_DCL boolean FDECL(hmon_hitmon, (struct monst *, struct obj *, int,
                                        int));
 STATIC_DCL int FDECL(joust, (struct monst *, struct obj *));
 void NDECL(demonpet);
-STATIC_DCL boolean FDECL(m_slips_free, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(start_engulf, (struct monst *));
 STATIC_DCL void NDECL(end_engulf);
 STATIC_DCL int FDECL(gulpum, (struct monst *, struct attack *));
@@ -1714,7 +1713,7 @@ boolean thrown, verbose;
 
 /* check whether slippery clothing protects from hug or wrap attack */
 /* [currently assumes that you are the attacker] */
-STATIC_OVL boolean
+boolean
 m_slips_free(mdef, mattk)
 struct monst *mdef;
 struct attack *mattk;
@@ -1734,20 +1733,23 @@ struct attack *mattk;
             obj = which_armor(mdef, W_ARMU); /* shirt */
     }
 
-    /* if monster's cloak/armor is greased, your grab slips off; this
-       protection might fail (33% chance) when the armor is cursed */
-    if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK)
+    /* if monster's cloak/armor is greased, the grab slips off; this
+       protection might fail (33% chance) when the armor is cursed.
+       Grammar has been altered to accommodate both player vs monster
+       and monster vs monster attacks */
+    if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK
+                || (obj->oprops & ITEM_OILSKIN))
         && (!obj->cursed || rn2(3))) {
-        You("%s %s %s %s!",
-            (mattk->adtyp == AD_WRAP
-             && youmonst.data != &mons[PM_SALAMANDER]) ? "slip off of"
-                                                       : "grab, but cannot hold onto",
-            s_suffix(mon_nam(mdef)), obj->greased ? "greased" : "slippery",
-            /* avoid "slippery slippery cloak"
-               for undiscovered oilskin cloak */
-            (obj->greased || objects[obj->otyp].oc_name_known)
-                ? xname(obj)
-                : cloak_simple_name(obj));
+        pline_The("%s %s %s %s!",
+                  (mattk->adtyp == AD_WRAP
+                   && youmonst.data != &mons[PM_SALAMANDER]) ? "attack slips off of"
+                                                             : "attack cannot hold onto",
+                  s_suffix(mon_nam(mdef)), obj->greased ? "greased" : "slippery",
+                  /* avoid "slippery slippery cloak"
+                     for undiscovered oilskin cloak */
+                  (obj->greased || objects[obj->otyp].oc_name_known)
+                      ? xname(obj)
+                      : cloak_simple_name(obj));
 
         if (obj->greased && !rn2(2)) {
             pline_The("grease wears off.");

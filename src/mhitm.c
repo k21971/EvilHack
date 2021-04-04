@@ -1896,20 +1896,24 @@ msickness:
                               Monnam(magr), s_suffix(mon_nam(mdef)),
                               mbodypart(mdef, FACE));
                 } else {
-                    if (canseemon(mdef)) {
-                        pline("%s wraps its tentacles around %s %s, attaching itself to its %s!",
-                              Monnam(magr), s_suffix(mon_nam(mdef)),
-                              mbodypart(mdef, HEAD), mbodypart(mdef, FACE));
-                        pline("%s burrows itself into %s brain!",
-                              Monnam(magr), s_suffix(the(mon_nam(mdef))));
-                    }
-                    if (!mlifesaver(mdef)) {
-                        mongone(magr); /* mind flayer larva transforms */
-                        become_flayer(mdef);
-                        return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
-                        break;
+                    if (m_slips_free(mdef, mattk)) {
+                        tmp = 0;
                     } else {
-                        tmp = mdef->mhp;
+                        if (canseemon(mdef)) {
+                            pline("%s wraps its tentacles around %s %s, attaching itself to its %s!",
+                                  Monnam(magr), s_suffix(mon_nam(mdef)),
+                                  mbodypart(mdef, HEAD), mbodypart(mdef, FACE));
+                            pline("%s burrows itself into %s brain!",
+                                  Monnam(magr), s_suffix(the(mon_nam(mdef))));
+                        }
+                        if (!mlifesaver(mdef)) {
+                            mongone(magr); /* mind flayer larva transforms */
+                            become_flayer(mdef);
+                            return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+                            break;
+                        } else {
+                            tmp = mdef->mhp;
+                        }
                     }
                 }
             }

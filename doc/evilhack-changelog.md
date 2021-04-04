@@ -1513,4 +1513,6 @@ The following changes to date are:
 - Add AUTOCOMPLETE to new 'remove remembered 'I' monster markers' command
 - Mind flayer larvae grudge humanoids it considers a suitable host, can
   become a mind flayer on successful brain burrow attack
+- Take greased/slippery head gear into consideration for mind flayer
+  larva brain burrowing attack
 
