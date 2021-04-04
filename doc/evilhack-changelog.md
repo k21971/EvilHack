@@ -1516,4 +1516,5 @@ The following changes to date are:
 - Take greased/slippery head gear into consideration for mind flayer
   larva brain burrowing attack
 - Alignment abuse value guard
+- Fix: various objects incapable of being ID'ed under certain conditions
 
