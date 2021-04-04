@@ -2226,7 +2226,8 @@ struct obj *mwep;
                     pline("%s deadly hide does not appear to affect %s",
                           s_suffix(Monnam(mdef)), mon_nam(magr));
                 }
-            } else {
+            } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
+                       || aatyp == AT_TUCH || aatyp == AT_KICK) {
                 /* if magr is wielding a weapon, that disintegrates first before
                    the actual monster. Same if magr is wearing gloves or boots */
                 if (MON_WEP(magr) && !rn2(6)) {

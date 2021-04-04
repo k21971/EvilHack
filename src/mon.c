@@ -5574,29 +5574,35 @@ struct monst *mtmp;
         else
             uunstick();
     }
+    newsym(mtmp->mx, mtmp->my);
 
-    if (canspotmon(mtmp))
-        pline("%s motions for Koa and Ozzy to heel and stop their attack.",
-              Monnam(mtmp));
-
+    /* Fix up Koa and Ozzy */
     for (mon = fmon; mon; mon = mon->nmon) {
         if (DEADMONSTER(mon))
             continue;
         /* cure any ailments the dogs may have also */
         if (mon->data == koa || mon->data == ozzy) {
-            mtmp->mcanmove = 1;
-            mtmp->mfrozen = 0;
-            mtmp->mstone = 0;
-            mtmp->msick = 0;
-            mtmp->mdiseased = 0;
-            mtmp->mwither = 0;
-            mtmp->mconf = 0;
-            mtmp->mstun = 0;
+            if (mon->data == koa) {
+                if (m_cansee(mtmp, mon->mx, mon->my))
+                    pline("%s motions for Koa to heel and stop %s attack.",
+                          Monnam(mtmp), mhis(mon));
+            } else {
+                if (m_cansee(mtmp, mon->mx, mon->my))
+                    pline("%s motions for Ozzy to heel and stop %s attack.",
+                          Monnam(mtmp), mhis(mon));
+            }
+            mon->mcanmove = 1;
+            mon->mfrozen = 0;
+            mon->mstone = 0;
+            mon->msick = 0;
+            mon->mdiseased = 0;
+            mon->mwither = 0;
+            mon->mconf = 0;
+            mon->mstun = 0;
             mon->mpeaceful = 1;
         }
     }
     com_pager(200);
-    newsym(mtmp->mx, mtmp->my);
     if (Role_if(PM_INFIDEL))
         adjalign(-2); /* doing good things as an agent of Moloch? pfft */
     else

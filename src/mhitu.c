@@ -3790,7 +3790,8 @@ struct attack *mattk;
                     Your("armor does not appear to affect %s",
                          mon_nam(mtmp));
                 }
-            } else {
+            } else if (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
+                       || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK) {
                 /* if mtmp is wielding a weapon, that disintegrates first before
                    the actual monster. Same if mtmp is wearing gloves or boots */
                 if (MON_WEP(mtmp) && !rn2(12)) {
@@ -3985,7 +3986,8 @@ struct attack *mattk;
                 Your("deadly hide does not appear to affect %s",
                      mon_nam(mtmp));
             }
-        } else {
+        } else if (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
+                   || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK) {
             /* if mtmp is wielding a weapon, that disintegrates first before
                the actual monster. Same if mtmp is wearing gloves or boots */
             if (MON_WEP(mtmp) && !rn2(6)) {
