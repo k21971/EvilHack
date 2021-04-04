@@ -1515,4 +1515,5 @@ The following changes to date are:
   become a mind flayer on successful brain burrow attack
 - Take greased/slippery head gear into consideration for mind flayer
   larva brain burrowing attack
+- Alignment abuse value guard
 

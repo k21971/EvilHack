@@ -1248,11 +1248,14 @@ adjalign(n)
 int n;
 {
     int newalign = u.ualign.record + n;
+    int newabuse = u.ualign.abuse + n;
 
     if (n < 0) {
         if (newalign < u.ualign.record) {
             u.ualign.record = newalign;
-            u.ualign.abuse += n;
+        }
+        if (newabuse < u.ualign.abuse) {
+            u.ualign.abuse = newabuse;
         }
     } else if (newalign > u.ualign.record) {
         u.ualign.record = newalign;
