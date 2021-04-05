@@ -159,6 +159,7 @@ close this college.
 %Cp Arc 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Arc 00025
 "Beware, for %n is powerful and cunning."
 %E
@@ -452,6 +453,7 @@ then will the world be safe."
 %Cp Bar 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Bar 00025
 "%nC is strong in the dark arts, but not immune to cold steel."
 %E
@@ -744,6 +746,7 @@ the Amulet of Yendor."
 %Cp Cav 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Cav 00025
 "%nC is immune to many of the elements.
 You should use magic upon him that he does not use himself."
@@ -1042,6 +1045,7 @@ the Amulet of Yendor."
 %Cp Con 00024
 "Remember, you must return with %o
 so that I can lift the curse from the silver bell."
+%E
 %Cp Con 00025
 "The sooner you are able to recover %o,
 the better off we will be."
@@ -1370,6 +1374,7 @@ For the first time, you sense a smile on %ls face.
 %Cp Hea 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Hea 00025
 "Remember, %p, to always wash your hands before operating."
 %E
@@ -1687,6 +1692,7 @@ to enter the sanctum and rendezvous with our High Priest.
 %Cp Inf 00024
 "Remember, you must return with %o so
 that we can remove the blasphemous magic from the silver bell."
+%E
 %Cp Inf 00025
 "As long as the fire of %d burns within your chest, you will prevail."
 %E
@@ -2028,6 +2034,7 @@ bell, which the foul beast %n hath cursed."
 %Cp Kni 00024
 "Remember, thou must return with %o so
 that We mayst lift the curse from the silver bell."
+%E
 %Cp Kni 00025
 "Remember, %p, follow always the path of %d."
 %E
@@ -2300,6 +2307,7 @@ this malediction without the aid of %o.
 %Cp Mon 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Mon 00025
 "You can prevail, if you rely on %d."
 %E
@@ -2570,6 +2578,7 @@ the curse that %n has placed upon it.
 %Cp Pri 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Pri 00025
 "You can prevail, if you rely on %d."
 %E
@@ -2851,6 +2860,7 @@ has placed upon it.
 %Cp Ran 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Ran 00025
 "It is rumored that the Forest and Mountain Centaurs have resolved
 their ancient feud and now band together against us."
@@ -3133,6 +3143,7 @@ it.  Bring back the silver bell while you're at it so we can uncurse it."
 %Cp Rog 00024
 "Can you remember to come back with %o
 so we can uncurse the silver bell?  Can you do that?"
+%E
 %Cp Rog 00025
 "You don't seem to understand,
 %o isn't here so neither should you be!"
@@ -3404,6 +3415,7 @@ cha-no-you in 5 sticks.
 %Cp Sam 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Sam 00025
 "To defeat %n you must overcome the seven emotions:
 hate, adoration, joy, anxiety, anger, grief, and fear."
@@ -3690,6 +3702,7 @@ and keep you safe."
 %Cp Tou 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Tou 00025
 "Do not be fooled by the false promises of %n."
 %E
@@ -3977,6 +3990,7 @@ the Amulet of Yendor."
 %Cp Val 00024
 "Remember, you must return with %o so
 that I may lift the curse from the silver bell."
+%E
 %Cp Val 00025
 "Go with the blessings of %d."
 %E
@@ -4256,6 +4270,7 @@ find and overcome %n, and return %o to me.
 %Cp Wiz 00024
 "Remember, you must return with %o so
 that we may lift the curse from the silver bell."
+%E
 %Cp Wiz 00025
 "Beware, for %n is immune to most magical attacks."
 %E

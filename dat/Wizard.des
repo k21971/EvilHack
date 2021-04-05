@@ -258,13 +258,13 @@ MAP
                    -------------                 -------------              
                    |...........|                 |...........|              
             -------|...........-------------------...........|              
-            |......S...........|..|..|..|..|..|..|...........|              
-            |......|...........|..|..|..|..|..|..|...........|              
-            |......|...........-F+-F+-F+-F+-F+-F+-...........|              
+            |......S...........|..|..|wwwww|..|..|...........|              
+            |......|...........|..|..|wwwww|..|..|...........|              
+            |......|...........-F+-F+-FFFF+-F+-F+-...........|              
             --S----|...........S.................+...........|              
-            |......|...........-F+-F+-F+-F+-F+-F+-...........|              
-            |......|...........|..|..|..|..|..|..|...........|              
-            |......|...........|..|..|..|..|..|..|...........|              
+            |......|...........-F+-F+-FFFF+-F+-F+-...........|              
+            |......|...........|..|..|wwwww|..|..|...........|              
+            |......|...........|..|..|wwwww|..|..|...........|              
             -------|...........-------------------...........|              
                    |...........|                 |...........|              
                    -------------                 -------------              
@@ -297,13 +297,11 @@ DOOR:locked,(14,09)
 DOOR:locked,(31,09)
 DOOR:locked,(33,08)
 DOOR:locked,(36,08)
-DOOR:locked,(39,08)
 DOOR:locked,(42,08)
 DOOR:locked,(45,08)
 DOOR:locked,(48,08)
 DOOR:locked,(33,10)
 DOOR:locked,(36,10)
-DOOR:locked,(39,10)
 DOOR:locked,(42,10)
 DOOR:locked,(45,10)
 DOOR:locked,(48,10)
@@ -316,6 +314,12 @@ NON_DIGGABLE:(00,00,75,19)
 ALTAR:(16,11),noncoaligned,altar
 # Objects
 OBJECT:('"',"amulet of ESP"),(16,11),blessed,0,name:"The Eye of the Aethiopica"
+IF [50%] {
+  OBJECT:('(',"skeleton key"),(40,06)
+}
+IF [50%] {
+  OBJECT:('(',"skeleton key"),(40,12)
+} 
 OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
@@ -338,8 +342,8 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:('@',"Dark One"),(16,11)
-MONSTER:('D',"ancient pseudodragon"),(15,11),hostile
+MONSTER:('h',"Dark One"),(16,11)
+MONSTER:('D',"elder pseudodragon"),(15,11),hostile
 MONSTER:'B',random,hostile
 MONSTER:'B',random,hostile
 MONSTER:'B',random,hostile
@@ -371,11 +375,26 @@ MONSTER:'i',random,hostile
 MONSTER:('@',"rogue"),(35,06),peaceful,"Pug"
 MONSTER:('Y',"owlbear"),(47,06),peaceful,asleep
 MONSTER:('@',"wizard"),(32,11),peaceful,asleep,"Newt"
-MONSTER:('@',"Grey-elf"),(44,11),peaceful
 MONSTER:('H',"hill giant"),(47,11),peaceful,asleep
-MONSTER:('G',"gnomish wizard"),(38,06),peaceful
-MONSTER:('@',"prisoner"),(35,11),peaceful
-MONSTER:('@',"prisoner"),(41,11),peaceful,asleep
+MONSTER:('G',"gnomish wizard"),(35,11),peaceful
+MONSTER:('@',"prisoner"),(38,06),peaceful
+MONSTER:('@',"prisoner"),(42,12),peaceful
+MONSTER:(';',"mind flayer larva"),(39,06),asleep
+MONSTER:(';',"mind flayer larva"),(40,06),asleep
+MONSTER:(';',"mind flayer larva"),(41,06),asleep
+MONSTER:(';',"mind flayer larva"),(42,06),asleep
+MONSTER:(';',"mind flayer larva"),(38,07),asleep
+MONSTER:(';',"mind flayer larva"),(39,07),asleep
+MONSTER:(';',"mind flayer larva"),(40,07),asleep
+MONSTER:(';',"mind flayer larva"),(41,07),asleep
+MONSTER:(';',"mind flayer larva"),(38,11),asleep
+MONSTER:(';',"mind flayer larva"),(39,11),asleep
+MONSTER:(';',"mind flayer larva"),(40,11),asleep
+MONSTER:(';',"mind flayer larva"),(41,11),asleep
+MONSTER:(';',"mind flayer larva"),(38,12),asleep
+MONSTER:(';',"mind flayer larva"),(39,12),asleep
+MONSTER:(';',"mind flayer larva"),(40,12),asleep
+MONSTER:(';',"mind flayer larva"),(41,12),asleep
 
 #
 #	The "fill" levels for the quest.
