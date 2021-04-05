@@ -1520,4 +1520,6 @@ The following changes to date are:
 - Fix: errors in icequeenrevive() function, passive disintegration
 - Mind flayer larva nurseries sometimes spawn with live host prisoners
 - More wizard quest nemesis tweaks
+- Fix: dmonsfree panic when certain monsters are killed via passive
+  disintegration
 

@@ -3791,7 +3791,10 @@ struct attack *mattk;
                          mon_nam(mtmp));
                 }
             } else if (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
-                       || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK) {
+                       || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK
+                       || mattk->aatyp == AT_BITE || mattk->aatyp == AT_HUGS
+                       || mattk->aatyp == AT_BUTT || mattk->aatyp == AT_STNG
+                       || mattk->aatyp == AT_TENT) {
                 /* if mtmp is wielding a weapon, that disintegrates first before
                    the actual monster. Same if mtmp is wearing gloves or boots */
                 if (MON_WEP(mtmp) && !rn2(12)) {
@@ -3821,7 +3824,8 @@ struct attack *mattk;
                     } else {
                         if (canseemon(mtmp))
                             pline("%s is disintegrated completely!", Monnam(mtmp));
-                        xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                        /*xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);*/
+                        passive_disint_mon(mtmp);
                         if (!DEADMONSTER(mtmp))
                             return 1;
                         return 2;
@@ -3987,7 +3991,10 @@ struct attack *mattk;
                      mon_nam(mtmp));
             }
         } else if (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
-                   || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK) {
+                   || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK
+                   || mattk->aatyp == AT_BITE || mattk->aatyp == AT_HUGS
+                   || mattk->aatyp == AT_BUTT || mattk->aatyp == AT_STNG
+                   || mattk->aatyp == AT_TENT) {
             /* if mtmp is wielding a weapon, that disintegrates first before
                the actual monster. Same if mtmp is wearing gloves or boots */
             if (MON_WEP(mtmp) && !rn2(6)) {
@@ -4020,7 +4027,8 @@ struct attack *mattk;
                     if (canseemon(mtmp)) {
                         Your("deadly hide disintegrates %s!",
                               mon_nam(mtmp));
-                        xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                        /*xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);*/
+                        passive_disint_mon(mtmp);
                         if (!DEADMONSTER(mtmp))
                             return 1;
                         return 2;

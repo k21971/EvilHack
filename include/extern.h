@@ -1302,6 +1302,7 @@ E void FDECL(slept_monst, (struct monst *));
 E void FDECL(xdrainenergym, (struct monst *, BOOLEAN_P));
 E long FDECL(attk_protection, (int));
 E void FDECL(rustm, (struct monst *, struct obj *));
+E void FDECL(passive_disint_mon, (struct monst *));
 
 /* ### mhitu.c ### */
 

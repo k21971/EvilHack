@@ -2154,6 +2154,41 @@ struct obj *obj;
         (void) erode_obj(obj, (char *) 0, dmgtyp, EF_GREASE | EF_DESTROY);
 }
 
+/* passive disintegration function vs monsters.
+   bulk of this taken from disintegrate_mon */
+void
+passive_disint_mon(mon)
+struct monst *mon;
+{
+    struct obj *otmp, *otmp2, *m_amulet = mlifesaver(mon);
+
+/* note: worn amulet of life saving must be preserved in order to operate */
+#define oresist_disintegration(obj)                                       \
+    (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
+     || is_quest_artifact(obj) || obj == m_amulet)
+
+    for (otmp = mon->minvent; otmp; otmp = otmp2) {
+        otmp2 = otmp->nobj;
+        if (!oresist_disintegration(otmp)) {
+            if (otmp->owornmask) {
+                /* in case monster's life gets saved */
+                mon->misc_worn_check &= ~otmp->owornmask;
+                if (otmp->owornmask & W_WEP)
+                    setmnotwielded(mon, otmp);
+                /* also dismounts hero if this object is steed's saddle */
+                update_mon_intrinsics(mon, otmp, FALSE, TRUE);
+                otmp->owornmask = 0L;
+            }
+            obj_extract_self(otmp);
+            obfree(otmp, (struct obj *) 0);
+        }
+    }
+
+#undef oresist_disintegration
+
+    xkilled(mon, XKILL_NOMSG | XKILL_NOCORPSE);
+}
+
 STATIC_OVL void
 mswingsm(magr, mdef, otemp)
 struct monst *magr, *mdef;
@@ -2227,7 +2262,10 @@ struct obj *mwep;
                           s_suffix(Monnam(mdef)), mon_nam(magr));
                 }
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
-                       || aatyp == AT_TUCH || aatyp == AT_KICK) {
+                       || aatyp == AT_TUCH || aatyp == AT_KICK
+                       || aatyp == AT_BITE || aatyp == AT_HUGS
+                       || aatyp == AT_BUTT || aatyp == AT_STNG
+                       || aatyp == AT_TENT) {
                 /* if magr is wielding a weapon, that disintegrates first before
                    the actual monster. Same if magr is wearing gloves or boots */
                 if (MON_WEP(magr) && !rn2(6)) {
@@ -2260,7 +2298,7 @@ struct obj *mwep;
                         if (canseemon(magr))
                             pline("%s deadly hide disintegrates %s!",
                                   s_suffix(Monnam(mdef)), mon_nam(magr));
-                        mongone(magr); /* being disintegrated means nothing is left behind */
+                        passive_disint_mon(magr);
                         return (mdead | mhit | MM_AGR_DIED);
                     }
                 }
