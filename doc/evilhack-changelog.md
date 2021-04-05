@@ -1518,4 +1518,5 @@ The following changes to date are:
 - Alignment abuse value guard
 - Fix: various objects incapable of being ID'ed under certain conditions
 - Fix: errors in icequeenrevive() function, passive disintegration
+- Mind flayer larva nurseries sometimes spawn with live host prisoners
 

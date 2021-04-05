@@ -403,7 +403,8 @@ struct mkroom *sroom;
                                      : (type == NURSERY)
                                         ? (sx == tx && sy == ty
                                            ? &mons[PM_MIND_FLAYER]
-                                           : &mons[PM_MIND_FLAYER_LARVA])
+                                           : rn2(12) ? &mons[PM_MIND_FLAYER_LARVA]
+                                                     : &mons[PM_PRISONER])
                                         : (type == LEMUREPIT)
                                            ? (sx == tx && sy == ty
                                               ? &mons[PM_HORNED_DEVIL]
