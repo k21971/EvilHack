@@ -1522,4 +1522,6 @@ The following changes to date are:
 - More wizard quest nemesis tweaks
 - Fix: dmonsfree panic when certain monsters are killed via passive
   disintegration
+- Fix: add missing disintegration/cancellation gaze attacks for monster
+  vs monster, overall corrections to gaze attacks
 

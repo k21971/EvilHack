@@ -2768,6 +2768,7 @@ struct attack *mattk;
         "tired",                 /* [6] */
         "dulled",                /* [7] */
         "chilly",                /* [8] */
+        "lackluster",            /* [9] */
     };
     int react = -1;
     boolean cancelled = (mtmp->mcan != 0), already = FALSE;
@@ -2836,7 +2837,7 @@ struct attack *mattk;
             return 2;
         }
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
-            && !Stone_resistance && !rn2(5)) {
+            && !Stone_resistance && !rn2(3)) {
             You("meet %s petrifying gaze!", s_suffix(mon_nam(mtmp)));
             stop_occupation();
             if (mtmp->data == &mons[PM_BEHOLDER]) {
@@ -3060,6 +3061,8 @@ struct attack *mattk;
                           An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
                 break;
             } else {
+                You("meet %s lethargic gaze.",
+                    s_suffix(mon_nam(mtmp)));
                 u_slow_down();
                 stop_occupation();
             }
@@ -3071,14 +3074,16 @@ struct attack *mattk;
      */
     case AD_DISN:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
-            && multi >= 0 && !rn2(7)) {
+            && multi >= 0 && !rn2(5)) {
             int dmg = d(8, 8);
 
-            pline("%s attacks you with a destructive gaze!",
-                  Monnam(mtmp));
-            if (how_resistant(DISINT_RES) == 100) {
-                pline("You bask in the %s aura of %s gaze.",
-                      hcolor(NH_BLACK), s_suffix(mon_nam(mtmp)));
+            pline("%s turns %s towards you%s", Monnam(mtmp),
+                  cancelled ? "an impotent leer" : "a destructive gaze",
+                  cancelled ? "." : "!");
+            if (cancelled) {
+                break;
+            } else if (how_resistant(DISINT_RES) == 100) {
+                pline("You bask in its %s aura.", hcolor(NH_BLACK));
                 monstseesu(M_SEEN_DISINT);
                 stop_occupation();
             } else if (how_resistant(DISINT_RES) > 0) {
@@ -3093,8 +3098,8 @@ struct attack *mattk;
             /* The EotO can afford the player some protection when worn */
             } else if (ublindf
                        && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
-                pline("%s partially protect you from %s destructive gaze.  That stings!",
-                      An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
+                pline("%s partially protect you.  That stings!",
+                      An(bare_artifactname(ublindf)));
                 if (dmg)
                     mdamageu(mtmp, dmg);
                 break;
@@ -3129,10 +3134,11 @@ struct attack *mattk;
             && mtmp->mcansee && !rn2(3)) {
             int dmg;
 
-	    You("meet %s strange gaze.",
-                  s_suffix(mon_nam(mtmp)));
+            if (cancelled) {
+                react = 9; /* "lackluster" */
+                already = (mtmp->mcan != 0);
             /* The EotO can afford the player some protection when worn */
-            if (ublindf
+            } else if (ublindf
                 && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
                 pline("%s partially protect you from %s strange gaze.  Ouch!",
                       An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
@@ -3140,13 +3146,14 @@ struct attack *mattk;
                 if (dmg)
                     mdamageu(mtmp, dmg);
             } else {
-	        (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
+                You("meet %s strange gaze.", s_suffix(mon_nam(mtmp)));
+                (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
                 dmg = d(4, 4);
                 if (dmg)
                     mdamageu(mtmp, dmg);
             }
         }
-	break;
+        break;
     case AD_DETH:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
             && mtmp->mcansee && rn2(4)) {
@@ -3824,7 +3831,6 @@ struct attack *mattk;
                     } else {
                         if (canseemon(mtmp))
                             pline("%s is disintegrated completely!", Monnam(mtmp));
-                        /*xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);*/
                         passive_disint_mon(mtmp);
                         if (!DEADMONSTER(mtmp))
                             return 1;
@@ -4027,7 +4033,6 @@ struct attack *mattk;
                     if (canseemon(mtmp)) {
                         Your("deadly hide disintegrates %s!",
                               mon_nam(mtmp));
-                        /*xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);*/
                         passive_disint_mon(mtmp);
                         if (!DEADMONSTER(mtmp))
                             return 1;

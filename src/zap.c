@@ -3025,7 +3025,12 @@ boolean youattack, allow_cancel_kill, self_cancel;
             shieldeff(u.ux, u.uy);
 	} else if (!youdefend && resisted) {
 	    shieldeff(mdef->mx, mdef->my);
-	}
+	} else if (!youdefend) {
+            if (!mdef->mcan)
+                pline("Magical energies are absorbed from %s.", mon_nam(mdef));
+            else if (mdef->mcan)
+                pline("%s appears to already be diminished.", Monnam(mdef));
+        }
 	for (otmp = (youdefend ? invent : mdef->minvent);
 	    otmp; otmp = otmp->nobj) {
 	    /* gold isn't subject to being cursed or blessed */

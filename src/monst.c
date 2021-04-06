@@ -441,8 +441,8 @@ NEARDATA struct permonst mons[] = {
         SIZ(800, 200, MS_SILENT, MZ_LARGE), MR_COLD | MR_ELEC | MR_POISON
             | MR_STONE, MR_POISON,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS,
-        M2_NOPOLY | M2_HOSTILE | M2_NASTY | M2_NEUTER, M3_INFRAVISIBLE,
-        0, 0, 14, CLR_BROWN),
+        M2_NOPOLY | M2_HOSTILE | M2_NASTY | M2_NEUTER,
+        M3_SKITTISH | M3_INFRAVISIBLE, 0, 0, 14, CLR_BROWN),
     /*
      * felines
      */

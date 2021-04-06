@@ -20,7 +20,7 @@ STATIC_DCL int FDECL(gazemm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(gulpmm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(explmm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(mdamagem, (struct monst *, struct monst *,
-                                struct attack *, struct obj *, int));
+                                struct attack *, struct obj *, int, struct obj **));
 STATIC_DCL void FDECL(mswingsm, (struct monst *, struct monst *, struct obj *));
 STATIC_DCL void FDECL(noises, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(missmm, (struct monst *, struct monst *,
@@ -697,6 +697,8 @@ struct attack *mattk;
 struct obj *mwep;
 int dieroll;
 {
+    struct obj *otmp;
+
     /* Possibly awaken nearby monsters */
     if ((!is_silent(magr->data) || !helpless(mdef)) && rn2(10)) {
         wake_nearto(magr->mx, magr->my, combat_noise(magr->data));
@@ -821,7 +823,7 @@ int dieroll;
     } else
         noises(magr, mattk);
 
-    return mdamagem(magr, mdef, mattk, mwep, dieroll);
+    return mdamagem(magr, mdef, mattk, mwep, dieroll, &otmp);
 }
 
 /* Returns the same values as mdamagem(). */
@@ -830,52 +832,55 @@ gazemm(magr, mdef, mattk)
 register struct monst *magr, *mdef;
 struct attack *mattk;
 {
+    struct obj *otmp;
     char buf[BUFSZ];
 
-    if (vis) {
-        if (mdef->data->mlet == S_MIMIC
-            && M_AP_TYPE(mdef) != M_AP_NOTHING)
-            seemimic(mdef);
-        Sprintf(buf, "%s gazes at", Monnam(magr));
-        pline("%s %s...", buf,
-              canspotmon(mdef) ? mon_nam(mdef) : "something");
-    }
-
-    if (magr->mcan || !magr->mcansee || !mdef->mcansee
-        || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
-        if (vis && canspotmon(mdef))
-            pline("but nothing happens.");
-        return MM_MISS;
-    }
     /* call mon_reflects 2x, first test, then, if visible, print message */
-    if (magr->data == &mons[PM_MEDUSA] && mon_reflects(mdef, (char *) 0)) {
-        if (canseemon(mdef))
-            (void) mon_reflects(mdef, "The gaze is reflected away by %s %s.");
-        if (mdef->mcansee) {
-            if (mon_reflects(magr, (char *) 0)) {
-                if (canseemon(magr))
-                    (void) mon_reflects(magr,
-                                      "The gaze is reflected away by %s %s.");
-                return MM_MISS;
-            }
-            if (mdef->minvis && !racial_perceives(magr)) {
-                if (canseemon(magr)) {
-                    pline(
-                      "%s doesn't seem to notice that %s gaze was reflected.",
-                          Monnam(magr), mhis(magr));
+    if (magr->data == &mons[PM_MEDUSA]) {
+        if (vis) {
+            if (mdef->data->mlet == S_MIMIC
+                && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                seemimic(mdef);
+            Sprintf(buf, "%s gazes at", Monnam(magr));
+            pline("%s %s...", buf,
+                  canspotmon(mdef) ? mon_nam(mdef) : "something");
+        }
+
+        if (magr->mcan || !magr->mcansee || !mdef->mcansee
+            || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+            if (vis && canspotmon(mdef))
+                pline("but nothing happens.");
+            return MM_MISS;
+        }
+        if (mon_reflects(mdef, (char *) 0)) {
+            if (canseemon(mdef))
+                (void) mon_reflects(mdef, "The gaze is reflected away by %s %s.");
+            if (mdef->mcansee) {
+                if (mon_reflects(magr, (char *) 0)) {
+                    if (canseemon(magr))
+                        (void) mon_reflects(magr,
+                                            "The gaze is reflected away by %s %s.");
+                    return MM_MISS;
                 }
-                return MM_MISS;
+                if (mdef->minvis && !racial_perceives(magr)) {
+                    if (canseemon(magr)) {
+                        pline(
+                          "%s doesn't seem to notice that %s gaze was reflected.",
+                              Monnam(magr), mhis(magr));
+                    }
+                    return MM_MISS;
+                }
+                if (canseemon(magr))
+                    pline("%s is turned to stone!", Monnam(magr));
+                monstone(magr);
+                if (!DEADMONSTER(magr))
+                    return MM_MISS;
+                return MM_AGR_DIED;
             }
-            if (canseemon(magr))
-                pline("%s is turned to stone!", Monnam(magr));
-            monstone(magr);
-            if (!DEADMONSTER(magr))
-                return MM_MISS;
-            return MM_AGR_DIED;
         }
     }
 
-    return mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
+    return mdamagem(magr, mdef, mattk, (struct obj *) 0, 0, &otmp);
 }
 
 /* return True if magr is allowed to swallow mdef, False otherwise */
@@ -923,7 +928,7 @@ register struct attack *mattk;
     xchar ax, ay, dx, dy;
     int status;
     char buf[BUFSZ];
-    struct obj *obj;
+    struct obj *obj, *otmp;
     struct monst *msteed = NULL;
 
     if (!engulf_target(magr, mdef))
@@ -984,7 +989,7 @@ register struct attack *mattk;
     if (msteed != NULL)
         place_monster(msteed, ax, ay);
 
-    status = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
+    status = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0, &otmp);
 
     if ((status & (MM_AGR_DIED | MM_DEF_DIED))
         == (MM_AGR_DIED | MM_DEF_DIED)) {
@@ -1037,6 +1042,7 @@ explmm(magr, mdef, mattk)
 struct monst *magr, *mdef;
 struct attack *mattk;
 {
+    struct obj *otmp;
     int result, mndx, tmp;
 
     if (magr->mcan)
@@ -1062,7 +1068,7 @@ struct attack *mattk;
             newexplevel();
         }
     } else {
-        result = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
+        result = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0, &otmp);
     }
 
     /* Kill off aggressor if it didn't die. */
@@ -1092,11 +1098,12 @@ struct attack *mattk;
  *  See comment at top of mattackm(), for return values.
  */
 STATIC_OVL int
-mdamagem(magr, mdef, mattk, mwep, dieroll)
+mdamagem(magr, mdef, mattk, mwep, dieroll, ootmp)
 struct monst *magr, *mdef;
 struct attack *mattk;
 struct obj *mwep;
 int dieroll;
+struct obj **ootmp; /* to return worn armor for caller to disintegrate */
 {
     struct obj *obj;
     char buf[BUFSZ];
@@ -1209,6 +1216,23 @@ int dieroll;
     case AD_STUN:
         if (magr->mcan)
             break;
+        if (mattk->aatyp == AT_GAZE) {
+            if (vis) {
+                if (mdef->data->mlet == S_MIMIC
+                    && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                    seemimic(mdef);
+                Sprintf(buf, "%s gazes at", Monnam(magr));
+                pline("%s %s...", buf,
+                      canspotmon(mdef) ? mon_nam(mdef) : "something");
+            }
+
+            if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                if (vis && canspotmon(mdef))
+                    pline("but nothing happens.");
+                return MM_MISS;
+            }
+        }
         if (canseemon(mdef))
             pline("%s %s for a moment.", Monnam(mdef),
                   makeplural(stagger(pd, "stagger")));
@@ -1317,6 +1341,23 @@ int dieroll;
             tmp = 0;
             break;
         }
+        if (mattk->aatyp == AT_GAZE) {
+            if (vis) {
+                if (mdef->data->mlet == S_MIMIC
+                    && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                    seemimic(mdef);
+                Sprintf(buf, "%s gazes at", Monnam(magr));
+                pline("%s %s...", buf,
+                      canspotmon(mdef) ? mon_nam(mdef) : "something");
+            }
+
+            if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                if (vis && canspotmon(mdef))
+                    pline("but nothing happens.");
+                return MM_MISS;
+            }
+        }
         if (vis && canseemon(mdef))
             pline("%s is %s!", Monnam(mdef), on_fire(pd, mattk));
         if (completelyburns(pd)) { /* paper golem or straw golem */
@@ -1345,6 +1386,23 @@ int dieroll;
         if (cancelled) {
             tmp = 0;
             break;
+        }
+        if (mattk->aatyp == AT_GAZE) {
+            if (vis) {
+                if (mdef->data->mlet == S_MIMIC
+                    && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                    seemimic(mdef);
+                Sprintf(buf, "%s gazes at", Monnam(magr));
+                pline("%s %s...", buf,
+                      canspotmon(mdef) ? mon_nam(mdef) : "something");
+            }
+
+            if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                if (vis && canspotmon(mdef))
+                    pline("but nothing happens.");
+                return MM_MISS;
+            }
         }
         if (vis && canseemon(mdef))
             pline("%s is covered in frost!", Monnam(mdef));
@@ -1470,21 +1528,41 @@ int dieroll;
         }
         if (!resists_ston(mdef)) {
             if (mattk->aatyp == AT_GAZE) {
-		if (vis && canseemon(mdef))
-                    pline("%s turns to stone!", Monnam(mdef));
-		monstone(mdef);
+                if (magr->data == &mons[PM_MEDUSA]) {
+                    if (vis && canseemon(mdef))
+                        pline("%s turns to stone!", Monnam(mdef));
+                    monstone(mdef);
 post_stone:
- 		if (!DEADMONSTER(mdef))
-                    return MM_MISS;
-		else if (mdef->mtame && !vis)
-		    You(brief_feeling, "peculiarly sad");
-	        return (MM_DEF_DIED | (grow_up(magr, mdef)
-                        ? 0 : MM_AGR_DIED));
-	}
-	if (!mdef->mstone) {
-	    mdef->mstone = 5;
-	    mdef->mstonebyu = FALSE;
-	    }
+                    if (!DEADMONSTER(mdef))
+                        return MM_MISS;
+                    else if (mdef->mtame && !vis)
+                        You(brief_feeling, "peculiarly sad");
+                    return (MM_DEF_DIED | (grow_up(magr, mdef)
+                            ? 0 : MM_AGR_DIED));
+                } else if (magr->data == &mons[PM_BEHOLDER] && !rn2(3)) {
+                    if (vis) {
+                        if (mdef->data->mlet == S_MIMIC
+                            && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                            seemimic(mdef);
+                        Sprintf(buf, "%s gazes at", Monnam(magr));
+                        pline("%s %s...", buf,
+                              canspotmon(mdef) ? mon_nam(mdef) : "something");
+                    }
+
+                    if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                        || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                        if (vis && canspotmon(mdef))
+                            pline("but nothing happens.");
+                        return MM_MISS;
+                    }
+                    if (vis && canseemon(mdef))
+                        pline("%s is slowing down.", Monnam(mdef));
+                    if (!mdef->mstone) {
+                        mdef->mstone = 5;
+                        mdef->mstonebyu = FALSE;
+                    }
+                }
+            }
         }
         tmp = (mattk->adtyp == AD_STON ? 0 : 1);
         break;
@@ -1515,6 +1593,23 @@ post_stone:
     case AD_SLEE:
         if (!cancelled && !mdef->msleeping
             && sleep_monst(mdef, rnd(10), -1)) {
+            if (mattk->aatyp == AT_GAZE) {
+                if (vis) {
+                    if (mdef->data->mlet == S_MIMIC
+                        && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                        seemimic(mdef);
+                    Sprintf(buf, "%s gazes at", Monnam(magr));
+                    pline("%s %s...", buf,
+                          canspotmon(mdef) ? mon_nam(mdef) : "something");
+                }
+
+                if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                    || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                    if (vis && canspotmon(mdef))
+                        pline("but nothing happens.");
+                    return MM_MISS;
+                }
+            }
             if (vis && canspotmon(mdef)) {
                 Strcpy(buf, Monnam(mdef));
                 pline("%s is put to sleep by %s.", buf, mon_nam(magr));
@@ -1536,8 +1631,27 @@ post_stone:
         if (!cancelled && mdef->mspeed != MSLOW) {
             unsigned int oldspeed = mdef->mspeed;
 
+            if (mattk->aatyp == AT_GAZE) {
+                if (vis) {
+                    if (mdef->data->mlet == S_MIMIC
+                        && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                        seemimic(mdef);
+                    Sprintf(buf, "%s gazes at", Monnam(magr));
+                    pline("%s %s...", buf,
+                          canspotmon(mdef) ? mon_nam(mdef) : "something");
+                }
+
+                if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                    || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                    if (vis && canspotmon(mdef))
+                        pline("but nothing happens.");
+                    return MM_MISS;
+                }
+            }
+
             mon_adjust_speed(mdef, -1, (struct obj *) 0);
             mdef->mstrategy &= ~STRAT_WAITFORU;
+
             if (mdef->mspeed != oldspeed && vis && canspotmon(mdef))
                 pline("%s slows down.", Monnam(mdef));
         }
@@ -1550,6 +1664,23 @@ post_stone:
          * we still should check for it).
          */
         if (!magr->mcan && !mdef->mconf && !magr->mspec_used) {
+            if (mattk->aatyp == AT_GAZE) {
+                if (vis) {
+                    if (mdef->data->mlet == S_MIMIC
+                        && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                        seemimic(mdef);
+                    Sprintf(buf, "%s gazes at", Monnam(magr));
+                    pline("%s %s...", buf,
+                          canspotmon(mdef) ? mon_nam(mdef) : "something");
+                }
+
+                if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                    || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                    if (vis && canspotmon(mdef))
+                        pline("but nothing happens.");
+                    return MM_MISS;
+                }
+            }
             if (vis && canseemon(mdef))
                 pline("%s looks confused.", Monnam(mdef));
             mdef->mconf = 1;
@@ -1560,6 +1691,23 @@ post_stone:
         if (can_blnd(magr, mdef, mattk->aatyp, (struct obj *) 0)) {
             register unsigned rnd_tmp;
 
+            if (mattk->aatyp == AT_GAZE) {
+                if (vis) {
+                    if (mdef->data->mlet == S_MIMIC
+                        && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                        seemimic(mdef);
+                    Sprintf(buf, "%s gazes at", Monnam(magr));
+                    pline("%s %s...", buf,
+                          canspotmon(mdef) ? mon_nam(mdef) : "something");
+                }
+
+                if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                    || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                    if (vis && canspotmon(mdef))
+                        pline("but nothing happens.");
+                    return MM_MISS;
+                }
+            }
             if (vis && mdef->mcansee && canspotmon(mdef))
                 pline("%s is blinded.", Monnam(mdef));
             rnd_tmp = d((int) mattk->damn, (int) mattk->damd);
@@ -1781,6 +1929,23 @@ post_stone:
         res = eat_brains(magr, mdef, vis, &tmp);
         break;
     case AD_DETH:
+        if (mattk->aatyp == AT_GAZE) {
+            if (vis) {
+                if (mdef->data->mlet == S_MIMIC
+                    && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                    seemimic(mdef);
+                Sprintf(buf, "%s gazes at", Monnam(magr));
+                pline("%s %s...", buf,
+                      canspotmon(mdef) ? mon_nam(mdef) : "something");
+            }
+
+            if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                if (vis && canspotmon(mdef))
+                    pline("but nothing happens.");
+                return MM_MISS;
+            }
+        }
         if (is_undead(mdef->data)) {
             /* Still does normal damage */
             if (vis)
@@ -1932,6 +2097,137 @@ msickness:
             if (canseemon(mdef))
                 pline("%s is withering away!", Monnam(mdef));
             mdef->mwither = 1;
+        }
+        break;
+    case AD_DISN: /* currently only called via AT_GAZE */
+        if (!rn2(5)) {
+            struct obj *otmp = (struct obj *) 0, *otmp2;
+
+            if (mattk->aatyp == AT_GAZE) {
+                if (vis) {
+                    if (mdef->data->mlet == S_MIMIC
+                        && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                        seemimic(mdef);
+                    Sprintf(buf, "%s gazes at", Monnam(magr));
+                    pline("%s %s...", buf,
+                          canspotmon(mdef) ? mon_nam(mdef) : "something");
+                }
+
+                if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                    || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                    if (vis && canspotmon(mdef))
+                        pline("but nothing happens.");
+                    return MM_MISS;
+                }
+            }
+            if (magr->mcan) {
+                tmp = 0;
+                break;
+            }
+            if (resists_disint(mdef)) {
+                shieldeff(mdef->mx, mdef->my);
+                pline("%s basks in the %s aura of %s gaze.",
+                      Monnam(mdef), hcolor(NH_BLACK),
+                      s_suffix(mon_nam(magr)));
+            } else if (mdef->misc_worn_check & W_ARMS) {
+                *ootmp = which_armor(mdef, W_ARMS);
+                pline ("%s %s crumbles away!", s_suffix(Monnam(mdef)),
+                       xname(*ootmp));
+                m_useup(mdef, *ootmp);
+            } else if (mdef->misc_worn_check & W_ARM) {
+                *ootmp = which_armor(mdef, W_ARM);
+                pline ("%s %s turns to dust and blows away!",
+                       s_suffix(Monnam(mdef)), xname(*ootmp));
+                m_useup(mdef, *ootmp);
+                if ((otmp2 = which_armor(mdef, W_ARMC)) != 0) {
+                    pline ("%s %s crumbles and turns to dust!",
+                           s_suffix(Monnam(mdef)), xname(otmp2));
+                    m_useup(mdef, otmp2);
+                }
+            } else {
+                struct obj *m_amulet = mlifesaver(mdef);
+                if ((otmp2 = which_armor(mdef, W_ARMC)) != 0)
+                    m_useup(mdef, otmp2);
+                if ((otmp2 = which_armor(mdef, W_ARMU)) != 0)
+                    m_useup(mdef, otmp2);
+                if (is_rider(mdef->data)) {
+                    pline("%s is disintegrated!", Monnam(mdef));
+                    pline("%s body reintegrates before your %s!",
+                          s_suffix(Monnam(mdef)),
+                          (eyecount(youmonst.data) == 1)
+                              ? body_part(EYE)
+                              : makeplural(body_part(EYE)));
+                    pline("%s resurrects!", Monnam(mdef));
+                    mdef->mhp = mdef->mhpmax;
+
+                    return MM_HIT;
+                }
+                if (canseemon(mdef)) {
+                    if (!m_amulet)
+                        pline("%s is disintegrated!", Monnam(mdef));
+                    else
+                        pline("%s crumbles under the gaze!",
+                              Monnam(mdef));
+                }
+/* note: worn amulet of life saving must be preserved in order to operate */
+#define oresist_disintegration(obj)                                       \
+    (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
+     || is_quest_artifact(obj) || obj == m_amulet)
+
+                for (otmp = mdef->minvent; otmp; otmp = otmp2) {
+                    otmp2 = otmp->nobj;
+                    if (!oresist_disintegration(otmp)) {
+                        if (otmp->owornmask) {
+                            /* in case monster's life gets saved */
+                            mdef->misc_worn_check &= ~otmp->owornmask;
+                            if (otmp->owornmask & W_WEP)
+                                setmnotwielded(mdef, otmp);
+                            /* also dismounts hero if this object is steed's saddle */
+                            update_mon_intrinsics(mdef, otmp, FALSE, TRUE);
+                            otmp->owornmask = 0L;
+                        }
+                        obj_extract_self(otmp);
+                        obfree(otmp, (struct obj *) 0);
+                    }
+                }
+
+#undef oresist_disintegration
+
+                mdef->mhp = 0;
+                if (magr->uexp)
+                    mon_xkilled(mdef, (char *) 0, -AD_RBRE);
+                else
+                    monkilled(mdef, (char *) 0, -AD_RBRE);
+                tmp = 0;
+                return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+                break;
+            }
+        }
+        break;
+    case AD_CNCL: /* currently only called via AT_GAZE */
+        if (!rn2(3)) {
+            if (mattk->aatyp == AT_GAZE) {
+                if (vis) {
+                    if (mdef->data->mlet == S_MIMIC
+                        && M_AP_TYPE(mdef) != M_AP_NOTHING)
+                        seemimic(mdef);
+                    Sprintf(buf, "%s gazes at", Monnam(magr));
+                    pline("%s %s...", buf,
+                          canspotmon(mdef) ? mon_nam(mdef) : "something");
+                }
+
+                if (magr->mcan || !magr->mcansee || !mdef->mcansee
+                    || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                    if (vis && canspotmon(mdef))
+                        pline("but nothing happens.");
+                    return MM_MISS;
+                }
+            }
+            if (magr->mcan) {
+                tmp = 0;
+                break;
+            }
+            (void) cancel_monst(mdef, (struct obj *) 0, FALSE, TRUE, FALSE);
         }
         break;
     default:
