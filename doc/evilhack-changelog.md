@@ -1524,4 +1524,5 @@ The following changes to date are:
   disintegration
 - Fix: add missing disintegration/cancellation gaze attacks for monster
   vs monster, overall corrections to gaze attacks
+- Suppress certain feedback upon player death, prevent crash
 

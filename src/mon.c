@@ -5543,10 +5543,16 @@ struct monst *mtmp;
     struct permonst *koa = &mons[PM_KOA];
     struct permonst *ozzy = &mons[PM_OZZY];
 
-    Your("actions have released %s from a powerful curse!", mon_nam(mtmp));
-    if (canspotmon(mtmp))
-        You("watch as %s undergoes a transformation, back into her original form.",
-            mon_nam(mtmp));
+    /* in case player kills themselves while defeating
+       the ice queen and isn't lifesaved */
+    if (u.uhp <= 0 && !Lifesaved) {
+        ; /* suppress feedback */
+    } else {
+        Your("actions have released %s from a powerful curse!", mon_nam(mtmp));
+        if (canspotmon(mtmp))
+            You("watch as %s undergoes a transformation, back into her original form.",
+                mon_nam(mtmp));
+    }
     mtmp->mcanmove = 1;
     mtmp->mfrozen = 0;
     mtmp->mstone = 0;
@@ -5582,14 +5588,18 @@ struct monst *mtmp;
             continue;
         /* cure any ailments the dogs may have also */
         if (mon->data == koa || mon->data == ozzy) {
-            if (mon->data == koa) {
-                if (m_cansee(mtmp, mon->mx, mon->my))
-                    pline("%s motions for Koa to heel and stop %s attack.",
-                          Monnam(mtmp), mhis(mon));
+            if (u.uhp <= 0 && !Lifesaved) {
+                ; /* suppress feedback */
             } else {
-                if (m_cansee(mtmp, mon->mx, mon->my))
-                    pline("%s motions for Ozzy to heel and stop %s attack.",
-                          Monnam(mtmp), mhis(mon));
+                if (mon->data == koa) {
+                    if (m_cansee(mtmp, mon->mx, mon->my))
+                        pline("%s motions for Koa to heel and stop %s attack.",
+                              Monnam(mtmp), mhis(mon));
+                } else {
+                    if (m_cansee(mtmp, mon->mx, mon->my))
+                        pline("%s motions for Ozzy to heel and stop %s attack.",
+                              Monnam(mtmp), mhis(mon));
+                }
             }
             mon->mcanmove = 1;
             mon->mfrozen = 0;
@@ -5602,7 +5612,12 @@ struct monst *mtmp;
             mon->mpeaceful = 1;
         }
     }
-    com_pager(200);
+    /* in case player kills themselves while defeating
+       the ice queen and isn't lifesaved */
+    if (u.uhp <= 0 && !Lifesaved)
+        ; /* suppress feedback */
+    else
+        com_pager(200);
     if (Role_if(PM_INFIDEL))
         adjalign(-2); /* doing good things as an agent of Moloch? pfft */
     else

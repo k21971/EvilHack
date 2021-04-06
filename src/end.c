@@ -584,11 +584,13 @@ int how;
         if (u.uswallow) {
             if (ukiller == u.ustuck && is_swallower(u.ustuck->data))
                 pline("%s emits a satisfied belch.", Monnam(ukiller));
-        } else if is_rummager(ukiller->data)
-            pline("%s starts to %s your possessions...", Monnam(ukiller),
-                  (nohands(ukiller->data) || nolimbs(ukiller->data))
-                    ? "root through" : rn2(2) ? "ransack"
-                                              : "rummage through");
+        } else if (is_rummager(ukiller->data)) {
+            if (!DEADMONSTER(ukiller))
+                pline("%s starts to %s your possessions...", Monnam(ukiller),
+                      (nohands(ukiller->data) || nolimbs(ukiller->data))
+                        ? "root through" : rn2(2) ? "ransack"
+                                                  : "rummage through");
+        }
     }
 
     /*
