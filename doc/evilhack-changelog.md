@@ -1527,4 +1527,5 @@ The following changes to date are:
 - Suppress certain feedback upon player death, prevent crash
 - Fix: The Archangel points all around, then curses.  ≡┌╫ the saddled
   black dragon / new monster vs monster attack function (buzzmm).
+- Fix: death magic resistance feedback
 
