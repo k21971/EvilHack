@@ -1285,6 +1285,7 @@ E int FDECL(maxspelltimeout, (struct monst *));
 E int FDECL(spelltimeout, (struct monst *, int));
 E int FDECL(castmu, (struct monst *, struct attack *, BOOLEAN_P, BOOLEAN_P));
 E int FDECL(buzzmu, (struct monst *, struct attack *));
+E int FDECL(buzzmm, (struct monst *, struct monst *, struct attack *));
 E int FDECL(castmm, (struct monst *, struct monst *, struct attack *));
 E int FDECL(castum, (struct monst *, struct attack *));
 

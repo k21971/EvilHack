@@ -1525,4 +1525,6 @@ The following changes to date are:
 - Fix: add missing disintegration/cancellation gaze attacks for monster
   vs monster, overall corrections to gaze attacks
 - Suppress certain feedback upon player death, prevent crash
+- Fix: The Archangel points all around, then curses.  ≡┌╫ the saddled
+  black dragon / new monster vs monster attack function (buzzmm).
 

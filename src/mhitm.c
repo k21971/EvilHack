@@ -655,12 +655,12 @@ register struct monst *magr, *mdef;
             break;
         case AT_MAGC:
             if (dist2(magr->mx, magr->my, mdef->mx, mdef->my) > 2)
-                break;
-         	  res[i] = castmm(magr, mdef, mattk);
-         		if (res[i] & MM_DEF_DIED)
-         			return (MM_DEF_DIED |
-         				(grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
-         		break;
+                res[i] = buzzmm(magr, mdef, mattk);
+            else
+                res[i] = castmm(magr, mdef, mattk);
+            if (res[i] & MM_DEF_DIED)
+                return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+            break;
         default: /* no attack */
             strike = 0;
             attk = 0;
