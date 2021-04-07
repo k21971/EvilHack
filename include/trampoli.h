@@ -40,7 +40,6 @@
 #define doddrop() doddrop_()
 #define dodown() dodown_()
 #define dodrop() dodrop_()
-#define dogive() dogive_()
 #define donull() donull_()
 #define doup() doup_()
 #define dowipe() dowipe_()

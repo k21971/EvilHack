@@ -1530,4 +1530,5 @@ The following changes to date are:
 - Fix: death magic resistance feedback
 - Some tweaks/improvements to castmm() and buzzmm(), elven wizard
 - Identify a wand when it prints an unambiguous message while engraving
+- Remove #give command
 
