@@ -1528,4 +1528,5 @@ The following changes to date are:
 - Fix: The Archangel points all around, then curses.  ≡┌╫ the saddled
   black dragon / new monster vs monster attack function (buzzmm).
 - Fix: death magic resistance feedback
+- Some tweaks/improvements to castmm() and buzzmm(), elven wizard
 

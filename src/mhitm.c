@@ -654,12 +654,26 @@ register struct monst *magr, *mdef;
             }
             break;
         case AT_MAGC:
-            if (dist2(magr->mx, magr->my, mdef->mx, mdef->my) > 2)
-                res[i] = buzzmm(magr, mdef, mattk);
-            else
-                res[i] = castmm(magr, mdef, mattk);
-            if (res[i] & MM_DEF_DIED)
-                return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+            if (!monnear(magr, mdef->mx, mdef->my)) {
+                strike = buzzmm(magr, mdef, mattk);
+
+                /* We don't really know if we hit or not; pretend we did. */
+                if (strike)
+                    res[i] |= MM_HIT;
+                if (DEADMONSTER(mdef))
+                    res[i] = MM_DEF_DIED;
+                if (DEADMONSTER(magr))
+                    res[i] |= MM_AGR_DIED;
+            } else if (monnear(magr, mdef->mx, mdef->my)) {
+                strike = castmm(magr, mdef, mattk);
+
+                if (strike)
+                    res[i] |= MM_HIT;
+                if (DEADMONSTER(mdef))
+                    res[i] = MM_DEF_DIED;
+                if (DEADMONSTER(magr))
+                    res[i] |= MM_AGR_DIED;
+            }
             break;
         default: /* no attack */
             strike = 0;

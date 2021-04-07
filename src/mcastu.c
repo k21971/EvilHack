@@ -494,19 +494,16 @@ boolean foundyou;
             monstseesu(M_SEEN_MAGR);
             dmg = (dmg + 1) / 2;
         }
-        if (Half_spell_damage)
-            dmg = (dmg + 1) / 2;
         break;
-    case AD_SPEL: /* wizard spell */
-    case AD_CLRC: /* clerical spell */
-    {
+    case AD_SPEL:   /* wizard spell */
+    case AD_CLRC: { /* clerical spell */
         if (mattk->adtyp == AD_SPEL)
             cast_wizard_spell(mtmp, dmg, spellnum);
         else
             cast_cleric_spell(mtmp, dmg, spellnum);
         dmg = 0; /* done by the spell casting functions */
         break;
-    }
+        }
     }
     if (dmg)
         mdamageu(mtmp, dmg);
@@ -1513,6 +1510,27 @@ register struct attack *mattk;
         mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
         if (mtmp->mspec_used < 2)
             mtmp->mspec_used = 2;
+        /* many boss-type monsters than have two or more spell attacks
+           per turn are never able to fire off their second attack due
+           to mspec always being greater than 0. So set to 0 for those
+           types of monsters, either sometimes or all of the time
+           depending on how powerful they are or what their role is */
+        if (rn2(3) /* mspec 0 two thirds of the time */
+            && (is_dlord(mtmp->data)
+                || mtmp->data->msound == MS_LEADER
+                || mtmp->data->msound == MS_NEMESIS
+                || mtmp->data == &mons[PM_ORACLE]
+                || mtmp->data == &mons[PM_HIGH_PRIEST]
+                || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]))
+            mtmp->mspec_used = 0;
+
+        if (is_dprince(mtmp->data)
+            || mtmp->iswiz || mtmp->isvecna
+            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+            /* mspec 0 always */
+            mtmp->mspec_used = 0;
+
+        /* Having the EotA in inventory drops mspec to 0 */
         for (obj = mtmp->minvent; obj; obj = obj->nobj) {
             if (obj->oartifact
                 && obj->oartifact == ART_EYE_OF_THE_AETHIOPICA) {
