@@ -2044,22 +2044,17 @@ really_steal(obj, mdef)
 struct obj * obj;
 struct monst * mdef;
 {
-    long unwornmask;
+    long unwornmask = obj->owornmask;
     /* take the object away from the monster */
-    obj_extract_self(obj);
-    if ((unwornmask = obj->owornmask) != 0L) {
-        mdef->misc_worn_check &= ~unwornmask;
-        if (obj->owornmask & W_WEP)
-            setmnotwielded(mdef, obj);
-        obj->owornmask = 0L;
-        update_mon_intrinsics(mdef, obj, FALSE, FALSE);
-        /* give monster a chance to wear other equipment on its next
-           move instead of waiting until it picks something up */
-        check_gear_next_turn(mdef);
-    }
+    extract_from_minvent(mdef, obj, TRUE, FALSE);
     /* give the object to the character */
     obj = hold_another_object(obj, "You snatched but dropped %s.",
-                               doname(obj), "You steal: ");
+                              doname(obj), "You steal: ");
+    /* might have dropped obj, and it might have broken or left level */
+    if (!obj || obj->where != OBJ_INVENT)
+        return TRUE;
+    if (theft_petrifies(obj))
+        return TRUE; /* stop thieving even though hero survived */
     /* more take-away handling, after theft message */
     if (unwornmask & W_WEP) { /* stole wielded weapon */
         possibly_unwield(mdef, FALSE);

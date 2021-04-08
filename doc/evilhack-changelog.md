@@ -1531,4 +1531,5 @@ The following changes to date are:
 - Some tweaks/improvements to castmm() and buzzmm(), elven wizard
 - Identify a wand when it prints an unambiguous message while engraving
 - Remove #give command
+- Implement giving and taking pets' items via #loot
 

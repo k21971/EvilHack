@@ -292,11 +292,7 @@ int ef_flags;
                     delobj(otmp);
             }
         } else if (victim && (victim != &youmonst)) {
-            obj_extract_self(otmp);
-            possibly_unwield(victim, FALSE);
-            victim->misc_worn_check &= ~otmp->owornmask;
-            update_mon_intrinsics(victim, otmp, FALSE, TRUE);
-            otmp->owornmask = 0; /* obfree() expects this */
+            extract_from_minvent(victim, otmp, TRUE, TRUE);
             obfree(otmp, (struct obj *) 0);
         } else {
             /* make sure any properties given by worn/wielded
