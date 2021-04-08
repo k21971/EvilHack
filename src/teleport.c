@@ -1455,8 +1455,12 @@ int in_sight;
 {
     int tt = (trap ? trap->ttyp : NO_TRAP);
 
-    if (mtmp == u.ustuck) /* probably a vortex */
+    if (mtmp == u.ustuck && context.mon_moving) {
+        /* ustuck case is probably a vortex, but check mon_moving so that if
+         * hero is forcing a monster into a trap (i.e. with an AD_PITS attack),
+         * this will proc correctly. */
         return 0;         /* temporary? kludge */
+    }
     if (resists_magm(mtmp))
         return 0;
     if (teleport_pet(mtmp, force_it)) {

@@ -2260,6 +2260,18 @@ do_rust:
             incr_itimeout(&HWithering, rnd(dmg) + 3);
         }
         break;
+    case AD_PITS:
+        /* For some reason, the uhitm code calls this for any AT_HUGS attack,
+         * but the mhitu code doesn't. */
+        if (rn2(2)) {
+            if (mattk->aatyp == AT_HUGS)
+                u.ustuck = mtmp;
+            if (!mtmp->mcan) {
+                if (!create_pit_under(&youmonst, mtmp))
+                    dmg = 0;
+            }
+        }
+        break;
     default:
         dmg = 0;
         break;

@@ -2620,6 +2620,14 @@ do_rust:
             mdef->mwither = 1;
         }
         break;
+    case AD_PITS:
+        if (rn2(2)) {
+            if (!u.uswallow) {
+                if (!create_pit_under(mdef, &youmonst))
+                    tmp = 0;
+            }
+        }
+        break;
     default:
         tmp = 0;
         break;

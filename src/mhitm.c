@@ -2191,16 +2191,7 @@ msickness:
                 for (otmp = mdef->minvent; otmp; otmp = otmp2) {
                     otmp2 = otmp->nobj;
                     if (!oresist_disintegration(otmp)) {
-                        if (otmp->owornmask) {
-                            /* in case monster's life gets saved */
-                            mdef->misc_worn_check &= ~otmp->owornmask;
-                            if (otmp->owornmask & W_WEP)
-                                setmnotwielded(mdef, otmp);
-                            /* also dismounts hero if this object is steed's saddle */
-                            update_mon_intrinsics(mdef, otmp, FALSE, TRUE);
-                            otmp->owornmask = 0L;
-                        }
-                        obj_extract_self(otmp);
+                        extract_from_minvent(mdef, otmp, TRUE, TRUE);
                         obfree(otmp, (struct obj *) 0);
                     }
                 }
@@ -2242,6 +2233,14 @@ msickness:
                 break;
             }
             (void) cancel_monst(mdef, (struct obj *) 0, FALSE, TRUE, FALSE);
+        }
+        break;
+    case AD_PITS:
+        if (rn2(2)) {
+            if (!magr->mcan) {
+                if (!create_pit_under(mdef, magr))
+                    tmp = 0;
+            }
         }
         break;
     default:
