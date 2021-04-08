@@ -1490,6 +1490,7 @@ E int FDECL(cmap_to_type, (int));
 /* ### mon.c ### */
 
 E void NDECL(mon_sanity_check);
+E int FDECL(m_poisongas_ok, (struct monst *));
 E boolean FDECL(zombie_maker, (struct permonst *));
 E int FDECL(zombie_form, (struct monst *));
 E void FDECL(zombify, (struct monst *));

@@ -70,6 +70,8 @@
     (nonliving(ptr) || is_demon(ptr) || is_angel(ptr) \
      || (ptr)->msound == MS_LEADER || (ptr) == &mons[PM_CERBERUS])
 
+#define immune_poisongas(ptr) ((ptr) == &mons[PM_HEZROU])
+
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
 #define is_jumper(ptr) \

@@ -152,6 +152,41 @@ mon_sanity_check()
     }
 }
 
+/* Would monster be OK with poison gas? */
+/* Does not check for actual poison gas at the location. */
+/* Returns one of M_POISONGAS_foo */
+int
+m_poisongas_ok(mtmp)
+struct monst *mtmp;
+{
+    int px, py;
+
+    /* Non living, non breathing, immune monsters are not concerned */
+    if (nonliving(mtmp->data) || is_vampshifter(mtmp)
+        || breathless(mtmp->data) || immune_poisongas(mtmp->data))
+        return M_POISONGAS_OK;
+    /* not is_swimmer(); assume that non-fish are swimming on
+       the surface and breathing the air above it periodically
+       unless located at water spot on plane of water */
+    px = (mtmp == &youmonst) ? u.ux : mtmp->mx;
+    py = (mtmp == &youmonst) ? u.uy : mtmp->my;
+    if ((mtmp->data->mlet == S_EEL || Is_waterlevel(&u.uz))
+        && isok(px, py) && is_pool(px, py))
+        return M_POISONGAS_OK;
+    /* exclude monsters with poison gas breath attack:
+       adult green dragon and Tiamat (and iron golem,
+       but nonliving() and breathless() tests also catch that) */
+    if (attacktype_fordmg(mtmp->data, AT_BREA, AD_DRST)
+        || attacktype_fordmg(mtmp->data, AT_BREA, AD_RBRE))
+        return M_POISONGAS_OK;
+    if ((mtmp == &youmonst)
+        && (u.uinvulnerable || Breathless || Underwater))
+        return M_POISONGAS_OK;
+    if ((resists_poison(mtmp) || (mtmp == &youmonst)) && Poison_resistance)
+        return M_POISONGAS_MINOR;
+    return M_POISONGAS_BAD;
+}
+
 /* Return TRUE if this monster is capable of converting other monsters into
  * zombies. */
 boolean
@@ -1946,8 +1981,7 @@ long flag;
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
-    poisongas_ok = ((nonliving(mdat) || is_vampshifter(mon)
-                     || breathless(mdat)) || resists_poison(mon));
+    poisongas_ok = (m_poisongas_ok(mon) == M_POISONGAS_OK);
     in_poisongas = ((gas_reg = visible_region_at(x,y)) != 0
                     && gas_reg->glyph == gas_glyph);
 

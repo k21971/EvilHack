@@ -858,6 +858,9 @@ toofar:
     /*  Now the actual movement phase
      */
 
+    if (mtmp->data == &mons[PM_HEZROU]) /* stench */
+        create_gas_cloud(mtmp->mx, mtmp->my, 1, 8);
+
     if (!nearby || mtmp->mflee || scared || mtmp->mconf || mtmp->mstun
         || (mtmp->minvis && !rn2(3))
         || (mdat->mlet == S_LEPRECHAUN && !findgold(invent, FALSE)

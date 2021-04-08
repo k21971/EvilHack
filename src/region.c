@@ -969,8 +969,7 @@ genericptr_t p2;
     reg = (NhRegion *) p1;
     dam = reg->arg.a_int;
     if (p2 == (genericptr_t) 0) { /* This means *YOU* Bozo! */
-        if (u.uinvulnerable || nonliving(youmonst.data) || Breathless
-            || Underwater)
+        if (m_poisongas_ok(&youmonst) == M_POISONGAS_OK)
             return FALSE;
         if (!Blind) {
             Your("%s sting.", makeplural(body_part(EYE)));
@@ -980,7 +979,8 @@ genericptr_t p2;
             pline("%s is burning your %s!", Something,
                   makeplural(body_part(LUNG)));
             You("cough and spit blood!");
-            losehp(resist_reduce(Maybe_Half_Phys(rnd(dam) + 5), POISON_RES), "gas cloud", KILLED_BY_AN);
+            losehp(resist_reduce(Maybe_Half_Phys(rnd(dam) + 5), POISON_RES),
+                   "gas cloud", KILLED_BY_AN);
             return FALSE;
         } else {
             monstseesu(M_SEEN_POISON);
@@ -990,20 +990,7 @@ genericptr_t p2;
     } else { /* A monster is inside the cloud */
         mtmp = (struct monst *) p2;
 
-        /* Non living and non breathing monsters are not concerned;
-           adult green dragon is not affected by gas cloud, baby one is */
-        if (!(nonliving(mtmp->data) || is_vampshifter(mtmp))
-            && !breathless(mtmp->data)
-            /* not is_swimmer(); assume that non-fish are swimming on
-               the surface and breathing the air above it periodically
-               unless located at water spot on plane of water */
-            && !((mtmp->data->mlet == S_EEL || Is_waterlevel(&u.uz))
-                 && (is_pool(mtmp->mx, mtmp->my) || is_puddle(mtmp->mx, mtmp->my)))
-            /* exclude monsters with poison gas breath attack:
-               adult green dragon and Chromatic Dragon (and iron golem,
-               but nonliving() and breathless() tests also catch that) */
-            && !(attacktype_fordmg(mtmp->data, AT_BREA, AD_DRST)
-                 || attacktype_fordmg(mtmp->data, AT_BREA, AD_RBRE))) {
+        if (m_poisongas_ok(mtmp) != M_POISONGAS_OK) {
             if (cansee(mtmp->mx, mtmp->my))
                 pline("%s coughs!", Monnam(mtmp));
             if (heros_fault(reg))

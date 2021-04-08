@@ -668,7 +668,8 @@ int damg_melee_types [] =
       AD_PLYS, AD_DRLI, AD_DREN, AD_LEGS, AD_STCK,
       AD_SGLD, AD_SITM, AD_SEDU, AD_TLPT, AD_RUST,
       AD_CONF, AD_DRDX, AD_DRCO, AD_DRIN, AD_DISE,
-      AD_DCAY, AD_HALU, AD_ENCH, AD_CORR, AD_BHED
+      AD_DCAY, AD_HALU, AD_ENCH, AD_CORR, AD_BHED,
+      AD_POLY, AD_WTHR, AD_PITS
     };
 
 int damg_breath_types [] =
@@ -688,7 +689,8 @@ int damg_engulf_types [] =
     { AD_PLYS, AD_DGST, AD_WRAP };
 
 int damg_magic_types [] =
-    { AD_SPEL, AD_CLRC };
+    { AD_SPEL, AD_CLRC, AD_MAGM, AD_FIRE, AD_COLD,
+      AD_ACID };
 
 void
 u_init()

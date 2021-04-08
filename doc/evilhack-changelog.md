@@ -1534,4 +1534,5 @@ The following changes to date are:
 - Implement giving and taking pets' items via #loot
 - Fix: findgold always picked first gold item in the object chain
 - Give pit fiends a pit-creation attack
+- Hezrous stink
 
