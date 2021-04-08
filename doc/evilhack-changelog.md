@@ -1532,4 +1532,5 @@ The following changes to date are:
 - Identify a wand when it prints an unambiguous message while engraving
 - Remove #give command
 - Implement giving and taking pets' items via #loot
+- Fix: findgold always picked first gold item in the object chain
 
