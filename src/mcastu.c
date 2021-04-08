@@ -452,14 +452,26 @@ boolean foundyou;
 
     switch (mattk->adtyp) {
     case AD_FIRE:
-        pline("You're enveloped in flames.");
-        if (how_resistant(FIRE_RES) == 100) {
+        if (is_demon(mtmp->data))
+            pline("You're enveloped in hellfire!");
+        else
+            pline("You're enveloped in flames.");
+        if (is_demon(mtmp->data) && (how_resistant(FIRE_RES) == 100)) {
+            shieldeff(u.ux, u.uy);
+            pline_The("hellish flames sear your soul!");
+            dmg = (dmg + 1) / 2;
+            burn_away_slime();
+            break;
+        } else if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
             pline("But you resist the effects.");
             monstseesu(M_SEEN_FIRE);
             dmg = 0;
 	} else {
-            dmg = resist_reduce(dmg, FIRE_RES);
+            if (is_demon(mtmp->data))
+                dmg = resist_reduce(dmg, FIRE_RES) / 2;
+            else
+                dmg = resist_reduce(dmg, FIRE_RES);
         }
         burn_away_slime();
         break;
@@ -1566,15 +1578,20 @@ register struct attack *mattk;
     switch (mattk->adtyp) {
     case AD_FIRE:
         if (canseemon(mdef)) {
-            is_demon(mtmp->data)
-                     ? pline("%s is enveloped in flames.", Monnam(mdef))
-                     : pline("%s is enveloped in a pillar of hellfire!", Monnam(mdef));
+            if (is_demon(mtmp->data))
+                pline("%s is enveloped in hellfire!", Monnam(mdef));
+            else
+                pline("%s is enveloped in flames.", Monnam(mdef));
         }
-        if (is_demon(mtmp->data) && resists_fire(mdef)) {
+        if (is_demon(mtmp->data)
+            && resists_fire(mdef) && !nonliving(mdef->data)) {
+            shieldeff(mdef->mx, mdef->my);
+            if (canseemon(mdef))
+                pline_The("hellish flames sear %s soul!",
+                          s_suffix(mon_nam(mdef)));
             dmg = (dmg + 1) / 2;
             break;
-        }
-       	if (resists_fire(mdef)) {
+        } else if (resists_fire(mdef)) {
             shieldeff(mdef->mx, mdef->my);
             if (canseemon(mdef))
                 pline("But %s resists the effects.", mhe(mdef));
@@ -1734,9 +1751,21 @@ register struct attack *mattk;
 
     switch (mattk->adtyp) {
         case AD_FIRE:
-            if (canseemon(mtmp))
-                pline("%s is enveloped in flames.", Monnam(mtmp));
-            if (resists_fire(mtmp)) {
+            if (canseemon(mtmp)) {
+                if (is_demon(youmonst.data))
+                    pline("%s is enveloped in hellfire!", Monnam(mtmp));
+                else
+                    pline("%s is enveloped in flames.", Monnam(mtmp));
+            }
+            if (is_demon(youmonst.data)
+                && resists_fire(mtmp) && !nonliving(mtmp->data)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                if (canseemon(mtmp))
+                    pline_The("hellish flames sear %s soul!",
+                              s_suffix(mon_nam(mtmp)));
+                dmg = (dmg + 1) / 2;
+                break;
+            } else if (resists_fire(mtmp)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 if (canseemon(mtmp))
            	    pline("But %s resists the effects.", mhe(mtmp));
