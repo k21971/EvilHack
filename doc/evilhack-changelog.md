@@ -1537,4 +1537,6 @@ The following changes to date are:
 - Hezrous stink
 - Barbed devils use hellfire
 - Add some new demonic and angelic maledictions
+- Remove feedback to use #monster when poly'd into a monster that
+  has AT_MAGC
 

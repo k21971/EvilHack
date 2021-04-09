@@ -828,8 +828,6 @@ int mntmp;
             pline(use_thec, monsterc, "shriek");
         if (is_vampire(youmonst.data))
             pline(use_thec, monsterc, "change shape");
-        if (attacktype(youmonst.data, AT_MAGC))
-            pline(use_thec, monsterc,"cast monster spells");
         if (lays_eggs(youmonst.data) && flags.female &&
             !(youmonst.data == &mons[PM_GIANT_EEL]
                 || youmonst.data == &mons[PM_ELECTRIC_EEL]))

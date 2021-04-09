@@ -148,9 +148,8 @@ int spellval;
         spellval = rn2(spellval);
 
     /* If we're hurt, seriously consider fixing ourselves a priority */
-    if ((mtmp->mhp * 4) <= mtmp->mhpmax) {
+    if ((mtmp->mhp * 4) <= mtmp->mhpmax)
         spellval = 1;
-    }
 
     switch (spellval) {
     case 24:
