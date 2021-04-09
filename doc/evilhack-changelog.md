@@ -1536,4 +1536,5 @@ The following changes to date are:
 - Give pit fiends a pit-creation attack
 - Hezrous stink
 - Barbed devils use hellfire
+- Add some new demonic and angelic maledictions
 

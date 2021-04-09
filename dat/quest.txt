@@ -4517,6 +4517,18 @@ the Amulet of Yendor."
 %Cp - 00019
 "No one expects the Spanish Inquisition!"
 %E
+%Cp - 00020
+"Judgement hath been passed upon thee, %p."
+%E
+%Cp - 00021
+"Thy reckoning is at hand, %p."
+%E
+%Cp - 00022
+"Thou shalt be brought before %D for thy crimes!"
+%E
+%Cp - 00023
+"With %D as my witness, I shall strike thee down!"
+%E
 #
 #	Demonic maledictions.
 #
@@ -4579,6 +4591,27 @@ the Amulet of Yendor."
 %E
 %Cp - 00049
 "Why search for the Amulet?  Thou wouldst but lose it, cretin."
+%E
+%Cp - 00050
+"Thou ought to be a comedian, thy skills are so laughable!"
+%E
+%Cp - 00051
+"Thy gaze is so vacant, I thought thee a floating eye!"
+%E
+%Cp - 00052
+"Thy head is unfit for a mind flayer to munch upon!"
+%E
+%Cp - 00053
+"Only thy reflection could love thee!"
+%E
+%Cp - 00054
+"Hast thou considered masking thy odor?"
+%E
+%Cp - 00055
+"Hold!  Thy face is a most exquisite torture!"
+%E
+%Cp - 00056
+"I wouldst fart in thy direction, but it might improve thy smell!"
 %E
 #
 #	Banishment message (for converted hero)
