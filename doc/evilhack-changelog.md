@@ -1539,4 +1539,6 @@ The following changes to date are:
 - Add some new demonic and angelic maledictions
 - Remove feedback to use #monster when poly'd into a monster that
   has AT_MAGC
+- Fixed and inherently fixed rings/wands can resist destruction due to
+  shock damage
 

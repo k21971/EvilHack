@@ -5487,6 +5487,12 @@ int osym, dmgtyp;
                 skip++;
                 break;
             }
+            if ((obj->oerodeproof || is_supermaterial(obj))
+                && rn2(3)) {
+                Your("%s resists!", xname(obj));
+                skip++;
+                break;
+            }
             dindx = 5;
             dmg = 0;
             break;
@@ -5495,9 +5501,12 @@ int osym, dmgtyp;
                 skip++;
                 break;
             }
-#if 0
-            if (obj == current_wand) {  skip++;  break;  }
-#endif
+            if ((obj->oerodeproof || is_supermaterial(obj))
+                && rn2(3)) {
+                Your("%s resists!", xname(obj));
+                skip++;
+                break;
+            }
             dindx = 6;
             dmg = rnd(10);
             break;
