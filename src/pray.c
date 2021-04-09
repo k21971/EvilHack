@@ -887,6 +887,7 @@ gcrownu()
         urace.attrmax[A_INT] = maxint;
         urace.attrmax[A_WIS] = maxwis;
         set_uasmon();
+        check_wings(TRUE); /* in case body armor is worn during crowning */
         retouch_equipment(2); /* silver */
         break;
     }

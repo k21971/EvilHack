@@ -1541,4 +1541,6 @@ The following changes to date are:
   has AT_MAGC
 - Fixed and inherently fixed rings/wands can resist destruction due to
   shock damage
+- Fix: player changed into something with big wings and wearing body
+  armor could still fly
 

@@ -717,6 +717,7 @@ int mntmp;
     u.mtimedone = rn1(500, 500);
     u.umonnum = mntmp;
     set_uasmon();
+    check_wings(TRUE);
 
     /* New stats for monster, to last only as long as polymorphed.
      * Currently only strength gets changed.
