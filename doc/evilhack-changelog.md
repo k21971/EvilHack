@@ -1543,4 +1543,6 @@ The following changes to date are:
   shock damage
 - Fix: player changed into something with big wings and wearing body
   armor could still fly
+- Allow wishing for fractured (glass) or deteriorated (super material)
+  objects
 
