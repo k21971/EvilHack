@@ -446,11 +446,17 @@ int how;
     }
     /* different monsters have different chances of keeping mind intact.
      * The chances of this happening are rare */
-    if ((mon_nm == PM_WRAITH && !rn2(35))
-        || (mon_nm == PM_GHOUL && !rn2(20))
-        || (mons[mon_nm].mlet == S_VAMPIRE && !rn2(40))
-        || (mons[mon_nm].mlet == S_MUMMY && !rn2(30))
-        || (mons[mon_nm].mlet == S_ZOMBIE && !rn2(25))) {
+    if ((mon_nm == PM_GREEN_SLIME && !rn2(3))
+        || (mon_nm == PM_WRAITH && !rn2(8))
+        || (mon_nm == PM_GHOUL && !rn2(6))
+        || (mons[mon_nm].mlet == S_VAMPIRE && !rn2(10))
+        || (mon_nm == PM_VAMPIRE_MAGE && !rn2(20))
+        || (mon_nm == PM_BARROW_WIGHT && !rn2(10))
+        || (mon_nm == PM_MIND_FLAYER && !rn2(20))
+        || (mon_nm == PM_REVENANT && !rn2(8))
+        || (mon_nm == PM_SPECTRE && !rn2(16))
+        || (mons[mon_nm].mlet == S_MUMMY && !rn2(8))
+        || (mons[mon_nm].mlet == S_ZOMBIE && !rn2(5))) {
         u.ugrave_arise = NON_PM;
 
         if (mon_nm != PM_GREEN_SLIME) {
@@ -467,8 +473,7 @@ int how;
             /* slimed_to_death() already polyed us into green slime, we don't
              * want to call it again as that will trigger newman() */
             polymon(mon_nm);
-        }
-        else {
+        } else {
             /* but... at the same time, need to undo done()'s setting of mh to 0
              * if we did turn into a green slime (mhmax should still be set from
              * the first polymon) */
@@ -1344,9 +1349,8 @@ int how;
 
     /* maybe give the player a second chance if they were killed by the
      * appropriate monster */
-    if (sentient_arise(how)) {
+    if (sentient_arise(how))
         return;
-    }
 
     /* explore and wizard modes offer player the option to keep playing */
     if (!survive && (wizard || discover) && how <= GENOCIDED
