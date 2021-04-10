@@ -1547,4 +1547,5 @@ The following changes to date are:
   objects
 - Correct oversight with various demons not being able to fly
 - Add some new race/role combinations
+- Allow dwarves and orcs to play as Knights
 
