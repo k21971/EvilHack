@@ -1545,4 +1545,5 @@ The following changes to date are:
   armor could still fly
 - Allow wishing for fractured (glass) or deteriorated (super material)
   objects
+- Correct oversight with various demons not being able to fly
 

@@ -78,9 +78,14 @@
     ((ptr) == &mons[PM_KNIGHT] || (ptr) == &mons[PM_JUMPING_SPIDER]     \
      || (ptr) == &mons[PM_GIANT_CENTIPEDE] || (ptr) == &mons[PM_ZRUTY])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
-/* flight blocked by most body armor */
+/* humanoid shape with big wings (flight blocked by most body armor) */
 #define big_wings(ptr) \
-    ((ptr) == &mons[PM_WINGED_GARGOYLE] || (ptr) == &mons[PM_DEMON])
+    ((ptr) == &mons[PM_WINGED_GARGOYLE] || (ptr) == &mons[PM_DEMON]      \
+     || (ptr) == &mons[PM_SUCCUBUS] || (ptr) == &mons[PM_INCUBUS]        \
+     || (ptr) == &mons[PM_HORNED_DEVIL] || (ptr) == &mons[PM_ERINYS]     \
+     || (ptr) == &mons[PM_VROCK] || (ptr) == &mons[PM_PIT_FIEND]         \
+     || (ptr) == &mons[PM_BALROG] || (ptr) == &mons[PM_ANGEL]            \
+     || (ptr) == &mons[PM_ARCHANGEL] || (ptr) == &mons[PM_ARCHON])
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
