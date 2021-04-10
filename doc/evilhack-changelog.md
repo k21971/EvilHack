@@ -1546,4 +1546,5 @@ The following changes to date are:
 - Allow wishing for fractured (glass) or deteriorated (super material)
   objects
 - Correct oversight with various demons not being able to fly
+- Add some new race/role combinations
 

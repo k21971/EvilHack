@@ -176,7 +176,8 @@ const struct Role roles[] = {
       S_RODENT,
       S_SPIDER,
       ART_IRON_BALL_OF_LIBERATION,
-      MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_HOBBIT,
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_HOBBIT
+          | MH_ILLITHID,
       ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NORACEALIGN,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 13, 6 },
@@ -218,7 +219,8 @@ const struct Role roles[] = {
       S_RODENT,
       S_YETI,
       ART_STAFF_OF_AESCULAPIUS,
-      MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+          | MH_CENTAUR,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 13, 7, 11, 16 },
@@ -260,7 +262,7 @@ const struct Role roles[] = {
       S_DOG,
       S_UNICORN,
       ART_IDOL_OF_MOLOCH,
-      MH_HUMAN | MH_ORC | MH_ILLITHID,
+      MH_HUMAN | MH_ELF | MH_ORC | MH_ILLITHID | MH_GIANT,
       ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC, /* actually unaligned */
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 10, 7, 7, 7 },
@@ -345,7 +347,8 @@ const struct Role roles[] = {
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR,
-      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
+          | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 8, 8, 7, 7 },
       { 25, 10, 20, 20, 15, 10 },
@@ -386,8 +389,10 @@ const struct Role roles[] = {
       S_ZOMBIE,
       S_WRAITH,
       ART_MITRE_OF_HOLINESS,
-      MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GIANT | MH_HOBBIT | MH_CENTAUR | MH_ILLITHID,
-      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GIANT
+          | MH_HOBBIT | MH_CENTAUR | MH_ILLITHID,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
+          | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 10, 7, 7, 7 },
       { 15, 10, 30, 15, 20, 10 },
@@ -430,7 +435,7 @@ const struct Role roles[] = {
       S_NYMPH,
       S_NAGA,
       ART_MASTER_KEY_OF_THIEVERY,
-      MH_HUMAN | MH_ELF | MH_ORC | MH_HOBBIT,
+      MH_HUMAN | MH_ELF | MH_ORC | MH_HOBBIT | MH_GNOME,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 7, 10, 7, 6 },
@@ -486,7 +491,8 @@ const struct Role roles[] = {
       S_CENTAUR,
       S_SPIDER,
       ART_LONGBOW_OF_DIANA,
-      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT | MH_CENTAUR,
+      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT
+          | MH_CENTAUR,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 13, 13, 9, 13, 7 },
@@ -569,7 +575,7 @@ const struct Role roles[] = {
       S_SPIDER,
       S_CENTAUR,
       ART_YENDORIAN_EXPRESS_CARD,
-      MH_HUMAN | MH_HOBBIT,
+      MH_HUMAN | MH_HOBBIT | MH_GNOME,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 6, 7, 7, 10 },
@@ -751,7 +757,8 @@ const struct Role race_roles[] = {
       S_CENTAUR,
       S_SPIDER,
       ART_CROSSBOW_OF_CARL,
-      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT | MH_CENTAUR,
+      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT
+          | MH_CENTAUR,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 13, 13, 9, 13, 7 },
