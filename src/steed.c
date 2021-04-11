@@ -211,8 +211,8 @@ struct monst *mtmp;
 {
     struct permonst *ptr = mtmp->data;
 
-    return (index(mbarding, ptr->mlet)
-            && (ptr->msize >= MZ_MEDIUM) && !amorphous(ptr)
+    return (index(mbarding, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
+            && !humanoid(ptr) && !amorphous(ptr)
             && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
             && !(ptr->mlet == S_JABBERWOCK && mtmp->mnum != PM_JABBERWOCK)
             && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG));

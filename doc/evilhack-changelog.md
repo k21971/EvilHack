@@ -1550,4 +1550,5 @@ The following changes to date are:
 - Allow dwarves and orcs to play as Knights
 - Adjust odds of sentient_arise() when killed by various monsters
 - Barding
+- Fix: could place barding onto humanoid-shaped angel class
 
