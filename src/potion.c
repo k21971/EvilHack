@@ -1542,7 +1542,7 @@ int how;
             if (hit_saddle && saddle) {
                 Sprintf(buf, "%s saddle",
                         s_suffix(x_monnam(mon, ARTICLE_THE, (char *) 0,
-                                          (SUPPRESS_IT | SUPPRESS_SADDLE),
+                                          (SUPPRESS_IT | SUPPRESS_SADDLE | SUPPRESS_BARDING),
                                           FALSE)));
             } else if (has_head(mon->data)) {
                 Sprintf(buf, "%s %s", s_suffix(mnam),
@@ -1592,7 +1592,7 @@ int how;
         boolean useeit = !Blind && canseemon(mon) && cansee(tx, ty);
 
         mnam = x_monnam(mon, ARTICLE_THE, (char *) 0,
-                        (SUPPRESS_IT | SUPPRESS_SADDLE), FALSE);
+                        (SUPPRESS_IT | SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE);
         Sprintf(buf, "%s", upstart(s_suffix(mnam)));
 
         switch (obj->otyp) {

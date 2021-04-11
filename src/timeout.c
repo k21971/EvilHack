@@ -1159,7 +1159,8 @@ slip_or_trip()
               u.usteed ? upstart(x_monnam(u.usteed,
                                           (has_mname(u.usteed)) ? ARTICLE_NONE
                                                                 : ARTICLE_THE,
-                                          (char *) 0, SUPPRESS_SADDLE, FALSE))
+                                          (char *) 0, (SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                                          FALSE))
                        : "You",
               rn2(2) ? "slip" : "slide", on_foot ? "" : "s");
     } else {

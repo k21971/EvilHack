@@ -3481,7 +3481,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             !(wasinside || canspotmon(mtmp)) ? "it"
               : !mtmp->mtame ? mon_nam(mtmp)
                 : x_monnam(mtmp, namedpet ? ARTICLE_NONE : ARTICLE_THE,
-                           "poor", namedpet ? SUPPRESS_SADDLE : 0, FALSE));
+                           "poor", namedpet ? (SUPPRESS_SADDLE | SUPPRESS_BARDING)
+                                            : 0, FALSE));
     }
 
     if (mtmp->mtrapped && (t = t_at(x, y)) != 0
@@ -3728,8 +3729,9 @@ struct monst *mtmp;
             /* construct a format string before transformation */
             Sprintf(buf, "The lapidifying %s %s %s",
                     x_monnam(mtmp, ARTICLE_NONE, (char *) 0,
-                             (SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION
-                              | SUPPRESS_INVISIBLE | SUPPRESS_IT), FALSE),
+                             (SUPPRESS_SADDLE | SUPPRESS_BARDING
+                              | SUPPRESS_HALLUCINATION | SUPPRESS_INVISIBLE
+                              | SUPPRESS_IT), FALSE),
                     amorphous(mtmp->data) ? "coalesces on the"
                        : is_flyer(mtmp->data) ? "drops to the"
                           : "writhes on the",
@@ -4955,12 +4957,13 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     if (msg) {
         /* like Monnam() but never mention saddle */
         Strcpy(oldname, x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                                 SUPPRESS_SADDLE, FALSE));
+                                 (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
         oldname[0] = highc(oldname[0]);
     }
     /* we need this one whether msg is true or not */
     Strcpy(l_oldname, x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                               has_mname(mtmp) ? SUPPRESS_SADDLE : 0, FALSE));
+                               has_mname(mtmp) ? (SUPPRESS_SADDLE | SUPPRESS_BARDING)
+                                               : 0, FALSE));
 
     /* mdat = 0 -> caller wants a random monster shape */
     if (mdat == 0) {

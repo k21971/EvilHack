@@ -1723,7 +1723,13 @@ struct attack *mattk;
     if (mattk->adtyp == AD_DRIN
         || (mattk->aatyp == AT_TENT && mattk->adtyp == AD_WRAP)) {
         /* intelligence drain attacks the head */
-        obj = which_armor(mdef, W_ARMH);
+        if (mdef->data->mlet == S_QUADRUPED || mdef->data->mlet == S_DRAGON
+            || mdef->data->mlet == S_UNICORN || mdef->data == &mons[PM_WARG]
+            || mdef->data == &mons[PM_JABBERWOCK] || mdef->data == &mons[PM_KI_RIN]
+            || mdef->data == &mons[PM_ELDRITCH_KI_RIN])
+            obj = which_armor(mdef, W_BARDING);
+        else
+            obj = which_armor(mdef, W_ARMH);
     } else {
         /* grabbing attacks the body */
         obj = which_armor(mdef, W_ARMC); /* cloak */
@@ -2444,6 +2450,7 @@ do_rust:
         break;
     case AD_DRIN: {
         struct obj *helmet;
+        struct obj *barding;
 
         if (is_zombie(youmonst.data) && rn2(5)) {
             if (!resists_sick(mdef)) {
@@ -2472,9 +2479,17 @@ do_rust:
 
         if ((helmet = which_armor(mdef, W_ARMH)) != 0 && rn2(8)) {
             if (!Blind)
-                pline("%s %s blocks your attack to %s head.",
+                pline("%s %s blocks your attack to %s %s.",
                       s_suffix(Monnam(mdef)), helm_simple_name(helmet),
-                      mhis(mdef));
+                      mhis(mdef), mbodypart(mdef, HEAD));
+            break;
+        }
+
+        if ((barding = which_armor(mdef, W_BARDING)) != 0 && rn2(8)) {
+            if (!Blind)
+                pline("%s barding blocks your attack to %s %s.",
+                      s_suffix(Monnam(mdef)), mhis(mdef),
+                      mbodypart(mdef, HEAD));
             break;
         }
 
@@ -2784,10 +2799,18 @@ register struct attack *mattk;
         } else {
             start_engulf(mdef);
             switch (mattk->adtyp) {
-            case AD_DGST:
+            case AD_DGST: {
+                struct obj *sbarding;
+
                 /* slow digestion protects against engulfing */
                 if (mon_prop(mdef, SLOW_DIGESTION)) {
-	            You("hurriedly regurgitate the indigestible %s.", m_monnam(mdef));
+                    You("hurriedly regurgitate the indigestible %s.", m_monnam(mdef));
+                    end_engulf();
+                    return 2;
+                }
+                if ((sbarding = which_armor(mdef, W_BARDING)) != 0
+                    && sbarding->otyp == SPIKED_BARDING) {
+                    You("hurriedly regurgitate the indigestible %s.", m_monnam(mdef));
                     end_engulf();
                     return 2;
                 }
@@ -2856,6 +2879,7 @@ register struct attack *mattk;
                 }
                 end_engulf();
                 return 2;
+            }
             case AD_PHYS:
                 if (youmonst.data == &mons[PM_FOG_CLOUD]) {
                     pline("%s is laden with your moisture.", Monnam(mdef));

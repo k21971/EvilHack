@@ -9,6 +9,11 @@ static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN, S_ANGEL,
                                         S_CENTAUR,   S_DRAGON,  S_JABBERWOCK,
                                         S_DOG, '\0' };
 
+/* Monsters that might wear barding */
+static NEARDATA const char mbarding[] = { S_QUADRUPED, S_UNICORN,    S_ANGEL,
+                                          S_DRAGON,    S_JABBERWOCK, S_DOG,
+                                          '\0' };
+
 STATIC_DCL boolean FDECL(landing_spot, (coord *, int, int));
 STATIC_DCL void FDECL(maybewakesteed, (struct monst *));
 
@@ -55,9 +60,21 @@ int pm;
     /* rider over'rides' horse's natural inclinations */
     mount->mpeaceful = mtmp->mpeaceful;
 
+    /* monster steeds will sometimes come with a saddle */
     if (!rn2(3) && can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
         struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
         put_saddle_on_mon(otmp, mount);
+    }
+
+    /* if the monster steed has a saddle, there's a chance it's wearing
+       barding also */
+    if (!rn2(10) && which_armor(mount, W_SADDLE)) {
+        if (can_wear_barding(mount) && !which_armor(mtmp, W_BARDING)) {
+            struct obj *otmp = mksobj(rn2(4) ? BARDING
+                                             : rn2(3) ? SPIKED_BARDING
+                                                      : BARDING_OF_REFLECTION, TRUE, FALSE);
+            put_barding_on_mon(otmp, mount);
+        }
     }
 }
 
@@ -187,6 +204,20 @@ struct monst *mtmp;
             && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG));
 }
 
+/* Can this monster wear barding? */
+boolean
+can_wear_barding(mtmp)
+struct monst *mtmp;
+{
+    struct permonst *ptr = mtmp->data;
+
+    return (index(mbarding, ptr->mlet)
+            && (ptr->msize >= MZ_MEDIUM) && !amorphous(ptr)
+            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
+            && !(ptr->mlet == S_JABBERWOCK && mtmp->mnum != PM_JABBERWOCK)
+            && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG));
+}
+
 int
 use_saddle(otmp)
 struct obj *otmp;
@@ -302,6 +333,121 @@ struct obj *otmp;
     return 1;
 }
 
+int
+use_barding(otmp)
+struct obj *otmp;
+{
+    struct monst *mtmp;
+    struct permonst *ptr;
+    int chance;
+    const char *s;
+
+    if (!u_handsy())
+        return 0;
+
+    /* Select an animal */
+    if (u.uswallow || Underwater || !getdir((char *) 0)) {
+        pline1(Never_mind);
+        return 0;
+    }
+    if (!u.dx && !u.dy) {
+        pline("Put barding on yourself?  Very funny...");
+        return 0;
+    }
+    if (!isok(u.ux + u.dx, u.uy + u.dy)
+        || !(mtmp = m_at(u.ux + u.dx, u.uy + u.dy)) || !canspotmon(mtmp)) {
+        pline("I see nobody there.");
+        return 1;
+    }
+
+    /* Is this a valid monster? */
+    if (mtmp->misc_worn_check & W_BARDING || which_armor(mtmp, W_BARDING)) {
+        pline("%s doesn't need another one.", Monnam(mtmp));
+        return 1;
+    }
+    ptr = mtmp->data;
+    if (touch_petrifies(ptr) && !uarmg && !Stone_resistance) {
+        char kbuf[BUFSZ];
+
+        You("touch %s.", mon_nam(mtmp));
+        if (!(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
+            Sprintf(kbuf, "attempting to put barding on %s", an(mtmp->data->mname));
+            instapetrify(kbuf);
+        }
+    }
+    if (ptr == &mons[PM_INCUBUS] || ptr == &mons[PM_SUCCUBUS]) {
+        pline("This won't accessorize well...");
+        exercise(A_WIS, FALSE);
+        return 1;
+    }
+    if (mtmp->isminion || mtmp->isshk || mtmp->ispriest || mtmp->isgd
+        || mtmp->iswiz) {
+        pline("I think %s would mind.", mon_nam(mtmp));
+        return 1;
+    }
+    if (ptr == &mons[PM_WARG] && !Race_if(PM_ORC)) {
+        pline("%s %s menacingly at you!", Monnam(mtmp),
+              rn2(2) ? "snarls" : "growls");
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3))
+            mtmp->mtame = mtmp->mpeaceful = 0;
+        return 1;
+    }
+    if (!can_wear_barding(mtmp)) {
+        You_cant("put barding such a creature.");
+        return 1;
+    }
+
+    /* Calculate your chance (same for using a saddle) */
+    chance = ACURR(A_DEX) + ACURR(A_CHA) / 2 + 2 * mtmp->mtame;
+    chance += u.ulevel * (mtmp->mtame ? 20 : 5);
+    if (!mtmp->mtame)
+        chance -= 10 * mtmp->m_lev;
+    if (Role_if(PM_KNIGHT))
+        chance += 20;
+    switch (P_SKILL(P_RIDING)) {
+    case P_ISRESTRICTED:
+    case P_UNSKILLED:
+    default:
+        chance -= 20;
+        break;
+    case P_BASIC:
+        break;
+    case P_SKILLED:
+        chance += 15;
+        break;
+    case P_EXPERT:
+        chance += 30;
+        break;
+    }
+    if (Confusion || Fumbling || Glib)
+        chance -= 20;
+    else if (uarmg && (s = OBJ_DESCR(objects[uarmg->otyp])) != (char *) 0
+             && !strncmp(s, "riding ", 7))
+        /* Bonus for wearing "riding" (but not fumbling) gloves */
+        chance += 10;
+    else if (uarmf && (s = OBJ_DESCR(objects[uarmf->otyp])) != (char *) 0
+             && !strncmp(s, "riding ", 7))
+        /* ... or for "riding boots" */
+        chance += 10;
+    if (otmp->cursed)
+        chance -= 50;
+
+    /* [intended] steed becomes alert if possible */
+    maybewakesteed(mtmp);
+
+    /* Make the attempt */
+    if (rn2(100) < chance) {
+        You("fit the barding on %s.", mon_nam(mtmp));
+        if (otmp->owornmask)
+            remove_worn_item(otmp, FALSE);
+        freeinv(otmp);
+        put_barding_on_mon(otmp, mtmp);
+    } else
+        pline("%s resists!", Monnam(mtmp));
+    return 1;
+}
+
 void
 put_saddle_on_mon(saddle, mtmp)
 struct obj *saddle;
@@ -315,6 +461,21 @@ struct monst *mtmp;
     saddle->owornmask = W_SADDLE;
     saddle->leashmon = mtmp->m_id;
     update_mon_intrinsics(mtmp, saddle, TRUE, FALSE);
+}
+
+void
+put_barding_on_mon(barding, mtmp)
+struct obj *barding;
+struct monst *mtmp;
+{
+    if (!can_wear_barding(mtmp) || which_armor(mtmp, W_BARDING))
+        return;
+    if (mpickobj(mtmp, barding))
+        panic("merged barding?");
+    mtmp->misc_worn_check |= W_BARDING;
+    barding->owornmask = W_BARDING;
+    barding->leashmon = mtmp->m_id;
+    update_mon_intrinsics(mtmp, barding, TRUE, FALSE);
 }
 
 /*** Riding the monster ***/

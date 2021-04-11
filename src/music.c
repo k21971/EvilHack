@@ -373,7 +373,7 @@ int force;
                                               ? x_monnam(mtmp, ARTICLE_THE,
                                                          "poor",
                                                          has_mname(mtmp)
-                                                           ? SUPPRESS_SADDLE
+                                                           ? (SUPPRESS_SADDLE | SUPPRESS_BARDING)
                                                            : 0,
                                                          FALSE)
                                               : mon_nam(mtmp));

@@ -2153,7 +2153,7 @@ boolean taking;
                 otmp->bknown = 1;
                 continue;
             }
-            if (unwornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+            if (unwornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_BARDING)) {
                 int m_delay = objects[otmp->otyp].oc_delay;
                 if ((unwornmask & (W_ARM | W_ARMU)) != 0
                     && (mtmp->misc_worn_check & W_ARMC)) {
@@ -2234,7 +2234,7 @@ boolean *mon_interact;
             *passed_info = 1;
         Sprintf(qbuf, "Do you want to remove the saddle from %s?",
                 x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                         SUPPRESS_SADDLE, FALSE));
+                         (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
         if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y') {
             if (nolimbs(youmonst.data)) {
                 You_cant("do that without limbs."); /* not body_part(HAND) */
@@ -2243,7 +2243,38 @@ boolean *mon_interact;
             if (otmp->cursed) {
                 You("can't.  The saddle seems to be stuck to %s.",
                     x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                             SUPPRESS_SADDLE, FALSE));
+                             (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
+                /* the attempt costs you time */
+                return 1;
+            }
+            extract_from_minvent(mtmp, otmp, TRUE, FALSE);
+            otmp = hold_another_object(otmp, "You drop %s!", doname(otmp),
+                                       (const char *) 0);
+            nhUse(otmp);
+            timepassed = rnd(3); /* note: this doesn't actually take extra time,
+                                    rhack() just treats it like 1 */
+            if (mon_interact)
+                *mon_interact = TRUE;
+        } else if (c == 'q') {
+            return 0;
+        }
+    }
+    /* ability to remove barding from steed */
+    if (mtmp && mtmp != u.usteed && (otmp = which_armor(mtmp, W_BARDING))) {
+        if (passed_info)
+            *passed_info = 1;
+        Sprintf(qbuf, "Do you want to remove the barding from %s?",
+                x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                         (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
+        if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y') {
+            if (nolimbs(youmonst.data)) {
+                You_cant("do that without limbs."); /* not body_part(HAND) */
+                return 0;
+            }
+            if (otmp->cursed) {
+                You("can't.  The barding seems to be stuck to %s.",
+                    x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                             (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
                 /* the attempt costs you time */
                 return 1;
             }

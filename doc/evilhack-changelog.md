@@ -1549,4 +1549,5 @@ The following changes to date are:
 - Add some new race/role combinations
 - Allow dwarves and orcs to play as Knights
 - Adjust odds of sentient_arise() when killed by various monsters
+- Barding
 

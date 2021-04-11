@@ -2393,7 +2393,8 @@ boolean newspot;             /* true if called by spoteffects */
                       u.usteed ? upstart(x_monnam(u.usteed,
                                          (has_mname(u.usteed)) ? ARTICLE_NONE
                                                                : ARTICLE_THE,
-                                         (char *) 0, SUPPRESS_SADDLE, FALSE))
+                                         (char *) 0, (SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                                         FALSE))
                                : "You",
                       u.usteed ? "has" : "have",
                       rn2(2) ? "wading" : "trudging",

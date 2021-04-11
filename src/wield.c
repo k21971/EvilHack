@@ -370,7 +370,7 @@ dowield()
         return doswapweapon();
     else if (wep == uquiver)
         setuqwep((struct obj *) 0);
-    else if (wep->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+    else if (wep->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_BARDING)) {
         You("cannot wield that!");
         return 0;
     }
@@ -481,7 +481,7 @@ dowieldquiver()
     already_quivered:
         pline("That ammunition is already readied!");
         return 0;
-    } else if (newquiver->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+    } else if (newquiver->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_BARDING)) {
         You("cannot ready that!");
         return 0;
     } else if (newquiver == uwep) {

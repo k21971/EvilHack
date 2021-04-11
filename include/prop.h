@@ -126,9 +126,10 @@ struct prop {
 #define W_ACCESSORY (W_RING | W_AMUL | W_TOOL)
     /* historical note: originally in slash'em, 'worn' saddle stayed in
        hero's inventory; in nethack, it's kept in the steed's inventory */
-#define W_SADDLE 0x00100000L /* KMH -- For riding monsters */
-#define W_BALL 0x00200000L   /* Punishment ball */
-#define W_CHAIN 0x00400000L  /* Punishment chain */
+#define W_SADDLE 0x00100000L  /* KMH -- For riding monsters */
+#define W_BARDING 0x00200000L /* Barding for steeds */
+#define W_BALL 0x00400000L    /* Punishment ball */
+#define W_CHAIN 0x00800000L   /* Punishment chain */
 
     /*** Property is blocked by an object ***/
     long blocked; /* Same assignments as extrinsic */

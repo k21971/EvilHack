@@ -9,6 +9,8 @@ extern const char *const destroy_strings[][3]; /* from zap.c */
 
 STATIC_DCL boolean FDECL(keep_saddle_with_steedcorpse, (unsigned, struct obj *,
                                                         struct obj *));
+STATIC_DCL boolean FDECL(keep_barding_with_steedcorpse, (unsigned, struct obj *,
+                                                         struct obj *));
 STATIC_DCL struct obj *FDECL(t_missile, (int, struct trap *));
 STATIC_DCL char *FDECL(trapnote, (struct trap *, BOOLEAN_P));
 STATIC_DCL int FDECL(steedintrap, (struct trap *, struct obj *));
@@ -903,6 +905,36 @@ struct obj *objchn, *saddle;
     return FALSE;
 }
 
+STATIC_OVL boolean
+keep_barding_with_steedcorpse(steed_mid, objchn, barding)
+unsigned steed_mid;
+struct obj *objchn, *barding;
+{
+    if (!barding)
+        return FALSE;
+    while (objchn) {
+        if (objchn->otyp == CORPSE && has_omonst(objchn)) {
+            struct monst *mtmp = OMONST(objchn);
+
+            if (mtmp->m_id == steed_mid) {
+                /* move barding */
+                xchar x, y;
+                if (get_obj_location(objchn, &x, &y, 0)) {
+                    obj_extract_self(barding);
+                    place_object(barding, x, y);
+                    stackobj(barding);
+                }
+                return TRUE;
+            }
+        }
+        if (Has_contents(objchn)
+            && keep_barding_with_steedcorpse(steed_mid, objchn->cobj, barding))
+            return TRUE;
+        objchn = objchn->nobj;
+    }
+    return FALSE;
+}
+
 /* monster or you go through and possibly destroy a web.
    return TRUE if could go through. */
 boolean
@@ -1373,11 +1405,11 @@ unsigned trflags;
                 if ((trflags & RECURSIVETRAP) != 0)
                     Sprintf(verbbuf, "and %s fall",
                             x_monnam(u.usteed, steed_article, (char *) 0,
-                                     SUPPRESS_SADDLE, FALSE));
+                                     (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
                 else
                     Sprintf(verbbuf, "lead %s",
                             x_monnam(u.usteed, steed_article, "poor",
-                                     SUPPRESS_SADDLE, FALSE));
+                                     (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
             } else if (conj_pit) {
                 You("move into an adjacent pit.");
             } else if (adj_pit) {
@@ -1410,7 +1442,7 @@ unsigned trflags;
             if (u.usteed) {
                 pline("%s %s %s!",
                       upstart(x_monnam(u.usteed, steed_article, "poor",
-                                       SUPPRESS_SADDLE, FALSE)),
+                                       (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE)),
                       conj_pit ? "steps" : "lands", predicament);
             } else
                 You("%s %s!", conj_pit ? "step" : "land", predicament);
@@ -1506,7 +1538,7 @@ unsigned trflags;
             } else if (u.usteed) {
                 Sprintf(verbbuf, "lead %s into",
                         x_monnam(u.usteed, steed_article, "poor",
-                                 SUPPRESS_SADDLE, FALSE));
+                                 (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
             } else {
                 Sprintf(verbbuf, "%s into",
                         Levitation ? (const char *) "float"
@@ -1653,7 +1685,7 @@ unsigned trflags;
         else if (u.usteed)
             Sprintf(verbbuf, "lead %s onto",
                     x_monnam(u.usteed, steed_article, (char *) 0,
-                             SUPPRESS_SADDLE, FALSE));
+                             (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
         else
             Sprintf(verbbuf, "%s onto",
                     Levitation ? (const char *) "float"
@@ -1679,6 +1711,9 @@ unsigned trflags;
     case LANDMINE: {
         unsigned steed_mid = 0;
         struct obj *saddle = 0;
+        struct obj *barding = 0;
+        struct obj *sbarding = 0;
+        struct obj *rbarding = 0;
 
         if ((Levitation || Flying) && !forcetrap) {
             if (!already_seen && rn2(3))
@@ -1712,6 +1747,9 @@ unsigned trflags;
             (void) steedintrap(trap, (struct obj *) 0);
             recursive_mine = FALSE;
             saddle = sobj_at(SADDLE, u.ux, u.uy);
+            barding = sobj_at(BARDING, u.ux, u.uy);
+            sbarding = sobj_at(SPIKED_BARDING, u.ux, u.uy);
+            rbarding = sobj_at(BARDING_OF_REFLECTION, u.ux, u.uy);
             set_wounded_legs(LEFT_SIDE, rn1(35, 41));
             set_wounded_legs(RIGHT_SIDE, rn1(35, 41));
             exercise(A_DEX, FALSE);
@@ -1719,6 +1757,12 @@ unsigned trflags;
         blow_up_landmine(trap);
         if (steed_mid && saddle && !u.usteed)
             (void) keep_saddle_with_steedcorpse(steed_mid, fobj, saddle);
+        if (steed_mid && barding && !u.usteed)
+            (void) keep_barding_with_steedcorpse(steed_mid, fobj, barding);
+        if (steed_mid && sbarding && !u.usteed)
+            (void) keep_barding_with_steedcorpse(steed_mid, fobj, sbarding);
+        if (steed_mid && rbarding && !u.usteed)
+            (void) keep_barding_with_steedcorpse(steed_mid, fobj, rbarding);
         newsym(u.ux, u.uy); /* update trap symbol */
         losehp(Maybe_Half_Phys(rnd(16)), "land mine", KILLED_BY_AN);
         /* fall recursively into the pit... */
@@ -1897,7 +1941,7 @@ struct obj *otmp;
                 char buf[BUFSZ];
 
                 Strcpy(buf, x_monnam(steed, ARTICLE_YOUR, (char *) 0,
-                                            SUPPRESS_SADDLE, FALSE));
+                                            (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
                 if (mdat != steed->data)
                     (void) strsubst(buf, "your ", "your new ");
                 You("adjust yourself in the saddle on %s.", buf);

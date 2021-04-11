@@ -2360,7 +2360,8 @@ int final;
                       : x_monnam(u.usteed,
                                  u.usteed->mtame ? ARTICLE_YOUR : ARTICLE_THE,
                                  (char *) 0,
-                                 (SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION),
+                                 (SUPPRESS_SADDLE | SUPPRESS_BARDING
+                                  | SUPPRESS_HALLUCINATION),
                                  FALSE));
 
     /*\
@@ -4928,8 +4929,8 @@ int NDECL((*cmd_func));
            an item on floor or in invent; 'm' skips picking from floor
            (ie, inventory only) rather than request use of menu operation */
         || cmd_func == doeat || cmd_func == dosacrifice || cmd_func == doapply
-        /* 'm' for removing saddle from adjacent monster without checking
-           for containers at <u.ux,u.uy> */
+        /* 'm' for removing saddle/barding from adjacent monster without
+           checking for containers at <u.ux,u.uy> */
         || cmd_func == doloot
         /* travel: pop up a menu of interesting targets in view */
         || cmd_func == dotravel
@@ -5745,7 +5746,7 @@ int x, y;
         mtmp = 0;
     if (mtmp && which_armor(mtmp, W_SADDLE)) {
         char *mnam = x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                              SUPPRESS_SADDLE, FALSE);
+                              (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE);
 
         if (!u.usteed) {
             Sprintf(buf, "Ride %s", mnam);
@@ -5757,6 +5758,19 @@ int x, y;
     if (mtmp && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)
         && carrying(SADDLE)) {
         Sprintf(buf, "Put saddle on %s", mon_nam(mtmp)), ++K;
+        add_herecmd_menuitem(win, doapply, buf);
+    }
+    if (mtmp && which_armor(mtmp, W_BARDING)) {
+        char *mnam = x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                              (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE);
+
+        Sprintf(buf, "Remove barding from %s", mnam);
+        add_herecmd_menuitem(win, doloot, buf), ++K;
+    }
+    if (mtmp && can_wear_barding(mtmp) && !which_armor(mtmp, W_BARDING)
+        && (carrying(BARDING)
+            || carrying(SPIKED_BARDING) || carrying(BARDING_OF_REFLECTION))) {
+        Sprintf(buf, "Put barding on %s", mon_nam(mtmp)), ++K;
         add_herecmd_menuitem(win, doapply, buf);
     }
 #if 0
@@ -5840,7 +5854,7 @@ boolean doit;
     if (u.usteed) { /* another movement choice */
         Sprintf(buf, "Dismount %s",
                 x_monnam(u.usteed, ARTICLE_THE, (char *) 0,
-                         SUPPRESS_SADDLE, FALSE));
+                         (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
         add_herecmd_menuitem(win, doride, buf);
     }
 

@@ -291,8 +291,9 @@ struct obj *otmp;
     else
         You_hear("%s reading %s.",
                  x_monnam(mtmp, ARTICLE_A, (char *) 0,
-                          (SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_SADDLE),
-                          FALSE),
+                          (SUPPRESS_IT | SUPPRESS_INVISIBLE
+                           | SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                           FALSE),
                  onambuf);
 
     if (mtmp->mconf)
@@ -3291,11 +3292,18 @@ struct monst *mon;
 const char *str;
 {
     struct obj *orefl = which_armor(mon, W_ARMS);
+    struct obj *brefl = which_armor(mon, W_BARDING);
 
     if (orefl && orefl->otyp == SHIELD_OF_REFLECTION) {
         if (str) {
             pline(str, s_suffix(mon_nam(mon)), "shield");
             makeknown(SHIELD_OF_REFLECTION);
+        }
+        return TRUE;
+    } else if (brefl && brefl->otyp == BARDING_OF_REFLECTION) {
+        if (str) {
+            pline(str, s_suffix(mon_nam(mon)), "barding");
+            makeknown(BARDING_OF_REFLECTION);
         }
         return TRUE;
     } else if ((orefl = which_armor(mon, W_ARMG))

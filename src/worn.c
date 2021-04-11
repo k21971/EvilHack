@@ -58,7 +58,7 @@ long mask;
     } else {
         if ((mask & W_ARMOR))
             u.uroleplay.nudist = FALSE;
-        for (wp = worn; wp->w_mask; wp++)
+        for (wp = worn; wp->w_mask; wp++) {
             if (wp->w_mask & mask) {
                 oobj = *(wp->w_obj);
                 if (oobj && !(oobj->owornmask & wp->w_mask))
@@ -105,6 +105,7 @@ long mask;
                     }
                 }
             }
+        }
     }
     update_inventory();
 }
@@ -122,7 +123,7 @@ register struct obj *obj;
         return;
     if (obj == uwep || obj == uswapwep)
         u.twoweap = 0;
-    for (wp = worn; wp->w_mask; wp++)
+    for (wp = worn; wp->w_mask; wp++) {
         if (obj == *(wp->w_obj)) {
             /* in case wearing or removal is in progress or removal
                is pending (via 'A' command for multiple items) */
@@ -137,6 +138,7 @@ register struct obj *obj;
             if ((p = w_blocks(obj, wp->w_mask)) != 0)
                 u.uprops[p].blocked &= ~wp->w_mask;
         }
+    }
     update_inventory();
 }
 
@@ -207,6 +209,8 @@ struct obj *obj;
             res = W_WEP | W_SWAPWEP;
         else if (otyp == SADDLE)
             res = W_SADDLE;
+        else if (is_barding(obj))
+            res = W_BARDING;
         break;
     case FOOD_CLASS:
         if (obj->otyp == MEAT_RING)
@@ -592,11 +596,22 @@ register struct monst *mon;
         if (obj->owornmask & mwflags
             && obj->otyp != RIN_INCREASE_DAMAGE
 	    && obj->otyp != RIN_INCREASE_ACCURACY) {
-            if (obj->otyp == AMULET_OF_GUARDING)
+            if (obj->otyp == AMULET_OF_GUARDING) {
                 base -= 2; /* fixed amount, not impacted by erosion */
-            else
+            } else if (is_barding(obj)) {
+                if (obj->material == MITHRIL)
+                    base -= 5;
+                else if (obj->material == METAL)
+                    base -= 4;
+                else if (is_heavy_metallic(obj)
+                         && obj->material != METAL)
+                    base -= 3;
+                else /* non-metallic materials */
+                    base -= 2;
+            } else {
                 /* since ARM_BONUS is positive, subtracting it increases AC */
                 base -= ARM_BONUS(obj);
+            }
             /* racial armor bonuses, separate from regular bonuses */
             racial_bonus = 1;
             if (which_armor(mon, W_ARM)) {
@@ -1202,6 +1217,15 @@ boolean polyspot;
             if (polyspot)
                 bypass_obj(otmp);
             m_lose_armor(mon, otmp);
+        }
+    }
+    if (!can_wear_barding(mon)) {
+        if ((otmp = which_armor(mon, W_BARDING)) != 0) {
+            if (polyspot)
+                bypass_obj(otmp);
+            m_lose_armor(mon, otmp);
+            if (vis)
+                pline("%s barding falls off.", s_suffix(Monnam(mon)));
         }
     }
     if (!can_saddle(mon)) {

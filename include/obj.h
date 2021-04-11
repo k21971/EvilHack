@@ -201,6 +201,9 @@ struct obj {
     ((o)->oclass == TOOL_CLASS && objects[(o)->otyp].oc_skill != P_NONE)
         /* towel is not a weptool:  spe isn't an enchantment, cursed towel
            doesn't weld to hand, and twoweapon won't work with one */
+#define is_barding(otmp) \
+    (otmp->otyp == BARDING                                                   \
+     || otmp->otyp == SPIKED_BARDING || otmp->otyp == BARDING_OF_REFLECTION)
 
 #define is_lawful_artifact(otmp) \
     (otmp->oartifact == ART_EXCALIBUR || otmp->oartifact == ART_DEMONBANE                         \

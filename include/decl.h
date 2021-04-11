@@ -345,8 +345,9 @@ E const char *materialnm[];
 #define SUPPRESS_INVISIBLE 0x02
 #define SUPPRESS_HALLUCINATION 0x04
 #define SUPPRESS_SADDLE 0x08
-#define EXACT_NAME 0x0F
-#define SUPPRESS_NAME 0x10
+#define SUPPRESS_BARDING 0x10
+#define EXACT_NAME 0x1F
+#define SUPPRESS_NAME 0x20
 
 /* Vision */
 E NEARDATA boolean vision_full_recalc; /* TRUE if need vision recalc */

@@ -2620,7 +2620,7 @@ struct _create_particular_data {
     char monclass;
     boolean randmonst;
     boolean maketame, makepeaceful, makehostile;
-    boolean sleeping, saddled, invisible, hidden;
+    boolean sleeping, saddled, invisible, hidden, barded;
 };
 
 boolean
@@ -2636,11 +2636,15 @@ struct _create_particular_data *d;
     d->fem = -1; /* gender not specified */
     d->randmonst = FALSE;
     d->maketame = d->makepeaceful = d->makehostile = FALSE;
-    d->sleeping = d->saddled = d->invisible = d->hidden = FALSE;
+    d->sleeping = d->saddled = d->invisible = d->hidden = d->barded = FALSE;
 
     if ((tmpp = strstri(bufp, "saddled ")) != 0) {
         d->saddled = TRUE;
         (void) memset(tmpp, ' ', sizeof "saddled " - 1);
+    }
+    if ((tmpp = strstri(bufp, "barded ")) != 0) {
+        d->barded = TRUE;
+        (void) memset(tmpp, ' ', sizeof "barded " - 1);
     }
     if ((tmpp = strstri(bufp, "sleeping ")) != 0) {
         d->sleeping = TRUE;
@@ -2755,6 +2759,13 @@ struct _create_particular_data *d;
 
             put_saddle_on_mon(otmp, mtmp);
         }
+        if (d->barded && can_wear_barding(mtmp) && !which_armor(mtmp, W_BARDING)) {
+            struct obj *otmp = mksobj(rn2(4) ? BARDING
+                                             : rn2(3) ? SPIKED_BARDING
+                                                      : BARDING_OF_REFLECTION, TRUE, FALSE);
+
+            put_barding_on_mon(otmp, mtmp);
+        }
         if (d->invisible) {
             mon_set_minvis(mtmp);
             if (does_block(mx, my, &levl[mx][my]))
@@ -2762,10 +2773,10 @@ struct _create_particular_data *d;
             else
                 unblock_point(mx, my);
         }
-       if (d->hidden
-           && ((is_hider(mtmp->data) && mtmp->data->mlet != S_MIMIC)
-               || (hides_under(mtmp->data) && OBJ_AT(mx, my))
-               || (mtmp->data->mlet == S_EEL && is_pool(mx, my))))
+        if (d->hidden
+            && ((is_hider(mtmp->data) && mtmp->data->mlet != S_MIMIC)
+                || (hides_under(mtmp->data) && OBJ_AT(mx, my))
+                || (mtmp->data->mlet == S_EEL && is_pool(mx, my))))
             mtmp->mundetected = 1;
         if (d->sleeping)
             mtmp->msleeping = 1;

@@ -2750,9 +2750,9 @@ struct obj *obj;
 {
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || defined(DEBUG)
     static unsigned long wearbits[] = {
-        W_ARM,    W_ARMC,   W_ARMH,    W_ARMS, W_ARMG,  W_ARMF,  W_ARMU,
-        W_WEP,    W_QUIVER, W_SWAPWEP, W_AMUL, W_RINGL, W_RINGR, W_TOOL,
-        W_SADDLE, W_BALL,   W_CHAIN,   0
+        W_ARM,    W_ARMC,    W_ARMH,    W_ARMS,  W_ARMG,  W_ARMF,  W_ARMU,
+        W_WEP,    W_QUIVER,  W_SWAPWEP, W_AMUL,  W_RINGL, W_RINGR, W_TOOL,
+        W_SADDLE, W_BARDING, W_BALL,    W_CHAIN, 0
         /* [W_ART,W_ARTI are property bits for items which aren't worn] */
     };
     char maskbuf[60];
@@ -2791,13 +2791,14 @@ struct obj *obj;
     }
     if (n > 1) {
         /* multiple bits set */
-        Sprintf(maskbuf, "worn mask (multiple) 0x%08lx", obj->owornmask);
+        Sprintf(maskbuf, "worn mask (multiple) 0x%10lx", obj->owornmask);
         insane_object(obj, ofmt0, maskbuf, (struct monst *) 0);
     }
     if ((owornmask & ~allmask) != 0L
-        || (carried(obj) && (owornmask & W_SADDLE) != 0L)) {
+        || (carried(obj) && (owornmask & W_SADDLE) != 0L)
+        || (carried(obj) && (owornmask & W_BARDING) != 0L)) {
         /* non-wearable bit(s) set */
-        Sprintf(maskbuf, "worn mask (bogus)) 0x%08lx", obj->owornmask);
+        Sprintf(maskbuf, "worn mask (bogus)) 0x%10lx", obj->owornmask);
         insane_object(obj, ofmt0, maskbuf, (struct monst *) 0);
     }
     if (n == 1 && (carried(obj) || (owornmask & (W_BALL | W_CHAIN)) != 0L)) {
@@ -2862,6 +2863,7 @@ struct obj *obj;
                 what = "blindfold";
             break;
         /* case W_SADDLE: */
+        /* case W_BARDING: */
         case W_BALL:
             if (obj != uball)
                 what = "ball";
@@ -2874,7 +2876,7 @@ struct obj *obj;
             break;
         }
         if (what) {
-            Sprintf(maskbuf, "worn mask 0x%08lx != %s", obj->owornmask, what);
+            Sprintf(maskbuf, "worn mask 0x%10lx != %s", obj->owornmask, what);
             insane_object(obj, ofmt0, maskbuf, (struct monst *) 0);
         }
     }
@@ -2919,6 +2921,9 @@ struct obj *obj;
         } else if (owornmask & W_SADDLE) {
             if (obj->otyp != SADDLE)
                 what = "saddle";
+        } else if (owornmask & W_BARDING) {
+            if (!is_barding(obj))
+                what = "barding";
         }
         if (what) {
             char oclassname[30];
@@ -3326,6 +3331,7 @@ struct obj* obj;
             return NULL;
         /* Any other cases for specific object types go here. */
         case SHIELD_OF_REFLECTION:
+        case BARDING_OF_REFLECTION:
             return shiny_materials;
         case BOW:
         case YUMI:
@@ -3345,6 +3351,8 @@ struct obj* obj;
         case LOCK_PICK:
         case TIN_OPENER:
         case STETHOSCOPE:
+        case BARDING:
+        case SPIKED_BARDING:
             return metal_materials;
         case BELL:
         case BUGLE:

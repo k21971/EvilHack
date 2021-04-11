@@ -3889,7 +3889,7 @@ STATIC_OVL boolean
 tool_in_use(obj)
 struct obj *obj;
 {
-    if ((obj->owornmask & (W_TOOL | W_SADDLE)) != 0L)
+    if ((obj->owornmask & (W_TOOL | W_SADDLE | W_BARDING)) != 0L)
         return TRUE;
     if (obj->oclass != TOOL_CLASS)
         return FALSE;

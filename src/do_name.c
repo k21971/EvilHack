@@ -1737,7 +1737,8 @@ int article;
  */
 const char *adjective;
 int suppress;
-/* SUPPRESS_IT, SUPPRESS_INVISIBLE, SUPPRESS_HALLUCINATION, SUPPRESS_SADDLE.
+/* SUPPRESS_IT, SUPPRESS_INVISIBLE, SUPPRESS_HALLUCINATION,
+ * SUPPRESS_SADDLE, SUPPRESS_BARDING.
  * EXACT_NAME: combination of all the above
  * SUPPRESS_NAME: omit monster's assigned name (unless uniq w/ pname).
  */
@@ -1746,7 +1747,7 @@ boolean called;
     char *buf = nextmbuf();
     struct permonst *mdat = mtmp->data;
     const char *pm_name = mdat->mname;
-    boolean do_hallu, do_invis, do_it, do_saddle, do_name;
+    boolean do_hallu, do_invis, do_it, do_saddle, do_barding, do_name;
     boolean name_at_start, has_adjectives;
     char *bp;
 
@@ -1761,6 +1762,7 @@ boolean called;
             && !program_state.gameover && mtmp != u.usteed
             && !(u.uswallow && mtmp == u.ustuck) && !(suppress & SUPPRESS_IT);
     do_saddle = !(suppress & SUPPRESS_SADDLE);
+    do_barding = !(suppress & SUPPRESS_BARDING);
     do_name = !(suppress & SUPPRESS_NAME) || type_is_pname(mdat);
 
     buf[0] = '\0';
@@ -1829,6 +1831,9 @@ boolean called;
     if (do_saddle && (mtmp->misc_worn_check & W_SADDLE) && !Blind
         && !Hallucination)
         Strcat(buf, "saddled ");
+    if (do_barding && (mtmp->misc_worn_check & W_BARDING) && !Blind
+        && !Hallucination)
+        Strcat(buf, "barded ");
     if (has_erac(mtmp) && !type_is_pname(mdat)
         && (!(do_name && has_mname(mtmp)) || called)) {
         int r_id = ERAC(mtmp)->r_id;
@@ -1938,7 +1943,7 @@ l_monnam(mtmp)
 struct monst *mtmp;
 {
     return x_monnam(mtmp, ARTICLE_NONE, (char *) 0,
-                    (has_mname(mtmp)) ? SUPPRESS_SADDLE : 0, TRUE);
+                    (has_mname(mtmp)) ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, TRUE);
 }
 
 char *
@@ -1946,7 +1951,7 @@ mon_nam(mtmp)
 struct monst *mtmp;
 {
     return x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                    (has_mname(mtmp)) ? SUPPRESS_SADDLE : 0, FALSE);
+                    (has_mname(mtmp)) ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, FALSE);
 }
 
 /* print the name as if mon_nam() was called, but assume that the player
@@ -1958,7 +1963,7 @@ noit_mon_nam(mtmp)
 struct monst *mtmp;
 {
     return x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                    (has_mname(mtmp)) ? (SUPPRESS_SADDLE | SUPPRESS_IT)
+                    (has_mname(mtmp)) ? (SUPPRESS_SADDLE | SUPPRESS_BARDING | SUPPRESS_IT)
                                       : SUPPRESS_IT,
                     FALSE);
 }
@@ -2012,7 +2017,7 @@ struct monst *mtmp;
     suppression_flag = (has_mname(mtmp)
                         /* "saddled" is redundant when mounted */
                         || mtmp == u.usteed)
-                           ? SUPPRESS_SADDLE
+                           ? (SUPPRESS_SADDLE | SUPPRESS_BARDING)
                            : 0;
 
     return x_monnam(mtmp, prefix, (char *) 0, suppression_flag, FALSE);
@@ -2024,7 +2029,7 @@ struct monst *mtmp;
 const char *adj;
 {
     char *bp = x_monnam(mtmp, ARTICLE_THE, adj,
-                        has_mname(mtmp) ? SUPPRESS_SADDLE : 0, FALSE);
+                        has_mname(mtmp) ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, FALSE);
 
     *bp = highc(*bp);
     return  bp;
@@ -2035,7 +2040,7 @@ a_monnam(mtmp)
 struct monst *mtmp;
 {
     return x_monnam(mtmp, ARTICLE_A, (char *) 0,
-                    has_mname(mtmp) ? SUPPRESS_SADDLE : 0, FALSE);
+                    has_mname(mtmp) ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, FALSE);
 }
 
 char *

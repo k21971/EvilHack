@@ -1200,9 +1200,10 @@ unsigned doname_flags;
             Sprintf(prefix, "%ld ", obj->quan);
         else
             Strcpy(prefix, "some ");
-    } else if (obj->otyp == CORPSE) {
+    } else if (obj->otyp == CORPSE || is_barding(obj)) {
         /* skip article prefix for corpses [else corpse_xname()
-           would have to be taught how to strip it off again] */
+           would have to be taught how to strip it off again].
+           do the same for barding */
         *prefix = '\0';
     } else if (obj_is_pname(obj) || the_unique_obj(obj)) {
         if (!strncmpi(bp, "the ", 4))
@@ -1319,7 +1320,7 @@ unsigned doname_flags;
         break;
     case TOOL_CLASS:
         add_erosion_words(obj, prefix);
-        if (obj->owornmask & (W_TOOL | W_SADDLE)) { /* blindfold */
+        if (obj->owornmask & (W_TOOL | W_SADDLE | W_BARDING)) { /* blindfold */
             Strcat(bp, " (being worn)");
             break;
         }

@@ -134,7 +134,7 @@ boolean quietly;
         pline_The("mist coagulates into the shape of %s%s.",
                   x_monnam(mtmp, ARTICLE_A, (char *) 0, SUPPRESS_IT
                            | SUPPRESS_INVISIBLE | SUPPRESS_SADDLE
-                           | SUPPRESS_NAME, FALSE),
+                           | SUPPRESS_BARDING | SUPPRESS_NAME, FALSE),
                   canspotmon(mtmp) ? "" : " and vanishes");
     }
 

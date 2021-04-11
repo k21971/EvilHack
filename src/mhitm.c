@@ -1158,8 +1158,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     if (magr->minvent) {
 	struct obj *o;
 	for (o = magr->minvent; o; o = o->nobj)
-	     if (o->owornmask && o->otyp == RIN_INCREASE_DAMAGE)
-	         tmp += o->spe;
+	    if (o->owornmask && o->otyp == RIN_INCREASE_DAMAGE)
+	        tmp += o->spe;
     }
 
     /* cancellation factor is the same as when attacking the hero */
@@ -1175,8 +1175,13 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     }
 
     switch (mattk->adtyp) {
-    case AD_DGST:
+    case AD_DGST: {
+        struct obj *sbarding;
+
         if (mon_prop(mdef, SLOW_DIGESTION))
+            return (MM_HIT | MM_EXPELLED);
+        if ((sbarding = which_armor(mdef, W_BARDING)) != 0
+            && sbarding->otyp == SPIKED_BARDING)
             return (MM_HIT | MM_EXPELLED);
         /* eating a Rider or its corpse is fatal */
         if (is_rider(pd)) {
@@ -1227,6 +1232,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             EDOG(magr)->hungrytime += nutrit;
         }
         break;
+    }
     case AD_STUN:
         if (magr->mcan)
             break;
@@ -1924,11 +1930,12 @@ post_stone:
             tmp = 0;
             break;
         }
-        if ((mdef->misc_worn_check & W_ARMH) && rn2(8)) {
+        if ((mdef->misc_worn_check & (W_ARMH | W_BARDING)) && rn2(8)) {
             if (vis && canspotmon(magr) && canseemon(mdef)) {
                 Strcpy(buf, s_suffix(Monnam(mdef)));
-                pline("%s helmet blocks %s attack to %s head.", buf,
-                      s_suffix(mon_nam(magr)), mhis(mdef));
+                pline("%s %s blocks %s attack to %s %s.", buf,
+                      which_armor(mdef, W_ARMH) ? "helmet" : "barding",
+                      s_suffix(mon_nam(magr)), mhis(mdef), mbodypart(mdef, HEAD));
             }
             break;
         }
