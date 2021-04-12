@@ -326,8 +326,11 @@ MONSTER:(''',"snow golem"),(47,10)
 
 # The Ice Queen and her pets
 MONSTER:('@',"Kathryn the Ice Queen"),(34,09),hostile
-MONSTER:('d',"Koa"),(37,07),peaceful,asleep
+MONSTER:('d',"Bourbon"),(37,07),peaceful,asleep
 MONSTER:('d',"Ozzy"),(37,12),peaceful,asleep
+
+# Koa tribute. Miss you.
+GRAVE:(34,10),"Koa: July 25, 2009 - November 29th, 2020. Rest in peace Koa, we miss you"
 
 # The prize
 MONSTER:('u',"pegasus"),(29,10),peaceful,asleep

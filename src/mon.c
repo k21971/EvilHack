@@ -2886,7 +2886,7 @@ register struct monst *mtmp;
     }
 
     /* special handling for the Ice Queen's dogs */
-    if (mtmp->data == &mons[PM_KOA]  || mtmp->data == &mons[PM_OZZY]) {
+    if (mtmp->data == &mons[PM_BOURBON] || mtmp->data == &mons[PM_OZZY]) {
         if (canspotmon(mtmp)) {
             You("have made %s submit, and %s is no longer hostile.", mon_nam(mtmp), mhe(mtmp));
         }
@@ -4113,13 +4113,13 @@ boolean via_attack;
         && (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
             || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])) {
         struct monst *mon;
-        struct permonst *koa = &mons[PM_KOA];
+        struct permonst *bourbon = &mons[PM_BOURBON];
         struct permonst *ozzy = &mons[PM_OZZY];
 
         for (mon = fmon; mon; mon = mon->nmon) {
             if (DEADMONSTER(mon))
                 continue;
-            if (mon->data == koa && mon->mpeaceful) {
+            if (mon->data == bourbon && mon->mpeaceful) {
                 mon->mstrategy &= ~STRAT_WAITMASK;
                 mon->mpeaceful = 0;
                 growl(mon);
@@ -5571,7 +5571,7 @@ struct monst *mtmp;
         return;
 
     struct monst *mon;
-    struct permonst *koa = &mons[PM_KOA];
+    struct permonst *bourbon = &mons[PM_BOURBON];
     struct permonst *ozzy = &mons[PM_OZZY];
 
     /* in case player kills themselves while defeating
@@ -5613,18 +5613,18 @@ struct monst *mtmp;
     }
     newsym(mtmp->mx, mtmp->my);
 
-    /* Fix up Koa and Ozzy */
+    /* Fix up Bourbon and Ozzy */
     for (mon = fmon; mon; mon = mon->nmon) {
         if (DEADMONSTER(mon))
             continue;
         /* cure any ailments the dogs may have also */
-        if (mon->data == koa || mon->data == ozzy) {
+        if (mon->data == bourbon || mon->data == ozzy) {
             if (u.uhp <= 0 && !Lifesaved) {
                 ; /* suppress feedback */
             } else {
-                if (mon->data == koa) {
+                if (mon->data == bourbon) {
                     if (m_cansee(mtmp, mon->mx, mon->my))
-                        pline("%s motions for Koa to heel and stop %s attack.",
+                        pline("%s motions for Bourbon to heel and stop %s attack.",
                               Monnam(mtmp), mhis(mon));
                 } else {
                     if (m_cansee(mtmp, mon->mx, mon->my))
