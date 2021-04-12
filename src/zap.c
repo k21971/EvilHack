@@ -4625,7 +4625,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     boolean mon_could_move = mon->mcanmove;
                     int tmp = zhitm(mon, type, nd, &otmp);
 
-                    if (resists_magm(mon) && abstype == ZT_DEATH) { /* death */
+                    if (resists_magm(mon) && abstype == ZT_DEATH
+                        && abs(type) != ZT_BREATH(ZT_DEATH)) { /* death */
                         if (canseemon(mon)) {
                             hit(fltxt, mon, ".");
                             pline("%s resists the death magic, but appears drained!",

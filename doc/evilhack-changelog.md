@@ -1552,4 +1552,5 @@ The following changes to date are:
 - Barding
 - Fix: could place barding onto humanoid-shaped angel class
 - Koa tribute
+- Fix: death magic resistance feedback (again)
 
