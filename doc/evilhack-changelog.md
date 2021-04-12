@@ -1554,4 +1554,5 @@ The following changes to date are:
 - Koa tribute
 - Fix: death magic resistance feedback (again)
 - Tweaks to the final Ice Queen branch level
+- Fix: weird autorun behavior through fog clouds
 
