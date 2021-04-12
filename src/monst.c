@@ -1145,9 +1145,20 @@ NEARDATA struct permonst mons[] = {
         A(ATTK(AT_KICK, AD_PHYS, 2, 6), ATTK(AT_KICK, AD_PHYS, 2, 6),
           ATTK(AT_BITE, AD_PHYS, 4, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_SLEEP | MR_POISON, 0,
-        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_HERBIVORE,
-        M2_NOPOLY | M2_NASTY | M2_DOMESTIC | M2_PEACEFUL | M2_STRONG | M2_MALE,
+        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_HERBIVORE
+            | M1_OVIPAROUS,
+        M2_NOPOLY | M2_NASTY | M2_WANDER | M2_DOMESTIC | M2_PEACEFUL
+            | M2_STRONG,
         M3_INFRAVISION | M3_INFRAVISIBLE, 0, 0, 20, CLR_WHITE),
+    MON("greater pegasus", S_UNICORN, LVL(20, 24, -6, 90, 0), (G_NOGEN),
+        A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
+          ATTK(AT_BITE, AD_PHYS, 4, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1800, 350, MS_NEIGH, MZ_LARGE), MR_SLEEP | MR_POISON, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_HERBIVORE
+            | M1_OVIPAROUS,
+        M2_NOPOLY | M2_NASTY | M2_WANDER | M2_DOMESTIC | M2_PEACEFUL
+            | M2_STRONG,
+        M3_INFRAVISION | M3_INFRAVISIBLE, 0, 0, 22, CLR_WHITE),
     /* From SpliceHack
      * The Horses of the Riders - these have been tweaked and buffed up
      * a bit from their original template. It's the end game, and the Riders

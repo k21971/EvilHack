@@ -4704,7 +4704,7 @@ thought, causing me to bring winter permanently to this land.
 Only by being defeated in combat could I be free from her
 wretched malediction.  I am forever in your debt.  But before
 I can repay that debt, I must undo the damage I have caused
-here.  And please free the captive pegasus, I am certain he
+here.  And please free the captive pegasus, I am certain it
 will be extremely grateful.  Fare thee well, brave adventurer.
 Until we meet again...
 %E [You have freed Kathryn the Enchantress from a terrible curse.]

@@ -875,7 +875,7 @@ const char *const random_enchantress[] = {
     "Thank you again for freeing me", "I have so much damage to undo",
     "I apologize for any harm I may have caused you",
     "Be careful leaving this place, I have no control over the monsters that still lurk here",
-    "Please treat the pegasus well, he has been through a lot",
+    "Please treat the pegasus well, it has been through a lot",
     "It will take a long time to regrow the forest"
 };
 

@@ -1553,4 +1553,5 @@ The following changes to date are:
 - Fix: could place barding onto humanoid-shaped angel class
 - Koa tribute
 - Fix: death magic resistance feedback (again)
+- Tweaks to the final Ice Queen branch level
 

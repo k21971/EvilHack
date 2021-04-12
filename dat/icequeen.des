@@ -200,20 +200,20 @@ MAP
 IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 IIIIIIIIIIIIIIIIIIII                                                      II
 IIIIIIIIIIIIIIIIIIII -----------  -------   ------   -------  ----------- II
-IIIIIIIIIIIIIIIIIIIII|..|......|  |.....|  -|....|-  |.....|  |.........| II
+IIIIIIIIIIIIIIIIIIIII|..F......|  |.....|  -|....|-  |.....|  |.........| II
 IIIIIIIIIIIIIIIIIIIIIF..|---...----.....---|......|---.....----...---...| II
 IIIIIIIIIIIIIIIIIIIIIF..S..................+......+.....................|  I
 IIIIIIIIIIIIIIIIIIIIIF..|---...------------|......|------------....------- I
-IIIIIIIIIIIIIIIIIIIII|..|......|...........-|....|-...........|....|.....| I
-IIIIIIIIIIIIIIIIIIII ----...----............|----|............|....|.....| I
+IIIIIIIIIIIIIIIIIIIII|..F......|...........-|....|-...........|....|.....| I
+IIIIIIIIIIIIIIIIIIII -FF-...----............|-FF-|............|....|.....| I
 IIIIIIIIIIIIIIIIIIIIIIII+...|..F............S....+............+....S.....| I
 IIIIIIIIIIIIIIIIIIIIIIII+...|..F............S....+............+....S.....| I
-IIIIIIIIIIIIIIIIIIII ----...----............|----|............|....|.....| I
-IIIIIIIIIIIIIIIIIIIII|..|......|...........-|....|-...........|....|.....| I
+IIIIIIIIIIIIIIIIIIII -FF-...----............|-FF-|............|....|.....| I
+IIIIIIIIIIIIIIIIIIIII|..F......|...........-|....|-...........|....|.....| I
 IIIIIIIIIIIIIIIIIIIIIF..|---...------------|......|------------....------- I
 IIIIIIIIIIIIIIIIIIIIIF..S..................+......+.....................|  I
 IIIIIIIIIIIIIIIIIIIIIF..|---...----.....---|......|---.....----...---...| II
-IIIIIIIIIIIIIIIIIIIII|..|......|  |.....|  -|....|-  |.....|  |.........| II
+IIIIIIIIIIIIIIIIIIIII|..F......|  |.....|  -|....|-  |.....|  |.........| II
 IIIIIIIIIIIIIIIIIIII -----------  -------   ------   -------  ----------- II
 II.IIIIIIIIIIIIIIIII                                                      II
 IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
@@ -261,6 +261,9 @@ OBJECT:'$',(29,10),quantity:2000
 OBJECT:'$',(30,09),quantity:2000
 OBJECT:'$',(30,10),quantity:2000
 TERRAIN:(34,09),'\'
+IF [20%] {
+  OBJECT:('%',"egg"),(29,10),montype:"pegasus"
+}
 OBJECT:('(',"crystal chest"),(32,07)
 OBJECT:('(',"crystal chest"),(32,12)
 OBJECT:('(',"crystal chest"),(42,07)
@@ -269,6 +272,13 @@ CONTAINER:('(',"crystal chest"),(42,12) {
   OBJECT:('%',"carrot"),quantity:3
   OBJECT:('(',"saddle"),uncursed
   OBJECT:('!',"acid"),quantity:3
+  IF [20%] {
+    IF [80%] {
+      OBJECT:('(',"spiked barding"),uncursed
+    } ELSE {
+      OBJECT:('(',"barding of reflection"),uncursed
+    }
+  }
 }
 CONTAINER:('(',"crystal chest"),(29,10) {
   IF [10%] {
