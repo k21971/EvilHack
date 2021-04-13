@@ -1556,4 +1556,5 @@ The following changes to date are:
 - Tweaks to the final Ice Queen branch level
 - Fix: weird autorun behavior through fog clouds
 - Lower level needed to be accepted for the quest
+- Give orcish knights an orcish long sword
 

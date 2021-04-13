@@ -334,7 +334,7 @@ struct obj {
 #define Dragon_to_scales(pm) (GRAY_DRAGON_SCALES + (pm - mons))
 
 /* Elven gear */
-#define is_elven_weapon(otmp)                                             \
+#define is_elven_weapon(otmp) \
     ((otmp)->otyp == ELVEN_ARROW || (otmp)->otyp == ELVEN_SPEAR           \
      || (otmp)->otyp == ELVEN_DAGGER || (otmp)->otyp == ELVEN_SHORT_SWORD \
      || (otmp)->otyp == ELVEN_BROADSWORD || (otmp)->otyp == ELVEN_BOW     \
@@ -342,13 +342,14 @@ struct obj {
 #define is_elven_obj(otmp) (is_elven_armor(otmp) || is_elven_weapon(otmp))
 
 /* Orcish gear */
-#define is_orcish_obj(otmp)                                              \
-    (is_orcish_armor(otmp) || (otmp)->otyp == ORCISH_ARROW               \
-     || (otmp)->otyp == ORCISH_SPEAR || (otmp)->otyp == ORCISH_DAGGER    \
-     || (otmp)->otyp == ORCISH_SHORT_SWORD || (otmp)->otyp == ORCISH_BOW \
-     || (otmp)->otyp == ORCISH_MORNING_STAR || (otmp)->otyp == ORCISH_SCIMITAR)
+#define is_orcish_obj(otmp) \
+    (is_orcish_armor(otmp) || (otmp)->otyp == ORCISH_ARROW                     \
+     || (otmp)->otyp == ORCISH_SPEAR || (otmp)->otyp == ORCISH_DAGGER          \
+     || (otmp)->otyp == ORCISH_SHORT_SWORD || (otmp)->otyp == ORCISH_BOW       \
+     || (otmp)->otyp == ORCISH_MORNING_STAR || (otmp)->otyp == ORCISH_SCIMITAR \
+     || (otmp)->otyp == ORCISH_LONG_SWORD)
 /* Dwarvish gear */
-#define is_dwarvish_obj(otmp)                                  \
+#define is_dwarvish_obj(otmp) \
     (is_dwarvish_armor(otmp) || (otmp)->otyp == DWARVISH_SPEAR \
      || (otmp)->otyp == DWARVISH_SHORT_SWORD                   \
      || (otmp)->otyp == DWARVISH_MATTOCK                       \

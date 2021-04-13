@@ -912,7 +912,7 @@ register struct monst *mtmp;
                     w1 = rn2(2) ? HALBERD : BATTLE_AXE;
                     mongets(mtmp, BOULDER);
                 } else {
-                    w1 = rn2(2) ? BROADSWORD : LONG_SWORD;
+                    w1 = rn2(2) ? BROADSWORD : ORCISH_LONG_SWORD;
                     if (Is_stronghold(&u.uz)) {
                         w2 = CROSSBOW;
                         m_initthrow(mtmp, CROSSBOW_BOLT, 30);
