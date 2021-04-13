@@ -1558,4 +1558,5 @@ The following changes to date are:
 - Lower level needed to be accepted for the quest
 - Give orcish knights an orcish long sword
 - Mephistopheles gets an extra fire attack
+- Switch Angelslayer alignment to unaligned
 
