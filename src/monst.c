@@ -3345,8 +3345,8 @@ struct permonst _mons2[] = {
     MON("Mephistopheles", S_DEMON, LVL(80, 12, -6, 90, 15),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 6), ATTK(AT_CLAW, AD_ENCH, 3, 4),
-          ATTK(AT_MAGC, AD_SPEL, 3, 4), ATTK(AT_NONE, AD_FIRE, 0, 6),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_MAGC, AD_FIRE, 3, 4), ATTK(AT_MAGC, AD_SPEL, 3, 4),
+          ATTK(AT_NONE, AD_FIRE, 0, 6), NO_ATTK),
         SIZ(1000, 500, MS_BRIBE, MZ_LARGE), MR_FIRE | MR_COLD | MR_POISON, 0,
         M1_FLY | M1_SEE_INVIS | M1_POIS | M1_HUMANOID,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
