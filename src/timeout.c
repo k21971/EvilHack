@@ -854,6 +854,9 @@ fall_asleep(how_long, wakeup_msg)
 int how_long;
 boolean wakeup_msg;
 {
+    if ((how_long == 0))
+        return;
+
     stop_occupation();
     nomul(how_long);
     multi_reason = "sleeping";

@@ -1559,4 +1559,6 @@ The following changes to date are:
 - Give orcish knights an orcish long sword
 - Mephistopheles gets an extra fire attack
 - Switch Angelslayer alignment to unaligned
+- Fix: 'This Grey-elf corpse tastes okay.  You wake up.
+  You feel a bit perkier.'
 
