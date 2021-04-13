@@ -248,7 +248,9 @@ boolean resuming;
                         if (past_clock > 0)
                             monclock = MIN_MONGEN_RATE * 30000 / (past_clock + 30000);
                         if (monclock > MIN_MONGEN_RATE / 2 && (depth(&u.uz) > depth(&stronghold_level)
-                                                               || u.uevent.uhand_of_elbereth))
+                                                               || u.uevent.uhand_of_elbereth
+                                                               || ((quest_status.got_quest || quest_status.got_thanks)
+                                                                   && u.ulevel < 14)))
                             monclock = MIN_MONGEN_RATE / 2;
                         if (monclock > MIN_MONGEN_RATE / 3 && depth(&u.uz) > depth(&hella_level))
                             monclock = MIN_MONGEN_RATE / 3;

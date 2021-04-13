@@ -1555,4 +1555,5 @@ The following changes to date are:
 - Fix: death magic resistance feedback (again)
 - Tweaks to the final Ice Queen branch level
 - Fix: weird autorun behavior through fog clouds
+- Lower level needed to be accepted for the quest
 
