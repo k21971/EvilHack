@@ -1563,4 +1563,5 @@ The following changes to date are:
   You feel a bit perkier.'
 - Caveperson changes
 - Few more caveperson tweaks
+- Allow player monsters to spawn using newest race/role additions
 

@@ -260,7 +260,7 @@ struct monst *mtmp;
         mtmp->mintrinsics |= MR_FIRE;
         break;
     case PM_KNIGHT:
-        if (race == PM_ELF)
+        if (race == PM_ELF || race == PM_ORC)
             rptr->ralign = -3;
         break;
     case PM_MONK:
@@ -298,7 +298,7 @@ struct monst *mtmp;
         rptr->mattk[0].adtyp = AD_SAMU;
         rptr->mattk[1].adtyp = AD_SITM;
         rptr->mflags3 |= M3_ACCURATE;
-        if (race == PM_HOBBIT)
+        if (race == PM_HOBBIT || race == PM_GNOME)
             rptr->ralign = 0;
         break;
     case PM_SAMURAI:

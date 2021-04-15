@@ -313,6 +313,20 @@ struct trobj giantWizard[] = {
     { 0, 0, 0, 0, 0 }
 };
 
+struct trobj giantInfidel[] = {
+    { FAKE_AMULET_OF_YENDOR, 0, AMULET_CLASS, 1, 0 },
+    { DAGGER, 1, WEAPON_CLASS, 1, 0 },
+    { LOW_BOOTS, 1, ARMOR_CLASS, 1, CURSED },
+    { GAUNTLETS_OF_PROTECTION, 0, ARMOR_CLASS, 1, CURSED },
+    { POT_WATER, 0, POTION_CLASS, 3, CURSED },
+    { SCR_CHARGING, 0, SCROLL_CLASS, 1, 0 },
+    { SPE_DRAIN_LIFE, 0, SPBOOK_CLASS, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+    { FIRE_HORN, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+    { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
 struct trobj Level10KitGiant[] = {
         { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
         { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -549,11 +563,10 @@ unsigned short chance;
                     && obj->oclass == ARMOR_CLASS
                     && is_flammable(obj)) {
                     obj->oerodeproof = 1;
-                    obj->blessed = FALSE;
-                    obj->cursed = TRUE;
                 }
                 if (mtmp && mtmp->mnum == PM_INFIDEL
                     && (obj->oclass == WEAPON_CLASS
+                        || obj->oclass == ARMOR_CLASS
                         || obj->otyp == POT_WATER)) {
                     obj->blessed = FALSE;
                     obj->cursed = TRUE;
@@ -687,7 +700,10 @@ register struct monst *mtmp;
             break;
         case PM_INFIDEL:
             mkmonmoney(mtmp, (long) rn1(251, 250));
-            ini_mon_inv(mtmp, subInfidel, 1);
+            if (racial_giant(mtmp))
+                ini_mon_inv(mtmp, giantInfidel, 1);
+            else
+                ini_mon_inv(mtmp, subInfidel, 1);
             mongets(mtmp, SKELETON_KEY);
             break;
         case PM_KNIGHT:
@@ -2487,8 +2503,12 @@ int mmflags;
             mount_monster(mtmp, PM_WARG);
             break;
         case PM_KNIGHT:
-            rn2(2) ? mount_monster(mtmp, PM_HORSE)
-                   : mount_monster(mtmp, PM_WARHORSE);
+            if (mon_aligntyp(mtmp) == A_CHAOTIC)
+                rn2(3) ? mount_monster(mtmp, PM_NIGHTMARE)
+                       : mount_monster(mtmp, PM_CAUCHEMAR);
+            else
+                rn2(3) ? mount_monster(mtmp, PM_HORSE)
+                       : mount_monster(mtmp, PM_WARHORSE);
             break;
         case PM_FROST_GIANT:
             if (Iniceq && !rn2(5))

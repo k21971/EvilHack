@@ -5714,16 +5714,18 @@ short mndx;
         permitted |= (MH_DWARF | MH_GNOME | MH_GIANT);
         break;
     case PM_CONVICT:
-        permitted |= (MH_DWARF | MH_ORC | MH_GNOME | MH_HOBBIT);
+        permitted |=
+            (MH_DWARF | MH_ORC | MH_GNOME | MH_HOBBIT | MH_ILLITHID);
         break;
     case PM_HEALER:
-        permitted |= (MH_DWARF | MH_ELF | MH_GNOME | MH_HOBBIT);
+        permitted |=
+            (MH_DWARF | MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR);
         break;
     case PM_INFIDEL:
-        permitted |= (MH_ORC | MH_ILLITHID);
+        permitted |= (MH_ELF | MH_GIANT | MH_ORC | MH_ILLITHID);
         break;
     case PM_KNIGHT:
-        permitted |= MH_ELF;
+        permitted |= (MH_DWARF | MH_ELF | MH_ORC);
         break;
     case PM_MONK:
         permitted |= (MH_DWARF | MH_ELF | MH_GIANT | MH_CENTAUR);
@@ -5738,13 +5740,13 @@ short mndx;
         permitted |= (MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR | MH_ORC);
         break;
     case PM_ROGUE:
-        permitted |= (MH_ELF | MH_HOBBIT | MH_ORC);
+        permitted |= (MH_ELF | MH_HOBBIT | MH_ORC | MH_GNOME);
         break;
     case PM_SAMURAI:
         permitted |= (MH_DWARF | MH_GIANT);
         break;
     case PM_TOURIST:
-        permitted |= MH_HOBBIT;
+        permitted |= (MH_HOBBIT | MH_GNOME);
         break;
     case PM_VALKYRIE:
         permitted |= (MH_DWARF | MH_GIANT | MH_CENTAUR);
