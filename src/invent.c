@@ -1565,7 +1565,8 @@ register const char *let, *word;
              || (!strcmp(word, "rub")
                  && ((otmp->oclass == TOOL_CLASS && otyp != OIL_LAMP
                       && otyp != MAGIC_LAMP && otyp != LANTERN)
-                     || otmp->oclass != GEM_CLASS))
+                     || (otmp->oclass == GEM_CLASS && !is_graystone(otmp)
+                         && otyp != ROCK)))
              || (!strcmp(word, "use or apply")
                  /* Picks, axes, pole-weapons, bullwhips */
                  && ((otmp->oclass == WEAPON_CLASS
@@ -1578,7 +1579,8 @@ register const char *let, *word;
                              || !objects[POT_OIL].oc_name_known))
                      || (otmp->oclass == FOOD_CLASS
                          && otyp != CREAM_PIE && otyp != EUCALYPTUS_LEAF)
-                     || otmp->oclass != GEM_CLASS))
+                     || (otmp->oclass == GEM_CLASS && !is_graystone(otmp)
+                         && otyp != ROCK)))
              || (!strcmp(word, "invoke")
                  && !otmp->oartifact
                  && !objects[otyp].oc_unique
