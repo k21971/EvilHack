@@ -1868,6 +1868,14 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
                 if (obj->blessed && !rnl(4))
                     broken = 0;
 
+                /* Flint and hard gems get an additional chance because they
+                 * don't break easily. */
+                if (((obj->oclass == GEM_CLASS && objects[otyp].oc_tough)
+                     || obj->otyp == FLINT)
+                    && rn2(2)) {
+                    broken = FALSE;
+                }
+
                 if (broken) {
                     if (*u.ushops || obj->unpaid)
                         check_shop_obj(obj, bhitpos.x, bhitpos.y, TRUE);

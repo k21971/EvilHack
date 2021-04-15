@@ -1561,4 +1561,5 @@ The following changes to date are:
 - Switch Angelslayer alignment to unaligned
 - Fix: 'This Grey-elf corpse tastes okay.  You wake up.
   You feel a bit perkier.'
+- Caveperson changes
 

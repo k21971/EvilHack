@@ -7,12 +7,12 @@
 /* Monsters that might be ridden */
 static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN, S_ANGEL,
                                         S_CENTAUR,   S_DRAGON,  S_JABBERWOCK,
-                                        S_DOG, '\0' };
+                                        S_DOG,       S_FELINE,  '\0' };
 
 /* Monsters that might wear barding */
 static NEARDATA const char mbarding[] = { S_QUADRUPED, S_UNICORN,    S_ANGEL,
                                           S_DRAGON,    S_JABBERWOCK, S_DOG,
-                                          '\0' };
+                                          S_FELINE,    '\0' };
 
 STATIC_DCL boolean FDECL(landing_spot, (coord *, int, int));
 STATIC_DCL void FDECL(maybewakesteed, (struct monst *));
@@ -201,7 +201,8 @@ struct monst *mtmp;
             && (!humanoid(ptr) || ptr->mlet == S_CENTAUR) && !amorphous(ptr)
             && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
             && !(ptr->mlet == S_JABBERWOCK && mtmp->mnum != PM_JABBERWOCK)
-            && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG));
+            && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG)
+            && !(ptr->mlet == S_FELINE && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
 
 /* Can this monster wear barding? */
@@ -215,7 +216,8 @@ struct monst *mtmp;
             && !humanoid(ptr) && !amorphous(ptr)
             && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
             && !(ptr->mlet == S_JABBERWOCK && mtmp->mnum != PM_JABBERWOCK)
-            && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG));
+            && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG)
+            && !(ptr->mlet == S_FELINE && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
 
 int
@@ -274,8 +276,20 @@ struct obj *otmp;
         pline("%s %s menacingly at you!", Monnam(mtmp),
               rn2(2) ? "snarls" : "growls");
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3))
+            && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
+        return 1;
+    }
+    if (ptr == &mons[PM_SABER_TOOTHED_TIGER] && !Role_if(PM_CAVEMAN)) {
+        pline("%s %s menacingly at you!", Monnam(mtmp),
+              rn2(2) ? "snarls" : "growls");
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3)) {
+            mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
         return 1;
     }
     if (!can_saddle(mtmp)) {
@@ -389,8 +403,20 @@ struct obj *otmp;
         pline("%s %s menacingly at you!", Monnam(mtmp),
               rn2(2) ? "snarls" : "growls");
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3))
+            && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
+        return 1;
+    }
+    if (ptr == &mons[PM_SABER_TOOTHED_TIGER] && !Role_if(PM_CAVEMAN)) {
+        pline("%s %s menacingly at you!", Monnam(mtmp),
+              rn2(2) ? "snarls" : "growls");
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3)) {
+            mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
         return 1;
     }
     if (!can_wear_barding(mtmp)) {

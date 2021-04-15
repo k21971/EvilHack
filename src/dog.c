@@ -1045,10 +1045,6 @@ register struct obj *obj;
         || mtmp->data == &mons[PM_SHAMBLING_HORROR])
         return FALSE;
 
-    /* Only orcs can tame the savage warg... */
-    if (!Race_if(PM_ORC) && mtmp->data == &mons[PM_WARG])
-        return FALSE;
-
     /* If wielding/wearing any of the 'banes, taming becomes
        impossible */
     if (wielding_artifact(ART_STING) && racial_orc(mtmp))

@@ -1689,9 +1689,8 @@ unrestrict_weapon_skill(skill)
 int skill;
 {
     /* From SporkHack (modified):
-     * Cavemen are good at what they know how to use, but not much on advanced fencing or combat tactics.
-     * So never unrestrict an edged weapon for them.
-     *
+     * Cavepersons are good at what they know how to use, but not much on advanced
+     * fencing or combat tactics. So never unrestrict an edged weapon for them.
      * Same for priests, they shouldn't have edged weapons at all.
      */
 

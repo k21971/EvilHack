@@ -263,8 +263,7 @@ struct trobj giantBarbarian[] = {
 struct trobj giantCave_man[] = {
     { CLUB, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { SLING, 2, WEAPON_CLASS, 1, UNDEF_BLESS },
-    { FLINT, 0, GEM_CLASS, 15, UNDEF_BLESS }, /* quan is variable */
-    { ROCK, 0, GEM_CLASS, 3, 0 },             /* yields 18..33 */
+    { FLINT, 0, GEM_CLASS, 15, UNDEF_BLESS }, /* trquan is overridden below */
     { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
@@ -669,7 +668,7 @@ register struct monst *mtmp;
             break;
         case PM_CAVEMAN:
         case PM_CAVEWOMAN:
-            Cave_man[C_AMMO].trquan = rn1(11, 10); /* 10..20 */
+            Cave_man[C_AMMO].trquan = rn1(11, 20); /* 20..30 */
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantCave_man, 1);
             else
@@ -1234,6 +1233,7 @@ register struct monst *mtmp;
                 break;
             case 2:
                 (void) mongets(mtmp, SLING);
+                m_initthrow(mtmp, FLINT, 4 + rnd(6));
                 break;
             }
 	    if (!rn2(10)) {

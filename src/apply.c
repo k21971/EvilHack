@@ -25,6 +25,7 @@ STATIC_PTR void FDECL(display_jump_positions, (int));
 STATIC_DCL void FDECL(use_tinning_kit, (struct obj *));
 STATIC_DCL void FDECL(use_grease, (struct obj *));
 STATIC_DCL void FDECL(use_trap, (struct obj *));
+STATIC_DCL void FDECL(apply_flint, (struct obj *));
 STATIC_DCL void FDECL(use_stone, (struct obj *));
 STATIC_PTR int NDECL(set_trap); /* occupation callback */
 STATIC_DCL int FDECL(use_whip, (struct obj *));
@@ -1564,7 +1565,7 @@ dorub()
     struct obj *obj = getobj(cuddly, "rub");
 
     if (obj && obj->oclass == GEM_CLASS) {
-        if (is_graystone(obj)) {
+        if (is_graystone(obj) || obj->otyp == ROCK) {
             use_stone(obj);
             return 1;
         } else {
@@ -2492,6 +2493,50 @@ struct obj *obj;
     update_inventory();
 }
 
+/* creating flint arrows - DSR */
+
+STATIC_OVL void
+apply_flint(flint)
+struct obj* flint;
+{
+    struct obj* obj;
+    char szwork[QBUFSZ];
+    int flints, arrows, i;
+    static const char menulist[2] = {WEAPON_CLASS, 0};
+
+    flints = flint->quan;
+
+    Sprintf(szwork, "affix the stone%s to", plur(flints));
+    if ((obj = getobj(menulist, szwork)) == 0)
+        return;
+
+    /* can only stick flint to arrows */
+    if (obj->otyp < ARROW || obj->otyp > YA) {
+        You("aren't really sure what good that will do.");
+        return;
+    }
+
+    /* can't make MIRV arrows; if they're +1, leave it be */
+    if (obj->spe > 0) {
+        You("don't think you can make these any better than they are.");
+        return;
+    }
+
+    arrows = obj->quan;
+
+    /* One flint stone will do 10 arrows. */
+    if (flints * 10 > arrows) {
+        (obj->spe)++;
+        You("lash flint tips to the %s.", xname(obj));
+        for (i = 0; i <= arrows / 10; i++)
+            useup(flint);
+    } else {
+        You("don't have enough flint to re-tip all of these %s.",
+            xname(obj));
+    }
+    return;
+}
+
 /* touchstones - by Ken Arnold */
 STATIC_OVL void
 use_stone(tstone)
@@ -2502,9 +2547,11 @@ struct obj *tstone;
     static const char coins_gems[3] = { COIN_CLASS, GEM_CLASS, 0 };
     struct obj *obj;
     boolean do_scratch;
+    boolean make_sparks;
+    struct monst* mtmp;
     const char *streak_color, *choices;
     char stonebuf[QBUFSZ];
-    int oclass;
+    int oclass, i, j;
 
     /* in case it was acquired while blinded */
     if (!Blind)
@@ -2538,6 +2585,37 @@ struct obj *tstone;
         return;
     }
 
+    /* break rocks and maybe get some flint out of them */
+    if (obj->otyp == ROCK) {
+        int flint_made = rnd(10) - 9;
+        struct obj * flint = NULL;
+
+        if (Role_if(PM_CAVEMAN)) {
+            /* experts on banging rocks together */
+            flint_made += 3;
+        } else if (tstone->otyp == TOUCHSTONE) {
+            /* a rock can be broken on any other rock, but breaking it on a
+             * touchstone will yield the most */
+            flint_made += 2;
+        }
+        pline("You bang %s%s on %s.", ((obj->quan > 1L) ? "one of " : ""),
+              the(xname(obj)), the(xname(tstone)));
+        pline("It crumbles.");
+
+        if (flint_made <= 0) {
+            flint_made = 0;
+            return;
+        }
+        flint = mksobj(FLINT, TRUE, FALSE);
+        flint->quan = flint_made;
+        flint->owt = weight(flint);
+        flint = hold_another_object(flint, "Oops!  %s out of your grasp!",
+                                    The(aobjnam(flint, "slip")),
+                                    (const char*) 0);
+        useup(obj);
+        return;
+    }
+
     if (Blind) {
         pline(scritch);
         return;
@@ -2547,6 +2625,7 @@ struct obj *tstone;
     }
 
     do_scratch = FALSE;
+    make_sparks = FALSE;
     streak_color = 0;
 
     oclass = obj->oclass;
@@ -2560,6 +2639,8 @@ struct obj *tstone;
     case GEM_CLASS: /* these have class-specific handling below */
     case RING_CLASS:
         if (tstone->otyp != TOUCHSTONE) {
+            if (tstone->otyp == FLINT && objects[obj->otyp].oc_material == IRON)
+                make_sparks = TRUE; /* we'll catch it later */
             do_scratch = TRUE;
         } else if (obj->oclass == GEM_CLASS
                    && (tstone->blessed
@@ -2604,6 +2685,10 @@ struct obj *tstone;
             do_scratch = TRUE; /* scratching and streaks */
             streak_color = "silvery";
             break;
+        case IRON:
+            if (tstone->otyp == FLINT)
+                make_sparks = TRUE;
+            /* FALLTHRU */
         default:
             /* Objects passing the is_flimsy() test will not
                scratch a stone.  They will leave streaks on
@@ -2618,11 +2703,61 @@ struct obj *tstone;
     }
 
     Sprintf(stonebuf, "stone%s", plur(tstone->quan));
-    if (do_scratch)
-        You("make %s%sscratch marks on the %s.",
-            streak_color ? streak_color : (const char *) "",
-            streak_color ? " " : "", stonebuf);
-    else if (streak_color)
+    if (do_scratch) {
+        if (!make_sparks) {
+            You("make %s%sscratch marks on the %s.",
+                streak_color ? streak_color : (const char *) "",
+                streak_color ? " " : "", stonebuf);
+        } else if (tstone->otyp == FLINT) {
+            /* Iron and flint make sparks. Non-intelligent creatures
+             * fear fire.  So anything next to Our Hero(tm) that isn't
+             * intelligent should have a chance of becoming afraid.
+             */
+            makeknown(tstone->otyp);
+            if (u.uinwater) {
+                pline("You'd need a flamethrower to make fire here.");
+                return;
+            }
+            You("strike a few sparks from the flint stone!");
+            if (u.uswallow) {
+                /* Not even the thing you're inside can see your piddly spark. */
+                pline("That's not going to make it any brighter in here.");
+                if (!rn2(3)) {
+                    Your("flint stone crumbles!");
+                    useup(tstone);
+                }
+                return;
+            }
+
+            for (i = u.ux - 1; i < u.ux + 2; i++) {
+                for (j = u.uy - 1; j < u.uy + 2; j++) {
+                    if (!isok(i, j))
+                        continue;
+                    mtmp = m_at(i, j);
+                    /* blind monsters can't see it */
+                    if (!mtmp || mtmp->mblinded || !haseyes(mtmp->data))
+                        continue;
+                    /* only some things will be scared:
+                     * animals and undead fear fire, but
+                     * not if they're fire resistant, sufficiently powerful,
+                     * gigantic (purple worm), mindless, or currently in water
+                     */
+                    if ((is_animal(mtmp->data) || is_undead(mtmp->data))
+                        && !(resists_fire(mtmp) || mtmp->data->mcolor == CLR_MAGENTA
+                             || mtmp->data->msize == MZ_GIGANTIC || mindless(mtmp->data)
+                             || is_damp_terrain(i, j))) {
+                        if (rn2(3))
+                            monflee(mtmp, rnd(10), TRUE, TRUE);
+                    }
+                }
+            }
+            if (!rn2(3)) {
+                Your("flint stone crumbles!");
+                useup(tstone);
+            }
+            return;
+        }
+    } else if (streak_color)
         You_see("%s streaks on the %s.", streak_color, stonebuf);
     else
         pline(scritch);
@@ -3943,10 +4078,12 @@ char class_list[];
 {
     register struct obj *otmp;
     int otyp;
-    boolean knowoil, knowtouchstone, addpotions, addstones, addfood;
+    boolean knowoil, knowtouchstone, knowflint,
+            addpotions, addstones, addfood;
 
     knowoil = objects[POT_OIL].oc_name_known;
     knowtouchstone = objects[TOUCHSTONE].oc_name_known;
+    knowflint = objects[FLINT].oc_name_known;
     addpotions = addstones = addfood = FALSE;
     for (otmp = invent; otmp; otmp = otmp->nobj) {
         otyp = otmp->otyp;
@@ -3959,6 +4096,13 @@ char class_list[];
             || (is_graystone(otmp)
                 && (!otmp->dknown
                     || (!knowtouchstone && !objects[otyp].oc_name_known))))
+            addstones = TRUE;
+        if (otyp == FLINT
+            || (is_graystone(otmp)
+                && (!otmp->dknown
+                    || (!knowflint && !objects[otyp].oc_name_known))))
+            addstones = TRUE;
+        if (otyp == ROCK)
             addstones = TRUE;
         if (otyp == CREAM_PIE || otyp == EUCALYPTUS_LEAF)
             addfood = TRUE;
@@ -4166,9 +4310,16 @@ doapply()
         use_trap(obj);
         break;
     case FLINT:
+        if (Role_if(PM_CAVEMAN)
+            && yn("Affix your flint to some arrows?") == 'y')
+            apply_flint(obj);
+        else
+            use_stone(obj);
+        break;
     case LUCKSTONE:
     case LOADSTONE:
     case TOUCHSTONE:
+    case ROCK:
         use_stone(obj);
         break;
     default:

@@ -485,12 +485,14 @@
    horses can be tamed by always-veggy food or lichen corpses but
    not tamed or pacified by other corpses or tins of veggy critters */
 #define befriend_with_obj(ptr, obj) \
-    (((ptr) == &mons[PM_MONKEY] || (ptr) == &mons[PM_APE])               \
-     ? (obj)->otyp == BANANA                                             \
-     : ((is_domestic(ptr) || (is_rat(ptr) && Role_if(PM_CONVICT)))       \
-        && (obj)->oclass == FOOD_CLASS                                   \
-        && ((ptr)->mlet != S_UNICORN                                     \
-            || obj->material == VEGGY                                    \
+    (((ptr) == &mons[PM_MONKEY] || (ptr) == &mons[PM_APE])                   \
+     ? (obj)->otyp == BANANA                                                 \
+     : ((is_domestic(ptr) || (is_rat(ptr) && Role_if(PM_CONVICT))            \
+         || ((ptr) == &mons[PM_WARG] && Race_if(PM_ORC))                     \
+         || ((ptr) == &mons[PM_SABER_TOOTHED_TIGER] && Role_if(PM_CAVEMAN))) \
+        && (obj)->oclass == FOOD_CLASS                                       \
+        && ((ptr)->mlet != S_UNICORN                                         \
+            || obj->material == VEGGY                                        \
             || ((obj)->otyp == CORPSE && (obj)->corpsenm == PM_LICHEN))))
 
 /* Noise that a monster makes when engaged in combat. Assume that vocalizations

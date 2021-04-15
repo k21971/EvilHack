@@ -226,8 +226,13 @@ in_trouble()
         return TROUBLE_CURSED_BLINDFOLD;
 
     /*
-     * minor troubles
+     * minor troubles...
+     * Cavepersons get another flavor kick: their god is
+     * also a bit primitive, so they get a 10% chance of
+     * their god being asleep at the switch
      */
+    if (!rn2(10) && Role_if(PM_CAVEMAN))
+        return 0;
     if (Punished || (u.utrap && u.utraptype == TT_BURIEDBALL))
         return TROUBLE_PUNISHED;
     if (Cursed_obj(uarmg, GAUNTLETS_OF_FUMBLING)
@@ -1114,8 +1119,9 @@ aligntyp g_align;
 
     /* note: can't get pat_on_head unless all troubles have just been
        fixed or there were no troubles to begin with; hallucination
-       won't be in effect so special handling for it is superfluous */
-    if (pat_on_head)
+       won't be in effect so special handling for it is superfluous.
+       Cavepersons are sometimes ignored by their god */
+    if (pat_on_head && (Role_if(PM_CAVEMAN) ? rn2(10) : 1))
         switch (rn2((Luck + 6) >> 1)) {
         case 0:
             break;
@@ -1335,6 +1341,9 @@ aligntyp g_align;
         default:
             impossible("Confused deity!");
             break;
+	} else if (pat_on_head) {
+            You_feel("that %s is not entirely paying attention.",
+                     align_gname(g_align));
         }
 
     u.ublesscnt = rnz(350);
