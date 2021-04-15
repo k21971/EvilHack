@@ -721,7 +721,7 @@ Go away, make self right.  Maybe you do this quest."
 They sent by %n.  This one very bad.  He lead the
 Bad People to fight us.  Some of us die.
 
-"While we hurt, Bad Men take %o.  They take it to %i.
+"While we hurt, Bad People take %o.  They take it to %i.
 We can not get it back.  %n will kill us.
 
 "%p, you find %i, take back %o from %n.  Silver bell

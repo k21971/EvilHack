@@ -1562,4 +1562,5 @@ The following changes to date are:
 - Fix: 'This Grey-elf corpse tastes okay.  You wake up.
   You feel a bit perkier.'
 - Caveperson changes
+- Few more caveperson tweaks
 

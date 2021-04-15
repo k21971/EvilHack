@@ -1341,7 +1341,7 @@ aligntyp g_align;
         default:
             impossible("Confused deity!");
             break;
-	} else if (pat_on_head) {
+        } else if (pat_on_head) {
             You_feel("that %s is not entirely paying attention.",
                      align_gname(g_align));
         }
