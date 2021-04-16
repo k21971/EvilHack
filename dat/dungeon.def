@@ -98,10 +98,10 @@ DUNGEON:		"Sokoban" "none" (4, 0)
 DESCRIPTION:    mazelike
 ALIGNMENT:      neutral
 ENTRY:          -1
-RNDLEVEL:		"soko1" "none" @ (1, 0) 2
-RNDLEVEL:		"soko2" "none" @ (2, 0) 2
-RNDLEVEL:		"soko3" "none" @ (3, 0) 2
-RNDLEVEL:		"soko4" "none" @ (4, 0) 2
+RNDLEVEL:		"soko1" "none" @ (1, 0) 6
+RNDLEVEL:		"soko2" "none" @ (2, 0) 6
+RNDLEVEL:		"soko3" "none" @ (3, 0) 6
+RNDLEVEL:		"soko4" "none" @ (4, 0) 6
 
 #
 #	The Central Vault of Croesus.
