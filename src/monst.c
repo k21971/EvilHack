@@ -705,7 +705,7 @@ NEARDATA struct permonst mons[] = {
     /*
      * kobolds
      */
-    MON("kobold", S_KOBOLD, LVL(0, 6, 10, 0, -2), (G_GENO | 1),
+    MON("kobold", S_KOBOLD, LVL(0, 6, 10, 0, -2), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(400, 100, MS_ORC, MZ_SMALL), MR_POISON, 0,
