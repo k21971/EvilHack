@@ -1566,4 +1566,5 @@ The following changes to date are:
 - Allow player monsters to spawn using newest race/role additions
 - Fix: broke (a)pply and #rub for all objects except gem class types
 - New Sokoban levels
+- Fix: show items given to monster with inventory letters
 
