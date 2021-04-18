@@ -2272,6 +2272,25 @@ do_rust:
             }
         }
         break;
+    case AD_WEBS:
+        if (!uncancelled)
+            break;
+        if (!t_at(u.ux, u.uy)) {
+            struct trap *web = maketrap(u.ux, u.uy, WEB);
+            if (web) {
+                hitmsg(mtmp, mattk);
+                pline("%s entangles you in a web%s",
+                      Monnam(mtmp),
+                      is_giant(youmonst.data)
+                          ? ", but you rip through it!"
+                          : webmaker(youmonst.data) ? ", but you easily disentangle yourself."
+                                                    : "!");
+                dotrap(web, NOWEBMSG);
+                if (u.usteed && u.utrap)
+                    dismount_steed(DISMOUNT_FELL);
+            }
+        }
+        break;
     default:
         dmg = 0;
         break;

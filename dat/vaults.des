@@ -493,7 +493,7 @@ REGION:(1,1,1,1),random,"ordinary",unfilled,irregular { }
 # spider nest
 LEVEL:"vlt-0025"
 FLAGS:rndvault
-MINDEPTH:3
+MINDEPTH:5
 ROOM:"rndvault", unlit, random, random, random {
   LOOP [1d4 + 1] {
     TRAP:"web", random

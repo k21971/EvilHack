@@ -88,6 +88,7 @@
 #define AD_POLY 50  /* polymorph the target (genetic engineer) */
 #define AD_WTHR 51  /* withering attack (mummies) */
 #define AD_PITS 52  /* create pit under target (pit fiend) */
+#define AD_WEBS 53  /* entangles target in webbing */
 
 #define AD_CLRC 240 /* random clerical spell */
 #define AD_SPEL 241 /* random magic spell */

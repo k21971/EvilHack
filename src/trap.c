@@ -2917,14 +2917,17 @@ register struct monst *mtmp;
             case PM_BALUCHITHERIUM:
             case PM_PURPLE_WORM:
             case PM_JABBERWOCK:
+            case PM_VORPAL_JABBERWOCK:
             case PM_IRON_GOLEM:
             case PM_BALROG:
             case PM_KRAKEN:
             case PM_MASTODON:
+            case PM_WOOLLY_MAMMOTH:
             case PM_ORION:
             case PM_NORN:
             case PM_CYCLOPS:
             case PM_LORD_SURTUR:
+            case PM_ANNAM:
                 tear_web = TRUE;
                 break;
             }

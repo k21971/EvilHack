@@ -671,7 +671,7 @@ int damg_melee_types [] =
       AD_SGLD, AD_SITM, AD_SEDU, AD_TLPT, AD_RUST,
       AD_CONF, AD_DRDX, AD_DRCO, AD_DRIN, AD_DISE,
       AD_DCAY, AD_HALU, AD_ENCH, AD_CORR, AD_BHED,
-      AD_POLY, AD_WTHR, AD_PITS
+      AD_POLY, AD_WTHR, AD_PITS, AD_WEBS
     };
 
 int damg_breath_types [] =

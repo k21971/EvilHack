@@ -2643,6 +2643,22 @@ do_rust:
             }
         }
         break;
+    case AD_WEBS:
+        if (negated)
+            break;
+        if (!t_at(mdef->mx, mdef->my)) {
+            struct trap *web = maketrap(mdef->mx, mdef->my, WEB);
+            if (web) {
+                mintrap(mdef);
+                if (has_erid(mdef) && mdef->mtrapped) {
+                    if (canseemon(mdef))
+                        pline("%s falls off %s %s!",
+                              Monnam(mdef), mhis(mdef), l_monnam(ERID(mdef)->m1));
+                    separate_steed_and_rider(mdef);
+                }
+            }
+        }
+        break;
     default:
         tmp = 0;
         break;
