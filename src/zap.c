@@ -3024,7 +3024,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
             shieldeff(u.ux, u.uy);
 	} else if (!youdefend && resisted) {
 	    shieldeff(mdef->mx, mdef->my);
-	} else if (!youdefend) {
+	} else if (!youdefend && !youattack) {
             if (!mdef->mcan)
                 pline("Magical energies are absorbed from %s.", mon_nam(mdef));
             else if (mdef->mcan)

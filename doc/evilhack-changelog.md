@@ -1573,4 +1573,5 @@ The following changes to date are:
 - Add macos build to github actions
 - Discontinue using Travis CI
 - Giant spiders, Lolth can entangle their target with a web attack
+- Fix: 'Magical energies are absorbed from <target>' printed twice
 
