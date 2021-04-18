@@ -812,7 +812,13 @@ register struct monst *mtmp;
         static const char *const laugh_msg[4] = {
             "giggles.", "chuckles.", "snickers.", "laughs.",
         };
-        pline_msg = laugh_msg[rn2(4)];
+        static const char *const gnoll_msg[5] = {
+            "cackles.", "woops.", "yips.", "laughs.", "growls.",
+        };
+        if (is_gnoll(ptr))
+            pline_msg = gnoll_msg[rn2(5)];
+        else
+            pline_msg = laugh_msg[rn2(4)];
     } break;
     case MS_MUMBLE:
         pline_msg = "mumbles incomprehensibly.";

@@ -164,7 +164,8 @@
      || (ptr) == &mons[PM_GNOMISH_WIZARD] || (ptr) == &mons[PM_ALHOON]            \
      || (ptr) == &mons[PM_ILLITHID])
 #define has_claws(ptr) \
-    ((ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE    \
+    (is_illithid(ptr) || is_gnoll(ptr)                         \
+     || (ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE \
      || (ptr)->mlet == S_GREMLIN || (ptr)->mlet == S_IMP       \
      || (ptr)->mlet == S_MIMIC || (ptr)->mlet == S_SPIDER      \
      || (ptr)->mlet == S_ZRUTY || (ptr)->mlet == S_BAT         \
@@ -266,6 +267,7 @@
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
+#define is_gnoll(ptr) (((ptr)->mhflags & MH_GNOLL) != 0L)
 #define is_not_zombie(ptr) \
     ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON] \
      || (ptr) == &mons[PM_REVENANT])

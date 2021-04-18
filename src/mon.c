@@ -196,7 +196,7 @@ struct permonst * pm;
     switch(pm->mlet) {
     case S_ZOMBIE:
         /* Z-class monsters that aren't actually zombies go here */
-        if (pm == &mons[PM_GHOUL] || pm == &mons[PM_SKELETON])
+        if (is_not_zombie(pm))
             return FALSE;
         return TRUE;
     }
@@ -231,12 +231,18 @@ struct monst *mtmp;
             return PM_GNOME_ZOMBIE;
         if (racial_orc(mtmp))
             return PM_ORC_ZOMBIE;
+        if (racial_hobbit(mtmp))
+            return PM_HOBBIT_ZOMBIE;
+        if (racial_giant(mtmp))
+            return PM_GIANT_ZOMBIE;
         return PM_HUMAN_ZOMBIE;
     case S_HUMANOID:
         if (racial_dwarf(mtmp))
             return PM_DWARF_ZOMBIE;
         if (racial_hobbit(mtmp))
             return PM_HOBBIT_ZOMBIE;
+        if (is_gnoll(mtmp->data))
+            return PM_GNOLL_WITHERLING;
         else
             break;
     case S_GNOME:
@@ -263,7 +269,8 @@ struct monst* mdef;
     if (couldspot && willspot) {
         /* only print if you can spot both the dying monster and the arising
          * zombie */
-        pline("%s rises again as a zombie!", Monnam(mdef));
+        pline("%s rises again as a %s!", Monnam(mdef),
+              is_gnoll(mdef->data) ? "witherling" : "zombie");
     }
 
     if (newcham(mdef, &mons[zombie_form(mdef)], FALSE, FALSE)) {
@@ -347,7 +354,7 @@ struct monst* mdef;
 
     if (couldspot && willspot) {
         /* only print if you can spot both the dying monster and the arising
-         * zombie */
+         * mind flayer */
         pline("%s transforms into a mind flayer!", Monnam(mdef));
     }
 
@@ -451,6 +458,8 @@ int mndx;
     case PM_ETTIN_MUMMY:
         mndx = PM_ETTIN;
         break;
+    case PM_GNOLL_WITHERLING:
+        mndx = PM_GNOLL;
     default:
         break;
     }
@@ -654,6 +663,7 @@ unsigned corpseflags;
     case PM_HUMAN_ZOMBIE:
     case PM_GIANT_ZOMBIE:
     case PM_ETTIN_ZOMBIE:
+    case PM_GNOLL_WITHERLING:
         corpstatflags |= CORPSTAT_ZOMBIE;
         /* FALLTHRU */
     case PM_KOBOLD_MUMMY:

@@ -1307,6 +1307,28 @@ register struct monst *mtmp;
             if (!rn2(4))
                 otmp->oerodeproof = 1;
             (void) mpickobj(mtmp, otmp);
+        } else if (is_gnoll(ptr)) {
+            if (rn2(4))
+                (void) mongets(mtmp, ARMOR);
+            if (!rn2(5))
+                (void) mongets(mtmp, CLOAK);
+            if (mm != PM_GNOLL_CLERIC) {
+                if (rn2(4))
+                    (void) mongets(mtmp, rn2(3) ? FLAIL : SPEAR);
+                else
+                    (void) mongets(mtmp, !rn2(3) ? VOULGE : MORNING_STAR);
+            }
+            if (mm == PM_GNOLL_HUNTER) {
+                (void) mongets(mtmp, BOW);
+                m_initthrow(mtmp, ARROW, 12);
+            }
+            if (mm == PM_FLIND) {
+                if (rn2(4))
+                    (void) mongets(mtmp, HIGH_BOOTS);
+                if (!rn2(4))
+                    (void) mongets(mtmp, HELMET);
+                (void) mongets(mtmp, !rn2(3) ? TWO_HANDED_SWORD : BATTLE_AXE);
+            }
         }
         break;
     case S_KOP:

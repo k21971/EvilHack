@@ -1567,4 +1567,5 @@ The following changes to date are:
 - Fix: broke (a)pply and #rub for all objects except gem class types
 - New Sokoban levels
 - Fix: show items given to monster with inventory letters
+- Gnolls
 

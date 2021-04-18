@@ -756,25 +756,52 @@ NON_DIGGABLE:(01,01,15,15)
 IF [50%] {
   IF [50%] {
     MONSTER:('&',"Mephistopheles"),(12,08)
+    # minions
+    MONSTER:('d',"hell hound"),(11,08),hostile
+    MONSTER:('d',"hell hound"),(13,08),hostile
+    MONSTER:('&',"horned devil"),(11,07),hostile
+    MONSTER:('&',"horned devil"),(11,09),hostile
+    MONSTER:('&',"barbed devil"),(13,07),hostile
+    MONSTER:('&',"barbed devil"),(13,09),hostile
+    MONSTER:'i',(10,08),hostile
+    MONSTER:'i',(14,12),hostile
   } ELSE {
     MONSTER:('&',"Yeenoghu"),(12,08)
+    # minions
+    MONSTER:('h',"gnoll"),(11,08),hostile
+    MONSTER:('h',"gnoll"),(13,08),hostile
+    MONSTER:('h',"gnoll hunter"),(11,07),hostile
+    MONSTER:('h',"gnoll hunter"),(11,09),hostile
+    MONSTER:('h',"gnoll cleric"),(13,07),hostile
+    MONSTER:('h',"flind"),(13,09),hostile
+    MONSTER:('h',"gnoll"),(10,08),hostile
+    MONSTER:('h',"gnoll"),(14,12),hostile
   }
 } ELSE {
   IF [50%] {
     MONSTER:('&',"Dispater"),(12,08)
+    # minions
+    MONSTER:('d',"hell hound"),(11,08),hostile
+    MONSTER:('d',"hell hound"),(13,08),hostile
+    MONSTER:('T',"Olog-hai"),(11,07),hostile
+    MONSTER:('T',"Olog-hai"),(11,09),hostile
+    MONSTER:('T',"Olog-hai"),(13,07),hostile
+    MONSTER:('T',"Olog-hai"),(13,09),hostile
+    MONSTER:'G',(10,08),hostile
+    MONSTER:'G',(14,12),hostile
   } ELSE {
     MONSTER:('&',"Lolth"),(12,08)
+    # minions
+    MONSTER:('s',"giant spider"),(11,08),hostile
+    MONSTER:('s',"giant spider"),(13,08),hostile
+    MONSTER:('s',"giant spider"),(11,07),hostile
+    MONSTER:('s',"giant spider"),(11,09),hostile
+    MONSTER:('s',"scorpion"),(13,07),hostile
+    MONSTER:('s',"giant centipede"),(13,09),hostile
+    MONSTER:'s',(10,08),hostile
+    MONSTER:'s',(14,12),hostile
   }
 }
-# minions
-MONSTER:('d',"hell hound"),(11,08),hostile
-MONSTER:('d',"hell hound"),(13,08),hostile
-MONSTER:('T',"Olog-hai"),(11,07),hostile
-MONSTER:('T',"Olog-hai"),(11,09),hostile
-MONSTER:('T',"Olog-hai"),(13,07),hostile
-MONSTER:('T',"Olog-hai"),(13,09),hostile
-MONSTER:'G',(10,08),hostile
-MONSTER:'G',(14,12),hostile
 
 NOMAP
 # slaves
@@ -921,21 +948,36 @@ TERRAIN: floodfill (36,20), 'L'
 IF [50%] {
   IF [50%] {
     MONSTER:('&',"Mephistopheles"),(18,10)
+    # their minions
+    MONSTER:(''',"iron golem"),(18,09),hostile
+    MONSTER:('&',"pit fiend"),(18,11),hostile
+    MONSTER:('&',"horned devil"),(17,10),hostile
+    MONSTER:('&',"barbed devil"),(19,10),hostile
   } ELSE {
     MONSTER:('&',"Yeenoghu"),(18,10)
+    # their minions
+    MONSTER:('h',"flind"),(18,09),hostile
+    MONSTER:('h',"gnoll cleric"),(18,11),hostile
+    MONSTER:('h',"gnoll hunter"),(17,10),hostile
+    MONSTER:('h',"gnoll hunter"),(19,10),hostile
   }
 } ELSE {
   IF [50%] {
     MONSTER:('&',"Dispater"),(18,10)
+    # their minions
+    MONSTER:(''',"iron golem"),(18,09),hostile
+    MONSTER:('&',"pit fiend"),(18,11),hostile
+    MONSTER:('&',"bone devil"),(17,10),hostile
+    MONSTER:('&',"bone devil"),(19,10),hostile
   } ELSE {
     MONSTER:('&',"Lolth"),(18,10)
+    # their minions
+    MONSTER:('s',"giant centipede"),(18,09),hostile
+    MONSTER:('s',"giant spider"),(18,11),hostile
+    MONSTER:('s',"giant spider"),(17,10),hostile
+    MONSTER:('s',"giant spider"),(19,10),hostile
   }
 }
-# their minions
-MONSTER:(''',"iron golem"),(18,09),hostile
-MONSTER:('&',"pit fiend"),(18,11),hostile
-MONSTER:('&',"bone devil"),(17,10),hostile
-MONSTER:('&',"bone devil"),(19,10),hostile
 # their subordinates
 MONSTER:'&',random,hostile
 MONSTER:'&',random,hostile
@@ -1125,8 +1167,8 @@ IF [50%] {
   } ELSE {
     MONSTER:('&',"Yeenoghu"),(14,03)
     #entourage
-    MONSTER:('&',"nalfeshnee"),(12,03),hostile
-    MONSTER:('&',"pit fiend"),(16,03),hostile
+    MONSTER:('h',"flind"),(12,03),hostile
+    MONSTER:('h',"gnoll cleric"),(16,03),hostile
   }
 } ELSE {
   IF [50%] {
@@ -1137,7 +1179,7 @@ IF [50%] {
   } ELSE {
     MONSTER:('&',"Lolth"),(14,03)
     #entourage
-    MONSTER:('&',"marilith"),(12,03),hostile
+    MONSTER:('s',"giant centipede"),(12,03),hostile
     MONSTER:('&',"pit fiend"),(16,03),hostile
   }
 }

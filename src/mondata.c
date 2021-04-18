@@ -703,6 +703,8 @@ struct permonst *pm1, *pm2;
     /* other creatures are less precise */
     if (is_giant(pm1))
         return is_giant(pm2); /* open to quibbling here */
+    if (is_gnoll(pm1))
+        return is_gnoll(pm2);
     if (is_golem(pm1))
         return is_golem(pm2); /* even moreso... */
     if (is_mind_flayer(pm1))
@@ -1111,6 +1113,8 @@ static const short grownups[][2] = {
     { PM_GNOME_NOBLE, PM_GNOME_ROYAL },
     { PM_MOUNTAIN_DWARF, PM_DWARF_NOBLE },
     { PM_DWARF_NOBLE, PM_DWARF_ROYAL },
+    { PM_GNOLL, PM_GNOLL_HUNTER },
+    { PM_GNOLL_HUNTER, PM_FLIND },
     { PM_MIND_FLAYER, PM_MASTER_MIND_FLAYER },
     { PM_HILL_ORC, PM_ORC_CAPTAIN },
     { PM_MORDOR_ORC, PM_ORC_CAPTAIN },
