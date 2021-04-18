@@ -1069,8 +1069,14 @@ struct attack *mattk;
 
     /* monster explosion types which actually create an explosion */
     if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
-        || mattk->adtyp == AD_ELEC) {
+        || mattk->adtyp == AD_ELEC || mattk->adtyp == AD_ACID) {
         mon_explodes(magr, mattk);
+        if (mattk->adtyp == AD_ACID) {
+            if (rn2(4))
+                erode_armor(mdef, ERODE_CORRODE);
+            if (rn2(2))
+                acid_damage(MON_WEP(mdef));
+        }
         /* unconditionally set AGR_DIED here; lifesaving is accounted below */
         result = MM_AGR_DIED | (DEADMONSTER(mdef) ? MM_DEF_DIED : 0);
         /* kludge to ensure the player gets experience if spheres

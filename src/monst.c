@@ -432,6 +432,13 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 0, 0, 8, HI_ZAP),
+    MON("acid sphere", S_EYE, LVL(7, 13, 4, 0, 0),
+        (G_NOCORPSE | 2), A(ATTK(AT_EXPL, AD_ACID, 5, 6), NO_ATTK,
+                                     NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_ACID, MR_ACID,
+        M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
+            | M1_NOTAKE,
+        M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 0, 0, 10, CLR_YELLOW),
     MON("magical eye", S_EYE, LVL(8, 6, 0, 90, -10), (2),
         A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_SLEE, 2, 6),
           ATTK(AT_GAZE, AD_STUN, 0, 0), ATTK(AT_GAZE, AD_FIRE, 4, 6),

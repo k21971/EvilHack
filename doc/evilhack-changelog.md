@@ -1569,4 +1569,5 @@ The following changes to date are:
 - Fix: show items given to monster with inventory letters
 - Gnolls
 - Uruk-hai/orc-captains will sometimes spawn riding a warg
+- Acid spheres
 

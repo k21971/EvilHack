@@ -2695,11 +2695,18 @@ register struct attack *mattk;
     case AD_COLD:
     case AD_FIRE:
     case AD_ELEC:
+    case AD_ACID:
         /* See comment in mon_explodes() and in zap.c for an explanation of this
          * math.  Here, the player is causing the explosion, so it should be in
          * the +20 to +29 range instead of negative. */
         explode(u.ux, u.uy, (mattk->adtyp - 1) + 20, tmp, MON_EXPLODE,
                 adtyp_to_expltype(mattk->adtyp));
+        if (mattk->adtyp == AD_ACID) {
+            if (rn2(4))
+                erode_armor(mdef, ERODE_CORRODE);
+            if (rn2(2))
+                acid_damage(MON_WEP(mdef));
+        }
         if (mdef && DEADMONSTER(mdef)) {
             /* Other monsters may have died too, but return 2 if the actual
              * target died. */
