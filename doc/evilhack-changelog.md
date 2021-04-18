@@ -1570,4 +1570,5 @@ The following changes to date are:
 - Gnolls
 - Uruk-hai/orc-captains will sometimes spawn riding a warg
 - Acid spheres
+- Add macos build to github actions
 

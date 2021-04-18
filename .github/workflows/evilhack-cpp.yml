@@ -22,6 +22,19 @@ jobs:
     - name: make install
       run: make install
 
+  mac-build:
+    runs-on: macos-latest
+    env:
+      HINTS_FILE: macOS.2020
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup
+      run: ./sys/unix/setup.sh sys/unix/hints/$HINTS_FILE
+    - name: make all
+      run: make all
+    - name: make install
+      run: make install
+
   windows-build:
     runs-on: windows-latest
     env:
