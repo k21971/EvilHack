@@ -158,7 +158,7 @@ ifdef WANT_SHARE_INSTALL
 ifeq ($(GAMEUID),root)
 PREFIX:=/Library/NetHack
 SHELLDIR=/usr/local/bin
-HACKDIR=$(PREFIX)/nethackdir
+HACKDIR=$(PREFIX)/evilhackdir
 CHOWN=chown
 CHGRP=chgrp
 # We run sgid so the game has access to both HACKDIR and user preferences.
@@ -166,7 +166,7 @@ GAMEPERM = 02755
 else	# ! root
 PREFIX:=/Users/$(GAMEUID)
 SHELLDIR=$(PREFIX)/bin
-HACKDIR=$(PREFIX)/Library/NetHack/nethackdir
+HACKDIR=$(PREFIX)/Library/NetHack/evilhackdir
 CHOWN=/usr/bin/true
 CHGRP=/usr/bin/true
 GAMEPERM = 0500
@@ -196,7 +196,7 @@ CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE
 else	# !WANT_SOURCE_INSTALL
 PREFIX:=$(wildcard ~)
 SHELLDIR=$(PREFIX)/bin
-HACKDIR=$(PREFIX)/nethackdir
+HACKDIR=$(PREFIX)/evilhackdir
 CHOWN=/usr/bin/true
 CHGRP=/usr/bin/true
 GAMEPERM = 0700
@@ -322,7 +322,7 @@ build_package_root:
 	cd src/..       # make sure we are at TOP
 	rm -rf PKGROOT
 	mkdir -p $(PKGROOT_UG)/lib $(PKGROOT_BIN) $(PKGROOT_UG)/man/man6 $(PKGROOT_UG)/doc $(PKGROOT_UGLN)
-	install -p src/nethack $(PKGROOT_BIN)
+	install -p src/evilhack $(PKGROOT_BIN)
 	# XXX should this be called nethackrecover?
 	install -p util/recover $(PKGROOT_BIN)
 	install -p doc/nethack.6 $(PKGROOT_UG)/man/man6
@@ -332,8 +332,9 @@ build_package_root:
 	sys/unix/hints/macosx.sh editsysconf sys/unix/sysconf $(PKGROOT_UGLN)/sysconf
 	cd dat; install -p $(DATNODLB) ../$(PKGROOT_UGLN)
 # XXX these files should be somewhere else for good Mac form
-	touch $(PKGROOT_UGLN)/perm $(PKGROOT_UGLN)/record $(PKGROOT_UGLN)/logfile $(PKGROOT_UGLN)/xlogfile
+	touch $(PKGROOT_UGLN)/perm $(PKGROOT_UGLN)/record $(PKGROOT_UGLN)/logfile $(PKGROOT_UGLN)/xlogfile $(PKGROOT_UGLN)/wishtracker
 	mkdir $(PKGROOT_UGLN)/save
+	mkdir $(PKGROOT_UGLN)/whereis
 # XXX what about a news file?
 
 	mkdir -p PKGSCRIPTS
@@ -343,12 +344,13 @@ build_package_root:
 	echo $(CHOWN) $(GAMEUID) $(HACKDIR)/*        >> PKGSCRIPTS/postinstall
 	echo $(CHGRP) $(GAMEGRP) $(HACKDIR)        >> PKGSCRIPTS/postinstall
 	echo $(CHGRP) $(GAMEGRP) $(HACKDIR)/*        >> PKGSCRIPTS/postinstall
-	echo $(CHOWN) $(GAMEUID) $(SHELLDIR)/nethack  >> PKGSCRIPTS/postinstall
-	echo $(CHGRP) $(GAMEGRP) $(SHELLDIR)/nethack  >> PKGSCRIPTS/postinstall
+	echo $(CHOWN) $(GAMEUID) $(SHELLDIR)/evilhack >> PKGSCRIPTS/postinstall
+	echo $(CHGRP) $(GAMEGRP) $(SHELLDIR)/evilhack >> PKGSCRIPTS/postinstall
 	echo $(CHOWN) $(GAMEUID) $(SHELLDIR)/recover  >> PKGSCRIPTS/postinstall
 	echo $(CHGRP) $(GAMEGRP) $(SHELLDIR)/recover  >> PKGSCRIPTS/postinstall
 	echo chmod $(VARDIRPERM)  $(HACKDIR)          >> PKGSCRIPTS/postinstall
 	echo chmod $(VARDIRPERM)  $(HACKDIR)/save     >> PKGSCRIPTS/postinstall
+	echo chmod $(VARDIRPERM)  $(HACKDIR)/whereis  >> PKGSCRIPTS/postinstall
 	echo chmod $(FILEPERM)    $(HACKDIR)/license  >> PKGSCRIPTS/postinstall
 	echo chmod $(FILEPERM)    $(HACKDIR)/nhdat    >> PKGSCRIPTS/postinstall
 	echo chmod $(FILEPERM)    $(HACKDIR)/symbols  >> PKGSCRIPTS/postinstall
@@ -356,8 +358,9 @@ build_package_root:
 	echo chmod $(VARFILEPERM) $(HACKDIR)/record   >> PKGSCRIPTS/postinstall
 	echo chmod $(VARFILEPERM) $(HACKDIR)/logfile  >> PKGSCRIPTS/postinstall
 	echo chmod $(VARFILEPERM) $(HACKDIR)/xlogfile >> PKGSCRIPTS/postinstall
+	echo chmod $(VARFILEPERM) $(HACKDIR)/wishtracker >> PKGSCRIPTS/postinstall
 	echo chmod $(VARFILEPERM) $(HACKDIR)/sysconf  >> PKGSCRIPTS/postinstall
-	echo chmod $(GAMEPERM)   $(SHELLDIR)/nethack  >> PKGSCRIPTS/postinstall
+	echo chmod $(GAMEPERM)   $(SHELLDIR)/evilhack >> PKGSCRIPTS/postinstall
 	echo chmod $(EXEPERM)    $(SHELLDIR)/recover  >> PKGSCRIPTS/postinstall
 	chmod 0775 PKGSCRIPTS/postinstall
 
@@ -373,21 +376,21 @@ ifneq (,$(WANT_WIN_X11)$(WANT_WIN_TTY))
 else
 	$(MAKE) build_package_root
 	rm -rf NetHackQt
-	mkdir -p NetHackQt/NetHackQt.app/nethackdir/save
+	mkdir -p NetHackQt/NetHackQt.app/evilhackdir/save
 	mkdir NetHackQt/Documentation
 	cp doc/Guidebook.txt doc/nethack.txt doc/recover.txt NetHackQt/Documentation
 
-	osacompile -o NetHackQt/NetHackQt.app/nethackdir/NetHackRecover.app \
+	osacompile -o NetHackQt/NetHackQt.app/evilhackdir/NetHackRecover.app \
 		 win/macosx/NetHackRecover.applescript
-	cp win/macosx/recover.pl NetHackQt/NetHackQt.app/nethackdir
+	cp win/macosx/recover.pl NetHackQt/NetHackQt.app/evilhackdir
 
 	mkdir -p NetHackQt/NetHackQt.app/Contents/Frameworks
 	cp $(QTDIR)/libqt-mt.3.dylib NetHackQt/NetHackQt.app/Contents/Frameworks
 
 	mkdir NetHackQt/NetHackQt.app/Contents/MacOS
-	mv PKGROOT/nethack NetHackQt/NetHackQt.app/Contents/MacOS
+	mv PKGROOT/evilhack NetHackQt/NetHackQt.app/Contents/MacOS
 
-	mv PKGROOT/lib/nethackdir NetHackQt/NetHackQt.app/nethackdir
+	mv PKGROOT/lib/evilhackdir NetHackQt/NetHackQt.app/evilhackdir
 
 # XXX still missing:
 #NetHackQt/NetHackQt.app

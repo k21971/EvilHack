@@ -25,7 +25,7 @@ jobs:
   mac-build:
     runs-on: macos-latest
     env:
-      HINTS_FILE: macOS.2020
+      HINTS_FILE: macos10.14
     steps:
     - uses: actions/checkout@v2
     - name: setup
