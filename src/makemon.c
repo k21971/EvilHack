@@ -2524,6 +2524,14 @@ int mmflags;
         case PM_GOBLIN_CAPTAIN:
             mount_monster(mtmp, PM_WARG);
             break;
+        case PM_URUK_HAI:
+            if (!rn2(7))
+                mount_monster(mtmp, PM_WARG);
+            break;
+        case PM_ORC_CAPTAIN:
+            if (!rn2(4))
+                mount_monster(mtmp, PM_WARG);
+            break;
         case PM_KNIGHT:
             if (mon_aligntyp(mtmp) == A_CHAOTIC)
                 rn2(3) ? mount_monster(mtmp, PM_NIGHTMARE)
