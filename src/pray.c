@@ -2091,22 +2091,29 @@ dosacrifice()
              * The chance goes down as the number of artifacts goes up.
              *
              * From SporkHack (heavily modified):
-             * The player can also get handed just a plain old hunk of weaponry
-             * or piece of armor, but it will be blessed, +3 to +5, fire/rustproof, and
-             * if it's a weapon, it'll be in one of the player's available skill
-             * slots. The lower level you are, the more likely it is that you'll
-             * get a hunk of ordinary junk rather than an artifact.
+             * The player can also get handed just a plain old hunk of
+             * weaponry or piece of armor, but it will be blessed, +3 to +5,
+             * fire/rustproof, and if it's a weapon, it'll be in one of the
+             * player's available skill slots. The lower level you are, the
+             * more likely it is that you'll get a hunk of ordinary junk
+             * rather than an artifact.
              *
              * Note that no artifact is guaranteed; it's still subject to the
-             * chances of generating one of those in the first place. These are
-             * just the chances that an artifact will even be considered as a gift.
+             * chances of generating one of those in the first place. These
+             * are just the chances that an artifact will even be considered
+             * as a gift.
              *
-             * level  4: 10% chance  level  9: 20% chance  level 12: 30% chance
-             * level 14: 40% chance  level 17: 50% chance  level 19: 60% chance
-             * level 21: 70% chance  level 23: 80% chance  level 24: 90% chance
+             * If your role has a guaranteed first sacrifice gift, you will
+             * not receive a non-artifact item as a gift until you've gotten
+             * your guaranteed artifact.
+             *
+             * level  4: 10% chance level  9: 20% chance level 12: 30% chance
+             * level 14: 40% chance level 17: 50% chance level 19: 60% chance
+             * level 21: 70% chance level 23: 80% chance level 24: 90% chance
              * level 26 or greater: 100% chance
              */
-            if (rn2(10) >= (int) ((nchance * nchance) / 100)) {
+            if (!awaiting_guaranteed_gift()
+                && rn2(10) >= (int) ((nchance * nchance) / 100)) {
                 if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
                     int typ, ncount = 0;
                     if (rn2(2)) { /* Making a weapon */
