@@ -3473,4 +3473,26 @@ int art;
             || (u.twoweap && uswapwep->oartifact == art));
 }
 
+boolean
+awaiting_guaranteed_gift()
+{
+    int m;
+    struct artifact *a;
+    for (m = 1, a = &artilist[m]; a->otyp; a++, m++) {
+        if (artiexist[m])
+            continue;
+        if (a->spfx & SPFX_NOGEN)
+            continue;
+        /* uses the same criteria as mk_artifact */
+        if (Role_if(a->role)
+            && (a->alignment == u.ualign.type || a->alignment == A_NONE)
+            && (a->race == NON_PM || !race_hostile(&mons[a->race]))
+            && (!(Race_if(PM_GIANT) && (a->mtype & MH_GIANT)))
+            && (!(Role_if(PM_PRIEST) && (is_slash(a) || is_pierce(a))))) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 /*artifact.c*/
