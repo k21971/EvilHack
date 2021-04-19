@@ -1574,4 +1574,6 @@ The following changes to date are:
 - Discontinue using Travis CI
 - Giant spiders, Lolth can entangle their target with a web attack
 - Fix: 'Magical energies are absorbed from <target>' printed twice
+- Restore guaranteed first sacrifice gifts
+- Change CFLAGS -g to -g3 (linux builds)
 
