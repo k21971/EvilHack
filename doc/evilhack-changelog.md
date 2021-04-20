@@ -1580,4 +1580,6 @@ The following changes to date are:
 - Covetous monsters will equip wearable items that they target
 - Allow Infidel quest leader to demand the quest artifact
 - Neothelids
+- Fix: prevent Infidel from escaping the dungeon with the Amulet of
+  Yendor via drinking a cursed potion of gain level
 
