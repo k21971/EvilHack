@@ -790,6 +790,10 @@ int dieroll;
                 if (magr->data == &mons[PM_MEDUSA])
                     Sprintf(buf, "The venomous snakes on %s head attack",
                             s_suffix(magr_name));
+                else if (magr->data == &mons[PM_DEMOGORGON]
+                         || magr->data == &mons[PM_NEOTHELID])
+                    Sprintf(buf, "%s tentacles lash out at",
+                            s_suffix(magr_name));
                 else
                     Sprintf(buf, "%s tentacles suck", s_suffix(magr_name));
                 break;

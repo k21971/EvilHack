@@ -1035,13 +1035,15 @@ register struct obj *obj;
         return FALSE;
 
     /* These monsters should never be able to be tamed. Ever. Just no */
-    if (mtmp->data == &mons[PM_BEHOLDER] || mtmp->data == &mons[PM_MAGICAL_EYE]
+    if (mtmp->data == &mons[PM_BEHOLDER]
+        || mtmp->data == &mons[PM_MAGICAL_EYE]
         || mtmp->data == &mons[PM_ELDER_MINOTAUR]
         || mtmp->data == &mons[PM_PALE_HORSE]
         || mtmp->data == &mons[PM_WHITE_HORSE]
         || mtmp->data == &mons[PM_BLACK_HORSE]
         || mtmp->data == &mons[PM_SNOW_GOLEM]
         || mtmp->data == &mons[PM_ALHOON]
+        || mtmp->data == &mons[PM_NEOTHELID]
         || mtmp->data == &mons[PM_SHAMBLING_HORROR])
         return FALSE;
 

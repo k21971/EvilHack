@@ -1326,6 +1326,15 @@ NEARDATA struct permonst mons[] = {
         SIZ(2700, 700, MS_SILENT, MZ_GIGANTIC), 0, 0,
         M1_ANIMAL | M1_SLITHY | M1_NOLIMBS | M1_OVIPAROUS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY, 0, 0, 0, 17, CLR_MAGENTA),
+    MON("neothelid", S_WORM, LVL(32, 12, 2, 60, -8), (G_NOGEN),
+        A(ATTK(AT_BREA, AD_ACID, 6, 6), ATTK(AT_TENT, AD_PHYS, 2, 4),
+          ATTK(AT_TENT, AD_DRIN, 2, 4), ATTK(AT_TENT, AD_DRIN, 2, 4),
+          ATTK(AT_TENT, AD_DRIN, 2, 4), ATTK(AT_ENGL, AD_DGST, 6, 6)),
+        SIZ(3000, 800, MS_SILENT, MZ_GIGANTIC), MR_PSYCHIC | MR_ACID, 0,
+        M1_ANIMAL | M1_SWIM | M1_SLITHY | M1_NOLIMBS | M1_ACID
+            | M1_CARNIVORE,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_NEUTER,
+        0, 0, MH_ILLITHID, 36, CLR_MAGENTA), /* can be mistaken for a purple worm */
     /*
      * xan, &c
      */
@@ -3547,7 +3556,7 @@ struct permonst _mons2[] = {
         SIZ(20, 5, MS_SILENT, MZ_TINY), MR_PSYCHIC, 0,
         M1_SWIM | M1_AMPHIBIOUS | M1_SLITHY | M1_NOLIMBS | M1_NOTAKE
             | M1_OMNIVORE,
-        M2_HOSTILE | M2_NASTY, M3_INFRAVISIBLE | M3_INFRAVISION,
+        M2_HOSTILE | M2_NASTY | M2_NEUTER, M3_INFRAVISIBLE | M3_INFRAVISION,
         0, MH_ILLITHID, 8, CLR_BRIGHT_MAGENTA),
     MON("shark", S_EEL, LVL(7, 12, 2, 0, 0), (G_GENO | G_NOGEN),
         A(ATTK(AT_BITE, AD_PHYS, 5, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,

@@ -2277,7 +2277,7 @@ struct monst *magr, *mdef;
 
     /* Shambling horrors are nasty. They hate you
        and all of your friends. Your friends realize
-       this; they hate shambling horrors too */
+       this, and they hate shambling horrors too */
     if (ma == &mons[PM_SHAMBLING_HORROR]
         && mdef->mtame)
         return ALLOW_M | ALLOW_TM;
@@ -2285,6 +2285,12 @@ struct monst *magr, *mdef;
     /* ki-rin vs eldritch ki-rin */
     if (ma == &mons[PM_KI_RIN]
         && md == &mons[PM_ELDRITCH_KI_RIN])
+        return ALLOW_M | ALLOW_TM;
+
+    /* Neothelids are an abomination
+       to mind flayers */
+    if (is_mind_flayer(ma)
+        && md == &mons[PM_NEOTHELID])
         return ALLOW_M | ALLOW_TM;
 
     return 0;
@@ -2390,6 +2396,12 @@ struct monst *magr, /* monster that is currently deciding where to move */
     /* mindflayer larvae need live humanoids as hosts
        so they can mature into adult flayers */
     if (ma == &mons[PM_MIND_FLAYER_LARVA] && can_become_flayer(md))
+        return ALLOW_M | ALLOW_TM;
+
+    /* neothelids need brains to survive and
+       will attack anything not mindless */
+    if (ma == &mons[PM_NEOTHELID]
+        && !mindless(md))
         return ALLOW_M | ALLOW_TM;
 
     /* now test all two-way aggressions both ways */

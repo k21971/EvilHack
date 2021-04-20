@@ -1579,4 +1579,5 @@ The following changes to date are:
 - Tweak encyclopedia entry for Yeenoghu
 - Covetous monsters will equip wearable items that they target
 - Allow Infidel quest leader to demand the quest artifact
+- Neothelids
 

@@ -26,6 +26,7 @@ STATIC_DCL coord *FDECL(shrine_pos, (int));
 STATIC_DCL struct permonst *NDECL(morguemon);
 STATIC_DCL struct permonst *NDECL(squadmon);
 STATIC_DCL struct permonst *NDECL(armorymon);
+STATIC_DCL struct permonst *NDECL(nurserymon);
 STATIC_DCL void FDECL(save_room, (int, struct mkroom *));
 STATIC_DCL void FDECL(rest_room, (int, struct mkroom *));
 
@@ -377,6 +378,23 @@ struct mkroom *sroom;
                 /* armories don't contain as many monsters */
                 if (!rn2(3))
                     mon = makemon(armorymon(), sx, sy, NO_MM_FLAGS);
+            } else if (type == NURSERY) {
+                if (!rn2(100)) { /* very rare event */
+                    /* somehow a larvae nursery was left unattended,
+                       and the sole surviving larva had undergone neoteny,
+                       becoming a neothelid. mind flayers nearby discovered
+                       this abomination and are trying to kill it (see grudges) */
+                    if (sx == tx && sy == ty)
+                        (void) makemon(&mons[PM_NEOTHELID], sx, sy, NO_MM_FLAGS);
+                    if (!rn2(4))
+                        (void) makemon(nurserymon(), sx, sy, NO_MM_FLAGS);
+                } else {
+                    /* normal mind flayer larva nursery */
+                    mon = makemon(sx == tx && sy == ty
+                                  ? &mons[PM_MIND_FLAYER]
+                                  : rn2(12) ? &mons[PM_MIND_FLAYER_LARVA]
+                                            : &mons[PM_PRISONER], sx, sy, MM_ASLEEP);
+                }
             } else {
                 mon = makemon((type == COURT)
                 ? courtmon()
@@ -400,16 +418,11 @@ struct mkroom *sroom;
                                      ? (sx == tx && sy == ty
                                         ? &mons[PM_OWLBEAR]
                                         : &mons[PM_BABY_OWLBEAR])
-                                     : (type == NURSERY)
+                                     : (type == LEMUREPIT)
                                         ? (sx == tx && sy == ty
-                                           ? &mons[PM_MIND_FLAYER]
-                                           : rn2(12) ? &mons[PM_MIND_FLAYER_LARVA]
-                                                     : &mons[PM_PRISONER])
-                                        : (type == LEMUREPIT)
-                                           ? (sx == tx && sy == ty
-                                              ? &mons[PM_HORNED_DEVIL]
-                                              : &mons[PM_LEMURE])
-                                           : (struct permonst *) 0, sx, sy, MM_ASLEEP);
+                                           ? &mons[PM_HORNED_DEVIL]
+                                           : &mons[PM_LEMURE])
+                                        : (struct permonst *) 0, sx, sy, MM_ASLEEP);
             }
 
             if (mon) {
@@ -624,7 +637,15 @@ static struct permonst *
 armorymon()
 {
     return (!rn2(5) ? mkclass(S_RUSTMONST, 0)
-                    : rn2(6) ? &mons[PM_BROWN_PUDDING] : &mons[PM_BLACK_PUDDING]);
+                    : rn2(6) ? &mons[PM_BROWN_PUDDING]
+                             : &mons[PM_BLACK_PUDDING]);
+}
+
+static struct permonst *
+nurserymon()
+{
+    return (rn2(7) ? &mons[PM_MIND_FLAYER]
+                   : &mons[PM_MASTER_MIND_FLAYER]);
 }
 
 /** Create a special room with trees, fountains and nymphs.

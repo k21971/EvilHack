@@ -86,7 +86,8 @@ struct attack *mattk;
                 pline_The("venomous snakes on %s head %s you!",
                           s_suffix(mon_nam(mtmp)),
                           rn2(2) ? "lash out at" : "bite");
-            else if (mtmp->data == &mons[PM_DEMOGORGON])
+            else if (mtmp->data == &mons[PM_DEMOGORGON]
+                     || mtmp->data == &mons[PM_NEOTHELID])
                 pline("%s tentacles lash out at you!",
                       s_suffix(Monnam(mtmp)));
             else
@@ -517,11 +518,19 @@ struct attack *alt_attk_buf;
             || attk->adtyp == AD_DISE) {
             attk->aatyp = AT_TUCH;
         } else {
-            attk->aatyp = AT_CLAW; /* attack message will be "<foo> hits" */
-            attk->adtyp = AD_PHYS;
+            /* neothelids have a breath attack plus multiple tentacle
+               attacks which cause mspec_used to virtually never allow
+               the final engulfing attack */
+            if (rn2(2) && magr->data == &mons[PM_NEOTHELID]) {
+                attk->aatyp = AT_ENGL;
+                attk->adtyp = AD_DGST;
+            } else {
+                attk->aatyp = AT_BITE; /* attack message will be "<foo> bites" */
+                attk->adtyp = AD_PHYS;
+            }
         }
-        attk->damn = 1; /* relatively weak: 1d6 */
-        attk->damd = 6;
+        attk->damn = 2; /* not-so weak: 2d8 */
+        attk->damd = 8;
 
     /* barrow wight, Nazgul, erinys have weapon attack for non-physical
        damage; force physical damage if attacker has been cancelled or
@@ -1098,8 +1107,10 @@ struct attack *mattk;
 
     if (!obj)
         obj = uarmu;
-    if (mattk->adtyp == AD_DRIN
-        || (mattk->aatyp == AT_TENT && mattk->adtyp == AD_WRAP))
+    if (mattk->adtyp == AD_DRIN)
+        obj = uarmh;
+    if (mtmp->data == &mons[PM_MIND_FLAYER_LARVA]
+        && mattk->aatyp == AT_TENT && mattk->adtyp == AD_WRAP)
         obj = uarmh;
 
     /* if your cloak/armor is greased, monster slips off; this
@@ -1301,7 +1312,10 @@ register struct attack *mattk;
     switch (mattk->adtyp) {
     case AD_CLOB:
     case AD_PHYS:
-        if (mattk->aatyp == AT_HUGS && !sticks(youmonst.data)) {
+        if ((mattk->aatyp == AT_HUGS
+            || (mattk->aatyp == AT_TENT
+                && mtmp->data == &mons[PM_NEOTHELID]))
+            && !sticks(youmonst.data)) {
             if (!u.ustuck && rn2(2)) {
                 if (u_slip_free(mtmp, mattk)) {
                     dmg = 0;
@@ -1309,6 +1323,8 @@ register struct attack *mattk;
                     u.ustuck = mtmp;
                     if (has_trunk(mtmp->data))
                         pline("%s grasps you with its trunk!", Monnam(mtmp));
+                    else if (mtmp->data == &mons[PM_NEOTHELID])
+                        pline("%s ensnares you with its tentacles!", Monnam(mtmp));
                     else
                         pline("%s grabs you!", Monnam(mtmp));
                 }
@@ -1317,6 +1333,8 @@ register struct attack *mattk;
                 You("are being %s.", (mtmp->data == &mons[PM_ROPE_GOLEM])
                                          ? "choked"
                                          : "crushed");
+            } else {
+                hitmsg(mtmp, mattk);
             }
         } else { /* hand to hand weapon */
             struct obj *otmp = mon_currwep;

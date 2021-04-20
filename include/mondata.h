@@ -162,9 +162,12 @@
      || (ptr) == &mons[PM_KOBOLD_SHAMAN] || (ptr) == &mons[PM_ORC_SHAMAN]         \
      || (ptr) == &mons[PM_HILL_GIANT_SHAMAN] || (ptr) == &mons[PM_ELVEN_WIZARD]   \
      || (ptr) == &mons[PM_GNOMISH_WIZARD] || (ptr) == &mons[PM_ALHOON]            \
-     || (ptr) == &mons[PM_ILLITHID])
+     || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_GNOLL_CLERIC]            \
+     || (ptr) == &mons[PM_NEOTHELID])
 #define has_claws(ptr) \
-    (is_illithid(ptr) || is_gnoll(ptr)                         \
+    ((is_illithid(ptr)                                         \
+      && !((ptr) == &mons[PM_MIND_FLAYER_LARVA]                \
+           || (ptr) == &mons[PM_NEOTHELID])) || is_gnoll(ptr)  \
      || (ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE \
      || (ptr)->mlet == S_GREMLIN || (ptr)->mlet == S_IMP       \
      || (ptr)->mlet == S_MIMIC || (ptr)->mlet == S_SPIDER      \

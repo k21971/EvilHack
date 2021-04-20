@@ -944,7 +944,7 @@ makelevel()
             mkroom(ZOO);
         else if (u_depth > 7 && !rn2(6))
             mkroom(GARDEN);
-        else if (u_depth > 7 && !rn2(6)
+        else if (u_depth > 7 && !rn2(7)
                  && !(mvitals[PM_RUST_MONSTER].mvflags & G_GONE))
             mkroom(ARMORY);
         else if (u_depth > 8 && !rn2(5))
@@ -967,7 +967,7 @@ makelevel()
         else if (u_depth > 16 && !rn2(8)
                  && !(mvitals[PM_COCKATRICE].mvflags & G_GONE))
             mkroom(COCKNEST);
-        else if (u_depth > 17 && !rn2(8)
+        else if (u_depth > 17 && !rn2(7)
                  && !(mvitals[PM_MIND_FLAYER_LARVA].mvflags & G_GONE))
             mkroom(NURSERY);
     }

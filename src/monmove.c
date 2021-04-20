@@ -147,12 +147,13 @@ struct monst *mtmp;
      * Rodney, lawful minions, Angels, Archangels, the Riders,
      * Vecna, monster players, demon lords and princes, honey badgers,
      * shopkeepers inside their own shop, anything that is mindless,
-     * priests inside their own temple, the quest leaders and nemesis
+     * priests inside their own temple, the quest leaders and nemesis,
+     * neothelids
      */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL] || mtmp->data == &mons[PM_HONEY_BADGER]
-        || mindless(mtmp->data) || is_mplayer(mtmp->data)
-        || is_rider(mtmp->data) || mtmp->isvecna
+        || mtmp->data == &mons[PM_NEOTHELID] || mindless(mtmp->data)
+        || is_mplayer(mtmp->data) || is_rider(mtmp->data) || mtmp->isvecna
         || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
         || (mtmp->isshk && inhishop(mtmp))
         || (mtmp->ispriest && inhistemple(mtmp)))
@@ -196,6 +197,7 @@ struct monst *mtmp;
                  || mtmp->mpeaceful || mtmp->data->mlet == S_HUMAN
                  || mtmp->data == &mons[PM_MINOTAUR]
                  || mtmp->data == &mons[PM_ELDER_MINOTAUR]
+                 || mtmp->data == &mons[PM_NEOTHELID]
                  || unique_corpstat(mtmp->data)
                  || Inhell || In_endgame(&u.uz)));
 }
@@ -722,7 +724,8 @@ register struct monst *mtmp;
     if (is_watch(mdat)) {
         watch_on_duty(mtmp);
 
-    } else if (is_mind_flayer(mdat) && !rn2(20)) {
+    } else if ((is_mind_flayer(mdat) || mdat == &mons[PM_NEOTHELID])
+               && !rn2(20)) {
         struct monst *m2, *nmon = (struct monst *) 0;
 
         if (canseemon(mtmp))
@@ -735,6 +738,8 @@ register struct monst *mtmp;
         if (mtmp->mpeaceful
             && (!Conflict || resist_conflict(mtmp))) {
             pline("It feels quite soothing.");
+        } else if (is_illithid(youmonst.data)) {
+            Your("psionic abilities shield your brain.");
         } else if (!u.uinvulnerable) {
             register boolean m_sen = sensemon(mtmp);
 
@@ -758,6 +763,8 @@ register struct monst *mtmp;
             if (mindless(m2->data))
                 continue;
             if (m2 == mtmp)
+                continue;
+            if (is_illithid(m2->data))
                 continue;
             if ((has_telepathy(m2) && (rn2(2) || m2->mblinded))
                 || !rn2(10)) {
