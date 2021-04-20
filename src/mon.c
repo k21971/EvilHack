@@ -3663,13 +3663,20 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         else if (Role_if(PM_INFIDEL) && mdat->maligntyp == A_LAWFUL)
             adjalign((int) (ALIGNLIM / 4)); /* Infidel-only BIG bonus */
     } else if (mtmp->mtame) {
-        adjalign(-15); /* bad!! */
+        if (Role_if(PM_INFIDEL))
+            adjalign(-3); /* kinda bad, but it's how you roll */
+        else
+            adjalign(-15); /* bad!! */
         /* your god is mighty displeased... */
         if (!Deaf) {
-            if (!Hallucination)
-                You_hear("the rumble of distant thunder...");
-            else
+            if (!Hallucination) {
+                if (Role_if(PM_INFIDEL))
+                    You_hear("sinister laughter off in the distance...");
+                else
+                    You_hear("the rumble of distant thunder...");
+            } else {
                 You_hear("the studio audience applaud!");
+            }
         }
         if (!unique_corpstat(mdat)) {
             boolean mname = has_mname(mtmp);

@@ -267,11 +267,8 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
             fully_identify_obj(otmp);
     } else {
         /* if the player has never abused their alignment by
-           this point, don't ask for the quest artifact. Also
-           excluding Infidels (for now) since potentially
-           having to give up their quest artifact could make
-           the game unwinnable */
-        if (u.ualign.abuse == 0 || Role_if(PM_INFIDEL))
+           this point, don't ask for the quest artifact */
+        if (u.ualign.abuse == 0)
             goto noabuse;
         /* the more often the player abuses their alignment,
            the greater the odds of their quest leader demanding

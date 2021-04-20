@@ -1578,4 +1578,5 @@ The following changes to date are:
 - Change CFLAGS -g to -g3 (linux builds)
 - Tweak encyclopedia entry for Yeenoghu
 - Covetous monsters will equip wearable items that they target
+- Allow Infidel quest leader to demand the quest artifact
 
