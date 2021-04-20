@@ -515,6 +515,8 @@ register struct monst *mtmp;
                                   : distant_name(otmp, doname));
                     obj_extract_self(otmp);
                     (void) mpickobj(mtmp, otmp);
+                    /* artifact might be armor, attempt to put it on */
+                    m_dowear(mtmp, FALSE);
                     return 1;
                 } else
                     return 0;

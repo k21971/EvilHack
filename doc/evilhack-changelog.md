@@ -1577,4 +1577,5 @@ The following changes to date are:
 - Restore guaranteed first sacrifice gifts
 - Change CFLAGS -g to -g3 (linux builds)
 - Tweak encyclopedia entry for Yeenoghu
+- Covetous monsters will equip wearable items that they target
 

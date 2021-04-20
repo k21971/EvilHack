@@ -1974,7 +1974,7 @@ register struct monst *mtmp;
         break;
     case S_HUMANOID:
         if (ptr == &mons[PM_DARK_ONE]) {
-            (void) mongets(mtmp, CLOAK_OF_MAGIC_RESISTANCE);
+            (void) mongets(mtmp, ROBE);
             (void) mongets(mtmp, CORNUTHAUM);
         }
         break;
