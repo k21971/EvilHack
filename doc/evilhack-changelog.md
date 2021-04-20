@@ -1583,4 +1583,6 @@ The following changes to date are:
 - Fix: prevent Infidel from escaping the dungeon with the Amulet of
   Yendor via drinking a cursed potion of gain level
 - Fix: bug allowing potential bypass of most of the elemental planes
+- Infidel role: sanctum high priest will give both hints if the
+  quest leader is dead
 

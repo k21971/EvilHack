@@ -294,8 +294,12 @@ boolean sanctum; /* is it the seat of the high priest? */
 
     /* set priest's race - except on astral plane, otherwise
        it makes it too easy for the player to determine the
-       correct altar to go to */
-    if (!(on_level(&astral_level, &u.uz))) {
+       correct altar to go to. also for the sanctum, as the
+       current way racial priests are set up overrides
+       PM_HIGH_PRIEST with PM_<race> and breaks infidel role
+       from retrieving hints from the high priest there */
+    if (!(on_level(&astral_level, &u.uz)
+          || on_level(&sanctum_level, &u.uz))) {
         if (prace) {
             /* on the odd chance that it hit one that was genoed,
                leave it a normal priest */
@@ -786,6 +790,11 @@ register struct monst *priest;
             /* "god"[3] == 0; "goddess"[3] != 0 */
             quest_status.godgend = !!align_gtitle(inf_align(3))[3];
             qt_pager(QT_MOLOCH_3);
+            if (quest_status.leader_is_dead) {
+                u.ualignbase[A_ORIGINAL] = inf_align(2);
+                quest_status.godgend = !!align_gtitle(inf_align(2))[3];
+                qt_pager(QT_MOLOCH_4);
+            }
             u.ualignbase[A_ORIGINAL] = saved_align;
             quest_status.godgend = saved_godgend;
         } else if (coaligned && !strayed) {

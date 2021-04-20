@@ -99,6 +99,7 @@ struct qtlists {
 #define QT_MOLOCH_1 72 /* offered Amulet, no Idol */
 #define QT_MOLOCH_2 73 /* offered Amulet, got Idol */
 #define QT_MOLOCH_3 74 /* high priest's altar hint */
+#define QT_MOLOCH_4 75 /* high priest's altar hint, quest leader is dead */
 
 #define QT_KILLEDNEM 80
 #define QT_OFFEREDIT 81

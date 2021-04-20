@@ -46,6 +46,8 @@
 #	QT_MOLOCH_1	72	/* offered Amulet, no Idol */
 #	QT_MOLOCH_2	73	/* offered Amulet, got Idol */
 #	QT_MOLOCH_3	74	/* high priest's altar hint */
+#	QT_MOLOCH_4     75      /* high priest's altar hint, quest leader is dead */
+#
 #	QT_KILLEDNEM	80
 #	QT_OFFEREDIT	81
 #	QT_OFFEREDIT2	82	/* if you throw artifact to leader after #81 */
@@ -1521,10 +1523,6 @@ may our prayers be as a wind upon your back."
 %E ["You have recovered the Amulet.  Travel to the Astral Plane and return it to %d."]
 #
 #	Infidel
-#	Currently, the quest leader will not ask
-#	our Infidel for the quest artifact. Adding
-#	the entries for that regardless should
-#	they ever be used in the future.
 #
 %Cc Inf 00001
 You arrive at the mouth of a cave that hosts %H.  This is
@@ -1839,6 +1837,14 @@ ground for thirty days and nights and, sadly, the fortress was not taken.
 
 "The meaning here is clear: when in thy mission thou reachest heaven,
 challenging %d will likely be futile.  Keep this in mind."
+%E [You should avoid invoking %o on the %a high altar.]
+%Cc Inf 00075
+"My %S, I just had another vision!  Our Lord Moloch was using His
+awesome might to bend the non-believers to His will.  But %d
+was strong, and it appeared that %dj %a minions were more
+resilient to our Lords magic than the others.
+
+"Perhaps that extends to %d %diself, as well."
 %E [You should avoid invoking %o on the %a high altar.]
 %Cc Inf 00080
 %nC falls to %ni knees.  With %ni last breath, %nh whispers:
