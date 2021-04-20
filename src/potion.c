@@ -1128,12 +1128,16 @@ register struct obj *otmp;
                 const char *riseup = "rise up, through the %s!";
 
                 if (ledger_no(&u.uz) == 1) {
+                    d_level newlev;
+                    newlev.dnum = astral_level.dnum;
+                    newlev.dlevel = dungeons[astral_level.dnum].entry_lev;
+
                     if (Role_if(PM_INFIDEL)) { /* omg no freebies */
                         You("have an uneasy feeling.");
                         goto no_rise;
                     } else {
                         You(riseup, ceiling(u.ux, u.uy));
-                        goto_level(&earth_level, FALSE, FALSE, FALSE);
+                        goto_level(&newlev, FALSE, FALSE, FALSE);
                     }
                 } else {
                     register int newlev = depth(&u.uz) - 1;

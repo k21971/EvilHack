@@ -1582,4 +1582,5 @@ The following changes to date are:
 - Neothelids
 - Fix: prevent Infidel from escaping the dungeon with the Amulet of
   Yendor via drinking a cursed potion of gain level
+- Fix: bug allowing potential bypass of most of the elemental planes
 
