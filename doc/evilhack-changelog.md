@@ -1593,4 +1593,6 @@ The following changes to date are:
 - Fix: reflecting Medusa's gaze with a mirror
 - Fix: address various monsters being affected by death magic that
   shouldn't
+- Luck plays a role in whether player can continue if they rise from
+  the grave
 

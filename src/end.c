@@ -435,15 +435,19 @@ int how;
     } else {
         mon_nm = u.ugrave_arise;
     }
-    if (mon_nm < LOW_PM || (mvitals[mon_nm].mvflags & G_GENOD)) {
+    if (mon_nm < LOW_PM || (mvitals[mon_nm].mvflags & G_GENOD))
         return FALSE;
-    }
+
     /* already got one shot... don't give third chances.
      * or was unluckily wearing an amulet of unchanging and can't resurrect as
      * a monster anyway */
-    if (Unchanging) {
+    if (Unchanging)
         return FALSE;
-    }
+
+    /* The chances of this happening are based on how lucky you are */
+    if (u.uluck < 3)
+        return FALSE;
+
     /* different monsters have different chances of keeping mind intact.
      * The chances of this happening are rare */
     if ((mon_nm == PM_GREEN_SLIME && !rn2(3))
