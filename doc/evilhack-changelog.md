@@ -1595,4 +1595,5 @@ The following changes to date are:
   shouldn't
 - Luck plays a role in whether player can continue if they rise from
   the grave
+- Alternate ending to the Ice Queen branch if the player is an Infidel
 

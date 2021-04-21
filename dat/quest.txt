@@ -4676,16 +4676,25 @@ the sake of us all:  Go bravely with %d!
 # Ice Queen branch text (lifting the curse)
 #
 %Cc - 00200
-Thank you for freeing me from this awful curse!  Long ago,
-a powerful and evil witch cast a spell on me, which
+Thank you for freeing me from this awful curse, %p!
+Long ago, a powerful and evil witch cast a spell on me, which
 transformed me into the Ice Queen.  She controlled my every
 thought, causing me to bring winter permanently to this land.
 Only by being defeated in combat could I be free from her
 wretched malediction.  I am forever in your debt.  But before
 I can repay that debt, I must undo the damage I have caused
 here.  And please free the captive pegasus, I am certain it
-will be extremely grateful.  Fare thee well, brave adventurer.
+will be extremely grateful.  Fare thee well, brave %r.
 Until we meet again...
+%E [You have freed Kathryn the Enchantress from a terrible curse.]
+%Cc - 00201
+I suppose I should thank you for freeing me %p,
+but in good conscience, I cannot!  I do not know what your
+motives are %c, but you are in the service of Moloch!
+It was one of his witches that put this wretched curse upon
+me in the first place.  Because you freed me, I will spare
+you %p, but only for a few moments.  Leave this place
+while you are still able to do so.
 %E [You have freed Kathryn the Enchantress from a terrible curse.]
 #
 # Entering Vlad's tower (cavern level)

@@ -5674,10 +5674,20 @@ struct monst *mtmp;
     }
     /* in case player kills themselves while defeating
        the ice queen and isn't lifesaved */
-    if (u.uhp <= 0 && !Lifesaved)
+    if (u.uhp <= 0 && !Lifesaved) {
         ; /* suppress feedback */
-    else
-        com_pager(200);
+    } else {
+        if (Role_if(PM_INFIDEL)) {
+            /* the enchantress will not tolerate those that serve Moloch.
+               our infidel has 75 turns to do what they're going to do
+               before the situation becomes dire */
+            com_pager(201);
+            mtmp->mpeaceful = 0;
+            paralyze_monst(mtmp, 75);
+        } else {
+            com_pager(200);
+        }
+    }
     if (Role_if(PM_INFIDEL))
         adjalign(-2); /* doing good things as an agent of Moloch? pfft */
     else
