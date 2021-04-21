@@ -978,7 +978,7 @@ struct monst *mon;
 
     /* can pick it up unless you're totally non-synch'd with the artifact */
     if ((badclass && badalign && self_willed)
-        || (yours && obj->oartifact == ART_WAND_OF_ORCUS)) {
+        || (yours && obj->oartifact == ART_WAND_OF_ORCUS && !wizard)) {
         if (yours) {
             if (!carried(obj))
                 pline("%s your grasp!", Tobjnam(obj, "evade"));
@@ -1080,16 +1080,20 @@ struct monst *mtmp;
             return FALSE;
         switch (weap->attk.adtyp) {
         case AD_FIRE:
-            return !(!yours ? resists_fire(mtmp) : (how_resistant(FIRE_RES) > 99) ? TRUE : FALSE);
+            return !(!yours ? resists_fire(mtmp)
+                            : (how_resistant(FIRE_RES) > 99) ? TRUE : FALSE);
         case AD_COLD:
-            return !(!yours ? resists_cold(mtmp) : (how_resistant(COLD_RES) > 99) ? TRUE : FALSE);
+            return !(!yours ? resists_cold(mtmp)
+                            : (how_resistant(COLD_RES) > 99) ? TRUE : FALSE);
         case AD_ELEC:
-            return !(!yours ? resists_elec(mtmp) : (how_resistant(SHOCK_RES) > 99) ? TRUE : FALSE);
+            return !(!yours ? resists_elec(mtmp)
+                            : (how_resistant(SHOCK_RES) > 99) ? TRUE : FALSE);
         case AD_MAGM:
         case AD_STUN:
             return !(yours ? Antimagic : (rn2(100) < ptr->mr));
         case AD_DRST:
-            return !(!yours ? resists_poison(mtmp) : (how_resistant(POISON_RES) > 99) ? TRUE : FALSE);
+            return !(!yours ? resists_poison(mtmp)
+                            : (how_resistant(POISON_RES) > 99) ? TRUE : FALSE);
         case AD_DRLI:
             return !(yours ? Drain_resistance : resists_drli(mtmp));
         case AD_DREN:
@@ -1101,7 +1105,7 @@ struct monst *mtmp;
         case AD_DISE:
             return !(yours ? Sick_resistance : resists_sick(mtmp));
         case AD_DETH:
-            return !(nonliving(ptr) || is_demon(ptr));
+            return !immune_death_magic(ptr);
         default:
             impossible("Weird weapon special attack.");
         }
@@ -1801,7 +1805,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           hittee, !spec_dbon_applies ? '.' : '!');
             }
         }
-        if (youdefend && (!(nonliving(mdef->data) || is_demon(mdef->data)))) {
+        if (youdefend && !immune_death_magic(mdef->data)) {
             switch (rn2(20)) {
             case 19:
             case 18:
@@ -1857,7 +1861,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                  * already at or below minimum threshold; do nothing */
                 context.botl = 1;
             }
-        } else if (!youdefend && (!(nonliving(mdef->data) || is_demon(mdef->data)))) {
+        } else if (!youdefend && !immune_death_magic(mdef->data)) {
             switch (rn2(20)) {
             case 19:
             case 18:
@@ -2737,6 +2741,7 @@ struct obj *obj;
             break;
         case DEATH_GAZE:
             if (u.uluck < -9) {
+                /* being immune to death magic doesn't help in this instance */
                 pline("%s turns on you!", The(xname(obj)));
                 u.uhp = 0;
                 killer.format = KILLED_BY;
@@ -2750,7 +2755,7 @@ struct obj *obj;
                         continue;
                     /* The eye is never blind ... */
                     if (couldsee(mtmp->mx, mtmp->my)
-                        && !nonliving(mtmp->data)) {
+                        && !immune_death_magic(mtmp->data)) {
                         int tmp = 12;
                         switch (rn2(20)) {
                         case 19:

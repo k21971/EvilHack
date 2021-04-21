@@ -568,8 +568,7 @@ int spellnum;
     switch (spellnum) {
     case MGC_DEATH_TOUCH:
         pline("Oh no, %s's using the touch of death!", mhe(mtmp));
-        if (nonliving(youmonst.data) || is_demon(raceptr(&youmonst))
-            || is_angel(raceptr(&youmonst))) {
+        if (immune_death_magic(youmonst.data)) {
             You("seem no more dead than before.");
         } else {
             if (Hallucination) {

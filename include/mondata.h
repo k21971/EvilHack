@@ -67,8 +67,9 @@
 
 /* is_vampshifter(mon) in handled explicitly in zap.c */
 #define immune_death_magic(ptr) \
-    (nonliving(ptr) || is_demon(ptr) || is_angel(ptr) \
-     || (ptr)->msound == MS_LEADER || (ptr) == &mons[PM_CERBERUS])
+    (nonliving(ptr) || is_demon(ptr) || is_angel(ptr)             \
+     || (ptr)->msound == MS_LEADER || (ptr) == &mons[PM_CERBERUS] \
+     || (ptr) == &mons[PM_DEATH])
 
 #define immune_poisongas(ptr) ((ptr) == &mons[PM_HEZROU])
 

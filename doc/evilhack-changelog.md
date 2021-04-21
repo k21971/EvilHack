@@ -1591,4 +1591,6 @@ The following changes to date are:
 - Allow erac monsters to use racial glyphs
 - The Dark One's pointy hat isn't guaranteed
 - Fix: reflecting Medusa's gaze with a mirror
+- Fix: address various monsters being affected by death magic that
+  shouldn't
 

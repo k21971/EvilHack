@@ -1977,7 +1977,7 @@ post_stone:
                 return MM_MISS;
             }
         }
-        if (is_undead(mdef->data)) {
+        if (immune_death_magic(mdef->data)) {
             /* Still does normal damage */
             if (vis)
                 pline("%s looks no more dead than before.", Monnam(mdef));
