@@ -1007,8 +1007,20 @@ struct obj *obj;
     } else if (monable && mtmp->data == &mons[PM_MEDUSA]) {
         if (mon_reflects(mtmp, "The gaze is reflected away by %s %s!"))
             return 1;
-        if (vis)
-            pline("%s is turned to stone!", Monnam(mtmp));
+        if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 8) {
+            if (vis)
+                pline("%s reflection is too far away for %s to notice.",
+                      s_suffix(Monnam(mtmp)), mhis(mtmp));
+            return 1;
+        } else if (rn2(25)) {
+            if (vis)
+                pline("%s %s %s eyes from %s reflected gaze just in time!",
+                      Monnam(mtmp), rn2(2) ? "shields" : "covers", mhis(mtmp), mhis(mtmp));
+            return 1;
+        } else {
+            if (vis)
+                pline("%s is turned to stone!", Monnam(mtmp));
+        }
         stoned = TRUE;
         killed(mtmp);
     } else if (monable && mtmp->data == &mons[PM_FLOATING_EYE]) {

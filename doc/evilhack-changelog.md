@@ -1590,4 +1590,5 @@ The following changes to date are:
 - Fix: seeing dobuzz() feedback while not viewing intended target
 - Allow erac monsters to use racial glyphs
 - The Dark One's pointy hat isn't guaranteed
+- Fix: reflecting Medusa's gaze with a mirror
 
