@@ -1585,4 +1585,6 @@ The following changes to date are:
 - Fix: bug allowing potential bypass of most of the elemental planes
 - Infidel role: sanctum high priest will give both hints if the
   quest leader is dead
+- Fix: create_pit_under() feedback being shown while not witnessing
+  the target being affected
 
