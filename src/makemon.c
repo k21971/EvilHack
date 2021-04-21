@@ -1975,7 +1975,8 @@ register struct monst *mtmp;
     case S_HUMANOID:
         if (ptr == &mons[PM_DARK_ONE]) {
             (void) mongets(mtmp, ROBE);
-            (void) mongets(mtmp, CORNUTHAUM);
+            if (!rn2(4))
+                (void) mongets(mtmp, CORNUTHAUM);
         }
         break;
     default:
