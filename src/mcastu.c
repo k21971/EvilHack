@@ -1458,7 +1458,7 @@ register struct attack *mattk;
                 pline("%s zaps %s with a %s!", Monnam(mtmp),
                       mon_nam(mdef), flash_types[ad_to_typ(mattk->adtyp)]);
             dobuzz(-ad_to_typ(mattk->adtyp), (int) mattk->damn, mtmp->mx,
-                 mtmp->my, sgn(tbx), sgn(tby), TRUE);
+                   mtmp->my, sgn(tbx), sgn(tby), FALSE);
         } else
             impossible("Monster spell %d cast", mattk->adtyp - 1);
     }
@@ -1502,7 +1502,7 @@ register struct attack *mattk;
 
     /* monster unable to cast spells? */
     if (mtmp->mcan || mtmp->mspec_used || !ml) {
-        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)) {
+        if (canseemon(mtmp)) {
             if (is_undirected_spell(mattk->adtyp, spellnum))
                 pline("%s points all around, then curses.",
                       Monnam(mtmp));
@@ -1557,15 +1557,13 @@ register struct attack *mattk;
         return 0;
     }
 
-    if ((!canseemon(mdef) || canseemon(mdef))
+    if (canseemon(mdef)
         && !is_undirected_spell(mattk->adtyp, spellnum))
-        pline("%s casts a spell at %s!", Monnam(mtmp),
-              canspotmon(mdef) ? mon_nam(mdef) : "something");
+        pline("%s casts a spell at %s!", Monnam(mtmp), mon_nam(mdef));
 
-    if ((!canseemon(mtmp) || canseemon(mtmp))
+    if (canseemon(mtmp)
         && is_undirected_spell(mattk->adtyp, spellnum))
-        pline("%s casts a spell!",
-              canspotmon(mtmp) ? Monnam(mtmp) : "Something");
+        pline("%s casts a spell!", Monnam(mtmp));
 
     if (mattk->damd)
         dmg = d((int) ((ml / 2) + mattk->damn), (int) mattk->damd);
@@ -1693,27 +1691,33 @@ register struct attack *mattk;
             }
         }
 
-    } while (--cnt > 0 &&
-   	     ((!mtmp && !is_undirected_spell(mattk->adtyp, spellnum))
-   	      || uspell_would_be_useless(mattk->adtyp, spellnum)));
+    } while (--cnt > 0
+             && ((!mtmp && !is_undirected_spell(mattk->adtyp, spellnum))
+                 || uspell_would_be_useless(mattk->adtyp, spellnum)));
         if (cnt == 0) {
-   	    You("have no spells to cast right now!");
-        return 0;
+            You("have no spells to cast right now!");
+            return 0;
    	}
     }
 
     if (spellnum == MGC_AGGRAVATION && !mtmp) {
    	/* choose a random monster on the level */
-   	int j = 0, k = 0;
-   	for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-   	     if (!mtmp->mtame && !mtmp->mpeaceful) j++;
-   	if (j > 0) {
-   	    k = rn2(j);
-   	    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-   	         if (!mtmp->mtame && !mtmp->mpeaceful)
-   		     if (--k < 0)
-            break;
-   	}
+        int j = 0, k = 0;
+
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (!mtmp->mtame && !mtmp->mpeaceful)
+                j++;
+        }
+
+        if (j > 0) {
+            k = rn2(j);
+            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                if (!mtmp->mtame && !mtmp->mpeaceful) {
+                    if (--k < 0)
+                        break;
+                }
+            }
+        }
     }
 
     directed = mtmp && !is_undirected_spell(mattk->adtyp, spellnum);
@@ -1731,7 +1735,7 @@ register struct attack *mattk;
    	u.uen -= ml;
     }
 
-    if (rn2(ml*10) < (Confusion ? 100 : 20)) {	/* fumbled attack */
+    if (rn2(ml * 10) < (Confusion ? 100 : 20)) { /* fumbled attack */
   	pline_The("air crackles around you.");
    	return 0;
     }

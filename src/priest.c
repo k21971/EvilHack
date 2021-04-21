@@ -484,8 +484,6 @@ char *pname; /* caller-supplied output buffer */
         if (rid >= 0)
             Sprintf(eos(pname), "%s ", races[rid].adj);
     }
-    if (on_level(&sanctum_level, &u.uz))
-        Strcat(pname, "high ");
 
     if (mon->ispriest || aligned_priest) { /* high_priest implies ispriest */
         if (!aligned_priest && !high_priest && !racial_priest) {

@@ -1587,4 +1587,5 @@ The following changes to date are:
   quest leader is dead
 - Fix: create_pit_under() feedback being shown while not witnessing
   the target being affected
+- Fix: seeing dobuzz() feedback while not viewing intended target
 
