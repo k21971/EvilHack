@@ -28,6 +28,14 @@ static const int explcolors[] = {
 #define zap_color(n) color = iflags.use_color ? zapcolors[n] : NO_COLOR
 #define cmap_color(n) color = iflags.use_color ? defsyms[n].color : NO_COLOR
 #define obj_color(n) color = iflags.use_color ? objects[n].oc_color : NO_COLOR
+#define rmon_color(n, x, y) \
+{                                               \
+  struct monst *mtmp = m_at(x, y);              \
+  if (mtmp && has_erac(mtmp) && !Hallucination) \
+      mon_color(monsndx(mtmp->data));           \
+  else                                          \
+      mon_color(n);                             \
+}
 #define mon_color(n) color = iflags.use_color ? mons[n].mcolor : NO_COLOR
 #define invis_color(n) color = NO_COLOR
 #define pet_color(n) color = iflags.use_color ? mons[n].mcolor : NO_COLOR
@@ -41,7 +49,7 @@ static const int explcolors[] = {
 #define zap_color(n)
 #define cmap_color(n)
 #define obj_color(n)
-#define mon_color(n)
+#define rmon_color(n, x, y)
 #define invis_color(n)
 #define pet_color(c)
 #define warn_color(n)
@@ -105,7 +113,7 @@ unsigned mgflags;
         if (has_rogue_color && iflags.use_color)
             color = NO_COLOR;
         else
-            mon_color(offset >> 3);
+            rmon_color(offset >> 3, x, y);
     } else if ((offset = (glyph - GLYPH_ZAP_OFF)) >= 0) { /* zap beam */
         /* see zapdir_to_glyph() in display.c */
         idx = (S_vbeam + (offset & 0x3)) + SYM_OFF_P;
@@ -287,14 +295,14 @@ unsigned mgflags;
             /* the monster case below?  There is no equivalent in rogue. */
             color = CLR_RED; /* no need to check iflags.use_color */
         else
-            mon_color(offset);
+            rmon_color(offset, x, y);
         special |= MG_RIDDEN;
     } else if ((offset = (glyph - GLYPH_BODY_OFF)) >= 0) { /* a corpse */
         idx = objects[CORPSE].oc_class + SYM_OFF_O;
         if (has_rogue_color && iflags.use_color)
             color = CLR_RED;
         else
-            mon_color(offset);
+            rmon_color(offset, x, y);
         special |= MG_CORPSE;
         if (is_objpile(x,y))
             special |= MG_OBJPILE;
@@ -303,7 +311,7 @@ unsigned mgflags;
         if (has_rogue_color)
             color = NO_COLOR; /* no need to check iflags.use_color */
         else
-            mon_color(offset);
+            rmon_color(offset, x, y);
         /* Disabled for now; anyone want to get reverse video to work? */
         /* is_reverse = TRUE; */
         special |= MG_DETECT;
@@ -330,7 +338,7 @@ unsigned mgflags;
             else
                 color = NO_COLOR;
         } else {
-            mon_color(glyph);
+            rmon_color(glyph, x, y);
 #ifdef TEXTCOLOR
             /* special case for the hero in their normal form */
             if (iflags.use_color && is_you && !Upolyd)

@@ -304,14 +304,16 @@
 #define GLYPH_INVISIBLE   GLYPH_INVIS_OFF
 
 #define warning_to_glyph(mwarnlev) ((mwarnlev) + GLYPH_WARNING_OFF)
+#define racial_mndx(mon) (use_racial_glyph(mon) ? ERAC(mon)->rmnum \
+                                                : monsndx((mon)->data))
 #define mon_to_glyph(mon, rng)                                      \
-    ((int) what_mon(monsndx((mon)->data), rng) + GLYPH_MON_OFF)
+    ((int) what_mon(racial_mndx(mon), rng) + GLYPH_MON_OFF)
 #define detected_mon_to_glyph(mon, rng)                             \
-    ((int) what_mon(monsndx((mon)->data), rng) + GLYPH_DETECT_OFF)
+    ((int) what_mon(racial_mndx(mon), rng) + GLYPH_DETECT_OFF)
 #define ridden_mon_to_glyph(mon, rng)                               \
-    ((int) what_mon(monsndx((mon)->data), rng) + GLYPH_RIDDEN_OFF)
+    ((int) what_mon(racial_mndx(mon), rng) + GLYPH_RIDDEN_OFF)
 #define pet_to_glyph(mon, rng)                                      \
-    ((int) what_mon(monsndx((mon)->data), rng) + GLYPH_PET_OFF)
+    ((int) what_mon(racial_mndx(mon), rng) + GLYPH_PET_OFF)
 
 /* This has the unfortunate side effect of needing a global variable    */
 /* to store a result. 'otg_temp' is defined and declared in decl.{ch}.  */
@@ -440,5 +442,8 @@
 #define glyph_is_warning(glyph)   \
     ((glyph) >= GLYPH_WARNING_OFF \
      && (glyph) < (GLYPH_WARNING_OFF + WARNCOUNT))
+
+#define use_racial_glyph(mon) \
+    (has_erac(mon) && !is_mplayer((mon)->data) && !is_mercenary((mon)->data))
 
 #endif /* DISPLAY_H */

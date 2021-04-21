@@ -1588,4 +1588,5 @@ The following changes to date are:
 - Fix: create_pit_under() feedback being shown while not witnessing
   the target being affected
 - Fix: seeing dobuzz() feedback while not viewing intended target
+- Allow erac monsters to use racial glyphs
 
