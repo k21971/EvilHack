@@ -1596,4 +1596,5 @@ The following changes to date are:
 - Luck plays a role in whether player can continue if they rise from
   the grave
 - Alternate ending to the Ice Queen branch if the player is an Infidel
+- Fix: broke the wish parser for objects like hats/boots/gloves
 
