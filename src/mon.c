@@ -5820,7 +5820,8 @@ short mndx;
     }
 
     for (i = 0; mraces[i]; i++) {
-        if (permitted & mons[mraces[i]].mhflags) {
+        if (permitted & mons[mraces[i]].mhflags
+            && !(mvitals[mraces[i]].mvflags & G_GONE)) {
             count++;
             if (!rn2(count))
                 race = mraces[i];
@@ -5839,7 +5840,7 @@ short raceidx;
     register struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->mnum];
     boolean init = FALSE;
 
-    if (!mtmp || raceidx == NON_PM)
+    if (!mtmp || raceidx == NON_PM || mvitals[raceidx].mvflags & G_GONE)
         return;
 
     if (!has_erac(mtmp)) {
