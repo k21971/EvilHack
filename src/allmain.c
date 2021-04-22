@@ -359,8 +359,12 @@ boolean resuming;
                         regen_hp(wtcap);
                     }
 
-                    if (Withering && !Regeneration) {
-                        losehp(1, "withering away", KILLED_BY);
+                    /* wither away a bit */
+                    if (Withering && !u.uinvulnerable) {
+                        int loss = rnd(2) - (Regeneration ? 1 : 0);
+                        if (loss >= (Upolyd ? u.mh : u.uhp))
+                            You("wither away completely!");
+                        losehp(loss, "withered away", NO_KILLER_PREFIX);
                         context.botl = TRUE;
                         interrupt_multi("You are slowly withering away.");
                     }
@@ -759,7 +763,7 @@ int wtcap;
             if (Regeneration || (encumbrance_ok && !(moves % 20L)))
                 heal = 1;
         }
-        if (heal) {
+        if (heal && !(Withering && heal > 0)) {
             context.botl = TRUE;
             u.mh += heal;
             reached_full = (u.mh == u.mhmax);
@@ -772,7 +776,7 @@ int wtcap;
            once u.mh reached u.mhmax; that may have been convenient
            for the player, but it didn't make sense for gameplay...] */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
-            && (encumbrance_ok || Regeneration) && !Withering && !Is_valley(&u.uz)) {
+            && (encumbrance_ok || Regeneration) && !Is_valley(&u.uz)) {
             if (u.ulevel > 9) {
                 if (!(moves % 3L)) {
                     int Con = (int) ACURR(A_CON);
@@ -789,10 +793,10 @@ int wtcap;
                 if (!(moves % (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1)))
                     heal = 1;
             }
-            if (Regeneration && !Withering && !heal)
+            if (Regeneration && !heal)
                 heal = 1;
 
-            if (heal) {
+            if (heal && !(Withering && heal > 0)) {
                 context.botl = TRUE;
                 u.uhp += heal;
                 if (u.uhp > u.uhpmax)

@@ -209,7 +209,8 @@ mon_regen(mon, digest_meal)
 struct monst *mon;
 boolean digest_meal;
 {
-    if (mon->mhp < mon->mhpmax && (moves % 20 == 0 || mon_prop(mon, REGENERATION)))
+    if (mon->mhp < mon->mhpmax && (moves % 20 == 0
+                                   || mon_prop(mon, REGENERATION)) && !mon->mwither)
         mon->mhp++;
     if (mon->mspec_used)
         mon->mspec_used--;
@@ -513,13 +514,6 @@ register struct monst *mtmp;
         }
     }
 
-    /* wither away */
-    if (mtmp->mwither) {
-        mtmp->mhp -= 1;
-        if (DEADMONSTER(mtmp))
-            monkilled(mtmp, "", AD_DETH);
-    }
-
     /* confused monsters get unconfused with small probability */
     if (mtmp->mconf && !rn2(50))
         mtmp->mconf = 0;
@@ -621,10 +615,6 @@ register struct monst *mtmp;
             return (mtmp->mhp > 0) ? 0 : 1;
         }
     }
-
-    /* withering monsters stop withering with high probability */
-    if (mtmp->mwither && !rn2(5))
-        mtmp->mwither = 0;
 
     /* some monsters teleport */
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz

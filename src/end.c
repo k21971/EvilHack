@@ -1545,7 +1545,14 @@ int how;
                        ? urace.femalenum
                        : urace.malenum;
         }
-        corpse = mk_named_object(CORPSE, &mons[mnum], u.ux, u.uy, plname);
+        if (!Withering) {
+            /* withering suppresses the actual corpse from being created but
+             * still allows creation of a grave (and it doesn't matter whether
+             * or not withering was the actual cause of death; dying while
+             * withering is assumed to just wither the rest of the body without
+             * any vitality to stop it) */
+            corpse = mk_named_object(CORPSE, &mons[mnum], u.ux, u.uy, plname);
+        }
         Sprintf(pbuf, "%s, ", plname);
         formatkiller(eos(pbuf), sizeof pbuf - strlen(pbuf), how, TRUE);
         make_grave(u.ux, u.uy, pbuf);

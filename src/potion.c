@@ -1178,12 +1178,6 @@ no_rise:
         You_feel("better.");
         healup(d(10 + 2 * bcsign(otmp), 4) / (otmp->odiluted ? 2 : 1),
                !otmp->cursed ? 1 : 0, !!otmp->blessed, !otmp->cursed);
-        if (otmp->blessed) {
-            if (Withering) {
-                You("are no longer withering away.");
-                set_itimeout(&HWithering, (long) 0);
-            }
-        }
         exercise(A_CON, TRUE);
         break;
     case POT_EXTRA_HEALING:
@@ -1191,7 +1185,7 @@ no_rise:
         healup(d(10 + 2 * bcsign(otmp), 8) / (otmp->odiluted ? 2 : 1),
                (otmp->blessed ? 5 : !otmp->cursed ? 2 : 0) / (otmp->odiluted ? 2 : 1),
                 !otmp->cursed, TRUE);
-        if (!otmp->cursed) {
+        if (otmp->blessed) {
             if (Withering) {
                 You("are no longer withering away.");
                 set_itimeout(&HWithering, (long) 0);
@@ -1211,9 +1205,11 @@ no_rise:
             u.ulevelmax -= 1;
             pluslvl(FALSE);
         }
-        if (Withering) {
-            You("are no longer withering away.");
-            set_itimeout(&HWithering, (long) 0);
+        if (!otmp->cursed) {
+            if (Withering) {
+                You("are no longer withering away.");
+                set_itimeout(&HWithering, (long) 0);
+            }
         }
         (void) make_hallucinated(0L, TRUE, 0L);
         exercise(A_STR, TRUE);

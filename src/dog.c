@@ -594,6 +594,14 @@ long nmv; /* number of moves */
             mtmp->msummoned -= imv;
     }
 
+    /* Withering monsters by rights ought to keep withering while off-level, but
+     * it brings up a host of problems to have a monster die in this function
+     * (if the player were responsible, would they get experience for the kill
+     * and potentially level up just by returning to the level? should messages
+     * such as "You have a sad feeling" or vampire polyself/rise again print
+     * upon arrival?)  Instead, just don't affect their hp or withering status;
+     * they will begin re-withering when the hero comes back. */
+
     /* might recover from temporary trouble */
     if (mtmp->mtrapped && rn2(imv + 1) > 40 / 2)
         mtmp->mtrapped = 0;
@@ -601,8 +609,6 @@ long nmv; /* number of moves */
         mtmp->mconf = 0;
     if (mtmp->mstun && rn2(imv + 1) > 10 / 2)
         mtmp->mstun = 0;
-    if (mtmp->mwither && rn2(imv + 1) > 10 / 2)
-        mtmp->mwither = 0;
 
     /* might finish eating or be able to use special ability again */
     if (imv > mtmp->meating)
@@ -657,12 +663,14 @@ long nmv; /* number of moves */
     }
 
     /* recover lost hit points */
-    if (!mon_prop(mtmp, REGENERATION))
-        imv /= 20;
-    if (mtmp->mhp + imv >= mtmp->mhpmax)
-        mtmp->mhp = mtmp->mhpmax;
-    else
-        mtmp->mhp += imv;
+    if (!mtmp->mwither) {
+        if (!mon_prop(mtmp, REGENERATION))
+            imv /= 20;
+        if (mtmp->mhp + imv >= mtmp->mhpmax)
+            mtmp->mhp = mtmp->mhpmax;
+        else
+            mtmp->mhp += imv;
+    }
 }
 
 /* called when you move to another level */

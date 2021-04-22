@@ -2271,13 +2271,34 @@ do_rust:
         if (uncancelled && Maybe_Half_Phys(dmg) < (Upolyd ? u.mh : u.uhp))
             dmg = mon_poly(mtmp, &youmonst, dmg);
         break;
-    case AD_WTHR:
+    case AD_WTHR: {
+        uchar withertime = max(2, dmg);
+        dmg = 0; /* doesn't deal immediate damage */
+        boolean no_effect =
+            (nonliving(youmonst.data) /* This could use is_fleshy(), but that would
+                                         make a large set of monsters immune like
+                                         fungus, blobs, and jellies. */
+             || is_vampshifter(&youmonst) || !uncancelled);
+        boolean lose_maxhp = (withertime >= 8); /* if already withering */
+
         hitmsg(mtmp, mattk);
-        if (!rn2(3) && !nonliving(youmonst.data)) {
-            You("are withering away!");
-            incr_itimeout(&HWithering, rnd(dmg) + 3);
+        if (!no_effect) {
+            if (!Withering)
+                You("begin to wither away!");
+            incr_itimeout(&HWithering, withertime);
+
+            if (lose_maxhp) {
+                if (Upolyd && u.mhmax > 1) {
+                    u.mhmax--;
+                    u.mh = min(u.mh, u.mhmax);
+                } else if (u.uhpmax > 1) {
+                    u.uhpmax--;
+                    u.uhp = min(u.uhp, u.uhpmax);
+                }
+            }
         }
         break;
+    }
     case AD_PITS:
         /* For some reason, the uhitm code calls this for any AT_HUGS attack,
          * but the mhitu code doesn't. */

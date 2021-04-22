@@ -5,6 +5,7 @@
 
 #include "hack.h"
 #include "artifact.h"
+#include <limits.h>
 
 extern boolean notonhead;
 
@@ -2123,13 +2124,33 @@ msickness:
         if (!magr->mcan && tmp < mdef->mhp)
             tmp = mon_poly(magr, mdef, tmp);
         break;
-    case AD_WTHR:
-        if (!rn2(3) && !nonliving(mdef->data)) {
+    case AD_WTHR: {
+        uchar withertime = max(2, tmp);
+        tmp = 0; /* doesn't deal immediate damage */
+        boolean no_effect =
+            (nonliving(pd) /* This could use is_fleshy(), but that would
+                              make a large set of monsters immune like
+                              fungus, blobs, and jellies. */
+             || is_vampshifter(mdef) || cancelled);
+        boolean lose_maxhp = (withertime >= 8); /* if already withering */
+
+        if (!no_effect) {
             if (canseemon(mdef))
                 pline("%s is withering away!", Monnam(mdef));
-            mdef->mwither = 1;
+
+            if (mdef->mwither + withertime > UCHAR_MAX)
+                mdef->mwither = UCHAR_MAX;
+            else
+                mdef->mwither += withertime;
+
+            if (lose_maxhp && mdef->mhpmax > 1) {
+                mdef->mhpmax--;
+                mdef->mhp = min(mdef->mhp, mdef->mhpmax);
+            }
+            mdef->mwither_from_u = FALSE;
         }
         break;
+    }
     case AD_DISN: /* currently only called via AT_GAZE */
         if (!rn2(5)) {
             struct obj *otmp = (struct obj *) 0, *otmp2;

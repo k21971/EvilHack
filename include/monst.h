@@ -157,12 +157,13 @@ struct monst {
     Bitfield(isvecna, 1);    /* is Vecna */
     Bitfield(iswiz, 1);      /* is the Wizard of Yendor */
     Bitfield(wormno, 5);     /* at most 31 worms on any level */
-    Bitfield(mwither, 1);    /* is withering */
-    Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
+    Bitfield(mwither_from_u, 1); /* is withering due to player */
 
+    Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
     Bitfield(mstone, 3);     /* monster is turning to stone */
     /* 6 free bits */
 
+    uchar mwither;           /* withering; amount of turns left till recovery */
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */

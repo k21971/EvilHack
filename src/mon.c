@@ -1143,8 +1143,27 @@ mcalcdistress()
                 continue;
         }
 
-        /* regenerate hit points */
+        /* regenerate hit points - note that if withering, they won't gain hp,
+         * but we still need to call this for mspec_used */
         mon_regen(mtmp, FALSE);
+
+        /* wither away */
+        if (mtmp->mwither) {
+            mtmp->mhp -= (rnd(2) - (regenerates(mtmp->data) ? 1 : 0));
+            if (DEADMONSTER(mtmp)) {
+                if (canspotmon(mtmp))
+                    pline("%s withers away completely!", Monnam(mtmp));
+
+                if (mtmp->mwither_from_u)
+                    xkilled(mtmp, XKILL_NOCORPSE | XKILL_NOMSG);
+                else
+                    monkilled(mtmp, "", AD_WTHR);
+                continue;
+            }
+            mtmp->mwither--; /* one turn closer to recovery */
+            if (!mtmp->mwither)
+                mtmp->mwither_from_u = FALSE; /* clear player responsibility */
+        }
 
         if (mtmp->msummoned && mtmp->msummoned == 1) {
             if (canseemon(mtmp))
@@ -3389,8 +3408,9 @@ int how;
     else
         be_sad = (mdef->mtame != 0 && !mdef->msummoned);
 
-    /* no corpses if digested or disintegrated */
-    disintegested = (how == AD_DGST || how == -AD_RBRE);
+    /* no corpses if digested, disintegrated or withered */
+    disintegested = (how == AD_DGST || how == -AD_RBRE
+                     || how == AD_WTHR);
     if (disintegested)
         mondead(mdef);
     else

@@ -2463,6 +2463,8 @@ int final;
                 you_are("terminally sick from food poisoning", "");
         }
     }
+    if (Withering)
+        you_are("withering away", "");
     if (Vomiting)
         you_are("nauseated", "");
     if (Stunned)
