@@ -1597,4 +1597,5 @@ The following changes to date are:
   the grave
 - Alternate ending to the Ice Queen branch if the player is an Infidel
 - Fix: broke the wish parser for objects like hats/boots/gloves
+- Change enchantress 'freeze' from 75 to 100 turns (infidel role)
 

@@ -5679,11 +5679,11 @@ struct monst *mtmp;
     } else {
         if (Role_if(PM_INFIDEL)) {
             /* the enchantress will not tolerate those that serve Moloch.
-               our infidel has 75 turns to do what they're going to do
-               before the situation becomes dire */
+               our infidel has 100 turns to do what they're going to do
+               and get the hell out before the situation becomes dire */
             com_pager(201);
             mtmp->mpeaceful = 0;
-            paralyze_monst(mtmp, 75);
+            paralyze_monst(mtmp, 100);
         } else {
             com_pager(200);
         }
