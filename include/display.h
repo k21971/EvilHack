@@ -444,6 +444,10 @@
      && (glyph) < (GLYPH_WARNING_OFF + WARNCOUNT))
 
 #define use_racial_glyph(mon) \
-    (has_erac(mon) && !is_mplayer((mon)->data) && !is_mercenary((mon)->data))
+    (has_erac(mon) \
+     && !is_mplayer((mon)->data) \
+     && !is_mercenary((mon)->data) \
+     && !((mon)->data == &mons[PM_HIGH_PRIEST] \
+         && Is_astralevel(&u.uz)))
 
 #endif /* DISPLAY_H */

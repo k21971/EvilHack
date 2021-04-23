@@ -1267,6 +1267,7 @@ E void FDECL(set_mimic_sym, (struct monst *));
 E int FDECL(mbirth_limit, (int));
 E void FDECL(mimic_hit_msg, (struct monst *, SHORT_P));
 E void FDECL(mkmonmoney, (struct monst *, long));
+E void FDECL(setup_mon_inventory, (struct monst *));
 E int FDECL(bagotricks, (struct obj *, BOOLEAN_P, int *));
 E boolean FDECL(propagate, (int, BOOLEAN_P, BOOLEAN_P));
 E boolean FDECL(usmellmon, (struct permonst *));
@@ -1565,6 +1566,7 @@ E boolean FDECL(vamp_stone, (struct monst *));
 E boolean FDECL(damage_mon, (struct monst*, int, int));
 E void FDECL(check_gear_next_turn, (struct monst *));
 E int FDECL(pm_to_race, (SHORT_P));
+E short FDECL(align_randrace, (ALIGNTYP_P));
 E short FDECL(m_randrace, (SHORT_P));
 E void FDECL(apply_race, (struct monst *, SHORT_P));
 

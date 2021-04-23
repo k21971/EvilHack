@@ -20,15 +20,8 @@ STATIC_DCL void FDECL(kops_gone, (BOOLEAN_P));
 #define IS_SHOP(x) (rooms[x].rtype >= SHOPBASE)
 
 #define match_shkrace(mon) \
-    ((urace.malenum == (mon)->mnum) \
-     || (urace.malenum == PM_ELF && is_elf(mon->data)) \
-     || (urace.malenum == PM_DWARF && is_dwarf(mon->data)) \
-     || (urace.malenum == PM_ORC && is_orc(mon->data)) \
-     || (urace.malenum == PM_GNOME && is_gnome(mon->data)) \
-     || (urace.malenum == PM_ILLITHID && is_illithid(mon->data)) \
-     || (urace.malenum == PM_CENTAUR && is_centaur(mon->data)) \
-     || (urace.malenum == PM_HUMAN && is_human(mon->data)) \
-     || (urace.malenum == PM_GIANT && is_giant(mon->data)))
+    ((has_erac(mon) && Race_if(ERAC(mon)->rmnum)) \
+     || Race_if((mon)->mnum))
 
 #define muteshk(shkp)                       \
     ((shkp)->msleeping || !(shkp)->mcanmove \
@@ -53,7 +46,7 @@ STATIC_DCL void FDECL(clear_unpaid_obj, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(clear_unpaid, (struct monst *, struct obj *));
 STATIC_DCL long FDECL(check_credit, (long, struct monst *));
 STATIC_DCL void FDECL(pay, (long, struct monst *));
-STATIC_DCL void FDECL(shk_racial_adjustments, (short, long *, long *));
+STATIC_DCL void FDECL(shk_racial_adjustments, (SHORT_P, long *, long *));
 STATIC_DCL long FDECL(get_cost, (struct obj *, struct monst *));
 STATIC_DCL long FDECL(set_cost, (struct obj *, struct monst *));
 STATIC_DCL const char *FDECL(shk_embellish, (struct obj *, long));
@@ -2354,12 +2347,13 @@ register struct monst *shkp; /* if angry, impose a surcharge */
     /* possible additional surcharges based on shk race, if one was passed in */
     if (shkp) {
         long numer, denom;
-        shk_racial_adjustments(shkp->mnum, &numer, &denom);
+        shk_racial_adjustments(has_erac(shkp) ? ERAC(shkp)->rmnum : shkp->mnum,
+                               &numer, &denom);
         multiplier *= numer;
         divisor *= denom;
 
         /* professional courtesy if nonhuman */
-        if (!is_human(shkp->data) && match_shkrace(shkp))
+        if (!racial_human(shkp) && match_shkrace(shkp))
             divisor *= 2;
     }
 
@@ -2585,7 +2579,8 @@ register struct monst *shkp;
     /* possible additional surcharges based on shk race, if one was passed in */
     if (shkp) {
         long numer, denom;
-        shk_racial_adjustments(shkp->mnum, &numer, &denom);
+        shk_racial_adjustments(has_erac(shkp) ? ERAC(shkp)->rmnum : shkp->mnum,
+                               &numer, &denom);
 
         /* Illithids are very reticent to let their books go and thus they
          * charge exorbitantly for them. However, they do want to acquire more
@@ -2601,7 +2596,7 @@ register struct monst *shkp;
         }
 
         /* professional courtesy if nonhuman, but not _that_ much */
-        if (!is_human(shkp->data) && match_shkrace(shkp))
+        if (!racial_human(shkp) && match_shkrace(shkp))
             multiplier *= 4L, divisor *= 3L;
     }
 

@@ -1792,6 +1792,7 @@ boolean called;
             name += 4;
         return strcpy(buf, name);
     }
+
     /* an "aligned priest" not flagged as a priest or minion should be
        "priest" or "priestess" (normally handled by priestname()) */
     if (mdat == &mons[PM_ALIGNED_PRIEST])
@@ -1814,11 +1815,14 @@ boolean called;
             return buf;
         }
         Strcat(buf, shkname(mtmp));
-        if (mdat == &mons[PM_SHOPKEEPER] && !do_invis)
-            return buf;
         Strcat(buf, " the ");
         if (do_invis)
             Strcat(buf, "invisible ");
+        if (has_erac(mtmp)) {
+            int r_id = ERAC(mtmp)->r_id;
+            Sprintf(eos(buf), "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
+                                                : races[r_id].adj);
+        }
         Strcat(buf, pm_name);
         return buf;
     }
@@ -1835,6 +1839,8 @@ boolean called;
         && !Hallucination)
         Strcat(buf, "barded ");
     if (has_erac(mtmp) && !type_is_pname(mdat)
+        /* don't reveal high priest race too early */
+        && mdat != &mons[PM_HIGH_PRIEST]
         && (!(do_name && has_mname(mtmp)) || called)) {
         int r_id = ERAC(mtmp)->r_id;
         Sprintf(eos(buf), "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
