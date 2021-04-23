@@ -314,7 +314,15 @@
 #define strongmonst(ptr) (((ptr)->mflags2 & M2_STRONG) != 0L)
 #define can_breathe(ptr) attacktype(ptr, AT_BREA)
 #define cantwield(ptr) (nohands(ptr) || verysmall(ptr))
-#define could_twoweap(ptr) ((ptr)->mattk[1].aatyp == AT_WEAP)
+/* Does this type of monster have multiple weapon attacks?  If so,
+   hero poly'd into this form can use two-weapon combat.  It used
+   to just check mattk[1] and assume mattk[0], which was suitable
+   for mons[] at the time but somewhat fragile.  This is more robust
+   without going to the extreme of checking all six slots. */
+#define could_twoweap(ptr) \
+    ((  ((ptr)->mattk[0].aatyp == AT_WEAP)              \
+      + ((ptr)->mattk[1].aatyp == AT_WEAP)              \
+      + ((ptr)->mattk[2].aatyp == AT_WEAP)  ) > 1)
 #define cantweararm(ptr) (breakarm(ptr) || sliparm(ptr))
 #define throws_rocks(ptr) \
     ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) \

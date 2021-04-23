@@ -1601,4 +1601,5 @@ The following changes to date are:
 - Overhaul damage type 'withering'
 - Use erac for racial priests and shopkeepers
 - Fix: racial priests race not matching alignment
+- More robust version of could_twoweap()
 
