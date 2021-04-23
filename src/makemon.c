@@ -1647,6 +1647,18 @@ long amount;
     add_to_minv(mtmp, gold);
 }
 
+void
+setup_mon_inventory(mtmp)
+struct monst *mtmp;
+{
+    if (is_armed(mtmp->data))
+        m_initweap(mtmp); /* equip with weapons / armor */
+    m_initinv(mtmp); /* add on a few special items incl. more armor */
+    m_dowear(mtmp, TRUE);
+    mon_wield_item(mtmp);
+    (void) m_stash_items(mtmp, TRUE);
+}
+
 STATIC_OVL void
 m_initinv(mtmp)
 register struct monst *mtmp;
@@ -1814,10 +1826,19 @@ register struct monst *mtmp;
             }
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_PRIEST)) {
-            (void) mongets(mtmp, rn2(7) ? ROBE
-                                        : rn2(3) ? CLOAK_OF_PROTECTION
-                                                 : CLOAK_OF_MAGIC_RESISTANCE);
-            (void) mongets(mtmp, SMALL_SHIELD);
+            if (!racial_giant(mtmp)) {
+                (void) mongets(mtmp, rn2(7) ? ROBE
+                                            : rn2(3)
+                                                ? CLOAK_OF_PROTECTION
+                                                : CLOAK_OF_MAGIC_RESISTANCE);
+                (void) mongets(mtmp, SMALL_SHIELD);
+            } else {
+                (void) mongets(mtmp, rn2(7) ? HIGH_BOOTS
+                                            : rn2(3)
+                                                ? GAUNTLETS_OF_PROTECTION
+                                                : AMULET_OF_MAGIC_RESISTANCE);
+                (void) mongets(mtmp, LARGE_SHIELD);
+            }
             (void) mongets(mtmp, rn2(2) ? MACE : HEAVY_MACE);
             /* some insurance against 'purple rain' */
             if (on_level(&astral_level, &u.uz) && rn2(2)) {
@@ -2713,6 +2734,7 @@ int mmflags;
         mtmp->isminion = 1;
         EMIN(mtmp)->min_align = sgn(mal);
     }
+
     set_malign(mtmp); /* having finished peaceful changes */
     if (anymon && !(mmflags & MM_NOGRP)) {
         if ((ptr->geno & G_SGROUP) && rn2(2)) {
@@ -2725,13 +2747,12 @@ int mmflags;
         }
     }
 
+    if (mndx == PM_HIGH_PRIEST || mndx == PM_ALIGNED_PRIEST) {
+        apply_race(mtmp, align_randrace(mon_aligntyp(mtmp)));
+    }
+
     if (allow_minvent) {
-        if (is_armed(ptr))
-            m_initweap(mtmp); /* equip with weapons / armor */
-        m_initinv(mtmp); /* add on a few special items incl. more armor */
-        m_dowear(mtmp, TRUE);
-        mon_wield_item(mtmp);
-        (void) m_stash_items(mtmp, TRUE);
+        setup_mon_inventory(mtmp);
 
         if (!rn2(100) && is_domestic(ptr)
             && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {

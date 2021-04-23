@@ -25,6 +25,7 @@ STATIC_DCL boolean FDECL(isspecmon, (struct monst *));
 STATIC_DCL boolean FDECL(validspecmon, (struct monst *, int));
 STATIC_DCL struct permonst *FDECL(accept_newcham_form, (struct monst *, int));
 STATIC_DCL struct obj *FDECL(make_corpse, (struct monst *, unsigned));
+STATIC_DCL short FDECL(m_chooserace, (unsigned long));
 STATIC_OVL long FDECL(mm_2way_aggression, (struct monst *, struct monst *));
 STATIC_DCL void FDECL(m_detach, (struct monst *, struct permonst *));
 STATIC_DCL void FDECL(lifesaved_monster, (struct monst *));
@@ -2341,6 +2342,12 @@ struct monst *magr, /* monster that is currently deciding where to move */
     /* Soldiers of different races shouldn't fight each other either.
        They're all on the same team */
     if (ma->msound == MS_SOLDIER && md->msound == MS_SOLDIER)
+        return 0;
+
+    /* Priests which follow the same god are willing to set aside their petty
+     * racial differences in his/her name */
+    if (ma->msound == MS_PRIEST && md->msound == MS_PRIEST
+        && mon_aligntyp(magr) == mon_aligntyp(mdef))
         return 0;
 
     /* supposedly purple worms are attracted to shrieking because they
@@ -5739,14 +5746,59 @@ short mndx;
     return NON_PM;
 }
 
+STATIC_OVL short
+m_chooserace(permitted)
+unsigned long permitted;
+{
+    int i, count = 0;
+    short race = NON_PM;
+
+    const short mraces[] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME, PM_ORC,
+                             PM_GIANT, PM_HOBBIT, PM_CENTAUR, PM_ILLITHID, 0 };
+
+    for (i = 0; mraces[i]; i++) {
+        if (permitted & mons[mraces[i]].mhflags
+            && !(mvitals[mraces[i]].mvflags & G_GONE)) {
+            count++;
+            if (!rn2(count))
+                race = mraces[i];
+        }
+    }
+
+    return race;
+}
+
+short
+align_randrace(algn)
+aligntyp algn;
+{
+    unsigned long permitted = MH_HUMAN;
+
+    switch (algn) {
+    case A_CHAOTIC:
+        permitted |= (MH_ELF | MH_CENTAUR);
+        /* fallthrough */
+    case A_NONE:
+        permitted |= (MH_ILLITHID | MH_ORC);
+        break;
+    case A_NEUTRAL:
+        permitted |= MH_CENTAUR;
+        /* fallthrough */
+    case A_LAWFUL:
+        permitted |= (MH_DWARF | MH_GIANT);
+        break;
+    default:
+        break;
+    }
+
+    return m_chooserace(permitted);
+}
+
+
 short
 m_randrace(mndx)
 short mndx;
 {
-    int i, count = 0;
-    short race = NON_PM;
-    const short mraces[] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME, PM_ORC,
-                             PM_GIANT, PM_HOBBIT, PM_CENTAUR, PM_ILLITHID, 0 };
     unsigned long permitted = MH_HUMAN;
 
     switch (mndx) {
@@ -5756,6 +5808,7 @@ short mndx;
     case PM_WATCHMAN:
     case PM_GUARD:
     case PM_PRISON_GUARD:
+    case PM_SHOPKEEPER:
         permitted |= (MH_CENTAUR | MH_ORC);
         /* fallthru */
     case PM_CAPTAIN:
@@ -5819,16 +5872,7 @@ short mndx;
         break;
     }
 
-    for (i = 0; mraces[i]; i++) {
-        if (permitted & mons[mraces[i]].mhflags
-            && !(mvitals[mraces[i]].mvflags & G_GONE)) {
-            count++;
-            if (!rn2(count))
-                race = mraces[i];
-        }
-    }
-
-    return race;
+    return m_chooserace(permitted);
 }
 
 void

@@ -747,46 +747,10 @@ int shp_indx;
         break;
     }
 
-    /* if we picked a specific monster, use that... */
-    if (srace) {
-        /* on the odd chance that it hit one that was genoed, leave it a normal shk */
-        if (!(mvitals[srace].mvflags & G_GONE)) {
-            mdat = &mons[srace];
-            shk->mnum = srace;
-            set_mon_data(shk, mdat);
-        }
-    } else {
-        srace = rnd(6);
-        if (srace) {
-            switch (srace) {
-            case 1:
-                mdat = &mons[PM_ELF];
-                shk->mnum = PM_ELF;
-                break;
-            case 2:
-                mdat = &mons[PM_DWARF];
-                shk->mnum = PM_DWARF;
-                break;
-            case 3:
-                mdat = &mons[PM_ORC];
-                shk->mnum = PM_ORC;
-                break;
-            case 4:
-                mdat = &mons[PM_GNOME];
-                shk->mnum = PM_GNOME;
-                break;
-            case 5:
-                mdat = &mons[PM_GIANT];
-                shk->mnum = PM_GIANT;
-                break;
-            case 6:
-                mdat = &mons[PM_HUMAN];
-                shk->mnum = PM_HUMAN;
-                break;
-            }
-        set_mon_data(shk, &mons[shk->mnum]);
-        }
+    if (!srace) {
+        srace = m_randrace(monsndx(shk->data));
     }
+    apply_race(shk, srace);
 
     shk->isshk = shk->mpeaceful = 1;
     set_malign(shk);
