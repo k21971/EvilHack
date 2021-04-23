@@ -268,6 +268,10 @@ boolean sanctum; /* is it the seat of the high priest? */
         priest->msleeping = 0;
         set_malign(priest); /* mpeaceful may have changed */
 
+        apply_race(priest, align_randrace(mon_aligntyp(priest)));
+        discard_minvent(priest);
+        setup_mon_inventory(priest);
+
         /* now his/her goodies... */
         if (sanctum && EPRI(priest)->shralign == A_NONE
             && on_level(&sanctum_level, &u.uz) && !Role_if(PM_INFIDEL)) {

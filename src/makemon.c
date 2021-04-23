@@ -2725,6 +2725,8 @@ int mmflags;
         mtmp->mpeaceful = (eminp->min_align == u.ualign.type)
                               ? !eminp->renegade
                               : eminp->renegade;
+        /* done in priest.c for other priests (in temples and roamers) */
+        apply_race(mtmp, align_randrace(mon_aligntyp(mtmp)));
     }
     /* these monsters are normally affiliated with a deity */
     if ((mndx == PM_PALADIN || mndx == PM_TEMPLAR || mndx == PM_CHAMPION
@@ -2745,10 +2747,6 @@ int mmflags;
             else
                 m_initsgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
         }
-    }
-
-    if (mndx == PM_HIGH_PRIEST || mndx == PM_ALIGNED_PRIEST) {
-        apply_race(mtmp, align_randrace(mon_aligntyp(mtmp)));
     }
 
     if (allow_minvent) {

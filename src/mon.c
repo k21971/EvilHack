@@ -5777,17 +5777,19 @@ aligntyp algn;
     unsigned long permitted = MH_HUMAN;
 
     switch (algn) {
-    case A_CHAOTIC:
-        permitted |= (MH_ELF | MH_CENTAUR);
-        /* fallthrough */
     case A_NONE:
-        permitted |= (MH_ILLITHID | MH_ORC);
+        permitted |= (MH_ILLITHID | MH_ORC | MH_ELF | MH_GIANT);
+        break;
+    case A_CHAOTIC:
+        permitted |=
+            (MH_ILLITHID | MH_ORC | MH_ELF | MH_GIANT | MH_CENTAUR);
+        break;
+    case A_LAWFUL:
+        permitted |= (MH_DWARF | MH_GIANT | MH_HOBBIT);
         break;
     case A_NEUTRAL:
-        permitted |= MH_CENTAUR;
-        /* fallthrough */
-    case A_LAWFUL:
-        permitted |= (MH_DWARF | MH_GIANT);
+        permitted |=
+            (MH_ELF | MH_DWARF | MH_GIANT | MH_HOBBIT | MH_CENTAUR);
         break;
     default:
         break;
