@@ -5343,7 +5343,9 @@ kill_genocided_monsters()
         mndx = monsndx(mtmp->data);
         kill_cham = (mtmp->cham >= LOW_PM
                      && (mvitals[mtmp->cham].mvflags & G_GENOD));
-        if ((mvitals[mndx].mvflags & G_GENOD) || kill_cham) {
+        if ((mvitals[mndx].mvflags & G_GENOD) || kill_cham
+            || (has_erac(mtmp)
+                && mvitals[ERAC(mtmp)->rmnum].mvflags & G_GENOD)) {
             if (mtmp->cham >= LOW_PM && !kill_cham)
                 (void) newcham(mtmp, (struct permonst *) 0, FALSE, FALSE);
             else
