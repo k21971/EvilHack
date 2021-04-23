@@ -595,7 +595,6 @@ int shp_indx;
     int srace = 0;
     struct monst *shk;
     struct eshk *eshkp;
-    struct permonst* mdat;
 
     /* place the shopkeeper in the given room */
     sh = sroom->fdoor;

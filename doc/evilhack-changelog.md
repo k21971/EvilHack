@@ -1599,4 +1599,5 @@ The following changes to date are:
 - Fix: broke the wish parser for objects like hats/boots/gloves
 - Change enchantress 'freeze' from 75 to 100 turns (infidel role)
 - Overhaul damage type 'withering'
+- Use erac for racial priests and shopkeepers
 
