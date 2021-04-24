@@ -89,6 +89,7 @@ sys_early_init()
     sysopt.check_plname = 0;
     sysopt.seduce = 1; /* if it's compiled in, default to on */
     sysopt_seduce_set(sysopt.seduce);
+    sysopt.serverseed = 0;
     sysopt.accessibility = 0;
 #ifdef WIN32
     sysopt.portable_device_paths = 0;

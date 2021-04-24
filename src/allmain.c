@@ -882,6 +882,9 @@ newgame()
     context.next_moloch_offering = 6000; /* give a grace period before
                                           * the first sacrifice */
 
+    /* Extra entropy added to sysopt.serverseed */
+    sysopt.serverseed += rn2(8000000);
+
     for (i = LOW_PM; i < NUMMONS; i++)
         mvitals[i].mvflags = mons[i].geno & G_NOCORPSE;
 

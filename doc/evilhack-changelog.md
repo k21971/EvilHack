@@ -1602,4 +1602,5 @@ The following changes to date are:
 - Use erac for racial priests and shopkeepers
 - Fix: racial priests race not matching alignment
 - More robust version of could_twoweap()
+- Add SERVERSEED option to obfuscate hash functions on servers
 
