@@ -64,8 +64,8 @@ SUPPORT=Contact K2 or Tangles on freenode irc channel #hardfought
 # Number added into the game's deterministic hash functions to prevent
 # players from computing the result of said functions. Mostly useful on
 # multi-user installs.
-# Do NOT keep this default value of 100, choose an arbitrary one, and don't
-# disclose it to your players.
+# Do NOT keep this default value of 100 (maximum of 2147483647), choose
+# an arbitrary one, and don't disclose it to your players.
 SERVERSEED=100
 
 # Uncomment the next line to enable some accessibility features such

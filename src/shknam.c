@@ -514,7 +514,7 @@ const char *const *nlp;
            and restore support which would be necessary for randomization;
            try not to make too many assumptions about time_t's internals;
            use ledger_no rather than depth to keep mine town distinct. */
-        int nseed = (int) ((long) ubirthday / 257L);
+        int nseed = (int) ((long) ubirthday / 257L) + sysopt.serverseed;
 
         name_wanted = ledger_no(&u.uz) + (nseed % 13) - (nseed % 5);
         if (name_wanted < 0)
