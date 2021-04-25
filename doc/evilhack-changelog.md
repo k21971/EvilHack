@@ -1604,4 +1604,5 @@ The following changes to date are:
 - More robust version of could_twoweap()
 - Add SERVERSEED option to obfuscate hash functions on servers
 - Actually utilize SERVERSEED
+- Monster lookup
 

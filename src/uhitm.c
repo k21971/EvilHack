@@ -2442,7 +2442,7 @@ do_rust:
         }
         break;
     case AD_DISE:
-        if (!resists_sick(mdef)) {
+        if (!resists_sick(pd)) {
             if (canseemon(mdef))
                 pline("%s looks %s.", Monnam(mdef),
                       mdef->mdiseased ? "even worse" : "diseased");
@@ -2454,7 +2454,7 @@ do_rust:
         struct obj *barding;
 
         if (is_zombie(youmonst.data) && rn2(5)) {
-            if (!resists_sick(mdef)) {
+            if (!resists_sick(pd)) {
                 if (canseemon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->msick ? "much worse" : "rather ill");

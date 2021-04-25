@@ -579,14 +579,14 @@ register struct monst *mtmp;
 
     /* sick monsters can die from their illness */
     if (mtmp->msick && !rn2(10)) {
-        if (resists_sick(mtmp)) {
+        if (resists_sick(mdat)) {
             mtmp->msick = 0;
         } else {
             if (canseemon(mtmp))
                 pline("%s dies from %s illness.",
                       Monnam(mtmp), mhis(mtmp));
-            if ((mtmp->msick = 2) && !nonliving(mtmp->data)
-                && can_become_zombie(mtmp->data)) {
+            if ((mtmp->msick = 2) && !nonliving(mdat)
+                && can_become_zombie(mdat)) {
                 zombify(mtmp);
                 return 1;
             } else {
@@ -600,7 +600,7 @@ register struct monst *mtmp;
 
     /* diseased monsters can die as well... */
     if (mtmp->mdiseased && !rn2(10)) {
-        if (resists_sick(mtmp)) {
+        if (resists_sick(mdat)) {
             mtmp->mdiseased = 0;
         } else {
             if (canseemon(mtmp))

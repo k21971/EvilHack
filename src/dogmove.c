@@ -1258,7 +1258,7 @@ boolean ranged;
        || (!ranged && !mtmp->msummoned
            && touch_petrifies(mtmp2->data) && !resists_ston(mtmp))
        || (!ranged && !mtmp->msummoned
-           && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp)));
+           && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp->data)));
 }
 
 /* return 0 (no move), 1 (move) or 2 (dead) */

@@ -15,6 +15,7 @@ STATIC_DCL void FDECL(look_at_object, (char *, int, int, int));
 STATIC_DCL void FDECL(look_at_monster, (char *, char *,
                                         struct monst *, int, int));
 STATIC_DCL struct permonst *FDECL(lookat, (int, int, char *, char *));
+STATIC_DCL void FDECL(add_mon_info, (winid, struct permonst *));
 STATIC_DCL void FDECL(checkfile, (char *, struct permonst *,
                                   BOOLEAN_P, BOOLEAN_P, char *));
 STATIC_DCL void FDECL(look_all, (BOOLEAN_P,BOOLEAN_P));
@@ -560,6 +561,355 @@ char *buf, *monbuf;
     return (pm && !Hallucination) ? pm : (struct permonst *) 0;
 }
 
+/* Make sure the order is the same as that defined in monattk.h */
+static const char * attacktypes[] = {
+    "passive",
+    "claw",
+    "bite",
+    "kick",
+    "butt",
+    "touch",
+    "sting",
+    "bearhug",
+    "spit",
+    "engulf",
+    "breath",
+    "explode",
+    "explode on death",
+    "gaze",
+    "tentacle",
+    "scream",
+    "weapon",
+    "spellcast"
+};
+
+static const char * damagetypes[] = {
+    "physical",
+    "magic missile",
+    "fire",
+    "cold",
+    "sleep",
+    "disintegration",
+    "shock",
+    "strength poison",
+    "acid",
+    "water",
+    NULL, /* AD_SPC1 - not used */
+    NULL, /* AD_SPC2 - not used */
+    "blind",
+    "stun",
+    "slow",
+    "paralyze",
+    "level drain",
+    "energy drain",
+    "wound leg",
+    "petrify",
+    "sticky",
+    "steal gold",
+    "steal item",
+    "charm",
+    "teleport",
+    "rust",
+    "confuse",
+    "digest",
+    "heal",
+    "drown",
+    "lycanthropy",
+    "dexterity poison",
+    "constitution poison",
+    "eat brains",
+    "disease",
+    "decay",
+    "seduce",
+    "hallucination",
+    "Death special",
+    "Pestilence special",
+    "Famine special",
+    "slime",
+    "disenchant",
+    "corrode",
+    "cancel",
+    "behead",
+    "affects luck",
+    "psionic",
+    "sonic",
+    "knock-back",
+    "polymorph",
+    "withering",
+    "create pit",
+    "web",
+    "steal intrinsic",
+    "clerical",
+    "arcane",
+    "random breath",
+    "steal Amulet",
+};
+
+/* Add some information to an encyclopedia window which is printing information
+ * about a monster. */
+STATIC_OVL void
+add_mon_info(datawin, pm)
+winid datawin;
+struct permonst * pm;
+{
+    char buf[BUFSZ];
+    char buf2[BUFSZ];
+    int gen = pm->geno;
+    int freq = (gen & G_FREQ);
+    boolean uniq = !!(gen & G_UNIQ);
+    boolean hell = !!(gen & G_HELL);
+    boolean nohell = !!(gen & G_NOHELL);
+    unsigned int mflag4 = pm->mflags4;
+
+#define ADDRESIST(condition, str) \
+    if (condition) {              \
+        if (*buf)                 \
+            Strcat(buf, ", ");    \
+        Strcat(buf, str);         \
+    }
+#define ADDMR(field, res, str)    \
+    if (field & (res)) {          \
+        if (*buf)                 \
+            Strcat(buf, ", ");    \
+        Strcat(buf, str);         \
+    }
+#define APPENDC(cond, str)        \
+    if (cond) {                   \
+        if (*buf)                 \
+            Strcat(buf, ", ");    \
+        Strcat(buf, str);         \
+    }
+
+#define MONPUTSTR(str) putstr(datawin, ATR_NONE, str)
+
+    /* differentiate the two forms of werecreatures */
+    Strcpy(buf2, "");
+    if (is_were(pm))
+        Sprintf(buf2, " (%s form)", pm->mlet == S_HUMAN ? "human" : "animal");
+
+    Sprintf(buf, "Monster lookup for \"%s\"%s:", pm->mname, buf2);
+    putstr(datawin, ATR_BOLD, buf);
+    MONPUTSTR("");
+
+    /* Misc */
+    Sprintf(buf, "Difficulty %d, speed %d, base level %d, base AC %d, magic saving throw %d, weight %d.",
+            pm->difficulty, pm->mmove, pm->mlevel, pm->ac, pm->mr, pm->cwt);
+    MONPUTSTR(buf);
+
+    /* Generation */
+    if (uniq)
+        Strcpy(buf, "Unique.");
+    else if (freq == 0)
+	Strcpy(buf, "Not randomly generated.");
+    else
+        Sprintf(buf, "Normally %s%s, %s.",
+                hell ? "only appears in Gehennom" :
+                nohell ? "only appears outside Gehennom" :
+                "appears in any branch",
+                (gen & G_SGROUP) ? " in groups" :
+                (gen & G_LGROUP) ? " in large groups" : "",
+                freq >= 5 ? "very common" :
+                freq == 4 ? "common" :
+                freq == 3 ? "slightly rare" :
+                freq == 2 ? "rare" : "very rare");
+    MONPUTSTR(buf);
+
+    /* Resistances */
+    buf[0] = '\0';
+    ADDRESIST(pm_resistance(pm, MR_FIRE), "fire");
+    ADDRESIST(pm_resistance(pm, MR_COLD), "cold");
+    ADDRESIST(pm_resistance(pm, MR_SLEEP), "sleep");
+    ADDRESIST(pm_resistance(pm, MR_DISINT), "disintegration");
+    ADDRESIST(pm_resistance(pm, MR_ELEC), "shock");
+    ADDRESIST(pm_resistance(pm, MR_POISON), "poison");
+    ADDRESIST(pm_resistance(pm, MR_ACID), "acid");
+    ADDRESIST(pm_resistance(pm, MR_STONE), "petrification");
+    ADDRESIST(pm_resistance(pm, MR_PSYCHIC), "psionic attacks");
+    ADDRESIST(resists_drain(pm), "life-drain");
+    ADDRESIST(resists_sick(pm), "sickness");
+    ADDRESIST(resists_mgc(pm), "magic");
+    ADDRESIST(immune_death_magic(pm), "death magic");
+    if (*buf) {
+        Sprintf(buf2, "Resists %s.", buf);
+        MONPUTSTR(buf2);
+    } else {
+        MONPUTSTR("Has no resistances.");
+    }
+
+    /* Corpse conveyances */
+    buf[0] = '\0';
+    APPENDC(intrinsic_possible(FIRE_RES, pm), "fire");
+    APPENDC(intrinsic_possible(COLD_RES, pm), "cold");
+    APPENDC(intrinsic_possible(SHOCK_RES, pm), "shock");
+    APPENDC(intrinsic_possible(SLEEP_RES, pm), "sleep");
+    APPENDC(intrinsic_possible(POISON_RES, pm), "poison");
+    APPENDC(intrinsic_possible(DISINT_RES, pm), "disintegration");
+    /* acid, stone, and psionic resistance aren't currently conveyable */
+    if (*buf)
+        Strcat(buf, " resistance");
+    APPENDC(intrinsic_possible(TELEPORT, pm), "teleportation");
+    APPENDC(intrinsic_possible(TELEPORT_CONTROL, pm), "teleport control");
+    APPENDC(intrinsic_possible(TELEPAT, pm), "telepathy");
+    /* There are a bunch of things that happen in cpostfx (levels for wraiths,
+     * stunning for bats...) but only count the ones that actually behave like
+     * permanent intrinsic gains.
+     * If you find yourself listing multiple things here for the same effect,
+     * that may indicate the property should be added to psuedo_intrinsics. */
+    APPENDC(pm == &mons[PM_QUANTUM_MECHANIC], "speed or slowness");
+    APPENDC(pm == &mons[PM_MIND_FLAYER] || pm == &mons[PM_MASTER_MIND_FLAYER],
+            "intelligence");
+    if (is_were(pm)) {
+        /* Weres need a bit of special handling, since 1) you always get
+         * lycanthropy so "may convey" could imply the player might not contract
+         * it; 2) the animal forms are flagged as G_NOCORPSE, but still have a
+         * meaningless listed corpse nutrition value which shouldn't print. */
+        if (pm->mlet == S_HUMAN) {
+            Sprintf(buf2, "Provides %d nutrition when eaten.", pm->cnutrit);
+            MONPUTSTR(buf2);
+        }
+        MONPUTSTR("Corpse conveys lycanthropy.");
+    } else if (!(gen & G_NOCORPSE)) {
+        Sprintf(buf2, "Provides %d nutrition when eaten.", pm->cnutrit);
+        MONPUTSTR(buf2);
+        if (*buf) {
+            Sprintf(buf2, "Corpse may convey %s.", buf);
+            MONPUTSTR(buf2);
+        } else
+            MONPUTSTR("Corpse conveys no intrinsics.");
+    } else
+        MONPUTSTR("Leaves no corpse.");
+
+    /* Flag descriptions */
+    buf[0] = '\0';
+    APPENDC(is_male(pm), "male");
+    APPENDC(is_female(pm), "female");
+    APPENDC(is_neuter(pm), "genderless");
+    APPENDC(pm->msize == MZ_TINY, "tiny");
+    APPENDC(pm->msize == MZ_SMALL, "small");
+    APPENDC(pm->msize == MZ_LARGE, "large");
+    APPENDC(pm->msize == MZ_HUGE, "huge");
+    APPENDC(pm->msize == MZ_GIGANTIC, "gigantic");
+    if (!(*buf)) {
+        /* for nonstandard sizes */
+        if (verysmall(pm)) {
+            APPENDC(TRUE, "small");
+        } else if (bigmonst(pm)) {
+            APPENDC(TRUE, "big");
+        }
+    }
+
+    /* inherent characteristics: "Monster is X." */
+    APPENDC(!(gen & G_GENO), "ungenocideable");
+    APPENDC(breathless(pm), "breathless");
+    if (!breathless(pm))
+        APPENDC(amphibious(pm), "amphibious");
+    APPENDC(amorphous(pm), "amorphous");
+    APPENDC(noncorporeal(pm), "incorporeal");
+    if (!noncorporeal(pm))
+        APPENDC(unsolid(pm), "unsolid");
+    APPENDC(acidic(pm), "acidic");
+    APPENDC(poisonous(pm), "poisonous");
+    APPENDC(regenerates(pm), "regenerating");
+    APPENDC(is_reviver(pm), "reviving");
+    APPENDC(is_floater(pm), "floating");
+    APPENDC(pm_invisible(pm), "invisible");
+    APPENDC(is_undead(pm), "undead");
+    if (!is_undead(pm))
+        APPENDC(nonliving(pm), "nonliving");
+    APPENDC(telepathic(pm), "telepathic");
+    APPENDC(is_displaced(pm), "displaced");
+    APPENDC(is_skittish(pm), "skittish");
+    APPENDC(is_accurate(pm), "accurate");
+    APPENDC(mflag4 == M4_VULNERABLE_FIRE, "vulnerable to fire");
+    APPENDC(mflag4 == M4_VULNERABLE_COLD, "vulnerable to cold");
+    APPENDC(mflag4 == M4_VULNERABLE_ELEC, "vulnerable to electricity");
+    APPENDC(mflag4 == M4_VULNERABLE_ACID, "vulnerable to acid");
+    if (*buf) {
+        Sprintf(buf2, "Is %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
+    /* inherent abilities: "Monster can X." */
+    APPENDC(hides_under(pm), "hide under objects");
+    if (!hides_under(pm))
+        APPENDC(is_hider(pm), "hide");
+    APPENDC(is_swimmer(pm), "swim");
+    if (!is_floater(pm))
+        APPENDC(is_flyer(pm), "fly");
+    APPENDC(passes_walls(pm), "phase through walls");
+    APPENDC(can_teleport(pm), "teleport");
+    APPENDC(is_clinger(pm), "cling to the ceiling");
+    APPENDC(is_jumper(pm), "jump");
+    APPENDC(webmaker(pm), "spin webs");
+    APPENDC(needspick(pm), "mine");
+    if (!needspick(pm))
+        APPENDC(tunnels(pm), "dig");
+    if (*buf) {
+        Sprintf(buf2, "Can %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
+    /* Full-line remarks. */
+    if (touch_petrifies(pm))
+        MONPUTSTR("Petrifies by touch.");
+    if (perceives(pm))
+        MONPUTSTR("Can see invisible.");
+    if (control_teleport(pm))
+        MONPUTSTR("Has teleport control.");
+    if (your_race(pm))
+        MONPUTSTR("Is the same race as you.");
+    if (!(gen & G_NOCORPSE)) {
+        if (vegan(pm))
+            MONPUTSTR("May be eaten by vegans.");
+        else if (vegetarian(pm))
+            MONPUTSTR("May be eaten by vegetarians.");
+    }
+    Sprintf(buf, "Is %sa valid polymorph form.",
+            polyok(pm) ? "" : "not ");
+    MONPUTSTR(buf);
+
+    /* Attacks */
+    buf[0] = buf2[0] = '\0';
+    int i;
+    for (i = 0; i < 6; i++) {
+        char dicebuf[20]; /* should be a safe limit */
+        struct attack * attk = &(pm->mattk[i]);
+        if (attk->damn) {
+            Sprintf(dicebuf, "%dd%d", attk->damn, attk->damd);
+        } else if (attk->damd) {
+            Sprintf(dicebuf, "(level + 1)d%d", attk->damd);
+        } else {
+            if (!attk->aatyp && !attk->adtyp) {
+                /* no attack in this slot */
+                continue;
+            } else {
+                /* real attack, but 0d0 damage */
+                dicebuf[0] = '\0';
+            }
+        }
+        if (attk->aatyp > LAST_AT) {
+            impossible("add_to_mon: unknown attack type %d", attk->aatyp);
+        } else if (attk->adtyp > LAST_AD) {
+            impossible("add_to_mon: unknown damage type %d", attk->adtyp);
+        } else {
+            Sprintf(buf2, "%s%s%s %s", dicebuf, ((*dicebuf) ? " " : ""),
+                    attacktypes[attk->aatyp], damagetypes[attk->adtyp]);
+            APPENDC(TRUE, buf2);
+        }
+    }
+    if (*buf) {
+        Sprintf(buf2, "Attacks: %s", buf);
+        MONPUTSTR(buf2);
+    } else
+        MONPUTSTR("Has no attacks.");
+}
+#undef ADDPROP
+#undef ADDMR
+#undef APPENDC
+#undef MONPUTSTR
+
 /*
  * Look in the "data" file for more info.  Called if the user typed in the
  * whole name (user_typed_name == TRUE), or we've found a possible match
@@ -582,6 +932,8 @@ char *supplemental_name;
     char *ep, *dbase_str;
     unsigned long txt_offset = 0L;
     winid datawin = WIN_ERR;
+    short otyp;
+    boolean lookat_mon = (pm != (struct permonst *) 0);
 
     fp = dlb_fopen(DATAFILE, "r");
     if (!fp) {
@@ -644,6 +996,8 @@ char *supplemental_name;
         dbase_str += 10;
     if (!strncmp(dbase_str, "saddled ", 8))
         dbase_str += 8;
+    if (!strncmp(dbase_str, "barded ", 7))
+        dbase_str += 7;
     if (!strncmp(dbase_str, "blessed ", 8))
         dbase_str += 8;
     else if (!strncmp(dbase_str, "uncursed ", 9))
@@ -685,6 +1039,9 @@ char *supplemental_name;
         boolean yes_to_moreinfo, found_in_file, pass1found_in_file,
                 skipping_entry;
         char *sp, *ap, *alt = 0; /* alternate description */
+        char *encycl_matched = 0; /* which version of the string matched
+                                     (for later printing) */
+        char matcher[BUFSZ];      /* the string it matched against */
 
         /* adjust the input to remove "named " and "called " */
         if ((ep = strstri(dbase_str, " named ")) != 0) {
@@ -755,13 +1112,19 @@ char *supplemental_name;
                     /* if we match a key that begins with "~", skip
                        this entry */
                     chk_skip = (*buf == '~') ? 1 : 0;
-                    if ((pass == 0 && pmatch(&buf[chk_skip], dbase_str))
-                        || (pass == 1 && alt && pmatch(&buf[chk_skip], alt))) {
+                    encycl_matched = (char *) 0;
+                    if (pass == 0 && pmatch(&buf[chk_skip], dbase_str)) {
+                        encycl_matched = dbase_str;
+                    } else if (pass == 1 && alt && pmatch(&buf[chk_skip], alt)) {
+                        encycl_matched = alt;
+                    }
+                    if (encycl_matched) {
                         if (chk_skip) {
                             skipping_entry = TRUE;
                             continue;
                         } else {
                             found_in_file = TRUE;
+                            Strcpy(matcher, buf);
                             if (pass == 1)
                                 pass1found_in_file = TRUE;
                             break;
@@ -769,58 +1132,144 @@ char *supplemental_name;
                     }
                 }
             }
-            if (found_in_file) {
-                long entry_offset, fseekoffset;
-                int entry_count;
-                int i;
 
+            /* database entry should exist, now find where it is */
+            long entry_offset, fseekoffset;
+            int entry_count;
+            int i;
+            if (found_in_file) {
                 /* skip over other possible matches for the info */
                 do {
                     if (!dlb_fgets(buf, BUFSZ, fp))
                         goto bad_data_file;
                 } while (!digit(*buf));
-                if (sscanf(buf, "%ld,%d\n", &entry_offset, &entry_count) < 2)
+
+                if (sscanf(buf, "%ld,%d\n", &entry_offset, &entry_count) < 2) {
                     goto bad_data_file;
                 fseekoffset = (long) txt_offset + entry_offset;
                 if (pass == 1)
                     pass1offset = fseekoffset;
                 else if (fseekoffset == pass1offset)
                     goto checkfile_done;
-
-                yes_to_moreinfo = FALSE;
-                if (!user_typed_name && !without_asking) {
-                    char *entrytext = pass ? alt : dbase_str;
-                    char question[QBUFSZ];
-
-                    Strcpy(question, "More info about \"");
-                    /* +2 => length of "\"?" */
-                    copynchars(eos(question), entrytext,
-                               (int) (sizeof question - 1
-                                      - (strlen(question) + 2)));
-                    Strcat(question, "\"?");
-                    if (yn(question) == 'y')
-                        yes_to_moreinfo = TRUE;
                 }
+            }
 
-                if (user_typed_name || without_asking || yes_to_moreinfo) {
-                    if (dlb_fseek(fp, fseekoffset, SEEK_SET) < 0) {
-                        pline("? Seek error on 'data' file!");
-                        goto checkfile_done;
+            /* monster lookup: try to parse as a monster */
+            if (!lookat_mon) {
+                pm = (struct permonst *) 0; /* just to be safe */
+                int mndx = name_to_mon(dbase_str);
+                if (mndx != NON_PM)
+                    pm = &mons[mndx];
+            }
+
+            /* prompt for more info (if using whatis to navigate the map) */
+            yes_to_moreinfo = FALSE;
+            if (!user_typed_name && !without_asking) {
+                char *entrytext = pass ? alt : dbase_str;
+                char question[QBUFSZ];
+
+                Strcpy(question, "More info about \"");
+                /* +2 => length of "\"?" */
+                copynchars(eos(question), entrytext,
+                           (int) (sizeof question - 1
+                                  - (strlen(question) + 2)));
+                Strcat(question, "\"?");
+                if (yn(question) == 'y')
+                    yes_to_moreinfo = TRUE;
+            }
+
+            /* finally, put the appropriate information into a window */
+            otyp = STRANGE_OBJECT;
+            if (user_typed_name || without_asking || yes_to_moreinfo) {
+                if (!found_in_file && !pm && otyp == STRANGE_OBJECT) {
+                    if ((user_typed_name && pass == 0 && !pass1found_in_file)
+                        || yes_to_moreinfo)
+                        pline("I don't have any information on those things.");
+                    /* don't print anything otherwise; we don't want it to e.g.
+                     * print a database entry and then print the above message.
+                     */
+                } else {
+                    boolean do_mon_lookup = FALSE;
+                    if (pm) {
+                        do_mon_lookup = TRUE;
+                        if (!lookat_mon && otyp != STRANGE_OBJECT) {
+                            /* found matches for both and player is NOT looking
+                             * at a monster; ask which they want to see */
+                            /* TODO: this would ideally be better generalized so
+                             * that the caller could communicate that an object
+                             * is being looked at, too */
+                            pline("That matches both a monster and an object.");
+                            if (yn("Show the monster information?") != 'y') {
+                                do_mon_lookup = FALSE;
+                            }
+                        }
                     }
                     datawin = create_nhwindow(NHW_MENU);
-                    for (i = 0; i < entry_count; i++) {
-                        if (!dlb_fgets(buf, BUFSZ, fp))
-                            goto bad_data_file;
-                        (void) strip_newline(buf);
-                        if (index(buf + 1, '\t') != 0)
-                            (void) tabexpand(buf + 1);
-                        putstr(datawin, 0, buf + 1);
+
+                    /* monster lookup info */
+                    if (do_mon_lookup) {
+                        add_mon_info(datawin, pm);
+                        if (is_were(pm)) {
+                            /* also do the alternate form */
+                            putstr(datawin, 0, "");
+                            add_mon_info(datawin,
+                                         &mons[counter_were(monsndx(pm))]);
+                        }
+                        putstr(datawin, 0, "");
+                    }
+
+                    /* encyclopedia entry */
+                    if (found_in_file) {
+                        char titlebuf[BUFSZ];
+                        if (dlb_fseek(fp, (long) txt_offset + entry_offset,
+                                        SEEK_SET) < 0) {
+                            pline("? Seek error on 'data' file!");
+                            (void) dlb_fclose(fp);
+                            return;
+                        }
+
+                        Sprintf(titlebuf,
+                                "Encyclopedia entry for \"%s\" (matched to \"%s\"):",
+                                encycl_matched, matcher);
+                        putstr(datawin, ATR_BOLD, titlebuf);
+                        putstr(datawin, ATR_NONE, "");
+
+                        for (i = 0; i < entry_count; i++) {
+                            /* room for 1-tab or 8-space prefix + BUFSZ-1 + \0 */
+                            char tabbuf[BUFSZ + 8], *tp;
+
+                            if (!dlb_fgets(tabbuf, BUFSZ, fp))
+                                goto bad_data_file;
+                            tp = tabbuf;
+                            if (!index(tp, '\n'))
+                                goto bad_data_file;
+                            (void) strip_newline(tp);
+                            /* text in this file is indented with one tab but
+                               someone modifying it might use spaces instead */
+                            if (*tp == '\t') {
+                                ++tp;
+                            } else if (*tp == ' ') {
+                                /* remove up to 8 spaces (we expect 8-column
+                                   tab stops but user might have them set at
+                                   something else so we don't require it) */
+                                do {
+                                    ++tp;
+                                } while (tp < &tabbuf[8] && *tp == ' ');
+                            } else if (*tp) { /* empty lines are ok */
+                                goto bad_data_file;
+                            }
+                            /* if a tab after the leading one is found,
+                               convert tabs into spaces; the attributions
+                               at the end of quotes typically have them */
+                            if (index(tp, '\t') != 0)
+                                (void) tabexpand(tp);
+                            putstr(datawin, 0, tp);
+                        }
                     }
                     display_nhwindow(datawin, FALSE);
                     destroy_nhwindow(datawin), datawin = WIN_ERR;
                 }
-            } else if (user_typed_name && pass == 0 && !pass1found_in_file)
-                pline("I don't have any information on those things.");
+            }
         }
     }
     goto checkfile_done; /* skip error feedback */

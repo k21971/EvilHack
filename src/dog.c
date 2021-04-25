@@ -918,12 +918,12 @@ register struct obj *obj;
                  && mptr->mlet != S_FUNGUS)
                 || (acidic(fptr) && !resists_acid(mon))
                 || (poisonous(fptr) && !resists_poison(mon))
-                || (obj->zombie_corpse && !resists_sick(mon))
+                || (obj->zombie_corpse && !resists_sick(mptr))
                 || (touch_petrifies(&mons[obj->corpsenm]) &&
                     !resists_ston(mon)))
                 return POISON;
             /* turning into slime is preferable to starvation */
-            else if (fptr == &mons[PM_GREEN_SLIME] && !slimeproof(mon->data))
+            else if (fptr == &mons[PM_GREEN_SLIME] && !slimeproof(mptr))
                 return starving ? ACCFOOD : POISON;
             else if (is_shapeshifter(fptr))
                 return starving ? ACCFOOD : MANFOOD;

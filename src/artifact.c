@@ -1103,7 +1103,7 @@ struct monst *mtmp;
         case AD_ACID:
             return !(yours ? Acid_resistance : resists_acid(mtmp));
         case AD_DISE:
-            return !(yours ? Sick_resistance : resists_sick(mtmp));
+            return !(yours ? Sick_resistance : resists_sick(ptr));
         case AD_DETH:
             return !immune_death_magic(ptr);
         default:
@@ -1167,7 +1167,7 @@ int tmp;
                                         || (attacks(AD_ACID, otmp)
                                             && ((yours) ? (!Acid_resistance) : (!resists_acid(mon))))
                                                 || (attacks(AD_DISE, otmp)
-                                                    && ((yours) ? (!Sick_resistance) : (!resists_sick(mon))))
+                                                    && ((yours) ? (!Sick_resistance) : (!resists_sick(mon->data))))
                                                         || (attacks(AD_DETH, otmp)
                                                             && !(nonliving(mon->data) || is_demon(mon->data)))) {
 
@@ -1996,7 +1996,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
             } else {
                 pline_The("filthy dagger %s %s%c",
-                          resists_sick(mdef)
+                          resists_sick(mdef->data)
                               ? "hits"
                               : rn2(2) ? "contaminates" : "infects",
                           hittee, !spec_dbon_applies ? '.' : '!');
@@ -2005,7 +2005,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (youdefend) {
             diseasemu(mdef->data);
         } else {
-            if (!resists_sick(mdef)) {
+            if (!resists_sick(mdef->data)) {
                 if (canseemon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->mdiseased ? "even worse" : "diseased");

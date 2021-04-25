@@ -1074,8 +1074,7 @@ beholder
 	from the top of the orb.  Among adventurers, beholders are
 	known as deadly adversaries.
 		[ Monstrous Manual, AD&D 2nd edition ]
-cockroach
-* cockroach
+*cockroach
 	i do not see why men
 	should be so proud
 	insects have the more
@@ -1475,6 +1474,8 @@ doppelganger
 	Xander: I am.
 	Xander Double: No, _I_ am.
 	    [ Buffy the Vampire Slayer, Episode 5.03, "The Replacement" ]
+~chromatic dragon
+~*pseudodragon
 *dragon
 *xoth
 	In the West the dragon was the natural enemy of man.  Although
@@ -2119,7 +2120,7 @@ gjallar
 	In fear quake all who on Hel-roads are.
 	   [ Voluspa, from the Poetic Edda,
 		translated by Henry Adams Bellows ]
-gnoll *
+gnoll*
 flind
 	We are born and we die.
 	No one cares, no one remembers,
@@ -3221,8 +3222,7 @@ leash
 	eye.  They walked side by side with great dignity, only
 	putting the Dearlys on the leash to lead them over crossings.
 		[ The Hundred and One Dalmatians, by Dodie Smith ]
-leech
-* leech
+*leech
 	The commonest leeches in these hills are slender brown ones,
 	like bits of dark whipcord when empty, but rapidly "swelling
 	visibly" under the influence of draughts of blood into glossy
@@ -3705,7 +3705,7 @@ melon
 	I think we ate about six each before we had done, and, poor
 	fruit as they were, I doubt if I ever thought anything nicer.
 		[ King Solomon's Mines, by H. Rider Haggard ]
-mephistopheles
+mephisto*
 	This diabolical fiend has crimson skin, massive red leathery
 	wings, curling horns, white eyes, and long, straight black
 	hair.  Swathed in a flowing black cape, he is the vision of
@@ -3723,6 +3723,7 @@ mercury
 	chameleon though, which assumes the shape of another creature
 	and goes in hunt of food, the mimic waits patiently for its
 	meals to come in search of it.
+~mind flayer larva
 *mind flayer
 	This creature has a humanoid body, tentacles around its
 	covered mouth, and three long fingers on each hand.  Mind
@@ -3908,8 +3909,7 @@ monkey
 	but with the head attached by a short chain.
 		[ Dictionary of Medieval Knighthood and Chivalry,
 		  by Bradford Broughton ]
-mosquito
-* mosquito
+*mosquito
 	Red Saunders said he could take anything.  The men found a corner
 	of the island where thick clouds of mosquitos were hovering above
 	the still water.  The workmen built a small, smoldering fire to
@@ -4054,8 +4054,7 @@ newt
 	Like a hell-broth boil and bubble."
 		[ Macbeth, by William Shakespeare ]
 cauchemar
-nightmare
-* nightmare
+*nightmare
 	By a route obscure and lonely,   
 	Haunted by ill angels only,
 	Where an Eidolon, named NIGHT,   
@@ -4360,7 +4359,7 @@ panther
 	Such players may use Paper to assert their superiority and dignity.
 		[ The Official Rock Paper Scissors Strategy Guide,
 			by Douglas and Graham Walker ]
-* pegasus
+*pegasus
         The famous winged horse, whose origin is thus related.  When
         Perseus struck off the head of Medusa, with whom Poseidon had
         had intercourse in the form of a horse or a bird, there sprang
@@ -4606,8 +4605,7 @@ prisoner
 		You are Number 6.
 	I am not a number!  I am a free man!
 		[ The Prisoner, by Patrick McGoohan ]
-pseudodragon
-* pseudodragon
+*pseudodragon
         Pseudodragons are small, magical, flying lizards native to
         wilderness forests but occasionally found as companions to humans,
         particularly wizards.  They look much like tiny red dragons,
@@ -4760,8 +4758,8 @@ ranger
 	quiet lands, or in the homes of simple men at night, if the
 	Dunedain were asleep, or were all gone into the grave?"
 		[ The Fellowship of the Ring, by J.R.R. Tolkien ]
-rat
-* rat
+~rat king
+*rat
 	Rats are long-tailed rodents.  They are aggressive,
 	omnivorous, and adaptable, often carrying diseases.
 		[]
@@ -4993,6 +4991,7 @@ rust monster
 rust monster or disenchanter
 	These ground-dwelling monsters are known to make short
 	work out of degrading adventurers' combat equipment.
+~saber-toothed tiger
 *saber
 *sabre
 	Flashed all their sabres bare,
@@ -5321,7 +5320,7 @@ sling
 serpent
 water moccasin
 pit viper
-* anaconda
+*anaconda
 	Now the serpent was more subtle than any beast of the field
 	which the Lord God had made.  And he said unto the woman, Yea,
 	hath God said, Ye shall not eat of every tree of the garden?
@@ -5698,6 +5697,7 @@ thug
 	for another 50 years or so.
 	In common parlance the word is used for any violent "tough".
 		[ Brewer's Concise Dictionary of Phrase and Fable ]
+~saber-toothed tiger
 tiger
 	1.  A well-known tropical predator (_Felis tigris_): a
 	feline.  It has a yellowish skin with darker spots or
@@ -5907,8 +5907,7 @@ turquoise*
 	not have given it for a wilderness of monkeys.
 		[ The Merchant of Venice, by William Shakespeare ]
 honu
-turtle
-* turtle
+*turtle
 	The most popular Hawaiian turtle legend is that of Kauila.
 	Historian Daniel Akaka, Jr. tells the story this way:
  
@@ -6030,7 +6029,7 @@ valkyrie
 		by Herbert Robinson and Knox Wilson ]
 vampire
 ~vampire bat
-vampire *
+vampire*
 	He can transform himself to wolf, as we gather from the ship
 	arrival in Whitby, when he tear open the dog; he can be as
 	bat, as Madam Mina saw him on the window at Whitby, and as

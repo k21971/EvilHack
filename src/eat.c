@@ -19,7 +19,6 @@ STATIC_DCL struct obj *FDECL(touchfood, (struct obj *));
 STATIC_DCL void NDECL(do_reset_eat);
 STATIC_DCL void FDECL(done_eating, (BOOLEAN_P));
 STATIC_DCL void FDECL(cprefx, (int));
-STATIC_DCL int FDECL(intrinsic_possible, (int, struct permonst *));
 STATIC_DCL void FDECL(givit, (int, struct permonst *));
 STATIC_DCL void FDECL(cpostfx, (int));
 STATIC_DCL void FDECL(consume_tin, (const char *));
@@ -668,10 +667,10 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                 pline("%s last thought fades away...",
                       s_suffix(Monnam(mdef)));
             if (*dmg_p < mdef->mhp && is_zombie(magr->data)) {
-                if (visflag && canspotmon(mdef) && !resists_sick(mdef))
+                if (visflag && canspotmon(mdef) && !resists_sick(pd))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->msick ? "much worse" : "rather ill");
-                if (resists_sick(mdef))
+                if (resists_sick(pd))
                     return MM_MISS;
                 mdef->msick = (can_become_zombie(pd)) ? 3 : 1;
             }
@@ -829,7 +828,7 @@ fix_petrification()
  */
 
 /* intrinsic_possible() returns TRUE iff a monster can give an intrinsic. */
-STATIC_OVL int
+int
 intrinsic_possible(type, ptr)
 int type;
 register struct permonst *ptr;
