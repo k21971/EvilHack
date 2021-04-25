@@ -1606,4 +1606,6 @@ The following changes to date are:
 - Actually utilize SERVERSEED
 - Monster lookup
 - Object lookup
+- Add 'lookup_data' option
+- Fix: prevent racial angels
 

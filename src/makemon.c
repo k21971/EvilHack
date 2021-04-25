@@ -2726,7 +2726,8 @@ int mmflags;
                               ? !eminp->renegade
                               : eminp->renegade;
         /* done in priest.c for other priests (in temples and roamers) */
-        apply_race(mtmp, align_randrace(mon_aligntyp(mtmp)));
+        if (mndx != PM_ANGEL)
+            apply_race(mtmp, align_randrace(mon_aligntyp(mtmp)));
     }
     /* these monsters are normally affiliated with a deity */
     if ((mndx == PM_PALADIN || mndx == PM_TEMPLAR || mndx == PM_CHAMPION
