@@ -1657,15 +1657,19 @@ char *supplemental_name;
                     }
                     datawin = create_nhwindow(NHW_MENU);
 
+                    if (!flags.lookup_data) {
+                        ; /* do nothing, 'pokedex' is disabled */
+                    }
                     /* object lookup info */
-                    if (do_obj_lookup) {
+                    else if (do_obj_lookup) {
                         add_obj_info(datawin, otyp);
                         putstr(datawin, 0, "");
+                    }
                     /* monster lookup info */
                     /* secondary to object lookup because there are some
                      * monsters whose names are substrings of objects, like
                      * "skeleton" and "skeleton key". */
-                    } else if (do_mon_lookup) {
+                    else if (do_mon_lookup) {
                         add_mon_info(datawin, pm);
                         if (is_were(pm)) {
                             /* also do the alternate form */
