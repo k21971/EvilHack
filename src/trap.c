@@ -4258,6 +4258,9 @@ xchar x, y;
     int i = 0, j;
     struct obj** to_damage = NULL;
 
+    if (!obj)
+        return;
+
     if (count >= 1) {
         /* reservoir sampling: setup */
         to_damage = (struct obj**) alloc(sizeof(struct obj*) * count);

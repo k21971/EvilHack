@@ -1610,4 +1610,5 @@ The following changes to date are:
 - Fix: prevent racial angels
 - Add G_NOGEN to monster lookup
 - Include orcish morning star in small/large monster damage
+- Fix: null pointer crash (water_damage_chain)
 
