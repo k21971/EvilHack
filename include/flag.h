@@ -39,6 +39,7 @@ struct flag {
     boolean invlet_constant; /* let objects keep their inventory symbol */
     boolean legacy;          /* print game entry "story" */
     boolean lit_corridor;    /* show a dark corr as lit if it is in sight */
+    boolean lookup_data;     /* show detailed mon/item data for lookup */
     boolean nap;             /* `timed_delay' option for display effects */
     boolean null;            /* OK to send nulls to the terminal */
     boolean p__obsolete;     /* [3.6.2: perm_invent moved to iflags] */
