@@ -1605,4 +1605,5 @@ The following changes to date are:
 - Add SERVERSEED option to obfuscate hash functions on servers
 - Actually utilize SERVERSEED
 - Monster lookup
+- Object lookup
 

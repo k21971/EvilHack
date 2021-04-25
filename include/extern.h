@@ -1865,6 +1865,8 @@ E char *FDECL(thesimpleoname, (struct obj *));
 E char *FDECL(bare_artifactname, (struct obj *));
 E char *FDECL(makeplural, (const char *));
 E char *FDECL(makesingular, (const char *));
+E short FDECL(name_to_otyp, (const char *));
+E boolean FDECL(object_not_monster, (const char *));
 E struct obj *FDECL(readobjnam, (char *, struct obj *));
 E int FDECL(rnd_class, (int, int));
 E const char *FDECL(suit_simple_name, (struct obj *));
@@ -1929,6 +1931,8 @@ E void NDECL(msgtype_free);
 E char *FDECL(self_lookat, (char *));
 E void FDECL(mhidden_description, (struct monst *, BOOLEAN_P, char *));
 E boolean FDECL(object_from_map, (int,int,int,struct obj **));
+E void FDECL(checkfile, (char *, struct permonst *,
+                         BOOLEAN_P, BOOLEAN_P, char *));
 E int FDECL(do_screen_description, (coord, BOOLEAN_P, int, char *,
                                     const char **, struct permonst **));
 E int FDECL(do_look, (int, coord *));
@@ -2517,6 +2521,7 @@ E void FDECL(book_disappears, (struct obj *));
 E void FDECL(book_substitution, (struct obj *, struct obj *));
 E void NDECL(age_spells);
 E int NDECL(docast);
+E const char *FDECL(spelltypemnemonic, (int));
 E int FDECL(spell_skilltype, (int));
 E void NDECL(cast_protection);
 E void FDECL(cast_reflection, (struct monst *));
@@ -3117,6 +3122,7 @@ E void FDECL(extract_from_minvent, (struct monst *, struct obj *, BOOLEAN_P,
 
 /* ### write.c ### */
 
+E int FDECL(ink_cost, (short));
 E int FDECL(dowrite, (struct obj *));
 
 /* ### zap.c ### */
