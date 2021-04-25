@@ -658,6 +658,7 @@ struct permonst * pm;
     boolean uniq = !!(gen & G_UNIQ);
     boolean hell = !!(gen & G_HELL);
     boolean nohell = !!(gen & G_NOHELL);
+    boolean nogen = !!(gen & G_NOGEN);
     unsigned int mflag4 = pm->mflags4;
 
 #define ADDRESIST(condition, str) \
@@ -704,6 +705,7 @@ struct permonst * pm;
         Sprintf(buf, "Normally %s%s, %s.",
                 hell ? "only appears in Gehennom" :
                 nohell ? "only appears outside Gehennom" :
+                nogen ? "only appears specially" :
                 "appears in any branch",
                 (gen & G_SGROUP) ? " in groups" :
                 (gen & G_LGROUP) ? " in large groups" : "",

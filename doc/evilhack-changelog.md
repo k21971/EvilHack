@@ -1608,4 +1608,5 @@ The following changes to date are:
 - Object lookup
 - Add 'lookup_data' option
 - Fix: prevent racial angels
+- Add G_NOGEN to monster lookup
 
