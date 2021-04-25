@@ -1611,4 +1611,5 @@ The following changes to date are:
 - Add G_NOGEN to monster lookup
 - Include orcish morning star in small/large monster damage
 - Fix: null pointer crash (water_damage_chain)
+- Add a few minor enhancements from vanilla NetHack/xNetHack
 
