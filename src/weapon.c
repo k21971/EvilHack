@@ -238,6 +238,7 @@ struct monst *mon;
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
         case MORNING_STAR:
+        case ORCISH_MORNING_STAR:
         case PARTISAN:
         case RUNESWORD:
         case ELVEN_BROADSWORD:
@@ -297,6 +298,7 @@ struct monst *mon;
         case GUISARME:
         case LUCERN_HAMMER:
         case MORNING_STAR:
+        case ORCISH_MORNING_STAR:
         case RANSEUR:
         case BROADSWORD:
         case ELVEN_BROADSWORD:
