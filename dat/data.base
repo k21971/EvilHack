@@ -30,10 +30,16 @@ abbot
 	probable that the asker went on worrying out answers for himself.
 		[ The Runaway Abbot, by G. K. Chesterton ]
 # takes "suit or piece of armor" when specifying '['
+# FIXME: "dragon scales, dragon scale mail" needs its own entry
+# FIXME too: "ac, armor class" also merits its own distinct entry
 ac
 armor*
 armour*
+*armor
 suit or piece of armor
+~*dragon*scale*
+~scroll of mail
+*mail
 	"The last spot on the school jousting team came down to another
 	boy and me.  He was poor, and his only armor was a blanket his
 	mother had made him from her hair.  I, on the other hand, had
@@ -385,7 +391,10 @@ atlatl
 	most prestigious was the spear thrower known by its Nahuatl name
 	atlatl and used to hurl lethal darts.
 		[ Ancient American Art in Detail, by Colin McEwan ]
-*axe
+axe
+battle?axe
+*bearded?axe
+double?headed?axe
 	"For ev'ry silver ringing blow,
 	Cities and palaces shall grow!"
 
@@ -618,6 +627,7 @@ ooze
 	kind had swept so evilly free of all litter.
 		[ At the Mountains of Madness, by H.P. Lovecraft ]
 blue jelly
+ochre jelly
 spotted jelly
 	I'd planned how to prevent the lock from sealing behind me; it
 	required a temporary sacrifice, not cleverness.  I used the door
@@ -885,7 +895,7 @@ gnom* cave*man
 	Then over-worn he rested by a stream,
 	And sank into a sleep too deep for dream.
 		[ The Dreamer, by Robert Service ]
-*centaur
+*centaur*
 	Of all the monsters put together by the Greek imagination
 	the Centaurs (Kentauroi) constituted a class in themselves.
 	Despite a strong streak of sensuality, in their make-up,
@@ -1183,9 +1193,9 @@ croesus
 kroisos
 creosote
 	Croesus (in Greek: Kroisos), the wealthy last king of Lydia;
-	his empire was destroyed when he attacked Cyrus in 549, after
-	the Oracle of Delphi (q.v.) had told him:  "if you attack the
-	Persians, you will destroy a mighty empire".  Herodotus
+	his empire was destroyed when he attacked Cyrus in 549 BC,
+	after the Oracle of Delphi (q.v.) had told him:  "if you attack
+	the Persians, you will destroy a mighty empire".  Herodotus
 	relates of his legendary conversation with Solon of Athens,
 	who impressed upon him that being rich does not imply being
 	happy and that no one should be considered fortunate before
@@ -1545,6 +1555,7 @@ forge
 ~dwarf ??m*
 #~dwar* cave*man
 dwarf*
+dwarven*
 * dwarf
 	Dwarfs have faces like men (ugly men, with wrinkled, leathery
 	skins), but are generally either flat-footed, duck-footed, or
@@ -2898,7 +2909,14 @@ jubilex
 	he is a slime-like creature who swallows other creatures
 	alive, spits acidic secretions, and causes disease in his
 	victims which can be almost instantly fatal.
+# historically (according to wikipedia...), C-ration was heavier but
+# provided more nutrition, and required some form of tin opener;
+# in nethack they weigh the same and K-ration provides more nutrition?
 k?ration
+c?ration
+	The C ration was a predecessor of the K ration.
+		[]
+
 	The K ration was the [ Quartermaster Subsistence Research
 	and Development Laboratory's ] answer to the demand for an
 	individual, easy-to-carry ration that could be used in
@@ -2932,6 +2950,7 @@ katana
 	The katana is a long, single-edged samurai sword with a
 	slightly curved blade.  Its long handle is designed to allow
 	it to be wielded with either one or two hands.
+ice queen
 kathryn*
 	"The White Witch? Who is she?"
 	"Why, it is she that has got all Narnia under her thumb.
@@ -3068,6 +3087,7 @@ german shepherd
 	Elven race, and will go out of their way to cause trouble
 	for Elves at any time.
 *kop*
+rubber hose
 	The Kops are a brilliant concept.  To take a gaggle of inept
 	policemen and display them over and over again in a series of
 	riotously funny physical punishments plays equally well to the
@@ -3114,7 +3134,9 @@ kraken
 	for help.  Twenty other arms came rippling out.  The dark
 	water boiled, and there was a hideous stench.
 	   [ The Fellowship of the Ring, by J.R.R. Tolkien ]
-*lady
+the lady
+lady
+lady luck
 offler
 	Blind Io took up the dice-box, which was a skull whose various
 	orifices had been stoppered with rubies, and with several of
@@ -3672,6 +3694,7 @@ huge chunk of meat
 		[ Grace Before Meat, by Robert Burns ]
 medusa
 perseus
+shield of reflection
 	Medusa, one of the three Gorgons or Graeae, is the only one
 	of her sisters to have assumed mortal form and inhabited the
 	dungeon world.
@@ -3723,6 +3746,7 @@ mercury
 	chameleon though, which assumes the shape of another creature
 	and goes in hunt of food, the mimic waits patiently for its
 	meals to come in search of it.
+illithid
 ~mind flayer larva
 *mind flayer
 	This creature has a humanoid body, tentacles around its
@@ -6213,14 +6237,23 @@ water troll
 	As Rincewind stared a small shoal of silver fish flashed
 	across its chest.
 	    [ The Colour of Magic, by Terry Pratchett ]
+# axe and morning star and the umpteen polearms have their own entries;
+# exclusion keys for broadsword and sunsword aren't really necessarily
+# because their entries precede this one
 weapon
+club
+flail
+~*broadsword
+~sunsword
+*sword
 	A weapon is a device for making your enemy change his mind.
 		[ The Vor Game, by Lois McMaster Bujold ]
 web
 	Oh what a tangled web we weave,
 	When first we practise to deceive!
 		[ Marmion, by Sir Walter Scott ]
-whistle
+# magic whistle deserves its own entry
+*whistle
 	There were legends both on the front and on the back of the
 	whistle. The one read thus:
 
@@ -6441,3 +6474,452 @@ yumi
 zruty
 	The zruty are wild and gigantic beings, living in the
 	wildernesses of the Tatra mountains.
+##
+# Rank titles for the various roles.  Some of these keys won't reach here
+# because they'll have matched entries above.  The usual three letter role
+# designation plus " ranks" should always find the set for that role.
+#
+arc* ranks
+archeologist
+digger
+field worker
+investigator
+exhumer
+excavator
+spelunker
+speleologist
+collector
+curator
+	Archelogist ranks
+	  title            level
+	Digger            1 to 2
+	Field Worker      3 to 5
+	Investigator      6 to 9
+	Exhumer          10 to 13
+	Excavator        14 to 17
+	Spelunker        18 to 21
+	Speleologist     22 to 25
+	Collector        26 to 29
+	Curator             30
+bar* ranks
+barbarian
+plunder?*
+pillager
+bandit
+brigand
+raider
+reaver
+slayer
+chieftain*
+conquer*
+	Barbarian ranks
+	  title            level
+	Plunderer,
+	 Plunderess       1 to 2
+	Pillager          3 to 5
+	Bandit            6 to 9
+	Brigand          10 to 13
+	Raider           14 to 17
+	Reaver           18 to 21
+	Slayer           22 to 25
+	Chieftain,
+	 Chieftainess    26 to 29
+	Conqueror,
+	 Conqueress         30
+cav* ranks
+caveman
+cavewoman
+troglodyte
+aborigine
+wanderer
+vagrant
+wayfarer
+roamer
+nomad
+rover
+pioneer
+	Caveman/Cavewoman ranks
+	  title            level
+	Troglodyte        1 to 2
+	Aborigine         3 to 5
+	Wanderer          6 to 9
+	Vagrant          10 to 13
+	Wayfarer         14 to 17
+	Roamer           18 to 21
+	Nomad            22 to 25
+	Rover            26 to 29
+	Pioneer             30
+con* ranks
+convict
+detainee
+inmate
+jail-bird
+prisoner
+outlaw
+crook
+desperado
+felon
+fugitive
+	Convict ranks
+	  title            level
+	Detainee          1 to 2
+	Inmate            3 to 5
+	Jail-bird         6 to 9
+	Prisoner         10 to 13
+	Outlaw           14 to 17
+	Crook            18 to 21
+	Desperado        22 to 25
+	Felon            26 to 29
+	Fugitive            30
+hea* ranks
+healer
+rhizotomist
+empiric
+embalmer
+dresser
+medic* ossium
+herbalist
+magister
+magistra
+physician
+chirurgeon
+	Healer ranks
+	  title            level
+	Rhizotomist       1 to 2
+	Empiric           3 to 5
+	Embalmer          6 to 9
+	Dresser          10 to 13
+	Medicus ossium,
+	 Medica ossium   14 to 17
+	Herbalist        18 to 21
+	Magister,
+	 Magistra        22 to 25
+	Physician        26 to 29
+	Chirurgeon          30
+inf* ranks
+infidel
+apostate
+heathen
+heretic
+idolat*
+cultist
+splanchomancer
+malefic*
+demonologist
+heresiarch
+	Infidel ranks
+	  title            level
+	Apostate          1 to 2
+	Heathen           3 to 5
+	Heretic           6 to 9
+	Idolater,
+	 Idolatress      10 to 13
+	Cultist          14 to 17
+	Splanchomancer   18 to 21
+	Maleficus,
+	 Malefica        22 to 25
+	Demonologist     26 to 29
+	Heresiarch          30
+~dark kni* ranks
+kni* ranks
+knight
+gallant
+esquire
+bachelor*
+sergeant
+knight
+banneret
+chevalier*
+seignieur
+dame
+paladin
+	Knight ranks
+	  title            level
+	Gallant           1 to 2
+	Esquire           3 to 5
+	Bachelor,
+	 Bachelorette     6 to 9
+	Sergeant         10 to 13
+	Knight           14 to 17
+	Banneret         18 to 21
+	Chevalier,
+	 Chevaliere      22 to 25
+	Seignieur,
+	 Dame            26 to 29
+	Paladin             30
+dark kni* ranks
+dark knight
+sniveler
+pawn
+brute
+mercenary
+blackguard
+turncoat
+knave
+vixen
+dark baron*
+dark paladin
+	Dark Knight ranks
+	  title            level
+	Sniveler          1 to 2
+	Pawn              3 to 5
+	Brute             6 to 9
+	Mercenary        10 to 13
+	Blackguard       14 to 17
+	Turncoat         18 to 21
+	Knave,
+	 Vixen           22 to 25
+	Dark Baron,
+	 Dark Baroness   26 to 29
+	Dark Paladin        30
+mon* ranks
+monk
+candidate
+novice
+initiate
+student of stones
+student of waters
+student of metals
+student of winds
+student of fire
+master
+	Monk ranks
+	  title            level
+	Candidate         1 to 2
+	Novice            3 to 5
+	Initiate          6 to 9
+	Student
+	  of Stones      10 to 13
+	  of Waters      14 to 17
+	  of Metals      18 to 21
+	  of Winds       22 to 25
+	  of Fire        26 to 29
+	Master              30
+pri* ranks
+priest*
+aspirant
+acolyte
+adept
+#priest*
+curate
+canon*
+lama
+?atriarch
+high priest*
+	Priest/Priestess/Cleric ranks
+	  title            level
+	Aspirant          1 to 2
+	Acolyte           3 to 5
+	Adept             6 to 9
+	Priest,
+	 Priestess       10 to 13
+	Curate           14 to 17
+	Canon,
+	 Canoness        18 to 21
+	Lama             22 to 25
+	Patriarch,
+	 Matriarch       26 to 29
+	High Priest,
+	 High Priestess     30
+ran* ranks
+ranger
+tenderfoot
+lookout
+trailblazer
+reconnoiter*
+scout
+arbalester
+archer
+sharpshooter
+marks*man
+	Ranger ranks
+	  title            level
+	Tenderfoot        1 to 2
+	Lookout           3 to 5
+	Trailblazer       6 to 9
+	Reconnoiterer,
+	 Reconnoiteress  10 to 13
+	Scout            14 to 17
+	Arbalester       18 to 21
+	Archer           22 to 25
+	Sharpshooter     26 to 29
+	Marksman,
+	 Markswoman         30
+rog* ranks
+rogue
+footpad
+cutpurse
+rogue
+pilferer
+robber
+burglar
+filcher
+mags*man
+thief
+	Rogue ranks
+	  title            level
+	Footpad           1 to 2
+	Cutpurse          3 to 5
+	Rogue             6 to 9
+	Pilferer         10 to 13
+	Robber           14 to 17
+	Burglar          18 to 21
+	Filcher          22 to 25
+	Magsman,
+	 Magswoman       26 to 29
+	Thief               30
+sam* ranks
+samurai
+hatamoto
+ronin
+ninja
+kunoichi
+joshu
+ryoshu
+kokushu
+daimyo
+kuge
+shogun
+	Samurai ranks
+	  title            level
+	Hatamoto          1 to 2
+	Ronin             3 to 5
+	Ninja,
+	 Kunoichi         6 to 9
+	Joshu            10 to 13
+	Ryoshu           14 to 17
+	Kokushu          18 to 21
+	Daimyo           22 to 25
+	Kuge             26 to 29
+	Shogun              30
+tou* ranks
+tourist
+rambler
+sightseer
+excursionist
+peregrinat*
+traveler
+journeyer
+voyager
+explorer
+adventurer
+	Tourist ranks
+	  title            level
+	Rambler           1 to 2
+	Sightseer         3 to 5
+	Excursionist      6 to 9
+	Peregrinator,
+	 Peregrinatrix   10 to 13
+	Traveler         14 to 17
+	Journeyer        18 to 21
+	Voyager          22 to 25
+	Explorer         26 to 29
+	Adventurer          30
+val* ranks
+valkyrie
+stripling
+skirmisher
+fighter
+*man-at-arms
+warrior
+swashbuckler
+hero
+heroine
+champion
+lord
+lady
+	Valkyrie ranks
+	  title            level
+	Stripling         1 to 2
+	Skirmisher        3 to 5
+	Fighter           6 to 9
+	Man-at-arms,
+	 Woman-at-arms   10 to 13
+	Warrior          14 to 17
+	Swashbuckler     18 to 21
+	Hero,
+	 Heroine         22 to 25
+	Champion         26 to 29
+	Lord,
+	 Lady               30
+wiz* ranks
+wizard
+evoker
+conjurer
+thaumaturge
+magician
+enchanter
+enchantress
+sorcerer
+sorceress
+necromancer
+mage
+	Wizard ranks
+	  title            level
+	Evoker            1 to 2
+	Conjurer          3 to 5
+	Thaumaturge       6 to 9
+	Magician         10 to 13
+	Enchanter,
+	 Enchantress     14 to 17
+	Sorcerer,
+	 Sorceress       18 to 21
+	Necromancer      22 to 25
+	Wizard           26 to 29
+	Mage                30
+##
+# list the titles for all the Discworld novels (3.6 tribute);
+# the extra leading spaces are intentional--tty displays the whole list
+# full screen flush-left (at least for 80 columns) and without them to
+# give some indentation it doesn't look very good
+#
+novel
+paperback book
+discworld novel*
+	  Discworld novel titles
+	    by Sir Terry Pratchett
+	  The Colour of Magic
+	  The Light Fantastic
+	  Equal Rites
+	  Mort
+	  Sourcery
+	  Wyrd Sisters
+	  Pyramids
+	  Guards! Guards!
+	  Eric
+	  Moving Pictures
+	  Reaper Man
+	  Witches Abroad
+	  Small Gods
+	  Lords and Ladies
+	  Men at Arms
+	  Soul Music
+	  Interesting Times
+	  Maskerade
+	  Feet of Clay
+	  Hogfather
+	  Jingo
+	  The Last Continent
+	  Carpe Jugulum
+	  The Fifth Elephant
+	  The Truth
+	  Thief of Time
+	  The Last Hero
+	  The Amazing Maurice and His Educated Rodents
+	  Night Watch
+	  The Wee Free Men
+	  Monstrous Regiment
+	  A Hat Full of Sky
+	  Going Postal
+	  Thud!
+	  Wintersmith
+	  Making Money
+	  Unseen Academicals
+	  I Shall Wear Midnight
+	  Snuff
+	  Raising Steam
+	  The Shepherd's Crown
+##
+# 'novel' that is part of the Ice Queen branch
+journal
+	  The Adventurer's Journal

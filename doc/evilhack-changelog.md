@@ -1612,4 +1612,5 @@ The following changes to date are:
 - Include orcish morning star in small/large monster damage
 - Fix: null pointer crash (water_damage_chain)
 - Add a few minor enhancements from vanilla NetHack/xNetHack
+- Some encyclopedia entries and tweaks
 
