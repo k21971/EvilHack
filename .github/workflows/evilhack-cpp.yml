@@ -1,0 +1,64 @@
+name: EvilHack
+
+on:
+  push:
+    branches: [ master ]
+    tags:
+      - '*' # won't work on tags containing /
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    env:
+      HINTS_FILE: linux-debug.gha
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup
+      run: ./sys/unix/setup.sh sys/unix/hints/$HINTS_FILE
+    - name: make all
+      run: make all
+    - name: make install
+      run: make install
+
+  windows-build:
+    runs-on: windows-latest
+    env:
+        YACC: win_bison -y
+        LEX: win_flex.exe
+        YTABC: y.tab.c
+        YTABH: y.tab.h
+        LEXYYC: lex.yy.c
+        ADD_CURSES: Y
+        PDCURSES_TOP: ../../pdcurses
+        TRAVIS_COMPILER: 1
+        ZIP_NAME: evilhack-0.7.0.zip
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: ilammy/msvc-dev-cmd@v1 # enable visual c compiler / nmake
+    - name: setup
+      run: |
+        choco install winflexbison
+        git clone --depth 1 https://github.com/wmcbrine/PDCurses.git ../pdcurses
+        ./sys/winnt/nhsetup.bat
+    - name: make install
+      run: |
+        cp ./sys/winnt/Makefile.msc ./Makefile
+        cd src
+        nmake install
+    - uses: papeloto/action-zip@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: binary/
+        dest: evilhack-0.7.0.zip
+    - name: release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          evilhack-0.7.0.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
