@@ -60,11 +60,15 @@ struct monst *mtmp;
 boolean chk_geno;
 const char *msg;
 {
-    if (mtmp->data < &mons[LOW_PM] || mtmp->data >= &mons[NUMMONS]) {
-        impossible("illegal mon data %s; mnum=%d (%s)",
-                   fmt_ptr((genericptr_t) mtmp->data), mtmp->mnum, msg);
+    struct permonst *mptr = mtmp->data;
+
+    if (!mptr || mptr < &mons[LOW_PM] || mptr >= &mons[NUMMONS]) {
+        /* most sanity checks issue warnings if they detect a problem,
+           but this would be too extreme to keep going */
+        panic("illegal mon data %s; mnum=%d (%s)",
+              fmt_ptr((genericptr_t) mptr), mtmp->mnum, msg);
     } else {
-        int mndx = monsndx(mtmp->data);
+        int mndx = monsndx(mptr);
 
         if (mtmp->mnum != mndx) {
             impossible("monster mnum=%d, monsndx=%d (%s)",

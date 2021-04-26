@@ -148,6 +148,8 @@ const char *verb;
 
     /* make sure things like water_damage() have no pointers to follow */
     obj->nobj = obj->nexthere = (struct obj *) 0;
+    /* erode_obj() needs this (called from water_damage() or lava_damage()) */
+    bhitpos.x = x, bhitpos.y = y;
 
     if (obj->otyp == BOULDER && boulder_hits_pool(obj, x, y, FALSE)) {
         return TRUE;

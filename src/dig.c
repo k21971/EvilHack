@@ -1772,7 +1772,10 @@ coord *cc;
      *  only lets hero get one step away from the buried ball?]
      */
 
-    if (u.utrap && u.utraptype == TT_BURIEDBALL)
+    /* u.utrap might have already been cleared, in which case the value
+       of u.utraptype is no longer meaningful; if u.utrap is still set
+       then u.utraptype needs to be for buried ball */
+    if (!u.utrap || u.utraptype == TT_BURIEDBALL) {
         for (otmp = level.buriedobjlist; otmp; otmp = otmp->nobj) {
             if (otmp->otyp != HEAVY_IRON_BALL)
                 continue;
@@ -1791,6 +1794,7 @@ coord *cc;
                 bdist = odist;
             }
         }
+    }
     if (ball) {
         /* found, but not at < cc->x, cc->y > */
         cc->x = ball->ox;

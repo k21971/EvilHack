@@ -3929,6 +3929,10 @@ xchar x, y;
     struct obj *obj, *nobj;
     int num = 0;
 
+    /* erode_obj() relies on bhitpos if target objects aren't carried by
+       the hero or a monster, to check visibility controlling feedback */
+    bhitpos.x = x, bhitpos.y = y;
+
     for (obj = chain; obj; obj = nobj) {
         nobj = here ? obj->nexthere : obj->nobj;
         if (fire_damage(obj, force, x, y))
@@ -4284,6 +4288,11 @@ xchar x, y;
        acid nor unseen have exploded during this water damage sequence */
     acid_ctx.dkn_boom = acid_ctx.unk_boom = 0;
     acid_ctx.ctx_valid = TRUE;
+
+    /* erode_obj() relies on bhitpos if target objects aren't carried by
+       the hero or a monster, to check visibility controlling feedback */
+    if (get_obj_location(obj, &x, &y, CONTAINED_TOO))
+        bhitpos.x = x, bhitpos.y = y;
 
     i = 0;
     for (otmp = obj; otmp; otmp = nobj) {

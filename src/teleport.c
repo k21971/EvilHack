@@ -379,7 +379,7 @@ int teleds_flags;
        the old position if allow_drag is true... */
     u_on_newpos(nux, nuy); /* set u.<x,y>, usteed-><mx,my>; cliparound() */
     fill_pit(u.ux0, u.uy0);
-    if (ball_active && uchain->where == OBJ_FREE)
+    if (ball_active && uchain && uchain->where == OBJ_FREE)
         placebc(); /* put back the ball&chain if they were taken off map */
     initrack(); /* teleports mess up tracking monsters without this */
     update_player_regions();
@@ -1315,6 +1315,10 @@ register int x, y;
        the latter only happens if you've attacked them with polymorph */
     if (resident_shk && !inhishop(mtmp))
         make_angry_shk(mtmp, oldx, oldy);
+
+    /* trapped monster teleported away */
+    if (mtmp->mtrapped && !mtmp->wormno)
+        (void) mintrap(mtmp);
 }
 
 /* place a monster at a random location, typically due to teleport */

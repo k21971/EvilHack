@@ -23,7 +23,7 @@ STATIC_DCL boolean FDECL(maybe_kick_monster, (struct monst *,
 STATIC_DCL int FDECL(kick_object, (XCHAR_P, XCHAR_P, char *));
 STATIC_DCL int FDECL(really_kick_object, (XCHAR_P, XCHAR_P));
 STATIC_DCL char *FDECL(kickstr, (char *, const char *));
-STATIC_DCL void FDECL(otransit_msg, (struct obj *, BOOLEAN_P, long));
+STATIC_DCL void FDECL(otransit_msg, (struct obj *, BOOLEAN_P, BOOLEAN_P, long));
 STATIC_DCL void FDECL(drop_to, (coord *, SCHAR_P));
 
 static const char kick_passes_thru[] = "kick passes harmlessly through";
@@ -1641,7 +1641,7 @@ boolean shop_floor_obj;
     coord cc;
     struct obj *obj;
     struct trap *t;
-    boolean nodrop, unpaid, container, impact = FALSE;
+    boolean nodrop, unpaid, container, impact = FALSE, chainthere = FALSE;
     long n = 0L;
 
     if (!otmp)
@@ -1661,9 +1661,12 @@ boolean shop_floor_obj;
     unpaid = is_unpaid(otmp);
 
     if (OBJ_AT(x, y)) {
-        for (obj = level.objects[x][y]; obj; obj = obj->nexthere)
-            if (obj != otmp)
+        for (obj = level.objects[x][y]; obj; obj = obj->nexthere) {
+            if (obj == uchain)
+                chainthere = TRUE;
+            else if (obj != otmp)
                 n += obj->quan;
+        }
         if (n)
             impact = TRUE;
     }
@@ -1677,7 +1680,7 @@ boolean shop_floor_obj;
     }
 
     if (cansee(x, y))
-        otransit_msg(otmp, nodrop, n);
+        otransit_msg(otmp, nodrop, chainthere, n);
 
     if (nodrop) {
         if (impact)
@@ -1878,9 +1881,9 @@ unsigned long deliverflags;
 }
 
 STATIC_OVL void
-otransit_msg(otmp, nodrop, num)
+otransit_msg(otmp, nodrop, chainthere, num)
 register struct obj *otmp;
-register boolean nodrop;
+boolean nodrop, chainthere;
 long num;
 {
     char *optr = 0, obuf[BUFSZ], xbuf[BUFSZ];
@@ -1894,11 +1897,15 @@ long num;
     }
     Strcpy(obuf, optr);
 
-    if (num) { /* means: other objects are impacted */
+    if (num || chainthere) {
         /* As of 3.6.2: use a separate buffer for the suffix to avoid risk of
            overrunning obuf[] (let pline() handle truncation if necessary) */
-        Sprintf(xbuf, " %s %s object%s", otense(otmp, "hit"),
-                (num == 1L) ? "another" : "other", (num > 1L) ? "s" : "");
+        if (num) { /* means: other objects are impacted */
+            Sprintf(xbuf, " %s %s object%s", otense(otmp, "hit"),
+                    (num == 1L) ? "another" : "other", (num > 1L) ? "s" : "");
+        } else { /* chain-only msg */
+            Sprintf(xbuf, " %s your chain", otense(otmp, "rattle"));
+        }
         if (nodrop)
             Sprintf(eos(xbuf), ".");
         else

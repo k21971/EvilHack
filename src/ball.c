@@ -120,11 +120,6 @@ ballfall()
 STATIC_OVL void
 placebc_core()
 {
-    /* if the chain rusts away, we get unpunished...
-     * the ball may still exist but will no longer be uball.
-     */
-    struct obj *theball = uball;
-    
     if (!uchain || !uball) {
         impossible("Where are your ball and chain?");
         return;
@@ -132,18 +127,16 @@ placebc_core()
 
     (void) flooreffects(uchain, u.ux, u.uy, ""); /* chain might rust */
 
-    if (carried(theball)) { /* the ball is carried */
+    if (carried(uball)) { /* the ball is carried */
         u.bc_order = BCPOS_DIFFER;
     } else {
         /* ball might rust -- already checked when carried */
-        if (flooreffects(theball, u.ux, u.uy, ""))
-            return; /* ball rusts away, chain is gone too */
-        place_object(theball, u.ux, u.uy);
+        (void) flooreffects(uball, u.ux, u.uy, "");
+        place_object(uball, u.ux, u.uy);
         u.bc_order = BCPOS_CHAIN;
     }
 
-    if (uchain) /* might've rusted away */
-        place_object(uchain, u.ux, u.uy);
+    place_object(uchain, u.ux, u.uy);
 
     u.bglyph = u.cglyph = levl[u.ux][u.uy].glyph; /* pick up glyph */
 
@@ -559,16 +552,11 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
                 /* If the chain moved or nothing moved & chain on top. */
                 if (on_floor)
                     place_object(uball, ballx, bally);
-                if (uchain)
-                    place_object(uchain, chainx, chainy); /* chain on top */
+                place_object(uchain, chainx, chainy); /* chain on top */
             } else {
-                /* if the chain rusts away, we get unpunished...
-                 * the ball may still exist but will no longer be uball.
-                 */
-                struct obj *theball = uball;
                 place_object(uchain, chainx, chainy);
                 if (on_floor)
-                    place_object(theball, ballx, bally);
+                    place_object(uball, ballx, bally);
                 /* ball on top */
             }
             newsym(chainx, chainy);

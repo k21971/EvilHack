@@ -1617,4 +1617,5 @@ The following changes to date are:
   away completely
 - Fix: crash if acid sphere explodes at nothing
 - Prevent vault guards from having random race
+- More ball & chain fixes
 
