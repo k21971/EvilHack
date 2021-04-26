@@ -1616,4 +1616,5 @@ The following changes to date are:
 - Revert ball & chain being rustproof, prevent either from rusting
   away completely
 - Fix: crash if acid sphere explodes at nothing
+- Prevent vault guards from having random race
 

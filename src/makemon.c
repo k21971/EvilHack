@@ -2502,7 +2502,7 @@ int mmflags;
        appropriate flags that go along with their race */
     if (is_mplayer(ptr))
         init_mplayer_erac(mtmp);
-    else if (is_mercenary(ptr))
+    else if (is_mercenary(ptr) && ptr != &mons[PM_GUARD])
         apply_race(mtmp, m_randrace(mndx));
 
     mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(mtmp);
