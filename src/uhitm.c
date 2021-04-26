@@ -3980,6 +3980,8 @@ boolean wep_was_destroyed;
                         } else {
                             if (cansee(mon->mx, mon->my))
                                 pline("%s disintegrates!", Yname2(weapon));
+                            if (weapon == uball || weapon == uchain)
+                                unpunish();
                             if (carried(weapon))
                                 useup(weapon);
                             else
@@ -4154,8 +4156,11 @@ struct attack *mattk;     /* null means we find one internally */
                       Yobjnam2(obj, "resist"));
                 break;
             } else {
-                if (cansee(mon->mx, mon->my))
+                if ((u.uswallow && mon == u.ustuck && !Blind)
+                    || cansee(mon->mx, mon->my))
                     pline("%s disintegrates!", Yname2(obj));
+                if (obj == uchain || obj == uball)
+                    unpunish();
                 if (carried(obj))
                     useup(obj);
                 else

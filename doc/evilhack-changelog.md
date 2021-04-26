@@ -1618,4 +1618,5 @@ The following changes to date are:
 - Fix: crash if acid sphere explodes at nothing
 - Prevent vault guards from having random race
 - More ball & chain fixes
+- Fix: ball & chain handling and passive disintegration
 
