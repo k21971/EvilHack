@@ -1613,4 +1613,6 @@ The following changes to date are:
 - Fix: null pointer crash (water_damage_chain)
 - Add a few minor enhancements from vanilla NetHack/xNetHack
 - Some encyclopedia entries and tweaks
+- Revert ball & chain being rustproof, prevent either from rusting
+  away completely
 

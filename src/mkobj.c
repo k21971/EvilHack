@@ -1019,13 +1019,11 @@ boolean artif;
         case VENOM_CLASS:
             break;
         case CHAIN_CLASS:
-            otmp->oerodeproof = 1;
             if (Role_if(PM_CONVICT) && otmp->otyp == IRON_CHAIN
                 && (moves <= 1))
                 otmp->rknown = 1;
             break;
         case BALL_CLASS:
-            otmp->oerodeproof = 1;
             if (Role_if(PM_CONVICT) && otmp->otyp == HEAVY_IRON_BALL
                 && (moves <= 1))
                 otmp->rknown = 1;

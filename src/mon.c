@@ -1404,8 +1404,7 @@ register struct monst *mtmp;
                           distant_name(otmp, doname));
                 }
                 /* The object's rustproofing is gone now */
-                if (!(otmp == uball || otmp == uchain))
-                    otmp->oerodeproof = 0;
+                otmp->oerodeproof = 0;
                 mtmp->mstun = 1;
                 if (canseemon(mtmp) && flags.verbose) {
                     pline("%s spits %s out in disgust!", Monnam(mtmp),

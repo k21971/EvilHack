@@ -265,7 +265,8 @@ int ef_flags;
             update_inventory();
 
         return ER_DAMAGED;
-    } else if (ef_flags & EF_DESTROY) {
+    } else if (ef_flags & EF_DESTROY
+               && otmp != uball && otmp != uchain) {
         if (type == ERODE_FRACTURE) {
             if (uvictim || vismon || visobj)
                 pline("%s %s %s and shatters!",

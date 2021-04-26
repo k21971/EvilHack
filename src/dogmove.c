@@ -548,8 +548,7 @@ boolean devour;
         /* The object's rustproofing is gone now */
         if (obj->unpaid)
             costly_alteration(obj, COST_DEGRD);
-        if (!(obj == uball || obj == uchain))
-            obj->oerodeproof = 0;
+        obj->oerodeproof = 0;
         mtmp->mstun = 1;
         if (canseemon(mtmp) && flags.verbose) {
             pline("%s spits %s out in disgust!", Monnam(mtmp),
