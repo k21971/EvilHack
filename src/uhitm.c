@@ -2738,7 +2738,7 @@ register struct attack *mattk;
          * the +20 to +29 range instead of negative. */
         explode(u.ux, u.uy, (mattk->adtyp - 1) + 20, tmp, MON_EXPLODE,
                 adtyp_to_expltype(mattk->adtyp));
-        if (mattk->adtyp == AD_ACID) {
+        if (mdef && mattk->adtyp == AD_ACID) {
             if (rn2(4))
                 erode_armor(mdef, ERODE_CORRODE);
             if (rn2(2))

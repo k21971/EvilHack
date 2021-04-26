@@ -1076,7 +1076,7 @@ struct attack *mattk;
     if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
         || mattk->adtyp == AD_ELEC || mattk->adtyp == AD_ACID) {
         mon_explodes(magr, mattk);
-        if (mattk->adtyp == AD_ACID) {
+        if (mdef && mattk->adtyp == AD_ACID) {
             if (rn2(4))
                 erode_armor(mdef, ERODE_CORRODE);
             if (rn2(2))

@@ -1615,4 +1615,5 @@ The following changes to date are:
 - Some encyclopedia entries and tweaks
 - Revert ball & chain being rustproof, prevent either from rusting
   away completely
+- Fix: crash if acid sphere explodes at nothing
 
