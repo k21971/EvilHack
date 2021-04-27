@@ -1877,7 +1877,7 @@ register struct monst *mtmp;
             if (!rn2(3) || (in_mklev && Is_earthlevel(&u.uz)))
                 (void) mongets(mtmp, WAN_DIGGING);
         } else if (is_giant(ptr)) {
-            for (cnt = rn2((int) (mtmp->m_lev / 2)); cnt; cnt--) {
+            for (cnt = rn2(max(1, (int) (mtmp->m_lev / 2))); cnt; cnt--) {
                 otmp = mksobj(rnd_class(DILITHIUM_CRYSTAL, LUCKSTONE - 1),
                               FALSE, FALSE);
                 otmp->quan = (long) rn1(2, 3);

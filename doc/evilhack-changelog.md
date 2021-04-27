@@ -1619,4 +1619,5 @@ The following changes to date are:
 - Prevent vault guards from having random race
 - More ball & chain fixes
 - Fix: ball & chain handling and passive disintegration
+- Fix: #wizgenesis 'giant' caused rn2(0) 'program in disorder'
 

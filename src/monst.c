@@ -1939,7 +1939,7 @@ struct permonst _mons2[] = {
     /*
      * giant Humanoids
      */
-    MON("giant", S_GIANT, LVL(0, 10, 0, 0, 2), G_NOGEN, /* placeholder */
+    MON("giant", S_GIANT, LVL(0, 10, 6, 0, 2), G_NOGEN, /* placeholder */
         A(ATTK(AT_WEAP, AD_CLOB, 2, 10), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(2200, 700, MS_BOAST, MZ_HUGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
