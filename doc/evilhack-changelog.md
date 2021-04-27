@@ -1623,4 +1623,5 @@ The following changes to date are:
 - Fix: duplicate lightsource attempting to be created, type 0
 - Fix: crash due to monster wishing for an artifact and not receiving it
 - Balrogs don't have forehooves
+- Tweak/fix to last commit
 
