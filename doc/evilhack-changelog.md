@@ -1621,4 +1621,5 @@ The following changes to date are:
 - Fix: ball & chain handling and passive disintegration
 - Fix: #wizgenesis 'giant' caused rn2(0) 'program in disorder'
 - Fix: duplicate lightsource attempting to be created, type 0
+- Fix: crash due to monster wishing for an artifact and not receiving it
 

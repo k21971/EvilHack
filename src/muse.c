@@ -3875,7 +3875,6 @@ struct monst *mon;
     register int cnt, f, i, j;
     register boolean wearable = FALSE;
     register struct obj *otmp;
-    const char* str;
 
     otmp = NULL;
 
@@ -4135,9 +4134,15 @@ struct monst *mon;
             }
             break;
     }
-    str = an(xname(otmp));
-    if (canseemon(mon))
-        pline("%s makes a wish for %s!", Monnam(mon), str);
+
+    if (otmp == NULL) {
+        if (canseemon(mon))
+            pline("For a moment, %s had %s in its %s, but it disappears.",
+                  mon_nam(mon), something, makeplural(mbodypart(mon, HAND)));
+        return;
+    } else if (canseemon(mon)) {
+        pline("%s makes a wish for %s!", Monnam(mon), an(xname(otmp)));
+    }
     if (wearable)
         check_gear_next_turn(mon);
 }
