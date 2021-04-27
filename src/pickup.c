@@ -2118,6 +2118,13 @@ boolean taking;
                 pline("%s refuses to take %s.", Monnam(mtmp), yname(otmp));
                 continue;
             }
+            if (otmp == uball || otmp == uchain) {
+                /* you can't give a monster your ball & chain, because it
+                 * causes a lot of problems elsewhere... */
+                pline("%s can't take %s while it's chained to you.",
+                      Monnam(mtmp), yname(otmp));
+                continue;
+            }
             carryamt = can_carry(mtmp, otmp);
             if (nohands(mtmp->data) && mtmp->minvent) {
                 /* this isn't a hard and fast rule, but dog_invent in practice

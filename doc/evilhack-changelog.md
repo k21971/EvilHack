@@ -1624,4 +1624,6 @@ The following changes to date are:
 - Fix: crash due to monster wishing for an artifact and not receiving it
 - Balrogs don't have forehooves
 - Tweak/fix to last commit
+- Fix: tame monsters should not be allowed to take a heavy iron ball
+  you if you're still chained to it
 
