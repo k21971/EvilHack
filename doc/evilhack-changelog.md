@@ -1628,4 +1628,5 @@ The following changes to date are:
   you if you're still chained to it
 - Feedback improvements to #loot (tame pet)
 - More feedback improvements to #loot (tame pet)
+- Little bit extra variation of water creatures on the Plane of Water
 

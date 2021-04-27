@@ -448,9 +448,11 @@ MONSTER:(';',"shark"),random
 MONSTER:(';',"piranha"),random
 MONSTER:(';',"piranha"),random
 MONSTER:(';',"piranha"),random
-MONSTER:(';',"piranha"),random
-MONSTER:(';',"jellyfish"),random
-MONSTER:(';',"jellyfish"),random
+MONSTER:('S',"water moccasin"),random
+MONSTER:('S',"water moccasin"),random
+MONSTER:('S',"giant anaconda"),random
+MONSTER:('T',"water troll"),random
+MONSTER:('T',"water troll"),random
 MONSTER:('D',"sea dragon"),random
 MONSTER:('D',"sea dragon"),random
 MONSTER:';',random
