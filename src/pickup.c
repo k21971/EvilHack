@@ -2148,8 +2148,10 @@ boolean taking;
                  * whatever reason, we should continue instead. It remains to
                  * be seen which is the more common scenario. */
                 continue;
-            } else if (carryamt < otmp->quan) {
-                maxquan = min(maxquan, carryamt);
+            } else if (carryamt < maxquan) {
+                pline("%s can only carry %s of %s.", Monnam(mtmp),
+                      carryamt > 1 ? "some" : "one", yname(otmp));
+                maxquan = carryamt;
             }
             if (maxquan < otmp->quan)
                 otmp = splitobj(otmp, maxquan);
