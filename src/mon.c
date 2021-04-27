@@ -3359,8 +3359,7 @@ struct monst *mdef;
                     continue;
                 place_object(obj, x, y);
             } else {
-                if (obj->lamplit || obj->otyp == GOLD_DRAGON_SCALE_MAIL
-                    || obj->otyp == GOLD_DRAGON_SCALES)
+                if (obj->lamplit)
                     end_burn(obj, TRUE);
                 obj->nobj = oldminvent;
                 oldminvent = obj;
