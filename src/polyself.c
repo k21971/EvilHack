@@ -1766,7 +1766,7 @@ int part;
        such attacks should still reference hands rather than claws */
     static const char not_claws[] = {
         S_HUMAN,     S_ANGEL,   S_NYMPH,  S_LEPRECHAUN,
-        S_QUANTMECH, S_VAMPIRE, S_ORC,    S_GIANT, /* quest nemeses */
+        S_QUANTMECH, S_ORC,     S_GIANT, /* quest nemeses */
         '\0' /* string terminator; assert( S_xxx != 0 ); */
     };
     struct permonst *mptr = mon->data;
@@ -1793,6 +1793,7 @@ int part;
     }
     if ((part == HAND || part == HANDED)
         && (humanoid(mptr) && attacktype(mptr, AT_CLAW)
+            && has_claws(mptr) && has_claws_undead(mptr)
             && !index(not_claws, mptr->mlet) && mptr != &mons[PM_STONE_GOLEM]
             && mptr != &mons[PM_INCUBUS] && mptr != &mons[PM_SUCCUBUS]))
         return (part == HAND) ? "claw" : "clawed";
