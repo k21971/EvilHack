@@ -3044,7 +3044,7 @@ register struct monst *mtmp;
     if ((otmp = which_armor(mtmp, W_ARM))
         && (otmp->otyp==GOLD_DRAGON_SCALE_MAIL
             || otmp->otyp == GOLD_DRAGON_SCALES))
-        end_burn(otmp,FALSE);
+        end_burn(otmp, FALSE);
 
     mptr = mtmp->data; /* save this for m_detach() */
     /* restore chameleon, lycanthropes to true form at death */
@@ -3359,7 +3359,8 @@ struct monst *mdef;
                     continue;
                 place_object(obj, x, y);
             } else {
-                if (obj->lamplit)
+                if (obj->lamplit || obj->otyp == GOLD_DRAGON_SCALE_MAIL
+                    || obj->otyp == GOLD_DRAGON_SCALES)
                     end_burn(obj, TRUE);
                 obj->nobj = oldminvent;
                 oldminvent = obj;

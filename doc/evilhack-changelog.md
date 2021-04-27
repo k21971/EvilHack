@@ -1620,4 +1620,5 @@ The following changes to date are:
 - More ball & chain fixes
 - Fix: ball & chain handling and passive disintegration
 - Fix: #wizgenesis 'giant' caused rn2(0) 'program in disorder'
+- Fix: duplicate lightsource attempting to be created, type 0
 

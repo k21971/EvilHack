@@ -1546,6 +1546,9 @@ long timeout;
  *      candelabrum:
  *              age = # of turns of fuel left
  *              spe = # of candles
+ *      gold dragon scales/scale mail:
+ *              age = <unused>
+ *              spe = <unused>
  *
  * Once the burn begins, the age will be set to the amount of fuel
  * remaining _once_the_burn_finishes_.  If the burn is terminated
@@ -1566,7 +1569,9 @@ boolean already_lit;
     long turns = 0;
     boolean do_timer = TRUE;
 
-    if (obj->age == 0 && obj->otyp != MAGIC_LAMP && !artifact_light(obj))
+    if (obj->age == 0 && obj->otyp != MAGIC_LAMP && !artifact_light(obj)
+        && obj->otyp != GOLD_DRAGON_SCALES
+        && obj->otyp != GOLD_DRAGON_SCALE_MAIL)
         return;
 
     switch (obj->otyp) {
@@ -1663,7 +1668,9 @@ boolean timer_attached;
         return;
     }
 
-    if (obj->otyp == MAGIC_LAMP || artifact_light(obj))
+    if (obj->otyp == MAGIC_LAMP || artifact_light(obj)
+        || obj->otyp == GOLD_DRAGON_SCALES
+        || obj->otyp == GOLD_DRAGON_SCALE_MAIL)
         timer_attached = FALSE;
 
     if (!timer_attached) {
