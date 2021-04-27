@@ -2110,19 +2110,25 @@ boolean taking;
                 weldmsg(otmp);
                 continue;
             }
+            if (otmp->otyp == LOADSTONE && cursed(otmp, TRUE)
+                && maxquan < otmp->quan) {
+                /* kludge for canletgo() feedback, also used in getobj() */
+                otmp->corpsenm = maxquan;
+            }
             if (!canletgo(otmp, "give away")) {
                 /* this prints its own messages */
                 continue;
             }
             if (!mindless(mtmp->data) && mtmp_would_ston) {
-                pline("%s refuses to take %s.", Monnam(mtmp), yname(otmp));
+                pline("%s refuses to take %s%s.", Monnam(mtmp),
+                      maxquan < otmp->quan ? "any of " : "", yname(otmp));
                 continue;
             }
             if (otmp == uball || otmp == uchain) {
                 /* you can't give a monster your ball & chain, because it
-                 * causes a lot of problems elsewhere... */
-                pline("%s can't take %s while it's chained to you.",
-                      Monnam(mtmp), yname(otmp));
+                 * causes problems elsewhere... */
+                pline("%s shackled to your %s and cannot be given away.",
+                      Tobjnam(otmp, "are"), body_part(LEG));
                 continue;
             }
             carryamt = can_carry(mtmp, otmp);
@@ -2134,7 +2140,8 @@ boolean taking;
             if (carryamt == 0) {
                 /* note: this includes both "can't carry" and "won't carry", but
                  * doesn't distinguish them */
-                pline("%s can't carry %s.", Monnam(mtmp), yname(otmp));
+                pline("%s can't carry %s%s.", Monnam(mtmp),
+                      maxquan < otmp->quan ? "any of " : "", yname(otmp));
                 /* debatable whether to continue or break here; if the player
                  * overloads the monster with too many items, breaking would be
                  * preferable, but if they just can't take this one otmp for

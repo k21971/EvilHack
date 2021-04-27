@@ -1626,4 +1626,5 @@ The following changes to date are:
 - Tweak/fix to last commit
 - Fix: tame monsters should not be allowed to take a heavy iron ball
   you if you're still chained to it
+- Feedback improvements to #loot (tame pet)
 
