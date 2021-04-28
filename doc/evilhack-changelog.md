@@ -1632,4 +1632,5 @@ The following changes to date are:
 - Tweak odds of rising as a zombie and continuing to play
 - Put a distance limit on how far away you can hear a monster
   rummaging through a container
+- Remove monster maximum difficulty limit with demigod flag set
 

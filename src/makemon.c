@@ -2929,8 +2929,10 @@ rndmonst()
         zlevel = level_difficulty();
         /* determine the level of the weakest monster to make. */
         minmlev = zlevel / 6;
-        /* determine the level of the strongest monster to make. */
-        maxmlev = (zlevel + u.ulevel) / 2;
+        /* determine the level of the strongest monster to make.
+           once the invocation is performed, or the Wizard of
+           Yendor is killed, all bets are off */
+        maxmlev = u.uevent.udemigod ? 256 : ((zlevel + u.ulevel) / 2);
         upper = Is_rogue_level(&u.uz);
         elemlevel = In_endgame(&u.uz) && !Is_astralevel(&u.uz);
 
