@@ -1727,7 +1727,8 @@ register const char *str;
                           (distu(mtmp->mx, mtmp->my) <= 5) ?
                           doname(otmp) : distant_name(otmp, doname),
                           waslocked ? "." : "...");
-                } else if (!Deaf && flags.verbose) {
+                } else if (!Deaf && flags.verbose
+                           && distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) {
                     You_hear("%s being %s.",
                              ansimpleoname(otmp),
                              waslocked ? "unlocked" : "opened");
@@ -1761,7 +1762,8 @@ register const char *str;
                                   (distu(mtmp->mx, mtmp->my) <= 5)
                                    ? the(xname(otmp))
                                    : the(distant_name(otmp, xname)));
-                        } else if (!Deaf && flags.verbose) {
+                        } else if (!Deaf && flags.verbose
+                                   && distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) {
                             You_hear("%s being %s.",
                                      ansimpleoname(otmp),
                                      waslocked ? "unlocked" : "opened");
@@ -1775,7 +1777,8 @@ register const char *str;
                                   (distu(mtmp->mx, mtmp->my) <= 5)
                                    ? the(xname(otmp))
                                    : the(distant_name(otmp, xname)));
-                        } else if (!Deaf && flags.verbose) {
+                        } else if (!Deaf && flags.verbose
+                                   && distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) {
                             You_hear("something rummaging through %s.",
                                      ansimpleoname(otmp));
                         }

@@ -1630,4 +1630,6 @@ The following changes to date are:
 - More feedback improvements to #loot (tame pet)
 - Little bit extra variation of water creatures on the Plane of Water
 - Tweak odds of rising as a zombie and continuing to play
+- Put a distance limit on how far away you can hear a monster
+  rummaging through a container
 
