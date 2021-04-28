@@ -1633,4 +1633,5 @@ The following changes to date are:
 - Put a distance limit on how far away you can hear a monster
   rummaging through a container
 - Remove monster maximum difficulty limit with demigod flag set
+- Experience level gain formula adjustment
 

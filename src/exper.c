@@ -18,9 +18,9 @@ int lev;
         return 0L;
     if (lev < 10)
         return (10L * (1L << lev));
-    if (lev < 20)
+    if (lev < 17)
         return (10000L * (1L << (lev - 10)));
-    return (10000000L * ((long) (lev - 19)));
+    return (320000L * ((long) (lev - 14)));
 }
 
 STATIC_OVL int
