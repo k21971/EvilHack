@@ -2065,7 +2065,7 @@ exchange_objects_with_mon(mtmp, taking)
 struct monst *mtmp;
 boolean taking;
 {
-    int i, n, transferred = 0;
+    int i, n, transferred = 0, time_taken = 1;
     menu_item *pick_list;
     const char *qstr = taking ? "Take what?" : "Give what?";
 
@@ -2133,9 +2133,17 @@ boolean taking;
             }
             carryamt = can_carry(mtmp, otmp);
             if (nohands(mtmp->data) && mtmp->minvent) {
+                struct obj *invobj;
                 /* this isn't a hard and fast rule, but dog_invent in practice
                  * doesn't let monsters carry around multiple items. */
-                carryamt = 0;
+                for (invobj = mtmp->minvent; invobj; invobj = invobj->nobj) {
+                    /* count only things that aren't worn, so that being
+                     * saddled doesn't prevent mon from receiving an item */
+                    if (!(invobj->owornmask & ~(W_ART | W_ARTI | W_QUIVER))) {
+                        carryamt = 0;
+                        break;
+                    }
+                }
             }
             if (carryamt == 0) {
                 /* note: this includes both "can't carry" and "won't carry", but
@@ -2177,15 +2185,31 @@ boolean taking;
                     /* extra delay for removing a cloak */
                     m_delay += 2;
                 }
-                pline("%s %s %s %s.", Monnam(mtmp),
-                      m_delay > 1 ? "begins removing" : "removes",
-                      mhis(mtmp), xname(otmp));
+                if ((unwornmask & (W_SADDLE | W_BARDING)) != 0) {
+                    You("remove %s from %s.", the(xname(otmp)),
+                        x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                                 (unwornmask & W_SADDLE ? SUPPRESS_SADDLE
+                                                        : SUPPRESS_BARDING),
+                                 FALSE));
+                    /* unstrapping a saddle or barding takes additional time */
+                    time_taken += rn2(3);
+                } else {
+                    pline("%s %s %s %s.", Monnam(mtmp),
+                          m_delay > 1 ? "begins removing" : "removes",
+                          mhis(mtmp), xname(otmp));
+                }
                 mtmp->mfrozen = m_delay;
                 /* unwear the item now */
                 update_mon_intrinsics(mtmp, otmp, FALSE, FALSE);
-                otmp->owornmask = 0;
                 if (mtmp->mfrozen) { /* might be 0 */
                     mtmp->mcanmove = 0;
+                    otmp->owornmask = 0L;
+                    /* normally extract_from_minvent handles this stuff, but
+                     * since we are setting owornmask to 0 now we have to
+                     * do it here. */
+                    otmp->owt = weight(otmp); /* reset armor weight */
+                    mtmp->misc_worn_check &= ~unwornmask;
+                    check_gear_next_turn(mtmp);
                     /* monster is now occupied, won't hand over other things */
                     break;
                 }
@@ -2201,8 +2225,7 @@ boolean taking;
             }
             if (maxquan < otmp->quan)
                 otmp = splitobj(otmp, maxquan);
-            else
-                extract_from_minvent(mtmp, otmp, TRUE, TRUE);
+            extract_from_minvent(mtmp, otmp, TRUE, TRUE);
 
             addtobill(otmp, FALSE, FALSE, FALSE);
             otmp = hold_another_object(otmp, "You take, but drop, %s.",
@@ -2225,7 +2248,8 @@ boolean taking;
          * some and now have a different option. Reassess next turn and see. */
         check_gear_next_turn(mtmp);
     }
-    return (n > 0 ? 1 : 0);
+    /* time_taken is 1 for normal item(s), rnd(3) if you removed saddle/barding */
+    return (n > 0 ? time_taken : 0);
 }
 
 /* loot_mon() returns amount of time passed. */
