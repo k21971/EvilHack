@@ -1639,4 +1639,5 @@ The following changes to date are:
 - Some 2nd level sokoban levels had pits instead of holes
 - Don't allow hobbits to be priests (monsters)
 - Fix: racial shopkeeper love/hate system not using erac
+- Greater to-hit bonus at experience level 30
 

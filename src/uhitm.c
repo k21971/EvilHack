@@ -294,6 +294,10 @@ int *attk_count, *role_roll_penalty;
         }
     }
 
+    /* level adjustment. maxing out has some benefits */
+    if (u.ulevel == 30)
+        tmp += 4;
+
     /* role/race adjustments */
     if (Role_if(PM_MONK) && !Upolyd) {
         if (uarm)
@@ -301,8 +305,15 @@ int *attk_count, *role_roll_penalty;
         else if (!uwep && !uarms)
             tmp += (u.ulevel / 3) + 2;
     }
+
+    /* elves get a slight bonus to-hit vs orcs */
     if (racial_orc(mtmp)
         && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
+        tmp++;
+
+    /* orcs should get the same to-hit bonus vs elves */
+    if (racial_elf(mtmp)
+        && maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC)))
         tmp++;
 
     /* Adding iron ball as a weapon skill gives a -4 penalty for
@@ -315,9 +326,8 @@ int *attk_count, *role_roll_penalty;
     }
 
     /* gloves' bonus contributes if unarmed */
-    if (!uwep && uarmg) {
+    if (!uwep && uarmg)
 	tmp += uarmg->spe;
-    }
 
     /* encumbrance: with a lot of luggage, your agility diminishes */
     if ((tmp2 = near_capacity()) != 0)
