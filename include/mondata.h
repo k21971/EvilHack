@@ -310,6 +310,12 @@
 #define always_peaceful(ptr) (((ptr)->mflags2 & M2_PEACEFUL) != 0L)
 #define race_hostile(ptr) (((ptr)->mhflags & urace.hatemask) != 0L)
 #define race_peaceful(ptr) (((ptr)->mhflags & urace.lovemask) != 0L)
+#define erac_race_hostile(mon) \
+    (((has_erac(mon) ? ERAC(mon)->mrace : (mon)->data->mhflags) \
+     & urace.hatemask) != 0L)
+#define erac_race_peaceful(mon) \
+    (((has_erac(mon) ? ERAC(mon)->mrace : (mon)->data->mhflags) \
+     & urace.lovemask) != 0L)
 #define extra_nasty(ptr) (((ptr)->mflags2 & M2_NASTY) != 0L)
 #define strongmonst(ptr) (((ptr)->mflags2 & M2_STRONG) != 0L)
 #define can_breathe(ptr) attacktype(ptr, AT_BREA)

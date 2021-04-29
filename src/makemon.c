@@ -3482,9 +3482,9 @@ register struct monst *mtmp;
     if (ptr->msound == MS_NEMESIS)
         return FALSE;
 
-    if (race_peaceful(ptr))
+    if (erac_race_peaceful(mtmp))
         return TRUE;
-    if (race_hostile(ptr))
+    if (erac_race_hostile(mtmp))
         return FALSE;
 
     /* the monster is hostile if its alignment is different from the

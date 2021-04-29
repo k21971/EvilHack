@@ -1332,7 +1332,7 @@ The following changes to date are:
 - Fix: crash when setting nudist option in config
 - Artifact wielding function
 - Enable sunsword's shining effect when wielded in the offhand
-- New weapon: dwarvish beared axe
+- New weapon: dwarvish bearded axe
 - Fix: A shimmering globe appears around it!
 - Fix: typo in objects.txt for dwarvish bearded axe
 - Kathryn's birthday
@@ -1638,4 +1638,5 @@ The following changes to date are:
 - Change status from 'work-in-progress' to 'beta'
 - Some 2nd level sokoban levels had pits instead of holes
 - Don't allow hobbits to be priests (monsters)
+- Fix: racial shopkeeper love/hate system not using erac
 
