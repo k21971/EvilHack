@@ -1635,4 +1635,5 @@ The following changes to date are:
 - Remove monster maximum difficulty limit with demigod flag set
 - Experience level gain formula adjustment
 - More tweaks to pet #looting
+- Change status from 'work-in-progress' to 'beta'
 
