@@ -5776,6 +5776,7 @@ unsigned long permitted;
     return race;
 }
 
+/* this function is used for racial priests creation */
 short
 align_randrace(algn)
 aligntyp algn;
@@ -5791,11 +5792,11 @@ aligntyp algn;
             (MH_ILLITHID | MH_ORC | MH_ELF | MH_GIANT | MH_CENTAUR);
         break;
     case A_LAWFUL:
-        permitted |= (MH_DWARF | MH_GIANT | MH_HOBBIT);
+        permitted |= (MH_DWARF | MH_GIANT);
         break;
     case A_NEUTRAL:
         permitted |=
-            (MH_ELF | MH_DWARF | MH_GIANT | MH_HOBBIT | MH_CENTAUR);
+            (MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR);
         break;
     default:
         break;

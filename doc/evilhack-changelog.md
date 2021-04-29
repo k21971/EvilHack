@@ -1637,4 +1637,5 @@ The following changes to date are:
 - More tweaks to pet #looting
 - Change status from 'work-in-progress' to 'beta'
 - Some 2nd level sokoban levels had pits instead of holes
+- Don't allow hobbits to be priests (monsters)
 
