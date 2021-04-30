@@ -1642,4 +1642,5 @@ The following changes to date are:
 - Greater to-hit bonus at experience level 30
 - Show player how badly they've abused their alignment via #conduct
 - Fix: pet unable to "return" item to shop
+- Fix: missing period (Infidel and casting)
 

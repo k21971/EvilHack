@@ -676,7 +676,7 @@ rejectcasting()
         if (u.uachieve.amulet) {
             return FALSE;
         } else {
-            You("are unable to channel your magic without the amulet");
+            You("are unable to channel your magic without the amulet.");
             return TRUE;
         }
     }
