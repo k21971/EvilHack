@@ -1643,4 +1643,6 @@ The following changes to date are:
 - Show player how badly they've abused their alignment via #conduct
 - Fix: pet unable to "return" item to shop
 - Fix: missing period (Infidel and casting)
+- Fix: minimum level was absent regarding altar sacrificing and
+  receiving a gift
 

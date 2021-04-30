@@ -2119,7 +2119,7 @@ dosacrifice()
              * level 21: 70% chance level 23: 80% chance level 24: 90% chance
              * level 26 or greater: 100% chance
              */
-            if (!awaiting_guaranteed_gift()
+            if ((!awaiting_guaranteed_gift() || u.ulevel <= 2)
                 && rn2(10) >= (int) ((nchance * nchance) / 100)) {
                 if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
                     int typ, ncount = 0;
