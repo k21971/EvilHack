@@ -2164,6 +2164,8 @@ boolean taking;
             if (maxquan < otmp->quan)
                 otmp = splitobj(otmp, maxquan);
             pline("You give %s %s.", mon_nam(mtmp), yname(otmp));
+            if (otmp->owornmask)
+                setnotworn(otmp); /* reset quivered, wielded, etc, status */
             obj_extract_self(otmp);
             if (add_to_minv(mtmp, otmp))
                 otmp = (struct obj *) 0; /* merged with something in minvent */

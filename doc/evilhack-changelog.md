@@ -1645,4 +1645,5 @@ The following changes to date are:
 - Fix: missing period (Infidel and casting)
 - Fix: minimum level was absent regarding altar sacrificing and
   receiving a gift
+- Fix: giving pet wielded/quivered item via #loot
 
