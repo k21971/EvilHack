@@ -327,7 +327,7 @@ int *attk_count, *role_roll_penalty;
 
     /* gloves' bonus contributes if unarmed */
     if (!uwep && uarmg)
-	tmp += uarmg->spe;
+        tmp += uarmg->spe;
 
     /* encumbrance: with a lot of luggage, your agility diminishes */
     if ((tmp2 = near_capacity()) != 0)

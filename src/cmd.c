@@ -3510,8 +3510,24 @@ int final;
         you_have_X(buf);
     }
 
-    if (u.ualign.abuse == 0)
+    if (u.ualign.abuse == 0) {
         you_have_never("abused your alignment");
+    } else if ((u.ualign.abuse * -1) < 5) {
+        Sprintf(buf, "slightly abused your alignment");
+        you_have_X(buf);
+    } else if ((u.ualign.abuse * -1) < 15) {
+        Sprintf(buf, "moderately abused your alignment");
+        you_have_X(buf);
+    } else if ((u.ualign.abuse * -1) < 30) {
+        Sprintf(buf, "seriously abused your alignment");
+        you_have_X(buf);
+    } else if ((u.ualign.abuse * -1) < 50) {
+        Sprintf(buf, "severely abused your alignment");
+        you_have_X(buf);
+    } else if ((u.ualign.abuse * -1) >= 50) {
+        Sprintf(buf, "gravely abused your alignment");
+        you_have_X(buf);
+    }
 
     ngenocided = num_genocides();
     if (ngenocided == 0) {
