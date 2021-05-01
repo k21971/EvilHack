@@ -2002,10 +2002,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           hittee, !spec_dbon_applies ? '.' : '!');
             }
         }
-        if (youdefend) {
+        if (youdefend && !rn2(6)) {
             diseasemu(mdef->data);
         } else {
-            if (!resists_sick(mdef->data)) {
+            if (!resists_sick(mdef->data) && !rn2(6)) {
                 if (canseemon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->mdiseased ? "even worse" : "diseased");

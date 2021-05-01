@@ -1647,4 +1647,5 @@ The following changes to date are:
   receiving a gift
 - Fix: giving pet wielded/quivered item via #loot
 - Handle welded equipment in #loot more consistently
+- Adjust how often Grimtooth can disease its target
 
