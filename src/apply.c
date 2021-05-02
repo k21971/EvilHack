@@ -3435,13 +3435,8 @@ struct obj *obj;
                     pline1(msg_swoosh);
             }
         }
-
-    } else if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)) {
-        /* it must be air -- water checked above */
-        You("swing your axe through thin air.");
-
     } else {
-        pline1(msg_swoosh);
+        use_pick_axe2(obj);
     }
     return 1;
 }
