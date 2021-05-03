@@ -1652,4 +1652,6 @@ The following changes to date are:
 - Fix: pets not attacking monsters under most circumstances
 - Fix: peacefuls would never take any items given via #loot
 - Fix: ghosts attempting to scare already paralyzed hero
+- Fix: alignment hit infidels take when not sacrificing in a timely
+  manner
 

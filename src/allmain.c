@@ -418,11 +418,17 @@ boolean resuming;
                                                              : "a faint");
                             stop_occupation();
                         }
-                        if (u.ualign.type == A_NONE && !rn2(10)
+                        if (u.ualign.type == A_NONE
                             && rn2(moves - context.next_moloch_offering
                                    + 1000) >= 1000) {
-                            if (u.ualign.record > -99)
+                            if (!rn2(100) && u.ualign.record > -99) {
                                 adjalign(-1);
+                                /* give our infidel some feedback every
+                                   once in a while */
+                                if (!rn2(5))
+                                    You_feel("your favor with %s starting to slip.",
+                                             u_gname());
+                            }
                             if (u.ualign.record < -10 && !rn2(u.ugangr + 1)
                                 && rn2(-u.ualign.record + 90) >= 100) {
                                 const char *angry = (char *) 0;
