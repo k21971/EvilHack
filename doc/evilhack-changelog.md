@@ -1650,4 +1650,5 @@ The following changes to date are:
 - Adjust how often Grimtooth can disease its target
 - Fix: allow dwarvish bearded axe to chop down trees/doors
 - Fix: pets not attacking monsters under most circumstances
+- Fix: peacefuls would never take any items given via #loot
 

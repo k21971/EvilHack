@@ -1215,8 +1215,8 @@ struct monst *mtmp;   /* Pet */
 
 boolean
 acceptable_pet_target(mtmp, mtmp2, ranged)
-register struct monst *mtmp;
-register struct monst *mtmp2;
+register struct monst *mtmp; /* your pet */
+register struct monst *mtmp2; /* the potential target */
 boolean ranged;
 {
     /* from xNetHack...
@@ -1234,7 +1234,7 @@ boolean ranged;
 
     /* Grudges override level checks. */
     if ((mm_aggression(mtmp, mtmp2) & ALLOW_M)
-        || mtmp2->msummoned) {
+        || mtmp->msummoned) {
         grudge = TRUE;
         balk = mtmp2->m_lev + 1;
     }
