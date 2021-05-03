@@ -1656,4 +1656,6 @@ The following changes to date are:
   manner
 - Fix: super tame steeds attacking monsters they shouldn't while 
   being ridden
+- Fix: prevent select_newcham_form() from choosing player monsters
+  as a valid polyform (except for doppelgangers)
 

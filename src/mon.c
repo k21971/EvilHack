@@ -4955,10 +4955,9 @@ int mndx;
         return 0;
     if (is_placeholder(mdat))
         return 0;
-    /* select_newcham_form() might deliberately pick a player
-       character type (random selection never does) which
-       polyok() rejects, so we need a special case here */
-    if (is_mplayer(mdat))
+    /* select_newcham_form() might deliberately pick a player character type
+       which polyok() rejects, so we need a special case here */
+    if (is_mplayer(mdat) && mon->cham == PM_DOPPELGANGER)
         return mdat;
     /* shapeshifters are rejected by polyok() but allow a shapeshifter
        to take on its 'natural' form */
