@@ -1229,35 +1229,30 @@ boolean ranged;
      * 25% to 40%:  up to level - 2
      *  below 25%:  prevented from attacking at all by a different case
      */
-    int balk = !mtmp->msummoned && mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
+    int balk = mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
     boolean grudge = FALSE;
 
     /* Grudges override level checks. */
-    if (mm_aggression(mtmp, mtmp2) & ALLOW_M) {
+    if ((mm_aggression(mtmp, mtmp2) & ALLOW_M)
+        || mtmp2->msummoned) {
         grudge = TRUE;
-        balk = !mtmp->msummoned && mtmp2->m_lev + 1;
+        balk = mtmp2->m_lev + 1;
     }
 
     return
     !((!ranged && (int) mtmp2->m_lev >= balk
        && !attacktype(mtmp->data, AT_EXPL))
-       || (!ranged && !mtmp->msummoned
-           && mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
+       || (!ranged && mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
            && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
            && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis))
-       || (!ranged && !mtmp->msummoned
-           && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
-       || (!ranged && !mtmp->msummoned
-           && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
-       || (!ranged && !mtmp->msummoned
-           && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
+       || (!ranged && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
+       || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
+       || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
        || ((mtmp->mhp * 4 < mtmp->mhpmax || mtmp2->data->msound == MS_GUARDIAN
            || mtmp2->data->msound == MS_LEADER)
            && mtmp2->mpeaceful && !grudge && !Conflict)
-       || (!ranged && !mtmp->msummoned
-           && touch_petrifies(mtmp2->data) && !resists_ston(mtmp))
-       || (!ranged && !mtmp->msummoned
-           && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp->data)));
+       || (!ranged && touch_petrifies(mtmp2->data) && !resists_ston(mtmp))
+       || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp->data)));
 }
 
 /* return 0 (no move), 1 (move) or 2 (dead) */

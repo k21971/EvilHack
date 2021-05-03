@@ -1649,4 +1649,5 @@ The following changes to date are:
 - Handle welded equipment in #loot more consistently
 - Adjust how often Grimtooth can disease its target
 - Fix: allow dwarvish bearded axe to chop down trees/doors
+- Fix: pets not attacking monsters under most circumstances
 
