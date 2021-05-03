@@ -1654,4 +1654,6 @@ The following changes to date are:
 - Fix: ghosts attempting to scare already paralyzed hero
 - Fix: alignment hit infidels take when not sacrificing in a timely
   manner
+- Fix: super tame steeds attacking monsters they shouldn't while 
+  being ridden
 
