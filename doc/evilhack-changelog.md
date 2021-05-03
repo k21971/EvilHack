@@ -1651,4 +1651,5 @@ The following changes to date are:
 - Fix: allow dwarvish bearded axe to chop down trees/doors
 - Fix: pets not attacking monsters under most circumstances
 - Fix: peacefuls would never take any items given via #loot
+- Fix: ghosts attempting to scare already paralyzed hero
 

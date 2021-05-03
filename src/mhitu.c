@@ -1628,6 +1628,8 @@ register struct attack *mattk;
          * (which of course paralyzes you). */
         if (mtmp->data == &mons[PM_GHOST]) {
             boolean couldspot = canspotmon(mtmp);
+            if (multi < 0) /* already paralyzed; ghost won't appear */
+                break;
             if (mtmp->minvis) {
                 mtmp->minvis = 0;
                 mtmp->mspec_used = d(2, 8);

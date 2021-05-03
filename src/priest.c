@@ -572,11 +572,13 @@ struct monst* ghost;
 {
     ghost->mpeaceful = 0;
     set_malign(ghost);
-    if (flags.verbose)
-        You("are frightened to death, and unable to move.");
-    nomul(-3);
-    multi_reason = "being terrified of a ghost";
-    nomovemsg = "You regain your composure.";
+    if (multi >= 0) {
+        if (flags.verbose)
+            You("are frightened to death, and unable to move.");
+        nomul(-3);
+        multi_reason = "being terrified of a ghost";
+        nomovemsg = "You regain your composure.";
+    }
 }
 
 /* reset the move counters used to limit temple entry feedback;
