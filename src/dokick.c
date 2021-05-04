@@ -102,7 +102,7 @@ boolean clumsy;
     dmg += u.udaminc; /* add ring(s) of increase damage */
     if (dmg > 0)
         damage_mon(mon, dmg, AD_PHYS);
-    if (!DEADMONSTER(mon) && martial() && !bigmonst(mon->data) && !rn2(3)
+    if (!DEADMONSTER(mon) && martial() && !r_bigmonst(mon) && !rn2(3)
         && mon->mcanmove && mon != u.ustuck && !mon->mtrapped) {
         /* see if the monster has a place to move into */
         mdx = mon->mx + u.dx;
@@ -163,7 +163,7 @@ xchar x, y;
     /* anger target even if wild miss will occur */
     setmangry(mon, TRUE);
 
-    if (Levitation && !rn2(3) && verysmall(mon->data)
+    if (Levitation && !rn2(3) && r_verysmall(mon)
         && !is_flyer(mon->data)) {
         pline("Floating in the air, you miss wildly!");
         exercise(A_DEX, FALSE);
@@ -270,7 +270,7 @@ xchar x, y;
     else
         You("kick %s.", mon_nam(mon));
 
-    if (!rn2(martial() ? 50 : clumsy ? 3 : 4) && (clumsy || !bigmonst(mon->data))
+    if (!rn2(martial() ? 50 : clumsy ? 3 : 4) && (clumsy || !r_bigmonst(mon))
         && mon->mcansee && !mon->mtrapped && !thick_skinned(mon->data)
         && mon->data->mlet != S_EEL && haseyes(mon->data) && mon->mcanmove
         && !mon->mstun && !mon->mconf && !mon->msleeping

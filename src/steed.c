@@ -86,9 +86,9 @@ struct monst *rider;
     /* not acceptable as riders */
     if (rider->mtame || rider == u.ustuck || rider->mpeaceful || has_erid(rider)
         || rider->mtrapped || !humanoid(rider->data) || is_zombie(rider->data)
-        || bigmonst(rider->data) || is_animal(rider->data) || is_were(rider->data)
+        || r_bigmonst(rider) || is_animal(rider->data) || is_were(rider->data)
         || rider->data->mlet == S_MUMMY || rider->data->mlet == S_LIZARD
-        || verysmall(rider->data) || is_shapeshifter(rider->data)
+        || r_verysmall(rider) || is_shapeshifter(rider->data)
         || unsolid(rider->data))
         return FALSE;
 

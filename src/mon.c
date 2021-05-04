@@ -1707,10 +1707,10 @@ register const char *str;
     for (otmp = level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
         otmp2 = otmp->nexthere;
         if (Is_box(otmp) || otmp->otyp == ICE_BOX) {
-            if (nohands(mtmp->data) || verysmall(mtmp->data))
+            if (nohands(mtmp->data) || r_verysmall(mtmp))
                 continue;
             if (otmp->olocked) {
-                if ((nohands(mtmp->data) || verysmall(mtmp->data)
+                if ((nohands(mtmp->data) || r_verysmall(mtmp)
                     || otmp->otyp == IRON_SAFE
                     || otmp->otyp == CRYSTAL_CHEST
                     || (!m_carrying(mtmp, SKELETON_KEY)
@@ -3271,11 +3271,11 @@ boolean was_swallowed; /* digestion */
     if (LEVEL_SPECIFIC_NOCORPSE(mdat))
         return FALSE;
 
-    if (((bigmonst(mdat) || mdat == &mons[PM_LIZARD]) && !mon->mcloned)
+    if (((r_bigmonst(mon) || mdat == &mons[PM_LIZARD]) && !mon->mcloned)
         || is_zombie(mdat) || is_golem(mdat) || is_mplayer(mdat)
         || is_rider(mdat) || mon->isshk)
         return TRUE;
-    tmp = 2 + ((mdat->geno & G_FREQ) < 2) + verysmall(mdat);
+    tmp = 2 + ((mdat->geno & G_FREQ) < 2) + r_verysmall(mon);
     return (boolean) !rn2(tmp);
 }
 

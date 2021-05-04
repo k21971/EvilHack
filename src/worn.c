@@ -695,7 +695,7 @@ boolean creation;
      * except for the additional restriction on intelligence.  (Players
      * are always intelligent, even if polymorphed).
      */
-    if (verysmall(mon->data) || nohands(mon->data) || is_animal(mon->data))
+    if (r_verysmall(mon) || nohands(mon->data) || is_animal(mon->data))
         return;
     /* give mummies a chance to wear their wrappings
      * and let skeletons wear their initial armor */
@@ -706,11 +706,11 @@ boolean creation;
 
     m_dowear_type(mon, W_AMUL, creation, FALSE);
     /* can't put on shirt if already wearing suit */
-    if (!cantweararm(mon->data) && !(mon->misc_worn_check & W_ARM))
+    if (!cantweararm(mon) && !(mon->misc_worn_check & W_ARM))
         m_dowear_type(mon, W_ARMU, creation, FALSE);
     /* treating small as a special case allows
        hobbits, gnomes, and kobolds to wear cloaks */
-    if (!cantweararm(mon->data) || mon->data->msize == MZ_SMALL)
+    if (!cantweararm(mon) || mon->data->msize == MZ_SMALL)
         m_dowear_type(mon, W_ARMC, creation, FALSE);
     m_dowear_type(mon, W_ARMH, creation, FALSE);
     if (!mw || !bimanual(mw))
@@ -726,7 +726,7 @@ boolean creation;
     m_dowear_type(mon, W_ARMG, creation, FALSE);
     if (!slithy(mon->data) && mon->data->mlet != S_CENTAUR)
         m_dowear_type(mon, W_ARMF, creation, FALSE);
-    if (!cantweararm(mon->data))
+    if (!cantweararm(mon))
         m_dowear_type(mon, W_ARM, creation, FALSE);
     else
         m_dowear_type(mon, W_ARM, creation, RACE_EXCEPTION);
@@ -1092,10 +1092,10 @@ boolean polyspot;
     register struct obj *otmp;
     struct permonst *mdat = mon->data;
     boolean vis = cansee(mon->mx, mon->my);
-    boolean handless_or_tiny = (nohands(mdat) || verysmall(mdat));
+    boolean handless_or_tiny = (nohands(mdat) || r_verysmall(mon));
     const char *pronoun = mhim(mon), *ppronoun = mhis(mon);
 
-    if (breakarm(mdat)) {
+    if (breakarm(mon)) {
         if ((otmp = which_armor(mon, W_ARM)) != 0) {
             if ((Is_dragon_scales(otmp) && mdat == Dragon_scales_to_pm(otmp))
                 || (Is_dragon_mail(otmp) && mdat == Dragon_mail_to_pm(otmp)))
@@ -1132,7 +1132,7 @@ boolean polyspot;
                 You_hear("a ripping sound.");
             m_useup(mon, otmp);
         }
-    } else if (sliparm(mdat)) {
+    } else if (sliparm(mon)) {
         if ((otmp = which_armor(mon, W_ARM)) != 0) {
             if (vis)
                 pline("%s armor falls around %s!", s_suffix(Monnam(mon)),
@@ -1158,7 +1158,7 @@ boolean polyspot;
         }
         if ((otmp = which_armor(mon, W_ARMU)) != 0) {
             if (vis) {
-                if (sliparm(mon->data))
+                if (sliparm(mon))
                     pline("%s seeps right through %s shirt!", Monnam(mon),
                           ppronoun);
                 else
@@ -1212,7 +1212,7 @@ boolean polyspot;
                     pline("%s boots fall away!", s_suffix(Monnam(mon)));
                 else
                     pline("%s boots %s off %s feet!", s_suffix(Monnam(mon)),
-                          verysmall(mdat) ? "slide" : "are pushed", ppronoun);
+                          r_verysmall(mon) ? "slide" : "are pushed", ppronoun);
             }
             if (polyspot)
                 bypass_obj(otmp);

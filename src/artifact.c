@@ -2242,7 +2242,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (notonhead)
                     return FALSE;
 
-                if (bigmonst(mdef->data)) {
+                if (r_bigmonst(mdef)) {
                     if (youattack)
                         You("slice deeply into %s!", mon_nam(mdef));
                     else if (vis)

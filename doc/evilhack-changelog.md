@@ -1665,4 +1665,5 @@ The following changes to date are:
 - Fix: using monster lookup on the Rat King returned bad information
 - Fix: crowned infidel transforming into a demon wasn't fully
   a demon
+- Fix: erac now adjusts for monster size/weight
 

@@ -1575,8 +1575,16 @@ register struct obj *obj;
         return wt + cwt;
     }
     if (obj->otyp == CORPSE && obj->corpsenm >= LOW_PM) {
-        long long_wt = obj->quan * (long) mons[obj->corpsenm].cwt;
-
+        int mnum = obj->corpsenm;
+        long long_wt;
+        if (has_omonst(obj)) {
+            struct monst *mtmp;
+            mtmp = OMONST(obj);
+            if (has_erac(mtmp)) {
+                mnum = ERAC(mtmp)->rmnum;
+            }
+        }
+        long_wt = obj->quan * (long) mons[mnum].cwt;
         wt = (long_wt > LARGEST_INT) ? LARGEST_INT : (int) long_wt;
         if (obj->oeaten)
             wt = eaten_stat(wt, obj);

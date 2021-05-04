@@ -5,8 +5,13 @@
 #ifndef MONDATA_H
 #define MONDATA_H
 
+#define r_data(mon) (has_erac(mon) ? &mons[ERAC(mon)->rmnum] : (mon)->data)
+
+#define r_verysmall(mon) (verysmall(r_data(mon)))
 #define verysmall(ptr) ((ptr)->msize < MZ_SMALL)
+#define r_bigmonst(mon) (bigmonst(r_data(mon)))
 #define bigmonst(ptr) ((ptr)->msize >= MZ_LARGE)
+#define r_biggermonst(mon) (biggermonst(r_data(mon)))
 #define biggermonst(ptr) ((ptr)->msize > (youmonst.data)->msize)
 #define vs_cantflyorswim(ptr) \
     ((ptr) == &mons[PM_GIANT_ANT] || (ptr) == &mons[PM_SOLDIER_ANT]    \
@@ -331,7 +336,7 @@
     ((  ((ptr)->mattk[0].aatyp == AT_WEAP)              \
       + ((ptr)->mattk[1].aatyp == AT_WEAP)              \
       + ((ptr)->mattk[2].aatyp == AT_WEAP)  ) > 1)
-#define cantweararm(ptr) (breakarm(ptr) || sliparm(ptr))
+#define cantweararm(mon) (breakarm(mon) || sliparm(mon))
 #define throws_rocks(ptr) \
     ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))

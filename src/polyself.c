@@ -932,7 +932,7 @@ break_armor()
 {
     register struct obj *otmp;
 
-    if (breakarm(youmonst.data)) {
+    if (breakarm(&youmonst)) {
         if ((otmp = uarm) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -972,7 +972,7 @@ break_armor()
             Your("shirt rips to shreds!");
             useup(uarmu);
         }
-    } else if (sliparm(youmonst.data)) {
+    } else if (sliparm(&youmonst)) {
         if (((otmp = uarm) != 0) && (racial_exception(&youmonst, otmp) < 1)) {
             if (donning(otmp))
                 cancel_don();

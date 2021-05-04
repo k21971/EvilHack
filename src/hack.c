@@ -2008,7 +2008,7 @@ domove_core()
             /* can't swap places when pet can't move to your spot */
             You("stop.  %s can't move diagonally.", upstart(y_monnam(mtmp)));
         } else if (u_with_boulder
-                    && !(verysmall(mtmp->data)
+                    && !(r_verysmall(mtmp)
                          && (!mtmp->minvent || (curr_mon_load(mtmp) <= 600)))) {
             /* can't swap places when pet won't fit there with the boulder */
             u.ux = u.ux0, u.uy = u.uy0; /* didn't move after all */
@@ -2018,7 +2018,7 @@ domove_core()
                  upstart(y_monnam(mtmp)));
         } else if (u.ux0 != x && u.uy0 != y && bad_rock(mtmp, x, u.uy0)
                    && bad_rock(mtmp, u.ux0, y)
-                   && (bigmonst(mtmp->data) || (curr_mon_load(mtmp) > 600))) {
+                   && (r_bigmonst(mtmp) || (curr_mon_load(mtmp) > 600))) {
             /* can't swap places when pet won't fit thru the opening */
             You("stop.  %s won't fit through.", upstart(y_monnam(mtmp)));
             didnt_move = TRUE;

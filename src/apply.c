@@ -3041,7 +3041,7 @@ struct obj *obj;
         const char *wrapped_what = (char *) 0;
 
         if (mtmp) {
-            if (bigmonst(mtmp->data)) {
+            if (r_bigmonst(mtmp)) {
                 wrapped_what = strcpy(buf, mon_nam(mtmp));
             } else if (proficient) {
                 if (attack(mtmp))
@@ -3292,7 +3292,7 @@ struct obj *obj;
         const char *hooked_what = (char *) 0;
 
         if (mtmp) {
-            if (bigmonst(mtmp->data)) {
+            if (r_bigmonst(mtmp)) {
                 hooked_what = strcpy(buf, mon_nam(mtmp));
             } else if (proficient) {
                 if (attack(mtmp))
@@ -3787,7 +3787,7 @@ struct obj *obj;
             break;
         notonhead = (bhitpos.x != mtmp->mx || bhitpos.y != mtmp->my);
         save_confirm = flags.confirm;
-        if (verysmall(mtmp->data) && !rn2(4)
+        if (r_verysmall(mtmp) && !rn2(4)
             && enexto(&cc, u.ux, u.uy, (struct permonst *) 0)) {
             flags.confirm = FALSE;
             (void) attack_checks(mtmp, uwep);
@@ -3797,7 +3797,7 @@ struct obj *obj;
             mtmp->mundetected = 0;
             rloc_to(mtmp, cc.x, cc.y);
             return 1;
-        } else if ((!bigmonst(mtmp->data) && !strongmonst(mtmp->data))
+        } else if ((!r_bigmonst(mtmp) && !strongmonst(mtmp->data))
                    || rn2(4)) {
             flags.confirm = FALSE;
             (void) attack_checks(mtmp, uwep);

@@ -44,7 +44,7 @@ register struct obj *otmp;
     if (otmp->oclass != ARMOR_CLASS)
         return FALSE;
 
-    if (cantweararm(mtmp->data)
+    if (cantweararm(mtmp)
         && !(is_cloak(otmp) && mtmp->data->msize == MZ_SMALL))
         return FALSE;
 
@@ -1394,7 +1394,7 @@ int after; /* this is extra fast monster movement */
         }
     }
 
-    if (!nohands(mtmp->data) && !verysmall(mtmp->data)) {
+    if (!nohands(mtmp->data) && !r_verysmall(mtmp)) {
         allowflags |= OPENDOOR;
         if (monhaskey(mtmp, TRUE))
             allowflags |= UNLOCKDOOR;

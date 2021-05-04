@@ -418,7 +418,7 @@ can_blow(mtmp)
 struct monst *mtmp;
 {
     if ((is_silent(mtmp->data) || mtmp->data->msound == MS_BUZZ)
-        && (breathless(mtmp->data) || verysmall(mtmp->data)
+        && (breathless(mtmp->data) || r_verysmall(mtmp)
             || !has_head(mtmp->data) || mtmp->data->mlet == S_EEL))
         return FALSE;
     if ((mtmp == &youmonst) && Strangled)
@@ -534,25 +534,27 @@ int prop;
 
 /* creature will slide out of armor */
 boolean
-sliparm(ptr)
-register struct permonst *ptr;
+sliparm(mon)
+struct monst *mon;
 {
+    struct permonst *ptr = r_data(mon);
     return (boolean) (is_whirly(ptr) || ptr->msize <= MZ_SMALL
                       || noncorporeal(ptr));
 }
 
 /* creature will break out of armor */
 boolean
-breakarm(ptr)
-register struct permonst *ptr;
+breakarm(mon)
+struct monst *mon;
 {
-    if (sliparm(ptr))
+    struct permonst *ptr = r_data(mon);
+    if (sliparm(mon))
         return FALSE;
 
-    if (is_centaur(ptr))
+    if (racial_centaur(mon))
         return FALSE;
 
-    return (boolean) (bigmonst(ptr)
+    return (boolean) (r_bigmonst(mon)
                       || (ptr->msize > MZ_SMALL && !humanoid(ptr))
                       /* special cases of humanoids that cannot wear suits */
                       || ptr == &mons[PM_MARILITH]);

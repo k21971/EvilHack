@@ -317,7 +317,7 @@ struct obj *otmp;
                     learn_it = TRUE;
                 /* Is the monster riding another monster? */
                 if (has_erid(mtmp)
-                    && (!humanoid(mtmp->data) || bigmonst(mtmp->data))) {
+                    && (!humanoid(mtmp->data) || r_bigmonst(mtmp))) {
                     if (canseemon(mtmp))
                         pline("%s falls off %s %s!",
                               Monnam(mtmp), mhis(mtmp), l_monnam(ERID(mtmp)->m1));

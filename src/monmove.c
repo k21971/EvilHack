@@ -1068,7 +1068,7 @@ register struct obj *container;
     register int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
     register struct obj *otmp;
 
-    can_open = !(nohands(mtmp->data) || verysmall(mtmp->data)
+    can_open = !(nohands(mtmp->data) || r_verysmall(mtmp)
                  || container->otyp == IRON_SAFE || container->otyp == CRYSTAL_CHEST);
     can_unlock = ((can_open
                   && (m_carrying(mtmp, SKELETON_KEY)
@@ -1176,7 +1176,7 @@ register int after;
      */
     if (!Is_rogue_level(&u.uz))
         can_tunnel = racial_tunnels(mtmp);
-    can_open = !(nohands(ptr) || verysmall(ptr));
+    can_open = !(nohands(ptr) || r_verysmall(mtmp));
     can_unlock =
         ((can_open && monhaskey(mtmp, TRUE)) || mtmp->iswiz || is_rider(ptr));
     doorbuster = racial_giant(mtmp);

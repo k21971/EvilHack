@@ -543,7 +543,7 @@ struct monst *mtmp;
     } else {
         /* Note: trap doors take precedence over teleport traps. */
         int xx, yy, i, locs[10][2];
-        boolean ignore_boulders = (verysmall(mtmp->data)
+        boolean ignore_boulders = (r_verysmall(mtmp)
                                    || racial_throws_rocks(mtmp)
                                    || passes_walls(mtmp->data)),
             diag_ok = !NODIAG(monsndx(mtmp->data));
@@ -2344,7 +2344,8 @@ struct monst *mtmp;
 
     if (!stuck && !immobile && (mtmp->cham == NON_PM)
         && mons[(pmidx = monsndx(mdat))].difficulty < 6) {
-        boolean ignore_boulders = (verysmall(mdat) || racial_throws_rocks(mtmp)
+        boolean ignore_boulders = (r_verysmall(mtmp)
+                                   || racial_throws_rocks(mtmp)
                                    || passes_walls(mdat)),
             diag_ok = !NODIAG(pmidx);
 
@@ -3924,7 +3925,7 @@ struct monst *mon;
             wearable = TRUE;
             break;
         case 4:
-            if (!has_displacement(mon) && !cantweararm(mon->data)) {
+            if (!has_displacement(mon) && !cantweararm(mon)) {
                 otmp = mksobj(CLOAK_OF_DISPLACEMENT, FALSE, FALSE);
                 bless(otmp);
                 otmp->oerodeproof = 1;
@@ -3935,7 +3936,7 @@ struct monst *mon;
             break;
         case 5:
             if (!resists_magm(mon)) {
-                if (!cantweararm(mon->data))
+                if (!cantweararm(mon))
                     otmp = mksobj(GRAY_DRAGON_SCALE_MAIL, FALSE, FALSE);
                 else
                     otmp = mksobj(AMULET_OF_MAGIC_RESISTANCE, FALSE, FALSE);
@@ -3952,7 +3953,7 @@ struct monst *mon;
             break;
         case 6:
             if (!resists_magm(mon)) {
-                if (!cantweararm(mon->data))
+                if (!cantweararm(mon))
                     otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
                 else
                     otmp = mksobj(AMULET_OF_MAGIC_RESISTANCE, FALSE, FALSE);
@@ -3967,7 +3968,7 @@ struct monst *mon;
             break;
         case 7:
             if (!mon_reflects(mon, (char *) 0)) {
-                if (!cantweararm(mon->data))
+                if (!cantweararm(mon))
                     otmp = mksobj(SILVER_DRAGON_SCALE_MAIL, FALSE, FALSE);
                 else
                     otmp = mksobj(AMULET_OF_REFLECTION, FALSE, FALSE);
@@ -3996,7 +3997,7 @@ struct monst *mon;
             }
             break;
         case 9:
-            if (!can_wwalk(mon) && !sliparm(mon->data)) {
+            if (!can_wwalk(mon) && !sliparm(mon)) {
                 otmp = mksobj(WATER_WALKING_BOOTS, FALSE, FALSE);
                 bless(otmp);
                 otmp->oerodeproof = 1;
@@ -4041,7 +4042,7 @@ struct monst *mon;
             }
             break;
         case 12:
-            if (mon->mspeed != MFAST && !sliparm(mon->data)) {
+            if (mon->mspeed != MFAST && !sliparm(mon)) {
                 otmp = mksobj(SPEED_BOOTS, FALSE, FALSE);
                 bless(otmp);
                 otmp->oerodeproof = 1;
@@ -4056,7 +4057,7 @@ struct monst *mon;
             break;
         case 13:
             if (!has_telepathy(mon)
-                && !sliparm(mon->data) && !has_horns(mon->data)) {
+                && !sliparm(mon) && !has_horns(mon->data)) {
                 otmp = mksobj(HELM_OF_TELEPATHY, FALSE, FALSE);
                 bless(otmp);
                 otmp->oerodeproof = 1;
@@ -4070,7 +4071,7 @@ struct monst *mon;
             }
             break;
         case 14:
-            if (!sliparm(mon->data) && !has_horns(mon->data)) {
+            if (!sliparm(mon) && !has_horns(mon->data)) {
                 otmp = mksobj(HELM_OF_BRILLIANCE, FALSE, FALSE);
                 bless(otmp);
                 otmp->oerodeproof = 1;
@@ -4084,7 +4085,7 @@ struct monst *mon;
             }
             break;
         case 15:
-            if (!cantweararm(mon->data)) {
+            if (!cantweararm(mon)) {
                 otmp = mksobj(CLOAK_OF_PROTECTION, FALSE, FALSE);
                 bless(otmp);
                 otmp->oerodeproof = 1;
