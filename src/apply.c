@@ -1646,6 +1646,8 @@ int x, y;
         return TRUE;
     if (IS_STWALL(lev->typ))
         return FALSE;
+    if (lev->typ == IRONBARS)
+        return FALSE;
     if (IS_DOOR(lev->typ)) {
         if (closed_door(x, y))
             return FALSE;

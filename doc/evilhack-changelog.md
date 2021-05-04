@@ -1668,4 +1668,5 @@ The following changes to date are:
 - Fix: erac now adjusts for monster size/weight
 - Monster lookup shows incremental percentages for conveyed
   resistances
+- Fix: prevent monsters jumping through iron bars
 
