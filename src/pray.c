@@ -1666,7 +1666,7 @@ dosacrifice()
                     change_luck(altaralign == u.ualign.type ? 2 : -2);
                     demonless_msg = "blood coagulates";
                 }
-                if ((pm = dlord(altaralign)) != NON_PM
+                if ((pm = ndemon(altaralign)) != NON_PM
                     && (dmon = makemon(&mons[pm], u.ux, u.uy, NO_MM_FLAGS))
                            != 0) {
                     char dbuf[BUFSZ];
@@ -1677,8 +1677,12 @@ dosacrifice()
                     else
                         dmon->mstrategy &= ~STRAT_APPEARMSG;
                     You("have summoned %s!", dbuf);
-                    if (sgn(u.ualign.type) == sgn(check_malign(dmon)))
-                        dmon->mpeaceful = TRUE;
+                    if (sgn(u.ualign.type) == sgn(check_malign(dmon))) {
+                        if (rn2(5))
+                            dmon->mpeaceful = TRUE;
+                        else
+                            verbalize("Who dares summon me?");
+                    }
                     You("are terrified, and unable to move.");
                     nomul(-3);
                     multi_reason = "being terrified of a demon";

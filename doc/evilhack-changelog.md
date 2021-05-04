@@ -1658,4 +1658,6 @@ The following changes to date are:
   being ridden
 - Fix: prevent select_newcham_form() from choosing player monsters
   as a valid polyform (except for doppelgangers)
+- Change dlord() to ndemon() for sacrificing same race on chaotic
+  or unaligned altar
 
