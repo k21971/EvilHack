@@ -505,7 +505,8 @@ register struct monst *magr, *mdef;
                a zombies bite attack due to zombies being
                mindless and slow */
             if (is_zombie(pa) && mattk->aatyp == AT_BITE
-                && mdef->data->msize <= MZ_SMALL && rn2(3)) {
+                && mdef->data->msize <= MZ_SMALL
+                && is_animal(mdef->data) && rn2(3)) {
                 if (vis && canspotmon(mdef))
                     pline("%s nimbly %s %s bite!", Monnam(mdef),
                           rn2(2) ? "dodges" : "evades", s_suffix(mon_nam(magr)));

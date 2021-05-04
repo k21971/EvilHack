@@ -910,6 +910,7 @@ register struct monst *mtmp;
                        bite attack */
                     if (is_zombie(mdat) && mattk->aatyp == AT_BITE
                         && (youmonst.data)->msize <= MZ_SMALL
+                        && is_animal(youmonst.data)
                         && (near_capacity() == UNENCUMBERED) && rn2(3)) {
                         You("nimbly %s %s bite!",
                             rn2(2) ? "dodge" : "evade", s_suffix(mon_nam(mtmp)));

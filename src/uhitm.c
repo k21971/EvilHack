@@ -3226,7 +3226,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                             || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
                 break;
             if (is_zombie(youmonst.data) && rn2(3)
-                && mon->data->msize <= MZ_SMALL) {
+                && mon->data->msize <= MZ_SMALL
+                && is_animal(mon->data)) {
                 pline("%s nimbly %s your bite!", Monnam(mon),
                       rn2(2) ? "dodges" : "evades");
                 break;
