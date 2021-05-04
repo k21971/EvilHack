@@ -655,6 +655,7 @@ struct permonst * pm;
     char buf2[BUFSZ];
     int gen = pm->geno;
     int freq = (gen & G_FREQ);
+    int pct = max(5, (int) (pm->cwt / 90));
     boolean uniq = !!(gen & G_UNIQ);
     boolean hell = !!(gen & G_HELL);
     boolean nohell = !!(gen & G_NOHELL);
@@ -678,6 +679,13 @@ struct permonst * pm;
         if (*buf)                 \
             Strcat(buf, ", ");    \
         Strcat(buf, str);         \
+    }
+#define ADDPCTRES(cond, amt, str)    \
+    if (cond) {                      \
+        if (*buf)                    \
+            Strcat(buf, ", ");       \
+        Sprintf(eos(buf), "%d%% %s", \
+                amt, str);           \
     }
 
 #define MONPUTSTR(str) putstr(datawin, ATR_NONE, str)
@@ -739,12 +747,12 @@ struct permonst * pm;
 
     /* Corpse conveyances */
     buf[0] = '\0';
-    APPENDC(intrinsic_possible(FIRE_RES, pm), "fire");
-    APPENDC(intrinsic_possible(COLD_RES, pm), "cold");
-    APPENDC(intrinsic_possible(SHOCK_RES, pm), "shock");
-    APPENDC(intrinsic_possible(SLEEP_RES, pm), "sleep");
-    APPENDC(intrinsic_possible(POISON_RES, pm), "poison");
-    APPENDC(intrinsic_possible(DISINT_RES, pm), "disintegration");
+    ADDPCTRES(intrinsic_possible(FIRE_RES, pm), pct, "fire");
+    ADDPCTRES(intrinsic_possible(COLD_RES, pm), pct, "cold");
+    ADDPCTRES(intrinsic_possible(SHOCK_RES, pm), pct, "shock");
+    ADDPCTRES(intrinsic_possible(SLEEP_RES, pm), pct, "sleep");
+    ADDPCTRES(intrinsic_possible(POISON_RES, pm), pct, "poison");
+    ADDPCTRES(intrinsic_possible(DISINT_RES, pm), pct, "disintegration");
     /* acid, stone, and psionic resistance aren't currently conveyable */
     if (*buf)
         Strcat(buf, " resistance");
@@ -773,7 +781,7 @@ struct permonst * pm;
         Sprintf(buf2, "Provides %d nutrition when eaten.", pm->cnutrit);
         MONPUTSTR(buf2);
         if (*buf) {
-            Sprintf(buf2, "Corpse may convey %s.", buf);
+            Sprintf(buf2, "Corpse conveys %s.", buf);
             MONPUTSTR(buf2);
         } else
             MONPUTSTR("Corpse conveys no intrinsics.");
@@ -1631,7 +1639,8 @@ char *supplemental_name;
 
             /* finally, put the appropriate information into a window */
             if (user_typed_name || without_asking || yes_to_moreinfo) {
-                if (!found_in_file && !pm && otyp == STRANGE_OBJECT) {
+                if (!found_in_file &&
+                    ((!pm && otyp == STRANGE_OBJECT) || !flags.lookup_data)) {
                     if ((user_typed_name && pass == 0 && !pass1found_in_file)
                         || yes_to_moreinfo)
                         pline("I don't have any information on those things.");

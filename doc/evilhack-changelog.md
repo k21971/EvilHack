@@ -1666,4 +1666,6 @@ The following changes to date are:
 - Fix: crowned infidel transforming into a demon wasn't fully
   a demon
 - Fix: erac now adjusts for monster size/weight
+- Monster lookup shows incremental percentages for conveyed
+  resistances
 
