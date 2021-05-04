@@ -294,7 +294,9 @@
      || (ptr) == &mons[PM_BARROW_WIGHT] || (ptr) == &mons[PM_GREEN_SLIME] \
      || (ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_REVENANT])
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
-#define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
+#define is_demon(ptr) \
+    ((((ptr)->mhflags & MH_DEMON) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_DEMON)))
 #define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)
 #define is_pseudodragon(ptr) \
     ((ptr) == &mons[PM_PSEUDODRAGON] \

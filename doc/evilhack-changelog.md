@@ -1663,4 +1663,6 @@ The following changes to date are:
 - Fix: The lichen nimbly dodges the gnome zombie's bite!
 - Fix: player monster monks spawning without gear
 - Fix: using monster lookup on the Rat King returned bad information
+- Fix: crowned infidel transforming into a demon wasn't fully
+  a demon
 
