@@ -1661,4 +1661,5 @@ The following changes to date are:
 - Change dlord() to ndemon() for sacrificing same race on chaotic
   or unaligned altar
 - Fix: The lichen nimbly dodges the gnome zombie's bite!
+- Fix: player monster monks spawning without gear
 
