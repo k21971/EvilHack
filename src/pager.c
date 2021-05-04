@@ -684,7 +684,7 @@ struct permonst * pm;
 
     /* differentiate the two forms of werecreatures */
     Strcpy(buf2, "");
-    if (is_were(pm))
+    if (is_were(pm) && pm != &mons[PM_RAT_KING])
         Sprintf(buf2, " (%s form)", pm->mlet == S_HUMAN ? "human" : "animal");
 
     Sprintf(buf, "Monster lookup for \"%s\"%s:", pm->mname, buf2);
@@ -1673,7 +1673,7 @@ char *supplemental_name;
                      * "skeleton" and "skeleton key". */
                     else if (do_mon_lookup) {
                         add_mon_info(datawin, pm);
-                        if (is_were(pm)) {
+                        if (is_were(pm) && pm != &mons[PM_RAT_KING]) {
                             /* also do the alternate form */
                             putstr(datawin, 0, "");
                             add_mon_info(datawin,
