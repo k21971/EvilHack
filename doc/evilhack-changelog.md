@@ -1669,4 +1669,5 @@ The following changes to date are:
 - Monster lookup shows incremental percentages for conveyed
   resistances
 - Fix: prevent monsters jumping through iron bars
+- Fix: eyeballs (food object) were appearing randomly
 

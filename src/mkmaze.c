@@ -757,7 +757,7 @@ stolen_booty(VOID_ARGS)
             && otyp != GLOB_OF_BROWN_PUDDING && otyp != GLOB_OF_GREEN_SLIME
             && otyp != GLOB_OF_BLACK_PUDDING && otyp != MEAT_STICK
             && otyp != MEATBALL && otyp != MEAT_STICK && otyp != MEAT_RING
-            && otyp != HUGE_CHUNK_OF_MEAT && otyp != CORPSE)
+            && otyp != HUGE_CHUNK_OF_MEAT && otyp != CORPSE && otyp != EYEBALL)
             migr_booty_item(otyp, gang);
     }
     migr_booty_item(rn2(2) ? LONG_SWORD : SABER, gang);
