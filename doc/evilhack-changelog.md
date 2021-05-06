@@ -1675,4 +1675,5 @@ The following changes to date are:
 - Fix: engraving didn't auto-id wand of polymorph
 - Fix: various bugs with Race_if() conditions
 - Fix: take erac into account when performing same-race sacrifice
+- Prevent intelligent pets from stashing rocks in their bag
 

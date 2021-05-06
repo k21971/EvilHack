@@ -248,6 +248,8 @@ hero_dupe_check:
             }
             return stashing ? TRUE : FALSE;
         }
+    } else if (otmp->otyp == ROCK && stashing) {
+        return TRUE;
     }
     return FALSE;
 }
