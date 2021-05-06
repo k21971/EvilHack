@@ -1672,4 +1672,5 @@ The following changes to date are:
 - Fix: eyeballs (food object) were appearing randomly
 - Fix: mstone timer would reset everytime a monster attacked another
   monster with a stoning attack
+- Fix: engraving didn't auto-id wand of polymorph
 

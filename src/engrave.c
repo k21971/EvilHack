@@ -753,7 +753,7 @@ doengrave()
                     if (!Blind) {
                         type = (xchar) 0; /* random */
                         (void) random_engraving(buf);
-                        postknown = TRUE;
+                        preknown = TRUE;
                     } else {
                         /* keep the same type so that feels don't
                            change and only the text is altered,
