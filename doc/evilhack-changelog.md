@@ -1678,4 +1678,6 @@ The following changes to date are:
 - Prevent intelligent pets from stashing rocks in their bag
 - Fix: 'Your two weapon skill is also limited by being basic
   with with broadsword.'
+- Fix: better way to prevent cannibalism as illithid while infected
+  with lycanthropy
 

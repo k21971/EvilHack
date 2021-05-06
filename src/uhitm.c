@@ -3210,8 +3210,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                     || mon->data == &mons[PM_MEDUSA]
                     || mon->data == &mons[PM_GREEN_SLIME]
                     || (u.ulycn >= LOW_PM
-                        && (is_were(mon->data) || mon->data->mlet == S_DOG
-                            || mon->data->mlet == S_RODENT))
+                        && were_beastie(mon->mnum) == u.ulycn
+                        && !Role_if(PM_CAVEMAN) && !Race_if(PM_ORC))
                     || (how_resistant(DISINT_RES) == 0
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
