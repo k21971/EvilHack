@@ -1670,4 +1670,6 @@ The following changes to date are:
   resistances
 - Fix: prevent monsters jumping through iron bars
 - Fix: eyeballs (food object) were appearing randomly
+- Fix: mstone timer would reset everytime a monster attacked another
+  monster with a stoning attack
 

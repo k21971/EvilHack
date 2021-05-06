@@ -532,7 +532,7 @@ register struct monst *magr, *mdef;
 	            && !resists_ston(mdef)) {
                     if (poly_when_stoned(mdef->data)) {
                         mon_to_stone(mdef);
-                    } else {
+                    } else if (!mdef->mstone) {
                        mdef->mstone = 5;
                        mdef->mstonebyu = FALSE;
                     }
