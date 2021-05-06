@@ -1676,4 +1676,6 @@ The following changes to date are:
 - Fix: various bugs with Race_if() conditions
 - Fix: take erac into account when performing same-race sacrifice
 - Prevent intelligent pets from stashing rocks in their bag
+- Fix: 'Your two weapon skill is also limited by being basic
+  with with broadsword.'
 

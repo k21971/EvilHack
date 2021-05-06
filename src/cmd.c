@@ -2775,7 +2775,7 @@ int final;
                     Strcpy(pfx, "Your two weapon skill ");
                     Sprintf(sfx, " %slimited by ", also2);
                     if (sklvl2 > P_ISRESTRICTED)
-                        Sprintf(eos(sfx), "being %s with", sklvlbuf2);
+                        Sprintf(eos(sfx), "being %s", sklvlbuf2);
                     else
                         Strcat(eos(sfx), "having no skill");
                     Sprintf(eos(sfx), " with %s", sknambuf2);
