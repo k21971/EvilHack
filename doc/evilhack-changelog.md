@@ -1673,4 +1673,5 @@ The following changes to date are:
 - Fix: mstone timer would reset everytime a monster attacked another
   monster with a stoning attack
 - Fix: engraving didn't auto-id wand of polymorph
+- Fix: various bugs with Race_if() conditions
 

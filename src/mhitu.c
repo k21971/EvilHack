@@ -1162,18 +1162,14 @@ struct monst *mon;
         /* a_can field is only applicable for armor (which must be worn) */
         if ((o->owornmask & W_ARMOR) != 0L) {
             armpro = objects[o->otyp].a_can;
-            /* mithril armor grants a level of MC due to its magical origins */
+            /* mithril armor grants a level of MC due to its magical origins,
+             * plus extra for elves*/
             if (((o->owornmask & (W_ARM | W_ARMC)) != 0)
-                && o->material == MITHRIL
-                && Race_if(PM_ELF) && !Upolyd && armpro < 3) {
-                armpro = 3;
-            } else if (((o->owornmask & (W_ARM | W_ARMC)) != 0)
-                && o->material == MITHRIL
-                && !Race_if(PM_ELF) && armpro < 2) {
-                armpro = 2;
+                && o->material == MITHRIL) {
+                armpro = max(armpro, ((Race_if(PM_ELF) && !Upolyd) ? 3 : 2));
             }
             /* bone or stone armor grants MC to Orcs */
-            if (((o->owornmask & (W_ARM | W_ARMC)) != 0)
+            else if (((o->owornmask & (W_ARM | W_ARMC)) != 0)
                 && (o->material == BONE || o->material == MINERAL)
                 && Race_if(PM_ORC) && !Upolyd && armpro < 3) {
                 armpro = 3;

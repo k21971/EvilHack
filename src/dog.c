@@ -1304,10 +1304,10 @@ gain_guardian_steed()
     if (u.ualign.record > 8) { /* fervent */
         pline("A voice whispers:");
         /* Neither Centaurs nor Giants can ride horses. Awww... */
-        if (Race_if(PM_CENTAUR) || Race_if(PM_GIANT))
-            verbalize("Worthy vassal, know now thy true identity!  Behold thy companion, the Red Horse!");
-        else
-            verbalize("Worthy vassal, know now thy true identity!  Behold thy steed, the Red Horse!");
+        verbalize(
+  "Worthy vassal, know now thy true identity!  Behold thy %s, the Red Horse!",
+                  (Race_if(PM_CENTAUR) || Race_if(PM_GIANT)) ? "companion"
+                                                             : "steed");
         mm.x = u.ux;
         mm.y = u.uy;
         if (enexto(&mm, mm.x, mm.y, &mons[PM_RED_HORSE])

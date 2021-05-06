@@ -1553,7 +1553,9 @@ unsigned trflags;
 
         /* Time stuck in the web depends on your/steed strength. */
         {
-            int tim, str = maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)) ? 125 : ACURR(A_STR);
+            int tim,
+                str = maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
+                        ? 125 : ACURR(A_STR);
 
             /* If mounted, the steed gets trapped.  Use mintrap
              * to do all the work.  If mtrapped is set as a result,

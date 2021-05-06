@@ -201,17 +201,15 @@ int shotlimit;
             /* Giants are good at throwing things, but not at
              * using bows, crossbows and slings.
              */
-            if ((skill == -P_CROSSBOW) || (skill == -P_BOW) || (skill == -P_SLING))
+            if ((skill == -P_CROSSBOW) || (skill == -P_BOW)
+                || (skill == -P_SLING))
                 multishot = 1;
-        }
-
-        if (Race_if(PM_HOBBIT)) {
+        } else if (Race_if(PM_HOBBIT)) {
             /* Normal hobbits are also good with slings and small blades */
-            if ((skill == -P_SLING) || (skill == -P_KNIFE) || (skill == -P_DAGGER))
+            if ((skill == -P_SLING) || (skill == -P_KNIFE)
+                || (skill == -P_DAGGER))
                 multishot++;
-        }
-
-        if (Race_if(PM_CENTAUR)) {
+        } else if (Race_if(PM_CENTAUR)) {
             /* Centaurs are experts with the bow and crossbow */
             if ((skill == -P_CROSSBOW) || (skill == -P_BOW))
                 multishot++;
@@ -222,7 +220,8 @@ int shotlimit;
            instead, high strength is necessary to load and shoot quickly */
         if (multishot > 1 && skill == -P_CROSSBOW
             && ammo_and_launcher(obj, uwep)
-            && (int) ACURRSTR < ((Race_if(PM_GNOME)) || (Race_if(PM_CENTAUR)) ? 16 : 18))
+            && (int) ACURRSTR < ((Race_if(PM_GNOME)) || (Race_if(PM_CENTAUR))
+                                 ? 16 : 18))
             multishot = rnd(multishot);
 
         multishot = rnd(multishot);

@@ -514,8 +514,7 @@ exerper()
     if (!(moves % 10)) {
         /* Hunger Checks */
 
-        boolean hungerlvl = ((Race_if(PM_HOBBIT)) ? (u.uhunger > 3000)
-                                                  : (u.uhunger > 1000));
+        boolean hungerlvl = (u.uhunger > (Race_if(PM_HOBBIT) ? 3000 : 1000));
         int hs = hungerlvl ? SATIATED : (u.uhunger > 150)
                                             ? NOT_HUNGRY
                                             : (u.uhunger > 50)

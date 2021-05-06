@@ -997,7 +997,8 @@ struct monst *mon;
         }
     }
     if (oart == &artilist[ART_CROSSBOW_OF_CARL]) {
-        if (Role_if(PM_RANGER) && Race_if(PM_GNOME))
+        if (yours ? Role_if(PM_RANGER) && Race_if(PM_GNOME)
+                  : racial_gnome(mon))
             obj->owt = 24; /* Magically lightened,
                               same weight as the Longbow of Diana */
     }

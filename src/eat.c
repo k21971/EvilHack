@@ -678,10 +678,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
     }
 
     if (give_nutrit && magr->mtame && !magr->isminion) {
-        if (Race_if(PM_ILLITHID))
-            EDOG(magr)->hungrytime += rnd(3);
-        else
-            EDOG(magr)->hungrytime += rnd(60);
+        EDOG(magr)->hungrytime += rnd(60);
         magr->mconf = 0;
     }
 
@@ -3004,8 +3001,8 @@ struct obj *obj;
 STATIC_OVL int
 bite()
 {
-    if ((context.victual.canchoke && u.uhunger >= 2000 && !Race_if(PM_HOBBIT))
-        || (context.victual.canchoke && u.uhunger >= 4000 && Race_if(PM_HOBBIT))) {
+    if (context.victual.canchoke
+        && u.uhunger >= (Race_if(PM_HOBBIT) ? 4000 : 2000)) {
         choke(context.victual.piece);
         return 1;
     }
@@ -3107,8 +3104,7 @@ int num;
 
     debugpline1("lesshungry(%d)", num);
     u.uhunger += num;
-    if ((u.uhunger >= 2000 && !Race_if(PM_HOBBIT))
-        || (u.uhunger >= 4000 && Race_if(PM_HOBBIT))) {
+    if (u.uhunger >= (Race_if(PM_HOBBIT) ? 4000 : 2000)) {
         if (!iseating || context.victual.canchoke) {
             if (iseating) {
                 choke(context.victual.piece);
@@ -3122,27 +3118,11 @@ int num;
         /* Have lesshungry() report when you're nearly full so all eating
          * warns when you're about to choke.
          */
-        if (u.uhunger >= 1500 && !Race_if(PM_HOBBIT)
+        if (u.uhunger >= (Race_if(PM_HOBBIT) ? 3500 : 1500)
             && (!context.victual.eating
                 || (context.victual.eating && !context.victual.fullwarn))) {
-            pline("You're having a hard time getting all of it down.");
-            nomovemsg = "You're finally finished.";
-            if (!context.victual.eating) {
-                multi = -2;
-            } else {
-                context.victual.fullwarn = TRUE;
-                if (context.victual.canchoke && context.victual.reqtime > 1) {
-                    /* a one-gulp food will not survive a stop */
-                    if (!paranoid_query(ParanoidEating, "Continue eating?")) {
-                        reset_eat();
-                        nomovemsg = (char *) 0;
-                    }
-                }
-            }
-        } else if (u.uhunger >= 3500 && Race_if(PM_HOBBIT)
-            && (!context.victual.eating
-                || (context.victual.eating && !context.victual.fullwarn))) {
-            pline("Amazingly, you're having a hard time getting all of it down.");
+            pline("%sou're having a hard time getting all of it down.",
+                  Race_if(PM_HOBBIT) ? "Amazingly, y" : "Y");
             nomovemsg = "You're finally finished.";
             if (!context.victual.eating) {
                 multi = -2;
@@ -3197,16 +3177,10 @@ boolean incr;
     static boolean saved_hs = FALSE;
     int h = u.uhunger;
 
-    if (Race_if(PM_HOBBIT))
-        newhs = (h > 3000)
-                    ? SATIATED
-                    : (h > 150) ? NOT_HUNGRY
-                                : (h > 50) ? HUNGRY : (h > 0) ? WEAK : FAINTING;
-    else
-        newhs = (h > 1000)
-                    ? SATIATED
-                    : (h > 150) ? NOT_HUNGRY
-                                : (h > 50) ? HUNGRY : (h > 0) ? WEAK : FAINTING;
+    newhs = (h > (Race_if(PM_HOBBIT) ? 3000 : 1000))
+                ? SATIATED
+                : (h > 150) ? NOT_HUNGRY
+                            : (h > 50) ? HUNGRY : (h > 0) ? WEAK : FAINTING;
 
     /* While you're eating, you may pass from WEAK to HUNGRY to NOT_HUNGRY.
      * This should not produce the message "you only feel hungry now";
