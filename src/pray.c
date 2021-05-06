@@ -1577,7 +1577,12 @@ dosacrifice()
     }
 
     if (otmp->otyp == CORPSE) {
-        register struct permonst *ptr = &mons[otmp->corpsenm];
+        register struct permonst *ptr;
+        if (has_omonst(otmp) && has_erac(OMONST(otmp))) {
+            ptr = &mons[ERAC(OMONST(otmp))->rmnum];
+        } else {
+            ptr = &mons[otmp->corpsenm];
+        }
         struct monst *mtmp;
         /* is this a conversion attempt? */
         boolean to_other_god =  ugod_is_angry() && !your_race(ptr)

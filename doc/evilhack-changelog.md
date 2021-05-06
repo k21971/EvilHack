@@ -1674,4 +1674,5 @@ The following changes to date are:
   monster with a stoning attack
 - Fix: engraving didn't auto-id wand of polymorph
 - Fix: various bugs with Race_if() conditions
+- Fix: take erac into account when performing same-race sacrifice
 
