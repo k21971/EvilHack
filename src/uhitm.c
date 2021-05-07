@@ -1824,6 +1824,10 @@ demonpet()
     struct permonst *pm;
     struct monst *dtmp;
 
+    /* crowned infidels shouldn't get virtually unlimited pets */
+    if (!Upolyd && Race_if(PM_DEMON))
+        return;
+
     pline("Some hell-p has arrived!");
     i = !rn2(6) ? ndemon(u.ualign.type) : NON_PM;
     pm = i != NON_PM ? &mons[i] : youmonst.data;
