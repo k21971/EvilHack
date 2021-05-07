@@ -1680,4 +1680,5 @@ The following changes to date are:
   with with broadsword.'
 - Fix: better way to prevent cannibalism as illithid while infected
   with lycanthropy
+- Fix: monster spell 'touch of death' with monster vs monster
 

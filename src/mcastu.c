@@ -1877,11 +1877,14 @@ int spellnum;
        	    pline("%s's using the touch of death!", buf);
        	}
 
+        resisted =
+            ((resist(mtmp, 0, 0, FALSE)
+              && rn2(mons[yours ? u.umonnum : mattk->mnum].mlevel) <= 12)
+             || resists_magm(mtmp));
        	if (immune_death_magic(mtmp->data) || is_vampshifter(mtmp)) {
        	    if (yours || canseemon(mtmp))
        	        pline("%s seems no more dead than before.", Monnam(mtmp));
-       	} else if (!(resisted = resist(mtmp, 0, 0, FALSE))
-       	           || rn2(mons[u.umonnum].mlevel) > 12) {
+        } else if (!resisted) {
             mtmp->mhp = -1;
        	    if (yours)
                 killed(mtmp);
