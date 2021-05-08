@@ -1682,4 +1682,6 @@ The following changes to date are:
   with lycanthropy
 - Fix: monster spell 'touch of death' with monster vs monster
 - Fix: crowned infidels (PM_DEMON) gating in hell-p
+- Adjustments to mspec_used for boss-level monsters, Wizard of Yendor
+  gear tweaks
 

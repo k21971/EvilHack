@@ -1191,7 +1191,7 @@ register struct monst *mtmp;
         } else if (mm == PM_WIZARD_OF_YENDOR) {
             otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, FALSE, FALSE);
             create_oprop(otmp, FALSE);
-            otmp->oprops = (rn2(3) ? ITEM_FIRE : rn2(2) ? ITEM_FROST : ITEM_SHOCK);
+            otmp->oprops = (rn2(3) ? ITEM_FIRE : rn2(2) ? ITEM_FROST : ITEM_VENOM);
             otmp->spe = rnd(4) + 1;
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, ROBE);
@@ -3366,7 +3366,7 @@ int otyp;
             if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1)
                 otmp->spe = rn2(3) + 1;
             else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 1)
-                otmp->spe = rn2(4) + 1;
+                otmp->spe = mtmp->iswiz ? rn2(2) : rn2(4) + 1;
         }
         if (is_lord(mtmp->data)) {
             if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1)

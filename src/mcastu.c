@@ -369,21 +369,16 @@ boolean foundyou;
         /* many boss-type monsters than have two or more spell attacks
            per turn are never able to fire off their second attack due
            to mspec always being greater than 0. So set to 0 for those
-           types of monsters, either sometimes or all of the time
-           depending on how powerful they are or what their role is */
-        if (rn2(3) /* mspec 0 two thirds of the time */
-            && (is_dlord(mtmp->data)
+           types of monsters half of the time */
+        if (rn2(2)
+            && (is_dprince(mtmp->data) || is_dlord(mtmp->data)
+                || mtmp->iswiz || mtmp->isvecna
                 || mtmp->data->msound == MS_LEADER
                 || mtmp->data->msound == MS_NEMESIS
                 || mtmp->data == &mons[PM_ORACLE]
                 || mtmp->data == &mons[PM_HIGH_PRIEST]
-                || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]))
-            mtmp->mspec_used = 0;
-
-        if (is_dprince(mtmp->data)
-            || mtmp->iswiz || mtmp->isvecna
-            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
-            /* mspec 0 always */
+                || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+                || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]))
             mtmp->mspec_used = 0;
 
         /* Having the EotA in inventory drops mspec to 0 */

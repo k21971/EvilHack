@@ -265,9 +265,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
       SPFX_EXCLUDE, 0, DETH(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
       NON_PM, NON_PM, 10000L, CLR_BLACK),
-    /* The Eye of Vecna, which can only be obtained by decapitating
-       Vecna, removing his head from his body as he is destroyed before
-       the rest of his body crumbles to dust */
+    /* The Eye of Vecna, which Vecna will sometimes death drop
+       before the rest of his body crumbles to dust */
     A("The Eye of Vecna", EYEBALL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL),
       (SPFX_XRAY | SPFX_ESP | SPFX_HSPDAM), 0, NO_ATTK, NO_DFNS,
