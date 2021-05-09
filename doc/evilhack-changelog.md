@@ -1684,4 +1684,5 @@ The following changes to date are:
 - Fix: crowned infidels (PM_DEMON) gating in hell-p
 - Adjustments to mspec_used for boss-level monsters, Wizard of Yendor
   gear tweaks
+- Change 'summon nasties' list for Vecna
 

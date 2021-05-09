@@ -3067,6 +3067,7 @@ E void NDECL(aggravate);
 E void NDECL(clonewiz);
 E int NDECL(pick_nasty);
 E int NDECL(pick_nasty_ice);
+E int NDECL(pick_nasty_vecna);
 E int FDECL(nasty, (struct monst *, BOOLEAN_P));
 E void NDECL(resurrect);
 E void NDECL(intervene);

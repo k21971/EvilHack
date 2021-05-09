@@ -60,6 +60,14 @@ static NEARDATA const int ice_nasties[] = {
     PM_ICE_NYMPH,
 };
 
+static NEARDATA const int vecna_nasties[] = {
+    PM_HUMAN_ZOMBIE, PM_REVENANT, PM_LICH, PM_DEMILICH,
+    PM_VAMPIRE_NOBLE, PM_SHADE, PM_SPECTRE, PM_HEZROU,
+    PM_MARILITH, PM_WEREWOLF, PM_HELL_HOUND, PM_VROCK,
+    PM_GIANT_ZOMBIE, PM_HUMAN_MUMMY, PM_ETTIN_MUMMY,
+    PM_GHOUL, PM_WRAITH, PM_BARROW_WIGHT,
+};
+
 static NEARDATA const unsigned wizapp[] = {
     PM_HUMAN,      PM_LAVA_DEMON,        PM_VAMPIRE_ROYAL, PM_RED_DRAGON,
     PM_ROCK_TROLL, PM_UMBER_HULK,        PM_XORN,          PM_GIANT_CENTIPEDE,
@@ -630,6 +638,14 @@ pick_nasty_ice()
     return res;
 }
 
+int
+pick_nasty_vecna()
+{
+    int res = vecna_nasties[rn2(SIZE(vecna_nasties))];
+
+    return res;
+}
+
 /* create some nasty monsters, aligned with the caster or neutral; chaotic
    and unaligned are treated as equivalent; if summoner is Null, this is
    for late-game harassment (after the Wizard has been killed at least once
@@ -697,7 +713,8 @@ BOOLEAN_P centered_on_stairs;
                 do {
                     makeindex = (summoner
                                  && summoner->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-                                     ? pick_nasty_ice() : pick_nasty());
+                                     ? pick_nasty_ice() : summoner->data == &mons[PM_VECNA]
+                                         ? pick_nasty_vecna() : pick_nasty());
                     m_cls = mons[makeindex].mlet;
                 } while (summoner
                          && ((attacktype(&mons[makeindex], AT_MAGC)
