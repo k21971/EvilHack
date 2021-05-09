@@ -1685,4 +1685,5 @@ The following changes to date are:
 - Adjustments to mspec_used for boss-level monsters, Wizard of Yendor
   gear tweaks
 - Change 'summon nasties' list for Vecna
+- Adjust how often Vecna warps to the upstairs
 

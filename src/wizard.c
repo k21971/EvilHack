@@ -326,8 +326,8 @@ register struct monst *mtmp;
     case 0: /* panic time - mtmp is almost snuffed */
         return (unsigned long) STRAT_HEAL;
 
-    case 1: /* the wiz is less cautious */
-        if (mtmp->data != &mons[PM_WIZARD_OF_YENDOR])
+    case 1: /* the wiz and vecna are less cautious */
+        if (!(mtmp->iswiz || mtmp->isvecna))
             return (unsigned long) STRAT_HEAL;
     /* else fall through */
 
