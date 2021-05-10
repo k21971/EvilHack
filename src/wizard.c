@@ -711,10 +711,9 @@ BOOLEAN_P centered_on_stairs;
                  * higher--avoids chain summoners filling up the level.
                  */
                 do {
-                    makeindex = (summoner
-                                 && summoner->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-                                     ? pick_nasty_ice() : summoner->data == &mons[PM_VECNA]
-                                         ? pick_nasty_vecna() : pick_nasty());
+                    makeindex = ((summoner && summoner->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+                                 ? pick_nasty_ice() : (summoner && summoner->data == &mons[PM_VECNA])
+                                                    ? pick_nasty_vecna() : pick_nasty());
                     m_cls = mons[makeindex].mlet;
                 } while (summoner
                          && ((attacktype(&mons[makeindex], AT_MAGC)

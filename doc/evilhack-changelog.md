@@ -1686,4 +1686,5 @@ The following changes to date are:
   gear tweaks
 - Change 'summon nasties' list for Vecna
 - Adjust how often Vecna warps to the upstairs
+- Fix: segfault with summon nasties
 
