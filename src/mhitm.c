@@ -2541,7 +2541,7 @@ struct monst *mon;
 
 #undef oresist_disintegration
 
-    xkilled(mon, XKILL_NOMSG | XKILL_NOCORPSE);
+    monkilled(mon, "", AD_RBRE);
 }
 
 STATIC_OVL void

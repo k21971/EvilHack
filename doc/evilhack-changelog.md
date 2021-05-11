@@ -1687,4 +1687,6 @@ The following changes to date are:
 - Change 'summon nasties' list for Vecna
 - Adjust how often Vecna warps to the upstairs
 - Fix: segfault with summon nasties
+- Fix: player getting credit for a monster passively disintegrating
+  another monster
 
