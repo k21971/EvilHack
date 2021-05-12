@@ -1692,4 +1692,6 @@ The following changes to date are:
 - Fix: monster casting 'summon minion' was doing damage to the target
 - Fix: monster spellcasting level cap was changing the monster's
   actual level
+- Fix: 'program in disorder' when destroying Vecna and he drops the
+  Eye of Vecna
 
