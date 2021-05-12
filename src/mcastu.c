@@ -868,6 +868,7 @@ int spellnum;
 	        summon_minion(aligntype, TRUE);
             }
         }
+        dmg = 0;
 	break;
     case CLC_GEYSER:
         /* this is physical damage (force not heat),

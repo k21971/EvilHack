@@ -1689,4 +1689,5 @@ The following changes to date are:
 - Fix: segfault with summon nasties
 - Fix: player getting credit for a monster passively disintegrating
   another monster
+- Fix: monster casting 'summon minion' was doing damage to the target
 
