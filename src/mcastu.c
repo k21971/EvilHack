@@ -308,15 +308,10 @@ register struct attack *mattk;
 boolean thinks_it_foundyou;
 boolean foundyou;
 {
-    int dmg, ml = mtmp->m_lev;
+    int dmg, ml = min(mtmp->m_lev, 50);
     int ret;
     int spellnum = 0;
 
-    /* Some boss type monsters can exceed level 50; cap mtmp->m_lev
-       at 50, otherwise some of this spell damage output can get a
-       bit out of hand (read: acid blast and Demogorgon) */
-    if (ml > 50)
-        ml = 50;
     /* Three cases:
      * -- monster is attacking you.  Search for a useful spell.
      * -- monster thinks it's attacking you.  Search for a useful spell,
@@ -549,11 +544,7 @@ int dmg;
 int spellnum;
 {
     struct obj* oatmp;
-    int erodelvl;
-
-    /* Make sure to cap monster level calc at 50 - see castmu() */
-    if (mtmp->m_lev > 50)
-        mtmp->m_lev = 50;
+    int erodelvl, ml = min(mtmp->m_lev, 50);
 
     if (dmg == 0 && !is_undirected_spell(AD_SPEL, spellnum)) {
         impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
@@ -606,7 +597,7 @@ int spellnum;
     case MGC_ACID_BLAST:
         if (m_canseeu(mtmp) && distu(mtmp->mx, mtmp->my) <= 192) {
             pline("%s douses you in a torrent of acid!", Monnam(mtmp));
-            explode(u.ux, u.uy, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
+            explode(u.ux, u.uy, AD_ACID - 1, d((ml / 2) + 4, 8),
                     MON_CASTBALL, EXPL_ACID);
             if (how_resistant(ACID_RES) == 100) {
                 shieldeff(u.ux, u.uy);
@@ -724,7 +715,7 @@ int spellnum;
             You_feel("momentarily weakened.");
         } else {
             You("suddenly feel weaker!");
-            dmg = mtmp->m_lev - 6;
+            dmg = ml - 6;
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
             losestr(rnd(dmg));
@@ -774,7 +765,7 @@ int spellnum;
         if (m_canseeu(mtmp) && distu(mtmp->mx, mtmp->my) <= 192) {
             pline("%s blasts you with %s!", Monnam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
             explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
-                    resist_reduce(d((mtmp->m_lev / 5) + 1, 8), (spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES),
+                    resist_reduce(d((ml / 5) + 1, 8), (spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES),
                     MON_CASTBALL, (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
             if (how_resistant((spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES) == 100) {
                 shieldeff(u.ux, u.uy);
@@ -834,12 +825,8 @@ struct monst *mtmp;
 int dmg;
 int spellnum;
 {
-    int aligntype;
+    int aligntype, ml = min(mtmp->m_lev, 50);
     static const char *Moloch = "Moloch";
-
-    /* Make sure to cap monster level calc at 50 - see castmu() */
-    if (mtmp->m_lev > 50)
-        mtmp->m_lev = 50;
 
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
         impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
@@ -958,7 +945,7 @@ int spellnum;
         const char *fmt;
 
         oldseen = monster_census(TRUE);
-        quan = (mtmp->m_lev < 2) ? 1 : rnd((int) mtmp->m_lev / 2);
+        quan = (ml < 2) ? 1 : rnd((int) ml / 2);
         if (quan < 3)
             quan = 3;
         for (i = 0; i <= quan; i++) {
@@ -1046,7 +1033,7 @@ int spellnum;
         } else {
             if (multi >= 0)
                 You("are frozen in place!");
-            dmg = 4 + (int) mtmp->m_lev;
+            dmg = 4 + (int) ml;
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
             nomul(-dmg);
@@ -1063,7 +1050,7 @@ int spellnum;
         } else {
             boolean oldprop = !!Confusion;
 
-            dmg = (int) mtmp->m_lev;
+            dmg = (int) ml;
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
             make_confused(HConfusion + dmg, TRUE);
@@ -1082,43 +1069,43 @@ int spellnum;
         pline("A %s film oozes over your %s!", Blind ? "slimy" : vulntext[dmg],
               body_part(SKIN));
         switch (dmg) {
-            case 1:
-                if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-                    || mtmp->data == &mons[PM_ASMODEUS]
-                    || mtmp->data == &mons[PM_VECNA]) {
-                    if (Vulnerable_cold)
-                        return;
-                    incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
-                    You_feel("extremely chilly.");
-                    break;
-                } else {
-                    if (Vulnerable_fire)
-                        return;
-                    incr_itimeout(&HVulnerable_fire, rnd(100) + 150);
-                    You_feel("more inflammable.");
-                    break;
-                }
-                break;
-            case 2:
+        case 1:
+            if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+                || mtmp->data == &mons[PM_ASMODEUS]
+                || mtmp->data == &mons[PM_VECNA]) {
                 if (Vulnerable_cold)
                     return;
                 incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
                 You_feel("extremely chilly.");
                 break;
-            case 3:
-                if (Vulnerable_elec)
+            } else {
+                if (Vulnerable_fire)
                     return;
-                incr_itimeout(&HVulnerable_elec, rnd(100) + 150);
-                You_feel("overly conductive.");
+                incr_itimeout(&HVulnerable_fire, rnd(100) + 150);
+                You_feel("more inflammable.");
                 break;
-            case 4:
-                if (Vulnerable_acid)
-                    return;
-                incr_itimeout(&HVulnerable_acid, rnd(100) + 150);
-                You_feel("easily corrodable.");
-                break;
-            default:
-                break;
+            }
+            break;
+        case 2:
+            if (Vulnerable_cold)
+                return;
+            incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
+            You_feel("extremely chilly.");
+            break;
+        case 3:
+            if (Vulnerable_elec)
+                return;
+            incr_itimeout(&HVulnerable_elec, rnd(100) + 150);
+            You_feel("overly conductive.");
+            break;
+        case 4:
+            if (Vulnerable_acid)
+                return;
+            incr_itimeout(&HVulnerable_acid, rnd(100) + 150);
+            You_feel("easily corrodable.");
+            break;
+        default:
+            break;
         }
         break;
     case CLC_OPEN_WOUNDS:
@@ -1138,12 +1125,12 @@ int spellnum;
         break;
     case CLC_PROTECTION: {
         int natac = find_mac(mtmp) + mtmp->mprotection;
-        int loglev = 0, l = mtmp->m_lev;
+        int loglev = 0;
         int gain = 0;
 
         dmg = 0;
 
-        for (; l > 0; l /=2)
+        for (; ml > 0; ml /= 2)
             loglev++;
 
         gain = loglev - mtmp->mprotection / (4 - min(3, (10 - natac) / 10));
@@ -1471,13 +1458,9 @@ register struct monst *mtmp;
 register struct monst *mdef;
 register struct attack *mattk;
 {
-    int dmg, ml = mtmp->m_lev;
+    int dmg, ml = min(mtmp->m_lev, 50);
     int ret;
     int spellnum = 0;
-
-    /* Make sure to cap monster level calc at 50 - see castmu() */
-    if (ml > 50)
-        ml = 50;
 
     if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) && ml) {
         int cnt = 40;
@@ -1934,7 +1917,7 @@ int spellnum;
                 pline("But the acid dissipates harmlessly.");
             dmg = 0;
         }
-        explode(mtmp->mx, mtmp->my, AD_ACID - 1, d((mtmp->m_lev / 2) + 4, 8),
+        explode(mtmp->mx, mtmp->my, AD_ACID - 1, d((u.ulevel / 2) + 4, 8),
                 WAND_CLASS, EXPL_ACID);
         if (rn2(4))
             erode_armor(mtmp, ERODE_CORRODE);
@@ -2154,7 +2137,7 @@ int spellnum;
                 dmg = 0;
             }
             explode(mtmp->mx, mtmp->my, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1 : AD_COLD - 1,
-                    d((mtmp->m_lev / 5) + 1, 8), WAND_CLASS, 1);
+                    d((u.ulevel / 5) + 1, 8), WAND_CLASS, 1);
             if (spellnum == MGC_FIRE_BOLT) {
                 (void) burnarmor(mtmp);
                 destroy_mitem(mtmp, SCROLL_CLASS, AD_FIRE);
@@ -2187,9 +2170,11 @@ int spellnum;
     if (dmg > 0 && mtmp && mtmp->mhp > 0) {
         mtmp->mhp -= dmg;
         if (mtmp->mhp < 1) {
- 	    if (yours) killed(mtmp);
- 	    else monkilled(mtmp, "", AD_SPEL);
- 	}
+            if (yours)
+                killed(mtmp);
+            else
+                monkilled(mtmp, "", AD_SPEL);
+        }
     }
 }
 
@@ -2234,6 +2219,7 @@ int spellnum;
             pline("A servant of %s appears!", aligns[1 - aligntype].noun);
             summon_minion(aligntype, TRUE);
         }
+        dmg = 0;
         break;
     case CLC_GEYSER:
        	/* this is physical damage, not magical damage */

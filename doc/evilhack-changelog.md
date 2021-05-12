@@ -1690,4 +1690,6 @@ The following changes to date are:
 - Fix: player getting credit for a monster passively disintegrating
   another monster
 - Fix: monster casting 'summon minion' was doing damage to the target
+- Fix: monster spellcasting level cap was changing the monster's
+  actual level
 
