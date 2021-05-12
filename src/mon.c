@@ -280,8 +280,9 @@ struct monst* mdef;
 
     if (newcham(mdef, &mons[zombie_form(mdef)], FALSE, FALSE)) {
         /* off-chance Izchak succumbs to a zombie's physical attack */
-        if (mdef->isshk && !strcmp(shkname(mdef), "Izchak")) {
-            pline("But wait!  %s transforms again into his true form!", mon_nam(mdef));
+        if (is_izchak(mdef, TRUE)) {
+            pline("But wait!  %s transforms again into his true form!",
+                  Monnam(mdef));
             mdef->mcanmove = 1;
             mdef->mfrozen = 0;
             mdef->mstone = 0;
@@ -365,8 +366,9 @@ struct monst* mdef;
 
     if (newcham(mdef, &mons[PM_MIND_FLAYER], FALSE, FALSE)) {
         /* off-chance Izchak succumbs to a mind flayer larva's physical attack */
-        if (mdef->isshk && !strcmp(shkname(mdef), "Izchak")) {
-            pline("But wait!  %s transforms again into his true form!", mon_nam(mdef));
+        if (is_izchak(mdef, TRUE)) {
+            pline("But wait!  %s transforms again into his true form!",
+                  Monnam(mdef));
             mdef->mcanmove = 1;
             mdef->mfrozen = 0;
             mdef->mstone = 0;
@@ -1193,9 +1195,8 @@ mcalcdistress()
         were_change(mtmp);
 
         /* special handling for Izchak */
-        if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
-            if (mtmp->data == &mons[PM_HUMAN]
-                && (mtmp->mstone > 3 || mtmp->msick > 0))
+        if (is_izchak(mtmp, TRUE)) {
+            if (mtmp->mstone > 3 || mtmp->msick > 0)
                 mondead(mtmp);
         }
 
@@ -2876,33 +2877,32 @@ register struct monst *mtmp;
         return;
 
     /* someone or something decided to mess with Izchak. oops... */
-    if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
-        if (mtmp->data == &mons[PM_HUMAN]) {
-            if (canspotmon(mtmp)) {
-                pline("But wait!  %s rises and transforms into his true form!", mon_nam(mtmp));
-                rise_msg = TRUE;
-            }
-            mtmp->mcanmove = 1;
-            mtmp->mfrozen = 0;
-            mtmp->mstone = 0;
-            mtmp->msick = 0;
-            mtmp->mdiseased = 0;
-            mtmp->mwither = 0;
-            mtmp->mconf = 0;
-            mtmp->mstun = 0;
-            if (!mtmp->mpeaceful)
-                hot_pursuit(mtmp);
-            newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
-            mtmp->mhp = mtmp->mhpmax = 1500;
-            if (mtmp == u.ustuck) {
-                if (u.uswallow)
-                    expels(mtmp, mtmp->data, FALSE);
-                else
-                    uunstick();
-            }
-            newsym(mtmp->mx, mtmp->my);
-            return;
+    if (is_izchak(mtmp, TRUE)) {
+        if (canspotmon(mtmp)) {
+            pline("But wait!  %s rises and transforms into his true form!",
+                  Monnam(mtmp));
+            rise_msg = TRUE;
         }
+        mtmp->mcanmove = 1;
+        mtmp->mfrozen = 0;
+        mtmp->mstone = 0;
+        mtmp->msick = 0;
+        mtmp->mdiseased = 0;
+        mtmp->mwither = 0;
+        mtmp->mconf = 0;
+        mtmp->mstun = 0;
+        if (!mtmp->mpeaceful)
+            hot_pursuit(mtmp);
+        newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
+        mtmp->mhp = mtmp->mhpmax = 1500;
+        if (mtmp == u.ustuck) {
+            if (u.uswallow)
+                expels(mtmp, mtmp->data, FALSE);
+            else
+                uunstick();
+        }
+        newsym(mtmp->mx, mtmp->my);
+        return;
     }
     if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
         if (!u.uachieve.defeat_icequeen)

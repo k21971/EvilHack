@@ -1694,4 +1694,5 @@ The following changes to date are:
   actual level
 - Fix: 'program in disorder' when destroying Vecna and he drops the
   Eye of Vecna
+- Fix: Izchak was not transforming after his human form was killed
 
