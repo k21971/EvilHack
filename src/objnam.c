@@ -3691,7 +3691,7 @@ struct obj *no_wish;
          */
         if (!strstri(bp, "wand ") && !strstri(bp, "spellbook ")
             && !strstri(bp, "finger ") && !strstri(bp, "eye ")
-            && !strstri(bp, "sword ")) {
+            && !strstri(bp, "sword of kas")) {
             if ((p = strstri(bp, "tin of ")) != 0) {
                 if (!strcmpi(p + 7, "spinach")) {
                     contents = SPINACH;

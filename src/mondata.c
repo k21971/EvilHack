@@ -853,9 +853,11 @@ const char *in_str;
         Strcpy(term - 4, "noble");
     else if (slen > 5 && (s = strstri(term - 5, " lord")) != 0)
         Strcpy(term - 4, "noble");
-    else if (slen > 6 && (s = strstri(term - 6, " queen")) != 0)
-        Strcpy(term - 4, "royal");
-    else if (slen > 5 && (s = strstri(term - 5, " king")) != 0)
+    else if (slen > 6 && (s = strstri(term - 6, " queen")) != 0
+             && strncmpi(str, "kathryn ", 8))
+        Strcpy(term - 5, "royal");
+    else if (slen > 5 && (s = strstri(term - 5, " king")) != 0
+             && strncmpi(str, "rat ", 4))
         Strcpy(term - 4, "royal");
     /* be careful with "ies"; "priest", "zombies" */
     else if (slen > 3 && !strcmpi(term - 3, "ies")
