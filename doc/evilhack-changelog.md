@@ -1697,4 +1697,5 @@ The following changes to date are:
 - Fix: Izchak was not transforming after his human form was killed
 - Fix: wishing for any type of sword of excellence, monster creation
   in wizmode
+- Feedback for varying levels of incremental resistances
 

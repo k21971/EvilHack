@@ -942,40 +942,58 @@ givit(type, ptr)
 int type;
 register struct permonst *ptr;
 {
-
+    const char *adj;
     long percentincrease;
     debugpline1("Attempting to give intrinsic %d", type);
 
     percentincrease = (ptr->cwt / 90);
     if (percentincrease < 5) { percentincrease = 5; }
 
+    if (percentincrease > 40) {
+        adj = "significantly";
+    } else if (percentincrease > 25) {
+        adj = "considerably";
+    } else if (percentincrease > 15) {
+        adj = "somewhat";
+    } else if (percentincrease > 8) {
+        adj = "a bit";
+    } else {
+        adj = "slightly";
+    }
+
     switch (type) {
     /* All these use the new system, which is based on corpse weight. */
     case FIRE_RES:
         debugpline0("Trying to give fire resistance");
         if ((HFire_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            You(Hallucination ? "be chillin'." : "feel slightly more chill.");
+            if (Hallucination)
+                You("be chillin'.");
+            else
+                You_feel("%s more chill.", adj);
             incr_resistance(&HFire_resistance, percentincrease);
         }
         break;
     case SLEEP_RES:
         debugpline0("Trying to give sleep resistance");
         if ((HSleep_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            You_feel("a bit perkier.");
+            You_feel("%s perkier.", adj);
             incr_resistance(&HSleep_resistance, percentincrease);
         }
         break;
     case COLD_RES:
         debugpline0("Trying to give cold resistance");
         if ((HCold_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            You_feel("somewhat warmer.");
+            You_feel("%s warmer.", adj);
             incr_resistance(&HCold_resistance, percentincrease);
         }
         break;
     case DISINT_RES:
         debugpline0("Trying to give disintegration resistance");
         if ((HDisint_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            You_feel(Hallucination ? "totally together, man." : "a bit more firm.");
+            if (Hallucination)
+                You_feel("totally together, man.");
+            else
+                You_feel("%s more firm.", adj);
             incr_resistance(&HDisint_resistance, percentincrease);
         }
         break;
@@ -985,15 +1003,18 @@ register struct permonst *ptr;
             if (Hallucination)
                 You_feel("grounded in reality.");
             else
-                Your("health is slightly more amplified!");
+                Your("health is %s more amplified!", adj);
             incr_resistance(&HShock_resistance, percentincrease);
         }
         break;
     case POISON_RES:
         debugpline0("Trying to give poison resistance");
         if ((HPoison_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            You_feel(how_resistant(POISON_RES) == 100 ? "significantly healthier." : "healthier.");
             incr_resistance(&HPoison_resistance, percentincrease);
+            if (how_resistant(POISON_RES) == 100)
+                You_feel("completely healthy.");
+            else
+                You_feel("%s healthier.", adj);
         }
         break;
     case TELEPORT:
