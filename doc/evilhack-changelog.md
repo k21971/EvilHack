@@ -1698,4 +1698,6 @@ The following changes to date are:
 - Fix: wishing for any type of sword of excellence, monster creation
   in wizmode
 - Feedback for varying levels of incremental resistances
+- Fix: chaotics/unaligned getting alignment penalty for healing or
+  curing their pets via spell
 

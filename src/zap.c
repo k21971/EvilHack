@@ -419,6 +419,7 @@ struct obj *otmp;
     case SPE_EXTRA_HEALING:
         reveal_invis = TRUE;
         if (mtmp->data != &mons[PM_PESTILENCE]) {
+            boolean already_max = (mtmp->mhp == mtmp->mhpmax);
             wake = FALSE; /* wakeup() makes the target angry */
             mtmp->mhp += d(6, otyp == SPE_EXTRA_HEALING ? 8 : 4);
             if (mtmp->mhp > mtmp->mhpmax)
@@ -441,8 +442,14 @@ struct obj *otmp;
                     pline("%s looks%s better.", Monnam(mtmp),
                           otyp == SPE_EXTRA_HEALING ? " much" : "");
             }
-            if (mtmp->mtame || mtmp->mpeaceful) {
-                adjalign(Role_if(PM_HEALER) ? 1 : sgn(u.ualign.type));
+            if ((mtmp->mtame || mtmp->mpeaceful) && !already_max) {
+                if (Role_if(PM_HEALER)) {
+                    adjalign(1);
+                } else if (!mtmp->mtame) {
+                    /* This used to do this unconditionally, making chaotics get an
+                     * alignment penalty for healing their pets. Don't do that. */
+                    adjalign(sgn(u.ualign.type));
+                }
             }
         } else { /* Pestilence */
             /* Pestilence will always resist; damage is half of 3d{4,8} */
@@ -456,8 +463,12 @@ struct obj *otmp;
             if (canseemon(mtmp))
                 pline("%s is no longer ill.", Monnam(mtmp));
             mtmp->msick = 0;
-            if (mtmp->mtame || mtmp->mpeaceful) {
-                adjalign(Role_if(PM_HEALER) ? 1 : sgn(u.ualign.type));
+            if ((mtmp->mtame || mtmp->mpeaceful) && mtmp->msick > 0) {
+                if (Role_if(PM_HEALER)) {
+                    adjalign(1);
+                } else if (!mtmp->mtame) {
+                    adjalign(sgn(u.ualign.type));
+                }
             }
         } else if (is_zombie(mtmp->data)) {
             if (!DEADMONSTER(mtmp)) {
