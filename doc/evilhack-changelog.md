@@ -1702,4 +1702,5 @@ The following changes to date are:
   curing their pets via spell
 - Fix: pudding conveyances in monster lookup
 - Fix: trees were unaffected by fire from explosions
+- Better encyclopedia entry for Tiamat
 
