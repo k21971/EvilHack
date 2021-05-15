@@ -1703,4 +1703,5 @@ The following changes to date are:
 - Fix: pudding conveyances in monster lookup
 - Fix: trees were unaffected by fire from explosions
 - Better encyclopedia entry for Tiamat
+- Set a default pet name for Infidel role
 

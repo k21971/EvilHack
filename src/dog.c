@@ -262,6 +262,9 @@ makedog()
     } else if (!*petname && pettype == PM_SEWER_RAT) {
         if (Role_if(PM_CONVICT))
             petname = "Nicodemus"; /* Rats of NIMH */
+    } else if (!*petname && pettype == PM_LESSER_HOMUNCULUS) {
+        if (Role_if(PM_INFIDEL))
+            petname = "Hecubus"; /* The Kids in the Hall */
     }
 
     mtmp = makemon(&mons[pettype], u.ux, u.uy, MM_EDOG);
