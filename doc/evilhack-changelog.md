@@ -1701,4 +1701,5 @@ The following changes to date are:
 - Fix: chaotics/unaligned getting alignment penalty for healing or
   curing their pets via spell
 - Fix: pudding conveyances in monster lookup
+- Fix: trees were unaffected by fire from explosions
 

@@ -4773,31 +4773,6 @@ boolean say; /* Announce out of sight hit/miss events if true */
             break;
         }
 
-        if (levl[sx][sy].typ == TREE && abstype == ZT_FIRE) {
-            levl[sx][sy].typ = DEADTREE;
-            if (cansee(sx, sy)) {
-                pline("The tree burns to a crisp!");
-                newsym(sx, sy);
-            }
-            range = 0;
-            break;
-        }
-
-        if (levl[sx][sy].typ == DEADTREE && abstype == ZT_FIRE) {
-            if (!may_dig(sx, sy)) {
-                /* nothing happens - it's petrified */
-                ;
-            } else {
-                levl[sx][sy].typ = ROOM;
-                if (cansee(sx, sy)) {
-                    pline("The dead tree burns to ashes!");
-                    newsym(sx, sy);
-                }
-            }
-            range = 0;
-            break;
-        }
-
         if (!ZAP_POS(levl[sx][sy].typ)
             || (closed_door(sx, sy) && range >= 0)) {
             int bounce, bchance;
@@ -5071,6 +5046,27 @@ boolean moncast;
             lev->typ = ROOM;
             if (lev->typ == ROOM)
                 newsym(x, y);
+        } else if (lev->typ == TREE) {
+            if (see_it)
+                pline("The tree burns to a crisp!");
+            lev->typ = DEADTREE;
+            if (lev->typ == DEADTREE)
+                newsym(x, y);
+        } else if (lev->typ == DEADTREE) {
+            if (!may_dig(x, y)) {
+                /* nothing happens - it's petrified */
+                ;
+            } else {
+                if (see_it)
+                    pline("The dead tree burns to ashes!");
+                rangemod -= 1000; /* stop */
+                lev->typ = ROOM, lev->flags = 0;
+                if (lev->typ == ROOM)
+                    newsym(x, y);
+                if (!does_block(x, y, &levl[x][y]))
+                    unblock_point(x, y); /* vision:  can see through */
+                feel_newsym(x, y);
+            }
         }
         break; /* ZT_FIRE */
 

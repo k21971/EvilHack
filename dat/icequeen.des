@@ -86,9 +86,8 @@ MONSTER:random,random
 MONSTER:random,random
 MONSTER:random,random
 
-# None shall pass
-NON_DIGGABLE:(00,00,75,19)
-NON_PASSWALL:(00,00,75,19)
+# None shall pass (dead trees are not petrified)
+NON_PASSWALL:(00,00,08,05)
 
 
 #
@@ -179,8 +178,8 @@ MONSTER:random,random
 MONSTER:random,random
 
 # None shall pass
-NON_DIGGABLE:(00,00,75,19)
-NON_PASSWALL:(00,00,75,19)
+NON_DIGGABLE:(70,00,75,07)
+NON_PASSWALL:(70,00,75,07)
 
 
 #
