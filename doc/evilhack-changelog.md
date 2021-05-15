@@ -1700,4 +1700,5 @@ The following changes to date are:
 - Feedback for varying levels of incremental resistances
 - Fix: chaotics/unaligned getting alignment penalty for healing or
   curing their pets via spell
+- Fix: pudding conveyances in monster lookup
 

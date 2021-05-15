@@ -777,6 +777,13 @@ struct permonst * pm;
             MONPUTSTR(buf2);
         }
         MONPUTSTR("Corpse conveys lycanthropy.");
+    } else if (pm->mlet == S_PUDDING) {
+        if (*buf) {
+            Sprintf(buf2, "May drop globs that convey %s.", buf);
+            MONPUTSTR(buf2);
+        } else {
+            MONPUTSTR("May drop globs.");
+        }
     } else if (!(gen & G_NOCORPSE)) {
         Sprintf(buf2, "Provides %d nutrition when eaten.", pm->cnutrit);
         MONPUTSTR(buf2);
