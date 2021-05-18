@@ -1708,4 +1708,5 @@ The following changes to date are:
 - Fix: player monster giants and centaurs spawning with armor they
   can't use
 - More adjustments to what intelligent monsters stash in containers
+- Fix: crash if artifact owner shows up while level is full
 

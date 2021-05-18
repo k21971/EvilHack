@@ -4825,7 +4825,7 @@ struct obj *no_wish;
         }
 
         mtmp = mk_mplayer(&mons[pm], u.ux, u.uy, TRUE, otmp);
-        if (!is_mplayer(mtmp->data))
+        if (mtmp && !is_mplayer(mtmp->data))
             free_mname(mtmp);
         if (mtmp) {
             if (Blind) {
