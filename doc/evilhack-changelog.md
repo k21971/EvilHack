@@ -1709,4 +1709,6 @@ The following changes to date are:
   can't use
 - More adjustments to what intelligent monsters stash in containers
 - Fix: crash if artifact owner shows up while level is full
+- Fix: object materials: sort items correctly according to their
+  material
 
