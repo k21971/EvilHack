@@ -1705,4 +1705,6 @@ The following changes to date are:
 - Better encyclopedia entry for Tiamat
 - Set a default pet name for Infidel role
 - Fix: Illithid player monsters were not being sensed via telepathy
+- Fix: player monster giants and centaurs spawning with armor they
+  can't use
 

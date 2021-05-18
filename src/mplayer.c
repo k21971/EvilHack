@@ -550,8 +550,10 @@ struct obj *obj;
         if (ascending) {
             if (!rn2(10))
                 (void) mongets(mtmp, rn2(3) ? LUCKSTONE : LOADSTONE);
-            mk_mplayer_armor(mtmp, armor);
-            mk_mplayer_armor(mtmp, cloak);
+            if (!racial_giant(mtmp)) {
+                mk_mplayer_armor(mtmp, armor);
+                mk_mplayer_armor(mtmp, cloak);
+            }
             mk_mplayer_armor(mtmp, helm);
             mk_mplayer_armor(mtmp, shield);
             if (weapon == WAR_HAMMER) /* valkyrie: wimpy weapon or Mjollnir */
@@ -559,7 +561,7 @@ struct obj *obj;
             else if (rn2(8))
                 mk_mplayer_armor(mtmp, rnd_class(GLOVES,
                                                  GAUNTLETS_OF_DEXTERITY));
-            if (rn2(8))
+            if (!racial_centaur(mtmp) && rn2(8))
                 mk_mplayer_armor(mtmp, rnd_class(LOW_BOOTS,
                                                  LEVITATION_BOOTS));
             m_dowear(mtmp, TRUE);
