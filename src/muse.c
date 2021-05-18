@@ -709,7 +709,8 @@ struct monst *mtmp;
                 m.has_defense = MUSE_POT_HEALING;
             }
             nomore(MUSE_EUCALYPTUS_LEAF);
-            if (obj->otyp == EUCALYPTUS_LEAF) {
+            if (obj->otyp == EUCALYPTUS_LEAF
+                && mtmp->msick) {
                 m.defensive = obj;
                 m.has_defense = MUSE_EUCALYPTUS_LEAF;
             }
@@ -836,34 +837,35 @@ struct obj *start;
 	    if (obj->otyp == POT_HEALING) {
 	        m.defensive = obj;
 	        m.has_defense = MUSE_POT_HEALING;
-	    }
+            }
             nomore(MUSE_EUCALYPTUS_LEAF);
-            if (obj->otyp == EUCALYPTUS_LEAF) {
+            if (obj->otyp == EUCALYPTUS_LEAF
+                && mtmp->msick) {
                 m.defensive = obj;
                 m.has_defense = MUSE_EUCALYPTUS_LEAF;
             }
-	} else {	/* Pestilence */
-	    nomore(MUSE_POT_FULL_HEALING);
-	    if (obj->otyp == POT_SICKNESS) {
-		m.defensive = obj;
-		m.has_defense = MUSE_POT_FULL_HEALING;
-	    }
-	    nomore(MUSE_BAG_OF_TRICKS);
-	    if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0) {
-		m.defensive = obj;
-		m.has_defense = MUSE_BAG_OF_TRICKS;
-	    }
-	    nomore(MUSE_WAN_CREATE_MONSTER);
-	    if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
-		m.defensive = obj;
-		m.has_defense = MUSE_WAN_CREATE_MONSTER;
-	    }
-	}
-	nomore(MUSE_SCR_CREATE_MONSTER);
-	if (obj->otyp == SCR_CREATE_MONSTER) {
-	    m.defensive = obj;
-	    m.has_defense = MUSE_SCR_CREATE_MONSTER;
-	}
+        } else { /* Pestilence */
+            nomore(MUSE_POT_FULL_HEALING);
+            if (obj->otyp == POT_SICKNESS) {
+                m.defensive = obj;
+                m.has_defense = MUSE_POT_FULL_HEALING;
+            }
+            nomore(MUSE_BAG_OF_TRICKS);
+            if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0) {
+                m.defensive = obj;
+                m.has_defense = MUSE_BAG_OF_TRICKS;
+            }
+            nomore(MUSE_WAN_CREATE_MONSTER);
+            if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
+                m.defensive = obj;
+                m.has_defense = MUSE_WAN_CREATE_MONSTER;
+            }
+        }
+        nomore(MUSE_SCR_CREATE_MONSTER);
+        if (obj->otyp == SCR_CREATE_MONSTER) {
+            m.defensive = obj;
+            m.has_defense = MUSE_SCR_CREATE_MONSTER;
+        }
     }
     return(boolean) !!m.has_defense;
 #undef nomore
