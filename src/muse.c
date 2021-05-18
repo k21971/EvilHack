@@ -3370,11 +3370,11 @@ const char *fmt, *str;
         monstseesu(M_SEEN_REFL);
         return TRUE;
     } else if (HReflecting) {
-	if (fmt && str) {
-	    pline(fmt, str, "magical shield");
-	}
+        if (fmt && str) {
+            pline(fmt, str, "magical shield");
+        }
         monstseesu(M_SEEN_REFL);
-	return TRUE;
+        return TRUE;
     } else if (EReflecting & W_WEP) {
         /* Due to wielded artifact weapon */
         if (fmt && str)
@@ -3395,11 +3395,11 @@ const char *fmt, *str;
         return TRUE;
     } else if (EReflecting & W_ART) {
         /* Due to the Magic Mirror, which shows as W_ART */
-	if (fmt && str) {
-	    pline(fmt, str, "mirror");
-	}
+        if (fmt && str) {
+            pline(fmt, str, "mirror");
+        }
         monstseesu(M_SEEN_REFL);
-	return TRUE;
+        return TRUE;
     } else if (youmonst.data == &mons[PM_SILVER_DRAGON]) {
         if (fmt && str)
             pline(fmt, str, "scales");

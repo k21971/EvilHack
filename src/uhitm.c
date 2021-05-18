@@ -1416,7 +1416,7 @@ int dieroll;
             adjalign(-sgn(u.ualign.type));
         } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
             You_feel("like an evil coward for using a poisoned weapon.");
-            adjalign(Role_if(PM_KNIGHT) ? -10 : -1);
+            adjalign(Role_if(PM_KNIGHT) ? -3 : -1);
         }
         if (obj && !rn2(nopoison)
             && !iskas && !isvenom) {

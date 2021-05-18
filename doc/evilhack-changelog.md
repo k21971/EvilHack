@@ -1711,4 +1711,5 @@ The following changes to date are:
 - Fix: crash if artifact owner shows up while level is full
 - Fix: object materials: sort items correctly according to their
   material
+- Readjust alignment penalties for Knights (again)
 

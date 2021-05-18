@@ -1954,12 +1954,11 @@ int magic; /* 0=Physical, otherwise skill level */
         nomul(-1);
         multi_reason = "jumping around";
         nomovemsg = "";
-             /* Knights get it for cheaper */
-	     if (Role_if(PM_KNIGHT)) {
-		     morehungry(rnd(10));
-	     } else {
-        morehungry(rnd(25));
-             }
+        /* Knights get it for cheaper */
+        if (Role_if(PM_KNIGHT))
+            morehungry(rnd(10));
+        else
+            morehungry(rnd(25));
         return 1;
     }
 }
