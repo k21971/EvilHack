@@ -1704,4 +1704,5 @@ The following changes to date are:
 - Fix: trees were unaffected by fire from explosions
 - Better encyclopedia entry for Tiamat
 - Set a default pet name for Infidel role
+- Fix: Illithid player monsters were not being sensed via telepathy
 

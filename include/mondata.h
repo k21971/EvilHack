@@ -37,7 +37,8 @@
 #define resists_psychic(mon) ((mon_resistancebits(mon) & MR_PSYCHIC) != 0)
 
 #define has_telepathy(mon) \
-    (telepathic((mon)->data) || (mon_resistancebits(mon) & MR2_TELEPATHY) != 0)
+    (telepathic(r_data(mon)) \
+     || (mon_resistancebits(mon) & MR2_TELEPATHY) != 0)
 #define can_wwalk(mon) \
     ((mon_resistancebits(mon) & MR2_WATERWALK) != 0)
 #define can_jump(mon) \
