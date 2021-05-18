@@ -186,12 +186,14 @@ boolean check_if_better, stashing;
 
     if (can_use) {
         /* arbitrary - greedy monsters keep any item you can use */
-        if (likes_gold(mtmp->data))
+        if (likes_gold(mtmp->data) && !stashing)
             return TRUE;
         if (otmp->oclass == ARMOR_CLASS) {
             return !check_if_better || !is_better_armor(&youmonst, otmp);
         } else if (is_chargeable(otmp) && otmp->spe <= 0) {
             return FALSE;  /* used charges or was cancelled? */
+        } else if (Is_mbag(otmp) && otmp->cursed) {
+            return FALSE;
         } else {
             /* Check whether the monster has an item like this already.
                Prevent hoarding of multiple, identical items. */
@@ -205,7 +207,8 @@ boolean check_if_better, stashing;
                     if (otmp2->otyp >= SACK && otmp2->otyp <= BAG_OF_HOLDING
                         && otmp->otyp < otmp2->otyp)
                         return FALSE;
-                } if (otmp->otyp == otmp2->otyp) {
+                }
+                if (otmp->otyp == otmp2->otyp) {
                     if (stashing)
                         goto hero_dupe_check;
                     return FALSE;

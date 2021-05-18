@@ -3424,7 +3424,7 @@ boolean creation;
             || obj->otyp == BAG_OF_TRICKS
             || obj->olocked)
             continue;
-        if (obj->otyp == BAG_OF_HOLDING) {
+        if (obj->otyp == BAG_OF_HOLDING && !obj->cursed) {
             bag = obj;
             break;
         } else if (!bag
@@ -3436,6 +3436,9 @@ boolean creation;
             bag = obj;
 	}
     }
+
+    if (nohands(mon->data))
+        return 0;
 
     if (!bag && !creation)
         return 0;
@@ -3466,11 +3469,23 @@ boolean creation;
                 || obj->otyp == SPE_BOOK_OF_THE_DEAD
                 || obj->otyp == ICE_BOX || Is_box(obj)
                 || obj->otyp == BOULDER
+                || (obj->otyp == CORPSE && inediate(mon->data))
+                || (is_graystone(obj) && obj->otyp != TOUCHSTONE)
                 || (obj->otyp == STATUE && bigmonst(&mons[obj->corpsenm]))))
             continue;
 
-        if (nohands(mon->data))
-            return 0;
+        /* prevent pets from stashing random junk armor and weapons, unless
+         * they have a blessed bag of holding -- in which case, sure, they can
+         * go hog wild */
+        if (bag && mon->mtame && !(Is_mbag(bag) && bag->blessed)
+            && (obj->oclass == ARMOR_CLASS || obj->oclass == WEAPON_CLASS)
+            /* keep/stash "special" (magical/artifact) weapons and armor */
+            && !obj->oartifact && !objects[obj->otyp].oc_magic
+            && (obj->oprops & ITEM_PROP_MASK) == 0
+            /* if the player explicitly gave it to their pet, go ahead and
+             * (maybe) stash it anyway */
+            && !obj->invlet)
+            continue;
 
 	if (!bag && !creation)
             continue;

@@ -2488,6 +2488,7 @@ struct monst *mtmp;
        	         otmp; otmp = otmp->nobj) {
        	        if (otmp->cursed
        	            && (otmp->otyp == LOADSTONE
+                        || Is_mbag(otmp)
        	                || otmp->owornmask)) {
        	            m.misc = obj;
        	            m.has_misc = MUSE_SCR_REMOVE_CURSE;
