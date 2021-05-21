@@ -912,7 +912,7 @@ struct monst *magr, *mdef;
     int dx, dy;
 
     /* can't swallow something that's too big */
-    if (mdef->data->msize >= MZ_HUGE)
+    if (r_data(mdef)->msize >= MZ_HUGE)
         return FALSE;
 
     /* can't swallow something if riding / being ridden */
