@@ -1011,7 +1011,7 @@ register struct permonst *ptr;
         debugpline0("Trying to give poison resistance");
         if ((HPoison_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             incr_resistance(&HPoison_resistance, percentincrease);
-            if (HPoison_resistance & TIMEOUT)
+            if ((HPoison_resistance & TIMEOUT) == 100)
                 You_feel("completely healthy.");
             else
                 You_feel("%s healthier.", adj);
