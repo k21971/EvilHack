@@ -1714,4 +1714,6 @@ The following changes to date are:
 - Readjust alignment penalties for Knights (again)
 - Fix: monsters eating eucalyptus leaves when not ill
 - Fix: engulfers swallowing racial giants
+- Fix: proper feedback incrementing poison resistance intrinsic
+  while also having it extrinsically
 
