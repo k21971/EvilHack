@@ -1192,9 +1192,11 @@ int tmp;
     if (!weap || (weap->attk.adtyp == AD_PHYS /* check for `NO_ATTK' */
                   && weap->attk.damn == 0 && weap->attk.damd == 0))
         spec_dbon_applies = FALSE;
-    else if (otmp->oartifact == ART_GRIMTOOTH)
-        /* Grimtooth has SPFX settings to warn against elves but we want its
-           damage bonus to apply to all targets, so bypass spec_applies() */
+    else if (otmp->oartifact == ART_GRIMTOOTH
+             || otmp->oartifact == ART_VORPAL_BLADE)
+        /* Grimtooth and Vorpal Blade have SPFX settings to warn against
+           elves and jabberwocks respectively, but we want its damage
+           bonus to apply to all targets, so bypass spec_applies() */
         spec_dbon_applies = TRUE;
     else
         spec_dbon_applies = spec_applies(weap, mon);

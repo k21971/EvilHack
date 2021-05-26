@@ -1718,4 +1718,5 @@ The following changes to date are:
   while also having it extrinsically
 - Fix: zombie form into a zombie that has been genocided
 - Fix: charge for #looting pet in a shop
+- Fix: Vorpal Blade wasn't vorpalling
 
