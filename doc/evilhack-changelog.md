@@ -1717,4 +1717,5 @@ The following changes to date are:
 - Fix: proper feedback incrementing poison resistance intrinsic
   while also having it extrinsically
 - Fix: zombie form into a zombie that has been genocided
+- Fix: charge for #looting pet in a shop
 

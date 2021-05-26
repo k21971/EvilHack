@@ -2058,9 +2058,10 @@ int *nochrg; /* alternate return value: 1: no charge, 0: shop owned,        */
             continue;
         freespot = (top->where == OBJ_FLOOR
                     && x == ESHK(shkp)->shk.x && y == ESHK(shkp)->shk.y);
-        /* no_charge is only set for floor items inside shop proper;
-           items on freespot are implicitly 'no charge' */
-        *nochrg = (top->where == OBJ_FLOOR && (obj->no_charge || freespot));
+        /* no_charge is only set for items on floor or carried by pet inside
+         * shop proper; items on freespot are implicitly 'no charge' */
+        *nochrg = ((top->where == OBJ_FLOOR || top->where == OBJ_MINVENT)
+                   && (obj->no_charge || freespot));
 
         if (carried(top) ? (int) obj->unpaid : !*nochrg) {
             long per_unit_cost = get_cost(obj, shkp);
