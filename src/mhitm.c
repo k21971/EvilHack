@@ -2038,7 +2038,7 @@ post_stone:
 msickness:
         if (resists_sick(pd))
             break;
-        mdef->msick = (can_become_zombie(pd)) ? 3 : 1;
+        mdef->msick = (can_become_zombie(r_data(mdef))) ? 3 : 1;
         break;
     case AD_FAMN:
         Strcpy(buf, s_suffix(mon_nam(mdef)));

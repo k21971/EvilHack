@@ -672,7 +672,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                           mdef->msick ? "much worse" : "rather ill");
                 if (resists_sick(pd))
                     return MM_MISS;
-                mdef->msick = (can_become_zombie(pd)) ? 3 : 1;
+                mdef->msick = (can_become_zombie(r_data(mdef))) ? 3 : 1;
             }
         }
     }

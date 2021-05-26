@@ -217,7 +217,7 @@ int
 zombie_form(mtmp)
 struct monst *mtmp;
 {
-    switch (mtmp->data->mlet) {
+    switch (r_data(mtmp)->mlet) {
     case S_KOBOLD:
         return PM_KOBOLD_ZOMBIE;
     case S_ORC:
@@ -270,6 +270,15 @@ struct monst* mdef;
     mdef->data = &mons[zombie_form(mdef)];
     boolean willspot = canspotmon(mdef);
     mdef->data = mdat;
+
+    if ((mvitals[zombie_form(mdef)].mvflags & G_GENOD) != 0) {
+        /* if the zombie the monster was to turn into
+           no longer exists, they stay dead */
+        mdef->msick = 0;
+        mdef->mhp = -1;
+        mondied(mdef);
+        return;
+    }
 
     if (couldspot && willspot) {
         /* only print if you can spot both the dying monster and the arising

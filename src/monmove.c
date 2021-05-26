@@ -585,8 +585,8 @@ register struct monst *mtmp;
             if (canseemon(mtmp))
                 pline("%s dies from %s illness.",
                       Monnam(mtmp), mhis(mtmp));
-            if ((mtmp->msick = 2) && !nonliving(mdat)
-                && can_become_zombie(mdat)) {
+            if ((mtmp->msick & 2) && !nonliving(mdat)
+                && can_become_zombie(r_data(mtmp))) {
                 zombify(mtmp);
                 return 1;
             } else {
