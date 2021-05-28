@@ -1720,4 +1720,5 @@ The following changes to date are:
 - Fix: charge for #looting pet in a shop
 - Fix: Vorpal Blade wasn't vorpalling
 - Fix: Healer role was still starting with poison resistance
+- Fix: crowned Infidel giants could not wear body armor/cloaks
 

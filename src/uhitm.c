@@ -475,7 +475,7 @@ register struct monst *mtmp;
                     ing_suffix(Role_if(PM_MONK) ? "strike" :
                                (Role_if(PM_ROGUE) && context.forcefight) ? "rob" : "bash"),
                     uarmg ? "gloved" : "bare", /* Del Lamb */
-                    (Race_if(PM_DEMON) ? "foreclaws" : makeplural(body_part(HAND))));
+                    makeplural(body_part(HAND)));
         }
     }
     exercise(A_STR, TRUE); /* you're exercising muscles */
@@ -1565,13 +1565,15 @@ int dieroll;
                     mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
             } else
                 You("%s %s%s", monkattacks[rn2(SIZE(monkattacks))],
-                     mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
+                    mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
         } else if (Role_if(PM_BARBARIAN)) {
             /* smite me, oh mighty smiter! */
             You("smite %s%s", mon_nam(mon),
                 canseemon(mon) ? exclam(tmp) : ".");
-        } else if (!uwep && Race_if(PM_DEMON) && !Upolyd) {
-            /* demons have claws */
+        } else if (!uwep && (has_claws(youmonst.data)
+                             || has_claws_undead(youmonst.data)
+                             || (Race_if(PM_DEMON) && !Upolyd)
+                             || (Race_if(PM_ILLITHID) && !Upolyd))) {
             You("claw %s%s", mon_nam(mon),
                 canseemon(mon) ? exclam(tmp) : ".");
         } else

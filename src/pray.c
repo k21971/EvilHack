@@ -898,6 +898,7 @@ gcrownu()
         /* mental faculties are not changed by demonization */
         urace.attrmax[A_INT] = maxint;
         urace.attrmax[A_WIS] = maxwis;
+        youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
         set_uasmon();
         check_wings(TRUE); /* in case body armor is worn during crowning */
         retouch_equipment(2); /* silver */
@@ -2481,7 +2482,7 @@ dopray()
     if (ParanoidPray && yn("Are you sure you want to pray?") != 'y')
         return 0;
 
-    if(!u.uconduct.gnostic++)
+    if (!u.uconduct.gnostic++)
         /* breaking conduct should probably occur in can_pray() at
          * "You begin praying to %s", as demons who find praying repugnant
          * should not break conduct.  Also we can add more detail to the
