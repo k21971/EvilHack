@@ -110,7 +110,10 @@ TRAP:random, random
 TRAP:random, random
 
 # None shall pass
-NON_DIGGABLE:(00,00,75,20)
+NON_DIGGABLE:(02,02,09,08)
+NON_DIGGABLE:(66,02,73,08)
+NON_DIGGABLE:(02,12,09,18)
+NON_DIGGABLE:(66,12,73,18)
 NON_PASSWALL:(00,00,75,20)
 
 
@@ -430,6 +433,7 @@ TRAP:random, random
 TRAP:random, random
 
 # None shall pass
-NON_DIGGABLE:(00,00,75,20)
+NON_DIGGABLE:(01,01,35,15)
+NON_DIGGABLE:(56,11,61,15)
 NON_PASSWALL:(00,00,75,20)
 

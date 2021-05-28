@@ -1721,4 +1721,5 @@ The following changes to date are:
 - Fix: Vorpal Blade wasn't vorpalling
 - Fix: Healer role was still starting with poison resistance
 - Fix: crowned Infidel giants could not wear body armor/cloaks
+- Allow dead trees in Vecna's domain to burn
 
