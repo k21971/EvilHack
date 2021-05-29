@@ -1723,4 +1723,6 @@ The following changes to date are:
 - Fix: crowned Infidel giants could not wear body armor/cloaks
 - Allow dead trees in Vecna's domain to burn
 - Fix: corpses removed from ice box by a monster wouldn't rot
+- Fix: incorrect alignment for attendants (healer quest) and
+  warriors (valkyrie quest)
 

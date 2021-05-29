@@ -4164,7 +4164,7 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_PEACEFUL | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE | M3_CLOSE, 0, MH_HUMAN, 14, CLR_BLACK),
-    MON("attendant", S_HUMAN, LVL(5, 12, 10, 10, 3), G_NOGEN,
+    MON("attendant", S_HUMAN, LVL(5, 12, 10, 10, 0), G_NOGEN,
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_GUARDIAN, MZ_HUMAN), MR_POISON, 0,
@@ -4250,7 +4250,7 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_PEACEFUL
             | M2_STRONG | M2_COLLECT | M2_MAGIC,
         M3_INFRAVISIBLE, 0, MH_HUMAN, 8, HI_DOMESTIC),
-    MON("warrior", S_HUMAN, LVL(5, 12, 10, 10, -1), G_NOGEN,
+    MON("warrior", S_HUMAN, LVL(5, 12, 10, 10, 0), G_NOGEN,
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_GUARDIAN, MZ_HUMAN), 0, 0,
