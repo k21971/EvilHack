@@ -1794,6 +1794,8 @@ register const char *str;
                         }
                     }
                     obj_extract_self(otmp3);
+                    if (otmp->otyp == ICE_BOX)
+                        removed_from_icebox(otmp3); /* resume rotting for corpse */
                     (void) mpickobj(mtmp, otmp3); /* may merge and free otmp */
                     check_gear_next_turn(mtmp);
                     newsym(mtmp->mx, mtmp->my);

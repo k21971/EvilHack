@@ -1247,6 +1247,11 @@ struct obj *body;
     long corpse_age; /* age of corpse          */
     int rot_adjust;
     short action;
+    boolean no_revival;
+
+    /* if a troll corpse was frozen, it won't get a revive timer */
+    no_revival = (body->norevive != 0);
+    body->norevive = 0; /* always clear corpse's 'frozen' flag */
 
 #define TAINT_AGE (50L)          /* age when corpses go bad */
 #define TROLL_REVIVE_CHANCE 37   /* 1/37 chance for 50 turns ~ 75% chance */
@@ -1276,8 +1281,9 @@ struct obj *body;
             if (!rn2(3))
                 break;
 
-    } else if (mons[body->corpsenm].mlet == S_TROLL && !body->norevive) {
+    } else if (mons[body->corpsenm].mlet == S_TROLL && !no_revival) {
         long age;
+
         for (age = 2; age <= TAINT_AGE; age++) {
             if (!rn2(TROLL_REVIVE_CHANCE)) { /* troll revives */
                 action = REVIVE_MON;
@@ -1285,8 +1291,9 @@ struct obj *body;
                 break;
             }
         }
-    } else if (body->zombie_corpse && !body->norevive) {
+    } else if (body->zombie_corpse && !no_revival) {
         long age;
+
         for (age = 2; age <= ROT_AGE; age++) {
             if (!rn2(ZOMBIE_REVIVE_CHANCE)) { /* zombie revives */
                 action = REVIVE_MON;
@@ -1296,8 +1303,6 @@ struct obj *body;
         }
     }
 
-    if (body->norevive)
-        body->norevive = 0;
     (void) start_timer(when, TIMER_OBJECT, action, obj_to_any(body));
 }
 

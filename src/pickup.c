@@ -33,7 +33,6 @@ STATIC_DCL boolean FDECL(mbag_explodes, (struct obj *, int));
 STATIC_DCL long FDECL(boh_loss, (struct obj *container, int));
 STATIC_PTR int FDECL(in_container, (struct obj *));
 STATIC_PTR int FDECL(out_container, (struct obj *));
-STATIC_DCL void FDECL(removed_from_icebox, (struct obj *));
 STATIC_DCL long FDECL(mbag_item_gone, (int, struct obj *));
 STATIC_DCL void FDECL(explain_container_prompt, (BOOLEAN_P));
 STATIC_DCL int FDECL(traditional_loot, (BOOLEAN_P));
@@ -2649,14 +2648,17 @@ register struct obj *obj;
 }
 
 /* taking a corpse out of an ice box needs a couple of adjustments */
-STATIC_OVL void
+void
 removed_from_icebox(obj)
 struct obj *obj;
 {
     if (!age_is_relative(obj)) {
         obj->age = monstermoves - obj->age; /* actual age */
-        if (obj->otyp == CORPSE)
+        if (obj->otyp == CORPSE) {
+            /* start a rot-away timer but not a troll or zombie's revive timer */
+            obj->norevive = 1;
             start_corpse_timeout(obj);
+        }
     }
 }
 
