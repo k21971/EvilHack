@@ -1093,7 +1093,8 @@ char *prefix;
             Strcat(prefix, "thoroughly ");
             break;
         }
-        Strcat(prefix, is_rustprone(obj) ? "rusty " : "burnt ");
+        Strcat(prefix, is_rustprone(obj) ? "rusty " :
+               obj->oclass == FOOD_CLASS ? "rotten " : "burnt ");
     }
     if (obj->oeroded2 && !iscrys) {
         switch (obj->oeroded2) {
@@ -1106,8 +1107,7 @@ char *prefix;
         }
         Strcat(prefix, !is_damageable(obj) ? "deteriorated " :
                is_glass(obj) ? "fractured " :
-               is_corrodeable(obj) ? "corroded " :
-               obj->oclass == FOOD_CLASS ? "rotten " : "rotted ");
+               is_corrodeable(obj) ? "corroded " : "rotted ");
     }
     if (rknown && obj->oerodeproof) {
         if (iscrys)
@@ -3456,13 +3456,13 @@ struct obj *no_wish;
             very = 2;
         } else if (!strncmpi(bp, "rusty ", l = 6)
                    || !strncmpi(bp, "rusted ", l = 7)
+                   || !strncmpi(bp, "rotten ", l = 7)
                    || !strncmpi(bp, "burnt ", l = 6)
                    || !strncmpi(bp, "burned ", l = 7)) {
             eroded = 1 + very;
             very = 0;
         } else if (!strncmpi(bp, "corroded ", l = 9)
                    || !strncmpi(bp, "rotted ", l = 7)
-                   || !strncmpi(bp, "rotten ", l = 7)
                    || !strncmpi(bp, "fractured ", l = 10)
                    || !strncmpi(bp, "deteriorated ", l = 13)) {
             eroded2 = 1 + very;

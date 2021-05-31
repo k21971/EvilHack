@@ -1725,4 +1725,5 @@ The following changes to date are:
 - Fix: corpses removed from ice box by a monster wouldn't rot
 - Fix: incorrect alignment for attendants (healer quest) and
   warriors (valkyrie quest)
+- Fix: crash due to incorrect handling of rot timer
 
