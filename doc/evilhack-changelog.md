@@ -1728,4 +1728,6 @@ The following changes to date are:
 - Fix: crash due to incorrect handling of rot timer
 - Fix: confusion from psionic wave attack required seeing the
   target
+- Fix: various armor made from a rigid material was allowing
+  dexterity bonus to be applied
 

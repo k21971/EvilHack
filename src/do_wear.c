@@ -2725,11 +2725,13 @@ find_ac()
     else if (ACURR(A_DEX) >= 24)
         dex_adjust_ac -= 5;
 
-    /* Wearing certain types of body armor negates any
-     * beneficial dexterity bonus. So does being
-     * encumbered in any way.
+    /* Wearing body armor made of certain rigid
+     * materials negates any beneficial dexterity
+     * bonus. So does being encumbered in any way.
      */
-    if ((uarm && is_heavy_metallic(uarm))
+    if ((uarm && (is_heavy_metallic(uarm)
+                  || is_bone(uarm) || is_stone(uarm)
+                  || is_wood(uarm) || is_glass(uarm)))
         || (near_capacity() >= SLT_ENCUMBER)) {
         if (dex_adjust_ac < 0)
             dex_adjust_ac = 0;
