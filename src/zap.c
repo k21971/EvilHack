@@ -211,10 +211,12 @@ struct obj *otmp;
                 damage_mon(mtmp, dmg, AD_PSYC);
                 if (DEADMONSTER(mtmp)) {
                     killed(mtmp);
-                } else if (canseemon(mtmp)) {
-                    pline("%s %s in %s!", Monnam(mtmp),
-                          rn2(2) ? "withers" : "trembles",
-                          rn2(2) ? "agony" : "anguish");
+                } else {
+                    if (canseemon(mtmp)) {
+                        pline("%s %s in %s!", Monnam(mtmp),
+                              rn2(2) ? "withers" : "trembles",
+                              rn2(2) ? "agony" : "anguish");
+                    }
                     if (!rn2(4)) {
                         mtmp->mconf = 1;
                         pline("%s seems %s!", Monnam(mtmp),

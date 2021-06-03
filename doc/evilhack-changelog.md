@@ -1726,4 +1726,6 @@ The following changes to date are:
 - Fix: incorrect alignment for attendants (healer quest) and
   warriors (valkyrie quest)
 - Fix: crash due to incorrect handling of rot timer
+- Fix: confusion from psionic wave attack required seeing the
+  target
 
