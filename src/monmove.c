@@ -584,7 +584,7 @@ register struct monst *mtmp;
         } else {
             if (canseemon(mtmp))
                 pline("%s dies from %s illness.",
-                      Monnam(mtmp), mhis(mtmp));
+                      Monnam(mtmp), noit_mhis(mtmp));
             if ((mtmp->msick & 2) && !nonliving(mdat)
                 && can_become_zombie(r_data(mtmp))) {
                 zombify(mtmp);
@@ -605,7 +605,7 @@ register struct monst *mtmp;
         } else {
             if (canseemon(mtmp))
                 pline("%s dies from %s infection.",
-                      Monnam(mtmp), mhis(mtmp));
+                      Monnam(mtmp), noit_mhis(mtmp));
             mtmp->mdiseased = 0;
             mtmp->mhp = -1;
             if (wielding_artifact(ART_GRIMTOOTH))

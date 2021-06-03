@@ -1731,4 +1731,6 @@ The following changes to date are:
 - Fix: various armor made from a rigid material was allowing
   dexterity bonus to be applied
 - Fix: Sokoban zoo entrance door not affected by various rays
+- Change 'its' to 'his/her' under certain circumstances when
+  a monster is killed via illness or disease
 
