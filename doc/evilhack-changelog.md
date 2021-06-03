@@ -1730,4 +1730,5 @@ The following changes to date are:
   target
 - Fix: various armor made from a rigid material was allowing
   dexterity bonus to be applied
+- Fix: Sokoban zoo entrance door not affected by various rays
 
