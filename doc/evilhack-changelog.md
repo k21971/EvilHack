@@ -1733,4 +1733,6 @@ The following changes to date are:
 - Fix: Sokoban zoo entrance door not affected by various rays
 - Change 'its' to 'his/her' under certain circumstances when
   a monster is killed via illness or disease
+- Different feedback if a shopkeeper nymph tries to steal your
+  mirror
 

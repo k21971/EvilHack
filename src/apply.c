@@ -984,7 +984,7 @@ struct obj *obj;
     how_seen = vis ? howmonseen(mtmp) : 0;
     /* whether monster is able to use its vision-based capabilities */
     monable = !mtmp->mcan && (!mtmp->minvis || mon_prop(mtmp, SEE_INVIS));
-    mlet = mtmp->data->mlet;
+    mlet = r_data(mtmp)->mlet;
     if (mtmp->msleeping) {
         if (vis)
             pline("%s is too tired to look at your %s.", Monnam(mtmp),
@@ -1047,14 +1047,22 @@ struct obj *obj;
         mtmp->mconf = 1;
     } else if (monable && (mlet == S_NYMPH || mtmp->data == &mons[PM_SUCCUBUS]
                            || mtmp->data == &mons[PM_INCUBUS])) {
+        boolean is_shkp = has_eshk(mtmp) && inhishop(mtmp);
         if (vis) {
             char buf[BUFSZ]; /* "She" or "He" */
 
             pline("%s admires %sself in your %s.", Monnam(mtmp), mhim(mtmp),
                   mirror);
-            pline("%s takes it!", upstart(strcpy(buf, mhe(mtmp))));
-        } else
+            Strcpy(buf, mhe(mtmp));
+            if (is_shkp)
+                pline("%s starts to reach for it, but restrains %sself.",
+                      upstart(buf), mhis(mtmp));
+            else
+                pline("%s takes it!", upstart(buf));
+        } else if (!is_shkp)
             pline("It steals your %s!", mirror);
+        if (is_shkp)
+            return 1;
         setnotworn(obj); /* in case mirror was wielded */
         freeinv(obj);
         (void) mpickobj(mtmp, obj);
