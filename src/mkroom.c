@@ -737,10 +737,10 @@ mkswamp() /* Michiel Huisjes & Fred de Wilde */
                     } else {
                         levl[sx][sy].typ = PUDDLE;
                         if (!rn2(4)) /* swamps tend to be moldy and wet */
-                        (void) makemon(rn2(2)
-                                          ? mkclass(S_FUNGUS, 0)
-                                          : &mons[PM_GIANT_MOSQUITO],
-                                       sx, sy, NO_MM_FLAGS);
+                            (void) makemon(rn2(2)
+                                              ? mkclass(S_FUNGUS, 0)
+                                              : &mons[PM_GIANT_MOSQUITO],
+                                           sx, sy, NO_MM_FLAGS);
                     }
                 }
         level.flags.has_swamp = 1;

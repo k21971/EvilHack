@@ -1539,14 +1539,14 @@ coord *tm;
                 if (lvl < 5)
                     kind = NO_TRAP;
                 if (tm && (is_puddle(tm->x, tm->y)
-                    || is_sewage(tm->x, tm->y)))
+                           || is_sewage(tm->x, tm->y)))
                     kind = NO_TRAP;
                 break;
             case LANDMINE:
                 if (lvl < 6)
                     kind = NO_TRAP;
                 if (tm && (is_puddle(tm->x, tm->y)
-                    || is_sewage(tm->x, tm->y)))
+                           || is_sewage(tm->x, tm->y)))
                     kind = NO_TRAP;
                 break;
             case SPEAR_TRAP:
@@ -1557,7 +1557,7 @@ coord *tm;
                 if (lvl < 7)
                     kind = NO_TRAP;
                 if (tm && (is_puddle(tm->x, tm->y)
-                    || is_sewage(tm->x, tm->y)))
+                           || is_sewage(tm->x, tm->y)))
                     kind = NO_TRAP;
                 break;
             case STATUE_TRAP:
@@ -1567,6 +1567,9 @@ coord *tm;
                 break;
             case MAGIC_BEAM_TRAP:
                 if (lvl < 12)
+                    kind = NO_TRAP;
+                if (tm && (is_puddle(tm->x, tm->y)
+                           || is_sewage(tm->x, tm->y)))
                     kind = NO_TRAP;
                 break;
             case FIRE_TRAP:
@@ -1582,7 +1585,7 @@ coord *tm;
                 if (rn2(7))
                     kind = NO_TRAP;
                 if (tm && (is_puddle(tm->x, tm->y)
-                    || is_sewage(tm->x, tm->y)))
+                           || is_sewage(tm->x, tm->y)))
                     kind = NO_TRAP;
                 break;
             }

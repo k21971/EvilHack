@@ -2196,20 +2196,21 @@ dodip()
                           xname(obj));
                     useupall(obj);
                 }
-            } else if (IS_PUDDLE(here) && !rn2(3)) {
-                /* shallow water isn't an endless resource like a pool/moat */
-                levl[u.ux][u.uy].typ = ROOM;
-                newsym(u.ux, u.uy);
-                if (cansee(u.ux, u.uy)) {
-                    pline("There isn't enough water left to use.");
-                    pline_The("puddle dries up.");
-                }
             } else {
                 if (obj->otyp == POT_ACID)
                     obj->in_use = 1;
                 if (water_damage(obj, 0, TRUE, u.ux, u.uy) != ER_DESTROYED
                     && obj->in_use)
                     useup(obj);
+                if (IS_PUDDLE(here) && !rn2(3)
+                    && !On_stairs(u.ux, u.uy)) { /* if shallow water forms on stairs,
+                                                    don't run risk of removing stairs */
+                    /* shallow water isn't an endless resource like a pool/moat */
+                    levl[u.ux][u.uy].typ = ROOM;
+                    newsym(u.ux, u.uy);
+                    if (cansee(u.ux, u.uy))
+                        pline_The("puddle dries up.");
+                }
             }
             return 1;
         }

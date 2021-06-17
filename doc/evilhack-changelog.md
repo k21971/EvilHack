@@ -1737,4 +1737,6 @@ The following changes to date are:
   mirror
 - Fix: prevent shallow water in mindflayer nurseries from
   forming on stairs
+- Fix: prevent shallow water that has formed over stairs from
+  drying up
 
