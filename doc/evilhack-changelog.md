@@ -1735,4 +1735,6 @@ The following changes to date are:
   a monster is killed via illness or disease
 - Different feedback if a shopkeeper nymph tries to steal your
   mirror
+- Fix: prevent shallow water in mindflayer nurseries from
+  forming on stairs
 

@@ -307,6 +307,7 @@ struct mkroom *sroom;
     register int sx, sy, i;
     int sh, tx = 0, ty = 0, goldlim = 0, type = sroom->rtype;
     int rmno = (int) ((sroom - rooms) + ROOMOFFSET);
+    boolean special_nursery = !rn2(100);
     coord mm;
 
     sh = sroom->fdoor;
@@ -371,7 +372,7 @@ struct mkroom *sroom;
             /* don't place monster on explicitly placed throne */
             if (type == COURT && IS_THRONE(levl[sx][sy].typ))
                 continue;
-            if (type == NURSERY)
+            if (type == NURSERY && !On_stairs(sx, sy))
                 levl[sx][sy].typ = PUDDLE;
             mon = ((struct monst *) 0);
             if (type == ARMORY) {
@@ -379,7 +380,7 @@ struct mkroom *sroom;
                 if (!rn2(3))
                     mon = makemon(armorymon(), sx, sy, NO_MM_FLAGS);
             } else if (type == NURSERY) {
-                if (!rn2(100)) { /* very rare event */
+                if (special_nursery) { /* very rare event */
                     /* somehow a larvae nursery was left unattended,
                        and the sole surviving larva had undergone neoteny,
                        becoming a neothelid. mind flayers nearby discovered
