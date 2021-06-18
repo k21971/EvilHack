@@ -525,7 +525,7 @@ struct attack *alt_attk_buf;
                 attk->aatyp = AT_ENGL;
                 attk->adtyp = AD_DGST;
             } else {
-                attk->aatyp = AT_BITE; /* attack message will be "<foo> bites" */
+                attk->aatyp = AT_CLAW; /* attack message will be "<foo> hits" */
                 attk->adtyp = AD_PHYS;
             }
         }

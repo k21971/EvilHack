@@ -1748,4 +1748,5 @@ The following changes to date are:
   maximum hit points (wand of orcus)
 - Fix: clean up a few -Wmaybe-uninitialized warnings during compile
 - Fix: incorrect feedback if Graz'zt steals something from the player
+- Fix: 'The dust vortex bites!'
 
