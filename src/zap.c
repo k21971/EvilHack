@@ -2324,7 +2324,7 @@ register struct obj *wand;
 
     if (wand->spe == 0) {
         int prob = 6 + (wand->cursed ? 1 : (wand->blessed ? - 1 : 0));
-        if ((zap_it = rn2(prob)))
+        if ((zap_it = !rn2(prob)))
             You("wrest one last charge from the worn-out wand.");
     }
     wand->spe--;
