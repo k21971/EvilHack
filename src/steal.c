@@ -435,7 +435,17 @@ char *objnambuf;
                 if (Unaware)
                     unmul((char *) 0);
                 slowly = (armordelay >= 1 || multi < 0);
-                if (flags.female)
+                /* specific feedback for Graz'zt */
+                if (mtmp->data == &mons[PM_GRAZ_ZT])
+                    pline("%s enthralls you.  You gladly %s your %s.",
+                          !seen ? "He" : Monnam(mtmp),
+                          curssv ? "let him take"
+                                 : !slowly ? "hand over"
+                                           : was_doffing ? "continue removing"
+                                                         : "start removing",
+                          equipname(otmp));
+                /* below here is nymph feedback */
+                else if (flags.female)
                     pline("%s charms you.  You gladly %s your %s.",
                           !seen ? "She" : Monnam(mtmp),
                           curssv ? "let her take"
@@ -490,7 +500,7 @@ char *objnambuf;
         subfrombill(otmp, shop_keeper(*u.ushops));
     freeinv(otmp);
     /* if attached ball was taken, uball and uchain are now Null */
-    pline("%s%s stole %s.", named ? "She" : Monnam(mtmp),
+    pline("%s%s stole %s.", named ? mhe(mtmp) : Monnam(mtmp),
           (was_punished && !Punished) ? " removed your chain and" : "",
           doname(otmp));
     could_petrify = (otmp->otyp == CORPSE

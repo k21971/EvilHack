@@ -1747,4 +1747,5 @@ The following changes to date are:
 - Fix: prevent player hit points from being greater than their
   maximum hit points (wand of orcus)
 - Fix: clean up a few -Wmaybe-uninitialized warnings during compile
+- Fix: incorrect feedback if Graz'zt steals something from the player
 
