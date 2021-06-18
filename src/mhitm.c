@@ -2001,10 +2001,12 @@ post_stone:
         default: /* case 16 through case 5 */
             if (vis)
                 pline("%s looks weaker!", Monnam(mdef));
-            /* mhp will then still be less than this value*/
+            /* mhp will then still be less than this value */
             mdef->mhpmax -= rn2(tmp / 2 + 1);
+            if (mdef->mhpmax <= 0) /* protect against invalid value */
+                mdef->mhpmax = 1;
             break;
-     	case 4:
+        case 4:
         case 3:
         case 2:
         case 1:

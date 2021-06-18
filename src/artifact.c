@@ -1881,8 +1881,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             default: /* case 16 through case 0 */
                 if (vis)
                     pline("%s looks weaker!", Monnam(mdef));
-                /* mhp will then still be less than this value*/
+                /* mhp will then still be less than this value */
                 mdef->mhpmax -= rn2(*dmgptr / 2 + 1);
+                if (mdef->mhpmax <= 0) /* protect against invalid value */
+                    mdef->mhpmax = 1;
                 break;
             }
         }
@@ -2779,8 +2781,10 @@ struct obj *obj;
                                 pline("%s screams in agony!", Monnam(mtmp));
                             else if (cansee(mtmp->mx, mtmp->my))
                                 pline("%s trembles in agony!", Monnam(mtmp));
-                            /* mhp will then still be less than this value*/
+                            /* mhp will then still be less than this value */
                             mtmp->mhpmax -= rn2(tmp / 2 + 1);
+                            if (mtmp->mhpmax <= 0) /* protect against invalid value */
+                                mtmp->mhpmax = 1;
                             mtmp->mhp /= 3;
                             if (mtmp->mhp < 1)
                                 mtmp->mhp = 1;

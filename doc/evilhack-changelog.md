@@ -1742,4 +1742,6 @@ The following changes to date are:
 - Fix: wresting odds for spent wands was backwards
 - Fix: greased armor allowed for corrosion loop
 - Fix: how using the Eye of Vecna adjusts luck
+- Fix: crash if a monsters maximum hit point value reached zero
+  or less
 
