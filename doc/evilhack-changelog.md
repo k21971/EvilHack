@@ -1740,4 +1740,5 @@ The following changes to date are:
 - Fix: prevent shallow water that has formed over stairs from
   drying up
 - Fix: wresting odds for spent wands was backwards
+- Fix: greased armor allowed for corrosion loop
 
