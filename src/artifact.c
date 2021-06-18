@@ -2797,9 +2797,9 @@ struct obj *obj;
                     }
                 }
             }
-	    /* Use at your own risk... */
+            /* Use at your own risk... */
             adjalign(-3);
-            u.uluck -= 3;
+            change_luck(-3);
             exercise(A_WIS, FALSE);
             break;
         }

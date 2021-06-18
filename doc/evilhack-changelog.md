@@ -1741,4 +1741,5 @@ The following changes to date are:
   drying up
 - Fix: wresting odds for spent wands was backwards
 - Fix: greased armor allowed for corrosion loop
+- Fix: how using the Eye of Vecna adjusts luck
 
