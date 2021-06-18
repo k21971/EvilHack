@@ -4443,7 +4443,7 @@ struct sp_coder *coder;
 {
     static const char nhFunc[] = "spo_feature";
     struct opvar *sel;
-    int typ;
+    int typ = STONE;
 
     if (!OV_pop_typ(sel, SPOVAR_SEL))
         return;

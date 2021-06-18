@@ -2143,7 +2143,7 @@ dosacrifice()
                                 typ = rnd_class(MACE, FLAIL);
                             else if (Role_if(PM_MONK))
                                 typ = rn2(4) ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
-                                             : typ == BROADSWORD;
+                                             : BROADSWORD;
                             else
                                 typ = rnd_class(SPEAR, KATANA);
 

@@ -4612,12 +4612,13 @@ boolean say; /* Announce out of sight hit/miss events if true */
         }
 
         if (mon) {
-            int saved_mhp = mon->mhp; /* for print_mon_wounded() */
+            int saved_mhp;
             if (type == ZT_SPELL(ZT_FIRE))
                 break;
             if (type >= 0)
                 mon->mstrategy &= ~STRAT_WAITMASK;
  buzzmonst:
+            saved_mhp = mon->mhp; /* for print_mon_wounded() */
             notonhead = (mon->mx != bhitpos.x || mon->my != bhitpos.y);
             if (zap_hit(find_mac(mon), spell_type, is_wand)) {
                 if (mon_reflects(mon, (char *) 0)) {

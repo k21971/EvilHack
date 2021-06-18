@@ -3436,6 +3436,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
         case AT_ENGL:
             tmp = find_roll_to_hit(mon, mattk->aatyp, (struct obj *) 0,
                                    &attknum, &armorpenalty);
+            dieroll = rnd(20);
             if ((dhit = (tmp > rnd(20 + i)))) {
                 wakeup(mon, TRUE);
                 if (noncorporeal(mon->data))

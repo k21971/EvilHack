@@ -1746,4 +1746,5 @@ The following changes to date are:
   or less
 - Fix: prevent player hit points from being greater than their
   maximum hit points (wand of orcus)
+- Fix: clean up a few -Wmaybe-uninitialized warnings during compile
 
