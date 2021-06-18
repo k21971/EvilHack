@@ -1744,4 +1744,6 @@ The following changes to date are:
 - Fix: how using the Eye of Vecna adjusts luck
 - Fix: crash if a monsters maximum hit point value reached zero
   or less
+- Fix: prevent player hit points from being greater than their
+  maximum hit points (wand of orcus)
 

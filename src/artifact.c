@@ -1862,6 +1862,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     *hpmax_p = lowerlimit;
                 /* else unlikely...
                  * already at or below minimum threshold; do nothing */
+                if (u.uhp > *hpmax_p)
+                    u.uhp = *hpmax_p; /* prevent hit points from being greater
+                                         than max hit points */
                 context.botl = 1;
             }
         } else if (!youdefend && !immune_death_magic(mdef->data)) {
