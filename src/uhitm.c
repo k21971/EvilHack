@@ -748,6 +748,17 @@ struct attack *uattk;
             if (!rn2(8))
                 pline("Your extra kick attack is ineffective while wearing %s.",
                       xname(weararmor));
+        } else if (Wounded_legs) {
+            /* note: taken from dokick.c */
+            long wl = (EWounded_legs & BOTH_SIDES);
+            const char *bp = body_part(LEG);
+
+            if (wl == BOTH_SIDES)
+                bp = makeplural(bp);
+            if (!rn2(3))
+                Your("%s%s %s in no shape for kicking.",
+                     (wl == LEFT_SIDE) ? "left " : (wl == RIGHT_SIDE) ? "right " : "",
+                     bp, (wl == BOTH_SIDES) ? "are" : "is");
         } else if (Race_if(PM_CENTAUR)
                    && touch_petrifies(mon->data)) {
             /* kick doesn't happen - centaurs can't wear boots */
