@@ -1754,4 +1754,6 @@ The following changes to date are:
 - Adjust maximum hit points the Wand of Orcus can decrease per hit
 - Fix: getting incorrect damage feedback from poisoned/diseased
   weapons if fully resistant to their special attack
+- Make 'The golden haze around the <foo> becomes less dense' less
+  spammy
 

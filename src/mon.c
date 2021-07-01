@@ -1137,10 +1137,11 @@ mcalcdistress()
             if (mtmp->mprottime-- == 0) {
                 mtmp->mprotection--;
                 if (canseemon(mtmp))
-                    pline_The("%s haze around %s %s.",
-                              hcolor(NH_GOLDEN), mon_nam(mtmp),
-                              mtmp->mprotection ? "becomes less dense"
-                                                : "disappears");
+                    if (!rn2(4))
+                        pline_The("%s haze around %s %s.",
+                                  hcolor(NH_GOLDEN), mon_nam(mtmp),
+                                  mtmp->mprotection ? "becomes less dense"
+                                                    : "disappears");
                 if (mtmp->mprotection)
                     mtmp->mprottime = (mtmp->iswiz || is_prince(mtmp->data)
                                        || mtmp->data->msound == MS_NEMESIS
