@@ -1751,4 +1751,5 @@ The following changes to date are:
 - Fix: 'The dust vortex bites!'
 - Fix: Monk extra kick attack would work with wounded legs
 - Update to 'Fix: charge for #looting pet in a shop'
+- Adjust maximum hit points the Wand of Orcus can decrease per hit
 

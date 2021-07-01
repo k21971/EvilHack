@@ -1834,19 +1834,19 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 /*
                  * Apply some of the damage to permanent hit points:
                  *  polymorphed         100% against poly'd hpmax
-                 *  hpmax > 25*lvl      100% against normal hpmax
-                 *  hpmax > 10*lvl  50..100%
-                 *  hpmax >  5*lvl  25..75%
+                 *  hpmax > 25*lvl  50..100% against normal hpmax
+                 *  hpmax > 10*lvl  25..75%
+                 *  hpmax >  5*lvl  20..60%
                  *  otherwise        0..50%
                  * Never reduces hpmax below 1 hit point per level.
                  */
                 permdmg = rn2(*dmgptr / 2 + 1);
                 if (Upolyd || u.uhpmax > 25 * u.ulevel)
-                    permdmg = *dmgptr;
+                    permdmg = *dmgptr / 2;
                 else if (u.uhpmax > 10 * u.ulevel)
-                    permdmg += *dmgptr / 2;
-                else if (u.uhpmax > 5 * u.ulevel)
                     permdmg += *dmgptr / 4;
+                else if (u.uhpmax > 5 * u.ulevel)
+                    permdmg += *dmgptr / 5;
 
                 if (Upolyd) {
                     hpmax_p = &u.mhmax;
