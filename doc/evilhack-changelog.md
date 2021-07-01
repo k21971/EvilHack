@@ -1752,4 +1752,6 @@ The following changes to date are:
 - Fix: Monk extra kick attack would work with wounded legs
 - Update to 'Fix: charge for #looting pet in a shop'
 - Adjust maximum hit points the Wand of Orcus can decrease per hit
+- Fix: getting incorrect damage feedback from poisoned/diseased
+  weapons if fully resistant to their special attack
 

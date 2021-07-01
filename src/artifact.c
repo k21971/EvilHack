@@ -1937,7 +1937,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                             pline_The("gigantic blade hits %s.", hittee);
                     } else {
                         pline_The("gigantic blade %s %s%c",
-                                  rn2(2) ? "poisons" : "eviscerates",
+                                  (how_resistant(POISON_RES) == 100)
+                                      ? "hits"
+                                      : rn2(2) ? "poisons" : "eviscerates",
                                   hittee, !spec_dbon_applies ? '.' : '!');
                     }
                 } else {
@@ -1959,7 +1961,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     } else {
                         pline_The("%s %s %s%c",
                                   distant_name(otmp, xname),
-                                  rn2(2) ? "taints" : "poisons",
+                                  (how_resistant(POISON_RES) == 100)
+                                      ? "hits"
+                                      : rn2(2) ? "taints" : "poisons",
                                   hittee, !spec_dbon_applies ? '.' : '!');
                     }
                 } else {
@@ -1999,7 +2003,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         pline_The("filthy dagger hits %s.", hittee);
                 } else {
                     pline_The("filthy dagger %s %s%c",
-                              rn2(2) ? "contaminates" : "infects",
+                              Sick_resistance
+                                  ? "hits"
+                                  : rn2(2) ? "contaminates" : "infects",
                               hittee, !spec_dbon_applies ? '.' : '!');
                 }
             } else {
