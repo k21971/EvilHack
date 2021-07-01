@@ -2163,8 +2163,6 @@ boolean taking;
             pline("You give %s %s.", mon_nam(mtmp), yname(otmp));
             if (otmp->owornmask)
                 setnotworn(otmp); /* reset quivered, wielded, etc, status */
-            if (!otmp->unpaid)
-                otmp->no_charge = 1;
             obj_extract_self(otmp);
             if (add_to_minv(mtmp, otmp))
                 otmp = (struct obj *) 0; /* merged with something in minvent */
@@ -2228,7 +2226,7 @@ boolean taking;
             if (maxquan < otmp->quan)
                 otmp = splitobj(otmp, maxquan);
             extract_from_minvent(mtmp, otmp, TRUE, TRUE);
-            if (!otmp->no_charge && costly_spot(mtmp->mx, mtmp->my))
+            if (in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
                 addtobill(otmp, FALSE, FALSE, FALSE);
             otmp = hold_another_object(otmp, "You take, but drop, %s.",
                                        doname(otmp), "You take: ");

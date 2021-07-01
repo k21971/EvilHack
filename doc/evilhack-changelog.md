@@ -1750,4 +1750,5 @@ The following changes to date are:
 - Fix: incorrect feedback if Graz'zt steals something from the player
 - Fix: 'The dust vortex bites!'
 - Fix: Monk extra kick attack would work with wounded legs
+- Update to 'Fix: charge for #looting pet in a shop'
 
