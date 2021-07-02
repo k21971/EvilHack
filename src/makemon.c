@@ -1083,6 +1083,9 @@ register struct monst *mtmp;
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, ROBE);
             (void) mongets(mtmp, CORNUTHAUM);
+        } else if (mm == PM_TWOFLOWER) {
+            (void) mongets(mtmp, EXPENSIVE_CAMERA);
+            (void) mongets(mtmp, HAWAIIAN_SHIRT);
         } else if (mm == PM_MEDUSA) {
             (void) mongets(mtmp, ORCISH_BOW);
             /* 25 to 40 arrows */
