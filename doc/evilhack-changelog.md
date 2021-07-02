@@ -1756,4 +1756,5 @@ The following changes to date are:
   weapons if fully resistant to their special attack
 - Make 'The golden haze around the <foo> becomes less dense' less
   spammy
+- Fix: alignment penalty for killing quest leader that isn't yours
 

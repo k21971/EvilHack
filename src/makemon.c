@@ -3529,6 +3529,8 @@ struct monst *mtmp;
 {
     schar mal = has_erac(mtmp) ? ERAC(mtmp)->ralign : mtmp->data->maligntyp;
     boolean coaligned;
+    int mndx;
+    struct permonst *mdat;
 
     if (mtmp->ispriest || mtmp->isminion) {
         /* some monsters have individual alignments; check them */
@@ -3543,8 +3545,14 @@ struct monst *mtmp;
     }
 
     coaligned = (sgn(mal) == u.ualign.type);
-    if (mtmp->data->msound == MS_LEADER) {
-        mtmp->malign = -20;
+    mdat = mtmp->data;
+    mndx = monsndx(mdat);
+
+    if (mndx == urole.ldrnum) {
+        if (Role_if(PM_INFIDEL))
+            ; /* Moloch's indifference */
+        else
+            mtmp->malign = -20;
     } else if (mal == A_NONE) {
         if (mtmp->mpeaceful)
             mtmp->malign = 0;
@@ -3552,7 +3560,7 @@ struct monst *mtmp;
             mtmp->malign = 20; /* really hostile */
         if (u.ualign.type == A_NONE)
             mtmp->malign -= 20; /* reverse */
-    } else if (always_peaceful(mtmp->data)) {
+    } else if (always_peaceful(mdat)) {
         int absmal = abs(mal);
         if (mtmp->mpeaceful) {
             if (Role_if(PM_INFIDEL))
@@ -3561,7 +3569,7 @@ struct monst *mtmp;
                 mtmp->malign = -3 * max(5, absmal);
         } else
             mtmp->malign = 3 * max(5, absmal); /* renegade */
-    } else if (always_hostile(mtmp->data)) {
+    } else if (always_hostile(mdat)) {
         int absmal = abs(mal);
         if (coaligned)
             mtmp->malign = 0;

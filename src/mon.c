@@ -3703,12 +3703,23 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             quest_status.leader_is_dead = TRUE;
 
         adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
+        if (Role_if(PM_INFIDEL))
+            ; /* Moloch's indifference */
+        else
+            u.ugangr += 7; /* instantly become "extremely" angry */
+        change_luck(-20);
         pline("That was %sa bad idea...",
               u.uevent.qcompleted ? "probably " : "");
     } else if (mndx == urole.neminum) { /* Real good! */
-        adjalign((int) (ALIGNLIM / 4));
+        if (!quest_status.killed_leader)
+            adjalign((int) (ALIGNLIM / 4));
     } else if (mdat->msound == MS_GUARDIAN) { /* Bad */
         adjalign(-(int) (ALIGNLIM / 8));
+        if (Role_if(PM_INFIDEL))
+            ; /* Moloch's indifference */
+        else
+            u.ugangr++;
+        change_luck(-4);
         if (!Hallucination)
             pline("That was probably a bad idea...");
         else
