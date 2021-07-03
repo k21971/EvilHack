@@ -1758,4 +1758,5 @@ The following changes to date are:
   spammy
 - Fix: alignment penalty for killing quest leader that isn't yours
 - Give Twoflower proper attire and gear
+- Fix: set location pits forming under shallow water (Barbarian quest)
 

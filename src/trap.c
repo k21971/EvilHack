@@ -1633,9 +1633,9 @@ unsigned trflags;
 		    pline("It smells sort of %s in here.",
 			  Hallucination ? "purple" : "fleecy"); /* hi Amy */
 		}
-	    incr_itimeout(&HHallucination,rnd(50) + 50);
+                incr_itimeout(&HHallucination,rnd(50) + 50);
 	    }
-        break;
+            break;
         } else {
             domagictrap();
         }
