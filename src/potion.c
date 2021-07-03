@@ -1155,8 +1155,7 @@ register struct obj *otmp;
                             You(riseup, ceiling(u.ux, u.uy));
                             goto_level(&newlevel, FALSE, FALSE, FALSE);
                         }
-                    }
-                    if (on_level(&newlevel, &u.uz)) {
+                    } else if (on_level(&newlevel, &u.uz)) {
                         pline("It tasted bad.");
                         break;
                     } else

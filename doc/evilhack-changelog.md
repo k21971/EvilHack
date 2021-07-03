@@ -1759,4 +1759,6 @@ The following changes to date are:
 - Fix: alignment penalty for killing quest leader that isn't yours
 - Give Twoflower proper attire and gear
 - Fix: set location pits forming under shallow water (Barbarian quest)
+- Fix: 'It tasted bad' while quaffing a cursed potion of gain level
+  in the Valley of the Dead after defeating Cerberus
 
