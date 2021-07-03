@@ -1767,4 +1767,5 @@ The following changes to date are:
 - Fix: monster opens trapped container, stun/halu effects affect player
 - Code format cleanup in trap.c
 - Fix: 'The barbed devil zaps you with a fireball!'
+- Generate monsters on branch stairs after performing the invocation
 

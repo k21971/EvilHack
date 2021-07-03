@@ -269,6 +269,9 @@ boolean resuming;
                         if (u.uevent.invoked && xupstair && rn2(10))
                             (void) makemon((struct permonst *) 0, xupstair, yupstair,
                                            MM_ADJACENTOK);
+                        else if (u.uevent.invoked && sstairs.sx && rn2(10))
+                            (void) makemon((struct permonst *)0, sstairs.sx, sstairs.sy,
+                                           MM_ADJACENTOK);
                         else
                             (void) makemon((struct permonst *) 0, 0, 0,
                                            NO_MM_FLAGS);
