@@ -2300,7 +2300,7 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* zombies vs all living things */
-    if (is_zombie(ma) && !nonliving(md))
+    if (is_zombie(ma) && !(nonliving(md) || is_vampshifter(mdef)))
         return ALLOW_M | ALLOW_TM;
 
     /* lawful and chaotic unicorns don't play nice with each other.

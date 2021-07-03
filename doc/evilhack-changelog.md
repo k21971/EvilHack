@@ -1761,4 +1761,5 @@ The following changes to date are:
 - Fix: set location pits forming under shallow water (Barbarian quest)
 - Fix: 'It tasted bad' while quaffing a cursed potion of gain level
   in the Valley of the Dead after defeating Cerberus
+- Fix: vampires in alternate form were grudging zombies and vice versa
 
