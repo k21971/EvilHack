@@ -1164,19 +1164,19 @@ unsigned trflags;
 
     case MAGIC_BEAM_TRAP:
         if (!Deaf)
-	    You_hear("a soft click.");
-	seetrap(trap);
-	if (isok(trap->launch.x, trap->launch.y)
+            You_hear("a soft click.");
+        seetrap(trap);
+        if (isok(trap->launch.x, trap->launch.y)
             && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
-	    buzz(trap->launch_otyp, 8,
-		 trap->launch.x, trap->launch.y,
-		 sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y));
-	    trap->once = 1;
-	} else {
-	    deltrap(trap);
-	    newsym(u.ux, u.uy);
-	}
-	break;
+            buzz(trap->launch_otyp, 8,
+                 trap->launch.x, trap->launch.y,
+                 sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y));
+            trap->once = 1;
+        } else {
+            deltrap(trap);
+            newsym(u.ux, u.uy);
+        }
+        break;
 
     case DART_TRAP:
         if (trap->once && trap->tseen && !rn2(15)) {
@@ -1622,19 +1622,18 @@ unsigned trflags;
                 losehp(rnd(10), "magical explosion", KILLED_BY_AN);
                 Your("body absorbs some of the magical energy!");
                 u.uen = (u.uenmax += 2);
-	    } else {
-		if (!Blind) {
-		    if (!Hallucination) {
-			pline("A cloud of brightly colored smoke billows up around you!");
-		    } else {
-			pline("The floor lights came on!  Let's disco!");
-		    }
-		} else {
-		    pline("It smells sort of %s in here.",
-			  Hallucination ? "purple" : "fleecy"); /* hi Amy */
-		}
+            } else {
+                if (!Blind) {
+                    if (!Hallucination)
+                        pline("A cloud of brightly colored smoke billows up around you!");
+                    else
+                        pline("The floor lights came on!  Let's disco!");
+                } else {
+                    pline("It smells sort of %s in here.",
+                          Hallucination ? "purple" : "fleecy"); /* hi Amy */
+                }
                 incr_itimeout(&HHallucination,rnd(50) + 50);
-	    }
+            }
             break;
         } else {
             domagictrap();
@@ -1916,8 +1915,8 @@ struct obj *otmp;
             pline("But it breaks off against %s thick hide.", s_suffix(mon_nam(steed)));
             deltrap(trap);
         } else {
-	    trapkilled = thitm(0, steed, (struct obj*) 0, rnd(10) + 10, FALSE);
-	    steedhit = TRUE;
+            trapkilled = thitm(0, steed, (struct obj*) 0, rnd(10) + 10, FALSE);
+            steedhit = TRUE;
         }
         break;
     case LANDMINE:
@@ -2511,13 +2510,13 @@ register struct monst *mtmp;
         in_sight = canseemon(mtmp);
         see_it = cansee(mtmp->mx, mtmp->my);
 
-	/* some monsters may learn from others' errors */
-	for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
-	    if (m_cansee(mtmp2, mtmp->mx, mtmp->my)
+        /* some monsters may learn from others' errors */
+        for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+            if (m_cansee(mtmp2, mtmp->mx, mtmp->my)
                 && !mindless(mtmp2->data)) {
-		mtmp2->mtrapseen |= (1 << (tt-1));
-	    }
-	}
+                mtmp2->mtrapseen |= (1 << (tt-1));
+            }
+        }
 
         /* assume hero can tell what's going on for the steed */
         if (mtmp == u.usteed)
@@ -3099,13 +3098,13 @@ register struct monst *mtmp;
             } else if (unsolid(mptr)) {
                 if (in_sight)
                     pline("It passes right through %s!", mon_nam(mtmp));
-	    } else {
+            } else {
                 if (thitm(0, mtmp, (struct obj *) 0, rnd(10) + 10, FALSE))
                     trapkilled = TRUE;
                 else if (in_sight)
                     pline("%s is skewered!", Monnam(mtmp));
-	    }
-	    break;
+            }
+            break;
         case MAGIC_BEAM_TRAP:
             if (distu(trap->tx, trap->ty) < 4) {
                 if (!Deaf)
@@ -3123,7 +3122,7 @@ register struct monst *mtmp;
                 deltrap(trap);
                 newsym(u.ux, u.uy);
             }
-	    break;
+            break;
         case VIBRATING_SQUARE:
             if (see_it && !Blind) {
                 seetrap(trap); /* before messages */
@@ -3443,7 +3442,7 @@ long hmask, emask; /* might cancel timeout */
                   hliquid(is_sewage(u.ux, u.uy) ? "sewage" : "water"));
             start_melt_ice_timeout(u.ux, u.uy, 0L);
             obj_ice_effects(u.ux, u.uy, TRUE);
-	}
+        }
 
         if (is_lava(u.ux, u.uy)) {
             (void) lava_effects();
@@ -5232,10 +5231,10 @@ boolean force;
         || (!force && confused && !rn2(3))) {
         You("find a trap on the door!");
         exercise(A_WIS, TRUE);
-	if (In_sokoban(&u.uz)) {
-	    pline("But you see no way to disable it.");
-	    return 1;
-	}
+        if (In_sokoban(&u.uz)) {
+            pline("But you see no way to disable it.");
+            return 1;
+        }
         if (ynq("Disarm it?") != 'y')
             return 1;
         if (levl[x][y].doormask & D_TRAPPED) {
@@ -5582,17 +5581,17 @@ boolean disarm;
             if (yours) {
                 poisoned("gas cloud", A_STR, "cloud of poison gas", 15, FALSE);
                 exercise(A_CON, FALSE);
-	    } else if (!resists_poison(mon)) {
-	               int dmg = rnd(15);
-	        if (!rn2(10))
-		    dmg = mon->mhp;
-		mon->mhp -= dmg;
-		if (mon->mhp <= 0) {
-		    if (canseemon(mon))
-			pline("%s is killed!", Monnam(mon));
-		    mondied(mon);
-		}
-	    }
+            } else if (!resists_poison(mon)) {
+                int dmg = rnd(15);
+                if (!rn2(10))
+                    dmg = mon->mhp;
+                mon->mhp -= dmg;
+                if (mon->mhp <= 0) {
+                    if (canseemon(mon))
+                        pline("%s is killed!", Monnam(mon));
+                    mondied(mon);
+                }
+            }
             break;
         case 16:
         case 15:
@@ -5602,17 +5601,17 @@ boolean disarm;
                 You_feel("a needle prick your %s.", body_part(bodypart));
                 poisoned("needle", A_CON, "poisoned needle", 10, FALSE);
                 exercise(A_CON, FALSE);
-	    } else if (!resists_poison(mon)) {
-		       int dmg = rnd(10);
-	        if (!rn2(10))
-		    dmg = mon->mhp;
-		mon->mhp -= dmg;
-		if (mon->mhp <= 0) {
-		    if (canseemon(mon))
-			pline("%s is killed!", Monnam(mon));
-		    mondied(mon);
-		}
-	    }
+            } else if (!resists_poison(mon)) {
+                int dmg = rnd(10);
+                if (!rn2(10))
+                    dmg = mon->mhp;
+                mon->mhp -= dmg;
+                if (mon->mhp <= 0) {
+                    if (canseemon(mon))
+                        pline("%s is killed!", Monnam(mon));
+                    mondied(mon);
+                }
+            }
             break;
         case 12:
         case 11:
@@ -5620,56 +5619,57 @@ boolean disarm;
         case 9:
             if (yours) {
                 dofiretrap(obj);
-	    } else {
+            } else {
 	        if (canseemon(mon))
-		    pline("A %s erupts from %s!", tower_of_flame, the(xname(obj)));
-		if (resists_fire(mon)) {
-		    if (canseemon(mon)) {
-			shieldeff(mon->mx, mon->my);
-			pline("%s is uninjured.", Monnam(mon));
-		    }
-		} else {
-		    int num = d(2, 4), alt;
-		    boolean immolate = FALSE;
+                    pline("A %s erupts from %s!", tower_of_flame, the(xname(obj)));
+                if (resists_fire(mon)) {
+                    if (canseemon(mon)) {
+                        shieldeff(mon->mx, mon->my);
+                        pline("%s is uninjured.", Monnam(mon));
+                    }
+                } else {
+                    int num = d(2, 4), alt;
+                    boolean immolate = FALSE;
 
-		    /* paper burns very fast, assume straw is tightly
-		     * packed and burns a bit slower */
-		    switch (monsndx(mon->data)) {
-		        case PM_PAPER_GOLEM:
-                            immolate = TRUE;
-			    alt = mon->mhpmax;
-                            break;
-			case PM_STRAW_GOLEM:
-                            alt = mon->mhpmax / 2;
-                            break;
-		        case PM_WOOD_GOLEM:
-                            alt = mon->mhpmax / 4;
-                            break;
-			case PM_LEATHER_GOLEM:
-                            alt = mon->mhpmax / 8;
-                            break;
-			default:
-                            alt = 0;
-                            break;
-		    }
-		    if (alt > num) num = alt;
+                    /* paper burns very fast, assume straw is tightly
+                     * packed and burns a bit slower */
+                    switch (monsndx(mon->data)) {
+                    case PM_PAPER_GOLEM:
+                        immolate = TRUE;
+                        alt = mon->mhpmax;
+                        break;
+                    case PM_STRAW_GOLEM:
+                        alt = mon->mhpmax / 2;
+                        break;
+                    case PM_WOOD_GOLEM:
+                        alt = mon->mhpmax / 4;
+                        break;
+                    case PM_LEATHER_GOLEM:
+                        alt = mon->mhpmax / 8;
+                        break;
+                    default:
+                        alt = 0;
+                        break;
+                    }
+                    if (alt > num)
+                        num = alt;
 
-		    if (!thitm(0, mon, (struct obj *)0, num, immolate))
-			mon->mhpmax -= rn2(num + 1);
-		}
+                    if (!thitm(0, mon, (struct obj *) 0, num, immolate))
+                        mon->mhpmax -= rn2(num + 1);
+                }
 
-		if (burnarmor(mon) || rn2(3)) {
-		    (void) destroy_mitem(mon, SCROLL_CLASS, AD_FIRE);
-		    (void) destroy_mitem(mon, SPBOOK_CLASS, AD_FIRE);
-		    (void) destroy_mitem(mon, POTION_CLASS, AD_FIRE);
-		}
+                if (burnarmor(mon) || rn2(3)) {
+                    (void) destroy_mitem(mon, SCROLL_CLASS, AD_FIRE);
+                    (void) destroy_mitem(mon, SPBOOK_CLASS, AD_FIRE);
+                    (void) destroy_mitem(mon, POTION_CLASS, AD_FIRE);
+                }
 
-		if (burn_floor_objects(mon->mx, mon->my, canseemon(mon), FALSE)
+                if (burn_floor_objects(mon->mx, mon->my, canseemon(mon), FALSE)
                     && !canseemon(mon) && distu(mon->mx, mon->my) <= 3 * 3)
-		    You("smell smoke.");
-		if (is_ice(mon->mx, mon->my))
-		    melt_ice(mon->mx, mon->my, (char *) 0);
-		}
+                    You("smell smoke.");
+                if (is_ice(mon->mx, mon->my))
+                    melt_ice(mon->mx, mon->my, (char *) 0);
+            }
             break;
         case 8:
         case 7:
@@ -5689,23 +5689,23 @@ boolean disarm;
                 destroy_item(WAND_CLASS, AD_ELEC);
                 if (dmg)
                     losehp(dmg, "electric shock", KILLED_BY_AN);
-	    } else {
-		if (canseemon(mon)) {
-		    pline("%s is jolted by a surge of electricity!", Monnam(mon));
-		}
-		(void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
-		(void) destroy_mitem(mon, WAND_CLASS, AD_ELEC);
-		if (!resists_elec(mon)) {
-		    mon->mhp -= d(4, 4);
-		    if (mon->mhp <= 0) {
-			if (canseemon(mon))
-			    pline("%s is killed!", Monnam(mon));
-			mondied(mon);
-		    }
-		} else if (canseemon(mon)) {
-		    pline("%s doesn't seem to be affected.", Monnam(mon));
-		}
-	    }
+            } else {
+                if (canseemon(mon))
+                    pline("%s is jolted by a surge of electricity!", Monnam(mon));
+
+                (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
+                (void) destroy_mitem(mon, WAND_CLASS, AD_ELEC);
+                if (!resists_elec(mon)) {
+                    mon->mhp -= d(4, 4);
+                    if (mon->mhp <= 0) {
+                        if (canseemon(mon))
+                            pline("%s is killed!", Monnam(mon));
+                        mondied(mon);
+                    }
+                } else if (canseemon(mon)) {
+                    pline("%s doesn't seem to be affected.", Monnam(mon));
+                }
+            }
             break;
         case 5:
         case 4:
@@ -5719,12 +5719,12 @@ boolean disarm;
                     nomovemsg = You_can_move_again;
                 } else
                     You("momentarily stiffen.");
-	    } else {
-	        if (mon->mcanmove) {
-		    mon->mcanmove = 0;
-		    mon->mfrozen = d(5, 6);
-		}
-	    }
+            } else {
+                if (mon->mcanmove) {
+                    mon->mcanmove = 0;
+                    mon->mfrozen = d(5, 6);
+                }
+            }
             break;
         case 2:
         case 1:
@@ -6305,11 +6305,11 @@ lava_effects()
     } else {
         if (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
                      || uarm->otyp == WHITE_DRAGON_SCALES)) {
-	    levl[u.ux][u.uy].typ = ROOM;
-	    if (!rn2(4))
-		pline_The("lava cools and solidifies under your feet.");
-	    return TRUE;
-	}
+            levl[u.ux][u.uy].typ = ROOM;
+            if (!rn2(4))
+                pline_The("lava cools and solidifies under your feet.");
+            return TRUE;
+        }
     }
 
 burn_stuff:
