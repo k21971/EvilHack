@@ -1764,4 +1764,5 @@ The following changes to date are:
 - Fix: vampires in alternate form were grudging zombies and vice versa
 - Fix: 'The shade squeaks in terror!'
 - Fix: monster reading a scroll of remove curse
+- Fix: monster opens trapped container, stun/halu effects affect player
 

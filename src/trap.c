@@ -5733,6 +5733,8 @@ boolean disarm;
                 pline("A cloud of %s gas billows from %s.",
                       Blind ? blindgas[rn2(SIZE(blindgas))] : rndcolor(),
                       the(xname(obj)));
+            }
+            if (yours) {
                 if (!Stunned) {
                     if (Hallucination)
                         pline("What a groovy feeling!");
@@ -5745,11 +5747,11 @@ boolean disarm;
                 make_stunned((HStun & TIMEOUT) + (long) rn1(7, 16), FALSE);
                 (void) make_hallucinated(
                     (HHallucination & TIMEOUT) + (long) rn1(5, 16), FALSE, 0L);
-	    } else {
-	        mon->mstun = mon->mconf = 1;
-		if (canseemon(mon))
-		    pline("%s staggers for a moment.", Monnam(mon));
-	    }
+            } else {
+                mon->mstun = mon->mconf = 1;
+                if (canseemon(mon))
+                    pline("%s staggers for a moment.", Monnam(mon));
+            }
             break;
         default:
             impossible("bad chest trap");
