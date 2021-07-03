@@ -1765,4 +1765,5 @@ The following changes to date are:
 - Fix: 'The shade squeaks in terror!'
 - Fix: monster reading a scroll of remove curse
 - Fix: monster opens trapped container, stun/halu effects affect player
+- Code format cleanup in trap.c
 
