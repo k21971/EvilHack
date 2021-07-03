@@ -1766,4 +1766,5 @@ The following changes to date are:
 - Fix: monster reading a scroll of remove curse
 - Fix: monster opens trapped container, stun/halu effects affect player
 - Code format cleanup in trap.c
+- Fix: 'The barbed devil zaps you with a fireball!'
 
