@@ -2484,6 +2484,7 @@ struct monst *mtmp;
         }
      	nomore(MUSE_SCR_REMOVE_CURSE);
      	if (obj->otyp == SCR_REMOVE_CURSE
+            && !obj->cursed
             && mtmp->mnum != PM_INFIDEL) {
             register struct obj *otmp;
        	    for (otmp = mtmp->minvent;
@@ -2625,12 +2626,14 @@ struct obj *start;
         }
      	nomore(MUSE_SCR_REMOVE_CURSE);
      	if (obj->otyp == SCR_REMOVE_CURSE
+            && !obj->cursed
             && mtmp->mnum != PM_INFIDEL) {
             register struct obj *otmp;
        	    for (otmp = mtmp->minvent;
        	         otmp; otmp = otmp->nobj) {
        	        if (otmp->cursed
        	            && (otmp->otyp == LOADSTONE
+                        || Is_mbag(otmp)
        	                || otmp->owornmask)) {
        	            m.misc = obj;
        	            m.has_misc = MUSE_SCR_REMOVE_CURSE;
@@ -2839,11 +2842,13 @@ struct monst *mtmp;
      	        /* gold isn't subject to cursing and blessing */
      	        if (obj->oclass == COIN_CLASS)
                     continue;
-     	        if (otmp->blessed || otmp->owornmask
+     	        if (obj->owornmask
+                    || Is_mbag(obj)
      	            || obj->otyp == LOADSTONE) {
      	            if (mtmp->mconf)
                         blessorcurse(obj, 2);
-     	            else uncurse(obj);
+     	            else
+                        uncurse(obj);
      	        }
             }
         }

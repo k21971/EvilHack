@@ -1763,4 +1763,5 @@ The following changes to date are:
   in the Valley of the Dead after defeating Cerberus
 - Fix: vampires in alternate form were grudging zombies and vice versa
 - Fix: 'The shade squeaks in terror!'
+- Fix: monster reading a scroll of remove curse
 
