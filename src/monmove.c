@@ -360,6 +360,9 @@ boolean fleemsg;
                                 || mtmp->data->msound >= MS_LAUGH)
                                 pline("%s screams in %s!", Monnam(mtmp),
                                       rn2(2) ? "fear" : "terror");
+                       else if (mtmp->data->msound == MS_WAIL)
+                                pline("%s wails in %s!", Monnam(mtmp),
+                                      rn2(2) ? "fear" : "terror");
                        /* bees and mosquitos don't vocalize anything */
                        else if (mtmp->data->msound == MS_BUZZ)
                                 ;

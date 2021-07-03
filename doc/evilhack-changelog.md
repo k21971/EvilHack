@@ -1762,4 +1762,5 @@ The following changes to date are:
 - Fix: 'It tasted bad' while quaffing a cursed potion of gain level
   in the Valley of the Dead after defeating Cerberus
 - Fix: vampires in alternate form were grudging zombies and vice versa
+- Fix: 'The shade squeaks in terror!'
 
