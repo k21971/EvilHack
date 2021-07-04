@@ -2286,7 +2286,9 @@ do_rust:
 
         hitmsg(mtmp, mattk);
         if (!no_effect) {
-            if (!Withering)
+            if (Withering)
+                Your("withering speeds up!");
+            else
                 You("begin to wither away!");
             incr_itimeout(&HWithering, withertime);
 
