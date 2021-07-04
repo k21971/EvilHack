@@ -1768,4 +1768,5 @@ The following changes to date are:
 - Code format cleanup in trap.c
 - Fix: 'The barbed devil zaps you with a fireball!'
 - Generate monsters on branch stairs after performing the invocation
+- Improvements to monsters looting containers
 

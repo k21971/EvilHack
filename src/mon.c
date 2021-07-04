@@ -1701,6 +1701,123 @@ register struct monst *mtmp;
     return 0;
 }
 
+int
+mloot_container(mon, container, vismon)
+struct monst *mon;
+struct obj *container;
+boolean vismon;
+{
+    char contnr_nam[BUFSZ], mpronounbuf[20];
+    boolean nearby;
+    int takeout_indx, takeout_count, howfar, res = 0;
+
+    if (!container || !Has_contents(container) || container->olocked)
+        return res; /* 0 */
+    /* FIXME: handle cursed bag of holding */
+    if (Is_mbag(container) && container->cursed)
+        return res; /* 0 */
+
+    switch (rn2(10)) {
+    default: /* case 0, 1, 2, 3: */
+        takeout_count = 1;
+        break;
+    case 4:
+    case 5:
+    case 6:
+        takeout_count = 2;
+        break;
+    case 7:
+    case 8:
+        takeout_count = 3;
+        break;
+    case 9:
+        takeout_count = 4;
+        break;
+    }
+    howfar = distu(mon->mx, mon->my);
+    nearby = (howfar <= 7 * 7);
+    contnr_nam[0] = mpronounbuf[0] = '\0';
+    if (vismon) {
+        /* do this once so that when hallucinating it won't change
+           from one item to the next */
+        Strcpy(mpronounbuf, mhe(mon));
+    }
+
+    for (takeout_indx = 0; takeout_indx < takeout_count; ++takeout_indx) {
+        struct obj *xobj;
+        int nitems;
+
+        if (!Has_contents(container)) /* might have removed all items */
+            break;
+        /* object prioritization handled in mpickstuff() */
+        nitems = 0;
+        for (xobj = container->cobj; xobj != 0; xobj = xobj->nobj)
+            ++nitems;
+        /* nitems is always greater than 0 due to Has_contents() check;
+           throttle item removal as the container becomes less filled */
+        if (!rn2(nitems + 1))
+            break;
+        nitems = rn2(nitems);
+        for (xobj = container->cobj; nitems > 0; xobj = xobj->nobj)
+            --nitems;
+
+        container->cknown = 0; /* hero no longer knows container's contents
+                                * even if [attempted] removal is observed */
+        if (!*contnr_nam) {
+            /* xname sets dknown, distant_name doesn't */
+            Strcpy(contnr_nam, the(nearby ? xname(container)
+                                          : distant_name(container, xname)));
+        }
+        /* this was originally just 'can_carry(mon, xobj)' which
+           covers objects a monster shouldn't pick up but also
+           checks carrying capacity; for that, it ended up counting
+           xobj's weight twice when container is carried; so take
+           xobj out, check whether it can be carried, and then put
+           it back (below) if it can't be */
+        obj_extract_self(xobj); /* this reduces container's weight */
+        /* check whether mon can handle xobj and whether weight of xobj plus
+           minvent (including container, now without xobj) can be carried */
+        if (can_carry(mon, xobj)) {
+            if (vismon) {
+                if (!nearby) /* not close by */
+                    Norep("%s rummages through %s.", Monnam(mon), contnr_nam);
+                else if (takeout_indx == 0) /* adjacent, first item */
+                    pline("%s removes %s from %s.", Monnam(mon),
+                          ansimpleoname(xobj), contnr_nam);
+                else /* adjacent, additional items */
+                    pline("%s also removes %s.", upstart(mpronounbuf),
+                          ansimpleoname(xobj));
+            } else if (!Deaf && nearby) {
+                Norep("You hear something rummaging through %s.",
+                      ansimpleoname(container));
+            }
+            if (container->otyp == ICE_BOX)
+                removed_from_icebox(xobj); /* resume rotting for corpse */
+            /* obj_extract_self(xobj); -- already done above */
+            (void) mpickobj(mon, xobj);
+            check_gear_next_turn(mon);
+            res = 2;
+        } else { /* couldn't carry xobj separately so put back inside */
+            /* an achievement prize (castle's wand?) might already be
+               marked nomerge (when it hasn't been in invent yet) */
+            boolean already_nomerge = xobj->nomerge != 0,
+                    just_xobj = !Has_contents(container);
+
+            /* this doesn't restore the original contents ordering
+               [shouldn't be a problem; even though this item didn't
+               give the rummage message, that's what mon was doing] */
+            xobj->nomerge = 1;
+            xobj = add_to_container(container, xobj);
+            if (!already_nomerge)
+                xobj->nomerge = 0;
+            container->owt = weight(container);
+            if (just_xobj)
+                break; /* out of takeout_count loop */
+        } /* can_carry */
+    } /* takeout_count */
+    return res;
+}
+
 boolean
 mpickstuff(mtmp, str)
 register struct monst *mtmp;
@@ -1708,8 +1825,11 @@ register const char *str;
 {
     boolean pickedup = FALSE;
     boolean waslocked = FALSE;
+    boolean vismon;
     register struct obj *otmp, *otmp2, *otmp3, *otmp4;
     int carryamt = 0;
+
+    vismon = canseemon(mtmp);
 
     /* prevent shopkeepers from leaving the door of their shop */
     if (mtmp->isshk && inhishop(mtmp))
@@ -1732,7 +1852,7 @@ register const char *str;
                 waslocked = TRUE;
             }
             if (otmp->otrapped) {
-                if (cansee(mtmp->mx, mtmp->my) && flags.verbose) {
+                if (vismon && flags.verbose) {
                     pline("%s %s %s%s", Monnam(mtmp),
                           waslocked ? "unlocks" : "carefully opens",
                           (distu(mtmp->mx, mtmp->my) <= 5) ?
@@ -1753,7 +1873,7 @@ register const char *str;
                 if (!str ? searches_for_item(mtmp, otmp3)
                          : !!(index(str, otmp3->oclass))
                     || (otmp3->oclass == COIN_CLASS
-                    && likes_gold(mtmp->data))) {
+                        && likes_gold(mtmp->data))) {
                     if (otmp3->otyp == CORPSE
                         && mtmp->data->mlet != S_NYMPH
                         && !touch_petrifies(&mons[otmp3->corpsenm])
@@ -1767,7 +1887,7 @@ register const char *str;
                     if (is_pool(mtmp->mx, mtmp->my))
                         continue;
                     if (!pickedup) {
-                        if (cansee(mtmp->mx, mtmp->my) && flags.verbose) {
+                        if (vismon && flags.verbose) {
                             pline("%s %s opens %s...", Monnam(mtmp),
                                   waslocked ? "unlocks and" : "carefully",
                                   (distu(mtmp->mx, mtmp->my) <= 5)
@@ -1780,25 +1900,8 @@ register const char *str;
                                      waslocked ? "unlocked" : "opened");
                         }
                         otmp->olocked = 0;
-                        if (cansee(mtmp->mx, mtmp->my) && flags.verbose) {
-                            pline("%s retrieves %s from %s.", Monnam(mtmp),
-                                  (distu(mtmp->mx, mtmp->my) <= 5)
-                                   ? doname(otmp3)
-                                   : distant_name(otmp3, doname),
-                                  (distu(mtmp->mx, mtmp->my) <= 5)
-                                   ? the(xname(otmp))
-                                   : the(distant_name(otmp, xname)));
-                        } else if (!Deaf && flags.verbose
-                                   && distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) {
-                            You_hear("something rummaging through %s.",
-                                     ansimpleoname(otmp));
-                        }
+                        mloot_container(mtmp, otmp, vismon);
                     }
-                    obj_extract_self(otmp3);
-                    if (otmp->otyp == ICE_BOX)
-                        removed_from_icebox(otmp3); /* resume rotting for corpse */
-                    (void) mpickobj(mtmp, otmp3); /* may merge and free otmp */
-                    check_gear_next_turn(mtmp);
                     newsym(mtmp->mx, mtmp->my);
                     /* loot the entire container if we can */
                     pickedup = TRUE;
@@ -1831,7 +1934,7 @@ register const char *str;
             }
             if (is_soko_prize_flag(otmp))
                 continue;
-            if (cansee(mtmp->mx, mtmp->my) && flags.verbose)
+            if (vismon && flags.verbose)
                 pline("%s picks up %s.", Monnam(mtmp),
                       (distu(mtmp->mx, mtmp->my) <= 5)
                           ? doname(otmp3)

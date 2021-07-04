@@ -16,7 +16,6 @@ boolean m_using = FALSE;
  * are confused don't know not to read scrolls, etc....
  */
 
-STATIC_DCL struct permonst *FDECL(muse_newcham_mon, (struct monst *));
 STATIC_DCL int FDECL(precheck, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mzapwand, (struct monst *, struct obj *, BOOLEAN_P));
 STATIC_DCL void FDECL(mplayhorn, (struct monst *, struct obj *, BOOLEAN_P));
@@ -30,6 +29,7 @@ STATIC_PTR int FDECL(mbhitm, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mbhit, (struct monst *, int,
                               int FDECL((*), (MONST_P, OBJ_P)),
                               int FDECL((*), (OBJ_P, OBJ_P)), struct obj *));
+STATIC_DCL struct permonst *FDECL(muse_newcham_mon, (struct monst *));
 void FDECL(you_aggravate, (struct monst *));
 #if 0
 STATIC_DCL boolean FDECL(necrophiliac, (struct obj *, BOOLEAN_P));
@@ -80,15 +80,33 @@ struct obj *obj;
         return 0;
     vis = cansee(mon->mx, mon->my);
 
+    /* some of this code comes from mloot_container() */
     if (obj->where == OBJ_CONTAINED) {
-	struct obj *bag = obj->ocontainer;
-	obj_extract_self(obj);
-	(void)mpickobj(mon, obj);
+        struct obj *bag = obj->ocontainer;
+        char contnr_nam[BUFSZ];
+        boolean nearby;
+        int howfar;
 
-	if (vis)
-            pline("%s removes %s from %s.", Monnam(mon),
-		  distant_name(obj, doname), singular(bag, doname));
-	return 2;
+        howfar = distu(mon->mx, mon->my);
+        nearby = (howfar <= 7 * 7);
+        contnr_nam[0] = '\0';
+
+        if (!*contnr_nam) {
+            /* xname sets dknown, distant_name doesn't */
+            Strcpy(contnr_nam, the(nearby ? xname(bag)
+                                          : distant_name(bag, xname)));
+        }
+        obj_extract_self(obj);
+        if (vis) {
+            if (!nearby) /* not close by */
+                Norep("%s rummages through %s.", Monnam(mon), contnr_nam);
+            else
+                pline("%s removes %s from %s.", Monnam(mon),
+                      ansimpleoname(obj), contnr_nam);
+        }
+        (void) mpickobj(mon, obj);
+        check_gear_next_turn(mon);
+        return 2;
     }
 
     if (obj->oclass == POTION_CLASS) {
@@ -2371,7 +2389,7 @@ struct monst *mtmp;
     if (nohands(mdat))
         return 0;
 
-#define nomore(x)       if (m.has_misc == x) continue
+#define nomore(x)       if (m.has_misc == (x)) continue
     /*
      * [bug?]  Choice of item is not prioritized; the last viable one
      * in the monster's inventory will be chosen.
@@ -2510,15 +2528,15 @@ struct obj *start;
 {
     register struct obj *obj;
     struct permonst *mdat = mtmp->data;
-#define nomore(x) if(m.has_misc==x) continue;
-    for (obj=start; obj; obj=obj->nobj) {
+#define nomore(x) if (m.has_misc == (x)) continue;
+    for (obj = start; obj; obj = obj->nobj) {
         if (Is_container(obj)) {
-	    (void) find_misc_recurse(mtmp, obj->cobj);
-	    continue;
-	}
+            (void) find_misc_recurse(mtmp, obj->cobj);
+            continue;
+        }
 
-	/* Monsters shouldn't recognize cursed items; this kludge is */
-	/* necessary to prevent serious problems though... */
+        /* Monsters shouldn't recognize cursed items; this kludge is */
+        /* necessary to prevent serious problems though... */
         if (obj->otyp == POT_GAIN_LEVEL
             && (!obj->cursed
                 || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest))) {
@@ -3235,8 +3253,8 @@ struct obj *obj;
             return (obj->spe > 0 && can_blow(mon));
         if (typ == SKELETON_KEY || typ == LOCK_PICK || typ == CREDIT_CARD)
             return TRUE;
-	if (typ == BAG_OF_HOLDING || typ == OILSKIN_SACK || typ == SACK
-            || (typ == BAG_OF_TRICKS && obj->spe > 0))
+	if ((typ == BAG_OF_HOLDING && !obj->cursed) || typ == OILSKIN_SACK
+            || typ == SACK || (typ == BAG_OF_TRICKS && obj->spe > 0))
 	    return TRUE;
         if (typ == FIGURINE)
             return TRUE;
