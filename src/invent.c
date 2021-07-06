@@ -2088,9 +2088,7 @@ unsigned *resultflags;
             }
         }
 
-        if (oc_of_sym == COIN_CLASS && !combo) {
-            context.botl = 1;
-        } else if (sym == 'a') {
+        if (sym == 'a') {
             allflag = TRUE;
         } else if (sym == 'A') {
             ; /* same as the default */
@@ -2119,11 +2117,6 @@ unsigned *resultflags;
                ? -2 : -3;
     } else if (flags.menu_style != MENU_TRADITIONAL && combo && !allflag) {
         return 0;
-#if 0
-    /* !!!! test gold dropping */
-    } else if (allowgold == 2 && !oletct) {
-        return 1; /* you dropped gold (or at least tried to)  */
-#endif
     } else {
         int cnt = askchain(&invent, olets, allflag, fn, ckfn, mx, word);
         /*
@@ -3248,8 +3241,7 @@ dotypeinv()
         }
     }
     if (traditional) {
-        /* collect a list of classes of objects carried, for use as a prompt
-         */
+        /* collect a list of classes of objects carried, for use as a prompt */
         types[0] = 0;
         class_count = collect_obj_classes(types, invent, FALSE,
                                           (boolean FDECL((*), (OBJ_P))) 0,

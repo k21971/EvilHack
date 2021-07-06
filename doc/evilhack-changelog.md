@@ -1774,4 +1774,5 @@ The following changes to date are:
 - Code formatting clean up (colored flashes dropping container on an
   altar).
 - Merge known BUC status objects in container dropped onto an altar
+- Fix: ggetobj bug when dropping just gold
 
