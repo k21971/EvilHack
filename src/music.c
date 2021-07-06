@@ -285,6 +285,24 @@ int force;
             }
             if (rn2(14 - force))
                 continue;
+
+           /*
+            * Possible extensions:
+            *  When a door is trapped, explode it instead of silently
+            *   turning it into an empty doorway.
+            *  Trigger divine wrath when an altar is dumped into a chasm.
+            *  Sometimes replace sink with fountain or fountain with pool
+            *   instead of always producing a pit.
+            *  Sometimes release monster and/or treasure from a grave or
+            *   a throne instead of just dumping them into the chasm.
+            *  Chance to destroy wall segments?  Trees too?
+            *  Honor non-diggable for locked doors, walls, and trees.
+            *   Treat non-passwall as if it was non-diggable?
+            *  Conjoin some of the umpteen pits when they're adjacent?
+            *
+            *  Replace 'goto do_pit;' with 'do_pit = TRUE; break;' and
+            *   move the pit code to after the switch.
+            */
             switch (levl[x][y].typ) {
             case FOUNTAIN: /* Make the fountain disappear */
                 if (cansee(x, y))
@@ -299,6 +317,7 @@ int force;
                     pline_The("forge falls into a chasm.");
                 goto do_pit;
             case ALTAR:
+                /* always preserve the high altars */
                 if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz))
                     break;
                 /* no need to check for high altar here; we've just
@@ -316,9 +335,15 @@ int force;
             case THRONE:
                 if (cansee(x, y))
                     pline_The("throne falls into a chasm.");
+                goto do_pit;
+            case SCORR:
+                levl[x][y].typ = CORR;
+                unblock_point(x, y);
+                if (cansee(x, y))
+                    pline("A secret corridor is revealed.");
                 /*FALLTHRU*/
-            case ROOM:
-            case CORR: /* Try to make a pit */
+            case CORR:
+            case ROOM: /* Try to make a pit */
  do_pit:
                 /* maketrap() won't replace furniture with a trap,
                    so remove the furniture first */

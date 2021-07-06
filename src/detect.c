@@ -1678,14 +1678,14 @@ struct rm *lev;
 {
     int newmask = lev->doormask & ~WM_MASK;
 
-    if (Is_rogue_level(&u.uz))
+    if (Is_rogue_level(&u.uz)) {
         /* rogue didn't have doors, only doorways */
         newmask = D_NODOOR;
-    else
+    } else {
         /* newly exposed door is closed */
         if (!(newmask & D_LOCKED))
-        newmask |= D_CLOSED;
-
+            newmask |= D_CLOSED;
+    }
     lev->typ = DOOR;
     lev->doormask = newmask;
 }
