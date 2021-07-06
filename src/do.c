@@ -351,9 +351,8 @@ register struct obj *obj;
                 blessed++;
             if (otmp->cursed)
                 cursed++;
-            if (!Hallucination) {
+            if (!Hallucination)
                 otmp->bknown = 1;
-            }
         }
         /* even when hallucinating, if you get no flashes at all, you know
          * everything's uncursed, so save the player the trouble of manually
@@ -365,18 +364,14 @@ register struct obj *obj;
         }
         if (blessed + cursed > 0) {
             const char* color;
-            if (Hallucination) {
+            if (Hallucination)
                 color = "fleecy purple-smelling"; /* hello again Amy */
-            }
-            else if (blessed == 0) {
+            else if (blessed == 0)
                 color = hcolor(NH_BLACK);
-            }
-            else if (cursed == 0) {
+            else if (cursed == 0)
                 color = hcolor(NH_AMBER);
-            }
-            else {
+            else
                 color = "multi-colored";
-            }
 
             pline("From inside %s, you see %s flash%s.",
                   the(xname(obj)),

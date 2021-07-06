@@ -1771,4 +1771,6 @@ The following changes to date are:
 - Improvements to monsters looting containers
 - Warn player if their withering effect speeds up
 - Fix: dungeon features falling into chasms (earthquake)
+- Code formatting clean up (colored flashes dropping container on an
+  altar).
 
