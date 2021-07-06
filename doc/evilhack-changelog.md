@@ -1773,4 +1773,5 @@ The following changes to date are:
 - Fix: dungeon features falling into chasms (earthquake)
 - Code formatting clean up (colored flashes dropping container on an
   altar).
+- Merge known BUC status objects in container dropped onto an altar
 
