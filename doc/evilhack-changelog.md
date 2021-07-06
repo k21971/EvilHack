@@ -1770,4 +1770,5 @@ The following changes to date are:
 - Generate monsters on branch stairs after performing the invocation
 - Improvements to monsters looting containers
 - Warn player if their withering effect speeds up
+- Fix: dungeon features falling into chasms (earthquake)
 
