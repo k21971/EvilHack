@@ -1775,4 +1775,5 @@ The following changes to date are:
   altar).
 - Merge known BUC status objects in container dropped onto an altar
 - Fix: ggetobj bug when dropping just gold
+- Fix: merging objects of known BUC status in container (altar)
 
