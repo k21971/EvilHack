@@ -2261,76 +2261,8 @@ boolean *mon_interact;
 {
     int c = -1;
     int timepassed = 0;
-    struct obj *otmp;
     char qbuf[QBUFSZ];
 
-    /* 3.3.1 introduced the ability to remove saddle from a steed.
-     *  *passed_info is set to TRUE if a loot query was given, though it also
-     *  does double duty where it actually holds information from the caller, in
-     *  the case of picking items up from an engulfer.
-     *  *mon_interact is set to TRUE if something was actually acquired in here.
-     */
-    if (mtmp && mtmp != u.usteed && (otmp = which_armor(mtmp, W_SADDLE))) {
-        if (passed_info)
-            *passed_info = 1;
-        Sprintf(qbuf, "Do you want to remove the saddle from %s?",
-                x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                         (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
-        if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y') {
-            if (nolimbs(youmonst.data)) {
-                You_cant("do that without limbs."); /* not body_part(HAND) */
-                return 0;
-            }
-            if (otmp->cursed) {
-                You("can't.  The saddle seems to be stuck to %s.",
-                    x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                             (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
-                /* the attempt costs you time */
-                return 1;
-            }
-            extract_from_minvent(mtmp, otmp, TRUE, FALSE);
-            otmp = hold_another_object(otmp, "You drop %s!", doname(otmp),
-                                       (const char *) 0);
-            nhUse(otmp);
-            timepassed = rnd(3); /* note: this doesn't actually take extra time,
-                                    rhack() just treats it like 1 */
-            if (mon_interact)
-                *mon_interact = TRUE;
-        } else if (c == 'q') {
-            return 0;
-        }
-    }
-    /* ability to remove barding from steed */
-    if (mtmp && mtmp != u.usteed && (otmp = which_armor(mtmp, W_BARDING))) {
-        if (passed_info)
-            *passed_info = 1;
-        Sprintf(qbuf, "Do you want to remove the barding from %s?",
-                x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                         (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
-        if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y') {
-            if (nolimbs(youmonst.data)) {
-                You_cant("do that without limbs."); /* not body_part(HAND) */
-                return 0;
-            }
-            if (otmp->cursed) {
-                You("can't.  The barding seems to be stuck to %s.",
-                    x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                             (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
-                /* the attempt costs you time */
-                return 1;
-            }
-            extract_from_minvent(mtmp, otmp, TRUE, FALSE);
-            otmp = hold_another_object(otmp, "You drop %s!", doname(otmp),
-                                       (const char *) 0);
-            nhUse(otmp);
-            timepassed = rnd(3); /* note: this doesn't actually take extra time,
-                                    rhack() just treats it like 1 */
-            if (mon_interact)
-                *mon_interact = TRUE;
-        } else if (c == 'q') {
-            return 0;
-        }
-    }
     /* 3.4.0 introduced ability to pick things up from swallower's stomach */
     if (u.uswallow) {
         int count = passed_info ? *passed_info : 0;
