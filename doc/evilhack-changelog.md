@@ -1777,4 +1777,5 @@ The following changes to date are:
 - Fix: ggetobj bug when dropping just gold
 - Fix: merging objects of known BUC status in container (altar)
 - Remove saddle/barding specific #loot option
+- Fix: weight of various elven weapons
 
