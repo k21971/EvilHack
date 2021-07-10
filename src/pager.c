@@ -618,6 +618,11 @@ char *buf;
         "bejeweled leather battle shorts",
         "an itsy bitsy teenie weenie yellow polka dot bikini",
         "the pants in the relationship",
+        "a lei",
+        "a ten gallon hat",
+        "a tutu",
+        "an ushanka",
+        "MOPP level 4 gear",
     };
 
     int harmor_idx = rn2(SIZE(harmors));
