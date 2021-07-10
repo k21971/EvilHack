@@ -1778,4 +1778,5 @@ The following changes to date are:
 - Fix: merging objects of known BUC status in container (altar)
 - Remove saddle/barding specific #loot option
 - Fix: weight of various elven weapons
+- Hallucinatory armor/weapon descriptions
 

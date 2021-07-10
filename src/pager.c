@@ -15,8 +15,9 @@ STATIC_DCL void FDECL(look_at_object, (char *, int, int, int));
 STATIC_DCL void FDECL(look_at_monster, (char *, char *,
                                         struct monst *, int, int));
 STATIC_DCL struct permonst *FDECL(lookat, (int, int, char *, char *));
+STATIC_DCL char *FDECL(hallucinatory_armor, (char *));
 STATIC_DCL void FDECL(add_mon_info, (winid, struct permonst *));
-STATIC_DCL void FDECL(add_obj_info, (winid, short));
+STATIC_DCL void FDECL(add_obj_info, (winid, SHORT_P));
 STATIC_DCL void FDECL(look_all, (BOOLEAN_P,BOOLEAN_P));
 STATIC_DCL void FDECL(do_supplemental_info, (char *, struct permonst *,
                                              BOOLEAN_P));
@@ -316,11 +317,26 @@ int x, y;
     if (mtmp->mleashed)
         Strcat(buf, ", leashed to you");
 
-    if (which_armor(mtmp, W_ARMOR) && canseemon(mtmp) && !Blind)
-        Strcat(buf, ", wearing armor");
-
-    if (MON_WEP(mtmp) && canseemon(mtmp) && !Blind)
-        Sprintf(eos(buf), ", wielding %s", ansimpleoname(MON_WEP(mtmp)));
+    if (canseemon(mtmp) && !Blind) {
+        if (!Hallucination) {
+            if (which_armor(mtmp, W_ARMOR))
+                Strcat(buf, ", wearing armor");
+            if (MON_WEP(mtmp))
+                Sprintf(eos(buf), ", wielding %s",
+                        ansimpleoname(MON_WEP(mtmp)));
+        } else {
+            if (rn2(3)) {
+                char harmor[BUFSZ];
+                Sprintf(eos(buf), ", wearing %s",
+                        hallucinatory_armor(harmor));
+            }
+            if (rn2(3)) {
+                struct obj *hwep = mkobj(RANDOM_CLASS, FALSE);
+                Sprintf(eos(buf), ", wielding %s", ansimpleoname(hwep));
+                obfree(hwep, (struct obj *) 0);
+            }
+        }
+    }
 
     if (mtmp->mtrapped && cansee(mtmp->mx, mtmp->my)) {
         struct trap *t = t_at(mtmp->mx, mtmp->my);
@@ -558,6 +574,63 @@ char *buf, *monbuf;
         }
     }
     return (pm && !Hallucination) ? pm : (struct permonst *) 0;
+}
+
+STATIC_OVL char *
+hallucinatory_armor(buf)
+char *buf;
+{
+#define HARMOR_FMT_HIS_HIS 0
+#define HARMOR_FMT_HIS 4
+    static const char *harmors[] = {
+        "%s heart on %s sleeve",
+        /* HARMOR_FMT_HIS_HIS */
+        "out %s welcome",
+        "%s birthday suit",
+        "%s church clothes",
+        "%s sunglasses at night",
+        /* HARMOR_FMT_HIS */
+        "a fursuit",
+        "a rented tux",
+        "cosplay",
+        "a fig leaf",
+        "nothing but a smile",
+        "a wool coat",
+        "fun socks",
+        "expensive sneakers",
+        "heels",
+        "a little black dress",
+        "some stylin' threads",
+        "a smug look",
+        "footie pajamas",
+        "hand-me-downs",
+        "a sundress",
+        "a ballgown",
+        "a towel",
+        "a trucker hat",
+        "a bald cap",
+        "all black everything",
+        "the emperor's new clothes",
+        "rose-colored glasses",
+        "blue suede shoes",
+        "a raspberry beret",
+        "flip flops",
+        "bejeweled leather battle shorts",
+        "an itsy bitsy teenie weenie yellow polka dot bikini",
+        "the pants in the relationship",
+    };
+
+    int harmor_idx = rn2(SIZE(harmors));
+    if (harmor_idx <= HARMOR_FMT_HIS_HIS) {
+        const char *his = genders[rn2(3)].his;
+        Sprintf(buf, harmors[harmor_idx], his, his);
+    } else if (harmor_idx <= HARMOR_FMT_HIS) {
+        Sprintf(buf, harmors[harmor_idx], genders[rn2(3)].his);
+    } else {
+        Strcpy(buf, harmors[harmor_idx]);
+    }
+
+    return buf;
 }
 
 /* Make sure the order is the same as that defined in monattk.h */
