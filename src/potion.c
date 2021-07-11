@@ -1589,6 +1589,11 @@ int how;
 		monstseesu(M_SEEN_ACID);
             }
             break;
+        case POT_HALLUCINATION:
+            if (!Halluc_resistance) {
+                makeknown(POT_HALLUCINATION);
+            }
+            break;
         }
     } else if (hit_saddle && saddle) {
         char *mnam, buf[BUFSZ], saddle_glows[BUFSZ];
