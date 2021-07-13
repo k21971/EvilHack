@@ -900,7 +900,6 @@ gcrownu()
         urace.attrmax[A_WIS] = maxwis;
         youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
         set_uasmon();
-        check_wings(TRUE); /* in case body armor is worn during crowning */
         retouch_equipment(2); /* silver */
         break;
     }

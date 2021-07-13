@@ -108,6 +108,8 @@ set_uasmon()
        show latent flight capability always blocked by levitation */
     /* this property also checks race instead of role */
     PROPSET(FLYING, (is_flyer(racedat) && !is_floater(racedat)));
+    if (!restoring) /* if loading, defer wings check until we have a steed */
+        check_wings(TRUE);
     PROPSET(SWIMMING, is_swimmer(mdat));
     /* [don't touch MAGICAL_BREATHING here; both Amphibious and Breathless
        key off of it but include different monster forms...] */
@@ -717,7 +719,6 @@ int mntmp;
     u.mtimedone = rn1(500, 500);
     u.umonnum = mntmp;
     set_uasmon();
-    check_wings(TRUE);
 
     /* New stats for monster, to last only as long as polymorphed.
      * Currently only strength gets changed.
