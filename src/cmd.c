@@ -1416,6 +1416,8 @@ wiz_smell(VOID_ARGS)
     return 0;
 }
 
+#define DEFAULT_TIMEOUT_INCR 30
+
 /* #wizinstrinsic command to set some intrinsics for testing */
 STATIC_PTR int
 wiz_intrinsic(VOID_ARGS)
@@ -1438,6 +1440,14 @@ wiz_intrinsic(VOID_ARGS)
         any = zeroany;
         win = create_nhwindow(NHW_MENU);
         start_menu(win);
+        if (iflags.cmdassist) {
+            /* start menu with a subtitle */
+            Sprintf(buf,
+        "[Precede any selection with a count to increment by other than %d.]",
+                    DEFAULT_TIMEOUT_INCR);
+            any.a_int = 0;
+            add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+        }
         for (i = 0; (propname = propertynames[i].prop_name) != 0; ++i) {
             p = propertynames[i].prop_num;
             if (p == HALLUC_RES) {
@@ -1463,11 +1473,14 @@ wiz_intrinsic(VOID_ARGS)
         n = select_menu(win, PICK_ANY, &pick_list);
         destroy_nhwindow(win);
 
-        amt = 30; /* TODO: prompt for duration */
         for (j = 0; j < n; ++j) {
             i = pick_list[j].item.a_int - 1; /* -1: reverse +1 above */
             p = propertynames[i].prop_num;
             oldtimeout = u.uprops[p].intrinsic & TIMEOUT;
+            amt = (pick_list[j].count == -1L) ? DEFAULT_TIMEOUT_INCR
+                                              : (int) pick_list[j].count;
+            if (amt <= 0) /* paranoia */
+                continue;
             newtimeout = oldtimeout + (long) amt;
             switch (p) {
             case SICK:
