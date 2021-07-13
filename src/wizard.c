@@ -340,6 +340,12 @@ register struct monst *mtmp;
         break;
     }
 
+    /* Quest nemeses will always prioritize their treasure
+     * (important for the Infidel quest) */
+    if (mtmp->data->msound == MS_NEMESIS)
+        if ((strat = target_on(M3_WANTSARTI, mtmp)) != STRAT_NONE)
+            return strat;
+
     if (context.made_amulet)
         if ((strat = target_on(M3_WANTSAMUL, mtmp)) != STRAT_NONE)
             return strat;
