@@ -3552,7 +3552,7 @@ struct monst *mtmp;
     mndx = monsndx(mdat);
 
     if (mndx == urole.ldrnum) {
-        if (Role_if(PM_INFIDEL))
+        if (u.ualign.type == A_NONE)
             ; /* Moloch's indifference */
         else
             mtmp->malign = -20;
@@ -3566,7 +3566,7 @@ struct monst *mtmp;
     } else if (always_peaceful(mdat)) {
         int absmal = abs(mal);
         if (mtmp->mpeaceful) {
-            if (Role_if(PM_INFIDEL))
+            if (u.ualign.type == A_NONE)
                 mtmp->malign += 1; /* Moloch's will */
             else
                 mtmp->malign = -3 * max(5, absmal);

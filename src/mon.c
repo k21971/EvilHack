@@ -3049,7 +3049,7 @@ register struct monst *mtmp;
                 uunstick();
         }
         newsym(mtmp->mx, mtmp->my);
-        if (Role_if(PM_INFIDEL))
+        if (u.ualign.type == A_NONE)
             adjalign(10);
         else
             adjalign(-15);
@@ -3806,7 +3806,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             quest_status.leader_is_dead = TRUE;
 
         adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
-        if (Role_if(PM_INFIDEL))
+        if (u.ualign.type == A_NONE)
             ; /* Moloch's indifference */
         else
             u.ugangr += 7; /* instantly become "extremely" angry */
@@ -3818,7 +3818,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             adjalign((int) (ALIGNLIM / 4));
     } else if (mdat->msound == MS_GUARDIAN) { /* Bad */
         adjalign(-(int) (ALIGNLIM / 8));
-        if (Role_if(PM_INFIDEL))
+        if (u.ualign.type == A_NONE)
             ; /* Moloch's indifference */
         else
             u.ugangr++;
@@ -3834,17 +3834,17 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             u.ublessed = 0;
         else if (mdat->maligntyp == A_NONE)
             adjalign((int) (ALIGNLIM / 4)); /* BIG bonus */
-        else if (Role_if(PM_INFIDEL) && mdat->maligntyp == A_LAWFUL)
+        else if (u.ualign.type == A_NONE && mdat->maligntyp == A_LAWFUL)
             adjalign((int) (ALIGNLIM / 4)); /* Infidel-only BIG bonus */
     } else if (mtmp->mtame) {
-        if (Role_if(PM_INFIDEL))
+        if (u.ualign.type == A_NONE)
             adjalign(-3); /* kinda bad, but it's how you roll */
         else
             adjalign(-15); /* bad!! */
         /* your god is mighty displeased... */
         if (!Deaf) {
             if (!Hallucination) {
-                if (Role_if(PM_INFIDEL))
+                if (u.ualign.type == A_NONE)
                     You_hear("sinister laughter off in the distance...");
                 else
                     You_hear("the rumble of distant thunder...");
@@ -3860,7 +3860,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
                            uhis(), mdat->mname);
         }
     } else if (mtmp->mpeaceful) {
-        if (!Role_if(PM_INFIDEL))
+        if (u.ualign.type != A_NONE)
             adjalign(-5);
     }
 
@@ -4340,7 +4340,7 @@ boolean via_attack;
             else
                 adjalign(2);
         } else {
-            if (!Role_if(PM_INFIDEL)) /* Infidels are supposed to be bad */
+            if (u.ualign.type != A_NONE) /* Infidels are supposed to be bad */
                 adjalign(-1); /* attacking peaceful monsters is bad */
         }
         if (mtmp->data == oracle)
@@ -4423,7 +4423,7 @@ boolean via_attack;
                                    perhaps reduce tameness? */
                             } else {
                                 mon->mpeaceful = 0;
-                                if (!Role_if(PM_INFIDEL))
+                                if (u.ualign.type != A_NONE)
                                     adjalign(-1);
                                 if (!exclaimed)
                                     pline("%s gets angry!", Monnam(mon));
@@ -5851,7 +5851,7 @@ struct monst *mtmp;
             com_pager(200);
         }
     }
-    if (Role_if(PM_INFIDEL))
+    if (u.ualign.type == A_NONE)
         adjalign(-2); /* doing good things as an agent of Moloch? pfft */
     else
         adjalign(2);
