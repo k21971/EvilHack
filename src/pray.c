@@ -1006,7 +1006,15 @@ gcrownu()
         break;
     }
     case A_NONE:
-        /* nothing to do */
+        /* OK, we don't get an artifact, but surely Moloch
+         * can at least offer His own blessing? */
+        if (ok_wep(obj) && !obj->oartifact
+            && obj->quan == 1 && !(obj->oprops & ITEM_FIRE))
+          {
+            Your("%s is wreathed in hellfire!", simple_typename(obj->otyp));
+            obj->oprops |= ITEM_FIRE;
+            obj->oprops_known |= ITEM_FIRE;
+          }
         break;
     default:
         obj = 0; /* lint */

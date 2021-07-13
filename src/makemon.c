@@ -1858,6 +1858,15 @@ register struct monst *mtmp;
             otmp = mksobj(MORNING_STAR, FALSE, FALSE);
             otmp->blessed = otmp->oerodeproof = 1;
             otmp->spe = rn1(3, 3);
+            if (rn2(2)) { /* spice it up a little */
+                set_material(otmp, SILVER);
+                /* only add a property if silver; we don't want the player
+                 * immediately giving this to a summoned demon */
+                if (!rn2(3))
+                    otmp->oprops = ITEM_FROST;
+                else if (!rn2(4))
+                    otmp->oprops = ITEM_SHOCK;
+            }
             (void) mpickobj(mtmp, otmp);
             /* the Paladin wears no helmet
              * because she looks cooler without a helmet */
