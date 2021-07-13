@@ -670,24 +670,30 @@ register struct monst *mtmp;
     /* Demonic Blackmail! */
     if (nearby && mdat->msound == MS_BRIBE && mtmp->mpeaceful && !mtmp->mtame
         && !u.uswallow && monsndx(mdat) != PM_PRISON_GUARD) {
-        if (mtmp->mux != u.ux || mtmp->muy != u.uy) {
-            pline("%s whispers at thin air.",
-                  cansee(mtmp->mux, mtmp->muy) ? Monnam(mtmp) : "It");
+        if (mtmp->mstrategy & STRAT_APPEARMSG) {
+            if (mtmp->mux != u.ux || mtmp->muy != u.uy) {
+                pline("%s whispers at thin air.",
+                      cansee(mtmp->mux, mtmp->muy) ? Monnam(mtmp) : "It");
+                mtmp->mstrategy &= ~STRAT_APPEARMSG;
 
-            if (is_demon(youmonst.data)) {
-                /* "Good hunting, brother" */
-                if (!tele_restrict(mtmp))
+                if (is_demon(raceptr(&youmonst))) {
+                    /* "Good hunting, brother" */
+                    display_nhwindow(WIN_MESSAGE, FALSE); /* --More-- */
                     (void) rloc(mtmp, TRUE);
-            } else {
-                mtmp->minvis = mtmp->perminvis = 0;
-                /* Why?  For the same reason in real demon talk */
-                pline("%s gets angry!", Amonnam(mtmp));
-                mtmp->mpeaceful = 0;
-                set_malign(mtmp);
-                /* since no way is an image going to pay it off */
-            }
-        } else if (demon_talk(mtmp))
-            return 1; /* you paid it off */
+                } else {
+                    mtmp->minvis = mtmp->perminvis = 0;
+                    /* Why?  For the same reason in real demon talk */
+                    pline("%s gets angry!", Amonnam(mtmp));
+                    mtmp->mpeaceful = 0;
+                    set_malign(mtmp);
+                    /* since no way is an image going to pay it off */
+                }
+            } else if (demon_talk(mtmp))
+                return 1; /* you paid it off */
+        } else { /* either let the player pass, or pacified somehow */
+            (void) rloc(mtmp, TRUE); /* either way no bribe demands */
+            return 0;
+        }
     }
 
     /* Prison guard extortion */

@@ -271,7 +271,7 @@ register struct monst *mtmp;
 
     otyp = which_arti(mask);
     if (!mon_has_arti(mtmp, otyp)) {
-        if (you_have(mask))
+        if (you_have(mask) && !mtmp->mpeaceful)
             return STRAT(STRAT_PLAYER, u.ux, u.uy, mask);
         else if ((otmp = on_ground(otyp)))
             return STRAT(STRAT_GROUND, otmp->ox, otmp->oy, mask);
@@ -468,9 +468,13 @@ register struct monst *mtmp;
         xchar tx = STRAT_GOALX(strat), ty = STRAT_GOALY(strat),
                    dx = 0, dy = 0, stx = tx, sty = ty;
 
-        /* If we're close enough, pounce */
-        if (distu(mtmp->mx, mtmp->my) <= 25) {
-            mnexto(mtmp);
+        if (mtmp->mpeaceful && !mtmp->mtame
+            && !(mtmp->mstrategy & STRAT_APPEARMSG)) {
+            /* wander aimlessly */
+            if (!rn2(5))
+                (void) rloc(mtmp, TRUE);
+        } else if (distu(mtmp->mx, mtmp->my) <= 25) {
+            mnexto(mtmp); /* If we're close enough, pounce */
         } else {
             /* figure out what direction the player's in */
             dx = sgn(u.ux - mtmp->mx);
@@ -580,7 +584,7 @@ aggravate()
             continue;
         if (in_w_tower != In_W_tower(mtmp->mx, mtmp->my, &u.uz))
             continue;
-        mtmp->mstrategy &= ~(STRAT_WAITFORU | STRAT_APPEARMSG);
+        mtmp->mstrategy &= ~STRAT_WAITFORU;
         mtmp->msleeping = 0;
         if (!mtmp->mcanmove && !rn2(5)) {
             mtmp->mfrozen = 0;
