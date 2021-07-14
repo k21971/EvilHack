@@ -84,12 +84,7 @@ struct monst *rider;
     register struct monst *steed, *nmon;
 
     /* not acceptable as riders */
-    if (rider->mtame || rider == u.ustuck || rider->mpeaceful || has_erid(rider)
-        || rider->mtrapped || !humanoid(rider->data) || is_zombie(rider->data)
-        || r_bigmonst(rider) || is_animal(rider->data) || is_were(rider->data)
-        || rider->data->mlet == S_MUMMY || rider->data->mlet == S_LIZARD
-        || r_verysmall(rider) || is_shapeshifter(rider->data)
-        || unsolid(rider->data))
+    if (!mon_can_ride(rider) && !has_erid(rider))
         return FALSE;
 
     for (steed = fmon; steed; steed = nmon) {
@@ -97,13 +92,8 @@ struct monst *rider;
         if (nmon == rider)
             nmon = rider->nmon;
         /* criteria for an acceptable steed */
-        if (monnear(rider, steed->mx, steed->my) && can_saddle(steed)
-            && !DEADMONSTER(steed)
-            && !is_covetous(steed->data) && !steed->mtame
-            && steed != u.ustuck && steed->mcanmove
-            && !steed->msleeping && !steed->rider_id
-            && !is_shapeshifter(steed->data) && !is_were(steed->data)
-            && !steed->isshk && steed->data->mlet != S_DOG) {
+        if (monnear(rider, steed->mx, steed->my) && mon_can_be_ridden(steed)
+            && !steed->rider_id) {
             break;
         }
     }

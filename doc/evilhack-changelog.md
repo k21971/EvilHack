@@ -1784,4 +1784,6 @@ The following changes to date are:
 - Manually set timeout when using #wizintrinsic command
 - Some proposals for the Infidel role
 - Minor sysconf edits
+- Fix: shapeshifter types riding/being ridden while in an inappropraite
+  form 
 

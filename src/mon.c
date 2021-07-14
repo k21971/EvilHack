@@ -5244,6 +5244,23 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     if (!mtmp->perminvis || pm_invisible(olddata))
         mtmp->perminvis = pm_invisible(mdat);
     mtmp->minvis = mtmp->invis_blkd ? 0 : mtmp->perminvis;
+
+    if (has_erid(mtmp) && !mon_can_ride(mtmp)) {
+        if (canseemon(mtmp)) {
+            pline("Transforming, %s falls from %s!", l_oldname,
+                  mon_nam(ERID(mtmp)->m1));
+        }
+        separate_steed_and_rider(mtmp);
+    }
+    if (mtmp->rider_id && !mon_can_be_ridden(mtmp) && mtmp != u.usteed) {
+        struct monst *rider = get_mon_rider(mtmp);
+        if (canseemon(rider)) {
+            pline("%s falls from %s mount as %s transforms!", Monnam(rider),
+                  mhis(rider), mhim(mtmp));
+        }
+        separate_steed_and_rider(rider);
+    }
+
     if (mtmp->mundetected)
         (void) hideunder(mtmp);
     if (u.ustuck == mtmp) {
