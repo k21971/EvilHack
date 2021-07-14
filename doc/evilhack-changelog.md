@@ -1786,4 +1786,5 @@ The following changes to date are:
 - Minor sysconf edits
 - Fix: shapeshifter types riding/being ridden while in an inappropraite
   form 
+- Fix: if monster steed is teleported, take its rider along with it
 
