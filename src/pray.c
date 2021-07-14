@@ -900,7 +900,6 @@ gcrownu()
         urace.attrmax[A_WIS] = maxwis;
         youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
         set_uasmon();
-        check_wings(TRUE); /* in case body armor is worn during crowning */
         retouch_equipment(2); /* silver */
         break;
     }
@@ -1007,7 +1006,15 @@ gcrownu()
         break;
     }
     case A_NONE:
-        /* nothing to do */
+        /* OK, we don't get an artifact, but surely Moloch
+         * can at least offer His own blessing? */
+        if (ok_wep(obj) && !obj->oartifact
+            && obj->quan == 1 && !(obj->oprops & ITEM_FIRE))
+          {
+            Your("%s is wreathed in hellfire!", simple_typename(obj->otyp));
+            obj->oprops |= ITEM_FIRE;
+            obj->oprops_known |= ITEM_FIRE;
+          }
         break;
     default:
         obj = 0; /* lint */
@@ -1146,13 +1153,13 @@ aligntyp g_align;
                 if (uwep->cursed) {
                     if (!Blind) {
                         pline("%s %s%s.", Yobjnam2(uwep, "softly glow"),
-                              (Role_if(PM_INFIDEL) ? hcolor(NH_BLACK)
-                                                   : hcolor(NH_AMBER)), repair_buf);
+                              (g_align == A_NONE ? hcolor(NH_BLACK)
+                                                 : hcolor(NH_AMBER)), repair_buf);
                         iflags.last_msg = PLNMSG_OBJ_GLOWS;
                     } else
                         You_feel("the power of %s over %s.", u_gname(),
                                  yname(uwep));
-                    if (Role_if(PM_INFIDEL))
+                    if (g_align == A_NONE)
                         ; /* already cursed */
                     else
                         uncurse(uwep);
@@ -1162,14 +1169,14 @@ aligntyp g_align;
                     if (!Blind) {
                         pline("%s with %s aura%s.",
                               Yobjnam2(uwep, "softly glow"),
-                              (Role_if(PM_INFIDEL) ? an(hcolor(NH_BLACK))
-                                                   : an(hcolor(NH_LIGHT_BLUE))), repair_buf);
+                              (g_align == A_NONE ? an(hcolor(NH_BLACK))
+                                                 : an(hcolor(NH_LIGHT_BLUE))), repair_buf);
                         iflags.last_msg = PLNMSG_OBJ_GLOWS;
                     } else
                         You_feel("the %s of %s over %s.",
-                                 (Role_if(PM_INFIDEL) ? "power" : "blessing"), u_gname(),
+                                 (g_align == A_NONE ? "power" : "blessing"), u_gname(),
                                  yname(uwep));
-                    if (Role_if(PM_INFIDEL))
+                    if (g_align == A_NONE)
                         curse(uwep);
                     else
                         bless(uwep);
@@ -1216,8 +1223,8 @@ aligntyp g_align;
         case 2:
             if (!Blind)
                 You("are surrounded by %s %s.",
-                    (Role_if(PM_INFIDEL) ? an(hcolor(NH_BLACK)) : an(hcolor(NH_GOLDEN))),
-                    (Role_if(PM_INFIDEL) ? "mist" : "glow"));
+                    (g_align == A_NONE ? an(hcolor(NH_BLACK)) : an(hcolor(NH_GOLDEN))),
+                    (g_align == A_NONE ? "mist" : "glow"));
             /* if any levels have been lost (and not yet regained),
                treat this effect like blessed full healing */
             if (u.ulevel < u.ulevelmax) {
@@ -1258,7 +1265,7 @@ aligntyp g_align;
                 You_feel("the power of %s.", u_gname());
             else
                 You("are surrounded by %s aura.",
-                    (Role_if(PM_INFIDEL) ? an(hcolor(NH_BLACK)) : an(hcolor(NH_LIGHT_BLUE))));
+                    (g_align == A_NONE ? an(hcolor(NH_BLACK)) : an(hcolor(NH_LIGHT_BLUE))));
             for (otmp = invent; otmp; otmp = otmp->nobj) {
                 if (otmp->cursed
                     /* Infidels benefit from wearing cursed armor
@@ -2343,7 +2350,7 @@ dosacrifice()
                         if (otmp) {
                             if (!rn2(8))
                                 otmp = create_oprop(otmp, FALSE);
-                            if (Role_if(PM_INFIDEL))
+                            if (altaralign == A_NONE)
                                 curse(otmp);
                             else
                                 bless(otmp);
@@ -2351,7 +2358,7 @@ dosacrifice()
                             otmp->oerodeproof = TRUE;
                             at_your_feet("An object");
                             dropy(otmp);
-                            if (Role_if(PM_INFIDEL))
+                            if (altaralign == A_NONE)
                                 godvoice(u.ualign.type, "Use this gift ominously!");
                             else
                                 godvoice(u.ualign.type, "Use this gift valorously!");
@@ -2374,7 +2381,7 @@ dosacrifice()
                 if (otmp) {
                     if (otmp->spe < 0)
                         otmp->spe = 0;
-                    if (Role_if(PM_INFIDEL))
+                    if (altaralign == A_NONE)
                         curse(otmp);
                     else
                         bless(otmp);
@@ -2514,7 +2521,7 @@ dopray()
     if (p_type == 3 && (!Inhell || u.ualign.type == A_NONE)) {
         /* if you've been true to your god you can't die while you pray */
         if (!Blind) {
-            if (Role_if(PM_INFIDEL))
+            if (u.ualign.type == A_NONE)
                 You("are surrounded by an ominous crimson glow.");
             else
                 You("are surrounded by a shimmering light.");
@@ -2590,7 +2597,7 @@ prayer_done() /* M. Stephenson (1.0.3b) */
             pleased(alignment);
     } else {
         /* coaligned */
-        if (Role_if(PM_INFIDEL)) {
+        if (alignment == A_NONE) {
             if (on_altar())
                 (void) water_prayer(FALSE);
         } else {

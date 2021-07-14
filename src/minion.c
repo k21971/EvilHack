@@ -238,6 +238,8 @@ register struct monst *mtmp;
 {
     long cash, demand, offer;
 
+    mtmp->mstrategy &= ~STRAT_APPEARMSG; /* only initiate talk once */
+
     if (wielding_artifact(ART_EXCALIBUR)) {
         pline("%s looks very angry.", Amonnam(mtmp));
         mtmp->mpeaceful = mtmp->mtame = 0;
@@ -263,18 +265,17 @@ register struct monst *mtmp;
         mtmp->minvis = mtmp->perminvis = 0;
         if (wasunseen && canspotmon(mtmp)) {
             pline("%s appears before you.", Amonnam(mtmp));
-            mtmp->mstrategy &= ~STRAT_APPEARMSG;
         }
         newsym(mtmp->mx, mtmp->my);
     }
     if (is_demon(raceptr(&youmonst))) { /* Won't blackmail their own. */
-        if (canseemon(mtmp) && !Deaf && !rn2(20))
+        if (canseemon(mtmp) && !Deaf)
             pline("%s says, \"Good hunting, %s.\"", Amonnam(mtmp),
                   flags.female ? "Sister" : "Brother");
-        else if (canseemon(mtmp) && Deaf && !rn2(20))
+        else if (canseemon(mtmp) && Deaf)
             pline("%s says something.", Amonnam(mtmp));
-        if (!tele_restrict(mtmp))
-            (void) rloc(mtmp, TRUE);
+        display_nhwindow(WIN_MESSAGE, FALSE); /* --More-- */
+        (void) rloc(mtmp, TRUE);
         return 1;
     }
 
