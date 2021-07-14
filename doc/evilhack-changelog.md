@@ -1782,4 +1782,6 @@ The following changes to date are:
 - Add a few more hallucinatory armor/weapon descriptions
 - Auto-identify thrown potion of hallucination if hit with one 
 - Manually set timeout when using #wizintrinsic command
+- Some proposals for the Infidel role
+- Minor sysconf edits
 

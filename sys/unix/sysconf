@@ -52,7 +52,7 @@ MAXPLAYERS=0
 
 # If not null, added to string "To get local support, " in the support
 # information help.
-SUPPORT=Contact K2 or Tangles on freenode irc channel #hardfought
+SUPPORT=Contact K2 or Tangles on Libera irc channel #hardfought
 
 # If not null, displayed at the end of a panic-save sequence.
 #RECOVER=Run the recover program.
@@ -71,7 +71,7 @@ SERVERSEED=100
 # Uncomment the next line to enable some accessibility features such
 # as S_hero_override and S_pet_override symbols for screen readers
 # in the user config file.
-#ACCESSIBILITY=1
+ACCESSIBILITY=1
 
 # Uncomment to disable savefile UID checking.
 #CHECK_SAVE_UID=0
