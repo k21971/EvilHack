@@ -5126,7 +5126,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     int hpn, hpd;
     int mndx, tryct;
     struct permonst *olddata = mtmp->data;
-    char *p, oldname[BUFSZ], l_oldname[BUFSZ], newname[BUFSZ];
+    char *p, oldname[BUFSZ], l_oldname[BUFSZ], newname[BUFSZ], oldmhe[4];
 
     /* Riders are immune to polymorph and green slime
        (but apparent Rider might actually be a doppelganger) */
@@ -5156,6 +5156,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     Strcpy(l_oldname, x_monnam(mtmp, ARTICLE_THE, (char *) 0,
                                has_mname(mtmp) ? (SUPPRESS_SADDLE | SUPPRESS_BARDING)
                                                : 0, FALSE));
+    Strcpy(oldmhe, mhe(mtmp));
 
     /* mdat = 0 -> caller wants a random monster shape */
     if (mdat == 0) {
@@ -5256,7 +5257,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
         struct monst *rider = get_mon_rider(mtmp);
         if (canseemon(rider)) {
             pline("%s falls from %s mount as %s transforms!", Monnam(rider),
-                  mhis(rider), mhim(mtmp));
+                  mhis(rider), oldmhe);
         }
         separate_steed_and_rider(rider);
     }

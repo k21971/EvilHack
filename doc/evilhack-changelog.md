@@ -1787,4 +1787,6 @@ The following changes to date are:
 - Fix: shapeshifter types riding/being ridden while in an inappropraite
   form 
 - Fix: if monster steed is teleported, take its rider along with it
+- Fix: feedback tweak to commit regarding shapeshifters
+  riding/being ridden
 
