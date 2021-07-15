@@ -139,8 +139,9 @@ const char *verb;
     struct trap *t;
     struct monst *mtmp;
     struct obj *otmp;
+    coord save_bhitpos;
     boolean tseen;
-    int ttyp = NO_TRAP;
+    int ttyp = NO_TRAP, res = FALSE;
 
     if (obj->where != OBJ_FREE)
         panic("flooreffects: obj not free (%d, %d, %d)",
@@ -148,11 +149,14 @@ const char *verb;
 
     /* make sure things like water_damage() have no pointers to follow */
     obj->nobj = obj->nexthere = (struct obj *) 0;
-    /* erode_obj() needs this (called from water_damage() or lava_damage()) */
+    /* erode_obj() (called from water_damage() or lava_damage()) needs
+       bhitpos, but that was screwing up wand zapping that called us from
+       rloco(), so we now restore bhitpos before we return */
+    save_bhitpos = bhitpos;
     bhitpos.x = x, bhitpos.y = y;
 
     if (obj->otyp == BOULDER && boulder_hits_pool(obj, x, y, FALSE)) {
-        return TRUE;
+        res = TRUE;
     } else if (obj->otyp == BOULDER && (t = t_at(x, y)) != 0
                && (is_pit(t->ttyp) || is_hole(t->ttyp))) {
         ttyp = t->ttyp;
@@ -192,7 +196,7 @@ const char *verb;
                         (void) hmon(mtmp, obj, HMON_THROWN, dieroll);
                     }
                     if (!DEADMONSTER(mtmp) && !is_whirly(mtmp->data))
-                        return FALSE; /* still alive */
+                        res = FALSE; /* still alive, boulder still intact */
                 }
                 mtmp->mtrapped = 0;
             } else {
@@ -229,7 +233,7 @@ deletedwithboulder:
         useupf(obj, 1L);
         bury_objs(x, y);
         newsym(x, y);
-        return TRUE;
+        res = TRUE;
     } else if (obj->otyp == AMULET_OF_YENDOR
                && (obj->cursed ? rn2(3) : obj->blessed
                                ? !rn2(16) : !rn2(4))
@@ -242,12 +246,13 @@ deletedwithboulder:
             obj->orecursive = TRUE;
             rloco(obj);
             obj->orecursive = FALSE;
-            return TRUE;
+            res = TRUE;
         } else {
-            return FALSE;
+            bhitpos = save_bhitpos;
+            return res;
         }
     } else if (is_lava(x, y)) {
-        return lava_damage(obj, x, y);
+        res = lava_damage(obj, x, y);
     } else if (is_damp_terrain(x, y)) {
         /* Reasonably bulky objects (arbitrary) splash when dropped.
          * If you're floating above the water even small things make
@@ -264,7 +269,7 @@ deletedwithboulder:
             map_background(x, y, 0); /* can't tell what kind of water it is */
             newsym(x, y);
         }
-        return water_damage(obj, NULL, FALSE, x, y) == ER_DESTROYED;
+        res = water_damage(obj, NULL, FALSE, x, y) == ER_DESTROYED;
     } else if (u.ux == x && u.uy == y && (t = t_at(x, y)) != 0
                && (uteetering_at_seen_pit(t) || uescaped_shaft(t))) {
         if (Blind && !Deaf)
@@ -281,10 +286,10 @@ deletedwithboulder:
              * obj to null. */
             (void) obj_meld(&obj, &otmp);
         }
-        return (boolean) !obj;
+        res = (boolean) !obj;
     } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
         /* Dropping the Amulet or any of the invocation
-           items teleports them to the deepest demon lords
+           items teleports them to the deepest demon prince
            lair rather than destroying them */
         if (obj_resists(obj, 0, 0)) {
             d_level dest = hellc_level;
@@ -305,9 +310,11 @@ deletedwithboulder:
                       otense(obj, "fall"), otense(obj, "disappear"));
             delobj(obj);
         }
-        return TRUE;
+        res = TRUE;
     }
-    return FALSE;
+
+    bhitpos = save_bhitpos;
+    return res;
 }
 
 /* obj is an object dropped on an altar */

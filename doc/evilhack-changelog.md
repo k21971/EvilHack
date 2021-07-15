@@ -1789,4 +1789,6 @@ The following changes to date are:
 - Fix: if monster steed is teleported, take its rider along with it
 - Fix: feedback tweak to commit regarding shapeshifters
   riding/being ridden
+- Fix: zapping at an object with teleportation resulted in scrambled zap
+  targetting as soon as any object was hit
 
