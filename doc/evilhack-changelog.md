@@ -1791,4 +1791,5 @@ The following changes to date are:
   riding/being ridden
 - Fix: zapping at an object with teleportation resulted in scrambled zap
   targetting as soon as any object was hit
+- Monsters can use potions of oil as an offensive item
 

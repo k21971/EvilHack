@@ -1568,8 +1568,15 @@ int how;
     if (isyou) {
         switch (obj->otyp) {
         case POT_OIL:
-            if (obj->lamplit)
+            if (obj->lamplit) {
                 explode_oil(obj, u.ux, u.uy);
+            } else {
+                pline("Yuck!  You're covered in oil!");
+                if (!Glib)
+                    make_glib(rn1(5, 5));
+                if (obj->dknown)
+                    makeknown(POT_OIL);
+            }
             break;
         case POT_POLYMORPH:
             You_feel("a little %s.", Hallucination ? "normal" : "strange");
@@ -1781,6 +1788,7 @@ int how;
         case POT_OIL:
             if (obj->lamplit)
                 explode_oil(obj, tx, ty);
+            /* no Glib for monsters */
             break;
         case POT_ACID:
             if (!resists_acid(mon) && !resist(mon, POTION_CLASS, 0, NOTELL)) {

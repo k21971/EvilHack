@@ -863,6 +863,8 @@ int x, y;
     if (!obj->lamplit)
         impossible("exploding unlit oil");
     end_burn(obj, TRUE);
+    if (cansee(x, y))
+        makeknown(obj->otyp);
     splatter_burning_oil(x, y, diluted_oil);
 }
 

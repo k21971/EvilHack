@@ -163,6 +163,7 @@ boolean check_if_better, stashing;
              || otmp->otyp == POT_HALLUCINATION
              || otmp->otyp == POT_ACID
              || otmp->otyp == POT_POLYMORPH
+             || otmp->otyp == POT_OIL
              || otmp->otyp == RIN_INVISIBILITY
              || otmp->otyp == RIN_FIRE_RESISTANCE
              || otmp->otyp == RIN_COLD_RESISTANCE

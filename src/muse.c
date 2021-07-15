@@ -1422,6 +1422,7 @@ struct monst *mtmp;
 #define MUSE_WAN_POLYMORPH 23
 /*#define MUSE_WAN_UNDEAD_TURNING 24*/ /* also a defensive item so don't
                                         * redefine; nonconsecutive value is ok */
+#define MUSE_POT_OIL 25
 
 static boolean
 linedup_chk_corpse(x, y)
@@ -1750,6 +1751,17 @@ boolean reflection_skip;
 	    m.offensive = obj;
 	    m.has_offense = MUSE_POT_ACID;
 	}
+        nomore(MUSE_POT_OIL);
+        if (obj->otyp == POT_OIL
+            && !m_seenres(mtmp, M_SEEN_FIRE)
+            /* don't throw oil if point-blank AND mtmp is low on HP AND mtmp is
+             * not fire resistant */
+            && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 2
+                || mtmp->mhp > 10
+                || resists_fire(mtmp))) {
+            m.offensive = obj;
+            m.has_offense = MUSE_POT_OIL;
+        }
 	/* we can safely put this scroll here since the locations that
 	 * are in a 1 square radius are a subset of the locations that
 	 * are in wand range
@@ -2231,19 +2243,33 @@ struct monst *mtmp;
     case MUSE_POT_ACID:
     case MUSE_POT_POLYMORPH_THROW:
     case MUSE_POT_HALLUCINATION:
+    case MUSE_POT_OIL: {
         /* Note: this setting of dknown doesn't suffice.  A monster
          * which is out of sight might throw and it hits something _in_
          * sight, a problem not existing with wands because wand rays
          * are not objects.  Also set dknown in mthrowu.c.
          */
+        boolean isoil = (otmp->otyp == POT_OIL);
+        int origquan = otmp->quan;
         if (cansee(mtmp->mx, mtmp->my)) {
             otmp->dknown = 1;
             pline("%s hurls %s!", Monnam(mtmp), singular(otmp, doname));
         }
+        if (isoil && !otmp->lamplit && (!mtmp->mconf || rn2(3))) {
+            /* A monster throwing oil probably wants it to explode; assume they
+             * lit it just before throwing for simplicity;
+             * a confused monster might forget to light it */
+            begin_burn(otmp, FALSE);
+        }
         m_throw(mtmp, mtmp->mx, mtmp->my, sgn(mtmp->mux - mtmp->mx),
                 sgn(mtmp->muy - mtmp->my),
                 distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy), otmp, TRUE);
+        if (isoil && origquan > 1 && otmp->lamplit) {
+            /* origquan > 1: otmp is still valid */
+            end_burn(otmp, TRUE);
+        }
         return 2;
+    }
     case MUSE_SCR_STINKING_CLOUD:
 	mreadmsg(mtmp, otmp);
 	if (oseen) makeknown(otmp->otyp);
@@ -2293,7 +2319,7 @@ struct monst *mtmp;
     case 4:
         return POT_BLINDNESS;
     case 5:
-        return POT_SLEEPING;
+        return rn2(3) ? POT_SLEEPING : POT_HALLUCINATION;
     case 6:
         return POT_PARALYSIS;
     case 7:
@@ -2307,7 +2333,7 @@ struct monst *mtmp;
                           : rn2(3) ? WAN_LIGHTNING
                                    : WAN_FIRE;
         else
-            return WAN_FIRE;
+            return rn2(30) ? WAN_FIRE : POT_OIL;
     case 11:
         return WAN_COLD;
     case 12:
@@ -3216,7 +3242,7 @@ struct obj *obj;
             || typ == POT_FULL_HEALING || typ == POT_POLYMORPH
             || typ == POT_GAIN_LEVEL || typ == POT_PARALYSIS
             || typ == POT_SLEEPING || typ == POT_ACID || typ == POT_CONFUSION
-            || typ == POT_HALLUCINATION)
+            || typ == POT_HALLUCINATION || typ == POT_OIL)
             return TRUE;
         if (typ == POT_BLINDNESS && !attacktype(mon->data, AT_GAZE))
             return TRUE;
