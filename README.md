@@ -25,7 +25,7 @@ https://github.com/k21971/EvilHack/blob/master/doc/evilhack-changelog.txt
 
 More information regarding this variant can be accessed at the NetHackWiki -
 https://nethackwiki.com/wiki/EvilHack - or by visiting channels #evilhack
-or #hardfought on Freenode IRC.
+or #hardfought on Libera IRC.
 
 ## Design Philosophy
 
@@ -49,6 +49,7 @@ particular operating system. Pre-compiled binaries (linux and windows) can be
 found here - https://github.com/k21971/EvilHack/releases
 
 For Linux (TL;DR version):
+- Dependencies needed: `make` `gcc` `gdb` `flex` `bison` `libncurses5-dev` `libncursesw5-dev`
 - From the desired directory, `git clone https://github.com/k21971/EvilHack.git`
 - Navigate to the `sys/unix` folder, then `./setup.sh hints/linux-debug`  
   (edit the install paths in the hints file to your liking)
