@@ -21,7 +21,7 @@ could use.
 The EvilHack changelog is updated regularly and is an excellent resource to
 access for viewing current changes to existing releases, as well as up and
 coming changes for future versions -
-https://github.com/k21971/EvilHack/blob/master/doc/evilhack-changelog.txt
+https://github.com/k21971/EvilHack/blob/master/doc/evilhack-changelog.md
 
 More information regarding this variant can be accessed at the NetHackWiki -
 https://nethackwiki.com/wiki/EvilHack - or by visiting channels #evilhack

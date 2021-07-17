@@ -1793,4 +1793,5 @@ The following changes to date are:
   targetting as soon as any object was hit
 - Monsters can use potions of oil as an offensive item
 - README.md update
+- Another README.md update
 
