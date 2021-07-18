@@ -1008,13 +1008,14 @@ gcrownu()
     case A_NONE:
         /* OK, we don't get an artifact, but surely Moloch
          * can at least offer His own blessing? */
+        obj = uwep;
         if (ok_wep(obj) && !obj->oartifact
-            && obj->quan == 1 && !(obj->oprops & ITEM_FIRE))
-          {
+            && obj->quan == 1 && !(obj->oprops & ITEM_PROP_MASK)) {
             Your("%s is wreathed in hellfire!", simple_typename(obj->otyp));
+            create_oprop(obj, FALSE);
             obj->oprops |= ITEM_FIRE;
             obj->oprops_known |= ITEM_FIRE;
-          }
+        }
         break;
     default:
         obj = 0; /* lint */
@@ -1023,7 +1024,10 @@ gcrownu()
 
     /* enhance weapon regardless of alignment or artifact status */
     if (ok_wep(obj)) {
-        bless(obj);
+        if (Role_if(PM_INFIDEL))
+            curse(obj);
+        else
+            bless(obj);
         obj->oeroded = obj->oeroded2 = 0;
         obj->oerodeproof = TRUE;
         obj->bknown = obj->rknown = 1; /* ok to skip set_bknown() */

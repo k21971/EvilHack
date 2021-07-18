@@ -1795,4 +1795,5 @@ The following changes to date are:
 - README.md update
 - Another README.md update
 - Yet another README.md update
+- Fix: github issue #63 - follow up to Moloch crowning proposal
 
