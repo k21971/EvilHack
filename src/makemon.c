@@ -1105,7 +1105,6 @@ register struct monst *mtmp;
         } else if (mm == PM_KATHRYN_THE_ICE_QUEEN) {
             otmp = mksobj(ATHAME, FALSE, FALSE);
             bless(otmp);
-            create_oprop(otmp, FALSE);
             otmp->oprops = ITEM_FROST;
             otmp->oerodeproof = TRUE;
             otmp->spe = rnd(3) + 4;
@@ -1193,7 +1192,6 @@ register struct monst *mtmp;
                 set_material(received, GOLD);
         } else if (mm == PM_WIZARD_OF_YENDOR) {
             otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, FALSE, FALSE);
-            create_oprop(otmp, FALSE);
             otmp->oprops = (rn2(3) ? ITEM_FIRE : rn2(2) ? ITEM_FROST : ITEM_VENOM);
             otmp->spe = rnd(4) + 1;
             (void) mpickobj(mtmp, otmp);
@@ -1478,13 +1476,11 @@ register struct monst *mtmp;
                 (void) mpickobj(mtmp, otmp);
             } else {
                 otmp = mksobj(BROADSWORD, FALSE, FALSE);
-                create_oprop(otmp, FALSE);
                 otmp->oprops = ITEM_FIRE;
                 otmp->spe = rnd(3) + 2;
                 (void) mpickobj(mtmp, otmp);
             }
             otmp = mksobj(BULLWHIP, FALSE, FALSE);
-            create_oprop(otmp, FALSE);
             otmp->oprops = ITEM_FIRE;
             otmp->spe = rnd(3) + 2;
             (void) mpickobj(mtmp, otmp);
@@ -1508,7 +1504,6 @@ register struct monst *mtmp;
             break;
         case PM_GERYON:
             otmp = mksobj(BATTLE_AXE, FALSE, FALSE);
-            create_oprop(otmp, FALSE);
             otmp->oprops = ITEM_SHOCK;
             curse(otmp);
             otmp->spe = rnd(3) + 2;
@@ -1525,7 +1520,6 @@ register struct monst *mtmp;
             break;
         case PM_LOLTH:
             otmp = mksobj(SCIMITAR, FALSE, FALSE);
-            create_oprop(otmp, FALSE);
             otmp->oprops = ITEM_VENOM;
             curse(otmp);
             otmp->oerodeproof = TRUE;
@@ -1534,7 +1528,6 @@ register struct monst *mtmp;
             break;
         case PM_BAPHOMET:
             otmp = mksobj(BARDICHE, FALSE, FALSE);
-            create_oprop(otmp, FALSE);
             otmp->oprops = ITEM_VENOM;
             curse(otmp);
             otmp->oerodeproof = TRUE;
@@ -1543,7 +1536,6 @@ register struct monst *mtmp;
             break;
         case PM_MEPHISTOPHELES:
             otmp = mksobj(RANSEUR, FALSE, FALSE);
-            create_oprop(otmp, FALSE);
             otmp->oprops = ITEM_FIRE;
             curse(otmp);
             otmp->oerodeproof = TRUE;
@@ -1561,7 +1553,6 @@ register struct monst *mtmp;
             break;
         case PM_ASMODEUS:
             otmp = mksobj(ROD, FALSE, FALSE);
-            create_oprop(otmp, FALSE);
             otmp->oprops = ITEM_FROST;
             curse(otmp);
             otmp->spe = rnd(3) + 4;
@@ -1862,13 +1853,10 @@ register struct monst *mtmp;
                 set_material(otmp, SILVER);
                 /* only add a property if silver; we don't want the player
                  * immediately giving this to a summoned demon */
-                if (!rn2(3)) {
-                    create_oprop(otmp, FALSE);
+                if (!rn2(3))
                     otmp->oprops = ITEM_FROST;
-                } else if (!rn2(4)) {
-                    create_oprop(otmp, FALSE);
+                else if (!rn2(4))
                     otmp->oprops = ITEM_SHOCK;
-                }
             }
             (void) mpickobj(mtmp, otmp);
             /* the Paladin wears no helmet
@@ -1921,7 +1909,6 @@ register struct monst *mtmp;
             (void) mpickobj(mtmp, otmp);
         } else if (ptr == &mons[PM_VECNA]) {
             otmp = mksobj(ROBE, FALSE, FALSE);
-            create_oprop(otmp, FALSE);
             otmp->oprops = ITEM_DRLI;
             otmp->oeroded2 = TRUE;
             curse(otmp);

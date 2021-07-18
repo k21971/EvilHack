@@ -1799,4 +1799,5 @@ The following changes to date are:
 - Fix: 'an ukulele'
 - Fix: heap-use-after-free when attacking monster with potion
 - Slight adjustment to previous commit (follow up to Moloch...)
+- Fix: remove create_oprop() where it's not needed
 

@@ -1012,7 +1012,6 @@ gcrownu()
         if (ok_wep(obj) && !obj->oartifact
             && obj->quan == 1 && !(obj->oprops & ITEM_PROP_MASK)) {
             Your("%s is wreathed in hellfire!", simple_typename(obj->otyp));
-            create_oprop(obj, FALSE);
             obj->oprops |= ITEM_FIRE;
             obj->oprops_known |= ITEM_FIRE;
         }
