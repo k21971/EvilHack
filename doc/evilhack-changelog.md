@@ -1798,4 +1798,5 @@ The following changes to date are:
 - Fix: github issue #63 - follow up to Moloch crowning proposal
 - Fix: 'an ukulele'
 - Fix: heap-use-after-free when attacking monster with potion
+- Slight adjustment to previous commit (follow up to Moloch...)
 

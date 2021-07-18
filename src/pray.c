@@ -1024,7 +1024,7 @@ gcrownu()
 
     /* enhance weapon regardless of alignment or artifact status */
     if (ok_wep(obj)) {
-        if (Role_if(PM_INFIDEL))
+        if (u.ualign.type == A_NONE)
             curse(obj);
         else
             bless(obj);
