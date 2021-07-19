@@ -2313,9 +2313,9 @@ const char *verb;
    also used by makesingular() to catch some special cases */
 static const char *const special_subjs[] = {
     "erinys",  "manes", /* this one is ambiguous */
-    "Cyclops", "Hippocrates",     "Pelias",    "aklys",
+    "Cyclops", "Hippocrates",     "Pelias",    "Kas",  "aklys",
     "amnesia", "detect monsters", "paralysis", "shape changers",
-    "nemesis", 0
+    "nemesis", "Mephistopheles", 0
     /* note: "detect monsters" and "shape changers" are normally
        caught via "<something>(s) of <whatever>", but they can be
        wished for using the shorter form, so we include them here

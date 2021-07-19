@@ -1800,4 +1800,5 @@ The following changes to date are:
 - Fix: heap-use-after-free when attacking monster with potion
 - Slight adjustment to previous commit (follow up to Moloch...)
 - Fix: remove create_oprop() where it's not needed
+- Fix: weird behavior with monster lookup for Kas and Mephistopheles
 
