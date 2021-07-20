@@ -6061,6 +6061,11 @@ short raceidx;
         rptr->mflags3 = mptr->mflags3;
     }
 
+    if (is_female(ptr))
+        mtmp->female = 1;
+    else if (is_male(ptr))
+        mtmp->female = 0;
+
     mtmp->mintrinsics |= ptr->mresists;
     rptr->r_id = pm_to_race(raceidx);
     rptr->mrace = ptr->mhflags;

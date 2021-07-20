@@ -1833,15 +1833,16 @@ boolean called;
     if (do_invis)
         Strcat(buf, "invisible ");
     if (do_saddle && (mtmp->misc_worn_check & W_SADDLE) && !Blind
-        && !Hallucination)
+        && !do_hallu)
         Strcat(buf, "saddled ");
     if (do_barding && (mtmp->misc_worn_check & W_BARDING) && !Blind
-        && !Hallucination)
+        && !do_hallu)
         Strcat(buf, "barded ");
     if (has_erac(mtmp) && !type_is_pname(mdat)
         /* don't reveal high priest race too early */
         && mdat != &mons[PM_HIGH_PRIEST]
-        && (!(do_name && has_mname(mtmp)) || called)) {
+        && (!(do_name && has_mname(mtmp)) || called)
+        && !do_hallu) {
         int r_id = ERAC(mtmp)->r_id;
         Sprintf(eos(buf), "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
                                             : races[r_id].adj);

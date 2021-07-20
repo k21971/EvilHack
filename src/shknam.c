@@ -540,9 +540,9 @@ const char *const *nlp;
             } else {
                 shname = shk->female ? "-Lucrezia" : "+Dirk";
             }
-            if (*shname == '_' || *shname == '-' || is_female(shk->data))
+            if (*shname == '_' || *shname == '-' || is_female(r_data(shk)))
                 shk->female = 1;
-            if (*shname == '|' || *shname == '+' || is_male(shk->data))
+            if (*shname == '|' || *shname == '+' || is_male(r_data(shk)))
                 shk->female = 0;
 
             /* is name already in use on this level? */
