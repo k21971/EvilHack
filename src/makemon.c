@@ -342,22 +342,48 @@ struct trobj Level20KitGiant[] = {
 };
 /* end giant structs */
 
+/* Specialized structs for monk player monsters */
+struct trobj Level10KitMonk1[] = {
+        { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level10KitMonk2[] = {
+        { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20KitMonk1[] = {
+        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20KitMonk2[] = {
+        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
+};
+/* end monk structs */
+
 struct trobj Level20Kit1[] = {
-	{ SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-	{ GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-	{ CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-	{ SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-	{ HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ 0, 0, 0, 0, 0 }
+        { SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit2[] = {
-	{ GRAY_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-	{ GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-	{ JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-	{ ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-	{ HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ 0, 0, 0, 0, 0 }
+        { GRAY_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+        { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit3[] = {
@@ -617,7 +643,15 @@ register struct monst *mtmp;
     /* treat mplayers differently */
     if (is_mplayer(ptr) && !In_endgame(&u.uz)) {
         if (mtmp->m_lev > 1) {
-            if (racial_giant(mtmp)) {
+            if (mtmp->data == &mons[PM_MONK]) {
+                if (mtmp->m_lev > 10 || !rn2(15))
+                    ini_mon_inv(mtmp, rn2(2) ? Level20KitMonk1
+                                             : Level20KitMonk2,
+                                (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                ini_mon_inv(mtmp, rn2(2) ? Level10KitMonk1
+                                         : Level10KitMonk2,
+                            (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
+            } else if (racial_giant(mtmp)) {
                 if (mtmp->m_lev > 10 || !rn2(15))
                     ini_mon_inv(mtmp, Level20KitGiant,
                                 (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));

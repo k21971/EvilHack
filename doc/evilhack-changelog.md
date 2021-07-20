@@ -1801,4 +1801,5 @@ The following changes to date are:
 - Slight adjustment to previous commit (follow up to Moloch...)
 - Fix: remove create_oprop() where it's not needed
 - Fix: weird behavior with monster lookup for Kas and Mephistopheles
+- Fix: player monster Monks wearing body armor
 
