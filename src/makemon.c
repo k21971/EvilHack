@@ -1127,8 +1127,8 @@ register struct monst *mtmp;
         } else if (mm == PM_RAT_KING) {
             otmp = mksobj(SCIMITAR, FALSE, FALSE);
             bless(otmp);
+            otmp->oprops = ITEM_VENOM;
             otmp->oerodeproof = TRUE;
-            otmp->opoisoned = TRUE;
             otmp->spe = rnd(3);
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, HIGH_BOOTS);
