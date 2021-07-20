@@ -319,8 +319,25 @@ int x, y;
 
     if (canseemon(mtmp) && !Blind) {
         if (!Hallucination) {
-            if (which_armor(mtmp, W_ARMOR))
-                Strcat(buf, ", wearing armor");
+            if (mtmp->misc_worn_check & W_ARMOR) {
+                int base_ac = 0, arm_ct = 0;
+                long atype;
+                struct obj *otmp;
+
+                for (atype = W_ARM; atype & W_ARMOR; atype <<= 1) {
+                    if (!(otmp = which_armor(mtmp, atype)))
+                        continue;
+                    /* don't count armor->spe, since this represents only what
+                     * the hero can see from afar -- monster with +8 gloves
+                     * will still seem "lightly armored" from a distance */
+                    base_ac += ARM_BONUS(otmp) - otmp->spe;
+                    arm_ct++;
+                }
+
+                Sprintf(eos(buf), ", wearing %s%sarmor", 
+                        arm_ct > 4 ? "full " : arm_ct < 3 ? "some " : "",
+                        base_ac > 9 ? "heavy " : base_ac < 6 ? "light " : "");
+            }
             if (MON_WEP(mtmp))
                 Sprintf(eos(buf), ", wielding %s",
                         ansimpleoname(MON_WEP(mtmp)));
