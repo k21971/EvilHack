@@ -1810,4 +1810,5 @@ The following changes to date are:
   consideration as the player vs shock damage
 - Dragons have proper alignment
 - Fix: replace makeplural with s_suffix from recent commit
+- Fix: monsters riding steeds were not highlighted in curses mode
 
