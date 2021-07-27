@@ -1197,7 +1197,9 @@ boolean ghostly;
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (mtmp->isshk)
             set_residency(mtmp, FALSE);
-        place_monster(mtmp, mtmp->mx, mtmp->my);
+        if (!mtmp->rider_id) {
+            place_monster(mtmp, mtmp->mx, mtmp->my);
+        }
         if (mtmp->wormno)
             place_wsegs(mtmp, NULL);
         if (hides_under(mtmp->data) && mtmp->mundetected)

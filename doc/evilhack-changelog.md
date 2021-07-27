@@ -1804,4 +1804,5 @@ The following changes to date are:
 - Fix: player monster Monks wearing body armor
 - Give The Rat King's scimitar the venom object property instead of
   just coating it in poison
+- Fix: various issues with monster riders/steeds
 

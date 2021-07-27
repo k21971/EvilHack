@@ -84,7 +84,7 @@ struct monst *rider;
     register struct monst *steed, *nmon;
 
     /* not acceptable as riders */
-    if (!mon_can_ride(rider) && !has_erid(rider))
+    if (!mon_can_ride(rider) || has_erid(rider))
         return FALSE;
 
     for (steed = fmon; steed; steed = nmon) {
@@ -185,7 +185,7 @@ boolean
 can_saddle(mtmp)
 struct monst *mtmp;
 {
-    struct permonst *ptr = mtmp->data;
+    struct permonst *ptr = r_data(mtmp);
 
     return (index(steeds, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
             && (!humanoid(ptr) || ptr->mlet == S_CENTAUR) && !amorphous(ptr)
@@ -200,7 +200,7 @@ boolean
 can_wear_barding(mtmp)
 struct monst *mtmp;
 {
-    struct permonst *ptr = mtmp->data;
+    struct permonst *ptr = r_data(mtmp);
 
     return (index(mbarding, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
             && !humanoid(ptr) && !amorphous(ptr)
@@ -504,7 +504,7 @@ struct monst *mtmp;
     return ((mtmp->mtame && humanoid(youmonst.data)
             && !verysmall(youmonst.data) && !bigmonst(youmonst.data)
             && (!Underwater || is_swimmer(mtmp->data)))
-            || (mtmp->data == &mons[PM_WOOLLY_MAMMOTH] && Race_if(PM_GIANT)));
+            || (r_data(mtmp) == &mons[PM_WOOLLY_MAMMOTH] && Race_if(PM_GIANT)));
 }
 
 int
@@ -1111,9 +1111,11 @@ int x, y;
                    mon->mstate, buf);
         return;
     }
-    if (((othermon = level.monsters[x][y]) != 0) && !((has_erid(level.monsters[x][y])
-        && ERID(level.monsters[x][y])->m1 == mon)
-        || (has_erid(mon) && ERID(mon)->m1 == level.monsters[x][y]))) {
+    if (((othermon = level.monsters[x][y]) != 0)
+        /* steed and rider are colocated in the same position, so allow
+         * placing one on top of the other */
+        && !((has_erid(othermon) && ERID(othermon)->m1 == mon)
+             || (has_erid(mon) && ERID(mon)->m1 == othermon))) {
         describe_level(buf);
         monnm = minimal_monnam(mon, FALSE);
         othnm = (mon != othermon) ? minimal_monnam(othermon, TRUE) : "itself";
