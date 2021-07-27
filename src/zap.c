@@ -5492,6 +5492,8 @@ int osym, dmgtyp;
         quan = obj->quan;
         switch (osym) {
         case RING_CLASS:
+            /* The Ring of P'hul is not affected,
+               artifacts are off-limits per destroy_item() */
             if (obj->otyp == RIN_SHOCK_RESISTANCE) {
                 skip++;
                 break;
@@ -5718,6 +5720,8 @@ int osym, dmgtyp;
     while ((obj = nxt_unbypassed_obj(mtmp->minvent)) != 0) {
         if (obj->oclass != osym)
             continue; /* test only objs of type osym */
+        if (obj->oartifact)
+            continue; /* don't destroy artifacts */
         skip = 0;
         quan = 0L;
         dindx = 0;
@@ -5775,10 +5779,22 @@ int osym, dmgtyp;
                     skip++;
                     break;
                 }
+                if ((obj->oerodeproof || is_supermaterial(obj))
+                    && rn2(3)) {
+                    pline("%s %s resists!", makeplural(Monnam(mtmp)), xname(obj));
+                    skip++;
+                    break;
+                }
                 dindx = 5;
                 break;
             case WAND_CLASS:
                 if (obj->otyp == WAN_LIGHTNING) {
+                    skip++;
+                    break;
+                }
+                if ((obj->oerodeproof || is_supermaterial(obj))
+                    && rn2(3)) {
+                    pline("%s %s resists!", makeplural(Monnam(mtmp)), xname(obj));
                     skip++;
                     break;
                 }

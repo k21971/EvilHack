@@ -1806,4 +1806,6 @@ The following changes to date are:
   just coating it in poison
 - Fix: various issues with monster riders/steeds
 - Fix: bugle playing should not scare certain monsters
+- Fix: give rings/wands/artifacts in monsters inventory the same
+  consideration as the player vs shock damage
 
