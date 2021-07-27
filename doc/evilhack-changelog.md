@@ -1808,4 +1808,5 @@ The following changes to date are:
 - Fix: bugle playing should not scare certain monsters
 - Fix: give rings/wands/artifacts in monsters inventory the same
   consideration as the player vs shock damage
+- Dragons have proper alignment
 

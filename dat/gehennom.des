@@ -1289,10 +1289,10 @@ IF [50%] {
     MONSTER:('D',"Tiamat"),(50,09),hostile
     # entourage - chaotic aligned dragons
     MONSTER:('D',"blue dragon"),(49,08),hostile
-    MONSTER:('D',"gold dragon"),(51,08),hostile
+    MONSTER:('D',"green dragon"),(51,08),hostile
     MONSTER:('D',"white dragon"),(49,10),hostile
     MONSTER:('D',"black dragon"),(51,10),hostile
-    MONSTER:('D',"sea dragon"),(50,08),hostile
+    MONSTER:('D',"red dragon"),(50,08),hostile
     MONSTER:('&',"balrog"),(49,09),hostile
     MONSTER:('D',"red dragon"),(50,10),hostile
   }
@@ -1504,9 +1504,9 @@ IF [50%] {
     MONSTER:('D',"Tiamat"),(11,16),hostile
     # entourage - chaotic aligned dragons
     MONSTER:('D',"black dragon"),(08,16),asleep
-    MONSTER:('D',"gold dragon"),(09,17),asleep
+    MONSTER:('D',"green dragon"),(09,17),asleep
     MONSTER:('D',"red dragon"),(14,16),asleep
-    MONSTER:('D',"sea dragon"),(13,17),asleep
+    MONSTER:('D',"yellow dragon"),(13,17),asleep
     MONSTER:('&',"Balrog"),(11,18),"Dagul",asleep
     MONSTER:('D',"blue dragon"),(10,13),asleep
     MONSTER:('D',"white dragon"),(12,13),asleep
@@ -1717,9 +1717,9 @@ IF [50%] {
     MONSTER:('D',"Tiamat"),(06,02),hostile
     # entourage - chaotic aligned dragons
     MONSTER:('D',"black dragon"),(04,02),asleep
-    MONSTER:('D',"gold dragon"),(08,02),asleep
+    MONSTER:('D',"green dragon"),(08,02),asleep
     MONSTER:('D',"red dragon"),(02,05),asleep
-    MONSTER:('D',"sea dragon"),(11,05),asleep
+    MONSTER:('D',"orange dragon"),(11,05),asleep
     MONSTER:('D',"blue dragon"),(05,04),asleep
     MONSTER:('D',"white dragon"),(07,04),asleep
   }
