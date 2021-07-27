@@ -1805,4 +1805,5 @@ The following changes to date are:
 - Give The Rat King's scimitar the venom object property instead of
   just coating it in poison
 - Fix: various issues with monster riders/steeds
+- Fix: bugle playing should not scare certain monsters
 
