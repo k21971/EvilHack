@@ -1809,4 +1809,5 @@ The following changes to date are:
 - Fix: give rings/wands/artifacts in monsters inventory the same
   consideration as the player vs shock damage
 - Dragons have proper alignment
+- Fix: replace makeplural with s_suffix from recent commit
 

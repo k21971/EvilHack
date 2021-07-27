@@ -5781,7 +5781,7 @@ int osym, dmgtyp;
                 }
                 if ((obj->oerodeproof || is_supermaterial(obj))
                     && rn2(3)) {
-                    pline("%s %s resists!", makeplural(Monnam(mtmp)), xname(obj));
+                    pline("%s %s resists!", s_suffix(Monnam(mtmp)), xname(obj));
                     skip++;
                     break;
                 }
@@ -5794,7 +5794,7 @@ int osym, dmgtyp;
                 }
                 if ((obj->oerodeproof || is_supermaterial(obj))
                     && rn2(3)) {
-                    pline("%s %s resists!", makeplural(Monnam(mtmp)), xname(obj));
+                    pline("%s %s resists!", s_suffix(Monnam(mtmp)), xname(obj));
                     skip++;
                     break;
                 }
