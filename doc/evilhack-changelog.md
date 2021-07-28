@@ -1811,4 +1811,5 @@ The following changes to date are:
 - Dragons have proper alignment
 - Fix: replace makeplural with s_suffix from recent commit
 - Fix: monsters riding steeds were not highlighted in curses mode
+- Adjust monster spawns in morgues in Vecna's domain
 

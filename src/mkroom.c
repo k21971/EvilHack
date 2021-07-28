@@ -585,6 +585,7 @@ STATIC_OVL struct permonst *
 morguemon()
 {
     register int i = rn2(100), hd = rn2(level_difficulty());
+    register int v = In_vecna_branch(&u.uz) ? 22 : 40;
 
     if (hd > 10 && i < 10) {
         if (Inhell || In_endgame(&u.uz)) {
@@ -599,10 +600,12 @@ morguemon()
 
     if (hd > 8 && i > 85)
         return mkclass(S_VAMPIRE, 0);
+    if (In_vecna_branch(&u.uz) && hd > 8 && i > 80)
+        return &mons[PM_SHADE];
 
     return ((i < 20) ? &mons[PM_GHOST]
-                     : (i < 40) ? &mons[PM_WRAITH]
-                                : mkclass(S_ZOMBIE, 0));
+                     : (i < v) ? &mons[PM_WRAITH]
+                               : mkclass(S_ZOMBIE, 0));
 }
 
 struct permonst *
