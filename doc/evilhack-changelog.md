@@ -1812,4 +1812,5 @@ The following changes to date are:
 - Fix: replace makeplural with s_suffix from recent commit
 - Fix: monsters riding steeds were not highlighted in curses mode
 - Adjust monster spawns in morgues in Vecna's domain
+- Fix: small issue with #loot(ing) pets in a shop
 

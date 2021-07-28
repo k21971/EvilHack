@@ -2226,7 +2226,7 @@ boolean taking;
             if (maxquan < otmp->quan)
                 otmp = splitobj(otmp, maxquan);
             extract_from_minvent(mtmp, otmp, TRUE, TRUE);
-            if (in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
+            if (*in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
                 addtobill(otmp, FALSE, FALSE, FALSE);
             otmp = hold_another_object(otmp, "You take, but drop, %s.",
                                        doname(otmp), "You take: ");
