@@ -2128,7 +2128,8 @@ long flag;
     wantice = (mdat == &mons[PM_FROST_SALAMANDER]);
     poolok = ((!Is_waterlevel(&u.uz)
                && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)))
-              || ((is_swimmer(mdat) || freeze_step(mdat)) && !wantpool));
+              || ((is_swimmer(mdat) || freeze_step(mdat)) && !wantpool)
+              || can_wwalk(mon));
     /* note: floating eye is the only is_floater() so this could be
        simplified, but then adding another floater would be error prone */
     lavaok = (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)
