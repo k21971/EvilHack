@@ -1814,4 +1814,5 @@ The following changes to date are:
 - Adjust monster spawns in morgues in Vecna's domain
 - Fix: small issue with #loot(ing) pets in a shop
 - Fix: monsters unable to walk on water while wearing water walking boots
+- Fix: a Centaur's kick is more powerful than other player races
 

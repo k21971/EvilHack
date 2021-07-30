@@ -47,6 +47,11 @@ boolean clumsy;
     if (uarmf && uarmf->otyp == KICKING_BOOTS)
         dmg += 5;
 
+    /* Centuars have a powerful kick, equivalent to
+       wearing kicking boots */
+    if (maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))
+        dmg += 5;
+
     /* excessive wt affects dex, so it affects dmg */
     if (clumsy)
         dmg /= 2;
