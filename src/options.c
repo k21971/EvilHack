@@ -1614,7 +1614,7 @@ static const struct {
     { "stop", MSGTYP_STOP, "Prompt for more after the message" },
     { "more", MSGTYP_STOP, NULL },
     /* 'alert' will fallback to 'stop' behaviour if windowport does not support it */
-    { "alert", MSGTYP_ALERT, "Force acknowlegement with <TAB>" },
+    { "alert", MSGTYP_ALERT, "Force acknowledgement with <TAB>" },
     { "norep", MSGTYP_NOREP, "Do not repeat the message" }
 };
 
