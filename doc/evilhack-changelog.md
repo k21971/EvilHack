@@ -1817,4 +1817,5 @@ The following changes to date are:
 - Fix: a Centaur's kick is more powerful than other player races
 - Fix: minor incorrect spelling 
 - Fix: various curses color handling
+- Fix: buffer underrun in curses
 
