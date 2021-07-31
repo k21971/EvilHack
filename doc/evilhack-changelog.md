@@ -1816,4 +1816,5 @@ The following changes to date are:
 - Fix: monsters unable to walk on water while wearing water walking boots
 - Fix: a Centaur's kick is more powerful than other player races
 - Fix: minor incorrect spelling 
+- Fix: various curses color handling
 
