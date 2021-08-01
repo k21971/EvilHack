@@ -1436,6 +1436,7 @@ E int FDECL(material_bonus, (struct obj*));
 E struct obj *FDECL(rnd_treefruit_at, (int, int));
 E void FDECL(set_corpsenm, (struct obj *, int));
 E void FDECL(start_corpse_timeout, (struct obj *));
+E void FDECL(maybe_adjust_light, (struct obj *, int));
 E void FDECL(bless, (struct obj *));
 E void FDECL(unbless, (struct obj *));
 E void FDECL(curse, (struct obj *));

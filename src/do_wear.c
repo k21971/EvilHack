@@ -863,20 +863,29 @@ STATIC_PTR
 int
 Armor_on(VOID_ARGS)
 {
+    if (!uarm) /* no known instances of !uarm here but play it safe */
+        return 0;
+    uarm->known = 1; /* suit's +/- evident because of status line AC */
+    if (uarm)
+        oprops_on(uarm, W_ARM);
+    check_wings(FALSE);
+
+    if (Role_if(PM_MONK))
+        You_feel("extremely uncomfortable wearing such armor.");
+
+    /* dragon scales/scale mail have secondary characteristics */
     if (uarm) {
         switch (uarm->otyp) {
         case GOLD_DRAGON_SCALE_MAIL:
         case GOLD_DRAGON_SCALES:
             ESick_resistance |= W_ARM;
-            begin_burn(uarm, FALSE);
-            if (!Blind)
-                pline("%s to glow.", Tobjnam(uarm, "begin"));
+            /* gold dragon scales/scale mail emitting light
+               is handled below */
             break;
         case BLUE_DRAGON_SCALE_MAIL:
         case BLUE_DRAGON_SCALES:
-            if (!Very_fast) {
+            if (!Very_fast)
                 pline("You speed up%s.", Fast ? " a bit more" : "");
-            }
             EFast |= W_ARM;
             break;
         case YELLOW_DRAGON_SCALE_MAIL:
@@ -922,41 +931,47 @@ Armor_on(VOID_ARGS)
             break;
         }
     }
-    /*
-     * No suits require special handling.  Special properties conferred by
-     * suits are set up as intrinsics (actually 'extrinsics') by setworn()
-     * which is called by armor_or_accessory_on() before Armor_on().
-     */
-    if (uarm) { /* no known instances of !uarm here but play it safe */
-        uarm->known = 1; /* suit's +/- evident because of status line AC */
-        oprops_on(uarm, W_ARM);
+
+    if (artifact_light(uarm) && !uarm->lamplit) {
+        begin_burn(uarm, FALSE);
+        if (!Blind)
+            pline("%s %s to shine %s!",
+                  Yname2(uarm), otense(uarm, "begin"),
+                  arti_light_description(uarm));
     }
-    check_wings(FALSE);
-    if (Role_if(PM_MONK))
-        You_feel("extremely uncomfortable wearing such armor.");
     return 0;
 }
 
 int
 Armor_off(VOID_ARGS)
 {
-    if (uarm) {
-        switch (uarm->otyp) {
+    struct obj *otmp = uarm;
+    boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+
+    if (otmp)
+        oprops_off(otmp, W_ARM);
+    context.takeoff.mask &= ~W_ARM;
+    setworn((struct obj *) 0, W_ARM);
+    context.takeoff.cancelled_don = FALSE;
+    check_wings(FALSE);
+
+    if (Role_if(PM_MONK))
+        You_feel("much more comfortable and free now.");
+
+    /* dragon scales/scale mail have secondary characteristics */
+    if (otmp) {
+        switch (otmp->otyp) {
         case GOLD_DRAGON_SCALE_MAIL:
         case GOLD_DRAGON_SCALES:
             ESick_resistance &= ~W_ARM;
-            if (uarm->lamplit) {
-                end_burn(uarm, FALSE);
-                if (!Blind)
-                    pline("%s glowing.", Tobjnam(uarm, "stop"));
-            }
+            /* gold dragon scales/scale mail emitting light
+               is handled below */
             break;
         case BLUE_DRAGON_SCALE_MAIL:
         case BLUE_DRAGON_SCALES:
             EFast &= ~W_ARM;
-            if (!Very_fast && !context.takeoff.cancelled_don) {
+            if (!Very_fast && !context.takeoff.cancelled_don)
                 pline("You slow down.");
-            }
             break;
         case YELLOW_DRAGON_SCALE_MAIL:
         case YELLOW_DRAGON_SCALES:
@@ -968,8 +983,8 @@ Armor_off(VOID_ARGS)
             break;
         case SHIMMERING_DRAGON_SCALE_MAIL:
         case SHIMMERING_DRAGON_SCALES:
-            toggle_displacement(uarm, (EDisplaced & ~WORN_ARMOR), FALSE);
-            toggle_stealth(uarm, (EStealth & ~WORN_ARMOR), FALSE);
+            toggle_displacement(otmp, (EDisplaced & ~WORN_ARMOR), FALSE);
+            toggle_stealth(otmp, (EStealth & ~WORN_ARMOR), FALSE);
             EStealth &= ~W_ARM;
             break;
         case SILVER_DRAGON_SCALE_MAIL:
@@ -1007,14 +1022,11 @@ Armor_off(VOID_ARGS)
         }
     }
 
-    if (uarm)
-        oprops_off(uarm, W_ARM);
-    context.takeoff.mask &= ~W_ARM;
-    setworn((struct obj *) 0, W_ARM);
-    context.takeoff.cancelled_don = FALSE;
-    check_wings(FALSE);
-    if (Role_if(PM_MONK))
-        You_feel("much more comfortable and free now.");
+    if (was_arti_light && !artifact_light(otmp)) {
+        end_burn(otmp, FALSE);
+        if (!Blind)
+            pline("%s shining.", Tobjnam(otmp, "stop"));
+    }
     return 0;
 }
 
@@ -1027,20 +1039,33 @@ Armor_off(VOID_ARGS)
 int
 Armor_gone()
 {
-    if (uarm) {
-        switch (uarm->otyp) {
+    struct obj *otmp = uarm;
+    boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+
+    if (otmp)
+        oprops_off(otmp, W_ARM);
+    context.takeoff.mask &= ~W_ARM;
+    setnotworn(otmp);
+    context.takeoff.cancelled_don = FALSE;
+    check_wings(FALSE);
+
+    if (Role_if(PM_MONK))
+        You_feel("much more comfortable and free now.");
+
+    /* dragon scales/scale mail have secondary characteristics */
+    if (otmp) {
+        switch (otmp->otyp) {
         case GOLD_DRAGON_SCALE_MAIL:
         case GOLD_DRAGON_SCALES:
             ESick_resistance &= ~W_ARM;
-            if (uarm->lamplit)
-                end_burn(uarm, FALSE);
+            /* gold dragon scales/scale mail emitting light
+               is handled below */
             break;
         case BLUE_DRAGON_SCALE_MAIL:
         case BLUE_DRAGON_SCALES:
             EFast &= ~W_ARM;
-            if (!Very_fast && !context.takeoff.cancelled_don) {
+            if (!Very_fast && !context.takeoff.cancelled_don)
                 pline("You slow down.");
-            }
             break;
         case YELLOW_DRAGON_SCALE_MAIL:
         case YELLOW_DRAGON_SCALES:
@@ -1052,8 +1077,8 @@ Armor_gone()
             break;
         case SHIMMERING_DRAGON_SCALE_MAIL:
         case SHIMMERING_DRAGON_SCALES:
-            toggle_displacement(uarm, (EDisplaced & ~WORN_ARMOR), FALSE);
-            toggle_stealth(uarm, (EStealth & ~WORN_ARMOR), FALSE);
+            toggle_displacement(otmp, (EDisplaced & ~WORN_ARMOR), FALSE);
+            toggle_stealth(otmp, (EStealth & ~WORN_ARMOR), FALSE);
             EStealth &= ~W_ARM;
             break;
         case SILVER_DRAGON_SCALE_MAIL:
@@ -1090,14 +1115,12 @@ Armor_gone()
             break;
         }
     }
-    if (uarm)
-        oprops_off(uarm, W_ARM);
-    context.takeoff.mask &= ~W_ARM;
-    setnotworn(uarm);
-    context.takeoff.cancelled_don = FALSE;
-    check_wings(FALSE);
-    if (Role_if(PM_MONK))
-        You_feel("much more comfortable and free now.");
+
+    if (was_arti_light && !artifact_light(otmp)) {
+        end_burn(otmp, FALSE);
+        if (!Blind)
+            pline("%s shining.", Tobjnam(otmp, "stop"));
+    }
     return 0;
 }
 
@@ -3328,6 +3351,10 @@ register struct obj *atmp;
             goto end;
         if (donning(otmp))
             cancel_don();
+        /* for gold DSM, we don't want Armor_gone() to report that it
+           stops shining _after_ we've been told that it is destroyed */
+        if (otmp->lamplit)
+            end_burn(otmp, FALSE);
         Your("armor turns to dust and falls to the %s!", surface(u.ux, u.uy));
         (void) Armor_gone();
         useup(otmp);

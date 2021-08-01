@@ -3775,19 +3775,19 @@ Z = (195, 195, 195)
   ................
   ................
   ................
-  .....NNNA.......
-  ....DHDHHA......
-  ...NHHHHHA......
-  ..CHHHANHAMAAA..
-  .CHCDA.NHAAAAAA.
-  ..D..NHHAAAAAAA.
-  ....NNHHHHHAAAA.
-  ...NOOHHHHHHAAA.
-  ..NHONHHHHHHHAA.
-  ..NHHNHHONHAHHA.
-  ..NHANH.ANHAHHA.
-  .....NHAA..HHAA.
-  ...........HAA..
+  .....PPPA.......
+  ....ODODDA......
+  ...PDDDDDA......
+  ..CHHHAPDA.AAA..
+  .CHCDA.PDAAAAAA.
+  ..D..PHDAAAAAAA.
+  ....PPHHDDDAAAA.
+  ...PNNHHHDDDAAA.
+  ..PHNPHHDHHDDAA.
+  ..PHDPHHNPDADDA.
+  ..PHAPH.APDADDA.
+  .....PHAA..DDAA.
+  ...........DAA..
 }
 # tile 198 (baby sea dragon)
 {
@@ -4000,22 +4000,22 @@ Z = (195, 195, 195)
 }
 # tile 209 (gold dragon)
 {
-  ......NNNHA.....
-  .....DHDHHHA....
-  ....NHHHHHHA....
-  ..DCHHH..HHA....
-  CHCHCD..NHHA....
-  HDMD...NHHA.....
-  ......ONHAAAAAA.
-  ....NONHAAAAAAAA
-  ..NOONHAJHHJAAA.
-  .NOOONHHHHHHJAA.
-  .NOOONHHHHHHHAA.
-  HHOONNHHHHHHHHA.
-  NHMONHHOOHHJHJA.
-  NHAANH.AAHHAHHA.
-  ....NHAAJJJHHJA.
-  ........HHHHJA..
+  ......PPPDA.....
+  .....OHOHHDA....
+  ....PHHHHDDA....
+  ..DCHHD..HDA....
+  CHCHCD..PHDA....
+  HD.D...PHDA.....
+  ......HPDAAAAAA.
+  ....PHPDAAAAAAAA
+  ..PHHPDA.HH.AAA.
+  .PHHHPDHHDHH.AA.
+  .PHHHPDDHHDHHAA.
+  DDHHPPDHHDHHDHA.
+  PD.HPDDHHDD.D.A.
+  PDAAPD.AADHADHA.
+  ....PDAA...HD.A.
+  ........DDHD.A..
 }
 # tile 210 (sea dragon)
 {

@@ -482,7 +482,9 @@ int psflags;
             by_class:
                 class = name_to_monclass(buf, &mntmp);
                 if (class && mntmp == NON_PM)
-                    mntmp = mkclass_poly(class);
+                    mntmp = (draconian && class == S_DRAGON)
+                            ? armor_to_dragon(uarm->otyp)
+                            : mkclass_poly(class);
             }
             if (mntmp < LOW_PM) {
                 if (!class)
@@ -535,24 +537,22 @@ int psflags;
         do_merge:
             mntmp = armor_to_dragon(uarm->otyp);
             if (!(mvitals[mntmp].mvflags & G_GENOD)) {
+                unsigned was_lit = uarm->lamplit;
+                int arm_light = artifact_light(uarm) ? arti_light_radius(uarm)
+                                                     : 0;
                 /* allow G_EXTINCT */
                 if (Is_dragon_scales(uarm)) {
                     /* dragon scales remain intact as uskin */
                     You("merge with your scaly armor.");
-                } else { /* dragon scale mail */
-                    /* d.scale mail first reverts to scales */
-                    char *p, *dsmail;
-
+                } else { /* dragon scale mail reverts to scales */
                     /* similar to noarmor(invent.c),
                        shorten to "<color> scale mail" */
-                    dsmail = strcpy(buf, simpleonames(uarm));
-                    if ((p = strstri(dsmail, " dragon ")) != 0)
-                        while ((p[1] = p[8]) != '\0')
-                            ++p;
-                    /* tricky phrasing; dragon scale mail
-                       is singular, dragon scales are plural */
-                    Your("%s reverts to scales as you merge with them.",
-                         dsmail);
+                    Strcpy(buf, simpleonames(uarm));
+                    strsubst(buf, " dragon ", " ");
+                    /* tricky phrasing; dragon scale mail is singular, dragon
+                       scales are plural (note: we don't use "set of scales",
+                       which usually overrides the distinction, here) */
+                    Your("%s reverts to scales as you merge with them.", buf);
                     /* uarm->spe enchantment remains unchanged;
                        re-converting scales to mail poses risk
                        of evaporation due to over enchanting */
@@ -564,6 +564,8 @@ int psflags;
                 uarm = (struct obj *) 0;
                 /* save/restore hack */
                 uskin->owornmask |= I_SPECIAL;
+                if (was_lit)
+                    maybe_adjust_light(uskin, arm_light);
                 update_inventory();
             }
         } else if (iswere) {
@@ -937,6 +939,10 @@ break_armor()
         if ((otmp = uarm) != 0) {
             if (donning(otmp))
                 cancel_don();
+            /* for gold DSM, we don't want Armor_gone() to report that it
+               stops shining _after_ we've been told that it is destroyed */
+            if (otmp->lamplit)
+                end_burn(otmp, FALSE);
             if (youmonst.data->msize >= MZ_HUGE
                 && otmp->otyp == LARGE_SPLINT_MAIL) {
                 if (humanoid(youmonst.data)) {
@@ -978,6 +984,10 @@ break_armor()
             if (donning(otmp))
                 cancel_don();
             Your("armor falls around you!");
+            /* [note: _gone() instead of _off() dates to when life-saving
+               could force fire resisting armor back on if hero burned in
+               hell (3.0, predating Gehennom); the armor isn't actually
+               gone here but also isn't available to be put back on] */
             (void) Armor_gone();
             dropp(otmp);
         }
@@ -1680,12 +1690,17 @@ skinback(silently)
 boolean silently;
 {
     if (uskin) {
+        int old_light = arti_light_radius(uskin);
+
         if (!silently)
             Your("skin returns to its original form.");
         uarm = uskin;
         uskin = (struct obj *) 0;
         /* undo save/restore hack */
         uarm->owornmask &= ~I_SPECIAL;
+
+        if (artifact_light(uarm))
+            maybe_adjust_light(uarm, old_light);
     }
 }
 
@@ -1956,7 +1971,7 @@ int atyp;
         /* TODO: randomize this */
         return PM_RED_DRAGON;
     default:
-        return -1;
+        return NON_PM;
     }
 }
 

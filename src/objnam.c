@@ -1307,6 +1307,9 @@ unsigned doname_flags;
             if (obj == uarmg && Glib) /* just appended "(something)",
                                        * change to "(something; slippery)" */
                 Strcpy(rindex(bp, ')'), "; slippery)");
+            else if (!Blind && obj->lamplit && artifact_light(obj))
+                Sprintf(rindex(bp, ')'), ", %s lit)",
+                        arti_light_description(obj));
         }
         /*FALLTHRU*/
     case WEAPON_CLASS:
@@ -1434,15 +1437,17 @@ unsigned doname_flags;
             Sprintf(eos(bp), " (%sweapon in %s)",
                     (obj->otyp == AKLYS) ? "tethered " : "", hand_s);
 
-            if (warn_obj_cnt && obj == uwep && (EWarn_of_mon & W_WEP) != 0L) {
-                if (!obj->oartifact)
-                    impossible("glowing non-artifact?");
-                if (strcmp(glow_color(obj->oartifact), "no color")) {
-                    if (!Blind) /* we know bp[] ends with ')'; overwrite that */
-                        Sprintf(eos(bp) - 1, ", %s %s)",
-                                glow_verb(warn_obj_cnt, TRUE),
-                                glow_color(obj->oartifact));
-                }
+            if (!Blind) {
+                if (warn_obj_cnt && obj == uwep
+                    && (EWarn_of_mon & W_WEP) != 0L)
+                    /* we know bp[] ends with ')'; overwrite that */
+                    Sprintf(eos(bp) - 1, ", %s %s)",
+                            glow_verb(warn_obj_cnt, TRUE),
+                            glow_color(obj->oartifact));
+                else if (obj->lamplit && artifact_light(obj))
+                    /* as above, overwrite known closing paren */
+                    Sprintf(eos(bp) - 1, ", %s lit)",
+                            arti_light_description(obj));
             }
         }
     }

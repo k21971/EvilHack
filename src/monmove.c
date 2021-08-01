@@ -276,9 +276,11 @@ struct monst *mon;
     }
 }
 
-#define flees_light(mon) ((mon)->data == &mons[PM_GREMLIN]     \
-                          && ((uwep && artifact_light(uwep) && uwep->lamplit) \
-                              || (u.twoweap && artifact_light(uswapwep) && uswapwep->lamplit)))
+#define flees_light(mon) \
+    ((mon)->data == &mons[PM_GREMLIN]                                    \
+     && ((uwep && uwep->lamplit && artifact_light(uwep))                 \
+         || (u.twoweap && uswapwep->lamplit && artifact_light(uswapwep)) \
+         || (uarm && uarm->lamplit && artifact_light(uarm))))
 /* we could include this in the above macro, but probably overkill/overhead */
 /*      && (!(which_armor((mon), W_ARMC) != 0                               */
 /*            && which_armor((mon), W_ARMH) != 0))                          */

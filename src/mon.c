@@ -2985,7 +2985,6 @@ register struct monst *mtmp;
     struct permonst *mptr;
     struct monst *rider;
     int tmp;
-    struct obj* otmp;
 
     mtmp->mhp = 0; /* in case caller hasn't done this */
     lifesaved_monster(mtmp);
@@ -3161,12 +3160,6 @@ register struct monst *mtmp;
     rider = get_mon_rider(mtmp);
     if (rider)
         separate_steed_and_rider(rider);
-
-    /* extinguish monster's armor */
-    if ((otmp = which_armor(mtmp, W_ARM))
-        && (otmp->otyp==GOLD_DRAGON_SCALE_MAIL
-            || otmp->otyp == GOLD_DRAGON_SCALES))
-        end_burn(otmp, FALSE);
 
     mptr = mtmp->data; /* save this for m_detach() */
     /* restore chameleon, lycanthropes to true form at death */

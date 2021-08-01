@@ -1818,4 +1818,5 @@ The following changes to date are:
 - Fix: minor incorrect spelling 
 - Fix: various curses color handling
 - Fix: buffer underrun in curses
+- Gold dragon revamp
 

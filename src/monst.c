@@ -1563,11 +1563,17 @@ NEARDATA struct permonst mons[] = {
     /* The order of the dragons is VERY IMPORTANT.  Quite a few
      * pieces of code depend on gray being first and yellow being last.
      * The code also depends on the *order* being the same as that for
-     * dragon scale mail and dragon scales in objects.c.  Baby dragons
-     * cannot confer intrinsics, to avoid polyself/egg abuse.
+     * dragon scale mail and dragon scales in objects.c.  [Also,
+     * 'tilemap' assumes that shimmering dragon follows silver dragon.]
      *
-     * As reptiles, dragons are cold-blooded and thus aren't seen
-     * with infravision.  Red and gold dragons are the exception.
+     * Adult dragons are all lawful or chaotic; sea dragons as well as
+     * baby dragons are all neutral.  This affects monster generation on
+     * some special levels.  Baby dragons cannot confer intrinsics, to
+     * avoid polyself/egg abuse.
+     *
+     * As reptiles, dragons are cold-blooded and thus aren't seen with
+     * infravision.  Red and gold dragons (also Tiamat) are the
+     * exceptions because they breathe fire.
      */
 
     /* From GruntHack - baby dragons are a bit more dangerous now.
@@ -1659,7 +1665,7 @@ NEARDATA struct permonst mons[] = {
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), 0, 0,
         M1_SWIM | M1_AMPHIBIOUS | M1_NOHANDS | M1_CARNIVORE | M1_UNSOLID,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS,
-        M3_INFRAVISIBLE, M4_VULNERABLE_ELEC, MH_DRAGON, 13, HI_ZAP),
+        0, M4_VULNERABLE_ELEC, MH_DRAGON, 13, HI_ZAP),
     MON("baby yellow dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
           ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_NONE, AD_CORR, 0, 2),
@@ -1754,13 +1760,11 @@ NEARDATA struct permonst mons[] = {
             | M1_CARNIVORE | M1_POIS,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0, 0, MH_DRAGON, 20, CLR_GREEN),
-    /* From SporkHack.
-     */
     MON("gold dragon", S_DRAGON, LVL(15, 9, -1, 20, 4), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_FIRE, 6, 6), ATTK(AT_BITE, AD_PHYS, 4, 8),
           ATTK(AT_CLAW, AD_PHYS, 4, 4), ATTK(AT_CLAW, AD_PHYS, 4, 4),
           ATTK(AT_ENGL, AD_DGST, 2, 10), NO_ATTK),
-        SIZ(WT_DRAGON, 1500, MS_ROAR, MZ_GIGANTIC), MR_FIRE, MR_FIRE,
+        SIZ(WT_DRAGON, 1500, MS_ROAR, MZ_GIGANTIC), MR_FIRE, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
@@ -1773,7 +1777,7 @@ NEARDATA struct permonst mons[] = {
         M1_SWIM | M1_AMPHIBIOUS | M1_NOHANDS | M1_SEE_INVIS
             | M1_OVIPAROUS | M1_CARNIVORE | M1_UNSOLID,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        M3_INFRAVISIBLE, M4_VULNERABLE_ELEC, MH_DRAGON, 20, HI_ZAP),
+        0, M4_VULNERABLE_ELEC, MH_DRAGON, 20, HI_ZAP),
     MON("yellow dragon", S_DRAGON, LVL(15, 9, -1, 20, -7), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_ACID, 4, 6), ATTK(AT_BITE, AD_PHYS, 4, 8),
           ATTK(AT_CLAW, AD_PHYS, 4, 4), ATTK(AT_CLAW, AD_PHYS, 4, 4),

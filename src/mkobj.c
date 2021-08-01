@@ -7,7 +7,6 @@
 
 STATIC_DCL void FDECL(mkbox_cnts, (struct obj *));
 STATIC_DCL unsigned FDECL(nextoid, (struct obj *, struct obj *));
-STATIC_DCL void FDECL(maybe_adjust_light, (struct obj *, int));
 STATIC_DCL void FDECL(obj_timer_checks, (struct obj *,
                                          XCHAR_P, XCHAR_P, int));
 STATIC_DCL void FDECL(container_weight, (struct obj *));
@@ -1306,7 +1305,7 @@ struct obj *body;
     (void) start_timer(when, TIMER_OBJECT, action, obj_to_any(body));
 }
 
-STATIC_OVL void
+void
 maybe_adjust_light(obj, old_range)
 struct obj *obj;
 int old_range;
@@ -1319,9 +1318,9 @@ int old_range;
        so will change after blessing or cursing */
     if (delta) {
         obj_adjust_light_radius(obj, new_range);
-        /* simplifying assumptions:  hero is wielding this object;
-           artifacts have to be in use to emit light and monsters'
-           gear won't change bless or curse state */
+        /* simplifying assumptions:  hero is wielding or wearing this object;
+           artifacts have to be in use to emit light and monsters' gear won't
+           change bless or curse state */
         if (!Blind && get_obj_location(obj, &ox, &oy, 0)) {
             *buf = '\0';
             if (iflags.last_msg == PLNMSG_OBJ_GLOWS)
