@@ -1819,4 +1819,5 @@ The following changes to date are:
 - Fix: various curses color handling
 - Fix: buffer underrun in curses
 - Gold dragon revamp
+- Fix: adjust list for what's acceptable as a monster rider/steed
 
