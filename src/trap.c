@@ -1630,7 +1630,7 @@ unsigned trflags;
                         pline("The floor lights came on!  Let's disco!");
                 } else {
                     pline("It smells sort of %s in here.",
-                          Hallucination ? "purple" : "fleecy"); /* hi Amy */
+                          Hallucination ? "purple" : "funky");
                 }
                 incr_itimeout(&HHallucination,rnd(50) + 50);
             }

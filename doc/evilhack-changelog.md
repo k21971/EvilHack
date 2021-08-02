@@ -1823,4 +1823,5 @@ The following changes to date are:
 - Fix: include steed's worn barding when tossing potions at it
 - Fix: signal induced panictrace under curses
 - Remove curse vs saddle/barding
+- Get rid of any fleecy/bundle references
 

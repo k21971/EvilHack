@@ -385,7 +385,7 @@ register struct obj *obj;
         if (blessed + cursed > 0) {
             const char* color;
             if (Hallucination)
-                color = "fleecy purple-smelling"; /* hello again Amy */
+                color = "funky purple-smelling";
             else if (blessed == 0)
                 color = hcolor(NH_BLACK);
             else if (cursed == 0)
