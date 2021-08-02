@@ -238,7 +238,8 @@ struct obj *otmp;
     }
 
     /* Is this a valid monster? */
-    if (mtmp->misc_worn_check & W_SADDLE || which_armor(mtmp, W_SADDLE)) {
+    if ((mtmp->misc_worn_check & W_SADDLE) != 0L
+        || which_armor(mtmp, W_SADDLE)) {
         pline("%s doesn't need another one.", Monnam(mtmp));
         return 1;
     }
@@ -365,7 +366,8 @@ struct obj *otmp;
     }
 
     /* Is this a valid monster? */
-    if (mtmp->misc_worn_check & W_BARDING || which_armor(mtmp, W_BARDING)) {
+    if ((mtmp->misc_worn_check & W_BARDING) != 0L
+        || which_armor(mtmp, W_BARDING)) {
         pline("%s doesn't need another one.", Monnam(mtmp));
         return 1;
     }

@@ -1419,11 +1419,12 @@ bottlename()
 /* handle item dipped into water potion or steed saddle/barding splashed by same */
 STATIC_OVL boolean
 H2Opotion_dip(potion, targobj, useeit, objphrase)
-struct obj *potion, *targobj;
-boolean useeit;
+struct obj *potion; /* water */
+struct obj *targobj; /* item being dipped into the water */
+boolean useeit; /* will hero see the glow/aura? */
 const char *objphrase; /* "Your widget glows" or "Steed's saddle/barding glows" */
 {
-    void FDECL((*func), (OBJ_P)) = 0;
+    void FDECL((*func), (struct obj *)) = 0;
     const char *glowcolor = 0;
 #define COST_alter (-2)
 #define COST_none (-1)
