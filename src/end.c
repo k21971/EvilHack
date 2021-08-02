@@ -142,7 +142,21 @@ int sig_unused UNUSED;
 {
 #define SIG_MSG "\nSignal received.\n"
     int f2;
-    
+
+#ifdef CURSES_GRAPHICS
+    if (iflags.window_inited && WINDOWPORT("curses")) {
+        extern void curses_uncurse_terminal(void); /* wincurs.h */
+
+        /* it is risky calling this during a program-terminating signal,
+           but without it the subsequent backtrace is useless because
+           that ends up being scrawled all over the screen; call is
+           here rather than in NH_abort() because panic() calls both
+           exit_nhwindows(), which makes this same call under curses,
+           then NH_abort() and we don't want to call this twice */
+        curses_uncurse_terminal();
+    }
+#endif
+
     f2 = (int) write(2, SIG_MSG, sizeof SIG_MSG - 1);
     nhUse(f2);  /* what could we do if write to fd#2 (stderr) fails  */
     NH_abort(); /* ... and we're already in the process of quitting? */
@@ -190,8 +204,10 @@ NH_abort()
 {
     int gdb_prio = SYSOPT_PANICTRACE_GDB;
     int libc_prio = SYSOPT_PANICTRACE_LIBC;
-    static boolean aborting = FALSE;
+    static volatile boolean aborting = FALSE;
 
+    /* don't execute this code recursively if a second abort is requested
+       while this routine or the code it calls is executing */
     if (aborting)
         return;
     aborting = TRUE;
