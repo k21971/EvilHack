@@ -1820,4 +1820,5 @@ The following changes to date are:
 - Fix: buffer underrun in curses
 - Gold dragon revamp
 - Fix: adjust list for what's acceptable as a monster rider/steed
+- Fix: include steed's worn barding when tossing potions at it
 
