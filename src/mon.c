@@ -4236,21 +4236,19 @@ struct monst *mtmp;
         }
         aggravate();
     }
-    if (mtmp->data == &mons[PM_QUIVERING_BLOB] &&
-        canseemon(mtmp)) {
+    if (mtmp->data == &mons[PM_QUIVERING_BLOB]
+        && canseemon(mtmp)) {
         pline("%s quivers.", Monnam(mtmp));
     }
     if (is_zombie(mtmp->data)) {
         if (canseemon(mtmp) && !Deaf)
             pline("%s %s.", Monnam(mtmp),
                   !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\"" :
-                  !rn2(3) ? "groans" :
-                  rn2(2) ? "moans" : "shuffles in your direction");
+                  !rn2(3) ? "groans" : "moans");
         else if (!rn2(4) && !Deaf)
             You_hear("%s.",
                      !rn2(8) ? "a low voice mumble \"UUUNNNNGGHH...\"" :
-                     !rn2(3) ? "a low groaning" :
-                     rn2(2) ? "a low moaning" : "a shuffling noise");
+                     !rn2(3) ? "a low groaning" : "a low moaning");
     }
     if (mtmp->data == &mons[PM_MEDUSA]) {
         register int i;

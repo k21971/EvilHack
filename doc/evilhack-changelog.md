@@ -1824,4 +1824,5 @@ The following changes to date are:
 - Fix: signal induced panictrace under curses
 - Remove curse vs saddle/barding
 - Get rid of any fleecy/bundle references
+- Fix: zombies shuffles in your direction but they can't/don't move
 
