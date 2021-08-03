@@ -1509,7 +1509,7 @@ int dieroll;
         if (mon->isshk
             && !strcmp(shkname(mon), "Izchak")) {
             You("find yourself unable to steal from %s.",
-            mon_nam(mon));
+                mon_nam(mon));
             return 0;
         }
         if (mon->minvent != 0) {
@@ -1888,8 +1888,10 @@ struct attack *mattk;
     struct obj *otmp, *gold = 0, *stealoid, **minvent_ptr;
 
     otmp = mdef->minvent;
-    if (!otmp || (otmp->oclass == COIN_CLASS && !otmp->nobj))
+    if (!otmp || (otmp->oclass == COIN_CLASS && !otmp->nobj)) {
+        use_skill(P_THIEVERY, -1);
         return; /* nothing to take */
+    }
 
     /* look for worn body armor */
     stealoid = (struct obj *) 0;

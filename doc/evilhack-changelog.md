@@ -1827,4 +1827,6 @@ The following changes to date are:
 - Fix: zombies shuffles in your direction but they can't/don't move
 - Scroll of magic dectection adjustments
 - Remove skill flag > from #enhance menu
+- Fix: prevent thievery skill from incrementing when only thing in
+  the monster's inventory is gold
 
