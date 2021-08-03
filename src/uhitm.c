@@ -1886,16 +1886,15 @@ struct monst *mdef;
 struct attack *mattk;
 {
     struct obj *otmp, *gold = 0, *stealoid, **minvent_ptr;
+    boolean as_mon = could_seduce(&youmonst, mdef, mattk);
 
     otmp = mdef->minvent;
-    if (!otmp || (otmp->oclass == COIN_CLASS && !otmp->nobj)) {
-        use_skill(P_THIEVERY, -1);
+    if (!otmp || (as_mon && otmp->oclass == COIN_CLASS && !otmp->nobj))
         return; /* nothing to take */
-    }
 
     /* look for worn body armor */
     stealoid = (struct obj *) 0;
-    if (could_seduce(&youmonst, mdef, mattk)) {
+    if (as_mon) {
         /* find armor, and move it to end of inventory in the process */
         minvent_ptr = &mdef->minvent;
         while ((otmp = *minvent_ptr) != 0)
@@ -1909,8 +1908,8 @@ struct attack *mattk;
                 minvent_ptr = &otmp->nobj;
             }
         *minvent_ptr = stealoid; /* put armor back into minvent */
+        gold = findgold(mdef->minvent, TRUE);
     }
-    gold = findgold(mdef->minvent, TRUE);
 
     if (stealoid) { /* we will be taking everything */
         if (gender(mdef) == (int) u.mfemale && youmonst.data->mlet == S_NYMPH)
@@ -1927,7 +1926,7 @@ struct attack *mattk;
        stolen c'trice corpse or monster wielding one and having gloves
        stolen) is less bookkeeping than skipping it within the loop or
        taking it out once and then trying to figure out how to put it back */
-    if (gold)
+    if (as_mon && gold)
         obj_extract_self(gold);
 
     /* Rogue uses the thievery skill */
@@ -2059,7 +2058,7 @@ struct attack *mattk;
         /* take gold out of minvent before making next selection; if it
            is the only thing left, the loop will terminate and it will be
            put back below */
-        if ((gold = findgold(mdef->minvent, TRUE)) != 0)
+        if (as_mon && (gold = findgold(mdef->minvent, TRUE)) != 0)
             obj_extract_self(gold);
     }
 

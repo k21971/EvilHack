@@ -1829,4 +1829,5 @@ The following changes to date are:
 - Remove skill flag > from #enhance menu
 - Fix: prevent thievery skill from incrementing when only thing in
   the monster's inventory is gold
+- Fix: allow Rogues to steal gold via thievery
 
