@@ -886,7 +886,7 @@ POTION("water",                 "clear",  0, 0, 92, 100, CLR_CYAN),
     OBJECT(OBJ(name, text),                                           \
            BITS(0, 1, 0, 0, mgc, 0, 0, 0, 0, 0, 0, P_NONE, PAPER),    \
            0, SCROLL_CLASS, prob, 0, 5, cost, 0, 0, 0, 0, 6, HI_PAPER)
-SCROLL("enchant armor",              "ZELGO MER",  1,  63,  80),
+SCROLL("enchant armor",              "ZELGO MER",  1,  65,  80),
 SCROLL("destroy armor",         "JUYED AWK YACC",  1,  45, 100),
 SCROLL("confuse monster",                 "NR 9",  1,  53, 100),
 SCROLL("scare monster",   "XIXAXA XOXAXA XUXAXA",  1,  35, 100),
@@ -897,7 +897,7 @@ SCROLL("taming",                   "PRIRUTSENIE",  1,  15, 200),
 SCROLL("genocide",                  "ELBIB YLOH",  1,  15, 300),
 SCROLL("light",                 "VERR YED HORRE",  1,  90,  50),
 SCROLL("teleportation",        "VENZAR BORGAVVE",  1,  55, 100),
-SCROLL("gold detection",                 "THARR",  1,  33, 100),
+SCROLL("gold detection",                 "THARR",  1,  34, 100),
 SCROLL("food detection",               "YUM YUM",  1,  25, 100),
 SCROLL("identify",                  "KERNOD WEL",  1, 180,  20),
 SCROLL("magic mapping",              "ELAM EBOW",  1,  45, 100),
@@ -907,7 +907,7 @@ SCROLL("earth",                          "KIRJE",  1,  18, 200),
 SCROLL("punishment",            "VE FORBRYDERNE",  1,  15, 300),
 SCROLL("charging",                "HACKEM MUCHE",  1,  15, 300),
 SCROLL("stinking cloud",             "VELOX NEB",  1,  15, 300),
-SCROLL("magic detection",        "FOOBIE BLETCH",  1,  40, 100),
+SCROLL("magic detection",        "FOOBIE BLETCH",  1,  25, 250),
     /* Extra descriptions, shuffled into use at start of new game.
      * Code in win/share/tilemap.c depends on SCR_STINKING_CLOUD preceding
      * these and on how many of them there are.  If a real scroll gets added

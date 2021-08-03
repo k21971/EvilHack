@@ -1825,4 +1825,5 @@ The following changes to date are:
 - Remove curse vs saddle/barding
 - Get rid of any fleecy/bundle references
 - Fix: zombies shuffles in your direction but they can't/don't move
+- Scroll of magic dectection adjustments
 
