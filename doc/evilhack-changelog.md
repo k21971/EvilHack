@@ -1831,4 +1831,5 @@ The following changes to date are:
   the monster's inventory is gold
 - Fix: allow Rogues to steal gold via thievery
 - Bit of code cleanup in muse.c
+- Additional monsters in green_mon()
 

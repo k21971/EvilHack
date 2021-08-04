@@ -3892,15 +3892,25 @@ struct monst *mon;
     if (strstri(ptr->mname, "green"))
         return TRUE;
     switch (monsndx(ptr)) {
+    case PM_BASILISK:
+    case PM_CAUCHEMAR:
     case PM_FOREST_CENTAUR:
     case PM_GARTER_SNAKE:
     case PM_GECKO:
+    case PM_GIANT_ANACONDA:
+    case PM_GIANT_COCKROACH:
+    case PM_GIANT_TURTLE:
+    case PM_GOBLIN_SHAMAN:
+    case PM_GREATER_HOMUNCULUS:
     case PM_GREMLIN:
     case PM_HOMUNCULUS:
     case PM_JUIBLEX:
     case PM_LEPRECHAUN:
+    case PM_LESSER_HOMUNCULUS:
+    case PM_LESSER_NIGHTMARE:
     case PM_LICHEN:
     case PM_LIZARD:
+    case PM_NIGHTMARE:
     case PM_WOOD_NYMPH:
         return TRUE;
     default:
