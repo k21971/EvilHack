@@ -1830,4 +1830,5 @@ The following changes to date are:
 - Fix: prevent thievery skill from incrementing when only thing in
   the monster's inventory is gold
 - Fix: allow Rogues to steal gold via thievery
+- Bit of code cleanup in muse.c
 
