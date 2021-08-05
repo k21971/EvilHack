@@ -1832,4 +1832,6 @@ The following changes to date are:
 - Fix: allow Rogues to steal gold via thievery
 - Bit of code cleanup in muse.c
 - Additional monsters in green_mon()
+- Fix: impossible if punished (ball & chain) when hero dies and killer
+  rummages through inventory
 

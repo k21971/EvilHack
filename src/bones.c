@@ -591,6 +591,8 @@ struct obj *corpse;
                         continue;
                     if (!can_carry(ukiller, otmp))
                         continue;
+                    if (otmp == uball || otmp == uchain)
+                        continue;
                     /* these monsters can't rummage through inventory,
                        since they've been removed and sent back to 'home base' */
                     if (ukiller->iswiz || ukiller->isvecna
