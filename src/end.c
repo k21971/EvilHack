@@ -598,7 +598,8 @@ int how;
     } else if (is_lord(mtmp->data) || is_prince(mtmp->data)) {
         Strcat(buf, m_monnam(mtmp));
     } else {
-        Strcat(buf, mptr->mname);
+        Strcat(buf, x_monnam(mtmp, ARTICLE_NONE, (char *) 0,
+                             (EXACT_NAME | SUPPRESS_NAME), FALSE));
         if (has_mname(mtmp))
             Sprintf(eos(buf), " called %s", MNAME(mtmp));
     }

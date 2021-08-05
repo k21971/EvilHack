@@ -1834,4 +1834,6 @@ The following changes to date are:
 - Additional monsters in green_mon()
 - Fix: impossible if punished (ball & chain) when hero dies and killer
   rummages through inventory
+- Fix: (racial monsters) xlogfile shows proper race of monster that
+  killed the hero
 
