@@ -43,6 +43,8 @@ STATIC_DCL int NDECL(throwspell);
 STATIC_DCL void FDECL(spell_backfire, (int));
 STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
 
+static const char clothes[] = { ARMOR_CLASS, 0 };
+
 /* The roles[] table lists the role-specific values for tuning
  * percent_success().
  *
@@ -1278,8 +1280,16 @@ boolean atme;
             pline1(nothing_happens);
         break;
     case SPE_REPAIR_ARMOR:
-        /* removes one level of erosion (both types) for a random piece of armor */
-        otmp = some_armor(&youmonst);
+        /* removes one level of erosion (both types) for a chosen piece of armor */
+        if (role_skill >= P_BASIC) {
+            otmp = getobj(clothes, "magically repair");
+            while (otmp && !(otmp->owornmask & W_ARMOR)) {
+                pline("You cannot repair armor that is not worn.");
+                otmp = getobj(clothes, "magically repair");
+            }
+        } else {
+            otmp = some_armor(&youmonst);
+        }
         if (otmp) {
             if (greatest_erosion(otmp) > 0) {
                 if (Blind)

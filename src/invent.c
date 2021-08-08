@@ -1543,6 +1543,10 @@ register const char *let, *word;
                  && !(otmp->owornmask & (W_ARMOR | W_ACCESSORY)))
              || (putting_on(word) /* exclude if already worn */
                  && (otmp->owornmask & (W_ARMOR | W_ACCESSORY)))
+             || (!strcmp(word, "enchant")
+                 && !(otmp->owornmask & W_ARMOR))
+             || (!strcmp(word, "magically repair")
+                 && !(otmp->owornmask & W_ARMOR))
 #if 0 /* 3.4.1 -- include currently wielded weapon among 'wield' choices */
              || (!strcmp(word, "wield")
                  && (otmp->owornmask & W_WEP))
@@ -1685,6 +1689,11 @@ register const char *let, *word;
         /* we wanted all scrolls and books in altlets[], but that came with
            'allowall' which we don't want since it prevents "silly thing"
            result if anything other than scroll or spellbook is chosen */
+        allowall = FALSE;
+    } else if (!strcmp(word, "enchant")) { /* ugly check for enchant armor */
+        allowall = FALSE;
+    }
+    else if (!strcmp(word, "magically repair")) { /* ugly check for repair armor */
         allowall = FALSE;
     }
     for (;;) {

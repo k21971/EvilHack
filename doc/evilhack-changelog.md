@@ -1836,4 +1836,5 @@ The following changes to date are:
   rummages through inventory
 - Fix: (racial monsters) xlogfile shows proper race of monster that
   killed the hero
+- Ability to choose worn piece of armor to enchant/repair
 

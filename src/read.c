@@ -17,6 +17,7 @@ boolean known;
 static NEARDATA const char readable[] = { ALL_CLASSES, SCROLL_CLASS,
                                           SPBOOK_CLASS, 0 };
 static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
+static const char clothes[] = { ARMOR_CLASS, 0 };
 
 STATIC_DCL boolean FDECL(learnscrolltyp, (SHORT_P));
 STATIC_DCL char *FDECL(erode_obj_text, (struct obj *, char *));
@@ -1093,7 +1094,15 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         boolean special_armor;
         boolean same_color;
 
-        otmp = some_armor(&youmonst);
+        if (already_known) {
+            otmp = getobj(clothes, "enchant");
+            while (otmp && !(otmp->owornmask & W_ARMOR)) {
+                pline("You cannot enchant armor that is not worn.");
+                otmp = getobj(clothes, "enchant");
+            }
+        } else {
+            otmp = some_armor(&youmonst);
+        }
         if (!otmp) {
             strange_feeling(sobj, !Blind
                                       ? "Your skin glows then fades."
