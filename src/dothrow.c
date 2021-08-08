@@ -769,16 +769,6 @@ int x, y;
         Norep("You move over some lava.");
     }
 
-    if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
-        && !Levitation && !Flying) {
-        pline("Unfortunately, you don't know how to fly.");
-        You("plummet a few thousand feet to your death.");
-        Sprintf(killer.name,
-                "fell to %s death", uhis());
-        killer.format = NO_KILLER_PREFIX;
-        done(DIED);
-    }
-
     /* FIXME:
      * Each trap should really trigger on the recoil if it would
      * trigger during normal movement. However, not all the possible

@@ -1837,4 +1837,5 @@ The following changes to date are:
 - Fix: (racial monsters) xlogfile shows proper race of monster that
   killed the hero
 - Ability to choose worn piece of armor to enchant/repair
+- Fix: handful of issues discovered with air terrain and Vlad's cavern
 

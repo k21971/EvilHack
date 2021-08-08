@@ -295,7 +295,6 @@ deletedwithboulder:
             d_level dest = hellc_level;
 
             add_to_migration(obj);
-            assign_level(&dest, &dest);
             obj->ox = dest.dnum;
             obj->oy = dest.dlevel;
             obj->owornmask = (long) MIGR_RANDOM;

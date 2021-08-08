@@ -1572,18 +1572,6 @@ domove_core()
             return;
         }
 
-        x = u.ux + u.dx;
-        y = u.uy + u.dy;
-        if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
-            && !Levitation && !Flying) {
-            pline("Unfortunately, you don't know how to fly.");
-            You("plummet a few thousand feet to your death.");
-            Sprintf(killer.name,
-                    "fell to %s death", uhis());
-            killer.format = NO_KILLER_PREFIX;
-            done(DIED);
-        }
-
         /* check slippery ice */
         on_ice = !Levitation && is_ice(u.ux, u.uy);
         if (on_ice) {
@@ -2588,6 +2576,15 @@ boolean pick;
         }
         mnexto(mtmp); /* have to move the monster */
     }
+    if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)
+        && !Levitation && !Flying) {
+        pline("Unfortunately, you don't know how to fly.");
+        You("plummet a few thousand feet to your death.");
+        Sprintf(killer.name,
+                "fell to %s death", uhis());
+        killer.format = NO_KILLER_PREFIX;
+        done(DIED);
+    }
  spotdone:
     if (!--inspoteffects) {
         spotterrain = STONE; /* 0 */
@@ -3137,8 +3134,7 @@ lookaround()
                 }
                 continue;
             } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
-                if (!Levitation && !Flying && !is_whirly(youmonst.data)
-                    && !noncorporeal(youmonst.data)
+                if (!Levitation && !Flying
                     && x == u.ux + u.dx && y == u.uy + u.dy) {
                     goto stop;
                 }

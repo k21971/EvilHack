@@ -536,8 +536,7 @@ register struct monst *mtmp;
     if (mwalk_sewage) {
         if (is_flyer(mdat) || is_floater(mdat)
             || is_clinger(mdat) || is_swimmer(mdat)
-            || passes_walls(mdat) || noncorporeal(mdat)
-            || is_whirly(mdat)) {
+            || passes_walls(mdat)) {
             mwalk_sewage = FALSE;
         } else {
             mon_adjust_speed(mtmp, -2, (struct obj *) 0);
@@ -549,7 +548,6 @@ register struct monst *mtmp;
     /* being in midair where gravity is still in effect can be lethal */
     if (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
         && !(is_flyer(mdat) || is_floater(mdat)
-             || noncorporeal(mdat) || is_whirly(mdat)
              || ((mtmp == u.usteed) && Flying))) {
         if (canseemon(mtmp))
             pline("%s plummets a few thousand feet to %s death.",
@@ -1430,8 +1428,7 @@ register int after;
                     /* if open air and can't fly/float and gravity
                        is in effect */
                     if (IS_AIR(levl[xx][yy].typ) && In_V_tower(&u.uz)
-                        && !(is_flyer(ptr) || is_floater(ptr)
-                             || noncorporeal(ptr) || is_whirly(ptr)))
+                        && !(is_flyer(ptr) || is_floater(ptr)))
                         continue;
 
                     /* ignore sokoban prizes */
