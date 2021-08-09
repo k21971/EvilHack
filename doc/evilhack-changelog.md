@@ -65,7 +65,7 @@ The following changes to date are:
 - Racial shopkeepers (from SporkHack, modified)
 - Changed color of mind flayers and the Wizard of Yendor
 - more changes to zombies
-- Giant as a playable race (from SporkHack, modified)
+- Giant as a playable race (from GruntHack/SliceHack, modified)
 - Boulders in inventory stack, and can be quivered/fired if able
 - more adjustments to the 'grudge patch'
 - Altar sacrificing changes (from SporkHack, modified)
@@ -1839,4 +1839,5 @@ The following changes to date are:
 - Ability to choose worn piece of armor to enchant/repair
 - Fix: handful of issues discovered with air terrain and Vlad's cavern
 - Fix: air terrain in Vlad's cavern and is_clinger()
+- Fix: player can ride a wumpus across open air in Vlad's cavern
 
