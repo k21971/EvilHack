@@ -548,7 +548,7 @@ register struct monst *mtmp;
     /* being in midair where gravity is still in effect can be lethal */
     if (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
         && !(is_flyer(mdat) || is_floater(mdat)
-             || ((mtmp == u.usteed) && Flying))) {
+             || is_clinger(mdat) || ((mtmp == u.usteed) && Flying))) {
         if (canseemon(mtmp))
             pline("%s plummets a few thousand feet to %s death.",
                   Monnam(mtmp), mhis(mtmp));
@@ -1428,7 +1428,8 @@ register int after;
                     /* if open air and can't fly/float and gravity
                        is in effect */
                     if (IS_AIR(levl[xx][yy].typ) && In_V_tower(&u.uz)
-                        && !(is_flyer(ptr) || is_floater(ptr)))
+                        && !(is_flyer(ptr) || is_floater(ptr)
+                             || is_clinger(ptr)))
                         continue;
 
                     /* ignore sokoban prizes */

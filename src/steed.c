@@ -966,6 +966,12 @@ int reason; /* Player was thrown off etc. */
                         killed(mtmp);
                         adjalign(-1);
                     }
+                } else if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)) {
+                    pline("%s plummets a few thousand feet to %s death.",
+                          Monnam(mtmp), mhis(mtmp));
+                    /* no corpse or objects as both are now several thousand feet down */
+                    mongone(mtmp);
+                    adjalign(-1);
                 }
             }
             /* Steed dismounting consists of two steps: being moved to another

@@ -2215,7 +2215,7 @@ long flag;
             /* avoid open air if gravity is in effect */
             if (IS_AIR(ntyp) && In_V_tower(&u.uz)
                 && !(is_flyer(mdat) || is_floater(mdat)
-                     || noncorporeal(mdat) || is_whirly(mdat)))
+                     || is_clinger(mdat)))
                 continue;
             if ((is_pool(nx, ny) == wantpool || poolok)
                 && (is_lava(nx, ny) == wantlava || lavaok)

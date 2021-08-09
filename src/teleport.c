@@ -94,7 +94,8 @@ unsigned gpflags;
                         || likes_lava(mdat));
         }
         if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
-            && !(is_flyer(mdat) || is_floater(mdat)))
+            && !(is_flyer(mdat) || is_floater(mdat)
+                 || is_clinger(mdat)))
             return FALSE;
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;
