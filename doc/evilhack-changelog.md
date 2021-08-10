@@ -1841,4 +1841,5 @@ The following changes to date are:
 - Fix: air terrain in Vlad's cavern and is_clinger()
 - Fix: player can ride a wumpus across open air in Vlad's cavern
 - Fix: barrow wight's spell attack should be last in the chain
+- tty: use bright colors directly on supporting terminals
 
