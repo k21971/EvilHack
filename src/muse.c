@@ -1996,6 +1996,9 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
          * hero.  This may need to be revisited if any issues seem to arise
          * from the new ordering.
          */
+        /* save mtmp first, so that newly-revived zombie from undead
+         * turning won't immediately get hit by the same zap */
+        mtmp = m_at(bhitpos.x, bhitpos.y);
         /* modified by GAN to hit all objects */
         if (fhito) {
             int hitanything = 0;
@@ -2013,7 +2016,7 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
         if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
             (*fhitm)(&youmonst, obj);
             range -= 3;
-        } else if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
+        } else if (mtmp) {
             if (cansee(bhitpos.x, bhitpos.y) && !canspotmon(mtmp))
                 map_invisible(bhitpos.x, bhitpos.y);
             (*fhitm)(mtmp, obj);

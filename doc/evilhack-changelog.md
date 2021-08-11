@@ -1843,4 +1843,5 @@ The following changes to date are:
 - Fix: barrow wight's spell attack should be last in the chain
 - tty: use bright colors directly on supporting terminals
 - Fix: polymorphed player (by monster) and their inventory
+- Follow-up to last commit (player poly'd by monster)
 
