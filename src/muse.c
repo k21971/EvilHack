@@ -1870,8 +1870,7 @@ register struct obj *otmp;
                 monstseesu(M_SEEN_MAGR);
 		if (zap_oseen && otmp->otyp == WAN_POLYMORPH)
 		    makeknown(WAN_POLYMORPH);
-	    }
-	    else if (!Unchanging) {
+            } else if (!Unchanging) {
 	        if (zap_oseen && otmp->otyp == WAN_POLYMORPH)
 		    makeknown(WAN_POLYMORPH);
 		polyself(FALSE);
@@ -1882,6 +1881,9 @@ register struct obj *otmp;
 	    shieldeff(mtmp->mx, mtmp->my);
 	} else if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
 	    register struct obj *obj;
+            /* dropped inventory shouldn't be hit by this zap */
+            for (obj = mtmp->minvent; obj; obj = obj->nobj)
+                bypass_obj(obj);
             /* natural shapechangers aren't affected by system shock
                (unless protection from shapechangers is interfering
                with their metabolism...) */
@@ -1891,10 +1893,6 @@ register struct obj *otmp;
                     if (zap_oseen && otmp->otyp == WAN_POLYMORPH)
                         makeknown(WAN_POLYMORPH);
                 }
-		/* dropped inventory shouldn't be hit by this zap */
-		for (obj = mtmp->minvent; obj; obj = obj->nobj)
-		    bypass_obj(obj);
-
 		if (canseemon(mtmp))
 		    pline("%s is killed!", Monnam(mtmp));
                 mtmp->mhp = 0;
@@ -1990,15 +1988,14 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             case WAN_STRIKING:
                 destroy_drawbridge(x, y);
             }
-        if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
-            (*fhitm)(&youmonst, obj);
-            range -= 3;
-        } else if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
-            if (cansee(bhitpos.x, bhitpos.y) && !canspotmon(mtmp))
-                map_invisible(bhitpos.x, bhitpos.y);
-            (*fhitm)(mtmp, obj);
-            range -= 3;
-        }
+        /*
+         * Affect objects on the floor before monster, so that objects dropped
+         * by hero when polymorphed are safe from polymorph by same beam hit;
+         * normally bypass_obj would be used for this purpose, but it is reset
+         * in the process of hero polymorph so can't be used for polymorphing
+         * hero.  This may need to be revisited if any issues seem to arise
+         * from the new ordering.
+         */
         /* modified by GAN to hit all objects */
         if (fhito) {
             int hitanything = 0;
@@ -2012,6 +2009,15 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             }
             if (hitanything)
                 range--;
+        }
+        if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
+            (*fhitm)(&youmonst, obj);
+            range -= 3;
+        } else if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
+            if (cansee(bhitpos.x, bhitpos.y) && !canspotmon(mtmp))
+                map_invisible(bhitpos.x, bhitpos.y);
+            (*fhitm)(mtmp, obj);
+            range -= 3;
         }
         typ = levl[bhitpos.x][bhitpos.y].typ;
         if (IS_DOOR(typ) || typ == SDOOR) {
