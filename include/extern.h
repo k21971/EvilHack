@@ -2132,6 +2132,7 @@ E int NDECL(dosacrifice);
 E boolean FDECL(can_pray, (BOOLEAN_P));
 E int NDECL(dopray);
 E boolean FDECL(moffer, (struct monst *));
+E int NDECL(wiz_crown);
 E const char *NDECL(u_gname);
 E int NDECL(doturn);
 E int FDECL(altarmask_at, (int, int));

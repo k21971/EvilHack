@@ -781,6 +781,14 @@ const char *str;
     }
 }
 
+int
+wiz_crown()
+{
+    pline("Your crown, my %s.", flags.female ? "queen" : "king");
+    gcrownu();
+    return 0;
+}
+
 STATIC_OVL void
 gcrownu()
 {

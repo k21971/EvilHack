@@ -1844,4 +1844,5 @@ The following changes to date are:
 - tty: use bright colors directly on supporting terminals
 - Fix: polymorphed player (by monster) and their inventory
 - Follow-up to last commit (player poly'd by monster)
+- New wizard-mode command - #wizcrown
 

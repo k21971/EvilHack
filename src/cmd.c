@@ -3883,6 +3883,8 @@ struct ext_func_tab extcmdlist[] = {
     { '\0', "wizbury", "bury objs under and around you",
             wiz_debug_cmd_bury, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
 #endif
+    { '\0', "wizcrown", "become crowned",
+            wiz_crown, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { C('e'), "wizdetect", "reveal hidden things within a small radius",
             wiz_detect, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { C('g'), "wizgenesis", "create a monster",
