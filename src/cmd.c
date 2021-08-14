@@ -1408,8 +1408,13 @@ wiz_smell(VOID_ARGS)
             mndx = 0;
         /* Is it a monster? */
         if (mndx) {
+            const char *it_seems = "That monster seems";
+            if (cc.x == u.ux && cc.y == u.uy) {
+                You("surreptitiously sniff under your %s.", body_part(ARM));
+                it_seems = "You seem";
+            }
             if (!usmellmon(&mons[mndx]))
-                pline("That monster seems to give off no smell.");
+                pline("%s to give off no smell.", it_seems);
         } else
             pline("That is not a monster.");
     } while (TRUE);
