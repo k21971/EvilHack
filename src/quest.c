@@ -303,10 +303,15 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     }
                     update_inventory();
                 }
+                if (u.ualign.type == A_NONE) /* Infidel quest leader is an asshole */
+                    Qstat(pissed_off) = 1;
                 /* should have obtained bell during quest;
                    if not, suggest returning for it now */
-                if ((otmp = carrying(BELL_OF_OPENING)) == 0)
-                    com_pager(5);
+                if ((otmp = carrying(BELL_OF_OPENING)) == 0) {
+                    /* Unless it's the infidel quest leader */
+                    if (!(u.ualign.type == A_NONE && Qstat(pissed_off)))
+                        com_pager(5);
+                }
             } else {
                 /* the quest is still complete (will fall through
                    to 'if (obj)' below), but now the quest leader

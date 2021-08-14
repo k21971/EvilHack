@@ -1827,10 +1827,10 @@ servants can advise you."
 # which may break hypothetical aligned Infidels.
 %Cc Inf 00074
 "My %S, we all pray for thy success on thy quest.  The false gods
-posess power beyond any mere mortal, and even with Moloch's help
+possess power beyond any mere mortal, and even with Moloch's help
 overthrowing one of them will be a challenge.  Chose thine opponent wisely.
 
-"I shall offer thee an advice.  Last night, I had a vision.  There was
+"I shall offer thee some advice.  Last night, I had a vision.  There was
 a great battle in heaven; the forces of our Lord Moloch were besieging
 a fortress of %d.  But %dj %a minions held their
 ground for thirty days and nights and, sadly, the fortress was not taken.
@@ -1839,10 +1839,12 @@ ground for thirty days and nights and, sadly, the fortress was not taken.
 challenging %d will likely be futile.  Keep this in mind."
 %E [You should avoid invoking %o on the %a high altar.]
 %Cc Inf 00075
-"My %S, I just had another vision!  Our Lord Moloch was using His
-awesome might to bend the non-believers to His will.  But %d
-was strong, and it appeared that %dj %a minions were more
-resilient to our Lords magic than the others.
+"Ah, I understand thou hast defeated %l.
+Such is the way of our Cult.  Then let me give thee a bit more
+advice, my %S.  Over the years, Our Lord Moloch has used His
+awesome might to bend the non-believers to His will.  But
+%d is strong, and it appears that %dj %a minions
+are more resilient to our Lords magic than the others.
 
 "Perhaps that extends to %d %diself, as well."
 %E [You should avoid invoking %o on the %a high altar.]
@@ -1877,7 +1879,7 @@ We have restored the silver bell, use it to reach
 the magic portal that brought you here."
 %E [%OC is your responsibility now.  Bring it to %d along with the Amulet.]
 %Cc Inf 00083
-%l stares intently at %o.
+%lC stares intently at %o.
 
 "Impressive, %p.  You have defeated %n and
 recovered %oh, and we have restored the silver bell.
@@ -1887,9 +1889,12 @@ deliver %oh to %ds Sanctum myself.
 %pC, give %oh to me, now!
 %E ["%lC demands that you forfeit %oh."]
 %Cc Inf 00084
-"You are a disappointment %p, but you chose wisely.
-%dC may spare you yet.
-%E ["You give %oh to %l."]
+"You are such a disappointment, %p.  Did you honestly believe I would
+allow you to continue the mission?  You have been unfaithful to our
+Lord and Master %d, %p!  You are not worthy!  I will become
+the Chosen One of %d, I alone will complete the mission,
+and the forces of good shall know the wrath of %d!
+%E ["You give %oh to %l, but %l attacks you regardless."]
 %Cp Inf 00090
 "Welcome back, my %S.  Have you found your way to the Sanctum yet?"
 %E
