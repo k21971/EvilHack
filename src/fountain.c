@@ -255,18 +255,20 @@ register struct obj *obj;
      * lava, probably not the smartest thing to do. This is gonna hurt.
      * Non-metallic objects are handled by lava_damage().
      */
-    if (is_metallic(obj) && (((obj->owornmask & W_ARM) && (obj == uarm))
-        || ((obj->owornmask & W_ARMC) && (obj == uarmc))
-        || ((obj->owornmask & W_ARMU) && (obj == uarmu))
-        || ((obj->owornmask & W_ARMG) && (obj == uarmg))
-        || ((obj->owornmask & W_ARMH) && (obj == uarmh))
-        || ((obj->owornmask & W_ARMF) && (obj == uarmf))
-        || ((obj->owornmask & W_ARMS) && (obj == uarms)))) {
-        if (!rn2(3) && (how_resistant(FIRE_RES) < 100))
-            You("may want to remove your %s first...",
+    if (is_metallic(obj) && (obj->owornmask & (W_ARMOR | W_ACCESSORY))) {
+        if (how_resistant(FIRE_RES) < 100) {
+            You("dip your worn %s into the forge.  You burn yourself!",
                 xname(obj));
+            if (!rn2(3))
+                You("may want to remove your %s first...",
+                    xname(obj));
+        }
+        if (how_resistant(FIRE_RES) == 100) {
+            You("can't reforge something you're wearing.");
+        }
         losehp(resist_reduce(d(1, 8), FIRE_RES),
                "dipping a worn object into a forge", KILLED_BY);
+        return;
     }
 
     switch (rnd(30)) {
@@ -288,19 +290,8 @@ register struct obj *obj;
             if (!is_metallic(obj))
                 goto lava;
 
-            /* Ever try doing metalwork on something still being worn?
-             * Yeah didn't think so */
-            if (((obj->owornmask & W_ARM) && (obj == uarm))
-                || ((obj->owornmask & W_ARMC) && (obj == uarmc))
-                || ((obj->owornmask & W_ARMU) && (obj == uarmu))
-                || ((obj->owornmask & W_ARMG) && (obj == uarmg))
-                || ((obj->owornmask & W_ARMH) && (obj == uarmh))
-                || ((obj->owornmask & W_ARMF) && (obj == uarmf))
-                || ((obj->owornmask & W_ARMS) && (obj == uarms))) {
-                You("can't reforge something you're wearing.");
-                break;
-            }
-
+            /* TODO: perhaps our hero needs to wield some sort of tool to
+               successfully reforge an object? */
             if (is_metallic(obj) && Luck > 0) {
                 if (greatest_erosion(obj) > 0) {
                     if (!Blind)
@@ -320,6 +311,9 @@ register struct obj *obj;
             break;
         case 19:
         case 20:
+            if (!is_metallic(obj))
+                goto lava;
+
             if (!obj->blessed && is_metallic(obj) && Luck > 5) {
                 bless(obj);
                 if (!Blind) {

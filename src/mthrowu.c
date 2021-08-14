@@ -1425,8 +1425,7 @@ boolean your_fault, from_invent;
             if (!unbreakable)
                 dissolve_bars(barsx, barsy);
         }
-    }
-    else if (obj_type == BOULDER || obj_type == HEAVY_IRON_BALL)
+    } else if (obj_type == BOULDER || obj_type == HEAVY_IRON_BALL)
         pline("Whang!");
     else if (otmp->oclass == COIN_CLASS
              || otmp->material == GOLD || otmp->material == SILVER)

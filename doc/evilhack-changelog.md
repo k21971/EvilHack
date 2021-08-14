@@ -1846,4 +1846,5 @@ The following changes to date are:
 - Follow-up to last commit (player poly'd by monster)
 - New wizard-mode command - #wizcrown
 - Adjust feedback given when using #wizsmell
+- Fix: logic with using forges, allow reforging amulets/rings
 

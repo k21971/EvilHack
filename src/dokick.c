@@ -1160,7 +1160,7 @@ dokick()
             if (rn2(2)) {
                 if (uarmf) {
                     pline("Molten lava from the forge splashes onto your boots.");
-                    fire_damage(uarmf, FALSE, u.ux, u.uy);
+                    fire_damage(uarmf, TRUE, u.ux, u.uy);
                 } else {
                     pline("Molten lava from the forge splashes onto your %s!",
                           body_part(FOOT));
