@@ -1850,4 +1850,5 @@ The following changes to date are:
 - Change how Infidel quest leader handles asking for the quest artifact
 - Change penalty for Infidel casting spells without the Amulet of
   Yendor in inventory
+- Fix: Infidels affected by slipping when throwing cursed objects
 

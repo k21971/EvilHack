@@ -1180,7 +1180,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             tethered_weapon = (obj->otyp == AKLYS && (wep_mask & W_WEP) != 0);
 
     notonhead = FALSE; /* reset potentially stale value */
-    if ((obj->cursed || obj->greased) && (u.dx || u.dy) && !rn2(7)) {
+    if (((obj->cursed && u.ualign.type != A_NONE) || obj->greased)
+        && (u.dx || u.dy) && !rn2(7)) {
         boolean slipok = TRUE;
 
         if (ammo_and_launcher(obj, uwep)) {
