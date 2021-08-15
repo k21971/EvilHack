@@ -672,15 +672,6 @@ rejectcasting()
          */
         Your("arms are not free to cast!");
         return TRUE;
-    /* Infidels cannot cast their spells if they are not holding onto
-       the amulet */
-    } else if (Role_if(PM_INFIDEL) && !u.uhave.amulet) {
-        if (u.uachieve.amulet) {
-            return FALSE;
-        } else {
-            You("are unable to channel your magic without the amulet.");
-            return TRUE;
-        }
     }
     return FALSE;
 }
@@ -1006,7 +997,12 @@ boolean atme;
        the attempt may fail due to lack of energy after the draining, in
        which case a turn will be used up in addition to the energy loss */
     if (u.uhave.amulet && u.uen >= energy) {
-        if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
+        if ((Role_if(PM_INFIDEL) && u.uachieve.amulet)
+            /* even though psychic abilities use spell power,
+               they are not considered a spell, and therefore
+               should not be influenced by having the AoY
+               in ones possession */
+            || spellid(spell) == SPE_PSIONIC_WAVE)
             ; /* nothing happens */
         else
             You_feel("the amulet draining your energy away.");
@@ -1021,7 +1017,8 @@ boolean atme;
            to Moloch and their quest artifact is imbued with its power,
            Moloch's influence suppresses the spell power draining effect
            and allows the Infidel to realize their full potential */
-        if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
+        if ((Role_if(PM_INFIDEL) && u.uachieve.amulet)
+            || spellid(spell) == SPE_PSIONIC_WAVE)
             ; /* nothing happens */
         else
             u.uen -= rnd(2 * energy);
@@ -1090,13 +1087,34 @@ boolean atme;
 
     chance = percent_success(spell);
     if (confused || (rnd(100) > chance)) {
-        You("fail to cast the spell correctly.");
-        u.uen -= energy / 2;
+        if (spellid(spell) == SPE_PSIONIC_WAVE)
+            You("are too confused to use your psychic abilities.");
+        else
+            You("fail to cast the spell correctly.");
+        if (u.ualign.type == A_NONE && !u.uhave.amulet
+            && !u.uachieve.amulet
+            && spellid(spell) != SPE_PSIONIC_WAVE)
+            losehp(energy / 2, "draining their own life force", KILLED_BY);
+        else
+            u.uen -= energy / 2;
         context.botl = 1;
         return 1;
     }
 
-    u.uen -= energy;
+    /* Infidels attempting to cast spells without having
+       the Amulet of Yendor in their possession (before
+       the Idol of Moloch is imbued) costs them hit points
+       instead of spell power */
+    if (u.ualign.type == A_NONE && !u.uhave.amulet
+        && !u.uachieve.amulet
+        /* psychic attack uses spell power but
+           technically is not considered a spell */
+        && spellid(spell) != SPE_PSIONIC_WAVE) {
+        pline("You draw upon your own life force to cast the spell.");
+        losehp(energy, "draining their own life force", KILLED_BY);
+    } else {
+        u.uen -= energy;
+    }
     context.botl = 1;
     exercise(A_WIS, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */

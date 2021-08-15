@@ -1848,4 +1848,6 @@ The following changes to date are:
 - Adjust feedback given when using #wizsmell
 - Fix: logic with using forges
 - Change how Infidel quest leader handles asking for the quest artifact
+- Change penalty for Infidel casting spells without the Amulet of
+  Yendor in inventory
 
