@@ -1851,4 +1851,5 @@ The following changes to date are:
 - Change penalty for Infidel casting spells without the Amulet of
   Yendor in inventory
 - Fix: Infidels affected by slipping when throwing cursed objects
+- Fix: Moloch uncursing cursed objects via prayer
 

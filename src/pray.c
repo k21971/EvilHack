@@ -1278,11 +1278,7 @@ aligntyp g_align;
                 You("are surrounded by %s aura.",
                     (g_align == A_NONE ? an(hcolor(NH_BLACK)) : an(hcolor(NH_LIGHT_BLUE))));
             for (otmp = invent; otmp; otmp = otmp->nobj) {
-                if (otmp->cursed
-                    /* Infidels benefit from wearing cursed armor
-                       as well as wielding cursed weapons */
-                    && !(Role_if(PM_INFIDEL)
-                         && (otmp->owornmask & (W_ARMOR | W_WEAPONS)))
+                if (otmp->cursed && g_align != A_NONE
                     && (otmp != uarmh /* [see worst_cursed_item()] */
                         || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)) {
                     if (!Blind) {
@@ -1293,6 +1289,16 @@ aligntyp g_align;
                         ++any;
                     }
                     uncurse(otmp);
+                /* Moloch will curse any blessed object */
+                } else if (otmp->blessed && g_align == A_NONE) {
+                    if (!Blind) {
+                        pline("%s %s.", Yobjnam2(otmp, "softly glow"),
+                              hcolor(NH_BLACK));
+                        iflags.last_msg = PLNMSG_OBJ_GLOWS;
+                        otmp->bknown = 1; /* ok to bypass set_bknown() */
+                        ++any;
+                    }
+                    curse(otmp);
                 }
             }
             if (any)
