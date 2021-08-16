@@ -1852,4 +1852,5 @@ The following changes to date are:
   Yendor in inventory
 - Fix: Infidels affected by slipping when throwing cursed objects
 - Fix: Moloch uncursing cursed objects via prayer
+- Adjustment to last commit (Moloch uncursing objects via prayer)
 

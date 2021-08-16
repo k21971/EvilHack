@@ -1289,8 +1289,9 @@ aligntyp g_align;
                         ++any;
                     }
                     uncurse(otmp);
-                /* Moloch will curse any blessed object */
-                } else if (otmp->blessed && g_align == A_NONE) {
+                /* Moloch will curse any blessed/uncursed piece of armor or weapon */
+                } else if (!otmp->cursed && g_align == A_NONE
+                    && (otmp->oclass == ARMOR_CLASS || otmp->oclass == WEAPON_CLASS)) {
                     if (!Blind) {
                         pline("%s %s.", Yobjnam2(otmp, "softly glow"),
                               hcolor(NH_BLACK));
