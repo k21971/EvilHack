@@ -250,6 +250,11 @@ void
 dipforge(obj)
 register struct obj *obj;
 {
+    if (Levitation) {
+        floating_above("forge");
+        return;
+    }
+
     burn_away_slime();
     /* Dipping something you're still wearing into a forge filled with
      * lava, probably not the smartest thing to do. This is gonna hurt.
@@ -701,7 +706,9 @@ drinkforge()
     if (Levitation) {
         floating_above("forge");
         return;
-    } if (!likes_lava(youmonst.data)) {
+    }
+
+    if (!likes_lava(youmonst.data)) {
         pline("Molten lava incinerates its way down your gullet...");
         u.uhp = 0;
         losehp(1, "trying to drink molten lava", KILLED_BY);
