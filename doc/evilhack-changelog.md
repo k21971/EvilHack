@@ -1855,4 +1855,5 @@ The following changes to date are:
 - Adjustment to last commit (Moloch uncursing objects via prayer)
 - Fix: could reach a forge while levitating
 - Prevent healing magic abuse as Infidel w/o Amulet of Yendor
+- Fix: gold dragon scale mail remained lit in bones
 
