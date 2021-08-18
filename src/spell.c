@@ -1111,7 +1111,21 @@ boolean atme;
            technically is not considered a spell */
         && spellid(spell) != SPE_PSIONIC_WAVE) {
         pline("You draw upon your own life force to cast the spell.");
-        losehp(energy, "draining their own life force", KILLED_BY);
+        /* prevent healing spell abuse:
+           healing can cure 6d4 worth of hit points,
+           casting it drains 30 hit points.
+           extra healing can cure 6d8 worth of hit points,
+           but casting it drains 60 hit points. The net
+           result is that our Infidel will still lose about
+           the same amount of hit points as if casting
+           something other than healing/extra healing */
+        if (spellid(spell) == SPE_HEALING) {
+            losehp(6 * energy, "draining their own life force", KILLED_BY);
+        } else if (spellid(spell) == SPE_EXTRA_HEALING) {
+            losehp(4 * energy, "draining their own life force", KILLED_BY);
+        } else {
+            losehp(energy, "draining their own life force", KILLED_BY);
+        }
     } else {
         u.uen -= energy;
     }
