@@ -588,16 +588,6 @@ register struct monst *mon;
 	    && obj->otyp != RIN_INCREASE_ACCURACY) {
             if (obj->otyp == AMULET_OF_GUARDING) {
                 base -= 2; /* fixed amount, not impacted by erosion */
-            } else if (is_barding(obj)) {
-                if (obj->material == MITHRIL)
-                    base -= 5;
-                else if (obj->material == METAL)
-                    base -= 4;
-                else if (is_heavy_metallic(obj)
-                         && obj->material != METAL)
-                    base -= 3;
-                else /* non-metallic materials */
-                    base -= 2;
             } else {
                 /* since ARM_BONUS is positive, subtracting it increases AC */
                 base -= ARM_BONUS(obj);
@@ -637,6 +627,14 @@ register struct monst *mon;
                     || (is_elf(mon->data) && obj->otyp == ELVEN_SHIELD)
                     || (is_dwarf(mon->data) && obj->otyp == DWARVISH_ROUNDSHIELD))
                     base -= racial_bonus;
+            }
+            /* various material bonuses for barding (steeds) are also separate.
+               even though the value for steel vs mithril is the same, mithril
+               gives one better point of AC */
+            if (which_armor(mon, W_BARDING)) {
+                if (obj->material == METAL
+                    || obj->material == MITHRIL)
+                    base -= 1;
             }
         }
     }

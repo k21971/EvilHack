@@ -3067,21 +3067,69 @@ boolean wouldhavehit;
     register boolean nearmiss = (target == roll);
     register struct obj *blocker = (struct obj *) 0;
 
-    /* 3 values for blocker:
+    /* 2 values for blocker:
      * No blocker: (struct obj *) 0
      * Piece of armour: object
      */
 
-    /* This is a hack,  since there is no fast equivalent for uarm, uarms, etc.
-     * Technically, we really should check from the inside out...
-     */
     if (target < roll) {
-        for (blocker = mdef->minvent; blocker; blocker = blocker->nobj) {
-            if (blocker->owornmask & W_ARMOR) {
-                target += ARM_BONUS(blocker);
-                if (target > roll)
-                    break;
-            }
+        /* get object responsible,
+           work from the closest to the skin outwards */
+
+        /* Try undershirt */
+        if (which_armor(mdef, W_ARMU) && target <= roll) {
+            target += ARM_BONUS(which_armor(mdef, W_ARMU));
+            if (target > roll)
+                blocker = which_armor(mdef, W_ARMU);
+        }
+
+        /* Try body armour */
+        if (which_armor(mdef, W_ARM) && target <= roll) {
+            target += ARM_BONUS(which_armor(mdef, W_ARM));
+            if (target > roll)
+                blocker = which_armor(mdef, W_ARM);
+        }
+
+        if (which_armor(mdef, W_ARMG) && !rn2(10)) {
+            /* Try gloves */
+            target += ARM_BONUS(which_armor(mdef, W_ARMG));
+            if (target > roll)
+                blocker = which_armor(mdef, W_ARMG);
+        }
+
+        if (which_armor(mdef, W_ARMF) && !rn2(10)) {
+            /* Try boots */
+            target += ARM_BONUS(which_armor(mdef, W_ARMF));
+            if (target > roll)
+                blocker = which_armor(mdef, W_ARMF);
+        }
+
+        if (which_armor(mdef, W_ARMH) && !rn2(5)) {
+            /* Try helm */
+            target += ARM_BONUS(which_armor(mdef, W_ARMH));
+            if (target > roll)
+                blocker = which_armor(mdef, W_ARMH);
+        }
+
+        if (which_armor(mdef, W_ARMC) && target <= roll) {
+            /* Try cloak */
+            target += ARM_BONUS(which_armor(mdef, W_ARMC));
+            if (target > roll)
+                blocker = which_armor(mdef, W_ARMC);
+        }
+
+        if (which_armor(mdef, W_ARMS) && target <= roll) {
+            /* Try shield */
+            target += ARM_BONUS(which_armor(mdef, W_ARMS));
+            if (target > roll)
+                blocker = which_armor(mdef, W_ARMS);
+        }
+
+        if (which_armor(mdef, W_BARDING) && target <= roll) {
+            /* Try barding (steeds) */
+            target += ARM_BONUS(which_armor(mdef, W_BARDING));
+            if (target > roll)
+                blocker = which_armor(mdef, W_BARDING);
         }
     }
 
@@ -3096,8 +3144,17 @@ boolean wouldhavehit;
             Your("pickpocketing attempt fails %s.",
                  rn2(2) ? "horribly" : "miserably");
         } else if (nearmiss || !blocker) {
-            You("%smiss %s.",
-                (nearmiss ? "just " : ""), mon_nam(mdef));
+            if (thick_skinned(mdef->data) && !rn2(10))
+                pline("%s %s %s your attack.",
+                      s_suffix(Monnam(mdef)),
+                      (is_dragon(mdef->data) ? "scaly hide"
+                                             : mdef->data == &mons[PM_GIANT_TURTLE]
+                                                 ? "protective shell"
+                                                 : "thick hide"),
+                      (rn2(2) ? "blocks" : "deflects"));
+            else
+                You("%smiss %s.",
+                    (nearmiss ? "just " : ""), mon_nam(mdef));
         } else {
             /* Blocker */
             pline("%s %s %s your attack.",

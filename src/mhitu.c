@@ -154,9 +154,8 @@ struct attack *mattk;
      */
 
     if (target < roll) {
-        /* get object responsible
-         * Work from the closest to the skin outwards
-         */
+        /* get object responsible,
+           work from the closest to the skin outwards */
 
         /* Try undershirt */
         if (uarmu && target <= roll) {
@@ -223,11 +222,21 @@ struct attack *mattk;
     else {
         if (!flags.verbose || (!nearmiss && !blocker))
             pline("%s misses.", Monnam(mtmp));
-        else if (!blocker)
-            rn2(2) ? You("dodge %s attack!", s_suffix(mon_nam(mtmp)))
-                   : rn2(2) ? You("evade %s attack!", s_suffix(mon_nam(mtmp)))
-                            : pline("%s narrowly misses!", Monnam(mtmp));
-        else if (blocker == &zeroobj)
+        else if (nearmiss || !blocker) {
+            if (thick_skinned(youmonst.data) && rn2(2)) {
+                Your("%s %s %s attack.",
+                      (is_dragon(youmonst.data) ? "scaly hide"
+                                                : youmonst.data == &mons[PM_GIANT_TURTLE]
+                                                    ? "protective shell"
+                                                    : "thick hide"),
+                      (rn2(2) ? "blocks" : "deflects"),
+                      s_suffix(mon_nam(mtmp)));
+            } else {
+                rn2(2) ? You("dodge %s attack!", s_suffix(mon_nam(mtmp)))
+                       : rn2(2) ? You("evade %s attack!", s_suffix(mon_nam(mtmp)))
+                                : pline("%s narrowly misses!", Monnam(mtmp));
+            }
+        } else if (blocker == &zeroobj)
             pline("%s is stopped by your golden haze.", Monnam(mtmp));
         else
             Your("%s %s%s %s attack.",

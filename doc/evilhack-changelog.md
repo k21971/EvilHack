@@ -1856,4 +1856,5 @@ The following changes to date are:
 - Fix: could reach a forge while levitating
 - Prevent healing magic abuse as Infidel w/o Amulet of Yendor
 - Fix: gold dragon scale mail remained lit in bones
+- Revamp descriptive hit messages (player vs mon, mon vs mon)
 
