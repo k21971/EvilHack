@@ -628,14 +628,6 @@ register struct monst *mon;
                     || (is_dwarf(mon->data) && obj->otyp == DWARVISH_ROUNDSHIELD))
                     base -= racial_bonus;
             }
-            /* various material bonuses for barding (steeds) are also separate.
-               even though the value for steel vs mithril is the same, mithril
-               gives one better point of AC */
-            if (which_armor(mon, W_BARDING)) {
-                if (obj->material == METAL
-                    || obj->material == MITHRIL)
-                    base -= 1;
-            }
         }
     }
 

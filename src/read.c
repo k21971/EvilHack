@@ -1064,7 +1064,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
     boolean confused = (Confusion != 0), sblessed = sobj->blessed,
             scursed = sobj->cursed, already_known, old_erodeproof,
             new_erodeproof;
-    struct obj *otmp;
+    struct obj *otmp = (struct obj *) 0;
 
     if (objects[otyp].oc_magic)
         exercise(A_WIS, TRUE);                       /* just for trying */
@@ -1095,10 +1095,21 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         boolean same_color;
 
         if (already_known) {
-            otmp = getobj(clothes, "enchant");
-            while (otmp && !(otmp->owornmask & W_ARMOR)) {
-                pline("You cannot enchant armor that is not worn.");
-                otmp = getobj(clothes, "enchant");
+            if (u.usteed
+                && (otmp = which_armor(u.usteed, W_BARDING)) != 0) {
+                char buf[BUFSZ];
+                Sprintf(buf, "Enchant %s %s?", s_suffix(y_monnam(u.usteed)),
+                        xname(otmp));
+                if (yn(buf) == 'n') {
+                    otmp = (struct obj *) 0;
+                }
+            }
+            if (!otmp) {
+                otmp = getobj(clothes, "enchant");                      
+                while (otmp && !(otmp->owornmask & W_ARMOR)) {          
+                    pline("You cannot enchant armor that is not worn.");
+                    otmp = getobj(clothes, "enchant");                  
+                }
             }
         } else {
             otmp = some_armor(&youmonst);
@@ -1163,8 +1174,13 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                   (Blind || same_color) ? "" : hcolor(scursed ? NH_BLACK
                                                               : NH_SILVER),
                   otense(otmp, "evaporate"));
-            remove_worn_item(otmp, FALSE);
-            useup(otmp);
+            if (carried(otmp)) {
+                remove_worn_item(otmp, FALSE);
+                useup(otmp);
+            } else {
+                /* steed barding */
+                m_useup(otmp->ocarry, otmp);
+            }
             break;
         }
         s = scursed ? -1

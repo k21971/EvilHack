@@ -2894,6 +2894,13 @@ struct monst *victim;
     otmp = (victim == &youmonst) ? uarms : which_armor(victim, W_ARMS);
     if (otmp && (!otmph || !rn2(4)))
         otmph = otmp;
+    if (victim != &youmonst && (otmp = which_armor(victim, W_BARDING))
+        && (!otmph || !rn2(4)))
+        otmph = otmp;
+    if (victim == &youmonst && u.usteed
+        && (otmp = which_armor(u.usteed, W_BARDING)) != 0
+        && (!otmph || !rn2(4)))
+        otmph = otmp;
     return otmph;
 }
 
@@ -3395,6 +3402,14 @@ register struct obj *atmp;
         Your("shield crumbles away!");
         (void) Shield_off();
         useup(otmp);
+    } else if (u.usteed && (otmp = which_armor(u.usteed, W_BARDING))
+               /* don't use DESTROY_ARM for barding (at least for now) -- we
+                * want it to be an invalid target if atmp == 0, so that it can
+                * only be destroyed if specifically targeted */
+               && otmp == atmp
+               && !obj_resists(otmp, 0, 90) ? (otmp->in_use = TRUE) : FALSE) {
+        pline("%s crumbles to pieces!", Yname2(otmp));
+        m_useup(u.usteed, otmp);
     } else {
 end:
         return 0; /* could not destroy anything */
