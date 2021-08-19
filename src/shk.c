@@ -2356,15 +2356,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
         }
         multiplier *= numer;
         divisor *= denom;
-
-        /* professional courtesy if nonhuman */
-        if (!racial_human(shkp) && match_shkrace(shkp))
-            divisor *= 2;
     }
-
-    /* and just make sure we haven't dealt ourselves out of money */
-    if (tmp < 1)
-        tmp = 3;
 
     /* tmp = (tmp * multiplier) / divisor [with roundoff tweak] */
     tmp *= multiplier;
@@ -2387,7 +2379,6 @@ register struct monst *shkp; /* if angry, impose a surcharge */
        from the multiplier/divisor calculation */
     if (shkp && ESHK(shkp)->surcharge)
         tmp += (tmp + 2L) / 3L;
-
     return tmp;
 }
 
@@ -2599,16 +2590,7 @@ register struct monst *shkp;
             multiplier *= denom;
             divisor *= numer;
         }
-
-        /* professional courtesy if nonhuman, but not _that_ much */
-        if (!racial_human(shkp) && match_shkrace(shkp))
-            multiplier *= 4L, divisor *= 3L;
     }
-
-    /* Final quick check; if we're about to buy this for more than we'd sell
-     * it for in the first place, let's arrange to, er, not do that.  */
-    if (tmp > get_cost(obj, shkp) * obj->quan)
-	tmp = (get_cost(obj, shkp) * 4L / 5L) * obj->quan;
 
     if (tmp >= 1L) {
         /* [see get_cost()] */
@@ -2624,6 +2606,10 @@ register struct monst *shkp;
             tmp = 1L;
     }
 
+    /* Final quick check; if we're about to buy this for more than we'd sell
+     * it for in the first place, let's arrange to, er, not do that.  */
+    if (tmp > get_cost(obj, shkp) * obj->quan)
+        tmp = (get_cost(obj, shkp) * 4L / 5L) * obj->quan;
 end:
     /* (no adjustment for angry shk here) */
     return tmp;

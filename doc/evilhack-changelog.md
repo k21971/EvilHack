@@ -1857,4 +1857,5 @@ The following changes to date are:
 - Prevent healing magic abuse as Infidel w/o Amulet of Yendor
 - Fix: gold dragon scale mail remained lit in bones
 - Revamp descriptive hit messages (player vs mon, mon vs mon)
+- Fix: price abuse with non-human shopkeepers, player matching race
 
