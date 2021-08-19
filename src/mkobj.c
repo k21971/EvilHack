@@ -1649,6 +1649,10 @@ struct obj * obj;
     if (objects[obj->otyp].a_ac + diff < min_ac) {
         diff = min_ac - objects[obj->otyp].a_ac;
     }
+    /* force mithril and metal to give unique extra +1 AC for barding */
+    if (is_barding(obj)
+        && (obj->material == MITHRIL || obj->material == METAL))
+         diff++;
     return diff;
 }
 

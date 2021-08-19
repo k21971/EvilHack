@@ -2703,6 +2703,9 @@ register struct monst *mtmp;
                 else if ((target = which_armor(mtmp, W_ARMU)) != 0)
                     (void) water_damage(target, "shirt",
                                         TRUE, mtmp->mx, mtmp->my);
+                else if ((target = which_armor(mtmp, W_BARDING)) != 0)
+                    (void) water_damage(target, "barding",
+                                        TRUE, mtmp->mx, mtmp->my);
             }
 
             if (mptr == &mons[PM_IRON_GOLEM]) {

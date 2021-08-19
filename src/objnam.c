@@ -1323,6 +1323,10 @@ unsigned doname_flags;
         break;
     case TOOL_CLASS:
         add_erosion_words(obj, prefix);
+        if (is_barding(obj) && known) {
+            Strcat(prefix, sitoa(obj->spe));
+            Strcat(prefix, " ");
+        }
         if (obj->owornmask & (W_TOOL | W_SADDLE | W_BARDING)) { /* blindfold */
             Strcat(bp, " (being worn)");
             break;
@@ -4441,7 +4445,7 @@ struct obj *no_wish;
     } else if (wizard) {
         ; /* no alteration to spe */
     } else if (oclass == ARMOR_CLASS || oclass == WEAPON_CLASS
-               || is_weptool(otmp)
+               || is_weptool(otmp) || is_barding(otmp)
                || (oclass == RING_CLASS && objects[typ].oc_charged)) {
         if (spe > rnd(5) && spe > otmp->spe)
             spe = 0;

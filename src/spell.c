@@ -931,8 +931,7 @@ boolean atme;
     int otyp, skill, role_skill, res = 0;
     boolean confused = (Confusion != 0);
     boolean physical_damage = FALSE;
-    struct obj *pseudo;
-    struct obj* otmp;
+    struct obj *pseudo, *otmp = (struct obj *) 0;
     struct monst *mtmp;
     coord cc;
 
@@ -1314,10 +1313,21 @@ boolean atme;
     case SPE_REPAIR_ARMOR:
         /* removes one level of erosion (both types) for a chosen piece of armor */
         if (role_skill >= P_BASIC) {
-            otmp = getobj(clothes, "magically repair");
-            while (otmp && !(otmp->owornmask & W_ARMOR)) {
-                pline("You cannot repair armor that is not worn.");
+            if (u.usteed
+                && (otmp = which_armor(u.usteed, W_BARDING)) != 0) {
+                char buf[BUFSZ];
+                Sprintf(buf, "Repair %s %s?", s_suffix(y_monnam(u.usteed)),
+                        xname(otmp));
+                if (yn(buf) == 'n') {
+                    otmp = (struct obj *) 0;
+                }
+            }
+            if (!otmp) {
                 otmp = getobj(clothes, "magically repair");
+                while (otmp && !(otmp->owornmask & W_ARMOR)) {
+                    pline("You cannot repair armor that is not worn.");
+                    otmp = getobj(clothes, "magically repair");
+                }
             }
         } else {
             otmp = some_armor(&youmonst);

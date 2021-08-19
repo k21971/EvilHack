@@ -675,15 +675,15 @@ int spellnum;
         if (oatmp) {
             if (any_quest_artifact(oatmp)) {
                 if (!Blind)
-                    pline("The %s shines brightly.", xname(oatmp));
-                pline("The %s is immune to %s destructive magic.", xname(oatmp),
-                      s_suffix(mon_nam(mtmp)));
+                    pline("%s shines brightly.", The(xname(oatmp)));
+                pline("%s is immune to %s destructive magic.",
+                      The(xname(oatmp)), s_suffix(mon_nam(mtmp)));
                 return;
-            } else if (oatmp->oerodeproof && !any_quest_artifact(oatmp)) {
+            } else if (oatmp->oerodeproof) {
                 if (!Blind) {
-                    pline("Your %s glows brown for a moment.", xname(oatmp));
+                    pline("%s glows brown for a moment.", Yname2(oatmp));
                 } else {
-                    pline("Your %s briefly emits an odd smell.", xname(oatmp));
+                    pline("%s briefly emits an odd smell.", Yname2(oatmp));
                 }
                 oatmp->oerodeproof = 0;
             }
