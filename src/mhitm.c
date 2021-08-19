@@ -1646,12 +1646,19 @@ post_stone:
                             pline("but nothing happens.");
                         return MM_MISS;
                     }
-                    if (vis && canseemon(mdef))
+                    if (vis && canseemon(mdef) && !mdef->mstone)
                         pline("%s is slowing down.", Monnam(mdef));
                     if (!mdef->mstone) {
                         mdef->mstone = 5;
                         mdef->mstonebyu = FALSE;
                     }
+                }
+            } else {
+                if (vis && canseemon(mdef) && !mdef->mstone)
+                    pline("%s is slowing down.", Monnam(mdef));
+                if (!mdef->mstone) {
+                    mdef->mstone = 5;
+                    mdef->mstonebyu = FALSE;
                 }
             }
         }

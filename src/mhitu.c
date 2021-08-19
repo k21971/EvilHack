@@ -1755,7 +1755,6 @@ register struct attack *mattk;
                         }
                         make_stoned(5L, (char *) 0, kformat, kname);
                         return 1;
-                        /* done_in_by(mtmp, STONING); */
                     }
                 }
             }

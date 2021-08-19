@@ -1858,4 +1858,5 @@ The following changes to date are:
 - Fix: gold dragon scale mail remained lit in bones
 - Revamp descriptive hit messages (player vs mon, mon vs mon)
 - Fix: price abuse with non-human shopkeepers, player matching race
+- Fix: stoning touch monster vs monster not triggering
 
