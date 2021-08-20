@@ -3518,7 +3518,7 @@ register struct monst *mtmp;
     if (ptr->msound == MS_NEMESIS)
         return FALSE;
 
-    if (erac_race_peaceful(mtmp))
+    if (erac_race_peaceful(mtmp) && ual != A_NONE)
         return TRUE;
     if (erac_race_hostile(mtmp))
         return FALSE;
@@ -3529,7 +3529,7 @@ register struct monst *mtmp;
         return FALSE;
 
     /* Not all chaotics support Moloch.  This goes especially for elves. */
-    if (ual == A_NONE && (is_elf(ptr) || rn2(2)))
+    if (ual == A_NONE && (racial_elf(mtmp) || rn2(2)))
         return FALSE;
 
     /* Chaotic monsters hostile to players with Amulet, except Infidels. */
