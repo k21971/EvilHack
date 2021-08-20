@@ -1859,4 +1859,6 @@ The following changes to date are:
 - Revamp descriptive hit messages (player vs mon, mon vs mon)
 - Fix: price abuse with non-human shopkeepers, player matching race
 - Fix: stoning touch monster vs monster not triggering
+- Fix: no really, fix price abuse with non-human shopkeepers,
+  player matching race
 

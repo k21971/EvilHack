@@ -2143,6 +2143,10 @@ long *numerator, *denominator;
             /* "lawn ornament" */
             *numerator = 4L;
             *denominator = 3L;
+        } else if (Race_if(PM_ELF)) {
+            /* slight same-race discount */
+            *numerator = 4L;
+            *denominator = 5L;
         }
     } else if (is_dwarf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
@@ -2155,6 +2159,10 @@ long *numerator, *denominator;
             /* "big, dumb and smelly" */
             *numerator = 3L;
             *denominator = 2L;
+        } else if (Race_if(PM_DWARF)) {
+            /* same-race discount */
+            *numerator = 3L;
+            *denominator = 4L;
         }
     } else if (is_orc(shkdat)) {
         if (Race_if(PM_ELF) || Race_if(PM_GNOME)) {
@@ -2166,7 +2174,7 @@ long *numerator, *denominator;
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_ORC)) {
-            /* big discount on top of professional courtesy */
+            /* generous same-race discount */
             *numerator = 2L;
             *denominator = 3L;
         }
@@ -2196,6 +2204,10 @@ long *numerator, *denominator;
             || Race_if(PM_ILLITHID)) {
             *numerator = 3L;
             *denominator = 2L;
+        } else if (Race_if(PM_CENTAUR)) {
+            /* same-race discount */
+            *numerator = 3L;
+            *denominator = 4L;
         }
     } else if (is_giant(shkdat)) {
         /* Non-Elder-Race humanoids are not thought of highly */
@@ -2270,7 +2282,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
     long tmp = getprice(obj, FALSE),
          /* used to perform a single calculation even when multiple
             adjustments (unID'd, dunce/tourist, charisma) are made */
-        multiplier = 1L, divisor = 1L;
+         multiplier = 1L, divisor = 1L;
 
     if (!tmp)
         tmp = 5L;
@@ -2374,6 +2386,12 @@ register struct monst *shkp; /* if angry, impose a surcharge */
        inflate their shop price here without affecting score calculation */
     if (obj->oartifact)
         tmp *= 4L;
+
+    /* if the player tries to game the system and buy an item
+       for less than what they can sell it for, adjust the price
+       so the best they can do is break even */
+    if (tmp < (objects[obj->otyp].oc_cost / 2) * obj->quan)
+        tmp = (objects[obj->otyp].oc_cost / 2) * obj->quan;
 
     /* anger surcharge should match rile_shk's, so we do it separately
        from the multiplier/divisor calculation */
@@ -2574,21 +2592,22 @@ register struct monst *shkp;
 
     /* possible additional surcharges based on shk race, if one was passed in */
     if (shkp) {
-        long numer, denom;
-        shk_racial_adjustments(has_erac(shkp) ? ERAC(shkp)->rmnum : shkp->mnum,
-                               &numer, &denom);
+        long numer = 1L, denom = 1L;
+        if (!is_izchak(shkp, TRUE) && has_erac(shkp)) {
+            shk_racial_adjustments(ERAC(shkp)->rmnum, &denom, &numer);
 
-        /* Illithids are very reticent to let their books go and thus they
-         * charge exorbitantly for them. However, they do want to acquire more
-         * books - therefore, the inverse rule which would normally have them
-         * make exorbitantly *low* offers for the player selling things
-         * shouldn't apply. They'll pay fair market value.
-         */
-        if (!is_illithid(shkp->data)) {
-            /* The racial modifiers for sell price are just the reciprocal of those
-             * for the buy price. So we just reverse num and denom's meaning. */
-            multiplier *= denom;
-            divisor *= numer;
+            /* Illithids are very reticent to let their books go and thus they
+             * charge exorbitantly for them. However, they do want to acquire more
+             * books - therefore, the inverse rule which would normally have them
+             * make exorbitantly *low* offers for the player selling things
+             * shouldn't apply. They'll pay fair market value.
+             */
+            if (is_illithid(shkp->data)) {
+                /* The racial modifiers for sell price are just the reciprocal of those
+                 * for the buy price. So we just reverse num and denom's meaning. */
+                multiplier *= denom;
+                divisor *= numer;
+            }
         }
     }
 
@@ -2606,10 +2625,6 @@ register struct monst *shkp;
             tmp = 1L;
     }
 
-    /* Final quick check; if we're about to buy this for more than we'd sell
-     * it for in the first place, let's arrange to, er, not do that.  */
-    if (tmp > get_cost(obj, shkp) * obj->quan)
-        tmp = (get_cost(obj, shkp) * 4L / 5L) * obj->quan;
 end:
     /* (no adjustment for angry shk here) */
     return tmp;
