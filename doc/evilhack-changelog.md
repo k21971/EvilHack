@@ -1861,4 +1861,5 @@ The following changes to date are:
 - Fix: stoning touch monster vs monster not triggering
 - Fix: no really, fix price abuse with non-human shopkeepers,
   player matching race
+- Fix: object material detection bug
 
