@@ -2166,7 +2166,8 @@ long *numerator, *denominator;
             *denominator = 4L;
         }
     } else if (is_orc(shkdat)) {
-        if (Race_if(PM_ELF) || Race_if(PM_GNOME)) {
+        if (Race_if(PM_ELF) || Race_if(PM_GNOME)
+            || Race_if(PM_HOBBIT)) {
             *numerator = 3L;
         } else if (Race_if(PM_DWARF)) {
             *numerator = 5L;
@@ -2213,7 +2214,8 @@ long *numerator, *denominator;
     } else if (is_giant(shkdat)) {
         /* Non-Elder-Race humanoids are not thought of highly */
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
-            || Race_if(PM_ILLITHID) || Race_if(PM_ORC)) {
+            || Race_if(PM_ILLITHID) || Race_if(PM_ORC)
+            || Race_if(PM_HOBBIT)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_DWARF)) {
@@ -2232,11 +2234,11 @@ long *numerator, *denominator;
         }
         if (ACURR(A_CHA) > 14) {
             /* Pretty people don't get gouged TOO badly... */
-            *numerator = (mnum - PM_NYMPH + 8);
-            *denominator = 6L;
+            *numerator = 4L;
+            *denominator = 3L;
         } else {
             /* ... but if you don't measure up... */
-            *numerator = (mnum - PM_NYMPH + 5);
+            *numerator = 5L;
             *denominator = 3L;
         }
     } else {

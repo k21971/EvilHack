@@ -1864,4 +1864,5 @@ The following changes to date are:
 - Fix: object material detection bug
 - Fix: elves were peaceful towards elven Infidels
 - Shopkeepers will treat Infidels as a hated race during conversation
+- Fix: shopkeeper prices weren't taking hobbit race into account
 
