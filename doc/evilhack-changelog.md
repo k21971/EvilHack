@@ -1863,4 +1863,5 @@ The following changes to date are:
   player matching race
 - Fix: object material detection bug
 - Fix: elves were peaceful towards elven Infidels
+- Shopkeepers will treat Infidels as a hated race during conversation
 

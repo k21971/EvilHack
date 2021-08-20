@@ -24,9 +24,10 @@ STATIC_DCL void FDECL(kops_gone, (BOOLEAN_P));
      || Race_if((mon)->mnum))
 
 #define hostile_shk(mon) \
-    (erac_race_hostile(mon) && !is_izchak(mon, FALSE))
+    ((erac_race_hostile(mon) || u.ualign.type == A_NONE) \
+     && !is_izchak(mon, FALSE))
 
-#define muteshk(shkp)                       \
+#define muteshk(shkp) \
     ((shkp)->msleeping || !(shkp)->mcanmove \
      || (shkp)->data->msound <= MS_ANIMAL)
 
