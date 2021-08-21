@@ -1506,10 +1506,22 @@ int dieroll;
     }
 
     if (thievery) {
+        /* Izchak is off-limits */
         if (mon->isshk
             && !strcmp(shkname(mon), "Izchak")) {
             You("find yourself unable to steal from %s.",
                 mon_nam(mon));
+            use_skill(P_THIEVERY, -1);
+            return 0;
+        }
+        /* pets are also off-limits, since #loot can be
+           used to give your pets as much as they can carry.
+           would be an easy way to abuse thievery and train
+           the skill without risk */
+        if (mon->mtame) {
+            You("can't bring yourself to steal from %s.",
+                mon_nam(mon));
+            use_skill(P_THIEVERY, -1);
             return 0;
         }
         if (mon->minvent != 0) {
@@ -1930,9 +1942,11 @@ struct attack *mattk;
         obj_extract_self(gold);
 
     /* Rogue uses the thievery skill */
-    int dex_pick;
+    int i = rn2(10), dex_pick = 0, no_vis = 0,
+        size = 0, enc = 0, other = 0, cap;
 
-    dex_pick = 0;
+    /* dexterity directly affects how successful
+       a pickpocketing attempt will be */
     if (ACURR(A_DEX) <= 6)
         dex_pick += 3;
     else if (ACURR(A_DEX) <= 9)
@@ -1948,10 +1962,65 @@ struct attack *mattk;
     else if (ACURR(A_DEX) == 25)
         dex_pick -= 4;
 
-    if (Confusion || Stunned)
-        dex_pick += 20;
+    /* bonus if the target can't see the thief */
+    if (!m_canseeu(mdef))
+        no_vis -= 2;
 
-    if (!Upolyd && ((rn2(10) + dex_pick) > P_SKILL(P_THIEVERY))) {
+    /* slight bonus if the thief is small and
+       its target is much bigger */
+    if ((Race_if(PM_GNOME) || Race_if(PM_HOBBIT))
+        && mdef->data->msize >= MZ_LARGE)
+        size -= 1;
+
+    /* being encumbered adversely affects
+       pickpocketing success rate, to the point
+       where it becomes impossible if the level
+       of encumbrance is too high */
+    if ((cap = near_capacity()) > UNENCUMBERED) {
+        switch (cap) {
+        case SLT_ENCUMBER:
+            enc += 2;
+            break; /* burdened */
+        case MOD_ENCUMBER:
+            enc += 6;
+            break; /* stressed */
+        case HVY_ENCUMBER:
+            enc += 10;
+            break; /* strained */
+        case EXT_ENCUMBER:
+        case OVERLOADED:
+            enc += 20;
+            break; /* overtaxed/overloaded:
+                      can't 'fight' when this overburdened */
+        }
+    }
+
+    /* other conditions that could affect success, and these
+       can stack if multiple conditions are met */
+    if (mdef->mfrozen) /* target is immobile or incapacitated */
+        other -= 5;
+    if (mdef->mconf || mdef->mstun) /* target can't think straight */
+        other -= 3;
+    if (uarms) /* wearing a shield */
+        other += 2;
+    if (uarm && is_heavy_metallic(uarm)) /* wearing bulky body armor */
+        other += 3;
+    if (Wounded_legs) /* hard to move deftly */
+        other += 5;
+    if (u.usteed) /* steed can hamper stealth */
+        other += 5;
+    if (!canspotmon(mdef)) /* can't see/sense target */
+        other += 6;
+    if (Glib) /* slippery fingers */
+        other += 7;
+    if (Fumbling) /* difficult motor control */
+        other += 10;
+    if (Confusion || Stunned) /* hard to do much anything if impaired */
+        other += 20;
+
+    /* failure routine */
+    if (!Upolyd
+        && ((i + dex_pick + no_vis + size + enc + other) > P_SKILL(P_THIEVERY))) {
         if (Confusion || Stunned) {
             You("are in no shape to %s anything.",
                 rn2(2) ? "pickpocket" : "steal");
@@ -1967,8 +2036,6 @@ struct attack *mattk;
              */
             if (mdef->mpeaceful) {
                 if (rnd(6) > P_SKILL(P_THIEVERY)) {
-                    if (mdef->mtame)
-                        return;
                     mdef->mpeaceful = 0;
                     if (mdef->ispriest) {
                         if (p_coaligned(mdef))
