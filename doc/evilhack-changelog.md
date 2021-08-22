@@ -1868,4 +1868,5 @@ The following changes to date are:
 - Rogue thievery skill improvements
 - Infidels shouldn't have clairvoyance as one of their starting
   spellbooks
+- Fix: rogues shouldn't be able to use thievery while engulfed
 

@@ -1524,6 +1524,12 @@ int dieroll;
             use_skill(P_THIEVERY, -1);
             return 0;
         }
+        /* engulfed? ummm no */
+        if (u.uswallow) {
+            pline("What exactly were you planning on stealing?  It's stomach?");
+            use_skill(P_THIEVERY, -1);
+            return 0;
+        }
         if (mon->minvent != 0) {
             You("%s to %s %s.",
                 rn2(2) ? "try" : "attempt",
