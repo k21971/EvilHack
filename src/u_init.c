@@ -1377,6 +1377,10 @@ register struct trobj *origtrop;
                    || (otyp == SPE_FORCE_BOLT && Role_if(PM_WIZARD))
                    /* same for infidels */
                    || (otyp == SPE_DRAIN_LIFE && Role_if(PM_INFIDEL))
+                   /* infidels already have auto-clairvoyance
+                      by having the Amulet of Yendor in starting
+                      inventory */
+                   || (otyp == SPE_CLAIRVOYANCE && Role_if(PM_INFIDEL))
                    /* powerful spells are either useless to
                       low level players or unbalancing; also
                       spells in restricted skill categories */

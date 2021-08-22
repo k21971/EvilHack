@@ -1866,4 +1866,6 @@ The following changes to date are:
 - Shopkeepers will treat Infidels as a hated race during conversation
 - Fix: shopkeeper prices weren't taking hobbit race into account
 - Rogue thievery skill improvements
+- Infidels shouldn't have clairvoyance as one of their starting
+  spellbooks
 
