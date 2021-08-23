@@ -1869,4 +1869,5 @@ The following changes to date are:
 - Infidels shouldn't have clairvoyance as one of their starting
   spellbooks
 - Fix: rogues shouldn't be able to use thievery while engulfed
+- Adjust descriptive miss messages based on armor worn over other armor
 

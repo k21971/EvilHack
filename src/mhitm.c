@@ -85,14 +85,18 @@ int target, roll;
            work from the closest to the skin outwards */
 
         /* Try undershirt */
-        if (which_armor(mdef, W_ARMU) && target <= roll) {
+        if (which_armor(mdef, W_ARMU)
+            && (which_armor(mdef, W_ARM) == 0)
+            && (which_armor(mdef, W_ARMC) == 0)
+            && target <= roll) {
             target += ARM_BONUS(which_armor(mdef, W_ARMU));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMU);
         }
 
         /* Try body armour */
-        if (which_armor(mdef, W_ARM) && target <= roll) {
+        if (which_armor(mdef, W_ARM)
+            && (which_armor(mdef, W_ARMC) == 0) && target <= roll) {
             target += ARM_BONUS(which_armor(mdef, W_ARM));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARM);
@@ -178,7 +182,8 @@ int target, roll;
                 && (!MON_WEP(magr) && which_armor(magr, W_ARMG) == 0)
                 && mon_hates_material(magr, blocker->material)) {
                 searmsg(mdef, magr, blocker, FALSE);
-                magr->mhp -= rnd(sear_damage(blocker->material));
+                /* glancing blow */
+                magr->mhp -= rnd(sear_damage(blocker->material) / 2);
                 if (DEADMONSTER(magr))
                     killed(magr);
             }

@@ -158,14 +158,15 @@ struct attack *mattk;
            work from the closest to the skin outwards */
 
         /* Try undershirt */
-        if (uarmu && target <= roll) {
+        if (uarmu && !uarm && !uarmc
+            && target <= roll) {
             target += ARM_BONUS(uarmu);
             if (target > roll)
                 blocker = uarmu;
         }
 
         /* Try body armour */
-        if (uarm && target <= roll) {
+        if (uarm && !uarmc && target <= roll) {
             target += ARM_BONUS(uarm);
             if (target > roll)
                 blocker = uarm;
@@ -250,13 +251,12 @@ struct attack *mattk;
             goto end;
         /* called if attacker hates the material of the armor
            that deflected their attack */
-        if ((blocker == uarm || blocker == uarmf
-            || blocker == uarmu || blocker == uarmh
-            || blocker == uarmg || blocker == uarmc || blocker == uarms)
+        if (blocker
             && (!MON_WEP(mtmp) && which_armor(mtmp, W_ARMG) == 0)
             && mon_hates_material(mtmp, blocker->material)) {
             searmsg(&youmonst, mtmp, blocker, FALSE);
-            mtmp->mhp -= rnd(sear_damage(blocker->material));
+            /* glancing blow */
+            mtmp->mhp -= rnd(sear_damage(blocker->material) / 2);
             if (DEADMONSTER(mtmp))
                 killed(mtmp);
         }

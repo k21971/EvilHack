@@ -3150,14 +3150,18 @@ boolean wouldhavehit;
            work from the closest to the skin outwards */
 
         /* Try undershirt */
-        if (which_armor(mdef, W_ARMU) && target <= roll) {
+        if (which_armor(mdef, W_ARMU)
+            && (which_armor(mdef, W_ARM) == 0)
+            && (which_armor(mdef, W_ARMC) == 0)
+            && target <= roll) {
             target += ARM_BONUS(which_armor(mdef, W_ARMU));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMU);
         }
 
         /* Try body armour */
-        if (which_armor(mdef, W_ARM) && target <= roll) {
+        if (which_armor(mdef, W_ARM)
+            && (which_armor(mdef, W_ARMC) == 0) && target <= roll) {
             target += ARM_BONUS(which_armor(mdef, W_ARM));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARM);
@@ -3237,7 +3241,8 @@ boolean wouldhavehit;
             if (blocker && !uwep && !uarmg
                 && Hate_material(blocker->material)) {
                 searmsg(mdef, &youmonst, blocker, FALSE);
-                losehp(rnd(sear_damage(blocker->material)),
+                /* glancing blow */
+                losehp(rnd(sear_damage(blocker->material) / 2),
                        "hitting an adverse material", KILLED_BY);
             }
         }
