@@ -1874,4 +1874,5 @@ The following changes to date are:
 - Tweak baby/gold dragon tile
 - Fix: certain hallucinatory messages in dumplog
 - Fix: errors/warnings during tileset creation
+- Fix: various monster/object tiles
 
