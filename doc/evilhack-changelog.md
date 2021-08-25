@@ -1871,4 +1871,5 @@ The following changes to date are:
 - Fix: rogues shouldn't be able to use thievery while engulfed
 - Adjust descriptive miss messages based on armor worn over other armor
 - "ascended (in dishonor)" when align and align0 don't match
+- Tweak baby/gold dragon tile
 
