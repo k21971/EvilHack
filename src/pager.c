@@ -318,7 +318,7 @@ int x, y;
         Strcat(buf, ", leashed to you");
 
     if (canseemon(mtmp) && !Blind) {
-        if (!Hallucination) {
+        if (accurate || program_state.gameover) {
             if (mtmp->misc_worn_check & W_ARMOR) {
                 int base_ac = 0, arm_ct = 0;
                 long atype;
@@ -334,7 +334,7 @@ int x, y;
                     arm_ct++;
                 }
 
-                Sprintf(eos(buf), ", wearing %s%sarmor", 
+                Sprintf(eos(buf), ", wearing %s%sarmor",
                         arm_ct > 4 ? "full " : arm_ct < 3 ? "some " : "",
                         base_ac > 9 ? "heavy " : base_ac < 6 ? "light " : "");
             }

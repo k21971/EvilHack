@@ -1872,4 +1872,5 @@ The following changes to date are:
 - Adjust descriptive miss messages based on armor worn over other armor
 - "ascended (in dishonor)" when align and align0 don't match
 - Tweak baby/gold dragon tile
+- Fix: certain hallucinatory messages in dumplog
 
