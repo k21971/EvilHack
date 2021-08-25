@@ -1873,4 +1873,5 @@ The following changes to date are:
 - "ascended (in dishonor)" when align and align0 don't match
 - Tweak baby/gold dragon tile
 - Fix: certain hallucinatory messages in dumplog
+- Fix: errors/warnings during tileset creation
 
