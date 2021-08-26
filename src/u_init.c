@@ -868,6 +868,8 @@ u_init()
             }
         }
         skill_init(Skill_Inf);
+        urace.hatemask |= urace.lovemask; /* Hated by the race's allies */
+        urace.lovemask = 0; /* Infidels are pariahs of their race */
         break;
     case PM_KNIGHT:
         ini_inv(Knight);

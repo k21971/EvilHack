@@ -3518,7 +3518,7 @@ register struct monst *mtmp;
     if (ptr->msound == MS_NEMESIS)
         return FALSE;
 
-    if (erac_race_peaceful(mtmp) && ual != A_NONE)
+    if (erac_race_peaceful(mtmp))
         return TRUE;
     if (erac_race_hostile(mtmp))
         return FALSE;
