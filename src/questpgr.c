@@ -352,11 +352,17 @@ char c;
     case 'S':
         str = (flags.female) ? "daughter" : "son";
         break;
+    case 'T':
+        str = (flags.female) ? "ma'am" : "sir";
+        break;
     case 'l':
         str = ldrname();
         break;
     case 'i':
         str = intermed();
+        break;
+    case 'Q':
+        str = Role_if(PM_INFIDEL) ? "possess" : "seek";
         break;
     case 'O':
     case 'o':

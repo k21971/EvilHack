@@ -4496,22 +4496,25 @@ the Amulet of Yendor."
 "Thou art but a godless void."
 %E
 %Cp - 00018
-"Thou art not worthy to seek the Amulet."
+"Thou art not worthy to %Q the Amulet."
 %E
 %Cp - 00019
-"No one expects the Spanish Inquisition!"
-%E
-%Cp - 00020
 "Judgement hath been passed upon thee, %p."
 %E
-%Cp - 00021
+%Cp - 00020
 "Thy reckoning is at hand, %p."
 %E
-%Cp - 00022
+%Cp - 00021
 "Thou shalt be brought before %D for thy crimes!"
 %E
-%Cp - 00023
+%Cp - 00022
 "With %D as my witness, I shall strike thee down!"
+%E
+%Cp - 00023
+"Good day to thee, %T!  I said good day!"
+%E
+%Cp - 00024
+"No one expects the Spanish Inquisition!"
 %E
 #
 #	Demonic maledictions.
@@ -4574,7 +4577,7 @@ the Amulet of Yendor."
 "Wait!  I shall polymorph into a grid bug to give thee a fighting chance!"
 %E
 %Cp - 00049
-"Why search for the Amulet?  Thou wouldst but lose it, cretin."
+"Such an addlebrain %Qp the Amulet?  Thou wilt but lose it, cretin."
 %E
 %Cp - 00050
 "Thou ought to be a comedian, thy skills are so laughable!"
@@ -4622,8 +4625,10 @@ Go now!  You are banished from this place.
  %R:	return((char *)rank_of(MIN_QUEST_LEVEL));
  %s:	return((flags.female) ? "sister" : "brother" );
  %S:	return((flags.female) ? "daughter" : "son" );
+ %T:	return((flags.female) ? "ma'am" : "sir" );
  %l:	return((char *)ldrname());
  %i:	return(intermed());
+ %Q:	return(Role_if(PM_INFIDEL) ? "possess" : "seek");
  %o:	return(artiname());
  %O:	return(shortened(artiname()));
  %n:	return((char *)neminame());
