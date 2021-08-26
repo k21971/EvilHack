@@ -857,6 +857,16 @@ u_init()
         if (Race_if(PM_ILLITHID))
             ini_inv(Psionics);
         knows_object(SCR_CHARGING);
+        if (Race_if(PM_GIANT)) {
+            struct trobj RandomGem = Gem[0];
+            while (!rn2(4)) {
+                int gem = rnd_class(TOPAZ, JADE);
+                Gem[0] = RandomGem;
+                Gem[0].trotyp = gem;
+                ini_inv(Gem);
+                knows_object(gem);
+            }
+        }
         skill_init(Skill_Inf);
         break;
     case PM_KNIGHT:
@@ -887,6 +897,16 @@ u_init()
         if (!rn2(4))
             ini_inv(Lamp);
         knows_object(POT_WATER);
+        if (Race_if(PM_GIANT)) {
+            struct trobj RandomGem = Gem[0];
+            while (!rn2(6)) {
+                int gem = rnd_class(TOPAZ, JADE);
+                Gem[0] = RandomGem;
+                Gem[0].trotyp = gem;
+                ini_inv(Gem);
+                knows_object(gem);
+            }
+        }
         skill_init(Skill_P);
         /* KMH, conduct --
          * Some may claim that this isn't agnostic, since they
@@ -918,6 +938,16 @@ u_init()
             ini_inv(Blindfold);
         knows_class(WEAPON_CLASS);
         knows_class(ARMOR_CLASS);
+        if (Race_if(PM_GIANT)) {
+            struct trobj RandomGem = Gem[0];
+            while (!rn2(4)) {
+                int gem = rnd_class(TOPAZ, JADE);
+                Gem[0] = RandomGem;
+                Gem[0].trotyp = gem;
+                ini_inv(Gem);
+                knows_object(gem);
+            }
+        }
         skill_init(Skill_S);
         break;
     case PM_TOURIST:
@@ -960,6 +990,16 @@ u_init()
             ini_inv(Lamp);
         if (!rn2(5))
             ini_inv(Blindfold);
+        if (Race_if(PM_GIANT)) {
+            struct trobj RandomGem = Gem[0];
+            while (!rn2(7)) {
+                int gem = rnd_class(TOPAZ, JADE);
+                Gem[0] = RandomGem;
+                Gem[0].trotyp = gem;
+                ini_inv(Gem);
+                knows_object(gem);
+            }
+        }
         skill_init(Skill_W);
         break;
 

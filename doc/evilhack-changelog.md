@@ -1875,4 +1875,5 @@ The following changes to date are:
 - Fix: certain hallucinatory messages in dumplog
 - Fix: errors/warnings during tileset creation
 - Fix: various monster/object tiles
+- Some roles as giant race were missing chance to start with a gem
 
