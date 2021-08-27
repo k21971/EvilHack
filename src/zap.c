@@ -2174,6 +2174,10 @@ struct obj *obj, *otmp;
             break;
         case WAN_TELEPORTATION:
         case SPE_TELEPORT_AWAY:
+            if (obj->otyp == CRYSTAL_CHEST) {
+                res = 0;
+                break;
+            }
             (void) rloco(obj);
             break;
         case WAN_MAKE_INVISIBLE:

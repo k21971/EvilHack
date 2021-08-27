@@ -1878,4 +1878,5 @@ The following changes to date are:
 - Some roles as giant race were missing chance to start with a gem
 - Fix: better way to handle same race being peaceful towards Infidel
 - Tweak maledictions to take Infidel into account
+- Fix: crystal chests were affected by teleportation spell/wand
 
