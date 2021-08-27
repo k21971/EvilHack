@@ -1180,7 +1180,9 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             tethered_weapon = (obj->otyp == AKLYS && (wep_mask & W_WEP) != 0);
 
     notonhead = FALSE; /* reset potentially stale value */
-    if (((obj->cursed && u.ualign.type != A_NONE) || obj->greased)
+    if (((obj->cursed && u.ualign.type != A_NONE)
+          || (Role_if(PM_PRIEST) && (is_pierce(obj) || is_slash(obj)))
+          || obj->greased)
         && (u.dx || u.dy) && !rn2(7)) {
         boolean slipok = TRUE;
 
@@ -1318,24 +1320,24 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                         range += 10; /* not strength dependent */
                 } else {
                     switch (uwep->otyp) {
-                        case ELVEN_BOW:
-                        case YUMI:
-                            range += urange + 2; /* better workmanship */
-                            break;
-                        case ORCISH_BOW:
-                            range += urange - 2; /* orcish gear sucks */
-                            break;
-                        case BOW:
-                            if (uwep->oartifact == ART_LONGBOW_OF_DIANA)
-                                range += urange + 3; /* divine workmanship */
-                            else
-                                range += urange;
-                            break;
-                        case SLING:
-                            range += (int) urange / 2;
-                            break;
-                        default:
-                            break;
+                    case ELVEN_BOW:
+                    case YUMI:
+                        range += urange + 2; /* better workmanship */
+                        break;
+                    case ORCISH_BOW:
+                        range += urange - 2; /* orcish gear sucks */
+                        break;
+                    case BOW:
+                        if (uwep->oartifact == ART_LONGBOW_OF_DIANA)
+                            range += urange + 3; /* divine workmanship */
+                        else
+                            range += urange;
+                        break;
+                    case SLING:
+                        range += (int) urange / 2;
+                        break;
+                    default:
+                        break;
                     }
                 }
             } else if (obj->oclass != GEM_CLASS)
@@ -1824,11 +1826,25 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
 
             /* attack hits mon */
             if (hmode == HMON_APPLIED)
-                if(!u.uconduct.weaphit++)
+                if (!u.uconduct.weaphit++)
                     livelog_write_string(LL_CONDUCT, "hit with a wielded weapon for the first time");
             if (hmon(mon, obj, hmode, dieroll)) { /* mon still alive */
                 if (mon->wormno)
                     cutworm(mon, bhitpos.x, bhitpos.y, chopper);
+            }
+            /* Priests firing/throwing edged weapons is frowned upon by
+               their deity */
+            if (Role_if(PM_PRIEST) && (is_pierce(obj) || is_slash(obj))) {
+                if (!rn2(4)) {
+                    pline("%s %s weapons such as %s %s %s!",
+                          ammo_and_launcher(obj, uwep) ? "Firing" : "Throwing",
+                          is_slash(obj) ? "edged" : "piercing",
+                          ansimpleoname(obj),
+                          rn2(2) ? "angers" : "displeases",
+                          align_gname(u.ualign.type));
+                    adjalign(-1);
+                }
+                exercise(A_WIS, FALSE);
             }
             exercise(A_DEX, TRUE);
             /* if hero was swallowed and projectile killed the engulfer,

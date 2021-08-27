@@ -1881,4 +1881,6 @@ The following changes to date are:
 - Fix: crystal chests were affected by teleportation spell/wand
 - Small tweak to latest malediction
 - Fix: #wizidentify and inventory weight display
+- Priests are penalized for firing/throwing edged weapons and landing
+  a hit
 
