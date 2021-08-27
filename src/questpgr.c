@@ -353,7 +353,7 @@ char c;
         str = (flags.female) ? "daughter" : "son";
         break;
     case 'T':
-        str = (flags.female) ? "ma'am" : "sir";
+        str = (flags.female) ? "madam" : "sir";
         break;
     case 'l':
         str = ldrname();

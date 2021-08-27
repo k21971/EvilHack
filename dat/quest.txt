@@ -4625,7 +4625,7 @@ Go now!  You are banished from this place.
  %R:	return((char *)rank_of(MIN_QUEST_LEVEL));
  %s:	return((flags.female) ? "sister" : "brother" );
  %S:	return((flags.female) ? "daughter" : "son" );
- %T:	return((flags.female) ? "ma'am" : "sir" );
+ %T:	return((flags.female) ? "madam" : "sir" );
  %l:	return((char *)ldrname());
  %i:	return(intermed());
  %Q:	return(Role_if(PM_INFIDEL) ? "possess" : "seek");
