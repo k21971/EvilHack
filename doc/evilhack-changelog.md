@@ -1883,4 +1883,5 @@ The following changes to date are:
 - Fix: #wizidentify and inventory weight display
 - Priests are penalized for firing/throwing edged weapons and landing
   a hit
+- Cursed wand of light causes darkness, blindingflash() fix
 

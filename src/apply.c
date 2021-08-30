@@ -4054,8 +4054,13 @@ struct obj *obj;
     if (shop_damage)
         pay_for_damage("dig into", FALSE);
 
-    if (obj->otyp == WAN_LIGHT)
-        litroom(TRUE, obj); /* only needs to be done once */
+    if (obj->otyp == WAN_LIGHT) {
+        /* only needs to be done once */
+        if (cursed(obj, TRUE))
+            litroom(FALSE, obj);
+        else
+            litroom(TRUE, obj);
+    }
 
 discard_broken_wand:
     obj = current_wand; /* [see dozap() and destroy_item()] */

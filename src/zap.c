@@ -2348,12 +2348,17 @@ register struct obj *obj;
     switch (obj->otyp) {
     case WAN_LIGHT:
     case SPE_LIGHT:
-        litroom(TRUE, obj);
+        if (obj->otyp == WAN_LIGHT && cursed(obj, TRUE))
+            litroom(FALSE, obj);
+        else
+            litroom(TRUE, obj);
         if (!Blind)
             known = TRUE;
-        blindingflash();
-        if (lightdamage(obj, TRUE, 5))
-            known = TRUE;
+        if (obj->otyp == WAN_LIGHT && !cursed(obj, TRUE)) {
+            blindingflash();
+            if (lightdamage(obj, TRUE, 5))
+                known = TRUE;
+        }
         break;
     case WAN_SECRET_DOOR_DETECTION:
     case SPE_DETECT_UNSEEN:
@@ -2755,10 +2760,13 @@ boolean ordinary;
     case EXPENSIVE_CAMERA:
         if (!damage)
             damage = 5;
-        damage = lightdamage(obj, ordinary, damage);
-        damage += rnd(25);
-        if (flashburn((long) damage))
-            learn_it = TRUE;
+        if (obj->otyp == WAN_LIGHT && !cursed(obj, TRUE)) {
+            damage = lightdamage(obj, ordinary, damage);
+            damage += rnd(25);
+            blindingflash();
+            if (flashburn((long) damage))
+                learn_it = TRUE;
+        }
         damage = 0; /* reset */
         break;
     case WAN_OPENING:
@@ -6117,7 +6125,7 @@ blindingflash()
         /* if it can't see the flash, don't bother */
         if (DEADMONSTER(mtmp) || mtmp->msleeping
             || !haseyes(mtmp->data) || !mtmp->mcansee
-            || mtmp->mblinded || mtmp != &youmonst)
+            || mtmp->mblinded || mtmp == &youmonst)
             continue;
 
         /* must be able to see our location... */

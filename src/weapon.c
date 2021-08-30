@@ -55,12 +55,11 @@ STATIC_VAR NEARDATA const char *const barehands_or_martial[] = {
     "bare handed combat", "martial arts", "thievery"
 };
 
-#define P_NAME(type)                                        \
-    ((skill_names_indices[type] > 0)                        \
-         ? OBJ_NAME(objects[skill_names_indices[type]])     \
-         : (type == P_BARE_HANDED_COMBAT)                   \
-               ? barehands_or_martial[Role_if(PM_ROGUE) ? 2 \
-               : martial_bonus()]                           \
+#define P_NAME(type)                                                           \
+    ((skill_names_indices[type] > 0)                                           \
+         ? OBJ_NAME(objects[skill_names_indices[type]])                        \
+         : (type == P_BARE_HANDED_COMBAT)                                      \
+               ? barehands_or_martial[Role_if(PM_ROGUE) ? 2 : martial_bonus()] \
                      : odd_skill_names[-skill_names_indices[type]])
 
 static NEARDATA const char kebabable[] = { S_XORN, S_DRAGON, S_JABBERWOCK,
