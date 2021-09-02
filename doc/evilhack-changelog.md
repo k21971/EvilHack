@@ -1887,4 +1887,5 @@ The following changes to date are:
 - Cursed magic lamps give off darkness instead of light
 - Fix: prevent various non-directional monster attack spells from being
   cast while player is invulnerable
+- Tweak wizard spell skill levels
 
