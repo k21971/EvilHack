@@ -1364,7 +1364,7 @@ int spellnum;
         }
         if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT
             || spellnum == MGC_ACID_BLAST || spellnum == MGC_CANCELLATION)
-            && mtmp->mpeaceful) {
+            && (mtmp->mpeaceful || u.uinvulnerable)) {
             return TRUE;
         }
     } else if (adtyp == AD_CLRC) {

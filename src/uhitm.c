@@ -1526,7 +1526,7 @@ int dieroll;
         }
         /* engulfed? ummm no */
         if (u.uswallow) {
-            pline("What exactly were you planning on stealing?  It's stomach?");
+            pline("What exactly were you planning on stealing?  Its stomach?");
             use_skill(P_THIEVERY, -1);
             return 0;
         }

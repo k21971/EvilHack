@@ -1885,4 +1885,6 @@ The following changes to date are:
   a hit
 - Cursed wand of light causes darkness, blindingflash() fix
 - Cursed magic lamps give off darkness instead of light
+- Fix: prevent various non-directional monster attack spells from being
+  cast while player is invulnerable
 
