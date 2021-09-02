@@ -150,14 +150,15 @@ void
 do_light_sources(cs_rows)
 char **cs_rows;
 {
-    int x, y, min_x, max_x, max_y, offset;
+    int x, y, min_x, max_x, max_y, offset, lit_typ;
     char *limits;
-    short at_hero_range = 0;
+    /* short at_hero_range = 0; */
     light_source *ls;
     char *row;
 
     for (ls = light_base; ls; ls = ls->next) {
         ls->flags &= ~LSF_SHOW;
+        lit_typ = TEMP_LIT;
 
         /*
          * Check for moved light sources.  It may be possible to
@@ -168,11 +169,15 @@ char **cs_rows;
         if (ls->type == LS_OBJECT) {
             if (get_obj_location(ls->id.a_obj, &ls->x, &ls->y, 0))
                 ls->flags |= LSF_SHOW;
+            if (ls->id.a_obj->otyp == MAGIC_LAMP && ls->id.a_obj->cursed)
+                lit_typ = TEMP_DARK;
         } else if (ls->type == LS_MONSTER) {
             if (get_mon_location(ls->id.a_monst, &ls->x, &ls->y, 0))
                 ls->flags |= LSF_SHOW;
         }
 
+#if 0 /* disabled for now since light sources at hero location may be a mix of
+         normal and "dark lamps" */
         /* minor optimization: don't bother with duplicate light sources
            at hero */
         if (ls->x == u.ux && ls->y == u.uy) {
@@ -181,6 +186,7 @@ char **cs_rows;
             else
                 at_hero_range = ls->range;
         }
+#endif
 
         if (ls->flags & LSF_SHOW) {
             /*
@@ -217,12 +223,12 @@ char **cs_rows;
                      */
                     for (x = min_x; x <= max_x; x++)
                         if (row[x] & COULD_SEE)
-                            row[x] |= TEMP_LIT;
+                            row[x] |= lit_typ;
                 } else {
                     for (x = min_x; x <= max_x; x++)
                         if ((ls->x == x && ls->y == y)
                             || clear_path((int) ls->x, (int) ls->y, x, y))
-                            row[x] |= TEMP_LIT;
+                            row[x] |= lit_typ;
                 }
             }
         }

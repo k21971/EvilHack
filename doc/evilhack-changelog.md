@@ -1884,4 +1884,5 @@ The following changes to date are:
 - Priests are penalized for firing/throwing edged weapons and landing
   a hit
 - Cursed wand of light causes darkness, blindingflash() fix
+- Cursed magic lamps give off darkness instead of light
 

@@ -742,7 +742,8 @@ int control;
                     newsym(col, row);
 
             } else if ((next_row[col] & COULD_SEE)
-                     && (lev->lit || (next_row[col] & TEMP_LIT))) {
+                       && !(next_row[col] & TEMP_DARK)
+                       && (lev->lit || (next_row[col] & TEMP_LIT))) {
                 /*
                  * We see this position because it is lit.
                  */
@@ -758,8 +759,9 @@ int control;
                     dx = u.ux - col;
                     dx = sign(dx);
                     flev = &(levl[col + dx][row + dy]);
-                    if (flev->lit
-                        || next_array[row + dy][col + dx] & TEMP_LIT) {
+                    if ((flev->lit
+                         || next_array[row + dy][col + dx] & TEMP_LIT)
+                        && !(next_array[row + dy][col + dx] & TEMP_DARK)) {
                         next_row[col] |= IN_SIGHT; /* we see it */
 
                         oldseenv = lev->seenv;
