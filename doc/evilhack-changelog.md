@@ -1894,4 +1894,5 @@ The following changes to date are:
 
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
 - Initial preparation for new version (0.7.1)
+- Centaurs can be knights
 

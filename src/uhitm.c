@@ -874,6 +874,7 @@ int dieroll;
                             /* not grapnels; applied implies uwep */
                             || (thrown == HMON_APPLIED && is_pole(uwep)));
     int jousting = 0;
+    int joustdmg;
     struct obj *hated_obj = NULL;
     int wtype;
     struct obj *monwep;
@@ -964,8 +965,8 @@ int dieroll;
                 is_launcher(obj)
                 /* or strike with a missile in your hand... */
                 || (!thrown && (is_missile(obj) || is_ammo(obj)))
-                /* or use a pole at short range and not mounted... */
-                || (!thrown && !u.usteed && is_pole(obj))
+                /* or use a pole at short range and not mounted or not a centaur... */
+                || (!thrown && !u.usteed && !Race_if(PM_CENTAUR) && is_pole(obj))
                 /* or throw a missile without the proper bow... */
                 || (is_ammo(obj) && (thrown != HMON_THROWN
                                      || !ammo_and_launcher(obj, uwep)))) {
@@ -1089,7 +1090,7 @@ int dieroll;
                 if (artifact_light(obj) && obj->lamplit
                     && mon_hates_light(mon))
                     lightobj = TRUE;
-                if (u.usteed && !thrown && tmp > 0
+                if ((u.usteed || Race_if(PM_CENTAUR)) && !thrown && tmp > 0
                     && weapon_type(obj) == P_LANCE && mon != u.ustuck) {
                     jousting = joust(mon, obj);
                     /* exercise skill even for minimal damage hits */
@@ -1457,7 +1458,8 @@ int dieroll;
     }
 
     if (jousting) {
-        tmp += d(2, (obj == uwep) ? 10 : 2); /* [was in dmgval()] */
+        joustdmg = 5 + (u.ulevel / 3);
+        tmp += d(2, (obj == uwep) ? joustdmg : 2); /* [was in dmgval()] */
         You("joust %s%s", mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
         if (jousting < 0) {
             pline("%s shatters on impact!", Yname2(obj));
