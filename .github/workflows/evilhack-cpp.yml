@@ -46,7 +46,7 @@ jobs:
         ADD_CURSES: Y
         PDCURSES_TOP: ../../pdcurses
         TRAVIS_COMPILER: 1
-        ZIP_NAME: evilhack-0.7.0.zip
+        ZIP_NAME: evilhack-0.7.1.zip
     steps:
     - uses: actions/checkout@v2
       with:
@@ -66,13 +66,13 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: binary/
-        dest: evilhack-0.7.0.zip
+        dest: evilhack-0.7.1.zip
     - name: release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          evilhack-0.7.0.zip
+          evilhack-0.7.1.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

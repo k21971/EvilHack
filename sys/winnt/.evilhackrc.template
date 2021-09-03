@@ -90,7 +90,7 @@ OPTIONS=force_invmenu
 
 #
 # If you want to get rid of "use #quit to quit..." use:
-OPTIONS=suppress_alert:0.7.0
+OPTIONS=suppress_alert:0.7.1
 #
 # Note: the rest_on_space in the next line may not be
 #       appropriate for a beginning NetHack player, since

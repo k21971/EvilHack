@@ -1889,3 +1889,9 @@ The following changes to date are:
   cast while player is invulnerable
 - Tweak wizard spell skill levels
 
+
+### Version 0.7.1
+
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
+- Initial preparation for new version (0.7.1)
+
