@@ -1290,6 +1290,10 @@ struct obj *body;
                 break;
             }
         }
+    } else if (!no_revival && zombify
+               && zombie_form(&mons[body->corpsenm]) != NON_PM) {
+        action = ZOMBIFY_MON;
+        when = 5 + rn2(15);
     } else if (body->zombie_corpse && !no_revival) {
         long age;
 
@@ -1744,9 +1748,8 @@ unsigned corpstatflags;
 
         otmp->corpsenm = monsndx(ptr);
         otmp->owt = weight(otmp);
-        if (otmp->otyp == CORPSE && (special_corpse(old_corpsenm)
-                                     || special_corpse(otmp->corpsenm)
-                                     || otmp->zombie_corpse)) {
+        if (otmp->otyp == CORPSE && (zombify || special_corpse(old_corpsenm)
+                                     || special_corpse(otmp->corpsenm))) {
             obj_stop_timers(otmp);
             if (mtmp && (is_zombie(mtmp->data) || is_troll(mtmp->data))
                 && mtmp->mcan == 1)

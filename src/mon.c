@@ -214,39 +214,39 @@ struct permonst * pm;
  * If a zombie gets passed to this function, it should return NON_PM, not the
  * same monster again. */
 int
-zombie_form(mtmp)
-struct monst *mtmp;
+zombie_form(pm)
+struct permonst *pm;
 {
-    switch (r_data(mtmp)->mlet) {
+    switch (pm->mlet) {
     case S_KOBOLD:
         return PM_KOBOLD_ZOMBIE;
     case S_ORC:
         return PM_ORC_ZOMBIE;
     case S_GIANT:
-        if (mtmp->data == &mons[PM_ETTIN])
+        if (pm == &mons[PM_ETTIN])
             return PM_ETTIN_ZOMBIE;
         return PM_GIANT_ZOMBIE;
     case S_HUMAN:
     case S_KOP:
-        if (racial_elf(mtmp))
+        if (is_elf(pm))
             return PM_ELF_ZOMBIE;
-        if (racial_dwarf(mtmp))
+        if (is_dwarf(pm))
             return PM_DWARF_ZOMBIE;
-        if (racial_gnome(mtmp))
+        if (is_gnome(pm))
             return PM_GNOME_ZOMBIE;
-        if (racial_orc(mtmp))
+        if (is_orc(pm))
             return PM_ORC_ZOMBIE;
-        if (racial_hobbit(mtmp))
+        if (is_hobbit(pm))
             return PM_HOBBIT_ZOMBIE;
-        if (racial_giant(mtmp))
+        if (is_giant(pm))
             return PM_GIANT_ZOMBIE;
         return PM_HUMAN_ZOMBIE;
     case S_HUMANOID:
-        if (racial_dwarf(mtmp))
+        if (is_dwarf(pm))
             return PM_DWARF_ZOMBIE;
-        if (racial_hobbit(mtmp))
+        if (is_hobbit(pm))
             return PM_HOBBIT_ZOMBIE;
-        if (is_gnoll(mtmp->data))
+        if (is_gnoll(pm))
             return PM_GNOLL_WITHERLING;
         else
             break;
@@ -254,107 +254,6 @@ struct monst *mtmp;
         return PM_GNOME_ZOMBIE;
     }
     return NON_PM;
-}
-
-/* mdef is dying to a zombie's attack, and is being resurrected as its
- * corresponding zombie. */
-void
-zombify(mdef)
-struct monst* mdef;
-{
-    struct permonst* mdat = mdef->data;
-    boolean couldspot = canspotmon(mdef);
-    /* Due to messaging sequencing, we want to print the "rises" message
-     * before calling newcham. To do this, momentarily turn mdef into a
-     * zombie, save its canspotmon, and then put it back. */
-    mdef->data = &mons[zombie_form(mdef)];
-    boolean willspot = canspotmon(mdef);
-    mdef->data = mdat;
-
-    if ((mvitals[zombie_form(mdef)].mvflags & G_GENOD) != 0) {
-        /* if the zombie the monster was to turn into
-           no longer exists, they stay dead */
-        mdef->msick = 0;
-        mdef->mhp = -1;
-        mondied(mdef);
-        return;
-    }
-
-    if (couldspot && willspot) {
-        /* only print if you can spot both the dying monster and the arising
-         * zombie */
-        pline("%s rises again as a %s!", Monnam(mdef),
-              is_gnoll(mdef->data) ? "witherling" : "zombie");
-    }
-
-    if (newcham(mdef, &mons[zombie_form(mdef)], FALSE, FALSE)) {
-        /* off-chance Izchak succumbs to a zombie's physical attack */
-        if (is_izchak(mdef, TRUE)) {
-            pline("But wait!  %s transforms again into his true form!",
-                  Monnam(mdef));
-            mdef->mcanmove = 1;
-            mdef->mfrozen = 0;
-            mdef->mstone = 0;
-            mdef->msick = 0;
-            mdef->mdiseased = 0;
-            mdef->mwither = 0;
-            mdef->mconf = 0;
-            mdef->mstun = 0;
-            newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
-            mdef->mhp = mdef->mhpmax = 1500;
-            newsym(mdef->mx, mdef->my);
-            return;
-        }
-
-        /* don't continue if failed to turn into zombie (extinct?) */
-        mdef->mcanmove = 1;
-        mdef->mfrozen = 0;
-        mdef->mtame = mdef->mpeaceful = 0;
-
-        /* clear other data structures tracking shk information */
-        if (mdef->isshk)
-            shkgone(mdef);
-
-        /* now that the monster in question has become a zombie,
-         * they're no longer sick or 'turning into a zombie' still */
-        mdef->msick = 0;
-
-        /* wipe all mextra structs (to prevent a zombified shk/priest/guard/etc
-         * from continuing to behave as what it used to be), then restore name
-         * if present */
-        char name[PL_PSIZ];
-        name[0] = '\0';
-        if (has_eshk(mdef) && !Hallucination) {
-            /* shkname() will give a random name for hallucination. It probably
-             * isn't worth refactoring it to allow overriding hallucination, so
-             * if the player is hallucinating, just don't name the zombie. */
-            Strcpy(name, shkname(mdef));
-        } else if (has_mname(mdef)) {
-            Strcpy(name, MNAME(mdef));
-        }
-
-        /* in case a rider becomes a zombie */
-        if (has_erid(mdef)) {
-            if (canseemon(mdef))
-                pline("%s climbs off its %s.",
-                      Monnam(mdef), l_monnam(ERID(mdef)->m1));
-            separate_steed_and_rider(mdef);
-        }
-
-        dealloc_mextra(mdef);
-        if (name[0] != '\0') {
-            christen_monst(mdef, name);
-        }
-        mdef->isshk = mdef->isminion = mdef->isgd = mdef->ispriest = 0;
-        /* if mdef->iswiz, leave that alone - the Wizard doesn't have any mextra
-         * structs and can handle being transformed into other monster types */
-
-        newsym(mdef->mx, mdef->my); /* cover bases */
-
-        /* The mhp is presumably the fraction of what it was before -
-         * less than zero. Set it to full. */
-        mdef->mhp = mdef->mhpmax;
-    }
 }
 
 void
@@ -1163,6 +1062,36 @@ mcalcdistress()
         /* regenerate hit points - note that if withering, they won't gain hp,
          * but we still need to call this for mspec_used */
         mon_regen(mtmp, FALSE);
+
+        /* sick monsters can die from their illness */
+        if (mtmp->msick && mtmp->msicktime == 1) {
+            if (resists_sick(mtmp->data)) {
+                mtmp->msick = 0;
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s dies from %s illness.",
+                          Monnam(mtmp), noit_mhis(mtmp));
+                if ((mtmp->msick & 2) && !nonliving(mtmp->data)
+                    && can_become_zombie(r_data(mtmp))) {
+                    zombify = (zombie_form(mtmp->data) != NON_PM);
+                    mtmp->msick = 0;
+                    mtmp->mhp = -1;
+                    if (mtmp->msickbyu)
+                        xkilled(mtmp, XKILL_NOMSG);
+                    else
+                        mondied(mtmp);
+                    zombify = FALSE; /* reset */
+                } else {
+                    mtmp->msick = 0;
+                    mtmp->mhp = -1;
+                    if (mtmp->msickbyu)
+                        xkilled(mtmp, XKILL_NOMSG);
+                    else
+                        mondied(mtmp);
+                }
+                continue;
+            }
+        }
 
         /* wither away */
         if (mtmp->mwither) {
@@ -3626,9 +3555,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             burycorpse = FALSE,
             nomsg = (xkill_flags & XKILL_NOMSG) != 0,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
-            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
-            zombifying = (zombie_maker(youmonst.data)
-                          && zombie_form(mtmp) != NON_PM);
+            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0;
 
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) /* KMH, conduct */
@@ -3683,12 +3610,10 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     rise_msg = FALSE; /* might get set in mondead(); only checked below */
     disintegested = nocorpse; /* alternate vamp_rise message needed if true */
     /* dispose of monster and make cadaver */
-    if (!zombifying) {
-        if (stoned)
-            monstone(mtmp);
-        else
-            mondead(mtmp);
-    }
+    if (stoned)
+        monstone(mtmp);
+    else
+        mondead(mtmp);
     disintegested = FALSE; /* reset */
 
     if (!DEADMONSTER(mtmp)) { /* monster lifesaved */
@@ -3718,7 +3643,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         stackobj(mksobj_at(SCR_MAIL, x, y, FALSE, FALSE));
     }
 #endif
-    if ((accessible(x, y) || is_damp_terrain(x, y)) && !zombifying) {
+    if (accessible(x, y) || is_damp_terrain(x, y)) {
         struct obj *cadaver;
         int otyp;
 
@@ -3744,8 +3669,12 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         }
         /* corpse--none if hero was inside the monster */
         if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
+            zombify = (!thrownobj && !stoned && !uwep
+                       && zombie_maker(youmonst.data)
+                       && zombie_form(mtmp->data) != NON_PM);
             cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
                                                    : CORPSTAT_NONE);
+            zombify = FALSE; /* reset */
             if (burycorpse && cadaver && cansee(x, y) && !mtmp->minvis
                 && cadaver->where == OBJ_BURIED && !nomsg) {
                 pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
@@ -3860,9 +3789,6 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
 
     /* malign was already adjusted for u.ualign.type and randomization */
     adjalign(mtmp->malign);
-
-    if (zombifying)
-        zombify(mtmp);
 
     if (is_bones_monster(mtmp->data)
         && strlen(mtmp->former_rank) > 0) {

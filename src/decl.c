@@ -124,6 +124,8 @@ NEARDATA boolean mrg_to_wielded = FALSE;
 NEARDATA boolean in_steed_dismounting = FALSE;
 NEARDATA boolean has_strong_rngseed = FALSE;
 
+NEARDATA boolean zombify = FALSE;
+
 NEARDATA coord bhitpos = DUMMY;
 NEARDATA coord doors[DOORMAX] = { DUMMY };
 

@@ -2024,6 +2024,7 @@ post_stone:
         }
         if (is_zombie(pa) && rn2(5)) {
             if (!resists_sick(pd)) {
+                mdef->msicktime = rnd(10) + 5;
                 if (vis && canspotmon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->msick ? "much worse" : "rather ill");
@@ -2112,6 +2113,7 @@ msickness:
         if (resists_sick(pd))
             break;
         mdef->msick = (can_become_zombie(r_data(mdef))) ? 3 : 1;
+        mdef->msickbyu = FALSE;
         break;
     case AD_FAMN:
         Strcpy(buf, s_suffix(mon_nam(mdef)));
@@ -2386,36 +2388,17 @@ msickness:
             mdef->mhp = 0;
         }
 
-        /* From xNetHack:
-         * If the killing monster is a zombie (in melee, we assume) and the
-         * dying monster a) has a zombie counterpart and b) won't be lifesaved,
-         * turn it into a zombie instead of killing it.
-         * If it's determined later that the zombie revival process should
-         * happen less than 100% of the time, add a limiting clause here. */
-        if (zombie_maker(pa) && zombie_form(mdef) != NON_PM
-            && !mlifesaver(mdef)) {
-            if (canspotmon(mdef)) {
-                /* Since we're not going to call monkilled, need to give the
-                 * standard killed message here.
-                 * "killed" not "destroyed" should be safe assuming that the
-                 * only things which can turn into zombies are !nonliving. */
-                pline("%s is killed!", Monnam(mdef));
-            }
-            zombify(mdef);
-            /* Flag defender as dying so that the attacker won't continue using
-             * its remaining attacks against the new zombie. Also make sure to
-             * call grow_up to credit the attacker with the kill and the HP for
-             * it.
-             * Zombies won't grow up into a genocided form,
-             * so also return aggressor dying in that rare case. */
-            return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
-        }
-
+        zombify = !mwep && zombie_maker(magr->data)
+            && can_become_zombie(r_data(mdef))
+            && ((mattk->aatyp == AT_TUCH
+                 || mattk->aatyp == AT_CLAW
+                 || mattk->aatyp == AT_BITE)
+                && zombie_form(mdef->data) != NON_PM);
         if (magr->uexp)
             mon_xkilled(mdef, "", (int) mattk->adtyp);
         else
             monkilled(mdef, "", (int) mattk->adtyp);
-
+        zombify = FALSE; /* reset */
         if (!DEADMONSTER(mdef))
             return res; /* mdef lifesaved */
         else if (res == MM_AGR_DIED)

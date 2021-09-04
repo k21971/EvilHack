@@ -435,6 +435,7 @@ E void FDECL(schedule_goto, (d_level *, BOOLEAN_P, BOOLEAN_P, int,
 E void NDECL(deferred_goto);
 E boolean FDECL(revive_corpse, (struct obj *));
 E void FDECL(revive_mon, (ANY_P *, long));
+E void FDECL(zombify_mon, (ANY_P *, long));
 E int NDECL(donull);
 E int NDECL(dowipe);
 E void FDECL(set_wounded_legs, (long, int));
@@ -1496,8 +1497,7 @@ E int FDECL(cmap_to_type, (int));
 E void NDECL(mon_sanity_check);
 E int FDECL(m_poisongas_ok, (struct monst *));
 E boolean FDECL(zombie_maker, (struct permonst *));
-E int FDECL(zombie_form, (struct monst *));
-E void FDECL(zombify, (struct monst *));
+E int FDECL(zombie_form, (struct permonst *));
 E void FDECL(become_flayer, (struct monst *));
 E int FDECL(undead_to_corpse, (int));
 E int FDECL(genus, (int, int));

@@ -233,6 +233,8 @@ E NEARDATA boolean defer_see_monsters;
 E NEARDATA boolean in_steed_dismounting;
 E NEARDATA boolean has_strong_rngseed;
 
+E NEARDATA boolean zombify;
+
 E const int shield_static[];
 
 #include "spell.h"

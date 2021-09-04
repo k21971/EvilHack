@@ -216,6 +216,8 @@ boolean digest_meal;
         mon->mspec_used--;
     if (mon->msummoned)
         mon->msummoned--;
+    if (mon->msicktime)
+        mon->msicktime--;
     if (digest_meal) {
         if (mon->meating) {
             mon->meating--;
@@ -580,27 +582,6 @@ register struct monst *mtmp;
         obj_ice_effects(mtmp->mx, mtmp->my, TRUE);
     }
 
-    /* sick monsters can die from their illness */
-    if (mtmp->msick && !rn2(10)) {
-        if (resists_sick(mdat)) {
-            mtmp->msick = 0;
-        } else {
-            if (canseemon(mtmp))
-                pline("%s dies from %s illness.",
-                      Monnam(mtmp), noit_mhis(mtmp));
-            if ((mtmp->msick & 2) && !nonliving(mdat)
-                && can_become_zombie(r_data(mtmp))) {
-                zombify(mtmp);
-                return 1;
-            } else {
-                mtmp->msick = 0;
-                mtmp->mhp = -1;
-                mondied(mtmp);
-            }
-            return (mtmp->mhp > 0) ? 0 : 1;
-        }
-    }
-
     /* diseased monsters can die as well... */
     if (mtmp->mdiseased && !rn2(10)) {
         if (resists_sick(mdat)) {
@@ -615,8 +596,8 @@ register struct monst *mtmp;
                 xkilled(mtmp, XKILL_GIVEMSG);
             else
                 mondied(mtmp);
-            return (mtmp->mhp > 0) ? 0 : 1;
         }
+        return (mtmp->mhp > 0) ? 0 : 1;
     }
 
     /* some monsters teleport */

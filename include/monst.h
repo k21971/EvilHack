@@ -142,6 +142,7 @@ struct monst {
 
     Bitfield(mconf, 1);     /* confused */
     Bitfield(msick, 2);     /* monsters ill from zombies */
+    Bitfield(msickbyu, 1);  /* monsters ill from you as a zombie */
     Bitfield(mdiseased, 1); /* monsters infected with disease */
     Bitfield(mpeaceful, 1); /* does not attack unprovoked */
     Bitfield(mtrapped, 1);  /* trapped in a pit, web or bear trap */
@@ -201,6 +202,7 @@ struct monst {
 
     int meating;           /* monster is eating timeout */
     int msummoned;         /* is a temporarily summoned being */
+    int msicktime;         /* zombie sick timer */
     uchar mprotection;     /* monster protection spell */
     uchar mprottime;       /* timeout for monster protection spell */
     struct mextra *mextra; /* point to mextra struct */

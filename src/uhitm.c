@@ -2562,10 +2562,12 @@ do_rust:
 
         if (is_zombie(youmonst.data) && rn2(5)) {
             if (!resists_sick(pd)) {
+                mdef->msicktime = rnd(10) + 5;
                 if (canseemon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->msick ? "much worse" : "rather ill");
-                mdef->msick = 3;
+                mdef->msick = (can_become_zombie(r_data(mdef))) ? 3 : 1;
+                mdef->msickbyu = TRUE;
             }
             break;
         }
@@ -3385,9 +3387,10 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
                 break;
-            if (is_zombie(youmonst.data) && rn2(3)
+            if (is_zombie(youmonst.data)
+                && mattk->aatyp == AT_BITE
                 && mon->data->msize <= MZ_SMALL
-                && is_animal(mon->data)) {
+                && is_animal(mon->data) && rn2(3)) {
                 pline("%s nimbly %s your bite!", Monnam(mon),
                       rn2(2) ? "dodges" : "evades");
                 break;
