@@ -1900,4 +1900,5 @@ The following changes to date are:
 - Fix: 'Suddenly you cannot see it'
 - Changes to wished for artifact chances, altar sacrifice gifts
 - Player won't lose see invisible trinsic from magic trap if crowned
+- Fix: odds for receiving an artifact gift via altar sacrifice
 

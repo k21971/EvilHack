@@ -2124,7 +2124,7 @@ dosacrifice()
                the more artifacts the player wishes for, the lower
                the chances of receiving an artifact gift via sacrifice */
             int reg_gift_odds  = ((u.ualign.abuse == 0) ? 4 : 6) + (2 * u.ugifts);
-            int arti_gift_odds = ((u.ualign.abuse == 0) ? 8 : 10) + (2 * u.uconduct.wisharti * u.ugifts);
+            int arti_gift_odds = ((u.ualign.abuse == 0) ? 8 : 10) + (2 * u.ugifts) + (2 * u.uconduct.wisharti);
             boolean primary_casters, primary_casters_priest;
 
             /* Primary casting roles */
