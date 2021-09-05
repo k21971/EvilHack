@@ -4678,7 +4678,7 @@ struct obj *no_wish;
         || non_wishable_artifact(otmp)
         || (Role_if(PM_RANGER) && ((Race_if(PM_GNOME) && otmp->oartifact == ART_LONGBOW_OF_DIANA)
                                    || (!Race_if(PM_GNOME) && otmp->oartifact == ART_CROSSBOW_OF_CARL)))
-        || (otmp->oartifact && rn2(nartifact_exist()) > 1)) && !wizard) {
+        || (otmp->oartifact && rn2(u.uconduct.wisharti))) && !wizard) {
         artifact_exists(otmp, ONAME(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
         otmp = (struct obj *) &zeroobj;
@@ -4688,7 +4688,7 @@ struct obj *no_wish;
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
         return otmp;
-    } else if (((otmp->oartifact && rn2(nartifact_exist() + 1) > 0))
+    } else if ((otmp->oartifact && rn2(u.uconduct.wisharti))
                && !(wizard && yn("Deal with previous owner?") == 'n')) {
         int pm = -1;
         int strategy = NEED_HTH_WEAPON;

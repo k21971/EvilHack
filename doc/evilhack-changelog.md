@@ -1898,4 +1898,5 @@ The following changes to date are:
 - Revamp corpse revival via zombie death, zombie illness timer
 - Zombies can dig themselves out if buried
 - Fix: 'Suddenly you cannot see it'
+- Changes to wished for artifact chances, altar sacrifice gifts
 

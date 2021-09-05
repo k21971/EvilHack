@@ -2118,8 +2118,13 @@ dosacrifice()
                 }
             }
         } else {
-            int nartifacts = nartifact_exist();
             int nchance = u.ulevel + 6;
+            /* having never abused your alignment slightly increases
+               the odds of receiving a gift from your deity.
+               the more artifacts the player wishes for, the lower
+               the chances of receiving an artifact gift via sacrifice */
+            int reg_gift_odds  = ((u.ualign.abuse == 0) ? 4 : 6) + (2 * u.ugifts);
+            int arti_gift_odds = ((u.ualign.abuse == 0) ? 8 : 10) + (2 * u.uconduct.wisharti * u.ugifts);
             boolean primary_casters, primary_casters_priest;
 
             /* Primary casting roles */
@@ -2156,7 +2161,7 @@ dosacrifice()
              */
             if ((!awaiting_guaranteed_gift() || u.ulevel <= 2)
                 && rn2(10) >= (int) ((nchance * nchance) / 100)) {
-                if (u.uluck >= 0 && !rn2(6 + (2 * u.ugifts))) {
+                if (u.uluck >= 0 && !rn2(reg_gift_odds)) {
                     int typ, ncount = 0;
                     if (rn2(2)) { /* Making a weapon */
                         do {
@@ -2394,7 +2399,7 @@ dosacrifice()
                         }
                     }
                 }
-            } else if (u.uluck >= 0 && !rn2(10 + (2 * nartifacts))) {
+            } else if (u.uluck >= 0 && !rn2(arti_gift_odds)) {
                 otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
                 if (otmp) {
                     if (otmp->spe < 0)
@@ -2408,7 +2413,7 @@ dosacrifice()
                     dropy(otmp);
                     godvoice(u.ualign.type, "Use my gift wisely!");
                     u.ugifts++;
-                    u.ublesscnt = rnz(300 + (50 * nartifacts));
+                    u.ublesscnt = rnz(300 + (50 * u.ugifts));
                     exercise(A_WIS, TRUE);
                     livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
                                     "had %s bestowed upon %s by %s",
