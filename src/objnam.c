@@ -4797,6 +4797,7 @@ struct obj *no_wish;
             case ART_GJALLAR:
             case ART_GIANTSLAYER:
             case ART_MJOLLNIR:
+            case ART_DRAMBORLEG:
                 pm = PM_VALKYRIE;
                 break;
             case ART_EYE_OF_THE_AETHIOPICA:

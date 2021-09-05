@@ -1193,10 +1193,12 @@ int tmp;
                   && weap->attk.damn == 0 && weap->attk.damd == 0))
         spec_dbon_applies = FALSE;
     else if (otmp->oartifact == ART_GRIMTOOTH
-             || otmp->oartifact == ART_VORPAL_BLADE)
-        /* Grimtooth and Vorpal Blade have SPFX settings to warn against
-           elves and jabberwocks respectively, but we want its damage
-           bonus to apply to all targets, so bypass spec_applies() */
+             || otmp->oartifact == ART_VORPAL_BLADE
+             || otmp->oartifact == ART_ANGELSLAYER)
+        /* Grimtooth, Vorpal Blade, and Angelslayer have SPFX settings
+           to warn against elves, jabberwocks, and angels respectively,
+           but we want its damage bonus to apply to all targets, so
+           bypass spec_applies() */
         spec_dbon_applies = TRUE;
     else
         spec_dbon_applies = spec_applies(weap, mon);
@@ -1586,7 +1588,12 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
             } else if (otmp->oartifact == ART_ANGELSLAYER) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                    if (!spec_dbon_applies) {
+                    if (is_angel(mdef->data) && !rn2(10)) {
+                        pline("Angelslayer's eldritch flame consumes %s!",
+                              mon_nam(mdef));
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                        mongone(mdef);
+                    } else if (!spec_dbon_applies) {
                         if (!youdefend)
                             ;
                         else
@@ -1598,13 +1605,20 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                   hittee, !spec_dbon_applies ? '.' : '!');
                     }
                 } else {
-                    pline_The("infernal trident %s %s%c",
-                              !spec_dbon_applies
-                                  ? "hits"
-                                  : can_vaporize(mdef->data)
-                                      ? "vaporizes part of"
-                                      : "burns",
-                              hittee, !spec_dbon_applies ? '.' : '!');
+                    if (is_angel(mdef->data) && !rn2(10)) {
+                        pline("Angelslayer's eldritch flame consumes %s!",
+                              mon_nam(mdef));
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    } else {
+                        pline_The("infernal trident %s %s%c",
+                                  !spec_dbon_applies
+                                      ? "hits"
+                                      : can_vaporize(mdef->data)
+                                          ? "vaporizes part of"
+                                          : "burns",
+                                  hittee, !spec_dbon_applies ? '.' : '!');
+                    }
                 }
             } else if (otmp->oclass == WEAPON_CLASS
                        && (otmp->oprops & ITEM_FIRE)) {
@@ -2118,7 +2132,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         pline("As %s strikes %s, it bursts into flame!",
                               mon_nam(magr), mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    mongone(mdef);
                 } else if (youdefend && is_troll(youmonst.data) && k) {
                     You("burst into flame as you are hit!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
@@ -2147,8 +2161,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (youattack && racial_orc(mdef) && j) {
                     You("stab deep into %s heart!", s_suffix(mon_nam(mdef)));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-               } else if (!youattack && !youdefend
-                          && magr && racial_orc(mdef) && j) {
+                } else if (!youattack && !youdefend
+                           && magr && racial_orc(mdef) && j) {
                     if (cansee(magr->mx, magr->my))
                         pline("%s stabs deep into %s heart!",
                               Monnam(magr), s_suffix(mon_nam(mdef)));
@@ -2164,8 +2178,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (youattack && racial_elf(mdef) && j) {
                     You("push Grimtooth deep into the bowels of %s!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-               } else if (!youattack && !youdefend
-                          && magr && racial_elf(mdef) && j) {
+                } else if (!youattack && !youdefend
+                           && magr && racial_elf(mdef) && j) {
                     if (cansee(magr->mx, magr->my))
                         pline("%s pushes Grimtooth deep into %s bowels!",
                               Monnam(magr), s_suffix(mon_nam(mdef)));
@@ -2203,7 +2217,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                             pline("Sunsword flares brightly as it incinerates %s!",
                                   mon_nam(mdef));
                         *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                        mongone(mdef);
                     }
                 } else if (youdefend && is_undead(youmonst.data) && k) {
                     pline("The holy power of Sunsword incinerates your undead flesh!");
@@ -2212,30 +2226,56 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else
                     return FALSE;
                 return TRUE;
-            case ART_ANGELSLAYER:
-                if (youattack && is_angel(mdef->data) && j) {
-                    pline("Angelslayer's eldritch flame consumes %s!",
-                          mon_nam(mdef));
+            case ART_DRAMBORLEG:
+                /* Dramborleg will one-shot kill a balrog every time */
+                if (youattack && mdef->data == &mons[PM_BALROG]) {
+                    You("obliterate %s with a powerful strike!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-               } else if (!youattack && !youdefend
-                          && magr && is_angel(mdef->data) && j) {
+                } else if (!youattack && !youdefend
+                           && magr && mdef->data == &mons[PM_BALROG]) {
                     if (cansee(magr->mx, magr->my))
-                        pline("Angelslayer's eldritch flame consumes %s!",
-                              mon_nam(mdef));
+                        pline("%s obliterates %s with a powerful strike!",
+                              Monnam(magr), mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                /* player can't poly into any type of angel, just here for completeness */
-                } else if (youdefend && is_angel(youmonst.data) && k) {
-                    pline("The eldritch flame of Angelslayer consumes you!");
+                } else if (youdefend && youmonst.data == &mons[PM_BALROG]) {
+                    pline("The magical axe obliterates you!");
+                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                } else
+                    return FALSE;
+                return TRUE;
+            case ART_DEMONBANE:
+                if (youattack && is_demon(mdef->data) && j) {
+                    if (is_ndemon(mdef->data)) {
+                        pline("Demonbane gravely wounds %s!",
+                              mon_nam(mdef));
+                        *dmgptr *= 3;
+                        return TRUE;
+                    } else {
+                        pline("Demonbane shines brilliantly, destroying %s!",
+                              mon_nam(mdef));
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                    }
+                } else if (!youattack && !youdefend
+                           && magr && is_demon(mdef->data) && j) {
+                    if (is_ndemon(mdef->data)) {
+                        if (cansee(magr->mx, magr->my))
+                            pline("Demonbane gravely wounds %s!",
+                                  mon_nam(mdef));
+                        *dmgptr *= 3;
+                        return TRUE;
+                    } else {
+                        if (cansee(magr->mx, magr->my))
+                            pline("Demonbane shines brilliantly, destroying %s!",
+                                  mon_nam(mdef));
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                    }
+                } else if (youdefend && is_demon(youmonst.data) && k) {
+                    pline("Demonbane shines brilliantly, destroying you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                     /* player returns to their original form */
                 } else
                     return FALSE;
                 return TRUE;
-	    /* below this we don't get any additional handling, so drop through
-	     * just listed here for potential future reference */
-            case ART_DEMONBANE:
             default:
                 break;
         }

@@ -245,8 +245,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     /* The quasi-evil twin of Demonbane, Angelslayer is an unholy trident
      * geared towards the destruction of all angelic beings */
     A("Angelslayer", TRIDENT,
-      (SPFX_RESTR | SPFX_WARN | SPFX_ATTK | SPFX_SEARCH | SPFX_HSPDAM), 0,
-      MH_ANGEL, FIRE(5, 10), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM,
+      (SPFX_RESTR | SPFX_ATTK | SPFX_SEARCH | SPFX_HSPDAM | SPFX_WARN | SPFX_DFLAGH),
+      0, MH_ANGEL, FIRE(5, 10), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM,
       5000L, NO_COLOR),
     /* Yeenoghu's infamous triple-headed flail, also known as 'Butcher'.
      * A massive weapon reputed to have been created from the thighbone and
@@ -272,6 +272,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_XRAY | SPFX_ESP | SPFX_HSPDAM), 0, NO_ATTK, NO_DFNS,
       CARY(AD_COLD), DEATH_GAZE, A_NONE, NON_PM, NON_PM,
       50000L, NO_COLOR),
+    /* Dramborleg, one of the most powerful weapons ever forged from
+       Lord of The Rings series. Per lore, it's unknown exactly which
+       race created this axe, but it was wielded by Tuor, who used it
+       to slay many powerful balrogs with ease. I like to think the
+       dwarves forged it, powerful axes are their thing */
+    A("Dramborleg", DWARVISH_BEARDED_AXE,
+      (SPFX_RESTR | SPFX_INTEL | SPFX_PROTECT | SPFX_WARN | SPFX_DFLAGH), 0,
+      MH_DEMON, PHYS(8, 8), DFNS(AD_MAGM), NO_CARY, 0, A_LAWFUL, NON_PM, PM_DWARF,
+      9000L, CLR_RED),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.
@@ -306,7 +315,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NON_PM, 2500L, NO_COLOR),
 #endif
 
-    A("The Sceptre of Might", HEAVY_MACE,
+    A("The Sceptre of Might", ROD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DALIGN), 0, 0, PHYS(5, 0),
       DFNS(AD_MAGM), NO_CARY, CONFLICT, A_LAWFUL, PM_CAVEMAN, NON_PM, 2500L,
       NO_COLOR),

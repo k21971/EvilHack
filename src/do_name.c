@@ -1372,6 +1372,7 @@ const char *name;
             set_material(obj, SILVER);
             break;
         case ART_DIRGE:
+        case ART_DRAMBORLEG:
             set_material(obj, MITHRIL);
             break;
         case ART_FIRE_BRAND:

@@ -433,7 +433,9 @@ int x, y;
                                                     : (mW & MH_OGRE & mh) ? "ogre"
                                                       : (mW & MH_TROLL & mh) ? "troll"
                                                         : (mW & MH_DEMON & mh) ? "demon"
-                                                          : mtmp->data->mname);
+                                                          : (mW & MH_ANGEL & mh) ? "angel"
+                                                            : (mW & MH_JABBERWOCK & mh) ? "jabberwock"
+                                                              : mtmp->data->mname);
 
                     Sprintf(eos(monbuf), "warned of %s", makeplural(whom));
                 }
