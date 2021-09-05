@@ -3753,34 +3753,40 @@ domagictrap()
             You(Hallucination ? "smell hamburgers." : "smell charred flesh.");
             break;
         case 18:
-            You_feel("an odd sensation.");
-            if (!See_invisible) {
-                if (!Blind) {
-                    if (Invis)
-                        You("can see through yourself, but you are visible!");
-                    else
-                        Your("eyes tingle for a brief moment.");
-                }
-            } else if (!ESee_invisible && !(HSee_invisible & TIMEOUT)
-                       && !perceives(youmonst.data)) {
-                if (!Blind) {
-                    if (Invis)
-                        You("can no longer see yourself.");
-                    else
-                        Your("eyesight feels diminished.");
-                }
+            /* player won't lose see invisible trinsic if crowned */
+            if (u.uevent.uhand_of_elbereth) {
+                You_feel("an odd sensation, but nothing happens.");
+                break;
             } else {
-                /* If we can see invisible from another source */
-                You_feel("a bit %s now.",
-                         (HSee_invisible & ~TIMEOUT) ? "less focused"
-                                                     : "more focused");
+                You_feel("an odd sensation.");
+                if (!See_invisible) {
+                    if (!Blind) {
+                        if (Invis)
+                            You("can see through yourself, but you are visible!");
+                        else
+                            Your("eyes tingle for a brief moment.");
+                    }
+                } else if (!ESee_invisible && !(HSee_invisible & TIMEOUT)
+                           && !perceives(youmonst.data)) {
+                    if (!Blind) {
+                        if (Invis)
+                            You("can no longer see yourself.");
+                        else
+                            Your("eyesight feels diminished.");
+                    }
+                } else {
+                    /* If we can see invisible from another source */
+                    You_feel("a bit %s now.",
+                             (HSee_invisible & ~TIMEOUT) ? "less focused"
+                                                         : "more focused");
+                }
+                HSee_invisible = (HSee_invisible & ~TIMEOUT)
+                                    ? (HSee_invisible & TIMEOUT)
+                                    : (HSee_invisible | FROMOUTSIDE);
+                set_mimic_blocking();
+                see_monsters();
+                newsym(u.ux, u.uy);
             }
-            HSee_invisible = (HSee_invisible & ~TIMEOUT)
-                                ? (HSee_invisible & TIMEOUT)
-                                : (HSee_invisible | FROMOUTSIDE);
-            set_mimic_blocking();
-            see_monsters();
-            newsym(u.ux, u.uy);
             break;
         /* very occasionally something nice happens. */
         case 19: { /* tame nearby monsters */

@@ -1899,4 +1899,5 @@ The following changes to date are:
 - Zombies can dig themselves out if buried
 - Fix: 'Suddenly you cannot see it'
 - Changes to wished for artifact chances, altar sacrifice gifts
+- Player won't lose see invisible trinsic from magic trap if crowned
 
