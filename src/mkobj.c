@@ -1243,14 +1243,15 @@ start_corpse_timeout(body)
 struct obj *body;
 {
     long when;       /* rot away when this old */
-    long corpse_age; /* age of corpse          */
+    long age;        /* age of corpse          */
     int rot_adjust;
     short action;
-    boolean no_revival;
 
-    /* if a troll corpse was frozen, it won't get a revive timer */
-    no_revival = (body->norevive != 0);
-    body->norevive = 0; /* always clear corpse's 'frozen' flag */
+    /*
+     * Note:
+     *      if body->norevive is set, the corpse will rot away instead
+     *      of revive when its REVIVE_MON timer finishes.
+     */
 
 #define TAINT_AGE (50L)          /* age when corpses go bad */
 #define TROLL_REVIVE_CHANCE 37   /* 1/37 chance for 50 turns ~ 75% chance */
@@ -1263,11 +1264,11 @@ struct obj *body;
 
     action = ROT_CORPSE;             /* default action: rot away */
     rot_adjust = in_mklev ? 25 : 10; /* give some variation */
-    corpse_age = monstermoves - body->age;
-    if (corpse_age > ROT_AGE)
+    age = monstermoves - body->age;
+    if (age > ROT_AGE)
         when = rot_adjust;
     else
-        when = ROT_AGE - corpse_age;
+        when = ROT_AGE - age;
     when += (long) (rnz(rot_adjust) - rot_adjust);
 
     if (is_rider(&mons[body->corpsenm])) {
@@ -1279,10 +1280,7 @@ struct obj *body;
         for (when = 12L; when < 500L; when++)
             if (!rn2(3))
                 break;
-
-    } else if (mons[body->corpsenm].mlet == S_TROLL && !no_revival) {
-        long age;
-
+    } else if (mons[body->corpsenm].mlet == S_TROLL && !body->norevive) {
         for (age = 2; age <= TAINT_AGE; age++) {
             if (!rn2(TROLL_REVIVE_CHANCE)) { /* troll revives */
                 action = REVIVE_MON;
@@ -1290,20 +1288,20 @@ struct obj *body;
                 break;
             }
         }
-    } else if (!no_revival && zombify
-               && zombie_form(&mons[body->corpsenm]) != NON_PM) {
-        action = ZOMBIFY_MON;
-        when = 5 + rn2(15);
-    } else if (body->zombie_corpse && !no_revival) {
-        long age;
-
+    /* corpse of an actual zombie */
+    } else if (body->zombie_corpse && !body->norevive) {
         for (age = 2; age <= ROT_AGE; age++) {
             if (!rn2(ZOMBIE_REVIVE_CHANCE)) { /* zombie revives */
-                action = REVIVE_MON;
+                action = ZOMBIFY_MON; /* if buried, can dig itself out */
                 when = age;
                 break;
             }
         }
+    /* corpse of a monster a zombie just killed and could become one */
+    } else if (zombify && zombie_form(&mons[body->corpsenm]) != NON_PM
+               && !body->norevive) {
+        action = ZOMBIFY_MON;
+        when = rn1(15, 5); /* 5..19 */
     }
 
     (void) start_timer(when, TIMER_OBJECT, action, obj_to_any(body));
@@ -1694,10 +1692,9 @@ int x, y;
 }
 
 /* return TRUE if the corpse has special timing;
-   lizards and lichen don't rot, trolls and Riders auto-revive */
+   lizards and lichen don't rot - trolls, zombies, and Riders auto-revive */
 #define special_corpse(num) \
-    (((num) == PM_LIZARD || (num) == PM_LICHEN)                 \
-     || (mons[num].mlet == S_TROLL || is_rider(&mons[num])))
+    ((num) == PM_LIZARD || (num) == PM_LICHEN || is_reviver(&mons[num]))
 
 /* mkcorpstat: make a corpse or statue; never returns Null.
  *
@@ -1748,12 +1745,14 @@ unsigned corpstatflags;
 
         otmp->corpsenm = monsndx(ptr);
         otmp->owt = weight(otmp);
-        if (otmp->otyp == CORPSE && (zombify || special_corpse(old_corpsenm)
+        if (otmp->otyp == CORPSE && (zombify || otmp->zombie_corpse
+                                     || special_corpse(old_corpsenm)
                                      || special_corpse(otmp->corpsenm))) {
             obj_stop_timers(otmp);
-            if (mtmp && (is_zombie(mtmp->data) || is_troll(mtmp->data))
-                && mtmp->mcan == 1)
+            if (mtmp && is_reviver(mtmp->data) && !is_rider(mtmp->data)
+                && mtmp->mcan) {
                 otmp->norevive = 1;
+            }
             start_corpse_timeout(otmp);
         }
     }

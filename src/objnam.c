@@ -3335,6 +3335,7 @@ struct obj *no_wish;
     int material;
     int tmp, tinv, tvariety;
     int wetness, gsize = 0;
+    boolean zombo;
     struct fruit *f;
     int ftype = context.current_fruit;
     char fruitbuf[BUFSZ], globbuf[BUFSZ];
@@ -3374,6 +3375,7 @@ struct obj *no_wish;
     oclass = 0;
     actualn = dn = un = 0;
     wetness = 0;
+    zombo = FALSE;
 
     if (!bp)
         goto any;
@@ -3464,6 +3466,8 @@ struct obj *no_wish;
             broken = 1, locked = unlocked = 0;
         } else if (!strncmpi(bp, "greased ", l = 8)) {
             isgreased = 1;
+        } else if (!strncmpi(bp, "zombifying ", l = 11)) {
+            zombo = TRUE;
         } else if (!strncmpi(bp, "very ", l = 5)) {
             /* very rusted very heavy iron ball */
             very = 1;
@@ -4533,6 +4537,10 @@ struct obj *no_wish;
                 if (mons[mntmp].msound == MS_GUARDIAN)
                     mntmp = genus(mntmp, 1);
                 set_corpsenm(otmp, mntmp);
+            }
+            if (zombo && zombie_form(&mons[mntmp])) {
+                (void) start_timer(rn1(5, 10), TIMER_OBJECT,
+                                   ZOMBIFY_MON, obj_to_any(otmp));
             }
             break;
         case EGG:

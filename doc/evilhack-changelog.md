@@ -1896,4 +1896,5 @@ The following changes to date are:
 - Initial preparation for new version (0.7.1)
 - Centaurs can be knights
 - Revamp corpse revival via zombie death, zombie illness timer
+- Zombies can dig themselves out if buried
 
