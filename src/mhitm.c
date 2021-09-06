@@ -570,7 +570,9 @@ register struct monst *magr, *mdef;
                mindless and slow */
             if (is_zombie(pa) && mattk->aatyp == AT_BITE
                 && mdef->data->msize <= MZ_SMALL
-                && is_animal(mdef->data) && rn2(3)) {
+                && is_animal(mdef->data)
+                && !(mdef->mfrozen || mdef->mstone
+                     || mdef->mconf || mdef->mstun) && rn2(3)) {
                 if (vis && canspotmon(mdef))
                     pline("%s nimbly %s %s bite!", Monnam(mdef),
                           rn2(2) ? "dodges" : "evades", s_suffix(mon_nam(magr)));

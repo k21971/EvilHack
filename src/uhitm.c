@@ -3390,7 +3390,9 @@ boolean weapon_attacks; /* skip weapon attacks if false */
             if (is_zombie(youmonst.data)
                 && mattk->aatyp == AT_BITE
                 && mon->data->msize <= MZ_SMALL
-                && is_animal(mon->data) && rn2(3)) {
+                && is_animal(mon->data)
+                && !(mon->mfrozen || mon->mstone
+                     || mon->mconf || mon->mstun) && rn2(3)) {
                 pline("%s nimbly %s your bite!", Monnam(mon),
                       rn2(2) ? "dodges" : "evades");
                 break;
