@@ -2433,9 +2433,11 @@ mon_poly(magr, mdef, dmg)
 struct monst *magr, *mdef;
 int dmg;
 {
+    static const char freaky[] = " undergoes a freakish metamorphosis";
+
     if (mdef == &youmonst) {
         if (Antimagic) {
-            shieldeff(mdef->mx, mdef->my);
+            shieldeff(u.ux, u.uy);
         } else if (Unchanging) {
             ; /* just take a little damage */
         } else {
@@ -2481,14 +2483,27 @@ int dmg;
                     monkilled(mdef, "", AD_RBRE);
             }
         } else if (newcham(mdef, (struct permonst *) 0, FALSE, FALSE)) {
-            if (vis && canspotmon(mdef))
-                pline("%s%s turns into %s.", Before,
-                      !flags.verbose ? ""
-                       : " undergoes a freakish metamorphosis and",
-                      x_monnam(mdef, ARTICLE_A, (char *) 0,
-                               (SUPPRESS_NAME | SUPPRESS_IT
-                                | SUPPRESS_INVISIBLE), FALSE));
+            if (vis) { /* either seen or adjacent */
+                boolean was_seen = !!strcmpi("It", Before),
+                        verbosely = flags.verbose || !was_seen;
+
+                if (canspotmon(mdef))
+                    pline("%s%s%s turns into %s.", Before,
+                          verbosely ? freaky : "", verbosely ? " and" : "",
+                          x_monnam(mdef, ARTICLE_A, (char *) 0,
+                                   (SUPPRESS_NAME | SUPPRESS_IT
+                                    | SUPPRESS_INVISIBLE), FALSE));
+                else if (was_seen || magr == &youmonst)
+                    pline("%s%s%s.", Before, freaky,
+                          !was_seen ? "" : " and disappears");
+            }
             dmg = 0;
+            if (can_teleport(magr->data)) {
+                if (magr == &youmonst)
+                    tele();
+                else if (!tele_restrict(magr))
+                    (void) rloc(magr, TRUE);
+            }
         } else {
             if (vis && flags.verbose)
                 pline1(nothing_happens);

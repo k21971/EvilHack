@@ -1903,4 +1903,5 @@ The following changes to date are:
 - Fix: odds for receiving an artifact gift via altar sacrifice
 - New artifact (Dramborleg), minor fixes and changes to other artifacts 
 - Fix: nimbly evading zombie bite attack while asleep
+- Update various monsters per NetHack 3.7 changes/fixes
 
