@@ -2000,11 +2000,13 @@ post_stone:
                 pline("%s resists infection.", Monnam(mdef));
             tmp = 0;
             break;
-        }
-        if (vis && canseemon(mdef)) {
-            pline("%s looks %s.", Monnam(mdef),
-                  mdef->mdiseased ? "even worse" : "diseased");
+        } else {
+            mdef->mdiseasetime = rnd(10) + 5;
+            if (vis && canseemon(mdef))
+                pline("%s looks %s.", Monnam(mdef),
+                      mdef->mdiseased ? "even worse" : "diseased");
             mdef->mdiseased = 1;
+            mdef->mdiseabyu = FALSE;
         }
         break;
     case AD_DRIN:
@@ -2876,11 +2878,13 @@ struct obj *mwep;
                     pline("%s resists infection.", Monnam(magr));
                 tmp = 0;
                 break;
-	    }
-            if (canseemon(magr)) {
-                pline("%s looks %s.", Monnam(magr),
-                      magr->mdiseased ? "even worse" : "diseased");
+	    } else {
+                magr->mdiseasetime = rnd(10) + 5;
+                if (canseemon(magr))
+                    pline("%s looks %s.", Monnam(magr),
+                          magr->mdiseased ? "even worse" : "diseased");
                 magr->mdiseased = 1;
+                magr->mdiseabyu = FALSE;
             }
 	    break;
         case AD_ELEC:

@@ -2550,10 +2550,12 @@ do_rust:
         break;
     case AD_DISE:
         if (!resists_sick(pd)) {
+            mdef->mdiseasetime = rnd(10) + 5;
             if (canseemon(mdef))
                 pline("%s looks %s.", Monnam(mdef),
                       mdef->mdiseased ? "even worse" : "diseased");
             mdef->mdiseased = 1;
+            mdef->mdiseabyu = TRUE;
         }
         break;
     case AD_DRIN: {

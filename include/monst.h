@@ -144,6 +144,7 @@ struct monst {
     Bitfield(msick, 2);     /* monsters ill from zombies */
     Bitfield(msickbyu, 1);  /* monsters ill from you as a zombie */
     Bitfield(mdiseased, 1); /* monsters infected with disease */
+    Bitfield(mdiseabyu, 1); /* monsters infected by you */
     Bitfield(mpeaceful, 1); /* does not attack unprovoked */
     Bitfield(mtrapped, 1);  /* trapped in a pit, web or bear trap */
     Bitfield(mleashed, 1);  /* monster is on a leash */
@@ -162,7 +163,7 @@ struct monst {
 
     Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
     Bitfield(mstone, 3);     /* monster is turning to stone */
-    /* 6 free bits */
+    /* 4 free bits */
 
     uchar mwither;           /* withering; amount of turns left till recovery */
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
@@ -203,6 +204,7 @@ struct monst {
     int meating;           /* monster is eating timeout */
     int msummoned;         /* is a temporarily summoned being */
     int msicktime;         /* zombie sick timer */
+    int mdiseasetime;      /* diseased timer */
     uchar mprotection;     /* monster protection spell */
     uchar mprottime;       /* timeout for monster protection spell */
     struct mextra *mextra; /* point to mextra struct */

@@ -741,6 +741,7 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
         mtmp2->mstun = 0;
         mtmp2->mconf = 0;
         mtmp2->msick = 0;
+        mtmp2->mwither = 0;
         mtmp2->mdiseased = 0;
         mtmp2->msummoned = 0;
         mtmp2->uexp = 0;

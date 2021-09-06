@@ -608,6 +608,12 @@ long nmv; /* number of moves */
         else
             mtmp->msicktime -= imv;
     }
+    if (mtmp->mdiseasetime) {
+        if (imv >= (int) mtmp->mdiseasetime)
+            mtmp->mdiseasetime = 1;
+        else
+            mtmp->mdiseasetime -= imv;
+    }
 
     /* Withering monsters by rights ought to keep withering while off-level, but
      * it brings up a host of problems to have a monster die in this function

@@ -218,6 +218,8 @@ boolean digest_meal;
         mon->msummoned--;
     if (mon->msicktime)
         mon->msicktime--;
+    if (mon->mdiseasetime)
+        mon->mdiseasetime--;
     if (digest_meal) {
         if (mon->meating) {
             mon->meating--;
@@ -580,24 +582,6 @@ register struct monst *mtmp;
                   s_suffix(mon_nam(mtmp)), makeplural(body_part(FOOT)));
         start_melt_ice_timeout(mtmp->mx, mtmp->my, 0L);
         obj_ice_effects(mtmp->mx, mtmp->my, TRUE);
-    }
-
-    /* diseased monsters can die as well... */
-    if (mtmp->mdiseased && !rn2(10)) {
-        if (resists_sick(mdat)) {
-            mtmp->mdiseased = 0;
-        } else {
-            if (canseemon(mtmp))
-                pline("%s dies from %s infection.",
-                      Monnam(mtmp), noit_mhis(mtmp));
-            mtmp->mdiseased = 0;
-            mtmp->mhp = -1;
-            if (wielding_artifact(ART_GRIMTOOTH))
-                xkilled(mtmp, XKILL_GIVEMSG);
-            else
-                mondied(mtmp);
-        }
-        return (mtmp->mhp > 0) ? 0 : 1;
     }
 
     /* some monsters teleport */

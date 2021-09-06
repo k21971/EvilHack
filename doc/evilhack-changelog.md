@@ -1905,4 +1905,5 @@ The following changes to date are:
 - Fix: nimbly evading zombie bite attack while asleep
 - Update various monsters per NetHack 3.7 changes/fixes
 - Fix: crash during restore (hallucination resistance)
+- Monsters being diseased uses proper timer
 

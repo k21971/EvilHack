@@ -1093,6 +1093,24 @@ mcalcdistress()
             }
         }
 
+        /* diseased monsters can die as well... */
+        if (mtmp->mdiseased && mtmp->mdiseasetime == 1) {
+            if (resists_sick(mtmp->data)) {
+                mtmp->mdiseased = 0;
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s dies from %s infection.",
+                          Monnam(mtmp), noit_mhis(mtmp));
+                mtmp->mdiseased = 0;
+                mtmp->mhp = -1;
+                if (mtmp->mdiseabyu)
+                    xkilled(mtmp, XKILL_GIVEMSG);
+                else
+                    mondied(mtmp);
+            }
+            continue;
+        }
+
         /* wither away */
         if (mtmp->mwither) {
             mtmp->mhp -= (rnd(2) - (regenerates(mtmp->data) ? 1 : 0));

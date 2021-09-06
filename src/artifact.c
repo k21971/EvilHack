@@ -2033,11 +2033,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (youdefend && !rn2(6)) {
             diseasemu(mdef->data);
         } else {
-            if (!resists_sick(mdef->data) && !rn2(6)) {
+            mdef->mdiseasetime = rnd(10) + 5;
+            if (!resists_sick(mdef->data)) {
                 if (canseemon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->mdiseased ? "even worse" : "diseased");
                 mdef->mdiseased = 1;
+                if (wielding_artifact(ART_GRIMTOOTH))
+                    mdef->mdiseabyu = TRUE;
+                else
+                    mdef->mdiseabyu = FALSE;
             }
         }
         msgprinted = TRUE;
