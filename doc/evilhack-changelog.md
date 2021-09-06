@@ -466,7 +466,7 @@ The following changes to date are:
 - Wand of death/finger of death spell is not completely negated by magic
 - Monsters with magic resistance are affected the same way as the player
   when hit by a wand of death/finger of death spell
-- Livelog ID'ed sokoban prize and not 'sokoban prize <object>
+- Livelog ID'ed sokoban prize and not 'sokoban prize object'
 - More scenarios where fire damage can destroy objects
 - Less chance of waking monsters in combat if stealthy
 - New conducts
@@ -1888,4 +1888,5 @@ The following changes to date are:
 - Fix: prevent various non-directional monster attack spells from being
   cast while player is invulnerable
 - Tweak wizard spell skill levels
+- Fix: crash during restore (hallucination resistance).
 

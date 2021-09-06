@@ -220,7 +220,7 @@
  * _if_ the hero can be seen have already been done.
  */
 #define maybe_display_usteed(otherwise_self)                            \
-    ((u.usteed && mon_visible(u.usteed))                                \
+    ((!defer_see_monsters && u.usteed && mon_visible(u.usteed))         \
      ? ridden_mon_to_glyph(u.usteed, rn2_on_display_rng)                \
      : (otherwise_self))
 
