@@ -330,6 +330,7 @@ autoquiver()
         if (otmp->owornmask || otmp->oartifact || !otmp->dknown) {
             ; /* Skip it */
         } else if (otmp->otyp == ROCK || otmp->otyp == BOULDER
+                   || otmp->otyp == SLING_BULLET
                    /* seen rocks or known flint or known glass */
                    || (otmp->otyp == FLINT
                        && objects[otmp->otyp].oc_name_known)
@@ -1874,10 +1875,10 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
                 if (obj->blessed && !rnl(4))
                     broken = 0;
 
-                /* Flint and hard gems get an additional chance because they
-                 * don't break easily. */
+                /* Flint, sling bullets, and hard gems get an additional chance
+                 * because they don't break easily. */
                 if (((obj->oclass == GEM_CLASS && objects[otyp].oc_tough)
-                     || obj->otyp == FLINT)
+                     || obj->otyp == FLINT || obj->otyp == SLING_BULLET)
                     && rn2(2)) {
                     broken = FALSE;
                 }

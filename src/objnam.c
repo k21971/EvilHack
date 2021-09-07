@@ -181,7 +181,8 @@ register int otyp;
             Strcpy(buf, dn ? dn : actualn);
             if (ocl->oc_class == GEM_CLASS)
                 Strcat(buf,
-                       (ocl->oc_material == MINERAL) ? " stone" : " gem");
+                       (ocl->oc_material == MINERAL
+                        || otyp == SLING_BULLET) ? " stone" : " gem");
             if (un)
                 Sprintf(eos(buf), " called %s", un);
         }
@@ -896,7 +897,15 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Sprintf(eos(buf), "%s ring", dn);
         break;
     case GEM_CLASS: {
-        const char *rock = (ocl->oc_material == MINERAL) ? "stone" : "gem";
+        const char *rock = (ocl->oc_material == MINERAL
+                            || typ == SLING_BULLET) ? "stone" : "gem";
+
+        if (typ == SLING_BULLET) {
+            if (obj->material != objects[obj->otyp].oc_material) {
+                Strcat(buf, materialnm[obj->material]);
+                Strcat(buf, " ");
+            }
+        }
 
         if (!dknown) {
             Strcpy(buf, rock);
@@ -1145,6 +1154,7 @@ struct obj *obj;
     case RING_CLASS:
     case WAND_CLASS:
     case FOOD_CLASS:
+    case GEM_CLASS:
         return TRUE;
     default:
         break;
@@ -1425,6 +1435,10 @@ unsigned doname_flags;
         add_erosion_words(obj, prefix);
         if (obj->owornmask & W_BALL)
             Strcat(bp, " (chained to you)");
+        break;
+    case GEM_CLASS:
+        if (obj->otyp == SLING_BULLET)
+            add_erosion_words(obj, prefix);
         break;
     }
 
@@ -3118,6 +3132,7 @@ static const struct alt_spellings {
     { "load stone", LOADSTONE },
     { "touch stone", TOUCHSTONE },
     { "flintstone", FLINT },
+    { "shiny stone", SLING_BULLET },
     { (const char *) 0, 0 },
 };
 
@@ -4896,8 +4911,7 @@ struct obj *no_wish;
                   materialnm[material]);
         }
         set_material(otmp, material);
-    }
-    else if (otmp->oartifact) {
+    } else if (otmp->oartifact) {
         /* oname() handles the assignment of a specific material for any
          * possible artifact. Do nothing here. */
     } else {

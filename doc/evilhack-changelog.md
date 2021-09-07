@@ -1906,4 +1906,5 @@ The following changes to date are:
 - Update various monsters per NetHack 3.7 changes/fixes
 - Fix: crash during restore (hallucination resistance)
 - Monsters being diseased uses proper timer
+- New object - sling bullets
 
