@@ -5539,7 +5539,8 @@ int osym, dmgtyp;
         case RING_CLASS:
             /* The Ring of P'hul is not affected,
                artifacts are off-limits per destroy_item() */
-            if (obj->otyp == RIN_SHOCK_RESISTANCE) {
+            if (((obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg))
+                || obj->otyp == RIN_SHOCK_RESISTANCE) {
                 skip++;
                 break;
             }

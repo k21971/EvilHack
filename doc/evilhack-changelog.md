@@ -1908,4 +1908,5 @@ The following changes to date are:
 - Monsters being diseased uses proper timer
 - New object - sling bullets
 - Allow various sphere-type monsters to be genocided
+- Wearing non-metallic gloves protect worn rings from shock damage 
 
