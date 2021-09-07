@@ -1907,4 +1907,5 @@ The following changes to date are:
 - Fix: crash during restore (hallucination resistance)
 - Monsters being diseased uses proper timer
 - New object - sling bullets
+- Allow various sphere-type monsters to be genocided
 

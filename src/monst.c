@@ -396,13 +396,13 @@ NEARDATA struct permonst mons[] = {
     /*
      * eyes
      */
-    MON("gas spore", S_EYE, LVL(1, 3, 10, 0, 0), (G_NOCORPSE | 1),
+    MON("gas spore", S_EYE, LVL(1, 3, 10, 0, 0), (G_NOCORPSE | G_GENO | 1),
         A(ATTK(AT_BOOM, AD_PHYS, 4, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), 0, 0,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS,
         M2_HOSTILE | M2_NEUTER, 0, 0, 0, 2, CLR_GRAY),
-    MON("floating eye", S_EYE, LVL(2, 1, 9, 10, 0), (5),
+    MON("floating eye", S_EYE, LVL(2, 1, 9, 10, 0), (G_GENO | 5),
         A(ATTK(AT_NONE, AD_PLYS, 0, 70), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), 0, 0,
@@ -426,14 +426,14 @@ NEARDATA struct permonst mons[] = {
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
         M4_VULNERABLE_COLD, 0, 8, CLR_RED),
     MON("shocking sphere", S_EYE, LVL(6, 13, 4, 0, 0),
-        (G_NOCORPSE | 2), A(ATTK(AT_EXPL, AD_ELEC, 4, 6), NO_ATTK,
+        (G_NOCORPSE | G_GENO | 2), A(ATTK(AT_EXPL, AD_ELEC, 4, 6), NO_ATTK,
                                      NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_ELEC, MR_ELEC,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, 0, 0, 8, HI_ZAP),
     MON("acid sphere", S_EYE, LVL(7, 13, 4, 0, 0),
-        (G_NOCORPSE | 2), A(ATTK(AT_EXPL, AD_ACID, 5, 6), NO_ATTK,
+        (G_NOCORPSE | G_GENO | 2), A(ATTK(AT_EXPL, AD_ACID, 5, 6), NO_ATTK,
                                      NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_ACID, MR_ACID,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
