@@ -1086,7 +1086,7 @@ struct monst *mtmp;
         Strcat(info, ", stunned");
     if (mtmp->msick & 2) {
         if (can_become_zombie(mtmp->data))
-            Strcat(info, ", turning into a zombie");
+            Strcat(info, ", infected by a zombie");
         else
             Strcat(info, ", dying from illness");
     } else if (mtmp->msick & 1) {

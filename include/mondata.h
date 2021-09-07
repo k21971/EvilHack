@@ -5,7 +5,7 @@
 #ifndef MONDATA_H
 #define MONDATA_H
 
-#define r_data(mon) (has_erac(mon) ? &mons[ERAC(mon)->rmnum] : (mon)->data)
+#define r_data(mon) (&mons[has_erac(mon) ? ERAC(mon)->rmnum : (mon)->mnum])
 
 #define r_verysmall(mon) (verysmall(r_data(mon)))
 #define verysmall(ptr) ((ptr)->msize < MZ_SMALL)

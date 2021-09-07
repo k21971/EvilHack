@@ -2001,7 +2001,10 @@ post_stone:
             tmp = 0;
             break;
         } else {
-            mdef->mdiseasetime = rnd(10) + 5;
+            if (mdef->mdiseasetime)
+                mdef->mdiseasetime -= rnd(3);
+            else
+                mdef->mdiseasetime = rn1(9, 6);
             if (vis && canseemon(mdef))
                 pline("%s looks %s.", Monnam(mdef),
                       mdef->mdiseased ? "even worse" : "diseased");
@@ -2028,7 +2031,6 @@ post_stone:
         }
         if (is_zombie(pa) && rn2(5)) {
             if (!resists_sick(pd)) {
-                mdef->msicktime = rnd(10) + 5;
                 if (vis && canspotmon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->msick ? "much worse" : "rather ill");
@@ -2116,6 +2118,10 @@ post_stone:
 msickness:
         if (resists_sick(pd))
             break;
+        if (mdef->msicktime)
+            mdef->msicktime -= rnd(3);
+        else
+            mdef->msicktime = rn1(9, 6);
         mdef->msick = (can_become_zombie(r_data(mdef))) ? 3 : 1;
         mdef->msickbyu = FALSE;
         break;
@@ -2397,7 +2403,7 @@ msickness:
             && ((mattk->aatyp == AT_TUCH
                  || mattk->aatyp == AT_CLAW
                  || mattk->aatyp == AT_BITE)
-                && zombie_form(mdef->data) != NON_PM);
+                && zombie_form(r_data(mdef)) != NON_PM);
         if (magr->uexp)
             mon_xkilled(mdef, "", (int) mattk->adtyp);
         else
@@ -2879,7 +2885,10 @@ struct obj *mwep;
                 tmp = 0;
                 break;
 	    } else {
-                magr->mdiseasetime = rnd(10) + 5;
+                if (magr->mdiseasetime)
+                    magr->mdiseasetime -= rnd(3);
+                else
+                    magr->mdiseasetime = rn1(9, 6);
                 if (canseemon(magr))
                     pline("%s looks %s.", Monnam(magr),
                           magr->mdiseased ? "even worse" : "diseased");

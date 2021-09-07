@@ -2129,7 +2129,9 @@ anything *arg;
 long timeout;
 {
     struct obj *body = arg->a_obj;
-    int zmon = zombie_form(&mons[body->corpsenm]);
+    struct permonst *mptr = has_omonst(body) ? r_data(OMONST(body))
+                                             : &mons[body->corpsenm];
+    int zmon = zombie_form(mptr);
 
     if (zmon != NON_PM) {
         if (has_omid(body))

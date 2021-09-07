@@ -2550,7 +2550,10 @@ do_rust:
         break;
     case AD_DISE:
         if (!resists_sick(pd)) {
-            mdef->mdiseasetime = rnd(10) + 5;
+            if (mdef->mdiseasetime)
+                mdef->mdiseasetime -= rnd(3);
+            else
+                mdef->mdiseasetime = rn1(9, 6);
             if (canseemon(mdef))
                 pline("%s looks %s.", Monnam(mdef),
                       mdef->mdiseased ? "even worse" : "diseased");
@@ -2564,7 +2567,10 @@ do_rust:
 
         if (is_zombie(youmonst.data) && rn2(5)) {
             if (!resists_sick(pd)) {
-                mdef->msicktime = rnd(10) + 5;
+                if (mdef->msicktime)
+                    mdef->msicktime -= rnd(3);
+                else
+                    mdef->msicktime = rn1(9, 6);
                 if (canseemon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->msick ? "much worse" : "rather ill");

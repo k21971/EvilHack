@@ -1248,6 +1248,8 @@ struct obj *body;
     long age;        /* age of corpse          */
     int rot_adjust;
     short action;
+    struct permonst *mptr = has_omonst(body) ? r_data(OMONST(body))
+                                             : &mons[body->corpsenm];
 
     /*
      * Note:
@@ -1273,7 +1275,7 @@ struct obj *body;
         when = ROT_AGE - age;
     when += (long) (rnz(rot_adjust) - rot_adjust);
 
-    if (is_rider(&mons[body->corpsenm])) {
+    if (is_rider(mptr)) {
         /*
          * Riders always revive.  They have a 1/3 chance per turn
          * of reviving after 12 turns.  Always revive by 500.
@@ -1282,7 +1284,7 @@ struct obj *body;
         for (when = 12L; when < 500L; when++)
             if (!rn2(3))
                 break;
-    } else if (mons[body->corpsenm].mlet == S_TROLL && !body->norevive) {
+    } else if (mptr->mlet == S_TROLL && !body->norevive) {
         for (age = 2; age <= TAINT_AGE; age++) {
             if (!rn2(TROLL_REVIVE_CHANCE)) { /* troll revives */
                 action = REVIVE_MON;
@@ -1300,7 +1302,7 @@ struct obj *body;
             }
         }
     /* corpse of a monster a zombie just killed and could become one */
-    } else if (zombify && zombie_form(&mons[body->corpsenm]) != NON_PM
+    } else if (zombify && zombie_form(mptr) != NON_PM
                && !body->norevive) {
         action = ZOMBIFY_MON;
         when = rn1(15, 5); /* 5..19 */

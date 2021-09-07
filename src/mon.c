@@ -1064,7 +1064,7 @@ mcalcdistress()
         mon_regen(mtmp, FALSE);
 
         /* sick monsters can die from their illness */
-        if (mtmp->msick && mtmp->msicktime == 1) {
+        if (mtmp->msick && mtmp->msicktime <= 1) {
             if (resists_sick(mtmp->data)) {
                 mtmp->msick = 0;
             } else {
@@ -1073,7 +1073,7 @@ mcalcdistress()
                           Monnam(mtmp), noit_mhis(mtmp));
                 if ((mtmp->msick & 2) && !nonliving(mtmp->data)
                     && can_become_zombie(r_data(mtmp))) {
-                    zombify = (zombie_form(mtmp->data) != NON_PM);
+                    zombify = (zombie_form(r_data(mtmp)) != NON_PM);
                     mtmp->msick = 0;
                     mtmp->mhp = -1;
                     if (mtmp->msickbyu)
@@ -1094,7 +1094,7 @@ mcalcdistress()
         }
 
         /* diseased monsters can die as well... */
-        if (mtmp->mdiseased && mtmp->mdiseasetime == 1) {
+        if (mtmp->mdiseased && mtmp->mdiseasetime <= 1) {
             if (resists_sick(mtmp->data)) {
                 mtmp->mdiseased = 0;
             } else {
@@ -3689,7 +3689,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
             zombify = (!thrownobj && !stoned && !uwep
                        && zombie_maker(youmonst.data)
-                       && zombie_form(mtmp->data) != NON_PM);
+                       && zombie_form(r_data(mtmp)) != NON_PM);
             cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
                                                    : CORPSTAT_NONE);
             zombify = FALSE; /* reset */

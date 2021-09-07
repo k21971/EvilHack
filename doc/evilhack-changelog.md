@@ -1909,4 +1909,5 @@ The following changes to date are:
 - New object - sling bullets
 - Allow various sphere-type monsters to be genocided
 - Wearing non-metallic gloves protect worn rings from shock damage 
+- Fix: racial monsters can turn into zombies (again)
 
