@@ -780,6 +780,8 @@ Shield_on(VOID_ARGS)
     case DWARVISH_ROUNDSHIELD:
     case LARGE_SHIELD:
     case SHIELD_OF_REFLECTION:
+    case SHIELD_OF_LIGHT:
+    case SHIELD_OF_MOBILITY:
         break;
     default:
         impossible(unknown_type, c_shield, uarms->otyp);
@@ -788,19 +790,30 @@ Shield_on(VOID_ARGS)
         uarms->known = 1; /* shield's +/- evident because of status line AC */
         oprops_on(uarms, WORN_SHIELD);
     }
+    if (artifact_light(uarms) && !uarms->lamplit) {
+        begin_burn(uarms, FALSE);
+        if (!Blind)
+            pline("%s %s to shine %s!",
+                  Yname2(uarms), otense(uarms, "begin"),
+                  arti_light_description(uarms));
+    }
     return 0;
 }
 
 int
 Shield_off(VOID_ARGS)
 {
-    oprops_off(uarms, WORN_SHIELD);
+    struct obj *otmp = uarms;
+    boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
 
+    if (otmp)
+        oprops_off(otmp, WORN_SHIELD);
     context.takeoff.mask &= ~W_ARMS;
+    setworn((struct obj *) 0, W_ARMS);
 
     /* no shield currently requires special handling when taken off, but we
        keep this uncommented in case somebody adds a new one which does */
-    switch (uarms->otyp) {
+    switch (otmp->otyp) {
     case SMALL_SHIELD:
     case ELVEN_SHIELD:
     case URUK_HAI_SHIELD:
@@ -808,12 +821,17 @@ Shield_off(VOID_ARGS)
     case DWARVISH_ROUNDSHIELD:
     case LARGE_SHIELD:
     case SHIELD_OF_REFLECTION:
+    case SHIELD_OF_LIGHT:
+    case SHIELD_OF_MOBILITY:
         break;
     default:
-        impossible(unknown_type, c_shield, uarms->otyp);
+        impossible(unknown_type, c_shield, otmp->otyp);
     }
-
-    setworn((struct obj *) 0, W_ARMS);
+    if (was_arti_light && !artifact_light(otmp)) {
+        end_burn(otmp, FALSE);
+        if (!Blind)
+            pline("%s shining.", Tobjnam(otmp, "stop"));
+    }
     return 0;
 }
 

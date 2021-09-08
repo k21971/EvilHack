@@ -284,7 +284,8 @@ struct monst *mon;
     ((mon)->data == &mons[PM_GREMLIN]                                    \
      && ((uwep && uwep->lamplit && artifact_light(uwep))                 \
          || (u.twoweap && uswapwep->lamplit && artifact_light(uswapwep)) \
-         || (uarm && uarm->lamplit && artifact_light(uarm))))
+         || (uarm && uarm->lamplit && artifact_light(uarm))              \
+         || (uarms && uarms->lamplit && artifact_light(uarms))))
 /* we could include this in the above macro, but probably overkill/overhead */
 /*      && (!(which_armor((mon), W_ARMC) != 0                               */
 /*            && which_armor((mon), W_ARMH) != 0))                          */
@@ -330,12 +331,22 @@ boolean fleemsg;
                 pline("%s seems to flinch.", Adjmonnam(mtmp, "immobile"));
             } else if (flees_light(mtmp)) {
                 if (rn2(10) || Deaf) {
+                    /* this feels a bit hacky, but it works */
                     struct obj *litwep;
+                    struct obj *litarmor;
+                    struct obj *litshield;
                     litwep = (uwep && artifact_light(uwep)
                               && uwep->lamplit) ? uwep : uswapwep;
+                    litarmor = uarm;
+                    litshield = uarms;
+
                     pline("%s flees from the painful light of %s.",
                             Monnam(mtmp),
-                            bare_artifactname(litwep));
+                            (uarm && artifact_light(uarm) && uarm->lamplit)
+                                ? yobjnam(litarmor, (char *) 0)
+                                : (uarms && artifact_light(uarms) && uarms->lamplit)
+                                    ? yobjnam(litshield, (char *) 0)
+                                    : bare_artifactname(litwep));
                 } else
                     verbalize("Bright light!");
             } else if (!rn2(5) && !Deaf && !mindless(mtmp->data) && !is_silent(mtmp->data)) {

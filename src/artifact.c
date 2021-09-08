@@ -2957,6 +2957,10 @@ struct obj *obj;
         && (obj->owornmask & W_ARM) != 0L)
         return TRUE;
 
+    if (obj && obj->otyp == SHIELD_OF_LIGHT
+        && (obj->owornmask & W_ARMS) != 0L)
+        return TRUE;
+
     return (boolean) (get_artifact(obj) && obj->oartifact == ART_SUNSWORD);
 }
 

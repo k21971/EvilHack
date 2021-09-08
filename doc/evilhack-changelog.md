@@ -1910,4 +1910,5 @@ The following changes to date are:
 - Allow various sphere-type monsters to be genocided
 - Wearing non-metallic gloves protect worn rings from shock damage 
 - Fix: racial monsters can turn into zombies (again)
+- New shields - shield of light, shield of mobility
 

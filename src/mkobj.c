@@ -812,7 +812,7 @@ boolean artif;
     if (otmp->otyp == AMULET_OF_YENDOR)
         otmp->orecursive = FALSE;
     if ((otmp->otyp >= ELVEN_SHIELD && otmp->otyp <= ORCISH_SHIELD)
-        || otmp->otyp == SHIELD_OF_REFLECTION
+        || (otmp->otyp >= SHIELD_OF_REFLECTION && otmp->otyp <= SHIELD_OF_MOBILITY)
         || objects[otmp->otyp].oc_merge)
         otmp->dknown = 0;
     if (!objects[otmp->otyp].oc_uses_known)
@@ -3362,6 +3362,8 @@ struct obj* obj;
         /* Any other cases for specific object types go here. */
         case SHIELD_OF_REFLECTION:
         case BARDING_OF_REFLECTION:
+        case SHIELD_OF_LIGHT:
+        case SHIELD_OF_MOBILITY:
             return shiny_materials;
         case BOW:
         case YUMI:

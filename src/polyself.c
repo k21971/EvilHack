@@ -1049,6 +1049,8 @@ break_armor()
         }
         if ((otmp = uarms) != 0) {
             You("can no longer hold your shield!");
+            if (otmp->lamplit)
+                end_burn(otmp, FALSE);
             (void) Shield_off();
             dropp(otmp);
         }
