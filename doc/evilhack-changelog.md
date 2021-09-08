@@ -1913,4 +1913,5 @@ The following changes to date are:
 - New shields - shield of light, shield of mobility
 - Monsters wearing non-metallic gloves protect their worn rings
   from shock damage
+- Adjustment to last commit (monsters/gloves/rings)
 
