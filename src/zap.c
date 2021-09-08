@@ -5821,7 +5821,9 @@ int osym, dmgtyp;
             quan = obj->quan;
             switch (osym) {
             case RING_CLASS:
-                if (obj->otyp == RIN_SHOCK_RESISTANCE) {
+                if ((which_armor(mtmp, W_ARMG)
+                     && !is_metallic(which_armor(mtmp, W_ARMG)))
+                    || obj->otyp == RIN_SHOCK_RESISTANCE) {
                     skip++;
                     break;
                 }
