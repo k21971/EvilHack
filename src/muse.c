@@ -499,8 +499,8 @@ struct monst *mtmp;
      * These would be hard to combine because of the control flow.
      * Pestilence won't use healing even when blind.
      */
-    if ((!mtmp->mcansee || mtmp->msick) && !nohands(mtmp->data)
-        && mtmp->data != &mons[PM_PESTILENCE]) {
+    if ((!mtmp->mcansee || mtmp->msick || mtmp->mdiseased)
+        && !nohands(mtmp->data) && mtmp->data != &mons[PM_PESTILENCE]) {
         if (m_use_healing(mtmp))
             return TRUE;
     }
@@ -1327,15 +1327,12 @@ struct monst *mtmp;
         m_useup(mtmp, otmp);
         return 2;
     case MUSE_LIZARD_CORPSE:
-        /* not actually called for its unstoning effect */
-        mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
+        mon_consume_unstone(mtmp, otmp, FALSE, mtmp->mstone ? TRUE : FALSE);
         return 2;
     case MUSE_ACID_BLOB_CORPSE:
-        /* not actually called for its unstoning effect */
-        mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
+        mon_consume_unstone(mtmp, otmp, FALSE, mtmp->mstone ? TRUE : FALSE);
         return 2;
     case MUSE_EUCALYPTUS_LEAF:
-        /* not actually called for its unstoning effect */
         mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
         return 2;
     case 0:
@@ -3598,22 +3595,25 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
             return;
         }
     }
-    if (stoning && vis) {
-        if (Hallucination)
+    if (stoning) {
+        mon->mstone = 0;
+        if (!vis) {
+        } else if (Hallucination) {
             pline("What a pity - %s just ruined a future piece of art!",
                   mon_nam(mon));
-        else
+        } else {
             pline("%s seems limber!", Monnam(mon));
+        }
     }
     if (lizard && (mon->mconf || mon->mstun)) {
         mon->mconf = 0;
         mon->mstun = 0;
         if (vis && !is_bat(mon->data) && mon->data != &mons[PM_STALKER])
-            pline("%s eats %s.", Monnam(mon), distantname);
-        pline("%s seems steadier now.", Monnam(mon));
+            pline("%s seems steadier now.", Monnam(mon));
     }
-    if (leaf && mon->msick) {
+    if (leaf && (mon->msick || mon->mdiseased)) {
         mon->msick = 0;
+        mon->mdiseased = 0;
         if (vis)
             pline("%s is no longer ill.", Monnam(mon));
     }

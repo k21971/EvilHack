@@ -464,7 +464,7 @@ int x, y; /* dog's starting location, might be different from current */
 boolean devour;
 {
     register struct edog *edog = EDOG(mtmp);
-    boolean poly, grow, heal, eyes, slimer, deadmimic;
+    boolean poly, grow, heal, eyes, slimer, deadmimic, unstone, unsick, vis;
     int nutrit, corpsenm;
     long oprice;
     char objnambuf[BUFSZ];
@@ -477,11 +477,15 @@ boolean devour;
     deadmimic = (obj->otyp == CORPSE && (obj->corpsenm == PM_SMALL_MIMIC
                                          || obj->corpsenm == PM_LARGE_MIMIC
                                          || obj->corpsenm == PM_GIANT_MIMIC));
+    unstone = (cures_stoning(mtmp, obj, TRUE) && mtmp->mstone);
+    unsick = (obj->otyp == EUCALYPTUS_LEAF
+              && (mtmp->msick || mtmp->mdiseased));
     slimer = (obj->otyp == CORPSE && obj->corpsenm == PM_GREEN_SLIME);
     poly = polyfodder(obj);
     grow = mlevelgain(obj);
     heal = mhealup(obj);
     eyes = (obj->otyp == CARROT);
+    vis = canseemon(mtmp);
     corpsenm = (obj->otyp == CORPSE ? obj->corpsenm : NON_PM);
 
     if (devour) {
@@ -592,6 +596,22 @@ boolean devour;
         struct permonst *ptr = slimer ? &mons[PM_GREEN_SLIME] : 0;
 
         (void) newcham(mtmp, ptr, FALSE, cansee(mtmp->mx, mtmp->my));
+    }
+
+    if (unstone) {
+        mtmp->mstone = 0;
+        if (!vis) {
+        } else if (Hallucination) {
+            pline("What a pity - %s just ruined a future piece of art!",
+                  mon_nam(mtmp));
+        } else {
+            pline("%s seems limber!", Monnam(mtmp));
+        }
+    }
+    if (unsick) {
+        mtmp->msick = 0, mtmp->mdiseased = 0;
+        if (vis)
+            pline("%s is no longer ill.", Monnam(mtmp));
     }
 
     /* limit "instant" growth to prevent potential abuse */

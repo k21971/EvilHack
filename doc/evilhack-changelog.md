@@ -1914,4 +1914,5 @@ The following changes to date are:
 - Monsters wearing non-metallic gloves protect their worn rings
   from shock damage
 - Adjustment to last commit (monsters/gloves/rings)
+- Fix: monsters/pets ailments not always cured via eating certain foods 
 
