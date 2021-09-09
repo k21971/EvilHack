@@ -685,6 +685,32 @@ struct attack *uattk;
                                              &attknum, &armorpenalty);
     int dieroll = rnd(20);
     int mhit = (tmp > dieroll || u.uswallow);
+    int dmg_wep = dmgval(uwep, &youmonst);
+
+    /* using cursed weapons can sometimes do unexpected things.
+       no need to set a condition for cursed secondary weapon
+       if twoweaponing, as that isn't possible */
+    if (uwep && uwep->cursed && !rn2(7)
+        && u.ualign.type != A_NONE) {
+        if (!rn2(5)) {
+            You("swing wildly and miss!");
+        } else {
+            Your("cursed %s turns against you!", simpleonames(uwep));
+            You("hit yourself in the %s!", body_part(FACE));
+            if (dmg_wep > 0)
+                dmg_wep += u.udaminc;
+            if (dmg_wep < 0)
+                dmg_wep = 0; /* beware negative rings of increase damage */
+            dmg_wep = Maybe_Half_Phys(dmg_wep);
+            if (Hate_material(uwep->material)) {
+                /* dmgval() already added extra damage */
+                searmsg(&youmonst, &youmonst, uwep, FALSE);
+                exercise(A_CON, FALSE);
+            }
+            losehp(dmg_wep, "hitting themselves in the face", KILLED_BY);
+        }
+        return 0;
+    }
 
     /* Cleaver attacks three spots, 'mon' and one on either side of 'mon';
        it can't be part of dual-wielding but we guard against that anyway;

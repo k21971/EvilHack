@@ -1916,4 +1916,5 @@ The following changes to date are:
 - Adjustment to last commit (monsters/gloves/rings)
 - Fix: monsters/pets ailments not always cured via eating certain foods 
 - Player can use a hammer and a forge to free themselves from ball & chain
+- Attacking with a cursed weapon can sometimes do odd things
 

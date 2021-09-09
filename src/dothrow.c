@@ -1123,12 +1123,12 @@ boolean hitsroof;
         }
         if (IS_AIR(levl[bhitpos.x][bhitpos.y].typ) && In_V_tower(&u.uz)) {
             thrownobj = 0;
-            losehp(Maybe_Half_Phys(dmg), "falling object", KILLED_BY_AN);
+            losehp(dmg, "falling object", KILLED_BY_AN);
             return FALSE;
         }
         hitfloor(obj, TRUE);
         thrownobj = 0;
-        losehp(Maybe_Half_Phys(dmg), "falling object", KILLED_BY_AN);
+        losehp(dmg, "falling object", KILLED_BY_AN);
     }
     return TRUE;
 }
@@ -1199,10 +1199,30 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                 slipok = FALSE;
         }
         if (slipok) {
+            int dmg = dmgval(obj, &youmonst);
+
             u.dx = rn2(3) - 1;
             u.dy = rn2(3) - 1;
-            if (!u.dx && !u.dy)
+            if (!u.dx && !u.dy) {
                 u.dz = 1;
+                You("hit yourself in the %s!", body_part(LEG));
+
+                if (stack)
+                    stack->oprops_known |= obj->oprops_known;
+
+                if (dmg > 0)
+                    dmg += u.udaminc;
+                if (dmg < 0)
+                    dmg = 0; /* beware negative rings of increase damage */
+                dmg = Maybe_Half_Phys(dmg);
+
+                if (Hate_material(obj->material)) {
+                    /* dmgval() already added extra damage */
+                    searmsg(&youmonst, &youmonst, obj, FALSE);
+                    exercise(A_CON, FALSE);
+                }
+                losehp(dmg, "hitting themselves with a cursed projectile", KILLED_BY);
+            }
             impaired = TRUE;
         }
     }
