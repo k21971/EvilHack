@@ -697,6 +697,11 @@ struct attack *uattk;
         } else {
             Your("cursed %s turns against you!", simpleonames(uwep));
             You("hit yourself in the %s!", body_part(FACE));
+            if (uwep->oartifact
+                || (uwep->oclass == WEAPON_CLASS && uwep->oprops))
+                /* need a fake die roll here; rn1(18,2) avoids 1 and 20 */
+                (void) artifact_hit((struct monst *) 0, &youmonst, uwep, &dmg_wep,
+                                    rn1(18, 2));
             if (dmg_wep > 0)
                 dmg_wep += u.udaminc;
             if (dmg_wep < 0)

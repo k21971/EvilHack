@@ -1917,4 +1917,5 @@ The following changes to date are:
 - Fix: monsters/pets ailments not always cured via eating certain foods 
 - Player can use a hammer and a forge to free themselves from ball & chain
 - Attacking with a cursed weapon can sometimes do odd things
+- Add condition for hitting oneself with a cursed artifact weapon
 
