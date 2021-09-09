@@ -174,6 +174,9 @@ struct obj {
     (otmp->oclass == WEAPON_CLASS                     \
      && objects[otmp->otyp].oc_skill >= P_SHORT_SWORD \
      && objects[otmp->otyp].oc_skill <= P_SABER)
+#define is_hammer(otmp)                                           \
+    ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
+     && objects[otmp->otyp].oc_skill == P_HAMMER)
 #define is_pole(otmp)                                             \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
      && (objects[otmp->otyp].oc_skill == P_POLEARMS               \
@@ -183,7 +186,7 @@ struct obj {
 #define is_launcher(otmp)                                                  \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill >= P_BOW \
      && objects[otmp->otyp].oc_skill <= P_CROSSBOW)
-#define is_2h_launcher(otmp)                                                  \
+#define is_2h_launcher(otmp)                                                \
     (otmp->oclass == WEAPON_CLASS && (objects[otmp->otyp].oc_skill == P_BOW \
      || objects[otmp->otyp].oc_skill == P_CROSSBOW))
 #define is_ammo(otmp)                                            \

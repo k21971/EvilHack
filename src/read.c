@@ -1105,10 +1105,10 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                 }
             }
             if (!otmp) {
-                otmp = getobj(clothes, "enchant");                      
-                while (otmp && !(otmp->owornmask & W_ARMOR)) {          
+                otmp = getobj(clothes, "enchant");
+                while (otmp && !(otmp->owornmask & W_ARMOR)) {
                     pline("You cannot enchant armor that is not worn.");
-                    otmp = getobj(clothes, "enchant");                  
+                    otmp = getobj(clothes, "enchant");
                 }
             }
         } else {

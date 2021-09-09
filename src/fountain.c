@@ -256,6 +256,7 @@ register struct obj *obj;
     }
 
     burn_away_slime();
+
     /* Dipping something you're still wearing into a forge filled with
      * lava, probably not the smartest thing to do. This is gonna hurt.
      * Non-metallic objects are handled by lava_damage().
@@ -276,83 +277,103 @@ register struct obj *obj;
         return;
     }
 
-    switch (rnd(30)) {
-        case 6:
-        case 7:
-        case 8:
-        case 9: /* Strange feeling */
-            pline("A weird sensation runs up your %s.", body_part(ARM));
-            break;
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17:
-        case 18:
-            if (!is_metallic(obj))
-                goto lava;
-
-            /* TODO: perhaps our hero needs to wield some sort of tool to
-               successfully reforge an object? */
-            if (is_metallic(obj) && Luck > 0) {
-                if (greatest_erosion(obj) > 0) {
-                    if (!Blind)
-                        You("successfully reforge your %s, repairing some of the damage.",
-                            xname(obj));
-                    if (obj->oeroded > 0)
-                        obj->oeroded--;
-                    if (obj->oeroded2 > 0)
-                        obj->oeroded2--;
-                } else {
-                    if (!Blind) {
-                        Your("%s glows briefly from the heat, but looks reforged and as new as ever.",
-                             xname(obj));
-                    }
-                }
+    /* If punished and wielding a hammer, there's a good chance
+     * you can use a forge to free yourself */
+    if (Punished && obj->otyp == HEAVY_IRON_BALL) {
+        if ((uwep && !is_hammer(uwep)) || !uwep) { /* drop a hint */
+            You("need some type of hammer to be able to break the chain.");
+        } else if (uwep && is_hammer(uwep)) {
+            You("place the ball and chain inside the forge.");
+            pline("Raising your %s, you strike the chain...",
+                  xname(uwep));
+            if (!rn2((P_SKILL(P_HAMMER) < P_SKILLED) ? 8 : 2)
+                && Luck >= 0) { /* training up hammer skill pays off */
+                pline("The chain breaks free!");
+                unpunish();
+            } else {
+                pline("Clang!");
             }
-            break;
-        case 19:
-        case 20:
-            if (!is_metallic(obj))
-                goto lava;
+        }
+        return;
+    }
 
-            if (!obj->blessed && is_metallic(obj) && Luck > 5) {
-                bless(obj);
+    switch (rnd(30)) {
+    case 6:
+    case 7:
+    case 8:
+    case 9: /* Strange feeling */
+        pline("A weird sensation runs up your %s.", body_part(ARM));
+        break;
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+        if (!is_metallic(obj))
+            goto lava;
+
+        /* TODO: perhaps our hero needs to wield some sort of tool to
+           successfully reforge an object? */
+        if (is_metallic(obj) && Luck >= 0) {
+            if (greatest_erosion(obj) > 0) {
+                if (!Blind)
+                    You("successfully reforge your %s, repairing some of the damage.",
+                        xname(obj));
+                if (obj->oeroded > 0)
+                    obj->oeroded--;
+                if (obj->oeroded2 > 0)
+                    obj->oeroded2--;
+            } else {
                 if (!Blind) {
-                    Your("%s glows blue for a moment.",
+                    Your("%s glows briefly from the heat, but looks reforged and as new as ever.",
                          xname(obj));
                 }
-            } else {
-                You_feel("a sudden wave of heat.");
             }
-            break;
-        case 21: /* Lava Demon */
-            if (!rn2(8))
-                dolavademon();
-            else
-                pline_The("forge violently spews lava for a moment, then settles.");
-            break;
-        case 22:
-            if (Luck < 0) {
-                blowupforge(u.ux, u.uy);
-            } else {
-               pline("Molten lava surges up and splashes all over you!");
-               losehp(resist_reduce(d(3, 8), FIRE_RES), "dipping into a forge", KILLED_BY);
+        }
+        break;
+    case 19:
+    case 20:
+        if (!is_metallic(obj))
+            goto lava;
+
+        if (!obj->blessed && is_metallic(obj) && Luck > 5) {
+            bless(obj);
+            if (!Blind) {
+                Your("%s glows blue for a moment.",
+                     xname(obj));
             }
-            break;
-        case 23:
-        case 24:
-        case 25:
-        case 26:
-        case 27:
-        case 28:
-        case 29:
-        case 30: /* Strange feeling */
-            You_feel("a sudden flare of heat.");
-            break;
+        } else {
+            You_feel("a sudden wave of heat.");
+        }
+        break;
+    case 21: /* Lava Demon */
+        if (!rn2(8))
+            dolavademon();
+        else
+            pline_The("forge violently spews lava for a moment, then settles.");
+        break;
+    case 22:
+        if (Luck < 0) {
+            blowupforge(u.ux, u.uy);
+        } else {
+           pline("Molten lava surges up and splashes all over you!");
+           losehp(resist_reduce(d(3, 8), FIRE_RES), "dipping into a forge", KILLED_BY);
+        }
+        break;
+    case 23:
+    case 24:
+    case 25:
+    case 26:
+    case 27:
+    case 28:
+    case 29:
+    case 30: /* Strange feeling */
+        You_feel("a sudden flare of heat.");
+        break;
     }
 lava:
     lava_damage(obj, u.ux, u.uy);
