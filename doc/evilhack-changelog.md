@@ -1922,4 +1922,5 @@ The following changes to date are:
   own form
 - Fix: hallucination would block object property descriptions
 - Fix: horses that trumpet in fear
+- Fix: a couple corrections to the last commit (horses and trumpets)
 

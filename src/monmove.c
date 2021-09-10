@@ -367,7 +367,8 @@ boolean fleemsg;
                     break;
                 case MS_ROAR:
                     if (mtmp->mnum == PM_WOOLLY_MAMMOTH
-                        || mtmp->mnum == PM_MASTODON) {
+                        || mtmp->mnum == PM_MASTODON
+                        || mtmp->mnum == PM_MUMAK) {
                         /* special handling for elephants */
                         verb = "trumpet";
                         break;
@@ -381,12 +382,12 @@ boolean fleemsg;
                     pline("%s %s in %s!", Monnam(mtmp),
                           vtense((char *) 0, verb),
                           rn2(2) ? "fear" : "terror");
-                }
-                /* Check and see who was close enough to hear it */
-                for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
-                    if (dist2(mtmp->mx, mtmp->my, mtmp2->mx, mtmp2->my) < 19
-                        && !rn2(3))
-                        mtmp2->msleeping = 0;
+                    /* Check and see who was close enough to hear it */
+                    for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+                        if (dist2(mtmp->mx, mtmp->my, mtmp2->mx, mtmp2->my) < 19
+                            && !rn2(3))
+                            mtmp2->msleeping = 0;
+                    }
                 }
             }
             pline("%s turns to flee.", Monnam(mtmp));
