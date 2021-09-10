@@ -564,10 +564,11 @@ unsigned short chance;
 
             if (trop->trclass == COIN_CLASS) {
                 /* no "blessed" or "identified" money */
-                obj->quan = u.umoney0;
+                obj->quan = trop->trquan;
+                trop->trquan = 1;
             } else {
                 obj->cursed = (trop->trbless == CURSED);
-                if (obj->opoisoned && u.ualign.type > A_CHAOTIC)
+                if (obj->opoisoned && mon_aligntyp(mtmp) > A_CHAOTIC)
                     obj->opoisoned = 0;
                 if (obj->oclass == WEAPON_CLASS
                     || obj->oclass == TOOL_CLASS) {
