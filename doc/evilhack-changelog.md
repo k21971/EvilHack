@@ -466,7 +466,7 @@ The following changes to date are:
 - Wand of death/finger of death spell is not completely negated by magic
 - Monsters with magic resistance are affected the same way as the player
   when hit by a wand of death/finger of death spell
-- Livelog ID'ed sokoban prize and not 'sokoban prize <object>
+- Livelog ID'ed sokoban prize and not 'sokoban prize object'
 - More scenarios where fire damage can destroy objects
 - Less chance of waking monsters in combat if stealthy
 - New conducts
@@ -1925,4 +1925,7 @@ The following changes to date are:
 - Fix: a couple corrections to the last commit (horses and trumpets)
 - Autorecover crashed games
 - Fix: crash bug with 'attacking with a cursed weapon' commit
+- Fix: some racial monster armor rules
+- Fix: holdovers from ini_inv in ini_mon_inv
+- Fix: minor error in this changelog
 
