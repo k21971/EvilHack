@@ -1921,4 +1921,5 @@ The following changes to date are:
 - Fix: chameleons stuck at never changing form again by selecting their
   own form
 - Fix: hallucination would block object property descriptions
+- Fix: horses that trumpet in fear
 

@@ -349,46 +349,43 @@ boolean fleemsg;
                                     : bare_artifactname(litwep));
                 } else
                     verbalize("Bright light!");
-            } else if (!rn2(5) && !Deaf && !mindless(mtmp->data) && !is_silent(mtmp->data)) {
-                       if (mtmp->data->msound == MS_BARK
-                           || mtmp->data->msound == MS_GROWL)
-                           pline("%s howls in %s!", Monnam(mtmp),
-                                 rn2(2) ? "fear" : "terror");
-                       else if (mtmp->data->msound == MS_MEW
-                                || mtmp->data->msound == MS_HISS)
-                                pline("%s hisses in %s!", Monnam(mtmp),
-                                      rn2(2) ? "fear" : "terror");
-                       else if (mtmp->data->msound == MS_ROAR)
-                                pline("%s roars in %s!", Monnam(mtmp),
-                                      rn2(2) ? "fear" : "terror");
-                       else if (mtmp->data->msound == MS_SQAWK)
-                                pline("%s squawks in %s!", Monnam(mtmp),
-                                      rn2(2) ? "fear" : "terror");
-                       else if (mtmp->data->msound == MS_SQEEK)
-                                pline("%s squeals in %s!", Monnam(mtmp),
-                                      rn2(2) ? "fear" : "terror");
-                       else if (mtmp->data->msound == MS_NEIGH)
-                                pline("%s trumpets in %s!", Monnam(mtmp),
-                                      rn2(2) ? "fear" : "terror");
-                       else if (mtmp->data->msound == MS_SHRIEK)
-                                pline("%s shrieks in %s!", Monnam(mtmp),
-                                      rn2(2) ? "fear" : "terror");
-                       else if (mtmp->data->msound == MS_GRUNT
-                                || mtmp->data->msound >= MS_LAUGH)
-                                pline("%s screams in %s!", Monnam(mtmp),
-                                      rn2(2) ? "fear" : "terror");
-                       else if (mtmp->data->msound == MS_WAIL)
-                                pline("%s wails in %s!", Monnam(mtmp),
-                                      rn2(2) ? "fear" : "terror");
-                       /* bees and mosquitos don't vocalize anything */
-                       else if (mtmp->data->msound == MS_BUZZ)
-                                ;
-                       else
-                           pline("%s squeaks in %s!", Monnam(mtmp),
-                                 rn2(2) ? "fear" : "terror");
+            } else if (!rn2(5) && !Deaf && !mindless(mtmp->data)) {
+                const char *verb = 0;
+                switch (mtmp->data->msound) {
+                case MS_SILENT:
+                case MS_HISS:
+                case MS_BUZZ:
+                    /* no sound */
+                    break;
+                case MS_BARK:
+                case MS_GROWL:
+                    if (mtmp->data->mlet == S_FELINE) {
+                        verb = "yowl";
+                        break;
+                    }
+                    verb = "howl";
+                    break;
+                case MS_ROAR:
+                    if (mtmp->mnum == PM_WOOLLY_MAMMOTH
+                        || mtmp->mnum == PM_MASTODON) {
+                        /* special handling for elephants */
+                        verb = "trumpet";
+                        break;
+                    }
+                    /* fallthrough */
+                default:
+                    verb = growl_sound(mtmp);
+                    break;
+                }
+                if (verb) {
+                    pline("%s %s in %s!", Monnam(mtmp),
+                          vtense((char *) 0, verb),
+                          rn2(2) ? "fear" : "terror");
+                }
                 /* Check and see who was close enough to hear it */
                 for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
-                    if (dist2(mtmp->mx, mtmp->my, mtmp2->mx, mtmp2->my) < 19 && !rn2(3))
+                    if (dist2(mtmp->mx, mtmp->my, mtmp2->mx, mtmp2->my) < 19
+                        && !rn2(3))
                         mtmp2->msleeping = 0;
                 }
             }
