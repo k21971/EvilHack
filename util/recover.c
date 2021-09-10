@@ -22,10 +22,10 @@ extern int FDECL(vms_creat, (const char *, unsigned));
 extern int FDECL(vms_open, (const char *, int, unsigned));
 #endif /* VMS */
 
-int FDECL(restore_savefile, (char *));
-void FDECL(set_levelfile_name, (int));
-int FDECL(open_levelfile, (int));
-int NDECL(create_savefile);
+int FDECL(restore_savefile, (char *, const char *));
+static void FDECL(set_levelfile_name, (int));
+static int FDECL(open_levelfile, (int, const char *));
+static int FDECL(create_savefile, (const char *));
 void FDECL(copy_bytes, (int, int));
 
 #ifndef WIN_CE
@@ -60,6 +60,7 @@ extern unsigned _stklen = STKSIZ;
 #endif
 char savename[SAVESIZE]; /* holds relative path of save file from playground */
 
+#ifndef NO_MAIN
 int
 main(argc, argv)
 int argc;
@@ -135,7 +136,7 @@ char *argv[];
     }
 
     while (argc > argno) {
-        if (restore_savefile(argv[argno]) == 0)
+        if (restore_savefile(argv[argno], dir) == 0)
             Fprintf(stderr, "recovered \"%s\" to %s\n", argv[argno],
                     savename);
         argno++;
@@ -148,10 +149,11 @@ char *argv[];
     /*NOTREACHED*/
     return 0;
 }
+#endif /* !NO_MAIN */
 
 static char lock[256];
 
-void
+static void
 set_levelfile_name(lev)
 int lev;
 {
@@ -166,30 +168,44 @@ int lev;
 #endif
 }
 
-int
-open_levelfile(lev)
+static int
+open_levelfile(lev, directory)
 int lev;
+const char *directory;
 {
     int fd;
+    char levelfile[BUFSIZ];
 
     set_levelfile_name(lev);
+    if (directory) {
+        snprintf(levelfile, BUFSIZ, "%s/%s", directory, lock);
+    } else {
+        strcpy(levelfile, lock);
+    }
 #if defined(MICRO) || defined(WIN32) || defined(MSDOS)
-    fd = open(lock, O_RDONLY | O_BINARY);
+    fd = open(levelfile, O_RDONLY | O_BINARY);
 #else
-    fd = open(lock, O_RDONLY, 0);
+    fd = open(levelfile, O_RDONLY, 0);
 #endif
     return fd;
 }
 
-int
-create_savefile()
+static int
+create_savefile(directory)
+const char *directory;
 {
     int fd;
+    char savefile[BUFSIZ];
 
+    if (directory) {
+        sprintf(savefile, "%s/%s", directory, savename);
+    } else {
+        strcpy(savefile, savename);
+    }
 #if defined(MICRO) || defined(WIN32) || defined(MSDOS)
-    fd = open(savename, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, FCMASK);
+    fd = open(savefile, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, FCMASK);
 #else
-    fd = creat(savename, FCMASK);
+    fd = creat(savefile, FCMASK);
 #endif
     return fd;
 }
@@ -212,8 +228,9 @@ int ifd, ofd;
 }
 
 int
-restore_savefile(basename)
+restore_savefile(basename, directory)
 char *basename;
+const char *directory;
 {
     int gfd, lfd, sfd;
     int res = 0, lev, savelev, hpid, pltmpsiz;
@@ -231,7 +248,7 @@ char *basename;
      *  and game state
      */
     (void) strcpy(lock, basename);
-    gfd = open_levelfile(0);
+    gfd = open_levelfile(0, directory);
     if (gfd < 0) {
 #if defined(WIN32) && !defined(WIN_CE)
         if (errno == EACCES) {
@@ -284,14 +301,14 @@ char *basename;
      *  (non-level-based) game state
      *  other levels
      */
-    sfd = create_savefile();
+    sfd = create_savefile(directory);
     if (sfd < 0) {
         Fprintf(stderr, "Cannot create savefile %s.\n", savename);
         Close(gfd);
         return -1;
     }
 
-    lfd = open_levelfile(savelev);
+    lfd = open_levelfile(savelev, directory);
     if (lfd < 0) {
         Fprintf(stderr, "Cannot open level of save for %s.\n", basename);
         Close(gfd);
@@ -352,7 +369,7 @@ char *basename;
          * maximum level number (for the endlevel) must be < 256
          */
         if (lev != savelev) {
-            lfd = open_levelfile(lev);
+            lfd = open_levelfile(lev, directory);
             if (lfd >= 0) {
                 /* any or all of these may not exist */
                 levc = (xchar) lev;

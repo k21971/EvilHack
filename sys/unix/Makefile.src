@@ -49,7 +49,7 @@ SHELL=/bin/sh
 # for UNIX systems
 SYSSRC = ../sys/share/ioctl.c ../sys/share/unixtty.c ../sys/unix/unixmain.c \
 	../sys/unix/unixunix.c ../sys/unix/unixres.c
-SYSOBJ = ioctl.o unixmain.o unixtty.o unixunix.o unixres.o
+SYSOBJ = ioctl.o unixmain.o unixtty.o unixunix.o unixres.o recover.o
 #
 # for Systos
 # SYSSRC = ../sys/atari/tos.c ../sys/share/pcmain.c ../sys/share/pcsys.c \
@@ -787,6 +787,8 @@ topl.o: ../win/tty/topl.c $(HACK_H) ../include/tcap.h
 	$(CC) $(CFLAGS) -c -o $@ ../win/tty/topl.c
 wintty.o: ../win/tty/wintty.c $(HACK_H) ../include/dlb.h ../include/tcap.h
 	$(CC) $(CFLAGS) -c -o $@ ../win/tty/wintty.c
+recover.o: ../util/recover.c $(HACK_H)
+	$(CC) $(CFLAGS) -DNO_MAIN -c ../util/recover.c
 cursmain.o: ../win/curses/cursmain.c $(HACK_H) ../include/patchlevel.h \
 		../include/wincurs.h
 	$(CC) $(CFLAGS) -c -o $@ ../win/curses/cursmain.c
