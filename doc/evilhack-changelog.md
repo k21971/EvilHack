@@ -1924,4 +1924,5 @@ The following changes to date are:
 - Fix: horses that trumpet in fear
 - Fix: a couple corrections to the last commit (horses and trumpets)
 - Autorecover crashed games
+- Fix: crash bug with 'attacking with a cursed weapon' commit
 

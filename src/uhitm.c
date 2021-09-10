@@ -685,7 +685,7 @@ struct attack *uattk;
                                              &attknum, &armorpenalty);
     int dieroll = rnd(20);
     int mhit = (tmp > dieroll || u.uswallow);
-    int dmg_wep = dmgval(uwep, &youmonst);
+    int dmg_wep = (uwep ? dmgval(uwep, &youmonst) : 0);
 
     /* using cursed weapons can sometimes do unexpected things.
        no need to set a condition for cursed secondary weapon
