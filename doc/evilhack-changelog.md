@@ -1918,4 +1918,6 @@ The following changes to date are:
 - Player can use a hammer and a forge to free themselves from ball & chain
 - Attacking with a cursed weapon can sometimes do odd things
 - Add condition for hitting oneself with a cursed artifact weapon
+- Fix: chameleons stuck at never changing form again by selecting their
+  own form
 

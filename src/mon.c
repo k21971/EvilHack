@@ -3075,6 +3075,8 @@ register struct monst *mtmp;
                 }
             }
             newcham(mtmp, &mons[mndx], FALSE, FALSE);
+            if (is_changeling(mtmp))
+                mtmp->mcan = TRUE;
             if (mtmp->data == &mons[mndx])
                 mtmp->cham = NON_PM;
             else
@@ -4515,7 +4517,7 @@ struct monst *mon;
 {
     int mcham;
 
-    if (Protection_from_shape_changers) {
+    if (Protection_from_shape_changers || mon->mcan) {
         mcham = (int) mon->cham;
         if (mcham >= LOW_PM) {
             mon->cham = NON_PM;
@@ -4680,9 +4682,7 @@ int shiftflags;
 
     if (!is_vampshifter(mon)) {
         /* regular shapeshifter */
-        if (mon->data == &mons[PM_CHAMELEON] && mon->mtame)
-            dochng = FALSE;
-        else if (!rn2(6))
+        if (!rn2(6))
             dochng = TRUE;
     } else {
         /* The vampire has to be in good health (mhp) to maintain
