@@ -690,7 +690,7 @@ boolean creation;
         m_dowear_type(mon, W_ARMU, creation, FALSE);
     /* treating small as a special case allows
        hobbits, gnomes, and kobolds to wear cloaks */
-    if (!cantweararm(mon) || mon->data->msize == MZ_SMALL)
+    if (!cantweararm(mon) || r_data(mon)->msize == MZ_SMALL)
         m_dowear_type(mon, W_ARMC, creation, FALSE);
     m_dowear_type(mon, W_ARMH, creation, FALSE);
     if (!mw || !bimanual(mw))
@@ -704,7 +704,7 @@ boolean creation;
         m_dowear_type(mon, W_RINGR, creation, FALSE);
 
     m_dowear_type(mon, W_ARMG, creation, FALSE);
-    if (!slithy(mon->data) && mon->data->mlet != S_CENTAUR)
+    if (!slithy(mon->data) && r_data(mon)->mlet != S_CENTAUR)
         m_dowear_type(mon, W_ARMF, creation, FALSE);
     if (!cantweararm(mon))
         m_dowear_type(mon, W_ARM, creation, FALSE);
