@@ -1920,4 +1920,5 @@ The following changes to date are:
 - Add condition for hitting oneself with a cursed artifact weapon
 - Fix: chameleons stuck at never changing form again by selecting their
   own form
+- Fix: hallucination would block object property descriptions
 

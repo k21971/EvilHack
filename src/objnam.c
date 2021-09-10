@@ -439,9 +439,6 @@ boolean has_of;
 {
     char of[6];
 
-    if (Hallucination)
-        return;
-
     Strcpy(of, (has_of) ? " and" : " of");
     if (props & ITEM_FIRE) {
         if ((props_known & ITEM_FIRE)
