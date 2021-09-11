@@ -1891,4 +1891,5 @@ The following changes to date are:
 - Fix: crash during restore (hallucination resistance).
 - Fix: crash while wearing gold dragon scales/scale mail in presence
   of a gremlin
+- Fix: quest artifact effects linger after giving it up to quest leader
 
