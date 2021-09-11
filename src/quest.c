@@ -357,6 +357,12 @@ noabuse:
     }
 }
 
+boolean
+q_leader_angered()
+{
+    return Qstat(pissed_off);
+}
+
 void
 chat_with_leader()
 {

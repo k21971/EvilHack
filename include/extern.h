@@ -2182,6 +2182,7 @@ E void NDECL(nemdead);
 E void NDECL(leaddead);
 E void FDECL(artitouch, (struct obj *));
 E boolean NDECL(ok_to_quest);
+E boolean NDECL(q_leader_angered);
 E void FDECL(leader_speaks, (struct monst *));
 E void NDECL(nemesis_speaks);
 E void FDECL(quest_chat, (struct monst *));

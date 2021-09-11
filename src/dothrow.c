@@ -80,7 +80,7 @@ int shotlimit;
         return 1;
     }
     if (obj->oartifact == ART_XIUHCOATL && ACURR(A_DEX) < 18) {
-        pline("%s requires a deft hand.", (xname(obj)));
+        pline("%s a deft hand.", Tobjnam(obj, "require"));
         return 1;
     }
     if (!u.dx && !u.dy && !u.dz) {
@@ -1770,6 +1770,12 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
                 boolean next2u = monnear(mon, u.ux, u.uy);
 
                 finish_quest(obj); /* acknowledge quest completion */
+                if (mcarried(obj) || q_leader_angered()) {
+                    /* quest leader keeps artifact, so don't throw it back.
+                     * mcarried indicates player agreed to give it up and it
+                     * was subsequently placed into the leader's inventory. */
+                    return 1;
+                }
                 pline("%s %s %s back to you.", Monnam(mon),
                       (next2u ? "hands" : "tosses"), the(xname(obj)));
                 if (!next2u)
