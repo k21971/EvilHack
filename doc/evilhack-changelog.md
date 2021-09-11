@@ -1889,4 +1889,6 @@ The following changes to date are:
   cast while player is invulnerable
 - Tweak wizard spell skill levels
 - Fix: crash during restore (hallucination resistance).
+- Fix: crash while wearing gold dragon scales/scale mail in presence
+  of a gremlin
 
