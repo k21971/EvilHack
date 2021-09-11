@@ -1892,4 +1892,5 @@ The following changes to date are:
 - Fix: crash while wearing gold dragon scales/scale mail in presence
   of a gremlin
 - Fix: quest artifact effects linger after giving it up to quest leader
+- Fix: crash via draining a monster with wand of death to zero hit points
 
