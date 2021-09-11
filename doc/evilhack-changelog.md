@@ -1893,4 +1893,5 @@ The following changes to date are:
   of a gremlin
 - Fix: quest artifact effects linger after giving it up to quest leader
 - Fix: crash via draining a monster with wand of death to zero hit points
+- Fix: quest leader wanting quest artifact back and it's thrown to them
 
