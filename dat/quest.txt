@@ -1014,7 +1014,7 @@ to defeat the corrupt %n and recover
 %o for us so that
 %H will be safe again.  Grab the silver
 bell while you're there, I can lift the curse
-%o put on it, you can use it to find
+%n put on it, you can use it to find
 the Amulet of Yendor."
 %E [Journey downward to recover %o from %n.]
 %Cp Con 00024

@@ -294,7 +294,8 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     fully_identify_obj(obj);
                     obj->oeroded = obj->oeroded2 = 0; /* undo any damage */
                     obj->oerodeproof = 1;
-                    freeinv(obj);
+                    remove_worn_item(obj, TRUE);
+                    obj_extract_self(obj);
                     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                         if (DEADMONSTER(mtmp))
                             continue;
