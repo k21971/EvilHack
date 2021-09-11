@@ -1929,4 +1929,5 @@ The following changes to date are:
 - Fix: holdovers from ini_inv in ini_mon_inv
 - Fix: minor error in this changelog
 - Fix: quest artifact effects linger after giving it up to quest leader
+- Fix: crash via draining a monster with wand of death to zero hit points
 
