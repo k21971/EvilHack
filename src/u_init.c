@@ -1477,12 +1477,14 @@ register struct trobj *origtrop;
         set_material(obj, objects[otyp].oc_material);
 
         /* Replace iron objects (e.g. Priest's mace) with copper for elves */
-        if (Race_if(PM_ELF) && obj->material == IRON)
+        if (Race_if(PM_ELF) && obj->material == IRON
+            && valid_obj_material(obj, COPPER))
             set_material(obj, COPPER);
 
         /* Do the same for orcs and mithril objects.
            Currently not a concern, but may be in the future */
-        if (Race_if(PM_ORC) && obj->material == MITHRIL)
+        if (Race_if(PM_ORC) && obj->material == MITHRIL
+            && valid_obj_material(obj, IRON))
             set_material(obj, IRON);
 
         if (urace.malenum != PM_HUMAN) {
