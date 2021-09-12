@@ -185,7 +185,7 @@ int target, roll;
                 /* glancing blow */
                 magr->mhp -= rnd(sear_damage(blocker->material) / 2);
                 if (DEADMONSTER(magr))
-                    killed(magr);
+                    monkilled(magr, "", AD_PHYS);
             }
         } else {
             if (thick_skinned(mdef->data) && !rn2(10)) {
