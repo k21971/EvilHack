@@ -1896,4 +1896,6 @@ The following changes to date are:
 - Fix: quest leader wanting quest artifact back and it's thrown to them
 - Fix: player getting credit for monster dying to another monster's
   armor blocking their attack (hated material)
+- Fix: during initial player creation, prevent changing object material
+  to something invalid
 
