@@ -1892,7 +1892,7 @@ The following changes to date are:
 
 ### Version 0.7.1
 
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of June 28th, 2021)
 - Initial preparation for new version (0.7.1)
 - Centaurs can be knights
 - Revamp corpse revival via zombie death, zombie illness timer
@@ -1935,4 +1935,5 @@ The following changes to date are:
   armor blocking their attack (hated material)
 - Fix: during initial player creation, prevent changing object material
   to something invalid
+- Update NetHack 3.6.6 official release 'latest merges' date
 
