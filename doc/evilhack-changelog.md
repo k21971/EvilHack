@@ -1931,4 +1931,6 @@ The following changes to date are:
 - Fix: quest artifact effects linger after giving it up to quest leader
 - Fix: crash via draining a monster with wand of death to zero hit points
 - Fix: quest leader wanting quest artifact back and it's thrown to them
+- Fix: player getting credit for monster dying to another monster's
+  armor blocking their attack (hated material)
 
