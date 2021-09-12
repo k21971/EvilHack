@@ -1,4 +1,4 @@
-$NHDT-Branch: NetHack-3.6-Mar2020 $:$NHDT-Revision: 1.2 $ $NHDT-Date: 1583606861 2020/03/07 18:47:41 $
+$NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.4 $ $NHDT-Date: 1587039894 2020/04/16 12:24:54 $
 
 fixes36.6 contains a terse summary of changes made to 3.6.5 in order to
 produce 3.6.6 as well as any post-release fixes in binaries.
@@ -24,4 +24,20 @@ teach unix/Makefile.doc how to make Guidebook.dat, an unpaginated copy of
 General New Features
 --------------------
 none
+
+
+Fixes to 3.6.6 Post-release Problems and other Post-release changes
+-------------------------------------------------------------------
+windows: added winflexbison to travis-ci configuration to permit full build of
+	levcomp and dgncomp
+windows: a bad chdir specified in win/win32/dgnstuff.mak caused full build to
+	abort
+windows: the console.rc file had outdated information stating 3.6.3 when the
+	official 3.6.6 binary was built.
+curses: cherry-picked selectsaved code from 3.7 for menu of save files
+NetHackW: fix delay rendering of cursor when using farlook
+during engraving, spaces were counted instead of non-space (cherry-pick of
+	4e0a1e04 from NetHack-3.7)
+avoid potential buffer overflow in append_str()
+resolve missing dependency in NetHack.sln
 

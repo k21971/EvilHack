@@ -32,8 +32,7 @@ export YACC="win_bison -y"
 export LEX=win_flex.exe
 export YTABC=y.tab.c
 export YTABH=y.tab.h
-export LEXYYC=lex.yy.c
-export
+export LEXYYC=lex.yy.cexport
 cd src
 mkdir ../binary
 cp ../sys/winnt/Makefile.msc ./Makefile
