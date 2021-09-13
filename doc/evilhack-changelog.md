@@ -1936,4 +1936,5 @@ The following changes to date are:
 - Fix: during initial player creation, prevent changing object material
   to something invalid
 - Update NetHack 3.6.6 official release 'latest merges' date
+- Fix: player poly'd into a giant had wrong movement speed and size
 

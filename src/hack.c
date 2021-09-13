@@ -3402,8 +3402,10 @@ weight_cap()
         maxcarrcap += 400;
         /* super-hacky bit right here, OMG */
         youmonst.data->cwt = 2200;
-        youmonst.data->mmove = (Race_if(PM_GIANT) ? 10 : 18);
-        youmonst.data->msize = (Race_if(PM_GIANT) ? MZ_HUGE : MZ_LARGE);
+        youmonst.data->mmove = (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
+                                ? 10 : 18);
+        youmonst.data->msize = (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
+                                ? MZ_HUGE : MZ_LARGE);
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (youmonst.data->mlet == S_NYMPH)
