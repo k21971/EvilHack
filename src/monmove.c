@@ -209,8 +209,9 @@ mon_regen(mon, digest_meal)
 struct monst *mon;
 boolean digest_meal;
 {
-    if (mon->mhp < mon->mhpmax && (moves % 20 == 0
-                                   || mon_prop(mon, REGENERATION)) && !mon->mwither)
+    if (mon->mhp < mon->mhpmax && !mon->mwither
+        && (!Is_valley(&u.uz) || is_undead(r_data(mon)))
+        && (moves % 20 == 0 || mon_prop(mon, REGENERATION)))
         mon->mhp++;
     if (mon->mspec_used)
         mon->mspec_used--;

@@ -769,7 +769,8 @@ int wtcap;
                 && (!Half_physical_damage || !(moves % 2L)))
                 heal = -1;
         } else if (u.mh < u.mhmax) {
-            if (Regeneration || (encumbrance_ok && !(moves % 20L)))
+            if ((!Is_valley(&u.uz) || is_undead(youmonst.data))
+                && (Regeneration || (encumbrance_ok && !(moves % 20L))))
                 heal = 1;
         }
         if (heal && !(Withering && heal > 0)) {
