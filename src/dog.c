@@ -684,7 +684,7 @@ long nmv; /* number of moves */
     }
 
     /* recover lost hit points */
-    if (!mtmp->mwither) {
+    if (!mtmp->mwither && (!Is_valley(&u.uz) || is_undead(r_data(mtmp)))) {
         if (!mon_prop(mtmp, REGENERATION))
             imv /= 20;
         if (mtmp->mhp + imv >= mtmp->mhpmax)

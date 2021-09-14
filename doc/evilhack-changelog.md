@@ -1938,4 +1938,5 @@ The following changes to date are:
 - Update NetHack 3.6.6 official release 'latest merges' date
 - Fix: player poly'd into a giant had wrong movement speed and size
 - Remove a bit of unnecessary code
+- Block monster health regeneration in the Valley of the Dead.
 
