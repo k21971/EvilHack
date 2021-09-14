@@ -947,9 +947,8 @@ int retry;
     } else if (flags.menu_style == MENU_FULL) {
         all_categories = FALSE;
         n = query_category("Drop what type of items?", invent,
-                           UNPAID_TYPES | ALL_TYPES | CHOOSE_ALL | BUC_BLESSED
-                               | BUC_CURSED | BUC_UNCURSED | BUC_UNKNOWN,
-                           &pick_list, PICK_ANY);
+                           (UNPAID_TYPES | ALL_TYPES | CHOOSE_ALL | BUCX_TYPES
+                            | UNIDED_TYPES), &pick_list, PICK_ANY);
         if (!n)
             goto drop_done;
         for (i = 0; i < n; i++) {

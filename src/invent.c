@@ -1984,7 +1984,7 @@ unsigned *resultflags;
     boolean FDECL((*ofilter), (OBJ_P)) = (boolean FDECL((*), (OBJ_P))) 0;
     boolean takeoff, ident, allflag, m_seen;
     int itemcount;
-    int oletct, iletct, unpaid, oc_of_sym;
+    int oletct, iletct, unpaid, unided, oc_of_sym;
     char sym, *ip, olets[MAXOCLASSES + 5], ilets[MAXOCLASSES + 10];
     char extra_removeables[3 + 1]; /* uwep,uswapwep,uquiver */
     char buf[BUFSZ] = DUMMY, qbuf[QBUFSZ];
@@ -2009,6 +2009,7 @@ unsigned *resultflags;
 
     iletct = collect_obj_classes(ilets, invent, FALSE, ofilter, &itemcount);
     unpaid = count_unpaid(invent);
+    unided = count_unidentified(invent);
 
     if (ident && !iletct) {
         return -1; /* no further identifications */
@@ -2016,6 +2017,8 @@ unsigned *resultflags;
         ilets[iletct++] = ' ';
         if (unpaid)
             ilets[iletct++] = 'u';
+        if (unided)
+            ilets[iletct++] = 'I';
         if (count_buc(invent, BUC_BLESSED, ofilter))
             ilets[iletct++] = 'B';
         if (count_buc(invent, BUC_UNCURSED, ofilter))
@@ -2104,8 +2107,8 @@ unsigned *resultflags;
         } else if (sym == 'u') {
             add_valid_menu_class('u');
             ckfn = ckunpaid;
-        } else if (index("BUCX", sym)) {
-            add_valid_menu_class(sym); /* 'B','U','C',or 'X' */
+        } else if (index("IBUCX", sym)) {
+            add_valid_menu_class(sym); /* 'I', 'B','U','C',or 'X' */
             ckfn = ckvalidcat;
         } else if (sym == 'm') {
             m_seen = TRUE;
@@ -2168,7 +2171,7 @@ int FDECL((*fn), (OBJ_P)), FDECL((*ckfn), (OBJ_P));
     nodot = (!strcmp(word, "nodot") || !strcmp(word, "drop") || ident
              || takeoff || take_out || put_in);
     ininv = (*objchn == invent);
-    bycat = (menu_class_present('u')
+    bycat = (menu_class_present('u') || menu_class_present('I')
              || menu_class_present('B') || menu_class_present('U')
              || menu_class_present('C') || menu_class_present('X'));
 
@@ -3188,6 +3191,9 @@ struct obj *obj;
             res = (this_type == (iflags.goldX ? 'X' : 'U'));
     } else {
         switch (this_type) {
+        case 'I':
+            res = (not_fully_identified(obj));
+            break;
         case 'B':
             res = (obj->bknown && obj->blessed);
             break;
@@ -3214,7 +3220,7 @@ dotypeinv()
     char c = '\0';
     int n, i = 0;
     char *extra_types, types[BUFSZ];
-    int class_count, oclass, unpaid_count, itemcount;
+    int class_count, oclass, unpaid_count, unided_count, itemcount;
     int bcnt, ccnt, ucnt, xcnt, ocnt;
     boolean billx = *u.ushops && doinvbill(0);
     menu_item *pick_list;
@@ -3226,13 +3232,14 @@ dotypeinv()
         return 0;
     }
     unpaid_count = count_unpaid(invent);
+    unided_count = count_unidentified(invent);
     tally_BUCX(invent, FALSE, &bcnt, &ucnt, &ccnt, &xcnt, &ocnt);
 
     if (flags.menu_style != MENU_TRADITIONAL) {
         if (flags.menu_style == MENU_FULL
             || flags.menu_style == MENU_PARTIAL) {
             traditional = FALSE;
-            i = UNPAID_TYPES;
+            i = UNPAID_TYPES | UNIDED_TYPES;
             if (billx)
                 i |= BILLED_TYPES;
             if (bcnt)
@@ -3260,6 +3267,8 @@ dotypeinv()
             types[class_count++] = ' ';
         if (unpaid_count)
             types[class_count++] = 'u';
+        if (unided_count)
+            types[class_count++] = 'I';
         if (billx)
             types[class_count++] = 'x';
         if (bcnt)
@@ -3276,6 +3285,8 @@ dotypeinv()
         *extra_types++ = '\033';
         if (!unpaid_count)
             *extra_types++ = 'u';
+        if (!unided_count)
+            *extra_types++ = 'I';
         if (!billx)
             *extra_types++ = 'x';
         if (!bcnt)
@@ -3304,6 +3315,8 @@ dotypeinv()
             /* only one thing to itemize */
             if (unpaid_count)
                 c = 'u';
+            else if (unided_count)
+                c = 'I';
             else if (billx)
                 c = 'x';
             else
@@ -3326,7 +3339,7 @@ dotypeinv()
         return 0;
     }
     if (traditional) {
-        if (index("BUCX", c))
+        if (index("IBUCX", c))
             oclass = c; /* not a class but understood by this_type_only() */
         else
             oclass = def_char_to_objclass(c); /* change to object class */
@@ -3338,6 +3351,9 @@ dotypeinv()
             const char *before = "", *after = "";
 
             switch (c) {
+            case 'I':
+                before = "unidentified ";
+                break;
             case 'B':
                 before = "known to be blessed ";
                 break;
