@@ -437,6 +437,9 @@ boolean message;
                         else
                             Strcpy(blast, " in a blast of fire");
                         break;
+                    case AD_DISN:
+                        Strcpy(blast, " in a haze of antiparticles");
+                        break;
                     case AD_BLND:
                     case AD_PHYS:
                         Strcpy(blast, " with a woosh");
@@ -524,7 +527,7 @@ struct attack *alt_attk_buf;
         attk = alt_attk_buf;
         if (attk->adtyp == AD_ACID || attk->adtyp == AD_ELEC
             || attk->adtyp == AD_COLD || attk->adtyp == AD_FIRE
-            || attk->adtyp == AD_DISE) {
+            || attk->adtyp == AD_DISE || attk->adtyp == AD_DISN) {
             attk->aatyp = AT_TUCH;
         } else {
             /* neothelids have a breath attack plus multiple tentacle
@@ -2728,6 +2731,56 @@ struct attack *mattk;
             drain_en(tmp);
         tmp = 0;
         break;
+    case AD_DISN:
+        if (!mtmp->mcan && rn2(2) && u.uswldtim < 2) {
+            pline_The("air around you shimmers with antiparticles.");
+            if (how_resistant(DISINT_RES) == 100) {
+                shieldeff(u.ux, u.uy);
+                You_feel("mildly tickled.");
+                tmp = 0;
+                break;
+            } else if (how_resistant(DISINT_RES) >= 50) {
+                You("aren't disintegrated, but that hurts!");
+                tmp = resist_reduce(tmp, DISINT_RES);
+                if (tmp)
+                    mdamageu(mtmp, tmp);
+                break;
+            } else if (how_resistant(DISINT_RES) < 50) {
+                tmp = resist_reduce(tmp, DISINT_RES);
+                if (tmp)
+                    mdamageu(mtmp, tmp);
+                if (uarms) {
+                    /* destroy shield; other possessions are safe */
+                    (void) destroy_arm(uarms);
+                    break;
+                } else if (uarm) {
+                    /* destroy suit; if present, cloak goes too */
+                    if (uarmc)
+                        (void) destroy_arm(uarmc);
+                    (void) destroy_arm(uarm);
+                    break;
+                }
+                /* fall through. not having enough disintegration
+                   resistance can still get you disintegrated */
+            }
+            /* no shield or suit, you're dead; wipe out cloak
+               and/or shirt in case of life-saving or bones */
+            if (uarmc)
+                (void) destroy_arm(uarmc);
+            if (uarmu)
+                (void) destroy_arm(uarmu);
+
+            You("are disintegrated!");
+            /* when killed by disintegration, don't leave a corpse */
+            u.ugrave_arise = -3;
+            killer.format = NO_KILLER_PREFIX;
+            Sprintf(killer.name, "disintegrated by %s",
+                    an(mtmp->data->mname));
+            done(DIED);
+        } else {
+            tmp = 0;
+        }
+        break;
     default:
         physical_damage = TRUE;
         tmp = 0;
@@ -4083,12 +4136,14 @@ struct attack *mattk;
         if (!rn2(6))
             acid_damage(MON_WEP(mtmp));
         goto assess_dmg;
-    case AD_DISN:
+    case AD_DISN: {
+        int chance = (youmonst.data == &mons[PM_ANTIMATTER_VORTEX] ? !rn2(3) : !rn2(6));
         if (resists_disint(mtmp)) {
             if (canseemon(mtmp) && !rn2(3)) {
                 shieldeff(mtmp->mx, mtmp->my);
-                Your("deadly hide does not appear to affect %s",
-                     mon_nam(mtmp));
+                Your("deadly %s does not appear to affect %s",
+                     youmonst.data == &mons[PM_ANTIMATTER_VORTEX]
+                         ? "form" : "hide", mon_nam(mtmp));
             }
         } else if (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
                    || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK
@@ -4097,13 +4152,13 @@ struct attack *mattk;
                    || mattk->aatyp == AT_TENT) {
             /* if mtmp is wielding a weapon, that disintegrates first before
                the actual monster. Same if mtmp is wearing gloves or boots */
-            if (MON_WEP(mtmp) && !rn2(6)) {
+            if (MON_WEP(mtmp) && chance) {
                 if (canseemon(mtmp))
                     pline("%s %s is disintegrated!",
                           s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
                 m_useup(mtmp, MON_WEP(mtmp));
             } else if ((mtmp->misc_worn_check & W_ARMF)
-                       && mattk->aatyp == AT_KICK && !rn2(6)) {
+                       && mattk->aatyp == AT_KICK && chance) {
                 if (canseemon(mtmp))
                     pline("%s %s are disintegrated!",
                           s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMF)));
@@ -4111,13 +4166,13 @@ struct attack *mattk;
             } else if ((mtmp->misc_worn_check & W_ARMG)
                        && (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
                            || mattk->aatyp == AT_TUCH)
-                       && !MON_WEP(mtmp) && !rn2(6)) {
+                       && !MON_WEP(mtmp) && chance) {
                 if (canseemon(mtmp))
                     pline("%s %s are disintegrated!",
                           s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
                 m_useup(mtmp, which_armor(mtmp, W_ARMG));
             } else {
-                if (rn2(20)) {
+                if (youmonst.data == &mons[PM_ANTIMATTER_VORTEX] ? rn2(10) : rn2(20)) {
                     if (canseemon(mtmp))
                         Your("hide partially disintegrates %s!",
                              mon_nam(mtmp));
@@ -4125,8 +4180,9 @@ struct attack *mattk;
                     goto assess_dmg;
                 } else {
                     if (canseemon(mtmp)) {
-                        Your("deadly hide disintegrates %s!",
-                              mon_nam(mtmp));
+                        Your("deadly %s disintegrates %s!",
+                             youmonst.data == &mons[PM_ANTIMATTER_VORTEX]
+                                 ? "form" : "hide", mon_nam(mtmp));
                         passive_disint_mon(mtmp);
                         if (!DEADMONSTER(mtmp))
                             return 1;
@@ -4136,8 +4192,8 @@ struct attack *mattk;
             }
         }
         break;
-    case AD_STON: /* cockatrice */
-    {
+    }
+    case AD_STON: { /* cockatrice */
         long protector = attk_protection((int) mattk->aatyp),
              wornitems = mtmp->misc_worn_check;
 

@@ -4303,20 +4303,25 @@ xchar sx, sy;
 		You("aren't disintegrated, but that hurts!");
 		dam = resist_reduce(d(6, 6), DISINT_RES);
 		break;
-            } else if (!Reflecting && (how_resistant(DISINT_RES) > 0)) {
+            } else if (!Reflecting && (how_resistant(DISINT_RES) >= 50)) {
                 You("aren't disintegrated, but that really hurts!");
                 dam = resist_reduce(d(12, 6), DISINT_RES);
                 break;
-            } else if (uarms) {
-                /* destroy shield; other possessions are safe */
-                (void) destroy_arm(uarms);
-                break;
-            } else if (uarm) {
-                /* destroy suit; if present, cloak goes too */
-                if (uarmc)
-                    (void) destroy_arm(uarmc);
-                (void) destroy_arm(uarm);
-                break;
+            } else if (!Reflecting && (how_resistant(DISINT_RES) < 50)) {
+                dam = resist_reduce(d(12, 6), DISINT_RES);
+                if (uarms) {
+                    /* destroy shield; other possessions are safe */
+                    (void) destroy_arm(uarms);
+                    break;
+                } else if (uarm) {
+                    /* destroy suit; if present, cloak goes too */
+                    if (uarmc)
+                        (void) destroy_arm(uarmc);
+                    (void) destroy_arm(uarm);
+                    break;
+                }
+                /* fall through. not having enough disintegration
+                   resistance can still get you disintegrated */
             }
             /* no shield or suit, you're dead; wipe out cloak
                and/or shirt in case of life-saving or bones */

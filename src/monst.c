@@ -1291,6 +1291,17 @@ NEARDATA struct permonst mons[] = {
             | M1_MINDLESS | M1_UNSOLID,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
         M4_VULNERABLE_COLD, 0, 10, CLR_YELLOW),
+    MON("antimatter vortex", S_VORTEX, LVL(15, 18, 0, 30, 0),
+        (G_HELL | G_GENO | G_NOCORPSE | 1),
+        A(ATTK(AT_ENGL, AD_DISN, 1, 10), ATTK(AT_NONE, AD_DISN, 0, 0),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(0, 0, MS_SILENT, MZ_HUGE),
+        MR_FIRE | MR_COLD | MR_ELEC | MR_SLEEP | MR_DISINT
+            | MR_POISON | MR_STONE, 0,
+        M1_FLY | M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
+            | M1_MINDLESS | M1_UNSOLID,
+        M2_HOSTILE | M2_NEUTER | M2_NASTY, M3_INFRAVISIBLE,
+        0, 0, 20, CLR_BRIGHT_GREEN),
     /*
      * worms
      */

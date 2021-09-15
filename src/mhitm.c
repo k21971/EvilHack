@@ -2689,13 +2689,16 @@ struct obj *mwep;
         if (!rn2(6))
             acid_damage(MON_WEP(magr));
         goto assess_dmg;
-    case AD_DISN:
+    case AD_DISN: {
+        int chance = (mdef->data == &mons[PM_ANTIMATTER_VORTEX] ? !rn2(3) : !rn2(6));
         if (mhit && !mdef->mcan) {
             if (resists_disint(magr)) {
                 if (canseemon(magr) && !rn2(3)) {
                     shieldeff(magr->mx, magr->my);
-                    pline("%s deadly hide does not appear to affect %s",
-                          s_suffix(Monnam(mdef)), mon_nam(magr));
+                    pline("%s deadly %s does not appear to affect %s",
+                          s_suffix(Monnam(mdef)),
+                          mdef->data == &mons[PM_ANTIMATTER_VORTEX]
+                              ? "form" : "hide", mon_nam(magr));
                 }
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_TUCH || aatyp == AT_KICK
@@ -2704,13 +2707,13 @@ struct obj *mwep;
                        || aatyp == AT_TENT) {
                 /* if magr is wielding a weapon, that disintegrates first before
                    the actual monster. Same if magr is wearing gloves or boots */
-                if (MON_WEP(magr) && !rn2(6)) {
+                if (MON_WEP(magr) && chance) {
                     if (canseemon(magr))
                         pline("%s %s is disintegrated!",
                               s_suffix(Monnam(magr)), xname(MON_WEP(magr)));
                     m_useup(magr, MON_WEP(magr));
                 } else if ((magr->misc_worn_check & W_ARMF)
-                           && aatyp == AT_KICK && !rn2(6)) {
+                           && aatyp == AT_KICK && chance) {
                     if (canseemon(magr))
                         pline("%s %s are disintegrated!",
                               s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMF)));
@@ -2718,13 +2721,13 @@ struct obj *mwep;
                 } else if ((magr->misc_worn_check & W_ARMG)
                            && (aatyp == AT_WEAP || aatyp == AT_CLAW
                                || aatyp == AT_TUCH)
-                           && !MON_WEP(magr) && !rn2(6)) {
+                           && !MON_WEP(magr) && chance) {
                     if (canseemon(magr))
                         pline("%s %s are disintegrated!",
                               s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMG)));
                     m_useup(magr, which_armor(magr, W_ARMG));
                 } else {
-                    if (rn2(20)) {
+                    if (mdef->data == &mons[PM_ANTIMATTER_VORTEX] ? rn2(10) : rn2(20)) {
                         if (canseemon(magr))
                             pline("%s hide partially disintegrates %s!",
                                   s_suffix(Monnam(mdef)), mon_nam(magr));
@@ -2732,8 +2735,10 @@ struct obj *mwep;
                         goto assess_dmg;
                     } else {
                         if (canseemon(magr))
-                            pline("%s deadly hide disintegrates %s!",
-                                  s_suffix(Monnam(mdef)), mon_nam(magr));
+                            pline("%s deadly %s disintegrates %s!",
+                                  s_suffix(Monnam(mdef)),
+                                  mdef->data == &mons[PM_ANTIMATTER_VORTEX]
+                                      ? "form" : "hide", mon_nam(magr));
                         passive_disint_mon(magr);
                         return (mdead | mhit | MM_AGR_DIED);
                     }
@@ -2741,6 +2746,7 @@ struct obj *mwep;
             }
         }
         break;
+    }
     case AD_DRST:
         if (mhit && !mdef->mcan && !rn2(3)) {
             if (resists_poison(magr)) {

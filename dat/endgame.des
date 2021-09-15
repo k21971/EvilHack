@@ -214,8 +214,8 @@ MONSTER:('v',"fog cloud"),random,hostile
 MONSTER:('v',"fog cloud"),random,hostile
 MONSTER:('v',"fog cloud"),random,hostile
 MONSTER:('v',"fog cloud"),random,hostile
-MONSTER:('v',"fog cloud"),random,hostile
-MONSTER:('v',"fog cloud"),random,hostile
+MONSTER:('v',"antimatter vortex"),random,hostile
+MONSTER:('v',"antimatter vortex"),random,hostile
 MONSTER:('v',"energy vortex"),random,hostile
 MONSTER:('v',"energy vortex"),random,hostile
 MONSTER:('v',"energy vortex"),random,hostile

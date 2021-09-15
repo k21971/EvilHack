@@ -3849,6 +3849,7 @@ boolean wep_was_destroyed;
     case AD_DISN:
         if (mhit && !mon->mcan) { /* successful attack */
             long protector = attk_protection((int) aatyp);
+            int chance = (mon->data == &mons[PM_ANTIMATTER_VORTEX] ? rn2(10) : rn2(20));
             tmp = rnd(8) + 1;
 
             /* hero using monsters' AT_MAGC attack is hitting hand to
@@ -3864,31 +3865,42 @@ boolean wep_was_destroyed;
                 || (protector == (W_ARMC | W_ARMG) && (!uarmc || !uarmg))) {
                 if (how_resistant(DISINT_RES) == 100) {
                     if (!rn2(3))
-                        You("are unaffected by %s hide.",
-                            s_suffix(mon_nam(mon)));
+                        You("are unaffected by %s %s.",
+                            s_suffix(mon_nam(mon)),
+                            mon->data == &mons[PM_ANTIMATTER_VORTEX]
+                                ? "form" : "hide");
                     monstseesu(M_SEEN_DISINT);
                     stop_occupation();
                 } else {
-                    if (rn2(20)) {
+                    if (chance) {
                         You("partially disintegrate!");
                         tmp = resist_reduce(tmp, DISINT_RES);
                         mdamageu(mon, tmp);
                     } else {
-                        pline("%s deadly hide disintegrates you!",
-                              s_suffix(Monnam(mon)));
-                        u.ugrave_arise = -3;
-                        killer.format = NO_KILLER_PREFIX;
-                        Sprintf(killer.name, "disintegrated by %s",
-                                an(l_monnam(mon)));
-                        done(DIED);
-                        return 2;
+                        if (how_resistant(DISINT_RES) < 50) {
+                            pline("%s deadly %s disintegrates you!",
+                                  s_suffix(Monnam(mon)),
+                                  mon->data == &mons[PM_ANTIMATTER_VORTEX]
+                                      ? "form" : "hide");
+                            u.ugrave_arise = -3;
+                            killer.format = NO_KILLER_PREFIX;
+                            Sprintf(killer.name, "disintegrated by %s",
+                                    an(l_monnam(mon)));
+                            done(DIED);
+                            return 2;
+                        } else {
+                            You("partially disintegrate!");
+                            tmp = resist_reduce(tmp, DISINT_RES);
+                            mdamageu(mon, tmp);
+                        }
                     }
                 }
             }
             /* odds of obj disintegrating handled in passive_obj()
                except for attack type AT_KICK */
             if (aatyp == AT_KICK) {
-                if (uarmf && !rn2(6)) {
+                if (uarmf
+                    && mon->data == &mons[PM_ANTIMATTER_VORTEX] ? !rn2(3) : !rn2(6)) {
                     if (rn2(2) && (uarmf->oerodeproof
                                    || is_supermaterial(uarmf)))
                         pline("%s being disintegrated!",
@@ -4134,11 +4146,17 @@ boolean wep_was_destroyed;
                                 t = resist_reduce(t, DISINT_RES);
                                 mdamageu(mon, t);
                             } else {
-                                pline("%s deadly armor disintegrates you!",
-                                      s_suffix(Monnam(mon)));
-                                u.ugrave_arise = -3;
-                                done_in_by(mon, DIED);
-                                return 2;
+                                if (how_resistant(DISINT_RES) < 50) {
+                                    pline("%s deadly armor disintegrates you!",
+                                          s_suffix(Monnam(mon)));
+                                    u.ugrave_arise = -3;
+                                    done_in_by(mon, DIED);
+                                    return 2;
+                                } else {
+                                    You("partially disintegrate!");
+                                    t = resist_reduce(t, DISINT_RES);
+                                    mdamageu(mon, t);
+                                }
                             }
                         }
                     }
@@ -4345,14 +4363,16 @@ struct attack *mattk;     /* null means we find one internally */
             break;
         }
         break;
-    case AD_DISN:
-        if (!rn2(6) && !mon->mcan) {
+    case AD_DISN: {
+        int chance = (mon->data == &mons[PM_ANTIMATTER_VORTEX] ? !rn2(3) : !rn2(6));
+        if (chance && !mon->mcan) {
             /* lets not make the game unwinnable... */
             if (obj_resists(obj, 0, 0)) {
                 pline_The("%s %s and cannot be disintegrated.",
                           xname(obj), rn2(2) ? "resists completely" : "defies physics");
                 break;
-            } else if (obj->oartifact == ART_DRAGONBANE) {
+            } else if (obj->oartifact == ART_DRAGONBANE
+                       && mon->data != &mons[PM_ANTIMATTER_VORTEX]) {
                 pline("%s %s, but remains %s.", xname(obj),
                       rn2(2) ? "shudders violently" : "vibrates unexpectedly",
                       rn2(2) ? "whole" : "intact");
@@ -4386,6 +4406,7 @@ struct attack *mattk;     /* null means we find one internally */
             break;
         }
         break;
+    }
     default:
         break;
     }
