@@ -1941,4 +1941,6 @@ The following changes to date are:
 - Block monster health regeneration in the Valley of the Dead.
 - Paranoid water/lava
 - Add option to filter by unidentified in item menus
+- Fix: illithids should not be able to use brain-sucking tentacle
+  attack while engulfed
 

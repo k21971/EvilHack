@@ -3407,6 +3407,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 && (maybe_polyd(is_illithid(youmonst.data),
                     Race_if(PM_ILLITHID)))
                 && (touch_petrifies(mon->data)
+                    || u.uswallow
                     || is_rider(mon->data)
                     || mon->data == &mons[PM_MEDUSA]
                     || mon->data == &mons[PM_GREEN_SLIME]
