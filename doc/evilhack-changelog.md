@@ -1940,4 +1940,5 @@ The following changes to date are:
 - Remove a bit of unnecessary code
 - Block monster health regeneration in the Valley of the Dead.
 - Paranoid water/lava
+- Add option to filter by unidentified in item menus
 
