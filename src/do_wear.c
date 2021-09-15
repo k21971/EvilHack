@@ -3314,8 +3314,8 @@ int retry;
     } else if (flags.menu_style == MENU_FULL) {
         all_worn_categories = FALSE;
         n = query_category("What type of things do you want to take off?",
-                           invent, (WORN_TYPES | ALL_TYPES
-                                    | UNPAID_TYPES | BUCX_TYPES),
+                           invent, (WORN_TYPES | ALL_TYPES | UNPAID_TYPES
+                                    | BUCX_TYPES | UNIDED_TYPES),
                            &pick_list, PICK_ANY);
         if (!n)
             return 0;

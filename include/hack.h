@@ -330,6 +330,7 @@ typedef struct sortloot_item Loot;
 #define BUC_CURSED   0x100
 #define BUC_UNCURSED 0x200
 #define BUC_UNKNOWN  0x400
+#define UNIDED_TYPES 0x800
 #define BUC_ALLBKNOWN (BUC_BLESSED | BUC_CURSED | BUC_UNCURSED)
 #define BUCX_TYPES (BUC_ALLBKNOWN | BUC_UNKNOWN)
 #define ALL_TYPES_SELECTED -2
