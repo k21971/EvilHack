@@ -1939,4 +1939,5 @@ The following changes to date are:
 - Fix: player poly'd into a giant had wrong movement speed and size
 - Remove a bit of unnecessary code
 - Block monster health regeneration in the Valley of the Dead.
+- Paranoid water/lava
 

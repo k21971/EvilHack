@@ -1940,6 +1940,58 @@ domove_core()
         return;
     }
 
+    /* Paranoid checks for dangerous moves, unless specified with 'm' */
+    if (!context.nopick || context.run) {
+        boolean known_wwalking, known_lwalking;
+        known_wwalking = (uarmf && uarmf->otyp == WATER_WALKING_BOOTS
+                          && objects[WATER_WALKING_BOOTS].oc_name_known
+                          && !u.usteed);
+        /* FIXME: This can be exploited to identify the ring of fire resistance
+         * if the player is wearing it unidentified and has identified
+         * fireproof boots of water walking and is walking over lava. However,
+         * this is such a marginal case that it may not be worth fixing. */
+        known_lwalking = (known_wwalking && Fire_resistance
+                          && uarmf->oerodeproof && uarmf->rknown);
+        if (!Levitation && !Flying && grounded(youmonst.data)
+            && !Stunned && !Confusion && levl[x][y].seenv
+            && ((is_pool(x, y) && !is_pool(u.ux, u.uy))
+                || (is_lava(x, y) && !is_lava(u.ux, u.uy)))) {
+            if (is_pool(x, y) && !known_wwalking) {
+                if (ParanoidSwim && yn("Really enter the water?") != 'y') {
+                    context.move = 0;
+                    nomul(0);
+                    You("narrowly avoid %s into the %s.",
+                        rn2(2) ? "falling" : "plunging",
+                        is_moat(x, y) ? "moat" : "pool");
+                    if (uarmf && !rn2(3)) {
+                        if (water_damage(uarmf, "metal boots", TRUE, u.ux, u.uy) == ER_NOTHING)
+                            Your("boots get wet.");
+                    }
+                    return;
+                }
+            } else if (is_lava(x, y) && !known_lwalking) {
+                if (ParanoidSwim && yn("Really enter the lava?") != 'y') {
+                    context.move = 0;
+                    nomul(0);
+                    You("narrowly avoid %s into the lava.",
+                        rn2(2) ? "falling" : "plunging");
+                    if (rn2(2)) {
+                        if (uarmf) {
+                            pline("Molten lava splashes onto your %s.", simpleonames(uarmf));
+                            fire_damage(uarmf, TRUE, u.ux, u.uy);
+                        } else {
+                            pline("Molten lava splashes onto your %s!",
+                                  makeplural(body_part(FOOT)));
+                            losehp(resist_reduce(d(1, 4), FIRE_RES),
+                                   "touching molten lava", KILLED_BY);
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
     /* Move ball and chain.  */
     if (Punished)
         if (!drag_ball(x, y, &bc_control, &ballx, &bally, &chainx, &chainy,
