@@ -1946,4 +1946,5 @@ The following changes to date are:
 - New monster - antimatter vortex
 - Revert 'Remove a bit of unnecessary code'
 - Increase the odds of encountering a neothelid
+- Fix: fooproofing GEM_CLASS should only affect sling bullets
 

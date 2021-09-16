@@ -1151,8 +1151,9 @@ struct obj *obj;
     case RING_CLASS:
     case WAND_CLASS:
     case FOOD_CLASS:
-    case GEM_CLASS:
         return TRUE;
+    case GEM_CLASS:
+        return (obj->otyp == SLING_BULLET);
     default:
         break;
     }
