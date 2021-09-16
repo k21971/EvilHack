@@ -307,7 +307,7 @@ struct mkroom *sroom;
     register int sx, sy, i;
     int sh, tx = 0, ty = 0, goldlim = 0, type = sroom->rtype;
     int rmno = (int) ((sroom - rooms) + ROOMOFFSET);
-    boolean special_nursery = !rn2(100);
+    boolean special_nursery = !rn2(10);
     coord mm;
 
     sh = sroom->fdoor;
@@ -380,7 +380,7 @@ struct mkroom *sroom;
                 if (!rn2(3))
                     mon = makemon(armorymon(), sx, sy, NO_MM_FLAGS);
             } else if (type == NURSERY) {
-                if (special_nursery) { /* very rare event */
+                if (special_nursery) { /* rare event */
                     /* somehow a larvae nursery was left unattended,
                        and the sole surviving larva had undergone neoteny,
                        becoming a neothelid. mind flayers nearby discovered

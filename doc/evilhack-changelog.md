@@ -1945,4 +1945,5 @@ The following changes to date are:
   attack while engulfed
 - New monster - antimatter vortex
 - Revert 'Remove a bit of unnecessary code'
+- Increase the odds of encountering a neothelid
 
