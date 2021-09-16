@@ -738,19 +738,19 @@ ma_break()
 
     if (uarmg) {
         switch (uarmg->otyp) {
-            case GAUNTLETS_OF_POWER:
-                prob -= 10;
-                break;
-            case GAUNTLETS_OF_FUMBLING:
-                prob *= 4;
-                break;
-            case GLOVES:
-            case GAUNTLETS:
-            case GAUNTLETS_OF_DEXTERITY:
-            case GAUNTLETS_OF_PROTECTION:
-                break;
-            default:
-                impossible("Unknown type of gloves (%d)", uarmg->otyp);
+        case GAUNTLETS_OF_POWER:
+            prob -= 10;
+            break;
+        case GAUNTLETS_OF_FUMBLING:
+            prob *= 4;
+            break;
+        case GLOVES:
+        case GAUNTLETS:
+        case GAUNTLETS_OF_DEXTERITY:
+        case GAUNTLETS_OF_PROTECTION:
+            break;
+        default:
+            impossible("Unknown type of gloves (%d)", uarmg->otyp);
         }
     }
 
@@ -3452,6 +3452,14 @@ weight_cap()
         || (maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))) {
         carrcap += 100;
         maxcarrcap += 400;
+        /* this is not ideal, but for now this makes sure these two
+           player races start out with these appropriate values, and
+           that they stay this way between save/restore */
+        if (!Upolyd) {
+            youmonst.data->cwt = 2200;
+            youmonst.data->mmove = Race_if(PM_GIANT) ? 10 : 18;
+            youmonst.data->msize = Race_if(PM_GIANT) ? MZ_HUGE : MZ_LARGE;
+        }
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (youmonst.data->mlet == S_NYMPH)

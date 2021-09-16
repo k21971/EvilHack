@@ -1944,4 +1944,5 @@ The following changes to date are:
 - Fix: illithids should not be able to use brain-sucking tentacle
   attack while engulfed
 - New monster - antimatter vortex
+- Revert 'Remove a bit of unnecessary code'
 
