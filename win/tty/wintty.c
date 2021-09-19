@@ -2827,7 +2827,7 @@ boolean complain;
 #ifdef DEF_PAGER /* this implies that UNIX is defined */
     {
         /* use external pager; this may give security problems */
-        register int fd = open(fname, 0);
+        register int fd = popen(fname, 0);
 
         if (fd < 0) {
             if (complain)
