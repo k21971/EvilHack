@@ -1948,4 +1948,5 @@ The following changes to date are:
 - Increase the odds of encountering a neothelid
 - Fix: fooproofing GEM_CLASS should only affect sling bullets
 - Raise odds of a cursed wand exploding
+- Monsters that are innately magic resistant are immune to magic missile
 

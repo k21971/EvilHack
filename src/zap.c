@@ -2651,9 +2651,14 @@ boolean ordinary;
         damage = d(4, 6);
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
-            pline("Some of the missiles bounce!");
             monstseesu(M_SEEN_MAGR);
-            damage = (damage + 1) / 2;
+            if (resists_mgc(youmonst.data)) {
+                pline_The("missiles bounce!");
+                damage = 0;
+            } else {
+                pline("Some of the missiles bounce!");
+                damage = (damage + 1) / 2;
+            }
         }
         if (Half_spell_damage)
             damage = (damage + 1) / 2;
@@ -4038,7 +4043,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
         if (resists_magm(mon)) {
-            tmp = (tmp + 1) / 2;
+            if (resists_mgc(mon->data))
+                tmp = 0;
+            else
+                tmp = (tmp + 1) / 2;
             sho_shieldeff = TRUE;
         }
         break;
