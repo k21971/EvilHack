@@ -1950,4 +1950,5 @@ The following changes to date are:
 - Raise odds of a cursed wand exploding
 - Monsters that are innately magic resistant are immune to magic missile
 - Tweak how not abusing alignment affects altar sacrifice gift chance
+- Change minimum dexterity needed to throw Xiuhcoatl
 

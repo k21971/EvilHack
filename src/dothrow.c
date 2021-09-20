@@ -79,7 +79,7 @@ int shotlimit;
         pline("It's too heavy.");
         return 1;
     }
-    if (obj->oartifact == ART_XIUHCOATL && ACURR(A_DEX) < 18) {
+    if (obj->oartifact == ART_XIUHCOATL && ACURR(A_DEX) < 21) {
         pline("%s a deft hand.", Tobjnam(obj, "require"));
         return 1;
     }
