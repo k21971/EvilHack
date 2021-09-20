@@ -1241,17 +1241,27 @@ register struct monst *mtmp;
 
     case S_ANGEL:
         if (humanoid(ptr)) {
-            /* create minion stuff; can't use mongets */
-            otmp = mksobj(LONG_SWORD, FALSE, FALSE);
-
-            /* maybe make it special */
+            /* create minion stuff; can't use mongets,
+               and maybe make it special */
             if (!rn2(20) || is_lord(ptr)) {
-                otmp = oname(otmp,
-                             artiname(ART_SUNSWORD));
-                if (!otmp->oartifact) {
-                    otmp = oname(otmp, "");
-                    if (!rn2(16))
-                        create_oprop(otmp, FALSE);
+                if (rn2(2)) {
+                    otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+                    otmp = oname(otmp,
+                                 artiname(ART_SUNSWORD));
+                    if (!otmp->oartifact) {
+                        otmp = oname(otmp, "");
+                        if (!rn2(10))
+                            create_oprop(otmp, FALSE);
+                    }
+                } else {
+                    otmp = mksobj(HEAVY_MACE, FALSE, FALSE);
+                    otmp = oname(otmp,
+                                 artiname(ART_DEMONBANE));
+                    if (!otmp->oartifact) {
+                        otmp = oname(otmp, "");
+                        if (!rn2(10))
+                            create_oprop(otmp, FALSE);
+                    }
                 }
             }
             bless(otmp);
@@ -1260,7 +1270,8 @@ register struct monst *mtmp;
             (void) mpickobj(mtmp, otmp);
 
             otmp = mksobj(!rn2(4) || is_lord(ptr) ? SHIELD_OF_REFLECTION
-                                                  : LARGE_SHIELD,
+                                                  : rn2(3) ? LARGE_SHIELD
+                                                           : SHIELD_OF_LIGHT,
                           FALSE, FALSE);
             /* uncurse(otmp); -- mksobj(,FALSE,) item is always uncursed */
             otmp->oerodeproof = TRUE;
