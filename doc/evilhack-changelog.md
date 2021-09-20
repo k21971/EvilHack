@@ -1952,4 +1952,5 @@ The following changes to date are:
 - Tweak how not abusing alignment affects altar sacrifice gift chance
 - Change minimum dexterity needed to throw Xiuhcoatl
 - Fix: some sokoban levels could easily be flagged as 'never solved'
+- Tweak to Xiuhcoatl dexterity requirements
 
