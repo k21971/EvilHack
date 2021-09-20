@@ -1949,4 +1949,5 @@ The following changes to date are:
 - Fix: fooproofing GEM_CLASS should only affect sling bullets
 - Raise odds of a cursed wand exploding
 - Monsters that are innately magic resistant are immune to magic missile
+- Tweak how not abusing alignment affects altar sacrifice gift chance
 
