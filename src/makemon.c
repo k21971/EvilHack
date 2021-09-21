@@ -1243,25 +1243,13 @@ register struct monst *mtmp;
         if (humanoid(ptr)) {
             /* create minion stuff; can't use mongets,
                and maybe make it special */
+            int typ = rn2(2) ? LONG_SWORD : HEAVY_MACE;
+            otmp = mksobj(typ, FALSE, FALSE);
             if (!rn2(20) || is_lord(ptr)) {
-                if (rn2(2)) {
-                    otmp = mksobj(LONG_SWORD, FALSE, FALSE);
-                    otmp = oname(otmp,
-                                 artiname(ART_SUNSWORD));
-                    if (!otmp->oartifact) {
-                        otmp = oname(otmp, "");
-                        if (!rn2(10))
-                            create_oprop(otmp, FALSE);
-                    }
-                } else {
-                    otmp = mksobj(HEAVY_MACE, FALSE, FALSE);
-                    otmp = oname(otmp,
-                                 artiname(ART_DEMONBANE));
-                    if (!otmp->oartifact) {
-                        otmp = oname(otmp, "");
-                        if (!rn2(10))
-                            create_oprop(otmp, FALSE);
-                    }
+                otmp = oname(otmp, artiname(typ == LONG_SWORD
+                                            ? ART_SUNSWORD : ART_DEMONBANE));
+                if (!otmp->oartifact && !rn2(10)) {
+                    create_oprop(otmp, FALSE);
                 }
             }
             bless(otmp);

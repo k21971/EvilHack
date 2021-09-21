@@ -1954,4 +1954,5 @@ The following changes to date are:
 - Fix: some sokoban levels could easily be flagged as 'never solved'
 - Tweak to Xiuhcoatl dexterity requirements
 - Allow angel lord types to spawn with Demonbane again
+- Fix: crash caused by last commit (angel lords / Demonbane)
 
