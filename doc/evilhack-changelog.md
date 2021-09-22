@@ -1955,4 +1955,5 @@ The following changes to date are:
 - Tweak to Xiuhcoatl dexterity requirements
 - Allow angel lord types to spawn with Demonbane again
 - Fix: crash caused by last commit (angel lords / Demonbane)
+- Fix: silence compiler warning in droppables()
 
