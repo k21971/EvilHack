@@ -572,6 +572,7 @@ int mode;
         fmon = 0;
         ftrap = 0;
         fobj = level.buriedobjlist = billobjs = 0;
+        (void) memset(rooms, 0, sizeof(rooms));
         /* level.bonesinfo = 0; -- handled by savecemetery() */
     }
     save_engravings(fd, mode);

@@ -1958,4 +1958,5 @@ The following changes to date are:
 - Fix: silence compiler warning in droppables()
 - Casting stone to flesh at a monster in the process of being stoned will
   cure it
+- Fix: zero out rooms[] in savelev()
 
