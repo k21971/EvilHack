@@ -1956,4 +1956,6 @@ The following changes to date are:
 - Allow angel lord types to spawn with Demonbane again
 - Fix: crash caused by last commit (angel lords / Demonbane)
 - Fix: silence compiler warning in droppables()
+- Casting stone to flesh at a monster in the process of being stoned will
+  cure it
 

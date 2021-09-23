@@ -3598,6 +3598,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
     if (stoning) {
         mon->mstone = 0;
         if (!vis) {
+            ; /* no feedback */
         } else if (Hallucination) {
             pline("What a pity - %s just ruined a future piece of art!",
                   mon_nam(mon));
