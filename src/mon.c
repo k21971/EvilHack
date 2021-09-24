@@ -2342,7 +2342,9 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* elves vs orcs */
-    if (racial_elf(magr) && racial_orc(mdef))
+    if (racial_elf(magr) && racial_orc(mdef)
+        && !(md->msound == MS_SOLDIER
+             || md->msound == MS_SELL || md->msound == MS_PRIEST))
         return ALLOW_M | ALLOW_TM;
 
     /* angels vs demons */

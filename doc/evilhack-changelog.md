@@ -1961,4 +1961,5 @@ The following changes to date are:
 - Fix: zero out rooms[] in savelev()
 - Fix: corpses showing as rotten after being removed from an ice box
 - Allow player monster knights to be centaurs
+- Fix: prevent racial elf/orc grudge between the watch/priests/shopkeepers
 
