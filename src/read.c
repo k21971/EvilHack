@@ -2693,6 +2693,7 @@ struct obj *from_obj;
 struct _create_particular_data {
     int which;
     int fem;
+    int race;
     char monclass;
     boolean randmonst;
     boolean maketame, makepeaceful, makehostile;
@@ -2706,10 +2707,12 @@ struct _create_particular_data *d;
 {
     char *bufp = str;
     char *tmpp;
+    int i, attempts, adjlen = 0;
 
     d->monclass = MAXMCLASSES;
     d->which = urole.malenum; /* an arbitrary index into mons[] */
     d->fem = -1; /* gender not specified */
+    d->race = NON_PM; /* no race by default */
     d->randmonst = FALSE;
     d->maketame = d->makepeaceful = d->makehostile = FALSE;
     d->sleeping = d->saddled = d->invisible = d->hidden = d->barded = FALSE;
@@ -2755,20 +2758,41 @@ struct _create_particular_data *d;
         bufp += 8;
         d->makehostile = TRUE;
     }
+
+    /* determine if a race was specified for the resulting mon
+       TODO?: currently limited only to player-valid races. */
+    for (i = 0; races[i].adj; i++) {
+        adjlen = strlen(races[i].adj);
+        if (!strncmpi(bufp, races[i].adj, adjlen)
+            && *(bufp + adjlen) == ' ') {
+            bufp += adjlen + 1;
+            d->race = races[i].malenum;
+            break;
+        }
+    }
     /* decide whether a valid monster was chosen */
     if (wizard && (!strcmp(bufp, "*") || !strcmp(bufp, "random"))) {
         d->randmonst = TRUE;
         return TRUE;
     }
-    d->which = name_to_mon(bufp);
-    if (d->which >= LOW_PM)
-        return TRUE; /* got one */
+
+    attempts = (d->race != NON_PM) ? 2 : 1;
+
+    for (i = 0; i < attempts; i++) {
+        if (i == 1) {
+            bufp -= (adjlen + 1);
+            d->race = NON_PM;
+        }
+        d->which = name_to_mon(bufp);
+        if (d->which >= LOW_PM)
+            return TRUE; /* got one */
+    }
     d->monclass = name_to_monclass(bufp, &d->which);
 
     if (d->which >= LOW_PM) {
         d->monclass = MAXMCLASSES; /* matters below */
         return TRUE;
-    } else if (d->monclass == S_invisible) { /* not an actual monster class */
+    } else if (d->monclass == S_invisible) { /* not an actual mon class */
         d->which = PM_STALKER;
         d->monclass = MAXMCLASSES;
         return TRUE;
@@ -2856,6 +2880,17 @@ struct _create_particular_data *d;
             mtmp->mundetected = 1;
         if (d->sleeping)
             mtmp->msleeping = 1;
+        if (d->race != NON_PM) {
+            /*
+             * Note that this does nothing but add the race to the monster --
+             * since it's happening after monster creation, their alignment
+             * (if it depends on race) might be wrong, mplayer names, etc).
+             * FIXME? add some way to specify race in makemon, so that it will
+             * allow "properly" specifying race, along with all that implies.
+             */
+            apply_race(mtmp, d->race);
+            newsym(mtmp->mx, mtmp->my); /* in case of racial glyph */
+        }
         /* iff asking for 'hidden', show locaton of every created monster
            that can't be seen--whether that's due to successfully hiding
            or vision issues (line-of-sight, invisibility, blindness) */

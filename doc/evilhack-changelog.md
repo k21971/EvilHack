@@ -1963,4 +1963,5 @@ The following changes to date are:
 - Allow player monster knights to be centaurs
 - Fix: prevent racial elf/orc grudge between the watch/priests/shopkeepers
 - Fix: "You feel a malignant aura surround it." and 'it' isn't visible
+- Allow #wizgenesis to specify racial monsters
 
