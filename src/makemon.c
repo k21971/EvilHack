@@ -2595,6 +2595,8 @@ int mmflags;
                 mount_monster(mtmp, PM_WARG);
             break;
         case PM_KNIGHT:
+            if (racial_centaur(mtmp))
+                break;
             if (mon_aligntyp(mtmp) == A_CHAOTIC)
                 rn2(3) ? mount_monster(mtmp, PM_NIGHTMARE)
                        : mount_monster(mtmp, PM_CAUCHEMAR);

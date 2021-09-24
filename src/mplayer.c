@@ -260,7 +260,8 @@ struct monst *mtmp;
         mtmp->mintrinsics |= MR_FIRE;
         break;
     case PM_KNIGHT:
-        if (race == PM_ELF || race == PM_ORC)
+        if (race == PM_ELF || race == PM_ORC
+            || race == PM_CENTAUR)
             rptr->ralign = -3;
         break;
     case PM_MONK:

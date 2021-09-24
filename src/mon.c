@@ -5932,7 +5932,7 @@ short mndx;
         permitted |= (MH_ELF | MH_GIANT | MH_ORC | MH_ILLITHID);
         break;
     case PM_KNIGHT:
-        permitted |= (MH_DWARF | MH_ELF | MH_ORC);
+        permitted |= (MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR);
         break;
     case PM_MONK:
         permitted |= (MH_DWARF | MH_ELF | MH_GIANT | MH_CENTAUR);

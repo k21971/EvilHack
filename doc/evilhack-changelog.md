@@ -1960,4 +1960,5 @@ The following changes to date are:
   cure it
 - Fix: zero out rooms[] in savelev()
 - Fix: corpses showing as rotten after being removed from an ice box
+- Allow player monster knights to be centaurs
 
