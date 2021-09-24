@@ -2342,9 +2342,7 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* elves vs orcs */
-    if (racial_elf(magr) && racial_orc(mdef)
-        && !(md->msound == MS_SOLDIER
-             || md->msound == MS_SELL || md->msound == MS_PRIEST))
+    if (racial_elf(magr) && racial_orc(mdef))
         return ALLOW_M | ALLOW_TM;
 
     /* angels vs demons */
@@ -2423,6 +2421,14 @@ struct monst *magr, /* monster that is currently deciding where to move */
      * racial differences in his/her name */
     if (ma->msound == MS_PRIEST && md->msound == MS_PRIEST
         && mon_aligntyp(magr) == mon_aligntyp(mdef))
+        return 0;
+
+    /* minetown watch and resident shopkeepers/priests have an uneasy truce
+     * due to their shared goal of keeping the town running */
+    if (((ma->msound == MS_SELL || ma->msound == MS_PRIEST)
+         && is_watch(md))
+        || ((md->msound == MS_SELL || md->msound == MS_PRIEST)
+            && is_watch(ma)))
         return 0;
 
     /* supposedly purple worms are attracted to shrieking because they
