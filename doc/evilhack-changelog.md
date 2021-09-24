@@ -1962,4 +1962,5 @@ The following changes to date are:
 - Fix: corpses showing as rotten after being removed from an ice box
 - Allow player monster knights to be centaurs
 - Fix: prevent racial elf/orc grudge between the watch/priests/shopkeepers
+- Fix: "You feel a malignant aura surround it." and 'it' isn't visible
 

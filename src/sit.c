@@ -440,15 +440,16 @@ register struct monst *mtmp;
   	struct	obj	*otmp;
   	static const char mal_aura[] = "feel a malignant aura surround %s.";
 
-  	boolean resists = resist(mtmp, 0, 0, FALSE);
+  	boolean resists = resist(mtmp, 0, 0, FALSE),
+                vis = couldsee(mtmp->mx, mtmp->my);
 
-  	if (MON_WEP(mtmp) &&
+  	if (vis && MON_WEP(mtmp) &&
   	    (MON_WEP(mtmp)->oartifact == ART_MAGICBANE) && rn2(20)) {
   	    You(mal_aura, "the magic-absorbing staff");
   	    return;
   	}
 
-  	if(resists) {
+  	if (vis && resists) {
   	    shieldeff(mtmp->mx, mtmp->my);
   	    You(mal_aura, mon_nam(mtmp));
   	}
@@ -473,8 +474,9 @@ register struct monst *mtmp;
                 continue;	/* next target */
 
         		if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL) &&
-        		   rn2(10) < 8) {
-        		    pline("%s!", Tobjnam(otmp, "resist"));
+        		    rn2(10) < 8) {
+                            if (vis)
+                                pline("%s!", Tobjnam(otmp, "resist"));
         		    continue;
         		}
 
