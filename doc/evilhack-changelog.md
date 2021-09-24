@@ -1959,4 +1959,5 @@ The following changes to date are:
 - Casting stone to flesh at a monster in the process of being stoned will
   cure it
 - Fix: zero out rooms[] in savelev()
+- Fix: corpses showing as rotten after being removed from an ice box
 

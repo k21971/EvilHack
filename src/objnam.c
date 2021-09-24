@@ -1102,7 +1102,7 @@ char *prefix;
         Strcat(prefix, is_rustprone(obj) ? "rusty " :
                obj->oclass == FOOD_CLASS ? "rotten " : "burnt ");
     }
-    if (obj->oeroded2 && !iscrys) {
+    if (obj->oeroded2 && !iscrys && obj->oclass != FOOD_CLASS) {
         switch (obj->oeroded2) {
         case 2:
             Strcat(prefix, "very ");
