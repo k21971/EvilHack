@@ -748,6 +748,8 @@ int *fail_reason;
     else
         mon->mundetected = FALSE;
     mon->msleeping = 0;
+    /* clear any left over slow-stoning timers that may be present */
+    mon->mstone = 0;
     if (cause == ANIMATE_NORMAL || cause == ANIMATE_SHATTER) {
         /* trap always releases hostile monster */
         mon->mtame = 0; /* (might be petrified pet tossed onto trap) */
