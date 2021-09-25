@@ -1965,4 +1965,5 @@ The following changes to date are:
 - Fix: "You feel a malignant aura surround it." and 'it' isn't visible
 - Allow #wizgenesis to specify racial monsters
 - Adjust 'prevent racial elf/orc grudge between the watch/priests/shopkeepers'
+- Fix: recalc_mapseen vs rooms
 
