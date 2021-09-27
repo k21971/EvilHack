@@ -2990,7 +2990,7 @@ docontact(VOID_ARGS)
     }
     putstr(cwin, 0, "To contact the EvilHack development team directly,");
     /*XXX overflow possibilities*/
-    Sprintf(buf, "visit #evilhack or #hardfought on freenode irc, or email <%s>.",
+    Sprintf(buf, "visit #evilhack or #hardfought on Libera Chat IRC, or email <%s>.",
             DEVTEAM_EMAIL);
     putstr(cwin, 0, buf);
     putstr(cwin, 0, "");
