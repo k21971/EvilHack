@@ -1968,4 +1968,6 @@ The following changes to date are:
 - Fix: recalc_mapseen vs rooms
 - Fix: clear any hold over slow-stoning timers on statues being reanimated
 - Fix: object stacking display bug in curses mode
+- Fix: spellcasting pets casting invisibility on themselves when player
+  can't see invisible
 
