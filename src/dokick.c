@@ -641,14 +641,14 @@ xchar x, y;
             pline("%s %s loose.", The(distant_name(kickedobj, xname)),
                   otense(kickedobj, "come"));
         obj_extract_self(kickedobj);
-        newsym(x, y);
+        newsym_force(x, y);
         if (costly && (!costly_spot(u.ux, u.uy)
                        || !index(u.urooms, *in_rooms(x, y, SHOPBASE))))
             addtobill(kickedobj, FALSE, FALSE, FALSE);
         if (!flooreffects(kickedobj, u.ux, u.uy, "fall")) {
             place_object(kickedobj, u.ux, u.uy);
             stackobj(kickedobj);
-            newsym(u.ux, u.uy);
+            newsym_force(u.ux, u.uy);
         }
         return 1;
     }
@@ -716,7 +716,7 @@ xchar x, y;
                 You("%s!", flyingcoinmsg[rn2(SIZE(flyingcoinmsg))]);
                 (void) scatter(x, y, rn2(3) + 1, VIS_EFFECTS | MAY_HIT,
                                kickedobj);
-                newsym(x, y);
+                newsym_force(x, y);
                 return 1;
             }
             if (kickedobj->quan > 300L) {
@@ -734,7 +734,7 @@ xchar x, y;
         addtobill(kickedobj, FALSE, FALSE, TRUE);
     obj_extract_self(kickedobj);
     (void) snuff_candle(kickedobj);
-    newsym(x, y);
+    newsym_force(x, y);
     mon = bhit(u.dx, u.dy, range, KICKED_WEAPON,
                (int FDECL((*), (MONST_P, OBJ_P))) 0,
                (int FDECL((*), (OBJ_P, OBJ_P))) 0, &kickedobj);
@@ -777,7 +777,7 @@ xchar x, y;
         subfrombill(kickedobj, shkp);
     place_object(kickedobj, bhitpos.x, bhitpos.y);
     stackobj(kickedobj);
-    newsym(kickedobj->ox, kickedobj->oy);
+    newsym_force(kickedobj->ox, kickedobj->oy);
     return 1;
 }
 
