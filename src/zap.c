@@ -1790,6 +1790,7 @@ int id;
             && otmp->material != MINERAL) {
             otmp->otyp = ROCK; /* transmutation backfired */
             otmp->quan /= 2L;  /* some material has been lost */
+            set_material(otmp, MINERAL);
         }
         break;
     }

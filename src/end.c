@@ -1780,7 +1780,7 @@ int how;
                     discover_object(otmp->otyp, TRUE, FALSE);
                     otmp->known = 1;  /* for fake amulets */
                     otmp->dknown = 1; /* seen it (blindness fix) */
-                    otmp->material = mat;
+                    set_material(otmp, mat);
                     if (has_oname(otmp))
                         free_oname(otmp);
                     otmp->quan = count;

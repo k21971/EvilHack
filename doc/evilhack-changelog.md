@@ -1971,4 +1971,5 @@ The following changes to date are:
 - Fix: spellcasting pets casting invisibility on themselves when player
   can't see invisible
 - Fix: Fell Beast's aren't supposed to become tame
+- Fix: various object material fixes
 

@@ -4183,6 +4183,7 @@ xchar x, y;
         }
 
         obj->otyp = SPE_BLANK_PAPER;
+        set_material(obj, PAPER); /* in case it was one of the LEATHER books */
         obj->dknown = 0;
         if (ucarried)
             update_inventory();

@@ -368,6 +368,9 @@ struct obj *box;
                     while (otmp->otyp == WAN_CANCELLATION)
                         otmp->otyp = rnd_class(WAN_LIGHT, WAN_LIGHTNING);
             }
+            /* material may have become invalid with a new otyp -- rerandomize
+             * it to something valid */
+            init_obj_material(otmp);
         }
         (void) add_to_container(box, otmp);
     }
@@ -2577,6 +2580,12 @@ const char *mesg;
             }
             if (obj->globby)
                 check_glob(obj, mesg);
+            if (!valid_obj_material(obj, obj->material)) {
+                char matbuf[BUFSZ];
+                Sprintf(matbuf, "invalid material %d (otyp %d)", obj->material,
+                        obj->otyp);
+                insane_object(obj, ofmt0, matbuf, (struct monst *) 0);
+            }
         }
     }
 }
