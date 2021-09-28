@@ -1065,6 +1065,7 @@ register struct obj *obj;
 
     /* These monsters should never be able to be tamed. Ever. Just no */
     if (mtmp->data == &mons[PM_BEHOLDER]
+        || mtmp->data == &mons[PM_FELL_BEAST]
         || mtmp->data == &mons[PM_MAGICAL_EYE]
         || mtmp->data == &mons[PM_ELDER_MINOTAUR]
         || mtmp->data == &mons[PM_PALE_HORSE]
