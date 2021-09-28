@@ -2256,7 +2256,7 @@ struct monst *mtmp;
          * are not objects.  Also set dknown in mthrowu.c.
          */
         boolean isoil = (otmp->otyp == POT_OIL);
-        int origquan = otmp->quan;
+        struct obj *minvptr;
         if (cansee(mtmp->mx, mtmp->my)) {
             otmp->dknown = 1;
             pline("%s hurls %s!", Monnam(mtmp), singular(otmp, doname));
@@ -2270,9 +2270,18 @@ struct monst *mtmp;
         m_throw(mtmp, mtmp->mx, mtmp->my, sgn(mtmp->mux - mtmp->mx),
                 sgn(mtmp->muy - mtmp->my),
                 distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy), otmp, TRUE);
-        if (isoil && origquan > 1 && otmp->lamplit) {
-            /* origquan > 1: otmp is still valid */
-            end_burn(otmp, TRUE);
+        if (isoil) {
+            /* Possible situation: monster lights and throws 1 of a stack of oil
+             * point blank -> it explodes -> monster is caught in explosion ->
+             * monster's remaining oil ignites and explodes -> otmp is no longer
+             * valid. So we need to check whether otmp is still in monster's
+             * inventory or not. */
+            for (minvptr = mtmp->minvent; minvptr; minvptr = minvptr->nobj) {
+                if (minvptr == otmp)
+                    break;
+            }
+            if (minvptr == otmp && otmp->lamplit)
+                end_burn(otmp, TRUE);
         }
         return 2;
     }
