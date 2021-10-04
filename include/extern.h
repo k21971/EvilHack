@@ -458,6 +458,7 @@ E boolean FDECL(objtyp_is_callable, (int));
 E int NDECL(docallcmd);
 E void FDECL(docall, (struct obj *));
 E const char *NDECL(rndghostname);
+E char *FDECL(racial_adj, (char *, struct monst *));
 E char *FDECL(x_monnam, (struct monst *, int, const char *, int, BOOLEAN_P));
 E char *FDECL(l_monnam, (struct monst *));
 E char *FDECL(mon_nam, (struct monst *));

@@ -307,7 +307,7 @@
 
 #define warning_to_glyph(mwarnlev) ((mwarnlev) + GLYPH_WARNING_OFF)
 #define racial_mndx(mon) (use_racial_glyph(mon) ? ERAC(mon)->rmnum \
-                                                : monsndx((mon)->data))
+                                                : (mon)->mnum)
 #define mon_to_glyph(mon, rng)                                      \
     ((int) what_mon(racial_mndx(mon), rng) + GLYPH_MON_OFF)
 #define detected_mon_to_glyph(mon, rng)                             \
@@ -336,9 +336,12 @@
 /* MRKR: Statues now have glyphs corresponding to the monster they    */
 /*       represent and look like monsters when you are hallucinating. */
 
-#define statue_to_glyph(obj, rng)                              \
-    (Hallucination ? random_monster(rng) + GLYPH_MON_OFF       \
-                   : (int) (obj)->corpsenm + GLYPH_STATUE_OFF)
+#define statue_to_glyph(obj, rng)                                           \
+    (Hallucination ? random_monster(rng) + GLYPH_MON_OFF                    \
+                   : has_omonst(obj) && use_racial_glyph(OMONST(obj))       \
+                        ? (int) ERAC(OMONST(obj))->rmnum + GLYPH_STATUE_OFF \
+                        : (int) (obj)->corpsenm + GLYPH_STATUE_OFF)
+        
 
 #define cmap_to_glyph(cmap_idx) ((int) (cmap_idx) + GLYPH_CMAP_OFF)
 #define explosion_to_glyph(expltype, idx) \
@@ -447,9 +450,9 @@
 
 #define use_racial_glyph(mon) \
     (has_erac(mon) \
-     && !is_mplayer((mon)->data) \
-     && !is_mercenary((mon)->data) \
-     && !((mon)->data == &mons[PM_HIGH_PRIEST] \
+     && !is_mplayer(&mons[(mon)->mnum]) \
+     && !is_mercenary(&mons[(mon)->mnum]) \
+     && !((mon)->mnum == PM_HIGH_PRIEST \
          && Is_astralevel(&u.uz)))
 
 #endif /* DISPLAY_H */

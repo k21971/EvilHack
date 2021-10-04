@@ -1704,6 +1704,19 @@ rndghostname()
     return rn2(7) ? ghostnames[rn2(SIZE(ghostnames))] : (const char *) plname;
 }
 
+char *
+racial_adj(buf, mtmp)
+char *buf;
+struct monst *mtmp;
+{
+    if (has_erac(mtmp)) {
+        int r_id = ERAC(mtmp)->r_id;
+        Sprintf(buf, "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
+                                       : races[r_id].adj);
+    }
+    return buf;
+}
+
 /*
  * Monster naming functions:
  * x_monnam is the generic monster-naming function.
@@ -1819,11 +1832,7 @@ boolean called;
         Strcat(buf, " the ");
         if (do_invis)
             Strcat(buf, "invisible ");
-        if (has_erac(mtmp)) {
-            int r_id = ERAC(mtmp)->r_id;
-            Sprintf(eos(buf), "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
-                                                : races[r_id].adj);
-        }
+        (void) racial_adj(eos(buf), mtmp);
         Strcat(buf, pm_name);
         return buf;
     }
@@ -1844,9 +1853,7 @@ boolean called;
         && mdat != &mons[PM_HIGH_PRIEST]
         && (!(do_name && has_mname(mtmp)) || called)
         && !do_hallu) {
-        int r_id = ERAC(mtmp)->r_id;
-        Sprintf(eos(buf), "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
-                                            : races[r_id].adj);
+        (void) racial_adj(eos(buf), mtmp);
     }
     has_adjectives = (buf[0] != '\0');
 
