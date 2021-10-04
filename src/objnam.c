@@ -787,7 +787,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         break;
     case ROCK_CLASS:
         if (typ == STATUE && omndx != NON_PM) {
-            char anbuf[10];
+            char anbuf[10], monnam[BUFSZ];
+            *monnam = '\0';
+            if (has_omonst(obj) && has_erac(OMONST(obj)))
+                (void) racial_adj(monnam, OMONST(obj));
+            Strcpy(eos(monnam), mons[omndx].mname);
 
             Sprintf(eos(buf), "%s%s of %s%s",
                     (Role_if(PM_ARCHEOLOGIST) && (obj->spe & STATUE_HISTORIC))
@@ -799,7 +803,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                        : the_unique_pm(&mons[omndx])
                           ? "the "
                           : just_an(anbuf, mons[omndx].mname),
-                    mons[omndx].mname);
+                    monnam);
         } else
             Strcat(buf, actualn);
         break;
@@ -1667,14 +1671,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
     *mrace = '\0';
     if (has_omonst(otmp)) {
-        struct monst *mtmp;
-        mtmp = OMONST(otmp);
-
-        if (has_erac(mtmp)) {
-            int r_id = ERAC(mtmp)->r_id;
-            Sprintf(mrace, "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
-                                             : races[r_id].adj);
-        }
+        (void) racial_adj(mrace, OMONST(otmp));
     }
 
     if (glob) {
