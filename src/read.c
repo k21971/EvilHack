@@ -2675,12 +2675,11 @@ struct obj *from_obj;
     if (*mtype == PM_GUARD || (*mtype == PM_SHOPKEEPER && !revival)
         || *mtype == PM_HIGH_PRIEST || *mtype == PM_ALIGNED_PRIEST
         || *mtype == PM_ANGEL) {
+        int typ = NON_PM;
         if (from_obj && has_omonst(from_obj) && has_erac(OMONST(from_obj)))
-            *mtype = zombie_form(r_data(OMONST(from_obj)));
-        else
-            *mtype = PM_HUMAN_ZOMBIE;
-        if (*mtype >= LOW_PM)
-            return TRUE;
+            typ = zombie_form(r_data(OMONST(from_obj)));
+        *mtype = (typ >= LOW_PM) ? typ : PM_HUMAN_ZOMBIE;
+        return TRUE;
     } else if (*mtype == PM_LONG_WORM_TAIL) { /* for create_particular() */
         *mtype = PM_LONG_WORM;
         return TRUE;

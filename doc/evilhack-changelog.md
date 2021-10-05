@@ -1973,4 +1973,6 @@ The following changes to date are:
 - Fix: Fell Beast's aren't supposed to become tame
 - Fix: various object material fixes
 - Fix: potential use-after-free when monster threw lit oil
+- Racial statues
+- Fix: tweak to racial statues commit
 
