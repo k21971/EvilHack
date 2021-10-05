@@ -265,11 +265,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
         /* leader IDs the real amulet but ignores any fakes */
         if ((otmp = carrying(AMULET_OF_YENDOR)) != 0)
             fully_identify_obj(otmp);
-    } else {
-        /* if the player has never abused their alignment by
-           this point, don't ask for the quest artifact */
-        if (u.ualign.abuse == 0)
-            goto noabuse;
+    } else if (u.ualign.abuse != 0) { /* player has abused their alignment */
         /* the more often the player abuses their alignment,
            the greater the odds of their quest leader demanding
            that they forfeit the quest artifact */
@@ -313,14 +309,18 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     if (!(u.ualign.type == A_NONE && Qstat(pissed_off)))
                         com_pager(5);
                 }
+                Qstat(got_thanks) = TRUE;
             } else {
-                /* the quest is still complete (will fall through
-                   to 'if (obj)' below), but now the quest leader
-                   and his guardians are grumpy */
+                /* You have made the quest leader and his guardians grumpy.
+                   quest won't be complete until the quest leader is defeated */
                 Qstat(pissed_off) = 1;
                 adjalign(-10); /* god less happy, much sad */
-                verbalize(
-                    "You deny my request to safeguard our sacred artifact?  Your bones shall serve to warn others.");
+                if (u.ualign.type == A_NONE)
+                    verbalize(
+                      "I wouldn't expect anything less from a servant of Moloch.  However, I will not tolerate your insolence!");
+                else
+                    verbalize(
+                      "You deny my request to safeguard our sacred artifact?  Your bones shall serve to warn others.");
                 for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                     if (DEADMONSTER(mtmp))
                         continue;
@@ -329,31 +329,31 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                         setmangry(mtmp, FALSE);
                 }
             }
-        } else {
-noabuse:
-            qt_pager(!Qstat(got_thanks) ? QT_OFFEREDIT : QT_OFFEREDIT2);
-            /* should have obtained bell during quest;
-               if not, suggest returning for it now */
-            if ((otmp = carrying(BELL_OF_OPENING)) == 0)
-                com_pager(5);
         }
-    }
-    Qstat(got_thanks) = TRUE;
+    } else { /* player never abused their alignment */
+        qt_pager(!Qstat(got_thanks) ? QT_OFFEREDIT : QT_OFFEREDIT2);
+        /* should have obtained bell during quest;
+           if not, suggest returning for it now */
+        if ((otmp = carrying(BELL_OF_OPENING)) == 0)
+            com_pager(5);
 
-    if (obj) {
-        u.uevent.qcompleted = 1; /* you did it! */
-        /* completing the quest frees the bell of opening
-           from its 'curse' */
-        if ((otmp = carrying(BELL_OF_OPENING)) != 0)
-            otmp->blessed = 1;
-        /* behave as if leader imparts sufficient info about the
-           quest artifact */
-        if (!Qstat(pissed_off)) {
-            fully_identify_obj(obj);
-            obj->oeroded = obj->oeroded2 = 0; /* undo any damage */
-            obj->oerodeproof = 1; /* Leader 'fixes' it for you */
+        Qstat(got_thanks) = TRUE;
+
+        if (obj) {
+            u.uevent.qcompleted = 1; /* you did it! */
+            /* completing the quest frees the bell of opening
+               from its 'curse' */
+            if ((otmp = carrying(BELL_OF_OPENING)) != 0)
+                otmp->blessed = 1;
+            /* behave as if leader imparts sufficient info about the
+               quest artifact */
+            if (!Qstat(pissed_off)) {
+                fully_identify_obj(obj);
+                obj->oeroded = obj->oeroded2 = 0; /* undo any damage */
+                obj->oerodeproof = 1; /* Leader 'fixes' it for you */
+            }
+            update_inventory();
         }
-        update_inventory();
     }
 }
 

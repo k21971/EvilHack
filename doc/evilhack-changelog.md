@@ -1977,4 +1977,6 @@ The following changes to date are:
 - Fix: tweak to racial statues commit
 - Fix: zombies not reviving
 - More descriptive monsndx panic feedback
+- Fix: refusing to hand over the quest artifact to your quest leader was
+  still flagging the quest as complete
 
