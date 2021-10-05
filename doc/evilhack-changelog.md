@@ -1975,4 +1975,5 @@ The following changes to date are:
 - Fix: potential use-after-free when monster threw lit oil
 - Racial statues
 - Fix: tweak to racial statues commit
+- Fix: zombies not reviving
 
