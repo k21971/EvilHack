@@ -1976,4 +1976,5 @@ The following changes to date are:
 - Racial statues
 - Fix: tweak to racial statues commit
 - Fix: zombies not reviving
+- More descriptive monsndx panic feedback
 
