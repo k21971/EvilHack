@@ -1979,4 +1979,5 @@ The following changes to date are:
 - More descriptive monsndx panic feedback
 - Fix: refusing to hand over the quest artifact to your quest leader was
   still flagging the quest as complete
+- Fix: quest leader not engaging player after quest completion
 

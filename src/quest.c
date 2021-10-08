@@ -247,7 +247,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
     struct permonst *q_guardian = &mons[quest_info(MS_GUARDIAN)];
     aligntyp saved_align;
     uchar saved_godgend;
-    int i, alignabuse;
+    int i, alignabuse = 0;
 
     if (u.uachieve.amulet) { /* unlikely but not impossible */
         if (Role_if(PM_INFIDEL)) {
@@ -330,7 +330,8 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                 }
             }
         }
-    } else { /* player never abused their alignment */
+    }
+    if (!alignabuse) { /* player gets to keep quest artifact */
         qt_pager(!Qstat(got_thanks) ? QT_OFFEREDIT : QT_OFFEREDIT2);
         /* should have obtained bell during quest;
            if not, suggest returning for it now */
