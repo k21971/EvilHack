@@ -2139,7 +2139,7 @@ long timeout;
         if (has_omonst(body))
             free_omonst(body);
 
-        body->corpsenm = zmon;
+        set_corpsenm(body, zmon);
         revive_mon(arg, timeout);
     } else {
         rot_corpse(arg, timeout);

@@ -1981,4 +1981,5 @@ The following changes to date are:
   still flagging the quest as complete
 - Fix: quest leader not engaging player after quest completion
 - Fix: Illithids playing Convict role did not have psionic wave
+- Fix: warning when eating corpse
 
