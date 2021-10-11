@@ -833,6 +833,8 @@ u_init()
         break;
     case PM_CONVICT:
         ini_inv(Convict);
+        if (Race_if(PM_ILLITHID))
+            ini_inv(Psionics);
         knows_object(SKELETON_KEY);
         knows_object(GRAPPLING_HOOK);
         skill_init(Skill_Con);

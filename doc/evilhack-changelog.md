@@ -1980,4 +1980,5 @@ The following changes to date are:
 - Fix: refusing to hand over the quest artifact to your quest leader was
   still flagging the quest as complete
 - Fix: quest leader not engaging player after quest completion
+- Fix: Illithids playing Convict role did not have psionic wave
 
