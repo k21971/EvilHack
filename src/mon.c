@@ -295,6 +295,7 @@ struct monst* mdef;
         mdef->mcanmove = 1;
         mdef->mfrozen = 0;
         mdef->mtame = mdef->mpeaceful = 0;
+        set_malign(mdef);
 
         /* clear other data structures tracking shk information */
         if (mdef->isshk)

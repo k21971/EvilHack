@@ -1982,4 +1982,6 @@ The following changes to date are:
 - Fix: quest leader not engaging player after quest completion
 - Fix: Illithids playing Convict role did not have psionic wave
 - Fix: warning when eating corpse
+- Fix: alignment hit when killing a mind flayer that started out as a
+  peaceful monster and was transformed by a mind flayer larva
 
