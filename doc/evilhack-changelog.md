@@ -1984,4 +1984,6 @@ The following changes to date are:
 - Fix: warning when eating corpse
 - Fix: alignment hit when killing a mind flayer that started out as a
   peaceful monster and was transformed by a mind flayer larva
+- Fix: 'impossible placing steed onto map, mstate:x, on Dlvl:x' when
+  causing steed to lose tameness via blinding
 

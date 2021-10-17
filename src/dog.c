@@ -1299,6 +1299,8 @@ struct monst *mtmp;
 
     if (!mtmp->mtame && mtmp->mleashed)
         m_unleash(mtmp, TRUE);
+    if (!mtmp->mtame && mtmp == u.usteed)
+        dismount_steed(DISMOUNT_THROWN);
 
     /* don't make a sound if pet is in the middle of leaving the level */
     /* newsym isn't necessary in this case either */
