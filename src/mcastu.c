@@ -2033,10 +2033,7 @@ int spellnum;
                           is_gloves(otmp) ? "vanish" :
                           is_boots(otmp) ? "disintegrate" :
                           is_shield(otmp) ? "crumbles away" : "turns to dust");
-                obj_extract_self(otmp);
-                mtmp->misc_worn_check &= ~otmp->owornmask;
-                update_mon_intrinsics(mtmp, otmp, FALSE, TRUE);
-                otmp->owornmask = 0L; /* obfree() expects this */
+                extract_from_minvent(mtmp, otmp, TRUE, TRUE);
                 obfree(otmp, (struct obj *) 0);
             } else if (yours || canseemon(mtmp))
        	        pline("%s seems irritated.", Monnam(mtmp));

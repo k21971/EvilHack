@@ -1986,4 +1986,6 @@ The following changes to date are:
   peaceful monster and was transformed by a mind flayer larva
 - Fix: 'impossible placing steed onto map, mstate:x, on Dlvl:x' when
   causing steed to lose tameness via blinding
+- Fix: crash when leaving level after a monsters worn light source was
+  destroyed
 
