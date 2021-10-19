@@ -3525,7 +3525,7 @@ register struct monst *mtmp;
         return FALSE;
 
     /* monsters of same race as the player tend to be peaceful,
-       followers of Moloch ar ethe exception */
+       followers of Moloch and Convicts are the exception */
     if (erac_race_peaceful(mtmp) && ual != A_NONE && !Role_if(PM_CONVICT))
         return TRUE;
     if (erac_race_hostile(mtmp))
