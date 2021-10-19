@@ -1989,4 +1989,5 @@ The following changes to date are:
 - Fix: crash when leaving level after a monsters worn light source was
   destroyed
 - Fix: same race could still be peaceful towards Convicts or Infidels
+- Fix: how demons view Infidels (crowned and not crowned)
 

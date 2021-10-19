@@ -3517,8 +3517,15 @@ register struct monst *mtmp;
      * They must pass this 50% check, then the 50% check for chaotics
      * being non-hostile to unaligned, then the usual check for coaligned.
      * For crowned Infidels, the last two checks are bypassed. */
-    if (always_hostile(ptr) && (ual != A_NONE || !is_demon(ptr) || rn2(2)))
-        return FALSE;
+    if (always_hostile(ptr)) {
+        if (ual == A_NONE && is_demon(ptr) && rn2(2))
+            return TRUE;
+        else if (ual == A_NONE && u.uevent.uhand_of_elbereth == 4 && is_demon(ptr))
+            return TRUE;
+        else
+            return FALSE;
+    }
+
     if (ptr->msound == MS_LEADER || ptr->msound == MS_GUARDIAN)
         return TRUE;
     if (ptr->msound == MS_NEMESIS)
