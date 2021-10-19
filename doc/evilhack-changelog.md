@@ -1988,4 +1988,5 @@ The following changes to date are:
   causing steed to lose tameness via blinding
 - Fix: crash when leaving level after a monsters worn light source was
   destroyed
+- Fix: same race could still be peaceful towards Convicts or Infidels
 
