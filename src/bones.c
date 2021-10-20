@@ -551,6 +551,16 @@ struct obj *corpse;
 
         /* embed your possessions in your statue */
         otmp = mk_named_object(STATUE, &mons[u.umonnum], u.ux, u.uy, plname);
+        if (!Upolyd) {
+            int rnum = (flags.female && urace.femalenum != NON_PM)
+                           ? urace.femalenum
+                           : urace.malenum;
+            struct monst *mtmp = makemon(&mons[u.umonnum], 0, 0,
+                                         MM_NOCOUNTBIRTH);
+            apply_race(mtmp, rnum);
+            otmp = save_mtraits(otmp, mtmp);
+            mongone(mtmp);
+        }
 
         drop_upon_death((struct monst *) 0, otmp, u.ux, u.uy);
         if (!otmp)

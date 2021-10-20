@@ -1553,12 +1553,12 @@ int how;
        this grave in the current level's features for #overview */
     if (bones_ok && u.ugrave_arise == NON_PM
         && !(mvitals[u.umonnum].mvflags & G_NOCORPSE)) {
-        int mnum = u.umonnum;
+        int mnum = u.umonnum, rnum = NON_PM;
 
         if (!Upolyd) {
             /* Base corpse on race when not poly'd since original u.umonnum
                is based on role, and all role monsters are human. */
-            mnum = (flags.female && urace.femalenum != NON_PM)
+            rnum = (flags.female && urace.femalenum != NON_PM)
                        ? urace.femalenum
                        : urace.malenum;
         }
@@ -1569,6 +1569,13 @@ int how;
              * withering is assumed to just wither the rest of the body without
              * any vitality to stop it) */
             corpse = mk_named_object(CORPSE, &mons[mnum], u.ux, u.uy, plname);
+            if (rnum > NON_PM) {
+                struct monst *mtmp = makemon(&mons[mnum], 0, 0,
+                                             MM_NOCOUNTBIRTH);
+                apply_race(mtmp, rnum);
+                corpse = save_mtraits(corpse, mtmp);
+                mongone(mtmp);
+            }
         }
         Sprintf(pbuf, "%s, ", plname);
         formatkiller(eos(pbuf), sizeof pbuf - strlen(pbuf), how, TRUE);
