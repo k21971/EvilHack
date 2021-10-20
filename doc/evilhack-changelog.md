@@ -1993,4 +1993,5 @@ The following changes to date are:
 - Include race in statues of previous players, corpses/statues for bones
 - Fix: don't allow vault guards to be displaced
 - Fix: silence shadow warning, bones corpse has name of dead player
+- Fix: untrap steed sanity
 
