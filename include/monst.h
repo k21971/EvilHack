@@ -236,7 +236,7 @@ struct monst {
                               || (mon)->isgd                     \
                               || (mon)->data == &mons[PM_ORACLE] \
                               || (mon)->data == &mons[PM_CHARON] \
-                              || (mon)->m_id == g.quest_status.leader_m_id)
+                              || (mon)->m_id == quest_status.leader_m_id)
 
 /* mimic appearances that block vision/light */
 #define is_lightblocker_mappear(mon)                       \
