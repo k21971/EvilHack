@@ -5988,8 +5988,15 @@ short raceidx;
     register struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->mnum];
     boolean init = FALSE;
 
-    if (!mtmp || raceidx == NON_PM || mvitals[raceidx].mvflags & G_GONE)
+    if (!mtmp || mvitals[raceidx].mvflags & G_GONE)
         return;
+
+    if (raceidx == NON_PM) {
+        /* apply non-race - clear race data */
+        if (has_erac(mtmp))
+            free_erac(mtmp);
+        return;
+    }
 
     if (!has_erac(mtmp)) {
         newerac(mtmp);

@@ -78,6 +78,7 @@ static char *NDECL(encode_extended_conducts);
 #endif
 STATIC_DCL void FDECL(free_ttlist, (struct toptenentry *));
 STATIC_DCL int FDECL(classmon, (char *, BOOLEAN_P));
+STATIC_DCL int FDECL(raceinfo, (char *, BOOLEAN_P));
 STATIC_DCL int FDECL(score_wanted, (BOOLEAN_P, int, struct toptenentry *, int,
                                     const char **, int));
 #ifdef NO_SCAN_BRACK
@@ -221,6 +222,10 @@ FILE *rfile;
     } while (c != '\n' && c != EOF);
 }
 
+#define use_newfmt \
+    (tt->ver_major > 0 || tt->ver_minor > 7 \
+     || (tt->ver_minor == 7 && tt->patchlevel > 1))
+
 STATIC_OVL void
 readentry(rfile, tt)
 FILE *rfile;
@@ -263,7 +268,7 @@ struct toptenentry *tt;
             discardexcess(rfile);
         }
         /* Check for backwards compatibility */
-        if (tt->ver_major < 3 || (tt->ver_major == 3 && tt->ver_minor < 3)) {
+        if (!use_newfmt) {
             int i;
 
             if (sscanf(inbuf, fmt32, tt->plrole, tt->plgend, s1, s2) == 4) {
@@ -326,7 +331,7 @@ struct toptenentry *tt;
                    tt->points, tt->deathdnum, tt->deathlev, tt->maxlvl,
                    tt->hp, tt->maxhp, tt->deaths, tt->deathdate,
                    tt->birthdate, tt->uid);
-    if (tt->ver_major < 3 || (tt->ver_major == 3 && tt->ver_minor < 3))
+    if (!use_newfmt)
         (void) fprintf(rfile, fmt32, tt->plrole[0], tt->plgend[0]);
     else
         (void) fprintf(rfile, fmt33, tt->plrole, tt->plrace, tt->plgend,
@@ -339,6 +344,8 @@ struct toptenentry *tt;
     nsb_unmung_line(tt->death);
 #endif
 }
+
+#undef use_newfmt
 
 #ifdef XLOGFILE
 
@@ -1349,6 +1356,31 @@ boolean fem;
     return  PM_HUMAN_MUMMY;
 }
 
+STATIC_OVL int
+raceinfo(plrac, fem)
+char *plrac;
+boolean fem;
+{
+    int i;
+
+    if (!strcmp(plrac, "?"))
+        return NON_PM;
+
+    for (i = 0; races[i].noun; i++) {
+        if (!strncmp(plrac, races[i].filecode, ROLESZ)) {
+            if (fem && races[i].femalenum != NON_PM)
+                return races[i].femalenum;
+            else if (races[i].malenum != NON_PM)
+                return races[i].malenum;
+            else
+                return NON_PM;
+        }
+    }
+
+    impossible("What weird race is this? (%s)", plrac);
+    return NON_PM;
+}
+
 /*
  * Get a random player name and class from the high score list,
  */
@@ -1408,6 +1440,8 @@ tt_oname(otmp)
 struct obj *otmp;
 {
     struct toptenentry *tt;
+    struct monst *mtmp;
+    int classndx, racendx;
     if (!otmp)
         return (struct obj *) 0;
 
@@ -1416,8 +1450,21 @@ struct obj *otmp;
     if (!tt)
         return (struct obj *) 0;
 
-    set_corpsenm(otmp, classmon(tt->plrole, (tt->plgend[0] == 'F')));
+    /* set name */
     otmp = oname(otmp, tt->name);
+
+    /* set monster type */
+    classndx = classmon(tt->plrole, (tt->plgend[0] == 'F'));
+    set_corpsenm(otmp, classndx);
+
+    /* set race */
+    racendx = raceinfo(tt->plrace, (tt->plgend[0] == 'F'));
+    if (racendx > NON_PM) {
+        mtmp = makemon(&mons[classndx], 0, 0, MM_NOCOUNTBIRTH);
+        apply_race(mtmp, racendx);
+        otmp = save_mtraits(otmp, mtmp);
+        mongone(mtmp);
+    }
 
     return otmp;
 }
