@@ -1573,6 +1573,7 @@ int how;
                 struct monst *mtmp = makemon(&mons[mnum], 0, 0,
                                              MM_NOCOUNTBIRTH);
                 apply_race(mtmp, rnum);
+                christen_monst(mtmp, plname);
                 corpse = save_mtraits(corpse, mtmp);
                 mongone(mtmp);
             }

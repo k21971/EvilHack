@@ -555,11 +555,12 @@ struct obj *corpse;
             int rnum = (flags.female && urace.femalenum != NON_PM)
                            ? urace.femalenum
                            : urace.malenum;
-            struct monst *mtmp = makemon(&mons[u.umonnum], 0, 0,
+            struct monst *rmon = makemon(&mons[u.umonnum], 0, 0,
                                          MM_NOCOUNTBIRTH);
-            apply_race(mtmp, rnum);
-            otmp = save_mtraits(otmp, mtmp);
-            mongone(mtmp);
+            apply_race(rmon, rnum);
+            christen_monst(rmon, plname);
+            otmp = save_mtraits(otmp, rmon);
+            mongone(rmon);
         }
 
         drop_upon_death((struct monst *) 0, otmp, u.ux, u.uy);

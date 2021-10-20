@@ -1990,5 +1990,7 @@ The following changes to date are:
   destroyed
 - Fix: same race could still be peaceful towards Convicts or Infidels
 - Fix: how demons view Infidels (crowned and not crowned)
+- Include race in statues of previous players, corpses/statues for bones
 - Fix: don't allow vault guards to be displaced
+- Fix: silence shadow warning, bones corpse has name of dead player
 
