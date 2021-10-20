@@ -10,7 +10,6 @@ STATIC_DCL unsigned FDECL(nextoid, (struct obj *, struct obj *));
 STATIC_DCL void FDECL(obj_timer_checks, (struct obj *,
                                          XCHAR_P, XCHAR_P, int));
 STATIC_DCL void FDECL(container_weight, (struct obj *));
-STATIC_DCL struct obj *FDECL(save_mtraits, (struct obj *, struct monst *));
 STATIC_DCL void FDECL(objlist_sanity, (struct obj *, int, const char *));
 STATIC_DCL void FDECL(mon_obj_sanity, (struct monst *, const char *));
 STATIC_DCL const char *FDECL(where_name, (struct obj *));
@@ -1822,7 +1821,7 @@ unsigned mid;
     return obj;
 }
 
-static struct obj *
+struct obj *
 save_mtraits(obj, mtmp)
 struct obj *obj;
 struct monst *mtmp;

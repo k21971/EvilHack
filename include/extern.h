@@ -1430,6 +1430,7 @@ E struct obj *FDECL(mkcorpstat, (int, struct monst *, struct permonst *, int,
                                  int, unsigned));
 E int FDECL(corpse_revive_type, (struct obj *));
 E struct obj *FDECL(obj_attach_mid, (struct obj *, unsigned));
+E struct obj *FDECL(save_mtraits, (struct obj *, struct monst *));
 E struct monst *FDECL(get_mtraits, (struct obj *, BOOLEAN_P));
 E struct obj *FDECL(mk_tt_object, (int, int, int));
 E struct obj *FDECL(mk_named_object,
