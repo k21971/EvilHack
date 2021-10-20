@@ -1990,4 +1990,5 @@ The following changes to date are:
   destroyed
 - Fix: same race could still be peaceful towards Convicts or Infidels
 - Fix: how demons view Infidels (crowned and not crowned)
+- Fix: don't allow vault guards to be displaced
 

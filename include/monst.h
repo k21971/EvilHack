@@ -229,6 +229,15 @@ struct monst {
     ((mon)->cham == PM_CHAMELEON || (mon)->cham == PM_DOPPELGANGER  \
      || (mon)->cham == PM_SANDESTIN)
 
+/* monsters which cannot be displaced: priests, shopkeepers, vault guards,
+   Oracle, Charon, quest leader */
+#define mundisplaceable(mon) ((mon)->ispriest                    \
+                              || (mon)->isshk                    \
+                              || (mon)->isgd                     \
+                              || (mon)->data == &mons[PM_ORACLE] \
+                              || (mon)->data == &mons[PM_CHARON] \
+                              || (mon)->m_id == g.quest_status.leader_m_id)
+
 /* mimic appearances that block vision/light */
 #define is_lightblocker_mappear(mon)                       \
     (is_obj_mappear(mon, BOULDER)                          \
