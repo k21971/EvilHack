@@ -774,7 +774,7 @@ stolen_booty(VOID_ARGS)
         if (DEADMONSTER(mtmp))
             continue;
 
-        if (is_orc(mtmp->data) && !has_mname(mtmp) && rn2(10)) {
+        if (racial_orc(mtmp) && !has_mname(mtmp) && rn2(10)) {
             /*
              * We'll consider the orc captain from the level
              * .des file to be the captain of a rival orc horde

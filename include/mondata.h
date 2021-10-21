@@ -203,61 +203,45 @@
 #define is_elf(ptr) \
     ((((ptr)->mhflags & MH_ELF) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ELF)))
-#define racial_elf(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & MH_ELF)) \
-     || (!has_erac(mon) && is_elf((mon)->data)))
+#define mon_has_race(mon, rflag) \
+    ((has_erac(mon) ? (ERAC(mon)->mrace & (rflag)) \
+                    : ((mon)->data->mhflags & (rflag))) \
+     || ((mon) == &youmonst && !Upolyd && (urace.selfmask & (rflag))))
+#define racial_elf(mon) mon_has_race(mon, MH_ELF)
 #define is_dwarf(ptr) \
     ((((ptr)->mhflags & MH_DWARF) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_DWARF)))
-#define racial_dwarf(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & MH_DWARF)) \
-     || (!has_erac(mon) && is_dwarf((mon)->data)))
+#define racial_dwarf(mon) mon_has_race(mon, MH_DWARF)
 #define is_gnome(ptr) \
     ((((ptr)->mhflags & MH_GNOME) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GNOME)))
-#define racial_gnome(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & MH_GNOME)) \
-     || (!has_erac(mon) && is_gnome((mon)->data)))
+#define racial_gnome(mon) mon_has_race(mon, MH_GNOME)
 #define is_orc(ptr) \
     ((((ptr)->mhflags & MH_ORC) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ORC)))
-#define racial_orc(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & MH_ORC)) \
-     || (!has_erac(mon) && is_orc((mon)->data)))
+#define racial_orc(mon) mon_has_race(mon, MH_ORC)
 #define is_human(ptr) \
     ((((ptr)->mhflags & MH_HUMAN) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_HUMAN)))
-#define racial_human(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & MH_HUMAN)) \
-     || (!has_erac(mon) && is_human((mon)->data)))
+#define racial_human(mon) mon_has_race(mon, MH_HUMAN)
 #define is_hobbit(ptr) \
     ((((ptr)->mhflags & MH_HOBBIT) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_HOBBIT)))
-#define racial_hobbit(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & MH_HOBBIT)) \
-     || (!has_erac(mon) && is_hobbit((mon)->data)))
+#define racial_hobbit(mon) mon_has_race(mon, MH_HOBBIT)
 #define is_giant(ptr) \
     ((((ptr)->mhflags & MH_GIANT) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
-#define racial_giant(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & MH_GIANT)) \
-     || (!has_erac(mon) && is_giant((mon)->data)))
+#define racial_giant(mon) mon_has_race(mon, MH_GIANT)
 #define is_centaur(ptr) \
     ((((ptr)->mhflags & MH_CENTAUR) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_CENTAUR)))
-#define racial_centaur(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & MH_CENTAUR)) \
-     || (!has_erac(mon) && is_centaur((mon)->data)))
+#define racial_centaur(mon) mon_has_race(mon, MH_CENTAUR)
 #define is_illithid(ptr) \
     ((((ptr)->mhflags & MH_ILLITHID) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ILLITHID)))
-#define racial_illithid(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & MH_ILLITHID)) \
-     || (!has_erac(mon) && is_illithid((mon)->data)))
+#define racial_illithid(mon) mon_has_race(mon, MH_ILLITHID)
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
-#define racial_match(mon) \
-    ((has_erac(mon) && (ERAC(mon)->mrace & urace.selfmask)) \
-     || (!has_erac(mon) && your_race((mon)->data)))
+#define racial_match(mon) mon_has_race(mon, urace.selfmask)
 #define is_bat(ptr)                                         \
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
      || (ptr) == &mons[PM_VAMPIRE_BAT])

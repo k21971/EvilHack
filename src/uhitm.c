@@ -2684,7 +2684,7 @@ do_rust:
                 } else if (mattk->aatyp == AT_HUGS) {
                     pline("%s is being crushed.", Monnam(mdef));
                 } else if (mattk->aatyp == AT_TENT) {
-                    if (is_illithid(mdef->data)) {
+                    if (racial_illithid(mdef)) {
                         You("sense %s is kin, and release your grip.",
                             mon_nam(mdef));
                         u.ustuck = 0;
