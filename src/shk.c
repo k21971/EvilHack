@@ -2605,7 +2605,7 @@ register struct monst *shkp;
              * make exorbitantly *low* offers for the player selling things
              * shouldn't apply. They'll pay fair market value.
              */
-            if (is_illithid(shkp->data)) {
+            if (racial_illithid(shkp)) {
                 /* The racial modifiers for sell price are just the reciprocal of those
                  * for the buy price. So we just reverse num and denom's meaning. */
                 multiplier *= denom;

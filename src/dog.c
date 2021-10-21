@@ -1174,6 +1174,7 @@ register struct obj *obj;
         /* monsters with conflicting structures cannot be tamed */
         || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion
         || is_covetous(mtmp->data) || is_human(mtmp->data)
+        || racial_human(mtmp)
         || (is_demon(mtmp->data) && mtmp->data != &mons[PM_LAVA_DEMON]
             && !is_demon(raceptr(&youmonst)))
         || (obj && dogfood(mtmp, obj) >= MANFOOD))
