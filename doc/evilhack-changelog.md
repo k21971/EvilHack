@@ -1994,4 +1994,6 @@ The following changes to date are:
 - Fix: don't allow vault guards to be displaced
 - Fix: silence shadow warning, bones corpse has name of dead player
 - Fix: untrap steed sanity
+- Expand/simplify racial monster macro usage
+- Fix: croc corpse poly produces 'flesh low boots'
 

@@ -1731,6 +1731,7 @@ int id;
             otmp->oerodeproof = TRUE;
             otmp->quan = 1L;
             otmp->cursed = FALSE;
+            set_material(otmp, LEATHER);
         }
     }
 
