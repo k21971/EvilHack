@@ -1365,54 +1365,7 @@ const char *name;
                                ansimpleoname(obj), bare_artifactname(obj));
         }
         /* set up specific materials for the artifact */
-        switch(obj->oartifact) {
-        case ART_WEREBANE:
-        case ART_DEMONBANE:
-        case ART_GRAYSWANDIR:
-            set_material(obj, SILVER);
-            break;
-        case ART_DIRGE:
-        case ART_DRAMBORLEG:
-            set_material(obj, MITHRIL);
-            break;
-        case ART_FIRE_BRAND:
-        case ART_FROST_BRAND:
-        case ART_STORMBRINGER:
-        case ART_LUCK_BLADE:
-        case ART_VORPAL_BLADE:
-        case ART_SCEPTRE_OF_MIGHT:
-        case ART_MITRE_OF_HOLINESS:
-        case ART_SNICKERSNEE:
-            set_material(obj, METAL);
-            break;
-        case ART_SUNSWORD:
-        case ART_SWORD_OF_KAS:
-        case ART_RING_OF_P_HUL:
-        case ART_WAND_OF_ORCUS:
-            set_material(obj, GEMSTONE);
-            break;
-        case ART_YENDORIAN_EXPRESS_CARD:
-            set_material(obj, PLATINUM);
-            break;
-        case ART_DRAGONBANE:
-        case ART_BAG_OF_THE_HESPERIDES:
-            set_material(obj, DRAGON_HIDE);
-            break;
-        case ART_IRON_BALL_OF_LIBERATION:
-        case ART_ANGELSLAYER:
-            set_material(obj, IRON);
-            break;
-        case ART_GJALLAR:
-        case ART_BUTCHER:
-            set_material(obj, BONE);
-            break;
-        case ART_SECESPITA:
-            set_material(obj, COPPER);
-            break;
-        default:
-            /* prevent any wishes for materials on an artifact */
-            set_material(obj, objects[obj->otyp].oc_material);
-        }
+        set_material(obj, artifact_material(obj->oartifact));
     }
     if (carried(obj))
         update_inventory();

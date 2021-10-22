@@ -173,6 +173,60 @@ int prop;
      return 0L;
 }
 
+int
+artifact_material(m)
+xchar m;
+{
+    switch (m) {
+    case ART_WEREBANE:
+    case ART_DEMONBANE:
+    case ART_GRAYSWANDIR:
+        return SILVER;
+        break;
+    case ART_DIRGE:
+    case ART_DRAMBORLEG:
+        return MITHRIL;
+        break;
+    case ART_FIRE_BRAND:
+    case ART_FROST_BRAND:
+    case ART_STORMBRINGER:
+    case ART_LUCK_BLADE:
+    case ART_VORPAL_BLADE:
+    case ART_SCEPTRE_OF_MIGHT:
+    case ART_MITRE_OF_HOLINESS:
+    case ART_SNICKERSNEE:
+        return METAL;
+        break;
+    case ART_SUNSWORD:
+    case ART_SWORD_OF_KAS:
+    case ART_RING_OF_P_HUL:
+    case ART_WAND_OF_ORCUS:
+        return GEMSTONE;
+        break;
+    case ART_YENDORIAN_EXPRESS_CARD:
+        return PLATINUM;
+        break;
+    case ART_DRAGONBANE:
+    case ART_BAG_OF_THE_HESPERIDES:
+        return DRAGON_HIDE;
+        break;
+    case ART_IRON_BALL_OF_LIBERATION:
+    case ART_ANGELSLAYER:
+        return IRON;
+        break;
+    case ART_GJALLAR:
+    case ART_BUTCHER:
+        return BONE;
+        break;
+    case ART_SECESPITA:
+        return COPPER;
+        break;
+    default:
+        /* default material for that item */
+        return objects[artilist[m].otyp].oc_material;
+    }
+}
+
 /*
    Make an artifact.  If a specific alignment is specified, then an object of
    the appropriate alignment is created from scratch, or 0 is returned if
@@ -224,8 +278,9 @@ aligntyp alignment; /* target alignment, or A_NONE */
         if ((a->alignment == alignment || a->alignment == A_NONE)
             /* avoid enemies' equipment */
             && (a->race == NON_PM || !race_hostile(&mons[a->race]))
-            && (!(Race_if(PM_GIANT) && (a->mtype & MH_GIANT)))
-            && (!(Role_if(PM_PRIEST) && (is_slash(a) || is_pierce(a))))) {
+            && !Hate_material(artifact_material(m))
+            && !(Race_if(PM_GIANT) && (a->mtype & MH_GIANT))
+            && !(Role_if(PM_PRIEST) && (is_slash(a) || is_pierce(a)))) {
             /* when a role-specific first choice is available, use it */
             if (Role_if(a->role)) {
                 /* make this be the only possibility in the list */
