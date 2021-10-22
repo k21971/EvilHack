@@ -1236,15 +1236,18 @@ int spellnum;
         }
         /* Don't waste time zapping resisted spells at the player,
          * and don't blast ourselves with our own explosions */
-        if ((m_seenres(mtmp, M_SEEN_FIRE) || distu(mtmp->mx, mtmp->my) < 2)
+        if ((m_seenres(mtmp, M_SEEN_FIRE)
+             || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
             && spellnum == MGC_FIRE_BOLT) {
             return TRUE;
         }
-        if ((m_seenres(mtmp, M_SEEN_COLD) || distu(mtmp->mx, mtmp->my) < 2)
+        if ((m_seenres(mtmp, M_SEEN_COLD)
+             || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
             && spellnum == MGC_ICE_BOLT) {
             return TRUE;
         }
-        if ((m_seenres(mtmp, M_SEEN_ACID) || distu(mtmp->mx, mtmp->my) < 2)
+        if ((m_seenres(mtmp, M_SEEN_ACID)
+             || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
             && spellnum == MGC_ACID_BLAST) {
             return TRUE;
         }
@@ -1352,15 +1355,18 @@ int spellnum;
         if (!wearing_armor() && spellnum == MGC_DESTRY_ARMR) {
             return TRUE;
         }
-        if ((m_seenres(mtmp, M_SEEN_FIRE) || distu(mtmp->mx, mtmp->my) < 2)
+        if ((m_seenres(mtmp, M_SEEN_FIRE)
+             || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
             && spellnum == MGC_FIRE_BOLT) {
             return TRUE;
         }
-        if ((m_seenres(mtmp, M_SEEN_COLD) || distu(mtmp->mx, mtmp->my) < 2)
+        if ((m_seenres(mtmp, M_SEEN_COLD)
+             || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
             && spellnum == MGC_ICE_BOLT) {
             return TRUE;
         }
-        if ((m_seenres(mtmp, M_SEEN_ACID) || distu(mtmp->mx, mtmp->my) < 2)
+        if ((m_seenres(mtmp, M_SEEN_ACID)
+             || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
             && spellnum == MGC_ACID_BLAST) {
             return TRUE;
         }
