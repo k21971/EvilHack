@@ -373,7 +373,8 @@ moverock()
                      */
                     pline("However, you %s%s.",
                           willpickup ? "easily pick it up"
-                                     : "maneuver over it",
+                                     : (In_sokoban(&u.uz) && Sokoban != 0)
+                                         ? "could maneuver over it" : "maneuver over it",
                           (canpickup && !willpickup)
                                      ? " and could pick it up"
                                      : "");

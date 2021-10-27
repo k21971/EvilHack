@@ -1997,4 +1997,5 @@ The following changes to date are:
 - Expand/simplify racial monster macro usage
 - Fix: croc corpse poly produces 'flesh low boots'
 - Adjust minimum distance a monster will cast fire/ice bolt or acid blast
+- Fix: 'could maneuver over it' vs 'maneuver over it' in Sokoban
 
