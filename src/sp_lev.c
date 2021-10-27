@@ -2009,6 +2009,8 @@ struct mkroom *croom;
                 cobj->owt = weight(cobj);
             } else {
                 obj_extract_self(otmp);
+                if (otmp->oartifact)
+                    artifact_exists(otmp, safe_oname(otmp), FALSE);
                 obfree(otmp, NULL);
                 return;
             }
