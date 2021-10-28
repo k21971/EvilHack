@@ -274,9 +274,13 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
             i = 1; /* clamp lower limit to avoid panic */
         alignabuse = !rn2(i);
         if (alignabuse) {
+            const char *qa_name = artiname(urole.questarti),
+                       *ldr_name = ldrname();
+            char qbuf[BUFSZ];
+            Sprintf(qbuf, "Forfeit %s to %s?", qa_name, ldr_name);
             /* quest leader decides they want the quest artifact */
             qt_pager(QT_WANTSIT);
-            if (yn("Forfeit the quest artifact to your quest leader?") == 'y') {
+            if (yn(qbuf) == 'y') {
                 qt_pager(QT_GAVEITUP);
                 if (obj) {
                     u.uevent.qcompleted = 1; /* you did it! */
@@ -299,6 +303,9 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                             (void) mpickobj(mtmp, obj);
                     }
                     update_inventory();
+                    livelog_printf(LL_ACHIEVE,
+                                   "returned %s to %s, completing %s quest.",
+                                   qa_name, ldr_name, uhis());
                 }
                 if (u.ualign.type == A_NONE) /* Infidel quest leader is an asshole */
                     Qstat(pissed_off) = 1;
@@ -328,6 +335,8 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     if (mtmp->data == q_guardian)
                         setmangry(mtmp, FALSE);
                 }
+                livelog_printf(LL_ACHIEVE, "refused to give up %s to %s.",
+                               qa_name, ldr_name);
             }
         }
     }
@@ -355,6 +364,8 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
             }
             update_inventory();
         }
+        livelog_printf(LL_ACHIEVE, "completed %s quest without incident.",
+                       uhis());
     }
 }
 

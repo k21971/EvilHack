@@ -2002,4 +2002,5 @@ The following changes to date are:
 - Fix: breaking wielded fragile item against iron bars
 - Weapon with poison object property will identify itself if it doesn't
   affect its target
+- Livelog quest completion
 
