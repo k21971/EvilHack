@@ -2003,4 +2003,5 @@ The following changes to date are:
 - Weapon with poison object property will identify itself if it doesn't
   affect its target
 - Livelog quest completion
+- Fix: alignment penalty for killing summoned elves when naming Sting/Orcrist
 

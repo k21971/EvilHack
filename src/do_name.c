@@ -1324,7 +1324,7 @@ const char *name;
                monster or quest nemesis, but you're still not
                getting these for free */
             if (rn2(3)) {
-                mtmp = makemon(&mons[PM_GREY_ELF], u.ux, u.uy, MM_ADJACENTOK);
+                mtmp = makemon(&mons[PM_GREY_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);
                 if (mtmp) {
                     if (!Blind) {
                         if (Hallucination)
@@ -1350,7 +1350,7 @@ const char *name;
                         (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);
                     if (rn2(3))
                         (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy, MM_ADJACENTOK | MM_ANGRY);
-                    mtmp->mpeaceful = mtmp->msleeping = 0;
+                    mtmp->msleeping = 0;
                     m_dowear(mtmp, TRUE);
                     mon_wield_item(mtmp);
                 }
