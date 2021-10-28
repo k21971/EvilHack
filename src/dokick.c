@@ -689,7 +689,7 @@ xchar x, y;
     }
 
     /* fragile objects should not be kicked */
-    if (hero_breaks(kickedobj, kickedobj->ox, kickedobj->oy, FALSE))
+    if (hero_breaks(kickedobj, kickedobj->ox, kickedobj->oy, 0))
         return 1;
 
     /* too heavy to move.  range is calculated as potential distance from

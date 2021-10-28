@@ -603,7 +603,7 @@ E boolean FDECL(throwing_weapon, (struct obj *));
 E void FDECL(throwit, (struct obj *, long, BOOLEAN_P));
 E int FDECL(omon_adj, (struct monst *, struct obj *, BOOLEAN_P));
 E int FDECL(thitmonst, (struct monst *, struct obj *));
-E int FDECL(hero_breaks, (struct obj *, XCHAR_P, XCHAR_P, BOOLEAN_P));
+E int FDECL(hero_breaks, (struct obj *, XCHAR_P, XCHAR_P, unsigned));
 E int FDECL(breaks, (struct obj *, XCHAR_P, XCHAR_P));
 E void FDECL(release_camera_demon, (struct obj *, XCHAR_P, XCHAR_P));
 E void FDECL(breakobj, (struct obj *, XCHAR_P, XCHAR_P, BOOLEAN_P, BOOLEAN_P));
@@ -1741,8 +1741,7 @@ E void FDECL(m_useupall, (struct monst *, struct obj *));
 E void FDECL(m_useup, (struct monst *, struct obj *));
 E boolean FDECL(mlined_up, (struct monst *, struct monst *, BOOLEAN_P));
 E void FDECL(m_throw, (struct monst *, int, int, int, int, int, struct obj *, BOOLEAN_P));
-E void FDECL(hit_bars, (struct obj **, int, int, int, int,
-                        BOOLEAN_P, BOOLEAN_P));
+E void FDECL(hit_bars, (struct obj **, int, int, int, int, unsigned));
 E boolean FDECL(hits_bars, (struct obj **, int, int, int, int, int, int));
 
 /* ### muse.c ### */

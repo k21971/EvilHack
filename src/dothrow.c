@@ -471,7 +471,7 @@ boolean verbosely; /* usually True; False if caller has given drop message */
         pline("%s %s the %s.", Doname2(obj), otense(obj, "hit"),
               surface(u.ux, u.uy));
 
-    if (hero_breaks(obj, u.ux, u.uy, TRUE))
+    if (hero_breaks(obj, u.ux, u.uy, BRK_FROM_INV))
         return;
     if (ship_object(obj, u.ux, u.uy, FALSE))
         return;
@@ -2105,15 +2105,23 @@ register struct obj *obj;
  * Return 0 if the object didn't break, 1 if the object broke.
  */
 int
-hero_breaks(obj, x, y, from_invent)
+hero_breaks(obj, x, y, breakflags)
 struct obj *obj;
 xchar x, y;          /* object location (ox, oy may not be right) */
-boolean from_invent; /* thrown or dropped by player; maybe on shop bill */
+unsigned breakflags;
 {
-    boolean in_view = Blind ? FALSE : (from_invent || cansee(x, y));
+    /* from_invent: thrown or dropped by player; maybe on shop bill;
+       by-hero is implicit so callers don't need to specify BRK_BY_HERO */
+    boolean from_invent = (breakflags & BRK_FROM_INV) != 0,
+            in_view = Blind ? FALSE : (from_invent || cansee(x, y));
+    unsigned brk = (breakflags & BRK_KNOWN_OUTCOME);
 
-    if (!breaktest(obj))
+    /* only call breaktest if caller hasn't already specified the outcome */
+    if (!brk)
+        brk = breaktest(obj) ? BRK_KNOWN2BREAK : BRK_KNOWN2NOTBREAK;
+    if (brk == BRK_KNOWN2NOTBREAK)
         return 0;
+
     breakmsg(obj, in_view);
     breakobj(obj, x, y, TRUE, from_invent);
     return 1;

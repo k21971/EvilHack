@@ -1807,6 +1807,7 @@ domove_core()
 
     if (context.forcefight && levl[x][y].typ == IRONBARS && uwep) {
         struct obj *obj = uwep;
+        unsigned breakflags = (BRK_BY_HERO | BRK_FROM_INV);
 
         if (breaktest(obj)) {
             if (obj->quan > 1L)
@@ -1814,8 +1815,12 @@ domove_core()
             else
                 setuwep((struct obj *)0);
             freeinv(obj);
+            breakflags |= BRK_KNOWN2BREAK;
+        } else {
+            breakflags |= BRK_KNOWN2NOTBREAK;
         }
-        hit_bars(&obj, u.ux, u.uy, x, y, TRUE, TRUE);
+
+        hit_bars(&obj, u.ux, u.uy, x, y, breakflags);
         return;
     }
 
