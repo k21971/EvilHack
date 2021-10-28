@@ -1688,13 +1688,18 @@ int dieroll;
        (via 'thrownobj'; if swallowed, it gets added to engulfer's
        minvent and might merge with a stack that's already there)] */
 
-    if (needpoismsg)
+    if (needpoismsg) {
         pline_The("poison doesn't seem to affect %s.", mon_nam(mon));
+        if (obj && (obj->oprops & ITEM_VENOM))
+            obj->oprops_known |= ITEM_VENOM;
+    }
     if (poiskilled) {
         pline_The("poison was deadly...");
         if (!already_killed)
             xkilled(mon, XKILL_NOMSG);
         destroyed = TRUE; /* return FALSE; */
+        if (obj && (obj->oprops & ITEM_VENOM))
+            obj->oprops_known |= ITEM_VENOM;
     } else if (destroyed) {
         if (!already_killed)
             killed(mon); /* takes care of most messages */

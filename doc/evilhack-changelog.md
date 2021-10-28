@@ -2000,4 +2000,6 @@ The following changes to date are:
 - Fix: 'could maneuver over it' vs 'maneuver over it' in Sokoban
 - Fix: cases where an artifact would be silently removed from the game
 - Fix: breaking wielded fragile item against iron bars
+- Weapon with poison object property will identify itself if it doesn't
+  affect its target
 
