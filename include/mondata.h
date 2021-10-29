@@ -478,19 +478,21 @@
 
 /* monster can mount and ride other monsters */
 #define mon_can_ride(mon) \
-    (!mon->mtame && mon != u.ustuck && !mon->mpeaceful && !mon->mtrapped \
-     && humanoid(mon->data) && !is_zombie(mon->data) && !r_bigmonst(mon) \
-     && !is_animal(mon->data) && !is_were(mon->data)                     \
-     && mon->data->mlet != S_MUMMY && mon->data->mlet != S_LIZARD        \
-     && !r_verysmall(mon) && !is_shapeshifter(mon->data)                 \
-     && mon->mcanmove && !mon->msleeping && mon->cham == NON_PM          \
-     && !unsolid(mon->data))
+    (!(mon)->mtame && (mon) != u.ustuck && !(mon)->mpeaceful                 \
+     && !(mon)->mtrapped && humanoid((mon)->data) && !is_zombie((mon)->data) \
+     && !r_bigmonst(mon) && !is_animal((mon)->data) && !is_were((mon)->data) \
+     && (mon)->data->mlet != S_MUMMY && (mon)->data->mlet != S_LIZARD        \
+     && !r_verysmall(mon) && !is_shapeshifter((mon)->data)                   \
+     && (mon)->mcanmove && !(mon)->msleeping && (mon)->cham == NON_PM        \
+     && !unsolid((mon)->data) && !((mon)->mstrategy & STRAT_WAITFORU))
 /* monster can be ridden by other monsters */
 #define mon_can_be_ridden(mon) \
-    (can_saddle(mon) && !DEADMONSTER(mon) && !is_covetous(mon->data)        \
-     && !mon->mtame && mon != u.ustuck && !mon->mpeaceful && !mon->mtrapped \
-     && mon->mcanmove && !mon->msleeping && !is_shapeshifter(mon->data)     \
-     && !is_were(mon->data) && !mon->isshk && mon->data->mlet != S_DOG)
+    (can_saddle(mon) && !DEADMONSTER(mon) && !is_covetous((mon)->data)       \
+     && !(mon)->mtame && (mon) != u.ustuck && !(mon)->mpeaceful              \
+     && !(mon)->mtrapped && (mon)->mcanmove && !(mon)->msleeping             \
+     && !is_shapeshifter((mon)->data) && !is_were((mon)->data)               \
+     && !(mon)->isshk && (mon)->data->mlet != S_DOG && (mon)->cham == NON_PM \
+     && !((mon)->mstrategy & STRAT_WAITFORU))
 
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */
