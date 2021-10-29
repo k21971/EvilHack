@@ -2005,4 +2005,5 @@ The following changes to date are:
 - Livelog quest completion
 - Fix: alignment penalty for killing summoned elves when naming Sting/Orcrist
 - Fix: better handling of what monsters can ride/what monsters can be ridden
+- Fix: bad cast making sp_lev chameleon light source
 
