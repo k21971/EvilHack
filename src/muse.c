@@ -891,15 +891,15 @@ struct obj *start;
                 m.has_defense = MUSE_WAN_CREATE_MONSTER;
             }
         }
-        nomore(MUSE_POT_RESTORE_ABILITY);
-        if (obj->otyp == POT_RESTORE_ABILITY) {
-            m.defensive = obj;
-            m.has_defense = MUSE_POT_RESTORE_ABILITY;
-        }
         nomore(MUSE_SCR_CREATE_MONSTER);
         if (obj->otyp == SCR_CREATE_MONSTER) {
             m.defensive = obj;
             m.has_defense = MUSE_SCR_CREATE_MONSTER;
+        }
+        nomore(MUSE_POT_RESTORE_ABILITY);
+        if (mtmp->mcan && obj->otyp == POT_RESTORE_ABILITY) {
+            m.defensive = obj;
+            m.has_defense = MUSE_POT_RESTORE_ABILITY;
         }
     }
     return(boolean) !!m.has_defense;
@@ -1360,7 +1360,7 @@ struct monst *mtmp;
         if (oseen)
             makeknown(otmp->otyp);
         m_useup(mtmp, otmp);
-        break;
+        return 2;
     case 0:
         return 0; /* i.e. an exploded wand */
     default:

@@ -157,6 +157,7 @@ boolean check_if_better, stashing;
              || otmp->otyp == POT_HEALING
              || otmp->otyp == POT_EXTRA_HEALING
              || otmp->otyp == POT_FULL_HEALING
+             || otmp->otyp == POT_RESTORE_ABILITY
              || otmp->otyp == POT_PARALYSIS
              || otmp->otyp == POT_BLINDNESS
              || otmp->otyp == POT_CONFUSION
@@ -215,6 +216,15 @@ boolean check_if_better, stashing;
                     return FALSE;
                 }
             }
+
+            /* these aren't typically super-special or unique types of items,
+             * so just hang onto them if they will be useful -- the hero can
+             * use #loot to take them if need be */
+            if (otmp->oclass == POTION_CLASS || otmp->oclass == SCROLL_CLASS
+                || otmp->oclass == RING_CLASS || otmp->oclass == AMULET_CLASS
+                || (otmp->oclass == WAND_CLASS && otmp->otyp != WAN_DEATH
+                    && otmp->otyp != WAN_WISHING))
+                return TRUE;
 
             /* if item is already in monster's inventory and we are
              * considering whether to stash it in a bag, at this point we can
