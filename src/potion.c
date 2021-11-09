@@ -1705,7 +1705,6 @@ int how;
             if (mon->data == &mons[PM_PESTILENCE])
                 goto do_illness;
             /*FALLTHRU*/
-        case POT_RESTORE_ABILITY:
         case POT_GAIN_ABILITY:
  do_healing:
             angermon = FALSE;
@@ -1716,6 +1715,14 @@ int how;
             }
             if (cureblind)
                 mcureblindness(mon, canseemon(mon));
+            break;
+        case POT_RESTORE_ABILITY:
+            angermon = FALSE;
+            if (mon->mcan) {
+                mon->mcan = 0;
+                if (canseemon(mon))
+                    pline("%s looks revitalized.", Monnam(mon));
+            }
             break;
         case POT_SICKNESS:
             if (mon->data == &mons[PM_PESTILENCE])

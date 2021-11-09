@@ -358,6 +358,7 @@ struct obj *otmp;
 #define MUSE_BAG_OF_TRICKS 21
 #define MUSE_EUCALYPTUS_LEAF 22
 #define MUSE_WAN_UNDEAD_TURNING 24 /* also an offensive item */
+#define MUSE_POT_RESTORE_ABILITY 25
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -503,6 +504,17 @@ struct monst *mtmp;
         && !nohands(mtmp->data) && mtmp->data != &mons[PM_PESTILENCE]) {
         if (m_use_healing(mtmp))
             return TRUE;
+    }
+
+    if (mtmp->mcan && !nohands(mtmp->data)) {
+        /* TODO? maybe only monsters for whom cancellation actually matters
+         * should bother fixing it -- for a monster without any abilities that
+         * are affected by cancellation, why bother drinking the potion? */
+        if ((obj = m_carrying(mtmp, POT_RESTORE_ABILITY)) != 0) {
+            m.defensive = obj;
+            m.has_defense = MUSE_POT_RESTORE_ABILITY;
+            return TRUE;
+        }
     }
 
     /* monsters aren't given wands of undead turning but if they
@@ -878,6 +890,11 @@ struct obj *start;
                 m.defensive = obj;
                 m.has_defense = MUSE_WAN_CREATE_MONSTER;
             }
+        }
+        nomore(MUSE_POT_RESTORE_ABILITY);
+        if (obj->otyp == POT_RESTORE_ABILITY) {
+            m.defensive = obj;
+            m.has_defense = MUSE_POT_RESTORE_ABILITY;
         }
         nomore(MUSE_SCR_CREATE_MONSTER);
         if (obj->otyp == SCR_CREATE_MONSTER) {
@@ -1335,6 +1352,15 @@ struct monst *mtmp;
     case MUSE_EUCALYPTUS_LEAF:
         mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
         return 2;
+    case MUSE_POT_RESTORE_ABILITY:
+        mquaffmsg(mtmp, otmp);
+        mtmp->mcan = 0;
+        if (canseemon(mtmp))
+            pline("%s looks revitalized.", Monnam(mtmp));
+        if (oseen)
+            makeknown(otmp->otyp);
+        m_useup(mtmp, otmp);
+        break;
     case 0:
         return 0; /* i.e. an exploded wand */
     default:
