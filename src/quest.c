@@ -304,7 +304,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     }
                     update_inventory();
                     livelog_printf(LL_ACHIEVE,
-                                   "returned %s to %s, completing %s quest.",
+                                   "returned %s to %s, completing %s quest",
                                    qa_name, ldr_name, uhis());
                 }
                 if (u.ualign.type == A_NONE) /* Infidel quest leader is an asshole */
@@ -335,7 +335,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     if (mtmp->data == q_guardian)
                         setmangry(mtmp, FALSE);
                 }
-                livelog_printf(LL_ACHIEVE, "refused to give up %s to %s.",
+                livelog_printf(LL_ACHIEVE, "refused to give up %s to %s",
                                qa_name, ldr_name);
             }
         }
@@ -364,7 +364,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
             }
             update_inventory();
         }
-        livelog_printf(LL_ACHIEVE, "completed %s quest without incident.",
+        livelog_printf(LL_ACHIEVE, "completed %s quest without incident",
                        uhis());
     }
 }

@@ -2007,4 +2007,6 @@ The following changes to date are:
 - Fix: better handling of what monsters can ride/what monsters can be ridden
 - Fix: bad cast making sp_lev chameleon light source
 - Fix: various artifacts 'flickering no color'
+- Monsters can drink potions of restore ability to cure cancellation
+- Quest completion livelog tweaks
 
