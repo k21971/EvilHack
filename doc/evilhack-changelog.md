@@ -2009,4 +2009,5 @@ The following changes to date are:
 - Fix: various artifacts 'flickering no color'
 - Monsters can drink potions of restore ability to cure cancellation
 - Quest completion livelog tweaks
+- Fix: Lieutenants wand creation routine
 

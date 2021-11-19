@@ -968,10 +968,10 @@ register struct monst *mtmp;
                         w2 = CROSSBOW;
                         m_initthrow(mtmp, CROSSBOW_BOLT, 30);
                     }
-	        }
 
-                randwand = rn2(7);
-                if (randwand > 5 && rn2(14)) {
+                do {
+                    randwand = rn2(7);
+                } while (randwand > 5 && rn2(14));
                     switch (randwand) {
                     case 1:
                         randwand = WAN_MAGIC_MISSILE;
@@ -996,8 +996,8 @@ register struct monst *mtmp;
                         randwand = WAN_STRIKING;
                         break;
                     }
+                    (void) mongets(mtmp, randwand);
                 }
-                (void) mongets(mtmp, randwand);
                 break;
             case PM_CAPTAIN:
             case PM_WATCH_CAPTAIN:
