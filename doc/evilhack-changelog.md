@@ -2010,4 +2010,5 @@ The following changes to date are:
 - Monsters can drink potions of restore ability to cure cancellation
 - Quest completion livelog tweaks
 - Fix: Lieutenants wand creation routine
+- Fix: no option to repair an attached rusted/corroded ball & chain
 
