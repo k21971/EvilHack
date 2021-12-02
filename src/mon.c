@@ -3005,10 +3005,12 @@ register struct monst *mtmp;
                 uunstick();
         }
         newsym(mtmp->mx, mtmp->my);
-        if (u.ualign.type == A_NONE)
+        if (u.ualign.type == A_NONE) {
             adjalign(10);
-        else
+        } else {
+            You_feel("very guilty.");
             adjalign(-15);
+        }
         change_luck(-15);
         return;
     }
@@ -3746,7 +3748,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         change_luck(-1);
     if (is_unicorn(mdat) && u.ualign.type == mon_aligntyp(mtmp)) {
         change_luck(-5);
-        You_feel("guilty...");
+        You_feel("remorseful...");
     }
 
     /* give experience points */
@@ -3758,8 +3760,10 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     if (mtmp->m_id == quest_status.leader_m_id) { /* REAL BAD! */
         if (mtmp->m_id == quest_status.leader_m_id)
             quest_status.leader_is_dead = TRUE;
-
-        adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
+        if (u.ualign.type != A_NONE) {
+            You_feel("very guilty.");
+            adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
+        }
         if (u.ualign.type == A_NONE)
             ; /* Moloch's indifference */
         else
@@ -3771,7 +3775,10 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         if (!quest_status.killed_leader)
             adjalign((int) (ALIGNLIM / 4));
     } else if (mdat->msound == MS_GUARDIAN) { /* Bad */
-        adjalign(-(int) (ALIGNLIM / 8));
+        if (u.ualign.type != A_NONE) {
+            You_feel("guilty.");
+            adjalign(-(int) (ALIGNLIM / 8));
+        }
         if (u.ualign.type == A_NONE)
             ; /* Moloch's indifference */
         else
@@ -3791,10 +3798,13 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         else if (u.ualign.type == A_NONE && mdat->maligntyp == A_LAWFUL)
             adjalign((int) (ALIGNLIM / 4)); /* Infidel-only BIG bonus */
     } else if (mtmp->mtame) {
-        if (u.ualign.type == A_NONE)
+        if (u.ualign.type == A_NONE) {
+            You_feel("guilty.");
             adjalign(-3); /* kinda bad, but it's how you roll */
-        else
+        } else {
+            You_feel("very guilty.");
             adjalign(-15); /* bad!! */
+        }
         /* your god is mighty displeased... */
         if (!Deaf) {
             if (!Hallucination) {
@@ -3814,8 +3824,10 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
                            uhis(), mdat->mname);
         }
     } else if (mtmp->mpeaceful) {
-        if (u.ualign.type != A_NONE)
+        if (u.ualign.type != A_NONE) {
+            You_feel("guilty.");
             adjalign(-5);
+        }
     }
 
     /* malign was already adjusted for u.ualign.type and randomization */
@@ -4286,13 +4298,17 @@ boolean via_attack;
             return;
         mtmp->mpeaceful = 0;
         if (mtmp->ispriest) {
-            if (p_coaligned(mtmp))
+            if (p_coaligned(mtmp)) {
+                You_feel("guilty.");
                 adjalign(-5); /* very bad */
-            else
+            } else {
                 adjalign(2);
+            }
         } else {
-            if (u.ualign.type != A_NONE) /* Infidels are supposed to be bad */
+            if (u.ualign.type != A_NONE) { /* Infidels are supposed to be bad */
+                You_feel("guilty.");
                 adjalign(-1); /* attacking peaceful monsters is bad */
+            }
         }
         if (mtmp->data == oracle)
             oracle->mmove = 18;
@@ -4374,8 +4390,10 @@ boolean via_attack;
                                    perhaps reduce tameness? */
                             } else {
                                 mon->mpeaceful = 0;
-                                if (u.ualign.type != A_NONE)
+                                if (u.ualign.type != A_NONE) {
+                                    You_feel("guilty.");
                                     adjalign(-1);
+                                }
                                 if (!exclaimed)
                                     pline("%s gets angry!", Monnam(mon));
                             }
@@ -5818,10 +5836,12 @@ struct monst *mtmp;
             com_pager(200);
         }
     }
-    if (u.ualign.type == A_NONE)
+    if (u.ualign.type == A_NONE) {
+        You_feel("guilty.");
         adjalign(-2); /* doing good things as an agent of Moloch? pfft */
-    else
+    } else {
         adjalign(2);
+    }
     change_luck(2);
     return;
 }

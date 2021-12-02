@@ -2106,6 +2106,7 @@ domove_core()
             case 3: /* changed levels */
                 /* there's already been a trap message, reinforce it */
                 abuse_dog(mtmp);
+                You_feel("guilty.");
                 adjalign(-3);
                 break;
             case 2:
@@ -2135,7 +2136,10 @@ domove_core()
                 if (rn2(4)) {
                     You_feel("guilty about losing your pet like this.");
                     u.ugangr++;
-                    adjalign(-15);
+                    if (u.ualign.type == A_NONE)
+                        adjalign(-3);
+                    else
+                        adjalign(-15);
                 }
                 break;
             default:

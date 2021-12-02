@@ -2082,10 +2082,12 @@ struct attack *mattk;
                 if (rnd(6) > P_SKILL(P_THIEVERY)) {
                     mdef->mpeaceful = 0;
                     if (mdef->ispriest) {
-                        if (p_coaligned(mdef))
+                        if (p_coaligned(mdef)) {
+                            You_feel("guilty.");
                             adjalign(-5); /* very bad */
-                        else
+                        } else {
                             adjalign(2);
+                        }
                     }
                     if (couldsee(mdef->mx, mdef->my)) {
                         if (humanoid(mdef->data) || mdef->isshk || mdef->isgd)

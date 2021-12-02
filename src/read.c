@@ -1829,7 +1829,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
     case SCR_PUNISHMENT:
         known = TRUE;
         if (confused || sblessed) {
-            You_feel("guilty.");
+            You_feel("culpable.");
             break;
         }
         punish(sobj);
@@ -2484,8 +2484,10 @@ int how;
                 killplayer++;
                 break;
             }
-            if (is_human(ptr))
+            if (is_human(ptr) && u.ualign.type != A_NONE) {
+                You_feel("guilty.");
                 adjalign(-sgn(u.ualign.type));
+            }
             if (is_demon(ptr))
                 adjalign(sgn(u.ualign.type));
 

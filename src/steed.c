@@ -957,6 +957,7 @@ int reason; /* Player was thrown off etc. */
                               surface(u.ux, u.uy));
                     if (!is_swimmer(mdat) && !amphibious(mdat)) {
                         killed(mtmp);
+                        You_feel("guilty.");
                         adjalign(-1);
                     }
                 } else if (is_lava(u.ux, u.uy)) {
@@ -964,6 +965,7 @@ int reason; /* Player was thrown off etc. */
                           hliquid("lava"));
                     if (!likes_lava(mdat)) {
                         killed(mtmp);
+                        You_feel("guilty.");
                         adjalign(-1);
                     }
                 } else if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)) {
@@ -971,6 +973,7 @@ int reason; /* Player was thrown off etc. */
                           Monnam(mtmp), mhis(mtmp));
                     /* no corpse or objects as both are now several thousand feet down */
                     mongone(mtmp);
+                    You_feel("guilty.");
                     adjalign(-1);
                 }
             }
@@ -1017,6 +1020,7 @@ int reason; /* Player was thrown off etc. */
             if (reason == DISMOUNT_BYCHOICE) {
                 /* [un]#ride: hero gets credit/blame for killing steed */
                 killed(mtmp);
+                You_feel("guilty.");
                 adjalign(-1);
             } else {
                 /* other dismount: kill former steed with no penalty;

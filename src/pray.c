@@ -1071,6 +1071,7 @@ aligntyp g_align;
 
     /* not your deity */
     if (on_altar() && p_aligntyp != u.ualign.type) {
+        You_feel("guilty.");
         adjalign(-1);
         return;
     } else if (u.ualign.record < 2 && trouble <= 0)
@@ -1723,6 +1724,7 @@ dosacrifice()
             }
 
             if (u.ualign.type > A_CHAOTIC) {
+                You_feel("guilty.");
                 adjalign(-5);
                 u.ugangr += 3;
                 (void) adjattrib(A_WIS, -1, TRUE);

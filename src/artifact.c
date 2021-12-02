@@ -2911,7 +2911,10 @@ struct obj *obj;
                 }
             }
             /* Use at your own risk... */
-            adjalign(-3);
+            if (u.ualign.type != A_NONE) {
+                You_feel("guilty.");
+                adjalign(-3);
+            }
             change_luck(-3);
             exercise(A_WIS, FALSE);
             break;

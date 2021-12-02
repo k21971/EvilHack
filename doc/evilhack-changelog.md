@@ -2011,4 +2011,5 @@ The following changes to date are:
 - Quest completion livelog tweaks
 - Fix: Lieutenants wand creation routine
 - Fix: no option to repair an attached rusted/corroded ball & chain
+- Add missing feedback when abusing alignment
 

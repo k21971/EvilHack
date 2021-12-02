@@ -1181,6 +1181,7 @@ dokick()
             exercise(A_WIS, FALSE);
             if (Role_if(PM_ARCHEOLOGIST) || Role_if(PM_SAMURAI)
                 || ((u.ualign.type == A_LAWFUL) && (u.ualign.record > -10))) {
+                You_feel("guilty.");
                 adjalign(-sgn(u.ualign.type));
             }
             maploc->typ = ROOM;

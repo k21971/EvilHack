@@ -461,6 +461,7 @@ invault()
         if (u.ualign.type == A_LAWFUL
             /* ignore trailing text, in case player includes rank */
             && strncmpi(buf, plname, (int) strlen(plname)) != 0) {
+            You_feel("guilty.");
             adjalign(-1); /* Liar! */
         }
 
