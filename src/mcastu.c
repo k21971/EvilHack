@@ -398,7 +398,8 @@ boolean foundyou;
         return 0;
     }
 
-    nomul(0);
+    if (!mtmp->mpeaceful)
+        nomul(0);
     if (rn2(ml * 10) < (mtmp->mconf ? 100 : 10)) { /* fumbled attack */
         if (canseemon(mtmp) && !Deaf)
             pline_The("air crackles around %s.", mon_nam(mtmp));
