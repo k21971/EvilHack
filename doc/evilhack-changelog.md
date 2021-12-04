@@ -2013,4 +2013,5 @@ The following changes to date are:
 - Fix: no option to repair an attached rusted/corroded ball & chain
 - Add missing feedback when abusing alignment
 - Fix: peaceful monsters casting spells interrupting player actions
+- Fix: black colored tame monsters not showing in the HTML dumplog
 

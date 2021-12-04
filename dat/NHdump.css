@@ -81,7 +81,7 @@ span.nh_screen {
 .nh_color_13 { color: #FF55FF; } /* CLR_BRIGHT_MAGENTA */
 .nh_color_14 { color: #55FFFF; } /* CLR_BRIGHT_CYAN    */
 .nh_color_15 { color: #FCFCFC; } /* CLR_WHITE          */
-.nh_inv_0 { color: black; background-color: #000000; }  /* CLR_BLACK          */
+.nh_inv_0 { color: black; background-color: #555555; }  /* CLR_BLACK          */
 .nh_inv_1 { color: black; background-color: #AA0000; }  /* CLR_RED            */
 .nh_inv_2 { color: black; background-color: #00AA00; }  /* CLR_GREEN          */
 .nh_inv_3 { color: black; background-color: #AA5500; }  /* CLR_BROWN          */
