@@ -171,7 +171,7 @@ summon_minion(alignment, talk)
 aligntyp alignment;
 boolean talk;
 {
-    register struct monst *mon;
+    register struct monst *mon = (struct monst *) 0;
     int mnum;
 
     switch ((int) alignment) {
@@ -227,6 +227,7 @@ boolean talk;
         mon->mpeaceful = FALSE;
         /* don't call set_malign(); player was naughty */
     }
+    return mon;
 }
 
 #define Athome (Inhell && (mtmp->cham == NON_PM))
