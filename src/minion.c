@@ -166,7 +166,7 @@ struct monst *mon;
     return result;
 }
 
-void
+struct monst *
 summon_minion(alignment, talk)
 aligntyp alignment;
 boolean talk;

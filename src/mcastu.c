@@ -828,7 +828,8 @@ int spellnum;
 {
     int aligntype, ml = min(mtmp->m_lev, 50);
     static const char *Moloch = "Moloch";
-
+    struct monst *minion = (struct monst *) 0;
+ 
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
         impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
         return;
@@ -836,24 +837,25 @@ int spellnum;
 
     switch (spellnum) {
     case CLC_SUMMON_ELM:
-        if (mtmp->ispriest)
-            aligntype = EPRI(mtmp)->shralign;
-        else
-            aligntype = sgn(mon_aligntyp(mtmp));
 
-        if (aligntype == A_NONE) {
-            pline("A vassal of %s appears!", Moloch);
-            summon_minion(aligntype, TRUE);
-        } else {
-            if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
-                coord bypos;
-                if (!enexto(&bypos, mtmp->mx, mtmp->my, mtmp->data))
-                    break;
+        if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+            coord bypos;
+            if (!enexto(&bypos, mtmp->mx, mtmp->my, mtmp->data))
+                break;
+            minion = makemon(&mons[PM_SNOW_GOLEM], bypos.x, bypos.y,
+                             MM_ANGRY);
+            if (minion && canspotmon(minion))
                 pline("A minion of %s appears!", mon_nam(mtmp));
-                makemon(&mons[PM_SNOW_GOLEM], bypos.x, bypos.y, MM_ANGRY);
-            } else {
-	        pline("A servant of %s appears!", aligns[1 - aligntype].noun);
-	        summon_minion(aligntype, TRUE);
+        } else {
+            aligntype = mon_aligntyp(mtmp);
+            minion = summon_minion(aligntype, FALSE);
+            if (minion) {
+                boolean vassal = (aligntype == A_NONE);
+                set_malign(minion);
+                if (canspotmon(minion))
+                    pline("A %s of %s appears!",
+                          vassal ? "vassal" : "servant",
+                          vassal ? Moloch : aligns[1 - aligntype].noun);
             }
         }
         dmg = 0;
@@ -2195,6 +2197,7 @@ int spellnum;
     int aligntype;
     static const char *Moloch = "Moloch";
     boolean yours = (mattk == &youmonst);
+    struct monst *minion = (struct monst *) 0;
 
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
        	impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
@@ -2213,18 +2216,12 @@ int spellnum;
             return;
         }
 
-        if (mtmp->ispriest)
-            aligntype = EPRI(mtmp)->shralign;
-        else
-            aligntype = sgn(mon_aligntyp(mtmp));
-
-        if (aligntype == A_NONE) {
-            pline("A vassal of %s appears!", Moloch);
-            summon_minion(aligntype, TRUE);
-        } else {
-            pline("A servant of %s appears!", aligns[1 - aligntype].noun);
-            summon_minion(aligntype, TRUE);
-        }
+        aligntype = yours ? u.ualign.type : mon_aligntyp(mattk);
+        minion = summon_minion(aligntype, FALSE);
+        if (minion && canspotmon(minion))
+            pline("A %s of %s appears!",
+                  aligntype == A_NONE ? "vassal" : "servant",
+                  aligntype == A_NONE ? Moloch : aligns[1 - aligntype].noun);
         dmg = 0;
         break;
     case CLC_GEYSER:
@@ -2366,7 +2363,7 @@ int spellnum;
                 mtmp->mblinded = 127;
             }
             dmg = 0;
-        } else
+        } else if (!yours)
             impossible("no reason for monster to cast blindness spell?");
         break;
     case CLC_PARALYZE:
