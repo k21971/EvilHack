@@ -52,6 +52,7 @@ STATIC_DCL void FDECL(cursetxt, (struct monst *, BOOLEAN_P));
 STATIC_DCL int FDECL(choose_magic_spell, (struct monst *, int));
 STATIC_DCL int FDECL(choose_clerical_spell, (struct monst *, int));
 STATIC_DCL int FDECL(m_cure_self, (struct monst *, int));
+STATIC_DCL int FDECL(m_destroy_armor, (struct monst *, struct monst *));
 STATIC_DCL void FDECL(cast_wizard_spell, (struct monst *, int, int));
 STATIC_DCL void FDECL(cast_cleric_spell, (struct monst *, int, int));
 STATIC_DCL boolean FDECL(is_undirected_spell, (unsigned int, int));
@@ -528,6 +529,103 @@ int dmg;
     return dmg;
 }
 
+STATIC_OVL int
+m_destroy_armor(mattk, mdef)
+struct monst *mattk, *mdef;
+{
+    boolean udefend = (mdef == &youmonst),
+            uattk = (mattk == &youmonst);
+    int erodelvl = rnd(3); 
+    struct obj *oatmp;
+
+    if (udefend ? Antimagic : resists_magm(mdef)) {
+        if (udefend) {
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_MAGR);
+        } else {
+            shieldeff(mdef->mx, mdef->my);
+        }
+        erodelvl = 1;
+    }
+
+    oatmp = some_armor(mdef);
+    if (oatmp) {
+        if (any_quest_artifact(oatmp)) {
+            if (udefend || canseemon(mdef)) {
+                if (!Blind)
+                    pline("%s shines brightly.", The(xname(oatmp)));
+                pline("%s is immune to %s destructive magic.",
+                      The(xname(oatmp)),
+                      uattk ? "your" : s_suffix(mon_nam(mattk)));
+            }
+            return 0;
+        } else if (oatmp->oerodeproof) {
+            if (!udefend && !canseemon(mdef)) {
+                You("smell something strange.");
+            } else if (!Blind) {
+                pline("%s glows brown for a moment.", Yname2(oatmp));
+            } else {
+                pline("%s briefly emits an odd smell.", Yname2(oatmp));
+            }
+            oatmp->oerodeproof = 0;
+            erodelvl--;
+        }
+
+        if (greatest_erosion(oatmp) >= MAX_ERODE) {
+            if (objects[oatmp->otyp].oc_oprop == DISINT_RES
+                || obj_resists(oatmp, 0, 90))
+                return 0;
+            if (udefend) {
+                destroy_arm(oatmp);
+            } else {
+                if (canseemon(mdef)) {
+                    const char *action;
+                    if (is_cloak(oatmp))
+                        action = "crumbles and turns to dust"; 
+                    else if (is_shirt(oatmp))
+                        action = "crumbles into tiny threads";
+                    else if (is_helmet(oatmp))
+                        action = "turns to dust and is blown away";
+                    else if (is_gloves(oatmp))
+                        action = "vanish";
+                    else if (is_boots(oatmp))
+                        action = "disintegrate";
+                    else if (is_shield(oatmp))
+                        action = "crumbles away";
+                    else
+                        action = "turns to dust";
+                    pline("%s %s %s!", s_suffix(Monnam(mdef)), xname(oatmp),
+                          action);
+                }
+                m_useupall(mdef, oatmp);
+            }
+        } else {
+            int erodetype;
+            if (is_corrodeable(oatmp))
+                erodetype = ERODE_CORRODE;
+            else if (is_flammable(oatmp))
+                erodetype = ERODE_BURN;
+            else if (is_glass(oatmp))
+                erodetype = ERODE_FRACTURE;
+            else if (is_supermaterial(oatmp))
+                erodetype = ERODE_DETERIORATE;
+            else
+                erodetype = ERODE_ROT;
+
+            while (erodelvl-- > 0) {
+                (void) erode_obj(oatmp, (char *) 0, erodetype, EF_NONE);
+            }
+        }
+    } else {
+        if (udefend)
+            Your("body itches.");
+        else if (uattk || canseemon(mdef))
+            pline("%s seems irritated.", Monnam(mdef));
+    }
+   
+    return 0;
+}
+
 /* monster wizard and cleric spellcasting functions */
 /*
    If dmg is zero, then the monster is not casting at you.
@@ -544,8 +642,7 @@ struct monst *mtmp;
 int dmg;
 int spellnum;
 {
-    struct obj* oatmp;
-    int erodelvl, ml = min(mtmp->m_lev, 50);
+    int ml = min(mtmp->m_lev, 50);
 
     if (dmg == 0 && !is_undirected_spell(AD_SPEL, spellnum)) {
         impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
@@ -666,48 +763,7 @@ int spellnum;
         dmg = 0;
         break;
     case MGC_DESTRY_ARMR:
-        erodelvl = rnd(3);
-        if (Antimagic) {
-            shieldeff(u.ux, u.uy);
-            monstseesu(M_SEEN_MAGR);
-            erodelvl = 1;
-        }
-        oatmp = some_armor(&youmonst);
-        if (oatmp) {
-            if (any_quest_artifact(oatmp)) {
-                if (!Blind)
-                    pline("%s shines brightly.", The(xname(oatmp)));
-                pline("%s is immune to %s destructive magic.",
-                      The(xname(oatmp)), s_suffix(mon_nam(mtmp)));
-                return;
-            } else if (oatmp->oerodeproof) {
-                if (!Blind) {
-                    pline("%s glows brown for a moment.", Yname2(oatmp));
-                } else {
-                    pline("%s briefly emits an odd smell.", Yname2(oatmp));
-                }
-                oatmp->oerodeproof = 0;
-            }
-            if (greatest_erosion(oatmp) == MAX_ERODE) {
-                destroy_arm(oatmp);
-            } else {
-                while (erodelvl-- > 0) {
-                    if (is_corrodeable(oatmp))
-                        (void) erode_obj(oatmp, (char *) 0, ERODE_CORRODE, EF_NONE);
-                    else if (is_flammable(oatmp))
-                        (void) erode_obj(oatmp, (char *) 0, ERODE_BURN, EF_NONE);
-                    else if (is_glass(oatmp))
-                        (void) erode_obj(oatmp, (char *) 0, ERODE_FRACTURE, EF_NONE);
-                    else if (is_supermaterial(oatmp))
-                        (void) erode_obj(oatmp, (char *) 0, ERODE_DETERIORATE, EF_NONE);
-                    else
-                        (void) erode_obj(oatmp, (char *) 0, ERODE_ROT, EF_NONE);
-                }
-            }
-        } else {
-            Your("body itches.");
-        }
-        dmg = 0;
+        dmg = m_destroy_armor(mtmp, &youmonst);
         break;
     case MGC_WEAKEN_YOU: /* drain strength */
         if (Antimagic) {
@@ -1234,7 +1290,8 @@ int spellnum;
             && spellnum == MGC_CLONE_WIZ)
             return TRUE;
         /* Don't try to destroy armor if none is being worn */
-        if (!wearing_armor() && spellnum == MGC_DESTRY_ARMR) {
+        if (!(mdef->misc_worn_check & W_ARMOR)
+            && spellnum == MGC_DESTRY_ARMR) {
             return TRUE;
         }
         /* Don't waste time zapping resisted spells at the player,
@@ -2019,35 +2076,7 @@ int spellnum;
        	    impossible("destroy spell with no mtmp");
        	    return;
        	}
-       	if (resist(mtmp, 0, 0, FALSE)) {
-       	    shieldeff(mtmp->mx, mtmp->my);
-       	    if (yours || canseemon(mtmp))
-       	        pline("A field of force surrounds %s!",
-       	               mon_nam(mtmp));
-       	} else {
-            register struct obj *otmp = some_armor(mtmp);
-
-#define oresist_disintegration(obj) \
- 		(objects[obj->otyp].oc_oprop == DISINT_RES \
- 		 || obj_resists(obj, 0, 90) || is_quest_artifact(obj))
-
-       	    if (otmp && !oresist_disintegration(otmp)) {
-                if (canseemon(mtmp))
-       	            pline("%s %s %s!",
-                          s_suffix(Monnam(mtmp)),
-                          xname(otmp),
-                          is_cloak(otmp) ? "crumbles and turns to dust" :
-                          is_shirt(otmp) ? "crumbles into tiny threads" :
-                          is_helmet(otmp) ? "turns to dust and is blown away" :
-                          is_gloves(otmp) ? "vanish" :
-                          is_boots(otmp) ? "disintegrate" :
-                          is_shield(otmp) ? "crumbles away" : "turns to dust");
-                extract_from_minvent(mtmp, otmp, TRUE, TRUE);
-                obfree(otmp, (struct obj *) 0);
-            } else if (yours || canseemon(mtmp))
-       	        pline("%s seems irritated.", Monnam(mtmp));
-        }
-       	dmg = 0;
+       	dmg = m_destroy_armor(mattk, mtmp);
        	break;
     case MGC_WEAKEN_YOU:		/* drain strength */
        	if (!mtmp || mtmp->mhp < 1) {
