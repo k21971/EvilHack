@@ -667,9 +667,9 @@ aligntyp resp_god;
         if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz)) {
             /* one more try for high altars */
             verbalize("Thou cannot escape my wrath, mortal!");
-            summon_minion(resp_god, FALSE);
-            summon_minion(resp_god, FALSE);
-            summon_minion(resp_god, FALSE);
+            (void) summon_minion(resp_god, FALSE);
+            (void) summon_minion(resp_god, FALSE);
+            (void) summon_minion(resp_god, FALSE);
             verbalize("Destroy %s, my servants!", uhim());
         }
     }
@@ -751,7 +751,7 @@ aligntyp resp_god;
         /* [why isn't this using verbalize()?] */
         pline("\"Then die, %s!\"",
               (youmonst.data->mlet == S_HUMAN) ? "mortal" : "creature");
-        summon_minion(resp_god, FALSE);
+        (void) summon_minion(resp_god, FALSE);
         break;
 
     default:
@@ -2040,7 +2040,7 @@ dosacrifice()
                     if (u.ualign.record > 0 && rnd(u.ualign.record)
                         > (3 * ALIGNLIM) / (temple_occupied(u.urooms)
                         ? 12 : u.ulevel)) {
-			    summon_minion(altaralign, TRUE);
+			    (void) summon_minion(altaralign, TRUE);
 		    }
                     /* anger priest; test handles bones files */
                     if ((pri = findpriest(temple_occupied(u.urooms)))
@@ -2053,7 +2053,7 @@ dosacrifice()
                     exercise(A_WIS, FALSE);
                     if (rnl(u.ulevel) > 6 && u.ualign.record > 0
                         && rnd(u.ualign.record) > (7 * ALIGNLIM) / 8)
-                        summon_minion(altaralign, TRUE);
+                        (void) summon_minion(altaralign, TRUE);
                 }
                 return 1;
             }
