@@ -1712,6 +1712,8 @@ boolean itemize;
                   ltmp, "");
     obj->quan = save_quan; /* restore original count */
     /* quan => amount just bought, save_quan => remaining unpaid count */
+
+    iflags.suppress_price--; /* before update_inventory() below */
     if (consumed) {
         if (quan != bp->bquan) {
             /* eliminate used-up portion; remainder is still unpaid */
@@ -1725,9 +1727,9 @@ boolean itemize;
             dealloc_obj(obj);
             *obj_p = 0; /* destroy pointer to freed object */
         }
-    } else if (itemize)
+    } else if (itemize) {
         update_inventory(); /* Done just once in dopay() if !itemize. */
-    iflags.suppress_price--;
+    }
     return buy;
 }
 

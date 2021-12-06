@@ -2014,4 +2014,5 @@ The following changes to date are:
 - Add missing feedback when abusing alignment
 - Fix: peaceful monsters casting spells interrupting player actions
 - Fix: black colored tame monsters not showing in the HTML dumplog
+- Fix: itemized shop billing (curses mode)
 
