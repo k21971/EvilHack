@@ -2016,4 +2016,5 @@ The following changes to date are:
 - Fix: black colored tame monsters not showing in the HTML dumplog
 - Fix: itemized shop billing (curses mode)
 - Mitre of Holiness buff
+- Fix: refer to wielded iron ball as such, and not as 'flail' (Convict)
 

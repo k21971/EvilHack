@@ -119,6 +119,8 @@ struct obj *obj;
     case P_FLAIL:
         if (obj->otyp == GRAPPLING_HOOK)
             descr = "hook";
+        if (obj->oclass == BALL_CLASS)
+            descr = "iron ball";
         break;
     case P_PICK_AXE:
         /* even if "dwarvish mattock" hasn't been discovered yet */
