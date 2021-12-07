@@ -5,6 +5,7 @@
 #include "hack.h"
 #include "qtext.h"
 
+static boolean mitre_inhell(void);
 STATIC_PTR int NDECL(prayer_done);
 STATIC_DCL struct obj *NDECL(worst_cursed_item);
 STATIC_DCL int NDECL(in_trouble);
@@ -95,6 +96,18 @@ static int p_type; /* (-2)-3: (-1)=really naughty, 3=really good */
 #define ugod_is_angry() (u.ualign.record < 0)
 #define on_altar() IS_ALTAR(levl[u.ux][u.uy].typ)
 #define on_shrine() ((levl[u.ux][u.uy].altarmask & AM_SHRINE) != 0)
+
+/* TRUE if in Gehennom and not wearing Mitre,
+   which allows praying inside Gehennom */
+static boolean
+mitre_inhell(void)
+{
+    if (!Inhell)
+        return FALSE;
+    if (uarmh && uarmh->oartifact == ART_MITRE_OF_HOLINESS)
+        return FALSE;
+    return TRUE;
+}
 
 /* critically low hit points if hp <= 5 or hp <= maxhp/N for some N */
 boolean
@@ -693,7 +706,7 @@ aligntyp resp_god;
 {
     int maxanger;
 
-    if (Inhell)
+    if (mitre_inhell())
         resp_god = A_NONE;
     u.ublessed = 0;
 
@@ -1728,7 +1741,7 @@ dosacrifice()
                 adjalign(-5);
                 u.ugangr += 3;
                 (void) adjattrib(A_WIS, -1, TRUE);
-                if (!Inhell)
+                if (!mitre_inhell())
                     angrygods(u.ualign.type);
                 change_luck(-5);
             } else
@@ -2494,7 +2507,7 @@ boolean praying; /* false means no messages should be given */
             p_type = 3;
     }
 
-    if (is_undead(youmonst.data) && !Inhell
+    if (is_undead(youmonst.data) && !mitre_inhell()
         && (p_aligntyp == A_LAWFUL || (p_aligntyp == A_NEUTRAL && praying
                                        && !rn2(10))))
         p_type = -1;
@@ -2503,7 +2516,7 @@ boolean praying; /* false means no messages should be given */
         && !(Role_if(PM_INFIDEL) && u.uhave.questart) && praying && rn2(5))
         p_type = -2; /* Moloch can't hear you */
 
-    return praying || (p_type == 3 && (!Inhell || u.ualign.type == A_NONE));
+    return praying || (p_type == 3 && (!mitre_inhell() || u.ualign.type == A_NONE));
 }
 
 /* #pray commmand */
@@ -2543,7 +2556,7 @@ dopray()
     nomovemsg = "You finish your prayer.";
     afternmv = prayer_done;
 
-    if (p_type == 3 && (!Inhell || u.ualign.type == A_NONE)) {
+    if (p_type == 3 && (!mitre_inhell() || u.ualign.type == A_NONE)) {
         /* if you've been true to your god you can't die while you pray */
         if (!Blind) {
             if (u.ualign.type == A_NONE)
@@ -2593,7 +2606,7 @@ prayer_done() /* M. Stephenson (1.0.3b) */
         /* no further effects */
         return 0;
     }
-    if (Inhell && u.ualign.type != A_NONE) {
+    if (mitre_inhell() && u.ualign.type != A_NONE) {
         pline("Since you are in Gehennom, %s can't help you.",
               align_gname(alignment));
         /* haltingly aligned is least likely to anger */
@@ -2686,7 +2699,7 @@ doturn()
         exercise(A_WIS, FALSE);
         return 1;
     }
-    if (Inhell) {
+    if (mitre_inhell()) {
         pline("Since you are in Gehennom, %s %s help you.",
               /* not actually calling upon Moloch but use alternate
                  phrasing anyway if hallucinatory feedback says it's him */

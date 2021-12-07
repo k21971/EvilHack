@@ -2015,4 +2015,5 @@ The following changes to date are:
 - Fix: peaceful monsters casting spells interrupting player actions
 - Fix: black colored tame monsters not showing in the HTML dumplog
 - Fix: itemized shop billing (curses mode)
+- Mitre of Holiness buff
 
