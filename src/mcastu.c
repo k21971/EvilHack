@@ -1317,12 +1317,12 @@ int spellnum;
             return TRUE;
         }
      } else if (adtyp == AD_CLRC) {
-      	/* healing when already healed */
-      	if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
-      	    return TRUE;
-      	/* blindness spell on blinded player */
-      	if ((!haseyes(mdef->data) || mdef->mblinded) && spellnum == CLC_BLIND_YOU)
-      	    return TRUE;
+        /* healing when already healed */
+        if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
+            return TRUE;
+        /* blindness spell on blinded player */
+        if ((!haseyes(mdef->data) || mdef->mblinded) && spellnum == CLC_BLIND_YOU)
+            return TRUE;
         }
     return FALSE;
 }
@@ -1936,7 +1936,7 @@ int spellnum;
                 killed(mtmp);
             else monkilled(mtmp, "", AD_SPEL);
             return;
-       	} else {
+        } else {
             if (resisted)
                 shieldeff(mtmp->mx, mtmp->my);
             if (yours || canseemon(mtmp)) {
@@ -1946,8 +1946,8 @@ int spellnum;
                     pline("Well. That didn't work...");
             }
         }
-       	dmg = 0;
-       	break;
+        dmg = 0;
+        break;
     case MGC_CANCELLATION:
         if (!mtmp || mtmp->mhp < 1) {
             impossible("cancellation with no mtmp");
@@ -1998,7 +1998,7 @@ int spellnum;
                 demonpet();
             else
                 msummon(mattk);
-     	} else {
+        } else {
             register int i, j;
             int makeindex, tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
             coord bypos;
