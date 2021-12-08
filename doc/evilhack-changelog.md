@@ -2019,4 +2019,5 @@ The following changes to date are:
 - Mitre of Holiness buff
 - Fix: refer to wielded iron ball as such, and not as 'flail' (Convict)
 - Fix: scrolls of magic detection were not identifying artifacts
+- Formatting clean-up in mcastu.c
 
