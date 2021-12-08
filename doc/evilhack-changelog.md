@@ -2014,7 +2014,9 @@ The following changes to date are:
 - Add missing feedback when abusing alignment
 - Fix: peaceful monsters casting spells interrupting player actions
 - Fix: black colored tame monsters not showing in the HTML dumplog
+- Make destroy armor vs monster match effect vs hero
 - Fix: itemized shop billing (curses mode)
 - Mitre of Holiness buff
 - Fix: refer to wielded iron ball as such, and not as 'flail' (Convict)
+- Fix: scrolls of magic detection were not identifying artifacts
 

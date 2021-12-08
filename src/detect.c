@@ -224,7 +224,7 @@ boolean magic;
     obj->dknown = 1;
     if (magic) {
         obj->oprops_known |= obj->oprops;
-        if (objects[obj->otyp].oc_magic
+        if ((objects[obj->otyp].oc_magic || obj->oartifact)
             && !is_soko_prize_flag(obj)) {
             makeknown(obj->otyp);
         }
@@ -237,7 +237,8 @@ boolean magic;
 
 #define is_magic(obj) \
                  (((obj)->oprops & ITEM_PROP_MASK) \
-                  || (objects[(obj)->otyp]).oc_magic)
+                  || (objects[(obj)->otyp]).oc_magic \
+                  || (obj)->oartifact)
 
 /* Check whether the location has an outdated object displayed on it. */
 STATIC_OVL boolean
