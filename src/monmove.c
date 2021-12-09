@@ -570,30 +570,6 @@ register struct monst *mtmp;
         mongone(mtmp);
     }
 
-    if (is_damp_terrain(mtmp->mx, mtmp->my)
-        && freeze_step(mdat)) {
-        struct rm *lev = &levl[mtmp->mx][mtmp->my];
-        if (lev->typ == DRAWBRIDGE_UP) {
-            lev->drawbridgemask &= ~DB_UNDER;
-            lev->drawbridgemask |= DB_ICE;
-        } else {
-            lev->icedpool = (lev->typ == POOL) ? ICED_POOL
-                                : (lev->typ == PUDDLE) ? ICED_PUDDLE
-                                    : (lev->typ == SEWAGE) ? ICED_SEWAGE
-                                                           : ICED_MOAT;
-            lev->typ = ICE;
-        }
-        if (!(lev->icedpool == ICED_PUDDLE
-              || lev->icedpool == ICED_SEWAGE))
-            bury_objs(mtmp->mx, mtmp->my);
-        if (canseemon(mtmp))
-            pline("The %s crackles and freezes under %s %s.",
-                  hliquid(is_sewage(mtmp->mx, mtmp->my) ? "sewage" : "water"),
-                  s_suffix(mon_nam(mtmp)), makeplural(body_part(FOOT)));
-        start_melt_ice_timeout(mtmp->mx, mtmp->my, 0L);
-        obj_ice_effects(mtmp->mx, mtmp->my, TRUE);
-    }
-
     /* some monsters teleport */
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz
         && !level.flags.noteleport) {
@@ -1787,6 +1763,47 @@ register int after;
                           /* pluralization fakes verb conjugation */
                           makeplural(locomotion(ptr, "pass")),
                           (passes_walls(ptr) || unsolid(ptr)) ? "through" : "between");
+            }
+            if ((is_damp_terrain(mtmp->mx, mtmp->my)
+                 || is_lava(mtmp->mx, mtmp->my))
+                && has_cold_feet(mtmp)) {
+                struct rm *lev = &levl[mtmp->mx][mtmp->my];
+                boolean was_lava = is_lava(mtmp->mx, mtmp->my);
+                if (lev->typ == DRAWBRIDGE_UP) {
+                    lev->drawbridgemask &= ~DB_UNDER;
+                    lev->drawbridgemask |= was_lava ? DB_FLOOR : DB_ICE;
+                } else {
+                    if (was_lava) {
+                        lev->typ = ROOM;
+                    } else {
+                        lev->icedpool = (lev->typ == POOL)
+                                          ? ICED_POOL
+                                          : (lev->typ == PUDDLE)
+                                             ? ICED_PUDDLE
+                                             : (lev->typ == SEWAGE)
+                                                ? ICED_SEWAGE
+                                                : ICED_MOAT;
+                        lev->typ = ICE;
+                    }
+                }
+                if (!(lev->icedpool == ICED_PUDDLE
+                    || lev->icedpool == ICED_SEWAGE))
+                    bury_objs(mtmp->mx, mtmp->my);
+                if (was_lava) {
+                    if (canseemon(mtmp))
+                        pline_The("%s cools and solidifies under %s %s.",
+                                hliquid("lava"), s_suffix(mon_nam(mtmp)),
+                                makeplural(mbodypart(mtmp, FOOT)));
+                } else {
+                    if (canseemon(mtmp))
+                        pline("The %s crackles and freezes under %s %s.",
+                            hliquid(is_sewage(mtmp->mx, mtmp->my) ? "sewage"
+                                                                  : "water"),
+                            s_suffix(mon_nam(mtmp)),
+                            makeplural(body_part(FOOT)));
+                    start_melt_ice_timeout(mtmp->mx, mtmp->my, 0L);
+                    obj_ice_effects(mtmp->mx, mtmp->my, TRUE);
+                }
             }
 
             /* possibly dig */

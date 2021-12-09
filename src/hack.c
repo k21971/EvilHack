@@ -2203,9 +2203,7 @@ domove_core()
 
     /* Special effects of WDSM; don't spam the player unless they've stepped onto
      * water from something that wasn't water/ice already */
-    if (is_damp_terrain(u.ux, u.uy) && uarm
-        && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
-            || uarm->otyp == WHITE_DRAGON_SCALES)) {
+    if (is_damp_terrain(u.ux, u.uy) && has_cold_feet(&youmonst)) {
         struct rm *lev = &levl[u.ux][u.uy];
         if (lev->typ == DRAWBRIDGE_UP) {
             lev->drawbridgemask &= ~DB_UNDER;
