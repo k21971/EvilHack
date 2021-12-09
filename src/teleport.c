@@ -950,15 +950,12 @@ level_tele()
          * stay put. we let negative values requests fall into the "heaven" handling.
          * while Cerberus is alive, levelporting past the Valley is impossible,
          * but once he is defeated, the ability opens back up */
-        if (Is_knox(&u.uz) && newlev > 0 && !force_dest) {
+        if (newlev > 0 && !force_dest
+            && ((Is_valley(&u.uz) && !u.uevent.ucerberus
+                 && (!wizard || yn("Cerberus is alive. Override?") != 'y'))
+                || Is_knox(&u.uz))) {
             You1(shudder_for_moment);
             return;
-        }
-        if (!u.uevent.ucerberus) {
-            if (Is_valley(&u.uz) && newlev > 0 && !force_dest) {
-                You1(shudder_for_moment);
-                return;
-            }
         }
         /* if in Quest, the player sees "Home 1", etc., on the status
          * line, instead of the logical depth of the level.  controlled
