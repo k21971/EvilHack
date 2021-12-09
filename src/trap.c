@@ -3415,6 +3415,11 @@ long hmask, emask; /* might cancel timeout */
                       mon_nam(u.ustuck));
             u.ustuck = 0;
         }
+
+        /* potentially freeze terrain if wearing WDSM or polymorphed into
+         * certain monsters */
+        (void) maybe_freeze_underfoot(&youmonst);
+
         /* kludge alert:
          * drown() and lava_effects() print various messages almost
          * every time they're called which conflict with the "fall
@@ -3425,27 +3430,6 @@ long hmask, emask; /* might cancel timeout */
          */
         if (is_pool(u.ux, u.uy) && !Wwalking && !Swimming && !u.uinwater)
             no_msg = drown();
-
-        if (is_damp_terrain(u.ux, u.uy) && has_cold_feet(&youmonst)) {
-            struct rm *lev = &levl[u.ux][u.uy];
-            if (lev->typ == DRAWBRIDGE_UP) {
-                lev->drawbridgemask &= ~DB_UNDER;
-                lev->drawbridgemask |= DB_ICE;
-            } else {
-                lev->icedpool = (lev->typ == POOL) ? ICED_POOL
-                                    : (lev->typ == PUDDLE) ? ICED_PUDDLE
-                                        : (lev->typ == SEWAGE) ? ICED_SEWAGE
-                                                               : ICED_MOAT;
-                lev->typ = ICE;
-            }
-            if (!(lev->icedpool == ICED_PUDDLE
-                  || lev->icedpool == ICED_SEWAGE))
-                bury_objs(u.ux, u.uy);
-            pline_The("%s crackles and freezes under your feet.",
-                  hliquid(is_sewage(u.ux, u.uy) ? "sewage" : "water"));
-            start_melt_ice_timeout(u.ux, u.uy, 0L);
-            obj_ice_effects(u.ux, u.uy, TRUE);
-        }
 
         if (is_lava(u.ux, u.uy)) {
             (void) lava_effects();
@@ -6189,19 +6173,9 @@ lava_effects()
     int dmg = resist_reduce(d(6, 6), FIRE_RES); /* only applicable for water walking */
     boolean usurvive, boil_away;
 
-    if (has_cold_feet(&youmonst)) {
-        struct rm *lev = &levl[u.ux][u.uy];
-        if (lev->typ == DRAWBRIDGE_UP) {
-            lev->drawbridgemask &= ~DB_UNDER;
-            lev->drawbridgemask |= DB_ICE;
-        } else {
-            lev->typ = ROOM;
-        }
-        if (!rn2(4))
-            pline_The("lava cools and solidifies under your feet.");
-        feel_newsym(u.ux, u.uy);
+    /* possibly freeze lava */
+    if (maybe_freeze_underfoot(&youmonst))
         return TRUE;
-    }
 
     feel_newsym(u.ux, u.uy); /* in case Blind, map the lava here */
     burn_away_slime();

@@ -1649,6 +1649,7 @@ E boolean FDECL(accessible, (int, int));
 E void FDECL(set_apparxy, (struct monst *));
 E boolean FDECL(can_ooze, (struct monst *));
 E boolean FDECL(can_fog, (struct monst *));
+E int FDECL(maybe_freeze_underfoot, (struct monst *));
 E boolean FDECL(should_displace,
                 (struct monst *, coord *, long *, int, XCHAR_P, XCHAR_P));
 E boolean FDECL(undesirable_disp, (struct monst *, XCHAR_P, XCHAR_P));
