@@ -1790,8 +1790,9 @@ register struct attack *mattk;
                     u.ustuck = mtmp;
                 }
             } else if (u.ustuck == mtmp) {
+                boolean freeze = has_cold_feet(&youmonst);
                 if (is_pool(mtmp->mx, mtmp->my) && !Swimming && !Amphibious
-                    && mtmp->data != &mons[PM_MIND_FLAYER_LARVA]) {
+                    && !freeze && mtmp->data != &mons[PM_MIND_FLAYER_LARVA]) {
                     boolean moat = (levl[mtmp->mx][mtmp->my].typ != POOL)
                                    && (levl[mtmp->mx][mtmp->my].typ != WATER)
                                    && !Is_medusa_level(&u.uz)
@@ -1803,7 +1804,7 @@ register struct attack *mattk;
                             moat ? "moat" : "pool of water",
                             an(mtmp->data->mname));
                     done(DROWNING);
-                } else if (is_lava(mtmp->mx, mtmp->my)) {
+                } else if (is_lava(mtmp->mx, mtmp->my) && !freeze) {
                     pline("%s pulls you into the lava...", Monnam(mtmp));
                     killer.format = NO_KILLER_PREFIX;
                     Sprintf(killer.name, "incinerated in molten lava by %s",

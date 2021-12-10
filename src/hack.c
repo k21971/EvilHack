@@ -2201,31 +2201,8 @@ domove_core()
     if (Punished) /* put back ball and chain */
         move_bc(0, bc_control, ballx, bally, chainx, chainy);
 
-    /* Special effects of WDSM; don't spam the player unless they've stepped onto
-     * water from something that wasn't water/ice already */
-    if (is_damp_terrain(u.ux, u.uy) && uarm
-        && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
-            || uarm->otyp == WHITE_DRAGON_SCALES)) {
-        struct rm *lev = &levl[u.ux][u.uy];
-        if (lev->typ == DRAWBRIDGE_UP) {
-            lev->drawbridgemask &= ~DB_UNDER;
-            lev->drawbridgemask |= DB_ICE;
-        } else {
-            lev->icedpool = (lev->typ == POOL) ? ICED_POOL
-                              : (lev->typ == PUDDLE) ? ICED_PUDDLE
-                                 : (lev->typ == SEWAGE) ? ICED_SEWAGE
-                                                        : ICED_MOAT;
-            lev->typ = ICE;
-        }
-        if (!(lev->icedpool == ICED_PUDDLE
-              || lev->icedpool == ICED_SEWAGE))
-            bury_objs(u.ux, u.uy);
-        if (!is_pool(u.ux0, u.uy0) && !is_ice(u.ux0, u.uy0))
-            pline("The %s crackles and freezes under your feet.",
-                  hliquid(is_sewage(u.ux, u.uy) ? "sewage" : "water"));
-         start_melt_ice_timeout(u.ux, u.uy, 0L);
-         obj_ice_effects(u.ux, u.uy, TRUE);
-    }
+    /* Special effects of WDSM */
+    (void) maybe_freeze_underfoot(&youmonst);
 
     if (u.umoved)
         spoteffects(TRUE);
@@ -2400,6 +2377,8 @@ boolean newspot;             /* true if called by spoteffects */
 
     /* check for entering water or lava */
     if (!u.ustuck && !Levitation && !Flying) {
+        if (maybe_freeze_underfoot(&youmonst))
+            return FALSE;
         if (is_pool_or_lava(u.ux, u.uy)) {
             if (u.usteed
                 && (is_flyer(u.usteed->data) || is_floater(u.usteed->data)

@@ -570,36 +570,15 @@ register struct monst *mtmp;
         mongone(mtmp);
     }
 
-    if (is_damp_terrain(mtmp->mx, mtmp->my)
-        && freeze_step(mdat)) {
-        struct rm *lev = &levl[mtmp->mx][mtmp->my];
-        if (lev->typ == DRAWBRIDGE_UP) {
-            lev->drawbridgemask &= ~DB_UNDER;
-            lev->drawbridgemask |= DB_ICE;
-        } else {
-            lev->icedpool = (lev->typ == POOL) ? ICED_POOL
-                                : (lev->typ == PUDDLE) ? ICED_PUDDLE
-                                    : (lev->typ == SEWAGE) ? ICED_SEWAGE
-                                                           : ICED_MOAT;
-            lev->typ = ICE;
-        }
-        if (!(lev->icedpool == ICED_PUDDLE
-              || lev->icedpool == ICED_SEWAGE))
-            bury_objs(mtmp->mx, mtmp->my);
-        if (canseemon(mtmp))
-            pline("The %s crackles and freezes under %s %s.",
-                  hliquid(is_sewage(mtmp->mx, mtmp->my) ? "sewage" : "water"),
-                  s_suffix(mon_nam(mtmp)), makeplural(body_part(FOOT)));
-        start_melt_ice_timeout(mtmp->mx, mtmp->my, 0L);
-        obj_ice_effects(mtmp->mx, mtmp->my, TRUE);
-    }
-
     /* some monsters teleport */
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz
         && !level.flags.noteleport) {
         (void) rloc(mtmp, TRUE);
         return 0;
     }
+
+    (void) maybe_freeze_underfoot(mtmp);
+
     if (mdat->msound == MS_SHRIEK && !um_dist(mtmp->mx, mtmp->my, 1))
         m_respond(mtmp);
     if (is_zombie(mdat) && !rn2(10))
@@ -1789,6 +1768,8 @@ register int after;
                           (passes_walls(ptr) || unsolid(ptr)) ? "through" : "between");
             }
 
+            (void) maybe_freeze_underfoot(mtmp);
+
             /* possibly dig */
             if (can_tunnel && mdig_tunnel(mtmp))
                 return 2; /* mon died (position already updated) */
@@ -2189,6 +2170,76 @@ boolean domsg;
     }
 
     return reslt;
+}
+
+/* returns 0 if terrain not frozen, 1 if frozen */
+int
+maybe_freeze_underfoot(mtmp)
+struct monst *mtmp;
+{
+    struct rm *lev;
+    boolean was_lava, was_sewage, is_you = (mtmp == &youmonst);
+    coord cc;
+    if (!mtmp || !has_cold_feet(mtmp) || (is_you && (Flying || Levitation))
+        || !grounded(mtmp->data))
+        return 0;
+
+    if (is_you) {
+        cc.x = u.ux, cc.y = u.uy;
+    } else {
+        cc.x = mtmp->mx, cc.y = mtmp->my;
+    }
+
+    if (!is_damp_terrain(cc.x, cc.y) && !is_lava(cc.x, cc.y))
+        return 0;
+
+    lev = &levl[cc.x][cc.y];
+    was_lava = is_lava(cc.x, cc.y);
+    was_sewage = is_sewage(cc.x, cc.y);
+
+    if (lev->typ == DRAWBRIDGE_UP) {
+        lev->drawbridgemask &= ~DB_UNDER;
+        lev->drawbridgemask |= was_lava ? DB_FLOOR : DB_ICE;
+    } else {
+        switch (lev->typ) {
+        case POOL:
+            lev->icedpool = ICED_POOL;
+            break;
+        case PUDDLE:
+            lev->icedpool = ICED_PUDDLE;
+            break;
+        case SEWAGE:
+            lev->icedpool = ICED_SEWAGE;
+            break;
+        case MOAT:
+        case WATER:
+            /* FIXME: icedpool bitfield (5 bits) isn't big enough to hold
+             * ICED_MOAT (0x20: needs 6 bits); fix will be savebreaking */
+            lev->icedpool = ICED_MOAT;
+            break;
+        default:
+            lev->icedpool = 0;
+            break;
+        }
+        lev->typ = was_lava ? ROOM : ICE;
+    }
+
+    if (lev->icedpool != ICED_PUDDLE && lev->icedpool != ICED_SEWAGE)
+        bury_objs(mtmp->mx, mtmp->my);
+
+    if (is_you || canseemon(mtmp)) {
+        const char *liq = was_lava ? "lava" : was_sewage ? "sewage" : "water";
+        Norep("The %s %s under %s %s.", hliquid(liq),
+              was_lava ? "cools and solidifies" : "crackles and freezes",
+              is_you ? "your" : s_suffix(mon_nam(mtmp)),
+              makeplural(mbodypart(mtmp, FOOT)));
+    }
+
+    if (!was_lava) {
+        start_melt_ice_timeout(cc.x, cc.y, 0L);
+        obj_ice_effects(cc.x, cc.y, TRUE);
+    }
+    return 1;
 }
 
 /*monmove.c*/

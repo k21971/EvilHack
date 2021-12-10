@@ -1517,6 +1517,7 @@ E boolean FDECL(mpickstuff, (struct monst *, const char *));
 E int FDECL(curr_mon_load, (struct monst *));
 E int FDECL(max_mon_load, (struct monst *));
 E int FDECL(can_carry, (struct monst *, struct obj *));
+E boolean FDECL(has_cold_feet, (struct monst *));
 E int FDECL(mfndpos, (struct monst *, coord *, long *, long));
 E long FDECL(mm_aggression, (struct monst *, struct monst *));
 E boolean FDECL(monnear, (struct monst *, int, int));
@@ -1648,6 +1649,7 @@ E boolean FDECL(accessible, (int, int));
 E void FDECL(set_apparxy, (struct monst *));
 E boolean FDECL(can_ooze, (struct monst *));
 E boolean FDECL(can_fog, (struct monst *));
+E int FDECL(maybe_freeze_underfoot, (struct monst *));
 E boolean FDECL(should_displace,
                 (struct monst *, coord *, long *, int, XCHAR_P, XCHAR_P));
 E boolean FDECL(undesirable_disp, (struct monst *, XCHAR_P, XCHAR_P));

@@ -2041,6 +2041,37 @@ struct obj *otmp;
     return iquan;
 }
 
+boolean
+has_cold_feet(mtmp)
+struct monst *mtmp;
+{
+#define freezing_armor(typ) \
+    ((typ) == WHITE_DRAGON_SCALES || (typ) == WHITE_DRAGON_SCALE_MAIL)
+
+    boolean is_you = (mtmp == &youmonst);
+
+    if (Is_waterlevel(&u.uz))
+        return FALSE;
+
+    if (is_you) {
+        if (uarm && freezing_armor(uarm->otyp))
+            return TRUE;
+    } else {
+        struct obj *otmp;
+        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+            if ((otmp->owornmask & W_ARMOR) && freezing_armor(otmp->otyp)) {
+                return TRUE;
+            }
+        }
+    }
+
+    if (freeze_step(mtmp->data))
+        return TRUE;
+
+    return FALSE;
+#undef freezing_armor
+}
+
 /* return number of acceptable neighbour positions */
 int
 mfndpos(mon, poss, info, flag)
@@ -2076,12 +2107,12 @@ long flag;
     wantice = (mdat == &mons[PM_FROST_SALAMANDER]);
     poolok = ((!Is_waterlevel(&u.uz)
                && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)))
-              || ((is_swimmer(mdat) || freeze_step(mdat)) && !wantpool)
+              || ((is_swimmer(mdat) || has_cold_feet(mon)) && !wantpool)
               || can_wwalk(mon));
     /* note: floating eye is the only is_floater() so this could be
        simplified, but then adding another floater would be error prone */
     lavaok = (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)
-              || (likes_lava(mdat) && !wantlava));
+              || ((has_cold_feet(mon) || likes_lava(mdat)) && !wantlava));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
