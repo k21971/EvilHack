@@ -916,7 +916,7 @@ SCROLL("earth",                          "KIRJE",  1,  18, 200),
 SCROLL("punishment",            "VE FORBRYDERNE",  1,  15, 300),
 SCROLL("charging",                "HACKEM MUCHE",  1,  15, 300),
 SCROLL("stinking cloud",             "VELOX NEB",  1,  15, 300),
-SCROLL("magic detection",        "FOOBIE BLETCH",  1,  25, 250),
+SCROLL("magic detection",        "FOOBIE BLETCH",  1,  25, 300),
     /* Extra descriptions, shuffled into use at start of new game.
      * Code in win/share/tilemap.c depends on SCR_STINKING_CLOUD preceding
      * these and on how many of them there are.  If a real scroll gets added

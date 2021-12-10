@@ -2022,4 +2022,7 @@ The following changes to date are:
 - Formatting clean-up in mcastu.c
 - Bit more formatting clean-up in mcastu.c
 - Fix: lack of capitalization (monster stole something feedback)
+- Allow wizmode override of VOTD levelport restriction
+- Fix: various issues with freezing water/lava and WDSM
+- Fix: scroll of magic detection price so it's not unique
 
