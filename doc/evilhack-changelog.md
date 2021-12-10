@@ -2021,4 +2021,5 @@ The following changes to date are:
 - Fix: scrolls of magic detection were not identifying artifacts
 - Formatting clean-up in mcastu.c
 - Bit more formatting clean-up in mcastu.c
+- Fix: lack of capitalization (monster stole something feedback)
 

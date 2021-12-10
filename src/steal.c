@@ -273,6 +273,7 @@ struct monst *mtmp;
 char *objnambuf;
 {
     struct obj *otmp;
+    char pronounbuf[10];
     int tmp, could_petrify, armordelay, olddelay, icnt,
         named = 0, retrycnt = 0;
     boolean monkey_business, /* true iff an animal or rogue is doing the thievery */
@@ -500,7 +501,8 @@ char *objnambuf;
         subfrombill(otmp, shop_keeper(*u.ushops));
     freeinv(otmp);
     /* if attached ball was taken, uball and uchain are now Null */
-    pline("%s%s stole %s.", named ? mhe(mtmp) : Monnam(mtmp),
+    pline("%s%s stole %s.",
+          named ? upstart(strcpy(pronounbuf, mhe(mtmp))) : Monnam(mtmp),
           (was_punished && !Punished) ? " removed your chain and" : "",
           doname(otmp));
     could_petrify = (otmp->otyp == CORPSE
