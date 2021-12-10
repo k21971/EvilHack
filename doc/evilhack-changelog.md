@@ -2025,4 +2025,5 @@ The following changes to date are:
 - Allow wizmode override of VOTD levelport restriction
 - Fix: various issues with freezing water/lava and WDSM
 - Fix: scroll of magic detection price so it's not unique
+- Fix: monster interaction
 
