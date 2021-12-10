@@ -2225,7 +2225,7 @@ struct monst *mtmp;
     }
 
     if (lev->icedpool != ICED_PUDDLE && lev->icedpool != ICED_SEWAGE)
-        bury_objs(mtmp->mx, mtmp->my);
+        bury_objs(cc.x, cc.y);
 
     if (is_you || canseemon(mtmp)) {
         const char *liq = was_lava ? "lava" : was_sewage ? "sewage" : "water";
