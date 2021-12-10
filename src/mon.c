@@ -2049,6 +2049,10 @@ struct monst *mtmp;
     ((typ) == WHITE_DRAGON_SCALES || (typ) == WHITE_DRAGON_SCALE_MAIL)
 
     boolean is_you = (mtmp == &youmonst);
+
+    if (Is_waterlevel(&u.uz))
+        return FALSE;
+
     if (is_you) {
         if (uarm && freezing_armor(uarm->otyp))
             return TRUE;
