@@ -2026,4 +2026,5 @@ The following changes to date are:
 - Fix: various issues with freezing water/lava and WDSM
 - Fix: scroll of magic detection price so it's not unique
 - Fix: monster interaction
+- Formatting clean-up in muse.c
 
