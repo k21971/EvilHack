@@ -1128,16 +1128,17 @@ int mnum;
  * NUM_POSSES should be kept small.
  * Additional timers for the same monster at the same level will be ignored
  * by start_timer.
+ *
  * NOTE that this does not currently make use of the slain monster's level
  * as that would require passing additional information to start_timer.
- * This could be accomplished by adding an additional structure to to the
+ * This could be accomplished by adding an additional structure to the
  * any union in wintype.h but would have the potential to break saves on
- * platforms where short and long had the same bytesize.
+ * platforms where short and long had the same bytesize. Instead os
+ * using mlvl the player's deepest explored level is used.
  */
 void
-maybe_start_posse_timer(mndx, mlev, throne)
+maybe_start_posse_timer(mndx, throne)
 unsigned mndx;  /* slain monster's index in the mons array */
-uchar mlev;     /* slain monster's level (not used) */
 boolean throne; /* monster slain in throne room */
 {
     /* stop forming new posses once the Wizard has been killed */

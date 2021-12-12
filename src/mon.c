@@ -3695,7 +3695,6 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     /* see if a posse needs to be sent in pursuit */
     maybe_start_posse_timer(
         (unsigned)mndx,
-        mtmp->m_lev,
         getroomtype(mtmp->mx, mtmp->my) == COURT ? TRUE : FALSE
     );
 
