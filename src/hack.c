@@ -40,17 +40,6 @@ unsigned ui;
 }
 
 anything *
-uintpair_to_any(ui0, ui1)
-unsigned ui0;
-unsigned ui1;
-{
-    tmp_anything = zeroany;
-    tmp_anything.a_uintpair[0] = ui0;
-    tmp_anything.a_uintpair[1] = ui1;
-    return &tmp_anything;
-}
-
-anything *
 long_to_any(lng)
 long lng;
 {

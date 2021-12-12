@@ -930,7 +930,6 @@ E void FDECL(dipforge, (struct obj *));
 
 E boolean FDECL(is_valid_travelpt, (int,int));
 E anything *FDECL(uint_to_any, (unsigned));
-E anything *FDECL(uintpair_to_any, (unsigned, unsigned));
 E anything *FDECL(long_to_any, (long));
 E anything *FDECL(monst_to_any, (struct monst *));
 E anything *FDECL(obj_to_any, (struct obj *));

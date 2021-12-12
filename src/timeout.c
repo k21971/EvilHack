@@ -1128,11 +1128,16 @@ int mnum;
  * NUM_POSSES should be kept small.
  * Additional timers for the same monster at the same level will be ignored
  * by start_timer.
+ * NOTE that this does not currently make use of the slain monster's level
+ * as that would require passing additional information to start_timer.
+ * This could be accomplished by adding an additional structure to to the
+ * any union in wintype.h but would have the potential to break saves on
+ * platforms where short and long had the same bytesize.
  */
 void
 maybe_start_posse_timer(mndx, mlev, throne)
 unsigned mndx;  /* slain monster's index in the mons array */
-uchar mlev;     /* slain monster's level */
+uchar mlev;     /* slain monster's level (not used) */
 boolean throne; /* monster slain in throne room */
 {
     /* stop forming new posses once the Wizard has been killed */
@@ -1145,7 +1150,7 @@ boolean throne; /* monster slain in throne room */
             /* posse likelihood doubled when regicide in throne room */
             if (rnz(100) < possedata[i].chance * (throne ? 2 : 1)) {
                 long when = max(1, possedata[i].delay - possedata[i].delayv + rnz(possedata[i].delayv*2));
-                (void) start_timer(when, TIMER_GLOBAL, POSSE_ARRIVES, uintpair_to_any(mndx, mlev));
+                (void) start_timer(when, TIMER_GLOBAL, POSSE_ARRIVES, uint_to_any(mndx));
                 You_hear("distant shouts and the readying of weapons...");
             }
             break;
@@ -1161,11 +1166,13 @@ boolean throne; /* monster slain in throne room */
  */
 void
 form_posse(arg, timeout)
-anything *arg; /* uint[2] with triggering monster index, level */
+anything *arg; /* uint with triggering monster index */
 long timeout UNUSED;
 {
-    unsigned mndx = arg->a_uintpair[0];
-    unsigned mlvl = arg->a_uintpair[1];
+    unsigned mndx = arg->a_uint;
+    /* Level of slain monster not recorded (see maybe_start_posse_timer notes)
+     * so use deepest level hero has explored instead. */
+    unsigned mlvl = u.ulevelmax;
     unsigned montype = 0;
     int redshirts = 0;
 
