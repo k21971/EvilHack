@@ -9,7 +9,7 @@
 # for Ubuntu dapper.
 
 
-PREFIX=/usr
+PREFIX=/mnt/d
 #PREFIX=$(wildcard ~)/nh/install
 HACKDIR=$(PREFIX)/games/lib/$(GAME)dir
 SHELLDIR = $(PREFIX)/games

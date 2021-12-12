@@ -272,6 +272,7 @@ typedef struct sortloot_item Loot;
 #define GP_ALLOW_XY 0x20000 /* [actually used by enexto() to decide whether
                              * to make an extra call to goodpos()]          */
 #define GP_ALLOW_U  0x40000 /* don't reject hero's location */
+#define GP_NOSEE    0x80000 /* reject locations in hero's sight */
 
 /* flags for make_corpse() and mkcorpstat() */
 #define CORPSTAT_NONE 0x00

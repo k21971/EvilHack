@@ -170,21 +170,360 @@ PANICTRACE_LIBC=2
 # environment or via ~/.evilhackrc run-time configuration file.
 #OPTIONS=!autopickup,fruit:tomato,symset:DECgraphics
 # The following are the NAO defaults for 3.6.0 according to paxed
-OPTIONS=bones
-OPTIONS=color
-OPTIONS=lit_corridor
-OPTIONS=dark_room
-OPTIONS=autodig
-OPTIONS=autoopen
-OPTIONS=disclose:yi ya yv yg yc yo
-OPTIONS=boulder:0
-OPTIONS=!autopickup
-OPTIONS=pickup_burden:unencumbered
-OPTIONS=hilite_pet
-OPTIONS=hilite_pile
-OPTIONS=msg_window:reversed
-OPTIONS=number_pad:0
-OPTIONS=sortloot:full
+#OPTIONS=bones
+#OPTIONS=color
+#OPTIONS=lit_corridor
+#OPTIONS=dark_room
+#OPTIONS=autodig
+#OPTIONS=autoopen
+#OPTIONS=disclose:yi ya yv yg yc yo
+#OPTIONS=boulder:0
+#OPTIONS=!autopickup
+#OPTIONS=pickup_burden:unencumbered
+#OPTIONS=hilite_pet
+#OPTIONS=hilite_pile
+#OPTIONS=msg_window:reversed
+#OPTIONS=number_pad:0
+#OPTIONS=sortloot:full
+#OPTIONS=time
+
+#OPTIONS=role:barbarian,race:human,align:n
+#OPTIONS=role:caveman,race:human,align:l
+OPTIONS=role:samurai,race:giant,gender:f
+#OPTIONS=role:monk,race:elf,align:c
+#OPTIONS=role:priest,race:elf,align:c
+#OPTIONS=role:valkyrie,race:giant,gender:f,align:l
+#OPTIONS=role:valkyrie,race:dwarf
+
+
+#OPTIONS=symset:IBMGraphics_1
+    # DECgraphics, IBMGraphics, IBMGraphics_1, IBMGraphics_2, MACgraphics
+SYMBOLS=S_boulder:0
+SYMBOLS=S_golem:8
+SYMBOLS=S_ghost:~
+#OPTIONS=roguesymset:RogueIBM
+    # RogueIBM, RogueEpix, RogueWindows
+
+OPTIONS=windowtype:curses
+    # curses, tty
+OPTIONS=term_cols:160
+OPTIONS=term_rows:50
+OPTIONS=windowborders:2
+    # 1 always, 2 never, 3 if size permits
+OPTIONS=align_message:top
+    # top, bottom left, right
+OPTIONS=align_status:bottom
+    # top, bottom left, right
+OPTIONS=statuslines:2
+    # 2-3
+OPTIONS=hitpointbar
+OPTIONS=showrace
+OPTIONS=showexp
+OPTIONS=showscore
 OPTIONS=time
+OPTIONS=color
+OPTIONS=guicolor
+OPTIONS=menucolors
+OPTIONS=use_darkgray
+OPTIONS=lit_corridor
+OPTIONS=quick_farsight
+OPTIONS=!sparkle
+
+OPTIONS=msghistory:99
+OPTIONS=msg_window:reversed
+
+OPTIONS=number_pad:1
+OPTIONS=autoopen,!autodig
+OPTIONS=!cmdassist
+OPTIONS=paranoid_confirmation:swim
+
+OPTIONS=pettype:cat
+OPTIONS=catname:Mew
+OPTIONS=dogname:Woof
+OPTIONS=horsename:Nay
+OPTIONS=pseudoname:Stingy
+OPTIONS=hilite_pet
+OPTIONS=petattr:u
+    # highlight with b:old, i:talic, u:nderline
+
+OPTIONS=perm_invent
+OPTIONS=sortloot:full
+OPTIONS=!implicit_uncursed
+OPTIONS=hilite_pile
+OPTIONS=pile_limit:10
+    # 0 always list, 1 never list, 5 default
+OPTIONS=!lootabc
+OPTIONS=menu_objsyms
+OPTIONS=fruit:lychee
+
+
+MSGTYPE=alert ".*terminally.*"
+MSGTYPE=alert ".*feel weak.*"
+MSGTYPE=alert ".*needs food.*"
+MSGTYPE=alert "The (couatl|.*eel|kraken) swings itself around you!"
+MSGTYPE=alert "The python grabs you!"
+MSGTYPE=alert "You don't feel very well."
+MSGTYPE=alert "You are turning a little *"
+MSGTYPE=alert "Your limbs are getting oozy."
+MSGTYPE=alert "Your skin begins to peel away."
+MSGTYPE=alert "You are turning into a green slime."
+MSGTYPE=alert " hits you with the (cockatrice|chickatrice) corpse."
+MSGTYPE=alert "You are slowing down."
+MSGTYPE=alert "Your limbs are stiffening."
+MSGTYPE=alert "It constricts your throat!"
+MSGTYPE=alert "You find it hard to breathe."
+MSGTYPE=alert "You're gasping for air."
+MSGTYPE=alert "Your blood is having trouble reaching your brain."
+MSGTYPE=alert "You can no longer breathe."
+MSGTYPE=alert "You're turning blue."
+MSGTYPE=alert "Your consciousness is fading."
+MSGTYPE=alert "You feel deathly sick."
+MSGTYPE=alert "You feel much worse."
+MSGTYPE=alert "You feel even worse."
+MSGTYPE=alert " reaches out, and you feel fever and chills."
+MSGTYPE=alert " reaches out, and your body shrivels."
+MSGTYPE=alert " chuckles."
+MSGTYPE=alert "You slow down."
+MSGTYPE=alert "You feel yourself slowing down a bit."
+MSGTYPE=alert "Your quickness feels less natural."
+MSGTYPE=alert " steals *"
+MSGTYPE=alert " stole *"
+MSGTYPE=alert "hitting your arm"
+MSGTYPE=alert "fails to return!"
+MSGTYPE=alert "landing at your feet"
+MSGTYPE=alert "You feel a strange vibration *" # vibrating square
+
+MSGTYPE=stop "You feel more confident *"
+MSGTYPE=stop "You feel hungry."
+MSGTYPE=stop "You are beginning to feel hungry."
+MSGTYPE=stop "You are getting the munchies."
+MSGTYPE=stop "You feel weak now."
+MSGTYPE=stop "You still have the munchies."
+MSGTYPE=stop "You feel weak."
+MSGTYPE=stop "You are beginning to feel weak."
+MSGTYPE=stop "The munchies are interfering with your motor capabilities."
+MSGTYPE=stop " needs food, badly!"
+MSGTYPE=stop "You only feel hungry now."
+MSGTYPE=stop "You now have a lesser case of the munchies."
+MSGTYPE=alert "You faint from lack of food."
+MSGTYPE=stop "You regain consciousness."
+MSGTYPE=stop "You die from starvation."
+MSGTYPE=stop "You die from hunger and exhaustion."
+MSGTYPE=stop "You die from your illness."
+MSGTYPE=alert "You feel feverish."
+MSGTYPE=alert "You feel a malignant aura surround you*"
+MSGTYPE=alert "You hear the howling of the CwnAnnwn..."
+MSGTYPE=alert ", your life force is running out"
+MSGTYPE=alert ", all your powers will be lost..."
+MSGTYPE=alert "You hear the wailing of the Banshee..."
+MSGTYPE=alert " is about to die."
+# to help stop deaths form riding movement keys
+#MSGTYPE=stop " bites!"
+#MSGTYPE=stop " hits!"
+#MSGTYPE=stop " kicks!"
+#MSGTYPE=stop " butts!"
+#MSGTYPE=stop " stings!"
+#MSGTYPE=stop " touches *"
+MSGTYPE=stop " tentacles suck you!"
+#MSGTYPE=stop "You are hit by *"
+
+
+OPTIONS=invweight
+OPTIONS=packorder:")[=/%!?+(*0_`
+OPTIONS=autopickup
+OPTIONS=pickup_types:$?!/="
+OPTIONS=pickup_burden:stressed
+# Always pick up:
+AUTOPICKUP_EXCEPTION="<.*Amulet of Yendor.*"
+#AUTOPICKUP_EXCEPTION="<.*Candelabrum of Invocation.*"
+#AUTOPICKUP_EXCEPTION="<.*candelabrum.*"
+#AUTOPICKUP_EXCEPTION="<.*Bell of Opening.*"
+#AUTOPICKUP_EXCEPTION="<.*silver bell.*"
+#AUTOPICKUP_EXCEPTION="<.*Book of the Dead.*"
+#AUTOPICKUP_EXCEPTION="<.*papyrus spellbook.*"
+#AUTOPICKUP_EXCEPTION="<.*life saving.*"
+AUTOPICKUP_EXCEPTION:"<.*wand of wishing.*"
+AUTOPICKUP_EXCEPTION:"<.*wand of death.*"
+AUTOPICKUP_EXCEPTION:"<.*wand of polymorph.*"
+AUTOPICKUP_EXCEPTION="<.*wand of digging.*"
+AUTOPICKUP_EXCEPTION="<.*wand of teleportation.*"
+#AUTOPICKUP_EXCEPTION="<.*wand of fire.*"
+#AUTOPICKUP_EXCEPTION="<.*wand of cold.*"
+#AUTOPICKUP_EXCEPTION="<.*wand of lightning.*"
+#AUTOPICKUP_EXCEPTION="<.*wand of sleep.*"
+AUTOPICKUP_EXCEPTION:"<.*magic lamp.*"
+AUTOPICKUP_EXCEPTION:"<.*magic marker.*"
+AUTOPICKUP_EXCEPTION="<.*can of grease.*"
+AUTOPICKUP_EXCEPTION="<.*dilithium crystal.*"
+AUTOPICKUP_EXCEPTION="<.*diamond.*"
+AUTOPICKUP_EXCEPTION="<.*ruby.*"
+AUTOPICKUP_EXCEPTION="<.*jacinth.*"
+AUTOPICKUP_EXCEPTION="<.*sapphire.*"
+AUTOPICKUP_EXCEPTION="<.*black opal.*"
+AUTOPICKUP_EXCEPTION="<.*emerald.*"
+AUTOPICKUP_EXCEPTION="<.*turquoise.*"
+AUTOPICKUP_EXCEPTION="<.*aquamarine.*"
+AUTOPICKUP_EXCEPTION="<.*citrine.*"
+AUTOPICKUP_EXCEPTION="<.*amber.*"
+AUTOPICKUP_EXCEPTION="<.*topaz.*"
+AUTOPICKUP_EXCEPTION="<.*Vorpal Blade.*"
+AUTOPICKUP_EXCEPTION="<.*lump of royal jelly.*"
+# Never pick up:
+AUTOPICKUP_EXCEPTION=">.*cheap plastic imitation of the Amulet of Yendor*"
+AUTOPICKUP_EXCEPTION:">.*worthless piece of.*"
+AUTOPICKUP_EXCEPTION:">.*loadstone.*"
+AUTOPICKUP_EXCEPTION:">.*flint stone.*"
+AUTOPICKUP_EXCEPTION:">.*gray stone.*"
+AUTOPICKUP_EXCEPTION=">.*rock*"
+AUTOPICKUP_EXCEPTION:">.*scare monster.*"
+AUTOPICKUP_EXCEPTION:">.*SCR.*"
+
+MSGTYPE=hide "You swap places with your *"
+MSGTYPE=hide "You descend the stairs"
+MSGTYPE=hide "You climb up the stairs"
+MSGTYPE=norep "Your sacrifice is consumed *"
+MSGTYPE=hide "You open the *"
+MSGTYPE=hide "You carefully open *"
+MSGTYPE=norep "A tower of flame erupts *"
+MSGTYPE=hide "You start digging."
+MSGTYPE=hide "You hit the rock with all your might."
+MSGTYPE=stop "This wall is too hard to dig into."
+#MSGTYPE=stop "This door is locked."
+MSGTYPE=hide "You displaced *"
+MSGTYPE=stop "You wrest one last charge from the worn-out wand"
+MSGTYPE=hide "Something is engraved here on the headstone."
+MSGTYPE=hide " tastes terrible!"
+MSGTYPE=hide " tastes okay."
+MSGTYPE=hide "The golden haze around you becomes less dense."
+MSGTYPE=norep "The Book of the Dead glows a strange dark red, but remains intact."
+MSGTYPE=hide "A mysterious force prevents the *"
+MSGTYPE=hide "Unknown command *"
+MSGTYPE=norep " nurse touches you!"
+MSGTYPE=hide " nurse touches you!  (I hope you don't mind.)"
+
+
+MENUCOLOR="Level.*<- You are here"=green&underline
+MENUCOLOR="Level.*vault"=yellow
+MENUCOLOR="Level.*STASH"=cyan
+MENUCOLOR="Level.*stash"=lightcyan
+MENUCOLOR="Level.*WIZARD"=lightgreen
+MENUCOLOR="Level.*PORTAL"=lightgreen
+MENUCOLOR="Level.*VIBRAT"=orange
+
+MENUCOLOR="gold piece"=yellow
+
+MENUCOLOR="[+-][0-9]+ "=cyan
+MENUCOLOR="\([0-9]+:-?[0-9]+\)"=cyan
+MENUCOLOR="(blessed|holy) "=lightgreen
+MENUCOLOR="(cursed|unholy) "=orange
+MENUCOLOR="uncursed "=cyan
+MENUCOLOR="\(alternate weapon"=white&bold
+MENUCOLOR="blessed.*\(alternate weapon"=lightgreen&bold
+MENUCOLOR="^cursed.*\(alternate weapon"=orange&bold
+MENUCOLOR="uncursed.*\(alternate weapon"=cyan&bold
+MENUCOLOR="\((being worn|tethered weapon in |weapon in |wielded in |on )"=white&underline
+MENUCOLOR="[+-][0-9].*\((being worn|tethered weapon in |weapon in |wielded in |on )"=cyan&underline
+MENUCOLOR="blessed.*\((being worn|tethered weapon in |weapon in |wielded in |on )"=lightgreen&underline
+MENUCOLOR="cursed.*\((being worn|tethered weapon in |weapon in |wielded in |on )"=orange&underline
+MENUCOLOR="uncursed.*\((being worn|tethered weapon in |weapon in |wielded in |on )"=cyan&underline
+MENUCOLOR="\(at the ready\)"=white&underline
+
+MENUCOLOR="\).* called "=white&underline
+
+MENUCOLOR=" Amulet of Yendor"=lightmagenta
+MENUCOLOR=" wand .*[^!]canc"=red&underline
+MENUCOLOR=" [1-7] .*[^!]gone"=black
+MENUCOLOR=" [1-7] .*[^!]-(1|2|3|4|5|6|7|8|9|10)%"=orange
+
+MENUCOLOR="!"=white
+    # to call attention to an item
+MENUCOLOR="\(lit\)"=yellow&underline
+# specific colors
+MENUCOLOR="#bk"=black
+MENUCOLOR="#BK"=black&bold
+MENUCOLOR="#rd"=red
+MENUCOLOR="#RD"=red&bold
+MENUCOLOR="#or"=orange
+MENUCOLOR="#OR"=orange&bold
+MENUCOLOR="#yl"=yellow
+MENUCOLOR="#YL"=yellow&bold
+MENUCOLOR="#gn"=green
+MENUCOLOR="#GN"=green&bold
+MENUCOLOR="#lg"=lightgreen
+MENUCOLOR="#LG"=lightgreen&bold
+MENUCOLOR="#cy"=cyan
+MENUCOLOR="#CY"=cyan&bold
+MENUCOLOR="#lc"=lightcyan
+MENUCOLOR="#LC"=lightcyan&bold
+MENUCOLOR="#lb"=lightblue
+MENUCOLOR="#LB"=lightblue&bold
+MENUCOLOR="#bl"=blue
+MENUCOLOR="#BL"=blue&bold
+MENUCOLOR="#lm"=lightmagenta
+MENUCOLOR="#LM"=lightmagenta&bold
+MENUCOLOR="#mg"=magenta
+MENUCOLOR="#MG"=magenta&bold
+MENUCOLOR="#wt"=white
+MENUCOLOR="#WT"=white&bold
+MENUCOLOR="#gr"=gray
+MENUCOLOR="#GR"=gray&bold
+MENUCOLOR="#bn"=brown
+MENUCOLOR="#BN"=brown&bold
+
+# vegan conduct
+#MENUCOLOR="(food |cram |K-|C-)ration|gunyoki"=lightcyan
+#MENUCOLOR="lembas wafer|melon|carrot|tins? .* spinach"=lightcyan
+#MENUCOLOR=" oranges?( named.*)?$"=lightcyan
+#MENUCOLOR=" pears?( named.*)?$"=lightcyan
+#MENUCOLOR=" (apple|banana|kelp|eucalyptus|garlic|wolfsbane)"=lightcyan
+#MENUCOLOR=" (pit fiend|brain)"=lightcyan
+#MENUCOLOR="(tins? of )?(gelatinous cube|acid blob|quivering blob)( corpse)?"=lightcyan
+#MENUCOLOR="(tins? of )?(blue|spotted|ochre) jelly( corpse)?"=lightcyan
+#MENUCOLOR="(tins? of )?lichen|shrieker|violet fungus|(brown|yellow|green|red) mold( corpse)?"=lightcyan
+
+# vegetarian conduct
+#MENUCOLOR="egg|pancake|fortune cookie|candy bar|royal jelly|cream pie"=lightblue
+#MENUCOLOR="(tin of )?brown pudding|gray ooze( corpse)?"=lightblue
+
+# black, red, orange, yellow, green, lightgreen, cyan, lightcyan,
+# lightblue, blue, lightmagenta, magenta, white, gray, brown
+OPTIONS=statushilites
+OPTIONS=hilite_status: hitpoints-max/green&normal
+OPTIONS=hilite_status: hitpoints/100%/green&normal
+OPTIONS=hilite_status: hitpoints/<100%/lightgreen&normal
+OPTIONS=hilite_status: hitpoints/<76%/yellow&normal
+OPTIONS=hilite_status: hitpoints/<51%/orange&normal
+OPTIONS=hilite_status: hitpoints/<26%/red&normal
+OPTIONS=hilite_status: hitpoints/<11%/black&normal
+OPTIONS=hilite_status: power-max/green&normal
+OPTIONS=hilite_status: power/100%/green&normal
+OPTIONS=hilite_status: power/<100%/lightgreen&normal
+OPTIONS=hilite_status: power/<76%/yellow&normal
+OPTIONS=hilite_status: power/<51%/orange&normal
+OPTIONS=hilite_status: power/<26%/red&normal
+OPTIONS=hilite_status: power/<11%/black&normal
+OPTIONS=hilite_status: gold/always/yellow&normal
+OPTIONS=hilite_status: hunger/satiated/brown&normal
+OPTIONS=hilite_status: hunger/hungry/orange&normal
+OPTIONS=hilite_status: hunger/weak/red&normal
+OPTIONS=hilite_status: hunger/fainting/black&normal
+OPTIONS=hilite_status: hunger/fainted/black&normal
+OPTIONS=hilite_status: condition/conf/orange&normal
+OPTIONS=hilite_status: condition/stun/red&normal
+OPTIONS=hilite_status: condition/blind/black&normal
+OPTIONS=hilite_status: condition/deaf/cyan&normal
+OPTIONS=hilite_status: condition/foodpois/lightgreen&blink
+OPTIONS=hilite_status: condition/termill/lightgreen&blink
+OPTIONS=hilite_status: condition/slime/lightgreen&blink
+OPTIONS=hilite_status: condition/wither/green&blink
+OPTIONS=hilite_status: condition/hallu/magenta&normal
+OPTIONS=hilite_status: condition/strngl/red&blink
+OPTIONS=hilite_status: condition/stone/brown&bold&blink
+OPTIONS=hilite_status: condition/movement/lightblue&normal
+OPTIONS=hilite_status: carrying-capacity/burdened/yellow&normal
+OPTIONS=hilite_status: carrying-capacity/stressed/orange&normal
+OPTIONS=hilite_status: carrying-capacity/strained/red&normal
+OPTIONS=hilite_status: carrying-capacity/overtaxed/red&normal
+OPTIONS=hilite_status: carrying-capacity/overloaded/black&normal
 
 #eof

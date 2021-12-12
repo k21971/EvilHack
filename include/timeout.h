@@ -11,7 +11,7 @@ typedef void FDECL((*timeout_proc), (ANY_P *, long));
 /* kind of timer */
 enum timer_type {
     TIMER_LEVEL = 0,   /* event specific to level [melting ice] */
-    TIMER_GLOBAL = 1,  /* event follows current play [not used] */
+    TIMER_GLOBAL = 1,  /* event follows current play [posse] */
     TIMER_OBJECT = 2,  /* event follows an object [various] */
     TIMER_MONSTER = 3, /* event follows a monster [not used] */
     NUM_TIMER_KINDS    /* 4 */
@@ -34,6 +34,7 @@ enum timeout_types {
     HATCH_EGG,
     FIG_TRANSFORM,
     MELT_ICE_AWAY,
+    POSSE_ARRIVES, /* global timer with no pointers in argument */
 
     NUM_TIME_FUNCS
 };

@@ -29,6 +29,7 @@ unsigned gpflags;
     struct permonst *mdat = (struct permonst *) 0;
     boolean ignorewater = ((gpflags & MM_IGNOREWATER) != 0),
             allow_u = ((gpflags & GP_ALLOW_U) != 0);
+    boolean out_of_sight = ((gpflags & GP_NOSEE) != 0);
 
     if (!isok(x, y))
         return FALSE;
@@ -45,6 +46,10 @@ unsigned gpflags;
             && (!u.usteed || mtmp != u.usteed))
             return FALSE;
     }
+
+    /* trying to place out of the hero's line-of-sight */
+    if (out_of_sight && couldsee(x, y))
+        return FALSE;
 
     if (mtmp) {
         struct monst *mtmp2 = m_at(x, y);

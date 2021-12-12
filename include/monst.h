@@ -126,7 +126,7 @@ struct monst {
 
     Bitfield(mspeed, 2);    /* current speed */
     Bitfield(permspeed, 2); /* intrinsic mspeed value */
-    Bitfield(mrevived, 1);  /* has been revived from the dead */
+    Bitfield(mrevived, 1);  /* has been revived froom(xm the dead */
     Bitfield(mcloned, 1);   /* has been cloned from another */
     Bitfield(mavenge, 1);   /* did something to deserve retaliation */
     Bitfield(mflee, 1);     /* fleeing */

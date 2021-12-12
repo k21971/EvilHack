@@ -3692,6 +3692,13 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     mdat = mtmp->data; /* note: mondead can change mtmp->data */
     mndx = monsndx(mdat);
 
+    /* see if a posse needs to be sent in pursuit */
+    maybe_start_posse_timer(
+        (unsigned)mndx,
+        mtmp->m_lev,
+        getroomtype(mtmp->mx, mtmp->my) == COURT ? TRUE : FALSE
+    );
+
     if (stoned) {
         stoned = FALSE;
         goto cleanup;

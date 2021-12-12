@@ -112,6 +112,28 @@ static NEARDATA const char *const stoned_texts[] = {
     "You are a statue."                            /* 1 */
 };
 
+/* posse data structure */
+struct pds {
+    unsigned mid;       /* monster id that might require avenging */
+    int chance;         /* percent chance of posse formation [0-100] */
+    unsigned delay;     /* average turns before posse appears */
+    unsigned delayv;    /* delay plus or minus this variation */
+};
+
+/* data governing posse timer in a single place */
+static const struct pds possedata[] = {
+    /* dead monster id   chance delay  var */
+    { PM_GNOME_ROYAL,        65,  100,  50 },
+    { PM_DWARF_ROYAL,        90,   85,  35 },
+    { PM_GOBLIN_CAPTAIN,     15,   70,  15 },
+    { PM_ORC_CAPTAIN,        25,   70,  15 },
+    { PM_ELVEN_ROYAL,        75,  165,  65 },
+//  { PM_OGRE_ROYAL,         10,  100,  50 }, // intentional, who cares about ogres
+//  { PM_VAMPIRE_ROYAL,       5,   50,  20 }, // intentional, so many vmapires
+    { PM_ASMODEUS,           25,   65,  35 },
+};
+#define NUM_POSSES (int)sizeof(possedata) / sizeof(possedata[0])
+
 STATIC_OVL void
 stoned_dialogue()
 {
@@ -1097,6 +1119,261 @@ int mnum;
     update_inventory();
 }
 
+/* Potentially start a posse timer when there is a regicide.
+ * This is consulted every time a monster is killed and walks a structure --
+ * NUM_POSSES should be kept small.
+ * Additional timers for the same monster at the same level will be ignored
+ * by start_timer.
+ */
+void
+maybe_start_posse_timer(mndx, mlev, throne)
+unsigned mndx;  /* slain monster's index in the mons array */
+uchar mlev;     /* slain monster's level */
+boolean throne; /* monster slain in throne room */
+{
+    /* stop forming new posses once the Wizard has been killed */
+    if (mvitals[PM_WIZARD_OF_YENDOR].died) {
+        return;
+    }
+    /* check if dead monster is listed as a regicide */
+    for (unsigned i = 0; i < NUM_POSSES; i++) {
+        if (possedata[i].mid == mndx) {
+            /* posse likelihood doubled when regicide in throne room */
+            if (rnz(100) < possedata[i].chance * (throne ? 2 : 1)) {
+                long when = max(1, possedata[i].delay - possedata[i].delayv + rnz(possedata[i].delayv*2));
+                (void) start_timer(when, TIMER_GLOBAL, POSSE_ARRIVES, uintpair_to_any(mndx, mlev));
+                You_hear("distant shouts and the readying of weapons...");
+            }
+            break;
+        }
+    }
+}
+
+/* Called when it is time to form a posse as revenge for a regicide.
+ * Even though a posse is scheduled nothing will happen without special logic here.
+ * Each regicide requires its own posse creation code.
+ * In general each posse has a huntmaster, one or more hunting beasts,
+ * caster support, and a bunch of footsoldiers.
+ */
+void
+form_posse(arg, timeout)
+anything *arg; /* uint[2] with triggering monster index, level */
+long timeout UNUSED;
+{
+    unsigned mndx = arg->a_uintpair[0];
+    unsigned mlvl = arg->a_uintpair[1];
+    unsigned montype = 0;
+    int redshirts = 0;
+
+    /* form up close to player's location but out of sight using GP_NOSEE
+     * (alternately place at stair or ladder in direction posse would approach from)
+     */
+    coord cc;
+    cc.x = u.ux;
+    cc.y = u.uy;
+
+    /* type of posse determined by regicide */
+    switch (mndx) {
+    case PM_GNOME_ROYAL:
+    case PM_DWARF_ROYAL:
+        You_hear("the beat of approaching drums!");
+        /* huntmaster */
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOLL_HUNTER], GP_NOSEE)) {
+            struct monst *mon = makemon(&mons[PM_GNOLL_HUNTER], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+            if (mon) {
+                /* Titles don't work well, the existing mechanism is meant for proper names.
+                static NEARDATA const char hm[] = "Royal Huntmaster";
+                (void) christen_monst(mon, hm);
+                */
+                (void) mongets(mon, LEATHER_DRUM);
+                /* hunting beast */
+                montype = PM_QUIVERING_BLOB;
+                if (mlvl > 8)
+                    montype = PM_GELATINOUS_CUBE;
+                if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE)) {
+                    mon = makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+                    if (mon) {
+                        /* Titles don't work well, the existing mechanism is meant for proper names.
+                        static NEARDATA const char hb[] = "Royal Huntblob";
+                        (void) christen_monst(mon, hb);
+                        */
+                        (void) mongets(mon, LEASH);
+                    }
+                }
+            }
+        }
+        /* caster support */
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOLL_CLERIC], GP_NOSEE))
+            (void) makemon(&mons[PM_GNOLL_CLERIC], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOMISH_WIZARD], GP_NOSEE))
+            (void) makemon(&mons[PM_GNOMISH_WIZARD], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+        /* footsoldiers */
+        redshirts = rnd(1 + mlvl/3);
+        while (redshirts--) {
+            switch (rnd(7)) {
+            case 1:
+                montype = PM_DWARF_NOBLE;
+                break;
+            case 2:
+            case 3:
+                montype = PM_MOUNTAIN_DWARF;
+                break;
+            case 4:
+                montype = PM_GNOME_NOBLE;
+                break;
+            default:
+                montype = PM_ROCK_GNOME;
+                break;
+            }
+            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE))
+                (void) makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+        }
+        break;
+
+    case PM_GOBLIN_CAPTAIN:
+    case PM_ORC_CAPTAIN:
+        You_hear("the harsh tone of a crude bugle!");
+        /* huntmaster */
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_FOREST_CENTAUR], GP_NOSEE)) {
+            struct monst *mon = makemon(&mons[PM_FOREST_CENTAUR], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+            if (mon) {
+                struct obj *otmp;
+                if ((otmp = mksobj(BUGLE, TRUE, FALSE))) {
+                    set_material(otmp, IRON);
+                    (void) mpickobj(mon, otmp);
+                }
+                /* hunting beast */
+                if (enexto_core(&cc, cc.x, cc.y, &mons[PM_WARG], GP_NOSEE)) {
+                    mon = makemon(&mons[PM_WARG], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+                    if (mon)
+                        (void) mongets(mon, LEASH);
+                }
+            }
+        }
+        /* caster support */
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_ORC_SHAMAN], GP_NOSEE))
+            (void) makemon(&mons[PM_ORC_SHAMAN], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+        /* footsoldiers, although not always on foot */
+        redshirts = rnd(1 + mlvl/3);
+        while (redshirts--) {
+            switch (rnd(5)) {
+            case 1:
+                montype = PM_URUK_HAI;
+                break;
+            case 2:
+                montype = PM_MORDOR_ORC;
+                break;
+            default:
+                montype = PM_GOBLIN_OUTRIDER;
+                break;
+            }
+            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE))
+                /* don't specify MM_NOGRP */
+                (void) makemon(&mons[montype], cc.x, cc.y, MM_ANGRY);
+        }
+        break;
+
+    case PM_ELVEN_ROYAL:
+        You_hear("the pure note of a silver trumpet!");
+        /* huntmaster */
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_FOREST_CENTAUR], GP_NOSEE)) {
+            struct monst *mon = makemon(&mons[PM_FOREST_CENTAUR], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+            if (mon) {
+                /* Titles don't work well, the existing mechanism is meant for proper names.
+                static NEARDATA const char hm[] = "Master of the Royal Hunt";
+                (void) christen_monst(mon, hm);
+                */
+                struct obj *otmp;
+                if ((otmp = mksobj(TOOLED_HORN, TRUE, FALSE))) {
+                    set_material(otmp, SILVER);
+                    (void) mpickobj(mon, otmp);
+                }
+                /* hunting beast */
+                montype = PM_LYNX;
+                if (mlvl > 12)
+                    montype = PM_DISPLACER_BEAST;
+                if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE)) {
+                    mon = makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+                    if (mon)
+                        (void) mongets(mon, LEASH);
+                }
+            }
+        }
+        /* caster support */
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_ELVEN_WIZARD], GP_NOSEE))
+            (void) makemon(&mons[PM_ELVEN_WIZARD], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+        /* footsoldiers */
+        redshirts = rnd(1 + mlvl/2);
+        while (redshirts--) {
+            switch (rnd(4)) {
+            case 1:
+                montype = PM_GREY_ELF;
+                break;
+            case 2:
+                montype = PM_GREEN_ELF;
+                break;
+            default:
+                montype = PM_WOODLAND_ELF;
+                break;
+            }
+            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE))
+                (void) makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+        }
+        break;
+
+    /* Even though Asmodeus is lawful and this posse is chock full of chaotic demons
+     * Asmodeus is a better choice than Orcus because he tends to appear higher in the dungeon.
+     */
+    case PM_ASMODEUS:
+        You_hear("the fell alarm of demonic horns!");
+        /* huntmaster */
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_DEMON_WEREDEMON], GP_NOSEE)) {
+            struct monst *mon = makemon(&mons[PM_DEMON_WEREDEMON], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+            if (mon) {
+                static NEARDATA const char nm[] = "Kennelmaster";
+                (void) christen_monst(mon, nm);
+                /* hunting beasts */
+                int beasts = rnd(3);
+                while (beasts--) {
+                    if (enexto_core(&cc, cc.x, cc.y, &mons[PM_HELL_HOUND], GP_NOSEE)) {
+                        mon = makemon(&mons[PM_HELL_HOUND], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+                        if (mon)
+                            (void) mongets(mon, LEASH);
+                    }
+                }
+            }
+        }
+        /* occasional caster support */
+        if (rnz(2) > 0 && enexto_core(&cc, cc.x, cc.y, &mons[PM_MAGICAL_EYE], GP_NOSEE))
+            (void) makemon(&mons[PM_MAGICAL_EYE], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+        /* demonic footsoldiers */
+        redshirts = 5 + rnz(5);
+        while (redshirts--) {
+            switch (rnd(4)) {
+            case 1:
+                montype = PM_HEZROU;
+                break;
+            case 2:
+                montype = PM_MARILITH;
+                break;
+            case 3:
+                montype = PM_NALFESHNEE;
+                break;
+            default:
+                montype = PM_VROCK;
+                break;
+            }
+            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE))
+                (void) makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
+        }
+        break;
+    
+    default:
+        /* fail silently -- posse not implemented for this monster */
+        break;
+    }
+}
+  
 /* Attach a fig_transform timeout to the given figurine. */
 void
 attach_fig_transform_timeout(figurine)
@@ -1848,7 +2125,8 @@ static const ttable timeout_funcs[NUM_TIME_FUNCS] = {
     TTAB(burn_object, cleanup_burn, "burn_object"),
     TTAB(hatch_egg, (timeout_proc) 0, "hatch_egg"),
     TTAB(fig_transform, (timeout_proc) 0, "fig_transform"),
-    TTAB(melt_ice_away, (timeout_proc) 0, "melt_ice_away")
+    TTAB(melt_ice_away, (timeout_proc) 0, "melt_ice_away"),
+    TTAB(form_posse, (timeout_proc) 0, "form_posse")
 };
 #undef TTAB
 

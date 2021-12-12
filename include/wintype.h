@@ -17,6 +17,7 @@ typedef union any {
     schar a_schar;
     uchar a_uchar;
     unsigned int a_uint;
+    unsigned a_uintpair[2];
     long a_long;
     unsigned long a_ulong;
     int *a_iptr;

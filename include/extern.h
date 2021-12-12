@@ -930,6 +930,7 @@ E void FDECL(dipforge, (struct obj *));
 
 E boolean FDECL(is_valid_travelpt, (int,int));
 E anything *FDECL(uint_to_any, (unsigned));
+E anything *FDECL(uintpair_to_any, (unsigned, unsigned));
 E anything *FDECL(long_to_any, (long));
 E anything *FDECL(monst_to_any, (struct monst *));
 E anything *FDECL(obj_to_any, (struct obj *));
@@ -2627,6 +2628,8 @@ E void FDECL(attach_fig_transform_timeout, (struct obj *));
 E void FDECL(kill_egg, (struct obj *));
 E void FDECL(hatch_egg, (ANY_P *, long));
 E void FDECL(learn_egg_type, (int));
+E void FDECL(maybe_start_posse_timer, (unsigned, uchar, boolean));
+E void FDECL(form_posse, (ANY_P *, long));
 E void FDECL(burn_object, (ANY_P *, long));
 E void FDECL(begin_burn, (struct obj *, BOOLEAN_P));
 E void FDECL(end_burn, (struct obj *, BOOLEAN_P));

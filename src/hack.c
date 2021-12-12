@@ -40,6 +40,17 @@ unsigned ui;
 }
 
 anything *
+uintpair_to_any(ui0, ui1)
+unsigned ui0;
+unsigned ui1;
+{
+    tmp_anything = zeroany;
+    tmp_anything.a_uintpair[0] = ui0;
+    tmp_anything.a_uintpair[1] = ui1;
+    return &tmp_anything;
+}
+
+anything *
 long_to_any(lng)
 long lng;
 {
@@ -3291,10 +3302,10 @@ monster_nearby()
                 continue;
             if ((mtmp = m_at(x, y)) && M_AP_TYPE(mtmp) != M_AP_FURNITURE
                 && M_AP_TYPE(mtmp) != M_AP_OBJECT
-                && (Hallucination
-                    || (!mtmp->mpeaceful && !noattacks(mtmp->data)))
+                && (!mtmp->mpeaceful || Hallucination)
                 && (!is_hider(mtmp->data) || !mtmp->mundetected)
-                && mtmp->mcanmove && !mtmp->msleeping  /* aplvax!jcn */
+                && !noattacks(mtmp->data) && mtmp->mcanmove
+                && !mtmp->msleeping  /* aplvax!jcn */
                 && !onscary(u.ux, u.uy, mtmp) && canspotmon(mtmp))
                 return 1;
         }
