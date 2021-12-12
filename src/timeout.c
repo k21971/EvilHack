@@ -128,8 +128,12 @@ static const struct pds possedata[] = {
     { PM_GOBLIN_CAPTAIN,     15,   70,  15 },
     { PM_ORC_CAPTAIN,        25,   70,  15 },
     { PM_ELVEN_ROYAL,        75,  165,  65 },
-//  { PM_OGRE_ROYAL,         10,  100,  50 }, // intentional, who cares about ogres
-//  { PM_VAMPIRE_ROYAL,       5,   50,  20 }, // intentional, so many vmapires
+    /* intentionally not implemented --
+     * who cares about ogres
+     * already sooo many vampires
+   { PM_OGRE_ROYAL,         10,  100,  50 },
+   { PM_VAMPIRE_ROYAL,       5,   50,  20 },
+     */
     { PM_ASMODEUS,           25,   65,  35 },
 };
 #define NUM_POSSES (int)sizeof(possedata) / sizeof(possedata[0])
@@ -1165,7 +1169,7 @@ long timeout UNUSED;
     unsigned montype = 0;
     int redshirts = 0;
 
-    /* form up close to player's location but out of sight using GP_NOSEE
+    /* form up close to player's location but out of sight using GP_NO_SEE
      * (alternately place at stair or ladder in direction posse would approach from)
      */
     coord cc;
@@ -1178,7 +1182,7 @@ long timeout UNUSED;
     case PM_DWARF_ROYAL:
         You_hear("an ominous fluting accompanied by a deep rhythmic chant.");
         /* huntmaster */
-        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOLL_HUNTER], GP_NOSEE)) {
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOLL_HUNTER], GP_NO_SEE)) {
             struct monst *mon = makemon(&mons[PM_GNOLL_HUNTER], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
             if (mon) {
                 /* Titles don't work well, the existing mechanism is meant for proper names.
@@ -1196,7 +1200,7 @@ long timeout UNUSED;
                 montype = PM_QUIVERING_BLOB;
                 if (mlvl > 8)
                     montype = PM_GELATINOUS_CUBE;
-                if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE)) {
+                if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NO_SEE)) {
                     mon = makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
                     if (mon)
                         (void) mongets(mon, LEASH);
@@ -1204,9 +1208,9 @@ long timeout UNUSED;
             }
         }
         /* caster support */
-        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOLL_CLERIC], GP_NOSEE))
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOLL_CLERIC], GP_NO_SEE))
             (void) makemon(&mons[PM_GNOLL_CLERIC], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
-        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOMISH_WIZARD], GP_NOSEE))
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOMISH_WIZARD], GP_NO_SEE))
             (void) makemon(&mons[PM_GNOMISH_WIZARD], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
         /* footsoldiers */
         redshirts = rnd(1 + mlvl/3);
@@ -1226,7 +1230,7 @@ long timeout UNUSED;
                 montype = PM_ROCK_GNOME;
                 break;
             }
-            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE))
+            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NO_SEE))
                 (void) makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
         }
         break;
@@ -1235,7 +1239,7 @@ long timeout UNUSED;
     case PM_ORC_CAPTAIN:
         You_hear("the harsh beat of approaching drums, the drums in the deep!"); /* JRRT */
         /* huntmaster */
-        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GOBLIN_OUTRIDER], GP_NOSEE)) {
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GOBLIN_OUTRIDER], GP_NO_SEE)) {
             struct monst *mon = makemon(&mons[PM_GOBLIN_OUTRIDER], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
             if (mon) {
                 struct obj *otmp;
@@ -1246,7 +1250,7 @@ long timeout UNUSED;
                     (void) mpickobj(mon, otmp);
                 }
                 /* hunting beast */
-                if (enexto_core(&cc, cc.x, cc.y, &mons[PM_WARG], GP_NOSEE)) {
+                if (enexto_core(&cc, cc.x, cc.y, &mons[PM_WARG], GP_NO_SEE)) {
                     mon = makemon(&mons[PM_WARG], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
                     if (mon)
                         (void) mongets(mon, LEASH);
@@ -1254,7 +1258,7 @@ long timeout UNUSED;
             }
         }
         /* caster support */
-        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_ORC_SHAMAN], GP_NOSEE))
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_ORC_SHAMAN], GP_NO_SEE))
             (void) makemon(&mons[PM_ORC_SHAMAN], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
         /* footsoldiers, although not always on foot */
         redshirts = rnd(1 + mlvl/3);
@@ -1270,7 +1274,7 @@ long timeout UNUSED;
                 montype = PM_GOBLIN_OUTRIDER;
                 break;
             }
-            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE))
+            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NO_SEE))
                 /* don't specify MM_NOGRP */
                 (void) makemon(&mons[montype], cc.x, cc.y, MM_ANGRY);
         }
@@ -1279,7 +1283,7 @@ long timeout UNUSED;
     case PM_ELVEN_ROYAL:
         You_hear("the pure note of a silver trumpet!");
         /* huntmaster */
-        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_FOREST_CENTAUR], GP_NOSEE)) {
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_FOREST_CENTAUR], GP_NO_SEE)) {
             struct monst *mon = makemon(&mons[PM_FOREST_CENTAUR], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
             if (mon) {
                 struct obj *otmp;
@@ -1294,7 +1298,7 @@ long timeout UNUSED;
                 montype = PM_LYNX;
                 if (mlvl > 12)
                     montype = PM_DISPLACER_BEAST;
-                if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE)) {
+                if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NO_SEE)) {
                     mon = makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
                     if (mon)
                         (void) mongets(mon, LEASH);
@@ -1302,7 +1306,7 @@ long timeout UNUSED;
             }
         }
         /* caster support */
-        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_ELVEN_WIZARD], GP_NOSEE))
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_ELVEN_WIZARD], GP_NO_SEE))
             (void) makemon(&mons[PM_ELVEN_WIZARD], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
         /* footsoldiers */
         redshirts = rnd(1 + mlvl/2);
@@ -1318,7 +1322,7 @@ long timeout UNUSED;
                 montype = PM_WOODLAND_ELF;
                 break;
             }
-            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE))
+            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NO_SEE))
                 (void) makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
         }
         break;
@@ -1329,13 +1333,13 @@ long timeout UNUSED;
     case PM_ASMODEUS:
         You_hear("the fell alarm of demonic horns!");
         /* huntmaster */
-        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_DEMON_WEREDEMON], GP_NOSEE)) {
+        if (enexto_core(&cc, cc.x, cc.y, &mons[PM_DEMON_WEREDEMON], GP_NO_SEE)) {
             struct monst *mon = makemon(&mons[PM_DEMON_WEREDEMON], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
             if (mon) {
                 /* hunting beasts */
                 int beasts = rnd(3);
                 while (beasts--) {
-                    if (enexto_core(&cc, cc.x, cc.y, &mons[PM_HELL_HOUND], GP_NOSEE)) {
+                    if (enexto_core(&cc, cc.x, cc.y, &mons[PM_HELL_HOUND], GP_NO_SEE)) {
                         mon = makemon(&mons[PM_HELL_HOUND], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
                         if (mon)
                             (void) mongets(mon, LEASH);
@@ -1344,7 +1348,7 @@ long timeout UNUSED;
             }
         }
         /* occasional caster support */
-        if (rnz(2) > 0 && enexto_core(&cc, cc.x, cc.y, &mons[PM_MAGICAL_EYE], GP_NOSEE))
+        if (rnz(2) > 0 && enexto_core(&cc, cc.x, cc.y, &mons[PM_MAGICAL_EYE], GP_NO_SEE))
             (void) makemon(&mons[PM_MAGICAL_EYE], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
         /* demonic footsoldiers */
         redshirts = 5 + rnz(5);
@@ -1363,7 +1367,7 @@ long timeout UNUSED;
                 montype = PM_VROCK;
                 break;
             }
-            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NOSEE))
+            if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NO_SEE))
                 (void) makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
         }
         break;
