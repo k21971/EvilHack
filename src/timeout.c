@@ -1197,9 +1197,7 @@ long timeout UNUSED;
                 (void) christen_monst(mon, hm);
                 struct obj *otmp;
                 if ((otmp = mksobj(FLUTE, TRUE, FALSE))) {
-                    static const char nm[] = "Hi Ho, Hi Ho"; /* You know... */
-                    new_oname(otmp, strlen(nm)+1);
-                    Strcpy(ONAME(otmp), nm);
+                    otmp = oname(otmp, "Hi Ho, Hi Ho"); /* You know... */
                     (void) mpickobj(mon, otmp);
                 }
                 /* hunting beast */
@@ -1255,9 +1253,7 @@ long timeout UNUSED;
                 (void) christen_monst(mon, hm);
                 struct obj *otmp;
                 if ((otmp = mksobj(LEATHER_DRUM, TRUE, FALSE))) {
-                    static const char nm[] = "Crush Your Enemies"; /* Conan the Barbarian */
-                    new_oname(otmp, strlen(nm)+1);
-                    Strcpy(ONAME(otmp), nm);
+                    otmp = oname(otmp, "Crush Your Enemie"); /* Conan the Barbarian */
                     (void) mpickobj(mon, otmp);
                 }
                 /* hunting beast */
@@ -1303,10 +1299,7 @@ long timeout UNUSED;
                 struct obj *otmp;
                 if ((otmp = mksobj(TOOLED_HORN, TRUE, FALSE))) {
                     set_material(otmp, SILVER);
-                    static const char nm[] = "the Royal Huntsman's";
-                    static const char nmf[] = "the Royal Huntswoman's";
-                    new_oname(otmp, 1 + mon->female ? strlen(nmf) : strlen(nm));
-                    Strcpy(ONAME(otmp), mon->female ? nmf : nm);
+                    otmp = oname(otmp, mon->female ? "The Royal Huntswoman's" : "The Royal Huntsman's");
                     (void) mpickobj(mon, otmp);
                 }
                 /* hunting beast */
