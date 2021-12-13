@@ -904,6 +904,11 @@ int dieroll;
     boolean hand_to_hand = (thrown == HMON_MELEE
                             /* not grapnels; applied implies uwep */
                             || (thrown == HMON_APPLIED && is_pole(uwep)));
+    /* weapon knocks back a target <= knockback_size for knockback_range squares,
+     * with -1 knockback_range knocking back (knockback_size - msize +1) squares
+     */
+    int knockback_range = 0;
+    int knockback_size = MZ_TINY;
     int jousting = 0;
     int joustdmg;
     struct obj *hated_obj = NULL;
@@ -979,6 +984,16 @@ int dieroll;
         tmp += special_dmgval(&youmonst, mon, (W_ARMG | W_RINGL | W_RINGR),
                               &hated_obj);
     } else {
+        if (obj->oartifact == ART_OGRESMASHER) {
+            /* Implemented this way instead of in artifact_hit to make this behavior
+             * more generally available if desired. Avoided an SPFX_ implementation both
+             * for that reason and because that word is running out of space. This is NOT
+             * bidrectional, there is no comparable code in mhitu to knockback small
+             * player races.
+             */
+            knockback_range = -1; /* medium 1, small 2, tiny 3 squares */
+            knockback_size = MZ_MEDIUM;
+        }
         if (obj->oartifact == ART_SWORD_OF_KAS)
             iskas = TRUE;
         if (obj->oartifact == ART_SECESPITA)
@@ -1505,6 +1520,23 @@ int dieroll;
         /* avoid migrating a dead monster */
         if (mon->mhp > tmp) {
             mhurtle(mon, u.dx, u.dy, 1);
+            mdat = mon->data; /* in case of a polymorph trap */
+            if (DEADMONSTER(mon))
+                already_killed = TRUE;
+        }
+        hittxt = TRUE;
+    /* If a monster is knocked back through a polymorph trap it continues
+     * its path as if it was its original size -- its mass does not increase
+     * until it hits the ground :-)
+     */
+    } else if (knockback_range != 0 && mon->data->msize <= knockback_size) {
+        /* avoid migrating a dead monster */
+        if (mon->mhp > tmp) {
+            if (knockback_range < 0)
+                knockback_range = knockback_size + 1 - mon->data->msize;
+            if (obj->oartifact == ART_OGRESMASHER)
+                You("smash back %s%s", mon_nam(mon), canseemon(mon) ? exclam(3*knockback_range) : ".");
+            mhurtle(mon, u.dx, u.dy, knockback_range);
             mdat = mon->data; /* in case of a polymorph trap */
             if (DEADMONSTER(mon))
                 already_killed = TRUE;
