@@ -1253,7 +1253,7 @@ long timeout UNUSED;
                 (void) christen_monst(mon, hm);
                 struct obj *otmp;
                 if ((otmp = mksobj(LEATHER_DRUM, TRUE, FALSE))) {
-                    otmp = oname(otmp, "Crush Your Enemie"); /* Conan the Barbarian */
+                    otmp = oname(otmp, "Crush Your Enemies"); /* Conan the Barbarian */
                     (void) mpickobj(mon, otmp);
                 }
                 /* hunting beast */
