@@ -1193,10 +1193,8 @@ long timeout UNUSED;
         if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GNOLL_HUNTER], GP_NO_SEE)) {
             struct monst *mon = makemon(&mons[PM_GNOLL_HUNTER], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
             if (mon) {
-                /* Titles don't work well, the existing mechanism is meant for proper names.
-                static const char hm[] = "Royal Huntmaster";
+                static const char hm[] = "the Royal Huntgnoll";
                 (void) christen_monst(mon, hm);
-                */
                 struct obj *otmp;
                 if ((otmp = mksobj(FLUTE, TRUE, FALSE))) {
                     static const char nm[] = "Hi Ho, Hi Ho"; /* You know... */
@@ -1210,8 +1208,11 @@ long timeout UNUSED;
                     montype = PM_GELATINOUS_CUBE;
                 if (enexto_core(&cc, cc.x, cc.y, &mons[montype], GP_NO_SEE)) {
                     mon = makemon(&mons[montype], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
-                    if (mon)
+                    if (mon) {
+                        static const char hb[] = "the Royal Huntblob";
+                        (void) christen_monst(mon, hb);
                         (void) mongets(mon, LEASH);
+                    }
                 }
             }
         }
@@ -1250,6 +1251,8 @@ long timeout UNUSED;
         if (enexto_core(&cc, cc.x, cc.y, &mons[PM_GOBLIN_OUTRIDER], GP_NO_SEE)) {
             struct monst *mon = makemon(&mons[PM_GOBLIN_OUTRIDER], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
             if (mon) {
+                static const char hm[] = "the Scout Outrider";
+                (void) christen_monst(mon, hm);
                 struct obj *otmp;
                 if ((otmp = mksobj(LEATHER_DRUM, TRUE, FALSE))) {
                     static const char nm[] = "Crush Your Enemies"; /* Conan the Barbarian */
@@ -1294,12 +1297,16 @@ long timeout UNUSED;
         if (enexto_core(&cc, cc.x, cc.y, &mons[PM_FOREST_CENTAUR], GP_NO_SEE)) {
             struct monst *mon = makemon(&mons[PM_FOREST_CENTAUR], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
             if (mon) {
+                static const char hm[] = "the Royal Huntsmaster";
+                static const char hmf[] = "the Royal Huntmistress";
+                (void) christen_monst(mon, mon->female ? hmf : hm);
                 struct obj *otmp;
                 if ((otmp = mksobj(TOOLED_HORN, TRUE, FALSE))) {
                     set_material(otmp, SILVER);
-                    static const char nm[] = "The Royal Huntsman's";
-                    new_oname(otmp, strlen(nm)+1);
-                    Strcpy(ONAME(otmp), nm);
+                    static const char nm[] = "the Royal Huntsman's";
+                    static const char nmf[] = "the Royal Huntswoman's";
+                    new_oname(otmp, 1 + mon->female ? strlen(nmf) : strlen(nm));
+                    Strcpy(ONAME(otmp), mon->female ? nmf : nm);
                     (void) mpickobj(mon, otmp);
                 }
                 /* hunting beast */
@@ -1344,6 +1351,8 @@ long timeout UNUSED;
         if (enexto_core(&cc, cc.x, cc.y, &mons[PM_DEMON_WEREDEMON], GP_NO_SEE)) {
             struct monst *mon = makemon(&mons[PM_DEMON_WEREDEMON], cc.x, cc.y, MM_ANGRY | MM_NOGRP);
             if (mon) {
+                static const char hm[] = "the Viscount of Hellhounds";
+                (void) christen_monst(mon, hm);
                 /* hunting beasts */
                 int beasts = rnd(3);
                 while (beasts--) {
