@@ -2602,19 +2602,6 @@ register struct monst *shkp;
         long numer = 1L, denom = 1L;
         if (!is_izchak(shkp, TRUE) && has_erac(shkp)) {
             shk_racial_adjustments(ERAC(shkp)->rmnum, &denom, &numer);
-
-            /* Illithids are very reticent to let their books go and thus they
-             * charge exorbitantly for them. However, they do want to acquire more
-             * books - therefore, the inverse rule which would normally have them
-             * make exorbitantly *low* offers for the player selling things
-             * shouldn't apply. They'll pay fair market value.
-             */
-            if (racial_illithid(shkp)) {
-                /* The racial modifiers for sell price are just the reciprocal of those
-                 * for the buy price. So we just reverse num and denom's meaning. */
-                multiplier *= denom;
-                divisor *= numer;
-            }
         }
     }
 

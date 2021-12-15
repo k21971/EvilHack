@@ -2027,4 +2027,6 @@ The following changes to date are:
 - Fix: scroll of magic detection price so it's not unique
 - Fix: monster interaction
 - Formatting clean-up in muse.c
+- Fix: non-illithid players selling spellbooks/scrolls to illithid
+  shopkeepers for 10x the fair market price
 
