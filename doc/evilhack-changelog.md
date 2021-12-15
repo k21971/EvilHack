@@ -2029,4 +2029,6 @@ The following changes to date are:
 - Formatting clean-up in muse.c
 - Fix: non-illithid players selling spellbooks/scrolls to illithid
   shopkeepers for 10x the fair market price
+- Fix: incorrect monster display on gravestone when killed via
+  suffocation while engulfed and hallucinating
 
