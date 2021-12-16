@@ -2031,4 +2031,6 @@ The following changes to date are:
   shopkeepers for 10x the fair market price
 - Fix: incorrect monster display on gravestone when killed via
   suffocation while engulfed and hallucinating
+- Fix: Dragonbane passive damage to dragons not working if wearing dragon
+  scales or scale mail
 
