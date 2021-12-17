@@ -2033,4 +2033,5 @@ The following changes to date are:
   suffocation while engulfed and hallucinating
 - Fix: Dragonbane passive damage to dragons not working if wearing dragon
   scales or scale mail
+- Fix: gloves and hated container material
 
