@@ -89,6 +89,16 @@ octahedron
 dungeon core
 quale
 holloway
+manotaur
+
+# Ice Branch
+-Kate the Nice Queen
+=Abdominal Snowman
++Carl the Escalator
+scimitar-tailed tiger
+pigasus
+=Bonbon
+=Oozy
 
 # Quendor (Zork, &c.)
 grue
