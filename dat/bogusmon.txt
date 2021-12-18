@@ -105,6 +105,15 @@ scimitar-tailed tiger
 =Bonbon
 =Oozy
 
+# Vecna Branch
+Nose of Vecna
+Toe of Vecna
+Cheek of Vecna
+incredibly old lich
+decrepit lich
+minilich
+mystery vanpire
+
 # Quendor (Zork, &c.)
 grue
 Christmas-tree monster
