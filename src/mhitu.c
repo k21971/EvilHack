@@ -2848,14 +2848,6 @@ boolean ufound;
         if (!DEADMONSTER(mtmp)) {
             kill_agr = FALSE; /* lifesaving? */
         }
-        if (mattk->adtyp == AD_ACID) {
-            if (rn2(u.twoweap ? 2 : 3))
-                acid_damage(uwep);
-            if (u.twoweap && rn2(2))
-                acid_damage(uswapwep);
-            if (rn2(4))
-                erode_armor(&youmonst, ERODE_CORRODE);
-        }
         break;
     case AD_BLND:
         not_affected = resists_blnd(&youmonst);

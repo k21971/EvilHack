@@ -532,6 +532,14 @@ int expltype;
             damu = Maybe_Half_Phys(damu);
         if (adtyp == AD_FIRE)
             (void) burnarmor(&youmonst);
+        if (adtyp == AD_ACID) {
+            if (rn2(u.twoweap ? 2 : 3))
+                acid_damage(uwep);
+            if (u.twoweap && rn2(2))
+                acid_damage(uswapwep);
+            if (rn2(4))
+                erode_armor(&youmonst, ERODE_CORRODE);
+        }
         destroy_item(SCROLL_CLASS, (int) adtyp);
         destroy_item(SPBOOK_CLASS, (int) adtyp);
         destroy_item(POTION_CLASS, (int) adtyp);
