@@ -89,14 +89,19 @@ octahedron
 dungeon core
 quale
 holloway
-manotaur
+
+# Particularly bad greek myths
+|manotaur
+dollartaur
+minitaur
+_mamataur
+monotaur
 
 # Ice Branch
 -Kate the Nice Queen
 =Abdominal Snowman
 +Carl the Escalator
 scimitar-tailed tiger
-pigasus
 =Bonbon
 =Oozy
 
