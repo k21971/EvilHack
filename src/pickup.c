@@ -1797,7 +1797,7 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
     }
     cobj->lknown = 1; /* floor container, so no need for update_inventory() */
 
-    if (Hate_material(cobj->material)) {
+    if (Hate_material(cobj->material) && !uarmg) {
         char kbuf[BUFSZ];
         pline("The %s lid %s!", materialnm[cobj->material],
               cobj->material == SILVER ? "sears your flesh" : "hurts to touch");

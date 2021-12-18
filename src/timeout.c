@@ -828,7 +828,9 @@ nh_timeout()
                 if (u.uswallow) {
                     killer.format = NO_KILLER_PREFIX;
                     Sprintf(killer.name, "suffocated by %s",
-                            an(l_monnam(u.ustuck)));
+                            x_monnam(u.ustuck, ARTICLE_A, (char *) 0,
+                                     (SUPPRESS_IT | SUPPRESS_HALLUCINATION),
+                                     FALSE));
                     done_timeout(DIED, STRANGLED);
                 } else {
                     killer.format = KILLED_BY;
