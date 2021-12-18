@@ -706,7 +706,7 @@ can_twoweapon()
              && ((is_lawful_artifact(uswapwep) && is_chaotic_artifact(uwep))
                  || (is_chaotic_artifact(uswapwep) && is_lawful_artifact(uwep))))
         pline("%s being held second to an opposite aligned weapon!",
-              Yobjnam2(uswapwep, "resist"));
+              Yobjnam2(uwep, "resist"));
     else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
         /* [Note: NOT_WEAPON() check prevents ever getting here...] */
         ; /* must be life-saved to reach here; return FALSE */
