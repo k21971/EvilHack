@@ -2027,4 +2027,12 @@ The following changes to date are:
 - Fix: scroll of magic detection price so it's not unique
 - Fix: monster interaction
 - Formatting clean-up in muse.c
+- Fix: non-illithid players selling spellbooks/scrolls to illithid
+  shopkeepers for 10x the fair market price
+- Fix: incorrect monster display on gravestone when killed via
+  suffocation while engulfed and hallucinating
+- Fix: Dragonbane passive damage to dragons not working if wearing dragon
+  scales or scale mail
+- Fix: gloves and hated container material
+- Fix: exploding acid spheres and damage
 
