@@ -2035,4 +2035,8 @@ The following changes to date are:
   scales or scale mail
 - Fix: gloves and hated container material
 - Fix: exploding acid spheres and damage
+- Additional bogusmons
+- Fix: Show proper artifact name when it resists being held second
+- Fix: unnecessary feedback when gaining an intrinsic from leveling up
+  and the player already has that intrinsic
 

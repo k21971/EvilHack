@@ -1062,13 +1062,17 @@ int oldlevel, newlevel;
                     *(abil->ability) |= (mask | FROMOUTSIDE);
                 else
                     *(abil->ability) |= mask;
-                if (!(*(abil->ability) & INTRINSIC & ~mask)) {
+                if (!(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL & ~mask)
+                    && (!(*(abil->ability) & HAVEPARTIAL & ~mask)
+                        || (*(abil->ability) & TIMEOUT) < 100)) {
                     if (*(abil->gainstr))
                         You_feel("%s!", abil->gainstr);
                 }
             } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
                 *(abil->ability) &= ~mask;
-                if (!(*(abil->ability) & INTRINSIC)) {
+                if (!(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL)
+                    && (!(*(abil->ability) & HAVEPARTIAL)
+                        || (*(abil->ability) & TIMEOUT) < 100)) {
                     if (*(abil->losestr))
                         You_feel("%s!", abil->losestr);
                     else if (*(abil->gainstr))
