@@ -387,7 +387,7 @@ struct monst *mtmp;
         m.has_defense = MUSE_POT_HEALING;
         return TRUE;
     }
-    if (mtmp->msick) {
+    if (mtmp->msick || mtmp->mdiseased) {
         if ((obj = m_carrying(mtmp, EUCALYPTUS_LEAF)) != 0) {
             m.defensive = obj;
             m.has_defense = MUSE_EUCALYPTUS_LEAF;
@@ -430,7 +430,8 @@ struct monst *mtmp;
      * is_unicorn() doesn't include it; the class differs and it has
      * no interest in gems.
     */
-    if (mtmp->mconf || mtmp->mstun || !mtmp->mcansee || mtmp->msick) {
+    if (mtmp->mconf || mtmp->mstun || !mtmp->mcansee
+        || mtmp->msick || mtmp->mdiseased) {
         obj = 0;
         if (!nohands(mtmp->data)) {
             for (obj = mtmp->minvent; obj; obj = obj->nobj)
@@ -446,28 +447,32 @@ struct monst *mtmp;
         }
     }
 
-    if (mtmp->msick) {
-        for (obj = mtmp->minvent; obj; obj = obj->nobj)
-            if (obj->otyp == POT_HEALING && !obj->cursed)
-                break;
-        if (obj && obj->otyp == POT_FULL_HEALING) {
-            m.defensive = obj;
-            m.has_defense = MUSE_POT_FULL_HEALING;
-            return TRUE;
-        } else if (obj && obj->otyp == POT_EXTRA_HEALING
-                   && !obj->cursed) {
-            m.defensive = obj;
-            m.has_defense = MUSE_POT_EXTRA_HEALING;
-            return TRUE;
-        } else if (obj && obj->otyp == POT_HEALING
-                   && obj->blessed) {
-            m.defensive = obj;
-            m.has_defense = MUSE_POT_HEALING;
-            return TRUE;
-        } else if (obj && obj->otyp == EUCALYPTUS_LEAF) {
-            m.defensive = obj;
-            m.has_defense = MUSE_EUCALYPTUS_LEAF;
-            return TRUE;
+    if (mtmp->msick || mtmp->mdiseased) {
+        for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+            if (!nohands(mtmp->data)) {
+                if (obj && obj->otyp == POT_HEALING && !obj->cursed)
+                    break;
+                if (obj && obj->otyp == POT_FULL_HEALING) {
+                    m.defensive = obj;
+                    m.has_defense = MUSE_POT_FULL_HEALING;
+                    return TRUE;
+                } else if (obj && obj->otyp == POT_EXTRA_HEALING
+                           && !obj->cursed) {
+                    m.defensive = obj;
+                    m.has_defense = MUSE_POT_EXTRA_HEALING;
+                    return TRUE;
+                } else if (obj && obj->otyp == POT_HEALING
+                           && obj->blessed) {
+                    m.defensive = obj;
+                    m.has_defense = MUSE_POT_HEALING;
+                    return TRUE;
+                }
+            }
+            if (obj && obj->otyp == EUCALYPTUS_LEAF) {
+                m.defensive = obj;
+                m.has_defense = MUSE_EUCALYPTUS_LEAF;
+                return TRUE;
+            }
         }
     }
 
@@ -728,21 +733,10 @@ struct monst *mtmp;
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_EXTRA_HEALING;
             }
-            nomore(MUSE_WAN_CREATE_MONSTER);
-            if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
-                m.defensive = obj;
-                m.has_defense = MUSE_WAN_CREATE_MONSTER;
-            }
             nomore(MUSE_POT_HEALING);
             if (obj->otyp == POT_HEALING) {
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_HEALING;
-            }
-            nomore(MUSE_EUCALYPTUS_LEAF);
-            if (obj->otyp == EUCALYPTUS_LEAF
-                && mtmp->msick) {
-                m.defensive = obj;
-                m.has_defense = MUSE_EUCALYPTUS_LEAF;
             }
         } else { /* Pestilence */
             nomore(MUSE_POT_FULL_HEALING);
@@ -750,11 +744,16 @@ struct monst *mtmp;
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_FULL_HEALING;
             }
-            nomore(MUSE_WAN_CREATE_MONSTER);
-            if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
-                m.defensive = obj;
-                m.has_defense = MUSE_WAN_CREATE_MONSTER;
-            }
+        }
+        nomore(MUSE_BAG_OF_TRICKS);
+        if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0) {
+            m.defensive = obj;
+            m.has_defense = MUSE_BAG_OF_TRICKS;
+        }
+        nomore(MUSE_WAN_CREATE_MONSTER);
+        if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
+            m.defensive = obj;
+            m.has_defense = MUSE_WAN_CREATE_MONSTER;
         }
         nomore(MUSE_SCR_CREATE_MONSTER);
         if (obj->otyp == SCR_CREATE_MONSTER) {
@@ -853,26 +852,10 @@ struct obj *start;
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_EXTRA_HEALING;
             }
-            nomore(MUSE_BAG_OF_TRICKS);
-            if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0) {
-                m.defensive = obj;
-                m.has_defense = MUSE_BAG_OF_TRICKS;
-            }
-            nomore(MUSE_WAN_CREATE_MONSTER);
-            if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
-                m.defensive = obj;
-                m.has_defense = MUSE_WAN_CREATE_MONSTER;
-            }
             nomore(MUSE_POT_HEALING);
             if (obj->otyp == POT_HEALING) {
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_HEALING;
-            }
-            nomore(MUSE_EUCALYPTUS_LEAF);
-            if (obj->otyp == EUCALYPTUS_LEAF
-                && mtmp->msick) {
-                m.defensive = obj;
-                m.has_defense = MUSE_EUCALYPTUS_LEAF;
             }
         } else { /* Pestilence */
             nomore(MUSE_POT_FULL_HEALING);
@@ -880,26 +863,32 @@ struct obj *start;
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_FULL_HEALING;
             }
-            nomore(MUSE_BAG_OF_TRICKS);
-            if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0) {
-                m.defensive = obj;
-                m.has_defense = MUSE_BAG_OF_TRICKS;
-            }
-            nomore(MUSE_WAN_CREATE_MONSTER);
-            if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
-                m.defensive = obj;
-                m.has_defense = MUSE_WAN_CREATE_MONSTER;
-            }
         }
-        nomore(MUSE_SCR_CREATE_MONSTER);
-        if (obj->otyp == SCR_CREATE_MONSTER) {
+        nomore(MUSE_EUCALYPTUS_LEAF);
+        if ((mtmp->msick || mtmp->mdiseased)
+            && obj->otyp == EUCALYPTUS_LEAF) {
             m.defensive = obj;
-            m.has_defense = MUSE_SCR_CREATE_MONSTER;
+            m.has_defense = MUSE_EUCALYPTUS_LEAF;
         }
         nomore(MUSE_POT_RESTORE_ABILITY);
         if (mtmp->mcan && obj->otyp == POT_RESTORE_ABILITY) {
             m.defensive = obj;
             m.has_defense = MUSE_POT_RESTORE_ABILITY;
+        }
+        nomore(MUSE_BAG_OF_TRICKS);
+        if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0) {
+            m.defensive = obj;
+            m.has_defense = MUSE_BAG_OF_TRICKS;
+        }
+        nomore(MUSE_WAN_CREATE_MONSTER);
+        if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
+            m.defensive = obj;
+            m.has_defense = MUSE_WAN_CREATE_MONSTER;
+        }
+        nomore(MUSE_SCR_CREATE_MONSTER);
+        if (obj->otyp == SCR_CREATE_MONSTER) {
+            m.defensive = obj;
+            m.has_defense = MUSE_SCR_CREATE_MONSTER;
         }
     }
     return(boolean) !!m.has_defense;
@@ -943,8 +932,8 @@ struct monst *mtmp;
         }
         if (!mtmp->mcansee) {
             mcureblindness(mtmp, vismon);
-        } else if (mtmp->msick) {
-            mtmp->msick = 0;
+        } else if (mtmp->msick || mtmp->mdiseased) {
+            mtmp->msick = mtmp->mdiseased = 0;
             if (vismon)
                 pline("%s is no longer ill.", Monnam(mtmp));
         } else if (mtmp->mconf || mtmp->mstun) {
@@ -1295,10 +1284,10 @@ struct monst *mtmp;
             mtmp->mhp = ++mtmp->mhpmax;
         if (!otmp->cursed && !mtmp->mcansee) {
             mcureblindness(mtmp, vismon);
-        } else if (otmp->blessed && mtmp->msick) {
+        } else if (otmp->blessed && (mtmp->msick || mtmp->mdiseased)) {
             if (vismon)
                 pline("%s is no longer ill.", Monnam(mtmp));
-            mtmp->msick = 0;
+            mtmp->msick = mtmp->mdiseased = 0;
         }
         if (vismon)
             pline("%s looks better.", Monnam(mtmp));
@@ -1314,10 +1303,10 @@ struct monst *mtmp;
             mtmp->mhp = (mtmp->mhpmax += (otmp->blessed ? 5 : 2));
         if (!mtmp->mcansee) {
             mcureblindness(mtmp, vismon);
-        } else if (!otmp->cursed && mtmp->msick) {
+        } else if (!otmp->cursed && (mtmp->msick || mtmp->mdiseased)) {
             if (vismon)
                 pline("%s is no longer ill.", Monnam(mtmp));
-            mtmp->msick = 0;
+            mtmp->msick = mtmp->mdiseased = 0;
         }
         if (vismon)
             pline("%s looks much better.", Monnam(mtmp));
@@ -1332,10 +1321,10 @@ struct monst *mtmp;
         mtmp->mhp = (mtmp->mhpmax += (otmp->blessed ? 8 : 4));
         if (!mtmp->mcansee && otmp->otyp != POT_SICKNESS) {
             mcureblindness(mtmp, vismon);
-        } else if (mtmp->msick) {
+        } else if (mtmp->msick || mtmp->mdiseased) {
             if (vismon)
                 pline("%s is no longer ill.", Monnam(mtmp));
-            mtmp->msick = 0;
+            mtmp->msick = mtmp->mdiseased = 0;
         }
         if (vismon)
             pline("%s looks completely healed.", Monnam(mtmp));

@@ -2703,6 +2703,7 @@ struct _create_particular_data {
     boolean randmonst;
     boolean maketame, makepeaceful, makehostile;
     boolean sleeping, saddled, invisible, hidden, barded;
+    boolean sick, diseased;
 };
 
 boolean
@@ -2721,6 +2722,7 @@ struct _create_particular_data *d;
     d->randmonst = FALSE;
     d->maketame = d->makepeaceful = d->makehostile = FALSE;
     d->sleeping = d->saddled = d->invisible = d->hidden = d->barded = FALSE;
+    d->sick = d->diseased = FALSE;
 
     if ((tmpp = strstri(bufp, "saddled ")) != 0) {
         d->saddled = TRUE;
@@ -2750,6 +2752,14 @@ struct _create_particular_data *d;
     if ((tmpp = strstri(bufp, "male ")) != 0) {
         d->fem = 0;
         (void) memset(tmpp, ' ', sizeof "male " - 1);
+    }
+    if ((tmpp = strstri(bufp, "sick ")) != 0) {
+        d->sick = TRUE;
+        (void) memset(tmpp, ' ', sizeof "sick " - 1);
+    }
+    if ((tmpp = strstri(bufp, "diseased ")) != 0) {
+        d->diseased = TRUE;
+        (void) memset(tmpp, ' ', sizeof "diseased " - 1);
     }
     bufp = mungspaces(bufp); /* after potential memset(' ') */
     /* allow the initial disposition to be specified */
@@ -2877,6 +2887,14 @@ struct _create_particular_data *d;
                 block_point(mx, my);
             else
                 unblock_point(mx, my);
+        }
+        if (d->sick && !resists_sick(mtmp->data)) {
+            mtmp->msick = 1;
+            mtmp->msicktime = rn1(9, 6);
+        }
+        if (d->diseased && !resists_sick(mtmp->data)) {
+            mtmp->mdiseased = 1;
+            mtmp->mdiseasetime = rn1(9, 6);
         }
         if (d->hidden
             && ((is_hider(mtmp->data) && mtmp->data->mlet != S_MIMIC)

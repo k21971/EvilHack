@@ -1662,10 +1662,10 @@ int how;
         switch (obj->otyp) {
         case POT_FULL_HEALING:
             cureblind = TRUE;
-            if (mon->msick) {
+            if (mon->msick || mon->mdiseased) {
                 if (canseemon(mon))
                     pline("%s is no longer ill.", Monnam(mon));
-                mon->msick = 0;
+                mon->msick = mon->mdiseased = 0;
             }
             if (mon->mwither) {
                 if (canseemon(mon))
@@ -1676,10 +1676,10 @@ int how;
         case POT_EXTRA_HEALING:
             if (!obj->cursed) {
                 cureblind = TRUE;
-                if (mon->msick) {
+                if (mon->msick || mon->mdiseased) {
                     if (canseemon(mon))
                         pline("%s is no longer ill.", Monnam(mon));
-                    mon->msick = 0;
+                    mon->msick = mon->mdiseased = 0;
                 }
                 if (mon->mwither) {
                     if (canseemon(mon))
@@ -1691,10 +1691,10 @@ int how;
         case POT_HEALING:
             if (obj->blessed) {
                 cureblind = TRUE;
-                if (mon->msick) {
+                if (mon->msick || mon->mdiseased) {
                     if (canseemon(mon))
                         pline("%s is no longer ill.", Monnam(mon));
-                    mon->msick = 0;
+                    mon->msick = mon->mdiseased = 0;
                 }
                 if (mon->mwither) {
                     if (canseemon(mon))

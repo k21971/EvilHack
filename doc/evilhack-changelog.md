@@ -2039,4 +2039,6 @@ The following changes to date are:
 - Fix: Show proper artifact name when it resists being held second
 - Fix: unnecessary feedback when gaining an intrinsic from leveling up
   and the player already has that intrinsic
+- Fix: monsters not curing themselves of sickness/disease as they should,
+  other adjustments to muse.c
 
