@@ -968,7 +968,6 @@ register struct obj *obj;
                       : (herbi || starving)
                          ? ACCFOOD
                          : MANFOOD;
-            return ACCFOOD;
         case TIN:
             return metallivorous(mptr) ? ACCFOOD : MANFOOD;
         case EUCALYPTUS_LEAF:

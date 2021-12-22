@@ -2042,4 +2042,5 @@ The following changes to date are:
 - Fix: monsters not curing themselves of sickness/disease as they should,
   other adjustments to muse.c
 - Some more formatting tweaks to muse.c, fix for reflection_skip 
+- Fix: unreachable return statement in dog.c
 
