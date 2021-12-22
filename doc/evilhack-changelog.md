@@ -2041,4 +2041,5 @@ The following changes to date are:
   and the player already has that intrinsic
 - Fix: monsters not curing themselves of sickness/disease as they should,
   other adjustments to muse.c
+- Some more formatting tweaks to muse.c, fix for reflection_skip 
 
