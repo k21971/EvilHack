@@ -1917,6 +1917,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 else if (u.uhpmax > 5 * u.ulevel)
                     permdmg += *dmgptr / 5;
 
+                /* cap maximum permdmg to 15 hit points per hit */
+                if (permdmg > 15)
+                    permdmg = 15;
+
                 if (Upolyd) {
                     hpmax_p = &u.mhmax;
                     /* [can't use youmonst.m_lev] */

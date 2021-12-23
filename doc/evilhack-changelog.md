@@ -2043,4 +2043,5 @@ The following changes to date are:
   other adjustments to muse.c
 - Some more formatting tweaks to muse.c, fix for reflection_skip 
 - Fix: unreachable return statement in dog.c
+- Another adjustment to max hit points the Wand of Orcus can decrease per hit
 
