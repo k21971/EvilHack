@@ -112,7 +112,7 @@ Cheek of Vecna
 incredibly old lich
 decrepit lich
 minilich
-mystery vanpire
+mystery van-pire
 
 # Quendor (Zork, &c.)
 grue
