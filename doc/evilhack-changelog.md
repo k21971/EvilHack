@@ -2035,4 +2035,13 @@ The following changes to date are:
   scales or scale mail
 - Fix: gloves and hated container material
 - Fix: exploding acid spheres and damage
+- Additional bogusmons
+- Fix: Show proper artifact name when it resists being held second
+- Fix: unnecessary feedback when gaining an intrinsic from leveling up
+  and the player already has that intrinsic
+- Fix: monsters not curing themselves of sickness/disease as they should,
+  other adjustments to muse.c
+- Some more formatting tweaks to muse.c, fix for reflection_skip 
+- Fix: unreachable return statement in dog.c
+- Another adjustment to max hit points the Wand of Orcus can decrease per hit
 
