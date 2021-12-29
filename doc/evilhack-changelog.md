@@ -2045,4 +2045,5 @@ The following changes to date are:
 - Fix: unreachable return statement in dog.c
 - Another adjustment to max hit points the Wand of Orcus can decrease per hit
 - Convict's starting ball/chain is fully identified across the board
+- Accurate tracking of how many doors seal after touching sokoban prize
 

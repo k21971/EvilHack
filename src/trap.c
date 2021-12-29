@@ -5957,8 +5957,7 @@ int bodypart;
         dmg = rnd(5 + (lvl < 5 ? lvl : 2 + lvl / 2));
 
     if (!tin && In_sokoban(&u.uz)) {
-        pline("As the door gives way, you %s the other doors sealing.",
-              Deaf ? "sense" : "hear");
+        int door_count = 0;
         for (; ty < ROWNO; ty++) {
             for (tx = 0; tx < COLNO; tx++) {
                 lev = &levl[tx][ty];
@@ -5968,11 +5967,15 @@ int bodypart;
                     lev->typ = VWALL;
                     lev->doormask = D_NODOOR;
                     lev->wall_info |= (W_NONDIGGABLE | W_NONPASSWALL);
+                    door_count++;
                     if (cansee(tx, ty))
                         newsym(tx, ty);
                 }
             }
         }
+        if (door_count)
+            pline("As the door gives way, you %s the other door%s sealing.",
+                  Deaf ? "sense" : "hear", door_count > 1 ? "s" : "");
         return;
     }
 
