@@ -565,9 +565,10 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
         }
     }
     /* dragging ball or chain through water */
-    if (is_damp_terrain(ballx, bally))
+    if ((control & BC_BALL) && !carried(uball)
+        && is_damp_terrain(ballx, bally))
         water_damage(uball, (char *) 0, FALSE, ballx, bally);
-    if (is_damp_terrain(chainx, chainy))
+    if ((control & BC_CHAIN) && is_damp_terrain(chainx, chainy))
         water_damage(uchain, (char *) 0, FALSE, chainx, chainy);
 }
 
