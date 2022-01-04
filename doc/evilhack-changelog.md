@@ -2052,4 +2052,5 @@ The following changes to date are:
 - Fix: potential dmonsfree error (monster vs monster and sear damage)
 - Fix: two riding issues
 - Fix: edit stock sys/unix/hints/linux file for installation use
+- Fix: github workflow error (windows build)
 

@@ -62,11 +62,12 @@ jobs:
         cp ./sys/winnt/Makefile.msc ./Makefile
         cd src
         nmake install
-    - uses: papeloto/action-zip@v1
+    - uses: thedoctor0/zip-release@master
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: binary/
-        dest: evilhack-0.7.1.zip
+        type: 'zip'
+        path: binary/
+        filename: evilhack-0.7.1.zip
     - name: release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
