@@ -2049,4 +2049,5 @@ The following changes to date are:
 - Fix: heavy iron ball rusting while being held when walking through
   shallow water
 - Pseudodragon tweak
+- Fix: potential dmonsfree error (monster vs monster and sear damage)
 
