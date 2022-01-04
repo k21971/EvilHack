@@ -2048,4 +2048,5 @@ The following changes to date are:
 - Accurate tracking of how many doors seal after touching sokoban prize
 - Fix: heavy iron ball rusting while being held when walking through
   shallow water
+- Pseudodragon tweak
 

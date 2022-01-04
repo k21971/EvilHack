@@ -1533,6 +1533,7 @@ NEARDATA struct permonst mons[] = {
      * for wizards, the pseudodragon was a more than suitable companion for their
      * spellcasting masters. Not much larger than your typical household
      * cat, but much more cunning and intelligent.
+     * Not exactly dragons, but dragon-like.
      */
     MON("pseudodragon", S_DRAGON, LVL(2, 18, 4, 20, 0), G_NOGEN,
         A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_STNG, AD_DRST, 1, 2),
@@ -1540,14 +1541,14 @@ NEARDATA struct permonst mons[] = {
         SIZ(150, 150, MS_HISS, MZ_SMALL), MR_POISON, 0,
         M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_CARNIVORE,
         M2_DOMESTIC, M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION, 0,
-        MH_DRAGON, 4, CLR_BROWN),
+        0, 4, CLR_BROWN),
     MON("elder pseudodragon", S_DRAGON, LVL(4, 18, 2, 40, 0), G_NOGEN,
         A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_STNG, AD_DRST, 1, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(300, 200, MS_HISS, MZ_SMALL), MR_POISON, 0,
         M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_CARNIVORE,
         M2_DOMESTIC, M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION, 0,
-        MH_DRAGON, 6, CLR_BROWN),
+        0, 6, CLR_BROWN),
     MON("ancient pseudodragon", S_DRAGON, LVL(6, 20, 0, 60, 0), G_NOGEN,
         A(ATTK(AT_BITE, AD_SLEE, 1, 10), ATTK(AT_STNG, AD_DRST, 1, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -1555,7 +1556,7 @@ NEARDATA struct permonst mons[] = {
         M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_CARNIVORE,
         M2_DOMESTIC | M2_STRONG,
         M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION, 0,
-        MH_DRAGON, 8, CLR_BROWN),
+        0, 8, CLR_BROWN),
     /* From J.R.R. Tolkien, the nine Nazgul had steeds known as 'fell beasts'
      * which they rode/flew into battle. Fearsome in their own right.
      * Not exactly dragons, but dragon-like.
