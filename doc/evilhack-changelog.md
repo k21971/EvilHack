@@ -2051,4 +2051,5 @@ The following changes to date are:
 - Pseudodragon tweak
 - Fix: potential dmonsfree error (monster vs monster and sear damage)
 - Fix: two riding issues
+- Fix: edit stock sys/unix/hints/linux file for installation use
 
