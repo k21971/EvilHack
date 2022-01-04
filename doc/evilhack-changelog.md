@@ -2050,4 +2050,5 @@ The following changes to date are:
   shallow water
 - Pseudodragon tweak
 - Fix: potential dmonsfree error (monster vs monster and sear damage)
+- Fix: two riding issues
 

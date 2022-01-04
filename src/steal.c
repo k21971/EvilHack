@@ -702,7 +702,7 @@ struct obj *obj;
 boolean verbosely;
 {
     int omx = mon->mx, omy = mon->my;
-    boolean unwornmask = obj->owornmask;
+    long unwornmask = obj->owornmask;
 
     extract_from_minvent(mon, obj, FALSE, TRUE);
     /* don't charge for an owned saddle on dead steed (provided
