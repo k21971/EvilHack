@@ -2054,4 +2054,5 @@ The following changes to date are:
 - Fix: edit stock sys/unix/hints/linux file for installation use
 - Fix: github workflow error (windows build)
 - Fix: weird door artifacts in walls with certain vault special rooms
+- Fix: towel wetness
 
