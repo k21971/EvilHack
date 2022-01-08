@@ -2055,4 +2055,5 @@ The following changes to date are:
 - Fix: github workflow error (windows build)
 - Fix: weird door artifacts in walls with certain vault special rooms
 - Fix: towel wetness
+- Fix: differing price with stacked object removed from the stack (shop)
 
