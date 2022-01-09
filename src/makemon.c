@@ -3844,8 +3844,10 @@ int *seencount;  /* secondary output */
         /* if tipping known empty bag, give normal empty container message */
         pline1((tipping && bag->cknown) ? "It's empty." : nothing_happens);
         /* now known to be empty if sufficiently discovered */
-        if (bag->dknown && objects[bag->otyp].oc_name_known)
+        if (bag->dknown && objects[bag->otyp].oc_name_known) {
             bag->cknown = 1;
+            update_inventory(); /* for perm_invent */
+        }
     } else {
         struct monst *mtmp;
         int creatcnt = 1, seecount = 0;
@@ -3865,8 +3867,10 @@ int *seencount;  /* secondary output */
         if (seecount) {
             if (seencount)
                 *seencount += seecount;
-            if (bag->dknown)
+            if (bag->dknown) {
                 makeknown(BAG_OF_TRICKS);
+                update_inventory(); /* for perm_invent */
+            }
         } else if (!tipping) {
             pline1(!moncount ? nothing_happens : "Nothing seems to happen.");
         }

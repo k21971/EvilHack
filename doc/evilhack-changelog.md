@@ -2059,4 +2059,5 @@ The following changes to date are:
 - Return polearm skill for Priests
 - Apply a wielded polearm with fire-command
 - Fix: 'You feel guilty' feedback when alignment wasn't abused
+- Fix: perm_invent update when applying a bag of tricks
 
