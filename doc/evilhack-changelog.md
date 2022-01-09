@@ -2057,4 +2057,5 @@ The following changes to date are:
 - Fix: towel wetness
 - Fix: differing price with stacked object removed from the stack (shop)
 - Return polearm skill for Priests
+- Apply a wielded polearm with fire-command
 

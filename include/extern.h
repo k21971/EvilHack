@@ -54,6 +54,7 @@ E void FDECL(use_unicorn_horn, (struct obj *));
 E void FDECL(use_figurine, (struct obj **));
 E boolean FDECL(tinnable, (struct obj *));
 E void NDECL(reset_trapset);
+E int FDECL(use_pole, (struct obj *, BOOLEAN_P));
 E void FDECL(fig_transform, (ANY_P *, long));
 E int FDECL(unfixable_trouble_count, (BOOLEAN_P));
 

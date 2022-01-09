@@ -31,7 +31,6 @@ STATIC_PTR int NDECL(set_trap); /* occupation callback */
 STATIC_DCL int FDECL(use_whip, (struct obj *));
 STATIC_DCL int FDECL(use_axe, (struct obj *));
 STATIC_PTR void FDECL(display_polearm_positions, (int));
-STATIC_DCL int FDECL(use_pole, (struct obj *));
 STATIC_DCL int FDECL(use_cream_pie, (struct obj *));
 STATIC_DCL int FDECL(use_grapple, (struct obj *));
 STATIC_DCL int FDECL(do_break_wand, (struct obj *));
@@ -3536,9 +3535,10 @@ int state;
 }
 
 /* Distance attacks by pole-weapons */
-STATIC_OVL int
-use_pole(obj)
+int
+use_pole(obj, autohit)
 struct obj *obj;
+boolean autohit;
 {
     int res = 0, typ, max_range, min_range, glyph;
     coord cc;
@@ -3586,7 +3586,8 @@ struct obj *obj;
     polearm_range_max = max_range;
 
     /* Prompt for a location */
-    pline(where_to_hit);
+    if (!autohit)
+        pline(where_to_hit);
     cc.x = u.ux;
     cc.y = u.uy;
     if (!find_poleable_mon(&cc, min_range, max_range) && hitm
@@ -3596,16 +3597,21 @@ struct obj *obj;
         cc.x = hitm->mx;
         cc.y = hitm->my;
     }
-    getpos_sethilite(display_polearm_positions, get_valid_polearm_position);
-    if (getpos(&cc, TRUE, "the spot to hit") < 0)
-        return res; /* ESC; uses turn iff polearm became wielded */
+    if (!autohit) {
+        getpos_sethilite(display_polearm_positions, get_valid_polearm_position);
+        if (getpos(&cc, TRUE, "the spot to hit") < 0)
+            return res; /* ESC; uses turn iff polearm became wielded */
+    }
 
     glyph = glyph_at(cc.x, cc.y);
     if (distu(cc.x, cc.y) > max_range) {
         pline("Too far!");
         return res;
     } else if (distu(cc.x, cc.y) < min_range) {
-        pline("Too close!");
+        if (autohit && cc.x == u.ux && cc.y == u.uy)
+            You("don't know what to hit.");
+        else
+            pline("Too close!");
         return res;
     } else if (!cansee(cc.x, cc.y) && !glyph_is_monster(glyph)
                && !glyph_is_invisible(glyph) && !glyph_is_statue(glyph)) {
@@ -4339,7 +4345,7 @@ doapply()
     default:
         /* Pole-weapons can strike at a distance */
         if (is_pole(obj)) {
-            res = use_pole(obj);
+            res = use_pole(obj, FALSE);
             break;
         } else if (is_pick(obj) || is_axe(obj)) {
             res = use_pick_axe(obj);

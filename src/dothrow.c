@@ -381,7 +381,7 @@ autoquiver()
     return;
 }
 
-/* f command -- fire: throw from the quiver */
+/* f command -- fire: throw from the quiver or use wielded polearm */
 int
 dofire()
 {
@@ -410,7 +410,11 @@ dofire()
 
     if ((obj = uquiver) == 0) {
         if (!flags.autoquiver) {
-            You("have no ammunition readied.");
+            /* if we're wielding a polearm, apply it */
+            if (uwep && is_pole(uwep))
+                return use_pole(uwep, TRUE);
+            else
+                You("have no ammunition readied.");
         } else {
             autoquiver();
             if ((obj = uquiver) == 0)
