@@ -2485,7 +2485,8 @@ int how;
                 break;
             }
             if (is_human(ptr) && u.ualign.type != A_NONE) {
-                You_feel("guilty.");
+                if (u.ualign.type == A_LAWFUL)
+                    You_feel("guilty.");
                 adjalign(-sgn(u.ualign.type));
             }
             if (is_demon(ptr))

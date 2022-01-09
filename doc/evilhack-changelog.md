@@ -2058,4 +2058,5 @@ The following changes to date are:
 - Fix: differing price with stacked object removed from the stack (shop)
 - Return polearm skill for Priests
 - Apply a wielded polearm with fire-command
+- Fix: 'You feel guilty' feedback when alignment wasn't abused
 
