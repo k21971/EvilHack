@@ -471,6 +471,7 @@ static const struct def_skill Skill_P[] = {
     { P_HAMMER, P_EXPERT },
     { P_FLAIL, P_EXPERT },
     { P_QUARTERSTAFF, P_EXPERT },
+    { P_POLEARMS, P_SKILLED },
     { P_SLING, P_BASIC },
     { P_BOOMERANG, P_BASIC },
     { P_HEALING_SPELL, P_EXPERT },

@@ -2056,4 +2056,5 @@ The following changes to date are:
 - Fix: weird door artifacts in walls with certain vault special rooms
 - Fix: towel wetness
 - Fix: differing price with stacked object removed from the stack (shop)
+- Return polearm skill for Priests
 
