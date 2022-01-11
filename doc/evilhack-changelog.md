@@ -2063,4 +2063,6 @@ The following changes to date are:
 - Fix: offhand bloodthirsty attacks (wielding Stormbringer and/or the
   Sword of Kas)
 - Fix: some perm_invent curses mode issues
+- Adjust alignment record penalty for Convict's killing 'always peaceful'
+  monsters that became hostile just from seeing the Convict
 

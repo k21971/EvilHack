@@ -3617,10 +3617,17 @@ struct monst *mtmp;
     } else if (always_peaceful(mdat)) {
         int absmal = abs(mal);
         if (mtmp->mpeaceful) {
-            if (u.ualign.type == A_NONE)
+            if (u.ualign.type == A_NONE) {
                 mtmp->malign += 1; /* Moloch's will */
-            else
+            } else if (Role_if(PM_CONVICT)) {
+                /* Several 'always peaceful' types become hostile
+                   once they see a Convict. Still an alignment
+                   hit, but not nearly as bad as it is for other
+                   roles */
+                mtmp->malign = -1 * max(1, absmal);
+            } else {
                 mtmp->malign = -3 * max(5, absmal);
+            }
         } else
             mtmp->malign = 3 * max(5, absmal); /* renegade */
     } else if (always_hostile(mdat)) {
