@@ -2066,4 +2066,5 @@ The following changes to date are:
 - Adjust alignment record penalty for Convict's killing 'always peaceful'
   monsters that became hostile just from seeing the Convict
 - Format cleanup in zap.c
+- Bit more formatting cleanup in zap.c
 

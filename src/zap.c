@@ -3105,6 +3105,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
             else if (mdef->mcan)
                 pline("%s appears to already be diminished.", Monnam(mdef));
         }
+
         for (otmp = (youdefend ? invent : mdef->minvent);
              otmp; otmp = otmp->nobj) {
             /* gold isn't subject to being cursed or blessed */
@@ -3112,33 +3113,34 @@ boolean youattack, allow_cancel_kill, self_cancel;
                 continue;
             nobj++;
         }
-    if (nobj) {
-        for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
-             cnt > 0; cnt--) {
-            onum = rnd(nobj);
-            for (otmp = (youdefend ? invent : mdef->minvent);
-                 otmp; otmp = otmp->nobj) {
-                /* as above */
-                if (otmp->oclass == COIN_CLASS)
-                    continue;
-                if (--onum == 0)
-                    break; /* found the target */
-            }
-            if (!otmp)
-                continue; /* next target */
 
-            if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL)
-                && rn2(10) < 8) {
-                pline("%s!", Tobjnam(otmp, "resist"));
-                continue;
+        if (nobj) {
+            for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
+                 cnt > 0; cnt--) {
+                onum = rnd(nobj);
+                for (otmp = (youdefend ? invent : mdef->minvent);
+                     otmp; otmp = otmp->nobj) {
+                    /* as above */
+                    if (otmp->oclass == COIN_CLASS)
+                        continue;
+                    if (--onum == 0)
+                        break; /* found the target */
+                }
+                if (!otmp)
+                    continue; /* next target */
+
+                if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL)
+                    && rn2(10) < 8) {
+                    pline("%s!", Tobjnam(otmp, "resist"));
+                    continue;
+                }
+                cancel_item(otmp);
             }
-            cancel_item(otmp);
-        }
-        if (youdefend) {
-            context.botl = 1; /* potential AC change */
-            find_ac();
-        }
-        update_inventory();
+            if (youdefend) {
+                context.botl = 1; /* potential AC change */
+                find_ac();
+            }
+            update_inventory();
         }
     }
 
