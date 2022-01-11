@@ -3069,8 +3069,9 @@ boolean youattack, allow_cancel_kill, self_cancel;
     int nobj = 0, onum = 0, cnt = 0;
     struct obj *otmp;
 
-    boolean resisted = (youdefend && Antimagic) ||
-	(!youdefend && resist(mdef, obj ? obj->oclass : 0, 0, NOTELL));
+    boolean resisted = (youdefend && Antimagic)
+                        || (!youdefend
+                            && resist(mdef, obj ? obj->oclass : 0, 0, NOTELL));
 
     if (obj && obj->otyp == WAN_CANCELLATION) {
         makeknown(obj->otyp);
@@ -3078,7 +3079,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
     if (self_cancel) { /* 1st cancel inventory */
         for (otmp = (youdefend ? invent : mdef->minvent); otmp;
-            otmp = otmp->nobj)
+             otmp = otmp->nobj)
             cancel_item(otmp);
         if (youdefend) {
             You_feel("magical energies being absorbed from your exact location.");
@@ -3092,56 +3093,57 @@ boolean youattack, allow_cancel_kill, self_cancel;
             else if (mdef->mcan)
                 pline("%s appears to already be diminished.", Monnam(mdef));
         }
-	if (youdefend)
+        if (youdefend)
             You_feel("magical energies being absorbed from your vicinity.");
-	if (youdefend && Antimagic) {
+        if (youdefend && Antimagic) {
             shieldeff(u.ux, u.uy);
-	} else if (!youdefend && resisted) {
-	    shieldeff(mdef->mx, mdef->my);
-	} else if (!youdefend && !youattack) {
+        } else if (!youdefend && resisted) {
+            shieldeff(mdef->mx, mdef->my);
+        } else if (!youdefend && !youattack) {
             if (!mdef->mcan)
                 pline("Magical energies are absorbed from %s.", mon_nam(mdef));
             else if (mdef->mcan)
                 pline("%s appears to already be diminished.", Monnam(mdef));
         }
-	for (otmp = (youdefend ? invent : mdef->minvent);
-	    otmp; otmp = otmp->nobj) {
-	    /* gold isn't subject to being cursed or blessed */
-	    if (otmp->oclass == COIN_CLASS)
+        for (otmp = (youdefend ? invent : mdef->minvent);
+             otmp; otmp = otmp->nobj) {
+            /* gold isn't subject to being cursed or blessed */
+            if (otmp->oclass == COIN_CLASS)
                 continue;
-	    nobj++;
+            nobj++;
         }
     if (nobj) {
         for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
-            cnt > 0; cnt--) {
+             cnt > 0; cnt--) {
             onum = rnd(nobj);
-	    for (otmp = (youdefend ? invent : mdef->minvent);
-	        otmp; otmp = otmp->nobj) {
-		/* as above */
-		if (otmp->oclass == COIN_CLASS)
+            for (otmp = (youdefend ? invent : mdef->minvent);
+                 otmp; otmp = otmp->nobj) {
+                /* as above */
+                if (otmp->oclass == COIN_CLASS)
                     continue;
-		if (--onum == 0)
-                    break;	/* found the target */
-	    }
-	    if (!otmp)
-                continue;	/* next target */
+                if (--onum == 0)
+                    break; /* found the target */
+            }
+            if (!otmp)
+                continue; /* next target */
 
-	    if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL)
-	        && rn2(10) < 8) {
-		pline("%s!", Tobjnam(otmp, "resist"));
-		continue;
-	    }
-	    cancel_item(otmp);
-    	}
-        if (youdefend) {
-	    context.botl = 1;	/* potential AC change */
-	    find_ac();
+            if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL)
+                && rn2(10) < 8) {
+                pline("%s!", Tobjnam(otmp, "resist"));
+                continue;
+            }
+            cancel_item(otmp);
         }
-	update_inventory();
+        if (youdefend) {
+            context.botl = 1; /* potential AC change */
+            find_ac();
+        }
+        update_inventory();
         }
     }
 
-    if (resisted) return FALSE;
+    if (resisted)
+        return FALSE;
 
     /* now handle special cases */
     if (youdefend) {
@@ -4319,10 +4321,10 @@ xchar sx, sy;
                 You("are not disintegrated.");
                 monstseesu(M_SEEN_DISINT);
                 break;
-	    } else if (Reflecting) {
-		You("aren't disintegrated, but that hurts!");
-		dam = resist_reduce(d(6, 6), DISINT_RES);
-		break;
+            } else if (Reflecting) {
+                You("aren't disintegrated, but that hurts!");
+                dam = resist_reduce(d(6, 6), DISINT_RES);
+                break;
             } else if (!Reflecting && (how_resistant(DISINT_RES) >= 50)) {
                 You("aren't disintegrated, but that really hurts!");
                 dam = resist_reduce(d(12, 6), DISINT_RES);
@@ -4371,9 +4373,9 @@ xchar sx, sy;
                 You("feel drained...");
                 u.uhpmax -= dam / 3 + rn2(5);
             }
-	    break;
-	} else if (Reflecting && !Antimagic) {
-	    dam = d(4, 6);
+            break;
+        } else if (Reflecting && !Antimagic) {
+            dam = d(4, 6);
             if (Reflecting && Half_spell_damage) {
                 shieldeff(sx, sy);
                 monstseesu(M_SEEN_MAGR);
@@ -4381,8 +4383,8 @@ xchar sx, sy;
             }
             You("feel drained...");
             u.uhpmax -= dam / 3 + rn2(5);
-	    break;
-	}
+            break;
+        }
         killer.format = KILLED_BY_AN;
         Strcpy(killer.name, fltxt ? fltxt : "");
         /* when killed by disintegration breath, don't leave corpse */
@@ -5291,8 +5293,8 @@ boolean moncast;
         const char *see_txt = 0, *sense_txt = 0, *hear_txt = 0;
 
         rangemod = -1000;
-	if ((lev->doormask & D_TRAPPED) && In_sokoban(&u.uz))
-	    goto def_case;
+        if ((lev->doormask & D_TRAPPED) && In_sokoban(&u.uz))
+            goto def_case;
         switch (abstype) {
         case ZT_FIRE:
             new_doormask = D_NODOOR;
@@ -6171,7 +6173,7 @@ unsigned long udid;
     struct monst* mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-	if (!DEADMONSTER(mtmp) && m_canseeu(mtmp))
+        if (!DEADMONSTER(mtmp) && m_canseeu(mtmp))
             m_setseen(mtmp, udid);
     }
 }
