@@ -2067,4 +2067,5 @@ The following changes to date are:
   monsters that became hostile just from seeing the Convict
 - Format cleanup in zap.c
 - Bit more formatting cleanup in zap.c
+- Blessed objects in inventory have a chance to resist being cancelled
 

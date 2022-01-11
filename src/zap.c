@@ -3134,6 +3134,10 @@ boolean youattack, allow_cancel_kill, self_cancel;
                     pline("%s!", Tobjnam(otmp, "resist"));
                     continue;
                 }
+                if (otmp->blessed && !rn2(5)) {
+                    Your("%s!", aobjnam(otmp, "resist"));
+                    continue;
+                }
                 cancel_item(otmp);
             }
             if (youdefend) {
