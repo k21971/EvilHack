@@ -2060,4 +2060,6 @@ The following changes to date are:
 - Apply a wielded polearm with fire-command
 - Fix: 'You feel guilty' feedback when alignment wasn't abused
 - Fix: perm_invent update when applying a bag of tricks
+- Fix: offhand bloodthirsty attacks (wielding Stormbringer and/or the
+  Sword of Kas)
 

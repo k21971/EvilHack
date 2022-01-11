@@ -676,7 +676,7 @@ hitum(mon, uattk)
 struct monst *mon;
 struct attack *uattk;
 {
-    boolean malive, wep_was_destroyed = FALSE;
+    boolean malive = TRUE, wep_was_destroyed = FALSE;
     struct obj *wepbefore = uwep;
     struct obj *wearshield = uarms;
     struct obj *weararmor = uarm;
@@ -726,17 +726,25 @@ struct attack *uattk;
 
     if (tmp > dieroll)
         exercise(A_DEX, TRUE);
-    /* bhitpos is set up by caller */
-    malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk, dieroll);
-    if (wepbefore && !uwep)
-        wep_was_destroyed = TRUE;
-    (void) passive(mon, uwep, mhit, malive, AT_WEAP, wep_was_destroyed);
+
+    /* if twoweaponing with stormbringer/sword of kas, don't force both
+     * attacks -- only from the actual 'bloodthirsty' weapon(s) */
+#define forced_attack(w) ((w) && ((w)->oartifact == ART_STORMBRINGER \
+                                  || (w)->oartifact == ART_SWORD_OF_KAS))
+    if (!override_confirmation || forced_attack(uwep)) {
+        /* bhitpos is set up by caller */
+        malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk,
+                             dieroll);
+        if (wepbefore && !uwep)
+            wep_was_destroyed = TRUE;
+        (void) passive(mon, uwep, mhit, malive, AT_WEAP, wep_was_destroyed);
+    }
 
     /* second attack for two-weapon combat; won't occur if Stormbringer
-       or the Sword of Kas overrode confirmation (assumes both are primary
-       weapon or offhand weapon) or if the monster was killed or knocked to
-       different location */
-    if (u.twoweap && malive && m_at(x, y) == mon) {
+       or the Sword of Kas overrode confirmation while held in main hand, or
+       if the monster was killed or knocked to different location */
+    if (u.twoweap && (!override_confirmation || forced_attack(uswapwep))
+        && malive && m_at(x, y) == mon) {
         tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
                                &armorpenalty);
         dieroll = rnd(20);
@@ -747,6 +755,7 @@ struct attack *uattk;
         if (mhit)
             (void) passive(mon, uswapwep, mhit, malive, AT_WEAP, !uswapwep);
     }
+#undef forced_attack
 
     /* second attack for a Monk who has reached Grand Master skill
        in martial arts */
