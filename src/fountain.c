@@ -458,15 +458,21 @@ drinkfountain()
         case 23: /* Water demon */
             dowaterdemon();
             break;
-        case 24: /* Curse an item */ {
+        case 24: { /* Maybe curse some items */
             register struct obj *obj;
+            int buc_changed = 0;
 
             pline("This water's no good!");
             morehungry(rn1(20, 11));
             exercise(A_CON, FALSE);
+            /* this is more severe than rndcurse() */
             for (obj = invent; obj; obj = obj->nobj)
-                if (!rn2(5))
+                if (obj->oclass != COIN_CLASS && !obj->cursed && !rn2(5)) {
                     curse(obj);
+                    ++buc_changed;
+                }
+            if (buc_changed)
+                update_inventory();
             break;
         }
         case 25: /* See invisible */
@@ -612,7 +618,9 @@ dip_end:
 
     switch (rnd(30)) {
     case 16: /* Curse the item */
-        curse(obj);
+        if (obj->oclass != COIN_CLASS && !obj->cursed) {
+            curse(obj);
+        }
         break;
     case 17:
     case 18:

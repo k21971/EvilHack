@@ -570,6 +570,14 @@ Helmet_on(VOID_ARGS)
                 pline("%s %s for a moment.", Tobjnam(uarmh, "glow"),
                       hcolor(NH_BLACK));
             curse(uarmh);
+            /* curse() doesn't touch bknown so doesn't update persistent
+               inventory; do so now [set_bknown() calls update_inventory()] */
+            if (Blind)
+                set_bknown(uarmh, 0); /* lose bknown if previously set */
+            else if (Role_if(PM_PRIEST))
+                set_bknown(uarmh, 1); /* (bknown should already be set) */
+            else if (uarmh->bknown)
+                update_inventory(); /* keep bknown as-is; display the curse */
         }
         context.botl = 1; /* reveal new alignment or INT & WIS */
         if (Hallucination) {

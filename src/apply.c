@@ -748,6 +748,7 @@ struct obj *obj;
             mtmp->mleashed = 1;
             obj->leashmon = (int) mtmp->m_id;
             mtmp->msleeping = 0;
+            update_inventory();
         }
     } else {
         /* applying a leash which is currently in use */
@@ -759,6 +760,7 @@ struct obj *obj;
         } else {
             mtmp->mleashed = 0;
             obj->leashmon = 0;
+            update_inventory();
             You("remove the leash from %s.",
                 spotmon ? y_monnam(mtmp) : l_monnam(mtmp));
         }

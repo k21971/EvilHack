@@ -5226,8 +5226,15 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     if (is_racialmon(mdat))
         apply_race(mtmp, m_randrace(mtmp->mnum));
 
-    if (mtmp->mleashed && !leashable(mtmp))
-        m_unleash(mtmp, TRUE);
+    if (mtmp->mleashed) {
+        if (!leashable(mtmp))
+            m_unleash(mtmp, TRUE);
+        else
+            /* if leashed, persistent inventory window needs updating
+               (really only when mon_nam() is going to yield "a frog"
+               rather than "Kermit" but no need to micromanage here) */
+            update_inventory(); /* x - leash (attached to a <mon>) */
+    }
 
     if (emits_light(olddata) != emits_light(mtmp->data)) {
         /* used to give light, now doesn't, or vice versa,

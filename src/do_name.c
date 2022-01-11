@@ -1081,6 +1081,9 @@ const char *name;
     new_mname(mtmp, lth); /* removes old name if one is present */
     if (lth)
         Strcpy(MNAME(mtmp), name);
+    /* if 'mtmp' is leashed, persistent inventory window needs updating */
+    if (mtmp->mleashed)
+        update_inventory(); /* x - leash (attached to Fido) */
     return mtmp;
 }
 

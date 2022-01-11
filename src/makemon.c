@@ -3346,6 +3346,9 @@ struct monst *mtmp, *victim;
         lev_limit = (int) mtmp->m_lev; /* never undo increment */
 
         mtmp->female = fem; /* gender might be changing */
+        /* if 'mtmp' is leashed, persistent inventory window needs updating */
+        if (mtmp->mleashed)
+            update_inventory(); /* x - leash (attached to a <mon> */
     }
 
     /* sanity checks */
