@@ -2068,4 +2068,6 @@ The following changes to date are:
 - Format cleanup in zap.c
 - Bit more formatting cleanup in zap.c
 - Blessed objects in inventory have a chance to resist being cancelled
+- Indestructable objects have same chance to resist cancellation as
+  intelligent artifacts
 

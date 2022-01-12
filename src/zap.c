@@ -3118,6 +3118,11 @@ boolean youattack, allow_cancel_kill, self_cancel;
             for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
                  cnt > 0; cnt--) {
                 onum = rnd(nobj);
+                /* if random count is higher than number of objects
+                   in inventory, clamp count to be no greater than
+                   number of objects in inventory */
+                if (cnt > onum)
+                    cnt = onum;
                 for (otmp = (youdefend ? invent : mdef->minvent);
                      otmp; otmp = otmp->nobj) {
                     /* as above */
@@ -3129,13 +3134,15 @@ boolean youattack, allow_cancel_kill, self_cancel;
                 if (!otmp)
                     continue; /* next target */
 
-                if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL)
-                    && rn2(10) < 8) {
-                    pline("%s!", Tobjnam(otmp, "resist"));
+                if (otmp->blessed && !otmp->oartifact
+                    && !obj_resists(otmp, 0, 0) && !rn2(5)) {
+                    Your("%s!", aobjnam(otmp, "resist"));
                     continue;
                 }
-                if (otmp->blessed && !rn2(5)) {
-                    Your("%s!", aobjnam(otmp, "resist"));
+                if (((otmp->oartifact && spec_ability(otmp, SPFX_INTEL))
+                     || obj_resists(otmp, 0, 0))
+                    && rn2(10) < 8) {
+                    pline("%s!", Tobjnam(otmp, "resist"));
                     continue;
                 }
                 cancel_item(otmp);
