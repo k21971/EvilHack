@@ -2070,4 +2070,5 @@ The following changes to date are:
 - Blessed objects in inventory have a chance to resist being cancelled
 - Indestructable objects have same chance to resist cancellation as
   intelligent artifacts
+- Tweaks to object cancellation routine
 

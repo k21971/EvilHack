@@ -3066,7 +3066,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
         "Some writing vanishes from %s head!";
     static const char your[] = "your"; /* should be extern */
 
-    int nobj = 0, onum = 0, cnt = 0;
+    int onum = 0, oindex = 0, cnt = 0;
     struct obj *otmp;
 
     boolean resisted = (youdefend && Antimagic)
@@ -3111,13 +3111,13 @@ boolean youattack, allow_cancel_kill, self_cancel;
             /* gold isn't subject to being cursed or blessed */
             if (otmp->oclass == COIN_CLASS)
                 continue;
-            nobj++;
+            onum++;
         }
 
-        if (nobj) {
+        if (onum) {
             for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
                  cnt > 0; cnt--) {
-                onum = rnd(nobj);
+                oindex = rnd(onum);
                 /* if random count is higher than number of objects
                    in inventory, clamp count to be no greater than
                    number of objects in inventory */
@@ -3128,7 +3128,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
                     /* as above */
                     if (otmp->oclass == COIN_CLASS)
                         continue;
-                    if (--onum == 0)
+                    if (--oindex == 0)
                         break; /* found the target */
                 }
                 if (!otmp)
