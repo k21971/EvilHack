@@ -2071,4 +2071,6 @@ The following changes to date are:
 - Indestructable objects have same chance to resist cancellation as
   intelligent artifacts
 - Tweaks to object cancellation routine
+- Block 'artificial' player monster creation
+- Fix: don't 'fall' and self-stone when flying down
 
