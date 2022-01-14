@@ -991,7 +991,8 @@ makelevel()
 
         if (u.uhave.amulet || !rn2(3)) {
 	    if (somexyspace(croom, &pos, 0)) {
-                tmonst = makemon((struct permonst *) 0, pos.x, pos.y, MM_NOGRP);
+                tmonst = makemon((struct permonst *) 0, pos.x, pos.y,
+                                 MM_NOGRP | MM_MPLAYEROK);
                 if (tmonst && tmonst->data == &mons[PM_GIANT_SPIDER]
                     && !occupied(pos.x, pos.y))
                     (void) maketrap(pos.x, pos.y, WEB);

@@ -1103,7 +1103,7 @@ const char *s;
     }
     for (x = rn1(5, 7); x; x--) {
         mazexy(&mm);
-        (void) makemon((struct permonst *) 0, mm.x, mm.y, NO_MM_FLAGS);
+        (void) makemon((struct permonst *) 0, mm.x, mm.y, MM_MPLAYEROK);
     }
     for (x = rn1(6, 7); x; x--) {
         mazexy(&mm);

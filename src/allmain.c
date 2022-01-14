@@ -267,14 +267,16 @@ boolean resuming;
 
                     if (!rn2(monclock)) {
                         if (u.uevent.invoked && xupstair && rn2(10))
-                            (void) makemon((struct permonst *) 0, xupstair, yupstair,
-                                           MM_ADJACENTOK);
+                            (void) makemon((struct permonst *) 0,
+                                           xupstair, yupstair,
+                                           MM_ADJACENTOK | MM_MPLAYEROK);
                         else if (u.uevent.invoked && sstairs.sx && rn2(10))
-                            (void) makemon((struct permonst *)0, sstairs.sx, sstairs.sy,
-                                           MM_ADJACENTOK);
+                            (void) makemon((struct permonst *) 0,
+                                           sstairs.sx, sstairs.sy,
+                                           MM_ADJACENTOK | MM_MPLAYEROK);
                         else
                             (void) makemon((struct permonst *) 0, 0, 0,
-                                           NO_MM_FLAGS);
+                                           MM_MPLAYEROK);
                     }
                     /* calculate how much time passed. */
                     if (u.usteed && u.umoved) {

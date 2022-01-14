@@ -2415,6 +2415,7 @@ int mmflags;
     boolean byyou = (x == u.ux && y == u.uy);
     boolean allow_minvent = ((mmflags & NO_MINVENT) == 0);
     boolean countbirth = ((mmflags & MM_NOCOUNTBIRTH) == 0);
+    boolean no_mplayer = ((mmflags & MM_MPLAYEROK) == 0);
     unsigned gpflags = (mmflags & MM_IGNOREWATER) ? MM_IGNOREWATER : 0;
 
     fakemon = zeromonst;
@@ -2478,6 +2479,7 @@ int mmflags;
                  /* in Sokoban, don't accept a giant on first try;
                     after that, boulder carriers are fair game */
                  && ((tryct == 1 && throws_rocks(ptr) && In_sokoban(&u.uz))
+                     || (is_mplayer(ptr) && no_mplayer)
                      || !goodpos(x, y, &fakemon, gpflags)));
         mndx = monsndx(ptr);
     }
