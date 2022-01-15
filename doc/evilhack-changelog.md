@@ -2073,4 +2073,5 @@ The following changes to date are:
 - Tweaks to object cancellation routine
 - Block 'artificial' player monster creation
 - Fix: don't 'fall' and self-stone when flying down
+- Add a space after <TAB> in curses mode (msgtype alert)
 

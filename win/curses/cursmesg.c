@@ -184,7 +184,7 @@ curses_block(boolean noscroll) /* noscroll - blocking because of msgtype
     static int prev_x = -1, prev_y = -1, blink = 0;
     int height, width, moreattr, oldcrsr, ret = 0,
         brdroffset = curses_window_has_border(MESSAGE_WIN) ? 1 : 0,
-        morewidth = (iflags.msg_is_alert ? 5 : 2); /* 2/5 for ">>" / "<TAB>" */
+        morewidth = (iflags.msg_is_alert ? 6 : 3); /* 3/6 for ">>" / "<TAB>" */
     WINDOW *win = curses_get_nhwin(MESSAGE_WIN);
 
     curses_get_window_size(MESSAGE_WIN, &height, &width);
@@ -207,11 +207,11 @@ curses_block(boolean noscroll) /* noscroll - blocking because of msgtype
     curses_toggle_color_attr(win, MORECOLOR, moreattr, ON);
     if (blink) {
         wattron(win, A_BLINK);
-        mvwprintw(win, my, mx, (iflags.msg_is_alert ? "<TAB" : ">")), mx += morewidth - 1;
+        mvwprintw(win, my, mx, (iflags.msg_is_alert ? " <TAB" : " >")), mx += morewidth - 1;
         wattroff(win, A_BLINK);
         waddstr(win, ">"), mx += 1;
     } else {
-        mvwprintw(win, my, mx, (iflags.msg_is_alert ? "<TAB>" : ">>")), mx += morewidth;
+        mvwprintw(win, my, mx, (iflags.msg_is_alert ? " <TAB>" : " >>")), mx += morewidth;
     }
     curses_toggle_color_attr(win, MORECOLOR, moreattr, OFF);
     if (iflags.msg_is_alert) {
