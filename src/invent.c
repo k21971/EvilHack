@@ -2634,7 +2634,7 @@ long *out_cnt;
 {
     static const char not_carrying_anything[] = "Not carrying anything";
     struct obj *otmp, wizid_fakeobj;
-    char ilet, ret;
+    char ilet, ret, *formattedobj;
     char *invlet = flags.inv_order;
     int n, classcount;
     winid win;                        /* windows being used */
@@ -2798,9 +2798,14 @@ nextclass:
                 any.a_obj = otmp;
             else
                 any.a_char = ilet;
+            formattedobj = doname(otmp);
             add_menu(win, obj_to_glyph(otmp, rn2_on_display_rng), &any, ilet,
                      wizid ? def_oc_syms[(int) otmp->oclass].sym : 0,
-                     ATR_NONE, doname(otmp), MENU_UNSELECTED);
+                     ATR_NONE, formattedobj, MENU_UNSELECTED);
+            /* doname() uses a static pool of obuf[] output buffers and
+               we don't want inventory display to overwrite all of them,
+               so when we've used one we release it for re-use */
+            maybereleaseobuf(formattedobj);
             gotsomething = TRUE;
         }
     }

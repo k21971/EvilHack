@@ -106,6 +106,45 @@ char *bufp;
         obufidx = (obufidx - 1 + NUMOBUF) % NUMOBUF;
 }
 
+/* used by display_pickinv (invent.c, main whole-inventory routine) to
+   release each successive doname() result in order to try to avoid
+   clobbering all the obufs when 'perm_invent' is enabled and updated
+   while one or more obufs have been allocated but not released yet */
+void
+maybereleaseobuf(obuffer)
+char *obuffer;
+{
+    releaseobuf(obuffer);
+
+    /*
+     * An example from 3.6.x where all obufs got clobbered was when a
+     * monster used a bullwhip to disarm the hero of a two-handed weapon:
+     * "The ogre lord yanks Cleaver from your corpses!"
+     |
+     | hand = body_part(HAND);
+     | if (use_plural)      // switches 'hand' from static buffer to an obuf
+     |   hand = makeplural(hand);
+      ...
+     | release_worn_item(); // triggers full inventory update for perm_invent
+      ...
+     | pline(..., hand);    // the obuf[] for "hands" was clobbered with the
+     |                      //+ partial formatting of an item from invent
+     *
+     * Another example was from writing a scroll without room in invent to
+     * hold it after being split from a stack of blank scrolls:
+     * "Oops!  food rations out of your grasp!"
+     * hold_another_object() was passed 'the(aobjnam(newscroll, "slip"))'
+     * as an argument and that should have yielded
+     * "Oops!  The scroll of <foo> slips out of your grasp!"
+     * but attempting to add the item to inventory triggered update for
+     * perm_invent and the result from 'the(...)' was clobbered by partial
+     * formatting of some inventory item.  [It happened in a shop and the
+     * shk claimed ownership of the new scroll, but that wasn't relevant.]
+     * That got fixed earlier, by delaying update_inventory() during
+     * hold_another_object() rather than by avoiding using all the obufs.
+     */
+}
+
 static boolean dump_prop_flag = FALSE;
 
 /* identify object properties */
@@ -543,6 +582,7 @@ register struct obj *obj;
 unsigned cxn_flags; /* bitmask of CXN_xxx values */
 {
     register char *buf;
+    char *obufp;
     register int typ = obj->otyp;
     register struct objclass *ocl = &objects[typ];
     int nn = ocl->oc_name_known, omndx = obj->corpsenm;
@@ -755,10 +795,17 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             } else {
                 Strcat(buf, f->fname);
                 if (pluralize) {
-                    /* ick; already pluralized fruit names
-                       are allowed--we want to try to avoid
-                       adding a redundant plural suffix */
-                    Strcpy(buf, makeplural(makesingular(buf)));
+                    /* ick: already pluralized fruit names are allowed--we
+                       want to try to avoid adding a redundant plural suffix;
+                       double ick: makesingular() and makeplural() each use
+                       and return an obuf but we don't want any particular
+                       xname() call to consume more than one of those
+                       [note: makeXXX() will be fully evaluated and done with
+                       'buf' before strcpy() touches its output buffer] */
+                    Strcpy(buf, obufp = makesingular(buf));
+                    releaseobuf(obufp);
+                    Strcpy(buf, obufp = makeplural(buf));
+                    releaseobuf(obufp);
                     pluralize = FALSE;
                 }
             }
@@ -924,9 +971,13 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     }
     default:
         Sprintf(buf, "glorkum %d %d %d", obj->oclass, typ, obj->spe);
+        break;
     }
-    if (pluralize)
-        Strcpy(buf, makeplural(buf));
+    if (pluralize) {
+        /* (see fruit name handling in case FOOD_CLASS above) */
+        Strcpy(buf, obufp = makeplural(buf));
+        releaseobuf(obufp);
+    }
 
     if (program_state.gameover) {
         char tmpbuf[BUFSZ];
@@ -1741,11 +1792,15 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
     }
 
-    /* it's safe to overwrite our nambuf after an() has copied
-       its old value into another buffer */
-    if (any_prefix)
-        Strcpy(nambuf, an(nambuf));
+    /* it's safe to overwrite our nambuf[] after an() has copied its
+       old value into another buffer; and once _that_ has been copied,
+       the obuf[] returned by an() can be made available for re-use */
+    if (any_prefix) {
+        char *obufp;
 
+        Strcpy(nambuf, obufp = an(nambuf));
+        releaseobuf(obufp);
+    }
     return nambuf;
 }
 
@@ -2238,10 +2293,12 @@ char *
 simpleonames(obj)
 struct obj *obj;
 {
-    char *simpleoname = minimal_xname(obj);
+    char *obufp, *simpleoname = minimal_xname(obj);
 
-    if (obj->quan != 1L)
-        simpleoname = makeplural(simpleoname);
+    if (obj->quan != 1L) {
+        simpleoname = makeplural(obufp = simpleoname);
+        releaseobuf(obufp);
+    }
     return simpleoname;
 }
 
@@ -2250,7 +2307,7 @@ char *
 ansimpleoname(obj)
 struct obj *obj;
 {
-    char *simpleoname = simpleonames(obj);
+    char *obufp, *simpleoname = simpleonames(obj);
     int otyp = obj->otyp;
 
     /* prefix with "the" if a unique item, or a fake one imitating same,
@@ -2259,12 +2316,16 @@ struct obj *obj;
     if (otyp == FAKE_AMULET_OF_YENDOR)
         otyp = AMULET_OF_YENDOR;
     if (objects[otyp].oc_unique
-        && !strcmp(simpleoname, OBJ_NAME(objects[otyp])))
-        return the(simpleoname);
-
-    /* simpleoname is singular if quan==1, plural otherwise */
-    if (obj->quan == 1L)
-        simpleoname = an(simpleoname);
+        && !strcmp(simpleoname, OBJ_NAME(objects[otyp]))) {
+        /* the() will allocate another obuf[]; we want to avoid using two */
+        Strcpy(simpleoname, obufp = the(simpleoname));
+        releaseobuf(obufp);
+    } else if (obj->quan == 1L) {
+        /* simpleoname[] is singular if quan==1, plural otherwise;
+           an() will allocate another obuf[]; we want to avoid using two */
+        Strcpy(simpleoname, obufp = an(simpleoname));
+        releaseobuf(obufp);
+    }
     return simpleoname;
 }
 
@@ -2273,9 +2334,12 @@ char *
 thesimpleoname(obj)
 struct obj *obj;
 {
-    char *simpleoname = simpleonames(obj);
+    char *obufp, *simpleoname = simpleonames(obj);
 
-    return the(simpleoname);
+    /* the() will allocate another obuf[]; we want to avoid using two */
+    Strcpy(simpleoname, obufp = the(simpleoname));
+    releaseobuf(obufp);
+    return simpleoname;
 }
 
 /* artifact's name without any object type or known/dknown/&c feedback */

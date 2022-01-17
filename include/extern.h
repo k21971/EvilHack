@@ -1825,6 +1825,7 @@ E void NDECL(objects_init);
 
 /* ### objnam.c ### */
 
+E void FDECL(maybereleaseobuf, (char *));
 E void NDECL(dump_prop_on);
 E void NDECL(dump_prop_off);
 E char *FDECL(obj_typename, (int));

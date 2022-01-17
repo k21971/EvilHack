@@ -2074,4 +2074,5 @@ The following changes to date are:
 - Block 'artificial' player monster creation
 - Fix: don't 'fall' and self-stone when flying down
 - Add a space after <TAB> in curses mode (msgtype alert)
+- Fix: odd messages caused by buffer re-use
 
