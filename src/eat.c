@@ -949,13 +949,15 @@ register struct permonst *ptr;
     percentincrease = (ptr->cwt / 90);
     if (percentincrease < 5) { percentincrease = 5; }
 
-    if (percentincrease > 40) {
+    if (percentincrease > 32) {
+        adj = "much";
+    } else if (percentincrease > 20) {
         adj = "significantly";
-    } else if (percentincrease > 25) {
-        adj = "considerably";
     } else if (percentincrease > 15) {
-        adj = "somewhat";
+        adj = "considerably";
     } else if (percentincrease > 8) {
+        adj = "somewhat";
+    } else if (percentincrease > 5) {
         adj = "a bit";
     } else {
         adj = "slightly";
