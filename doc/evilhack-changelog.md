@@ -2076,4 +2076,5 @@ The following changes to date are:
 - Add a space after <TAB> in curses mode (msgtype alert)
 - Fix: odd messages caused by buffer re-use
 - More varied feedback when gaining partial intrinsics
+- Fix: proper feedback incrementing intrinsic resistances
 

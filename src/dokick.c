@@ -535,7 +535,7 @@ xchar x, y;
             return 1;
         }
         if (trap->ttyp == STATUE_TRAP) {
-            activate_statue_trap(trap, x,y, FALSE);
+            activate_statue_trap(trap, x, y, FALSE);
             return 1;
         }
     }

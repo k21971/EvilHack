@@ -968,45 +968,52 @@ register struct permonst *ptr;
     case FIRE_RES:
         debugpline0("Trying to give fire resistance");
         if ((HFire_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            if (Hallucination)
-                You("be chillin'.");
+            incr_resistance(&HFire_resistance, percentincrease);
+            if ((HFire_resistance & TIMEOUT) == 100)
+                You(Hallucination ? "be chillin'." : "feel completely chilled.");
             else
                 You_feel("%s more chill.", adj);
-            incr_resistance(&HFire_resistance, percentincrease);
         }
         break;
     case SLEEP_RES:
         debugpline0("Trying to give sleep resistance");
         if ((HSleep_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            You_feel("%s perkier.", adj);
             incr_resistance(&HSleep_resistance, percentincrease);
+            if ((HSleep_resistance & TIMEOUT) == 100)
+                You_feel("wide awake.");
+            else
+                You_feel("%s perkier.", adj);
         }
         break;
     case COLD_RES:
         debugpline0("Trying to give cold resistance");
         if ((HCold_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            You_feel("%s warmer.", adj);
             incr_resistance(&HCold_resistance, percentincrease);
+            if ((HCold_resistance & TIMEOUT) == 100)
+                You_feel("full of hot air.");
+            else
+                You_feel("%s warmer.", adj);
         }
         break;
     case DISINT_RES:
         debugpline0("Trying to give disintegration resistance");
         if ((HDisint_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            if (Hallucination)
-                You_feel("totally together, man.");
+            incr_resistance(&HDisint_resistance, percentincrease);
+            if ((HDisint_resistance & TIMEOUT) == 100)
+                You_feel(Hallucination ? "totally together, man." : "completely firm.");
             else
                 You_feel("%s more firm.", adj);
-            incr_resistance(&HDisint_resistance, percentincrease);
         }
         break;
     case SHOCK_RES: /* shock (electricity) resistance */
         debugpline0("Trying to give shock resistance");
         if ((HShock_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            if (Hallucination)
-                You_feel("grounded in reality.");
+            incr_resistance(&HShock_resistance, percentincrease);
+            if ((HShock_resistance & TIMEOUT) == 100)
+                pline(Hallucination ? "You feel grounded in reality."
+                                    : "Your health feels completely amplified!");
             else
                 Your("health is %s more amplified!", adj);
-            incr_resistance(&HShock_resistance, percentincrease);
         }
         break;
     case POISON_RES:
