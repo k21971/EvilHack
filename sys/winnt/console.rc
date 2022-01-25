@@ -31,7 +31,7 @@ BEGIN
             VALUE "FileDescription", "EvilHack for Windows - TTY Interface\0"
             VALUE "FileVersion", "0.7.1\0"
             VALUE "InternalName", "EvilHack\0"
-            VALUE "LegalCopyright", "Copyright (C) 2018 - 2021 by Keith Simpson - a NetHack 3.6.x variant, copyright (C) 1985 - 2021.  By Stichting Mathematisch Centrum and M. Stephenson.  See license for details.\0"
+            VALUE "LegalCopyright", "Copyright (C) 2018 - 2022 by Keith Simpson - a NetHack 3.6.x variant, copyright (C) 1985 - 2022.  By Stichting Mathematisch Centrum and M. Stephenson.  See license for details.\0"
             VALUE "OriginalFilename", "EvilHack.exe\0"
             VALUE "PrivateBuild", "050102\0"
             VALUE "ProductName", "EvilHack\0"
