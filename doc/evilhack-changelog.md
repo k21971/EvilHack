@@ -2078,4 +2078,5 @@ The following changes to date are:
 - More varied feedback when gaining partial intrinsics
 - Fix: proper feedback incrementing intrinsic resistances
 - Container vulnerability to water damage
+- Throttle excessive HP and En gains
 
