@@ -315,13 +315,16 @@ struct obj {
      (o)->cobj != (struct obj *) 0)
 #define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
 #define Is_nonprize_container(o) (Is_container(o) && !is_soko_prize_flag(o))
-#define Is_box(otmp) (otmp->otyp == LARGE_BOX || otmp->otyp == CHEST \
-                      || otmp->otyp == IRON_SAFE || otmp->otyp == CRYSTAL_CHEST)
-#define Is_mbag(otmp) \
-    (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS)
-#define Is_allbag(otmp) \
-    (otmp->otyp >= SACK && otmp->otyp <= BAG_OF_TRICKS)
+#define Is_box(o) ((o)->otyp == LARGE_BOX || (o)->otyp == CHEST \
+                   || (o)->otyp == IRON_SAFE || (o)->otyp == CRYSTAL_CHEST)
+#define Is_mbag(o) ((o)->otyp == BAG_OF_HOLDING || (o)->otyp == BAG_OF_TRICKS)
+#define Is_allbag(o) ((o)->otyp >= SACK && (o)->otyp <= BAG_OF_TRICKS)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)
+/* usually waterproof; random chance to be subjected to leakage if cursed;
+   excludes statues, which aren't vulernable to water even when cursed */
+#define Waterproof_container(o) \
+    ((o)->otyp == OILSKIN_SACK || (o)->otyp == ICE_BOX || Is_box(o) \
+     || (o)->oartifact == ART_BAG_OF_THE_HESPERIDES)
 
 /* dragon gear */
 #define Is_dragon_scales(obj) \

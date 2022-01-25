@@ -2077,4 +2077,5 @@ The following changes to date are:
 - Fix: odd messages caused by buffer re-use
 - More varied feedback when gaining partial intrinsics
 - Fix: proper feedback incrementing intrinsic resistances
+- Container vulnerability to water damage
 
