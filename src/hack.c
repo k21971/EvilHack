@@ -3092,16 +3092,21 @@ lookaround()
         return;
     for (x = u.ux - 1; x <= u.ux + 1; x++)
         for (y = u.uy - 1; y <= u.uy + 1; y++) {
+            /* ignore out of bounds, and our own location */
             if (!isok(x, y) || (x == u.ux && y == u.uy))
                 continue;
+            /* (grid bugs) ignore diagonals */
             if (NODIAG(u.umonnum) && x != u.ux && y != u.uy)
                 continue;
 
+            /* can we see a monster there? */
             if ((mtmp = m_at(x, y)) != 0
                 && M_AP_TYPE(mtmp) != M_AP_FURNITURE
                 && M_AP_TYPE(mtmp) != M_AP_OBJECT
-                && (!mtmp->minvis || See_invisible) && !mtmp->mundetected) {
-                if ((context.run != 1 && !mtmp->mtame)
+                && mon_visible(mtmp)) {
+                /* running movement and not a hostile monster */
+                /* OR it blocks our move direction and we're not traveling */
+                if ((context.run != 1 && !is_safepet(mtmp))
                     || (x == u.ux + u.dx && y == u.uy + u.dy
                         && !context.travel)) {
                     if (iflags.mention_walls)

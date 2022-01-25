@@ -2079,4 +2079,5 @@ The following changes to date are:
 - Fix: proper feedback incrementing intrinsic resistances
 - Container vulnerability to water damage
 - Throttle excessive HP and En gains
+- Don't stop running next to a peaceful monster
 
