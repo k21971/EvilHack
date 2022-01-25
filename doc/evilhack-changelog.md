@@ -2083,4 +2083,5 @@ The following changes to date are:
 - Copyright info update for 2022
 - Make demon lords hostile if wielding Demonbane as well as Excalibur
 - Update linux and linux-debug hints files to suppress -Wunused-result
+- Fix: monster hiding under hatching egg staying hidden
 
