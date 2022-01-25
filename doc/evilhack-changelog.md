@@ -2081,4 +2081,5 @@ The following changes to date are:
 - Throttle excessive HP and En gains
 - Don't stop running next to a peaceful monster
 - Copyright info update for 2022
+- Make demon lords hostile if wielding Demonbane as well as Excalibur
 
