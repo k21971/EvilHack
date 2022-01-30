@@ -1392,6 +1392,8 @@ boolean at_stairs, falling, portal;
     struct monst *mtmp;
     char whynot[BUFSZ];
     char *annotation;
+    int dist = newlevel->dlevel - dunlev(&u.uz);
+    boolean do_fall_dmg = FALSE;
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
         newlevel->dlevel = dunlevs_in_dungeon(newlevel);
@@ -1689,6 +1691,7 @@ boolean at_stairs, falling, portal;
             if (Punished)
                 ballfall();
             selftouch("Falling, you");
+            do_fall_dmg = TRUE;
         }
     }
 
@@ -1872,6 +1875,15 @@ boolean at_stairs, falling, portal;
 
     /* assume this will always return TRUE when changing level */
     (void) in_out_region(u.ux, u.uy);
+
+    /* fall damage? */
+    if (do_fall_dmg) {
+        int dmg = d(dist, 6);
+
+        dmg = Maybe_Half_Phys(dmg);
+        losehp(dmg, "falling down a mine shaft", KILLED_BY);
+    }
+
     (void) pickup(1);
 
 #ifdef WHEREIS_FILE

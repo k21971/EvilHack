@@ -2091,4 +2091,5 @@ The following changes to date are:
   when actually wielding Dramborleg
 - Fix: incorrect weight of spellbooks received via altar sacrifice
 - Cancellation explodes magical traps
+- Falling through a hole or trap door will cause damage
 
