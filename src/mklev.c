@@ -834,10 +834,11 @@ makelevel()
         } else if (u.uz.dnum == medusa_level.dnum
                    && depth(&u.uz) > depth(&medusa_level)) {
             /* TODO: currently, only create normal rooms and corridors
-               between Medusa's level and the castle. In the future,
-               maybe create a special filler level type specifically
-               for these levels, like what UnNetHack does */
-            makerooms();
+               between Medusa's level and the castle (this will fall
+               through to makerooms() below). In the future, maybe
+               create a special filler level type specifically for
+               these levels, like what UnNetHack does */
+            ;
         } else if (In_hell(&u.uz)) {
             /* The vibrating square code is hardcoded into mkmaze --
              * rather than fiddle around trying to port it to a 'generalist'

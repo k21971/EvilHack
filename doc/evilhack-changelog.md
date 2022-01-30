@@ -2086,4 +2086,5 @@ The following changes to date are:
 - Fix: monster hiding under hatching egg staying hidden
 - Fix: random role segfault
 - Fix: hellish flagged levels between Medusa's lair and the castle
+- Correction to last commit (hellish flagged levels)
 
