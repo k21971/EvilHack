@@ -318,7 +318,7 @@ int expltype;
 
         tmp_at(DISP_END, 0); /* clear the explosion */
     } else {
-        if (olet == MON_EXPLODE) {
+        if (olet == MON_EXPLODE || olet == TRAP_EXPLODE) {
             str = "explosion";
             generic = TRUE;
         }

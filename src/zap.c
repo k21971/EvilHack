@@ -31,6 +31,7 @@ STATIC_DCL void FDECL(zhitu, (int, int, const char *, XCHAR_P, XCHAR_P));
 STATIC_DCL void FDECL(revive_egg, (struct obj *));
 STATIC_DCL boolean FDECL(zap_steed, (struct obj *));
 STATIC_DCL void FDECL(skiprange, (int, int *, int *));
+STATIC_DCL void FDECL(maybe_explode_trap, (struct trap *, struct obj *));
 STATIC_DCL int FDECL(zap_hit, (int, int, BOOLEAN_P));
 STATIC_OVL void FDECL(disintegrate_mon, (struct monst *, int, const char *));
 STATIC_DCL void FDECL(backfire, (struct obj *));
@@ -3394,6 +3395,10 @@ struct obj *obj; /* wand or spell */
                 break;
             }
         }
+
+        maybe_explode_trap(ttmp, obj);
+        /* note: ttmp might be now gone */
+
     } else if (u.dz < 0) {
         /* zapping upward */
 
@@ -3609,6 +3614,36 @@ int range, *skipstart, *skipend;
         *skipend = tmp - 1;
 }
 
+/* maybe explode a trap hit by object otmp's effect;
+   cancellation beam hitting a magical trap causes an explosion.
+   might delete the trap.  */
+STATIC_OVL void
+maybe_explode_trap(ttmp, otmp)
+struct trap *ttmp;
+struct obj *otmp;
+{
+    if (!ttmp || !otmp)
+        return;
+    if (otmp->otyp == WAN_CANCELLATION || otmp->otyp == SPE_CANCELLATION) {
+        xchar x = ttmp->tx, y = ttmp->ty;
+
+        if (undestroyable_trap(ttmp->ttyp)) {
+            shieldeff(x, y);
+            if (cansee(x, y)) {
+                ttmp->tseen = 1;
+                newsym(x, y);
+            }
+        } else if (is_magical_trap(ttmp->ttyp)) {
+            if (!Deaf)
+                pline("Kaboom!");
+            explode(x, y, AD_MAGM - 1,
+                    20 + d(3 ,6), TRAP_EXPLODE, EXPL_MAGICAL);
+            deltrap(ttmp);
+            newsym(x, y);
+        }
+    }
+}
+
 /*
  *  Called for the following distance effects:
  *      when a weapon is thrown (weapon == THROWN_WEAPON)
@@ -3765,6 +3800,9 @@ struct obj **pobj; /* object tossed/used, set to NULL
             if (learn_it)
                 learnwand(obj);
         }
+
+        if (weapon == ZAPPED_WAND)
+            maybe_explode_trap(t_at(bhitpos.x, bhitpos.y), obj);
 
         mtmp = m_at(bhitpos.x, bhitpos.y);
 

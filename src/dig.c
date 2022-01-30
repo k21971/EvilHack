@@ -217,8 +217,7 @@ int x, y;
     } else if ((IS_ROCK(levl[x][y].typ) && levl[x][y].typ != SDOOR
                 && (levl[x][y].wall_info & W_NONDIGGABLE) != 0)
                || (ttmp
-                   && (ttmp->ttyp == MAGIC_PORTAL
-                       || ttmp->ttyp == VIBRATING_SQUARE
+                   && (undestroyable_trap(ttmp->ttyp)
                        || (!Can_dig_down(&u.uz) && !levl[x][y].candig)))) {
         if (verbose)
             pline_The("%s here is too hard to %s.", surface(x, y), verb);
@@ -798,8 +797,7 @@ coord *cc;
     lev = &levl[dig_x][dig_y];
     nohole = (!Can_dig_down(&u.uz) && !lev->candig);
 
-    if ((ttmp && (ttmp->ttyp == MAGIC_PORTAL
-                  || ttmp->ttyp == VIBRATING_SQUARE || nohole))
+    if ((ttmp && (undestroyable_trap(ttmp->ttyp) || nohole))
         || (IS_ROCK(lev->typ) && lev->typ != SDOOR
             && (lev->wall_info & W_NONDIGGABLE) != 0)) {
         pline_The("%s %shere is too hard to dig in.", surface(dig_x, dig_y),
@@ -2208,8 +2206,7 @@ struct monst *mdef, *magr;
     /* check for illegalities: out of bounds, terrain unsuitable for traps,
      * or trap types that should not be deleted and replaced with pits */
     if (!isok(x, y) || !SPACE_POS(typ) || IS_FURNITURE(typ) || IS_AIR(typ)
-        || (trap &&
-            (trap->ttyp == MAGIC_PORTAL || trap->ttyp == VIBRATING_SQUARE))
+        || (trap && undestroyable_trap(trap->ttyp))
         || (In_endgame(&u.uz) && !Is_earthlevel(&u.uz))) {
         if (youattack) {
             You("fail to create a pit on the %s under %s.", surface(x, y),
