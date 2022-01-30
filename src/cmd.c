@@ -2990,8 +2990,12 @@ int final;
         you_are("aware of the presence of ogres because of Ogresmasher", "");
     if (Warn_of_mon && (context.warntype.obj & MH_TROLL))
         you_are("aware of the presence of trolls because of Trollsbane", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_DEMON))
+    if (Warn_of_mon && (context.warntype.obj & MH_DEMON)
+        && (uwep->oartifact == ART_DEMONBANE || (u.twoweap && uswapwep->oartifact == ART_DEMONBANE)))
         you_are("aware of the presence of demons because of Demonbane", "");
+    if (Warn_of_mon && (context.warntype.obj & MH_DEMON)
+        && (uwep->oartifact == ART_DRAMBORLEG || (u.twoweap && uswapwep->oartifact == ART_DRAMBORLEG)))
+        you_are("aware of the presence of demons because of Dramborleg", "");
     if (Warn_of_mon && (context.warntype.obj & MH_ANGEL))
         you_are("aware of the presence of angels because of Angelslayer", "");
     if (Warn_of_mon && (context.warntype.obj & MH_JABBERWOCK))
