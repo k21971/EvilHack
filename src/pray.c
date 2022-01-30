@@ -2242,6 +2242,7 @@ dosacrifice()
                                     break;
                             }
                             otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                            otmp->owt = weight(otmp);
                         }
 
                         bless(otmp);

@@ -2089,4 +2089,5 @@ The following changes to date are:
 - Correction to last commit (hellish flagged levels)
 - Fix: showing that you're aware of demons because of wielding Demonbane
   when actually wielding Dramborleg
+- Fix: incorrect weight of spellbooks received via altar sacrifice
 
