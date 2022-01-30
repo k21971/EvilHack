@@ -831,15 +831,24 @@ makelevel()
                    (u.uz.dlevel < loc_lev->dlevel.dlevel) ? "a" : "b");
             makemaz(fillname);
             return;
-        } else if (In_hell(&u.uz)
-                   || (rn2(5) && u.uz.dnum == medusa_level.dnum
-                       && depth(&u.uz) > depth(&medusa_level))) {
+        } else if (u.uz.dnum == medusa_level.dnum
+                   && depth(&u.uz) > depth(&medusa_level)) {
+            /* TODO: currently, only create normal rooms and corridors
+               between Medusa's level and the castle. In the future,
+               maybe create a special filler level type specifically
+               for these levels, like what UnNetHack does */
+            makerooms();
+        } else if (In_hell(&u.uz)) {
             /* The vibrating square code is hardcoded into mkmaze --
              * rather than fiddle around trying to port it to a 'generalist'
              * sort of level, just go ahead and let the VS level be a maze */
             if (!Invocation_lev(&u.uz)) {
                 makemaz("hellfill");
             } else {
+            /* TODO: the invocation level is the last guaranteed maze
+               level in the game. In the future, maybe create a small
+               number of special end maps unique to this level, with
+               its own distinct challenges */
                 makemaz("");
             }
             return;
