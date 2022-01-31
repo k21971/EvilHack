@@ -740,16 +740,15 @@ drinkforge()
         return;
     }
 
-    if (!likes_lava(youmonst.data)) {
+    if (!likes_fire(youmonst.data)) {
         pline("Molten lava incinerates its way down your gullet...");
-        u.uhp = 0;
-        losehp(1, "trying to drink molten lava", KILLED_BY);
+        losehp(Upolyd ? u.mh : u.uhp, "trying to drink molten lava", KILLED_BY);
         return;
     }
     burn_away_slime();
     switch(rn2(20)) {
     case 0:
-        pline("You drink some molten lava. Mmmmm mmm!");
+        pline("You drink some molten lava.  Mmmmm mmm!");
         u.uhunger += rnd(50);
         break;
     case 1:

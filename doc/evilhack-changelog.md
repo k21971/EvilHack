@@ -2092,4 +2092,5 @@ The following changes to date are:
 - Fix: incorrect weight of spellbooks received via altar sacrifice
 - Cancellation explodes magical traps
 - Falling through a hole or trap door will cause damage
+- Fix: drinking from a forge
 
