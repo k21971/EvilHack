@@ -1392,7 +1392,7 @@ boolean at_stairs, falling, portal;
     struct monst *mtmp;
     char whynot[BUFSZ];
     char *annotation;
-    int dist = newlevel->dlevel - dunlev(&u.uz);
+    int dist = depth(newlevel) - depth(&u.uz);
     boolean do_fall_dmg = FALSE;
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))

@@ -2093,4 +2093,5 @@ The following changes to date are:
 - Cancellation explodes magical traps
 - Falling through a hole or trap door will cause damage
 - Fix: drinking from a forge
+- Fix: fall depth from Castle to the Valley of the Dead
 
