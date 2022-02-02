@@ -2278,6 +2278,7 @@ E int FDECL(dorecover, (int));
 E void FDECL(restcemetery, (int, struct cemetery **));
 E void FDECL(trickery, (char *));
 E void FDECL(getlev, (int, int, XCHAR_P, BOOLEAN_P));
+E void FDECL(restshambler, (int));
 E void FDECL(get_plname_from_file, (int, char *));
 #ifdef SELECTSAVED
 E int FDECL(restore_menu, (winid));
@@ -2383,6 +2384,7 @@ E void FDECL(zerocomp_bclose, (int));
 #endif
 E void FDECL(savecemetery, (int, int, struct cemetery **));
 E void FDECL(savefruitchn, (int, int));
+E void FDECL(saveshambler, (int, int));
 E void FDECL(store_plname_in_file, (int));
 E void NDECL(free_dungeons);
 E void NDECL(freedynamicdata);

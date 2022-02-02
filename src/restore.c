@@ -494,10 +494,6 @@ boolean ghostly;
         mtmp2->nmon = 0;
     }
 
-    /* Bring RNGesus' most abominable creation back to life */
-    mread(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
-          sizeof(struct permonst) - namesize);
-
     /* Preserve changes to other defined monsters here */
     mread(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
           sizeof(struct permonst) - namesize);
@@ -729,6 +725,7 @@ unsigned int *stuckid, *steedid;
     mread(fd, (genericptr_t) pl_fruit, sizeof pl_fruit);
     freefruitchn(ffruit); /* clean up fruit(s) made by initoptions() */
     ffruit = loadfruitchn(fd);
+    restshambler(fd);
 
     restnames(fd);
     restore_waterlevel(fd);
@@ -1288,6 +1285,17 @@ boolean ghostly;
 
     if (ghostly)
         clear_id_mapping();
+}
+
+void
+restshambler(fd)
+int fd;
+{
+    struct permonst *monbegin;
+    int namesize = sizeof(monbegin->mname);
+    /* Bring RNGesus' most abominable creation back to life */
+    mread(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
+          sizeof(struct permonst) - namesize);
 }
 
 void

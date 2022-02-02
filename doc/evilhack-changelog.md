@@ -2104,4 +2104,5 @@ The following changes to date are:
 - Fix: warning: unsigned conversion from ‘int’ to ‘unsigned char:5’ changes value from
   ‘32’ to ‘0’ [-Woverflow] (ICED_MOAT)
 - Fix: correction to wizkit commit
+- Fix: shambling horror generating with different stats on bones file load
 

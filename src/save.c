@@ -351,6 +351,7 @@ register int fd, mode;
     bwrite(fd, (genericptr_t) pl_character, sizeof pl_character);
     bwrite(fd, (genericptr_t) pl_fruit, sizeof pl_fruit);
     savefruitchn(fd, mode);
+    saveshambler(fd, mode);
     savenames(fd, mode);
     save_waterlevel(fd, mode);
     save_msghistory(fd, mode);
@@ -1184,10 +1185,6 @@ register struct monst *mtmp;
            in monst.c, that could break saves, so be mindful of any
            template edits in monst.c */
 
-        /* Preserve our delectable abberation so the player can
-           experience the same joy upon reload */
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
-               sizeof(struct permonst) - namesize);
         /* Do the same for other monsters here that have their core
            settings change in the middle of the game. Lets not make
            this a habit... */
@@ -1245,6 +1242,19 @@ int fd, mode;
         bwrite(fd, (genericptr_t) &zerofruit, sizeof zerofruit);
     if (release_data(mode))
         ffruit = 0;
+}
+
+void
+saveshambler(fd, mode)
+int fd, mode;
+{
+    int namesize = sizeof(mons[0].mname);
+    /* Preserve our delectable abberation so the player can
+        experience the same joy upon reload */
+    if (perform_bwrite(mode))
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR]
+                                   + namesize),
+               sizeof(struct permonst) - namesize);
 }
 
 void
