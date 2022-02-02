@@ -1892,7 +1892,7 @@ The following changes to date are:
 
 ### Version 0.7.1
 
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 24th, 2022)
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 23rd, 2022)
 - Initial preparation for new version (0.7.1)
 - Centaurs can be knights
 - Revamp corpse revival via zombie death, zombie illness timer
@@ -2094,4 +2094,10 @@ The following changes to date are:
 - Falling through a hole or trap door will cause damage
 - Fix: drinking from a forge
 - Fix: fall depth from Castle to the Valley of the Dead
+
+
+### Version 0.8.0
+
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 23rd, 2022)
+- Initial preparation for new version (0.8.0)
 
