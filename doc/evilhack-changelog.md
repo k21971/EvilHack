@@ -2101,4 +2101,6 @@ The following changes to date are:
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 23rd, 2022)
 - Initial preparation for new version (0.8.0)
 - Fix: artifacts in wizkit.txt (wizard mode)
+- Fix: warning: unsigned conversion from ‘int’ to ‘unsigned char:5’ changes value from
+  ‘32’ to ‘0’ [-Woverflow] (ICED_MOAT)
 

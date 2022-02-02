@@ -2215,8 +2215,6 @@ struct monst *mtmp;
             break;
         case MOAT:
         case WATER:
-            /* FIXME: icedpool bitfield (5 bits) isn't big enough to hold
-             * ICED_MOAT (0x20: needs 6 bits); fix will be savebreaking */
             lev->icedpool = ICED_MOAT;
             break;
         default:
