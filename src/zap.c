@@ -31,7 +31,6 @@ STATIC_DCL void FDECL(zhitu, (int, int, const char *, XCHAR_P, XCHAR_P));
 STATIC_DCL void FDECL(revive_egg, (struct obj *));
 STATIC_DCL boolean FDECL(zap_steed, (struct obj *));
 STATIC_DCL void FDECL(skiprange, (int, int *, int *));
-STATIC_DCL void FDECL(maybe_explode_trap, (struct trap *, struct obj *));
 STATIC_DCL int FDECL(zap_hit, (int, int, BOOLEAN_P));
 STATIC_OVL void FDECL(disintegrate_mon, (struct monst *, int, const char *));
 STATIC_DCL void FDECL(backfire, (struct obj *));
@@ -3617,7 +3616,7 @@ int range, *skipstart, *skipend;
 /* maybe explode a trap hit by object otmp's effect;
    cancellation beam hitting a magical trap causes an explosion.
    might delete the trap.  */
-STATIC_OVL void
+void
 maybe_explode_trap(ttmp, otmp)
 struct trap *ttmp;
 struct obj *otmp;

@@ -2105,4 +2105,5 @@ The following changes to date are:
   ‘32’ to ‘0’ [-Woverflow] (ICED_MOAT)
 - Fix: correction to wizkit commit
 - Fix: shambling horror generating with different stats on bones file load
+- Allow magical traps to be affected by wands of cancellation when monsters zap them
 
