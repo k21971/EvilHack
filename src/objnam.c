@@ -4765,8 +4765,8 @@ struct obj *no_wish;
                   something, makeplural(body_part(HAND)));
         return otmp;
     } else if ((otmp->oartifact && rn2(u.uconduct.wisharti))
-               && !(wizard && !program_state.wizkit_wishing
-                    && yn("Deal with previous owner?") == 'n')) {
+               && !(wizard && (program_state.wizkit_wishing
+                               || yn("Deal with previous owner?") == 'n'))) {
         int pm = -1;
         int strategy = NEED_HTH_WEAPON;
         struct monst *mtmp;

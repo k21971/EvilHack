@@ -375,7 +375,7 @@ struct obj *obj;
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), FALSE); /* insurance */
 
-    if ((mtmp = makemon(ptr, x, y, NO_MM_FLAGS)) != 0) {
+    if ((mtmp = makemon(ptr, x, y, MM_MPLAYEROK)) != 0) {
         short weapon, armor, cloak, helm, shield;
         int quan;
         struct obj *otmp;
