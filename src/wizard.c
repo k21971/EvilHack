@@ -488,7 +488,8 @@ register struct monst *mtmp;
             /* since we're not close enough, use short jumps to change that */
             stx = mtmp->mx + ((rn2(3) + 4) * dx);
             sty = mtmp->my + ((rn2(3) + 3) * dy);
-            mnearto(mtmp, stx, sty, TRUE);
+            if (isok(stx, sty))
+                mnearto(mtmp, stx, sty, TRUE);
         }
         return 0;
     }
