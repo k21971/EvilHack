@@ -1975,7 +1975,6 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
 {
     register struct monst *mtmp;
     register struct obj *otmp;
-    register struct trap *ttmp;
     register uchar typ;
     int ddx, ddy;
 
@@ -1991,7 +1990,6 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
         bhitpos.y += ddy;
         x = bhitpos.x;
         y = bhitpos.y;
-        ttmp = t_at(x, y); /* trap if there is one */
 
         if (!isok(x, y)) {
             bhitpos.x -= ddx;
@@ -2064,7 +2062,7 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             bhitpos.y -= ddy;
             break;
         }
-        maybe_explode_trap(ttmp, obj); /* note: ttmp might be now gone */
+        maybe_explode_trap(t_at(x, y), obj); /* note: ttmp might be now gone */
     }
 }
 
