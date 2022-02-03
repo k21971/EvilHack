@@ -2109,4 +2109,5 @@ The following changes to date are:
 - Tweak to last commit (magical traps and cancellation)
 - Fix: heap-use-after-free error in mpickstuff()
 - Fix: heap-use-after-free error with passive_obj()
+- Fix: heap-use-after-free in relobj()
 
