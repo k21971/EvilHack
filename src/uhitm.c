@@ -3777,7 +3777,7 @@ boolean wep_was_destroyed;
                                      EF_GREASE | EF_VERBOSE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_ACID:
@@ -3802,7 +3802,7 @@ boolean wep_was_destroyed;
                                      EF_GREASE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         exercise(A_STR, FALSE);
         break;
@@ -3848,7 +3848,7 @@ boolean wep_was_destroyed;
                                      EF_GREASE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_CORR:
@@ -3859,7 +3859,7 @@ boolean wep_was_destroyed;
                                      EF_GREASE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_DISN:
@@ -3926,7 +3926,7 @@ boolean wep_was_destroyed;
                 }
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH) {
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
             }
             break;
         }
@@ -3959,7 +3959,7 @@ boolean wep_was_destroyed;
                        || (aatyp >= AT_STNG && aatyp < AT_WEAP)) {
                 break; /* no object involved */
             }
-            passive_obj(mon, weapon, &(mattk[i]));
+            (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_CNCL:
@@ -4315,14 +4315,14 @@ boolean wep_was_destroyed;
  * Special (passive) attacks on an attacking object by monsters done here.
  * Assumes the attack was successful.
  */
-void
+int
 passive_obj(mon, obj, mattk)
 struct monst *mon;
 struct obj *obj;          /* null means pick uwep, uswapwep or uarmg */
 struct attack *mattk;     /* null means we find one internally */
 {
     struct permonst *ptr = mon->data;
-    int i;
+    int i, ret = ER_NOTHING;
 
     /* [this first bit is obsolete; we're not called with Null anymore] */
     /* if caller hasn't specified an object, use uwep, uswapwep or uarmg */
@@ -4333,14 +4333,14 @@ struct attack *mattk;     /* null means we find one internally */
                      || mattk->adtyp == AD_ENCH || mattk->adtyp == AD_DISN))
             obj = uarmg; /* no weapon? then must be gloves */
         if (!obj)
-            return; /* no object to affect */
+            return ER_NOTHING; /* no object to affect */
     }
 
     /* if caller hasn't specified an attack, find one */
     if (!mattk) {
         for (i = 0;; i++) {
             if (i >= NATTK)
-                return; /* no passive attacks */
+                return ER_NOTHING; /* no passive attacks */
             if (ptr->mattk[i].aatyp == AT_NONE)
                 break; /* try this one */
         }
@@ -4352,12 +4352,12 @@ struct attack *mattk;     /* null means we find one internally */
         if (!rn2(6) && !mon->mcan
             /* steam vortex: fire resist applies, fire damage doesn't */
             && mon->data != &mons[PM_STEAM_VORTEX]) {
-            (void) erode_obj(obj, NULL, ERODE_BURN, EF_GREASE | EF_DESTROY);
+            ret = erode_obj(obj, NULL, ERODE_BURN, EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_ACID:
         if (!rn2(6)) {
-            (void) erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE | EF_DESTROY);
+            ret = erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_RUST:
@@ -4367,7 +4367,7 @@ struct attack *mattk;     /* null means we find one internally */
         break;
     case AD_CORR:
         if (!mon->mcan) {
-            (void) erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY);
+            ret = erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_ENCH:
@@ -4375,6 +4375,7 @@ struct attack *mattk;     /* null means we find one internally */
             if (drain_item(obj, TRUE) && carried(obj)
                 && (obj->known || obj->oclass == ARMOR_CLASS)) {
                 pline("%s less effective.", Yobjnam2(obj, "seem"));
+                ret = ER_DAMAGED;
             }
             break;
         }
@@ -4418,6 +4419,7 @@ struct attack *mattk;     /* null means we find one internally */
                     useup(obj);
                 else
                     delobj(obj);
+                ret = ER_DESTROYED;
             }
             break;
         }
@@ -4427,6 +4429,7 @@ struct attack *mattk;     /* null means we find one internally */
         break;
     }
     update_inventory();
+    return ret;
 }
 
 /* Note: caller must ascertain mtmp is mimicking... */

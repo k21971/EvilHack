@@ -163,12 +163,14 @@ int x, y;
             objgone = ship_object(obj, x, y, FALSE);
         if (!objgone) {
             if (!flooreffects(obj, x, y, "fall")) {
+                int presult = ER_NOTHING;
                 place_object(obj, x, y);
                 if (!mtmp && x == u.ux && y == u.uy)
                     mtmp = &youmonst;
                 if (mtmp && ohit)
-                    passive_obj(mtmp, obj, (struct attack *) 0);
-                stackobj(obj);
+                    presult = passive_obj(mtmp, obj, (struct attack *) 0);
+                if (presult != ER_DESTROYED)
+                    stackobj(obj);
                 retvalu = 0;
             }
         }
