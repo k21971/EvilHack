@@ -2107,4 +2107,5 @@ The following changes to date are:
 - Fix: shambling horror generating with different stats on bones file load
 - Allow magical traps to be affected by wands of cancellation when monsters zap them
 - Tweak to last commit (magical traps and cancellation)
+- Fix: heap-use-after-free error in mpickstuff()
 

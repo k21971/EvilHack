@@ -1771,7 +1771,6 @@ mpickstuff(mtmp, str)
 register struct monst *mtmp;
 register const char *str;
 {
-    boolean pickedup = FALSE;
     boolean waslocked = FALSE;
     boolean vismon;
     register struct obj *otmp, *otmp2, *otmp3, *otmp4;
@@ -1834,29 +1833,26 @@ register const char *str;
                         continue;
                     if (is_pool(mtmp->mx, mtmp->my))
                         continue;
-                    if (!pickedup) {
-                        if (vismon && flags.verbose) {
-                            pline("%s %s opens %s...", Monnam(mtmp),
-                                  waslocked ? "unlocks and" : "carefully",
-                                  (distu(mtmp->mx, mtmp->my) <= 5)
-                                   ? the(xname(otmp))
-                                   : the(distant_name(otmp, xname)));
-                        } else if (!Deaf && flags.verbose
-                                   && distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) {
-                            You_hear("%s being %s.",
-                                     ansimpleoname(otmp),
-                                     waslocked ? "unlocked" : "opened");
-                        }
-                        otmp->olocked = 0;
-                        mloot_container(mtmp, otmp, vismon);
+                    if (!flags.verbose) {
+                        ; /* print nothing */
+                    } else if (vismon) {
+                        pline("%s %s opens %s...", Monnam(mtmp),
+                              waslocked ? "unlocks and" : "carefully",
+                              (distu(mtmp->mx, mtmp->my) <= 5)
+                              ? the(xname(otmp))
+                              : the(distant_name(otmp, xname)));
+                    } else if (!Deaf && (distu(mtmp->mx, mtmp->my)
+                                         <= BOLT_LIM * BOLT_LIM)) {
+                        You_hear("%s being %s.",
+                                 ansimpleoname(otmp),
+                                 waslocked ? "unlocked" : "opened");
                     }
+                    otmp->olocked = 0;
+                    mloot_container(mtmp, otmp, vismon);
                     newsym(mtmp->mx, mtmp->my);
-                    /* loot the entire container if we can */
-                    pickedup = TRUE;
+                    return TRUE;
                 }
             }
-            if (pickedup)
-                return TRUE;
         }
 
         /* Nymphs take everything.  Most monsters don't pick up corpses. */
