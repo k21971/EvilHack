@@ -2113,4 +2113,5 @@ The following changes to date are:
 - Fix: global-buffer-overflow in tactics()
 - Fix: improved Charon interactions
 - Fix: buffer overflow with player monster names
+- Fix: heap-use-after-free errors in apply.c
 

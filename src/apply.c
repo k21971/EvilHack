@@ -11,7 +11,7 @@ STATIC_DCL int FDECL(use_camera, (struct obj *));
 STATIC_DCL int FDECL(use_towel, (struct obj *));
 STATIC_DCL boolean FDECL(its_dead, (int, int, int *, struct obj*));
 STATIC_DCL int FDECL(use_stethoscope, (struct obj *));
-STATIC_DCL void FDECL(use_eight_ball, (struct obj *));
+STATIC_DCL void FDECL(use_eight_ball, (struct obj **));
 STATIC_DCL void FDECL(use_whistle, (struct obj *));
 STATIC_DCL void FDECL(use_magic_whistle, (struct obj *));
 STATIC_DCL int FDECL(use_leash, (struct obj *));
@@ -25,8 +25,8 @@ STATIC_PTR void FDECL(display_jump_positions, (int));
 STATIC_DCL void FDECL(use_tinning_kit, (struct obj *));
 STATIC_DCL void FDECL(use_grease, (struct obj *));
 STATIC_DCL void FDECL(use_trap, (struct obj *));
-STATIC_DCL void FDECL(apply_flint, (struct obj *));
-STATIC_DCL void FDECL(use_stone, (struct obj *));
+STATIC_DCL void FDECL(apply_flint, (struct obj **));
+STATIC_DCL void FDECL(use_stone, (struct obj **));
 STATIC_PTR int NDECL(set_trap); /* occupation callback */
 STATIC_DCL int FDECL(use_whip, (struct obj *));
 STATIC_DCL int FDECL(use_axe, (struct obj *));
@@ -482,9 +482,10 @@ register struct obj *obj;
 }
 
 STATIC_OVL void
-use_eight_ball(obj)
-struct obj *obj;
+use_eight_ball(optr)
+struct obj **optr;
 {
+    struct obj *obj = *optr;
     int chance;
 
     if (HStun) {
@@ -505,6 +506,7 @@ struct obj *obj;
             makewish();
             pline("The Magic 8-Ball winks out of existence, but not before spreading one last rumor.");
             useup(obj); /* one wish is all you get */
+            *optr = (struct obj *) 0;
             break;
         default:
             break;
@@ -1587,7 +1589,7 @@ dorub()
 
     if (obj && obj->oclass == GEM_CLASS) {
         if (is_graystone(obj) || obj->otyp == ROCK) {
-            use_stone(obj);
+            use_stone(&obj);
             return 1;
         } else {
             pline("Sorry, I don't know how to use that.");
@@ -2511,10 +2513,11 @@ struct obj *obj;
 /* creating flint arrows - DSR */
 
 STATIC_OVL void
-apply_flint(flint)
-struct obj* flint;
+apply_flint(optr)
+struct obj **optr;
 {
-    struct obj* obj;
+    struct obj *flint = *optr;
+    struct obj *obj;
     char szwork[QBUFSZ];
     int flints, arrows, i;
     static const char menulist[2] = {WEAPON_CLASS, 0};
@@ -2545,6 +2548,8 @@ struct obj* flint;
         You("lash flint tips to the %s.", xname(obj));
         for (i = 0; i <= arrows / 10; i++)
             useup(flint);
+        if (i >= flints)
+            *optr = (struct obj *) 0;
     } else {
         You("don't have enough flint to re-tip all of these %s.",
             xname(obj));
@@ -2554,9 +2559,10 @@ struct obj* flint;
 
 /* touchstones - by Ken Arnold */
 STATIC_OVL void
-use_stone(tstone)
-struct obj *tstone;
+use_stone(optr)
+struct obj **optr;
 {
+    struct obj *tstone = *optr;
     static const char scritch[] = "\"scritch, scritch\"";
     static const char allowall[3] = { COIN_CLASS, ALL_CLASSES, 0 };
     static const char coins_gems[3] = { COIN_CLASS, GEM_CLASS, 0 };
@@ -2738,8 +2744,11 @@ struct obj *tstone;
                 /* Not even the thing you're inside can see your piddly spark. */
                 pline("That's not going to make it any brighter in here.");
                 if (!rn2(3)) {
+                    boolean gone = (tstone->quan == 1L);
                     Your("flint stone crumbles!");
                     useup(tstone);
+                    if (gone)
+                        *optr = (struct obj *) 0;
                 }
                 return;
             }
@@ -2767,8 +2776,11 @@ struct obj *tstone;
                 }
             }
             if (!rn2(3)) {
+                boolean gone = (tstone->quan == 1L);
                 Your("flint stone crumbles!");
                 useup(tstone);
+                if (gone)
+                    *optr = (struct obj *) 0;
             }
             return;
         }
@@ -4298,7 +4310,7 @@ doapply()
         use_crystal_ball(&obj);
         break;
     case EIGHT_BALL:
-        use_eight_ball(obj);
+        use_eight_ball(&obj);
         break;
     case MAGIC_MARKER:
         res = dowrite(obj);
@@ -4334,15 +4346,15 @@ doapply()
     case FLINT:
         if (Role_if(PM_CAVEMAN)
             && yn("Affix your flint to some arrows?") == 'y')
-            apply_flint(obj);
+            apply_flint(&obj);
         else
-            use_stone(obj);
+            use_stone(&obj);
         break;
     case LUCKSTONE:
     case LOADSTONE:
     case TOUCHSTONE:
     case ROCK:
-        use_stone(obj);
+        use_stone(&obj);
         break;
     default:
         /* Pole-weapons can strike at a distance */
