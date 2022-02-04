@@ -2111,4 +2111,5 @@ The following changes to date are:
 - Fix: heap-use-after-free error with passive_obj()
 - Fix: heap-use-after-free in relobj()
 - Fix: global-buffer-overflow in tactics()
+- Fix: improved Charon interactions
 

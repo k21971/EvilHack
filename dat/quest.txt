@@ -4615,6 +4615,26 @@ resides.
 
 Go now!  You are banished from this place.
 %E [You are banished from %H for betraying your allegiance to %d.]
+# Charon
+%Cp - 00070
+"The Gates of Hell are nigh-impenetrable."
+%E
+%Cp - 00071
+"Abandon all hope, ye who enter here."
+%E
+%Cp - 00072
+"This is all that remains of the river Styx."
+%E
+%Cp - 00073
+Charon asks if you've seen his boat.
+%E
+%Cp - 00074
+"Mortal, take heed!  Cerberus guards the entrance to Gehennom,
+and cannot be dispatched easily."
+%E
+%Cp - 00075
+"Cerberus awaits beyond these gates.  Beware, mortal!"
+%E
 #
 #	TEST PATTERN
 #

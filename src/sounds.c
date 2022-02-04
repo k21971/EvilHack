@@ -3,6 +3,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include "qtext.h" /* for Charon */
 
 STATIC_DCL boolean FDECL(mon_is_gecko, (struct monst *));
 STATIC_DCL int FDECL(domonnoise, (struct monst *));
@@ -926,27 +927,10 @@ register struct monst *mtmp;
                 break;
             case PM_CHARON:
                 if (mtmp->mpeaceful) {
-                    switch (rnd(6)) {
-                    case 1:
-                        verbl_msg = "Cerberus awaits beyond these gates.  Beware, mortal!";
-                        break;
-                    case 2:
-                        verbl_msg = "Abandon all hope, ye who enter here.";
-                        break;
-                    case 3:
-                        verbl_msg = "This is all that remains of the river Styx.";
-                        break;
-                    case 4:
-                        verbl_msg = "Mortal, take heed!  Cerberus guards the entrance to Gehennom, and cannot be dispatched easily.";
-                        break;
-                    case 5:
-                        verbl_msg = "The Gates of Hell are impenetrable.";
-                        break;
-                    case 6:
-                        pline_msg = "asks if you've seen his boat.";
-                        break;
-                    }
-                }
+                    com_pager(rn1(u.uevent.ucerberus ? QTN_CHRN_NOCERB
+                                                     : QTN_CHARON,
+                                  QT_CHARON));
+                };
                 break;
             default:
                 pline_msg = "discusses dungeon exploration.";
