@@ -2112,4 +2112,5 @@ The following changes to date are:
 - Fix: heap-use-after-free in relobj()
 - Fix: global-buffer-overflow in tactics()
 - Fix: improved Charon interactions
+- Fix: buffer overflow with player monster names
 

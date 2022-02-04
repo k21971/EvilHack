@@ -190,7 +190,7 @@ void
 init_mplayer_erac(mtmp)
 struct monst *mtmp;
 {
-    char nam[PL_NSIZ];
+    char nam[PL_PSIZ];
     int race;
     struct erac *rptr;
     int mndx = mtmp->mnum;
@@ -370,7 +370,7 @@ struct obj *obj;
     register struct monst *mtmp;
     register boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
 
-    char nam[PL_NSIZ];
+    char nam[PL_PSIZ];
 
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), FALSE); /* insurance */
