@@ -2115,4 +2115,5 @@ The following changes to date are:
 - Fix: buffer overflow with player monster names
 - Fix: heap-use-after-free errors in apply.c
 - Fix: impossible if killed while poly'd into a monster that emits light
+- Fix: invalid material 7 (otyp 427)
 

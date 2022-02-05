@@ -1265,6 +1265,7 @@ register struct obj *obj;
                 && otyp != SPE_BOOK_OF_THE_DEAD) {
                 costly_alteration(obj, COST_CANCEL);
                 obj->otyp = SPE_BLANK_PAPER;
+                set_material(obj, PAPER);
             }
             break;
         case POTION_CLASS:
@@ -1777,6 +1778,7 @@ int id;
             otmp->spestudied = obj->spestudied + 1;
             if (otmp->spestudied > MAX_SPELL_STUDY) {
                 otmp->otyp = SPE_BLANK_PAPER;
+                set_material(otmp, PAPER);
                 /* writing a new book over it will yield an unstudied
                    one; re-polymorphing this one as-is may or may not
                    get something non-blank */

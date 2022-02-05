@@ -385,6 +385,7 @@ learn(VOID_ARGS)
         if (book->spestudied > MAX_SPELL_STUDY) {
             pline("This spellbook is too faint to be read any more.");
             book->otyp = booktype = SPE_BLANK_PAPER;
+            set_material(book, PAPER);
             /* reset spestudied as if polymorph had taken place */
             book->spestudied = rn2(book->spestudied);
         } else if (spellknow(i) > KEEN / 10) {
@@ -406,6 +407,7 @@ learn(VOID_ARGS)
             /* pre-used due to being the product of polymorph */
             pline("This spellbook is too faint to read even once.");
             book->otyp = booktype = SPE_BLANK_PAPER;
+            set_material(book, PAPER);
             /* reset spestudied as if polymorph had taken place */
             book->spestudied = rn2(book->spestudied);
         } else {
@@ -483,6 +485,7 @@ register struct obj *spellbook;
             You("do not understand the strange language this book is written in.");
             pline("The inscriptions in the book start to fade away!");
             spellbook->otyp = booktype = SPE_BLANK_PAPER;
+            set_material(spellbook, PAPER);
             makeknown(booktype);
             return 1;
         }
