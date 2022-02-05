@@ -1015,22 +1015,20 @@ STATIC_OVL void
 savelife(how)
 int how;
 {
-    int uhpmin = max(2 * u.ulevel, 10);
-    int *hp = (Upolyd ? &u.mh : &u.uhp),
-        *hpmax = (Upolyd ? &u.mhmax : &u.uhpmax);
+    int uhpmin;
 
-    if (Upolyd && !Unchanging) {
-        rehumanize();
-    } else {
-        /* not polyed, or polyed but trapped in that form */
-        if (*hpmax < uhpmin)
-            *hpmax = uhpmin;
-        if (*hp <= 150) {
-            *hp = 150;
-            if (*hp > *hpmax)
-                *hp = *hpmax;
-        }
-    }
+    /* life-drain/level-loss to experience level 0 kills without actually
+       reducing ulevel below 1, but include this for bulletproofing */
+    if (u.ulevel < 1)
+        u.ulevel = 1;
+    uhpmin = max(2 * u.ulevel, 10);
+    if (u.uhpmax < uhpmin)
+        u.uhpmax = uhpmin;
+    u.uhp = min(u.uhpmax, 150);
+
+    if (Upolyd) /* Unchanging, or death which bypasses losing hit points */
+        u.mh = min(u.mhmax, 150);
+
     if (u.uhunger < 500 || how == CHOKING) {
         init_uhunger();
     }

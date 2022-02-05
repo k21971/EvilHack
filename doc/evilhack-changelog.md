@@ -2114,4 +2114,5 @@ The following changes to date are:
 - Fix: improved Charon interactions
 - Fix: buffer overflow with player monster names
 - Fix: heap-use-after-free errors in apply.c
+- Fix: impossible if killed while poly'd into a monster that emits light
 
