@@ -2117,4 +2117,5 @@ The following changes to date are:
 - Fix: impossible if killed while poly'd into a monster that emits light
 - Fix: invalid material 7 (otyp 427)
 - Fix: unnecessary impossible() in restmonsteeds()
+- Fix: impossible 'placing <monster> over <monster> at <location>'
 

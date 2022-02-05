@@ -2483,6 +2483,9 @@ struct attack *mattk;
         if ((t && is_pit(t->ttyp)) && sobj_at(BOULDER, u.ux, u.uy))
             return 0;
 
+        if (!goodpos(u.ux, u.uy, mtmp, 0))
+            return 0;
+
         if (Punished)
             unplacebc(); /* ball&chain go away */
         remove_monster(omx, omy);
