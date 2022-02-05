@@ -749,33 +749,33 @@ boolean ghostly;
     register struct monst *mon;
     unsigned int steed_id;
 
-     for (mon = fmon; mon; mon = mon->nmon) {
+    for (mon = fmon; mon; mon = mon->nmon) {
         if (mon->mextra && ERID(mon)) {
             /* The steed id will change on loading a bones file */
-            if(ghostly) {
+            if (ghostly) {
                 lookup_id_mapping(ERID(mon)->mid, &steed_id);
             } else {
                 steed_id = ERID(mon)->mid;
             }
 
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-              if (mtmp->m_id == steed_id)
-                  break;
+                if (mtmp->m_id == steed_id)
+                    break;
             }
+
             if (!mtmp) {
-                /* steed probably died but was not cleaned up due to other issues */
-                impossible("Cannot find monster steed.");
                 free_erid(mon);
-            } else 
+            } else {
                 ERID(mon)->m1 = mtmp;
+            }
         }
     }
 
     for (mon = migrating_mons; mon; mon = mon->nmon) {
         if (mon->mextra && ERID(mon)) {
             for (mtmp = migrating_mons; mtmp; mtmp = mtmp->nmon) {
-              if (mtmp->m_id == ERID(mon)->mid)
-                  break;
+                if (mtmp->m_id == ERID(mon)->mid)
+                    break;
             }
             if (!mtmp)
                 panic("Cannot find monster steed.");
@@ -783,6 +783,7 @@ boolean ghostly;
         }
     }
 }
+
  /* update game state pointers to those valid for the current level (so we
  * don't dereference a wild u.ustuck when saving the game state, for instance)
  */
