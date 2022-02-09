@@ -191,8 +191,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Keolewa from SporkHack - a Hawaiian war club.
      *      Buffing this up a bit to give it more utility.
      */
-    A("Keolewa", CLUB, (SPFX_RESTR | SPFX_DEFN), 0, 0,
-      PHYS(5, 6), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL, PM_CAVEMAN, NON_PM,
+    A("Keolewa", CLUB, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
+      ELEC(5, 8), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL, PM_CAVEMAN, NON_PM,
       2000L, NO_COLOR),
     /*
      *      Dirge from SporkHack, but with a twist.

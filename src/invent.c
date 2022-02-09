@@ -967,11 +967,13 @@ struct obj *obj;
 
     /* fill empty quiver if obj was thrown */
     if (flags.pickup_thrown && !uquiver && obj_was_thrown
-        /* if Mjollnir is thrown and fails to return, we want to
-           auto-pick it when we move to its spot, but not into quiver;
-           aklyses behave like Mjollnir when thrown while wielded, but
-           we lack sufficient information here make them exceptions */
+        /* if Mjollnir or Xiuhcoatl is thrown and fails to return,
+           we want to auto-pick it when we move to its spot, but not
+           into quiver; aklyses behave like these artifactswhen thrown
+           while wielded, but we lack sufficient information here make
+           them exceptions */
         && obj->oartifact != ART_MJOLLNIR
+        && obj->oartifact != ART_XIUHCOATL
         && (throwing_weapon(obj) || is_ammo(obj)))
         setuqwep(obj);
  added:

@@ -1343,7 +1343,7 @@ const char *name;
                     }
                     if (!Deaf) {
                         pline("%s says:", Blind ? "Someone" : Monnam(mtmp));
-                        verbalize("%s is not yours to take! %s it!",
+                        verbalize("%s is not yours to take!  %s it!",
                                     artiname(obj->oartifact),
                                     rn2(2) ? "Relinquish" : "Return");
                     }

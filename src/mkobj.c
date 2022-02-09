@@ -3314,6 +3314,14 @@ static const struct icp dwarvish_weapon_materials[] = {
     { 5, GEMSTONE} /* gemstone is very hard and very sharp */
 };
 
+static const struct icp elven_weapon_materials[] = {
+    /* melee weapons only */
+    {50, WOOD},
+    {25, COPPER},
+    {20, MITHRIL},
+    { 5, SILVER}
+};
+
 static const struct icp bow_materials[] = {
     /* assumes all bows will be wood by default, fairly safe assumption */
     {75, WOOD},
@@ -3402,6 +3410,12 @@ struct obj* obj;
         case DWARVISH_MATTOCK:
         case DWARVISH_BEARDED_AXE:
             return dwarvish_weapon_materials;
+        case ELVEN_SPEAR:
+        case ELVEN_DAGGER:
+        case ELVEN_SHORT_SWORD:
+        case ELVEN_BROADSWORD:
+        case ELVEN_LONG_SWORD:
+            return elven_weapon_materials;
         case CHEST:
         case LARGE_BOX:
             return wood_materials;

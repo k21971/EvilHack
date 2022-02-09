@@ -185,6 +185,8 @@ xchar m;
         break;
     case ART_DIRGE:
     case ART_DRAMBORLEG:
+    case ART_ORCRIST:
+    case ART_STING:
         return MITHRIL;
         break;
     case ART_FIRE_BRAND:
@@ -1803,6 +1805,24 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     }
                 } else {
                     pline_The("massive hammer hits%s %s%c",
+                              !spec_dbon_applies
+                                  ? ""
+                                  : "!  Lightning strikes",
+                              hittee, !spec_dbon_applies ? '.' : '!');
+                }
+            } else if (otmp->oartifact == ART_KEOLEWA) {
+                if (!youattack && magr && cansee(magr->mx, magr->my)) {
+                    if (!spec_dbon_applies) {
+                        if (!youdefend)
+                            ;
+                        else
+                            pline_The("war club hits %s.", hittee);
+                    } else {
+                        pline_The("war club hits!  Lightning strikes %s%c",
+                                  hittee, !spec_dbon_applies ? '.' : '!');
+                    }
+                } else {
+                    pline_The("war club hits%s %s%c",
                               !spec_dbon_applies
                                   ? ""
                                   : "!  Lightning strikes",

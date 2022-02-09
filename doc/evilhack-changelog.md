@@ -2118,4 +2118,5 @@ The following changes to date are:
 - Fix: invalid material 7 (otyp 427)
 - Fix: unnecessary impossible() in restmonsteeds()
 - Fix: impossible 'placing <monster> over <monster> at <location>'
+- Some minor artifact tweaks and improvements
 
