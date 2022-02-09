@@ -2126,4 +2126,5 @@ The following changes to date are:
 - Fix: warning: variable 'permdmg' is used uninitialized whenever switch case is
   taken [-Wsometimes-uninitialized]
 - Fix: better handling when trying to drink from a puddle or sewage
+- Fix: monster vs closed door messaging
 
