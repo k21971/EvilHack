@@ -26,7 +26,7 @@ static NEARDATA const char bullets[] = { ALLOW_COUNT, COIN_CLASS, ALL_CLASSES,
                                          GEM_CLASS, 0 };
 
 /* thrownobj (decl.c) tracks an object until it lands */
-struct obj *stack = 0;
+static struct obj *ammo_stack = 0;
 
 extern boolean notonhead; /* for long worms */
 
@@ -246,6 +246,7 @@ int shotlimit;
     wep_mask = obj->owornmask;
     m_shot.o = obj->otyp;
     m_shot.n = multishot;
+    ammo_stack = obj;
     for (m_shot.i = 1; m_shot.i <= m_shot.n; m_shot.i++) {
         twoweap = u.twoweap;
         /* split this object off from its slot if necessary */
@@ -256,10 +257,10 @@ int shotlimit;
             if (otmp->owornmask)
                 remove_worn_item(otmp, FALSE);
         }
-        stack = obj;
         freeinv(otmp);
         throwit(otmp, wep_mask, twoweap);
     }
+    ammo_stack = (struct obj *) 0;
     m_shot.n = m_shot.i = 0;
     m_shot.o = STRANGE_OBJECT;
     m_shot.s = FALSE;
@@ -1074,8 +1075,8 @@ boolean hitsroof;
             artimsg = artifact_hit((struct monst *) 0, &youmonst, obj, &dmg,
                                    rn1(18, 2));
 
-        if (stack)
-            stack->oprops_known |= obj->oprops_known;
+        if (ammo_stack)
+            ammo_stack->oprops_known |= obj->oprops_known;
 
         if (!dmg) { /* probably wasn't a weapon; base damage on weight */
             dmg = (int) obj->owt / 100;
@@ -1219,8 +1220,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                     (void) artifact_hit((struct monst *) 0, &youmonst, obj, &dmg,
                                         rn1(18, 2));
 
-                if (stack)
-                    stack->oprops_known |= obj->oprops_known;
+                if (ammo_stack)
+                    ammo_stack->oprops_known |= obj->oprops_known;
 
                 if (dmg > 0)
                     dmg += u.udaminc;
@@ -1433,8 +1434,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
         (void) snuff_candle(obj);
         notonhead = (bhitpos.x != mon->mx || bhitpos.y != mon->my);
         obj_gone = thitmonst(mon, obj);
-        if (!obj_gone && stack)
-            stack->oprops_known |= obj->oprops_known;
+        if (!obj_gone && ammo_stack)
+            ammo_stack->oprops_known |= obj->oprops_known;
         /* Monster may have been tamed; this frees old mon [obsolete] */
         mon = m_at(bhitpos.x, bhitpos.y);
 

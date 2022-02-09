@@ -1219,8 +1219,6 @@ dobreathe()
     return 1;
 }
 
-extern struct obj *stack;
-
 int
 dospit()
 {
@@ -1249,7 +1247,6 @@ dospit()
             break;
         }
         otmp->spe = 1; /* to indicate it's yours */
-        stack = (struct obj *) 0;
         throwit(otmp, 0L, FALSE);
     }
     return 1;

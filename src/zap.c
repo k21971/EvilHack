@@ -4002,8 +4002,6 @@ struct obj **pobj; /* object tossed/used, set to NULL
     return result;
 }
 
-extern struct obj *stack;
-
 /* process thrown boomerang, which travels a curving path...
  * A multi-shot volley ought to have all missiles in flight at once,
  * but we're called separately for each one.  We terminate the volley
@@ -4059,7 +4057,6 @@ int dx, dy;
             bhitpos.y -= dy;
             break;
         }
-        stack = (struct obj *) 0;
         if (bhitpos.x == u.ux && bhitpos.y == u.uy) { /* ct == 9 */
             if (Fumbling || rn2(20) >= ACURR(A_DEX)) {
                 /* we hit ourselves */

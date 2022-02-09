@@ -29,7 +29,7 @@ STATIC_OVL NEARDATA const char *breathwep[] = {
 extern boolean notonhead; /* for long worms */
 STATIC_VAR int mesg_given; /* for m_throw()/thitu() 'miss' message */
 
-extern struct obj *stack;
+static struct obj *ammo_stack = 0;
 
 boolean
 m_has_launcher_and_ammo(mtmp)
@@ -98,8 +98,8 @@ const char *name; /* if null, then format `*objp' */
         else
             You("are hit by %s%s", onm, exclam(dam));
 
-        if (stack)
-            stack->oprops_known |= obj->oprops_known;
+        if (ammo_stack)
+            ammo_stack->oprops_known |= obj->oprops_known;
 
         if (is_acid && Acid_resistance) {
             pline("It doesn't seem to hurt you.");
@@ -656,7 +656,7 @@ register boolean verbose;
     char sym = obj->oclass;
     int hitu = 0, oldumort, blindinc = 0;
 
-    stack = obj;
+    ammo_stack = obj;
 
     bhitpos.x = x;
     bhitpos.y = y;
@@ -700,7 +700,7 @@ register boolean verbose;
         /* check validity of new direction */
         if (!dx && !dy) {
             (void) drop_throw(singleobj, 0, bhitpos.x, bhitpos.y);
-            return;
+            goto cleanup_thrown;
         }
     }
 
@@ -711,7 +711,7 @@ register boolean verbose;
         if (singleobj) {
             (void) drop_throw(singleobj, 0, bhitpos.x, bhitpos.y);
         }
-        return;
+        goto cleanup_thrown;
     }
     mesg_given = 0; /* a 'missile misses' message has not yet been shown */
 
@@ -897,6 +897,9 @@ register boolean verbose;
         if (!Blind)
             Your1(vision_clears);
     }
+
+cleanup_thrown:
+    ammo_stack = (struct obj *) 0;
 }
 
 #undef MT_FLIGHTCHECK
@@ -1149,7 +1152,6 @@ struct monst *mtmp;
         if (dam < 1)
             dam = 1;
 
-        stack = (struct obj *) 0;
         (void) thitu(hitv, dam, &otmp, (char *) 0);
         stop_occupation();
         return TRUE;

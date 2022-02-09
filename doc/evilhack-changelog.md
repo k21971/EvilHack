@@ -2119,4 +2119,5 @@ The following changes to date are:
 - Fix: unnecessary impossible() in restmonsteeds()
 - Fix: impossible 'placing <monster> over <monster> at <location>'
 - Some minor artifact tweaks and improvements
+- Fix: heap-use-after-free errors with stacked ammo that have object properties
 

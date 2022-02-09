@@ -1038,8 +1038,6 @@ static const char *const spearmsgs[] = {
     "imitating a meat popsicle"
 };
 
-extern struct obj *stack;
-
 void
 dotrap(trap, trflags)
 register struct trap *trap;
@@ -1124,7 +1122,6 @@ unsigned trflags;
         otmp = t_missile(ARROW, trap);
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-            stack = (struct obj *) 0;
         } else if (thitu(8, dmgval(otmp, &youmonst), &otmp, "arrow")) {
             if (otmp)
                 obfree(otmp, (struct obj *) 0);
@@ -1151,7 +1148,6 @@ unsigned trflags;
         otmp = t_missile(CROSSBOW_BOLT, trap);
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-            stack = (struct obj *) 0;
         } else if (thitu(8, dmgval(otmp, &youmonst), &otmp, "crossbow bolt")) {
             if (otmp)
                 obfree(otmp, (struct obj *) 0);
@@ -1197,7 +1193,6 @@ unsigned trflags;
         oldumort = u.umortality;
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-            stack = (struct obj *) 0;
         } else if (thitu(7, dmgval(otmp, &youmonst), &otmp, "little dart")) {
             if (otmp) {
                 if (otmp->opoisoned)
@@ -1870,7 +1865,6 @@ struct obj *otmp;
     steed->mx = u.ux;
     steed->my = u.uy;
     trapkilled = steedhit = FALSE;
-    stack = (struct obj *) 0;
 
     switch (tt) {
     case ARROW_TRAP:
@@ -2442,8 +2436,6 @@ register struct monst *mtmp;
     struct permonst *mptr = mtmp->data;
     struct obj *otmp;
     struct monst* mtmp2;
-
-    stack = (struct obj *) 0;
 
     if (!trap) {
         mtmp->mtrapped = 0;      /* perhaps teleported? */
