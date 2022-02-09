@@ -2122,4 +2122,5 @@ The following changes to date are:
 - Fix: heap-use-after-free errors with stacked ammo that have object properties
 - Fix: ammo with object properties used against player (or mon vs mon) 
 - Fix: potential that branch stairs won't form in the gnomish mines
+- Fix: giants incurring luck penalty in sokoban after level was already solved
 

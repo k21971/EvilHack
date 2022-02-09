@@ -6349,7 +6349,14 @@ void
 sokoban_guilt()
 {
     if (Sokoban) {
-        change_luck(-1);
+        /* giants can easily bring boulders to Sokoban and fill up
+           all of the holes, or cirmcumvent existing boulders without
+           moving them - their luck penalty is a bit more severe */
+        if (maybe_polyd(racial_throws_rocks(&youmonst), Race_if(PM_GIANT))) {
+            change_luck(-2);
+        } else {
+            change_luck(-1);
+        }
         /* TODO: issue some feedback so that player can learn that whatever
            he/she just did is a naughty thing to do in sokoban and should
            probably be avoided in future....

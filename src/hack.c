@@ -116,7 +116,7 @@ moverock()
     if (maybe_polyd(racial_throws_rocks(&youmonst), Race_if(PM_GIANT))
         && context.nopick) {
         if (In_sokoban(&u.uz) && sobj_at(BOULDER, sx, sy))
-            change_luck(-2);
+            sokoban_guilt();
         return 0;
     }
 
