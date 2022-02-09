@@ -2121,4 +2121,5 @@ The following changes to date are:
 - Some minor artifact tweaks and improvements
 - Fix: heap-use-after-free errors with stacked ammo that have object properties
 - Fix: ammo with object properties used against player (or mon vs mon) 
+- Fix: potential that branch stairs won't form in the gnomish mines
 
