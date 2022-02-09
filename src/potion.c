@@ -626,10 +626,16 @@ dodrink()
         && !verysmall(youmonst.data))
         || (is_pool(u.ux, u.uy) && Wwalking))
         && !u.uswallow && can_reach_floor(FALSE)) {
-        if (yn("Drink the water beneath you?") == 'y') {
-            if (is_sewage(u.ux, u.uy)) {
-                if (yn("Do you really want to drink raw sewage?") == 'y') {
-                    pline("This sewage is foul!");
+        boolean on_sewage = is_sewage(u.ux, u.uy);
+        char prompt[BUFSZ];
+        const char *liq;
+        liq = hliquid(on_sewage ? "sewage" : "water");
+        Sprintf(prompt, "Drink the %s beneath you?", liq);
+        if (yn(prompt) == 'y') {
+            if (on_sewage) {
+                if (Hallucination
+                    || yn("Do you really want to drink raw sewage?") == 'y') {
+                    pline("This %s is foul!", liq);
                     if (how_resistant(SICK_RES) == 100) {
                         You_feel("mildly nauseous.");
                         losehp(rnd(4), "upset stomach", KILLED_BY_AN);

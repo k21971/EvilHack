@@ -2125,4 +2125,5 @@ The following changes to date are:
 - Fix: giants incurring luck penalty in sokoban after level was already solved
 - Fix: warning: variable 'permdmg' is used uninitialized whenever switch case is
   taken [-Wsometimes-uninitialized]
+- Fix: better handling when trying to drink from a puddle or sewage
 
