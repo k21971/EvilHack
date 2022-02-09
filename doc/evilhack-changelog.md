@@ -2120,4 +2120,5 @@ The following changes to date are:
 - Fix: impossible 'placing <monster> over <monster> at <location>'
 - Some minor artifact tweaks and improvements
 - Fix: heap-use-after-free errors with stacked ammo that have object properties
+- Fix: ammo with object properties used against player (or mon vs mon) 
 

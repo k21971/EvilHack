@@ -98,6 +98,10 @@ const char *name; /* if null, then format `*objp' */
         else
             You("are hit by %s%s", onm, exclam(dam));
 
+        if (obj && obj->oclass == WEAPON_CLASS
+            && obj->oprops & ITEM_PROP_MASK)
+            (void) artifact_hit((struct monst *) 0, &youmonst, obj, &dam, 0);
+
         if (ammo_stack)
             ammo_stack->oprops_known |= obj->oprops_known;
 
@@ -556,6 +560,15 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             /* Extra damage is already handled in dmgval(). */
             searmsg((struct monst *) 0, mtmp, otmp, FALSE);
         }
+        if (!DEADMONSTER(mtmp) && otmp->oclass == WEAPON_CLASS
+            && otmp->oprops & ITEM_PROP_MASK) {
+            /* damage from objects with offensive object properties */
+            (void) artifact_hit((struct monst *) 0, mtmp, otmp, &damage, 0);
+        }
+
+        if (ammo_stack)
+            ammo_stack->oprops_known |= otmp->oprops_known;
+
         if (otmp->otyp == ACID_VENOM && cansee(mtmp->mx, mtmp->my)) {
             if (resists_acid(mtmp)) {
                 if (vis || (verbose && !target))
