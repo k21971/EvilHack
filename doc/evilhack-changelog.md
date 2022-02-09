@@ -2123,4 +2123,6 @@ The following changes to date are:
 - Fix: ammo with object properties used against player (or mon vs mon) 
 - Fix: potential that branch stairs won't form in the gnomish mines
 - Fix: giants incurring luck penalty in sokoban after level was already solved
+- Fix: warning: variable 'permdmg' is used uninitialized whenever switch case is
+  taken [-Wsometimes-uninitialized]
 

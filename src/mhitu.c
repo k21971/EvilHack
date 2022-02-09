@@ -3308,7 +3308,7 @@ struct attack *mattk;
                 You("are unaffected by death magic.");
                 break;
             }
-            int dmg, permdmg;
+            int dmg, permdmg = 0;
             switch (rn2(20)) {
             case 19:
             case 18:
