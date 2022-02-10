@@ -2127,4 +2127,5 @@ The following changes to date are:
   taken [-Wsometimes-uninitialized]
 - Fix: better handling when trying to drink from a puddle or sewage
 - Fix: monster vs closed door messaging
+- Fix: cursed light vs worn light
 
