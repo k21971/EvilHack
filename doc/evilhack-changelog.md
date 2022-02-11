@@ -2135,4 +2135,5 @@ The following changes to date are:
   their possesion (pre-imbued Idol of Moloch)
 - Fix: large box/chest spawning inside of another chest at Mines' End
   (Sewers of Waterdeep)
+- Fix: wishing for gold pieces
 

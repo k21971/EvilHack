@@ -3604,6 +3604,7 @@ struct obj *no_wish;
             if (!strncmpi(bp, "silver dragon", l = 13)
                 || !strncmpi(bp, "gold dragon", l = 11)
                 || !strcmp(bp, "gold")
+                || !strncmpi(bp, "gold piece", l = 10)
                 || !strncmpi(bp, "platinum yendorian express card", l = 31)
                 || !strncmpi(bp, "iron bars", l = 9)
                 || !strncmpi(bp, "crystal chest", l = 13)
@@ -3995,8 +3996,15 @@ struct obj *no_wish;
         || !BSTRCMPI(bp, p - 7, "zorkmid")
         || !strcmpi(bp, "gold") || !strcmpi(bp, "money")
         || !strcmpi(bp, "coin") || *bp == GOLD_SYM) {
-        typ = GOLD_PIECE;
-        goto typfnd;
+        if (cnt > 5000 && !wizard)
+            cnt = 5000;
+        else if (cnt < 1)
+            cnt = 1;
+        otmp = mksobj(GOLD_PIECE, FALSE, FALSE);
+        otmp->quan = (long) cnt;
+        otmp->owt = weight(otmp);
+        context.botl = 1;
+        return otmp;
     }
 
     /* check for single character object class code ("/" for wand, &c) */
@@ -4510,12 +4518,8 @@ struct obj *no_wish;
     if (cnt > 1 && objects[typ].oc_merge
         && (wizard || cnt < rnd(6) || (cnt <= 7 && Is_candle(otmp))
             || (cnt <= 20 && ((oclass == WEAPON_CLASS && is_ammo(otmp))
-                              || typ == ROCK || is_missile(otmp))))) {
-        if (oclass == COIN_CLASS && !wizard && cnt > 5000) {
-            cnt = 5000;
-        }
+                              || typ == ROCK || is_missile(otmp)))))
         otmp->quan = (long) cnt;
-    }
 
     if (oclass == VENOM_CLASS)
         otmp->spe = 1;
