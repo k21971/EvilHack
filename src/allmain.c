@@ -758,7 +758,9 @@ int wtcap;
 {
     int heal = 0;
     boolean reached_full = FALSE,
-            encumbrance_ok = (wtcap < MOD_ENCUMBER || !u.umoved);
+            encumbrance_ok = (wtcap < MOD_ENCUMBER || !u.umoved),
+            infidel_no_amulet = (u.ualign.type == A_NONE && !u.uhave.amulet
+                                 && !u.uachieve.amulet);
 
     if (Upolyd) {
         if (u.mh < 1) { /* shouldn't happen... */
@@ -788,7 +790,8 @@ int wtcap;
            once u.mh reached u.mhmax; that may have been convenient
            for the player, but it didn't make sense for gameplay...] */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
-            && (encumbrance_ok || Regeneration) && !Is_valley(&u.uz)) {
+            && (encumbrance_ok || Regeneration) && !Is_valley(&u.uz)
+            && !infidel_no_amulet) {
             if (u.ulevel > 9) {
                 if (!(moves % 3L)) {
                     int Con = (int) ACURR(A_CON);

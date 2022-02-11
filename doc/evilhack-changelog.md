@@ -2131,4 +2131,6 @@ The following changes to date are:
 - Fix: tty map weirdness after 'full-screen' menu
 - Fix: return DOORMAX to proper value, level creation fixes
 - Fix: armor with 'excellence' object property adversely affecting charisma
+- Infidels cannot regenerate hit points without the Amulet of Yendor in
+  their possesion (pre-imbued Idol of Moloch)
 
