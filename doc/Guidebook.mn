@@ -3525,8 +3525,9 @@ show lists the traditional way without sorting.
 Sort the pack contents by type when displaying inventory (default on).
 Persistent.
 .lp sparkle
-Display a sparkly effect when a monster (including yourself) is hit by an
-attack to which it is resistant (default on).
+Specify the length in frames of the sparkly animation the that is
+displayed when a monster (including you) is hit by an effect to which
+it is resistant (default 21).
 Persistent.
 .lp standout
 Boldface monsters and \(lq\fB\-\-More\-\-\fP\(rq (default off).

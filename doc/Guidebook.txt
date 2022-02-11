@@ -4048,9 +4048,9 @@
             fault on).  Persistent.
 
           sparkle
-            Display a sparkly effect when a monster (including yourself) is
-            hit  by  an attack to which it is resistant (default on).  Per-
-            sistent.
+            Specify the length in frames of the sparkly animation the that
+            is displayed when a monster (including you) is hit by an effect
+            to which it is resistant (default 21).  Persistent.
 
           standout
             Boldface monsters and "--More--" (default off).  Persistent.

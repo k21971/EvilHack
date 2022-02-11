@@ -2136,4 +2136,5 @@ The following changes to date are:
 - Fix: large box/chest spawning inside of another chest at Mines' End
   (Sewers of Waterdeep)
 - Fix: wishing for gold pieces
+- Allow specification of length of sparkle animation
 
