@@ -771,8 +771,13 @@ maybe_add_door(x, y, droom)
 int x, y;
 struct mkroom *droom;
 {
-    if (droom->hx >= 0 && doorindex < DOORMAX && inside_room(droom, x, y))
+    if (droom->hx >= 0 && doorindex < DOORMAX && inside_room(droom, x, y)) {
+        int i;
+        for (i = droom->fdoor; i < droom->fdoor + droom->doorct; i++)
+            if (doors[i].x == x && doors[i].y == y)
+                return;
         add_door(x, y, droom);
+    }
 }
 
 STATIC_OVL void

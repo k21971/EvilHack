@@ -182,6 +182,8 @@
     <Levfiles Include = "vlt-0029.lev"/>
     <Levfiles Include = "vlt-0030.lev"/>
     <Levfiles Include = "vlt-0031.lev"/>
+    <Levfiles Include = "vlt-0032.lev"/>
+    <Levfiles Include = "vlt-0033.lev"/>
     <Levfiles Include = "fakewiz1.lev"/>
     <Levfiles Include = "fakewiz2.lev"/>
     <Levfiles Include = "wizard1.lev"/>

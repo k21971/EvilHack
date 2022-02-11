@@ -2129,4 +2129,5 @@ The following changes to date are:
 - Fix: monster vs closed door messaging
 - Fix: cursed light vs worn light
 - Fix: tty map weirdness after 'full-screen' menu
+- Fix: return DOORMAX to proper value, level creation fixes
 

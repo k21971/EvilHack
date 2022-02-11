@@ -1673,6 +1673,8 @@
 				"$(NH_DAT_DIR)/vlt-0029.lev",
 				"$(NH_DAT_DIR)/vlt-0030.lev",
 				"$(NH_DAT_DIR)/vlt-0031.lev",
+				"$(NH_DAT_DIR)/vlt-0032.lev",
+				"$(NH_DAT_DIR)/vlt-0033.lev",
 				"$(NH_DAT_DIR)/water.lev",
 				"$(NH_DAT_DIR)/wizard1.lev",
 				"$(NH_DAT_DIR)/wizard2.lev",
