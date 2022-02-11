@@ -2133,4 +2133,6 @@ The following changes to date are:
 - Fix: armor with 'excellence' object property adversely affecting charisma
 - Infidels cannot regenerate hit points without the Amulet of Yendor in
   their possesion (pre-imbued Idol of Moloch)
+- Fix: large box/chest spawning inside of another chest at Mines' End
+  (Sewers of Waterdeep)
 
