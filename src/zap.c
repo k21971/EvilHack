@@ -1205,20 +1205,13 @@ register struct obj *obj;
         if ((obj->owornmask & W_RING) && u_ring)
             u.udaminc -= obj->spe;
         break;
-    case GAUNTLETS_OF_DEXTERITY:
-        if ((obj->owornmask & W_ARMG) && (obj == uarmg)) {
-            ABON(A_DEX) -= obj->spe;
-            context.botl = 1;
-        }
-        break;
-    case HELM_OF_BRILLIANCE:
-        if ((obj->owornmask & W_ARMH) && (obj == uarmh)) {
-            ABON(A_INT) -= obj->spe;
-            ABON(A_WIS) -= obj->spe;
-            context.botl = 1;
-        }
-        break;
         /* case RIN_PROTECTION:  not needed */
+        /* same for case GAUNTLETS_OF_DEXTERITY and HELM_OF_BRILLIANCE,
+         * handled by adj_abon below */
+    }
+    if ((obj->owornmask & W_ARMOR)) {
+        /* adj_abon handles HoB, GoD, and armor 'of excellence' */
+        adj_abon(obj, -(obj->spe));
     }
     /* Small chance DSM can revert to scales if cancelled */
     if (!rn2(6) && obj->otyp >= GRAY_DRAGON_SCALE_MAIL
@@ -1350,20 +1343,14 @@ boolean by_you;
             context.botl = 1; /* bot() will recalc u.uac */
         break;
     case HELM_OF_BRILLIANCE:
-        if ((obj->owornmask & W_ARMH) && (obj == uarmh)) {
-            ABON(A_INT)--;
-            ABON(A_WIS)--;
-            context.botl = 1;
-        }
-        break;
     case GAUNTLETS_OF_DEXTERITY:
-        if ((obj->owornmask & W_ARMG) && (obj == uarmg)) {
-            ABON(A_DEX)--;
-            context.botl = 1;
-        }
-        break;
+        /* handled in adj_abon below, nothing explicit needed here */
     default:
         break;
+    }
+    if ((obj->owornmask & W_ARMOR)) {
+        /* adj_abon handles HoB, GoD, and armor 'of excellence' */
+        adj_abon(obj, -1);
     }
     if (context.botl)
         bot();

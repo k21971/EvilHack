@@ -173,8 +173,6 @@ register struct obj *otmp;
 long mask;
 {
     long props = otmp->oprops;
-    int old_attrib, which;
-    boolean observable;
 
     if (props & ITEM_FIRE)
         EFire_resistance |= mask;
@@ -208,13 +206,11 @@ long mask;
     if (props & ITEM_HUNGER)
         EHunger |= mask;
     if (props & ITEM_EXCEL) {
+        int which = A_CHA, old_attrib = ACURR(which);
         /* borrowing this from Ring_on() as I may want
            to add other attributes in the future */
-        which = A_CHA;
-        old_attrib = ACURR(which);
         ABON(which) += otmp->spe;
-        observable = (old_attrib != ACURR(which));
-        if (observable || !extremeattr(which))
+        if (old_attrib != ACURR(which))
             otmp->oprops_known |= ITEM_EXCEL;
         set_moreluck();
         context.botl = 1;
@@ -295,8 +291,6 @@ register struct obj *otmp;
 long mask;
 {
     long props = otmp->oprops;
-    int old_attrib, which;
-    boolean observable;
 
     if (props & ITEM_FIRE)
         EFire_resistance &= ~mask;
@@ -328,13 +322,11 @@ long mask;
     if (props & ITEM_HUNGER)
         EHunger &= ~mask;
     if (props & ITEM_EXCEL) {
+        int which = A_CHA, old_attrib = ACURR(which);
         /* borrowing this from Ring_off() as I may want
            to add other attributes in the future */
-        which = A_CHA;
-        old_attrib = ACURR(which);
         ABON(which) -= otmp->spe;
-        observable = (old_attrib != ACURR(which));
-        if (observable || !extremeattr(which))
+        if (old_attrib != ACURR(which))
             otmp->oprops_known |= ITEM_EXCEL;
         otmp->oprops &= ~ITEM_EXCEL;
         set_moreluck();
@@ -3463,6 +3455,17 @@ register schar delta;
             makeknown(uarmh->otyp);
             ABON(A_INT) += (delta);
             ABON(A_WIS) += (delta);
+        }
+        context.botl = 1;
+    }
+    if (otmp && (otmp->oprops & ITEM_EXCEL) && (otmp->owornmask & W_ARMOR)) {
+        if (delta) {
+            int which = A_CHA,
+                old_attrib = ACURR(which);
+            ABON(which) += (delta);
+            if (old_attrib != ACURR(which))
+                otmp->oprops_known |= ITEM_EXCEL;
+            set_moreluck();
         }
         context.botl = 1;
     }

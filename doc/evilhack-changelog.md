@@ -2130,4 +2130,5 @@ The following changes to date are:
 - Fix: cursed light vs worn light
 - Fix: tty map weirdness after 'full-screen' menu
 - Fix: return DOORMAX to proper value, level creation fixes
+- Fix: armor with 'excellence' object property adversely affecting charisma
 
