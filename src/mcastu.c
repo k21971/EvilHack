@@ -1678,9 +1678,13 @@ register struct attack *mattk;
          * it's undirected but should still target the
          * victim so as to aggravate you */
         if (is_undirected_spell(mattk->adtyp, spellnum)
-            && (mattk->adtyp != AD_SPEL
-                || (spellnum != MGC_AGGRAVATION
-                    && spellnum != MGC_SUMMON_MONS))) {
+            /* 'undirected-but-not-really' spells: */
+            && (mattk->adtyp == AD_SPEL
+                /* magic spells */
+                ? (spellnum != MGC_AGGRAVATION
+                    && spellnum != MGC_SUMMON_MONS)
+                /* clerical spells */
+                : (spellnum != CLC_INSECTS))) {
             if (mattk->adtyp == AD_SPEL)
                 cast_wizard_spell(mtmp, dmg, spellnum);
             else

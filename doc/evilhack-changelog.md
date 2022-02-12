@@ -2138,4 +2138,6 @@ The following changes to date are:
 - Fix: wishing for gold pieces
 - Allow specification of length of sparkle animation
 - Fix: tweak goodpos() fix when a monster engulfs the player
+- Fix: monster casting 'summon insects' spell at another monster would
+  target the player instead
 
