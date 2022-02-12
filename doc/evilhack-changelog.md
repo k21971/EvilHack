@@ -2137,4 +2137,5 @@ The following changes to date are:
   (Sewers of Waterdeep)
 - Fix: wishing for gold pieces
 - Allow specification of length of sparkle animation
+- Fix: tweak goodpos() fix when a monster engulfs the player
 
