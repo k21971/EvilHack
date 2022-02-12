@@ -958,7 +958,7 @@ int reason; /* Player was thrown off etc. */
             struct permonst *mdat = mtmp->data;
 
             /* The steed may drop into water/lava */
-            if (!is_flyer(mdat) && !is_floater(mdat) && !is_clinger(mdat)) {
+            if (!is_flyer(mdat) && !is_floater(mdat) && !ceiling_hider(mdat)) {
                 if (is_pool(u.ux, u.uy)) {
                     if (!Underwater)
                         pline("%s falls into the %s!", Monnam(mtmp),
@@ -977,7 +977,7 @@ int reason; /* Player was thrown off etc. */
                         adjalign(-1);
                     }
                 } else if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)) {
-                    pline("%s plummets a few thousand feet to %s death.",
+                    pline("%s plummets several thousand feet to %s death.",
                           Monnam(mtmp), mhis(mtmp));
                     /* no corpse or objects as both are now several thousand feet down */
                     mongone(mtmp);

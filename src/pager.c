@@ -959,7 +959,7 @@ struct permonst * pm;
         APPENDC(is_flyer(pm), "fly");
     APPENDC(passes_walls(pm), "phase through walls");
     APPENDC(can_teleport(pm), "teleport");
-    APPENDC(is_clinger(pm), "cling to the ceiling");
+    APPENDC(ceiling_hider(pm), "cling to the ceiling");
     APPENDC(is_jumper(pm), "jump");
     APPENDC(webmaker(pm), "spin webs");
     APPENDC(needspick(pm), "mine");

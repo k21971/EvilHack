@@ -75,7 +75,7 @@ unsigned gpflags;
                 return (is_swimmer(mdat)
                         || (!Is_waterlevel(&u.uz)
                             && (is_floater(mdat) || is_flyer(mdat)
-                                || is_clinger(mdat))));
+                                || ceiling_hider(mdat))));
         } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater
                    && !is_puddle(x, y)) {
             return FALSE;
@@ -95,7 +95,7 @@ unsigned gpflags;
         }
         if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
             && !(is_flyer(mdat) || is_floater(mdat)
-                 || is_clinger(mdat)))
+                 || ceiling_hider(mdat)))
             return FALSE;
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;
@@ -1035,7 +1035,7 @@ level_tele()
             escape_by_flying = "fly down to the ground";
         } else {
             pline("Unfortunately, you don't know how to fly.");
-            You("plummet a few thousand feet to your death.");
+            You("plummet several thousand feet to your death.");
             Sprintf(killer.name,
                     "teleported out of the dungeon and fell to %s death",
                     uhis());

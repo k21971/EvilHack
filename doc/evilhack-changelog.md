@@ -2140,4 +2140,5 @@ The following changes to date are:
 - Fix: tweak goodpos() fix when a monster engulfs the player
 - Fix: monster casting 'summon insects' spell at another monster would
   target the player instead
+- Fix: large/giant mimics spawning or travelling where they shouldn't
 
