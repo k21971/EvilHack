@@ -3076,23 +3076,65 @@ boolean youattack, allow_cancel_kill, self_cancel;
             find_ac();
         }
     } else {
-        if (youattack && canseemon(mdef)) {
-            if (!mdef->mcan)
-                pline("Magical energies are absorbed from %s.", mon_nam(mdef));
-            else if (mdef->mcan)
-                pline("%s appears to already be diminished.", Monnam(mdef));
-        }
-        if (youdefend)
-            You_feel("magical energies being absorbed from your vicinity.");
-        if (youdefend && Antimagic) {
+        /* shield effect if target has MR - does not
+           protect against cancellation */
+        if (youdefend && Antimagic)
             shieldeff(u.ux, u.uy);
-        } else if (!youdefend && resisted) {
+        if (!youdefend && resisted)
             shieldeff(mdef->mx, mdef->my);
-        } else if (!youdefend && !youattack) {
-            if (!mdef->mcan)
+
+        /* player attacking monster */
+        if (youattack) {
+            if (!mdef->mcan && canseemon(mdef))
                 pline("Magical energies are absorbed from %s.", mon_nam(mdef));
-            else if (mdef->mcan)
-                pline("%s appears to already be diminished.", Monnam(mdef));
+            if (mdef->mprotection) {
+                if (canseemon(mdef))
+                    pline_The("%s haze around %s %s.",
+                              hcolor(NH_GOLDEN), mon_nam(mdef), "disappears");
+                mdef->mprotection = mdef->mprottime = 0;
+            }
+            if (has_reflection(mdef)) {
+                if (canseemon(mdef))
+                    pline("%s shimmering globe disappears.",
+                          s_suffix(Monnam(mdef)));
+                mdef->mextrinsics &= ~(MR2_REFLECTION);
+                mdef->mreflecttime = 0;
+            }
+        }
+
+        /* monster attacking player */
+        if (youdefend) {
+            You_feel("magical energies being absorbed from your vicinity.");
+            if (u.uspellprot) {
+                pline_The("%s haze around you disappears.",
+                          hcolor(NH_GOLDEN));
+                u.usptime = u.uspmtime = u.uspellprot = 0;
+                context.botl = 1; /* potential AC change */
+                find_ac();
+            }
+            if (HReflecting > 0) {
+                pline("The shimmering globe around you disappears.");
+                HReflecting = 0;
+            }
+        }
+
+        /* monster attacking another monster */
+        if (!youdefend && !youattack) {
+            if (!mdef->mcan && canseemon(mdef))
+                pline("Magical energies are absorbed from %s.", mon_nam(mdef));
+            if (mdef->mprotection) {
+                if (canseemon(mdef))
+                    pline_The("%s haze around %s %s.",
+                              hcolor(NH_GOLDEN), mon_nam(mdef), "disappears");
+                mdef->mprotection = mdef->mprottime = 0;
+            }
+            if (has_reflection(mdef)) {
+                if (canseemon(mdef))
+                    pline("%s shimmering globe disappears.",
+                          s_suffix(Monnam(mdef)));
+                mdef->mextrinsics &= ~(MR2_REFLECTION);
+                mdef->mreflecttime = 0;
+            }
         }
 
         for (otmp = (youdefend ? invent : mdef->minvent);

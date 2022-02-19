@@ -2144,4 +2144,5 @@ The following changes to date are:
 - Fix: sparkle animation patch
 - Monster spell 'reflection' can timeout
 - Knights get no caitiff penalty against undead
+- Cancellation can remove certain spell effects
 
