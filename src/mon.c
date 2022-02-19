@@ -1145,6 +1145,14 @@ mcalcdistress()
             continue;
         }
 
+        if (has_reflection(mtmp) && mtmp->mreflecttime <= 1) {
+            if (canseemon(mtmp))
+                pline("%s shimmering globe disappears.",
+                      s_suffix(Monnam(mtmp)));
+            mtmp->mextrinsics &= ~(MR2_REFLECTION);
+            continue;
+        }
+
         /* possibly polymorph shapechangers and lycanthropes */
         if (mtmp->cham >= LOW_PM)
             decide_to_shapeshift(mtmp, (canspotmon(mtmp)

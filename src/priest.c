@@ -1121,6 +1121,9 @@ struct monst *mtmp;
                          : ", [? speed]");
     if (mtmp->minvis)
         Strcat(info, ", invisible");
+    /* monster spell 'reflection' only */
+    if (has_reflection(mtmp))
+        Strcat(info, ", reflecting");
     if (mtmp == u.ustuck)
         Strcat(info, sticks(youmonst.data) ? ", held by you"
                       : !u.uswallow ? ", holding you"

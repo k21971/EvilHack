@@ -2142,4 +2142,5 @@ The following changes to date are:
   target the player instead
 - Fix: large/giant mimics spawning or travelling where they shouldn't
 - Fix: sparkle animation patch
+- Monster spell 'reflection' can timeout
 

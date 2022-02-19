@@ -223,6 +223,8 @@ boolean digest_meal;
         mon->msicktime--;
     if (mon->mdiseasetime)
         mon->mdiseasetime--;
+    if (mon->mreflecttime)
+        mon->mreflecttime--;
     if (digest_meal) {
         if (mon->meating) {
             mon->meating--;

@@ -881,6 +881,10 @@ register struct monst *mdef;
             pline("A shimmering globe appears around %s!", mon_nam(mdef));
         /* monster reflection is handled in mon_reflects() */
         mdef->mextrinsics |= MR2_REFLECTION;
+        mdef->mreflecttime = rn1(10, (mdef->iswiz || is_prince(mdef->data)
+                                      || mdef->data->msound == MS_NEMESIS
+                                      || mdef->data->msound == MS_LEADER)
+                                     ? 250 : 150);
     }
 }
 

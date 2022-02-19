@@ -205,6 +205,7 @@ struct monst {
     int msummoned;         /* is a temporarily summoned being */
     int msicktime;         /* zombie sick timer */
     int mdiseasetime;      /* diseased timer */
+    int mreflecttime;      /* timeout for monster reflection spell */
     uchar mprotection;     /* monster protection spell */
     uchar mprottime;       /* timeout for monster protection spell */
     struct mextra *mextra; /* point to mextra struct */

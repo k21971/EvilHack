@@ -885,7 +885,7 @@ int spellnum;
     int aligntype, ml = min(mtmp->m_lev, 50);
     static const char *Moloch = "Moloch";
     struct monst *minion = (struct monst *) 0;
- 
+
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
         impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
         return;
