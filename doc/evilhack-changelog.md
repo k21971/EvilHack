@@ -2146,4 +2146,5 @@ The following changes to date are:
 - Knights get no caitiff penalty against undead
 - Cancellation can remove certain spell effects
 - Fix: monsters benefit from resistances imparted by worn/wielded gear
+- Fix: rotting corpse part of a highlited pile
 

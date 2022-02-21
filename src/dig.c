@@ -2065,7 +2065,7 @@ long timeout;
             mtmp->mundetected = 0;
         } else if (x == u.ux && y == u.uy && u.uundetected && hides_under(youmonst.data))
             (void) hideunder(&youmonst);
-        newsym(x, y);
+        newsym_force(x, y);
     } else if (in_invent)
         update_inventory();
 }
