@@ -1312,14 +1312,23 @@ struct obj *obj;
 
     if (!obj)
         return 0;
-    if ((obj->otyp == SPEED_BOOTS || obj->otyp == HELM_OF_SPEED)
+    if (obj_has_prop(obj, ANTIMAGIC)
+        && !(resists_magm(mon) || defended(mon, AD_MAGM)))
+        return 50;
+    if (obj_has_prop(obj, REFLECTING)
+        && !mon_reflects(mon, (char *) 0))
+        return 40;
+    if (obj_has_prop(obj, DISPLACED)
+        && !has_displacement(mon))
+        return 30;
+    if (obj_has_prop(obj, FAST)
         && mon->permspeed != MFAST)
         return 20;
-    if (obj_has_prop(obj, DISPLACED))
-        return 30;
-    if (obj_has_prop(obj, ANTIMAGIC))
-        return 20;
-    if (obj_has_prop(obj, WWALKING))
+    if (obj_has_prop(obj, JUMPING)
+        && !can_jump(mon))
+        return 10;
+    if (obj_has_prop(obj, WWALKING)
+        && !can_wwalk(mon))
         return 10;
     if (obj->oclass != RING_CLASS)
         return 0;
@@ -1340,14 +1349,14 @@ struct obj *obj;
                   || wielding_artifact(ART_XIUHCOATL)
                   || wielding_artifact(ART_ANGELSLAYER)
                   || (u.twoweap && uswapwep->oprops & ITEM_FIRE)
-                  || (uwep && uwep->oprops & ITEM_FIRE)) ? 20 : 12;
+                  || (uwep && uwep->oprops & ITEM_FIRE)) ? 25 : 5;
         break;
     case RIN_COLD_RESISTANCE:
         if (!(resists_cold(mon) || defended(mon, AD_COLD)))
             rc = (dmgtype(youmonst.data, AD_COLD)
                   || wielding_artifact(ART_FROST_BRAND)
                   || (u.twoweap && uswapwep->oprops & ITEM_FROST)
-                  || (uwep && uwep->oprops & ITEM_FROST)) ? 20 : 12;
+                  || (uwep && uwep->oprops & ITEM_FROST)) ? 25 : 5;
         break;
     case RIN_POISON_RESISTANCE:
         if (!(resists_poison(mon) || defended(mon, AD_DRST)))
@@ -1355,7 +1364,7 @@ struct obj *obj;
                   || dmgtype(youmonst.data, AD_DRCO)
                   || dmgtype(youmonst.data, AD_DRDX)
                   || (u.twoweap && uswapwep->oprops & ITEM_VENOM)
-                  || (uwep && uwep->oprops & ITEM_VENOM)) ? 20 : 10;
+                  || (uwep && uwep->oprops & ITEM_VENOM)) ? 25 : 5;
         break;
     case RIN_SHOCK_RESISTANCE:
         if (!(resists_elec(mon) || defended(mon, AD_ELEC)))
@@ -1363,10 +1372,10 @@ struct obj *obj;
                   || wielding_artifact(ART_MJOLLNIR)
                   || wielding_artifact(ART_KEOLEWA)
                   || (u.twoweap && uswapwep->oprops & ITEM_SHOCK)
-                  || (uwep && uwep->oprops & ITEM_SHOCK)) ? 20 : 10;
+                  || (uwep && uwep->oprops & ITEM_SHOCK)) ? 25 : 5;
         break;
     case RIN_REGENERATION:
-        rc = !mon_prop(mon, REGENERATION) ? 25 : 0;
+        rc = !mon_prop(mon, REGENERATION) ? 25 : 5;
         break;
     case RIN_INVISIBILITY:
         if (mon->mtame || mon->mpeaceful)

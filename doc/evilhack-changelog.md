@@ -2147,4 +2147,5 @@ The following changes to date are:
 - Cancellation can remove certain spell effects
 - Fix: monsters benefit from resistances imparted by worn/wielded gear
 - Fix: rotting corpse part of a highlited pile
+- Tweak monster gear preference
 
