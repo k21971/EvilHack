@@ -999,7 +999,7 @@ genericptr_t p2;
                 mtmp->mblinded = 1;
                 mtmp->mcansee = 0;
             }
-            if (resists_poison(mtmp))
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRST))
                 return FALSE;
             damage_mon(mtmp, rnd(dam) + 5, AD_DRST);
             if (DEADMONSTER(mtmp)) {

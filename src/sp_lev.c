@@ -2049,7 +2049,7 @@ struct mkroom *croom;
             /* makemon without rndmonst() might create a group */
             was = makemon(&mons[wastyp], 0, 0, MM_NOCOUNTBIRTH);
             if (was) {
-                if (!resists_ston(was)) {
+                if (!(resists_ston(was) || defended(was, AD_STON))) {
                     (void) propagate(wastyp, TRUE, FALSE);
                     break;
                 }

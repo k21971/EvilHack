@@ -2116,7 +2116,8 @@ boolean taking;
                          && touch_petrifies(&mons[otmp->corpsenm]));
         boolean mtmp_would_ston = (!taking && petri
                                    && !which_armor(mtmp, W_ARMG)
-                                   && !resists_ston(mtmp));
+                                   && !(resists_ston(mtmp)
+                                        || defended(mtmp, AD_STON)));
 
         /* Clear inapplicable wornmask bits */
         unwornmask &= ~(W_ART | W_ARTI | W_QUIVER);

@@ -521,7 +521,8 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         return 1;
     } else {
         damage = dmgval(otmp, mtmp);
-        if (otmp->otyp == ACID_VENOM && resists_acid(mtmp))
+        if (otmp->otyp == ACID_VENOM
+            && (resists_acid(mtmp) || defended(mtmp, AD_ACID)))
             damage = 0;
 #if 0 /* can't use this because we don't have the attacker */
         if (is_orc(mtmp->data) && is_elf(?magr?))
@@ -541,7 +542,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                   Monnam(mtmp), exclam(damage));
 
         if (otmp->opoisoned && is_poisonable(otmp)) {
-            if (resists_poison(mtmp)) {
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRST)) {
                 if (vis)
                     pline_The("poison doesn't seem to affect %s.",
                               mon_nam(mtmp));
@@ -570,7 +571,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             ammo_stack->oprops_known |= otmp->oprops_known;
 
         if (otmp->otyp == ACID_VENOM && cansee(mtmp->mx, mtmp->my)) {
-            if (resists_acid(mtmp)) {
+            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
                 if (vis || (verbose && !target))
                     pline("%s is unaffected.", Monnam(mtmp));
             } else {
@@ -581,13 +582,11 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             }
         }
         if (otmp->otyp == EGG && touch_petrifies(&mons[otmp->corpsenm])) {
-            /* if (!munstone(mtmp, TRUE))
-                minstapetrify(mtmp, TRUE); */
 	    if (!mtmp->mstone) {
 	        mtmp->mstone = 5;
 	        mtmp->mstonebyu = TRUE;
 	    }
-            if (resists_ston(mtmp))
+            if (resists_ston(mtmp) || defended(mtmp, AD_STON))
                 damage = 0;
         }
 

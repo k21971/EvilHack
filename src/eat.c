@@ -667,10 +667,11 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                 pline("%s last thought fades away...",
                       s_suffix(Monnam(mdef)));
             if (*dmg_p < mdef->mhp && is_zombie(magr->data)) {
-                if (visflag && canspotmon(mdef) && !resists_sick(pd))
+                if (visflag && canspotmon(mdef)
+                    && !(resists_sick(pd) || defended(mdef, AD_DISE)))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->msick ? "much worse" : "rather ill");
-                if (resists_sick(pd))
+                if (resists_sick(pd) || defended(mdef, AD_DISE))
                     return MM_MISS;
                 mdef->msick = (can_become_zombie(r_data(mdef))) ? 3 : 1;
             }

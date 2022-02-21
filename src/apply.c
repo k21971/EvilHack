@@ -2767,8 +2767,10 @@ struct obj **optr;
                      * gigantic (purple worm), mindless, or currently in water
                      */
                     if ((is_animal(mtmp->data) || is_undead(mtmp->data))
-                        && !(resists_fire(mtmp) || (mtmp->data->geno & G_UNIQ)
-                             || mtmp->data->msize == MZ_GIGANTIC || mindless(mtmp->data)
+                        && !(resists_fire(mtmp) || defended(mtmp, AD_FIRE)
+                             || (mtmp->data->geno & G_UNIQ)
+                             || mtmp->data->msize == MZ_GIGANTIC
+                             || mindless(mtmp->data)
                              || is_damp_terrain(i, j))) {
                         if (rn2(3))
                             monflee(mtmp, rnd(10), TRUE, TRUE);

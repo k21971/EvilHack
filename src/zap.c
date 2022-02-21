@@ -165,7 +165,7 @@ struct obj *otmp;
         reveal_invis = TRUE;
         if (disguised_mimic)
             seemimic(mtmp);
-        if (resists_magm(mtmp)) { /* match effect on player */
+        if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) { /* match effect on player */
             shieldeff(mtmp->mx, mtmp->my);
             pline("Boing!");
             break; /* skip makeknown */
@@ -201,7 +201,7 @@ struct obj *otmp;
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("%s has no mind, and is immune to your mental attack.",
                       Monnam(mtmp));
-            } else if (resists_psychic(mtmp)) {
+            } else if (resists_psychic(mtmp) || defended(mtmp, AD_PSYC)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("%s resists your mental onslaught!", Monnam(mtmp));
             } else if (!DEADMONSTER(mtmp)) {
@@ -279,7 +279,7 @@ struct obj *otmp;
             /* if a long worm has mcorpsenm set, it was polymophed by
                the current zap and shouldn't be affected if hit again */
             ;
-        } else if (resists_magm(mtmp)) {
+        } else if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
             /* magic resistance protects from polymorph traps, so make
                it guard against involuntary polymorph attacks too... */
             shieldeff(mtmp->mx, mtmp->my);
@@ -532,7 +532,7 @@ struct obj *otmp;
             dmg *= 2;
         if (otyp == SPE_DRAIN_LIFE)
             dmg = spell_damage_bonus(dmg);
-        if (resists_drli(mtmp)) {
+        if (resists_drli(mtmp) || defended(mtmp, AD_DRLI)) {
             shieldeff(mtmp->mx, mtmp->my);
         } else if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
                    && !DEADMONSTER(mtmp)) {
@@ -4134,7 +4134,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         tmp = d(nd, 6);
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
-        if (resists_magm(mon)) {
+        if (resists_magm(mon) || defended(mon, AD_MAGM)) {
             if (resists_mgc(mon->data))
                 tmp = 0;
             else
@@ -4143,7 +4143,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         }
         break;
     case ZT_FIRE:
-        if (resists_fire(mon)) {
+        if (resists_fire(mon) || defended(mon, AD_FIRE)) {
             sho_shieldeff = TRUE;
             break;
         }
@@ -4163,7 +4163,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         }
         break;
     case ZT_COLD:
-        if (resists_cold(mon)) {
+        if (resists_cold(mon) || defended(mon, AD_COLD)) {
             sho_shieldeff = TRUE;
             break;
         }
@@ -4209,7 +4209,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 tmp = 0;
                 break;
             }
-            if (resists_magm(mon)) {
+            if (resists_magm(mon) || defended(mon, AD_MAGM)) {
                 /* similar to player */
                 sho_shieldeff = TRUE;
                 tmp = (tmp + 1) / 2;
@@ -4221,18 +4221,18 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         } else {
             struct obj *otmp2;
 
-            if (resists_disint(mon)) {
+            if (resists_disint(mon) || defended(mon, AD_DISN)) {
                 sho_shieldeff = TRUE;
             } else if (mon->misc_worn_check & W_ARMS) {
                 /* destroy shield; victim survives */
                 *ootmp = which_armor(mon, W_ARMS);
             } else if (mon->misc_worn_check & W_ARM) {
-                /* destroy body armor, also cloak if present */
+                /* destroy suit, also cloak if present */
                 *ootmp = which_armor(mon, W_ARM);
                 if ((otmp2 = which_armor(mon, W_ARMC)) != 0)
                     m_useup(mon, otmp2);
             } else {
-                /* no body armor, victim dies; destroy cloak
+                /* no suit, victim dies; destroy cloak
                    and shirt now in case target gets life-saved */
                 tmp = MAGIC_COOKIE;
                 if ((otmp2 = which_armor(mon, W_ARMC)) != 0)
@@ -4246,7 +4246,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         tmp = mon->mhp + 1;
         break;
     case ZT_LIGHTNING:
-        if (resists_elec(mon)) {
+        if (resists_elec(mon) || defended(mon, AD_ELEC)) {
             sho_shieldeff = TRUE;
             tmp = 0;
             /* can still blind the monster */
@@ -4270,7 +4270,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
         break;
     case ZT_POISON_GAS:
-        if (resists_poison(mon)) {
+        if (resists_poison(mon) || defended(mon, AD_DRST)) {
             sho_shieldeff = TRUE;
             break;
         }
@@ -4298,7 +4298,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             erode_armor(mon, ERODE_RUST);
         break;
     case ZT_ACID:
-        if (resists_acid(mon)) {
+        if (resists_acid(mon) || defended(mon, AD_ACID)) {
             sho_shieldeff = TRUE;
             break;
         }
@@ -4847,7 +4847,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
                             /* normal non-fatal hit */
                             if (say || canseemon(mon)) {
                                 hit(fltxt, mon, exclam(tmp));
-                                if (resists_magm(mon) && abstype == ZT_DEATH
+                                if ((resists_magm(mon) || defended(mon, AD_MAGM))
+                                    && abstype == ZT_DEATH
                                     && abs(type) != ZT_BREATH(ZT_DEATH)) { /* death */
                                     if (canseemon(mon))
                                         pline("%s resists the death magic, but appears drained!",

@@ -920,10 +920,6 @@ Armor_on(VOID_ARGS)
             toggle_stealth(uarm, (EStealth & ~WORN_ARMOR), TRUE);
             EStealth |= W_ARM;
             break;
-        case SILVER_DRAGON_SCALE_MAIL:
-        case SILVER_DRAGON_SCALES:
-            ECold_resistance |= W_ARM;
-            break;
         case SEA_DRAGON_SCALE_MAIL:
         case SEA_DRAGON_SCALES:
             if (Strangled) {
@@ -1004,10 +1000,6 @@ Armor_off(VOID_ARGS)
             toggle_displacement(otmp, (EDisplaced & ~WORN_ARMOR), FALSE);
             toggle_stealth(otmp, (EStealth & ~WORN_ARMOR), FALSE);
             EStealth &= ~W_ARM;
-            break;
-        case SILVER_DRAGON_SCALE_MAIL:
-        case SILVER_DRAGON_SCALES:
-            ECold_resistance &= ~W_ARM;
             break;
         case SEA_DRAGON_SCALE_MAIL:
         case SEA_DRAGON_SCALES:
@@ -1098,10 +1090,6 @@ Armor_gone()
             toggle_displacement(otmp, (EDisplaced & ~WORN_ARMOR), FALSE);
             toggle_stealth(otmp, (EStealth & ~WORN_ARMOR), FALSE);
             EStealth &= ~W_ARM;
-            break;
-        case SILVER_DRAGON_SCALE_MAIL:
-        case SILVER_DRAGON_SCALES:
-            ECold_resistance &= ~W_ARM;
             break;
         case SEA_DRAGON_SCALE_MAIL:
         case SEA_DRAGON_SCALES:

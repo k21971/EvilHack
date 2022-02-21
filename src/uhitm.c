@@ -1221,9 +1221,7 @@ int dieroll;
                                          obj->dknown ? CXN_PFX_THE
                                                      : CXN_ARTICLE));
                         obj->dknown = 1;
-                        /* if (!munstone(mon, TRUE))
-                            minstapetrify(mon, TRUE); */
-                        if (resists_ston(mon))
+                        if (resists_ston(mon) || defended(mon, AD_STON))
                             break;
 			if (!mon->mstone) {
 			    mon->mstone = 5;
@@ -1275,9 +1273,7 @@ int dieroll;
                               plur(cnt));
                         obj->known = 1; /* (not much point...) */
                         useup_eggs(obj);
-                        /* if (!munstone(mon, TRUE))
-                            minstapetrify(mon, TRUE); */
-                        if (resists_ston(mon))
+                        if (resists_ston(mon) || defended(mon, AD_STON))
                             break;
 			if (!mon->mstone) {
 			    mon->mstone = 5;
@@ -1372,7 +1368,7 @@ int dieroll;
                     tmp = 0;
                     break;
                 case ACID_VENOM: /* thrown (or spit) */
-                    if (resists_acid(mon)) {
+                    if (resists_acid(mon) || defended(mon, AD_ACID)) {
                         Your("venom hits %s harmlessly.", mon_nam(mon));
                         tmp = 0;
                     } else {
@@ -2358,7 +2354,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         }
         tmp += destroy_mitem(mdef, SCROLL_CLASS, AD_FIRE);
         tmp += destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
-        if (resists_fire(mdef)) {
+        if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
             if (!Blind)
                 pline_The("fire doesn't heat %s!", mon_nam(mdef));
             golemeffects(mdef, AD_FIRE, tmp);
@@ -2380,7 +2376,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
                 tmp = 0;
                 pline("%s has no mind, and is immune to your onslaught.",
                       Monnam(mdef));
-            } else if (resists_psychic(mdef)) {
+            } else if (resists_psychic(mdef) || defended(mdef, AD_PSYC)) {
                 shieldeff(mdef->mx, mdef->my);
                 tmp = 0;
                 pline("%s resists your mental assault!", Monnam(mdef));
@@ -2396,7 +2392,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         }
         if (!Blind)
             pline("%s is covered in frost!", Monnam(mdef));
-        if (resists_cold(mdef)) {
+        if (resists_cold(mdef) || defended(mdef, AD_COLD)) {
             shieldeff(mdef->mx, mdef->my);
             if (!Blind)
                 pline_The("frost doesn't chill %s!", mon_nam(mdef));
@@ -2438,7 +2434,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         if (!Blind)
             pline("%s is zapped!", Monnam(mdef));
         tmp += destroy_mitem(mdef, WAND_CLASS, AD_ELEC);
-        if (resists_elec(mdef)) {
+        if (resists_elec(mdef) || defended(mdef, AD_ELEC)) {
             if (!Blind)
                 pline_The("zap doesn't shock %s!", mon_nam(mdef));
             golemeffects(mdef, AD_ELEC, tmp);
@@ -2449,7 +2445,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         tmp += destroy_mitem(mdef, RING_CLASS, AD_ELEC);
         break;
     case AD_ACID:
-        if (resists_acid(mdef))
+        if (resists_acid(mdef) || defended(mdef, AD_ACID))
             tmp = 0;
         break;
     case AD_STON:
@@ -2535,7 +2531,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         tmp = 0;
         break;
     case AD_DRLI:
-        if (!negated && !rn2(3) && !resists_drli(mdef)) {
+        if (!negated && !rn2(3)
+            && !(resists_drli(mdef) || defended(mdef, AD_DRLI))) {
             int xtmp = d(2, 6);
 
             if (canseemon(mdef))
@@ -2597,7 +2594,7 @@ do_rust:
         }
         break;
     case AD_DISE:
-        if (!resists_sick(pd)) {
+        if (!(resists_sick(pd) || defended(mdef, AD_DISE))) {
             if (mdef->mdiseasetime)
                 mdef->mdiseasetime -= rnd(3);
             else
@@ -2614,7 +2611,7 @@ do_rust:
         struct obj *barding;
 
         if (is_zombie(youmonst.data) && rn2(5)) {
-            if (!resists_sick(pd)) {
+            if (!(resists_sick(pd) || defended(mdef, AD_DISE))) {
                 if (mdef->msicktime)
                     mdef->msicktime -= rnd(3);
                 else
@@ -2773,6 +2770,9 @@ do_rust:
         /* if (negated) break; */
         break;
     case AD_SLOW:
+        if (defended(mdef, AD_SLOW))
+            break;
+
         if (!negated && mdef->mspeed != MSLOW) {
             unsigned int oldspeed = mdef->mspeed;
 
@@ -3112,7 +3112,7 @@ register struct attack *mattk;
                 break;
             case AD_ACID:
                 pline("%s is covered with your goo!", Monnam(mdef));
-                if (resists_acid(mdef)) {
+                if (resists_acid(mdef) || defended(mdef, AD_ACID)) {
                     pline("It seems harmless to %s.", mon_nam(mdef));
                     dam = 0;
                 }
@@ -3134,7 +3134,7 @@ register struct attack *mattk;
                 if (rn2(2)) {
                     pline_The("air around %s crackles with electricity.",
                               mon_nam(mdef));
-                    if (resists_elec(mdef)) {
+                    if (resists_elec(mdef) || defended(mdef, AD_ELEC)) {
                         pline("%s seems unhurt.", Monnam(mdef));
                         dam = 0;
                     }
@@ -3144,7 +3144,7 @@ register struct attack *mattk;
                 break;
             case AD_COLD:
                 if (rn2(2)) {
-                    if (resists_cold(mdef)) {
+                    if (resists_cold(mdef) || defended(mdef, AD_COLD)) {
                         pline("%s seems mildly chilly.", Monnam(mdef));
                         dam = 0;
                     } else
@@ -3155,7 +3155,7 @@ register struct attack *mattk;
                 break;
             case AD_FIRE:
                 if (rn2(2)) {
-                    if (resists_fire(mdef)) {
+                    if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
                         pline("%s seems mildly hot.", Monnam(mdef));
                         dam = 0;
                     } else

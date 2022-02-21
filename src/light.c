@@ -781,7 +781,8 @@ struct obj *obj;
        light than other light sources */
     if (obj == uskin)
         res = 1;
-    else if (obj->otyp == GOLD_DRAGON_SCALE_MAIL /* DSM but not scales */
+    else if (obj->otyp == GOLD_DRAGON_SCALE_MAIL
+             || obj->otyp == CHROMATIC_DRAGON_SCALE_MAIL /* DSM but not scales */
              || obj->otyp == SHIELD_OF_LIGHT)
         ++res;
 

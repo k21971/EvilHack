@@ -1425,7 +1425,7 @@ int in_sight;
 
     if (tele_restrict(mtmp))
         return;
-    if (resists_magm(mtmp))
+    if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
         return;
     if (teleport_pet(mtmp, FALSE)) {
         /* save name with pre-movement visibility */
@@ -1468,7 +1468,7 @@ int in_sight;
          * this will proc correctly. */
         return 0;         /* temporary? kludge */
     }
-    if (resists_magm(mtmp))
+    if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
         return 0;
     if (teleport_pet(mtmp, force_it)) {
         d_level tolevel;

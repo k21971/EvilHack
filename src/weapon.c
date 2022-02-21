@@ -971,7 +971,7 @@ register struct monst *mtmp;
     /* all monsters can wield the remaining weapons */
     for (i = 0; i < SIZE(hwep); i++) {
         if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG)
-            && !resists_ston(mtmp))
+            && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
             continue;
         if (((strong && !wearing_shield) || !objects[hwep[i]].oc_bimanual)
             && (objects[hwep[i]].oc_material != SILVER

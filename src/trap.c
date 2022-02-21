@@ -1892,7 +1892,8 @@ struct obj *otmp;
         steedhit = TRUE;
         break;
     case SLP_GAS_TRAP:
-        if (!resists_sleep(steed) && !breathless(steed->data)
+        if (!(resists_sleep(steed) || defended(steed, AD_SLEE))
+            && !breathless(steed->data)
             && !steed->msleeping && steed->mcanmove) {
             if (sleep_monst(steed, rnd(25), -1))
                 /* no in_sight check here; you can feel it even if blind */
@@ -1929,7 +1930,8 @@ struct obj *otmp;
     case POLY_TRAP:
         deltrap(trap);
         newsym(steed->mx, steed->my);
-        if (!resists_magm(steed) && !resist(steed, WAND_CLASS, 0, NOTELL)) {
+        if (!(resists_magm(steed) || defended(steed, AD_MAGM))
+            && !resist(steed, WAND_CLASS, 0, NOTELL)) {
             struct permonst *mdat = steed->data;
 
             (void) newcham(steed, (struct permonst *) 0, FALSE, FALSE);
@@ -2635,7 +2637,8 @@ register struct monst *mtmp;
                 trapkilled = thitm(0, mtmp, (struct obj *) 0, d(2, 4), FALSE);
             break;
         case SLP_GAS_TRAP:
-            if (!resists_sleep(mtmp) && !breathless(mptr) && !mtmp->msleeping
+            if (!(resists_sleep(mtmp) || defended(mtmp, AD_SLEE))
+                && !breathless(mptr) && !mtmp->msleeping
                 && mtmp->mcanmove) {
                 if (sleep_monst(mtmp, rnd(25), -1) && in_sight) {
                     pline("%s suddenly falls asleep!", Monnam(mtmp));
@@ -2730,7 +2733,7 @@ register struct monst *mtmp;
                         pline_The("water evaporates!");
                         levl[mtmp->mx][mtmp->my].typ = ROOM;
                 }
-                if (resists_fire(mtmp)) {
+                if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
                     if (in_sight) {
                         shieldeff(mtmp->mx, mtmp->my);
                         pline("%s is uninjured.", Monnam(mtmp));
@@ -2748,7 +2751,7 @@ register struct monst *mtmp;
                 You_see("a %s erupt from the %s!", tower_of_flame,
                         surface(mtmp->mx, mtmp->my));
 
-            if (resists_fire(mtmp)) {
+            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
                 if (in_sight) {
                     shieldeff(mtmp->mx, mtmp->my);
                     pline("%s is uninjured.", Monnam(mtmp));
@@ -2953,7 +2956,7 @@ register struct monst *mtmp;
             break;
         case ANTI_MAGIC:
             /* similar to hero's case, more or less */
-            if (!resists_magm(mtmp)) { /* lose spell energy */
+            if (!(resists_magm(mtmp) || defended(mtmp, AD_MAGM))) { /* lose spell energy */
                 if (!mtmp->mcan && (attacktype(mptr, AT_MAGC)
                                     || attacktype(mptr, AT_BREA))) {
                     mtmp->mspec_used += d(2, 2);
@@ -3040,7 +3043,7 @@ register struct monst *mtmp;
             }
             break;
         case POLY_TRAP:
-            if (resists_magm(mtmp)) {
+            if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
                 shieldeff(mtmp->mx, mtmp->my);
             } else if (!resist(mtmp, WAND_CLASS, 0, NOTELL)) {
                 if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE)) {
@@ -3180,7 +3183,7 @@ boolean byplayer;
 {
     mon->mstone = 0; /* end any lingering timer */
 
-    if (resists_ston(mon))
+    if (resists_ston(mon) || defended(mon, AD_STON))
         return;
     if (poly_when_stoned(mon->data)) {
         mon_to_stone(mon);
@@ -3235,7 +3238,7 @@ boolean byplayer;
     struct obj *mwep = MON_WEP(mon);
 
     if (mwep && mwep->otyp == CORPSE && touch_petrifies(&mons[mwep->corpsenm])
-        && !resists_ston(mon)) {
+        && !(resists_ston(mon) || defended(mon, AD_STON))) {
         if (cansee(mon->mx, mon->my)) {
             pline("%s%s touches %s.", arg ? arg : "",
                   arg ? mon_nam(mon) : Monnam(mon),
@@ -3243,7 +3246,8 @@ boolean byplayer;
         }
         minstapetrify(mon, byplayer);
         /* if life-saved, might not be able to continue wielding */
-        if (!DEADMONSTER(mon) && !which_armor(mon, W_ARMG) && !resists_ston(mon))
+        if (!DEADMONSTER(mon) && !which_armor(mon, W_ARMG)
+            && !(resists_ston(mon) || defended(mon, AD_STON)))
             mwepgone(mon);
     }
 }
@@ -5567,7 +5571,7 @@ boolean disarm;
             if (yours) {
                 poisoned("gas cloud", A_STR, "cloud of poison gas", 15, FALSE);
                 exercise(A_CON, FALSE);
-            } else if (!resists_poison(mon)) {
+            } else if (!(resists_poison(mon) || defended(mon, AD_DRST))) {
                 int dmg = rnd(15);
                 if (!rn2(10))
                     dmg = mon->mhp;
@@ -5587,7 +5591,7 @@ boolean disarm;
                 You_feel("a needle prick your %s.", body_part(bodypart));
                 poisoned("needle", A_CON, "poisoned needle", 10, FALSE);
                 exercise(A_CON, FALSE);
-            } else if (!resists_poison(mon)) {
+            } else if (!(resists_poison(mon) || defended(mon, AD_DRST))) {
                 int dmg = rnd(10);
                 if (!rn2(10))
                     dmg = mon->mhp;
@@ -5608,7 +5612,7 @@ boolean disarm;
             } else {
 	        if (canseemon(mon))
                     pline("A %s erupts from %s!", tower_of_flame, the(xname(obj)));
-                if (resists_fire(mon)) {
+                if (resists_fire(mon) || defended(mon, AD_FIRE)) {
                     if (canseemon(mon)) {
                         shieldeff(mon->mx, mon->my);
                         pline("%s is uninjured.", Monnam(mon));
@@ -5681,7 +5685,7 @@ boolean disarm;
 
                 (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
                 (void) destroy_mitem(mon, WAND_CLASS, AD_ELEC);
-                if (!resists_elec(mon)) {
+                if (!(resists_elec(mon) || defended(mon, AD_ELEC))) {
                     mon->mhp -= d(4, 4);
                     if (mon->mhp <= 0) {
                         if (canseemon(mon))

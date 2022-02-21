@@ -104,7 +104,7 @@
                          || youmonst.data->mlet == S_DEMON              \
                          || youmonst.data == &mons[PM_BABY_GOLD_DRAGON] \
                          || youmonst.data == &mons[PM_GOLD_DRAGON]      \
-                         || defends(AD_DISE, uwep))
+                         || defended(&youmonst, AD_DISE))
 
 #define Invulnerable u.uprops[INVULNERABLE].intrinsic /* [Tom] */
 

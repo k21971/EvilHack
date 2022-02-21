@@ -235,27 +235,34 @@ int expltype;
                     case AD_PHYS:
                         break;
                     case AD_MAGM:
-                        explmask[i][j] |= resists_magm(mtmp);
+                        explmask[i][j] |= (resists_magm(mtmp)
+                                           || defended(mtmp, AD_MAGM));
                         break;
                     case AD_FIRE:
-                        explmask[i][j] |= resists_fire(mtmp);
+                        explmask[i][j] |= (resists_fire(mtmp)
+                                           || defended(mtmp, AD_FIRE));
                         break;
                     case AD_COLD:
-                        explmask[i][j] |= resists_cold(mtmp);
+                        explmask[i][j] |= (resists_cold(mtmp)
+                                           || defended(mtmp, AD_COLD));
                         break;
                     case AD_DISN:
                         explmask[i][j] |= (olet == WAND_CLASS)
                                               ? immune_death_magic(mtmp->data)
-                                              : resists_disint(mtmp);
+                                              : (resists_disint(mtmp)
+                                                 || defended(mtmp, AD_DISN));
                         break;
                     case AD_ELEC:
-                        explmask[i][j] |= resists_elec(mtmp);
+                        explmask[i][j] |= (resists_elec(mtmp)
+                                           || defended(mtmp, AD_ELEC));
                         break;
                     case AD_DRST:
-                        explmask[i][j] |= resists_poison(mtmp);
+                        explmask[i][j] |= (resists_poison(mtmp)
+                                           || defended(mtmp, AD_DRST));
                         break;
                     case AD_ACID:
-                        explmask[i][j] |= resists_acid(mtmp);
+                        explmask[i][j] |= (resists_acid(mtmp)
+                                           || defended(mtmp, AD_DRST));
                         break;
                     default:
                         impossible("explosion type %d?", adtyp);

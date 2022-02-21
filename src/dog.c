@@ -902,7 +902,7 @@ register struct obj *obj;
         if (obj->otyp == CORPSE && is_rider(fptr))
             return TABU;
         if ((obj->otyp == CORPSE || obj->otyp == EGG) && touch_petrifies(fptr)
-            && !resists_ston(mon))
+            && !(resists_ston(mon) || defended(mon, AD_STON)))
             return POISON;
         if (!carni && !herbi)
             return obj->cursed ? UNDEF : APPORT;
@@ -943,11 +943,14 @@ register struct obj *obj;
             if ((peek_at_iced_corpse_age(obj) + 50L <= monstermoves
                  && obj->corpsenm != PM_LIZARD && obj->corpsenm != PM_LICHEN
                  && mptr->mlet != S_FUNGUS)
-                || (acidic(fptr) && !resists_acid(mon))
-                || (poisonous(fptr) && !resists_poison(mon))
-                || (obj->zombie_corpse && !resists_sick(mptr))
-                || (touch_petrifies(&mons[obj->corpsenm]) &&
-                    !resists_ston(mon)))
+                || (acidic(fptr) && !(resists_acid(mon)
+                                      || defended(mon, AD_ACID)))
+                || (poisonous(fptr) && !(resists_poison(mon)
+                                         || defended(mon, AD_DRST)))
+                || (obj->zombie_corpse && !(resists_sick(mptr)
+                                            || defended(mon, AD_DISE)))
+                || (touch_petrifies(&mons[obj->corpsenm])
+                    && !(resists_ston(mon) || defended(mon, AD_STON))))
                 return POISON;
             /* turning into slime is preferable to starvation */
             else if (fptr == &mons[PM_GREEN_SLIME] && !slimeproof(mptr))

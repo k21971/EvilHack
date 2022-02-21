@@ -1586,6 +1586,7 @@ E struct attack *FDECL(attacktype_fordmg, (struct permonst *, int, int));
 E boolean FDECL(attacktype, (struct permonst *, int));
 E boolean FDECL(noattacks, (struct permonst *));
 E boolean FDECL(poly_when_stoned, (struct permonst *));
+E boolean FDECL(defended, (struct monst *, int));
 E boolean FDECL(resists_drli, (struct monst *));
 E boolean FDECL(resists_magm, (struct monst *));
 E boolean FDECL(resists_blnd, (struct monst *));
@@ -3120,6 +3121,7 @@ E struct obj *FDECL(wearmask_to_obj, (long));
 E long FDECL(wearslot, (struct obj *));
 E void FDECL(mon_set_minvis, (struct monst *));
 E void FDECL(mon_adjust_speed, (struct monst *, int, struct obj *));
+E boolean FDECL(obj_has_prop, (struct obj *, int));
 E void FDECL(update_mon_intrinsics,
              (struct monst *, struct obj *, BOOLEAN_P, BOOLEAN_P));
 E int FDECL(find_mac, (struct monst *));

@@ -535,10 +535,11 @@ struct monst *mattk, *mdef;
 {
     boolean udefend = (mdef == &youmonst),
             uattk = (mattk == &youmonst);
-    int erodelvl = rnd(3); 
+    int erodelvl = rnd(3);
     struct obj *oatmp;
 
-    if (udefend ? Antimagic : resists_magm(mdef)) {
+    if (udefend ? Antimagic
+                : (resists_magm(mdef) || defended(mdef, AD_MAGM))) {
         if (udefend) {
             shieldeff(u.ux, u.uy);
             monstseesu(M_SEEN_MAGR);
@@ -1627,14 +1628,15 @@ register struct attack *mattk;
                 pline("%s is enveloped in flames.", Monnam(mdef));
         }
         if (is_demon(mtmp->data)
-            && resists_fire(mdef) && !nonliving(mdef->data)) {
+            && (resists_fire(mdef) || defended(mdef, AD_FIRE))
+            && !nonliving(mdef->data)) {
             shieldeff(mdef->mx, mdef->my);
             if (canseemon(mdef))
                 pline_The("hellish flames sear %s soul!",
                           s_suffix(mon_nam(mdef)));
             dmg = (dmg + 1) / 2;
             break;
-        } else if (resists_fire(mdef)) {
+        } else if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
             shieldeff(mdef->mx, mdef->my);
             if (canseemon(mdef))
                 pline("But %s resists the effects.", mhe(mdef));
@@ -1644,7 +1646,7 @@ register struct attack *mattk;
     case AD_COLD:
         if (canseemon(mdef))
             pline("%s is covered in frost.", Monnam(mdef));
-        if (resists_cold(mdef)) {
+        if (resists_cold(mdef) || defended(mdef, AD_COLD)) {
             shieldeff(mdef->mx, mdef->my);
             if (canseemon(mdef))
                 pline("But %s resists the effects.", mhe(mdef));
@@ -1654,7 +1656,7 @@ register struct attack *mattk;
     case AD_ACID:
         if (canseemon(mdef))
             pline("%s is covered in acid.", Monnam(mdef));
-        if (resists_acid(mdef)) {
+        if (resists_acid(mdef) || defended(mdef, AD_ACID)) {
             shieldeff(mdef->mx, mdef->my);
             if (canseemon(mdef))
                 pline("But %s resists the effects.", mhe(mdef));
@@ -1665,7 +1667,7 @@ register struct attack *mattk;
         if (canseemon(mdef))
             pline("%s is hit by a shower of missiles!", Monnam(mdef));
         dmg = d((int) ml / 2 + 1, 6);
-        if (resists_magm(mdef)) {
+        if (resists_magm(mdef) || defended(mdef, AD_MAGM)) {
             shieldeff(mdef->mx, mdef->my);
             if (canseemon(mdef))
                 pline("Some missiles bounce off!");
@@ -1811,14 +1813,15 @@ register struct attack *mattk;
                 pline("%s is enveloped in flames.", Monnam(mtmp));
         }
         if (is_demon(youmonst.data)
-            && resists_fire(mtmp) && !nonliving(mtmp->data)) {
+            && (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
+            && !nonliving(mtmp->data)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))
                 pline_The("hellish flames sear %s soul!",
                           s_suffix(mon_nam(mtmp)));
             dmg = (dmg + 1) / 2;
             break;
-        } else if (resists_fire(mtmp)) {
+        } else if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))
                 pline("But %s resists the effects.", mhe(mtmp));
@@ -1828,7 +1831,7 @@ register struct attack *mattk;
     case AD_COLD:
         if (canseemon(mtmp))
             pline("%s is covered in frost.", Monnam(mtmp));
-        if (resists_cold(mtmp)) {
+        if (resists_cold(mtmp) || defended(mtmp, AD_COLD)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))
                 pline("But %s resists the effects.", mhe(mtmp));
@@ -1838,7 +1841,7 @@ register struct attack *mattk;
     case AD_ACID:
         if (canseemon(mtmp))
             pline("%s is covered in acid.", Monnam(mtmp));
-        if (resists_acid(mtmp)) {
+        if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))
                 pline("But %s resists the effects.", mhe(mtmp));
@@ -1849,7 +1852,7 @@ register struct attack *mattk;
         if (canseemon(mtmp))
             pline("%s is hit by a shower of missiles!", Monnam(mtmp));
         dmg = d((int)ml / 2 + 1, 6);
-        if (resists_magm(mtmp)) {
+        if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))
                 pline("Some missiles bounce off!");
@@ -1930,7 +1933,7 @@ int spellnum;
         resisted =
             ((resist(mtmp, 0, 0, FALSE)
               && rn2(mons[yours ? u.umonnum : mattk->mnum].mlevel) <= 12)
-             || resists_magm(mtmp));
+             || resists_magm(mtmp) || defended(mtmp, AD_MAGM));
         if (immune_death_magic(mtmp->data) || is_vampshifter(mtmp)) {
             if (yours || canseemon(mtmp))
                 pline("%s seems no more dead than before.", Monnam(mtmp));
@@ -1947,7 +1950,7 @@ int spellnum;
                 if (mtmp->mtame)
                     pline("Lucky for %s, it didn't work!", mon_nam(mtmp));
                 else
-                    pline("Well. That didn't work...");
+                    pline("Well.  That didn't work...");
             }
         }
         dmg = 0;
@@ -1982,7 +1985,7 @@ int spellnum;
         }
         if (yours || canseemon(mtmp))
             You("douse %s in a torrent of acid!", mon_nam(mtmp));
-        if (resists_acid(mtmp)) {
+        if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))
                 pline("But the acid dissipates harmlessly.");
@@ -2169,11 +2172,13 @@ int spellnum;
         }
         if (yours || canseemon(mtmp)) {
             You("blast %s with %s!", mon_nam(mtmp), (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
-            if (spellnum == MGC_FIRE_BOLT && resists_fire(mtmp)) {
+            if (spellnum == MGC_FIRE_BOLT
+                && (resists_fire(mtmp) || defended(mtmp, AD_FIRE))) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("But %s seems unaffected by the fire.", mon_nam(mtmp));
                 dmg = 0;
-            } else if (spellnum == MGC_ICE_BOLT && resists_cold(mtmp)) {
+            } else if (spellnum == MGC_ICE_BOLT
+                && (resists_cold(mtmp) || defended(mtmp, AD_COLD))) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("But %s seems unaffected by the cold.", mon_nam(mtmp));
                 dmg = 0;
@@ -2276,7 +2281,7 @@ int spellnum;
         }
         if (yours || canseemon(mtmp))
             pline("A pillar of fire strikes all around %s!", mon_nam(mtmp));
-        if (resists_fire(mtmp)) {
+        if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
             shieldeff(mtmp->mx, mtmp->my);
             dmg = 0;
         } else
@@ -2298,7 +2303,7 @@ int spellnum;
             pline("A bolt of lightning strikes down at %s from above!",
                   mon_nam(mtmp));
         reflects = mon_reflects(mtmp, "It bounces off %s %s.");
-        if (reflects || resists_elec(mtmp)) {
+        if (reflects || resists_elec(mtmp) || defended(mtmp, AD_ELEC)) {
             shieldeff(u.ux, u.uy);
             dmg = 0;
             if (reflects)

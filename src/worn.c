@@ -328,8 +328,8 @@ struct obj *obj; /* item to make known if effect can be seen */
 
 boolean
 obj_has_prop(obj, which)
-register struct obj *obj;
-register int which;
+struct obj *obj;
+int which;
 {
     if (objects[obj->otyp].oc_oprop == which)
         return TRUE;
@@ -338,37 +338,48 @@ register int which;
         return FALSE;
 
     switch (which) {
-        case FIRE_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_FIRE));
-        case COLD_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_FROST));
-        case DRAIN_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_DRLI));
-       case SHOCK_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_SHOCK));
-       case POISON_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_VENOM));
-        case TELEPAT:
-            return !!(obj->oprops & ITEM_ESP);
-        case FUMBLING:
-            return !!(obj->oprops & ITEM_FUMBLING);
-        case HUNGER:
-            return !!(obj->oprops & ITEM_HUNGER);
-        case ADORNED:
-            return !!(obj->oprops & ITEM_EXCEL);
+    case FIRE_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_FIRE));
+    case COLD_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_FROST));
+    case DRAIN_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_DRLI));
+    case SHOCK_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_SHOCK));
+    case POISON_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_VENOM));
+    case TELEPAT:
+        return !!(obj->oprops & ITEM_ESP);
+    case FUMBLING:
+        return !!(obj->oprops & ITEM_FUMBLING);
+    case HUNGER:
+        return !!(obj->oprops & ITEM_HUNGER);
+    case ADORNED:
+        return !!(obj->oprops & ITEM_EXCEL);
     }
     return FALSE;
 }
+
+/* alchemy smock confers two properites, poison and acid resistance
+   but objects[ALCHEMY_SMOCK].oc_oprop can only describe one of them;
+   if it is poison resistance, alternate property is acid resistance;
+   if someone changes it to acid resistance, alt becomes posion resist;
+   if someone changes it to hallucination resistance, all bets are off
+   [TODO: handle alternate propertices conferred by dragon scales/mail] */
+#define altprop(o) \
+    (((o)->otyp == ALCHEMY_SMOCK)                               \
+     ? (POISON_RES + ACID_RES - objects[(o)->otyp].oc_oprop)    \
+     : 0)
 
 /* armor put on or taken off; might be magical variety
    [TODO: rename to 'update_mon_extrinsics()' and change all callers...] */
@@ -381,16 +392,16 @@ boolean on, silently;
     int unseen;
     uchar  mask;
     struct obj *otmp;
-    int which = (int) objects[obj->otyp].oc_oprop;
-
+    int which = (int) objects[obj->otyp].oc_oprop,
+        altwhich = altprop(obj);
     long props = obj->oprops;
     int i = 0;
 
     unseen = !canseemon(mon);
-    if (!which)
+    if (!which && !altwhich)
         goto maybe_blocks;
 
-new_property:
+ again:
     if (on) {
         switch (which) {
         case INVIS:
@@ -419,6 +430,7 @@ new_property:
         /* properties handled elsewhere */
         case ANTIMAGIC:
         case REFLECTING:
+        case PROTECTION:
             break;
         /* properties which have no effect for monsters */
         case CLAIRVOYANT:
@@ -428,10 +440,10 @@ new_property:
             break;
         /* properties which should have an effect but aren't implemented */
         case LEVITATION:
+        case FLYING:
             break;
         /* properties which maybe should have an effect but don't */
         case FUMBLING:
-        case PROTECTION:
             break;
         case FIRE_RES:
         case COLD_RES:
@@ -442,8 +454,8 @@ new_property:
         case ACID_RES:
         case STONE_RES:
         case PSYCHIC_RES:
-            if (which <= 9) { /* 1 thru 9 correspond to MR_xxx mask values */
-                /* FIRE,COLD,SLEEP,DISINT,SHOCK,POISON,ACID,STONE,PSYCHIC */
+            /* 1 through 9 correspond to MR_xxx mask values */
+            if (which >= 1 && which <= 9) {
                 mask = (uchar) (1 << (which - 1));
                 mon->mextrinsics |= (unsigned long) mask;
             }
@@ -485,20 +497,45 @@ new_property:
         case ACID_RES:
         case STONE_RES:
         case PSYCHIC_RES:
+            /*
+             * Update monster's extrinsics (for worn objects only;
+             * 'obj' itself might still be worn or already unworn).
+             *
+             * If an alchemy smock is being taken off, this code will
+             * be run twice (via 'goto again') and other worn gear
+             * gets tested for conferring poison resistance on the
+             * first pass and acid resistance on the second.
+             *
+             * If some other item is being taken off, there will be
+             * only one pass but a worn alchemy smock will be an
+             * alternate source for either of those two resistances.
+             */
             mask = (uchar) (1 << (which - 1));
-            /* update monster's extrinsics (for worn objects only;
-               'obj' itself might still be worn or already unworn) */
-            for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
-                if (otmp != obj
-                    && otmp->owornmask
-                    && (int) (obj_has_prop(otmp, which)))
+            for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
+                if (otmp == obj || !otmp->owornmask)
+                    continue;
+                if ((int) objects[otmp->otyp].oc_oprop == which)
                     break;
+                if ((int) (obj_has_prop(otmp, which))) /* object properties */
+                    break;
+                /* check whether 'otmp' confers target property as an extra
+                   one rather than as the one specified for it in objects[] */
+                if (altprop(otmp) == which)
+                    break;
+            }
             if (!otmp)
                 mon->mextrinsics &= ~((unsigned long) mask);
             break;
         default:
             break;
         }
+    }
+
+    /* worn alchemy smock/apron confers both poison resistance and acid
+       resistance to the hero so do likewise for monster who wears one */
+    if (altwhich && which != altwhich) {
+        which = altwhich;
+        goto again;
     }
 
  maybe_blocks:
@@ -561,7 +598,7 @@ new_property:
                 break;
             }
             if (which)
-                goto new_property;
+                goto again;
         }
     }
 
@@ -572,6 +609,8 @@ new_property:
     if (!silently && (unseen ^ !canseemon(mon)))
         newsym(mon->mx, mon->my);
 }
+
+#undef altprop
 
 int
 find_mac(mon)
@@ -1261,7 +1300,8 @@ boolean polyspot;
     return;
 }
 
-/* bias a monster's preferences towards armor that has special benefits. */
+/* bias a monster's preferences towards armor and
+   accessories that have special benefits */
 int
 extra_pref(mon, obj)
 struct monst *mon;
@@ -1293,70 +1333,69 @@ struct obj *obj;
         update_mon_intrinsics(mon, old, FALSE, TRUE);
     /* This list should match the list in m_dowear_type. */
     switch (obj->otyp) {
-        case RIN_FIRE_RESISTANCE:
-            if (!resists_fire(mon))
-                rc = (dmgtype(youmonst.data, AD_FIRE)
-                      || wielding_artifact(ART_FIRE_BRAND)
-                      || wielding_artifact(ART_XIUHCOATL)
-                      || wielding_artifact(ART_ANGELSLAYER)
-                      || (u.twoweap && uswapwep->oprops & ITEM_FIRE)
-                      || (uwep && uwep->oprops & ITEM_FIRE)) ? 20 : 12;
-            break;
-        case RIN_COLD_RESISTANCE:
-            if (!resists_cold(mon))
-                rc = (dmgtype(youmonst.data, AD_COLD)
-                      || wielding_artifact(ART_FROST_BRAND)
-                      || (u.twoweap && uswapwep->oprops & ITEM_FROST)
-                      || (uwep && uwep->oprops & ITEM_FROST)) ? 20 : 12;
-            break;
-	case RIN_POISON_RESISTANCE:
-            if (!resists_poison(mon))
-                rc = (dmgtype(youmonst.data, AD_DRST)
-                      || dmgtype(youmonst.data, AD_DRCO)
-                      || dmgtype(youmonst.data, AD_DRDX)
-                      || (u.twoweap && uswapwep->oprops & ITEM_VENOM)
-                      || (uwep && uwep->oprops & ITEM_VENOM)) ? 20 : 10;
-            break;
-	case RIN_SHOCK_RESISTANCE:
-            if (!resists_elec(mon))
-                rc = (dmgtype(youmonst.data, AD_ELEC)
-                      || wielding_artifact(ART_MJOLLNIR)
-                      || wielding_artifact(ART_KEOLEWA)
-                      || (u.twoweap && uswapwep->oprops & ITEM_SHOCK)
-                      || (uwep && uwep->oprops & ITEM_SHOCK)) ? 20 : 10;
-            break;
-	case RIN_REGENERATION:
-            rc = !mon_prop(mon, REGENERATION) ? 25 : 0;
-	    break;
-	case RIN_INVISIBILITY:
-            if (mon->mtame || mon->mpeaceful)
-		/* Monsters actually don't know if you can
-		 * see invisible, but for tame or peaceful monsters
-		 * we'll make reservations.
-		 */
-                rc = See_invisible ? 10 : 0;
-            else
-                rc = 30;
-            break;
-	case RIN_INCREASE_DAMAGE:
-	case RIN_INCREASE_ACCURACY:
-	case RIN_PROTECTION:
-            if (obj->spe > 0)
-                rc = 10 + 3 * (obj->spe);
-            else
-                rc = 0;
-            break;
-        case RIN_TELEPORTATION:
-            if (!mon_prop(mon, TELEPORT))
-                rc = obj->cursed ? 5 : 15;
-            break;
-        case RIN_TELEPORT_CONTROL:
-	    if (!mon_prop(mon, TELEPORT_CONTROL))
-	        rc = mon_prop(mon, TELEPORT) ? 20 : 5;
-	    break;
-        case RIN_SLOW_DIGESTION:
-            rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
-            break;
+    case RIN_FIRE_RESISTANCE:
+        if (!(resists_fire(mon) || defended(mon, AD_FIRE)))
+            rc = (dmgtype(youmonst.data, AD_FIRE)
+                  || wielding_artifact(ART_FIRE_BRAND)
+                  || wielding_artifact(ART_XIUHCOATL)
+                  || wielding_artifact(ART_ANGELSLAYER)
+                  || (u.twoweap && uswapwep->oprops & ITEM_FIRE)
+                  || (uwep && uwep->oprops & ITEM_FIRE)) ? 20 : 12;
+        break;
+    case RIN_COLD_RESISTANCE:
+        if (!(resists_cold(mon) || defended(mon, AD_COLD)))
+            rc = (dmgtype(youmonst.data, AD_COLD)
+                  || wielding_artifact(ART_FROST_BRAND)
+                  || (u.twoweap && uswapwep->oprops & ITEM_FROST)
+                  || (uwep && uwep->oprops & ITEM_FROST)) ? 20 : 12;
+        break;
+    case RIN_POISON_RESISTANCE:
+        if (!(resists_poison(mon) || defended(mon, AD_DRST)))
+            rc = (dmgtype(youmonst.data, AD_DRST)
+                  || dmgtype(youmonst.data, AD_DRCO)
+                  || dmgtype(youmonst.data, AD_DRDX)
+                  || (u.twoweap && uswapwep->oprops & ITEM_VENOM)
+                  || (uwep && uwep->oprops & ITEM_VENOM)) ? 20 : 10;
+        break;
+    case RIN_SHOCK_RESISTANCE:
+        if (!(resists_elec(mon) || defended(mon, AD_ELEC)))
+            rc = (dmgtype(youmonst.data, AD_ELEC)
+                  || wielding_artifact(ART_MJOLLNIR)
+                  || wielding_artifact(ART_KEOLEWA)
+                  || (u.twoweap && uswapwep->oprops & ITEM_SHOCK)
+                  || (uwep && uwep->oprops & ITEM_SHOCK)) ? 20 : 10;
+        break;
+    case RIN_REGENERATION:
+        rc = !mon_prop(mon, REGENERATION) ? 25 : 0;
+        break;
+    case RIN_INVISIBILITY:
+        if (mon->mtame || mon->mpeaceful)
+            /* Monsters actually don't know if you can
+             * see invisible, but for tame or peaceful monsters
+             * we'll make reservations  */
+            rc = See_invisible ? 10 : 0;
+        else
+            rc = 30;
+        break;
+    case RIN_INCREASE_DAMAGE:
+    case RIN_INCREASE_ACCURACY:
+    case RIN_PROTECTION:
+        if (obj->spe > 0)
+            rc = 10 + 3 * (obj->spe);
+        else
+            rc = 0;
+        break;
+    case RIN_TELEPORTATION:
+        if (!mon_prop(mon, TELEPORT))
+            rc = obj->cursed ? 5 : 15;
+        break;
+    case RIN_TELEPORT_CONTROL:
+        if (!mon_prop(mon, TELEPORT_CONTROL))
+            rc = mon_prop(mon, TELEPORT) ? 20 : 5;
+        break;
+    case RIN_SLOW_DIGESTION:
+        rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
+        break;
     }
     old = which_armor(mon, W_RINGL);
     if (old)

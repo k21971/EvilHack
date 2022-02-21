@@ -675,7 +675,7 @@ attacks(adtyp, otmp)
 int adtyp;
 struct obj *otmp;
 {
-    register const struct artifact *weap;
+    const struct artifact *weap;
 
     if ((weap = get_artifact(otmp)) != 0)
         return (boolean) (weap->attk.adtyp == adtyp);
@@ -706,10 +706,44 @@ defends(adtyp, otmp)
 int adtyp;
 struct obj *otmp;
 {
-    register const struct artifact *weap;
+    const struct artifact *weap;
 
+    if (!otmp)
+        return FALSE;
     if ((weap = get_artifact(otmp)) != 0)
         return (boolean) (weap->defn.adtyp == adtyp);
+    if (Is_dragon_armor(otmp)) {
+        int otyp = otmp->otyp;
+
+        /* convert mail to scales to simplify testing */
+        if (Is_dragon_mail(otmp))
+            otyp += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
+
+        switch (adtyp) {
+        case AD_MAGM: /* magic missiles => general magic resistance */
+            return (otyp == GRAY_DRAGON_SCALES);
+        case AD_DISE: /* blocks disease but not slime */
+            return (otyp == GOLD_DRAGON_SCALES);
+        case AD_FIRE:
+            return (otyp == RED_DRAGON_SCALES); /* red but not gold */
+        case AD_COLD:
+            return (otyp == WHITE_DRAGON_SCALES);
+        case AD_DRST: /* drain strength => poison */
+            return (otyp == GREEN_DRAGON_SCALES);
+        case AD_SLEE: /* sleep */
+            return (otyp == ORANGE_DRAGON_SCALES);
+        case AD_DISN: /* disintegration */
+            return (otyp == BLACK_DRAGON_SCALES);
+        case AD_ELEC: /* electricity == lightning */
+        case AD_SLOW: /* confers speed so blocks speed removal */
+            return (otyp == BLUE_DRAGON_SCALES);
+        case AD_ACID:
+        case AD_STON: /* petrification resistance */
+            return (otyp == YELLOW_DRAGON_SCALES);
+        default:
+            break;
+        }
+    }
     return FALSE;
 }
 
@@ -719,7 +753,7 @@ defends_when_carried(adtyp, otmp)
 int adtyp;
 struct obj *otmp;
 {
-    register const struct artifact *weap;
+    const struct artifact *weap;
 
     if ((weap = get_artifact(otmp)) != 0)
         return (boolean) (weap->cary.adtyp == adtyp);
@@ -1131,11 +1165,9 @@ struct monst *mtmp;
                      : (mon_aligntyp(mtmp) == A_NONE
                         || sgn(mon_aligntyp(mtmp)) != weap->alignment);
     } else if (weap->spfx & SPFX_ATTK) {
-        struct obj *defending_weapon = (yours ? uwep : MON_WEP(mtmp));
-
-        if (defending_weapon && defending_weapon->oartifact
-            && defends((int) weap->attk.adtyp, defending_weapon))
+        if (defended(mtmp, (int) weap->attk.adtyp))
             return FALSE;
+
         switch (weap->attk.adtyp) {
         case AD_FIRE:
             return !(!yours ? resists_fire(mtmp)
@@ -1965,7 +1997,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             case 19:
             case 18:
             case 17:
-                if (!resists_magm(mdef) && !resist(mdef, 0, 0, 0)) {
+                if (!(resists_magm(mdef) || defended(mdef, AD_MAGM))
+                    && !resist(mdef, 0, 0, 0)) {
                     mdef->mhp = 0;
                     monkilled(mdef, "", AD_DETH);
                     if (!DEADMONSTER(mdef))
@@ -2037,7 +2070,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     }
                 } else {
 	            pline_The("gigantic blade %s %s%c",
-                              resists_poison(mdef)
+                              (resists_poison(mdef) || defended(mdef, AD_DRST))
                                   ? "hits"
                                   : rn2(2) ? "poisons" : "eviscerates",
                               hittee, !spec_dbon_applies ? '.' : '!');
@@ -2062,7 +2095,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else {
                     pline_The("%s %s %s%c",
                               distant_name(otmp, xname),
-                              resists_poison(mdef)
+                              (resists_poison(mdef) || defended(mdef, AD_DRST))
                                   ? "hits"
                                   : rn2(2) ? "taints" : "poisons",
                               hittee, !spec_dbon_applies ? '.' : '!');
@@ -2103,7 +2136,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
             } else {
                 pline_The("filthy dagger %s %s%c",
-                          resists_sick(mdef->data)
+                          (resists_sick(mdef->data) || defended(mdef, AD_DISE))
                               ? "hits"
                               : rn2(2) ? "contaminates" : "infects",
                           hittee, !spec_dbon_applies ? '.' : '!');
@@ -2113,7 +2146,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             diseasemu(mdef->data);
         } else {
             mdef->mdiseasetime = rnd(10) + 5;
-            if (!resists_sick(mdef->data)) {
+            if (!(resists_sick(mdef->data) || defended(mdef, AD_DISE))) {
                 if (canseemon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->mdiseased ? "even worse" : "diseased");
@@ -2899,7 +2932,8 @@ struct obj *obj;
                         case 19:
                         case 18:
                         case 17:
-                            if (!resists_magm(mtmp) && !resist(mtmp, 0, 0, 0)) {
+                            if (!(resists_magm(mtmp) || defended(mtmp, AD_MAGM))
+                                && !resist(mtmp, 0, 0, 0)) {
                                 mtmp->mhp = 0;
                                 if (DEADMONSTER(mtmp)) {
                                     if (context.mon_moving)
@@ -2924,7 +2958,7 @@ struct obj *obj;
                             break;
                         case 1:
                         case 0:
-                            if (resists_magm(mtmp))
+                            if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
                                 shieldeff(mtmp->mx, mtmp->my);
                             pline("%s resists %s deadly gaze.",
                                   Monnam(mtmp), the(s_suffix(xname(obj))));
@@ -3035,7 +3069,9 @@ struct obj *obj;
     /* not artifacts but treat them as if they were because they emit
        light without burning */
     if (obj && (obj->otyp == GOLD_DRAGON_SCALE_MAIL
-                || obj->otyp == GOLD_DRAGON_SCALES)
+                || obj->otyp == GOLD_DRAGON_SCALES
+                || obj->otyp == CHROMATIC_DRAGON_SCALE_MAIL
+                || obj->otyp == CHROMATIC_DRAGON_SCALES)
         && (obj->owornmask & W_ARM) != 0L)
         return TRUE;
 

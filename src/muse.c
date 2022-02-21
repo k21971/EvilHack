@@ -528,7 +528,8 @@ struct monst *mtmp;
     if (!mtmp->mpeaceful && !nohands(mtmp->data)
         && uwep && uwep->otyp == CORPSE
         && touch_petrifies(&mons[uwep->corpsenm])
-        && !poly_when_stoned(mtmp->data) && !resists_ston(mtmp)
+        && !poly_when_stoned(mtmp->data)
+        && !(resists_ston(mtmp) || defended(mtmp, AD_STON))
         && lined_up(mtmp)) { /* only lines up if distu range is within 5*5 */
         /* could use m_carrying(), then nxtobj() when matching wand
            is empty, but direct traversal is actually simpler here */
@@ -1771,7 +1772,8 @@ boolean reflection_skip;
              * not fire resistant */
             && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 2
                 || mtmp->mhp > 10
-                || resists_fire(mtmp))) {
+                || resists_fire(mtmp)
+                || defended(mtmp, AD_FIRE))) {
             m.offensive = obj;
             m.has_offense = MUSE_POT_OIL;
         }
@@ -1794,7 +1796,8 @@ boolean reflection_skip;
             m.has_offense = MUSE_SCR_EARTH;
         }
         nomore(MUSE_SCR_FIRE);
-        if (obj->otyp == SCR_FIRE && resists_fire(mtmp)
+        if (obj->otyp == SCR_FIRE
+            && resists_fire(mtmp) && defended(mtmp, AD_FIRE)
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
             && mtmp->mcansee && haseyes(mtmp->data)
             && !m_seenres(mtmp, M_SEEN_FIRE)) {
@@ -1844,7 +1847,7 @@ register struct obj *otmp;
                 pline_The("wand misses you.");
             stop_occupation();
             nomul(0);
-        } else if (resists_magm(mtmp)) {
+        } else if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
             shieldeff(mtmp->mx, mtmp->my);
             pline("Boing!");
         } else if (rnd(20) < 10 + find_mac(mtmp)) {
@@ -1888,7 +1891,7 @@ register struct obj *otmp;
                     makeknown(WAN_POLYMORPH);
                 polyself(FALSE);
             }
-        } else if (resists_magm(mtmp)) {
+        } else if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
             /* magic resistance protects from polymorph traps, so make
                it guard against involuntary polymorph attacks too... */
             shieldeff(mtmp->mx, mtmp->my);
@@ -2245,10 +2248,10 @@ struct monst *mtmp;
                 if (mtmp == mtmp2)
                     continue;
                 if (dist2(mtmp2->mx, mtmp2->my, mtmp->mx, mtmp->my) < 3) {
-                    if (resists_fire(mtmp2))
+                    if (resists_fire(mtmp2) || defended(mtmp2, AD_FIRE))
                         continue;
                     damage_mon(mtmp2, num, AD_FIRE);
-                    if (resists_cold(mtmp2))
+                    if (resists_cold(mtmp2)) /* natural resistance */
                         mtmp2->mhp -= 3 * num;
                     if (DEADMONSTER(mtmp2)) {
                         mondied(mtmp2);
@@ -3323,11 +3326,11 @@ struct obj *obj;
         if (typ == CORPSE && !obj->zombie_corpse)
             return (boolean) (((mon->misc_worn_check & W_ARMG) != 0L
                                && touch_petrifies(&mons[obj->corpsenm]))
-                              || (!resists_ston(mon)
+                              || (!(resists_ston(mon) || defended(mon, AD_STON))
                                   && cures_stoning(mon, obj, FALSE)));
         if (typ == TIN)
             return (boolean) (mcould_eat_tin(mon)
-                              && (!resists_ston(mon)
+                              && (!(resists_ston(mon) || defended(mon, AD_STON))
                                   && cures_stoning(mon, obj, TRUE)));
         if (typ == EGG)
             return (boolean) touch_petrifies(&mons[obj->corpsenm]);
@@ -3345,13 +3348,13 @@ struct obj *obj;
         if (typ == RIN_SEE_INVISIBLE)
             return (!mon_prop(mon, SEE_INVIS));
         if (typ == RIN_FIRE_RESISTANCE)
-            return (!resists_fire(mon));
+            return (!(resists_fire(mon) || defended(mon, AD_FIRE)));
         if (typ == RIN_COLD_RESISTANCE)
-            return (!resists_cold(mon));
+            return (!(resists_cold(mon) || defended(mon, AD_COLD)));
         if (typ == RIN_SHOCK_RESISTANCE)
-            return (!resists_elec(mon));
+            return (!(resists_elec(mon) || defended(mon, AD_ELEC)));
         if (typ == RIN_POISON_RESISTANCE)
-            return (!resists_poison(mon));
+            return (!(resists_poison(mon) || defended(mon, AD_DRST)));
         if (typ == RIN_SLOW_DIGESTION)
             return (!mon_prop(mon, SLOW_DIGESTION));
         if (typ == RIN_REGENERATION)
@@ -3517,7 +3520,7 @@ boolean by_you;
     struct obj *obj;
     boolean tinok;
 
-    if (resists_ston(mon))
+    if (resists_ston(mon) || defended(mon, AD_STON))
         return FALSE;
     if (mon->meating || !mon->mcanmove || mon->msleeping)
         return FALSE;
@@ -3539,7 +3542,7 @@ boolean by_you;
                   ? Monnam(mon) : Something);
         if (canspotmon(mon)) {
             if (Hallucination)
-                pline("Look! The Pillsbury Doughboy!");
+                pline("Look!  The Pillsbury Doughboy!");
             else
                 pline("%s seems limber!", Monnam(mon));
         }
@@ -3607,7 +3610,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
     m_useup(mon, obj);
     /* obj is now gone */
 
-    if (acid && !tinned && !resists_acid(mon)) {
+    if (acid && !tinned && !(resists_acid(mon) || defended(mon, AD_ACID))) {
         damage_mon(mon, rnd(15), AD_ACID);
         if (vis)
             pline("%s has a very bad case of stomach acid.", Monnam(mon));
@@ -4033,7 +4036,7 @@ struct monst *mon;
         }
         break;
     case 5:
-        if (!resists_magm(mon)) {
+        if (!(resists_magm(mon) || defended(mon, AD_MAGM))) {
             if (!cantweararm(mon))
                 otmp = mksobj(GRAY_DRAGON_SCALE_MAIL, FALSE, FALSE);
             else
@@ -4050,7 +4053,7 @@ struct monst *mon;
         }
         break;
     case 6:
-        if (!resists_magm(mon)) {
+        if (!(resists_magm(mon) || defended(mon, AD_MAGM))) {
             if (!cantweararm(mon))
                 otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
             else

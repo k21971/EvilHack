@@ -2135,7 +2135,7 @@ do_rust:
         break;
     case AD_SLOW:
         hitmsg(mtmp, mattk);
-        if (uncancelled && !Slow && !defends(AD_SLOW, uwep) && !rn2(3))
+        if (uncancelled && !Slow && !defended(&youmonst, AD_SLOW) && !rn2(3))
             u_slow_down();
         stop_occupation();
         break;
@@ -2523,7 +2523,8 @@ struct attack *mattk;
             unleash_all();
         }
 
-        if (touch_petrifies(youmonst.data) && !resists_ston(mtmp)) {
+        if (touch_petrifies(youmonst.data)
+            && !(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
             /* put the attacker back where it started;
                the resulting statue will end up there */
             remove_monster(mtmp->mx, mtmp->my); /* u.ux,u.uy */
@@ -2800,7 +2801,8 @@ struct attack *mattk;
 
     if (!u.uswallow) {
         ; /* life-saving has already expelled swallowed hero */
-    } else if (touch_petrifies(youmonst.data) && !resists_ston(mtmp)) {
+    } else if (touch_petrifies(youmonst.data)
+               && !(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
         pline("%s very hurriedly %s you!", Monnam(mtmp),
               is_swallower(mtmp->data) ? "regurgitates" : "expels");
         expels(mtmp, mtmp->data, FALSE);
@@ -2826,12 +2828,14 @@ struct attack *mattk;
 boolean ufound;
 {
     boolean kill_agr = TRUE;
+    boolean not_affected;
+    int tmp;
 
     if (mtmp->mcan)
         return 0;
 
-    int tmp = d((int) mattk->damn, (int) mattk->damd);
-    boolean not_affected = defends((int) mattk->adtyp, uwep);
+    tmp = d((int) mattk->damn, (int) mattk->damd);
+    not_affected = defended(mtmp, (int) mattk->adtyp);
 
     if (!ufound) {
         pline("%s explodes at a spot in %s!",
@@ -3190,9 +3194,9 @@ struct attack *mattk;
         }
         break;
     case AD_SLOW:
-        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee &&
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
             /* (HFast & (INTRINSIC | TIMEOUT)) && */
-            !Slow && !defends(AD_SLOW, uwep) && !rn2(4)) {
+            && !Slow && !defended(mtmp, AD_SLOW) && !rn2(4)) {
             if (cancelled) {
                 react = 7; /* "dulled" */
                 already = (mtmp->mspeed == MSLOW);
@@ -3904,7 +3908,7 @@ struct attack *mattk;
         switch (uarm->otyp) {
         case GREEN_DRAGON_SCALE_MAIL:
         case GREEN_DRAGON_SCALES:
-            if (resists_poison(mtmp))
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRST))
                 break;
             if (rn2(20)) {
                 if (!rn2(3)) {
@@ -3932,7 +3936,7 @@ struct attack *mattk;
             break;
         case BLACK_DRAGON_SCALE_MAIL:
         case BLACK_DRAGON_SCALES:
-            if (resists_disint(mtmp)) {
+            if (resists_disint(mtmp) || defended(mtmp, AD_DISN)) {
                 break;
                 if (canseemon(mtmp) && !rn2(3)) {
                     shieldeff(mtmp->mx, mtmp->my);
@@ -3991,7 +3995,7 @@ struct attack *mattk;
             break;
         case ORANGE_DRAGON_SCALE_MAIL:
         case ORANGE_DRAGON_SCALES:
-            if (resists_sleep(mtmp))
+            if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE))
                 break;
             if (!rn2(3) && mtmp->mspeed != MSLOW) {
                 if (canseemon(mtmp))
@@ -4001,7 +4005,7 @@ struct attack *mattk;
             break;
         case WHITE_DRAGON_SCALE_MAIL:
         case WHITE_DRAGON_SCALES:
-            if (resists_cold(mtmp))
+            if (resists_cold(mtmp) || defended(mtmp, AD_COLD))
                 break;
             if (rn2(20)) {
                 if (!rn2(3)) {
@@ -4025,7 +4029,7 @@ struct attack *mattk;
             break;
         case RED_DRAGON_SCALE_MAIL:
         case RED_DRAGON_SCALES:
-            if (resists_fire(mtmp))
+            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
                 break;
             if (rn2(20)) {
                 if (!rn2(3)) {
@@ -4114,7 +4118,7 @@ struct attack *mattk;
                      looks strange coming immediately after player has
                      been told that hero has reverted to normal form */
                   !Upolyd ? "" : "your ", hliquid("acid"));
-            if (resists_acid(mtmp)) {
+            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
                 pline("%s is not affected.", Monnam(mtmp));
                 tmp = 0;
             }
@@ -4127,7 +4131,7 @@ struct attack *mattk;
         goto assess_dmg;
     case AD_DISN: {
         int chance = (youmonst.data == &mons[PM_ANTIMATTER_VORTEX] ? !rn2(3) : !rn2(6));
-        if (resists_disint(mtmp)) {
+        if (resists_disint(mtmp) || defended(mtmp, AD_DISN)) {
             if (canseemon(mtmp) && !rn2(3)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 Your("deadly %s does not appear to affect %s",
@@ -4190,7 +4194,7 @@ struct attack *mattk;
         if (MON_WEP(mtmp) != 0)
             wornitems |= W_ARMG;
 
-        if (!resists_ston(mtmp)
+        if (!(resists_ston(mtmp) || defended(mtmp, AD_STON))
             && (protector == 0L
                 || (protector != ~0L
                     && (wornitems & protector) != protector))) {
@@ -4266,7 +4270,7 @@ struct attack *mattk;
             }
             return 1;
         case AD_COLD: /* Brown mold or blue jelly */
-            if (resists_cold(mtmp)) {
+            if (resists_cold(mtmp) || defended(mtmp, AD_COLD)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("%s is mildly chilly.", Monnam(mtmp));
                 golemeffects(mtmp, AD_COLD, tmp);
@@ -4291,7 +4295,7 @@ struct attack *mattk;
             tmp = 0;
             break;
         case AD_FIRE: /* Red mold */
-            if (resists_fire(mtmp)) {
+            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("%s is mildly warm.", Monnam(mtmp));
                 golemeffects(mtmp, AD_FIRE, tmp);
@@ -4301,7 +4305,7 @@ struct attack *mattk;
             pline("%s is suddenly very hot!", Monnam(mtmp));
             break;
         case AD_ELEC:
-            if (resists_elec(mtmp)) {
+            if (resists_elec(mtmp) || defended(mtmp, AD_ELEC)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("%s is slightly tingled.", Monnam(mtmp));
                 golemeffects(mtmp, AD_ELEC, tmp);
@@ -4311,7 +4315,7 @@ struct attack *mattk;
             pline("%s is jolted with your electricity!", Monnam(mtmp));
             break;
         case AD_DRST:
-            if (resists_poison(mtmp)) {
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRST)) {
                 pline("%s is unaffected by your poisonous hide.", Monnam(mtmp));
                 tmp = 0;
                 break;
@@ -4328,7 +4332,7 @@ struct attack *mattk;
             }
             break;
         case AD_SLOW:
-            if (resists_sleep(mtmp)) {
+            if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE)) {
                 tmp = 0;
                 break;
             }

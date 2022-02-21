@@ -2923,11 +2923,13 @@ struct _create_particular_data *d;
             else
                 unblock_point(mx, my);
         }
-        if (d->sick && !resists_sick(mtmp->data)) {
+        if (d->sick
+            && !(resists_sick(mtmp->data) || defended(mtmp, AD_DISE))) {
             mtmp->msick = 1;
             mtmp->msicktime = rn1(9, 6);
         }
-        if (d->diseased && !resists_sick(mtmp->data)) {
+        if (d->diseased
+            && !(resists_sick(mtmp->data) || defended(mtmp, AD_DISE))) {
             mtmp->mdiseased = 1;
             mtmp->mdiseasetime = rn1(9, 6);
         }

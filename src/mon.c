@@ -187,7 +187,8 @@ struct monst *mtmp;
     if ((mtmp == &youmonst)
         && (u.uinvulnerable || Breathless || Underwater))
         return M_POISONGAS_OK;
-    if ((resists_poison(mtmp) || (mtmp == &youmonst)) && Poison_resistance)
+    if ((resists_poison(mtmp) || defended(mtmp, AD_DRST) || (mtmp == &youmonst))
+        && Poison_resistance)
         return M_POISONGAS_MINOR;
     return M_POISONGAS_BAD;
 }
@@ -843,7 +844,7 @@ register struct monst *mtmp;
                 if (rloc(mtmp, TRUE))
                     return 0;
             }
-            if (!resists_fire(mtmp)) {
+            if (!(resists_fire(mtmp) || defended(mtmp, AD_FIRE))) {
                 if (cansee(mtmp->mx, mtmp->my)) {
                     struct attack *dummy;
                     dummy = has_erac(mtmp) ? &ERAC(mtmp)->mattk[0]
@@ -983,7 +984,7 @@ mcalcdistress()
             continue;
 
         if (mtmp->mstone > 0) {
-            if (resists_ston(mtmp)) {
+            if (resists_ston(mtmp) || defended(mtmp, AD_STON)) {
                 mtmp->mstone = 0;
             } else if (poly_when_stoned(mtmp->data)) {
                 mtmp->mstone = 0;
@@ -1066,7 +1067,7 @@ mcalcdistress()
 
         /* sick monsters can die from their illness */
         if (mtmp->msick && mtmp->msicktime <= 1) {
-            if (resists_sick(mtmp->data)) {
+            if (resists_sick(mtmp->data) || defended(mtmp, AD_DISE)) {
                 mtmp->msick = 0;
             } else {
                 if (canseemon(mtmp))
@@ -1096,7 +1097,7 @@ mcalcdistress()
 
         /* diseased monsters can die as well... */
         if (mtmp->mdiseased && mtmp->mdiseasetime <= 1) {
-            if (resists_sick(mtmp->data)) {
+            if (resists_sick(mtmp->data) || defended(mtmp, AD_DISE)) {
                 mtmp->mdiseased = 0;
             } else {
                 if (canseemon(mtmp))
@@ -1415,7 +1416,7 @@ register struct monst *mtmp;
                         if (poly_when_stoned(ptr)) {
                             mon_to_stone(mtmp);
                             ptr = mtmp->data;
-                        } else if (!resists_ston(mtmp)) {
+                        } else if (!(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
                             mtmp->mstone = 5;
                             mtmp->mstonebyu = FALSE;
                         }
@@ -1465,7 +1466,7 @@ struct monst *mtmp;
         /* untouchable (or inaccessible) items */
         } else if ((otmp->otyp == CORPSE
                     && touch_petrifies(&mons[otmp->corpsenm])
-                    && !resists_ston(mtmp))
+                    && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
                    /* don't engulf boulders and statues or ball&chain */
                    || otmp->oclass == ROCK_CLASS
                    || otmp == uball || otmp == uchain
@@ -1489,7 +1490,7 @@ struct monst *mtmp;
                    || ((otmp->otyp == CORPSE || otmp->otyp == EGG
                         || otmp->globby)
                        && ((touch_petrifies(&mons[otmp->corpsenm])
-                            && !resists_ston(mtmp))
+                            && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
                            || (otmp->corpsenm == PM_GREEN_SLIME
                                && !slimeproof(mtmp->data))))) {
             /* engulf */
@@ -1640,7 +1641,7 @@ register struct monst *mtmp;
                 if (poly_when_stoned(ptr)) {
                     mon_to_stone(mtmp);
                     ptr = mtmp->data;
-                } else if (!resists_ston(mtmp)) {
+                } else if (!(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
                     mtmp->mstone = 5;
                     mtmp->mstonebyu = FALSE;
                 }
@@ -1978,7 +1979,8 @@ struct obj *otmp;
         return 0; /* can't carry anything */
 
     if (otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])
-        && !(mtmp->misc_worn_check & W_ARMG) && !resists_ston(mtmp))
+        && !(mtmp->misc_worn_check & W_ARMG)
+        && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
         return 0;
     if (otyp == CORPSE && is_rider(&mons[otmp->corpsenm]))
         return 0;
@@ -2313,17 +2315,20 @@ long flag;
                         && ((!is_pit(ttmp->ttyp) && !is_hole(ttmp->ttyp))
                             || (!is_flyer(mdat) && !is_floater(mdat)
                                 && !ceiling_hider(mdat)) || Sokoban)
-                        && (ttmp->ttyp != SLP_GAS_TRAP || !resists_sleep(mon))
+                        && (ttmp->ttyp != SLP_GAS_TRAP
+                            || !(resists_sleep(mon) || defended(mon, AD_SLEE)))
                         && (ttmp->ttyp != BEAR_TRAP
                             || (mdat->msize > MZ_SMALL && !amorphous(mdat)
                                 && !is_flyer(mdat) && !is_floater(mdat)
                                 && !is_whirly(mdat) && !unsolid(mdat)))
-                        && (ttmp->ttyp != FIRE_TRAP || !resists_fire(mon))
+                        && (ttmp->ttyp != FIRE_TRAP
+                            || !(resists_fire(mon) || defended(mon, AD_FIRE)))
                         && (ttmp->ttyp != SQKY_BOARD || !is_flyer(mdat))
                         && (ttmp->ttyp != WEB
                             || (!amorphous(mdat) && !webmaker(mdat)
                                 && !is_whirly(mdat) && !unsolid(mdat)))
-                        && (ttmp->ttyp != ANTI_MAGIC || !resists_magm(mon))) {
+                        && (ttmp->ttyp != ANTI_MAGIC
+                            || !(resists_magm(mon) || defended(mon, AD_MAGM)))) {
                         if (!(flag & ALLOW_TRAPS)) {
                             if (mon->mtrapseen & (1L << (ttmp->ttyp - 1)))
                                 continue;
@@ -4645,7 +4650,8 @@ struct monst *mtmp;
 
         /* most monsters won't hide under cockatrice corpse */
         if (otmp->nexthere || otmp->otyp != CORPSE
-            || (mtmp == &youmonst ? Stone_resistance : resists_ston(mtmp))
+            || (mtmp == &youmonst ? Stone_resistance
+                                  : (resists_ston(mtmp) || defended(mtmp, AD_STON)))
             || !touch_petrifies(&mons[otmp->corpsenm]))
             undetected = TRUE;
     }
