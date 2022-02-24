@@ -2149,4 +2149,5 @@ The following changes to date are:
 - Fix: rotting corpse part of a highlited pile
 - Tweak monster gear preference
 - Hurtling monsters/players tweaks and fixes
+- Fix: preserve the Oracle and Charon's starting stats in bones 
 

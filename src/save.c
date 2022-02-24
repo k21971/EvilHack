@@ -352,6 +352,8 @@ register int fd, mode;
     bwrite(fd, (genericptr_t) pl_fruit, sizeof pl_fruit);
     savefruitchn(fd, mode);
     saveshambler(fd, mode);
+    saveoracle(fd, mode);
+    savecharon(fd, mode);
     savenames(fd, mode);
     save_waterlevel(fd, mode);
     save_msghistory(fd, mode);
@@ -1146,7 +1148,6 @@ register struct monst *mtmp;
     register struct monst *mtmp2;
     int minusone = -1;
     struct permonst *monbegin = &mons[0];
-    int namesize = sizeof(monbegin->mname);
 
     if (perform_bwrite(mode))
         bwrite(fd, (genericptr_t) &monbegin, sizeof(monbegin));
@@ -1179,20 +1180,6 @@ register struct monst *mtmp;
     }
     if (perform_bwrite(mode))
         bwrite(fd, (genericptr_t) &minusone, sizeof (int));
-
-    if (perform_bwrite(mode)) {
-        /* If any of the monsters below have their templates changed
-           in monst.c, that could break saves, so be mindful of any
-           template edits in monst.c */
-
-        /* Do the same for other monsters here that have their core
-           settings change in the middle of the game. Lets not make
-           this a habit... */
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
-               sizeof(struct permonst) - namesize);
-    }
 }
 
 /* save traps; ftrap is the only trap chain so the 2nd arg is superfluous */
@@ -1250,9 +1237,31 @@ int fd, mode;
 {
     int namesize = sizeof(mons[0].mname);
     /* Preserve our delectable abberation so the player can
-        experience the same joy upon reload */
+       experience the same joy upon reload */
     if (perform_bwrite(mode))
         bwrite(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR]
+                                   + namesize),
+               sizeof(struct permonst) - namesize);
+}
+
+void
+saveoracle(fd, mode)
+int fd, mode;
+{
+    int namesize = sizeof(mons[0].mname);
+    if (perform_bwrite(mode))
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_ORACLE]
+                                   + namesize),
+               sizeof(struct permonst) - namesize);
+}
+
+void
+savecharon(fd, mode)
+int fd, mode;
+{
+    int namesize = sizeof(mons[0].mname);
+    if (perform_bwrite(mode))
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CHARON]
                                    + namesize),
                sizeof(struct permonst) - namesize);
 }

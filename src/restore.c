@@ -426,7 +426,6 @@ boolean ghostly;
     register struct monst *first = (struct monst *) 0;
     int offset, buflen;
     struct permonst *monbegin;
-    int namesize = sizeof(monbegin->mname);
 
     /* get the original base address */
     mread(fd, (genericptr_t)&monbegin, sizeof(monbegin));
@@ -493,12 +492,6 @@ boolean ghostly;
         impossible("Restmonchn: error reading monchn.");
         mtmp2->nmon = 0;
     }
-
-    /* Preserve changes to other defined monsters here */
-    mread(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
-          sizeof(struct permonst) - namesize);
 
     return first;
 }
@@ -726,6 +719,8 @@ unsigned int *stuckid, *steedid;
     freefruitchn(ffruit); /* clean up fruit(s) made by initoptions() */
     ffruit = loadfruitchn(fd);
     restshambler(fd);
+    restoracle(fd);
+    restcharon(fd);
 
     restnames(fd);
     restore_waterlevel(fd);
@@ -1296,6 +1291,26 @@ int fd;
     int namesize = sizeof(monbegin->mname);
     /* Bring RNGesus' most abominable creation back to life */
     mread(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
+          sizeof(struct permonst) - namesize);
+}
+
+void
+restoracle(fd)
+int fd;
+{
+    struct permonst *monbegin;
+    int namesize = sizeof(monbegin->mname);
+    mread(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
+          sizeof(struct permonst) - namesize);
+}
+
+void
+restcharon(fd)
+int fd;
+{
+    struct permonst *monbegin;
+    int namesize = sizeof(monbegin->mname);
+    mread(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
           sizeof(struct permonst) - namesize);
 }
 
