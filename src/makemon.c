@@ -2405,7 +2405,7 @@ struct monst *
 makemon(ptr, x, y, mmflags)
 register struct permonst *ptr;
 register int x, y;
-int mmflags;
+long mmflags;
 {
     register struct monst *mtmp;
     struct monst fakemon;

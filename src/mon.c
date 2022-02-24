@@ -740,12 +740,12 @@ unsigned corpseflags;
     return obj;
 }
 
-/* check mtmp and water/lava for compatibility, 0 (survived), 1 (died) */
+/* check mtmp and water/lava/air for compatibility, 0 (survived), 1 (died) */
 int
 minliquid(mtmp)
 register struct monst *mtmp;
 {
-    boolean inpool, inlava, infountain, inshallow, inforge;
+    boolean inpool, inlava, infountain, inshallow, inforge, invladcavern;
 
     /* [ceiling clingers are handled below] */
     inpool = (is_pool(mtmp->mx, mtmp->my)
@@ -758,6 +758,10 @@ register struct monst *mtmp;
     inforge = IS_FORGE(levl[mtmp->mx][mtmp->my].typ);
     inshallow = ((is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my))
                  && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
+    invladcavern = (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
+                    && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
+                         || ceiling_hider(mtmp->data)
+                         || ((mtmp == u.usteed) && Flying)));
 
     /* Flying and levitation keeps our steed out of the liquid
        (but not water-walking or swimming; note: if hero is in a
@@ -881,13 +885,37 @@ register struct monst *mtmp;
             }
             return 1;
         }
+    } else if (invladcavern) {
+        if (cansee(mtmp->mx, mtmp->my)) {
+            pline("%s plummets several thousand feet to %s death.",
+                  Monnam(mtmp), mhis(mtmp));
+        }
+        if (u.ustuck && u.uswallow && u.ustuck == mtmp) {
+            /* This can happen after a purple worm plucks you off a
+               flying steed while you are over air. */
+            pline("%s falls as %s rushes in and forces you out.",
+                  Monnam(mtmp), hliquid("air"));
+        }
+        if (context.mon_moving) {
+            /* no corpse or objects as both are now
+               several thousand feet down */
+            mongone(mtmp);
+        } else {
+            xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+        }
+        if (!DEADMONSTER(mtmp)) {
+            if (!rloc(mtmp, TRUE))
+                deal_with_overcrowding(mtmp);
+            return 0;
+        }
+        return 1;
     } else if (inpool) {
         /* Most monsters drown in pools.  flooreffects() will take care of
          * water damage to dead monsters' inventory, but survivors need to
          * be handled here.  Swimmers are able to protect their stuff...
          */
         if (!ceiling_hider(mtmp->data) && !is_swimmer(mtmp->data)
-            && !amphibious(mtmp->data)&& !can_wwalk(mtmp)) {
+            && !amphibious(mtmp->data) && !can_wwalk(mtmp)) {
             /* like hero with teleport intrinsic or spell, teleport away
                if possible */
             if (can_teleport(mtmp->data) && !tele_restrict(mtmp)) {

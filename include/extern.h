@@ -1251,7 +1251,7 @@ E void FDECL(newmonhp, (struct monst *, int));
 E struct mextra *NDECL(newmextra);
 E void FDECL(copy_mextra, (struct monst *, struct monst *));
 E void FDECL(dealloc_mextra, (struct monst *));
-E struct monst *FDECL(makemon, (struct permonst *, int, int, int));
+E struct monst *FDECL(makemon, (struct permonst *, int, int, long));
 E boolean FDECL(create_critters, (int, struct permonst *, BOOLEAN_P));
 E struct permonst *NDECL(rndmonst);
 E void FDECL(reset_rndmonst, (int));
@@ -2591,7 +2591,7 @@ E boolean FDECL(stucksteed, (BOOLEAN_P));
 
 /* ### teleport.c ### */
 
-E boolean FDECL(goodpos, (int, int, struct monst *, unsigned));
+E boolean FDECL(goodpos, (int, int, struct monst *, long));
 E boolean FDECL(enexto, (coord *, XCHAR_P, XCHAR_P, struct permonst *));
 E boolean FDECL(enexto_core, (coord *, XCHAR_P, XCHAR_P,
                               struct permonst *, unsigned));

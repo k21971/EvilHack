@@ -2148,4 +2148,5 @@ The following changes to date are:
 - Fix: monsters benefit from resistances imparted by worn/wielded gear
 - Fix: rotting corpse part of a highlited pile
 - Tweak monster gear preference
+- Hurtling monsters/players tweaks and fixes
 

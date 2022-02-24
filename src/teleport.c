@@ -24,10 +24,12 @@ boolean
 goodpos(x, y, mtmp, gpflags)
 int x, y;
 struct monst *mtmp;
-unsigned gpflags;
+long gpflags;
 {
     struct permonst *mdat = (struct permonst *) 0;
     boolean ignorewater = ((gpflags & MM_IGNOREWATER) != 0),
+            ignorelava = ((gpflags & MM_IGNORELAVA) != 0),
+            ignoreair = ((gpflags & MM_IGNOREAIR) != 0),
             allow_u = ((gpflags & GP_ALLOW_U) != 0);
 
     if (!isok(x, y))
@@ -79,7 +81,7 @@ unsigned gpflags;
         } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater
                    && !is_puddle(x, y)) {
             return FALSE;
-        } else if (is_lava(x, y)) {
+        } else if (is_lava(x, y) && !ignorelava) {
             /* 3.6.3: floating eye can levitate over lava but it avoids
                that due the effect of the heat causing it to dry out */
             if (mdat == &mons[PM_FLOATING_EYE])
@@ -95,7 +97,8 @@ unsigned gpflags;
         }
         if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
             && !(is_flyer(mdat) || is_floater(mdat)
-                 || ceiling_hider(mdat)))
+                 || ceiling_hider(mdat))
+            && !ignoreair)
             return FALSE;
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;
@@ -106,7 +109,9 @@ unsigned gpflags;
             return TRUE;
     }
     if (!accessible(x, y)) {
-        if (!(is_pool(x, y) && ignorewater))
+        if (!(is_pool(x, y) && ignorewater)
+            && !(is_lava(x, y) && ignorelava)
+            && !(IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz) && ignoreair))
             return FALSE;
     }
 

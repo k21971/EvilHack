@@ -41,9 +41,6 @@ STATIC_DCL boolean FDECL(thitm, (int, struct monst *, struct obj *, int,
                                  BOOLEAN_P));
 STATIC_DCL void NDECL(maybe_finish_sokoban);
 
-/* mintrap() should take a flags argument, but for time being we use this */
-STATIC_VAR int force_mintrap = 0;
-
 STATIC_VAR const char *const a_your[2] = { "a", "your" };
 STATIC_VAR const char *const A_Your[2] = { "A", "Your" };
 STATIC_VAR const char tower_of_flame[] = "tower of flame";
@@ -3157,7 +3154,7 @@ register struct monst *mtmp;
     }
     if (trapkilled)
         return 2;
-    return mtmp->mtrapped;
+    return mtmp->mtrapped ? 1 : 0;
 }
 
 /* Combine cockatrice checks into single functions to avoid repeating code. */

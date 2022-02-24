@@ -333,6 +333,10 @@ E struct c_common_strings {
    name ending in 's' */
 #define fakename c_common_strings.c_fakename
 
+/* trap.c */
+E NEARDATA int force_mintrap; /* mintrap() should take a flags argument,
+                                 but for time being we use this */
+
 /* material strings */
 E const char *materialnm[];
 

@@ -153,6 +153,7 @@ STATIC_PTR int NDECL(wiz_panic);
 STATIC_PTR int NDECL(wiz_polyself);
 STATIC_PTR int NDECL(wiz_level_tele);
 STATIC_PTR int NDECL(wiz_level_change);
+STATIC_PTR int NDECL(wiz_telekinesis);
 STATIC_PTR int NDECL(wiz_show_seenv);
 STATIC_PTR int NDECL(wiz_show_vision);
 STATIC_PTR int NDECL(wiz_smell);
@@ -1022,6 +1023,45 @@ wiz_level_change(VOID_ARGS)
             pluslvl(FALSE);
     }
     u.ulevelmax = u.ulevel;
+    return 0;
+}
+
+/* #wiztelekinesis */
+STATIC_PTR int
+wiz_telekinesis(VOID_ARGS)
+{
+    int ans = 0;
+    coord cc;
+    struct monst *mtmp = (struct monst *) 0;
+
+    cc.x = u.ux;
+    cc.y = u.uy;
+
+    pline("Pick a monster to hurtle.");
+    do {
+        if (mtmp && !DEADMONSTER(mtmp) && canspotmon(mtmp)) {
+            cc.x = mtmp->mx;
+            cc.y = mtmp->my;
+        }
+
+        ans = getpos(&cc, TRUE, "a monster");
+        if (ans < 0 || cc.x < 0)
+            return 2;
+
+        if (cc.x == u.ux && cc.y == u.uy) {
+            if (!getdir("which direction?"))
+                return 2;
+
+            hurtle(u.dx, u.dy, 6, FALSE);
+            cc.x = u.ux, cc.y = u.uy;
+        } else if (((mtmp = m_at(cc.x, cc.y)) != 0) && canspotmon(mtmp)) {
+            if (!getdir("which direction?"))
+                return 2;
+
+            mhurtle(mtmp, u.dx, u.dy, 6);
+        }
+
+    } while (TRUE);
     return 0;
 }
 
@@ -3909,6 +3949,8 @@ struct ext_func_tab extcmdlist[] = {
             wiz_rumor_check, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { '\0', "wizsmell", "smell monster",
             wiz_smell, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
+    { '\0', "wiztelekinesis", "telekinesis",
+            wiz_telekinesis, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { '\0', "wizwhere", "show locations of special levels",
             wiz_where, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { C('w'), "wizwish", "wish for something",

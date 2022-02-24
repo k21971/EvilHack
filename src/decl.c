@@ -170,6 +170,9 @@ NEARDATA struct obj
     *thrownobj = 0,     /* object in flight due to throwing */
     *kickedobj = 0;     /* object in flight due to kicking */
 
+/* trap.c */
+NEARDATA int force_mintrap = 0;
+
 #ifdef TEXTCOLOR
 /*
  *  This must be the same order as used for buzz() in zap.c.

@@ -545,6 +545,8 @@ genericptr_t arg;
             /* check for early exit condition */
             if (!(keep_going = (*check_proc)(arg, x, y)))
                 break;
+            flush_screen(1);
+            delay_output();
         }
     } else {
         while (i++ < dx) {
@@ -559,6 +561,8 @@ genericptr_t arg;
             /* check for early exit condition */
             if (!(keep_going = (*check_proc)(arg, x, y)))
                 break;
+            flush_screen(1);
+            delay_output();
         }
     }
 
@@ -765,8 +769,7 @@ int x, y;
         switch_terrain();
 
     if (is_pool(x, y) && !u.uinwater) {
-        if ((Is_waterlevel(&u.uz) && levl[x][y].typ == WATER)
-            || !(Levitation || Flying || Wwalking)) {
+        if ((Is_waterlevel(&u.uz) && levl[x][y].typ == WATER)) {
             multi = 0; /* can move, so drown() allows crawling out of water */
             (void) drown();
             return FALSE;
@@ -775,6 +778,9 @@ int x, y;
        }
     } else if (is_lava(x, y) && !stopping_short) {
         Norep("You move over some lava.");
+    } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
+               && !stopping_short) {
+        Norep("You pass over the chasm.");
     }
 
     /* FIXME:
@@ -822,19 +828,33 @@ genericptr_t arg;
 int x, y;
 {
     struct monst *mon = (struct monst *) arg;
+    struct monst *mtmp;
 
-    /* TODO: Treat walls, doors, iron bars, pools, lava, etc. specially
+    /* TODO: Treat walls, doors, iron bars, etc. specially
      * rather than just stopping before.
      */
-    if (goodpos(x, y, mon, 0) && m_in_out_region(mon, x, y)) {
+    if (goodpos(x, y, mon, MM_IGNOREWATER | MM_IGNORELAVA | MM_IGNOREAIR)
+        && m_in_out_region(mon, x, y)) {
+        int res;
+
         remove_monster(mon->mx, mon->my);
         newsym(mon->mx, mon->my);
         place_monster(mon, x, y);
         newsym(mon->mx, mon->my);
         set_apparxy(mon);
-        (void) mintrap(mon);
+        ++force_mintrap;
+        res = mintrap(mon);
+        --force_mintrap;
+        if (res == 1 || res == 2)
+            return FALSE;
         return TRUE;
     }
+    if ((mtmp = m_at(x, y)) != 0 && (canseemon(mon) || canseemon(mtmp))) {
+        pline("%s bumps into %s.", Monnam(mon), a_monnam(mtmp));
+        wakeup(mon, !context.mon_moving);
+        wakeup(mtmp, !context.mon_moving);
+    }
+
     return FALSE;
 }
 
@@ -907,6 +927,7 @@ boolean verbose;
     cc.x = u.ux + (dx * range);
     cc.y = u.uy + (dy * range);
     (void) walk_path(&uc, &cc, hurtle_step, (genericptr_t) &range);
+    teleds(cc.x, cc.y, TELEDS_NO_FLAGS);
 }
 
 /* Move a monster through the air for a few squares. */
@@ -924,8 +945,11 @@ int dx, dy, range;
     /* Is the monster stuck or too heavy to push?
      * (very large monsters have too much inertia, even floaters and flyers)
      */
-    if (mon->data->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped)
+    if (mon->data->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped) {
+        if (canseemon(mon))
+            pline("%s doesn't budge!", Monnam(mon));
         return;
+    }
 
     /* Is the monster riding another monster? */
     if (has_erid(mon)) {
@@ -950,6 +974,7 @@ int dx, dy, range;
     cc.x = mon->mx + (dx * range);
     cc.y = mon->my + (dy * range);
     (void) walk_path(&mc, &cc, mhurtle_step, (genericptr_t) mon);
+    (void) minliquid(mon);
     return;
 }
 
