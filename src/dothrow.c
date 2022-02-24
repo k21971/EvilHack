@@ -842,9 +842,9 @@ int x, y;
         place_monster(mon, x, y);
         newsym(mon->mx, mon->my);
         set_apparxy(mon);
-        ++force_mintrap;
+        if (Is_waterlevel(&u.uz) && levl[x][y].typ == WATER)
+            return FALSE;
         res = mintrap(mon);
-        --force_mintrap;
         if (res == 1 || res == 2)
             return FALSE;
         return TRUE;

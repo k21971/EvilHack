@@ -1039,26 +1039,25 @@ wiz_telekinesis(VOID_ARGS)
 
     pline("Pick a monster to hurtle.");
     do {
-        if (mtmp && !DEADMONSTER(mtmp) && canspotmon(mtmp)) {
-            cc.x = mtmp->mx;
-            cc.y = mtmp->my;
-        }
-
         ans = getpos(&cc, TRUE, "a monster");
         if (ans < 0 || cc.x < 0)
             return 2;
 
-        if (cc.x == u.ux && cc.y == u.uy) {
+        if ((((mtmp = m_at(cc.x, cc.y)) != 0) && canspotmon(mtmp))
+            || (cc.x == u.ux && cc.y == u.uy)) {
             if (!getdir("which direction?"))
                 return 2;
 
-            hurtle(u.dx, u.dy, 6, FALSE);
-            cc.x = u.ux, cc.y = u.uy;
-        } else if (((mtmp = m_at(cc.x, cc.y)) != 0) && canspotmon(mtmp)) {
-            if (!getdir("which direction?"))
-                return 2;
-
-            mhurtle(mtmp, u.dx, u.dy, 6);
+            if (mtmp) {
+                mhurtle(mtmp, u.dx, u.dy, 6);
+                if (!DEADMONSTER(mtmp) && canspotmon(mtmp)) {
+                    cc.x = mtmp->mx;
+                    cc.y = mtmp->my;
+                }
+            } else {
+                hurtle(u.dx, u.dy, 6, FALSE);
+                cc.x = u.ux, cc.y = u.uy;
+            }
         }
 
     } while (TRUE);

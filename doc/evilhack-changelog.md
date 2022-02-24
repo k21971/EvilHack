@@ -2150,4 +2150,5 @@ The following changes to date are:
 - Tweak monster gear preference
 - Hurtling monsters/players tweaks and fixes
 - Fix: preserve the Oracle and Charon's starting stats in bones 
+- Tweaks to hurtling monsters/players
 
