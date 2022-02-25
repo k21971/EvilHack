@@ -2151,4 +2151,5 @@ The following changes to date are:
 - Hurtling monsters/players tweaks and fixes
 - Fix: preserve the Oracle and Charon's starting stats in bones 
 - Tweaks to hurtling monsters/players
+- More tweaks to hurtling monsters/players
 

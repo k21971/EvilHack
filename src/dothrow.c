@@ -545,8 +545,6 @@ genericptr_t arg;
             /* check for early exit condition */
             if (!(keep_going = (*check_proc)(arg, x, y)))
                 break;
-            flush_screen(1);
-            delay_output();
         }
     } else {
         while (i++ < dx) {
@@ -561,8 +559,6 @@ genericptr_t arg;
             /* check for early exit condition */
             if (!(keep_going = (*check_proc)(arg, x, y)))
                 break;
-            flush_screen(1);
-            delay_output();
         }
     }
 
@@ -847,6 +843,9 @@ int x, y;
         res = mintrap(mon);
         if (res == 1 || res == 2)
             return FALSE;
+
+        flush_screen(1);
+        delay_output();
         return TRUE;
     }
     if ((mtmp = m_at(x, y)) != 0 && (canseemon(mon) || canseemon(mtmp))) {
