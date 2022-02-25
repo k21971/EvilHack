@@ -2152,4 +2152,5 @@ The following changes to date are:
 - Fix: preserve the Oracle and Charon's starting stats in bones 
 - Tweaks to hurtling monsters/players
 - More tweaks to hurtling monsters/players
+- Oracle fully reset if oracle level is bones level
 

@@ -320,9 +320,15 @@ struct monst *oracle;
     if (!Is_oracle_level(&u.uz))
         return FALSE;
 
+    cc.x = 0;
+    cc.y = 0;
+
     oracle->mpeaceful = 1;
+    oracle->movement = oracle->minvis = 0;
     o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
-    if (o_ridx >= 0 && rooms[o_ridx].rtype == DELPHI)
+    if (o_ridx >= 0 && rooms[o_ridx].rtype == DELPHI
+        && (cc.x == (rooms[o_ridx].lx + rooms[o_ridx].hx) / 2)
+        && (cc.y == (rooms[o_ridx].ly + rooms[o_ridx].hy) / 2))
         return TRUE; /* no fixup needed */
 
     /*
@@ -337,11 +343,12 @@ struct monst *oracle;
         if (rooms[ridx].orig_rtype == DELPHI)
             break;
 
-    if (o_ridx != ridx && ridx < SIZE(rooms)) {
+    if (ridx < SIZE(rooms)) {
         /* room found and she's not not in it, so try to move her there */
         cc.x = (rooms[ridx].lx + rooms[ridx].hx) / 2;
         cc.y = (rooms[ridx].ly + rooms[ridx].hy) / 2;
-        if (enexto(&cc, cc.x, cc.y, oracle->data)) {
+        if (goodpos(cc.x, cc.y, oracle, NO_MM_FLAGS)
+            || enexto(&cc, cc.x, cc.y, oracle->data)) {
             rloc_to(oracle, cc.x, cc.y);
             o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
         }
