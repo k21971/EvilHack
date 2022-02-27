@@ -2156,4 +2156,5 @@ The following changes to date are:
 - Fix: tweak to last commit
 - Wand of striking/force bolt spell has a chance to knock back its target
 - Various spell handling tweaks
+- Huge monsters easily climb out of pits
 
