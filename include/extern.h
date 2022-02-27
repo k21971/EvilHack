@@ -2550,6 +2550,10 @@ E int FDECL(tport_spell, (int));
 E void NDECL(losespells);
 E int NDECL(dovspell);
 E void FDECL(initialspell, (struct obj *));
+E boolean FDECL(known_spell, (short));
+E int FDECL(spell_idx, (short));
+E boolean FDECL(force_learn_spell, (short));
+E int NDECL (num_spells);
 
 /* ### steal.c ### */
 

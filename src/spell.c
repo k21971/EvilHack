@@ -951,9 +951,15 @@ boolean atme;
      * (There's no duplication of messages; when the rejection takes
      * place in getspell(), we don't get called.)
      */
-    if (rejectcasting()) {
+    if ((spell < 0) || rejectcasting()) {
         return 0; /* no time elapses */
     }
+
+    /*
+     *  Note: dotele() also calculates energy use and checks nutrition
+     *  and strength requirements; it any of these change, update it too.
+     */
+    energy = (spellev(spell) * 5); /* 5 <= energy <= 35 */
 
     /*
      * Spell casting no longer affects knowledge of the spell. A
@@ -966,6 +972,10 @@ boolean atme;
             Your("knowledge of this spell is twisted.");
         pline("It invokes nightmarish images in your mind...");
         spell_backfire(spell);
+        u.uen -= rnd(energy);
+        if (u.uen < 0)
+            u.uen = 0;
+        context.botl = 1;
         return 1;
     /* Infidel illithid became crowned and is no longer an illithid */
     } else if (spellid(spell) == SPE_PSIONIC_WAVE && Race_if(PM_DEMON)) {
@@ -980,11 +990,6 @@ boolean atme;
     } else if (spellknow(spell) <= KEEN / 10) { /* 2000 turns left */
         Your("recall of this spell is gradually fading.");
     }
-    /*
-     *  Note: dotele() also calculates energy use and checks nutrition
-     *  and strength requirements; it any of these change, update it too.
-     */
-    energy = (spellev(spell) * 5); /* 5 <= energy <= 35 */
 
     if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD) {
         You("are too hungry to cast that spell.");
@@ -2188,6 +2193,68 @@ struct obj *obj;
         incrnknow(i, 0);
     }
     return;
+}
+
+/* return TRUE if hero knows spell otyp, FALSE otherwise */
+boolean
+known_spell(otyp)
+short otyp;
+{
+    int i;
+
+    for (i = 0; (i < MAXSPELL) && (spellid(i) != NO_SPELL); i++)
+        if (spellid(i) == otyp)
+            return TRUE;
+    return FALSE;
+}
+
+/* return index for spell otyp, or -1 if not found */
+int
+spell_idx(otyp)
+short otyp;
+{
+    int i;
+
+    for (i = 0; (i < MAXSPELL) && (spellid(i) != NO_SPELL); i++)
+        if (spellid(i) == otyp)
+            return i;
+    return -1;
+}
+
+/* forcibly learn spell otyp, if possible */
+boolean
+force_learn_spell(otyp)
+short otyp;
+{
+    int i;
+
+    if (known_spell(otyp))
+        return FALSE;
+
+    for (i = 0; i < MAXSPELL; i++)
+        if (spellid(i) == NO_SPELL)
+            break;
+    if (i == MAXSPELL)
+        impossible("Too many spells memorized");
+    else {
+        spl_book[i].sp_id = otyp;
+        spl_book[i].sp_lev = objects[otyp].oc_level;
+        incrnknow(i, 1);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* number of spells hero knows */
+int
+num_spells()
+{
+    int i;
+
+    for (i = 0; i < MAXSPELL; i++)
+        if (spellid(i) == NO_SPELL)
+            break;
+    return i;
 }
 
 /*spell.c*/

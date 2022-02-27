@@ -2155,4 +2155,5 @@ The following changes to date are:
 - Oracle fully reset if oracle level is bones level
 - Fix: tweak to last commit
 - Wand of striking/force bolt spell has a chance to knock back its target
+- Various spell handling tweaks
 

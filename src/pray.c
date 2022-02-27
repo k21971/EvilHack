@@ -808,7 +808,6 @@ gcrownu()
     struct obj *obj;
     boolean already_exists, in_hand;
     short class_gift;
-    int sp_no;
     xchar maxint, maxwis;
 #define ok_wep(o) ((o) && ((o)->oclass == WEAPON_CLASS || is_weptool(o)))
 
@@ -927,19 +926,23 @@ gcrownu()
 
     if (objects[class_gift].oc_class == SPBOOK_CLASS) {
         obj = mksobj(class_gift, TRUE, FALSE);
-        bless(obj);
-        obj->bknown = 1; /* ok to skip set_bknown() */
-        at_your_feet("A spellbook");
-        dropy(obj);
+        if (!u.uconduct.literate && !known_spell(obj->otyp)) {
+            if (force_learn_spell(obj->otyp))
+                pline("Divine knowledge of %s fills your mind!",
+                      OBJ_NAME(objects[obj->otyp]));
+            obfree(obj, (struct obj *) 0);
+        } else {
+            bless(obj);
+            obj->bknown = 1; /* ok to skip set_bknown() */
+            at_your_feet("A spellbook");
+            place_object(obj, u.ux, u.uy);
+            newsym(u.ux, u.uy);
+        }
         u.ugifts++;
         /* when getting a new book for known spell, enhance
            currently wielded weapon rather than the book */
-        for (sp_no = 0; sp_no < MAXSPELL; sp_no++)
-            if (spl_book[sp_no].sp_id == class_gift) {
-                if (ok_wep(uwep))
-                    obj = uwep; /* to be blessed,&c */
-                break;
-            }
+        if (known_spell(class_gift) && ok_wep(uwep))
+            obj = uwep; /* to be blessed,&c */
     }
 
     switch (u.ualign.type) {
@@ -1358,7 +1361,7 @@ aligntyp g_align;
             /*FALLTHRU*/
         case 6: {
             struct obj *otmp;
-            int sp_no, trycnt = u.ulevel + 1;
+            int trycnt = u.ulevel + 1;
 
             /* not yet known spells given preference over already known ones
              */
@@ -1366,10 +1369,7 @@ aligntyp g_align;
             otmp = mkobj(SPBOOK_CLASS, TRUE);
             while (--trycnt > 0) {
                 if (otmp->otyp != SPE_BLANK_PAPER) {
-                    for (sp_no = 0; sp_no < MAXSPELL; sp_no++)
-                        if (spl_book[sp_no].sp_id == otmp->otyp)
-                            break;
-                    if (sp_no == MAXSPELL
+                    if (!known_spell(otmp->otyp)
                         && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
                         break; /* usable, but not yet known */
                 } else {
@@ -1380,10 +1380,17 @@ aligntyp g_align;
                 otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
                 otmp->owt = weight(otmp);
             }
-            bless(otmp);
-            at_your_feet("A spellbook");
-            place_object(otmp, u.ux, u.uy);
-            newsym(u.ux, u.uy);
+            if (!u.uconduct.literate && !known_spell(otmp->otyp)) {
+                if (force_learn_spell(otmp->otyp))
+                    pline("Divine knowledge of %s fills your mind!",
+                          OBJ_NAME(objects[otmp->otyp]));
+                obfree(otmp, (struct obj *) 0);
+            } else {
+                bless(otmp);
+                at_your_feet("A spellbook");
+                place_object(otmp, u.ux, u.uy);
+                newsym(u.ux, u.uy);
+            }
             break;
         }
         default:
@@ -2221,7 +2228,7 @@ dosacrifice()
                         } while (ncount++ < 1000);
                     } else if ((primary_casters || primary_casters_priest) && !rn2(3)) {
                         /* Making a spellbook */
-                        int sp_no, trycnt = u.ulevel + 1;
+                        int trycnt = u.ulevel + 1;
 
                         otmp = mkobj(SPBOOK_CLASS, TRUE);
 
@@ -2230,11 +2237,7 @@ dosacrifice()
 
                         while (--trycnt > 0) {
                             if (otmp->otyp != SPE_BLANK_PAPER) {
-                                for (sp_no = 0; sp_no < MAXSPELL; sp_no++) {
-                                    if (spl_book[sp_no].sp_id == otmp->otyp)
-                                        break;
-                                }
-                                if (sp_no == MAXSPELL
+                                if (!known_spell(otmp->otyp)
                                     && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
                                     break; /* usable, but not yet known */
                             } else {
@@ -2248,7 +2251,8 @@ dosacrifice()
 
                         bless(otmp);
                         at_your_feet("An object");
-                        dropy(otmp);
+                        place_object(otmp, u.ux, u.uy);
+                        newsym(u.ux, u.uy);
                         godvoice(u.ualign.type, "Use this gift skillfully!");
                         u.ugifts++;
                         u.ublesscnt = rnz(300 + (50 * u.ugifts));
@@ -2659,21 +2663,9 @@ doturn()
     int once, range, xlev;
 
     if (!Role_if(PM_PRIEST) && !Role_if(PM_KNIGHT)) {
-        /* Try to use the "turn undead" spell.
-         *
-         * This used to be based on whether hero knows the name of the
-         * turn undead spellbook, but it's possible to know--and be able
-         * to cast--the spell while having lost the book ID to amnesia.
-         * (It also used to tell spelleffects() to cast at self?)
-         */
-        int sp_no;
-
-        for (sp_no = 0; sp_no < MAXSPELL; ++sp_no) {
-            if (spl_book[sp_no].sp_id == NO_SPELL)
-                break;
-            else if (spl_book[sp_no].sp_id == SPE_TURN_UNDEAD)
-                return spelleffects(sp_no, FALSE);
-        }
+        /* Try to use the "turn undead" spell. */
+        if (known_spell(SPE_TURN_UNDEAD))
+            return spelleffects(spell_idx(SPE_TURN_UNDEAD), FALSE);
         You("don't know how to turn undead!");
         return 0;
     }

@@ -1812,15 +1812,8 @@ int magic; /* 0=Physical, otherwise skill level */
     coord cc;
 
     /* attempt "jumping" spell if hero has no innate jumping ability */
-    if (!magic && !Jumping) {
-        int sp_no;
-
-        for (sp_no = 0; sp_no < MAXSPELL; ++sp_no)
-            if (spl_book[sp_no].sp_id == NO_SPELL)
-                break;
-            else if (spl_book[sp_no].sp_id == SPE_JUMPING)
-                return spelleffects(sp_no, FALSE);
-    }
+    if (!magic && !Jumping && known_spell(SPE_JUMPING))
+        return spelleffects(spell_idx(SPE_JUMPING), FALSE);
 
     if (!magic && (nolimbs(youmonst.data) || slithy(youmonst.data))) {
         /* normally (nolimbs || slithy) implies !Jumping,

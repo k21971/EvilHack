@@ -1193,6 +1193,11 @@ u_init()
         break;
     }
 
+    /* If we have at least one spell, force starting Pw to be 5,
+       so hero can cast the level 1 spell they should have */
+    if (num_spells() && (u.uenmax < 5))
+        u.uen = u.uenmax = u.ueninc[u.ulevel] = 5;
+
     return;
 }
 
@@ -1227,27 +1232,27 @@ shambler_init()
         attkptr->damn = 2 + rn2(4);
         attkptr->damd = 6 + rn2(3);
         switch (attkptr->aatyp) {
-            case AT_BREA:
-                attkptr->adtyp = damg_breath_types[rn2(SIZE(damg_breath_types))];
-                break;
-            case AT_SPIT:
-                attkptr->adtyp = damg_spit_types[rn2(SIZE(damg_spit_types))];
-                break;
-            case AT_GAZE:
-                attkptr->adtyp = damg_gaze_types[rn2(SIZE(damg_gaze_types))];
-                break;
-            case AT_ENGL:
-                attkptr->adtyp = damg_engulf_types[rn2(SIZE(damg_engulf_types))];
-                break;
-            case AT_MAGC:
-                attkptr->adtyp = damg_magic_types[rn2(SIZE(damg_magic_types))];
-                break;
-            case AT_HUGS:
-                attkptr->adtyp = AD_PHYS;
-                break;
-            default:
-                attkptr->adtyp = AD_PHYS;
-                break;
+        case AT_BREA:
+            attkptr->adtyp = damg_breath_types[rn2(SIZE(damg_breath_types))];
+            break;
+        case AT_SPIT:
+            attkptr->adtyp = damg_spit_types[rn2(SIZE(damg_spit_types))];
+            break;
+        case AT_GAZE:
+            attkptr->adtyp = damg_gaze_types[rn2(SIZE(damg_gaze_types))];
+            break;
+        case AT_ENGL:
+            attkptr->adtyp = damg_engulf_types[rn2(SIZE(damg_engulf_types))];
+            break;
+        case AT_MAGC:
+            attkptr->adtyp = damg_magic_types[rn2(SIZE(damg_magic_types))];
+            break;
+        case AT_HUGS:
+            attkptr->adtyp = AD_PHYS;
+            break;
+        default:
+            attkptr->adtyp = AD_PHYS;
+            break;
         }
     }
 
@@ -1376,6 +1381,7 @@ register struct trobj *origtrop;
     struct trobj temptrop;
     register struct trobj *trop = &temptrop;
     memcpy(&temptrop, origtrop, sizeof(struct trobj));
+    boolean got_sp1 = FALSE; /* got a level 1 spellbook? */
 
     while (origtrop->trclass) {
         otyp = (int) trop->trotyp;
@@ -1427,7 +1433,7 @@ register struct trobj *origtrop;
                       low level players or unbalancing; also
                       spells in restricted skill categories */
                    || (obj->oclass == SPBOOK_CLASS
-                       && (objects[otyp].oc_level > 3
+                       && (objects[otyp].oc_level > (got_sp1 ? 3 : 1)
                            || restricted_spell_discipline(otyp)))
                    || otyp == SPE_NOVEL
                    /* items that will be iron for elves (rings/wands perhaps)
@@ -1463,6 +1469,9 @@ register struct trobj *origtrop;
             /* Don't have 2 of the same ring or spellbook */
             if (obj->oclass == RING_CLASS || obj->oclass == SPBOOK_CLASS)
                 nocreate4 = otyp;
+            /* First spellbook should be level 1 - did we get it? */
+            if (obj->oclass == SPBOOK_CLASS && objects[obj->otyp].oc_level == 1)
+                got_sp1 = TRUE;
         }
 
         /* Put post-creation object adjustments that don't depend on whether it
