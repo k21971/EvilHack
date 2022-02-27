@@ -2755,6 +2755,8 @@ E int FDECL(find_roll_to_hit, (struct monst *, UCHAR_P, struct obj *,
 E boolean FDECL(attack, (struct monst *));
 E boolean FDECL(hmon, (struct monst *, struct obj *, int, int));
 E boolean FDECL(m_slips_free, (struct monst *, struct attack *));
+E boolean FDECL(mhurtle_to_doom, (struct monst *, int, struct permonst **,
+                                  BOOLEAN_P));
 E boolean FDECL(shade_miss, (struct monst *, struct monst *, struct obj *,
                              BOOLEAN_P, BOOLEAN_P));
 E int FDECL(damageum, (struct monst *, struct attack *, int));

@@ -1508,13 +1508,8 @@ int dieroll;
             useup(obj);
             obj = 0;
         }
-        /* avoid migrating a dead monster */
-        if (mon->mhp > tmp) {
-            mhurtle(mon, u.dx, u.dy, 1);
-            mdat = mon->data; /* in case of a polymorph trap */
-            if (DEADMONSTER(mon))
-                already_killed = TRUE;
-        }
+        if (mhurtle_to_doom(mon, tmp, &mdat, TRUE))
+            already_killed = TRUE;
         hittxt = TRUE;
     } else if (unarmed && tmp > 1 && !thrown && !obj && !Upolyd && !thievery) {
         /* VERY small chance of stunning or confusing opponent if unarmed. */
@@ -1524,14 +1519,10 @@ int dieroll;
                 if (canspotmon(mon))
                     pline("%s %s from your powerful strike!", Monnam(mon),
                           makeplural(stagger(mon->data, "stagger")));
-                /* avoid migrating a dead monster */
-                if (mon->mhp > tmp) {
-                    mhurtle(mon, u.dx, u.dy, 1);
-                    mdat = mon->data; /* in case of a polymorph trap */
-                    if (DEADMONSTER(mon))
-                        already_killed = TRUE;
-                    }
-                } else if (canspotmon(mon) && !mindless(mon->data))
+                if (mhurtle_to_doom(mon, tmp, &mdat, FALSE))
+                    already_killed = TRUE;
+            } else if (!mindless(mon->data)) {
+                if (canspotmon(mon))
                     Your("forceful blow knocks %s senseless!", mon_nam(mon));
                 /* avoid migrating a dead monster */
                 if (mon->mhp > tmp) {
@@ -1540,6 +1531,7 @@ int dieroll;
                     if (DEADMONSTER(mon))
                         already_killed = TRUE;
                 }
+            }
             hittxt = TRUE;
         }
     }
@@ -1761,6 +1753,39 @@ struct obj *obj;
         || obj->material == SILVER)
         return TRUE;
     return FALSE;
+}
+
+/* joust or martial arts punch is knocking the target back; that might
+   kill 'mon' (via trap) before known_hitum() has a chance to do so;
+   return True if we kill mon, False otherwise */
+boolean
+mhurtle_to_doom(mon, tmp, mptr, by_wielded_weapon)
+struct monst *mon;
+int tmp;
+struct permonst **mptr;
+boolean by_wielded_weapon;
+{
+    /* if this hit is breaking the never-hit-with-wielded-weapon conduct
+       (handled by caller's caller...) we need to log the message about
+       that before mon is killed; without this, the log entry sequence
+        N : killed for the first time
+        N : hit with a wielded weapon for the first time
+       reported on the same turn (N) looks "suboptimal";
+       u.uconduct.weaphit has already been incremented => 1 is first hit */
+    if (by_wielded_weapon && u.uconduct.weaphit <= 1)
+        livelog_write_string(LL_CONDUCT, "hit with a wielded weapon for the first time");
+
+    /* only hurtle if pending physical damage (tmp) isn't going to kill mon */
+    if (tmp < mon->mhp) {
+        mhurtle(mon, u.dx, u.dy, 1);
+        /* update caller's cached mon->data in case mon was pushed into
+           a polymorph trap or is a vampshifter whose current form has
+           been killed by a trap so that it reverted to original form */
+        *mptr = mon->data;
+        if (DEADMONSTER(mon))
+            return TRUE;
+    }
+    return FALSE; /* mon isn't dead yet */
 }
 
 /* used for hero vs monster and monster vs monster; also handles

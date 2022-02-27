@@ -148,6 +148,7 @@ struct obj *otmp;
     int dmg, otyp = otmp->otyp;
     const char *zap_type_text = "spell";
     struct obj *obj;
+    struct permonst *mdat = mtmp->data;
     boolean disguised_mimic = (mtmp->data->mlet == S_MIMIC
                                && M_AP_TYPE(mtmp) != M_AP_NOTHING);
 
@@ -176,6 +177,8 @@ struct obj *otmp;
             if (otyp == SPE_FORCE_BOLT)
                 dmg = spell_damage_bonus(dmg);
             hit(zap_type_text, mtmp, exclam(dmg));
+            if (dmg > 16)
+                mhurtle_to_doom(mtmp, dmg, &mdat, FALSE);
             (void) resist(mtmp, otmp->oclass, dmg, TELL);
         } else
             miss(zap_type_text, mtmp);

@@ -2154,4 +2154,5 @@ The following changes to date are:
 - More tweaks to hurtling monsters/players
 - Oracle fully reset if oracle level is bones level
 - Fix: tweak to last commit
+- Wand of striking/force bolt spell has a chance to knock back its target
 

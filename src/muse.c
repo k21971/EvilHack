@@ -1842,6 +1842,12 @@ register struct obj *otmp;
                 tmp = d(2, 12);
                 if (Half_spell_damage)
                     tmp = (tmp + 1) / 2;
+                if (tmp > 16 && mcarried(otmp)) {
+                    struct monst *zapper = otmp->ocarry;
+                    pline_The("force of the wand knocks you %s!",
+                              u.usteed ? "out of your saddle" : "back");
+                    hurtle(u.ux - zapper->mx, u.uy - zapper->my, 1, FALSE);
+                }
                 losehp(tmp, "wand", KILLED_BY_AN);
             } else
                 pline_The("wand misses you.");
@@ -1853,6 +1859,16 @@ register struct obj *otmp;
         } else if (rnd(20) < 10 + find_mac(mtmp)) {
             tmp = d(2, 12);
             hit("wand", mtmp, exclam(tmp));
+            if (tmp > 16 && mcarried(otmp)) {
+                struct monst *zapper = otmp->ocarry;
+                if (!DEADMONSTER(mtmp)) {
+                    if (canseemon(mtmp))
+                        pline_The("force of the wand knocks %s back!",
+                                  mon_nam(mtmp));
+                    mhurtle(mtmp, mtmp->mx - zapper->mx,
+                            mtmp->my - zapper->my, 1);
+                }
+            }
             (void) resist(mtmp, otmp->oclass, tmp, TELL);
             if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
                 makeknown(WAN_STRIKING);
