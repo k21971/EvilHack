@@ -2159,4 +2159,5 @@ The following changes to date are:
 - Huge monsters easily climb out of pits
 - Allow tipping container directly into another
 - Fix: unpaid_cost() impossible
+- Master Po
 

@@ -338,7 +338,7 @@ const struct Role roles[] = {
       PM_MONK,
       NON_PM,
       NON_PM,
-      PM_GRAND_MASTER,
+      PM_MASTER_PO,
       PM_ABBOT,
       PM_MASTER_KAEN,
       PM_EARTH_ELEMENTAL,
