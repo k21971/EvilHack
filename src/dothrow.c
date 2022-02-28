@@ -944,7 +944,7 @@ int dx, dy, range;
     /* Is the monster stuck or too heavy to push?
      * (very large monsters have too much inertia, even floaters and flyers)
      */
-    if (mon->data->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped) {
+    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped) {
         if (canseemon(mon))
             pline("%s doesn't budge!", Monnam(mon));
         return;

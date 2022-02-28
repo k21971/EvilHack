@@ -134,6 +134,9 @@ struct obj *obj;
     }
 }
 
+/* monster most recently hurtled by the current beam */
+struct monst *last_hurtled = 0;
+
 /* Routines for IMMEDIATE wands and spells. */
 /* bhitm: monster mtmp was hit by the effect of wand or spell otmp */
 int
@@ -166,7 +169,9 @@ struct obj *otmp;
         reveal_invis = TRUE;
         if (disguised_mimic)
             seemimic(mtmp);
-        if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) { /* match effect on player */
+        if (last_hurtled && mtmp == last_hurtled) {
+            ; /* already hit by this beam, don't hit 2x or more in one go */
+        } else if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) { /* match effect on player */
             shieldeff(mtmp->mx, mtmp->my);
             pline("Boing!");
             break; /* skip makeknown */
@@ -177,8 +182,13 @@ struct obj *otmp;
             if (otyp == SPE_FORCE_BOLT)
                 dmg = spell_damage_bonus(dmg);
             hit(zap_type_text, mtmp, exclam(dmg));
-            if (dmg > 16)
+            if (dmg > 16) {
+                last_hurtled = mtmp;
+                pline_The("force of %s knocks %s back!",
+                          (otyp == SPE_FORCE_BOLT) ? "your spell" : "the wand",
+                          mon_nam(mtmp));
                 mhurtle_to_doom(mtmp, dmg, &mdat, FALSE);
+            }
             (void) resist(mtmp, otmp->oclass, dmg, TELL);
         } else
             miss(zap_type_text, mtmp);
@@ -4031,6 +4041,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
     if (weapon == THROWN_WEAPON || weapon == KICKED_WEAPON)
         transient_light_cleanup();
 
+    last_hurtled = (struct monst *) 0;
     return result;
 }
 

@@ -2160,4 +2160,5 @@ The following changes to date are:
 - Allow tipping container directly into another
 - Fix: unpaid_cost() impossible
 - Master Po
+- Fix: wand of striking/force bolt spell knocking back its target
 

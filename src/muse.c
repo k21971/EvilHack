@@ -1813,6 +1813,8 @@ boolean reflection_skip;
 #undef nomore
 }
 
+extern struct monst *last_hurtled;
+
 STATIC_PTR
 int
 mbhitm(mtmp, otmp)
@@ -1830,7 +1832,9 @@ register struct obj *otmp;
     switch (otmp->otyp) {
     case WAN_STRIKING:
         reveal_invis = TRUE;
-        if (hits_you) {
+        if (last_hurtled && mtmp == last_hurtled) {
+            ; /* do nothing */
+        } else if (hits_you) {
             if (zap_oseen)
                 makeknown(WAN_STRIKING);
             if (Antimagic) {
@@ -1846,6 +1850,7 @@ register struct obj *otmp;
                     struct monst *zapper = otmp->ocarry;
                     pline_The("force of the wand knocks you %s!",
                               u.usteed ? "out of your saddle" : "back");
+                    last_hurtled = &youmonst;
                     hurtle(u.ux - zapper->mx, u.uy - zapper->my, 1, FALSE);
                 }
                 losehp(tmp, "wand", KILLED_BY_AN);
@@ -1865,6 +1870,7 @@ register struct obj *otmp;
                     if (canseemon(mtmp))
                         pline_The("force of the wand knocks %s back!",
                                   mon_nam(mtmp));
+                    last_hurtled = mtmp;
                     mhurtle(mtmp, mtmp->mx - zapper->mx,
                             mtmp->my - zapper->my, 1);
                 }
@@ -2083,6 +2089,8 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
         }
         maybe_explode_trap(t_at(x, y), obj); /* note: ttmp might be now gone */
     }
+
+    last_hurtled = (struct monst *) 0;
 }
 
 /* Perform an offensive action for a monster.  Must be called immediately
