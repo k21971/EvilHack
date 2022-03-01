@@ -2190,15 +2190,19 @@ dosacrifice()
                         do {
                             /* Don't give unicorn horns or anything the player's restricted in
                              * Lets also try to dish out suitable gear based on the player's role */
-                            if (primary_casters)
+                            if (primary_casters) {
                                 typ = rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, FLAIL);
-                            else if (primary_casters_priest)
+                            } else if (primary_casters_priest) {
                                 typ = rnd_class(MACE, FLAIL);
-                            else if (Role_if(PM_MONK))
-                                typ = rn2(4) ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
-                                             : BROADSWORD;
-                            else
+                            } else if (Role_if(PM_MONK)) {
+                                if (!u.uconduct.weaphit)
+                                    typ = SHURIKEN;
+                                else
+                                    typ = rn2(4) ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
+                                                 : BROADSWORD;
+                            } else {
                                 typ = rnd_class(SPEAR, KATANA);
+                            }
 
                             /* apply starting inventory subs - so we'll get racial gear if possible */
                             if (urace.malenum != PM_HUMAN) {
@@ -2392,6 +2396,8 @@ dosacrifice()
                         }
 
                         if (otmp) {
+                            if (otmp->otyp == SHURIKEN)
+                                otmp->quan = (long) rn1(7, 14); /* 14-20 count */
                             if (!rn2(8))
                                 otmp = create_oprop(otmp, FALSE);
                             if (altaralign == A_NONE)
@@ -2400,8 +2406,10 @@ dosacrifice()
                                 bless(otmp);
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */
                             otmp->oerodeproof = TRUE;
+                            otmp->owt = weight(otmp);
                             at_your_feet("An object");
-                            dropy(otmp);
+                            place_object(otmp, u.ux, u.uy);
+                            newsym(u.ux, u.uy);
                             if (altaralign == A_NONE)
                                 godvoice(u.ualign.type, "Use this gift ominously!");
                             else
@@ -2431,7 +2439,8 @@ dosacrifice()
                         bless(otmp);
                     otmp->oerodeproof = TRUE;
                     at_your_feet("An object");
-                    dropy(otmp);
+                    place_object(otmp, u.ux, u.uy);
+                    newsym(u.ux, u.uy);
                     godvoice(u.ualign.type, "Use my gift wisely!");
                     u.ugifts++;
                     u.ublesscnt = rnz(300 + (50 * u.ugifts));

@@ -2161,4 +2161,6 @@ The following changes to date are:
 - Fix: unpaid_cost() impossible
 - Master Po
 - Fix: wand of striking/force bolt spell knocking back its target
+- Monks will not receive melee weapons via altar sacrifice if following
+  weaponless conduct
 
