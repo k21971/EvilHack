@@ -2261,13 +2261,13 @@ dosacrifice()
                         u.ugifts++;
                         u.ublesscnt = rnz(300 + (50 * u.ugifts));
                         exercise(A_WIS, TRUE);
-                        livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                        "had %s given to %s by %s", an(xname(otmp)),
-                                        uhim(), u_gname());
                         if (!Hallucination && !Blind) {
                             otmp->dknown = 1;
                             makeknown(otmp->otyp);
                         }
+                        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                       "had %s given to %s by %s",
+                                       an(xname(otmp)), uhim(), u_gname());
                         return 1;
                     } else { /* Making armor */
                         do {
@@ -2382,14 +2382,16 @@ dosacrifice()
                         }
 
                         if (Race_if(PM_ORC)) {
-                            while (otmp->material == MITHRIL && ncount++ < 500) {
+                            while (otmp->material == MITHRIL
+                                   && ncount++ < 500) {
                                 otmp = mksobj(typ, FALSE, FALSE);
                                 /* keep trying for non-mithril */
                             }
                         }
 
                         if (Role_if(PM_INFIDEL)) {
-                            while (otmp->material == SILVER && ncount++ < 500) {
+                            while (otmp->material == SILVER
+                                   && ncount++ < 500) {
                                 otmp = mksobj(typ, FALSE, FALSE);
                                 /* keep trying for non-silver */
                             }
@@ -2411,19 +2413,22 @@ dosacrifice()
                             place_object(otmp, u.ux, u.uy);
                             newsym(u.ux, u.uy);
                             if (altaralign == A_NONE)
-                                godvoice(u.ualign.type, "Use this gift ominously!");
+                                godvoice(u.ualign.type,
+                                         "Use this gift ominously!");
                             else
-                                godvoice(u.ualign.type, "Use this gift valorously!");
+                                godvoice(u.ualign.type,
+                                         "Use this gift valorously!");
                             u.ugifts++;
                             u.ublesscnt = rnz(300 + (50 * u.ugifts));
                             exercise(A_WIS, TRUE);
-                            livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                            "had %s entrusted to %s by %s", an(xname(otmp)),
-                                            uhim(), u_gname());
                             if (!Hallucination && !Blind) {
                                 otmp->dknown = 1;
                                 makeknown(otmp->otyp);
                             }
+                            livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                           "had %s entrusted to %s by %s",
+                                           an(xname(otmp)), uhim(),
+                                           u_gname());
                             return 1;
                         }
                     }
@@ -2445,11 +2450,6 @@ dosacrifice()
                     u.ugifts++;
                     u.ublesscnt = rnz(300 + (50 * u.ugifts));
                     exercise(A_WIS, TRUE);
-                    livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                    "had %s bestowed upon %s by %s",
-                                    otmp->oartifact ? artiname(otmp->oartifact)
-                                                    : an(xname(otmp)),
-                                    uhim(), align_gname(u.ualign.type));
 
                     /* make sure we can use this weapon */
                     unrestrict_weapon_skill(weapon_type(otmp));
@@ -2458,6 +2458,12 @@ dosacrifice()
                         makeknown(otmp->otyp);
                         discover_artifact(otmp->oartifact);
                     }
+                    livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                   "had %s bestowed upon %s by %s",
+                                   otmp->oartifact
+                                        ? artiname(otmp->oartifact)
+                                        : an(xname(otmp)),
+                                   uhim(), align_gname(u.ualign.type));
                     return 1;
                 }
             }

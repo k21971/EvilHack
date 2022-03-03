@@ -2166,4 +2166,5 @@ The following changes to date are:
 - Fix: stack breakage issues
 - Wearing gray dragon scales/scale mail or being a gray dragon can resist
   cancellation
+- Adjust livelogging of altar sacrifice gifts
 
