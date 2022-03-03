@@ -3075,9 +3075,8 @@ boolean youattack, allow_cancel_kill, self_cancel;
                         || (!youdefend
                             && resist(mdef, obj ? obj->oclass : 0, 0, NOTELL));
 
-    if (obj && obj->otyp == WAN_CANCELLATION) {
+    if (obj && obj->otyp == WAN_CANCELLATION)
         makeknown(obj->otyp);
-    }
 
     if (self_cancel) { /* 1st cancel inventory */
         for (otmp = (youdefend ? invent : mdef->minvent); otmp;
@@ -3098,55 +3097,104 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
         /* player attacking monster */
         if (youattack) {
-            if (!mdef->mcan && canseemon(mdef))
-                pline("Magical energies are absorbed from %s.", mon_nam(mdef));
-            if (mdef->mprotection) {
+            otmp = which_armor(mdef, W_ARM);
+            if (rn2(5) && otmp
+                && (otmp->otyp == GRAY_DRAGON_SCALES
+                    || otmp->otyp == GRAY_DRAGON_SCALE_MAIL)) {
+                shieldeff(mdef->mx, mdef->my);
                 if (canseemon(mdef))
-                    pline_The("%s haze around %s %s.",
-                              hcolor(NH_GOLDEN), mon_nam(mdef), "disappears");
-                mdef->mprotection = mdef->mprottime = 0;
-            }
-            if (has_reflection(mdef)) {
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+            } else if (mdef->data == &mons[PM_GRAY_DRAGON]
+                       || mdef->data == &mons[PM_BABY_GRAY_DRAGON]) {
+                shieldeff(mdef->mx, mdef->my);
                 if (canseemon(mdef))
-                    pline("%s shimmering globe disappears.",
-                          s_suffix(Monnam(mdef)));
-                mdef->mextrinsics &= ~(MR2_REFLECTION);
-                mdef->mreflecttime = 0;
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+            } else {
+                if (!mdef->mcan && canseemon(mdef))
+                    pline("Magical energies are absorbed from %s.", mon_nam(mdef));
+                if (mdef->mprotection) {
+                    if (canseemon(mdef))
+                        pline_The("%s haze around %s %s.",
+                                  hcolor(NH_GOLDEN), mon_nam(mdef), "disappears");
+                    mdef->mprotection = mdef->mprottime = 0;
+                }
+                if (has_reflection(mdef)) {
+                    if (canseemon(mdef))
+                        pline("%s shimmering globe disappears.",
+                              s_suffix(Monnam(mdef)));
+                    mdef->mextrinsics &= ~(MR2_REFLECTION);
+                    mdef->mreflecttime = 0;
+                }
             }
         }
 
         /* monster attacking player */
         if (youdefend) {
-            You_feel("magical energies being absorbed from your vicinity.");
-            if (u.uspellprot) {
-                pline_The("%s haze around you disappears.",
-                          hcolor(NH_GOLDEN));
-                u.usptime = u.uspmtime = u.uspellprot = 0;
-                context.botl = 1; /* potential AC change */
-                find_ac();
-            }
-            if (HReflecting > 0) {
-                pline("The shimmering globe around you disappears.");
-                HReflecting = 0;
+            if (rn2(5) && uarm
+                && (uarm->otyp == GRAY_DRAGON_SCALES
+                    || uarm->otyp == GRAY_DRAGON_SCALE_MAIL)) {
+                shieldeff(u.ux, u.uy);
+                You_feel("a wave of energy dissipate around you.");
+                return FALSE;
+            } else if (Upolyd && (youmonst.data == &mons[PM_GRAY_DRAGON]
+                                  || youmonst.data == &mons[PM_BABY_GRAY_DRAGON])) {
+                shieldeff(u.ux, u.uy);
+                You_feel("a wave of energy dissipate around you.");
+                return FALSE;
+            } else {
+                You_feel("magical energies being absorbed from your vicinity.");
+                if (u.uspellprot) {
+                    pline_The("%s haze around you disappears.",
+                              hcolor(NH_GOLDEN));
+                    u.usptime = u.uspmtime = u.uspellprot = 0;
+                    context.botl = 1; /* potential AC change */
+                    find_ac();
+                }
+                if (HReflecting > 0) {
+                    pline("The shimmering globe around you disappears.");
+                    HReflecting = 0;
+                }
             }
         }
 
         /* monster attacking another monster */
         if (!youdefend && !youattack) {
-            if (!mdef->mcan && canseemon(mdef))
-                pline("Magical energies are absorbed from %s.", mon_nam(mdef));
-            if (mdef->mprotection) {
+            otmp = which_armor(mdef, W_ARM);
+            if (rn2(5) && otmp
+                && (otmp->otyp == GRAY_DRAGON_SCALES
+                    || otmp->otyp == GRAY_DRAGON_SCALE_MAIL)) {
+                shieldeff(mdef->mx, mdef->my);
                 if (canseemon(mdef))
-                    pline_The("%s haze around %s %s.",
-                              hcolor(NH_GOLDEN), mon_nam(mdef), "disappears");
-                mdef->mprotection = mdef->mprottime = 0;
-            }
-            if (has_reflection(mdef)) {
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+            } else if (mdef->data == &mons[PM_GRAY_DRAGON]
+                       || mdef->data == &mons[PM_BABY_GRAY_DRAGON]) {
+                shieldeff(mdef->mx, mdef->my);
                 if (canseemon(mdef))
-                    pline("%s shimmering globe disappears.",
-                          s_suffix(Monnam(mdef)));
-                mdef->mextrinsics &= ~(MR2_REFLECTION);
-                mdef->mreflecttime = 0;
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+            } else {
+                if (!mdef->mcan && canseemon(mdef))
+                    pline("Magical energies are absorbed from %s.", mon_nam(mdef));
+                if (mdef->mprotection) {
+                    if (canseemon(mdef))
+                        pline_The("%s haze around %s %s.",
+                                  hcolor(NH_GOLDEN), mon_nam(mdef), "disappears");
+                    mdef->mprotection = mdef->mprottime = 0;
+                }
+                if (has_reflection(mdef)) {
+                    if (canseemon(mdef))
+                        pline("%s shimmering globe disappears.",
+                              s_suffix(Monnam(mdef)));
+                    mdef->mextrinsics &= ~(MR2_REFLECTION);
+                    mdef->mreflecttime = 0;
+                }
             }
         }
 

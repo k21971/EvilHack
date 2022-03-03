@@ -2164,4 +2164,6 @@ The following changes to date are:
 - Monks will not receive melee weapons via altar sacrifice if following
   weaponless conduct
 - Fix: stack breakage issues
+- Wearing gray dragon scales/scale mail or being a gray dragon can resist
+  cancellation
 
