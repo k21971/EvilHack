@@ -120,10 +120,12 @@
 /* piercers cling to the ceiling; lurkers above are hiders but they fly
    so aren't classified as clingers; unfortunately mimics are classified
    as both hiders and clingers but have nothing to do with ceilings;
-   wumpuses (not wumpi :-) cling but aren't hiders */
+   wumpuses cling but aren't hiders, but we include them regardless */
 #define ceiling_hider(ptr) \
-    (is_hider(ptr) && ((is_clinger(ptr) && (ptr)->mlet != S_MIMIC) \
-                       || is_flyer(ptr))) /* lurker above */
+    ((is_hider(ptr)                                   \
+      && ((is_clinger(ptr) && (ptr)->mlet != S_MIMIC) \
+          || is_flyer(ptr)))                          \
+     || (ptr) == &mons[PM_WUMPUS])
 #define haseyes(ptr) (((ptr)->mflags1 & M1_NOEYES) == 0L)
 /* used to decide whether plural applies so no need for 'more than 2' */
 #define eyecount(ptr) \

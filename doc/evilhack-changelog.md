@@ -2168,4 +2168,5 @@ The following changes to date are:
   cancellation
 - Adjust livelogging of altar sacrifice gifts
 - Fix: prevent monster hurtling outside map
+- Fix: wumpus movement over water/lava and open air in Vlad's cavern
 
