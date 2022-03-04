@@ -3474,7 +3474,7 @@ int msgflag;          /* for variant message phrasing */
 
             if (o)
                 Sprintf(bp, " underneath %s", ansimpleoname(o));
-        } else if (ceiling_hider(youmonst.data) || Flying) {
+        } else if (is_clinger(youmonst.data) || Flying) {
             /* Flying: 'lurker above' hides on ceiling but doesn't cling */
             Sprintf(bp, " on the %s", ceiling(u.ux, u.uy));
         } else {

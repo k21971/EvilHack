@@ -1018,7 +1018,7 @@ int mode;
         struct trap *t = t_at(x, y);
 
         if ((t && t->tseen)
-            || (!Levitation && !Flying && !ceiling_hider(youmonst.data)
+            || (!Levitation && !Flying && !is_clinger(youmonst.data)
                 && is_pool_or_lava(x, y) && levl[x][y].seenv))
             return (mode == TEST_TRAP);
     }
@@ -1582,7 +1582,7 @@ domove_core()
                 skates = find_skates();
             if ((uarmf && uarmf->otyp == skates) || resists_cold(&youmonst)
                 || Flying || is_floater(youmonst.data)
-                || ceiling_hider(youmonst.data) || is_whirly(youmonst.data)
+                || is_clinger(youmonst.data) || is_whirly(youmonst.data)
 		|| (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
 	                     || uarm->otyp == WHITE_DRAGON_SCALES))) {
                 on_ice = FALSE;
@@ -1600,7 +1600,7 @@ domove_core()
         if (walk_sewage) {
             if (Flying || is_floater(youmonst.data)
                 || is_swimmer(youmonst.data)
-                || ceiling_hider(youmonst.data) || is_whirly(youmonst.data)
+                || is_clinger(youmonst.data) || is_whirly(youmonst.data)
                 || (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
                              || uarm->otyp == WHITE_DRAGON_SCALES))) {
                 walk_sewage = FALSE;
@@ -1671,7 +1671,7 @@ domove_core()
             return;
         }
         if (((trap = t_at(x, y)) && trap->tseen)
-            || (Blind && !Levitation && !Flying && !ceiling_hider(youmonst.data)
+            || (Blind && !Levitation && !Flying && !is_clinger(youmonst.data)
                 && is_pool_or_lava(x, y) && levl[x][y].seenv)) {
             if (context.run >= 2) {
                 if (iflags.mention_walls) {
@@ -2382,7 +2382,7 @@ boolean newspot;             /* true if called by spoteffects */
         if (is_pool_or_lava(u.ux, u.uy)) {
             if (u.usteed
                 && (is_flyer(u.usteed->data) || is_floater(u.usteed->data)
-                    || ceiling_hider(u.usteed->data))) {
+                    || is_clinger(u.usteed->data))) {
                 /* floating or clinging steed keeps hero safe (is_flyer() test
                    is redundant; it can't be true since Flying yielded false) */
                 return FALSE;
@@ -2619,8 +2619,8 @@ boolean pick;
         mnexto(mtmp); /* have to move the monster */
     }
     if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)
-        && !Levitation && !Flying && !ceiling_hider(youmonst.data)
-        && !(u.usteed && ceiling_hider(u.usteed->data))) {
+        && !Levitation && !Flying && !is_clinger(youmonst.data)
+        && !(u.usteed && is_clinger(u.usteed->data))) {
         pline("Unfortunately, you don't know how to fly.");
         You("plummet several thousand feet to your death.");
         Sprintf(killer.name,
@@ -2986,7 +2986,7 @@ pickup_checks()
         }
     }
     if (is_pool(u.ux, u.uy)) {
-        if (Wwalking || is_floater(youmonst.data) || ceiling_hider(youmonst.data)
+        if (Wwalking || is_floater(youmonst.data) || is_clinger(youmonst.data)
             || (Flying && !Breathless)) {
             You("cannot dive into the %s to pick things up.",
                 hliquid("water"));
@@ -2997,7 +2997,7 @@ pickup_checks()
         }
     }
     if (is_lava(u.ux, u.uy)) {
-        if (Wwalking || is_floater(youmonst.data) || ceiling_hider(youmonst.data)
+        if (Wwalking || is_floater(youmonst.data) || is_clinger(youmonst.data)
             || (Flying && !Breathless)) {
             You_cant("reach the bottom to pick things up.");
             return 0;
@@ -3169,7 +3169,7 @@ lookaround()
                 /* water and lava only stop you if directly in front, and stop
                  * you even if you are running
                  */
-                if (!Levitation && !Flying && !ceiling_hider(youmonst.data)
+                if (!Levitation && !Flying && !is_clinger(youmonst.data)
                     && x == u.ux + u.dx && y == u.uy + u.dy) {
                     /* No Wwalking check; otherwise they'd be able
                      * to test boots by trying to SHIFT-direction
@@ -3182,8 +3182,8 @@ lookaround()
                 }
                 continue;
             } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
-                if (!Levitation && !Flying && !ceiling_hider(youmonst.data)
-                    && !(u.usteed && ceiling_hider(u.usteed->data))
+                if (!Levitation && !Flying && !is_clinger(youmonst.data)
+                    && !(u.usteed && is_clinger(u.usteed->data))
                     && x == u.ux + u.dx && y == u.uy + u.dy) {
                     goto stop;
                 }

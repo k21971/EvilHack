@@ -77,7 +77,7 @@ long gpflags;
                 return (is_swimmer(mdat)
                         || (!Is_waterlevel(&u.uz)
                             && (is_floater(mdat) || is_flyer(mdat)
-                                || ceiling_hider(mdat))));
+                                || is_clinger(mdat))));
         } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater
                    && !is_puddle(x, y)) {
             return FALSE;
@@ -97,7 +97,7 @@ long gpflags;
         }
         if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
             && !(is_flyer(mdat) || is_floater(mdat)
-                 || ceiling_hider(mdat))
+                 || is_clinger(mdat))
             && !ignoreair)
             return FALSE;
         if (passes_walls(mdat) && may_passwall(x, y))

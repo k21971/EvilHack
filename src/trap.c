@@ -580,7 +580,7 @@ unsigned ftflags;
         ; /* KMH -- You can't escape the Sokoban level traps */
     else if (Levitation || u.ustuck
              || (!Can_fall_thru(&u.uz) && !levl[u.ux][u.uy].candig)
-             || ((Flying || ceiling_hider(youmonst.data)
+             || ((Flying || is_clinger(youmonst.data)
                   || maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
                   || (ceiling_hider(youmonst.data) && u.uundetected))
                  && !(ftflags & TOOKPLUNGE))
@@ -606,7 +606,7 @@ unsigned ftflags;
         }
         return;
     }
-    if ((Flying || ceiling_hider(youmonst.data)
+    if ((Flying || is_clinger(youmonst.data)
         || maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
         && (ftflags & TOOKPLUNGE) && td && t)
         You("%s down %s!",
@@ -1087,7 +1087,7 @@ unsigned trflags;
             && ttype != ANTI_MAGIC && !forcebungle && !plunged
             && !conj_pit && !adj_pit
             && (!rn2(5) || (is_pit(ttype)
-                            && ceiling_hider(youmonst.data)))) {
+                            && is_clinger(youmonst.data)))) {
                 You("escape %s %s.", (ttype == ARROW_TRAP && !trap->madeby_u)
                                      ? "an"
                                      : a_your[trap->madeby_u],
@@ -1378,7 +1378,7 @@ unsigned trflags;
         if (!Sokoban && (Levitation || (Flying && !plunged)))
             break;
         feeltrap(trap);
-        if (!Sokoban && ceiling_hider(youmonst.data) && !plunged) {
+        if (!Sokoban && is_clinger(youmonst.data) && !plunged) {
             if (trap->tseen) {
                 You_see("%s %spit below you.", a_your[trap->madeby_u],
                         ttype == SPIKED_PIT ? "spiked " : "");
@@ -1475,7 +1475,7 @@ unsigned trflags;
             } else {
                 /* plunging flyers take spike damage but not pit damage */
                 if (!conj_pit
-                    && !(plunged && (Flying || ceiling_hider(youmonst.data))))
+                    && !(plunged && (Flying || is_clinger(youmonst.data))))
                     losehp(Maybe_Half_Phys(rnd(adj_pit ? 3 : 6)),
                            plunged ? "deliberately plunged into a pit"
                                    : "fell into a pit",
@@ -2813,7 +2813,7 @@ register struct monst *mtmp;
             fallverb = "falls";
             if (is_flyer(mptr) || is_floater(mptr)
                 || (mtmp->wormno && count_wsegs(mtmp) > 5)
-                || ceiling_hider(mptr)) {
+                || is_clinger(mptr)) {
                 if (force_mintrap && !Sokoban) {
                     /* openfallingtrap; not inescapable here */
                     if (in_sight) {
@@ -3535,7 +3535,7 @@ climb_pit()
         display_nhwindow(WIN_MESSAGE, FALSE);
         clear_nhwindow(WIN_MESSAGE);
         You("free your %s.", body_part(LEG));
-    } else if ((Flying || ceiling_hider(youmonst.data)) && !Sokoban) {
+    } else if ((Flying || is_clinger(youmonst.data)) && !Sokoban) {
         /* eg fell in pit, then poly'd to a flying monster;
            or used '>' to deliberately enter it */
         You("%s from the pit.", Flying ? "fly" : "climb");
