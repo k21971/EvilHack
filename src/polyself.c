@@ -1544,7 +1544,7 @@ int
 dohide()
 {
     boolean ismimic = youmonst.data->mlet == S_MIMIC,
-            on_ceiling = ceiling_hider(youmonst.data) || Flying;
+            on_ceiling = is_clinger(youmonst.data) || Flying;
 
     /* can't hide while being held (or holding) or while trapped
        (except for floor hiders [trapper or mimic] in pits) */

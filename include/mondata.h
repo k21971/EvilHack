@@ -96,7 +96,7 @@
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
-#define grounded(ptr) (!is_flyer(ptr) && !is_floater(ptr) && !ceiling_hider(ptr))
+#define grounded(ptr) (!is_flyer(ptr) && !is_floater(ptr) && !is_clinger(ptr))
 #define is_swimmer(ptr) (((ptr)->mflags1 & M1_SWIM) != 0L)
 #define breathless(ptr) (((ptr)->mflags1 & M1_BREATHLESS) != 0L)
 #define amphibious(ptr) \
@@ -120,12 +120,10 @@
 /* piercers cling to the ceiling; lurkers above are hiders but they fly
    so aren't classified as clingers; unfortunately mimics are classified
    as both hiders and clingers but have nothing to do with ceilings;
-   wumpuses cling but aren't hiders, but we include them regardless */
+   wumpuses (not wumpi :-) cling but aren't hiders */
 #define ceiling_hider(ptr) \
-    ((is_hider(ptr)                                   \
-      && ((is_clinger(ptr) && (ptr)->mlet != S_MIMIC) \
-          || is_flyer(ptr)))                          \
-     || (ptr) == &mons[PM_WUMPUS])
+    (is_hider(ptr) && ((is_clinger(ptr) && (ptr)->mlet != S_MIMIC) \
+                       || is_flyer(ptr))) /* lurker above */
 #define haseyes(ptr) (((ptr)->mflags1 & M1_NOEYES) == 0L)
 /* used to decide whether plural applies so no need for 'more than 2' */
 #define eyecount(ptr) \

@@ -553,7 +553,7 @@ register struct monst *mtmp;
     /* some monsters are slowed down if wading through sewage */
     if (mwalk_sewage) {
         if (is_flyer(mdat) || is_floater(mdat)
-            || ceiling_hider(mdat) || is_swimmer(mdat)
+            || is_clinger(mdat) || is_swimmer(mdat)
             || passes_walls(mdat)) {
             mwalk_sewage = FALSE;
         } else {
@@ -566,7 +566,7 @@ register struct monst *mtmp;
     /* being in midair where gravity is still in effect can be lethal */
     if (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
         && !(is_flyer(mdat) || is_floater(mdat)
-             || ceiling_hider(mdat) || ((mtmp == u.usteed) && Flying))) {
+             || is_clinger(mdat) || ((mtmp == u.usteed) && Flying))) {
         if (canseemon(mtmp))
             pline("%s plummets several thousand feet to %s death.",
                   Monnam(mtmp), mhis(mtmp));
@@ -1387,7 +1387,7 @@ register int after;
                        is in effect */
                     if (IS_AIR(levl[xx][yy].typ) && In_V_tower(&u.uz)
                         && !(is_flyer(ptr) || is_floater(ptr)
-                             || ceiling_hider(ptr)))
+                             || is_clinger(ptr)))
                         continue;
 
                     /* ignore sokoban prizes */

@@ -760,7 +760,7 @@ register struct monst *mtmp;
                  && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
     invladcavern = (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
                     && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
-                         || ceiling_hider(mtmp->data)
+                         || is_clinger(mtmp->data)
                          || ((mtmp == u.usteed) && Flying)));
 
     /* Flying and levitation keeps our steed out of the liquid
@@ -841,7 +841,7 @@ register struct monst *mtmp;
          * protect their stuff. Fire resistant monsters can only protect
          * themselves  --ALI
          */
-        if (!ceiling_hider(mtmp->data) && !likes_lava(mtmp->data)) {
+        if (!is_clinger(mtmp->data) && !likes_lava(mtmp->data)) {
             /* not fair...?  hero doesn't automatically teleport away
                from lava, just from water */
             if (can_teleport(mtmp->data) && !tele_restrict(mtmp)) {
@@ -914,7 +914,7 @@ register struct monst *mtmp;
          * water damage to dead monsters' inventory, but survivors need to
          * be handled here.  Swimmers are able to protect their stuff...
          */
-        if (!ceiling_hider(mtmp->data) && !is_swimmer(mtmp->data)
+        if (!is_clinger(mtmp->data) && !is_swimmer(mtmp->data)
             && !amphibious(mtmp->data) && !can_wwalk(mtmp)) {
             /* like hero with teleport intrinsic or spell, teleport away
                if possible */
@@ -2140,12 +2140,12 @@ long flag;
     wantsewage = (mdat == &mons[PM_GIANT_LEECH]);
     wantice = (mdat == &mons[PM_FROST_SALAMANDER]);
     poolok = ((!Is_waterlevel(&u.uz)
-               && (is_flyer(mdat) || is_floater(mdat) || ceiling_hider(mdat)))
+               && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)))
               || ((is_swimmer(mdat) || has_cold_feet(mon)) && !wantpool)
               || can_wwalk(mon));
     /* note: floating eye is the only is_floater() so this could be
        simplified, but then adding another floater would be error prone */
-    lavaok = (is_flyer(mdat) || is_floater(mdat) || ceiling_hider(mdat)
+    lavaok = (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)
               || ((has_cold_feet(mon) || likes_lava(mdat)) && !wantlava));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
@@ -2228,7 +2228,7 @@ long flag;
             /* avoid open air if gravity is in effect */
             if (IS_AIR(ntyp) && In_V_tower(&u.uz)
                 && !(is_flyer(mdat) || is_floater(mdat)
-                     || ceiling_hider(mdat)))
+                     || is_clinger(mdat)))
                 continue;
             if ((is_pool(nx, ny) == wantpool || poolok)
                 && (is_lava(nx, ny) == wantlava || lavaok)
@@ -2342,7 +2342,7 @@ long flag;
                         && ttmp->ttyp != VIBRATING_SQUARE
                         && ((!is_pit(ttmp->ttyp) && !is_hole(ttmp->ttyp))
                             || (!is_flyer(mdat) && !is_floater(mdat)
-                                && !ceiling_hider(mdat)) || Sokoban)
+                                && !is_clinger(mdat)) || Sokoban)
                         && (ttmp->ttyp != SLP_GAS_TRAP
                             || !(resists_sleep(mon) || defended(mon, AD_SLEE)))
                         && (ttmp->ttyp != BEAR_TRAP
