@@ -95,11 +95,8 @@ long gpflags;
                 return (is_floater(mdat) || is_flyer(mdat)
                         || likes_lava(mdat));
         }
-        if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
-            && !(is_flyer(mdat) || is_floater(mdat)
-                 || is_clinger(mdat))
-            && !ignoreair)
-            return FALSE;
+        if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz) && !ignoreair)
+            return (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat));
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;
         if (amorphous(mdat) && closed_door(x, y))

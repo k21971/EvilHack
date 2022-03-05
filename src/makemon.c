@@ -3746,6 +3746,12 @@ register struct monst *mtmp;
             appear = Is_rogue_level(&u.uz) ? S_hwall : S_hcdoor;
         else
             appear = Is_rogue_level(&u.uz) ? S_vwall : S_vcdoor;
+    } else if ((IS_AIR(typ) && In_V_tower(&u.uz))
+               || is_pool_or_lava(mx, my)) {
+        /* mimics cling to the ceiling over inaccessible terrain, but there's
+         * no appropriate disguise that hangs from the ceiling */
+        ap_type = M_AP_NOTHING;
+        appear = 0;
     } else if (level.flags.is_maze_lev && !In_sokoban(&u.uz) && rn2(2)) {
         ap_type = M_AP_OBJECT;
         appear = STATUE;

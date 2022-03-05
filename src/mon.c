@@ -760,7 +760,7 @@ register struct monst *mtmp;
                  && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
     invladcavern = (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
                     && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
-                         || ceiling_hider(mtmp->data)
+                         || is_clinger(mtmp->data)
                          || ((mtmp == u.usteed) && Flying)));
 
     /* Flying and levitation keeps our steed out of the liquid
