@@ -4620,6 +4620,7 @@ struct trap *ttmp;
 boolean bury_it;
 {
     struct obj *otmp = mksobj(otyp, TRUE, FALSE);
+    struct monst *mtmp;
 
     otmp->quan = cnt;
     otmp->owt = weight(otmp);
@@ -4639,6 +4640,8 @@ boolean bury_it;
     newsym(ttmp->tx, ttmp->ty);
     if (u.utrap && ttmp->tx == u.ux && ttmp->ty == u.uy)
         reset_utrap(TRUE);
+    if (((mtmp = m_at(ttmp->tx, ttmp->ty)) != 0) && mtmp->mtrapped)
+        mtmp->mtrapped = 0;
     deltrap(ttmp);
 }
 

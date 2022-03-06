@@ -837,6 +837,8 @@ struct obj *obj; /* only scatter this obj        */
     if (sx == u.ux && sy == u.uy && u.uundetected
         && hides_under(youmonst.data))
         (void) hideunder(&youmonst);
+    if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mtrapped)
+        mtmp->mtrapped = 0;
     return total;
 }
 

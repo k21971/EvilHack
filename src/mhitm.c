@@ -982,6 +982,10 @@ struct monst *magr, *mdef;
     if (r_data(mdef)->msize >= MZ_HUGE)
         return FALSE;
 
+    /* can't swallow trapped monsters. TODO: could do some? */
+    if (mdef->mtrapped)
+        return FALSE;
+
     /* can't swallow something if riding / being ridden */
     if (magr->rider_id || mdef->rider_id || has_erid(magr))
         return FALSE;
