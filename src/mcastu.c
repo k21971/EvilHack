@@ -1478,7 +1478,7 @@ register struct attack *mattk;
             if (canseemon(mtmp))
                 pline("%s zaps you with a %s!", Monnam(mtmp),
                       flash_types[ad_to_typ(mattk->adtyp) - 10]);
-            buzz(-ad_to_typ(mattk->adtyp) - 20, (int) mattk->damn, mtmp->mx,
+            buzz(-ad_to_typ(mattk->adtyp), (int) mattk->damn, mtmp->mx,
                  mtmp->my, sgn(tbx), sgn(tby));
         } else
             impossible("Monster spell %d cast", mattk->adtyp - 1);
@@ -1508,7 +1508,7 @@ register struct attack *mattk;
             if (canseemon(mtmp))
                 pline("%s zaps %s with a %s!", Monnam(mtmp),
                       mon_nam(mdef), flash_types[ad_to_typ(mattk->adtyp) - 10]);
-            dobuzz(-ad_to_typ(mattk->adtyp) - 20, (int) mattk->damn, mtmp->mx,
+            dobuzz(-ad_to_typ(mattk->adtyp), (int) mattk->damn, mtmp->mx,
                    mtmp->my, sgn(tbx), sgn(tby), FALSE);
         } else
             impossible("Monster spell %d cast", mattk->adtyp - 1);

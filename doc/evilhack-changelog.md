@@ -2168,4 +2168,5 @@ The following changes to date are:
 - Adjust livelogging of altar sacrifice gifts
 - Fix: prevent monster hurtling outside map
 - Fix: various bug fixes (traps, monster engulfing trapped monster, etc)
+- Fix: partial revert of commit 654b1ce
 
