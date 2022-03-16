@@ -369,8 +369,10 @@ struct obj *obj;
 {
     register struct monst *mtmp;
     register boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
-
     char nam[PL_PSIZ];
+
+    if (!is_mplayer(ptr))
+        return ((struct monst *) 0);
 
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), FALSE); /* insurance */
