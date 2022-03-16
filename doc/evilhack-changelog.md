@@ -2170,4 +2170,5 @@ The following changes to date are:
 - Fix: various bug fixes (traps, monster engulfing trapped monster, etc)
 - Fix: partial revert of commit 654b1ce
 - Fix: missing guard in mk_mplayer()
+- Fix: monster using a figurine of a genocided monster
 

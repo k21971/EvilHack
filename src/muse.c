@@ -2790,31 +2790,28 @@ struct monst *mtmp;
     switch (m.has_misc) {
     case MUSE_FIGURINE: {
         coord cc;
-        struct permonst *pm;
-        struct monst *mon;
         int mndx = otmp->corpsenm;
 
-        pm = &mons[mndx];
-        if (otmp && otmp->oartifact == ART_IDOL_OF_MOLOCH)
+        if (otmp->oartifact == ART_IDOL_OF_MOLOCH)
             break;
-        if (vismon)
-            pline("%s activates a figurine!", Monnam(mtmp));
-        else if (!Deaf)
-            You("hear a figurine being activated.");
-        /* activating a figurine provides one way to exceed the
-           maximum number of the target critter created--unless
-           it has a special limit (erinys, Nazgul) */
-        if ((mvitals[mndx].mvflags & G_EXTINCT)
-            && mbirth_limit(mndx) != MAXMONNO) {
-                pline("... but the figurine refused.");
-            break; /* mtmp is null */
+        if (mndx < LOW_PM || mndx >= NUMMONS) {
+            impossible("use_misc: mon activating bad figurine (%d)?", mndx);
+            break;
         }
-        if (!enexto(&cc, mtmp->mx, mtmp->my, pm))
-            return 0;
+        if (!enexto(&cc, mtmp->mx, mtmp->my, &mons[mndx]))
+            break;
+        /* found an acceptable spot for the figurine to transform.
+         * make_familiar will take care of the various checks for genocide,
+         * extinction, etc, and print failure messages if appropriate. */
+        if (vismon)
+            pline("%s activates a figurine, and it transforms!", Monnam(mtmp));
+        else
+            You_hear("a figurine being activated.");
+        /* curse the figurine so that it will produce a hostile monster most
+         * of the time */
+        otmp->blessed = 0, otmp->cursed = 1;
+        (void) make_familiar(otmp, cc.x, cc.y, !vismon);
         m_useup(mtmp, otmp);
-        mon = makemon(pm, cc.x, cc.y, NO_MM_FLAGS);
-        mon->mpeaceful = 0;
-        set_malign(mon);
         return 2;
     }
     case MUSE_POT_GAIN_LEVEL:
