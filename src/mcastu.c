@@ -1324,7 +1324,7 @@ int spellnum;
         /* blindness spell on blinded player */
         if ((!haseyes(mdef->data) || mdef->mblinded) && spellnum == CLC_BLIND_YOU)
             return TRUE;
-        }
+    }
     return FALSE;
 }
 

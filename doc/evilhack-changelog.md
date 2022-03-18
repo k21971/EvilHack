@@ -2171,4 +2171,5 @@ The following changes to date are:
 - Fix: partial revert of commit 654b1ce
 - Fix: missing guard in mk_mplayer()
 - Fix: monster using a figurine of a genocided monster
+- Fix: 'You feel guilty' out of nowhere
 

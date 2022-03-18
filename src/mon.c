@@ -3829,7 +3829,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         if (mtmp->m_id == quest_status.leader_m_id)
             quest_status.leader_is_dead = TRUE;
         if (u.ualign.type != A_NONE) {
-            You_feel("very guilty.");
+            if (canspotmon(mtmp))
+                You_feel("very guilty.");
             adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
         }
         if (u.ualign.type == A_NONE)
@@ -3844,7 +3845,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             adjalign((int) (ALIGNLIM / 4));
     } else if (mdat->msound == MS_GUARDIAN) { /* Bad */
         if (u.ualign.type != A_NONE) {
-            You_feel("guilty.");
+            if (canspotmon(mtmp))
+                You_feel("guilty.");
             adjalign(-(int) (ALIGNLIM / 8));
         }
         if (u.ualign.type == A_NONE)
@@ -3867,10 +3869,12 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             adjalign((int) (ALIGNLIM / 4)); /* Infidel-only BIG bonus */
     } else if (mtmp->mtame) {
         if (u.ualign.type == A_NONE) {
-            You_feel("guilty.");
+            if (canspotmon(mtmp))
+                You_feel("guilty.");
             adjalign(-3); /* kinda bad, but it's how you roll */
         } else {
-            You_feel("very guilty.");
+            if (canspotmon(mtmp))
+                You_feel("very guilty.");
             adjalign(-15); /* bad!! */
         }
         /* your god is mighty displeased... */
@@ -3893,7 +3897,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         }
     } else if (mtmp->mpeaceful) {
         if (u.ualign.type != A_NONE) {
-            You_feel("guilty.");
+            if (canspotmon(mtmp))
+                You_feel("guilty.");
             adjalign(-5);
         }
     }
@@ -4367,14 +4372,16 @@ boolean via_attack;
         mtmp->mpeaceful = 0;
         if (mtmp->ispriest) {
             if (p_coaligned(mtmp)) {
-                You_feel("guilty.");
+                if (canspotmon(mtmp))
+                    You_feel("guilty.");
                 adjalign(-5); /* very bad */
             } else {
                 adjalign(2);
             }
         } else {
             if (u.ualign.type != A_NONE) { /* Infidels are supposed to be bad */
-                You_feel("guilty.");
+                if (canspotmon(mtmp))
+                    You_feel("guilty.");
                 adjalign(-1); /* attacking peaceful monsters is bad */
             }
         }
@@ -4459,7 +4466,8 @@ boolean via_attack;
                             } else {
                                 mon->mpeaceful = 0;
                                 if (u.ualign.type != A_NONE) {
-                                    You_feel("guilty.");
+                                    if (canspotmon(mon))
+                                        You_feel("guilty.");
                                     adjalign(-1);
                                 }
                                 if (!exclaimed)
