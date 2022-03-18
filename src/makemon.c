@@ -1245,7 +1245,9 @@ register struct monst *mtmp;
                and maybe make it special */
             int typ = rn2(2) ? LONG_SWORD : HEAVY_MACE;
             otmp = mksobj(typ, FALSE, FALSE);
-            if (!rn2(20) || is_lord(ptr)) {
+            if ((!rn2(20) || is_lord(ptr))
+                && sgn(mtmp->isminion ? EMIN(mtmp)->min_align
+                                      : ptr->maligntyp) == A_LAWFUL) {
                 otmp = oname(otmp, artiname(typ == LONG_SWORD
                                             ? ART_SUNSWORD : ART_DEMONBANE));
                 if (!otmp->oartifact && !rn2(10)) {
