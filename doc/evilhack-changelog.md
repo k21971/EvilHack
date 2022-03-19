@@ -2173,4 +2173,5 @@ The following changes to date are:
 - Fix: monster using a figurine of a genocided monster
 - Fix: 'You feel guilty' out of nowhere
 - Fix: non-lawful Angels spawning with lawful artifacts
+- Initiate fuzzing session in wizmode via #panic
 
