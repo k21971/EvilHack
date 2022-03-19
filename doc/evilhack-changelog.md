@@ -2174,4 +2174,5 @@ The following changes to date are:
 - Fix: 'You feel guilty' out of nowhere
 - Fix: non-lawful Angels spawning with lawful artifacts
 - Initiate fuzzing session in wizmode via #panic
+- Fix: prevent dmonsfree with a couple mhurtle scenarios
 

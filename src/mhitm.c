@@ -1434,16 +1434,21 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             if (tmp >= mdef->mhp && mdef->mhp > 1)
                 tmp = mdef->mhp - 1;
         }
-        if (mattk->adtyp == AD_CLOB && tmp != 0 && !rn2(6)) {
-            if (!DEADMONSTER(mdef)) {
+        if (mattk->adtyp == AD_CLOB && tmp > 0 && !rn2(6)) {
+            if (tmp < mdef->mhp) {
                 if (vis && canseemon(mdef))
-                    pline("%s knocks %s back with a %s %s!", Monnam(magr), mon_nam(mdef),
-                          rn2(2) ? "forceful" : "powerful", rn2(2) ? "blow" : "strike");
-                mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my, rnd(2));
+                    pline("%s knocks %s back with a %s %s!",
+                          Monnam(magr), mon_nam(mdef),
+                          rn2(2) ? "forceful" : "powerful",
+                          rn2(2) ? "blow" : "strike");
                 if (mdef == u.usteed) {
                     newsym(u.usteed->mx, u.usteed->my);
                     dismount_steed(DISMOUNT_FELL);
                 }
+                mhurtle(mdef, mdef->mx - magr->mx,
+                        mdef->my - magr->my, rnd(2));
+                if (DEADMONSTER(mdef))
+                    mondied(mdef);
             }
         }
         break;

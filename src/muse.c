@@ -1866,13 +1866,19 @@ register struct obj *otmp;
             hit("wand", mtmp, exclam(tmp));
             if (tmp > 16 && mcarried(otmp)) {
                 struct monst *zapper = otmp->ocarry;
-                if (!DEADMONSTER(mtmp)) {
+                last_hurtled = mtmp;
+                if (tmp < mtmp->mhp) {
                     if (canseemon(mtmp))
                         pline_The("force of the wand knocks %s back!",
                                   mon_nam(mtmp));
-                    last_hurtled = mtmp;
+                    if (mtmp == u.usteed) {
+                        newsym(u.usteed->mx, u.usteed->my);
+                        dismount_steed(DISMOUNT_FELL);
+                    }
                     mhurtle(mtmp, mtmp->mx - zapper->mx,
                             mtmp->my - zapper->my, 1);
+                    if (DEADMONSTER(mtmp))
+                        mondied(mtmp);
                 }
             }
             (void) resist(mtmp, otmp->oclass, tmp, TELL);
