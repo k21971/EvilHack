@@ -1068,19 +1068,11 @@ wiz_telekinesis(VOID_ARGS)
 STATIC_PTR int
 wiz_panic(VOID_ARGS)
 {
-    if (wizard) {
-        if (yn("Initiate fuzzing session?") != 'y')
-            goto start;
-        else
-            iflags.debug_fuzzer = 1;
-    }
-
     if (iflags.debug_fuzzer) {
         u.uhp = u.uhpmax = 1000;
         u.uen = u.uenmax = 1000;
         return 0;
     }
- start:
     if (paranoid_query(ParanoidQuit,
                        "Do you want to call panic() and end your game?"))
         panic("Crash test.");
