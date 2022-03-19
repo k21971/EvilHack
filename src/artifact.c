@@ -2575,7 +2575,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 otmp->oprops_known |= ITEM_DRLI;
             losexp("life drainage");
             if (magr && magr->mhp < magr->mhpmax) {
-                magr->mhp += (oldhpmax - u.uhpmax) / 2;
+                magr->mhp += (abs(oldhpmax - u.uhpmax) + 1) / 2;
                 if (magr->mhp > magr->mhpmax)
                     magr->mhp = magr->mhpmax;
             }

@@ -2174,4 +2174,5 @@ The following changes to date are:
 - Fix: 'You feel guilty' out of nowhere
 - Fix: non-lawful Angels spawning with lawful artifacts
 - Fix: prevent dmonsfree with a couple mhurtle scenarios
+- Fix: dmonsfree pending when hero was hit with drain-life artifact
 
