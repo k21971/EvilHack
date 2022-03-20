@@ -2179,4 +2179,5 @@ The following changes to date are:
 - Fix: adjust minimum range in new_light_source()
 - Fix: a couple bugs with kicking vs black dragon
 - Fix: impossible 'Webbing over trap type'
+- Remove unnecessary bit from last dmonsfree/mhurtle tweak
 

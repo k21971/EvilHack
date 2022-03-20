@@ -1880,8 +1880,6 @@ register struct obj *otmp;
                     }
                     mhurtle(mtmp, mtmp->mx - zapper->mx,
                             mtmp->my - zapper->my, 1);
-                    if (DEADMONSTER(mtmp))
-                        mondied(mtmp);
                 }
             }
         } else {
