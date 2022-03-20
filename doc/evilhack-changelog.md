@@ -2176,4 +2176,5 @@ The following changes to date are:
 - Fix: prevent dmonsfree with a couple mhurtle scenarios
 - Fix: dmonsfree pending when hero was hit with drain-life artifact
 - Tweak dmonsfree/mhurtle handling
+- Fix: adjust minimum range in new_light_source()
 
