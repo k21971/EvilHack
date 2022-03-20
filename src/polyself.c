@@ -1354,6 +1354,11 @@ dospinweb()
             deltrap(ttmp);
             newsym(u.ux, u.uy);
             return 1;
+        case SPEAR_TRAP:
+            You("spin a web, jamming the mechanism.");
+            deltrap(ttmp);
+            newsym(u.ux, u.uy);
+            return 1;
         case ARROW_TRAP:
         case BOLT_TRAP:
         case DART_TRAP:
@@ -1366,6 +1371,7 @@ dospinweb()
         case MAGIC_TRAP:
         case ANTI_MAGIC:
         case POLY_TRAP:
+        case MAGIC_BEAM_TRAP:
             You("have triggered a trap!");
             dotrap(ttmp, 0);
             return 1;
