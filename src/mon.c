@@ -3831,6 +3831,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         if (u.ualign.type != A_NONE) {
             if (canspotmon(mtmp))
                 You_feel("very guilty.");
+            else
+                You("have a vague sense of intense guilt.");
             adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
         }
         if (u.ualign.type == A_NONE)
@@ -3847,6 +3849,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         if (u.ualign.type != A_NONE) {
             if (canspotmon(mtmp))
                 You_feel("guilty.");
+            else
+                You("have a vague sense of guilt.");
             adjalign(-(int) (ALIGNLIM / 8));
         }
         if (u.ualign.type == A_NONE)
@@ -3871,10 +3875,14 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         if (u.ualign.type == A_NONE) {
             if (canspotmon(mtmp))
                 You_feel("guilty.");
+            else
+                You("have a vague sense of guilt.");
             adjalign(-3); /* kinda bad, but it's how you roll */
         } else {
             if (canspotmon(mtmp))
                 You_feel("very guilty.");
+            else
+                You("have a vague sense of intense guilt.");
             adjalign(-15); /* bad!! */
         }
         /* your god is mighty displeased... */
@@ -3899,6 +3907,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         if (u.ualign.type != A_NONE) {
             if (canspotmon(mtmp))
                 You_feel("guilty.");
+            else
+                You("have a vague sense of guilt.");
             adjalign(-5);
         }
     }
@@ -4374,6 +4384,8 @@ boolean via_attack;
             if (p_coaligned(mtmp)) {
                 if (canspotmon(mtmp))
                     You_feel("guilty.");
+                else
+                    You("have a vague sense of guilt.");
                 adjalign(-5); /* very bad */
             } else {
                 adjalign(2);
@@ -4382,6 +4394,8 @@ boolean via_attack;
             if (u.ualign.type != A_NONE) { /* Infidels are supposed to be bad */
                 if (canspotmon(mtmp))
                     You_feel("guilty.");
+                else
+                    You("have a vague sense of guilt.");
                 adjalign(-1); /* attacking peaceful monsters is bad */
             }
         }
@@ -4468,6 +4482,8 @@ boolean via_attack;
                                 if (u.ualign.type != A_NONE) {
                                     if (canspotmon(mon))
                                         You_feel("guilty.");
+                                    else
+                                        You("have a vague sense of guilt.");
                                     adjalign(-1);
                                 }
                                 if (!exclaimed)

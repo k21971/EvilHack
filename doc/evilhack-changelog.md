@@ -2184,4 +2184,5 @@ The following changes to date are:
 - Formatting cleanup in u_init.c
 - Fix: a couple monsters hiding in water cases
 - Fix: same handling for hiding monsters in sewage and shallow water
+- Tweak to 'You feel guilty' commit
 
