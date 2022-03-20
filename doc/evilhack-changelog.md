@@ -2183,4 +2183,5 @@ The following changes to date are:
 - Fix: partially revert 'a couple bugs with kicking vs black dragon'
 - Formatting cleanup in u_init.c
 - Fix: a couple monsters hiding in water cases
+- Fix: same handling for hiding monsters in sewage and shallow water
 

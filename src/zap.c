@@ -5267,8 +5267,14 @@ boolean moncast;
             }
             rangemod -= 3;
             lev->typ = ROOM;
-            if (lev->typ == ROOM)
+            if (lev->typ == ROOM) {
+                if ((mon = m_at(x, y)) != 0) {
+                    if (is_swimmer(mon->data) && mon->mundetected) {
+                        mon->mundetected = 0;
+                    }
+                }
                 newsym(x, y);
+            }
         } else if (lev->typ == TREE) {
             if (see_it)
                 pline("The tree burns to a crisp!");
