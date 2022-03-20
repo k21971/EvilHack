@@ -5239,9 +5239,19 @@ boolean moncast;
             }
             if (msgtxt)
                 Norep("%s", msgtxt);
-            if (lev->typ == ROOM)
+            if (lev->typ == ROOM) {
+                if ((mon = m_at(x, y)) != 0) {
+                    /* probably ought to do some hefty damage to any
+                       creature caught in boiling water;
+                       at a minimum, eels are forced out of hiding */
+                    if (is_swimmer(mon->data) && mon->mundetected) {
+                        mon->mundetected = 0;
+                    }
+                }
                 newsym(x, y);
+            }
         } else if (IS_FOUNTAIN(lev->typ)) {
+            create_gas_cloud(x, y, rnd(2), 0); /* radius 1..2, no damage */
             if (see_it)
                 pline("Steam billows from the fountain.");
             rangemod -= 1;

@@ -2182,4 +2182,5 @@ The following changes to date are:
 - Remove unnecessary bit from last dmonsfree/mhurtle tweak
 - Fix: partially revert 'a couple bugs with kicking vs black dragon'
 - Formatting cleanup in u_init.c
+- Fix: a couple monsters hiding in water cases
 
