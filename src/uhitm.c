@@ -3943,12 +3943,13 @@ boolean wep_was_destroyed;
             if (aatyp == AT_KICK) {
                 if (uarmf
                     && mon->data == &mons[PM_ANTIMATTER_VORTEX] ? !rn2(3) : !rn2(6)) {
-                    if (rn2(2) && (uarmf->oerodeproof
-                                   || is_supermaterial(uarmf)))
+                    if (rn2(2) && uarmf
+                        && (uarmf->oerodeproof || is_supermaterial(uarmf))) {
                         pline("%s being disintegrated!",
                               Yobjnam2(uarmf, "resist"));
-                    else
+                    } else if (uarmf) {
                         (void) destroy_arm(uarmf);
+                    }
                 }
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH) {
@@ -4225,12 +4226,14 @@ boolean wep_was_destroyed;
                 if (weapon && !rn2(12)) {
                     if (aatyp == AT_KICK) {
                         if (uarmf) {
-                            if (rn2(2) && (uarmf->oerodeproof
-                                           || is_supermaterial(uarmf)))
+                            if (rn2(2) && uarmf
+                                && (uarmf->oerodeproof
+                                    || is_supermaterial(uarmf))) {
                                 pline("%s being disintegrated!",
                                       Yobjnam2(uarmf, "resist"));
-                            else
+                            } else if (uarmf) {
                                 (void) destroy_arm(uarmf);
+                            }
                         }
                         break;
                     } else if (aatyp == AT_WEAP || aatyp == AT_CLAW

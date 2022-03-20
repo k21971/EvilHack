@@ -2177,4 +2177,5 @@ The following changes to date are:
 - Fix: dmonsfree pending when hero was hit with drain-life artifact
 - Tweak dmonsfree/mhurtle handling
 - Fix: adjust minimum range in new_light_source()
+- Fix: a couple bugs with kicking vs black dragon
 
