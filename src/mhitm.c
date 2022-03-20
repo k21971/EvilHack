@@ -1448,7 +1448,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 mhurtle(mdef, mdef->mx - magr->mx,
                         mdef->my - magr->my, rnd(2));
                 if (DEADMONSTER(mdef))
-                    mondied(mdef);
+                    return (MM_DEF_DIED
+                            | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
             }
         }
         break;

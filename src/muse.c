@@ -1864,6 +1864,9 @@ register struct obj *otmp;
         } else if (rnd(20) < 10 + find_mac(mtmp)) {
             tmp = d(2, 12);
             hit("wand", mtmp, exclam(tmp));
+            (void) resist(mtmp, otmp->oclass, tmp, TELL);
+            if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
+                makeknown(WAN_STRIKING);
             if (tmp > 16 && mcarried(otmp)) {
                 struct monst *zapper = otmp->ocarry;
                 last_hurtled = mtmp;
@@ -1881,9 +1884,6 @@ register struct obj *otmp;
                         mondied(mtmp);
                 }
             }
-            (void) resist(mtmp, otmp->oclass, tmp, TELL);
-            if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
-                makeknown(WAN_STRIKING);
         } else {
             miss("wand", mtmp);
             if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
