@@ -2186,4 +2186,5 @@ The following changes to date are:
 - Fix: same handling for hiding monsters in sewage and shallow water
 - Tweak to 'You feel guilty' commit
 - Fix: remove create_gas_cloud bit from evaporating fountains
+- Collisions while hurtling can stone participants
 
