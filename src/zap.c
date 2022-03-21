@@ -5251,7 +5251,6 @@ boolean moncast;
                 newsym(x, y);
             }
         } else if (IS_FOUNTAIN(lev->typ)) {
-            create_gas_cloud(x, y, rnd(2), 0); /* radius 1..2, no damage */
             if (see_it)
                 pline("Steam billows from the fountain.");
             rangemod -= 1;
