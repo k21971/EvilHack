@@ -2189,4 +2189,5 @@ The following changes to date are:
 - Collisions while hurtling can stone participants
 - Fix: teleporting not unhiding polyed hero
 - Fix: fixes and sanity checks for monster undetected and trapped states
+- Fix: boulder-carrying monster killed twice
 
