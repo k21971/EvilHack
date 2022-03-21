@@ -2690,6 +2690,7 @@ unpunish()
 
     /* chain goes away */
     obj_extract_self(uchain);
+    maybe_unhide_at(uchain->ox, uchain->oy);
     newsym(uchain->ox, uchain->oy);
     setworn((struct obj *) 0, W_CHAIN); /* sets 'uchain' to Null */
     dealloc_obj(savechain);

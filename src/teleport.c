@@ -1311,6 +1311,7 @@ register int x, y;
         }
     }
 
+    maybe_unhide_at(x, y);
     newsym(x, y);      /* update new location */
     set_apparxy(mtmp); /* orient monster */
 

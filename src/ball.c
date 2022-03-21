@@ -165,12 +165,13 @@ unplacebc_core()
         obj_extract_self(uball);
         if (Blind && (u.bc_felt & BC_BALL)) /* drop glyph */
             levl[uball->ox][uball->oy].glyph = u.bglyph;
-
+        maybe_unhide_at(uball->ox, uball->oy);
         newsym(uball->ox, uball->oy);
     }
     obj_extract_self(uchain);
     if (Blind && (u.bc_felt & BC_CHAIN)) /* drop glyph */
         levl[uchain->ox][uchain->oy].glyph = u.cglyph;
+    maybe_unhide_at(uchain->ox, uchain->oy);
 
     newsym(uchain->ox, uchain->oy);
     u.bc_felt = 0; /* feel nothing */
@@ -539,9 +540,11 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
             }
 
             remove_object(uchain);
+            maybe_unhide_at(uchain->ox, uchain->oy);
             newsym(uchain->ox, uchain->oy);
             if (!carried(uball)) {
                 remove_object(uball);
+                maybe_unhide_at(uball->ox, uball->oy);
                 newsym(uball->ox, uball->oy);
             }
         } else {

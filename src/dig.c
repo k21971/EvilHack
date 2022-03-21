@@ -1946,6 +1946,7 @@ int x, y;
     /* don't expect any engravings here, but just in case */
     del_engr_at(x, y);
     newsym(x, y);
+    maybe_unhide_at(x, y);
 
     if (costly && loss) {
         You("owe %s %ld %s for burying merchandise.", mon_nam(shkp), loss,

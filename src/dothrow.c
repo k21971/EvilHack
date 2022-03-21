@@ -849,6 +849,7 @@ int x, y;
         remove_monster(mon->mx, mon->my);
         newsym(mon->mx, mon->my);
         place_monster(mon, x, y);
+        maybe_unhide_at(mon->mx, mon->my);
         newsym(mon->mx, mon->my);
         set_apparxy(mon);
         if (Is_waterlevel(&u.uz) && levl[x][y].typ == WATER)

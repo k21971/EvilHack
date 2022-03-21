@@ -1597,20 +1597,29 @@ register int after;
         if (!m_in_out_region(mtmp, nix, niy))
             return 3;
 
+        /* move a normal monster; for a long worm, remove_monster() and
+           place_monster() only manipulate the head; they leave tail as-is */
         remove_monster(omx, omy);
         place_monster(mtmp, nix, niy);
+        /* for a long worm, insert a new segment to reconnect the head
+           with the tail; worm_move() keeps the end of the tail if worm
+           is scheduled to grow, removes that for move-without-growing */
+        if (mtmp->wormno)
+            worm_move(mtmp);
+
+        maybe_unhide_at(mtmp->mx, mtmp->my);
+
         for (j = MTSZ - 1; j > 0; j--)
             mtmp->mtrack[j] = mtmp->mtrack[j - 1];
         mtmp->mtrack[0].x = omx;
         mtmp->mtrack[0].y = omy;
-        /* Place a segment at the old position. */
-        if (mtmp->wormno)
-            worm_move(mtmp);
     } else {
         if (is_unicorn(ptr) && rn2(2) && !tele_restrict(mtmp)) {
             (void) rloc(mtmp, TRUE);
             return 1;
         }
+        /* for a long worm, shrink it (by discarding end of tail) when
+           it has failed to move */
         if (mtmp->wormno)
             worm_nomove(mtmp);
     }

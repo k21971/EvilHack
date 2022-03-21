@@ -2188,4 +2188,5 @@ The following changes to date are:
 - Fix: remove create_gas_cloud bit from evaporating fountains
 - Collisions while hurtling can stone participants
 - Fix: teleporting not unhiding polyed hero
+- Fix: fixes and sanity checks for monster undetected and trapped states
 

@@ -61,6 +61,7 @@ boolean chk_geno;
 const char *msg;
 {
     struct permonst *mptr = mtmp->data;
+    int mx = mtmp->mx, my = mtmp->my;
 
     if (!mptr || mptr < &mons[LOW_PM] || mptr >= &mons[NUMMONS]) {
         /* most sanity checks issue warnings if they detect a problem,
@@ -98,6 +99,41 @@ const char *msg;
     /* guardian angel on astral level is tame but has emin rather than edog */
     if (mtmp->mtame && !has_edog(mtmp) && !mtmp->isminion)
         impossible("pet without edog (%s)", msg);
+
+    if (mtmp->mtrapped) {
+        if (mtmp->wormno) {
+            /* TODO: how to check worm in trap? */
+        } else if (!t_at(mtmp->mx, mtmp->my))
+            impossible("trapped without a trap (%s)", msg);
+    }
+
+    /* monster is hiding? */
+    if (mtmp->mundetected) {
+        struct trap *t;
+
+        if (!isok(mx, my)) /* caller will have checked this but not fixed it */
+            mx = my = 0;
+        if (mtmp == u.ustuck)
+            impossible("hiding monster stuck to you (%s)", msg);
+        if (m_at(mtmp->mx, mtmp->my) == mtmp
+            && hides_under(mtmp->data) && !OBJ_AT(mtmp->mx, mtmp->my))
+            impossible("mon hiding under nonexistent obj (%s)", msg);
+        if (mtmp->data->mlet == S_EEL
+            && !is_damp_terrain(mtmp->mx, mtmp->my) && !Is_waterlevel(&u.uz))
+            impossible("eel hiding out of water (%s)", msg);
+        if (ceiling_hider(mptr)
+            /* normally !accessible would be overridable with passes_walls,
+               but not for hiding on the ceiling */
+            && (!has_ceiling(&u.uz) || !accessible(mx, my)))
+            impossible("ceiling hider hiding %s (%s)",
+                       !has_ceiling(&u.uz) ? "without ceiling"
+                                           : "in solid stone",
+                       msg);
+        if (mtmp->mtrapped && (t = t_at(mtmp->mx, mtmp->my)) != 0
+            && !(t->ttyp == PIT || t->ttyp == SPIKED_PIT))
+            impossible("hiding while trapped in a non-pit (%s)", msg);
+    }
+
 }
 
 void
@@ -4675,6 +4711,19 @@ register struct monst *mtmp;
     }
 
     return FALSE;
+}
+
+/* reveal a monster at x,y hiding under an object,
+   if there are no objects there */
+void
+maybe_unhide_at(x, y)
+xchar x, y;
+{
+    struct monst *mtmp;
+
+    if (!OBJ_AT(x, y) && (mtmp = m_at(x, y)) != 0
+        && mtmp->mundetected && hides_under(mtmp->data))
+        (void) hideunder(mtmp);
 }
 
 /* monster/hero tries to hide under something at the current location */
