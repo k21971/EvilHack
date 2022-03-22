@@ -2190,4 +2190,5 @@ The following changes to date are:
 - Fix: teleporting not unhiding polyed hero
 - Fix: fixes and sanity checks for monster undetected and trapped states
 - Fix: boulder-carrying monster killed twice
+- Allow bone non-weapons to harm ghosts
 

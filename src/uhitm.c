@@ -1750,7 +1750,8 @@ struct obj *obj;
         || obj->otyp == IRON_CHAIN      /* dmgval handles those first three */
         || obj->otyp == MIRROR          /* silver in the reflective surface */
         || obj->otyp == CLOVE_OF_GARLIC /* causes shades to flee */
-        || obj->material == SILVER)
+        || obj->material == SILVER
+        || obj->material == BONE)
         return TRUE;
     return FALSE;
 }
@@ -1796,22 +1797,22 @@ struct monst *magr, *mdef;
 struct obj *obj;
 boolean thrown, verbose;
 {
-    const char *what, *whose, *target;
     boolean youagr = (magr == &youmonst), youdef = (mdef == &youmonst);
 
     /* we're using dmgval() for zero/not-zero, not for actual damage amount */
-    if (!noncorporeal(mdef->data) || (obj && dmgval(obj, mdef)))
+    if (!noncorporeal(mdef->data)
+        || (obj && (dmgval(obj, mdef) || shade_glare(obj))))
         return FALSE;
 
     if (verbose
         && ((youdef || cansee(mdef->mx, mdef->my) || sensemon(mdef))
             || (magr == &youmonst && distu(mdef->mx, mdef->my) <= 2))) {
         static const char harmlessly_thru[] = " harmlessly through ";
+        const char *what = (!obj ? "attack" : cxname(obj)),
+                   *target = youdef ? "you" : mon_nam(mdef);
 
-        what = (!obj || shade_aware(obj)) ? "attack" : cxname(obj);
-        target = youdef ? "you" : mon_nam(mdef);
         if (!thrown) {
-            whose = youagr ? "Your" : s_suffix(Monnam(magr));
+            const char *whose = youagr ? "Your" : s_suffix(Monnam(magr));
             pline("%s %s %s%s%s.", whose, what,
                   vtense(what, "pass"), harmlessly_thru, target);
         } else {
