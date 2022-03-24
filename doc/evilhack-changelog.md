@@ -2193,4 +2193,5 @@ The following changes to date are:
 - Allow bone non-weapons to harm ghosts
 - The Hand of Vecna
 - Fix: player monster samurai having giant-like attributes
+- Handle spiders, cockatrices in mbodypart
 
