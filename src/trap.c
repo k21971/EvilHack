@@ -210,7 +210,8 @@ int ef_flags;
     if (check_grease && otmp->greased) {
         grease_protect(otmp, ostr, victim);
         return ER_GREASED;
-    } else if (!erosion_matters(otmp)) {
+    } else if (!erosion_matters(otmp)
+               || otmp->oartifact == ART_HAND_OF_VECNA) {
         return ER_NOTHING;
     } else if (!vulnerable || (otmp->oerodeproof && otmp->rknown)) {
         if (flags.verbose && print && (uvictim || vismon))

@@ -214,7 +214,7 @@ struct obj {
      || otmp->oartifact == ART_SUNSWORD || otmp->oartifact == ART_XIUHCOATL                       \
      || otmp->oartifact == ART_EXCALIBUR || otmp->oartifact == ART_SCEPTRE_OF_MIGHT               \
      || otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN || otmp->oartifact == ART_MITRE_OF_HOLINESS \
-     || otmp->oartifact == ART_TSURUGI_OF_MURAMASA)
+     || otmp->oartifact == ART_TSURUGI_OF_MURAMASA || otmp->oartifact == ART_DRAMBORLEG)
 
 #define is_chaotic_artifact(otmp) \
     (otmp->oartifact == ART_STORMBRINGER || otmp->oartifact == ART_GRIMTOOTH                  \
@@ -231,7 +231,7 @@ struct obj {
     (otmp->oartifact == ART_MAGIC___BALL || otmp->oartifact == ART_LIFESTEALER         \
      || otmp->oartifact == ART_BAG_OF_THE_HESPERIDES || otmp->oartifact == ART_BUTCHER \
      || otmp->oartifact == ART_WAND_OF_ORCUS || otmp->oartifact == ART_EYE_OF_VECNA    \
-     || otmp->oartifact == ART_SWORD_OF_KAS)
+     || otmp->oartifact == ART_HAND_OF_VECNA || otmp->oartifact == ART_SWORD_OF_KAS)
 
 #define is_magical_staff(otmp) \
     (otmp->otyp == STAFF_OF_DIVINATION || otmp->otyp == STAFF_OF_HEALING \

@@ -413,7 +413,7 @@ register struct monst *mtmp;
         ret = "wail";
         break;
     case MS_SILENT:
-        ret = "commotion";
+        ret = "quiver";
         break;
     default:
         ret = "scream";

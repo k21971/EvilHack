@@ -2324,6 +2324,8 @@ int mode, final, attrindx;
     case A_STR:
         if (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER && uarmg->cursed)
             hide_innate_value = TRUE;
+        if (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA && uarmg->cursed)
+            hide_innate_value = FALSE;
         if (uwep && uwep->oartifact == ART_GIANTSLAYER && uwep->cursed)
             hide_innate_value = TRUE;
         if (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER && uswapwep->cursed)

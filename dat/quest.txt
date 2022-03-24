@@ -4737,3 +4737,26 @@ cavern ceiling.  You catch yourself and regain your balance
 as you step precariously close to the cliff's edge, careful
 not to fall into the abyss.
 %E [You have just entered an rock cavern, which appears bottomless.]
+#
+# Putting on the Hand of Vecna
+#
+%Cc - 00301
+As you move the Hand of Vecna closer to your own, your left
+hand suddenly shrivels up and falls off at the wrist!  Before
+you can react, the Hand of Vecna attaches itself to where your
+own hand used to be, infusing your entire body with an evil
+magic.  Exhilarated, you raise the Hand high above your head,
+reveling in your new-found power.  You realize that the Hand
+of Vecna has merged itself to your body, and that you will
+never be free of it.  An evil smile slowly spreads across your
+face at this revelation.
+%E [The Hand of Vecna has permanently affixed itself to your left arm.]
+%Cc - 00302
+As you move the Hand of Vecna closer to your own, your left
+hand suddenly shrivels up and falls off at the wrist!  Before
+you can react, the Hand of Vecna attaches itself to where your
+own hand used to be, infusing your entire body with an evil
+magic.  In a panic, you struggle to remove it from your arm,
+but it has merged itself to you completely.  It slowly dawns on
+you that you will never be able to free yourself from it.
+%E [The Hand of Vecna has permanently affixed itself to your left arm.]

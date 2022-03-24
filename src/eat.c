@@ -3060,6 +3060,8 @@ bite()
 void
 gethungry()
 {
+    int accessorytime;
+
     if (u.uinvulnerable)
         return; /* you don't feel hungrier */
 
@@ -3074,16 +3076,25 @@ gethungry()
         && !Slow_digestion)
         u.uhunger--; /* ordinary food consumption */
 
-    if (moves % 2) { /* odd turns */
+    /*
+     * 3.7:  trigger is randomized instead of (moves % N).  Makes
+     * ring juggling (using the 'time' option to see the turn counter
+     * in order to time swapping of a pair of rings of slow digestion,
+     * wearing one on one hand, then putting on the other and taking
+     * off the first, then vice versa, over and over and over and ...
+     * to avoid any hunger from wearing a ring) become ineffective.
+     * Also causes melee-induced hunger to vary from turn-based hunger
+     * instead of just replicating that.
+     */
+    accessorytime = rn2(20); /* rn2(20) replaces (int) (moves % 20L) */
+    if (accessorytime % 2) { /* odd */
         /* Regeneration uses up food, unless due to an artifact
          * or playing as a Giant */
-        if (Regeneration && !Race_if(PM_GIANT)) {
-            if ((HRegeneration & ~FROMFORM)
-                || (ERegeneration & ~(W_ARTI | W_WEP)))
-                u.uhunger--;
-            if (near_capacity() > SLT_ENCUMBER)
-                u.uhunger--;
-        }
+        if ((HRegeneration & ~(FROMFORM | FROMRACE))
+            || (ERegeneration & ~(W_ARTI | W_WEP | W_ARMOR)))
+            u.uhunger--;
+        if (near_capacity() > SLT_ENCUMBER)
+            u.uhunger--;
     } else { /* even turns */
         if (Hunger)
             u.uhunger--;
@@ -3092,7 +3103,7 @@ gethungry()
             u.uhunger--;
         /* +0 charged rings don't do anything, so don't affect hunger.
            Slow digestion cancels move hunger but still causes ring hunger. */
-        switch ((int) (moves % 20)) { /* note: use even cases only */
+        switch (accessorytime) { /* note: use even cases among 0..19 only */
         case 4:
             if (uleft && (uleft->spe || !objects[uleft->otyp].oc_charged))
                 u.uhunger--;

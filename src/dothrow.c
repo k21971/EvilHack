@@ -1780,6 +1780,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
             break;
         case GAUNTLETS_OF_PROTECTION:
         case GLOVES:
+        case MUMMIFIED_HAND: /* the Hand of Vecna */
             break;
         case GAUNTLETS_OF_DEXTERITY: /* these gloves were made with archers in mind */
             tmp += 1;

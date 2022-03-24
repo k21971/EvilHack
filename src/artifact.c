@@ -223,6 +223,9 @@ xchar m;
     case ART_SECESPITA:
         return COPPER;
         break;
+    case ART_HAND_OF_VECNA:
+        return FLESH;
+        break;
     default:
         /* default material for that item */
         return objects[artilist[m].otyp].oc_material;
@@ -2910,22 +2913,38 @@ struct obj *obj;
                 use_figurine(&obj);
             }
             break;
-        case DEATH_GAZE:
+        case DEATH_MAGIC:
             if (u.uluck < -9) {
                 /* being immune to death magic doesn't help in this instance */
                 pline("%s turns on you!", The(xname(obj)));
                 u.uhp = 0;
                 killer.format = KILLED_BY;
-                Strcpy(killer.name, "the Eye of Vecna");
+                if (obj->oartifact == ART_EYE_OF_VECNA) {
+                    Strcpy(killer.name, "the Eye of Vecna");
+                } else {
+                    Strcpy(killer.name, "the Hand of Vecna");
+                }
                 done(DIED);
             } else {
-                pline("%s looks around with its icy gaze!",
-                      The(xname(obj)));
+                if (obj->oartifact == ART_EYE_OF_VECNA) {
+                    pline("%s looks around with its icy gaze!",
+                          The(xname(obj)));
+                /* The Hand of Vecna needs to be 'worn' for it to be invoked */
+                } else if (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA) {
+                    You("hold %s up high above your %s!",
+                        the(xname(obj)), body_part(HEAD));
+                } else if (obj->oartifact == ART_HAND_OF_VECNA) {
+                    You("hold %s up high above your %s, but nothing happens.",
+                        the(xname(obj)), body_part(HEAD));
+                    break;
+                }
+
                 for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                     if (DEADMONSTER(mtmp))
                         continue;
                     /* The eye is never blind ... */
-                    if (couldsee(mtmp->mx, mtmp->my)
+                    if ((obj->oartifact == ART_EYE_OF_VECNA ? couldsee(mtmp->mx, mtmp->my)
+                                                            : canspotmon(mtmp))
                         && !immune_death_magic(mtmp->data)) {
                         int tmp = 12;
                         switch (rn2(20)) {
@@ -2945,9 +2964,12 @@ struct obj *obj;
                             break;
                         default: /* case 16 through case 2 */
                             if (!Deaf)
-                                pline("%s screams in agony!", Monnam(mtmp));
+                                pline("%s %s in %s!", Monnam(mtmp),
+                                      makeplural(growl_sound(mtmp)),
+                                      rn2(2) ? "agony" : "pain");
                             else if (cansee(mtmp->mx, mtmp->my))
-                                pline("%s trembles in agony!", Monnam(mtmp));
+                                pline("%s trembles in %s!", Monnam(mtmp),
+                                rn2(2) ? "agony" : "pain");
                             /* mhp will then still be less than this value */
                             mtmp->mhpmax -= rn2(tmp / 2 + 1);
                             if (mtmp->mhpmax <= 0) /* protect against invalid value */
@@ -2960,8 +2982,13 @@ struct obj *obj;
                         case 0:
                             if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
                                 shieldeff(mtmp->mx, mtmp->my);
-                            pline("%s resists %s deadly gaze.",
-                                  Monnam(mtmp), the(s_suffix(xname(obj))));
+                            if (obj->oartifact == ART_EYE_OF_VECNA) {
+                                pline("%s resists %s deadly gaze.",
+                                      Monnam(mtmp), the(s_suffix(xname(obj))));
+                            } else {
+                                pline("%s resists %s deadly aura.",
+                                      Monnam(mtmp), the(s_suffix(xname(obj))));
+                            }
                             tmp = 0;
                             break;
                         }
@@ -2970,8 +2997,13 @@ struct obj *obj;
             }
             /* Use at your own risk... */
             if (u.ualign.type != A_NONE) {
-                You_feel("guilty.");
-                adjalign(-3);
+                if (u.ualign.type == A_LAWFUL) {
+                    You_feel("very guilty.");
+                    adjalign(-7);
+                } else {
+                    You_feel("guilty.");
+                    adjalign(-3);
+                }
             }
             change_luck(-3);
             exercise(A_WIS, FALSE);

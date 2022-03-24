@@ -3365,12 +3365,17 @@ boolean was_swallowed; /* digestion */
         || mdat == &mons[PM_ALHOON] || mdat == &mons[PM_KAS]) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
             pline("%s body crumbles into dust.", s_suffix(Monnam(mon)));
-        if (mon->isvecna && rn2(2)) {
+        if (mon->isvecna) {
             if (!Blind)
                 pline("As the remnants of %s body vanish, you notice something was left behind...",
                       s_suffix(mon_nam(mon)));
-            otmp = mksobj(EYEBALL, FALSE, FALSE);
-            otmp = oname(otmp, artiname(ART_EYE_OF_VECNA));
+            if (rn2(2)) {
+                otmp = mksobj(EYEBALL, FALSE, FALSE);
+                otmp = oname(otmp, artiname(ART_EYE_OF_VECNA));
+            } else {
+                otmp = mksobj(MUMMIFIED_HAND, FALSE, FALSE);
+                otmp = oname(otmp, artiname(ART_HAND_OF_VECNA));
+            }
             curse(otmp);
             place_object(otmp, mon->mx, mon->my);
         }

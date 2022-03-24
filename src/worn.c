@@ -827,7 +827,9 @@ boolean racialexception;
                 continue;
             break;
         case W_ARMG:
-            if (!is_gloves(obj))
+            if (!is_gloves(obj)
+                /* monsters are too scared of the Hand of Vecna */
+                || obj->otyp == MUMMIFIED_HAND)
                 continue;
             break;
         case W_ARMF:

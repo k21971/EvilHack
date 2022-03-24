@@ -719,7 +719,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             break;
         }
 
-        if (is_boots(obj) || is_gloves(obj))
+        if (is_boots(obj)
+            || (is_gloves(obj) && obj->otyp != MUMMIFIED_HAND))
             Strcat(buf, "pair of ");
 
         if (dknown && (obj->oprops & ITEM_OILSKIN)
@@ -1363,7 +1364,8 @@ unsigned doname_flags;
                           because donning() returns True for both cases */
                        : doffing(obj) ? " (being doffed)"
                          : donning(obj) ? " (being donned)"
-                           : " (being worn)");
+                           : obj->otyp == MUMMIFIED_HAND ? " "
+                             : " (being worn)");
             /* slippery fingers is an intrinsic condition of the hero
                rather than extrinsic condition of objects, but gloves
                are described as slippery when hero has slippery fingers */
@@ -1373,6 +1375,9 @@ unsigned doname_flags;
             else if (!Blind && obj->lamplit && artifact_light(obj))
                 Sprintf(rindex(bp, ')'), ", %s lit)",
                         arti_light_description(obj));
+            else if (obj->otyp == MUMMIFIED_HAND)
+                Sprintf(rindex(bp, ' '), " (merged to your left %s)",
+                        body_part(ARM));
         }
         /*FALLTHRU*/
     case WEAPON_CLASS:
@@ -3130,7 +3135,7 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
     { "shield", ARMOR_CLASS, SMALL_SHIELD, SHIELD_OF_MOBILITY },
     { "hat", ARMOR_CLASS, DUNCE_CAP, FEDORA },
     { "helm", ARMOR_CLASS, DUNCE_CAP, HELM_OF_TELEPATHY },
-    { "gloves", ARMOR_CLASS, GLOVES, GAUNTLETS_OF_FUMBLING },
+    { "gloves", ARMOR_CLASS, GLOVES, MUMMIFIED_HAND },
     { "gauntlets", ARMOR_CLASS, GAUNTLETS, GAUNTLETS_OF_POWER },
     { "boots", ARMOR_CLASS, LOW_BOOTS, FUMBLE_BOOTS },
     { "shoes", ARMOR_CLASS, LOW_BOOTS, ORCISH_BOOTS },
@@ -3783,11 +3788,11 @@ struct obj *no_wish;
          * Find corpse type using "of" (figurine of an orc, tin of orc meat)
          * Don't check if it's a wand or spellbook.
          * (avoid "wand/finger of death" confusion).
-         * (also avoid "sword of kas" or "eye of vecna" issues)
+         * (also avoid "sword of kas" or "eye/hand of vecna" issues)
          */
         if (!strstri(bp, "wand ") && !strstri(bp, "spellbook ")
             && !strstri(bp, "finger ") && !strstri(bp, "eye ")
-            && !strstri(bp, "sword of kas")) {
+            && !strstri(bp, "hand ") && !strstri(bp, "sword of kas")) {
             if ((p = strstri(bp, "tin of ")) != 0) {
                 if (!strcmpi(p + 7, "spinach")) {
                     contents = SPINACH;
@@ -4916,6 +4921,7 @@ struct obj *no_wish;
             case ART_BUTCHER:
             case ART_WAND_OF_ORCUS:
             case ART_EYE_OF_VECNA:
+            case ART_HAND_OF_VECNA:
             case ART_SWORD_OF_KAS:
                 pm = PM_SAMURAI;
                 break;

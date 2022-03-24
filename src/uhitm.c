@@ -1649,9 +1649,27 @@ int dieroll;
                 mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
     }
 
-    if (hated_obj) {
-        searmsg(&youmonst, mon, hated_obj, FALSE);
+    /* The Hand of Vecna imparts cold damage to attacks,
+       whether bare-handed or wielding a weapon */
+    if (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA) {
+        if (!Blind)
+            pline("%s covers %s in frost!", The(xname(uarmg)),
+                  mon_nam(mon));
+        if (resists_cold(mon) || defended(mon, AD_COLD)) {
+            shieldeff(mon->mx, mon->my);
+            if (!Blind)
+                pline_The("frost doesn't chill %s!", mon_nam(mon));
+            golemeffects(mon, AD_COLD, tmp);
+            tmp = 0;
+        } else {
+            tmp += destroy_mitem(mon, POTION_CLASS, AD_COLD);
+            tmp += rnd(5) + 7; /* 8-12 hit points of cold damage */
+        }
     }
+
+    if (hated_obj)
+        searmsg(&youmonst, mon, hated_obj, FALSE);
+
     if (lightobj) {
         const char *fmt;
         char *whom = mon_nam(mon);
@@ -1721,6 +1739,7 @@ int dieroll;
             u.uen = u.uenmax;
         context.botl = TRUE;
     }
+
     if (unpoisonmsg)
         Your("%s %s no longer poisoned.", saved_oname,
              vtense(saved_oname, "are"));
@@ -4415,6 +4434,10 @@ struct attack *mattk;     /* null means we find one internally */
             if (obj_resists(obj, 0, 0)) {
                 pline_The("%s %s and cannot be disintegrated.",
                           xname(obj), rn2(2) ? "resists completely" : "defies physics");
+                break;
+            } else if (obj->oartifact == ART_HAND_OF_VECNA) {
+                ; /* no feedback, as we're pretending that the Hand
+                     isn't worn, but a part of your body */
                 break;
             } else if (obj->oartifact == ART_DRAGONBANE
                        && mon->data != &mons[PM_ANTIMATTER_VORTEX]) {

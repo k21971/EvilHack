@@ -2117,7 +2117,7 @@ The following changes to date are:
 - Fix: impossible if killed while poly'd into a monster that emits light
 - Fix: invalid material 7 (otyp 427)
 - Fix: unnecessary impossible() in restmonsteeds()
-- Fix: impossible 'placing <monster> over <monster> at <location>'
+- Fix: impossible placing 'monster' over 'monster' at 'location'
 - Some minor artifact tweaks and improvements
 - Fix: heap-use-after-free errors with stacked ammo that have object properties
 - Fix: ammo with object properties used against player (or mon vs mon) 
@@ -2191,4 +2191,5 @@ The following changes to date are:
 - Fix: fixes and sanity checks for monster undetected and trapped states
 - Fix: boulder-carrying monster killed twice
 - Allow bone non-weapons to harm ghosts
+- The Hand of Vecna
 

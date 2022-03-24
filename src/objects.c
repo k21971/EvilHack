@@ -549,6 +549,8 @@ GLOVES("gauntlets of dexterity", "fencing gloves",
        0, 1,          0,  8, 1, 10,  50, 9, 0,  LEATHER, HI_LEATHER),
 GLOVES("gauntlets of fumbling", "padded gloves",
        0, 1,   FUMBLING,  8, 1, 10,  50, 9, 0,  LEATHER, HI_LEATHER),
+GLOVES("mummified hand", None,
+       0, 0,          0,  0, 1,  5, 100, 9, 0,  FLESH, CLR_BLACK),
 
 /* boots */
 BOOTS("low boots", "walking shoes",
@@ -726,7 +728,7 @@ TOOL("magic lamp",        "lamp", 0, 0, 1, 0,  15,  20, 500, COPPER, CLR_YELLOW)
 TOOL("expensive camera",    None, 1, 0, 0, 1,  15,  12, 200, PLASTIC, CLR_BLACK),
 TOOL("mirror",   "looking glass", 0, 0, 0, 0,  45,  13,  10, GLASS, HI_SILVER),
 TOOL("crystal ball", "glass orb", 0, 0, 1, 1,  15, 150,  60, GLASS, HI_GLASS),
-TOOL("eight ball", "plastic orb", 0, 0, 1, 0,   0,  20,  30, PLASTIC, CLR_BLACK),
+TOOL("eight ball", "plastic orb", 0, 0, 0, 0,   0,  20,  30, PLASTIC, CLR_BLACK),
 TOOL("lenses",              None, 1, 0, 0, 0,   5,   3,  80, GLASS, HI_GLASS),
 TOOL("blindfold",           None, 1, 0, 0, 0,  50,   2,  20, CLOTH, CLR_BLACK),
 TOOL("towel",               None, 1, 0, 0, 0,  50,   2,  50, CLOTH, CLR_MAGENTA),

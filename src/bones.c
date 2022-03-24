@@ -380,6 +380,7 @@ struct obj *obj;
     case ART_BAG_OF_THE_HESPERIDES:
     case ART_LIFESTEALER:
     case ART_EYE_OF_VECNA:
+    case ART_HAND_OF_VECNA:
     case ART_SWORD_OF_KAS:
     default:
         return FALSE;
@@ -412,6 +413,7 @@ struct obj *obj;
         owner = PM_ORCUS;
         break;
     case ART_EYE_OF_VECNA:
+    case ART_HAND_OF_VECNA:
         owner = PM_VECNA;
         break;
     case ART_SWORD_OF_KAS:

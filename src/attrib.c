@@ -1186,6 +1186,7 @@ int x;
 
     if (x == A_STR) {
       if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+          || (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
           || wielding_artifact(ART_GIANTSLAYER)
           || wielding_artifact(ART_SWORD_OF_KAS))
             return (schar) 125;
@@ -1256,6 +1257,7 @@ int attrindx;
         hilimit = STR19(25); /* 125 */
         /* lower limit for Str can also be 25 */
         if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+            || (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
             || wielding_artifact(ART_GIANTSLAYER)
             || wielding_artifact(ART_SWORD_OF_KAS))
             lolimit = hilimit;
