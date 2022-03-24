@@ -2192,4 +2192,5 @@ The following changes to date are:
 - Fix: boulder-carrying monster killed twice
 - Allow bone non-weapons to harm ghosts
 - The Hand of Vecna
+- Fix: player monster samurai having giant-like attributes
 

@@ -324,11 +324,11 @@
       + ((ptr)->mattk[2].aatyp == AT_WEAP)  ) > 1)
 #define cantweararm(mon) (breakarm(mon) || sliparm(mon))
 #define throws_rocks(ptr) \
-    ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
+    ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L))
 #define racial_throws_rocks(mon) \
     ((has_erac(mon) && ERAC(mon)->mflags2 & M2_ROCKTHROW) \
-     || throws_rocks((mon)->data))
+     || throws_rocks((mon)->data) \
+     || ((mon) == &youmonst && !Upolyd && Race_if(PM_GIANT)))
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
 #define is_lord(ptr) (((ptr)->mflags2 & M2_LORD) != 0L)
 #define is_prince(ptr) (((ptr)->mflags2 & M2_PRINCE) != 0L)

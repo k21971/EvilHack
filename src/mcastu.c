@@ -582,7 +582,7 @@ struct monst *mattk, *mdef;
                 if (canseemon(mdef)) {
                     const char *action;
                     if (is_cloak(oatmp))
-                        action = "crumbles and turns to dust"; 
+                        action = "crumbles and turns to dust";
                     else if (is_shirt(oatmp))
                         action = "crumbles into tiny threads";
                     else if (is_helmet(oatmp))
@@ -623,7 +623,7 @@ struct monst *mattk, *mdef;
         else if (uattk || canseemon(mdef))
             pline("%s seems irritated.", Monnam(mdef));
     }
-   
+
     return 0;
 }
 
