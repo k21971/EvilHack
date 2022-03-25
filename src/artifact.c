@@ -2653,7 +2653,7 @@ struct obj *obj;
 
             if (Upolyd)
                 healamt = (u.mhmax + 1 - u.mh) / 2;
-            if (healamt || Sick || Slimed || Blinded > creamed)
+            if (healamt || Sick || Slimed || Withering || Blinded > creamed)
                 You_feel("better.");
             else
                 goto nothing_special;
@@ -2667,6 +2667,8 @@ struct obj *obj;
                 make_sick(0L, (char *) 0, FALSE, SICK_ALL);
             if (Slimed)
                 make_slimed(0L, (char *) 0);
+            if (Withering)
+                set_itimeout(&HWithering, (long) 0);
             if (Blinded > creamed)
                 make_blinded(creamed, FALSE);
             context.botl = TRUE;
