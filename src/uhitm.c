@@ -1426,10 +1426,10 @@ int dieroll;
             tmp += dbon();
     }
 
-    /* wearing red dragon scales/scales gives the wearer
+    /* wearing red dragon-scaled armor gives the wearer
        a slight damage boost */
-    if (uarm && (uarm->otyp == RED_DRAGON_SCALE_MAIL
-                 || uarm->otyp == RED_DRAGON_SCALES))
+    if (uarm && Is_dragon_scaled_armor(uarm)
+        && Dragon_armor_to_scales(uarm) == RED_DRAGON_SCALES)
 	tmp += rnd(6);
 
     /* wielding The Sword of Kas against Vecna does
@@ -3259,7 +3259,7 @@ boolean wouldhavehit;
             && (which_armor(mdef, W_ARM) == 0)
             && (which_armor(mdef, W_ARMC) == 0)
             && target <= roll) {
-            target += ARM_BONUS(which_armor(mdef, W_ARMU));
+            target += armor_bonus(which_armor(mdef, W_ARMU));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMU);
         }
@@ -3267,49 +3267,49 @@ boolean wouldhavehit;
         /* Try body armour */
         if (which_armor(mdef, W_ARM)
             && (which_armor(mdef, W_ARMC) == 0) && target <= roll) {
-            target += ARM_BONUS(which_armor(mdef, W_ARM));
+            target += armor_bonus(which_armor(mdef, W_ARM));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARM);
         }
 
         if (which_armor(mdef, W_ARMG) && !rn2(10)) {
             /* Try gloves */
-            target += ARM_BONUS(which_armor(mdef, W_ARMG));
+            target += armor_bonus(which_armor(mdef, W_ARMG));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMG);
         }
 
         if (which_armor(mdef, W_ARMF) && !rn2(10)) {
             /* Try boots */
-            target += ARM_BONUS(which_armor(mdef, W_ARMF));
+            target += armor_bonus(which_armor(mdef, W_ARMF));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMF);
         }
 
         if (which_armor(mdef, W_ARMH) && !rn2(5)) {
             /* Try helm */
-            target += ARM_BONUS(which_armor(mdef, W_ARMH));
+            target += armor_bonus(which_armor(mdef, W_ARMH));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMH);
         }
 
         if (which_armor(mdef, W_ARMC) && target <= roll) {
             /* Try cloak */
-            target += ARM_BONUS(which_armor(mdef, W_ARMC));
+            target += armor_bonus(which_armor(mdef, W_ARMC));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMC);
         }
 
         if (which_armor(mdef, W_ARMS) && target <= roll) {
             /* Try shield */
-            target += ARM_BONUS(which_armor(mdef, W_ARMS));
+            target += armor_bonus(which_armor(mdef, W_ARMS));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMS);
         }
 
         if (which_armor(mdef, W_BARDING) && target <= roll) {
             /* Try barding (steeds) */
-            target += ARM_BONUS(which_armor(mdef, W_BARDING));
+            target += armor_bonus(which_armor(mdef, W_BARDING));
             if (target > roll)
                 blocker = which_armor(mdef, W_BARDING);
         }
@@ -4153,12 +4153,14 @@ boolean wep_was_destroyed;
         }
     }
 
-    /* Humanoid monsters wearing various dragon scale/dragon scale mail armor */
+    /* Humanoid monsters wearing various dragon-scaled armor */
     for (m_armor = mon->minvent; m_armor; m_armor = m_armor->nobj) {
         t = rnd(6) + 1;
-        if ((mhit && m_armor->owornmask & (W_ARM)) != 0 && !rn2(3)) {
-            switch (m_armor->otyp) {
-            case GREEN_DRAGON_SCALE_MAIL:
+        if (mhit && !rn2(3)
+            && Is_dragon_scaled_armor(m_armor)) {
+            int otyp = Dragon_armor_to_scales(m_armor);
+
+            switch (otyp) {
             case GREEN_DRAGON_SCALES:
                 if (how_resistant(POISON_RES) == 100) {
                     You("are immune to %s poisonous armor.",
@@ -4180,7 +4182,6 @@ boolean wep_was_destroyed;
                     }
                 }
                 break;
-            case BLACK_DRAGON_SCALE_MAIL:
             case BLACK_DRAGON_SCALES:
                 {
                     long protector = attk_protection((int) aatyp);
@@ -4261,7 +4262,8 @@ boolean wep_was_destroyed;
                                       xname(weapon), rn2(2) ? "resists completely" : "defies physics");
                             break;
                         } else if (weapon->otyp == BLACK_DRAGON_SCALES
-                                   || weapon->otyp == BLACK_DRAGON_SCALE_MAIL) {
+                                   || (Is_dragon_scaled_armor(weapon)
+                                       && Dragon_armor_to_scales(weapon) == BLACK_DRAGON_SCALES)) {
                             pline("%s disintegration-proof and %s intact.",
                                   Yobjnam2(weapon, "are"), otense(weapon, "remain"));
                             break;
@@ -4290,7 +4292,6 @@ boolean wep_was_destroyed;
                 }
                 update_inventory();
                 break;
-            case ORANGE_DRAGON_SCALE_MAIL:
             case ORANGE_DRAGON_SCALES:
                 if (how_resistant(SLEEP_RES) == 100) {
                     break;
@@ -4299,7 +4300,6 @@ boolean wep_was_destroyed;
                         u_slow_down();
                 }
                 break;
-            case WHITE_DRAGON_SCALE_MAIL:
             case WHITE_DRAGON_SCALES:
                 if (how_resistant(COLD_RES) == 100) {
                     shieldeff(u.ux, u.uy);
@@ -4321,7 +4321,6 @@ boolean wep_was_destroyed;
                     }
                 }
                 break;
-            case RED_DRAGON_SCALE_MAIL:
             case RED_DRAGON_SCALES:
                 if (how_resistant(FIRE_RES) == 100) {
                     shieldeff(u.ux, u.uy);
@@ -4343,7 +4342,6 @@ boolean wep_was_destroyed;
                     }
                 }
                 break;
-            case GRAY_DRAGON_SCALE_MAIL:
             case GRAY_DRAGON_SCALES:
                 if (!rn2(6)) {
                     (void) cancel_monst(&youmonst,
@@ -4446,7 +4444,8 @@ struct attack *mattk;     /* null means we find one internally */
                       rn2(2) ? "whole" : "intact");
                 break;
             } else if (obj->otyp == BLACK_DRAGON_SCALES
-                       || obj->otyp == BLACK_DRAGON_SCALE_MAIL) {
+                       || (Is_dragon_scaled_armor(obj)
+                           && Dragon_armor_to_scales(obj) == BLACK_DRAGON_SCALES)) {
                 pline("%s disintegration-proof and %s intact.",
                       Yobjnam2(obj, "are"), otense(obj, "remain"));
                 break;

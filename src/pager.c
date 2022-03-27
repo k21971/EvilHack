@@ -337,7 +337,7 @@ int x, y;
                     /* don't count armor->spe, since this represents only what
                      * the hero can see from afar -- monster with +8 gloves
                      * will still seem "lightly armored" from a distance */
-                    base_ac += ARM_BONUS(otmp) - otmp->spe;
+                    base_ac += armor_bonus(otmp) - otmp->spe;
                     arm_ct++;
                 }
 

@@ -1226,27 +1226,6 @@ register struct obj *obj;
         /* adj_abon handles HoB, GoD, and armor 'of excellence' */
         adj_abon(obj, -(obj->spe));
     }
-    /* Small chance DSM can revert to scales if cancelled */
-    if (!rn2(6) && obj->otyp >= GRAY_DRAGON_SCALE_MAIL
-        && obj->otyp <= CHROMATIC_DRAGON_SCALE_MAIL) {
-        boolean worn = (obj == uarm);
-
-        if (!Blind) {
-            char buf[BUFSZ];
-            pline("%s%s reverts to its natural state.",
-                  Shk_Your(buf, obj), xname(obj));
-        }
-        if (worn)
-            Your("armor feels more loose.");
-        costly_alteration(obj, COST_CANCEL);
-        if (worn)
-            setworn((struct obj *) 0, W_ARM);
-        /* assumes same order */
-        obj->otyp = (GRAY_DRAGON_SCALES +
-                     obj->otyp - GRAY_DRAGON_SCALE_MAIL);
-        if (worn)
-            setworn(obj, W_ARM);
-    }
     if (objects[otyp].oc_magic
         || (obj->spe && (obj->oclass == ARMOR_CLASS
                          || obj->oclass == WEAPON_CLASS || is_weptool(obj)))
@@ -3097,10 +3076,18 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
         /* player attacking monster */
         if (youattack) {
-            otmp = which_armor(mdef, W_ARM);
-            if (rn2(5) && otmp
-                && (otmp->otyp == GRAY_DRAGON_SCALES
-                    || otmp->otyp == GRAY_DRAGON_SCALE_MAIL)) {
+            if (rn2(5)
+                && (otmp = which_armor(mdef, W_ARMC))
+                && otmp->otyp == GRAY_DRAGON_SCALES) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+            } else if (rn2(5)
+                && (otmp = which_armor(mdef, W_ARM))
+                && Is_dragon_scaled_armor(otmp)
+                && Dragon_armor_to_scales(otmp) == GRAY_DRAGON_SCALES) {
                 shieldeff(mdef->mx, mdef->my);
                 if (canseemon(mdef))
                     You("sense a wave of energy dissipate around %s.",
@@ -3134,9 +3121,14 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
         /* monster attacking player */
         if (youdefend) {
-            if (rn2(5) && uarm
-                && (uarm->otyp == GRAY_DRAGON_SCALES
-                    || uarm->otyp == GRAY_DRAGON_SCALE_MAIL)) {
+            if (rn2(5) && uarmc
+                && uarmc->otyp == GRAY_DRAGON_SCALES) {
+                shieldeff(u.ux, u.uy);
+                You_feel("a wave of energy dissipate around you.");
+                return FALSE;
+            } else if (rn2(5) && uarm
+                && Is_dragon_scaled_armor(uarm)
+                && Dragon_armor_to_scales(uarm)== GRAY_DRAGON_SCALES) {
                 shieldeff(u.ux, u.uy);
                 You_feel("a wave of energy dissipate around you.");
                 return FALSE;
@@ -3163,15 +3155,24 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
         /* monster attacking another monster */
         if (!youdefend && !youattack) {
-            otmp = which_armor(mdef, W_ARM);
-            if (rn2(5) && otmp
-                && (otmp->otyp == GRAY_DRAGON_SCALES
-                    || otmp->otyp == GRAY_DRAGON_SCALE_MAIL)) {
+            if (rn2(5)
+                && (otmp = which_armor(mdef, W_ARMC))
+                && otmp->otyp == GRAY_DRAGON_SCALES) {
                 shieldeff(mdef->mx, mdef->my);
                 if (canseemon(mdef))
                     You("sense a wave of energy dissipate around %s.",
                         mon_nam(mdef));
                 return FALSE;
+            } else if (rn2(5)
+                && (otmp = which_armor(mdef, W_ARM))
+                && Is_dragon_scaled_armor(otmp)
+                && Dragon_armor_to_scales(otmp) == GRAY_DRAGON_SCALES) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+
             } else if (mdef->data == &mons[PM_GRAY_DRAGON]
                        || mdef->data == &mons[PM_BABY_GRAY_DRAGON]) {
                 shieldeff(mdef->mx, mdef->my);

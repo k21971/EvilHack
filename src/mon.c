@@ -567,7 +567,7 @@ unsigned corpseflags;
            dragons is the same as the order of the scales.
            If the dragon is a pet, no scales generated. */
         if (!mtmp->mtame && !rn2(mtmp->mrevived ? 20 : 3)) {
-            num = GRAY_DRAGON_SCALES + monsndx(mdat) - PM_GRAY_DRAGON;
+            num = mndx_to_dragon_scales(monsndx(mdat));
             obj = mksobj_at(num, x, y, FALSE, FALSE);
             obj->spe = 0;
             obj->cursed = obj->blessed = FALSE;
@@ -2115,21 +2115,24 @@ boolean
 has_cold_feet(mtmp)
 struct monst *mtmp;
 {
-#define freezing_armor(typ) \
-    ((typ) == WHITE_DRAGON_SCALES || (typ) == WHITE_DRAGON_SCALE_MAIL)
-
     boolean is_you = (mtmp == &youmonst);
 
     if (Is_waterlevel(&u.uz))
         return FALSE;
 
     if (is_you) {
-        if (uarm && freezing_armor(uarm->otyp))
+        if (uarm && Is_dragon_scaled_armor(uarm)
+            && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)
+            return TRUE;
+        if (uarmc && uarmc->otyp == WHITE_DRAGON_SCALES)
             return TRUE;
     } else {
         struct obj *otmp;
         for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-            if ((otmp->owornmask & W_ARMOR) && freezing_armor(otmp->otyp)) {
+            if ((otmp->owornmask & W_ARMOR)
+                && (otmp->otyp == WHITE_DRAGON_SCALES
+                    || (Is_dragon_scaled_armor(otmp)
+                        && Dragon_armor_to_scales(otmp) == WHITE_DRAGON_SCALES))) {
                 return TRUE;
             }
         }
@@ -2139,7 +2142,6 @@ struct monst *mtmp;
         return TRUE;
 
     return FALSE;
-#undef freezing_armor
 }
 
 /* return number of acceptable neighbour positions */
@@ -5089,14 +5091,8 @@ struct monst *mon;
         mndx = pickvampshape(mon);
         break;
     case NON_PM: /* ordinary */
-      {
-        struct obj *m_armr = which_armor(mon, W_ARM);
-
-        if (m_armr && Is_dragon_scales(m_armr))
-            mndx = (int) (Dragon_scales_to_pm(m_armr) - mons);
-        else if (m_armr && Is_dragon_mail(m_armr))
-            mndx = (int) (Dragon_mail_to_pm(m_armr) - mons);
-      }
+        /* might become a dragon based on worn armor */
+        mndx = armor_to_dragon(mon);
         break;
     }
 

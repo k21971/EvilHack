@@ -1585,8 +1585,9 @@ domove_core()
             if ((uarmf && uarmf->otyp == skates) || resists_cold(&youmonst)
                 || Flying || is_floater(youmonst.data)
                 || is_clinger(youmonst.data) || is_whirly(youmonst.data)
-		|| (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
-	                     || uarm->otyp == WHITE_DRAGON_SCALES))) {
+		|| (uarmc && uarmc->otyp == WHITE_DRAGON_SCALES)
+                || (uarm && Is_dragon_scaled_armor(uarm)
+                    && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) {
                 on_ice = FALSE;
             } else if (!rn2((how_resistant(COLD_RES) > 50) ? 3 : 2)) {
                 HFumbling |= FROMOUTSIDE;
@@ -1603,8 +1604,9 @@ domove_core()
             if (Flying || is_floater(youmonst.data)
                 || is_swimmer(youmonst.data)
                 || is_clinger(youmonst.data) || is_whirly(youmonst.data)
-                || (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
-                             || uarm->otyp == WHITE_DRAGON_SCALES))) {
+                || (uarmc && uarmc->otyp == WHITE_DRAGON_SCALES)
+                || (uarm && Is_dragon_scaled_armor(uarm)
+                    && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) {
                 walk_sewage = FALSE;
             } else if (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4)) {
                 HSlow |= FROMOUTSIDE;

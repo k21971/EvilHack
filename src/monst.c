@@ -1572,16 +1572,14 @@ NEARDATA struct permonst mons[] = {
     /*
      * Dragons
      */
-    /* The order of the dragons is VERY IMPORTANT.  Quite a few
-     * pieces of code depend on gray being first and yellow being last.
-     * The code also depends on the *order* being the same as that for
-     * dragon scale mail and dragon scales in objects.c.  [Also,
-     * 'tilemap' assumes that shimmering dragon follows silver dragon.]
+    /* The order of the dragons is VERY IMPORTANT.
+     * The code depends on the *order* being the same as that for dragon scales
+     * in objects.c.  Baby dragons cannot confer intrinsics, to avoid
+     * polyself/egg abuse.
      *
      * Adult dragons are all lawful or chaotic; sea dragons as well as
      * baby dragons are all neutral.  This affects monster generation on
-     * some special levels.  Baby dragons cannot confer intrinsics, to
-     * avoid polyself/egg abuse.
+     * some special levels.
      *
      * As reptiles, dragons are cold-blooded and thus aren't seen with
      * infravision.  Red and gold dragons (also Tiamat) are the
@@ -1799,6 +1797,20 @@ NEARDATA struct permonst mons[] = {
             | M1_OVIPAROUS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0, 0, MH_DRAGON, 20, CLR_YELLOW),
+    /* strictly a placeholder for chromatic dragon scales */
+    MON("chromatic dragon", S_DRAGON, LVL(0, 9, -1, 20, -7), G_NOGEN,
+        A(ATTK(AT_BREA, AD_RBRE, 6, 6), ATTK(AT_BREA, AD_RBRE, 6, 6),
+          ATTK(AT_BITE, AD_PHYS, 4, 8), ATTK(AT_CLAW, AD_PHYS, 4, 4),
+          ATTK(AT_CLAW, AD_PHYS, 4, 4), ATTK(AT_ENGL, AD_DGST, 2, 10)),
+        SIZ(WT_DRAGON, 1500, MS_ROAR, MZ_GIGANTIC),
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
+            | MR_ACID | MR_STONE,
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
+            | MR_STONE,
+        M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_SEE_INVIS | M1_POIS,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY
+            | M2_JEWELS | M2_MAGIC,
+        0, 0, MH_DRAGON, 20, HI_LORD),
     /*
      * Elementals
      */
@@ -2487,12 +2499,6 @@ struct permonst _mons2[] = {
      * None of these stats have any significance, they're just to ensure
      * that if one does get accidentally generated in the 'normal' way
      * (without a remapped permonst) that nothing useful happens.
-     *
-     * Until I can figure out a way to save the shambling horrors' spawned
-     * state into the save file, the template will be adjusted to prevent
-     * the player from saving, restoring, and then assuming they'll change
-     * it to something easy. (template needs to be as bare-bones
-     * as possible - 28FEB2019)
      */
     MON("shambling horror", S_UMBER, LVL(12, 12, 0, 0, 0), (G_NOCORPSE | 1),
 	A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),

@@ -122,6 +122,8 @@ struct obj {
 #define fromsink corpsenm /* a potion from a sink */
 #define novelidx corpsenm /* 3.6 tribute - the index of the novel title */
 #define record_achieve_special corpsenm
+#define dragonscales corpsenm /* dragon-scaled body armor
+                               * (index into objects[], not mons[]) */
     int usecount;           /* overloaded for various things that tally */
 #define spestudied usecount /* # of times a spellbook has been studied */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
@@ -326,18 +328,32 @@ struct obj {
     ((o)->otyp == OILSKIN_SACK || (o)->otyp == ICE_BOX || Is_box(o) \
      || (o)->oartifact == ART_BAG_OF_THE_HESPERIDES)
 
-/* dragon gear */
+/* dragon gear
+ * NOTE: this assumes that gray dragons come first and yellow last, as detailed
+ * in monst.c. */
+#define FIRST_DRAGON        PM_GRAY_DRAGON
+#define LAST_DRAGON         PM_CHROMATIC_DRAGON
+#define FIRST_DRAGON_SCALES GRAY_DRAGON_SCALES
+#define LAST_DRAGON_SCALES  CHROMATIC_DRAGON_SCALES
 #define Is_dragon_scales(obj) \
-    ((obj)->otyp >= GRAY_DRAGON_SCALES && (obj)->otyp <= CHROMATIC_DRAGON_SCALES)
-#define Is_dragon_mail(obj)                \
-    ((obj)->otyp >= GRAY_DRAGON_SCALE_MAIL \
-     && (obj)->otyp <= CHROMATIC_DRAGON_SCALE_MAIL)
-#define Is_dragon_armor(obj) (Is_dragon_scales(obj) || Is_dragon_mail(obj))
-#define Dragon_scales_to_pm(obj) \
-    &mons[PM_GRAY_DRAGON + (obj)->otyp - GRAY_DRAGON_SCALES]
-#define Dragon_mail_to_pm(obj) \
-    &mons[PM_GRAY_DRAGON + (obj)->otyp - GRAY_DRAGON_SCALE_MAIL]
-#define Dragon_to_scales(pm) (GRAY_DRAGON_SCALES + (pm - mons))
+    ((obj)->otyp >= FIRST_DRAGON_SCALES && (obj)->otyp <= LAST_DRAGON_SCALES)
+/* Note: dragonscales is corpsenm, and corpsenm is usually initialized to
+ * NON_PM, which is -1. Thus, check for > 0 rather than just nonzero. */
+#define Is_dragon_scaled_armor(obj)                \
+    (is_suit(obj) && (obj)->dragonscales > 0)
+#define Is_dragon_armor(obj) \
+    (Is_dragon_scales(obj) || Is_dragon_scaled_armor(obj))
+/* any dragon armor -> FOO_DRAGON_SCALES object */
+#define Dragon_armor_to_scales(obj) \
+    (Is_dragon_scales(obj) ? (obj)->otyp : (obj)->dragonscales)
+/* any dragon armor -> associated dragon PM_ constant */
+#define Dragon_armor_to_pm(obj) \
+    (FIRST_DRAGON \
+     + (Is_dragon_scales(obj) ? (obj)->otyp : (obj)->dragonscales) \
+     - FIRST_DRAGON_SCALES)
+/* dragon PM_ constant -> dragon scales */
+#define mndx_to_dragon_scales(mndx) \
+    (FIRST_DRAGON_SCALES + (mndx - FIRST_DRAGON))
 
 /* Elven gear */
 #define is_elven_weapon(otmp) \

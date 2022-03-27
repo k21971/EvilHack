@@ -716,15 +716,12 @@ struct obj *otmp;
     if ((weap = get_artifact(otmp)) != 0)
         return (boolean) (weap->defn.adtyp == adtyp);
     if (Is_dragon_armor(otmp)) {
-        int otyp = otmp->otyp;
-
-        /* convert mail to scales to simplify testing */
-        if (Is_dragon_mail(otmp))
-            otyp += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
+        int otyp = Dragon_armor_to_scales(otmp);
 
         switch (adtyp) {
         case AD_MAGM: /* magic missiles => general magic resistance */
-            return (otyp == GRAY_DRAGON_SCALES);
+            return (otyp == GRAY_DRAGON_SCALES
+                    || otyp == CHROMATIC_DRAGON_SCALES);
         case AD_DISE: /* blocks disease but not slime */
             return (otyp == GOLD_DRAGON_SCALES);
         case AD_FIRE:
@@ -3102,11 +3099,10 @@ struct obj *obj;
 {
     /* not artifacts but treat them as if they were because they emit
        light without burning */
-    if (obj && (obj->otyp == GOLD_DRAGON_SCALE_MAIL
-                || obj->otyp == GOLD_DRAGON_SCALES
-                || obj->otyp == CHROMATIC_DRAGON_SCALE_MAIL
-                || obj->otyp == CHROMATIC_DRAGON_SCALES)
-        && (obj->owornmask & W_ARM) != 0L)
+    if (obj && (Is_dragon_armor(obj)
+                && (Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES
+                    || Dragon_armor_to_scales(obj) == CHROMATIC_DRAGON_SCALES))
+        && (obj->owornmask & (W_ARM | W_ARMC)) != 0L)
         return TRUE;
 
     if (obj && obj->otyp == SHIELD_OF_LIGHT

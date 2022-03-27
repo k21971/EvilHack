@@ -713,7 +713,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         break;
     case ARMOR_CLASS:
         /* depends on order of the dragon scales objects */
-        if (typ >= GRAY_DRAGON_SCALES && typ <= CHROMATIC_DRAGON_SCALES) {
+        if (typ >= FIRST_DRAGON_SCALES && typ <= LAST_DRAGON_SCALES) {
             Strcat(buf, "set of ");
             Strcat(buf, actualn);
             break;
@@ -1378,6 +1378,11 @@ unsigned doname_flags;
             else if (obj->otyp == MUMMIFIED_HAND)
                 Sprintf(rindex(bp, ' '), " (merged to your left %s)",
                         body_part(ARM));
+        }
+        if (Is_dragon_scaled_armor(obj)) {
+            char scalebuf[30];
+            Sprintf(scalebuf, "%s-scaled ", dragon_scales_color(obj));
+            Strcat(prefix, scalebuf);
         }
         /*FALLTHRU*/
     case WEAPON_CLASS:
@@ -3141,10 +3146,8 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
     { "shoes", ARMOR_CLASS, LOW_BOOTS, ORCISH_BOOTS },
     { "cloak", ARMOR_CLASS, MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT },
     { "shirt", ARMOR_CLASS, HAWAIIAN_SHIRT, T_SHIRT },
-    { "dragon scales", ARMOR_CLASS, GRAY_DRAGON_SCALES,
-      CHROMATIC_DRAGON_SCALES },
-    { "dragon scale mail", ARMOR_CLASS, GRAY_DRAGON_SCALE_MAIL,
-      CHROMATIC_DRAGON_SCALE_MAIL },
+    { "dragon scales", ARMOR_CLASS, FIRST_DRAGON_SCALES,
+      LAST_DRAGON_SCALES },
     { "sword", WEAPON_CLASS, SHORT_SWORD, KATANA },
     { "venom", VENOM_CLASS, BLINDING_VENOM, SNOWBALL },
     { "gray stone", GEM_CLASS, LUCKSTONE, FLINT },
@@ -3163,7 +3166,6 @@ static const struct alt_spellings {
     { "whip", BULLWHIP },
     { "sabre", SABER },
     { "smooth shield", SHIELD_OF_REFLECTION },
-    { "grey dragon scale mail", GRAY_DRAGON_SCALE_MAIL },
     { "grey dragon scales", GRAY_DRAGON_SCALES },
     { "iron ball", HEAVY_IRON_BALL },
     { "lantern", LANTERN },
@@ -3615,7 +3617,7 @@ struct obj *no_wish;
                 || !strncmpi(bp, "crystal chest", l = 13)
                 || !strncmpi(bp, "crystal plate mail", l = 18)
                 || !strncmpi(bp, "iron ball of liberation", l = 23)) {
-                /* hack so that gold/silver dragon scales/mail doesn't get
+                /* hack so that gold/silver dragon scales doesn't get
                  * interpreted as silver, or a wish for just "gold" doesn't get
                  * interpreted as gold */
                 break;
@@ -3899,7 +3901,31 @@ struct obj *no_wish;
             }
         }
     }
-    /* Find corpse type w/o "of" (red dragon scale mail, yeti corpse) */
+
+    /* Alternate spellings (pick-ax, silver sabre, &c) */
+    {
+        const struct alt_spellings *as = spellings;
+
+        while (as->sp) {
+            if (fuzzymatch(bp, as->sp, " -", TRUE)) {
+                typ = as->ob;
+                goto typfnd;
+            }
+            as++;
+        }
+        /* can't use spellings list for this one due to shuffling */
+        if (!strncmpi(bp, "grey spell", 10))
+            *(bp + 2) = 'a';
+
+        if ((p = strstri(bp, "armour")) != 0) {
+            /* skip past "armo", then copy remainder beyond "u" */
+            p += 4;
+            while ((*p = *(p + 1)) != '\0')
+                ++p; /* self terminating */
+        }
+    }
+
+    /* Find corpse type w/o "of" (red dragon scales, yeti corpse) */
     if (strncmpi(bp, "samurai sword", 13)   /* not the "samurai" monster! */
         && strncmpi(bp, "wizard lock", 11)  /* not the "wizard" monster! */
         && strncmpi(bp, "ninja-to", 8)      /* not the "ninja" rank */
@@ -3938,33 +3964,10 @@ struct obj *no_wish;
         }
     }
 
-    /* Alternate spellings (pick-ax, silver sabre, &c) */
-    {
-        const struct alt_spellings *as = spellings;
-
-        while (as->sp) {
-            if (fuzzymatch(bp, as->sp, " -", TRUE)) {
-                typ = as->ob;
-                goto typfnd;
-            }
-            as++;
-        }
-        /* can't use spellings list for this one due to shuffling */
-        if (!strncmpi(bp, "grey spell", 10))
-            *(bp + 2) = 'a';
-
-        if ((p = strstri(bp, "armour")) != 0) {
-            /* skip past "armo", then copy remainder beyond "u" */
-            p += 4;
-            while ((*p = *(p + 1)) != '\0')
-                ++p; /* self terminating */
-        }
-    }
-
     /* dragon scales - assumes order of dragons */
-    if (!strcmpi(bp, "scales") && mntmp >= PM_GRAY_DRAGON
-        && mntmp <= PM_YELLOW_DRAGON) {
-        typ = GRAY_DRAGON_SCALES + mntmp - PM_GRAY_DRAGON;
+    if (!strcmpi(bp, "scales") && mntmp >= FIRST_DRAGON
+        && mntmp <= LAST_DRAGON) {
+        typ = mndx_to_dragon_scales(mntmp);
         mntmp = NON_PM; /* no monster */
         goto typfnd;
     }
@@ -4495,15 +4498,20 @@ struct obj *no_wish;
         case CHROMATIC_DRAGON_SCALES:
             typ = rnd_class(GRAY_DRAGON_SCALES, YELLOW_DRAGON_SCALES);
             break;
-        case CHROMATIC_DRAGON_SCALE_MAIL:
-            typ = rnd_class(GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALE_MAIL);
-            break;
         default:
             /* catch any other non-wishable objects (venom) */
             if (objects[typ].oc_nowish)
                 return (struct obj *) 0;
             break;
         }
+    }
+
+    /* players are likely to wish for "foo dragon scale mail" by reflex, which
+     * no longer exists and would now ignore the dragon type and give a plain
+     * scale mail; be nice by not letting it do that */
+    if (typ == SCALE_MAIL && mntmp >= FIRST_DRAGON
+        && mntmp <= LAST_DRAGON) {
+        return (struct obj *) 0;
     }
 
     /*
@@ -4600,7 +4608,7 @@ struct obj *no_wish;
         otmp->spe = spe;
     }
 
-    /* set otmp->corpsenm or dragon scale [mail] */
+    /* set otmp->corpsenm */
     if (mntmp >= LOW_PM) {
         if (mntmp == PM_LONG_WORM_TAIL)
             mntmp = PM_LONG_WORM;
@@ -4646,11 +4654,6 @@ struct obj *no_wish;
             if (Has_contents(otmp) && verysmall(&mons[mntmp]))
                 delete_contents(otmp); /* no spellbook */
             otmp->spe = ishistoric ? STATUE_HISTORIC : 0;
-            break;
-        case SCALE_MAIL:
-            /* Dragon mail - depends on the order of objects & dragons. */
-            if (mntmp >= PM_GRAY_DRAGON && mntmp <= PM_YELLOW_DRAGON)
-                otmp->otyp = GRAY_DRAGON_SCALE_MAIL + mntmp - PM_GRAY_DRAGON;
             break;
         }
     }
@@ -5115,10 +5118,6 @@ struct obj *suit;
     const char *suitnm, *esuitp;
 
     if (suit) {
-        if (Is_dragon_mail(suit))
-            return "dragon mail"; /* <color> dragon scale mail */
-        else if (Is_dragon_scales(suit))
-            return "dragon scales";
         suitnm = OBJ_NAME(objects[suit->otyp]);
         esuitp = eos((char *) suitnm);
         if (strlen(suitnm) > 5 && !strcmp(esuitp - 5, " mail"))
@@ -5135,6 +5134,8 @@ cloak_simple_name(cloak)
 struct obj *cloak;
 {
     if (cloak) {
+        if (Is_dragon_scales(cloak))
+            return "set of dragon scales";
         switch (cloak->otyp) {
         case ROBE:
             return "robe";
@@ -5189,6 +5190,37 @@ struct obj *gloves;
             return gauntlets;
     }
     return "gloves";
+}
+
+/* Return the dragon color associated with a piece of dragon armor.
+ * E.g. red-scaled chain mail => "red"; blue dragon scales => "blue". */
+char *
+dragon_scales_color(obj)
+struct obj *obj;
+{
+    char* buf = nextobuf();
+    if (!obj) {
+        impossible("dragon_scales_color: null obj");
+        return NULL;
+    }
+    if (!Is_dragon_armor(obj)) {
+        impossible("getting color of non-dragon-armor (otyp=%d, scales=%d)",
+                   obj->otyp, obj->dragonscales);
+        Strcpy(buf, "bugged color");
+        return buf;
+    }
+    const struct permonst *pm = &mons[Dragon_armor_to_pm(obj)];
+    const char* endp = strstri(pm->mname, " dragon");
+    if (!endp) {
+        impossible("dragon_scales_color found non-dragon monster (%s)",
+                   pm->mname);
+        Strcpy(buf, "bugged color");
+        return buf;
+    }
+    int colorlen = endp - pm->mname;
+    strncpy(buf, pm->mname, colorlen);
+    buf[colorlen] = '\0';
+    return buf;
 }
 
 const char *

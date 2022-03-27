@@ -39,7 +39,7 @@ register struct monst *mtmp;
 register struct obj *otmp;
 {
     register struct obj *obj;
-    register struct obj *best = (struct obj *)0;
+    register struct obj *best = (struct obj *) 0;
 
     if (otmp->oclass != ARMOR_CLASS)
         return FALSE;
@@ -61,12 +61,12 @@ register struct obj *otmp;
 
     if (is_boots(otmp)
         && (slithy(mtmp->data) || mtmp->data->mlet == S_CENTAUR))
- 	return FALSE;
+        return FALSE;
 
     if (is_helmet(otmp)
         && !is_flimsy(otmp)
  	&& num_horns(mtmp->data) > 0)
- 	return FALSE;
+        return FALSE;
 
     obj = (mtmp == &youmonst) ? invent : mtmp->minvent;
 
@@ -86,17 +86,18 @@ register struct obj *otmp;
         if (is_gloves(otmp) && !is_gloves(obj))
             continue;
 
-        if (!obj->owornmask) continue;
+        if (!obj->owornmask)
+            continue;
 
        	if (best
-       	    && (ARM_BONUS(obj) +  extra_pref(mtmp,obj) >=
-       	    ARM_BONUS(best) + extra_pref(mtmp,best)))
+       	    && (armor_bonus(obj) + extra_pref(mtmp,obj)
+                >= armor_bonus(best) + extra_pref(mtmp, best)))
        	    best = obj;
     }
 
-    return ((best == (struct obj *)0)
- 	    || (ARM_BONUS(otmp) + extra_pref(mtmp,otmp) >
- 	        ARM_BONUS(best) + extra_pref(mtmp,best)));
+    return ((best == (struct obj *) 0)
+            || (armor_bonus(otmp) + extra_pref(mtmp, otmp)
+                > armor_bonus(best) + extra_pref(mtmp, best)));
 }
 
 /*

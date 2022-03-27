@@ -235,7 +235,7 @@ struct trobj Level10KitCentaur2[] = {
 };
 
 struct trobj Level20KitCentaur1[] = {
-        { SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -243,7 +243,7 @@ struct trobj Level20KitCentaur1[] = {
 };
 
 struct trobj Level20KitCentaur2[] = {
-        { GRAY_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -370,7 +370,7 @@ struct trobj Level20KitMonk2[] = {
 /* end monk structs */
 
 struct trobj Level20Kit1[] = {
-        { SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { RING_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -379,7 +379,7 @@ struct trobj Level20Kit1[] = {
 };
 
 struct trobj Level20Kit2[] = {
-        { GRAY_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { BANDED_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -388,7 +388,7 @@ struct trobj Level20Kit2[] = {
 };
 
 struct trobj Level20Kit3[] = {
-        { ORANGE_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GLOVES, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -397,7 +397,7 @@ struct trobj Level20Kit3[] = {
 };
 
 struct trobj Level20Kit4[] = {
-        { BLACK_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { PLATE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -406,7 +406,7 @@ struct trobj Level20Kit4[] = {
 };
 
 struct trobj Level20Kit5[] = {
-        { SHIMMERING_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { KICKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { ALCHEMY_SMOCK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -415,7 +415,7 @@ struct trobj Level20Kit5[] = {
 };
 
 struct trobj Level20Kit6[] = {
-        { YELLOW_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { HIGH_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { OILSKIN_CLOAK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -424,7 +424,7 @@ struct trobj Level20Kit6[] = {
 };
 
 struct trobj Level20Kit7[] = {
-        { SEA_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -433,7 +433,7 @@ struct trobj Level20Kit7[] = {
 };
 
 struct trobj Level20Kit8[] = {
-        { GOLD_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { STUDDED_ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_INVISIBILITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -607,6 +607,16 @@ unsigned short chance;
                      || obj->oclass == ARMOR_CLASS)
                     && chance > 1) {
                     obj->spe = (obj->spe * rn2(chance)) / chance;
+                }
+                if (mtmp->m_lev > 19) {
+                    if (objects[obj->otyp].oc_armcat == ARM_SUIT) {
+                        obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES - 1);
+                        if (monsndx(mtmp->data) == PM_WIZARD) {
+                            /* Wizards have a guaranteed cloak of magic resistance. */
+                            obj->dragonscales = rn2(2) ? BLACK_DRAGON_SCALES
+                                                       : SILVER_DRAGON_SCALES;
+                        }
+                    }
                 }
             }
             /* defined after setting otyp+quan + blessedness */

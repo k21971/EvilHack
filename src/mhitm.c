@@ -89,7 +89,7 @@ int target, roll;
             && (which_armor(mdef, W_ARM) == 0)
             && (which_armor(mdef, W_ARMC) == 0)
             && target <= roll) {
-            target += ARM_BONUS(which_armor(mdef, W_ARMU));
+            target += armor_bonus(which_armor(mdef, W_ARMU));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMU);
         }
@@ -97,49 +97,49 @@ int target, roll;
         /* Try body armour */
         if (which_armor(mdef, W_ARM)
             && (which_armor(mdef, W_ARMC) == 0) && target <= roll) {
-            target += ARM_BONUS(which_armor(mdef, W_ARM));
+            target += armor_bonus(which_armor(mdef, W_ARM));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARM);
         }
 
         if (which_armor(mdef, W_ARMG) && !rn2(10)) {
             /* Try gloves */
-            target += ARM_BONUS(which_armor(mdef, W_ARMG));
+            target += armor_bonus(which_armor(mdef, W_ARMG));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMG);
         }
 
         if (which_armor(mdef, W_ARMF) && !rn2(10)) {
             /* Try boots */
-            target += ARM_BONUS(which_armor(mdef, W_ARMF));
+            target += armor_bonus(which_armor(mdef, W_ARMF));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMF);
         }
 
         if (which_armor(mdef, W_ARMH) && !rn2(5)) {
             /* Try helm */
-            target += ARM_BONUS(which_armor(mdef, W_ARMH));
+            target += armor_bonus(which_armor(mdef, W_ARMH));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMH);
         }
 
         if (which_armor(mdef, W_ARMC) && target <= roll) {
             /* Try cloak */
-            target += ARM_BONUS(which_armor(mdef, W_ARMC));
+            target += armor_bonus(which_armor(mdef, W_ARMC));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMC);
         }
 
         if (which_armor(mdef, W_ARMS) && target <= roll) {
             /* Try shield */
-            target += ARM_BONUS(which_armor(mdef, W_ARMS));
+            target += armor_bonus(which_armor(mdef, W_ARMS));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMS);
         }
 
         if (which_armor(mdef, W_BARDING) && target <= roll) {
             /* Try barding (steeds) */
-            target += ARM_BONUS(which_armor(mdef, W_BARDING));
+            target += armor_bonus(which_armor(mdef, W_BARDING));
             if (target > roll)
                 blocker = which_armor(mdef, W_BARDING);
         }

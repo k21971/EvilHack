@@ -2764,14 +2764,11 @@ static struct permonst *
 muse_newcham_mon(mon)
 struct monst *mon;
 {
-    struct obj *m_armr;
-
-    if ((m_armr = which_armor(mon, W_ARM)) != 0) {
-        if (Is_dragon_scales(m_armr))
-            return Dragon_scales_to_pm(m_armr);
-        else if (Is_dragon_mail(m_armr))
-            return Dragon_mail_to_pm(m_armr);
+    int pm = armor_to_dragon(mon);
+    if (pm != NON_PM) {
+        return &mons[pm];
     }
+    /* not wearing anything that would turn it into a dragon */
     return rndmonst();
 }
 
@@ -3441,12 +3438,16 @@ const char *str;
         }
         return TRUE;
     } else if ((orefl = which_armor(mon, W_ARM))
-               && (orefl->otyp == SILVER_DRAGON_SCALES
-                   || orefl->otyp == SILVER_DRAGON_SCALE_MAIL
-                   || orefl->otyp == CHROMATIC_DRAGON_SCALES
-                   || orefl->otyp == CHROMATIC_DRAGON_SCALE_MAIL)) {
+               && Is_dragon_scaled_armor(orefl)
+               && (Dragon_armor_to_scales(orefl) == SILVER_DRAGON_SCALES
+                   || Dragon_armor_to_scales(orefl) == CHROMATIC_DRAGON_SCALES)) {
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "armor");
+        return TRUE;
+    } else if ((orefl = which_armor(mon, W_ARMC))
+               && orefl->otyp == SILVER_DRAGON_SCALES) {
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)), "set of scales");
         return TRUE;
     } else if (mon->data == &mons[PM_SILVER_DRAGON]
                || mon->data == &mons[PM_TIAMAT]) {
@@ -3477,15 +3478,13 @@ const char *fmt, *str;
         return TRUE;
     } else if (EReflecting & W_ARMG) {
         /* Due to wearing the artifact Dragonbane */
-        if (fmt && str) {
+        if (fmt && str)
             pline(fmt, str, "gloves");
-        }
         monstseesu(M_SEEN_REFL);
         return TRUE;
     } else if (HReflecting) {
-        if (fmt && str) {
+        if (fmt && str)
             pline(fmt, str, "magical shield");
-        }
         monstseesu(M_SEEN_REFL);
         return TRUE;
     } else if (EReflecting & W_WEP) {
@@ -3501,6 +3500,11 @@ const char *fmt, *str;
         }
         monstseesu(M_SEEN_REFL);
         return TRUE;
+    } else if (EReflecting & W_ARMC) {
+        if (fmt && str)
+            pline(fmt, str, "set of scales");
+        monstseesu(M_SEEN_REFL);
+        return TRUE;
     } else if (EReflecting & W_ARM) {
         if (fmt && str)
             pline(fmt, str, uskin ? "luster" : "armor");
@@ -3508,9 +3512,8 @@ const char *fmt, *str;
         return TRUE;
     } else if (EReflecting & W_ART) {
         /* Due to the Magic Mirror, which shows as W_ART */
-        if (fmt && str) {
+        if (fmt && str)
             pline(fmt, str, "mirror");
-        }
         monstseesu(M_SEEN_REFL);
         return TRUE;
     } else if (youmonst.data == &mons[PM_SILVER_DRAGON]) {
@@ -4063,7 +4066,7 @@ struct monst *mon;
     case 5:
         if (!(resists_magm(mon) || defended(mon, AD_MAGM))) {
             if (!cantweararm(mon))
-                otmp = mksobj(GRAY_DRAGON_SCALE_MAIL, FALSE, FALSE);
+                otmp = mksobj(GRAY_DRAGON_SCALES, FALSE, FALSE);
             else
                 otmp = mksobj(AMULET_OF_MAGIC_RESISTANCE, FALSE, FALSE);
             bless(otmp);
@@ -4095,7 +4098,7 @@ struct monst *mon;
     case 7:
         if (!mon_reflects(mon, (char *) 0)) {
             if (!cantweararm(mon))
-                otmp = mksobj(SILVER_DRAGON_SCALE_MAIL, FALSE, FALSE);
+                otmp = mksobj(SILVER_DRAGON_SCALES, FALSE, FALSE);
             else
                 otmp = mksobj(AMULET_OF_REFLECTION, FALSE, FALSE);
             bless(otmp);

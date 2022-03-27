@@ -505,12 +505,15 @@ E int NDECL(take_off);
 E const char *FDECL(fingers_or_gloves, (BOOLEAN_P));
 E void FDECL(off_msg, (struct obj *));
 E void FDECL(toggle_displacement, (struct obj *, long, BOOLEAN_P));
+E void FDECL(oprops_on, (struct obj *, long));
+E void FDECL(oprops_off, (struct obj *, long));
 E void FDECL(set_wear, (struct obj *));
 E boolean FDECL(donning, (struct obj *));
 E boolean FDECL(doffing, (struct obj *));
 E void FDECL(cancel_doff, (struct obj *, long));
 E void NDECL(cancel_don);
 E int FDECL(stop_donning, (struct obj *));
+E void FDECL(dragon_armor_handling, (struct obj *, boolean));
 E int NDECL(Armor_off);
 E int NDECL(Armor_gone);
 E void FDECL(check_wings, (BOOLEAN_P));
@@ -1884,6 +1887,7 @@ E const char *FDECL(suit_simple_name, (struct obj *));
 E const char *FDECL(cloak_simple_name, (struct obj *));
 E const char *FDECL(helm_simple_name, (struct obj *));
 E const char *FDECL(gloves_simple_name, (struct obj *));
+E char *FDECL(dragon_scales_color, (struct obj *));
 E const char *FDECL(mimic_obj_name, (struct monst *));
 E char *FDECL(safe_qbuf, (char *, const char *, const char *, struct obj *,
                           char *(*)(OBJ_P), char *(*)(OBJ_P), const char *));
@@ -2091,6 +2095,7 @@ E const char *FDECL(mbodypart, (struct monst *, int));
 E const char *FDECL(body_part, (int));
 E int NDECL(poly_gender);
 E void FDECL(ugolemeffects, (int, int));
+E int FDECL(armor_to_dragon, (struct monst *));
 E boolean NDECL(ugenocided);
 E const char *NDECL(udeadinside);
 
@@ -3148,6 +3153,8 @@ E struct obj *FDECL(nxt_unbypassed_loot, (Loot *, struct obj *));
 E int FDECL(racial_exception, (struct monst *, struct obj *));
 E void FDECL(extract_from_minvent, (struct monst *, struct obj *, BOOLEAN_P,
                                     BOOLEAN_P));
+E int FDECL(armor_bonus, (struct obj *));
+E long FDECL(armor_provides_extrinsic, (struct obj *));
 
 /* ### write.c ### */
 

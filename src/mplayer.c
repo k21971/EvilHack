@@ -352,6 +352,16 @@ short typ;
         curse(obj);
     if (!rn2(3))
         bless(obj);
+    if (objects[obj->otyp].oc_armcat == ARM_SUIT) {
+        /* make sure player monsters don't spawn with a set of
+           chromatic dragon scales... */
+        obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES - 1);
+        if (monsndx(mon->data) == PM_WIZARD) {
+            /* Wizards have a guaranteed cloak of magic resistance. */
+            obj->dragonscales = rn2(2) ? BLACK_DRAGON_SCALES
+                                       : SILVER_DRAGON_SCALES;
+        }
+    }
     /* Most players who get to the endgame who have cursed equipment
      * have it because the wizard or other monsters cursed it, so its
      * chances of having plusses is the same as usual....
@@ -398,7 +408,7 @@ struct obj *obj;
 
         /* default equipment; much of it will be overridden below */
         weapon = rn2(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);
-        armor  = rnd_class(GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALE_MAIL);
+        armor  = rnd_class(PLATE_MAIL, RING_MAIL);
         cloak  = !rn2(8) ? STRANGE_OBJECT
                          : rnd_class(OILSKIN_CLOAK, CLOAK_OF_DISPLACEMENT);
         helm   = !rn2(8) ? STRANGE_OBJECT
@@ -504,11 +514,8 @@ struct obj *obj;
         case PM_WIZARD:
             if (rn2(4))
                 weapon = rn2(2) ? QUARTERSTAFF : ATHAME;
-            if (rn2(2)) {
-                armor = rn2(2) ? BLACK_DRAGON_SCALE_MAIL
-                               : SILVER_DRAGON_SCALE_MAIL;
+            if (rn2(2))
                 cloak = CLOAK_OF_MAGIC_RESISTANCE;
-            }
             if (rn2(4))
                 helm = HELM_OF_BRILLIANCE;
             shield = STRANGE_OBJECT;

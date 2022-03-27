@@ -70,7 +70,7 @@ long mask;
                     if (wp->w_mask & ~(W_QUIVER)) {
                         /* leave as "x = x <op> y", here and below, for broken
                          * compilers */
-                        p = objects[oobj->otyp].oc_oprop;
+                        p = armor_provides_extrinsic(oobj);
                         u.uprops[p].extrinsic =
                             u.uprops[p].extrinsic & ~wp->w_mask;
                         if ((p = w_blocks(oobj, mask)) != 0)
@@ -94,7 +94,7 @@ long mask;
                         || (wp->w_mask & W_SWAPWEP && u.twoweap)) {
                         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
                             || mask != W_WEP) {
-                            p = objects[obj->otyp].oc_oprop;
+                            p = armor_provides_extrinsic(obj);
                             u.uprops[p].extrinsic =
                                 u.uprops[p].extrinsic | wp->w_mask;
                             if ((p = w_blocks(obj, mask)) != 0)
@@ -130,7 +130,7 @@ register struct obj *obj;
             cancel_doff(obj, wp->w_mask);
 
             *(wp->w_obj) = 0;
-            p = objects[obj->otyp].oc_oprop;
+            p = armor_provides_extrinsic(obj);
             u.uprops[p].extrinsic = u.uprops[p].extrinsic & ~wp->w_mask;
             obj->owornmask &= ~wp->w_mask;
             if (obj->oartifact || obj->oprops)
@@ -375,7 +375,7 @@ int which;
    if it is poison resistance, alternate property is acid resistance;
    if someone changes it to acid resistance, alt becomes posion resist;
    if someone changes it to hallucination resistance, all bets are off
-   [TODO: handle alternate propertices conferred by dragon scales/mail] */
+   [TODO: handle alternate properties conferred by dragon scales] */
 #define altprop(o) \
     (((o)->otyp == ALCHEMY_SMOCK)                               \
      ? (POISON_RES + ACID_RES - objects[(o)->otyp].oc_oprop)    \
@@ -392,7 +392,7 @@ boolean on, silently;
     int unseen;
     uchar  mask;
     struct obj *otmp;
-    int which = (int) objects[obj->otyp].oc_oprop,
+    int which = (int) armor_provides_extrinsic(obj),
         altwhich = altprop(obj);
     long props = obj->oprops;
     int i = 0;
@@ -628,8 +628,8 @@ register struct monst *mon;
             if (obj->otyp == AMULET_OF_GUARDING) {
                 base -= 2; /* fixed amount, not impacted by erosion */
             } else {
-                /* since ARM_BONUS is positive, subtracting it increases AC */
-                base -= ARM_BONUS(obj);
+                /* since armor_bonus is positive, subtracting it increases AC */
+                base -= armor_bonus(obj);
             }
             /* racial armor bonuses, separate from regular bonuses */
             racial_bonus = 1;
@@ -873,8 +873,8 @@ boolean racialexception;
          * it would forget spe and once again think the object is better
          * than what it already has.
          */
-        if (best && (ARM_BONUS(best) + extra_pref(mon, best)
-                     >= ARM_BONUS(obj) + extra_pref(mon, obj)))
+        if (best && (armor_bonus(best) + extra_pref(mon, best)
+                     >= armor_bonus(obj) + extra_pref(mon, obj)))
             continue;
         best = obj;
     }
@@ -1146,8 +1146,8 @@ boolean polyspot;
 
     if (breakarm(mon)) {
         if ((otmp = which_armor(mon, W_ARM)) != 0) {
-            if ((Is_dragon_scales(otmp) && mdat == Dragon_scales_to_pm(otmp))
-                || (Is_dragon_mail(otmp) && mdat == Dragon_mail_to_pm(otmp)))
+            if (Is_dragon_armor(otmp)
+                && mdat == &mons[Dragon_armor_to_pm(otmp)])
                 ; /* no message here;
                      "the dragon merges with his scaly armor" is odd
                      and the monster's previous form is already gone */
@@ -1166,7 +1166,10 @@ boolean polyspot;
                     bypass_obj(otmp);
                 m_lose_armor(mon, otmp);
             } else {
-                if (vis)
+                if (Is_dragon_armor(otmp)
+                    && mdat == &mons[Dragon_armor_to_pm(otmp)]) {
+                    ; /* same as above; no message here */
+                } else if (vis)
                     pline("%s %s tears apart!", s_suffix(Monnam(mon)),
                           cloak_simple_name(otmp));
                 else
@@ -1465,9 +1468,11 @@ boolean silently; /* doesn't affect all possible messages, just
         impossible("extract_from_minvent called on object not in minvent");
         return;
     }
-    /* handle gold dragon scales/scale-mail (lit when worn) before clearing
-       obj->owornmask because artifact_light() expects that to be W_ARM */
-    if (((unwornmask & W_ARM) != 0 || (unwornmask & W_ARMS) != 0)
+    /* handle gold dragon scales/shield of light (lit when worn) before
+       clearing obj->owornmask because artifact_light() expects that to
+       be W_ARM / W_ARMC / W_ARMS */
+    if (((unwornmask & W_ARM) != 0 || (unwornmask & W_ARMC) != 0
+         || (unwornmask & W_ARMS) != 0)
         && obj->lamplit && artifact_light(obj))
         end_burn(obj, FALSE);
 
@@ -1485,4 +1490,53 @@ boolean silently; /* doesn't affect all possible messages, just
     if (unwornmask & W_WEP)
         mwepgone(mon); /* unwields and sets weapon_check to NEED_WEAPON */
 }
+
+/* Return the armor bonus of a piece of armor: the amount by which it directly
+   lowers the AC of the wearer */
+int
+armor_bonus(armor)
+struct obj *armor;
+{
+    int bon = 0;
+    if (!armor) {
+        impossible("armor_bonus was passed a null obj");
+        return 0;
+    }
+    /* start with its base AC value */
+    bon = objects[armor->otyp].a_ac;
+    /* adjust for material */
+    bon += material_bonus(armor);
+    /* subtract erosion */
+    bon -= (int) greatest_erosion(armor);
+    /* erosion is not allowed to make the armor worse than wearing nothing;
+     * only negative enchantment can do that. */
+    if (bon < 0) {
+        bon = 0;
+    }
+    /* add enchantment (could be negative) */
+    bon += armor->spe;
+    /* add bonus for dragon-scaled armor, slightly more AC
+       than dragon scales by themselves, as the scales harden
+       as they merge with worn armor */
+    if (Is_dragon_scaled_armor(armor))
+        bon += 5;
+    return bon;
+}
+
+/* Determine the extrinsic property a piece of armor provides.
+   Based on item_provides_extrinsic in NetHack Fourk, but less general */
+long
+armor_provides_extrinsic(armor)
+struct obj *armor;
+{
+    if (!armor) {
+        return 0;
+    }
+    long prop = objects[armor->otyp].oc_oprop;
+    if (!prop && Is_dragon_armor(armor)) {
+        return objects[Dragon_armor_to_scales(armor)].oc_oprop;
+    }
+    return prop;
+}
+
 /*worn.c*/

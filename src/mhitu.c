@@ -160,49 +160,49 @@ struct attack *mattk;
         /* Try undershirt */
         if (uarmu && !uarm && !uarmc
             && target <= roll) {
-            target += ARM_BONUS(uarmu);
+            target += armor_bonus(uarmu);
             if (target > roll)
                 blocker = uarmu;
         }
 
         /* Try body armour */
         if (uarm && !uarmc && target <= roll) {
-            target += ARM_BONUS(uarm);
+            target += armor_bonus(uarm);
             if (target > roll)
                 blocker = uarm;
         }
 
         if (uarmg && !rn2(10)) {
             /* Try gloves */
-            target += ARM_BONUS(uarmg);
+            target += armor_bonus(uarmg);
             if (target > roll)
                 blocker = uarmg;
         }
 
         if (uarmf && !rn2(10)) {
             /* Try boots */
-            target += ARM_BONUS(uarmf);
+            target += armor_bonus(uarmf);
             if (target > roll)
                 blocker = uarmf;
         }
 
         if (uarmh && !rn2(5)) {
             /* Try helm */
-            target += ARM_BONUS(uarmh);
+            target += armor_bonus(uarmh);
             if (target > roll)
                 blocker = uarmh;
         }
 
         if (uarmc && target <= roll) {
             /* Try cloak */
-            target += ARM_BONUS(uarmc);
+            target += armor_bonus(uarmc);
             if (target > roll)
                 blocker = uarmc;
         }
 
         if (uarms && target <= roll) {
             /* Try shield */
-            target += ARM_BONUS(uarms);
+            target += armor_bonus(uarms);
             if (target > roll)
                 blocker = uarms;
         }
@@ -3909,9 +3909,10 @@ struct attack *mattk;
     int i, tmp;
     struct attack *oldu_mattk = 0;
 
-    if (uarm) {
-        switch (uarm->otyp) {
-        case GREEN_DRAGON_SCALE_MAIL:
+    if (uarm && Is_dragon_scaled_armor(uarm)) {
+        int otyp = Dragon_armor_to_scales(uarm);
+
+        switch (otyp) {
         case GREEN_DRAGON_SCALES:
             if (resists_poison(mtmp) || defended(mtmp, AD_DRST))
                 break;
@@ -3939,7 +3940,6 @@ struct attack *mattk;
                 return 2;
             }
             break;
-        case BLACK_DRAGON_SCALE_MAIL:
         case BLACK_DRAGON_SCALES:
             if (resists_disint(mtmp) || defended(mtmp, AD_DISN)) {
                 break;
@@ -3998,7 +3998,6 @@ struct attack *mattk;
                 return 2;
             }
             break;
-        case ORANGE_DRAGON_SCALE_MAIL:
         case ORANGE_DRAGON_SCALES:
             if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE))
                 break;
@@ -4008,7 +4007,6 @@ struct attack *mattk;
                 mtmp->mspeed = MSLOW;
             }
             break;
-        case WHITE_DRAGON_SCALE_MAIL:
         case WHITE_DRAGON_SCALES:
             if (resists_cold(mtmp) || defended(mtmp, AD_COLD))
                 break;
@@ -4032,7 +4030,6 @@ struct attack *mattk;
                 return 2;
             }
             break;
-        case RED_DRAGON_SCALE_MAIL:
         case RED_DRAGON_SCALES:
             if (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
                 break;
@@ -4056,7 +4053,6 @@ struct attack *mattk;
                 return 2;
             }
             break;
-        case GRAY_DRAGON_SCALE_MAIL:
         case GRAY_DRAGON_SCALES:
             if (!rn2(6))
                 (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);

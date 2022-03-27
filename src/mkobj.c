@@ -1345,8 +1345,11 @@ int old_range;
         obj_adjust_light_radius(obj, new_range);
         /* simplifying assumptions:  hero is wielding or wearing this object;
            artifacts have to be in use to emit light and monsters' gear won't
-           change bless or curse state */
-        if (!Blind && get_obj_location(obj, &ox, &oy, 0)) {
+           change bless or curse state
+           disallow uskin to avoid duplicate message when enchanting scales onto
+           armor that change lit state, that then become skin and again changing
+           lit state */
+        if (!Blind && get_obj_location(obj, &ox, &oy, 0) && obj != uskin) {
             *buf = '\0';
             if (iflags.last_msg == PLNMSG_OBJ_GLOWS)
                 /* we just saw "The <obj> glows <color>." from dipping */
@@ -2823,7 +2826,8 @@ struct obj *obj;
         /* embedded dragon scales have an extra bit set;
            make sure it's set, then suppress it */
         embedded = TRUE;
-        if ((owornmask & (W_ARM | I_SPECIAL)) == (W_ARM | I_SPECIAL))
+        if ((owornmask & (W_ARM | I_SPECIAL)) == (W_ARM | I_SPECIAL)
+            || (owornmask & (W_ARMC | I_SPECIAL)) == (W_ARMC | I_SPECIAL))
             owornmask &= ~I_SPECIAL;
         else
             n = 0,  owornmask = ~0; /* force insane_object("bogus") below */
@@ -2860,8 +2864,8 @@ struct obj *obj;
                 what = embedded ? "skin" : "suit";
             break;
         case W_ARMC:
-            if (obj != uarmc)
-                what = "cloak";
+            if (obj != (embedded ? uskin : uarmc))
+                what = embedded ? "skin" : "cloak";
             break;
         case W_ARMH:
             if (obj != uarmh)
@@ -2937,9 +2941,7 @@ struct obj *obj;
         if (owornmask & W_ARMOR) {
             if (obj->oclass != ARMOR_CLASS)
                 what = "armor";
-            /* 3.6: dragon scale mail reverts to dragon scales when
-               becoming embedded in poly'd hero's skin */
-            if (embedded && !Is_dragon_scales(obj))
+            if (embedded && !Is_dragon_armor(obj))
                 what = "skin";
         } else if (owornmask & W_WEAPONS) {
             /* monsters don't maintain alternate weapon or quiver */

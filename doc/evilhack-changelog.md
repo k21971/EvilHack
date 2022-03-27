@@ -2195,4 +2195,5 @@ The following changes to date are:
 - Fix: player monster samurai having giant-like attributes
 - Handle spiders, cockatrices in mbodypart
 - Invoking the Staff of Aesculapius cures withering
+- Implement new dragon armor system: DSM replaced by scaled armor (dtsund)
 
