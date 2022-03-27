@@ -2124,15 +2124,12 @@ struct monst *mtmp;
         if (uarm && Is_dragon_scaled_armor(uarm)
             && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)
             return TRUE;
-        if (uarmc && uarmc->otyp == WHITE_DRAGON_SCALES)
-            return TRUE;
     } else {
         struct obj *otmp;
         for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
             if ((otmp->owornmask & W_ARMOR)
-                && (otmp->otyp == WHITE_DRAGON_SCALES
-                    || (Is_dragon_scaled_armor(otmp)
-                        && Dragon_armor_to_scales(otmp) == WHITE_DRAGON_SCALES))) {
+                && (Is_dragon_scaled_armor(otmp)
+                    && Dragon_armor_to_scales(otmp) == WHITE_DRAGON_SCALES)) {
                 return TRUE;
             }
         }

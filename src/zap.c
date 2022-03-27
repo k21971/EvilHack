@@ -3077,14 +3077,6 @@ boolean youattack, allow_cancel_kill, self_cancel;
         /* player attacking monster */
         if (youattack) {
             if (rn2(5)
-                && (otmp = which_armor(mdef, W_ARMC))
-                && otmp->otyp == GRAY_DRAGON_SCALES) {
-                shieldeff(mdef->mx, mdef->my);
-                if (canseemon(mdef))
-                    You("sense a wave of energy dissipate around %s.",
-                        mon_nam(mdef));
-                return FALSE;
-            } else if (rn2(5)
                 && (otmp = which_armor(mdef, W_ARM))
                 && Is_dragon_scaled_armor(otmp)
                 && Dragon_armor_to_scales(otmp) == GRAY_DRAGON_SCALES) {
@@ -3121,12 +3113,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
         /* monster attacking player */
         if (youdefend) {
-            if (rn2(5) && uarmc
-                && uarmc->otyp == GRAY_DRAGON_SCALES) {
-                shieldeff(u.ux, u.uy);
-                You_feel("a wave of energy dissipate around you.");
-                return FALSE;
-            } else if (rn2(5) && uarm
+            if (rn2(5) && uarm
                 && Is_dragon_scaled_armor(uarm)
                 && Dragon_armor_to_scales(uarm)== GRAY_DRAGON_SCALES) {
                 shieldeff(u.ux, u.uy);
@@ -3156,14 +3143,6 @@ boolean youattack, allow_cancel_kill, self_cancel;
         /* monster attacking another monster */
         if (!youdefend && !youattack) {
             if (rn2(5)
-                && (otmp = which_armor(mdef, W_ARMC))
-                && otmp->otyp == GRAY_DRAGON_SCALES) {
-                shieldeff(mdef->mx, mdef->my);
-                if (canseemon(mdef))
-                    You("sense a wave of energy dissipate around %s.",
-                        mon_nam(mdef));
-                return FALSE;
-            } else if (rn2(5)
                 && (otmp = which_armor(mdef, W_ARM))
                 && Is_dragon_scaled_armor(otmp)
                 && Dragon_armor_to_scales(otmp) == GRAY_DRAGON_SCALES) {

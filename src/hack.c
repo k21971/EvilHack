@@ -1585,7 +1585,6 @@ domove_core()
             if ((uarmf && uarmf->otyp == skates) || resists_cold(&youmonst)
                 || Flying || is_floater(youmonst.data)
                 || is_clinger(youmonst.data) || is_whirly(youmonst.data)
-		|| (uarmc && uarmc->otyp == WHITE_DRAGON_SCALES)
                 || (uarm && Is_dragon_scaled_armor(uarm)
                     && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) {
                 on_ice = FALSE;
@@ -1604,7 +1603,6 @@ domove_core()
             if (Flying || is_floater(youmonst.data)
                 || is_swimmer(youmonst.data)
                 || is_clinger(youmonst.data) || is_whirly(youmonst.data)
-                || (uarmc && uarmc->otyp == WHITE_DRAGON_SCALES)
                 || (uarm && Is_dragon_scaled_armor(uarm)
                     && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) {
                 walk_sewage = FALSE;

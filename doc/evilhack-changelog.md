@@ -2196,4 +2196,5 @@ The following changes to date are:
 - Handle spiders, cockatrices in mbodypart
 - Invoking the Staff of Aesculapius cures withering
 - Implement new dragon armor system: DSM replaced by scaled armor (dtsund)
+- Fix: a couple small issues with dtsund-DSM implementation
 

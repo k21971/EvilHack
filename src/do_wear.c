@@ -401,8 +401,9 @@ Cloak_on(VOID_ARGS)
     long oldprop =
         u.uprops[objects[uarmc->otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
 
-    if (Is_dragon_scales(uarmc)) {
-        /* all scales are handled the same in this function */
+    if (Is_dragon_scales(uarmc)
+        && otyp != SHIMMERING_DRAGON_SCALES) {
+        /* most scales are handled the same in this function */
         otyp = GRAY_DRAGON_SCALES;
     }
 
@@ -421,6 +422,7 @@ Cloak_on(VOID_ARGS)
         toggle_stealth(uarmc, oldprop, TRUE);
         break;
     case CLOAK_OF_DISPLACEMENT:
+    case SHIMMERING_DRAGON_SCALES:
         toggle_displacement(uarmc, oldprop, TRUE);
         break;
     case MUMMY_WRAPPING:
@@ -467,8 +469,9 @@ Cloak_off(VOID_ARGS)
     long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
 
-    if (Is_dragon_scales(uarmc)) {
-        /* all scales are handled the same in this function */
+    if (Is_dragon_scales(uarmc)
+        && otyp != SHIMMERING_DRAGON_SCALES) {
+        /* most scales are handled the same in this function */
         otyp = GRAY_DRAGON_SCALES;
     }
 
@@ -491,6 +494,7 @@ Cloak_off(VOID_ARGS)
         toggle_stealth(otmp, oldprop, FALSE);
         break;
     case CLOAK_OF_DISPLACEMENT:
+    case SHIMMERING_DRAGON_SCALES:
         toggle_displacement(otmp, oldprop, FALSE);
         break;
     case MUMMY_WRAPPING:
@@ -930,12 +934,12 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
         break;
     case SHIMMERING_DRAGON_SCALES:
         if (puton) {
-            toggle_displacement(uarm, (EDisplaced & ~WORN_ARMOR), TRUE);
-            toggle_stealth(uarm, (EStealth & ~WORN_ARMOR), TRUE);
+            toggle_displacement(uarm, (EDisplaced & ~W_ARM), TRUE);
+            toggle_stealth(uarm, (EStealth & ~W_ARM), TRUE);
             EStealth |= W_ARM;
         } else {
-            toggle_displacement(otmp, (EDisplaced & ~WORN_ARMOR), FALSE);
-            toggle_stealth(otmp, (EStealth & ~WORN_ARMOR), FALSE);
+            toggle_displacement(otmp, (EDisplaced & ~W_ARM), FALSE);
+            toggle_stealth(otmp, (EStealth & ~W_ARM), FALSE);
             EStealth &= ~W_ARM;
         }
         break;
