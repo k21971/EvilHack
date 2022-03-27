@@ -370,7 +370,7 @@ struct trobj Level20KitMonk2[] = {
 /* end monk structs */
 
 struct trobj Level20Kit1[] = {
-        { RING_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+        { CRYSTAL_PLATE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
         { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -610,11 +610,12 @@ unsigned short chance;
                 }
                 if (mtmp->m_lev > 19) {
                     if (objects[obj->otyp].oc_armcat == ARM_SUIT) {
-                        obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES - 1);
+                        obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES,
+                                                      LAST_DRAGON_SCALES - 1);
                         if (monsndx(mtmp->data) == PM_WIZARD) {
                             /* Wizards have a guaranteed cloak of magic resistance. */
-                            obj->dragonscales = rn2(2) ? BLACK_DRAGON_SCALES
-                                                       : SILVER_DRAGON_SCALES;
+                            obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES + 1,
+                                                          LAST_DRAGON_SCALES - 1);
                         }
                     }
                 }

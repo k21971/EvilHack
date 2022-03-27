@@ -4496,7 +4496,7 @@ struct obj *no_wish;
             typ = SPE_BLANK_PAPER;
             break;
         case CHROMATIC_DRAGON_SCALES:
-            typ = rnd_class(GRAY_DRAGON_SCALES, YELLOW_DRAGON_SCALES);
+            typ = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES - 1);
             break;
         default:
             /* catch any other non-wishable objects (venom) */

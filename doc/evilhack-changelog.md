@@ -2197,4 +2197,5 @@ The following changes to date are:
 - Invoking the Staff of Aesculapius cures withering
 - Implement new dragon armor system: DSM replaced by scaled armor (dtsund)
 - Fix: a couple small issues with dtsund-DSM implementation
+- Some minor player monster armor tweaks
 

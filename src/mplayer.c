@@ -355,11 +355,12 @@ short typ;
     if (objects[obj->otyp].oc_armcat == ARM_SUIT) {
         /* make sure player monsters don't spawn with a set of
            chromatic dragon scales... */
-        obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES - 1);
+        obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES,
+                                      LAST_DRAGON_SCALES - 1);
         if (monsndx(mon->data) == PM_WIZARD) {
             /* Wizards have a guaranteed cloak of magic resistance. */
-            obj->dragonscales = rn2(2) ? BLACK_DRAGON_SCALES
-                                       : SILVER_DRAGON_SCALES;
+            obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES + 1,
+                                          LAST_DRAGON_SCALES - 1);
         }
     }
     /* Most players who get to the endgame who have cursed equipment
