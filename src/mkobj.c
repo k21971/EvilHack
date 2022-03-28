@@ -2379,10 +2379,6 @@ struct obj *obj;
     if (obj->cobj)
         panic("dealloc_obj with cobj (%d, %d, %d)",
               obj->where, obj->otyp, obj->invlet);
-    if (obj == uball || obj == uchain)
-        impossible("dealloc_obj called on %s, owornmask=%lx",
-                   (obj == uball) ? "uball" : "uchain",
-                   obj->owornmask);
 
     /* free up any timers attached to the object */
     if (obj->timed)

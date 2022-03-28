@@ -2199,4 +2199,6 @@ The following changes to date are:
 - Fix: a couple small issues with dtsund-DSM implementation
 - Some minor player monster armor tweaks
 - Tortle as a playable race
+- Tortle tilemap
+- Fix: remove unnecessary impossible in dealloc_obj()
 
