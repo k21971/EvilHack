@@ -2203,4 +2203,5 @@ The following changes to date are:
 - Fix: remove unnecessary impossible in dealloc_obj()
 - Toque tilemap
 - Fix: cavepersons receiving spellbook via pat_on_head function
+- Tortles receive a to-hit bonus when using spears or a trident
 

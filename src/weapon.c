@@ -175,7 +175,7 @@ struct monst *mon;
 
     /* trident is highly effective against swimmers */
     if (otmp->otyp == TRIDENT && is_swimmer(ptr)) {
-        if (is_pool(mon->mx, mon->my))
+        if (is_damp_terrain(mon->mx, mon->my))
             tmp += 4;
         else if (ptr->mlet == S_EEL || ptr->mlet == S_SNAKE)
             tmp += 2;
@@ -183,6 +183,12 @@ struct monst *mon;
 
     /* Picks used against xorns and earth elementals */
     if (is_pick(otmp) && (passes_walls(ptr) && thick_skinned(ptr)))
+        tmp += 2;
+
+    /* Tortles receive a slight bonus to hit when using
+       spears or tridents */
+    if (Race_if(PM_TORTLE)
+        && (is_spear(otmp) || otmp->otyp == TRIDENT))
         tmp += 2;
 
     /* Check specially named weapon "to hit" bonuses */
