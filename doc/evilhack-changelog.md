@@ -2202,4 +2202,5 @@ The following changes to date are:
 - Tortle tilemap
 - Fix: remove unnecessary impossible in dealloc_obj()
 - Toque tilemap
+- Fix: cavepersons receiving spellbook via pat_on_head function
 

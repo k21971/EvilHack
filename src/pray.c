@@ -1363,34 +1363,38 @@ aligntyp g_align;
             struct obj *otmp;
             int trycnt = u.ulevel + 1;
 
-            /* not yet known spells given preference over already known ones
-             */
-            /* Also, try to grant a spell for which there is a skill slot */
-            otmp = mkobj(SPBOOK_CLASS, TRUE);
-            while (--trycnt > 0) {
-                if (otmp->otyp != SPE_BLANK_PAPER) {
-                    if (!known_spell(otmp->otyp)
-                        && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
-                        break; /* usable, but not yet known */
-                } else {
-                    if ((!objects[SPE_BLANK_PAPER].oc_name_known
-                         || carrying(MAGIC_MARKER)) && u.uconduct.literate)
-                        break;
-                }
-                otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
-                otmp->owt = weight(otmp);
-            }
-            if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
-                && !known_spell(otmp->otyp)) {
-                if (force_learn_spell(otmp->otyp))
-                    pline("Divine knowledge of %s fills your mind!",
-                          OBJ_NAME(objects[otmp->otyp]));
-                obfree(otmp, (struct obj *) 0);
+            /* cavepersons don't mess around with spells, so do nothing */
+            if (Role_if(PM_CAVEMAN)) {
+                break;
             } else {
-                bless(otmp);
-                at_your_feet("A spellbook");
-                place_object(otmp, u.ux, u.uy);
-                newsym(u.ux, u.uy);
+                /* not yet known spells given preference over already known ones.
+                   Also, try to grant a spell for which there is a skill slot */
+                otmp = mkobj(SPBOOK_CLASS, TRUE);
+                while (--trycnt > 0) {
+                    if (otmp->otyp != SPE_BLANK_PAPER) {
+                        if (!known_spell(otmp->otyp)
+                            && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
+                            break; /* usable, but not yet known */
+                    } else {
+                        if ((!objects[SPE_BLANK_PAPER].oc_name_known
+                             || carrying(MAGIC_MARKER)) && u.uconduct.literate)
+                            break;
+                    }
+                    otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                    otmp->owt = weight(otmp);
+                }
+                if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
+                    && !known_spell(otmp->otyp)) {
+                    if (force_learn_spell(otmp->otyp))
+                        pline("Divine knowledge of %s fills your mind!",
+                              OBJ_NAME(objects[otmp->otyp]));
+                    obfree(otmp, (struct obj *) 0);
+                } else {
+                    bless(otmp);
+                    at_your_feet("A spellbook");
+                    place_object(otmp, u.ux, u.uy);
+                    newsym(u.ux, u.uy);
+                }
             }
             break;
         }
