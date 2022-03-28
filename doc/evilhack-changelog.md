@@ -2201,4 +2201,5 @@ The following changes to date are:
 - Tortle as a playable race
 - Tortle tilemap
 - Fix: remove unnecessary impossible in dealloc_obj()
+- Toque tilemap
 
