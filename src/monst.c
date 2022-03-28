@@ -1979,8 +1979,7 @@ struct permonst _mons2[] = {
         SIZ(2250, 750, MS_BOAST, MZ_HUGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
         M2_STRONG | M2_ROCKTHROW | M2_NASTY | M2_COLLECT | M2_JEWELS,
         M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_GIANT, 8, CLR_GRAY),
-    /* From SporkHack.
-     */
+    /* From SporkHack */
     MON("hill giant shaman", S_GIANT, LVL(7, 10, 4, 0, -3), (G_GENO | 2),
 	A(ATTK(AT_MAGC, AD_CLRC, 0, 0),
 	  NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -3653,8 +3652,15 @@ struct permonst _mons2[] = {
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS
             | M1_OVIPAROUS | M1_CARNIVORE,
         M2_STRONG | M2_HOSTILE, 0, 0, 0, 7, CLR_BROWN),
-    /* From SporkHack.
-     */
+    MON("tortle", S_LIZARD, LVL(0, 8, 0, 0, 3), G_NOGEN, /* placeholder */
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(1200, 300, MS_HUMANOID, MZ_LARGE), 0, 0,
+        M1_HUMANOID | M1_THICK_HIDE | M1_OMNIVORE | M1_AMPHIBIOUS
+            | M1_SWIM,
+        M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
+        MH_TORTLE, 2, CLR_BRIGHT_GREEN),
+    /* From SporkHack */
     MON("giant turtle", S_LIZARD, LVL(7, 2, -8, 10, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 4, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),

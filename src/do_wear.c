@@ -534,6 +534,7 @@ Helmet_on(VOID_ARGS)
 
     switch (uarmh->otyp) {
     case FEDORA:
+    case TOQUE:
     case HELMET:
     case DENTED_POT:
     case ELVEN_HELM:
@@ -622,6 +623,7 @@ Helmet_off(VOID_ARGS)
 
     switch (uarmh->otyp) {
     case FEDORA:
+    case TOQUE:
     case HELMET:
     case DENTED_POT:
     case ELVEN_HELM:
@@ -2184,6 +2186,13 @@ boolean noisy;
                           helm_simple_name(otmp),
                           plur(num_horns(youmonst.data)));
             err++;
+        } else if (Race_if(PM_TORTLE) && is_hard(otmp)) {
+            /* Tortles can't retreat back into their shells
+               whilst wearing rigid head gear */
+            if (noisy)
+                pline_The("%s is too rigid to wear.",
+                          helm_simple_name(otmp));
+            err++;
         } else
             *mask = W_ARMH;
     } else if (is_shield(otmp)) {
@@ -2222,6 +2231,14 @@ boolean noisy;
                       c_boots); /* makeplural(body_part(FOOT)) yields
                                    "rear hooves" which sounds odd */
             err++;
+        } else if (Race_if(PM_TORTLE)) {
+            /* Tortles can't retreat back into their shells
+               whilst wearing footwear, plus their shape is
+               all wrong */
+            if (noisy)
+                pline("Your %s are not shaped correctly to wear %s.",
+                      makeplural(body_part(FOOT)), c_boots);
+            err++;
         } else if (u.utrap
                    && (u.utraptype == TT_BEARTRAP || u.utraptype == TT_INFLOOR
                        || u.utraptype == TT_LAVA
@@ -2257,6 +2274,13 @@ boolean noisy;
             if (noisy)
                 Your("%s are too slippery to pull on %s.",
                      fingers_or_gloves(FALSE), gloves_simple_name(otmp));
+            err++;
+        } else if (Race_if(PM_TORTLE) && is_hard(otmp)) {
+            /* Tortles can't retreat back into their shells
+               whilst wearing rigid gauntlets */
+            if (noisy)
+                pline_The("%s are too rigid to wear.",
+                          gloves_simple_name(otmp));
             err++;
         } else
             *mask = W_ARMG;
@@ -2596,9 +2620,15 @@ find_ac()
      * Giants can't wear body armor, t-shirt or cloaks,
      * but they do have thick skin. So they get a little bit
      * of love in the AC department to compensate somewhat.
-     */
+     *
+     * Tortles have even more armor restrictions than giants.
+     * The large shell that makes up a good portion of their
+     * body provides exceptional protection */
     int uac = maybe_polyd(mons[u.umonnum].ac,
-                          Race_if(PM_GIANT) ? 6 : mons[u.umonnum].ac);
+                          Race_if(PM_GIANT)
+                              ? 6 : Race_if(PM_TORTLE)
+                                  ? 0 : mons[u.umonnum].ac);
+
 
     /* armor class from worn gear */
 

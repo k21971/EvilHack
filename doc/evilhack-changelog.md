@@ -2198,4 +2198,5 @@ The following changes to date are:
 - Implement new dragon armor system: DSM replaced by scaled armor (dtsund)
 - Fix: a couple small issues with dtsund-DSM implementation
 - Some minor player monster armor tweaks
+- Tortle as a playable race
 

@@ -1637,6 +1637,7 @@ int dieroll;
         } else if (!uwep && (has_claws(youmonst.data)
                              || has_claws_undead(youmonst.data)
                              || (Race_if(PM_DEMON) && !Upolyd)
+                             || (Race_if(PM_TORTLE) && !Upolyd)
                              || (Race_if(PM_ILLITHID) && !Upolyd))) {
             You("claw %s%s", mon_nam(mon),
                 canseemon(mon) ? exclam(tmp) : ".");
@@ -3330,7 +3331,8 @@ boolean wouldhavehit;
                 pline("%s %s %s your attack.",
                       s_suffix(Monnam(mdef)),
                       (is_dragon(mdef->data) ? "scaly hide"
-                                             : mdef->data == &mons[PM_GIANT_TURTLE]
+                                             : (mdef->data == &mons[PM_GIANT_TURTLE]
+                                                || is_tortle(mdef->data))
                                                  ? "protective shell"
                                                  : "thick hide"),
                       (rn2(2) ? "blocks" : "deflects"));

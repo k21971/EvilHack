@@ -602,6 +602,9 @@ struct monst *mon;
     if (racial_centaur(mon))
         return FALSE;
 
+    if (racial_tortle(mon))
+        return TRUE;
+
     return (boolean) (r_bigmonst(mon)
                       || (ptr->msize > MZ_SMALL && !humanoid(ptr))
                       /* special cases of humanoids that cannot wear suits */

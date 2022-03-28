@@ -240,6 +240,10 @@
     ((((ptr)->mhflags & MH_ILLITHID) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ILLITHID)))
 #define racial_illithid(mon) mon_has_race(mon, MH_ILLITHID)
+#define is_tortle(ptr) \
+    ((((ptr)->mhflags & MH_TORTLE) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_TORTLE)))
+#define racial_tortle(mon) mon_has_race(mon, MH_TORTLE)
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define racial_match(mon) mon_has_race(mon, urace.selfmask)
 #define is_bat(ptr)                                         \

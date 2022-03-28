@@ -1836,10 +1836,10 @@ int part;
     }
     if ((part == HAND || part == HANDED)
         && ((humanoid(mptr) && attacktype(mptr, AT_CLAW)
-            && (has_claws(mptr) || has_claws_undead(mptr))
-            && !index(not_claws, mptr->mlet) && mptr != &mons[PM_STONE_GOLEM]
-            && mptr != &mons[PM_INCUBUS] && mptr != &mons[PM_SUCCUBUS])
-            || Race_if(PM_DEMON) || Race_if(PM_ILLITHID)))
+             && (has_claws(mptr) || has_claws_undead(mptr))
+             && !index(not_claws, mptr->mlet) && mptr != &mons[PM_STONE_GOLEM]
+             && mptr != &mons[PM_INCUBUS] && mptr != &mons[PM_SUCCUBUS])
+            || Race_if(PM_DEMON) || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)))
         return (part == HAND) ? "claw" : "clawed";
     if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON]
          || mptr == &mons[PM_WOOLLY_MAMMOTH])

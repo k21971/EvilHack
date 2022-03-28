@@ -128,6 +128,8 @@ static const struct innate {
                  { 0, 0, 0, 0 } },
 
   cen_abil[] = { { 1, &(HFast), "", "" },
+                 /* use EJumping here, otherwise centaurs would only
+                    be able to jump the same way as knights */
                  { 5, &(EJumping), "light on your hooves", "weighted down" },
                  { 10, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
@@ -145,6 +147,12 @@ static const struct innate {
                  { 1, &(HSee_invisible), "", "" },
                  { 1, &(HFlying), "", "" },
                  /* also inediate */
+                 { 0, 0, 0, 0 } },
+
+  trt_abil[] = { { 1, &(HSwimming), "", "" },
+                 { 1, &(HMagical_breathing), "", "" },
+                 { 5, &(HWarning), "sensitive", "" },
+                 { 12, &(HRegeneration), "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },
 
   hum_abil[] = { { 0, 0, 0, 0 } };
@@ -245,7 +253,9 @@ boolean givemsg;
 {
     int num = incr;
 
-    if ((!num) || (((Race_if(PM_GIANT)) || (Race_if(PM_CENTAUR))) && (!(otmp && otmp->cursed)))) {
+    if ((!num) || ((Race_if(PM_GIANT)
+                    || Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
+                   && (!(otmp && otmp->cursed)))) {
         if (ABASE(A_STR) < 18)
             num = (rn2(4) ? 1 : rnd(6));
         else if (ABASE(A_STR) < STR18(85))
@@ -840,6 +850,9 @@ long frommask;
         case PM_DEMON:
             abil = dem_abil;
             break;
+        case PM_TORTLE:
+            abil = trt_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -1030,6 +1043,9 @@ int oldlevel, newlevel;
         break;
     case PM_ILLITHID:
         rabil = ill_abil;
+        break;
+    case PM_TORTLE:
+        rabil = trt_abil;
         break;
     case PM_HUMAN:
     case PM_DWARF:

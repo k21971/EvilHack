@@ -2115,7 +2115,7 @@ struct monst *mtmp;
             return TRUE;
         if (obj->oclass != GEM_CLASS && !(typ >= ARROW && typ <= BOOMERANG)
             && !(typ >= DAGGER && typ <= CRYSKNIFE) && typ != SLING
-            && !is_cloak(obj) && typ != FEDORA && !is_gloves(obj)
+            && !is_cloak(obj) && typ != FEDORA && typ != TOQUE && !is_gloves(obj)
             && typ != JACKET && typ != CREDIT_CARD && !is_shirt(obj)
             && !(typ == CORPSE && verysmall(&mons[obj->corpsenm]))
             && typ != FORTUNE_COOKIE && typ != CANDY_BAR && typ != PANCAKE

@@ -218,9 +218,9 @@ struct trobj Tinningkit[] = { { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 0 },
 struct trobj Pickaxe[] = { { PICK_AXE, 0, TOOL_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
 struct trobj Psionics[] = { { SPE_PSIONIC_WAVE, 0, SPBOOK_CLASS, 1, 0 },
-                                  { 0, 0, 0, 0, 0 } };
+                                   { 0, 0, 0, 0, 0 } };
 struct trobj AoMR[] = { { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, 0 },
-                                  { 0, 0, 0, 0, 0 } };
+                               { 0, 0, 0, 0, 0 } };
 
 /* race-based substitutions for initial inventory;
    the weaker cloak for elven rangers is intentional--they shoot better */
@@ -278,6 +278,12 @@ struct inv_sub {
     { PM_HOBBIT, HELMET, ELVEN_HELM },
     { PM_HOBBIT, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_HOBBIT, CRAM_RATION, LEMBAS_WAFER },
+    /* Tortles also have special considerations */
+    { PM_TORTLE, JACKET, GLOVES },
+    { PM_TORTLE, RING_MAIL, TOQUE },
+    { PM_TORTLE, ROBE, TOQUE },
+    { PM_TORTLE, HAWAIIAN_SHIRT, TOQUE },
+    { PM_TORTLE, CLOAK_OF_MAGIC_RESISTANCE, GLOVES },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -984,7 +990,7 @@ u_init()
         break;
     case PM_WIZARD:
         ini_inv(Wizard);
-        if (Race_if(PM_GIANT))
+        if (Race_if(PM_GIANT) || Race_if(PM_TORTLE))
             ini_inv(AoMR);
         if (Race_if(PM_ILLITHID))
             ini_inv(Psionics);
@@ -1054,22 +1060,25 @@ u_init()
         knows_object(DWARVISH_BOOTS);
         knows_object(DWARVISH_ROUNDSHIELD);
 
-        if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_CONVICT))
+        if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_CONVICT)) {
             if (!rn2(4)) {
                 /* Wise dwarves bring their toy to the dungeons. */
                 ini_inv(Pickaxe);
             }
+        }
         break;
 
     case PM_GNOME:
     case PM_ILLITHID:
+    case PM_TORTLE:
         break;
 
     case PM_GIANT:
         /* Giants know valuable gems from glass, and may recognize a few types of valuable gem. */
-        for (i = DILITHIUM_CRYSTAL; i <= LUCKSTONE; i++)
+        for (i = DILITHIUM_CRYSTAL; i <= LUCKSTONE; i++) {
             if ((objects[i].oc_cost <= 1) || (rn2(100) < 5 + ACURR(A_INT)))
                 knows_object(i);
+        }
         break;
 
     case PM_HOBBIT:

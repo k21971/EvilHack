@@ -157,16 +157,16 @@ struct attack *mattk;
         /* get object responsible,
            work from the closest to the skin outwards */
 
-        /* Try undershirt */
         if (uarmu && !uarm && !uarmc
             && target <= roll) {
+            /* Try undershirt */
             target += armor_bonus(uarmu);
             if (target > roll)
                 blocker = uarmu;
         }
 
-        /* Try body armour */
         if (uarm && !uarmc && target <= roll) {
+            /* Try body armour */
             target += armor_bonus(uarm);
             if (target > roll)
                 blocker = uarm;
@@ -218,18 +218,20 @@ struct attack *mattk;
     if (!canspotmon(mtmp))
         map_invisible(mtmp->mx, mtmp->my);
 
-    if (could_seduce(mtmp, &youmonst, mattk) && !mtmp->mcan)
+    if (could_seduce(mtmp, &youmonst, mattk) && !mtmp->mcan) {
         pline("%s pretends to be friendly.", Monnam(mtmp));
-    else {
-        if (!flags.verbose || (!nearmiss && !blocker))
+    } else {
+        if (!flags.verbose || (!nearmiss && !blocker)) {
             pline("%s misses.", Monnam(mtmp));
-        else if (nearmiss || !blocker) {
-            if (thick_skinned(youmonst.data) && rn2(2)) {
+        } else if (nearmiss || !blocker) {
+            if ((thick_skinned(youmonst.data) || Race_if(PM_TORTLE))
+                && rn2(2)) {
                 Your("%s %s %s attack.",
-                      (is_dragon(youmonst.data) ? "scaly hide"
-                                                : youmonst.data == &mons[PM_GIANT_TURTLE]
-                                                    ? "protective shell"
-                                                    : "thick hide"),
+                     (is_dragon(youmonst.data) ? "scaly hide"
+                                               : (youmonst.data == &mons[PM_GIANT_TURTLE]
+                                                  || Race_if(PM_TORTLE))
+                                                   ? "protective shell"
+                                                   : "thick hide"),
                       (rn2(2) ? "blocks" : "deflects"),
                       s_suffix(mon_nam(mtmp)));
             } else {
@@ -237,9 +239,9 @@ struct attack *mattk;
                        : rn2(2) ? You("evade %s attack!", s_suffix(mon_nam(mtmp)))
                                 : pline("%s narrowly misses!", Monnam(mtmp));
             }
-        } else if (blocker == &zeroobj)
+        } else if (blocker == &zeroobj) {
             pline("%s is stopped by your golden haze.", Monnam(mtmp));
-        else
+        } else {
             Your("%s %s%s %s attack.",
                  blocker->oartifact ? xname(blocker)
                                     : simple_typename(blocker->otyp),
@@ -247,6 +249,7 @@ struct attack *mattk;
                  ((blocker == uarmg && blocker->oartifact != ART_DRAGONBANE)
                   || blocker == uarmf) ? "" : "s",
                  s_suffix(mon_nam(mtmp)));
+        }
         if (!blocker)
             goto end;
         /* called if attacker hates the material of the armor
@@ -3839,15 +3842,18 @@ int dmg;
         || !m_canseeu(mtmp) || mtmp->mspec_used)
         return FALSE;
 
-    if (canseemon(mtmp) && (Deaf))
+    if (canseemon(mtmp) && Deaf) {
         pline("It looks as if %s is yelling at you.",
               mon_nam(mtmp));
-    if (!cancelled && ((m_canseeu(mtmp) && Blind && Deaf)))
+    } else if (!cancelled && m_canseeu(mtmp)
+               && Blind && Deaf) {
         You("sense a disturbing vibration in the air.");
-    else if (m_canseeu(mtmp) && canseemon(mtmp) && !Deaf && cancelled)
+    } else if (m_canseeu(mtmp) && canseemon(mtmp)
+               && !Deaf && cancelled) {
         pline("%s croaks hoarsely.", Monnam(mtmp));
-    else if (cancelled && !Deaf)
+    } else if (cancelled && !Deaf) {
         You_hear("a hoarse croak nearby.");
+    }
 
     /* Set mspec->mused */
     mtmp->mspec_used = mtmp->mspec_used + (dmg + rn2(6));
@@ -3857,38 +3863,47 @@ int dmg;
 
     /* scream attacks */
     switch (mattk->adtyp) {
-        case AD_LOUD:
-            if (m_canseeu(mtmp))
-                pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
-            else if (u.usleep && m_canseeu(mtmp) && (!Deaf))
-                     unmul("You are frightened awake!");
+    case AD_LOUD:
+        if (m_canseeu(mtmp))
+            pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
+        else if (u.usleep && m_canseeu(mtmp) && (!Deaf))
+                 unmul("You are frightened awake!");
+
+        if (uarmh && uarmh->otyp == TOQUE && !Deaf) {
+            pline("Your %s protects your ears from the sonic onslaught.",
+                  helm_simple_name(uarmh));
+            break;
+        } else {
             Your("mind reels from the noise!");
             make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
             stop_occupation();
+        }
 
-            if (!rn2(6))
-                erode_armor(&youmonst, ERODE_FRACTURE);
-            if (!rn2(5))
-                erode_obj(uwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
-            if (!rn2(6))
-                erode_obj(uswapwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
-            if (rn2(2))
-                destroy_item(POTION_CLASS, AD_LOUD);
-            if (!rn2(4))
-                destroy_item(RING_CLASS, AD_LOUD);
-            if (!rn2(4))
-                destroy_item(TOOL_CLASS, AD_LOUD);
-            if (!rn2(3))
-                destroy_item(WAND_CLASS, AD_LOUD);
+        /* being deaf won't protect objects in inventory,
+           or being made of glass */
+        if (!rn2(6))
+            erode_armor(&youmonst, ERODE_FRACTURE);
+        if (!rn2(5))
+            erode_obj(uwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
+        if (!rn2(6))
+            erode_obj(uswapwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
+        if (rn2(2))
+            destroy_item(POTION_CLASS, AD_LOUD);
+        if (!rn2(4))
+            destroy_item(RING_CLASS, AD_LOUD);
+        if (!rn2(4))
+            destroy_item(TOOL_CLASS, AD_LOUD);
+        if (!rn2(3))
+            destroy_item(WAND_CLASS, AD_LOUD);
 
-            if (u.umonnum == PM_GLASS_GOLEM) {
-                You("shatter into a million pieces!");
-                rehumanize();
-                break;
-            }
+        if (u.umonnum == PM_GLASS_GOLEM) {
+            You("shatter into a million pieces!");
+            rehumanize();
             break;
-        default:
-            break;
+        }
+        break;
+    default:
+        break;
     }
     return TRUE;
 }

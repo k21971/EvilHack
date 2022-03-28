@@ -50,7 +50,7 @@ const struct Role roles[] = {
       S_SNAKE,
       S_MUMMY,
       ART_XIUHCOATL,
-      MH_HUMAN | MH_DWARF | MH_GNOME | MH_HOBBIT,
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_HOBBIT | MH_TORTLE,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 10, 7, 7, 7 },
@@ -92,7 +92,8 @@ const struct Role roles[] = {
       S_OGRE,
       S_TROLL,
       ART_RING_OF_P_HUL,
-      MH_HUMAN | MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR,
+      MH_HUMAN | MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
+          | MH_TORTLE,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 16, 7, 7, 15, 16, 6 },
@@ -220,7 +221,7 @@ const struct Role roles[] = {
       S_YETI,
       ART_STAFF_OF_AESCULAPIUS,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-          | MH_CENTAUR,
+          | MH_CENTAUR | MH_TORTLE,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 13, 7, 11, 16 },
@@ -346,7 +347,8 @@ const struct Role roles[] = {
       S_ELEMENTAL,
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
-      MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
+          | MH_TORTLE,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
@@ -390,7 +392,7 @@ const struct Role roles[] = {
       S_WRAITH,
       ART_MITRE_OF_HOLINESS,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GIANT
-          | MH_HOBBIT | MH_CENTAUR | MH_ILLITHID,
+          | MH_HOBBIT | MH_CENTAUR | MH_ILLITHID | MH_TORTLE,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
@@ -575,7 +577,7 @@ const struct Role roles[] = {
       S_SPIDER,
       S_CENTAUR,
       ART_YENDORIAN_EXPRESS_CARD,
-      MH_HUMAN | MH_HOBBIT | MH_GNOME,
+      MH_HUMAN | MH_HOBBIT | MH_GNOME | MH_TORTLE,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 6, 7, 7, 10 },
@@ -660,7 +662,7 @@ const struct Role roles[] = {
       S_WRAITH,
       ART_EYE_OF_THE_AETHIOPICA,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_ORC
-          | MH_HOBBIT | MH_GIANT | MH_ILLITHID,
+          | MH_HOBBIT | MH_GIANT | MH_ILLITHID | MH_TORTLE,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 7, 7, 7, 7 },
@@ -907,7 +909,8 @@ const struct Race races[] = {
         MH_ORC | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
         MH_ORC,
         0,
-        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+            | MH_TORTLE,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(50), 16, 16, 18, 19, 16 },
@@ -949,7 +952,7 @@ const struct Race races[] = {
         PM_HOBBIT_ZOMBIE,
         MH_HOBBIT | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
         MH_HOBBIT,
-        MH_HOBBIT,
+        MH_HOBBIT | MH_TORTLE,
         MH_ORC | MH_ILLITHID,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
@@ -993,13 +996,35 @@ const struct Race races[] = {
         MH_ILLITHID,
         MH_ILLITHID,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-            | MH_GIANT | MH_CENTAUR | MH_ORC,
+            | MH_GIANT | MH_CENTAUR | MH_ORC | MH_TORTLE,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { 10, 22, 22, 20, 12, 16 },
         /* Init   Lower  Higher */
         { 2, 0, 1, 1, 1, 0 }, /* Hit points */
         { 3, 0, 3, 0, 4, 0 }  /* Energy */
+    },
+    {
+        "tortle",
+        "tortle",
+        "tortle",
+        "Trt",
+        { 0, 0 },
+        PM_TORTLE,
+        NON_PM,
+        NON_PM,
+        NON_PM,
+        MH_TORTLE | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL
+            | ROLE_NEUTRAL,
+        MH_TORTLE,
+        MH_TORTLE | MH_HOBBIT,
+        MH_ORC | MH_ILLITHID,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(19), 18, 20, 10, 18, 14 },
+        /* Init   Lower  Higher */
+        { 2, 0, 0, 2, 1, 0 }, /* Hit points */
+        { 2, 0, 2, 1, 2, 0 }  /* Energy */
     },
     /* Array terminator */
     { 0, 0, 0, 0 }
@@ -1020,7 +1045,7 @@ struct Race race_demon = {
     MH_DEMON,
     MH_DEMON,
     MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-        | MH_GIANT | MH_CENTAUR,
+        | MH_GIANT | MH_CENTAUR | MH_TORTLE,
     /*  Str    Int Wis Dex Con Cha */
     { 3, 3, 3, 3, 3, 3 },
     { STR18(100), 18, 18, 20, 20, 18 },
