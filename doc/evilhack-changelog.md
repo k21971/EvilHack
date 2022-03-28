@@ -2204,4 +2204,5 @@ The following changes to date are:
 - Toque tilemap
 - Fix: cavepersons receiving spellbook via pat_on_head function
 - Tortles receive a to-hit bonus when using spears or a trident
+- Tortles and tridents
 

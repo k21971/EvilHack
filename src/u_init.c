@@ -281,6 +281,8 @@ struct inv_sub {
     /* Tortles also have special considerations */
     { PM_TORTLE, JACKET, GLOVES },
     { PM_TORTLE, RING_MAIL, TOQUE },
+    { PM_TORTLE, BATTLE_AXE, TRIDENT },
+    { PM_TORTLE, TWO_HANDED_SWORD, TRIDENT },
     { PM_TORTLE, ROBE, TOQUE },
     { PM_TORTLE, HAWAIIAN_SHIRT, TOQUE },
     { PM_TORTLE, CLOAK_OF_MAGIC_RESISTANCE, GLOVES },
@@ -1070,7 +1072,15 @@ u_init()
 
     case PM_GNOME:
     case PM_ILLITHID:
+        break;
+
     case PM_TORTLE:
+        /* if their role lists trident as a trainable skill,
+           raise the max proficiency level by one */
+        if (Role_if(PM_BARBARIAN) || Role_if(PM_MONK))
+            P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
+        if (Role_if(PM_HEALER) || Role_if(PM_TOURIST))
+            P_MAX_SKILL(P_TRIDENT) = P_SKILLED;
         break;
 
     case PM_GIANT:
