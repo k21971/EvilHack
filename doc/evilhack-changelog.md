@@ -2207,4 +2207,5 @@ The following changes to date are:
 - Tortles and tridents
 - Tortles as player monsters
 - Tortles as aligned priests
+- Fix: items destroyed by exploding chest
 

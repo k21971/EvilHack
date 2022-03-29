@@ -5513,7 +5513,7 @@ boolean disarm;
             struct monst *shkp = 0;
             long loss = 0L;
             boolean costly, insider;
-            register xchar ox = obj->ox, oy = obj->oy;
+            xchar ox = obj->ox, oy = obj->oy;
 
             /* the obj location need not be that of player */
             costly = (costly_spot(ox, oy)
@@ -5534,12 +5534,14 @@ boolean disarm;
             delete_contents(obj);
             /* unpunish() in advance if either ball or chain (or both)
                is going to be destroyed */
-            if (Punished && ((uchain->ox == u.ux && uchain->oy == u.uy)
+            if (Punished && ((uchain->ox == ox && uchain->oy == oy)
                              || (uball->where == OBJ_FLOOR
-                                 && uball->ox == u.ux && uball->oy == u.uy)))
+                                 && uball->ox == ox && uball->oy == oy)))
                 unpunish();
 
-            for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp2) {
+            /* destroy everything at the spot (the Amulet, the
+               invocation tools, and Rider corpses will remain intact) */
+            for (otmp = level.objects[ox][oy]; otmp; otmp = otmp2) {
                  otmp2 = otmp->nexthere;
                 if (costly)
                     loss += stolen_value(otmp, otmp->ox, otmp->oy,
