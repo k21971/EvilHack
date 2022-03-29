@@ -219,35 +219,35 @@ struct trobj subInfidel[] = {
 
 /* Specialized structs for centaurian player monsters */
 struct trobj Level10KitCentaur1[] = {
-        { ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level10KitCentaur2[] = {
-        { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { ELVEN_CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ELVEN_CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitCentaur1[] = {
-        { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitCentaur2[] = {
-        { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 /* end centaur structs */
 
@@ -329,132 +329,218 @@ struct trobj giantInfidel[] = {
 };
 
 struct trobj Level10KitGiant[] = {
-        { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitGiant[] = {
-        { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 /* end giant structs */
 
+/* Specialized structs for tortle player monsters */
+struct trobj tortleArcheologist[] = {
+    /* if adventure has a name...  idea from tan@uvm-gen */
+    { BULLWHIP, 2, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { FEDORA, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
+    { PICK_AXE, UNDEF_SPE, TOOL_CLASS, 1, UNDEF_BLESS },
+    { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, UNDEF_BLESS },
+    { TOUCHSTONE, 0, GEM_CLASS, 1, 0 },
+    { SACK, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortleBarbarian[] = {
+    { TRIDENT, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { AXE, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortleMonk[] = {
+    { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { TOQUE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+    { POT_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
+    { APPLE, 0, FOOD_CLASS, 5, UNDEF_BLESS },
+    { ORANGE, 0, FOOD_CLASS, 5, UNDEF_BLESS },
+    { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortlePriest[] = {
+    { MACE, 1, WEAPON_CLASS, 1, 1 },
+    { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { POT_WATER, 0, POTION_CLASS, 4, 1 }, /* holy water */
+    { CLOVE_OF_GARLIC, 0, FOOD_CLASS, 1, 0 },
+    { SPRIG_OF_WOLFSBANE, 0, FOOD_CLASS, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 2, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortleTourist[] = {
+    { DART, 2, WEAPON_CLASS, 25, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 10, 0 },
+    { POT_EXTRA_HEALING, 0, POTION_CLASS, 2, UNDEF_BLESS },
+    { SCR_MAGIC_MAPPING, 0, SCROLL_CLASS, 4, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { EXPENSIVE_CAMERA, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+    { CREDIT_CARD, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortleWizard[] = {
+    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
+    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 3, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 3, UNDEF_BLESS },
+    { SPE_FORCE_BOLT, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level10KitTortle[] = {
+    { TOQUE, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { SMALL_SHIELD, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20KitTortle[] = {
+    { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { SHIELD_OF_REFLECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { ELVEN_HELM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+/* end tortle structs */
+
+
 /* Specialized structs for monk player monsters */
 struct trobj Level10KitMonk1[] = {
-        { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level10KitMonk2[] = {
-        { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitMonk1[] = {
-        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitMonk2[] = {
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 /* end monk structs */
 
 struct trobj Level20Kit1[] = {
-        { CRYSTAL_PLATE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { CRYSTAL_PLATE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit2[] = {
-        { BANDED_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { BANDED_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit3[] = {
-        { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GLOVES, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GLOVES, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit4[] = {
-        { PLATE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { PLATE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit5[] = {
-        { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { KICKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { ALCHEMY_SMOCK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { KICKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { ALCHEMY_SMOCK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit6[] = {
-        { SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HIGH_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { OILSKIN_CLOAK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HIGH_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { OILSKIN_CLOAK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit7[] = {
-        { ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CORNUTHAUM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CORNUTHAUM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit8[] = {
-        { STUDDED_ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_INVISIBILITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { ELVEN_HELM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { STUDDED_ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_INVISIBILITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { ELVEN_HELM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level10Kit1[] = {
-	{ ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ 0, 0, 0, 0, 0 }
+    { ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level10Kit2[] = {
-        { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { LOW_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { LOW_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 #define B_MAJOR	        0 /* two-handed sword or battle-axe  */
@@ -679,6 +765,12 @@ register struct monst *mtmp;
                 ini_mon_inv(mtmp, rn2(2) ? Level10KitCentaur1
                                          : Level10KitCentaur2,
                             (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
+            } else if (racial_tortle(mtmp)) {
+                if (mtmp->m_lev > 10 || !rn2(15))
+                    ini_mon_inv(mtmp, Level20KitTortle,
+                                (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                ini_mon_inv(mtmp, Level10KitTortle,
+                            (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
             } else {
                 if (mtmp->m_lev > 10 || !rn2(15)) {
                     switch (rnd(4)) {
@@ -707,7 +799,10 @@ register struct monst *mtmp;
 
         switch (mtmp->mnum) {
         case PM_ARCHEOLOGIST:
-            ini_mon_inv(mtmp, Archeologist, 1);
+            if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleArcheologist, 1);
+            else
+                ini_mon_inv(mtmp, Archeologist, 1);
             if (!rn2(10))
                 ini_mon_inv(mtmp, Tinopener, 1);
             else if (!rn2(4))
@@ -721,6 +816,8 @@ register struct monst *mtmp;
             }
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantBarbarian, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleBarbarian, 1);
             else
                 ini_mon_inv(mtmp, Barbarian, 1);
             ini_mon_inv(mtmp, Lamp, 6);
@@ -768,6 +865,8 @@ register struct monst *mtmp;
             }
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantMonk, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleMonk, 1);
             else
                 ini_mon_inv(mtmp, Monk, 1);
             ini_mon_inv(mtmp, Lamp, 10);
@@ -778,6 +877,8 @@ register struct monst *mtmp;
             mkmonmoney(mtmp, (long) rn1(10, 20));
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantPriest, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortlePriest, 1);
             else
                 ini_mon_inv(mtmp, Priest, 1);
             ini_mon_inv(mtmp, Lamp, 10);
@@ -807,7 +908,10 @@ register struct monst *mtmp;
         case PM_TOURIST:
             Tourist[T_DARTS].trquan = rn1(20, 21);
             mkmonmoney(mtmp, (long) rn1(1000, 1001));
-            ini_mon_inv(mtmp, Tourist, 1);
+            if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleTourist, 1);
+            else
+                ini_mon_inv(mtmp, Tourist, 1);
             if (!rn2(25))
                 ini_mon_inv(mtmp, Tinopener, 1);
             else if (!rn2(25))
@@ -823,6 +927,8 @@ register struct monst *mtmp;
         case PM_WIZARD:
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantWizard, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleWizard, 1);
             else
                 ini_mon_inv(mtmp, Wizard, 1);
             ini_mon_inv(mtmp, Blindfold, 5);

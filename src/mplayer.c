@@ -144,6 +144,21 @@ static const char *illithid_female_names[] = {
     0
 };
 
+static const char *tortle_male_names[] = {
+    "Baka",         "Damu",        "Gar",        "Jappa",      "Krull",
+    "Lop",          "Nortle",      "Ploqwat",    "Queg",       "Quott",
+    "Ubo",          "Xelbuk",      "Yog",
+    0
+};
+
+static const char *tortle_female_names[] = {
+    "Gura",         "Ini",         "Kinlek",     "Lim",        "Nukla",
+    "Olo",          "Quee",        "Tibor",      "Uhok",       "Wabu",
+    "Xopa",
+    0
+};
+
+
 struct mfnames {
     const char **male;
     const char **female;
@@ -159,7 +174,8 @@ static const struct mfnames namelists[] = {
     { giant_male_names, giant_female_names },
     { hobbit_male_names, hobbit_female_names },
     { centaur_male_names, centaur_female_names },
-    { illithid_male_names, illithid_female_names }
+    { illithid_male_names, illithid_female_names },
+    { tortle_male_names, tortle_female_names }
 };
 
 void
@@ -226,7 +242,7 @@ struct monst *mtmp;
         /* flags for all barbarians regardless of race */
         rptr->mflags3 |= M3_BERSERK;
         mtmp->mintrinsics |= MR_POISON;
-        if (race == PM_DWARF)
+        if (race == PM_DWARF || race == PM_TORTLE)
             rptr->ralign = 0;
         break;
     case PM_CAVEMAN:
@@ -274,7 +290,7 @@ struct monst *mtmp;
         rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
         rptr->mflags1 |= M1_SEE_INVIS;
         mtmp->mintrinsics |= (MR_POISON | MR_SLEEP);
-        if (race == PM_DWARF)
+        if (race == PM_DWARF || race == PM_TORTLE)
             rptr->ralign = 3;
         if (race == PM_ELF)
             rptr->ralign = -3;
@@ -287,6 +303,8 @@ struct monst *mtmp;
         rptr->mattk[1].adtyp = AD_CLRC;
         if (race == PM_ORC || race == PM_ILLITHID)
             rptr->ralign = -3;
+        if (race == PM_TORTLE)
+            rptr->ralign = 0;
         break;
     case PM_RANGER:
         /* flags for all rangers regardless of race */
@@ -327,6 +345,9 @@ struct monst *mtmp;
         rptr->mattk[1].adtyp = AD_SPEL;
         if (race == PM_ORC || race == PM_ILLITHID)
             rptr->ralign = -3;
+        if (race == PM_DWARF || race == PM_HOBBIT
+            || race == PM_TORTLE)
+            rptr->ralign = 0;
         break;
     default:
         break;

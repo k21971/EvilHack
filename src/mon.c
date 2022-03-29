@@ -6023,8 +6023,9 @@ unsigned long permitted;
     int i, count = 0;
     short race = NON_PM;
 
-    const short mraces[] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME, PM_ORC,
-                             PM_GIANT, PM_HOBBIT, PM_CENTAUR, PM_ILLITHID, 0 };
+    const short mraces[] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME,
+                             PM_ORC, PM_GIANT, PM_HOBBIT, PM_CENTAUR,
+                             PM_ILLITHID, PM_TORTLE, 0 };
 
     for (i = 0; mraces[i]; i++) {
         if (permitted & mons[mraces[i]].mhflags
@@ -6089,10 +6090,11 @@ short mndx;
         permitted |= (MH_DWARF | MH_ELF | MH_GNOME | MH_GIANT);
         break;
     case PM_ARCHEOLOGIST:
-        permitted |= (MH_DWARF | MH_GNOME | MH_HOBBIT);
+        permitted |= (MH_DWARF | MH_GNOME | MH_HOBBIT | MH_TORTLE);
         break;
     case PM_BARBARIAN:
-        permitted |= (MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR);
+        permitted |= (MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
+                      | MH_TORTLE);
         break;
     case PM_CAVEMAN:
     case PM_CAVEWOMAN:
@@ -6104,7 +6106,8 @@ short mndx;
         break;
     case PM_HEALER:
         permitted |=
-            (MH_DWARF | MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR);
+            (MH_DWARF | MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR
+             | MH_TORTLE);
         break;
     case PM_INFIDEL:
         permitted |= (MH_ELF | MH_GIANT | MH_ORC | MH_ILLITHID);
@@ -6113,13 +6116,14 @@ short mndx;
         permitted |= (MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR);
         break;
     case PM_MONK:
-        permitted |= (MH_DWARF | MH_ELF | MH_GIANT | MH_CENTAUR);
+        permitted |= (MH_DWARF | MH_ELF | MH_GIANT | MH_CENTAUR
+                      | MH_TORTLE);
         break;
     case PM_PRIEST:
     case PM_PRIESTESS:
         permitted |=
             (MH_DWARF | MH_ELF | MH_GIANT | MH_HOBBIT | MH_CENTAUR
-             | MH_ORC | MH_ILLITHID);
+             | MH_ORC | MH_ILLITHID | MH_TORTLE);
         break;
     case PM_RANGER:
         permitted |= (MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR | MH_ORC);
@@ -6131,7 +6135,7 @@ short mndx;
         permitted |= (MH_DWARF | MH_GIANT);
         break;
     case PM_TOURIST:
-        permitted |= (MH_HOBBIT | MH_GNOME);
+        permitted |= (MH_HOBBIT | MH_GNOME | MH_TORTLE);
         break;
     case PM_VALKYRIE:
         permitted |= (MH_DWARF | MH_GIANT | MH_CENTAUR);
@@ -6139,7 +6143,7 @@ short mndx;
     case PM_WIZARD:
         permitted |=
           (MH_DWARF | MH_ELF | MH_GIANT | MH_GNOME | MH_HOBBIT
-           | MH_ORC | MH_ILLITHID);
+           | MH_ORC | MH_ILLITHID | MH_TORTLE);
         break;
     default:
         break;

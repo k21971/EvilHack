@@ -617,7 +617,7 @@ find_mac(mon)
 register struct monst *mon;
 {
     register struct obj *obj;
-    int base = mon->data->ac - mon->mprotection;
+    int base = r_data(mon)->ac - mon->mprotection;
     int bonus, div, racial_bonus;
     long mwflags = mon->misc_worn_check;
 
@@ -669,6 +669,12 @@ register struct monst *mon;
             }
         }
     }
+
+    /* because base now uses r_data(mon)->ac instead of
+       mon->data->ac, make sure racial shopkeepers retain
+       their buffed up AC */
+    if (has_eshk(mon))
+        base -= 10;
 
     /* Tweak the monster's AC a bit according to its level */
     div = mon->m_lev > 20 ? 4 : 3;
