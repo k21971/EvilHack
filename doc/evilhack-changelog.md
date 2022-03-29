@@ -2206,4 +2206,5 @@ The following changes to date are:
 - Tortles receive a to-hit bonus when using spears or a trident
 - Tortles and tridents
 - Tortles as player monsters
+- Tortles as aligned priests
 

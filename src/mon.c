@@ -6055,11 +6055,11 @@ aligntyp algn;
             (MH_ILLITHID | MH_ORC | MH_ELF | MH_GIANT | MH_CENTAUR);
         break;
     case A_LAWFUL:
-        permitted |= (MH_DWARF | MH_GIANT);
+        permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE);
         break;
     case A_NEUTRAL:
         permitted |=
-            (MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR);
+            (MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR | MH_TORTLE);
         break;
     default:
         break;
