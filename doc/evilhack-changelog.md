@@ -2209,4 +2209,5 @@ The following changes to date are:
 - Tortles as aligned priests
 - Fix: items destroyed by exploding chest
 - Fix: teleporting onto pits
+- Fix: remove unneeded bit from delobj()
 

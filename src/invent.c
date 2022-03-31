@@ -1217,8 +1217,7 @@ register struct obj *obj;
 {
     boolean update_map;
 
-    if (obj_resists(obj, 0, 0)
-        || (Role_if(PM_INFIDEL) && is_quest_artifact(obj) && obj->spe)) {
+    if (obj_resists(obj, 0, 0)) {
         /* player might be doing something stupid, but we
          * can't guarantee that.  assume special artifacts
          * are indestructible via drawbridges, and exploding
