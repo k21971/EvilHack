@@ -2211,4 +2211,5 @@ The following changes to date are:
 - Fix: teleporting onto pits
 - Fix: remove unneeded bit from delobj()
 - Fix: wishtracker not capturing every detail of the wish
+- Tortle ability to hide in its shell
 

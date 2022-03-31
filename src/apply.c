@@ -3555,7 +3555,7 @@ boolean autohit;
     struct monst *hitm = context.polearm.hitmon;
 
     /* Are you allowed to use the pole? */
-    if (u.uswallow) {
+    if (u.uswallow || u.uinshell) {
         pline(not_enough_room);
         return 0;
     }

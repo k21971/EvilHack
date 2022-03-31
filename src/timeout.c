@@ -608,6 +608,11 @@ nh_timeout()
             pline("%s stops galloping.", Monnam(u.usteed));
     }
 
+    if (u.uinshell && --u.uinshell == 1) {
+        toggleshell();
+        nomul(0);
+    }
+
     was_flying = Flying;
     for (upp = u.uprops; upp < u.uprops + SIZE(u.uprops); upp++)
         if (!(upp->intrinsic & HAVEPARTIAL) /* partial intrinsics do not time out */

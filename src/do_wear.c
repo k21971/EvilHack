@@ -2705,6 +2705,9 @@ find_ac()
         uac -= u.ublessed;
     uac -= u.uspellprot;
 
+    if (u.uinshell)
+        uac -= 40;
+
     /* Dexterity affects your base AC */
     dex_adjust_ac = 0;
     if (ACURR(A_DEX) <= 6)

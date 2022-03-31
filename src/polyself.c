@@ -1644,6 +1644,27 @@ dohide()
 }
 
 int
+toggleshell()
+{
+    boolean was_blind = Blind, was_hiding = (u.uinshell != 0);
+
+    if (!was_hiding && Punished) {
+        You("can't retreat into your shell with an iron ball chained to your %s!",
+            body_part(LEG));
+        return 0;
+    }
+
+    You("%s your shell.", was_hiding ? "emerge from" : "retreat into");
+    u.uinshell = was_hiding ? 0 : 100;
+
+    context.botl = 1;
+    if (was_blind ^ Blind)
+        toggle_blindness();
+
+    return 1;
+}
+
+int
 dopoly()
 {
     struct permonst *savedat = youmonst.data;

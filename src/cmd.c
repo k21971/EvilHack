@@ -727,6 +727,8 @@ domonability(VOID_ARGS)
         return dospinweb();
     else if (is_hider(youmonst.data))
         return dohide();
+    else if (is_tortle(youmonst.data))
+        return toggleshell();
     else if (is_mind_flayer(youmonst.data))
         return domindblast();
     else if (u.umonnum == PM_GREMLIN) {
@@ -5267,6 +5269,17 @@ register char *cmd;
         }
     }
 
+    if ((domove_attempting & (DOMOVE_RUSH | DOMOVE_WALK)) != 0L
+        && u.uinshell) {
+        Your("movement is constrained by your shell.");
+        context.run = 0;
+        context.nopick = context.forcefight = FALSE;
+        context.move = context.mv = FALSE;
+        domove_attempting = 0L;
+        multi = 0;
+        return;
+    }
+
     if (((domove_attempting & (DOMOVE_RUSH | DOMOVE_WALK)) != 0L)
                             && !context.travel && !dxdy_moveok()) {
         /* trying to move diagonally as a grid bug;
@@ -5278,6 +5291,7 @@ register char *cmd;
         context.run = 0;
         context.nopick = context.forcefight = FALSE;
         context.move = context.mv = FALSE;
+        domove_attempting = 0L;
         multi = 0;
         return;
     }

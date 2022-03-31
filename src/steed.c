@@ -650,6 +650,11 @@ boolean force;      /* Quietly force this animal */
         You_cant("ride such a creature.");
         return FALSE;
     }
+    if (u.uinshell != 0) {
+        You_cant("mount %s while hiding in your shell.",
+                 mon_nam(mtmp));
+        return FALSE;
+    }
 
     /* Is the player impaired? */
     if (!force && !is_floater(ptr) && !is_flyer(ptr) && Levitation

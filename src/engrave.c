@@ -490,6 +490,9 @@ int x, y;
 int
 freehand()
 {
+    if (u.uinshell != 0)
+        return FALSE;
+
     return (!uwep || !welded(uwep)
             || (!bimanual(uwep) && (!uarms || !cursed(uarms, TRUE))));
 }
@@ -623,7 +626,11 @@ doengrave()
         You("have no free %s to write with!", body_part(HAND));
         return 0;
     }
-
+    if (u.uinshell != 0) {
+        Your("%s are constrained within your shell.",
+             makeplural(body_part(HAND)));
+        return 0;
+    }
     if (jello) {
         You("tickle %s with %s.", mon_nam(u.ustuck), writer);
         Your("message dissolves...");
