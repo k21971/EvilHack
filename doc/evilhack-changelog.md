@@ -2210,4 +2210,5 @@ The following changes to date are:
 - Fix: items destroyed by exploding chest
 - Fix: teleporting onto pits
 - Fix: remove unneeded bit from delobj()
+- Fix: wishtracker not capturing every detail of the wish
 

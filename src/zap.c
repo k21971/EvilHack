@@ -6281,7 +6281,7 @@ makewish()
     if (otmp != &zeroobj) {
 #ifdef WISH_TRACKER
         /* write it out to our universal wishtracker file */
-        trackwish(buf);
+        trackwish(bufcpy);
 #endif
         const char
             *verb = ((Is_airlevel(&u.uz) || u.uinwater) ? "slip" : "drop"),
