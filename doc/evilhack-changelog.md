@@ -2208,4 +2208,5 @@ The following changes to date are:
 - Tortles as player monsters
 - Tortles as aligned priests
 - Fix: items destroyed by exploding chest
+- Fix: teleporting onto pits
 
