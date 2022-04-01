@@ -1550,7 +1550,7 @@ int dieroll;
            would be an easy way to abuse thievery and train
            the skill without risk */
         if (mon->mtame) {
-            You("can't bring yourself to steal from %s.",
+            You_cant("bring yourself to steal from %s.",
                 mon_nam(mon));
             use_skill(P_THIEVERY, -1);
             return 0;
@@ -2233,6 +2233,14 @@ struct attack *mattk;
        now if it has just been turned into one) */
     if (gold)
         mpickobj(mdef, gold);
+
+    /* Training up thievery skill can be quite the chore, to the point
+       where many players don't bother to use it. Randomly add an
+       additional point of skill for a successful attempt to balance
+       out the drudgery, without having to revamp how skill points are
+       awarded for this specific skill */
+    if (rn2(3)) /* 66% chance in favor of the player */
+        use_skill(P_THIEVERY, 1);
 }
 
 /* Actual mechanics of stealing obj from mdef. This is now its own function
