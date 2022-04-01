@@ -2216,4 +2216,6 @@ The following changes to date are:
 - Small tweak to thievery skill
 - Fix: player monster Infidel cursed weapons were welding to their hands
 - Tortles can't ride
+- Force tortle to emerge from its shell if hiding in it and is undergoing
+  polymorph
 

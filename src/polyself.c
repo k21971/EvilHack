@@ -457,6 +457,9 @@ int psflags;
     old_light = emits_light(youmonst.data);
     mntmp = NON_PM;
 
+    if (u.uinshell != 0)
+        toggleshell();
+
     if (monsterpoly && isvamp)
         goto do_vampyr;
     if (draconian_only)
