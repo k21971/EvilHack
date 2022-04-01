@@ -2215,4 +2215,5 @@ The following changes to date are:
 - Handle more cases when tortle is hiding in its shell
 - Small tweak to thievery skill
 - Fix: player monster Infidel cursed weapons were welding to their hands
+- Tortles can't ride
 

@@ -1339,11 +1339,12 @@ gain_guardian_steed()
                      message will be heard even if that fails) */
     if (u.ualign.record > 8) { /* fervent */
         pline("A voice whispers:");
-        /* Neither Centaurs nor Giants can ride horses. Awww... */
+        /* Neither Centaurs, Giants, nor Tortles can ride horses. Awww... */
         verbalize(
   "Worthy vassal, know now thy true identity!  Behold thy %s, the Red Horse!",
-                  (Race_if(PM_CENTAUR) || Race_if(PM_GIANT)) ? "companion"
-                                                             : "steed");
+                  (Race_if(PM_CENTAUR)
+                   || Race_if(PM_GIANT) || Race_if(PM_TORTLE)) ? "companion"
+                                                               : "steed");
         mm.x = u.ux;
         mm.y = u.uy;
         if (enexto(&mm, mm.x, mm.y, &mons[PM_RED_HORSE])

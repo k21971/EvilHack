@@ -2119,8 +2119,8 @@ const struct def_skill *class_skill;
     if (urole.petnum == PM_PONY)
         P_SKILL(P_RIDING) = P_BASIC;
 
-    /* Centaurs can never ride anything */
-    if (Race_if(PM_CENTAUR))
+    /* Centaurs/tortles can never ride anything */
+    if (Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
         P_SKILL(P_RIDING) = P_NONE;
 
     /*

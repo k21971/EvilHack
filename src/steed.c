@@ -504,8 +504,10 @@ can_ride(mtmp)
 struct monst *mtmp;
 {
     return ((mtmp->mtame && humanoid(youmonst.data)
-            && !verysmall(youmonst.data) && !bigmonst(youmonst.data)
-            && (!Underwater || is_swimmer(mtmp->data)))
+             && !is_tortle(youmonst.data)
+             && !verysmall(youmonst.data)
+             && !bigmonst(youmonst.data)
+             && (!Underwater || is_swimmer(mtmp->data)))
             || (r_data(mtmp) == &mons[PM_WOOLLY_MAMMOTH] && Race_if(PM_GIANT)));
 }
 
@@ -648,11 +650,6 @@ boolean force;      /* Quietly force this animal */
     }
     if (!can_saddle(mtmp) || !can_ride(mtmp)) {
         You_cant("ride such a creature.");
-        return FALSE;
-    }
-    if (u.uinshell != 0) {
-        You_cant("mount %s while hiding in your shell.",
-                 mon_nam(mtmp));
         return FALSE;
     }
 
