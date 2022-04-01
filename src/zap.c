@@ -2450,6 +2450,8 @@ dozap()
     obj = getobj(zap_syms, "zap");
     if (!obj)
         return 0;
+    if (!u_handsy())
+        return 0;
 
     check_unpaid(obj);
 

@@ -57,7 +57,9 @@ struct obj *obj;
 {
     struct monst *mtmp;
 
-    if (Underwater) {
+    if (!u_handsy()) {
+        return 0;
+    } else if (Underwater) {
         pline("Using your camera underwater would void the warranty.");
         return 0;
     }
@@ -95,8 +97,7 @@ struct obj *obj;
 {
     boolean drying_feedback = (obj == uwep);
 
-    if (!freehand()) {
-        You("have no free %s!", body_part(HAND));
+    if (!u_handsy()) {
         return 0;
     } else if (obj == ublindf) {
         You("cannot use it while you're wearing it!");
@@ -339,14 +340,10 @@ register struct obj *obj;
     boolean interference = (u.uswallow && is_whirly(u.ustuck->data)
                             && !rn2(Role_if(PM_HEALER) ? 10 : 3));
 
-    if (nohands(youmonst.data)) {
-        You("have no hands!"); /* not `body_part(HAND)' */
+    if (!u_handsy()) {
         return 0;
     } else if (Deaf) {
         You_cant("hear anything!");
-        return 0;
-    } else if (!freehand()) {
-        You("have no free %s.", body_part(HAND));
         return 0;
     }
     if (!getdir((char *) 0))
@@ -523,6 +520,8 @@ struct obj *obj;
 {
     if (!can_blow(&youmonst)) {
         You("are incapable of using the whistle.");
+    } else if (!u_handsy()) {
+        ;
     } else if (Underwater) {
         You("blow bubbles through %s.", yname(obj));
     } else {
@@ -544,6 +543,8 @@ struct obj *obj;
 
     if (!can_blow(&youmonst)) {
         You("are incapable of using the whistle.");
+    } else if (!u_handsy()) {
+        ;
     } else if (obj->cursed && !rn2(2)) {
         You("produce a %shigh-%s.", Underwater ? "very " : "",
             Deaf ? "frequency vibration" : "pitched humming noise");
@@ -692,6 +693,9 @@ struct obj *obj;
     }
     if (!obj->leashmon && number_leashed() >= MAXLEASHED) {
         You("cannot leash any more pets.");
+        return 0;
+    }
+    if (!u_handsy()) {
         return 0;
     }
 
@@ -911,6 +915,9 @@ struct obj *obj;
 
     if (!getdir((char *) 0))
         return 0;
+    if (!u_handsy())
+        return 0;
+
     invis_mirror = Invis;
     useeit = !Blind && (!invis_mirror || See_invisible);
     uvisage = beautiful();
@@ -1113,6 +1120,9 @@ struct obj **optr;
                 (obj->otyp == BELL_OF_OPENING && invocation_pos(u.ux, u.uy)
                  && !On_stairs(u.ux, u.uy));
 
+    if (!u_handsy())
+        return;
+
     You("ring %s.", the(xname(obj)));
 
     if (Underwater || (u.uswallow && ordinary)) {
@@ -1254,6 +1264,8 @@ register struct obj *obj;
         end_burn(obj, TRUE);
         return;
     }
+    if (!u_handsy())
+        return;
     if (obj->spe <= 0) {
         pline("This %s has no %s.", xname(obj), s);
         return;
@@ -1313,7 +1325,7 @@ struct obj **optr;
     char qbuf[QBUFSZ], qsfx[QBUFSZ], *q;
     boolean was_lamplit;
 
-    if (u.uswallow) {
+    if (u.uswallow || u.uinshell != 0) {
         You(no_elbow_room);
         return;
     }
@@ -1484,6 +1496,8 @@ struct obj *obj;
         end_burn(obj, TRUE);
         return;
     }
+    if (!u_handsy())
+        return;
     if (Underwater) {
         pline(!Is_candle(obj) ? "This is not a diving lamp"
                               : "Sorry, fire and water don't mix.");
@@ -1530,7 +1544,7 @@ struct obj **optr;
     char buf[BUFSZ];
     boolean split1off;
 
-    if (u.uswallow) {
+    if (u.uswallow || u.uinshell != 0) {
         You(no_elbow_room);
         return;
     }
@@ -1586,6 +1600,9 @@ int
 dorub()
 {
     struct obj *obj = getobj(cuddly, "rub");
+
+    if (!u_handsy())
+        return 0;
 
     if (obj && obj->oclass == GEM_CLASS) {
         if (is_graystone(obj) || obj->otyp == ROCK) {
@@ -1987,6 +2004,8 @@ struct obj *obj;
     /* This takes only 1 move.  If this is to be changed to take many
      * moves, we've got to deal with decaying corpses...
      */
+    if (!u_handsy())
+        return;
     if (obj->spe <= 0) {
         You("seem to be out of tins.");
         return;
@@ -2399,6 +2418,8 @@ struct obj **optr;
             return;
         }
     }
+    if (!u_handsy())
+        return;
     if (u.uswallow) {
         /* can't activate a figurine while swallowed */
         if (!figurine_location_checks(obj, (coord *) 0, FALSE))
@@ -2455,6 +2476,9 @@ use_grease(obj)
 struct obj *obj;
 {
     struct obj *otmp;
+
+    if (!u_handsy())
+        return;
 
     if (Glib) {
         pline("%s from your %s.", Tobjnam(obj, "slip"),
@@ -2521,6 +2545,9 @@ struct obj **optr;
     if ((obj = getobj(menulist, szwork)) == 0)
         return;
 
+    if (!u_handsy())
+        return;
+
     /* can only stick flint to arrows */
     if (obj->otyp < ARROW || obj->otyp > YA) {
         You("aren't really sure what good that will do.");
@@ -2578,6 +2605,9 @@ struct obj **optr;
                   : allowall;
     Sprintf(stonebuf, "rub on the stone%s", plur(tstone->quan));
     if ((obj = getobj(choices, stonebuf)) == 0)
+        return;
+
+    if (!u_handsy())
         return;
 
     if (obj == tstone && obj->quan == 1L) {
@@ -2813,6 +2843,8 @@ struct obj *otmp;
 
     if (nohands(youmonst.data))
         what = "without hands";
+    else if (!freehand())
+        what = "without a free hand";
     else if (Stunned)
         what = "while stunned";
     else if (u.uswallow)
@@ -2993,7 +3025,7 @@ struct obj *obj;
     if (proficient < 0)
         proficient = 0;
 
-    if (u.uswallow && attack(u.ustuck)) {
+    if ((u.uswallow && attack(u.ustuck)) || (u.uinshell != 0)) {
         There("is not enough room to flick your bullwhip.");
 
     } else if (Underwater) {
@@ -3259,7 +3291,7 @@ struct obj *obj;
     if (proficient < 0)
         proficient = 0;
 
-    if (u.uswallow && attack(u.ustuck)) {
+    if ((u.uswallow && attack(u.ustuck)) || (u.uinshell != 0)) {
         There("is not enough room to use your axe.");
 
     } else if (Underwater) {
@@ -3555,7 +3587,7 @@ boolean autohit;
     struct monst *hitm = context.polearm.hitmon;
 
     /* Are you allowed to use the pole? */
-    if (u.uswallow || u.uinshell) {
+    if (u.uswallow || (u.uinshell != 0)) {
         pline(not_enough_room);
         return 0;
     }
@@ -3676,6 +3708,9 @@ struct obj *obj;
     boolean wascreamed = u.ucreamed;
     boolean several = FALSE;
 
+    if (!u_handsy())
+        return 0;
+
     if (obj->quan > 1L) {
         several = TRUE;
         obj = splitobj(obj, 1L);
@@ -3717,7 +3752,7 @@ struct obj *obj;
     struct obj *otmp;
 
     /* Are you allowed to use the hook? */
-    if (u.uswallow) {
+    if (u.uswallow || (u.uinshell != 0)) {
         pline(not_enough_room);
         return 0;
     }
@@ -3879,6 +3914,10 @@ struct obj *obj;
 
     if (nohands(youmonst.data)) {
         You_cant("break %s without hands!", yname(obj));
+        return 0;
+    } else if (!freehand()) {
+        You_cant("break %s without your %s free!",
+                 yname(obj), makeplural(body_part(HAND)));
         return 0;
     } else if (ACURR(A_STR) < (is_fragile ? 5 : 10)) {
         You("don't have the strength to break %s!", yname(obj));

@@ -985,6 +985,9 @@ struct obj *obj;
     ispick = is_pick(obj);
     verb = ispick ? "dig" : "chop";
 
+    if (!u_handsy())
+        return res;
+
     if (u.utrap && u.utraptype == TT_WEB) {
         pline("%s you can't %s while entangled in a web.",
               /* res==0 => no prior message;
@@ -1045,6 +1048,8 @@ struct obj *obj;
 
     if (u.uswallow && attack(u.ustuck)) {
         ; /* return 1 */
+    } else if (!u_handsy()) {
+        return 0;
     } else if (Underwater) {
         pline("Turbulence torpedoes your %s attempts.", verbing);
     } else if (u.dz < 0) {

@@ -2212,4 +2212,5 @@ The following changes to date are:
 - Fix: remove unneeded bit from delobj()
 - Fix: wishtracker not capturing every detail of the wish
 - Tortle ability to hide in its shell
+- Handle more cases when tortle is hiding in its shell
 

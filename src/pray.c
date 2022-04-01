@@ -1602,7 +1602,7 @@ dosacrifice()
         return 0;
     }
 
-    if (u.uinshell) {
+    if (u.uinshell != 0) {
         You_cant("offer a sacrifice while hiding in your shell.");
         return 0;
     }
