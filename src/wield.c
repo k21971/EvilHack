@@ -981,8 +981,11 @@ boolean
 mwelded(obj)
 struct obj *obj;
 {
+    struct permonst *ptr = &mons[PM_INFIDEL];
+
     /* caller is responsible for making sure this is a monster's item */
-    if (obj && (obj->owornmask & W_WEP) && will_weld(obj))
+    if (obj && (obj->owornmask & W_WEP) && will_weld(obj)
+        && !ptr)
         return TRUE;
     return FALSE;
 }
