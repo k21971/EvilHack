@@ -712,6 +712,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
         break;
     case ARMOR_CLASS:
+        if (typ != HAWAIIAN_SHIRT)
+            Strcat(buf, "Hawaiian ");
         /* depends on order of the dragon scales objects */
         if (typ >= FIRST_DRAGON_SCALES && typ <= LAST_DRAGON_SCALES) {
             Strcat(buf, "set of ");
@@ -980,28 +982,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         releaseobuf(obufp);
     }
 
-    if (program_state.gameover) {
+    if (program_state.gameover && obj->oclass == ARMOR_CLASS) {
         char tmpbuf[BUFSZ];
-
         /* disclose without breaking illiterate conduct, but mainly tip off
            players who aren't aware that something readable is present */
-        switch (obj->otyp) {
-        case T_SHIRT:
-        case ALCHEMY_SMOCK:
-        case STRIPED_SHIRT:
-            Sprintf(eos(buf), " with text \"%s\"",
-                    (obj->otyp == T_SHIRT)
-                        ? tshirt_text(obj, tmpbuf)
-                        : (obj->otyp == STRIPED_SHIRT)
-                            ? striped_text(obj, tmpbuf)
-                            : apron_text(obj, tmpbuf));
-            break;
-        case HAWAIIAN_SHIRT:
-            Sprintf(eos(buf), " with %s motif", an(hawaiian_motif(obj, tmpbuf)));
-            break;
-        default:
-            break;
-        }
+        Sprintf(eos(buf), " with %s motif", an(hawaiian_motif(obj, tmpbuf)));
     }
 
     if (has_oname(obj) && dknown) {

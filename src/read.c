@@ -308,56 +308,24 @@ doread()
                         "became literate by reading a fortune cookie");
         useup(scroll);
         return 1;
-    } else if (scroll->otyp == T_SHIRT || scroll->otyp == ALCHEMY_SMOCK
-               || scroll->otyp == STRIPED_SHIRT
-               || scroll->otyp == HAWAIIAN_SHIRT) {
+    } else if (scroll->oclass == ARMOR_CLASS) {
         char buf[BUFSZ];
-        const char *endpunct;
 
         if (Blind) {
             You_cant("feel any Braille writing.");
             return 0;
         }
         /* can't read shirt worn under suit (under cloak is ok though) */
-        if ((scroll->otyp == T_SHIRT || scroll->otyp == STRIPED_SHIRT
-            || scroll->otyp == HAWAIIAN_SHIRT) && uarm && scroll == uarmu) {
+        if (uarm && scroll == uarmu) {
             pline("%s shirt is obscured by %s%s.",
                   scroll->unpaid ? "That" : "Your", shk_your(buf, uarm),
                   suit_simple_name(uarm));
             return 0;
         }
         /* populate 'buf[]' */
-        mesg = (scroll->otyp == T_SHIRT) ? tshirt_text(scroll, buf)
-                                         : (scroll->otyp == STRIPED_SHIRT)
-                                            ? striped_text(scroll, buf)
-                                            : (scroll->otyp == HAWAIIAN_SHIRT)
-                                                ? hawaiian_design(scroll, buf)
-                                                : apron_text(scroll, buf);
+        mesg = hawaiian_design(scroll, buf);
 
-        if (scroll->otyp == HAWAIIAN_SHIRT) {
-            pline("%s features %s.", flags.verbose ? "The design" : "It",
-                    mesg);
-        } else {
-            if (!u.uconduct.literate++)
-                livelog_printf(LL_CONDUCT, "became literate by reading %s",
-                        (scroll->otyp == T_SHIRT)
-                            ? "a T-shirt"
-                            : (scroll->otyp == STRIPED_SHIRT)
-                                ? "a striped shirt"
-                                : "an apron");
-
-            endpunct = "";
-            if (flags.verbose) {
-                int ln = (int) strlen(mesg);
-
-                /* we will be displaying a sentence; need ending punctuation */
-                if (ln > 0 && !index(".!?", mesg[ln - 1]))
-                    endpunct = ".";
-                pline("It reads:");
-            }
-            pline("\"%s\"%s", mesg, endpunct);
-            maybe_learn_elbereth(mesg);
-        }
+        pline("%s features %s.", flags.verbose ? "The design" : "It", mesg);
         return 1;
     } else if (scroll->otyp == CREDIT_CARD) {
         static const char *card_msgs[] = {
