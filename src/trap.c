@@ -4784,6 +4784,7 @@ struct monst *mtmp;
     if (!ttmp->madeby_u) {
         if (rnl(10) < 8 && !mtmp->mpeaceful && !mtmp->msleeping
             && !mtmp->mfrozen && !mindless(mtmp->data)
+            && !unique_corpstat(mtmp->data)
             && mtmp->data->mlet != S_HUMAN) {
             mtmp->mpeaceful = 1;
             set_malign(mtmp); /* reset alignment */
