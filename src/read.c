@@ -291,6 +291,10 @@ doread()
     boolean confused, nodisappear;
     const char *mesg;
     known = FALSE;
+    if (u.uinshell != 0) {
+        You_cant("read anything while hiding in your shell.");
+        return 0;
+    }
     if (check_capacity((char *) 0))
         return 0;
     scroll = getobj(readable, "read");

@@ -684,13 +684,13 @@ nh_timeout()
                 HSlow &= ~FROMOUTSIDE;
                 You_feel("less sluggish.");
                 break;
-	    case REFLECTING:
+            case REFLECTING:
                 if (!Blind)
-		    pline("The shimmering globe around you flickers and vanishes.");
+                    pline("The shimmering globe around you flickers and vanishes.");
                 else
                     pline("You don't feel very smooth anymore.");
-		break;
-	    /* all these need to make sure the external intrinsic isn't there too */
+                break;
+            /* all these need to make sure the external intrinsic isn't there too */
             case VULN_FIRE:
                 if (!Vulnerable_fire)
                     You("are no longer vulnerable to fire.");

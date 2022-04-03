@@ -115,24 +115,24 @@ int which;
 
     /* vulnerability will affect things... */
     switch (which) {
-        case FIRE_RES:
-            if (Vulnerable_fire)
-                val -= 50;
-            break;
-        case COLD_RES:
-            if (Vulnerable_cold)
-                val -= 50;
-            break;
-        case SHOCK_RES:
-            if (Vulnerable_elec)
-                val -= 50;
-            break;
-        case ACID_RES:
-            if (Vulnerable_acid)
-                val -= 50;
-            break;
-        default:
-            break;
+    case FIRE_RES:
+        if (Vulnerable_fire)
+            val -= 50;
+        break;
+    case COLD_RES:
+        if (Vulnerable_cold)
+            val -= 50;
+        break;
+    case SHOCK_RES:
+        if (Vulnerable_elec)
+            val -= 50;
+        break;
+    case ACID_RES:
+        if (Vulnerable_acid)
+            val -= 50;
+        break;
+    default:
+        break;
     }
     return val;
 }
@@ -590,6 +590,10 @@ dodrink()
     register struct obj *otmp;
     const char *potion_descr;
 
+    if (u.uinshell != 0) {
+        You_cant("drink anything while hiding in your shell.");
+        return 0;
+    }
     if (Strangled) {
         pline("If you can't breathe air, how can you drink liquid?");
         return 0;
@@ -2231,6 +2235,10 @@ dodip()
         return 0;
     if (inaccessible_equipment(obj, "dip", FALSE))
         return 0;
+    if (u.uinshell != 0) {
+        You_cant("dip anything while hiding in your shell.");
+        return 0;
+    }
 
     shortestname = (is_plural(obj) || pair_of(obj)) ? "them" : "it";
     /*

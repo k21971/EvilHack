@@ -2219,4 +2219,5 @@ The following changes to date are:
 - Force tortle to emerge from its shell if hiding in it and is undergoing
   polymorph
 - Fix: don't pacify unique monsters when untrapping them from web
+- Handle some more cases when tortle is hiding in its shell
 
