@@ -2220,4 +2220,5 @@ The following changes to date are:
   polymorph
 - Fix: don't pacify unique monsters when untrapping them from web
 - Handle some more cases when tortle is hiding in its shell
+- Handle even more cases when tortle is hiding in its shell
 

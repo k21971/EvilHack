@@ -2598,6 +2598,11 @@ doinvoke()
     obj = getobj(invoke_types, "invoke");
     if (!obj)
         return 0;
+    if (u.uinshell != 0) {
+        You_cant("invoke %s while hiding in your shell.",
+                 the(distant_name(obj, xname)));
+        return 0;
+    }
     if (!retouch_object(&obj, FALSE))
         return 1;
     return arti_invoke(obj);

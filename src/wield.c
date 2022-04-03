@@ -734,6 +734,11 @@ drop_uswapwep()
 int
 dotwoweapon()
 {
+    if (u.uinshell != 0) {
+        pline("Don't be ridiculous!");
+        return 0;
+    }
+
     /* You can always toggle it off */
     if (u.twoweap) {
         struct obj *tmp = uswapwep;

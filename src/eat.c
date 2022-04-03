@@ -2702,7 +2702,10 @@ doeat()
             already_partly_eaten;
     int ll_conduct = 0; /* livelog hardest conduct food>vegn>vegt */
 
-    if (Strangled) {
+    if (u.uinshell != 0) {
+        You_cant("eat while hiding in your shell.");
+        return 0;
+    } else if (Strangled) {
         pline("If you can't breathe air, how can you consume solids?");
         return 0;
     }

@@ -1958,6 +1958,10 @@ dotakeoff()
             pline("Not wearing any armor or accessories.");
         return 0;
     }
+    if (u.uinshell != 0) {
+        You_cant("take off worn items while hiding in your shell.");
+        return 0;
+    }
     if (Narmorpieces != 1 || ParanoidRemove)
         otmp = getobj(clothes, "take off");
     if (!otmp)
@@ -1975,6 +1979,10 @@ doremring()
     count_worn_stuff(&otmp, TRUE);
     if (!Naccessories && !Narmorpieces) {
         pline("Not wearing any accessories or armor.");
+        return 0;
+    }
+    if (u.uinshell != 0) {
+        You_cant("take off worn items while hiding in your shell.");
         return 0;
     }
     if (Naccessories != 1 || ParanoidRemove)
@@ -2140,6 +2148,11 @@ boolean noisy;
     if (verysmall(youmonst.data) || nohands(youmonst.data)) {
         if (noisy)
             You("can't wear any armor in your current form.");
+        return 0;
+    }
+    if (u.uinshell != 0) {
+        if (noisy)
+            You("can't wear any armor while hiding in your shell.");
         return 0;
     }
 
@@ -2579,7 +2592,8 @@ dowear()
 
     /* cantweararm() checks for suits of armor, not what we want here;
        verysmall() or nohands() checks for shields, gloves, etc... */
-    if (verysmall(youmonst.data) || nohands(youmonst.data)) {
+    if (verysmall(youmonst.data) || nohands(youmonst.data)
+        || (u.uinshell != 0)) {
         pline("Don't even bother.");
         return 0;
     }
@@ -2599,6 +2613,10 @@ doputon()
 {
     struct obj *otmp;
 
+    if (u.uinshell != 0) {
+        You_cant("put on any items while hiding in your shell.");
+        return 0;
+    }
     if (uleft && uright && uamul && ublindf
         && uarm && uarmu && uarmc && uarmh && uarms && uarmg && uarmf) {
         /* 'P' message doesn't mention armor */
@@ -3240,6 +3258,9 @@ doddoremarm()
     } else if (!uwep && !uswapwep && !uquiver && !uamul && !ublindf && !uleft
                && !uright && !wearing_armor()) {
         You("are not wearing anything.");
+        return 0;
+    } else if (u.uinshell != 0) {
+        You_cant("take off worn items while hiding in your shell.");
         return 0;
     }
 

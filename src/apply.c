@@ -1837,6 +1837,13 @@ int magic; /* 0=Physical, otherwise skill level */
            but that isn't necessarily the case for knights */
         You_cant("jump; you have no legs!");
         return 0;
+    } else if (u.uinshell != 0) {
+        /* currently there's no way for a tortle to be able
+           to jump (magical or otherwise), but we'll cover
+           this regardless in case new methods of jumping
+           are created in the future */
+        You_cant("jump while hiding in your shell!");
+        return 0;
     } else if (!magic && !Jumping) {
         You_cant("jump very far.");
         return 0;
