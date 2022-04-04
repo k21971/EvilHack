@@ -2695,7 +2695,11 @@ doturn()
         You("don't know how to turn undead!");
         return 0;
     }
-    if(!u.uconduct.gnostic++)
+    if (u.uinshell != 0) {
+        You_cant("turn undead while hiding in your shell!");
+        return 0;
+    }
+    if (!u.uconduct.gnostic++)
         livelog_write_string(LL_CONDUCT, "rejected atheism by turning undead");
 
     u.uconduct.gnostic++;

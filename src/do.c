@@ -1073,6 +1073,12 @@ dodown()
     if (u_rooted())
         return 1;
 
+    if (u.uinshell != 0) {
+        You_cant("climb down the %s while hiding in your shell.",
+                 ladder_down ? "ladder" : "stairs");
+        return 0;
+    }
+
     if (stucksteed(TRUE)) {
         return 0;
     }
@@ -1233,6 +1239,12 @@ doup()
 {
     if (u_rooted())
         return 1;
+
+    if (u.uinshell != 0) {
+        You_cant("climb up the %s while hiding in your shell.",
+                 at_ladder ? "ladder" : "stairs");
+        return 0;
+    }
 
     /* "up" to get out of a pit... */
     if (u.utrap && u.utraptype == TT_PIT) {

@@ -2221,4 +2221,5 @@ The following changes to date are:
 - Fix: don't pacify unique monsters when untrapping them from web
 - Handle some more cases when tortle is hiding in its shell
 - Handle even more cases when tortle is hiding in its shell
+- A few more cases covered when tortle is hiding in its shell
 

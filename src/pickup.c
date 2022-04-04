@@ -1791,7 +1791,7 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
                  * by suggesting them automatically to the user. */
                 break;
             }
- 
+
             if (unlocktool)
                 /* pass ox and oy to avoid direction prompt */
                 return (pick_lock(unlocktool, cobj->ox, cobj->oy, cobj) != 0);
@@ -1847,8 +1847,7 @@ doloot()
         /* "Can't do that while carrying so much stuff." */
         return 0;
     }
-    if (nohands(youmonst.data)) {
-        You("have no hands!"); /* not `body_part(HAND)' */
+    if (!u_handsy()) {
         return 0;
     }
     if (Confusion) {
@@ -3722,6 +3721,10 @@ boolean allowempty;
     if (box->olocked) {
         pline("It's locked.");
         return TIPCHECK_LOCKED;
+
+    } else if (u.uinshell != 0) {
+        You_cant("tip that while hiding in your shell.");
+        return TIPCHECK_CANNOT;
 
     } else if (box->otrapped) {
         /* we're not reaching inside but we're still handling it... */

@@ -4706,6 +4706,11 @@ boolean force_failure;
         pline("%s is in the way.", Monnam(mtmp));
         return 0;
     }
+    /* hiding in your shell */
+    if (u.uinshell != 0) {
+        You_cant("do that while hiding in your shell.");
+        return 0;
+    }
     /* We might be forced to move onto the trap's location. */
     if (sobj_at(BOULDER, ttmp->tx, ttmp->ty) && !Passes_walls && !under_u) {
         There("is a boulder in your way.");

@@ -1307,6 +1307,11 @@ dopay()
         return 0;
     }
 
+    if (u.uinshell != 0) {
+        pline("How do you expect to do that while hiding in your shell?");
+        return 0;
+    }
+
     /* The usual case.  Allow paying at a distance when
      * inside a tended shop.  Should we change that?
      */

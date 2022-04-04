@@ -2088,6 +2088,12 @@ struct obj *obj;
     int idx, val, val_limit, trouble_count, unfixable_trbl, did_prop;
     int trouble_list[PROP_COUNT + ATTR_COUNT];
 
+    if (u.uinshell != 0) {
+        You_cant("use your %s while hiding in your shell.",
+                 distant_name(obj, xname));
+        return;
+    }
+
     if (obj && obj->cursed) {
         long lcount = (long) rn1(90, 10);
 

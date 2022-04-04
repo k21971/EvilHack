@@ -38,6 +38,10 @@ dosit()
     register struct trap *trap = t_at(u.ux, u.uy);
     register int typ = levl[u.ux][u.uy].typ;
 
+    if (u.uinshell != 0) {
+        You_cant("sit while hiding in your shell.");
+        return 0;
+    }
     if (u.usteed) {
         You("are already sitting on %s.", mon_nam(u.usteed));
         return 0;
