@@ -1325,7 +1325,7 @@ struct obj **optr;
     char qbuf[QBUFSZ], qsfx[QBUFSZ], *q;
     boolean was_lamplit;
 
-    if (u.uswallow || u.uinshell != 0) {
+    if (u.uswallow || Hidinshell) {
         You(no_elbow_room);
         return;
     }
@@ -1544,7 +1544,7 @@ struct obj **optr;
     char buf[BUFSZ];
     boolean split1off;
 
-    if (u.uswallow || u.uinshell != 0) {
+    if (u.uswallow || Hidinshell) {
         You(no_elbow_room);
         return;
     }
@@ -1837,7 +1837,7 @@ int magic; /* 0=Physical, otherwise skill level */
            but that isn't necessarily the case for knights */
         You_cant("jump; you have no legs!");
         return 0;
-    } else if (u.uinshell != 0) {
+    } else if (Hidinshell) {
         /* currently there's no way for a tortle to be able
            to jump (magical or otherwise), but we'll cover
            this regardless in case new methods of jumping
@@ -2088,7 +2088,7 @@ struct obj *obj;
     int idx, val, val_limit, trouble_count, unfixable_trbl, did_prop;
     int trouble_list[PROP_COUNT + ATTR_COUNT];
 
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("use your %s while hiding in your shell.",
                  distant_name(obj, xname));
         return;
@@ -3038,7 +3038,7 @@ struct obj *obj;
     if (proficient < 0)
         proficient = 0;
 
-    if ((u.uswallow && attack(u.ustuck)) || (u.uinshell != 0)) {
+    if ((u.uswallow && attack(u.ustuck)) || Hidinshell) {
         There("is not enough room to flick your bullwhip.");
 
     } else if (Underwater) {
@@ -3304,7 +3304,7 @@ struct obj *obj;
     if (proficient < 0)
         proficient = 0;
 
-    if ((u.uswallow && attack(u.ustuck)) || (u.uinshell != 0)) {
+    if ((u.uswallow && attack(u.ustuck)) || Hidinshell) {
         There("is not enough room to use your axe.");
 
     } else if (Underwater) {
@@ -3600,7 +3600,7 @@ boolean autohit;
     struct monst *hitm = context.polearm.hitmon;
 
     /* Are you allowed to use the pole? */
-    if (u.uswallow || (u.uinshell != 0)) {
+    if (u.uswallow || Hidinshell) {
         pline(not_enough_room);
         return 0;
     }
@@ -3765,7 +3765,7 @@ struct obj *obj;
     struct obj *otmp;
 
     /* Are you allowed to use the hook? */
-    if (u.uswallow || (u.uinshell != 0)) {
+    if (u.uswallow || Hidinshell) {
         pline(not_enough_room);
         return 0;
     }

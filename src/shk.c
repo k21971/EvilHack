@@ -1307,7 +1307,7 @@ dopay()
         return 0;
     }
 
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         pline("How do you expect to do that while hiding in your shell?");
         return 0;
     }

@@ -3722,7 +3722,7 @@ boolean allowempty;
         pline("It's locked.");
         return TIPCHECK_LOCKED;
 
-    } else if (u.uinshell != 0) {
+    } else if (Hidinshell) {
         You_cant("tip that while hiding in your shell.");
         return TIPCHECK_CANNOT;
 

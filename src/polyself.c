@@ -457,8 +457,8 @@ int psflags;
     old_light = emits_light(youmonst.data);
     mntmp = NON_PM;
 
-    if (u.uinshell != 0)
-        toggleshell();
+    if (u.uinshell)
+        u.uinshell = 0;
 
     if (monsterpoly && isvamp)
         goto do_vampyr;
@@ -1649,16 +1649,24 @@ dohide()
 int
 toggleshell()
 {
-    boolean was_blind = Blind, was_hiding = (u.uinshell != 0);
+    boolean was_blind = Blind, was_hiding = Hidinshell;
 
-    if (!was_hiding && Punished) {
-        You("can't retreat into your shell with an iron ball chained to your %s!",
-            body_part(LEG));
+    if (!was_hiding && u.uinshell) {
+        You_cant("retreat into your shell again so soon.");
+        return 0;
+    } else if (!was_hiding && Punished) {
+        You_cant("retreat into your shell with an iron ball chained to your %s!",
+                 body_part(LEG));
         return 0;
     }
 
     You("%s your shell.", was_hiding ? "emerge from" : "retreat into");
-    u.uinshell = was_hiding ? 0 : 100;
+    u.uinshell = was_hiding ? -rnz(350) : 200;
+
+    if (!was_hiding)
+        HHalf_physical_damage |= FROMOUTSIDE;
+    else
+        HHalf_physical_damage &= ~FROMOUTSIDE;
 
     context.botl = 1;
     if (was_blind ^ Blind)

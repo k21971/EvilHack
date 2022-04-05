@@ -685,7 +685,7 @@ doforce()
     register int c, picktyp;
     char qbuf[QBUFSZ];
 
-    if (u.uswallow || (u.uinshell != 0)) {
+    if (u.uswallow || Hidinshell) {
         You_cant("force anything from inside here.");
         return 0;
     }

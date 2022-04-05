@@ -608,9 +608,11 @@ nh_timeout()
             pline("%s stops galloping.", Monnam(u.usteed));
     }
 
-    if (u.uinshell && --u.uinshell == 1) {
+    if (Hidinshell && --u.uinshell == 1) {
         toggleshell();
         nomul(0);
+    } else if (u.uinshell < 0) {
+        u.uinshell++;
     }
 
     was_flying = Flying;

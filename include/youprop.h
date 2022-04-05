@@ -124,7 +124,7 @@
 /* ...means blind because of a cover */
 #define Blind                                     \
     ((u.uroleplay.blind || Blinded || Blindfolded \
-      || !haseyes(youmonst.data) || u.uinshell)   \
+      || !haseyes(youmonst.data) || Hidinshell)   \
      && !(ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD))
 /* ...the Eyes operate even when you really are blind
     or don't have any eyes */
@@ -132,6 +132,8 @@
     (Blindfolded && ublindf->oartifact != ART_EYES_OF_THE_OVERWORLD \
      && !u.uroleplay.blind && !Blinded && haseyes(youmonst.data))
 /* ...blind because of a blindfold, and *only* that */
+
+#define Hidinshell (u.uinshell > 0)
 
 #define Sick u.uprops[SICK].intrinsic
 #define Stoned u.uprops[STONED].intrinsic

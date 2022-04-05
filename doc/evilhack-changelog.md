@@ -2222,4 +2222,5 @@ The following changes to date are:
 - Handle some more cases when tortle is hiding in its shell
 - Handle even more cases when tortle is hiding in its shell
 - A few more cases covered when tortle is hiding in its shell
+- Implement a cooldown timer after a tortle hides in its shell
 

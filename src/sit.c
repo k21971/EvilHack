@@ -38,7 +38,7 @@ dosit()
     register struct trap *trap = t_at(u.ux, u.uy);
     register int typ = levl[u.ux][u.uy].typ;
 
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("sit while hiding in your shell.");
         return 0;
     }

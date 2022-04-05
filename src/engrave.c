@@ -490,7 +490,7 @@ int x, y;
 int
 freehand()
 {
-    if (u.uinshell != 0)
+    if (Hidinshell)
         return FALSE;
 
     return (!uwep || !welded(uwep)
@@ -626,7 +626,7 @@ doengrave()
         You("have no free %s to write with!", body_part(HAND));
         return 0;
     }
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         Your("%s are constrained within your shell.",
              makeplural(body_part(HAND)));
         return 0;

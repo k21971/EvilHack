@@ -4707,7 +4707,7 @@ boolean force_failure;
         return 0;
     }
     /* hiding in your shell */
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("do that while hiding in your shell.");
         return 0;
     }

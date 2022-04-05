@@ -316,7 +316,7 @@
 #define extra_nasty(ptr) (((ptr)->mflags2 & M2_NASTY) != 0L)
 #define strongmonst(ptr) (((ptr)->mflags2 & M2_STRONG) != 0L)
 #define can_breathe(ptr) attacktype(ptr, AT_BREA)
-#define cantwield(ptr) (nohands(ptr) || verysmall(ptr) || u.uinshell)
+#define cantwield(ptr) (nohands(ptr) || verysmall(ptr) || Hidinshell)
 /* Does this type of monster have multiple weapon attacks?  If so,
    hero poly'd into this form can use two-weapon combat.  It used
    to just check mattk[1] and assume mattk[0], which was suitable

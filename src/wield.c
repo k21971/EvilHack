@@ -734,7 +734,7 @@ drop_uswapwep()
 int
 dotwoweapon()
 {
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         pline("Don't be ridiculous!");
         return 0;
     }

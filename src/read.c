@@ -291,7 +291,7 @@ doread()
     boolean confused, nodisappear;
     const char *mesg;
     known = FALSE;
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("read anything while hiding in your shell.");
         return 0;
     }

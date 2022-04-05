@@ -1073,7 +1073,7 @@ dodown()
     if (u_rooted())
         return 1;
 
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("climb down the %s while hiding in your shell.",
                  ladder_down ? "ladder" : "stairs");
         return 0;
@@ -1240,7 +1240,7 @@ doup()
     if (u_rooted())
         return 1;
 
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("climb up the %s while hiding in your shell.",
                  at_ladder ? "ladder" : "stairs");
         return 0;

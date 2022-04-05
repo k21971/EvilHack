@@ -228,7 +228,7 @@ in_trouble()
         || stuck_ring(uleft, RIN_LEVITATION)
         || stuck_ring(uright, RIN_LEVITATION))
         return TROUBLE_CURSED_LEVITATION;
-    if (nohands(youmonst.data) || (!freehand() && !u.uinshell)) {
+    if (nohands(youmonst.data) || (!freehand() && !Hidinshell)) {
         /* for bag/box access [cf use_container()]...
            make sure it's a case that we know how to handle;
            otherwise "fix all troubles" would get stuck in a loop */
@@ -488,7 +488,7 @@ int trouble;
                 goto decurse;
             }
         }
-        if (nohands(youmonst.data) || (!freehand() && !u.uinshell))
+        if (nohands(youmonst.data) || (!freehand() && !Hidinshell))
             impossible("fix_worst_trouble: couldn't cure hands.");
         break;
     case TROUBLE_CURSED_BLINDFOLD:
@@ -1602,7 +1602,7 @@ dosacrifice()
         return 0;
     }
 
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("offer a sacrifice while hiding in your shell.");
         return 0;
     }
@@ -2695,7 +2695,7 @@ doturn()
         You("don't know how to turn undead!");
         return 0;
     }
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("turn undead while hiding in your shell!");
         return 0;
     }

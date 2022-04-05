@@ -1122,7 +1122,7 @@ dochat()
         You_cant("speak.  You're choking!");
         return 0;
     }
-    if (u.uswallow || (u.uinshell != 0)) {
+    if (u.uswallow || Hidinshell) {
         pline("They won't hear you out there.");
         return 0;
     }

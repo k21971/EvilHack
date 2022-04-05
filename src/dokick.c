@@ -843,7 +843,7 @@ dokick()
     } else if (verysmall(youmonst.data)) {
         You("are too small to do any kicking.");
         no_kick = TRUE;
-    } else if (u.uinshell != 0) {
+    } else if (Hidinshell) {
         Your("%s are constrained within your shell.",
              makeplural(body_part(LEG)));
         no_kick = TRUE;

@@ -1958,7 +1958,7 @@ dotakeoff()
             pline("Not wearing any armor or accessories.");
         return 0;
     }
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("take off worn items while hiding in your shell.");
         return 0;
     }
@@ -1981,7 +1981,7 @@ doremring()
         pline("Not wearing any accessories or armor.");
         return 0;
     }
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("take off worn items while hiding in your shell.");
         return 0;
     }
@@ -2150,7 +2150,7 @@ boolean noisy;
             You("can't wear any armor in your current form.");
         return 0;
     }
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         if (noisy)
             You("can't wear any armor while hiding in your shell.");
         return 0;
@@ -2593,7 +2593,7 @@ dowear()
     /* cantweararm() checks for suits of armor, not what we want here;
        verysmall() or nohands() checks for shields, gloves, etc... */
     if (verysmall(youmonst.data) || nohands(youmonst.data)
-        || (u.uinshell != 0)) {
+        || Hidinshell) {
         pline("Don't even bother.");
         return 0;
     }
@@ -2613,7 +2613,7 @@ doputon()
 {
     struct obj *otmp;
 
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("put on any items while hiding in your shell.");
         return 0;
     }
@@ -2723,7 +2723,7 @@ find_ac()
         uac -= u.ublessed;
     uac -= u.uspellprot;
 
-    if (u.uinshell)
+    if (Hidinshell)
         uac -= 40;
 
     /* Dexterity affects your base AC */
@@ -3259,7 +3259,7 @@ doddoremarm()
                && !uright && !wearing_armor()) {
         You("are not wearing anything.");
         return 0;
-    } else if (u.uinshell != 0) {
+    } else if (Hidinshell) {
         You_cant("take off worn items while hiding in your shell.");
         return 0;
     }

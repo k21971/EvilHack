@@ -590,7 +590,7 @@ dodrink()
     register struct obj *otmp;
     const char *potion_descr;
 
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("drink anything while hiding in your shell.");
         return 0;
     }
@@ -2235,7 +2235,7 @@ dodip()
         return 0;
     if (inaccessible_equipment(obj, "dip", FALSE))
         return 0;
-    if (u.uinshell != 0) {
+    if (Hidinshell) {
         You_cant("dip anything while hiding in your shell.");
         return 0;
     }

@@ -5270,7 +5270,7 @@ register char *cmd;
     }
 
     if ((domove_attempting & (DOMOVE_RUSH | DOMOVE_WALK)) != 0L
-        && u.uinshell) {
+        && Hidinshell) {
         Your("movement is constrained by your shell.");
         context.run = 0;
         context.nopick = context.forcefight = FALSE;
