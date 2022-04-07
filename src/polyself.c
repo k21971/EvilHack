@@ -2014,7 +2014,7 @@ struct monst *mon;
     for (i = 0; i < 3; ++i) {
         if (array[i] != NULL) {
             if (Is_dragon_armor(array[i])) {
-                if (mndx_to_dragon_scales(PM_CHROMATIC_DRAGON))
+                if (Dragon_armor_to_pm(array[i]) == PM_CHROMATIC_DRAGON)
                     return PM_RED_DRAGON;
                 else
                     return Dragon_armor_to_pm(array[i]);
