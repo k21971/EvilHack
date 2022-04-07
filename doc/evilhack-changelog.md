@@ -2223,4 +2223,6 @@ The following changes to date are:
 - Handle even more cases when tortle is hiding in its shell
 - A few more cases covered when tortle is hiding in its shell
 - Implement a cooldown timer after a tortle hides in its shell
+- Fix: warning: array subscript [0, 1] is outside array bounds
+  of ‘const char * const[2]’ [-Warray-bounds]
 

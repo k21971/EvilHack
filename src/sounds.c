@@ -693,8 +693,7 @@ register struct monst *mtmp;
                             Upolyd ? an(mons[u.umonnum].mname)
                                    : an(racenoun));
                     verbl_msg = verbuf;
-                } else
-                    verbl_msg = vampmsg[vampindex];
+                }
             }
         }
     } break;
