@@ -2228,4 +2228,5 @@ The following changes to date are:
 - New monsters - sea tortle, tortle shaman
 - Fix: polymorphing into a red dragon no matter what type of dragon scales
   are being worn
+- Fix: crash when over-enchanting worn armor
 

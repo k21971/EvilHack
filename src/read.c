@@ -1269,7 +1269,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         }
         if (s > (special_armor ? 5 : 3) && rn2(s)) {
             otmp->in_use = TRUE;
-            if (uarmg->oartifact == ART_HAND_OF_VECNA) {
+            if ((otmp == uarmg) && uarmg->oartifact == ART_HAND_OF_VECNA) {
                 /* The Hand of Vecna is 'merged' with the wearer,
                    it can't be destroyed this way */
                 pline("%s violently %s%s%s for a while, but nothing else happens.",
@@ -1287,7 +1287,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                       otense(otmp, "evaporate"));
             }
             if (carried(otmp)) {
-                if (uarmg->oartifact == ART_HAND_OF_VECNA) {
+                if ((otmp == uarmg) && uarmg->oartifact == ART_HAND_OF_VECNA) {
                     ; /* nothing happens if worn */
                 } else {
                     remove_worn_item(otmp, FALSE);

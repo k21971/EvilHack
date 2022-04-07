@@ -2005,8 +2005,8 @@ boolean silent;
     }
     /* Inf are immune to curses. */
     if (Role_if(PM_INFIDEL) || !otmp->cursed
-        || (otmp == uwep && !welded(otmp))
-        || (otmp == uarmg && uarmg->oartifact == ART_HAND_OF_VECNA))
+        || ((otmp == uwep) && !welded(otmp))
+        || ((otmp == uarmg) && uarmg->oartifact == ART_HAND_OF_VECNA))
         return 0;
     if (silent)
         return 1;
