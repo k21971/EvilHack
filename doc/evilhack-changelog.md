@@ -2225,4 +2225,5 @@ The following changes to date are:
 - Implement a cooldown timer after a tortle hides in its shell
 - Fix: warning: array subscript [0, 1] is outside array bounds
   of ‘const char * const[2]’ [-Warray-bounds]
+- New monsters - sea tortle, tortle shaman
 

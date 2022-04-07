@@ -1611,6 +1611,8 @@ register struct monst *mtmp;
             (void) mongets(mtmp, (rn2(3) ? KNIFE : SHORT_SWORD));
         break;
     case S_LIZARD:
+        if (mm == PM_SEA_TORTLE)
+            (void) mongets(mtmp, (rn2(5) ? SPEAR : TRIDENT));
         if (mm == PM_SALAMANDER)
             (void) mongets(mtmp,
                            (rn2(7) ? SPEAR : rn2(3) ? TRIDENT : STILETTO));
@@ -2099,6 +2101,10 @@ register struct monst *mtmp;
         break;
     case S_LEPRECHAUN:
         mkmonmoney(mtmp, (long) d(level_difficulty(), 30));
+        break;
+    case S_LIZARD:
+        if (ptr == &mons[PM_SEA_TORTLE] && !rn2(3))
+            (void) mongets(mtmp, SMALL_SHIELD);
         break;
     case S_DEMON:
         /* moved here from m_initweap() because these don't
