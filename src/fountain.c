@@ -492,7 +492,8 @@ drinkfountain()
             exercise(A_WIS, TRUE);
             break;
         case 26: /* See Monsters */
-            (void) monster_detect((struct obj *) 0, 0);
+            if (monster_detect((struct obj *) 0, 0))
+                pline_The("%s tastes bland.", hliquid("water"));
             exercise(A_WIS, TRUE);
             break;
         case 27: /* Find a gem in the sparkling waters. */

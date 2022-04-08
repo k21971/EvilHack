@@ -2229,4 +2229,5 @@ The following changes to date are:
 - Fix: polymorphing into a red dragon no matter what type of dragon scales
   are being worn
 - Fix: crash when over-enchanting worn armor
+- Fix: add message for failed fountain monster detection
 
