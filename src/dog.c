@@ -1052,9 +1052,10 @@ tamedog(mtmp, obj)
 register struct monst *mtmp;
 register struct obj *obj;
 {
-    /* The Wiz, Vecna, Cerberus, Medusa and the quest nemeses aren't
-       even made peaceful. */
-    if (mtmp->iswiz || mtmp->isvecna || mtmp->iscerberus
+    /* The Wiz, Vecna, Cerberus, Medusa, the Goblin King
+       and the quest nemeses aren't even made peaceful. */
+    if (mtmp->iswiz || mtmp->isvecna
+        || mtmp->iscerberus || mtmp->isgking
         || mtmp->data == &mons[PM_MEDUSA]
         || (mtmp->data->mflags3 & M3_WANTSARTI)
         || unique_corpstat(mtmp->data))

@@ -2230,4 +2230,5 @@ The following changes to date are:
   are being worn
 - Fix: crash when over-enchanting worn armor
 - Fix: add message for failed fountain monster detection
+- New branch: Goblin Town
 

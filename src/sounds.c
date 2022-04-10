@@ -353,7 +353,7 @@ dosounds()
         static const char* const icequeenbranch_msg[] = {
             "an eerie, ominous wail.",
             "a howling wind.",
-            "someone singing \"Do You Want to Build a Snowman\"."
+            "someone singing \"Do You Want to Build a Snowman?\""
         };
         You_hear1(icequeenbranch_msg[rn2(2 + hallu)]);
         return;
@@ -366,6 +366,16 @@ dosounds()
             "\"Dead man walking\"..."
         };
         You_hear1(vecnabranch_msg[rn2(2 + hallu)]);
+        return;
+    }
+    if (!In_goblintown(&u.uz0) && at_dgn_entrance("Goblin Town")
+        && !rn2(200)) {
+        static const char* const gtown_msg[] = {
+            "the sounds of a bustling town nearby.",
+            "what sounds like a goblin war party off in the distance.",
+            "a chorus singing \"We are the Lollipop Guild\"..."
+        };
+        You_hear1(gtown_msg[rn2(2 + hallu)]);
         return;
     }
 }

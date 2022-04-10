@@ -509,7 +509,7 @@ struct obj *corpse;
         if (DEADMONSTER(mtmp))
             continue;
         mptr = mtmp->data;
-        if (mtmp->iswiz || mtmp->isvecna
+        if (mtmp->iswiz || mtmp->isvecna || mtmp->isgking
             || (mptr == &mons[PM_MEDUSA] && !Is_medusa_level(&u.uz))
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
             || mptr == &mons[PM_VLAD_THE_IMPALER]

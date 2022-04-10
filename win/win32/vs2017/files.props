@@ -36,6 +36,7 @@
     <Desfiles Include = "convict.des"/>
     <Desfiles Include = "endgame.des"/>
     <Desfiles Include = "gehennom.des"/>
+    <Desfiles Include = "goblintown.des"/>
     <Desfiles Include = "healer.des"/>
     <Desfiles Include = "icequeen.des"/>
     <Desfiles Include = "infidel.des"/>
@@ -55,6 +56,7 @@
     <Desfiles Include = "tower.des"/>
     <Desfiles Include = "valkyrie.des"/>
     <Desfiles Include = "vaults.des"/>
+    <Desfiles Include = "vecna.des"/>
     <Desfiles Include = "wizard.des"/>	
     <Desfiles Include = "yendor.des"/>
   </ItemGroup>
@@ -91,6 +93,7 @@
     <Levfiles Include = "orcus.lev"/>
     <Levfiles Include = "sanctum.lev"/>
     <Levfiles Include = "valley.lev"/>
+    <Levfiles Include = "goblintown.lev"/>
     <Levfiles Include = "icequeen-1.lev"/>
     <Levfiles Include = "icequeen-2.lev"/>
     <Levfiles Include = "icequeen-3.lev"/>

@@ -747,7 +747,10 @@ int shp_indx;
     }
 
     if (!srace) {
-        srace = m_randrace(monsndx(shk->data));
+        if (In_goblintown(&u.uz))
+            srace = PM_ORC;
+        else
+            srace = m_randrace(monsndx(shk->data));
     }
     apply_race(shk, srace);
 

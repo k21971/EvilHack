@@ -147,17 +147,17 @@ struct monst *mtmp;
 {
     /* creatures who are directly resistant to magical scaring:
      * Rodney, lawful minions, Angels, Archangels, the Riders,
-     * Vecna, monster players, demon lords and princes, honey badgers,
-     * shopkeepers inside their own shop, anything that is mindless,
-     * priests inside their own temple, the quest leaders and nemesis,
-     * neothelids
+     * Vecna, the Goblin King, monster players, demon lords and princes,
+     * honey badgers, shopkeepers inside their own shop, anything that
+     * is mindless, priests inside their own temple, the quest leaders
+     * and nemesis, neothelids
      */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL] || mtmp->data == &mons[PM_HONEY_BADGER]
         || mtmp->data == &mons[PM_NEOTHELID] || mindless(mtmp->data)
         || is_mplayer(mtmp->data) || is_rider(mtmp->data) || mtmp->isvecna
         || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
-        || (mtmp->isshk && inhishop(mtmp))
+        || (mtmp->isshk && inhishop(mtmp)) || mtmp->isgking
         || (mtmp->ispriest && inhistemple(mtmp)))
         return FALSE;
 

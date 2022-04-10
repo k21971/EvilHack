@@ -56,7 +56,6 @@ struct conditionals {
     /* commented out in monst.c at present */
     { MON_GLYPH, PM_SHAMAN_KARNOV, "Earendil" },
     { MON_GLYPH, PM_SHAMAN_KARNOV, "Elwing" },
-    { MON_GLYPH, PM_ANNAM, "Goblin King" },
     { MON_GLYPH, PM_NEANDERTHAL, "High-elf" },
 /* allow slime mold to look like slice of pizza, since we
  * don't know what a slime mold should look like when renamed anyway

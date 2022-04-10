@@ -1257,6 +1257,8 @@ wiz_map_levltyp(VOID_ARGS)
                 Strcat(dsc, " Ice Queen branch");
             if (slev->flags.vecnad)
                 Strcat(dsc, " Vecna's branch");
+            if (slev->flags.gtown)
+                Strcat(dsc, " Goblin Town");
             if (slev->flags.town)
                 Strcat(dsc, " town");
             if (slev->flags.rogue_like)
@@ -3719,6 +3721,9 @@ int final;
     if (u.uachieve.killed_vecna)
         enl_msg(You_, "have ", "",
                 "defeated Vecna", ""), ++acnt;
+    if (u.uachieve.killed_gking)
+        enl_msg(You_, "have ", "",
+                "defeated the Goblin King", ""), ++acnt;
     if (u.uachieve.defeat_icequeen)
         enl_msg(You_, "have ", "",
                 "defeated Kathryn the Ice Queen", ""), ++acnt;

@@ -968,7 +968,7 @@ level_tele()
          * but once he is defeated, the ability opens back up */
         if (newlev > 0 && !force_dest
             && ((Is_valley(&u.uz) && !u.uevent.ucerberus
-                 && (!wizard || yn("Cerberus is alive. Override?") != 'y'))
+                 && (!wizard || yn("Cerberus is alive.  Override?") != 'y'))
                 || Is_knox(&u.uz))) {
             You1(shudder_for_moment);
             return;

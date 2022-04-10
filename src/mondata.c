@@ -912,7 +912,7 @@ const char *in_str;
              && strncmpi(str, "kathryn ", 8))
         Strcpy(term - 5, "royal");
     else if (slen > 5 && (s = strstri(term - 5, " king")) != 0
-             && strncmpi(str, "rat ", 4))
+             && strncmpi(str, "rat ", 4) && strncmpi(str, "goblin ", 7))
         Strcpy(term - 4, "royal");
     /* be careful with "ies"; "priest", "zombies" */
     else if (slen > 3 && !strcmpi(term - 3, "ies")
@@ -959,6 +959,7 @@ const char *in_str;
             { "eldritch ki rin", PM_ELDRITCH_KI_RIN },
             { "uruk hai", PM_URUK_HAI },
             { "orc captain", PM_ORC_CAPTAIN },
+            { "goblin captain", PM_GOBLIN_CAPTAIN },
             { "woodland elf", PM_WOODLAND_ELF },
             { "green elf", PM_GREEN_ELF },
             { "grey elf", PM_GREY_ELF },

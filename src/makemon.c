@@ -1498,7 +1498,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, (rn2(2)) ? CLUB : RUBBER_HOSE);
         break;
     case S_ORC:
-        if (rn2(2))
+        if (mm != PM_GOBLIN_KING && rn2(2))
             (void) mongets(mtmp, ORCISH_HELM);
         switch ((mm != PM_ORC_CAPTAIN) ? mm
                 : rn2(2) ? PM_MORDOR_ORC : PM_URUK_HAI) {
@@ -2078,6 +2078,14 @@ register struct monst *mtmp;
     case S_MUMMY:
         if (rn2(7))
             (void) mongets(mtmp, MUMMY_WRAPPING);
+        break;
+    case S_ORC:
+        if (ptr == &mons[PM_GOBLIN_KING]) {
+            (void) mongets(mtmp, QUARTERSTAFF);
+            struct obj* received = m_carrying(mtmp, QUARTERSTAFF);
+            if (received)
+                set_material(received, BONE);
+        }
         break;
     case S_QUANTMECH:
         if (!rn2(20) && ptr == &mons[PM_QUANTUM_MECHANIC]) {
@@ -2828,6 +2836,8 @@ long mmflags;
         mtmp->iscerberus = TRUE;
     } else if (mndx == PM_VECNA) {
         mtmp->isvecna = TRUE;
+    } else if (mndx == PM_GOBLIN_KING) {
+        mtmp->isgking = TRUE;
     } else if (mndx == PM_WIZARD_OF_YENDOR) {
         mtmp->iswiz = TRUE;
         context.no_of_wizards++;

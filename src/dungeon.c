@@ -94,24 +94,26 @@ dumpit()
                 DD.num_dunlevs, DD.dunlev_ureached);
         fprintf(stderr, "    depth_start %d, ledger_start %d\n",
                 DD.depth_start, DD.ledger_start);
-        fprintf(stderr, "    flags:%s%s%s%s%s\n",
+        fprintf(stderr, "    flags:%s%s%s%s%s%s\n",
                 DD.flags.rogue_like ? " rogue_like" : "",
                 DD.flags.maze_like ? " maze_like" : "",
                 DD.flags.hellish ? " hellish" : "",
                 DD.flags.iceq ? " iceq" : "",
-                DD.flags.vecnad ? " vecnad" : "");
+                DD.flags.vecnad ? " vecnad" : "",
+                DD.flags.gtown ? " gtown" : "");
         getchar();
     }
     fprintf(stderr, "\nSpecial levels:\n");
     for (x = sp_levchn; x; x = x->next) {
         fprintf(stderr, "%s (%d): ", x->proto, x->rndlevs);
         fprintf(stderr, "on %d, %d; ", x->dlevel.dnum, x->dlevel.dlevel);
-        fprintf(stderr, "flags:%s%s%s%s%s%s\n",
+        fprintf(stderr, "flags:%s%s%s%s%s%s%s\n",
                 x->flags.rogue_like ? " rogue_like" : "",
                 x->flags.maze_like ? " maze_like" : "",
                 x->flags.hellish ? " hellish" : "",
                 x->flags.iceq ? " iceq" : "",
                 x->flags.vecnad ? " vecnad" : "",
+                x->flags.gtown ? " gtown" : "",
                 x->flags.town ? " town" : "");
         getchar();
     }
@@ -566,11 +568,13 @@ struct proto_dungeon *pd;
     new_level->flags.maze_like = !!(tlevel->flags & MAZELIKE);
     new_level->flags.rogue_like = !!(tlevel->flags & ROGUELIKE);
     new_level->flags.iceq = !!(tlevel->flags & ICEQ);
-    new_level->flags.iceq = !!(tlevel->flags & VECNAD);
-    new_level->flags.align = ((tlevel->flags & D_ALIGN_MASK) >> 4);
+    new_level->flags.vecnad = !!(tlevel->flags & VECNAD);
+    new_level->flags.gtown = !!(tlevel->flags & GTOWN);
+    /* bit shift needs to match that in include/dgn_file.h */
+    new_level->flags.align = ((tlevel->flags & D_ALIGN_MASK) >> 7);
     if (!new_level->flags.align)
         new_level->flags.align =
-            ((pd->tmpdungeon[dgn].flags & D_ALIGN_MASK) >> 4);
+            ((pd->tmpdungeon[dgn].flags & D_ALIGN_MASK) >> 7);
 
     new_level->rndlevs = tlevel->rndlevs;
     new_level->next = (s_level *) 0;
@@ -821,8 +825,10 @@ init_dungeons()
         dungeons[i].flags.rogue_like = !!(pd.tmpdungeon[i].flags & ROGUELIKE);
         dungeons[i].flags.iceq = !!(pd.tmpdungeon[i].flags & ICEQ);
         dungeons[i].flags.vecnad = !!(pd.tmpdungeon[i].flags & VECNAD);
+        dungeons[i].flags.gtown = !!(pd.tmpdungeon[i].flags & GTOWN);
+        /* bit shift needs to match that in include/dgn_file.h */
         dungeons[i].flags.align =
-            ((pd.tmpdungeon[i].flags & D_ALIGN_MASK) >> 4);
+            ((pd.tmpdungeon[i].flags & D_ALIGN_MASK) >> 7);
         /*
          * Set the entry level for this dungeon.  The pd.tmpdungeon entry
          * value means:
@@ -1444,6 +1450,14 @@ In_vecna_branch(lev)
 d_level *lev;
 {
     return (boolean) (dungeons[lev->dnum].flags.vecnad);
+}
+
+/* are you in Goblin Town? */
+boolean
+In_goblintown(lev)
+d_level *lev;
+{
+    return (boolean) (dungeons[lev->dnum].flags.gtown);
 }
 
 /*
