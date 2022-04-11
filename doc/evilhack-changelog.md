@@ -2238,4 +2238,5 @@ The following changes to date are:
 - Add goblin shaman monster to Goblin Town
 - Only certain types of monsters can randomly spawn in Goblin Town
 - Tortles are not slowed when walking through sewage
+- Tortles and giant turtles are vulnerable to cold-based attacks
 
