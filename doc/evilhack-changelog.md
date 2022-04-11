@@ -2231,4 +2231,6 @@ The following changes to date are:
 - Fix: crash when over-enchanting worn armor
 - Fix: add message for failed fountain monster detection
 - New branch: Goblin Town
+- Prevent falling down past Mine Town if the Goblin King has not been
+  defeated yet
 
