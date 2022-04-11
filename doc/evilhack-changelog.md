@@ -2234,4 +2234,5 @@ The following changes to date are:
 - Prevent falling down past Mine Town if the Goblin King has not been
   defeated yet
 - Fix: remove Goblin King template from quest nemesis block
+- Tortle encyclopedia entry
 
