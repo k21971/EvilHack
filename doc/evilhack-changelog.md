@@ -2233,4 +2233,5 @@ The following changes to date are:
 - New branch: Goblin Town
 - Prevent falling down past Mine Town if the Goblin King has not been
   defeated yet
+- Fix: remove Goblin King template from quest nemesis block
 
