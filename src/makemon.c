@@ -3136,6 +3136,8 @@ rndmonst()
                 continue;
             if (!Iniceq && is_iceq_only(ptr))
                 continue;
+            if (Ingtown && !likes_gtown(ptr))
+                continue;
             ct = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
 	    if (!is_mplayer(ptr))
 	        ct *= 3;

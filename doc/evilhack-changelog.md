@@ -2236,4 +2236,5 @@ The following changes to date are:
 - Fix: remove Goblin King template from quest nemesis block
 - Tortle encyclopedia entry
 - Add goblin shaman monster to Goblin Town
+- Only certain types of monsters can randomly spawn in Goblin Town
 

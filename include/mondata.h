@@ -406,6 +406,8 @@
      || (ptr) == &mons[PM_REVENANT] || (ptr) == &mons[PM_BABY_OWLBEAR]            \
      || (ptr) == &mons[PM_HUMAN_ZOMBIE] || (ptr) == &mons[PM_GIANT_ZOMBIE]        \
      || (ptr) == &mons[PM_LICH])
+#define likes_gtown(ptr) \
+    ((ptr)->mlet == S_ORC || (ptr)->mlet == S_KOBOLD || is_rat(ptr))
 
 /* macros for various monsters affected by specific types of damage */
 #define can_vaporize(ptr) \
