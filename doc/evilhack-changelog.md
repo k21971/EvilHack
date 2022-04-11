@@ -2235,4 +2235,5 @@ The following changes to date are:
   defeated yet
 - Fix: remove Goblin King template from quest nemesis block
 - Tortle encyclopedia entry
+- Add goblin shaman monster to Goblin Town
 

@@ -85,8 +85,8 @@ MONSTER:('o',"goblin"),(52,13),hostile
 MONSTER:('o',"goblin"),(54,05),hostile
 MONSTER:('o',"goblin"),(54,14),hostile
 MONSTER:('o',"goblin"),(56,15),hostile
-MONSTER:('o',"goblin"),(64,03),hostile
 MONSTER:('o',"goblin"),(67,05),hostile
+MONSTER:('o',"goblin shaman"),(64,03),hostile
 MONSTER:('o',"hobgoblin"),(26,12),hostile
 MONSTER:('o',"hobgoblin"),(38,06),hostile
 MONSTER:('o',"hobgoblin"),(55,16),hostile
