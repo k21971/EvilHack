@@ -511,6 +511,9 @@ doforging(void)
     } else if (is_worn(obj1) || is_worn(obj2)) { /* worn or wielded objects */
         You("must remove the objects you wish to forge.");
         return 0;
+    } else if (obj1->oartifact || obj2->oartifact) {
+        pline("Artifacts cannot be forged.");
+        return 0;
     }
 
     /* start the forging process */
@@ -530,17 +533,25 @@ doforging(void)
     } else if (objtype) {
         output = mksobj(objtype, TRUE, FALSE);
 
-        /* Take on the secondary object's material */
+        You("place %s, then %s inside the forge.",
+            the(xname(obj1)), the(xname(obj2)));
+        pline("Raising your %s, you begin to forge the objects together...",
+              xname(uwep));
+
+        /* take on the secondary object's material */
         if (valid_obj_material(output, obj2->material)) {
             output->material = obj2->material;
         } else if (valid_obj_material(output, obj1->material)) {
             output->material = obj1->material;
         }
 
-        You("place the %s and the %s inside the forge.",
-            xname(obj1), xname(obj2));
-        pline("Raising your %s, you begin to forge the objects together...",
-              xname(uwep));
+        /* any object properties, take secondary object property
+           over primary */
+        if (obj2->oprops) {
+            output->oprops = obj2->oprops;
+        } else if (obj1->oprops) {
+            output->oprops = obj1->oprops;
+        }
 
         /* if objects are enchanted or have charges,
            carry that over, and use the greater of the two */
@@ -552,18 +563,28 @@ doforging(void)
             output->spe = obj1->spe;
         }
 
-        /* Transfer curses and blessings from secondary object */
+        /* transfer curses and blessings from secondary object */
         output->cursed = obj2->cursed;
         output->blessed = obj2->blessed;
         /* ensure the final product is not degraded in any way */
         output->oeroded = output->oeroded2 = 0;
 
-        /* Toss out old objects, add new one */
+        /* toss out old objects, add new one */
         useup(obj1);
         useup(obj2);
         output = addinv(output);
+        if (output->oprops)
+            output->oprops_known |= output->oprops;
         You("have successfully forged %s.", an(xname(output)));
         update_inventory();
+        /* call this a second time, because order of events */
+        if (output->oprops) {
+            /* forging magic can sometimes be too much stress */
+            if (!rn2(3))
+                coolforge(u.ux, u.uy);
+            else
+                pline_The("lava in the forge bubbles ominously.");
+        }
     }
 
     return 1;
@@ -917,6 +938,18 @@ int x, y;
     level.flags.nforges--;
     explode(u.ux, u.uy, AD_FIRE - 1, resist_reduce(rnd(30), FIRE_RES),
             FORGE_EXPLODE, EXPL_FIERY);
+}
+
+void
+coolforge(x, y)
+int x, y;
+{
+    if (cansee(x, y) || (x == u.ux && y == u.uy))
+        pline_The("lava in the forge cools and solidifies.");
+    levl[x][y].typ = ROOM, levl[x][y].flags = 0;
+    levl[x][y].doormask = 0;
+    newsym(x, y);
+    level.flags.nforges--;
 }
 
 void
