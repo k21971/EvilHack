@@ -3801,6 +3801,7 @@ struct ext_func_tab extcmdlist[] = {
             enter_explore_mode, IFBURIED },
     { 'f', "fire", "fire ammunition from quiver", dofire },
     { M('f'), "force", "force a lock", doforce, AUTOCOMPLETE },
+    { M('F'), "forge", "combine two objects to create a new object", doforging, AUTOCOMPLETE },
     { ';', "glance", "show what type of thing a map symbol corresponds to",
             doquickwhatis, IFBURIED | GENERALCMD },
     { '?', "help", "give a help message", dohelp, IFBURIED | GENERALCMD },
@@ -5933,10 +5934,15 @@ boolean doit;
     if (IS_FORGE(typ)) {
         add_herecmd_menuitem(win, dodrink, "Really drink the lava from the forge?");
     }
-    if (IS_FOUNTAIN(typ))
+    if (IS_FOUNTAIN(typ) || IS_FORGE(typ))
         Sprintf(buf, "Dip something into the %s",
                 defsyms[IS_FOUNTAIN(typ) ? S_fountain : S_forge].explanation);
         add_herecmd_menuitem(win, dodip, buf);
+    if (IS_FORGE(typ)) {
+        Sprintf(buf, "Combine objects in the %s",
+                defsyms[S_forge].explanation);
+        add_herecmd_menuitem(win, doforging, buf);
+    }
     if (IS_THRONE(typ))
         add_herecmd_menuitem(win, dosit,
                              "Sit on the throne");
@@ -6059,6 +6065,9 @@ int x, y, mod;
                 || IS_SINK(levl[u.ux][u.uy].typ)
                 || IS_FORGE(levl[u.ux][u.uy].typ)) {
                 cmd[0] = cmd_from_func(mod == CLICK_1 ? dodrink : dodip);
+                return cmd;
+            } else if (IS_FORGE(levl[u.ux][u.uy].typ)) {
+                cmd[0] = cmd_from_func(mod == CLICK_1 ? doforging : dodip);
                 return cmd;
             } else if (IS_THRONE(levl[u.ux][u.uy].typ)) {
                 cmd[0] = cmd_from_func(dosit);

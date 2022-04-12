@@ -510,7 +510,7 @@
 
           _    An altar, or an iron chain.
 
-          {    A fountain.
+          {    A fountain or a forge.
 
           }    A pool of water or moat or a pool of lava.
 
@@ -5254,6 +5254,7 @@
           ^  S_fire_trap            (fire trap)
           !  S_flashbeam            (flash beam)
           %  S_food                 (piece of food)
+          {  S_forge                (forge)
           {  S_fountain             (fountain)
           F  S_fungus               (fungus or mold)
           *  S_gem                  (gem or rock)
@@ -5271,7 +5272,6 @@
           ^  S_hole                 (hole)
           @  S_human                (human or elf)
           h  S_humanoid             (humanoid)
-
 
 
           NetHack 3.6                                    September 29, 2021

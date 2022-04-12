@@ -383,6 +383,192 @@ lava:
     update_inventory();
 }
 
+/* forging recipes - first object is the end result
+   of combining objects two and three
+   TODO: could easily allow all sorts of magical
+   objects (or even artifacts) to be forged, but that
+   feels overpowered without needing some other
+   component added to the mix, or maybe have the
+   forge be used up, or both */
+static const short fusions[][3] = {
+    /* weapons */
+    { SHURIKEN, DART, DAGGER },
+    { SPEAR, ARROW, DAGGER },
+    { ORCISH_SPEAR, ORCISH_ARROW, ORCISH_DAGGER },
+    { DWARVISH_SPEAR, ARROW, SPEAR },
+    { JAVELIN, DART, SPEAR },
+    { TRIDENT, SCIMITAR, SPEAR },
+    { DAGGER, ARROW, KNIFE },
+    { ORCISH_DAGGER, ORCISH_ARROW, KNIFE },
+    { ATHAME, DAGGER, STILETTO },
+    { SCALPEL, KNIFE, STILETTO },
+    { KNIFE, ARROW, DART },
+    { STILETTO, KNIFE, KNIFE },
+    { AXE, DAGGER, SPEAR },
+    { DWARVISH_BEARDED_AXE, AXE, LONG_SWORD },
+    { BATTLE_AXE, AXE, BROADSWORD },
+    { SHORT_SWORD, DAGGER, DAGGER },
+    { ORCISH_SHORT_SWORD, ORCISH_DAGGER, ORCISH_DAGGER },
+    { DWARVISH_SHORT_SWORD, DWARVISH_SPEAR, SHORT_SWORD },
+    { SCIMITAR, KNIFE, SHORT_SWORD },
+    { ORCISH_SCIMITAR, KNIFE, ORCISH_SHORT_SWORD },
+    { SABER, SCIMITAR, LONG_SWORD },
+    { BROADSWORD, SCIMITAR, SHORT_SWORD },
+    { LONG_SWORD, SHORT_SWORD, SHORT_SWORD },
+    { ORCISH_LONG_SWORD, ORCISH_SHORT_SWORD, ORCISH_SHORT_SWORD },
+    { TWO_HANDED_SWORD, LONG_SWORD, BROADSWORD },
+    { KATANA, LONG_SWORD, LONG_SWORD },
+    { TSURUGI, TWO_HANDED_SWORD, KATANA },
+    { RUNESWORD, BROADSWORD, DAGGER },
+    { LANCE, RANSEUR, GLAIVE },
+    { HALBERD, RANSEUR, AXE },
+    { DWARVISH_MATTOCK, PICK_AXE, DWARVISH_SHORT_SWORD },
+    { MACE, WAR_HAMMER, DAGGER },
+    { HEAVY_MACE, MACE, MACE },
+    { MORNING_STAR, MACE, DAGGER },
+    { ORCISH_MORNING_STAR, MACE, ORCISH_DAGGER },
+    { WAR_HAMMER, MACE, FLAIL },
+    { HEAVY_WAR_HAMMER, WAR_HAMMER, WAR_HAMMER },
+    { AKLYS, FLAIL, SPEAR },
+    { FLAIL, MORNING_STAR, MACE },
+    /* armor (helmets) */
+    { ORCISH_HELM, DENTED_POT, ORCISH_DAGGER },
+    { DWARVISH_HELM, HELMET, DWARVISH_SHORT_SWORD },
+    { DENTED_POT, WAR_HAMMER, KNIFE },
+    { HELMET, DENTED_POT, DAGGER },
+    /* armor (body armor) */
+    { PLATE_MAIL, SPLINT_MAIL, CHAIN_MAIL },
+    { SPLINT_MAIL, SCALE_MAIL, CHAIN_MAIL },
+    { LARGE_SPLINT_MAIL, PLATE_MAIL, PLATE_MAIL },
+    { BANDED_MAIL, SCALE_MAIL, RING_MAIL },
+    { CHAIN_MAIL, RING_MAIL, RING_MAIL },
+    { DWARVISH_CHAIN_MAIL, CHAIN_MAIL, DWARVISH_ROUNDSHIELD },
+    { ELVEN_CHAIN_MAIL, CHAIN_MAIL, LARGE_SHIELD },
+    { ORCISH_CHAIN_MAIL, RING_MAIL, ORCISH_SHIELD },
+    { SCALE_MAIL, RING_MAIL, HELMET },
+    { RING_MAIL, LARGE_SHIELD, HELMET },
+    { ORCISH_RING_MAIL, ORCISH_SHIELD, ORCISH_HELM },
+    /* armor (shields) */
+    { URUK_HAI_SHIELD, ORCISH_SHIELD, ORCISH_SHIELD },
+    { ORCISH_SHIELD, ORCISH_HELM, ORCISH_BOOTS },
+    { LARGE_SHIELD, HELMET, HELMET },
+    { DWARVISH_ROUNDSHIELD, LARGE_SHIELD, DWARVISH_HELM },
+    /* armor (gauntlets and boots) */
+    { GAUNTLETS, MACE, HELMET },
+    { DWARVISH_BOOTS, GAUNTLETS, DWARVISH_SHORT_SWORD },
+    { ORCISH_BOOTS, GAUNTLETS, ORCISH_SHORT_SWORD },
+    { 0, 0, 0, }
+};
+
+int
+doforging(void)
+{
+    struct obj* obj1;
+    struct obj* obj2;
+    struct obj* output;
+    char allowall[2];
+    int i, objtype = 0;
+
+    allowall[0] = ALL_CLASSES;
+    allowall[1] = '\0';
+
+    /* first, we need a forge */
+    if (!IS_FORGE(levl[u.ux][u.uy].typ)) {
+        You("need a forge in order to forge objects.");
+        return 0;
+    }
+
+    /* next, the proper tool to do the job */
+    if ((uwep && !is_hammer(uwep)) || !uwep) {
+        pline("You'll need a hammer to forge successfully.");
+        return 0;
+    }
+
+    /* setup the base object */
+    obj1 = getobj(allowall, "use as a base");
+    if (!obj1) {
+        You("need a base object to forge with.");
+        return 0;
+    } else if (!is_metallic(obj1)) { /* object should be metallic */
+        pline_The("base object must be made of something metallic.");
+        return 0;
+    }
+
+    /* setup the secondary object */
+    obj2 = getobj(allowall, "combine with the base object");
+    if (!obj2) {
+        You("need more than one object.");
+        return 0;
+    } else if (!is_metallic(obj2)) { /* secondary object should also be metallic */
+        pline_The("secondary object must be made of something metallic.");
+        return 0;
+    }
+
+    /* handle illogical cases */
+    if (obj1 == obj2) {
+        You_cant("combine an object with itself!");
+        return 0;
+    } else if (is_worn(obj1) || is_worn(obj2)) { /* worn or wielded objects */
+        You("must remove the objects you wish to forge.");
+        return 0;
+    }
+
+    /* start the forging process */
+    for (i = 0; fusions[i][0] > 0; i++) {
+        if ((obj1->otyp == fusions[i][1] && obj2->otyp == fusions[i][2])
+            || (obj2->otyp == fusions[i][1] && obj1->otyp == fusions[i][2])) {
+            objtype = fusions[i][0];
+            break;
+        }
+    }
+
+    if (!objtype) {
+        /* if the objects used do not match the recipe array,
+           the forging process fails */
+        You("fail to combine these two objects.");
+        return 1;
+    } else if (objtype) {
+        output = mksobj(objtype, TRUE, FALSE);
+
+        /* Take on the secondary object's material */
+        if (valid_obj_material(output, obj2->material)) {
+            output->material = obj2->material;
+        } else if (valid_obj_material(output, obj1->material)) {
+            output->material = obj1->material;
+        }
+
+        You("place the %s and the %s inside the forge.",
+            xname(obj1), xname(obj2));
+        pline("Raising your %s, you begin to forge the objects together...",
+              xname(uwep));
+
+        /* if objects are enchanted or have charges,
+           carry that over, and use the greater of the two */
+        if (output->oclass == obj2->oclass) {
+            output->spe = obj2->spe;
+            if (output->oclass == obj1->oclass)
+                output->spe = max(output->spe, obj1->spe);
+        } else if (output->oclass == obj1->oclass) {
+            output->spe = obj1->spe;
+        }
+
+        /* Transfer curses and blessings from secondary object */
+        output->cursed = obj2->cursed;
+        output->blessed = obj2->blessed;
+        /* ensure the final product is not degraded in any way */
+        output->oeroded = output->oeroded2 = 0;
+
+        /* Toss out old objects, add new one */
+        useup(obj1);
+        useup(obj2);
+        output = addinv(output);
+        You("have successfully forged %s.", an(xname(output)));
+        update_inventory();
+    }
+
+    return 1;
+}
+
 void
 drinkfountain()
 {

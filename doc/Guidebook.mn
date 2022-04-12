@@ -434,7 +434,7 @@ An iron ball.
 .lp _
 An altar, or an iron chain.
 .lp {
-A fountain.
+A fountain or a forge.
 .lp }
 A pool of water or moat or a pool of lava.
 .lp \\\\
@@ -4505,7 +4505,7 @@ E	S_elemental	(elemental)
 \-	S_explode2	(explosion top center)
 \\	S_explode3	(explosion top right)
 |	S_explode4	(explosion middle left)
-\ 	S_explode5	(explosion middle center)
+\	S_explode5	(explosion middle center)
 |	S_explode6	(explosion middle right)
 \\	S_explode7	(explosion bottom left)
 \-	S_explode8	(explosion bottom center)
@@ -4516,10 +4516,11 @@ f	S_feline	(cat or other feline)
 \(ha	S_fire_trap	(fire trap)
 !	S_flashbeam	(flash beam)
 %	S_food	(piece of food)
+{	S_forge		(forge)
 {	S_fountain	(fountain)
 F	S_fungus	(fungus or mold)
 *	S_gem	(gem or rock)
-\ 	S_ghost	(ghost)
+\	S_ghost	(ghost)
 H	S_giant	(giant humanoid)
 G	S_gnome	(gnome)
 \'	S_golem	(golem)

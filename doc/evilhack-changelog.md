@@ -2239,4 +2239,5 @@ The following changes to date are:
 - Only certain types of monsters can randomly spawn in Goblin Town
 - Tortles are not slowed when walking through sewage
 - Tortles and giant turtles are vulnerable to cold-based attacks
+- Player can create various types of armor and weapons using a forge
 
