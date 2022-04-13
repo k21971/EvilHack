@@ -49,6 +49,12 @@ IF [33%] {
 FORGE:(24,12)
 
 # Various objects
+CONTAINER:('(',"chest"),(23,18) {
+  OBJECT:('+',"novel"),uncursed,name:"The Blacksmith's Cookbook"
+  IF [30%] {
+    OBJECT:(')',"heavy war hammer"),uncursed
+  }
+}
 OBJECT:('`',"boulder"),(28,03)
 OBJECT:('`',"boulder"),(71,11)
 

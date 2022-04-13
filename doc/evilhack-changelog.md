@@ -2244,4 +2244,5 @@ The following changes to date are:
 - Fix: incorrect feedback with attacking monsters weapon resisting
   passive cancellation
 - More tweaks to forging
+- The Blacksmith's Cookbook
 
