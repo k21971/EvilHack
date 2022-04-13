@@ -5403,7 +5403,7 @@ boolean moncast;
 
     /* set up zap text for possible door feedback; for exploding wand, we
        want "the blast" rather than "your blast" even if hero caused it */
-    yourzap = (type >= 0 && !exploding_wand_typ);
+    yourzap = (type >= 0 && !exploding_wand_typ && !moncast);
     zapverb = "blast"; /* breath attack or wand explosion */
     if (!exploding_wand_typ) {
         if (abs(type) < ZT_SPELL(0))

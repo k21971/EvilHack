@@ -2245,4 +2245,6 @@ The following changes to date are:
   passive cancellation
 - More tweaks to forging
 - The Blacksmith's Cookbook
+- Fix: improper feedback when a monster spellcaster destroys a secret
+  door with fire/ice bolt spell
 
