@@ -2247,4 +2247,5 @@ The following changes to date are:
 - The Blacksmith's Cookbook
 - Fix: improper feedback when a monster spellcaster destroys a secret
   door with fire/ice bolt spell
+- Fix: improper death reason when killed by a thrown potion of oil
 
