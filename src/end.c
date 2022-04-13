@@ -52,7 +52,6 @@ static void FDECL(done_hangup, (int));
 STATIC_DCL void FDECL(disclose, (int, BOOLEAN_P));
 STATIC_DCL void FDECL(get_valuables, (struct obj *));
 STATIC_DCL void FDECL(sort_valuables, (struct valuable_data *, int));
-STATIC_DCL void NDECL(done_object_cleanup);
 STATIC_DCL void FDECL(artifact_score, (struct obj *, BOOLEAN_P, winid));
 STATIC_DCL void FDECL(really_done, (int)) NORETURN;
 STATIC_DCL void FDECL(savelife, (int));
@@ -1161,7 +1160,7 @@ int what;
 #endif
 
 /* deal with some objects which may be in an abnormal state at end of game */
-STATIC_OVL void
+void
 done_object_cleanup()
 {
     int ox, oy;

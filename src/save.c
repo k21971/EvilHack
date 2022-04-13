@@ -126,6 +126,11 @@ dosave0()
         u.uinwater = 1, iflags.save_uinwater = 0;
     if (iflags.save_uburied)
         u.uburied = 1, iflags.save_uburied = 0;
+    /* extra handling for hangup save or panic save; without this,
+       a thrown light source might trigger an "obj_is_local" panic;
+       if a thrown or kicked object is in transit, put it on the map;
+       when punished, make sure ball and chain are placed too */
+    done_object_cleanup(); /* maybe force some items onto map */
 
     if (!program_state.something_worth_saving || !SAVEF[0])
         return 0;
@@ -1379,6 +1384,7 @@ free_dungeons()
     return;
 }
 
+/* free a lot of allocated memory which is ordinarily freed during save */
 void
 freedynamicdata()
 {
@@ -1408,6 +1414,7 @@ freedynamicdata()
     dmonsfree(); /* release dead monsters */
 
     /* level-specific data */
+    done_object_cleanup(); /* maybe force some OBJ_FREE items onto map */
     free_current_level();
 
     /* game-state data [ought to reorganize savegamestate() to handle this] */

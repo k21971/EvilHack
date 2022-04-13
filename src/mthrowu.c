@@ -178,8 +178,10 @@ int x, y;
                 retvalu = 0;
             }
         }
-    } else
+    } else {
         obfree(obj, (struct obj *) 0);
+    }
+    thrownobj = 0;
     return retvalu;
 }
 
@@ -696,6 +698,8 @@ register boolean verbose;
         singleobj = splitobj(obj, 1L);
         obj_extract_self(singleobj);
     }
+    /* global pointer for missile object in OBJ_FREE state */
+    thrownobj = singleobj;
 
     singleobj->owornmask = 0; /* threw one of multiple weapons in hand? */
 
@@ -734,8 +738,8 @@ register boolean verbose;
     if (sym)
         tmp_at(DISP_FLASH, obj_to_glyph(singleobj, rn2_on_display_rng));
     while (range-- > 0) { /* Actually the loop is always exited by break */
-        bhitpos.x += dx;
-        bhitpos.y += dy;
+        singleobj->ox = bhitpos.x += dx;
+        singleobj->oy = bhitpos.y += dy;
         mtmp = m_at(bhitpos.x, bhitpos.y);
         if (mtmp && shade_miss(mon, mtmp, singleobj, TRUE, TRUE)) {
             /* if mtmp is a shade and missile passes harmlessly through it,
@@ -912,6 +916,10 @@ register boolean verbose;
 
 cleanup_thrown:
     ammo_stack = (struct obj *) 0;
+
+    /* note: all early returns follow drop_throw() which clears thrownobj */
+    thrownobj = 0;
+    return;
 }
 
 #undef MT_FLIGHTCHECK

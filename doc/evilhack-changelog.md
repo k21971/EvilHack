@@ -2248,4 +2248,6 @@ The following changes to date are:
 - Fix: improper feedback when a monster spellcaster destroys a secret
   door with fire/ice bolt spell
 - Fix: improper death reason when killed by a thrown potion of oil
+- Fix: end of game crash if killed by a lit thrown/scattered potion
+  of oil before the potion could explode
 

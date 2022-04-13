@@ -770,6 +770,7 @@ struct obj *obj; /* only scatter this obj        */
     while (farthest-- > 0) {
         for (stmp = schain; stmp; stmp = stmp->next) {
             if ((stmp->range-- > 0) && (!stmp->stopped)) {
+                thrownobj = stmp->obj; /* mainly in case it kills hero */
                 bhitpos.x = stmp->ox + stmp->dx;
                 bhitpos.y = stmp->oy + stmp->dy;
                 typ = levl[bhitpos.x][bhitpos.y].typ;
@@ -816,6 +817,10 @@ struct obj *obj; /* only scatter this obj        */
                 }
                 stmp->ox = bhitpos.x;
                 stmp->oy = bhitpos.y;
+                if (IS_SINK(levl[stmp->ox][stmp->oy].typ)
+                    || IS_FORGE(levl[stmp->ox][stmp->oy].typ))
+                    stmp->stopped = TRUE;
+                thrownobj = (struct obj *) 0;
             }
         }
     }
