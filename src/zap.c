@@ -3210,7 +3210,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
                 if (otmp->blessed && !otmp->oartifact
                     && !obj_resists(otmp, 0, 0) && !rn2(5)) {
-                    Your("%s!", aobjnam(otmp, "resist"));
+                    pline("%s!", Yobjnam2(otmp, "resist"));
                     continue;
                 }
                 if (((otmp->oartifact && spec_ability(otmp, SPFX_INTEL))

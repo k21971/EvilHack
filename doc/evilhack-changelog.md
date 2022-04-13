@@ -2241,4 +2241,6 @@ The following changes to date are:
 - Tortles and giant turtles are vulnerable to cold-based attacks
 - Player can create various types of armor and weapons using a forge
 - Fix: tweaks to initial forging commit
+- Fix: incorrect feedback with attacking monsters weapon resisting
+  passive cancellation
 
