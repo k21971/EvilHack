@@ -2243,4 +2243,5 @@ The following changes to date are:
 - Fix: tweaks to initial forging commit
 - Fix: incorrect feedback with attacking monsters weapon resisting
   passive cancellation
+- More tweaks to forging
 

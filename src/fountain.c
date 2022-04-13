@@ -508,11 +508,28 @@ doforging(void)
     if (obj1 == obj2) {
         You_cant("combine an object with itself!");
         return 0;
-    } else if (is_worn(obj1) || is_worn(obj2)) { /* worn or wielded objects */
-        You("must remove the objects you wish to forge.");
+    /* not that the Amulet of Yendor or invocation items would
+       ever be part of a forging recipe, but these should be
+       protected in any case */
+    } else if (obj_resists(obj1, 0, 0)
+               || obj_resists(obj2, 0, 0)) {
+        You_cant("forge such a thing!");
+        blowupforge(u.ux, u.uy);
         return 0;
+    /* worn or wielded objects */
+    } else if (is_worn(obj1) || is_worn(obj2)) {
+        You("must first %s the objects you wish to forge.",
+            ((obj1->owornmask & W_ARMOR)
+             || (obj2->owornmask & W_ARMOR)) ? "remove" : "unwield");
+        return 0;
+    /* artifacts are off limits */
     } else if (obj1->oartifact || obj2->oartifact) {
         pline("Artifacts cannot be forged.");
+        return 0;
+    /* dragon-scaled armor can never be fully metallic */
+    } else if (Is_dragon_scaled_armor(obj1)
+               || Is_dragon_scaled_armor(obj2)) {
+        pline("Dragon-scaled armor cannot be forged.");
         return 0;
     }
 
