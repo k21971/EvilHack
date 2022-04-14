@@ -2256,4 +2256,5 @@ The following changes to date are:
 - Tortles have a chance of spawning with an oilskin sack
 - Corrections to commit concerning sacrifice gifts and tortles
 - Make tortles immune to various attacks while in their shell
+- Tortles gradually gain AC as they level up
 
