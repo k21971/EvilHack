@@ -235,9 +235,13 @@ struct attack *mattk;
                       (rn2(2) ? "blocks" : "deflects"),
                       s_suffix(mon_nam(mtmp)));
             } else {
-                rn2(2) ? You("dodge %s attack!", s_suffix(mon_nam(mtmp)))
-                       : rn2(2) ? You("evade %s attack!", s_suffix(mon_nam(mtmp)))
-                                : pline("%s narrowly misses!", Monnam(mtmp));
+                if (Race_if(PM_TORTLE)) {
+                    pline("%s narrowly misses!", Monnam(mtmp));
+                } else {
+                    rn2(2) ? You("dodge %s attack!", s_suffix(mon_nam(mtmp)))
+                           : rn2(2) ? You("evade %s attack!", s_suffix(mon_nam(mtmp)))
+                                    : pline("%s narrowly misses!", Monnam(mtmp));
+                }
             }
         } else if (blocker == &zeroobj) {
             pline("%s is stopped by your golden haze.", Monnam(mtmp));
@@ -931,6 +935,16 @@ register struct monst *mtmp;
                              || Wounded_legs || Stoned || Fumbling) && rn2(3)) {
                         You("nimbly %s %s bite!",
                             rn2(2) ? "dodge" : "evade", s_suffix(mon_nam(mtmp)));
+                        return 0;
+                    }
+                    if (is_zombie(mdat) && mattk->aatyp == AT_BITE
+                        && Hidinshell) {
+                        Your("protective shell blocks %s bite!", s_suffix(mon_nam(mtmp)));
+                        return 0;
+                    }
+                    if (is_illithid(mdat) && mattk->aatyp == AT_TENT
+                        && Hidinshell) {
+                        Your("protective shell blocks %s tentacle attack!", s_suffix(mon_nam(mtmp)));
                         return 0;
                     }
                     if (tmp > (j = rnd(20 + i))) {
@@ -1867,13 +1881,14 @@ register struct attack *mattk;
         hitmsg(mtmp, mattk);
         if (youmonst.data->mlet == mdat->mlet)
             break;
-        if (!mtmp->mcan)
+        if (!(mtmp->mcan || Hidinshell))
             stealgold(mtmp);
         break;
 
     case AD_SSEX:
         if (SYSOPT_SEDUCE) {
-            if (could_seduce(mtmp, &youmonst, mattk) == 1 && !mtmp->mcan)
+            if (could_seduce(mtmp, &youmonst, mattk) == 1
+                && !(mtmp->mcan || Hidinshell))
                 if (doseduce(mtmp))
                     return 3;
             break;
@@ -1884,7 +1899,7 @@ register struct attack *mattk;
         int is_robber = (is_animal(mtmp->data) || is_rogue(mtmp->data));
         if (is_robber) {
             hitmsg(mtmp, mattk);
-            if (mtmp->mcan)
+            if (mtmp->mcan || Hidinshell)
                 break;
             /* Continue below */
         } else if (dmgtype(youmonst.data, AD_SEDU)
@@ -1900,7 +1915,7 @@ register struct attack *mattk;
             if (!tele_restrict(mtmp))
                 (void) rloc(mtmp, TRUE);
             return 3;
-        } else if (mtmp->mcan) {
+        } else if (mtmp->mcan || Hidinshell) {
             if (!Blind)
                 pline("%s tries to %s you, but you seem %s.",
                       Adjmonnam(mtmp, "plain"),
@@ -1937,6 +1952,8 @@ register struct attack *mattk;
         /* when the Wizard or quest nemesis hits, there's a 1/20 chance
            to steal a quest artifact (any, not just the one for the hero's
            own role) or the Amulet or one of the invocation tools */
+        if (Hidinshell)
+            break;
         if (!rn2(20)) {
             stealamulet(mtmp);
             if (In_endgame(&u.uz) && mon_has_amulet(mtmp)) {
@@ -2270,6 +2287,11 @@ do_rust:
             if (noncorporeal(youmonst.data) || amorphous(youmonst.data)) {
                 pline("%s slices through your %s.",
                       Monnam(mtmp), body_part(NECK));
+                break;
+            }
+            if (Hidinshell) {
+                pline("%s attack glances harmlessly off of your protective shell.",
+                      s_suffix(Monnam(mtmp)));
                 break;
             }
             pline("%s %ss you!", Monnam(mtmp),

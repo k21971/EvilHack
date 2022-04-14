@@ -2498,6 +2498,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           body_part(NECK));
                     return TRUE;
                 }
+                if (Hidinshell) {
+                    pline("%s glances harmlessly off of your protective shell.", wepdesc);
+                    return TRUE;
+                }
                 *dmgptr = 2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER;
                 pline(behead_msg[rn2(SIZE(behead_msg))], wepdesc, "you");
                 otmp->dknown = TRUE;

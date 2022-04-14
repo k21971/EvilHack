@@ -798,7 +798,7 @@ int spellnum;
             impossible("no reason for monster to cast disappear spell?");
         break;
     case MGC_STUN_YOU:
-        if (Antimagic || Free_action) {
+        if (Antimagic || Free_action || Hidinshell) {
             shieldeff(u.ux, u.uy);
             if (!Stunned)
                 You_feel("momentarily disoriented.");
