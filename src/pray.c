@@ -2330,19 +2330,27 @@ dosacrifice()
                                 /* FALLTHRU */
                             case 4:
                                 /* gloves */
-                                if (primary_casters || primary_casters_priest)
+                                if ((primary_casters || primary_casters_priest)
+                                    && !Race_if(PM_TORTLE))
                                     typ = rn2(3) ? typ == GLOVES
                                                  : rnd_class(GAUNTLETS_OF_POWER,
+                                                             GAUNTLETS_OF_DEXTERITY);
+                                else if (Race_if(PM_TORTLE))
+                                    typ = rn2(3) ? typ == GLOVES
+                                                 : rnd_class(GAUNTLETS_OF_PROTECTION,
                                                              GAUNTLETS_OF_DEXTERITY);
                                 else
                                     typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
                                 break;
                             case 5:
                                 /* helm */
-                                if (primary_casters || primary_casters_priest)
+                                if ((primary_casters || primary_casters_priest)
+                                    && !Race_if(PM_TORTLE))
                                     typ = rn2(2) ? rnd_class(CORNUTHAUM, ELVEN_HELM)
                                                  : rnd_class(HELM_OF_BRILLIANCE,
                                                              HELM_OF_TELEPATHY);
+                                else if (Race_if(PM_TORTLE))
+                                    typ = rnd_class(CORNUTHAUM, ELVEN_HELM);
                                 else
                                     typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
                                 break;
@@ -2399,24 +2407,6 @@ dosacrifice()
                                    && ncount++ < 500) {
                                 otmp = mksobj(typ, FALSE, FALSE);
                                 /* keep trying for non-mithril */
-                            }
-                        }
-
-                        if (Race_if(PM_TORTLE)) {
-                            while (is_metallic(otmp)
-                                   && is_gloves(otmp)
-                                   && ncount++ < 500) {
-                                otmp = mksobj(typ, FALSE, FALSE);
-                                /* keep trying for non-metallic */
-                            }
-                        }
-
-                        if (Race_if(PM_TORTLE)) {
-                            while (is_metallic(otmp)
-                                   && is_helmet(otmp)
-                                   && ncount++ < 500) {
-                                otmp = mksobj(typ, FALSE, FALSE);
-                                /* keep trying for non-metallic */
                             }
                         }
 

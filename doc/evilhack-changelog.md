@@ -2254,4 +2254,5 @@ The following changes to date are:
 - Tortles are not affected by turbulence whilst swimming
 - Ensure tortles don't receive regular gear sacrifice gifts they can't use
 - Tortles have a chance of spawning with an oilskin sack
+- Corrections to commit concerning sacrifice gifts and tortles
 
