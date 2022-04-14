@@ -2283,10 +2283,12 @@ dosacrifice()
                     } else { /* Making armor */
                         do {
                             /* even chance for each slot
-                             * giants are evenly distributed among armor they can wear
-                             * monks and centaurs end up more likely to receive certain
-                             * kinds, but them's the breaks */
-                            switch (Race_if(PM_GIANT) ? rn1(4, 2) : rn2(6)) {
+                               giants and tortles are evenly distributed among armor
+                               they can wear. monks and centaurs end up more likely
+                               to receive certain kinds, but them's the breaks */
+                            switch (Race_if(PM_GIANT) ? rn1(4, 2)
+                                                      : Race_if(PM_TORTLE) ? rn1(3, 3)
+                                                                           : rn2(6)) {
                             case 0:
                                 /* body armor (inc. shirts) */
                                 if (primary_casters || primary_casters_priest)
@@ -2397,6 +2399,24 @@ dosacrifice()
                                    && ncount++ < 500) {
                                 otmp = mksobj(typ, FALSE, FALSE);
                                 /* keep trying for non-mithril */
+                            }
+                        }
+
+                        if (Race_if(PM_TORTLE)) {
+                            while (is_metallic(otmp)
+                                   && is_gloves(otmp)
+                                   && ncount++ < 500) {
+                                otmp = mksobj(typ, FALSE, FALSE);
+                                /* keep trying for non-metallic */
+                            }
+                        }
+
+                        if (Race_if(PM_TORTLE)) {
+                            while (is_metallic(otmp)
+                                   && is_helmet(otmp)
+                                   && ncount++ < 500) {
+                                otmp = mksobj(typ, FALSE, FALSE);
+                                /* keep trying for non-metallic */
                             }
                         }
 

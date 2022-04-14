@@ -2252,4 +2252,5 @@ The following changes to date are:
   of oil before the potion could explode
 - Fix: accessing freed memory after charging causes a ring to explode
 - Tortles are not affected by turbulence whilst swimming
+- Ensure tortles don't receive regular gear sacrifice gifts they can't use
 
