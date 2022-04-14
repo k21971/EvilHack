@@ -221,6 +221,8 @@ struct trobj Psionics[] = { { SPE_PSIONIC_WAVE, 0, SPBOOK_CLASS, 1, 0 },
                                    { 0, 0, 0, 0, 0 } };
 struct trobj AoMR[] = { { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, 0 },
                                { 0, 0, 0, 0, 0 } };
+struct trobj Oilskin[] = { { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
+                                  { 0, 0, 0, 0, 0 } };
 
 /* race-based substitutions for initial inventory;
    the weaker cloak for elven rangers is intentional--they shoot better */
@@ -1064,7 +1066,7 @@ u_init()
 
         if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_CONVICT)) {
             if (!rn2(4)) {
-                /* Wise dwarves bring their toy to the dungeons. */
+                /* Wise dwarves bring their toy to the dungeons */
                 ini_inv(Pickaxe);
             }
         }
@@ -1081,6 +1083,11 @@ u_init()
             P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
         if (Role_if(PM_HEALER) || Role_if(PM_TOURIST))
             P_MAX_SKILL(P_TRIDENT) = P_SKILLED;
+
+        if (!rn2(4)) {
+            /* in case they want to go for a swim */
+            ini_inv(Oilskin);
+        }
         break;
 
     case PM_GIANT:
