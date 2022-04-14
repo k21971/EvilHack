@@ -5247,7 +5247,7 @@ boolean moncast;
                 You_hear("hissing gas.");
             }
             rangemod -= 3;
-            lev->typ = ROOM;
+            lev->typ = ROOM, lev->flags = 0;
             if (lev->typ == ROOM) {
                 if ((mon = m_at(x, y)) != 0) {
                     if (is_swimmer(mon->data) && mon->mundetected) {

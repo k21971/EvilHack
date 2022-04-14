@@ -756,7 +756,7 @@ struct monst *mtmp;
                 if (is_on)
                     Ring_gone(obj);
                 s = rnd(3 * abs(obj->spe)); /* amount of damage */
-                useup(obj);
+                useup(obj), obj = 0;
                 losehp(Maybe_Half_Phys(s), "exploding ring", KILLED_BY_AN);
             } else {
                 if (canseemon(mtmp))

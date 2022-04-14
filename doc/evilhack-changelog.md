@@ -2250,4 +2250,5 @@ The following changes to date are:
 - Fix: improper death reason when killed by a thrown potion of oil
 - Fix: end of game crash if killed by a lit thrown/scattered potion
   of oil before the potion could explode
+- Fix: accessing freed memory after charging causes a ring to explode
 
