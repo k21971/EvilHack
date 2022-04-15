@@ -2199,7 +2199,9 @@ boolean noisy;
                           helm_simple_name(otmp),
                           plur(num_horns(youmonst.data)));
             err++;
-        } else if (Race_if(PM_TORTLE) && is_hard(otmp)) {
+        } else if (!Upolyd && Race_if(PM_TORTLE) && is_hard(otmp)
+                   && !(Role_if(PM_PRIEST)
+                        && otmp->oartifact == ART_MITRE_OF_HOLINESS)) {
             /* Tortles can't retreat back into their shells
                whilst wearing rigid head gear */
             if (noisy)
@@ -2236,7 +2238,7 @@ boolean noisy;
                 You("have no feet..."); /* not body_part(FOOT) */
             err++;
         } else if ((Upolyd && youmonst.data->mlet == S_CENTAUR)
-                   || (Race_if(PM_CENTAUR))) {
+                   || (!Upolyd && Race_if(PM_CENTAUR))) {
             /* break_armor() pushes boots off for centaurs,
                so don't let dowear() put them back on... */
             if (noisy)
@@ -2244,7 +2246,7 @@ boolean noisy;
                       c_boots); /* makeplural(body_part(FOOT)) yields
                                    "rear hooves" which sounds odd */
             err++;
-        } else if (Race_if(PM_TORTLE)) {
+        } else if (!Upolyd && Race_if(PM_TORTLE)) {
             /* Tortles can't retreat back into their shells
                whilst wearing footwear, plus their shape is
                all wrong */
@@ -2288,7 +2290,7 @@ boolean noisy;
                 Your("%s are too slippery to pull on %s.",
                      fingers_or_gloves(FALSE), gloves_simple_name(otmp));
             err++;
-        } else if (Race_if(PM_TORTLE) && is_hard(otmp)) {
+        } else if (!Upolyd && Race_if(PM_TORTLE) && is_hard(otmp)) {
             /* Tortles can't retreat back into their shells
                whilst wearing rigid gauntlets */
             if (noisy)
@@ -2318,7 +2320,7 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMC;
-        if (Race_if(PM_GIANT) && otmp
+        if (!Upolyd && Race_if(PM_GIANT) && otmp
             && otmp->otyp == CHROMATIC_DRAGON_SCALES) {
             *mask = W_ARMC;
             if (noisy)
@@ -2340,7 +2342,7 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARM;
-        if (Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
+        if (!Upolyd && Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
             && otmp && otmp->otyp == LARGE_SPLINT_MAIL)
             *mask = W_ARM;
     } else {

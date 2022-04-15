@@ -2271,4 +2271,5 @@ The following changes to date are:
 - As a tortle, show enshellment via enlightenment and death reason
 - Prevent tortle monks from using random kick attack against
   certain targets
+- Fix: priest tortle couldn't wear the Mitre of Holiness
 
