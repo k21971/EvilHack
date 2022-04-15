@@ -1260,7 +1260,7 @@ register int after;
    /* does this monster like to play keep-away? */
     if (is_skittish(ptr)
         && (dist2(omx, omy, gx, gy) < 10))
-	appr = -1;
+        appr = -1;
     if (mtmp->mconf || (u.uswallow && mtmp == u.ustuck)) {
         appr = 0;
     } else {
@@ -1276,6 +1276,12 @@ register int after;
             || (mtmp->mpeaceful && !mtmp->isshk) /* allow shks to follow */
             || ((monsndx(ptr) == PM_STALKER || ptr->mlet == S_BAT
                  || ptr->mlet == S_LIGHT) && !rn2(3)))
+            appr = 0;
+
+        /* unintelligent monsters won't realize hiding tortle is a creature
+         * from far away, and even intelligent monsters may overlook it
+         * occasionally */
+        if ((Hidinshell && (is_animal(ptr) || mindless(ptr) || !rn2(6))))
             appr = 0;
 
         if (monsndx(ptr) == PM_LEPRECHAUN && (appr == 1)

@@ -2261,4 +2261,6 @@ The following changes to date are:
   mind flayer (mind flayer larva attack)
 - More tortle tweaks - cooldown timer change for going back into shell,
   immune to bullwhip/bearded axe disarm while in shell
+- Unintelligent monsters could ignore tortle hiding in its shell from a
+  distance
 
