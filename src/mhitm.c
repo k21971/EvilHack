@@ -2212,10 +2212,17 @@ msickness:
                                   Monnam(magr), s_suffix(the(mon_nam(mdef))));
                         }
                         if (!mlifesaver(mdef)) {
+                            boolean tamer = magr->mtame;
+                            if (!tamer && mdef->mtame) {
+                                mdef->mpeaceful = magr->mpeaceful;
+                                mdef->mtame = 0;
+                            }
                             mongone(magr); /* mind flayer larva transforms */
                             become_flayer(mdef);
-                            return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
-                            break;
+                            if (tamer)
+                                (void) tamedog(mdef, (struct obj *) 0);
+                            return (MM_DEF_DIED
+                                    | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
                         } else {
                             tmp = mdef->mhp;
                         }

@@ -2257,4 +2257,6 @@ The following changes to date are:
 - Corrections to commit concerning sacrifice gifts and tortles
 - Make tortles immune to various attacks while in their shell
 - Tortles gradually gain AC as they level up
+- Fix: monster steed not properly released if rider is turned into a 
+  mind flayer (mind flayer larva attack)
 

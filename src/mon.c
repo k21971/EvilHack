@@ -331,7 +331,6 @@ struct monst* mdef;
         /* don't continue if failed to turn into a mind flayer (extinct?) */
         mdef->mcanmove = 1;
         mdef->mfrozen = 0;
-        mdef->mtame = mdef->mpeaceful = 0;
         set_malign(mdef);
 
         /* clear other data structures tracking shk information */
@@ -343,13 +342,16 @@ struct monst* mdef;
          * if present */
         char name[PL_PSIZ];
         name[0] = '\0';
-        if (has_eshk(mdef) && !Hallucination) {
-            Strcpy(name, shkname(mdef));
-        } else if (has_mname(mdef)) {
-            Strcpy(name, MNAME(mdef));
+        if (has_eshk(mdef)) {
+            if (!Hallucination)
+                Strcpy(name, shkname(mdef));
+            free_eshk(mdef);
         }
+        if (has_epri(mdef))
+            free_epri(mdef);
+        if (has_egd(mdef))
+            free_egd(mdef);
 
-        dealloc_mextra(mdef);
         if (name[0] != '\0') {
             christen_monst(mdef, name);
         }
