@@ -2267,4 +2267,5 @@ The following changes to date are:
 - Fix: livelog reporting of various unique monsters
 - Fix: livelog reporting of sacrifice gift that had a quantity larger
   than one
+- Tweak to latest sacrifice gift livelog fix
 

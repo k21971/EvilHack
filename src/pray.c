@@ -2430,7 +2430,8 @@ dosacrifice()
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */
                             otmp->oerodeproof = TRUE;
                             otmp->owt = weight(otmp);
-                            at_your_feet("An object");
+                            at_your_feet(otmp->quan > 1L ? "Some objects"
+                                                         : "An object");
                             place_object(otmp, u.ux, u.uy);
                             newsym(u.ux, u.uy);
                             if (altaralign == A_NONE)
@@ -2447,10 +2448,8 @@ dosacrifice()
                                 makeknown(otmp->otyp);
                             }
                             livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
-                                           "had %s%s entrusted to %s by %s",
-                                           (otmp->quan > 1 ? "several " : ""),
-                                           (otmp->quan > 1 ? xname(otmp) : an(xname(otmp))),
-                                           uhim(), u_gname());
+                                           "had %s entrusted to %s by %s",
+                                           doname(otmp), uhim(), u_gname());
                             return 1;
                         }
                     }
