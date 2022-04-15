@@ -2259,4 +2259,6 @@ The following changes to date are:
 - Tortles gradually gain AC as they level up
 - Fix: monster steed not properly released if rider is turned into a 
   mind flayer (mind flayer larva attack)
+- More tortle tweaks - cooldown timer change for going back into shell,
+  immune to bullwhip/bearded axe disarm while in shell
 

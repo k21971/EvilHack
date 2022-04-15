@@ -1661,7 +1661,10 @@ toggleshell()
     }
 
     You("%s your shell.", was_hiding ? "emerge from" : "retreat into");
-    u.uinshell = was_hiding ? -rnz(350) : 200;
+    /* maximum of 200 turns our hero can stay inside their shell,
+       and then 300-400 turns before they can hide in it again
+       after emerging from it */
+    u.uinshell = was_hiding ? -rn1(100, 300) : 200;
 
     if (!was_hiding)
         HHalf_physical_damage |= FROMOUTSIDE;
