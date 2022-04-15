@@ -224,7 +224,7 @@ struct attack *mattk;
         if (!flags.verbose || (!nearmiss && !blocker)) {
             pline("%s misses.", Monnam(mtmp));
         } else if (nearmiss || !blocker) {
-            if ((thick_skinned(youmonst.data) || Race_if(PM_TORTLE))
+            if ((thick_skinned(youmonst.data) || (!Upolyd && Race_if(PM_TORTLE)))
                 && rn2(2)) {
                 Your("%s %s %s attack.",
                      (is_dragon(youmonst.data) ? "scaly hide"

@@ -457,8 +457,8 @@ int psflags;
     old_light = emits_light(youmonst.data);
     mntmp = NON_PM;
 
-    if (u.uinshell)
-        u.uinshell = 0;
+    if (Hidinshell)
+        toggleshell();
 
     if (monsterpoly && isvamp)
         goto do_vampyr;
@@ -667,6 +667,9 @@ int mntmp;
         exercise(A_WIS, TRUE);
         return 0;
     }
+
+    if (Hidinshell)
+        toggleshell();
 
     /* KMH, conduct */
     if (!u.uconduct.polyselfs++)

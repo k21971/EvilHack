@@ -2263,4 +2263,5 @@ The following changes to date are:
   immune to bullwhip/bearded axe disarm while in shell
 - Unintelligent monsters could ignore tortle hiding in its shell from a
   distance
+- Fix: polymorphed Tortle werejackal has protective shell (issue #94)
 
