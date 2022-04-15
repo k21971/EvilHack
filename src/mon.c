@@ -3299,13 +3299,13 @@ register struct monst *mtmp;
     if (mtmp->data == &mons[PM_MEDUSA] && !u.uachieve.killed_medusa) {
         u.uachieve.killed_medusa = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Medusa");
-    } else if (mtmp->data == &mons[PM_CERBERUS] && !u.uachieve.killed_cerberus) {
+    } else if (mtmp->iscerberus && !u.uachieve.killed_cerberus) {
         u.uachieve.killed_cerberus = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Cerberus");
-    } else if (mtmp->data == &mons[PM_VECNA] && !u.uachieve.killed_vecna) {
+    } else if (mtmp->isvecna && !u.uachieve.killed_vecna) {
         u.uachieve.killed_vecna = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vecna");
-    } else if (mtmp->data == &mons[PM_GOBLIN_KING] && !u.uachieve.killed_gking) {
+    } else if (mtmp->isgking && !u.uachieve.killed_gking) {
         u.uachieve.killed_gking = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed the Goblin King");
     } else if (mtmp->data == &mons[PM_DEATH]) {
