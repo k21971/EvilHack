@@ -2269,4 +2269,6 @@ The following changes to date are:
   than one
 - Tweak to latest sacrifice gift livelog fix
 - As a tortle, show enshellment via enlightenment and death reason
+- Prevent tortle monks from using random kick attack against
+  certain targets
 

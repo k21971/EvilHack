@@ -264,7 +264,9 @@ xchar x, y;
     else if (uarm && objects[uarm->otyp].oc_bulky && ACURR(A_DEX) < rnd(25))
         clumsy = TRUE;
  doit:
-    if (Role_if(PM_MONK) && Race_if(PM_CENTAUR)
+    if (Role_if(PM_MONK)
+        && (Race_if(PM_CENTAUR)
+            || Race_if(PM_TORTLE))
         && (touch_petrifies(mon->data)
             || (how_resistant(DISINT_RES) == 0
                 && (mon->data == &mons[PM_BLACK_DRAGON]
