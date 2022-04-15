@@ -154,14 +154,20 @@ boolean incl_helpless;
     }
     *buf = '\0';
 
-    if (incl_helpless && multi) {
-        /* X <= siz: 'sizeof "string"' includes 1 for '\0' terminator */
-        if (multi_reason && strlen(multi_reason) + sizeof ", while " <= siz)
-            Sprintf(buf, ", while %s", multi_reason);
-        /* either multi_reason wasn't specified or wouldn't fit */
-        else if (sizeof ", while helpless" <= siz)
-            Strcpy(buf, ", while helpless");
-        /* else extra death info won't fit, so leave it out */
+    if (incl_helpless) {
+        if (multi) {
+            /* X <= siz: 'sizeof "string"' includes 1 for '\0' terminator */
+            if (multi_reason
+                && strlen(multi_reason) + sizeof ", while " <= siz)
+                Sprintf(buf, ", while %s", multi_reason);
+            /* either multi_reason wasn't specified or wouldn't fit */
+            else if (sizeof ", while helpless" <= siz)
+                Strcpy(buf, ", while helpless");
+            /* else extra death info won't fit, so leave it out */
+        } else if (Hidinshell
+                   && sizeof ", while hiding in her shell" <= siz) {
+            Sprintf(buf, ", while hiding in %s shell", uhis());
+        }
     }
 }
 
@@ -381,6 +387,8 @@ int how;
     if (multi)
         Fprintf(rfile, "%cwhile=%s", XLOG_SEP,
                 multi_reason ? multi_reason : "helpless");
+    else if (Hidinshell)
+        Fprintf(rfile, "%cwhile=hiding in %s shell", XLOG_SEP, uhis());
     Fprintf(rfile, "%cconduct=0x%lx%cturns=%ld%cachieve=0x%lx", XLOG_SEP,
             encodeconduct(), XLOG_SEP, moves, XLOG_SEP, encodeachieve());
     Fprintf(rfile, "%crealtime=%ld%cstarttime=%ld%cendtime=%ld", XLOG_SEP,

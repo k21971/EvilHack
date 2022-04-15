@@ -2268,4 +2268,5 @@ The following changes to date are:
 - Fix: livelog reporting of sacrifice gift that had a quantity larger
   than one
 - Tweak to latest sacrifice gift livelog fix
+- As a tortle, show enshellment via enlightenment and death reason
 
