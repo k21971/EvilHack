@@ -2447,9 +2447,10 @@ dosacrifice()
                                 makeknown(otmp->otyp);
                             }
                             livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
-                                           "had %s entrusted to %s by %s",
-                                           an(xname(otmp)), uhim(),
-                                           u_gname());
+                                           "had %s%s entrusted to %s by %s",
+                                           (otmp->quan > 1 ? "several " : ""),
+                                           (otmp->quan > 1 ? xname(otmp) : an(xname(otmp))),
+                                           uhim(), u_gname());
                             return 1;
                         }
                     }

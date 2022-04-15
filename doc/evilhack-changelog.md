@@ -2265,4 +2265,6 @@ The following changes to date are:
   distance
 - Fix: polymorphed Tortle werejackal has protective shell (issue #94)
 - Fix: livelog reporting of various unique monsters
+- Fix: livelog reporting of sacrifice gift that had a quantity larger
+  than one
 
