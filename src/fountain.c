@@ -590,6 +590,7 @@ doforging(void)
         useup(obj1);
         useup(obj2);
         output = addinv(output);
+        output->owt = weight(output);
         if (output->oprops)
             output->oprops_known |= output->oprops;
         You("have successfully forged %s.", an(xname(output)));

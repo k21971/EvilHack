@@ -2274,4 +2274,6 @@ The following changes to date are:
 - Fix: priest tortle couldn't wear the Mitre of Holiness
 - Allow helm of speed to be made of more materials
 - Give tortles a slightly higher weight carry cap
+- Fix: weight of forged object could sometimes be incorrect
+
 
