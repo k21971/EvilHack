@@ -2272,4 +2272,5 @@ The following changes to date are:
 - Prevent tortle monks from using random kick attack against
   certain targets
 - Fix: priest tortle couldn't wear the Mitre of Holiness
+- Allow helm of speed to be made of more materials
 
