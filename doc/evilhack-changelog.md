@@ -2273,4 +2273,5 @@ The following changes to date are:
   certain targets
 - Fix: priest tortle couldn't wear the Mitre of Holiness
 - Allow helm of speed to be made of more materials
+- Give tortles a slightly higher weight carry cap
 

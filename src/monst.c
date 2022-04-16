@@ -3625,7 +3625,7 @@ struct permonst _mons2[] = {
     MON("tortle", S_LIZARD, LVL(0, 8, 0, 0, 3), G_NOGEN, /* placeholder */
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
-        SIZ(1200, 300, MS_HUMANOID, MZ_LARGE), 0, 0,
+        SIZ(1600, 400, MS_HUMANOID, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_THICK_HIDE | M1_OMNIVORE | M1_AMPHIBIOUS
             | M1_SWIM,
         M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE,
@@ -3649,7 +3649,7 @@ struct permonst _mons2[] = {
     MON("sea tortle", S_LIZARD, LVL(2, 5, 0, 0, 3), (G_GENO | G_NOHELL | G_SGROUP | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
-        SIZ(1200, 300, MS_HUMANOID, MZ_LARGE), 0, 0,
+        SIZ(1600, 400, MS_HUMANOID, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_THICK_HIDE | M1_OMNIVORE | M1_AMPHIBIOUS
             | M1_SWIM,
         M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE,
@@ -3668,7 +3668,7 @@ struct permonst _mons2[] = {
     MON("tortle shaman", S_LIZARD, LVL(5, 8, 0, 20, 5), (G_GENO | G_NOHELL),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 4), ATTK(AT_MAGC, AD_CLRC, 0, 0),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(1200, 300, MS_HUMANOID, MZ_LARGE), 0, 0,
+        SIZ(1600, 400, MS_HUMANOID, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_THICK_HIDE | M1_OMNIVORE | M1_AMPHIBIOUS
             | M1_SWIM,
         M2_STRONG | M2_MAGIC | M2_COLLECT, M3_INFRAVISIBLE,

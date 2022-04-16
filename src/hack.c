@@ -3446,8 +3446,7 @@ weight_cap()
     BLevitation &= ~I_SPECIAL;
 
     carrcap = 25 * (ACURRSTR + ACURR(A_CON)) + 50;
-    if ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
-        || (maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))) {
+    if (racial_giant(&youmonst) || racial_centaur(&youmonst)) {
         carrcap += 100;
         maxcarrcap += 400;
         /* this is not ideal, but for now this makes sure these two
@@ -3457,6 +3456,14 @@ weight_cap()
             youmonst.data->cwt = 2200;
             youmonst.data->mmove = Race_if(PM_GIANT) ? 10 : 18;
             youmonst.data->msize = Race_if(PM_GIANT) ? MZ_HUGE : MZ_LARGE;
+        }
+    } else if (racial_tortle(&youmonst)) {
+        carrcap += 100;
+        maxcarrcap += 200;
+        if (!Upolyd) {
+            youmonst.data->cwt = 1600;
+            youmonst.data->mmove = 8;
+            youmonst.data->msize = MZ_LARGE;
         }
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */

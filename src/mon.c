@@ -1994,6 +1994,9 @@ struct monst *mtmp;
     if (racial_giant(mtmp) || racial_centaur(mtmp))
         maxcarrcap += 400;
 
+    if (racial_tortle(mtmp))
+        maxcarrcap += 200;
+
     /* Base monster carrying capacity is equal to human maximum
      * carrying capacity, or half human maximum if not strong.
      * (for a polymorphed player, the value used would be the
