@@ -563,12 +563,24 @@ doforging(void)
         }
 
         /* any object properties, take secondary object property
-           over primary */
+           over primary. if you know the object property of one
+           of the recipe objects, you'll know the object property
+           of the newly forged object */
         if (obj2->oprops) {
             output->oprops = obj2->oprops;
+            if (obj2->oprops_known)
+                output->oprops_known |= output->oprops;
         } else if (obj1->oprops) {
             output->oprops = obj1->oprops;
+            if (obj1->oprops_known)
+                output->oprops_known |= output->oprops;
         }
+
+        /* if neither recipe object have an object property,
+           ensure that the newly forged object doesn't
+           randomly have a property added at creation */
+        if ((obj1->oprops & 0L) && (obj2->oprops & 0L))
+            output->oprops |= 0L;
 
         /* if objects are enchanted or have charges,
            carry that over, and use the greater of the two */
@@ -583,22 +595,27 @@ doforging(void)
         /* transfer curses and blessings from secondary object */
         output->cursed = obj2->cursed;
         output->blessed = obj2->blessed;
-        /* ensure the final product is not degraded in any way */
-        output->oeroded = output->oeroded2 = 0;
+        /* ensure the final product is not degraded or poisoned
+           in any way */
+        output->oeroded = output->oeroded2 = output->opoisoned = 0;
 
         /* toss out old objects, add new one */
         useup(obj1);
         useup(obj2);
         output = addinv(output);
+        /* prevent large stacks of ammo-type weapons from being
+           formed */
+        if (output->quan > 3L) {
+            output->quan = 3L;
+            if (!rn2(4)) /* small chance of an extra */
+                output->quan += 1L;
+        }
         output->owt = weight(output);
-        if (output->oprops)
-            output->oprops_known |= output->oprops;
-        You("have successfully forged %s.", an(xname(output)));
+        You("have successfully forged %s.", doname(output));
         update_inventory();
-        /* call this a second time, because order of events */
         if (output->oprops) {
             /* forging magic can sometimes be too much stress */
-            if (!rn2(3))
+            if (!rn2(6))
                 coolforge(u.ux, u.uy);
             else
                 pline_The("lava in the forge bubbles ominously.");

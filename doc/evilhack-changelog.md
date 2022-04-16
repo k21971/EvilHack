@@ -2275,5 +2275,5 @@ The following changes to date are:
 - Allow helm of speed to be made of more materials
 - Give tortles a slightly higher weight carry cap
 - Fix: weight of forged object could sometimes be incorrect
-
+- Fix: forging and object properties, stacks
 
