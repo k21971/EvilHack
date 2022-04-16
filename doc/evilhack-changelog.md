@@ -2276,4 +2276,5 @@ The following changes to date are:
 - Give tortles a slightly higher weight carry cap
 - Fix: weight of forged object could sometimes be incorrect
 - Fix: forging and object properties, stacks
+- Include player name in the title of HTML dumplogs
 
