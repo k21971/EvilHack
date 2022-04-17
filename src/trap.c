@@ -6087,7 +6087,7 @@ unconscious()
 
 /* Derived from lava_effects(), hero can burn in Gehennom
    without adequate fire resistance */
-static const char in_hell_killer[] = "burning in hell";
+static const char in_hell_killer[] = "the flames of hell";
 
 boolean
 in_hell_effects()
@@ -6110,7 +6110,7 @@ in_hell_effects()
                       rn2(2) ? "roasting" : "burning");
         if (usurvive) {
             losehp(dmg, in_hell_killer, KILLED_BY);
-            goto false;
+            return FALSE;
         }
 
         if (wizard)
@@ -6122,17 +6122,16 @@ in_hell_effects()
                      || u.umonnum == PM_BABY_SEA_DRAGON
                      || u.umonnum == PM_SEA_DRAGON
                      || u.umonnum == PM_FOG_CLOUD);
-        for (;;) {
-            u.uhp = -1;
-            killer.format = KILLED_BY;
-            Strcpy(killer.name, in_hell_killer);
-            You("%s...", boil_away ? "boil away" : "are roasted alive");
-            done(DIED);
-            break;
-        }
+
+        u.uhp = -1;
+        killer.format = KILLED_BY;
+        Strcpy(killer.name, in_hell_killer);
+        You("%s...", boil_away ? "boil away" : "are roasted alive");
+        done(DIED);
+
         return TRUE;
     }
-false:
+
     return FALSE;
 }
 
@@ -6159,7 +6158,7 @@ in_iceq_effects()
             You("are freezing to death!");
         if (usurvive) {
             losehp(dmg, in_iceq_killer, KILLED_BY);
-            goto false;
+            return FALSE;
         }
 
         if (wizard)
@@ -6171,17 +6170,16 @@ in_iceq_effects()
                         || u.umonnum == PM_BABY_SEA_DRAGON
                         || u.umonnum == PM_SEA_DRAGON
                         || u.umonnum == PM_FOG_CLOUD);
-        for (;;) {
-            u.uhp = -1;
-            killer.format = KILLED_BY;
-            Strcpy(killer.name, in_iceq_killer);
-            You("%s...", freeze_solid ? "freeze solid" : "freeze to death");
-            done(DIED);
-            break;
-        }
+
+        u.uhp = -1;
+        killer.format = KILLED_BY;
+        Strcpy(killer.name, in_iceq_killer);
+        You("%s...", freeze_solid ? "freeze solid" : "freeze to death");
+        done(DIED);
+
         return TRUE;
     }
-false:
+
     return FALSE;
 }
 

@@ -2277,4 +2277,5 @@ The following changes to date are:
 - Fix: weight of forged object could sometimes be incorrect
 - Fix: forging and object properties, stacks
 - Include player name in the title of HTML dumplogs
+- Fix: in_hell_effects() and in_iceq_effects()
 
