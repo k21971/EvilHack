@@ -3462,7 +3462,7 @@ boolean was_swallowed; /* digestion */
     /* must duplicate this below check in xkilled() since it results in
      * creating no objects as well as no corpse
      */
-    if (LEVEL_SPECIFIC_NOCORPSE(mdat))
+    if (LEVEL_SPECIFIC_NOCORPSE(mdat) && !mon->isvecna)
         return FALSE;
 
     if (((r_bigmonst(mon) || mdat == &mons[PM_LIZARD]) && !mon->mcloned)
@@ -3791,7 +3791,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         goto cleanup;
     }
 
-    if (nocorpse || LEVEL_SPECIFIC_NOCORPSE(mdat))
+    if (nocorpse
+        || (LEVEL_SPECIFIC_NOCORPSE(mdat) && !mtmp->isvecna))
         goto cleanup;
 
 #ifdef MAIL
