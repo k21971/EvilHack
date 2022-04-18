@@ -1470,6 +1470,14 @@ unsigned breakflags; /* breakage control */
             if (!nodissolve)
                 dissolve_bars(barsx, barsy);
         }
+    } else if (obj_type == LONG_SWORD && otmp->oartifact == ART_DIRGE) {
+        if (cansee(barsx, barsy) && !nodissolve)
+            pline_The("acidic blade slices right through the iron bars!");
+        else
+            You_hear(Hallucination ? "a hot knife slice through butter!"
+                                   : "a hissing noise.");
+        if (!nodissolve)
+            dissolve_bars(barsx, barsy);
     } else {
         if (!Deaf)
             pline("%s!", (obj_type == BOULDER || obj_type == HEAVY_IRON_BALL)

@@ -2279,4 +2279,5 @@ The following changes to date are:
 - Include player name in the title of HTML dumplogs
 - Fix: in_hell_effects() and in_iceq_effects()
 - Fix: Vecna wasn't always dropping its artifact
+- Allow Dirge to slice through iron bars
 
