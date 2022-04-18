@@ -1696,6 +1696,7 @@ toggleshell()
     else
         HHalf_physical_damage &= ~FROMOUTSIDE;
 
+    find_ac();
     context.botl = 1;
     if (was_blind ^ Blind)
         toggle_blindness();

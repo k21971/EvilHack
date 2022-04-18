@@ -2280,4 +2280,5 @@ The following changes to date are:
 - Fix: in_hell_effects() and in_iceq_effects()
 - Fix: Vecna wasn't always dropping its artifact
 - Allow Dirge to slice through iron bars
+- Tortle enshelling improvements
 
