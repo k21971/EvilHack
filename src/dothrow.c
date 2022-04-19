@@ -19,6 +19,15 @@ STATIC_DCL boolean FDECL(toss_up, (struct obj *, BOOLEAN_P));
 STATIC_DCL void FDECL(sho_obj_return_to_u, (struct obj * obj));
 STATIC_DCL boolean FDECL(mhurtle_step, (genericptr_t, int, int));
 
+/* uwep might already be removed from inventory so test for W_WEP instead;
+   for Valk + Mjollnir, caller needs to validate the strength requirement,
+   for Xiuhcoatl, caller needs to validate the dexterity requirement */
+#define AutoReturn(o, wmsk) \
+    ((((wmsk) & W_WEP) != 0                                             \
+      && ((o)->otyp == AKLYS || (o)->oartifact == ART_XIUHCOATL         \
+          || ((o)->oartifact == ART_MJOLLNIR && Role_if(PM_VALKYRIE)))) \
+     || (o)->otyp == BOOMERANG)
+
 static NEARDATA const char toss_objs[] = { ALLOW_COUNT, COIN_CLASS,
                                            ALL_CLASSES, WEAPON_CLASS, 0 };
 /* different default choices when wielding a sling (gold must be included) */
@@ -367,6 +376,8 @@ autoquiver()
             /* Ordinary weapon */
             if (objects[otmp->otyp].oc_skill == P_DAGGER && !omissile)
                 omissile = otmp;
+            else if (otmp->otyp == AKLYS)
+                continue;
             else
                 omisc = otmp;
         }
@@ -397,28 +408,28 @@ dofire()
      * of asking what to throw/shoot.
      *
      * If quiver is empty, we use autoquiver to fill it when the
-     * corresponding option is on.  If the option is off or if
-     * autoquiver doesn't select anything, we ask what to throw.
+     * corresponding option is on.  If the option is off and hero
+     * is wielding a thrown-and-return weapon, use the wielded
+     * weapon.  If option is off and not wielding such a weapon or
+     * if autoquiver doesn't select anything, we ask what to throw.
      * Then we put the chosen item into the quiver slot unless
      * it is already in another slot.  [Matters most if it is a
      * stack but also matters for single item if this throw gets
-     * aborted (ESC at the direction prompt).  Already wielded
-     * item is excluded because wielding might be necessary
-     * (Mjollnir and Xiuhcoatl) or make the throw behave
-     * differently (aklys), and alt-wielded item is excluded
-     * because switching slots would end two-weapon combat even
-     * if throw gets aborted.]
+     * aborted (ESC at the direction prompt).]
      */
     if (!ok_to_throw(&shotlimit))
         return 0;
 
     if ((obj = uquiver) == 0) {
         if (!flags.autoquiver) {
+            if (uwep && AutoReturn(uwep, uwep->owornmask)) {
+                obj = uwep;
             /* if we're wielding a polearm, apply it */
-            if (uwep && is_pole(uwep))
+            } else if (uwep && is_pole(uwep)) {
                 return use_pole(uwep, TRUE);
-            else
+            } else {
                 You("have no ammunition readied.");
+            }
         } else {
             autoquiver();
             if ((obj = uquiver) == 0)
@@ -1307,11 +1318,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
 
     thrownobj = obj;
     thrownobj->was_thrown = 1;
-    iflags.returning_missile = ((obj->oartifact == ART_MJOLLNIR
-                                 && Role_if(PM_VALKYRIE))
-                                || obj->oartifact == ART_XIUHCOATL
-                                || tethered_weapon) ? (genericptr_t) obj
-                                                    : (genericptr_t) 0;
+    iflags.returning_missile = AutoReturn(obj, wep_mask) ? (genericptr_t) obj
+                                                         : (genericptr_t) 0;
     /* NOTE:  No early returns after this point or returning_missile
        will be left with a stale pointer. */
 
@@ -1355,6 +1363,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
     } else if (obj->otyp == BOOMERANG && !Underwater) {
         if (Is_airlevel(&u.uz) || Levitation)
             hurtle(-u.dx, -u.dy, 1, TRUE);
+        iflags.returning_missile = 0; /* doesn't return if it hits monster */
         mon = boomhit(obj, u.dx, u.dy);
         if (mon == &youmonst) { /* the thing was caught */
             exercise(A_DEX, TRUE);
@@ -1362,6 +1371,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             (void) encumber_msg();
             if (wep_mask && !(obj->owornmask & wep_mask)) {
                 setworn(obj, wep_mask);
+                /* moot; can no longer two-weapon with missile(s) */
                 u.twoweap = twoweap;
             }
             clear_thrownobj = TRUE;

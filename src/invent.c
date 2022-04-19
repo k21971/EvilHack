@@ -966,12 +966,16 @@ struct obj *obj;
     obj->where = OBJ_INVENT;
 
     /* fill empty quiver if obj was thrown */
-    if (flags.pickup_thrown && !uquiver && obj_was_thrown
+    if (obj_was_thrown && flags.pickup_thrown && !uquiver
         /* if Mjollnir or Xiuhcoatl is thrown and fails to return,
            we want to auto-pick it when we move to its spot, but not
-           into quiver; aklyses behave like these artifactswhen thrown
-           while wielded, but we lack sufficient information here make
-           them exceptions */
+           into quiver because it needs to be wielded to be re-thrown;
+           aklys likewise because player using 'f' to throw it might
+           not notice that it isn't wielded until it fails to return
+           several times; we never auto-wield, just omit from quiver
+           so that player will be prompted for what to throw and
+           possibly realize that re-wielding is necessary */
+        && obj->otyp != AKLYS
         && obj->oartifact != ART_MJOLLNIR
         && obj->oartifact != ART_XIUHCOATL
         && (throwing_weapon(obj) || is_ammo(obj)))

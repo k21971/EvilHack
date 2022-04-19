@@ -2281,4 +2281,5 @@ The following changes to date are:
 - Fix: Vecna wasn't always dropping its artifact
 - Allow Dirge to slice through iron bars
 - Tortle enshelling improvements
+- Aklys improvements
 
