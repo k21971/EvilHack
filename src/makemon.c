@@ -1146,7 +1146,7 @@ register struct monst *mtmp;
                 w2 = KNIFE;
             if (w2)
                 (void) mongets(mtmp, w2);
-        } else if (racial_elf(mtmp)) {
+        } else if (racial_elf(mtmp) && !Ingtown) {
             if (rn2(2))
                 (void) mongets(mtmp,
 		 (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELVEN_NOBLE

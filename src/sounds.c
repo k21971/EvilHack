@@ -898,9 +898,13 @@ register struct monst *mtmp;
                  && moves > EDOG(mtmp)->hungrytime)
             verbl_msg = "I'm hungry.";
         /* Specific monsters' interests */
-        else if (racial_elf(mtmp))
-            pline_msg = "curses orcs.";
-        else if (racial_dwarf(mtmp))
+        else if (racial_elf(mtmp)) {
+            if (mtmp->mpeaceful && Ingtown)
+                verbl_msg = rn2(2) ? "Death to the Goblin King!"
+                                   : "Curse this wretched town!";
+            else
+                pline_msg = "curses orcs.";
+        } else if (racial_dwarf(mtmp))
             pline_msg = "talks about mining.";
         else if (likes_magic(ptr))
             pline_msg = "talks about spellcraft.";

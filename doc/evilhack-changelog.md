@@ -2282,4 +2282,5 @@ The following changes to date are:
 - Allow Dirge to slice through iron bars
 - Tortle enshelling improvements
 - Aklys improvements
+- Goblin Town tweaks.
 
