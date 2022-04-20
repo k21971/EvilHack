@@ -2284,4 +2284,5 @@ The following changes to date are:
 - Aklys improvements
 - Goblin Town tweaks.
 - More Goblin Town tweaks, defeating boss monster feedback
+- Fix: re-enable gnome's default #chat sound
 

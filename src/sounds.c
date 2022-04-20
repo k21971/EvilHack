@@ -943,6 +943,8 @@ register struct monst *mtmp;
                    and they never verbalize step 2 so we don't either */
                 verbl_msg = (gnomeplan == 1) ? "Phase one, collect underpants."
                                              : "Phase three, profit!";
+            } else {
+                pline_msg = "grunts.";
             }
         } else {
             switch (monsndx(ptr)) {
