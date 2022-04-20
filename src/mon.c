@@ -3033,6 +3033,7 @@ cerberusdead()
 {
     if (!u.uevent.ucerberus)
         u.uevent.ucerberus = TRUE;
+    com_pager(304);
 }
 
 void
@@ -3040,6 +3041,7 @@ vecnadead()
 {
     if (!u.uevent.uvecna)
         u.uevent.uvecna = TRUE;
+    com_pager(303);
 }
 
 void
@@ -3047,6 +3049,7 @@ goblinkingdead()
 {
     if (!u.uevent.ugking)
         u.uevent.ugking = TRUE;
+    com_pager(305);
 }
 
 void

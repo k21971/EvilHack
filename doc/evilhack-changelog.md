@@ -2283,4 +2283,5 @@ The following changes to date are:
 - Tortle enshelling improvements
 - Aklys improvements
 - Goblin Town tweaks.
+- More Goblin Town tweaks, defeating boss monster feedback
 

@@ -4760,3 +4760,40 @@ magic.  In a panic, you struggle to remove it from your arm,
 but it has merged itself to you completely.  It slowly dawns on
 you that you will never be able to free yourself from it.
 %E [The Hand of Vecna has permanently affixed itself to your left arm.]
+#
+# Defeating Vecna
+#
+%Cc - 00303
+As you watch Vecna's decrepit body crumble to dust, you sense
+a powerful, evil force leave his quickly disintigrating body.
+It dissipates out into the void, gone forever.  At that same
+moment, you hear from far away the terrified screams of the
+liches that still remain in Vecna's stronghold.  Their source
+of power that kept them from being annihilated no longer
+protects them.  They know it, and now so do you.
+%E [Vecna has been destroyed, allowing all other liches to be eliminated.]
+#
+# Defeating Cerberus
+#
+%Cc - 00304
+Cerberus falls to the ground, all three of its massive heads
+gasping for its final breath, before finally succumbing to
+its injuries and dying.  Nearby, you watch as the gates to
+Gehennom open before you.
+
+Abandon all hope, ye who enter here...
+%E [Cerberus is dead, allowing unrestricted passage into Gehennom.]
+#
+# Defeating the Goblin King
+#
+%Cc - 00305
+The Goblin King's massive body lays sprawled out before you,
+his blood slowly seeping out from under him, spreading across
+the cavern floor.  Around his neck, you notice a magical
+talisman with a familiar glyph etched into its surface.
+Before you have a chance to examine it further, it glows
+fiercely for a brief moment, and then turns to ash.
+
+This was the magic that blocked access to Mine Town and
+Mines' End, and now that magic has been removed, permanently.
+%E [The Goblin King is dead, opening passage to Mine Town and Mines' End.]

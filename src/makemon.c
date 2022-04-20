@@ -1424,7 +1424,7 @@ register struct monst *mtmp;
                 if (!rn2(8))
                     (void) mongets(mtmp, SACK);
             }
-        } else if (is_dwarf(ptr)) {
+        } else if (is_dwarf(ptr) && !Ingtown) {
             if (rn2(7))
                 (void) mongets(mtmp, DWARVISH_CLOAK);
             if (rn2(7))
@@ -1739,8 +1739,12 @@ register struct monst *mtmp;
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, BATTLE_AXE);
-                else
-                    m_initthrow(mtmp, DART, 12);
+                else {
+                    if (is_gnome(ptr) && Ingtown)
+                        ;
+                    else
+                        m_initthrow(mtmp, DART, 12);
+                }
             }
             break;
         case 2:
@@ -1748,31 +1752,47 @@ register struct monst *mtmp;
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, TWO_HANDED_SWORD);
                 else {
-                    (void) mongets(mtmp, CROSSBOW);
-                    m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+                    if (is_gnome(ptr) && Ingtown) {
+                        ;
+                    } else {
+                        (void) mongets(mtmp, CROSSBOW);
+                        m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+                    }
                 }
             }
             break;
         case 3:
             if (!unique_corpstat(ptr)) {
-                (void) mongets(mtmp, BOW);
-                m_initthrow(mtmp, ARROW, 12);
+                if (is_gnome(ptr) && Ingtown) {
+                    ;
+                } else {
+                    (void) mongets(mtmp, BOW);
+                    m_initthrow(mtmp, ARROW, 12);
+                }
             }
             break;
         case 4:
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, LONG_SWORD);
-                else
-                    m_initthrow(mtmp, DAGGER, 3);
+                else {
+                    if (is_gnome(ptr) && Ingtown)
+                        ;
+                    else
+                        m_initthrow(mtmp, DAGGER, 3);
+                }
             }
             break;
         case 5:
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, LUCERN_HAMMER);
-                else
-                    (void) mongets(mtmp, AKLYS);
+                else {
+                    if (is_gnome(ptr) && Ingtown)
+                        ;
+                    else
+                        (void) mongets(mtmp, AKLYS);
+                }
             }
             break;
         default:

@@ -38,6 +38,9 @@ ENDMAP
 TELEPORT_REGION:(00,00,04,03),(00,00,00,00)
 BRANCH:(01,01,01,01),(0,0,0,0)
 REGION:(00,00,75,19),unlit,"ordinary"
+REGION:(22,17,27,18),lit,"ordinary"
+REGION:(40,02,42,03),lit,"ordinary"
+REGION:(68,11,69,14),lit,"ordinary"
 REGION:(71,01,74,04),lit,"ordinary"
 
 # Shop (maybe?)
@@ -70,12 +73,17 @@ TRAP:"arrow", (19,11)
 TRAP:"arrow", (61,09)
 TRAP:"arrow", (62,13)
 
-# Elven prisoners
+# Prisoners
 MONSTER:('@',"Woodland-elf"),(23,17),peaceful
+MONSTER:('G',"rock gnome"),(24,18),peaceful
 MONSTER:('@',"Woodland-elf"),(25,17),peaceful
-MONSTER:('@',"Woodland-elf"),(40,03),peaceful
-MONSTER:('@',"Woodland-elf"),(41,02),peaceful
+MONSTER:('h',"mountain dwarf"),(27,17),peaceful
+MONSTER:('@',"Green-elf"),(40,03),peaceful
+MONSTER:('G',"gnome noble"),(41,02),peaceful
+MONSTER:('G',"rock gnome"),(42,02),peaceful
 MONSTER:('@',"Grey-elf"),(69,12),peaceful
+MONSTER:('G',"rock gnome"),(68,14),peaceful
+MONSTER:('G',"rock gnome"),(69,14),peaceful
 
 # Residents of Goblin Town
 MONSTER:('o',"goblin"),(07,11),hostile
