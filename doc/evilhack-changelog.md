@@ -2285,4 +2285,5 @@ The following changes to date are:
 - Goblin Town tweaks.
 - More Goblin Town tweaks, defeating boss monster feedback
 - Fix: re-enable gnome's default #chat sound
+- Cursed wand of make invisible makes target visible
 

@@ -378,8 +378,19 @@ struct obj *otmp;
             seemimic(mtmp);
         /* format monster's name before altering its visibility */
         Strcpy(nambuf, Monnam(mtmp));
-        mon_set_minvis(mtmp);
-        if (!oldinvis && knowninvisible(mtmp)) {
+        if (!otmp->cursed)
+            mon_set_minvis(mtmp);
+
+        if (oldinvis && otmp->cursed) {
+            mtmp->minvis = 0;
+            if (!Blind) {
+                pline("%s becomes visible!", nambuf);
+                learn_it = TRUE;
+            }
+        } else if (!oldinvis && otmp->cursed) {
+            if (!Blind)
+                pline("%s briefly fades from view.", nambuf);
+        } else if (!oldinvis && knowninvisible(mtmp)) {
             pline("%s turns transparent!", nambuf);
             reveal_invis = TRUE;
             learn_it = TRUE;
@@ -2691,13 +2702,31 @@ boolean ordinary;
             You_feel("rather itchy under %s.", yname(uarmc));
             break;
         }
-	/* wand and potion now only do temporary invis,
-	 * to make the cloak and ring more useful */
-        incr_itimeout(&HInvis, d(1 + obj->spe, 250));
-        if (msg) {
+        if (!EInvis && (HInvis & TIMEOUT) && obj->cursed) {
+            You("become visible.");
+            HInvis = (HInvis & ~TIMEOUT);
             learn_it = TRUE;
             newsym(u.ux, u.uy);
-            self_invis_message();
+            if (rn2(2)) {
+                pline("For some reason, you feel your presence is known.");
+                aggravate();
+            }
+        } else {
+            if (obj->cursed) {
+                if (!Blind)
+                    You("fade from view for a brief moment.");
+                else
+                    You_feel("an odd sensation for a brief moment.");
+            } else {
+	        /* wand and potion now only do temporary invis,
+	         * to make the cloak and ring more useful */
+                incr_itimeout(&HInvis, d(1 + obj->spe, 250));
+                if (msg) {
+                    learn_it = TRUE;
+                    newsym(u.ux, u.uy);
+                    self_invis_message();
+                }
+            }
         }
         break;
     }
