@@ -2286,4 +2286,5 @@ The following changes to date are:
 - More Goblin Town tweaks, defeating boss monster feedback
 - Fix: re-enable gnome's default #chat sound
 - Cursed wand of make invisible makes target visible
+- Remove non-Knight restrictions for the Magic Mirror of Merlin
 

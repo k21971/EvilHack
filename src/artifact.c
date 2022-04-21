@@ -955,15 +955,13 @@ long wp_mask;
         vision_full_recalc = 1;
     }
     if (spfx & SPFX_REFLECT) {
-        /* Knights only have to carry the mirror; everyone else must wield it */
-        if (Role_if(PM_KNIGHT)) {
+        if (otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN) {
             if (on)
                 EReflecting |= wp_mask;
             else
                 EReflecting &= ~wp_mask;
         } else if (otmp
-            && (otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN
-                || otmp->oartifact == ART_LONGBOW_OF_DIANA
+            && (otmp->oartifact == ART_LONGBOW_OF_DIANA
                 || otmp->oartifact == ART_CROSSBOW_OF_CARL)
             && (wp_mask & W_WEP)) { /* wielding various reflecting artifacts */
             if (on)
