@@ -2286,8 +2286,9 @@ The following changes to date are:
 - More Goblin Town tweaks, defeating boss monster feedback
 - Fix: re-enable gnome's default #chat sound
 - Cursed wand of make invisible makes target visible
-- Remove non-Knight restrictions for the Magic Mirror of Merlin
+- Remove non-Knight reflection restrictions for the Magic Mirror of Merlin
 - Prevent covetous monsters from riding other monsters
 - Remove restriction of casting targeted/area of effect spells on
   the plane of water
+- Prevent non-wizards from receiving a cornuthaum as a sacrifice gift
 
