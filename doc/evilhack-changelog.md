@@ -2288,4 +2288,6 @@ The following changes to date are:
 - Cursed wand of make invisible makes target visible
 - Remove non-Knight restrictions for the Magic Mirror of Merlin
 - Prevent covetous monsters from riding other monsters
+- Remove restriction of casting targeted/area of effect spells on
+  the plane of water
 

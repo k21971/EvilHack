@@ -1427,9 +1427,6 @@ throwspell()
     if (u.uinwater) {
         pline("You're joking!  In this weather?");
         return 0;
-    } else if (Is_waterlevel(&u.uz)) {
-        You("had better wait for the sun to come out.");
-        return 0;
     }
 
     pline("Where do you want to cast the spell?");
