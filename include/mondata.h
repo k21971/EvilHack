@@ -491,7 +491,8 @@
      && (mon)->data->mlet != S_MUMMY && (mon)->data->mlet != S_LIZARD        \
      && !r_verysmall(mon) && !is_shapeshifter((mon)->data)                   \
      && (mon)->mcanmove && !(mon)->msleeping && (mon)->cham == NON_PM        \
-     && !unsolid((mon)->data) && !((mon)->mstrategy & STRAT_WAITFORU))
+     && !unsolid((mon)->data) && !((mon)->mstrategy & STRAT_WAITFORU)        \
+     && !is_covetous((mon)->data))
 /* monster can be ridden by other monsters */
 #define mon_can_be_ridden(mon) \
     (can_saddle(mon) && !DEADMONSTER(mon) && !is_covetous((mon)->data)       \

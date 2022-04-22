@@ -2287,4 +2287,5 @@ The following changes to date are:
 - Fix: re-enable gnome's default #chat sound
 - Cursed wand of make invisible makes target visible
 - Remove non-Knight restrictions for the Magic Mirror of Merlin
+- Prevent covetous monsters from riding other monsters
 
