@@ -1088,9 +1088,9 @@ boolean silent; /* we assume a wardrobe change if false */
     } else if (Is_dragon_scaled_armor(uarm) && !is_hard(uarm)) {
         if (!silent)
             You("arrange the scales around your wings.");
-    } else if (uarm->otyp == JACKET) {
+    } else if (uarm && !is_hard(uarm)) {
         if (!silent && uarm != last_worn_armor)
-            pline1("This jacket seems to have holes for wings.");
+            Your("%s seems to have holes for wings.", simpleonames(uarm));
     } else {
         if (!(uamul && uamul->otyp == AMULET_OF_FLYING))
             BFlying |= W_ARM;

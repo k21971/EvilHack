@@ -2291,4 +2291,6 @@ The following changes to date are:
 - Remove restriction of casting targeted/area of effect spells on
   the plane of water
 - Prevent non-wizards from receiving a cornuthaum as a sacrifice gift
+- Change critera for which body armor is allowed to be worn whilst
+  having wings
 
