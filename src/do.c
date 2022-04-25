@@ -1501,7 +1501,7 @@ boolean at_stairs, falling, portal;
      * decent, but they aren't all-powerful */
     if (at_stairs || falling) {
         if ((!up && (ledger_no(&u.uz) == ledger_no(&minetn_level) - 1))
-            || (up && (ledger_no(&u.uz) == ledger_no(&minetn_level) + 1))
+            || (!up && (ledger_no(&u.uz) == ledger_no(&minetn_level)))
             || (!up && (ledger_no(&u.uz) == ledger_no(&mineend_level) - 1))) {
             if (!u.uevent.ugking) {
                 if (at_stairs) {
