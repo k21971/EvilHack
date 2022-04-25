@@ -217,8 +217,6 @@ struct trobj Tinningkit[] = { { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 0 },
                                      { 0, 0, 0, 0, 0 } };
 struct trobj Pickaxe[] = { { PICK_AXE, 0, TOOL_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
-struct trobj Psionics[] = { { SPE_PSIONIC_WAVE, 0, SPBOOK_CLASS, 1, 0 },
-                                   { 0, 0, 0, 0, 0 } };
 struct trobj AoMR[] = { { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, 0 },
                                { 0, 0, 0, 0, 0 } };
 struct trobj Oilskin[] = { { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
@@ -845,7 +843,7 @@ u_init()
     case PM_CONVICT:
         ini_inv(Convict);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         knows_object(SKELETON_KEY);
         knows_object(GRAPPLING_HOOK);
         skill_init(Skill_Con);
@@ -857,7 +855,7 @@ u_init()
         u.umoney0 = rn1(1000, 1001);
         ini_inv(Healer);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         if (!rn2(25))
             ini_inv(Lamp);
         knows_object(POT_FULL_HEALING);
@@ -867,7 +865,7 @@ u_init()
         u.umoney0 = rn1(251, 250);
         ini_inv(Infidel);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         knows_object(SCR_CHARGING);
         if (Race_if(PM_GIANT)) {
             struct trobj RandomGem = Gem[0];
@@ -905,7 +903,7 @@ u_init()
     case PM_PRIEST:
         ini_inv(Priest);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         if (!rn2(4))
             ini_inv(Lamp);
         knows_object(POT_WATER);
@@ -997,7 +995,7 @@ u_init()
         if (Race_if(PM_GIANT) || Race_if(PM_TORTLE))
             ini_inv(AoMR);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         if (!rn2(5))
             ini_inv(Lamp);
         if (!rn2(5))

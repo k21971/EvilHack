@@ -2294,4 +2294,6 @@ The following changes to date are:
 - Change critera for which body armor is allowed to be worn whilst
   having wings
 - Fix: magic beam trap hit/miss feedback when target is unseen
+- Illithids now 'force learn' psionic wave instead of starting with a
+  spellbook of it
 
