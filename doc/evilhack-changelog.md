@@ -2293,4 +2293,5 @@ The following changes to date are:
 - Prevent non-wizards from receiving a cornuthaum as a sacrifice gift
 - Change critera for which body armor is allowed to be worn whilst
   having wings
+- Fix: magic beam trap hit/miss feedback when target is unseen
 
