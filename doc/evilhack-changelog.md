@@ -2296,6 +2296,7 @@ The following changes to date are:
 - Fix: magic beam trap hit/miss feedback when target is unseen
 - Illithids now 'force learn' psionic wave instead of starting with a
   spellbook of it
-- Adjust blocked access to Mine Town/Mines's End while Goblin King is alive
+- Adjust blocked access to Mine Town/Mines' End while Goblin King is alive
 - Fix: two-weapon paralysis
+- Fix: update to 'two-weapon paralysis' commit
 

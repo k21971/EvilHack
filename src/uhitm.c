@@ -825,7 +825,8 @@ struct attack *uattk;
     /* Your race may grant extra attacks. Illithids don't use
      * their tentacle attack every turn, Centaurs are strong
      * enough to not need their extra kick attack */
-    if (!Upolyd && malive) {
+    if (!Upolyd && !(multi < 0 || u.umortality > oldumort
+                     || !malive || m_at(x, y) != mon)) {
         int i;
         int race = (flags.female && urace.femalenum != NON_PM)
                     ? urace.femalenum : urace.malenum;
