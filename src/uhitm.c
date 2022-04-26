@@ -656,9 +656,9 @@ struct attack *uattk; /* ... but we don't enforce that here; Null works ok */
                            uattk, dieroll);
         (void) passive(mtmp, uwep, mhit, !DEADMONSTER(mtmp), AT_WEAP, !uwep);
 
-        /* stop attacking if weapon is gone or hero got killed and
-           life-saved after passive counter-attack */
-        if (!uwep || u.umortality > umort)
+        /* stop attacking if weapon is gone or hero got paralyzed or
+           killed (and then life-saved) by passive counter-attack */
+        if (!uwep || multi < 0 || u.umortality > umort)
             break;
     }
     /* set up for next time */
@@ -684,7 +684,7 @@ struct attack *uattk;
     int armorpenalty, attknum = 0, x = u.ux + u.dx, y = u.uy + u.dy,
                       tmp = find_roll_to_hit(mon, uattk->aatyp, uwep,
                                              &attknum, &armorpenalty);
-    int dieroll = rnd(20);
+    int dieroll = rnd(20), oldumort = u.umortality;
     int mhit = (tmp > dieroll || u.uswallow);
     int dmg_wep = (uwep ? dmgval(uwep, &youmonst) : 0);
 
@@ -732,7 +732,8 @@ struct attack *uattk;
      * attacks -- only from the actual 'bloodthirsty' weapon(s) */
 #define forced_attack(w) ((w) && ((w)->oartifact == ART_STORMBRINGER \
                                   || (w)->oartifact == ART_SWORD_OF_KAS))
-    if (!override_confirmation || forced_attack(uwep)) {
+    if ((!override_confirmation || forced_attack(uwep))
+        && !(multi < 0 || u.umortality > oldumort)) {
         /* bhitpos is set up by caller */
         malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk,
                              dieroll);
@@ -742,10 +743,14 @@ struct attack *uattk;
     }
 
     /* second attack for two-weapon combat; won't occur if Stormbringer
-       or the Sword of Kas overrode confirmation while held in main hand, or
-       if the monster was killed or knocked to different location */
+       or the Sword of Kas overrode confirmation (assumes Stormbringer/
+       Sword of Kas is primary weapon), or if hero became paralyzed by
+       passive counter-attack, or if hero was killed by passive
+       counter-attack and got life-saved, or if monster was killed or
+       knocked to different location */
     if (u.twoweap && (!override_confirmation || forced_attack(uswapwep))
-        && malive && m_at(x, y) == mon) {
+                  && !(multi < 0 || u.umortality > oldumort
+                       || !malive || m_at(x, y) != mon)) {
         tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
                                &armorpenalty);
         dieroll = rnd(20);
@@ -762,7 +767,8 @@ struct attack *uattk;
        in martial arts */
     if (!uwep && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
-        && malive && m_at(x, y) == mon) {
+        && !(multi < 0 || u.umortality > oldumort
+             || !malive || m_at(x, y) != mon)) {
         if (wearshield) {
             if (!rn2(8))
                 pline("Your extra attack is ineffective while wearing %s.",
@@ -784,7 +790,8 @@ struct attack *uattk;
        or greater in martial arts */
     if (!rn2(3) && !uwep && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) >= P_MASTER
-        && !u.usteed && malive && m_at(x, y) == mon) {
+        && !u.usteed && !(multi < 0 || u.umortality > oldumort
+                          || !malive || m_at(x, y) != mon)) {
         if (weararmor) {
             if (!rn2(8))
                 pline("Your extra kick attack is ineffective while wearing %s.",

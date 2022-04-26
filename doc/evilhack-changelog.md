@@ -2297,4 +2297,5 @@ The following changes to date are:
 - Illithids now 'force learn' psionic wave instead of starting with a
   spellbook of it
 - Adjust blocked access to Mine Town/Mines's End while Goblin King is alive
+- Fix: two-weapon paralysis
 
