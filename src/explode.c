@@ -166,7 +166,7 @@ int expltype;
             adtyp = AD_DRST;
             break;
         case 7:
-            adstr = "splash of acid";
+            adstr = "torrent of acid";
             adtyp = AD_ACID;
             break;
         default:

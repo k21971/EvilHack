@@ -2303,4 +2303,5 @@ The following changes to date are:
 - Add chance for doors on jail cells in Goblin Town; adjust odds for shop
   and hammer spawning
 - Enshelled tortle blocks stinging/crushing attacks
+- Change 'splash of acid' to 'torrent of acid'
 
