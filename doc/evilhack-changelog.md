@@ -2299,4 +2299,5 @@ The following changes to date are:
 - Adjust blocked access to Mine Town/Mines' End while Goblin King is alive
 - Fix: two-weapon paralysis
 - Fix: update to 'two-weapon paralysis' commit
+- Include tortle race in shopkeeper price adjustments
 

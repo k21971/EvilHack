@@ -2138,23 +2138,19 @@ long *numerator, *denominator;
 
     if (is_human(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_GNOME)) {
-            /* nasty, brutish, and short */
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_CENTAUR)) {
-            /* "smelly and four-legged" */
             *numerator = 3L;
             *denominator = 2L;
         }
     } else if (is_elf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
             *numerator = 2L;
-        } else if (Race_if(PM_DWARF)) {
-            /* "lawn ornament" */
+        } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_ELF)) {
-            /* slight same-race discount */
             *numerator = 4L;
             *denominator = 5L;
         }
@@ -2162,15 +2158,12 @@ long *numerator, *denominator;
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
             *numerator = 2L;
         } else if (Race_if(PM_ELF)) {
-            /* "pointy-eared tree hugger" */
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_GIANT)) {
-            /* "big, dumb and smelly" */
             *numerator = 3L;
             *denominator = 2L;
         } else if (Race_if(PM_DWARF)) {
-            /* same-race discount */
             *numerator = 3L;
             *denominator = 4L;
         }
@@ -2178,21 +2171,17 @@ long *numerator, *denominator;
         if (Race_if(PM_ELF) || Race_if(PM_GNOME)
             || Race_if(PM_HOBBIT)) {
             *numerator = 3L;
-        } else if (Race_if(PM_DWARF)) {
+        } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
             *numerator = 5L;
             *denominator = 3L;
         } else if (Race_if(PM_HUMAN)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_ORC)) {
-            /* generous same-race discount */
             *numerator = 2L;
             *denominator = 3L;
         }
     } else if (is_gnome(shkdat)) {
-        /* Gnomes are crafty. They don't really have racial animosities, but
-         * it's going to be a lot harder to get a good deal out of a gnome unless
-         * you're remarkably shrewd yourself */
         if (ACURR(A_INT) < 15) {
             *numerator = 3L;
             *denominator = 2L;
@@ -2205,34 +2194,28 @@ long *numerator, *denominator;
             impossible("mnum for illithid shopkeeper is too low!");
             return;
         }
-        /* They'd prefer not to sell their libraries */
         if (!Race_if(PM_ILLITHID))
             *numerator = ((mnum - PM_ILLITHID + 1) * 10);
     } else if (is_centaur(shkdat)) {
-        /* Centaurs don't care much for most humanoid races */
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
             || Race_if(PM_DWARF) || Race_if(PM_ORC)
-            || Race_if(PM_ILLITHID)) {
+            || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)) {
             *numerator = 3L;
             *denominator = 2L;
         } else if (Race_if(PM_CENTAUR)) {
-            /* same-race discount */
             *numerator = 3L;
             *denominator = 4L;
         }
     } else if (is_giant(shkdat)) {
-        /* Non-Elder-Race humanoids are not thought of highly */
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
             || Race_if(PM_ILLITHID) || Race_if(PM_ORC)
-            || Race_if(PM_HOBBIT)) {
+            || Race_if(PM_HOBBIT) || Race_if(PM_TORTLE)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_DWARF)) {
-            /* "dwarf tossing, only thing they're good for" */
             *numerator = 3L;
             *denominator = 2L;
         } else if (Race_if(PM_GIANT)) {
-            /* cater to their own kind */
             *numerator = 3L;
             *denominator = 4L;
         }
@@ -2242,11 +2225,9 @@ long *numerator, *denominator;
             return;
         }
         if (ACURR(A_CHA) > 14) {
-            /* Pretty people don't get gouged TOO badly... */
             *numerator = 4L;
             *denominator = 3L;
         } else {
-            /* ... but if you don't measure up... */
             *numerator = 5L;
             *denominator = 3L;
         }
