@@ -2300,4 +2300,6 @@ The following changes to date are:
 - Fix: two-weapon paralysis
 - Fix: update to 'two-weapon paralysis' commit
 - Include tortle race in shopkeeper price adjustments
+- Add chance for doors on jail cells in Goblin Town; adjust odds for shop
+  and hammer spawning
 
