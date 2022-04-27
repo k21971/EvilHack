@@ -931,7 +931,7 @@ register struct monst *mtmp;
                         && (youmonst.data)->msize <= MZ_SMALL
                         && is_animal(youmonst.data)
                         && (near_capacity() == UNENCUMBERED)
-                        && !(Confusion || Stunned || Punished
+                        && !(Confusion || Stunned || Punished || multi < 0
                              || Wounded_legs || Stoned || Fumbling) && rn2(3)) {
                         You("nimbly %s %s bite!",
                             rn2(2) ? "dodge" : "evade", s_suffix(mon_nam(mtmp)));
@@ -945,6 +945,10 @@ register struct monst *mtmp;
                     if (is_illithid(mdat) && mattk->aatyp == AT_TENT
                         && Hidinshell) {
                         Your("protective shell blocks %s tentacle attack!", s_suffix(mon_nam(mtmp)));
+                        return 0;
+                    }
+                    if (mattk->aatyp == AT_STNG && Hidinshell) {
+                        pline("%s stinger glances off of your protective shell!", s_suffix(Monnam(mtmp)));
                         return 0;
                     }
                     if (tmp > (j = rnd(20 + i))) {
@@ -1361,10 +1365,17 @@ register struct attack *mattk;
                         pline("%s grabs you!", Monnam(mtmp));
                 }
             } else if (u.ustuck == mtmp) {
-                exercise(A_STR, FALSE);
-                You("are being %s.", (mtmp->data == &mons[PM_ROPE_GOLEM])
-                                         ? "choked"
-                                         : "crushed");
+                if (Hidinshell) {
+                    /* monster still has you in its grasp, but is unable
+                       to cause any damage */
+                    Your("protective shell prevents you from being crushed!");
+                    dmg = 0;
+                } else {
+                    exercise(A_STR, FALSE);
+                    You("are being %s.", (mtmp->data == &mons[PM_ROPE_GOLEM])
+                                             ? "choked"
+                                             : "crushed");
+                }
             } else {
                 hitmsg(mtmp, mattk);
             }

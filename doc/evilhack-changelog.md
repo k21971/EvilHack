@@ -2302,4 +2302,5 @@ The following changes to date are:
 - Include tortle race in shopkeeper price adjustments
 - Add chance for doors on jail cells in Goblin Town; adjust odds for shop
   and hammer spawning
+- Enshelled tortle blocks stinging/crushing attacks
 
