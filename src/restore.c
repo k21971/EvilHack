@@ -668,9 +668,9 @@ unsigned int *stuckid, *steedid;
     while (bc_obj) {
         struct obj *nobj = bc_obj->nobj;
 
+        bc_obj->nobj = (struct obj *) 0;
         if (bc_obj->owornmask)
             setworn(bc_obj, bc_obj->owornmask);
-        bc_obj->nobj = (struct obj *) 0;
         bc_obj = nobj;
     }
 
@@ -874,7 +874,7 @@ register int fd;
     int rtmp;
     struct obj *otmp;
 
-    restoring = TRUE;
+    program_state.restoring = 1;
     get_plname_from_file(fd, plname);
     getlev(fd, 0, (xchar) 0, FALSE);
     if (!restgamestate(fd, &stuckid, &steedid)) {
@@ -882,7 +882,7 @@ register int fd;
         savelev(-1, 0, FREE_SAVE); /* discard current level */
         (void) nhclose(fd);
         (void) delete_savefile();
-        restoring = FALSE;
+        program_state.restoring = 0;
         return 0;
     }
     restlevelstate(stuckid, steedid);
@@ -1009,8 +1009,8 @@ register int fd;
     vision_full_recalc = 1; /* recompute vision (not saved) */
 
     run_timers(); /* expire all timers that have gone off while away */
+    program_state.restoring = 0; /* affects bot() so clear before docrt() */
     docrt();
-    restoring = FALSE;
     clear_nhwindow(WIN_MESSAGE);
 
     /* Success! */
@@ -1748,7 +1748,7 @@ register unsigned int len;
             return;
         } else {
             pline("Read %d instead of %u bytes.", rlen, len);
-            if (restoring) {
+            if (program_state.restoring) {
                 (void) nhclose(fd);
                 (void) delete_savefile();
                 error("Error restoring old game.");

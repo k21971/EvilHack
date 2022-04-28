@@ -1584,8 +1584,8 @@ unsigned doname_flags;
     /* treat 'restoring' like suppress_price because shopkeeper and
        bill might not be available yet while restore is in progress
        (objects won't normally be formatted during that time, but if
-       'perm_invent' is enabled then they might be) */
-    if (iflags.suppress_price || restoring) {
+       'perm_invent' is enabled then they might be [not any more...]) */
+    if (iflags.suppress_price || program_state.restoring) {
         ; /* don't attempt to obtain any stop pricing, even if 'with_price' */
     } else if (is_unpaid(obj)) { /* in inventory or in container in invent */
         long quotedprice = unpaid_cost(obj, TRUE);

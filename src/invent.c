@@ -2456,7 +2456,7 @@ learn_unseen_invent()
 void
 update_inventory()
 {
-    if (restoring)
+    if (program_state.saving || program_state.restoring)
         return;
 
     /*

@@ -883,7 +883,8 @@ long wp_mask;
             u.uroleplay.hallu = FALSE;
             pline_The("world no longer makes any sense to you!");
         }
-        (void) make_hallucinated((long) !on, restoring ? FALSE : TRUE,
+        (void) make_hallucinated((long) !on,
+                                 program_state.restoring ? FALSE : TRUE,
                                  wp_mask);
     }
     if (spfx & SPFX_ESP) {

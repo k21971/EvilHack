@@ -1460,10 +1460,11 @@ redraw_map()
      * used to get much too involved with each dungeon level as it was
      * read and written.
      *
-     * !u.ux: display isn't ready yet; (restoring || !on_level()): was part
-     * of cliparound() but interface shouldn't access this much internals
+     * !u.ux: display isn't ready yet; (program_state.restoring ||
+     * !on_level()): was part of cliparound() but interface shouldn't
+     * access this much internals
      */
-    if (!u.ux || restoring || !on_level(&u.uz0, &u.uz))
+    if (!u.ux || program_state.restoring || !on_level(&u.uz0, &u.uz))
         return;
 
     /*
@@ -1665,6 +1666,10 @@ int cursor_on_u;
     static int flushing = 0;
     static int delay_flushing = 0;
     register int x, y;
+
+    /* 3.7: don't update map, status, or perm_invent during save/restore */
+    if (program_state.saving || program_state.restoring)
+        return;
 
     if (cursor_on_u == -1)
         delay_flushing = !delay_flushing;

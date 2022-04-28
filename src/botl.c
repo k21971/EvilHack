@@ -242,7 +242,8 @@ void
 bot()
 {
     /* dosave() flags completion by setting u.uhp to -1 */
-    if ((u.uhp != -1) && youmonst.data && iflags.status_updates) {
+    if ((u.uhp != -1) && youmonst.data && iflags.status_updates
+        && !program_state.saving && !program_state.restoring) {
         if (VIA_WINDOWPORT()) {
             bot_via_windowport();
         } else {
@@ -258,7 +259,8 @@ bot()
 void
 timebot()
 {
-    if (flags.time && iflags.status_updates) {
+    if (flags.time && iflags.status_updates
+        && !program_state.saving && !program_state.restoring) {
         if (VIA_WINDOWPORT()) {
             stat_update_time();
         } else {

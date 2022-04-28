@@ -2305,4 +2305,5 @@ The following changes to date are:
 - Enshelled tortle blocks stinging/crushing attacks
 - Change 'splash of acid' to 'torrent of acid'
 - Forge recipe improvements, slight recipe changes
+- Fix: saving versus ball & chain
 
