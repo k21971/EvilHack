@@ -2304,4 +2304,5 @@ The following changes to date are:
   and hammer spawning
 - Enshelled tortle blocks stinging/crushing attacks
 - Change 'splash of acid' to 'torrent of acid'
+- Forge recipe improvements, slight recipe changes
 

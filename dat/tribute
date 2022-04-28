@@ -8766,17 +8766,17 @@ Don't try to forge things you know you shouldn't.
 %passage 2
 Chapter 2 of 7 - Weapons (part 1)
 
-Forge dart / dagger to create:  shuriken
-Forge arrow / dagger to create:  spear
-Forge orcish arrow / orcish dagger to create:  orcish spear
-Forge arrow / spear to create:  dwarvish spear
-Forge dart / spear to create:  javelin
+Forge 2 darts / dagger to create:  3 to 4 shuriken
+Forge 2 arrows / dagger to create:  spear
+Forge 2 orcish arrows / orcish dagger to create:  orcish spear
+Forge 2 arrows / spear to create:  dwarvish spear
+Forge 2 crossbow bolts / spear to create:  javelin
 Forge scimitar / spear to create:  trident
-Forge arrow / knife to create:  dagger
-Forge orcish arrow / knife to create:  orcish dagger
+Forge 2 arrows / knife to create:  dagger
+Forge 2 orcish arrows / knife to create:  orcish dagger
 Forge dagger / stiletto to create:  athame
 Forge knife / stiletto to create:  scalpel
-Forge arrow / dart to create:  knife
+Forge 2 arrows / 2 darts to create:  knife
 Forge knife (x2) to create:  stiletto
 Forge dagger / spear to create:  axe
 Forge axe / long sword to create:  dwarvish bearded axe
@@ -8801,7 +8801,7 @@ Forge broadsword / long sword to create:  two-handed sword
 Forge long sword (x2) to create:  katana
 Forge katana / two-handed sword to create:  tsurugi
 Forge broadsword / dagger to create:  runesword
-Forge glaive / ranseur to create:  lance
+Forge glaive / javelin to create:  lance
 Forge axe / ranseur to create:  halberd
 Forge pick-axe / dwarvish short sword to create:  dwarvish mattock
 Forge dagger / war hammer to create:  mace

@@ -390,84 +390,91 @@ lava:
    feels overpowered without needing some other
    component added to the mix, or maybe have the
    forge be used up, or both */
-static const short fusions[][3] = {
+static const struct forge_recipe {
+    short result_typ;
+    short typ1;
+    short typ2;
+    int quan_typ1;
+    int quan_typ2;
+} fusions[] = {
     /* weapons */
-    { SHURIKEN, DART, DAGGER },
-    { SPEAR, ARROW, DAGGER },
-    { ORCISH_SPEAR, ORCISH_ARROW, ORCISH_DAGGER },
-    { DWARVISH_SPEAR, ARROW, SPEAR },
-    { JAVELIN, DART, SPEAR },
-    { TRIDENT, SCIMITAR, SPEAR },
-    { DAGGER, ARROW, KNIFE },
-    { ORCISH_DAGGER, ORCISH_ARROW, KNIFE },
-    { ATHAME, DAGGER, STILETTO },
-    { SCALPEL, KNIFE, STILETTO },
-    { KNIFE, ARROW, DART },
-    { STILETTO, KNIFE, KNIFE },
-    { AXE, DAGGER, SPEAR },
-    { DWARVISH_BEARDED_AXE, AXE, LONG_SWORD },
-    { BATTLE_AXE, AXE, BROADSWORD },
-    { SHORT_SWORD, DAGGER, DAGGER },
-    { ORCISH_SHORT_SWORD, ORCISH_DAGGER, ORCISH_DAGGER },
-    { DWARVISH_SHORT_SWORD, DWARVISH_SPEAR, SHORT_SWORD },
-    { SCIMITAR, KNIFE, SHORT_SWORD },
-    { ORCISH_SCIMITAR, KNIFE, ORCISH_SHORT_SWORD },
-    { SABER, SCIMITAR, LONG_SWORD },
-    { BROADSWORD, SCIMITAR, SHORT_SWORD },
-    { LONG_SWORD, SHORT_SWORD, SHORT_SWORD },
-    { ORCISH_LONG_SWORD, ORCISH_SHORT_SWORD, ORCISH_SHORT_SWORD },
-    { TWO_HANDED_SWORD, LONG_SWORD, BROADSWORD },
-    { KATANA, LONG_SWORD, LONG_SWORD },
-    { TSURUGI, TWO_HANDED_SWORD, KATANA },
-    { RUNESWORD, BROADSWORD, DAGGER },
-    { LANCE, RANSEUR, GLAIVE },
-    { HALBERD, RANSEUR, AXE },
-    { DWARVISH_MATTOCK, PICK_AXE, DWARVISH_SHORT_SWORD },
-    { MACE, WAR_HAMMER, DAGGER },
-    { HEAVY_MACE, MACE, MACE },
-    { MORNING_STAR, MACE, DAGGER },
-    { ORCISH_MORNING_STAR, MACE, ORCISH_DAGGER },
-    { WAR_HAMMER, MACE, FLAIL },
-    { HEAVY_WAR_HAMMER, WAR_HAMMER, WAR_HAMMER },
-    { AKLYS, FLAIL, SPEAR },
-    { FLAIL, MORNING_STAR, MACE },
+    { SHURIKEN, DART, DAGGER, 2, 1 },
+    { SPEAR, ARROW, DAGGER, 2, 1 },
+    { ORCISH_SPEAR, ORCISH_ARROW, ORCISH_DAGGER, 2, 1 },
+    { DWARVISH_SPEAR, ARROW, SPEAR, 2, 1 },
+    { JAVELIN, CROSSBOW_BOLT, SPEAR, 2, 1 },
+    { TRIDENT, SCIMITAR, SPEAR, 1, 1 },
+    { DAGGER, ARROW, KNIFE, 2, 1 },
+    { ORCISH_DAGGER, ORCISH_ARROW, KNIFE, 2, 1 },
+    { ATHAME, DAGGER, STILETTO, 1, 1 },
+    { SCALPEL, KNIFE, STILETTO, 1, 1 },
+    { KNIFE, ARROW, DART, 2, 2 },
+    { STILETTO, KNIFE, KNIFE, 1, 1 },
+    { AXE, DAGGER, SPEAR, 1, 1 },
+    { DWARVISH_BEARDED_AXE, AXE, LONG_SWORD, 1, 1 },
+    { BATTLE_AXE, AXE, BROADSWORD, 1, 1 },
+    { SHORT_SWORD, DAGGER, DAGGER, 1, 1 },
+    { ORCISH_SHORT_SWORD, ORCISH_DAGGER, ORCISH_DAGGER, 1, 1 },
+    { DWARVISH_SHORT_SWORD, DWARVISH_SPEAR, SHORT_SWORD, 1, 1 },
+    { SCIMITAR, KNIFE, SHORT_SWORD, 1, 1 },
+    { ORCISH_SCIMITAR, KNIFE, ORCISH_SHORT_SWORD, 1, 1 },
+    { SABER, SCIMITAR, LONG_SWORD, 1, 1 },
+    { BROADSWORD, SCIMITAR, SHORT_SWORD, 1, 1 },
+    { LONG_SWORD, SHORT_SWORD, SHORT_SWORD, 1, 1 },
+    { ORCISH_LONG_SWORD, ORCISH_SHORT_SWORD, ORCISH_SHORT_SWORD, 1, 1 },
+    { TWO_HANDED_SWORD, LONG_SWORD, BROADSWORD, 1, 1 },
+    { KATANA, LONG_SWORD, LONG_SWORD, 1, 1 },
+    { TSURUGI, TWO_HANDED_SWORD, KATANA, 1, 1 },
+    { RUNESWORD, BROADSWORD, DAGGER, 1, 1 },
+    { LANCE, JAVELIN, GLAIVE, 1, 1 },
+    { HALBERD, RANSEUR, AXE, 1, 1 },
+    { DWARVISH_MATTOCK, PICK_AXE, DWARVISH_SHORT_SWORD, 1, 1 },
+    { MACE, WAR_HAMMER, DAGGER, 1, 1 },
+    { HEAVY_MACE, MACE, MACE, 1, 1 },
+    { MORNING_STAR, MACE, DAGGER, 1, 1 },
+    { ORCISH_MORNING_STAR, MACE, ORCISH_DAGGER, 1, 1 },
+    { WAR_HAMMER, MACE, FLAIL, 1, 1 },
+    { HEAVY_WAR_HAMMER, WAR_HAMMER, WAR_HAMMER, 1, 1 },
+    { AKLYS, FLAIL, SPEAR, 1, 1 },
+    { FLAIL, MORNING_STAR, MACE, 1, 1 },
     /* armor (helmets) */
-    { ORCISH_HELM, DENTED_POT, ORCISH_DAGGER },
-    { DWARVISH_HELM, HELMET, DWARVISH_SHORT_SWORD },
-    { DENTED_POT, WAR_HAMMER, KNIFE },
-    { HELMET, DENTED_POT, DAGGER },
+    { ORCISH_HELM, DENTED_POT, ORCISH_DAGGER, 1, 1 },
+    { DWARVISH_HELM, HELMET, DWARVISH_SHORT_SWORD, 1, 1 },
+    { DENTED_POT, WAR_HAMMER, KNIFE, 1, 1 },
+    { HELMET, DENTED_POT, DAGGER, 1, 1 },
     /* armor (body armor) */
-    { PLATE_MAIL, SPLINT_MAIL, CHAIN_MAIL },
-    { SPLINT_MAIL, SCALE_MAIL, CHAIN_MAIL },
-    { LARGE_SPLINT_MAIL, PLATE_MAIL, PLATE_MAIL },
-    { BANDED_MAIL, SCALE_MAIL, RING_MAIL },
-    { CHAIN_MAIL, RING_MAIL, RING_MAIL },
-    { DWARVISH_CHAIN_MAIL, CHAIN_MAIL, DWARVISH_ROUNDSHIELD },
-    { ELVEN_CHAIN_MAIL, CHAIN_MAIL, LARGE_SHIELD },
-    { ORCISH_CHAIN_MAIL, RING_MAIL, ORCISH_SHIELD },
-    { SCALE_MAIL, RING_MAIL, HELMET },
-    { RING_MAIL, LARGE_SHIELD, HELMET },
-    { ORCISH_RING_MAIL, ORCISH_SHIELD, ORCISH_HELM },
+    { PLATE_MAIL, SPLINT_MAIL, CHAIN_MAIL, 1, 1 },
+    { SPLINT_MAIL, SCALE_MAIL, CHAIN_MAIL, 1, 1 },
+    { LARGE_SPLINT_MAIL, PLATE_MAIL, PLATE_MAIL, 1, 1 },
+    { BANDED_MAIL, SCALE_MAIL, RING_MAIL, 1, 1 },
+    { CHAIN_MAIL, RING_MAIL, RING_MAIL, 1, 1 },
+    { DWARVISH_CHAIN_MAIL, CHAIN_MAIL, DWARVISH_ROUNDSHIELD, 1, 1 },
+    { ELVEN_CHAIN_MAIL, CHAIN_MAIL, LARGE_SHIELD, 1, 1 },
+    { ORCISH_CHAIN_MAIL, RING_MAIL, ORCISH_SHIELD, 1, 1 },
+    { SCALE_MAIL, RING_MAIL, HELMET, 1, 1 },
+    { RING_MAIL, LARGE_SHIELD, HELMET, 1, 1 },
+    { ORCISH_RING_MAIL, ORCISH_SHIELD, ORCISH_HELM, 1, 1 },
     /* armor (shields) */
-    { URUK_HAI_SHIELD, ORCISH_SHIELD, ORCISH_SHIELD },
-    { ORCISH_SHIELD, ORCISH_HELM, ORCISH_BOOTS },
-    { LARGE_SHIELD, HELMET, HELMET },
-    { DWARVISH_ROUNDSHIELD, LARGE_SHIELD, DWARVISH_HELM },
+    { URUK_HAI_SHIELD, ORCISH_SHIELD, ORCISH_SHIELD, 1, 1 },
+    { ORCISH_SHIELD, ORCISH_HELM, ORCISH_BOOTS, 1, 1 },
+    { LARGE_SHIELD, HELMET, HELMET, 1, 1 },
+    { DWARVISH_ROUNDSHIELD, LARGE_SHIELD, DWARVISH_HELM, 1, 1 },
     /* armor (gauntlets and boots) */
-    { GAUNTLETS, MACE, HELMET },
-    { DWARVISH_BOOTS, GAUNTLETS, DWARVISH_SHORT_SWORD },
-    { ORCISH_BOOTS, GAUNTLETS, ORCISH_SHORT_SWORD },
-    { 0, 0, 0, }
+    { GAUNTLETS, MACE, HELMET, 1, 1 },
+    { DWARVISH_BOOTS, GAUNTLETS, DWARVISH_SHORT_SWORD, 1, 1 },
+    { ORCISH_BOOTS, GAUNTLETS, ORCISH_SHORT_SWORD, 1, 1 },
+    { 0, 0, 0, 0, 0 }
 };
 
 int
 doforging(void)
 {
+    const struct forge_recipe *recipe;
     struct obj* obj1;
     struct obj* obj2;
     struct obj* output;
     char allowall[2];
-    int i, objtype = 0;
+    int objtype = 0;
 
     allowall[0] = ALL_CLASSES;
     allowall[1] = '\0';
@@ -534,10 +541,12 @@ doforging(void)
     }
 
     /* start the forging process */
-    for (i = 0; fusions[i][0] > 0; i++) {
-        if ((obj1->otyp == fusions[i][1] && obj2->otyp == fusions[i][2])
-            || (obj2->otyp == fusions[i][1] && obj1->otyp == fusions[i][2])) {
-            objtype = fusions[i][0];
+    for (recipe = fusions; recipe->result_typ; recipe++) {
+        if ((obj1->otyp == recipe->typ1 && obj2->otyp == recipe->typ2
+             && obj1->quan >= recipe->quan_typ1 && obj2->quan >= recipe->quan_typ2)
+            || (obj2->otyp == recipe->typ1 && obj1->otyp == recipe->typ2
+                && obj2->quan >= recipe->quan_typ1 && obj1->quan >= recipe->quan_typ2)) {
+            objtype = recipe->result_typ;
             break;
         }
     }
@@ -548,6 +557,7 @@ doforging(void)
         You("fail to combine these two objects.");
         return 1;
     } else if (objtype) {
+        /* success */
         output = mksobj(objtype, TRUE, FALSE);
 
         You("place %s, then %s inside the forge.",
@@ -600,8 +610,12 @@ doforging(void)
         output->oeroded = output->oeroded2 = output->opoisoned = 0;
 
         /* toss out old objects, add new one */
-        useup(obj1);
-        useup(obj2);
+        obj1->quan -= recipe->quan_typ1;
+        obj2->quan -= recipe->quan_typ2;
+        if (!obj1->quan)
+            delobj(obj1);
+        if (!obj2->quan)
+            delobj(obj2);
         output = addinv(output);
         /* prevent large stacks of ammo-type weapons from being
            formed */
