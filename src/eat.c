@@ -2380,6 +2380,19 @@ eatspecial()
         exercise(A_CON, TRUE);
     }
 
+    if (otmp->oartifact == ART_HAND_OF_VECNA) {
+        You("feel a burning deep inside your %s!", body_part(STOMACH));
+        if (otmp->cursed)
+            u.uhp -= rn1(150, 250);
+        else
+            u.uhp -= rn1(50, 150);
+        if (u.uhp <= 0) {
+            killer.format = KILLED_BY;
+            Strcpy(killer.name, "eating the Hand of Vecna");
+            done(DIED);
+        }
+    }
+
     if (otmp == uwep && otmp->quan == 1L)
         uwepgone();
     if (otmp == uquiver && otmp->quan == 1L)
@@ -2741,7 +2754,10 @@ doeat()
     } else if ((otmp->owornmask & (W_ARMOR | W_TOOL | W_AMUL | W_SADDLE))
                != 0) {
         /* let them eat rings */
-        You_cant("eat %s you're wearing.", something);
+        if (otmp->oartifact == ART_HAND_OF_VECNA)
+            You_cant("eat %s that's a part of you!", something);
+        else
+            You_cant("eat %s you're wearing.", something);
         return 0;
     } else if (!(carried(otmp) ? retouch_object(&otmp, FALSE)
                                : touch_artifact(otmp, &youmonst))) {

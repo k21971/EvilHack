@@ -2307,4 +2307,5 @@ The following changes to date are:
 - Forge recipe improvements, slight recipe changes
 - Fix: saving versus ball & chain
 - Fix: a couple typos
+- Eating the Hand of Vecna is bad for you
 
