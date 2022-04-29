@@ -2308,4 +2308,6 @@ The following changes to date are:
 - Fix: saving versus ball & chain
 - Fix: a couple typos
 - Eating the Hand of Vecna is bad for you
+- Fix: the Hand of Vecna could disappear if the game is saved/reloaded after
+  attempting to over-enchant
 
