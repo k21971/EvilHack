@@ -4765,7 +4765,7 @@ you that you will never be able to free yourself from it.
 #
 %Cc - 00303
 As you watch Vecna's decrepit body crumble to dust, you sense
-a powerful, evil force leave his quickly disintigrating body.
+a powerful, evil force leave his quickly disintegrating body.
 It dissipates out into the void, gone forever.  At that same
 moment, you hear from far away the terrified screams of the
 liches that still remain in Vecna's stronghold.  Their source

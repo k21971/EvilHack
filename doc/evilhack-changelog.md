@@ -1290,7 +1290,7 @@ The following changes to date are:
 - Kathryn the Enchantress will still wave to you if hostile
 - Fix: the Oracle and Charon changed states not restored on save
 - Fix: better fix for crash when killing monster with a wielded potion
-- Fix: thrown/kicked objects hitting a black dragon would disintigrate 100%
+- Fix: thrown/kicked objects hitting a black dragon would disintegrate 100%
   of the time
 - Fix: check_wings() doesn't respect if an amulet of flying is being worn or not
 - Fix: Illithids can still use psionic blast if poly'd into a non-illithid form
@@ -2306,4 +2306,5 @@ The following changes to date are:
 - Change 'splash of acid' to 'torrent of acid'
 - Forge recipe improvements, slight recipe changes
 - Fix: saving versus ball & chain
+- Fix: a couple typos
 
