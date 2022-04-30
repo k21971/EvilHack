@@ -762,6 +762,12 @@ int wtcap;
             infidel_no_amulet = (u.ualign.type == A_NONE && !u.uhave.amulet
                                  && !u.uachieve.amulet);
 
+    /* periodically let our Infidel know why their hit
+       points aren't regenerating if they don't have
+       the Amulet in their possession */
+    if (infidel_no_amulet && !rn2(20))
+        You_feel("unable to rest or heal without the Amulet of Yendor.");
+
     if (Upolyd) {
         if (u.mh < 1) { /* shouldn't happen... */
             rehumanize();

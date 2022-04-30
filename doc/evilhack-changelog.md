@@ -2313,4 +2313,6 @@ The following changes to date are:
 - Fix: 'qt_pager: message 90 not found. program in disorder!' during
   Rogue quest
 - Fix: suppress Monk's extra kick attack when engulfed
+- Give notice to infidels why they aren't regenerating hit points when
+  they don't have the Amulet of Yendor in their possession
 
