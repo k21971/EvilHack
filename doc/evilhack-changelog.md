@@ -2312,4 +2312,5 @@ The following changes to date are:
   attempting to over-enchant
 - Fix: 'qt_pager: message 90 not found. program in disorder!' during
   Rogue quest
+- Fix: suppress Monk's extra kick attack when engulfed
 
