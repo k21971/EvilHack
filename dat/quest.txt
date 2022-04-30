@@ -3275,7 +3275,7 @@ The silver bell is uncursed now, so easy task for you, yeah?
 without a fight?  You're weaker than I thought.
 Leave now before I decide to put you out of
 everyone else's misery."
-+%E ["You give %o to %l."]
+%E ["You give %o to %l."]
 %Cc Rog 00090
 "Quite the little thief, aren't we, %p.  Can I interest you in a
 swap for %o?  Look around, anything in the keep

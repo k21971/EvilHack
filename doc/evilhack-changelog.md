@@ -2310,4 +2310,6 @@ The following changes to date are:
 - Eating the Hand of Vecna is bad for you
 - Fix: the Hand of Vecna could disappear if the game is saved/reloaded after
   attempting to over-enchant
+- Fix: 'qt_pager: message 90 not found. program in disorder!' during
+  Rogue quest
 
