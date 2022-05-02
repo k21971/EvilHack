@@ -610,12 +610,22 @@ doforging(void)
         output->oeroded = output->oeroded2 = output->opoisoned = 0;
 
         /* toss out old objects, add new one */
-        obj1->quan -= recipe->quan_typ1;
-        obj2->quan -= recipe->quan_typ2;
+        if (obj1->otyp == recipe->typ1)
+            obj1->quan -= recipe->quan_typ1;
+        if (obj2->otyp == recipe->typ1)
+            obj2->quan -= recipe->quan_typ1;
+        if (obj1->otyp == recipe->typ2)
+            obj1->quan -= recipe->quan_typ2;
+        if (obj2->otyp == recipe->typ2)
+            obj2->quan -= recipe->quan_typ2;
+
+        /* delete recipe objects if quantity reaches zero */
         if (!obj1->quan)
             delobj(obj1);
         if (!obj2->quan)
             delobj(obj2);
+
+        /* forged object is created */
         output = addinv(output);
         /* prevent large stacks of ammo-type weapons from being
            formed */

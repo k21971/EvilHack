@@ -2316,4 +2316,5 @@ The following changes to date are:
 - Give notice to infidels why they aren't regenerating hit points when
   they don't have the Amulet of Yendor in their possession
 - Fix: prevent sokoban prizes from being engulfed
+- Fix: certain forge recipes could cause splitobj panic
 
