@@ -1536,6 +1536,8 @@ struct monst *mtmp;
                    /* don't engulf boulders and statues or ball&chain */
                    || otmp->oclass == ROCK_CLASS
                    || otmp == uball || otmp == uchain
+                   /* leave sokoban prizes alone */
+                   || is_soko_prize_flag(otmp)
                    /* normally mtmp won't have stepped onto scare monster
                       scroll, but if it does, don't eat or engulf that
                       (note: scrolls inside eaten containers will still

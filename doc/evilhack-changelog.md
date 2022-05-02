@@ -2315,4 +2315,5 @@ The following changes to date are:
 - Fix: suppress Monk's extra kick attack when engulfed
 - Give notice to infidels why they aren't regenerating hit points when
   they don't have the Amulet of Yendor in their possession
+- Fix: prevent sokoban prizes from being engulfed
 
