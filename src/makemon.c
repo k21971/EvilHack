@@ -456,7 +456,7 @@ struct trobj Level20KitMonk2[] = {
 /* end monk structs */
 
 struct trobj Level20Kit1[] = {
-    { CRYSTAL_PLATE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { RING_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
     { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
     { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
     { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
@@ -1886,8 +1886,8 @@ register struct monst *mtmp;
             }
 
             if (mac < -1 && rn2(5) && !racial_giant(mtmp))
-                mac += 7 + mongets(mtmp, (rn2(5)) ? PLATE_MAIL
-                                                  : CRYSTAL_PLATE_MAIL);
+                mac += 7 + mongets(mtmp, (rn2(15)) ? PLATE_MAIL
+                                                   : CRYSTAL_PLATE_MAIL);
             else if (mac < 3 && rn2(5)
                        && (!(racial_giant(mtmp)
                              || racial_elf(mtmp) || racial_orc(mtmp))))

@@ -2319,4 +2319,5 @@ The following changes to date are:
 - Fix: certain forge recipes could cause splitobj panic
 - Additional forge recipes, tweaks to a few existing recipes
 - Adjust tortle movement speed
+- Make crystal plate mail more rare
 
