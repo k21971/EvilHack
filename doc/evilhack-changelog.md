@@ -2317,4 +2317,5 @@ The following changes to date are:
   they don't have the Amulet of Yendor in their possession
 - Fix: prevent sokoban prizes from being engulfed
 - Fix: certain forge recipes could cause splitobj panic
+- Additional forge recipes, tweaks to a few existing recipes
 

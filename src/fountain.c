@@ -400,37 +400,54 @@ static const struct forge_recipe {
     /* weapons */
     { SHURIKEN, DART, DAGGER, 2, 1 },
     { SPEAR, ARROW, DAGGER, 2, 1 },
+    { ELVEN_SPEAR, ELVEN_ARROW, ELVEN_DAGGER, 2, 1 },
     { ORCISH_SPEAR, ORCISH_ARROW, ORCISH_DAGGER, 2, 1 },
     { DWARVISH_SPEAR, ARROW, SPEAR, 2, 1 },
     { JAVELIN, CROSSBOW_BOLT, SPEAR, 2, 1 },
     { TRIDENT, SCIMITAR, SPEAR, 1, 1 },
     { DAGGER, ARROW, KNIFE, 2, 1 },
+    { ELVEN_DAGGER, ELVEN_ARROW, KNIFE, 2, 1 },
     { ORCISH_DAGGER, ORCISH_ARROW, KNIFE, 2, 1 },
     { ATHAME, DAGGER, STILETTO, 1, 1 },
     { SCALPEL, KNIFE, STILETTO, 1, 1 },
     { KNIFE, ARROW, DART, 2, 2 },
-    { STILETTO, KNIFE, KNIFE, 1, 1 },
+    { STILETTO, CROSSBOW_BOLT, KNIFE, 2, 1 },
     { AXE, DAGGER, SPEAR, 1, 1 },
-    { DWARVISH_BEARDED_AXE, AXE, LONG_SWORD, 1, 1 },
+    { DWARVISH_BEARDED_AXE, AXE, DWARVISH_SHORT_SWORD, 1, 1 },
     { BATTLE_AXE, AXE, BROADSWORD, 1, 1 },
-    { SHORT_SWORD, DAGGER, DAGGER, 1, 1 },
-    { ORCISH_SHORT_SWORD, ORCISH_DAGGER, ORCISH_DAGGER, 1, 1 },
+    { SHORT_SWORD, CROSSBOW_BOLT, DAGGER, 2, 1 },
+    { ELVEN_SHORT_SWORD, CROSSBOW_BOLT, ELVEN_DAGGER, 2, 1 },
+    { ORCISH_SHORT_SWORD, CROSSBOW_BOLT, ORCISH_DAGGER, 2, 1 },
     { DWARVISH_SHORT_SWORD, DWARVISH_SPEAR, SHORT_SWORD, 1, 1 },
     { SCIMITAR, KNIFE, SHORT_SWORD, 1, 1 },
     { ORCISH_SCIMITAR, KNIFE, ORCISH_SHORT_SWORD, 1, 1 },
     { SABER, SCIMITAR, LONG_SWORD, 1, 1 },
     { BROADSWORD, SCIMITAR, SHORT_SWORD, 1, 1 },
+    { ELVEN_BROADSWORD, SCIMITAR, ELVEN_SHORT_SWORD, 1, 1 },
     { LONG_SWORD, SHORT_SWORD, SHORT_SWORD, 1, 1 },
+    { ELVEN_LONG_SWORD, ELVEN_SHORT_SWORD, ELVEN_SHORT_SWORD, 1, 1 },
     { ORCISH_LONG_SWORD, ORCISH_SHORT_SWORD, ORCISH_SHORT_SWORD, 1, 1 },
     { TWO_HANDED_SWORD, LONG_SWORD, BROADSWORD, 1, 1 },
     { KATANA, LONG_SWORD, LONG_SWORD, 1, 1 },
     { TSURUGI, TWO_HANDED_SWORD, KATANA, 1, 1 },
     { RUNESWORD, BROADSWORD, DAGGER, 1, 1 },
+    { PARTISAN, BROADSWORD, SPEAR, 1, 1 },
+    { RANSEUR, STILETTO, SPEAR, 1, 1 },
+    { SPETUM, KNIFE, SPEAR, 1, 1 },
+    { GLAIVE, SHORT_SWORD, SPEAR, 1, 1 },
     { LANCE, JAVELIN, GLAIVE, 1, 1 },
     { HALBERD, RANSEUR, AXE, 1, 1 },
+    { BARDICHE, BATTLE_AXE, SPEAR, 1, 1 },
+    { VOULGE, AXE, SPEAR, 1, 1 },
     { DWARVISH_MATTOCK, PICK_AXE, DWARVISH_SHORT_SWORD, 1, 1 },
+    { FAUCHARD, SABER, SPEAR, 1, 1 },
+    { GUISARME, GRAPPLING_HOOK, SPEAR, 1, 1 },
+    { BILL_GUISARME, GUISARME, SPEAR, 1, 1 },
+    { LUCERN_HAMMER, HEAVY_WAR_HAMMER, SPEAR, 1, 1 },
+    { BEC_DE_CORBIN, WAR_HAMMER, SPEAR, 1, 1 },
     { MACE, WAR_HAMMER, DAGGER, 1, 1 },
     { HEAVY_MACE, MACE, MACE, 1, 1 },
+    { ROD, RUBY, MACE, 2, 1 },
     { MORNING_STAR, MACE, DAGGER, 1, 1 },
     { ORCISH_MORNING_STAR, MACE, ORCISH_DAGGER, 1, 1 },
     { WAR_HAMMER, MACE, FLAIL, 1, 1 },
@@ -444,17 +461,20 @@ static const struct forge_recipe {
     { HELMET, DENTED_POT, DAGGER, 1, 1 },
     /* armor (body armor) */
     { PLATE_MAIL, SPLINT_MAIL, CHAIN_MAIL, 1, 1 },
+    { CRYSTAL_PLATE_MAIL, DILITHIUM_CRYSTAL, PLATE_MAIL, 3, 1 },
     { SPLINT_MAIL, SCALE_MAIL, CHAIN_MAIL, 1, 1 },
     { LARGE_SPLINT_MAIL, PLATE_MAIL, PLATE_MAIL, 1, 1 },
     { BANDED_MAIL, SCALE_MAIL, RING_MAIL, 1, 1 },
     { CHAIN_MAIL, RING_MAIL, RING_MAIL, 1, 1 },
     { DWARVISH_CHAIN_MAIL, CHAIN_MAIL, DWARVISH_ROUNDSHIELD, 1, 1 },
-    { ELVEN_CHAIN_MAIL, CHAIN_MAIL, LARGE_SHIELD, 1, 1 },
+    { ELVEN_CHAIN_MAIL, CHAIN_MAIL, ELVEN_SHIELD, 1, 1 },
     { ORCISH_CHAIN_MAIL, RING_MAIL, ORCISH_SHIELD, 1, 1 },
     { SCALE_MAIL, RING_MAIL, HELMET, 1, 1 },
     { RING_MAIL, LARGE_SHIELD, HELMET, 1, 1 },
     { ORCISH_RING_MAIL, ORCISH_SHIELD, ORCISH_HELM, 1, 1 },
     /* armor (shields) */
+    { SMALL_SHIELD, DAGGER, HELMET, 1, 1 },
+    { ELVEN_SHIELD, ELVEN_DAGGER, SMALL_SHIELD, 1, 1 },
     { URUK_HAI_SHIELD, ORCISH_SHIELD, ORCISH_SHIELD, 1, 1 },
     { ORCISH_SHIELD, ORCISH_HELM, ORCISH_BOOTS, 1, 1 },
     { LARGE_SHIELD, HELMET, HELMET, 1, 1 },
@@ -496,8 +516,9 @@ doforging(void)
     if (!obj1) {
         You("need a base object to forge with.");
         return 0;
-    } else if (!is_metallic(obj1)) { /* object should be metallic */
-        pline_The("base object must be made of something metallic.");
+    } else if (!(is_metallic(obj1) || is_crystal(obj1))) {
+        /* object should be gemstone or metallic */
+        pline_The("base object must be made of gemstone or something metallic.");
         return 0;
     }
 
@@ -506,8 +527,9 @@ doforging(void)
     if (!obj2) {
         You("need more than one object.");
         return 0;
-    } else if (!is_metallic(obj2)) { /* secondary object should also be metallic */
-        pline_The("secondary object must be made of something metallic.");
+    } else if (!(is_metallic(obj2) || is_crystal(obj2))) {
+        /* secondary object should also be gemstone or metallic */
+        pline_The("secondary object must be made of gemstone or something metallic.");
         return 0;
     }
 
@@ -620,9 +642,9 @@ doforging(void)
             obj2->quan -= recipe->quan_typ2;
 
         /* delete recipe objects if quantity reaches zero */
-        if (!obj1->quan)
+        if (obj1->quan <= 0)
             delobj(obj1);
-        if (!obj2->quan)
+        if (obj2->quan <= 0)
             delobj(obj2);
 
         /* forged object is created */
