@@ -2318,4 +2318,5 @@ The following changes to date are:
 - Fix: prevent sokoban prizes from being engulfed
 - Fix: certain forge recipes could cause splitobj panic
 - Additional forge recipes, tweaks to a few existing recipes
+- Adjust tortle movement speed
 

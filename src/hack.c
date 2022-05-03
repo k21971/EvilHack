@@ -3462,7 +3462,7 @@ weight_cap()
         maxcarrcap += 200;
         if (!Upolyd) {
             youmonst.data->cwt = 1600;
-            youmonst.data->mmove = 8;
+            youmonst.data->mmove = 10;
             youmonst.data->msize = MZ_LARGE;
         }
     } else if (Upolyd) {

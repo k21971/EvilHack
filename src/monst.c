@@ -3622,7 +3622,7 @@ struct permonst _mons2[] = {
     /*
      * lizards, &c
      */
-    MON("tortle", S_LIZARD, LVL(0, 8, 0, 0, 3), G_NOGEN, /* placeholder */
+    MON("tortle", S_LIZARD, LVL(0, 10, 0, 0, 3), G_NOGEN, /* placeholder */
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1600, 400, MS_HUMANOID, MZ_LARGE), 0, 0,
