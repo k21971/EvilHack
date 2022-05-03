@@ -2320,4 +2320,6 @@ The following changes to date are:
 - Additional forge recipes, tweaks to a few existing recipes
 - Adjust tortle movement speed
 - Make crystal plate mail more rare
+- Fix: 'Your leather studded armor seems to have holes for wings' when
+  putting on dragonhide studded armor
 
