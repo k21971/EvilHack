@@ -2322,4 +2322,5 @@ The following changes to date are:
 - Make crystal plate mail more rare
 - Fix: 'Your leather studded armor seems to have holes for wings' when
   putting on dragonhide studded armor
+- Fix: saving follow up
 

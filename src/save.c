@@ -309,9 +309,7 @@ register int fd, mode;
     unsigned long uid;
     struct obj *bc_objs = (struct obj *) 0;
 
-    if (!program_state.saving)
-        impossible("savegamestate called when not saving or changing levels?");
-
+    program_state.saving++; /* caller should/did already set this... */
 #ifdef MFLOPPY
     count_only = (mode & COUNT_SAVE);
 #endif
@@ -388,8 +386,11 @@ register int fd, mode;
     save_waterlevel(fd, mode);
     save_msghistory(fd, mode);
     bflush(fd);
+    program_state.saving--;
+    return;
 }
 
+/* potentially called from goto_level(do.c) as well as savestateinlock() */
 boolean
 tricked_fileremoved(fd, whynot)
 int fd;
@@ -433,8 +434,10 @@ savestateinlock()
          * readable by an external utility
          */
         fd = open_levelfile(0, whynot);
-        if (tricked_fileremoved(fd, whynot))
+        if (tricked_fileremoved(fd, whynot)) {
+            program_state.saving--;
             return;
+        }
 
         (void) read(fd, (genericptr_t) &hpid, sizeof hpid);
         if (hackpid != hpid) {
@@ -478,6 +481,7 @@ savestateinlock()
     }
     program_state.saving--;
     havestate = flags.ins_chkpt;
+    return;
 }
 #endif
 
@@ -625,6 +629,7 @@ int mode;
     if (mode != FREE_SAVE)
         bflush(fd);
     program_state.saving--;
+    return;
 }
 
 STATIC_OVL void
@@ -680,6 +685,7 @@ boolean rlecomp;
     nhUse(rlecomp);
 #endif /* ?RLECOMP */
     bwrite(fd, (genericptr_t) levl, sizeof levl);
+    return;
 }
 
 /*ARGSUSED*/
@@ -1079,6 +1085,8 @@ struct obj *otmp;
     }
 }
 
+/* save an object chain; sets head of list to Null when done;
+   handles release_data() for each object in the list */
 STATIC_OVL void
 saveobjchn(fd, obj_p, mode)
 register int fd, mode;
