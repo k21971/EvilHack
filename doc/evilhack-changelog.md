@@ -2323,4 +2323,6 @@ The following changes to date are:
 - Fix: 'Your leather studded armor seems to have holes for wings' when
   putting on dragonhide studded armor
 - Fix: saving follow up
+- Lower 'confuse monster' spell from level 2 to 1, make it part of a
+  Monk's starting spell selection
 
