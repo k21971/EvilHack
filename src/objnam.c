@@ -4513,10 +4513,12 @@ struct obj *no_wish;
 
     /* players are likely to wish for "foo dragon scale mail" by reflex, which
      * no longer exists and would now ignore the dragon type and give a plain
-     * scale mail; be nice by not letting it do that */
+     * scale mail; don't screw over players who aren't aware of the dtsund-DSM
+     * changes - produce a set of scales instead of nothing */
     if (typ == SCALE_MAIL && mntmp >= FIRST_DRAGON
-        && mntmp <= LAST_DRAGON) {
-        return (struct obj *) 0;
+        && mntmp <= PM_YELLOW_DRAGON) { /* chromatic dragon scales are off-limits */
+        typ = mndx_to_dragon_scales(mntmp);
+        mntmp = NON_PM; /* no monster */
     }
 
     /*

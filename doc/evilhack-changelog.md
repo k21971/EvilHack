@@ -2325,4 +2325,6 @@ The following changes to date are:
 - Fix: saving follow up
 - Lower 'confuse monster' spell from level 2 to 1, make it part of a
   Monk's starting spell selection
+- Fix: enchant armor selection and dragon scales; wishing for dragon
+  scale mail
 
