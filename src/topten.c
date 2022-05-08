@@ -1377,6 +1377,15 @@ boolean fem;
     if (!strcmp(plrac, "?"))
         return NON_PM;
 
+    if (!strncmp(plrac, race_demon.filecode, ROLESZ)) {
+        if (fem && race_demon.femalenum != NON_PM)
+            return race_demon.femalenum;
+        else if (race_demon.malenum != NON_PM)
+            return race_demon.malenum;
+        else
+            return NON_PM;
+    }
+
     for (i = 0; races[i].noun; i++) {
         if (!strncmp(plrac, races[i].filecode, ROLESZ)) {
             if (fem && races[i].femalenum != NON_PM)

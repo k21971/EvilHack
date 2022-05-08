@@ -2327,4 +2327,5 @@ The following changes to date are:
   Monk's starting spell selection
 - Fix: enchant armor selection and dragon scales; wishing for dragon
   scale mail
+- Fix: What weird race is this? (Dem) Program in disorder!
 
