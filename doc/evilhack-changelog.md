@@ -2328,4 +2328,5 @@ The following changes to date are:
 - Fix: enchant armor selection and dragon scales; wishing for dragon
   scale mail
 - Fix: What weird race is this? (Dem) Program in disorder!
+- Fix: follow up to commit b616c1c
 

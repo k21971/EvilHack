@@ -584,8 +584,7 @@ int mode;
     if (mode == FREE_SAVE) /* see above */
         goto skip_lots;
 
-    savelevl(fd,
-             (boolean) ((sfsaveinfo.sfi1 & SFI1_RLECOMP) == SFI1_RLECOMP));
+    savelevl(fd, ((sfsaveinfo.sfi1 & SFI1_RLECOMP) == SFI1_RLECOMP));
     bwrite(fd, (genericptr_t) lastseentyp, sizeof lastseentyp);
     bwrite(fd, (genericptr_t) &monstermoves, sizeof monstermoves);
     bwrite(fd, (genericptr_t) &upstair, sizeof (stairway));
