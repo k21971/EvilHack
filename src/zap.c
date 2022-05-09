@@ -5107,6 +5107,8 @@ const char *msg;
         lev->icedpool = 0;
     }
     spot_stop_timers(x, y, MELT_ICE_AWAY); /* no more ice to melt away */
+    if (t_at(x, y))
+        trap_ice_effects(x, y, TRUE); /* TRUE because ice_is_melting */
     obj_ice_effects(x, y, FALSE);
     if (!(lev->typ == PUDDLE || lev->typ == SEWAGE))
         unearth_objs(x, y);

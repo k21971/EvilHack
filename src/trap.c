@@ -1971,7 +1971,9 @@ struct trap *trap;
 {
     int x = trap->tx, y = trap->ty, dbx, dby;
     struct rm *lev = &levl[x][y];
+    schar old_typ, typ;
 
+    old_typ = lev->typ;
     (void) scatter(x, y, 4,
                    MAY_DESTROY | MAY_HIT | MAY_FRACTURE | VIS_EFFECTS,
                    (struct obj *) 0);
@@ -1993,11 +1995,21 @@ struct trap *trap;
             /* no pits here */
             deltrap(trap);
         } else {
-            trap->ttyp = PIT;       /* explosion creates a pit */
-            trap->madeby_u = FALSE; /* resulting pit isn't yours */
-            seetrap(trap);          /* and it isn't concealed */
+            /* fill pit with water, if applicable */
+            typ = fillholetyp(x, y, FALSE);
+            if (typ != ROOM) {
+                lev->typ = typ;
+                liquid_flow(x, y, typ, trap,
+                            cansee(x, y) ? "The hole fills with %s!"
+                                         : (char *) 0);
+            } else {
+                trap->ttyp = PIT;       /* explosion creates a pit */
+                trap->madeby_u = FALSE; /* resulting pit isn't yours */
+                seetrap(trap);          /* and it isn't concealed */
+            }
         }
     }
+    spot_checks(x, y, old_typ);
 }
 
 /*
@@ -6416,6 +6428,23 @@ maybe_finish_sokoban()
             Sokoban = 0; /* clear level.flags.sokoban_rules */
             /* TODO: give some feedback about solving the sokoban puzzle
                (perhaps say "congratulations" in Japanese?) */
+        }
+    }
+}
+
+void
+trap_ice_effects(xchar x, xchar y, boolean ice_is_melting)
+{
+    struct trap *ttmp = t_at(x, y);
+
+    if (ttmp && ice_is_melting) {
+        if (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP) {
+            /* landmine or bear trap set on top of the ice falls
+               into the water */
+            int otyp = (ttmp->ttyp == LANDMINE) ? LAND_MINE : BEARTRAP;
+            cnv_trap_obj(otyp, 1, ttmp, TRUE);
+        } else {
+            deltrap(ttmp);
         }
     }
 }

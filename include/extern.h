@@ -978,6 +978,7 @@ E int NDECL(max_capacity);
 E boolean FDECL(check_capacity, (const char *));
 E int FDECL(inv_cnt, (BOOLEAN_P));
 E long FDECL(money_cnt, (struct obj *));
+E void FDECL(spot_checks, (xchar, xchar, schar));
 
 /* ### hacklib.c ### */
 
@@ -2755,6 +2756,7 @@ E boolean NDECL(in_iceq_effects);
 E boolean NDECL(lava_effects);
 E void NDECL(sink_into_lava);
 E void NDECL(sokoban_guilt);
+E void FDECL(trap_ice_effects, (xchar x, xchar y, boolean ice_is_melting));
 
 /* ### u_init.c ### */
 

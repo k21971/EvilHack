@@ -779,9 +779,9 @@ coord *cc;
     register struct trap *ttmp;
     struct rm *lev;
     struct obj *boulder_here;
-    schar typ;
+    schar typ, old_typ;
     xchar dig_x, dig_y;
-    boolean nohole;
+    boolean nohole, retval = FALSE;
 
     if (!cc) {
         dig_x = u.ux;
@@ -796,9 +796,10 @@ coord *cc;
     ttmp = t_at(dig_x, dig_y);
     lev = &levl[dig_x][dig_y];
     nohole = (!Can_dig_down(&u.uz) && !lev->candig);
+    old_typ = lev->typ;
 
     if ((ttmp && (undestroyable_trap(ttmp->ttyp) || nohole))
-        || (IS_ROCK(lev->typ) && lev->typ != SDOOR
+        || (IS_ROCK(old_typ) && old_typ != SDOOR
             && (lev->wall_info & W_NONDIGGABLE) != 0)) {
         pline_The("%s %shere is too hard to dig in.", surface(dig_x, dig_y),
                   (dig_x != u.ux || dig_y != u.uy) ? "t" : "");
@@ -808,20 +809,19 @@ coord *cc;
                   hliquid(is_lava(dig_x, dig_y) ? "lava" : "water"));
         wake_nearby(); /* splashing */
 
-    } else if (lev->typ == DRAWBRIDGE_DOWN
+    } else if (old_typ == DRAWBRIDGE_DOWN
                || (is_drawbridge_wall(dig_x, dig_y) >= 0)) {
         /* drawbridge_down is the platform crossing the moat when the
            bridge is extended; drawbridge_wall is the open "doorway" or
            closed "door" where the portcullis/mechanism is located */
         if (pit_only) {
             pline_The("drawbridge seems too hard to dig through.");
-            return FALSE;
         } else {
             int x = dig_x, y = dig_y;
             /* if under the portcullis, the bridge is adjacent */
             (void) find_drawbridge(&x, &y);
             destroy_drawbridge(x, y);
-            return TRUE;
+            retval = TRUE;
         }
 
     } else if ((boulder_here = sobj_at(BOULDER, dig_x, dig_y)) != 0) {
@@ -839,13 +839,12 @@ coord *cc;
             (void) delfloortrap(ttmp);
         }
         delobj(boulder_here);
-        return TRUE;
 
-    } else if (IS_GRAVE(lev->typ)) {
+    } else if (IS_GRAVE(old_typ)) {
         digactualhole(dig_x, dig_y, BY_YOU, PIT);
         dig_up_grave(cc);
-        return TRUE;
-    } else if (lev->typ == DRAWBRIDGE_UP) {
+        retval = TRUE;
+    } else if (old_typ == DRAWBRIDGE_UP) {
         /* must be floor or ice, other cases handled above */
         /* dig "pit" and let fluid flow in (if possible) */
         typ = fillholetyp(dig_x, dig_y, FALSE);
@@ -858,20 +857,19 @@ coord *cc;
             pline_The("%s %shere is too hard to dig in.",
                       surface(dig_x, dig_y),
                       (dig_x != u.ux || dig_y != u.uy) ? "t" : "");
-            return FALSE;
+        } else {
+            lev->drawbridgemask &= ~DB_UNDER;
+            lev->drawbridgemask |= (typ == LAVAPOOL) ? DB_LAVA : DB_MOAT;
+            liquid_flow(dig_x, dig_y, typ, ttmp,
+                        "As you dig, the hole fills with %s!");
+            retval = TRUE;
         }
 
-        lev->drawbridgemask &= ~DB_UNDER;
-        lev->drawbridgemask |= (typ == LAVAPOOL) ? DB_LAVA : DB_MOAT;
-        liquid_flow(dig_x, dig_y, typ, ttmp,
-                    "As you dig, the hole fills with %s!");
-        return TRUE;
-
     /* the following two are here for the wand of digging */
-    } else if (IS_THRONE(lev->typ)) {
+    } else if (IS_THRONE(old_typ)) {
         pline_The("throne is too hard to break apart.");
 
-    } else if (IS_ALTAR(lev->typ)) {
+    } else if (IS_ALTAR(old_typ)) {
         pline_The("altar is too hard to break apart.");
 
     } else {
@@ -882,28 +880,25 @@ coord *cc;
             lev->typ = typ;
             liquid_flow(dig_x, dig_y, typ, ttmp,
                         "As you dig, the hole fills with %s!");
-            return TRUE;
+            retval = TRUE;
+        } else {
+            /* magical digging disarms settable traps */
+            if (by_magic && ttmp
+                && (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP)) {
+                int otyp = (ttmp->ttyp == LANDMINE) ? LAND_MINE : BEARTRAP;
+                /* convert trap into buried object (deletes trap) */
+                cnv_trap_obj(otyp, 1, ttmp, TRUE);
+            }
+            /* finally we get to make a hole */
+            if (nohole || pit_only)
+                digactualhole(dig_x, dig_y, BY_YOU, PIT);
+            else
+                digactualhole(dig_x, dig_y, BY_YOU, HOLE);
+            retval = TRUE;
         }
-
-        /* magical digging disarms settable traps */
-        if (by_magic && ttmp
-            && (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP)) {
-            int otyp = (ttmp->ttyp == LANDMINE) ? LAND_MINE : BEARTRAP;
-
-            /* convert trap into buried object (deletes trap) */
-            cnv_trap_obj(otyp, 1, ttmp, TRUE);
-        }
-
-        /* finally we get to make a hole */
-        if (nohole || pit_only)
-            digactualhole(dig_x, dig_y, BY_YOU, PIT);
-        else
-            digactualhole(dig_x, dig_y, BY_YOU, HOLE);
-
-        return TRUE;
     }
-
-    return FALSE;
+    spot_checks(dig_x, dig_y, old_typ);
+    return retval;
 }
 
 STATIC_OVL void

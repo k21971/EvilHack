@@ -2329,4 +2329,5 @@ The following changes to date are:
   scale mail
 - Fix: What weird race is this? (Dem) Program in disorder!
 - Fix: follow up to commit b616c1c
+- Fix: melting ice timeout issues
 
