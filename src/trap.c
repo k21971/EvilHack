@@ -443,7 +443,7 @@ int x, y, typ;
         int dist;
         int lx, ly;
         int ok = 0;
-        for (d = 0; ((d < 8) && !ok); d++)
+        for (d = 0; ((d < 8) && !ok); d++) {
             for (dist = 1; ((dist < 8) && !ok); dist++) {
                 lx = x;
                 ly = y;
@@ -485,6 +485,7 @@ int x, y, typ;
                     ok = 1;
                 }
             }
+        }
         break;
     }
     case ROLLING_BOULDER_TRAP: /* boulder will roll towards trigger */
@@ -1797,6 +1798,7 @@ unsigned trflags;
         } else if (thick_skinned(youmonst.data)) {
             pline("But it breaks off against your thick hide.");
             deltrap(trap);
+            newsym(u.ux, u.uy);
         } else if (unsolid(youmonst.data)) {
             pline("But it passes right through you!");
         } else {
@@ -1915,6 +1917,7 @@ struct obj *otmp;
         } else if (thick_skinned(steed->data)) {
             pline("But it breaks off against %s thick hide.", s_suffix(mon_nam(steed)));
             deltrap(trap);
+            newsym(steed->mx, steed->my);
         } else {
             trapkilled = thitm(0, steed, (struct obj*) 0, rnd(10) + 10, FALSE);
             steedhit = TRUE;
@@ -3120,6 +3123,7 @@ register struct monst *mtmp;
                 if (in_sight)
                     pline("But it breaks off against %s.", mon_nam(mtmp));
                 deltrap(trap);
+                newsym(mtmp->mx, mtmp->my);
             } else if (unsolid(mptr)) {
                 if (in_sight)
                     pline("It passes right through %s!", mon_nam(mtmp));
@@ -3137,15 +3141,17 @@ register struct monst *mtmp;
             }
             if (in_sight)
                 seetrap(trap);
-            if (isok(trap->launch.x,trap->launch.y)
+            if (isok(trap->launch.x, trap->launch.y)
                 && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
                 buzz(trap->launch_otyp, 8,
                      trap->launch.x, trap->launch.y,
                      sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y));
                 trap->once = 1;
+                if (DEADMONSTER(mtmp))
+                    trapkilled = TRUE;
             } else {
                 deltrap(trap);
-                newsym(u.ux, u.uy);
+                newsym(mtmp->mx, mtmp->my);
             }
             break;
         case VIBRATING_SQUARE:

@@ -2330,4 +2330,5 @@ The following changes to date are:
 - Fix: What weird race is this? (Dem) Program in disorder!
 - Fix: follow up to commit b616c1c
 - Fix: melting ice timeout issues
+- Fix: extract_nobj: object lost (magic beam traps)
 
