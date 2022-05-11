@@ -2332,4 +2332,5 @@ The following changes to date are:
 - Fix: melting ice timeout issues
 - Fix: extract_nobj: object lost (magic beam traps)
 - Enshelled tortles are supposed to be harder to hit
+- Fix: failure restoring embedded dragon scales
 
