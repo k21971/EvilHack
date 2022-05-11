@@ -811,7 +811,9 @@ register struct monst *mtmp;
         tmp -= 2;
     if ((has_erac(mtmp) && (ERAC(mtmp)->mflags3 & M3_ACCURATE))
         || is_accurate(mdat)) /* M3_ACCURATE monsters get a to-hit bonus */
-        tmp += 5;
+        tmp += Hidinshell ? 0 : 5;
+    if (Hidinshell) /* enshelled tortles are much harder to hit */
+        tmp -= 12;
     if (tmp <= 0)
         tmp = 1;
 

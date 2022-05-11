@@ -2331,4 +2331,5 @@ The following changes to date are:
 - Fix: follow up to commit b616c1c
 - Fix: melting ice timeout issues
 - Fix: extract_nobj: object lost (magic beam traps)
+- Enshelled tortles are supposed to be harder to hit
 
