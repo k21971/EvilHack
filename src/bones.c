@@ -520,8 +520,11 @@ struct obj *corpse;
             || mptr == &mons[PM_RAT_KING]
             || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
             || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-            || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+            || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
             mongone(mtmp);
+            if (mtmp == ukiller)
+                ukiller = (struct monst *) 0;
+        }
 
         /* monster steeds tend to wander off */
         if (has_erid(mtmp)) {
@@ -533,6 +536,8 @@ struct obj *corpse;
                 place_monster(msteed, cc.x, cc.y);
             } else {
                 mongone(msteed);
+                if (msteed == ukiller)
+                    ukiller = (struct monst *) 0;
             }
         }
         free_erid(mtmp);
@@ -609,22 +614,6 @@ struct obj *corpse;
                     if (!can_carry(ukiller, otmp))
                         continue;
                     if (otmp == uball || otmp == uchain)
-                        continue;
-                    /* these monsters can't rummage through inventory,
-                       since they've been removed and sent back to 'home base' */
-                    if (ukiller->iswiz || ukiller->isvecna
-                        || (ukiller->data == &mons[PM_MEDUSA] && !Is_medusa_level(&u.uz))
-                        || ukiller->data->msound == MS_NEMESIS
-                        || ukiller->data->msound == MS_LEADER
-                        || ukiller->data == &mons[PM_VLAD_THE_IMPALER]
-                        || (ukiller->data == &mons[PM_ORACLE] && !fixuporacle(ukiller))
-                        || (ukiller->data == &mons[PM_CERBERUS] && !Is_valley(&u.uz))
-                        || (ukiller->data == &mons[PM_CHARON] && !Is_valley(&u.uz))
-                        || ukiller->data == &mons[PM_KAS]
-                        || ukiller->data == &mons[PM_RAT_KING]
-                        || ukiller->data == &mons[PM_ABOMINABLE_SNOWMAN]
-                        || ukiller->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-                        || ukiller->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
                         continue;
                     obj_extract_self(otmp);
                     mpickobj(ukiller, otmp);

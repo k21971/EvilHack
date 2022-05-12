@@ -2333,4 +2333,5 @@ The following changes to date are:
 - Fix: extract_nobj: object lost (magic beam traps)
 - Enshelled tortles are supposed to be harder to hit
 - Fix: failure restoring embedded dragon scales
+- Fix: end of game crash during bones creation under certain conditions
 
