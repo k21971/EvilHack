@@ -1800,7 +1800,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         break;
     case SCR_AMNESIA:
         known = TRUE;
-        if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
+        if (is_illithid(youmonst.data)) {
             Your("psionic abilities ward off the scroll's magic.");
             break;
         } else {

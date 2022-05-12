@@ -1625,7 +1625,7 @@ register struct attack *mattk;
             break;
         }
 
-        if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
+        if (is_illithid(youmonst.data) && !is_zombie(mdat)) {
             Your("psionic abilities shield your brain.");
             break;
         }
@@ -1653,7 +1653,7 @@ register struct attack *mattk;
                 break;
         }
         /* adjattrib gives dunce cap message when appropriate */
-        if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
+        if (is_illithid(youmonst.data)) {
             if (!rn2(3))
                 Your("psionic abilities shield your brain from memory loss.");
             break;
