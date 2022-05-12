@@ -2334,4 +2334,5 @@ The following changes to date are:
 - Enshelled tortles are supposed to be harder to hit
 - Fix: failure restoring embedded dragon scales
 - Fix: end of game crash during bones creation under certain conditions
+- Fix: inconsistencies with illithids and psionic attack feedback
 
