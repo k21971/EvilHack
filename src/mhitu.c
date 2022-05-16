@@ -2070,7 +2070,8 @@ do_rust:
             break;
         }
         if (!uwep && !uarmu && !uarm && !uarmc
-            && !uarms && !uarmg && !uarmf && !uarmh) {
+            && !uarms && !uarmf && !uarmh
+            && (!uarmg || (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA))) {
             boolean goaway = FALSE;
 
             pline("%s touches you!  (I hope you don't mind.)", Monnam(mtmp));

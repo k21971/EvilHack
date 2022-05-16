@@ -479,7 +479,7 @@ register struct monst *mtmp;
                 You("begin %s monsters with your %s %s.",
                     ing_suffix(Role_if(PM_MONK) ? "strike" :
                                (Role_if(PM_ROGUE) && context.forcefight) ? "rob" : "bash"),
-                    uarmg ? "gloved" : "bare", /* Del Lamb */
+                    (uarmg && uarmg->oartifact != ART_HAND_OF_VECNA) ? "gloved" : "bare", /* Del Lamb */
                     makeplural(body_part(HAND)));
         }
     }

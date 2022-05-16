@@ -2336,4 +2336,5 @@ The following changes to date are:
 - Fix: end of game crash during bones creation under certain conditions
 - Fix: inconsistencies with illithids and psionic attack feedback
 - Fix: Hand of Vecna cold damage should only apply to hand-to-hand combat
+- Fix: nurse healing attack whilst 'wearing' nothing but the Hand of Vecna
 
