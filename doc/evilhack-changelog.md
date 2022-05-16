@@ -2338,4 +2338,5 @@ The following changes to date are:
 - Fix: Hand of Vecna cold damage should only apply to hand-to-hand combat
 - Fix: nurse healing attack whilst 'wearing' nothing but the Hand of Vecna
 - Switch heavy war hammer to regular war hammer (Goblin Town)
+- Fix: correct feedback trying to genocide liches via throne genocide
 
