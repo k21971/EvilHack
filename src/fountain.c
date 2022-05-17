@@ -483,6 +483,10 @@ static const struct forge_recipe {
     { GAUNTLETS, MACE, HELMET, 1, 1 },
     { DWARVISH_BOOTS, GAUNTLETS, DWARVISH_SHORT_SWORD, 1, 1 },
     { ORCISH_BOOTS, GAUNTLETS, ORCISH_SHORT_SWORD, 1, 1 },
+    /* barding for steeds */
+    { BARDING, PLATE_MAIL, SADDLE, 1, 1 },
+    { SPIKED_BARDING, BARDING, MORNING_STAR, 1, 1 },
+    { BARDING_OF_REFLECTION, BARDING, SHIELD_OF_REFLECTION, 1, 1 },
     { 0, 0, 0, 0, 0 }
 };
 
@@ -516,7 +520,8 @@ doforging(void)
     if (!obj1) {
         You("need a base object to forge with.");
         return 0;
-    } else if (!(is_metallic(obj1) || is_crystal(obj1))) {
+    } else if (!(is_metallic(obj1)
+                 || is_crystal(obj1) || obj1->otyp == SADDLE)) {
         /* object should be gemstone or metallic */
         pline_The("base object must be made of gemstone or something metallic.");
         return 0;
@@ -527,7 +532,8 @@ doforging(void)
     if (!obj2) {
         You("need more than one object.");
         return 0;
-    } else if (!(is_metallic(obj2) || is_crystal(obj2))) {
+    } else if (!(is_metallic(obj2)
+                 || is_crystal(obj2) || obj2->otyp == SADDLE)) {
         /* secondary object should also be gemstone or metallic */
         pline_The("secondary object must be made of gemstone or something metallic.");
         return 0;
@@ -599,11 +605,13 @@ doforging(void)
            of the recipe objects, you'll know the object property
            of the newly forged object */
         if (obj2->oprops) {
-            output->oprops = obj2->oprops;
+            if (!is_barding(output))
+                output->oprops = obj2->oprops;
             if (obj2->oprops_known)
                 output->oprops_known |= output->oprops;
         } else if (obj1->oprops) {
-            output->oprops = obj1->oprops;
+            if (!is_barding(output))
+                output->oprops = obj1->oprops;
             if (obj1->oprops_known)
                 output->oprops_known |= output->oprops;
         }

@@ -2340,4 +2340,5 @@ The following changes to date are:
 - Switch heavy war hammer to regular war hammer (Goblin Town)
 - Fix: correct feedback trying to genocide liches via throne genocide
 - Fix: farlook information for monster steeds ridden by unseen rider 
+- Allow barding to be forged
 

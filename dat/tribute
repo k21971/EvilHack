@@ -8786,8 +8786,6 @@ Forge axe / dwarvish short sword to create:  dwarvish bearded axe
 Forge axe / broadsword to create:  battle-axe
 Forge 2 crossbow bolts / dagger to create:  short sword
 Forge 2 crossbow bolts / elven dagger to create:  elven short sword
-Forge 2 crossbow bolts / orcish dagger to create:  orcish short sword
-Forge short sword / dwarvish spear to create:  dwarvish short sword
 
   [The Blacksmith's Cookbook]
 %e passage
@@ -8795,6 +8793,8 @@ Forge short sword / dwarvish spear to create:  dwarvish short sword
 %passage 3
 Chapter 3 of 8 - Weapons (part 2)
 
+Forge 2 crossbow bolts / orcish dagger to create:  orcish short sword
+Forge short sword / dwarvish spear to create:  dwarvish short sword
 Forge short sword / knife to create:  scimitar
 Forge orcish short sword / knife to create:  orcish scimitar
 Forge scimitar / long sword to create:  saber
@@ -8813,10 +8813,6 @@ Forge mace (x2) to create:  heavy mace
 Forge 2 rubies / mace to create:  rod
 Forge dagger / mace to create:  morning star
 Forge orcish dagger / mace to create:  orcish morning star
-Forge flail / mace to create:  war hammer
-Forge war hammer (x2) to create:  heavy war hammer
-Forge flail / spear to create:  aklys
-Forge mace / morning star to create:  flail
 
   [The Blacksmith's Cookbook]
 %e passage
@@ -8824,6 +8820,10 @@ Forge mace / morning star to create:  flail
 %passage 4
 Chapter 4 of 8 - Weapons (part 3)
 
+Forge flail / mace to create:  war hammer
+Forge war hammer (x2) to create:  heavy war hammer
+Forge flail / spear to create:  aklys
+Forge mace / morning star to create:  flail
 Forge broadsword / spear to create:  partisan
 Forge stiletto / spear to create:  ranseur
 Forge knife / spear to create:  spetum
@@ -8885,11 +8885,14 @@ Forge dwarvish helm / large shield to create:  dwarvish roundshield
 %e passage
 #
 %passage 8
-Chapter 8 of 8 - Armor (Boots and Gauntlets)
+Chapter 8 of 8 - Armor (Boots, Gauntlets, Barding)
 
 Forge mace / helmet to create:  gauntlets
 Forge dwarvish short sword / gauntlets to create:  dwarvish boots
 Forge orcish short sword / gauntlets to create:  orcish boots
+Forge plate mail / saddle to create:  barding
+Forge morning star / barding to create:  spiked barding
+Forge shield of reflection / barding to create:  barding of reflection
 
   [The Blacksmith's Cookbook]
 %e passage
