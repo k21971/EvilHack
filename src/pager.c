@@ -288,7 +288,7 @@ int x, y;
     boolean accurate = !Hallucination;
     char *mwounds;
 
-    if (!mon_visible(mtmp) && has_erid(mtmp) && mon_visible(ERID(mtmp)->m1))
+    if (!canspotmon(mtmp) && has_erid(mtmp) && canspotmon(ERID(mtmp)->m1))
         mtmp = ERID(mtmp)->m1;
 
     name = (mtmp->data == &mons[PM_COYOTE] && accurate)
@@ -522,6 +522,9 @@ char *buf, *monbuf;
         bhitpos.y = y;
         if ((mtmp = m_at(x, y)) != 0) {
             look_at_monster(buf, monbuf, mtmp, x, y);
+            if (!canspotmon(mtmp) && has_erid(mtmp)
+                && canspotmon(ERID(mtmp)->m1))
+                mtmp = ERID(mtmp)->m1;
             pm = mtmp->data;
         } else if (Hallucination) {
             /* 'monster' must actually be a statue */

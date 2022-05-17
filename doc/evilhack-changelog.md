@@ -2339,4 +2339,5 @@ The following changes to date are:
 - Fix: nurse healing attack whilst 'wearing' nothing but the Hand of Vecna
 - Switch heavy war hammer to regular war hammer (Goblin Town)
 - Fix: correct feedback trying to genocide liches via throne genocide
+- Fix: farlook information for monster steeds ridden by unseen rider 
 
