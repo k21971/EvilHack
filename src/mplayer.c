@@ -403,7 +403,7 @@ struct obj *obj;
     register boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
     char nam[PL_PSIZ];
 
-    if (!is_mplayer(ptr))
+    if (!ptr)
         return ((struct monst *) 0);
 
     if (MON_AT(x, y))
