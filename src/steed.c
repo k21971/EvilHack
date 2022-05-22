@@ -412,7 +412,7 @@ struct obj *otmp;
         return 1;
     }
     if (!can_wear_barding(mtmp)) {
-        You_cant("put barding such a creature.");
+        You_cant("put barding on such a creature.");
         return 1;
     }
 

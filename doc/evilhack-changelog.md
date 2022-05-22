@@ -2344,4 +2344,5 @@ The following changes to date are:
 - Fix: quest leader not appearing when wishing for a quest artifact
 - Fix: all unlocking tools being treated as magic when unlocking a
   trapped container
+- Fix: bad grammar trying to put barding on a monster you can't
 
