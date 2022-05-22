@@ -2342,4 +2342,6 @@ The following changes to date are:
 - Fix: farlook information for monster steeds ridden by unseen rider 
 - Allow barding to be forged
 - Fix: quest leader not appearing when wishing for a quest artifact
+- Fix: all unlocking tools being treated as magic when unlocking a
+  trapped container
 

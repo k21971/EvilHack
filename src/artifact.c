@@ -3669,11 +3669,13 @@ is_magic_key(mon, obj)
 struct monst *mon; /* if null, non-rogue is assumed */
 struct obj *obj;
 {
-    if (((obj && obj->oartifact == ART_MASTER_KEY_OF_THIEVERY)
-         && ((mon == &youmonst) ? Role_if(PM_ROGUE)
-                                : (mon && mon->data == &mons[PM_ROGUE])))
-        ? !obj->cursed : obj->blessed)
-        return TRUE;
+    if (obj && obj->oartifact == ART_MASTER_KEY_OF_THIEVERY) {
+        if ((mon == &youmonst) ? Role_if(PM_ROGUE)
+                               : (mon && mon->data == &mons[PM_ROGUE]))
+            return !obj->cursed; /* a rogue; non-cursed suffices for magic */
+        /* not a rogue; key must be blessed to behave as a magic one */
+        return obj->blessed;
+    }
     return FALSE;
 }
 

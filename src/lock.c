@@ -81,10 +81,10 @@ STATIC_PTR int
 picklock(VOID_ARGS)
 {
     if (xlock.box) {
-        if ((((xlock.box->where != OBJ_FLOOR
-            || (xlock.box->ox != u.ux || (xlock.box->oy != u.uy)))
-            && (!(xlock.box->otyp == IRON_SAFE || xlock.box->otyp == CRYSTAL_CHEST)
-                || abs(xlock.box->oy - u.uy) > 1 || abs(xlock.box->ox - u.ux) > 1)))) {
+        if ((xlock.box->where != OBJ_FLOOR
+             || xlock.box->ox != u.ux || xlock.box->oy != u.uy)
+            && (!(xlock.box->otyp == IRON_SAFE || xlock.box->otyp == CRYSTAL_CHEST
+                  || abs(xlock.box->oy - u.uy) > 1 || abs(xlock.box->ox - u.ux) > 1))) {
            return ((xlock.usedtime = 0)); /* you or it moved */
         }
     } else { /* door */
@@ -123,9 +123,9 @@ picklock(VOID_ARGS)
         /* unfortunately we don't have a 'tknown' flag to record
            "known to be trapped" so declining to disarm and then
            retrying lock manipulation will find it all over again */
-        if (In_sokoban(&u.uz)) {
+        if (In_sokoban(&u.uz) && xlock.door) {
             pline("You find a trap!  But you see no way to disarm it.");
-            return ((xlock.usedtime = 0));
+            exercise(A_WIS, FALSE);
         } else if (yn("You find a trap!  Do you want to try to disarm it?") == 'y') {
             const char *what;
             boolean alreadyunlocked;
@@ -439,7 +439,7 @@ struct obj *container; /* container, for autounlock */
     if (rx != 0 && ry != 0) { /* autounlock; caller has provided coordinates */
         cc.x = rx;
         cc.y = ry;
-    } else if (picktyp == STETHOSCOPE) { 
+    } else if (picktyp == STETHOSCOPE) {
         /* skip directional prompt for stethoscope when not called via
          * autounlock; a direction (down) was already selected in
          * use_stethoscope */
