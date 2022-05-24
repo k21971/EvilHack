@@ -1140,6 +1140,21 @@ boolean atme;
     } else {
         u.uen -= energy;
     }
+
+    /* successful casting increases the amount of time the cast
+       spell is known, intelligence determines how much extra time
+       is added with each cast. a player with an intelligence of
+       18 will have 90-126 extra turns known added per cast; a player
+       with an intelligence of only 9 would see 45-63 extra turns known
+       added per cast. the players intelligence must be greater than 6
+       to be able to help remember spells as they're cast. cavepersons
+       are the one role that do not have this benefit */
+    if (!Role_if(PM_CAVEMAN) && ACURR(A_INT) > 6) {
+        spl_book[spell].sp_know += rn1(ACURR(A_INT) * 5, ACURR(A_INT) * 2);
+        if (spl_book[spell].sp_know >= KEEN)
+            spl_book[spell].sp_know = KEEN;
+    }
+
     context.botl = 1;
     exercise(A_WIS, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
