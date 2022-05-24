@@ -2347,4 +2347,5 @@ The following changes to date are:
 - Fix: bad grammar trying to put barding on a monster you can't
 - Fix: non-zap buglets / oil burning secret door described as spell
 - Successful spellcasting helps in remembering the spell cast
+- Fix: follow up to 'oil burning secret door described as spell'
 
