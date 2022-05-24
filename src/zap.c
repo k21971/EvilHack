@@ -686,7 +686,7 @@ struct monst *mon;
 xchar *xp, *yp;
 int locflags; /* non-zero means get location even if monster is buried */
 {
-    if (mon == &youmonst) {
+    if (mon == &youmonst || (u.usteed && mon == u.usteed)) {
         *xp = u.ux;
         *yp = u.uy;
         return TRUE;
@@ -905,7 +905,7 @@ boolean by_hero;
             break; /* x,y are 0 */
         }
     }
-    if (!x || !y
+    if (!x
         /* Rules for revival from containers:
          *  - the container cannot be locked
          *  - the container cannot be heavily nested (>2 is arbitrary)
@@ -5439,6 +5439,8 @@ boolean moncast;
     if (!exploding_wand_typ) {
         if (abs(type) < ZT_SPELL(0))
             zapverb = "bolt"; /* wand zap */
+        else if (type == (ZT_SPELL(AD_FIRE - 1)))
+            yourzap = FALSE;  /* and leave zapverb as "blast" */
         else if (abs(type) < ZT_BREATH(0))
             zapverb = "spell";
     }
