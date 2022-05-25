@@ -2348,4 +2348,5 @@ The following changes to date are:
 - Fix: non-zap buglets / oil burning secret door described as spell
 - Successful spellcasting helps in remembering the spell cast
 - Fix: follow up to 'oil burning secret door described as spell'
+- Enshelled tortles are immune to most bite attacks
 

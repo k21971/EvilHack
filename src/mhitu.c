@@ -939,18 +939,21 @@ register struct monst *mtmp;
                             rn2(2) ? "dodge" : "evade", s_suffix(mon_nam(mtmp)));
                         return 0;
                     }
-                    if (is_zombie(mdat) && mattk->aatyp == AT_BITE
+                    if (mdat->msize <= MZ_LARGE && mattk->aatyp == AT_BITE
                         && Hidinshell) {
-                        Your("protective shell blocks %s bite!", s_suffix(mon_nam(mtmp)));
+                        Your("protective shell blocks %s bite!",
+                             s_suffix(mon_nam(mtmp)));
                         return 0;
                     }
                     if (is_illithid(mdat) && mattk->aatyp == AT_TENT
                         && Hidinshell) {
-                        Your("protective shell blocks %s tentacle attack!", s_suffix(mon_nam(mtmp)));
+                        Your("protective shell blocks %s tentacle attack!",
+                             s_suffix(mon_nam(mtmp)));
                         return 0;
                     }
                     if (mattk->aatyp == AT_STNG && Hidinshell) {
-                        pline("%s stinger glances off of your protective shell!", s_suffix(Monnam(mtmp)));
+                        pline("%s stinger glances off of your protective shell!",
+                              s_suffix(Monnam(mtmp)));
                         return 0;
                     }
                     if (tmp > (j = rnd(20 + i))) {
