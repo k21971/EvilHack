@@ -2351,5 +2351,4 @@ The following changes to date are:
 - Enshelled tortles are immune to most bite attacks
 - Fix: being able to fall though a trap door/hole to Mine Town before
   defeating the Goblin King
-- Fix: return in wrong spot last commit
 
