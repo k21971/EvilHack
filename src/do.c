@@ -1499,23 +1499,29 @@ boolean at_stairs, falling, portal;
      * falling through a hole or trap door is blocked, but our hero can
      * still levelport to either location. The Goblin King's wards are
      * decent, but they aren't all-powerful */
-    if (at_stairs || falling) {
+    if (at_stairs) {
         if ((!up && (ledger_no(&u.uz) == ledger_no(&minetn_level) - 1))
             || (!up && (ledger_no(&u.uz) == ledger_no(&minetn_level)))
             || (!up && (ledger_no(&u.uz) == ledger_no(&mineend_level) - 1))) {
             if (!u.uevent.ugking) {
-                if (at_stairs) {
-                    if (Blind) {
-                        pline("A mysterious force prevents you from accessing the stairs.");
-                    } else {
-                        You("see a magical glyph hovering in midair, preventing access to the stairs.");
-                        pline("It reads 'Access denied, by order of the Goblin King'.");
-                    }
-                } else if (falling) {
-                    pline("A mysterious force prevents you from falling.");
+                if (Blind) {
+                    pline("A mysterious force prevents you from accessing the stairs.");
+                } else {
+                    You("see a magical glyph hovering in midair, preventing access to the stairs.");
+                    pline("It reads 'Access denied, by order of the Goblin King'.");
                 }
-                return;
             }
+            return;
+        }
+    }
+
+    if (falling) {
+        if ((!up && (ledger_no(&u.uz) == ledger_no(&minetn_level)))
+            || (!up && (ledger_no(&u.uz) == ledger_no(&minetn_level) - 1))) {
+            if (!u.uevent.ugking) {
+                pline("A mysterious force prevents you from falling.");
+            }
+            return;
         }
     }
 
