@@ -1510,8 +1510,8 @@ boolean at_stairs, falling, portal;
                     You("see a magical glyph hovering in midair, preventing access to the stairs.");
                     pline("It reads 'Access denied, by order of the Goblin King'.");
                 }
+                return;
             }
-            return;
         }
     }
 
@@ -1520,8 +1520,8 @@ boolean at_stairs, falling, portal;
             || (!up && (ledger_no(&u.uz) == ledger_no(&minetn_level) - 1))) {
             if (!u.uevent.ugking) {
                 pline("A mysterious force prevents you from falling.");
+                return;
             }
-            return;
         }
     }
 
