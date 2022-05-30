@@ -2351,4 +2351,5 @@ The following changes to date are:
 - Enshelled tortles are immune to most bite attacks
 - Fix: reading scroll of enchant armor while confused and wearing dragon
   scales
+- Fix: more blast vs spell
 
