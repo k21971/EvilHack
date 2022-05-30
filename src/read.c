@@ -1097,7 +1097,6 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         register schar s;
         boolean special_armor;
         boolean same_color;
-        boolean draconic = (uarmc && Is_dragon_scales(uarmc));
 
         if (already_known) {
             if (u.usteed
@@ -1219,7 +1218,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             exercise(A_STR, !scursed);
             break;
         }
-        if (confused && !draconic) {
+        if (confused) {
             old_erodeproof = (otmp->oerodeproof != 0);
             new_erodeproof = !scursed;
             otmp->oerodeproof = 0; /* for messages */

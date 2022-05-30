@@ -2349,4 +2349,6 @@ The following changes to date are:
 - Successful spellcasting helps in remembering the spell cast
 - Fix: follow up to 'oil burning secret door described as spell'
 - Enshelled tortles are immune to most bite attacks
+- Fix: reading scroll of enchant armor while confused and wearing dragon
+  scales
 
