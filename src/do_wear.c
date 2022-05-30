@@ -3556,7 +3556,8 @@ boolean only_if_known_cursed; /* ignore covering unless known to be cursed */
         return TRUE;
     }
     /* check for ring covered by gloves */
-    if ((obj == uleft || obj == uright) && uarmg && BLOCKSACCESS(uarmg)) {
+    if ((obj == uleft || obj == uright) && uarmg && BLOCKSACCESS(uarmg)
+        && uarmg->oartifact != ART_HAND_OF_VECNA) {
         if (verb) {
             Strcpy(buf, yname(uarmg));
             You(need_to_take_off_outer_armor, buf, verb, yname(obj));

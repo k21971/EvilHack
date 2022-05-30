@@ -2352,4 +2352,5 @@ The following changes to date are:
 - Fix: reading scroll of enchant armor while confused and wearing dragon
   scales
 - Fix: more blast vs spell
+- Fix: could not dip worn rings while 'wearing' the Hand of Vecna
 
