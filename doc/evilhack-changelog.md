@@ -2354,4 +2354,6 @@ The following changes to date are:
 - Fix: more blast vs spell
 - Fix: could not dip worn rings while 'wearing' the Hand of Vecna
 - Fix: remove unnecessary line in xkilled()
+- Fix: alignment adjustment when casting 'cure sickness' on diseased
+  tame or peaceful monsters
 

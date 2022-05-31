@@ -489,14 +489,14 @@ struct obj *otmp;
             wake = FALSE;
             if (canseemon(mtmp))
                 pline("%s is no longer ill.", Monnam(mtmp));
-            mtmp->msick = 0;
-            if ((mtmp->mtame || mtmp->mpeaceful) && mtmp->msick > 0) {
+            if (mtmp->mtame || mtmp->mpeaceful) {
                 if (Role_if(PM_HEALER)) {
                     adjalign(1);
                 } else if (!mtmp->mtame) {
                     adjalign(sgn(u.ualign.type));
                 }
             }
+            mtmp->msick = 0;
         } else if (is_zombie(mtmp->data)) {
             if (!DEADMONSTER(mtmp)) {
                 dmg = d(1, 8);
