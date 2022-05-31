@@ -3889,8 +3889,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
 
     /* adjust alignment points */
     if (mtmp->m_id == quest_status.leader_m_id) { /* REAL BAD! */
-        if (mtmp->m_id == quest_status.leader_m_id)
-            quest_status.leader_is_dead = TRUE;
+        quest_status.leader_is_dead = TRUE;
         if (u.ualign.type != A_NONE) {
             if (canspotmon(mtmp))
                 You_feel("very guilty.");

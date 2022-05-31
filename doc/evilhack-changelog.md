@@ -2353,4 +2353,5 @@ The following changes to date are:
   scales
 - Fix: more blast vs spell
 - Fix: could not dip worn rings while 'wearing' the Hand of Vecna
+- Fix: remove unnecessary line in xkilled()
 
