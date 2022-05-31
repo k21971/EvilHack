@@ -2356,4 +2356,5 @@ The following changes to date are:
 - Fix: remove unnecessary line in xkilled()
 - Fix: alignment adjustment when casting 'cure sickness' on diseased
   tame or peaceful monsters
+- Denote gender when a monster tries to disarm with a bearded axe
 
