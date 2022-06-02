@@ -2357,4 +2357,5 @@ The following changes to date are:
 - Fix: alignment adjustment when casting 'cure sickness' on diseased
   tame or peaceful monsters
 - Denote gender when a monster tries to disarm with a bearded axe
+- Fix: typo/omission in hints files
 
