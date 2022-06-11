@@ -905,6 +905,9 @@ boolean by_hero;
             break; /* x,y are 0 */
         }
     }
+    if (x) /* update corpse's location now that we're sure where it is */
+        corpse->ox = x, corpse->oy = y;
+
     if (!x
         /* Rules for revival from containers:
          *  - the container cannot be locked
@@ -914,15 +917,10 @@ boolean by_hero;
          */
         || (container && (container->olocked || container_nesting > 2
                           || container->otyp == STATUE
-                          || (container->otyp == BAG_OF_HOLDING && rn2(40)))))
+                          || (container->otyp == BAG_OF_HOLDING && rn2(40))))
+        /* if buried zombie cannot dig itself out, do not revive */
+        || (is_zomb && corpse->where == OBJ_BURIED && !zombie_can_dig(x, y)))
         return (struct monst *) 0;
-
-    /* buried zombie cannot dig itself out, do not revive */
-    if (is_zomb && corpse->where == OBJ_BURIED && !zombie_can_dig(x, y))
-        return (struct monst *) 0;
-
-    /* record the object's location now that we're sure where it is */
-    corpse->ox = x, corpse->oy = y;
 
     /* prepare for the monster */
     montype = corpse->corpsenm;

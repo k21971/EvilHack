@@ -2361,4 +2361,5 @@ The following changes to date are:
 - Create is_open_air() function
 - Fix: prevent player from hiding their quest artifact in a container to
   avoid interaction with quest leader
+- Fix: couple of revive() bits
 
