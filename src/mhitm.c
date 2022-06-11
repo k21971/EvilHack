@@ -1317,6 +1317,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             if (nutrit > 1)
                 nutrit /= 2;
             EDOG(magr)->hungrytime += nutrit;
+            dog_givit(magr, pd);
         }
         break;
     }

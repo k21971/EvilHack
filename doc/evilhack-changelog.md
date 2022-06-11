@@ -2362,4 +2362,5 @@ The following changes to date are:
 - Fix: prevent player from hiding their quest artifact in a container to
   avoid interaction with quest leader
 - Fix: couple of revive() bits
+- Allow intrinsic gain from pet's digestion attack
 
