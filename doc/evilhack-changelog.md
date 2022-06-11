@@ -2359,4 +2359,6 @@ The following changes to date are:
 - Denote gender when a monster tries to disarm with a bearded axe
 - Fix: typo/omission in hints files
 - Create is_open_air() function
+- Fix: prevent player from hiding their quest artifact in a container to
+  avoid interaction with quest leader
 
