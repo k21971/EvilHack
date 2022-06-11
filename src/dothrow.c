@@ -798,8 +798,7 @@ int x, y;
        }
     } else if (is_lava(x, y) && !stopping_short) {
         Norep("You move over some lava.");
-    } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
-               && !stopping_short) {
+    } else if (is_open_air(x, y) && !stopping_short) {
         Norep("You pass over the chasm.");
     }
 
@@ -1191,7 +1190,7 @@ boolean hitsroof;
             searmsg(&youmonst, &youmonst, obj, FALSE);
             exercise(A_CON, FALSE);
         }
-        if (IS_AIR(levl[bhitpos.x][bhitpos.y].typ) && In_V_tower(&u.uz)) {
+        if (is_open_air(bhitpos.x, bhitpos.y)) {
             thrownobj = 0;
             losehp(dmg, "falling object", KILLED_BY_AN);
             return FALSE;

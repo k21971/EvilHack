@@ -250,7 +250,7 @@ deletedwithboulder:
     } else if (obj->otyp == AMULET_OF_YENDOR
                && (obj->cursed ? rn2(3) : obj->blessed
                                ? !rn2(16) : !rn2(4))
-               && !(IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz))) {
+               && !(is_open_air(x, y))) {
         /* prevent recursive call of teleportation through flooreffects */
         if (!obj->orecursive) {
             if (cansee(x, y))
@@ -300,7 +300,7 @@ deletedwithboulder:
             (void) obj_meld(&obj, &otmp);
         }
         res = (boolean) !obj;
-    } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
+    } else if (is_open_air(x, y)) {
         /* Dropping the Amulet or any of the invocation
            items teleports them to the deepest demon prince
            lair rather than destroying them */

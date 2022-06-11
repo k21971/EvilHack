@@ -144,6 +144,16 @@ int x, y;
     return FALSE;
 }
 
+/* If the space is empty air (not the Plane of Air) */
+boolean
+is_open_air(x, y)
+int x, y;
+{
+    if (!isok(x, y))
+        return FALSE;
+    return (levl[x][y].typ == AIR && !In_endgame(&u.uz));
+}
+
 schar
 db_under_typ(mask)
 int mask;

@@ -3469,7 +3469,7 @@ long hmask, emask; /* might cancel timeout */
             You("begin to tumble in place.");
         } else if (Is_waterlevel(&u.uz) && !no_msg) {
             You_feel("heavier.");
-        } else if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)
+        } else if (is_open_air(u.ux, u.uy)
             && !(u.usteed && (is_floater(u.usteed->data)
                               || is_flyer(u.usteed->data)))) {
             if (!Flying) {

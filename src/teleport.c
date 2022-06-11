@@ -95,7 +95,7 @@ long gpflags;
                 return (is_floater(mdat) || is_flyer(mdat)
                         || likes_lava(mdat));
         }
-        if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz) && !ignoreair)
+        if (is_open_air(x, y) && !ignoreair)
             return (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat));
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;
@@ -108,7 +108,7 @@ long gpflags;
     if (!accessible(x, y)) {
         if (!(is_pool(x, y) && ignorewater)
             && !(is_lava(x, y) && ignorelava)
-            && !(IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz) && ignoreair))
+            && !(is_open_air(x, y) && ignoreair))
             return FALSE;
     }
 

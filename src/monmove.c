@@ -564,7 +564,7 @@ register struct monst *mtmp;
         mon_adjust_speed(mtmp, 3, (struct obj *) 0);
 
     /* being in midair where gravity is still in effect can be lethal */
-    if (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
+    if (is_open_air(mtmp->mx, mtmp->my)
         && !(is_flyer(mdat) || is_floater(mdat)
              || is_clinger(mdat) || ((mtmp == u.usteed) && Flying))) {
         if (canseemon(mtmp))
@@ -1391,7 +1391,7 @@ register int after;
 
                     /* if open air and can't fly/float and gravity
                        is in effect */
-                    if (IS_AIR(levl[xx][yy].typ) && In_V_tower(&u.uz)
+                    if (is_open_air(xx, yy)
                         && !(is_flyer(ptr) || is_floater(ptr)
                              || is_clinger(ptr)))
                         continue;

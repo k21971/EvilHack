@@ -590,7 +590,7 @@ doengrave()
         return 0;
     }
     if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz) /* in bubble */
-        || (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz))) {
+        || is_open_air(u.ux, u.uy)) {
         You_cant("write in thin air!");
         return 0;
     } else if (!accessible(u.ux, u.uy)) {

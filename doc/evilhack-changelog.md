@@ -2358,4 +2358,5 @@ The following changes to date are:
   tame or peaceful monsters
 - Denote gender when a monster tries to disarm with a bearded axe
 - Fix: typo/omission in hints files
+- Create is_open_air() function
 

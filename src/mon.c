@@ -783,7 +783,7 @@ int
 minliquid(mtmp)
 register struct monst *mtmp;
 {
-    boolean inpool, inlava, infountain, inshallow, inforge, invladcavern;
+    boolean inpool, inlava, infountain, inshallow, inforge, inopenair;
 
     /* [ceiling clingers are handled below] */
     inpool = (is_pool(mtmp->mx, mtmp->my)
@@ -796,10 +796,10 @@ register struct monst *mtmp;
     inforge = IS_FORGE(levl[mtmp->mx][mtmp->my].typ);
     inshallow = ((is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my))
                  && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
-    invladcavern = (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
-                    && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
-                         || is_clinger(mtmp->data)
-                         || ((mtmp == u.usteed) && Flying)));
+    inopenair = (is_open_air(mtmp->mx, mtmp->my)
+                 && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
+                      || is_clinger(mtmp->data)
+                      || ((mtmp == u.usteed) && Flying)));
 
     /* Flying and levitation keeps our steed out of the liquid
        (but not water-walking or swimming; note: if hero is in a
@@ -923,7 +923,7 @@ register struct monst *mtmp;
             }
             return 1;
         }
-    } else if (invladcavern) {
+    } else if (inopenair) {
         if (cansee(mtmp->mx, mtmp->my)) {
             pline("%s plummets several thousand feet to %s death.",
                   Monnam(mtmp), mhis(mtmp));
@@ -2268,7 +2268,7 @@ long flag;
                         && !m_at(nx, ny) && (nx != u.ux || ny != u.uy))))
                 continue;
             /* avoid open air if gravity is in effect */
-            if (IS_AIR(ntyp) && In_V_tower(&u.uz)
+            if (is_open_air(nx, ny)
                 && !(is_flyer(mdat) || is_floater(mdat)
                      || is_clinger(mdat)))
                 continue;
@@ -3422,7 +3422,7 @@ boolean was_swallowed; /* digestion */
     }
 
     /* Corpses don't hover in midair in the presence of gravity */
-    if (IS_AIR(levl[mon->mx][mon->my].typ) && In_V_tower(&u.uz)) {
+    if (is_open_air(mon->mx, mon->my)) {
         if (cansee(mon->mx, mon->my) && !no_corpse(mdat))
             pline("%s corpse falls away and disappears.", s_suffix(Monnam(mon)));
         return FALSE;

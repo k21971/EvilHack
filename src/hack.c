@@ -2621,7 +2621,7 @@ boolean pick;
         }
         mnexto(mtmp); /* have to move the monster */
     }
-    if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)
+    if (is_open_air(u.ux, u.uy)
         && !Levitation && !Flying && !is_clinger(youmonst.data)
         && !(u.usteed && is_clinger(u.usteed->data))) {
         pline("Unfortunately, you don't know how to fly.");
@@ -3184,7 +3184,7 @@ lookaround()
                     goto stop;
                 }
                 continue;
-            } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
+            } else if (is_open_air(x, y)) {
                 if (!Levitation && !Flying && !is_clinger(youmonst.data)
                     && !(u.usteed && is_clinger(u.usteed->data))
                     && x == u.ux + u.dx && y == u.uy + u.dy) {

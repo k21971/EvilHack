@@ -978,7 +978,7 @@ int reason; /* Player was thrown off etc. */
                         You_feel("guilty.");
                         adjalign(-1);
                     }
-                } else if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)) {
+                } else if (is_open_air(u.ux, u.uy)) {
                     pline("%s plummets several thousand feet to %s death.",
                           Monnam(mtmp), mhis(mtmp));
                     /* no corpse or objects as both are now several thousand feet down */
