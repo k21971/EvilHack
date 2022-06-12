@@ -1417,7 +1417,7 @@ int
 meatmetal(mtmp)
 register struct monst *mtmp;
 {
-    register struct obj *otmp;
+    register struct obj *otmp, *otmp2, *ncobj;
     struct permonst *ptr;
     int poly, grow, heal, mstone;
 
@@ -1460,6 +1460,16 @@ register struct monst *mtmp;
                     mtmp->mhp += objects[otmp->otyp].oc_weight;
                     if (mtmp->mhp > mtmp->mhpmax)
                         mtmp->mhp = mtmp->mhpmax;
+                }
+                if (Has_contents(otmp)) {
+                    if (cansee(mtmp->mx, mtmp->my))
+                        pline("Its contents fall out.");
+                    for (otmp2 = otmp->cobj; otmp2; otmp2 = ncobj) {
+                        ncobj = otmp2->nobj;
+                        obj_extract_self(otmp2);
+                        if (!flooreffects(otmp2, mtmp->mx, mtmp->my, ""))
+                            place_object(otmp2, mtmp->mx, mtmp->my);
+                    }
                 }
                 if (otmp == uball) {
                     unpunish();

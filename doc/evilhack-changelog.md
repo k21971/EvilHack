@@ -2365,4 +2365,5 @@ The following changes to date are:
 - Allow intrinsic gain from pet's digestion attack
 - Fix: pushing boulders, ball & chain handling in Vlad's cavern
 - Fix: shallow water not drying up from objects being dropped into them
+- Fix: metalvores eating a metal container would also consume all contents
 
