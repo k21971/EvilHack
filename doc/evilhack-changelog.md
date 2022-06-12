@@ -2366,4 +2366,5 @@ The following changes to date are:
 - Fix: pushing boulders, ball & chain handling in Vlad's cavern
 - Fix: shallow water not drying up from objects being dropped into them
 - Fix: metalvores eating a metal container would also consume all contents
+- Fix: run travel was not stopping at terrain/objects of interest
 

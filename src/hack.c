@@ -3131,7 +3131,7 @@ lookaround()
                 continue;
 
             if (IS_ROCK(levl[x][y].typ) || levl[x][y].typ == ROOM
-                || !is_open_air(x, y)) {
+                || (IS_AIR(levl[x][y].typ) && !In_V_tower(&u.uz))) {
                 continue;
             } else if (closed_door(x, y) || (mtmp && is_door_mappear(mtmp))) {
                 if (x != u.ux && y != u.uy)
