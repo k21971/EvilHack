@@ -2363,4 +2363,5 @@ The following changes to date are:
   avoid interaction with quest leader
 - Fix: couple of revive() bits
 - Allow intrinsic gain from pet's digestion attack
+- Fix: pushing boulders, ball & chain handling in Vlad's cavern
 

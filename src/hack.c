@@ -1021,7 +1021,8 @@ int mode;
 
         if ((t && t->tseen)
             || (!Levitation && !Flying && !is_clinger(youmonst.data)
-                && is_pool_or_lava(x, y) && levl[x][y].seenv))
+                && (is_pool_or_lava(x, y) || is_open_air(x, y))
+                && levl[x][y].seenv))
             return (mode == TEST_TRAP);
     }
 
@@ -2621,10 +2622,16 @@ boolean pick;
         }
         mnexto(mtmp); /* have to move the monster */
     }
-    if (is_open_air(u.ux, u.uy)
-        && !Levitation && !Flying && !is_clinger(youmonst.data)
+    if (is_open_air(u.ux, u.uy) && !Levitation
+        /* normally won't fall if flying, unless iron ball is pulling you */
+        && !(Flying && !(Punished && !carried(uball)
+                         && is_open_air(uball->ox, uball->oy)))
+        && !is_clinger(youmonst.data)
         && !(u.usteed && is_clinger(u.usteed->data))) {
-        pline("Unfortunately, you don't know how to fly.");
+        if (Punished && !carried(uball))
+            pline_The("heavy iron ball falls away, and yanks you down with it!");
+        else
+            pline("Unfortunately, you don't know how to fly.");
         You("plummet several thousand feet to your death.");
         Sprintf(killer.name,
                 "fell to %s death", uhis());
@@ -3124,7 +3131,7 @@ lookaround()
                 continue;
 
             if (IS_ROCK(levl[x][y].typ) || levl[x][y].typ == ROOM
-                || (IS_AIR(levl[x][y].typ) && !In_V_tower(&u.uz))) {
+                || !is_open_air(x, y)) {
                 continue;
             } else if (closed_door(x, y) || (mtmp && is_door_mappear(mtmp))) {
                 if (x != u.ux && y != u.uy)

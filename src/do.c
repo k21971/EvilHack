@@ -135,6 +135,28 @@ boolean pushing;
         else
             obfree(otmp, (struct obj *) 0);
         return TRUE;
+    } else if (is_open_air(rx, ry)) {
+        const char *it_falls = Tobjnam(otmp, "fall"),
+                   *disappears = otense(otmp, "disappear");
+
+        xchar ox = otmp->ox, oy = otmp->oy;
+        remove_object(otmp);
+        otmp->ox = rx, otmp->oy = ry;
+        maybe_unhide_at(ox, oy);
+        newsym(ox, oy);
+        newsym(rx, ry);
+        if (pushing) {
+            char whobuf[BUFSZ];
+
+            Strcpy(whobuf, "you");
+            if (u.usteed)
+                Strcpy(whobuf, y_monnam(u.usteed));
+            pline("%s %s %s over the edge.", upstart(whobuf),
+                  vtense(whobuf, "push"), the(xname(otmp)));
+            if (!Blind)
+                pline("%s away and %s.", it_falls, disappears);
+        }
+        return TRUE;
     }
     return FALSE;
 }
@@ -301,10 +323,13 @@ deletedwithboulder:
         }
         res = (boolean) !obj;
     } else if (is_open_air(x, y)) {
-        /* Dropping the Amulet or any of the invocation
-           items teleports them to the deepest demon prince
-           lair rather than destroying them */
+        const char *it_falls = Tobjnam(obj, "fall"),
+                   *disappears = otense(obj, "disappear");
+
         if (obj_resists(obj, 0, 0)) {
+            /* Dropping the Amulet or any of the invocation
+               items teleports them to the deepest demon prince
+               lair rather than destroying them */
             d_level dest = hellc_level;
 
             add_to_migration(obj);
@@ -314,15 +339,28 @@ deletedwithboulder:
             if (wizard)
                 pline("%d:%d", obj->ox, obj->oy);
             if (!Blind)
-                pline("%s %s away and %s.  Perhaps it wound up elsewhere in the dungeon...", The(xname(obj)),
-                      otense(obj, "fall"), otense(obj, "disappear"));
+                pline("%s away and %s.  Perhaps it wound up elsewhere in the dungeon...",
+                      it_falls, disappears);
+            res = TRUE;
+        } else if (obj == uball || obj == uchain) {
+            if (obj == uball && !Levitation) {
+                pline("%s away, and %s you down with %s!",
+                      it_falls, otense(obj, "yank"),
+                      obj->quan > 1L ? "them" : "it");
+                You("plummet several thousand feet to your death.");
+                Sprintf(killer.name,
+                        "fell to %s death", uhis());
+                killer.format = NO_KILLER_PREFIX;
+                done(DIED);
+            }
+            res = FALSE;
         } else {
             if (!Blind)
-                pline("%s %s away and %s.", The(xname(obj)),
-                      otense(obj, "fall"), otense(obj, "disappear"));
+                pline("%s away and %s.", it_falls, disappears);
             delobj(obj);
+            res = TRUE;
         }
-        res = TRUE;
+        newsym(x, y);
     }
 
     bhitpos = save_bhitpos;

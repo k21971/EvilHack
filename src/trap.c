@@ -3421,6 +3421,7 @@ long hmask, emask; /* might cancel timeout */
 
     if (Punished && !carried(uball)
         && (is_damp_terrain(uball->ox, uball->oy)
+            || is_open_air(uball->ox, uball->oy)
             || ((trap = t_at(uball->ox, uball->oy))
                 && (is_pit(trap->ttyp) || is_hole(trap->ttyp))))) {
         u.ux0 = u.ux;
