@@ -2364,4 +2364,5 @@ The following changes to date are:
 - Fix: couple of revive() bits
 - Allow intrinsic gain from pet's digestion attack
 - Fix: pushing boulders, ball & chain handling in Vlad's cavern
+- Fix: shallow water not drying up from objects being dropped into them
 

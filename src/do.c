@@ -304,6 +304,13 @@ deletedwithboulder:
             map_background(x, y, 0); /* can't tell what kind of water it is */
             newsym(x, y);
         }
+        if (is_puddle(x, y) && !rn2(3)) {
+            /* shallow water isn't an endless resource like a pool/moat */
+            levl[x][y].typ = ROOM;
+            newsym(x, y);
+            if (cansee(x, y))
+                pline_The("puddle dries up.");
+        }
         res = water_damage(obj, NULL, FALSE, x, y) == ER_DESTROYED;
     } else if (u.ux == x && u.uy == y && (t = t_at(x, y)) != 0
                && (uteetering_at_seen_pit(t) || uescaped_shaft(t))) {
