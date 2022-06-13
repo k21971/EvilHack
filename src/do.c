@@ -351,6 +351,7 @@ deletedwithboulder:
             res = TRUE;
         } else if (obj == uball || obj == uchain) {
             if (obj == uball && !Levitation) {
+                drop_ball(x, y);
                 pline("%s away, and %s you down with %s!",
                       it_falls, otense(obj, "yank"),
                       obj->quan > 1L ? "them" : "it");

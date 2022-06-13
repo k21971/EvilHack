@@ -2367,4 +2367,5 @@ The following changes to date are:
 - Fix: shallow water not drying up from objects being dropped into them
 - Fix: metalvores eating a metal container would also consume all contents
 - Fix: run travel was not stopping at terrain/objects of interest
+- Fix: a couple more ball & chain in open air fixes
 

@@ -1353,7 +1353,9 @@ int how;
             savelife(how);
             if (how == GENOCIDED) {
                 pline("Unfortunately you are still genocided...");
-            } else if (is_open_air(x, y) && !Levitation && !Flying) {
+            } else if (is_open_air(x, y) && !Levitation
+                       && !(Flying && !(Punished && !carried(uball)
+                            && is_open_air(uball->ox, uball->oy)))) {
                 pline("Unfortunately the impact was too great...");
             } else {
                 char killbuf[BUFSZ];
