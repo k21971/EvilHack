@@ -24,6 +24,7 @@ int dotcnt, dotrow; /* also used in restore */
 
 STATIC_DCL void FDECL(savelevchn, (int, int));
 STATIC_DCL void FDECL(savedamage, (int, int));
+STATIC_DCL void FDECL(save_bc, (int, int));
 STATIC_DCL void FDECL(saveobj, (int, struct obj *));
 STATIC_DCL void FDECL(saveobjchn, (int, struct obj **, int));
 STATIC_DCL void FDECL(savemon, (int, struct monst *));
@@ -307,7 +308,6 @@ savegamestate(fd, mode)
 register int fd, mode;
 {
     unsigned long uid;
-    struct obj *bc_objs = (struct obj *) 0;
 
     program_state.saving++; /* caller should/did already set this... */
 #ifdef MFLOPPY
@@ -339,22 +339,8 @@ register int fd, mode;
        pointers into invent (uwep, uarmg, uamul, &c) are set to Null too */
     saveobjchn(fd, &invent, mode);
 
-    /* save ball and chain if they are currently dangling free (i.e. not
-       on floor or in inventory); 'looseball' and 'loosechain' have been
-       set up in caller because ball and chain will be gone by now if on
-       floor, or ball gone if carried; caveat: uball and uchain pointers
-       will be non-Null but stale (point to freed memory) in those cases */
-    bc_objs = (struct obj *) 0;
-    if (loosechain) {
-        loosechain->nobj = bc_objs; /* uchain */
-        bc_objs = loosechain;
-    }
-    if (looseball) {
-        looseball->nobj = bc_objs;
-        bc_objs = looseball;
-    }
-    saveobjchn(fd, &bc_objs, mode); /* frees objs in list, sets bc_objs to Null */
-    looseball = loosechain = (struct obj *) 0;
+    /* save ball and chain if they happen to be in an unusal state */
+    save_bc(fd, mode);
 
     saveobjchn(fd, &migrating_objs, mode); /* frees objs and sets to Null */
     savemonchn(fd, migrating_mons, mode);
@@ -473,6 +459,8 @@ savestateinlock()
 
             ustuck_id = (u.ustuck ? u.ustuck->m_id : 0);
             usteed_id = (u.usteed ? u.usteed->m_id : 0);
+            /* if ball and/or chain aren't on floor or in invent, keep a copy
+               of their pointers; not valid when on floor or in invent */
             looseball = BALL_IN_MON ? uball : 0;
             loosechain = CHAIN_IN_MON ? uchain : 0;
             savegamestate(fd, WRITE_SAVE);
@@ -1045,6 +1033,35 @@ register int fd, mode;
 }
 
 STATIC_OVL void
+save_bc(fd, mode)
+int fd, mode;
+{
+    struct obj *bc_objs = 0;
+
+    /* save ball and chain if they are currently dangling free (i.e. not
+       on floor or in inventory); 'looseball' and 'loosechain' have been
+       set up in caller because ball and chain will be gone by now if on
+       floor, or ball gone if carried */
+    if (loosechain) {
+        loosechain->nobj = bc_objs; /* uchain */
+        bc_objs = loosechain;
+        if (mode & FREE_SAVE) {
+            setworn((struct obj *) 0, W_CHAIN); /* sets 'uchain' to Null */
+            loosechain = (struct obj *) 0;
+        }
+    }
+    if (looseball) {
+        looseball->nobj = bc_objs;
+        bc_objs = looseball;
+        if (mode & FREE_SAVE) {
+            setworn((struct obj *) 0, W_BALL); /* sets 'uball' to Null */
+            looseball = (struct obj *) 0;
+        }
+    }
+    saveobjchn(fd, &bc_objs, mode); /* frees objs in list, sets bc_objs to Null */
+}
+
+STATIC_OVL void
 saveobj(fd, otmp)
 int fd;
 struct obj *otmp;
@@ -1130,6 +1147,11 @@ struct obj **obj_p;
             otmp->leashmon = 0;     /* mon->mleashed could still be set;
                                      * unfortunately, we can't clear that
                                      * until after the monster is saved */
+            /* clear 'uball' and 'uchain' pointers if resetting their mask;
+               could also do same for other worn items but don't need to */
+            if ((otmp->owornmask & (W_BALL | W_CHAIN)) != 0)
+                setworn((struct obj *) 0,
+                        otmp->owornmask & (W_BALL | W_CHAIN));
             otmp->owornmask = 0L;   /* no longer care */
             dealloc_obj(otmp);
         }

@@ -2368,4 +2368,5 @@ The following changes to date are:
 - Fix: metalvores eating a metal container would also consume all contents
 - Fix: run travel was not stopping at terrain/objects of interest
 - Fix: a couple more ball & chain in open air fixes
+- Fix: saving/freeing ball and chain
 

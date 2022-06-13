@@ -506,6 +506,16 @@ struct obj *corpse;
 
  make_bones:
     unleash_all();
+
+    /* new ghost or other undead isn't punished even if hero was;
+       end-of-game disclosure has already had a chance to report the
+       Punished status so we don't need to preserve it any further */
+    if (Punished)
+        unpunish(); /* unwear uball, destroy uchain */
+    /* in case dismounting kills steed [is that even possible?], do so
+       before cleaning up dead monsters */
+    if (u.usteed)
+        dismount_steed(DISMOUNT_BONES);
     /* in case these characters are not in their home bases */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -544,8 +554,6 @@ struct obj *corpse;
         }
         free_erid(mtmp);
     }
-    if (u.usteed)
-        dismount_steed(DISMOUNT_BONES);
     dmonsfree(); /* discard dead or gone monsters */
 
     /* mark all fruits as nonexistent; when we come to them we'll mark
@@ -553,10 +561,6 @@ struct obj *corpse;
      */
     for (f = ffruit; f; f = f->nextf)
         f->fid = -f->fid;
-
-    /* check iron balls separately--maybe they're not carrying it */
-    if (uball)
-        uball->owornmask = uchain->owornmask = 0L;
 
     /* dispose of your possessions, usually cursed */
     if (u.ugrave_arise == (NON_PM - 1)) {
