@@ -5063,6 +5063,9 @@ struct obj *no_wish;
         if (otmp->material != CLOTH)
             objprops &= ~ITEM_OILSKIN;
 
+        if (otmp->otyp == OILSKIN_CLOAK)
+            objprops &= ~ITEM_OILSKIN;
+
         otmp->oprops |= objprops;
     }
 

@@ -2369,4 +2369,5 @@ The following changes to date are:
 - Fix: run travel was not stopping at terrain/objects of interest
 - Fix: a couple more ball & chain in open air fixes
 - Fix: saving/freeing ball and chain
+- Fix: prevent 'oilskin oilskin cloak'
 

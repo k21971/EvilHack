@@ -443,6 +443,10 @@ boolean allow_detrimental;
             && (j & ITEM_OILSKIN))
             continue;
 
+        if (otmp->otyp == OILSKIN_CLOAK
+            && (j & ITEM_OILSKIN))
+            continue;
+
         otmp->oprops |= j;
     }
 
