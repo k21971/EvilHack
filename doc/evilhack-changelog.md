@@ -2370,4 +2370,5 @@ The following changes to date are:
 - Fix: a couple more ball & chain in open air fixes
 - Fix: saving/freeing ball and chain
 - Fix: prevent 'oilskin oilskin cloak'
+- Fix: crash/memory leak with thrown/falling boulders in Vlad's cavern
 

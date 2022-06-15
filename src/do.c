@@ -139,12 +139,6 @@ boolean pushing;
         const char *it_falls = Tobjnam(otmp, "fall"),
                    *disappears = otense(otmp, "disappear");
 
-        xchar ox = otmp->ox, oy = otmp->oy;
-        remove_object(otmp);
-        otmp->ox = rx, otmp->oy = ry;
-        maybe_unhide_at(ox, oy);
-        newsym(ox, oy);
-        newsym(rx, ry);
         if (pushing) {
             char whobuf[BUFSZ];
 
@@ -153,9 +147,12 @@ boolean pushing;
                 Strcpy(whobuf, y_monnam(u.usteed));
             pline("%s %s %s over the edge.", upstart(whobuf),
                   vtense(whobuf, "push"), the(xname(otmp)));
-            if (!Blind)
-                pline("%s away and %s.", it_falls, disappears);
+            delobj(otmp);
+        } else {
+            obfree(otmp, (struct obj *) 0);
         }
+        if (!Blind)
+            pline("%s away and %s.", it_falls, disappears);
         return TRUE;
     }
     return FALSE;
