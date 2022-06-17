@@ -2371,4 +2371,5 @@ The following changes to date are:
 - Fix: saving/freeing ball and chain
 - Fix: prevent 'oilskin oilskin cloak'
 - Fix: crash/memory leak with thrown/falling boulders in Vlad's cavern
+- Fix: prevent tame vampires from shifting back into animal/fog form
 

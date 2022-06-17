@@ -4710,7 +4710,7 @@ struct monst *mon;
 {
     int mcham;
 
-    if (Protection_from_shape_changers || mon->mcan) {
+    if ((Protection_from_shape_changers || mon->mcan) && !mon->mtame) {
         mcham = (int) mon->cham;
         if (mcham >= LOW_PM) {
             mon->cham = NON_PM;
@@ -4926,8 +4926,7 @@ int shiftflags;
                 dochng = FALSE;
             else if (mon->mhp >= 9 * mon->mhpmax / 10 && !rn2(6)
                 && (!canseemon(mon)
-                    || distu(mon->mx, mon->my) > BOLT_LIM * BOLT_LIM)
-                && !tame_vamp)
+                    || distu(mon->mx, mon->my) > BOLT_LIM * BOLT_LIM))
                 dochng = TRUE; /* 'ptr' stays Null */
         }
     }

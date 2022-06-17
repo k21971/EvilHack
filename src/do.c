@@ -151,7 +151,7 @@ boolean pushing;
         } else {
             obfree(otmp, (struct obj *) 0);
         }
-        if (!Blind)
+        if ((pushing && !Blind) || cansee(rx, ry))
             pline("%s away and %s.", it_falls, disappears);
         return TRUE;
     }
