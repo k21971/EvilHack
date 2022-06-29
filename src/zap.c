@@ -707,16 +707,18 @@ struct obj *obj;
 coord *cc;
 boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
 {
-    struct monst *mtmp, *mtmp2 = has_omonst(obj) ? get_mtraits(obj, TRUE) : 0;
+    struct monst *mtmp = (struct monst *) 0,
+                 *mtmp2 = has_omonst(obj) ? get_mtraits(obj, TRUE) : 0;
 
     if (mtmp2) {
         /* save_mtraits() validated mtmp2->mnum */
         mtmp2->data = &mons[mtmp2->mnum];
-        if (mtmp2->mhpmax <= 0 && !is_rider(mtmp2->data))
-            return (struct monst *) 0;
-        mtmp = makemon(mtmp2->data, cc->x, cc->y,
-                       (NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_REVIVE
-                        | (adjacentok ? MM_ADJACENTOK : 0)));
+
+        if (mtmp2->mhpmax > 0 || is_rider(mtmp2->data)) {
+            mtmp = makemon(mtmp2->data, cc->x, cc->y,
+                           (NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_REVIVE
+                            | (adjacentok ? MM_ADJACENTOK : 0)));
+        }
         if (!mtmp) {
             /* mtmp2 is a copy of obj's object->oextra->omonst extension
                and is not on the map or on any monst lists */
@@ -1078,7 +1080,7 @@ boolean by_hero;
         /* not useupf(), which charges */
         if (corpse->quan > 1L)
             corpse = splitobj(corpse, 1L);
-        delobj(corpse);
+        delobj_core(corpse, TRUE);
         newsym(x, y);
         break;
     case OBJ_MINVENT:

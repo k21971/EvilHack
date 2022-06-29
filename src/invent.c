@@ -1214,14 +1214,24 @@ int x, y;
     }
 }
 
-/* destroy object in fobj chain (if unpaid, it remains on the bill) */
+/* normal object deletion (if unpaid, it remains on the bill) */
 void
 delobj(obj)
-register struct obj *obj;
+struct obj *obj;
+{
+    delobj_core(obj, FALSE);
+}
+
+/* destroy object; caller has control over whether to destroy something
+   that ordinarily shouldn't be destroyed */
+void
+delobj_core(obj, force)
+struct obj *obj;
+boolean force; /* 'force==TRUE' used when reviving Rider corpses */
 {
     boolean update_map;
 
-    if (obj_resists(obj, 0, 0)) {
+    if (!force && obj_resists(obj, 0, 0)) {
         /* player might be doing something stupid, but we
          * can't guarantee that.  assume special artifacts
          * are indestructible via drawbridges, and exploding
@@ -1231,7 +1241,7 @@ register struct obj *obj;
     }
     update_map = (obj->where == OBJ_FLOOR);
     obj_extract_self(obj);
-    if (update_map) {
+    if (update_map) { /* floor object's coordinates are always up to date */
         maybe_unhide_at(obj->ox, obj->oy);
         newsym(obj->ox, obj->oy);
     }
