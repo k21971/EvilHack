@@ -51,7 +51,7 @@ found here - https://github.com/k21971/EvilHack/releases
 For Linux (TL;DR version):
 - Dependencies needed: `make` `gcc` `gdb` `flex` `bison` `libncurses-dev`
 - From the desired directory, `git clone https://github.com/k21971/EvilHack.git`
-- Navigate to the `sys/unix` folder, then `./setup.sh hints/linux` or
+- Navigate to the `EvilHack/sys/unix` folder, then `./setup.sh hints/linux` or
   `./setup.sh hints/linux-debug` depending on what you intend to do
 
   - Using the standard `linux` hints file assumes running as a normal user, and
