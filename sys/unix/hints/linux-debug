@@ -9,11 +9,16 @@
 # for Ubuntu dapper.
 
 
+# Typical install path for normal user (non-root)
+#PREFIX=$(wildcard ~)
+#HACKDIR=$(PREFIX)/games/$(GAME)dir
+
+# Default install path (assumes running at root)
 PREFIX=/usr
-#PREFIX=$(wildcard ~)/nh/install
 HACKDIR=$(PREFIX)/games/lib/$(GAME)dir
+
 SHELLDIR = $(PREFIX)/games
-INSTDIR=$(HACKDIR)
+INSTDIR = $(HACKDIR)
 VARDIR = $(HACKDIR)/var
 
 

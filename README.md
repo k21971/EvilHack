@@ -51,8 +51,18 @@ found here - https://github.com/k21971/EvilHack/releases
 For Linux (TL;DR version):
 - Dependencies needed: `make` `gcc` `gdb` `flex` `bison` `libncurses-dev`
 - From the desired directory, `git clone https://github.com/k21971/EvilHack.git`
-- Navigate to the `sys/unix` folder, then `./setup.sh hints/linux-debug`  
-  (edit the install paths in the hints file to your liking)
+- Navigate to the `sys/unix` folder, then `./setup.sh hints/linux` or
+  `./setup.sh hints/linux-debug` depending on what you intend to do
+
+  Using the standard `linux` hints file assumes running as a normal user, and
+  game folders and files will reside in `/home/$USER` based on the account used.
+  Invoking `sudo` should not be necessary
+
+  Using the `linux-debug` hints file assumes installing as root, and includes
+  extra CFLAGS for debugging in a development scenario
+
+  With either hints file, edit the install paths to your liking
 - Navigate back to the root EvilHack folder, and `make all && make install`
 - Execute the `evilhack` binary
-
+- In the home directory of the account used to install EvilHack, create your
+  rc config file - `touch .evilhackrc` and then edit as necessary

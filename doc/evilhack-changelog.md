@@ -2373,4 +2373,5 @@ The following changes to date are:
 - Fix: crash/memory leak with thrown/falling boulders in Vlad's cavern
 - Fix: prevent tame vampires from shifting back into animal/fog form
 - Fix: Rider revival without corpse removal
+- Update README file (install instructions), tweak a couple hints files
 
