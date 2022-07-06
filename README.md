@@ -54,14 +54,14 @@ For Linux (TL;DR version):
 - Navigate to the `sys/unix` folder, then `./setup.sh hints/linux` or
   `./setup.sh hints/linux-debug` depending on what you intend to do
 
-  Using the standard `linux` hints file assumes running as a normal user, and
+  - Using the standard `linux` hints file assumes running as a normal user, and
   game folders and files will reside in `/home/$USER` based on the account used.
   Invoking `sudo` should not be necessary
 
-  Using the `linux-debug` hints file assumes installing as root, and includes
+  - Using the `linux-debug` hints file assumes installing as root, and includes
   extra CFLAGS for debugging in a development scenario
 
-  With either hints file, edit the install paths to your liking
+  - With either hints file, edit the install paths to your liking
 - Navigate back to the root EvilHack folder, and `make all && make install`
 - Execute the `evilhack` binary
 - In the home directory of the account used to install EvilHack, create your
