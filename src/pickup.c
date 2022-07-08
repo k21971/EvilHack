@@ -1820,8 +1820,6 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
         return 1;
     }
 
-    You("%sopen %s...", (!cobj->cknown || !cobj->lknown) ? "carefully " : "",
-        the(xname(cobj)));
     return use_container(cobjp, 0, (boolean) (cindex < ccount));
 }
 
@@ -1836,7 +1834,6 @@ doloot()
     boolean underfoot = TRUE;
     const char *dont_find_anything = "don't find anything";
     struct monst *mtmp;
-    char qbuf[BUFSZ];
     int prev_inquiry = 0;
     boolean mon_interact = FALSE;
     int num_conts = 0;
@@ -1926,15 +1923,7 @@ doloot()
                 nobj = cobj->nexthere;
 
                 if (Is_nonprize_container(cobj)) {
-                    c = ynq(safe_qbuf(qbuf, "There is ", " here, loot it?",
-                                      cobj, doname, ansimpleoname,
-                                      "a container"));
-                    if (c == 'q')
-                        return timepassed;
-                    if (c == 'n')
-                        continue;
                     anyfound = TRUE;
-
                     timepassed |= do_loot_cont(&cobj, 1, 1);
                     if (abort_looting)
                         /* chest trap or magic bag explosion or <esc> */

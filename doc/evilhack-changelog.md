@@ -2377,4 +2377,5 @@ The following changes to date are:
 - Fix: cross-aligned player priests blasted by crowning gift weapon
   (Mjollnir)
 - Fix: passive green slime attack not active
+- Make looting less tedious
 
