@@ -2379,4 +2379,5 @@ The following changes to date are:
 - Fix: passive green slime attack not active
 - Make looting less tedious
 - Add new #wizkill command
+- Don't allow fuzzer mode to use #wizkill 
 

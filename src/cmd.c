@@ -986,6 +986,9 @@ wiz_kill()
     const char *prompt = "Pick first monster to slay";
     boolean save_verbose = flags.verbose;
 
+    if (iflags.debug_fuzzer)
+        return 0;
+
     cc.x = u.ux, cc.y = u.uy;
     for (;;) {
         pline("%s:", prompt);
