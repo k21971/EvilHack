@@ -2378,4 +2378,5 @@ The following changes to date are:
   (Mjollnir)
 - Fix: passive green slime attack not active
 - Make looting less tedious
+- Add new #wizkill command
 
