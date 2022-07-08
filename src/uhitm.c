@@ -4033,6 +4033,25 @@ boolean wep_was_destroyed;
             (void) cancel_monst(&youmonst, weapon, FALSE, TRUE, FALSE);
         }
         break;
+    case AD_SLIM:
+        if (mhit && !mon->mcan && !rn2(3)) {
+            pline("Its slime splashes onto you!");
+            if (flaming(youmonst.data)) {
+                pline_The("slime burns away!");
+                tmp = 0;
+            } else if (Unchanging || noncorporeal(youmonst.data)
+                       || youmonst.data == &mons[PM_GREEN_SLIME]) {
+                You("are unaffected.");
+                tmp = 0;
+            } else if (!Slimed) {
+                You("don't feel very well.");
+                make_slimed(10L, (char *) 0);
+                delayed_killer(SLIMED, KILLED_BY_AN, mon->data->mname);
+            } else {
+                pline("Yuck!");
+            }
+        }
+        break;
     default:
         break;
     }

@@ -4280,6 +4280,22 @@ struct attack *mattk;
             (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);
         }
         return 1;
+    case AD_SLIM:
+        if (!rn2(3)) {
+            Your("slime splashes onto %s!", mon_nam(mtmp));
+            if (flaming(mtmp->data)) {
+                pline_The("slime burns away!");
+            } else if (slimeproof(mtmp->data)) {
+                pline("%s is unaffected.", Monnam(mtmp));
+            } else if (!rn2(4) && !slimeproof(mtmp->data)) {
+                if (!munslime(mtmp, FALSE) && !DEADMONSTER(mtmp)) {
+                    if (newcham(mtmp, &mons[PM_GREEN_SLIME], FALSE,
+                                (boolean) (canseemon(mtmp))))
+                    mtmp->mstrategy &= ~STRAT_WAITFORU;
+                }
+            }
+        }
+        return 1;
         break;
     default:
         break;

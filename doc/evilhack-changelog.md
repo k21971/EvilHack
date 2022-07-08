@@ -2376,4 +2376,5 @@ The following changes to date are:
 - Update README file (install instructions), tweak a couple hints files
 - Fix: cross-aligned player priests blasted by crowning gift weapon
   (Mjollnir)
+- Fix: passive green slime attack not active
 
