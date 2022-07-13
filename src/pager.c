@@ -943,10 +943,10 @@ struct permonst * pm;
     APPENDC(is_displaced(pm), "displaced");
     APPENDC(is_skittish(pm), "skittish");
     APPENDC(is_accurate(pm), "accurate");
-    APPENDC(mflag4 == M4_VULNERABLE_FIRE, "vulnerable to fire");
-    APPENDC(mflag4 == M4_VULNERABLE_COLD, "vulnerable to cold");
-    APPENDC(mflag4 == M4_VULNERABLE_ELEC, "vulnerable to electricity");
-    APPENDC(mflag4 == M4_VULNERABLE_ACID, "vulnerable to acid");
+    APPENDC((mflag4 & M4_VULNERABLE_FIRE) != 0, "vulnerable to fire");
+    APPENDC((mflag4 & M4_VULNERABLE_COLD) != 0, "vulnerable to cold");
+    APPENDC((mflag4 & M4_VULNERABLE_ELEC) != 0, "vulnerable to electricity");
+    APPENDC((mflag4 & M4_VULNERABLE_ACID) != 0, "vulnerable to acid");
     if (*buf) {
         Sprintf(buf2, "Is %s.", buf);
         MONPUTSTR(buf2);

@@ -321,15 +321,22 @@ vulnerable_to(mon, element)
 struct monst* mon;
 int element;
 {
+    if (defended(mon, element))
+        return FALSE;
+
     switch (element) {
         case AD_FIRE:
-            return (mon->data->mflags4 & M4_VULNERABLE_FIRE);
+            return ((mon->data->mflags4 & M4_VULNERABLE_FIRE)
+                    && !resists_fire(mon));
         case AD_COLD:
-            return (mon->data->mflags4 & M4_VULNERABLE_COLD);
+            return ((mon->data->mflags4 & M4_VULNERABLE_COLD)
+                    && !resists_cold(mon));
         case AD_ELEC:
-            return (mon->data->mflags4 & M4_VULNERABLE_ELEC);
+            return ((mon->data->mflags4 & M4_VULNERABLE_ELEC)
+                    && !resists_elec(mon));
         case AD_ACID:
-            return (mon->data->mflags4 & M4_VULNERABLE_ACID);
+            return ((mon->data->mflags4 & M4_VULNERABLE_ACID)
+                    && !resists_acid(mon));
         default:
             break;
     }

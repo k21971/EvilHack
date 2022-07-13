@@ -1135,13 +1135,13 @@ struct monst *mtmp;
     if (mtmp == u.usteed)
         Strcat(info, ", carrying you");
 
-    if (mtmp->data->mflags4 & M4_VULNERABLE_FIRE)
+    if (vulnerable_to(mtmp, AD_FIRE))
         Strcat(info, ", vulnerable to fire");
-    if (mtmp->data->mflags4 & M4_VULNERABLE_COLD)
+    if (vulnerable_to(mtmp, AD_COLD))
         Strcat(info, ", vulnerable to cold");
-    if (mtmp->data->mflags4 & M4_VULNERABLE_ELEC)
+    if (vulnerable_to(mtmp, AD_ELEC))
         Strcat(info, ", vulnerable to electricity");
-    if (mtmp->data->mflags4 & M4_VULNERABLE_ACID)
+    if (vulnerable_to(mtmp, AD_ACID))
         Strcat(info, ", vulnerable to acid");
 
     /* avoid "Status of the invisible newt ..., invisible" */
