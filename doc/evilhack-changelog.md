@@ -2380,4 +2380,5 @@ The following changes to date are:
 - Make looting less tedious
 - Add new #wizkill command
 - Don't allow fuzzer mode to use #wizkill 
+- Fix: spawning giant <monster> in wizmode
 

@@ -2851,9 +2851,9 @@ create_particular_parse(str, d)
 char *str;
 struct _create_particular_data *d;
 {
-    char *bufp = str;
+    char *rbufp = (char *) 0, *bufp = str;
     char *tmpp;
-    int i, attempts, adjlen = 0;
+    int i, race = NON_PM;
 
     d->monclass = MAXMCLASSES;
     d->which = urole.malenum; /* an arbitrary index into mons[] */
@@ -2917,11 +2917,11 @@ struct _create_particular_data *d;
     /* determine if a race was specified for the resulting mon
        TODO?: currently limited only to player-valid races. */
     for (i = 0; races[i].adj; i++) {
-        adjlen = strlen(races[i].adj);
+        int adjlen = strlen(races[i].adj);
         if (!strncmpi(bufp, races[i].adj, adjlen)
-            && *(bufp + adjlen) == ' ') {
-            bufp += adjlen + 1;
-            d->race = races[i].malenum;
+            && !strncmpi(bufp + adjlen, " race ", 6)) {
+            rbufp = bufp + adjlen + 6;
+            race = races[i].malenum;
             break;
         }
     }
@@ -2931,17 +2931,15 @@ struct _create_particular_data *d;
         return TRUE;
     }
 
-    attempts = (d->race != NON_PM) ? 2 : 1;
-
-    for (i = 0; i < attempts; i++) {
-        if (i == 1) {
-            bufp -= (adjlen + 1);
-            d->race = NON_PM;
-        }
-        d->which = name_to_mon(bufp);
-        if (d->which >= LOW_PM)
-            return TRUE; /* got one */
+    if (race != NON_PM && (d->which = name_to_mon(rbufp)) >= LOW_PM) {
+        d->race = race;
+        return TRUE;
     }
+
+    d->which = name_to_mon(bufp);
+    if (d->which >= LOW_PM)
+        return TRUE; /* got one */
+
     d->monclass = name_to_monclass(bufp, &d->which);
 
     if (d->which >= LOW_PM) {
