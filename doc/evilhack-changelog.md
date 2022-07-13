@@ -2381,4 +2381,5 @@ The following changes to date are:
 - Add new #wizkill command
 - Don't allow fuzzer mode to use #wizkill 
 - Fix: spawning giant <monster> in wizmode
+- Fix: filename buffer overflow
 
