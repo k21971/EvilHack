@@ -2385,4 +2385,5 @@ The following changes to date are:
 - Monsters that gain resistance to a type of damage also lose any
   vulnerability to the same damage type
 - Fix: foo, poisoned by a cursed amulet of life saving
+- Adjust shambling horror attack/damage type combinations
 

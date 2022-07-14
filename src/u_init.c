@@ -664,46 +664,6 @@ register char sym;
             knows_object(ct);
 }
 
-int attk_melee_types [] =
-    { AT_CLAW, AT_BITE, AT_KICK, AT_BUTT, AT_TUCH,
-      AT_STNG, AT_TENT, AT_WEAP
-    };
-
-int attk_spec_types [] =
-    { AT_HUGS, AT_SPIT, AT_ENGL, AT_BREA, AT_GAZE,
-      AT_MAGC
-    };
-
-int damg_melee_types [] =
-    { AD_PHYS, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
-      AD_ELEC, AD_DRST, AD_ACID, AD_STUN, AD_SLOW,
-      AD_PLYS, AD_DRLI, AD_DREN, AD_LEGS, AD_STCK,
-      AD_SGLD, AD_SITM, AD_SEDU, AD_TLPT, AD_RUST,
-      AD_CONF, AD_DRDX, AD_DRCO, AD_DRIN, AD_DISE,
-      AD_DCAY, AD_HALU, AD_ENCH, AD_CORR, AD_BHED,
-      AD_POLY, AD_WTHR, AD_PITS, AD_WEBS
-    };
-
-int damg_breath_types [] =
-    { AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
-      AD_DRST, AD_WATR, AD_ACID
-    };
-
-int damg_spit_types [] =
-    { AD_BLND, AD_ACID, AD_DRST };
-
-int damg_gaze_types [] =
-    { AD_FIRE, AD_COLD, AD_SLEE, AD_STUN, AD_SLOW,
-      AD_CNCL
-    };
-
-int damg_engulf_types [] =
-    { AD_PLYS, AD_DGST, AD_WRAP };
-
-int damg_magic_types [] =
-    { AD_SPEL, AD_CLRC, AD_MAGM, AD_FIRE, AD_COLD,
-      AD_ACID };
-
 void
 u_init()
 {
@@ -1225,6 +1185,58 @@ u_init()
     return;
 }
 
+/* attack/damage structs for shambler_init() */
+int attk_melee_types [] =
+    { AT_CLAW, AT_BITE, AT_TUCH, AT_STNG, AT_WEAP };
+
+int attk_spec_types [] =
+    { AT_HUGS, AT_SPIT, AT_ENGL, AT_BREA, AT_GAZE,
+      AT_MAGC, AT_KICK, AT_BUTT, AT_TENT
+    };
+
+int damg_melee_types [] =
+    { AD_PHYS, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
+      AD_ELEC, AD_DRST, AD_ACID, AD_STUN, AD_SLOW,
+      AD_PLYS, AD_DRLI, AD_DREN, AD_LEGS, AD_STCK,
+      AD_SGLD, AD_SITM, AD_SEDU, AD_TLPT, AD_RUST,
+      AD_CONF, AD_DRDX, AD_DRCO, AD_DRIN, AD_DISE,
+      AD_DCAY, AD_HALU, AD_ENCH, AD_CORR, AD_BHED,
+      AD_POLY, AD_WTHR, AD_PITS, AD_WEBS
+    };
+
+int damg_breath_types [] =
+    { AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
+      AD_DRST, AD_WATR, AD_ACID
+    };
+
+int damg_spit_types [] =
+    { AD_BLND, AD_ACID, AD_DRST };
+
+int damg_gaze_types [] =
+    { AD_FIRE, AD_COLD, AD_SLEE, AD_STUN, AD_SLOW,
+      AD_CNCL
+    };
+
+int damg_engulf_types [] =
+    { AD_PLYS, AD_DGST, AD_WRAP };
+
+int damg_magic_types [] =
+    { AD_SPEL, AD_CLRC, AD_MAGM, AD_FIRE, AD_COLD,
+      AD_ACID
+    };
+
+int damg_kick_types [] =
+    { AD_PHYS, AD_STUN, AD_LEGS, AD_ENCH, AD_CLOB };
+
+int damg_butt_types [] =
+    { AD_PHYS, AD_STUN, AD_CONF, AD_CLOB };
+
+int damg_tent_types [] =
+    { AD_PHYS, AD_DRST, AD_ACID, AD_STUN, AD_PLYS,
+      AD_DRLI, AD_DREN, AD_CONF, AD_DRIN, AD_DISE,
+      AD_HALU
+    };
+
 void
 shambler_init()
 {
@@ -1245,8 +1257,8 @@ shambler_init()
         attkptr = &shambler->mattk[i];
         attkptr->aatyp = attk_melee_types[rn2(SIZE(attk_melee_types))];
         attkptr->adtyp = damg_melee_types[rn2(SIZE(damg_melee_types))];
-        attkptr->damn = 2 + rn2(4);
-        attkptr->damd = 6 + rn2(3);
+        attkptr->damn = 2 + rn2(5);
+        attkptr->damd = 3 + rn2(6);
     }
 
     shambler_attacks = shambler_attacks + (rnd(9) / 3) - 1;
@@ -1270,6 +1282,15 @@ shambler_init()
             break;
         case AT_MAGC:
             attkptr->adtyp = damg_magic_types[rn2(SIZE(damg_magic_types))];
+            break;
+        case AT_KICK:
+            attkptr->adtyp = damg_kick_types[rn2(SIZE(damg_kick_types))];
+            break;
+        case AT_BUTT:
+            attkptr->adtyp = damg_butt_types[rn2(SIZE(damg_butt_types))];
+            break;
+        case AT_TENT:
+            attkptr->adtyp = damg_tent_types[rn2(SIZE(damg_tent_types))];
             break;
         case AT_HUGS:
             attkptr->adtyp = AD_PHYS;
