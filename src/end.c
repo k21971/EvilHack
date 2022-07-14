@@ -1037,10 +1037,15 @@ int how;
     }
     nomovemsg = "You survived that attempt on your life.";
     context.move = 0;
-    if (multi > 0)
-        multi = 0;
-    else
-        multi = -1;
+
+    multi = -1; /* can't move again during the current turn */
+    /* in case being life-saved is immediately followed by being killed
+       again (perhaps due to zap rebound); this text will be appended to
+          "killed by <something>, while "
+       in high scores entry, if any, and in logfile (but not on tombstone) */
+    multi_reason = Role_if(PM_TOURIST) ? "being toyed with by Fate"
+                                       : "attempting to cheat Death";
+
     if (u.utrap && u.utraptype == TT_LAVA)
         reset_utrap(FALSE);
     context.botl = 1;
@@ -1332,12 +1337,11 @@ int how;
         makeknown(AMULET_OF_LIFE_SAVING);
         Your("medallion %s!", !Blind ? "begins to glow" : "feels warm");
         if (uamul->cursed) {
-	    Your("medallion %s!", !Blind ? "glows white-hot" : "sears your neck");
+            Your("medallion %s!", !Blind ? "glows white-hot" : "sears your neck");
             You("hear manic laughter in the distance...");
             Your("medallion turns to ash!");
             pline("It appears your luck has run out...");
-            killer.format = KILLED_BY;
-            Strcpy(killer.name, "a cursed amulet of life saving");
+            savelife(how); /* killed by foo, while bar */
             survive = FALSE;
             if (uamul)
                 useup(uamul);
