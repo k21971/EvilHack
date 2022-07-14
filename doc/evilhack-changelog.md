@@ -2386,4 +2386,5 @@ The following changes to date are:
   vulnerability to the same damage type
 - Fix: foo, poisoned by a cursed amulet of life saving
 - Adjust shambling horror attack/damage type combinations
+- Fix: memory corruption issues caught with address sanitizer
 
