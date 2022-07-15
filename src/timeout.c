@@ -665,10 +665,17 @@ nh_timeout()
                 }
 
                 if (!!(u.usick_type & SICK_ZOMBIE)) {
-                    u.ugrave_arise = urace.zombienum;
-                    killer.format = NO_KILLER_PREFIX;
-                    Sprintf(killer.name, "zombified by %s",
-                            an(killer.name));
+                    if (Race_if(PM_CENTAUR)
+                        || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)) {
+                        killer.format = NO_KILLER_PREFIX;
+                        Sprintf(killer.name, "diseased by %s",
+                                an(killer.name));
+                    } else {
+                        u.ugrave_arise = urace.zombienum;
+                        killer.format = NO_KILLER_PREFIX;
+                        Sprintf(killer.name, "zombified by %s",
+                                an(killer.name));
+                    }
                 }
                 done_timeout(POISONING, SICK);
                 u.usick_type = 0;

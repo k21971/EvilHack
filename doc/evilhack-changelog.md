@@ -2387,4 +2387,6 @@ The following changes to date are:
 - Fix: foo, poisoned by a cursed amulet of life saving
 - Adjust shambling horror attack/damage type combinations
 - Fix: memory corruption issues caught with address sanitizer
+- Fix: don't use 'zombified' as a death reason for player races that
+  can't turn into zombies
 
