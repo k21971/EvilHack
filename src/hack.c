@@ -1021,7 +1021,9 @@ int mode;
 
         if ((t && t->tseen)
             || (!Levitation && !Flying && !is_clinger(youmonst.data)
-                && (is_pool_or_lava(x, y) || is_open_air(x, y))
+                && (is_pool_or_lava(x, y) || is_open_air(x, y)
+                    || (is_damp_terrain(x, y)
+                        && vs_cantflyorswim(youmonst.data)))
                 && levl[x][y].seenv))
             return (mode == TEST_TRAP);
     }
@@ -2344,11 +2346,13 @@ boolean
 pooleffects(newspot)
 boolean newspot;             /* true if called by spoteffects */
 {
+    boolean shallow_water = (is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy));
     /* check for leaving water */
     if (u.uinwater) {
         boolean still_inwater = FALSE; /* assume we're getting out */
 
-        if (!is_pool(u.ux, u.uy)) {
+        if (!is_pool(u.ux, u.uy)
+            && !(is_damp_terrain(u.ux, u.uy) && verysmall(youmonst.data))) {
             if (Is_waterlevel(&u.uz))
                 You("pop into an air bubble.");
             else if (is_lava(u.ux, u.uy))
@@ -2382,7 +2386,8 @@ boolean newspot;             /* true if called by spoteffects */
     if (!u.ustuck && !Levitation && !Flying) {
         if (maybe_freeze_underfoot(&youmonst))
             return FALSE;
-        if (is_pool_or_lava(u.ux, u.uy)) {
+        if (is_pool_or_lava(u.ux, u.uy)
+            || (shallow_water && verysmall(youmonst.data))) {
             if (u.usteed
                 && (is_flyer(u.usteed->data) || is_floater(u.usteed->data)
                     || is_clinger(u.usteed->data))) {
@@ -2414,11 +2419,9 @@ boolean newspot;             /* true if called by spoteffects */
                 if (drown())
                     return TRUE;
             }
-        } else if ((is_puddle(u.ux, u.uy)
-                   || is_sewage(u.ux, u.uy)) && !Wwalking) {
-            if (is_puddle(u.ux, u.uy) && u.umoved && !rn2(12))
-                pline("You %s through the shallow water.",
-                      vs_cantflyorswim(youmonst.data) ? "wade" : "splash");
+        } else if (shallow_water && !Wwalking) {
+            if (is_puddle(u.ux, u.uy) && u.umoved)
+                pline("You splash through the shallow water.");
 
             if (is_sewage(u.ux, u.uy) && u.umoved && !rn2(4)
                 && !is_tortle(youmonst.data)
@@ -3187,7 +3190,9 @@ lookaround()
                      */
                     if (iflags.mention_walls)
                         You("stop at the edge of the %s.",
-                            hliquid(is_damp_terrain(x, y) ? "water" : "lava"));
+                            hliquid(is_sewage(x, y) ? "sewage"
+                                    : is_damp_terrain(x, y) ? "water"
+                                      : "lava"));
                     goto stop;
                 }
                 continue;

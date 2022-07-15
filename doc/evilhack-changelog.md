@@ -2389,4 +2389,5 @@ The following changes to date are:
 - Fix: memory corruption issues caught with address sanitizer
 - Fix: don't use 'zombified' as a death reason for player races that
   can't turn into zombies
+- Fix: very small monsters (and players) vs shallow water/sewage
 

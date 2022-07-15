@@ -65,7 +65,9 @@ long gpflags;
             return FALSE;
 
         mdat = mtmp->data;
-        if (is_pool(x, y) && !ignorewater) {
+        if (!ignorewater
+            && (is_pool(x, y) || ((is_puddle(x, y) || is_sewage(x, y))
+                                  && vs_cantflyorswim(mtmp->data)))) {
             /* [what about Breathless?] */
             if (mtmp == &youmonst)
                 return (Swimming || Amphibious

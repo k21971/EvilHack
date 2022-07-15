@@ -4415,7 +4415,10 @@ drown()
 
     feel_newsym(u.ux, u.uy); /* in case Blind, map the water here */
     /* happily wading in the same contiguous pool */
-    if (u.uinwater && is_pool(u.ux - u.dx, u.uy - u.dy)
+    if (u.uinwater
+        && (is_pool(u.ux - u.dx, u.uy - u.dy)
+            || (is_damp_terrain(u.ux - u.dx, u.uy - u.dy)
+                && verysmall(youmonst.data)))
         && (Swimming || Amphibious)) {
         /* water effects on objects every now and then */
         if (!rn2(5))
@@ -4426,7 +4429,7 @@ drown()
 
     if (!u.uinwater) {
         You("%s into the %s%c", Is_waterlevel(&u.uz) ? "plunge" : "fall",
-            hliquid("water"),
+            hliquid(!is_sewage(u.ux, u.uy) ? "water" : "sewage"),
             Amphibious || Swimming ? '.' : '!');
         if (!Swimming && !Is_waterlevel(&u.uz))
             You("sink like %s.", Hallucination ? "the Titanic" : "a rock");
@@ -4511,12 +4514,14 @@ drown()
         }
     }
     /* one more scan */
-    for (x = u.ux - 1; x <= u.ux + 1; x++)
-        for (y = u.uy - 1; y <= u.uy + 1; y++)
+    for (x = u.ux - 1; x <= u.ux + 1; x++) {
+        for (y = u.uy - 1; y <= u.uy + 1; y++) {
             if (crawl_destination(x, y)) {
                 crawl_ok = TRUE;
                 goto crawl;
             }
+        }
+    }
 crawl:
     if (crawl_ok) {
         boolean lost = FALSE;
