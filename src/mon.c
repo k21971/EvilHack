@@ -2591,17 +2591,8 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (is_berserker(ma) && m_canseeu(magr)
         && magr->mpeaceful == FALSE && !rn2(7)
         && (magr->mhp < (magr->mhpmax / 5))
-        && !noattacks(ma)) {
-        if (ma->mlet == S_HUMAN || ma->mlet == S_ORC
-            || ma->mlet == S_GIANT || ma->mlet == S_OGRE) {
-            if (cansee(magr->mx, magr->my))
-                pline("%s flies into a berserker rage!", Monnam(magr));
-            else if (!Deaf)
-                pline("%s %s with rage!", Amonnam(magr),
-                      rn2(2) ? "roars" : "howls");
-        }
+        && !noattacks(ma))
         return ALLOW_M | ALLOW_TM;
-    }
 
     /* The Riders, and huge/gigantic monsters
        will step on the bugs to get to you */
