@@ -154,14 +154,20 @@ boolean incl_helpless;
     }
     *buf = '\0';
 
-    if (incl_helpless && multi) {
-        /* X <= siz: 'sizeof "string"' includes 1 for '\0' terminator */
-        if (multi_reason && strlen(multi_reason) + sizeof ", while " <= siz)
-            Sprintf(buf, ", while %s", multi_reason);
-        /* either multi_reason wasn't specified or wouldn't fit */
-        else if (sizeof ", while helpless" <= siz)
-            Strcpy(buf, ", while helpless");
-        /* else extra death info won't fit, so leave it out */
+    if (incl_helpless) {
+        if (multi) {
+            /* X <= siz: 'sizeof "string"' includes 1 for '\0' terminator */
+            if (multi_reason
+                && strlen(multi_reason) + sizeof ", while " <= siz)
+                Sprintf(buf, ", while %s", multi_reason);
+            /* either multi_reason wasn't specified or wouldn't fit */
+            else if (sizeof ", while helpless" <= siz)
+                Strcpy(buf, ", while helpless");
+            /* else extra death info won't fit, so leave it out */
+        } else if (Hidinshell
+                   && sizeof ", while hiding in her shell" <= siz) {
+            Sprintf(buf, ", while hiding in %s shell", uhis());
+        }
     }
 }
 
@@ -381,6 +387,8 @@ int how;
     if (multi)
         Fprintf(rfile, "%cwhile=%s", XLOG_SEP,
                 multi_reason ? multi_reason : "helpless");
+    else if (Hidinshell)
+        Fprintf(rfile, "%cwhile=hiding in %s shell", XLOG_SEP, uhis());
     Fprintf(rfile, "%cconduct=0x%lx%cturns=%ld%cachieve=0x%lx", XLOG_SEP,
             encodeconduct(), XLOG_SEP, moves, XLOG_SEP, encodeachieve());
     Fprintf(rfile, "%crealtime=%ld%cstarttime=%ld%cendtime=%ld", XLOG_SEP,
@@ -459,6 +467,7 @@ encode_extended_achievements()
     add_achieveX(buf, "defeated_ice_queen", u.uachieve.defeat_icequeen);
     add_achieveX(buf, "defeated_cerberus", u.uachieve.killed_cerberus);
     add_achieveX(buf, "defeated_vecna", u.uachieve.killed_vecna);
+    add_achieveX(buf, "defeated_goblin_king", u.uachieve.killed_gking);
     add_achieveX(buf, "got_crowned", u.uevent.uhand_of_elbereth);
 
 #if 0
@@ -617,6 +626,8 @@ encodeachieve()
         r |= 1L << 15;
     if (u.uachieve.killed_cerberus)
         r |= 1L << 16;
+    if (u.uachieve.killed_gking)
+        r |= 1L << 17;
 
     return r;
 }
@@ -1365,6 +1376,15 @@ boolean fem;
 
     if (!strcmp(plrac, "?"))
         return NON_PM;
+
+    if (!strncmp(plrac, race_demon.filecode, ROLESZ)) {
+        if (fem && race_demon.femalenum != NON_PM)
+            return race_demon.femalenum;
+        else if (race_demon.malenum != NON_PM)
+            return race_demon.malenum;
+        else
+            return NON_PM;
+    }
 
     for (i = 0; races[i].noun; i++) {
         if (!strncmp(plrac, races[i].filecode, ROLESZ)) {

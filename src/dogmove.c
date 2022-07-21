@@ -17,7 +17,6 @@ extern boolean FDECL(would_prefer_rwep, (struct monst *, struct obj *));
 
 #define DOG_SATIATED 800
 
-STATIC_DCL void FDECL(dog_givit, (struct monst *, struct permonst *));
 STATIC_DCL boolean FDECL(dog_hunger, (struct monst *, struct edog *));
 STATIC_DCL int FDECL(dog_invent, (struct monst *, struct edog *, int));
 STATIC_DCL int FDECL(dog_goal, (struct monst *, struct edog *, int, int, int));
@@ -39,7 +38,7 @@ register struct monst *mtmp;
 register struct obj *otmp;
 {
     register struct obj *obj;
-    register struct obj *best = (struct obj *)0;
+    register struct obj *best = (struct obj *) 0;
 
     if (otmp->oclass != ARMOR_CLASS)
         return FALSE;
@@ -61,12 +60,12 @@ register struct obj *otmp;
 
     if (is_boots(otmp)
         && (slithy(mtmp->data) || mtmp->data->mlet == S_CENTAUR))
- 	return FALSE;
+        return FALSE;
 
     if (is_helmet(otmp)
         && !is_flimsy(otmp)
  	&& num_horns(mtmp->data) > 0)
- 	return FALSE;
+        return FALSE;
 
     obj = (mtmp == &youmonst) ? invent : mtmp->minvent;
 
@@ -86,17 +85,18 @@ register struct obj *otmp;
         if (is_gloves(otmp) && !is_gloves(obj))
             continue;
 
-        if (!obj->owornmask) continue;
+        if (!obj->owornmask)
+            continue;
 
        	if (best
-       	    && (ARM_BONUS(obj) +  extra_pref(mtmp,obj) >=
-       	    ARM_BONUS(best) + extra_pref(mtmp,best)))
+       	    && (armor_bonus(obj) + extra_pref(mtmp,obj)
+                >= armor_bonus(best) + extra_pref(mtmp, best)))
        	    best = obj;
     }
 
-    return ((best == (struct obj *)0)
- 	    || (ARM_BONUS(otmp) + extra_pref(mtmp,otmp) >
- 	        ARM_BONUS(best) + extra_pref(mtmp,best)));
+    return ((best == (struct obj *) 0)
+            || (armor_bonus(otmp) + extra_pref(mtmp, otmp)
+                > armor_bonus(best) + extra_pref(mtmp, best)));
 }
 
 /*
@@ -653,7 +653,7 @@ boolean devour;
 }
 
 /* Maybe give an intrinsic to a pet from eating a corpse that confers it. */
-STATIC_OVL void
+void
 dog_givit(mtmp, ptr)
 struct monst* mtmp;
 struct permonst* ptr;
@@ -1299,8 +1299,10 @@ boolean ranged;
        || ((mtmp->mhp * 4 < mtmp->mhpmax || mtmp2->data->msound == MS_GUARDIAN
            || mtmp2->data->msound == MS_LEADER)
            && mtmp2->mpeaceful && !grudge && !Conflict)
-       || (!ranged && touch_petrifies(mtmp2->data) && !resists_ston(mtmp))
-       || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS] && !resists_sick(mtmp->data)));
+       || (!ranged && touch_petrifies(mtmp2->data)
+           && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
+       || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS]
+           && !(resists_sick(mtmp->data) || defended(mtmp, AD_DISE))));
 }
 
 /* return 0 (no move), 1 (move) or 2 (dead) */

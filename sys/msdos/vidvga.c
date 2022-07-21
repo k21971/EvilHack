@@ -444,7 +444,7 @@ int x, y;
         clipx = clipxmax - (viewport_size - 1);
     }
     if (clipx != oldx) {
-        if (on_level(&u.uz0, &u.uz) && !restoring)
+        if (on_level(&u.uz0, &u.uz) && !program_state.restoring)
             /* (void) doredraw(); */
             vga_redrawmap(1);
     }

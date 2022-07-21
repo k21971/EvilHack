@@ -5,7 +5,7 @@
 #
 #	The "start" level for the quest.
 #
-#	Here you meet your (besieged) class leader, the Grand Master
+#	Here you meet your (besieged) class leader, Master Po,
 #	and receive your quest assignment.
 #
 MAZE: "Mon-strt",' '
@@ -66,8 +66,8 @@ DOOR:closed,(46,14)
 DOOR:closed,(52,14)
 # Unattended Altar - unaligned due to conflict - player must align it.
 ALTAR:(28,09),noalign,altar
-# The Grand Master
-MONSTER:('@',"Grand Master"),(28,10)
+# Master Po
+MONSTER:('@',"Master Po"),(28,10)
 # No treasure chest!
 # guards for the audience chamber
 MONSTER:('@',"abbot"),(32,07)

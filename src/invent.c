@@ -966,12 +966,18 @@ struct obj *obj;
     obj->where = OBJ_INVENT;
 
     /* fill empty quiver if obj was thrown */
-    if (flags.pickup_thrown && !uquiver && obj_was_thrown
-        /* if Mjollnir is thrown and fails to return, we want to
-           auto-pick it when we move to its spot, but not into quiver;
-           aklyses behave like Mjollnir when thrown while wielded, but
-           we lack sufficient information here make them exceptions */
+    if (obj_was_thrown && flags.pickup_thrown && !uquiver
+        /* if Mjollnir or Xiuhcoatl is thrown and fails to return,
+           we want to auto-pick it when we move to its spot, but not
+           into quiver because it needs to be wielded to be re-thrown;
+           aklys likewise because player using 'f' to throw it might
+           not notice that it isn't wielded until it fails to return
+           several times; we never auto-wield, just omit from quiver
+           so that player will be prompted for what to throw and
+           possibly realize that re-wielding is necessary */
+        && obj->otyp != AKLYS
         && obj->oartifact != ART_MJOLLNIR
+        && obj->oartifact != ART_XIUHCOATL
         && (throwing_weapon(obj) || is_ammo(obj)))
         setuqwep(obj);
  added:
@@ -1208,18 +1214,24 @@ int x, y;
     }
 }
 
-/* destroy object in fobj chain (if unpaid, it remains on the bill) */
+/* normal object deletion (if unpaid, it remains on the bill) */
 void
 delobj(obj)
-register struct obj *obj;
+struct obj *obj;
+{
+    delobj_core(obj, FALSE);
+}
+
+/* destroy object; caller has control over whether to destroy something
+   that ordinarily shouldn't be destroyed */
+void
+delobj_core(obj, force)
+struct obj *obj;
+boolean force; /* 'force==TRUE' used when reviving Rider corpses */
 {
     boolean update_map;
 
-    if (obj->otyp == AMULET_OF_YENDOR
-        || (Role_if(PM_INFIDEL) && is_quest_artifact(obj) && obj->spe)
-        || obj->otyp == CANDELABRUM_OF_INVOCATION
-        || obj->otyp == BELL_OF_OPENING
-        || obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+    if (!force && obj_resists(obj, 0, 0)) {
         /* player might be doing something stupid, but we
          * can't guarantee that.  assume special artifacts
          * are indestructible via drawbridges, and exploding
@@ -1229,8 +1241,10 @@ register struct obj *obj;
     }
     update_map = (obj->where == OBJ_FLOOR);
     obj_extract_self(obj);
-    if (update_map)
+    if (update_map) { /* floor object's coordinates are always up to date */
+        maybe_unhide_at(obj->ox, obj->oy);
         newsym(obj->ox, obj->oy);
+    }
     obfree(obj, (struct obj *) 0); /* frees contents also */
 }
 
@@ -2452,7 +2466,7 @@ learn_unseen_invent()
 void
 update_inventory()
 {
-    if (restoring)
+    if (program_state.saving || program_state.restoring)
         return;
 
     /*
@@ -2634,7 +2648,7 @@ long *out_cnt;
 {
     static const char not_carrying_anything[] = "Not carrying anything";
     struct obj *otmp, wizid_fakeobj;
-    char ilet, ret;
+    char ilet, ret, *formattedobj;
     char *invlet = flags.inv_order;
     int n, classcount;
     winid win;                        /* windows being used */
@@ -2798,9 +2812,14 @@ nextclass:
                 any.a_obj = otmp;
             else
                 any.a_char = ilet;
+            formattedobj = doname(otmp);
             add_menu(win, obj_to_glyph(otmp, rn2_on_display_rng), &any, ilet,
                      wizid ? def_oc_syms[(int) otmp->oclass].sym : 0,
-                     ATR_NONE, doname(otmp), MENU_UNSELECTED);
+                     ATR_NONE, formattedobj, MENU_UNSELECTED);
+            /* doname() uses a static pool of obuf[] output buffers and
+               we don't want inventory display to overwrite all of them,
+               so when we've used one we release it for re-use */
+            maybereleaseobuf(formattedobj);
             gotsomething = TRUE;
         }
     }
@@ -3852,19 +3871,9 @@ boolean report_uskin;
     if (!uskin || !report_uskin) {
         You("are not wearing any armor.");
     } else {
-        char *p, *uskinname, buf[BUFSZ];
-
-        uskinname = strcpy(buf, simpleonames(uskin));
-        /* shorten "set of <color> dragon scales" to "<color> scales"
-           and "<color> dragon scale mail" to "<color> scale mail" */
-        if (!strncmpi(uskinname, "set of ", 7))
-            uskinname += 7;
-        if ((p = strstri(uskinname, " dragon ")) != 0)
-            while ((p[1] = p[8]) != '\0')
-                ++p;
-
-        You("are not wearing armor but have %s embedded in your skin.",
-            uskinname);
+        You("are not wearing armor but your %s%s embedded in your skin.",
+            dragon_scales_color(uskin),
+            Is_dragon_scales(uskin) ? " scales are" : "-scaled armor is");
     }
 }
 

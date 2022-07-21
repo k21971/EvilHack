@@ -241,7 +241,8 @@ register struct monst *mtmp;
 
     mtmp->mstrategy &= ~STRAT_APPEARMSG; /* only initiate talk once */
 
-    if (wielding_artifact(ART_EXCALIBUR)) {
+    if (wielding_artifact(ART_EXCALIBUR)
+        || wielding_artifact(ART_DEMONBANE)) {
         pline("%s looks very angry.", Amonnam(mtmp));
         mtmp->mpeaceful = mtmp->mtame = 0;
         set_malign(mtmp);

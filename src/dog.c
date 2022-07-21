@@ -614,6 +614,12 @@ long nmv; /* number of moves */
         else
             mtmp->mdiseasetime -= imv;
     }
+    if (mtmp->mreflecttime) {
+        if (imv >= (int) mtmp->mreflecttime)
+            mtmp->mreflecttime = 1;
+        else
+            mtmp->mreflecttime -= imv;
+    }
 
     /* Withering monsters by rights ought to keep withering while off-level, but
      * it brings up a host of problems to have a monster die in this function
@@ -896,7 +902,7 @@ register struct obj *obj;
         if (obj->otyp == CORPSE && is_rider(fptr))
             return TABU;
         if ((obj->otyp == CORPSE || obj->otyp == EGG) && touch_petrifies(fptr)
-            && !resists_ston(mon))
+            && !(resists_ston(mon) || defended(mon, AD_STON)))
             return POISON;
         if (!carni && !herbi)
             return obj->cursed ? UNDEF : APPORT;
@@ -937,11 +943,14 @@ register struct obj *obj;
             if ((peek_at_iced_corpse_age(obj) + 50L <= monstermoves
                  && obj->corpsenm != PM_LIZARD && obj->corpsenm != PM_LICHEN
                  && mptr->mlet != S_FUNGUS)
-                || (acidic(fptr) && !resists_acid(mon))
-                || (poisonous(fptr) && !resists_poison(mon))
-                || (obj->zombie_corpse && !resists_sick(mptr))
-                || (touch_petrifies(&mons[obj->corpsenm]) &&
-                    !resists_ston(mon)))
+                || (acidic(fptr) && !(resists_acid(mon)
+                                      || defended(mon, AD_ACID)))
+                || (poisonous(fptr) && !(resists_poison(mon)
+                                         || defended(mon, AD_DRST)))
+                || (obj->zombie_corpse && !(resists_sick(mptr)
+                                            || defended(mon, AD_DISE)))
+                || (touch_petrifies(&mons[obj->corpsenm])
+                    && !(resists_ston(mon) || defended(mon, AD_STON))))
                 return POISON;
             /* turning into slime is preferable to starvation */
             else if (fptr == &mons[PM_GREEN_SLIME] && !slimeproof(mptr))
@@ -968,9 +977,11 @@ register struct obj *obj;
                       : (herbi || starving)
                          ? ACCFOOD
                          : MANFOOD;
-            return ACCFOOD;
         case TIN:
             return metallivorous(mptr) ? ACCFOOD : MANFOOD;
+        case EUCALYPTUS_LEAF:
+            return (mon->msick || mon->mdiseased) ? DOGFOOD
+                    : (starving || herbi) ? ACCFOOD : MANFOOD;
         case APPLE:
         case ORANGE:
         case PEAR:
@@ -1041,9 +1052,10 @@ tamedog(mtmp, obj)
 register struct monst *mtmp;
 register struct obj *obj;
 {
-    /* The Wiz, Vecna, Cerberus, Medusa and the quest nemeses aren't
-       even made peaceful. */
-    if (mtmp->iswiz || mtmp->isvecna || mtmp->iscerberus
+    /* The Wiz, Vecna, Cerberus, Medusa, the Goblin King
+       and the quest nemeses aren't even made peaceful. */
+    if (mtmp->iswiz || mtmp->isvecna
+        || mtmp->iscerberus || mtmp->isgking
         || mtmp->data == &mons[PM_MEDUSA]
         || (mtmp->data->mflags3 & M3_WANTSARTI)
         || unique_corpstat(mtmp->data))
@@ -1328,11 +1340,12 @@ gain_guardian_steed()
                      message will be heard even if that fails) */
     if (u.ualign.record > 8) { /* fervent */
         pline("A voice whispers:");
-        /* Neither Centaurs nor Giants can ride horses. Awww... */
+        /* Neither Centaurs, Giants, nor Tortles can ride horses. Awww... */
         verbalize(
   "Worthy vassal, know now thy true identity!  Behold thy %s, the Red Horse!",
-                  (Race_if(PM_CENTAUR) || Race_if(PM_GIANT)) ? "companion"
-                                                             : "steed");
+                  (Race_if(PM_CENTAUR)
+                   || Race_if(PM_GIANT) || Race_if(PM_TORTLE)) ? "companion"
+                                                               : "steed");
         mm.x = u.ux;
         mm.y = u.uy;
         if (enexto(&mm, mm.x, mm.y, &mons[PM_RED_HORSE])

@@ -94,7 +94,7 @@ DEBUGINFO = Y
 #
 #  The version of the game this Makefile was designed for
 #NETHACK_VERSION="3.6.6"
-NETHACK_VERSION="0.7.1"
+NETHACK_VERSION="0.8.0"
 
 # A brief version for use in macros
 NHV=$(NETHACK_VERSION:.=)
@@ -706,20 +706,22 @@ recover: $(U)recover.exe
 	if exist $(DOC)\recover.txt copy $(DOC)\recover.txt $(GAMEDIR)\recover.txt
 
 $(O)sp_lev.tag: $(O)utility.tag $(DAT)\bigroom.des  $(DAT)\castle.des \
-	$(DAT)\endgame.des  $(DAT)\gehennom.des $(DAT)\icequeen.des \
-	$(DAT)\knox.des     $(DAT)\medusa.des   $(DAT)\nymph.des \
-	$(DAT)\oracle.des   $(DAT)\tower.des    $(DAT)\vaults.des \
-	$(DAT)\vecna.des    $(DAT)\yendor.des   $(DAT)\arch.des \
-	$(DAT)\barb.des     $(DAT)\caveman.des  $(DAT)\convict.des \
-	$(DAT)\healer.des   $(DAT)\infidel.des  $(DAT)\knight.des \
-	$(DAT)\monk.des     $(DAT)\priest.des   $(DAT)\ranger.des \
-	$(DAT)\rogue.des    $(DAT)\samurai.des  $(DAT)\sokoban.des \
-	$(DAT)\tourist.des  $(DAT)\valkyrie.des $(DAT)\wizard.des
+	$(DAT)\endgame.des  $(DAT)\gehennom.des $(DAT)\goblintown.des \
+	$(DAT)\icequeen.des $(DAT)\knox.des     $(DAT)\medusa.des \
+	$(DAT)\nymph.des    $(DAT)\oracle.des   $(DAT)\tower.des \
+	$(DAT)\vaults.des   $(DAT)\vecna.des    $(DAT)\yendor.des \
+	$(DAT)\arch.des     $(DAT)\barb.des     $(DAT)\caveman.des \
+	$(DAT)\convict.des  $(DAT)\healer.des   $(DAT)\infidel.des \
+	$(DAT)\knight.des   $(DAT)\monk.des     $(DAT)\priest.des \
+	$(DAT)\ranger.des   $(DAT)\rogue.des    $(DAT)\samurai.des \
+	$(DAT)\sokoban.des  $(DAT)\tourist.des  $(DAT)\valkyrie.des \
+	$(DAT)\wizard.des
 	cd $(DAT)
 	$(U)levcomp bigroom.des
 	$(U)levcomp castle.des
 	$(U)levcomp endgame.des
 	$(U)levcomp gehennom.des
+	$(U)levcomp goblintown.des
 	$(U)levcomp icequeen.des
 	$(U)levcomp knox.des
 	$(U)levcomp mines.des
@@ -1325,21 +1327,22 @@ spotless: clean
 	if exist $(DAT)\earth.lev	 del $(DAT)\earth.lev
 	if exist $(DAT)\fakewiz?.lev	 del $(DAT)\fakewiz?.lev
 	if exist $(DAT)\fire.lev	 del $(DAT)\fire.lev
+	if exist $(DAT)\goblintown.lev   del $(DAT)\goblintown.lev
 	if exist $(DAT)\hella-?.lev	 del $(DAT)\hella-?.lev
 	if exist $(DAT)\hellb-?.lev	 del $(DAT)\hellb-?.lev
 	if exist $(DAT)\hellc-?.lev	 del $(DAT)\hellc-?.lev
-	if exist $(DAT)\hellfill.lev     del $(DAT)\hellfill.lev
+	if exist $(DAT)\hellfill.lev	 del $(DAT)\hellfill.lev
 	if exist $(DAT)\icequeen-?.lev   del $(DAT)\icequeen-?.lev
 	if exist $(DAT)\knox-?.lev	 del $(DAT)\knox-?.lev
 	if exist $(DAT)\medusa-?.lev	 del $(DAT)\medusa-?.lev
 	if exist $(DAT)\mine*.lev	 del $(DAT)\mine*.lev
-	if exist $(DAT)\nymph.lev        del $(DAT)\nymph.lev
+	if exist $(DAT)\nymph.lev	 del $(DAT)\nymph.lev
 	if exist $(DAT)\options		 del $(DAT)\options
 	if exist $(DAT)\ttyoptions	 del $(DAT)\ttyoptions
 	if exist $(DAT)\guioptions	 del $(DAT)\guioptions
 	if exist $(DAT)\oracle-1.lev	 del $(DAT)\oracle-1.lev
-	if exist $(DAT)\oracle-2.lev     del $(DAT)\oracle-2.lev
-	if exist $(DAT)\oracle-3.lev     del $(DAT)\oracle-3.lev
+	if exist $(DAT)\oracle-2.lev	 del $(DAT)\oracle-2.lev
+	if exist $(DAT)\oracle-3.lev	 del $(DAT)\oracle-3.lev
 	if exist $(DAT)\oracles		 del $(DAT)\oracles
 	if exist $(DAT)\orcus.lev	 del $(DAT)\orcus.lev
 	if exist $(DAT)\rumors		 del $(DAT)\rumors
@@ -1349,8 +1352,8 @@ spotless: clean
 	if exist $(DAT)\tower?.lev	 del $(DAT)\tower?.lev
 	if exist $(DAT)\valley.lev	 del $(DAT)\valley.lev
 	if exist $(DAT)\vaults.dat       del $(DAT)\vaults.dat
-	if exist $(DAT)\vecna-?.lev      del $(DAT)\vecna-?.lev
-	if exist $(DAT)\vlt-????.lev     del $(DAT)\vlt-????.lev
+	if exist $(DAT)\vecna-?.lev	 del $(DAT)\vecna-?.lev
+	if exist $(DAT)\vlt-????.lev	 del $(DAT)\vlt-????.lev
 	if exist $(DAT)\water.lev	 del $(DAT)\water.lev
 	if exist $(DAT)\wizard?.lev	 del $(DAT)\wizard?.lev
 	if exist $(DAT)\dlb.lst		 del $(DAT)\dlb.lst

@@ -264,7 +264,9 @@ xchar x, y;
     else if (uarm && objects[uarm->otyp].oc_bulky && ACURR(A_DEX) < rnd(25))
         clumsy = TRUE;
  doit:
-    if (Role_if(PM_MONK) && Race_if(PM_CENTAUR)
+    if (Role_if(PM_MONK)
+        && (Race_if(PM_CENTAUR)
+            || Race_if(PM_TORTLE))
         && (touch_petrifies(mon->data)
             || (how_resistant(DISINT_RES) == 0
                 && (mon->data == &mons[PM_BLACK_DRAGON]
@@ -486,7 +488,6 @@ xchar x, y; /* coordinates where object was before the impact, not after */
     }
 }
 
-extern struct obj *stack;
 
 /* jacket around really_kick_object */
 STATIC_OVL int
@@ -535,7 +536,7 @@ xchar x, y;
             return 1;
         }
         if (trap->ttyp == STATUE_TRAP) {
-            activate_statue_trap(trap, x,y, FALSE);
+            activate_statue_trap(trap, x, y, FALSE);
             return 1;
         }
     }
@@ -746,7 +747,6 @@ xchar x, y;
             && kickedobj->ocarry == mon)
             return 1; /* alert shk caught it */
         notonhead = (mon->mx != bhitpos.x || mon->my != bhitpos.y);
-        stack = (struct obj *) 0;
         if (isgold ? ghitm(mon, kickedobj)      /* caught? */
                    : thitmonst(mon, kickedobj)) /* hit && used up? */
             return 1;
@@ -844,6 +844,10 @@ dokick()
         no_kick = TRUE;
     } else if (verysmall(youmonst.data)) {
         You("are too small to do any kicking.");
+        no_kick = TRUE;
+    } else if (Hidinshell) {
+        Your("%s are constrained within your shell.",
+             makeplural(body_part(LEG)));
         no_kick = TRUE;
     } else if (u.usteed) {
         if (yn_function("Kick your steed?", ynchars, 'y') == 'y') {

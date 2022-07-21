@@ -52,7 +52,6 @@ static void FDECL(done_hangup, (int));
 STATIC_DCL void FDECL(disclose, (int, BOOLEAN_P));
 STATIC_DCL void FDECL(get_valuables, (struct obj *));
 STATIC_DCL void FDECL(sort_valuables, (struct valuable_data *, int));
-STATIC_DCL void NDECL(done_object_cleanup);
 STATIC_DCL void FDECL(artifact_score, (struct obj *, BOOLEAN_P, winid));
 STATIC_DCL void FDECL(really_done, (int)) NORETURN;
 STATIC_DCL void FDECL(savelife, (int));
@@ -1015,22 +1014,20 @@ STATIC_OVL void
 savelife(how)
 int how;
 {
-    int uhpmin = max(2 * u.ulevel, 10);
-    int *hp = (Upolyd ? &u.mh : &u.uhp),
-        *hpmax = (Upolyd ? &u.mhmax : &u.uhpmax);
+    int uhpmin;
 
-    if (Upolyd && !Unchanging) {
-        rehumanize();
-    } else {
-        /* not polyed, or polyed but trapped in that form */
-        if (*hpmax < uhpmin)
-            *hpmax = uhpmin;
-        if (*hp <= 150) {
-            *hp = 150;
-            if (*hp > *hpmax)
-                *hp = *hpmax;
-        }
-    }
+    /* life-drain/level-loss to experience level 0 kills without actually
+       reducing ulevel below 1, but include this for bulletproofing */
+    if (u.ulevel < 1)
+        u.ulevel = 1;
+    uhpmin = max(2 * u.ulevel, 10);
+    if (u.uhpmax < uhpmin)
+        u.uhpmax = uhpmin;
+    u.uhp = min(u.uhpmax, 150);
+
+    if (Upolyd) /* Unchanging, or death which bypasses losing hit points */
+        u.mh = min(u.mhmax, 150);
+
     if (u.uhunger < 500 || how == CHOKING) {
         init_uhunger();
     }
@@ -1040,10 +1037,15 @@ int how;
     }
     nomovemsg = "You survived that attempt on your life.";
     context.move = 0;
-    if (multi > 0)
-        multi = 0;
-    else
-        multi = -1;
+
+    multi = -1; /* can't move again during the current turn */
+    /* in case being life-saved is immediately followed by being killed
+       again (perhaps due to zap rebound); this text will be appended to
+          "killed by <something>, while "
+       in high scores entry, if any, and in logfile (but not on tombstone) */
+    multi_reason = Role_if(PM_TOURIST) ? "being toyed with by Fate"
+                                       : "attempting to cheat Death";
+
     if (u.utrap && u.utraptype == TT_LAVA)
         reset_utrap(FALSE);
     context.botl = 1;
@@ -1163,7 +1165,7 @@ int what;
 #endif
 
 /* deal with some objects which may be in an abnormal state at end of game */
-STATIC_OVL void
+void
 done_object_cleanup()
 {
     int ox, oy;
@@ -1335,12 +1337,11 @@ int how;
         makeknown(AMULET_OF_LIFE_SAVING);
         Your("medallion %s!", !Blind ? "begins to glow" : "feels warm");
         if (uamul->cursed) {
-	    Your("medallion %s!", !Blind ? "glows white-hot" : "sears your neck");
+            Your("medallion %s!", !Blind ? "glows white-hot" : "sears your neck");
             You("hear manic laughter in the distance...");
             Your("medallion turns to ash!");
             pline("It appears your luck has run out...");
-            killer.format = KILLED_BY;
-            Strcpy(killer.name, "a cursed amulet of life saving");
+            savelife(how); /* killed by foo, while bar */
             survive = FALSE;
             if (uamul)
                 useup(uamul);
@@ -1356,8 +1357,9 @@ int how;
             savelife(how);
             if (how == GENOCIDED) {
                 pline("Unfortunately you are still genocided...");
-            } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
-                && !Levitation && !Flying) {
+            } else if (is_open_air(x, y) && !Levitation
+                       && !(Flying && !(Punished && !carried(uball)
+                            && is_open_air(uball->ox, uball->oy)))) {
                 pline("Unfortunately the impact was too great...");
             } else {
                 char killbuf[BUFSZ];

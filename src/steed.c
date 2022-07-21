@@ -412,7 +412,7 @@ struct obj *otmp;
         return 1;
     }
     if (!can_wear_barding(mtmp)) {
-        You_cant("put barding such a creature.");
+        You_cant("put barding on such a creature.");
         return 1;
     }
 
@@ -504,8 +504,10 @@ can_ride(mtmp)
 struct monst *mtmp;
 {
     return ((mtmp->mtame && humanoid(youmonst.data)
-            && !verysmall(youmonst.data) && !bigmonst(youmonst.data)
-            && (!Underwater || is_swimmer(mtmp->data)))
+             && !is_tortle(youmonst.data)
+             && !verysmall(youmonst.data)
+             && !bigmonst(youmonst.data)
+             && (!Underwater || is_swimmer(mtmp->data)))
             || (r_data(mtmp) == &mons[PM_WOOLLY_MAMMOTH] && Race_if(PM_GIANT)));
 }
 
@@ -830,30 +832,38 @@ int reason; /* Player was thrown off etc. */
 {
     struct monst *mtmp;
     struct obj *otmp;
+    const char *verb;
     coord cc, steedcc;
-    const char *verb = "fall";
-    boolean repair_leg_damage = (Wounded_legs != 0L);
     unsigned save_utrap = u.utrap;
-    boolean have_spot = landing_spot(&cc, reason, 0);
+    boolean ulev, ufly,
+            repair_leg_damage = (Wounded_legs != 0L),
+            have_spot = landing_spot(&cc, reason, 0);
 
     mtmp = u.usteed; /* make a copy of steed pointer */
     /* Sanity check */
     if (!mtmp) /* Just return silently */
         return;
+    u.usteed = 0; /* affects Fly test; could hypothetically affect Lev */
+    ufly = Flying ? TRUE : FALSE;
+    ulev = Levitation ? TRUE : FALSE;
+    u.usteed = mtmp;
 
     /* Check the reason for dismounting */
     otmp = which_armor(mtmp, W_SADDLE);
     switch (reason) {
     case DISMOUNT_THROWN:
-        verb = "are thrown";
-        /*FALLTHRU*/
     case DISMOUNT_FELL:
+        verb = (reason == DISMOUNT_THROWN) ? "are thrown"
+               : ulev ? "float" : ufly ? "fly" : "fall";
         You("%s off of %s!", verb, mon_nam(mtmp));
         if (!have_spot)
             have_spot = landing_spot(&cc, reason, 1);
-        losehp(Maybe_Half_Phys(rn1(10, 10)), "riding accident", KILLED_BY_AN);
-        set_wounded_legs(BOTH_SIDES, (int) HWounded_legs + rn1(5, 5));
-        repair_leg_damage = FALSE;
+        if (!ulev && !ufly) {
+            losehp(Maybe_Half_Phys(rn1(10, 10)), "riding accident",
+                   KILLED_BY_AN);
+            set_wounded_legs(BOTH_SIDES, (int) HWounded_legs + rn1(5, 5));
+            repair_leg_damage = FALSE;
+        }
         break;
     case DISMOUNT_POLY:
         You("can no longer ride %s.", mon_nam(u.usteed));
@@ -968,8 +978,8 @@ int reason; /* Player was thrown off etc. */
                         You_feel("guilty.");
                         adjalign(-1);
                     }
-                } else if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)) {
-                    pline("%s plummets a few thousand feet to %s death.",
+                } else if (is_open_air(u.ux, u.uy)) {
+                    pline("%s plummets several thousand feet to %s death.",
                           Monnam(mtmp), mhis(mtmp));
                     /* no corpse or objects as both are now several thousand feet down */
                     mongone(mtmp);

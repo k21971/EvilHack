@@ -24,8 +24,9 @@ int dotcnt, dotrow; /* also used in restore */
 
 STATIC_DCL void FDECL(savelevchn, (int, int));
 STATIC_DCL void FDECL(savedamage, (int, int));
+STATIC_DCL void FDECL(save_bc, (int, int));
 STATIC_DCL void FDECL(saveobj, (int, struct obj *));
-STATIC_DCL void FDECL(saveobjchn, (int, struct obj *, int));
+STATIC_DCL void FDECL(saveobjchn, (int, struct obj **, int));
 STATIC_DCL void FDECL(savemon, (int, struct monst *));
 STATIC_DCL void FDECL(savemonchn, (int, struct monst *, int));
 STATIC_DCL void FDECL(savetrapchn, (int, struct trap *, int));
@@ -73,6 +74,8 @@ static struct save_procs {
 
 /* need to preserve these during save to avoid accessing freed memory */
 static unsigned ustuck_id = 0, usteed_id = 0;
+static struct obj *looseball = (struct obj *) 0;  /* track uball during save and... */
+static struct obj *loosechain = (struct obj *) 0; /* track uchain since saving might free it */
 
 int
 dosave()
@@ -111,11 +114,13 @@ dosave0()
     xchar ltmp;
     d_level uz_save;
     char whynot[BUFSZ];
+    int res = 0;
 
 #ifdef WHEREIS_FILE
     delete_whereis();
 #endif
 
+    program_state.saving++; /* inhibit status and perm_invent updates */
     /* we may get here via hangup signal, in which case we want to fix up
        a few of things before saving so that they won't be restored in
        an improper state; these will be no-ops for normal save sequence */
@@ -126,9 +131,15 @@ dosave0()
         u.uinwater = 1, iflags.save_uinwater = 0;
     if (iflags.save_uburied)
         u.uburied = 1, iflags.save_uburied = 0;
+    /* extra handling for hangup save or panic save; without this,
+       a thrown light source might trigger an "obj_is_local" panic;
+       if a thrown or kicked object is in transit, put it on the map;
+       when punished, make sure ball and chain are placed too */
+    done_object_cleanup(); /* maybe force some items onto map */
 
     if (!program_state.something_worth_saving || !SAVEF[0])
-        return 0;
+        goto done;
+
     fq_save = fqname(SAVEF, SAVEPREFIX, 1); /* level files take 0 */
 
 #if defined(UNIX) || defined(VMS)
@@ -152,7 +163,7 @@ dosave0()
             There("seems to be an old save file.");
             if (yn("Overwrite the old file?") == 'n') {
                 nh_compress(fq_save);
-                return 0;
+                goto done;
             }
         }
     }
@@ -163,7 +174,7 @@ dosave0()
     if (fd < 0) {
         HUP pline("Cannot open save file.");
         (void) delete_savefile(); /* ab@unido */
-        return 0;
+        goto done;
     }
 
     vision_recalc(2); /* shut down vision to prevent problems
@@ -218,6 +229,15 @@ dosave0()
     store_plname_in_file(fd);
     ustuck_id = (u.ustuck ? u.ustuck->m_id : 0);
     usteed_id = (u.usteed ? u.usteed->m_id : 0);
+    /* savelev() might save uball and uchain, releasing their memory if
+       FREEING, so we need to check their status now; if hero is swallowed,
+       uball and uchain will persist beyond saving map floor and inventory
+       so these copies of their pointers will be valid and savegamestate()
+       will know to save them separately (from floor and invent); when not
+       swallowed, uchain will be stale by then, and uball will be too if
+       ball is on the floor rather than carried */
+    looseball = BALL_IN_MON ? uball : 0;
+    loosechain = CHAIN_IN_MON ? uchain : 0;
     savelev(fd, ledger_no(&u.uz), WRITE_SAVE | FREE_SAVE);
     savegamestate(fd, WRITE_SAVE | FREE_SAVE);
 
@@ -257,7 +277,7 @@ dosave0()
             (void) delete_savefile();
             HUP Strcpy(killer.name, whynot);
             HUP done(TRICKED);
-            return 0;
+            goto done;
         }
         minit(); /* ZEROCOMP */
         getlev(ofd, hackpid, ltmp, FALSE);
@@ -276,7 +296,11 @@ dosave0()
     nh_compress(fq_save);
     /* this should probably come sooner... */
     program_state.something_worth_saving = 0;
-    return 1;
+    res = 1;
+
+ done:
+    program_state.saving--;
+    return res;
 }
 
 STATIC_OVL void
@@ -284,8 +308,8 @@ savegamestate(fd, mode)
 register int fd, mode;
 {
     unsigned long uid;
-    struct obj * bc_objs = (struct obj *)0;
 
+    program_state.saving++; /* caller should/did already set this... */
 #ifdef MFLOPPY
     count_only = (mode & COUNT_SAVE);
 #endif
@@ -311,27 +335,17 @@ register int fd, mode;
     save_timers(fd, mode, RANGE_GLOBAL);
     save_light_sources(fd, mode, RANGE_GLOBAL);
 
-    saveobjchn(fd, invent, mode);
+    /* when FREEING, deletes objects in invent and sets invent to Null;
+       pointers into invent (uwep, uarmg, uamul, &c) are set to Null too */
+    saveobjchn(fd, &invent, mode);
 
-    /* save ball and chain if they are currently dangling free (i.e. not on
-       floor or in inventory) */
-    if (CHAIN_IN_MON) {
-        uchain->nobj = bc_objs;
-        bc_objs = uchain;
-    }
-    if (BALL_IN_MON) {
-        uball->nobj = bc_objs;
-        bc_objs = uball;
-    }
-    saveobjchn(fd, bc_objs, mode);
+    /* save ball and chain if they happen to be in an unusal state */
+    save_bc(fd, mode);
 
-    saveobjchn(fd, migrating_objs, mode);
+    saveobjchn(fd, &migrating_objs, mode); /* frees objs and sets to Null */
     savemonchn(fd, migrating_mons, mode);
-    if (release_data(mode)) {
-        invent = 0;
-        migrating_objs = 0;
-        migrating_mons = 0;
-    }
+    if (release_data(mode))
+        migrating_mons = (struct monst *) 0;
     bwrite(fd, (genericptr_t) mvitals, sizeof mvitals);
 
     save_dungeon(fd, (boolean) !!perform_bwrite(mode),
@@ -351,12 +365,18 @@ register int fd, mode;
     bwrite(fd, (genericptr_t) pl_character, sizeof pl_character);
     bwrite(fd, (genericptr_t) pl_fruit, sizeof pl_fruit);
     savefruitchn(fd, mode);
+    saveshambler(fd, mode);
+    saveoracle(fd, mode);
+    savecharon(fd, mode);
     savenames(fd, mode);
     save_waterlevel(fd, mode);
     save_msghistory(fd, mode);
     bflush(fd);
+    program_state.saving--;
+    return;
 }
 
+/* potentially called from goto_level(do.c) as well as savestateinlock() */
 boolean
 tricked_fileremoved(fd, whynot)
 int fd;
@@ -380,6 +400,7 @@ savestateinlock()
     static boolean havestate = TRUE;
     char whynot[BUFSZ];
 
+    program_state.saving++; /* inhibit status and perm_invent updates */
     /* When checkpointing is on, the full state needs to be written
      * on each checkpoint.  When checkpointing is off, only the pid
      * needs to be in the level.0 file, so it does not need to be
@@ -399,23 +420,30 @@ savestateinlock()
          * readable by an external utility
          */
         fd = open_levelfile(0, whynot);
-        if (tricked_fileremoved(fd, whynot))
+        if (tricked_fileremoved(fd, whynot)) {
+            program_state.saving--;
             return;
+        }
 
         (void) read(fd, (genericptr_t) &hpid, sizeof hpid);
         if (hackpid != hpid) {
             Sprintf(whynot, "Level #0 pid (%d) doesn't match ours (%d)!",
                     hpid, hackpid);
-            pline1(whynot);
-            Strcpy(killer.name, whynot);
-            done(TRICKED);
+            goto giveup;
         }
         (void) nhclose(fd);
 
         fd = create_levelfile(0, whynot);
         if (fd < 0) {
             pline1(whynot);
+ giveup:
             Strcpy(killer.name, whynot);
+            /* done(TRICKED) will return when running in wizard mode;
+               clear the display-update-suppression flag before rather
+               than after so that screen updating behaves normally;
+               game data shouldn't be inconsistent yet, unlike it would
+               become midway through saving */
+            program_state.saving--;
             done(TRICKED);
             return;
         }
@@ -431,11 +459,17 @@ savestateinlock()
 
             ustuck_id = (u.ustuck ? u.ustuck->m_id : 0);
             usteed_id = (u.usteed ? u.usteed->m_id : 0);
+            /* if ball and/or chain aren't on floor or in invent, keep a copy
+               of their pointers; not valid when on floor or in invent */
+            looseball = BALL_IN_MON ? uball : 0;
+            loosechain = CHAIN_IN_MON ? uchain : 0;
             savegamestate(fd, WRITE_SAVE);
         }
         bclose(fd);
     }
+    program_state.saving--;
     havestate = flags.ins_chkpt;
+    return;
 }
 #endif
 
@@ -484,6 +518,7 @@ int mode;
     short tlev;
 #endif
 
+    program_state.saving++; /* even if current mode is FREEING */
     /*
      *  Level file contents:
      *    version info (handled by caller);
@@ -537,7 +572,7 @@ int mode;
     if (mode == FREE_SAVE) /* see above */
         goto skip_lots;
 
-    savelevl(fd, (boolean) ((sfsaveinfo.sfi1 & SFI1_RLECOMP) == SFI1_RLECOMP));
+    savelevl(fd, ((sfsaveinfo.sfi1 & SFI1_RLECOMP) == SFI1_RLECOMP));
     bwrite(fd, (genericptr_t) lastseentyp, sizeof lastseentyp);
     bwrite(fd, (genericptr_t) &monstermoves, sizeof monstermoves);
     bwrite(fd, (genericptr_t) &upstair, sizeof (stairway));
@@ -560,9 +595,9 @@ int mode;
     savemonchn(fd, fmon, mode);
     save_worm(fd, mode); /* save worm information */
     savetrapchn(fd, ftrap, mode);
-    saveobjchn(fd, fobj, mode);
-    saveobjchn(fd, level.buriedobjlist, mode);
-    saveobjchn(fd, billobjs, mode);
+    saveobjchn(fd, &fobj, mode);
+    saveobjchn(fd, &level.buriedobjlist, mode);
+    saveobjchn(fd, &billobjs, mode);
     if (release_data(mode)) {
         int x,y;
 
@@ -580,6 +615,8 @@ int mode;
     save_regions(fd, mode);
     if (mode != FREE_SAVE)
         bflush(fd);
+    program_state.saving--;
+    return;
 }
 
 STATIC_OVL void
@@ -635,6 +672,7 @@ boolean rlecomp;
     nhUse(rlecomp);
 #endif /* ?RLECOMP */
     bwrite(fd, (genericptr_t) levl, sizeof levl);
+    return;
 }
 
 /*ARGSUSED*/
@@ -995,6 +1033,35 @@ register int fd, mode;
 }
 
 STATIC_OVL void
+save_bc(fd, mode)
+int fd, mode;
+{
+    struct obj *bc_objs = 0;
+
+    /* save ball and chain if they are currently dangling free (i.e. not
+       on floor or in inventory); 'looseball' and 'loosechain' have been
+       set up in caller because ball and chain will be gone by now if on
+       floor, or ball gone if carried */
+    if (loosechain) {
+        loosechain->nobj = bc_objs; /* uchain */
+        bc_objs = loosechain;
+        if (mode & FREE_SAVE) {
+            setworn((struct obj *) 0, W_CHAIN); /* sets 'uchain' to Null */
+            loosechain = (struct obj *) 0;
+        }
+    }
+    if (looseball) {
+        looseball->nobj = bc_objs;
+        bc_objs = looseball;
+        if (mode & FREE_SAVE) {
+            setworn((struct obj *) 0, W_BALL); /* sets 'uball' to Null */
+            looseball = (struct obj *) 0;
+        }
+    }
+    saveobjchn(fd, &bc_objs, mode); /* frees objs in list, sets bc_objs to Null */
+}
+
+STATIC_OVL void
 saveobj(fd, otmp)
 int fd;
 struct obj *otmp;
@@ -1034,12 +1101,16 @@ struct obj *otmp;
     }
 }
 
+/* save an object chain; sets head of list to Null when done;
+   handles release_data() for each object in the list */
 STATIC_OVL void
-saveobjchn(fd, otmp, mode)
+saveobjchn(fd, obj_p, mode)
 register int fd, mode;
-register struct obj *otmp;
+struct obj **obj_p;
 {
-    register struct obj *otmp2;
+    register struct obj *otmp = *obj_p;
+    struct obj *otmp2;
+    boolean is_invent = (otmp && otmp == invent);
     int minusone = -1;
 
     while (otmp) {
@@ -1048,7 +1119,7 @@ register struct obj *otmp;
             saveobj(fd, otmp);
         }
         if (Has_contents(otmp))
-            saveobjchn(fd, otmp->cobj, mode);
+            saveobjchn(fd, &otmp->cobj, mode);
         if (release_data(mode)) {
             /*
              * If these are on the floor, the discarding could be
@@ -1073,12 +1144,26 @@ register struct obj *otmp;
             otmp->cobj = NULL;      /* contents handled above */
             otmp->timed = 0;        /* not timed any more */
             otmp->lamplit = 0;      /* caller handled lights */
+            otmp->leashmon = 0;     /* mon->mleashed could still be set;
+                                     * unfortunately, we can't clear that
+                                     * until after the monster is saved */
+            /* clear 'uball' and 'uchain' pointers if resetting their mask;
+               could also do same for other worn items but don't need to */
+            if ((otmp->owornmask & (W_BALL | W_CHAIN)) != 0)
+                setworn((struct obj *) 0,
+                        otmp->owornmask & (W_BALL | W_CHAIN));
+            otmp->owornmask = 0L;   /* no longer care */
             dealloc_obj(otmp);
         }
         otmp = otmp2;
     }
     if (perform_bwrite(mode))
         bwrite(fd, (genericptr_t) &minusone, sizeof (int));
+    if (release_data(mode)) {
+        if (is_invent)
+            allunworn(); /* clear uwep, uarm, uball, &c pointers */
+        *obj_p = (struct obj *) 0;
+    }
 }
 
 STATIC_OVL void
@@ -1145,7 +1230,6 @@ register struct monst *mtmp;
     register struct monst *mtmp2;
     int minusone = -1;
     struct permonst *monbegin = &mons[0];
-    int namesize = sizeof(monbegin->mname);
 
     if (perform_bwrite(mode))
         bwrite(fd, (genericptr_t) &monbegin, sizeof(monbegin));
@@ -1165,7 +1249,7 @@ register struct monst *mtmp;
             savemon(fd, mtmp);
         }
         if (mtmp->minvent)
-            saveobjchn(fd, mtmp->minvent, mode);
+            saveobjchn(fd, &mtmp->minvent, mode);
         if (release_data(mode)) {
             if (mtmp == context.polearm.hitmon) {
                 context.polearm.m_id = mtmp->m_id;
@@ -1178,24 +1262,6 @@ register struct monst *mtmp;
     }
     if (perform_bwrite(mode))
         bwrite(fd, (genericptr_t) &minusone, sizeof (int));
-
-    if (perform_bwrite(mode)) {
-        /* If any of the monsters below have their templates changed
-           in monst.c, that could break saves, so be mindful of any
-           template edits in monst.c */
-
-        /* Preserve our delectable abberation so the player can
-           experience the same joy upon reload */
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
-               sizeof(struct permonst) - namesize);
-        /* Do the same for other monsters here that have their core
-           settings change in the middle of the game. Lets not make
-           this a habit... */
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
-               sizeof(struct permonst) - namesize);
-        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
-               sizeof(struct permonst) - namesize);
-    }
 }
 
 /* save traps; ftrap is the only trap chain so the 2nd arg is superfluous */
@@ -1245,6 +1311,41 @@ int fd, mode;
         bwrite(fd, (genericptr_t) &zerofruit, sizeof zerofruit);
     if (release_data(mode))
         ffruit = 0;
+}
+
+void
+saveshambler(fd, mode)
+int fd, mode;
+{
+    int namesize = sizeof(mons[0].mname);
+    /* Preserve our delectable abberation so the player can
+       experience the same joy upon reload */
+    if (perform_bwrite(mode))
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR]
+                                   + namesize),
+               sizeof(struct permonst) - namesize);
+}
+
+void
+saveoracle(fd, mode)
+int fd, mode;
+{
+    int namesize = sizeof(mons[0].mname);
+    if (perform_bwrite(mode))
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_ORACLE]
+                                   + namesize),
+               sizeof(struct permonst) - namesize);
+}
+
+void
+savecharon(fd, mode)
+int fd, mode;
+{
+    int namesize = sizeof(mons[0].mname);
+    if (perform_bwrite(mode))
+        bwrite(fd, (genericptr_t) ((char *) &mons[PM_CHARON]
+                                   + namesize),
+               sizeof(struct permonst) - namesize);
 }
 
 void
@@ -1360,6 +1461,7 @@ free_dungeons()
     return;
 }
 
+/* free a lot of allocated memory which is ordinarily freed during save */
 void
 freedynamicdata()
 {
@@ -1374,7 +1476,7 @@ freedynamicdata()
     tmp_at(DISP_FREEMEM, 0); /* temporary display effects */
 #ifdef FREE_ALL_MEMORY
 #define free_current_level() savelev(-1, -1, FREE_SAVE)
-#define freeobjchn(X) (saveobjchn(0, X, FREE_SAVE), X = 0)
+#define freeobjchn(X) (saveobjchn(0, &X, FREE_SAVE), X = 0)
 #define freemonchn(X) (savemonchn(0, X, FREE_SAVE), X = 0)
 #define freefruitchn() savefruitchn(0, FREE_SAVE)
 #define freenames() savenames(0, FREE_SAVE)
@@ -1389,6 +1491,7 @@ freedynamicdata()
     dmonsfree(); /* release dead monsters */
 
     /* level-specific data */
+    done_object_cleanup(); /* maybe force some OBJ_FREE items onto map */
     free_current_level();
 
     /* game-state data [ought to reorganize savegamestate() to handle this] */

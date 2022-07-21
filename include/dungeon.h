@@ -11,6 +11,7 @@ typedef struct d_flags {     /* dungeon/level type flags */
     Bitfield(hellish, 1);    /* is this part of hell? */
     Bitfield(iceq, 1);       /* is this part of the Ice Queen branch? */
     Bitfield(vecnad, 1);     /* is this part of Vecna's domain? */
+    Bitfield(gtown, 1);      /* is this part of the Goblin King's branch? */
     Bitfield(maze_like, 1);  /* is this a maze? */
     Bitfield(rogue_like, 1); /* is this an old-fashioned presentation? */
     Bitfield(align, 3);      /* dungeon alignment. */
@@ -137,6 +138,7 @@ typedef struct branch {
 #define Inhell In_hell(&u.uz) /* now gehennom */
 #define Iniceq In_icequeen_branch(&u.uz)
 #define Invecnad In_vecna_branch(&u.uz)
+#define Ingtown In_goblintown(&u.uz)
 #define In_endgame(x) ((x)->dnum == astral_level.dnum)
 
 #define within_bounded_area(X, Y, LX, LY, HX, HY) \

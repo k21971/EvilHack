@@ -147,17 +147,17 @@ struct monst *mtmp;
 {
     /* creatures who are directly resistant to magical scaring:
      * Rodney, lawful minions, Angels, Archangels, the Riders,
-     * Vecna, monster players, demon lords and princes, honey badgers,
-     * shopkeepers inside their own shop, anything that is mindless,
-     * priests inside their own temple, the quest leaders and nemesis,
-     * neothelids
+     * Vecna, the Goblin King, monster players, demon lords and princes,
+     * honey badgers, shopkeepers inside their own shop, anything that
+     * is mindless, priests inside their own temple, the quest leaders
+     * and nemesis, neothelids
      */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL] || mtmp->data == &mons[PM_HONEY_BADGER]
         || mtmp->data == &mons[PM_NEOTHELID] || mindless(mtmp->data)
         || is_mplayer(mtmp->data) || is_rider(mtmp->data) || mtmp->isvecna
         || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
-        || (mtmp->isshk && inhishop(mtmp))
+        || (mtmp->isshk && inhishop(mtmp)) || mtmp->isgking
         || (mtmp->ispriest && inhistemple(mtmp)))
         return FALSE;
 
@@ -223,6 +223,8 @@ boolean digest_meal;
         mon->msicktime--;
     if (mon->mdiseasetime)
         mon->mdiseasetime--;
+    if (mon->mreflecttime)
+        mon->mreflecttime--;
     if (digest_meal) {
         if (mon->meating) {
             mon->meating--;
@@ -562,11 +564,11 @@ register struct monst *mtmp;
         mon_adjust_speed(mtmp, 3, (struct obj *) 0);
 
     /* being in midair where gravity is still in effect can be lethal */
-    if (IS_AIR(levl[mtmp->mx][mtmp->my].typ) && In_V_tower(&u.uz)
+    if (is_open_air(mtmp->mx, mtmp->my)
         && !(is_flyer(mdat) || is_floater(mdat)
              || is_clinger(mdat) || ((mtmp == u.usteed) && Flying))) {
         if (canseemon(mtmp))
-            pline("%s plummets a few thousand feet to %s death.",
+            pline("%s plummets several thousand feet to %s death.",
                   Monnam(mtmp), mhis(mtmp));
         /* no corpse or objects as both are now several thousand feet down */
         mongone(mtmp);
@@ -1258,7 +1260,7 @@ register int after;
    /* does this monster like to play keep-away? */
     if (is_skittish(ptr)
         && (dist2(omx, omy, gx, gy) < 10))
-	appr = -1;
+        appr = -1;
     if (mtmp->mconf || (u.uswallow && mtmp == u.ustuck)) {
         appr = 0;
     } else {
@@ -1274,6 +1276,12 @@ register int after;
             || (mtmp->mpeaceful && !mtmp->isshk) /* allow shks to follow */
             || ((monsndx(ptr) == PM_STALKER || ptr->mlet == S_BAT
                  || ptr->mlet == S_LIGHT) && !rn2(3)))
+            appr = 0;
+
+        /* unintelligent monsters won't realize hiding tortle is a creature
+         * from far away, and even intelligent monsters may overlook it
+         * occasionally */
+        if ((Hidinshell && (is_animal(ptr) || mindless(ptr) || !rn2(6))))
             appr = 0;
 
         if (monsndx(ptr) == PM_LEPRECHAUN && (appr == 1)
@@ -1383,7 +1391,7 @@ register int after;
 
                     /* if open air and can't fly/float and gravity
                        is in effect */
-                    if (IS_AIR(levl[xx][yy].typ) && In_V_tower(&u.uz)
+                    if (is_open_air(xx, yy)
                         && !(is_flyer(ptr) || is_floater(ptr)
                              || is_clinger(ptr)))
                         continue;
@@ -1595,26 +1603,36 @@ register int after;
         if (!m_in_out_region(mtmp, nix, niy))
             return 3;
 
+        /* move a normal monster; for a long worm, remove_monster() and
+           place_monster() only manipulate the head; they leave tail as-is */
         remove_monster(omx, omy);
         place_monster(mtmp, nix, niy);
+        /* for a long worm, insert a new segment to reconnect the head
+           with the tail; worm_move() keeps the end of the tail if worm
+           is scheduled to grow, removes that for move-without-growing */
+        if (mtmp->wormno)
+            worm_move(mtmp);
+
+        maybe_unhide_at(mtmp->mx, mtmp->my);
+
         for (j = MTSZ - 1; j > 0; j--)
             mtmp->mtrack[j] = mtmp->mtrack[j - 1];
         mtmp->mtrack[0].x = omx;
         mtmp->mtrack[0].y = omy;
-        /* Place a segment at the old position. */
-        if (mtmp->wormno)
-            worm_move(mtmp);
     } else {
         if (is_unicorn(ptr) && rn2(2) && !tele_restrict(mtmp)) {
             (void) rloc(mtmp, TRUE);
             return 1;
         }
+        /* for a long worm, shrink it (by discarding end of tail) when
+           it has failed to move */
         if (mtmp->wormno)
             worm_nomove(mtmp);
     }
  postmov:
     if (mmoved == 1 || mmoved == 3) {
-        boolean canseeit = cansee(mtmp->mx, mtmp->my);
+        boolean canseeit = cansee(mtmp->mx, mtmp->my),
+                didseeit = canseeit;
 
         if (mmoved == 1) {
             /* normal monster move will already have <nix,niy>,
@@ -1663,8 +1681,18 @@ register int after;
                 && !passes_walls(ptr) /* doesn't need to open doors */
                 && !can_tunnel) {     /* taken care of below */
                 struct rm *here = &levl[mtmp->mx][mtmp->my];
-                boolean btrapped = (here->doormask & D_TRAPPED) != 0,
-                        observeit = canseeit && canspotmon(mtmp);
+                boolean btrapped = (here->doormask & D_TRAPPED) != 0;
+    /* used after monster 'who' has been moved to closed door spot 'where'
+       which will now be changed to door state 'what' with map update */
+#define UnblockDoor(where, who, what) \
+    do {                                                        \
+        (where)->doormask = (what);                             \
+        newsym((who)->mx, (who)->my);                           \
+        unblock_point((who)->mx, (who)->my);                    \
+        vision_recalc(0);                                       \
+        /* update cached value since it might change */         \
+        canseeit = didseeit || cansee((who)->mx, (who)->my);    \
+    } while (0)
 
                 /* if mon has MKoT, disarm door trap; no message given */
                 if (btrapped && has_magic_key(mtmp)) {
@@ -1683,15 +1711,17 @@ register int after;
                               (ptr == &mons[PM_FOG_CLOUD]
                                || ptr->mlet == S_LIGHT) ? "flows" : "oozes");
                 } else if (here->doormask & D_LOCKED && can_unlock) {
+                    /* like the vampshift hack above, there are sequencing
+                       issues when the monster is moved to the door's spot
+                       first then door handling plus feedback comes after */
+
+                    UnblockDoor(here, mtmp, !btrapped ? D_ISOPEN : D_NODOOR);
                     if (btrapped) {
-                        here->doormask = D_NODOOR;
-                        newsym(mtmp->mx, mtmp->my);
-                        unblock_point(mtmp->mx, mtmp->my); /* vision */
                         if (mb_trapped(mtmp))
                             return 2;
                     } else {
                         if (flags.verbose) {
-                            if (observeit)
+                            if (canseeit && canspotmon(mtmp))
                                 pline("%s unlocks and opens a door.",
                                       Monnam(mtmp));
                             else if (canseeit)
@@ -1699,41 +1729,36 @@ register int after;
                             else if (!Deaf)
                                 You_hear("a door unlock and open.");
                         }
-                        here->doormask = D_ISOPEN;
-                        /* newsym(mtmp->mx, mtmp->my); */
-                        unblock_point(mtmp->mx, mtmp->my); /* vision */
                     }
                 } else if (here->doormask == D_CLOSED && can_open) {
+                    UnblockDoor(here, mtmp, !btrapped ? D_ISOPEN : D_NODOOR);
                     if (btrapped) {
-                        here->doormask = D_NODOOR;
-                        newsym(mtmp->mx, mtmp->my);
-                        unblock_point(mtmp->mx, mtmp->my); /* vision */
                         if (mb_trapped(mtmp))
                             return 2;
                     } else {
                         if (flags.verbose) {
-                            if (observeit)
+                            if (canseeit && canspotmon(mtmp))
                                 pline("%s opens a door.", Monnam(mtmp));
                             else if (canseeit)
                                 You_see("a door open.");
                             else if (!Deaf)
                                 You_hear("a door open.");
                         }
-                        here->doormask = D_ISOPEN;
-                        /* newsym(mtmp->mx, mtmp->my); */  /* done below */
-                        unblock_point(mtmp->mx, mtmp->my); /* vision */
                     }
                 } else if (here->doormask & (D_LOCKED | D_CLOSED)) {
                     /* mfndpos guarantees this must be a doorbuster */
+                    unsigned mask;
+
+                    mask = ((btrapped || ((here->doormask & D_LOCKED) != 0
+                                          && !rn2(2))) ? D_NODOOR
+                            : D_BROKEN);
+                    UnblockDoor(here, mtmp, mask);
                     if (btrapped) {
-                        here->doormask = D_NODOOR;
-                        newsym(mtmp->mx, mtmp->my);
-                        unblock_point(mtmp->mx, mtmp->my); /* vision */
                         if (mb_trapped(mtmp))
                             return 2;
                     } else {
                         if (flags.verbose) {
-                            if (observeit)
+                            if (canseeit && canspotmon(mtmp))
                                 pline("%s smashes down a door.",
                                       Monnam(mtmp));
                             else if (canseeit)
@@ -1741,12 +1766,6 @@ register int after;
                             else if (!Deaf)
                                 You_hear("a door crash open.");
                         }
-                        if ((here->doormask & D_LOCKED) != 0 && !rn2(2))
-                            here->doormask = D_NODOOR;
-                        else
-                            here->doormask = D_BROKEN;
-                        /* newsym(mtmp->mx, mtmp->my); */  /* done below */
-                        unblock_point(mtmp->mx, mtmp->my); /* vision */
                     }
                     /* if it's a shop door, schedule repair */
                     if (*in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
@@ -2102,7 +2121,7 @@ struct monst *mtmp;
             return TRUE;
         if (obj->oclass != GEM_CLASS && !(typ >= ARROW && typ <= BOOMERANG)
             && !(typ >= DAGGER && typ <= CRYSKNIFE) && typ != SLING
-            && !is_cloak(obj) && typ != FEDORA && !is_gloves(obj)
+            && !is_cloak(obj) && typ != FEDORA && typ != TOQUE && !is_gloves(obj)
             && typ != JACKET && typ != CREDIT_CARD && !is_shirt(obj)
             && !(typ == CORPSE && verysmall(&mons[obj->corpsenm]))
             && typ != FORTUNE_COOKIE && typ != CANDY_BAR && typ != PANCAKE
@@ -2137,7 +2156,8 @@ can_fog(mtmp)
 struct monst *mtmp;
 {
     if (!(mvitals[PM_FOG_CLOUD].mvflags & G_GENOD) && is_vampshifter(mtmp)
-        && !Protection_from_shape_changers && !stuff_prevents_passage(mtmp))
+        && !Protection_from_shape_changers && !stuff_prevents_passage(mtmp)
+        && !mtmp->mtame)
         return TRUE;
     return FALSE;
 }
@@ -2215,8 +2235,6 @@ struct monst *mtmp;
             break;
         case MOAT:
         case WATER:
-            /* FIXME: icedpool bitfield (5 bits) isn't big enough to hold
-             * ICED_MOAT (0x20: needs 6 bits); fix will be savebreaking */
             lev->icedpool = ICED_MOAT;
             break;
         default:

@@ -115,24 +115,24 @@ int which;
 
     /* vulnerability will affect things... */
     switch (which) {
-        case FIRE_RES:
-            if (Vulnerable_fire)
-                val -= 50;
-            break;
-        case COLD_RES:
-            if (Vulnerable_cold)
-                val -= 50;
-            break;
-        case SHOCK_RES:
-            if (Vulnerable_elec)
-                val -= 50;
-            break;
-        case ACID_RES:
-            if (Vulnerable_acid)
-                val -= 50;
-            break;
-        default:
-            break;
+    case FIRE_RES:
+        if (Vulnerable_fire)
+            val -= 50;
+        break;
+    case COLD_RES:
+        if (Vulnerable_cold)
+            val -= 50;
+        break;
+    case SHOCK_RES:
+        if (Vulnerable_elec)
+            val -= 50;
+        break;
+    case ACID_RES:
+        if (Vulnerable_acid)
+            val -= 50;
+        break;
+    default:
+        break;
     }
     return val;
 }
@@ -590,6 +590,10 @@ dodrink()
     register struct obj *otmp;
     const char *potion_descr;
 
+    if (Hidinshell) {
+        You_cant("drink anything while hiding in your shell.");
+        return 0;
+    }
     if (Strangled) {
         pline("If you can't breathe air, how can you drink liquid?");
         return 0;
@@ -626,10 +630,16 @@ dodrink()
         && !verysmall(youmonst.data))
         || (is_pool(u.ux, u.uy) && Wwalking))
         && !u.uswallow && can_reach_floor(FALSE)) {
-        if (yn("Drink the water beneath you?") == 'y') {
-            if (is_sewage(u.ux, u.uy)) {
-                if (yn("Do you really want to drink raw sewage?") == 'y') {
-                    pline("This sewage is foul!");
+        boolean on_sewage = is_sewage(u.ux, u.uy);
+        char prompt[BUFSZ];
+        const char *liq;
+        liq = hliquid(on_sewage ? "sewage" : "water");
+        Sprintf(prompt, "Drink the %s beneath you?", liq);
+        if (yn(prompt) == 'y') {
+            if (on_sewage) {
+                if (Hallucination
+                    || yn("Do you really want to drink raw sewage?") == 'y') {
+                    pline("This %s is foul!", liq);
                     if (how_resistant(SICK_RES) == 100) {
                         You_feel("mildly nauseous.");
                         losehp(rnd(4), "upset stomach", KILLED_BY_AN);
@@ -1424,7 +1434,7 @@ struct obj *targobj; /* item being dipped into the water */
 boolean useeit; /* will hero see the glow/aura? */
 const char *objphrase; /* "Your widget glows" or "Steed's saddle/barding glows" */
 {
-    void FDECL((*func), (struct obj *)) = 0;
+    void FDECL((*func), (struct obj *)) = (void (*)(struct obj *)) 0;
     const char *glowcolor = 0;
 #define COST_alter (-2)
 #define COST_none (-1)
@@ -1503,6 +1513,39 @@ const char *objphrase; /* "Your widget glows" or "Steed's saddle/barding glows" 
         res = TRUE;
     }
     return res;
+}
+
+/* used when blessed or cursed scroll of light interacts with artifact light;
+   if the lit object (Sunsword, shield of light, or gold dragon scales/mail)
+   doesn't resist, treat like dipping it in holy or unholy water
+   (BUC change, glow message) */
+void
+impact_arti_light(obj, worsen, seeit)
+struct obj *obj; /* wielded Sunsword or worn gold dragon scales/mail */
+boolean worsen;  /* True: lower BUC state unless already cursed;
+                  * False: raise BUC state unless already blessed */
+boolean seeit;   /* True: give "<obj> glows <color>" message */
+{
+    struct obj *otmp;
+
+    /* if already worst/best BUC it can be, or if it resists, do nothing */
+    if ((worsen ? obj->cursed : obj->blessed) || obj_resists(obj, 25, 75))
+        return;
+
+    /* curse() and bless() take care of maybe_adjust_light() */
+    otmp = mksobj(POT_WATER, TRUE, FALSE);
+    if (worsen)
+        curse(otmp);
+    else
+        bless(otmp);
+    H2Opotion_dip(otmp, obj, seeit, seeit ? Yobjnam2(obj, "glow") : "");
+    dealloc_obj(otmp);
+#if 0   /* defer this until caller has used up the scroll so it won't be
+         * visible; player was told that it disappeared as hero read it */
+    if (carried(obj)) /* carried() will always be True here */
+        update_inventory();
+#endif
+    return;
 }
 
 /* potion obj hits monster mon, which might be youmonst; obj always used up */
@@ -1662,10 +1705,10 @@ int how;
         switch (obj->otyp) {
         case POT_FULL_HEALING:
             cureblind = TRUE;
-            if (mon->msick) {
+            if (mon->msick || mon->mdiseased) {
                 if (canseemon(mon))
                     pline("%s is no longer ill.", Monnam(mon));
-                mon->msick = 0;
+                mon->msick = mon->mdiseased = 0;
             }
             if (mon->mwither) {
                 if (canseemon(mon))
@@ -1676,10 +1719,10 @@ int how;
         case POT_EXTRA_HEALING:
             if (!obj->cursed) {
                 cureblind = TRUE;
-                if (mon->msick) {
+                if (mon->msick || mon->mdiseased) {
                     if (canseemon(mon))
                         pline("%s is no longer ill.", Monnam(mon));
-                    mon->msick = 0;
+                    mon->msick = mon->mdiseased = 0;
                 }
                 if (mon->mwither) {
                     if (canseemon(mon))
@@ -1691,10 +1734,10 @@ int how;
         case POT_HEALING:
             if (obj->blessed) {
                 cureblind = TRUE;
-                if (mon->msick) {
+                if (mon->msick || mon->mdiseased) {
                     if (canseemon(mon))
                         pline("%s is no longer ill.", Monnam(mon));
-                    mon->msick = 0;
+                    mon->msick = mon->mdiseased = 0;
                 }
                 if (mon->mwither) {
                     if (canseemon(mon))
@@ -1731,7 +1774,8 @@ int how;
                 /* won't happen, see prior goto */
                 || dmgtype(mon->data, AD_PEST)
                 /* most common case */
-                || resists_poison(mon)) {
+                || resists_poison(mon)
+                || defended(mon, AD_DRST)) {
                 if (canseemon(mon))
                     pline("%s looks unharmed.", Monnam(mon));
                 break;
@@ -1832,7 +1876,8 @@ int how;
             /* no Glib for monsters */
             break;
         case POT_ACID:
-            if (!resists_acid(mon) && !resist(mon, POTION_CLASS, 0, NOTELL)) {
+            if (!(resists_acid(mon) || defended(mon, AD_ACID))
+                && !resist(mon, POTION_CLASS, 0, NOTELL)) {
                 pline("%s %s in pain!", Monnam(mon),
                       is_silent(mon->data) ? "writhes" : "shrieks");
                 if (!is_silent(mon->data))
@@ -2190,6 +2235,10 @@ dodip()
         return 0;
     if (inaccessible_equipment(obj, "dip", FALSE))
         return 0;
+    if (Hidinshell) {
+        You_cant("dip anything while hiding in your shell.");
+        return 0;
+    }
 
     shortestname = (is_plural(obj) || pair_of(obj)) ? "them" : "it";
     /*

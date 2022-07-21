@@ -24,7 +24,7 @@
 .ds vr "NetHack 3.6
 .ds f0 "\*(vr
 .ds f1
-.ds f2 "March 8, 2020
+.ds f2 "September 29, 2021
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -434,7 +434,7 @@ An iron ball.
 .lp _
 An altar, or an iron chain.
 .lp {
-A fountain.
+A fountain or a forge.
 .lp }
 A pool of water or moat or a pool of lava.
 .lp \\\\
@@ -1479,6 +1479,11 @@ Default key is \(oq\(haI\(cq.
 Set one or more intrinsic attributes.
 Autocompletes.
 Debug mode only.
+.lp "#wizkill "
+Remove monsters from play by just pointing at them.
+By default the hero gets credit or blame for killing the targets.
+Autocompletes.
+Debug mode only.
 .lp #wizlevelport
 Teleport to another level.
 Autocompletes.
@@ -2464,7 +2469,7 @@ Persistence of Objects
 .pg
 Normally, if you have seen an object at a particular map location and
 move to another location where you can't directly see that object any
-more, if will continue to be displayed on your map.
+more, it will continue to be displayed on your map.
 That remains the case even if it is not actually there any more \(em
 perhaps a monster has picked it up or it has rotted away \(em
 until you can see or feel that location again.
@@ -3525,8 +3530,9 @@ show lists the traditional way without sorting.
 Sort the pack contents by type when displaying inventory (default on).
 Persistent.
 .lp sparkle
-Display a sparkly effect when a monster (including yourself) is hit by an
-attack to which it is resistant (default on).
+Specify the length in frames of the sparkly animation the that is
+displayed when a monster (including you) is hit by an effect to which
+it is resistant (default 21).
 Persistent.
 .lp standout
 Boldface monsters and \(lq\fB\-\-More\-\-\fP\(rq (default off).
@@ -4504,7 +4510,7 @@ E	S_elemental	(elemental)
 \-	S_explode2	(explosion top center)
 \\	S_explode3	(explosion top right)
 |	S_explode4	(explosion middle left)
-\ 	S_explode5	(explosion middle center)
+\	S_explode5	(explosion middle center)
 |	S_explode6	(explosion middle right)
 \\	S_explode7	(explosion bottom left)
 \-	S_explode8	(explosion bottom center)
@@ -4515,10 +4521,11 @@ f	S_feline	(cat or other feline)
 \(ha	S_fire_trap	(fire trap)
 !	S_flashbeam	(flash beam)
 %	S_food	(piece of food)
+{	S_forge		(forge)
 {	S_fountain	(fountain)
 F	S_fungus	(fungus or mold)
 *	S_gem	(gem or rock)
-\ 	S_ghost	(ghost)
+\	S_ghost	(ghost)
 H	S_giant	(giant humanoid)
 G	S_gnome	(gnome)
 \'	S_golem	(golem)

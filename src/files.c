@@ -1435,7 +1435,7 @@ char **saved;
 
 /* ----------  BEGIN FILE COMPRESSION HANDLING ----------- */
 
-#ifdef COMPRESS
+#ifdef COMPRESS /* external compression */
 
 STATIC_OVL void
 redirect(filename, mode, stream, uncomp)
@@ -1462,7 +1462,8 @@ docompress_file(filename, uncomp)
 const char *filename;
 boolean uncomp;
 {
-    char cfn[80];
+    char *cfn = 0;
+    const char *xtra;
     FILE *cf;
     const char *args[10];
 #ifdef COMPRESS_OPTIONS
@@ -1470,18 +1471,27 @@ boolean uncomp;
 #endif
     int i = 0;
     int f;
+    unsigned ln;
 #ifdef TTY_GRAPHICS
     boolean istty = WINDOWPORT("tty");
 #endif
 
-    Strcpy(cfn, filename);
 #ifdef COMPRESS_EXTENSION
-    Strcat(cfn, COMPRESS_EXTENSION);
+    xtra = COMPRESS_EXTENSION;
+#else
+    xtra = "";
 #endif
+    ln = (unsigned) (strlen(filename) + strlen(xtra));
+    cfn = (char *) alloc(ln + 1);
+    Strcpy(cfn, filename);
+    Strcat(cfn, xtra);
+
     /* when compressing, we know the file exists */
     if (uncomp) {
-        if ((cf = fopen(cfn, RDBMODE)) == (FILE *) 0)
+        if ((cf = fopen(cfn, RDBMODE)) == (FILE *) 0) {
+            free((genericptr_t) cfn);
             return;
+        }
         (void) fclose(cf);
     }
 
@@ -1552,10 +1562,12 @@ boolean uncomp;
         perror((char *) 0);
         (void) fprintf(stderr, "Exec to %scompress %s failed.\n",
                        uncomp ? "un" : "", filename);
+        free((genericptr_t) cfn);
         nh_terminate(EXIT_FAILURE);
     } else if (f == -1) {
         perror((char *) 0);
         pline("Fork to %scompress %s failed.", uncomp ? "un" : "", filename);
+        free((genericptr_t) cfn);
         return;
     }
 #ifndef NO_SIGNAL
@@ -1604,8 +1616,11 @@ boolean uncomp;
         }
 #endif
     }
+
+    free((genericptr_t) cfn);
 }
-#endif /* COMPRESS */
+
+#endif /* COMPRESS : external compression */
 
 #if defined(COMPRESS) || defined(ZLIB_COMP)
 #define UNUSED_if_not_COMPRESS /*empty*/

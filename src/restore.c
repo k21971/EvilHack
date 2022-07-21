@@ -426,7 +426,6 @@ boolean ghostly;
     register struct monst *first = (struct monst *) 0;
     int offset, buflen;
     struct permonst *monbegin;
-    int namesize = sizeof(monbegin->mname);
 
     /* get the original base address */
     mread(fd, (genericptr_t)&monbegin, sizeof(monbegin));
@@ -493,16 +492,6 @@ boolean ghostly;
         impossible("Restmonchn: error reading monchn.");
         mtmp2->nmon = 0;
     }
-
-    /* Bring RNGesus' most abominable creation back to life */
-    mread(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
-          sizeof(struct permonst) - namesize);
-
-    /* Preserve changes to other defined monsters here */
-    mread(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
-          sizeof(struct permonst) - namesize);
-    mread(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
-          sizeof(struct permonst) - namesize);
 
     return first;
 }
@@ -679,9 +668,9 @@ unsigned int *stuckid, *steedid;
     while (bc_obj) {
         struct obj *nobj = bc_obj->nobj;
 
+        bc_obj->nobj = (struct obj *) 0;
         if (bc_obj->owornmask)
             setworn(bc_obj, bc_obj->owornmask);
-        bc_obj->nobj = (struct obj *) 0;
         bc_obj = nobj;
     }
 
@@ -729,6 +718,9 @@ unsigned int *stuckid, *steedid;
     mread(fd, (genericptr_t) pl_fruit, sizeof pl_fruit);
     freefruitchn(ffruit); /* clean up fruit(s) made by initoptions() */
     ffruit = loadfruitchn(fd);
+    restshambler(fd);
+    restoracle(fd);
+    restcharon(fd);
 
     restnames(fd);
     restore_waterlevel(fd);
@@ -752,33 +744,33 @@ boolean ghostly;
     register struct monst *mon;
     unsigned int steed_id;
 
-     for (mon = fmon; mon; mon = mon->nmon) {
+    for (mon = fmon; mon; mon = mon->nmon) {
         if (mon->mextra && ERID(mon)) {
             /* The steed id will change on loading a bones file */
-            if(ghostly) {
+            if (ghostly) {
                 lookup_id_mapping(ERID(mon)->mid, &steed_id);
             } else {
                 steed_id = ERID(mon)->mid;
             }
 
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-              if (mtmp->m_id == steed_id)
-                  break;
+                if (mtmp->m_id == steed_id)
+                    break;
             }
+
             if (!mtmp) {
-                /* steed probably died but was not cleaned up due to other issues */
-                impossible("Cannot find monster steed.");
                 free_erid(mon);
-            } else 
+            } else {
                 ERID(mon)->m1 = mtmp;
+            }
         }
     }
 
     for (mon = migrating_mons; mon; mon = mon->nmon) {
         if (mon->mextra && ERID(mon)) {
             for (mtmp = migrating_mons; mtmp; mtmp = mtmp->nmon) {
-              if (mtmp->m_id == ERID(mon)->mid)
-                  break;
+                if (mtmp->m_id == ERID(mon)->mid)
+                    break;
             }
             if (!mtmp)
                 panic("Cannot find monster steed.");
@@ -786,6 +778,7 @@ boolean ghostly;
         }
     }
 }
+
  /* update game state pointers to those valid for the current level (so we
  * don't dereference a wild u.ustuck when saving the game state, for instance)
  */
@@ -881,7 +874,7 @@ register int fd;
     int rtmp;
     struct obj *otmp;
 
-    restoring = TRUE;
+    program_state.restoring = 1;
     get_plname_from_file(fd, plname);
     getlev(fd, 0, (xchar) 0, FALSE);
     if (!restgamestate(fd, &stuckid, &steedid)) {
@@ -889,7 +882,7 @@ register int fd;
         savelev(-1, 0, FREE_SAVE); /* discard current level */
         (void) nhclose(fd);
         (void) delete_savefile();
-        restoring = FALSE;
+        program_state.restoring = 0;
         return 0;
     }
     restlevelstate(stuckid, steedid);
@@ -1016,8 +1009,8 @@ register int fd;
     vision_full_recalc = 1; /* recompute vision (not saved) */
 
     run_timers(); /* expire all timers that have gone off while away */
+    program_state.restoring = 0; /* affects bot() so clear before docrt() */
     docrt();
-    restoring = FALSE;
     clear_nhwindow(WIN_MESSAGE);
 
     /* Success! */
@@ -1288,6 +1281,37 @@ boolean ghostly;
 
     if (ghostly)
         clear_id_mapping();
+}
+
+void
+restshambler(fd)
+int fd;
+{
+    struct permonst *monbegin;
+    int namesize = sizeof(monbegin->mname);
+    /* Bring RNGesus' most abominable creation back to life */
+    mread(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
+          sizeof(struct permonst) - namesize);
+}
+
+void
+restoracle(fd)
+int fd;
+{
+    struct permonst *monbegin;
+    int namesize = sizeof(monbegin->mname);
+    mread(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
+          sizeof(struct permonst) - namesize);
+}
+
+void
+restcharon(fd)
+int fd;
+{
+    struct permonst *monbegin;
+    int namesize = sizeof(monbegin->mname);
+    mread(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
+          sizeof(struct permonst) - namesize);
 }
 
 void
@@ -1724,7 +1748,7 @@ register unsigned int len;
             return;
         } else {
             pline("Read %d instead of %u bytes.", rlen, len);
-            if (restoring) {
+            if (program_state.restoring) {
                 (void) nhclose(fd);
                 (void) delete_savefile();
                 error("Error restoring old game.");

@@ -128,6 +128,8 @@ static const struct innate {
                  { 0, 0, 0, 0 } },
 
   cen_abil[] = { { 1, &(HFast), "", "" },
+                 /* use EJumping here, otherwise centaurs would only
+                    be able to jump the same way as knights */
                  { 5, &(EJumping), "light on your hooves", "weighted down" },
                  { 10, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
@@ -145,6 +147,12 @@ static const struct innate {
                  { 1, &(HSee_invisible), "", "" },
                  { 1, &(HFlying), "", "" },
                  /* also inediate */
+                 { 0, 0, 0, 0 } },
+
+  trt_abil[] = { { 1, &(HSwimming), "", "" },
+                 { 1, &(HMagical_breathing), "", "" },
+                 { 5, &(HWarning), "sensitive", "" },
+                 { 12, &(HRegeneration), "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },
 
   hum_abil[] = { { 0, 0, 0, 0 } };
@@ -245,7 +253,9 @@ boolean givemsg;
 {
     int num = incr;
 
-    if ((!num) || (((Race_if(PM_GIANT)) || (Race_if(PM_CENTAUR))) && (!(otmp && otmp->cursed)))) {
+    if ((!num) || ((Race_if(PM_GIANT)
+                    || Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
+                   && (!(otmp && otmp->cursed)))) {
         if (ABASE(A_STR) < 18)
             num = (rn2(4) ? 1 : rnd(6));
         else if (ABASE(A_STR) < STR18(85))
@@ -840,6 +850,9 @@ long frommask;
         case PM_DEMON:
             abil = dem_abil;
             break;
+        case PM_TORTLE:
+            abil = trt_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -1031,6 +1044,9 @@ int oldlevel, newlevel;
     case PM_ILLITHID:
         rabil = ill_abil;
         break;
+    case PM_TORTLE:
+        rabil = trt_abil;
+        break;
     case PM_HUMAN:
     case PM_DWARF:
     case PM_GNOME:
@@ -1062,13 +1078,17 @@ int oldlevel, newlevel;
                     *(abil->ability) |= (mask | FROMOUTSIDE);
                 else
                     *(abil->ability) |= mask;
-                if (!(*(abil->ability) & INTRINSIC & ~mask)) {
+                if (!(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL & ~mask)
+                    && (!(*(abil->ability) & HAVEPARTIAL & ~mask)
+                        || (*(abil->ability) & TIMEOUT) < 100)) {
                     if (*(abil->gainstr))
                         You_feel("%s!", abil->gainstr);
                 }
             } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
                 *(abil->ability) &= ~mask;
-                if (!(*(abil->ability) & INTRINSIC)) {
+                if (!(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL)
+                    && (!(*(abil->ability) & HAVEPARTIAL)
+                        || (*(abil->ability) & TIMEOUT) < 100)) {
                     if (*(abil->losestr))
                         You_feel("%s!", abil->losestr);
                     else if (*(abil->gainstr))
@@ -1159,8 +1179,18 @@ newhp()
     }
     if (hp <= 0)
         hp = 1;
-    if (u.ulevel < MAXULEV)
+    if (u.ulevel < MAXULEV) {
+        /* remember increment; future level drain could take it away again */
         u.uhpinc[u.ulevel] = (xchar) hp;
+    } else {
+        /* after level 30, throttle hit point gains from extra experience;
+           once max reaches 1200, further increments will be just 1 more */
+        char lim = 5 - u.uhpmax / 300;
+
+        lim = max(lim, 1);
+        if (hp > lim)
+            hp = lim;
+    }
     return hp;
 }
 
@@ -1172,6 +1202,7 @@ int x;
 
     if (x == A_STR) {
       if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+          || (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
           || wielding_artifact(ART_GIANTSLAYER)
           || wielding_artifact(ART_SWORD_OF_KAS))
             return (schar) 125;
@@ -1242,6 +1273,7 @@ int attrindx;
         hilimit = STR19(25); /* 125 */
         /* lower limit for Str can also be 25 */
         if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+            || (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
             || wielding_artifact(ART_GIANTSLAYER)
             || wielding_artifact(ART_SWORD_OF_KAS))
             lolimit = hilimit;

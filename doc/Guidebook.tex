@@ -45,7 +45,7 @@
 %.au
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for 3.6 by Mike Stephenson and others)}
-\date{March 8, 2020}
+\date{September 29, 2021}
 
 \maketitle
 
@@ -543,7 +543,7 @@ An iron ball.
 An altar, or an iron chain.
 %.lp
 \item[\tb{\{}]
-A fountain.
+A fountain or a forge.
 %.lp
 \item[\tb{\}}]
 A pool of water or moat or a pool of lava.
@@ -1596,6 +1596,12 @@ Default key is `{\tt \^{}I}'.
 %.lp
 \item[\tb{\#wizintrinsic}]
 Set one or more intrinsic attributes.
+Autocompletes.
+Debug mode only.
+%.lp
+\item[\tb{\#wizkill}]
+Remove monsters from play by just pointing at them.
+By default the hero gets credit or blame for killing the targets.
 Autocompletes.
 Debug mode only.
 %.lp
@@ -2713,7 +2719,7 @@ you are carrying (shopkeepers aside).
 %.pg
 Normally, if you have seen an object at a particular map location and
 move to another location where you can't directly see that object any
-more, if will continue to be displayed on your map.
+more, it will continue to be displayed on your map.
 That remains the case even if it is not actually there any
 more---perhaps a monster has picked it up or it has rotted
 away---until you can see or feel that location again.
@@ -3876,8 +3882,9 @@ Sort the pack contents by type when displaying inventory (default on).
 Persistent.
 %.lp
 \item[\ib{sparkle}]
-Display a sparkly effect when a monster (including yourself) is hit by an
-attack to which it is resistant (default on).  Persistent.
+Specify the length in frames of the sparkly animation the that is displayed
+when a monster (including you) is hit by an effect to which it is resistant
+(default 21).  Persistent.
 %.lp
 \item[\ib{standout}]
 Boldface monsters and ``{\tt --More--}'' (default off).  Persistent.
@@ -5001,6 +5008,7 @@ Default                      & Symbol Name                & Description\\
 \verb@^@ & S\verb+_+fire\verb+_+trap              &	(fire trap)\\
 \verb@!@ & S\verb+_+flashbeam               &	(flash beam)\\
 \% & S\verb+_+food                    &	(piece of food)\\
+\{ & S\verb+_+forge                   & (forge)\\
 \{ & S\verb+_+fountain                &	(fountain)\\
 \verb@F@ & S\verb+_+fungus                  &	(fungus or mold)\\
 \verb@*@ & S\verb+_+gem                     &	(gem or rock)\\

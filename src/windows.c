@@ -1454,6 +1454,10 @@ boolean onoff;
         if (attrmask & HL_BOLD)
             fprintf(dumphtml_file, BOLD_E);
     }
+#else
+    nhUse(coloridx);
+    nhUse(attrmask);
+    nhUse(onoff);
 #endif
 }
 
@@ -1897,13 +1901,14 @@ dump_headers()
     t = localtime(&dumplog_now);
     strftime(iso8601, 32, "%Y-%m-%dT%H:%M:%S%z", t);
 
-    if (!dumphtml_file) return;
+    if (!dumphtml_file)
+        return;
 
     fprintf(dumphtml_file, "<!DOCTYPE html>\n");
     fprintf(dumphtml_file, "<head>\n");
-    fprintf(dumphtml_file, "<title>EvilHack %s</title>\n",  version_string(vers));
+    fprintf(dumphtml_file, "<title>EvilHack %s (%s)</title>\n",  version_string(vers), plname);
     fprintf(dumphtml_file, "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
-    fprintf(dumphtml_file, "<meta name=\"generator\" content=\"EvilHack %s \" />\n", vers);
+    fprintf(dumphtml_file, "<meta name=\"generator\" content=\"EvilHack %s (%s)\" />\n", vers, plname);
     fprintf(dumphtml_file, "<meta name=\"date\" content=\"%s\" />\n", iso8601);
     fprintf(dumphtml_file, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n");
     fprintf(dumphtml_file, "<link href=\"https://cdn.jsdelivr.net/gh/maxwell-k/dejavu-sans-mono-web-font@2.37/index.css\" title=\"Default\" rel=\"stylesheet\" type=\"text/css\" media=\"all\" />\n");
@@ -1931,7 +1936,9 @@ dump_css()
 {
     int c = 0;
     FILE *css;
-    if (!dumphtml_file) return;
+    if (!dumphtml_file)
+        return;
+
     css = fopen_datafile("NHdump.css", "r", DATAPREFIX);
     if (!css) {
         pline("Can't open css file for input.");

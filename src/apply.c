@@ -11,7 +11,7 @@ STATIC_DCL int FDECL(use_camera, (struct obj *));
 STATIC_DCL int FDECL(use_towel, (struct obj *));
 STATIC_DCL boolean FDECL(its_dead, (int, int, int *, struct obj*));
 STATIC_DCL int FDECL(use_stethoscope, (struct obj *));
-STATIC_DCL void FDECL(use_eight_ball, (struct obj *));
+STATIC_DCL void FDECL(use_eight_ball, (struct obj **));
 STATIC_DCL void FDECL(use_whistle, (struct obj *));
 STATIC_DCL void FDECL(use_magic_whistle, (struct obj *));
 STATIC_DCL int FDECL(use_leash, (struct obj *));
@@ -25,13 +25,12 @@ STATIC_PTR void FDECL(display_jump_positions, (int));
 STATIC_DCL void FDECL(use_tinning_kit, (struct obj *));
 STATIC_DCL void FDECL(use_grease, (struct obj *));
 STATIC_DCL void FDECL(use_trap, (struct obj *));
-STATIC_DCL void FDECL(apply_flint, (struct obj *));
-STATIC_DCL void FDECL(use_stone, (struct obj *));
+STATIC_DCL void FDECL(apply_flint, (struct obj **));
+STATIC_DCL void FDECL(use_stone, (struct obj **));
 STATIC_PTR int NDECL(set_trap); /* occupation callback */
 STATIC_DCL int FDECL(use_whip, (struct obj *));
 STATIC_DCL int FDECL(use_axe, (struct obj *));
 STATIC_PTR void FDECL(display_polearm_positions, (int));
-STATIC_DCL int FDECL(use_pole, (struct obj *));
 STATIC_DCL int FDECL(use_cream_pie, (struct obj *));
 STATIC_DCL int FDECL(use_grapple, (struct obj *));
 STATIC_DCL int FDECL(do_break_wand, (struct obj *));
@@ -58,7 +57,9 @@ struct obj *obj;
 {
     struct monst *mtmp;
 
-    if (Underwater) {
+    if (!u_handsy()) {
+        return 0;
+    } else if (Underwater) {
         pline("Using your camera underwater would void the warranty.");
         return 0;
     }
@@ -96,8 +97,7 @@ struct obj *obj;
 {
     boolean drying_feedback = (obj == uwep);
 
-    if (!freehand()) {
-        You("have no free %s!", body_part(HAND));
+    if (!u_handsy()) {
         return 0;
     } else if (obj == ublindf) {
         You("cannot use it while you're wearing it!");
@@ -340,14 +340,10 @@ register struct obj *obj;
     boolean interference = (u.uswallow && is_whirly(u.ustuck->data)
                             && !rn2(Role_if(PM_HEALER) ? 10 : 3));
 
-    if (nohands(youmonst.data)) {
-        You("have no hands!"); /* not `body_part(HAND)' */
+    if (!u_handsy()) {
         return 0;
     } else if (Deaf) {
         You_cant("hear anything!");
-        return 0;
-    } else if (!freehand()) {
-        You("have no free %s.", body_part(HAND));
         return 0;
     }
     if (!getdir((char *) 0))
@@ -483,9 +479,10 @@ register struct obj *obj;
 }
 
 STATIC_OVL void
-use_eight_ball(obj)
-struct obj *obj;
+use_eight_ball(optr)
+struct obj **optr;
 {
+    struct obj *obj = *optr;
     int chance;
 
     if (HStun) {
@@ -506,6 +503,7 @@ struct obj *obj;
             makewish();
             pline("The Magic 8-Ball winks out of existence, but not before spreading one last rumor.");
             useup(obj); /* one wish is all you get */
+            *optr = (struct obj *) 0;
             break;
         default:
             break;
@@ -522,6 +520,8 @@ struct obj *obj;
 {
     if (!can_blow(&youmonst)) {
         You("are incapable of using the whistle.");
+    } else if (!u_handsy()) {
+        ;
     } else if (Underwater) {
         You("blow bubbles through %s.", yname(obj));
     } else {
@@ -543,6 +543,8 @@ struct obj *obj;
 
     if (!can_blow(&youmonst)) {
         You("are incapable of using the whistle.");
+    } else if (!u_handsy()) {
+        ;
     } else if (obj->cursed && !rn2(2)) {
         You("produce a %shigh-%s.", Underwater ? "very " : "",
             Deaf ? "frequency vibration" : "pitched humming noise");
@@ -693,6 +695,9 @@ struct obj *obj;
         You("cannot leash any more pets.");
         return 0;
     }
+    if (!u_handsy()) {
+        return 0;
+    }
 
     if (!get_adjacent_loc((char *) 0, (char *) 0, u.ux, u.uy, &cc))
         return 0;
@@ -749,6 +754,7 @@ struct obj *obj;
             mtmp->mleashed = 1;
             obj->leashmon = (int) mtmp->m_id;
             mtmp->msleeping = 0;
+            update_inventory();
         }
     } else {
         /* applying a leash which is currently in use */
@@ -760,6 +766,7 @@ struct obj *obj;
         } else {
             mtmp->mleashed = 0;
             obj->leashmon = 0;
+            update_inventory();
             You("remove the leash from %s.",
                 spotmon ? y_monnam(mtmp) : l_monnam(mtmp));
         }
@@ -908,6 +915,9 @@ struct obj *obj;
 
     if (!getdir((char *) 0))
         return 0;
+    if (!u_handsy())
+        return 0;
+
     invis_mirror = Invis;
     useeit = !Blind && (!invis_mirror || See_invisible);
     uvisage = beautiful();
@@ -1110,6 +1120,9 @@ struct obj **optr;
                 (obj->otyp == BELL_OF_OPENING && invocation_pos(u.ux, u.uy)
                  && !On_stairs(u.ux, u.uy));
 
+    if (!u_handsy())
+        return;
+
     You("ring %s.", the(xname(obj)));
 
     if (Underwater || (u.uswallow && ordinary)) {
@@ -1251,6 +1264,8 @@ register struct obj *obj;
         end_burn(obj, TRUE);
         return;
     }
+    if (!u_handsy())
+        return;
     if (obj->spe <= 0) {
         pline("This %s has no %s.", xname(obj), s);
         return;
@@ -1310,7 +1325,7 @@ struct obj **optr;
     char qbuf[QBUFSZ], qsfx[QBUFSZ], *q;
     boolean was_lamplit;
 
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         You(no_elbow_room);
         return;
     }
@@ -1481,6 +1496,8 @@ struct obj *obj;
         end_burn(obj, TRUE);
         return;
     }
+    if (!u_handsy())
+        return;
     if (Underwater) {
         pline(!Is_candle(obj) ? "This is not a diving lamp"
                               : "Sorry, fire and water don't mix.");
@@ -1527,7 +1544,7 @@ struct obj **optr;
     char buf[BUFSZ];
     boolean split1off;
 
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         You(no_elbow_room);
         return;
     }
@@ -1584,9 +1601,12 @@ dorub()
 {
     struct obj *obj = getobj(cuddly, "rub");
 
+    if (!u_handsy())
+        return 0;
+
     if (obj && obj->oclass == GEM_CLASS) {
         if (is_graystone(obj) || obj->otyp == ROCK) {
-            use_stone(obj);
+            use_stone(&obj);
             return 1;
         } else {
             pline("Sorry, I don't know how to use that.");
@@ -1809,20 +1829,20 @@ int magic; /* 0=Physical, otherwise skill level */
     coord cc;
 
     /* attempt "jumping" spell if hero has no innate jumping ability */
-    if (!magic && !Jumping) {
-        int sp_no;
-
-        for (sp_no = 0; sp_no < MAXSPELL; ++sp_no)
-            if (spl_book[sp_no].sp_id == NO_SPELL)
-                break;
-            else if (spl_book[sp_no].sp_id == SPE_JUMPING)
-                return spelleffects(sp_no, FALSE);
-    }
+    if (!magic && !Jumping && known_spell(SPE_JUMPING))
+        return spelleffects(spell_idx(SPE_JUMPING), FALSE);
 
     if (!magic && (nolimbs(youmonst.data) || slithy(youmonst.data))) {
         /* normally (nolimbs || slithy) implies !Jumping,
            but that isn't necessarily the case for knights */
         You_cant("jump; you have no legs!");
+        return 0;
+    } else if (Hidinshell) {
+        /* currently there's no way for a tortle to be able
+           to jump (magical or otherwise), but we'll cover
+           this regardless in case new methods of jumping
+           are created in the future */
+        You_cant("jump while hiding in your shell!");
         return 0;
     } else if (!magic && !Jumping) {
         You_cant("jump very far.");
@@ -1991,6 +2011,8 @@ struct obj *obj;
     /* This takes only 1 move.  If this is to be changed to take many
      * moves, we've got to deal with decaying corpses...
      */
+    if (!u_handsy())
+        return;
     if (obj->spe <= 0) {
         You("seem to be out of tins.");
         return;
@@ -2065,6 +2087,12 @@ struct obj *obj;
 #define ATTR_COUNT (A_MAX * 3) /* number of attribute points we might fix */
     int idx, val, val_limit, trouble_count, unfixable_trbl, did_prop;
     int trouble_list[PROP_COUNT + ATTR_COUNT];
+
+    if (Hidinshell) {
+        You_cant("use your %s while hiding in your shell.",
+                 distant_name(obj, xname));
+        return;
+    }
 
     if (obj && obj->cursed) {
         long lcount = (long) rn1(90, 10);
@@ -2403,6 +2431,8 @@ struct obj **optr;
             return;
         }
     }
+    if (!u_handsy())
+        return;
     if (u.uswallow) {
         /* can't activate a figurine while swallowed */
         if (!figurine_location_checks(obj, (coord *) 0, FALSE))
@@ -2460,6 +2490,9 @@ struct obj *obj;
 {
     struct obj *otmp;
 
+    if (!u_handsy())
+        return;
+
     if (Glib) {
         pline("%s from your %s.", Tobjnam(obj, "slip"),
               fingers_or_gloves(FALSE));
@@ -2510,10 +2543,11 @@ struct obj *obj;
 /* creating flint arrows - DSR */
 
 STATIC_OVL void
-apply_flint(flint)
-struct obj* flint;
+apply_flint(optr)
+struct obj **optr;
 {
-    struct obj* obj;
+    struct obj *flint = *optr;
+    struct obj *obj;
     char szwork[QBUFSZ];
     int flints, arrows, i;
     static const char menulist[2] = {WEAPON_CLASS, 0};
@@ -2522,6 +2556,9 @@ struct obj* flint;
 
     Sprintf(szwork, "affix the stone%s to", plur(flints));
     if ((obj = getobj(menulist, szwork)) == 0)
+        return;
+
+    if (!u_handsy())
         return;
 
     /* can only stick flint to arrows */
@@ -2544,6 +2581,8 @@ struct obj* flint;
         You("lash flint tips to the %s.", xname(obj));
         for (i = 0; i <= arrows / 10; i++)
             useup(flint);
+        if (i >= flints)
+            *optr = (struct obj *) 0;
     } else {
         You("don't have enough flint to re-tip all of these %s.",
             xname(obj));
@@ -2553,9 +2592,10 @@ struct obj* flint;
 
 /* touchstones - by Ken Arnold */
 STATIC_OVL void
-use_stone(tstone)
-struct obj *tstone;
+use_stone(optr)
+struct obj **optr;
 {
+    struct obj *tstone = *optr;
     static const char scritch[] = "\"scritch, scritch\"";
     static const char allowall[3] = { COIN_CLASS, ALL_CLASSES, 0 };
     static const char coins_gems[3] = { COIN_CLASS, GEM_CLASS, 0 };
@@ -2578,6 +2618,9 @@ struct obj *tstone;
                   : allowall;
     Sprintf(stonebuf, "rub on the stone%s", plur(tstone->quan));
     if ((obj = getobj(choices, stonebuf)) == 0)
+        return;
+
+    if (!u_handsy())
         return;
 
     if (obj == tstone && obj->quan == 1L) {
@@ -2737,8 +2780,11 @@ struct obj *tstone;
                 /* Not even the thing you're inside can see your piddly spark. */
                 pline("That's not going to make it any brighter in here.");
                 if (!rn2(3)) {
+                    boolean gone = (tstone->quan == 1L);
                     Your("flint stone crumbles!");
                     useup(tstone);
+                    if (gone)
+                        *optr = (struct obj *) 0;
                 }
                 return;
             }
@@ -2757,8 +2803,10 @@ struct obj *tstone;
                      * gigantic (purple worm), mindless, or currently in water
                      */
                     if ((is_animal(mtmp->data) || is_undead(mtmp->data))
-                        && !(resists_fire(mtmp) || (mtmp->data->geno & G_UNIQ)
-                             || mtmp->data->msize == MZ_GIGANTIC || mindless(mtmp->data)
+                        && !(resists_fire(mtmp) || defended(mtmp, AD_FIRE)
+                             || (mtmp->data->geno & G_UNIQ)
+                             || mtmp->data->msize == MZ_GIGANTIC
+                             || mindless(mtmp->data)
                              || is_damp_terrain(i, j))) {
                         if (rn2(3))
                             monflee(mtmp, rnd(10), TRUE, TRUE);
@@ -2766,8 +2814,11 @@ struct obj *tstone;
                 }
             }
             if (!rn2(3)) {
+                boolean gone = (tstone->quan == 1L);
                 Your("flint stone crumbles!");
                 useup(tstone);
+                if (gone)
+                    *optr = (struct obj *) 0;
             }
             return;
         }
@@ -2805,6 +2856,8 @@ struct obj *otmp;
 
     if (nohands(youmonst.data))
         what = "without hands";
+    else if (!freehand())
+        what = "without a free hand";
     else if (Stunned)
         what = "while stunned";
     else if (u.uswallow)
@@ -2985,7 +3038,7 @@ struct obj *obj;
     if (proficient < 0)
         proficient = 0;
 
-    if (u.uswallow && attack(u.ustuck)) {
+    if ((u.uswallow && attack(u.ustuck)) || Hidinshell) {
         There("is not enough room to flick your bullwhip.");
 
     } else if (Underwater) {
@@ -3251,7 +3304,7 @@ struct obj *obj;
     if (proficient < 0)
         proficient = 0;
 
-    if (u.uswallow && attack(u.ustuck)) {
+    if ((u.uswallow && attack(u.ustuck)) || Hidinshell) {
         There("is not enough room to use your axe.");
 
     } else if (Underwater) {
@@ -3536,9 +3589,10 @@ int state;
 }
 
 /* Distance attacks by pole-weapons */
-STATIC_OVL int
-use_pole(obj)
+int
+use_pole(obj, autohit)
 struct obj *obj;
+boolean autohit;
 {
     int res = 0, typ, max_range, min_range, glyph;
     coord cc;
@@ -3546,7 +3600,7 @@ struct obj *obj;
     struct monst *hitm = context.polearm.hitmon;
 
     /* Are you allowed to use the pole? */
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         pline(not_enough_room);
         return 0;
     }
@@ -3586,7 +3640,8 @@ struct obj *obj;
     polearm_range_max = max_range;
 
     /* Prompt for a location */
-    pline(where_to_hit);
+    if (!autohit)
+        pline(where_to_hit);
     cc.x = u.ux;
     cc.y = u.uy;
     if (!find_poleable_mon(&cc, min_range, max_range) && hitm
@@ -3596,16 +3651,21 @@ struct obj *obj;
         cc.x = hitm->mx;
         cc.y = hitm->my;
     }
-    getpos_sethilite(display_polearm_positions, get_valid_polearm_position);
-    if (getpos(&cc, TRUE, "the spot to hit") < 0)
-        return res; /* ESC; uses turn iff polearm became wielded */
+    if (!autohit) {
+        getpos_sethilite(display_polearm_positions, get_valid_polearm_position);
+        if (getpos(&cc, TRUE, "the spot to hit") < 0)
+            return res; /* ESC; uses turn iff polearm became wielded */
+    }
 
     glyph = glyph_at(cc.x, cc.y);
     if (distu(cc.x, cc.y) > max_range) {
         pline("Too far!");
         return res;
     } else if (distu(cc.x, cc.y) < min_range) {
-        pline("Too close!");
+        if (autohit && cc.x == u.ux && cc.y == u.uy)
+            You("don't know what to hit.");
+        else
+            pline("Too close!");
         return res;
     } else if (!cansee(cc.x, cc.y) && !glyph_is_monster(glyph)
                && !glyph_is_invisible(glyph) && !glyph_is_statue(glyph)) {
@@ -3661,6 +3721,9 @@ struct obj *obj;
     boolean wascreamed = u.ucreamed;
     boolean several = FALSE;
 
+    if (!u_handsy())
+        return 0;
+
     if (obj->quan > 1L) {
         several = TRUE;
         obj = splitobj(obj, 1L);
@@ -3702,7 +3765,7 @@ struct obj *obj;
     struct obj *otmp;
 
     /* Are you allowed to use the hook? */
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         pline(not_enough_room);
         return 0;
     }
@@ -3864,6 +3927,10 @@ struct obj *obj;
 
     if (nohands(youmonst.data)) {
         You_cant("break %s without hands!", yname(obj));
+        return 0;
+    } else if (!freehand()) {
+        You_cant("break %s without your %s free!",
+                 yname(obj), makeplural(body_part(HAND)));
         return 0;
     } else if (ACURR(A_STR) < (is_fragile ? 5 : 10)) {
         You("don't have the strength to break %s!", yname(obj));
@@ -4290,7 +4357,7 @@ doapply()
         use_crystal_ball(&obj);
         break;
     case EIGHT_BALL:
-        use_eight_ball(obj);
+        use_eight_ball(&obj);
         break;
     case MAGIC_MARKER:
         res = dowrite(obj);
@@ -4326,20 +4393,20 @@ doapply()
     case FLINT:
         if (Role_if(PM_CAVEMAN)
             && yn("Affix your flint to some arrows?") == 'y')
-            apply_flint(obj);
+            apply_flint(&obj);
         else
-            use_stone(obj);
+            use_stone(&obj);
         break;
     case LUCKSTONE:
     case LOADSTONE:
     case TOUCHSTONE:
     case ROCK:
-        use_stone(obj);
+        use_stone(&obj);
         break;
     default:
         /* Pole-weapons can strike at a distance */
         if (is_pole(obj)) {
-            res = use_pole(obj);
+            res = use_pole(obj, FALSE);
             break;
         } else if (is_pick(obj) || is_axe(obj)) {
             res = use_pick_axe(obj);

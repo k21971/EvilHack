@@ -921,6 +921,16 @@ NEARDATA struct permonst mons[] = {
         SIZ(800, 200, MS_ORC, MZ_MEDIUM), MR_POISON, 0, M1_HUMANOID | M1_OMNIVORE,
         M2_COLLECT, M3_INFRAVISIBLE | M3_INFRAVISION | M3_ACCURATE, 0,
         MH_ORC, 8, CLR_WHITE),
+    MON("Goblin King", S_ORC,
+        LVL(8, 12, 7, 10, -15), (G_NOGEN | G_UNIQ),
+        A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_WEAP, AD_PHYS, 2, 6),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1500, 500, MS_CUSS, MZ_LARGE), MR_POISON, 0,
+        M1_HUMANOID | M1_OMNIVORE,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_STALK | M2_NASTY
+          | M2_MALE | M2_GREEDY | M2_JEWELS | M2_COLLECT | M2_MAGIC,
+        M3_WAITFORU | M3_INFRAVISION | M3_INFRAVISIBLE, 0,
+        MH_ORC, 10, CLR_BRIGHT_MAGENTA),
     /*
      * piercers
      */
@@ -1533,6 +1543,7 @@ NEARDATA struct permonst mons[] = {
      * for wizards, the pseudodragon was a more than suitable companion for their
      * spellcasting masters. Not much larger than your typical household
      * cat, but much more cunning and intelligent.
+     * Not exactly dragons, but dragon-like.
      */
     MON("pseudodragon", S_DRAGON, LVL(2, 18, 4, 20, 0), G_NOGEN,
         A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_STNG, AD_DRST, 1, 2),
@@ -1540,14 +1551,14 @@ NEARDATA struct permonst mons[] = {
         SIZ(150, 150, MS_HISS, MZ_SMALL), MR_POISON, 0,
         M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_CARNIVORE,
         M2_DOMESTIC, M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION, 0,
-        MH_DRAGON, 4, CLR_BROWN),
+        0, 4, CLR_BROWN),
     MON("elder pseudodragon", S_DRAGON, LVL(4, 18, 2, 40, 0), G_NOGEN,
         A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_STNG, AD_DRST, 1, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(300, 200, MS_HISS, MZ_SMALL), MR_POISON, 0,
         M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_CARNIVORE,
         M2_DOMESTIC, M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION, 0,
-        MH_DRAGON, 6, CLR_BROWN),
+        0, 6, CLR_BROWN),
     MON("ancient pseudodragon", S_DRAGON, LVL(6, 20, 0, 60, 0), G_NOGEN,
         A(ATTK(AT_BITE, AD_SLEE, 1, 10), ATTK(AT_STNG, AD_DRST, 1, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -1555,7 +1566,7 @@ NEARDATA struct permonst mons[] = {
         M1_ANIMAL | M1_FLY | M1_NOHANDS | M1_CARNIVORE,
         M2_DOMESTIC | M2_STRONG,
         M3_INFRAVISIBLE | M3_ACCURATE | M3_INFRAVISION, 0,
-        MH_DRAGON, 8, CLR_BROWN),
+        0, 8, CLR_BROWN),
     /* From J.R.R. Tolkien, the nine Nazgul had steeds known as 'fell beasts'
      * which they rode/flew into battle. Fearsome in their own right.
      * Not exactly dragons, but dragon-like.
@@ -1571,16 +1582,14 @@ NEARDATA struct permonst mons[] = {
     /*
      * Dragons
      */
-    /* The order of the dragons is VERY IMPORTANT.  Quite a few
-     * pieces of code depend on gray being first and yellow being last.
-     * The code also depends on the *order* being the same as that for
-     * dragon scale mail and dragon scales in objects.c.  [Also,
-     * 'tilemap' assumes that shimmering dragon follows silver dragon.]
+    /* The order of the dragons is VERY IMPORTANT.
+     * The code depends on the *order* being the same as that for dragon scales
+     * in objects.c.  Baby dragons cannot confer intrinsics, to avoid
+     * polyself/egg abuse.
      *
      * Adult dragons are all lawful or chaotic; sea dragons as well as
      * baby dragons are all neutral.  This affects monster generation on
-     * some special levels.  Baby dragons cannot confer intrinsics, to
-     * avoid polyself/egg abuse.
+     * some special levels.
      *
      * As reptiles, dragons are cold-blooded and thus aren't seen with
      * infravision.  Red and gold dragons (also Tiamat) are the
@@ -1798,6 +1807,20 @@ NEARDATA struct permonst mons[] = {
             | M1_OVIPAROUS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0, 0, MH_DRAGON, 20, CLR_YELLOW),
+    /* strictly a placeholder for chromatic dragon scales */
+    MON("chromatic dragon", S_DRAGON, LVL(0, 9, -1, 20, -7), G_NOGEN,
+        A(ATTK(AT_BREA, AD_RBRE, 6, 6), ATTK(AT_BREA, AD_RBRE, 6, 6),
+          ATTK(AT_BITE, AD_PHYS, 4, 8), ATTK(AT_CLAW, AD_PHYS, 4, 4),
+          ATTK(AT_CLAW, AD_PHYS, 4, 4), ATTK(AT_ENGL, AD_DGST, 2, 10)),
+        SIZ(WT_DRAGON, 1500, MS_ROAR, MZ_GIGANTIC),
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
+            | MR_ACID | MR_STONE,
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON
+            | MR_STONE,
+        M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_SEE_INVIS | M1_POIS,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY
+            | M2_JEWELS | M2_MAGIC,
+        0, 0, MH_DRAGON, 20, HI_LORD),
     /*
      * Elementals
      */
@@ -1966,8 +1989,7 @@ struct permonst _mons2[] = {
         SIZ(2250, 750, MS_BOAST, MZ_HUGE), 0, 0, M1_HUMANOID | M1_CARNIVORE,
         M2_STRONG | M2_ROCKTHROW | M2_NASTY | M2_COLLECT | M2_JEWELS,
         M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_GIANT, 8, CLR_GRAY),
-    /* From SporkHack.
-     */
+    /* From SporkHack */
     MON("hill giant shaman", S_GIANT, LVL(7, 10, 4, 0, -3), (G_GENO | 2),
 	A(ATTK(AT_MAGC, AD_CLRC, 0, 0),
 	  NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -2486,12 +2508,6 @@ struct permonst _mons2[] = {
      * None of these stats have any significance, they're just to ensure
      * that if one does get accidentally generated in the 'normal' way
      * (without a remapped permonst) that nothing useful happens.
-     *
-     * Until I can figure out a way to save the shambling horrors' spawned
-     * state into the save file, the template will be adjusted to prevent
-     * the player from saving, restoring, and then assuming they'll change
-     * it to something easy. (template needs to be as bare-bones
-     * as possible - 28FEB2019)
      */
     MON("shambling horror", S_UMBER, LVL(12, 12, 0, 0, 0), (G_NOCORPSE | 1),
 	A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -3606,6 +3622,14 @@ struct permonst _mons2[] = {
     /*
      * lizards, &c
      */
+    MON("tortle", S_LIZARD, LVL(0, 10, 0, 0, 3), G_NOGEN, /* placeholder */
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(1600, 400, MS_HUMANOID, MZ_LARGE), 0, 0,
+        M1_HUMANOID | M1_THICK_HIDE | M1_OMNIVORE | M1_AMPHIBIOUS
+            | M1_SWIM,
+        M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE,
+        M4_VULNERABLE_COLD, MH_TORTLE, 2, CLR_CYAN),
     MON("newt", S_LIZARD, LVL(0, 6, 8, 0, 0), (G_GENO | 5),
         A(ATTK(AT_BITE, AD_PHYS, 1, 2), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -3622,6 +3646,14 @@ struct permonst _mons2[] = {
           NO_ATTK),
         SIZ(30, 30, MS_SILENT, MZ_TINY), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, 0, 0, 0, 3, CLR_BROWN),
+    MON("sea tortle", S_LIZARD, LVL(2, 5, 0, 0, 3), (G_GENO | G_NOHELL | G_SGROUP | 1),
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(1600, 400, MS_HUMANOID, MZ_LARGE), 0, 0,
+        M1_HUMANOID | M1_THICK_HIDE | M1_OMNIVORE | M1_AMPHIBIOUS
+            | M1_SWIM,
+        M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE,
+        M4_VULNERABLE_COLD, MH_TORTLE, 3, CLR_CYAN),
     MON("baby crocodile", S_LIZARD, LVL(3, 6, 7, 0, 0), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -3633,6 +3665,14 @@ struct permonst _mons2[] = {
           NO_ATTK),
         SIZ(10, 40, MS_SILENT, MZ_TINY), MR_STONE, MR_STONE,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_HOSTILE, 0, 0, 0, 6, CLR_GREEN),
+    MON("tortle shaman", S_LIZARD, LVL(5, 8, 0, 20, 5), (G_GENO | G_NOHELL),
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 4), ATTK(AT_MAGC, AD_CLRC, 0, 0),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(1600, 400, MS_HUMANOID, MZ_LARGE), 0, 0,
+        M1_HUMANOID | M1_THICK_HIDE | M1_OMNIVORE | M1_AMPHIBIOUS
+            | M1_SWIM,
+        M2_STRONG | M2_MAGIC | M2_COLLECT, M3_INFRAVISIBLE,
+        M4_VULNERABLE_COLD, MH_TORTLE, 6, HI_ZAP),
     MON("chameleon", S_LIZARD, LVL(6, 5, 6, 10, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 4, 2), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -3646,15 +3686,15 @@ struct permonst _mons2[] = {
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS
             | M1_OVIPAROUS | M1_CARNIVORE,
         M2_STRONG | M2_HOSTILE, 0, 0, 0, 7, CLR_BROWN),
-    /* From SporkHack.
-     */
-    MON("giant turtle", S_LIZARD, LVL(7, 2, -8, 10, 0), (G_GENO | 1),
+    /* From SporkHack */
+    MON("giant turtle", S_LIZARD, LVL(7, 2, -8, 10, 0), (G_GENO | G_NOHELL | 1),
         A(ATTK(AT_BITE, AD_PHYS, 4, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(4000, 1200, MS_HISS, MZ_HUGE), MR_STONE, MR_STONE,
         M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS | M1_HERBIVORE
             | M1_AMPHIBIOUS | M1_SWIM,
-        M2_HOSTILE | M2_STRONG, 0, 0, 0, 8, CLR_BRIGHT_GREEN),
+        M2_HOSTILE | M2_STRONG, 0,
+        M4_VULNERABLE_COLD, 0, 8, CLR_BRIGHT_GREEN),
     MON("salamander", S_LIZARD, LVL(8, 12, -1, 0, -9), (G_HELL | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_TUCH, AD_FIRE, 1, 6),
           ATTK(AT_HUGS, AD_FIRE, 3, 6), ATTK(AT_HUGS, AD_WRAP, 2, 6),
@@ -3670,7 +3710,7 @@ struct permonst _mons2[] = {
         SIZ(1500, 400, MS_MUMBLE, MZ_HUMAN), MR_SLEEP | MR_COLD, MR_COLD,
         M1_HUMANOID | M1_SLITHY | M1_THICK_HIDE | M1_POIS | M1_SWIM,
         M2_STALK | M2_HOSTILE | M2_STRONG | M2_COLLECT | M2_MAGIC,
-        M3_INFRAVISION, M4_VULNERABLE_FIRE, 0, 13, CLR_BRIGHT_BLUE),
+        M3_INFRAVISION, M4_VULNERABLE_FIRE, 0, 13, CLR_WHITE),
     MON("giant crocodile", S_LIZARD, LVL(12, 9, 1, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 4, 4), ATTK(AT_CLAW, AD_PHYS, 3, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -3903,14 +3943,14 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_PNAME | M2_PEACEFUL | M2_STRONG | M2_MALE
             | M2_COLLECT | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISIBLE, 0, MH_HUMAN, 23, HI_LORD),
-    MON("Grand Master", S_HUMAN, LVL(25, 15, 0, 90, 0), (G_NOGEN | G_UNIQ),
+    MON("Master Po", S_HUMAN, LVL(25, 15, 0, 90, 0), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_CLAW, AD_PHYS, 4, 10), ATTK(AT_KICK, AD_CLOB, 2, 8),
           ATTK(AT_MAGC, AD_CLRC, 2, 8), ATTK(AT_MAGC, AD_CLRC, 2, 8), NO_ATTK,
           NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_LEADER, MZ_HUMAN),
         MR_FIRE | MR_ELEC | MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_HUMANOID | M1_SEE_INVIS | M1_HERBIVORE,
-        M2_NOPOLY | M2_PEACEFUL | M2_STRONG | M2_MALE | M2_NASTY
+        M2_NOPOLY | M2_PNAME | M2_PEACEFUL | M2_STRONG | M2_MALE | M2_NASTY
             | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISIBLE, 0, MH_HUMAN, 30, CLR_BLACK),
     MON("Arch Priest", S_HUMAN, LVL(25, 15, 0, 90, 0), (G_NOGEN | G_UNIQ),
@@ -4014,18 +4054,6 @@ struct permonst _mons2[] = {
             | M2_PNAME | M2_ROCKTHROW | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISIBLE | M3_BERSERK,
         0, MH_GIANT, 23, HI_LORD),
-#if 0 /* OBSOLETE */
-    MON("Goblin King", S_ORC,
-        LVL(15, 12, 10, 0, -15), (G_NOGEN | G_UNIQ),
-        A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_WEAP, AD_PHYS, 2, 6),
-          ATTK(AT_CLAW, AD_SAMU, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(750, 350, MS_NEMESIS, MZ_HUMAN), MR_POISON, 0,
-        M1_HUMANOID | M1_OMNIVORE,
-        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_STALK | M2_NASTY
-          | M2_MALE | M2_GREEDY | M2_JEWELS | M2_COLLECT | M2_MAGIC,
-        M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISION | M3_INFRAVISIBLE, 0,
-        MH_ORC, 18, HI_LORD),
-#endif
     MON("Warden Arianna", S_HUMAN, LVL(20, 12, 0, 40, -14), (G_NOGEN | G_UNIQ | G_NOCORPSE),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 25), ATTK(AT_WEAP, AD_PHYS, 1, 25),
           ATTK(AT_CLAW, AD_SAMU, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),

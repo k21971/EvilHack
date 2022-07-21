@@ -191,8 +191,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Keolewa from SporkHack - a Hawaiian war club.
      *      Buffing this up a bit to give it more utility.
      */
-    A("Keolewa", CLUB, (SPFX_RESTR | SPFX_DEFN), 0, 0,
-      PHYS(5, 6), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL, PM_CAVEMAN, NON_PM,
+    A("Keolewa", CLUB, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
+      ELEC(5, 8), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL, PM_CAVEMAN, NON_PM,
       2000L, NO_COLOR),
     /*
      *      Dirge from SporkHack, but with a twist.
@@ -269,9 +269,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        before the rest of his body crumbles to dust */
     A("The Eye of Vecna", EYEBALL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL),
-      (SPFX_XRAY | SPFX_ESP | SPFX_HSPDAM), 0, NO_ATTK, NO_DFNS,
-      CARY(AD_COLD), DEATH_GAZE, A_NONE, NON_PM, NON_PM,
-      50000L, NO_COLOR),
+      (SPFX_XRAY | SPFX_ESP | SPFX_HSPDAM | SPFX_EXCLUDE),
+      0, NO_ATTK, NO_DFNS, CARY(AD_COLD), DEATH_MAGIC, A_NONE,
+      NON_PM, NON_PM, 50000L, NO_COLOR),
+    /* The Hand of Vecna, another possible artifact that Vecna
+       might drop once destroyed */
+    A("The Hand of Vecna", MUMMIFIED_HAND,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_REGEN | SPFX_HPHDAM),
+      SPFX_EXCLUDE, 0, NO_ATTK, DFNS(AD_DISE), NO_CARY, DEATH_MAGIC, A_NONE,
+      NON_PM, NON_PM, 50000L, CLR_BLACK),
     /* Dramborleg, one of the most powerful weapons ever forged from
        Lord of The Rings series. Per lore, it's unknown exactly which
        race created this axe, but it was wielded by Tuor, who used it

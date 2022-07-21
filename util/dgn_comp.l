@@ -101,6 +101,7 @@ mazelike	{ yylval.i=MAZELIKE ; return(DESCRIPTOR); }
 roguelike	{ yylval.i=ROGUELIKE ; return(DESCRIPTOR); }
 iceq            { yylval.i=ICEQ ; return(DESCRIPTOR); }
 vecnad          { yylval.i=VECNAD ; return(DESCRIPTOR); }
+gtown           { yylval.i=GTOWN ; return(DESCRIPTOR); }
 unaligned       { yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 noalign         { yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 lawful          { yylval.i=D_ALIGN_LAWFUL ; return(DESCRIPTOR); }

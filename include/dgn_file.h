@@ -57,15 +57,16 @@ struct tmpbranch {
 #define ROGUELIKE 8
 #define ICEQ 16
 #define VECNAD 32
+#define GTOWN 64
 
 /* if you add flags up above, the values for bit shifting
    also have to be adjusted */
 #define D_ALIGN_NONE 0
-#define D_ALIGN_CHAOTIC (AM_CHAOTIC << 6) /* 64 */
-#define D_ALIGN_NEUTRAL (AM_NEUTRAL << 6) /* 128 */
-#define D_ALIGN_LAWFUL (AM_LAWFUL << 6)   /* 256 */
+#define D_ALIGN_CHAOTIC (AM_CHAOTIC << 7) /* 128 */
+#define D_ALIGN_NEUTRAL (AM_NEUTRAL << 7) /* 256 */
+#define D_ALIGN_LAWFUL (AM_LAWFUL << 7)   /* 512 */
 
-#define D_ALIGN_MASK 0x1C0 /* total D_ALIGN_x values */
+#define D_ALIGN_MASK 0x380 /* total D_ALIGN_x values */
 
 /*
  *	Max number of prototype levels and branches.

@@ -157,13 +157,14 @@ struct monst {
 
     Bitfield(iscerberus, 1); /* is Cerberus */
     Bitfield(isvecna, 1);    /* is Vecna */
+    Bitfield(isgking, 1);    /* is the Goblin King */
     Bitfield(iswiz, 1);      /* is the Wizard of Yendor */
     Bitfield(wormno, 5);     /* at most 31 worms on any level */
     Bitfield(mwither_from_u, 1); /* is withering due to player */
 
     Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
     Bitfield(mstone, 3);     /* monster is turning to stone */
-    /* 4 free bits */
+    /* 3 free bits */
 
     uchar mwither;           /* withering; amount of turns left till recovery */
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
@@ -205,6 +206,7 @@ struct monst {
     int msummoned;         /* is a temporarily summoned being */
     int msicktime;         /* zombie sick timer */
     int mdiseasetime;      /* diseased timer */
+    int mreflecttime;      /* timeout for monster reflection spell */
     uchar mprotection;     /* monster protection spell */
     uchar mprottime;       /* timeout for monster protection spell */
     struct mextra *mextra; /* point to mextra struct */

@@ -90,6 +90,30 @@ dungeon core
 quale
 holloway
 
+# Particularly bad greek myths
+|manotaur
+dollartaur
+minitaur
+_mamataur
+monotaur
+
+# Ice Branch
+-Kate the Nice Queen
+=Abdominal Snowman
++Carl the Escalator
+scimitar-tailed tiger
+=Bonbon
+=Oozy
+
+# Vecna Branch
+Nose of Vecna
+Toe of Vecna
+Cheek of Vecna
+incredibly old lich
+decrepit lich
+minilich
+mystery van-pire
+
 # Quendor (Zork, &c.)
 grue
 Christmas-tree monster

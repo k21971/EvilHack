@@ -81,10 +81,10 @@ STATIC_PTR int
 picklock(VOID_ARGS)
 {
     if (xlock.box) {
-        if ((((xlock.box->where != OBJ_FLOOR
-            || (xlock.box->ox != u.ux || (xlock.box->oy != u.uy)))
-            && (!(xlock.box->otyp == IRON_SAFE || xlock.box->otyp == CRYSTAL_CHEST)
-                || abs(xlock.box->oy - u.uy) > 1 || abs(xlock.box->ox - u.ux) > 1)))) {
+        if ((xlock.box->where != OBJ_FLOOR
+             || xlock.box->ox != u.ux || xlock.box->oy != u.uy)
+            && (!(xlock.box->otyp == IRON_SAFE || xlock.box->otyp == CRYSTAL_CHEST
+                  || abs(xlock.box->oy - u.uy) > 1 || abs(xlock.box->ox - u.ux) > 1))) {
            return ((xlock.usedtime = 0)); /* you or it moved */
         }
     } else { /* door */
@@ -123,9 +123,9 @@ picklock(VOID_ARGS)
         /* unfortunately we don't have a 'tknown' flag to record
            "known to be trapped" so declining to disarm and then
            retrying lock manipulation will find it all over again */
-        if (In_sokoban(&u.uz)) {
+        if (In_sokoban(&u.uz) && xlock.door) {
             pline("You find a trap!  But you see no way to disarm it.");
-            return ((xlock.usedtime = 0));
+            exercise(A_WIS, FALSE);
         } else if (yn("You find a trap!  Do you want to try to disarm it?") == 'y') {
             const char *what;
             boolean alreadyunlocked;
@@ -390,7 +390,7 @@ struct obj *container; /* container, for autounlock */
     if (xlock.usedtime && picktyp == xlock.picktyp) {
         static char no_longer[] = "Unfortunately, you can no longer %s %s.";
 
-        if (nohands(youmonst.data)) {
+        if (nohands(youmonst.data) || !freehand()) {
             const char *what = (picktyp == LOCK_PICK) ? "pick" : "key";
 
             if (picktyp == CREDIT_CARD)
@@ -417,6 +417,10 @@ struct obj *container; /* container, for autounlock */
     if (nohands(youmonst.data)) {
         You_cant("hold %s -- you have no hands!", doname(pick));
         return PICKLOCK_DID_NOTHING;
+    } else if (!freehand()) {
+        You_cant("hold %s -- you have no %s free!",
+                 doname(pick), makeplural(body_part(HAND)));
+        return PICKLOCK_DID_NOTHING;
     } else if (u.uswallow) {
         You_cant("%sunlock %s.", (picktyp == CREDIT_CARD) ? "" : "lock or ",
                  mon_nam(u.ustuck));
@@ -435,7 +439,7 @@ struct obj *container; /* container, for autounlock */
     if (rx != 0 && ry != 0) { /* autounlock; caller has provided coordinates */
         cc.x = rx;
         cc.y = ry;
-    } else if (picktyp == STETHOSCOPE) { 
+    } else if (picktyp == STETHOSCOPE) {
         /* skip directional prompt for stethoscope when not called via
          * autounlock; a direction (down) was already selected in
          * use_stethoscope */
@@ -533,7 +537,7 @@ struct obj *container; /* container, for autounlock */
                             an(simple_typename(picktyp)));
                         return PICKLOCK_LEARNED_SOMETHING;
                     }
-                } 
+                }
 
                 /* crystal chest can only be opened by magical means */
                 if (otmp->otyp == CRYSTAL_CHEST && !pick->oartifact) {
@@ -681,7 +685,7 @@ doforce()
     register int c, picktyp;
     char qbuf[QBUFSZ];
 
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         You_cant("force anything from inside here.");
         return 0;
     }
@@ -795,6 +799,12 @@ int x, y;
 
     if (nohands(youmonst.data)) {
         You_cant("open anything -- you have no hands!");
+        return 0;
+    }
+
+    if (!freehand()) {
+        You_cant("open anything -- you have no %s free!",
+                 makeplural(body_part(HAND)));
         return 0;
     }
 
@@ -944,6 +954,12 @@ doclose()
 
     if (nohands(youmonst.data)) {
         You_cant("close anything -- you have no hands!");
+        return 0;
+    }
+
+    if (!freehand()) {
+        You_cant("close anything -- you have no %s free!",
+                 makeplural(body_part(HAND)));
         return 0;
     }
 

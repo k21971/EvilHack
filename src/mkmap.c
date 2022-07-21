@@ -622,7 +622,7 @@ lev_init *init_lev;
         join_map(bg_typ, fg_typ);
 
     if (In_mines(&u.uz) && !In_hell(&u.uz)) {
-        if (!(Is_minetn_level(&u.uz))) {
+        if (!Is_minetn_level(&u.uz) && !Is_branchlev(&u.uz)) {
             if (rn2(u.uz.dlevel + 1))
                 mkrivers();
         }

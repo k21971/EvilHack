@@ -3,6 +3,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include "qtext.h" /* for Charon */
 
 STATIC_DCL boolean FDECL(mon_is_gecko, (struct monst *));
 STATIC_DCL int FDECL(domonnoise, (struct monst *));
@@ -352,7 +353,7 @@ dosounds()
         static const char* const icequeenbranch_msg[] = {
             "an eerie, ominous wail.",
             "a howling wind.",
-            "someone singing \"Do You Want to Build a Snowman\"."
+            "someone singing \"Do You Want to Build a Snowman?\""
         };
         You_hear1(icequeenbranch_msg[rn2(2 + hallu)]);
         return;
@@ -365,6 +366,16 @@ dosounds()
             "\"Dead man walking\"..."
         };
         You_hear1(vecnabranch_msg[rn2(2 + hallu)]);
+        return;
+    }
+    if (!In_goblintown(&u.uz0) && at_dgn_entrance("Goblin Town")
+        && !rn2(200)) {
+        static const char* const gtown_msg[] = {
+            "the sounds of a bustling town nearby.",
+            "what sounds like a goblin war party off in the distance.",
+            "a chorus singing \"We are the Lollipop Guild\"..."
+        };
+        You_hear1(gtown_msg[rn2(2 + hallu)]);
         return;
     }
 }
@@ -412,7 +423,7 @@ register struct monst *mtmp;
         ret = "wail";
         break;
     case MS_SILENT:
-        ret = "commotion";
+        ret = "quiver";
         break;
     default:
         ret = "scream";
@@ -692,8 +703,7 @@ register struct monst *mtmp;
                             Upolyd ? an(mons[u.umonnum].mname)
                                    : an(racenoun));
                     verbl_msg = verbuf;
-                } else
-                    verbl_msg = vampmsg[vampindex];
+                }
             }
         }
     } break;
@@ -888,27 +898,55 @@ register struct monst *mtmp;
                  && moves > EDOG(mtmp)->hungrytime)
             verbl_msg = "I'm hungry.";
         /* Specific monsters' interests */
-        else if (racial_elf(mtmp))
-            pline_msg = "curses orcs.";
-        else if (racial_dwarf(mtmp))
-            pline_msg = "talks about mining.";
-        else if (likes_magic(ptr))
+        else if (racial_elf(mtmp)) {
+            if (mtmp->mpeaceful && Ingtown) {
+                if (u.uevent.ugking) {
+                    verbl_msg = "The Goblin King is dead!";
+                } else {
+                    verbl_msg = rn2(2) ? "Death to the Goblin King!"
+                                       : "Curse this wretched town!";
+                }
+            } else {
+                pline_msg = "curses orcs.";
+            }
+        } else if (racial_dwarf(mtmp)) {
+            if (mtmp->mpeaceful && Ingtown) {
+                if (u.uevent.ugking) {
+                    verbl_msg = "The Goblin King has fallen!  Back to mining, lads!";
+                } else {
+                    verbl_msg = rn2(2) ? "Baruk Khazad!  Khazad ai-menu!"
+                                       : "Bah!  Not a single pint of ale to be found!";
+                }
+            } else {
+                pline_msg = "talks about mining.";
+            }
+        } else if (likes_magic(ptr))
             pline_msg = "talks about spellcraft.";
         else if (ptr->mlet == S_CENTAUR)
             pline_msg = "discusses hunting.";
-        else if (racial_gnome(mtmp) && Hallucination && (gnomeplan = rn2(4)) % 2)
-            /* skipped for rn2(4) result of 0 or 2;
-               gag from an early episode of South Park called "Gnomes";
-               initially, Tweek (introduced in that episode) is the only
-               one aware of the tiny gnomes after spotting them sneaking
-               about; they are embarked upon a three-step business plan;
-               a diagram of the plan shows:
-                         Phase 1         Phase 2      Phase 3
-                   Collect underpants       ?          Profit
-               and they never verbalize step 2 so we don't either */
-            verbl_msg = (gnomeplan == 1) ? "Phase one, collect underpants."
-                                         : "Phase three, profit!";
-        else
+        else if (racial_gnome(mtmp)) {
+            if (mtmp->mpeaceful && Ingtown) {
+                if (u.uevent.ugking) {
+                    verbl_msg = "The Goblin King is no more!  Mine Town is open for business!";
+                } else {
+                    verbl_msg = "We must free our brothers and sisters in the Mines!";
+                }
+            } else if (Hallucination && (gnomeplan = rn2(4)) % 2) {
+                /* skipped for rn2(4) result of 0 or 2;
+                   gag from an early episode of South Park called "Gnomes";
+                   initially, Tweek (introduced in that episode) is the only
+                   one aware of the tiny gnomes after spotting them sneaking
+                   about; they are embarked upon a three-step business plan;
+                   a diagram of the plan shows:
+                             Phase 1         Phase 2      Phase 3
+                       Collect underpants       ?          Profit
+                   and they never verbalize step 2 so we don't either */
+                verbl_msg = (gnomeplan == 1) ? "Phase one, collect underpants."
+                                             : "Phase three, profit!";
+            } else {
+                pline_msg = "grunts.";
+            }
+        } else {
             switch (monsndx(ptr)) {
             case PM_HOBBIT:
             case PM_HOBBIT_PICKPOCKET:
@@ -926,32 +964,16 @@ register struct monst *mtmp;
                 break;
             case PM_CHARON:
                 if (mtmp->mpeaceful) {
-                    switch (rnd(6)) {
-                    case 1:
-                        verbl_msg = "Cerberus awaits beyond these gates.  Beware, mortal!";
-                        break;
-                    case 2:
-                        verbl_msg = "Abandon all hope, ye who enter here.";
-                        break;
-                    case 3:
-                        verbl_msg = "This is all that remains of the river Styx.";
-                        break;
-                    case 4:
-                        verbl_msg = "Mortal, take heed!  Cerberus guards the entrance to Gehennom, and cannot be dispatched easily.";
-                        break;
-                    case 5:
-                        verbl_msg = "The Gates of Hell are impenetrable.";
-                        break;
-                    case 6:
-                        pline_msg = "asks if you've seen his boat.";
-                        break;
-                    }
-                }
+                    com_pager(rn1(u.uevent.ucerberus ? QTN_CHRN_NOCERB
+                                                     : QTN_CHARON,
+                                  QT_CHARON));
+                };
                 break;
             default:
                 pline_msg = "discusses dungeon exploration.";
                 break;
             }
+        }
         break;
     case MS_SEDUCE: {
         int swval;
@@ -1138,7 +1160,7 @@ dochat()
         You_cant("speak.  You're choking!");
         return 0;
     }
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         pline("They won't hear you out there.");
         return 0;
     }

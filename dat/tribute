@@ -8735,6 +8735,169 @@ out these riches.  I just need to make it out of this place alive first...
 %e passage
 %e title
 #
+#
+# Also not a Terry Pratchett novel - this is
+# 'The Blacksmith's Cookbook', which contains
+# every recipe available that the player can
+# use to forge objects.
+#
+%title The Blacksmith's Cookbook (8)
+#
+%passage 1
+Chapter 1 of 8 - Getting Started
+
+1) Find a forge.
+2) Find a hammer, any will do.
+3) Find two gemstone or metallic objects from the recipe
+   chapters.
+4) Put both of those objects into the forge whilst
+   wielding your hammer (#forge).
+5) Start forging.  If successful, you'll forge a brand
+   new object.
+
+Make sure your secondary object has the material and
+enchantments you want to carry over to your newly
+forged creation.
+
+Don't try to forge things you know you shouldn't.
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 2
+Chapter 2 of 8 - Weapons (part 1)
+
+Forge 2 darts / dagger to create:  3 to 4 shuriken
+Forge 2 arrows / dagger to create:  spear
+Forge 2 elven arrows / elven dagger to create:  elven spear
+Forge 2 orcish arrows / orcish dagger to create:  orcish spear
+Forge 2 arrows / spear to create:  dwarvish spear
+Forge 2 crossbow bolts / spear to create:  javelin
+Forge scimitar / spear to create:  trident
+Forge 2 arrows / knife to create:  dagger
+Forge 2 elven arrows / knife to create:  elven dagger
+Forge 2 orcish arrows / knife to create:  orcish dagger
+Forge dagger / stiletto to create:  athame
+Forge knife / stiletto to create:  scalpel
+Forge 2 arrows / 2 darts to create:  knife
+Forge 2 crossbow bolts / knife to create:  stiletto
+Forge dagger / spear to create:  axe
+Forge axe / dwarvish short sword to create:  dwarvish bearded axe
+Forge axe / broadsword to create:  battle-axe
+Forge 2 crossbow bolts / dagger to create:  short sword
+Forge 2 crossbow bolts / elven dagger to create:  elven short sword
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 3
+Chapter 3 of 8 - Weapons (part 2)
+
+Forge 2 crossbow bolts / orcish dagger to create:  orcish short sword
+Forge short sword / dwarvish spear to create:  dwarvish short sword
+Forge short sword / knife to create:  scimitar
+Forge orcish short sword / knife to create:  orcish scimitar
+Forge scimitar / long sword to create:  saber
+Forge scimitar / short sword to create:  broadsword
+Forge scimitar / elven short sword to create:  elven broadsword
+Forge short sword (x2) to create:  long sword
+Forge elven short sword (x2) to create:  elven long sword
+Forge orcish short sword (x2) to create:  orcish long sword
+Forge broadsword / long sword to create:  two-handed sword
+Forge long sword (x2) to create:  katana
+Forge katana / two-handed sword to create:  tsurugi
+Forge broadsword / dagger to create:  runesword
+Forge pick-axe / dwarvish short sword to create:  dwarvish mattock
+Forge dagger / war hammer to create:  mace
+Forge mace (x2) to create:  heavy mace
+Forge 2 rubies / mace to create:  rod
+Forge dagger / mace to create:  morning star
+Forge orcish dagger / mace to create:  orcish morning star
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 4
+Chapter 4 of 8 - Weapons (part 3)
+
+Forge flail / mace to create:  war hammer
+Forge war hammer (x2) to create:  heavy war hammer
+Forge flail / spear to create:  aklys
+Forge mace / morning star to create:  flail
+Forge broadsword / spear to create:  partisan
+Forge stiletto / spear to create:  ranseur
+Forge knife / spear to create:  spetum
+Forge short sword / spear to create:  glaive
+Forge glaive / javelin to create:  lance
+Forge axe / ranseur to create:  halberd
+Forge battle-axe / spear to create:  bardiche
+Forge axe / spear to create:  voulge
+Forge saber / spear to create:  fauchard
+Forge grappling hook / spear to create:  guisarme
+Forge guisarme / spear to create:  bill-guisarme
+Forge heavy war hammer / spear to create:  lucern hammer
+Forge war hammer / spear to create:  bec de corbin
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 5
+Chapter 5 of 8 - Armor (Helmets)
+
+Forge dented pot / orcish dagger to create:  orcish helm
+Forge dwarvish short sword / helmet to create:  dwarvish helm
+Forge knife / war hammer to create:  dented pot
+Forge dagger / dented pot to create:  helmet
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 6
+Chapter 6 of 8 - Armor (Body Armor)
+
+Forge chain mail / splint mail to create:  plate mail
+Forge 3 dilithium crystals / plate mail to create:  crystal plate mail
+Forge chain mail / scale mail to create:  splint mail
+Forge plate mail (x2) to create:  large splint mail
+Forge ring mail / scale mail to create:  banded mail
+Forge ring mail (x2) to create:  chain mail
+Forge chain mail / dwarvish roundshield to create:  dwarvish chain mail
+Forge chain mail / elven shield to create:  elven chain mail
+Forge ring mail / orcish shield to create:  orcish chain mail
+Forge ring mail / helmet to create:  scale mail
+Forge large shield / helmet to create:  ring mail
+Forge orcish shield / orcish helm to create:  orcish ring mail
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 7
+Chapter 7 of 8 - Armor (Shields)
+
+Forge dagger / helmet to create:  small shield
+Forge elven dagger / small shield to create:  elven shield
+Forge orcish shield (x2) to create:  uruk-hai shield
+Forge orcish boots / orcish helm to create:  orcish shield
+Forge helmet (x2) to create:  large shield
+Forge dwarvish helm / large shield to create:  dwarvish roundshield
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 8
+Chapter 8 of 8 - Armor (Boots, Gauntlets, Barding)
+
+Forge mace / helmet to create:  gauntlets
+Forge dwarvish short sword / gauntlets to create:  dwarvish boots
+Forge orcish short sword / gauntlets to create:  orcish boots
+Forge plate mail / saddle to create:  barding
+Forge morning star / barding to create:  spiked barding
+Forge shield of reflection / barding to create:  barding of reflection
+
+  [The Blacksmith's Cookbook]
+%e passage
+%e title
+#
 %e section
 #
 #-----------------------------------------------------

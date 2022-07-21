@@ -429,7 +429,7 @@ boolean newlev;
     if (!*leavestring && (!levl[u.ux][u.uy].edge || levl[u.ux0][u.uy0].edge))
         return;
 
-    shkp = shop_keeper(*u.ushops0);
+    shkp = shop_keeper(*leavestring ? *leavestring : *u.ushops0);
     if (!shkp || !inhishop(shkp))
         return; /* shk died, teleported, changed levels... */
 
@@ -1307,6 +1307,11 @@ dopay()
         return 0;
     }
 
+    if (Hidinshell) {
+        pline("How do you expect to do that while hiding in your shell?");
+        return 0;
+    }
+
     /* The usual case.  Allow paying at a distance when
      * inside a tended shop.  Should we change that?
      */
@@ -2133,23 +2138,19 @@ long *numerator, *denominator;
 
     if (is_human(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_GNOME)) {
-            /* nasty, brutish, and short */
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_CENTAUR)) {
-            /* "smelly and four-legged" */
             *numerator = 3L;
             *denominator = 2L;
         }
     } else if (is_elf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
             *numerator = 2L;
-        } else if (Race_if(PM_DWARF)) {
-            /* "lawn ornament" */
+        } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_ELF)) {
-            /* slight same-race discount */
             *numerator = 4L;
             *denominator = 5L;
         }
@@ -2157,15 +2158,12 @@ long *numerator, *denominator;
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
             *numerator = 2L;
         } else if (Race_if(PM_ELF)) {
-            /* "pointy-eared tree hugger" */
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_GIANT)) {
-            /* "big, dumb and smelly" */
             *numerator = 3L;
             *denominator = 2L;
         } else if (Race_if(PM_DWARF)) {
-            /* same-race discount */
             *numerator = 3L;
             *denominator = 4L;
         }
@@ -2173,21 +2171,17 @@ long *numerator, *denominator;
         if (Race_if(PM_ELF) || Race_if(PM_GNOME)
             || Race_if(PM_HOBBIT)) {
             *numerator = 3L;
-        } else if (Race_if(PM_DWARF)) {
+        } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
             *numerator = 5L;
             *denominator = 3L;
         } else if (Race_if(PM_HUMAN)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_ORC)) {
-            /* generous same-race discount */
             *numerator = 2L;
             *denominator = 3L;
         }
     } else if (is_gnome(shkdat)) {
-        /* Gnomes are crafty. They don't really have racial animosities, but
-         * it's going to be a lot harder to get a good deal out of a gnome unless
-         * you're remarkably shrewd yourself */
         if (ACURR(A_INT) < 15) {
             *numerator = 3L;
             *denominator = 2L;
@@ -2200,34 +2194,28 @@ long *numerator, *denominator;
             impossible("mnum for illithid shopkeeper is too low!");
             return;
         }
-        /* They'd prefer not to sell their libraries */
         if (!Race_if(PM_ILLITHID))
             *numerator = ((mnum - PM_ILLITHID + 1) * 10);
     } else if (is_centaur(shkdat)) {
-        /* Centaurs don't care much for most humanoid races */
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
             || Race_if(PM_DWARF) || Race_if(PM_ORC)
-            || Race_if(PM_ILLITHID)) {
+            || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)) {
             *numerator = 3L;
             *denominator = 2L;
         } else if (Race_if(PM_CENTAUR)) {
-            /* same-race discount */
             *numerator = 3L;
             *denominator = 4L;
         }
     } else if (is_giant(shkdat)) {
-        /* Non-Elder-Race humanoids are not thought of highly */
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
             || Race_if(PM_ILLITHID) || Race_if(PM_ORC)
-            || Race_if(PM_HOBBIT)) {
+            || Race_if(PM_HOBBIT) || Race_if(PM_TORTLE)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_DWARF)) {
-            /* "dwarf tossing, only thing they're good for" */
             *numerator = 3L;
             *denominator = 2L;
         } else if (Race_if(PM_GIANT)) {
-            /* cater to their own kind */
             *numerator = 3L;
             *denominator = 4L;
         }
@@ -2237,11 +2225,9 @@ long *numerator, *denominator;
             return;
         }
         if (ACURR(A_CHA) > 14) {
-            /* Pretty people don't get gouged TOO badly... */
             *numerator = 4L;
             *denominator = 3L;
         } else {
-            /* ... but if you don't measure up... */
             *numerator = 5L;
             *denominator = 3L;
         }
@@ -2397,8 +2383,8 @@ register struct monst *shkp; /* if angry, impose a surcharge */
     /* if the player tries to game the system and buy an item
        for less than what they can sell it for, adjust the price
        so the best they can do is break even */
-    if (tmp < (objects[obj->otyp].oc_cost / 2) * obj->quan)
-        tmp = (objects[obj->otyp].oc_cost / 2) * obj->quan;
+    if (tmp < (objects[obj->otyp].oc_cost / 2))
+        tmp = (objects[obj->otyp].oc_cost / 2);
 
     /* anger surcharge should match rile_shk's, so we do it separately
        from the multiplier/divisor calculation */
@@ -2695,8 +2681,11 @@ struct obj *unp_obj; /* known to be unpaid or contain unpaid */
 boolean include_contents;
 {
     struct bill_x *bp = (struct bill_x *) 0;
-    struct monst *shkp;
+    struct monst *shkp = 0;
+    char *shop;
     long amt = 0L;
+
+#if 0   /* if two shops share a wall, this might find wrong shk */
     xchar ox, oy;
 
     if (!get_obj_location(unp_obj, &ox, &oy, BURIED_TOO | CONTAINED_TOO))
@@ -2710,16 +2699,21 @@ boolean include_contents;
             if ((bp = onbill(unp_obj, shkp, TRUE)) != 0)
                 break;
     }
+#endif
+    for (shop = u.ushops; *shop; shop++) {
+        if ((shkp = shop_keeper(*shop))) {
+            if ((bp = onbill(unp_obj, shkp, TRUE)))
+                amt = unp_obj->quan * bp->price;
+            if (include_contents && Has_contents(unp_obj))
+                amt = contained_cost(unp_obj, shkp, amt, FALSE, TRUE);
+            if (bp || (!unp_obj->unpaid && amt))
+                break;
+        }
+    }
 
     /* onbill() gave no message if unexpected problem occurred */
-    if (!shkp || (unp_obj->unpaid && !bp)) {
+    if (!shkp || (unp_obj->unpaid && !bp))
         impossible("unpaid_cost: object wasn't on any bill.");
-    } else {
-        if (bp)
-            amt = unp_obj->quan * bp->price;
-        if (include_contents && Has_contents(unp_obj))
-            amt = contained_cost(unp_obj, shkp, amt, FALSE, TRUE);
-    }
     return amt;
 }
 
@@ -3678,6 +3672,9 @@ boolean shk_buying;
             tmp = 0L;
         break;
     case ARMOR_CLASS:
+        if (Is_dragon_scaled_armor(obj))
+            tmp += ((3 * objects[obj->dragonscales].oc_cost) / 2L);
+        /* FALLTHRU */
     case WEAPON_CLASS:
         if (obj->spe > 0)
             tmp += 10L * (long) obj->spe;

@@ -59,35 +59,24 @@ int range, type;
 anything *id;
 {
     light_source *ls;
-    boolean duplicate = FALSE;
 
-    if (range > MAX_RADIUS || range < 1) {
+    if (range > MAX_RADIUS || range < 0
+        /* camera flash uses radius 0 and passes Null object */
+        || (range == 0 && (type != LS_OBJECT || id->a_obj != 0))) {
         impossible("new_light_source:  illegal range %d", range);
         return;
     }
 
-    /* check that this is a unique lightsource */
-    for (ls = light_base; ls; ls = ls->next) {
-        if ((ls->type == LS_OBJECT && ls->id.a_obj == id->a_obj)
-            || (ls->type == LS_MONSTER && ls->id.a_monst == id->a_monst)) {
-            duplicate = TRUE;
-            impossible("duplicate lightsource attempting to be created, type %d", type);
-            break;
-        }
-    }
+    ls = (light_source *) alloc(sizeof *ls);
 
-    if (!duplicate) {
-        ls = (light_source *) alloc(sizeof *ls);
-        ls->next = light_base;
-        light_base = ls;
-    }
-
+    ls->next = light_base;
     ls->x = x;
     ls->y = y;
     ls->range = range;
     ls->type = type;
     ls->id = *id;
     ls->flags = 0;
+    light_base = ls;
 
     vision_full_recalc = 1; /* make the source show up */
 }
@@ -781,7 +770,9 @@ struct obj *obj;
        light than other light sources */
     if (obj == uskin)
         res = 1;
-    else if (obj->otyp == GOLD_DRAGON_SCALE_MAIL /* DSM but not scales */
+    else if ((Is_dragon_scaled_armor(obj)
+              && (Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES
+                  || Dragon_armor_to_scales(obj) == CHROMATIC_DRAGON_SCALES))
              || obj->otyp == SHIELD_OF_LIGHT)
         ++res;
 

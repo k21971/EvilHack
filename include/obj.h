@@ -122,6 +122,8 @@ struct obj {
 #define fromsink corpsenm /* a potion from a sink */
 #define novelidx corpsenm /* 3.6 tribute - the index of the novel title */
 #define record_achieve_special corpsenm
+#define dragonscales corpsenm /* dragon-scaled body armor
+                               * (index into objects[], not mons[]) */
     int usecount;           /* overloaded for various things that tally */
 #define spestudied usecount /* # of times a spellbook has been studied */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
@@ -214,7 +216,7 @@ struct obj {
      || otmp->oartifact == ART_SUNSWORD || otmp->oartifact == ART_XIUHCOATL                       \
      || otmp->oartifact == ART_EXCALIBUR || otmp->oartifact == ART_SCEPTRE_OF_MIGHT               \
      || otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN || otmp->oartifact == ART_MITRE_OF_HOLINESS \
-     || otmp->oartifact == ART_TSURUGI_OF_MURAMASA)
+     || otmp->oartifact == ART_TSURUGI_OF_MURAMASA || otmp->oartifact == ART_DRAMBORLEG)
 
 #define is_chaotic_artifact(otmp) \
     (otmp->oartifact == ART_STORMBRINGER || otmp->oartifact == ART_GRIMTOOTH                  \
@@ -231,7 +233,7 @@ struct obj {
     (otmp->oartifact == ART_MAGIC___BALL || otmp->oartifact == ART_LIFESTEALER         \
      || otmp->oartifact == ART_BAG_OF_THE_HESPERIDES || otmp->oartifact == ART_BUTCHER \
      || otmp->oartifact == ART_WAND_OF_ORCUS || otmp->oartifact == ART_EYE_OF_VECNA    \
-     || otmp->oartifact == ART_SWORD_OF_KAS)
+     || otmp->oartifact == ART_HAND_OF_VECNA || otmp->oartifact == ART_SWORD_OF_KAS)
 
 #define is_magical_staff(otmp) \
     (otmp->otyp == STAFF_OF_DIVINATION || otmp->otyp == STAFF_OF_HEALING \
@@ -315,26 +317,43 @@ struct obj {
      (o)->cobj != (struct obj *) 0)
 #define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
 #define Is_nonprize_container(o) (Is_container(o) && !is_soko_prize_flag(o))
-#define Is_box(otmp) (otmp->otyp == LARGE_BOX || otmp->otyp == CHEST \
-                      || otmp->otyp == IRON_SAFE || otmp->otyp == CRYSTAL_CHEST)
-#define Is_mbag(otmp) \
-    (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS)
-#define Is_allbag(otmp) \
-    (otmp->otyp >= SACK && otmp->otyp <= BAG_OF_TRICKS)
+#define Is_box(o) ((o)->otyp == LARGE_BOX || (o)->otyp == CHEST \
+                   || (o)->otyp == IRON_SAFE || (o)->otyp == CRYSTAL_CHEST)
+#define Is_mbag(o) ((o)->otyp == BAG_OF_HOLDING || (o)->otyp == BAG_OF_TRICKS)
+#define Is_allbag(o) ((o)->otyp >= SACK && (o)->otyp <= BAG_OF_TRICKS)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)
+/* usually waterproof; random chance to be subjected to leakage if cursed;
+   excludes statues, which aren't vulernable to water even when cursed */
+#define Waterproof_container(o) \
+    ((o)->otyp == OILSKIN_SACK || (o)->otyp == ICE_BOX || Is_box(o) \
+     || (o)->oartifact == ART_BAG_OF_THE_HESPERIDES)
 
-/* dragon gear */
+/* dragon gear
+ * NOTE: this assumes that gray dragons come first and yellow last, as detailed
+ * in monst.c. */
+#define FIRST_DRAGON        PM_GRAY_DRAGON
+#define LAST_DRAGON         PM_CHROMATIC_DRAGON
+#define FIRST_DRAGON_SCALES GRAY_DRAGON_SCALES
+#define LAST_DRAGON_SCALES  CHROMATIC_DRAGON_SCALES
 #define Is_dragon_scales(obj) \
-    ((obj)->otyp >= GRAY_DRAGON_SCALES && (obj)->otyp <= CHROMATIC_DRAGON_SCALES)
-#define Is_dragon_mail(obj)                \
-    ((obj)->otyp >= GRAY_DRAGON_SCALE_MAIL \
-     && (obj)->otyp <= CHROMATIC_DRAGON_SCALE_MAIL)
-#define Is_dragon_armor(obj) (Is_dragon_scales(obj) || Is_dragon_mail(obj))
-#define Dragon_scales_to_pm(obj) \
-    &mons[PM_GRAY_DRAGON + (obj)->otyp - GRAY_DRAGON_SCALES]
-#define Dragon_mail_to_pm(obj) \
-    &mons[PM_GRAY_DRAGON + (obj)->otyp - GRAY_DRAGON_SCALE_MAIL]
-#define Dragon_to_scales(pm) (GRAY_DRAGON_SCALES + (pm - mons))
+    ((obj)->otyp >= FIRST_DRAGON_SCALES && (obj)->otyp <= LAST_DRAGON_SCALES)
+/* Note: dragonscales is corpsenm, and corpsenm is usually initialized to
+ * NON_PM, which is -1. Thus, check for > 0 rather than just nonzero. */
+#define Is_dragon_scaled_armor(obj)                \
+    (is_suit(obj) && (obj)->dragonscales > 0)
+#define Is_dragon_armor(obj) \
+    (Is_dragon_scales(obj) || Is_dragon_scaled_armor(obj))
+/* any dragon armor -> FOO_DRAGON_SCALES object */
+#define Dragon_armor_to_scales(obj) \
+    (Is_dragon_scales(obj) ? (obj)->otyp : (obj)->dragonscales)
+/* any dragon armor -> associated dragon PM_ constant */
+#define Dragon_armor_to_pm(obj) \
+    (FIRST_DRAGON \
+     + (Is_dragon_scales(obj) ? (obj)->otyp : (obj)->dragonscales) \
+     - FIRST_DRAGON_SCALES)
+/* dragon PM_ constant -> dragon scales */
+#define mndx_to_dragon_scales(mndx) \
+    (FIRST_DRAGON_SCALES + (mndx - FIRST_DRAGON))
 
 /* Elven gear */
 #define is_elven_weapon(otmp) \

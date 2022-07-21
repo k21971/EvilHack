@@ -766,7 +766,11 @@ struct obj *instr;
     int x, y;
     boolean ok;
 
-    if (Underwater) {
+    if (Hidinshell) {
+        You("are incapable of playing %s while hiding in your shell.",
+            the(distant_name(instr, xname)));
+        return 0;
+    } else if (Underwater) {
         You_cant("play music underwater!");
         return 0;
     } else if ((instr->otyp == FLUTE || instr->otyp == MAGIC_FLUTE

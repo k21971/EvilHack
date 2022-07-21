@@ -217,9 +217,9 @@ struct trobj Tinningkit[] = { { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 0 },
                                      { 0, 0, 0, 0, 0 } };
 struct trobj Pickaxe[] = { { PICK_AXE, 0, TOOL_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
-struct trobj Psionics[] = { { SPE_PSIONIC_WAVE, 0, SPBOOK_CLASS, 1, 0 },
-                                  { 0, 0, 0, 0, 0 } };
 struct trobj AoMR[] = { { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, 0 },
+                               { 0, 0, 0, 0, 0 } };
+struct trobj Oilskin[] = { { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
 
 /* race-based substitutions for initial inventory;
@@ -278,6 +278,14 @@ struct inv_sub {
     { PM_HOBBIT, HELMET, ELVEN_HELM },
     { PM_HOBBIT, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_HOBBIT, CRAM_RATION, LEMBAS_WAFER },
+    /* Tortles also have special considerations */
+    { PM_TORTLE, JACKET, GLOVES },
+    { PM_TORTLE, RING_MAIL, TOQUE },
+    { PM_TORTLE, BATTLE_AXE, TRIDENT },
+    { PM_TORTLE, TWO_HANDED_SWORD, TRIDENT },
+    { PM_TORTLE, ROBE, TOQUE },
+    { PM_TORTLE, HAWAIIAN_SHIRT, TOQUE },
+    { PM_TORTLE, CLOAK_OF_MAGIC_RESISTANCE, GLOVES },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -471,6 +479,7 @@ static const struct def_skill Skill_P[] = {
     { P_HAMMER, P_EXPERT },
     { P_FLAIL, P_EXPERT },
     { P_QUARTERSTAFF, P_EXPERT },
+    { P_POLEARMS, P_SKILLED },
     { P_SLING, P_BASIC },
     { P_BOOMERANG, P_BASIC },
     { P_HEALING_SPELL, P_EXPERT },
@@ -655,46 +664,6 @@ register char sym;
             knows_object(ct);
 }
 
-int attk_melee_types [] =
-    { AT_CLAW, AT_BITE, AT_KICK, AT_BUTT, AT_TUCH,
-      AT_STNG, AT_TENT, AT_WEAP
-    };
-
-int attk_spec_types [] =
-    { AT_HUGS, AT_SPIT, AT_ENGL, AT_BREA, AT_GAZE,
-      AT_MAGC
-    };
-
-int damg_melee_types [] =
-    { AD_PHYS, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
-      AD_ELEC, AD_DRST, AD_ACID, AD_STUN, AD_SLOW,
-      AD_PLYS, AD_DRLI, AD_DREN, AD_LEGS, AD_STCK,
-      AD_SGLD, AD_SITM, AD_SEDU, AD_TLPT, AD_RUST,
-      AD_CONF, AD_DRDX, AD_DRCO, AD_DRIN, AD_DISE,
-      AD_DCAY, AD_HALU, AD_ENCH, AD_CORR, AD_BHED,
-      AD_POLY, AD_WTHR, AD_PITS, AD_WEBS
-    };
-
-int damg_breath_types [] =
-    { AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
-      AD_DRST, AD_WATR, AD_ACID
-    };
-
-int damg_spit_types [] =
-    { AD_BLND, AD_ACID, AD_DRST };
-
-int damg_gaze_types [] =
-    { AD_FIRE, AD_COLD, AD_SLEE, AD_STUN, AD_SLOW,
-      AD_CNCL
-    };
-
-int damg_engulf_types [] =
-    { AD_PLYS, AD_DGST, AD_WRAP };
-
-int damg_magic_types [] =
-    { AD_SPEL, AD_CLRC, AD_MAGM, AD_FIRE, AD_COLD,
-      AD_ACID };
-
 void
 u_init()
 {
@@ -834,7 +803,7 @@ u_init()
     case PM_CONVICT:
         ini_inv(Convict);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         knows_object(SKELETON_KEY);
         knows_object(GRAPPLING_HOOK);
         skill_init(Skill_Con);
@@ -846,7 +815,7 @@ u_init()
         u.umoney0 = rn1(1000, 1001);
         ini_inv(Healer);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         if (!rn2(25))
             ini_inv(Lamp);
         knows_object(POT_FULL_HEALING);
@@ -856,7 +825,7 @@ u_init()
         u.umoney0 = rn1(251, 250);
         ini_inv(Infidel);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         knows_object(SCR_CHARGING);
         if (Race_if(PM_GIANT)) {
             struct trobj RandomGem = Gem[0];
@@ -879,7 +848,7 @@ u_init()
         skill_init(Skill_K);
         break;
     case PM_MONK: {
-        static short M_spell[] = { SPE_HEALING, SPE_PROTECTION, SPE_SLEEP };
+        static short M_spell[] = { SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER };
 
         Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
         ini_inv(Monk);
@@ -894,7 +863,7 @@ u_init()
     case PM_PRIEST:
         ini_inv(Priest);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         if (!rn2(4))
             ini_inv(Lamp);
         knows_object(POT_WATER);
@@ -983,10 +952,10 @@ u_init()
         break;
     case PM_WIZARD:
         ini_inv(Wizard);
-        if (Race_if(PM_GIANT))
+        if (Race_if(PM_GIANT) || Race_if(PM_TORTLE))
             ini_inv(AoMR);
         if (Race_if(PM_ILLITHID))
-            ini_inv(Psionics);
+            force_learn_spell(SPE_PSIONIC_WAVE);
         if (!rn2(5))
             ini_inv(Lamp);
         if (!rn2(5))
@@ -1053,22 +1022,38 @@ u_init()
         knows_object(DWARVISH_BOOTS);
         knows_object(DWARVISH_ROUNDSHIELD);
 
-	if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_CONVICT))
+        if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_CONVICT)) {
             if (!rn2(4)) {
-	        /* Wise dwarves bring their toy to the dungeons. */
-	        ini_inv(Pickaxe);
-	    }
+                /* Wise dwarves bring their toy to the dungeons */
+                ini_inv(Pickaxe);
+            }
+        }
         break;
 
     case PM_GNOME:
     case PM_ILLITHID:
         break;
 
+    case PM_TORTLE:
+        /* if their role lists trident as a trainable skill,
+           raise the max proficiency level by one */
+        if (Role_if(PM_BARBARIAN) || Role_if(PM_MONK))
+            P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
+        if (Role_if(PM_HEALER) || Role_if(PM_TOURIST))
+            P_MAX_SKILL(P_TRIDENT) = P_SKILLED;
+
+        if (!rn2(4)) {
+            /* in case they want to go for a swim */
+            ini_inv(Oilskin);
+        }
+        break;
+
     case PM_GIANT:
         /* Giants know valuable gems from glass, and may recognize a few types of valuable gem. */
-        for (i = DILITHIUM_CRYSTAL; i <= LUCKSTONE; i++)
+        for (i = DILITHIUM_CRYSTAL; i <= LUCKSTONE; i++) {
             if ((objects[i].oc_cost <= 1) || (rn2(100) < 5 + ACURR(A_INT)))
                 knows_object(i);
+        }
         break;
 
     case PM_HOBBIT:
@@ -1192,8 +1177,65 @@ u_init()
         break;
     }
 
+    /* If we have at least one spell, force starting Pw to be 5,
+       so hero can cast the level 1 spell they should have */
+    if (num_spells() && (u.uenmax < 5))
+        u.uen = u.uenmax = u.ueninc[u.ulevel] = 5;
+
     return;
 }
+
+/* attack/damage structs for shambler_init() */
+int attk_melee_types [] =
+    { AT_CLAW, AT_BITE, AT_TUCH, AT_STNG, AT_WEAP };
+
+int attk_spec_types [] =
+    { AT_HUGS, AT_SPIT, AT_ENGL, AT_BREA, AT_GAZE,
+      AT_MAGC, AT_KICK, AT_BUTT, AT_TENT
+    };
+
+int damg_melee_types [] =
+    { AD_PHYS, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
+      AD_ELEC, AD_DRST, AD_ACID, AD_STUN, AD_SLOW,
+      AD_PLYS, AD_DRLI, AD_DREN, AD_LEGS, AD_STCK,
+      AD_SGLD, AD_SITM, AD_SEDU, AD_TLPT, AD_RUST,
+      AD_CONF, AD_DRDX, AD_DRCO, AD_DRIN, AD_DISE,
+      AD_DCAY, AD_HALU, AD_ENCH, AD_CORR, AD_BHED,
+      AD_POLY, AD_WTHR, AD_PITS, AD_WEBS
+    };
+
+int damg_breath_types [] =
+    { AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
+      AD_DRST, AD_WATR, AD_ACID
+    };
+
+int damg_spit_types [] =
+    { AD_BLND, AD_ACID, AD_DRST };
+
+int damg_gaze_types [] =
+    { AD_FIRE, AD_COLD, AD_SLEE, AD_STUN, AD_SLOW,
+      AD_CNCL
+    };
+
+int damg_engulf_types [] =
+    { AD_PLYS, AD_DGST, AD_WRAP };
+
+int damg_magic_types [] =
+    { AD_SPEL, AD_CLRC, AD_MAGM, AD_FIRE, AD_COLD,
+      AD_ACID
+    };
+
+int damg_kick_types [] =
+    { AD_PHYS, AD_STUN, AD_LEGS, AD_ENCH, AD_CLOB };
+
+int damg_butt_types [] =
+    { AD_PHYS, AD_STUN, AD_CONF, AD_CLOB };
+
+int damg_tent_types [] =
+    { AD_PHYS, AD_DRST, AD_ACID, AD_STUN, AD_PLYS,
+      AD_DRLI, AD_DREN, AD_CONF, AD_DRIN, AD_DISE,
+      AD_HALU
+    };
 
 void
 shambler_init()
@@ -1204,10 +1246,10 @@ shambler_init()
     int shambler_attacks;
 
     /* what a horrible night to have a curse */
-    shambler->mlevel += rnd(15) - 3;	/* shuffle level */
-    shambler->mmove = rn2(10) + 9;	/* slow to very fast */
-    shambler->ac = rn2(31) - 20;	/* any AC */
-    shambler->mr = rn2(5) * 25;		/* varying amounts of MR */
+    shambler->mlevel += rnd(15) - 3;    /* shuffle level */
+    shambler->mmove = rn2(10) + 9;      /* slow to very fast */
+    shambler->ac = rn2(31) - 20;        /* any AC */
+    shambler->mr = rn2(5) * 25;         /* varying amounts of MR */
     shambler->maligntyp = rn2(21) - 10;
 
     shambler_attacks = rnd(4);
@@ -1215,8 +1257,8 @@ shambler_init()
         attkptr = &shambler->mattk[i];
         attkptr->aatyp = attk_melee_types[rn2(SIZE(attk_melee_types))];
         attkptr->adtyp = damg_melee_types[rn2(SIZE(damg_melee_types))];
-        attkptr->damn = 2 + rn2(4);
-        attkptr->damd = 6 + rn2(3);
+        attkptr->damn = 2 + rn2(5);
+        attkptr->damd = 3 + rn2(6);
     }
 
     shambler_attacks = shambler_attacks + (rnd(9) / 3) - 1;
@@ -1226,27 +1268,36 @@ shambler_init()
         attkptr->damn = 2 + rn2(4);
         attkptr->damd = 6 + rn2(3);
         switch (attkptr->aatyp) {
-            case AT_BREA:
-                attkptr->adtyp = damg_breath_types[rn2(SIZE(damg_breath_types))];
-                break;
-            case AT_SPIT:
-                attkptr->adtyp = damg_spit_types[rn2(SIZE(damg_spit_types))];
-                break;
-            case AT_GAZE:
-                attkptr->adtyp = damg_gaze_types[rn2(SIZE(damg_gaze_types))];
-                break;
-            case AT_ENGL:
-                attkptr->adtyp = damg_engulf_types[rn2(SIZE(damg_engulf_types))];
-                break;
-            case AT_MAGC:
-                attkptr->adtyp = damg_magic_types[rn2(SIZE(damg_magic_types))];
-                break;
-            case AT_HUGS:
-                attkptr->adtyp = AD_PHYS;
-                break;
-            default:
-                attkptr->adtyp = AD_PHYS;
-                break;
+        case AT_BREA:
+            attkptr->adtyp = damg_breath_types[rn2(SIZE(damg_breath_types))];
+            break;
+        case AT_SPIT:
+            attkptr->adtyp = damg_spit_types[rn2(SIZE(damg_spit_types))];
+            break;
+        case AT_GAZE:
+            attkptr->adtyp = damg_gaze_types[rn2(SIZE(damg_gaze_types))];
+            break;
+        case AT_ENGL:
+            attkptr->adtyp = damg_engulf_types[rn2(SIZE(damg_engulf_types))];
+            break;
+        case AT_MAGC:
+            attkptr->adtyp = damg_magic_types[rn2(SIZE(damg_magic_types))];
+            break;
+        case AT_KICK:
+            attkptr->adtyp = damg_kick_types[rn2(SIZE(damg_kick_types))];
+            break;
+        case AT_BUTT:
+            attkptr->adtyp = damg_butt_types[rn2(SIZE(damg_butt_types))];
+            break;
+        case AT_TENT:
+            attkptr->adtyp = damg_tent_types[rn2(SIZE(damg_tent_types))];
+            break;
+        case AT_HUGS:
+            attkptr->adtyp = AD_PHYS;
+            break;
+        default:
+            attkptr->adtyp = AD_PHYS;
+            break;
         }
     }
 
@@ -1257,10 +1308,10 @@ shambler_init()
     shambler->mresists = 0;
 
     for (i = 0; i < rnd(6); i++)
-        shambler->mresists |= (1 << rn2(8));		/* physical resistances... */
+        shambler->mresists |= (1 << rn2(8));                /* physical resistances... */
     for (i = 0; i < rnd(5); i++)
-        shambler->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
-    shambler->mconveys = 0;				/* flagged NOCORPSE */
+        shambler->mresists |= (0x100 << rn2(7));            /* 'different' resistances, even clumsy */
+    shambler->mconveys = 0;                                 /* flagged NOCORPSE */
 
     /*
      * now time for the random flags.  this will likely produce
@@ -1269,24 +1320,24 @@ shambler_init()
      */
     shambler->mflags1 = 0;
     for (i = 0; i < rnd(17); i++)
-        shambler->mflags1 |= (1 << rn2(33));	/* rn2() should equal the number of M1_ flags in
+        shambler->mflags1 |= (1 << rn2(33));    /* rn2() should equal the number of M1_ flags in
                                                  * include/monflag.h */
-    shambler->mflags1 &= ~M1_UNSOLID;		/* no ghosts */
-    shambler->mflags1 &= ~M1_WALLWALK;		/* no wall-walkers */
-    shambler->mflags1 &= ~M1_ACID;		/* will never leave a corpse */
-    shambler->mflags1 &= ~M1_POIS;		/* same as above */
+    shambler->mflags1 &= ~M1_UNSOLID;           /* no ghosts */
+    shambler->mflags1 &= ~M1_WALLWALK;          /* no wall-walkers */
+    shambler->mflags1 &= ~M1_ACID;              /* will never leave a corpse */
+    shambler->mflags1 &= ~M1_POIS;              /* same as above */
 
-    shambler->mflags2 = M2_NOPOLY | M2_HOSTILE;	/* Don't let the player be one of these yet. */
+    shambler->mflags2 = M2_NOPOLY | M2_HOSTILE; /* Don't let the player be one of these yet. */
     for (i = 0; i < rnd(17); i++)
-        shambler->mflags2 |= (1 << rn2(22));	/* rn2() should equal the number of M2_ flags in
+        shambler->mflags2 |= (1 << rn2(22));    /* rn2() should equal the number of M2_ flags in
                                                  * include/monflag.h */
-    shambler->mflags2 &= ~M2_MERC;		/* no guards */
-    shambler->mflags2 &= ~M2_PEACEFUL;		/* no peacefuls */
-    shambler->mflags2 &= ~M2_PNAME;		/* not a proper name */
-    shambler->mflags2 &= ~M2_SHAPESHIFTER;	/* no chameleon types */
-    shambler->mflags2 &= ~M2_LORD;		/* isn't royalty */
-    shambler->mflags2 &= ~M2_PRINCE;		/* still isn't royalty */
-    shambler->mflags2 &= ~M2_DOMESTIC;		/* no taming */
+    shambler->mflags2 &= ~M2_MERC;              /* no guards */
+    shambler->mflags2 &= ~M2_PEACEFUL;          /* no peacefuls */
+    shambler->mflags2 &= ~M2_PNAME;             /* not a proper name */
+    shambler->mflags2 &= ~M2_SHAPESHIFTER;      /* no chameleon types */
+    shambler->mflags2 &= ~M2_LORD;              /* isn't royalty */
+    shambler->mflags2 &= ~M2_PRINCE;            /* still isn't royalty */
+    shambler->mflags2 &= ~M2_DOMESTIC;          /* no taming */
 
     shambler->mflags3 = 0;
     for (i = 0; i < rnd(5); i++)
@@ -1375,6 +1426,7 @@ register struct trobj *origtrop;
     struct trobj temptrop;
     register struct trobj *trop = &temptrop;
     memcpy(&temptrop, origtrop, sizeof(struct trobj));
+    boolean got_sp1 = FALSE; /* got a level 1 spellbook? */
 
     while (origtrop->trclass) {
         otyp = (int) trop->trotyp;
@@ -1426,7 +1478,7 @@ register struct trobj *origtrop;
                       low level players or unbalancing; also
                       spells in restricted skill categories */
                    || (obj->oclass == SPBOOK_CLASS
-                       && (objects[otyp].oc_level > 3
+                       && (objects[otyp].oc_level > (got_sp1 ? 3 : 1)
                            || restricted_spell_discipline(otyp)))
                    || otyp == SPE_NOVEL
                    /* items that will be iron for elves (rings/wands perhaps)
@@ -1462,6 +1514,9 @@ register struct trobj *origtrop;
             /* Don't have 2 of the same ring or spellbook */
             if (obj->oclass == RING_CLASS || obj->oclass == SPBOOK_CLASS)
                 nocreate4 = otyp;
+            /* First spellbook should be level 1 - did we get it? */
+            if (obj->oclass == SPBOOK_CLASS && objects[obj->otyp].oc_level == 1)
+                got_sp1 = TRUE;
         }
 
         /* Put post-creation object adjustments that don't depend on whether it

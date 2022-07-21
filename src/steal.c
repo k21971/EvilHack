@@ -227,9 +227,11 @@ boolean unchain_ball; /* whether to unpunish or just unwield */
             (void) Cloak_off();
         else if (obj == uarmf)
             (void) Boots_off();
-        else if (obj == uarmg)
+        else if (obj == uarmg) {
+            if (uarmg->oartifact == ART_HAND_OF_VECNA)
+                return;
             (void) Gloves_off();
-        else if (obj == uarmh)
+        } else if (obj == uarmh)
             (void) Helmet_off();
         else if (obj == uarms)
             (void) Shield_off();
@@ -382,11 +384,16 @@ char *objnambuf;
             static const char *const how[] = { "steal", "snatch", "grab",
                                                "take" };
  cant_take:
-            pline("%s tries to %s %s%s but gives up.", Monnam(mtmp),
-                  how[rn2(SIZE(how))],
-                  (otmp->owornmask & W_ARMOR) ? "your " : "",
-                  (otmp->owornmask & W_ARMOR) ? equipname(otmp)
-                                              : yname(otmp));
+            if ((otmp == uarmg) && uarmg->oartifact == ART_HAND_OF_VECNA) {
+                pline("%s takes one look at your decrepit %s and thinks better of it.",
+                      Monnam(mtmp), body_part(HAND));
+            } else {
+                pline("%s tries to %s %s%s but gives up.", Monnam(mtmp),
+                      how[rn2(SIZE(how))],
+                      (otmp->owornmask & W_ARMOR) ? "your " : "",
+                      (otmp->owornmask & W_ARMOR) ? equipname(otmp)
+                                                  : yname(otmp));
+            }
             /* the fewer items you have, the less likely the thief
                is going to stick around to try again (0) instead of
                running away (1) */
@@ -426,6 +433,9 @@ char *objnambuf;
                     goto cant_take;
                 remove_worn_item(otmp, TRUE);
                 break;
+            } else if ((otmp == uarmg)
+                       && uarmg->oartifact == ART_HAND_OF_VECNA) {
+                goto cant_take;
             } else {
                 int curssv = otmp->cursed;
                 int slowly;
@@ -702,7 +712,7 @@ struct obj *obj;
 boolean verbosely;
 {
     int omx = mon->mx, omy = mon->my;
-    boolean unwornmask = obj->owornmask;
+    long unwornmask = obj->owornmask;
 
     extract_from_minvent(mon, obj, FALSE, TRUE);
     /* don't charge for an owned saddle on dead steed (provided
@@ -774,12 +784,12 @@ boolean is_pet; /* If true, pet should keep wielded/worn items */
     } /* isgd && has gold */
 
     while ((otmp = (is_pet ? droppables(mtmp) : mtmp->minvent)) != 0) {
-        mdrop_obj(mtmp, otmp, is_pet && flags.verbose);
         if (is_unpaid(otmp) && costly_spot(omx, omy)
             && (shkp = shop_keeper(*in_rooms(omx, omy, SHOPBASE))) != 0
             && inhishop(shkp)) {
             subfrombill(otmp, shkp);
         }
+        mdrop_obj(mtmp, otmp, is_pet && flags.verbose);
     }
 
     if (show && cansee(omx, omy))

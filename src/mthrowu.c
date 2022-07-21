@@ -29,7 +29,7 @@ STATIC_OVL NEARDATA const char *breathwep[] = {
 extern boolean notonhead; /* for long worms */
 STATIC_VAR int mesg_given; /* for m_throw()/thitu() 'miss' message */
 
-extern struct obj *stack;
+static struct obj *ammo_stack = 0;
 
 boolean
 m_has_launcher_and_ammo(mtmp)
@@ -98,8 +98,12 @@ const char *name; /* if null, then format `*objp' */
         else
             You("are hit by %s%s", onm, exclam(dam));
 
-        if (stack)
-            stack->oprops_known |= obj->oprops_known;
+        if (obj && obj->oclass == WEAPON_CLASS
+            && obj->oprops & ITEM_PROP_MASK)
+            (void) artifact_hit((struct monst *) 0, &youmonst, obj, &dam, 0);
+
+        if (ammo_stack)
+            ammo_stack->oprops_known |= obj->oprops_known;
 
         if (is_acid && Acid_resistance) {
             pline("It doesn't seem to hurt you.");
@@ -163,17 +167,21 @@ int x, y;
             objgone = ship_object(obj, x, y, FALSE);
         if (!objgone) {
             if (!flooreffects(obj, x, y, "fall")) {
+                int presult = ER_NOTHING;
                 place_object(obj, x, y);
                 if (!mtmp && x == u.ux && y == u.uy)
                     mtmp = &youmonst;
                 if (mtmp && ohit)
-                    passive_obj(mtmp, obj, (struct attack *) 0);
-                stackobj(obj);
+                    presult = passive_obj(mtmp, obj, (struct attack *) 0);
+                if (presult != ER_DESTROYED)
+                    stackobj(obj);
                 retvalu = 0;
             }
         }
-    } else
+    } else {
         obfree(obj, (struct obj *) 0);
+    }
+    thrownobj = 0;
     return retvalu;
 }
 
@@ -515,7 +523,8 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         return 1;
     } else {
         damage = dmgval(otmp, mtmp);
-        if (otmp->otyp == ACID_VENOM && resists_acid(mtmp))
+        if (otmp->otyp == ACID_VENOM
+            && (resists_acid(mtmp) || defended(mtmp, AD_ACID)))
             damage = 0;
 #if 0 /* can't use this because we don't have the attacker */
         if (is_orc(mtmp->data) && is_elf(?magr?))
@@ -535,7 +544,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                   Monnam(mtmp), exclam(damage));
 
         if (otmp->opoisoned && is_poisonable(otmp)) {
-            if (resists_poison(mtmp)) {
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRST)) {
                 if (vis)
                     pline_The("poison doesn't seem to affect %s.",
                               mon_nam(mtmp));
@@ -554,8 +563,17 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             /* Extra damage is already handled in dmgval(). */
             searmsg((struct monst *) 0, mtmp, otmp, FALSE);
         }
+        if (!DEADMONSTER(mtmp) && otmp->oclass == WEAPON_CLASS
+            && otmp->oprops & ITEM_PROP_MASK) {
+            /* damage from objects with offensive object properties */
+            (void) artifact_hit((struct monst *) 0, mtmp, otmp, &damage, 0);
+        }
+
+        if (ammo_stack)
+            ammo_stack->oprops_known |= otmp->oprops_known;
+
         if (otmp->otyp == ACID_VENOM && cansee(mtmp->mx, mtmp->my)) {
-            if (resists_acid(mtmp)) {
+            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
                 if (vis || (verbose && !target))
                     pline("%s is unaffected.", Monnam(mtmp));
             } else {
@@ -566,13 +584,11 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             }
         }
         if (otmp->otyp == EGG && touch_petrifies(&mons[otmp->corpsenm])) {
-            /* if (!munstone(mtmp, TRUE))
-                minstapetrify(mtmp, TRUE); */
 	    if (!mtmp->mstone) {
 	        mtmp->mstone = 5;
 	        mtmp->mstonebyu = TRUE;
 	    }
-            if (resists_ston(mtmp))
+            if (resists_ston(mtmp) || defended(mtmp, AD_STON))
                 damage = 0;
         }
 
@@ -654,7 +670,7 @@ register boolean verbose;
     char sym = obj->oclass;
     int hitu = 0, oldumort, blindinc = 0;
 
-    stack = obj;
+    ammo_stack = obj;
 
     bhitpos.x = x;
     bhitpos.y = y;
@@ -682,6 +698,8 @@ register boolean verbose;
         singleobj = splitobj(obj, 1L);
         obj_extract_self(singleobj);
     }
+    /* global pointer for missile object in OBJ_FREE state */
+    thrownobj = singleobj;
 
     singleobj->owornmask = 0; /* threw one of multiple weapons in hand? */
 
@@ -698,7 +716,7 @@ register boolean verbose;
         /* check validity of new direction */
         if (!dx && !dy) {
             (void) drop_throw(singleobj, 0, bhitpos.x, bhitpos.y);
-            return;
+            goto cleanup_thrown;
         }
     }
 
@@ -709,7 +727,7 @@ register boolean verbose;
         if (singleobj) {
             (void) drop_throw(singleobj, 0, bhitpos.x, bhitpos.y);
         }
-        return;
+        goto cleanup_thrown;
     }
     mesg_given = 0; /* a 'missile misses' message has not yet been shown */
 
@@ -720,8 +738,8 @@ register boolean verbose;
     if (sym)
         tmp_at(DISP_FLASH, obj_to_glyph(singleobj, rn2_on_display_rng));
     while (range-- > 0) { /* Actually the loop is always exited by break */
-        bhitpos.x += dx;
-        bhitpos.y += dy;
+        singleobj->ox = bhitpos.x += dx;
+        singleobj->oy = bhitpos.y += dy;
         mtmp = m_at(bhitpos.x, bhitpos.y);
         if (mtmp && shade_miss(mon, mtmp, singleobj, TRUE, TRUE)) {
             /* if mtmp is a shade and missile passes harmlessly through it,
@@ -895,6 +913,13 @@ register boolean verbose;
         if (!Blind)
             Your1(vision_clears);
     }
+
+cleanup_thrown:
+    ammo_stack = (struct obj *) 0;
+
+    /* note: all early returns follow drop_throw() which clears thrownobj */
+    thrownobj = 0;
+    return;
 }
 
 #undef MT_FLIGHTCHECK
@@ -1147,7 +1172,6 @@ struct monst *mtmp;
         if (dam < 1)
             dam = 1;
 
-        stack = (struct obj *) 0;
         (void) thitu(hitv, dam, &otmp, (char *) 0);
         stop_occupation();
         return TRUE;
@@ -1446,6 +1470,14 @@ unsigned breakflags; /* breakage control */
             if (!nodissolve)
                 dissolve_bars(barsx, barsy);
         }
+    } else if (obj_type == LONG_SWORD && otmp->oartifact == ART_DIRGE) {
+        if (cansee(barsx, barsy) && !nodissolve)
+            pline_The("acidic blade slices right through the iron bars!");
+        else
+            You_hear(Hallucination ? "a hot knife slice through butter!"
+                                   : "a hissing noise.");
+        if (!nodissolve)
+            dissolve_bars(barsx, barsy);
     } else {
         if (!Deaf)
             pline("%s!", (obj_type == BOULDER || obj_type == HEAVY_IRON_BALL)

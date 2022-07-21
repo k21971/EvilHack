@@ -1569,6 +1569,7 @@ boolean clear;
             clear_screen();
         } else {
             docrt();
+            flush_screen(1);
         }
     } else {
         docorner((int) cw->offx, cw->maxrow + 1);
@@ -1583,7 +1584,8 @@ boolean free_data;
     int i;
 
     if (cw->data) {
-        if (cw == wins[WIN_MESSAGE] && cw->rows > cw->maxrow)
+        if (WIN_MESSAGE != WIN_ERR && cw == wins[WIN_MESSAGE]
+            && cw->rows > cw->maxrow)
             cw->maxrow = cw->rows; /* topl data */
         for (i = 0; i < cw->maxrow; i++)
             if (cw->data[i]) {

@@ -175,7 +175,7 @@ struct monst *mon;
 
     /* trident is highly effective against swimmers */
     if (otmp->otyp == TRIDENT && is_swimmer(ptr)) {
-        if (is_pool(mon->mx, mon->my))
+        if (is_damp_terrain(mon->mx, mon->my))
             tmp += 4;
         else if (ptr->mlet == S_EEL || ptr->mlet == S_SNAKE)
             tmp += 2;
@@ -183,6 +183,12 @@ struct monst *mon;
 
     /* Picks used against xorns and earth elementals */
     if (is_pick(otmp) && (passes_walls(ptr) && thick_skinned(ptr)))
+        tmp += 2;
+
+    /* Tortles receive a slight bonus to hit when using
+       spears or tridents */
+    if (Race_if(PM_TORTLE)
+        && (is_spear(otmp) || otmp->otyp == TRIDENT))
         tmp += 2;
 
     /* Check specially named weapon "to hit" bonuses */
@@ -971,7 +977,7 @@ register struct monst *mtmp;
     /* all monsters can wield the remaining weapons */
     for (i = 0; i < SIZE(hwep); i++) {
         if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG)
-            && !resists_ston(mtmp))
+            && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
             continue;
         if (((strong && !wearing_shield) || !objects[hwep[i]].oc_bimanual)
             && (objects[hwep[i]].oc_material != SILVER
@@ -1284,16 +1290,18 @@ boolean verbose;
        with your wet towel" message on next attack with it */
     if (obj == uwep)
         unweapon = !is_wet_towel(obj);
+    if (carried(obj))
+        update_inventory();
 }
 
-/* decrease a towel's wetness */
+/* decrease a towel's wetness; unlike when wetting, 0 is not a no-op */
 void
 dry_a_towel(obj, amt, verbose)
 struct obj *obj;
-int amt; /* positive: new value; negative: decrement by -amt; zero: no-op */
+int amt; /* positive or zero: new value; negative: decrement by abs(amt) */
 boolean verbose;
 {
-    int newspe = (amt <= 0) ? obj->spe + amt : amt;
+    int newspe = (amt < 0) ? obj->spe + amt : amt;
 
     /* new state is only reported if it's a decrease */
     if (newspe < obj->spe) {
@@ -1302,7 +1310,7 @@ boolean verbose;
                 pline("%s dries%s.", Yobjnam2(obj, (const char *) 0),
                       !newspe ? " out" : "");
             else if (mcarried(obj) && canseemon(obj->ocarry))
-                pline("%s %s drie%s.", s_suffix(Monnam(obj->ocarry)),
+                pline("%s %s dries%s.", s_suffix(Monnam(obj->ocarry)),
                       xname(obj), !newspe ? " out" : "");
         }
     }
@@ -1313,6 +1321,8 @@ boolean verbose;
        bashing with your towel" message on next attack with it */
     if (obj == uwep)
         unweapon = !is_wet_towel(obj);
+    if (carried(obj))
+        update_inventory();
 }
 
 /* Express progress of training of a skill as a percentage, where every 100%
@@ -1880,6 +1890,7 @@ struct obj *weapon;
 
         /* basically no restrictions if you're a giant, or have giant strength */
         if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+            || (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
             || maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
             maxweight = 200;
 
@@ -2108,8 +2119,8 @@ const struct def_skill *class_skill;
     if (urole.petnum == PM_PONY)
         P_SKILL(P_RIDING) = P_BASIC;
 
-    /* Centaurs can never ride anything */
-    if (Race_if(PM_CENTAUR))
+    /* Centaurs/tortles can never ride anything */
+    if (Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
         P_SKILL(P_RIDING) = P_NONE;
 
     /*

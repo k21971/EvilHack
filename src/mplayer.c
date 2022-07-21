@@ -144,6 +144,21 @@ static const char *illithid_female_names[] = {
     0
 };
 
+static const char *tortle_male_names[] = {
+    "Baka",         "Damu",        "Gar",        "Jappa",      "Krull",
+    "Lop",          "Nortle",      "Ploqwat",    "Queg",       "Quott",
+    "Ubo",          "Xelbuk",      "Yog",
+    0
+};
+
+static const char *tortle_female_names[] = {
+    "Gura",         "Ini",         "Kinlek",     "Lim",        "Nukla",
+    "Olo",          "Quee",        "Tibor",      "Uhok",       "Wabu",
+    "Xopa",
+    0
+};
+
+
 struct mfnames {
     const char **male;
     const char **female;
@@ -159,7 +174,8 @@ static const struct mfnames namelists[] = {
     { giant_male_names, giant_female_names },
     { hobbit_male_names, hobbit_female_names },
     { centaur_male_names, centaur_female_names },
-    { illithid_male_names, illithid_female_names }
+    { illithid_male_names, illithid_female_names },
+    { tortle_male_names, tortle_female_names }
 };
 
 void
@@ -190,7 +206,7 @@ void
 init_mplayer_erac(mtmp)
 struct monst *mtmp;
 {
-    char nam[PL_NSIZ];
+    char nam[PL_PSIZ];
     int race;
     struct erac *rptr;
     int mndx = mtmp->mnum;
@@ -226,7 +242,7 @@ struct monst *mtmp;
         /* flags for all barbarians regardless of race */
         rptr->mflags3 |= M3_BERSERK;
         mtmp->mintrinsics |= MR_POISON;
-        if (race == PM_DWARF)
+        if (race == PM_DWARF || race == PM_TORTLE)
             rptr->ralign = 0;
         break;
     case PM_CAVEMAN:
@@ -274,7 +290,7 @@ struct monst *mtmp;
         rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
         rptr->mflags1 |= M1_SEE_INVIS;
         mtmp->mintrinsics |= (MR_POISON | MR_SLEEP);
-        if (race == PM_DWARF)
+        if (race == PM_DWARF || race == PM_TORTLE)
             rptr->ralign = 3;
         if (race == PM_ELF)
             rptr->ralign = -3;
@@ -287,6 +303,8 @@ struct monst *mtmp;
         rptr->mattk[1].adtyp = AD_CLRC;
         if (race == PM_ORC || race == PM_ILLITHID)
             rptr->ralign = -3;
+        if (race == PM_TORTLE)
+            rptr->ralign = 0;
         break;
     case PM_RANGER:
         /* flags for all rangers regardless of race */
@@ -327,6 +345,9 @@ struct monst *mtmp;
         rptr->mattk[1].adtyp = AD_SPEL;
         if (race == PM_ORC || race == PM_ILLITHID)
             rptr->ralign = -3;
+        if (race == PM_DWARF || race == PM_HOBBIT
+            || race == PM_TORTLE)
+            rptr->ralign = 0;
         break;
     default:
         break;
@@ -352,6 +373,17 @@ short typ;
         curse(obj);
     if (!rn2(3))
         bless(obj);
+    if (objects[obj->otyp].oc_armcat == ARM_SUIT) {
+        /* make sure player monsters don't spawn with a set of
+           chromatic dragon scales... */
+        obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES,
+                                      LAST_DRAGON_SCALES - 1);
+        if (monsndx(mon->data) == PM_WIZARD) {
+            /* Wizards have a guaranteed cloak of magic resistance. */
+            obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES + 1,
+                                          LAST_DRAGON_SCALES - 1);
+        }
+    }
     /* Most players who get to the endgame who have cursed equipment
      * have it because the wizard or other monsters cursed it, so its
      * chances of having plusses is the same as usual....
@@ -369,13 +401,15 @@ struct obj *obj;
 {
     register struct monst *mtmp;
     register boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
+    char nam[PL_PSIZ];
 
-    char nam[PL_NSIZ];
+    if (!ptr)
+        return ((struct monst *) 0);
 
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), FALSE); /* insurance */
 
-    if ((mtmp = makemon(ptr, x, y, NO_MM_FLAGS)) != 0) {
+    if ((mtmp = makemon(ptr, x, y, MM_MPLAYEROK)) != 0) {
         short weapon, armor, cloak, helm, shield;
         int quan;
         struct obj *otmp;
@@ -396,7 +430,7 @@ struct obj *obj;
 
         /* default equipment; much of it will be overridden below */
         weapon = rn2(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);
-        armor  = rnd_class(GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALE_MAIL);
+        armor  = rnd_class(PLATE_MAIL, RING_MAIL);
         cloak  = !rn2(8) ? STRANGE_OBJECT
                          : rnd_class(OILSKIN_CLOAK, CLOAK_OF_DISPLACEMENT);
         helm   = !rn2(8) ? STRANGE_OBJECT
@@ -502,11 +536,8 @@ struct obj *obj;
         case PM_WIZARD:
             if (rn2(4))
                 weapon = rn2(2) ? QUARTERSTAFF : ATHAME;
-            if (rn2(2)) {
-                armor = rn2(2) ? BLACK_DRAGON_SCALE_MAIL
-                               : SILVER_DRAGON_SCALE_MAIL;
+            if (rn2(2))
                 cloak = CLOAK_OF_MAGIC_RESISTANCE;
-            }
             if (rn2(4))
                 helm = HELM_OF_BRILLIANCE;
             shield = STRANGE_OBJECT;

@@ -2196,7 +2196,7 @@ You find yourself standing in sight of %H.
 Something is obviously wrong here.  Strange shapes lumber around
 outside %H!
 
-You realize that the %l needs your assistance!
+You realize that %l needs your assistance!
 %E [You have reached %H but something is wrong.  %lC needs your aid.]
 %Cp Mon 00002
 Once again, you stand before %H.
@@ -2325,7 +2325,7 @@ against %n."
 %E
 %Cc Mon 00035
 You remember the descriptions of %i, given
-to you by the %l.  It is ahead that you will find
+to you by %l.  It is ahead that you will find
 %n's trail.
 %E [You have reached %i.  %nC lurks further ahead.]
 %Cp Mon 00036
@@ -3275,7 +3275,7 @@ The silver bell is uncursed now, so easy task for you, yeah?
 without a fight?  You're weaker than I thought.
 Leave now before I decide to put you out of
 everyone else's misery."
-+%E ["You give %o to %l."]
+%E ["You give %o to %l."]
 %Cc Rog 00090
 "Quite the little thief, aren't we, %p.  Can I interest you in a
 swap for %o?  Look around, anything in the keep
@@ -4615,6 +4615,26 @@ resides.
 
 Go now!  You are banished from this place.
 %E [You are banished from %H for betraying your allegiance to %d.]
+# Charon
+%Cp - 00070
+"The Gates of Hell are nigh-impenetrable."
+%E
+%Cp - 00071
+"Abandon all hope, ye who enter here."
+%E
+%Cp - 00072
+"This is all that remains of the river Styx."
+%E
+%Cp - 00073
+Charon asks if you've seen his boat.
+%E
+%Cp - 00074
+"Mortal, take heed!  Cerberus guards the entrance to Gehennom,
+and cannot be dispatched easily."
+%E
+%Cp - 00075
+"Cerberus awaits beyond these gates.  Beware, mortal!"
+%E
 #
 #	TEST PATTERN
 #
@@ -4717,3 +4737,63 @@ cavern ceiling.  You catch yourself and regain your balance
 as you step precariously close to the cliff's edge, careful
 not to fall into the abyss.
 %E [You have just entered an rock cavern, which appears bottomless.]
+#
+# Putting on the Hand of Vecna
+#
+%Cc - 00301
+As you move the Hand of Vecna closer to your own, your left
+hand suddenly shrivels up and falls off at the wrist!  Before
+you can react, the Hand of Vecna attaches itself to where your
+own hand used to be, infusing your entire body with an evil
+magic.  Exhilarated, you raise the Hand high above your head,
+reveling in your new-found power.  You realize that the Hand
+of Vecna has merged itself to your body, and that you will
+never be free of it.  An evil smile slowly spreads across your
+face at this revelation.
+%E [The Hand of Vecna has permanently affixed itself to your left arm.]
+%Cc - 00302
+As you move the Hand of Vecna closer to your own, your left
+hand suddenly shrivels up and falls off at the wrist!  Before
+you can react, the Hand of Vecna attaches itself to where your
+own hand used to be, infusing your entire body with an evil
+magic.  In a panic, you struggle to remove it from your arm,
+but it has merged itself to you completely.  It slowly dawns on
+you that you will never be able to free yourself from it.
+%E [The Hand of Vecna has permanently affixed itself to your left arm.]
+#
+# Defeating Vecna
+#
+%Cc - 00303
+As you watch Vecna's decrepit body crumble to dust, you sense
+a powerful, evil force leave his quickly disintegrating body.
+It dissipates out into the void, gone forever.  At that same
+moment, you hear from far away the terrified screams of the
+liches that still remain in Vecna's stronghold.  Their source
+of power that kept them from being annihilated no longer
+protects them.  They know it, and now so do you.
+%E [Vecna has been destroyed, allowing all other liches to be eliminated.]
+#
+# Defeating Cerberus
+#
+%Cc - 00304
+Cerberus falls to the ground, all three of its massive heads
+gasping for its final breath, before finally succumbing to
+its injuries and dying.  Nearby, you watch as the gates to
+Gehennom open before you.
+
+Abandon all hope, ye who enter here...
+%E [Cerberus is dead, allowing unrestricted passage into Gehennom.]
+#
+# Defeating the Goblin King
+#
+%Cc - 00305
+The Goblin King's massive body lays sprawled out before you,
+his blood slowly seeping out from under him, spreading across
+the cavern floor.  Around his neck, you notice a magical
+talisman with a familiar glyph etched into its surface.
+Before you have a chance to examine it further, it glows
+fiercely for a brief moment, and then turns to ash.
+
+This was the magic that blocked access to Mine Town and
+Mines' End, and now that magic has been removed, permanently.
+%E [The Goblin King is dead, opening passage to Mine Town and Mines' End.]

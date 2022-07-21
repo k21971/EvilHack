@@ -608,6 +608,13 @@ nh_timeout()
             pline("%s stops galloping.", Monnam(u.usteed));
     }
 
+    if (Hidinshell && --u.uinshell == 1) {
+        toggleshell();
+        nomul(0);
+    } else if (u.uinshell < 0) {
+        u.uinshell++;
+    }
+
     was_flying = Flying;
     for (upp = u.uprops; upp < u.uprops + SIZE(u.uprops); upp++)
         if (!(upp->intrinsic & HAVEPARTIAL) /* partial intrinsics do not time out */
@@ -658,10 +665,17 @@ nh_timeout()
                 }
 
                 if (!!(u.usick_type & SICK_ZOMBIE)) {
-                    u.ugrave_arise = urace.zombienum;
-                    killer.format = NO_KILLER_PREFIX;
-                    Sprintf(killer.name, "zombified by %s",
-                            an(killer.name));
+                    if (Race_if(PM_CENTAUR)
+                        || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)) {
+                        killer.format = NO_KILLER_PREFIX;
+                        Sprintf(killer.name, "diseased by %s",
+                                an(killer.name));
+                    } else {
+                        u.ugrave_arise = urace.zombienum;
+                        killer.format = NO_KILLER_PREFIX;
+                        Sprintf(killer.name, "zombified by %s",
+                                an(killer.name));
+                    }
                 }
                 done_timeout(POISONING, SICK);
                 u.usick_type = 0;
@@ -679,13 +693,13 @@ nh_timeout()
                 HSlow &= ~FROMOUTSIDE;
                 You_feel("less sluggish.");
                 break;
-	    case REFLECTING:
+            case REFLECTING:
                 if (!Blind)
-		    pline("The shimmering globe around you flickers and vanishes.");
+                    pline("The shimmering globe around you flickers and vanishes.");
                 else
                     pline("You don't feel very smooth anymore.");
-		break;
-	    /* all these need to make sure the external intrinsic isn't there too */
+                break;
+            /* all these need to make sure the external intrinsic isn't there too */
             case VULN_FIRE:
                 if (!Vulnerable_fire)
                     You("are no longer vulnerable to fire.");
@@ -1081,6 +1095,8 @@ long timeout;
             /* free egg here because we use it above */
             obj_extract_self(egg);
             obfree(egg, (struct obj *) 0);
+            if ((mon = m_at(x,y)) && !hideunder(mon) && cansee(x, y))
+                redraw = TRUE;
         }
         if (redraw)
             newsym(x, y);
@@ -1971,7 +1987,7 @@ timer_sanity_check()
     timer_element *curr;
 
     /* this should be much more complete */
-    for (curr = timer_base; curr; curr = curr->next)
+    for (curr = timer_base; curr; curr = curr->next) {
         if (curr->kind == TIMER_OBJECT) {
             struct obj *obj = curr->arg.a_obj;
 
@@ -1979,7 +1995,20 @@ timer_sanity_check()
                 impossible("timer sanity: untimed obj %s, timer %ld",
                       fmt_ptr((genericptr_t) obj), curr->tid);
             }
+        } else if (curr->kind == TIMER_LEVEL) {
+            long where = curr->arg.a_long;
+            xchar x = (xchar) ((where >> 16) & 0xFFFF),
+                  y = (xchar) (where & 0xFFFF);
+
+            if (!isok(x, y)) {
+                impossible("timer sanity: spot timer %ld at <%d,%d>",
+                           curr->tid, x, y);
+            } else if (curr->func_index == MELT_ICE_AWAY && !is_ice(x, y)) {
+                impossible("timer sanity: melt timer %ld on non-ice %d <%d,%d>",
+                           curr->tid, levl[x][y].typ, x, y);
+            }
         }
+    }
 }
 
 /*

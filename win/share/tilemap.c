@@ -42,34 +42,21 @@ struct conditionals {
     int sequence, predecessor;
     const char *name;
 } conditionals[] = {
-#if 0 /* these all exist in-game now */
+#if 0
 #ifndef CHARON /* not supported */
     { MON_GLYPH, PM_HELL_HOUND, "Cerberus" },
 #endif
-    /* commented out in monst.c at present */
-    { MON_GLYPH, PM_SHOCKING_SPHERE, "beholder" },
-    { MON_GLYPH, PM_BABY_SILVER_DRAGON, "baby shimmering dragon" },
-    { MON_GLYPH, PM_SILVER_DRAGON, "shimmering dragon" },
-    { MON_GLYPH, PM_JABBERWOCK, "vorpal jabberwock" },
-    { MON_GLYPH, PM_VAMPIRE_LORD, "vampire mage" },
 #ifndef CHARON /* not supported yet */
     { MON_GLYPH, PM_CROESUS, "Charon" },
 #endif
-#endif
+#endif /* #if 0 */
 #ifndef MAIL
     { MON_GLYPH, PM_FAMINE, "mail daemon" },
 #endif
     /* commented out in monst.c at present */
     { MON_GLYPH, PM_SHAMAN_KARNOV, "Earendil" },
     { MON_GLYPH, PM_SHAMAN_KARNOV, "Elwing" },
-    /* commented out in monst.c at present */
-    { MON_GLYPH, PM_ANNAM, "Goblin King" },
     { MON_GLYPH, PM_NEANDERTHAL, "High-elf" },
-#if 0 /* these exist in-game now also */
-    /* objects commented out in objects.c at present */
-    { OBJ_GLYPH, SILVER_DRAGON_SCALE_MAIL, "shimmering dragon scale mail" },
-    { OBJ_GLYPH, SILVER_DRAGON_SCALES, "shimmering dragon scales" },
-#endif
 /* allow slime mold to look like slice of pizza, since we
  * don't know what a slime mold should look like when renamed anyway
  */

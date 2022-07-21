@@ -321,8 +321,11 @@ struct monst *oracle;
         return FALSE;
 
     oracle->mpeaceful = 1;
+    oracle->movement = oracle->minvis = 0;
     o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
-    if (o_ridx >= 0 && rooms[o_ridx].rtype == DELPHI)
+    if (o_ridx >= 0 && rooms[o_ridx].rtype == DELPHI
+        && (oracle->mx == (rooms[o_ridx].lx + rooms[o_ridx].hx) / 2)
+        && (oracle->my == (rooms[o_ridx].ly + rooms[o_ridx].hy) / 2))
         return TRUE; /* no fixup needed */
 
     /*
@@ -337,11 +340,12 @@ struct monst *oracle;
         if (rooms[ridx].orig_rtype == DELPHI)
             break;
 
-    if (o_ridx != ridx && ridx < SIZE(rooms)) {
+    if (ridx < SIZE(rooms)) {
         /* room found and she's not not in it, so try to move her there */
         cc.x = (rooms[ridx].lx + rooms[ridx].hx) / 2;
         cc.y = (rooms[ridx].ly + rooms[ridx].hy) / 2;
-        if (enexto(&cc, cc.x, cc.y, oracle->data)) {
+        if (goodpos(cc.x, cc.y, oracle, NO_MM_FLAGS)
+            || enexto(&cc, cc.x, cc.y, oracle->data)) {
             rloc_to(oracle, cc.x, cc.y);
             o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
         }
@@ -376,6 +380,7 @@ struct obj *obj;
     case ART_BAG_OF_THE_HESPERIDES:
     case ART_LIFESTEALER:
     case ART_EYE_OF_VECNA:
+    case ART_HAND_OF_VECNA:
     case ART_SWORD_OF_KAS:
     default:
         return FALSE;
@@ -408,6 +413,7 @@ struct obj *obj;
         owner = PM_ORCUS;
         break;
     case ART_EYE_OF_VECNA:
+    case ART_HAND_OF_VECNA:
         owner = PM_VECNA;
         break;
     case ART_SWORD_OF_KAS:
@@ -441,6 +447,8 @@ can_make_bones()
     if (u.uswallow) {
         return FALSE; /* no bones when swallowed */
     }
+    if (is_open_air(u.ux, u.uy))
+        return FALSE; /* no bones objects hovering in midair */
     if (!Is_branchlev(&u.uz)) {
         /* no bones on non-branches with portals */
         for (ttmp = ftrap; ttmp; ttmp = ttmp->ntrap)
@@ -498,12 +506,22 @@ struct obj *corpse;
 
  make_bones:
     unleash_all();
+
+    /* new ghost or other undead isn't punished even if hero was;
+       end-of-game disclosure has already had a chance to report the
+       Punished status so we don't need to preserve it any further */
+    if (Punished)
+        unpunish(); /* unwear uball, destroy uchain */
+    /* in case dismounting kills steed [is that even possible?], do so
+       before cleaning up dead monsters */
+    if (u.usteed)
+        dismount_steed(DISMOUNT_BONES);
     /* in case these characters are not in their home bases */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
             continue;
         mptr = mtmp->data;
-        if (mtmp->iswiz || mtmp->isvecna
+        if (mtmp->iswiz || mtmp->isvecna || mtmp->isgking
             || (mptr == &mons[PM_MEDUSA] && !Is_medusa_level(&u.uz))
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
             || mptr == &mons[PM_VLAD_THE_IMPALER]
@@ -514,8 +532,11 @@ struct obj *corpse;
             || mptr == &mons[PM_RAT_KING]
             || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
             || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-            || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+            || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
             mongone(mtmp);
+            if (mtmp == ukiller)
+                ukiller = (struct monst *) 0;
+        }
 
         /* monster steeds tend to wander off */
         if (has_erid(mtmp)) {
@@ -527,12 +548,12 @@ struct obj *corpse;
                 place_monster(msteed, cc.x, cc.y);
             } else {
                 mongone(msteed);
+                if (msteed == ukiller)
+                    ukiller = (struct monst *) 0;
             }
         }
         free_erid(mtmp);
     }
-    if (u.usteed)
-        dismount_steed(DISMOUNT_BONES);
     dmonsfree(); /* discard dead or gone monsters */
 
     /* mark all fruits as nonexistent; when we come to them we'll mark
@@ -540,10 +561,6 @@ struct obj *corpse;
      */
     for (f = ffruit; f; f = f->nextf)
         f->fid = -f->fid;
-
-    /* check iron balls separately--maybe they're not carrying it */
-    if (uball)
-        uball->owornmask = uchain->owornmask = 0L;
 
     /* dispose of your possessions, usually cursed */
     if (u.ugrave_arise == (NON_PM - 1)) {
@@ -603,22 +620,6 @@ struct obj *corpse;
                     if (!can_carry(ukiller, otmp))
                         continue;
                     if (otmp == uball || otmp == uchain)
-                        continue;
-                    /* these monsters can't rummage through inventory,
-                       since they've been removed and sent back to 'home base' */
-                    if (ukiller->iswiz || ukiller->isvecna
-                        || (ukiller->data == &mons[PM_MEDUSA] && !Is_medusa_level(&u.uz))
-                        || ukiller->data->msound == MS_NEMESIS
-                        || ukiller->data->msound == MS_LEADER
-                        || ukiller->data == &mons[PM_VLAD_THE_IMPALER]
-                        || (ukiller->data == &mons[PM_ORACLE] && !fixuporacle(ukiller))
-                        || (ukiller->data == &mons[PM_CERBERUS] && !Is_valley(&u.uz))
-                        || (ukiller->data == &mons[PM_CHARON] && !Is_valley(&u.uz))
-                        || ukiller->data == &mons[PM_KAS]
-                        || ukiller->data == &mons[PM_RAT_KING]
-                        || ukiller->data == &mons[PM_ABOMINABLE_SNOWMAN]
-                        || ukiller->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-                        || ukiller->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
                         continue;
                     obj_extract_self(otmp);
                     mpickobj(ukiller, otmp);
