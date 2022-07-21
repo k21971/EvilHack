@@ -385,6 +385,7 @@ learn(VOID_ARGS)
         if (book->spestudied > MAX_SPELL_STUDY) {
             pline("This spellbook is too faint to be read any more.");
             book->otyp = booktype = SPE_BLANK_PAPER;
+            set_material(book, PAPER);
             /* reset spestudied as if polymorph had taken place */
             book->spestudied = rn2(book->spestudied);
         } else if (spellknow(i) > KEEN / 10) {
@@ -406,6 +407,7 @@ learn(VOID_ARGS)
             /* pre-used due to being the product of polymorph */
             pline("This spellbook is too faint to read even once.");
             book->otyp = booktype = SPE_BLANK_PAPER;
+            set_material(book, PAPER);
             /* reset spestudied as if polymorph had taken place */
             book->spestudied = rn2(book->spestudied);
         } else {
@@ -483,6 +485,7 @@ register struct obj *spellbook;
             You("do not understand the strange language this book is written in.");
             pline("The inscriptions in the book start to fade away!");
             spellbook->otyp = booktype = SPE_BLANK_PAPER;
+            set_material(spellbook, PAPER);
             makeknown(booktype);
             return 1;
         }
@@ -878,6 +881,10 @@ register struct monst *mdef;
             pline("A shimmering globe appears around %s!", mon_nam(mdef));
         /* monster reflection is handled in mon_reflects() */
         mdef->mextrinsics |= MR2_REFLECTION;
+        mdef->mreflecttime = rn1(10, (mdef->iswiz || is_prince(mdef->data)
+                                      || mdef->data->msound == MS_NEMESIS
+                                      || mdef->data->msound == MS_LEADER)
+                                     ? 250 : 150);
     }
 }
 
@@ -944,9 +951,15 @@ boolean atme;
      * (There's no duplication of messages; when the rejection takes
      * place in getspell(), we don't get called.)
      */
-    if (rejectcasting()) {
+    if ((spell < 0) || rejectcasting()) {
         return 0; /* no time elapses */
     }
+
+    /*
+     *  Note: dotele() also calculates energy use and checks nutrition
+     *  and strength requirements; it any of these change, update it too.
+     */
+    energy = (spellev(spell) * 5); /* 5 <= energy <= 35 */
 
     /*
      * Spell casting no longer affects knowledge of the spell. A
@@ -959,6 +972,10 @@ boolean atme;
             Your("knowledge of this spell is twisted.");
         pline("It invokes nightmarish images in your mind...");
         spell_backfire(spell);
+        u.uen -= rnd(energy);
+        if (u.uen < 0)
+            u.uen = 0;
+        context.botl = 1;
         return 1;
     /* Infidel illithid became crowned and is no longer an illithid */
     } else if (spellid(spell) == SPE_PSIONIC_WAVE && Race_if(PM_DEMON)) {
@@ -973,11 +990,6 @@ boolean atme;
     } else if (spellknow(spell) <= KEEN / 10) { /* 2000 turns left */
         Your("recall of this spell is gradually fading.");
     }
-    /*
-     *  Note: dotele() also calculates energy use and checks nutrition
-     *  and strength requirements; it any of these change, update it too.
-     */
-    energy = (spellev(spell) * 5); /* 5 <= energy <= 35 */
 
     if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD) {
         You("are too hungry to cast that spell.");
@@ -1128,6 +1140,21 @@ boolean atme;
     } else {
         u.uen -= energy;
     }
+
+    /* successful casting increases the amount of time the cast
+       spell is known, intelligence determines how much extra time
+       is added with each cast. a player with an intelligence of
+       18 will have 90-126 extra turns known added per cast; a player
+       with an intelligence of only 9 would see 45-63 extra turns known
+       added per cast. the players intelligence must be greater than 6
+       to be able to help remember spells as they're cast. cavepersons
+       are the one role that do not have this benefit */
+    if (!Role_if(PM_CAVEMAN) && ACURR(A_INT) > 6) {
+        spl_book[spell].sp_know += rn1(ACURR(A_INT) * 5, ACURR(A_INT) * 2);
+        if (spl_book[spell].sp_know >= KEEN)
+            spl_book[spell].sp_know = KEEN;
+    }
+
     context.botl = 1;
     exercise(A_WIS, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
@@ -1414,9 +1441,6 @@ throwspell()
 
     if (u.uinwater) {
         pline("You're joking!  In this weather?");
-        return 0;
-    } else if (Is_waterlevel(&u.uz)) {
-        You("had better wait for the sun to come out.");
         return 0;
     }
 
@@ -2181,6 +2205,68 @@ struct obj *obj;
         incrnknow(i, 0);
     }
     return;
+}
+
+/* return TRUE if hero knows spell otyp, FALSE otherwise */
+boolean
+known_spell(otyp)
+short otyp;
+{
+    int i;
+
+    for (i = 0; (i < MAXSPELL) && (spellid(i) != NO_SPELL); i++)
+        if (spellid(i) == otyp)
+            return TRUE;
+    return FALSE;
+}
+
+/* return index for spell otyp, or -1 if not found */
+int
+spell_idx(otyp)
+short otyp;
+{
+    int i;
+
+    for (i = 0; (i < MAXSPELL) && (spellid(i) != NO_SPELL); i++)
+        if (spellid(i) == otyp)
+            return i;
+    return -1;
+}
+
+/* forcibly learn spell otyp, if possible */
+boolean
+force_learn_spell(otyp)
+short otyp;
+{
+    int i;
+
+    if (known_spell(otyp))
+        return FALSE;
+
+    for (i = 0; i < MAXSPELL; i++)
+        if (spellid(i) == NO_SPELL)
+            break;
+    if (i == MAXSPELL)
+        impossible("Too many spells memorized");
+    else {
+        spl_book[i].sp_id = otyp;
+        spl_book[i].sp_lev = objects[otyp].oc_level;
+        incrnknow(i, 1);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* number of spells hero knows */
+int
+num_spells()
+{
+    int i;
+
+    for (i = 0; i < MAXSPELL; i++)
+        if (spellid(i) == NO_SPELL)
+            break;
+    return i;
 }
 
 /*spell.c*/

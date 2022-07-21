@@ -267,14 +267,16 @@ boolean resuming;
 
                     if (!rn2(monclock)) {
                         if (u.uevent.invoked && xupstair && rn2(10))
-                            (void) makemon((struct permonst *) 0, xupstair, yupstair,
-                                           MM_ADJACENTOK);
+                            (void) makemon((struct permonst *) 0,
+                                           xupstair, yupstair,
+                                           MM_ADJACENTOK | MM_MPLAYEROK);
                         else if (u.uevent.invoked && sstairs.sx && rn2(10))
-                            (void) makemon((struct permonst *)0, sstairs.sx, sstairs.sy,
-                                           MM_ADJACENTOK);
+                            (void) makemon((struct permonst *) 0,
+                                           sstairs.sx, sstairs.sy,
+                                           MM_ADJACENTOK | MM_MPLAYEROK);
                         else
                             (void) makemon((struct permonst *) 0, 0, 0,
-                                           NO_MM_FLAGS);
+                                           MM_MPLAYEROK);
                     }
                     /* calculate how much time passed. */
                     if (u.usteed && u.umoved) {
@@ -756,7 +758,15 @@ int wtcap;
 {
     int heal = 0;
     boolean reached_full = FALSE,
-            encumbrance_ok = (wtcap < MOD_ENCUMBER || !u.umoved);
+            encumbrance_ok = (wtcap < MOD_ENCUMBER || !u.umoved),
+            infidel_no_amulet = (u.ualign.type == A_NONE && !u.uhave.amulet
+                                 && !u.uachieve.amulet);
+
+    /* periodically let our Infidel know why their hit
+       points aren't regenerating if they don't have
+       the Amulet in their possession */
+    if (infidel_no_amulet && !rn2(20))
+        You_feel("unable to rest or heal without the Amulet of Yendor.");
 
     if (Upolyd) {
         if (u.mh < 1) { /* shouldn't happen... */
@@ -786,7 +796,8 @@ int wtcap;
            once u.mh reached u.mhmax; that may have been convenient
            for the player, but it didn't make sense for gameplay...] */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
-            && (encumbrance_ok || Regeneration) && !Is_valley(&u.uz)) {
+            && (encumbrance_ok || Regeneration) && !Is_valley(&u.uz)
+            && !infidel_no_amulet) {
             if (u.ulevel > 9) {
                 if (!(moves % 3L)) {
                     int Con = (int) ACURR(A_CON);
@@ -803,6 +814,14 @@ int wtcap;
                 if (!(moves % (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1)))
                     heal = 1;
             }
+
+            /* tortles gain some accelerated regeneration while
+               inside their shell */
+            if (Hidinshell && !Regeneration) {
+                if (!rn2(5))
+                    heal = 1;
+            }
+
             if (Regeneration && !heal)
                 heal = 1;
 

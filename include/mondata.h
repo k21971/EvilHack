@@ -14,12 +14,7 @@
 #define r_biggermonst(mon) (biggermonst(r_data(mon)))
 #define biggermonst(ptr) ((ptr)->msize > (youmonst.data)->msize)
 #define vs_cantflyorswim(ptr) \
-    ((ptr) == &mons[PM_GIANT_ANT] || (ptr) == &mons[PM_SOLDIER_ANT]    \
-     || (ptr) == &mons[PM_FIRE_ANT] || (ptr) == &mons[PM_ACID_BLOB]    \
-     || (ptr) == &mons[PM_IMP] || (ptr) == &mons[PM_LEPRECHAUN]        \
-     || (ptr) == &mons[PM_RABID_RAT] || (ptr) == &mons[PM_CAVE_SPIDER] \
-     || (ptr) == &mons[PM_GRID_BUG] || (ptr) == &mons[PM_GECKO]        \
-     || (ptr) == &mons[PM_IGUANA] || (ptr) == &mons[PM_LIZARD])
+    (verysmall(ptr) && !is_flyer(ptr) && !is_swimmer(ptr) && !amphibious(ptr))
 
 #define pm_resistance(ptr, typ) (((ptr)->mresists & (typ)) != 0)
 
@@ -240,6 +235,10 @@
     ((((ptr)->mhflags & MH_ILLITHID) != 0L) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ILLITHID)))
 #define racial_illithid(mon) mon_has_race(mon, MH_ILLITHID)
+#define is_tortle(ptr) \
+    ((((ptr)->mhflags & MH_TORTLE) != 0L) \
+     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_TORTLE)))
+#define racial_tortle(mon) mon_has_race(mon, MH_TORTLE)
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define racial_match(mon) mon_has_race(mon, urace.selfmask)
 #define is_bat(ptr)                                         \
@@ -312,7 +311,7 @@
 #define extra_nasty(ptr) (((ptr)->mflags2 & M2_NASTY) != 0L)
 #define strongmonst(ptr) (((ptr)->mflags2 & M2_STRONG) != 0L)
 #define can_breathe(ptr) attacktype(ptr, AT_BREA)
-#define cantwield(ptr) (nohands(ptr) || verysmall(ptr))
+#define cantwield(ptr) (nohands(ptr) || verysmall(ptr) || Hidinshell)
 /* Does this type of monster have multiple weapon attacks?  If so,
    hero poly'd into this form can use two-weapon combat.  It used
    to just check mattk[1] and assume mattk[0], which was suitable
@@ -324,11 +323,11 @@
       + ((ptr)->mattk[2].aatyp == AT_WEAP)  ) > 1)
 #define cantweararm(mon) (breakarm(mon) || sliparm(mon))
 #define throws_rocks(ptr) \
-    ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
+    ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L))
 #define racial_throws_rocks(mon) \
     ((has_erac(mon) && ERAC(mon)->mflags2 & M2_ROCKTHROW) \
-     || throws_rocks((mon)->data))
+     || throws_rocks((mon)->data) \
+     || ((mon) == &youmonst && !Upolyd && Race_if(PM_GIANT)))
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
 #define is_lord(ptr) (((ptr)->mflags2 & M2_LORD) != 0L)
 #define is_prince(ptr) (((ptr)->mflags2 & M2_PRINCE) != 0L)
@@ -402,6 +401,8 @@
      || (ptr) == &mons[PM_REVENANT] || (ptr) == &mons[PM_BABY_OWLBEAR]            \
      || (ptr) == &mons[PM_HUMAN_ZOMBIE] || (ptr) == &mons[PM_GIANT_ZOMBIE]        \
      || (ptr) == &mons[PM_LICH])
+#define likes_gtown(ptr) \
+    ((ptr)->mlet == S_ORC || (ptr)->mlet == S_KOBOLD || is_rat(ptr))
 
 /* macros for various monsters affected by specific types of damage */
 #define can_vaporize(ptr) \
@@ -431,11 +432,12 @@
 #define emits_light(ptr) \
     (((ptr)->mlet == S_LIGHT || (ptr) == &mons[PM_FLAMING_SPHERE] \
       || (ptr) == &mons[PM_SHOCKING_SPHERE]                       \
-      || (ptr) == &mons[PM_GOLD_DRAGON]                           \
       || (ptr) == &mons[PM_BABY_GOLD_DRAGON]                      \
       || (ptr) == &mons[PM_FIRE_VORTEX])                          \
          ? 1                                                      \
-         : ((ptr) == &mons[PM_FIRE_ELEMENTAL]) ? 1 : 0)
+         : ((ptr) == &mons[PM_FIRE_ELEMENTAL]                     \
+            || (ptr) == &mons[PM_GOLD_DRAGON]                     \
+            || (ptr) == &mons[PM_TIAMAT]) ? 2 : 0)
     /* [Note: the light ranges above were reduced to 1 for performance,
      *  otherwise screen updating on the plane of fire slowed to a crawl.
      *  Note too: that was with 1990s hardware and before fumarole smoke
@@ -484,7 +486,8 @@
      && (mon)->data->mlet != S_MUMMY && (mon)->data->mlet != S_LIZARD        \
      && !r_verysmall(mon) && !is_shapeshifter((mon)->data)                   \
      && (mon)->mcanmove && !(mon)->msleeping && (mon)->cham == NON_PM        \
-     && !unsolid((mon)->data) && !((mon)->mstrategy & STRAT_WAITFORU))
+     && !unsolid((mon)->data) && !((mon)->mstrategy & STRAT_WAITFORU)        \
+     && !is_covetous((mon)->data))
 /* monster can be ridden by other monsters */
 #define mon_can_be_ridden(mon) \
     (can_saddle(mon) && !DEADMONSTER(mon) && !is_covetous((mon)->data)       \

@@ -22,9 +22,7 @@ static NEARDATA const long takeoff_order[] = {
 
 STATIC_DCL void FDECL(on_msg, (struct obj *));
 STATIC_DCL void FDECL(toggle_stealth, (struct obj *, long, BOOLEAN_P));
-STATIC_DCL void FDECL(oprops_on, (struct obj *, long));
 STATIC_PTR int NDECL(Armor_on);
-/* int NDECL(Boots_on); -- moved to extern.h */
 STATIC_PTR int NDECL(Cloak_on);
 STATIC_PTR int NDECL(Helmet_on);
 STATIC_PTR int NDECL(Gloves_on);
@@ -34,7 +32,6 @@ STATIC_PTR int NDECL(Shirt_on);
 STATIC_DCL void NDECL(Amulet_on);
 STATIC_DCL void FDECL(learnring, (struct obj *, BOOLEAN_P));
 STATIC_DCL void FDECL(Ring_off_or_gone, (struct obj *, BOOLEAN_P));
-STATIC_DCL void FDECL(oprops_off, (struct obj *, long));
 STATIC_PTR int FDECL(select_off, (struct obj *));
 STATIC_DCL struct obj *NDECL(do_takeoff);
 STATIC_PTR int NDECL(take_off);
@@ -45,6 +42,7 @@ STATIC_PTR boolean FDECL(will_touch_skin, (long));
 STATIC_PTR int FDECL(accessory_or_armor_on, (struct obj *));
 STATIC_DCL void FDECL(already_wearing, (const char *));
 STATIC_DCL void FDECL(already_wearing2, (const char *, const char *));
+STATIC_DCL void FDECL(toggle_armor_light, (struct obj *, boolean));
 
 /* plural "fingers" or optionally "gloves" */
 const char *
@@ -166,15 +164,12 @@ boolean on;
  * [Blindf_on() is an exception and calls setworn() itself.]
  */
 
-STATIC_OVL
 void
 oprops_on(otmp, mask)
 register struct obj *otmp;
 long mask;
 {
     long props = otmp->oprops;
-    int old_attrib, which;
-    boolean observable;
 
     if (props & ITEM_FIRE)
         EFire_resistance |= mask;
@@ -208,15 +203,63 @@ long mask;
     if (props & ITEM_HUNGER)
         EHunger |= mask;
     if (props & ITEM_EXCEL) {
+        int which = A_CHA, old_attrib = ACURR(which);
         /* borrowing this from Ring_on() as I may want
            to add other attributes in the future */
-        which = A_CHA;
-        old_attrib = ACURR(which);
         ABON(which) += otmp->spe;
-        observable = (old_attrib != ACURR(which));
-        if (observable || !extremeattr(which))
+        if (old_attrib != ACURR(which))
             otmp->oprops_known |= ITEM_EXCEL;
         set_moreluck();
+        context.botl = 1;
+    }
+}
+
+void
+oprops_off(otmp, mask)
+register struct obj *otmp;
+long mask;
+{
+    long props = otmp->oprops;
+
+    if (props & ITEM_FIRE)
+        EFire_resistance &= ~mask;
+    if (props & ITEM_FROST)
+        ECold_resistance &= ~mask;
+    if (props & ITEM_DRLI)
+        EDrain_resistance &= ~mask;
+    if (props & ITEM_SHOCK)
+        EShock_resistance &= ~mask;
+    if (props & ITEM_VENOM)
+        EPoison_resistance &= ~mask;
+    if (props & ITEM_OILSKIN)
+        otmp->oprops_known |= ITEM_OILSKIN;
+    if (props & ITEM_ESP) {
+        ETelepat &= ~mask;
+        see_monsters();
+    }
+    if (props & ITEM_SEARCHING)
+        ESearching &= ~mask;
+    if (props & ITEM_WARNING) {
+        EWarning &= ~mask;
+        see_monsters();
+    }
+    if (props & ITEM_FUMBLING) {
+        EFumbling &= ~mask;
+        if (!EFumbling && !(HFumbling & ~TIMEOUT))
+           HFumbling = EFumbling = 0;
+    }
+    if (props & ITEM_HUNGER)
+        EHunger &= ~mask;
+    if (props & ITEM_EXCEL) {
+        int which = A_CHA, old_attrib = ACURR(which);
+        /* borrowing this from Ring_off() as I may want
+           to add other attributes in the future */
+        ABON(which) -= otmp->spe;
+        if (old_attrib != ACURR(which))
+            otmp->oprops_known |= ITEM_EXCEL;
+        otmp->oprops &= ~ITEM_EXCEL;
+        set_moreluck();
+        otmp->oprops |= ITEM_EXCEL;
         context.botl = 1;
     }
 }
@@ -288,61 +331,6 @@ Boots_on(VOID_ARGS)
     return 0;
 }
 
-STATIC_OVL
-void
-oprops_off(otmp, mask)
-register struct obj *otmp;
-long mask;
-{
-    long props = otmp->oprops;
-    int old_attrib, which;
-    boolean observable;
-
-    if (props & ITEM_FIRE)
-        EFire_resistance &= ~mask;
-    if (props & ITEM_FROST)
-        ECold_resistance &= ~mask;
-    if (props & ITEM_DRLI)
-        EDrain_resistance &= ~mask;
-    if (props & ITEM_SHOCK)
-        EShock_resistance &= ~mask;
-    if (props & ITEM_VENOM)
-        EPoison_resistance &= ~mask;
-    if (props & ITEM_OILSKIN)
-        otmp->oprops_known |= ITEM_OILSKIN;
-    if (props & ITEM_ESP) {
-        ETelepat &= ~mask;
-        see_monsters();
-    }
-    if (props & ITEM_SEARCHING)
-        ESearching &= ~mask;
-    if (props & ITEM_WARNING) {
-        EWarning &= ~mask;
-        see_monsters();
-    }
-    if (props & ITEM_FUMBLING) {
-        EFumbling &= ~mask;
-        if (!EFumbling && !(HFumbling & ~TIMEOUT))
-           HFumbling = EFumbling = 0;
-    }
-    if (props & ITEM_HUNGER)
-        EHunger &= ~mask;
-    if (props & ITEM_EXCEL) {
-        /* borrowing this from Ring_off() as I may want
-           to add other attributes in the future */
-        which = A_CHA;
-        old_attrib = ACURR(which);
-        ABON(which) -= otmp->spe;
-        observable = (old_attrib != ACURR(which));
-        if (observable || !extremeattr(which))
-            otmp->oprops_known |= ITEM_EXCEL;
-        otmp->oprops &= ~ITEM_EXCEL;
-        set_moreluck();
-        otmp->oprops |= ITEM_EXCEL;
-        context.botl = 1;
-    }
-}
-
 int
 Boots_off(VOID_ARGS)
 {
@@ -409,15 +397,23 @@ Boots_off(VOID_ARGS)
 STATIC_PTR int
 Cloak_on(VOID_ARGS)
 {
+    int otyp = uarmc->otyp;
     long oldprop =
         u.uprops[objects[uarmc->otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
 
-    switch (uarmc->otyp) {
+    if (Is_dragon_scales(uarmc)
+        && otyp != SHIMMERING_DRAGON_SCALES) {
+        /* most scales are handled the same in this function */
+        otyp = GRAY_DRAGON_SCALES;
+    }
+
+    switch (otyp) {
     case ORCISH_CLOAK:
     case DWARVISH_CLOAK:
     case CLOAK_OF_MAGIC_RESISTANCE:
     case ROBE:
     case CLOAK:
+    case GRAY_DRAGON_SCALES:
         break;
     case CLOAK_OF_PROTECTION:
         makeknown(uarmc->otyp);
@@ -426,6 +422,7 @@ Cloak_on(VOID_ARGS)
         toggle_stealth(uarmc, oldprop, TRUE);
         break;
     case CLOAK_OF_DISPLACEMENT:
+    case SHIMMERING_DRAGON_SCALES:
         toggle_displacement(uarmc, oldprop, TRUE);
         break;
     case MUMMY_WRAPPING:
@@ -460,6 +457,7 @@ Cloak_on(VOID_ARGS)
         uarmc->known = 1; /* cloak's +/- evident because of status line AC */
         oprops_on(uarmc, WORN_CLOAK);
     }
+    toggle_armor_light(uarmc, TRUE);
     return 0;
 }
 
@@ -469,6 +467,13 @@ Cloak_off(VOID_ARGS)
     struct obj *otmp = uarmc;
     int otyp = otmp->otyp;
     long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
+    boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+
+    if (Is_dragon_scales(uarmc)
+        && otyp != SHIMMERING_DRAGON_SCALES) {
+        /* most scales are handled the same in this function */
+        otyp = GRAY_DRAGON_SCALES;
+    }
 
     oprops_off(uarmc, WORN_CLOAK);
 
@@ -483,11 +488,13 @@ Cloak_off(VOID_ARGS)
     case OILSKIN_CLOAK:
     case ROBE:
     case CLOAK:
+    case GRAY_DRAGON_SCALES:
         break;
     case ELVEN_CLOAK:
         toggle_stealth(otmp, oldprop, FALSE);
         break;
     case CLOAK_OF_DISPLACEMENT:
+    case SHIMMERING_DRAGON_SCALES:
         toggle_displacement(otmp, oldprop, FALSE);
         break;
     case MUMMY_WRAPPING:
@@ -513,6 +520,8 @@ Cloak_off(VOID_ARGS)
     default:
         impossible(unknown_type, c_cloak, otyp);
     }
+    if (was_arti_light)
+        toggle_armor_light(otmp, FALSE);
     return 0;
 }
 
@@ -525,6 +534,7 @@ Helmet_on(VOID_ARGS)
 
     switch (uarmh->otyp) {
     case FEDORA:
+    case TOQUE:
     case HELMET:
     case DENTED_POT:
     case ELVEN_HELM:
@@ -570,6 +580,14 @@ Helmet_on(VOID_ARGS)
                 pline("%s %s for a moment.", Tobjnam(uarmh, "glow"),
                       hcolor(NH_BLACK));
             curse(uarmh);
+            /* curse() doesn't touch bknown so doesn't update persistent
+               inventory; do so now [set_bknown() calls update_inventory()] */
+            if (Blind)
+                set_bknown(uarmh, 0); /* lose bknown if previously set */
+            else if (Role_if(PM_PRIEST))
+                set_bknown(uarmh, 1); /* (bknown should already be set) */
+            else if (uarmh->bknown)
+                update_inventory(); /* keep bknown as-is; display the curse */
         }
         context.botl = 1; /* reveal new alignment or INT & WIS */
         if (Hallucination) {
@@ -605,6 +623,7 @@ Helmet_off(VOID_ARGS)
 
     switch (uarmh->otyp) {
     case FEDORA:
+    case TOQUE:
     case HELMET:
     case DENTED_POT:
     case ELVEN_HELM:
@@ -661,6 +680,7 @@ Gloves_on(VOID_ARGS)
             incr_itimeout(&HFumbling, rnd(20));
         break;
     case GAUNTLETS_OF_POWER:
+    case MUMMIFIED_HAND: /* the Hand of Vecna */
         makeknown(uarmg->otyp);
         context.botl = 1; /* taken care of in attrib.c */
         break;
@@ -726,6 +746,7 @@ Gloves_off(VOID_ARGS)
             HFumbling = EFumbling = 0;
         break;
     case GAUNTLETS_OF_POWER:
+    case MUMMIFIED_HAND: /* the Hand of Vecna */
         makeknown(uarmg->otyp);
         context.botl = 1; /* taken care of in attrib.c */
         break;
@@ -790,13 +811,7 @@ Shield_on(VOID_ARGS)
         uarms->known = 1; /* shield's +/- evident because of status line AC */
         oprops_on(uarms, WORN_SHIELD);
     }
-    if (artifact_light(uarms) && !uarms->lamplit) {
-        begin_burn(uarms, FALSE);
-        if (!Blind)
-            pline("%s %s to shine %s!",
-                  Yname2(uarms), otense(uarms, "begin"),
-                  arti_light_description(uarms));
-    }
+    toggle_armor_light(uarms, TRUE);
     return 0;
 }
 
@@ -827,11 +842,8 @@ Shield_off(VOID_ARGS)
     default:
         impossible(unknown_type, c_shield, otmp->otyp);
     }
-    if (was_arti_light && !artifact_light(otmp)) {
-        end_burn(otmp, FALSE);
-        if (!Blind)
-            pline("%s shining.", Tobjnam(otmp, "stop"));
-    }
+    if (was_arti_light)
+        toggle_armor_light(otmp, FALSE);
     return 0;
 }
 
@@ -877,64 +889,85 @@ Shirt_off(VOID_ARGS)
     return 0;
 }
 
-STATIC_PTR
-int
-Armor_on(VOID_ARGS)
+/* handle extra abilities for hero wearing dragon-scaled armor */
+void
+dragon_armor_handling(struct obj *otmp, boolean puton)
 {
-    if (!uarm) /* no known instances of !uarm here but play it safe */
-        return 0;
-    uarm->known = 1; /* suit's +/- evident because of status line AC */
-    if (uarm)
-        oprops_on(uarm, W_ARM);
-    check_wings(FALSE);
+    /* as of first merging this behavior in from NetHack 3.7,
+       this only happens on dragon-scaled body armor - NOT scales
+       worn in the cloak slot. */
+    if (!otmp)
+        return;
 
-    if (Role_if(PM_MONK))
-        You_feel("extremely uncomfortable wearing such armor.");
-
-    /* dragon scales/scale mail have secondary characteristics */
-    if (uarm) {
-        switch (uarm->otyp) {
-        case GOLD_DRAGON_SCALE_MAIL:
-        case GOLD_DRAGON_SCALES:
+    switch (Dragon_armor_to_scales(otmp)) {
+        /* grey: no extra effect */
+        /* silver: no extra effect */
+    case GOLD_DRAGON_SCALES:
+        if (puton) {
             ESick_resistance |= W_ARM;
-            /* gold dragon scales/scale mail emitting light
-               is handled below */
-            break;
-        case BLUE_DRAGON_SCALE_MAIL:
-        case BLUE_DRAGON_SCALES:
+        } else {
+            ESick_resistance &= ~W_ARM;
+        }
+        break;
+    case BLUE_DRAGON_SCALES:
+        if (puton) {
             if (!Very_fast)
                 pline("You speed up%s.", Fast ? " a bit more" : "");
             EFast |= W_ARM;
-            break;
-        case YELLOW_DRAGON_SCALE_MAIL:
-        case YELLOW_DRAGON_SCALES:
+        } else {
+            EFast &= ~W_ARM;
+            if (!Very_fast && !context.takeoff.cancelled_don)
+                pline("You slow down.");
+        }
+        break;
+    case YELLOW_DRAGON_SCALES:
+        if (puton) {
             EStone_resistance |= W_ARM;
-            break;
-        case WHITE_DRAGON_SCALE_MAIL:
-        case WHITE_DRAGON_SCALES:
+        } else {
+            EStone_resistance &= ~W_ARM;
+        }
+        break;
+    case WHITE_DRAGON_SCALES:
+        if (puton) {
             EWwalking |= W_ARM;
-            break;
-        case SHIMMERING_DRAGON_SCALE_MAIL:
-        case SHIMMERING_DRAGON_SCALES:
-            toggle_displacement(uarm, (EDisplaced & ~WORN_ARMOR), TRUE);
-            toggle_stealth(uarm, (EStealth & ~WORN_ARMOR), TRUE);
+        } else {
+            EWwalking &= ~W_ARM;
+        }
+        break;
+    case SHIMMERING_DRAGON_SCALES:
+        if (puton) {
+            toggle_displacement(uarm, (EDisplaced & ~W_ARM), TRUE);
+            toggle_stealth(uarm, (EStealth & ~W_ARM), TRUE);
             EStealth |= W_ARM;
-            break;
-        case SILVER_DRAGON_SCALE_MAIL:
-        case SILVER_DRAGON_SCALES:
-            ECold_resistance |= W_ARM;
-            break;
-        case SEA_DRAGON_SCALE_MAIL:
-        case SEA_DRAGON_SCALES:
+        } else {
+            toggle_displacement(otmp, (EDisplaced & ~W_ARM), FALSE);
+            toggle_stealth(otmp, (EStealth & ~W_ARM), FALSE);
+            EStealth &= ~W_ARM;
+        }
+        break;
+    case SEA_DRAGON_SCALES:
+        if (puton) {
             if (Strangled) {
                 You("can suddenly breathe again!");
                 Strangled = 0;
             }
             ESwimming |= W_ARM;
-            break;
-        case CHROMATIC_DRAGON_SCALE_MAIL:
-        case CHROMATIC_DRAGON_SCALES:
-            /* poison res handled in objects.c */
+        } else {
+            ESwimming &= ~W_ARM;
+            if (Underwater) {
+                setworn((struct obj *) 0, W_ARM);
+                if (!breathless(youmonst.data) && !Amphibious && !Swimming) {
+                    You("suddenly inhale an unhealthy amount of %s!",
+                        hliquid("water"));
+                    (void) drown();
+                }
+            }
+        }
+        break;
+    case CHROMATIC_DRAGON_SCALES:
+        /* magic res handled in objects.c */
+        if (puton) {
+            EPoison_resistance |= W_ARM;
             EFire_resistance   |= W_ARM;
             ECold_resistance   |= W_ARM;
             ESleep_resistance  |= W_ARM;
@@ -943,20 +976,38 @@ Armor_on(VOID_ARGS)
             EAcid_resistance   |= W_ARM;
             EStone_resistance  |= W_ARM;
             EReflecting        |= W_ARM;
-            EAntimagic         |= W_ARM;
-            break;
-        default:
-            break;
+        } else {
+            EPoison_resistance &= ~W_ARM;
+            EFire_resistance   &= ~W_ARM;
+            ECold_resistance   &= ~W_ARM;
+            ESleep_resistance  &= ~W_ARM;
+            EDisint_resistance &= ~W_ARM;
+            EShock_resistance  &= ~W_ARM;
+            EAcid_resistance   &= ~W_ARM;
+            EStone_resistance  &= ~W_ARM;
+            EReflecting        &= ~W_ARM;
         }
+        break;
+    default:
+        break;
     }
+}
 
-    if (artifact_light(uarm) && !uarm->lamplit) {
-        begin_burn(uarm, FALSE);
-        if (!Blind)
-            pline("%s %s to shine %s!",
-                  Yname2(uarm), otense(uarm, "begin"),
-                  arti_light_description(uarm));
-    }
+STATIC_PTR
+int
+Armor_on(VOID_ARGS)
+{
+    if (!uarm) /* no known instances of !uarm here but play it safe */
+        return 0;
+
+    if (Role_if(PM_MONK))
+        You_feel("extremely uncomfortable wearing such armor.");
+
+    uarm->known = 1; /* suit's +/- evident because of status line AC */
+    check_wings(FALSE);
+    oprops_on(uarm, W_ARM);
+    dragon_armor_handling(uarm, TRUE);
+    toggle_armor_light(uarm, TRUE);
     return 0;
 }
 
@@ -966,85 +1017,21 @@ Armor_off(VOID_ARGS)
     struct obj *otmp = uarm;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
 
-    if (otmp)
-        oprops_off(otmp, W_ARM);
-    context.takeoff.mask &= ~W_ARM;
-    setworn((struct obj *) 0, W_ARM);
-    context.takeoff.cancelled_don = FALSE;
-    check_wings(FALSE);
-
     if (Role_if(PM_MONK))
         You_feel("much more comfortable and free now.");
 
-    /* dragon scales/scale mail have secondary characteristics */
-    if (otmp) {
-        switch (otmp->otyp) {
-        case GOLD_DRAGON_SCALE_MAIL:
-        case GOLD_DRAGON_SCALES:
-            ESick_resistance &= ~W_ARM;
-            /* gold dragon scales/scale mail emitting light
-               is handled below */
-            break;
-        case BLUE_DRAGON_SCALE_MAIL:
-        case BLUE_DRAGON_SCALES:
-            EFast &= ~W_ARM;
-            if (!Very_fast && !context.takeoff.cancelled_don)
-                pline("You slow down.");
-            break;
-        case YELLOW_DRAGON_SCALE_MAIL:
-        case YELLOW_DRAGON_SCALES:
-            EStone_resistance &= ~W_ARM;
-            break;
-        case WHITE_DRAGON_SCALE_MAIL:
-        case WHITE_DRAGON_SCALES:
-            EWwalking &= ~W_ARM;
-            break;
-        case SHIMMERING_DRAGON_SCALE_MAIL:
-        case SHIMMERING_DRAGON_SCALES:
-            toggle_displacement(otmp, (EDisplaced & ~WORN_ARMOR), FALSE);
-            toggle_stealth(otmp, (EStealth & ~WORN_ARMOR), FALSE);
-            EStealth &= ~W_ARM;
-            break;
-        case SILVER_DRAGON_SCALE_MAIL:
-        case SILVER_DRAGON_SCALES:
-            ECold_resistance &= ~W_ARM;
-            break;
-        case SEA_DRAGON_SCALE_MAIL:
-        case SEA_DRAGON_SCALES:
-            ESwimming &= ~W_ARM;
-            if (Underwater) {
-                setworn((struct obj *) 0, W_ARM);
-                if (!breathless(youmonst.data) && !Amphibious && !Swimming) {
-                    You("suddenly inhale an unhealthy amount of %s!",
-                        hliquid("water"));
-                    (void) drown();
-                }
-                return 0;
-            }
-            break;
-        case CHROMATIC_DRAGON_SCALE_MAIL:
-        case CHROMATIC_DRAGON_SCALES:
-            /* poison res handled in objects.c */
-            EFire_resistance   &= ~W_ARM;
-            ECold_resistance   &= ~W_ARM;
-            ESleep_resistance  &= ~W_ARM;
-            EDisint_resistance &= ~W_ARM;
-            EShock_resistance  &= ~W_ARM;
-            EAcid_resistance   &= ~W_ARM;
-            EStone_resistance  &= ~W_ARM;
-            EReflecting        &= ~W_ARM;
-            EAntimagic         &= ~W_ARM;
-            break;
-        default:
-            break;
-        }
-    }
+    if (otmp)
+        oprops_off(otmp, W_ARM);
 
-    if (was_arti_light && !artifact_light(otmp)) {
-        end_burn(otmp, FALSE);
-        if (!Blind)
-            pline("%s shining.", Tobjnam(otmp, "stop"));
-    }
+    context.takeoff.mask &= ~W_ARM;
+    setworn((struct obj *) 0, W_ARM);
+    context.takeoff.cancelled_don = FALSE;
+
+    check_wings(FALSE);
+
+    if (was_arti_light)
+        toggle_armor_light(otmp, FALSE);
+    dragon_armor_handling(otmp, FALSE);
     return 0;
 }
 
@@ -1060,79 +1047,19 @@ Armor_gone()
     struct obj *otmp = uarm;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
 
-    if (otmp)
-        oprops_off(otmp, W_ARM);
-    context.takeoff.mask &= ~W_ARM;
-    setnotworn(otmp);
-    context.takeoff.cancelled_don = FALSE;
-    check_wings(FALSE);
-
     if (Role_if(PM_MONK))
         You_feel("much more comfortable and free now.");
 
-    /* dragon scales/scale mail have secondary characteristics */
-    if (otmp) {
-        switch (otmp->otyp) {
-        case GOLD_DRAGON_SCALE_MAIL:
-        case GOLD_DRAGON_SCALES:
-            ESick_resistance &= ~W_ARM;
-            /* gold dragon scales/scale mail emitting light
-               is handled below */
-            break;
-        case BLUE_DRAGON_SCALE_MAIL:
-        case BLUE_DRAGON_SCALES:
-            EFast &= ~W_ARM;
-            if (!Very_fast && !context.takeoff.cancelled_don)
-                pline("You slow down.");
-            break;
-        case YELLOW_DRAGON_SCALE_MAIL:
-        case YELLOW_DRAGON_SCALES:
-            EStone_resistance &= ~W_ARM;
-            break;
-        case WHITE_DRAGON_SCALE_MAIL:
-        case WHITE_DRAGON_SCALES:
-            EWwalking &= ~W_ARM;
-            break;
-        case SHIMMERING_DRAGON_SCALE_MAIL:
-        case SHIMMERING_DRAGON_SCALES:
-            toggle_displacement(otmp, (EDisplaced & ~WORN_ARMOR), FALSE);
-            toggle_stealth(otmp, (EStealth & ~WORN_ARMOR), FALSE);
-            EStealth &= ~W_ARM;
-            break;
-        case SILVER_DRAGON_SCALE_MAIL:
-        case SILVER_DRAGON_SCALES:
-            ECold_resistance &= ~W_ARM;
-            break;
-        case SEA_DRAGON_SCALE_MAIL:
-        case SEA_DRAGON_SCALES:
-            ESwimming &= ~W_ARM;
-            if (Underwater) {
-                setworn((struct obj *) 0, W_ARM);
-                if (!breathless(youmonst.data) && !Amphibious && !Swimming) {
-                    You("suddenly inhale an unhealthy amount of %s!",
-                        hliquid("water"));
-                    (void) drown();
-                }
-                return 0;
-            }
-            break;
-        case CHROMATIC_DRAGON_SCALE_MAIL:
-        case CHROMATIC_DRAGON_SCALES:
-            /* poison res handled in objects.c */
-            EFire_resistance   &= ~W_ARM;
-            ECold_resistance   &= ~W_ARM;
-            ESleep_resistance  &= ~W_ARM;
-            EDisint_resistance &= ~W_ARM;
-            EShock_resistance  &= ~W_ARM;
-            EAcid_resistance   &= ~W_ARM;
-            EStone_resistance  &= ~W_ARM;
-            EReflecting        &= ~W_ARM;
-            EAntimagic         &= ~W_ARM;
-            break;
-        default:
-            break;
-        }
-    }
+    if (otmp)
+        oprops_off(otmp, W_ARM);
+
+    context.takeoff.mask &= ~W_ARM;
+    setnotworn(otmp);
+    context.takeoff.cancelled_don = FALSE;
+
+    check_wings(FALSE);
+
+    dragon_armor_handling(otmp, FALSE);
 
     if (was_arti_light && !artifact_light(otmp)) {
         end_burn(otmp, FALSE);
@@ -1158,12 +1085,12 @@ boolean silent; /* we assume a wardrobe change if false */
         if (!silent && Flying)
             You("spread your wings%s.",
                 old_flying ? "" : " and take flight");
-    } else if (Is_dragon_scales(uarm)) {
-        if (!silent && uarm != last_worn_armor)
+    } else if (Is_dragon_scaled_armor(uarm) && !is_hard(uarm)) {
+        if (!silent)
             You("arrange the scales around your wings.");
-    } else if (uarm->otyp == JACKET) {
+    } else if (uarm && !is_hard(uarm)) {
         if (!silent && uarm != last_worn_armor)
-            pline1("This jacket seems to have holes for wings.");
+            Your("%s seems to have holes for wings.", simpleonames(uarm));
     } else {
         if (!(uamul && uamul->otyp == AMULET_OF_FLYING))
             BFlying |= W_ARM;
@@ -2025,14 +1952,14 @@ dotakeoff()
 
     count_worn_stuff(&otmp, FALSE);
     if (!Narmorpieces && !Naccessories) {
-        /* assert( GRAY_DRAGON_SCALES > YELLOW_DRAGON_SCALE_MAIL ); */
         if (uskin)
-            pline_The("%s merged with your skin!",
-                      uskin->otyp >= GRAY_DRAGON_SCALES
-                          ? "dragon scales are"
-                          : "dragon scale mail is");
+            pline("Your scaly armor is merged with your skin!");
         else
             pline("Not wearing any armor or accessories.");
+        return 0;
+    }
+    if (Hidinshell) {
+        You_cant("take off worn items while hiding in your shell.");
         return 0;
     }
     if (Narmorpieces != 1 || ParanoidRemove)
@@ -2054,6 +1981,10 @@ doremring()
         pline("Not wearing any accessories or armor.");
         return 0;
     }
+    if (Hidinshell) {
+        You_cant("take off worn items while hiding in your shell.");
+        return 0;
+    }
     if (Naccessories != 1 || ParanoidRemove)
         otmp = getobj(accessories, "remove");
     if (!otmp)
@@ -2073,7 +2004,9 @@ boolean silent;
         return 0;
     }
     /* Inf are immune to curses. */
-    if (Role_if(PM_INFIDEL) || !otmp->cursed || (otmp == uwep && !welded(otmp)))
+    if (Role_if(PM_INFIDEL) || !otmp->cursed
+        || ((otmp == uwep) && !welded(otmp))
+        || ((otmp == uarmg) && uarmg->oartifact == ART_HAND_OF_VECNA))
         return 0;
     if (silent)
         return 1;
@@ -2217,6 +2150,11 @@ boolean noisy;
             You("can't wear any armor in your current form.");
         return 0;
     }
+    if (Hidinshell) {
+        if (noisy)
+            You("can't wear any armor while hiding in your shell.");
+        return 0;
+    }
 
     which = is_cloak(otmp)
                 ? c_cloak
@@ -2232,8 +2170,7 @@ boolean noisy;
         && !(Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
              && otmp && otmp->otyp == LARGE_SPLINT_MAIL)
         && !(Race_if(PM_GIANT) && otmp
-             && (otmp->otyp == CHROMATIC_DRAGON_SCALES
-                 || otmp->otyp == CHROMATIC_DRAGON_SCALE_MAIL))) {
+             && otmp->otyp == CHROMATIC_DRAGON_SCALES)) {
         if (noisy)
             pline_The("%s will not fit on your body.", which);
         return 0;
@@ -2261,6 +2198,15 @@ boolean noisy;
                 pline_The("%s won't fit over your horn%s.",
                           helm_simple_name(otmp),
                           plur(num_horns(youmonst.data)));
+            err++;
+        } else if (!Upolyd && Race_if(PM_TORTLE) && is_hard(otmp)
+                   && !(Role_if(PM_PRIEST)
+                        && otmp->oartifact == ART_MITRE_OF_HOLINESS)) {
+            /* Tortles can't retreat back into their shells
+               whilst wearing rigid head gear */
+            if (noisy)
+                pline_The("%s is too rigid to wear.",
+                          helm_simple_name(otmp));
             err++;
         } else
             *mask = W_ARMH;
@@ -2292,13 +2238,21 @@ boolean noisy;
                 You("have no feet..."); /* not body_part(FOOT) */
             err++;
         } else if ((Upolyd && youmonst.data->mlet == S_CENTAUR)
-                   || (Race_if(PM_CENTAUR))) {
+                   || (!Upolyd && Race_if(PM_CENTAUR))) {
             /* break_armor() pushes boots off for centaurs,
                so don't let dowear() put them back on... */
             if (noisy)
                 pline("You have too many hooves to wear %s.",
                       c_boots); /* makeplural(body_part(FOOT)) yields
                                    "rear hooves" which sounds odd */
+            err++;
+        } else if (!Upolyd && Race_if(PM_TORTLE)) {
+            /* Tortles can't retreat back into their shells
+               whilst wearing footwear, plus their shape is
+               all wrong */
+            if (noisy)
+                pline("Your %s are not shaped correctly to wear %s.",
+                      makeplural(body_part(FOOT)), c_boots);
             err++;
         } else if (u.utrap
                    && (u.utraptype == TT_BEARTRAP || u.utraptype == TT_INFLOOR
@@ -2336,6 +2290,13 @@ boolean noisy;
                 Your("%s are too slippery to pull on %s.",
                      fingers_or_gloves(FALSE), gloves_simple_name(otmp));
             err++;
+        } else if (!Upolyd && Race_if(PM_TORTLE) && is_hard(otmp)) {
+            /* Tortles can't retreat back into their shells
+               whilst wearing rigid gauntlets */
+            if (noisy)
+                pline_The("%s are too rigid to wear.",
+                          gloves_simple_name(otmp));
+            err++;
         } else
             *mask = W_ARMG;
     } else if (is_shirt(otmp)) {
@@ -2359,6 +2320,12 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMC;
+        if (!Upolyd && Race_if(PM_GIANT) && otmp
+            && otmp->otyp == CHROMATIC_DRAGON_SCALES) {
+            *mask = W_ARMC;
+            if (noisy)
+                pline_The("scales are just large enough to fit your body.");
+        }
     } else if (is_suit(otmp)) {
         if (uarmc) {
             if (noisy)
@@ -2375,16 +2342,9 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARM;
-        if (Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
+        if (!Upolyd && Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
             && otmp && otmp->otyp == LARGE_SPLINT_MAIL)
             *mask = W_ARM;
-        if (Race_if(PM_GIANT) && otmp
-            && (otmp->otyp == CHROMATIC_DRAGON_SCALES
-                || otmp->otyp == CHROMATIC_DRAGON_SCALE_MAIL)) {
-            *mask = W_ARM;
-            if (noisy)
-                pline_The("scales are just large enough to fit your body.");
-        }
     } else {
         /* getobj can't do this after setting its allow_all flag; that
            happens if you have armor for slots that are covered up or
@@ -2588,7 +2548,14 @@ struct obj *obj;
         if (delay) {
             nomul(delay);
             multi_reason = "dressing up";
-            nomovemsg = "You finish your dressing maneuver.";
+            if (obj == uarmg && obj->oartifact == ART_HAND_OF_VECNA) {
+                if (u.ualign.type == A_NONE)
+                    com_pager(301);
+                else
+                    com_pager(302);
+            } else {
+                nomovemsg = "You finish your dressing maneuver.";
+            }
         } else {
             unmul(""); /* call (*aftermv)(), clear it+nomovemsg+multi_reason */
             on_msg(obj);
@@ -2627,7 +2594,8 @@ dowear()
 
     /* cantweararm() checks for suits of armor, not what we want here;
        verysmall() or nohands() checks for shields, gloves, etc... */
-    if (verysmall(youmonst.data) || nohands(youmonst.data)) {
+    if (verysmall(youmonst.data) || nohands(youmonst.data)
+        || Hidinshell) {
         pline("Don't even bother.");
         return 0;
     }
@@ -2647,6 +2615,10 @@ doputon()
 {
     struct obj *otmp;
 
+    if (Hidinshell) {
+        You_cant("put on any items while hiding in your shell.");
+        return 0;
+    }
     if (uleft && uright && uamul && ublindf
         && uarm && uarmu && uarmc && uarmh && uarms && uarmg && uarmf) {
         /* 'P' message doesn't mention armor */
@@ -2668,13 +2640,19 @@ find_ac()
      * Giants can't wear body armor, t-shirt or cloaks,
      * but they do have thick skin. So they get a little bit
      * of love in the AC department to compensate somewhat.
-     */
+     *
+     * Tortles have even more armor restrictions than giants.
+     * The large shell that makes up a good portion of their
+     * body provides exceptional protection */
     int uac = maybe_polyd(mons[u.umonnum].ac,
-                          Race_if(PM_GIANT) ? 6 : mons[u.umonnum].ac);
+                          Race_if(PM_GIANT)
+                              ? 6 : Race_if(PM_TORTLE)
+                                  ? 0 : mons[u.umonnum].ac);
+
 
     /* armor class from worn gear */
 
-    int racial_bonus, dex_adjust_ac;
+    int racial_bonus, dex_adjust_ac, tortle_ac;
 
     /* Wearing racial armor is worth +x to the armor's AC; orcs get a slightly
      * larger bonus to compensate their sub-standard equipment, lack of equipment,
@@ -2683,7 +2661,7 @@ find_ac()
     racial_bonus = Race_if(PM_ORC) ? 2 : Race_if(PM_ELF) ? 1 : Race_if(PM_DWARF) ? 1 : 0;
 
     if (uarm) {
-        uac -= ARM_BONUS(uarm);
+        uac -= armor_bonus(uarm);
         if ((Race_if(PM_ORC)
              && (uarm->otyp == ORCISH_CHAIN_MAIL
                  || uarm->otyp == ORCISH_RING_MAIL))
@@ -2694,7 +2672,7 @@ find_ac()
     }
 
     if (uarmc) {
-        uac -= ARM_BONUS(uarmc);
+        uac -= armor_bonus(uarmc);
         if ((Race_if(PM_ORC) && uarmc->otyp == ORCISH_CLOAK)
             || (Race_if(PM_ELF) && uarmc->otyp == ELVEN_CLOAK)
             || (Race_if(PM_DWARF) && uarmc->otyp == DWARVISH_CLOAK)) {
@@ -2703,7 +2681,7 @@ find_ac()
     }
 
     if (uarmh) {
-        uac -= ARM_BONUS(uarmh);
+        uac -= armor_bonus(uarmh);
         if ((Race_if(PM_ORC) && uarmh->otyp == ORCISH_HELM)
             || (Race_if(PM_ELF) && uarmh->otyp == ELVEN_HELM)
             || (Race_if(PM_DWARF) && uarmh->otyp == DWARVISH_HELM)) {
@@ -2712,7 +2690,7 @@ find_ac()
     }
 
     if (uarmf) {
-        uac -= ARM_BONUS(uarmf);
+        uac -= armor_bonus(uarmf);
         if ((Race_if(PM_ELF) && uarmf->otyp == ELVEN_BOOTS)
             || (Race_if(PM_DWARF) && uarmf->otyp == DWARVISH_BOOTS)
             || (Race_if(PM_ORC) && uarmf->otyp == ORCISH_BOOTS)) {
@@ -2721,7 +2699,7 @@ find_ac()
     }
 
     if (uarms) {
-        uac -= ARM_BONUS(uarms);
+        uac -= armor_bonus(uarms);
         if ((Race_if(PM_ORC)
              && (uarms->otyp == ORCISH_SHIELD
                  || uarms->otyp == URUK_HAI_SHIELD))
@@ -2732,9 +2710,9 @@ find_ac()
     }
 
     if (uarmg)
-        uac -= ARM_BONUS(uarmg);
+        uac -= armor_bonus(uarmg);
     if (uarmu)
-        uac -= ARM_BONUS(uarmu);
+        uac -= armor_bonus(uarmu);
     if (uleft && uleft->otyp == RIN_PROTECTION)
         uac -= uleft->spe;
     if (uright && uright->otyp == RIN_PROTECTION)
@@ -2746,6 +2724,39 @@ find_ac()
     if (HProtection & INTRINSIC)
         uac -= u.ublessed;
     uac -= u.uspellprot;
+
+    /* tortle hiding in its shell */
+    if (Hidinshell)
+        uac -= 40;
+
+    /* tortles gradually gain more protection
+       as they 'grow up' and their shells become
+       tougher and thicker */
+    tortle_ac = 0;
+    if (Race_if(PM_TORTLE)) {
+        if (u.ulevel <= 2)
+            tortle_ac -= 0;
+        else if (u.ulevel <= 5)
+            tortle_ac -= 1;
+        else if (u.ulevel <= 8)
+            tortle_ac -= 2;
+        else if (u.ulevel <= 11)
+            tortle_ac -= 3;
+        else if (u.ulevel <= 14)
+            tortle_ac -= 4;
+        else if (u.ulevel <= 17)
+            tortle_ac -= 5;
+        else if (u.ulevel <= 20)
+            tortle_ac -= 6;
+        else if (u.ulevel <= 23)
+            tortle_ac -= 7;
+        else if (u.ulevel <= 26)
+            tortle_ac -= 8;
+        else if (u.ulevel <= 29)
+            tortle_ac -= 9;
+        else if (u.ulevel == 30)
+            tortle_ac -= 10;
+    }
 
     /* Dexterity affects your base AC */
     dex_adjust_ac = 0;
@@ -2778,7 +2789,7 @@ find_ac()
             dex_adjust_ac = 0;
     }
 
-    uac = uac + dex_adjust_ac;
+    uac = uac + dex_adjust_ac + tortle_ac;
 
     /* [The magic binary numbers 127 and -128 should be replaced with the
      * mystic decimal numbers 99 and -99 which require no explanation to
@@ -3010,6 +3021,10 @@ register struct obj *otmp;
             pline("%s %s are too slippery to take off.",
                   uarmg->unpaid ? "The" : "Your", /* simplified Shk_Your() */
                   gloves_simple_name(uarmg));
+            return 0;
+        } else if (uarmg->oartifact == ART_HAND_OF_VECNA) {
+            pline("%s has merged with your left %s and cannot be removed.",
+                  The(xname(uarmg)), body_part(ARM));
             return 0;
         }
     }
@@ -3276,6 +3291,9 @@ doddoremarm()
                && !uright && !wearing_armor()) {
         You("are not wearing anything.");
         return 0;
+    } else if (Hidinshell) {
+        You_cant("take off worn items while hiding in your shell.");
+        return 0;
     }
 
     add_valid_menu_class(0); /* reset */
@@ -3368,16 +3386,23 @@ register struct obj *atmp;
     if (DESTROY_ARM(uarmc)) {
         if (donning(otmp))
             cancel_don();
+        /* for gold/chromatic DS, we don't want Cloak_off() to report
+           that it stops shining _after_ we've been told that it is
+           destroyed */
+        if (otmp->lamplit)
+            end_burn(otmp, FALSE);
         Your("%s crumbles and turns to dust!", cloak_simple_name(uarmc));
         (void) Cloak_off();
         useup(otmp);
     } else if (DESTROY_ARM(uarm)) {
-        if (uarm && uarm == otmp && otmp->otyp == CRYSTAL_PLATE_MAIL)
+        if (uarm && (uarm == otmp)
+            && otmp->otyp == CRYSTAL_PLATE_MAIL)
             goto end;
         if (donning(otmp))
             cancel_don();
-        /* for gold DSM, we don't want Armor_gone() to report that it
-           stops shining _after_ we've been told that it is destroyed */
+        /* for gold/chromatic dragon-scaled armor, we don't want
+           Armor_gone() to report that it stops shining _after_
+           we've been told that it is destroyed */
         if (otmp->lamplit)
             end_burn(otmp, FALSE);
         Your("armor turns to dust and falls to the %s!", surface(u.ux, u.uy));
@@ -3396,10 +3421,15 @@ register struct obj *atmp;
         (void) Helmet_off();
         useup(otmp);
     } else if (DESTROY_ARM(uarmg)) {
-        if (uarmg && uarmg == otmp && otmp->oartifact == ART_DRAGONBANE) {
+        if (uarmg && (uarmg == otmp)
+            && otmp->oartifact == ART_DRAGONBANE) {
             pline("%s %s and cannot be disintegrated.",
                   Yname2(otmp), rn2(2) ? "resists completely"
                                        : "defies physics");
+            goto end;
+        } else if (uarmg && (uarmg == otmp)
+                   && otmp->oartifact == ART_HAND_OF_VECNA) {
+            /* no feedback, as we're pretending it's not actually worn */
             goto end;
         }
         if (donning(otmp))
@@ -3417,6 +3447,11 @@ register struct obj *atmp;
     } else if (DESTROY_ARM(uarms)) {
         if (donning(otmp))
             cancel_don();
+        /* for a shield of light, we don't want Shield_off() to report
+           that it stops shining _after_ we've been told that it is
+           destroyed */
+        if (otmp->lamplit)
+            end_burn(otmp, FALSE);
         Your("shield crumbles away!");
         (void) Shield_off();
         useup(otmp);
@@ -3424,7 +3459,7 @@ register struct obj *atmp;
                /* don't use DESTROY_ARM for barding (at least for now) -- we
                 * want it to be an invalid target if atmp == 0, so that it can
                 * only be destroyed if specifically targeted */
-               && otmp == atmp
+               && (otmp == atmp)
                && !obj_resists(otmp, 0, 90) ? (otmp->in_use = TRUE) : FALSE) {
         pline("%s crumbles to pieces!", Yname2(otmp));
         m_useup(u.usteed, otmp);
@@ -3455,6 +3490,17 @@ register schar delta;
             makeknown(uarmh->otyp);
             ABON(A_INT) += (delta);
             ABON(A_WIS) += (delta);
+        }
+        context.botl = 1;
+    }
+    if (otmp && (otmp->oprops & ITEM_EXCEL) && (otmp->owornmask & W_ARMOR)) {
+        if (delta) {
+            int which = A_CHA,
+                old_attrib = ACURR(which);
+            ABON(which) += (delta);
+            if (old_attrib != ACURR(which))
+                otmp->oprops_known |= ITEM_EXCEL;
+            set_moreluck();
         }
         context.botl = 1;
     }
@@ -3510,7 +3556,8 @@ boolean only_if_known_cursed; /* ignore covering unless known to be cursed */
         return TRUE;
     }
     /* check for ring covered by gloves */
-    if ((obj == uleft || obj == uright) && uarmg && BLOCKSACCESS(uarmg)) {
+    if ((obj == uleft || obj == uright) && uarmg && BLOCKSACCESS(uarmg)
+        && uarmg->oartifact != ART_HAND_OF_VECNA) {
         if (verb) {
             Strcpy(buf, yname(uarmg));
             You(need_to_take_off_outer_armor, buf, verb, yname(obj));
@@ -3519,6 +3566,29 @@ boolean only_if_known_cursed; /* ignore covering unless known to be cursed */
     }
     /* item is not inaccessible */
     return FALSE;
+}
+
+/* hero is putting on or taking off obj, which may do something light-related
+   unifies code for cloak, shield and body armor code paths since gold dragon
+   scales are worn in cloak slot and gold-scaled armor is worn in armor slot */
+static void
+toggle_armor_light(struct obj *armor, boolean on)
+{
+    if (on) {
+        if (artifact_light(armor) && !armor->lamplit) {
+            begin_burn(armor, FALSE);
+            if (!Blind)
+                pline("%s %s to shine %s!",
+                    Yname2(armor), otense(armor, "begin"),
+                    arti_light_description(armor));
+        }
+    } else {
+        if (!artifact_light(armor)) {
+            end_burn(armor, FALSE);
+            if (!Blind)
+                pline("%s shining.", Tobjnam(armor, "stop"));
+        }
+    }
 }
 
 /*do_wear.c*/

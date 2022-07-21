@@ -106,6 +106,45 @@ char *bufp;
         obufidx = (obufidx - 1 + NUMOBUF) % NUMOBUF;
 }
 
+/* used by display_pickinv (invent.c, main whole-inventory routine) to
+   release each successive doname() result in order to try to avoid
+   clobbering all the obufs when 'perm_invent' is enabled and updated
+   while one or more obufs have been allocated but not released yet */
+void
+maybereleaseobuf(obuffer)
+char *obuffer;
+{
+    releaseobuf(obuffer);
+
+    /*
+     * An example from 3.6.x where all obufs got clobbered was when a
+     * monster used a bullwhip to disarm the hero of a two-handed weapon:
+     * "The ogre lord yanks Cleaver from your corpses!"
+     |
+     | hand = body_part(HAND);
+     | if (use_plural)      // switches 'hand' from static buffer to an obuf
+     |   hand = makeplural(hand);
+      ...
+     | release_worn_item(); // triggers full inventory update for perm_invent
+      ...
+     | pline(..., hand);    // the obuf[] for "hands" was clobbered with the
+     |                      //+ partial formatting of an item from invent
+     *
+     * Another example was from writing a scroll without room in invent to
+     * hold it after being split from a stack of blank scrolls:
+     * "Oops!  food rations out of your grasp!"
+     * hold_another_object() was passed 'the(aobjnam(newscroll, "slip"))'
+     * as an argument and that should have yielded
+     * "Oops!  The scroll of <foo> slips out of your grasp!"
+     * but attempting to add the item to inventory triggered update for
+     * perm_invent and the result from 'the(...)' was clobbered by partial
+     * formatting of some inventory item.  [It happened in a shop and the
+     * shk claimed ownership of the new scroll, but that wasn't relevant.]
+     * That got fixed earlier, by delaying update_inventory() during
+     * hold_another_object() rather than by avoiding using all the obufs.
+     */
+}
+
 static boolean dump_prop_flag = FALSE;
 
 /* identify object properties */
@@ -537,12 +576,25 @@ struct obj *obj;
     return xname_flags(obj, CXN_NORMAL);
 }
 
+/* Force rendering of materials on certain items where the object name
+ * wouldn't make as much sense without a material (e.g. "leather jacket" vs
+ * "jacket"), or those where the default material is non-obvious.
+ * NB: GLOVES have a randomized description when not identified; "leather
+ * padded gloves" would give the game away if we did not check their
+ * identification status */
+#define force_material_name(typ) \
+    ((typ) == ARMOR || (typ) == STUDDED_ARMOR                     \
+     || (typ) == JACKET || (typ) == CLOAK                         \
+     || ((typ) == GLOVES && objects[GLOVES].oc_name_known)        \
+     || ((typ) == GAUNTLETS && objects[GAUNTLETS].oc_name_known))
+
 STATIC_OVL char *
 xname_flags(obj, cxn_flags)
 register struct obj *obj;
 unsigned cxn_flags; /* bitmask of CXN_xxx values */
 {
     register char *buf;
+    char *obufp;
     register int typ = obj->otyp;
     register struct objclass *ocl = &objects[typ];
     int nn = ocl->oc_name_known, omndx = obj->corpsenm;
@@ -610,7 +662,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
     switch (obj->oclass) {
     case AMULET_CLASS:
-        if (obj->material != objects[obj->otyp].oc_material) {
+        if (obj->material != objects[typ].oc_material && dknown) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
@@ -639,7 +691,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         else if (is_wet_towel(obj))
             Strcat(buf, (obj->spe < 3) ? "moist " : "wet ");
 
-        if (dknown && obj->material != objects[obj->otyp].oc_material) {
+        if (dknown && (obj->material != objects[typ].oc_material
+                       || force_material_name(typ))) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
@@ -673,13 +726,14 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         break;
     case ARMOR_CLASS:
         /* depends on order of the dragon scales objects */
-        if (typ >= GRAY_DRAGON_SCALES && typ <= CHROMATIC_DRAGON_SCALES) {
+        if (typ >= FIRST_DRAGON_SCALES && typ <= LAST_DRAGON_SCALES) {
             Strcat(buf, "set of ");
             Strcat(buf, actualn);
             break;
         }
 
-        if (is_boots(obj) || is_gloves(obj))
+        if (is_boots(obj)
+            || (is_gloves(obj) && obj->otyp != MUMMIFIED_HAND))
             Strcat(buf, "pair of ");
 
         if (dknown && (obj->oprops & ITEM_OILSKIN)
@@ -687,17 +741,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 || dump_prop_flag))
             Strcat(buf, "oilskin ");
 
-        if (dknown
-                && (obj->material != objects[obj->otyp].oc_material
-                /* force rendering of material on certain types of armor where
-                 * the name is more nonsensical without any prefix */
-                || obj->otyp == ARMOR || obj->otyp == STUDDED_ARMOR
-                || obj->otyp == JACKET || obj->otyp == CLOAK
-                /* GLOVES and GAUNTLETS have a randomized description when not
-                 * identified; "leather padded gloves" would give the game
-                 * away if we did not check their identification status */
-                || ((obj->otyp == GLOVES || obj->otyp == GAUNTLETS)
-                    && objects[obj->otyp].oc_name_known))) {
+        if ((obj->material != objects[typ].oc_material
+             || force_material_name(typ)) && dknown) {
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
@@ -755,10 +800,17 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             } else {
                 Strcat(buf, f->fname);
                 if (pluralize) {
-                    /* ick; already pluralized fruit names
-                       are allowed--we want to try to avoid
-                       adding a redundant plural suffix */
-                    Strcpy(buf, makeplural(makesingular(buf)));
+                    /* ick: already pluralized fruit names are allowed--we
+                       want to try to avoid adding a redundant plural suffix;
+                       double ick: makesingular() and makeplural() each use
+                       and return an obuf but we don't want any particular
+                       xname() call to consume more than one of those
+                       [note: makeXXX() will be fully evaluated and done with
+                       'buf' before strcpy() touches its output buffer] */
+                    Strcpy(buf, obufp = makesingular(buf));
+                    releaseobuf(obufp);
+                    Strcpy(buf, obufp = makeplural(buf));
+                    releaseobuf(obufp);
                     pluralize = FALSE;
                 }
             }
@@ -924,9 +976,13 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     }
     default:
         Sprintf(buf, "glorkum %d %d %d", obj->oclass, typ, obj->spe);
+        break;
     }
-    if (pluralize)
-        Strcpy(buf, makeplural(buf));
+    if (pluralize) {
+        /* (see fruit name handling in case FOOD_CLASS above) */
+        Strcpy(buf, obufp = makeplural(buf));
+        releaseobuf(obufp);
+    }
 
     if (program_state.gameover) {
         char tmpbuf[BUFSZ];
@@ -1009,8 +1065,9 @@ struct obj *obj;
     if (obj->otyp == SLIME_MOLD)
         bareobj.spe = obj->spe;
     /* in the interest of minimalism, don't show this specific object's
-     * material */
-    bareobj.material = objects[obj->otyp].oc_material;
+     * material, unless the material is always included in the name. */
+    bareobj.material = force_material_name(obj->otyp)
+                        ? obj->material : objects[obj->otyp].oc_material;
 
     bufp = distant_name(&bareobj, xname); /* xname(&bareobj) */
     if (!strncmp(bufp, "uncursed ", 9))
@@ -1312,7 +1369,8 @@ unsigned doname_flags;
                           because donning() returns True for both cases */
                        : doffing(obj) ? " (being doffed)"
                          : donning(obj) ? " (being donned)"
-                           : " (being worn)");
+                           : obj->otyp == MUMMIFIED_HAND ? " "
+                             : " (being worn)");
             /* slippery fingers is an intrinsic condition of the hero
                rather than extrinsic condition of objects, but gloves
                are described as slippery when hero has slippery fingers */
@@ -1322,6 +1380,14 @@ unsigned doname_flags;
             else if (!Blind && obj->lamplit && artifact_light(obj))
                 Sprintf(rindex(bp, ')'), ", %s lit)",
                         arti_light_description(obj));
+            else if (obj->otyp == MUMMIFIED_HAND)
+                Sprintf(rindex(bp, ' '), " (merged to your left %s)",
+                        body_part(ARM));
+        }
+        if (Is_dragon_scaled_armor(obj)) {
+            char scalebuf[30];
+            Sprintf(scalebuf, "%s-scaled ", dragon_scales_color(obj));
+            Strcat(prefix, scalebuf);
         }
         /*FALLTHRU*/
     case WEAPON_CLASS:
@@ -1523,8 +1589,8 @@ unsigned doname_flags;
     /* treat 'restoring' like suppress_price because shopkeeper and
        bill might not be available yet while restore is in progress
        (objects won't normally be formatted during that time, but if
-       'perm_invent' is enabled then they might be) */
-    if (iflags.suppress_price || restoring) {
+       'perm_invent' is enabled then they might be [not any more...]) */
+    if (iflags.suppress_price || program_state.restoring) {
         ; /* don't attempt to obtain any stop pricing, even if 'with_price' */
     } else if (is_unpaid(obj)) { /* in inventory or in container in invent */
         long quotedprice = unpaid_cost(obj, TRUE);
@@ -1741,11 +1807,15 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
     }
 
-    /* it's safe to overwrite our nambuf after an() has copied
-       its old value into another buffer */
-    if (any_prefix)
-        Strcpy(nambuf, an(nambuf));
+    /* it's safe to overwrite our nambuf[] after an() has copied its
+       old value into another buffer; and once _that_ has been copied,
+       the obuf[] returned by an() can be made available for re-use */
+    if (any_prefix) {
+        char *obufp;
 
+        Strcpy(nambuf, obufp = an(nambuf));
+        releaseobuf(obufp);
+    }
     return nambuf;
 }
 
@@ -2238,10 +2308,12 @@ char *
 simpleonames(obj)
 struct obj *obj;
 {
-    char *simpleoname = minimal_xname(obj);
+    char *obufp, *simpleoname = minimal_xname(obj);
 
-    if (obj->quan != 1L)
-        simpleoname = makeplural(simpleoname);
+    if (obj->quan != 1L) {
+        simpleoname = makeplural(obufp = simpleoname);
+        releaseobuf(obufp);
+    }
     return simpleoname;
 }
 
@@ -2250,7 +2322,7 @@ char *
 ansimpleoname(obj)
 struct obj *obj;
 {
-    char *simpleoname = simpleonames(obj);
+    char *obufp, *simpleoname = simpleonames(obj);
     int otyp = obj->otyp;
 
     /* prefix with "the" if a unique item, or a fake one imitating same,
@@ -2259,12 +2331,16 @@ struct obj *obj;
     if (otyp == FAKE_AMULET_OF_YENDOR)
         otyp = AMULET_OF_YENDOR;
     if (objects[otyp].oc_unique
-        && !strcmp(simpleoname, OBJ_NAME(objects[otyp])))
-        return the(simpleoname);
-
-    /* simpleoname is singular if quan==1, plural otherwise */
-    if (obj->quan == 1L)
-        simpleoname = an(simpleoname);
+        && !strcmp(simpleoname, OBJ_NAME(objects[otyp]))) {
+        /* the() will allocate another obuf[]; we want to avoid using two */
+        Strcpy(simpleoname, obufp = the(simpleoname));
+        releaseobuf(obufp);
+    } else if (obj->quan == 1L) {
+        /* simpleoname[] is singular if quan==1, plural otherwise;
+           an() will allocate another obuf[]; we want to avoid using two */
+        Strcpy(simpleoname, obufp = an(simpleoname));
+        releaseobuf(obufp);
+    }
     return simpleoname;
 }
 
@@ -2273,9 +2349,12 @@ char *
 thesimpleoname(obj)
 struct obj *obj;
 {
-    char *simpleoname = simpleonames(obj);
+    char *obufp, *simpleoname = simpleonames(obj);
 
-    return the(simpleoname);
+    /* the() will allocate another obuf[]; we want to avoid using two */
+    Strcpy(simpleoname, obufp = the(simpleoname));
+    releaseobuf(obufp);
+    return simpleoname;
 }
 
 /* artifact's name without any object type or known/dknown/&c feedback */
@@ -3066,16 +3145,14 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
     { "shield", ARMOR_CLASS, SMALL_SHIELD, SHIELD_OF_MOBILITY },
     { "hat", ARMOR_CLASS, DUNCE_CAP, FEDORA },
     { "helm", ARMOR_CLASS, DUNCE_CAP, HELM_OF_TELEPATHY },
-    { "gloves", ARMOR_CLASS, GLOVES, GAUNTLETS_OF_FUMBLING },
+    { "gloves", ARMOR_CLASS, GLOVES, MUMMIFIED_HAND },
     { "gauntlets", ARMOR_CLASS, GAUNTLETS, GAUNTLETS_OF_POWER },
     { "boots", ARMOR_CLASS, LOW_BOOTS, FUMBLE_BOOTS },
     { "shoes", ARMOR_CLASS, LOW_BOOTS, ORCISH_BOOTS },
     { "cloak", ARMOR_CLASS, MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT },
     { "shirt", ARMOR_CLASS, HAWAIIAN_SHIRT, T_SHIRT },
-    { "dragon scales", ARMOR_CLASS, GRAY_DRAGON_SCALES,
-      CHROMATIC_DRAGON_SCALES },
-    { "dragon scale mail", ARMOR_CLASS, GRAY_DRAGON_SCALE_MAIL,
-      CHROMATIC_DRAGON_SCALE_MAIL },
+    { "dragon scales", ARMOR_CLASS, FIRST_DRAGON_SCALES,
+      LAST_DRAGON_SCALES },
     { "sword", WEAPON_CLASS, SHORT_SWORD, KATANA },
     { "venom", VENOM_CLASS, BLINDING_VENOM, SNOWBALL },
     { "gray stone", GEM_CLASS, LUCKSTONE, FLINT },
@@ -3094,7 +3171,6 @@ static const struct alt_spellings {
     { "whip", BULLWHIP },
     { "sabre", SABER },
     { "smooth shield", SHIELD_OF_REFLECTION },
-    { "grey dragon scale mail", GRAY_DRAGON_SCALE_MAIL },
     { "grey dragon scales", GRAY_DRAGON_SCALES },
     { "iron ball", HEAVY_IRON_BALL },
     { "lantern", LANTERN },
@@ -3540,12 +3616,13 @@ struct obj *no_wish;
             if (!strncmpi(bp, "silver dragon", l = 13)
                 || !strncmpi(bp, "gold dragon", l = 11)
                 || !strcmp(bp, "gold")
+                || !strncmpi(bp, "gold piece", l = 10)
                 || !strncmpi(bp, "platinum yendorian express card", l = 31)
                 || !strncmpi(bp, "iron bars", l = 9)
                 || !strncmpi(bp, "crystal chest", l = 13)
                 || !strncmpi(bp, "crystal plate mail", l = 18)
                 || !strncmpi(bp, "iron ball of liberation", l = 23)) {
-                /* hack so that gold/silver dragon scales/mail doesn't get
+                /* hack so that gold/silver dragon scales doesn't get
                  * interpreted as silver, or a wish for just "gold" doesn't get
                  * interpreted as gold */
                 break;
@@ -3718,11 +3795,11 @@ struct obj *no_wish;
          * Find corpse type using "of" (figurine of an orc, tin of orc meat)
          * Don't check if it's a wand or spellbook.
          * (avoid "wand/finger of death" confusion).
-         * (also avoid "sword of kas" or "eye of vecna" issues)
+         * (also avoid "sword of kas" or "eye/hand of vecna" issues)
          */
         if (!strstri(bp, "wand ") && !strstri(bp, "spellbook ")
             && !strstri(bp, "finger ") && !strstri(bp, "eye ")
-            && !strstri(bp, "sword of kas")) {
+            && !strstri(bp, "hand ") && !strstri(bp, "sword of kas")) {
             if ((p = strstri(bp, "tin of ")) != 0) {
                 if (!strcmpi(p + 7, "spinach")) {
                     contents = SPINACH;
@@ -3829,7 +3906,31 @@ struct obj *no_wish;
             }
         }
     }
-    /* Find corpse type w/o "of" (red dragon scale mail, yeti corpse) */
+
+    /* Alternate spellings (pick-ax, silver sabre, &c) */
+    {
+        const struct alt_spellings *as = spellings;
+
+        while (as->sp) {
+            if (fuzzymatch(bp, as->sp, " -", TRUE)) {
+                typ = as->ob;
+                goto typfnd;
+            }
+            as++;
+        }
+        /* can't use spellings list for this one due to shuffling */
+        if (!strncmpi(bp, "grey spell", 10))
+            *(bp + 2) = 'a';
+
+        if ((p = strstri(bp, "armour")) != 0) {
+            /* skip past "armo", then copy remainder beyond "u" */
+            p += 4;
+            while ((*p = *(p + 1)) != '\0')
+                ++p; /* self terminating */
+        }
+    }
+
+    /* Find corpse type w/o "of" (red dragon scales, yeti corpse) */
     if (strncmpi(bp, "samurai sword", 13)   /* not the "samurai" monster! */
         && strncmpi(bp, "wizard lock", 11)  /* not the "wizard" monster! */
         && strncmpi(bp, "ninja-to", 8)      /* not the "ninja" rank */
@@ -3868,33 +3969,10 @@ struct obj *no_wish;
         }
     }
 
-    /* Alternate spellings (pick-ax, silver sabre, &c) */
-    {
-        const struct alt_spellings *as = spellings;
-
-        while (as->sp) {
-            if (fuzzymatch(bp, as->sp, " -", TRUE)) {
-                typ = as->ob;
-                goto typfnd;
-            }
-            as++;
-        }
-        /* can't use spellings list for this one due to shuffling */
-        if (!strncmpi(bp, "grey spell", 10))
-            *(bp + 2) = 'a';
-
-        if ((p = strstri(bp, "armour")) != 0) {
-            /* skip past "armo", then copy remainder beyond "u" */
-            p += 4;
-            while ((*p = *(p + 1)) != '\0')
-                ++p; /* self terminating */
-        }
-    }
-
     /* dragon scales - assumes order of dragons */
-    if (!strcmpi(bp, "scales") && mntmp >= PM_GRAY_DRAGON
-        && mntmp <= PM_YELLOW_DRAGON) {
-        typ = GRAY_DRAGON_SCALES + mntmp - PM_GRAY_DRAGON;
+    if (!strcmpi(bp, "scales") && mntmp >= FIRST_DRAGON
+        && mntmp <= LAST_DRAGON) {
+        typ = mndx_to_dragon_scales(mntmp);
         mntmp = NON_PM; /* no monster */
         goto typfnd;
     }
@@ -3931,8 +4009,15 @@ struct obj *no_wish;
         || !BSTRCMPI(bp, p - 7, "zorkmid")
         || !strcmpi(bp, "gold") || !strcmpi(bp, "money")
         || !strcmpi(bp, "coin") || *bp == GOLD_SYM) {
-        typ = GOLD_PIECE;
-        goto typfnd;
+        if (cnt > 5000 && !wizard)
+            cnt = 5000;
+        else if (cnt < 1)
+            cnt = 1;
+        otmp = mksobj(GOLD_PIECE, FALSE, FALSE);
+        otmp->quan = (long) cnt;
+        otmp->owt = weight(otmp);
+        context.botl = 1;
+        return otmp;
     }
 
     /* check for single character object class code ("/" for wand, &c) */
@@ -4416,10 +4501,7 @@ struct obj *no_wish;
             typ = SPE_BLANK_PAPER;
             break;
         case CHROMATIC_DRAGON_SCALES:
-            typ = rnd_class(GRAY_DRAGON_SCALES, YELLOW_DRAGON_SCALES);
-            break;
-        case CHROMATIC_DRAGON_SCALE_MAIL:
-            typ = rnd_class(GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALE_MAIL);
+            typ = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES - 1);
             break;
         default:
             /* catch any other non-wishable objects (venom) */
@@ -4427,6 +4509,16 @@ struct obj *no_wish;
                 return (struct obj *) 0;
             break;
         }
+    }
+
+    /* players are likely to wish for "foo dragon scale mail" by reflex, which
+     * no longer exists and would now ignore the dragon type and give a plain
+     * scale mail; don't screw over players who aren't aware of the dtsund-DSM
+     * changes - produce a set of scales instead of nothing */
+    if (typ == SCALE_MAIL && mntmp >= FIRST_DRAGON
+        && mntmp <= PM_YELLOW_DRAGON) { /* chromatic dragon scales are off-limits */
+        typ = mndx_to_dragon_scales(mntmp);
+        mntmp = NON_PM; /* no monster */
     }
 
     /*
@@ -4446,12 +4538,8 @@ struct obj *no_wish;
     if (cnt > 1 && objects[typ].oc_merge
         && (wizard || cnt < rnd(6) || (cnt <= 7 && Is_candle(otmp))
             || (cnt <= 20 && ((oclass == WEAPON_CLASS && is_ammo(otmp))
-                              || typ == ROCK || is_missile(otmp))))) {
-        if (oclass == COIN_CLASS && !wizard && cnt > 5000) {
-            cnt = 5000;
-        }
+                              || typ == ROCK || is_missile(otmp)))))
         otmp->quan = (long) cnt;
-    }
 
     if (oclass == VENOM_CLASS)
         otmp->spe = 1;
@@ -4527,7 +4615,7 @@ struct obj *no_wish;
         otmp->spe = spe;
     }
 
-    /* set otmp->corpsenm or dragon scale [mail] */
+    /* set otmp->corpsenm */
     if (mntmp >= LOW_PM) {
         if (mntmp == PM_LONG_WORM_TAIL)
             mntmp = PM_LONG_WORM;
@@ -4573,11 +4661,6 @@ struct obj *no_wish;
             if (Has_contents(otmp) && verysmall(&mons[mntmp]))
                 delete_contents(otmp); /* no spellbook */
             otmp->spe = ishistoric ? STATUE_HISTORIC : 0;
-            break;
-        case SCALE_MAIL:
-            /* Dragon mail - depends on the order of objects & dragons. */
-            if (mntmp >= PM_GRAY_DRAGON && mntmp <= PM_YELLOW_DRAGON)
-                otmp->otyp = GRAY_DRAGON_SCALE_MAIL + mntmp - PM_GRAY_DRAGON;
             break;
         }
     }
@@ -4701,7 +4784,8 @@ struct obj *no_wish;
                   something, makeplural(body_part(HAND)));
         return otmp;
     } else if ((otmp->oartifact && rn2(u.uconduct.wisharti))
-               && !(wizard && yn("Deal with previous owner?") == 'n')) {
+               && !(wizard && (program_state.wizkit_wishing
+                               || yn("Deal with previous owner?") == 'n'))) {
         int pm = -1;
         int strategy = NEED_HTH_WEAPON;
         struct monst *mtmp;
@@ -4847,6 +4931,7 @@ struct obj *no_wish;
             case ART_BUTCHER:
             case ART_WAND_OF_ORCUS:
             case ART_EYE_OF_VECNA:
+            case ART_HAND_OF_VECNA:
             case ART_SWORD_OF_KAS:
                 pm = PM_SAMURAI;
                 break;
@@ -4978,6 +5063,9 @@ struct obj *no_wish;
         if (otmp->material != CLOTH)
             objprops &= ~ITEM_OILSKIN;
 
+        if (otmp->otyp == OILSKIN_CLOAK)
+            objprops &= ~ITEM_OILSKIN;
+
         otmp->oprops |= objprops;
     }
 
@@ -5040,10 +5128,6 @@ struct obj *suit;
     const char *suitnm, *esuitp;
 
     if (suit) {
-        if (Is_dragon_mail(suit))
-            return "dragon mail"; /* <color> dragon scale mail */
-        else if (Is_dragon_scales(suit))
-            return "dragon scales";
         suitnm = OBJ_NAME(objects[suit->otyp]);
         esuitp = eos((char *) suitnm);
         if (strlen(suitnm) > 5 && !strcmp(esuitp - 5, " mail"))
@@ -5060,6 +5144,8 @@ cloak_simple_name(cloak)
 struct obj *cloak;
 {
     if (cloak) {
+        if (Is_dragon_scales(cloak))
+            return "set of dragon scales";
         switch (cloak->otyp) {
         case ROBE:
             return "robe";
@@ -5114,6 +5200,37 @@ struct obj *gloves;
             return gauntlets;
     }
     return "gloves";
+}
+
+/* Return the dragon color associated with a piece of dragon armor.
+ * E.g. red-scaled chain mail => "red"; blue dragon scales => "blue". */
+char *
+dragon_scales_color(obj)
+struct obj *obj;
+{
+    char* buf = nextobuf();
+    if (!obj) {
+        impossible("dragon_scales_color: null obj");
+        return NULL;
+    }
+    if (!Is_dragon_armor(obj)) {
+        impossible("getting color of non-dragon-armor (otyp=%d, scales=%d)",
+                   obj->otyp, obj->dragonscales);
+        Strcpy(buf, "bugged color");
+        return buf;
+    }
+    const struct permonst *pm = &mons[Dragon_armor_to_pm(obj)];
+    const char* endp = strstri(pm->mname, " dragon");
+    if (!endp) {
+        impossible("dragon_scales_color found non-dragon monster (%s)",
+                   pm->mname);
+        Strcpy(buf, "bugged color");
+        return buf;
+    }
+    int colorlen = endp - pm->mname;
+    strncpy(buf, pm->mname, colorlen);
+    buf[colorlen] = '\0';
+    return buf;
 }
 
 const char *

@@ -24,10 +24,12 @@ boolean
 goodpos(x, y, mtmp, gpflags)
 int x, y;
 struct monst *mtmp;
-unsigned gpflags;
+long gpflags;
 {
     struct permonst *mdat = (struct permonst *) 0;
     boolean ignorewater = ((gpflags & MM_IGNOREWATER) != 0),
+            ignorelava = ((gpflags & MM_IGNORELAVA) != 0),
+            ignoreair = ((gpflags & MM_IGNOREAIR) != 0),
             allow_u = ((gpflags & GP_ALLOW_U) != 0);
 
     if (!isok(x, y))
@@ -63,7 +65,9 @@ unsigned gpflags;
             return FALSE;
 
         mdat = mtmp->data;
-        if (is_pool(x, y) && !ignorewater) {
+        if (!ignorewater
+            && (is_pool(x, y) || ((is_puddle(x, y) || is_sewage(x, y))
+                                  && vs_cantflyorswim(mtmp->data)))) {
             /* [what about Breathless?] */
             if (mtmp == &youmonst)
                 return (Swimming || Amphibious
@@ -79,7 +83,7 @@ unsigned gpflags;
         } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater
                    && !is_puddle(x, y)) {
             return FALSE;
-        } else if (is_lava(x, y)) {
+        } else if (is_lava(x, y) && !ignorelava) {
             /* 3.6.3: floating eye can levitate over lava but it avoids
                that due the effect of the heat causing it to dry out */
             if (mdat == &mons[PM_FLOATING_EYE])
@@ -93,10 +97,8 @@ unsigned gpflags;
                 return (is_floater(mdat) || is_flyer(mdat)
                         || likes_lava(mdat));
         }
-        if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)
-            && !(is_flyer(mdat) || is_floater(mdat)
-                 || is_clinger(mdat)))
-            return FALSE;
+        if (is_open_air(x, y) && !ignoreair)
+            return (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat));
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;
         if (amorphous(mdat) && closed_door(x, y))
@@ -106,7 +108,9 @@ unsigned gpflags;
             return TRUE;
     }
     if (!accessible(x, y)) {
-        if (!(is_pool(x, y) && ignorewater))
+        if (!(is_pool(x, y) && ignorewater)
+            && !(is_lava(x, y) && ignorelava)
+            && !(is_open_air(x, y) && ignoreair))
             return FALSE;
     }
 
@@ -274,10 +278,19 @@ register int x, y;
 boolean trapok;
 {
     if (!trapok) {
-        /* allow teleportation onto vibrating square, it's not a real trap */
+        /* allow teleportation onto vibrating square, it's not a real trap;
+           also allow pits and holes if levitating or flying */
         struct trap *trap = t_at(x, y);
 
-        if (trap && trap->ttyp != VIBRATING_SQUARE)
+        if (!trap)
+            trapok = TRUE;
+        else if (trap->ttyp == VIBRATING_SQUARE)
+            trapok = TRUE;
+        else if ((is_pit(trap->ttyp) || is_hole(trap->ttyp))
+                 && (Levitation || Flying))
+            trapok = TRUE;
+
+        if (!trapok)
             return FALSE;
     }
     if (!goodpos(x, y, &youmonst, 0))
@@ -367,8 +380,14 @@ int teleds_flags;
         if (drag_ball(nux, nuy, &bc_control, &ballx, &bally, &chainx,
                       &chainy, &cause_delay, allow_drag))
             move_bc(0, bc_control, ballx, bally, chainx, chainy);
-        else /* dragging fails if hero is encumbered beyond 'burdened' */
-            unplacebc(); /* to match placebc() below */
+        else {
+            /* dragging fails if hero is encumbered beyond 'burdened' */
+            /* uball might've been cleared via drag_ball -> spoteffects ->
+               dotrap -> magic trap unpunishment */
+            ball_active = (Punished && uball->where != OBJ_FREE);
+            if (ball_active)
+                unplacebc(); /* to match placebc() below */
+        }
     }
 
     if (is_teleport && flags.verbose)
@@ -727,19 +746,18 @@ boolean break_the_rules; /* True: wizard mode ^T */
     }
     if (!trap) {
         boolean castit = FALSE;
-        register int sp_no = 0, energy = 0;
+        int energy = 0;
 
         if (!Teleportation || (u.ulevel < (Role_if(PM_WIZARD) ? 8 : 12)
                                && !can_teleport(youmonst.data))) {
             /* Try to use teleport away spell. */
-            for (sp_no = 0; sp_no < MAXSPELL; sp_no++)
-                if (spl_book[sp_no].sp_id == SPE_TELEPORT_AWAY)
-                    break;
+            boolean knownsp = known_spell(SPE_TELEPORT_AWAY);
+
             /* casting isn't inhibited by being Stunned (...it ought to be) */
-            castit = (sp_no < MAXSPELL && !Confusion);
+            castit = (knownsp && !Confusion);
             if (!castit && !break_the_rules) {
                 You("%s.",
-                    !Teleportation ? ((sp_no < MAXSPELL)
+                    !Teleportation ? (knownsp
                                         ? "can't cast that spell"
                                         : "don't know that spell")
                                    : "are not able to teleport at will");
@@ -785,7 +803,7 @@ boolean break_the_rules; /* True: wizard mode ^T */
         if (castit) {
             /* energy cost is deducted in spelleffects() */
             exercise(A_WIS, TRUE);
-            if (spelleffects(sp_no, TRUE))
+            if (spelleffects(spell_idx(SPE_TELEPORT_AWAY), TRUE))
                 return 1;
             else if (!break_the_rules)
                 return 0;
@@ -952,7 +970,7 @@ level_tele()
          * but once he is defeated, the ability opens back up */
         if (newlev > 0 && !force_dest
             && ((Is_valley(&u.uz) && !u.uevent.ucerberus
-                 && (!wizard || yn("Cerberus is alive. Override?") != 'y'))
+                 && (!wizard || yn("Cerberus is alive.  Override?") != 'y'))
                 || Is_knox(&u.uz))) {
             You1(shudder_for_moment);
             return;
@@ -1035,7 +1053,7 @@ level_tele()
             escape_by_flying = "fly down to the ground";
         } else {
             pline("Unfortunately, you don't know how to fly.");
-            You("plummet a few thousand feet to your death.");
+            You("plummet several thousand feet to your death.");
             Sprintf(killer.name,
                     "teleported out of the dungeon and fell to %s death",
                     uhis());
@@ -1304,6 +1322,7 @@ register int x, y;
         }
     }
 
+    maybe_unhide_at(x, y);
     newsym(x, y);      /* update new location */
     set_apparxy(mtmp); /* orient monster */
 
@@ -1425,7 +1444,7 @@ int in_sight;
 
     if (tele_restrict(mtmp))
         return;
-    if (resists_magm(mtmp))
+    if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
         return;
     if (teleport_pet(mtmp, FALSE)) {
         /* save name with pre-movement visibility */
@@ -1468,7 +1487,7 @@ int in_sight;
          * this will proc correctly. */
         return 0;         /* temporary? kludge */
     }
-    if (resists_magm(mtmp))
+    if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
         return 0;
     if (teleport_pet(mtmp, force_it)) {
         d_level tolevel;

@@ -911,13 +911,15 @@ void
 shieldeff(x, y)
 xchar x, y;
 {
-    register int i;
+    register int i, k;
 
     if (!flags.sparkle)
         return;
     if (cansee(x, y)) { /* Don't see anything if can't see the location */
-        for (i = 0; i < SHIELD_COUNT; i++) {
-            show_glyph(x, y, cmap_to_glyph(shield_static[i]));
+        k = rand() % SHIELD_COUNT; /* randomly select starting frame */
+        for (i = 0; i < flags.sparkle; i++) {
+            show_glyph(x, y,
+                       cmap_to_glyph(shield_static[(k + i) % SHIELD_COUNT]));
             flush_screen(1); /* make sure the glyph shows up */
             delay_output();
         }
@@ -1458,10 +1460,11 @@ redraw_map()
      * used to get much too involved with each dungeon level as it was
      * read and written.
      *
-     * !u.ux: display isn't ready yet; (restoring || !on_level()): was part
-     * of cliparound() but interface shouldn't access this much internals
+     * !u.ux: display isn't ready yet; (program_state.restoring ||
+     * !on_level()): was part of cliparound() but interface shouldn't
+     * access this much internals
      */
-    if (!u.ux || restoring || !on_level(&u.uz0, &u.uz))
+    if (!u.ux || program_state.restoring || !on_level(&u.uz0, &u.uz))
         return;
 
     /*
@@ -1663,6 +1666,10 @@ int cursor_on_u;
     static int flushing = 0;
     static int delay_flushing = 0;
     register int x, y;
+
+    /* 3.7: don't update map, status, or perm_invent during save/restore */
+    if (program_state.saving || program_state.restoring)
+        return;
 
     if (cursor_on_u == -1)
         delay_flushing = !delay_flushing;

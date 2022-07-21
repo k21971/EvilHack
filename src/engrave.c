@@ -490,6 +490,9 @@ int x, y;
 int
 freehand()
 {
+    if (Hidinshell)
+        return FALSE;
+
     return (!uwep || !welded(uwep)
             || (!bimanual(uwep) && (!uarms || !cursed(uarms, TRUE))));
 }
@@ -587,7 +590,7 @@ doengrave()
         return 0;
     }
     if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz) /* in bubble */
-        || (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz))) {
+        || is_open_air(u.ux, u.uy)) {
         You_cant("write in thin air!");
         return 0;
     } else if (!accessible(u.ux, u.uy)) {
@@ -623,7 +626,11 @@ doengrave()
         You("have no free %s to write with!", body_part(HAND));
         return 0;
     }
-
+    if (Hidinshell) {
+        Your("%s are constrained within your shell.",
+             makeplural(body_part(HAND)));
+        return 0;
+    }
     if (jello) {
         You("tickle %s with %s.", mon_nam(u.ustuck), writer);
         Your("message dissolves...");

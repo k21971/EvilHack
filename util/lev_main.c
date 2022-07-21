@@ -255,16 +255,16 @@ char **argv;
 #if defined(MAC) && (defined(THINK_C) || defined(__MWERKS__))
     static char *mac_argv[] = {
         "lev_comp", /* dummy argv[0] */
-        ":dat:Arch.des",     ":dat:Barb.des",     ":dat:Caveman.des",
-        ":dat:Convict.des",  ":dat:Healer.des",   ":dat:Infidel.des",
-        ":dat:Knight.des",   ":dat:Monk.des",     ":dat:Priest.des",
-        ":dat:Ranger.des",   ":dat:Rogue.des",    ":dat:Samurai.des",
-        ":dat:Tourist.des",  ":dat:Valkyrie.des", ":dat:Wizard.des",
-        ":dat:bigroom.des",  ":dat:castle.des",   ":dat:endgame.des",
-        ":dat:gehennom.des", ":dat:icequeen.des", ":dat:knox.des",
-        ":dat:medusa.des",   ":dat:mines.des",    ":dat:nymph.des",
-        ":dat:oracle.des",   ":dat:sokoban.des",  ":dat:tower.des",
-        ":dat:vecna.des",    ":dat:yendor.des"
+        ":dat:Arch.des",     ":dat:Barb.des",       ":dat:Caveman.des",
+        ":dat:Convict.des",  ":dat:Healer.des",     ":dat:Infidel.des",
+        ":dat:Knight.des",   ":dat:Monk.des",       ":dat:Priest.des",
+        ":dat:Ranger.des",   ":dat:Rogue.des",      ":dat:Samurai.des",
+        ":dat:Tourist.des",  ":dat:Valkyrie.des",   ":dat:Wizard.des",
+        ":dat:bigroom.des",  ":dat:castle.des",     ":dat:endgame.des",
+        ":dat:gehennom.des", ":dat:goblintown.des", ":dat:icequeen.des",
+        ":dat:knox.des",     ":dat:medusa.des",     ":dat:mines.des",
+        ":dat:nymph.des",    ":dat:oracle.des",     ":dat:sokoban.des",
+        ":dat:tower.des",    ":dat:vecna.des",      ":dat:yendor.des"
     };
 
     argc = SIZE(mac_argv);

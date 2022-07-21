@@ -26,7 +26,6 @@ STATIC_DCL void FDECL(polyman, (const char *, const char *));
 STATIC_DCL void FDECL(dropp, (struct obj *));
 STATIC_DCL void NDECL(break_armor);
 STATIC_DCL void FDECL(drop_weapon, (int));
-STATIC_DCL int FDECL(armor_to_dragon, (int));
 STATIC_DCL void NDECL(newman);
 STATIC_DCL void NDECL(polysense);
 
@@ -108,7 +107,7 @@ set_uasmon()
        show latent flight capability always blocked by levitation */
     /* this property also checks race instead of role */
     PROPSET(FLYING, (is_flyer(racedat) && !is_floater(racedat)));
-    if (!restoring) /* if loading, defer wings check until we have a steed */
+    if (!program_state.restoring) /* if loading, defer wings check until we have a steed */
         check_wings(TRUE);
     PROPSET(SWIMMING, is_swimmer(mdat));
     /* [don't touch MAGICAL_BREATHING here; both Amphibious and Breathless
@@ -432,7 +431,11 @@ int psflags;
     char buf[BUFSZ] = DUMMY;
     int old_light, new_light, mntmp, class, tryct;
     boolean forcecontrol = (psflags == 1), monsterpoly = (psflags == 2),
-            draconian = (uarm && Is_dragon_armor(uarm)),
+            draconian = (!uskin && armor_to_dragon(&youmonst) != NON_PM),
+            /* psflags = 4: enchanting dragon scales while confused; polycontrol
+             * will only allow declining to become dragon, won't allow turning
+             * into arbitrary monster */
+            draconian_only = (psflags == 4),
             iswere = (u.ulycn >= LOW_PM), isvamp = is_vampire(youmonst.data),
             controllable_poly = Polymorph_control && !(Stunned || Unaware),
             yourrace;
@@ -454,8 +457,13 @@ int psflags;
     old_light = emits_light(youmonst.data);
     mntmp = NON_PM;
 
+    if (Hidinshell)
+        toggleshell();
+
     if (monsterpoly && isvamp)
         goto do_vampyr;
+    if (draconian_only)
+        goto do_merge;
 
     if (controllable_poly || forcecontrol) {
         tryct = 5;
@@ -483,7 +491,7 @@ int psflags;
                 class = name_to_monclass(buf, &mntmp);
                 if (class && mntmp == NON_PM)
                     mntmp = (draconian && class == S_DRAGON)
-                            ? armor_to_dragon(uarm->otyp)
+                            ? armor_to_dragon(&youmonst)
                             : mkclass_poly(class);
             }
             if (mntmp < LOW_PM) {
@@ -526,7 +534,7 @@ int psflags;
         if (!tryct)
             pline1(thats_enough_tries);
         /* allow skin merging, even when polymorph is controlled */
-        if (draconian && (tryct <= 0 || mntmp == armor_to_dragon(uarm->otyp)))
+        if (draconian && (tryct <= 0 || mntmp == armor_to_dragon(&youmonst)))
             goto do_merge;
         if (isvamp && (tryct <= 0 || mntmp == PM_WOLF || mntmp == PM_FOG_CLOUD
                        || is_bat(&mons[mntmp])))
@@ -535,33 +543,36 @@ int psflags;
         /* special changes that don't require polyok() */
         if (draconian) {
         do_merge:
-            mntmp = armor_to_dragon(uarm->otyp);
-            if (!(mvitals[mntmp].mvflags & G_GENOD)) {
-                unsigned was_lit = uarm->lamplit;
-                int arm_light = artifact_light(uarm) ? arti_light_radius(uarm)
-                                                     : 0;
-                /* allow G_EXTINCT */
-                if (Is_dragon_scales(uarm)) {
-                    /* dragon scales remain intact as uskin */
-                    You("merge with your scaly armor.");
-                } else { /* dragon scale mail reverts to scales */
-                    /* similar to noarmor(invent.c),
-                       shorten to "<color> scale mail" */
-                    Strcpy(buf, simpleonames(uarm));
-                    strsubst(buf, " dragon ", " ");
-                    /* tricky phrasing; dragon scale mail is singular, dragon
-                       scales are plural (note: we don't use "set of scales",
-                       which usually overrides the distinction, here) */
-                    Your("%s reverts to scales as you merge with them.", buf);
-                    /* uarm->spe enchantment remains unchanged;
-                       re-converting scales to mail poses risk
-                       of evaporation due to over enchanting */
-                    uarm->otyp += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
-                    uarm->dknown = 1;
-                    context.botl = 1; /* AC is changing */
+            /* armor_to_dragon will return uskin if uskin turned you into a
+             * dragon; thus, the assumption here is that a hero who turned into
+             * a dragon by merging with armor won't be able to wear other types
+             * of dragon armor while polymorphed. */
+            mntmp = armor_to_dragon(&youmonst);
+            if (controllable_poly) {
+                Sprintf(buf, "Become %s?", an(mons[mntmp].mname));
+                if (yn(buf) != 'y') {
+                    return;
                 }
-                uskin = uarm;
-                uarm = (struct obj *) 0;
+            }
+            if (!(mvitals[mntmp].mvflags & G_GENOD)) {
+                struct obj **mergarm =
+                    (uarm && Is_dragon_scaled_armor(uarm)) ? &uarm
+                      : (uarmc && Is_dragon_scales(uarmc)) ? &uarmc
+                        : (struct obj **) 0;
+                unsigned was_lit = mergarm ? (*mergarm)->lamplit : 0;
+                int arm_light = mergarm && artifact_light(*mergarm)
+                                  ? arti_light_radius(*mergarm) : 0;
+                /* allow G_EXTINCT */
+                You("merge with your scaly armor.");
+                if (uskin) {
+                    impossible("Already merged with some armor!");
+                } else if (!mergarm) {
+                    impossible("No dragon armor / dragon cloak to merge?");
+                } else {
+                    uskin = *mergarm;
+                    *mergarm = NULL;
+                    /* dragon scales remain intact as uskin */
+                }
                 /* save/restore hack */
                 uskin->owornmask |= I_SPECIAL;
                 if (was_lit)
@@ -656,6 +667,9 @@ int mntmp;
         exercise(A_WIS, TRUE);
         return 0;
     }
+
+    if (Hidinshell)
+        toggleshell();
 
     /* KMH, conduct */
     if (!u.uconduct.polyselfs++)
@@ -768,7 +782,7 @@ int mntmp;
 #endif
     }
 
-    if (uskin && mntmp != armor_to_dragon(uskin->otyp))
+    if (uskin && mntmp != armor_to_dragon(&youmonst))
         skinback(FALSE);
     break_armor();
     drop_weapon(1);
@@ -939,8 +953,9 @@ break_armor()
         if ((otmp = uarm) != 0) {
             if (donning(otmp))
                 cancel_don();
-            /* for gold DSM, we don't want Armor_gone() to report that it
-               stops shining _after_ we've been told that it is destroyed */
+            /* for gold dragon-scaled armor, we don't want Armor_gone()
+               to report that it stops shining _after_ we've been told
+               that it is destroyed */
             if (otmp->lamplit)
                 end_burn(otmp, FALSE);
             if (youmonst.data->msize >= MZ_HUGE
@@ -1041,11 +1056,18 @@ break_armor()
             if (donning(otmp))
                 cancel_don();
             /* Drop weapon along with gloves */
-            You("drop your gloves%s!", uwep ? " and weapon" : "");
-            drop_weapon(0);
-            (void) Gloves_off();
-            /* Glib manipulation (ends immediately) handled by Gloves_off */
-            dropp(otmp);
+            if (uarmg->oartifact == ART_HAND_OF_VECNA) {
+                if (uwep) {
+                    You("drop your weapon!");
+                    drop_weapon(0);
+                }
+            } else {
+                You("drop your gloves%s!", uwep ? " and weapon" : "");
+                drop_weapon(0);
+                (void) Gloves_off();
+                /* Glib manipulation (ends immediately) handled by Gloves_off */
+                dropp(otmp);
+            }
         }
         if ((otmp = uarms) != 0) {
             You("can no longer hold your shield!");
@@ -1064,7 +1086,8 @@ break_armor()
         }
     }
     if (nohands(youmonst.data) || verysmall(youmonst.data)
-        || slithy(youmonst.data) || youmonst.data->mlet == S_CENTAUR) {
+        || slithy(youmonst.data) || racial_centaur(&youmonst)
+        || racial_tortle(&youmonst)) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1074,6 +1097,26 @@ break_armor()
                 Your("boots %s off your feet!",
                      verysmall(youmonst.data) ? "slide" : "are pushed");
             (void) Boots_off();
+            dropp(otmp);
+        }
+    }
+    if (racial_tortle(&youmonst)) {
+        if ((otmp = uarmh) != 0 && is_hard(otmp)) {
+            if (donning(otmp))
+                cancel_don();
+            Your("%s falls to the %s!", helm_simple_name(otmp),
+                 surface(u.ux, u.uy));
+            (void) Helmet_off();
+            dropp(otmp);
+        }
+        if ((otmp = uarmg) != 0 && is_hard(otmp)) {
+            if (donning(otmp))
+                cancel_don();
+            /* Drop weapon along with gloves */
+            You("drop your gloves%s!", uwep ? " and weapon" : "");
+            drop_weapon(0);
+            (void) Gloves_off();
+            /* Glib manipulation (ends immediately) handled by Gloves_off */
             dropp(otmp);
         }
     }
@@ -1167,6 +1210,7 @@ rehumanize()
     if (emits_light(youmonst.data))
         del_light_source(LS_MONSTER, monst_to_any(&youmonst));
     polyman("return to %s form!", urace.adj);
+    break_armor();
 
     if (u.uhp < 1) {
         /* can only happen if some bit of code reduces u.uhp
@@ -1219,8 +1263,6 @@ dobreathe()
     return 1;
 }
 
-extern struct obj *stack;
-
 int
 dospit()
 {
@@ -1249,7 +1291,6 @@ dospit()
             break;
         }
         otmp->spe = 1; /* to indicate it's yours */
-        stack = (struct obj *) 0;
         throwit(otmp, 0L, FALSE);
     }
     return 1;
@@ -1357,6 +1398,11 @@ dospinweb()
             deltrap(ttmp);
             newsym(u.ux, u.uy);
             return 1;
+        case SPEAR_TRAP:
+            You("spin a web, jamming the mechanism.");
+            deltrap(ttmp);
+            newsym(u.ux, u.uy);
+            return 1;
         case ARROW_TRAP:
         case BOLT_TRAP:
         case DART_TRAP:
@@ -1369,6 +1415,7 @@ dospinweb()
         case MAGIC_TRAP:
         case ANTI_MAGIC:
         case POLY_TRAP:
+        case MAGIC_BEAM_TRAP:
             You("have triggered a trap!");
             dotrap(ttmp, 0);
             return 1;
@@ -1485,7 +1532,7 @@ dogaze()
                     int dmg = d(2, 6), lev = (int) u.ulevel;
 
                     You("attack %s with a fiery gaze!", mon_nam(mtmp));
-                    if (resists_fire(mtmp)) {
+                    if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
                         pline_The("fire doesn't burn %s!", mon_nam(mtmp));
                         dmg = 0;
                     }
@@ -1625,6 +1672,39 @@ dohide()
 }
 
 int
+toggleshell()
+{
+    boolean was_blind = Blind, was_hiding = Hidinshell;
+
+    if (!was_hiding && u.uinshell) {
+        You_cant("retreat into your shell again so soon.");
+        return 0;
+    } else if (!was_hiding && Punished) {
+        You_cant("retreat into your shell with an iron ball chained to your %s!",
+                 body_part(LEG));
+        return 0;
+    }
+
+    You("%s your shell.", was_hiding ? "emerge from" : "retreat into");
+    /* maximum of 200 turns our hero can stay inside their shell,
+       and then 300-400 turns before they can hide in it again
+       after emerging from it */
+    u.uinshell = was_hiding ? -rn1(100, 300) : 200;
+
+    if (!was_hiding)
+        HHalf_physical_damage |= FROMOUTSIDE;
+    else
+        HHalf_physical_damage &= ~FROMOUTSIDE;
+
+    find_ac();
+    context.botl = 1;
+    if (was_blind ^ Blind)
+        toggle_blindness();
+
+    return 1;
+}
+
+int
 dopoly()
 {
     struct permonst *savedat = youmonst.data;
@@ -1692,14 +1772,15 @@ skinback(silently)
 boolean silently;
 {
     if (uskin) {
+        struct obj **slot = (Is_dragon_scales(uskin) ? &uarmc : &uarm);
         int old_light = arti_light_radius(uskin);
 
         if (!silently)
             Your("skin returns to its original form.");
-        uarm = uskin;
+        *slot = uskin;
         uskin = (struct obj *) 0;
         /* undo save/restore hack */
-        uarm->owornmask &= ~I_SPECIAL;
+        (*slot)->owornmask &= ~I_SPECIAL;
 
         if (artifact_light(uarm))
             maybe_adjust_light(uarm, old_light);
@@ -1775,6 +1856,11 @@ int part;
                           "posterior", "over stretched", "clitellum",
                           "length", "posterior setae", "setae", "blood",
                           "skin", "prostomium", "stomach", "skin" },
+        *spider_parts[] = { "pedipalp", "eye", "face", "pedipalp", "tarsus",
+                            "claw", "pedipalp", "palped", "cephalothorax",
+                            "leg", "spun out", "cephalothorax", "abdomen",
+                            "claw", "hair", "hemolymph", "book lung",
+                            "labrum", "digestive tract" },
         *fish_parts[] = { "fin", "eye", "premaxillary", "pelvic axillary",
                           "pelvic fin", "anal fin", "pectoral fin", "finned",
                           "head", "peduncle", "played out", "gills",
@@ -1811,10 +1897,10 @@ int part;
     }
     if ((part == HAND || part == HANDED)
         && ((humanoid(mptr) && attacktype(mptr, AT_CLAW)
-            && (has_claws(mptr) || has_claws_undead(mptr))
-            && !index(not_claws, mptr->mlet) && mptr != &mons[PM_STONE_GOLEM]
-            && mptr != &mons[PM_INCUBUS] && mptr != &mons[PM_SUCCUBUS])
-            || Race_if(PM_DEMON) || Race_if(PM_ILLITHID)))
+             && (has_claws(mptr) || has_claws_undead(mptr))
+             && !index(not_claws, mptr->mlet) && mptr != &mons[PM_STONE_GOLEM]
+             && mptr != &mons[PM_INCUBUS] && mptr != &mons[PM_SUCCUBUS])
+            || Race_if(PM_DEMON) || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)))
         return (part == HAND) ? "claw" : "clawed";
     if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON]
          || mptr == &mons[PM_WOOLLY_MAMMOTH])
@@ -1833,6 +1919,8 @@ int part;
     if (humanoid(mptr) && (part == ARM || part == FINGER || part == FINGERTIP
                            || part == HAND || part == HANDED))
         return humanoid_parts[part];
+    if (mptr->mlet == S_COCKATRICE)
+        return (part == HAIR) ? snake_parts[part] : bird_parts[part];
     if (is_bird(mptr))
         return bird_parts[part];
     if (has_beak(mptr) && part == NOSE)
@@ -1860,6 +1948,8 @@ int part;
         return fish_parts[part];
     if (mptr->mlet == S_WORM)
         return worm_parts[part];
+    if (mptr->mlet == S_SPIDER)
+        return spider_parts[part];
     if (slithy(mptr) || (mptr->mlet == S_DRAGON
                          && (part == HAIR || part == SKIN)))
         return snake_parts[part];
@@ -1927,54 +2017,40 @@ int damtype, dam;
     }
 }
 
-STATIC_OVL int
-armor_to_dragon(atyp)
-int atyp;
+/* Given a monster, return the sort of dragon it will polymorph into.
+ * This is evaluated in three steps from innermost to outermost:
+ * 1) Armor embedded in the skin (player only).
+ * 2) Dragon-scaled armor worn in the body armor slot.
+ * 3) Dragon scales worn in the cloak slot.
+ */
+int
+armor_to_dragon(mon)
+struct monst *mon;
 {
-    switch (atyp) {
-    case GRAY_DRAGON_SCALE_MAIL:
-    case GRAY_DRAGON_SCALES:
-        return PM_GRAY_DRAGON;
-    case SILVER_DRAGON_SCALE_MAIL:
-    case SILVER_DRAGON_SCALES:
-        return PM_SILVER_DRAGON;
-    case SHIMMERING_DRAGON_SCALE_MAIL:
-    case SHIMMERING_DRAGON_SCALES:
-        return PM_SHIMMERING_DRAGON;
-    case RED_DRAGON_SCALE_MAIL:
-    case RED_DRAGON_SCALES:
-        return PM_RED_DRAGON;
-    case ORANGE_DRAGON_SCALE_MAIL:
-    case ORANGE_DRAGON_SCALES:
-        return PM_ORANGE_DRAGON;
-    case WHITE_DRAGON_SCALE_MAIL:
-    case WHITE_DRAGON_SCALES:
-        return PM_WHITE_DRAGON;
-    case BLACK_DRAGON_SCALE_MAIL:
-    case BLACK_DRAGON_SCALES:
-        return PM_BLACK_DRAGON;
-    case BLUE_DRAGON_SCALE_MAIL:
-    case BLUE_DRAGON_SCALES:
-        return PM_BLUE_DRAGON;
-    case GREEN_DRAGON_SCALE_MAIL:
-    case GREEN_DRAGON_SCALES:
-        return PM_GREEN_DRAGON;
-    case GOLD_DRAGON_SCALE_MAIL:
-    case GOLD_DRAGON_SCALES:
-        return PM_GOLD_DRAGON;
-    case SEA_DRAGON_SCALE_MAIL:
-    case SEA_DRAGON_SCALES:
-        return PM_SEA_DRAGON;
-    case YELLOW_DRAGON_SCALE_MAIL:
-    case YELLOW_DRAGON_SCALES:
-        return PM_YELLOW_DRAGON;
-    case CHROMATIC_DRAGON_SCALE_MAIL:
-    case CHROMATIC_DRAGON_SCALES:
-        /* TODO: randomize this */
-        return PM_RED_DRAGON;
-    default:
-        return NON_PM;
+    struct obj* array[3]; /* skin, body, cloak */
+    int i;
+
+    if (mon == &youmonst) {
+        array[0] = uskin;
+        array[1] = uarm;
+        array[2] = uarmc;
+    } else {
+        array[0] = NULL;
+        array[1] = which_armor(mon, W_ARM);
+        array[2] = which_armor(mon, W_ARMC);
     }
+
+    for (i = 0; i < 3; ++i) {
+        if (array[i] != NULL) {
+            if (Is_dragon_armor(array[i])) {
+                if (Dragon_armor_to_pm(array[i]) == PM_CHROMATIC_DRAGON)
+                    return PM_RED_DRAGON;
+                else
+                    return Dragon_armor_to_pm(array[i]);
+            }
+        }
+    }
+    return NON_PM;
 }
 
 /* some species have awareness of other species */

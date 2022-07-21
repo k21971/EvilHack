@@ -288,7 +288,7 @@ int x, y;
     boolean accurate = !Hallucination;
     char *mwounds;
 
-    if (!mon_visible(mtmp) && has_erid(mtmp) && mon_visible(ERID(mtmp)->m1))
+    if (!canspotmon(mtmp) && has_erid(mtmp) && canspotmon(ERID(mtmp)->m1))
         mtmp = ERID(mtmp)->m1;
 
     name = (mtmp->data == &mons[PM_COYOTE] && accurate)
@@ -337,7 +337,7 @@ int x, y;
                     /* don't count armor->spe, since this represents only what
                      * the hero can see from afar -- monster with +8 gloves
                      * will still seem "lightly armored" from a distance */
-                    base_ac += ARM_BONUS(otmp) - otmp->spe;
+                    base_ac += armor_bonus(otmp) - otmp->spe;
                     arm_ct++;
                 }
 
@@ -522,6 +522,9 @@ char *buf, *monbuf;
         bhitpos.y = y;
         if ((mtmp = m_at(x, y)) != 0) {
             look_at_monster(buf, monbuf, mtmp, x, y);
+            if (!canspotmon(mtmp) && has_erid(mtmp)
+                && canspotmon(ERID(mtmp)->m1))
+                mtmp = ERID(mtmp)->m1;
             pm = mtmp->data;
         } else if (Hallucination) {
             /* 'monster' must actually be a statue */
@@ -940,10 +943,10 @@ struct permonst * pm;
     APPENDC(is_displaced(pm), "displaced");
     APPENDC(is_skittish(pm), "skittish");
     APPENDC(is_accurate(pm), "accurate");
-    APPENDC(mflag4 == M4_VULNERABLE_FIRE, "vulnerable to fire");
-    APPENDC(mflag4 == M4_VULNERABLE_COLD, "vulnerable to cold");
-    APPENDC(mflag4 == M4_VULNERABLE_ELEC, "vulnerable to electricity");
-    APPENDC(mflag4 == M4_VULNERABLE_ACID, "vulnerable to acid");
+    APPENDC((mflag4 & M4_VULNERABLE_FIRE) != 0, "vulnerable to fire");
+    APPENDC((mflag4 & M4_VULNERABLE_COLD) != 0, "vulnerable to cold");
+    APPENDC((mflag4 & M4_VULNERABLE_ELEC) != 0, "vulnerable to electricity");
+    APPENDC((mflag4 & M4_VULNERABLE_ACID) != 0, "vulnerable to acid");
     if (*buf) {
         Sprintf(buf2, "Is %s.", buf);
         MONPUTSTR(buf2);

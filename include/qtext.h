@@ -122,6 +122,11 @@ struct qtlists {
 #define QTN_DEMONIC 27
 
 #define QT_BANISHED 60
+
+#define QT_CHARON 70
+#define QTN_CHARON 5
+#define QTN_CHRN_NOCERB 3
+
 #endif /***** !MAKEDEFS *****/
 
 #endif /* QTEXT_H */

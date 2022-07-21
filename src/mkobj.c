@@ -1024,12 +1024,12 @@ boolean artif;
         case CHAIN_CLASS:
             if (Role_if(PM_CONVICT) && otmp->otyp == IRON_CHAIN
                 && (moves <= 1))
-                otmp->rknown = 1;
+                otmp->dknown = otmp->bknown = otmp->rknown = 1;
             break;
         case BALL_CLASS:
             if (Role_if(PM_CONVICT) && otmp->otyp == HEAVY_IRON_BALL
                 && (moves <= 1))
-                otmp->rknown = 1;
+                otmp->dknown = otmp->bknown = otmp->rknown = 1;
             break;
         case POTION_CLASS: /* note: potions get some additional init below */
         case SCROLL_CLASS:
@@ -1345,8 +1345,11 @@ int old_range;
         obj_adjust_light_radius(obj, new_range);
         /* simplifying assumptions:  hero is wielding or wearing this object;
            artifacts have to be in use to emit light and monsters' gear won't
-           change bless or curse state */
-        if (!Blind && get_obj_location(obj, &ox, &oy, 0)) {
+           change bless or curse state
+           disallow uskin to avoid duplicate message when enchanting scales onto
+           armor that change lit state, that then become skin and again changing
+           lit state */
+        if (!Blind && get_obj_location(obj, &ox, &oy, 0) && obj != uskin) {
             *buf = '\0';
             if (iflags.last_msg == PLNMSG_OBJ_GLOWS)
                 /* we just saw "The <obj> glows <color>." from dipping */
@@ -2819,7 +2822,8 @@ struct obj *obj;
         /* embedded dragon scales have an extra bit set;
            make sure it's set, then suppress it */
         embedded = TRUE;
-        if ((owornmask & (W_ARM | I_SPECIAL)) == (W_ARM | I_SPECIAL))
+        if ((owornmask & (W_ARM | I_SPECIAL)) == (W_ARM | I_SPECIAL)
+            || (owornmask & (W_ARMC | I_SPECIAL)) == (W_ARMC | I_SPECIAL))
             owornmask &= ~I_SPECIAL;
         else
             n = 0,  owornmask = ~0; /* force insane_object("bogus") below */
@@ -2856,8 +2860,8 @@ struct obj *obj;
                 what = embedded ? "skin" : "suit";
             break;
         case W_ARMC:
-            if (obj != uarmc)
-                what = "cloak";
+            if (obj != (embedded ? uskin : uarmc))
+                what = embedded ? "skin" : "cloak";
             break;
         case W_ARMH:
             if (obj != uarmh)
@@ -2933,9 +2937,7 @@ struct obj *obj;
         if (owornmask & W_ARMOR) {
             if (obj->oclass != ARMOR_CLASS)
                 what = "armor";
-            /* 3.6: dragon scale mail reverts to dragon scales when
-               becoming embedded in poly'd hero's skin */
-            if (embedded && !Is_dragon_scales(obj))
+            if (embedded && !Is_dragon_armor(obj))
                 what = "skin";
         } else if (owornmask & W_WEAPONS) {
             /* monsters don't maintain alternate weapon or quiver */
@@ -3314,6 +3316,14 @@ static const struct icp dwarvish_weapon_materials[] = {
     { 5, GEMSTONE} /* gemstone is very hard and very sharp */
 };
 
+static const struct icp elven_weapon_materials[] = {
+    /* melee weapons only */
+    {50, WOOD},
+    {25, COPPER},
+    {20, MITHRIL},
+    { 5, SILVER}
+};
+
 static const struct icp bow_materials[] = {
     /* assumes all bows will be wood by default, fairly safe assumption */
     {75, WOOD},
@@ -3343,6 +3353,25 @@ static const struct icp sling_bullet_materials[] = {
     { 1, GOLD},
     { 1, PLATINUM},
 };
+
+/* special case array for helm of speed */
+static const struct icp helm_speed_materials[] = {
+    {30, 0}, /* default to base type, steel */
+    {25, LEATHER},
+    {15, CLOTH},
+    {10, BONE},
+    { 4, WOOD},
+    { 4, SILVER},
+    { 4, COPPER},
+    { 3, MITHRIL},
+    { 1, GOLD},
+    { 1, GLASS},
+    { 1, MINERAL},
+    { 1, PLATINUM},
+    { 1, DRAGON_HIDE}
+};
+
+
 
 /* Return the appropriate above list for a given object, or NULL if there isn't
  * an appropriate list. */
@@ -3402,6 +3431,12 @@ struct obj* obj;
         case DWARVISH_MATTOCK:
         case DWARVISH_BEARDED_AXE:
             return dwarvish_weapon_materials;
+        case ELVEN_SPEAR:
+        case ELVEN_DAGGER:
+        case ELVEN_SHORT_SWORD:
+        case ELVEN_BROADSWORD:
+        case ELVEN_LONG_SWORD:
+            return elven_weapon_materials;
         case CHEST:
         case LARGE_BOX:
             return wood_materials;
@@ -3438,6 +3473,8 @@ struct obj* obj;
             return rod_materials;
         case SLING_BULLET:
             return sling_bullet_materials;
+        case HELM_OF_SPEED:
+            return helm_speed_materials;
         default:
             break;
     }

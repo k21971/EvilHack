@@ -165,12 +165,13 @@ unplacebc_core()
         obj_extract_self(uball);
         if (Blind && (u.bc_felt & BC_BALL)) /* drop glyph */
             levl[uball->ox][uball->oy].glyph = u.bglyph;
-
+        maybe_unhide_at(uball->ox, uball->oy);
         newsym(uball->ox, uball->oy);
     }
     obj_extract_self(uchain);
     if (Blind && (u.bc_felt & BC_CHAIN)) /* drop glyph */
         levl[uchain->ox][uchain->oy].glyph = u.cglyph;
+    maybe_unhide_at(uchain->ox, uchain->oy);
 
     newsym(uchain->ox, uchain->oy);
     u.bc_felt = 0; /* feel nothing */
@@ -539,9 +540,11 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
             }
 
             remove_object(uchain);
+            maybe_unhide_at(uchain->ox, uchain->oy);
             newsym(uchain->ox, uchain->oy);
             if (!carried(uball)) {
                 remove_object(uball);
+                maybe_unhide_at(uball->ox, uball->oy);
                 newsym(uball->ox, uball->oy);
             }
         } else {
@@ -565,9 +568,10 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
         }
     }
     /* dragging ball or chain through water */
-    if (is_damp_terrain(ballx, bally))
+    if ((control & BC_BALL) && !carried(uball)
+        && is_damp_terrain(ballx, bally))
         water_damage(uball, (char *) 0, FALSE, ballx, bally);
-    if (is_damp_terrain(chainx, chainy))
+    if ((control & BC_CHAIN) && is_damp_terrain(chainx, chainy))
         water_damage(uchain, (char *) 0, FALSE, chainx, chainy);
 }
 
@@ -805,7 +809,9 @@ boolean allow_drag;
              || !is_pool(uball->ox, uball->oy)
              || levl[uball->ox][uball->oy].typ == POOL))
         || ((t = t_at(uchain->ox, uchain->oy))
-            && (is_pit(t->ttyp) || is_hole(t->ttyp)))) {
+            && (is_pit(t->ttyp) || is_hole(t->ttyp)))
+        || (is_open_air(uchain->ox, uchain->oy)
+            && !is_open_air(uball->ox, uball->oy))) {
         if (Levitation) {
             You_feel("a tug from the iron ball.");
             if (t)
@@ -948,7 +954,7 @@ xchar x, y;
         u.ux0 = u.ux;
         u.uy0 = u.uy;
         if (!Levitation && !MON_AT(x, y) && !u.utrap
-            && (is_pool(x, y)
+            && (is_pool(x, y) || is_open_air(x, y)
                 || ((t = t_at(x, y))
                     && (is_pit(t->ttyp)
                         || is_hole(t->ttyp))))) {

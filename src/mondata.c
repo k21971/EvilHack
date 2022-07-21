@@ -92,22 +92,68 @@ struct permonst *ptr;
     /* allow G_EXTINCT */
 }
 
+/* is 'mon' (possibly youmonst) protected against damage type 'adtype' via
+   wielded weapon or worn dragon scales? [or by virtue of being a dragon?] */
+boolean
+defended(mon, adtyp)
+struct monst *mon;
+int adtyp;
+{
+    struct obj *o, otemp;
+    int mndx;
+    boolean is_you = (mon == &youmonst);
+
+    /* is 'mon' wielding an artifact that protects against 'adtyp'? */
+    o = is_you ? uwep : MON_WEP(mon);
+    if (o && o->oartifact && defends(adtyp, o))
+        return TRUE;
+
+    /* if 'mon' is an adult dragon, treat it as if it was wearing scales
+       so that it has the same benefit as a hero wearing dragon scales */
+    mndx = monsndx(mon->data);
+    if (mndx >= PM_GRAY_DRAGON && mndx <= PM_YELLOW_DRAGON) {
+        /* a dragon is its own suit...  if mon is poly'd hero, we don't
+           care about embedded scales (uskin) because being a dragon with
+           embedded scales is no better than just being a dragon */
+        otemp = zeroobj;
+        otemp.oclass = ARMOR_CLASS;
+        otemp.otyp = GRAY_DRAGON_SCALES + (mndx - PM_GRAY_DRAGON);
+        /* defends() and Is_dragon_armor() only care about otyp so ignore
+           the rest of otemp's fields */
+        o = &otemp;
+    } else {
+        /* ordinary case: not an adult dragon */
+        o = is_you ? uarm : which_armor(mon, W_ARM);
+    }
+    /* is 'mon' wearing dragon scales that protect against 'adtyp'? */
+    if (o && Is_dragon_armor(o) && defends(adtyp, o))
+        return TRUE;
+
+    return FALSE;
+}
+
 /* returns True if monster is drain-life resistant */
 boolean
 resists_drli(mon)
 struct monst *mon;
 {
     struct permonst *ptr = raceptr(mon); /* handle demonic race */
-    struct obj *wep;
+    struct obj *armor;
+    long slotmask;
 
     if (resists_drain(ptr) || is_vampshifter(mon)
         || (mon == &youmonst && u.ulycn >= LOW_PM))
         return TRUE;
-    wep = (mon == &youmonst) ? uwep : MON_WEP(mon);
-    return (boolean) (wep && wep->oartifact && defends(AD_DRLI, wep));
+    armor = (mon == &youmonst) ? invent : mon->minvent;
+    slotmask = W_ARMOR | W_ACCESSORY;
+    /* check for drain res object property */
+    for (; armor; armor = armor->nobj) {
+        if ((armor->owornmask & slotmask) != 0L
+            && obj_has_prop(armor, DRAIN_RES))
+            return TRUE;
+    }
+    return defended(mon, AD_DRLI);
 }
-
-extern boolean FDECL(obj_has_prop, (struct obj *, int));
 
 /* True if monster is magic-missile (actually, general magic) resistant */
 boolean
@@ -275,15 +321,22 @@ vulnerable_to(mon, element)
 struct monst* mon;
 int element;
 {
+    if (defended(mon, element))
+        return FALSE;
+
     switch (element) {
         case AD_FIRE:
-            return (mon->data->mflags4 & M4_VULNERABLE_FIRE);
+            return ((mon->data->mflags4 & M4_VULNERABLE_FIRE)
+                    && !resists_fire(mon));
         case AD_COLD:
-            return (mon->data->mflags4 & M4_VULNERABLE_COLD);
+            return ((mon->data->mflags4 & M4_VULNERABLE_COLD)
+                    && !resists_cold(mon));
         case AD_ELEC:
-            return (mon->data->mflags4 & M4_VULNERABLE_ELEC);
+            return ((mon->data->mflags4 & M4_VULNERABLE_ELEC)
+                    && !resists_elec(mon));
         case AD_ACID:
-            return (mon->data->mflags4 & M4_VULNERABLE_ACID);
+            return ((mon->data->mflags4 & M4_VULNERABLE_ACID)
+                    && !resists_acid(mon));
         default:
             break;
     }
@@ -491,44 +544,46 @@ int prop;
     int adtyp = 0;
     /* First, check if prop has a corresponding monflag */
     switch (prop) {
-	case REGENERATION:
-	    if (regenerates(mon->data))
-                return TRUE;
-	    break;
-	case SEE_INVIS:
-	    if (racial_perceives(mon))
-                return TRUE;
-	    break;
-	case TELEPORT:
-	    if (can_teleport(mon->data) && !mon->mcan)
-                return TRUE;
-	    break;
-	case TELEPORT_CONTROL:
-	    if (control_teleport(mon->data) || is_covetous(mon->data))
-                return TRUE;
-	    break;
-	case TELEPAT:
-	    if (telepathic(mon->data))
-                return TRUE;
-	    break;
-	case HALLUC_RES:
-	    adtyp = AD_HALU;
-	    break;
-	case JUMPING:
-	    if (is_unicorn(mon->data))
-                return TRUE;
-	    break;
-	case ANTIMAGIC: /* just in case */
-	    return (resists_magm(mon));
+    case REGENERATION:
+        if (regenerates(mon->data))
+            return TRUE;
+        break;
+    case SEE_INVIS:
+        if (racial_perceives(mon))
+            return TRUE;
+        break;
+    case TELEPORT:
+        if (can_teleport(mon->data) && !mon->mcan)
+            return TRUE;
+        break;
+    case TELEPORT_CONTROL:
+        if (control_teleport(mon->data) || is_covetous(mon->data))
+            return TRUE;
+        break;
+    case TELEPAT:
+        if (telepathic(mon->data))
+            return TRUE;
+        break;
+    case HALLUC_RES:
+        adtyp = AD_HALU;
+        break;
+    case JUMPING:
+        if (is_unicorn(mon->data))
+            return TRUE;
+        break;
+    case ANTIMAGIC: /* just in case */
+        return (resists_magm(mon));
     }
 
     /* Now check for extrinsics */
-    for (o = mon->minvent; o; o = o->nobj)
-	 if ((o->owornmask && objects[o->otyp].oc_oprop == prop)
-	     || (o->oartifact && ((adtyp && protects(o, TRUE))
-	     || (arti_prop_spfx(prop) && spec_ability(o, arti_prop_spfx(prop)))))) {
-	 return TRUE;
-	 }
+    for (o = mon->minvent; o; o = o->nobj) {
+        if ((o->owornmask && objects[o->otyp].oc_oprop == prop)
+            || (o->owornmask && obj_has_prop(o, prop)) /* object properties */
+            || (o->oartifact && ((adtyp && protects(o, TRUE))
+            || (arti_prop_spfx(prop) && spec_ability(o, arti_prop_spfx(prop)))))) {
+        return TRUE;
+        }
+    }
     return FALSE;
 }
 
@@ -553,6 +608,9 @@ struct monst *mon;
 
     if (racial_centaur(mon))
         return FALSE;
+
+    if (racial_tortle(mon))
+        return TRUE;
 
     return (boolean) (r_bigmonst(mon)
                       || (ptr->msize > MZ_SMALL && !humanoid(ptr))
@@ -663,10 +721,14 @@ register struct monst *mdef, *magr;
         if (mdef->data->mattk[i].aatyp == AT_NONE
             || mdef->data->mattk[i].aatyp == AT_BOOM) {
             adtyp = mdef->data->mattk[i].adtyp;
-            if ((adtyp == AD_ACID && !resists_acid(magr))
-                || (adtyp == AD_COLD && !resists_cold(magr))
-                || (adtyp == AD_FIRE && !resists_fire(magr))
-                || (adtyp == AD_ELEC && !resists_elec(magr))
+            if ((adtyp == AD_ACID && !(resists_acid(magr)
+                                       || defended(magr, AD_ACID)))
+                || (adtyp == AD_COLD && !(resists_cold(magr)
+                                          || defended(magr, AD_COLD)))
+                || (adtyp == AD_FIRE && !(resists_fire(magr)
+                                          || defended(magr, AD_FIRE)))
+                || (adtyp == AD_ELEC && !(resists_elec(magr)
+                                          || defended(magr, AD_ELEC)))
                 || adtyp == AD_DISE
                 || adtyp == AD_STON
                 || adtyp == AD_PHYS) {
@@ -857,7 +919,7 @@ const char *in_str;
              && strncmpi(str, "kathryn ", 8))
         Strcpy(term - 5, "royal");
     else if (slen > 5 && (s = strstri(term - 5, " king")) != 0
-             && strncmpi(str, "rat ", 4))
+             && strncmpi(str, "rat ", 4) && strncmpi(str, "goblin ", 7))
         Strcpy(term - 4, "royal");
     /* be careful with "ies"; "priest", "zombies" */
     else if (slen > 3 && !strcmpi(term - 3, "ies")
@@ -904,6 +966,7 @@ const char *in_str;
             { "eldritch ki rin", PM_ELDRITCH_KI_RIN },
             { "uruk hai", PM_URUK_HAI },
             { "orc captain", PM_ORC_CAPTAIN },
+            { "goblin captain", PM_GOBLIN_CAPTAIN },
             { "woodland elf", PM_WOODLAND_ELF },
             { "green elf", PM_GREEN_ELF },
             { "grey elf", PM_GREY_ELF },

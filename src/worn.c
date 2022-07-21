@@ -51,7 +51,7 @@ long mask;
     register struct obj *oobj;
     register int p;
 
-    if ((mask & (W_ARM | I_SPECIAL)) == (W_ARM | I_SPECIAL)) {
+    if ((mask & I_SPECIAL) != 0 && (mask & (W_ARM | W_ARMC)) != 0) {
         /* restoring saved game; no properties are conferred via skin */
         uskin = obj;
         /* assert( !uarm ); */
@@ -70,7 +70,7 @@ long mask;
                     if (wp->w_mask & ~(W_QUIVER)) {
                         /* leave as "x = x <op> y", here and below, for broken
                          * compilers */
-                        p = objects[oobj->otyp].oc_oprop;
+                        p = armor_provides_extrinsic(oobj);
                         u.uprops[p].extrinsic =
                             u.uprops[p].extrinsic & ~wp->w_mask;
                         if ((p = w_blocks(oobj, mask)) != 0)
@@ -94,7 +94,7 @@ long mask;
                         || (wp->w_mask & W_SWAPWEP && u.twoweap)) {
                         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
                             || mask != W_WEP) {
-                            p = objects[obj->otyp].oc_oprop;
+                            p = armor_provides_extrinsic(obj);
                             u.uprops[p].extrinsic =
                                 u.uprops[p].extrinsic | wp->w_mask;
                             if ((p = w_blocks(obj, mask)) != 0)
@@ -129,8 +129,8 @@ register struct obj *obj;
                is pending (via 'A' command for multiple items) */
             cancel_doff(obj, wp->w_mask);
 
-            *(wp->w_obj) = 0;
-            p = objects[obj->otyp].oc_oprop;
+            *(wp->w_obj) = (struct obj *) 0;
+            p = armor_provides_extrinsic(obj);
             u.uprops[p].extrinsic = u.uprops[p].extrinsic & ~wp->w_mask;
             obj->owornmask &= ~wp->w_mask;
             if (obj->oartifact || obj->oprops)
@@ -140,6 +140,23 @@ register struct obj *obj;
         }
     }
     update_inventory();
+}
+
+/* called when saving with FREEING flag set has just discarded inventory */
+void
+allunworn()
+{
+    const struct worn *wp;
+
+    u.twoweap = 0; /* uwep and uswapwep are going away */
+    /* remove stale pointers; called after the objects have been freed
+       (without first being unworn) while saving invent during game save;
+       note: uball and uchain might not be freed yet but we clear them
+       here anyway (savegamestate() and its callers deal with them) */
+    for (wp = worn; wp->w_mask; wp++) {
+        /* object is already gone so we don't/can't update is owornmask */
+        *(wp->w_obj) = (struct obj *) 0;
+    }
 }
 
 /* return item worn in slot indiciated by wornmask; needed by poly_obj() */
@@ -328,8 +345,8 @@ struct obj *obj; /* item to make known if effect can be seen */
 
 boolean
 obj_has_prop(obj, which)
-register struct obj *obj;
-register int which;
+struct obj *obj;
+int which;
 {
     if (objects[obj->otyp].oc_oprop == which)
         return TRUE;
@@ -338,37 +355,48 @@ register int which;
         return FALSE;
 
     switch (which) {
-        case FIRE_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_FIRE));
-        case COLD_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_FROST));
-        case DRAIN_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_DRLI));
-       case SHOCK_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_SHOCK));
-       case POISON_RES:
-            return !!(obj->oclass != WEAPON_CLASS
-                      && !is_weptool(obj)
-                      && (obj->oprops & ITEM_VENOM));
-        case TELEPAT:
-            return !!(obj->oprops & ITEM_ESP);
-        case FUMBLING:
-            return !!(obj->oprops & ITEM_FUMBLING);
-        case HUNGER:
-            return !!(obj->oprops & ITEM_HUNGER);
-        case ADORNED:
-            return !!(obj->oprops & ITEM_EXCEL);
+    case FIRE_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_FIRE));
+    case COLD_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_FROST));
+    case DRAIN_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_DRLI));
+    case SHOCK_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_SHOCK));
+    case POISON_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_VENOM));
+    case TELEPAT:
+        return !!(obj->oprops & ITEM_ESP);
+    case FUMBLING:
+        return !!(obj->oprops & ITEM_FUMBLING);
+    case HUNGER:
+        return !!(obj->oprops & ITEM_HUNGER);
+    case ADORNED:
+        return !!(obj->oprops & ITEM_EXCEL);
     }
     return FALSE;
 }
+
+/* alchemy smock confers two properites, poison and acid resistance
+   but objects[ALCHEMY_SMOCK].oc_oprop can only describe one of them;
+   if it is poison resistance, alternate property is acid resistance;
+   if someone changes it to acid resistance, alt becomes posion resist;
+   if someone changes it to hallucination resistance, all bets are off
+   [TODO: handle alternate properties conferred by dragon scales] */
+#define altprop(o) \
+    (((o)->otyp == ALCHEMY_SMOCK)                               \
+     ? (POISON_RES + ACID_RES - objects[(o)->otyp].oc_oprop)    \
+     : 0)
 
 /* armor put on or taken off; might be magical variety
    [TODO: rename to 'update_mon_extrinsics()' and change all callers...] */
@@ -381,16 +409,16 @@ boolean on, silently;
     int unseen;
     uchar  mask;
     struct obj *otmp;
-    int which = (int) objects[obj->otyp].oc_oprop;
-
+    int which = (int) armor_provides_extrinsic(obj),
+        altwhich = altprop(obj);
     long props = obj->oprops;
     int i = 0;
 
     unseen = !canseemon(mon);
-    if (!which)
+    if (!which && !altwhich)
         goto maybe_blocks;
 
-new_property:
+ again:
     if (on) {
         switch (which) {
         case INVIS:
@@ -419,6 +447,7 @@ new_property:
         /* properties handled elsewhere */
         case ANTIMAGIC:
         case REFLECTING:
+        case PROTECTION:
             break;
         /* properties which have no effect for monsters */
         case CLAIRVOYANT:
@@ -428,10 +457,10 @@ new_property:
             break;
         /* properties which should have an effect but aren't implemented */
         case LEVITATION:
+        case FLYING:
             break;
         /* properties which maybe should have an effect but don't */
         case FUMBLING:
-        case PROTECTION:
             break;
         case FIRE_RES:
         case COLD_RES:
@@ -442,8 +471,8 @@ new_property:
         case ACID_RES:
         case STONE_RES:
         case PSYCHIC_RES:
-            if (which <= 9) { /* 1 thru 9 correspond to MR_xxx mask values */
-                /* FIRE,COLD,SLEEP,DISINT,SHOCK,POISON,ACID,STONE,PSYCHIC */
+            /* 1 through 9 correspond to MR_xxx mask values */
+            if (which >= 1 && which <= 9) {
                 mask = (uchar) (1 << (which - 1));
                 mon->mextrinsics |= (unsigned long) mask;
             }
@@ -485,20 +514,45 @@ new_property:
         case ACID_RES:
         case STONE_RES:
         case PSYCHIC_RES:
+            /*
+             * Update monster's extrinsics (for worn objects only;
+             * 'obj' itself might still be worn or already unworn).
+             *
+             * If an alchemy smock is being taken off, this code will
+             * be run twice (via 'goto again') and other worn gear
+             * gets tested for conferring poison resistance on the
+             * first pass and acid resistance on the second.
+             *
+             * If some other item is being taken off, there will be
+             * only one pass but a worn alchemy smock will be an
+             * alternate source for either of those two resistances.
+             */
             mask = (uchar) (1 << (which - 1));
-            /* update monster's extrinsics (for worn objects only;
-               'obj' itself might still be worn or already unworn) */
-            for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
-                if (otmp != obj
-                    && otmp->owornmask
-                    && (int) (obj_has_prop(otmp, which)))
+            for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
+                if (otmp == obj || !otmp->owornmask)
+                    continue;
+                if ((int) objects[otmp->otyp].oc_oprop == which)
                     break;
+                if ((int) (obj_has_prop(otmp, which))) /* object properties */
+                    break;
+                /* check whether 'otmp' confers target property as an extra
+                   one rather than as the one specified for it in objects[] */
+                if (altprop(otmp) == which)
+                    break;
+            }
             if (!otmp)
                 mon->mextrinsics &= ~((unsigned long) mask);
             break;
         default:
             break;
         }
+    }
+
+    /* worn alchemy smock/apron confers both poison resistance and acid
+       resistance to the hero so do likewise for monster who wears one */
+    if (altwhich && which != altwhich) {
+        which = altwhich;
+        goto again;
     }
 
  maybe_blocks:
@@ -561,7 +615,7 @@ new_property:
                 break;
             }
             if (which)
-                goto new_property;
+                goto again;
         }
     }
 
@@ -573,12 +627,14 @@ new_property:
         newsym(mon->mx, mon->my);
 }
 
+#undef altprop
+
 int
 find_mac(mon)
 register struct monst *mon;
 {
     register struct obj *obj;
-    int base = mon->data->ac - mon->mprotection;
+    int base = r_data(mon)->ac - mon->mprotection;
     int bonus, div, racial_bonus;
     long mwflags = mon->misc_worn_check;
 
@@ -589,8 +645,8 @@ register struct monst *mon;
             if (obj->otyp == AMULET_OF_GUARDING) {
                 base -= 2; /* fixed amount, not impacted by erosion */
             } else {
-                /* since ARM_BONUS is positive, subtracting it increases AC */
-                base -= ARM_BONUS(obj);
+                /* since armor_bonus is positive, subtracting it increases AC */
+                base -= armor_bonus(obj);
             }
             /* racial armor bonuses, separate from regular bonuses */
             racial_bonus = 1;
@@ -630,6 +686,12 @@ register struct monst *mon;
             }
         }
     }
+
+    /* because base now uses r_data(mon)->ac instead of
+       mon->data->ac, make sure racial shopkeepers retain
+       their buffed up AC */
+    if (has_eshk(mon))
+        base -= 10;
 
     /* Tweak the monster's AC a bit according to its level */
     div = mon->m_lev > 20 ? 4 : 3;
@@ -788,7 +850,9 @@ boolean racialexception;
                 continue;
             break;
         case W_ARMG:
-            if (!is_gloves(obj))
+            if (!is_gloves(obj)
+                /* monsters are too scared of the Hand of Vecna */
+                || obj->otyp == MUMMIFIED_HAND)
                 continue;
             break;
         case W_ARMF:
@@ -832,8 +896,8 @@ boolean racialexception;
          * it would forget spe and once again think the object is better
          * than what it already has.
          */
-        if (best && (ARM_BONUS(best) + extra_pref(mon, best)
-                     >= ARM_BONUS(obj) + extra_pref(mon, obj)))
+        if (best && (armor_bonus(best) + extra_pref(mon, best)
+                     >= armor_bonus(obj) + extra_pref(mon, obj)))
             continue;
         best = obj;
     }
@@ -1105,8 +1169,8 @@ boolean polyspot;
 
     if (breakarm(mon)) {
         if ((otmp = which_armor(mon, W_ARM)) != 0) {
-            if ((Is_dragon_scales(otmp) && mdat == Dragon_scales_to_pm(otmp))
-                || (Is_dragon_mail(otmp) && mdat == Dragon_mail_to_pm(otmp)))
+            if (Is_dragon_armor(otmp)
+                && mdat == &mons[Dragon_armor_to_pm(otmp)])
                 ; /* no message here;
                      "the dragon merges with his scaly armor" is odd
                      and the monster's previous form is already gone */
@@ -1125,7 +1189,10 @@ boolean polyspot;
                     bypass_obj(otmp);
                 m_lose_armor(mon, otmp);
             } else {
-                if (vis)
+                if (Is_dragon_armor(otmp)
+                    && mdat == &mons[Dragon_armor_to_pm(otmp)]) {
+                    ; /* same as above; no message here */
+                } else if (vis)
                     pline("%s %s tears apart!", s_suffix(Monnam(mon)),
                           cloak_simple_name(otmp));
                 else
@@ -1261,7 +1328,8 @@ boolean polyspot;
     return;
 }
 
-/* bias a monster's preferences towards armor that has special benefits. */
+/* bias a monster's preferences towards armor and
+   accessories that have special benefits */
 int
 extra_pref(mon, obj)
 struct monst *mon;
@@ -1272,14 +1340,23 @@ struct obj *obj;
 
     if (!obj)
         return 0;
-    if ((obj->otyp == SPEED_BOOTS || obj->otyp == HELM_OF_SPEED)
+    if (obj_has_prop(obj, ANTIMAGIC)
+        && !(resists_magm(mon) || defended(mon, AD_MAGM)))
+        return 50;
+    if (obj_has_prop(obj, REFLECTING)
+        && !mon_reflects(mon, (char *) 0))
+        return 40;
+    if (obj_has_prop(obj, DISPLACED)
+        && !has_displacement(mon))
+        return 30;
+    if (obj_has_prop(obj, FAST)
         && mon->permspeed != MFAST)
         return 20;
-    if (obj_has_prop(obj, DISPLACED))
-        return 30;
-    if (obj_has_prop(obj, ANTIMAGIC))
-        return 20;
-    if (obj_has_prop(obj, WWALKING))
+    if (obj_has_prop(obj, JUMPING)
+        && !can_jump(mon))
+        return 10;
+    if (obj_has_prop(obj, WWALKING)
+        && !can_wwalk(mon))
         return 10;
     if (obj->oclass != RING_CLASS)
         return 0;
@@ -1293,69 +1370,69 @@ struct obj *obj;
         update_mon_intrinsics(mon, old, FALSE, TRUE);
     /* This list should match the list in m_dowear_type. */
     switch (obj->otyp) {
-        case RIN_FIRE_RESISTANCE:
-            if (!resists_fire(mon))
-                rc = (dmgtype(youmonst.data, AD_FIRE)
-                      || wielding_artifact(ART_FIRE_BRAND)
-                      || wielding_artifact(ART_XIUHCOATL)
-                      || wielding_artifact(ART_ANGELSLAYER)
-                      || (u.twoweap && uswapwep->oprops & ITEM_FIRE)
-                      || (uwep && uwep->oprops & ITEM_FIRE)) ? 20 : 12;
-            break;
-        case RIN_COLD_RESISTANCE:
-            if (!resists_cold(mon))
-                rc = (dmgtype(youmonst.data, AD_COLD)
-                      || wielding_artifact(ART_FROST_BRAND)
-                      || (u.twoweap && uswapwep->oprops & ITEM_FROST)
-                      || (uwep && uwep->oprops & ITEM_FROST)) ? 20 : 12;
-            break;
-	case RIN_POISON_RESISTANCE:
-            if (!resists_poison(mon))
-                rc = (dmgtype(youmonst.data, AD_DRST)
-                      || dmgtype(youmonst.data, AD_DRCO)
-                      || dmgtype(youmonst.data, AD_DRDX)
-                      || (u.twoweap && uswapwep->oprops & ITEM_VENOM)
-                      || (uwep && uwep->oprops & ITEM_VENOM)) ? 20 : 10;
-            break;
-	case RIN_SHOCK_RESISTANCE:
-            if (!resists_elec(mon))
-                rc = (dmgtype(youmonst.data, AD_ELEC)
-                      || wielding_artifact(ART_MJOLLNIR)
-                      || (u.twoweap && uswapwep->oprops & ITEM_SHOCK)
-                      || (uwep && uwep->oprops & ITEM_SHOCK)) ? 20 : 10;
-            break;
-	case RIN_REGENERATION:
-            rc = !mon_prop(mon, REGENERATION) ? 25 : 0;
-	    break;
-	case RIN_INVISIBILITY:
-            if (mon->mtame || mon->mpeaceful)
-		/* Monsters actually don't know if you can
-		 * see invisible, but for tame or peaceful monsters
-		 * we'll make reservations.
-		 */
-                rc = See_invisible ? 10 : 0;
-            else
-                rc = 30;
-            break;
-	case RIN_INCREASE_DAMAGE:
-	case RIN_INCREASE_ACCURACY:
-	case RIN_PROTECTION:
-            if (obj->spe > 0)
-                rc = 10 + 3 * (obj->spe);
-            else
-                rc = 0;
-            break;
-        case RIN_TELEPORTATION:
-            if (!mon_prop(mon, TELEPORT))
-                rc = obj->cursed ? 5 : 15;
-            break;
-        case RIN_TELEPORT_CONTROL:
-	    if (!mon_prop(mon, TELEPORT_CONTROL))
-	        rc = mon_prop(mon, TELEPORT) ? 20 : 5;
-	    break;
-        case RIN_SLOW_DIGESTION:
-            rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
-            break;
+    case RIN_FIRE_RESISTANCE:
+        if (!(resists_fire(mon) || defended(mon, AD_FIRE)))
+            rc = (dmgtype(youmonst.data, AD_FIRE)
+                  || wielding_artifact(ART_FIRE_BRAND)
+                  || wielding_artifact(ART_XIUHCOATL)
+                  || wielding_artifact(ART_ANGELSLAYER)
+                  || (u.twoweap && uswapwep->oprops & ITEM_FIRE)
+                  || (uwep && uwep->oprops & ITEM_FIRE)) ? 25 : 5;
+        break;
+    case RIN_COLD_RESISTANCE:
+        if (!(resists_cold(mon) || defended(mon, AD_COLD)))
+            rc = (dmgtype(youmonst.data, AD_COLD)
+                  || wielding_artifact(ART_FROST_BRAND)
+                  || (u.twoweap && uswapwep->oprops & ITEM_FROST)
+                  || (uwep && uwep->oprops & ITEM_FROST)) ? 25 : 5;
+        break;
+    case RIN_POISON_RESISTANCE:
+        if (!(resists_poison(mon) || defended(mon, AD_DRST)))
+            rc = (dmgtype(youmonst.data, AD_DRST)
+                  || dmgtype(youmonst.data, AD_DRCO)
+                  || dmgtype(youmonst.data, AD_DRDX)
+                  || (u.twoweap && uswapwep->oprops & ITEM_VENOM)
+                  || (uwep && uwep->oprops & ITEM_VENOM)) ? 25 : 5;
+        break;
+    case RIN_SHOCK_RESISTANCE:
+        if (!(resists_elec(mon) || defended(mon, AD_ELEC)))
+            rc = (dmgtype(youmonst.data, AD_ELEC)
+                  || wielding_artifact(ART_MJOLLNIR)
+                  || wielding_artifact(ART_KEOLEWA)
+                  || (u.twoweap && uswapwep->oprops & ITEM_SHOCK)
+                  || (uwep && uwep->oprops & ITEM_SHOCK)) ? 25 : 5;
+        break;
+    case RIN_REGENERATION:
+        rc = !mon_prop(mon, REGENERATION) ? 25 : 5;
+        break;
+    case RIN_INVISIBILITY:
+        if (mon->mtame || mon->mpeaceful)
+            /* Monsters actually don't know if you can
+             * see invisible, but for tame or peaceful monsters
+             * we'll make reservations  */
+            rc = See_invisible ? 10 : 0;
+        else
+            rc = 30;
+        break;
+    case RIN_INCREASE_DAMAGE:
+    case RIN_INCREASE_ACCURACY:
+    case RIN_PROTECTION:
+        if (obj->spe > 0)
+            rc = 10 + 3 * (obj->spe);
+        else
+            rc = 0;
+        break;
+    case RIN_TELEPORTATION:
+        if (!mon_prop(mon, TELEPORT))
+            rc = obj->cursed ? 5 : 15;
+        break;
+    case RIN_TELEPORT_CONTROL:
+        if (!mon_prop(mon, TELEPORT_CONTROL))
+            rc = mon_prop(mon, TELEPORT) ? 20 : 5;
+        break;
+    case RIN_SLOW_DIGESTION:
+        rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
+        break;
     }
     old = which_armor(mon, W_RINGL);
     if (old)
@@ -1392,11 +1469,7 @@ struct obj *obj;
     return 0;
 }
 
-/* Remove an object from a monster's inventory.
- * At its core this is just obj_extract_self(), but it also handles any updates
- * that needs to happen if the gear is equipped or in some other sort of state
- * that needs handling.
- * Note that like obj_extract_self(), this leaves obj free. */
+/* Remove an object from a monster's inventory. */
 void
 extract_from_minvent(mon, obj, do_intrinsics, silently)
 struct monst *mon;
@@ -1407,13 +1480,22 @@ boolean silently; /* doesn't affect all possible messages, just
 {
     long unwornmask = obj->owornmask;
 
+    /*
+     * At its core this is just obj_extract_self(), but it also handles
+     * any updates that need to happen if the gear is equipped or in
+     * some other sort of state that needs handling.
+     * Note that like obj_extract_self(), this leaves obj free.
+     */
+
     if (obj->where != OBJ_MINVENT) {
         impossible("extract_from_minvent called on object not in minvent");
         return;
     }
-    /* handle gold dragon scales/scale-mail (lit when worn) before clearing
-       obj->owornmask because artifact_light() expects that to be W_ARM */
-    if (((unwornmask & W_ARM) != 0 || (unwornmask & W_ARMS) != 0)
+    /* handle gold dragon scales/shield of light (lit when worn) before
+       clearing obj->owornmask because artifact_light() expects that to
+       be W_ARM / W_ARMC / W_ARMS */
+    if (((unwornmask & W_ARM) != 0 || (unwornmask & W_ARMC) != 0
+         || (unwornmask & W_ARMS) != 0)
         && obj->lamplit && artifact_light(obj))
         end_burn(obj, FALSE);
 
@@ -1431,4 +1513,53 @@ boolean silently; /* doesn't affect all possible messages, just
     if (unwornmask & W_WEP)
         mwepgone(mon); /* unwields and sets weapon_check to NEED_WEAPON */
 }
+
+/* Return the armor bonus of a piece of armor: the amount by which it directly
+   lowers the AC of the wearer */
+int
+armor_bonus(armor)
+struct obj *armor;
+{
+    int bon = 0;
+    if (!armor) {
+        impossible("armor_bonus was passed a null obj");
+        return 0;
+    }
+    /* start with its base AC value */
+    bon = objects[armor->otyp].a_ac;
+    /* adjust for material */
+    bon += material_bonus(armor);
+    /* subtract erosion */
+    bon -= (int) greatest_erosion(armor);
+    /* erosion is not allowed to make the armor worse than wearing nothing;
+     * only negative enchantment can do that. */
+    if (bon < 0) {
+        bon = 0;
+    }
+    /* add enchantment (could be negative) */
+    bon += armor->spe;
+    /* add bonus for dragon-scaled armor, slightly more AC
+       than dragon scales by themselves, as the scales harden
+       as they merge with worn armor */
+    if (Is_dragon_scaled_armor(armor))
+        bon += 5;
+    return bon;
+}
+
+/* Determine the extrinsic property a piece of armor provides.
+   Based on item_provides_extrinsic in NetHack Fourk, but less general */
+long
+armor_provides_extrinsic(armor)
+struct obj *armor;
+{
+    if (!armor) {
+        return 0;
+    }
+    long prop = objects[armor->otyp].oc_oprop;
+    if (!prop && Is_dragon_armor(armor)) {
+        return objects[Dragon_armor_to_scales(armor)].oc_oprop;
+    }
+    return prop;
+}
+
 /*worn.c*/

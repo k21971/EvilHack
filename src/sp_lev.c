@@ -771,8 +771,13 @@ maybe_add_door(x, y, droom)
 int x, y;
 struct mkroom *droom;
 {
-    if (droom->hx >= 0 && doorindex < DOORMAX && inside_room(droom, x, y))
+    if (droom->hx >= 0 && doorindex < DOORMAX && inside_room(droom, x, y)) {
+        int i;
+        for (i = droom->fdoor; i < droom->fdoor + droom->doorct; i++)
+            if (doors[i].x == x && doors[i].y == y)
+                return;
         add_door(x, y, droom);
+    }
 }
 
 STATIC_OVL void
@@ -1682,7 +1687,7 @@ struct mkroom *croom;
     else if (PM_ARCHEOLOGIST <= m->id && m->id <= PM_WIZARD)
         mtmp = mk_mplayer(pm, x, y, TRUE, NULL);
     else
-        mtmp = makemon(pm, x, y, NO_MM_FLAGS);
+        mtmp = makemon(pm, x, y, MM_MPLAYEROK);
 
     if (mtmp) {
         x = mtmp->mx, y = mtmp->my; /* sanity precaution */
@@ -2044,7 +2049,7 @@ struct mkroom *croom;
             /* makemon without rndmonst() might create a group */
             was = makemon(&mons[wastyp], 0, 0, MM_NOCOUNTBIRTH);
             if (was) {
-                if (!resists_ston(was)) {
+                if (!(resists_ston(was) || defended(was, AD_STON))) {
                     (void) propagate(wastyp, TRUE, FALSE);
                     break;
                 }
@@ -2757,7 +2762,7 @@ fill_empty_maze()
         }
         for (x = rnd((int) (12 * mapfact) / 100); x; x--) {
             maze1xy(&mm, DRY);
-            (void) makemon((struct permonst *) 0, mm.x, mm.y, NO_MM_FLAGS);
+            (void) makemon((struct permonst *) 0, mm.x, mm.y, MM_MPLAYEROK);
         }
         for (x = rn2((int) (15 * mapfact) / 100); x; x--) {
             maze1xy(&mm, DRY);
@@ -4621,8 +4626,7 @@ ensure_way_out()
         selection_floodfill(ov, xdnladder, ydnladder, TRUE);
 
     while (ttmp) {
-        if ((ttmp->ttyp == MAGIC_PORTAL || ttmp->ttyp == VIBRATING_SQUARE
-             || is_hole(ttmp->ttyp))
+        if ((undestroyable_trap(ttmp->ttyp) || is_hole(ttmp->ttyp))
             && !selection_getpoint(ttmp->tx, ttmp->ty, ov))
             selection_floodfill(ov, ttmp->tx, ttmp->ty, TRUE);
         ttmp = ttmp->ntrap;

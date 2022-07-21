@@ -528,7 +528,8 @@ struct monst *mtmp;
     if (!mtmp->mpeaceful && !nohands(mtmp->data)
         && uwep && uwep->otyp == CORPSE
         && touch_petrifies(&mons[uwep->corpsenm])
-        && !poly_when_stoned(mtmp->data) && !resists_ston(mtmp)
+        && !poly_when_stoned(mtmp->data)
+        && !(resists_ston(mtmp) || defended(mtmp, AD_STON))
         && lined_up(mtmp)) { /* only lines up if distu range is within 5*5 */
         /* could use m_carrying(), then nxtobj() when matching wand
            is empty, but direct traversal is actually simpler here */
@@ -1771,7 +1772,8 @@ boolean reflection_skip;
              * not fire resistant */
             && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 2
                 || mtmp->mhp > 10
-                || resists_fire(mtmp))) {
+                || resists_fire(mtmp)
+                || defended(mtmp, AD_FIRE))) {
             m.offensive = obj;
             m.has_offense = MUSE_POT_OIL;
         }
@@ -1794,7 +1796,8 @@ boolean reflection_skip;
             m.has_offense = MUSE_SCR_EARTH;
         }
         nomore(MUSE_SCR_FIRE);
-        if (obj->otyp == SCR_FIRE && resists_fire(mtmp)
+        if (obj->otyp == SCR_FIRE
+            && resists_fire(mtmp) && defended(mtmp, AD_FIRE)
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
             && mtmp->mcansee && haseyes(mtmp->data)
             && !m_seenres(mtmp, M_SEEN_FIRE)) {
@@ -1809,6 +1812,8 @@ boolean reflection_skip;
     return(boolean) !!m.has_offense;
 #undef nomore
 }
+
+extern struct monst *last_hurtled;
 
 STATIC_PTR
 int
@@ -1827,7 +1832,9 @@ register struct obj *otmp;
     switch (otmp->otyp) {
     case WAN_STRIKING:
         reveal_invis = TRUE;
-        if (hits_you) {
+        if (last_hurtled && mtmp == last_hurtled) {
+            ; /* do nothing */
+        } else if (hits_you) {
             if (zap_oseen)
                 makeknown(WAN_STRIKING);
             if (Antimagic) {
@@ -1839,12 +1846,19 @@ register struct obj *otmp;
                 tmp = d(2, 12);
                 if (Half_spell_damage)
                     tmp = (tmp + 1) / 2;
+                if (tmp > 16 && mcarried(otmp)) {
+                    struct monst *zapper = otmp->ocarry;
+                    pline_The("force of the wand knocks you %s!",
+                              u.usteed ? "out of your saddle" : "back");
+                    last_hurtled = &youmonst;
+                    hurtle(u.ux - zapper->mx, u.uy - zapper->my, 1, FALSE);
+                }
                 losehp(tmp, "wand", KILLED_BY_AN);
             } else
                 pline_The("wand misses you.");
             stop_occupation();
             nomul(0);
-        } else if (resists_magm(mtmp)) {
+        } else if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
             shieldeff(mtmp->mx, mtmp->my);
             pline("Boing!");
         } else if (rnd(20) < 10 + find_mac(mtmp)) {
@@ -1853,6 +1867,21 @@ register struct obj *otmp;
             (void) resist(mtmp, otmp->oclass, tmp, TELL);
             if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
                 makeknown(WAN_STRIKING);
+            if (tmp > 16 && mcarried(otmp)) {
+                struct monst *zapper = otmp->ocarry;
+                last_hurtled = mtmp;
+                if (tmp < mtmp->mhp) {
+                    if (canseemon(mtmp))
+                        pline_The("force of the wand knocks %s back!",
+                                  mon_nam(mtmp));
+                    if (mtmp == u.usteed) {
+                        newsym(u.usteed->mx, u.usteed->my);
+                        dismount_steed(DISMOUNT_FELL);
+                    }
+                    mhurtle(mtmp, mtmp->mx - zapper->mx,
+                            mtmp->my - zapper->my, 1);
+                }
+            }
         } else {
             miss("wand", mtmp);
             if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
@@ -1888,7 +1917,7 @@ register struct obj *otmp;
                     makeknown(WAN_POLYMORPH);
                 polyself(FALSE);
             }
-        } else if (resists_magm(mtmp)) {
+        } else if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
             /* magic resistance protects from polymorph traps, so make
                it guard against involuntary polymorph attacks too... */
             shieldeff(mtmp->mx, mtmp->my);
@@ -2062,7 +2091,10 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             bhitpos.y -= ddy;
             break;
         }
+        maybe_explode_trap(t_at(x, y), obj); /* note: ttmp might be now gone */
     }
+
+    last_hurtled = (struct monst *) 0;
 }
 
 /* Perform an offensive action for a monster.  Must be called immediately
@@ -2244,10 +2276,10 @@ struct monst *mtmp;
                 if (mtmp == mtmp2)
                     continue;
                 if (dist2(mtmp2->mx, mtmp2->my, mtmp->mx, mtmp->my) < 3) {
-                    if (resists_fire(mtmp2))
+                    if (resists_fire(mtmp2) || defended(mtmp2, AD_FIRE))
                         continue;
                     damage_mon(mtmp2, num, AD_FIRE);
-                    if (resists_cold(mtmp2))
+                    if (resists_cold(mtmp2)) /* natural resistance */
                         mtmp2->mhp -= 3 * num;
                     if (DEADMONSTER(mtmp2)) {
                         mondied(mtmp2);
@@ -2732,14 +2764,11 @@ static struct permonst *
 muse_newcham_mon(mon)
 struct monst *mon;
 {
-    struct obj *m_armr;
-
-    if ((m_armr = which_armor(mon, W_ARM)) != 0) {
-        if (Is_dragon_scales(m_armr))
-            return Dragon_scales_to_pm(m_armr);
-        else if (Is_dragon_mail(m_armr))
-            return Dragon_mail_to_pm(m_armr);
+    int pm = armor_to_dragon(mon);
+    if (pm != NON_PM) {
+        return &mons[pm];
     }
+    /* not wearing anything that would turn it into a dragon */
     return rndmonst();
 }
 
@@ -2762,31 +2791,28 @@ struct monst *mtmp;
     switch (m.has_misc) {
     case MUSE_FIGURINE: {
         coord cc;
-        struct permonst *pm;
-        struct monst *mon;
         int mndx = otmp->corpsenm;
 
-        pm = &mons[mndx];
-        if (otmp && otmp->oartifact == ART_IDOL_OF_MOLOCH)
+        if (otmp->oartifact == ART_IDOL_OF_MOLOCH)
             break;
-        if (vismon)
-            pline("%s activates a figurine!", Monnam(mtmp));
-        else if (!Deaf)
-            You("hear a figurine being activated.");
-        /* activating a figurine provides one way to exceed the
-           maximum number of the target critter created--unless
-           it has a special limit (erinys, Nazgul) */
-        if ((mvitals[mndx].mvflags & G_EXTINCT)
-            && mbirth_limit(mndx) != MAXMONNO) {
-                pline("... but the figurine refused.");
-            break; /* mtmp is null */
+        if (mndx < LOW_PM || mndx >= NUMMONS) {
+            impossible("use_misc: mon activating bad figurine (%d)?", mndx);
+            break;
         }
-        if (!enexto(&cc, mtmp->mx, mtmp->my, pm))
-            return 0;
+        if (!enexto(&cc, mtmp->mx, mtmp->my, &mons[mndx]))
+            break;
+        /* found an acceptable spot for the figurine to transform.
+         * make_familiar will take care of the various checks for genocide,
+         * extinction, etc, and print failure messages if appropriate. */
+        if (vismon)
+            pline("%s activates a figurine, and it transforms!", Monnam(mtmp));
+        else
+            You_hear("a figurine being activated.");
+        /* curse the figurine so that it will produce a hostile monster most
+         * of the time */
+        otmp->blessed = 0, otmp->cursed = 1;
+        (void) make_familiar(otmp, cc.x, cc.y, !vismon);
         m_useup(mtmp, otmp);
-        mon = makemon(pm, cc.x, cc.y, NO_MM_FLAGS);
-        mon->mpeaceful = 0;
-        set_malign(mon);
         return 2;
     }
     case MUSE_POT_GAIN_LEVEL:
@@ -2976,7 +3002,7 @@ struct monst *mtmp;
             if (vismon)
                 pline("%s flicks a bullwhip towards your %s!", Monnam(mtmp),
                       hand);
-            if (obj->otyp == HEAVY_IRON_BALL) {
+            if (obj->otyp == HEAVY_IRON_BALL || Hidinshell) {
                 pline("%s fails to wrap around %s.", The_whip, the_weapon);
                 return 1;
             }
@@ -3040,9 +3066,9 @@ struct monst *mtmp;
                 hand = makeplural(hand);
 
             if (vismon)
-                pline("%s swings its axe towards your %s!", Monnam(mtmp),
-                      hand);
-            if (obj->otyp == HEAVY_IRON_BALL) {
+                pline("%s swings %s axe towards your %s!", Monnam(mtmp),
+                      mhis(mtmp), hand);
+            if (obj->otyp == HEAVY_IRON_BALL || Hidinshell) {
                 pline("%s glances off of %s.", The_axe, the_weapon);
                 return 1;
             }
@@ -3107,9 +3133,9 @@ struct monst *mtmp;
                 hand = makeplural(hand);
 
             if (vismon)
-                pline("%s swings its axe towards your off%s!", Monnam(mtmp),
-                      hand);
-            if (is_flimsy(obj)) {
+                pline("%s swings %s axe towards your off%s!", Monnam(mtmp),
+                      mhis(mtmp), hand);
+            if (is_flimsy(obj) || Hidinshell) {
                 pline("%s is unable to hook onto %s.", The_axe, the_shield);
                 return 1;
             }
@@ -3322,11 +3348,11 @@ struct obj *obj;
         if (typ == CORPSE && !obj->zombie_corpse)
             return (boolean) (((mon->misc_worn_check & W_ARMG) != 0L
                                && touch_petrifies(&mons[obj->corpsenm]))
-                              || (!resists_ston(mon)
+                              || (!(resists_ston(mon) || defended(mon, AD_STON))
                                   && cures_stoning(mon, obj, FALSE)));
         if (typ == TIN)
             return (boolean) (mcould_eat_tin(mon)
-                              && (!resists_ston(mon)
+                              && (!(resists_ston(mon) || defended(mon, AD_STON))
                                   && cures_stoning(mon, obj, TRUE)));
         if (typ == EGG)
             return (boolean) touch_petrifies(&mons[obj->corpsenm]);
@@ -3344,13 +3370,13 @@ struct obj *obj;
         if (typ == RIN_SEE_INVISIBLE)
             return (!mon_prop(mon, SEE_INVIS));
         if (typ == RIN_FIRE_RESISTANCE)
-            return (!resists_fire(mon));
+            return (!(resists_fire(mon) || defended(mon, AD_FIRE)));
         if (typ == RIN_COLD_RESISTANCE)
-            return (!resists_cold(mon));
+            return (!(resists_cold(mon) || defended(mon, AD_COLD)));
         if (typ == RIN_SHOCK_RESISTANCE)
-            return (!resists_elec(mon));
+            return (!(resists_elec(mon) || defended(mon, AD_ELEC)));
         if (typ == RIN_POISON_RESISTANCE)
-            return (!resists_poison(mon));
+            return (!(resists_poison(mon) || defended(mon, AD_DRST)));
         if (typ == RIN_SLOW_DIGESTION)
             return (!mon_prop(mon, SLOW_DIGESTION));
         if (typ == RIN_REGENERATION)
@@ -3412,12 +3438,16 @@ const char *str;
         }
         return TRUE;
     } else if ((orefl = which_armor(mon, W_ARM))
-               && (orefl->otyp == SILVER_DRAGON_SCALES
-                   || orefl->otyp == SILVER_DRAGON_SCALE_MAIL
-                   || orefl->otyp == CHROMATIC_DRAGON_SCALES
-                   || orefl->otyp == CHROMATIC_DRAGON_SCALE_MAIL)) {
+               && Is_dragon_scaled_armor(orefl)
+               && (Dragon_armor_to_scales(orefl) == SILVER_DRAGON_SCALES
+                   || Dragon_armor_to_scales(orefl) == CHROMATIC_DRAGON_SCALES)) {
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "armor");
+        return TRUE;
+    } else if ((orefl = which_armor(mon, W_ARMC))
+               && orefl->otyp == SILVER_DRAGON_SCALES) {
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)), "set of scales");
         return TRUE;
     } else if (mon->data == &mons[PM_SILVER_DRAGON]
                || mon->data == &mons[PM_TIAMAT]) {
@@ -3448,15 +3478,13 @@ const char *fmt, *str;
         return TRUE;
     } else if (EReflecting & W_ARMG) {
         /* Due to wearing the artifact Dragonbane */
-        if (fmt && str) {
+        if (fmt && str)
             pline(fmt, str, "gloves");
-        }
         monstseesu(M_SEEN_REFL);
         return TRUE;
     } else if (HReflecting) {
-        if (fmt && str) {
+        if (fmt && str)
             pline(fmt, str, "magical shield");
-        }
         monstseesu(M_SEEN_REFL);
         return TRUE;
     } else if (EReflecting & W_WEP) {
@@ -3472,6 +3500,11 @@ const char *fmt, *str;
         }
         monstseesu(M_SEEN_REFL);
         return TRUE;
+    } else if (EReflecting & W_ARMC) {
+        if (fmt && str)
+            pline(fmt, str, "set of scales");
+        monstseesu(M_SEEN_REFL);
+        return TRUE;
     } else if (EReflecting & W_ARM) {
         if (fmt && str)
             pline(fmt, str, uskin ? "luster" : "armor");
@@ -3479,9 +3512,8 @@ const char *fmt, *str;
         return TRUE;
     } else if (EReflecting & W_ART) {
         /* Due to the Magic Mirror, which shows as W_ART */
-        if (fmt && str) {
+        if (fmt && str)
             pline(fmt, str, "mirror");
-        }
         monstseesu(M_SEEN_REFL);
         return TRUE;
     } else if (youmonst.data == &mons[PM_SILVER_DRAGON]) {
@@ -3516,7 +3548,7 @@ boolean by_you;
     struct obj *obj;
     boolean tinok;
 
-    if (resists_ston(mon))
+    if (resists_ston(mon) || defended(mon, AD_STON))
         return FALSE;
     if (mon->meating || !mon->mcanmove || mon->msleeping)
         return FALSE;
@@ -3538,7 +3570,7 @@ boolean by_you;
                   ? Monnam(mon) : Something);
         if (canspotmon(mon)) {
             if (Hallucination)
-                pline("Look! The Pillsbury Doughboy!");
+                pline("Look!  The Pillsbury Doughboy!");
             else
                 pline("%s seems limber!", Monnam(mon));
         }
@@ -3606,7 +3638,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
     m_useup(mon, obj);
     /* obj is now gone */
 
-    if (acid && !tinned && !resists_acid(mon)) {
+    if (acid && !tinned && !(resists_acid(mon) || defended(mon, AD_ACID))) {
         damage_mon(mon, rnd(15), AD_ACID);
         if (vis)
             pline("%s has a very bad case of stomach acid.", Monnam(mon));
@@ -4032,9 +4064,9 @@ struct monst *mon;
         }
         break;
     case 5:
-        if (!resists_magm(mon)) {
+        if (!(resists_magm(mon) || defended(mon, AD_MAGM))) {
             if (!cantweararm(mon))
-                otmp = mksobj(GRAY_DRAGON_SCALE_MAIL, FALSE, FALSE);
+                otmp = mksobj(GRAY_DRAGON_SCALES, FALSE, FALSE);
             else
                 otmp = mksobj(AMULET_OF_MAGIC_RESISTANCE, FALSE, FALSE);
             bless(otmp);
@@ -4049,7 +4081,7 @@ struct monst *mon;
         }
         break;
     case 6:
-        if (!resists_magm(mon)) {
+        if (!(resists_magm(mon) || defended(mon, AD_MAGM))) {
             if (!cantweararm(mon))
                 otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
             else
@@ -4066,7 +4098,7 @@ struct monst *mon;
     case 7:
         if (!mon_reflects(mon, (char *) 0)) {
             if (!cantweararm(mon))
-                otmp = mksobj(SILVER_DRAGON_SCALE_MAIL, FALSE, FALSE);
+                otmp = mksobj(SILVER_DRAGON_SCALES, FALSE, FALSE);
             else
                 otmp = mksobj(AMULET_OF_REFLECTION, FALSE, FALSE);
             bless(otmp);

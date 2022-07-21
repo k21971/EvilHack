@@ -34,7 +34,7 @@ int dam;
 char olet;
 int expltype;
 {
-    int i, j, k, damu = dam;
+    int i, j, k, o, damu = dam;
     boolean starting = 1;
     boolean visible, any_shield;
     int uhurt = 0; /* 0=unhurt, 1=items damaged, 2=you and items damaged */
@@ -85,6 +85,12 @@ int expltype;
         default:
             break;
         }
+    } else if (olet == BURNING_OIL) {
+        /* used to provide extra information to zap_over_floor() */
+        exploding_wand_typ = POT_OIL;
+    } else if (olet == SCROLL_CLASS) {
+        /* ditto */
+        exploding_wand_typ = SCR_FIRE;
     }
     /* muse_unslime: SCR_FIRE */
     if (expltype < 0) {
@@ -166,7 +172,7 @@ int expltype;
             adtyp = AD_DRST;
             break;
         case 7:
-            adstr = "splash of acid";
+            adstr = "torrent of acid";
             adtyp = AD_ACID;
             break;
         default:
@@ -235,27 +241,34 @@ int expltype;
                     case AD_PHYS:
                         break;
                     case AD_MAGM:
-                        explmask[i][j] |= resists_magm(mtmp);
+                        explmask[i][j] |= (resists_magm(mtmp)
+                                           || defended(mtmp, AD_MAGM));
                         break;
                     case AD_FIRE:
-                        explmask[i][j] |= resists_fire(mtmp);
+                        explmask[i][j] |= (resists_fire(mtmp)
+                                           || defended(mtmp, AD_FIRE));
                         break;
                     case AD_COLD:
-                        explmask[i][j] |= resists_cold(mtmp);
+                        explmask[i][j] |= (resists_cold(mtmp)
+                                           || defended(mtmp, AD_COLD));
                         break;
                     case AD_DISN:
                         explmask[i][j] |= (olet == WAND_CLASS)
                                               ? immune_death_magic(mtmp->data)
-                                              : resists_disint(mtmp);
+                                              : (resists_disint(mtmp)
+                                                 || defended(mtmp, AD_DISN));
                         break;
                     case AD_ELEC:
-                        explmask[i][j] |= resists_elec(mtmp);
+                        explmask[i][j] |= (resists_elec(mtmp)
+                                           || defended(mtmp, AD_ELEC));
                         break;
                     case AD_DRST:
-                        explmask[i][j] |= resists_poison(mtmp);
+                        explmask[i][j] |= (resists_poison(mtmp)
+                                           || defended(mtmp, AD_DRST));
                         break;
                     case AD_ACID:
-                        explmask[i][j] |= resists_acid(mtmp);
+                        explmask[i][j] |= (resists_acid(mtmp)
+                                           || defended(mtmp, AD_DRST));
                         break;
                     default:
                         impossible("explosion type %d?", adtyp);
@@ -286,7 +299,8 @@ int expltype;
         curs_on_u(); /* will flush screen and output */
 
         if (any_shield && flags.sparkle) { /* simulate shield effect */
-            for (k = 0; k < SHIELD_COUNT; k++) {
+            o = rand() % SHIELD_COUNT; /* randomly select starting frame */
+            for (k = 0; k < flags.sparkle; k++) {
                 for (i = 0; i < 3; i++)
                     for (j = 0; j < 3; j++) {
                         if (explmask[i][j] == 1)
@@ -296,7 +310,7 @@ int expltype;
                              * will clean up the location for us later.
                              */
                             show_glyph(i + x - 1, j + y - 1,
-                                       cmap_to_glyph(shield_static[k]));
+                                       cmap_to_glyph(shield_static[(o + k) % SHIELD_COUNT]));
                     }
                 curs_on_u(); /* will flush screen and output */
                 delay_output();
@@ -318,7 +332,7 @@ int expltype;
 
         tmp_at(DISP_END, 0); /* clear the explosion */
     } else {
-        if (olet == MON_EXPLODE) {
+        if (olet == MON_EXPLODE || olet == TRAP_EXPLODE) {
             str = "explosion";
             generic = TRUE;
         }
@@ -586,6 +600,9 @@ int expltype;
                 } else if (adtyp == AD_FIRE && olet == FORGE_EXPLODE) {
                     killer.format = KILLED_BY_AN;
                     Strcpy(killer.name, str);
+                } else if (adtyp == AD_FIRE && olet == BURNING_OIL) {
+                    killer.format = KILLED_BY_AN;
+                    Sprintf(killer.name, "exploding fire bomb");
                 } else if (type >= 0 && olet != SCROLL_CLASS) {
                     killer.format = NO_KILLER_PREFIX;
                     Sprintf(killer.name, "caught %sself in %s own %s", uhim(),
@@ -638,8 +655,6 @@ struct scatter_chain {
     int range;                  /* range of object              */
     boolean stopped;            /* flag for in-motion/stopped   */
 };
-
-extern struct obj *stack;
 
 /*
  * scflags:
@@ -761,6 +776,7 @@ struct obj *obj; /* only scatter this obj        */
     while (farthest-- > 0) {
         for (stmp = schain; stmp; stmp = stmp->next) {
             if ((stmp->range-- > 0) && (!stmp->stopped)) {
+                thrownobj = stmp->obj; /* mainly in case it kills hero */
                 bhitpos.x = stmp->ox + stmp->dx;
                 bhitpos.y = stmp->oy + stmp->dy;
                 typ = levl[bhitpos.x][bhitpos.y].typ;
@@ -790,7 +806,6 @@ struct obj *obj; /* only scatter this obj        */
                         hitvalu = 8 + stmp->obj->spe;
                         if (bigmonst(youmonst.data))
                             hitvalu++;
-                        stack = (struct obj *) 0;
                         hitu = thitu(hitvalu, dmgval(stmp->obj, &youmonst),
                                      &stmp->obj, (char *) 0);
                         if (!stmp->obj)
@@ -808,6 +823,10 @@ struct obj *obj; /* only scatter this obj        */
                 }
                 stmp->ox = bhitpos.x;
                 stmp->oy = bhitpos.y;
+                if (IS_SINK(levl[stmp->ox][stmp->oy].typ)
+                    || IS_FORGE(levl[stmp->ox][stmp->oy].typ))
+                    stmp->stopped = TRUE;
+                thrownobj = (struct obj *) 0;
             }
         }
     }
@@ -832,6 +851,9 @@ struct obj *obj; /* only scatter this obj        */
     if (sx == u.ux && sy == u.uy && u.uundetected
         && hides_under(youmonst.data))
         (void) hideunder(&youmonst);
+    if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mtrapped)
+        mtmp->mtrapped = 0;
+    maybe_unhide_at(sx, sy);
     return total;
 }
 

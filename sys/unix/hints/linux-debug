@@ -9,23 +9,28 @@
 # for Ubuntu dapper.
 
 
+# Typical install path for normal user (non-root)
+#PREFIX=$(wildcard ~)
+#HACKDIR=$(PREFIX)/games/$(GAME)dir
+
+# Default install path (assumes running at root)
 PREFIX=/usr
-#PREFIX=$(wildcard ~)/nh/install
 HACKDIR=$(PREFIX)/games/lib/$(GAME)dir
+
 SHELLDIR = $(PREFIX)/games
-INSTDIR=$(HACKDIR)
+INSTDIR = $(HACKDIR)
 VARDIR = $(HACKDIR)/var
 
 
 
 POSTINSTALL=cp -n sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf;
 
-CFLAGS=-g3 -O2 -I../include -DNOTPARMDECL -fno-common
+CFLAGS=-g3 -O0 -I../include -DNOTPARMDECL -fno-common
 CFLAGS+=-DDLB
 CFLAGS+=-DCOMPRESS=\"/bin/gzip\" -DCOMPRESS_EXTENSION=\".gz\"
 CFLAGS+=-DGCC_WARN -Wall -Wextra -Wformat=2 #-Werror
 CFLAGS+=-Wimplicit -Wreturn-type -Wunused -Wswitch -Wshadow -Wwrite-strings
-CFLAGS+=-Wno-format-nonliteral
+CFLAGS+=-Wno-format-nonliteral -Wno-unused-result
 CFLAGS+=-Wno-stringop-truncation
 CFLAGS+=-Wno-missing-field-initializers
 CFLAGS+=-Wno-format-overflow -Wno-stringop-overflow
@@ -36,6 +41,7 @@ CFLAGS+=-DVAR_PLAYGROUND=\"$(HACKDIR)/var\"
 CFLAGS+=-DCONFIG_ERROR_SECURE=FALSE
 CFLAGS+=-DCURSES_GRAPHICS
 CFLAGS+=-DPANICLOG_FMT2
+CFLAGS+=-DFCMASK=0644
 CFLAGS+=-DTTY_TILES_ESCCODES
 CFLAGS+=-DDGAMELAUNCH
 CFLAGS+=-DLIVELOG_ENABLE
@@ -54,7 +60,7 @@ WINLIB = $(WINTTYLIB) $(WINCURSESLIB)
 WINSRC += tile.c
 WINOBJ += tile.o
 
-WINTTYLIB=-lcurses -ltinfo
+WINTTYLIB=-lncurses -ltinfo
 
 CHOWN=true
 CHGRP=true

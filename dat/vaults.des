@@ -183,16 +183,16 @@ MAP
 --------
 |......|
 |......|
-|LLLLLL|
+|------|
 |......|
 |......|
 |......|
 --------
 ENDMAP
-IF [75%] {
-  $terr = TERRAIN:{ '-', 'F' }
+IF [40%] {
+  $terr = TERRAIN:{ 'L', 'F' }
   SHUFFLE: $terr
-  REPLACE_TERRAIN:(1,1,6,6),'L', $terr[0],100%
+  REPLACE_TERRAIN:(1,3,6,3),'-', $terr[0],100%
 }
 REGION:(1,1,6,2),random,"ordinary",unfilled { }
 REGION:(1,4,6,6),random,"ordinary",unfilled { }
@@ -204,18 +204,18 @@ MINDEPTH:5
 GEOMETRY:random
 MAP
 ---------
-|...L...|
-|...L...|
-|...L...|
-|...L...|
-|...L...|
-|...L...|
+|...|...|
+|...|...|
+|...|...|
+|...|...|
+|...|...|
+|...|...|
 ---------
 ENDMAP
-IF [75%] {
-  $terr = TERRAIN:{ '|', 'F' }
+IF [40%] {
+  $terr = TERRAIN:{ 'L', 'F' }
   SHUFFLE: $terr
-  REPLACE_TERRAIN:(1,1,7,6),'L', $terr[0],100%
+  REPLACE_TERRAIN:(4,1,4,6),'-', $terr[0],100%
 }
 REGION:(1,1,3,6),random,"ordinary",unfilled { }
 REGION:(5,1,7,6),random,"ordinary",unfilled { }
@@ -417,43 +417,50 @@ ENDMAP
 REGION:(3,3,3,3),random,"rndvault",irregular { }
 
 
-# With a corner room
+# With a corner room (top right)
 LEVEL:"vlt-0021"
 FLAGS:rndvault
-GEOMETRY:random
-MAP
---------
-|...|..|
-|...|..|
-|...---|
-|......|
-|......|
-|......|
---------
-ENDMAP
-REGION:(1,1,3,3),random,"rndvault",irregular { }
-REGION:(5,1,6,2),random,"rndvault",irregular { }
+ROOM:"rndvault", random, random, random, (6,6) {
+  SUBROOM:"ordinary", random, (4,0), (2,2) {
+    ROOMDOOR:random, random, south|west, random
+  }
+}
 
-# Three rooms
+# With a corner room (bottom left)
 LEVEL:"vlt-0022"
 FLAGS:rndvault
-GEOMETRY:random
-MAP
---------
-|...|..|
-|...|..|
-|...---|
-|...|..|
-|...|..|
-|...|..|
---------
-ENDMAP
-REGION:(1,1,3,6),random,"rndvault",irregular { }
-REGION:(5,1,6,2),random,"rndvault",irregular { }
-REGION:(5,4,6,6),random,"rndvault",irregular { }
+ROOM:"rndvault", random, random, random, (6,6) {
+  SUBROOM:"ordinary", random, (0,4), (2,2) {
+    ROOMDOOR:random, random, north|east, random
+  }
+}
+
+# Three rooms (right side)
+LEVEL:"vlt-0023"
+FLAGS:rndvault
+ROOM:"rndvault", random, random, random, (6,6) {
+  SUBROOM:"ordinary", random, (4,0), (2,2) {
+    ROOMDOOR:random, random, west, random
+  }
+  SUBROOM:"ordinary", random, (4,3), (2,3) {
+    ROOMDOOR:random, random, north|west, random
+  }
+}
+
+# Three rooms (left side)
+LEVEL:"vlt-0024"
+FLAGS:rndvault
+ROOM:"rndvault", random, random, random, (6,6) {
+  SUBROOM:"ordinary", random, (0,4), (2,2) {
+    ROOMDOOR:random, random, east, random
+  }
+  SUBROOM:"ordinary", random, (0,0), (2,3) {
+    ROOMDOOR:random, random, south|east, random
+  }
+}
 
 # Cross
-LEVEL:"vlt-0023"
+LEVEL:"vlt-0025"
 FLAGS:rndvault
 GEOMETRY:random
 MAP
@@ -472,7 +479,7 @@ ENDMAP
 REGION:(5,5,5,5),random,"ordinary",unfilled,irregular { }
 
 # Four-leaf clover
-LEVEL:"vlt-0024"
+LEVEL:"vlt-0026"
 FLAGS:rndvault
 GEOMETRY:random
 MAP
@@ -491,7 +498,7 @@ ENDMAP
 REGION:(1,1,1,1),random,"ordinary",unfilled,irregular { }
 
 # spider nest
-LEVEL:"vlt-0025"
+LEVEL:"vlt-0027"
 FLAGS:rndvault
 MINDEPTH:5
 ROOM:"rndvault", unlit, random, random, random {
@@ -501,7 +508,7 @@ ROOM:"rndvault", unlit, random, random, random {
 }
 
 # house of spears
-LEVEL:"vlt-0026"
+LEVEL:"vlt-0028"
 FLAGS:rndvault
 MINDEPTH:4
 ROOM:"rndvault", random, random, random, random {
@@ -511,7 +518,7 @@ ROOM:"rndvault", random, random, random, random {
 }
 
 # house of horros
-LEVEL:"vlt-0027"
+LEVEL:"vlt-0029"
 FLAGS:rndvault
 MINDEPTH:14
 ROOM:"rndvault", random, random, random, (6,6) {
@@ -528,7 +535,7 @@ ROOM:"rndvault", random, random, random, (6,6) {
 }
 
 # room with dangerous monster and loot
-LEVEL:"vlt-0028"
+LEVEL:"vlt-0030"
 FLAGS:rndvault
 MINDEPTH:15
 ROOM:"rndvault", random, random, random, random {
@@ -544,7 +551,7 @@ ROOM:"rndvault", random, random, random, random {
 }
 
 # mausoleum
-LEVEL:"vlt-0029"
+LEVEL:"vlt-0031"
 FLAGS:rndvault
 MINDEPTH:18
 ROOM:"rndvault", random, random, random, (5,5) {
@@ -567,7 +574,7 @@ ROOM:"rndvault", random, random, random, (5,5) {
 }
 
 # beam me up scotty
-LEVEL:"vlt-0030"
+LEVEL:"vlt-0032"
 FLAGS:rndvault
 MINDEPTH:12
 ROOM:"rndvault", random, random, random, random {
@@ -577,11 +584,11 @@ ROOM:"rndvault", random, random, random, random {
 }
 
 # room with a subroom
-LEVEL:"vlt-0031"
+LEVEL:"vlt-0033"
 FLAGS:rndvault
 ROOM:"rndvault", random, random, random, random {
-   SUBROOM:"ordinary", random, random, random {
-      ROOMDOOR:random, random, random, random
-   }
+  SUBROOM:"ordinary", random, random, random {
+    ROOMDOOR:random, random, random, random
+  }
 }
 

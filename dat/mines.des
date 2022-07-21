@@ -1596,9 +1596,37 @@ TRAP:random,random
 CONTAINER:('(',"chest"),trapped,(19,06) {
   OBJECT:'/'
   OBJECT:'+'
-  OBJECT:'('
-  OBJECT:'('
-  OBJECT:'('
+  # trying to have a random tool spawn inside
+  # a container could result in large box or
+  # chest forming inside of it, so specifiy
+  # what we want to have spawn
+  IF [50%] {
+    OBJECT:('(',"sack")
+  } ELSE {
+    IF [80%] {
+      OBJECT:('(',"oilskin sack")
+    } ELSE {
+      OBJECT:('(',"bag of holding")
+    }
+  }
+  IF [70%] {
+    OBJECT:('(',"stethoscope")
+  } ELSE {
+    IF [50%] {
+      OBJECT:('(',"pick-axe")
+    } ELSE {
+      OBJECT:('(',"can of grease")
+    }
+  }
+  IF [50%] {
+    OBJECT:('(',"tinning kit")
+  } ELSE {
+    IF [80%] {
+      OBJECT:('(',"tooled horn")
+    } ELSE {
+      OBJECT:('(',"magic lamp")
+    }
+  }
 }
 CONTAINER:('(',"crystal chest"),(19,08) {
   OBJECT:('*',"ruby")

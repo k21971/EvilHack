@@ -338,7 +338,7 @@ d_level *lev;
                It might still fail if there's a dungeon feature here. */
             struct trap *t = t_at(x, y);
 
-            if (t && t->ttyp != MAGIC_PORTAL && t->ttyp != VIBRATING_SQUARE)
+            if (t && !undestroyable_trap(t->ttyp))
                 deltrap(t);
             if (bad_location(x, y, nlx, nly, nhx, nhy))
                 return FALSE;
@@ -1103,7 +1103,7 @@ const char *s;
     }
     for (x = rn1(5, 7); x; x--) {
         mazexy(&mm);
-        (void) makemon((struct permonst *) 0, mm.x, mm.y, NO_MM_FLAGS);
+        (void) makemon((struct permonst *) 0, mm.x, mm.y, MM_MPLAYEROK);
     }
     for (x = rn1(6, 7); x; x--) {
         mazexy(&mm);
@@ -1547,6 +1547,9 @@ water_friction()
 {
     int x, y, dx, dy;
     boolean eff = FALSE;
+
+    if (Race_if(PM_TORTLE))
+        return; /* tortles are in their natural element */
 
     if (Swimming && rn2(4))
         return; /* natural swimmers have advantage */

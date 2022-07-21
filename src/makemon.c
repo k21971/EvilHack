@@ -219,35 +219,35 @@ struct trobj subInfidel[] = {
 
 /* Specialized structs for centaurian player monsters */
 struct trobj Level10KitCentaur1[] = {
-        { ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level10KitCentaur2[] = {
-        { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { ELVEN_CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ELVEN_CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitCentaur1[] = {
-        { SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitCentaur2[] = {
-        { GRAY_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 /* end centaur structs */
 
@@ -329,132 +329,218 @@ struct trobj giantInfidel[] = {
 };
 
 struct trobj Level10KitGiant[] = {
-        { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitGiant[] = {
-        { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 /* end giant structs */
 
+/* Specialized structs for tortle player monsters */
+struct trobj tortleArcheologist[] = {
+    /* if adventure has a name...  idea from tan@uvm-gen */
+    { BULLWHIP, 2, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { FEDORA, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
+    { PICK_AXE, UNDEF_SPE, TOOL_CLASS, 1, UNDEF_BLESS },
+    { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, UNDEF_BLESS },
+    { TOUCHSTONE, 0, GEM_CLASS, 1, 0 },
+    { SACK, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortleBarbarian[] = {
+    { TRIDENT, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { AXE, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortleMonk[] = {
+    { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { TOQUE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+    { POT_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
+    { APPLE, 0, FOOD_CLASS, 5, UNDEF_BLESS },
+    { ORANGE, 0, FOOD_CLASS, 5, UNDEF_BLESS },
+    { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortlePriest[] = {
+    { MACE, 1, WEAPON_CLASS, 1, 1 },
+    { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { POT_WATER, 0, POTION_CLASS, 4, 1 }, /* holy water */
+    { CLOVE_OF_GARLIC, 0, FOOD_CLASS, 1, 0 },
+    { SPRIG_OF_WOLFSBANE, 0, FOOD_CLASS, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 2, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortleTourist[] = {
+    { DART, 2, WEAPON_CLASS, 25, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 10, 0 },
+    { POT_EXTRA_HEALING, 0, POTION_CLASS, 2, UNDEF_BLESS },
+    { SCR_MAGIC_MAPPING, 0, SCROLL_CLASS, 4, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { EXPENSIVE_CAMERA, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+    { CREDIT_CARD, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortleWizard[] = {
+    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
+    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 3, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 3, UNDEF_BLESS },
+    { SPE_FORCE_BOLT, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level10KitTortle[] = {
+    { TOQUE, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { SMALL_SHIELD, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj Level20KitTortle[] = {
+    { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { SHIELD_OF_REFLECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { ELVEN_HELM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+/* end tortle structs */
+
+
 /* Specialized structs for monk player monsters */
 struct trobj Level10KitMonk1[] = {
-        { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level10KitMonk2[] = {
-        { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitMonk1[] = {
-        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20KitMonk2[] = {
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 /* end monk structs */
 
 struct trobj Level20Kit1[] = {
-        { SILVER_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { RING_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit2[] = {
-        { GRAY_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { BANDED_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit3[] = {
-        { ORANGE_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GLOVES, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GLOVES, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit4[] = {
-        { BLACK_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { PLATE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit5[] = {
-        { SHIMMERING_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { KICKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { ALCHEMY_SMOCK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { KICKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { ALCHEMY_SMOCK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit6[] = {
-        { YELLOW_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HIGH_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { OILSKIN_CLOAK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HIGH_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { OILSKIN_CLOAK, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit7[] = {
-        { SEA_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CORNUTHAUM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CORNUTHAUM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level20Kit8[] = {
-        { GOLD_DRAGON_SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { CLOAK_OF_INVISIBILITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
-        { ELVEN_HELM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { STUDDED_ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { CLOAK_OF_INVISIBILITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1 },
+    { ELVEN_HELM, (4 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level10Kit1[] = {
-	{ ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-	{ 0, 0, 0, 0, 0 }
+    { ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 struct trobj Level10Kit2[] = {
-        { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { LOW_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
-        { 0, 0, 0, 0, 0 }
+    { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { LOW_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
 };
 
 #define B_MAJOR	        0 /* two-handed sword or battle-axe  */
@@ -608,6 +694,17 @@ unsigned short chance;
                     && chance > 1) {
                     obj->spe = (obj->spe * rn2(chance)) / chance;
                 }
+                if (mtmp->m_lev > 19) {
+                    if (objects[obj->otyp].oc_armcat == ARM_SUIT) {
+                        obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES,
+                                                      LAST_DRAGON_SCALES - 1);
+                        if (monsndx(mtmp->data) == PM_WIZARD) {
+                            /* Wizards have a guaranteed cloak of magic resistance. */
+                            obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES + 1,
+                                                          LAST_DRAGON_SCALES - 1);
+                        }
+                    }
+                }
             }
             /* defined after setting otyp+quan + blessedness */
             obj->owt = weight(obj);
@@ -668,6 +765,12 @@ register struct monst *mtmp;
                 ini_mon_inv(mtmp, rn2(2) ? Level10KitCentaur1
                                          : Level10KitCentaur2,
                             (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
+            } else if (racial_tortle(mtmp)) {
+                if (mtmp->m_lev > 10 || !rn2(15))
+                    ini_mon_inv(mtmp, Level20KitTortle,
+                                (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev));
+                ini_mon_inv(mtmp, Level10KitTortle,
+                            (mtmp->m_lev >= 10) ? 1 : isqrt(13 - mtmp->m_lev));
             } else {
                 if (mtmp->m_lev > 10 || !rn2(15)) {
                     switch (rnd(4)) {
@@ -696,7 +799,10 @@ register struct monst *mtmp;
 
         switch (mtmp->mnum) {
         case PM_ARCHEOLOGIST:
-            ini_mon_inv(mtmp, Archeologist, 1);
+            if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleArcheologist, 1);
+            else
+                ini_mon_inv(mtmp, Archeologist, 1);
             if (!rn2(10))
                 ini_mon_inv(mtmp, Tinopener, 1);
             else if (!rn2(4))
@@ -710,6 +816,8 @@ register struct monst *mtmp;
             }
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantBarbarian, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleBarbarian, 1);
             else
                 ini_mon_inv(mtmp, Barbarian, 1);
             ini_mon_inv(mtmp, Lamp, 6);
@@ -757,6 +865,8 @@ register struct monst *mtmp;
             }
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantMonk, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleMonk, 1);
             else
                 ini_mon_inv(mtmp, Monk, 1);
             ini_mon_inv(mtmp, Lamp, 10);
@@ -767,6 +877,8 @@ register struct monst *mtmp;
             mkmonmoney(mtmp, (long) rn1(10, 20));
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantPriest, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortlePriest, 1);
             else
                 ini_mon_inv(mtmp, Priest, 1);
             ini_mon_inv(mtmp, Lamp, 10);
@@ -796,7 +908,10 @@ register struct monst *mtmp;
         case PM_TOURIST:
             Tourist[T_DARTS].trquan = rn1(20, 21);
             mkmonmoney(mtmp, (long) rn1(1000, 1001));
-            ini_mon_inv(mtmp, Tourist, 1);
+            if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleTourist, 1);
+            else
+                ini_mon_inv(mtmp, Tourist, 1);
             if (!rn2(25))
                 ini_mon_inv(mtmp, Tinopener, 1);
             else if (!rn2(25))
@@ -812,6 +927,8 @@ register struct monst *mtmp;
         case PM_WIZARD:
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantWizard, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleWizard, 1);
             else
                 ini_mon_inv(mtmp, Wizard, 1);
             ini_mon_inv(mtmp, Blindfold, 5);
@@ -1029,7 +1146,7 @@ register struct monst *mtmp;
                 w2 = KNIFE;
             if (w2)
                 (void) mongets(mtmp, w2);
-        } else if (racial_elf(mtmp)) {
+        } else if (racial_elf(mtmp) && !Ingtown) {
             if (rn2(2))
                 (void) mongets(mtmp,
 		 (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELVEN_NOBLE
@@ -1245,7 +1362,9 @@ register struct monst *mtmp;
                and maybe make it special */
             int typ = rn2(2) ? LONG_SWORD : HEAVY_MACE;
             otmp = mksobj(typ, FALSE, FALSE);
-            if (!rn2(20) || is_lord(ptr)) {
+            if ((!rn2(20) || is_lord(ptr))
+                && sgn(mtmp->isminion ? EMIN(mtmp)->min_align
+                                      : ptr->maligntyp) == A_LAWFUL) {
                 otmp = oname(otmp, artiname(typ == LONG_SWORD
                                             ? ART_SUNSWORD : ART_DEMONBANE));
                 if (!otmp->oartifact && !rn2(10)) {
@@ -1305,7 +1424,7 @@ register struct monst *mtmp;
                 if (!rn2(8))
                     (void) mongets(mtmp, SACK);
             }
-        } else if (is_dwarf(ptr)) {
+        } else if (is_dwarf(ptr) && !Ingtown) {
             if (rn2(7))
                 (void) mongets(mtmp, DWARVISH_CLOAK);
             if (rn2(7))
@@ -1379,7 +1498,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, (rn2(2)) ? CLUB : RUBBER_HOSE);
         break;
     case S_ORC:
-        if (rn2(2))
+        if (mm != PM_GOBLIN_KING && rn2(2))
             (void) mongets(mtmp, ORCISH_HELM);
         switch ((mm != PM_ORC_CAPTAIN) ? mm
                 : rn2(2) ? PM_MORDOR_ORC : PM_URUK_HAI) {
@@ -1492,6 +1611,8 @@ register struct monst *mtmp;
             (void) mongets(mtmp, (rn2(3) ? KNIFE : SHORT_SWORD));
         break;
     case S_LIZARD:
+        if (mm == PM_SEA_TORTLE)
+            (void) mongets(mtmp, (rn2(5) ? SPEAR : TRIDENT));
         if (mm == PM_SALAMANDER)
             (void) mongets(mtmp,
                            (rn2(7) ? SPEAR : rn2(3) ? TRIDENT : STILETTO));
@@ -1618,8 +1739,12 @@ register struct monst *mtmp;
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, BATTLE_AXE);
-                else
-                    m_initthrow(mtmp, DART, 12);
+                else {
+                    if (is_gnome(ptr) && Ingtown)
+                        ;
+                    else
+                        m_initthrow(mtmp, DART, 12);
+                }
             }
             break;
         case 2:
@@ -1627,31 +1752,47 @@ register struct monst *mtmp;
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, TWO_HANDED_SWORD);
                 else {
-                    (void) mongets(mtmp, CROSSBOW);
-                    m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+                    if (is_gnome(ptr) && Ingtown) {
+                        ;
+                    } else {
+                        (void) mongets(mtmp, CROSSBOW);
+                        m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+                    }
                 }
             }
             break;
         case 3:
             if (!unique_corpstat(ptr)) {
-                (void) mongets(mtmp, BOW);
-                m_initthrow(mtmp, ARROW, 12);
+                if (is_gnome(ptr) && Ingtown) {
+                    ;
+                } else {
+                    (void) mongets(mtmp, BOW);
+                    m_initthrow(mtmp, ARROW, 12);
+                }
             }
             break;
         case 4:
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, LONG_SWORD);
-                else
-                    m_initthrow(mtmp, DAGGER, 3);
+                else {
+                    if (is_gnome(ptr) && Ingtown)
+                        ;
+                    else
+                        m_initthrow(mtmp, DAGGER, 3);
+                }
             }
             break;
         case 5:
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, LUCERN_HAMMER);
-                else
-                    (void) mongets(mtmp, AKLYS);
+                else {
+                    if (is_gnome(ptr) && Ingtown)
+                        ;
+                    else
+                        (void) mongets(mtmp, AKLYS);
+                }
             }
             break;
         default:
@@ -1745,8 +1886,8 @@ register struct monst *mtmp;
             }
 
             if (mac < -1 && rn2(5) && !racial_giant(mtmp))
-                mac += 7 + mongets(mtmp, (rn2(5)) ? PLATE_MAIL
-                                                  : CRYSTAL_PLATE_MAIL);
+                mac += 7 + mongets(mtmp, (rn2(15)) ? PLATE_MAIL
+                                                   : CRYSTAL_PLATE_MAIL);
             else if (mac < 3 && rn2(5)
                        && (!(racial_giant(mtmp)
                              || racial_elf(mtmp) || racial_orc(mtmp))))
@@ -1958,6 +2099,14 @@ register struct monst *mtmp;
         if (rn2(7))
             (void) mongets(mtmp, MUMMY_WRAPPING);
         break;
+    case S_ORC:
+        if (ptr == &mons[PM_GOBLIN_KING]) {
+            (void) mongets(mtmp, QUARTERSTAFF);
+            struct obj* received = m_carrying(mtmp, QUARTERSTAFF);
+            if (received)
+                set_material(received, BONE);
+        }
+        break;
     case S_QUANTMECH:
         if (!rn2(20) && ptr == &mons[PM_QUANTUM_MECHANIC]) {
             struct obj *catcorpse;
@@ -1980,6 +2129,10 @@ register struct monst *mtmp;
         break;
     case S_LEPRECHAUN:
         mkmonmoney(mtmp, (long) d(level_difficulty(), 30));
+        break;
+    case S_LIZARD:
+        if (ptr == &mons[PM_SEA_TORTLE] && !rn2(3))
+            (void) mongets(mtmp, SMALL_SHIELD);
         break;
     case S_DEMON:
         /* moved here from m_initweap() because these don't
@@ -2405,7 +2558,7 @@ struct monst *
 makemon(ptr, x, y, mmflags)
 register struct permonst *ptr;
 register int x, y;
-int mmflags;
+long mmflags;
 {
     register struct monst *mtmp;
     struct monst fakemon;
@@ -2415,6 +2568,7 @@ int mmflags;
     boolean byyou = (x == u.ux && y == u.uy);
     boolean allow_minvent = ((mmflags & NO_MINVENT) == 0);
     boolean countbirth = ((mmflags & MM_NOCOUNTBIRTH) == 0);
+    boolean no_mplayer = ((mmflags & MM_MPLAYEROK) == 0);
     unsigned gpflags = (mmflags & MM_IGNOREWATER) ? MM_IGNOREWATER : 0;
 
     fakemon = zeromonst;
@@ -2478,6 +2632,7 @@ int mmflags;
                  /* in Sokoban, don't accept a giant on first try;
                     after that, boulder carriers are fair game */
                  && ((tryct == 1 && throws_rocks(ptr) && In_sokoban(&u.uz))
+                     || (is_mplayer(ptr) && no_mplayer)
                      || !goodpos(x, y, &fakemon, gpflags)));
         mndx = monsndx(ptr);
     }
@@ -2701,6 +2856,8 @@ int mmflags;
         mtmp->iscerberus = TRUE;
     } else if (mndx == PM_VECNA) {
         mtmp->isvecna = TRUE;
+    } else if (mndx == PM_GOBLIN_KING) {
+        mtmp->isgking = TRUE;
     } else if (mndx == PM_WIZARD_OF_YENDOR) {
         mtmp->iswiz = TRUE;
         context.no_of_wizards++;
@@ -2732,7 +2889,8 @@ int mmflags;
     if (is_dprince(ptr) && ptr->msound == MS_BRIBE) {
         mtmp->mpeaceful = mtmp->minvis = mtmp->perminvis = 1;
         mtmp->mavenge = 0;
-        if (wielding_artifact(ART_EXCALIBUR))
+        if (wielding_artifact(ART_EXCALIBUR)
+            || wielding_artifact(ART_DEMONBANE))
             mtmp->mpeaceful = mtmp->mtame = FALSE;
     }
 #ifndef DCC30_BUG
@@ -2997,6 +3155,8 @@ rndmonst()
             if (Iniceq && !likes_iceq(ptr))
                 continue;
             if (!Iniceq && is_iceq_only(ptr))
+                continue;
+            if (Ingtown && !likes_gtown(ptr))
                 continue;
             ct = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
 	    if (!is_mplayer(ptr))
@@ -3346,6 +3506,9 @@ struct monst *mtmp, *victim;
         lev_limit = (int) mtmp->m_lev; /* never undo increment */
 
         mtmp->female = fem; /* gender might be changing */
+        /* if 'mtmp' is leashed, persistent inventory window needs updating */
+        if (mtmp->mleashed)
+            update_inventory(); /* x - leash (attached to a <mon> */
     }
 
     /* sanity checks */
@@ -3614,10 +3777,17 @@ struct monst *mtmp;
     } else if (always_peaceful(mdat)) {
         int absmal = abs(mal);
         if (mtmp->mpeaceful) {
-            if (u.ualign.type == A_NONE)
+            if (u.ualign.type == A_NONE) {
                 mtmp->malign += 1; /* Moloch's will */
-            else
+            } else if (Role_if(PM_CONVICT)) {
+                /* Several 'always peaceful' types become hostile
+                   once they see a Convict. Still an alignment
+                   hit, but not nearly as bad as it is for other
+                   roles */
+                mtmp->malign = -1 * max(1, absmal);
+            } else {
                 mtmp->malign = -3 * max(5, absmal);
+            }
         } else
             mtmp->malign = 3 * max(5, absmal); /* renegade */
     } else if (always_hostile(mdat)) {
@@ -3733,6 +3903,11 @@ register struct monst *mtmp;
             appear = Is_rogue_level(&u.uz) ? S_hwall : S_hcdoor;
         else
             appear = Is_rogue_level(&u.uz) ? S_vwall : S_vcdoor;
+    } else if (is_open_air(mx, my) || is_pool_or_lava(mx, my)) {
+        /* mimics cling to the ceiling over inaccessible terrain, but there's
+         * no appropriate disguise that hangs from the ceiling */
+        ap_type = M_AP_NOTHING;
+        appear = 0;
     } else if (level.flags.is_maze_lev && !In_sokoban(&u.uz) && rn2(2)) {
         ap_type = M_AP_OBJECT;
         appear = STATUE;
@@ -3844,8 +4019,10 @@ int *seencount;  /* secondary output */
         /* if tipping known empty bag, give normal empty container message */
         pline1((tipping && bag->cknown) ? "It's empty." : nothing_happens);
         /* now known to be empty if sufficiently discovered */
-        if (bag->dknown && objects[bag->otyp].oc_name_known)
+        if (bag->dknown && objects[bag->otyp].oc_name_known) {
             bag->cknown = 1;
+            update_inventory(); /* for perm_invent */
+        }
     } else {
         struct monst *mtmp;
         int creatcnt = 1, seecount = 0;
@@ -3865,8 +4042,10 @@ int *seencount;  /* secondary output */
         if (seecount) {
             if (seencount)
                 *seencount += seecount;
-            if (bag->dknown)
+            if (bag->dknown) {
                 makeknown(BAG_OF_TRICKS);
+                update_inventory(); /* for perm_invent */
+            }
         } else if (!tipping) {
             pline1(!moncount ? nothing_happens : "Nothing seems to happen.");
         }

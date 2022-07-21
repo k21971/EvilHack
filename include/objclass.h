@@ -141,7 +141,7 @@ struct objclass {
     schar oc_oc1, oc_oc2;
 #define oc_hitbon oc_oc1 /* weapons: "to hit" bonus */
 
-#define a_ac oc_oc1     /* armor class, used in ARM_BONUS in do.c */
+#define a_ac oc_oc1     /* armor class, used in armor_bonus in worn.c */
 #define a_can oc_oc2    /* armor: used in mhitu.c */
 #define oc_level oc_oc2 /* books: spell level */
 
@@ -193,11 +193,12 @@ enum obj_class_types {
 #define ALL_CLASSES (MAXOCLASSES + 2) /* input to getobj().                 */
 #define ALLOW_NONE  (MAXOCLASSES + 3)
 
-#define BURNING_OIL   (MAXOCLASSES + 1) /* Can be used as input to explode.          */
-#define MON_EXPLODE   (MAXOCLASSES + 2) /* Exploding monster (e.g. gas spore)        */
-#define TRAPPED_DOOR  (MAXOCLASSES + 3) /* Exploding booby-trapped doors (GruntHack) */
-#define MON_CASTBALL  (MAXOCLASSES + 4) /* For monsters casting area-effect spells   */
-#define FORGE_EXPLODE (MAXOCLASSES + 5) /* Exploding forges                          */
+#define BURNING_OIL   (MAXOCLASSES + 1) /* Can be used as input to explode.           */
+#define MON_EXPLODE   (MAXOCLASSES + 2) /* Exploding monster (e.g. gas spore)         */
+#define TRAPPED_DOOR  (MAXOCLASSES + 3) /* Exploding booby-trapped doors (GruntHack)  */
+#define MON_CASTBALL  (MAXOCLASSES + 4) /* For monsters casting area-effect spells    */
+#define FORGE_EXPLODE (MAXOCLASSES + 5) /* Exploding forges                           */
+#define TRAP_EXPLODE  (MAXOCLASSES + 6) /* Exploding magical trap due to cancellation */
 
 #if 0 /* moved to decl.h so that makedefs.c won't see them */
 extern const struct class_sym

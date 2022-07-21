@@ -1,0 +1,149 @@
+# NetHack 3.6 goblintown.des $NHDT-Date: 1649428422 2022/04/08 14:33:42 $  $NHDT-Branch: master $:$NHDT-Revision: 1.9 $
+#	Copyright (c) 2022 by Keith Simpson
+# NetHack may be freely redistributed.  See license for details.
+#
+#	Goblin Town - the player must defeat the Goblin King
+#	to open up access to Mine Town and Mines' End in the
+#	Gnomish Mines.
+#
+MAZE: "goblintown",' '
+FLAGS: noteleport,hardfloor,solidify,shortsighted
+
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+..... ..                                                         .----------
+....t..                                                         ..|........|
+......       -------            .tt..   ...                     t.|........|
+.t...        |.....|    .............. F..                     ...|..|...\.|
+ ....        |.....|.....     ..  .....FFF                      .....|.....|
+    ..       |.....+.        ..     .......         ...          ....----S--
+     ..      -------        ..        .t....       ..t..        ...t   ...  
+      ..                   ..             ................     ..       .   
+       ..                 ..                         ... ..   ..        .   
+      ....             ....                           .   .....         .   
+     .........       ..t....                          .                ..   
+     ......................tt                         .             .. .    
+      .t..           .......                         ...           F....    
+       ..             .......                      ..t...    ......F...     
+                       ...........                ........  ..     F..      
+                     ........    ..       ............tt.....               
+                      FFFF.F      ..........        ......t..               
+                      ......                                                
+                       ...                                                  
+                                                                            
+                                                                            
+ENDMAP
+TELEPORT_REGION:(00,00,04,03),(00,00,00,00)
+BRANCH:(01,01,01,01),(0,0,0,0)
+REGION:(00,00,75,19),unlit,"ordinary"
+REGION:(22,17,27,18),lit,"ordinary"
+REGION:(40,02,42,03),lit,"ordinary"
+REGION:(68,11,69,14),lit,"ordinary"
+REGION:(71,01,74,04),lit,"ordinary"
+
+# Shop (maybe?)
+IF [50%] {
+  REGION:(14,03,18,05),lit,"shop"
+}
+
+# Door to jail cells?
+IF [65%] {
+  TERRAIN:(26,16),'F'
+} ELSE {
+  DOOR:locked,(26,16)
+}
+IF [80%] {
+  TERRAIN:(41,04),'F'
+} ELSE {
+  DOOR:locked,(41,04)
+}
+IF [80%] {
+  TERRAIN:(67,13),'F'
+} ELSE {
+  DOOR:locked,(67,13)
+}
+
+# Forge
+FORGE:(24,12)
+
+# Various objects
+CONTAINER:('(',"chest"),(23,18) {
+  OBJECT:('+',"novel"),uncursed,name:"The Blacksmith's Cookbook"
+  IF [65%] {
+    OBJECT:(')',"war hammer"),uncursed
+  }
+}
+OBJECT:('`',"boulder"),(28,03)
+OBJECT:('`',"boulder"),(71,11)
+
+# Doors
+DOOR:locked,(19,05)
+DOOR:locked,(73,05)
+
+# Traps
+TRAP:"board", (06,06)
+TRAP:"board", (07,08)
+TRAP:"board", (72,08)
+TRAP:"arrow", (19,11)
+TRAP:"arrow", (61,09)
+TRAP:"arrow", (62,13)
+
+# Prisoners
+MONSTER:('@',"Woodland-elf"),(23,17),peaceful
+MONSTER:('G',"rock gnome"),(24,18),peaceful
+MONSTER:('@',"Woodland-elf"),(25,17),peaceful
+MONSTER:('h',"mountain dwarf"),(27,17),peaceful
+MONSTER:('@',"Green-elf"),(40,03),peaceful
+MONSTER:('G',"gnome noble"),(41,02),peaceful
+MONSTER:('G',"rock gnome"),(42,02),peaceful
+MONSTER:('@',"Grey-elf"),(69,12),peaceful
+MONSTER:('G',"rock gnome"),(68,14),peaceful
+MONSTER:('G',"rock gnome"),(69,14),peaceful
+
+# Residents of Goblin Town
+MONSTER:('o',"goblin"),(07,11),hostile
+MONSTER:('o',"goblin"),(08,12),hostile
+MONSTER:('o',"goblin"),(24,13),hostile
+MONSTER:('o',"goblin"),(25,10),hostile
+MONSTER:('o',"goblin"),(27,12),hostile
+MONSTER:('o',"goblin"),(35,03),hostile
+MONSTER:('o',"goblin"),(36,04),hostile
+MONSTER:('o',"goblin"),(42,05),hostile
+MONSTER:('o',"goblin"),(52,06),hostile
+MONSTER:('o',"goblin"),(52,13),hostile
+MONSTER:('o',"goblin"),(54,05),hostile
+MONSTER:('o',"goblin"),(54,14),hostile
+MONSTER:('o',"goblin"),(56,15),hostile
+MONSTER:('o',"goblin"),(67,05),hostile
+MONSTER:('o',"goblin shaman"),(64,03),hostile
+MONSTER:('o',"hobgoblin"),(26,12),hostile
+MONSTER:('o',"hobgoblin"),(38,06),hostile
+MONSTER:('o',"hobgoblin"),(55,16),hostile
+MONSTER:('o',"hobgoblin"),(65,05),hostile
+MONSTER:('o',"bugbear"),(64,13),hostile
+
+# The Goblin King and his treasure
+MONSTER:('o',"goblin king"),(73,03),hostile
+
+CONTAINER:('(',"chest"),(70,04) {
+  IF [10%] {
+    OBJECT:('(',"magic marker"),uncursed
+  }
+  OBJECT:'*'
+  OBJECT:'*'
+  OBJECT:'*'
+  OBJECT:'='
+  OBJECT:'$',quantity:100
+}
+
+# None shall pass
+NON_DIGGABLE:(00,00,38,15)
+NON_DIGGABLE:(00,00,21,19)
+NON_DIGGABLE:(00,00,75,02)
+NON_DIGGABLE:(42,00,75,11)
+NON_DIGGABLE:(28,05,66,19)
+NON_DIGGABLE:(00,17,75,19)
+NON_DIGGABLE:(68,00,75,19)
+NON_PASSWALL:(00,00,75,19)

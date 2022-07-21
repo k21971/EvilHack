@@ -488,7 +488,8 @@ register struct monst *mtmp;
             /* since we're not close enough, use short jumps to change that */
             stx = mtmp->mx + ((rn2(3) + 4) * dx);
             sty = mtmp->my + ((rn2(3) + 3) * dy);
-            mnearto(mtmp, stx, sty, TRUE);
+            if (isok(stx, sty))
+                mnearto(mtmp, stx, sty, TRUE);
         }
         return 0;
     }
@@ -918,6 +919,14 @@ const char *const random_vecna[] = {
     "I will rip your soul to shreds"
 };
 
+const char *const random_goblinking[] = {
+    "Bones will be shattered, necks will be wrung!  You'll be beaten and battered, from racks you'll be hung",
+    "You will die down here and never be found, down in the deep of Goblin Town",
+    "With a swish and a smack, and a whip and a crack!  Everybody talks when they're on my rack",
+    "Mine Town is under my control!  No one is allowed to visit",
+    "So you want to explore Mines' End, eh?  Over my dead body",
+};
+
 /* Insult or intimidate the player */
 void
 cuss(mtmp)
@@ -969,6 +978,9 @@ register struct monst *mtmp;
     } else if (mtmp->isvecna) {
         verbalize("%s!",
                   random_vecna[rn2(SIZE(random_vecna))]);
+    } else if (mtmp->isgking) {
+        verbalize("%s!",
+                  random_goblinking[rn2(SIZE(random_goblinking))]);
     } else {
         if (!rn2(is_minion(mtmp->data) ? 100 : 5))
             pline("%s casts aspersions on your ancestry.", Monnam(mtmp));

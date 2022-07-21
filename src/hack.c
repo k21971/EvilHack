@@ -116,7 +116,7 @@ moverock()
     if (maybe_polyd(racial_throws_rocks(&youmonst), Race_if(PM_GIANT))
         && context.nopick) {
         if (In_sokoban(&u.uz) && sobj_at(BOULDER, sx, sy))
-            change_luck(-2);
+            sokoban_guilt();
         return 0;
     }
 
@@ -583,6 +583,7 @@ register xchar ox, oy;
 {
     /* optimize by leaving on the fobj chain? */
     remove_object(obj);
+    maybe_unhide_at(obj->ox, obj->oy);
     newsym(obj->ox, obj->oy);
     place_object(obj, ox, oy);
     newsym(ox, oy);
@@ -740,6 +741,7 @@ ma_break()
     if (uarmg) {
         switch (uarmg->otyp) {
         case GAUNTLETS_OF_POWER:
+        case MUMMIFIED_HAND: /* the Hand of Vecna */
             prob -= 10;
             break;
         case GAUNTLETS_OF_FUMBLING:
@@ -1019,7 +1021,10 @@ int mode;
 
         if ((t && t->tseen)
             || (!Levitation && !Flying && !is_clinger(youmonst.data)
-                && is_pool_or_lava(x, y) && levl[x][y].seenv))
+                && (is_pool_or_lava(x, y) || is_open_air(x, y)
+                    || (is_damp_terrain(x, y)
+                        && vs_cantflyorswim(youmonst.data)))
+                && levl[x][y].seenv))
             return (mode == TEST_TRAP);
     }
 
@@ -1583,8 +1588,8 @@ domove_core()
             if ((uarmf && uarmf->otyp == skates) || resists_cold(&youmonst)
                 || Flying || is_floater(youmonst.data)
                 || is_clinger(youmonst.data) || is_whirly(youmonst.data)
-		|| (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
-	                     || uarm->otyp == WHITE_DRAGON_SCALES))) {
+                || (uarm && Is_dragon_scaled_armor(uarm)
+                    && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) {
                 on_ice = FALSE;
             } else if (!rn2((how_resistant(COLD_RES) > 50) ? 3 : 2)) {
                 HFumbling |= FROMOUTSIDE;
@@ -1599,10 +1604,10 @@ domove_core()
         walk_sewage = !Levitation && is_sewage(u.ux, u.uy);
         if (walk_sewage) {
             if (Flying || is_floater(youmonst.data)
-                || is_swimmer(youmonst.data)
+                || is_swimmer(youmonst.data) || is_tortle(youmonst.data)
                 || is_clinger(youmonst.data) || is_whirly(youmonst.data)
-                || (uarm && (uarm->otyp == WHITE_DRAGON_SCALE_MAIL
-                             || uarm->otyp == WHITE_DRAGON_SCALES))) {
+                || (uarm && Is_dragon_scaled_armor(uarm)
+                    && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) {
                 walk_sewage = FALSE;
             } else if (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4)) {
                 HSlow |= FROMOUTSIDE;
@@ -2341,11 +2346,13 @@ boolean
 pooleffects(newspot)
 boolean newspot;             /* true if called by spoteffects */
 {
+    boolean shallow_water = (is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy));
     /* check for leaving water */
     if (u.uinwater) {
         boolean still_inwater = FALSE; /* assume we're getting out */
 
-        if (!is_pool(u.ux, u.uy)) {
+        if (!is_pool(u.ux, u.uy)
+            && !(is_damp_terrain(u.ux, u.uy) && verysmall(youmonst.data))) {
             if (Is_waterlevel(&u.uz))
                 You("pop into an air bubble.");
             else if (is_lava(u.ux, u.uy))
@@ -2379,7 +2386,8 @@ boolean newspot;             /* true if called by spoteffects */
     if (!u.ustuck && !Levitation && !Flying) {
         if (maybe_freeze_underfoot(&youmonst))
             return FALSE;
-        if (is_pool_or_lava(u.ux, u.uy)) {
+        if (is_pool_or_lava(u.ux, u.uy)
+            || (shallow_water && verysmall(youmonst.data))) {
             if (u.usteed
                 && (is_flyer(u.usteed->data) || is_floater(u.usteed->data)
                     || is_clinger(u.usteed->data))) {
@@ -2411,13 +2419,12 @@ boolean newspot;             /* true if called by spoteffects */
                 if (drown())
                     return TRUE;
             }
-        } else if ((is_puddle(u.ux, u.uy)
-                   || is_sewage(u.ux, u.uy)) && !Wwalking) {
-            if (is_puddle(u.ux, u.uy) && u.umoved && !rn2(12))
-                pline("You %s through the shallow water.",
-                      vs_cantflyorswim(youmonst.data) ? "wade" : "splash");
+        } else if (shallow_water && !Wwalking) {
+            if (is_puddle(u.ux, u.uy) && u.umoved)
+                pline("You splash through the shallow water.");
 
             if (is_sewage(u.ux, u.uy) && u.umoved && !rn2(4)
+                && !is_tortle(youmonst.data)
                 && (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
                 pline("%s %s difficulty %s through %s.",
                       u.usteed ? upstart(x_monnam(u.usteed,
@@ -2618,11 +2625,17 @@ boolean pick;
         }
         mnexto(mtmp); /* have to move the monster */
     }
-    if (IS_AIR(levl[u.ux][u.uy].typ) && In_V_tower(&u.uz)
-        && !Levitation && !Flying && !is_clinger(youmonst.data)
+    if (is_open_air(u.ux, u.uy) && !Levitation
+        /* normally won't fall if flying, unless iron ball is pulling you */
+        && !(Flying && !(Punished && !carried(uball)
+                         && is_open_air(uball->ox, uball->oy)))
+        && !is_clinger(youmonst.data)
         && !(u.usteed && is_clinger(u.usteed->data))) {
-        pline("Unfortunately, you don't know how to fly.");
-        You("plummet a few thousand feet to your death.");
+        if (Punished && !carried(uball))
+            pline_The("heavy iron ball falls away, and yanks you down with it!");
+        else
+            pline("Unfortunately, you don't know how to fly.");
+        You("plummet several thousand feet to your death.");
         Sprintf(killer.name,
                 "fell to %s death", uhis());
         killer.format = NO_KILLER_PREFIX;
@@ -3092,16 +3105,21 @@ lookaround()
         return;
     for (x = u.ux - 1; x <= u.ux + 1; x++)
         for (y = u.uy - 1; y <= u.uy + 1; y++) {
+            /* ignore out of bounds, and our own location */
             if (!isok(x, y) || (x == u.ux && y == u.uy))
                 continue;
+            /* (grid bugs) ignore diagonals */
             if (NODIAG(u.umonnum) && x != u.ux && y != u.uy)
                 continue;
 
+            /* can we see a monster there? */
             if ((mtmp = m_at(x, y)) != 0
                 && M_AP_TYPE(mtmp) != M_AP_FURNITURE
                 && M_AP_TYPE(mtmp) != M_AP_OBJECT
-                && (!mtmp->minvis || See_invisible) && !mtmp->mundetected) {
-                if ((context.run != 1 && !mtmp->mtame)
+                && mon_visible(mtmp)) {
+                /* running movement and not a hostile monster */
+                /* OR it blocks our move direction and we're not traveling */
+                if ((context.run != 1 && !is_safepet(mtmp))
                     || (x == u.ux + u.dx && y == u.uy + u.dy
                         && !context.travel)) {
                     if (iflags.mention_walls)
@@ -3172,11 +3190,13 @@ lookaround()
                      */
                     if (iflags.mention_walls)
                         You("stop at the edge of the %s.",
-                            hliquid(is_damp_terrain(x, y) ? "water" : "lava"));
+                            hliquid(is_sewage(x, y) ? "sewage"
+                                    : is_damp_terrain(x, y) ? "water"
+                                      : "lava"));
                     goto stop;
                 }
                 continue;
-            } else if (IS_AIR(levl[x][y].typ) && In_V_tower(&u.uz)) {
+            } else if (is_open_air(x, y)) {
                 if (!Levitation && !Flying && !is_clinger(youmonst.data)
                     && !(u.usteed && is_clinger(u.usteed->data))
                     && x == u.ux + u.dx && y == u.uy + u.dy) {
@@ -3438,8 +3458,7 @@ weight_cap()
     BLevitation &= ~I_SPECIAL;
 
     carrcap = 25 * (ACURRSTR + ACURR(A_CON)) + 50;
-    if ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
-        || (maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))) {
+    if (racial_giant(&youmonst) || racial_centaur(&youmonst)) {
         carrcap += 100;
         maxcarrcap += 400;
         /* this is not ideal, but for now this makes sure these two
@@ -3449,6 +3468,14 @@ weight_cap()
             youmonst.data->cwt = 2200;
             youmonst.data->mmove = Race_if(PM_GIANT) ? 10 : 18;
             youmonst.data->msize = Race_if(PM_GIANT) ? MZ_HUGE : MZ_LARGE;
+        }
+    } else if (racial_tortle(&youmonst)) {
+        carrcap += 100;
+        maxcarrcap += 200;
+        if (!Upolyd) {
+            youmonst.data->cwt = 1600;
+            youmonst.data->mmove = 10;
+            youmonst.data->msize = MZ_LARGE;
         }
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
@@ -3586,6 +3613,30 @@ struct obj *otmp;
         otmp = otmp->nobj;
     }
     return 0L;
+}
+
+void
+spot_checks(xchar x, xchar y, schar old_typ)
+{
+    schar new_typ = levl[x][y].typ;
+    boolean db_ice_now = FALSE;
+
+    switch (old_typ) {
+    case DRAWBRIDGE_UP:
+        db_ice_now = ((levl[x][y].drawbridgemask & DB_UNDER) == DB_ICE);
+        /*FALLTHRU*/
+    case ICE:
+        if ((new_typ != old_typ)
+            || (old_typ == DRAWBRIDGE_UP && !db_ice_now)) {
+            /* make sure there's no MELT_ICE_AWAY timer */
+            if (spot_time_left(x, y, MELT_ICE_AWAY)) {
+                spot_stop_timers(x, y, MELT_ICE_AWAY);
+            }
+            /* adjust things affected by the ice */
+            obj_ice_effects(x, y, FALSE);
+        }
+        break;
+    }
 }
 
 /*hack.c*/

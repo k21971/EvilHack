@@ -383,6 +383,302 @@ lava:
     update_inventory();
 }
 
+/* forging recipes - first object is the end result
+   of combining objects two and three
+   TODO: could easily allow all sorts of magical
+   objects (or even artifacts) to be forged, but that
+   feels overpowered without needing some other
+   component added to the mix, or maybe have the
+   forge be used up, or both */
+static const struct forge_recipe {
+    short result_typ;
+    short typ1;
+    short typ2;
+    int quan_typ1;
+    int quan_typ2;
+} fusions[] = {
+    /* weapons */
+    { SHURIKEN, DART, DAGGER, 2, 1 },
+    { SPEAR, ARROW, DAGGER, 2, 1 },
+    { ELVEN_SPEAR, ELVEN_ARROW, ELVEN_DAGGER, 2, 1 },
+    { ORCISH_SPEAR, ORCISH_ARROW, ORCISH_DAGGER, 2, 1 },
+    { DWARVISH_SPEAR, ARROW, SPEAR, 2, 1 },
+    { JAVELIN, CROSSBOW_BOLT, SPEAR, 2, 1 },
+    { TRIDENT, SCIMITAR, SPEAR, 1, 1 },
+    { DAGGER, ARROW, KNIFE, 2, 1 },
+    { ELVEN_DAGGER, ELVEN_ARROW, KNIFE, 2, 1 },
+    { ORCISH_DAGGER, ORCISH_ARROW, KNIFE, 2, 1 },
+    { ATHAME, DAGGER, STILETTO, 1, 1 },
+    { SCALPEL, KNIFE, STILETTO, 1, 1 },
+    { KNIFE, ARROW, DART, 2, 2 },
+    { STILETTO, CROSSBOW_BOLT, KNIFE, 2, 1 },
+    { AXE, DAGGER, SPEAR, 1, 1 },
+    { DWARVISH_BEARDED_AXE, AXE, DWARVISH_SHORT_SWORD, 1, 1 },
+    { BATTLE_AXE, AXE, BROADSWORD, 1, 1 },
+    { SHORT_SWORD, CROSSBOW_BOLT, DAGGER, 2, 1 },
+    { ELVEN_SHORT_SWORD, CROSSBOW_BOLT, ELVEN_DAGGER, 2, 1 },
+    { ORCISH_SHORT_SWORD, CROSSBOW_BOLT, ORCISH_DAGGER, 2, 1 },
+    { DWARVISH_SHORT_SWORD, DWARVISH_SPEAR, SHORT_SWORD, 1, 1 },
+    { SCIMITAR, KNIFE, SHORT_SWORD, 1, 1 },
+    { ORCISH_SCIMITAR, KNIFE, ORCISH_SHORT_SWORD, 1, 1 },
+    { SABER, SCIMITAR, LONG_SWORD, 1, 1 },
+    { BROADSWORD, SCIMITAR, SHORT_SWORD, 1, 1 },
+    { ELVEN_BROADSWORD, SCIMITAR, ELVEN_SHORT_SWORD, 1, 1 },
+    { LONG_SWORD, SHORT_SWORD, SHORT_SWORD, 1, 1 },
+    { ELVEN_LONG_SWORD, ELVEN_SHORT_SWORD, ELVEN_SHORT_SWORD, 1, 1 },
+    { ORCISH_LONG_SWORD, ORCISH_SHORT_SWORD, ORCISH_SHORT_SWORD, 1, 1 },
+    { TWO_HANDED_SWORD, LONG_SWORD, BROADSWORD, 1, 1 },
+    { KATANA, LONG_SWORD, LONG_SWORD, 1, 1 },
+    { TSURUGI, TWO_HANDED_SWORD, KATANA, 1, 1 },
+    { RUNESWORD, BROADSWORD, DAGGER, 1, 1 },
+    { PARTISAN, BROADSWORD, SPEAR, 1, 1 },
+    { RANSEUR, STILETTO, SPEAR, 1, 1 },
+    { SPETUM, KNIFE, SPEAR, 1, 1 },
+    { GLAIVE, SHORT_SWORD, SPEAR, 1, 1 },
+    { LANCE, JAVELIN, GLAIVE, 1, 1 },
+    { HALBERD, RANSEUR, AXE, 1, 1 },
+    { BARDICHE, BATTLE_AXE, SPEAR, 1, 1 },
+    { VOULGE, AXE, SPEAR, 1, 1 },
+    { DWARVISH_MATTOCK, PICK_AXE, DWARVISH_SHORT_SWORD, 1, 1 },
+    { FAUCHARD, SABER, SPEAR, 1, 1 },
+    { GUISARME, GRAPPLING_HOOK, SPEAR, 1, 1 },
+    { BILL_GUISARME, GUISARME, SPEAR, 1, 1 },
+    { LUCERN_HAMMER, HEAVY_WAR_HAMMER, SPEAR, 1, 1 },
+    { BEC_DE_CORBIN, WAR_HAMMER, SPEAR, 1, 1 },
+    { MACE, WAR_HAMMER, DAGGER, 1, 1 },
+    { HEAVY_MACE, MACE, MACE, 1, 1 },
+    { ROD, RUBY, MACE, 2, 1 },
+    { MORNING_STAR, MACE, DAGGER, 1, 1 },
+    { ORCISH_MORNING_STAR, MACE, ORCISH_DAGGER, 1, 1 },
+    { WAR_HAMMER, MACE, FLAIL, 1, 1 },
+    { HEAVY_WAR_HAMMER, WAR_HAMMER, WAR_HAMMER, 1, 1 },
+    { AKLYS, FLAIL, SPEAR, 1, 1 },
+    { FLAIL, MORNING_STAR, MACE, 1, 1 },
+    /* armor (helmets) */
+    { ORCISH_HELM, DENTED_POT, ORCISH_DAGGER, 1, 1 },
+    { DWARVISH_HELM, HELMET, DWARVISH_SHORT_SWORD, 1, 1 },
+    { DENTED_POT, WAR_HAMMER, KNIFE, 1, 1 },
+    { HELMET, DENTED_POT, DAGGER, 1, 1 },
+    /* armor (body armor) */
+    { PLATE_MAIL, SPLINT_MAIL, CHAIN_MAIL, 1, 1 },
+    { CRYSTAL_PLATE_MAIL, DILITHIUM_CRYSTAL, PLATE_MAIL, 3, 1 },
+    { SPLINT_MAIL, SCALE_MAIL, CHAIN_MAIL, 1, 1 },
+    { LARGE_SPLINT_MAIL, PLATE_MAIL, PLATE_MAIL, 1, 1 },
+    { BANDED_MAIL, SCALE_MAIL, RING_MAIL, 1, 1 },
+    { CHAIN_MAIL, RING_MAIL, RING_MAIL, 1, 1 },
+    { DWARVISH_CHAIN_MAIL, CHAIN_MAIL, DWARVISH_ROUNDSHIELD, 1, 1 },
+    { ELVEN_CHAIN_MAIL, CHAIN_MAIL, ELVEN_SHIELD, 1, 1 },
+    { ORCISH_CHAIN_MAIL, RING_MAIL, ORCISH_SHIELD, 1, 1 },
+    { SCALE_MAIL, RING_MAIL, HELMET, 1, 1 },
+    { RING_MAIL, LARGE_SHIELD, HELMET, 1, 1 },
+    { ORCISH_RING_MAIL, ORCISH_SHIELD, ORCISH_HELM, 1, 1 },
+    /* armor (shields) */
+    { SMALL_SHIELD, DAGGER, HELMET, 1, 1 },
+    { ELVEN_SHIELD, ELVEN_DAGGER, SMALL_SHIELD, 1, 1 },
+    { URUK_HAI_SHIELD, ORCISH_SHIELD, ORCISH_SHIELD, 1, 1 },
+    { ORCISH_SHIELD, ORCISH_HELM, ORCISH_BOOTS, 1, 1 },
+    { LARGE_SHIELD, HELMET, HELMET, 1, 1 },
+    { DWARVISH_ROUNDSHIELD, LARGE_SHIELD, DWARVISH_HELM, 1, 1 },
+    /* armor (gauntlets and boots) */
+    { GAUNTLETS, MACE, HELMET, 1, 1 },
+    { DWARVISH_BOOTS, GAUNTLETS, DWARVISH_SHORT_SWORD, 1, 1 },
+    { ORCISH_BOOTS, GAUNTLETS, ORCISH_SHORT_SWORD, 1, 1 },
+    /* barding for steeds */
+    { BARDING, PLATE_MAIL, SADDLE, 1, 1 },
+    { SPIKED_BARDING, BARDING, MORNING_STAR, 1, 1 },
+    { BARDING_OF_REFLECTION, BARDING, SHIELD_OF_REFLECTION, 1, 1 },
+    { 0, 0, 0, 0, 0 }
+};
+
+int
+doforging(void)
+{
+    const struct forge_recipe *recipe;
+    struct obj* obj1;
+    struct obj* obj2;
+    struct obj* output;
+    char allowall[2];
+    int objtype = 0;
+
+    allowall[0] = ALL_CLASSES;
+    allowall[1] = '\0';
+
+    /* first, we need a forge */
+    if (!IS_FORGE(levl[u.ux][u.uy].typ)) {
+        You("need a forge in order to forge objects.");
+        return 0;
+    }
+
+    /* next, the proper tool to do the job */
+    if ((uwep && !is_hammer(uwep)) || !uwep) {
+        pline("You'll need a hammer to forge successfully.");
+        return 0;
+    }
+
+    /* setup the base object */
+    obj1 = getobj(allowall, "use as a base");
+    if (!obj1) {
+        You("need a base object to forge with.");
+        return 0;
+    } else if (!(is_metallic(obj1)
+                 || is_crystal(obj1) || obj1->otyp == SADDLE)) {
+        /* object should be gemstone or metallic */
+        pline_The("base object must be made of gemstone or something metallic.");
+        return 0;
+    }
+
+    /* setup the secondary object */
+    obj2 = getobj(allowall, "combine with the base object");
+    if (!obj2) {
+        You("need more than one object.");
+        return 0;
+    } else if (!(is_metallic(obj2)
+                 || is_crystal(obj2) || obj2->otyp == SADDLE)) {
+        /* secondary object should also be gemstone or metallic */
+        pline_The("secondary object must be made of gemstone or something metallic.");
+        return 0;
+    }
+
+    /* handle illogical cases */
+    if (obj1 == obj2) {
+        You_cant("combine an object with itself!");
+        return 0;
+    /* not that the Amulet of Yendor or invocation items would
+       ever be part of a forging recipe, but these should be
+       protected in any case */
+    } else if (obj_resists(obj1, 0, 0)
+               || obj_resists(obj2, 0, 0)) {
+        You_cant("forge such a thing!");
+        blowupforge(u.ux, u.uy);
+        return 0;
+    /* worn or wielded objects */
+    } else if (is_worn(obj1) || is_worn(obj2)) {
+        You("must first %s the objects you wish to forge.",
+            ((obj1->owornmask & W_ARMOR)
+             || (obj2->owornmask & W_ARMOR)) ? "remove" : "unwield");
+        return 0;
+    /* artifacts are off limits */
+    } else if (obj1->oartifact || obj2->oartifact) {
+        pline("Artifacts cannot be forged.");
+        return 0;
+    /* dragon-scaled armor can never be fully metallic */
+    } else if (Is_dragon_scaled_armor(obj1)
+               || Is_dragon_scaled_armor(obj2)) {
+        pline("Dragon-scaled armor cannot be forged.");
+        return 0;
+    }
+
+    /* start the forging process */
+    for (recipe = fusions; recipe->result_typ; recipe++) {
+        if ((obj1->otyp == recipe->typ1 && obj2->otyp == recipe->typ2
+             && obj1->quan >= recipe->quan_typ1 && obj2->quan >= recipe->quan_typ2)
+            || (obj2->otyp == recipe->typ1 && obj1->otyp == recipe->typ2
+                && obj2->quan >= recipe->quan_typ1 && obj1->quan >= recipe->quan_typ2)) {
+            objtype = recipe->result_typ;
+            break;
+        }
+    }
+
+    if (!objtype) {
+        /* if the objects used do not match the recipe array,
+           the forging process fails */
+        You("fail to combine these two objects.");
+        return 1;
+    } else if (objtype) {
+        /* success */
+        output = mksobj(objtype, TRUE, FALSE);
+
+        You("place %s, then %s inside the forge.",
+            the(xname(obj1)), the(xname(obj2)));
+        pline("Raising your %s, you begin to forge the objects together...",
+              xname(uwep));
+
+        /* take on the secondary object's material */
+        if (valid_obj_material(output, obj2->material)) {
+            output->material = obj2->material;
+        } else if (valid_obj_material(output, obj1->material)) {
+            output->material = obj1->material;
+        }
+
+        /* any object properties, take secondary object property
+           over primary. if you know the object property of one
+           of the recipe objects, you'll know the object property
+           of the newly forged object */
+        if (obj2->oprops) {
+            if (!is_barding(output))
+                output->oprops = obj2->oprops;
+            if (obj2->oprops_known)
+                output->oprops_known |= output->oprops;
+        } else if (obj1->oprops) {
+            if (!is_barding(output))
+                output->oprops = obj1->oprops;
+            if (obj1->oprops_known)
+                output->oprops_known |= output->oprops;
+        }
+
+        /* if neither recipe object have an object property,
+           ensure that the newly forged object doesn't
+           randomly have a property added at creation */
+        if ((obj1->oprops & 0L) && (obj2->oprops & 0L))
+            output->oprops |= 0L;
+
+        /* if objects are enchanted or have charges,
+           carry that over, and use the greater of the two */
+        if (output->oclass == obj2->oclass) {
+            output->spe = obj2->spe;
+            if (output->oclass == obj1->oclass)
+                output->spe = max(output->spe, obj1->spe);
+        } else if (output->oclass == obj1->oclass) {
+            output->spe = obj1->spe;
+        }
+
+        /* transfer curses and blessings from secondary object */
+        output->cursed = obj2->cursed;
+        output->blessed = obj2->blessed;
+        /* ensure the final product is not degraded or poisoned
+           in any way */
+        output->oeroded = output->oeroded2 = output->opoisoned = 0;
+
+        /* toss out old objects, add new one */
+        if (obj1->otyp == recipe->typ1)
+            obj1->quan -= recipe->quan_typ1;
+        if (obj2->otyp == recipe->typ1)
+            obj2->quan -= recipe->quan_typ1;
+        if (obj1->otyp == recipe->typ2)
+            obj1->quan -= recipe->quan_typ2;
+        if (obj2->otyp == recipe->typ2)
+            obj2->quan -= recipe->quan_typ2;
+
+        /* delete recipe objects if quantity reaches zero */
+        if (obj1->quan <= 0)
+            delobj(obj1);
+        if (obj2->quan <= 0)
+            delobj(obj2);
+
+        /* forged object is created */
+        output = addinv(output);
+        /* prevent large stacks of ammo-type weapons from being
+           formed */
+        if (output->quan > 3L) {
+            output->quan = 3L;
+            if (!rn2(4)) /* small chance of an extra */
+                output->quan += 1L;
+        }
+        output->owt = weight(output);
+        You("have successfully forged %s.", doname(output));
+        update_inventory();
+        if (output->oprops) {
+            /* forging magic can sometimes be too much stress */
+            if (!rn2(6))
+                coolforge(u.ux, u.uy);
+            else
+                pline_The("lava in the forge bubbles ominously.");
+        }
+    }
+
+    return 1;
+}
+
 void
 drinkfountain()
 {
@@ -458,15 +754,21 @@ drinkfountain()
         case 23: /* Water demon */
             dowaterdemon();
             break;
-        case 24: /* Curse an item */ {
+        case 24: { /* Maybe curse some items */
             register struct obj *obj;
+            int buc_changed = 0;
 
             pline("This water's no good!");
             morehungry(rn1(20, 11));
             exercise(A_CON, FALSE);
+            /* this is more severe than rndcurse() */
             for (obj = invent; obj; obj = obj->nobj)
-                if (!rn2(5))
+                if (obj->oclass != COIN_CLASS && !obj->cursed && !rn2(5)) {
                     curse(obj);
+                    ++buc_changed;
+                }
+            if (buc_changed)
+                update_inventory();
             break;
         }
         case 25: /* See invisible */
@@ -486,7 +788,8 @@ drinkfountain()
             exercise(A_WIS, TRUE);
             break;
         case 26: /* See Monsters */
-            (void) monster_detect((struct obj *) 0, 0);
+            if (monster_detect((struct obj *) 0, 0))
+                pline_The("%s tastes bland.", hliquid("water"));
             exercise(A_WIS, TRUE);
             break;
         case 27: /* Find a gem in the sparkling waters. */
@@ -612,7 +915,9 @@ dip_end:
 
     switch (rnd(30)) {
     case 16: /* Curse the item */
-        curse(obj);
+        if (obj->oclass != COIN_CLASS && !obj->cursed) {
+            curse(obj);
+        }
         break;
     case 17:
     case 18:
@@ -725,6 +1030,18 @@ int x, y;
 }
 
 void
+coolforge(x, y)
+int x, y;
+{
+    if (cansee(x, y) || (x == u.ux && y == u.uy))
+        pline_The("lava in the forge cools and solidifies.");
+    levl[x][y].typ = ROOM, levl[x][y].flags = 0;
+    levl[x][y].doormask = 0;
+    newsym(x, y);
+    level.flags.nforges--;
+}
+
+void
 drinkforge()
 {
     if (Levitation) {
@@ -732,16 +1049,15 @@ drinkforge()
         return;
     }
 
-    if (!likes_lava(youmonst.data)) {
+    if (!likes_fire(youmonst.data)) {
         pline("Molten lava incinerates its way down your gullet...");
-        u.uhp = 0;
-        losehp(1, "trying to drink molten lava", KILLED_BY);
+        losehp(Upolyd ? u.mh : u.uhp, "trying to drink molten lava", KILLED_BY);
         return;
     }
     burn_away_slime();
     switch(rn2(20)) {
     case 0:
-        pline("You drink some molten lava. Mmmmm mmm!");
+        pline("You drink some molten lava.  Mmmmm mmm!");
         u.uhunger += rnd(50);
         break;
     case 1:

@@ -808,7 +808,6 @@ gcrownu()
     struct obj *obj;
     boolean already_exists, in_hand;
     short class_gift;
-    int sp_no;
     xchar maxint, maxwis;
 #define ok_wep(o) ((o) && ((o)->oclass == WEAPON_CLASS || is_weptool(o)))
 
@@ -927,19 +926,23 @@ gcrownu()
 
     if (objects[class_gift].oc_class == SPBOOK_CLASS) {
         obj = mksobj(class_gift, TRUE, FALSE);
-        bless(obj);
-        obj->bknown = 1; /* ok to skip set_bknown() */
-        at_your_feet("A spellbook");
-        dropy(obj);
+        if (!u.uconduct.literate && !known_spell(obj->otyp)) {
+            if (force_learn_spell(obj->otyp))
+                pline("Divine knowledge of %s fills your mind!",
+                      OBJ_NAME(objects[obj->otyp]));
+            obfree(obj, (struct obj *) 0);
+        } else {
+            bless(obj);
+            obj->bknown = 1; /* ok to skip set_bknown() */
+            at_your_feet("A spellbook");
+            place_object(obj, u.ux, u.uy);
+            newsym(u.ux, u.uy);
+        }
         u.ugifts++;
         /* when getting a new book for known spell, enhance
            currently wielded weapon rather than the book */
-        for (sp_no = 0; sp_no < MAXSPELL; sp_no++)
-            if (spl_book[sp_no].sp_id == class_gift) {
-                if (ok_wep(uwep))
-                    obj = uwep; /* to be blessed,&c */
-                break;
-            }
+        if (known_spell(class_gift) && ok_wep(uwep))
+            obj = uwep; /* to be blessed,&c */
     }
 
     switch (u.ualign.type) {
@@ -1358,31 +1361,41 @@ aligntyp g_align;
             /*FALLTHRU*/
         case 6: {
             struct obj *otmp;
-            int sp_no, trycnt = u.ulevel + 1;
+            int trycnt = u.ulevel + 1;
 
-            /* not yet known spells given preference over already known ones
-             */
-            /* Also, try to grant a spell for which there is a skill slot */
-            otmp = mkobj(SPBOOK_CLASS, TRUE);
-            while (--trycnt > 0) {
-                if (otmp->otyp != SPE_BLANK_PAPER) {
-                    for (sp_no = 0; sp_no < MAXSPELL; sp_no++)
-                        if (spl_book[sp_no].sp_id == otmp->otyp)
+            /* cavepersons don't mess around with spells, so do nothing */
+            if (Role_if(PM_CAVEMAN)) {
+                break;
+            } else {
+                /* not yet known spells given preference over already known ones.
+                   Also, try to grant a spell for which there is a skill slot */
+                otmp = mkobj(SPBOOK_CLASS, TRUE);
+                while (--trycnt > 0) {
+                    if (otmp->otyp != SPE_BLANK_PAPER) {
+                        if (!known_spell(otmp->otyp)
+                            && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
+                            break; /* usable, but not yet known */
+                    } else {
+                        if ((!objects[SPE_BLANK_PAPER].oc_name_known
+                             || carrying(MAGIC_MARKER)) && u.uconduct.literate)
                             break;
-                    if (sp_no == MAXSPELL
-                        && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
-                        break; /* usable, but not yet known */
-                } else {
-                    if (!objects[SPE_BLANK_PAPER].oc_name_known
-                        || carrying(MAGIC_MARKER))
-                        break;
+                    }
+                    otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                    otmp->owt = weight(otmp);
                 }
-                otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
+                    && !known_spell(otmp->otyp)) {
+                    if (force_learn_spell(otmp->otyp))
+                        pline("Divine knowledge of %s fills your mind!",
+                              OBJ_NAME(objects[otmp->otyp]));
+                    obfree(otmp, (struct obj *) 0);
+                } else {
+                    bless(otmp);
+                    at_your_feet("A spellbook");
+                    place_object(otmp, u.ux, u.uy);
+                    newsym(u.ux, u.uy);
+                }
             }
-            bless(otmp);
-            at_your_feet("A spellbook");
-            place_object(otmp, u.ux, u.uy);
-            newsym(u.ux, u.uy);
             break;
         }
         default:
@@ -1588,6 +1601,12 @@ dosacrifice()
         You("are not standing on an altar.");
         return 0;
     }
+
+    if (Hidinshell) {
+        You_cant("offer a sacrifice while hiding in your shell.");
+        return 0;
+    }
+
     highaltar = ((Is_astralevel(&u.uz) || Is_sanctum(&u.uz))
                  && (levl[u.ux][u.uy].altarmask & AM_SHRINE));
 
@@ -2182,15 +2201,19 @@ dosacrifice()
                         do {
                             /* Don't give unicorn horns or anything the player's restricted in
                              * Lets also try to dish out suitable gear based on the player's role */
-                            if (primary_casters)
+                            if (primary_casters) {
                                 typ = rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, FLAIL);
-                            else if (primary_casters_priest)
+                            } else if (primary_casters_priest) {
                                 typ = rnd_class(MACE, FLAIL);
-                            else if (Role_if(PM_MONK))
-                                typ = rn2(4) ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
-                                             : BROADSWORD;
-                            else
+                            } else if (Role_if(PM_MONK)) {
+                                if (!u.uconduct.weaphit)
+                                    typ = SHURIKEN;
+                                else
+                                    typ = rn2(4) ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
+                                                 : BROADSWORD;
+                            } else {
                                 typ = rnd_class(SPEAR, KATANA);
+                            }
 
                             /* apply starting inventory subs - so we'll get racial gear if possible */
                             if (urace.malenum != PM_HUMAN) {
@@ -2220,7 +2243,7 @@ dosacrifice()
                         } while (ncount++ < 1000);
                     } else if ((primary_casters || primary_casters_priest) && !rn2(3)) {
                         /* Making a spellbook */
-                        int sp_no, trycnt = u.ulevel + 1;
+                        int trycnt = u.ulevel + 1;
 
                         otmp = mkobj(SPBOOK_CLASS, TRUE);
 
@@ -2229,11 +2252,7 @@ dosacrifice()
 
                         while (--trycnt > 0) {
                             if (otmp->otyp != SPE_BLANK_PAPER) {
-                                for (sp_no = 0; sp_no < MAXSPELL; sp_no++) {
-                                    if (spl_book[sp_no].sp_id == otmp->otyp)
-                                        break;
-                                }
-                                if (sp_no == MAXSPELL
+                                if (!known_spell(otmp->otyp)
                                     && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
                                     break; /* usable, but not yet known */
                             } else {
@@ -2242,38 +2261,43 @@ dosacrifice()
                                     break;
                             }
                             otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                            otmp->owt = weight(otmp);
                         }
 
                         bless(otmp);
                         at_your_feet("An object");
-                        dropy(otmp);
+                        place_object(otmp, u.ux, u.uy);
+                        newsym(u.ux, u.uy);
                         godvoice(u.ualign.type, "Use this gift skillfully!");
                         u.ugifts++;
                         u.ublesscnt = rnz(300 + (50 * u.ugifts));
                         exercise(A_WIS, TRUE);
-                        livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                        "had %s given to %s by %s", an(xname(otmp)),
-                                        uhim(), u_gname());
                         if (!Hallucination && !Blind) {
                             otmp->dknown = 1;
                             makeknown(otmp->otyp);
                         }
+                        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                       "had %s given to %s by %s",
+                                       an(xname(otmp)), uhim(), u_gname());
                         return 1;
                     } else { /* Making armor */
                         do {
                             /* even chance for each slot
-                             * giants are evenly distributed among armor they can wear
-                             * monks and centaurs end up more likely to receive certain
-                             * kinds, but them's the breaks */
-                            switch (Race_if(PM_GIANT) ? rn1(4, 2) : rn2(6)) {
+                               giants and tortles are evenly distributed among armor
+                               they can wear. monks and centaurs end up more likely
+                               to receive certain kinds, but them's the breaks */
+                            switch (Race_if(PM_GIANT) ? rn1(4, 2)
+                                                      : Race_if(PM_TORTLE) ? rn1(3, 3)
+                                                                           : rn2(6)) {
                             case 0:
                                 /* body armor (inc. shirts) */
-                                if (primary_casters || primary_casters_priest)
+                                if (primary_casters || primary_casters_priest) {
                                     typ = rn2(2) ? rnd_class(ARMOR, JACKET)
                                                  : rn2(6) ? typ == STUDDED_ARMOR
                                                           : typ == CRYSTAL_PLATE_MAIL;
-                                else
+                                } else {
                                     typ = rnd_class(PLATE_MAIL, T_SHIRT);
+                                }
                                 if (!Role_if(PM_MONK)
                                     || (typ == T_SHIRT || typ == HAWAIIAN_SHIRT)) {
                                     break; /* monks only can have shirts */
@@ -2285,43 +2309,65 @@ dosacrifice()
                                 break;
                             case 2:
                                 /* boots */
-                                if (primary_casters || primary_casters_priest)
+                                if (primary_casters || primary_casters_priest) {
                                     typ = !rn2(3) ? typ == LOW_BOOTS
                                                   : rnd_class(HIGH_BOOTS, LEVITATION_BOOTS);
-                                else
+                                } else {
                                     typ = rnd_class(LOW_BOOTS, LEVITATION_BOOTS);
+                                }
                                 if (!Race_if(PM_CENTAUR)) {
                                     break;
                                 } /* centaurs have double chances to get a shield */
                                 /* FALLTHRU */
                             case 3:
                                 /* shield */
-                                if (primary_casters || primary_casters_priest)
+                                if (primary_casters || primary_casters_priest) {
                                     typ = rn2(8) ? typ == SMALL_SHIELD
                                                  : rnd_class(SHIELD_OF_REFLECTION, SHIELD_OF_MOBILITY);
-                                else
+                                } else {
                                     typ = rnd_class(SMALL_SHIELD, SHIELD_OF_MOBILITY);
+                                }
                                 if (!Role_if(PM_MONK)) {
                                     break;
                                 } /* monks have double chances to get gloves */
                                 /* FALLTHRU */
                             case 4:
                                 /* gloves */
-                                if (primary_casters || primary_casters_priest)
+                                if ((primary_casters || primary_casters_priest)
+                                    && !Race_if(PM_TORTLE)) {
                                     typ = rn2(3) ? typ == GLOVES
                                                  : rnd_class(GAUNTLETS_OF_POWER,
                                                              GAUNTLETS_OF_DEXTERITY);
-                                else
+                                } else if (Race_if(PM_TORTLE)) {
+                                    typ = rn2(3) ? typ == GLOVES
+                                                 : rnd_class(GAUNTLETS_OF_PROTECTION,
+                                                             GAUNTLETS_OF_DEXTERITY);
+                                } else {
                                     typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
+                                }
                                 break;
                             case 5:
                                 /* helm */
-                                if (primary_casters || primary_casters_priest)
-                                    typ = rn2(2) ? rnd_class(CORNUTHAUM, ELVEN_HELM)
-                                                 : rnd_class(HELM_OF_BRILLIANCE,
-                                                             HELM_OF_TELEPATHY);
-                                else
+                                if ((primary_casters || primary_casters_priest)
+                                    && !Race_if(PM_TORTLE)) {
+                                    if (Role_if(PM_WIZARD)) {
+                                        typ = rn2(2) ? rnd_class(CORNUTHAUM, ELVEN_HELM)
+                                                     : rnd_class(HELM_OF_BRILLIANCE,
+                                                                 HELM_OF_TELEPATHY);
+                                    } else {
+                                        typ = rn2(2) ? rnd_class(FEDORA, ELVEN_HELM)
+                                                     : rnd_class(HELM_OF_BRILLIANCE,
+                                                                 HELM_OF_TELEPATHY);
+                                    }
+                                } else if (Race_if(PM_TORTLE)) {
+                                    if (Role_if(PM_WIZARD)) {
+                                        typ = rnd_class(CORNUTHAUM, ELVEN_HELM);
+                                    } else {
+                                        typ = rnd_class(FEDORA, ELVEN_HELM);
+                                    }
+                                } else {
                                     typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
+                                }
                                 break;
                             default:
                                 typ = HAWAIIAN_SHIRT; /* Ace Ventura approved. Alrighty then. */
@@ -2372,20 +2418,24 @@ dosacrifice()
                         }
 
                         if (Race_if(PM_ORC)) {
-                            while (otmp->material == MITHRIL && ncount++ < 500) {
+                            while (otmp->material == MITHRIL
+                                   && ncount++ < 500) {
                                 otmp = mksobj(typ, FALSE, FALSE);
                                 /* keep trying for non-mithril */
                             }
                         }
 
                         if (Role_if(PM_INFIDEL)) {
-                            while (otmp->material == SILVER && ncount++ < 500) {
+                            while (otmp->material == SILVER
+                                   && ncount++ < 500) {
                                 otmp = mksobj(typ, FALSE, FALSE);
                                 /* keep trying for non-silver */
                             }
                         }
 
                         if (otmp) {
+                            if (otmp->otyp == SHURIKEN)
+                                otmp->quan = (long) rn1(7, 14); /* 14-20 count */
                             if (!rn2(8))
                                 otmp = create_oprop(otmp, FALSE);
                             if (altaralign == A_NONE)
@@ -2394,22 +2444,27 @@ dosacrifice()
                                 bless(otmp);
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */
                             otmp->oerodeproof = TRUE;
-                            at_your_feet("An object");
-                            dropy(otmp);
+                            otmp->owt = weight(otmp);
+                            at_your_feet(otmp->quan > 1L ? "Some objects"
+                                                         : "An object");
+                            place_object(otmp, u.ux, u.uy);
+                            newsym(u.ux, u.uy);
                             if (altaralign == A_NONE)
-                                godvoice(u.ualign.type, "Use this gift ominously!");
+                                godvoice(u.ualign.type,
+                                         "Use this gift ominously!");
                             else
-                                godvoice(u.ualign.type, "Use this gift valorously!");
+                                godvoice(u.ualign.type,
+                                         "Use this gift valorously!");
                             u.ugifts++;
                             u.ublesscnt = rnz(300 + (50 * u.ugifts));
                             exercise(A_WIS, TRUE);
-                            livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                            "had %s entrusted to %s by %s", an(xname(otmp)),
-                                            uhim(), u_gname());
                             if (!Hallucination && !Blind) {
                                 otmp->dknown = 1;
                                 makeknown(otmp->otyp);
                             }
+                            livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                           "had %s entrusted to %s by %s",
+                                           doname(otmp), uhim(), u_gname());
                             return 1;
                         }
                     }
@@ -2425,16 +2480,12 @@ dosacrifice()
                         bless(otmp);
                     otmp->oerodeproof = TRUE;
                     at_your_feet("An object");
-                    dropy(otmp);
+                    place_object(otmp, u.ux, u.uy);
+                    newsym(u.ux, u.uy);
                     godvoice(u.ualign.type, "Use my gift wisely!");
                     u.ugifts++;
                     u.ublesscnt = rnz(300 + (50 * u.ugifts));
                     exercise(A_WIS, TRUE);
-                    livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
-                                    "had %s bestowed upon %s by %s",
-                                    otmp->oartifact ? artiname(otmp->oartifact)
-                                                    : an(xname(otmp)),
-                                    uhim(), align_gname(u.ualign.type));
 
                     /* make sure we can use this weapon */
                     unrestrict_weapon_skill(weapon_type(otmp));
@@ -2443,6 +2494,12 @@ dosacrifice()
                         makeknown(otmp->otyp);
                         discover_artifact(otmp->oartifact);
                     }
+                    livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                   "had %s bestowed upon %s by %s",
+                                   otmp->oartifact
+                                        ? artiname(otmp->oartifact)
+                                        : an(xname(otmp)),
+                                   uhim(), align_gname(u.ualign.type));
                     return 1;
                 }
             }
@@ -2657,25 +2714,17 @@ doturn()
     int once, range, xlev;
 
     if (!Role_if(PM_PRIEST) && !Role_if(PM_KNIGHT)) {
-        /* Try to use the "turn undead" spell.
-         *
-         * This used to be based on whether hero knows the name of the
-         * turn undead spellbook, but it's possible to know--and be able
-         * to cast--the spell while having lost the book ID to amnesia.
-         * (It also used to tell spelleffects() to cast at self?)
-         */
-        int sp_no;
-
-        for (sp_no = 0; sp_no < MAXSPELL; ++sp_no) {
-            if (spl_book[sp_no].sp_id == NO_SPELL)
-                break;
-            else if (spl_book[sp_no].sp_id == SPE_TURN_UNDEAD)
-                return spelleffects(sp_no, FALSE);
-        }
+        /* Try to use the "turn undead" spell. */
+        if (known_spell(SPE_TURN_UNDEAD))
+            return spelleffects(spell_idx(SPE_TURN_UNDEAD), FALSE);
         You("don't know how to turn undead!");
         return 0;
     }
-    if(!u.uconduct.gnostic++)
+    if (Hidinshell) {
+        You_cant("turn undead while hiding in your shell!");
+        return 0;
+    }
+    if (!u.uconduct.gnostic++)
         livelog_write_string(LL_CONDUCT, "rejected atheism by turning undead");
 
     u.uconduct.gnostic++;

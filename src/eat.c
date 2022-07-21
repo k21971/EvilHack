@@ -522,7 +522,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             pline("%s brain is unharmed.",
                   (mdef == &youmonst) ? "Your" : s_suffix(Monnam(mdef)));
         return MM_MISS; /* side-effects can't occur */
-    } else if (is_illithid(pd)) {
+    } else if (racial_illithid(mdef)) {
         if (visflag)
             pline("%s psionic abilities shield %s brain.",
                   (mdef == &youmonst) ? "Your" : s_suffix(Monnam(mdef)),
@@ -530,7 +530,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
         return MM_MISS; /* side-effects can't occur */
     } else if (magr == &youmonst) {
         You("eat %s brain!", s_suffix(mon_nam(mdef)));
-    } else if (mdef == &youmonst && !Race_if(PM_ILLITHID)) {
+    } else if (mdef == &youmonst) {
         Your("brain is eaten!");
     } else { /* monster against monster */
         if (visflag && canspotmon(mdef))
@@ -667,10 +667,11 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                 pline("%s last thought fades away...",
                       s_suffix(Monnam(mdef)));
             if (*dmg_p < mdef->mhp && is_zombie(magr->data)) {
-                if (visflag && canspotmon(mdef) && !resists_sick(pd))
+                if (visflag && canspotmon(mdef)
+                    && !(resists_sick(pd) || defended(mdef, AD_DISE)))
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->msick ? "much worse" : "rather ill");
-                if (resists_sick(pd))
+                if (resists_sick(pd) || defended(mdef, AD_DISE))
                     return MM_MISS;
                 mdef->msick = (can_become_zombie(r_data(mdef))) ? 3 : 1;
             }
@@ -949,13 +950,15 @@ register struct permonst *ptr;
     percentincrease = (ptr->cwt / 90);
     if (percentincrease < 5) { percentincrease = 5; }
 
-    if (percentincrease > 40) {
+    if (percentincrease > 32) {
+        adj = "much";
+    } else if (percentincrease > 20) {
         adj = "significantly";
-    } else if (percentincrease > 25) {
-        adj = "considerably";
     } else if (percentincrease > 15) {
-        adj = "somewhat";
+        adj = "considerably";
     } else if (percentincrease > 8) {
+        adj = "somewhat";
+    } else if (percentincrease > 5) {
         adj = "a bit";
     } else {
         adj = "slightly";
@@ -966,45 +969,52 @@ register struct permonst *ptr;
     case FIRE_RES:
         debugpline0("Trying to give fire resistance");
         if ((HFire_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            if (Hallucination)
-                You("be chillin'.");
+            incr_resistance(&HFire_resistance, percentincrease);
+            if ((HFire_resistance & TIMEOUT) == 100)
+                You(Hallucination ? "be chillin'." : "feel completely chilled.");
             else
                 You_feel("%s more chill.", adj);
-            incr_resistance(&HFire_resistance, percentincrease);
         }
         break;
     case SLEEP_RES:
         debugpline0("Trying to give sleep resistance");
         if ((HSleep_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            You_feel("%s perkier.", adj);
             incr_resistance(&HSleep_resistance, percentincrease);
+            if ((HSleep_resistance & TIMEOUT) == 100)
+                You_feel("wide awake.");
+            else
+                You_feel("%s perkier.", adj);
         }
         break;
     case COLD_RES:
         debugpline0("Trying to give cold resistance");
         if ((HCold_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            You_feel("%s warmer.", adj);
             incr_resistance(&HCold_resistance, percentincrease);
+            if ((HCold_resistance & TIMEOUT) == 100)
+                You_feel("full of hot air.");
+            else
+                You_feel("%s warmer.", adj);
         }
         break;
     case DISINT_RES:
         debugpline0("Trying to give disintegration resistance");
         if ((HDisint_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            if (Hallucination)
-                You_feel("totally together, man.");
+            incr_resistance(&HDisint_resistance, percentincrease);
+            if ((HDisint_resistance & TIMEOUT) == 100)
+                You_feel(Hallucination ? "totally together, man." : "completely firm.");
             else
                 You_feel("%s more firm.", adj);
-            incr_resistance(&HDisint_resistance, percentincrease);
         }
         break;
     case SHOCK_RES: /* shock (electricity) resistance */
         debugpline0("Trying to give shock resistance");
         if ((HShock_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            if (Hallucination)
-                You_feel("grounded in reality.");
+            incr_resistance(&HShock_resistance, percentincrease);
+            if ((HShock_resistance & TIMEOUT) == 100)
+                pline(Hallucination ? "You feel grounded in reality."
+                                    : "Your health feels completely amplified!");
             else
                 Your("health is %s more amplified!", adj);
-            incr_resistance(&HShock_resistance, percentincrease);
         }
         break;
     case POISON_RES:
@@ -1896,6 +1906,8 @@ struct obj *otmp;
         pline("This tastes just like chicken!");
     } else if (mnum == PM_FLOATING_EYE && u.umonnum == PM_RAVEN) {
         You("peck the eyeball with delight.");
+    } else if (tp) {
+        ; /* we've already delivered a message; don't add "it tastes okay" */
     } else {
         /* yummy is always False for omnivores, palatable always True */
         boolean yummy = (vegan(&mons[mnum])
@@ -2370,6 +2382,19 @@ eatspecial()
         exercise(A_CON, TRUE);
     }
 
+    if (otmp->oartifact == ART_HAND_OF_VECNA) {
+        You("feel a burning deep inside your %s!", body_part(STOMACH));
+        if (otmp->cursed)
+            u.uhp -= rn1(150, 250);
+        else
+            u.uhp -= rn1(50, 150);
+        if (u.uhp <= 0) {
+            killer.format = KILLED_BY;
+            Strcpy(killer.name, "eating the Hand of Vecna");
+            done(DIED);
+        }
+    }
+
     if (otmp == uwep && otmp->quan == 1L)
         uwepgone();
     if (otmp == uquiver && otmp->quan == 1L)
@@ -2692,7 +2717,10 @@ doeat()
             already_partly_eaten;
     int ll_conduct = 0; /* livelog hardest conduct food>vegn>vegt */
 
-    if (Strangled) {
+    if (Hidinshell) {
+        You_cant("eat while hiding in your shell.");
+        return 0;
+    } else if (Strangled) {
         pline("If you can't breathe air, how can you consume solids?");
         return 0;
     }
@@ -2728,7 +2756,10 @@ doeat()
     } else if ((otmp->owornmask & (W_ARMOR | W_TOOL | W_AMUL | W_SADDLE))
                != 0) {
         /* let them eat rings */
-        You_cant("eat %s you're wearing.", something);
+        if (otmp->oartifact == ART_HAND_OF_VECNA)
+            You_cant("eat %s that's a part of you!", something);
+        else
+            You_cant("eat %s you're wearing.", something);
         return 0;
     } else if (!(carried(otmp) ? retouch_object(&otmp, FALSE)
                                : touch_artifact(otmp, &youmonst))) {
@@ -3050,6 +3081,8 @@ bite()
 void
 gethungry()
 {
+    int accessorytime;
+
     if (u.uinvulnerable)
         return; /* you don't feel hungrier */
 
@@ -3064,16 +3097,25 @@ gethungry()
         && !Slow_digestion)
         u.uhunger--; /* ordinary food consumption */
 
-    if (moves % 2) { /* odd turns */
+    /*
+     * 3.7:  trigger is randomized instead of (moves % N).  Makes
+     * ring juggling (using the 'time' option to see the turn counter
+     * in order to time swapping of a pair of rings of slow digestion,
+     * wearing one on one hand, then putting on the other and taking
+     * off the first, then vice versa, over and over and over and ...
+     * to avoid any hunger from wearing a ring) become ineffective.
+     * Also causes melee-induced hunger to vary from turn-based hunger
+     * instead of just replicating that.
+     */
+    accessorytime = rn2(20); /* rn2(20) replaces (int) (moves % 20L) */
+    if (accessorytime % 2) { /* odd */
         /* Regeneration uses up food, unless due to an artifact
          * or playing as a Giant */
-        if (Regeneration && !Race_if(PM_GIANT)) {
-            if ((HRegeneration & ~FROMFORM)
-                || (ERegeneration & ~(W_ARTI | W_WEP)))
-                u.uhunger--;
-            if (near_capacity() > SLT_ENCUMBER)
-                u.uhunger--;
-        }
+        if ((HRegeneration & ~(FROMFORM | FROMRACE))
+            || (ERegeneration & ~(W_ARTI | W_WEP | W_ARMOR)))
+            u.uhunger--;
+        if (near_capacity() > SLT_ENCUMBER)
+            u.uhunger--;
     } else { /* even turns */
         if (Hunger)
             u.uhunger--;
@@ -3082,7 +3124,7 @@ gethungry()
             u.uhunger--;
         /* +0 charged rings don't do anything, so don't affect hunger.
            Slow digestion cancels move hunger but still causes ring hunger. */
-        switch ((int) (moves % 20)) { /* note: use even cases only */
+        switch (accessorytime) { /* note: use even cases among 0..19 only */
         case 4:
             if (uleft && (uleft->spe || !objects[uleft->otyp].oc_charged))
                 u.uhunger--;
