@@ -124,8 +124,10 @@ struct obj {
 #define record_achieve_special corpsenm
 #define dragonscales corpsenm /* dragon-scaled body armor
                                * (index into objects[], not mons[]) */
+#define lastwarncnt corpsenm /* How many monsters a glowwarning artifact was last warning of. */                               
     int usecount;           /* overloaded for various things that tally */
 #define spestudied usecount /* # of times a spellbook has been studied */
+#define newwarncnt usecount /* How many monsters a glowwarning artifact is currently warning of. */                               
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
     long age;               /* creation date */
     long owornmask;

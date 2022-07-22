@@ -570,6 +570,20 @@ unsigned long abil;
     return (boolean) (arti && (arti->cspfx & abil) != 0L);
 }
 
+/*
+ * Used to check if an artifact can glow in warning to monsters of some races.
+ * If it does it returns the bitmap of warned races. If it doesn't it returns 0.
+ */
+int
+has_glowwarning(obj)
+struct obj *obj;
+{
+    const struct artifact *arti = get_artifact(obj);
+    if (arti && (arti->spfx & SPFX_WARN) && (arti->spfx & SPFX_DFLAGH))
+        return arti->mtype;
+    return 0;
+}
+
 /* used so that callers don't need to known about SPFX_ codes */
 boolean
 confers_luck(obj)
@@ -798,7 +812,7 @@ long wp_mask;
     register struct obj *obj;
     register uchar dtyp;
     register long spfx;
-
+ 
     if (!oart && !otmp->oprops)
         return;
 
@@ -920,12 +934,18 @@ long wp_mask;
     }
     if (spfx & SPFX_WARN) {
         if (spec_mh(otmp)) {
-            if (on) {
-                EWarn_of_mon |= wp_mask;
-                context.warntype.obj |= spec_mh(otmp);
-            } else {
-                EWarn_of_mon &= ~wp_mask;
-                context.warntype.obj &= ~spec_mh(otmp);
+            /* Since multiple artifacts can potentially warn of the same monster type
+            * we need to recalculate everything on any use or unuse. */
+            EWarn_of_mon = 0;
+            context.warntype.obj = 0;
+            for (obj = invent; obj; obj = obj->nobj) {
+                if (obj == otmp && !on) {
+                    glowwarning_effects(otmp);
+                    obj->lastwarncnt = 0;
+                } else if (obj->owornmask && has_glowwarning(obj)) {
+                    EWarn_of_mon |= obj->owornmask;
+                    context.warntype.obj |= spec_mh(obj);
+                }
             }
             see_monsters();
         } else {
@@ -3324,67 +3344,51 @@ boolean ingsfx;
     return resbuf;
 }
 
-/* use for warning "glow" for Sting, Orcrist, and Grimtooth */
+/* Warning glow from in-use race-detecting artifacts like Sting, Demonbane, etc. */
 void
-Sting_effects(orc_count)
-int orc_count; /* new count (warn_obj_cnt is old count); -1 is a flag value */
+glowwarning_effects(glower)
+struct obj *glower;
 {
-    if (uwep && uwep->oartifact
-        && artilist[(int) uwep->oartifact].acolor != NO_COLOR) {
-        int oldstr = glow_strength(warn_obj_cnt),
-            newstr = glow_strength(orc_count);
+    if (glower
+        && glower->oartifact
+        && artilist[(int) glower->oartifact].acolor != NO_COLOR
+    ) {
+        int oldstr = glow_strength(glower->lastwarncnt),
+            newstr = glow_strength(glower->newwarncnt);
 
-        if (orc_count == -1 && warn_obj_cnt > 0) {
-            /* -1 means that blindness has just been toggled; give a
-               'continue' message that eventual 'stop' message will match */
-            pline("%s is %s.", bare_artifactname(uwep),
-                  glow_verb(Blind ? 0 : warn_obj_cnt, TRUE));
-        } else if (newstr > 0 && newstr != oldstr) {
+        if (newstr > 0 && newstr != oldstr) {
             /* 'start' message */
             if (!Blind)
-                pline("%s %s %s%c", bare_artifactname(uwep),
-                      otense(uwep, glow_verb(orc_count, FALSE)),
-                      glow_color(uwep->oartifact),
+                pline("%s %s %s%c", bare_artifactname(glower),
+                      otense(glower, glow_verb(glower->newwarncnt, FALSE)),
+                      glow_color(glower->oartifact),
                       (newstr > oldstr) ? '!' : '.');
             else if (oldstr == 0) /* quivers */
-                pline("%s %s slightly.", bare_artifactname(uwep),
-                      otense(uwep, glow_verb(0, FALSE)));
-        } else if (orc_count == 0 && warn_obj_cnt > 0) {
+                pline("%s %s slightly.", bare_artifactname(glower),
+                      otense(glower, glow_verb(0, FALSE)));
+        } else if (glower->newwarncnt == 0 && glower->lastwarncnt > 0) {
             /* 'stop' message */
-            pline("%s stops %s.", bare_artifactname(uwep),
-                  glow_verb(Blind ? 0 : warn_obj_cnt, TRUE));
+            pline("%s stops %s.", bare_artifactname(glower),
+                  glow_verb(Blind ? 0 : glower->lastwarncnt, TRUE));
         }
     }
 }
 
-void
-Sting_effects_offhand(orc_count)
-int orc_count; /* new count (warn_obj_cnt is old count); -1 is a flag value */
+/* Blinding supresses perception of artifacts like Sting that glow to warn of certain monsters. */
+void blind_glowwarnings()
 {
-    if (u.twoweap && uswapwep->oartifact
-        && artilist[(int) uswapwep->oartifact].acolor != NO_COLOR) {
-        int oldstr = glow_strength(warn_obj_cnt),
-            newstr = glow_strength(orc_count);
+    register struct obj *otmp;
 
-        if (u.twoweap && orc_count == -1 && warn_obj_cnt > 0) {
-            /* -1 means that blindness has just been toggled; give a
+    for (otmp = invent; otmp; otmp = otmp->nobj) {
+        if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
+                || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
+            && has_glowwarning(otmp)
+            && otmp->lastwarncnt > 0
+        ) {
+            /* blindness has just been toggled; give a
                'continue' message that eventual 'stop' message will match */
-            pline("%s is %s.", bare_artifactname(uswapwep),
-                  glow_verb(Blind ? 0 : warn_obj_cnt, TRUE));
-        } else if (newstr > 0 && newstr != oldstr) {
-            /* 'start' message */
-            if (u.twoweap && !Blind)
-                pline("%s %s %s%c", bare_artifactname(uswapwep),
-                      otense(uswapwep, glow_verb(orc_count, FALSE)),
-                      glow_color(uswapwep->oartifact),
-                      (newstr > oldstr) ? '!' : '.');
-            else if (u.twoweap && oldstr == 0) /* quivers */
-                pline("%s %s slightly.", bare_artifactname(uswapwep),
-                      otense(uswapwep, glow_verb(0, FALSE)));
-        } else if (u.twoweap && orc_count == 0 && warn_obj_cnt > 0) {
-            /* 'stop' message */
-            pline("%s stops %s.", bare_artifactname(uswapwep),
-                  glow_verb(Blind ? 0 : warn_obj_cnt, TRUE));
+            pline("%s is %s.", bare_artifactname(otmp),
+                  glow_verb(Blind ? 0 : otmp->lastwarncnt, TRUE));
         }
     }
 }

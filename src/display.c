@@ -1277,8 +1277,8 @@ int mode;
 
 /*
  * Loop through all of the monsters and update them.  Called when:
- *      + going blind & telepathic
- *      + regaining sight & telepathic
+ *      + going blind & telepathic or glowwarning
+ *      + regaining sight & telepathic or glowwarning
  *      + getting and losing infravision
  *      + hallucinating
  *      + doing a full screen redraw
@@ -1293,7 +1293,7 @@ void
 see_monsters()
 {
     register struct monst *mon;
-    int new_warn_obj_cnt = 0;
+    register struct obj *otmp;
 
     if (defer_see_monsters)
         return;
@@ -1310,16 +1310,32 @@ see_monsters()
             raceflags = ERAC(mon)->mrace;
         else
             raceflags = mon->data->mhflags;
-        if (Warn_of_mon && (context.warntype.obj & raceflags) != 0L)
-            new_warn_obj_cnt++;
+        
+        /* Track how many monsters each glowwarning artifact is aware of. */
+        if (Warn_of_mon && (context.warntype.obj & raceflags) != 0L) {
+            for (otmp = invent; otmp; otmp = otmp->nobj) {
+                if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
+                        || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
+                    && has_glowwarning(otmp) & raceflags
+                ) {
+                    otmp->newwarncnt++;
+                }
+            }
+        }
     }
-    /*
-     * Make Sting glow blue or stop glowing if required.
-     */
-    if (new_warn_obj_cnt != warn_obj_cnt) {
-        Sting_effects(new_warn_obj_cnt);
-        Sting_effects_offhand(new_warn_obj_cnt);
-        warn_obj_cnt = new_warn_obj_cnt;
+
+    /* Make artifacts like Sting that glow to warn of certain monsters adjust their glows. */
+    for (otmp = invent; otmp; otmp = otmp->nobj) {
+        if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
+                || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
+            && has_glowwarning(otmp)
+        ) {
+            if (otmp->newwarncnt != otmp->lastwarncnt) {
+                glowwarning_effects(otmp);
+                otmp->lastwarncnt = otmp->newwarncnt;
+            }
+            otmp->newwarncnt = 0;
+        }
     }
 
     /* when mounted, hero's location gets caught by monster loop */

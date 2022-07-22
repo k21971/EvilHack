@@ -1510,6 +1510,7 @@ unsigned doname_flags;
         break;
     }
 
+    /* Note that warning glows from in-use non-weapon artifacts are not yet accounted for here. */
     if ((obj->owornmask & W_WEP) && !mrg_to_wielded) {
         if (obj->quan != 1L) {
             Strcat(bp, " (wielded)");
@@ -1524,12 +1525,12 @@ unsigned doname_flags;
                     (obj->otyp == AKLYS) ? "tethered " : "", hand_s);
 
             if (!Blind) {
-                if (warn_obj_cnt && obj == uwep
+                if (obj == uwep && obj->lastwarncnt
                     && (EWarn_of_mon & W_WEP) != 0L
                     && strcmp(glow_color(obj->oartifact), "no color"))
                     /* we know bp[] ends with ')'; overwrite that */
                     Sprintf(eos(bp) - 1, ", %s %s)",
-                            glow_verb(warn_obj_cnt, TRUE),
+                            glow_verb(obj->lastwarncnt, TRUE),
                             glow_color(obj->oartifact));
                 else if (obj->lamplit && artifact_light(obj))
                     /* as above, overwrite known closing paren */
@@ -1542,11 +1543,11 @@ unsigned doname_flags;
         if (u.twoweap) {
             Sprintf(eos(bp), " (wielded in other %s)", body_part(HAND));
             if (!Blind) {
-                if (warn_obj_cnt && obj == uswapwep
+                if (obj == uswapwep && obj->lastwarncnt
                     && (EWarn_of_mon & W_SWAPWEP) != 0L
                     && strcmp(glow_color(obj->oartifact), "no color"))
                     Sprintf(eos(bp) - 1, ", %s %s)",
-                            glow_verb(warn_obj_cnt, TRUE),
+                            glow_verb(obj->lastwarncnt, TRUE),
                             glow_color(obj->oartifact));
                 else if (obj->lamplit && artifact_light(obj))
                     Sprintf(eos(bp) - 1, ", %s lit)",
