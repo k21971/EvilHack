@@ -436,7 +436,7 @@ toggle_blindness()
      * "Sting is glowing" when regaining sight so that the eventual
      * "stops" message matches the most recent "Sting is ..." one.
      */
-    blind_glowwarnings();
+    blind_glow_warnings();
     /* update dknown flag for inventory picked up while blind */
     if (!Blind)
         learn_unseen_invent();

@@ -1277,8 +1277,8 @@ int mode;
 
 /*
  * Loop through all of the monsters and update them.  Called when:
- *      + going blind & telepathic or glowwarning
- *      + regaining sight & telepathic or glowwarning
+ *      + going blind & telepathic or glow warning
+ *      + regaining sight & telepathic or glow warning
  *      + getting and losing infravision
  *      + hallucinating
  *      + doing a full screen redraw
@@ -1311,12 +1311,12 @@ see_monsters()
         else
             raceflags = mon->data->mhflags;
         
-        /* Track how many monsters each glowwarning artifact is aware of. */
+        /* Track how many monsters each glow warning artifact is aware of. */
         if (Warn_of_mon && (context.warntype.obj & raceflags) != 0L) {
             for (otmp = invent; otmp; otmp = otmp->nobj) {
                 if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
                         || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
-                    && has_glowwarning(otmp) & raceflags
+                    && has_glow_warning(otmp) & raceflags
                 ) {
                     otmp->newwarncnt++;
                 }
@@ -1328,10 +1328,10 @@ see_monsters()
     for (otmp = invent; otmp; otmp = otmp->nobj) {
         if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
                 || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
-            && has_glowwarning(otmp)
+            && has_glow_warning(otmp)
         ) {
             if (otmp->newwarncnt != otmp->lastwarncnt) {
-                glowwarning_effects(otmp);
+                glow_warning_effects(otmp);
                 otmp->lastwarncnt = otmp->newwarncnt;
             }
             otmp->newwarncnt = 0;

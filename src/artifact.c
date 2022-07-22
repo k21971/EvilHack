@@ -575,7 +575,7 @@ unsigned long abil;
  * If it does it returns the bitmap of warned races. If it doesn't it returns 0.
  */
 int
-has_glowwarning(obj)
+has_glow_warning(obj)
 struct obj *obj;
 {
     const struct artifact *arti = get_artifact(obj);
@@ -940,9 +940,9 @@ long wp_mask;
             context.warntype.obj = 0;
             for (obj = invent; obj; obj = obj->nobj) {
                 if (obj == otmp && !on) {
-                    glowwarning_effects(otmp);
+                    glow_warning_effects(otmp);
                     obj->lastwarncnt = 0;
-                } else if (obj->owornmask && has_glowwarning(obj)) {
+                } else if (obj->owornmask && has_glow_warning(obj)) {
                     EWarn_of_mon |= obj->owornmask;
                     context.warntype.obj |= spec_mh(obj);
                 }
@@ -3346,7 +3346,7 @@ boolean ingsfx;
 
 /* Warning glow from in-use race-detecting artifacts like Sting, Demonbane, etc. */
 void
-glowwarning_effects(glower)
+glow_warning_effects(glower)
 struct obj *glower;
 {
     if (glower
@@ -3375,14 +3375,15 @@ struct obj *glower;
 }
 
 /* Blinding supresses perception of artifacts like Sting that glow to warn of certain monsters. */
-void blind_glowwarnings()
+void
+blind_glow_warnings(VOID_ARGS)
 {
     register struct obj *otmp;
 
     for (otmp = invent; otmp; otmp = otmp->nobj) {
         if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
                 || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
-            && has_glowwarning(otmp)
+            && has_glow_warning(otmp)
             && otmp->lastwarncnt > 0
         ) {
             /* blindness has just been toggled; give a
