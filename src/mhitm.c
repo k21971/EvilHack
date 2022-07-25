@@ -1394,6 +1394,9 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         if (mattk->aatyp != AT_WEAP && mattk->aatyp != AT_CLAW)
             mwep = 0;
 
+        if (magr->mberserk && !rn2(3))
+            tmp += d((int) mattk->damn, (int) mattk->damd);
+
         if (shade_miss(magr, mdef, mwep, FALSE, TRUE)) {
             tmp = 0;
         } else if (mattk->aatyp == AT_KICK && thick_skinned(pd)) {

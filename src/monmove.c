@@ -158,7 +158,8 @@ struct monst *mtmp;
         || is_mplayer(mtmp->data) || is_rider(mtmp->data) || mtmp->isvecna
         || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
         || (mtmp->isshk && inhishop(mtmp)) || mtmp->isgking
-        || (mtmp->ispriest && inhistemple(mtmp)))
+        || (mtmp->ispriest && inhistemple(mtmp))
+        || mtmp->mberserk)
         return FALSE;
 
     /* <0,0> is used by musical scaring to check for the above;

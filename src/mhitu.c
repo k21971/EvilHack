@@ -1326,21 +1326,6 @@ register struct attack *mattk;
             dmg += d((int) mattk->damn, (int) mattk->damd);
     }
 
-    if (is_berserker(mdat)) {
-        if (!rn2(7) && (mtmp->mhp < (mtmp->mhpmax / 3))) {
-            if (mdat->mlet == S_HUMAN || mdat->mlet == S_ORC
-                || mdat->mlet == S_GIANT || mdat->mlet == S_OGRE
-                || mdat->mlet == S_HUMANOID) {
-                if (cansee(mtmp->mx, mtmp->my))
-                    pline("%s flies into a berserker rage!", Monnam(mtmp));
-                else if (!Deaf)
-                    pline("%s %s with rage!", Amonnam(mtmp),
-                          rn2(2) ? "roars" : "howls");
-            }
-            dmg += d((int) mattk->damn, (int) mattk->damd);
-        }
-    }
-
     /*  Next a cancellation factor.
      *  Use uncancelled when cancellation factor takes into account certain
      *  armor's special magic protection.  Otherwise just use !mtmp->mcan.
@@ -1386,6 +1371,9 @@ register struct attack *mattk;
             }
         } else { /* hand to hand weapon */
             struct obj *otmp = mon_currwep;
+
+            if (mtmp->mberserk && !rn2(3))
+                dmg += d((int) mattk->damn, (int) mattk->damd);
 
             if (mattk->aatyp == AT_WEAP && otmp) {
                 struct obj *marmg;

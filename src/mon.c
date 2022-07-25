@@ -1122,6 +1122,28 @@ mcalcdistress()
          * but we still need to call this for mspec_used */
         mon_regen(mtmp, FALSE);
 
+        if (is_berserker(mtmp->data) && !noattacks(mtmp->data)) {
+            if ((mtmp->mhp < (mtmp->mhpmax / 3)) && !mtmp->mberserk
+                && !rn2(15)) {
+                if (canseemon(mtmp) && humanoid(mtmp->data)
+                    && !mindless(mtmp->data)) {
+                        pline("%s flies into a berserker rage!",
+                              Monnam(mtmp));
+                } else if (canseemon(mtmp)) { /* animal/mindless */
+                    pline("%s seems to go berserk!", Monnam(mtmp));
+                } else {
+                    You_hear("an enraged %s %s!",
+                             !rn2(3) ? "roar" : rn2(2) ? "bellow" : "howl",
+                             (distu(mtmp->mx, mtmp->my) > (6 * 6)
+                                ? "in the distance" : "nearby"));
+                }
+                mtmp->mberserk = 1;
+                mtmp->mflee = 0;
+            } else if (mtmp->mhp > (mtmp->mhpmax / 2)) {
+                mtmp->mberserk = 0;
+            }
+        }
+
         /* sick monsters can die from their illness */
         if (mtmp->msick && mtmp->msicktime <= 1) {
             if (resists_sick(mtmp->data) || defended(mtmp, AD_DISE)) {
@@ -2579,10 +2601,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* berserk monsters sometimes lash out at everything
        when trying to attack you  */
-    if (is_berserker(ma) && m_canseeu(magr)
-        && magr->mpeaceful == FALSE && !rn2(7)
-        && (magr->mhp < (magr->mhpmax / 5))
-        && !noattacks(ma))
+    if (magr->mberserk && !magr->mpeaceful && !rn2(3) && m_canseeu(magr))
         return ALLOW_M | ALLOW_TM;
 
     /* The Riders, and huge/gigantic monsters
