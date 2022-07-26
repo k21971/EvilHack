@@ -3236,7 +3236,7 @@ long *abil;
         { &EStealth, SPFX_STLTH },
         { &ERegeneration, SPFX_REGEN },
         { &ETeleport_control, SPFX_TCTRL },
-        { &EWarn_of_mon, SPFX_WARN },
+        { &EWarn_of_mon, SPFX_DFLAGH },
         { &EWarning, SPFX_WARN },
         { &EEnergy_regeneration, SPFX_EREGEN },
         { &EHalf_spell_damage, SPFX_HSPDAM },
