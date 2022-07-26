@@ -867,6 +867,26 @@ struct permonst *ptr;
     return i;
 }
 
+/* Monster race or type name mapping from MH_ values in monflag.h, used for glow warnings. */
+const char *
+mon_race_name(mhflag)
+unsigned mhflag;
+{
+    static const char* mrnames[] = {
+        "human", "elf", "dward", "gnome", "orc", "giant", "hobbit", "centaur", "illithid", "tortle",
+        "undead",
+        "lycanthrope",
+        "demon",
+        "dragon",
+        "angelic being",
+        "ogre",
+        "troll",
+        "gnoll",
+        "jabberwock"
+    };
+    return mrnames[mhflag];
+}
+
 /* for handling alternate spellings */
 struct alt_spl {
     const char *name;

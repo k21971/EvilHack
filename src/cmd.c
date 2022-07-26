@@ -3006,6 +3006,7 @@ int final;
         " if surroundings permitted";
     int ltmp, armpro;
     char buf[BUFSZ];
+    register struct obj *otmp;
 
     /*\
      *  Attributes
@@ -3108,32 +3109,26 @@ int final;
     if (Warning)
         you_are("warned", from_what(WARNING));
 
-    if (Warn_of_mon && (context.warntype.obj & MH_ORC))
-        you_are("aware of the presence of orcs", from_what(WARN_OF_MON));
-    if (Warn_of_mon && (context.warntype.obj & MH_ELF))
-        you_are("aware of the presence of elves because of Grimtooth", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_UNDEAD))
-        you_are("aware of the presence of the undead because of Sunsword", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_GIANT))
-        you_are("aware of the presence of giants because of Giantslayer", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_WERE))
-        you_are("aware of the presence of werecreatures because of Werebane", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_DRAGON))
-        you_are("aware of the presence of dragons because of Dragonbane", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_OGRE))
-        you_are("aware of the presence of ogres because of Ogresmasher", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_TROLL))
-        you_are("aware of the presence of trolls because of Trollsbane", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_DEMON)
-        && (uwep->oartifact == ART_DEMONBANE || (u.twoweap && uswapwep->oartifact == ART_DEMONBANE)))
-        you_are("aware of the presence of demons because of Demonbane", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_DEMON)
-        && (uwep->oartifact == ART_DRAMBORLEG || (u.twoweap && uswapwep->oartifact == ART_DRAMBORLEG)))
-        you_are("aware of the presence of demons because of Dramborleg", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_ANGEL))
-        you_are("aware of the presence of angels because of Angelslayer", "");
-    if (Warn_of_mon && (context.warntype.obj & MH_JABBERWOCK))
-        you_are("aware of the presence of jabberwocks because of Vorpal Blade", "");
+    /* Need to walk all potential in-use artifacts that glow on warning since
+     * it is possible to have multiple artifacts that warn of the same monster type
+     * as well as artifacts that warn of multiple monster types. */
+    if (Warn_of_mon) {
+        for (otmp = invent; otmp; otmp = otmp->nobj) {
+            if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
+                    || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
+                && has_glow_warning(otmp)
+            ) {
+                for (int i = 0; i < 32; i++) {
+                    /* Artifacts let you know they are responsible even in non-Wizard mode. */
+                    if (has_glow_warning(otmp) & (1 << i)) {
+                        Sprintf(buf, "aware of the presence of %s because of ",
+                            makeplural(mon_race_name(i)));
+                        you_are(buf, bare_artifactname(otmp));
+                    }
+                }
+            }
+        }
+    }
 
     if (Warn_of_mon && context.warntype.polyd) {
         Sprintf(buf, "aware of the presence of %s",

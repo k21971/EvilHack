@@ -1330,7 +1330,7 @@ see_monsters()
                 || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
             && has_glow_warning(otmp)
         ) {
-            if (otmp->newwarncnt != otmp->lastwarncnt) {
+            if (otmp->newwarncnt != (int)otmp->lastwarncnt) {
                 glow_warning_effects(otmp);
                 otmp->lastwarncnt = otmp->newwarncnt;
             }
