@@ -873,7 +873,7 @@ mon_race_name(mhflag)
 unsigned mhflag;
 {
     static const char* mrnames[] = {
-        "human", "elf", "dward", "gnome", "orc", "giant", "hobbit", "centaur", "illithid", "tortle",
+        "human", "elf", "dwarf", "gnome", "orc", "giant", "hobbit", "centaur", "illithid", "tortle",
         "undead",
         "lycanthrope",
         "demon",
