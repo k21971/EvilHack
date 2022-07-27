@@ -812,7 +812,7 @@ long wp_mask;
     register struct obj *obj;
     register uchar dtyp;
     register long spfx;
- 
+
     if (!oart && !otmp->oprops)
         return;
 
@@ -3349,10 +3349,8 @@ void
 glow_warning_effects(glower)
 struct obj *glower;
 {
-    if (glower
-        && glower->oartifact
-        && artilist[(int) glower->oartifact].acolor != NO_COLOR
-    ) {
+    if (glower && glower->oartifact
+        && artilist[(int) glower->oartifact].acolor != NO_COLOR) {
         int oldstr = glow_strength(glower->lastwarncnt),
             newstr = glow_strength(glower->newwarncnt);
 
@@ -3384,8 +3382,7 @@ blind_glow_warnings(VOID_ARGS)
         if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
                 || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
             && has_glow_warning(otmp)
-            && otmp->lastwarncnt > 0
-        ) {
+            && otmp->lastwarncnt > 0) {
             /* blindness has just been toggled; give a
                'continue' message that eventual 'stop' message will match */
             pline("%s is %s.", bare_artifactname(otmp),

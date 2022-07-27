@@ -1310,14 +1310,13 @@ see_monsters()
             raceflags = ERAC(mon)->mrace;
         else
             raceflags = mon->data->mhflags;
-        
+
         /* Track how many monsters each glow warning artifact is aware of. */
         if (Warn_of_mon && (context.warntype.obj & raceflags) != 0L) {
             for (otmp = invent; otmp; otmp = otmp->nobj) {
                 if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
                         || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
-                    && has_glow_warning(otmp) & raceflags
-                ) {
+                    && has_glow_warning(otmp) & raceflags) {
                     otmp->newwarncnt++;
                 }
             }
@@ -1328,8 +1327,7 @@ see_monsters()
     for (otmp = invent; otmp; otmp = otmp->nobj) {
         if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
                 || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
-            && has_glow_warning(otmp)
-        ) {
+            && has_glow_warning(otmp)) {
             if (otmp->newwarncnt != (int)otmp->lastwarncnt) {
                 glow_warning_effects(otmp);
                 otmp->lastwarncnt = otmp->newwarncnt;

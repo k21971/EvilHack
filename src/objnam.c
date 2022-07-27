@@ -1535,14 +1535,13 @@ unsigned doname_flags;
     /* Various in-use light sources; overwrite trailing ')'. */
     if (!Blind
         && ((obj->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
-        || (u.twoweap && (obj->owornmask & W_SWAPWEP)))
-    ) {
+        || (u.twoweap && (obj->owornmask & W_SWAPWEP)))) {
         /* Warning glow from in-use artifacts. */
         if (obj->lastwarncnt && strcmp(glow_color(obj->oartifact), "no color")) {
             Sprintf(eos(bp) - 1, ", %s %s)",
                 glow_verb(obj->lastwarncnt, TRUE),
                 glow_color(obj->oartifact));
-            
+
         /* Light from always-lit artifacts. */
         } else if (obj->lamplit && artifact_light(obj)) {
             Sprintf(eos(bp) - 1, ", %s lit)", arti_light_description(obj));
