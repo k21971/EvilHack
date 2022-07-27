@@ -170,6 +170,7 @@
 #define MZ_HUGE 4          /* 12-25' */
 #define MZ_GIGANTIC 7      /* off the scale */
 
+/* Remember to update mon_race_name method when adding bits here. */
 #define MH_HUMAN 0x00000001L
 #define MH_ELF 0x00000002L
 #define MH_DWARF 0x00000004L

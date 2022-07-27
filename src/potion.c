@@ -417,9 +417,6 @@ boolean talk;
 void
 toggle_blindness()
 {
-    boolean Stinging = (uwep && (EWarn_of_mon & W_WEP) != 0L);
-    boolean Stinging_offhand = (u.twoweap && uswapwep && (EWarn_of_mon & W_SWAPWEP) != 0L);
-
     /* blindness has just been toggled */
     context.botl = TRUE; /* status conditions need update */
     vision_full_recalc = 1; /* vision has changed */
@@ -429,7 +426,7 @@ toggle_blindness()
        and then a secret door; hero was blinded by vapors but then got the
        message "a door appears in the wall" because wall spot was IN_SIGHT) */
     vision_recalc(0);
-    if (Blind_telepat || Infravision || Stinging || Stinging_offhand)
+    if (Blind_telepat || Infravision || context.warntype.obj)
         see_monsters(); /* also counts EWarn_of_mon monsters */
     /*
      * Avoid either of the sequences
@@ -439,10 +436,7 @@ toggle_blindness()
      * "Sting is glowing" when regaining sight so that the eventual
      * "stops" message matches the most recent "Sting is ..." one.
      */
-    if (Stinging)
-        Sting_effects(-1);
-    if (Stinging_offhand)
-        Sting_effects_offhand(-1);
+    blind_glow_warnings();
     /* update dknown flag for inventory picked up while blind */
     if (!Blind)
         learn_unseen_invent();

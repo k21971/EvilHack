@@ -1522,40 +1522,33 @@ unsigned doname_flags;
                in front of "(weapon in hand)"'s closing paren */
             Sprintf(eos(bp), " (%sweapon in %s)",
                     (obj->otyp == AKLYS) ? "tethered " : "", hand_s);
-
-            if (!Blind) {
-                if (warn_obj_cnt && obj == uwep
-                    && (EWarn_of_mon & W_WEP) != 0L
-                    && strcmp(glow_color(obj->oartifact), "no color"))
-                    /* we know bp[] ends with ')'; overwrite that */
-                    Sprintf(eos(bp) - 1, ", %s %s)",
-                            glow_verb(warn_obj_cnt, TRUE),
-                            glow_color(obj->oartifact));
-                else if (obj->lamplit && artifact_light(obj))
-                    /* as above, overwrite known closing paren */
-                    Sprintf(eos(bp) - 1, ", %s lit)",
-                            arti_light_description(obj));
-            }
         }
     }
     if (obj->owornmask & W_SWAPWEP) {
         if (u.twoweap) {
             Sprintf(eos(bp), " (wielded in other %s)", body_part(HAND));
-            if (!Blind) {
-                if (warn_obj_cnt && obj == uswapwep
-                    && (EWarn_of_mon & W_SWAPWEP) != 0L
-                    && strcmp(glow_color(obj->oartifact), "no color"))
-                    Sprintf(eos(bp) - 1, ", %s %s)",
-                            glow_verb(warn_obj_cnt, TRUE),
-                            glow_color(obj->oartifact));
-                else if (obj->lamplit && artifact_light(obj))
-                    Sprintf(eos(bp) - 1, ", %s lit)",
-                            arti_light_description(obj));
-            }
         } else {
             Strcat(bp, " (alternate weapon; not wielded)");
         }
     }
+
+    /* Various in-use light sources; overwrite trailing ')'. */
+    if (!Blind
+        && ((obj->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
+        || (u.twoweap && (obj->owornmask & W_SWAPWEP)))
+    ) {
+        /* Warning glow from in-use artifacts. */
+        if (obj->lastwarncnt && strcmp(glow_color(obj->oartifact), "no color")) {
+            Sprintf(eos(bp) - 1, ", %s %s)",
+                glow_verb(obj->lastwarncnt, TRUE),
+                glow_color(obj->oartifact));
+            
+        /* Light from always-lit artifacts. */
+        } else if (obj->lamplit && artifact_light(obj)) {
+            Sprintf(eos(bp) - 1, ", %s lit)", arti_light_description(obj));
+        }
+    }
+
     if (obj->owornmask & W_QUIVER) {
         switch (obj->oclass) {
         case WEAPON_CLASS:
