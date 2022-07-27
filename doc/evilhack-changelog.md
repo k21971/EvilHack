@@ -2393,4 +2393,6 @@ The following changes to date are:
 - Fix: poisonous corpse can give conflicting message (issue #95)
 - Fix: remove unnecessary feedback when a monster goes berserk
 - Fix: any artifacts can glow to warn of specific monsters
+- Adjust feedback when hit by an artifact or weapon that deals poison
+  damage
 

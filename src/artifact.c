@@ -2088,7 +2088,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                             pline_The("gigantic blade hits %s.", hittee);
                     } else {
                         pline_The("gigantic blade %s %s%c",
-                                  (how_resistant(POISON_RES) == 100)
+                                  (how_resistant(POISON_RES) >= 50)
                                       ? "hits"
                                       : rn2(2) ? "poisons" : "eviscerates",
                                   hittee, !spec_dbon_applies ? '.' : '!');
@@ -2112,7 +2112,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     } else {
                         pline_The("%s %s %s%c",
                                   distant_name(otmp, xname),
-                                  (how_resistant(POISON_RES) == 100)
+                                  (how_resistant(POISON_RES) >= 50)
                                       ? "hits"
                                       : rn2(2) ? "taints" : "poisons",
                                   hittee, !spec_dbon_applies ? '.' : '!');
