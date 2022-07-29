@@ -1379,13 +1379,14 @@ const char *def;
 
 /* return phrase describing the effect of fire attack on a type of monster */
 const char *
-on_fire(mptr, mattk)
-struct permonst *mptr;
-struct attack *mattk;
+on_fire(mptr, hugattk, dies)
+struct monst *mptr;
+boolean hugattk; /* True if hug attack causes fire damage. */
+boolean dies; /* True if target dies from the effect. */
 {
     const char *what;
 
-    switch (monsndx(mptr)) {
+    switch (monsndx(mptr->data)) {
     case PM_FLAMING_SPHERE:
     case PM_FIRE_VORTEX:
     case PM_FIRE_ELEMENTAL:
@@ -1398,23 +1399,38 @@ struct attack *mattk;
     case PM_WATER_TROLL:
     case PM_BABY_SEA_DRAGON:
     case PM_SEA_DRAGON:
-        what = "boiling";
+    case PM_ACID_SPHERE:
+        what = dies ? ((mptr == &youmonst) ? "boil away" : "boils away") : "boiling";
         break;
     case PM_ICE_VORTEX:
+    case PM_SNOW_GOLEM:
+    case PM_ABOMINABLE_SNOWMAN:
+    case PM_FREEZING_SPHERE:
+        /* Melts and then boils away or evaporates. */    
+        what = dies ? ((mptr == &youmonst) ? "melt away" : "melts away") : "melting";
+        break;
     case PM_GLASS_GOLEM:
-        what = "melting";
+    case PM_GOLD_GOLEM:
+    case PM_IRON_GOLEM:
+        /* Melts into a puddle. */
+        what = dies ? ((mptr == &youmonst) ? "fully melt" : "fully melts") : "melting";
         break;
     case PM_STONE_GOLEM:
     case PM_CLAY_GOLEM:
-    case PM_GOLD_GOLEM:
-    case PM_AIR_ELEMENTAL:
     case PM_EARTH_ELEMENTAL:
+        what = dies ? ((mptr == &youmonst) ? "burn to a crisp" : "burns to a crisp") : "heating up";
+        break;
+    case PM_AIR_ELEMENTAL:
     case PM_DUST_VORTEX:
     case PM_ENERGY_VORTEX:
-        what = "heating up";
+    case PM_SHOCKING_SPHERE:
+    case PM_ANTIMATTER_VORTEX:
+        /* Gas or plasma that gets cooked off. */
+        what = dies ? ((mptr == &youmonst) ? "burn away" : "burns away") : "heating up";
         break;
     default:
-        what = (mattk->aatyp == AT_HUGS) ? "being roasted" : "on fire";
+        what = dies ? ((mptr == &youmonst) ? "burn to a crisp" : "burns to a crisp")
+            : hugattk ? "being roasted" : "on fire";
         break;
     }
     return what;
