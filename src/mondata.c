@@ -1379,10 +1379,9 @@ const char *def;
 
 /* return phrase describing the effect of fire attack on a type of monster */
 const char *
-on_fire(mptr, hugattk, dies)
+on_fire(mptr, attktype)
 struct monst *mptr;
-boolean hugattk; /* True if hug attack causes fire damage. */
-boolean dies; /* True if target dies from the effect. */
+enum on_fire_types attktype;
 {
     const char *what;
 
@@ -1400,25 +1399,65 @@ boolean dies; /* True if target dies from the effect. */
     case PM_BABY_SEA_DRAGON:
     case PM_SEA_DRAGON:
     case PM_ACID_SPHERE:
-        what = dies ? ((mptr == &youmonst) ? "boil away" : "boils away") : "boiling";
+        switch (attktype) {
+        case ON_FIRE_DEAD:
+            what = (mptr == &youmonst) ? "boil away" : "boils away";
+            break;
+        case ON_FIRE_ENGULF:
+            what = "boiling away";
+            break;
+        default:
+            what = "boiling";
+            break;
+        }
         break;
     case PM_ICE_VORTEX:
     case PM_SNOW_GOLEM:
     case PM_ABOMINABLE_SNOWMAN:
     case PM_FREEZING_SPHERE:
         /* Melts and then boils away or evaporates. */    
-        what = dies ? ((mptr == &youmonst) ? "melt away" : "melts away") : "melting";
+        switch (attktype) {
+        case ON_FIRE_DEAD:
+            what = (mptr == &youmonst) ? "melt away" : "melts away";
+            break;
+        case ON_FIRE_ENGULF:
+            what = "melting away";
+            break;
+        default:
+            what = "melting";
+            break;
+        }
         break;
     case PM_GLASS_GOLEM:
     case PM_GOLD_GOLEM:
     case PM_IRON_GOLEM:
         /* Melts into a puddle. */
-        what = dies ? ((mptr == &youmonst) ? "fully melt" : "fully melts") : "melting";
+        switch (attktype) {
+        case ON_FIRE_DEAD:
+            what = (mptr == &youmonst) ? "fully melt" : "fully melts";
+            break;
+        case ON_FIRE_ENGULF:
+            what = "melting away";
+            break;
+        default:
+            what = "melting";
+            break;
+        }
         break;
     case PM_STONE_GOLEM:
     case PM_CLAY_GOLEM:
     case PM_EARTH_ELEMENTAL:
-        what = dies ? ((mptr == &youmonst) ? "burn to a crisp" : "burns to a crisp") : "heating up";
+        switch (attktype) {
+        case ON_FIRE_DEAD:
+            what = (mptr == &youmonst) ? "burn to a crisp" : "burns to a crisp";
+            break;
+        case ON_FIRE_ENGULF:
+            what = "burning to a crisp";
+            break;
+        default:
+            what = "heating up";
+            break;
+        }
         break;
     case PM_AIR_ELEMENTAL:
     case PM_DUST_VORTEX:
@@ -1426,11 +1465,33 @@ boolean dies; /* True if target dies from the effect. */
     case PM_SHOCKING_SPHERE:
     case PM_ANTIMATTER_VORTEX:
         /* Gas or plasma that gets cooked off. */
-        what = dies ? ((mptr == &youmonst) ? "burn away" : "burns away") : "heating up";
+        switch (attktype) {
+        case ON_FIRE_DEAD:
+            what = (mptr == &youmonst) ? "burn away" : "burns away";
+            break;
+        case ON_FIRE_ENGULF:
+            what = "burning away";
+            break;
+        default:
+            what = "heating up";
+            break;
+        }
         break;
     default:
-        what = dies ? ((mptr == &youmonst) ? "burn to a crisp" : "burns to a crisp")
-            : hugattk ? "being roasted" : "on fire";
+        switch (attktype) {
+        case ON_FIRE_DEAD:
+            what = (mptr == &youmonst) ? "burn to a crisp" : "burns to a crisp";
+            break;
+        case ON_FIRE_ENGULF:
+            what = "burning to a crisp";
+            break;
+        case ON_FIRE_HUG:
+            what = "being roasted";
+            break;
+        default:
+            what = "on fire";
+            break;
+        }
         break;
     }
     return what;

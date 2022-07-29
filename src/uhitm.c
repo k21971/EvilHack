@@ -2403,7 +2403,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
             break;
         }
         if (!Blind)
-            pline("%s is %s!", Monnam(mdef), on_fire(mdef, mattk->aatyp == AT_HUGS, FALSE));
+            pline("%s is %s!", Monnam(mdef), on_fire(mdef, mattk->aatyp == AT_HUGS ? ON_FIRE_HUG : ON_FIRE));
         if (completelyburns(pd)) { /* paper golem or straw golem */
             if (!Blind)
                 pline("%s burns completely!", Monnam(mdef));
@@ -3223,7 +3223,7 @@ register struct attack *mattk;
                         pline("%s seems mildly hot.", Monnam(mdef));
                         dam = 0;
                     } else
-                        pline("%s is burning to a crisp!", Monnam(mdef));
+                        pline("%s is %s!", Monnam(mdef), on_fire(mdef, ON_FIRE_ENGULF));
                     golemeffects(mdef, (int) mattk->adtyp, dam);
                 } else
                     dam = 0;

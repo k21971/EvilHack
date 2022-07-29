@@ -6311,7 +6311,7 @@ lava_effects()
                because lifesaving resets them */
             killer.format = KILLED_BY;
             Strcpy(killer.name, lava_killer);
-            You("%s...", on_fire(&youmonst, FALSE, TRUE));
+            You("%s...", on_fire(&youmonst, ON_FIRE_DEAD));
             done(BURNING);
             if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT))
                 break; /* successful life-save */

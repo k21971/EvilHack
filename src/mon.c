@@ -888,7 +888,7 @@ register struct monst *mtmp;
             }
             if (!(resists_fire(mtmp) || defended(mtmp, AD_FIRE))) {
                 if (cansee(mtmp->mx, mtmp->my))
-                    pline("%s %s.", Monnam(mtmp), on_fire(mtmp, FALSE, TRUE));
+                    pline("%s %s.", Monnam(mtmp), on_fire(mtmp, ON_FIRE_DEAD));
                 /* unlike fire -> melt ice -> pool, there's no way for the
                    hero to create lava beneath a monster, so the !mon_moving
                    case is not expected to happen (and we haven't made a

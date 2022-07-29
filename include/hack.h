@@ -131,6 +131,14 @@ enum getpos_retval {
     LOOK_VERBOSE     = 3  /* ':' -- show more info w/o asking */
 };
 
+/* Different ways fire damage can be dealt for on_fire. */
+enum on_fire_types {
+    ON_FIRE         = 0, /* Standard fire damage attack. */
+    ON_FIRE_HUG     = 1, /* Hugged by fire damage monster. */
+    ON_FIRE_ENGULF  = 2, /* Engulfed by fire damage monster. */
+    ON_FIRE_DEAD    = 3  /* Killed by fire damage. */
+};
+
 /*
  * This is the way the game ends.  If these are rearranged, the arrays
  * in end.c and topten.c will need to be changed.  Some parts of the

@@ -1478,7 +1478,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             }
         }
         if (vis && canseemon(mdef))
-            pline("%s is %s!", Monnam(mdef), on_fire(mdef, mattk->aatyp == AT_HUGS, FALSE));
+            pline("%s is %s!", Monnam(mdef), on_fire(mdef, mattk->aatyp == AT_HUGS ? ON_FIRE_HUG : ON_FIRE));
         if (completelyburns(pd)) { /* paper golem or straw golem */
             if (vis && canseemon(mdef))
                 pline("%s burns completely!", Monnam(mdef));
