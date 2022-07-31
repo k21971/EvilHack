@@ -6305,19 +6305,13 @@ lava_effects()
         iflags.in_lava_effects--;
 
         /* s/he died... */
-        boil_away = (u.umonnum == PM_WATER_ELEMENTAL
-                     || u.umonnum == PM_STEAM_VORTEX
-                     || u.umonnum == PM_WATER_TROLL
-                     || u.umonnum == PM_BABY_SEA_DRAGON
-                     || u.umonnum == PM_SEA_DRAGON
-                     || u.umonnum == PM_FOG_CLOUD);
         for (;;) {
             u.uhp = -1;
             /* killer format and name are reconstructed every iteration
                because lifesaving resets them */
             killer.format = KILLED_BY;
             Strcpy(killer.name, lava_killer);
-            You("%s...", boil_away ? "boil away" : "burn to a crisp");
+            You("%s...", on_fire(&youmonst, ON_FIRE_DEAD));
             done(BURNING);
             if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT))
                 break; /* successful life-save */

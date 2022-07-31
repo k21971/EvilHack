@@ -887,17 +887,8 @@ register struct monst *mtmp;
                     return 0;
             }
             if (!(resists_fire(mtmp) || defended(mtmp, AD_FIRE))) {
-                if (cansee(mtmp->mx, mtmp->my)) {
-                    struct attack *dummy;
-                    dummy = has_erac(mtmp) ? &ERAC(mtmp)->mattk[0]
-                                           : &mtmp->data->mattk[0];
-                    const char *how = on_fire(mtmp->data, dummy);
-
-                    pline("%s %s.", Monnam(mtmp),
-                          !strcmp(how, "boiling") ? "boils away"
-                             : !strcmp(how, "melting") ? "melts away"
-                                : "burns to a crisp");
-                }
+                if (cansee(mtmp->mx, mtmp->my))
+                    pline("%s %s.", Monnam(mtmp), on_fire(mtmp, ON_FIRE_DEAD));
                 /* unlike fire -> melt ice -> pool, there's no way for the
                    hero to create lava beneath a monster, so the !mon_moving
                    case is not expected to happen (and we haven't made a

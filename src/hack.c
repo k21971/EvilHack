@@ -3015,7 +3015,7 @@ pickup_checks()
             You_cant("reach the bottom to pick things up.");
             return 0;
         } else if (!likes_lava(youmonst.data)) {
-            You("would burn to a crisp trying to pick things up.");
+            You("would %s trying to pick things up.", on_fire(&youmonst, ON_FIRE_DEAD));
             return 0;
         }
     }

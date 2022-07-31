@@ -1473,7 +1473,7 @@ register struct attack *mattk;
     case AD_FIRE:
         hitmsg(mtmp, mattk);
         if (uncancelled) {
-            pline("You're %s!", on_fire(youmonst.data, mattk));
+            pline("You're %s!", on_fire(&youmonst, mattk->aatyp == AT_HUGS ? ON_FIRE_HUG : ON_FIRE));
             if (completelyburns(youmonst.data)) { /* paper or straw golem */
                 You("go up in flames!");
                 /* KMH -- this is okay with unchanging */
@@ -2761,7 +2761,7 @@ struct attack *mattk;
                 ugolemeffects(AD_FIRE, tmp);
                 tmp = 0;
             } else {
-                You("are burning to a crisp!");
+                You("are %s!", on_fire(&youmonst, ON_FIRE_ENGULF));
                 tmp = resist_reduce(tmp, FIRE_RES);
             }
             burn_away_slime();
