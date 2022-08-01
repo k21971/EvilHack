@@ -1260,7 +1260,8 @@ register int after;
     appr = mtmp->mflee ? -1 : 1;
    /* does this monster like to play keep-away? */
     if (is_skittish(ptr)
-        && (dist2(omx, omy, gx, gy) < 10))
+        && (dist2(omx, omy, gx, gy) < 10)
+        && !mtmp->mberserk)
         appr = -1;
     if (mtmp->mconf || (u.uswallow && mtmp == u.ustuck)) {
         appr = 0;
@@ -1296,6 +1297,10 @@ register int after;
             && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 5*5)
             && m_canseeu(mtmp) && m_has_launcher_and_ammo(mtmp))
             appr = -1;
+
+        /* ... unless they are currently berserk */
+        if (mtmp->mberserk)
+            appr = 1;
 
         if (monsndx(ptr) == PM_AGENT && mon_has_amulet(mtmp))
             appr = -1; /* objective secured, retreat */

@@ -1127,8 +1127,8 @@ mcalcdistress()
                 && !rn2(15)) {
                 if (canseemon(mtmp) && humanoid(mtmp->data)
                     && !mindless(mtmp->data)) {
-                        pline("%s flies into a berserker rage!",
-                              Monnam(mtmp));
+                    pline("%s flies into a berserker rage!",
+                          Monnam(mtmp));
                 } else if (canseemon(mtmp)) { /* animal/mindless */
                     pline("%s seems to go berserk!", Monnam(mtmp));
                 } else {
