@@ -2395,4 +2395,6 @@ The following changes to date are:
 - Fix: any artifacts can glow to warn of specific monsters
 - Adjust feedback when hit by an artifact or weapon that deals poison
   damage
+- Fix: fire damage feedback
+- Retool berserkers
 
