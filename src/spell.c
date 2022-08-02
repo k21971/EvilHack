@@ -741,7 +741,7 @@ docast()
     int spell_no;
 
     if (getspell(&spell_no))
-        return spelleffects(spell_no, FALSE);
+        return spelleffects(spell_no, FALSE, FALSE);
     return 0;
 }
 
@@ -930,9 +930,15 @@ int spell;
 }
 
 int
-spelleffects(spell, atme)
+spelleffects(spell, atme, wiz_cast)
 int spell;
 boolean atme;
+/* Set TRUE when cast from the wizard mode #wiz_spell command.
+ * Such a cast takes no energy, is cast at the highest skill, and always succeeds.
+ * In that case "spell" is the spell ID rather than the spellbook index
+ * -- the equivalent of spellid(spell).
+ */
+boolean wiz_cast;
 {
     int energy, damage, chance, n, intell;
     int otyp, skill, role_skill, res = 0;
@@ -951,7 +957,7 @@ boolean atme;
      * (There's no duplication of messages; when the rejection takes
      * place in getspell(), we don't get called.)
      */
-    if ((spell < 0) || rejectcasting()) {
+    if ((spell < 0) || (!wiz_cast && rejectcasting())) {
         return 0; /* no time elapses */
     }
 
@@ -959,13 +965,14 @@ boolean atme;
      *  Note: dotele() also calculates energy use and checks nutrition
      *  and strength requirements; it any of these change, update it too.
      */
-    energy = (spellev(spell) * 5); /* 5 <= energy <= 35 */
+    energy = wiz_cast ? 0 : (spellev(spell) * 5); /* 5 <= energy <= 35 */
 
     /*
      * Spell casting no longer affects knowledge of the spell. A
      * decrement of spell knowledge is done every turn.
      */
-    if (spellknow(spell) <= 0) {
+    if (wiz_cast) {
+    } else if (spellknow(spell) <= 0) {
         if (spellid(spell) == SPE_PSIONIC_WAVE)
             You("have somehow lost your psychic ability!");
         else
@@ -991,7 +998,8 @@ boolean atme;
         Your("recall of this spell is gradually fading.");
     }
 
-    if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD) {
+    if (wiz_cast) {
+    } else if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD) {
         You("are too hungry to cast that spell.");
         return 0;
     } else if (ACURR(A_STR) < 4 && spellid(spell) != SPE_RESTORE_ABILITY) {
@@ -1045,7 +1053,7 @@ boolean atme;
         else
             You("don't have enough energy to cast that spell.");
         return res;
-    } else {
+    } else if (!wiz_cast) {
         if (spellid(spell) != SPE_DETECT_FOOD) {
             int hungr = energy * 2;
 
@@ -1096,8 +1104,8 @@ boolean atme;
         }
     }
 
-    chance = percent_success(spell);
-    if (confused || (rnd(100) > chance)) {
+    chance = wiz_cast ? 100 : percent_success(spell);
+    if ((!wiz_cast && confused) || (rnd(100) > chance)) {
         if (spellid(spell) == SPE_PSIONIC_WAVE)
             You("are too confused to use your psychic abilities.");
         else
@@ -1116,7 +1124,7 @@ boolean atme;
        the Amulet of Yendor in their possession (before
        the Idol of Moloch is imbued) costs them hit points
        instead of spell power */
-    if (u.ualign.type == A_NONE && !u.uhave.amulet
+    if (!wiz_cast && u.ualign.type == A_NONE && !u.uhave.amulet
         && !u.uachieve.amulet
         /* psychic attack uses spell power but
            technically is not considered a spell */
@@ -1158,7 +1166,7 @@ boolean atme;
     context.botl = 1;
     exercise(A_WIS, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
-    pseudo = mksobj(spellid(spell), FALSE, FALSE);
+    pseudo = mksobj(wiz_cast ? spell : spellid(spell), FALSE, FALSE);
     pseudo->blessed = pseudo->cursed = 0;
     pseudo->quan = 20L; /* do not let useup get it */
     /*
@@ -1167,7 +1175,7 @@ boolean atme;
      */
     otyp = pseudo->otyp;
     skill = spell_skilltype(otyp);
-    role_skill = P_SKILL(skill);
+    role_skill = wiz_cast ? P_EXPERT : P_SKILL(skill);
 
     switch (otyp) {
     /*
@@ -1412,7 +1420,8 @@ boolean atme;
     }
 
     /* gain skill for successful cast */
-    use_skill(skill, spellev(spell));
+    if (!wiz_cast)
+        use_skill(skill, spellev(spell));
 
     obfree(pseudo, (struct obj *) 0); /* now, get rid of it */
     return 1;

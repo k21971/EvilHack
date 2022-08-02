@@ -232,6 +232,7 @@ E int NDECL(wiz_genesis);
 E int NDECL(wiz_identify);
 E int NDECL(wiz_level_tele);
 E int NDECL(wiz_map);
+E int NDECL(wiz_spell);
 E int NDECL(wiz_where);
 E int NDECL(wiz_wish);
 #endif /* USE_TRAMPOLI */
@@ -2565,7 +2566,7 @@ E const char *FDECL(spelltypemnemonic, (int));
 E int FDECL(spell_skilltype, (int));
 E void NDECL(cast_protection);
 E void FDECL(cast_reflection, (struct monst *));
-E int FDECL(spelleffects, (int, BOOLEAN_P));
+E int FDECL(spelleffects, (int, BOOLEAN_P, BOOLEAN_P));
 E int FDECL(tport_spell, (int));
 E void NDECL(losespells);
 E int NDECL(dovspell);

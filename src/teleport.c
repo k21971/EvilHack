@@ -803,7 +803,7 @@ boolean break_the_rules; /* True: wizard mode ^T */
         if (castit) {
             /* energy cost is deducted in spelleffects() */
             exercise(A_WIS, TRUE);
-            if (spelleffects(spell_idx(SPE_TELEPORT_AWAY), TRUE))
+            if (spelleffects(spell_idx(SPE_TELEPORT_AWAY), TRUE, FALSE))
                 return 1;
             else if (!break_the_rules)
                 return 0;
