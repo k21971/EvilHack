@@ -263,8 +263,10 @@ boolean complain;
         version_data->incarnation != VERSION_NUMBER
 #endif
         ) {
-        if (complain)
+        if (complain) {
             pline("Version mismatch for file \"%s\".", filename);
+            display_nhwindow(WIN_MESSAGE, TRUE);
+        }
         return FALSE;
     } else if (
 #ifndef IGNORED_FEATURES
@@ -276,8 +278,10 @@ boolean complain;
         || version_data->entity_count != VERSION_SANITY1
         || version_data->struct_sizes1 != VERSION_SANITY2
         || version_data->struct_sizes2 != VERSION_SANITY3) {
-        if (complain)
+        if (complain) {
             pline("Configuration incompatibility for file \"%s\".", filename);
+            display_nhwindow(WIN_MESSAGE, TRUE);
+        }
         return FALSE;
     }
     return TRUE;
