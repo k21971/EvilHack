@@ -2397,4 +2397,11 @@ The following changes to date are:
   damage
 - Fix: fire damage feedback
 - Retool berserkers
+- Make berserkers more willing to fight hand-to-hand
+
+
+### Version 0.8.1
+
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 23rd, 2022)
+- Initial preparation for new version (0.8.1)
 

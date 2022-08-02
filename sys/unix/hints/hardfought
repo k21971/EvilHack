@@ -15,7 +15,7 @@ COMPILEREVISION?=1
 PREFIX=/opt/nethack/chroot
 
 # this is the dir where NetHack is inside the chroot
-HACKDIR=/evilhack-0.8.0
+HACKDIR=/evilhack-0.8.1
 INSTDIR=$(PREFIX)$(HACKDIR)
 # DGL does not use the shell script launcher
 SHELLDIR=/tmp
@@ -55,8 +55,9 @@ WINTTYLIB=-lncurses -ltinfo
 WINSRC += tile.c
 WINOBJ += tile.o
 
-CHOWN=chown
-CHGRP=chgrp
+CHOWN=true
+CHGRP=true
+
 GAMEUID=games
 GAMEGRP=games
 

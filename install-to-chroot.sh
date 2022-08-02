@@ -9,10 +9,6 @@
 # autonamed chroot directory. Can rename.
 DATESTAMP=`date +%Y%m%d-%H%M%S`
 NAO_CHROOT="/opt/nethack/chroot"
-# config outside of chroot
-DGL_CONFIG="/opt/nethack/dgamelaunch.conf"
-# already compiled versions of dgl and nethack
-DGL_GIT="/home/build/dgamelaunch"
 NETHACK_GIT="/home/build/EvilHack"
 # the user & group from dgamelaunch config file.
 USRGRP="games:games"
@@ -22,11 +18,9 @@ COMPRESSBIN="/bin/gzip"
 NH_GIT="/home/build/EvilHack"
 NH_BRANCH="master"
 # HACKDIR from include/config.h; aka nethack subdir inside chroot
-NHSUBDIR="evilhack-0.8.0"
+NHSUBDIR="evilhack-0.8.1"
 # VAR_PLAYGROUND from include/unixconf.h
-NH_VAR_PLAYGROUND="/evilhack-0.8.0/var/"
-# only define this if dgl was configured with --enable-sqlite
-SQLITE_DBFILE="/dgldir/dgamelaunch.db"
+NH_VAR_PLAYGROUND="/evilhack-0.8.1/var/"
 # END OF CONFIG
 ##############################################################################
 
@@ -51,8 +45,8 @@ set -e
 umask 022
 
 echo "Creating inprogress and extrainfo directories"
-mkdir -p "$NAO_CHROOT/dgldir/inprogress-evil080"
-chown "$USRGRP" "$NAO_CHROOT/dgldir/inprogress-evil080"
+mkdir -p "$NAO_CHROOT/dgldir/inprogress-evil081"
+chown "$USRGRP" "$NAO_CHROOT/dgldir/inprogress-evil081"
 mkdir -p "$NAO_CHROOT/dgldir/extrainfo-evil"
 chown "$USRGRP" "$NAO_CHROOT/dgldir/extrainfo-evil"
 
@@ -92,6 +86,8 @@ mkdir -p "$NAO_CHROOT/$NHSUBDIR/var"
 chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var"
 mkdir -p "$NAO_CHROOT/$NHSUBDIR/var/save"
 chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/save"
+mkdir -p "$NAO_CHROOT/$NHSUBDIR/var/save/backup"
+chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/save/backup"
 mkdir -p "$NAO_CHROOT/$NHSUBDIR/var/whereis"
 chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/whereis"
 
