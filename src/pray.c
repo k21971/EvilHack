@@ -2716,7 +2716,7 @@ doturn()
     if (!Role_if(PM_PRIEST) && !Role_if(PM_KNIGHT)) {
         /* Try to use the "turn undead" spell. */
         if (known_spell(SPE_TURN_UNDEAD))
-            return spelleffects(spell_idx(SPE_TURN_UNDEAD), FALSE);
+            return spelleffects(spell_idx(SPE_TURN_UNDEAD), FALSE, FALSE);
         You("don't know how to turn undead!");
         return 0;
     }

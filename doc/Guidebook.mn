@@ -1502,6 +1502,10 @@ Debug mode only.
 Smell monster.
 Autocompletes.
 Debug mode only.
+.lp "#wizspell "
+Cast any spell by name without cost or failure as an expert.
+Autocompletes.
+Debug mode only.
 .lp #wizwhere
 Show locations of special levels.
 Autocompletes.
