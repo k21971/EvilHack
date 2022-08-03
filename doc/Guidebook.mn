@@ -1458,6 +1458,10 @@ Default key is \(oqM-w\(cq.
 Bury objects under and around you.
 Autocompletes.
 Debug mode only.
+.lp #wizcrown
+Become crowned.
+Autocompletes.
+Debug mode only.
 .lp #wizdetect
 Search for hidden things (secret doors or traps or unseen monsters)
 within a modest radius.
@@ -1489,6 +1493,10 @@ Teleport to another level.
 Autocompletes.
 Debug mode only.
 Default key is \(oq\(haV\(cq.
+.lp #wizmakemap
+Recreate the current level.
+Autocompletes.
+Debug mode only.
 .lp "#wizmap  "
 Map the level.
 Autocompletes.
@@ -1504,6 +1512,11 @@ Autocompletes.
 Debug mode only.
 .lp "#wizspell "
 Cast any spell by name without cost or failure as an expert.
+Autocompletes.
+Debug mode only.
+Default key is \(oq\(haS\(cq.
+.lp #wiztelekinesis
+Hurtle a monster across the map.
 Autocompletes.
 Debug mode only.
 .lp #wizwhere
