@@ -4,6 +4,7 @@ Debug-Mode Quick Reference:
 ^F  ==  map level; reveals traps and secret corridors but not secret doors
 ^G  ==  create monster by name or class
 ^I  ==  identify items in pack
+^S  ==  cast any spell by name
 ^T  ==  do intra-level teleport
 ^V  ==  do trans-level teleport; '?' yields menu of special destinations
 ^W  ==  make a wish for an item or a trap or a limited subset of terrain

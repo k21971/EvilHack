@@ -4069,7 +4069,7 @@ struct ext_func_tab extcmdlist[] = {
             wiz_rumor_check, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { '\0', "wizsmell", "smell monster",
             wiz_smell, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
-    { C('s'), "wizspell", "create a spell",
+    { C('s'), "wizspell", "cast a spell",
             wiz_spell, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { '\0', "wiztelekinesis", "telekinesis",
             wiz_telekinesis, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
