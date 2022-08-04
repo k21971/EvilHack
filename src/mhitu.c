@@ -2656,7 +2656,9 @@ struct attack *mattk;
          * suffocation-y things like drowning attacks.
          * Generally, only give a message if this is the first engulf, not a
          * subsequent attack when already engulfed. */
-        if (Breathless) {
+        if (Breathless
+            || (Amphibious && (mtmp->data == &mons[PM_WATER_ELEMENTAL]
+                               || mtmp->data == &mons[PM_SEA_DRAGON]))) {
             if (!old_uswallow) {
                 if (!(HMagical_breathing || EMagical_breathing)) {
                     /* test this one first, in case breathless and also wearing

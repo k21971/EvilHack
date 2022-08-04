@@ -150,7 +150,6 @@ static const struct innate {
                  { 0, 0, 0, 0 } },
 
   trt_abil[] = { { 1, &(HSwimming), "", "" },
-                 { 1, &(HMagical_breathing), "", "" },
                  { 5, &(HWarning), "sensitive", "" },
                  { 12, &(HRegeneration), "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },

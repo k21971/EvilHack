@@ -2409,4 +2409,5 @@ The following changes to date are:
 - Fix: a couple minor issues with character creation
 - Unlock trident skill for tortles playing a role that normally wouldn't have it
 - Tortles, various monsters can move fast whilst underwater
+- Fix: tortles and breathing underwater
 
