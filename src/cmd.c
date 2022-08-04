@@ -3421,8 +3421,9 @@ int final;
     /* movement and non-armor-based protection */
     if (Fast)
         you_are(Very_fast ? "very fast" : "fast",
-                is_fast_underwater(youmonst.data) ? " from current creature form"
-                                                  : from_what(FAST));
+                (Underwater && is_fast_underwater(youmonst.data))
+                    ? " from current creature form"
+                    : from_what(FAST));
     if (Slow)
         you_are("slow", from_what(SLOW));
     if (Reflecting)
