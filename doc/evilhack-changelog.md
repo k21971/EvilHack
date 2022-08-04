@@ -2411,4 +2411,5 @@ The following changes to date are:
 - Tortles, various monsters can move fast whilst underwater
 - Fix: tortles and breathing underwater
 - Fix: You are very fast from something
+- Fix: sections of wall being visible when they shouldn't yet
 

@@ -2061,7 +2061,7 @@ int x, y, which;
     if (!isok(x, y))
         return which;
     type = levl[x][y].typ;
-    if (IS_ROCK(type) || type == CORR || type == SCORR)
+    if ((IS_ROCK(type) && !IS_TREES(type)) || type == CORR || type == SCORR)
         return which;
     return 0;
 }
