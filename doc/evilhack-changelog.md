@@ -2405,4 +2405,6 @@ The following changes to date are:
 - Retool berserkers
 - Make berserkers more willing to fight hand-to-hand
 - Fix: compatability checking for development
+- Add missing wizard mode commands to guidebook
+- Fix: a couple minor issues with character creation
 

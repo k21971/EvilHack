@@ -33,7 +33,7 @@ struct trobj Archeologist[] = {
     { JACKET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { FEDORA, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
-    { PICK_AXE, UNDEF_SPE, TOOL_CLASS, 1, UNDEF_BLESS },
+    { PICK_AXE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
     { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, UNDEF_BLESS },
     { TOUCHSTONE, 0, GEM_CLASS, 1, 0 },
     { SACK, 0, TOOL_CLASS, 1, 0 },
@@ -286,6 +286,7 @@ struct inv_sub {
     { PM_TORTLE, ROBE, TOQUE },
     { PM_TORTLE, HAWAIIAN_SHIRT, TOQUE },
     { PM_TORTLE, CLOAK_OF_MAGIC_RESISTANCE, GLOVES },
+    { PM_TORTLE, SACK, OILSKIN_SACK },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -1042,7 +1043,8 @@ u_init()
         if (Role_if(PM_HEALER) || Role_if(PM_TOURIST))
             P_MAX_SKILL(P_TRIDENT) = P_SKILLED;
 
-        if (!rn2(4)) {
+        if (!rn2(4)
+            && !Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_ROGUE)) {
             /* in case they want to go for a swim */
             ini_inv(Oilskin);
         }
