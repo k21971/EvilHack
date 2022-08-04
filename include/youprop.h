@@ -399,8 +399,9 @@
 
 #define HFast u.uprops[FAST].intrinsic
 #define EFast u.uprops[FAST].extrinsic
-#define Fast ((HFast || EFast) && !Slow)
-#define Very_fast (((HFast & ~INTRINSIC) || EFast) && !Slow)
+#define SFast (Underwater && is_fast_underwater(youmonst.data))
+#define Fast ((HFast || EFast || SFast) && !Slow)
+#define Very_fast (((HFast & ~INTRINSIC) || EFast || SFast) && !Slow)
 
 #define HSlow u.uprops[SLOW].intrinsic
 #define ESlow u.uprops[SLOW].extrinsic

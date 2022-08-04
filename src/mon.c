@@ -1003,6 +1003,9 @@ struct monst *mon;
      */
     if (mon->mspeed == MSLOW)
         mmove = (2 * mmove + 1) / 3;
+    /* various monsters get a slight bump in speed when in their natural element */
+    else if (is_pool(mon->mx, mon->my) && is_fast_underwater(mon->data))
+        mmove = (3 * mmove + 2) / 3;
     else if (mon->mspeed == MFAST)
         mmove = (4 * mmove + 2) / 3;
 
