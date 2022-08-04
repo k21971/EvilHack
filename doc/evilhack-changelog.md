@@ -2410,4 +2410,5 @@ The following changes to date are:
 - Unlock trident skill for tortles playing a role that normally wouldn't have it
 - Tortles, various monsters can move fast whilst underwater
 - Fix: tortles and breathing underwater
+- Fix: You are very fast from something
 

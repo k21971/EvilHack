@@ -3310,7 +3310,9 @@ int final;
     if (Breathless)
         you_can("survive without air", from_what(MAGICAL_BREATHING));
     else if (Amphibious)
-        you_can("breathe water", from_what(MAGICAL_BREATHING));
+        you_can("breathe water",
+                amphibious(youmonst.data) ? " from current creature form"
+                                          : from_what(MAGICAL_BREATHING));
     if (Passes_walls)
         you_can("walk through walls", from_what(PASSES_WALLS));
 
@@ -3418,7 +3420,9 @@ int final;
     }
     /* movement and non-armor-based protection */
     if (Fast)
-        you_are(Very_fast ? "very fast" : "fast", from_what(FAST));
+        you_are(Very_fast ? "very fast" : "fast",
+                is_fast_underwater(youmonst.data) ? " from current creature form"
+                                                  : from_what(FAST));
     if (Slow)
         you_are("slow", from_what(SLOW));
     if (Reflecting)
