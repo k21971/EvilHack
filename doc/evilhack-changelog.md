@@ -2412,4 +2412,5 @@ The following changes to date are:
 - Fix: tortles and breathing underwater
 - Fix: You are very fast from something
 - Fix: sections of wall being visible when they shouldn't yet
+- Fix: triggering knockback feedback on an already dead monster
 

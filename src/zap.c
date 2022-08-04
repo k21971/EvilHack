@@ -184,10 +184,12 @@ struct obj *otmp;
             hit(zap_type_text, mtmp, exclam(dmg));
             if (dmg > 16) {
                 last_hurtled = mtmp;
-                pline_The("force of %s knocks %s back!",
-                          (otyp == SPE_FORCE_BOLT) ? "your spell" : "the wand",
-                          mon_nam(mtmp));
-                mhurtle_to_doom(mtmp, dmg, &mdat, FALSE);
+                if (dmg < mtmp->mhp) {
+                    pline_The("force of %s knocks %s back!",
+                              (otyp == SPE_FORCE_BOLT) ? "your spell" : "the wand",
+                              mon_nam(mtmp));
+                    mhurtle_to_doom(mtmp, dmg, &mdat, FALSE);
+                }
             }
             (void) resist(mtmp, otmp->oclass, dmg, TELL);
         } else
