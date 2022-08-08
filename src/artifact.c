@@ -2233,16 +2233,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 return TRUE;
             case ART_GIANTSLAYER:
                 if (youattack && racial_giant(mdef) && j) {
-                    You("eviscerate %s with a fatal swing!", mon_nam(mdef));
+                    You("eviscerate %s with a fatal stab!", mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (!youattack && !youdefend
                            && magr && racial_giant(mdef) && j) {
                     if (cansee(magr->mx, magr->my))
-                        pline("%s eviscerates %s with a fatal swing!",
+                        pline("%s eviscerates %s with a fatal stab!",
                               Monnam(magr), mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 } else if (youdefend && maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)) && k) {
-                    pline("The magical sword eviscerates you!");
+                    pline("The magical spear eviscerates you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 } else
                     return FALSE;

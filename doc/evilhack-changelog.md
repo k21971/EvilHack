@@ -2414,4 +2414,5 @@ The following changes to date are:
 - Fix: sections of wall being visible when they shouldn't yet
 - Fix: triggering knockback feedback on an already dead monster
 - Sickness countdown
+- Valkyries start with a spear instead of a long sword; Giantslayer changes
 

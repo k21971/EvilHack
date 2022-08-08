@@ -1439,6 +1439,7 @@ register struct attack *mattk;
                 hitmsg(mtmp, mattk);
             }
             if (mattk->adtyp == AD_CLOB && dmg != 0
+                && !wielding_artifact(ART_GIANTSLAYER)
                 && (youmonst.data)->msize < MZ_HUGE && !rn2(6)) {
                 pline("%s knocks you %s with a %s %s!", Monnam(mtmp),
                       u.usteed ? "out of your saddle" : "back",
