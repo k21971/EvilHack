@@ -2415,4 +2415,5 @@ The following changes to date are:
 - Fix: triggering knockback feedback on an already dead monster
 - Sickness countdown
 - Valkyries start with a spear instead of a long sword; Giantslayer changes
+- Grid bugs don't have hands
 
