@@ -2413,4 +2413,5 @@ The following changes to date are:
 - Fix: You are very fast from something
 - Fix: sections of wall being visible when they shouldn't yet
 - Fix: triggering knockback feedback on an already dead monster
+- Sickness countdown
 

@@ -13,6 +13,7 @@ STATIC_DCL void NDECL(choke_dialogue);
 STATIC_DCL void NDECL(levitation_dialogue);
 STATIC_DCL void NDECL(slime_dialogue);
 STATIC_DCL void FDECL(slimed_to_death, (struct kinfo *));
+STATIC_DCL void NDECL(sickness_dialogue);
 STATIC_DCL void NDECL(phaze_dialogue);
 STATIC_DCL void FDECL(done_timeout, (int, int));
 STATIC_DCL void NDECL(slip_or_trip);
@@ -459,6 +460,43 @@ struct kinfo *kptr;
     return;
 }
 
+static NEARDATA const char *const sickness_texts[] = {
+    "Your illness feels worse.",
+    "Your illness is severe.",
+    "You are at Death's door.",
+};
+
+STATIC_OVL void
+sickness_dialogue()
+{
+    long j = (Sick & TIMEOUT), i = j / 2L;
+
+    if (i > 0L && i <= SIZE(sickness_texts) && (j % 2) != 0) {
+        char buf[BUFSZ], pronounbuf[40];
+
+        Strcpy(buf, sickness_texts[SIZE(sickness_texts) - i]);
+        /* change the message slightly for food poisoning */
+        if ((u.usick_type & SICK_NONVOMITABLE) == 0)
+            (void) strsubst(buf, "illness", "sickness");
+        /* change final message slightly for zombie sickness */
+        if ((u.usick_type & SICK_ZOMBIE) != 0
+            && !(Race_if(PM_CENTAUR) || Race_if(PM_ILLITHID)
+                 || Race_if(PM_TORTLE)))
+            (void) strsubst(buf, "You are at Death's door",
+                            "You feel a horrifying change coming over you");
+        if (Hallucination && strstri(buf, "Death's door")) {
+            /* youmonst: for Hallucination, mhe()'s mon argument isn't used */
+            Strcpy(pronounbuf, mhe(&youmonst));
+            Sprintf(eos(buf), "  %s %s inviting you in.",
+                    /* upstart() modifies its argument but vtense() doesn't
+                       care whether or not that has already happened */
+                    upstart(pronounbuf), vtense(pronounbuf, "are"));
+        }
+        pline("%s", buf);
+    }
+    exercise(A_CON, FALSE);
+}
+
 /* Intrinsic Passes_walls is temporary when your god is trying to fix
    all troubles and then TROUBLE_STUCK_IN_WALL calls safe_teleds() but
    it can't find anywhere to place you.  If that happens you get a small
@@ -572,6 +610,8 @@ nh_timeout()
         vomiting_dialogue();
     if (Strangled)
         choke_dialogue();
+    if (Sick)
+        sickness_dialogue();
     if (HLevitation & TIMEOUT)
         levitation_dialogue();
     if (HPasses_walls & TIMEOUT)
@@ -645,7 +685,10 @@ nh_timeout()
                 make_vomiting(0L, TRUE);
                 break;
             case SICK:
-                You("die from your illness.");
+                if ((u.usick_type & SICK_NONVOMITABLE) == 0)
+                    You("die from your sickness.");
+                else
+                    You("die from your illness.");
                 if (kptr && kptr->name[0]) {
                     killer.format = kptr->format;
                     Strcpy(killer.name, kptr->name);
