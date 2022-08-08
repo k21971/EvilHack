@@ -3147,11 +3147,16 @@ struct attack *mattk;
                 pline("%s attacks you with a fiery gaze!", Monnam(mtmp));
                 stop_occupation();
 	        dmg = resist_reduce(dmg, FIRE_RES);
-		if (dmg < 1) {
+		if (how_resistant(FIRE_RES) == 100) {
+                    shieldeff(u.ux, u.uy);
                     pline_The("fire feels mildly hot.");
                     monstseesu(M_SEEN_FIRE);
+                    ugolemeffects(AD_FIRE, d(12, 6));
+                    dmg = 0;
                 }
                 burn_away_slime();
+                if (lev > rn2(20))
+                    (void) burnarmor(&youmonst);
                 if (lev > rn2(20))
                     destroy_item(SCROLL_CLASS, AD_FIRE);
                 if (lev > rn2(20))
@@ -3174,9 +3179,12 @@ struct attack *mattk;
                 pline("%s attacks you with a chilling gaze!", Monnam(mtmp));
                 stop_occupation();
 		dmg = resist_reduce(dmg, COLD_RES);
-		if (dmg < 1) {
+		if (how_resistant(COLD_RES) == 100) {
+                    shieldeff(u.ux, u.uy);
                     pline_The("chilling gaze feels mildly cool.");
                     monstseesu(M_SEEN_COLD);
+                    ugolemeffects(AD_COLD, d(12, 6));
+                    dmg = 0;
                 }
                 if (lev > rn2(20))
                     destroy_item(POTION_CLASS, AD_COLD);
