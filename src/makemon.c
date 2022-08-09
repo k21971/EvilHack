@@ -3928,6 +3928,13 @@ register struct monst *mtmp;
     } else if (rt == TEMPLE) {
         ap_type = M_AP_FURNITURE;
         appear = S_altar;
+    } else if (rt == GARDEN) {
+        ap_type = M_AP_FURNITURE;
+        if (rn2(3)) {
+            appear = S_tree;
+        } else {
+            appear = S_deadtree;
+        }
 
     /*
      * We won't bother with beehives, morgues, barracks, throne rooms

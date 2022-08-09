@@ -2417,4 +2417,5 @@ The following changes to date are:
 - Valkyries start with a spear instead of a long sword; Giantslayer changes
 - Grid bugs don't have hands
 - Pyrolisk, fire damage changes
+- Mimics and dead trees
 

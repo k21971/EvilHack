@@ -3146,8 +3146,8 @@ struct attack *mattk;
 
                 pline("%s attacks you with a fiery gaze!", Monnam(mtmp));
                 stop_occupation();
-	        dmg = resist_reduce(dmg, FIRE_RES);
-		if (how_resistant(FIRE_RES) == 100) {
+                dmg = resist_reduce(dmg, FIRE_RES);
+                if (how_resistant(FIRE_RES) == 100) {
                     shieldeff(u.ux, u.uy);
                     pline_The("fire feels mildly hot.");
                     monstseesu(M_SEEN_FIRE);
@@ -3178,8 +3178,8 @@ struct attack *mattk;
 
                 pline("%s attacks you with a chilling gaze!", Monnam(mtmp));
                 stop_occupation();
-		dmg = resist_reduce(dmg, COLD_RES);
-		if (how_resistant(COLD_RES) == 100) {
+                dmg = resist_reduce(dmg, COLD_RES);
+                if (how_resistant(COLD_RES) == 100) {
                     shieldeff(u.ux, u.uy);
                     pline_The("chilling gaze feels mildly cool.");
                     monstseesu(M_SEEN_COLD);
@@ -3200,10 +3200,10 @@ struct attack *mattk;
             mtmp->mspec_used = mtmp->mspec_used + 3 + rn2(8);
 
             if (uwep && uwep->otyp == MIRROR && uwep->blessed) {
-	        pline("%s sees its own glare in your mirror.", Monnam(mtmp));
-	        pline("%s is cancelled!", Monnam(mtmp));
-	        mtmp->mcan = 1;
-	        monflee(mtmp, 0, FALSE, TRUE);
+                pline("%s sees its own glare in your mirror.", Monnam(mtmp));
+                pline("%s is cancelled!", Monnam(mtmp));
+                mtmp->mcan = 1;
+                monflee(mtmp, 0, FALSE, TRUE);
             } else {
                 change_luck(-1);
                 pline("You don't feel as lucky as before.");
