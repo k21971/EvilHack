@@ -2418,4 +2418,6 @@ The following changes to date are:
 - Grid bugs don't have hands
 - Pyrolisk, fire damage changes
 - Mimics and dead trees
+- Fix: typo in 'The Adventurer's Journal'
+- Kathryn grudges all things that can sting
 

@@ -2636,6 +2636,13 @@ struct monst *magr, /* monster that is currently deciding where to move */
         && !mindless(md))
         return ALLOW_M | ALLOW_TM;
 
+    /* mini-me recently had a bad encounter with a yellowjacket.
+       she now hates all things that can sting */
+    if ((ma == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+         || ma == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+        && can_sting(md))
+        return ALLOW_M | ALLOW_TM;
+
     /* now test all two-way aggressions both ways */
     return (mm_2way_aggression(magr, mdef) | mm_2way_aggression(mdef, magr));
 }
