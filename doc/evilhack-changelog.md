@@ -2424,4 +2424,5 @@ The following changes to date are:
 - Make hitting with a wielded potion hit you far less
 - Fix: engulfing mounted hero
 - Adjust random item artifact chances
+- Monsters will use teleportation wands offensively
 

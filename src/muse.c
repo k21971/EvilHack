@@ -1424,7 +1424,7 @@ struct monst *mtmp;
 #define MUSE_FROST_HORN 12
 #define MUSE_FIRE_HORN 13
 #define MUSE_POT_ACID 14
-/*#define MUSE_WAN_TELEPORTATION 15*/
+#define MUSE_WAN_TELEPORTATION 15
 #define MUSE_POT_SLEEPING 16
 #define MUSE_SCR_EARTH 17
 #define MUSE_WAN_CANCELLATION 18
@@ -1711,6 +1711,35 @@ boolean reflection_skip;
                 m.tocharge = obj;
             }
         }
+        /* use_offensive() has had some code to support wand of teleportation
+         * for a long time, but find_offensive() never selected one;
+         * re-enable it */
+        nomore(MUSE_WAN_TELEPORTATION);
+        if (obj->otyp == WAN_TELEPORTATION && obj->spe > 0
+            /* don't give controlled hero a free teleport */
+            && !Teleport_control
+            /* same hack as MUSE_WAN_TELEPORTATION_SELF */
+            && (!level.flags.noteleport
+                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP - 1))))
+            /* do try to move hero to a more vulnerable spot */
+            && (onscary(u.ux, u.uy, mtmp)
+                || (u.ux == sstairs.sx && u.uy == sstairs.sy))) {
+            m.offensive = obj;
+            m.has_offense = MUSE_WAN_TELEPORTATION;
+        } else if (!m.tocharge || obj->spe < 1
+                   || (m.tocharge->otyp != WAN_DEATH
+                       && m.tocharge->otyp != WAN_SLEEP
+                       && m.tocharge->otyp != WAN_FIRE
+                       && m.tocharge->otyp != FIRE_HORN
+                       && m.tocharge->otyp != WAN_COLD
+                       && m.tocharge->otyp != FROST_HORN
+                       && m.tocharge->otyp != WAN_LIGHTNING
+                       && m.tocharge->otyp != WAN_MAGIC_MISSILE
+                       && m.tocharge->otyp != WAN_CANCELLATION
+                       && m.tocharge->otyp != WAN_POLYMORPH
+                       && m.tocharge->otyp != WAN_STRIKING)) {
+            m.tocharge = obj;
+        }
         if (m.has_offense == MUSE_SCR_CHARGING && m.tocharge)
             continue;
         if (obj->otyp == SCR_CHARGING) {
@@ -1888,7 +1917,7 @@ register struct obj *otmp;
                 makeknown(WAN_STRIKING);
         }
         break;
-#if 0   /* disabled because find_offensive() never picks WAN_TELEPORTATION */
+   /* disabled because find_offensive() never picks WAN_TELEPORTATION */
     case WAN_TELEPORTATION:
         if (hits_you) {
             tele();
@@ -1903,7 +1932,6 @@ register struct obj *otmp;
                 (void) rloc(mtmp, TRUE);
         }
         break;
-#endif
     case WAN_POLYMORPH:
         if (hits_you) {
             if (Antimagic) {
