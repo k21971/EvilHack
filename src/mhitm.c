@@ -980,7 +980,8 @@ struct monst *magr, *mdef;
     int dx, dy;
 
     /* can't swallow something that's too big */
-    if (r_data(mdef)->msize >= MZ_HUGE)
+    if (r_data(mdef)->msize >= MZ_HUGE
+        || (r_data(magr)->msize < r_data(mdef)->msize && !is_whirly(magr->data)))
         return FALSE;
 
     /* can't swallow trapped monsters. TODO: could do some? */

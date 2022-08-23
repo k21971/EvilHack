@@ -31,7 +31,6 @@ STATIC_DCL void FDECL(m_detach, (struct monst *, struct permonst *));
 STATIC_DCL void FDECL(lifesaved_monster, (struct monst *));
 STATIC_DCL void FDECL(migrate_mon, (struct monst *, XCHAR_P, XCHAR_P));
 STATIC_DCL boolean FDECL(ok_to_obliterate, (struct monst *));
-STATIC_DCL void FDECL(deal_with_overcrowding, (struct monst *));
 STATIC_DCL void FDECL(icequeenrevive, (struct monst *));
 
 /* note: duplicated in dog.c */
@@ -4249,7 +4248,7 @@ struct monst *mtmp;
     return;
 }
 
-STATIC_OVL void
+void
 deal_with_overcrowding(mtmp)
 struct monst *mtmp;
 {
