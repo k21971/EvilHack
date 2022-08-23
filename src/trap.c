@@ -2759,14 +2759,14 @@ register struct monst *mtmp;
                 if (rn2(2)) {
                     if (in_sight)
                         pline_The("water evaporates!");
-                        levl[mtmp->mx][mtmp->my].typ = ROOM;
+                    levl[mtmp->mx][mtmp->my].typ = ROOM;
                 }
                 if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
                     if (in_sight) {
                         shieldeff(mtmp->mx, mtmp->my);
                         pline("%s is uninjured.", Monnam(mtmp));
                     }
-                } else if (thitm(0, mtmp, (struct obj *)0, rnd(3), FALSE))
+                } else if (thitm(0, mtmp, (struct obj *) 0, rnd(3), FALSE))
                            trapkilled = TRUE;
                 if (see_it)
                     seetrap(trap);

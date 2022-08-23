@@ -6052,10 +6052,11 @@ boolean doit;
     if (IS_FORGE(typ)) {
         add_herecmd_menuitem(win, dodrink, "Really drink the lava from the forge?");
     }
-    if (IS_FOUNTAIN(typ) || IS_FORGE(typ))
+    if (IS_FOUNTAIN(typ) || IS_FORGE(typ)) {
         Sprintf(buf, "Dip something into the %s",
                 defsyms[IS_FOUNTAIN(typ) ? S_fountain : S_forge].explanation);
         add_herecmd_menuitem(win, dodip, buf);
+    }
     if (IS_FORGE(typ)) {
         Sprintf(buf, "Combine objects in the %s",
                 defsyms[S_forge].explanation);

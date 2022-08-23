@@ -2159,10 +2159,11 @@ int spellnum;
             impossible("ucast haste but not yours?");
             return;
         }
-        if (!(HFast & INTRINSIC))
+        if (!(HFast & INTRINSIC)) {
             You("are suddenly moving faster.");
             HFast |= INTRINSIC;
-            dmg = 0;
+        }
+        dmg = 0;
         break;
     case MGC_CURE_SELF:
         if (!yours)
