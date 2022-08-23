@@ -2423,4 +2423,5 @@ The following changes to date are:
 - Fix: warnings during compile using gcc version 11
 - Make hitting with a wielded potion hit you far less
 - Fix: engulfing mounted hero
+- Adjust random item artifact chances
 
