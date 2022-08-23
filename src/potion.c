@@ -1907,7 +1907,7 @@ int how;
     }
 
     /* Note: potionbreathe() does its own docall() */
-    if ((distance == 0 || (distance < 3 && rn2(5)))
+    if ((distance == 0 || (distance < 3 && !rn2((1 + ACURR(A_DEX)) / 2)))
         && (!breathless(youmonst.data) || haseyes(youmonst.data)))
         potionbreathe(obj);
     else if (obj->dknown && !objects[obj->otyp].oc_name_known

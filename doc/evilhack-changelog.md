@@ -2421,4 +2421,5 @@ The following changes to date are:
 - Fix: typo in 'The Adventurer's Journal'
 - Kathryn grudges all things that can sting
 - Fix: warnings during compile using gcc version 11
+- Make hitting with a wielded potion hit you far less
 
