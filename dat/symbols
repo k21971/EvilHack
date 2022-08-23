@@ -350,6 +350,7 @@ start: IBMgraphics
 	S_litcorr: \xb1			# meta-1, medium shading
 	S_forge: \xf4			# meta-t, integral top half
 	S_fountain: \xf4		# meta-t, integral top half
+	S_sink: \xf4                    # meta-t, integral top half
 	S_puddle: \xf7			# meta-w, approx. equals
 	S_sewage: \xf7			# meta-w, approx. equals
 	S_pool: \xf7			# meta-w, approx. equals

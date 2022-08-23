@@ -2425,4 +2425,5 @@ The following changes to date are:
 - Fix: engulfing mounted hero
 - Adjust random item artifact chances
 - Monsters will use teleportation wands offensively
+- Change kitchen sink glyph and color
 
