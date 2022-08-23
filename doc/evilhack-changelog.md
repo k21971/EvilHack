@@ -2426,4 +2426,5 @@ The following changes to date are:
 - Adjust random item artifact chances
 - Monsters will use teleportation wands offensively
 - Change kitchen sink glyph and color
+- Adjust random item artifact chances again
 
