@@ -1436,6 +1436,7 @@ struct monst *mtmp;
 /*#define MUSE_WAN_UNDEAD_TURNING 24*/ /* also a defensive item so don't
                                         * redefine; nonconsecutive value is ok */
 #define MUSE_POT_OIL 25
+#define MUSE_CAMERA 26
 
 static boolean
 linedup_chk_corpse(x, y)
@@ -1832,6 +1833,14 @@ boolean reflection_skip;
             && !m_seenres(mtmp, M_SEEN_FIRE)) {
             m.offensive = obj;
             m.has_offense = MUSE_SCR_FIRE;
+        }
+        nomore(MUSE_CAMERA);
+        if (obj->otyp == EXPENSIVE_CAMERA
+            && (!Blind || hates_light(youmonst.data))
+            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
+            && obj->spe > 0 && !rn2(6)) {
+            m.offensive = obj;
+            m.has_offense = MUSE_CAMERA;
         }
     }
     if (m.has_offense == 0 && m.tocharge && charge_scroll) {
@@ -2270,7 +2279,7 @@ struct monst *mtmp;
         }
 
         return (DEADMONSTER(mtmp)) ? 1 : 2;
-    }
+    } /* case MUSE_SCR_EARTH */
     case MUSE_SCR_FIRE: {
         boolean vis = cansee(mtmp->mx, mtmp->my);
 
@@ -2317,7 +2326,23 @@ struct monst *mtmp;
             }
         }
         return 2;
-    }
+    } /* case MUSE_SCR_FIRE */
+    case MUSE_CAMERA: {
+        if (Hallucination)
+            verbalize("Say cheese!");
+        else
+            pline("%s takes a picture of you with %s!",
+                  Monnam(mtmp), an(xname(otmp)));
+        m_using = TRUE;
+        if (!Blind) {
+            You("are blinded by the flash of light!");
+            make_blinded(Blinded + (long) rnd(1 + 50), FALSE);
+        }
+        lightdamage(otmp, TRUE, 5);
+        m_using = FALSE;
+        otmp->spe--;
+        return 1;
+    } /* case MUSE_CAMERA */
     case MUSE_POT_PARALYSIS:
     case MUSE_POT_BLINDNESS:
     case MUSE_POT_CONFUSION:
@@ -3370,6 +3395,8 @@ struct obj *obj;
             || typ == SACK || (typ == BAG_OF_TRICKS && obj->spe > 0))
             return TRUE;
         if (typ == FIGURINE)
+            return TRUE;
+        if (typ == EXPENSIVE_CAMERA && obj->spe > 0)
             return TRUE;
         break;
     case FOOD_CLASS:

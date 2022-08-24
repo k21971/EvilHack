@@ -2427,4 +2427,5 @@ The following changes to date are:
 - Monsters will use teleportation wands offensively
 - Change kitchen sink glyph and color
 - Adjust random item artifact chances again
+- Monsters can blind you with a camera
 
