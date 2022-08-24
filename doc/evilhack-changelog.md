@@ -2428,4 +2428,5 @@ The following changes to date are:
 - Change kitchen sink glyph and color
 - Adjust random item artifact chances again
 - Monsters can blind you with a camera
+- Monsters will use wands of slow monster offensively
 

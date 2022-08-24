@@ -1437,6 +1437,7 @@ struct monst *mtmp;
                                         * redefine; nonconsecutive value is ok */
 #define MUSE_POT_OIL 25
 #define MUSE_CAMERA 26
+#define MUSE_WAN_SLOW_MONSTER 27
 
 static boolean
 linedup_chk_corpse(x, y)
@@ -1741,6 +1742,14 @@ boolean reflection_skip;
                        && m.tocharge->otyp != WAN_STRIKING)) {
             m.tocharge = obj;
         }
+        nomore(MUSE_WAN_SLOW_MONSTER);
+        /* don't bother recharging this one */
+        if (obj->otyp == WAN_SLOW_MONSTER) {
+            if (obj->spe > 0 && !Slow) {
+                m.offensive = obj;
+                m.has_offense = MUSE_WAN_SLOW_MONSTER;
+            }
+        }
         if (m.has_offense == MUSE_SCR_CHARGING && m.tocharge)
             continue;
         if (obj->otyp == SCR_CHARGING) {
@@ -2016,6 +2025,14 @@ register struct obj *otmp;
             makeknown(WAN_UNDEAD_TURNING);
         break;
     }
+    case WAN_SLOW_MONSTER:
+        if (hits_you) {
+            if (!Slow)
+                u_slow_down();
+        }
+        if (zap_oseen)
+            makeknown(WAN_SLOW_MONSTER);
+        break;
     default:
         break;
     }
@@ -2228,6 +2245,7 @@ struct monst *mtmp;
     case MUSE_WAN_POLYMORPH:
     case MUSE_WAN_UNDEAD_TURNING:
     case MUSE_WAN_STRIKING:
+    case MUSE_WAN_SLOW_MONSTER:
         zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
         m_using = TRUE;
@@ -2459,6 +2477,8 @@ struct monst *mtmp;
         return SCR_STINKING_CLOUD;
     case 14:
         return WAN_CANCELLATION;
+    case 15:
+        return WAN_SLOW_MONSTER;
     }
     /*NOTREACHED*/
     return 0;
@@ -3346,7 +3366,8 @@ struct obj *obj;
         if (objects[typ].oc_dir == RAY || typ == WAN_STRIKING
             || typ == WAN_TELEPORTATION || typ == WAN_CREATE_MONSTER
             || typ == WAN_CANCELLATION || typ == WAN_WISHING
-            || typ == WAN_POLYMORPH || typ == WAN_UNDEAD_TURNING)
+            || typ == WAN_POLYMORPH || typ == WAN_UNDEAD_TURNING
+            || typ == WAN_SLOW_MONSTER)
             return TRUE;
         break;
     case POTION_CLASS:
