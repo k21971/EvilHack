@@ -3482,7 +3482,6 @@ weight_cap()
             youmonst.data->cwt = 1600;
             youmonst.data->mmove = 10;
             youmonst.data->msize = MZ_LARGE;
-            youmonst.data->mflags1 |= M1_AMPHIBIOUS;
         }
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */

@@ -1906,7 +1906,8 @@ boolean via_warning;
         found_something = !canspotmon(mtmp);
         if (mtmp->mundetected && (is_hider(mtmp->data)
                                   || hides_under(mtmp->data)
-                                  || mtmp->data->mlet == S_EEL
+                                  || (mtmp->data->mlet == S_EEL
+                                      && !See_underwater)
                                   || mtmp->data == &mons[PM_GIANT_LEECH])) {
             if (via_warning) {
                 Your("warning senses cause you to take a second %s.",

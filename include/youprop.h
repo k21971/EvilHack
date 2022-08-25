@@ -296,11 +296,13 @@
 #define HMagical_breathing u.uprops[MAGICAL_BREATHING].intrinsic
 #define EMagical_breathing u.uprops[MAGICAL_BREATHING].extrinsic
 #define Amphibious \
-    (HMagical_breathing || EMagical_breathing || amphibious(youmonst.data))
+    (HMagical_breathing || EMagical_breathing || amphibious(youmonst.data) \
+     || racial_tortle(&youmonst))
 /* Get wet, may go under surface */
 
 #define See_underwater \
-    ((HSwimming && (HMagical_breathing || amphibious(youmonst.data))) \
+    ((HSwimming && (HMagical_breathing || amphibious(youmonst.data) \
+                    || racial_tortle(&youmonst))) \
      || (ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD))
 
 #define Breathless \

@@ -2431,4 +2431,6 @@ The following changes to date are:
 - Monsters will use wands of slow monster offensively
 - Allow normal sight whilst underwater given the right conditions
 - Fix: paranoid swim and wearing white dragon-scaled armor
+- Fix: See_underwater as a tortle when saving/reloading, hidden
+  monsters underwater
 
