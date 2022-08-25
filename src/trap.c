@@ -4472,7 +4472,12 @@ drown()
         }
         vision_recalc(2); /* unsee old position */
         u.uinwater = 1;
-        under_water(1);
+        if (!See_underwater) {
+            under_water(1);
+        } else {
+            vision_reset();
+            docrt();
+        }
         vision_full_recalc = 1;
         return FALSE;
     }

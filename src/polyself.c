@@ -438,7 +438,7 @@ int psflags;
             draconian_only = (psflags == 4),
             iswere = (u.ulycn >= LOW_PM), isvamp = is_vampire(youmonst.data),
             controllable_poly = Polymorph_control && !(Stunned || Unaware),
-            yourrace;
+            yourrace, old_uwvis = (Underwater && See_underwater);
 
     if (Unchanging) {
         pline("You fail to transform!");
@@ -639,6 +639,10 @@ int psflags;
     sex_change_ok--; /* reset */
 
 made_change:
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
     new_light = emits_light(youmonst.data);
     if (old_light != new_light) {
         if (old_light)

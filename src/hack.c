@@ -2376,6 +2376,8 @@ boolean newspot;             /* true if called by spoteffects */
 
             u.uinwater = 0;       /* leave the water */
             if (was_underwater) { /* restore vision */
+                if (See_underwater)
+                    vision_reset();
                 docrt();
                 vision_full_recalc = 1;
             }

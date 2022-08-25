@@ -555,4 +555,7 @@
 
 #define is_racialmon(ptr) (is_mplayer(ptr) || is_mercenary(ptr))
 
+#define M_IN_WATER(ptr) \
+    ((ptr)->mlet == S_EEL || amphibious(ptr) || is_swimmer(ptr))
+
 #endif /* MONDATA_H */

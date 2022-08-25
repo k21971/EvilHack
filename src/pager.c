@@ -1886,7 +1886,8 @@ struct permonst **for_supplement;
     int i, alt_i, j, glyph = NO_GLYPH,
         skipped_venom = 0, found = 0; /* count of matching syms found */
     boolean hit_trap, need_to_look = FALSE,
-            submerged = (Underwater && !Is_waterlevel(&u.uz));
+            submerged = (Underwater && !Is_waterlevel(&u.uz)
+                         && !See_underwater);
     const char *x_str;
     nhsym tmpsym;
 

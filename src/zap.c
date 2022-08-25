@@ -54,9 +54,6 @@ STATIC_DCL void FDECL(wishcmdassist, (int));
 
 #define is_hero_spell(type) ((type) >= 10 && (type) < 20)
 
-#define M_IN_WATER(ptr) \
-    ((ptr)->mlet == S_EEL || amphibious(ptr) || is_swimmer(ptr))
-
 STATIC_VAR const char are_blinded_by_the_flash[] =
     "are blinded by the flash!";
 

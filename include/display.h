@@ -70,9 +70,15 @@
      && !(mon->mburied || u.uburied)) /* AND 3. neither you nor it is buried */
 #else   /* without 'mburied' and 'uburied' */
 #define mon_visible(mon) \
-    (/* The hero can see the monster IF the monster                     */ \
-     (!mon->minvis || See_invisible)  /*     1. is not invisible        */ \
-     && !mon->mundetected)            /* AND 2. not an undetected hider */
+    (/* The hero can see the monster IF the monster                          */ \
+     (!mon->minvis || See_invisible)      /*     1.  is not invisible        */ \
+     && (!mon->mundetected                /* AND 2a. not an undetected hider */ \
+         || (M_IN_WATER((mon)->data)      /*     2b. OR hiding underwater    */ \
+             && Underwater))              /*         with you                */ \
+     && !(!M_IN_WATER((mon)->data)        /* AND 3.  not above the water     */ \
+          && Underwater                   /*         while you're there      */ \
+          && (distu((mon)->mx, (mon)->my) /*         and not close           */ \
+              > 3 * 3)))
 #endif
 
 /*

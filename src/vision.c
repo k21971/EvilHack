@@ -166,8 +166,12 @@ register struct rm *lev;
             && (lev->doormask & (D_CLOSED | D_LOCKED | D_TRAPPED))))
         return 1;
 
+    if (Underwater && !Is_waterlevel(&u.uz)
+        && !IS_POOL(lev->typ) && lev->typ != ICE)
+        return 1;
+
     if (lev->typ == CLOUD || lev->typ == WATER
-        || (lev->typ == MOAT && Underwater))
+        || (lev->typ == MOAT && Underwater && !See_underwater))
         return 1;
 
     /* Boulders block light. */
@@ -577,14 +581,7 @@ int control;
     } else {
         int has_night_vision = 1; /* hero has night vision */
 
-        if (Underwater && !Is_waterlevel(&u.uz)) {
-            /*
-             * The hero is under water.  Only see surrounding locations if
-             * they are also underwater.  This overrides night vision but
-             * does not override x-ray vision.
-             */
-            has_night_vision = 0;
-
+        if (Underwater && !Is_waterlevel(&u.uz) && !See_underwater) {
             for (row = u.uy - 1; row <= u.uy + 1; row++)
                 for (col = u.ux - 1; col <= u.ux + 1; col++) {
                     if (!isok(col, row) || !is_pool(col, row))
@@ -614,6 +611,16 @@ int control;
             view_from(u.uy, u.ux, next_array, next_rmin, next_rmax, 0,
                       (void FDECL((*), (int, int, genericptr_t))) 0,
                       (genericptr_t) 0);
+
+        if (Underwater && !Is_waterlevel(&u.uz)) {
+            /*
+             * The hero is under water.  Only see surrounding locations if
+             * they are also underwater.  This overrides night vision but
+             * does not override x-ray vision.
+             */
+            has_night_vision = 0;
+        }
+
 
         /*
          * Set the IN_SIGHT bit for xray and night vision.

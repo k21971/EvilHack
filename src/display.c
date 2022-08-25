@@ -762,7 +762,8 @@ register int x, y;
     if (Underwater && !Is_waterlevel(&u.uz)) {
         /* when underwater, don't do anything unless <x,y> is an
            adjacent water or lava or ice position */
-        if (!(is_pool_or_lava(x, y) || is_ice(x, y)) || distu(x, y) > 2)
+        if (!(is_pool_or_lava(x, y) || is_ice(x, y))
+            || (!See_underwater && distu(x, y) > 2))
             return;
     }
 
@@ -894,7 +895,8 @@ register int x, y;
                 goto show_mem;
         } else {
  show_mem:
-            show_glyph(x, y, lev->glyph);
+            if (!Underwater)
+                show_glyph(x, y, lev->glyph);
         }
     }
 }
@@ -1421,7 +1423,7 @@ docrt()
         swallowed(1);
         goto post_map;
     }
-    if (Underwater && !Is_waterlevel(&u.uz)) {
+    if (Underwater && !Is_waterlevel(&u.uz) && !See_underwater) {
         under_water(1);
         goto post_map;
     }
@@ -1441,11 +1443,13 @@ docrt()
     cls();
 
     /* display memory */
-    for (x = 1; x < COLNO; x++) {
-        lev = &levl[x][0];
-        for (y = 0; y < ROWNO; y++, lev++)
-            if (lev->glyph != cmap_to_glyph(S_stone))
-                show_glyph(x, y, lev->glyph);
+    if (!Underwater) {
+        for (x = 1; x < COLNO; x++) {
+            lev = &levl[x][0];
+            for (y = 0; y < ROWNO; y++, lev++)
+                if (lev->glyph != cmap_to_glyph(S_stone))
+                    show_glyph(x, y, lev->glyph);
+        }
     }
 
     /* see what is to be seen */
