@@ -2430,4 +2430,5 @@ The following changes to date are:
 - Monsters can blind you with a camera
 - Monsters will use wands of slow monster offensively
 - Allow normal sight whilst underwater given the right conditions
+- Fix: paranoid swim and wearing white dragon-scaled armor
 

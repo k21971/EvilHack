@@ -1954,15 +1954,19 @@ domove_core()
     /* Paranoid checks for dangerous moves, unless specified with 'm' */
     if (!context.nopick || context.run) {
         boolean known_wwalking, known_lwalking;
-        known_wwalking = (uarmf && uarmf->otyp == WATER_WALKING_BOOTS
-                          && objects[WATER_WALKING_BOOTS].oc_name_known
+        known_wwalking = (((uarmf && uarmf->otyp == WATER_WALKING_BOOTS
+                            && objects[WATER_WALKING_BOOTS].oc_name_known)
+                           || (uarm && Is_dragon_scaled_armor(uarm)
+                               && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES))
                           && !u.usteed);
         /* FIXME: This can be exploited to identify the ring of fire resistance
          * if the player is wearing it unidentified and has identified
          * fireproof boots of water walking and is walking over lava. However,
          * this is such a marginal case that it may not be worth fixing. */
-        known_lwalking = (known_wwalking && Fire_resistance
-                          && uarmf->oerodeproof && uarmf->rknown);
+        known_lwalking = ((known_wwalking && Fire_resistance
+                           && uarmf->oerodeproof && uarmf->rknown)
+                          || (uarm && Is_dragon_scaled_armor(uarm)
+                               && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES));
         if (!Levitation && !Flying && grounded(youmonst.data)
             && !Stunned && !Confusion && levl[x][y].seenv
             && ((is_pool(x, y) && !is_pool(u.ux, u.uy))
