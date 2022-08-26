@@ -37,7 +37,7 @@ In short:
 - EvilHack is meant to be very difficult and challenging
 - EvilHack is meant to be fun, even though it is difficult
 - Any changes should be balanced
-- Replayablilty/randomness is a priority design goal to ensure unpredictable  
+- Replayablilty/randomness is a priority design goal to ensure unpredictable
   outcomes and to keep the experience fresh
 - Addressing bugs/balance issues will always be an ongoing process
 - Player feedback/constructive criticism is welcome and encouraged
@@ -59,7 +59,9 @@ For Linux (TL;DR version):
   Invoking `sudo` should not be necessary
 
   - Using the `linux-debug` hints file assumes installing as root, and includes
-  extra CFLAGS for debugging in a development scenario
+  extra CFLAGS for debugging in a development scenario. If you prefer using clang
+  as your compiler and have it installed, see `clang-linux-debug` as an alternative
+  hints file to use
 
   - With either hints file, edit the install paths to your liking
 - Navigate back to the root EvilHack folder, and `make all && make install`

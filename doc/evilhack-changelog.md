@@ -2434,4 +2434,5 @@ The following changes to date are:
 - Fix: See_underwater as a tortle when saving/reloading, hidden
   monsters underwater
 - Fix: better way to handle hidden monsters underwater; new hints file
+- Minor README update
 
