@@ -2433,4 +2433,5 @@ The following changes to date are:
 - Fix: paranoid swim and wearing white dragon-scaled armor
 - Fix: See_underwater as a tortle when saving/reloading, hidden
   monsters underwater
+- Fix: better way to handle hidden monsters underwater; new hints file
 

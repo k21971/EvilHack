@@ -1904,11 +1904,10 @@ boolean via_warning;
         /* this used to only be executed if a !canspotmon() test passed
            but that failed to bring sensed monsters out of hiding */
         found_something = !canspotmon(mtmp);
-        if (mtmp->mundetected && (is_hider(mtmp->data)
-                                  || hides_under(mtmp->data)
-                                  || (mtmp->data->mlet == S_EEL
-                                      && !See_underwater)
-                                  || mtmp->data == &mons[PM_GIANT_LEECH])) {
+        if (mtmp->mundetected && !mon_visible(mtmp)
+            && (is_hider(mtmp->data) || hides_under(mtmp->data)
+                || mtmp->data->mlet == S_EEL
+                || mtmp->data == &mons[PM_GIANT_LEECH])) {
             if (via_warning) {
                 Your("warning senses cause you to take a second %s.",
                      Blind ? "to check nearby" : "look close by");
