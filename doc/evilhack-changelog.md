@@ -2435,4 +2435,5 @@ The following changes to date are:
   monsters underwater
 - Fix: better way to handle hidden monsters underwater; new hints file
 - Minor README update
+- Fix: ammo damage from the Longbow of Diana/Crossbow of Carl
 
