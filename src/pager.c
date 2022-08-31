@@ -760,6 +760,7 @@ struct permonst * pm;
 {
     char buf[BUFSZ];
     char buf2[BUFSZ];
+    int i;
     int gen = pm->geno;
     int freq = (gen & G_FREQ);
     int pct = max(5, (int) (pm->cwt / 90));
@@ -995,7 +996,6 @@ struct permonst * pm;
 
     /* Attacks */
     buf[0] = buf2[0] = '\0';
-    int i;
     for (i = 0; i < 6; i++) {
         char dicebuf[20]; /* should be a safe limit */
         struct attack * attk = &(pm->mattk[i]);
@@ -1033,6 +1033,11 @@ struct permonst * pm;
 #undef APPENDC
 #undef MONPUTSTR
 
+extern const struct propname {
+    int prop_num;
+    const char* prop_name;
+} propertynames[]; /* located in timeout.c */
+
 /* Add some information to an encyclopedia window which is printing information
  * about an object. */
 STATIC_OVL void
@@ -1044,6 +1049,7 @@ short otyp;
     char olet = oc.oc_class;
     char buf[BUFSZ];
     char buf2[BUFSZ];
+    boolean weptool = (olet == TOOL_CLASS && oc.oc_skill != P_NONE);
     const char* dir = (oc.oc_dir == NODIR ? "Non-directional"
                                           : (oc.oc_dir == IMMEDIATE ? "Beam"
                                                                     : "Ray"));
@@ -1060,9 +1066,12 @@ short otyp;
     OBJPUTSTR("");
 
     /* Object classes currently with no special messages here: amulets. */
-    boolean weptool = (olet == TOOL_CLASS && oc.oc_skill != P_NONE);
     if (olet == WEAPON_CLASS || weptool) {
         const int skill = oc.oc_skill;
+        const char* dmgtyp = "blunt";
+        const char* sdambon = "";
+        const char* ldambon = "";
+
         if (skill >= 0) {
             Sprintf(buf, "%s-handed weapon%s using the %s skill.",
                     (oc.oc_bimanual ? "Two" : "Single"),
@@ -1079,7 +1088,6 @@ short otyp;
         }
         OBJPUTSTR(buf);
 
-        const char* dmgtyp = "blunt";
         if (oc.oc_dir & PIERCE) {
             dmgtyp = "piercing";
             if (oc.oc_dir & SLASH) {
@@ -1093,8 +1101,6 @@ short otyp;
 
         /* Ugh. Can we just get rid of dmgval() and put its damage bonuses into
          * the object class? */
-        const char* sdambon = "";
-        const char* ldambon = "";
         switch (otyp) {
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
@@ -1332,10 +1338,6 @@ short otyp;
     }
 
     /* power conferred */
-    extern const struct propname {
-        int prop_num;
-        const char* prop_name;
-    } propertynames[]; /* located in timeout.c */
     if (oc.oc_oprop) {
         int i;
         for (i = 0; propertynames[i].prop_name; ++i) {
@@ -1639,6 +1641,8 @@ char *supplemental_name;
 
         pass1found_in_file = FALSE;
         for (pass = !strcmp(alt, dbase_str) ? 0 : 1; pass >= 0; --pass) {
+            long entry_offset, fseekoffset;
+            int entry_count;
             found_in_file = skipping_entry = FALSE;
             txt_offset = 0L;
             if (dlb_fseek(fp, txt_offset, SEEK_SET) < 0 ) {
@@ -1694,9 +1698,6 @@ char *supplemental_name;
             }
 
             /* database entry should exist, now find where it is */
-            long entry_offset, fseekoffset;
-            int entry_count;
-            int i;
             if (found_in_file) {
                 /* skip over other possible matches for the info */
                 do {
@@ -1808,6 +1809,7 @@ char *supplemental_name;
                     /* encyclopedia entry */
                     if (found_in_file) {
                         char titlebuf[BUFSZ];
+                        int i;
                         if (dlb_fseek(fp, (long) txt_offset + entry_offset,
                                       SEEK_SET) < 0) {
                             pline("? Seek error on 'data' file!");

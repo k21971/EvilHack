@@ -1298,8 +1298,8 @@ int pm;
     /* possibly convey an intrinsic */
     if (check_intrinsics) {
         struct permonst *ptr = &mons[pm];
-        boolean conveys_STR = is_giant(ptr);
         int i, count;
+        boolean conveys_STR = is_giant(ptr);
 
         if (dmgtype(ptr, AD_STUN) || dmgtype(ptr, AD_HALU)
             || pm == PM_VIOLET_FUNGUS) {
@@ -1311,7 +1311,7 @@ int pm;
         count = 0; /* number of possible intrinsics */
         tmp = 0;   /* which one we will try to give */
         if (conveys_STR) {
-            count += 1;
+            count ++;
             tmp = -1; /* use -1 as fake prop index for STR */
             debugpline1("\"Intrinsic\" strength, %d", tmp);
         }

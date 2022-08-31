@@ -1381,7 +1381,10 @@ unsigned trflags;
         break;
 
     case PIT:
-    case SPIKED_PIT:
+    case SPIKED_PIT: {
+        /* is the pit an "open grave"? (if it's in a graveyard, yes) */
+        boolean is_grave = (getroomtype(u.ux, u.uy) == MORGUE
+                            && ttype != SPIKED_PIT);
         /* KMH -- You can't escape the Sokoban level traps */
         if (!Sokoban && (Levitation || (Flying && !plunged)))
             break;
@@ -1397,9 +1400,6 @@ unsigned trflags;
             }
             break;
         }
-        /* is the pit an "open grave"? (if it's in a graveyard, yes) */
-        boolean is_grave = (getroomtype(u.ux, u.uy) == MORGUE
-                            && ttype != SPIKED_PIT);
         if (!Sokoban) {
             char verbbuf[BUFSZ];
 
@@ -1501,7 +1501,7 @@ unsigned trflags;
             exercise(A_DEX, FALSE);
         }
         break;
-
+    }
     case HOLE:
     case TRAPDOOR:
         if (!Can_fall_thru(&u.uz)) {
@@ -4087,6 +4087,7 @@ xchar x, y;
 {
     struct obj *otmp, *ncobj;
     int in_sight = !Blind && couldsee(x, y); /* Don't care if it's lit */
+    boolean ucarried = carried(obj);
 
     if (!obj)
         return ER_NOTHING;
@@ -4097,7 +4098,6 @@ xchar x, y;
     if (!ostr)
         ostr = cxname(obj);
 
-    boolean ucarried = carried(obj);
     if (obj->otyp == CAN_OF_GREASE && obj->spe > 0) {
         return ER_NOTHING;
     } else if (obj->otyp == TOWEL && obj->spe < 7) {

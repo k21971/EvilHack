@@ -2436,4 +2436,5 @@ The following changes to date are:
 - Fix: better way to handle hidden monsters underwater; new hints file
 - Minor README update
 - Fix: ammo damage from the Longbow of Diana/Crossbow of Carl
+- Fix: silence several compile warnings (clang)
 

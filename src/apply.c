@@ -1770,13 +1770,13 @@ check_mon_jump(mtmp, x, y)
 struct monst *mtmp;
 int x, y;
 {
+    int traj,
+        dx = x - u.ux, dy = y - u.uy,
+        ax = abs(dx), ay = abs(dy);
     coord mc, tc;
     mc.x = mtmp->mx, mc.y = mtmp->my;
     tc.x = x, tc.y = y; /* target */
 
-    int traj,
-        dx = x - u.ux, dy = y - u.uy,
-        ax = abs(dx), ay = abs(dy);
     /* traj: flatten out the trajectory => some diagonals re-classified */
     if (ax >= 2 * ay)
         ay = 0;

@@ -36,7 +36,7 @@ STATIC_DCL struct fruit *FDECL(loadfruitchn, (int));
 STATIC_DCL void FDECL(freefruitchn, (struct fruit *));
 STATIC_DCL void FDECL(ghostfruit, (struct obj *));
 STATIC_DCL boolean FDECL(restgamestate, (int, unsigned int *, unsigned int *));
-STATIC_DCL void FDECL(restmonsteeds, (boolean));
+STATIC_DCL void FDECL(restmonsteeds, (BOOLEAN_P));
 STATIC_DCL void FDECL(restlevelstate, (unsigned int, unsigned int));
 STATIC_DCL int FDECL(restlevelfile, (int, XCHAR_P));
 STATIC_OVL void FDECL(restore_msghistory, (int));

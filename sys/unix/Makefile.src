@@ -398,7 +398,7 @@ GITINFO=1
 # (rather than just in suffix default rule), such as is implemented by
 # gnu make and others which have picked up its extensions;
 # allowed values are 0, 1, and empty (which behaves like 0)
-QUIETCC=0
+QUIETCC=1
 
 # ----------------------------------------
 #

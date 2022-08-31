@@ -3294,9 +3294,11 @@ short
 name_to_otyp(in_str)
 const char * in_str;
 {
+    struct Jitem *ji;
     short otyp;
     int i;
     char oclass = 0;
+    const struct alt_spellings *as;
 
     /* Search for class names: XXXXX potion, scroll of XXXXX.  Avoid */
     /* false hits on, e.g., rings for "ring mail".
@@ -3348,18 +3350,15 @@ const char * in_str;
         }
     }
     /* try alternate spellings */
-    const struct alt_spellings *as;
-
     for (as = spellings; as->sp != 0; as++) {
         if (!strcmpi(in_str, as->sp)) {
             return as->ob;
         }
     }
     /* try Japanese names */
-    struct Jitem *j;
-    for (j = Japanese_items; j->item != 0; j++) {
-        if (!strcmpi(in_str, j->name)) {
-            return j->item;
+    for (ji = Japanese_items; ji->item != 0; ji++) {
+        if (!strcmpi(in_str, ji->name)) {
+            return ji->item;
         }
     }
     /* try fruits */
@@ -3792,6 +3791,10 @@ struct obj *no_wish;
         if (!strstri(bp, "wand ") && !strstri(bp, "spellbook ")
             && !strstri(bp, "finger ") && !strstri(bp, "eye ")
             && !strstri(bp, "hand ") && !strstri(bp, "sword of kas")) {
+            int l = 0;
+            int of = 4;
+            char *tmpp;
+
             if ((p = strstri(bp, "tin of ")) != 0) {
                 if (!strcmpi(p + 7, "spinach")) {
                     contents = SPINACH;
@@ -3805,13 +3808,7 @@ struct obj *no_wish;
                 goto typfnd;
             }
 
-            int l = 0;
-            int of = 4;
-
-            char *tmpp;
-
             p = bp;
-
             while (p != 0) {
                 tmpp = strstri(p, " of ");
                 if (tmpp) {
@@ -4796,8 +4793,8 @@ struct obj *no_wish;
                  * the Tourist's quest nemesis.
                  */
                 if (!((role->ldrnum == PM_MASTER_OF_THIEVES) && Role_if(PM_TOURIST))) {
-                    pm = role->ldrnum;
                     struct permonst* ldr = &mons[pm];
+                    pm = role->ldrnum;
                     /* remove flags that tag quest leaders as
                        peaceful or spawn them mediating */
                     ldr->mflags2 &= ~(M2_PEACEFUL);
@@ -5200,7 +5197,11 @@ char *
 dragon_scales_color(obj)
 struct obj *obj;
 {
+    const struct permonst *pm = &mons[Dragon_armor_to_pm(obj)];
+    const char* endp = strstri(pm->mname, " dragon");
     char* buf = nextobuf();
+    int colorlen = endp - pm->mname;
+
     if (!obj) {
         impossible("dragon_scales_color: null obj");
         return NULL;
@@ -5211,15 +5212,12 @@ struct obj *obj;
         Strcpy(buf, "bugged color");
         return buf;
     }
-    const struct permonst *pm = &mons[Dragon_armor_to_pm(obj)];
-    const char* endp = strstri(pm->mname, " dragon");
     if (!endp) {
         impossible("dragon_scales_color found non-dragon monster (%s)",
                    pm->mname);
         Strcpy(buf, "bugged color");
         return buf;
     }
-    int colorlen = endp - pm->mname;
     strncpy(buf, pm->mname, colorlen);
     buf[colorlen] = '\0';
     return buf;

@@ -181,8 +181,8 @@ getlock()
             do {
                 c = getchar();
             } while (!index("rRyYnN", c) && c != -1);
-            (void) printf("\e[7A"); /* cursor up 7 */
-            (void) printf("\e[J"); /* clear from cursor down */
+            (void) printf("\033[7A"); /* cursor up 7 */
+            (void) printf("\033[J"); /* clear from cursor down */
         }
       }
         if (c == 'r' || c == 'R') {

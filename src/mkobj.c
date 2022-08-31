@@ -3585,10 +3585,10 @@ int mat;
     if (objects[obj->otyp].oc_material == mat) {
         return TRUE;
     } else {
+        const struct icp* materials = material_list(obj);
+
         if (invalid_obj_material(obj, mat))
             return FALSE;
-
-        const struct icp* materials = material_list(obj);
 
         if (materials) {
             int i = 100; /* guarantee going through everything */

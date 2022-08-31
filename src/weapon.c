@@ -446,6 +446,7 @@ struct obj **hated_obj; /* ptr to offending object, can be NULL if not wanted */
 {
     boolean youattack = (magr == &youmonst);
     const int magr_material = monmaterial(monsndx(magr->data));
+    int i;
     int bonus = 0;
     int tmpbonus = 0;
     boolean try_body = FALSE;
@@ -459,9 +460,25 @@ struct obj **hated_obj; /* ptr to offending object, can be NULL if not wanted */
                *leftring  = (youattack ? uleft : which_armor(magr, W_RINGL)),
                *rightring = (youattack ? uright : which_armor(magr, W_RINGR));
 
-    if (hated_obj) {
+    /* The order of armor slots in this array doesn't really matter because we
+     * roll for everything that applies and take the highest damage. */
+    struct {
+        long mask;
+        struct obj* obj;
+    } array[9] = {
+        { W_ARMG, gloves },
+        { W_ARMH, helm   },
+        { W_ARMS, shield },
+        { W_ARMF, boots  },
+        { W_ARM,  armor  },
+        { W_ARMC, cloak  },
+        { W_ARMU, shirt  },
+        { W_RINGL, leftring },
+        { W_RINGR, rightring }
+    };
+
+    if (hated_obj)
         *hated_obj = 0;
-    }
 
     /* Simple exclusions where we ignore a certain type of armor because it is
      * covered by some other equipment. */
@@ -494,24 +511,6 @@ struct obj **hated_obj; /* ptr to offending object, can be NULL if not wanted */
             *hated_obj = (struct obj *) &zeroobj;
     }
 
-    /* The order of armor slots in this array doesn't really matter because we
-     * roll for everything that applies and take the highest damage. */
-    struct {
-        long mask;
-        struct obj* obj;
-    } array[9] = {
-        { W_ARMG, gloves },
-        { W_ARMH, helm   },
-        { W_ARMS, shield },
-        { W_ARMF, boots  },
-        { W_ARM,  armor  },
-        { W_ARMC, cloak  },
-        { W_ARMU, shirt  },
-        { W_RINGL, leftring },
-        { W_RINGR, rightring }
-    };
-
-    int i;
     for (i = 0; i < 9; ++i) {
         if (array[i].obj && (armask & array[i].mask)) {
             tmpbonus = dmgval(array[i].obj, mdef);
@@ -553,6 +552,12 @@ struct monst *mdef;
 const struct obj * obj; /* the offending item, or &zeroobj if magr's body */
 boolean minimal;        /* print a shorter message leaving out obj details */
 {
+    char onamebuf[BUFSZ];
+    char whose[BUFSZ];
+    char* whom = mon_nam(mdef);
+    int mat = obj->material;
+    const char* matname = materialnm[mat];
+    char* cxnameobj = cxname((struct obj *) obj);
     boolean youattack = (magr == &youmonst);
     boolean youdefend = (mdef == &youmonst);
     boolean has_flesh = is_fleshy(mdef->data);
@@ -564,10 +569,6 @@ boolean minimal;        /* print a shorter message leaving out obj details */
 
     if (!youdefend && !canspotmon(mdef))
         return;
-
-    char onamebuf[BUFSZ];
-    char whose[BUFSZ];
-    int mat;
 
     if (obj == &zeroobj) {
         mat = monmaterial(monsndx(magr->data));
@@ -582,18 +583,13 @@ boolean minimal;        /* print a shorter message leaving out obj details */
             Strcat(whose, " ");
         }
     } else {
+        boolean alreadyin = (strstri(cxnameobj, matname) != NULL);
         mat = obj->material;
-        const char* matname = materialnm[mat];
-
-        /* Why doesn't cxname receive a const struct obj? */
-        char* cxnameobj = cxname((struct obj *) obj);
-
         /* Make it explicit to the player that this effect is from the material,
          * by prepending the material, but only if the object's name doesn't
          * already contain the material string somewhere.  (e.g. "sword" should
          * turn into "iron sword", but "engraved silver bell" shouldn't turn
          * into "silver engraved silver bell") */
-        boolean alreadyin = (strstri(cxnameobj, matname) != NULL);
         if (!alreadyin) {
             Sprintf(onamebuf, "%s %s", matname, cxnameobj);
         } else {
@@ -631,7 +627,6 @@ boolean minimal;        /* print a shorter message leaving out obj details */
         return;
     }
 
-    char* whom = mon_nam(mdef);
     if (youdefend)
         Strcpy(whom, "you");
     if (youattack) {
@@ -1567,6 +1562,7 @@ enhance_weapon_skill()
         for (pass = 0; pass < SIZE(skill_ranges); pass++)
             for (i = skill_ranges[pass].first; i <= skill_ranges[pass].last;
                  i++) {
+                int percent = skill_training_percent(i);
                 /* Print headings for skill types */
                 any = zeroany;
                 if (i == skill_ranges[pass].first)
@@ -1597,7 +1593,6 @@ enhance_weapon_skill()
                 (void) skill_level_name(P_SKILL(i), sklnambuf);
                 (void) skill_level_name(P_MAX_SKILL(i), maxsklnambuf);
 
-                int percent = skill_training_percent(i);
                 Strcpy(percentbuf, "");
                 if (percent > 0)
                     Sprintf(percentbuf, "%d%%", percent);

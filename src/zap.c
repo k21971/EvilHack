@@ -6319,10 +6319,6 @@ makewish()
                        "wished for \"%s\"", bufcpy);
 
     if (otmp != &zeroobj) {
-#ifdef WISH_TRACKER
-        /* write it out to our universal wishtracker file */
-        trackwish(bufcpy);
-#endif
         const char
             *verb = ((Is_airlevel(&u.uz) || u.uinwater) ? "slip" : "drop"),
             *oops_msg = (u.uswallow
@@ -6333,6 +6329,10 @@ makewish()
                             ? "Oops!  %s away from you!"
                             : "Oops!  %s to the floor!");
 
+#ifdef WISH_TRACKER
+        /* write it out to our universal wishtracker file */
+        trackwish(bufcpy);
+#endif
         /* The(aobjnam()) is safe since otmp is unidentified -dlc */
         (void) hold_another_object(otmp, oops_msg,
                                    The(aobjnam(otmp, verb)),

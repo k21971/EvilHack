@@ -20,7 +20,7 @@ void NDECL(demonpet);
 STATIC_DCL void FDECL(start_engulf, (struct monst *));
 STATIC_DCL void NDECL(end_engulf);
 STATIC_DCL int FDECL(gulpum, (struct monst *, struct attack *));
-STATIC_DCL boolean FDECL(hmonas, (struct monst *, int, boolean));
+STATIC_DCL boolean FDECL(hmonas, (struct monst *, int, BOOLEAN_P));
 STATIC_DCL void FDECL(nohandglow, (struct monst *));
 STATIC_DCL boolean FDECL(shade_aware, (struct obj *));
 
@@ -2010,6 +2010,8 @@ struct monst *mdef;
 struct attack *mattk;
 {
     struct obj *otmp, *gold = 0, *stealoid, **minvent_ptr;
+    int i = rn2(10), dex_pick = 0, no_vis = 0,
+        size = 0, enc = 0, other = 0, cap;
     boolean as_mon = could_seduce(&youmonst, mdef, mattk);
 
     otmp = mdef->minvent;
@@ -2053,12 +2055,9 @@ struct attack *mattk;
     if (as_mon && gold)
         obj_extract_self(gold);
 
-    /* Rogue uses the thievery skill */
-    int i = rn2(10), dex_pick = 0, no_vis = 0,
-        size = 0, enc = 0, other = 0, cap;
-
-    /* dexterity directly affects how successful
-       a pickpocketing attempt will be */
+    /* Rogue uses the thievery skill; dexterity directly
+       affects how successful a pickpocketing attempt
+       will be */
     if (ACURR(A_DEX) <= 6)
         dex_pick += 3;
     else if (ACURR(A_DEX) <= 9)
@@ -2866,13 +2865,13 @@ do_rust:
         break;
     case AD_WTHR: {
         uchar withertime = max(2, tmp);
-        tmp = 0; /* doesn't deal immediate damage */
         boolean no_effect =
             (nonliving(pd) /* This could use is_fleshy(), but that would
                               make a large set of monsters immune like
                               fungus, blobs, and jellies. */
              || is_vampshifter(mdef) || negated);
         boolean lose_maxhp = (withertime >= 8); /* if already withering */
+        tmp = 0; /* doesn't deal immediate damage */
 
         if (!no_effect) {
             if (canseemon(mdef))

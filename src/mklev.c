@@ -286,9 +286,10 @@ rndvault_getname()
 {
     if (!rndvault_gen) rndvault_gen_load();
     if (rndvault_gen) {
+        struct _rndvault *tmp = rndvault_gen->vaults;
         long cdepth = depth(&u.uz);
+        long frq;
         if (curr_total_freq == -1 || curr_vault_depth != cdepth) {
-            struct _rndvault *tmp = rndvault_gen->vaults;
             curr_total_freq = 0;
             while (tmp) {
                 if (cdepth >= tmp->mindepth)
@@ -297,9 +298,8 @@ rndvault_getname()
             }
             curr_vault_depth = cdepth;
         }
-        long frq = rn2(curr_total_freq);
-	struct _rndvault *tmp = rndvault_gen->vaults;
 
+        frq = rn2(curr_total_freq);
         while (tmp) {
             if (cdepth >= tmp->mindepth)
                 frq -= tmp->freq;

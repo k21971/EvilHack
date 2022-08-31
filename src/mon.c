@@ -298,8 +298,8 @@ struct monst* mdef;
 {
     struct permonst* mdat = mdef->data;
     boolean couldspot = canspotmon(mdef);
-    mdef->data = &mons[PM_MIND_FLAYER];
     boolean willspot = canspotmon(mdef);
+    mdef->data = &mons[PM_MIND_FLAYER];
     mdef->data = mdat;
 
     if (couldspot && willspot) {
@@ -309,6 +309,7 @@ struct monst* mdef;
     }
 
     if (newcham(mdef, &mons[PM_MIND_FLAYER], FALSE, FALSE)) {
+        char name[PL_PSIZ];
         /* off-chance Izchak succumbs to a mind flayer larva's physical attack */
         if (is_izchak(mdef, TRUE)) {
             pline("But wait!  %s transforms again into his true form!",
@@ -339,7 +340,6 @@ struct monst* mdef;
         /* wipe all mextra structs (to prevent a compromised shk/priest/guard/etc
          * from continuing to behave as what it used to be), then restore name
          * if present */
-        char name[PL_PSIZ];
         name[0] = '\0';
         if (has_eshk(mdef)) {
             if (!Hallucination)
@@ -5931,13 +5931,13 @@ void
 icequeenrevive(mtmp)
 struct monst *mtmp;
 {
-    /* our hero has freed the Ice Queen from her curse */
-    if (mtmp->data != &mons[PM_KATHRYN_THE_ICE_QUEEN])
-        return;
-
     struct monst *mon;
     struct permonst *bourbon = &mons[PM_BOURBON];
     struct permonst *ozzy = &mons[PM_OZZY];
+
+    /* our hero has freed the Ice Queen from her curse */
+    if (mtmp->data != &mons[PM_KATHRYN_THE_ICE_QUEEN])
+        return;
 
     /* in case player kills themselves while defeating
        the ice queen and isn't lifesaved */

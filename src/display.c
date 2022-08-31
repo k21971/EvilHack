@@ -1296,6 +1296,7 @@ see_monsters()
 {
     register struct monst *mon;
     register struct obj *otmp;
+    unsigned long raceflags;
 
     if (defer_see_monsters)
         return;
@@ -1307,7 +1308,6 @@ see_monsters()
         if (mon->wormno)
             see_wsegs(mon);
 
-        unsigned long raceflags;
         if (has_erac(mon))
             raceflags = ERAC(mon)->mrace;
         else

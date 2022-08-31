@@ -1432,8 +1432,9 @@ register struct trobj *origtrop;
     int otyp, i;
     struct trobj temptrop;
     register struct trobj *trop = &temptrop;
-    memcpy(&temptrop, origtrop, sizeof(struct trobj));
     boolean got_sp1 = FALSE; /* got a level 1 spellbook? */
+
+    memcpy(&temptrop, origtrop, sizeof(struct trobj));
 
     while (origtrop->trclass) {
         otyp = (int) trop->trotyp;

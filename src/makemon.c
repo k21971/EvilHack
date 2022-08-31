@@ -1324,20 +1324,27 @@ register struct monst *mtmp;
                 break;
             }
         } else if (mm == PM_CROESUS) {
-            (void) mongets(mtmp, TWO_HANDED_SWORD);
-            struct obj* received = m_carrying(mtmp, TWO_HANDED_SWORD);
-            if (received)
-                set_material(received, GOLD);
-            int item = rn2(2) ? BANDED_MAIL : PLATE_MAIL;
+            struct obj* received;
+            int item;
+
+            item = TWO_HANDED_SWORD;
             (void) mongets(mtmp, item);
             received = m_carrying(mtmp, item);
             if (received)
                 set_material(received, GOLD);
+
+            item = rn2(2) ? BANDED_MAIL : PLATE_MAIL;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
+            if (received)
+                set_material(received, GOLD);
+
             item = rn2(2) ? HELMET : DWARVISH_HELM;
             (void) mongets(mtmp, item);
             received = m_carrying(mtmp, item);
             if (received)
                 set_material(received, GOLD);
+
             item = rn2(2) ? KICKING_BOOTS : DWARVISH_BOOTS;
             (void) mongets(mtmp, item);
             received = m_carrying(mtmp, item);
@@ -2101,8 +2108,12 @@ register struct monst *mtmp;
         break;
     case S_ORC:
         if (ptr == &mons[PM_GOBLIN_KING]) {
-            (void) mongets(mtmp, QUARTERSTAFF);
-            struct obj* received = m_carrying(mtmp, QUARTERSTAFF);
+            struct obj* received;
+            int item;
+
+            item = QUARTERSTAFF;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
             if (received)
                 set_material(received, BONE);
         }

@@ -1265,6 +1265,8 @@ register struct attack *mattk;
     char buf[BUFSZ];
     struct permonst *olduasmon = youmonst.data;
     int res;
+    long armask = attack_contact_slots(mtmp, mattk->aatyp);
+    struct obj* hated_obj;
 
     if (!canspotmon(mtmp) && mdat != &mons[PM_GHOST]) {
         /* Ghosts have an exception because if the hero can't spot it, their
@@ -2321,13 +2323,13 @@ do_rust:
         break;
     case AD_WTHR: {
         uchar withertime = max(2, dmg);
-        dmg = 0; /* doesn't deal immediate damage */
         boolean no_effect =
             (nonliving(youmonst.data) /* This could use is_fleshy(), but that would
                                          make a large set of monsters immune like
                                          fungus, blobs, and jellies. */
              || is_vampshifter(&youmonst) || !uncancelled);
         boolean lose_maxhp = (withertime >= 8); /* if already withering */
+        dmg = 0; /* doesn't deal immediate damage */
 
         hitmsg(mtmp, mattk);
         if (!no_effect) {
@@ -2410,8 +2412,6 @@ do_rust:
 
     /* handle body/equipment made out of harmful materials for touch attacks */
     /* should come after AC damage reduction */
-    long armask = attack_contact_slots(mtmp, mattk->aatyp);
-    struct obj* hated_obj;
     dmg += special_dmgval(mtmp, &youmonst, armask, &hated_obj);
     if (hated_obj) {
         searmsg(mtmp, &youmonst, hated_obj, FALSE);
@@ -3349,6 +3349,7 @@ struct attack *mattk;
     case AD_DETH:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
             && mtmp->mcansee && rn2(4)) {
+            int dmg, permdmg = 0;
             /* currently only Vecna has the gaze of death */
             if (mtmp && mtmp->data == &mons[PM_VECNA])
                 You("meet %s deadly gaze!", s_suffix(mon_nam(mtmp)));
@@ -3357,7 +3358,6 @@ struct attack *mattk;
                 You("are unaffected by death magic.");
                 break;
             }
-            int dmg, permdmg = 0;
             switch (rn2(20)) {
             case 19:
             case 18:

@@ -1636,16 +1636,17 @@ dosacrifice()
     }
 
     if (otmp->otyp == CORPSE) {
-        register struct permonst *ptr;
+        struct permonst *ptr = &mons[otmp->corpsenm];
+        struct monst *mtmp;
+        /* is this a conversion attempt? */
+        boolean to_other_god =  ugod_is_angry() && !your_race(ptr)
+                                && u.ualign.type != altaralign;
+
         if (has_omonst(otmp) && has_erac(OMONST(otmp))) {
             ptr = &mons[ERAC(OMONST(otmp))->rmnum];
         } else {
             ptr = &mons[otmp->corpsenm];
         }
-        struct monst *mtmp;
-        /* is this a conversion attempt? */
-        boolean to_other_god =  ugod_is_angry() && !your_race(ptr)
-                                && u.ualign.type != altaralign;
 
         /* KMH, conduct */
         if (!u.uconduct.gnostic++)
@@ -2217,7 +2218,8 @@ dosacrifice()
 
                             /* apply starting inventory subs - so we'll get racial gear if possible */
                             if (urace.malenum != PM_HUMAN) {
-                                for (int i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
+                                int i;
+                                for (i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
                                     if (inv_subs[i].race_pm == urace.malenum
                                         && typ == inv_subs[i].item_otyp) {
                                         typ = inv_subs[i].subs_otyp;
@@ -2379,7 +2381,8 @@ dosacrifice()
                              * racial gear if possible
                              */
                             if (urace.malenum != PM_HUMAN) {
-                                for (int i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
+                                int i;
+                                for (i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
                                     if (inv_subs[i].race_pm == urace.malenum
                                         && typ == inv_subs[i].item_otyp) {
                                         typ = inv_subs[i].subs_otyp;

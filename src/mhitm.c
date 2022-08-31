@@ -782,15 +782,14 @@ struct obj *mwep;
 int dieroll;
 {
     struct obj *otmp;
+    boolean weaponhit = ((mattk->aatyp == AT_WEAP
+                          || (mattk->aatyp == AT_CLAW && mwep))),
+            showit = FALSE;
 
     /* Possibly awaken nearby monsters */
     if ((!is_silent(magr->data) || !helpless(mdef)) && rn2(10)) {
         wake_nearto(magr->mx, magr->my, combat_noise(magr->data));
     }
-
-    boolean weaponhit = ((mattk->aatyp == AT_WEAP
-                          || (mattk->aatyp == AT_CLAW && mwep))),
-            showit = FALSE;
 
     /* unhiding or unmimicking happens even if hero can't see it
        because the formerly concealed monster is now in action */
@@ -1211,6 +1210,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         tmp = d((int) mattk->damn, (int) mattk->damd),
         res = MM_MISS;
     boolean cancelled;
+    long armask = attack_contact_slots(magr, mattk->aatyp);
+    struct obj* hated_obj;
 
     if ((touch_petrifies(pd) /* or flesh_petrifies() */
          || (mattk->adtyp == AD_DGST && pd == &mons[PM_MEDUSA]))
@@ -1252,8 +1253,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     cancelled = magr->mcan || !(rn2(10) >= 3 * armpro);
 
     /* check for special damage sources (e.g. hated material) */
-    long armask = attack_contact_slots(magr, mattk->aatyp);
-    struct obj* hated_obj;
     tmp += special_dmgval(magr, mdef, armask, &hated_obj);
     if (hated_obj) {
         searmsg(magr, mdef, hated_obj, FALSE);
@@ -1698,12 +1697,12 @@ post_stone:
         break;
     case AD_TLPT:
         if (!cancelled && tmp < mdef->mhp && !tele_restrict(mdef)) {
-	    /* works on other critters too.. */
-	    if (magr->mnum == PM_BOOJUM) {
-		mdef->perminvis = mdef->minvis = TRUE;
-	    }
             char mdef_Monnam[BUFSZ];
             boolean wasseen = canspotmon(mdef);
+
+            /* works on other critters too.. */
+            if (magr->mnum == PM_BOOJUM)
+                mdef->perminvis = mdef->minvis = TRUE;
 
             /* save the name before monster teleports, otherwise
                we'll get "it" in the suddenly disappears message */
@@ -2246,13 +2245,13 @@ msickness:
         break;
     case AD_WTHR: {
         uchar withertime = max(2, tmp);
-        tmp = 0; /* doesn't deal immediate damage */
         boolean no_effect =
             (nonliving(pd) /* This could use is_fleshy(), but that would
                               make a large set of monsters immune like
                               fungus, blobs, and jellies. */
              || is_vampshifter(mdef) || cancelled);
         boolean lose_maxhp = (withertime >= 8); /* if already withering */
+        tmp = 0; /* doesn't deal immediate damage */
 
         if (!no_effect) {
             if (canseemon(mdef))

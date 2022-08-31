@@ -2405,31 +2405,27 @@ struct obj* obj;
         return FALSE;
     /* now we are definitely breaking it */
 
-    boolean your_fault = !context.mon_moving;
-    boolean ucarried = carried(obj);
-
     /* remove its worn flags */
-    long unwornmask = obj->owornmask;
-    if (!unwornmask) {
+    if (!obj->owornmask) {
         impossible("breaking non-equipped glass obj?");
         return FALSE;
     }
-    if (ucarried) { /* hero's item */
+    if (carried(obj)) { /* hero's item */
         if (obj->quan == 1L) {
             if (obj == uwep) {
                 unweapon = TRUE;
             }
-            setworn(NULL, unwornmask);
+            setworn(NULL, obj->owornmask);
         }
         obj->ox = u.ux, obj->oy = u.uy;
     } else if (mcarried(obj)) { /* monster's item */
         struct monst *mon = obj->ocarry;
         if (obj->quan == 1L) {
-            mon->misc_worn_check &= ~unwornmask;
-            if (unwornmask & W_WEP) {
+            mon->misc_worn_check &= ~obj->owornmask;
+            if (obj->owornmask & W_WEP) {
                 setmnotwielded(mon, obj);
                 possibly_unwield(mon, FALSE);
-            } else if (unwornmask & W_ARMG) {
+            } else if (obj->owornmask & W_ARMG) {
                 mselftouch(mon, NULL, TRUE);
             }
             /* shouldn't really be needed but... */
@@ -2448,8 +2444,8 @@ struct obj* obj;
         pline("One of %s breaks into pieces!", yname(obj));
         obj = splitobj(obj, 1L);
     }
-    breakobj(obj, obj->ox, obj->oy, your_fault, TRUE);
-    if (ucarried)
+    breakobj(obj, obj->ox, obj->oy, !context.mon_moving, TRUE);
+    if (carried(obj))
         update_inventory();
     return TRUE;
 }

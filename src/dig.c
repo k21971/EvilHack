@@ -2235,6 +2235,7 @@ struct monst *mdef, *magr;
     /* First, do terrain modifications. mdef doesn't react until after this. */
     if (trap && (trap->ttyp == PIT || trap->ttyp == SPIKED_PIT
                  || trap->ttyp == HOLE)) {
+        boolean make_hole = !rn2(40);
         /* The existing chasm grows larger. A pit creator that is low on health
          * is more likely to dig all the way through and turn it into a hole. */
         if (canseexy) {
@@ -2242,7 +2243,6 @@ struct monst *mdef, *magr;
                   trap->ttyp == HOLE ? "chasm" : "pit",
                   youdefend ? "you" : mon_nam(mdef));
         }
-        boolean make_hole = !rn2(40);
         if ((youattack && u.mh * 5 <= u.mhmax)
             || (!youattack && mdef->mhp * 5 <= mdef->mhpmax)) {
             make_hole = !rn2(10);
@@ -2290,10 +2290,10 @@ struct monst *mdef, *magr;
     /* Now that terrain has been modified, take care of mdef.
      * We have guaranteed that (x,y) now contains either a pit, spiked pit, or
      * hole. */
-    const char *to_the_bottom = is_pit(trap->ttyp) ? " to the bottom" : "";
     if (youdefend) {
         reset_utrap(FALSE);
-        pline("%s hurls you down%s!", Monnam(magr), to_the_bottom);
+        pline("%s hurls you down%s!", Monnam(magr),
+              is_pit(trap->ttyp) ? " to the bottom" : "");
         /* Use FORCETRAP to avoid messages about not falling into the pit if
          * flying or levitating; however, like the !youdefend case below, either
          * will cause you to skip the pit's actual effects (but you will take
@@ -2312,7 +2312,8 @@ struct monst *mdef, *magr;
         mdef->mtrapped = 0;
         if (canseemon(mdef))
             pline("%s hurl%s %s down%s!", youattack ? "You" : Monnam(magr),
-                  youattack ? "" : "s", mon_nam(mdef), to_the_bottom);
+                  youattack ? "" : "s", mon_nam(mdef),
+                  is_pit(trap->ttyp) ? " to the bottom" : "");
         /* This does not set force_mintrap - which for some reason causes
          * flying monsters not to fall into a pit if true. Thus, they will not
          * get extra damage for the trap, but will still take the normal damage
