@@ -1522,9 +1522,6 @@ register struct trobj *origtrop;
             /* Don't have 2 of the same ring or spellbook */
             if (obj->oclass == RING_CLASS || obj->oclass == SPBOOK_CLASS)
                 nocreate4 = otyp;
-            /* First spellbook should be level 1 - did we get it? */
-            if (obj->oclass == SPBOOK_CLASS && objects[obj->otyp].oc_level == 1)
-                got_sp1 = TRUE;
         }
 
         /* Put post-creation object adjustments that don't depend on whether it
@@ -1658,6 +1655,10 @@ register struct trobj *origtrop;
             initialspell(obj);
         if (obj->oclass == AMULET_CLASS)
             setworn(obj, W_AMUL);
+
+        /* First spellbook should be level 1 - did we get it? */
+        if (obj->oclass == SPBOOK_CLASS && objects[obj->otyp].oc_level == 1)
+            got_sp1 = TRUE;
 
         /* Don't allow gear with object properties
          * to be start scummed for */

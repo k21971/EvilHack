@@ -2438,4 +2438,5 @@ The following changes to date are:
 - Fix: ammo damage from the Longbow of Diana/Crossbow of Carl
 - Fix: silence several compile warnings (clang)
 - Fix: corrections to last commit (silencing compile warnings w/ clang)
+- Fix: move check for starting L1 spellbook to include non-random spellbooks
 
