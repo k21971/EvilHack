@@ -1210,8 +1210,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         tmp = d((int) mattk->damn, (int) mattk->damd),
         res = MM_MISS;
     boolean cancelled;
-    long armask = attack_contact_slots(magr, mattk->aatyp);
     struct obj* hated_obj;
+    long armask;
 
     if ((touch_petrifies(pd) /* or flesh_petrifies() */
          || (mattk->adtyp == AD_DGST && pd == &mons[PM_MEDUSA]))
@@ -1253,6 +1253,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     cancelled = magr->mcan || !(rn2(10) >= 3 * armpro);
 
     /* check for special damage sources (e.g. hated material) */
+    armask = attack_contact_slots(magr, mattk->aatyp);
     tmp += special_dmgval(magr, mdef, armask, &hated_obj);
     if (hated_obj) {
         searmsg(magr, mdef, hated_obj, FALSE);
@@ -1700,14 +1701,13 @@ post_stone:
             char mdef_Monnam[BUFSZ];
             boolean wasseen = canspotmon(mdef);
 
-            /* works on other critters too.. */
-            if (magr->mnum == PM_BOOJUM)
-                mdef->perminvis = mdef->minvis = TRUE;
-
             /* save the name before monster teleports, otherwise
                we'll get "it" in the suddenly disappears message */
             if (vis && wasseen)
                 Strcpy(mdef_Monnam, Monnam(mdef));
+            /* works on other critters too.. */
+            if (magr->mnum == PM_BOOJUM)
+                mdef->perminvis = mdef->minvis = TRUE;
             mdef->mstrategy &= ~STRAT_WAITFORU;
             (void) rloc(mdef, TRUE);
             if (vis && wasseen && !canspotmon(mdef) && mdef != u.usteed)

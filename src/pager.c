@@ -760,8 +760,7 @@ struct permonst * pm;
 {
     char buf[BUFSZ];
     char buf2[BUFSZ];
-    int i;
-    int gen = pm->geno;
+    int i, gen = pm->geno;
     int freq = (gen & G_FREQ);
     int pct = max(5, (int) (pm->cwt / 90));
     boolean uniq = !!(gen & G_UNIQ);

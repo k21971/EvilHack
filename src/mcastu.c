@@ -2019,8 +2019,7 @@ int spellnum;
         } else {
             register int i, j;
             int makeindex, tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
-            const char *mappear =
-                    (count == 1) ? "A monster appears" : "Monsters appear";
+            const char *mappear;
             coord bypos;
 
             if (mtmp)
@@ -2063,6 +2062,7 @@ int spellnum;
                     }
                 }
             }
+            mappear = (count == 1) ? "A monster appears" : "Monsters appear";
             if (yours || canseemon(mtmp))
                 pline("%s from nowhere!", mappear);
         }

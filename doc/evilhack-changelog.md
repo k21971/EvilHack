@@ -2437,4 +2437,5 @@ The following changes to date are:
 - Minor README update
 - Fix: ammo damage from the Longbow of Diana/Crossbow of Carl
 - Fix: silence several compile warnings (clang)
+- Fix: corrections to last commit (silencing compile warnings w/ clang)
 

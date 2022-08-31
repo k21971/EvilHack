@@ -554,9 +554,9 @@ boolean minimal;        /* print a shorter message leaving out obj details */
 {
     char onamebuf[BUFSZ];
     char whose[BUFSZ];
-    char* whom = mon_nam(mdef);
     int mat = obj->material;
-    const char* matname = materialnm[mat];
+    char *whom;
+    const char *matname = materialnm[mat];
     char* cxnameobj = cxname((struct obj *) obj);
     boolean youattack = (magr == &youmonst);
     boolean youdefend = (mdef == &youmonst);
@@ -627,6 +627,7 @@ boolean minimal;        /* print a shorter message leaving out obj details */
         return;
     }
 
+    whom = mon_nam(mdef);
     if (youdefend)
         Strcpy(whom, "you");
     if (youattack) {

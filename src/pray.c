@@ -1636,17 +1636,18 @@ dosacrifice()
     }
 
     if (otmp->otyp == CORPSE) {
-        struct permonst *ptr = &mons[otmp->corpsenm];
+        struct permonst *ptr;
         struct monst *mtmp;
-        /* is this a conversion attempt? */
-        boolean to_other_god =  ugod_is_angry() && !your_race(ptr)
-                                && u.ualign.type != altaralign;
+        boolean to_other_god;
 
         if (has_omonst(otmp) && has_erac(OMONST(otmp))) {
             ptr = &mons[ERAC(OMONST(otmp))->rmnum];
         } else {
             ptr = &mons[otmp->corpsenm];
         }
+        /* is this a conversion attempt? */
+        to_other_god = (ugod_is_angry() && !your_race(ptr)
+                        && u.ualign.type != altaralign);
 
         /* KMH, conduct */
         if (!u.uconduct.gnostic++)

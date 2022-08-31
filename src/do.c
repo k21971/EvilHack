@@ -2244,10 +2244,11 @@ long timeout;
 {
     struct obj *body = arg->a_obj;
     struct permonst *mptr = &mons[body->corpsenm];
-    int zmon = zombie_form(mptr);
+    int zmon;
 
     if (!body->zombie_corpse && has_omonst(body) && has_erac(OMONST(body)))
          mptr = r_data(OMONST(body));
+    zmon = zombie_form(mptr);
 
     if (zmon != NON_PM) {
         if (has_omid(body))

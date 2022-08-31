@@ -297,9 +297,9 @@ become_flayer(mdef)
 struct monst* mdef;
 {
     struct permonst* mdat = mdef->data;
-    boolean couldspot = canspotmon(mdef);
-    boolean willspot = canspotmon(mdef);
+    boolean willspot, couldspot = canspotmon(mdef);
     mdef->data = &mons[PM_MIND_FLAYER];
+    willspot = canspotmon(mdef);
     mdef->data = mdat;
 
     if (couldspot && willspot) {

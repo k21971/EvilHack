@@ -298,8 +298,8 @@ rndvault_getname()
             }
             curr_vault_depth = cdepth;
         }
-
         frq = rn2(curr_total_freq);
+        tmp = rndvault_gen->vaults;
         while (tmp) {
             if (cdepth >= tmp->mindepth)
                 frq -= tmp->freq;

@@ -3633,12 +3633,12 @@ boolean by_you;
     if (is_spellcaster(mon) && !mon->mcan
         && can_cast_spells(mon) && !mon->mconf
         && mon->m_lev >= 5) {
-        struct obj *otemp, *onext;
-        struct obj *pseudo = mksobj(SPE_STONE_TO_FLESH, FALSE, FALSE);
+        struct obj *otemp, *onext, *pseudo;
 
         if (mon->mspec_used)
             return FALSE;
 
+        pseudo = mksobj(SPE_STONE_TO_FLESH, FALSE, FALSE);
         pseudo->blessed = pseudo->cursed = 0;
         mon->mspec_used = mon->mspec_used + rn2(7);
         if (canspotmon(mon))

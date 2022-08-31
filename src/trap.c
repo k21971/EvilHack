@@ -4087,7 +4087,7 @@ xchar x, y;
 {
     struct obj *otmp, *ncobj;
     int in_sight = !Blind && couldsee(x, y); /* Don't care if it's lit */
-    boolean ucarried = carried(obj);
+    boolean ucarried;
 
     if (!obj)
         return ER_NOTHING;
@@ -4098,6 +4098,7 @@ xchar x, y;
     if (!ostr)
         ostr = cxname(obj);
 
+    ucarried = carried(obj);
     if (obj->otyp == CAN_OF_GREASE && obj->spe > 0) {
         return ER_NOTHING;
     } else if (obj->otyp == TOWEL && obj->spe < 7) {

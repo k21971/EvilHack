@@ -3791,8 +3791,7 @@ struct obj *no_wish;
         if (!strstri(bp, "wand ") && !strstri(bp, "spellbook ")
             && !strstri(bp, "finger ") && !strstri(bp, "eye ")
             && !strstri(bp, "hand ") && !strstri(bp, "sword of kas")) {
-            int l = 0;
-            int of = 4;
+            int l = 0, of = 4;
             char *tmpp;
 
             if ((p = strstri(bp, "tin of ")) != 0) {
@@ -4792,11 +4791,13 @@ struct obj *no_wish;
                 /* Don't bring the Rogue's leader to fight a Tourist when he is also
                  * the Tourist's quest nemesis.
                  */
-                if (!((role->ldrnum == PM_MASTER_OF_THIEVES) && Role_if(PM_TOURIST))) {
-                    struct permonst* ldr = &mons[pm];
+                if (!((role->ldrnum == PM_MASTER_OF_THIEVES)
+                      && Role_if(PM_TOURIST))) {
+                    struct permonst* ldr;
                     pm = role->ldrnum;
                     /* remove flags that tag quest leaders as
                        peaceful or spawn them mediating */
+                    ldr = &mons[pm];
                     ldr->mflags2 &= ~(M2_PEACEFUL);
                     ldr->mflags3 &= ~(M3_WAITMASK);
                 }
@@ -5197,10 +5198,10 @@ char *
 dragon_scales_color(obj)
 struct obj *obj;
 {
-    const struct permonst *pm = &mons[Dragon_armor_to_pm(obj)];
-    const char* endp = strstri(pm->mname, " dragon");
     char* buf = nextobuf();
-    int colorlen = endp - pm->mname;
+    const struct permonst *pm;
+    const char* endp;
+    int colorlen;
 
     if (!obj) {
         impossible("dragon_scales_color: null obj");
@@ -5212,12 +5213,15 @@ struct obj *obj;
         Strcpy(buf, "bugged color");
         return buf;
     }
+    pm = &mons[Dragon_armor_to_pm(obj)];
+    endp = strstri(pm->mname, " dragon");
     if (!endp) {
         impossible("dragon_scales_color found non-dragon monster (%s)",
                    pm->mname);
         Strcpy(buf, "bugged color");
         return buf;
     }
+    colorlen = endp - pm->mname;
     strncpy(buf, pm->mname, colorlen);
     buf[colorlen] = '\0';
     return buf;
