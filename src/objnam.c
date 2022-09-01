@@ -1377,9 +1377,6 @@ unsigned doname_flags;
             if (obj == uarmg && Glib) /* just appended "(something)",
                                        * change to "(something; slippery)" */
                 Strcpy(rindex(bp, ')'), "; slippery)");
-            else if (!Blind && obj->lamplit && artifact_light(obj))
-                Sprintf(rindex(bp, ')'), ", %s lit)",
-                        arti_light_description(obj));
             else if (obj->otyp == MUMMIFIED_HAND)
                 Sprintf(rindex(bp, ' '), " (merged to your left %s)",
                         body_part(ARM));
@@ -1537,14 +1534,16 @@ unsigned doname_flags;
         && ((obj->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
         || (u.twoweap && (obj->owornmask & W_SWAPWEP)))) {
         /* Warning glow from in-use artifacts. */
-        if (obj->lastwarncnt && strcmp(glow_color(obj->oartifact), "no color")) {
+        if (obj->lastwarncnt
+            && strcmp(glow_color(obj->oartifact), "no color")) {
             Sprintf(eos(bp) - 1, ", %s %s)",
-                glow_verb(obj->lastwarncnt, TRUE),
-                glow_color(obj->oartifact));
+                    glow_verb(obj->lastwarncnt, TRUE),
+                    glow_color(obj->oartifact));
 
         /* Light from always-lit artifacts. */
-        } else if (obj->lamplit && artifact_light(obj)) {
-            Sprintf(eos(bp) - 1, ", %s lit)", arti_light_description(obj));
+        } else if (!Blind && obj->lamplit && artifact_light(obj)) {
+            Sprintf(eos(bp) - 1, ", %s lit)",
+                    arti_light_description(obj));
         }
     }
 
