@@ -2821,13 +2821,12 @@ boolean ordinary;
     case EXPENSIVE_CAMERA:
         if (!damage)
             damage = 5;
-        if (obj->otyp == WAN_LIGHT && !cursed(obj, TRUE)) {
-            damage = lightdamage(obj, ordinary, damage);
-            damage += rnd(25);
+        damage = lightdamage(obj, ordinary, damage);
+        damage += rnd(25);
+        if (flashburn((long) damage))
+            learn_it = TRUE;
+        if (obj->otyp == WAN_LIGHT && !cursed(obj, TRUE))
             blindingflash();
-            if (flashburn((long) damage))
-                learn_it = TRUE;
-        }
         damage = 0; /* reset */
         break;
     case WAN_OPENING:

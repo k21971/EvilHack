@@ -93,7 +93,7 @@ char lock[PL_NSIZ + 25]; /* long enough for username+-+name+.99 */
 #endif
 
 #ifdef WHEREIS_FILE
-char whereis_file[255]=WHEREIS_FILE;
+char whereis_file[255] = WHEREIS_FILE;
 #endif
 
 #if defined(UNIX) || defined(__BEOS__)
@@ -640,7 +640,7 @@ clearlocks()
 #endif /* ?PC_LOCKING,&c */
 
 #ifdef WHEREIS_FILE
-	delete_whereis();
+        delete_whereis();
 #endif
 }
 

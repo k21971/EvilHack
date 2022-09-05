@@ -2440,4 +2440,5 @@ The following changes to date are:
 - Fix: corrections to last commit (silencing compile warnings w/ clang)
 - Fix: move check for starting L1 spellbook to include non-random spellbooks
 - Fix: lit status of worn light sources appearing twice in inventory
+- Fix: could not blind self with an expensive camera
 
