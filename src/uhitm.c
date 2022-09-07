@@ -271,6 +271,8 @@ int *attk_count, *role_roll_penalty;
 
     *role_roll_penalty = 0; /* default is `none' */
 
+    /* luck still plays a role with to-hit calculations, but
+       it's toned down vs regular NetHack */
     tmp = 1 + (Luck / 3) + abon() + find_mac(mtmp) + u.uhitinc
           + maybe_polyd(youmonst.data->mlevel, (u.ulevel > 20 ? 20 : u.ulevel));
 

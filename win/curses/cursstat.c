@@ -89,7 +89,7 @@ curses_status_finish()
  *      -- fldindex could be any one of the following from botl.h:
  *         BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
  *         BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
- *         BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
+ *         BL_XP, BL_AC, BL_TOHIT, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
  *         BL_LEVELDESC, BL_EXP, BL_CONDITION
  *      -- fldindex could also be BL_FLUSH (-1), which is not really
  *         a field index, but is a special trigger to tell the
@@ -253,7 +253,7 @@ boolean border;
     /* almost all fields already come with a leading space;
        "xspace" indicates places where we'll generate an extra one */
     static const enum statusfields
-    twolineorder[3][15] = {
+    twolineorder[3][16] = {
         { BL_TITLE,
           /*xspace*/ BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
           /*xspace*/ BL_ALIGN,
@@ -264,6 +264,7 @@ boolean border;
           /*xspace*/ BL_HP, BL_HPMAX,
           /*xspace*/ BL_ENE, BL_ENEMAX,
           /*xspace*/ BL_AC,
+          /*xspace*/ BL_TOHIT,
           /*xspace*/ BL_XP, BL_EXP, BL_HD,
           /*xspace*/ BL_TIME,
           /*xspace*/ BL_HUNGER, BL_CAP, BL_CONDITION,
@@ -271,7 +272,7 @@ boolean border;
         { BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
           blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
     },
-    threelineorder[3][15] = { /* moves align to line 2, leveldesc+ to 3 */
+    threelineorder[3][16] = { /* moves align to line 2, leveldesc+ to 3 */
         { BL_TITLE,
           /*xspace*/ BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
           /*xspace*/ BL_SCORE,
@@ -281,6 +282,7 @@ boolean border;
           /*xspace*/ BL_HP, BL_HPMAX,
           /*xspace*/ BL_ENE, BL_ENEMAX,
           /*xspace*/ BL_AC,
+          /*xspace*/ BL_TOHIT,
           /*xspace*/ BL_XP, BL_EXP, BL_HD,
           /*xspace*/ BL_HUNGER, BL_CAP,
           BL_FLUSH, blPAD, blPAD },
@@ -290,7 +292,7 @@ boolean border;
           BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
           blPAD, blPAD, blPAD, blPAD }
     };
-    const enum statusfields (*fieldorder)[15];
+    const enum statusfields (*fieldorder)[16];
     xchar spacing[MAXBLSTATS], valline[MAXBLSTATS];
     enum statusfields fld, prev_fld;
     char *text, *p, cbuf[BUFSZ], ebuf[STATVAL_WIDTH];
@@ -420,6 +422,7 @@ boolean border;
             case BL_HP:
             case BL_ENE:
             case BL_AC:
+            case BL_TOHIT:
             case BL_GOLD:
                 spacing[fld] = 1; /* always extra space */
                 break;
@@ -663,7 +666,7 @@ boolean border;
         /* 4:blank */
         BL_HP, BL_HPMAX,
         BL_ENE, BL_ENEMAX,
-        BL_AC,
+        BL_AC, BL_TOHIT,
         /* 3:blank */
         BL_LEVELDESC,
         BL_ALIGN,

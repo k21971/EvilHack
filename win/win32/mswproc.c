@@ -2929,7 +2929,7 @@ status_enablefield(int fldindex, char fldname, char fieldfmt, boolean enable)
                 -- fldindex could be one of the following from botl.h:
                    BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
                    BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
-                   BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
+                   BL_XP, BL_AC, BL_TOHIT, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
                    BL_LEVELDESC, BL_EXP, BL_CONDITION
                 -- There are MAXBLSTATS status fields (from botl.h)
 */
@@ -3004,7 +3004,7 @@ status_update(int fldindex, genericptr_t ptr, int chg, int percent, int color, u
                 -- fldindex could be any one of the following from botl.h:
                    BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
                    BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
-                   BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
+                   BL_XP, BL_AC, BL_TOHIT, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
                    BL_LEVELDESC, BL_EXP, BL_CONDITION
 		-- fldindex could also be BL_FLUSH, which is not really
 		   a field index, but is a special trigger to tell the

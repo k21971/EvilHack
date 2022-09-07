@@ -2442,4 +2442,5 @@ The following changes to date are:
 - Fix: lit status of worn light sources appearing twice in inventory
 - Fix: could not blind self with an expensive camera
 - Monsters can use rings/boots of levitation
+- To-hit calculation on the bottom line
 

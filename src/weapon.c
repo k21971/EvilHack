@@ -133,6 +133,82 @@ struct obj *obj;
     return makesingular(descr);
 }
 
+int
+base_hitbonus(otmp)
+struct obj *otmp;
+{
+    int tmp = 0;
+    boolean Is_weapon;
+
+    if (!otmp)
+        return 0;
+
+    Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
+
+    if (Is_weapon)
+        tmp += otmp->spe;
+    /* Put weapon specific "to hit" bonuses in below: */
+    tmp += objects[otmp->otyp].oc_hitbon;
+    return tmp;
+}
+
+
+/* calculate and display base to-hit on the botl; bits of
+   find_roll_to_hit() and included here, minus calculations
+   that include the actual target, as the display doesn't
+   have any way of knowing what you intend to attack */
+int
+botl_hitbonus()
+{
+    int tmp, tmp2;
+    int wepskill, twowepskill, useskill;
+    uchar aatyp = youmonst.data->mattk[0].aatyp;
+    struct obj *weapon = uwep;
+
+    tmp = (Luck / 3) + abon() + u.uhitinc
+          + (int) maybe_polyd(youmonst.data->mlevel, (u.ulevel > 20 ? 20 : u.ulevel));
+
+    if (u.ulevel == 30)
+        tmp += 4;
+
+    if (Role_if(PM_MONK) && !Upolyd) {
+        if (uarm)
+            tmp -= urole.spelarmr + 20;
+        else if (!uwep && !uarms)
+            tmp += (u.ulevel / 3) + 2;
+    }
+
+    if (uwep && (uwep->otyp == HEAVY_IRON_BALL))
+        tmp += 4;
+
+    if (!uwep && uarmg)
+        tmp += uarmg->spe;
+
+    if ((tmp2 = near_capacity()) != 0)
+        tmp -= (tmp2 * 2) - 1;
+    if (u.utrap)
+        tmp -= 3;
+
+    if (aatyp == AT_WEAP || aatyp == AT_CLAW) {
+        if (weapon)
+            tmp += base_hitbonus(uwep);
+        tmp += weapon_hit_bonus(weapon);
+    } else if (aatyp == AT_KICK && martial_bonus()) {
+        tmp += weapon_hit_bonus((struct obj *) 0);
+    }
+
+    if (uwep && aatyp == AT_WEAP && !u.uswallow) {
+        wepskill = P_SKILL(weapon_type(uwep));
+        twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);
+        /* use the lesser skill of two-weapon or your primary */
+        useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill : wepskill;
+        if ((useskill == P_UNSKILLED || useskill == P_ISRESTRICTED) && tmp > 15)
+            tmp = 15;
+    }
+
+    return tmp;
+}
+
 /*
  *      hitval returns an integer representing the "to hit" bonuses
  *      of "otmp" against the monster.
@@ -146,11 +222,8 @@ struct monst *mon;
     struct permonst *ptr = mon->data;
     boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
 
-    if (Is_weapon)
-        tmp += otmp->spe;
-
-    /* Put weapon specific "to hit" bonuses in below: */
-    tmp += objects[otmp->otyp].oc_hitbon;
+    /* Add the weapon's basic to-hit bonus */
+    tmp += base_hitbonus(otmp);
 
     /* Put weapon vs. monster type "to hit" bonuses in below: */
 

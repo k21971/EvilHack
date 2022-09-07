@@ -3005,6 +3005,8 @@ E int FDECL(vms_get_saved_games, (const char *, char ***));
 /* ### weapon.c ### */
 
 E const char *FDECL(weapon_descr, (struct obj *));
+E int FDECL(base_hitbonus, (struct obj *));
+E int NDECL(botl_hitbonus);
 E int FDECL(hitval, (struct obj *, struct monst *));
 E int FDECL(dmgval, (struct obj *, struct monst *));
 E int FDECL(special_dmgval, (struct monst *, struct monst *, long,

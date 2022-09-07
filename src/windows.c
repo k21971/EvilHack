@@ -945,31 +945,31 @@ unsigned long *colormasks UNUSED;
     enum statusfields idx1, idx2, *fieldlist;
     char *nb, *text = (char *) ptr;
 
-    static enum statusfields fieldorder[][15] = {
+    static enum statusfields fieldorder[][16] = {
         /* line one */
         { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
           BL_SCORE, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH,
           BL_FLUSH },
         /* line two, default order */
         { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
+          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_TOHIT,
           BL_XP, BL_EXP, BL_HD,
           BL_TIME,
           BL_HUNGER, BL_CAP, BL_CONDITION,
           BL_FLUSH },
         /* move time to the end */
         { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
+          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_TOHIT,
           BL_XP, BL_EXP, BL_HD,
           BL_HUNGER, BL_CAP, BL_CONDITION,
           BL_TIME, BL_FLUSH },
         /* move experience and time to the end */
         { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
+          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_TOHIT,
           BL_HUNGER, BL_CAP, BL_CONDITION,
           BL_XP, BL_EXP, BL_HD, BL_TIME, BL_FLUSH },
         /* move level description plus gold and experience and time to end */
-        { BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
+        { BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_TOHIT,
           BL_HUNGER, BL_CAP, BL_CONDITION,
           BL_LEVELDESC, BL_GOLD, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_FLUSH },
     };
@@ -1556,13 +1556,13 @@ unsigned special;
 
 /* Status field ordering for 2 or 3 lines, from tty windowport */
 #define blPAD BL_FLUSH
-#define MAX_PER_ROW 15
+#define MAX_PER_ROW 16
 static const enum statusfields
     twolineorder[3][MAX_PER_ROW] = {
     { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
       BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD },
     { BL_LEVELDESC, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER,
+      BL_AC, BL_TOHIT, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER,
       BL_CAP, BL_CONDITION, BL_FLUSH },
     { BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
       blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
@@ -1571,7 +1571,7 @@ static const enum statusfields
     { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
       BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
     { BL_ALIGN, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_XP, BL_EXP, BL_HD, BL_HUNGER,
+      BL_AC, BL_TOHIT, BL_XP, BL_EXP, BL_HD, BL_HUNGER,
       BL_CAP, BL_FLUSH, blPAD, blPAD },
     { BL_LEVELDESC, BL_TIME, BL_CONDITION, BL_FLUSH, blPAD, blPAD,
       blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
