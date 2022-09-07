@@ -142,7 +142,7 @@ pick_move:
         if (mtmp->isshk && !in_his_shop && inhishop(mtmp))
             check_special_room(FALSE);
 #if 0 /* dead code; maybe someday someone will track down why... */
-        if (ib) {
+        if (ib && !can_levitate(mtmp)) {
             if (cansee(mtmp->mx, mtmp->my))
                 pline("%s picks up %s.", Monnam(mtmp),
                       distant_name(ib, doname));
@@ -1121,6 +1121,8 @@ struct monst *mtmp;
                          : ", [? speed]");
     if (mtmp->minvis)
         Strcat(info, ", invisible");
+    if (can_levitate(mtmp))
+        Strcat(info, ", levitating");
     /* monster spell 'reflection' only */
     if (has_reflection(mtmp))
         Strcat(info, ", reflecting");

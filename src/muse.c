@@ -558,22 +558,22 @@ struct monst *mtmp;
         ; /* fleeing by stairs or traps is not possible */
     } else if (levl[x][y].typ == STAIRS) {
         if (x == xdnstair && y == ydnstair) {
-            if (!is_floater(mtmp->data))
+            if (!(is_floater(mtmp->data) || can_levitate(mtmp)))
                 m.has_defense = MUSE_DOWNSTAIRS;
         } else if (x == xupstair && y == yupstair) {
             m.has_defense = MUSE_UPSTAIRS;
         } else if (sstairs.sx && x == sstairs.sx && y == sstairs.sy) {
-            if (sstairs.up || !is_floater(mtmp->data))
+            if (sstairs.up || !(is_floater(mtmp->data) || can_levitate(mtmp)))
                 m.has_defense = MUSE_SSTAIRS;
         }
     } else if (levl[x][y].typ == LADDER) {
         if (x == xupladder && y == yupladder) {
             m.has_defense = MUSE_UP_LADDER;
         } else if (x == xdnladder && y == ydnladder) {
-            if (!is_floater(mtmp->data))
+            if (!(is_floater(mtmp->data) || can_levitate(mtmp)))
                 m.has_defense = MUSE_DN_LADDER;
         } else if (sstairs.sx && x == sstairs.sx && y == sstairs.sy) {
-            if (sstairs.up || !is_floater(mtmp->data))
+            if (sstairs.up || !(is_floater(mtmp->data) || can_levitate(mtmp)))
                 m.has_defense = MUSE_SSTAIRS;
         }
     } else {
@@ -616,6 +616,7 @@ struct monst *mtmp;
             /* use trap if it's the correct type */
             if (is_hole(t->ttyp)
                 && !is_floater(mtmp->data)
+                && !can_levitate(mtmp)
                 && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
                 && Can_fall_thru(&u.uz)) {
                 trapx = xx;
@@ -682,6 +683,7 @@ struct monst *mtmp;
         if (obj->otyp == WAN_DIGGING && obj->spe > 0 && !stuck && !t
             && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
             && !is_floater(mtmp->data)
+            && !can_levitate(mtmp)
             /* monsters digging in Sokoban can ruin things */
             && !Sokoban
             /* digging wouldn't be effective; assume they know that */
@@ -800,6 +802,7 @@ struct obj *start;
         if (obj->otyp == WAN_DIGGING && obj->spe > 0 && !stuck && !t
             && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
             && !is_floater(mtmp->data)
+            && !can_levitate(mtmp)
             /* monsters digging in Sokoban can ruin things */
             && !Sokoban
             /* digging wouldn't be effective; assume they know that */
@@ -3362,7 +3365,7 @@ struct obj *obj;
         if (obj->spe <= 0)
             return FALSE;
         if (typ == WAN_DIGGING)
-            return (boolean) !is_floater(mon->data);
+            return (boolean) (!(is_floater(mon->data) || can_levitate(mon)));
         if (objects[typ].oc_dir == RAY || typ == WAN_STRIKING
             || typ == WAN_TELEPORTATION || typ == WAN_CREATE_MONSTER
             || typ == WAN_CANCELLATION || typ == WAN_WISHING
@@ -3457,6 +3460,8 @@ struct obj *obj;
             return (!mon_prop(mon, SLOW_DIGESTION));
         if (typ == RIN_REGENERATION)
             return (!mon_prop(mon, REGENERATION));
+        if (typ == RIN_LEVITATION)
+            return (grounded(mon->data));
         /* Below this line are off-limits to uniques */
         if (mon->data->geno & G_UNIQ)
             return (FALSE);
@@ -3926,7 +3931,8 @@ boolean by_you; /* true: if mon kills itself, hero gets credit/blame */
             if (vis)
                 pline("%s %s %s %s fire trap!", Mnam,
                       vtense(fakename[0], locomotion(mon->data, "move")),
-                      is_floater(mon->data) ? "over" : "onto",
+                      (is_floater(mon->data) || can_levitate(mon))
+                          ? "over" : "onto",
                       trap->tseen ? "the" : "a");
         }
         /* hack to avoid mintrap()'s chance of avoiding known trap */

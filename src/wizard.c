@@ -526,7 +526,8 @@ register struct monst *mtmp;
                 /* teleport to it and pick it up */
                 rloc_to(mtmp, tx, ty); /* clean old pos */
 
-                if ((otmp = on_ground(which_arti(targ))) != 0) {
+                if ((otmp = on_ground(which_arti(targ))) != 0
+                    && !can_levitate(mtmp)) {
                     if (cansee(mtmp->mx, mtmp->my))
                         pline("%s picks up %s.", Monnam(mtmp),
                               (distu(mtmp->mx, mtmp->my) <= 5)

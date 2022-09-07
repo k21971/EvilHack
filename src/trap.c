@@ -2834,7 +2834,7 @@ register struct monst *mtmp;
         case PIT:
         case SPIKED_PIT:
             fallverb = "falls";
-            if (is_flyer(mptr) || is_floater(mptr)
+            if (is_flyer(mptr) || is_floater(mptr) || can_levitate(mtmp)
                 || (mtmp->wormno && count_wsegs(mtmp) > 5)
                 || is_clinger(mptr)) {
                 if (force_mintrap && !Sokoban) {
@@ -2871,7 +2871,8 @@ register struct monst *mtmp;
                            defsyms[trap_to_defsym(tt)].explanation);
                 break; /* don't activate it after all */
             }
-            if (is_flyer(mptr) || is_floater(mptr) || mptr == &mons[PM_WUMPUS]
+            if (is_flyer(mptr) || is_floater(mptr) || can_levitate(mtmp)
+                || mptr == &mons[PM_WUMPUS]
                 || (mtmp->wormno && count_wsegs(mtmp) > 5)
                 || mptr->msize >= MZ_HUGE) {
                 if (force_mintrap && !Sokoban) {
@@ -3161,7 +3162,9 @@ register struct monst *mtmp;
                     char buf[BUFSZ], *p, *monnm = mon_nam(mtmp);
 
                     if (nolimbs(mtmp->data)
-                        || is_floater(mtmp->data) || is_flyer(mtmp->data)) {
+                        || is_floater(mtmp->data)
+                        || is_flyer(mtmp->data)
+                        || can_levitate(mtmp)) {
                         /* just "beneath <mon>" */
                         Strcpy(buf, monnm);
                     } else {
@@ -3338,7 +3341,8 @@ float_up()
     } else {
         You("start to float in the air!");
     }
-    if (u.usteed && !is_floater(u.usteed->data) && !is_flyer(u.usteed->data)) {
+    if (u.usteed && !is_floater(u.usteed->data) && !is_flyer(u.usteed->data)
+        && !can_levitate(u.usteed)) {
         if (Lev_at_will) {
             pline("%s magically floats up!", Monnam(u.usteed));
         } else {
@@ -3472,7 +3476,8 @@ long hmask, emask; /* might cancel timeout */
             You_feel("heavier.");
         } else if (is_open_air(u.ux, u.uy)
             && !(u.usteed && (is_floater(u.usteed->data)
-                              || is_flyer(u.usteed->data)))) {
+                              || is_flyer(u.usteed->data)
+                              || can_levitate(u.usteed)))) {
             if (!Flying) {
                 You("are no longer flying.");
                 You("plummet several thousand feet to your death.");
@@ -3499,7 +3504,8 @@ long hmask, emask; /* might cancel timeout */
                         dismount_steed(DISMOUNT_FELL);
                     selftouch("As you fall, you");
                 } else if (u.usteed && (is_floater(u.usteed->data)
-                                        || is_flyer(u.usteed->data))) {
+                                        || is_flyer(u.usteed->data)
+                                        || can_levitate(u.usteed))) {
                     You("settle more firmly in the saddle.");
                 } else if (Hallucination) {
                     pline("Bummer!  You've %s.",

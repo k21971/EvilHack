@@ -177,6 +177,7 @@ boolean check_if_better, stashing;
              || otmp->otyp == RIN_INCREASE_DAMAGE
              || otmp->otyp == RIN_INCREASE_ACCURACY
              || otmp->otyp == RIN_PROTECTION
+             || otmp->otyp == RIN_LEVITATION
              || otmp->otyp == FROST_HORN
              || otmp->otyp == FIRE_HORN
              || otmp->otyp == MAGIC_HARP
@@ -1760,7 +1761,8 @@ xchar nx, ny;
 {
     if ((!is_pool(nx, ny) || is_swimmer(mon->data))
         && (!is_lava(nx, ny) || likes_lava(mon->data))
-        && (!sobj_at(BOULDER, nx, ny) || racial_throws_rocks(mon)))
+        && (!sobj_at(BOULDER, nx, ny) || racial_throws_rocks(mon))
+        && (!(is_floater(mon->data) || can_levitate(mon))))
         return TRUE;
     return FALSE;
 }

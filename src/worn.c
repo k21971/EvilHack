@@ -444,6 +444,11 @@ boolean on, silently;
         case TELEPAT:
             mon->mextrinsics |= MR2_TELEPATHY;
             break;
+        case LEVITATION:
+            mon->mextrinsics |= MR2_LEVITATE;
+            if (!unseen)
+                pline("%s starts to float in the air!", Monnam(mon));
+            break;
         /* properties handled elsewhere */
         case ANTIMAGIC:
         case REFLECTING:
@@ -456,7 +461,6 @@ boolean on, silently;
         case ADORNED:
             break;
         /* properties which should have an effect but aren't implemented */
-        case LEVITATION:
         case FLYING:
             break;
         /* properties which maybe should have an effect but don't */
@@ -504,6 +508,12 @@ boolean on, silently;
             break;
         case TELEPAT:
             mon->mextrinsics &= ~(MR2_TELEPATHY);
+            break;
+        case LEVITATION:
+            mon->mextrinsics &= ~(MR2_LEVITATE);
+            if (!unseen)
+                pline("%s floats gently back to the %s.",
+                      Monnam(mon), surface(mon->mx, mon->my));
             break;
         case FIRE_RES:
         case COLD_RES:
@@ -873,19 +883,20 @@ boolean racialexception;
         case W_RINGR:
             /* Monsters can put on only the following rings. */
             if (obj->oclass != RING_CLASS
-		|| (obj->otyp != RIN_INVISIBILITY
-	            && obj->otyp != RIN_FIRE_RESISTANCE
-		    && obj->otyp != RIN_COLD_RESISTANCE
-		    && obj->otyp != RIN_POISON_RESISTANCE
-		    && obj->otyp != RIN_SHOCK_RESISTANCE
-		    && obj->otyp != RIN_REGENERATION
-		    && obj->otyp != RIN_TELEPORTATION
-		    && obj->otyp != RIN_TELEPORT_CONTROL
-		    && obj->otyp != RIN_SLOW_DIGESTION
-		    && obj->otyp != RIN_INCREASE_DAMAGE
-		    && obj->otyp != RIN_INCREASE_ACCURACY
-		    && obj->otyp != RIN_PROTECTION))
-		continue;
+                || (obj->otyp != RIN_INVISIBILITY
+                    && obj->otyp != RIN_FIRE_RESISTANCE
+                    && obj->otyp != RIN_COLD_RESISTANCE
+                    && obj->otyp != RIN_POISON_RESISTANCE
+                    && obj->otyp != RIN_SHOCK_RESISTANCE
+                    && obj->otyp != RIN_REGENERATION
+                    && obj->otyp != RIN_TELEPORTATION
+                    && obj->otyp != RIN_TELEPORT_CONTROL
+                    && obj->otyp != RIN_SLOW_DIGESTION
+                    && obj->otyp != RIN_INCREASE_DAMAGE
+                    && obj->otyp != RIN_INCREASE_ACCURACY
+                    && obj->otyp != RIN_PROTECTION
+                    && obj->otyp != RIN_LEVITATION))
+                continue;
             break;
         }
         if (obj->owornmask)
@@ -1352,6 +1363,9 @@ struct obj *obj;
     if (obj_has_prop(obj, FAST)
         && mon->permspeed != MFAST)
         return 20;
+    if (obj_has_prop(obj, LEVITATION)
+        && grounded(mon->data))
+        return 15;
     if (obj_has_prop(obj, JUMPING)
         && !can_jump(mon))
         return 10;
@@ -1432,6 +1446,9 @@ struct obj *obj;
         break;
     case RIN_SLOW_DIGESTION:
         rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
+        break;
+    case RIN_LEVITATION:
+        rc = grounded(mon->data) ? 20 : 0;
         break;
     }
     old = which_armor(mon, W_RINGL);

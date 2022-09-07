@@ -644,7 +644,8 @@ int ttyp;
             if (oldobjs != newobjs) /* something unearthed */
                 (void) pickup(1);   /* detects pit */
         } else if (mtmp) {
-            if (is_flyer(mtmp->data) || is_floater(mtmp->data)) {
+            if (is_flyer(mtmp->data)
+                || is_floater(mtmp->data) || can_levitate(mtmp)) {
                 if (canseemon(mtmp))
                     pline("%s %s over the pit.", Monnam(mtmp),
                           (is_flyer(mtmp->data)) ? "flies" : "floats");
@@ -713,6 +714,7 @@ int ttyp;
             if (mtmp) {
                 /*[don't we need special sokoban handling here?]*/
                 if (is_flyer(mtmp->data) || is_floater(mtmp->data)
+                    || can_levitate(mtmp)
                     || mtmp->data == &mons[PM_WUMPUS]
                     || (mtmp->wormno && count_wsegs(mtmp) > 5)
                     || mtmp->data->msize >= MZ_HUGE)
@@ -2078,7 +2080,8 @@ struct monst *mtmp;
 {
     debugpline1("bury_monst: %s", mon_nam(mtmp));
     if (canseemon(mtmp)) {
-        if (is_flyer(mtmp->data) || is_floater(mtmp->data)) {
+        if (is_flyer(mtmp->data) || is_floater(mtmp->data)
+            || can_levitate(mtmp)) {
             pline_The("%s opens up, but %s is not swallowed!",
                       surface(mtmp->mx, mtmp->my), mon_nam(mtmp));
             return;
@@ -2320,7 +2323,8 @@ struct monst *mdef, *magr;
          * from being hurled in. */
         if (mintrap(mdef) == 3) { /* 3 == went off level */
             sent_down_hole = TRUE;
-        } else if (is_flyer(mdef->data) || is_floater(mdef->data)) {
+        } else if (is_flyer(mdef->data) || is_floater(mdef->data)
+                   || can_levitate(mdef)) {
             if (canseemon(mdef))
                 pline("%s %s back up.", Monnam(mdef),
                       is_flyer(mdef->data) ? "flies" : "floats");

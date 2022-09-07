@@ -42,6 +42,8 @@
     ((mon_resistancebits(mon) & MR2_DISPLACED) != 0)
 #define has_reflection(mon) \
     ((mon_resistancebits(mon) & MR2_REFLECTION) != 0)
+#define can_levitate(mon) \
+    ((mon_resistancebits(mon) & MR2_LEVITATE) != 0)
 
 #define resists_sick(ptr) \
     ((ptr)->mlet == S_FUNGUS || nonliving(ptr)                                   \
@@ -88,7 +90,8 @@
      || (ptr) == &mons[PM_VROCK] || (ptr) == &mons[PM_PIT_FIEND]         \
      || (ptr) == &mons[PM_BALROG] || (ptr) == &mons[PM_ANGEL]            \
      || (ptr) == &mons[PM_ARCHANGEL] || (ptr) == &mons[PM_ARCHON])
-#define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
+#define is_floater(ptr) \
+    ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
 #define grounded(ptr) (!is_flyer(ptr) && !is_floater(ptr) && !is_clinger(ptr))

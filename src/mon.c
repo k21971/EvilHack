@@ -786,18 +786,21 @@ register struct monst *mtmp;
 
     /* [ceiling clingers are handled below] */
     inpool = (is_pool(mtmp->mx, mtmp->my)
-              && (!(is_flyer(mtmp->data) || is_floater(mtmp->data))
+              && (!(is_flyer(mtmp->data)
+                    || is_floater(mtmp->data) || can_levitate(mtmp))
                   /* there's no "above the surface" on the plane of water */
                   || Is_waterlevel(&u.uz)));
     inlava = (is_lava(mtmp->mx, mtmp->my)
-              && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
+              && !(is_flyer(mtmp->data)
+                   || is_floater(mtmp->data) || can_levitate(mtmp)));
     infountain = IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ);
     inforge = IS_FORGE(levl[mtmp->mx][mtmp->my].typ);
     inshallow = ((is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my))
-                 && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
+                 && !(is_flyer(mtmp->data)
+                      || is_floater(mtmp->data) || can_levitate(mtmp)));
     inopenair = (is_open_air(mtmp->mx, mtmp->my)
                  && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
-                      || is_clinger(mtmp->data)
+                      || is_clinger(mtmp->data) || can_levitate(mtmp)
                       || ((mtmp == u.usteed) && Flying)));
 
     /* Flying and levitation keeps our steed out of the liquid
@@ -1677,7 +1680,8 @@ register struct monst *mtmp;
     register struct obj *gold;
     int mat_idx;
 
-    if ((gold = g_at(mtmp->mx, mtmp->my)) != 0) {
+    if ((gold = g_at(mtmp->mx, mtmp->my)) != 0
+        && !(is_floater(mtmp->data) || can_levitate(mtmp))) {
         mat_idx = gold->material;
         obj_extract_self(gold);
         add_to_minv(mtmp, gold);
@@ -1765,6 +1769,10 @@ boolean vismon;
         return res; /* 0 */
     /* FIXME: handle cursed bag of holding */
     if (Is_mbag(container) && container->cursed)
+        return res; /* 0 */
+    /* levitating/floating monsters can't reach containers
+       on the ground */
+    if (is_floater(mon->data) || can_levitate(mon))
         return res; /* 0 */
 
     switch (rn2(10)) {
@@ -1882,6 +1890,11 @@ register const char *str;
 
     /* prevent shopkeepers from leaving the door of their shop */
     if (mtmp->isshk && inhishop(mtmp))
+        return FALSE;
+
+    /* levitating/floating monsters can't reach the ground, just
+       like levitating players */
+    if (is_floater(mtmp->data) || can_levitate(mtmp))
         return FALSE;
 
     for (otmp = level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
@@ -2207,12 +2220,14 @@ long flag;
     wantsewage = (mdat == &mons[PM_GIANT_LEECH]);
     wantice = (mdat == &mons[PM_FROST_SALAMANDER]);
     poolok = ((!Is_waterlevel(&u.uz)
-               && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)))
+               && (is_flyer(mdat) || is_floater(mdat)
+                   || is_clinger(mdat) || can_levitate(mon)))
               || ((is_swimmer(mdat) || has_cold_feet(mon)) && !wantpool)
               || can_wwalk(mon));
     /* note: floating eye is the only is_floater() so this could be
        simplified, but then adding another floater would be error prone */
-    lavaok = (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)
+    lavaok = (is_flyer(mdat) || is_floater(mdat)
+              || is_clinger(mdat) || can_levitate(mon)
               || ((has_cold_feet(mon) || likes_lava(mdat)) && !wantlava));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
@@ -2295,7 +2310,7 @@ long flag;
             /* avoid open air if gravity is in effect */
             if (is_open_air(nx, ny)
                 && !(is_flyer(mdat) || is_floater(mdat)
-                     || is_clinger(mdat)))
+                     || is_clinger(mdat) || can_levitate(mon)))
                 continue;
             if ((is_pool(nx, ny) == wantpool || poolok)
                 && (is_lava(nx, ny) == wantlava || lavaok)
@@ -2409,16 +2424,19 @@ long flag;
                         && ttmp->ttyp != VIBRATING_SQUARE
                         && ((!is_pit(ttmp->ttyp) && !is_hole(ttmp->ttyp))
                             || (!is_flyer(mdat) && !is_floater(mdat)
-                                && !is_clinger(mdat)) || Sokoban)
+                                && !is_clinger(mdat) && !can_levitate(mon))
+                            || Sokoban)
                         && (ttmp->ttyp != SLP_GAS_TRAP
                             || !(resists_sleep(mon) || defended(mon, AD_SLEE)))
                         && (ttmp->ttyp != BEAR_TRAP
                             || (mdat->msize > MZ_SMALL && !amorphous(mdat)
                                 && !is_flyer(mdat) && !is_floater(mdat)
-                                && !is_whirly(mdat) && !unsolid(mdat)))
+                                && !is_whirly(mdat) && !unsolid(mdat)
+                                && !can_levitate(mon)))
                         && (ttmp->ttyp != FIRE_TRAP
                             || !(resists_fire(mon) || defended(mon, AD_FIRE)))
-                        && (ttmp->ttyp != SQKY_BOARD || !is_flyer(mdat))
+                        && (ttmp->ttyp != SQKY_BOARD
+                            || !(is_flyer(mdat) || can_levitate(mon)))
                         && (ttmp->ttyp != WEB
                             || (!amorphous(mdat) && !webmaker(mdat)
                                 && !is_whirly(mdat) && !unsolid(mdat)))

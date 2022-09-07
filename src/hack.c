@@ -2396,7 +2396,7 @@ boolean newspot;             /* true if called by spoteffects */
             || (shallow_water && verysmall(youmonst.data))) {
             if (u.usteed
                 && (is_flyer(u.usteed->data) || is_floater(u.usteed->data)
-                    || is_clinger(u.usteed->data))) {
+                    || is_clinger(u.usteed->data) || can_levitate(u.usteed))) {
                 /* floating or clinging steed keeps hero safe (is_flyer() test
                    is redundant; it can't be true since Flying yielded false) */
                 return FALSE;

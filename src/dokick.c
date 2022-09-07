@@ -294,7 +294,7 @@ xchar x, y;
                 pline("%s %s, %s evading your %skick.", Monnam(mon),
                       (!level.flags.noteleport && can_teleport(mon->data))
                           ? "teleports"
-                          : is_floater(mon->data)
+                          : (is_floater(mon->data) || can_levitate(mon))
                                 ? "floats"
                                 : is_flyer(mon->data) ? "swoops"
                                                       : (nolimbs(mon->data)
