@@ -580,6 +580,7 @@ STATIC_VAR struct istat_s initblstats[MAXBLSTATS] = {
     INIT_BLSTAT("power-max", "(%s)", ANY_INT, 10, BL_ENEMAX),
     INIT_BLSTATP("experience-level", " Xp:%s", ANY_INT, 10, BL_EXP, BL_XP),
     INIT_BLSTAT("armor-class", " AC:%s", ANY_INT, 10, BL_AC),
+    INIT_BLSTAT("magic-neg", " MC:%s", ANY_INT, 10, BL_MC),
     INIT_BLSTAT("to-hit", " TH:%s", ANY_INT, 10, BL_TOHIT),
     INIT_BLSTAT("HD", " HD:%s", ANY_INT, 10, BL_HD),
     INIT_BLSTAT("time", " T:%s", ANY_LONG, 20, BL_TIME),
@@ -734,6 +735,9 @@ bot_via_windowport()
 
     /* Armor class */
     blstats[idx][BL_AC].a.a_int = u.uac;
+
+    /* Magic negation */
+    blstats[idx][BL_MC].a.a_int = magic_negation(&youmonst);
 
     /* To-hit bonus */
     blstats[idx][BL_TOHIT].a.a_int = botl_hitbonus();
@@ -1484,6 +1488,7 @@ static struct fieldid_t {
     { "xl",       BL_XP },
     { "xplvl",    BL_XP },
     { "ac",       BL_AC },
+    { "mc",       BL_MC },
     { "tohit",    BL_TOHIT },
     { "hit-dice", BL_HD },
     { "turns",    BL_TIME },

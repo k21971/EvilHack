@@ -2929,8 +2929,8 @@ status_enablefield(int fldindex, char fldname, char fieldfmt, boolean enable)
                 -- fldindex could be one of the following from botl.h:
                    BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
                    BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
-                   BL_XP, BL_AC, BL_TOHIT, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
-                   BL_LEVELDESC, BL_EXP, BL_CONDITION
+                   BL_XP, BL_AC, BL_MC, BL_TOHIT, BL_HD, BL_TIME, BL_HUNGER,
+                   BL_HP, BL_HPMAX, BL_LEVELDESC, BL_EXP, BL_CONDITION
                 -- There are MAXBLSTATS status fields (from botl.h)
 */
 void
