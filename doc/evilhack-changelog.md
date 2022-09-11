@@ -2444,4 +2444,5 @@ The following changes to date are:
 - Monsters can use rings/boots of levitation
 - To-hit calculation on the bottom line
 - Magic negation (MC) value on the bottom line
+- Fix: MC and to-hit status not appearing in dumplog
 

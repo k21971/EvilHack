@@ -138,9 +138,10 @@ do_statusline2()
     hpmax = Upolyd ? u.mhmax : u.uhpmax;
     if (hp < 0)
         hp = 0;
-    Sprintf(hlth, "HP:%d(%d) Pw:%d(%d) AC:%-2d",
+    Sprintf(hlth, "HP:%d(%d) Pw:%d(%d) AC:%-2d MC:%d TH:%-2d",
             min(hp, 9999), min(hpmax, 9999),
-            min(u.uen, 9999), min(u.uenmax, 9999), u.uac);
+            min(u.uen, 9999), min(u.uenmax, 9999), u.uac,
+            magic_negation(&youmonst), botl_hitbonus());
     hln = strlen(hlth);
 
     /* experience */
