@@ -688,6 +688,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     case TOOL_CLASS:
         if (typ == LENSES)
             Strcat(buf, "pair of ");
+        else if (typ == GOGGLES)
+            Strcat(buf, "pair of ");
         else if (is_wet_towel(obj))
             Strcat(buf, (obj->spe < 3) ? "moist " : "wet ");
 
@@ -2544,7 +2546,7 @@ static struct sing_plur one_off[] = {
 static const char *const as_is[] = {
     /* makesingular() leaves these plural due to how they're used */
     "boots",   "shoes",     "gloves",    "lenses",   "scales",
-    "eyes",    "gauntlets", "iron bars",
+    "eyes",    "gauntlets", "iron bars", "goggles",
     /* both singular and plural are spelled the same */
     "bison",   "deer",      "elk",       "fish",      "fowl",
     "tuna",    "yaki",      "-hai",      "krill",     "manes",

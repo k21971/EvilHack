@@ -125,9 +125,9 @@ struct obj *obj;
                 const char *what;
 
                 what = (ublindf->otyp == LENSES)
-                           ? "lenses"
-                           : (obj->otyp == ublindf->otyp) ? "other towel"
-                                                          : "blindfold";
+                           ? "lenses" : (ublindf->otyp == GOGGLES)
+                             ? "goggles" : (obj->otyp == ublindf->otyp)
+                               ? "other towel" : "blindfold";
                 if (ublindf->cursed) {
                     You("push your %s %s.", what,
                         rn2(2) ? "cock-eyed" : "crooked");
@@ -433,7 +433,8 @@ register struct obj *obj;
                     what = simple_typename(odummy->otyp);
                 }
                 use_plural = (is_boots(odummy) || is_gloves(odummy)
-                              || odummy->otyp == LENSES);
+                              || odummy->otyp == LENSES
+                              || odummy->otyp == GOGGLES);
                 break;
             case M_AP_MONSTER: /* ignore Hallucination here */
                 what = mons[mtmp->mappearance].mname;
@@ -4234,6 +4235,7 @@ doapply()
     switch (obj->otyp) {
     case BLINDFOLD:
     case LENSES:
+    case GOGGLES:
         if (obj == ublindf) {
             if (!cursed(obj, FALSE))
                 Blindf_off(obj);
@@ -4241,10 +4243,9 @@ doapply()
             Blindf_on(obj);
         } else {
             You("are already %s.", ublindf->otyp == TOWEL
-                                       ? "covered by a towel"
-                                       : ublindf->otyp == BLINDFOLD
-                                             ? "wearing a blindfold"
-                                             : "wearing lenses");
+                ? "covered by a towel" : ublindf->otyp == BLINDFOLD
+                  ? "wearing a blindfold" : ublindf->otyp == GOGGLES
+                    ? "wearing goggles" : "wearing lenses");
         }
         break;
     case CREAM_PIE:

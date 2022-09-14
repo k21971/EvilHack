@@ -1722,8 +1722,9 @@ boolean looting; /* loot vs tip */
         else
             cant_reach_floor(x, y, FALSE, TRUE);
         return FALSE;
-    } else if (is_lava(x, y)) {
-        /* at present, can't loot over--or stuck in-- lava */
+    } else if ((is_pool(x, y) && !Underwater) || is_lava(x, y)) {
+        /* at present, can't loot in water if not in it yourself;
+           can tip underwater, but not when over--or stuck in--lava */
         You("cannot %s things that are deep in the %s.", verb,
             hliquid(is_lava(x, y) ? "lava" : "water"));
         return FALSE;

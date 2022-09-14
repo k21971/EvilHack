@@ -1622,7 +1622,7 @@ struct obj *otmp;
         if (was_blind) {
             /* "still cannot see" makes no sense when removing lenses
                since they can't have been the cause of your blindness */
-            if (otmp->otyp != LENSES)
+            if (otmp->otyp != LENSES || otmp->otyp != GOGGLES)
                 You("still cannot see.");
         } else {
             changed = TRUE; /* !was_blind */
@@ -2014,7 +2014,8 @@ boolean silent;
         return 1;
 
     use_plural = (is_boots(otmp) || is_gloves(otmp)
-                  || otmp->otyp == LENSES || otmp->quan > 1L);
+                  || otmp->otyp == LENSES || otmp->otyp == GOGGLES
+                  || otmp->quan > 1L);
     /* might be trying again after applying grease to hands */
     if (Glib && otmp->bknown
         /* for weapon, we'll only get here via 'A )' */
@@ -2391,7 +2392,7 @@ struct obj *obj;
     armor = (obj->oclass == ARMOR_CLASS);
     ring = (obj->oclass == RING_CLASS || obj->otyp == MEAT_RING);
     eyewear = (obj->otyp == BLINDFOLD || obj->otyp == TOWEL
-               || obj->otyp == LENSES);
+               || obj->otyp == LENSES || obj->otyp == GOGGLES);
     /* checks which are performed prior to actually touching the item */
     if (armor) {
         if (!canwearobj(obj, &mask, TRUE))
@@ -2486,13 +2487,24 @@ struct obj *obj;
                 else if (ublindf->otyp == BLINDFOLD) {
                     if (obj->otyp == LENSES)
                         already_wearing2("lenses", "a blindfold");
+                    else if (obj->otyp == GOGGLES)
+                        already_wearing2("goggles", "a blindfold");
                     else
                         already_wearing("a blindfold");
                 } else if (ublindf->otyp == LENSES) {
                     if (obj->otyp == BLINDFOLD)
                         already_wearing2("a blindfold", "some lenses");
+                    else if (obj->otyp == GOGGLES)
+                        already_wearing2("goggles", "some lenses");
                     else
                         already_wearing("some lenses");
+                } else if (ublindf->otyp == GOGGLES) {
+                    if (obj->otyp == BLINDFOLD)
+                        already_wearing2("a blindfold", "some goggles");
+                    else if (obj->otyp == LENSES)
+                        already_wearing2("lenses", "some goggles");
+                    else
+                        already_wearing("some goggles");
                 } else {
                     already_wearing(something); /* ??? */
                 }
@@ -2625,7 +2637,9 @@ doputon()
         Your("%s%s are full, and you're already wearing an amulet and %s.",
              humanoid(youmonst.data) ? "ring-" : "",
              fingers_or_gloves(FALSE),
-             (ublindf->otyp == LENSES) ? "some lenses" : "a blindfold");
+             (ublindf->otyp == LENSES) ? "some lenses"
+                                       : (ublindf->otyp == GOGGLES) ? "some goggles"
+                                                                    : "a blindfold");
         return 0;
     }
     otmp = getobj(accessories, "put on");

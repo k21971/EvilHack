@@ -120,7 +120,8 @@
 #define Confusion HConfusion
 
 #define Blinded u.uprops[BLINDED].intrinsic
-#define Blindfolded (ublindf && ublindf->otyp != LENSES)
+#define Blindfolded \
+    (ublindf && !(ublindf->otyp == LENSES || ublindf->otyp == GOGGLES))
 /* ...means blind because of a cover */
 #define Blind                                     \
     ((u.uroleplay.blind || Blinded || Blindfolded \
@@ -301,9 +302,10 @@
 /* Get wet, may go under surface */
 
 #define See_underwater \
-    ((HSwimming && (HMagical_breathing || amphibious(youmonst.data) \
-                    || racial_tortle(&youmonst))) \
-     || (ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD))
+    ((HSwimming && (HMagical_breathing || amphibious(youmonst.data)  \
+                    || racial_tortle(&youmonst)))                    \
+     || (ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) \
+     || (ublindf && ublindf->otyp == GOGGLES))
 
 #define Breathless \
     (HMagical_breathing || EMagical_breathing || breathless(youmonst.data))
