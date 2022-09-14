@@ -2447,4 +2447,5 @@ The following changes to date are:
 - Fix: MC and to-hit status not appearing in dumplog
 - Allow looting of containers that are in water
 - New object: goggles
+- Fix: quirk with underwater vision
 

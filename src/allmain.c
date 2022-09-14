@@ -525,9 +525,10 @@ boolean resuming;
                         movebubbles();
                     else if (Is_firelevel(&u.uz))
                         fumaroles();
-                    else if (Underwater && !See_underwater)
+                    else if (Underwater && !See_underwater) {
                         under_water(0);
-                    else if (Underwater)
+                        docrt();
+                    } else if (Underwater)
                         docrt();
                     /* vision while buried done here */
                     else if (u.uburied)
