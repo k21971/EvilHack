@@ -2407,9 +2407,10 @@ struct obj *obj;
 
 /* create an object from a horn of plenty; mirrors bagotricks(makemon.c) */
 int
-hornoplenty(horn, tipping)
+hornoplenty(horn, tipping, targetbox)
 struct obj *horn;
-boolean tipping; /* caller emptying entire contents; affects shop handling */
+boolean tipping; /* caller emptying entire contents; affects shop mesgs */
+struct obj *targetbox; /* if non-Null, container to tip into */
 {
     int objcount = 0;
 
@@ -2417,6 +2418,10 @@ boolean tipping; /* caller emptying entire contents; affects shop handling */
         impossible("bad horn o' plenty");
     } else if (horn->spe < 1) {
         pline1(nothing_happens);
+        if (!horn->cknown) {
+            horn->cknown = 1;
+            update_inventory();
+        }
     } else {
         struct obj *obj;
         const char *what;
@@ -2459,6 +2464,16 @@ boolean tipping; /* caller emptying entire contents; affects shop handling */
                                           : "Oops!  %s to the floor!",
                                       The(aobjnam(obj, "slip")), (char *) 0);
             nhUse(obj);
+        } else if (targetbox) {
+            add_to_container(targetbox, obj);
+            /* add to container doesn't update the weight */
+            targetbox->owt = weight(targetbox);
+            /* item still in magic horn was weightless; when it's now in
+               a carried container, hero's encumbrance could change */
+            if (carried(targetbox)) {
+                (void) encumber_msg();
+                update_inventory(); /* for contents count or wizweight */
+            }
         } else {
             /* assumes this is taking place at hero's location */
             if (!can_reach_floor(TRUE)) {

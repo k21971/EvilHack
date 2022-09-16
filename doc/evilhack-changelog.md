@@ -2449,4 +2449,5 @@ The following changes to date are:
 - New object: goggles
 - Fix: quirk with underwater vision
 - Revamp monsters eating containers
+- Fix: tipping into containers
 
