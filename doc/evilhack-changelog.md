@@ -2448,4 +2448,5 @@ The following changes to date are:
 - Allow looting of containers that are in water
 - New object: goggles
 - Fix: quirk with underwater vision
+- Revamp monsters eating containers
 

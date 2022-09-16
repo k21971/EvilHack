@@ -1523,6 +1523,7 @@ E int FDECL(genus, (int, int));
 E int FDECL(pm_to_cham, (int));
 E int FDECL(minliquid, (struct monst *));
 E int NDECL(movemon);
+E void FDECL(meatbox, (struct monst *, struct obj *));
 E int FDECL(meatmetal, (struct monst *));
 E int FDECL(meatobj, (struct monst *));
 E void FDECL(mpickgold, (struct monst *));
