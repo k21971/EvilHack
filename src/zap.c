@@ -2239,8 +2239,7 @@ struct obj *obj, *otmp;
                 } else {
                     if (cansee(ox, oy)) {
                         if (canspotmon(mtmp)) {
-                            pline("%s is resurrected!",
-                                  upstart(noname_monnam(mtmp, ARTICLE_THE)));
+                            pline("%s is resurrected!", Monnam(mtmp));
                             if (by_u)
                                 learn_it = TRUE;
                         } else {

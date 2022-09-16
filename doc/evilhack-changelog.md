@@ -2450,4 +2450,5 @@ The following changes to date are:
 - Fix: quirk with underwater vision
 - Revamp monsters eating containers
 - Fix: tipping into containers
+- Resurrecting named pets will show their name once resurrected
 
