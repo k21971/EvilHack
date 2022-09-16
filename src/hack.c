@@ -1879,13 +1879,17 @@ domove_core()
                              : "nothing");
         } else if (solid) {
             /* glyph might indicate unseen terrain if hero is blind;
-               unlike searching, this won't reveal what that terrain is
-               (except for solid rock, where the glyph would otherwise
-               yield ludicrous "dark part of a room") */
-            Strcpy(buf, (levl[x][y].typ == STONE) ? "solid rock"
-                         : glyph_is_cmap(glyph)
-                            ? the(defsyms[glyph_to_cmap(glyph)].explanation)
-                            : (const char *) "an unknown obstacle");
+               unlike searching, this won't reveal what that terrain is;
+               3.7: used to say "solid rock" for STONE, but that made it be
+               different from unmapped walls outside of rooms (and was wrong
+               on arboreal levels) */
+            if (levl[x][y].seenv || IS_STWALL(levl[x][y].typ)
+                || levl[x][y].typ == SDOOR || levl[x][y].typ == SCORR) {
+                glyph = back_to_glyph(x, y);
+                Strcpy(buf, the(defsyms[glyph_to_cmap(glyph)].explanation));
+            } else {
+                Strcpy(buf, "an unknown obstacle");
+            }
             /* note: 'solid' is misleadingly named and catches pools
                of water and lava as well as rock and walls */
         } else {

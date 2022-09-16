@@ -2451,4 +2451,5 @@ The following changes to date are:
 - Revamp monsters eating containers
 - Fix: tipping into containers
 - Resurrecting named pets will show their name once resurrected
+- Fix: force-fight 'unknown obstacle' descriptions
 
