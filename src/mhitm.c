@@ -1440,7 +1440,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             if (tmp >= mdef->mhp && mdef->mhp > 1)
                 tmp = mdef->mhp - 1;
         }
-        if (mattk->adtyp == AD_CLOB && tmp > 0 && !rn2(6)) {
+        if (mattk->adtyp == AD_CLOB && tmp > 0
+            && !unsolid(mdef->data) && !rn2(6)) {
             if (tmp < mdef->mhp) {
                 if (vis && canseemon(mdef))
                     pline("%s knocks %s back with a %s %s!",
