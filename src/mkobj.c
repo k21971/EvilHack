@@ -475,11 +475,11 @@ long num;
     /* as a back pointer to the container object when contained. */
     if (obj->where == OBJ_FLOOR)
         obj->nexthere = otmp;
+    if (obj->unpaid)
+        splitbill(obj, otmp);
     copy_oextra(otmp, obj);
     if (has_omid(otmp))
         free_omid(otmp); /* only one association with m_id*/
-    if (obj->unpaid)
-        splitbill(obj, otmp);
     if (obj->timed)
         obj_split_timers(obj, otmp);
     if (obj_sheds_light(obj))

@@ -2454,4 +2454,5 @@ The following changes to date are:
 - Fix: force-fight 'unknown obstacle' descriptions
 - Fix: to-hit display weirdness under certain conditions
 - Fix: to-hit display revealing weapon enchantment, other tweaks
+- Fix: impossible from splitting named stack on bill
 
