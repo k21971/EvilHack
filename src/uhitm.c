@@ -496,7 +496,12 @@ register struct monst *mtmp;
         break;
     }
 
-    if (uswapwep && uswapwep->owt > maxweight) {
+    if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+        || (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
+        || maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
+        maxweight = 200;
+
+    if (u.twoweap && uswapwep && uswapwep->owt > maxweight) {
         Your("%s seem%s very %s.",
              xname(uswapwep), uswapwep->quan == 1 ? "s" : "",
              rn2(2) ? "unwieldy" : "cumbersome");

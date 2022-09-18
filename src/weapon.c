@@ -165,7 +165,7 @@ botl_hitbonus()
     uchar aatyp = youmonst.data->mattk[0].aatyp;
     struct obj *weapon = uwep;
 
-    tmp = (Luck / 3) + abon() + u.uhitinc
+    tmp = 1 + (Luck / 3) + abon() + u.uhitinc
           + (int) maybe_polyd(youmonst.data->mlevel, (u.ulevel > 20 ? 20 : u.ulevel));
 
     if (u.ulevel == 30)
@@ -190,7 +190,7 @@ botl_hitbonus()
         tmp -= 3;
 
     if (aatyp == AT_WEAP || aatyp == AT_CLAW) {
-        if (weapon)
+        if (weapon && weapon->known)
             tmp += base_hitbonus(uwep);
         tmp += weapon_hit_bonus(weapon);
     } else if (aatyp == AT_KICK && martial_bonus()) {

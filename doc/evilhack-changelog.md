@@ -2453,4 +2453,5 @@ The following changes to date are:
 - Resurrecting named pets will show their name once resurrected
 - Fix: force-fight 'unknown obstacle' descriptions
 - Fix: to-hit display weirdness under certain conditions
+- Fix: to-hit display revealing weapon enchantment, other tweaks
 
