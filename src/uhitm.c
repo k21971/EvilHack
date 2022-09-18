@@ -476,27 +476,27 @@ register struct monst *mtmp;
     /* feedback for twoweaponing w/ offhand weapon
        being too heavy */
     maxweight = 0;
-    if (uswapwep && uswapwep->owt > maxweight) {
-        switch (P_SKILL(P_TWO_WEAPON_COMBAT)) {
-        case P_ISRESTRICTED:
-        case P_UNSKILLED:
-            maxweight = 20; /* can use tridents/javelins,
-                               crysknives, unicorn horns or
-                               anything lighter */
-            break;
-        case P_BASIC:
-            maxweight = 30; /* can use short swords/spears or
-                               a mace */
-            break;
-        case P_SKILLED:
-            maxweight = 40; /* can use sabers/long swords */
-            break;
-        case P_EXPERT:
-            maxweight = 70; /* expert level can offhand any
-                               one-handed weapon */
-            break;
-        }
+    switch (P_SKILL(P_TWO_WEAPON_COMBAT)) {
+    case P_ISRESTRICTED:
+    case P_UNSKILLED:
+        maxweight = 20; /* can use tridents/javelins,
+                           crysknives, unicorn horns or
+                           anything lighter */
+        break;
+    case P_BASIC:
+        maxweight = 30; /* can use short swords/spears or
+                           a mace */
+        break;
+    case P_SKILLED:
+        maxweight = 40; /* can use sabers/long swords */
+        break;
+    case P_EXPERT:
+        maxweight = 70; /* expert level can offhand any
+                           one-handed weapon */
+        break;
+    }
 
+    if (uswapwep && uswapwep->owt > maxweight) {
         Your("%s seem%s very %s.",
              xname(uswapwep), uswapwep->quan == 1 ? "s" : "",
              rn2(2) ? "unwieldy" : "cumbersome");
