@@ -2456,4 +2456,5 @@ The following changes to date are:
 - Fix: to-hit display revealing weapon enchantment, other tweaks
 - Fix: impossible from splitting named stack on bill
 - Physical knockback attack doesn't affect unsolid monsters
+- Weapon familiarity
 

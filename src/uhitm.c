@@ -31,6 +31,7 @@ extern boolean notonhead; /* for long worms */
 static boolean override_confirmation = FALSE;
 
 #define PROJECTILE(obj) ((obj) && is_ammo(obj))
+#define KILL_FAMILIARITY 20
 
 void
 erode_armor(mdef, hurt)
@@ -1765,6 +1766,22 @@ int dieroll;
         if (!noncorporeal(mdat) && !amorphous(mdat))
             whom = strcat(s_suffix(whom), " flesh");
         pline(fmt, whom);
+    }
+    /* Weapons have a chance to id after a certain number of kills with
+       them. The more powerful a weapon, the lower this chance is. This
+       way, there is uncertainty about when a weapon will ID, but spoiled
+       players can make an educated guess. */
+    if (destroyed && uwep
+        && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
+        && !uwep->known) {
+        uwep->wep_kills++;
+        if (uwep->wep_kills > KILL_FAMILIARITY
+            && !rn2(max(2, uwep->spe) && !uwep->known)) {
+            You("have become quite familiar with %s.",
+                yobjnam(uwep, (char *) 0));
+            uwep->known = TRUE;
+            update_inventory();
+        }
     }
     /* if a "no longer poisoned" message is coming, it will be last;
        obj->opoisoned was cleared above and any message referring to
