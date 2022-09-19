@@ -168,6 +168,19 @@ botl_hitbonus()
     tmp = 1 + (Luck / 3) + abon() + u.uhitinc
           + (int) maybe_polyd(youmonst.data->mlevel, (u.ulevel > 20 ? 20 : u.ulevel));
 
+    /* suppress weapon/ring enchantments unless their enchantment is
+       known - try not to hand out any freebies */
+    if (weapon && !weapon->known)
+        tmp -= weapon->spe;
+
+    if (uleft && uleft->otyp == RIN_INCREASE_ACCURACY
+        && !uleft->known)
+        tmp -= uleft->spe;
+
+    if (uright && uright->otyp == RIN_INCREASE_ACCURACY
+        && !uright->known)
+        tmp -= uright->spe;
+
     if (u.ulevel == 30)
         tmp += 4;
 
@@ -190,7 +203,7 @@ botl_hitbonus()
         tmp -= 3;
 
     if (aatyp == AT_WEAP || aatyp == AT_CLAW) {
-        if (weapon && weapon->known)
+        if (weapon)
             tmp += base_hitbonus(uwep);
         tmp += weapon_hit_bonus(weapon);
     } else if (aatyp == AT_KICK && martial_bonus()) {
