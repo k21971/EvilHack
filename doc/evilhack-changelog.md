@@ -2459,4 +2459,5 @@ The following changes to date are:
 - Weapon familiarity
 - Better way to suppress weapon enchantment on to-hit display, include
   rings of increase accuracy
+- Fix: exploiting artifact name rejection
 
