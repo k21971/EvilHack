@@ -2460,4 +2460,5 @@ The following changes to date are:
 - Better way to suppress weapon enchantment on to-hit display, include
   rings of increase accuracy
 - Fix: exploiting artifact name rejection
+- Fix: unique monster doppelganger and bones bug
 
