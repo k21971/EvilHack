@@ -669,7 +669,9 @@ struct obj *corpse;
         mtmp->mhp = mtmp->mhpmax = u.uhpmax;
         mtmp->female = flags.female;
         mtmp->msleeping = 1;
-        Strcpy(mtmp->former_rank, rank());
+        mtmp->former_rank.lev = mtmp->m_lev;
+        mtmp->former_rank.mnum = Role_switch;
+        mtmp->former_rank.female = flags.female;
     }
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         resetobjs(mtmp->minvent, FALSE);

@@ -1841,7 +1841,7 @@ boolean called;
     } else if (do_name && has_mname(mtmp)) {
         char *name = MNAME(mtmp);
 
-        if (is_bones_monster(mdat)) {
+        if (mtmp->former_rank.mnum != NON_PM) {
             if (mdat == &mons[PM_GHOST]) {
                 Sprintf(eos(buf), "%s ghost", s_suffix(name));
                 name_at_start = TRUE;

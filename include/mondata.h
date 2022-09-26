@@ -280,13 +280,6 @@
                          || ((ptr)->mlet == S_HUMANOID && !is_illithid(ptr)) \
                          || (ptr)->mlet == S_GNOME || (ptr)->mlet == S_ORC   \
                          || (ptr)->mlet == S_GIANT))
-#define is_bones_monster(ptr) \
-    ((ptr) == &mons[PM_GHOST] || (ptr) == &mons[PM_GHOUL]                 \
-     || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_VAMPIRE]          \
-     || (ptr) == &mons[PM_VAMPIRE_MAGE] || (ptr) == &mons[PM_WRAITH]      \
-     || (ptr)->mlet == S_MUMMY || is_zombie(ptr)                          \
-     || (ptr) == &mons[PM_BARROW_WIGHT] || (ptr) == &mons[PM_GREEN_SLIME] \
-     || (ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_REVENANT])
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
 #define is_demon(ptr) \
     ((((ptr)->mhflags & MH_DEMON) != 0L) \

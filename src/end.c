@@ -540,7 +540,7 @@ int how;
         killer.format = KILLED_BY;
     }
     /* _the_ <invisible> <distorted> ghost of Dudley */
-    if (is_bones_monster(mptr) && has_mname(mtmp)) {
+    if (mtmp->former_rank.mnum != NON_PM) {
         Strcat(buf, "the ");
         killer.format = KILLED_BY;
     }
@@ -581,7 +581,7 @@ int how;
                                : "%s imitating %s",
                 realnm, shape);
         mptr = mtmp->data; /* reset for mimicker case */
-    } else if (is_bones_monster(mptr)) {
+    } else if (mtmp->former_rank.mnum != NON_PM) {
         Strcpy(buf, m_monnam(mtmp));
     } else if (mtmp->isshk) {
         const char *shknm = shkname(mtmp),

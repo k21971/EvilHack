@@ -68,6 +68,13 @@ enum m_ap_types {
 #define M_AP_TYPE(m) ((m)->m_ap_type & M_AP_TYPMASK)
 #define M_AP_FLAG(m) ((m)->m_ap_type & ~M_AP_TYPMASK)
 
+/* for saving the hero's rank in bones monster */
+struct mon_former_rank {
+    int lev;
+    short mnum;
+    boolean female;
+};
+
 struct monst {
     struct monst *nmon;
     struct permonst *data;
@@ -201,8 +208,6 @@ struct monst {
     long misc_worn_check;  /* mon's wornmask */
     xchar weapon_check;    /* flag for whether to try switching weapons */
 
-    char former_rank[25];  /* for bones' ghost rank in their former life */
-
     int meating;           /* monster is eating timeout */
     int msummoned;         /* is a temporarily summoned being */
     int msicktime;         /* zombie sick timer */
@@ -210,6 +215,7 @@ struct monst {
     int mreflecttime;      /* timeout for monster reflection spell */
     uchar mprotection;     /* monster protection spell */
     uchar mprottime;       /* timeout for monster protection spell */
+    struct mon_former_rank former_rank; /* for monsters in bones */
     struct mextra *mextra; /* point to mextra struct */
 };
 

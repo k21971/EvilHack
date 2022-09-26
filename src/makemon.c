@@ -2674,6 +2674,7 @@ long mmflags;
     if (ptr->msound == MS_LEADER && quest_info(MS_LEADER) == mndx)
         quest_status.leader_m_id = mtmp->m_id;
     mtmp->mnum = mndx;
+    mtmp->former_rank.mnum = NON_PM;
 
     /* set up level and hit points */
     newmonhp(mtmp, mndx);
