@@ -1401,7 +1401,7 @@ register struct monst *mtmp;
         break;
 
     case S_HUMANOID:
-        if (is_hobbit(ptr)) {
+        if (is_hobbit(ptr) && !Ingtown) {
             switch (rn2(3)) {
             case 0:
                 (void) mongets(mtmp, DAGGER);

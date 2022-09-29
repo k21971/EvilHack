@@ -82,11 +82,12 @@ RNDLEVEL:	"minend" "E" @ (-1, 0) 5
 #
 #       Goblin Town
 #
-DUNGEON:        "Goblin Town" "none" (1, 0)
+DUNGEON:        "Goblin Town" "none" (2, 0)
 DESCRIPTION:    mazelike
 DESCRIPTION:    gtown
 ALIGNMENT:      chaotic
-LEVEL:          "goblintown" "none" @ (1, 0)
+LEVEL:          "goblintown-1" "none" @ (1, 0)
+LEVEL:          "goblintown-2" "none" @ (2, 0)
 
 #
 #	The Questdungeon

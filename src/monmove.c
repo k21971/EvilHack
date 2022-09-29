@@ -1853,6 +1853,12 @@ register int after;
                     return 2; /* it died */
             }
 
+            /* Maybe Gollum had a snack */
+            if (ptr == &mons[PM_GOLLUM]) {
+                if (gollum_eat(mtmp) == 2)
+                    return 2; /* it died */
+            }
+
             if (!*in_rooms(mtmp->mx, mtmp->my, SHOPBASE) || !rn2(25)) {
                 boolean picked = FALSE;
 

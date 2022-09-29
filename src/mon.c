@@ -1773,6 +1773,68 @@ register struct monst *mtmp;
     return 0;
 }
 
+/* corpses Gollum will eat */
+int
+gollum_eat(mtmp)
+register struct monst *mtmp;
+{
+    register struct obj *otmp;
+    struct permonst *ptr;
+    int grow, heal, mstone;
+
+    /* Gollum can't be tamed, but we'll leave this here anyways */
+    if (mtmp->mtame)
+        return 0;
+
+    /* Eats topmost corpse if it is there */
+    for (otmp = level.objects[mtmp->mx][mtmp->my]; otmp;
+         otmp = otmp->nexthere) {
+        /* Don't eat indigestible/inappropriate objects */
+        if (mtmp->data == &mons[PM_GOLLUM] && !is_gollumfood(otmp))
+            continue;
+        if (is_gollumfood(otmp)) {
+            if (mtmp->data == &mons[PM_GOLLUM]) {
+                if (cansee(mtmp->mx, mtmp->my) && flags.verbose)
+                    pline("%s eats %s!", Monnam(mtmp),
+                          distant_name(otmp, doname));
+                else if (!Deaf && flags.verbose)
+                    You_hear("a smacking sound.");
+                /* Gollum can eat very fast */
+                mtmp->meating = rnd(3) + 1;
+                /* Heal up to the object's weight in hp */
+                if (mtmp->mhp < mtmp->mhpmax) {
+                    mtmp->mhp += objects[otmp->otyp].oc_weight;
+                    if (mtmp->mhp > mtmp->mhpmax)
+                        mtmp->mhp = mtmp->mhpmax;
+            }
+            grow = mlevelgain(otmp);
+            heal = mhealup(otmp);
+            mstone = mstoning(otmp);
+            delobj(otmp);
+            ptr = mtmp->data;
+            if (grow) {
+                ptr = grow_up(mtmp, (struct monst *) 0);
+            } else if (mstone) {
+                if (poly_when_stoned(ptr)) {
+                    mon_to_stone(mtmp);
+                    ptr = mtmp->data;
+                } else if (!(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
+                    mtmp->mstone = 5;
+                    mtmp->mstonebyu = FALSE;
+                }
+            } else if (heal) {
+                mtmp->mhp = mtmp->mhpmax;
+            }
+            if (!ptr)
+                return 2; /* it died */
+            }
+        }
+        newsym(mtmp->mx, mtmp->my);
+        return 1;
+    }
+    return 0;
+}
+
 int
 mloot_container(mon, container, vismon)
 struct monst *mon;
@@ -2002,7 +2064,8 @@ register const char *str;
             carryamt = can_carry(mtmp, otmp);
             if (carryamt == 0)
                 continue;
-            if (is_pool(mtmp->mx, mtmp->my))
+            if (is_pool(mtmp->mx, mtmp->my)
+                && !is_swimmer(mtmp->data))
                 continue;
             /* handle cases where the critter can only get some */
             otmp3 = otmp;
@@ -2639,7 +2702,8 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* berserk monsters sometimes lash out at everything
        when trying to attack you  */
-    if (magr->mberserk && !magr->mpeaceful && !rn2(3) && m_canseeu(magr))
+    if (magr->mberserk && !magr->mpeaceful
+        && !rn2(3) && m_canseeu(magr))
         return ALLOW_M | ALLOW_TM;
 
     /* The Riders, and huge/gigantic monsters
@@ -2662,7 +2726,8 @@ struct monst *magr, /* monster that is currently deciding where to move */
 
     /* mindflayer larvae need live humanoids as hosts
        so they can mature into adult flayers */
-    if (ma == &mons[PM_MIND_FLAYER_LARVA] && can_become_flayer(md))
+    if (ma == &mons[PM_MIND_FLAYER_LARVA]
+        && can_become_flayer(md))
         return ALLOW_M | ALLOW_TM;
 
     /* neothelids need brains to survive and
@@ -2676,6 +2741,12 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if ((ma == &mons[PM_KATHRYN_THE_ICE_QUEEN]
          || ma == &mons[PM_KATHRYN_THE_ENCHANTRESS])
         && can_sting(md))
+        return ALLOW_M | ALLOW_TM;
+
+    /* Gollum likes to eat fish, bats, and orcses */
+    if (ma == &mons[PM_GOLLUM]
+        && (md == &mons[PM_PIRANHA]
+            || is_bat(md) || md->mlet == S_ORC))
         return ALLOW_M | ALLOW_TM;
 
     /* now test all two-way aggressions both ways */

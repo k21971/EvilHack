@@ -6,7 +6,7 @@
 #	to open up access to Mine Town and Mines' End in the
 #	Gnomish Mines.
 #
-MAZE: "goblintown",' '
+MAZE: "goblintown-1",' '
 FLAGS: noteleport,hardfloor,solidify,shortsighted
 
 GEOMETRY:left,center
@@ -42,6 +42,10 @@ REGION:(22,17,27,18),lit,"ordinary"
 REGION:(40,02,42,03),lit,"ordinary"
 REGION:(68,11,69,14),lit,"ordinary"
 REGION:(71,01,74,04),lit,"ordinary"
+
+# random trap door that leads to Gollum's Cave
+$gollum_cave = { (25,18),(42,02),(70,13),(07,00),(64,01) }
+SHUFFLE:$gollum_cave
 
 # Shop (maybe?)
 IF [50%] {
@@ -89,6 +93,7 @@ TRAP:"board", (72,08)
 TRAP:"arrow", (19,11)
 TRAP:"arrow", (61,09)
 TRAP:"arrow", (62,13)
+TRAP:"trap door", $gollum_cave[0]
 
 # Prisoners
 MONSTER:('@',"Woodland-elf"),(23,17),peaceful
@@ -147,3 +152,95 @@ NON_DIGGABLE:(28,05,66,19)
 NON_DIGGABLE:(00,17,75,19)
 NON_DIGGABLE:(68,00,75,19)
 NON_PASSWALL:(00,00,75,19)
+
+
+MAZE: "goblintown-2",' '
+FLAGS: hardfloor,solidify
+
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+}}......w}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+.......ww}}}}}}}}}}..}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+..t...}}www}}}}}}}....}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+.....}}}}}www}}}}}}w..}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+.....}}}}}}ww}}}}}}wwww}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+w.....}}}}}}ww}}}}www}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+ww.....}}}}}}}wwwww}}}}}}}}}}}}}}}}}}}}}.}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+.......w}}}}}}}w}}}}}}}}}}}}}}}}}}}}}}}...}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+......w}}}}}}}}}w}}}}}}}}}}}}}}}}}}}}}..t...}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+.t....w}}}}}}}}}}w}}}}}}}}}}}}}}}}}...........}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+.t.....w}}}}}}}}}w}}}}}}}}}}}}}}}}........t..}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+.....ww}}}}}}}}}}www}}}}}}}}}}}}}}}}........}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+....}}}}}}}}}}}www}}}}}}}}}}}}}}}}}}}.....}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+w..}}}}}}}}}}}}}wwww}}}}}}}}}}}}}}}}}}...}}}}}}}}}}}}}}}}}}}}}}...}}}}}}}}}}
+....}}}}}}}}}}}}}ww}}}}}}}}}}}}}}}}}}}.t..w}}}}}}}}}}}}}}}}}}...t..}}}}}}}}}
+.....}}}}}}}}}}}}www}}}}}}}}}}}}}}}}}}}..ww}}}}}}}}}}}}}}}}}}}...w}}}}}}}}}}
+.......}}}}}}}}}}}wwww}}}}}}}}}}}}}}}}}}ww}}}}}}}}}}}}}}}}}}}}}..w}}}}}}}}}}
+........}}}}}}}}}}}}wwww}}}}wwww}}}}}}}ww}}}}}}}}}}}}}}}}}}}}}}}ww}}}}}}}}}}
+..tt....}}}}}}}}}}}w}}}wwwwww}}www}}wwww}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+...t.....}}}}}}}}}wwwwww}}}}}}}}}}www}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+.............wwwwww}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+ENDMAP
+TELEPORT_REGION:(00,05,07,10),(00,00,00,00)
+STAIR:(02,19),up
+REGION:(00,00,75,20),unlit,"ordinary"
+
+# random spots Gollum can spawn
+$gollum_spawn = { (20,02),(01,13),(16,12),(34,10),(04,18),(02,01) }
+SHUFFLE:$gollum_spawn
+
+# various objects
+OBJECT:('=',"invisibility"),random,cursed,name:"The One Ring"
+
+CONTAINER:('(',"chest"),(40,10) {
+  IF [65%] {
+    OBJECT:('(',"goggles"),uncursed
+  }
+  OBJECT:'*'
+  OBJECT:'*'
+  OBJECT:'!'
+}
+
+CONTAINER:('(',"chest"),(64,15) {
+  IF [15%] {
+    OBJECT:('[',"elven chain mail")
+  }
+  IF [50%] {
+    OBJECT:('[',"elven cloak")
+  }
+  OBJECT:'*'
+  OBJECT:'*'
+  OBJECT:'*'
+  OBJECT:'$',quantity:200
+}
+
+# Gollum's victims
+OBJECT:('%',"corpse"),(01,01),montype:"goblin"
+OBJECT:('%',"corpse"),(03,03),montype:"hobgoblin"
+OBJECT:('%',"corpse"),(02,07),montype:"piranha"
+OBJECT:('%',"corpse"),(06,07),montype:"piranha"
+OBJECT:('%',"corpse"),(05,08),montype:"piranha"
+OBJECT:('%',"corpse"),(02,16),montype:"goblin"
+OBJECT:('%',"corpse"),(37,10),montype:"hobgoblin"
+OBJECT:('%',"corpse"),(39,12),montype:"goblin"
+OBJECT:('%',"corpse"),(43,09),montype:"goblin"
+OBJECT:('%',"corpse"),(63,13),montype:"elf"
+OBJECT:('%',"corpse"),(64,16),montype:"elf"
+
+# Gollum
+MONSTER:('h',"Gollum"),$gollum_spawn[0],hostile
+
+# random monsters
+MONSTER:(';',"piranha"),random,hostile
+MONSTER:(';',"piranha"),random,hostile
+MONSTER:(';',"piranha"),random,hostile
+MONSTER:(';',"piranha"),random,hostile
+MONSTER:(';',"piranha"),random,hostile
+MONSTER:(';',"piranha"),random,hostile
+MONSTER:(';',"piranha"),random,hostile
+MONSTER:('B',"bat"),random,hostile
+MONSTER:('B',"bat"),random,hostile
+MONSTER:('B',"bat"),random,hostile
+MONSTER:('B',"giant bat"),random,hostile

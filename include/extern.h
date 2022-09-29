@@ -1528,6 +1528,7 @@ E int FDECL(meatmetal, (struct monst *));
 E int FDECL(meatobj, (struct monst *));
 E void FDECL(mpickgold, (struct monst *));
 E int FDECL(meatjelly, (struct monst *));
+E int FDECL(gollum_eat, (struct monst *));
 E int FDECL(mloot_container, (struct monst *mon, struct obj *,
                               BOOLEAN_P));
 E boolean FDECL(mpickstuff, (struct monst *, const char *));

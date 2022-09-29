@@ -2462,4 +2462,5 @@ The following changes to date are:
 - Fix: exploiting artifact name rejection
 - Fix: unique monster doppelganger and bones bug
 - Better way of handling livelogging of destroying a player's ghost
+- Goblin Town expansion: Gollum's Cave
 

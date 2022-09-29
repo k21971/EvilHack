@@ -1328,7 +1328,8 @@ boolean
 Can_fall_thru(lev)
 d_level *lev;
 {
-    return (boolean) (Can_dig_down(lev) || Is_stronghold(lev));
+    return (boolean) (Can_dig_down(lev) || Is_stronghold(lev)
+                      || In_goblintown(lev));
 }
 
 /*
