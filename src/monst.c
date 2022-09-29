@@ -3480,7 +3480,7 @@ struct permonst _mons2[] = {
             | M2_PNAME | M2_PRINCE | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         M3_WANTSAMUL | M3_WAITFORU | M3_INFRAVISIBLE | M3_INFRAVISION, 0,
         MH_DEMON | MH_DRAGON, 53, HI_LORD),
-    MON("Graz'zt", S_DEMON, LVL(105, 12, -9, 85, -20),
+    MON("Graz'zt", S_DEMON, LVL(105, 12, -9, 35, -20),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 8), ATTK(AT_CLAW, AD_STUN, 6, 6),
           ATTK(AT_MAGC, AD_CLRC, 4, 6), ATTK(AT_CLAW, AD_SITM, 3, 6),

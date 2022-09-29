@@ -1926,7 +1926,7 @@ register struct attack *mattk;
         } else if (mtmp->mcan || Hidinshell) {
             if (!Blind)
                 pline("%s tries to %s you, but you seem %s.",
-                      Adjmonnam(mtmp, "plain"),
+                      &mons[PM_GRAZ_ZT] ? Monnam(mtmp) : Adjmonnam(mtmp, "plain"),
                       flags.female ? "charm" : "seduce",
                       flags.female ? "unaffected" : "uninterested");
             if (rn2(3)) {
