@@ -2465,4 +2465,5 @@ The following changes to date are:
 - Goblin Town expansion: Gollum's Cave
 - Adjust Graz'zt's magic resistance
 - Sanctum/ascension run revamp: part 1 (sanctum)
+- Feedback for gate forming when u.uachieve.amulet is triggered
 

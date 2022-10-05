@@ -2038,6 +2038,13 @@ mkgate()
     if (cansee(x, y2))
         newsym(x, y2);
 
+    if (cansee (x, y1) || cansee(x, y2)) {
+        pline("As you %s, the far wall of the sanctum warps.",
+              Role_if(PM_INFIDEL) ? "imbue the Idol of Moloch"
+                                  : "pickup the Amulet of Yendor");
+        pline("A gate appears where the wall used to be.");
+    }
+
     /* once u.uachieve.amulet is triggered (touching the
        Amulet of Yendor or, as an Infidel, imbuing the Idol
        of Moloch for the first time), stair access leading
