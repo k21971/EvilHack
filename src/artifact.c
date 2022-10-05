@@ -2751,6 +2751,14 @@ struct obj *obj;
             winid tmpwin = create_nhwindow(NHW_MENU);
             anything any;
 
+            /* Once the Amulet of Yendor has been obtained
+               (or the Idol of Moloch imbued for Infidels),
+               leaving the sanctum without going through
+               Purgatory first is prohibited, even if you've
+               dropped the Amulet/Idol */
+            if (Is_sanctum(&u.uz) && u.uachieve.amulet)
+                goto nothing_special;
+
             any = zeroany; /* set all bits to zero */
             start_menu(tmpwin);
             /* use index+1 (cant use 0) as identifier */

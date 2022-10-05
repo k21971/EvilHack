@@ -2017,6 +2017,44 @@ mkinvokearea()
     livelog_write_string(LL_ACHIEVE, "performed the invocation");
 }
 
+void
+mkgate()
+{
+    const int a = 66, b = 16,
+              x = 17, y1 = 10, y2 = 11;
+
+    /* don't do this if we're not in the sanctum */
+    if (!Is_sanctum(&u.uz))
+        return;
+
+    /* create the gates leading from the inner sanctum
+       to Lucifer and the portal to Purgatory */
+    levl[x][y1].typ = DOOR;
+    levl[x][y2].typ = DOOR;
+    levl[x][y1].doormask = D_LOCKED;
+    levl[x][y2].doormask = D_LOCKED;
+    if (cansee(x, y1))
+        newsym(x, y1);
+    if (cansee(x, y2))
+        newsym(x, y2);
+
+    /* once u.uachieve.amulet is triggered (touching the
+       Amulet of Yendor or, as an Infidel, imbuing the Idol
+       of Moloch for the first time), stair access leading
+       out of the sanctum is removed - the only way out is
+       forward, through Purgatory */
+
+    /* we know the exact location of the stairs leading
+       back up, no need to setup a for loop to find them */
+    xupstair = 0; /* remove stairs mask */
+    if ((levl[a][b].typ = STAIRS))
+        levl[a][b].typ = ROOM;
+    if (cansee(a, b))
+        newsym(a, b);
+
+    vision_full_recalc = 1;
+}
+
 /* Change level topology.  Boulders in the vicinity are eliminated.
  * Temporarily overrides vision in the name of a nice effect.
  */

@@ -84,12 +84,13 @@
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 /* humanoid shape with big wings (flight blocked by most body armor) */
 #define big_wings(ptr) \
-    ((ptr) == &mons[PM_WINGED_GARGOYLE] || (ptr) == &mons[PM_DEMON]      \
-     || (ptr) == &mons[PM_SUCCUBUS] || (ptr) == &mons[PM_INCUBUS]        \
-     || (ptr) == &mons[PM_HORNED_DEVIL] || (ptr) == &mons[PM_ERINYS]     \
-     || (ptr) == &mons[PM_VROCK] || (ptr) == &mons[PM_PIT_FIEND]         \
-     || (ptr) == &mons[PM_BALROG] || (ptr) == &mons[PM_ANGEL]            \
-     || (ptr) == &mons[PM_ARCHANGEL] || (ptr) == &mons[PM_ARCHON])
+    ((ptr) == &mons[PM_WINGED_GARGOYLE] || (ptr) == &mons[PM_DEMON]  \
+     || (ptr) == &mons[PM_SUCCUBUS] || (ptr) == &mons[PM_INCUBUS]    \
+     || (ptr) == &mons[PM_HORNED_DEVIL] || (ptr) == &mons[PM_ERINYS] \
+     || (ptr) == &mons[PM_VROCK] || (ptr) == &mons[PM_PIT_FIEND]     \
+     || (ptr) == &mons[PM_BALROG] || (ptr) == &mons[PM_ANGEL]        \
+     || (ptr) == &mons[PM_ARCHANGEL] || (ptr) == &mons[PM_ARCHON]    \
+     || (ptr) == &mons[PM_LUCIFER])
 #define is_floater(ptr) \
     ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */
@@ -436,14 +437,17 @@
 /* this returns the light's range, or 0 if none; if we add more light emitting
    monsters, we'll likely have to add a new light range field to mons[] */
 #define emits_light(ptr) \
-    (((ptr)->mlet == S_LIGHT || (ptr) == &mons[PM_FLAMING_SPHERE] \
-      || (ptr) == &mons[PM_SHOCKING_SPHERE]                       \
-      || (ptr) == &mons[PM_BABY_GOLD_DRAGON]                      \
-      || (ptr) == &mons[PM_FIRE_VORTEX])                          \
-         ? 1                                                      \
-         : ((ptr) == &mons[PM_FIRE_ELEMENTAL]                     \
-            || (ptr) == &mons[PM_GOLD_DRAGON]                     \
-            || (ptr) == &mons[PM_TIAMAT]) ? 2 : 0)
+    (((ptr)->mlet == S_LIGHT                       \
+      || (ptr) == &mons[PM_FLAMING_SPHERE]         \
+      || (ptr) == &mons[PM_SHOCKING_SPHERE]        \
+      || (ptr) == &mons[PM_BABY_GOLD_DRAGON]       \
+      || (ptr) == &mons[PM_FIRE_VORTEX])           \
+         ? 1                                       \
+         : ((ptr) == &mons[PM_FIRE_ELEMENTAL]      \
+            || (ptr) == &mons[PM_GOLD_DRAGON]      \
+            || (ptr) == &mons[PM_TIAMAT])          \
+           ? 2                                     \
+           : ((ptr) == &mons[PM_LUCIFER]) ? 3 : 0)
     /* [Note: the light ranges above were reduced to 1 for performance,
      *  otherwise screen updating on the plane of fire slowed to a crawl.
      *  Note too: that was with 1990s hardware and before fumarole smoke

@@ -77,7 +77,8 @@ struct monst *mon;
         atyp = (ptr->maligntyp == A_NONE) ? A_NONE : sgn(ptr->maligntyp);
     }
 
-    if (is_dprince(ptr) || (ptr == &mons[PM_WIZARD_OF_YENDOR])) {
+    if (is_dprince(ptr) || (ptr == &mons[PM_WIZARD_OF_YENDOR])
+        || (ptr == &mons[PM_LUCIFER])) {
         dtype = (!rn2(20) && u.uevent.hellc_entered)
                  ? dprince(atyp) : (!rn2(4)) ? dlord(atyp)
                                              : ndemon(atyp);
@@ -367,6 +368,9 @@ aligntyp atyp;
 {
     int tryct, pm;
 
+    /* Lucifer is excluded from being summoned by another
+       demon prince/rodney - he needs to be present in the
+       sanctum */
     for (tryct = !In_endgame(&u.uz) ? 20 : 0; tryct > 0; --tryct) {
         pm = rn1(PM_DEMOGORGON + 1 - PM_ORCUS, PM_ORCUS);
         if (!(mvitals[pm].mvflags & G_GONE)

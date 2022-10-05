@@ -600,7 +600,7 @@ fixup_special()
     } else if (Is_sanctum(&u.uz)) {
         croom = search_special(TEMPLE);
 
-        create_secret_door(croom, W_ANY);
+        create_secret_door(croom, W_NORTH | W_SOUTH);
     } else if (on_level(&u.uz, &orcus_level)) {
         struct monst *mtmp, *mtmp2;
 

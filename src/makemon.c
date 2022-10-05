@@ -2732,6 +2732,10 @@ long mmflags;
     if (ptr == &mons[PM_VECNA])
         mtmp->mhp = mtmp->mhpmax = 350 + rnd(50);
 
+    /* Lucifer */
+    if (ptr == &mons[PM_LUCIFER])
+        mtmp->mhp = mtmp->mhpmax = 666;
+
     /* Here is where we match riding monsters with their mounts */
     if (!(mmflags & MM_REVIVE)) {
         switch (mndx) {

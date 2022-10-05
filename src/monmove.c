@@ -500,9 +500,18 @@ register struct monst *mtmp;
         if (Hallucination)
             newsym(mtmp->mx, mtmp->my);
         if (mtmp->mcanmove && (mtmp->mstrategy & STRAT_CLOSE)
-            && !mtmp->msleeping && monnear(mtmp, u.ux, u.uy))
-            quest_talk(mtmp); /* give the leaders a chance to speak */
-        return 0;             /* other frozen monsters can't do anything */
+            && !mtmp->msleeping && monnear(mtmp, u.ux, u.uy)) {
+            if (mtmp->data == &mons[PM_LUCIFER]) {
+                if (Role_if(PM_INFIDEL))
+                    com_pager(401);
+                else
+                    com_pager(400);
+                mtmp->mstrategy &= ~STRAT_WAITMASK;
+            } else {
+                quest_talk(mtmp); /* give the leaders a chance to speak */
+            }
+        }
+        return 0; /* other frozen monsters can't do anything */
     }
 
     /* there is a chance we will wake it */

@@ -545,10 +545,9 @@ struct obj *scroll;
             && !wizard) {
             pline("Demonic forces prevent you from teleporting.");
             return TRUE;
-        }
-        if (is_dprince(mtmp->data) && rn2(20)
+        } else if (is_dprince(mtmp->data) && rn2(20)
             && !wizard) {
-            pline("Demonic forces prevent you from teleporting.");
+            pline("Powerful demonic forces prevent you from teleporting.");
             return TRUE;
         }
     }
@@ -844,7 +843,8 @@ level_tele()
     if (iflags.debug_fuzzer)
         goto random_levtport;
     if ((u.uhave.amulet || In_endgame(&u.uz)
-        || In_V_tower(&u.uz) || In_sokoban(&u.uz))
+        || In_V_tower(&u.uz) || In_sokoban(&u.uz)
+        || (Is_sanctum(&u.uz) && u.uachieve.amulet))
         && !wizard) {
         You_feel("very disoriented for a moment.");
         return;
@@ -856,10 +856,9 @@ level_tele()
             && !wizard) {
             pline("Demonic forces prevent you from teleporting.");
             return;
-        }
-        if (is_dprince(mtmp->data) && rn2(20)
+        } else if (is_dprince(mtmp->data) && rn2(20)
             && !wizard) {
-            pline("Demonic forces prevent you from teleporting.");
+            pline("Powerful demonic forces prevent you from teleporting.");
             return;
         }
     }

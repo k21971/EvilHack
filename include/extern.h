@@ -1385,6 +1385,7 @@ E void FDECL(dodoor, (int, int, struct mkroom *));
 E void FDECL(mktrap, (int, int, struct mkroom *, coord *));
 E void FDECL(mkstairs, (XCHAR_P, XCHAR_P, CHAR_P, struct mkroom *));
 E void NDECL(mkinvokearea);
+E void NDECL(mkgate);
 E void FDECL(mineralize, (int, int, int, int, BOOLEAN_P));
 
 /* ### mkmap.c ### */

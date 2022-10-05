@@ -1112,16 +1112,26 @@ register struct obj *otmp;
         if (otmp->cursed) {
             unkn++;
 
+            /* Once the Amulet of Yendor has been obtained
+               (or the Idol of Moloch imbued for Infidels),
+               leaving the sanctum without going through
+               Purgatory is prohibited */
+            if (Is_sanctum(&u.uz) && u.uachieve.amulet) {
+                You("have an uneasy feeling.");
+                goto no_rise;
+            }
+
             /* Being in the presence of demon lords/princes
                can negate cursed potions of gain level most
                of the time */
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                /* order is important here, should a demon
+                   prince summon a demon lord */
                 if (is_dlord(mtmp->data) && rn2(5)) {
                     pline("Demonic forces prevent you from rising up.");
                     goto no_rise;
-                }
-                if (is_dprince(mtmp->data) && rn2(20)) {
-                    pline("Demonic forces prevent you from rising up.");
+                } else if (is_dprince(mtmp->data) && rn2(20)) {
+                    pline("Powerful demonic forces prevent you from rising up.");
                     goto no_rise;
                 }
             }

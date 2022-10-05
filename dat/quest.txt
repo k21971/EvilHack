@@ -4797,3 +4797,40 @@ fiercely for a brief moment, and then turns to ash.
 This was the magic that blocked access to Mine Town and
 Mines' End, and now that magic has been removed, permanently.
 %E [The Goblin King is dead, opening passage to Mine Town and Mines' End.]
+#
+# Lucifer
+#
+%Cc - 00400
+Before you is the most angelic, exquisite being you have ever
+seen.  A large and imposing figure, with massive wings spread
+wide that block out everything behind him.  So great is his
+beauty, that light actually radiates from his body, causing
+you to briefly shield your eyes.
+
+On closer inspection, you notice that his wings are as dark as
+night, and that an evil, sinister smile slowly starts to spread
+across his beautiful face.
+
+    "Behold, mortal!  For I am Lucifer, ruler of Gehennom and
+     all that dwell here.  Give unto me the Amulet, %r,
+     so that I may rule over Heaven as well!"
+
+Lucifer reaches out a clawed hand for the Amulet...
+%E [Lucifer introduces himself to you.]
+%Cc - 00401
+Before you is the most angelic, exquisite being you have ever
+seen.  A large and imposing figure, with massive wings spread
+wide that block out everything behind him.  So great is his
+beauty, that light actually radiates from his body, causing
+you to briefly shield your eyes.
+
+On closer inspection, you notice that his wings are as dark as
+night, and that an evil, sinister smile slowly starts to spread
+across his beautiful face.
+
+    "Behold, mortal!  For I am Lucifer, ruler of Gehennom and
+     all that dwell here.  Give unto me the Idol, %r,
+     so that I may rule over Heaven as well!"
+
+Lucifer reaches out a clawed hand for the Idol...
+%E [Lucifer introduces himself to you.]

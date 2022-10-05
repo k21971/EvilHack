@@ -2464,4 +2464,5 @@ The following changes to date are:
 - Better way of handling livelogging of destroying a player's ghost
 - Goblin Town expansion: Gollum's Cave
 - Adjust Graz'zt's magic resistance
+- Sanctum/ascension run revamp: part 1 (sanctum)
 

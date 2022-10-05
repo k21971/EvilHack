@@ -831,8 +831,10 @@ struct obj *obj;
         /* for the first time */
         if (!u.uachieve.amulet && !Role_if(PM_INFIDEL))
             livelog_write_string(LL_ACHIEVE, "acquired the Amulet of Yendor");
-        if (!Role_if(PM_INFIDEL))
+        if (!Role_if(PM_INFIDEL)) {
             u.uachieve.amulet = 1;
+            mkgate();
+        }
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
         if (u.uhave.menorah)
             impossible("already have candelabrum?");

@@ -3514,6 +3514,19 @@ struct permonst _mons2[] = {
             | M2_STRONG | M2_PRINCE | M2_MALE,
         M3_WAITFORU | M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION,
         0, MH_DEMON, 57, HI_LORD),
+    MON("Lucifer", S_DEMON, LVL(150, 15, -10, 99, -20),
+        (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
+        A(ATTK(AT_WEAP, AD_PHYS, 4, 6), ATTK(AT_CLAW, AD_WTHR, 4, 6),
+          ATTK(AT_MAGC, AD_FIRE, 8, 8), ATTK(AT_MAGC, AD_CLRC, 4, 6),
+          NO_ATTK, NO_ATTK),
+        SIZ(1200, 500, MS_CUSS, MZ_LARGE), MR_FIRE | MR_POISON
+            | MR_ELEC | MR_PSYCHIC, 0,
+        M1_FLY | M1_SEE_INVIS | M1_HUMANOID | M1_POIS,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_NASTY
+            | M2_STRONG | M2_PRINCE | M2_MALE,
+        M3_WAITFORU | M3_CLOSE | M3_WANTSAMUL | M3_ACCURATE
+            | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, MH_DEMON, 100, HI_LORD),
     /* Riders -- the Four Horsemen of the Apocalypse ("War" == player);
      * depicted with '&' but do not have MH_DEMON set.
      */

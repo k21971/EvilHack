@@ -1899,7 +1899,6 @@ dosacrifice()
                     /* Infidels still have an ascension run,
                      * they just carry a different McGuffin */
                     u.uevent.ascended = 0;
-                    u.uachieve.amulet = 1;
                     otmp = find_quest_artifact(1 << OBJ_INVENT);
                     godvoice(A_NONE, (char *) 0);
                     if (!otmp)
@@ -1917,8 +1916,11 @@ dosacrifice()
                         You_feel("strange energies envelop %s.",
                                  the(xname(otmp)));
                         otmp->spe = 1;
-                        if (otmp->where == OBJ_INVENT)
+                        if (otmp->where == OBJ_INVENT) {
                             u.uhave.amulet = 1;
+                            u.uachieve.amulet = 1;
+                            mkgate();
+                        }
                         livelog_write_string(LL_ACHIEVE, "imbued the Idol of Moloch");
                     }
                     return 1;
