@@ -37,8 +37,8 @@ FLAGS:noteleport,hardfloor,premapped,solidify
 GEOMETRY:center,center
 #12345678901234567890123456789012345678901234567890
 MAP
-------  ----- 
-|....|  |...| 
+-------------
+|....+..|...|
 |....----...| 
 |...........| 
 |..|-|.|-|..| 
@@ -51,8 +51,10 @@ MAP
  |..|---------
  ----         
 ENDMAP
+PORTAL:(07,01,07,01),(00,00,00,00), "purgatory-1"
 BRANCH:(06,04,06,04),(0,0,0,0)
 STAIR:(06,06),up
+DOOR:locked,(05,01)
 REGION:(00,00,13,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,13,12)
 NON_PASSWALL:(00,00,13,12)
@@ -106,14 +108,16 @@ MAP
 |.||....|.....|
 |.||....|.....|
 |.|-----|.-----
-|.|    |......|
+|.|  |.+......|
 |.-----|......|
 |.............|
 |..|---|......|
 ----   --------
 ENDMAP
+PORTAL:(06,06,06,06),(00,00,00,00), "purgatory-1"
 BRANCH:(03,01,03,01),(0,0,0,0)
 STAIR:(01,01),up
+DOOR:locked,(07,06)
 REGION:(00,00,14,10),lit,"ordinary"
 NON_DIGGABLE:(00,00,14,10)
 NON_PASSWALL:(00,00,14,10)
@@ -167,11 +171,12 @@ FLAGS:noteleport,hardfloor,mazelevel,premapped
 INIT_MAP:solidfill,' '
 GEOMETRY:center,center
 # "J Franklin Mentzer <wryter@aol.com>"
+#12345678901234567890123456789012345678901234567890
 MAP
      -------
      |..|..|     --------
-------.....--- ---......---
-|......---...| |..........|
+------.....-------......---
+|......---...|.+..........|
 |.|.|......|.--|........|.---
 |.|.--..|..|...-F-F-F-F--...|
 |.......|...................|
@@ -182,8 +187,10 @@ MAP
      |..|..|     --------
      -------
 ENDMAP
+PORTAL:(14,03,14,03),(00,00,00,00), "purgatory-1"
 BRANCH:(13,06,13,06),(0,0,0,0)
 STAIR:(26,06), up
+DOOR:locked,(15,03)
 REGION:(00,00,28,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,28,12)
 NON_PASSWALL:(00,00,28,12)
@@ -222,6 +229,7 @@ FLAGS:noteleport,hardfloor,mazelevel,premapped
 INIT_MAP:solidfill,' '
 GEOMETRY:center,center
 # "Joseph L Traub"
+#12345678901234567890123456789012345678901234567890
 MAP
   -------------
 --|...........|
@@ -235,13 +243,15 @@ MAP
 |.F.--.---.|.--...|
 |.F....---........|
 |.-FF-.......--...|
-|............|-----
-|..---.......|
----- ------.--
+|............|-+---
+|..---.......||.|
+---- ------.-----
           ---
 ENDMAP
+PORTAL:(15,13,15,13),(00,00,00,00), "purgatory-1"
 BRANCH:(11,14,11,14),(0,0,0,0)
 STAIR:(12,02), up
+DOOR:locked,(15,12)
 REGION:(00,00,18,15),lit,"ordinary"
 NON_DIGGABLE:(00,00,18,15)
 NON_PASSWALL:(00,00,18,15)
@@ -285,6 +295,7 @@ FLAGS:noteleport,hardfloor,mazelevel,premapped
 INIT_MAP:solidfill,' '
 GEOMETRY:center,center
 # "Thinking Rabbit"
+#12345678901234567890123456789012345678901234567890
 MAP
 ----
 |..|
@@ -297,14 +308,16 @@ MAP
   |.|...|..F...|
   |.|......F...|
   |.|.|....F...|
-  |.|....-------
-  |.---..|
-  |....|.|
+  |.|....-+-----
+  |.---..|.|
+  |....|.|--
   ----...|
      -----
 ENDMAP
+PORTAL:(10,12,10,12),(00,00,00,00), "purgatory-1"
 BRANCH:(08,13,08,13),(0,0,0,0)
 STAIR:(13,10), up
+DOOR:locked,(10,11)
 REGION:(00,00,15,15),lit,"ordinary"
 NON_DIGGABLE:(00,00,15,15)
 NON_PASSWALL:(00,00,15,15)
@@ -348,6 +361,7 @@ FLAGS:noteleport,hardfloor,mazelevel,premapped
 INIT_MAP:solidfill,' '
 GEOMETRY:center,center
 # "Joseph L Traub"
+#12345678901234567890123456789012345678901234567890
 MAP
 -----------------
 |.......|...--..|
@@ -360,11 +374,13 @@ MAP
 |.....-------...|
 |..L............|
 |.....-------...|
-|.....|     |...|
--------     -----
+|.....+.|   |...|
+---------   -----
 ENDMAP
+PORTAL:(07,11,07,11),(00,00,00,00), "purgatory-1"
 BRANCH:(01,05,01,05),(0,0,0,0)
 STAIR:(11,07), up
+DOOR:locked,(06,11)
 REGION:(00,00,16,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,16,12)
 NON_PASSWALL:(00,00,16,12)

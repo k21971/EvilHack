@@ -67,7 +67,8 @@ CHAINLEVEL:	"wizard2" "X" "wizard1" + (1, 0)
 CHAINLEVEL:	"wizard3" "Y" "wizard1" + (2, 0)
 LEVEL:		"fakewiz1" "F" @ (-6, 4)
 LEVEL:		"fakewiz2" "G" @ (-6, 4)
-CHAINBRANCH:    "Vecna's Domain" "valley" + (1, 0) portal
+CHAINBRANCH:	"Vecna's Domain" "valley" + (1, 0) portal
+CHAINBRANCH:	"Purgatory" "sanctum" + (0, 0) portal up
 
 #
 #	The Mines of the Gnomes of Zurich.
@@ -123,7 +124,7 @@ ALIGNMENT:	unaligned
 RNDLEVEL:	"knox" "K" @ (-1, 0) 3
 
 #
-#       The Ice Queen's Realm.
+#       The Ice Queen's Realm
 #
 DUNGEON:        "The Ice Queen's Realm" "none" (3, 0)
 DESCRIPTION:    mazelike
@@ -134,7 +135,7 @@ LEVEL:          "icequeen-2" "none" @ (2, 0)
 LEVEL:          "icequeen-3" "none" @ (3, 0)
 
 #
-#       Vecna's Domain.
+#       Vecna's Domain
 #
 DUNGEON:        "Vecna's Domain" "none" (3, 0)
 DESCRIPTION:    mazelike
@@ -161,6 +162,18 @@ LEVEL:		"tower1" "none" @ (1, 0)
 LEVEL:		"tower2" "none" @ (2, 0)
 LEVEL:		"tower3" "none" @ (3, 0)
 LEVEL:          "tower4" "none" @ (4, 0)
+#
+#	Purgatory
+#
+#	Entry from the Sanctum
+#
+DUNGEON:	"Purgatory" "P" (2, 0)
+DESCRIPTION:	mazelike
+DESCRIPTION:	purg
+ALIGNMENT:	neutral
+ENTRY:		-1
+LEVEL:		"purgatory-1" "none" @ (1, 0)
+LEVEL:		"purgatory-2" "none" @ (2, 0)
 #
 #	The Endgame levels
 #

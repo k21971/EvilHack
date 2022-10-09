@@ -1537,6 +1537,20 @@ boolean at_stairs, falling, portal;
         return;
     }
 
+    /* The portal to Purgatory is not active until its guardian
+       is defeated */
+    if (on_level(&u.uz, &sanctum_level)
+        && !u.uevent.ulucifer && portal) {
+        pline("Entrance to Purgatory is blocked while Lucifer still lives.");
+        return;
+    }
+
+    /* The portal from Purgatory is one-way only */
+    if (on_level(&u.uz, &sokostart_level) && portal) {
+        pline("A mysterious force prevents you from entering.");
+        return;
+    }
+
     /* Prevent the player from accessing either Mine Town or Mines' End
      * unless they have defeated the Goblin King. Using the stairs or
      * falling through a hole or trap door is blocked, but our hero can
@@ -1713,10 +1727,13 @@ boolean at_stairs, falling, portal;
 
     if (portal && !In_endgame(&u.uz)) {
         /* find the portal on the new level */
-        register struct trap *ttrap;
+        struct trap *ttrap;
 
         for (ttrap = ftrap; ttrap; ttrap = ttrap->ntrap)
-            if (ttrap->ttyp == MAGIC_PORTAL)
+            /* find the portal with the right destination level */
+            if (ttrap->ttyp == MAGIC_PORTAL
+                && u.uz0.dnum == ttrap->dst.dnum
+                && u.uz0.dlevel == ttrap->dst.dlevel)
                 break;
 
         if (!ttrap)
@@ -1901,6 +1918,16 @@ boolean at_stairs, falling, portal;
 #ifdef MICRO
         display_nhwindow(WIN_MESSAGE, FALSE);
 #endif
+    }
+
+    /* Entered Purgatory */
+    if (!In_purgatory(&u.uz0) && Inpurg
+        && !u.uevent.purgatory_entered) {
+        u.uevent.purgatory_entered = 1;
+        You("have entered Purgatory.");
+        if (!u.uachieve.enter_purgatory)
+            livelog_write_string(LL_ACHIEVE, "entered Purgatory");
+        u.uachieve.enter_purgatory = 1;
     }
 
     if (familiar) {

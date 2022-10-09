@@ -4798,6 +4798,19 @@ This was the magic that blocked access to Mine Town and
 Mines' End, and now that magic has been removed, permanently.
 %E [The Goblin King is dead, opening passage to Mine Town and Mines' End.]
 #
+# Defeating Lucifer
+#
+%Cc - 00306
+As you deliver the final, fatal blow, Lucifer's eyes open wide
+in shock and utter disbelief that he could be defeated.  The
+beautiful glow that emanated from his body fades away to nothing,
+and his once majestic wings shrivel and turn to dust.  All that
+is left of the mightiest of devils is a smoking, putrid shell as
+his life essence fades into nothingness.
+
+Entry into Purgatory awaits.
+%E [Lucifer has been defeated, allowing passage into Purgatory.]
+#
 # Lucifer
 #
 %Cc - 00400

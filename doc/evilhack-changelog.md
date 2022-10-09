@@ -2466,4 +2466,6 @@ The following changes to date are:
 - Adjust Graz'zt's magic resistance
 - Sanctum/ascension run revamp: part 1 (sanctum)
 - Feedback for gate forming when u.uachieve.amulet is triggered
+- Sanctum/ascension run revamp: part 2 (Track Lucifer alive/dead
+  status, foundation for Purgatory levels)
 

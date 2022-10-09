@@ -74,6 +74,7 @@ E struct dgn_topology { /* special dungeon levels for speed */
     d_level d_mineend_level;
     d_level d_minetn_level;
     d_level d_sokoend_level;
+    d_level d_sokostart_level;
 } dungeon_topology;
 /* macros for accessing the dungeon levels by their old names */
 /* clang-format off */
@@ -108,6 +109,7 @@ E struct dgn_topology { /* special dungeon levels for speed */
 #define mineend_level           (dungeon_topology.d_mineend_level)
 #define minetn_level            (dungeon_topology.d_minetn_level)
 #define sokoend_level           (dungeon_topology.d_sokoend_level)
+#define sokostart_level         (dungeon_topology.d_sokostart_level)
 /* clang-format on */
 
 E NEARDATA stairway dnstair, upstair; /* stairs up and down */

@@ -48,6 +48,7 @@
     <Desfiles Include = "nymph.des"/>
     <Desfiles Include = "oracle.des"/>
     <Desfiles Include = "priest.des"/>
+    <Desfiles Include = "purgatory.des"/>
     <Desfiles Include = "ranger.des"/>
     <Desfiles Include = "rogue.des"/>
     <Desfiles Include = "samurai.des"/>
@@ -93,7 +94,8 @@
     <Levfiles Include = "orcus.lev"/>
     <Levfiles Include = "sanctum.lev"/>
     <Levfiles Include = "valley.lev"/>
-    <Levfiles Include = "goblintown.lev"/>
+    <Levfiles Include = "goblintown-1.lev"/>
+    <Levfiles Include = "goblintown-2.lev"/>
     <Levfiles Include = "icequeen-1.lev"/>
     <Levfiles Include = "icequeen-2.lev"/>
     <Levfiles Include = "icequeen-3.lev"/>
@@ -122,6 +124,8 @@
     <Levfiles Include = "oracle-1.lev"/>
     <Levfiles Include = "oracle-2.lev"/>
     <Levfiles Include = "oracle-3.lev"/>
+    <Levfiles Include = "purgatory-1.lev"/>
+    <Levfiles Include = "purgatory-2.lev"/>
     <Levfiles Include = "soko1-1.lev"/>
     <Levfiles Include = "soko1-2.lev"/>
     <Levfiles Include = "soko1-3.lev"/>

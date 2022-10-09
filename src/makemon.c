@@ -2874,6 +2874,8 @@ long mmflags;
         mtmp->isvecna = TRUE;
     } else if (mndx == PM_GOBLIN_KING) {
         mtmp->isgking = TRUE;
+    } else if (mndx == PM_LUCIFER) {
+        mtmp->islucifer = TRUE;
     } else if (mndx == PM_WIZARD_OF_YENDOR) {
         mtmp->iswiz = TRUE;
         context.no_of_wizards++;

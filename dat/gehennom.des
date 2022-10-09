@@ -1999,7 +1999,7 @@ LLLLL|........|LLLLLLLLL.........|...|LL|.........|--F----F---+---..FLLLLLLL
 LL-------.....|--------L.........--S--LL|.........|.....S........|..|LLLLLLL
 --|....|......|.......|L............|LLLF.........---S---..-----S----LLLLLLL
 |.S..|........|.......|L.........----LLL|..........|....|..|......|LLLLLLLLL
-|.S..|........|.......|L.........FLLLLLL--.......----+---S---S--..FLLLLLLLLL
+|.|..|........|.......|L.........FLLLLLL--.......----+---S---S--..FLLLLLLLLL
 --|....|......|.......|L.........|LLLLLLLF.......|.............|..|LLLLLLLLL
 LL-------.....|--------L.........|LLLLLLL-----+-------S---------S---LLLLLLLL
 LLLLL|........|LLLLLLLLL.........FLLLLLLLLLL|...F.F......|....|....|--LLLLLL
@@ -2017,6 +2017,7 @@ REGION:(41,06,48,11),unlit,"morgue",filled,irregular
 # Non diggable walls
 NON_DIGGABLE:(00,00,75,19)
 # Invisible barrier separating the left & right halves of the level
+# as well as Lucifer's chamber
 NON_PASSWALL:(00,00,14,19)
 NON_PASSWALL:(37,00,39,19)
 # Drawbridges

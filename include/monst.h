@@ -165,6 +165,7 @@ struct monst {
     Bitfield(iscerberus, 1); /* is Cerberus */
     Bitfield(isvecna, 1);    /* is Vecna */
     Bitfield(isgking, 1);    /* is the Goblin King */
+    Bitfield(islucifer, 1);  /* is Lucifer */
     Bitfield(iswiz, 1);      /* is the Wizard of Yendor */
     Bitfield(wormno, 5);     /* at most 31 worms on any level */
     Bitfield(mwither_from_u, 1); /* is withering due to player */
@@ -172,7 +173,7 @@ struct monst {
     Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
     Bitfield(mstone, 3);     /* monster is turning to stone */
     Bitfield(mberserk, 1);   /* monster is berserk */
-    /* 2 free bits */
+    /* 1 free bit */
 
     uchar mwither;           /* withering; amount of turns left till recovery */
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */

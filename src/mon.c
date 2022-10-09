@@ -3182,6 +3182,14 @@ goblinkingdead()
 }
 
 void
+luciferdead()
+{
+    if (!u.uevent.ulucifer)
+        u.uevent.ulucifer = TRUE;
+    com_pager(306);
+}
+
+void
 mondead(mtmp)
 register struct monst *mtmp;
 {
@@ -3423,13 +3431,16 @@ register struct monst *mtmp;
         vecnadead();
     if (mtmp->isgking)
         goblinkingdead();
+    if (mtmp->islucifer)
+        luciferdead();
     if (tmp == urole.neminum)
         nemdead();
     if (mtmp->data->msound == MS_LEADER)
         leaddead();
-    /* Medusa, Cerberus, and Vecna fall into two livelog categories,
-     * we log one message flagged for both categories, but only for
-     * the first kill. Subsequent kills are not an achievement.
+    /* Medusa, Cerberus, Vecna, and Lucifer fall into two livelog
+     * categories, we log one message flagged for both categories,
+     * but only for the first kill. Subsequent kills are not an
+     * achievement.
      */
     if (mtmp->data == &mons[PM_MEDUSA] && !u.uachieve.killed_medusa) {
         u.uachieve.killed_medusa = 1;
@@ -3443,6 +3454,9 @@ register struct monst *mtmp;
     } else if (mtmp->isgking && !u.uachieve.killed_gking) {
         u.uachieve.killed_gking = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed the Goblin King");
+    } else if (mtmp->islucifer && !u.uachieve.killed_lucifer) {
+        u.uachieve.killed_lucifer = 1;
+        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Lucifer");
     } else if (mtmp->data == &mons[PM_DEATH]) {
         switch (mvitals[tmp].died) {
         case 1:

@@ -447,6 +447,7 @@ encode_extended_achievements()
     add_achieveX(buf, "obtained_the_bell_of_opening", u.uachieve.bell);
     add_achieveX(buf, "obtained_the_candelabrum_of_invocation", u.uachieve.menorah);
     add_achieveX(buf, "entered_gehennom", u.uachieve.enter_gehennom);
+    add_achieveX(buf, "entered_purgatory", u.uachieve.enter_purgatory);
     add_achieveX(buf, "defeated_medusa", u.uachieve.killed_medusa);
     add_achieveX(buf, "obtained_the_luckstone_from_the_mines", u.uachieve.mines_luckstone);
     add_achieveX(buf, "obtained_the_sokoban_prize", u.uachieve.finish_sokoban);
@@ -468,6 +469,7 @@ encode_extended_achievements()
     add_achieveX(buf, "defeated_cerberus", u.uachieve.killed_cerberus);
     add_achieveX(buf, "defeated_vecna", u.uachieve.killed_vecna);
     add_achieveX(buf, "defeated_goblin_king", u.uachieve.killed_gking);
+    add_achieveX(buf, "defeated_lucifer", u.uachieve.killed_lucifer);
     add_achieveX(buf, "got_crowned", u.uevent.uhand_of_elbereth);
 
 #if 0
@@ -628,6 +630,10 @@ encodeachieve()
         r |= 1L << 16;
     if (u.uachieve.killed_gking)
         r |= 1L << 17;
+    if (u.uachieve.killed_lucifer)
+        r |= 1L << 18;
+    if (u.uachieve.enter_purgatory)
+        r |= 1L << 19;
 
     return r;
 }

@@ -1,0 +1,77 @@
+# NetHack 3.6 purgatory.des $NHDT-Date: 1665083916 2022/10/06 19:18:36 $  $NHDT-Branch: master $:$NHDT-Revision: 1.9 $
+#	Copyright (c) 2022 by Keith Simpson
+# NetHack may be freely redistributed.  See license for details.
+#
+#	Purgaotory - the player must defeat Lucifer in the
+#	Sanctum to gain access to Purgatory, which is the
+#	only way out of Gehennom.
+#
+MAZE: "purgatory-1",' '
+FLAGS: noteleport,hardfloor,solidify,shortsighted
+
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+...........
+...LLLL....
+...........
+...........
+...........
+...........
+...........
+...........
+...........
+...........
+
+
+
+
+
+
+
+
+
+
+
+ENDMAP
+TELEPORT_REGION:(00,00,04,03),(00,00,00,00)
+# Portal to starting quest level
+PORTAL:(09,08,09,08),(0,0,0,0), "soko4"
+# Stairs
+STAIR:(03,03),down
+
+
+MAZE: "purgatory-2",' '
+FLAGS: noteleport,hardfloor,solidify,shortsighted
+
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+...........
+...}}}}....
+...........
+...........
+...........
+...........
+...........
+...........
+...........
+...........
+
+
+
+
+
+
+
+
+
+
+
+ENDMAP
+TELEPORT_REGION:(00,00,04,03),(00,00,00,00)
+BRANCH:(01,01,01,01),(0,0,0,0)
+# Stairs
+STAIR:(05,04),up

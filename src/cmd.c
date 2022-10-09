@@ -1372,6 +1372,8 @@ wiz_map_levltyp(VOID_ARGS)
                 Strcat(dsc, " Vecna's branch");
             if (slev->flags.gtown)
                 Strcat(dsc, " Goblin Town");
+            if (slev->flags.purg)
+                Strcat(dsc, " Purgatory");
             if (slev->flags.town)
                 Strcat(dsc, " town");
             if (slev->flags.rogue_like)
@@ -3839,6 +3841,9 @@ int final;
     if (u.uachieve.killed_gking)
         enl_msg(You_, "have ", "",
                 "defeated the Goblin King", ""), ++acnt;
+    if (u.uachieve.killed_lucifer)
+        enl_msg(You_, "have ", "",
+                "defeated Lucifer", ""), ++acnt;
     if (u.uachieve.defeat_icequeen)
         enl_msg(You_, "have ", "",
                 "defeated Kathryn the Ice Queen", ""), ++acnt;
@@ -3848,6 +3853,9 @@ int final;
     if (u.uachieve.enter_gehennom)
         enl_msg(You_, "have ", "",
                 "entered Gehennom", ""), ++acnt;
+    if (u.uachieve.enter_purgatory)
+        enl_msg(You_, "have ", "",
+                "entered Purgatory", ""), ++acnt;
     if (u.uachieve.menorah)
         enl_msg(You_, "have ", "",
                 "handled the Candelabrum of Invocation", ""), ++acnt;
