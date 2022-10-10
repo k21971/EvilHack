@@ -2468,4 +2468,5 @@ The following changes to date are:
 - Feedback for gate forming when u.uachieve.amulet is triggered
 - Sanctum/ascension run revamp: part 2 (Track Lucifer alive/dead
   status, foundation for Purgatory levels)
+- Lucifer tweaks
 

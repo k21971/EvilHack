@@ -317,7 +317,9 @@ register struct monst *mtmp;
            because that will leave its shop untended */
         || (mtmp->isshk && inhishop(mtmp))
         /* likewise for temple priests */
-        || (mtmp->ispriest && inhistemple(mtmp)))
+        || (mtmp->ispriest && inhistemple(mtmp))
+        /* Lucifer in the sanctum */
+        || (mtmp->islucifer && Is_sanctum(&u.uz)))
         return (unsigned long) STRAT_NONE;
 
     switch ((mtmp->mhp * 3) / mtmp->mhpmax) { /* 0-3 */

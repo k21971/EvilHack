@@ -2749,6 +2749,10 @@ struct monst *magr, /* monster that is currently deciding where to move */
             || is_bat(md) || md->mlet == S_ORC))
         return ALLOW_M | ALLOW_TM;
 
+    /* Pets will attack Lucifer, regardless of their level */
+    if (magr->mtame && md == &mons[PM_LUCIFER])
+        return ALLOW_M | ALLOW_TM;
+
     /* now test all two-way aggressions both ways */
     return (mm_2way_aggression(magr, mdef) | mm_2way_aggression(mdef, magr));
 }

@@ -1725,6 +1725,14 @@ register struct monst *mtmp;
             set_material(otmp, GEMSTONE);
             (void) mpickobj(mtmp, otmp);
             break;
+        case PM_LUCIFER:
+            otmp = mksobj(MORNING_STAR, FALSE, FALSE);
+            otmp->oprops = ITEM_FIRE;
+            curse(otmp);
+            otmp->spe = rnd(3) + 4;
+            set_material(otmp, IRON);
+            (void) mpickobj(mtmp, otmp);
+            break;
         }
         /* prevent djinn and mail daemons from leaving objects when
          * they vanish
