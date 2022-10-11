@@ -1545,12 +1545,6 @@ boolean at_stairs, falling, portal;
         return;
     }
 
-    /* The portal from Purgatory is one-way only */
-    if (on_level(&u.uz, &sokostart_level) && portal) {
-        pline("A mysterious force prevents you from entering.");
-        return;
-    }
-
     /* Prevent the player from accessing either Mine Town or Mines' End
      * unless they have defeated the Goblin King. Using the stairs or
      * falling through a hole or trap door is blocked, but our hero can
@@ -1725,7 +1719,8 @@ boolean at_stairs, falling, portal;
     vision_full_recalc = 0; /* don't let that reenable vision yet */
     flush_screen(-1);       /* ensure all map flushes are postponed */
 
-    if (portal && !In_endgame(&u.uz)) {
+    if (portal && !In_endgame(&u.uz)
+        && !In_sokoban(&u.uz)) {
         /* find the portal on the new level */
         struct trap *ttrap;
 

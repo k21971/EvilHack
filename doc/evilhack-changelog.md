@@ -2470,4 +2470,5 @@ The following changes to date are:
   status, foundation for Purgatory levels)
 - Lucifer tweaks
 - Fix: shambling horror pokedex lookup
+- Remove unused return portals (sokoban <-> purgatory)
 
