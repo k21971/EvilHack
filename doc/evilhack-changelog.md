@@ -2469,4 +2469,5 @@ The following changes to date are:
 - Sanctum/ascension run revamp: part 2 (Track Lucifer alive/dead
   status, foundation for Purgatory levels)
 - Lucifer tweaks
+- Fix: shambling horror pokedex lookup
 
