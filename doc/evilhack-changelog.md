@@ -2471,4 +2471,5 @@ The following changes to date are:
 - Lucifer tweaks
 - Fix: shambling horror pokedex lookup
 - Remove unused return portals (sokoban <-> purgatory)
+- Place Fort Ludios portal in the first eligible vault generated
 
