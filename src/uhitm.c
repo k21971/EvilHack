@@ -2376,6 +2376,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
     int armpro, tmp = d((int) mattk->damn, (int) mattk->damd);
     boolean negated;
     struct obj *mongold;
+    boolean mon_vorpal_wield = (MON_WEP(mdef)
+                                && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
 
     armpro = magic_negation(mdef);
     /* since hero can't be cancelled, only defender's armor applies */
@@ -2405,7 +2407,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         goto physical;
     case AD_BHED:
         if (!rn2(15) || is_jabberwock(mdef->data)) {
-            if (!has_head(mdef->data)) {
+            if (!has_head(mdef->data) || mon_vorpal_wield) {
                 if (canseemon(mdef))
                     pline("Somehow, you miss %s wildly.", mon_nam(mdef));
                 tmp = 0;

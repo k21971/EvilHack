@@ -937,24 +937,21 @@ register struct monst *mtmp;
                              || Wounded_legs || Stoned || Fumbling) && rn2(3)) {
                         You("nimbly %s %s bite!",
                             rn2(2) ? "dodge" : "evade", s_suffix(mon_nam(mtmp)));
-                        return 0;
+                        return 0; /* attack stops */
                     }
                     if (mdat->msize <= MZ_LARGE && mattk->aatyp == AT_BITE
                         && Hidinshell) {
                         Your("protective shell blocks %s bite!",
                              s_suffix(mon_nam(mtmp)));
-                        return 0;
                     }
                     if (is_illithid(mdat) && mattk->aatyp == AT_TENT
                         && Hidinshell) {
                         Your("protective shell blocks %s tentacle attack!",
                              s_suffix(mon_nam(mtmp)));
-                        return 0;
                     }
                     if (mattk->aatyp == AT_STNG && Hidinshell) {
                         pline("%s stinger glances off of your protective shell!",
                               s_suffix(Monnam(mtmp)));
-                        return 0;
                     }
                     if (tmp > (j = rnd(20 + i))) {
                         if (mattk->aatyp != AT_KICK
@@ -1267,6 +1264,8 @@ register struct attack *mattk;
     int res;
     long armask = attack_contact_slots(mtmp, mattk->aatyp);
     struct obj* hated_obj;
+    boolean vorpal_wield = ((uwep && uwep->oartifact == ART_VORPAL_BLADE)
+                            || (u.twoweap && uswapwep->oartifact == ART_VORPAL_BLADE));
 
     if (!canspotmon(mtmp) && mdat != &mons[PM_GHOST]) {
         /* Ghosts have an exception because if the hero can't spot it, their
@@ -2287,13 +2286,15 @@ do_rust:
         }
         break;
     case AD_BHED:
-        if ((!rn2(15) || is_jabberwock(youmonst.data)) && !mtmp->mcan) {
-            if (!has_head(youmonst.data)) {
+        if ((!rn2(15) || is_jabberwock(youmonst.data))
+            && !mtmp->mcan) {
+            if (!has_head(youmonst.data) || vorpal_wield) {
                 pline("Somehow, %s misses you wildly.", mon_nam(mtmp));
                 dmg = 0;
                 break;
             }
             if (noncorporeal(youmonst.data) || amorphous(youmonst.data)) {
+                /* still take regular damage */
                 pline("%s slices through your %s.",
                       Monnam(mtmp), body_part(NECK));
                 break;
@@ -2301,6 +2302,7 @@ do_rust:
             if (Hidinshell) {
                 pline("%s attack glances harmlessly off of your protective shell.",
                       s_suffix(Monnam(mtmp)));
+                dmg = 0;
                 break;
             }
             pline("%s %ss you!", Monnam(mtmp),

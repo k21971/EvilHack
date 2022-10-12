@@ -2472,4 +2472,5 @@ The following changes to date are:
 - Fix: shambling horror pokedex lookup
 - Remove unused return portals (sokoban <-> purgatory)
 - Place Fort Ludios portal in the first eligible vault generated
+- Wielding Vorpal Blade protects against decapitation attacks
 
