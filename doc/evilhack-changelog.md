@@ -2473,4 +2473,5 @@ The following changes to date are:
 - Remove unused return portals (sokoban <-> purgatory)
 - Place Fort Ludios portal in the first eligible vault generated
 - Wielding Vorpal Blade protects against decapitation attacks
+- Allow centaurs to be Infidels
 

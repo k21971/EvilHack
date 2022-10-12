@@ -263,7 +263,8 @@ const struct Role roles[] = {
       S_DOG,
       S_UNICORN,
       ART_IDOL_OF_MOLOCH,
-      MH_HUMAN | MH_ELF | MH_ORC | MH_ILLITHID | MH_GIANT,
+      MH_HUMAN | MH_ELF | MH_ORC | MH_ILLITHID | MH_GIANT
+          | MH_CENTAUR,
       ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC, /* actually unaligned */
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 10, 7, 7, 7 },
