@@ -4,8 +4,8 @@
 # NetHack may be freely redistributed.  See license for details.
 #
 
-MAZE: "valley", ' '
-FLAGS: noteleport,hardfloor,nommap
+MAZE:"valley", ' '
+FLAGS:noteleport,hardfloor,nommap
 GEOMETRY:center,center
 MAP
 ----------------------------------------------------------------------------
@@ -226,7 +226,7 @@ MONSTER:('&',"weredemon"),(64,03)
 # Previously the Juiblex level
 #
 MAZE:"hella-1",' '
-FLAGS:noteleport,hardfloor,shortsighted
+FLAGS:hardfloor,shortsighted
 INIT_MAP:mines,'.','}',true,true,unlit,false
 # guarantee at least one open spot to ensure successful stair placement
 GEOMETRY:left,bottom
@@ -368,7 +368,7 @@ TRAP:"magic",random
 # Previously the Asmodeus Level
 #
 MAZE:"hella-2",random
-FLAGS: noteleport,hardfloor,shortsighted
+FLAGS:hardfloor,shortsighted
 # First part
 INIT_MAP:mines,'.','}',false,true,lit,false
 GEOMETRY:half-left,center
@@ -474,7 +474,7 @@ TRAP:"magic beam", random
 # Previously the Baalzebub level
 #
 MAZE:"hella-3",' '
-FLAGS: noteleport,hardfloor,shortsighted
+FLAGS:hardfloor,shortsighted
 TERRAIN: fillrect(00,00,78,20),('.',unlit)
 TERRAIN: filter(33%,fillrect(00,00,78,20)),('}',unlit)
 TERRAIN: filter(15%,fillrect(00,00,78,20)),('s',unlit)
@@ -563,7 +563,7 @@ MONSTER:'V',random
 # The isle of Erytheia, previously Geryon's domain
 #
 MAZE:"hella-4",'W'
-FLAGS:noteleport,hardfloor
+FLAGS:hardfloor
 INIT_MAP:mines,'.','}',false,true,lit,false
 GEOMETRY:right, center
 MAP
@@ -709,7 +709,7 @@ TRAP: random, random
 # Previously Yeenoghu's realm
 #
 MAZE:"hellb-1", random
-FLAGS:noteleport,hardfloor
+FLAGS:hardfloor
 INIT_MAP:mines,'.','}',false,true,lit,false
 GEOMETRY:right,center
 MAP
@@ -898,7 +898,7 @@ TRAP: random, random
 # The City of Dis, previously Dispater's domain
 #
 MAZE:"hellb-2", ' ' 
-FLAGS:noteleport,hardfloor,shortsighted
+FLAGS:hardfloor,shortsighted
 INIT_MAP:mines,'.',' ',true,true,unlit,true
 GEOMETRY:center,center
 MAP
@@ -1085,8 +1085,8 @@ IF [50%] {
 #
 # Previously Mephistopheles' lair
 #
-MAZE: "hellb-3", ' '
-FLAGS: noteleport,hardfloor
+MAZE:"hellb-3", ' '
+FLAGS:hardfloor
 INIT_MAP:mines,'.',' ',true,true,unlit,true
 GEOMETRY:center,center
 MAP
@@ -1228,7 +1228,7 @@ IF [50%] {
 # Previously Demogorgon's towers
 #
 MAZE:"hellc-1", ' '
-FLAGS:noteleport,hardfloor,shortsighted
+FLAGS:hardfloor,shortsighted
 INIT_MAP:mines,'.','}',true,true,lit,false
 GEOMETRY:center,center
 MAP
@@ -1422,7 +1422,7 @@ TRAP: "spear", random
 # Previously the New Asmodeus Level
 #
 MAZE:"hellc-2",random
-FLAGS: noteleport,hardfloor
+FLAGS:hardfloor
 GEOMETRY:half-left,center
 MAP
 LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL  LLLLLLLLLLLLLLLLLLLLLLLLL----
@@ -1651,7 +1651,7 @@ MONSTER:(':',"salamander"),(73,14)
 # Stronghold
 #
 MAZE:"hellc-3", ' '
-FLAGS: noteleport,hardfloor
+FLAGS:hardfloor
 INIT_MAP:mines,'.',' ',true,true,unlit,true
 GEOMETRY:center,center
 #         1         2         3
@@ -1815,7 +1815,7 @@ IF [50%] {
 # The Orcus Level
 #
 MAZE:"orcus",random
-FLAGS: noteleport,shortsighted
+FLAGS:noteleport,shortsighted
 INIT_MAP:mines,'.',' ',true,true,unlit,true
 GEOMETRY:right,center
 # A ghost town
@@ -1980,7 +1980,7 @@ MONSTER:random,random
 # The Sanctum Level
 #
 MAZE:"sanctum", ' '
-FLAGS: noteleport,hardfloor,nommap
+FLAGS:noteleport,hardfloor,nommap
 # This is outside the main map, below, so we must do it before adding
 # that map and anchoring coordinates to it. This extends the invisible
 # barrier up to the top row, which falls outside the drawn map.
