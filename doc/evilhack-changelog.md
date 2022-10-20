@@ -2476,4 +2476,5 @@ The following changes to date are:
 - Allow centaurs to be Infidels
 - Remove 'noteleport' flag from the three-tiered demon boss levels
 - Remove unnecessary mspec code from mcastu.c
+- Fix: zapping self with slow monster doesn't always cause slowness
 

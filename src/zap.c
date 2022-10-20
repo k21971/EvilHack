@@ -2759,10 +2759,8 @@ boolean ordinary;
 
     case WAN_SLOW_MONSTER:
     case SPE_SLOW_MONSTER:
-        if (HFast & (TIMEOUT | INTRINSIC)) {
-            learn_it = TRUE;
-            u_slow_down();
-        }
+        learn_it = TRUE;
+        u_slow_down();
         break;
 
     case WAN_TELEPORTATION:
