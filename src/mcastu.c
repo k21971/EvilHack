@@ -79,21 +79,6 @@ register struct monst *mtmp;
     return FALSE;
 }
 
-boolean
-can_cast_spells(mtmp)
-register struct monst *mtmp;
-{
-    return mtmp->mspec_used <= maxspelltimeout(mtmp);
-}
-
-int maxspelltimeout(mtmp)
-register struct monst *mtmp;
-{
-   if (mtmp->m_lev >= 38)
-       return 255;
-   return 8 * mtmp->m_lev * ((38 - mtmp->m_lev) * 2 / 3);
-}
-
 int spelltimeout(mtmp, spl_level)
 register struct monst *mtmp;
 register int spl_level;

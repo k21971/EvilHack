@@ -1303,8 +1303,6 @@ E void FDECL(genl_putmixed, (winid, int, const char *));
 /* ### mcastu.c ### */
 
 E boolean FDECL(is_spellcaster, (struct monst *));
-E boolean FDECL(can_cast_spells, (struct monst *));
-E int FDECL(maxspelltimeout, (struct monst *));
 E int FDECL(spelltimeout, (struct monst *, int));
 E int FDECL(castmu, (struct monst *, struct attack *, BOOLEAN_P, BOOLEAN_P));
 E int FDECL(buzzmu, (struct monst *, struct attack *));

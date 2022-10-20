@@ -2475,4 +2475,5 @@ The following changes to date are:
 - Wielding Vorpal Blade protects against decapitation attacks
 - Allow centaurs to be Infidels
 - Remove 'noteleport' flag from the three-tiered demon boss levels
+- Remove unnecessary mspec code from mcastu.c
 
