@@ -2481,4 +2481,5 @@ The following changes to date are:
 - Refactor intelligent monster recharging code
 - Fix: a bit more logic with monsters recharging wands
 - Fix: monster recharging a wand of wishing
+- Fix: misc issues in searmsg
 
