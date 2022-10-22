@@ -2479,4 +2479,5 @@ The following changes to date are:
 - Fix: zapping self with slow monster doesn't always cause slowness
 - Fix: logic with monsters recharging wands
 - Refactor intelligent monster recharging code
+- Fix: a bit more logic with monsters recharging wands
 

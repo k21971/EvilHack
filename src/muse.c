@@ -1510,13 +1510,13 @@ struct monst *mtmp;
     if (target) {
         if (target == &youmonst)
             reflection_skip = m_seenres(mtmp, M_SEEN_REFL) != 0
-                              || monnear(mtmp, mtmp->mux, mtmp->muy);
+                              || (monnear(mtmp, mtmp->mux, mtmp->muy) && !rn2(3));
     } else {
         return FALSE; /* nothing to attack */
     }
 
     m.offensive = (struct obj *) 0;
-    m.tocharge = 0;
+    m.tocharge = (struct obj *) 0;
     m.has_offense = 0;
     if (mtmp->mpeaceful || is_animal(mtmp->data) || mindless(mtmp->data)
         || nohands(mtmp->data))
@@ -1544,6 +1544,9 @@ int otyp;
     int want = 0;
     switch (otyp) {
     /* in order of priority, highest being on top */
+    case WAN_WISHING:
+        want++;
+        /*FALLTHRU*/
     case WAN_DEATH:
         want++;
         /*FALLTHRU*/
@@ -1869,6 +1872,7 @@ boolean reflection_skip;
     }
     return(boolean) !!m.has_offense;
 #undef nomore
+#undef pick_to_charge
 }
 
 extern struct monst *last_hurtled;
@@ -2565,6 +2569,9 @@ struct monst *mtmp;
         return 0;
 
 #define nomore(x)       if (m.has_misc == (x)) continue
+#define pick_to_charge(o) \
+    (!m.tocharge \
+     || (charge_precedence((o)->otyp) > charge_precedence(m.tocharge->otyp)))
     /*
      * [bug?]  Choice of item is not prioritized; the last viable one
      * in the monster's inventory will be chosen.
@@ -2586,149 +2593,11 @@ struct monst *mtmp;
             m.has_misc = MUSE_FIGURINE;
         }
         nomore(MUSE_WAN_WISHING);
-        if (obj->otyp == WAN_WISHING && obj->spe > 0) {
-            m.misc = obj;
-            m.has_misc = MUSE_WAN_WISHING;
-        }
-        nomore(MUSE_BULLWHIP);
-        if (obj->otyp == BULLWHIP && !mtmp->mpeaceful
-            /* the random test prevents whip-wielding
-               monster from attempting disarm every turn */
-            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
-            /* hero's location must be known and adjacent */
-            && mtmp->mux == u.ux && mtmp->muy == u.uy
-            && distu(mtmp->mx, mtmp->my) <= 2
-            /* don't bother if it can't work (this doesn't
-               prevent cursed weapons from being targetted) */
-            && (canletgo(uwep, "")
-                || (u.twoweap && canletgo(uswapwep, "")))) {
-            m.misc = obj;
-            m.has_misc = MUSE_BULLWHIP;
-        }
-        nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
-        if (obj->otyp == DWARVISH_BEARDED_AXE
-            && !mtmp->mpeaceful
-            /* the random test prevents axe-wielding
-               monster from attempting disarm every turn */
-            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
-            /* hero's location must be known and adjacent */
-            && mtmp->mux == u.ux && mtmp->muy == u.uy
-            && distu(mtmp->mx, mtmp->my) <= 2
-            /* don't bother if it can't work (this doesn't
-               prevent cursed weapons from being targetted) */
-            && (canletgo(uwep, "")
-                || (u.twoweap && canletgo(uswapwep, "")))) {
-            m.misc = obj;
-            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_WEAPON;
-        }
-        nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
-        if (obj->otyp == DWARVISH_BEARDED_AXE
-            && !mtmp->mpeaceful
-            /* the random test prevents axe-wielding
-               monster from attempting shield removal every
-               turn - shields are harder to disarm than weapons */
-            && uarms && !rn2(7) && obj == MON_WEP(mtmp)
-            /* hero's location must be known and adjacent */
-            && mtmp->mux == u.ux && mtmp->muy == u.uy
-            && distu(mtmp->mx, mtmp->my) <= 2) {
-            m.misc = obj;
-            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_SHIELD;
-        }
-        /* Note: peaceful/tame monsters won't make themselves
-         * invisible unless you can see them.  Not really right, but...
-         */
-        nomore(MUSE_WAN_MAKE_INVISIBLE);
-        if (obj->otyp == WAN_MAKE_INVISIBLE && obj->spe > 0 && !mtmp->minvis
-            && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
-            && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
-            m.misc = obj;
-            m.has_misc = MUSE_WAN_MAKE_INVISIBLE;
-        }
-        nomore(MUSE_POT_INVISIBILITY);
-        if (obj->otyp == POT_INVISIBILITY && !mtmp->minvis
-            && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
-            && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_INVISIBILITY;
-        }
-        nomore(MUSE_WAN_SPEED_MONSTER);
-        if (obj->otyp == WAN_SPEED_MONSTER && obj->spe > 0
-            && mtmp->mspeed != MFAST && !mtmp->isgd) {
-            m.misc = obj;
-            m.has_misc = MUSE_WAN_SPEED_MONSTER;
-        }
-        nomore(MUSE_POT_SPEED);
-        if (obj->otyp == POT_SPEED && mtmp->mspeed != MFAST && !mtmp->isgd) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_SPEED;
-        }
-        nomore(MUSE_WAN_POLYMORPH_SELF);
-        if (obj->otyp == WAN_POLYMORPH && obj->spe > 0
-            && (mtmp->cham == NON_PM) && !mtmp->isshk
-            && mons[monsndx(mdat)].difficulty < 6) {
-            m.misc = obj;
-            m.has_misc = MUSE_WAN_POLYMORPH_SELF;
-        }
-        nomore(MUSE_POT_POLYMORPH);
-        if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
-            && !mtmp->isshk && mons[monsndx(mdat)].difficulty < 6) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_POLYMORPH;
-        }
-        nomore(MUSE_SCR_REMOVE_CURSE);
-        if (obj->otyp == SCR_REMOVE_CURSE
-            && !obj->cursed
-            && mtmp->mnum != PM_INFIDEL) {
-            register struct obj *otmp;
-            for (otmp = mtmp->minvent;
-                 otmp; otmp = otmp->nobj) {
-                if (otmp->cursed
-                    && (otmp->otyp == LOADSTONE
-                        || Is_mbag(otmp)
-                        || otmp->owornmask)) {
-                    m.misc = obj;
-                    m.has_misc = MUSE_SCR_REMOVE_CURSE;
-                }
-            }
-        }
-    }
-    return find_misc_recurse(mtmp, mtmp->minvent);
-#undef nomore
-}
-
-STATIC_OVL boolean
-find_misc_recurse(mtmp, start)
-struct monst *mtmp;
-struct obj *start;
-{
-    register struct obj *obj;
-    struct permonst *mdat = mtmp->data;
-#define nomore(x) if (m.has_misc == (x)) continue;
-    for (obj = start; obj; obj = obj->nobj) {
-        if (Is_container(obj)) {
-            (void) find_misc_recurse(mtmp, obj->cobj);
-            continue;
-        }
-
-        /* Monsters shouldn't recognize cursed items; this kludge is */
-        /* necessary to prevent serious problems though... */
-        if (obj->otyp == POT_GAIN_LEVEL
-            && (!obj->cursed
-                || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest))) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_GAIN_LEVEL;
-        }
-        nomore(MUSE_FIGURINE);
-        if (obj->otyp == FIGURINE && !mtmp->mpeaceful) {
-            m.misc = obj;
-            m.has_misc = MUSE_FIGURINE;
-        }
-        nomore(MUSE_WAN_WISHING);
         if (obj->otyp == WAN_WISHING) {
             if (obj->spe > 0) {
                 m.misc = obj;
                 m.has_misc = MUSE_WAN_WISHING;
-            } else if (!m.tocharge) {
+            } else if (obj->spe < 1 && pick_to_charge(obj)) {
                 m.tocharge = obj;
             }
         }
@@ -2780,11 +2649,13 @@ struct obj *start;
          * invisible unless you can see them.  Not really right, but...
          */
         nomore(MUSE_WAN_MAKE_INVISIBLE);
-        if (obj->otyp == WAN_MAKE_INVISIBLE && obj->spe > 0 && !mtmp->minvis
+        if (obj->otyp == WAN_MAKE_INVISIBLE && !mtmp->minvis
             && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
             && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
-            m.misc = obj;
-            m.has_misc = MUSE_WAN_MAKE_INVISIBLE;
+            if (obj->spe > 0) {
+                m.misc = obj;
+                m.has_misc = MUSE_WAN_MAKE_INVISIBLE;
+            }
         }
         nomore(MUSE_POT_INVISIBILITY);
         if (obj->otyp == POT_INVISIBILITY && !mtmp->minvis
@@ -2794,10 +2665,12 @@ struct obj *start;
             m.has_misc = MUSE_POT_INVISIBILITY;
         }
         nomore(MUSE_WAN_SPEED_MONSTER);
-        if (obj->otyp == WAN_SPEED_MONSTER && obj->spe > 0
+        if (obj->otyp == WAN_SPEED_MONSTER
             && mtmp->mspeed != MFAST && !mtmp->isgd) {
-            m.misc = obj;
-            m.has_misc = MUSE_WAN_SPEED_MONSTER;
+            if (obj->spe > 0) {
+                m.misc = obj;
+                m.has_misc = MUSE_WAN_SPEED_MONSTER;
+            }
         }
         nomore(MUSE_POT_SPEED);
         if (obj->otyp == POT_SPEED && mtmp->mspeed != MFAST && !mtmp->isgd) {
@@ -2805,11 +2678,166 @@ struct obj *start;
             m.has_misc = MUSE_POT_SPEED;
         }
         nomore(MUSE_WAN_POLYMORPH_SELF);
-        if (obj->otyp == WAN_POLYMORPH && obj->spe > 0
+        if (obj->otyp == WAN_POLYMORPH
             && (mtmp->cham == NON_PM) && !mtmp->isshk
             && mons[monsndx(mdat)].difficulty < 6) {
+            if (obj->spe > 0) {
+                m.misc = obj;
+                m.has_misc = MUSE_WAN_POLYMORPH_SELF;
+            }
+        }
+        nomore(MUSE_POT_POLYMORPH);
+        if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
+            && !mtmp->isshk && mons[monsndx(mdat)].difficulty < 6) {
             m.misc = obj;
-            m.has_misc = MUSE_WAN_POLYMORPH_SELF;
+            m.has_misc = MUSE_POT_POLYMORPH;
+        }
+        nomore(MUSE_SCR_REMOVE_CURSE);
+        if (obj->otyp == SCR_REMOVE_CURSE
+            && !obj->cursed
+            && mtmp->mnum != PM_INFIDEL) {
+            register struct obj *otmp;
+            for (otmp = mtmp->minvent;
+                 otmp; otmp = otmp->nobj) {
+                if (otmp->cursed
+                    && (otmp->otyp == LOADSTONE
+                        || Is_mbag(otmp)
+                        || otmp->owornmask)) {
+                    m.misc = obj;
+                    m.has_misc = MUSE_SCR_REMOVE_CURSE;
+                }
+            }
+        }
+    }
+    return find_misc_recurse(mtmp, mtmp->minvent);
+#undef nomore
+#undef pick_to_charge
+}
+
+STATIC_OVL boolean
+find_misc_recurse(mtmp, start)
+struct monst *mtmp;
+struct obj *start;
+{
+    register struct obj *obj;
+    struct permonst *mdat = mtmp->data;
+#define nomore(x)       if (m.has_misc == (x)) continue;
+#define pick_to_charge(o) \
+    (!m.tocharge \
+     || (charge_precedence((o)->otyp) > charge_precedence(m.tocharge->otyp)))
+
+    for (obj = start; obj; obj = obj->nobj) {
+        if (Is_container(obj)) {
+            (void) find_misc_recurse(mtmp, obj->cobj);
+            continue;
+        }
+
+        /* Monsters shouldn't recognize cursed items; this kludge is */
+        /* necessary to prevent serious problems though... */
+        if (obj->otyp == POT_GAIN_LEVEL
+            && (!obj->cursed
+                || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest))) {
+            m.misc = obj;
+            m.has_misc = MUSE_POT_GAIN_LEVEL;
+        }
+        nomore(MUSE_FIGURINE);
+        if (obj->otyp == FIGURINE && !mtmp->mpeaceful) {
+            m.misc = obj;
+            m.has_misc = MUSE_FIGURINE;
+        }
+        nomore(MUSE_WAN_WISHING);
+        if (obj->otyp == WAN_WISHING) {
+            if (obj->spe > 0) {
+                m.misc = obj;
+                m.has_misc = MUSE_WAN_WISHING;
+            } else if (obj->spe < 1 && pick_to_charge(obj)) {
+                m.tocharge = obj;
+            }
+        }
+        nomore(MUSE_BULLWHIP);
+        if (obj->otyp == BULLWHIP && !mtmp->mpeaceful
+            /* the random test prevents whip-wielding
+               monster from attempting disarm every turn */
+            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
+            /* hero's location must be known and adjacent */
+            && mtmp->mux == u.ux && mtmp->muy == u.uy
+            && distu(mtmp->mx, mtmp->my) <= 2
+            /* don't bother if it can't work (this doesn't
+               prevent cursed weapons from being targetted) */
+            && (canletgo(uwep, "")
+                || (u.twoweap && canletgo(uswapwep, "")))) {
+            m.misc = obj;
+            m.has_misc = MUSE_BULLWHIP;
+        }
+        nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
+        if (obj->otyp == DWARVISH_BEARDED_AXE
+            && !mtmp->mpeaceful
+            /* the random test prevents axe-wielding
+               monster from attempting disarm every turn */
+            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
+            /* hero's location must be known and adjacent */
+            && mtmp->mux == u.ux && mtmp->muy == u.uy
+            && distu(mtmp->mx, mtmp->my) <= 2
+            /* don't bother if it can't work (this doesn't
+               prevent cursed weapons from being targetted) */
+            && (canletgo(uwep, "")
+                || (u.twoweap && canletgo(uswapwep, "")))) {
+            m.misc = obj;
+            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_WEAPON;
+        }
+        nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
+        if (obj->otyp == DWARVISH_BEARDED_AXE
+            && !mtmp->mpeaceful
+            /* the random test prevents axe-wielding
+               monster from attempting shield removal every
+               turn - shields are harder to disarm than weapons */
+            && uarms && !rn2(7) && obj == MON_WEP(mtmp)
+            /* hero's location must be known and adjacent */
+            && mtmp->mux == u.ux && mtmp->muy == u.uy
+            && distu(mtmp->mx, mtmp->my) <= 2) {
+            m.misc = obj;
+            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_SHIELD;
+        }
+        /* Note: peaceful/tame monsters won't make themselves
+         * invisible unless you can see them.  Not really right, but...
+         */
+        nomore(MUSE_WAN_MAKE_INVISIBLE);
+        if (obj->otyp == WAN_MAKE_INVISIBLE && !mtmp->minvis
+            && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
+            && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
+            if (obj->spe > 0) {
+                m.misc = obj;
+                m.has_misc = MUSE_WAN_MAKE_INVISIBLE;
+            }
+        }
+        nomore(MUSE_POT_INVISIBILITY);
+        if (obj->otyp == POT_INVISIBILITY && !mtmp->minvis
+            && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
+            && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
+            m.misc = obj;
+            m.has_misc = MUSE_POT_INVISIBILITY;
+        }
+        nomore(MUSE_WAN_SPEED_MONSTER);
+        if (obj->otyp == WAN_SPEED_MONSTER
+            && mtmp->mspeed != MFAST && !mtmp->isgd) {
+            if (obj->spe > 0) {
+                m.misc = obj;
+                m.has_misc = MUSE_WAN_SPEED_MONSTER;
+            }
+        }
+        nomore(MUSE_POT_SPEED);
+        if (obj->otyp == POT_SPEED && mtmp->mspeed != MFAST && !mtmp->isgd) {
+            m.misc = obj;
+            m.has_misc = MUSE_POT_SPEED;
+        }
+        nomore(MUSE_WAN_POLYMORPH_SELF);
+        if (obj->otyp == WAN_POLYMORPH
+            && (mtmp->cham == NON_PM) && !mtmp->isshk
+            && mons[monsndx(mdat)].difficulty < 6) {
+            if (obj->spe > 0) {
+                m.misc = obj;
+                m.has_misc = MUSE_WAN_POLYMORPH_SELF;
+            }
         }
         nomore(MUSE_POT_POLYMORPH);
         if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
