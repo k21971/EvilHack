@@ -2523,6 +2523,7 @@ struct monst *mtmp;
     struct permonst *mdat = mtmp->data;
     int x = mtmp->mx, y = mtmp->my;
     struct trap *t;
+    struct obj *charge_scroll = (struct obj *) 0;
     int xx, yy, pmidx = NON_PM;
     boolean immobile = (mdat->mmove == 0);
     boolean stuck = (mtmp == u.ustuck);
@@ -2600,6 +2601,7 @@ struct monst *mtmp;
             } else if (obj->spe < 1 && pick_to_charge(obj)) {
                 m.tocharge = obj;
             }
+            continue;
         }
         nomore(MUSE_BULLWHIP);
         if (obj->otyp == BULLWHIP && !mtmp->mpeaceful
@@ -2692,6 +2694,17 @@ struct monst *mtmp;
             m.misc = obj;
             m.has_misc = MUSE_POT_POLYMORPH;
         }
+        if (m.has_misc == MUSE_SCR_CHARGING && m.tocharge)
+            continue;
+        if (obj->otyp == SCR_CHARGING) {
+            if (m.tocharge) {
+                m.misc = obj;
+                m.has_misc = MUSE_SCR_CHARGING;
+            } else if (!charge_scroll) {
+                charge_scroll = obj;
+            }
+            continue;
+        }
         nomore(MUSE_SCR_REMOVE_CURSE);
         if (obj->otyp == SCR_REMOVE_CURSE
             && !obj->cursed
@@ -2709,6 +2722,10 @@ struct monst *mtmp;
             }
         }
     }
+    if (m.has_misc == 0 && m.tocharge && charge_scroll) {
+        m.misc = charge_scroll;
+        m.has_misc = MUSE_SCR_CHARGING;
+    }
     return find_misc_recurse(mtmp, mtmp->minvent);
 #undef nomore
 #undef pick_to_charge
@@ -2721,6 +2738,7 @@ struct obj *start;
 {
     register struct obj *obj;
     struct permonst *mdat = mtmp->data;
+    struct obj *charge_scroll = (struct obj *) 0;
 #define nomore(x)       if (m.has_misc == (x)) continue;
 #define pick_to_charge(o) \
     (!m.tocharge \
@@ -2753,6 +2771,7 @@ struct obj *start;
             } else if (obj->spe < 1 && pick_to_charge(obj)) {
                 m.tocharge = obj;
             }
+            continue;
         }
         nomore(MUSE_BULLWHIP);
         if (obj->otyp == BULLWHIP && !mtmp->mpeaceful
@@ -2845,6 +2864,17 @@ struct obj *start;
             m.misc = obj;
             m.has_misc = MUSE_POT_POLYMORPH;
         }
+        if (m.has_misc == MUSE_SCR_CHARGING && m.tocharge)
+            continue;
+        if (obj->otyp == SCR_CHARGING) {
+            if (m.tocharge) {
+                m.misc = obj;
+                m.has_misc = MUSE_SCR_CHARGING;
+            } else if (!charge_scroll) {
+                charge_scroll = obj;
+            }
+            continue;
+        }
         nomore(MUSE_SCR_REMOVE_CURSE);
         if (obj->otyp == SCR_REMOVE_CURSE
             && !obj->cursed
@@ -2861,6 +2891,10 @@ struct obj *start;
                 }
             }
         }
+    }
+    if (m.has_misc == 0 && m.tocharge && charge_scroll) {
+        m.misc = charge_scroll;
+        m.has_misc = MUSE_SCR_CHARGING;
     }
     if (mtmp->mfrozen) {
         m.misc = (struct obj *) 0;
@@ -2903,6 +2937,26 @@ struct monst *mtmp;
     oseen = otmp && vismon;
 
     switch (m.has_misc) {
+    case MUSE_SCR_CHARGING:
+        if (!m.tocharge) {
+            impossible("Attempting to charge nothing?");
+            return 0;
+        }
+        mreadmsg(mtmp, otmp);
+        if (oseen)
+            makeknown(otmp->otyp);
+        if (mtmp->mconf) {
+            if (attacktype(mtmp->data, AT_MAGC))
+                mtmp->mspec_used = 0;
+            if (canseemon(mtmp))
+                pline("%s looks charged up!", Monnam(mtmp));
+        } else {
+            recharge(m.tocharge, (otmp->cursed) ? -1 :
+                     (otmp->blessed) ? 1 : 0, mtmp);
+        }
+        m_useup(mtmp, otmp);
+        m.tocharge = (struct obj *) 0; /* clear m.tocharge */
+        return 2;
     case MUSE_FIGURINE: {
         coord cc;
         int mndx = otmp->corpsenm;

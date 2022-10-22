@@ -2480,4 +2480,5 @@ The following changes to date are:
 - Fix: logic with monsters recharging wands
 - Refactor intelligent monster recharging code
 - Fix: a bit more logic with monsters recharging wands
+- Fix: monster recharging a wand of wishing
 
