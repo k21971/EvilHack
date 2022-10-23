@@ -636,7 +636,7 @@ searmsg(magr, mdef, obj, minimal)
 struct monst *magr;
 struct monst *mdef;
 struct obj *obj; /* the offending item, or &zeroobj if magr's body */
-boolean minimal;        /* print a shorter message leaving out obj details */
+boolean minimal; /* print a shorter message leaving out obj details */
 {
     char onamebuf[BUFSZ];
     char whose[BUFSZ];

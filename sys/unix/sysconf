@@ -90,7 +90,7 @@ ENTRYMAX=2000
 #PERS_IS_UID=1
 
 # Maximum number of score file entries to use for random statue names
-#MAX_STATUENAME_RANK=10
+MAX_STATUENAME_RANK=50
 
 # Use "Live logging" for in-game progress (achievements, wishes, etc)
 # Bitmask for kinds of things you want to log - combine the following values

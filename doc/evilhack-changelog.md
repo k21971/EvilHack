@@ -2482,4 +2482,5 @@ The following changes to date are:
 - Fix: a bit more logic with monsters recharging wands
 - Fix: monster recharging a wand of wishing
 - Fix: misc issues in searmsg
+- Try for unique topten names for Astral player monsters
 

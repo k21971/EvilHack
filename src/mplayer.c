@@ -183,7 +183,7 @@ get_mplname(mtmp, nam)
 register struct monst *mtmp;
 char *nam;
 {
-    char* ttname = tt_name(); /* record file */
+    char* ttname = get_rnd_tt_name(TRUE); /* record file */
     const char **mp_names;
     int r_id = 0, ncnt;
 
@@ -196,7 +196,7 @@ char *nam;
         ; /* count the number of names in the list */
 
     Strcpy(nam, (In_endgame(&u.uz) && ttname != 0)
-                    ? upstart(ttname) : mp_names[rn2(ncnt)]);
+                  ? ttname : mp_names[rn2(ncnt)]);
     Strcat(nam, " the ");
     Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, mtmp,
                                 (boolean) mtmp->female));

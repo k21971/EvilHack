@@ -79,6 +79,7 @@ static char *NDECL(encode_extended_conducts);
 STATIC_DCL void FDECL(free_ttlist, (struct toptenentry *));
 STATIC_DCL int FDECL(classmon, (char *, BOOLEAN_P));
 STATIC_DCL int FDECL(raceinfo, (char *, BOOLEAN_P));
+STATIC_DCL boolean FDECL(name_unused_on_lvl, (const char *));
 STATIC_DCL int FDECL(score_wanted, (BOOLEAN_P, int, struct toptenentry *, int,
                                     const char **, int));
 #ifdef NO_SCAN_BRACK
@@ -1446,15 +1447,82 @@ pickentry:
     return tt;
 }
 
+/* does a monster on the level already has this name?  used to ensure player
+ * monster names from the high score list aren't reused on Astral */
+STATIC_OVL boolean
+name_unused_on_lvl(name)
+const char *name;
+{
+    int namlen = strlen(name);
+    char plus_space[NAMSZ + 2];
+    struct monst *mtmp;
+
+    Strcpy(plus_space, name);
+    Strcat(plus_space, " ");
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        const char *mnam;
+        if (!has_mname(mtmp))
+            continue;
+        mnam = MNAME(mtmp);
+        /* normal mplayer will typically be named like "<name> the <title>",
+         * so check for starting with "<name> " in addition to a full match */
+        if (!strncmpi(plus_space, mnam, namlen + 1) || !strcmpi(name, mnam)) {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
 /* Return a random player name from the high score list as a string. */
 char *
-tt_name()
+get_rnd_tt_name(unique)
+boolean unique; /* don't accept a name that's already in use on the level */
 {
-    struct toptenentry *tt = get_rnd_toptenentry();
-    if (!tt) {
-        return NULL;
+    int rank, i, tries;
+    FILE *rfile;
+    struct toptenentry *tt;
+    static struct toptenentry tt_buf;
+
+    rfile = fopen_datafile(RECORD, "r", SCOREPREFIX);
+    if (!rfile) {
+        impossible("get_rnd_tt_name: Cannot open record file!");
+        return (char *) 0;
     }
-    return tt->name;
+
+    tt = &tt_buf;
+    rank = rnd(sysopt.tt_oname_maxrank);
+pickentry:
+    for (i = rank; i; i--) {
+        readentry(rfile, tt);
+        if (tt->points == 0)
+            break;
+    }
+
+    tries = min(20, sysopt.tt_oname_maxrank - rank);
+    if (unique && tries > 0 && tt->points > 0) {
+        /* continue reading entries until we hit one that's unique (or we run
+         * out of tries, hit the sysopt max rank, or run out of entries) */
+        while (!name_unused_on_lvl(tt->name)) {
+            readentry(rfile, tt);
+            if (tt->points == 0)
+                break;
+            if (--tries == 0)
+                break;
+        }
+    }
+
+    if (tries == 0 || tt->points == 0) {
+        if (rank > 1) {
+            rank = 1;
+            rewind(rfile);
+            goto pickentry;
+        }
+        tt = NULL;
+    }
+
+    (void) fclose(rfile);
+    return tt ? tt->name : (char *) 0;
 }
 
 /*
