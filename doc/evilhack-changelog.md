@@ -2483,4 +2483,5 @@ The following changes to date are:
 - Fix: monster recharging a wand of wishing
 - Fix: misc issues in searmsg
 - Try for unique topten names for Astral player monsters
+- Fix: ghosts appearing as 'name' and not 'name's ghost'
 

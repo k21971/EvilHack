@@ -1841,14 +1841,14 @@ boolean called;
     } else if (do_name && has_mname(mtmp)) {
         char *name = MNAME(mtmp);
 
-        if (mtmp->former_rank.mnum != NON_PM) {
-            if (mdat == &mons[PM_GHOST]) {
-                Sprintf(eos(buf), "%s ghost", s_suffix(name));
-                name_at_start = TRUE;
-            } else {
-                Sprintf(eos(buf), "%s the %s", name, pm_name);
-                name_at_start = TRUE;
-            }
+        if (mdat == &mons[PM_GHOST]) {
+            /* applies to all ghosts */
+            Sprintf(eos(buf), "%s ghost", s_suffix(name));
+            name_at_start = TRUE;
+        } else if (mtmp->former_rank.mnum != NON_PM) {
+            /* special rules for non-ghost former heroes */
+            Sprintf(eos(buf), "%s the %s", name, pm_name);
+            name_at_start = TRUE;
         } else if (called) {
             Sprintf(eos(buf), "%s called %s", pm_name, name);
             name_at_start = (boolean) type_is_pname(mdat);
