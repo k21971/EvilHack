@@ -2484,4 +2484,5 @@ The following changes to date are:
 - Fix: misc issues in searmsg
 - Try for unique topten names for Astral player monsters
 - Fix: ghosts appearing as 'name' and not 'name's ghost'
+- Prevent renaming bones monsters of former heroes
 
