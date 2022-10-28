@@ -2485,4 +2485,5 @@ The following changes to date are:
 - Try for unique topten names for Astral player monsters
 - Fix: ghosts appearing as 'name' and not 'name's ghost'
 - Prevent renaming bones monsters of former heroes
+- Fix: use after free when thrown object is destroyed by passive attack
 
