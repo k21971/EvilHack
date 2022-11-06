@@ -2241,6 +2241,7 @@ dosacrifice()
                             else if (is_orcish_obj(otmp) && !Race_if(PM_ORC))
                                 typ = 0;
 
+                            obfree(otmp, (struct obj *) 0);
                             otmp = (struct obj *) 0;
 
                             if (typ && !P_RESTRICTED(objects[typ].oc_skill))
@@ -2408,6 +2409,7 @@ dosacrifice()
                             else if (otmp->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
                                 typ = 0;
 
+                            obfree(otmp, (struct obj *) 0);
                             otmp = (struct obj *) 0;
 
                         } while (ncount++ < 1000 && !typ);
@@ -2416,27 +2418,15 @@ dosacrifice()
                     if (typ) {
                         ncount = 0;
                         otmp = mksobj(typ, FALSE, FALSE);
-                        if (Race_if(PM_ELF)) {
-                            while (otmp->material == IRON && ncount++ < 500) {
-                                otmp = mksobj(typ, FALSE, FALSE);
-                                /* keep trying for non-iron */
-                            }
-                        }
-
-                        if (Race_if(PM_ORC)) {
-                            while (otmp->material == MITHRIL
-                                   && ncount++ < 500) {
-                                otmp = mksobj(typ, FALSE, FALSE);
-                                /* keep trying for non-mithril */
-                            }
-                        }
-
-                        if (Role_if(PM_INFIDEL)) {
-                            while (otmp->material == SILVER
-                                   && ncount++ < 500) {
-                                otmp = mksobj(typ, FALSE, FALSE);
-                                /* keep trying for non-silver */
-                            }
+                        while (((Race_if(PM_ELF) && otmp->material == IRON)
+                                || (Race_if(PM_ORC)
+                                    && otmp->material == MITHRIL)
+                                || (Role_if(PM_INFIDEL)
+                                    && otmp->material == SILVER))
+                               && ncount++ < 500) {
+                            obfree(otmp, (struct obj *) 0);
+                            otmp = mksobj(typ, FALSE, FALSE);
+                            /* keep trying for non-iron */
                         }
 
                         if (otmp) {

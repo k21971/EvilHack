@@ -2486,4 +2486,5 @@ The following changes to date are:
 - Fix: ghosts appearing as 'name' and not 'name's ghost'
 - Prevent renaming bones monsters of former heroes
 - Fix: use after free when thrown object is destroyed by passive attack
+- Fix: memory leak when selecting appropriate material for sacrifice gift
 
