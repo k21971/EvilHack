@@ -2193,12 +2193,12 @@ boolean taking;
             }
             if (unwornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_BARDING)) {
                 int m_delay = objects[otmp->otyp].oc_delay;
-                if ((unwornmask & (W_ARM | W_ARMU)) != 0
-                    && (mtmp->misc_worn_check & W_ARMC)) {
+                if ((unwornmask & (W_ARM | W_ARMU)) != 0L
+                    && (mtmp->misc_worn_check & W_ARMC) != 0L) {
                     /* extra delay for removing a cloak */
                     m_delay += 2;
                 }
-                if ((unwornmask & (W_SADDLE | W_BARDING)) != 0) {
+                if ((unwornmask & (W_SADDLE | W_BARDING)) != 0L) {
                     You("remove %s from %s.", the(xname(otmp)),
                         x_monnam(mtmp, ARTICLE_THE, (char *) 0,
                                  (unwornmask & W_SADDLE ? SUPPRESS_SADDLE
@@ -2256,6 +2256,7 @@ boolean taking;
             }
         }
     }
+    free((genericptr_t) pick_list);
     if (transferred > 0) {
         /* They might have gained some gear they would want to wear, or lost
          * some and now have a different option. Reassess next turn and see. */

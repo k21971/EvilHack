@@ -2487,4 +2487,5 @@ The following changes to date are:
 - Prevent renaming bones monsters of former heroes
 - Fix: use after free when thrown object is destroyed by passive attack
 - Fix: memory leak when selecting appropriate material for sacrifice gift
+- Fix: memory leak when looting monster
 
