@@ -10,7 +10,7 @@ STATIC_DCL boolean FDECL(known_hitum, (struct monst *, struct obj *, int *,
                                        int, int, struct attack *, int));
 STATIC_DCL boolean FDECL(theft_petrifies, (struct obj *));
 STATIC_DCL void FDECL(steal_it, (struct monst *, struct attack *));
-STATIC_DCL boolean FDECL(really_steal, (struct obj *, struct monst *));
+STATIC_DCL struct obj *FDECL(really_steal, (struct obj *, struct monst *));
 STATIC_DCL boolean FDECL(hitum_cleave, (struct monst *, struct attack *));
 STATIC_DCL boolean FDECL(hitum, (struct monst *, struct attack *));
 STATIC_DCL boolean FDECL(hmon_hitmon, (struct monst *, struct obj *, int,
@@ -1231,7 +1231,8 @@ int dieroll;
                  * this at the end so that other stuff doesn't have to check obj
                  * && obj->whatever all the time */
                 if (hand_to_hand) {
-                    break_glass_obj(obj);
+                    if (break_glass_obj(obj))
+                        obj = (struct obj *) 0;
                     break_glass_obj(some_armor(mon));
                 }
                 if (obj->opoisoned && is_poisonable(obj))
@@ -2295,7 +2296,7 @@ struct attack *mattk;
         if (otmp == stealoid) /* special message for final item */
             pline("%s finishes taking off %s suit.", Monnam(mdef),
                     mhis(mdef));
-        if (really_steal(otmp, mdef)) /* hero got interrupted... */
+        if (!(otmp = really_steal(otmp, mdef))) /* hero got interrupted... */
             break;
         /* might have dropped otmp, and it might have broken or left level */
         if (!otmp || otmp->where != OBJ_INVENT)
@@ -2336,13 +2337,14 @@ struct attack *mattk;
  * armor, etc.
  * Assumes caller handles whatever other messages are necessary; this takes care
  * of the "You steal e - an imaginary widget" message.
- * Returns TRUE if and only if the player has done something that should
- * interrupt multi-stealing, such as stealing a cockatrice corpse and getting
- * petrified, but then getting lifesaved.*/
-STATIC_OVL boolean
+ * Returns the resulting object pointer (could have changed, since item may
+ * have merged with something in inventory), or null pointer if the player has
+ * done something that should interrupt multi-stealing, such as stealing a
+ * cockatrice corpse and getting petrified, but then getting lifesaved.*/
+STATIC_OVL struct obj *
 really_steal(obj, mdef)
-struct obj * obj;
-struct monst * mdef;
+struct obj *obj;
+struct monst *mdef;
 {
     long unwornmask = obj->owornmask;
     /* take the object away from the monster */
@@ -2352,18 +2354,18 @@ struct monst * mdef;
                               doname(obj), "You steal: ");
     /* might have dropped obj, and it might have broken or left level */
     if (!obj || obj->where != OBJ_INVENT)
-        return TRUE;
+        return (struct obj *) 0;
     if (theft_petrifies(obj))
-        return TRUE; /* stop thieving even though hero survived */
+        return (struct obj *) 0; /* stop thieving even though hero survived */
     /* more take-away handling, after theft message */
     if (unwornmask & W_WEP) { /* stole wielded weapon */
         possibly_unwield(mdef, FALSE);
     } else if (unwornmask & W_ARMG) { /* stole worn gloves */
         mselftouch(mdef, (const char *) 0, TRUE);
         if (DEADMONSTER(mdef)) /* it's now a statue */
-            return TRUE;       /* can't continue stealing */
+            return (struct obj *) 0; /* can't continue stealing */
     }
-    return FALSE;
+    return obj;
 }
 
 int
@@ -2610,7 +2612,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         if (mongold) {
             if (mongold->otyp != GOLD_PIECE) {
                 /* stole a gold non-coin object */
-                really_steal(mongold, mdef);
+                (void) really_steal(mongold, mdef);
             }
             else if (merge_choice(invent, mongold) || inv_cnt(FALSE) < 52) {
                 Your("purse feels heavier.");

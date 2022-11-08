@@ -2488,4 +2488,5 @@ The following changes to date are:
 - Fix: use after free when thrown object is destroyed by passive attack
 - Fix: memory leak when selecting appropriate material for sacrifice gift
 - Fix: memory leak when looting monster
+- Fix: two use-after-free issues revealed by asan
 
