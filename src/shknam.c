@@ -502,10 +502,11 @@ const char *const *nlp;
         && (sptr = Is_special(&u.uz)) != 0 && sptr->flags.town) {
         /* special-case override for minetown food store for monks */
         nlp = shkhealthfoods;
+        ESHK(shk)->shoptype = FODDERSHOP;
     }
 
-    if (nlp == shklight && In_mines(&u.uz) && (sptr = Is_special(&u.uz)) != 0
-        && sptr->flags.town) {
+    if (nlp == shklight && In_mines(&u.uz)
+        && (sptr = Is_special(&u.uz)) != 0 && sptr->flags.town) {
         /* special-case minetown lighting shk */
         shname = "+Izchak";
         shk->female = FALSE;
@@ -775,6 +776,8 @@ int shp_indx;
     if (shp->shknms == shkrings)
         (void) mongets(shk, TOUCHSTONE);
     nameshk(shk, shp->shknms);
+    /* might have changed delicatessen to health food store */
+    sroom->rtype = eshkp->shoptype;
 
     if (!strcmp(shkname(shk), "Izchak")) {
         struct obj *otmp;

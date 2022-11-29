@@ -2489,4 +2489,5 @@ The following changes to date are:
 - Fix: memory leak when selecting appropriate material for sacrifice gift
 - Fix: memory leak when looting monster
 - Fix: two use-after-free issues revealed by asan
+- Fix: Minetown food shop doesn't convert to health food store for monks
 
