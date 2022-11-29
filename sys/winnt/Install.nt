@@ -26,13 +26,24 @@ version.  You can use one of the following build environments:
 
     OR
 
-  o (Untested for 3.6) A copy of MinGW. MinGW is a collection of header 
-    files and import libraries with which native Windows32 programs 
-    can be built; the MinGW distribution contains the GNU Compiler 
-    Collection. You can download MinGW at
-        http://www.mingw.org/
-    Earlier versions of MinGW will not allow you to build the Windows
-    Graphical version.
+  o An up-to-date copy of MinGW-w64. MinGW-w64 is a collection of
+    GNU C Compiler (GCC) executables, headers, files and import
+    libraries. The official site for MinGW-w64 is
+        https://www.mingw-w64.org/
+    There are a few packaged distributions of MinGW-w64. We've tried
+    out these ones, but there are likely others that will work:
+
+        MSYS2 
+        - https://www.msys2.org/
+        - Download the installer, and start the appropriate bash shell.
+
+        MinGW-w64 - winlibs standalone build
+        - https://github.com/brechtsanders/winlibs_mingw
+        - Download one of the releases from
+          https://github.com/brechtsanders/winlibs_mingw/releases
+          and extract the contents into a folder (ideally in a folder
+          without spaces in the path), and add the location of the
+          subfolder containing gcc.exe to your PATH.
 
 /---------------------------------------------\
 |    Directories for a Win32 NetHack build    |
