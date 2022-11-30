@@ -2492,4 +2492,5 @@ The following changes to date are:
 - Fix: Minetown food shop doesn't convert to health food store for monks
 - Fix: remove/replace compromised web link from sys/winnt/Install.nt
 - Fix: various issues with monster wishing
+- Fix: add null check for mdef in explum()
 
