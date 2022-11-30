@@ -2491,4 +2491,5 @@ The following changes to date are:
 - Fix: two use-after-free issues revealed by asan
 - Fix: Minetown food shop doesn't convert to health food store for monks
 - Fix: remove/replace compromised web link from sys/winnt/Install.nt
+- Fix: various issues with monster wishing
 
