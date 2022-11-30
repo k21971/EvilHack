@@ -2493,4 +2493,5 @@ The following changes to date are:
 - Fix: remove/replace compromised web link from sys/winnt/Install.nt
 - Fix: various issues with monster wishing
 - Fix: add null check for mdef in explum()
+- Fix: remove shop cost fix for pricing exploit that no longer exists
 
