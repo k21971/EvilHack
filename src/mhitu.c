@@ -1099,10 +1099,9 @@ register struct monst *mtmp;
                 sum[i] = castmu(mtmp, mattk, TRUE, foundyou);
             break;
 	case AT_SCRE:
-            if (ranged)
+            if (ranged || !rn2(5)) /* sometimes right next to our hero */
                 sum[i] = screamu(mtmp, mattk,
                                  d((int) mattk->damn, (int) mattk->damd));
-	    /* if you're nice and close, don't bother */
 	    break;
         default: /* no attack */
             break;
@@ -3883,25 +3882,25 @@ int dmg;
      * Only screams when a certain distance from our hero,
      * can see them, and has the available mspec.
      */
-    if (distu(mtmp->mx, mtmp->my) > 85
+    if (distu(mtmp->mx, mtmp->my) > 128
         || !m_canseeu(mtmp) || mtmp->mspec_used)
         return FALSE;
 
-    if (canseemon(mtmp) && Deaf) {
+    if (!cancelled && canseemon(mtmp) && Deaf) {
         pline("It looks as if %s is yelling at you.",
               mon_nam(mtmp));
-    } else if (!cancelled && m_canseeu(mtmp)
-               && Blind && Deaf) {
+    } else if (!cancelled
+               && !canseemon(mtmp) && Deaf) {
         You("sense a disturbing vibration in the air.");
-    } else if (m_canseeu(mtmp) && canseemon(mtmp)
-               && !Deaf && cancelled) {
+    } else if (cancelled
+               && canseemon(mtmp) && !Deaf) {
         pline("%s croaks hoarsely.", Monnam(mtmp));
-    } else if (cancelled && !Deaf) {
+    } else if (cancelled && !canseemon(mtmp) && !Deaf) {
         You_hear("a hoarse croak nearby.");
     }
 
     /* Set mspec->mused */
-    mtmp->mspec_used = mtmp->mspec_used + (dmg + rn2(6));
+    mtmp->mspec_used = mtmp->mspec_used + (rn2(6) + 5);
 
     if (cancelled || Deaf)
         return FALSE;
@@ -3911,7 +3910,7 @@ int dmg;
     case AD_LOUD:
         if (m_canseeu(mtmp))
             pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
-        else if (u.usleep && m_canseeu(mtmp) && (!Deaf))
+        else if (u.usleep && m_canseeu(mtmp) && !Deaf)
                  unmul("You are frightened awake!");
 
         if (uarmh && uarmh->otyp == TOQUE && !Deaf) {
@@ -3919,7 +3918,10 @@ int dmg;
                   helm_simple_name(uarmh));
             break;
         } else {
-            Your("mind reels from the noise!");
+            if (!Stunned)
+                Your("mind reels from the noise!");
+            else
+                You("struggle to keep your balance.");
             make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
             stop_occupation();
         }

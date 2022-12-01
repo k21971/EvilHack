@@ -2496,4 +2496,5 @@ The following changes to date are:
 - Fix: remove shop cost fix for pricing exploit that no longer exists
 - Fix: use-after-free when fountain dipping
 - Fix: wishing for a helm of telepathy / gauntlets of fumbling
+- Fix: minor feedback issues with Nazgul's scream attack
 
