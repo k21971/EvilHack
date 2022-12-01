@@ -2498,4 +2498,5 @@ The following changes to date are:
 - Fix: wishing for a helm of telepathy / gauntlets of fumbling
 - Fix: minor feedback issues with Nazgul's scream attack
 - Nazgul shouldn't wear the rings of invisibility they carry
+- Fix: avoid segfault when null obj passed to water_damage()
 
