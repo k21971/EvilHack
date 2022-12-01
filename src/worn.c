@@ -898,6 +898,9 @@ boolean racialexception;
                     && obj->otyp != RIN_PROTECTION
                     && obj->otyp != RIN_LEVITATION))
                 continue;
+            if (mon->data == &mons[PM_NAZGUL]
+                && obj->otyp == RIN_INVISIBILITY)
+                continue;
             break;
         }
         if (obj->owornmask)
