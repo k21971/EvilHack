@@ -3854,6 +3854,7 @@ struct monst *mtmp;
 int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
 {
     int tmp, mndx, x = mtmp->mx, y = mtmp->my;
+    struct monst museum = zeromonst;
     struct permonst *mdat;
     struct obj *otmp;
     struct trap *t;
@@ -3998,8 +3999,16 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             }
         }
     }
-    if (wasinside)
+
+    if (wasinside) {
+        /* spoteffects() can end up clearing the level of monsters; grab a copy */
+        museum = *mtmp;
+        museum.nmon = 0;
+        museum.minvent = 0;
+        museum.mextra = 0;
         spoteffects(TRUE); /* poor man's expels() */
+        mtmp = &museum; /* use the reference copy now */
+    }
     /* monster is gone, corpse or other object might now be visible */
     newsym(x, y);
 

@@ -2502,4 +2502,5 @@ The following changes to date are:
 - Purgatory map creation
 - More purgatory map work, ice queen branch tweaks
 - Fix: more use-after-free when fountain dipping
+- Fix: use-after-free with engulfer in xkilled()
 
