@@ -2501,4 +2501,5 @@ The following changes to date are:
 - Fix: avoid segfault when null obj passed to water_damage()
 - Purgatory map creation
 - More purgatory map work, ice queen branch tweaks
+- Fix: more use-after-free when fountain dipping
 
