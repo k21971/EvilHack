@@ -1919,7 +1919,8 @@ boolean at_stairs, falling, portal;
     if (!In_purgatory(&u.uz0) && Inpurg
         && !u.uevent.purgatory_entered) {
         u.uevent.purgatory_entered = 1;
-        You("have entered Purgatory.");
+        if (!Blind)
+            com_pager(307);
         if (!u.uachieve.enter_purgatory)
             livelog_write_string(LL_ACHIEVE, "entered Purgatory");
         u.uachieve.enter_purgatory = 1;

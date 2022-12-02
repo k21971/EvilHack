@@ -4811,6 +4811,16 @@ his life essence fades into nothingness.
 Entry into Purgatory awaits.
 %E [Lucifer has been defeated, allowing passage into Purgatory.]
 #
+# Entering Purgatory
+#
+%Cc - 00307
+Before you lies a majestic meadow, dotted with lush trees, and a
+lazy slow-moving river flows through it.  Far off in the distance,
+an old structure resides, overgrown with vines.  You have entered
+Purgatory, a seemingly beautful, peaceful place.  But not all is as
+it seems...
+%E [You have entered Purgatory.]
+#
 # Lucifer
 #
 %Cc - 00400

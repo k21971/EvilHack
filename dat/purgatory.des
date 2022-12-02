@@ -19,13 +19,13 @@ MAP
 |.+.........|..TTT..AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 |.|.........|..........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAA....
 |--.........|--------....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.......AAAAAAAA...T..
-|.+.........|}......|.T....AAAAAAAAAA...AAAAAAAAAAAAAA...AAAA..AAAAAA.TT....
-|.|.........|}......----------AAAAAA.....AAAAAAAAAAA...AAAAAAA..AAAA...|-...
+|.+.........|}}}}}}}|.T....AAAAAAAAAA...AAAAAAAAAAAAAA...AAAA..AAAAAA.TT....
+|.|.T.......|}......----------AAAAAA.....AAAAAAAAAAA...AAAAAAA..AAAA...--...
 |--.........|}...............+.AAAAAA.....AAAAAAAA....AAAAAAAA...AA...--....
 |.S.\.......|}...............+..AAAAAA...AAAAAA......AAAAAAAAAA.......|.....
 |--.........|}...............+....AAAAAAAAAAAA..T..AAAAAAAAAAAAA......--....
-|.|.........|}......----------AA...AAAAAAAAAA.....AAAAAAAAAAAAAAAAAA...|-...
-|.+.........|}......|......AAAAAAA....AAAA....AAAAAAAAAAAAAAAAAAAAAAA......T
+|.|.T.......|}......----------AA...AAAAAAAAAA.....AAAAAAAAAAAAAAAAAA...--...
+|.+.........|}}}}}}}|......AAAAAAA....AAAA....AAAAAAAAAAAAAAAAAAAAAAA......T
 |--.........|--------..T.AAAAAAAAAAA...AA...AAAAAAAAAAAAAAAAAAAAAAAAAA..TT..
 |.|.........|.t...TT...AAAAAAAAAAAAAAA....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT...
 |.+.........|tt.....AAAAAAAAAAAAAAAAAAAA..AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -37,14 +37,16 @@ ENDMAP
 REGION:(00,00,75,19),lit,"ordinary"
 REGION:(01,02,11,16),lit,"throne",unfilled
 TELEPORT_REGION:(72,08,74,10),(00,00,00,00)
-# Portal to starting quest level
+# Exit portal to sokoban
 PORTAL:(01,09,01,09),(0,0,0,0), "soko4"
 # Stairs
 STAIR:(73,09),down
 
+# Entrances to throne room
 DRAWBRIDGE:(13,08),west,closed
 DRAWBRIDGE:(13,10),west,closed
 
+# Various doors
 DOOR:closed,(02,03)
 DOOR:closed,(02,06)
 DOOR:locked,(02,09)
@@ -54,9 +56,16 @@ DOOR:locked,(29,08)
 DOOR:locked,(29,09)
 DOOR:locked,(29,10)
 
+# Decoration
 FOUNTAIN:(06,04)
 FOUNTAIN:(06,14)
 
+# Loot
+OBJECT:('(',"crystal chest"),(01,02)
+OBJECT:('(',"crystal chest"),(01,07)
+OBJECT:('(',"crystal chest"),(01,11)
+OBJECT:('(',"crystal chest"),(01,16)
+OBJECT:('/',"opening"),(13,14)
 
 
 MAZE: "purgatory-2",' '
@@ -93,12 +102,13 @@ BRANCH:(01,16,01,16),(0,0,0,0)
 # Stairs
 STAIR:(73,07),up
 
+# Entrances to main room
 DOOR:locked,(66,06)
 DOOR:locked,(66,08)
 
+# Functional decor
 FOUNTAIN:(22,16)
 FOUNTAIN:(24,14)
 FOUNTAIN:(26,16)
-
 FORGE:(72,02)
 FORGE:(72,12)

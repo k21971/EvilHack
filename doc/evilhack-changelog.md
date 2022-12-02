@@ -2500,4 +2500,5 @@ The following changes to date are:
 - Nazgul shouldn't wear the rings of invisibility they carry
 - Fix: avoid segfault when null obj passed to water_damage()
 - Purgatory map creation
+- More purgatory map work, ice queen branch tweaks
 
