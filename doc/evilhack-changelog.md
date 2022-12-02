@@ -2499,4 +2499,5 @@ The following changes to date are:
 - Fix: minor feedback issues with Nazgul's scream attack
 - Nazgul shouldn't wear the rings of invisibility they carry
 - Fix: avoid segfault when null obj passed to water_damage()
+- Purgatory map creation
 
