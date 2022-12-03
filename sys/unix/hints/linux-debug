@@ -22,18 +22,19 @@ INSTDIR = $(HACKDIR)
 VARDIR = $(HACKDIR)/var
 
 
-
 POSTINSTALL=cp -n sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf;
 
 CFLAGS=-g3 -O0 -I../include -DNOTPARMDECL -fno-common
 CFLAGS+=-DDLB
 CFLAGS+=-DCOMPRESS=\"/bin/gzip\" -DCOMPRESS_EXTENSION=\".gz\"
-CFLAGS+=-DGCC_WARN -Wall -Wextra -Wformat=2 #-Werror
+CFLAGS+=-DGCC_WARN -Wall -Wextra -Wformat=2
 CFLAGS+=-Wimplicit -Wreturn-type -Wunused -Wswitch -Wshadow -Wwrite-strings
 CFLAGS+=-Wno-format-nonliteral -Wno-unused-result
 CFLAGS+=-Wno-stringop-truncation
 CFLAGS+=-Wno-missing-field-initializers
 CFLAGS+=-Wno-format-overflow -Wno-stringop-overflow
+# Uncomment this is you plan on fuzzing with ASAN enabled
+#CFLAGS+=-fsanitize=address -fno-omit-frame-pointer
 CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE
 CFLAGS+=-DTIMED_DELAY
 CFLAGS+=-DHACKDIR=\"$(HACKDIR)\"
@@ -51,6 +52,8 @@ CFLAGS+=-DDUMPHTML
 LINK=$(CC)
 # Only needed for GLIBC stack trace:
 LFLAGS=-rdynamic
+# Uncomment this is you plan on fuzzing with ASAN enabled
+#LFLAGS+=-fsanitize=address
 
 WINSRC = $(WINTTYSRC) $(WINCURSESSRC)
 WINOBJ = $(WINTTYOBJ) $(WINCURSESOBJ)

@@ -2507,4 +2507,5 @@ The following changes to date are:
 - Fix: AD_LOUD not doing damage; new monster - celestial dragon
 - Fix: boolean statement in AD_LOUD (mhitu.c)
 - Fix: AT_SCRE / AD_LOUD in mhitm.c 
+- Add bits to linux-debug hints file for fuzzing with ASAN
 
