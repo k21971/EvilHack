@@ -422,6 +422,7 @@ DRGN_SCALES("green dragon scales",      0, POISON_RES,        500, CLR_GREEN),
 DRGN_SCALES("gold dragon scales",       0, 0,                 500, HI_GOLD),
 DRGN_SCALES("sea dragon scales",        0, MAGICAL_BREATHING, 500, HI_ZAP),
 DRGN_SCALES("yellow dragon scales",     0, ACID_RES,          500, CLR_YELLOW),
+DRGN_SCALES("celestial dragon scales",  0, FLYING,           1000, CLR_BRIGHT_MAGENTA),
 DRGN_SCALES("chromatic dragon scales",  0, ANTIMAGIC,        1500, CLR_MAGENTA),
 #undef DRGN_SCALES
 /* other suits */

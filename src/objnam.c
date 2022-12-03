@@ -4513,7 +4513,7 @@ struct obj *no_wish;
      * scale mail; don't screw over players who aren't aware of the dtsund-DSM
      * changes - produce a set of scales instead of nothing */
     if (typ == SCALE_MAIL && mntmp >= FIRST_DRAGON
-        && mntmp <= PM_YELLOW_DRAGON) { /* chromatic dragon scales are off-limits */
+        && mntmp <= PM_CELESTIAL_DRAGON) { /* chromatic dragon scales are off-limits */
         typ = mndx_to_dragon_scales(mntmp);
         mntmp = NON_PM; /* no monster */
     }

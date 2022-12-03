@@ -1703,6 +1703,17 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
         MH_DRAGON, 13, CLR_YELLOW),
+    MON("baby celestial dragon", S_DRAGON, LVL(24, 15, -2, 50, 0), G_NOGEN,
+        A(ATTK(AT_BITE, AD_PHYS, 4, 8), ATTK(AT_CLAW, AD_PHYS, 4, 6),
+          ATTK(AT_CLAW, AD_PHYS, 4, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(3000, 1000, MS_ROAR, MZ_HUGE),
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_ELEC | MR_ACID
+            | MR_STONE, 0,
+        M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS
+            | M1_CARNIVORE | M1_REGEN,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_GREEDY
+            | M2_JEWELS | M2_MAGIC,
+        0, 0, MH_DRAGON, 26, CLR_BRIGHT_MAGENTA),
     /* From GruntHack - adult dragons can now engulf, and their attack
      * stats are bumped up some.
      */
@@ -1816,6 +1827,18 @@ NEARDATA struct permonst mons[] = {
             | M1_OVIPAROUS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         0, 0, MH_DRAGON, 20, CLR_YELLOW),
+    MON("celestial dragon", S_DRAGON, LVL(30, 15, -6, 50, 0), G_NOGEN,
+        A(ATTK(AT_SCRE, AD_LOUD, 16, 4), ATTK(AT_BITE, AD_PHYS, 4, 8),
+          ATTK(AT_CLAW, AD_PHYS, 4, 6), ATTK(AT_CLAW, AD_PHYS, 4, 6),
+          ATTK(AT_MAGC, AD_CLRC, 4, 4), NO_ATTK),
+        SIZ(WT_DRAGON, 5000, MS_ROAR, MZ_GIGANTIC),
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_ELEC | MR_ACID
+            | MR_STONE, MR_SLEEP | MR_ELEC,
+        M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS
+            | M1_OVIPAROUS | M1_CARNIVORE | M1_REGEN,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY
+            | M2_JEWELS | M2_MAGIC,
+        0, 0, MH_DRAGON, 34, CLR_BRIGHT_MAGENTA),
     /* strictly a placeholder for chromatic dragon scales */
     MON("chromatic dragon", S_DRAGON, LVL(0, 9, -1, 20, -7), G_NOGEN,
         A(ATTK(AT_BREA, AD_RBRE, 6, 6), ATTK(AT_BREA, AD_RBRE, 6, 6),
@@ -2610,7 +2633,7 @@ struct permonst _mons2[] = {
     MON("Nazgul", S_WRAITH, LVL(17, 12, -2, 35, -17),
         (G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_DRLI, 1, 10), ATTK(AT_BREA, AD_SLEE, 2, 25),
-          ATTK(AT_SCRE, AD_LOUD, 2, 8), NO_ATTK, NO_ATTK, NO_ATTK),
+          ATTK(AT_SCRE, AD_LOUD, 4, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 0, MS_SPELL, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
         0, M1_BREATHLESS | M1_HUMANOID | M1_SEE_INVIS,
         M2_NOPOLY | M2_STALK | M2_STRONG | M2_HOSTILE | M2_MALE

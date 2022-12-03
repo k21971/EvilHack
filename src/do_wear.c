@@ -964,6 +964,15 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
             }
         }
         break;
+    case CELESTIAL_DRAGON_SCALES:
+        if (puton) {
+            ESleep_resistance  |= W_ARM;
+            EShock_resistance  |= W_ARM;
+        } else {
+            ESleep_resistance  &= ~W_ARM;
+            EShock_resistance  &= ~W_ARM;
+        }
+        break;
     case CHROMATIC_DRAGON_SCALES:
         /* magic res handled in objects.c */
         if (puton) {

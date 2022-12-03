@@ -20,7 +20,6 @@ STATIC_DCL void FDECL(missmu, (struct monst *, int, int, struct attack *));
 STATIC_DCL void FDECL(mswings, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(wildmiss, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(hitmsg, (struct monst *, struct attack *));
-STATIC_DCL int FDECL(screamu, (struct monst*, struct attack*, int));
 
 static const char *const mwep_pierce[] = {
     "pierce", "gore", "stab", "impale", "hit"
@@ -1100,8 +1099,7 @@ register struct monst *mtmp;
             break;
 	case AT_SCRE:
             if (ranged || !rn2(5)) /* sometimes right next to our hero */
-                sum[i] = screamu(mtmp, mattk,
-                                 d((int) mattk->damn, (int) mattk->damd));
+                sum[i] = hitmu(mtmp, mattk);
 	    break;
         default: /* no attack */
             break;
@@ -1503,30 +1501,80 @@ register struct attack *mattk;
             dmg = 0;
         break;
     case AD_LOUD:
-        hitmsg(mtmp, mattk);
-        if (uncancelled) {
-            if (Deaf)
-                dmg = 1;
-            else
-                Your("mind reels from the noise!");
+        boolean cancelled = (mtmp->mcan != 0);
 
-            if (!rn2(6))
-                erode_armor(&youmonst, ERODE_FRACTURE);
-            if (!rn2(5))
-                erode_obj(uwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
-            if (!rn2(6))
-                erode_obj(uswapwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
-            if (rn2(2))
-                destroy_item(POTION_CLASS, AD_LOUD);
-            if (!rn2(4))
-                destroy_item(RING_CLASS, AD_LOUD);
-            if (!rn2(4))
-                destroy_item(TOOL_CLASS, AD_LOUD);
-            if (!rn2(3))
-                destroy_item(WAND_CLASS, AD_LOUD);
-        } else
-            dmg = 0;
-        if (dmg > 0 && u.umonnum == PM_GLASS_GOLEM) {
+        /* Assumes that the hero has to hear the monster's
+         * scream in order to be affected.
+         * Only screams when a certain distance from our hero,
+         * can see them, and has the available mspec.
+         */
+        if (distu(mtmp->mx, mtmp->my) > 128
+            || !m_canseeu(mtmp) || mtmp->mspec_used)
+            return FALSE;
+
+        if (!cancelled && canseemon(mtmp) && Deaf) {
+            pline("It looks as if %s is yelling at you.",
+                  mon_nam(mtmp));
+        } else if (!cancelled
+                   && !canseemon(mtmp) && Deaf) {
+            You("sense a disturbing vibration in the air.");
+        } else if (cancelled
+                   && canseemon(mtmp) && !Deaf) {
+            pline("%s croaks hoarsely.", Monnam(mtmp));
+        } else if (cancelled && !canseemon(mtmp) && !Deaf) {
+            You_hear("a hoarse croak nearby.");
+        }
+
+        /* Set mspec->mused */
+        mtmp->mspec_used = mtmp->mspec_used + (rn2(6) + 5);
+
+        if (cancelled || Deaf)
+            return FALSE;
+
+        if (m_canseeu(mtmp))
+            pline("%s lets out a %s!", Monnam(mtmp),
+                  mtmp->data == &mons[PM_NAZGUL] ? "bloodcurdling scream"
+                                                 : "deafening roar");
+        else if (u.usleep && m_canseeu(mtmp) && !Deaf)
+                 unmul("You are frightened awake!");
+
+        if (!Deaf && uarmh && uarmh->otyp == TOQUE) {
+            pline("Your %s protects your ears from the sonic onslaught.",
+                  helm_simple_name(uarmh));
+            dmg = 1;
+            break;
+        } else if (!Deaf && uarm
+                   && Dragon_armor_to_scales(uarm) == CELESTIAL_DRAGON_SCALES) {
+            pline("Your armor protects your ears from the sonic onslaught.");
+            dmg = 1;
+            break;
+        } else {
+            if (!Stunned)
+                Your("mind reels from the noise!");
+            else
+                You("struggle to keep your balance.");
+            make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+            stop_occupation();
+        }
+
+        /* being deaf won't protect objects in inventory,
+           or being made of glass */
+        if (!rn2(6))
+            erode_armor(&youmonst, ERODE_FRACTURE);
+        if (!rn2(5))
+            erode_obj(uwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
+        if (!rn2(6))
+            erode_obj(uswapwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
+        if (rn2(2))
+            destroy_item(POTION_CLASS, AD_LOUD);
+        if (!rn2(4))
+            destroy_item(RING_CLASS, AD_LOUD);
+        if (!rn2(4))
+            destroy_item(TOOL_CLASS, AD_LOUD);
+        if (!rn2(3))
+            destroy_item(WAND_CLASS, AD_LOUD);
+
+        if (u.umonnum == PM_GLASS_GOLEM) {
             You("shatter into a million pieces!");
             rehumanize();
             break;
@@ -3863,96 +3911,6 @@ const char *str;
                                  : hairbuf);
     }
     remove_worn_item(obj, TRUE);
-}
-
-/* The Nazgul's scream attack effect, pulled from SporkHack.
- * I've modified it here to be more in-line with how 3.6.x
- * employs its gaze stun attack, which allows a bit more
- * fine-tuning */
-STATIC_OVL int
-screamu(mtmp, mattk, dmg)
-struct monst *mtmp;
-struct attack *mattk;
-int dmg;
-{
-    boolean cancelled = (mtmp->mcan != 0);
-
-    /* Assumes that the hero has to hear the monster's
-     * scream in order to be affected.
-     * Only screams when a certain distance from our hero,
-     * can see them, and has the available mspec.
-     */
-    if (distu(mtmp->mx, mtmp->my) > 128
-        || !m_canseeu(mtmp) || mtmp->mspec_used)
-        return FALSE;
-
-    if (!cancelled && canseemon(mtmp) && Deaf) {
-        pline("It looks as if %s is yelling at you.",
-              mon_nam(mtmp));
-    } else if (!cancelled
-               && !canseemon(mtmp) && Deaf) {
-        You("sense a disturbing vibration in the air.");
-    } else if (cancelled
-               && canseemon(mtmp) && !Deaf) {
-        pline("%s croaks hoarsely.", Monnam(mtmp));
-    } else if (cancelled && !canseemon(mtmp) && !Deaf) {
-        You_hear("a hoarse croak nearby.");
-    }
-
-    /* Set mspec->mused */
-    mtmp->mspec_used = mtmp->mspec_used + (rn2(6) + 5);
-
-    if (cancelled || Deaf)
-        return FALSE;
-
-    /* scream attacks */
-    switch (mattk->adtyp) {
-    case AD_LOUD:
-        if (m_canseeu(mtmp))
-            pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
-        else if (u.usleep && m_canseeu(mtmp) && !Deaf)
-                 unmul("You are frightened awake!");
-
-        if (uarmh && uarmh->otyp == TOQUE && !Deaf) {
-            pline("Your %s protects your ears from the sonic onslaught.",
-                  helm_simple_name(uarmh));
-            break;
-        } else {
-            if (!Stunned)
-                Your("mind reels from the noise!");
-            else
-                You("struggle to keep your balance.");
-            make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
-            stop_occupation();
-        }
-
-        /* being deaf won't protect objects in inventory,
-           or being made of glass */
-        if (!rn2(6))
-            erode_armor(&youmonst, ERODE_FRACTURE);
-        if (!rn2(5))
-            erode_obj(uwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
-        if (!rn2(6))
-            erode_obj(uswapwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
-        if (rn2(2))
-            destroy_item(POTION_CLASS, AD_LOUD);
-        if (!rn2(4))
-            destroy_item(RING_CLASS, AD_LOUD);
-        if (!rn2(4))
-            destroy_item(TOOL_CLASS, AD_LOUD);
-        if (!rn2(3))
-            destroy_item(WAND_CLASS, AD_LOUD);
-
-        if (u.umonnum == PM_GLASS_GOLEM) {
-            You("shatter into a million pieces!");
-            rehumanize();
-            break;
-        }
-        break;
-    default:
-        break;
-    }
-    return TRUE;
 }
 
 /* FIXME:

@@ -760,6 +760,8 @@ struct obj *otmp;
         case AD_ACID:
         case AD_STON: /* petrification resistance */
             return (otyp == YELLOW_DRAGON_SCALES);
+        case AD_LOUD: /* sonic */
+            return (otyp == CELESTIAL_DRAGON_SCALES);
         default:
             break;
         }
