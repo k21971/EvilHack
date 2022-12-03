@@ -3551,7 +3551,8 @@ boolean was_swallowed; /* digestion */
 
     /* Trolls don't leave a corpse when the player is wielding Trollsbane */
     if (mdat->mlet == S_TROLL
-        && wielding_artifact(ART_TROLLSBANE)) {
+        && wielding_artifact(ART_TROLLSBANE)
+        && distu(mon->mx, mon->my) < 3) {
         if (cansee(mon->mx, mon->my))
             pline("In the presence of Trollsbane, %s corpse flares brightly and burns to ashes.",
                   s_suffix(mon_nam(mon)));
@@ -3560,7 +3561,8 @@ boolean was_swallowed; /* digestion */
 
     /* Zombies don't leave a corpse when the player is wielding Sunsword */
     if (is_zombie(mdat)
-        && wielding_artifact(ART_SUNSWORD)) {
+        && wielding_artifact(ART_SUNSWORD)
+        && distu(mon->mx, mon->my) < 3) {
         if (cansee(mon->mx, mon->my))
             pline("In the presence of Sunsword, %s corpse dissolves into nothingness.",
                   s_suffix(mon_nam(mon)));

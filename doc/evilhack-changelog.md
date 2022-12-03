@@ -2509,4 +2509,5 @@ The following changes to date are:
 - Fix: AT_SCRE / AD_LOUD in mhitm.c 
 - Add bits to linux-debug hints file for fuzzing with ASAN
 - Fix: segfault when hitting a monster with a poisoned glass object
+- Fix: Sunsword and Trollsbane destroying corpses from a distance
 
