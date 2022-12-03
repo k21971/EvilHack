@@ -1227,6 +1227,9 @@ int dieroll;
                             tmp++;
                     }
                 }
+                if (obj->opoisoned && is_poisonable(obj))
+                    ispoisoned = TRUE;
+
                 /* maybe break your glass weapon or monster's glass armor; put
                  * this at the end so that other stuff doesn't have to check obj
                  * && obj->whatever all the time */
@@ -1235,8 +1238,6 @@ int dieroll;
                         obj = (struct obj *) 0;
                     break_glass_obj(some_armor(mon));
                 }
-                if (obj->opoisoned && is_poisonable(obj))
-                    ispoisoned = TRUE;
             }
         } else if (obj->oclass == POTION_CLASS) {
             if (obj->quan > 1L)

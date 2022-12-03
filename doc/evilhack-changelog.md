@@ -2508,4 +2508,5 @@ The following changes to date are:
 - Fix: boolean statement in AD_LOUD (mhitu.c)
 - Fix: AT_SCRE / AD_LOUD in mhitm.c 
 - Add bits to linux-debug hints file for fuzzing with ASAN
+- Fix: segfault when hitting a monster with a poisoned glass object
 
