@@ -2547,10 +2547,9 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         }
         tmp += destroy_mitem(mdef, POTION_CLASS, AD_COLD);
         break;
-    /* currently the only monster that uses AD_LOUD is
-     * the Nazgul, and they are M2_NOPOLY, but we'll put this
-     * here for completeness sake. we may add other creatures
-     * that can use this damage type at some point in the future */
+    /* currently the only monster that uses AD_LOUD are
+     * Nazgul and celestial dragons, and are both M2_NOPOLY,
+     * but we'll put this here for completeness sake */
     case AD_LOUD:
         if (negated) {
             tmp = 0;

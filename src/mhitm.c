@@ -18,6 +18,7 @@ static const char brief_feeling[] =
 STATIC_DCL int FDECL(hitmm, (struct monst *, struct monst *,
                              struct attack *, struct obj *, int));
 STATIC_DCL int FDECL(gazemm, (struct monst *, struct monst *, struct attack *));
+STATIC_DCL int FDECL(screamm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(gulpmm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(explmm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(mdamagem, (struct monst *, struct monst *,
@@ -657,6 +658,11 @@ register struct monst *magr, *mdef;
             res[i] = gazemm(magr, mdef, mattk);
             break;
 
+        case AT_SCRE:
+            strike = 0;
+            res[i] = screamm(magr, mdef, mattk);
+            break;
+
         case AT_EXPL:
             /* D: Prevent explosions from a distance */
             if (distmin(magr->mx, magr->my, mdef->mx, mdef->my) > 1)
@@ -964,6 +970,30 @@ struct attack *mattk;
                     return MM_MISS;
                 return MM_AGR_DIED;
             }
+        }
+    }
+
+    return mdamagem(magr, mdef, mattk, (struct obj *) 0, 0, &otmp);
+}
+
+/* Returns the same values as mdamagem(). */
+STATIC_OVL int
+screamm(magr, mdef, mattk)
+register struct monst *magr, *mdef;
+struct attack *mattk;
+{
+    struct obj *otmp;
+
+    if (canseemon(magr) && !Deaf) {
+        pline("%s lets out a %s!", Monnam(magr),
+              magr->data == &mons[PM_NAZGUL] ? "bloodcurdling scream"
+                                             : "deafening roar");
+        if (!mdef->mstun) {
+            if (canseemon(mdef))
+                pline("%s reels from the noise!", Monnam(mdef));
+        } else {
+            if (canseemon(mdef))
+                pline("%s struggles to keep its balance.", Monnam(mdef));
         }
     }
 
@@ -1548,8 +1578,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             tmp = 0;
             break;
         }
-        if (vis && canseemon(mdef) && !Deaf)
-            pline("%s reels from the noise!", Monnam(mdef));
+
+        if (!mdef->mstun)
+            mdef->mstun = 1;
+
         if (!rn2(6))
             erode_armor(mdef, ERODE_FRACTURE);
         tmp += destroy_mitem(mdef, RING_CLASS, AD_LOUD);
