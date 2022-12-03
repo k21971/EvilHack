@@ -1501,8 +1501,6 @@ register struct attack *mattk;
             dmg = 0;
         break;
     case AD_LOUD:
-        boolean cancelled = (mtmp->mcan != 0);
-
         /* Assumes that the hero has to hear the monster's
          * scream in order to be affected.
          * Only screams when a certain distance from our hero,
@@ -1512,23 +1510,23 @@ register struct attack *mattk;
             || !m_canseeu(mtmp) || mtmp->mspec_used)
             return FALSE;
 
-        if (!cancelled && canseemon(mtmp) && Deaf) {
+        if (uncancelled && canseemon(mtmp) && Deaf) {
             pline("It looks as if %s is yelling at you.",
                   mon_nam(mtmp));
-        } else if (!cancelled
+        } else if (uncancelled
                    && !canseemon(mtmp) && Deaf) {
             You("sense a disturbing vibration in the air.");
-        } else if (cancelled
+        } else if (mtmp->mcan
                    && canseemon(mtmp) && !Deaf) {
             pline("%s croaks hoarsely.", Monnam(mtmp));
-        } else if (cancelled && !canseemon(mtmp) && !Deaf) {
+        } else if (mtmp->mcan && !canseemon(mtmp) && !Deaf) {
             You_hear("a hoarse croak nearby.");
         }
 
         /* Set mspec->mused */
         mtmp->mspec_used = mtmp->mspec_used + (rn2(6) + 5);
 
-        if (cancelled || Deaf)
+        if (mtmp->mcan || Deaf)
             return FALSE;
 
         if (m_canseeu(mtmp))

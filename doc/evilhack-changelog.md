@@ -2505,4 +2505,5 @@ The following changes to date are:
 - Fix: use-after-free with engulfer in xkilled()
 - Fix: potential use-after-free in expels()
 - Fix: AD_LOUD not doing damage; new monster - celestial dragon
+- Fix: boolean statement in AD_LOUD (mhitu.c)
 
