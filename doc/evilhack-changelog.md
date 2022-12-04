@@ -2514,4 +2514,6 @@ The following changes to date are:
   back a monster into a pool/lava via force bolt/wand of striking
 - Add realtime display option
 - Fix: add some missing 'ifdef REALTIME_ON_BOTL' statements
+- Fix: cursed wands of invisibility cannot revert intrinsic
+  invisibility
 

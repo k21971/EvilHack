@@ -2703,9 +2703,9 @@ boolean ordinary;
             You_feel("rather itchy under %s.", yname(uarmc));
             break;
         }
-        if (!EInvis && (HInvis & TIMEOUT) && obj->cursed) {
+        if (!EInvis && HInvis && obj->cursed) {
             You("become visible.");
-            HInvis = (HInvis & ~TIMEOUT);
+            HInvis = (HInvis & ~(TIMEOUT | INTRINSIC));
             learn_it = TRUE;
             newsym(u.ux, u.uy);
             if (rn2(2)) {
@@ -2719,8 +2719,8 @@ boolean ordinary;
                 else
                     You_feel("an odd sensation for a brief moment.");
             } else {
-	        /* wand and potion now only do temporary invis,
-	         * to make the cloak and ring more useful */
+                /* wand and potion now only do temporary invis,
+                 * to make the cloak and ring more useful */
                 incr_itimeout(&HInvis, d(1 + obj->spe, 250));
                 if (msg) {
                     learn_it = TRUE;
