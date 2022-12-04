@@ -2510,4 +2510,6 @@ The following changes to date are:
 - Add bits to linux-debug hints file for fuzzing with ASAN
 - Fix: segfault when hitting a monster with a poisoned glass object
 - Fix: Sunsword and Trollsbane destroying corpses from a distance
+- Fix: 'dmonsfree: 1 removed doesn't match 2 pending' when knocking
+  back a monster into a pool/lava via force bolt/wand of striking
 

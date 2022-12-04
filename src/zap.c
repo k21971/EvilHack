@@ -142,7 +142,8 @@ struct monst *mtmp;
 struct obj *otmp;
 {
     boolean wake = TRUE; /* Most 'zaps' should wake monster */
-    boolean reveal_invis = FALSE, learn_it = FALSE;
+    boolean reveal_invis = FALSE, learn_it = FALSE,
+            already_killed = FALSE;
     boolean dbldam = Role_if(PM_KNIGHT) && u.uhave.questart;
     boolean skilled_spell, helpful_gesture = FALSE;
     int dmg, otyp = otmp->otyp;
@@ -185,10 +186,12 @@ struct obj *otmp;
                     pline_The("force of %s knocks %s back!",
                               (otyp == SPE_FORCE_BOLT) ? "your spell" : "the wand",
                               mon_nam(mtmp));
-                    mhurtle_to_doom(mtmp, dmg, &mdat, FALSE);
+                    if (mhurtle_to_doom(mtmp, dmg, &mdat, FALSE))
+                        already_killed = TRUE;
                 }
             }
-            (void) resist(mtmp, otmp->oclass, dmg, TELL);
+            if (!already_killed)
+                (void) resist(mtmp, otmp->oclass, dmg, TELL);
         } else
             miss(zap_type_text, mtmp);
         learn_it = TRUE;
