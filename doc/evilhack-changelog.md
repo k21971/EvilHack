@@ -2516,4 +2516,5 @@ The following changes to date are:
 - Fix: add some missing 'ifdef REALTIME_ON_BOTL' statements
 - Fix: cursed wands of invisibility cannot revert intrinsic
   invisibility
+- Update various hints files (clang, hints for github workflow)
 

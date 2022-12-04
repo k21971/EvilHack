@@ -17,13 +17,12 @@ INSTDIR=$(HACKDIR)
 VARDIR = $(HACKDIR)
 
 
-
 POSTINSTALL=cp -n sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf;
 
 CFLAGS=-g3 -O0 -I../include -DNOTPARMDECL -fno-common
 CFLAGS+=-DDLB
 CFLAGS+=-DCOMPRESS=\"/bin/gzip\" -DCOMPRESS_EXTENSION=\".gz\"
-CFLAGS+=-DGCC_WARN -Wall -Wextra -Wformat=2 #-Werror
+CFLAGS+=-DGCC_WARN -Wall -Wextra -Wformat=2
 CFLAGS+=-Wimplicit -Wreturn-type -Wunused -Wswitch -Wshadow -Wwrite-strings
 CFLAGS+=-Wno-format-nonliteral
 CFLAGS+=-Wno-stringop-truncation
@@ -37,6 +36,8 @@ CFLAGS+=-DCONFIG_ERROR_SECURE=FALSE
 CFLAGS+=-DCURSES_GRAPHICS
 CFLAGS+=-DPANICLOG_FMT2
 CFLAGS+=-DTTY_TILES_ESCCODES
+CFLAGS+=-DSCORE_ON_BOTL
+CFLAGS+=-DREALTIME_ON_BOTL
 CFLAGS+=-DDGAMELAUNCH
 CFLAGS+=-DLIVELOG_ENABLE
 CFLAGS+=-DDUMPLOG
