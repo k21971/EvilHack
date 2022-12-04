@@ -828,8 +828,10 @@ bot_via_windowport()
     /* Time (moves) */
     blstats[idx][BL_TIME].a.a_long = moves;
 
+#ifdef REALTIME_ON_BOTL
     /* Realtime */
     Strcpy(blstats[idx][BL_REALTIME].val, botl_realtime());
+#endif
 
     /* Hunger */
     /* note: u.uhs is unsigned, and 3.6.1's STATUS_HILITE defined
@@ -898,14 +900,15 @@ stat_update_time()
     fld = BL_TIME;
     blstats[idx][fld].a.a_long = moves;
     valset[fld] = FALSE;
-
     eval_notify_windowport_field(fld, valset, idx);
 
+#ifdef REALTIME_ON_BOTL
     /* Realtime */
     fld = BL_REALTIME;
     Strcpy(blstats[idx][fld].val, botl_realtime());
     valset[fld] = FALSE;
     eval_notify_windowport_field(fld, valset, idx);
+#endif
 
     if ((windowprocs.wincap2 & WC2_FLUSH_STATUS) != 0L)
         status_update(BL_FLUSH, (genericptr_t) 0, 0, 0,
@@ -1046,7 +1049,9 @@ boolean *valsetlist;
         if (((i == BL_SCORE) && !flags.showscore)
             || ((i == BL_EXP) && !flags.showexp)
             || ((i == BL_TIME) && !flags.time)
+#ifdef REALTIME_ON_BOTL
             || ((i == BL_REALTIME) && !iflags.show_realtime)
+#endif
             || ((i == BL_HD) && !Upolyd)
             || ((i == BL_XP || i == BL_EXP) && Upolyd)) {
             notpresent++;
@@ -1115,7 +1120,9 @@ boolean reassessment; /* TRUE: just recheck fields w/o other initialization */
                      : (fld == BL_EXP) ? (boolean) (flags.showexp && !Upolyd)
                        : (fld == BL_XP) ? (boolean) !Upolyd
                          : (fld == BL_HD) ? (boolean) Upolyd
+#ifdef REALTIME_ON_BOTL
                            : (fld == BL_REALTIME) ? (boolean) iflags.show_realtime
+#endif
                              : TRUE;
 
         fieldname = initblstats[i].fldname;

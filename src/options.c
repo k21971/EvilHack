@@ -49,6 +49,7 @@ enum window_option_types {
 
 static char empty_optstr[] = { '\0' };
 
+#ifdef REALTIME_ON_BOTL
 static const char* realtime_type_strings[] = {
     "disabled",
     "play time",
@@ -60,6 +61,7 @@ static const char* realtime_format_strings[] = {
     "fixed units (hh:mm:ss)",
     "units (xxh:xxm)",
 };
+#endif
 
 /*
  *  NOTE:  If you add (or delete) an option, please update the short

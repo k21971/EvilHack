@@ -2513,4 +2513,5 @@ The following changes to date are:
 - Fix: 'dmonsfree: 1 removed doesn't match 2 pending' when knocking
   back a monster into a pool/lava via force bolt/wand of striking
 - Add realtime display option
+- Fix: add some missing 'ifdef REALTIME_ON_BOTL' statements
 
