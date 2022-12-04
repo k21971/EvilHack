@@ -3940,6 +3940,14 @@
             clude that race from being picked randomly.  Cannot be set with
             the `O' command.  Persistent.
 
+          realtime
+            Display various types of time to show on the status bar.
+            Default is wallclock time.  Persistent.
+
+          realtime_format
+            The format used by the realtime display.
+            Default is fixed units (hh:mm:ss).  Persistent.
+
           rest_on_space
             Make the space bar a synonym for the `.' (#wait)  command  (de-
             fault off).  Persistent.

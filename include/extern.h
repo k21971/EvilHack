@@ -202,6 +202,9 @@ E boolean NDECL(exp_percent_changing);
 E int NDECL(stat_cap_indx);
 E int NDECL(stat_hunger_indx);
 E const char *FDECL(bl_idx_to_fldname, (int));
+#ifdef REALTIME_ON_BOTL
+extern const char *botl_realtime(void);
+#endif
 #ifdef STATUS_HILITES
 E void NDECL(status_eval_next_unhilite);
 E void NDECL(reset_status_hilites);

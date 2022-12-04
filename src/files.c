@@ -4698,7 +4698,7 @@ const char *buffer;
                 if (*c1 == LLOG_SEP) *c1 = '_';
                 c1++;
             }
-            snprintf(tmpbuf, 1024, "lltype=%d%cplayer=%s%crole=%s%crace=%s%cgender=%s%calign=%s%cturns=%ld%cstarttime=%ld%ccurtime=%ld%cmessage=%s\n",
+            snprintf(tmpbuf, 1024, "lltype=%d%cplayer=%s%crole=%s%crace=%s%cgender=%s%calign=%s%cturns=%ld%crealtime=%ld%cstarttime=%ld%ccurtime=%ld%cmessage=%s\n",
                      (ll_type & sysopt.livelog),
                      LLOG_SEP,
                      plname,
@@ -4713,6 +4713,7 @@ const char *buffer;
                      LLOG_SEP,
                      moves,
                      LLOG_SEP,
+                     urealtime.realtime + (getnow() - urealtime.start_timing), LLOG_SEP,
                      (long)ubirthday,
                      LLOG_SEP,
                      (long)time(NULL),

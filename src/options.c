@@ -49,6 +49,18 @@ enum window_option_types {
 
 static char empty_optstr[] = { '\0' };
 
+static const char* realtime_type_strings[] = {
+    "disabled",
+    "play time",
+    "wallclock time",
+};
+static const char* realtime_format_strings[] = {
+    "seconds (s)",
+    "condensed (h:mm)",
+    "fixed units (hh:mm:ss)",
+    "units (xxh:xxm)",
+};
+
 /*
  *  NOTE:  If you add (or delete) an option, please update the short
  *  options help (option_help()), the long options help (dat/opthelp),
@@ -389,6 +401,10 @@ static struct Comp_Opt {
       PL_PSIZ, DISP_IN_GAME },
     { "role", "your starting role (e.g., Barbarian, Valkyrie)", PL_CSIZ,
       DISP_IN_GAME },
+#ifdef REALTIME_ON_BOTL
+    { "realtime", "show realtime in status line", 1, SET_IN_GAME },
+    { "realtime_format", "format of realtime in status line", 1, SET_IN_GAME },
+#endif
     { "runmode", "display frequency when `running' or `travelling'",
       sizeof "teleport", SET_IN_GAME },
     { "scores", "the parts of the score list you wish to see", 32,
@@ -766,6 +782,11 @@ initoptions_init()
     iflags.menu_headings = ATR_INVERSE;
     iflags.getpos_coords = GPCOORDS_NONE;
     iflags.msg_is_alert = FALSE;
+
+#ifdef REALTIME_ON_BOTL
+    iflags.show_realtime = 'w';
+    iflags.realtime_format = 'u';
+#endif
 
     /* hero's role, race, &c haven't been chosen yet */
     flags.initrole = flags.initrace = flags.initgend = flags.initalign
@@ -4026,6 +4047,49 @@ boolean tinitial, tfrom_file;
 #endif
     }
 
+#ifdef REALTIME_ON_BOTL
+      fullname = "realtime";
+      if (match_optname(opts, fullname, 8, TRUE)) {
+          op = string_for_opt(opts, negated);
+          if (op && !negated) {
+              iflags.show_realtime = 'p';
+              if (!strncmpi(op, realtime_type_strings[0], 1)) {
+                  iflags.show_realtime = *realtime_type_strings[0];
+              } else if (!strncmpi(op, realtime_type_strings[1], 1)) {
+                  iflags.show_realtime = *realtime_type_strings[1];
+              } else if (!strncmpi(op, realtime_type_strings[2], 1)) {
+                  iflags.show_realtime = *realtime_type_strings[2];
+              } else {
+                  return FALSE;
+              }
+          } else if (negated) {
+              bad_negation(fullname, TRUE);
+              return FALSE;
+          }
+          return retval;
+      }
+
+      fullname = "realtime_format";
+      if (match_optname(opts, fullname, 15, TRUE)) {
+          op = string_for_opt(opts, negated);
+          if (op && !negated) {
+              if (!strncmpi(op, realtime_format_strings[0], 1)) {
+                  iflags.realtime_format = *realtime_format_strings[0];
+              } else if (!strncmpi(op, realtime_format_strings[1], 1)) {
+                  iflags.realtime_format = *realtime_format_strings[1];
+              } else if (!strncmpi(op, realtime_format_strings[2], 1)) {
+                  iflags.realtime_format = *realtime_format_strings[2];
+              } else {
+                  return FALSE;
+              }
+          } else if (negated) {
+              bad_negation(fullname, TRUE);
+              return FALSE;
+          }
+          return retval;
+      }
+#endif /* REALTIME_ON_BOTL */
+
     fullname = "DECgraphics";
     if (match_optname(opts, fullname, 3, TRUE)) {
 #ifdef BACKWARD_COMPAT
@@ -5050,6 +5114,45 @@ boolean setinitial, setfromfile;
                 destroy_nhwindow(tmpwin);
             }
         }
+#ifdef REALTIME_ON_BOTL
+    } else if (!strcmp("realtime", optname)) {
+        const char *mode_name;
+        menu_item *mode_pick = (menu_item *)0;
+        tmpwin = create_nhwindow(NHW_MENU);
+        start_menu(tmpwin);
+        for (i = 0; i < SIZE(realtime_type_strings); i++) {
+            mode_name = realtime_type_strings[i];
+            any.a_char = *mode_name;
+            add_menu(tmpwin, NO_GLYPH, &any, *mode_name, 0,
+                     ATR_NONE, mode_name, MENU_UNSELECTED);
+        }
+        end_menu(tmpwin, "Type of time to show on status bar:");
+        if (select_menu(tmpwin, PICK_ONE, &mode_pick) > 0) {
+            int tmp = mode_pick->item.a_char;
+            iflags.show_realtime = tmp == 'd' ? '\0' : tmp;
+            free(mode_pick);
+            status_initialize(REASSESS_ONLY);
+        }
+        destroy_nhwindow(tmpwin);
+    } else if (!strcmp("realtime_format", optname)) {
+        const char *mode_name;
+        menu_item *mode_pick = (menu_item *)0;
+        tmpwin = create_nhwindow(NHW_MENU);
+        start_menu(tmpwin);
+        for (i = 0; i < SIZE(realtime_format_strings); i++) {
+            mode_name = realtime_format_strings[i];
+            any.a_char = *mode_name;
+            add_menu(tmpwin, NO_GLYPH, &any, *mode_name, 0,
+                     ATR_NONE, mode_name, MENU_UNSELECTED);
+        }
+        end_menu(tmpwin, "Format used by realtime display:");
+        if (select_menu(tmpwin, PICK_ONE, &mode_pick) > 0) {
+            iflags.realtime_format = mode_pick->item.a_char;
+            free(mode_pick);
+            status_initialize(REASSESS_ONLY);
+        }
+        destroy_nhwindow(tmpwin);
+#endif /* REALTIME_ON_BOTL */
     } else if (!strcmp("runmode", optname)) {
         const char *mode_name;
         menu_item *mode_pick = (menu_item *) 0;
@@ -5949,6 +6052,18 @@ char *buf;
                 symset[ROGUESET].name ? symset[ROGUESET].name : "default");
         if (currentgraphics == ROGUESET && symset[ROGUESET].name)
             Strcat(buf, ", active");
+#ifdef REALTIME_ON_BOTL
+    } else if (!strcmp(optname, "realtime")) {
+        int index = iflags.show_realtime == 'p' ? 1 :
+                    iflags.show_realtime == 'w' ? 2 : 0;
+        Sprintf(buf, "%s", realtime_type_strings[index]);
+    } else if (!strcmp(optname, "realtime_format")) {
+        const char *desc = iflags.realtime_format == 's' ? "seconds" :
+                           iflags.realtime_format == 'c' ? "condensed" :
+                           iflags.realtime_format == 'f' ? "fixed units" :
+                           iflags.realtime_format == 'u' ? "units" : "";
+        Sprintf(buf, "%s", desc);
+#endif /* REALTIME_ON_BOTL */
     } else if (!strcmp(optname, "role")) {
         Sprintf(buf, "%s", rolestring(flags.initrole, roles, name.m));
     } else if (!strcmp(optname, "runmode")) {

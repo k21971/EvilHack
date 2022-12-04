@@ -3463,6 +3463,12 @@ If you prefix the value with \(oq!\(cq or \(lqno\(rq, you will
 exclude that race from being picked randomly.
 Cannot be set with the \(oqO\(cq command.
 Persistent.
+.lp realtime
+Display various types of time to show on the status bar.
+Default is wallclock time.  Persistent.
+.lp realtime_format
+The format used by the realtime display.
+Default is fixed units (hh:mm:ss).  Persistent.
 .lp rest_on_space
 Make the space bar a synonym for the \(oq.\(cq (#wait) command (default off).
 Persistent.

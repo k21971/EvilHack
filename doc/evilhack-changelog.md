@@ -2512,4 +2512,5 @@ The following changes to date are:
 - Fix: Sunsword and Trollsbane destroying corpses from a distance
 - Fix: 'dmonsfree: 1 removed doesn't match 2 pending' when knocking
   back a monster into a pool/lava via force bolt/wand of striking
+- Add realtime display option
 
