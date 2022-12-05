@@ -2519,4 +2519,6 @@ The following changes to date are:
 - Update various hints files (clang, hints for github workflow)
 - Fix: 'Your body rises from the dead as a human zombie...' as an
   illithid
+- Fix: enable -Wstringop-truncation and -Wunused-result, correct
+  warnings revealed
 

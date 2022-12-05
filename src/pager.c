@@ -1565,7 +1565,7 @@ char *supplemental_name;
        (note: strncpy() only terminates output string if the specified
        count is bigger than the length of the substring being copied) */
     if (!strncmp(dbase_str, "moist towel", 11))
-        (void) strncpy(dbase_str += 2, "wet", 3); /* skip "mo" replace "ist" */
+        memcpy(dbase_str += 2, "wet", 3); /* skip "mo" replace "ist" */
 
     /* Remove material, if it exists, but store the original value in
      * dbase_str_with_material. It should be cut out of dbase_str as a prefix

@@ -3262,9 +3262,7 @@ int final;
         you_are("clairvoyant", from_what(CLAIRVOYANT));
     else if ((HClairvoyant || EClairvoyant) && BClairvoyant) {
         Strcpy(buf, from_what(-CLAIRVOYANT));
-        if (!strncmp(buf, " because of ", 12))
-            /* overwrite substring; strncpy doesn't add terminator */
-            (void) strncpy(buf, " if not for ", 12);
+        (void) strsubst(buf, " because of ", " if not for ");
         enl_msg(You_, "could be", "could have been", " clairvoyant", buf);
     }
     if (Infravision)
