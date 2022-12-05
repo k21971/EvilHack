@@ -2517,4 +2517,6 @@ The following changes to date are:
 - Fix: cursed wands of invisibility cannot revert intrinsic
   invisibility
 - Update various hints files (clang, hints for github workflow)
+- Fix: 'Your body rises from the dead as a human zombie...' as an
+  illithid
 
