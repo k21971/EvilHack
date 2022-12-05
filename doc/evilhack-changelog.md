@@ -2521,4 +2521,6 @@ The following changes to date are:
   illithid
 - Fix: enable -Wstringop-truncation and -Wunused-result, correct
   warnings revealed
+- Fix: enable -pedantic and -Wunreachable-code, correct warnings
+  revealed
 

@@ -169,7 +169,7 @@ struct trobj {
 
 #define UNDEF_TYP 0
 #define UNDEF_SPE '\177'
-#define RND_SPE (0x80)
+#define RND_SPE 1
 #define UNDEF_BLESS 2
 #define CURSED 3
 
