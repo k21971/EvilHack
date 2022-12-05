@@ -2524,4 +2524,5 @@ The following changes to date are:
 - Fix: enable -pedantic and -Wunreachable-code, correct warnings
   revealed
 - Enable -Wimplicit-function-declaration and -Wimplicit-int
+- Fix: windows GUI splash screen
 
