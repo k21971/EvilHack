@@ -2523,4 +2523,5 @@ The following changes to date are:
   warnings revealed
 - Fix: enable -pedantic and -Wunreachable-code, correct warnings
   revealed
+- Enable -Wimplicit-function-declaration and -Wimplicit-int
 
