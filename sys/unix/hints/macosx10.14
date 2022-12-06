@@ -21,7 +21,7 @@
 WANT_WIN_TTY=1
 #WANT_WIN_X11=1
 #WANT_WIN_QT=1
-#WANT_WIN_CURSES=1
+WANT_WIN_CURSES=1
 
 # 1a. What is the default window system?
 WANT_DEFAULT=tty
@@ -75,11 +75,17 @@ CFLAGS+=-Wall -Wextra -Wno-missing-field-initializers -Wimplicit -Wreturn-type -
 #CFLAGS+=-Wunreachable-code
 
 # XXX -g vs -O should go here, -I../include goes in the makefile
-CFLAGS+=-g -I../include
+CFLAGS+=-g3 -O0 -I../include
 # older binaries use NOCLIPPING, but that disables SIGWINCH
 #CFLAGS+=-DNOCLIPPING
 CFLAGS+= -DNOMAIL -DNOTPARMDECL -DHACKDIR=\"$(HACKDIR)\"
 CFLAGS+= -DDEFAULT_WINDOW_SYS=\"$(WANT_DEFAULT)\" -DDLB
+CFLAGS+= -DSCORE_ON_BOTL
+CFLAGS+= -DREALTIME_ON_BOTL
+CFLAGS+= -DDGAMELAUNCH
+CFLAGS+= -DLIVELOG_ENABLE
+CFLAGS+= -DDUMPLOG
+CFLAGS+= -DDUMPHTML
 
 CFLAGS+= -DGREPPATH=\"/usr/bin/grep\"
 
