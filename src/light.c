@@ -730,7 +730,7 @@ struct obj *obj;
         long n = obj->quan;
 
         radius = 1; /* always incremented at least once */
-        while(radius * radius <= n) {
+        while(radius * radius <= n && radius < MAX_RADIUS) {
             radius++;
         }
     } else {

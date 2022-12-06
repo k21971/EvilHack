@@ -2527,4 +2527,5 @@ The following changes to date are:
 - Fix: windows GUI splash screen
 - New monster spell: call undead
 - Edit macosx10.14 hints file for github workflow
+- Fix: prevent impossible lighting a massive stack of candles
 
