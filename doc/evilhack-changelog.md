@@ -2525,4 +2525,5 @@ The following changes to date are:
   revealed
 - Enable -Wimplicit-function-declaration and -Wimplicit-int
 - Fix: windows GUI splash screen
+- New monster spell: call undead
 

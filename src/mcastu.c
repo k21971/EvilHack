@@ -43,7 +43,8 @@ enum mcast_cleric_spells {
     CLC_LIGHTNING,
     CLC_FIRE_PILLAR,
     CLC_GEYSER,
-    CLC_SUMMON_ELM
+    CLC_SUMMON_MINION,
+    CLC_CALL_UNDEAD
 };
 
 extern void you_aggravate(struct monst *);
@@ -243,7 +244,7 @@ int spellnum;
             || mtmp->mtame || mtmp->mpeaceful)
             return CLC_FIRE_PILLAR;
         else
-            return CLC_SUMMON_ELM;
+            return CLC_SUMMON_MINION;
     case 12:
         return CLC_GEYSER;
     case 11:
@@ -257,6 +258,8 @@ int spellnum;
     case 9:
         return CLC_CURSE_ITEMS;
     case 8:
+        return CLC_CALL_UNDEAD;
+    case 7:
         if ((is_demon(mtmp->data)
              && mtmp->data != &mons[PM_LOLTH])
             || mtmp->mtame || mtmp->mpeaceful
@@ -264,7 +267,6 @@ int spellnum;
             return CLC_VULN_YOU;
         else
             return CLC_INSECTS;
-    case 7:
     case 6:
         return CLC_BLIND_YOU;
     case 5:
@@ -881,6 +883,7 @@ int spellnum;
     int aligntype, ml = min(mtmp->m_lev, 50);
     static const char *Moloch = "Moloch";
     struct monst *minion = (struct monst *) 0;
+    coord mm;
 
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
         impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
@@ -888,7 +891,7 @@ int spellnum;
     }
 
     switch (spellnum) {
-    case CLC_SUMMON_ELM:
+    case CLC_SUMMON_MINION:
 
         if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
             coord bypos;
@@ -985,6 +988,13 @@ int spellnum;
     case CLC_CURSE_ITEMS:
         You_feel("as if you need some help.");
         rndcurse();
+        dmg = 0;
+        break;
+    case CLC_CALL_UNDEAD:
+        mm.x = u.ux;
+        mm.y = u.uy;
+        pline("Undead creatures are called forth from the grave!");
+        mkundead(&mm, FALSE, NO_MINVENT);
         dmg = 0;
         break;
     case CLC_INSECTS: {
@@ -1244,6 +1254,7 @@ int spellnum;
         case CLC_INSECTS:
         case CLC_CURE_SELF:
         case CLC_PROTECTION:
+        case CLC_CALL_UNDEAD:
             return TRUE;
         default:
             break;
@@ -1260,6 +1271,8 @@ struct monst *mdef;
 unsigned int adtyp;
 int spellnum;
 {
+    boolean evilpriest = (mtmp->ispriest && mon_aligntyp(mtmp) < A_NEUTRAL);
+
     if (adtyp == AD_SPEL) {
         /* aggravate monsters, etc. won't be cast by peaceful monsters */
         if (mtmp->mpeaceful
@@ -1320,6 +1333,14 @@ int spellnum;
         if ((!haseyes(mdef->data) || mdef->mblinded)
             && spellnum == CLC_BLIND_YOU)
             return TRUE;
+        if (mtmp->mpeaceful && spellnum == CLC_CALL_UNDEAD)
+            return TRUE;
+        /* only undead/demonic spell casters, chaotic/unaligned priests
+           and quest nemesis can summon undead */
+        if (spellnum == CLC_CALL_UNDEAD && !is_undead(mtmp->data)
+            && !is_demon(mtmp->data) && !evilpriest
+            && mtmp->data->msound != MS_NEMESIS)
+            return TRUE;
     }
     return FALSE;
 }
@@ -1347,6 +1368,8 @@ int spellnum;
         /* healing when already healed */
         if (u.mh == u.mhmax && spellnum == CLC_CURE_SELF)
             return TRUE;
+        if (spellnum == CLC_CALL_UNDEAD)
+            return TRUE;
     }
     return FALSE;
 }
@@ -1366,6 +1389,7 @@ int spellnum;
      * We really want something like "if the monster could see mux, muy".
      */
     boolean mcouldseeu = couldsee(mtmp->mx, mtmp->my);
+    boolean evilpriest = (mtmp->ispriest && mon_aligntyp(mtmp) < A_NEUTRAL);
 
     if (adtyp == AD_SPEL) {
         /* aggravate monsters, etc. won't be cast by peaceful monsters */
@@ -1445,6 +1469,14 @@ int spellnum;
             return TRUE;
         /* blindness spell on blinded player */
         if (Blinded && spellnum == CLC_BLIND_YOU)
+            return TRUE;
+        if (mtmp->mpeaceful && spellnum == CLC_CALL_UNDEAD)
+            return TRUE;
+        /* only undead/demonic spell casters, chaotic/unaligned priests
+           and quest nemesis can summon undead */
+        if (spellnum == CLC_CALL_UNDEAD && !is_undead(mtmp->data)
+            && !is_demon(mtmp->data) && !evilpriest
+            && mtmp->data->msound != MS_NEMESIS)
             return TRUE;
     }
     return FALSE;
@@ -2247,9 +2279,9 @@ int spellnum;
     }
 
     switch (spellnum) {
-    case CLC_SUMMON_ELM:
+    case CLC_SUMMON_MINION:
         if (!mtmp || mtmp->mhp < 1) {
-            impossible("summon elemental spell with no mtmp");
+            impossible("summon minion spell with no mtmp");
             return;
         }
 
