@@ -1659,11 +1659,14 @@ struct mkroom *croom;
         pm = (struct permonst *) 0;
 
     /* Make Sanctum monsters more friendly to Infidels */
-    if (u.ualign.type == A_NONE && Is_sanctum(&u.uz) && m->peaceful == 0)
-        m->peaceful = 1;
-    /* OTOH, the Astral shouldn't be easy; but the multitude of
-     * renegade minions of Moloch is still silly */
-    if (Role_if(PM_INFIDEL) && Is_astralevel(&u.uz) && amask == AM_NONE)
+    if (Role_if(PM_INFIDEL) && Is_sanctum(&u.uz) && m->peaceful == 0) {
+        if (pm && pm != &mons[PM_LUCIFER])
+            m->peaceful = 1;
+    }
+    /* OTOH, Astral shouldn't be easy for followers of Moloch; but
+       the multitude of renegade minions of Moloch is still silly */
+    if (u.ualign.type == A_NONE && Is_astralevel(&u.uz)
+        && amask == AM_NONE)
         amask = Align2amask(rn1(3, -1));
 
     if (pm) {

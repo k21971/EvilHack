@@ -2058,7 +2058,7 @@ CONTAINER:('(',"crystal chest"),(17,09) {
   OBJECT:('(',"magic marker")
 }
 # Lucifer and his consorts
-MONSTER:('&',"Lucifer"),(04,09)
+MONSTER:('&',"Lucifer"),(04,09),hostile
 MONSTER:('&',"balrog"),(08,08),"Adramalech",asleep,hostile
 MONSTER:('&',"balrog"),(08,11),"Buer",asleep,hostile
 MONSTER:('&',"balrog"),(11,04),"Phongor",asleep,hostile

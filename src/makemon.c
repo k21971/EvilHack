@@ -3187,8 +3187,8 @@ rndmonst()
             if (Inpurg && !likes_purg(ptr))
                 continue;
             ct = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
-	    if (!is_mplayer(ptr))
-	        ct *= 3;
+            if (!is_mplayer(ptr))
+                ct *= 3;
             if (Iniceq && likes_iceq(ptr))
                 ct *= 5;
             if (ct < 0 || ct > 127)
@@ -3704,14 +3704,14 @@ register struct monst *mtmp;
 
     if (always_peaceful(ptr))
         return TRUE;
+
     /* Major demons will sometimes be peaceful to unaligned Infidels.
      * They must pass this 50% check, then the 50% check for chaotics
      * being non-hostile to unaligned, then the usual check for coaligned.
-     * For crowned Infidels, the last two checks are bypassed. */
+     * For crowned Infidels, the random check is bypassed */
     if (always_hostile(ptr)) {
-        if (ual == A_NONE && is_demon(ptr) && rn2(2))
-            return TRUE;
-        else if (ual == A_NONE && u.uevent.uhand_of_elbereth == 4 && is_demon(ptr))
+        if (Role_if(PM_INFIDEL) && is_demon(ptr)
+            && (u.uevent.uhand_of_elbereth || rn2(2)))
             return TRUE;
         else
             return FALSE;
@@ -3739,7 +3739,7 @@ register struct monst *mtmp;
         return FALSE;
 
     /* Chaotic monsters hostile to players with Amulet, except Infidels. */
-    if (mal < A_NEUTRAL && u.uhave.amulet && ual != A_NONE)
+    if (mal < A_NEUTRAL && u.uhave.amulet && !Role_if(PM_INFIDEL))
         return FALSE;
 
     /* minions are hostile to players that have strayed at all */

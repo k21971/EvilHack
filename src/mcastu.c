@@ -436,8 +436,12 @@ boolean foundyou;
             pline("You're enveloped in flames.");
         if (is_demon(mtmp->data) && (how_resistant(FIRE_RES) == 100)) {
             shieldeff(u.ux, u.uy);
-            pline_The("hellish flames sear your soul!");
-            dmg = (dmg + 1) / 2;
+            if (Race_if(PM_DEMON)) {
+                dmg = 0;
+            } else {
+                pline_The("hellish flames sear your soul!");
+                dmg = (dmg + 1) / 2;
+            }
             burn_away_slime();
             break;
         } else if (how_resistant(FIRE_RES) == 100) {
@@ -1657,7 +1661,7 @@ register struct attack *mattk;
         }
         if (is_demon(mtmp->data)
             && (resists_fire(mdef) || defended(mdef, AD_FIRE))
-            && !nonliving(mdef->data)) {
+            && !nonliving(mdef->data) && !is_demon(mdef->data)) {
             shieldeff(mdef->mx, mdef->my);
             if (canseemon(mdef))
                 pline_The("hellish flames sear %s soul!",
@@ -1842,7 +1846,7 @@ register struct attack *mattk;
         }
         if (is_demon(youmonst.data)
             && (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
-            && !nonliving(mtmp->data)) {
+            && !nonliving(mtmp->data) && !is_demon(mtmp->data)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))
                 pline_The("hellish flames sear %s soul!",
