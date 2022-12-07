@@ -2530,4 +2530,5 @@ The following changes to date are:
 - Fix: prevent impossible lighting a massive stack of candles
 - Finish first Purgatory level
 - Fix: peaceful Lucifer
+- Suicide by wand
 

@@ -2485,7 +2485,8 @@ dozap()
         if ((damage = zapyourself(obj, TRUE)) != 0) {
             char buf[BUFSZ];
 
-            Sprintf(buf, "zapped %sself with a wand", uhim());
+            Sprintf(buf, "zapped %sself with %s",
+                    uhim(), an(killer_xname(obj)));
             losehp(Maybe_Half_Phys(damage), buf, NO_KILLER_PREFIX);
         }
     } else {
