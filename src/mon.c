@@ -2624,6 +2624,12 @@ struct monst *magr, *mdef;
         && md == &mons[PM_NEOTHELID])
         return ALLOW_M | ALLOW_TM;
 
+    /* In Purgatory, lost souls will fight living
+       players for a chance at redemption */
+    if (In_purgatory(&u.uz)
+        && is_mplayer(ma) && md == &mons[PM_SPECTRE])
+        return ALLOW_M | ALLOW_TM;
+
     return 0;
 }
 

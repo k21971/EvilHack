@@ -402,8 +402,16 @@
      || (ptr) == &mons[PM_REVENANT] || (ptr) == &mons[PM_BABY_OWLBEAR]            \
      || (ptr) == &mons[PM_HUMAN_ZOMBIE] || (ptr) == &mons[PM_GIANT_ZOMBIE]        \
      || (ptr) == &mons[PM_LICH])
+/* Goblin Town branch defines */
 #define likes_gtown(ptr) \
     ((ptr)->mlet == S_ORC || (ptr)->mlet == S_KOBOLD || is_rat(ptr))
+/* Purgatory defines */
+#define likes_purg(ptr) \
+    ((ptr)->mlet == S_DRAGON || (ptr)->mlet == S_NYMPH                 \
+     || (ptr)->mlet == S_UNICORN || (ptr)->mlet == S_CENTAUR           \
+     || (ptr)->mlet == S_JABBERWOCK || (ptr)->mlet == S_NYMPH          \
+     || ((ptr) >= &mons[PM_ARCHEOLOGIST] && (ptr) <= &mons[PM_WIZARD]) \
+     || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_GHOST])
 
 /* macros for various monsters affected by specific types of damage */
 #define can_vaporize(ptr) \

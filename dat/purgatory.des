@@ -96,6 +96,15 @@ T......PPPPP.TT.....TTT...TTT.......T.PPPPPP...........TTT..|..............|
 T........PPPPTT.....TTT...TTT........TTTT....TTT......PPPPP...............TT
 T..TTTT...PPP...T.....TTTTT.............................PPPPPP....TTTTTTTTTT
 ENDMAP
+
+# Random monsters
+$monster = monster: { 'C','D','J','n' }
+SHUFFLE: $monster
+
+# Player monster locations (one will always be blank)
+$place = { (02,09),(21,02),(15,15),(40,07),(57,05),(63,12),(32,17) }
+SHUFFLE: $place
+
 REGION:(00,00,75,19),lit,"ordinary"
 TELEPORT_REGION:(02,16,03,18),(00,00,00,00)
 BRANCH:(01,16,01,16),(0,0,0,0)
@@ -112,3 +121,63 @@ FOUNTAIN:(24,14)
 FOUNTAIN:(26,16)
 FORGE:(72,02)
 FORGE:(72,12)
+
+# Monsters
+MONSTER:('@',"barbarian"),$place[0]
+MONSTER:('@',"knight"),$place[1]
+MONSTER:('@',"wizard"),$place[2]
+MONSTER:('@',"healer"),$place[3]
+MONSTER:('@',"infidel"),$place[4]
+MONSTER:('@',"rogue"),$place[5]
+
+MONSTER:(' ',"spectre"),(01,09)
+MONSTER:(' ',"spectre"),(03,09)
+MONSTER:(' ',"spectre"),(02,08)
+MONSTER:(' ',"spectre"),(20,02)
+MONSTER:(' ',"spectre"),(22,02)
+MONSTER:(' ',"spectre"),(21,03)
+MONSTER:(' ',"spectre"),(14,15)
+MONSTER:(' ',"spectre"),(16,15)
+MONSTER:(' ',"spectre"),(16,16)
+MONSTER:(' ',"spectre"),(40,06)
+MONSTER:(' ',"spectre"),(40,08)
+MONSTER:(' ',"spectre"),(39,07)
+MONSTER:(' ',"spectre"),(57,04)
+MONSTER:(' ',"spectre"),(58,05)
+MONSTER:(' ',"spectre"),(58,06)
+MONSTER:(' ',"spectre"),(63,11)
+MONSTER:(' ',"spectre"),(62,12)
+MONSTER:(' ',"spectre"),(64,12)
+MONSTER:(' ',"spectre"),(31,17)
+MONSTER:(' ',"spectre"),(33,17)
+MONSTER:(' ',"spectre"),(33,18)
+
+MONSTER:('J',"vorpal jabberwock"),(69,07)
+
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:'D',random
+MONSTER:'D',random
+MONSTER:$monster[0],random
+MONSTER:$monster[0],random
+MONSTER:$monster[3],random
+MONSTER:$monster[3],random
+MONSTER:$monster[0],random
+MONSTER:$monster[1],random
+MONSTER:$monster[2],random
+MONSTER:$monster[3],random
+MONSTER:$monster[0],random
+MONSTER:$monster[1],random
+MONSTER:$monster[2],random
+MONSTER:$monster[3],random

@@ -826,8 +826,11 @@ void
 intervene()
 {
     struct monst *mtmp = (struct monst *) 0;
-    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(8);
-    /* many cases don't apply on the Astral level or Planes */
+    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(11);
+    /* many cases don't apply on the Astral level or Planes.
+       with the introduction of Purgatory, the ascension run
+       has been shortened by quite a bit. the odds of Rodney
+       appearing have been increased */
     switch (which) {
     case 0:
         You_feel("apprehensive.");
@@ -847,9 +850,12 @@ intervene()
         (void) nasty((struct monst *) 0, FALSE);
         break;
     case 5:
+    case 6:
+    case 7:
+    case 8:
         resurrect();
         break;
-    case 6:
+    case 9:
         if (u.uevent.invoked) {
             pline_The("entire dungeon starts shaking around you!");
             do_earthquake((MAXULEV - 1) / 3 + 1);
@@ -862,7 +868,7 @@ intervene()
             awaken_monsters(ROWNO * COLNO);
         }
         break;
-    case 7:
+    case 10:
         (void) nasty((struct monst *) 0, TRUE);
         break;
     }
@@ -1001,6 +1007,37 @@ register struct monst *mtmp;
             pline("%s casts aspersions on your ancestry.", Monnam(mtmp));
         else
             com_pager(rn2(QTN_DEMONIC) + QT_DEMONIC);
+    }
+}
+
+const char *const random_mplayer_amulet[] = {
+    "Give me the Amulet of Yendor",
+    "Where is the Amulet?  I need it to escape this place",
+    "This isn't Purgatory, it's Hell with a nice view",
+    "Either you relinquish the Amulet now, or I will kill you"
+};
+
+const char *const random_mplayer_idol[] = {
+    "Give me the Idol of Moloch",
+    "Where is the Idol?  I need it to escape this place",
+    "This isn't Purgatory, it's Hell with a nice view",
+    "Either you relinquish the Idol now, or I will kill you"
+};
+
+/* Player monsters harass the player in Purgatory */
+void
+mplayer_purg_talk(mtmp)
+register struct monst *mtmp;
+{
+    if (Deaf)
+        return;
+    if (is_mplayer(mtmp->data)) {
+        if (Role_if(PM_INFIDEL))
+            verbalize("%s!",
+                      random_mplayer_idol[rn2(SIZE(random_mplayer_idol))]);
+        else
+            verbalize("%s!",
+                      random_mplayer_amulet[rn2(SIZE(random_mplayer_amulet))]);
     }
 }
 

@@ -1959,6 +1959,9 @@ boolean at_stairs, falling, portal;
             final_level(); /* guardian angel,&c */
         else if (newdungeon && u.uhave.amulet)
             resurrect(); /* force confrontation with Wizard */
+    } else if (In_purgatory(&u.uz)) {
+        if (newdungeon && u.uhave.amulet)
+            resurrect(); /* force confrontation with Wizard */
     } else if (In_quest(&u.uz)) {
         onquest(); /* might be reaching locate|goal level */
     } else if (In_V_tower(&u.uz)) {

@@ -3184,6 +3184,8 @@ rndmonst()
                 continue;
             if (Ingtown && !likes_gtown(ptr))
                 continue;
+            if (Inpurg && !likes_purg(ptr))
+                continue;
             ct = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
 	    if (!is_mplayer(ptr))
 	        ct *= 3;
