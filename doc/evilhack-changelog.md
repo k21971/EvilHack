@@ -2532,4 +2532,5 @@ The following changes to date are:
 - Fix: peaceful Lucifer
 - Suicide by wand
 - Enable -DEDIT_GETLIN for public server play
+- Secespita tweaks
 

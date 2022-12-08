@@ -230,7 +230,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     /* The energy drain only works if the artifact kills its victim.
      * Also increases sacrifice value while wielded. */
     A("Secespita", KNIFE, (SPFX_RESTR | SPFX_ATTK), 0, 0,
-      DREN(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_INFIDEL, NON_PM,
+      DREN(8, 8), DFNS(AD_DRST), NO_CARY, 0, A_CHAOTIC, PM_INFIDEL, NON_PM,
       1000L, NO_COLOR),
     /* Bag of the Hesperides - this is the magicbal bag obtained by Perseus
      * from the Hesperides (nymphs) to contain and transport Medusa's head.
