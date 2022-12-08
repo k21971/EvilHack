@@ -1470,7 +1470,7 @@ NEARDATA struct permonst mons[] = {
         M2_NOPOLY | M2_MINION | M2_STALK | M2_STRONG | M2_NASTY | M2_LORD,
         M3_INFRAVISIBLE | M3_INFRAVISION, 0, MH_ANGEL, 21, CLR_BLACK),
     /* You'll only ever be graced by the presence of an Archangel
-     * on the Astral Plane. And one other place... */
+     * on the Astral Plane. And one or two other places... */
     MON("Archangel", S_ANGEL, LVL(18, 16, -6, 70, 15),
         (G_NOGEN | G_NOCORPSE | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_WEAP, AD_PHYS, 2, 4),

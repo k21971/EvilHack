@@ -8,7 +8,8 @@
 #
 MAZE: "purgatory-1",' '
 FLAGS: noteleport,hardfloor,solidify,shortsighted
-
+MESSAGE: "You stand atop a craggly mountain."
+MESSAGE: "A deep chasm lies between you and an ancient palace."
 GEOMETRY:left,center
 #         1         2         3         4         5         6         7    7
 #123456789012345678901234567890123456789012345678901234567890123456789012345
@@ -18,15 +19,15 @@ MAP
 |.|.........|.TT..AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 |.+.........|..TTT..AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 |.|.........|..........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAA....
-|--.........|--------....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.......AAAAAAAA...T..
-|.+.........|}}}}}}}|.T....AAAAAAAAAA...AAAAAAAAAAAAAA...AAAA..AAAAAA.TT....
+|--...T.....|--------....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.......AAAAAAAA...T..
+|.+..T......|}}}}}}}|.T....AAAAAAAAAA...AAAAAAAAAAAAAA...AAAA..AAAAAA.TT....
 |.|.T.......|}......----------AAAAAA.....AAAAAAAAAAA...AAAAAAA..AAAA...--...
 |--.........|}...............+.AAAAAA.....AAAAAAAA....AAAAAAAA...AA...--....
 |.S.\.......|}...............+..AAAAAA...AAAAAA......AAAAAAAAAA.......|.....
 |--.........|}...............+....AAAAAAAAAAAA..T..AAAAAAAAAAAAA......--....
 |.|.T.......|}......----------AA...AAAAAAAAAA.....AAAAAAAAAAAAAAAAAA...--...
-|.+.........|}}}}}}}|......AAAAAAA....AAAA....AAAAAAAAAAAAAAAAAAAAAAA......T
-|--.........|--------..T.AAAAAAAAAAA...AA...AAAAAAAAAAAAAAAAAAAAAAAAAA..TT..
+|.+..T......|}}}}}}}|......AAAAAAA....AAAA....AAAAAAAAAAAAAAAAAAAAAAA......T
+|--...T.....|--------..T.AAAAAAAAAAA...AA...AAAAAAAAAAAAAAAAAAAAAAAAAA..TT..
 |.|.........|.t...TT...AAAAAAAAAAAAAAA....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT...
 |.+.........|tt.....AAAAAAAAAAAAAAAAAAAA..AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 |.|.........|...T.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -34,6 +35,19 @@ MAP
 .AA.T.AA...A...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ENDMAP
+
+# Random monsters
+$monster = monster: { 'D','J' }
+SHUFFLE: $monster
+
+# Player monster locations (one will always be blank)
+$place = { (16,15),(31,09),(47,10),(73,14) }
+SHUFFLE: $place
+
+# Palace guard locations (one will always be blank)
+$palace = { (01,03),(01,06),(01,12),(01,15) }
+SHUFFLE: $palace
+
 REGION:(00,00,75,19),lit,"ordinary"
 REGION:(01,02,11,16),lit,"throne",unfilled
 TELEPORT_REGION:(72,08,74,10),(00,00,00,00)
@@ -57,8 +71,44 @@ DOOR:locked,(29,09)
 DOOR:locked,(29,10)
 
 # Decoration
-FOUNTAIN:(06,04)
-FOUNTAIN:(06,14)
+FOUNTAIN:(06,03)
+FOUNTAIN:(06,15)
+
+# Monsters
+MONSTER:('A',"Archangel"),(04,09),asleep,hostile
+
+MONSTER:('A',"Aleax"),$palace[0],asleep,hostile
+MONSTER:('A',"Angel"),$palace[1],asleep,hostile
+MONSTER:'J',$palace[2],asleep,hostile
+
+MONSTER:('@',"valkyrie"),$place[0]
+MONSTER:('@',"priest"),$place[1]
+MONSTER:('@',"ranger"),$place[2]
+
+MONSTER:('D',"celestial dragon"),(20,09),hostile
+MONSTER:(';',"kraken"),(14,06),hostile
+MONSTER:(';',"kraken"),(18,06),hostile
+MONSTER:(';',"kraken"),(14,12),hostile
+MONSTER:(';',"kraken"),(18,12),hostile
+
+MONSTER:'C',(38,07),hostile {
+  OBJECT:(')',"elven bow"),uncursed
+  OBJECT:(')',"elven arrow"),uncursed,quantity:100
+}
+
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"ghost"),random
+MONSTER:(' ',"spectre"),random
+MONSTER:(' ',"spectre"),random
+MONSTER:(' ',"spectre"),random
+MONSTER:(' ',"spectre"),random
+MONSTER:(' ',"spectre"),random
+MONSTER:$monster[0],random
+MONSTER:$monster[1],random
+MONSTER:$monster[0],random
+MONSTER:$monster[1],random
 
 # Loot
 OBJECT:('(',"crystal chest"),(01,02)
@@ -66,6 +116,14 @@ OBJECT:('(',"crystal chest"),(01,07)
 OBJECT:('(',"crystal chest"),(01,11)
 OBJECT:('(',"crystal chest"),(01,16)
 OBJECT:('/',"opening"),(13,14)
+OBJECT:('%',"egg"), (02,00), montype:"celestial dragon"
+[50%]: OBJECT: ('%',"egg"), (02,00), montype:"celestial dragon"
+
+# Walls in the palace are non diggable and non passable
+NON_DIGGABLE:(00,01,12,17)
+NON_DIGGABLE:(12,05,29,13)
+NON_PASSWALL:(00,01,12,17)
+NON_PASSWALL:(12,05,29,13)
 
 
 MAZE: "purgatory-2",' '
@@ -110,6 +168,7 @@ TELEPORT_REGION:(02,16,03,18),(00,00,00,00)
 BRANCH:(01,16,01,16),(0,0,0,0)
 # Stairs
 STAIR:(73,07),up
+ENGRAVING:(72,07),burn,"To the Mountain of Purgatory"
 
 # Entrances to main room
 DOOR:locked,(66,06)

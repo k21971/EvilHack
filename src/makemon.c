@@ -1369,7 +1369,7 @@ register struct monst *mtmp;
                and maybe make it special */
             int typ = rn2(2) ? LONG_SWORD : HEAVY_MACE;
             otmp = mksobj(typ, FALSE, FALSE);
-            if ((!rn2(20) || is_lord(ptr))
+            if ((!rn2(20) || is_lord(ptr) || is_prince(ptr))
                 && sgn(mtmp->isminion ? EMIN(mtmp)->min_align
                                       : ptr->maligntyp) == A_LAWFUL) {
                 otmp = oname(otmp, artiname(typ == LONG_SWORD
@@ -1383,9 +1383,10 @@ register struct monst *mtmp;
             otmp->spe = rn2(4);
             (void) mpickobj(mtmp, otmp);
 
-            otmp = mksobj(!rn2(4) || is_lord(ptr) ? SHIELD_OF_REFLECTION
-                                                  : rn2(3) ? LARGE_SHIELD
-                                                           : SHIELD_OF_LIGHT,
+            otmp = mksobj((!rn2(4) || is_lord(ptr) || is_prince(ptr))
+                          ? SHIELD_OF_REFLECTION
+                          : rn2(3) ? LARGE_SHIELD
+                                   : SHIELD_OF_LIGHT,
                           FALSE, FALSE);
             /* uncurse(otmp); -- mksobj(,FALSE,) item is always uncursed */
             otmp->oerodeproof = TRUE;

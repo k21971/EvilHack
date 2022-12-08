@@ -657,4 +657,4 @@ MONSTER:'E',random,hostile
 MONSTER:'J',random,hostile
 MONSTER:'D',random,hostile
 MONSTER:'D',random,hostile
-MONSTER:'D',random,hostile
+MONSTER:('D',"celestial dragon"),random,hostile
