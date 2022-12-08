@@ -2534,4 +2534,5 @@ The following changes to date are:
 - Enable -DEDIT_GETLIN for public server play
 - Secespita tweaks
 - Finish second and final Purgatory level
+- Adjust odds of the Wizard of Yendor resurrecting (again)
 
