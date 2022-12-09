@@ -2008,6 +2008,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     hpmax_p = &u.mhmax;
                     /* [can't use youmonst.m_lev] */
                     lowerlimit = min((int) youmonst.data->mlevel, u.ulevel);
+                    if (lowerlimit <= 0)
+                        lowerlimit = 1;
                 } else {
                     hpmax_p = &u.uhpmax;
                     lowerlimit = u.ulevel;
@@ -2018,9 +2020,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     *hpmax_p = lowerlimit;
                 /* else unlikely...
                  * already at or below minimum threshold; do nothing */
-                if (u.uhp > *hpmax_p)
-                    u.uhp = *hpmax_p; /* prevent hit points from being greater
-                                         than max hit points */
+
+                if (!Upolyd) {
+                    if (u.uhp > *hpmax_p)
+                        u.uhp = *hpmax_p;
+                } else {
+                    if (u.mh > *hpmax_p)
+                        u.mh = *hpmax_p;
+                }
                 context.botl = 1;
             }
         } else if (!youdefend && !immune_death_magic(mdef->data)) {

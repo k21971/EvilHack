@@ -2535,4 +2535,7 @@ The following changes to date are:
 - Secespita tweaks
 - Finish second and final Purgatory level
 - Adjust odds of the Wizard of Yendor resurrecting (again)
+- Fix: if poly form was killed from being hit by the Wand of
+  Orcus, max hitpoints were not restored when reverting to
+  original form
 
