@@ -2539,4 +2539,6 @@ The following changes to date are:
   Orcus, max hitpoints were not restored when reverting to
   original form
 - Forging artifacts
+- Fix: poisoned objects becoming unpoisoned would not update
+  their status in curses mode (perm_invent)
 

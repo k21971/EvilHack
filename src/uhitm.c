@@ -1832,9 +1832,11 @@ int dieroll;
         context.botl = TRUE;
     }
 
-    if (unpoisonmsg)
+    if (unpoisonmsg) {
         Your("%s %s no longer poisoned.", saved_oname,
              vtense(saved_oname, "are"));
+        update_inventory();
+    }
 
     if (!destroyed) {
         print_mon_wounded(mon, saved_mhp);
