@@ -35,6 +35,7 @@ static const char *artifact_names[] = {
 #define     DREN(a,b)   {0,AD_DREN,a,b}         /* drains energy */
 #define     STON(a,b)   {0,AD_STON,a,b}         /* petrification */
 #define     DETH(a,b)   {0,AD_DETH,a,b}         /* special death attack */
+#define     DISN(a,b)   {0,AD_DISN,a,b}         /* disintegration attack */
 /* clang-format on */
 
 STATIC_OVL NEARDATA struct artifact artilist[] = {
@@ -264,7 +265,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("Wand of Orcus", ROD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
       SPFX_EXCLUDE, 0, DETH(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
-      NON_PM, NON_PM, 10000L, CLR_BLACK),
+      NON_PM, NON_PM, 75000L, CLR_BLACK),
     /* The Eye of Vecna, which Vecna will sometimes death drop
        before the rest of his body crumbles to dust */
     A("The Eye of Vecna", EYEBALL,
@@ -287,6 +288,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_RESTR | SPFX_INTEL | SPFX_PROTECT | SPFX_WARN | SPFX_DFLAGH), 0,
       MH_DEMON, PHYS(8, 8), DFNS(AD_MAGM), NO_CARY, 0, A_LAWFUL, NON_PM, PM_DWARF,
       9000L, CLR_RED),
+    /* The Sword of Annihilation can only be created by forging the
+       artifacts Fire Brand and Frost Brand together. Their combined
+       magic and energy form to produce a sword capable of
+       disintegrating most anything it hits, while protecting the
+       one that wields it from the same type of attack */
+    A("The Sword of Annihilation", LONG_SWORD,
+     (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL),
+     0, 0, DISN(5, 12), DFNS(AD_DISN), NO_CARY, 0, A_NONE,
+     NON_PM, NON_PM, 25000L, CLR_BLACK),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.
@@ -463,6 +473,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
 #undef DREN
 #undef STON
 #undef DETH
+#undef DISN
 #endif
 
 /*artilist.h*/

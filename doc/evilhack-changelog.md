@@ -2538,4 +2538,5 @@ The following changes to date are:
 - Fix: if poly form was killed from being hit by the Wand of
   Orcus, max hitpoints were not restored when reverting to
   original form
+- Forging artifacts
 
