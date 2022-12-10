@@ -2541,4 +2541,5 @@ The following changes to date are:
 - Forging artifacts
 - Fix: poisoned objects becoming unpoisoned would not update
   their status in curses mode (perm_invent)
+- New forging artifact recipe - Glamdring
 

@@ -384,12 +384,7 @@ lava:
 }
 
 /* forging recipes - first object is the end result
-   of combining objects two and three
-   TODO: could easily allow all sorts of magical
-   objects (or even artifacts) to be forged, but that
-   feels overpowered without needing some other
-   component added to the mix, or maybe have the
-   forge be used up, or both */
+   of combining objects two and three */
 static const struct forge_recipe {
     short result_typ;
     short typ1;
@@ -497,6 +492,7 @@ static const struct forge_arti {
 } artifusions[] = {
     /* artifacts */
     { ART_SWORD_OF_ANNIHILATION, ART_FIRE_BRAND, ART_FROST_BRAND },
+    { ART_GLAMDRING, ART_ORCRIST, ART_STING },
     { 0, 0, 0 }
 };
 
@@ -632,7 +628,19 @@ doforging(void)
             output = addinv(output);
             output->owt = weight(output);
             You("have successfully forged %s.", doname(output));
+            livelog_printf(LL_ARTIFACT, "used a forge to create %s",
+                           artiname(output->oartifact));
             update_inventory();
+
+            /* special events that may happen when a
+               particular artifact is forged go here */
+            if (output->oartifact == ART_GLAMDRING
+                && Role_if(PM_WIZARD)) {
+                /* how else did Gandalf learn to use
+                   a sword? */
+                unrestrict_weapon_skill(P_LONG_SWORD);
+                P_MAX_SKILL(P_LONG_SWORD) = P_SKILLED;
+            }
 
             /* forging an artifact is too much stress for the forge */
             coolforge(u.ux, u.uy);

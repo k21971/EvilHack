@@ -294,9 +294,18 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        disintegrating most anything it hits, while protecting the
        one that wields it from the same type of attack */
     A("The Sword of Annihilation", LONG_SWORD,
-     (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL),
-     0, 0, DISN(5, 12), DFNS(AD_DISN), NO_CARY, 0, A_NONE,
-     NON_PM, NON_PM, 25000L, CLR_BLACK),
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL),
+      0, 0, DISN(5, 12), DFNS(AD_DISN), NO_CARY, 0, A_NONE,
+      NON_PM, NON_PM, 25000L, CLR_BLACK),
+    /* Glamdring, from the LotR series by J.R.R Tolkien. This was the
+     * sword that was found along side Orcrist and Sting in a troll cave,
+     * and was used by Gandalf thereafter. Like its brethren, this sword
+     * glows blue in the presence of orcs. In EvilHack, can only come into
+     * existience by forging Orcrist and Sting together */
+    A("Glamdring", ELVEN_LONG_SWORD,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_WARN | SPFX_PROTECT | SPFX_DFLAGH),
+      0, MH_ORC, PHYS(8, 0), DFNS(AD_ELEC), NO_CARY, 0, A_CHAOTIC,
+      NON_PM, PM_ELF, 8000L, CLR_BRIGHT_BLUE),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.
