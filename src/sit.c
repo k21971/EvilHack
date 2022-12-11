@@ -376,7 +376,9 @@ rndcurse()
 
     if ((wielding_artifact(ART_MAGICBANE) && rn2(20))
          || (wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI) && rn2(30))) {
-        You(mal_aura, "the magic-absorbing staff");
+        You(mal_aura,
+            wielding_artifact(ART_MAGICBANE) ? "the magic-absorbing staff"
+                                             : "the powerful staff");
         return;
     }
 
@@ -452,7 +454,9 @@ struct monst *mtmp;
         && (((MON_WEP(mtmp)->oartifact == ART_MAGICBANE) && rn2(20))
              || ((MON_WEP(mtmp)->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
                  && rn2(30)))) {
-        You(mal_aura, "the magic-absorbing staff");
+        You(mal_aura,
+            (MON_WEP(mtmp)->oartifact == ART_MAGICBANE)
+                ? "the magic-absorbing staff" : "the powerful staff");
         return;
     }
 

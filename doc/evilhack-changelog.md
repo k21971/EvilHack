@@ -2546,4 +2546,5 @@ The following changes to date are:
 - Make spheres' explosions passive as well as active
 - Don't grant tame djinni from lamps/potions if player is petless
 - The Staff of the Archmagi keeps curse protection from Magicbane
+- Change feedback when the Staff of the Archmagi absorbs a curse
 
