@@ -2543,4 +2543,5 @@ The following changes to date are:
   their status in curses mode (perm_invent)
 - New forging artifact recipe - Glamdring
 - New forging artifact recipe - The Staff of the Archmagi
+- Make spheres' explosions passive as well as active
 
