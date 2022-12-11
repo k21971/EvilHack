@@ -2331,7 +2331,7 @@ switch_terrain()
     }
     /* the same terrain that blocks levitation also blocks flight */
     if (blocklev) {
-        if (Flying)
+        if (Flying && !Passes_walls)
             You_cant("fly in here.");
         BFlying |= FROMOUTSIDE;
     } else if (BFlying) {

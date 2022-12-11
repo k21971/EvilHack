@@ -2087,25 +2087,34 @@ int spell;
     /* For those classes that don't cast well, wielding one of these
      * special staves should be a significant help.
      */
-    if (uwep && uwep->otyp >= STAFF_OF_DIVINATION && uwep->otyp <= STAFF_OF_WAR) {
+    if (uwep && uwep->otyp >= STAFF_OF_DIVINATION && uwep->otyp <= ASHWOOD_STAFF) {
 #define STAFFBONUS 50
         if (spell_skilltype(spellid(spell)) == P_CLERIC_SPELL
-            && uwep->otyp == STAFF_OF_HOLINESS)
+            && (uwep->otyp == STAFF_OF_HOLINESS
+                || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
         if (spell_skilltype(spellid(spell)) == P_HEALING_SPELL
-            && uwep->otyp == STAFF_OF_HEALING)
+            && (uwep->otyp == STAFF_OF_HEALING
+                || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
         if (spell_skilltype(spellid(spell)) == P_DIVINATION_SPELL
-            && uwep->otyp == STAFF_OF_DIVINATION)
+            && (uwep->otyp == STAFF_OF_DIVINATION
+                || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
         if (spell_skilltype(spellid(spell)) == P_MATTER_SPELL
-            && uwep->otyp == STAFF_OF_MATTER)
+            && (uwep->otyp == STAFF_OF_MATTER
+                || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
         if (spell_skilltype(spellid(spell)) == P_ESCAPE_SPELL
-            && uwep->otyp == STAFF_OF_ESCAPE)
+            && (uwep->otyp == STAFF_OF_ESCAPE
+                || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
         if (spell_skilltype(spellid(spell)) == P_ATTACK_SPELL
-            && uwep->otyp == STAFF_OF_WAR)
+            && (uwep->otyp == STAFF_OF_WAR
+                || uwep->otyp == ASHWOOD_STAFF))
+            chance += STAFFBONUS;
+        if (spell_skilltype(spellid(spell)) == P_ENCHANTMENT_SPELL
+            && uwep->otyp == ASHWOOD_STAFF)
             chance += STAFFBONUS;
 #undef STAFFBONUS
     }

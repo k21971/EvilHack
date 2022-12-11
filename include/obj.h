@@ -233,11 +233,12 @@ struct obj {
      || otmp->oartifact == ART_WAND_OF_ORCUS || otmp->oartifact == ART_GLAMDRING)
 
 #define non_wishable_artifact(otmp) \
-    (otmp->oartifact == ART_MAGIC___BALL || otmp->oartifact == ART_LIFESTEALER            \
-     || otmp->oartifact == ART_BAG_OF_THE_HESPERIDES || otmp->oartifact == ART_BUTCHER    \
-     || otmp->oartifact == ART_WAND_OF_ORCUS || otmp->oartifact == ART_EYE_OF_VECNA       \
-     || otmp->oartifact == ART_HAND_OF_VECNA || otmp->oartifact == ART_SWORD_OF_KAS       \
-     || otmp->oartifact == ART_SWORD_OF_ANNIHILATION || otmp->oartifact == ART_GLAMDRING)
+    (otmp->oartifact == ART_MAGIC___BALL || otmp->oartifact == ART_LIFESTEALER           \
+     || otmp->oartifact == ART_BAG_OF_THE_HESPERIDES || otmp->oartifact == ART_BUTCHER   \
+     || otmp->oartifact == ART_WAND_OF_ORCUS || otmp->oartifact == ART_EYE_OF_VECNA      \
+     || otmp->oartifact == ART_HAND_OF_VECNA || otmp->oartifact == ART_SWORD_OF_KAS      \
+     || otmp->oartifact == ART_SWORD_OF_ANNIHILATION || otmp->oartifact == ART_GLAMDRING \
+     || otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
 
 #define is_magical_staff(otmp) \
     (otmp->otyp == STAFF_OF_DIVINATION || otmp->otyp == STAFF_OF_HEALING \

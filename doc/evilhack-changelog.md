@@ -2542,4 +2542,5 @@ The following changes to date are:
 - Fix: poisoned objects becoming unpoisoned would not update
   their status in curses mode (perm_invent)
 - New forging artifact recipe - Glamdring
+- New forging artifact recipe - The Staff of the Archmagi
 

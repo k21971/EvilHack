@@ -563,6 +563,8 @@ boolean resuming;
                                 && racial_orc(mtmp))
                             || (wielding_artifact(ART_ORCRIST)
                                 && racial_orc(mtmp))
+                            || (wielding_artifact(ART_GLAMDRING)
+                                && racial_orc(mtmp))
                             || (wielding_artifact(ART_GRIMTOOTH)
                                 && racial_elf(mtmp))
                             || (wielding_artifact(ART_GIANTSLAYER)

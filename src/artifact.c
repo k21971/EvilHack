@@ -1499,7 +1499,8 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
         *dmgptr += rnd(4); /* (3..5)d4 */
     }
     if (dieroll <= (scare_dieroll / 2)
-        && mb->oartifact != ART_BUTCHER) {
+        && mb->oartifact != ART_BUTCHER
+        && mb->oartifact != ART_STAFF_OF_THE_ARCHMAGI) {
         attack_indx = MB_INDEX_CANCEL;
         *dmgptr += rnd(4); /* (4..6)d4 */
     }
@@ -1510,6 +1511,9 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
         result = TRUE;
         if (mb->oartifact == ART_MAGICBANE)
             pline_The("magic-absorbing staff %s %s!",
+                      vtense((const char *) 0, verb), hittee);
+        else if (mb->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
+            pline_The("powerful staff %s %s!",
                       vtense((const char *) 0, verb), hittee);
         else
             pline_The("massive triple-headed flail %s %s!",
@@ -3266,6 +3270,10 @@ struct obj *obj;
 
     if (obj && obj->otyp == SHIELD_OF_LIGHT
         && (obj->owornmask & W_ARMS) != 0L)
+        return TRUE;
+
+    if (get_artifact(obj)
+        && obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
         return TRUE;
 
     return (boolean) (get_artifact(obj) && obj->oartifact == ART_SUNSWORD);

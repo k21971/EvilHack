@@ -1099,6 +1099,9 @@ register struct obj *obj;
     if (wielding_artifact(ART_ORCRIST) && racial_orc(mtmp))
         return FALSE;
 
+    if (wielding_artifact(ART_GLAMDRING) && racial_orc(mtmp))
+        return FALSE;
+
     if (wielding_artifact(ART_GRIMTOOTH) && racial_elf(mtmp))
         return FALSE;
 

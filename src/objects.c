@@ -308,6 +308,9 @@ WEAPON("staff of escape", "darkwood staff",
        0, 0, 1, 1,  5,  40, 400,  6,  6, 0, B,   P_QUARTERSTAFF, WOOD, CLR_BLACK),
 WEAPON("staff of war", "ironshod staff",
        0, 0, 1, 1,  5,  50, 425,  6,  6, 2, B,   P_QUARTERSTAFF, IRON, HI_METAL),
+/* template for the Staff of the Archmagi */
+WEAPON("ashwood staff", None,
+       0, 0, 1, 1,  0,  40, 600,  8, 10, 0, B,   P_QUARTERSTAFF, WOOD, CLR_WHITE),
 /* two-piece */
 WEAPON("aklys", "thonged club",
        0, 0, 0, 0,  8,  15,   4,  6,  3, 0, B,   P_CLUB, IRON, HI_METAL),

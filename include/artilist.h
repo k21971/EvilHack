@@ -232,7 +232,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * Also increases sacrifice value while wielded. */
     A("Secespita", KNIFE, (SPFX_RESTR | SPFX_ATTK), 0, 0,
       DREN(8, 8), DFNS(AD_DRST), NO_CARY, 0, A_CHAOTIC, PM_INFIDEL, NON_PM,
-      1000L, NO_COLOR),
+      3000L, NO_COLOR),
     /* Bag of the Hesperides - this is the magicbal bag obtained by Perseus
      * from the Hesperides (nymphs) to contain and transport Medusa's head.
      * The bag naturally repels water, and it has greater weight reduction
@@ -306,6 +306,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_NOGEN | SPFX_RESTR | SPFX_WARN | SPFX_PROTECT | SPFX_DFLAGH),
       0, MH_ORC, PHYS(8, 0), DFNS(AD_ELEC), NO_CARY, 0, A_CHAOTIC,
       NON_PM, PM_ELF, 8000L, CLR_BRIGHT_BLUE),
+    /* The Staff of the Archmagi, allows the one that wields it a 50%
+       casting success bonus across all spell schools (see spell.c).
+       It also gives off light when wielded, and does most of the same
+       type of damage Magicbane would do, minus cancellation. Can be
+       created by forging Magicbane and Vorpal Blade together */
+    A("The Staff of the Archmagi", ASHWOOD_STAFF,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL),
+      SPFX_HSPDAM, 0, STUN(5, 8), DFNS(AD_MAGM), NO_CARY, PHASING, A_NEUTRAL,
+      NON_PM, NON_PM, 35000L, CLR_WHITE),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.
