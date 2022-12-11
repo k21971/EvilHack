@@ -374,7 +374,8 @@ rndcurse()
     struct obj *otmp;
     static const char mal_aura[] = "feel a malignant aura surround %s.";
 
-    if (wielding_artifact(ART_MAGICBANE) && rn2(20)) {
+    if ((wielding_artifact(ART_MAGICBANE) && rn2(20))
+         || (wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI) && rn2(30))) {
         You(mal_aura, "the magic-absorbing staff");
         return;
     }
@@ -436,61 +437,66 @@ rndcurse()
 }
 
 void
-mrndcurse(mtmp)			/* curse a few inventory items at random! */
-register struct monst *mtmp;
+mrndcurse(mtmp) /* curse a few inventory items at random! */
+struct monst *mtmp;
 {
-  	int	nobj = 0;
-  	int	cnt, onum;
-  	struct	obj	*otmp;
-  	static const char mal_aura[] = "feel a malignant aura surround %s.";
+    int nobj = 0;
+    int cnt, onum;
+    struct obj *otmp;
+    static const char mal_aura[] = "feel a malignant aura surround %s.";
 
-  	boolean resists = resist(mtmp, 0, 0, FALSE),
-                vis = couldsee(mtmp->mx, mtmp->my);
+    boolean resists = resist(mtmp, 0, 0, FALSE),
+            vis = couldsee(mtmp->mx, mtmp->my);
 
-  	if (vis && MON_WEP(mtmp) &&
-  	    (MON_WEP(mtmp)->oartifact == ART_MAGICBANE) && rn2(20)) {
-  	    You(mal_aura, "the magic-absorbing staff");
-  	    return;
-  	}
+    if (vis && MON_WEP(mtmp)
+        && (((MON_WEP(mtmp)->oartifact == ART_MAGICBANE) && rn2(20))
+             || ((MON_WEP(mtmp)->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
+                 && rn2(30)))) {
+        You(mal_aura, "the magic-absorbing staff");
+        return;
+    }
 
-  	if (vis && resists) {
-  	    shieldeff(mtmp->mx, mtmp->my);
-  	    You(mal_aura, mon_nam(mtmp));
-  	}
+    if (vis && resists) {
+        shieldeff(mtmp->mx, mtmp->my);
+        You(mal_aura, mon_nam(mtmp));
+    }
 
-  	for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-  	    /* gold isn't subject to being cursed or blessed */
-  	    if (otmp->oclass == COIN_CLASS) continue;
-  	    nobj++;
-  	}
-  	if (nobj) {
-  	    for (cnt = rnd(6/((!!resists) + 1));
-  		      cnt > 0; cnt--)  {
-        		onum = rnd(nobj);
-        		for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-        		    /* as above */
-        		    if (otmp->oclass == COIN_CLASS) continue;
-        		    if (--onum == 0) break;	/* found the target */
-        		}
-        		/* the !otmp case should never happen; picking an already
-        		   cursed item happens--avoid "resists" message in that case */
-        		if (!otmp || otmp->cursed)
-                continue;	/* next target */
+    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+        /* gold isn't subject to being cursed or blessed */
+        if (otmp->oclass == COIN_CLASS)
+            continue;
+        nobj++;
+    }
 
-        		if (otmp->oartifact && spec_ability(otmp, SPFX_INTEL) &&
-        		    rn2(10) < 8) {
-                            if (vis)
-                                pline("%s!", Tobjnam(otmp, "resist"));
-        		    continue;
-        		}
+    if (nobj) {
+        for (cnt = rnd(6 / ((!!resists) + 1)); cnt > 0; cnt--) {
+            onum = rnd(nobj);
+            for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+                /* as above */
+                if (otmp->oclass == COIN_CLASS)
+                    continue;
+                if (--onum == 0)
+                    break; /* found the target */
+            }
+            /* the !otmp case should never happen; picking an already
+               cursed item happens--avoid "resists" message in that case */
+            if (!otmp || otmp->cursed)
+                continue; /* next target */
 
-        		if (otmp->blessed)
-        			  unbless(otmp);
-        		else
-        			  curse(otmp);
-  	    }
-  	    update_inventory();
-  	}
+            if (otmp->oartifact
+                && spec_ability(otmp, SPFX_INTEL) && rn2(10) < 8) {
+                if (vis)
+                    pline("%s!", Tobjnam(otmp, "resist"));
+                continue;
+            }
+
+            if (otmp->blessed)
+                unbless(otmp);
+            else
+                curse(otmp);
+        }
+        update_inventory();
+    }
 }
 
 /* remove a random INTRINSIC ability */

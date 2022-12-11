@@ -2545,4 +2545,5 @@ The following changes to date are:
 - New forging artifact recipe - The Staff of the Archmagi
 - Make spheres' explosions passive as well as active
 - Don't grant tame djinni from lamps/potions if player is petless
+- The Staff of the Archmagi keeps curse protection from Magicbane
 
