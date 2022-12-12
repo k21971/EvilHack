@@ -1131,6 +1131,9 @@ int dieroll;
                         tmp += rnd(u.ulevel / 2) + 1;
                     else
                         tmp += rnd(u.ulevel);
+                    /* significant bonus if wielding Shadowblade in primary hand */
+                    if (obj == uwep && obj->oartifact == ART_SHADOWBLADE)
+                        tmp += (u.ulevel / 2) + 1;
                     hittxt = TRUE;
                 } else if (obj == uwep && obj->oclass == WEAPON_CLASS
                            && ((dieroll == 2 && (bimanual(obj) || (Race_if(PM_GIANT))

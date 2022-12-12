@@ -1546,8 +1546,11 @@ unsigned doname_flags;
 
         /* Light from always-lit artifacts. */
         } else if (!Blind && obj->lamplit && artifact_light(obj)) {
-            Sprintf(eos(bp) - 1, ", %s lit)",
-                    arti_light_description(obj));
+            if (obj->oartifact == ART_SHADOWBLADE)
+                Sprintf(eos(bp) - 1, ", aura of darkness)");
+            else
+                Sprintf(eos(bp) - 1, ", %s lit)",
+                        arti_light_description(obj));
         }
     }
 
@@ -4937,6 +4940,7 @@ struct obj *no_wish;
             case ART_SWORD_OF_ANNIHILATION:
             case ART_GLAMDRING:
             case ART_STAFF_OF_THE_ARCHMAGI:
+            case ART_SHADOWBLADE:
                 pm = PM_SAMURAI;
                 break;
             default:

@@ -97,7 +97,9 @@ register struct obj *obj;
     if (uwep == obj && artifact_light(olduwep) && olduwep->lamplit) {
         end_burn(olduwep, FALSE);
         if (!Blind)
-            pline("%s shining.", Tobjnam(olduwep, "stop"));
+            pline("%s %s.", Tobjnam(olduwep, "stop"),
+                  olduwep->oartifact == ART_SHADOWBLADE ? "its aura of darkness"
+                                                        : "shining");
     }
     if (uwep == obj
         && ((uwep && uwep->oartifact == ART_OGRESMASHER)
@@ -225,9 +227,13 @@ struct obj *wep;
 
         if (artifact_light(wep) && !wep->lamplit) {
             begin_burn(wep, FALSE);
-            if (!Blind)
-                pline("%s to shine %s!", Tobjnam(wep, "begin"),
-                      arti_light_description(wep));
+            if (!Blind) {
+                if (wep->oartifact == ART_SHADOWBLADE)
+                    pline("%s an aura of darkness!", Tobjnam(wep, "cast"));
+                else
+                    pline("%s to shine %s!", Tobjnam(wep, "begin"),
+                          arti_light_description(wep));
+            }
         }
 
         if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
@@ -283,7 +289,9 @@ register struct obj *obj;
     if (obj != uswapwep && artifact_light(uswapwep) && uswapwep->lamplit) {
         end_burn(uswapwep, FALSE);
         if (!Blind)
-            pline("%s shining.", Tobjnam(uswapwep, "stop"));
+            pline("%s %s.", Tobjnam(uswapwep, "stop"),
+                  uswapwep->oartifact == ART_SHADOWBLADE ? "its aura of darkness"
+                                                         : "shining");
     }
 
     setworn(obj, W_SWAPWEP);
@@ -291,9 +299,13 @@ register struct obj *obj;
     if (u.twoweap && uswapwep == obj && artifact_light(uswapwep)
         && !uswapwep->lamplit) {
         begin_burn(uswapwep, FALSE);
-        if (!Blind)
-            pline("%s to shine %s!", Tobjnam(uswapwep, "begin"),
-                    arti_light_description(uswapwep));
+        if (!Blind) {
+            if (uswapwep->oartifact == ART_SHADOWBLADE)
+                pline("%s an aura of darkness!", Tobjnam(uswapwep, "cast"));
+            else
+                pline("%s to shine %s!", Tobjnam(uswapwep, "begin"),
+                      arti_light_description(uswapwep));
+        }
     }
 
     if (uswapwep == obj
@@ -775,7 +787,9 @@ uwepgone()
         if (artifact_light(uwep) && uwep->lamplit) {
             end_burn(uwep, FALSE);
             if (!Blind)
-                pline("%s shining.", Tobjnam(uwep, "stop"));
+                pline("%s %s.", Tobjnam(uwep, "stop"),
+                      uwep->oartifact == ART_SHADOWBLADE ? "its aura of darkness"
+                                                         : "shining");
         }
         setworn((struct obj *) 0, W_WEP);
         unweapon = TRUE;
@@ -790,7 +804,9 @@ uswapwepgone()
         if (artifact_light(uswapwep) && uswapwep->lamplit) {
             end_burn(uswapwep, FALSE);
             if (!Blind)
-                pline("%s shining.", Tobjnam(uswapwep, "stop"));
+                pline("%s %s.", Tobjnam(uswapwep, "stop"),
+                      uswapwep->oartifact == ART_SHADOWBLADE ? "its aura of darkness"
+                                                             : "shining");
         }
         setworn((struct obj *) 0, W_SWAPWEP);
         update_inventory();

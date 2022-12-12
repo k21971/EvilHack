@@ -265,7 +265,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("Wand of Orcus", ROD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
       SPFX_EXCLUDE, 0, DETH(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
-      NON_PM, NON_PM, 75000L, CLR_BLACK),
+      NON_PM, NON_PM, 75000L, NO_COLOR),
     /* The Eye of Vecna, which Vecna will sometimes death drop
        before the rest of his body crumbles to dust */
     A("The Eye of Vecna", EYEBALL,
@@ -278,7 +278,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("The Hand of Vecna", MUMMIFIED_HAND,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_REGEN | SPFX_HPHDAM),
       SPFX_EXCLUDE, 0, NO_ATTK, DFNS(AD_DISE), NO_CARY, DEATH_MAGIC, A_NONE,
-      NON_PM, NON_PM, 50000L, CLR_BLACK),
+      NON_PM, NON_PM, 50000L, NO_COLOR),
     /* Dramborleg, one of the most powerful weapons ever forged from
        Lord of The Rings series. Per lore, it's unknown exactly which
        race created this axe, but it was wielded by Tuor, who used it
@@ -296,7 +296,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("The Sword of Annihilation", LONG_SWORD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL),
       0, 0, DISN(5, 12), DFNS(AD_DISN), NO_CARY, 0, A_NONE,
-      NON_PM, NON_PM, 25000L, CLR_BLACK),
+      NON_PM, NON_PM, 25000L, NO_COLOR),
     /* Glamdring, from the LotR series by J.R.R Tolkien. This was the
      * sword that was found along side Orcrist and Sting in a troll cave,
      * and was used by Gandalf thereafter. Like its brethren, this sword
@@ -310,11 +310,21 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        casting success bonus across all spell schools (see spell.c).
        It also gives off light when wielded, and does most of the same
        type of damage Magicbane would do, minus cancellation. Can be
-       created by forging Magicbane and Vorpal Blade together */
+       created by forging Magicbane and Secespita together */
     A("The Staff of the Archmagi", ASHWOOD_STAFF,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL),
       SPFX_HSPDAM, 0, STUN(5, 8), DFNS(AD_MAGM), NO_CARY, PHASING, A_NEUTRAL,
-      NON_PM, NON_PM, 35000L, CLR_WHITE),
+      NON_PM, NON_PM, 35000L, NO_COLOR),
+    /* Shadowblade is a chaotic aligned athame that is created by
+       forging Stormbringer and Grimtooth together. Gives off an aura
+       of darkness when wielded. Inherits Stormbringers drain life
+       attack and protection without its penchant for attacking
+       peaceful creatures. Can be invoked to cause fear */
+    A("Shadowblade", ATHAME,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL
+       | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
+      0, 0, DRLI(8, 10), DFNS(AD_DRLI), NO_CARY, FEAR, A_CHAOTIC,
+      NON_PM, NON_PM, 15000L, NO_COLOR),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

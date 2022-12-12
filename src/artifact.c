@@ -150,26 +150,26 @@ int prop;
 {
     switch (prop) {
         case SEARCHING:
-            return SPFX_SEEK;
-	case WARNING:
+            return SPFX_SEARCH;
+        case WARNING:
             return SPFX_WARN;
-	case TELEPAT:
+        case TELEPAT:
             return SPFX_ESP;
-	case HALLUC_RES:
+        case HALLUC_RES:
             return SPFX_HALRES;
-	case STEALTH:
+        case STEALTH:
             return SPFX_STLTH;
-	case REGENERATION:
+        case REGENERATION:
             return SPFX_REGEN;
-	case TELEPORT_CONTROL:
+        case TELEPORT_CONTROL:
             return SPFX_TCTRL;
-	case ENERGY_REGENERATION:
+        case ENERGY_REGENERATION:
             return SPFX_EREGEN;
-	case HALF_SPDAM:
+        case HALF_SPDAM:
             return SPFX_HSPDAM;
-	case HALF_PHDAM:
+        case HALF_PHDAM:
             return SPFX_HPHDAM;
-	case REFLECTING:
+        case REFLECTING:
             return SPFX_REFLECT;
     }
      return 0L;
@@ -201,6 +201,7 @@ xchar m;
     case ART_MITRE_OF_HOLINESS:
     case ART_SNICKERSNEE:
     case ART_SWORD_OF_ANNIHILATION:
+    case ART_SHADOWBLADE:
         return METAL;
         break;
     case ART_SUNSWORD:
@@ -2670,6 +2671,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 else if (otmp->oartifact == ART_LIFESTEALER)
                     pline_The("massive sword draws the %s from %s!",
                               life, mon_nam(mdef));
+                else if (otmp->oartifact == ART_SHADOWBLADE)
+                    pline_The("shadowy blade draws the %s from %s!",
+                              life, mon_nam(mdef));
                 /* 'thristy' weapons currently are not allowed
                  * but we'll cover that base here just in case
                  * they're added someday */
@@ -2713,6 +2717,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 pline_The("%s blade drains your %s!", hcolor(NH_BLACK), life);
             else if (otmp->oartifact == ART_LIFESTEALER)
                 pline_The("massive sword drains your %s!", life);
+            else if (otmp->oartifact == ART_SHADOWBLADE)
+                pline_The("shadowy blade drains your %s!", life);
             else if (otmp->oclass == WEAPON_CLASS
                      && (otmp->oprops & ITEM_DRLI))
                 pline_The("deadly %s drains your %s!",
@@ -2942,7 +2948,8 @@ struct obj *obj;
             enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS);
             break;
         case CREATE_AMMO: {
-            struct obj *otmp = mksobj(obj->otyp == CROSSBOW ? CROSSBOW_BOLT : ARROW, TRUE, FALSE);
+            struct obj *otmp = mksobj(obj->otyp == CROSSBOW ? CROSSBOW_BOLT
+                                                            : ARROW, TRUE, FALSE);
 
             if (!otmp)
                 goto nothing_special;
@@ -2964,7 +2971,25 @@ struct obj *obj;
             nhUse(otmp);
             break;
         }
-        case PHASING:   /* Walk through walls and stone like a xorn */
+        case FEAR: {
+            int ct = 0;
+
+            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                if (DEADMONSTER(mtmp))
+                    continue;
+                if (cansee(mtmp->mx, mtmp->my)) {
+                    monflee(mtmp, 0, FALSE, FALSE);
+                    if (!mtmp->mtame)
+                        ct++; /* pets don't laugh at you */
+                }
+            }
+            if (!Deaf)
+                You_hear("%s laughter coming from %s!",
+                         rn2(2) ? "fiendish" : "maniacal",
+                         xname(obj));
+            break;
+        }
+        case PHASING: /* Walk through walls and stone like a xorn */
             if (Passes_walls)
                 goto nothing_special;
             if (oart == &artilist[ART_IRON_BALL_OF_LIBERATION]) {
@@ -3274,6 +3299,10 @@ struct obj *obj;
 
     if (get_artifact(obj)
         && obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
+        return TRUE;
+
+    if (get_artifact(obj)
+        && obj->oartifact == ART_SHADOWBLADE)
         return TRUE;
 
     return (boolean) (get_artifact(obj) && obj->oartifact == ART_SUNSWORD);

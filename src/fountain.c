@@ -494,6 +494,7 @@ static const struct forge_arti {
     { ART_SWORD_OF_ANNIHILATION, ART_FIRE_BRAND, ART_FROST_BRAND },
     { ART_GLAMDRING, ART_ORCRIST, ART_STING },
     { ART_STAFF_OF_THE_ARCHMAGI, ART_MAGICBANE, ART_SECESPITA },
+    { ART_SHADOWBLADE, ART_STORMBRINGER, ART_GRIMTOOTH },
     { 0, 0, 0 }
 };
 
@@ -640,7 +641,7 @@ doforging(void)
                 /* how else did Gandalf learn to use
                    a sword? */
                 unrestrict_weapon_skill(P_LONG_SWORD);
-                P_MAX_SKILL(P_LONG_SWORD) = P_SKILLED;
+                P_MAX_SKILL(P_LONG_SWORD) = P_BASIC;
             }
 
             /* forging an artifact is too much stress for the forge */
