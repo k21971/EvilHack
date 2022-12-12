@@ -241,7 +241,7 @@ struct obj {
      || otmp->oartifact == ART_HAND_OF_VECNA || otmp->oartifact == ART_SWORD_OF_KAS        \
      || otmp->oartifact == ART_SWORD_OF_ANNIHILATION || otmp->oartifact == ART_GLAMDRING   \
      || otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI || otmp->oartifact == ART_SHADOWBLADE \
-     || otmp->oartifact == ART_GAUNTLETS_OF_PURITY)
+     || otmp->oartifact == ART_GAUNTLETS_OF_PURITY || otmp->oartifact == ART_ASHMAR)
 
 #define is_magical_staff(otmp) \
     (otmp->otyp == STAFF_OF_DIVINATION || otmp->otyp == STAFF_OF_HEALING \

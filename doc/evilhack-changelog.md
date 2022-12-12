@@ -2551,4 +2551,5 @@ The following changes to date are:
 - New forging artifact recipe - Gauntlets of Purity
 - Gauntlets of Purity gives damage bonus while worn for lawful
   unarmed players trained in martial arts
+- New forging artifact recipe - Ashmar
 

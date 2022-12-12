@@ -191,6 +191,7 @@ xchar m;
     case ART_ORCRIST:
     case ART_STING:
     case ART_GLAMDRING:
+    case ART_ASHMAR:
         return MITHRIL;
         break;
     case ART_FIRE_BRAND:

@@ -337,7 +337,22 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_NOGEN | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL | SPFX_REFLECT
        | SPFX_EREGEN),
       0, 0, NO_ATTK, DFNS(AD_DETH), NO_CARY, 0, A_LAWFUL,
-      NON_PM, NON_PM, 25000L, CLR_WHITE),
+      NON_PM, NON_PM, 25000L, NO_COLOR),
+    /* Ashmar is a mithril dwarvish roundshield that can be created
+       by forging Trollsbane and Ogresmasher together. The word 'Ashmar'
+       is the neo-Khuzdul word for 'guardian', and that is what this
+       shield excels at. When worn, it imparts hungerless regen (from
+       Trollsbane), bumps up con to 25 (from Ogresmasher), acid
+       resistance, and half physical damage. Ashmar is attuned to
+       dwarvenkind, but can be used by any race, and is non-aligned.
+       Ashmar also protects the wearer from being knocked back, and if
+       the shield deflects an attack, there's a 1 in 5 chance of it
+       knocking the attacker back */
+    A("Ashmar", DWARVISH_ROUNDSHIELD,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL | SPFX_REGEN
+       | SPFX_HPHDAM),
+      0, 0, NO_ATTK, DFNS(AD_ACID), NO_CARY, HEALING, A_NONE,
+      NON_PM, PM_DWARF, 20000L, NO_COLOR),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

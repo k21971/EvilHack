@@ -2743,6 +2743,14 @@ find_ac()
         uac -= uright->spe;
     if (uamul && uamul->otyp == AMULET_OF_GUARDING)
         uac -= 2; /* fixed amount; main benefit is to MC */
+    if (uarms && uarms->oartifact == ART_ASHMAR) {
+        /* significant fixed amount, especially as
+           a dwarf */
+        if (!Upolyd && Race_if(PM_DWARF))
+            uac -= 7;
+        else
+            uac -= 5;
+    }
 
     /* armor class from other sources */
     if (HProtection & INTRINSIC)

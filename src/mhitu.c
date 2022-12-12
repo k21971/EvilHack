@@ -144,8 +144,11 @@ int target;
 int roll;
 struct attack *mattk;
 {
-    register boolean nearmiss = (target == roll);
-    register struct obj *blocker = (struct obj *) 0;
+    struct obj *blocker = (struct obj *) 0;
+    struct permonst *mdat = mtmp->data;
+    boolean nearmiss = (target == roll),
+            already_killed = FALSE;
+    int tmp = rnd(5) + 3;
     /* 3 values for blocker
      * No blocker: (struct obj *) 0
      * Piece of armour: object
@@ -249,8 +252,8 @@ struct attack *mattk;
                  blocker->oartifact ? xname(blocker)
                                     : simple_typename(blocker->otyp),
                  rn2(2) ? "block" : "deflect",
-                 ((blocker == uarmg && blocker->oartifact != ART_DRAGONBANE)
-                  || blocker == uarmf) ? "" : "s",
+                 (((blocker == uarmg) && blocker->oartifact != ART_DRAGONBANE)
+                  || (blocker == uarmf)) ? "" : "s",
                  s_suffix(mon_nam(mtmp)));
         }
         if (!blocker)
@@ -265,6 +268,20 @@ struct attack *mattk;
             mtmp->mhp -= rnd(sear_damage(blocker->material) / 2);
             if (DEADMONSTER(mtmp))
                 killed(mtmp);
+        }
+        /* the artifact shield Ashmar has a chance to knockback
+           the attacker if it deflects an attack */
+        if (!rn2(5) && (blocker == uarms)
+            && blocker->oartifact == ART_ASHMAR) {
+            pline("%s knocks %s away from you!",
+                  artiname(uarms->oartifact), mon_nam(mtmp));
+            if (mhurtle_to_doom(mtmp, tmp, &mdat, TRUE))
+                already_killed = TRUE;
+            if (!already_killed) {
+                damage_mon(mtmp, tmp, AD_PHYS);
+                if (DEADMONSTER(mtmp))
+                    killed(mtmp);
+            }
         }
     }
 end:
@@ -1439,6 +1456,7 @@ register struct attack *mattk;
             }
             if (mattk->adtyp == AD_CLOB && dmg != 0
                 && !wielding_artifact(ART_GIANTSLAYER)
+                && !(uarms && uarms->oartifact == ART_ASHMAR)
                 && (youmonst.data)->msize < MZ_HUGE
                 && !unsolid(youmonst.data) && !rn2(6)) {
                 pline("%s knocks you %s with a %s %s!", Monnam(mtmp),
