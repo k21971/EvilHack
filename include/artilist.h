@@ -325,6 +325,19 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
       0, 0, DRLI(8, 10), DFNS(AD_DRLI), NO_CARY, FEAR, A_CHAOTIC,
       NON_PM, NON_PM, 15000L, NO_COLOR),
+    /* The Gauntlets of Purity are a divine artifact that is created
+       by forging Dragonbane and Grayswandir together. These gauntlets
+       inherit reflection from Dragonbane, and the silver material and
+       alignment of Grayswandir. While worn, they protect the wearer
+       from death magic and boost power regeneration. If the wearers
+       alignment matches that of the gauntlets, the wearer will be able
+       to resist the charms of monsters that try to seduce them. Does
+       not inhibit spellcasting while worn */
+    A("Gauntlets of Purity", GAUNTLETS_OF_POWER,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL | SPFX_REFLECT
+       | SPFX_EREGEN),
+      0, 0, NO_ATTK, DFNS(AD_DETH), NO_CARY, 0, A_LAWFUL,
+      NON_PM, NON_PM, 25000L, CLR_WHITE),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

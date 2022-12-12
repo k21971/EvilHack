@@ -4941,6 +4941,7 @@ struct obj *no_wish;
             case ART_GLAMDRING:
             case ART_STAFF_OF_THE_ARCHMAGI:
             case ART_SHADOWBLADE:
+            case ART_GAUNTLETS_OF_PURITY:
                 pm = PM_SAMURAI;
                 break;
             default:

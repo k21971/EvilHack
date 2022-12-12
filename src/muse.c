@@ -3598,6 +3598,13 @@ const char *str;
             makeknown(ART_DRAGONBANE);
         }
         return TRUE;
+    } else if ((orefl = which_armor(mon, W_ARMG))
+               && orefl->otyp == ART_GAUNTLETS_OF_PURITY) {
+        if (str) {
+            pline(str, s_suffix(mon_nam(mon)), "gauntlets");
+            makeknown(ART_GAUNTLETS_OF_PURITY);
+        }
+        return TRUE;
     } else if (arti_reflects(MON_WEP(mon))) {
         /* due to wielded artifact weapon */
         if (str)

@@ -1968,7 +1968,9 @@ register struct attack *mattk;
             if (!tele_restrict(mtmp))
                 (void) rloc(mtmp, TRUE);
             return 3;
-        } else if (mtmp->mcan || Hidinshell) {
+        } else if (mtmp->mcan || Hidinshell
+                   || (u.ualign.type == A_LAWFUL
+                       && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)) {
             if (!Blind)
                 pline("%s tries to %s you, but you seem %s.",
                       &mons[PM_GRAZ_ZT] ? Monnam(mtmp) : Adjmonnam(mtmp, "plain"),
@@ -2234,7 +2236,7 @@ do_rust:
     case AD_DETH:
         if (mtmp && mdat == &mons[PM_DEATH])
             pline("%s reaches out with its deadly touch.", Monnam(mtmp));
-        if (immune_death_magic(youmonst.data)) {
+        if (Death_resistance || immune_death_magic(youmonst.data)) {
             /* Still does normal damage */
             You("are unaffected by death magic.");
             break;
@@ -3402,8 +3404,9 @@ struct attack *mattk;
             /* currently only Vecna has the gaze of death */
             if (mtmp && mtmp->data == &mons[PM_VECNA])
                 You("meet %s deadly gaze!", s_suffix(mon_nam(mtmp)));
-            if (immune_death_magic(youmonst.data)) {
+            if (Death_resistance || immune_death_magic(youmonst.data)) {
                 /* Still does normal damage */
+                shieldeff(u.ux, u.uy);
                 You("are unaffected by death magic.");
                 break;
             }
@@ -3580,7 +3583,9 @@ struct monst *mon;
               mhe(mon), mon->mcan ? "severe " : "");
         return 0;
     }
-    if (unconscious()) {
+    if (unconscious()
+        || (u.ualign.type == A_LAWFUL
+            && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)) {
         pline("%s seems dismayed at your lack of response.", Monnam(mon));
         return 0;
     }

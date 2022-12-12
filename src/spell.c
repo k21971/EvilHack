@@ -1981,9 +1981,11 @@ int spell;
     if (uarms)
         splcaster += urole.spelshld;
 
-    if (uarmh && is_metallic(uarmh) && uarmh->otyp != HELM_OF_BRILLIANCE && !paladin_bonus)
+    if (uarmh && is_metallic(uarmh)
+        && uarmh->otyp != HELM_OF_BRILLIANCE && !paladin_bonus)
         splcaster += uarmhbon;
-    if (uarmg && is_metallic(uarmg) && !paladin_bonus)
+    if (uarmg && is_metallic(uarmg)
+        && uarmg->oartifact != ART_GAUNTLETS_OF_PURITY && !paladin_bonus)
         splcaster += uarmgbon;
     if (uarmf && is_metallic(uarmf) && !paladin_bonus)
         splcaster += uarmfbon;
@@ -2011,7 +2013,8 @@ int spell;
         splcaster += urole.spelsbon;
 
     /* `healing spell' bonus */
-    if (spellid(spell) == SPE_HEALING || spellid(spell) == SPE_EXTRA_HEALING
+    if (spellid(spell) == SPE_HEALING
+        || spellid(spell) == SPE_EXTRA_HEALING
         || spellid(spell) == SPE_CURE_BLINDNESS
         || spellid(spell) == SPE_CURE_SICKNESS
         || spellid(spell) == SPE_RESTORE_ABILITY

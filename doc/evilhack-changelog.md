@@ -2548,4 +2548,5 @@ The following changes to date are:
 - The Staff of the Archmagi keeps curse protection from Magicbane
 - Change feedback when the Staff of the Archmagi absorbs a curse
 - New forging artifact recipe - Shadowblade
+- New forging artifact recipe - Gauntlets of Purity
 

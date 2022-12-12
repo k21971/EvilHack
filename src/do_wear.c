@@ -2300,7 +2300,8 @@ boolean noisy;
                 Your("%s are too slippery to pull on %s.",
                      fingers_or_gloves(FALSE), gloves_simple_name(otmp));
             err++;
-        } else if (!Upolyd && Race_if(PM_TORTLE) && is_hard(otmp)) {
+        } else if (!Upolyd && Race_if(PM_TORTLE) && is_hard(otmp)
+                   && otmp->oartifact != ART_GAUNTLETS_OF_PURITY) {
             /* Tortles can't retreat back into their shells
                whilst wearing rigid gauntlets */
             if (noisy)

@@ -183,6 +183,7 @@ xchar m;
     case ART_WEREBANE:
     case ART_DEMONBANE:
     case ART_GRAYSWANDIR:
+    case ART_GAUNTLETS_OF_PURITY:
         return SILVER;
         break;
     case ART_DIRGE:
@@ -869,6 +870,8 @@ long wp_mask;
         mask = &EStone_resistance;
     else if (dtyp == AD_DISE)
         mask = &ESick_resistance;
+    else if (dtyp == AD_DETH)
+        mask = &EDeath_resistance;
 
     if (mask && wp_mask == W_ART && !on) {
         /* find out if some other artifact also confers this intrinsic;
@@ -1024,6 +1027,12 @@ long wp_mask;
                 EReflecting &= ~wp_mask;
         } else if (otmp && otmp->oartifact == ART_DRAGONBANE
             && (wp_mask & W_ARMG)) { /* or in Dragonbane's case, wear them */
+            if (on)
+                EReflecting |= wp_mask;
+            else
+                EReflecting &= ~wp_mask;
+        } else if (otmp && otmp->oartifact == ART_GAUNTLETS_OF_PURITY
+            && (wp_mask & W_ARMG)) { /* same */
             if (on)
                 EReflecting |= wp_mask;
             else
@@ -1247,7 +1256,7 @@ struct monst *mtmp;
         case AD_DISE:
             return !(yours ? Sick_resistance : resists_sick(ptr));
         case AD_DETH:
-            return !immune_death_magic(ptr);
+            return !(yours ? Death_resistance : immune_death_magic(ptr));
         case AD_DISN:
             return !(yours ? Disint_resistance : resists_disint(mtmp));
         default:
@@ -1313,7 +1322,7 @@ int tmp;
                         || (attacks(AD_DISE, otmp)
                             && ((yours) ? (!Sick_resistance) : (!resists_sick(mon->data))))
                                 || (attacks(AD_DETH, otmp)
-                                    && !(nonliving(mon->data) || is_demon(mon->data)))
+                                    && ((yours) ? (!Death_resistance) : (!immune_death_magic(mon->data))))
                                         || (attacks(AD_DISN, otmp)
                                             && ((yours) ? (!Disint_resistance) : (!resists_disint(mon))))) {
 
@@ -1975,18 +1984,21 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         pline_The("ornate mace hits %s.", hittee);
                 } else {
                     pline_The("ornate mace %s %s%c",
-                              rn2(2) ? "bashes" : "bludgeons",
+                              Death_resistance
+                                  ? "hits"
+                                  : rn2(2) ? "bashes" : "bludgeons",
                               hittee, !spec_dbon_applies ? '.' : '!');
                 }
             } else {
                 pline_The("ornate mace %s %s%c",
-                          !spec_dbon_applies
+                          (immune_death_magic(mdef->data)
+                           || defended(mdef, AD_DETH))
                               ? "hits"
                               : rn2(2) ? "bashes" : "bludgeons",
                           hittee, !spec_dbon_applies ? '.' : '!');
             }
         }
-        if (youdefend && !immune_death_magic(mdef->data)) {
+        if (youdefend && !Death_resistance) {
             switch (rn2(20)) {
             case 19:
             case 18:
@@ -3374,6 +3386,7 @@ long *abil;
         { &EAcid_resistance, AD_ACID },
         { &EStone_resistance, AD_STON },
         { &ESick_resistance, AD_DISE },
+        { &EDeath_resistance, AD_DETH },
     };
     int k;
 
