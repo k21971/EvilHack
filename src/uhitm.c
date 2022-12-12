@@ -1524,6 +1524,13 @@ int dieroll;
             || mdat == &mons[PM_ALHOON]))
         tmp *= 2;
 
+    /* if lawful, trained in martial arts, and wearing the
+       Gauntlets of Purity, get a damage bonus when attacking
+       unarmed */
+    if (!uwep && P_SKILL(P_MARTIAL_ARTS) && u.ualign.type == A_LAWFUL
+        && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)
+        tmp += rnd(4) + 2;
+
     if (valid_weapon_attack) {
         struct obj *wep;
 

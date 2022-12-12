@@ -2549,4 +2549,6 @@ The following changes to date are:
 - Change feedback when the Staff of the Archmagi absorbs a curse
 - New forging artifact recipe - Shadowblade
 - New forging artifact recipe - Gauntlets of Purity
+- Gauntlets of Purity gives damage bonus while worn for lawful
+  unarmed players trained in martial arts
 
