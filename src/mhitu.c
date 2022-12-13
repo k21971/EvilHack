@@ -271,7 +271,7 @@ struct attack *mattk;
         }
         /* the artifact shield Ashmar has a chance to knockback
            the attacker if it deflects an attack */
-        if (!rn2(5) && (blocker == uarms)
+        if (!rn2(4) && (blocker == uarms)
             && blocker->oartifact == ART_ASHMAR) {
             pline("%s knocks %s away from you!",
                   artiname(uarms->oartifact), mon_nam(mtmp));

@@ -2554,4 +2554,5 @@ The following changes to date are:
 - New forging artifact recipe - Ashmar
 - Fix: paranoid_swim to use yes/no vs y/n
 - Remove SPFX_EXCLUDE
+- Ashmar artifact tweaks
 

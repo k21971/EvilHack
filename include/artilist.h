@@ -344,15 +344,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        is the neo-Khuzdul word for 'guardian', and that is what this
        shield excels at. When worn, it imparts hungerless regen (from
        Trollsbane), bumps up con to 25 (from Ogresmasher), acid
-       resistance, and half physical damage. Ashmar is attuned to
+       resistance, MC1, and half physical damage. Ashmar is attuned to
        dwarvenkind, but can be used by any race, and is non-aligned.
        Ashmar also protects the wearer from being knocked back, and if
        the shield deflects an attack, there's a 1 in 5 chance of it
        knocking the attacker back */
     A("Ashmar", DWARVISH_ROUNDSHIELD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL | SPFX_REGEN
-       | SPFX_HPHDAM),
-      0, 0, NO_ATTK, DFNS(AD_ACID), NO_CARY, HEALING, A_NONE,
+       | SPFX_PROTECT | SPFX_HPHDAM),
+      0, 0, NO_ATTK, DFNS(AD_ACID), NO_CARY, 0, A_NONE,
       NON_PM, PM_DWARF, 20000L, NO_COLOR),
 
     /*
