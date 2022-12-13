@@ -1976,7 +1976,8 @@ domove_core()
             && ((is_pool(x, y) && !is_pool(u.ux, u.uy))
                 || (is_lava(x, y) && !is_lava(u.ux, u.uy)))) {
             if (is_pool(x, y) && !known_wwalking) {
-                if (ParanoidSwim && yn("Really enter the water?") != 'y') {
+                if (ParanoidSwim
+                    && !paranoid_query(ParanoidSwim, "Really enter the water?")) {
                     context.move = 0;
                     nomul(0);
                     You("narrowly avoid %s into the %s.",
@@ -1989,7 +1990,8 @@ domove_core()
                     return;
                 }
             } else if (is_lava(x, y) && !known_lwalking) {
-                if (ParanoidSwim && yn("Really enter the lava?") != 'y') {
+                if (ParanoidSwim
+                    && !paranoid_query(ParanoidSwim, "Really enter the lava?")) {
                     context.move = 0;
                     nomul(0);
                     You("narrowly avoid %s into the lava.",
