@@ -2560,4 +2560,5 @@ The following changes to date are:
 - If the Gauntlets of Purity are forced off of your hands, any
   wielded weapons are also forced to be dropped
 - Don't forget shields...
+- Refactor a couple artifact functions (lawful/chaotic)
 
