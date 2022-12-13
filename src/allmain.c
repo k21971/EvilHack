@@ -678,7 +678,21 @@ boolean resuming;
             && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY) {
             pline_The("%s sense your impiety, and remove themselves from your %s!",
                       artiname(uarmg->oartifact), makeplural(body_part(HAND)));
+            /* gauntlets forced off but stay in inventory */
             (void) Gloves_off();
+            /* any wielded objects are forced to drop,
+               even if cursed */
+            if (u.twoweap) {
+                Your("%s and %s are forced from your %s!",
+                     simpleonames(uwep), simpleonames(uswapwep),
+                     makeplural(body_part(HAND)));
+                dropx(uswapwep);
+                dropx(uwep);
+            } else if (uwep) {
+                Your("%s is forced from your %s!",
+                     simpleonames(uwep), body_part(HAND));
+                dropx(uwep);
+            }
         }
 
         context.move = 1;
