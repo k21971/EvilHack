@@ -672,6 +672,15 @@ boolean resuming;
 	    orc_regen = orc_can_regen();
 	}
 
+        /* The Gauntlets of Purity cannot stay worn if
+           our hero isn't pious */
+        if (u.ualign.record < 20 && uarmg
+            && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY) {
+            pline_The("%s sense your impiety, and remove themselves from your %s!",
+                      artiname(uarmg->oartifact), makeplural(body_part(HAND)));
+            (void) Gloves_off();
+        }
+
         context.move = 1;
 
         if (multi >= 0 && occupation) {

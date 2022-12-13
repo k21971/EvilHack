@@ -681,6 +681,11 @@ Gloves_on(VOID_ARGS)
         break;
     case GAUNTLETS_OF_POWER:
     case MUMMIFIED_HAND: /* the Hand of Vecna */
+        if (u.ualign.record >= 20
+            && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY) {
+            pline_The("%s sense your piety, and slide comfortably over your %s.",
+                      artiname(uarmg->oartifact), makeplural(body_part(HAND)));
+        }
         makeknown(uarmg->otyp);
         context.botl = 1; /* taken care of in attrib.c */
         break;
@@ -2307,6 +2312,12 @@ boolean noisy;
             if (noisy)
                 pline_The("%s are too rigid to wear.",
                           gloves_simple_name(otmp));
+            err++;
+        } else if (u.ualign.record < 20
+                   && otmp->oartifact == ART_GAUNTLETS_OF_PURITY) {
+            if (noisy)
+                You("are not pure enough to wear these %s.",
+                    gloves_simple_name(otmp));
             err++;
         } else
             *mask = W_ARMG;

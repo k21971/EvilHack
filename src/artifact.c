@@ -1669,7 +1669,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     const char *wepdesc;
     static const char you[] = "you";
     char hittee[BUFSZ];
-    struct artifact* atmp;
+    struct artifact *atmp;
     int j, k, permdmg;
 
     Strcpy(hittee, youdefend ? you : mon_nam(mdef));
@@ -2123,7 +2123,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
     /* Sixth basic attack - poison */
     if (attacks(AD_DRST, otmp)) {
-	if (realizes_damage) {
+        if (realizes_damage) {
             if (otmp->oartifact == ART_SWORD_OF_KAS) {
                 if (!youattack && magr && cansee(magr->mx, magr->my)) {
                     if (!spec_dbon_applies) {
@@ -2139,7 +2139,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                   hittee, !spec_dbon_applies ? '.' : '!');
                     }
                 } else {
-	            pline_The("gigantic blade %s %s%c",
+                    pline_The("gigantic blade %s %s%c",
                               (resists_poison(mdef) || defended(mdef, AD_DRST))
                                   ? "hits"
                                   : rn2(2) ? "poisons" : "eviscerates",
@@ -2344,7 +2344,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     atmp = &artilist[(unsigned char) otmp->oartifact];
 
     if (atmp->spfx & (SPFX_DFLAGH | SPFX_DCLAS)) {
-	j = !rn2(10); /* 10% chance of instakill for some artifacts */
+        j = !rn2(10); /* 10% chance of instakill for some artifacts */
         k = !rn2(20); /* 5% chance if same weapon is used against the player */
         switch (otmp->oartifact) {
             case ART_WEREBANE:
@@ -2634,9 +2634,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                       mon_nam(mdef));
                 if (Hallucination && !flags.female)
                     pline("Good job Henry, but that wasn't Anne.");
-		if (is_zombie(mdef->data)
+                if (is_zombie(mdef->data)
                     || (is_troll(mdef->data) && !mlifesaver(mdef)))
-		    mdef->mcan = 1; /* kinda hard to revive if you've lost your head... */
+                    mdef->mcan = 1; /* kinda hard to revive if you've lost your head... */
                 otmp->dknown = TRUE;
                 return TRUE;
             } else {

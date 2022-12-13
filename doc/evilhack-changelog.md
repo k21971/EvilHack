@@ -2555,4 +2555,5 @@ The following changes to date are:
 - Fix: paranoid_swim to use yes/no vs y/n
 - Remove SPFX_EXCLUDE
 - Ashmar artifact tweaks
+- The Gauntlets of Purity cannot be worn by the impious
 
