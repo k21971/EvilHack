@@ -2553,4 +2553,5 @@ The following changes to date are:
   unarmed players trained in martial arts
 - New forging artifact recipe - Ashmar
 - Fix: paranoid_swim to use yes/no vs y/n
+- Remove SPFX_EXCLUDE
 

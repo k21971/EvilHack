@@ -53,13 +53,6 @@ STATIC_OVL xchar artidisco[NROFARTIFACTS];
 STATIC_DCL void NDECL(hack_artifacts);
 STATIC_DCL void FDECL(fix_artifact, (struct obj *));
 
-boolean
-exclude_nartifact_exist(i)
-int i;
-{
-    return (!(artilist[i].cspfx & SPFX_EXCLUDE));
-}
-
 /* handle some special cases; must be called after u_init() */
 STATIC_OVL void
 hack_artifacts()
@@ -575,7 +568,7 @@ nartifact_exist()
     int n = SIZE(artiexist);
 
     while (n > 1)
-        if (artiexist[--n] && (exclude_nartifact_exist(n)))
+        if (artiexist[--n])
             a++;
 
     return a;

@@ -186,7 +186,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      */
     A("Lifestealer", TWO_HANDED_SWORD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI),
-      SPFX_EXCLUDE, 0, DRLI(5, 2), DFNS(AD_DRLI), NO_CARY, 0, A_CHAOTIC, NON_PM,
+      0, 0, DRLI(5, 2), DFNS(AD_DRLI), NO_CARY, 0, A_CHAOTIC, NON_PM,
       NON_PM, 10000L, NO_COLOR),
     /*
      *      Keolewa from SporkHack - a Hawaiian war club.
@@ -210,16 +210,16 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * stay true to some of its abilities from ad&d.
      */
     A("The Sword of Kas", TWO_HANDED_SWORD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL
-          | SPFX_DALIGN), SPFX_EXCLUDE, 0,
-      DRST(10, 0), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
-      15000L, NO_COLOR),
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
+       | SPFX_INTEL | SPFX_DALIGN), 0, 0,
+      DRST(10, 0), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC,
+      NON_PM, NON_PM, 15000L, NO_COLOR),
     /* Thought the Oracle just knew everything on her own? Guess again. Should
      * anyone ever be foolhardy enough to take on the Oracle and succeed,
      * they might discover the true source of her knowledge.
      */
     A("Magic 8-Ball", EIGHT_BALL,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK), (SPFX_WARN | SPFX_EXCLUDE),
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK), SPFX_WARN,
       0, NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 5000L,
       NO_COLOR),
     /* Convict role first artifact weapon should they altar sacrifice for one.
@@ -240,21 +240,22 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * with the captive pegasus.
      */
     A("Bag of the Hesperides", BAG_OF_HOLDING,
-      (SPFX_NOGEN | SPFX_RESTR), (SPFX_EXCLUDE | SPFX_PROTECT), 0,
+      (SPFX_NOGEN | SPFX_RESTR), SPFX_PROTECT, 0,
       NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM,
       8000L, NO_COLOR),
     /* The quasi-evil twin of Demonbane, Angelslayer is an unholy trident
      * geared towards the destruction of all angelic beings */
     A("Angelslayer", TRIDENT,
-      (SPFX_RESTR | SPFX_ATTK | SPFX_SEARCH | SPFX_HSPDAM | SPFX_WARN | SPFX_DFLAGH),
-      0, MH_ANGEL, FIRE(5, 10), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM,
-      5000L, NO_COLOR),
+      (SPFX_RESTR | SPFX_ATTK | SPFX_SEARCH | SPFX_HSPDAM
+       | SPFX_WARN | SPFX_DFLAGH), 0,
+      MH_ANGEL, FIRE(5, 10), NO_DFNS, NO_CARY, 0, A_NONE,
+      NON_PM, NON_PM, 5000L, NO_COLOR),
     /* Yeenoghu's infamous triple-headed flail, also known as 'Butcher'.
      * A massive weapon reputed to have been created from the thighbone and
      * torn flesh of an ancient god he slew. An extremely lethal artifact */
     A("Butcher", TRIPLE_HEADED_FLAIL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
-      SPFX_EXCLUDE, 0, STUN(5, 8), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
+      0, 0, STUN(5, 8), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
       NON_PM, NON_PM, 4000L, NO_COLOR),
     /* Orcus' true 'Wand of Death', a truly terrifying weapon that can kill
      * those it strikes with one blow. In the form of an ornate mace/rod, the Wand
@@ -264,20 +265,20 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * of his ilk */
     A("Wand of Orcus", ROD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
-      SPFX_EXCLUDE, 0, DETH(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
+      0, 0, DETH(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
       NON_PM, NON_PM, 75000L, NO_COLOR),
     /* The Eye of Vecna, which Vecna will sometimes death drop
        before the rest of his body crumbles to dust */
     A("The Eye of Vecna", EYEBALL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL),
-      (SPFX_XRAY | SPFX_ESP | SPFX_HSPDAM | SPFX_EXCLUDE),
-      0, NO_ATTK, NO_DFNS, CARY(AD_COLD), DEATH_MAGIC, A_NONE,
+      (SPFX_XRAY | SPFX_ESP | SPFX_HSPDAM), 0,
+      NO_ATTK, NO_DFNS, CARY(AD_COLD), DEATH_MAGIC, A_NONE,
       NON_PM, NON_PM, 50000L, NO_COLOR),
     /* The Hand of Vecna, another possible artifact that Vecna
        might drop once destroyed */
     A("The Hand of Vecna", MUMMIFIED_HAND,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_REGEN | SPFX_HPHDAM),
-      SPFX_EXCLUDE, 0, NO_ATTK, DFNS(AD_DISE), NO_CARY, DEATH_MAGIC, A_NONE,
+      0, 0, NO_ATTK, DFNS(AD_DISE), NO_CARY, DEATH_MAGIC, A_NONE,
       NON_PM, NON_PM, 50000L, NO_COLOR),
     /* Dramborleg, one of the most powerful weapons ever forged from
        Lord of The Rings series. Per lore, it's unknown exactly which
