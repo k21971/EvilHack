@@ -2556,4 +2556,5 @@ The following changes to date are:
 - Remove SPFX_EXCLUDE
 - Ashmar artifact tweaks
 - The Gauntlets of Purity cannot be worn by the impious
+- Encyclopedia entries for all of the new forged artifacts
 
