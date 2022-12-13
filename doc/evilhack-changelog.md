@@ -2559,4 +2559,5 @@ The following changes to date are:
 - Encyclopedia entries for all of the new forged artifacts
 - If the Gauntlets of Purity are forced off of your hands, any
   wielded weapons are also forced to be dropped
+- Don't forget shields...
 

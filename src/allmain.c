@@ -680,7 +680,7 @@ boolean resuming;
                       artiname(uarmg->oartifact), makeplural(body_part(HAND)));
             /* gauntlets forced off but stay in inventory */
             (void) Gloves_off();
-            /* any wielded objects are forced to drop,
+            /* any wielded/worn objects are forced to drop,
                even if cursed */
             if (u.twoweap) {
                 Your("%s and %s are forced from your %s!",
@@ -688,6 +688,16 @@ boolean resuming;
                      makeplural(body_part(HAND)));
                 dropx(uswapwep);
                 dropx(uwep);
+            } else if (uwep && uarms) {
+                Your("%s and %s are forced from your %s!",
+                     simpleonames(uwep), simpleonames(uarms),
+                     makeplural(body_part(HAND)));
+                (void) Shield_off();
+                dropx(uwep);
+            } else if (!uwep && uarms) {
+                Your("%s is forced from your %s!",
+                     simpleonames(uarms), body_part(HAND));
+                (void) Shield_off();
             } else if (uwep) {
                 Your("%s is forced from your %s!",
                      simpleonames(uwep), body_part(HAND));
