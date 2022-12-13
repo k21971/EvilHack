@@ -3914,4 +3914,14 @@ int oartifact;
     return artilist[oartifact].alignment;
 }
 
+boolean
+non_wishable_artifact(otmp)
+struct obj *otmp;
+{
+    int art = otmp->oartifact;
+    if (!art)
+        return FALSE;
+    return ((artilist[art].spfx & SPFX_NOWISH) != 0L);
+}
+
 /*artifact.c*/

@@ -2561,4 +2561,5 @@ The following changes to date are:
   wielded weapons are also forced to be dropped
 - Don't forget shields...
 - Refactor a couple artifact functions (lawful/chaotic)
+- Refactor non_wishable_artifact()
 

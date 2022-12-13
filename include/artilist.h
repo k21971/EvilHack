@@ -185,16 +185,17 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Meant to be wielded by Vlad. Enjoy the buff Vlad ;)
      */
     A("Lifestealer", TWO_HANDED_SWORD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
+       | SPFX_INTEL | SPFX_DRLI),
       0, 0, DRLI(5, 2), DFNS(AD_DRLI), NO_CARY, 0, A_CHAOTIC, NON_PM,
       NON_PM, 10000L, NO_COLOR),
     /*
      *      Keolewa from SporkHack - a Hawaiian war club.
      *      Buffing this up a bit to give it more utility.
      */
-    A("Keolewa", CLUB, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
-      ELEC(5, 8), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL, PM_CAVEMAN, NON_PM,
-      2000L, NO_COLOR),
+    A("Keolewa", CLUB, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN),
+      0, 0, ELEC(5, 8), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL,
+      PM_CAVEMAN, NON_PM, 2000L, NO_COLOR),
     /*
      *      Dirge from SporkHack, but with a twist.
      *      This is the anti-Excalibur. A Dark Knight needs a special weapon too...
@@ -210,7 +211,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * stay true to some of its abilities from ad&d.
      */
     A("The Sword of Kas", TWO_HANDED_SWORD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
        | SPFX_INTEL | SPFX_DALIGN), 0, 0,
       DRST(10, 0), DFNS(AD_STON), NO_CARY, 0, A_CHAOTIC,
       NON_PM, NON_PM, 15000L, NO_COLOR),
@@ -219,9 +220,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * they might discover the true source of her knowledge.
      */
     A("Magic 8-Ball", EIGHT_BALL,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK), SPFX_WARN,
-      0, NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 5000L,
-      NO_COLOR),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK),
+      SPFX_WARN, 0, NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE,
+      NON_PM, NON_PM, 5000L, NO_COLOR),
     /* Convict role first artifact weapon should they altar sacrifice for one.
      * Acts like a luckstone.
      */
@@ -240,7 +241,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * with the captive pegasus.
      */
     A("Bag of the Hesperides", BAG_OF_HOLDING,
-      (SPFX_NOGEN | SPFX_RESTR), SPFX_PROTECT, 0,
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR), SPFX_PROTECT, 0,
       NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM,
       8000L, NO_COLOR),
     /* The quasi-evil twin of Demonbane, Angelslayer is an unholy trident
@@ -254,7 +255,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * A massive weapon reputed to have been created from the thighbone and
      * torn flesh of an ancient god he slew. An extremely lethal artifact */
     A("Butcher", TRIPLE_HEADED_FLAIL,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
       0, 0, STUN(5, 8), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
       NON_PM, NON_PM, 4000L, NO_COLOR),
     /* Orcus' true 'Wand of Death', a truly terrifying weapon that can kill
@@ -264,20 +265,21 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * merely by touching their flesh'. Can only be wielded by Orcus or others
      * of his ilk */
     A("Wand of Orcus", ROD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
       0, 0, DETH(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
       NON_PM, NON_PM, 75000L, NO_COLOR),
     /* The Eye of Vecna, which Vecna will sometimes death drop
        before the rest of his body crumbles to dust */
     A("The Eye of Vecna", EYEBALL,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_INTEL),
       (SPFX_XRAY | SPFX_ESP | SPFX_HSPDAM), 0,
       NO_ATTK, NO_DFNS, CARY(AD_COLD), DEATH_MAGIC, A_NONE,
       NON_PM, NON_PM, 50000L, NO_COLOR),
     /* The Hand of Vecna, another possible artifact that Vecna
        might drop once destroyed */
     A("The Hand of Vecna", MUMMIFIED_HAND,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_REGEN | SPFX_HPHDAM),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_INTEL | SPFX_REGEN
+       | SPFX_HPHDAM),
       0, 0, NO_ATTK, DFNS(AD_DISE), NO_CARY, DEATH_MAGIC, A_NONE,
       NON_PM, NON_PM, 50000L, NO_COLOR),
     /* Dramborleg, one of the most powerful weapons ever forged from
@@ -295,7 +297,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        disintegrating most anything it hits, while protecting the
        one that wields it from the same type of attack */
     A("The Sword of Annihilation", LONG_SWORD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
+       | SPFX_INTEL),
       0, 0, DISN(5, 12), DFNS(AD_DISN), NO_CARY, 0, A_NONE,
       NON_PM, NON_PM, 25000L, NO_COLOR),
     /* Glamdring, from the LotR series by J.R.R Tolkien. This was the
@@ -304,7 +307,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * glows blue in the presence of orcs. In EvilHack, can only come into
      * existience by forging Orcrist and Sting together */
     A("Glamdring", ELVEN_LONG_SWORD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_WARN | SPFX_PROTECT | SPFX_DFLAGH),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_WARN | SPFX_PROTECT
+       | SPFX_DFLAGH),
       0, MH_ORC, PHYS(8, 0), DFNS(AD_ELEC), NO_CARY, 0, A_CHAOTIC,
       NON_PM, PM_ELF, 8000L, CLR_BRIGHT_BLUE),
     /* The Staff of the Archmagi, allows the one that wields it a 50%
@@ -313,7 +317,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        type of damage Magicbane would do, minus cancellation. Can be
        created by forging Magicbane and Secespita together */
     A("The Staff of the Archmagi", ASHWOOD_STAFF,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
+       | SPFX_INTEL),
       SPFX_HSPDAM, 0, STUN(5, 8), DFNS(AD_MAGM), NO_CARY, PHASING, A_NEUTRAL,
       NON_PM, NON_PM, 35000L, NO_COLOR),
     /* Shadowblade is a chaotic aligned athame that is created by
@@ -322,8 +327,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        attack and protection without its penchant for attacking
        peaceful creatures. Can be invoked to cause fear */
     A("Shadowblade", ATHAME,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL
-       | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
+       | SPFX_INTEL | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
       0, 0, DRLI(8, 10), DFNS(AD_DRLI), NO_CARY, FEAR, A_CHAOTIC,
       NON_PM, NON_PM, 15000L, NO_COLOR),
     /* The Gauntlets of Purity are a divine artifact that is created
@@ -335,8 +340,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        to resist the charms of monsters that try to seduce them. Does
        not inhibit spellcasting while worn */
     A("Gauntlets of Purity", GAUNTLETS_OF_POWER,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL | SPFX_REFLECT
-       | SPFX_EREGEN),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL
+       | SPFX_REFLECT | SPFX_EREGEN),
       0, 0, NO_ATTK, DFNS(AD_DETH), NO_CARY, 0, A_LAWFUL,
       NON_PM, NON_PM, 25000L, NO_COLOR),
     /* Ashmar is a mithril dwarvish roundshield that can be created
@@ -350,8 +355,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        the shield deflects an attack, there's a 1 in 5 chance of it
        knocking the attacker back */
     A("Ashmar", DWARVISH_ROUNDSHIELD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL | SPFX_REGEN
-       | SPFX_PROTECT | SPFX_HPHDAM),
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL
+       | SPFX_REGEN | SPFX_PROTECT | SPFX_HPHDAM),
       0, 0, NO_ATTK, DFNS(AD_ACID), NO_CARY, 0, A_NONE,
       NON_PM, PM_DWARF, 20000L, NO_COLOR),
 

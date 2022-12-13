@@ -40,6 +40,7 @@
 #define SPFX_XRAY 0x02000000L    /* gives X-RAY vision to player */
 #define SPFX_REFLECT 0x04000000L /* Reflection */
 #define SPFX_PROTECT 0x08000000L /* Protection */
+#define SPFX_NOWISH 0x10000000L  /* cannot be wished for */
 
 struct artifact {
     short otyp;
