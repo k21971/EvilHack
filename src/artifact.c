@@ -168,68 +168,16 @@ int prop;
      return 0L;
 }
 
-int
-artifact_material(m)
-xchar m;
+/* return the material of a given artifact */
+short
+artifact_material(artinum)
+int artinum;
 {
-    switch (m) {
-    case ART_WEREBANE:
-    case ART_DEMONBANE:
-    case ART_GRAYSWANDIR:
-    case ART_GAUNTLETS_OF_PURITY:
-        return SILVER;
-        break;
-    case ART_DIRGE:
-    case ART_DRAMBORLEG:
-    case ART_ORCRIST:
-    case ART_STING:
-    case ART_GLAMDRING:
-    case ART_ASHMAR:
-        return MITHRIL;
-        break;
-    case ART_FIRE_BRAND:
-    case ART_FROST_BRAND:
-    case ART_STORMBRINGER:
-    case ART_LUCK_BLADE:
-    case ART_VORPAL_BLADE:
-    case ART_SCEPTRE_OF_MIGHT:
-    case ART_MITRE_OF_HOLINESS:
-    case ART_SNICKERSNEE:
-    case ART_SWORD_OF_ANNIHILATION:
-    case ART_SHADOWBLADE:
-        return METAL;
-        break;
-    case ART_SUNSWORD:
-    case ART_SWORD_OF_KAS:
-    case ART_RING_OF_P_HUL:
-    case ART_WAND_OF_ORCUS:
-        return GEMSTONE;
-        break;
-    case ART_YENDORIAN_EXPRESS_CARD:
-        return PLATINUM;
-        break;
-    case ART_DRAGONBANE:
-    case ART_BAG_OF_THE_HESPERIDES:
-        return DRAGON_HIDE;
-        break;
-    case ART_IRON_BALL_OF_LIBERATION:
-    case ART_ANGELSLAYER:
-        return IRON;
-        break;
-    case ART_GJALLAR:
-    case ART_BUTCHER:
-        return BONE;
-        break;
-    case ART_SECESPITA:
-        return COPPER;
-        break;
-    case ART_HAND_OF_VECNA:
-        return FLESH;
-        break;
-    default:
-        /* default material for that item */
-        return objects[artilist[m].otyp].oc_material;
+    if (artinum <= 0 || artinum > NROFARTIFACTS) {
+        impossible("invalid artifact number %d to artifact_material", artinum);
+        return 0;
     }
+    return artilist[artinum].material;
 }
 
 struct obj *

@@ -1386,7 +1386,20 @@ const char *name;
                                ansimpleoname(obj), bare_artifactname(obj));
         }
         /* set up specific materials for the artifact */
-        set_material(obj, artifact_material(obj->oartifact));
+        if (obj->oartifact) {
+            short material = artifact_material(obj->oartifact);
+            if (material == 0) { /* = use default material */
+              /* Don't change the material of the object if it's being created
+               * via naming an existing object, but prevent all other forms of
+               * getting a irregular-material artifact (wishing, dipping for
+               * Excalibur or getting it via crowning from an existing long
+               * sword) */
+              if (!via_naming)
+                  set_material(obj, objects[obj->otyp].oc_material);
+            } else { /* specifically defined material */
+                set_material(obj, material);
+            }
+        }
     }
     if (carried(obj))
         update_inventory();

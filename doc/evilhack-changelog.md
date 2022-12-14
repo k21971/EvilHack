@@ -2562,4 +2562,5 @@ The following changes to date are:
 - Don't forget shields...
 - Refactor a couple artifact functions (lawful/chaotic)
 - Refactor non_wishable_artifact()
+- Refactor: encode artifact material in artilist
 
