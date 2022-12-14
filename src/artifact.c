@@ -2184,13 +2184,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (attacks(AD_DISN, otmp)) {
         if (realizes_damage) {
             /* currently the only object that uses this
-               is the Sword of Anniliation artifact */
+               is the Sword of Annihilation artifact */
             if (!youattack && magr && cansee(magr->mx, magr->my)) {
                 if (!rn2(10) && !(resists_disint(mdef)
                                   || defended(mdef, AD_DISN))) {
                     pline_The("deadly blade disintegrates %s%c",
                               hittee, !spec_dbon_applies ? '.' : '!');
-                    mongone(mdef);
+                    passive_disint_mon(mdef);
                 } else if (!spec_dbon_applies) {
                     if (!youdefend)
                         ;
@@ -2215,20 +2215,42 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     }
 
                     /* chance for worn armor to be disintegrated */
-                    if (uarms && !rn2(3)) {
-                        (void) destroy_arm(uarms);
-                    } else if (uarmc && !rn2(4)) {
-                        (void) destroy_arm(uarmc);
-                    } else if (uarm && !rn2(6)) {
-                        (void) destroy_arm(uarm);
+                    if (youdefend) {
+                        if (uarms && !rn2(3)) {
+                            (void) destroy_arm(uarms);
+                        } else if (uarmc && !rn2(4)) {
+                            (void) destroy_arm(uarmc);
+                        } else if (uarm && !rn2(6)) {
+                            (void) destroy_arm(uarm);
+                        }
                     }
                 }
             } else {
                 if (!rn2(6) && !(resists_disint(mdef)
                                  || defended(mdef, AD_DISN))) {
+                    /* this next bit of code is really hacky, but
+                       necessary - disintegrate_mon() assumes
+                       breath attack, and passive_disint_mon()
+                       assumes mon vs mon. should probably make
+                       a separate function for this at some point */
+                    struct obj *a, *b, *m_amulet = mlifesaver(mdef);
+
+#define oresist_disintegration(obj) \
+    (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
+     || is_quest_artifact(obj) || obj == m_amulet)
+
                     pline_The("deadly blade disintegrates %s%c",
                               hittee, !spec_dbon_applies ? '.' : '!');
+
+                    for (a = mdef->minvent; a; a = b) {
+                         b = a->nobj;
+                         if (!oresist_disintegration(a)) {
+                             extract_from_minvent(mdef, a, TRUE, TRUE);
+                             obfree(a, (struct obj *) 0);
+                         }
+                    }
                     xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+#undef oresist_disintegration
                 } else {
                     pline_The("dark blade %s %s%c",
                               (resists_disint(mdef) || defended(mdef, AD_DISN))

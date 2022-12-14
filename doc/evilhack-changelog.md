@@ -2564,4 +2564,5 @@ The following changes to date are:
 - Refactor non_wishable_artifact()
 - Refactor: encode artifact material in artilist
 - Fix: elemental vulnerability effects against monsters
+- Fix: various issues with the Sword of Annihilation's attack
 
