@@ -176,6 +176,10 @@ struct monst {
     /* 1 free bit */
 
     uchar mwither;           /* withering; amount of turns left till recovery */
+    uchar vuln_fire;         /* timeout of temp vulnerability to fire */
+    uchar vuln_cold;         /* ...to cold */
+    uchar vuln_elec;         /* ...to elec */
+    uchar vuln_acid;         /* ...to acid */
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */

@@ -2496,37 +2496,42 @@ int spellnum;
 
         if (yours || canseemon(mtmp)) {
             dmg = rnd(4);
-            pline("A %s film oozes over its exterior!",
-                  Blind ? "slimy" : vulntext[dmg]);
+            pline("A %s film oozes over %s exterior!",
+                  Blind ? "slimy" : vulntext[dmg], mhis(mtmp));
             switch (dmg) {
             case 1:
-                if (mtmp->data->mflags4 & M4_VULNERABLE_FIRE)
+                if ((mtmp->data->mflags4 & M4_VULNERABLE_FIRE) != 0
+                    || mtmp->vuln_fire)
                     return;
-                mtmp->data->mflags4 |= M4_VULNERABLE_FIRE;
+                mtmp->vuln_fire = rnd(100) + 150;
                 pline("%s is more inflammable.", Monnam(mtmp));
                 break;
             case 2:
-                if (mtmp->data->mflags4 & M4_VULNERABLE_COLD)
+                if ((mtmp->data->mflags4 & M4_VULNERABLE_COLD) != 0
+                    || mtmp->vuln_cold)
                     return;
-                mtmp->data->mflags4 |= M4_VULNERABLE_COLD;
+                mtmp->vuln_cold = rnd(100) + 150;
                 pline("%s is extremely chilly.", Monnam(mtmp));
                 break;
             case 3:
-                if (mtmp->data->mflags4 & M4_VULNERABLE_ELEC)
+                if ((mtmp->data->mflags4 & M4_VULNERABLE_ELEC) != 0
+                    || mtmp->vuln_elec)
                     return;
-                mtmp->data->mflags4 |= M4_VULNERABLE_ELEC;
+                mtmp->vuln_elec = rnd(100) + 150;
                 pline("%s is overly conductive.", Monnam(mtmp));
                 break;
             case 4:
-                if (mtmp->data->mflags4 & M4_VULNERABLE_ACID)
+                if ((mtmp->data->mflags4 & M4_VULNERABLE_ACID) != 0
+                    || mtmp->vuln_acid)
                     return;
-                mtmp->data->mflags4 |= M4_VULNERABLE_ACID;
+                mtmp->vuln_acid = rnd(100) + 150;
                 pline("%s is easily corrodable.", Monnam(mtmp));
                 break;
             default:
                 break;
             }
         }
+        dmg = 0;
         break;
     case CLC_OPEN_WOUNDS:
         if (!mtmp || mtmp->mhp < 1) {

@@ -1116,6 +1116,16 @@ mcalcdistress()
             }
         }
 
+        /* temp vulnerability timeouts */
+        if (mtmp->vuln_fire > 0)
+            mtmp->vuln_fire--;
+        if (mtmp->vuln_cold > 0)
+            mtmp->vuln_cold--;
+        if (mtmp->vuln_elec > 0)
+            mtmp->vuln_elec--;
+        if (mtmp->vuln_acid > 0)
+            mtmp->vuln_acid--;
+
         /* must check non-moving monsters once/turn in case they managed
            to end up in water or lava; note: when not in liquid they regen,
            shape-shift, timeout temporary maladies just like other monsters */
