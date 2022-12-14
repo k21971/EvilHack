@@ -2670,32 +2670,6 @@ struct obj *obj;
         (void) erode_obj(obj, (char *) 0, dmgtyp, EF_GREASE | EF_DESTROY);
 }
 
-/* passive disintegration function vs monsters.
-   bulk of this taken from disintegrate_mon */
-void
-passive_disint_mon(mon)
-struct monst *mon;
-{
-    struct obj *otmp, *otmp2, *m_amulet = mlifesaver(mon);
-
-/* note: worn amulet of life saving must be preserved in order to operate */
-#define oresist_disintegration(obj)                                       \
-    (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
-     || is_quest_artifact(obj) || obj == m_amulet)
-
-    for (otmp = mon->minvent; otmp; otmp = otmp2) {
-        otmp2 = otmp->nobj;
-        if (!oresist_disintegration(otmp)) {
-            extract_from_minvent(mon, otmp, TRUE, TRUE);
-            obfree(otmp, (struct obj *) 0);
-        }
-    }
-
-#undef oresist_disintegration
-
-    monkilled(mon, "", AD_RBRE);
-}
-
 STATIC_OVL void
 mswingsm(magr, mdef, otemp)
 struct monst *magr, *mdef;
@@ -2810,7 +2784,8 @@ struct obj *mwep;
                                   s_suffix(Monnam(mdef)),
                                   mdef->data == &mons[PM_ANTIMATTER_VORTEX]
                                       ? "form" : "hide", mon_nam(magr));
-                        passive_disint_mon(magr);
+                        disint_mon_invent(magr);
+                        monkilled(magr, "", AD_DISN);
                         return (mdead | mhit | MM_AGR_DIED);
                     }
                 }

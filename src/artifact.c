@@ -2190,7 +2190,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                   || defended(mdef, AD_DISN))) {
                     pline_The("deadly blade disintegrates %s%c",
                               hittee, !spec_dbon_applies ? '.' : '!');
-                    passive_disint_mon(mdef);
+                    disint_mon_invent(mdef);
+                    monkilled(mdef, "", AD_DISN);
                 } else if (!spec_dbon_applies) {
                     if (!youdefend)
                         ;
@@ -2228,29 +2229,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else {
                 if (!rn2(6) && !(resists_disint(mdef)
                                  || defended(mdef, AD_DISN))) {
-                    /* this next bit of code is really hacky, but
-                       necessary - disintegrate_mon() assumes
-                       breath attack, and passive_disint_mon()
-                       assumes mon vs mon. should probably make
-                       a separate function for this at some point */
-                    struct obj *a, *b, *m_amulet = mlifesaver(mdef);
-
-#define oresist_disintegration(obj) \
-    (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
-     || is_quest_artifact(obj) || obj == m_amulet)
-
                     pline_The("deadly blade disintegrates %s%c",
                               hittee, !spec_dbon_applies ? '.' : '!');
-
-                    for (a = mdef->minvent; a; a = b) {
-                         b = a->nobj;
-                         if (!oresist_disintegration(a)) {
-                             extract_from_minvent(mdef, a, TRUE, TRUE);
-                             obfree(a, (struct obj *) 0);
-                         }
-                    }
+                    disint_mon_invent(mdef);
                     xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-#undef oresist_disintegration
                 } else {
                     pline_The("dark blade %s %s%c",
                               (resists_disint(mdef) || defended(mdef, AD_DISN))

@@ -2565,4 +2565,5 @@ The following changes to date are:
 - Refactor: encode artifact material in artilist
 - Fix: elemental vulnerability effects against monsters
 - Fix: various issues with the Sword of Annihilation's attack
+- Fix: proper credit for passive disintegration
 

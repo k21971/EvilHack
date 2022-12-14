@@ -991,6 +991,7 @@ E boolean FDECL(check_capacity, (const char *));
 E int FDECL(inv_cnt, (BOOLEAN_P));
 E long FDECL(money_cnt, (struct obj *));
 E void FDECL(spot_checks, (xchar, xchar, schar));
+E void FDECL(disint_mon_invent, (struct monst *));
 
 /* ### hacklib.c ### */
 
@@ -1329,7 +1330,6 @@ E void FDECL(slept_monst, (struct monst *));
 E void FDECL(xdrainenergym, (struct monst *, BOOLEAN_P));
 E long FDECL(attk_protection, (int));
 E void FDECL(rustm, (struct monst *, struct obj *));
-E void FDECL(passive_disint_mon, (struct monst *));
 
 /* ### mhitu.c ### */
 
