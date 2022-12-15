@@ -75,10 +75,10 @@ FOUNTAIN:(06,03)
 FOUNTAIN:(06,15)
 
 # Monsters
-MONSTER:('A',"Archangel"),(04,09),asleep,hostile
+MONSTER:('A',"Archangel"),(04,09),"Saint Michael",asleep,hostile
 
-MONSTER:('A',"Aleax"),$palace[0],asleep,hostile
 MONSTER:('A',"Angel"),$palace[1],asleep,hostile
+MONSTER:'A',$palace[0],asleep,hostile
 MONSTER:'J',$palace[2],asleep,hostile
 
 MONSTER:('@',"valkyrie"),$place[0]

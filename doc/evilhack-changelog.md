@@ -2566,4 +2566,5 @@ The following changes to date are:
 - Fix: elemental vulnerability effects against monsters
 - Fix: various issues with the Sword of Annihilation's attack
 - Fix: proper credit for passive disintegration
+- Minor Purgatory tweaks
 

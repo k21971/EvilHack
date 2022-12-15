@@ -1040,4 +1040,33 @@ register struct monst *mtmp;
     }
 }
 
+const char *const random_arch_amulet[] = {
+    "Hast thou come to repent thy sins?",
+    "Give unto me the Amulet, and I shall cleanse thee of thy sins.",
+    "Only those that are pure of heart can ascend to glory."
+};
+
+const char *const random_arch_idol[] = {
+    "Begone, foul Infidel!  I cast thee back to hell!",
+    "Return from whence thou cam'st!",
+    "I shall relieve thee of thy charge, and destroy thine wicked Idol!"
+};
+
+/* Saint Michael the Archangel */
+void
+archangel_purg_talk(mtmp)
+register struct monst *mtmp;
+{
+    if (Deaf)
+        return;
+    if (mtmp->data == &mons[PM_ARCHANGEL]) {
+        if (Role_if(PM_INFIDEL))
+            verbalize("%s",
+                      random_arch_idol[rn2(SIZE(random_arch_idol))]);
+        else
+            verbalize("%s",
+                      random_arch_amulet[rn2(SIZE(random_arch_amulet))]);
+    }
+}
+
 /*wizard.c*/

@@ -3133,6 +3133,7 @@ E void NDECL(intervene);
 E void NDECL(wizdead);
 E void FDECL(cuss, (struct monst *));
 E void FDECL(mplayer_purg_talk, (struct monst *));
+E void FDECL(archangel_purg_talk, (struct monst *));
 
 /* ### worm.c ### */
 

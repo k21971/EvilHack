@@ -935,10 +935,18 @@ toofar:
         && couldsee(mtmp->mx, mtmp->my) && !mtmp->minvis && !rn2(5))
         cuss(mtmp);
     /* players monsters in Purgatory */
-    if ((distu(mtmp->mx, mtmp->my) <= 15) && is_mplayer(mtmp->data)
-        && !mtmp->mpeaceful && couldsee(mtmp->mx, mtmp->my)
+    if (Inpurg && (distu(mtmp->mx, mtmp->my) <= 15)
+        && is_mplayer(mtmp->data) && !mtmp->mpeaceful
+        && couldsee(mtmp->mx, mtmp->my)
         && !mtmp->minvis && !rn2(5))
         mplayer_purg_talk(mtmp);
+    /* Saint Michael the Archangel in Purgatory */
+    if (Inpurg && (distu(mtmp->mx, mtmp->my) <= 15)
+        && mtmp->data == &mons[PM_ARCHANGEL]
+        && !mtmp->mpeaceful
+        && couldsee(mtmp->mx, mtmp->my)
+        && !mtmp->minvis && !rn2(5))
+        archangel_purg_talk(mtmp);
 
     /* note: can't get here when tmp==2 so this always returns 0 */
     return (tmp == 2);
