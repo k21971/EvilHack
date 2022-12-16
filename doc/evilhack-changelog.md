@@ -2567,4 +2567,6 @@ The following changes to date are:
 - Fix: various issues with the Sword of Annihilation's attack
 - Fix: proper credit for passive disintegration
 - Minor Purgatory tweaks
+- Fix: crash when unlocking a container with a wielded cursed
+  locking tool
 

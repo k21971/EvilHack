@@ -574,7 +574,10 @@ struct obj *container; /* container, for autounlock */
                     pline("As you start to %s the %s, your %s breaks!",
                           (otmp->olocked ? "unlock" : "lock"),
                           xname(otmp), xname(pick));
-                    delobj(pick);
+                    if (carried(pick))
+                        useup(pick);
+                    else
+                        delobj(pick);
                     nomul(0);
                     return PICKLOCK_DID_NOTHING;
                 }
@@ -664,10 +667,28 @@ struct obj *container; /* container, for autounlock */
             default:
                 ch = 0;
             }
+
+            /* small chance a cursed locking tool will break on use */
+            if (pick->cursed && !rn2(5)
+                && picktyp != STETHOSCOPE
+                && pick->oartifact != ART_MASTER_KEY_OF_THIEVERY
+                && pick->oartifact != ART_YENDORIAN_EXPRESS_CARD) {
+                pline("As you start to %s the door, your %s breaks!",
+                      ((door->doormask & D_LOCKED) ? "unlock" : "lock"),
+                      xname(pick));
+                if (carried(pick))
+                    useup(pick);
+                else
+                    delobj(pick);
+                nomul(0);
+                return PICKLOCK_DID_NOTHING;
+            }
+
             xlock.door = door;
             xlock.box = 0;
         }
     }
+
     context.move = 0;
     xlock.chance = ch;
     xlock.picktyp = picktyp;
