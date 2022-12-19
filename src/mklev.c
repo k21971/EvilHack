@@ -1599,6 +1599,12 @@ coord *tm;
                            || is_sewage(tm->x, tm->y)))
                     kind = NO_TRAP;
                 break;
+            case PIT:
+            case TRAPDOOR:
+                if (tm && (is_puddle(tm->x, tm->y)
+                           || is_sewage(tm->x, tm->y)))
+                    kind = NO_TRAP;
+                break;
             }
         } while (kind == NO_TRAP);
     }
@@ -1795,6 +1801,8 @@ xchar x, y;
 char up;
 struct mkroom *croom;
 {
+    struct monst *mtmp;
+
     if (!x) {
         impossible("mkstairs:  bogus stair attempt at <%d,%d>", x, y);
         return;
@@ -1821,6 +1829,13 @@ struct mkroom *croom;
 
     levl[x][y].typ = STAIRS;
     levl[x][y].ladder = up ? LA_UP : LA_DOWN;
+
+    /* added because makeriver() runs before mkstairs()
+       in the gnomish mines */
+    if ((mtmp = m_at(x, y)) != 0) {
+        if (is_swimmer(mtmp->data) && mtmp->mundetected)
+            mtmp->mundetected = 0;
+    }
 }
 
 STATIC_OVL void

@@ -2569,4 +2569,5 @@ The following changes to date are:
 - Minor Purgatory tweaks
 - Fix: crash when unlocking a container with a wielded cursed
   locking tool
+- Fix: impossible, eel hiding out of water (gnomish mines)
 

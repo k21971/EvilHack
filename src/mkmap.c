@@ -467,6 +467,12 @@ boolean notpool;
       	chance = 0;
         if (rnum >= 0 && rooms[rnum].rtype != OROOM)
             chance = 0;
+        /* damp terrain replacing stairs currently isn't
+           possible as makeriver() is only called during
+           mines creation, but good to guard against should
+           makeriver() ever be called after mkstairs() */
+        else if (levl[cx][cy].typ == STAIRS)
+            chance = 0;
         else if (levl[cx][cy].typ == CORR)
             chance = 15;
         else if (levl[cx][cy].typ == ROOM)
