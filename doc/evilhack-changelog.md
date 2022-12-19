@@ -2570,4 +2570,6 @@ The following changes to date are:
 - Fix: crash when unlocking a container with a wielded cursed
   locking tool
 - Fix: impossible, eel hiding out of water (gnomish mines)
+- Fix: wishing for an object with an invalid material in wizmode
+  while fuzzing
 

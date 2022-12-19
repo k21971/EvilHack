@@ -3633,9 +3633,15 @@ set_material(otmp, material)
 struct obj* otmp;
 int material;
 {
-    if (!valid_obj_material(otmp, material))
-        impossible("setting material of %s to invalid material %d",
-                   OBJ_NAME(objects[otmp->otyp]), material);
+    if (!valid_obj_material(otmp, material)) {
+        /* change impossible to a pline only if fuzzing */
+        if (iflags.debug_fuzzer)
+            pline("setting material of %s to invalid material %d",
+                  OBJ_NAME(objects[otmp->otyp]), material);
+        else
+            impossible("setting material of %s to invalid material %d",
+                       OBJ_NAME(objects[otmp->otyp]), material);
+    }
 
     otmp->material = material;
     otmp->owt = weight(otmp);
