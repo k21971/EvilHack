@@ -2572,4 +2572,5 @@ The following changes to date are:
 - Fix: impossible, eel hiding out of water (gnomish mines)
 - Fix: wishing for an object with an invalid material in wizmode
   while fuzzing
+- Fix: hilite_pile shenanigans with ball & chain
 

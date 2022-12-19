@@ -541,11 +541,11 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
 
             remove_object(uchain);
             maybe_unhide_at(uchain->ox, uchain->oy);
-            newsym(uchain->ox, uchain->oy);
+            newsym_force(uchain->ox, uchain->oy);
             if (!carried(uball)) {
                 remove_object(uball);
                 maybe_unhide_at(uball->ox, uball->oy);
-                newsym(uball->ox, uball->oy);
+                newsym_force(uball->ox, uball->oy);
             }
         } else {
             int on_floor = !carried(uball);
@@ -562,9 +562,9 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
                     place_object(uball, ballx, bally);
                 /* ball on top */
             }
-            newsym(chainx, chainy);
+            newsym_force(chainx, chainy);
             if (on_floor)
-                newsym(ballx, bally);
+                newsym_force(ballx, bally);
         }
     }
     /* dragging ball or chain through water */
