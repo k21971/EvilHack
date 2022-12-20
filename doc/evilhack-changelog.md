@@ -2577,4 +2577,6 @@ The following changes to date are:
 - Fix: some minor issues with spear traps
 - Fix: learning wielded weapon familiarity from unrelated thrown
   weapons
+- Fix: guard against monster casting a spell at an already dead
+  monster
 
