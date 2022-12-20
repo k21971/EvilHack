@@ -2575,4 +2575,6 @@ The following changes to date are:
 - Fix: hilite_pile shenanigans with ball & chain
 - Fix: monster recharging wands inside of a sack
 - Fix: some minor issues with spear traps
+- Fix: learning wielded weapon familiarity from unrelated thrown
+  weapons
 

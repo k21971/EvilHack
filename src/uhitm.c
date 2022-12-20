@@ -1783,7 +1783,7 @@ int dieroll;
        them. The more powerful a weapon, the lower this chance is. This
        way, there is uncertainty about when a weapon will ID, but spoiled
        players can make an educated guess. */
-    if (destroyed && uwep
+    if (destroyed && (obj == uwep) && uwep
         && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
         && !uwep->known) {
         uwep->wep_kills++;
