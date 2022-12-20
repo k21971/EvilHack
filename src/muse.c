@@ -1603,8 +1603,9 @@ boolean reflection_skip;
 
 #define nomore(x)       if (m.has_offense == x) continue;
 #define pick_to_charge(o) \
-    (!m.tocharge \
-     || (charge_precedence((o)->otyp) > charge_precedence(m.tocharge->otyp)))
+    (mcarried(o) && (!m.tocharge \
+                     || (charge_precedence((o)->otyp) \
+                         > charge_precedence(m.tocharge->otyp))))
     /* this picks the last viable item rather than prioritizing choices */
     for (obj = start; obj; obj = obj->nobj) {
         if (Is_container(obj)) {
@@ -2571,8 +2572,9 @@ struct monst *mtmp;
 
 #define nomore(x)       if (m.has_misc == (x)) continue
 #define pick_to_charge(o) \
-    (!m.tocharge \
-     || (charge_precedence((o)->otyp) > charge_precedence(m.tocharge->otyp)))
+    (mcarried(o) && (!m.tocharge \
+                     || (charge_precedence((o)->otyp) \
+                         > charge_precedence(m.tocharge->otyp))))
     /*
      * [bug?]  Choice of item is not prioritized; the last viable one
      * in the monster's inventory will be chosen.
@@ -2741,8 +2743,9 @@ struct obj *start;
     struct obj *charge_scroll = (struct obj *) 0;
 #define nomore(x)       if (m.has_misc == (x)) continue;
 #define pick_to_charge(o) \
-    (!m.tocharge \
-     || (charge_precedence((o)->otyp) > charge_precedence(m.tocharge->otyp)))
+    (mcarried(o) && (!m.tocharge \
+                     || (charge_precedence((o)->otyp) \
+                         > charge_precedence(m.tocharge->otyp))))
 
     for (obj = start; obj; obj = obj->nobj) {
         if (Is_container(obj)) {

@@ -2573,4 +2573,5 @@ The following changes to date are:
 - Fix: wishing for an object with an invalid material in wizmode
   while fuzzing
 - Fix: hilite_pile shenanigans with ball & chain
+- Fix: monster recharging wands inside of a sack
 
