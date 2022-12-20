@@ -1050,6 +1050,7 @@ unsigned trflags;
     char buf[BUFSZ];
     register int ttype = trap->ttyp;
     struct obj *otmp;
+    struct monst *steed = u.usteed;
     boolean already_seen = trap->tseen,
             forcetrap = ((trflags & FORCETRAP) != 0
                          || (trflags & FAILEDUNTRAP) != 0),
@@ -1792,8 +1793,16 @@ unsigned trflags;
 
     case SPEAR_TRAP:
         feeltrap(trap);
-        pline("A spear shoots up from a hole in the ground at you!");
-        if (Levitation || Flying) {
+        if (u.usteed)
+            pline("A spear shoots up from a hole in the ground at %s!",
+                  mon_nam(steed));
+        else
+            pline("A spear shoots up from a hole in the ground at you!");
+
+        if (u.usteed) {
+            /* trap hits steed instead of you */
+            (void) steedintrap(trap, (struct obj *) 0);
+        } else if (Levitation || Flying) {
             pline("But it isn't long enough to reach you.");
         } else if (thick_skinned(youmonst.data)) {
             pline("But it breaks off against your thick hide.");
@@ -1816,7 +1825,6 @@ unsigned trflags;
             else
                 losehp(Maybe_Half_Phys(rnd(10) + 10), buf, KILLED_BY);
         }
-        (void) steedintrap(trap, (struct obj *) 0);
         break;
 
     case MAGIC_PORTAL:
@@ -1863,6 +1871,7 @@ struct obj *otmp;
 {
     struct monst *steed = u.usteed;
     int tt;
+    int lvl = level_difficulty();
     boolean trapkilled, steedhit;
 
     if (!steed || !trap)
@@ -1908,7 +1917,7 @@ struct obj *otmp;
         steedhit = TRUE;
         break;
     case SPEAR_TRAP:
-        pline("The spear stabs %s%s as well!",
+        pline("The spear stabs %s%s!",
               (is_flyer(steed->data) || Levitation || Flying) ? "at " : "",
               mon_nam(steed));
         if (is_flyer(steed->data) || Levitation || Flying) {
@@ -1919,7 +1928,9 @@ struct obj *otmp;
             deltrap(trap);
             newsym(steed->mx, steed->my);
         } else {
-            trapkilled = thitm(0, steed, (struct obj*) 0, rnd(10) + 10, FALSE);
+            trapkilled = (DEADMONSTER(steed)
+                          || thitm(0, steed, (struct obj*) 0,
+                                   (rnd((lvl < 6) ? 4 : 10) + 10), FALSE));
             steedhit = TRUE;
         }
         break;
@@ -2458,6 +2469,7 @@ register struct monst *mtmp;
     struct permonst *mptr = mtmp->data;
     struct obj *otmp;
     struct monst* mtmp2;
+    int lvl = level_difficulty();
 
     if (!trap) {
         mtmp->mtrapped = 0;      /* perhaps teleported? */
@@ -3129,7 +3141,9 @@ register struct monst *mtmp;
                 if (in_sight)
                     pline("It passes right through %s!", mon_nam(mtmp));
             } else {
-                if (thitm(0, mtmp, (struct obj *) 0, rnd(10) + 10, FALSE))
+                if (DEADMONSTER(mtmp)
+                    || thitm(0, mtmp, (struct obj *) 0,
+                             (rnd((lvl < 6) ? 4 : 10) + 10), FALSE))
                     trapkilled = TRUE;
                 else if (in_sight)
                     pline("%s is skewered!", Monnam(mtmp));
