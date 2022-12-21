@@ -1918,7 +1918,7 @@ boolean *dealloced;
 #endif
     }
     add_to_buried(otmp);
-    return  otmp2;
+    return otmp2;
 }
 
 void

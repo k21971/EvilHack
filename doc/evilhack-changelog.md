@@ -2581,4 +2581,5 @@ The following changes to date are:
   monster
 - Give players a hint about the open air terrain on the second
   icequeen level
+- Fix: impossible (hiding under nothing?)
 

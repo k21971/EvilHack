@@ -4921,9 +4921,19 @@ xchar x, y;
 {
     struct monst *mtmp;
 
-    if (!OBJ_AT(x, y) && (mtmp = m_at(x, y)) != 0
-        && mtmp->mundetected && hides_under(mtmp->data))
+    if (OBJ_AT(x, y))
+        return;
+    if ((mtmp = m_at(x, y)) == 0
+        && x == u.ux && y == u.uy) {
+        mtmp = &youmonst;
+        /* mtmp->mundetected here isn't synchronized with
+           u.uundetected, we have to use u.uundetected for
+           the hero */
+        if (u.uundetected && hides_under(mtmp->data))
+            (void) hideunder(mtmp);
+    } else if (mtmp && mtmp->mundetected && hides_under(mtmp->data)) {
         (void) hideunder(mtmp);
+    }
 }
 
 /* monster/hero tries to hide under something at the current location */
