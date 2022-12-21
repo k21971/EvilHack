@@ -2579,4 +2579,6 @@ The following changes to date are:
   weapons
 - Fix: guard against monster casting a spell at an already dead
   monster
+- Give players a hint about the open air terrain on the second
+  icequeen level
 

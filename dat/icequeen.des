@@ -102,6 +102,9 @@ NON_PASSWALL:(00,00,08,05)
 
 MAZE: "icequeen-2", ' '
 FLAGS: noteleport,hardfloor,icedpools,shortsighted
+MESSAGE: "As you depart the lifeless, frozen wood, the west reveals a barren landscape of snow and ice."
+MESSAGE: "A bottomless chasm separates the icy plateau from the next."
+MESSAGE: "The only apparent way across is a solitary, slender ice bridge."
 GEOMETRY:left,center
 #         1         2         3         4         5         6         7    7
 #123456789012345678901234567890123456789012345678901234567890123456789012345
