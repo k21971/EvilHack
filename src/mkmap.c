@@ -587,7 +587,7 @@ STATIC_OVL void
 mkrivers()
 {
     int nriv = rn2(3) + 1;
-    boolean notpool = rn2(100) < depth(&u.uz);
+    boolean notpool = rn2(20) < depth(&u.uz);
 
     while (nriv--) {
         if (rn2(2))

@@ -2586,4 +2586,6 @@ The following changes to date are:
 - Prevent waking up Lucifer before actual encounter
 - Allow pokedex for shambling horrors in wizmode
 - Fix: sequencing issue: dismounting from dying steed
+- Greatly increase odds of sewage vs water rivers forming in the
+  Gnomish Mines
 
