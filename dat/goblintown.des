@@ -237,10 +237,10 @@ MONSTER:(';',"piranha"),random,hostile
 MONSTER:(';',"piranha"),random,hostile
 MONSTER:(';',"piranha"),random,hostile
 MONSTER:(';',"piranha"),random,hostile
-MONSTER:(';',"piranha"),random,hostile
-MONSTER:(';',"piranha"),random,hostile
-MONSTER:(';',"piranha"),random,hostile
+MONSTER:(';',"jellyfish"),random,hostile
+MONSTER:(';',"jellyfish"),random,hostile
 MONSTER:('B',"bat"),random,hostile
 MONSTER:('B',"bat"),random,hostile
 MONSTER:('B',"bat"),random,hostile
+MONSTER:('B',"giant bat"),random,hostile
 MONSTER:('B',"giant bat"),random,hostile

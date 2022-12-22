@@ -2582,4 +2582,5 @@ The following changes to date are:
 - Give players a hint about the open air terrain on the second
   icequeen level
 - Fix: impossible (hiding under nothing?)
+- Tweak the type/number of monsters in Gollum's cave
 

@@ -2312,6 +2312,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else if (youdefend && is_were(youmonst.data) && k) {
                     pline("The silver blade gravely burns you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form */
                 } else
                     return FALSE;
                 return TRUE;
@@ -2329,6 +2330,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                            Race_if(PM_GIANT)) && k) {
                     pline("The magical spear eviscerates you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form if poly'd */
                 } else
                     return FALSE;
                 return TRUE;
@@ -2345,6 +2347,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else if (youdefend && is_ogre(youmonst.data) && k) {
                     pline("The monstrous hammer crushes your skull!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form */
                 } else
                     return FALSE;
                 return TRUE;
@@ -2379,6 +2382,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                            Race_if(PM_ORC)) && k) {
                     You("feel Orcrist slice deep across your neck!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form if poly'd */
                 } else
                     return FALSE;
                 return TRUE;
@@ -2396,6 +2400,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                            Race_if(PM_ORC)) && k) {
                     You("feel Sting stab deep into your heart!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form if poly'd */
                 } else
                     return FALSE;
                 return TRUE;
@@ -2413,6 +2418,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                            Race_if(PM_ELF)) && k) {
                     pline("Grimtooth penetrates your soft flesh, disembowelling you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form if poly'd */
                 } else
                     return FALSE;
                 return TRUE;
@@ -2463,6 +2469,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else if (youdefend && youmonst.data == &mons[PM_BALROG]) {
                     pline("The magical axe obliterates you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form */
                 } else
                     return FALSE;
                 return TRUE;
@@ -2495,6 +2502,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else if (youdefend && is_demon(youmonst.data) && k) {
                     pline("Demonbane shines brilliantly, destroying you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form if poly'd */
                 } else
                     return FALSE;
                 return TRUE;
