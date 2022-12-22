@@ -3079,7 +3079,8 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
         separate_steed_and_rider(mtmp);
     if (mtmp->rider_id) {
         struct monst *mtmp2 = get_mon_rider(mtmp);
-        if (mtmp2) free_erid(mtmp2);
+        if (mtmp2)
+            free_erid(mtmp2);
         newsym(mtmp->mx, mtmp->my);
     }
     if (onmap)
@@ -3097,7 +3098,14 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
 
     mtmp->mstate |= MON_DETACH;
     iflags.purge_monsters++;
+
+    /* hero is thrown from his steed when it dies or gets genocided */
+    if (mtmp == u.usteed)
+        dismount_steed(DISMOUNT_GENERIC);
+    return;
 }
+
+
 
 /* find the worn amulet of life saving which will save a monster */
 struct obj *
@@ -3391,10 +3399,7 @@ register struct monst *mtmp;
     if (mtmp->isgd && !grddead(mtmp))
         return;
 
-    /* Player is thrown from his steed when it dies */
-    if (mtmp == u.usteed)
-        dismount_steed(DISMOUNT_GENERIC);
-    /* The same is true for monsters riding steeds */
+    /* monster is thrown from its steed when it dies */
     rider = get_mon_rider(mtmp);
     if (rider)
         separate_steed_and_rider(rider);
@@ -3532,6 +3537,7 @@ register struct monst *mtmp;
 
     if (glyph_is_invisible(levl[mtmp->mx][mtmp->my].glyph))
         unmap_object(mtmp->mx, mtmp->my);
+
     m_detach(mtmp, mptr);
 }
 
@@ -3670,10 +3676,7 @@ struct monst *mdef;
        his temporary corridor to/from the vault has been removed */
     if (mdef->isgd && !grddead(mdef))
         return;
-    /* hero is thrown from his steed when it disappears */
-    if (mdef == u.usteed)
-        dismount_steed(DISMOUNT_GENERIC);
-    /* The same is true for monsters riding steeds */
+    /* monster is thrown from its steed when it disappears */
     rider = get_mon_rider(mdef);
     if (rider)
         separate_steed_and_rider(rider);
