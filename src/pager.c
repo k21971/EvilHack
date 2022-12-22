@@ -1795,8 +1795,9 @@ char *supplemental_name;
                      * monsters whose names are substrings of objects, like
                      * "skeleton" and "skeleton key". */
                     else if (do_mon_lookup) {
-                        if (!wizard && (pm == &mons[PM_SHAMBLING_HORROR]))
-                            ; /* no freebies */
+                        if (!wizard && (pm == &mons[PM_SHAMBLING_HORROR])
+                            && mvitals[PM_SHAMBLING_HORROR].died < 1)
+                            ; /* no freebies until one has been killed */
                         else
                             add_mon_info(datawin, pm);
                         if (is_were(pm) && pm != &mons[PM_RAT_KING]) {
