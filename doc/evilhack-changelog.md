@@ -2584,4 +2584,5 @@ The following changes to date are:
 - Fix: impossible (hiding under nothing?)
 - Tweak the type/number of monsters in Gollum's cave
 - Prevent waking up Lucifer before actual encounter
+- Allow pokedex for shambling horrors in wizmode
 
