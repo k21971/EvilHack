@@ -2588,4 +2588,6 @@ The following changes to date are:
 - Fix: sequencing issue: dismounting from dying steed
 - Greatly increase odds of sewage vs water rivers forming in the
   Gnomish Mines
+- Fix: impossible (dmonsfree) when monster is killed by monster
+  spells that call explode()
 

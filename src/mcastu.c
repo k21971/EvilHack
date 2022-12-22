@@ -695,7 +695,6 @@ int spellnum;
                 shieldeff(u.ux, u.uy);
                 pline("The acid dissipates harmlessly.");
                 monstseesu(M_SEEN_ACID);
-                dmg = 0;
             }
             if (rn2(u.twoweap ? 2 : 3))
                 acid_damage(uwep);
@@ -711,8 +710,9 @@ int spellnum;
             } else {
                 You_hear("some cursing!");
             }
-            dmg = 0;
         }
+        /* damage is handled by explode() */
+        dmg = 0;
         break;
     case MGC_CLONE_WIZ:
         if (mtmp->iswiz && context.no_of_wizards == 1) {
@@ -829,7 +829,6 @@ int spellnum;
                 monstseesu((spellnum == MGC_FIRE_BOLT) ? M_SEEN_FIRE
                                                        : M_SEEN_COLD);
                 pline("But you resist the effects.");
-                dmg = 0;
             }
         } else {
             if (canseemon(mtmp)) {
@@ -839,8 +838,9 @@ int spellnum;
             } else {
                 You_hear("some cursing!");
             }
-            dmg = 0;
         }
+        /* damage is handled by explode() */
+        dmg = 0;
         break;
     case MGC_PSI_BOLT:
         /* prior to 3.4.0 Antimagic was setting the damage to 1--this
@@ -2017,16 +2017,17 @@ int spellnum;
         }
         if (yours || canseemon(mtmp))
             You("douse %s in a torrent of acid!", mon_nam(mtmp));
+        explode(mtmp->mx, mtmp->my, AD_ACID - 1, d((u.ulevel / 2) + 4, 8),
+                WAND_CLASS, EXPL_ACID);
         if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))
                 pline("But the acid dissipates harmlessly.");
-            dmg = 0;
         }
-        explode(mtmp->mx, mtmp->my, AD_ACID - 1, d((u.ulevel / 2) + 4, 8),
-                WAND_CLASS, EXPL_ACID);
         if (rn2(4))
             erode_armor(mtmp, ERODE_CORRODE);
+        /* damage is handled by explode() */
+        dmg = 0;
         break;
     case MGC_SUMMON_MONS: {
         int count = 0;
@@ -2206,20 +2207,18 @@ int spellnum;
         if (yours || canseemon(mtmp)) {
             You("blast %s with %s!", mon_nam(mtmp),
                 (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
+            explode(mtmp->mx, mtmp->my, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1
+                                                                    : AD_COLD - 1,
+                    d((u.ulevel / 5) + 1, 8), WAND_CLASS, 1);
             if (spellnum == MGC_FIRE_BOLT
                 && (resists_fire(mtmp) || defended(mtmp, AD_FIRE))) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("But %s seems unaffected by the fire.", mon_nam(mtmp));
-                dmg = 0;
             } else if (spellnum == MGC_ICE_BOLT
                 && (resists_cold(mtmp) || defended(mtmp, AD_COLD))) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("But %s seems unaffected by the cold.", mon_nam(mtmp));
-                dmg = 0;
             }
-            explode(mtmp->mx, mtmp->my, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1
-                                                                    : AD_COLD - 1,
-                    d((u.ulevel / 5) + 1, 8), WAND_CLASS, 1);
             if (spellnum == MGC_FIRE_BOLT) {
                 (void) burnarmor(mtmp);
                 destroy_mitem(mtmp, SCROLL_CLASS, AD_FIRE);
@@ -2228,6 +2227,8 @@ int spellnum;
                 (void) burn_floor_objects(mtmp->mx, mtmp->my, TRUE, FALSE);
             }
         }
+        /* damage is handled by explode() */
+        dmg = 0;
         break;
     case MGC_PSI_BOLT:
         if (!mtmp || mtmp->mhp < 1) {
