@@ -434,26 +434,29 @@ boolean foundyou;
             pline("You're enveloped in hellfire!");
         else
             pline("You're enveloped in flames.");
-        if (is_demon(mtmp->data) && (how_resistant(FIRE_RES) == 100)) {
+
+        if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
-            if (Race_if(PM_DEMON)) {
-                dmg = 0;
+            if (is_demon(mtmp->data)) {
+                if (Race_if(PM_DEMON) || nonliving(youmonst.data)) {
+                    dmg = 0;
+                } else {
+                    pline_The("hellish flames sear your soul!");
+                    dmg = (dmg + 1) / 2;
+                }
             } else {
-                pline_The("hellish flames sear your soul!");
-                dmg = (dmg + 1) / 2;
+                pline("But you resist the effects.");
+                monstseesu(M_SEEN_FIRE);
+                dmg = 0;
             }
-            burn_away_slime();
-            break;
-        } else if (how_resistant(FIRE_RES) == 100) {
-            shieldeff(u.ux, u.uy);
-            pline("But you resist the effects.");
-            monstseesu(M_SEEN_FIRE);
-            dmg = 0;
         } else {
-            if (is_demon(mtmp->data))
-                dmg = resist_reduce(dmg, FIRE_RES) / 2;
-            else
+            if (is_demon(mtmp->data)
+                && !(Race_if(PM_DEMON) || nonliving(youmonst.data))) {
+                pline_The("hellish flames sear your soul!");
+                dmg = resist_reduce(dmg, FIRE_RES) * 2;
+            } else {
                 dmg = resist_reduce(dmg, FIRE_RES);
+            }
         }
         burn_away_slime();
         break;
@@ -1660,20 +1663,23 @@ struct attack *mattk;
             else
                 pline("%s is enveloped in flames.", Monnam(mdef));
         }
-        if (is_demon(mtmp->data)
-            && (resists_fire(mdef) || defended(mdef, AD_FIRE))
-            && !nonliving(mdef->data) && !is_demon(mdef->data)) {
+
+        if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
             shieldeff(mdef->mx, mdef->my);
-            if (canseemon(mdef))
-                pline_The("hellish flames sear %s soul!",
-                          s_suffix(mon_nam(mdef)));
-            dmg = (dmg + 1) / 2;
-            break;
-        } else if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
-            shieldeff(mdef->mx, mdef->my);
-            if (canseemon(mdef))
-                pline("But %s resists the effects.", mhe(mdef));
-            dmg = 0;
+            if (is_demon(mtmp->data)) {
+                if (!(nonliving(mdef->data) || is_demon(mdef->data))) {
+                    if (canseemon(mdef))
+                        pline_The("hellish flames sear %s soul!",
+                                  s_suffix(mon_nam(mdef)));
+                    dmg = (dmg + 1) / 2;
+                } else {
+                    dmg = 0;
+                }
+            } else {
+                if (canseemon(mdef))
+                    pline("But %s resists the effects.", mhe(mdef));
+                dmg = 0;
+            }
         }
         break;
     case AD_COLD:
@@ -1845,20 +1851,23 @@ struct attack *mattk;
             else
                 pline("%s is enveloped in flames.", Monnam(mtmp));
         }
-        if (is_demon(youmonst.data)
-            && (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
-            && !nonliving(mtmp->data) && !is_demon(mtmp->data)) {
+
+        if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
             shieldeff(mtmp->mx, mtmp->my);
-            if (canseemon(mtmp))
-                pline_The("hellish flames sear %s soul!",
-                          s_suffix(mon_nam(mtmp)));
-            dmg = (dmg + 1) / 2;
-            break;
-        } else if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
-            shieldeff(mtmp->mx, mtmp->my);
-            if (canseemon(mtmp))
-                pline("But %s resists the effects.", mhe(mtmp));
-            dmg = 0;
+            if (is_demon(youmonst.data)) {
+                if (!(nonliving(mtmp->data) || is_demon(mtmp->data))) {
+                    if (canseemon(mtmp))
+                        pline_The("hellish flames sear %s soul!",
+                                  s_suffix(mon_nam(mtmp)));
+                    dmg = (dmg + 1) / 2;
+                } else {
+                    dmg = 0;
+                }
+            } else {
+                if (canseemon(mtmp))
+                    pline("But %s resists the effects.", mhe(mtmp));
+                dmg = 0;
+            }
         }
         break;
     case AD_COLD:

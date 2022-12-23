@@ -2591,4 +2591,5 @@ The following changes to date are:
 - Fix: impossible (dmonsfree) when monster is killed by monster
   spells that call explode()
 - Allow pokedex to show shambling horror stats after one has been killed
+- Fix: AT_MAGC / AD_FIRE attack in regards to demons
 
