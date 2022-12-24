@@ -235,10 +235,10 @@ MONSTER:('h',"Gollum"),$gollum_spawn[0],hostile
 # random monsters
 MONSTER:(';',"piranha"),random,hostile
 MONSTER:(';',"piranha"),random,hostile
-MONSTER:(';',"piranha"),random,hostile
-MONSTER:(';',"piranha"),random,hostile
 MONSTER:(';',"jellyfish"),random,hostile
 MONSTER:(';',"jellyfish"),random,hostile
+MONSTER:('B',"bat"),random,hostile
+MONSTER:('B',"bat"),random,hostile
 MONSTER:('B',"bat"),random,hostile
 MONSTER:('B',"bat"),random,hostile
 MONSTER:('B',"bat"),random,hostile

@@ -2594,4 +2594,5 @@ The following changes to date are:
 - Fix: AT_MAGC / AD_FIRE attack in regards to demons
 - Some more Purgatory tweaks
 - Fix: AD_LOUD feedback cases
+- One more Gollum's cave tweak
 
