@@ -1529,10 +1529,10 @@ register struct attack *mattk;
             || !m_canseeu(mtmp) || mtmp->mspec_used)
             return FALSE;
 
-        if (uncancelled && canseemon(mtmp) && Deaf) {
+        if (!mtmp->mcan && canseemon(mtmp) && Deaf) {
             pline("It looks as if %s is yelling at you.",
                   mon_nam(mtmp));
-        } else if (uncancelled
+        } else if (!mtmp->mcan
                    && !canseemon(mtmp) && Deaf) {
             You("sense a disturbing vibration in the air.");
         } else if (mtmp->mcan
