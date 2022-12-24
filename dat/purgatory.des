@@ -7,28 +7,28 @@
 #	only way out of Gehennom.
 #
 MAZE: "purgatory-1",' '
-FLAGS: noteleport,hardfloor,solidify,shortsighted
+FLAGS: noteleport,hardfloor,solidify,shortsighted,nommap
 MESSAGE: "You stand atop a craggly mountain."
 MESSAGE: "A deep chasm lies between you and an ancient palace."
 GEOMETRY:left,center
 #         1         2         3         4         5         6         7    7
 #123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
-.T..AAAA.TT....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+.T..AAAA.tt....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 -------------....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 |.|.........|.TT..AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 |.+.........|..TTT..AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-|.|.........|..........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAA....
-|--...T.....|--------....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.......AAAAAAAA...T..
+|--.........|..........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAA....
+|.|...T.....|--------....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.......AAAAAAAA...T..
 |.+..T......|}}}}}}}|.T....AAAAAAAAAA...AAAAAAAAAAAAAA...AAAA..AAAAAA.TT....
-|.|.T.......|}......----------AAAAAA.....AAAAAAAAAAA...AAAAAAA..AAAA...--...
-|--.........|}...............+.AAAAAA.....AAAAAAAA....AAAAAAAA...AA...--....
+|--.T.......|}......----------AAAAAA.....AAAAAAAAAAA...AAAAAAA..AAAA...--...
+|.|.........|}...............+.AAAAAA.....AAAAAAAA....AAAAAAAA...AA...--....
 |.S.\.......|}...............+..AAAAAA...AAAAAA......AAAAAAAAAA.......|.....
-|--.........|}...............+....AAAAAAAAAAAA..T..AAAAAAAAAAAAA......--....
-|.|.T.......|}......----------AA...AAAAAAAAAA.....AAAAAAAAAAAAAAAAAA...--...
+|.|.........|}...............+....AAAAAAAAAAAA..T..AAAAAAAAAAAAA......--....
+|--.T.......|}......----------AA...AAAAAAAAAA.....AAAAAAAAAAAAAAAAAA...--...
 |.+..T......|}}}}}}}|......AAAAAAA....AAAA....AAAAAAAAAAAAAAAAAAAAAAA......T
-|--...T.....|--------..T.AAAAAAAAAAA...AA...AAAAAAAAAAAAAAAAAAAAAAAAAA..TT..
-|.|.........|.t...TT...AAAAAAAAAAAAAAA....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT...
+|.|...T.....|--------..T.AAAAAAAAAAA...AA...AAAAAAAAAAAAAAAAAAAAAAAAAA..TT..
+|--.........|.t...TT...AAAAAAAAAAAAAAA....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT...
 |.+.........|tt.....AAAAAAAAAAAAAAAAAAAA..AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 |.|.........|...T.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 -------------....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -45,14 +45,15 @@ $place = { (16,15),(31,09),(47,10),(73,14) }
 SHUFFLE: $place
 
 # Palace guard locations (one will always be blank)
-$palace = { (01,03),(01,06),(01,12),(01,15) }
+$palace = { (01,03),(01,06),(01,12),(01,15),
+            (05,05),(05,13),(10,03),(10,15) }
 SHUFFLE: $palace
 
 REGION:(00,00,75,19),lit,"ordinary"
 REGION:(01,02,11,16),lit,"throne",unfilled
 TELEPORT_REGION:(72,08,74,10),(00,00,00,00)
 # Exit portal to sokoban
-PORTAL:(01,09,01,09),(0,0,0,0), "soko4"
+PORTAL:(01,09,01,09),(0,0,0,0), "castle"
 # Stairs
 STAIR:(73,09),down
 
@@ -77,9 +78,13 @@ FOUNTAIN:(06,15)
 # Monsters
 MONSTER:('A',"Archangel"),(04,09),"Saint Michael",asleep,hostile
 
+MONSTER:('A',"Angel"),$palace[0],asleep,hostile
 MONSTER:('A',"Angel"),$palace[1],asleep,hostile
-MONSTER:'A',$palace[0],asleep,hostile
-MONSTER:'J',$palace[2],asleep,hostile
+MONSTER:('D',"celestial dragon"),$palace[2],asleep,hostile
+MONSTER:'A',$palace[3],asleep,hostile
+MONSTER:'D',$palace[4],asleep,hostile
+MONSTER:'H',$palace[5],asleep,hostile
+MONSTER:'J',$palace[6],asleep,hostile
 
 MONSTER:('@',"valkyrie"),$place[0]
 MONSTER:('@',"priest"),$place[1]
@@ -105,6 +110,12 @@ MONSTER:(' ',"spectre"),random
 MONSTER:(' ',"spectre"),random
 MONSTER:(' ',"spectre"),random
 MONSTER:(' ',"spectre"),random
+MONSTER:'e',random
+MONSTER:'e',random
+MONSTER:'e',random
+MONSTER:'e',random
+MONSTER:('H',"storm giant"),(50,15),hostile
+MONSTER:('H',"storm giant"),(58,04),hostile
 MONSTER:$monster[0],random
 MONSTER:$monster[1],random
 MONSTER:$monster[0],random
@@ -112,8 +123,8 @@ MONSTER:$monster[1],random
 
 # Loot
 OBJECT:('(',"crystal chest"),(01,02)
-OBJECT:('(',"crystal chest"),(01,07)
-OBJECT:('(',"crystal chest"),(01,11)
+OBJECT:('(',"crystal chest"),(01,05)
+OBJECT:('(',"crystal chest"),(01,13)
 OBJECT:('(',"crystal chest"),(01,16)
 OBJECT:('/',"opening"),(13,14)
 OBJECT:('%',"egg"), (02,00), montype:"celestial dragon"
@@ -127,7 +138,7 @@ NON_PASSWALL:(12,05,29,13)
 
 
 MAZE: "purgatory-2",' '
-FLAGS: noteleport,hardfloor,solidify,shortsighted
+FLAGS: noteleport,hardfloor,solidify,shortsighted,nommap
 
 GEOMETRY:left,center
 #         1         2         3         4         5         6         7    7
@@ -135,19 +146,19 @@ GEOMETRY:left,center
 MAP
 TT..PPPPP..TTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTTTTT...TTT.TTTT.----------------
 T..T.PPPPP...TTTTTT..........TTTTTTTTTTT....................|..............|
-......PPP.......................................TTTTT.......|..............|
-TTT....PPP......TTT..........................TTTT...........|..............|
-..TT..PPPP....TTTT......TTTT.............................T........---------|
-.......PPPP...............TT......................................|........|
-..TT....PPPP......TT..............TTT........TT......T............+........|
-.TTT....PPPPP.....................TTT.......TTT...................|........|
-.........PPPP..T...PPPPPPPP........TT.........TTT......T..........+........|
-....T..T..PPP.TT.PPPPPPT.PPPPPP...................................|........|
-...........PPPPPPPPP........PPPPPPPP.......TT.....................---------|
-..TT......PPPPPPP..............PPPPPPPPP.T..................|..............|
+......PPP.......................................TTTTT......T|..............|
+TTT....PPP......TTT.....................P....TTTT.........TT|..............|
+..TT..PPPP....TTTT......TTTT...........PPP...............TT.......---------|
+.......PPPP...............TT............P................TT.......|........|
+..TT....PPPP......TT..............TTT........TT......T....T.......+........|
+.TTT....PPPPP.....T...............TTT.......TTT...................|........|
+.........PPPP..T..TPPPPPPPP........TT.........TTT......T..........+........|
+....T..T..PPP.TT.PPPPPPT.PPPPPP....T..............................|........|
+...........PPPPPPPPP........PPPPPPPP.......TT.....TT..............---------|
+..TT......PPPPPPP..............PPPPPPPPP.TTT.......TT.......|..............|
 T..TTT..PPPPP.........TTTTT.......PPPPPPPP.............TT...|..............|
 T......PPPPP.TT.....TTT...TTT.......T.PPPPPP...........TTT..|..............|
-.......PPPP..T.....TT.......TT.....TTT...PPPPPPPPP..........----------------
+.......PPPP..T.....TT.......TT.....TTT...PPPPPPPPP......T...----------------
 ......PPPP........TT..........................PPPPPPP.........ttt........t..
 .....TTPPPP.......TT.................TTTTT........PPPPP..............TTT....
 ......T.PPPP..TT...TT.......TT.....TTTTT............PPPP..............T....T
@@ -159,8 +170,13 @@ ENDMAP
 $monster = monster: { 'C','D','J','n' }
 SHUFFLE: $monster
 
+$river = { (07,01),(11,09),(09,13),(22,08),
+           (28,09),(34,11),(42,14),(56,18) }
+SHUFFLE: $river
+
 # Player monster locations (one will always be blank)
-$place = { (02,09),(21,02),(15,15),(40,07),(57,05),(63,12),(32,17) }
+$place = { (02,09),(21,02),(15,15),
+           (40,07),(55,05),(63,12),(32,17) }
 SHUFFLE: $place
 
 REGION:(00,00,75,19),lit,"ordinary"
@@ -201,9 +217,9 @@ MONSTER:(' ',"spectre"),(16,16)
 MONSTER:(' ',"spectre"),(40,06)
 MONSTER:(' ',"spectre"),(40,08)
 MONSTER:(' ',"spectre"),(39,07)
-MONSTER:(' ',"spectre"),(57,04)
-MONSTER:(' ',"spectre"),(58,05)
-MONSTER:(' ',"spectre"),(58,06)
+MONSTER:(' ',"spectre"),(55,04)
+MONSTER:(' ',"spectre"),(56,05)
+MONSTER:(' ',"spectre"),(56,06)
 MONSTER:(' ',"spectre"),(63,11)
 MONSTER:(' ',"spectre"),(62,12)
 MONSTER:(' ',"spectre"),(64,12)
@@ -211,6 +227,7 @@ MONSTER:(' ',"spectre"),(31,17)
 MONSTER:(' ',"spectre"),(33,17)
 MONSTER:(' ',"spectre"),(33,18)
 
+MONSTER:('n',"water nymph"),(40,04)
 MONSTER:('J',"vorpal jabberwock"),(69,07)
 
 MONSTER:(' ',"ghost"),random
@@ -226,6 +243,19 @@ MONSTER:(' ',"ghost"),random
 MONSTER:(' ',"ghost"),random
 MONSTER:(' ',"ghost"),random
 MONSTER:(' ',"ghost"),random
+MONSTER:(';',"kraken"),$river[0]
+MONSTER:(';',"kraken"),$river[1]
+MONSTER:(';',"giant eel"),$river[2]
+MONSTER:(';',"giant eel"),$river[3]
+MONSTER:(';',"electric eel"),$river[4]
+MONSTER:(';',"electric eel"),$river[5]
+MONSTER:(';',"shark"),$river[6]
+MONSTER:(';',"shark"),$river[7]
+MONSTER:'e',random
+MONSTER:'e',random
+MONSTER:'e',random
+MONSTER:'e',random
+MONSTER:'e',random
 MONSTER:'D',random
 MONSTER:'D',random
 MONSTER:$monster[0],random

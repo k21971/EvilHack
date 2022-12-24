@@ -826,7 +826,7 @@ void
 intervene()
 {
     struct monst *mtmp = (struct monst *) 0;
-    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(10);
+    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(9);
     /* many cases don't apply on the Astral level or Planes.
        with the introduction of Purgatory, the ascension run
        has been shortened by quite a bit. the odds of Rodney
@@ -851,10 +851,9 @@ intervene()
         break;
     case 5:
     case 6:
-    case 7:
         resurrect();
         break;
-    case 8:
+    case 7:
         if (u.uevent.invoked) {
             pline_The("entire dungeon starts shaking around you!");
             do_earthquake((MAXULEV - 1) / 3 + 1);
@@ -867,7 +866,7 @@ intervene()
             awaken_monsters(ROWNO * COLNO);
         }
         break;
-    case 9:
+    case 8:
         (void) nasty((struct monst *) 0, TRUE);
         break;
     }

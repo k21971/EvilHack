@@ -1720,7 +1720,7 @@ boolean at_stairs, falling, portal;
     flush_screen(-1);       /* ensure all map flushes are postponed */
 
     if (portal && !In_endgame(&u.uz)
-        && !In_sokoban(&u.uz)) {
+        && !Is_stronghold(&u.uz)) {
         /* find the portal on the new level */
         struct trap *ttrap;
 

@@ -2592,4 +2592,5 @@ The following changes to date are:
   spells that call explode()
 - Allow pokedex to show shambling horror stats after one has been killed
 - Fix: AT_MAGC / AD_FIRE attack in regards to demons
+- Some more Purgatory tweaks
 
