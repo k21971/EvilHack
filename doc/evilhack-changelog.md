@@ -2595,4 +2595,6 @@ The following changes to date are:
 - Some more Purgatory tweaks
 - Fix: AD_LOUD feedback cases
 - One more Gollum's cave tweak
+- Fix: crash when wearing white dragon-scaled armor and no boots while
+  100% fire resistant
 
