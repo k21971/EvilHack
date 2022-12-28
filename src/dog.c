@@ -485,7 +485,7 @@ boolean with_you;
         xlocale = sstairs.sx, ylocale = sstairs.sy;
         break;
     case MIGR_PORTAL:
-        if (In_endgame(&u.uz)) {
+        if (In_endgame(&u.uz) || Is_stronghold(&u.uz)) {
             /* there is no arrival portal for endgame levels */
             /* BUG[?]: for simplicity, this code relies on the fact
                that we know that the current endgame levels always
