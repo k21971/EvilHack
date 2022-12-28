@@ -2597,4 +2597,5 @@ The following changes to date are:
 - One more Gollum's cave tweak
 - Fix: crash when wearing white dragon-scaled armor and no boots while
   100% fire resistant
+- Correct 'too many hooves' feedback
 

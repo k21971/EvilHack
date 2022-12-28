@@ -2257,7 +2257,7 @@ boolean noisy;
             /* break_armor() pushes boots off for centaurs,
                so don't let dowear() put them back on... */
             if (noisy)
-                pline("You have too many hooves to wear %s.",
+                Your ("hooves are not shaped correctly to wear %s.",
                       c_boots); /* makeplural(body_part(FOOT)) yields
                                    "rear hooves" which sounds odd */
             err++;
@@ -2266,7 +2266,7 @@ boolean noisy;
                whilst wearing footwear, plus their shape is
                all wrong */
             if (noisy)
-                pline("Your %s are not shaped correctly to wear %s.",
+                Your ("%s are not shaped correctly to wear %s.",
                       makeplural(body_part(FOOT)), c_boots);
             err++;
         } else if (u.utrap
