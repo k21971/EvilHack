@@ -817,20 +817,23 @@ gcrownu()
     if (!rn2(10) && !Role_if(PM_INFIDEL))
         HSick_resistance |= FROMOUTSIDE;
     incr_resistance(&HFire_resistance, 100);
-    if (u.ualign.type != A_NONE) {
+    if (!Role_if(PM_INFIDEL)) {
         /* demons don't get all the intrinsics */
         incr_resistance(&HCold_resistance, 100);
         incr_resistance(&HShock_resistance, 100);
         incr_resistance(&HSleep_resistance, 100);
     }
     incr_resistance(&HPoison_resistance, 100);
-    if (u.ualign.type == A_NONE) {
+    if (Role_if(PM_INFIDEL)) {
         HSick_resistance |= FROMRACE;
         if (Race_if(PM_ILLITHID)) /* demons don't have the correct brain structure */
             HPsychic_resistance &= ~INTRINSIC;
+        if (Race_if(PM_CENTAUR)) /* demons don't have four legs */
+            EJumping &= ~INTRINSIC;
     }
-    if (u.ualign.type != A_NONE)
-        monstseesu(M_SEEN_FIRE | M_SEEN_COLD | M_SEEN_ELEC | M_SEEN_SLEEP | M_SEEN_POISON);
+    if (!Role_if(PM_INFIDEL))
+        monstseesu(M_SEEN_FIRE | M_SEEN_COLD | M_SEEN_ELEC
+                   | M_SEEN_SLEEP | M_SEEN_POISON);
     else
         monstseesu(M_SEEN_FIRE | M_SEEN_POISON);
     godvoice(u.ualign.type, (char *) 0);
@@ -904,24 +907,27 @@ gcrownu()
         break;
     case A_NONE:
         u.uevent.uhand_of_elbereth = 4;
-        verbalize("Thou shalt be my vassal of suffering and terror!");
-        livelog_printf(LL_DIVINEGIFT, "became the Emissary of Moloch");
-        class_gift = SPE_FIREBALL; /* no special weapon */
-        unrestrict_weapon_skill(P_TRIDENT);
-        P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
-        if (Upolyd)
-            rehumanize(); /* return to human/orcish form -- not a demon yet */
-        pline1("Wings sprout from your back and you grow a barbed tail!");
-        maxint = urace.attrmax[A_INT];
-        maxwis = urace.attrmax[A_WIS];
-        urace = race_demon;
-        /* mental faculties are not changed by demonization */
-        urace.attrmax[A_INT] = maxint;
-        urace.attrmax[A_WIS] = maxwis;
-        youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
-        set_uasmon();
-        retouch_equipment(2); /* silver */
-        break;
+        if (Role_if(PM_INFIDEL)) {
+            verbalize("Thou shalt be my vassal of suffering and terror!");
+            livelog_printf(LL_DIVINEGIFT, "became the Emissary of Moloch");
+            class_gift = SPE_FIREBALL; /* no special weapon */
+            unrestrict_weapon_skill(P_TRIDENT);
+            P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
+            if (Upolyd)
+                rehumanize(); /* return to human/orcish form -- not a demon yet */
+            pline1("Wings sprout from your back and you grow a barbed tail!");
+            maxint = urace.attrmax[A_INT];
+            maxwis = urace.attrmax[A_WIS];
+            urace = race_demon;
+            /* mental faculties are not changed by demonization */
+            urace.attrmax[A_INT] = maxint;
+            urace.attrmax[A_WIS] = maxwis;
+            youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
+            set_uasmon();
+            newsym(u.ux, u.uy);
+            retouch_equipment(2); /* silver */
+            break;
+        }
     }
 
     if (objects[class_gift].oc_class == SPBOOK_CLASS) {
