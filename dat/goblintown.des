@@ -53,17 +53,17 @@ IF [50%] {
 }
 
 # Door to jail cells?
-IF [65%] {
+IF [35%] {
   TERRAIN:(26,16),'F'
 } ELSE {
   DOOR:locked,(26,16)
 }
-IF [80%] {
+IF [50%] {
   TERRAIN:(41,04),'F'
 } ELSE {
   DOOR:locked,(41,04)
 }
-IF [80%] {
+IF [50%] {
   TERRAIN:(67,13),'F'
 } ELSE {
   DOOR:locked,(67,13)
@@ -77,6 +77,9 @@ CONTAINER:('(',"chest"),(23,18) {
   OBJECT:('+',"novel"),uncursed,name:"The Blacksmith's Cookbook"
   IF [65%] {
     OBJECT:(')',"war hammer"),uncursed
+  }
+  IF [50%] {
+    OBJECT:('!',"acid"),uncursed
   }
 }
 OBJECT:('`',"boulder"),(28,03)
@@ -204,7 +207,7 @@ CONTAINER:('(',"chest"),(40,10) {
 }
 
 CONTAINER:('(',"chest"),(64,15) {
-  IF [15%] {
+  IF [35%] {
     OBJECT:('[',"elven chain mail")
   }
   IF [50%] {

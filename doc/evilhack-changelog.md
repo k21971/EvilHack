@@ -2600,4 +2600,5 @@ The following changes to date are:
 - Correct 'too many hooves' feedback
 - Fix: impossible 'mon_arrive: no corresponding portal?' when leaving Purgatory
 - Fix: unable to dig if wielding a cursed pick-axe/mattock
+- Another Goblin Town tweak
 
