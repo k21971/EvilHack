@@ -2603,4 +2603,5 @@ The following changes to date are:
 - Another Goblin Town tweak
 - Fix: crowned Infidel that started as a centaur kept jump ability
 - Fix: make the Eye and Hand of Vecna immune to fire/lava damage
+- Fix: Dramborleg damage output
 

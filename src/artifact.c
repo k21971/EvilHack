@@ -1289,11 +1289,12 @@ int tmp;
         spec_dbon_applies = FALSE;
     else if (otmp->oartifact == ART_GRIMTOOTH
              || otmp->oartifact == ART_VORPAL_BLADE
-             || otmp->oartifact == ART_ANGELSLAYER)
-        /* Grimtooth, Vorpal Blade, and Angelslayer have SPFX settings
-           to warn against elves, jabberwocks, and angels respectively,
-           but we want its damage bonus to apply to all targets, so
-           bypass spec_applies() */
+             || otmp->oartifact == ART_ANGELSLAYER
+             || otmp->oartifact == ART_DRAMBORLEG)
+        /* Grimtooth, Vorpal Blade, Angelslayer, and Dramborleg have
+           SPFX settings to warn against elves, jabberwocks, angels,
+           and demons respectively, but we want its damage bonus to
+           apply to all targets, so bypass spec_applies() */
         spec_dbon_applies = TRUE;
     else
         spec_dbon_applies = spec_applies(weap, mon);
