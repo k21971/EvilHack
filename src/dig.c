@@ -257,7 +257,7 @@ dig(VOID_ARGS)
         if (!dig_check(BY_YOU, TRUE, u.ux, u.uy))
             return 0;
     } else { /* !context.digging.down */
-        if (IS_TREE(lev->typ) && !may_dig(dpx, dpy)
+        if (IS_TREES(lev->typ) && !may_dig(dpx, dpy)
             && dig_typ(uwep, dpx, dpy) == DIGTYP_TREE) {
             pline("This tree seems to be petrified.");
             return 0;
@@ -404,11 +404,15 @@ dig(VOID_ARGS)
                     goto cleanup;
                 }
             }
-            if (IS_TREES(lev->typ)) {
+            if (IS_TREE(lev->typ)) {
                 digtxt = "You cut down the tree.";
                 lev->typ = ROOM, lev->flags = 0;
-                if (!rn2(5) && !IS_DEADTREE(lev->typ))
+                if (!rn2(5))
                     (void) rnd_treefruit_at(dpx, dpy);
+            } else if (IS_DEADTREE(lev->typ)) {
+                /* no fruit for you */
+                digtxt = "You cut down the tree.";
+                lev->typ = ROOM, lev->flags = 0;
             } else {
                 digtxt = "You succeed in cutting away some rock.";
                 lev->typ = CORR, lev->flags = 0;
@@ -1335,10 +1339,12 @@ register struct monst *mtmp;
         } else {
             here->typ = DOOR, here->doormask = D_NODOOR;
         }
-    } else if (IS_TREES(here->typ)) {
+    } else if (IS_TREE(here->typ)) {
         here->typ = ROOM, here->flags = 0;
-        if (pile && pile < 5 && !IS_DEADTREE(here->typ))
+        if (pile && pile < 5)
             (void) rnd_treefruit_at(mtmp->mx, mtmp->my);
+    } else if (IS_DEADTREE(here->typ)) {
+        here->typ = ROOM, here->flags = 0;
     } else {
         here->typ = CORR, here->flags = 0;
         if (pile && pile < 5)
