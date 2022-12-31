@@ -1939,6 +1939,12 @@ register struct obj *otmp;
     if (Is_candle(otmp))
         return FALSE;
 
+    /* both the eye and the hand are fleshy, but they come from
+       Vecna, and are not harmed by fire */
+    if (otmp->oartifact == ART_EYE_OF_VECNA
+        || otmp->oartifact == ART_HAND_OF_VECNA)
+        return FALSE;
+
     if (objects[otyp].oc_oprop == FIRE_RES || otyp == WAN_FIRE)
         return FALSE;
 

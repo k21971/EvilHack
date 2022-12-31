@@ -2602,4 +2602,5 @@ The following changes to date are:
 - Fix: unable to dig if wielding a cursed pick-axe/mattock
 - Another Goblin Town tweak
 - Fix: crowned Infidel that started as a centaur kept jump ability
+- Fix: make the Eye and Hand of Vecna immune to fire/lava damage
 
