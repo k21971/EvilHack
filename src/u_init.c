@@ -1159,6 +1159,18 @@ u_init()
         }
     }
 
+    /* Tortles that start with a trident get one that
+       is rustproof (currently only barbarian role) */
+    if (Role_if(PM_BARBARIAN)) {
+        struct obj *otmp;
+        for (otmp = invent; otmp; otmp = otmp->nobj) {
+            if (otmp->otyp == TRIDENT) {
+                otmp->oerodeproof = 1;
+                otmp->rknown = 1;
+            }
+        }
+    }
+
     find_ac();     /* get initial ac value */
     init_attr(75); /* init attribute values */
     max_rank_sz(); /* set max str size for class ranks */
