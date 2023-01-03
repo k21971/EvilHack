@@ -1430,6 +1430,8 @@ struct obj *obj;
     xchar x, y;
 
     if (obj->lamplit) {
+        if (Underwater && obj->otyp == MAGIC_LAMP)
+            return FALSE;
         if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
             || obj->otyp == LANTERN || obj->otyp == POT_OIL) {
             (void) get_obj_location(obj, &x, &y, 0);
@@ -1499,7 +1501,7 @@ struct obj *obj;
     }
     if (!u_handsy())
         return;
-    if (Underwater) {
+    if (Underwater && obj->otyp != MAGIC_LAMP) {
         pline(!Is_candle(obj) ? "This is not a diving lamp"
                               : "Sorry, fire and water don't mix.");
         return;
