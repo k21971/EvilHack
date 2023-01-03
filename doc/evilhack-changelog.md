@@ -2605,4 +2605,5 @@ The following changes to date are:
 - Fix: make the Eye and Hand of Vecna immune to fire/lava damage
 - Fix: Dramborleg damage output
 - Fix: dead trees dropping fruit/petrified status, icequeen 2nd map tweaks
+- Fix: placement of monster rider/steed when separated
 

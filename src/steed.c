@@ -129,6 +129,7 @@ struct monst *mtmp;
         (void) memset((genericptr_t) ERID(mtmp), 0, sizeof(struct erid));
     }
 }
+
 void
 free_erid(mtmp)
 struct monst *mtmp;
@@ -146,21 +147,34 @@ struct monst *rider;
 {
     struct monst *steed;
     coord cc;
+
     if (!has_erid(rider))
         return;
+
     steed = ERID(rider)->m1;
     free_erid(rider);
-    /* TODO: Figure out what's going on here */
-    if (!DEADMONSTER(rider)) {
-        enexto(&cc, rider->mx, rider->my, rider->data);
-        rloc_to(rider, cc.x, cc.y);
+
+    /* handle rider if both rider and steed are alive */
+    if (!DEADMONSTER(rider) && !DEADMONSTER(steed)) {
+        /* move rider to an adjacent tile */
+        if (enexto(&cc, rider->mx, rider->my, rider->data))
+            rloc_to(steed, cc.x, cc.y);
+        else /* evidently no room nearby; move rider elsewhere */
+            (void) rloc(rider, FALSE);
     }
-    if (!DEADMONSTER(steed)) {
-        enexto(&cc, steed->mx, steed->my, steed->data);
-        rloc_to(steed, cc.x, cc.y);
+    /* place rider if steed dies and rider is still alive */
+    if (!DEADMONSTER(rider) && DEADMONSTER(steed)) {
+        remove_monster(steed->mx, steed->my);
+        place_monster(rider, rider->mx, rider->my);
     }
+    /* place steed if rider dies and steed is still alive */
+    if (!DEADMONSTER(steed) && DEADMONSTER(rider))
+        place_monster(steed, steed->mx, steed->my);
+
     update_monster_region(rider);
     update_monster_region(steed);
+    newsym(rider->mx, rider->my);
+    newsym(steed->mx, steed->my);
 }
 
 struct monst*
