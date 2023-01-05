@@ -362,6 +362,7 @@ int x, y, typ;
     boolean oldplace;
     struct trap *ttmp;
     struct rm *lev = &levl[x][y];
+    boolean was_ice = (lev->typ == ICE);
 
     if ((ttmp = t_at(x, y)) != 0) {
         if (undestroyable_trap(ttmp->ttyp))
@@ -519,6 +520,8 @@ int x, y, typ;
                            : level.flags.is_cavernous_lev ? CORR : DOOR;
 
         unearth_objs(x, y);
+        if (was_ice && lev->typ != ICE)
+            spot_stop_timers(x, y, MELT_ICE_AWAY);
         break;
     }
 

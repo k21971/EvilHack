@@ -2610,4 +2610,5 @@ The following changes to date are:
 - Tortles that start with a trident, the trident is rustproof
 - Fix: feedback for Infidel killing themselves from life force drain
 - Use actions/checkout@v3 (github workflow)
+- Fix: remove melting ice timeouts when terrain changes
 
