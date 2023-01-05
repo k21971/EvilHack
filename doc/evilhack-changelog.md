@@ -2608,4 +2608,5 @@ The following changes to date are:
 - Fix: placement of monster rider/steed when separated
 - Allow magic lamps to operate underwater
 - Tortles that start with a trident, the trident is rustproof
+- Fix: feedback for Infidel killing themselves from life force drain
 

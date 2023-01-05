@@ -1112,10 +1112,12 @@ boolean wiz_cast;
             You("fail to cast the spell correctly.");
         if (u.ualign.type == A_NONE && !u.uhave.amulet
             && !u.uachieve.amulet
-            && spellid(spell) != SPE_PSIONIC_WAVE)
-            losehp(energy / 2, "draining their own life force", KILLED_BY);
-        else
+            && spellid(spell) != SPE_PSIONIC_WAVE) {
+            Sprintf(killer.name, "draining %s own life force", uhis());
+            losehp(energy / 2, killer.name, KILLED_BY);
+        } else {
             u.uen -= energy / 2;
+        }
         context.botl = 1;
         return 1;
     }
@@ -1138,12 +1140,13 @@ boolean wiz_cast;
            result is that our Infidel will still lose about
            the same amount of hit points as if casting
            something other than healing/extra healing */
+        Sprintf(killer.name, "draining %s own life force", uhis());
         if (spellid(spell) == SPE_HEALING) {
-            losehp(6 * energy, "draining their own life force", KILLED_BY);
+            losehp(6 * energy, killer.name, KILLED_BY);
         } else if (spellid(spell) == SPE_EXTRA_HEALING) {
-            losehp(4 * energy, "draining their own life force", KILLED_BY);
+            losehp(4 * energy, killer.name, KILLED_BY);
         } else {
-            losehp(energy, "draining their own life force", KILLED_BY);
+            losehp(energy, killer.name, KILLED_BY);
         }
     } else {
         u.uen -= energy;
