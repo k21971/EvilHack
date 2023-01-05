@@ -14,7 +14,7 @@ jobs:
     env:
       HINTS_FILE: linux-debug.gha
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: setup
       run: ./sys/unix/setup.sh sys/unix/hints/$HINTS_FILE
     - name: make all
@@ -27,7 +27,7 @@ jobs:
     env:
       HINTS_FILE: macosx10.14
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: setup
       run: ./sys/unix/setup.sh sys/unix/hints/$HINTS_FILE
     - name: make all
@@ -48,7 +48,7 @@ jobs:
         TRAVIS_COMPILER: 1
         ZIP_NAME: evilhack-0.8.1.zip
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - uses: ilammy/msvc-dev-cmd@v1 # enable visual c compiler / nmake
