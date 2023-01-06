@@ -520,19 +520,11 @@ boolean resuming;
                         }
                     }
                     restore_attrib();
-                    /* underwater and waterlevel vision are done here */
+                    /* vision will be updated as bubbles move */
                     if (Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
                         movebubbles();
                     else if (Is_firelevel(&u.uz))
                         fumaroles();
-                    else if (Underwater && !See_underwater) {
-                        under_water(0);
-                        docrt();
-                    } else if (Underwater)
-                        docrt();
-                    /* vision while buried done here */
-                    else if (u.uburied)
-                        under_ground(0);
 
                     /* when immobile, count is in turns */
                     if (multi < 0) {
@@ -621,6 +613,16 @@ boolean resuming;
             else if (!u.umoved)
                 (void) pooleffects(FALSE);
             context.coward = FALSE;
+
+            /* vision while buried or underwater is updated here */
+            if (Underwater && !See_underwater) {
+                under_water(0);
+                docrt();
+            } else if (Underwater) {
+                docrt();
+            } else if (u.uburied) {
+                under_ground(0);
+            }
 
         } /* actual time passed */
 

@@ -2612,4 +2612,5 @@ The following changes to date are:
 - Use actions/checkout@v3 (github workflow)
 - Fix: remove melting ice timeouts when terrain changes
 - Fix: latest Xcode build issue
+- Fix: underwater vision update frequency
 
