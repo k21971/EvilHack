@@ -2613,4 +2613,5 @@ The following changes to date are:
 - Fix: remove melting ice timeouts when terrain changes
 - Fix: latest Xcode build issue
 - Fix: underwater vision update frequency
+- Update copyright year to 2023
 
