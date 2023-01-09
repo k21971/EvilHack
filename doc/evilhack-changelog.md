@@ -2616,4 +2616,5 @@ The following changes to date are:
 - Update copyright year to 2023
 - Fix: the Wizard Of Yendor would respawn every time the player entered
   Purgatory
+- Fix: dried up puddles would not unhide the monster hiding in it
 
