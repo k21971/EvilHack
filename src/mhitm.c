@@ -2308,7 +2308,7 @@ msickness:
         }
         break;
     }
-    case AD_DISN: /* currently only called via AT_GAZE */
+    case AD_DISN:
         if (!rn2(5)) {
             struct obj *otmp = (struct obj *) 0, *otmp2;
 
@@ -2375,6 +2375,8 @@ msickness:
                     if (!m_amulet)
                         pline("%s is disintegrated!", Monnam(mdef));
                     else
+                        /* FIXME? the gaze? this handles other types of
+                           disintegration attacks too */
                         pline("%s crumbles under the gaze!",
                               Monnam(mdef));
                 }
@@ -2399,8 +2401,11 @@ msickness:
                 else
                     monkilled(mdef, (char *) 0, -AD_RBRE);
                 tmp = 0;
-                return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
-                break;
+                if (DEADMONSTER(mdef))
+                    res |= MM_DEF_DIED; /* not lifesaved */
+                if (!grow_up(magr, mdef))
+                    res |= MM_AGR_DIED;
+                return res;
             }
         }
         break;

@@ -2617,4 +2617,6 @@ The following changes to date are:
 - Fix: the Wizard Of Yendor would respawn every time the player entered
   Purgatory
 - Fix: dried up puddles would not unhide the monster hiding in it
+- Fix: placing antimatter vortex over itself after disintegrating
+  a shapechanger
 
