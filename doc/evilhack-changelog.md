@@ -2614,4 +2614,6 @@ The following changes to date are:
 - Fix: latest Xcode build issue
 - Fix: underwater vision update frequency
 - Update copyright year to 2023
+- Fix: the Wizard Of Yendor would respawn every time the player entered
+  Purgatory
 

@@ -1924,6 +1924,8 @@ boolean at_stairs, falling, portal;
         if (!u.uachieve.enter_purgatory)
             livelog_write_string(LL_ACHIEVE, "entered Purgatory");
         u.uachieve.enter_purgatory = 1;
+        /* force confrontation with Wizard, but only on first arrival */
+        resurrect();
     }
 
     if (familiar) {
@@ -1958,9 +1960,6 @@ boolean at_stairs, falling, portal;
         if (new &&on_level(&u.uz, &astral_level))
             final_level(); /* guardian angel,&c */
         else if (newdungeon && u.uhave.amulet)
-            resurrect(); /* force confrontation with Wizard */
-    } else if (In_purgatory(&u.uz)) {
-        if (newdungeon && u.uhave.amulet)
             resurrect(); /* force confrontation with Wizard */
     } else if (In_quest(&u.uz)) {
         onquest(); /* might be reaching locate|goal level */
