@@ -2235,8 +2235,17 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     target = uarm;
                 }
 
-                if (target)
-                    (void) destroy_arm(target);
+                if (target) {
+                    if (target->otyp == BLACK_DRAGON_SCALES
+                        || (Is_dragon_scaled_armor(target)
+                            && Dragon_armor_to_scales(target) == BLACK_DRAGON_SCALES)) {
+                        /* nothing happens */
+                        Your("%s vibrates unexpectedly, but remains intact.",
+                             xname(target));
+                    } else {
+                        (void) destroy_arm(target);
+                    }
+                }
             } else { /* monster's armor is targeted */
                 if ((mdef->misc_worn_check & W_ARMS) && !rn2(3)) {
                     target = which_armor(mdef, W_ARMS);
@@ -2247,10 +2256,19 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
 
                 if (target) {
-                    if (canseemon(mdef))
-                        pline("%s %s is disintegrated!", s_suffix(Monnam(mdef)),
-                              xname(target));
-                    m_useup(mdef, target);
+                    if (target->otyp == BLACK_DRAGON_SCALES
+                        || (Is_dragon_scaled_armor(target)
+                            && Dragon_armor_to_scales(target) == BLACK_DRAGON_SCALES)) {
+                        /* nothing happens */
+                        if (canseemon(mdef))
+                            pline("%s %s vibrates unexpectedly, but remains intact.",
+                                  s_suffix(Monnam(mdef)), xname(target));
+                    } else {
+                        if (canseemon(mdef))
+                            pline("%s %s is disintegrated!", s_suffix(Monnam(mdef)),
+                                  xname(target));
+                        m_useup(mdef, target);
+                    }
                 }
             }
         }

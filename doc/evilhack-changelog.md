@@ -2622,4 +2622,6 @@ The following changes to date are:
 - Fix: Sword of Annihilation's disintegration vs target and target's worn armor
 - Fix: Angelslayer's fire damage vs target, Sword of Annihilation's target
   armor tweaks
+- Fix: the Sword of Annihilation could disintegrate pieces of armor that
+  are inherently disintegration proof
 
