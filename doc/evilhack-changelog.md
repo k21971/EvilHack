@@ -2620,4 +2620,6 @@ The following changes to date are:
 - Fix: placing antimatter vortex over itself after disintegrating
   a shapechanger
 - Fix: Sword of Annihilation's disintegration vs target and target's worn armor
+- Fix: Angelslayer's fire damage vs target, Sword of Annihilation's target
+  armor tweaks
 
