@@ -2186,80 +2186,65 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (realizes_damage) {
             /* currently the only object that uses this
                is the Sword of Annihilation artifact */
-            if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                if (!rn2(10) && !(resists_disint(mdef)
-                                  || defended(mdef, AD_DISN))) {
-                    pline_The("deadly blade disintegrates %s%c",
-                              hittee, !spec_dbon_applies ? '.' : '!');
-                    disint_mon_invent(mdef);
-                    monkilled(mdef, "", AD_DISN);
-                } else if (!spec_dbon_applies) {
-                    if (!youdefend)
-                        ;
-                    else
-                        pline_The("dark blade hits %s.", hittee);
-                } else {
-                    if (!rn2(10) && (how_resistant(DISINT_RES) < 50)) {
-                        pline_The("deadly blade disintegrates %s%c",
-                                  hittee, !spec_dbon_applies ? '.' : '!');
-                        u.ugrave_arise = -3;
-                        killer.format = NO_KILLER_PREFIX;
-                        Sprintf(killer.name, "disintegrated by %s",
-                                the(xname(otmp)));
-                        done(DIED);
-                        *dmgptr = 1;
-                    } else {
-                        pline_The("dark blade %s %s%c",
-                                  Disint_resistance
-                                      ? "hits"
-                                      : "partially disintegrates",
-                                  hittee, !spec_dbon_applies ? '.' : '!');
-                    }
+            boolean resistant = youdefend ? how_resistant(DISINT_RES) >= 50
+                                          : (resists_disint(mdef)
+                                             || defended(mdef, AD_DISN));
 
-                    /* chance for worn armor to be disintegrated */
-                    if (youdefend) {
-                        if (uarms && !rn2(3)) {
-                            (void) destroy_arm(uarms);
-                        } else if (uarmc && !rn2(4)) {
-                            (void) destroy_arm(uarmc);
-                        } else if (uarm && !rn2(6)) {
-                            (void) destroy_arm(uarm);
-                        }
+            if (!spec_dbon_applies) {
+                if ((youdefend || canseemon(mdef))
+                    && (youattack || cansee(magr->mx, magr->my)))
+                    pline_The("dark blade hits %s.", hittee);
+            } else if (!rn2(10) && !resistant) {
+                /* instant disintegration */
+                if (youdefend || canseemon(mdef))
+                    pline_The("deadly blade disintegrates %s!", hittee);
+                if (youdefend) {
+                    u.ugrave_arise = (NON_PM - 2); /* no corpse */
+                    killer.format = NO_KILLER_PREFIX;
+                    Sprintf(killer.name, "disintegrated by %s", the(xname(otmp)));
+                    done(DIED);
+                    *dmgptr = 1; /* should this be set for the monster case as well? */
+                } else { /* you or mon hit monster */
+                    disint_mon_invent(mdef);
+                    if (youattack) {
+                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    } else {
+                        monkilled(mdef, 0, AD_DISN);
                     }
                 }
             } else {
-                if (!rn2(6) && !(resists_disint(mdef)
-                                 || defended(mdef, AD_DISN))) {
-                    pline_The("deadly blade disintegrates %s%c",
-                              hittee, !spec_dbon_applies ? '.' : '!');
-                    disint_mon_invent(mdef);
-                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                } else {
-                    pline_The("dark blade %s %s%c",
-                              (resists_disint(mdef) || defended(mdef, AD_DISN))
-                                  ? "hits"
-                                  : "partially disintegrates",
-                              hittee, !spec_dbon_applies ? '.' : '!');
-                }
-            }
+                /* maybe disintegrate some armor */
+                struct obj *target = (struct obj *) 0;
 
-            /* chance for monster's worn armor to be disintegrated */
-            if (!youdefend) {
-                if ((mdef->misc_worn_check & W_ARMS) && !rn2(3)) {
-                    if (canseemon(mdef))
-                        pline("%s %s is disintegrated!",
-                              s_suffix(Monnam(mdef)), xname(which_armor(mdef, W_ARMS)));
-                    m_useup(mdef, which_armor(mdef, W_ARMS));
-                } else if ((mdef->misc_worn_check & W_ARMC) && !rn2(4)) {
-                    if (canseemon(mdef))
-                        pline("%s %s is disintegrated!",
-                              s_suffix(Monnam(mdef)), xname(which_armor(mdef, W_ARMC)));
-                    m_useup(mdef, which_armor(mdef, W_ARMC));
-                } else if ((mdef->misc_worn_check & W_ARM) && !rn2(6)) {
-                    if (canseemon(mdef))
-                        pline("%s %s is disintegrated!",
-                              s_suffix(Monnam(mdef)), xname(which_armor(mdef, W_ARM)));
-                    m_useup(mdef, which_armor(mdef, W_ARM));
+                if (youdefend || canseemon(mdef))
+                    pline_The("dark blade %s %s!",
+                              resistant ? "hits" : "partially disintegrates", hittee);
+                if (youdefend) { /* hero's armor is targeted */
+                    if (uarms && !rn2(3)) {
+                        target = uarms;
+                    } else if (uarmc && !rn2(4)) {
+                        target = uarmc;
+                    } else if (uarm && !rn2(6)) {
+                        target = uarm;
+                    }
+
+                    if (target)
+                        (void) destroy_arm(target);
+                } else { /* monster's armor is targeted */
+                    if ((mdef->misc_worn_check & W_ARMS) && !rn2(3)) {
+                        target = which_armor(mdef, W_ARMS);
+                    } else if ((mdef->misc_worn_check & W_ARMC) && !rn2(4)) {
+                        target = which_armor(mdef, W_ARMC);
+                    } else if ((mdef->misc_worn_check & W_ARM) && !rn2(6)) {
+                        target = which_armor(mdef, W_ARM);
+                    }
+
+                    if (target) {
+                        if (canseemon(mdef))
+                            pline("%s %s is disintegrated!", s_suffix(Monnam(mdef)),
+                                  xname(target));
+                        m_useup(mdef, target);
+                    }
                 }
             }
         }

@@ -2619,4 +2619,5 @@ The following changes to date are:
 - Fix: dried up puddles would not unhide the monster hiding in it
 - Fix: placing antimatter vortex over itself after disintegrating
   a shapechanger
+- Fix: Sword of Annihilation's disintegration vs target and target's worn armor
 

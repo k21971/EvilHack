@@ -3794,7 +3794,7 @@ int how;
 
     /* no corpses if digested, disintegrated or withered */
     disintegested = (how == AD_DGST || how == -AD_RBRE
-                     || how == AD_WTHR);
+                     || how == AD_WTHR || how == AD_DISN);
     if (disintegested)
         mondead(mdef);
     else
@@ -3822,8 +3822,9 @@ int how;
     else
         be_sad = (mdef->mtame != 0 && !mdef->msummoned);
 
-    /* no corpses if digested or disintegrated */
-    disintegested = (how == AD_DGST || how == -AD_RBRE);
+    /* no corpses if digested, disintegrated or withered */
+    disintegested = (how == AD_DGST || how == -AD_RBRE
+                     || how == AD_WTHR || how == AD_DISN);
     if (disintegested)
         xkilled(mdef, XKILL_NOCORPSE);
     else
