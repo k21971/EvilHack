@@ -2624,4 +2624,5 @@ The following changes to date are:
   armor tweaks
 - Fix: the Sword of Annihilation could disintegrate pieces of armor that
   are inherently disintegration proof
+- Fix: instances where article was missing from the Gauntlets of Purity
 

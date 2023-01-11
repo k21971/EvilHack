@@ -632,7 +632,8 @@ doforging(void)
             output = addinv(output);
             output->owt = weight(output);
             You("have successfully forged %s.", doname(output));
-            livelog_printf(LL_ARTIFACT, "used a forge to create %s",
+            livelog_printf(LL_ARTIFACT, "used a forge to create %s%s",
+                           output->oartifact == ART_GAUNTLETS_OF_PURITY ? "the " : "",
                            artiname(output->oartifact));
             update_inventory();
 

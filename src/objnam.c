@@ -2169,7 +2169,8 @@ const char *verb;
             && obj->oartifact != ART_GJALLAR)
         || obj->oartifact == ART_DRAGONBANE
         || obj->oartifact == ART_MAGIC___BALL
-        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES) {
+        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
+        || obj->oartifact == ART_GAUNTLETS_OF_PURITY) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - strlen(outbuf);
 
@@ -2254,7 +2255,8 @@ struct obj *obj;
             && obj->oartifact != ART_GJALLAR)
         || obj->oartifact == ART_DRAGONBANE
         || obj->oartifact == ART_MAGIC___BALL
-        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES) {
+        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
+        || obj->oartifact == ART_GAUNTLETS_OF_PURITY) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - strlen(outbuf);
 
@@ -4942,6 +4944,7 @@ struct obj *no_wish;
             case ART_STAFF_OF_THE_ARCHMAGI:
             case ART_SHADOWBLADE:
             case ART_GAUNTLETS_OF_PURITY:
+            case ART_ASHMAR:
                 pm = PM_SAMURAI;
                 break;
             default:
