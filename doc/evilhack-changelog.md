@@ -2625,4 +2625,5 @@ The following changes to date are:
 - Fix: the Sword of Annihilation could disintegrate pieces of armor that
   are inherently disintegration proof
 - Fix: instances where article was missing from the Gauntlets of Purity
+- Fix: underwater far vision in unlit areas
 

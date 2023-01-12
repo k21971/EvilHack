@@ -612,7 +612,7 @@ int control;
                       (void FDECL((*), (int, int, genericptr_t))) 0,
                       (genericptr_t) 0);
 
-        if (Underwater && !Is_waterlevel(&u.uz)) {
+        if (Underwater && !Is_waterlevel(&u.uz) && !See_underwater) {
             /*
              * The hero is under water.  Only see surrounding locations if
              * they are also underwater.  This overrides night vision but
