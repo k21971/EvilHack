@@ -2628,4 +2628,5 @@ The following changes to date are:
 - Fix: underwater far vision in unlit areas
 - Fix: heap-use-after-free in munstone() function
 - Bourbon and Ozzy birthdays
+- Fix: monster spell 'Summon nasties'
 
