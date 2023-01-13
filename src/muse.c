@@ -3740,7 +3740,7 @@ boolean by_you;
     if (is_spellcaster(mon) && !mon->mcan
         && !mon->mspec_used && !mon->mconf
         && mon->m_lev >= 5) {
-        struct obj *otemp, *onext, *pseudo;
+        struct obj *otmp, *onext, *pseudo;
 
         pseudo = mksobj(SPE_STONE_TO_FLESH, FALSE, FALSE);
         pseudo->blessed = pseudo->cursed = 0;
@@ -3754,17 +3754,13 @@ boolean by_you;
             else
                 pline("%s seems limber!", Monnam(mon));
         }
-        pseudo->quan = 20L;
-        for (otemp = mon->minvent; otemp; otemp = onext) {
-            onext = otemp->nobj;
-            if (otemp->oclass == RING_CLASS) {
-                obj_extract_self(otemp);
-                mon->misc_worn_check &= ~otemp->owornmask;
-                update_mon_intrinsics(mon, otemp, FALSE, TRUE);
-                otemp->owornmask = 0L; /* obfree() expects this */
-                obfree(otemp, (struct obj *) 0);
-            }
-            (void) bhito(otemp, pseudo);
+
+        for (otmp = mon->minvent; otmp; otmp = onext) {
+            onext = otmp->nobj;
+            mon->misc_worn_check &= ~otmp->owornmask;
+            update_mon_intrinsics(mon, otmp, FALSE, TRUE);
+            otmp->owornmask = 0L; /* obfree() expects this */
+            (void) bhito(otmp, pseudo);
         }
         obfree(pseudo, (struct obj *) 0);
         mon->mlstmv = monstermoves; /* it takes a turn */

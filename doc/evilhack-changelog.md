@@ -2626,4 +2626,5 @@ The following changes to date are:
   are inherently disintegration proof
 - Fix: instances where article was missing from the Gauntlets of Purity
 - Fix: underwater far vision in unlit areas
+- Fix: heap-use-after-free in munstone() function
 
