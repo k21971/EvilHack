@@ -2784,7 +2784,9 @@ boolean ordinary;
             shieldeff(u.ux, u.uy);
             pline((obj->otyp == WAN_DEATH)
                       ? "The wand shoots an apparently harmless beam at you."
-                      : "You seem no more dead than before.");
+                      : nonliving(youmonst.data)
+                          ? "You seem no more dead than before."
+                          : "You are unaffacted.");
             break;
         }
         learn_it = TRUE;

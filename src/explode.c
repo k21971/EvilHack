@@ -209,9 +209,8 @@ int expltype;
                     break;
                 case AD_DISN:
                     explmask[i][j] = (olet == WAND_CLASS)
-                                         ? !!(nonliving(youmonst.data)
-                                              || is_demon(raceptr(&youmonst))
-                                              || is_angel(raceptr(&youmonst)))
+                                         ? !!(Death_resistance
+                                              || immune_death_magic(youmonst.data))
                                          : (how_resistant(DISINT_RES) > 50);
                     break;
                 case AD_ELEC:

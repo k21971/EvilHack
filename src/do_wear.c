@@ -2313,7 +2313,7 @@ boolean noisy;
                 pline_The("%s are too rigid to wear.",
                           gloves_simple_name(otmp));
             err++;
-        } else if (u.ualign.record < 20
+        } else if (!wizard && u.ualign.record < 20
                    && otmp->oartifact == ART_GAUNTLETS_OF_PURITY) {
             if (noisy)
                 You("are not pure enough to wear these %s.",
