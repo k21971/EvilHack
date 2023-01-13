@@ -2786,7 +2786,7 @@ boolean ordinary;
                       ? "The wand shoots an apparently harmless beam at you."
                       : nonliving(youmonst.data)
                           ? "You seem no more dead than before."
-                          : "You are unaffacted.");
+                          : "You are unaffected.");
             break;
         }
         learn_it = TRUE;
