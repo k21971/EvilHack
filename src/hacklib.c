@@ -67,6 +67,8 @@
         int             night           (void)
         int             midnight        (void)
         boolean         kathryn_bday    (void)
+        boolean         bourbon_bday    (void)
+        boolean         ozzy_bday       (void)
         void            strbuf_init     (strbuf *, const char *)
         void            strbuf_append   (strbuf *, const char *)
         void            strbuf_reserve  (strbuf *, int)
@@ -1159,6 +1161,18 @@ boolean
 kathryn_bday()
 {
     return (boolean) ((getmday() == 12) && (getmonth() == 2));
+}
+
+boolean
+bourbon_bday()
+{
+    return (boolean) ((getmday() == 19) && (getmonth() == 4));
+}
+
+boolean
+ozzy_bday()
+{
+    return (boolean) ((getmday() == 13) && (getmonth() == 1));
 }
 
 /* strbuf_init() initializes strbuf state for use */

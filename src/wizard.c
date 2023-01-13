@@ -975,18 +975,28 @@ register struct monst *mtmp;
             pline("%s points and giggles at you.", Monnam(mtmp));
             if (kathryn_bday())
                 verbalize("It's my birthday!  Woohoo!!");
-        } else
+            else if (bourbon_bday())
+                verbalize("Wish Bourbon a happy birthday!  Now!!");
+            else if (ozzy_bday())
+                verbalize("Say happy birthday to Ozzy!  Say it!!");
+        } else {
             verbalize("%s!",
                       random_icequeen[rn2(SIZE(random_icequeen))]);
+        }
     } else if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
         if (mtmp->mpeaceful) {
             if (!rn2(5)) {
                 pline("%s waves to you.", Monnam(mtmp));
                 if (kathryn_bday())
                     verbalize("You freed me on my birthday!  Thank you so much!!");
-            } else
+                else if (bourbon_bday())
+                    verbalize("Happy birthday, Bourbon!  Good girl!!");
+                else if (ozzy_bday())
+                    verbalize("Happy birthday, Ozzy!  You're a good boy, yes you are!!");
+            } else {
                 verbalize("%s.",
                         random_enchantress[rn2(SIZE(random_enchantress))]);
+            }
         } else {
             if (!rn2(7))
                 pline("%s waves to you.", Monnam(mtmp));
