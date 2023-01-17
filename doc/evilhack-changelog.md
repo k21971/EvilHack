@@ -2631,4 +2631,5 @@ The following changes to date are:
 - Fix: monster spell 'Summon nasties'
 - Fix: missing a couple cases where Death_resistance should have been included
 - Blowing a whistle will identify it
+- Identity of the Riders hidden via farlook or 'More info about' prompt
 

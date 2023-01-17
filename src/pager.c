@@ -304,8 +304,13 @@ int x, y;
                     ? "peaceful "
                     : "",
             name);
-    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1)
-        Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->m1));
+    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1) {
+        if (is_rider(mtmp->data) && (distu(mtmp->mx, mtmp->my) > 2)
+            && !canseemon(mtmp))
+            Sprintf(eos(buf), ", riding its steed.");
+        else
+            Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->m1));
+    }
     if (mtmp->rider_id)
         Sprintf(eos(buf), ", being ridden");
     mwounds = mon_wounds(mtmp);
@@ -1486,10 +1491,14 @@ char *supplemental_name;
      * for Angel and angel, make the lookup string the same for both
      * user_typed_name and picked name.
      */
-    if (pm != (struct permonst *) 0 && !user_typed_name)
-        dbase_str = strcpy(newstr, pm->mname);
-    else
+    if (pm != (struct permonst *) 0 && !user_typed_name) {
+        if (is_rider(pm))
+            dbase_str = strcpy(newstr, "Rider");
+        else
+            dbase_str = strcpy(newstr, pm->mname);
+    } else {
         dbase_str = strcpy(newstr, inp);
+    }
     (void) lcase(dbase_str);
 
     /*
@@ -1784,20 +1793,19 @@ char *supplemental_name;
 
                     if (!flags.lookup_data) {
                         ; /* do nothing, 'pokedex' is disabled */
-                    }
-                    /* object lookup info */
-                    else if (do_obj_lookup) {
+                    } else if (do_obj_lookup) { /* object lookup info */
                         add_obj_info(datawin, otyp);
                         putstr(datawin, 0, "");
-                    }
-                    /* monster lookup info */
                     /* secondary to object lookup because there are some
                      * monsters whose names are substrings of objects, like
                      * "skeleton" and "skeleton key". */
-                    else if (do_mon_lookup) {
+                    } else if (do_mon_lookup) { /* monster lookup info */
                         if (!wizard && (pm == &mons[PM_SHAMBLING_HORROR])
                             && mvitals[PM_SHAMBLING_HORROR].died < 1)
                             ; /* no freebies until one has been killed */
+                        else if (is_rider(pm) && !user_typed_name
+                                 && !without_asking)
+                            ; /* no stats via farlook */
                         else
                             add_mon_info(datawin, pm);
                         if (is_were(pm) && pm != &mons[PM_RAT_KING]) {

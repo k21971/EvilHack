@@ -1890,6 +1890,11 @@ boolean called;
                                      (boolean) mtmp->female));
         Strcat(buf, lcase(pbuf));
         name_at_start = FALSE;
+    } else if (is_rider(mdat)
+               && (distu(mtmp->mx, mtmp->my) > 2)
+               && !canseemon(mtmp)) {
+        Strcat(buf, "Rider");
+        name_at_start = FALSE;
     } else {
         Strcat(buf, pm_name);
         name_at_start = (boolean) type_is_pname(mdat);
