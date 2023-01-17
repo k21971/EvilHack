@@ -519,6 +519,8 @@ STATIC_OVL void
 use_whistle(obj)
 struct obj *obj;
 {
+    boolean unknown, known;
+
     if (!can_blow(&youmonst)) {
         You("are incapable of using the whistle.");
     } else if (!u_handsy()) {
@@ -531,6 +533,16 @@ struct obj *obj;
         else
             You(whistle_str, obj->cursed ? "shrill" : "high");
         wake_nearby();
+
+        if (obj->otyp == PEA_WHISTLE) {
+            unknown = objects[obj->otyp].oc_name_known;
+            makeknown(obj->otyp);
+            known = objects[obj->otyp].oc_name_known;
+            if (flags.verbose && !unknown && known) {
+                pline("This must be %s.", an(simple_typename(obj->otyp)));
+                update_inventory();
+            }
+        }
         if (obj->cursed)
             vault_summon_gd();
     }
@@ -540,7 +552,8 @@ STATIC_OVL void
 use_magic_whistle(obj)
 struct obj *obj;
 {
-    register struct monst *mtmp, *nextmon;
+    struct monst *mtmp, *nextmon;
+    boolean unknown, known;
 
     if (!can_blow(&youmonst)) {
         You("are incapable of using the whistle.");
@@ -551,7 +564,7 @@ struct obj *obj;
             Deaf ? "frequency vibration" : "pitched humming noise");
         wake_nearby();
     } else {
-        int pet_cnt = 0, omx, omy;
+        int omx, omy;
 
         /* it's magic!  it works underwater too (at a higher pitch) */
         You(Deaf ? alt_whistle_str : whistle_str,
@@ -580,15 +593,19 @@ struct obj *obj;
                 mnexto(mtmp);
                 if (mtmp->mx != omx || mtmp->my != omy) {
                     mtmp->mundetected = 0; /* reveal non-mimic hider */
-                    if (canspotmon(mtmp))
-                        ++pet_cnt;
                     if (mintrap(mtmp) == 2)
                         change_luck(-1);
                 }
             }
         }
-        if (pet_cnt > 0)
-            makeknown(obj->otyp);
+    }
+
+    unknown = objects[obj->otyp].oc_name_known;
+    makeknown(obj->otyp);
+    known = objects[obj->otyp].oc_name_known;
+    if (flags.verbose && !unknown && known) {
+        pline("This must be %s.", an(simple_typename(obj->otyp)));
+        update_inventory();
     }
 }
 

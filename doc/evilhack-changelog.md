@@ -2630,4 +2630,5 @@ The following changes to date are:
 - Bourbon and Ozzy birthdays
 - Fix: monster spell 'Summon nasties'
 - Fix: missing a couple cases where Death_resistance should have been included
+- Blowing a whistle will identify it
 
