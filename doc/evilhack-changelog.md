@@ -2634,4 +2634,6 @@ The following changes to date are:
 - Identity of the Riders hidden via farlook or 'More info about' prompt
 - Fix: thrown potions of polymorph by hostiles at hero that hit peacefuls
   anger them
+- Fix: cure sickness being cast on a peaceful monster that wasn't sick would
+  anger it
 

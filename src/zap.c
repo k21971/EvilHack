@@ -511,6 +511,8 @@ struct obj *otmp;
                     killed(mtmp);
             }
         }
+        if (mtmp->mpeaceful && !is_zombie(mtmp->data))
+            helpful_gesture = TRUE;
         break;
     case WAN_LIGHT: /* (broken wand) */
         if (flash_hits_mon(mtmp, otmp)) {
