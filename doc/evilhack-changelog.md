@@ -2637,4 +2637,6 @@ The following changes to date are:
 - Fix: cure sickness being cast on a peaceful monster that wasn't sick would
   anger it
 - Fix: queen ants were laying queen ant eggs
+- Fix: higher level tourist player monsters spawning with eggs that could
+  hatch S_ORC type monsters
 

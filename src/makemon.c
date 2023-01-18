@@ -695,7 +695,8 @@ unsigned short chance;
                     obj->spe = (obj->spe * rn2(chance)) / chance;
                 }
                 if (mtmp->m_lev > 19) {
-                    if (objects[obj->otyp].oc_armcat == ARM_SUIT) {
+                    if (obj->oclass == ARMOR_CLASS
+                        && objects[obj->otyp].oc_armcat == ARM_SUIT) {
                         obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES,
                                                       LAST_DRAGON_SCALES - 1);
                         if (monsndx(mtmp->data) == PM_WIZARD) {
