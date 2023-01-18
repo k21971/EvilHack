@@ -2632,4 +2632,6 @@ The following changes to date are:
 - Fix: missing a couple cases where Death_resistance should have been included
 - Blowing a whistle will identify it
 - Identity of the Riders hidden via farlook or 'More info about' prompt
+- Fix: thrown potions of polymorph by hostiles at hero that hit peacefuls
+  anger them
 
