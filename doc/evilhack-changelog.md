@@ -2636,4 +2636,5 @@ The following changes to date are:
   anger them
 - Fix: cure sickness being cast on a peaceful monster that wasn't sick would
   anger it
+- Fix: queen ants were laying queen ant eggs
 

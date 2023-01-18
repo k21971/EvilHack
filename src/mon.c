@@ -5715,9 +5715,12 @@ int mnum;
      * grow into queen bees.  Ditto for [winged-]gargoyles.
      */
     if (mnum == PM_KILLER_BEE || mnum == PM_GARGOYLE
+        || mnum == PM_GIANT_ANT
         || (lays_eggs(&mons[mnum])
             && (BREEDER_EGG
-                || (mnum != PM_QUEEN_BEE && mnum != PM_WINGED_GARGOYLE))))
+                || (mnum != PM_QUEEN_BEE
+                    && mnum != PM_WINGED_GARGOYLE
+                    && mnum != PM_QUEEN_ANT))))
         return mnum;
     return NON_PM;
 }
@@ -5733,6 +5736,8 @@ boolean force_ordinary;
             mnum = PM_KILLER_BEE;
         else if (mnum == PM_WINGED_GARGOYLE)
             mnum = PM_GARGOYLE;
+        else if (mnum == PM_QUEEN_ANT)
+            mnum = PM_GIANT_ANT;
     }
     return mnum;
 }
