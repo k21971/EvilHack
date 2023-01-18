@@ -2639,4 +2639,5 @@ The following changes to date are:
 - Fix: queen ants were laying queen ant eggs
 - Fix: higher level tourist player monsters spawning with eggs that could
   hatch S_ORC type monsters
+- Fix: giant crocodiles and their eggs
 

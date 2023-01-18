@@ -5738,6 +5738,8 @@ boolean force_ordinary;
             mnum = PM_GARGOYLE;
         else if (mnum == PM_QUEEN_ANT)
             mnum = PM_GIANT_ANT;
+        else if (mnum == PM_GIANT_CROCODILE)
+            mnum = PM_CROCODILE; /* appearances only */
     }
     return mnum;
 }

@@ -846,6 +846,8 @@ struct permonst *pm1, *pm2;
                 || pm2 == &mons[PM_WINGED_GARGOYLE]);
     if (pm1 == &mons[PM_KILLER_BEE] || pm1 == &mons[PM_QUEEN_BEE])
         return (pm2 == &mons[PM_KILLER_BEE] || pm2 == &mons[PM_QUEEN_BEE]);
+    if (pm1 == &mons[PM_GIANT_ANT] || pm1 == &mons[PM_QUEEN_ANT])
+        return (pm2 == &mons[PM_GIANT_ANT] || pm2 == &mons[PM_QUEEN_ANT]);
 
     if (is_longworm(pm1))
         return is_longworm(pm2); /* handles tail */
@@ -1290,6 +1292,12 @@ big_to_little(montype)
 int montype;
 {
     register int i;
+
+    /* Exceptions, such as a monster type that is
+       oviporous that spans more than two classes
+       of monsters */
+    if (montype == PM_GIANT_CROCODILE)
+        return PM_BABY_CROCODILE;
 
     for (i = 0; grownups[i][0] >= LOW_PM; i++)
         if (montype == grownups[i][1]) {
