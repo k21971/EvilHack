@@ -995,7 +995,7 @@ register struct monst *mtmp;
                     verbalize("Happy birthday, Ozzy!  You're a good boy, yes you are!!");
             } else {
                 verbalize("%s.",
-                        random_enchantress[rn2(SIZE(random_enchantress))]);
+                          random_enchantress[rn2(SIZE(random_enchantress))]);
             }
         } else {
             if (!rn2(7))
@@ -1005,8 +1005,17 @@ register struct monst *mtmp;
         verbalize("%s!",
                   random_vecna[rn2(SIZE(random_vecna))]);
     } else if (mtmp->isgking) {
-        verbalize("%s!",
-                  random_goblinking[rn2(SIZE(random_goblinking))]);
+        if (!rn2(3)) {
+            if (uwep && uwep->oartifact == ART_ORCRIST) {
+                verbalize("I know that sword!  It is the Goblin Cleaver!  The Biter!  The blade that sliced a thousand necks!");
+            } else if (uwep && uwep->oartifact == ART_GLAMDRING) {
+                verbalize("%s wields the Foe-Hammer!  The Beater!  Bright as daylight!",
+                          flags.female ? "She" : "He");
+            }
+        } else {
+            verbalize("%s!",
+                      random_goblinking[rn2(SIZE(random_goblinking))]);
+        }
     } else if (mtmp->data == &mons[PM_GOLLUM]) {
         verbalize("%s!",
                   random_gollum[rn2(SIZE(random_gollum))]);

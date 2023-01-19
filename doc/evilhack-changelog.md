@@ -2640,4 +2640,5 @@ The following changes to date are:
 - Fix: higher level tourist player monsters spawning with eggs that could
   hatch S_ORC type monsters
 - Fix: giant crocodiles and their eggs
+- Goblin King feedback if the player is wielding Orcrist or Glamdring
 
