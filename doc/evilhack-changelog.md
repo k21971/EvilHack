@@ -2642,4 +2642,6 @@ The following changes to date are:
 - Fix: giant crocodiles and their eggs
 - Goblin King feedback if the player is wielding Orcrist or Glamdring
 - Fix: memory leak in oracle-3 map
+- Fix: mon_currwep not set to NULL if the monsters wielded weapon was made
+  of glass and it shattered
 

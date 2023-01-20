@@ -1417,8 +1417,10 @@ register struct attack *mattk;
 
                 /* glass breakage from the attack */
                 break_glass_obj(some_armor(&youmonst));
-                if (break_glass_obj(MON_WEP(mtmp)))
+                if (break_glass_obj(MON_WEP(mtmp))) {
                     otmp = NULL;
+                    mon_currwep = NULL;
+                }
 
                 if (!dmg)
                     break;
