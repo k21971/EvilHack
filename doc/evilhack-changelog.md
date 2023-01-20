@@ -2641,4 +2641,5 @@ The following changes to date are:
   hatch S_ORC type monsters
 - Fix: giant crocodiles and their eggs
 - Goblin King feedback if the player is wielding Orcrist or Glamdring
+- Fix: memory leak in oracle-3 map
 

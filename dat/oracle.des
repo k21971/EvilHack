@@ -2,7 +2,7 @@
 # Copyright (c) 2015 by Pasi Kallinen
 # NetHack may be freely redistributed.  See license for details.
 #
-# Oracle level
+# Oracle levels
 #
 
 LEVEL: "oracle-1"
@@ -71,6 +71,7 @@ ROOM: "ordinary" , random, random, random, random {
 }
 
 RANDOM_CORRIDORS
+
 
 LEVEL: "oracle-2"
 
@@ -152,6 +153,7 @@ ROOM: "ordinary" , random, random, random, random {
 
 RANDOM_CORRIDORS
 
+
 LEVEL: "oracle-3"
 
 ROOM: "delphi" , lit, (3,3), (center,center), (11,9) {
@@ -175,17 +177,35 @@ ROOM: "delphi" , lit, (3,3), (center,center), (11,9) {
 
   # Close off three of the four passages into the center; there are also only
   # three fountains; make sure that no fountain is aligned with the open square
-  $direction = 1d4
-  $numbers = { 1,2,3,4 }
-  SHUFFLE:$numbers
   $orthopool = { (5,1),(2,4),(8,4),(5,7) }
   $fountain = { (5,2),(3,4),(7,4),(5,6) }
-  POOL:$orthopool[$numbers[0]]
-  POOL:$orthopool[$numbers[1]]
-  POOL:$orthopool[$numbers[2]]
-  FOUNTAIN:$fountain[$numbers[0]]
-  FOUNTAIN:$fountain[$numbers[1]]
-  FOUNTAIN:$fountain[$numbers[2]]
+  POOL: $orthopool[0]
+  POOL: $orthopool[1]
+  POOL: $orthopool[2]
+  POOL: $orthopool[3]
+  FOUNTAIN: $fountain[0]
+  FOUNTAIN: $fountain[1]
+  FOUNTAIN: $fountain[2]
+  FOUNTAIN: $fountain[3]
+
+  SWITCH [4] {
+    CASE 0:
+        TERRAIN: $orthopool[0], '.'
+        TERRAIN: $fountain[0], '.'
+        BREAK
+    CASE 1:
+        TERRAIN: $orthopool[1], '.'
+        TERRAIN: $fountain[1], '.'
+        BREAK
+    CASE 2:
+        TERRAIN: $orthopool[2], '.'
+        TERRAIN: $fountain[2], '.'
+        BREAK
+    CASE 3:
+        TERRAIN: $orthopool[3], '.'
+        TERRAIN: $fountain[3], '.'
+        BREAK
+  }
 
   # four trees
   TERRAIN:(03,02),'T'
