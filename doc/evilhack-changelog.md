@@ -2644,4 +2644,5 @@ The following changes to date are:
 - Fix: memory leak in oracle-3 map
 - Fix: mon_currwep not set to NULL if the monsters wielded weapon was made
   of glass and it shattered
+- Fix: heap-use-after-free when projectiles rusted away on passive rust attack
 

@@ -4544,7 +4544,7 @@ struct attack *mattk;     /* null means we find one internally */
         break;
     case AD_RUST:
         if (!mon->mcan) {
-            (void) erode_obj(obj, (char *) 0, ERODE_RUST, EF_GREASE | EF_DESTROY);
+            ret = erode_obj(obj, (char *) 0, ERODE_RUST, EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_CORR:
