@@ -2147,40 +2147,55 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (realizes_damage) {
             /* currently the only object that uses this
                is Grimtooth */
-            if (!youattack && magr && cansee(magr->mx, magr->my)) {
-                if (!spec_dbon_applies) {
-                    if (!youdefend)
-                        ;
-                    else
-                        pline_The("filthy dagger hits %s.", hittee);
-                } else {
-                    pline_The("filthy dagger %s %s%c",
-                              Sick_resistance
-                                  ? "hits"
-                                  : rn2(2) ? "contaminates" : "infects",
-                              hittee, !spec_dbon_applies ? '.' : '!');
+            boolean elf = youdefend ? is_elf(youmonst.data)
+                                    : racial_elf(mdef);
+            boolean no_sick = youdefend ? Sick_resistance
+                                        : (resists_sick(mdef->data)
+                                           || defended(mdef, AD_DISE));
+
+            if (!spec_dbon_applies) {
+                if ((youdefend || canseemon(mdef))
+                    && (youattack || cansee(magr->mx, magr->my)))
+                    pline_The("filthy dagger hits %s.", hittee);
+            } else if (!rn2(10) && elf) {
+                if (youdefend || canseemon(mdef))
+                    pline("Grimtooth penetrates %s soft flesh, disembowelling %s!",
+                          youdefend ? "your" : s_suffix(mon_nam(mdef)),
+                          youdefend ? "you" : noit_mhim(mdef));
+                if (youdefend) {
+                    killer.format = NO_KILLER_PREFIX;
+                    Sprintf(killer.name, "disemboweled by %s", the(xname(otmp)));
+                    done(DIED);
+                    *dmgptr = 1;
+                } else { /* you or mon hit monster */
+                    if (youattack) {
+                        xkilled(mdef, XKILL_NOMSG);
+                    } else {
+                        monkilled(mdef, 0, AD_DISE);
+                    }
                 }
             } else {
-                pline_The("filthy dagger %s %s%c",
-                          (resists_sick(mdef->data) || defended(mdef, AD_DISE))
-                              ? "hits"
-                              : rn2(2) ? "contaminates" : "infects",
-                          hittee, !spec_dbon_applies ? '.' : '!');
+                if (youdefend || canseemon(mdef))
+                    pline_The("filthy dagger %s %s%c",
+                              no_sick ? "hits"
+                                      : rn2(2) ? "contaminates" : "infects",
+                              hittee, !spec_dbon_applies ? '.' : '!');
             }
-        }
-        if (youdefend && !rn2(6)) {
-            diseasemu(mdef->data);
-        } else {
-            mdef->mdiseasetime = rnd(10) + 5;
-            if (!(resists_sick(mdef->data) || defended(mdef, AD_DISE))) {
-                if (canseemon(mdef))
-                    pline("%s looks %s.", Monnam(mdef),
-                          mdef->mdiseased ? "even worse" : "diseased");
-                mdef->mdiseased = 1;
-                if (wielding_artifact(ART_GRIMTOOTH))
-                    mdef->mdiseabyu = TRUE;
-                else
-                    mdef->mdiseabyu = FALSE;
+
+            if (youdefend && !rn2(5)) {
+                diseasemu(mdef->data);
+            } else if (!youdefend) {
+                mdef->mdiseasetime = rnd(10) + 5;
+                if (!no_sick && !rn2(5)) {
+                    if (canseemon(mdef))
+                        pline("%s looks %s.", Monnam(mdef),
+                              mdef->mdiseased ? "even worse" : "diseased");
+                    mdef->mdiseased = 1;
+                    if (wielding_artifact(ART_GRIMTOOTH))
+                        mdef->mdiseabyu = TRUE;
+                    else
+                        mdef->mdiseabyu = FALSE;
+                }
             }
         }
         msgprinted = TRUE;
@@ -2409,24 +2424,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else if (youdefend && maybe_polyd(is_orc(youmonst.data),
                            Race_if(PM_ORC)) && k) {
                     You("feel Sting stab deep into your heart!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form if poly'd */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_GRIMTOOTH:
-                if (youattack && racial_elf(mdef) && j) {
-                    You("push Grimtooth deep into the bowels of %s!", mon_nam(mdef));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (!youattack && !youdefend
-                           && magr && racial_elf(mdef) && j) {
-                    if (cansee(magr->mx, magr->my))
-                        pline("%s pushes Grimtooth deep into %s bowels!",
-                              Monnam(magr), s_suffix(mon_nam(mdef)));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && maybe_polyd(is_elf(youmonst.data),
-                           Race_if(PM_ELF)) && k) {
-                    pline("Grimtooth penetrates your soft flesh, disembowelling you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                     /* player returns to their original form if poly'd */
                 } else

@@ -2645,4 +2645,5 @@ The following changes to date are:
 - Fix: mon_currwep not set to NULL if the monsters wielded weapon was made
   of glass and it shattered
 - Fix: heap-use-after-free when projectiles rusted away on passive rust attack
+- Fix: Grimtooth's instakill vs elves
 
