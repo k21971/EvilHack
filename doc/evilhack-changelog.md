@@ -2646,4 +2646,5 @@ The following changes to date are:
   of glass and it shattered
 - Fix: heap-use-after-free when projectiles rusted away on passive rust attack
 - Fix: Grimtooth's instakill vs elves
+- Intelligent peacefuls avoid digging shop or temple walls
 

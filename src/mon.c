@@ -2371,6 +2371,12 @@ long flag;
                 && !((flag & ALLOW_WALL) && may_passwall(nx, ny))
                 && !((IS_TREES(ntyp) ? treeok : rockok) && may_dig(nx, ny)))
                 continue;
+            /* intelligent peacefuls avoid digging shop/temple walls */
+            if (IS_ROCK(ntyp) && rockok
+                && !mindless(mon->data) && (mon->mpeaceful || mon->mtame)
+                && (*in_rooms(nx, ny, TEMPLE) || *in_rooms(nx, ny, SHOPBASE))
+                && !(*in_rooms(x, y, TEMPLE) || *in_rooms(x, y, SHOPBASE)))
+                continue;
             /* KMH -- Added iron bars */
             if (ntyp == IRONBARS
                 && (!(flag & ALLOW_BARS)
