@@ -2647,4 +2647,5 @@ The following changes to date are:
 - Fix: heap-use-after-free when projectiles rusted away on passive rust attack
 - Fix: Grimtooth's instakill vs elves
 - Intelligent peacefuls avoid digging shop or temple walls
+- Fix: disarming swallowed hero
 
