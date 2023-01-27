@@ -2650,4 +2650,6 @@ The following changes to date are:
 - Fix: disarming swallowed hero
 - Fix: mkgate() was called every time the Amulet of Yendor was dropped and
   picked back up while in the Sanctum
+- Fix: feedback when attacking with certain artifacts (Angelslayer, Grimtooth,
+  the Sword of Annihilation)
 

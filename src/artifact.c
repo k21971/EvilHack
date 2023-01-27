@@ -1696,12 +1696,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                                || defended(mdef, AD_FIRE));
 
                 if (!spec_dbon_applies) {
-                    if ((youdefend || canseemon(mdef))
-                        && (youattack || cansee(magr->mx, magr->my)))
+                    if ((!youattack && magr && cansee(magr->mx, magr->my))
+                        || youattack)
                         pline_The("infernal trident hits %s.", hittee);
                 } else if (!rn2(10) && angel) {
                     /* instant incineration */
-                    if (youdefend || canseemon(mdef))
+                    if ((!youattack && magr && cansee(magr->mx, magr->my))
+                        || youattack)
                         pline("Angelslayer's eldritch flame consumes %s!", hittee);
                     if (youdefend) {
                         u.ugrave_arise = (NON_PM - 2); /* no corpse */
@@ -1717,7 +1718,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         }
                     }
                 } else {
-                    if (youdefend || canseemon(mdef))
+                    if ((!youattack && magr && cansee(magr->mx, magr->my))
+                        || youattack)
                         pline_The("infernal trident %s %s%c",
                                   vaporize ? "vaporizes part of"
                                            : no_burn ? "hits" : "burns",
@@ -2154,11 +2156,12 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                            || defended(mdef, AD_DISE));
 
             if (!spec_dbon_applies) {
-                if ((youdefend || canseemon(mdef))
-                    && (youattack || cansee(magr->mx, magr->my)))
+                if ((!youattack && magr && cansee(magr->mx, magr->my))
+                    || youattack)
                     pline_The("filthy dagger hits %s.", hittee);
             } else if (!rn2(10) && elf) {
-                if (youdefend || canseemon(mdef))
+                if ((!youattack && magr && cansee(magr->mx, magr->my))
+                    || youattack)
                     pline("Grimtooth penetrates %s soft flesh, disembowelling %s!",
                           youdefend ? "your" : s_suffix(mon_nam(mdef)),
                           youdefend ? "you" : noit_mhim(mdef));
@@ -2175,7 +2178,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     }
                 }
             } else {
-                if (youdefend || canseemon(mdef))
+                if ((!youattack && magr && cansee(magr->mx, magr->my))
+                    || youattack)
                     pline_The("filthy dagger %s %s%c",
                               no_sick ? "hits"
                                       : rn2(2) ? "contaminates" : "infects",
@@ -2211,12 +2215,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                              || defended(mdef, AD_DISN));
 
             if (!spec_dbon_applies) {
-                if ((youdefend || canseemon(mdef))
-                    && (youattack || cansee(magr->mx, magr->my)))
+                if ((!youattack && magr && cansee(magr->mx, magr->my))
+                    || youattack)
                     pline_The("dark blade hits %s.", hittee);
             } else if (!rn2(10) && !resistant) {
                 /* instant disintegration */
-                if (youdefend || canseemon(mdef))
+                if ((!youattack && magr && cansee(magr->mx, magr->my))
+                    || youattack)
                     pline_The("deadly blade disintegrates %s!", hittee);
                 if (youdefend) {
                     u.ugrave_arise = (NON_PM - 2); /* no corpse */
@@ -2233,7 +2238,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     }
                 }
             } else {
-                if (youdefend || canseemon(mdef))
+                if ((!youattack && magr && cansee(magr->mx, magr->my))
+                    || youattack)
                     pline_The("dark blade %s %s!",
                               resistant ? "hits" : "partially disintegrates", hittee);
             }
