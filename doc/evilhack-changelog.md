@@ -2648,4 +2648,6 @@ The following changes to date are:
 - Fix: Grimtooth's instakill vs elves
 - Intelligent peacefuls avoid digging shop or temple walls
 - Fix: disarming swallowed hero
+- Fix: mkgate() was called every time the Amulet of Yendor was dropped and
+  picked back up while in the Sanctum
 
