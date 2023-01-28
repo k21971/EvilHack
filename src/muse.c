@@ -1010,7 +1010,8 @@ struct monst *mtmp;
             int nlev;
             d_level flev;
 
-            if (mon_has_amulet(mtmp) || In_endgame(&u.uz)) {
+            if (mon_has_amulet(mtmp) || In_endgame(&u.uz)
+                || (Is_sanctum(&u.uz) && mtmp->data == &mons[PM_LUCIFER])) {
                 if (vismon)
                     pline("%s seems very disoriented for a moment.",
                           Monnam(mtmp));
@@ -3002,7 +3003,8 @@ struct monst *mtmp;
                 get_level(&tolevel, tolev);
                 /* insurance against future changes... */
                 if (on_level(&tolevel, &u.uz)
-                    || (Iniceq && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]))
+                    || (Iniceq && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+                    || (Is_sanctum(&u.uz) && mtmp->data == &mons[PM_LUCIFER]))
                     goto skipmsg;
                 if (vismon) {
                     pline("%s rises up, through the %s!", Monnam(mtmp),
