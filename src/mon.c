@@ -4923,16 +4923,14 @@ register struct monst *mtmp;
     return FALSE;
 }
 
-/* reveal a monster at x,y hiding under an object,
-   if there are no objects there */
+/* reveal a hiding monster at x,y, either under nonexistent object,
+   or certain monsters out of water. */
 void
 maybe_unhide_at(x, y)
 xchar x, y;
 {
     struct monst *mtmp;
 
-    if (OBJ_AT(x, y))
-        return;
     if ((mtmp = m_at(x, y)) == 0
         && x == u.ux && y == u.uy) {
         mtmp = &youmonst;
@@ -4941,9 +4939,12 @@ xchar x, y;
            the hero */
         if (u.uundetected && hides_under(mtmp->data))
             (void) hideunder(mtmp);
-    } else if (mtmp && mtmp->mundetected && hides_under(mtmp->data)) {
-        (void) hideunder(mtmp);
     }
+    if (mtmp && mtmp->mundetected
+        && ((hides_under(mtmp->data) && !OBJ_AT(x, y))
+            || (mtmp->data->mlet == S_EEL && !is_damp_terrain(x, y))
+            || (mtmp->data == &mons[PM_GIANT_LEECH] && !is_sewage(x, y))))
+        (void) hideunder(mtmp);
 }
 
 /* monster/hero tries to hide under something at the current location */

@@ -2655,4 +2655,5 @@ The following changes to date are:
 - Fix: prevent Lucifer from escaping the Sanctum
 - Fix: domonability declared twice in extern.h
 - Fix: ancient subroom location bug
+- Fix: teleported water creature hiding in dry land
 
