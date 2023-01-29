@@ -1048,6 +1048,10 @@ int dieroll;
             hittxt = TRUE;
         }
 
+        /* fighting with fists will get the gloves' bonus... */
+        if (!uwep && uarmg)
+            tmp += uarmg->spe;
+
         /* Blessed gloves give bonuses when fighting 'bare-handed'.  So do
            rings or gloves made of a hated material.  Note:  rings are worn
            under gloves, so you don't get both bonuses, and two hated rings

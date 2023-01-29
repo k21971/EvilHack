@@ -2656,4 +2656,5 @@ The following changes to date are:
 - Fix: domonability declared twice in extern.h
 - Fix: ancient subroom location bug
 - Fix: teleported water creature hiding in dry land
+- Reimplement damage bonus from worn gloves enchantment if fighting bare-handed
 
