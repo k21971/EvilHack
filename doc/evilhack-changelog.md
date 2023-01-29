@@ -2653,4 +2653,5 @@ The following changes to date are:
 - Fix: feedback when attacking with certain artifacts (Angelslayer, Grimtooth,
   the Sword of Annihilation)
 - Fix: prevent Lucifer from escaping the Sanctum
+- Fix: domonability declared twice in extern.h
 

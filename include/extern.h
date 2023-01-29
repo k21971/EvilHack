@@ -223,7 +223,6 @@ E char NDECL(randomkey);
 E void FDECL(random_response, (char *, int));
 E int NDECL(rnd_extcmd_idx);
 E int NDECL(doconduct);
-E int NDECL(domonability);
 E char FDECL(cmd_from_func, (int NDECL((*))));
 E boolean FDECL(redraw_cmd, (CHAR_P));
 #ifdef USE_TRAMPOLI
