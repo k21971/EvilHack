@@ -2657,4 +2657,5 @@ The following changes to date are:
 - Fix: ancient subroom location bug
 - Fix: teleported water creature hiding in dry land
 - Reimplement damage bonus from worn gloves enchantment if fighting bare-handed
+- Generate random eroded, erodeproof, or greased items
 

@@ -5,6 +5,8 @@
 
 #include "hack.h"
 
+STATIC_DCL boolean FDECL(may_generate_eroded, (struct obj *));
+STATIC_DCL void FDECL(mkobj_erosions, (struct obj *));
 STATIC_DCL void FDECL(mkbox_cnts, (struct obj *));
 STATIC_DCL unsigned FDECL(nextoid, (struct obj *, struct obj *));
 STATIC_DCL void FDECL(obj_timer_checks, (struct obj *,
@@ -198,6 +200,60 @@ struct obj *otmp;
     if (otmp->oextra && OMAILCMD(otmp)) {
         free((genericptr_t) OMAILCMD(otmp));
         OMAILCMD(otmp) = (char *) 0;
+    }
+}
+
+/* can object be generated eroded? */
+boolean
+may_generate_eroded(otmp)
+struct obj *otmp;
+{
+    /* initial hero inventory */
+    if (moves <= 1 && !in_mklev)
+        return FALSE;
+    /* already erodeproof or cannot be eroded */
+    if (otmp->oerodeproof || !erosion_matters(otmp) || !is_damageable(otmp))
+        return FALSE;
+    /* food is included as a part of erosion_matters(),
+       exclude food from spawning as 'rotten' */
+    if (otmp->oclass == FOOD_CLASS)
+        return FALSE;
+    /* part of a monster's body and produced when it dies */
+    if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
+        return FALSE;
+    /* artifacts cannot be generated eroded  */
+    if (otmp->oartifact)
+        return FALSE;
+    return TRUE;
+}
+
+/* random chance of applying erosions/grease to object */
+void
+mkobj_erosions(otmp)
+struct obj *otmp;
+{
+    if (may_generate_eroded(otmp)) {
+        /* A small fraction of non-artifact items will generate eroded or
+         * possibly erodeproof. An item that generates eroded will never be
+         * erodeproof, and vice versa. */
+        if (!rn2(100)) {
+            otmp->oerodeproof = 1;
+        } else {
+            if (!rn2(80) && (is_flammable(otmp) || is_rustprone(otmp))) {
+                do {
+                    otmp->oeroded++;
+                } while (otmp->oeroded < 3 && !rn2(9));
+            }
+            if (!rn2(80) && (is_rottable(otmp) || is_corrodeable(otmp))) {
+                do {
+                    otmp->oeroded2++;
+                } while (otmp->oeroded2 < 3 && !rn2(9));
+            }
+        }
+        /* and an extremely small fraction of the time, erodable items
+         * will generate greased */
+        if (!rn2(1000))
+            otmp->greased = 1;
     }
 }
 
@@ -1138,6 +1194,8 @@ boolean artif;
             /*NOTREACHED*/
         }
     }
+
+    mkobj_erosions(otmp);
 
     /* some things must get done (corpsenm, timers) even if init = 0 */
     switch ((otmp->oclass == POTION_CLASS && otmp->otyp != POT_OIL)
