@@ -2747,7 +2747,7 @@ struct obj *mwep;
             if (resists_disint(magr) || defended(magr, AD_DISN)) {
                 if (canseemon(magr) && !rn2(3)) {
                     shieldeff(magr->mx, magr->my);
-                    pline("%s deadly %s does not appear to affect %s",
+                    pline("%s deadly %s does not appear to affect %s.",
                           s_suffix(Monnam(mdef)),
                           mdef->data == &mons[PM_ANTIMATTER_VORTEX]
                               ? "form" : "hide", mon_nam(magr));

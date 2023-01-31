@@ -2658,4 +2658,5 @@ The following changes to date are:
 - Fix: teleported water creature hiding in dry land
 - Reimplement damage bonus from worn gloves enchantment if fighting bare-handed
 - Generate random eroded, erodeproof, or greased items
+- Fix: missing period
 

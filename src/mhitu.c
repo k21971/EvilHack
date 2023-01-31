@@ -3989,7 +3989,7 @@ struct attack *mattk;
                 break;
                 if (canseemon(mtmp) && !rn2(3)) {
                     shieldeff(mtmp->mx, mtmp->my);
-                    Your("armor does not appear to affect %s",
+                    Your("armor does not appear to affect %s.",
                          mon_nam(mtmp));
                 }
             } else if (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
@@ -4180,7 +4180,7 @@ struct attack *mattk;
         if (resists_disint(mtmp) || defended(mtmp, AD_DISN)) {
             if (canseemon(mtmp) && !rn2(3)) {
                 shieldeff(mtmp->mx, mtmp->my);
-                Your("deadly %s does not appear to affect %s",
+                Your("deadly %s does not appear to affect %s.",
                      youmonst.data == &mons[PM_ANTIMATTER_VORTEX]
                          ? "form" : "hide", mon_nam(mtmp));
             }
