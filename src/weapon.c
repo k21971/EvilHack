@@ -1868,6 +1868,19 @@ int n; /* number of skills to drain */
         }
 }
 
+void
+reset_weapon_skills()
+{
+    while (u.skills_advanced) {
+        int skill = u.skill_record[--u.skills_advanced];
+        if (P_SKILL(skill) <= P_UNSKILLED)
+            panic("clear_all_skills (%d)", skill);
+        P_SKILL(skill)--; /* drop skill one level */
+        /* Lost skill might have taken more than one slot; refund rest. */
+        u.weapon_slots += slots_required(skill);
+    }
+}
+
 int
 weapon_type(obj)
 struct obj *obj;

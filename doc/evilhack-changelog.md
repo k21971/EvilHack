@@ -2659,4 +2659,5 @@ The following changes to date are:
 - Reimplement damage bonus from worn gloves enchantment if fighting bare-handed
 - Generate random eroded, erodeproof, or greased items
 - Fix: missing period
+- Reading a blessed scroll of amnesia allows option to reset accumulated skills 
 
