@@ -2277,6 +2277,7 @@ dosacrifice()
                         }
 
                         bless(otmp);
+                        otmp->oeroded = otmp->oeroded2 = 0;
                         at_your_feet("An object");
                         place_object(otmp, u.ux, u.uy);
                         newsym(u.ux, u.uy);
@@ -2446,6 +2447,7 @@ dosacrifice()
                                 bless(otmp);
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */
                             otmp->oerodeproof = TRUE;
+                            otmp->oeroded = otmp->oeroded2 = 0;
                             otmp->owt = weight(otmp);
                             at_your_feet(otmp->quan > 1L ? "Some objects"
                                                          : "An object");
@@ -2481,6 +2483,7 @@ dosacrifice()
                     else
                         bless(otmp);
                     otmp->oerodeproof = TRUE;
+                    otmp->oeroded = otmp->oeroded2 = 0;
                     at_your_feet("An object");
                     place_object(otmp, u.ux, u.uy);
                     newsym(u.ux, u.uy);
