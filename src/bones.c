@@ -34,9 +34,9 @@ d_level *lev;
                          in any dungeon (level 1 isn't multiway) */
                       || Is_botlevel(lev)
                       || (Is_branchlev(lev) && lev->dlevel > 1)
-                      /* no bones in the valley, because Cerberus needs
-                         to be present */
-                      || Is_valley(lev)
+                      /* only allow bones in the valley if Cerberus
+                         still lives */
+                      || (Is_valley(lev) && !u.uevent.ucerberus)
                       /* no bones in the invocation level */
                       || (In_hell(lev)
                           && lev->dlevel == dunlevs_in_dungeon(lev) - 1));

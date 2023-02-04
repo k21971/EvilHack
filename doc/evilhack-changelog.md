@@ -2662,4 +2662,5 @@ The following changes to date are:
 - Reading a blessed scroll of amnesia allows option to reset accumulated skills 
 - Fix: prevent Valley of the Dead bones files
 - Fix: worn rings covered by worn gloves could do material damage to monsters
+- Tweak to Valley of the Dead bones files
 
