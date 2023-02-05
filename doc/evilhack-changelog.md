@@ -2664,4 +2664,5 @@ The following changes to date are:
 - Fix: worn rings covered by worn gloves could do material damage to monsters
 - Tweak to Valley of the Dead bones files
 - Fix: don't allow non-artifact sacrifice gifts to spawn with erosion
+- Prevent certain items from random erosion
 
