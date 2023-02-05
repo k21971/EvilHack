@@ -1740,8 +1740,8 @@ int dieroll;
 
     /* The Hand of Vecna imparts cold damage to attacks,
        whether bare-handed or wielding a weapon */
-    if (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA
-        && hand_to_hand) {
+    if (!destroyed && uarmg
+        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
         if (!Blind)
             pline("%s covers %s in frost!", The(xname(uarmg)),
                   mon_nam(mon));

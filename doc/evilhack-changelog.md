@@ -2666,4 +2666,5 @@ The following changes to date are:
 - Fix: don't allow non-artifact sacrifice gifts to spawn with erosion
 - Prevent certain items from random erosion
 - Fix: monsters could jump into poly traps when trapped
+- Fix: suppress Hand of Vecna cold-based attack if target is already dead
 
