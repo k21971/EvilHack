@@ -2665,4 +2665,5 @@ The following changes to date are:
 - Tweak to Valley of the Dead bones files
 - Fix: don't allow non-artifact sacrifice gifts to spawn with erosion
 - Prevent certain items from random erosion
+- Fix: monsters could jump into poly traps when trapped
 

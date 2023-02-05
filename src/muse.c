@@ -2529,6 +2529,7 @@ struct monst *mtmp;
     int xx, yy, pmidx = NON_PM;
     boolean immobile = (mdat->mmove == 0);
     boolean stuck = (mtmp == u.ustuck);
+    boolean trapped = mtmp->mtrapped;
 
     m.misc = (struct obj *) 0;
     m.has_misc = 0;
@@ -2544,7 +2545,7 @@ struct monst *mtmp;
     if (dist2(x, y, mtmp->mux, mtmp->muy) > 36)
         return FALSE;
 
-    if (!stuck && !immobile && (mtmp->cham == NON_PM)
+    if (!stuck && !immobile && !trapped && (mtmp->cham == NON_PM)
         && mons[(pmidx = monsndx(mdat))].difficulty < 6) {
         boolean ignore_boulders = (r_verysmall(mtmp)
                                    || racial_throws_rocks(mtmp)
