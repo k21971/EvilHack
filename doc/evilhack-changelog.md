@@ -2667,4 +2667,5 @@ The following changes to date are:
 - Prevent certain items from random erosion
 - Fix: monsters could jump into poly traps when trapped
 - Fix: suppress Hand of Vecna cold-based attack if target is already dead
+- Update to 'monsters could jump into poly traps when trapped'
 

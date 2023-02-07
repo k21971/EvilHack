@@ -555,7 +555,7 @@ struct monst *mtmp;
         return FALSE;
     }
 
-    if (stuck || immobile) {
+    if (stuck || immobile || mtmp->mtrapped) {
         ; /* fleeing by stairs or traps is not possible */
     } else if (levl[x][y].typ == STAIRS) {
         if (x == xdnstair && y == ydnstair) {
