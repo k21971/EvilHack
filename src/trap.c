@@ -152,6 +152,7 @@ int ef_flags;
             uvictim, vismon, visobj;
     int erosion, cost_type;
     struct monst *victim;
+    struct obj *otmp2, *ncobj;
 
     if (!otmp)
         return ER_NOTHING;
@@ -273,12 +274,18 @@ int ef_flags;
                                         : s_suffix(Monnam(victim)),
                       ostr, vtense(ostr, action[type]));
         } else {
-            if (uvictim || vismon || visobj)
-                pline("%s %s %s away!",
-                      uvictim ? "Your"
-                              : !vismon ? "The" /* visobj */
-                                        : s_suffix(Monnam(victim)),
-                      ostr, vtense(ostr, action[type]));
+            if (uvictim || vismon || visobj) {
+                if (otmp->otyp == IRON_SAFE && rn2(20)) {
+                    pline("%s is still completely rusted.", Yname2(otmp));
+                    return ER_DAMAGED;
+                } else {
+                    pline("%s %s %s away!",
+                          uvictim ? "Your"
+                                  : !vismon ? "The" /* visobj */
+                                            : s_suffix(Monnam(victim)),
+                          ostr, vtense(ostr, action[type]));
+                }
+            }
         }
         if (ef_flags & EF_PAY)
             costly_alteration(otmp, cost_type);
@@ -292,6 +299,28 @@ int ef_flags;
                 else
                     delobj(otmp);
             }
+        } else if (Is_box(otmp)) {
+            /* Container has rusted away - dump contents out */
+            if (Has_contents(otmp)) {
+                if (uvictim || vismon || visobj)
+                    pline("Its contents fall out.");
+                for (otmp2 = otmp->cobj; otmp2; otmp2 = ncobj) {
+                    ncobj = otmp2->nobj;
+                    obj_extract_self(otmp2);
+                    if (uvictim) {
+                        if (!flooreffects(otmp2, u.ux, u.uy, ""))
+                            place_object(otmp2, u.ux, u.uy);
+                    } else if (victim && (victim != &youmonst)) {
+                         if (!flooreffects(otmp2, victim->mx, victim->my, ""))
+                             place_object(otmp2, victim->mx, victim->my);
+                    }
+                }
+            }
+            setnotworn(otmp);
+            if (carried(otmp))
+                useupall(otmp);
+            else
+                delobj(otmp);
         } else if (victim && (victim != &youmonst)) {
             extract_from_minvent(victim, otmp, TRUE, TRUE);
             obfree(otmp, (struct obj *) 0);
@@ -4113,8 +4142,6 @@ const char *ostr;
 boolean force;
 xchar x, y;
 {
-    struct obj *otmp, *ncobj;
-    int in_sight = !Blind && couldsee(x, y); /* Don't care if it's lit */
     boolean in_invent = obj && carried(obj), described = FALSE;
 
     if (!obj)
@@ -4163,32 +4190,7 @@ xchar x, y;
            gets into!" message, the player now has more information and
            thus we need to waste any potion they may have used (also,
            flavourwise the water is now on the floor) */
-        return ER_DAMAGED;
-    } else if (Is_box(obj) && greatest_erosion(obj) == MAX_ERODE) {
-        if (obj->otyp == IRON_SAFE && rn2(50)) {
-            if (in_sight)
-                pline("%s is still completely rusted.", Yname2(obj));
-            return ER_DAMAGED;
-        } else {
-            /* Container has rusted away - dump contents out */
-            if (in_sight)
-                pline("%s rusts completely away!", Yname2(obj));
-            if (Has_contents(obj)) {
-                if (in_sight)
-                    pline("Its contents fall out.");
-                for (otmp = obj->cobj; otmp; otmp = ncobj) {
-                    ncobj = otmp->nobj;
-                    obj_extract_self(otmp);
-                    if (!flooreffects(otmp, x, y, ""))
-                        place_object(otmp, x, y);
-                }
-            }
-            setnotworn(obj);
-            delobj(obj);
-            if (in_invent)
-                update_inventory();
-            return ER_DESTROYED;
-        }
+        return erode_obj(obj, ostr, ERODE_RUST, EF_DESTROY);
     } else if (!force && (Luck + 5) > rn2(20)) {
         /*  chance per item of sustaining damage:
             *   max luck:               10%

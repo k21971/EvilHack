@@ -329,7 +329,7 @@ struct obj {
     ((obj)->otyp >= FIRST_DRAGON_SCALES && (obj)->otyp <= LAST_DRAGON_SCALES)
 /* Note: dragonscales is corpsenm, and corpsenm is usually initialized to
  * NON_PM, which is -1. Thus, check for > 0 rather than just nonzero. */
-#define Is_dragon_scaled_armor(obj)                \
+#define Is_dragon_scaled_armor(obj) \
     (is_suit(obj) && (obj)->dragonscales > 0)
 #define Is_dragon_armor(obj) \
     (Is_dragon_scales(obj) || Is_dragon_scaled_armor(obj))

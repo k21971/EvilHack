@@ -2668,4 +2668,5 @@ The following changes to date are:
 - Fix: monsters could jump into poly traps when trapped
 - Fix: suppress Hand of Vecna cold-based attack if target is already dead
 - Update to 'monsters could jump into poly traps when trapped'
+- Fix: containers flagged as waterproof were not subject to water damage
 
