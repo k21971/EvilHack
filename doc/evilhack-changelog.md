@@ -2669,4 +2669,5 @@ The following changes to date are:
 - Fix: suppress Hand of Vecna cold-based attack if target is already dead
 - Update to 'monsters could jump into poly traps when trapped'
 - Fix: containers flagged as waterproof were not subject to water damage
+- Allow food appraisal intrinsic to warn against the Eye of Vecna
 

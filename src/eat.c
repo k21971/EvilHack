@@ -2610,7 +2610,7 @@ struct obj *otmp;
         else
             return 2;
     }
-    if (stoneorslime) {
+    if (stoneorslime || otmp->oartifact == ART_EYE_OF_VECNA) {
         Sprintf(buf, "%s like %s could be something very dangerous!  %s",
                 foodsmell, it_or_they, eat_it_anyway);
         if (yn_function(buf, ynchars, 'n') == 'n')
