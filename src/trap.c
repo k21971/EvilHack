@@ -2575,6 +2575,18 @@ register struct monst *mtmp;
         if (trap->madeby_u && rnl(5))
             setmangry(mtmp, TRUE);
 
+        /* mtmp can't stay hiding under an object if trapped in non-pit
+           (mtmp hiding under object at armed bear trap loccation, hero
+           zaps wand of locking or spell of wizard lock at spot triggering
+           the trap and trapping mtmp there) */
+        if (!DEADMONSTER(mtmp) && mtmp->mtrapped) {
+            boolean alreadyspotted = canspotmon(mtmp);
+
+            maybe_unhide_at(mtmp->mx, mtmp->my);
+            if (!alreadyspotted && canseemon(mtmp))
+                pline("%s appears.", Amonnam(mtmp));
+        }
+
         in_sight = canseemon(mtmp);
         see_it = cansee(mtmp->mx, mtmp->my);
 

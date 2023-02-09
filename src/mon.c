@@ -4930,18 +4930,17 @@ maybe_unhide_at(x, y)
 xchar x, y;
 {
     struct monst *mtmp;
+    boolean undetected = FALSE;
 
     if ((mtmp = m_at(x, y)) == 0
         && x == u.ux && y == u.uy) {
         mtmp = &youmonst;
-        /* mtmp->mundetected here isn't synchronized with
-           u.uundetected, we have to use u.uundetected for
-           the hero */
-        if (u.uundetected && hides_under(mtmp->data))
-            (void) hideunder(mtmp);
+        undetected = u.uundetected;
+    } else if (mtmp) {
+        undetected = mtmp->mundetected;
     }
-    if (mtmp && mtmp->mundetected
-        && ((hides_under(mtmp->data) && !OBJ_AT(x, y))
+    if (mtmp && undetected
+        && ((hides_under(mtmp->data) && (!OBJ_AT(x, y) || mtmp->mtrapped))
             || (mtmp->data->mlet == S_EEL && !is_damp_terrain(x, y))
             || (mtmp->data == &mons[PM_GIANT_LEECH] && !is_sewage(x, y))))
         (void) hideunder(mtmp);
