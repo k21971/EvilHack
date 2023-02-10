@@ -2674,4 +2674,5 @@ The following changes to date are:
 - More tweaks to maybe_unhide_at()
 - Fix: splash screen (windows build, GUI)
 - Another attempt to fix the windows GUI splash screen
+- Fix: missing bracket for Lucifer tile entry
 

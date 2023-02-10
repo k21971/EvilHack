@@ -7911,6 +7911,7 @@ Z = (195, 195, 195)
   ..NNADAAAACANN..
   ..ONND.N..CNNO..
   ...ND....N.CN...
+}
 # tile 415 (Death)
 {
   .BBBB....JJJ....
