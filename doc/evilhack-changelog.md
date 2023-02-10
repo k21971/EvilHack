@@ -2671,4 +2671,5 @@ The following changes to date are:
 - Fix: containers flagged as waterproof were not subject to water damage
 - Allow food appraisal intrinsic to warn against the Eye of Vecna
 - Tweaks to maybe_unhide_at()
+- More tweaks to maybe_unhide_at()
 
