@@ -2673,4 +2673,5 @@ The following changes to date are:
 - Tweaks to maybe_unhide_at()
 - More tweaks to maybe_unhide_at()
 - Fix: splash screen (windows build, GUI)
+- Another attempt to fix the windows GUI splash screen
 
