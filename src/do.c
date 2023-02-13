@@ -1884,10 +1884,25 @@ boolean at_stairs, falling, portal;
             com_pager(300);
     }
 
-    /* made it to the final demon boss lair? */
+    /* made it to the first demon lord lair? */
+    if (!Is_hella_level(&u.uz0) && Is_hella_level(&u.uz)
+        && !u.uevent.hella_entered)
+        u.uevent.hella_entered = 1;
+
+    /* made it to the second demon lord lair? */
+    if (!Is_hellb_level(&u.uz0) && Is_hellb_level(&u.uz)
+        && !u.uevent.hellb_entered)
+        u.uevent.hellb_entered = 1;
+
+    /* made it to the final demon prince lair? */
     if (!Is_hellc_level(&u.uz0) && Is_hellc_level(&u.uz)
         && !u.uevent.hellc_entered)
         u.uevent.hellc_entered = 1;
+
+    /* made it to Orcus Town? */
+    if (!Is_orcustown(&u.uz0) && Is_orcustown(&u.uz)
+        && !u.uevent.orcus_entered)
+        u.uevent.orcus_entered = 1;
 
     if (!In_icequeen_branch(&u.uz0) && Iniceq
         && !u.uevent.iceq_entered) {
@@ -1962,7 +1977,7 @@ boolean at_stairs, falling, portal;
 
     /* special location arrival messages/events */
     if (In_endgame(&u.uz)) {
-        if (new &&on_level(&u.uz, &astral_level))
+        if (new && on_level(&u.uz, &astral_level))
             final_level(); /* guardian angel,&c */
         else if (newdungeon && u.uhave.amulet)
             resurrect(); /* force confrontation with Wizard */

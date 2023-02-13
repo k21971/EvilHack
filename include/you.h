@@ -49,7 +49,10 @@ struct u_event {
     Bitfield(invoked, 1);           /* invoked Gate to the Sanctum level */
     Bitfield(gehennom_entered, 1);  /* entered Gehennom via Valley */
     Bitfield(tower_entered, 1);     /* entered Vlad's tower (cavern level) */
+    Bitfield(hella_entered, 1);     /* entered the first demon lord lair */
+    Bitfield(hellb_entered, 1);     /* entered the second demon lord lair */
     Bitfield(hellc_entered, 1);     /* entered one of the demon prince lairs */
+    Bitfield(orcus_entered, 1);     /* entered Orcus town */
     Bitfield(iceq_entered, 1);      /* entered the Ice Queen's realm */
     Bitfield(vecnad_entered, 1);    /* entered Vecna's domain */
     Bitfield(gtown_entered, 1);     /* entered Goblin Town */

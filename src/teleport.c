@@ -541,7 +541,7 @@ struct obj *scroll;
     /* Being in the presence of demon lords/princes can negate
        teleportation most of the time */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (is_dlord(mtmp->data) && rn2(5)
+        if (is_dlord(mtmp->data) && rn2(10)
             && !wizard) {
             pline("Demonic forces prevent you from teleporting.");
             return TRUE;
@@ -852,7 +852,7 @@ level_tele()
     /* Being in the presence of demon lords/princes can negate
        level teleportation most of the time */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (is_dlord(mtmp->data) && rn2(5)
+        if (is_dlord(mtmp->data) && rn2(10)
             && !wizard) {
             pline("Demonic forces prevent you from teleporting.");
             return;
@@ -1103,11 +1103,24 @@ level_tele()
 
         /* if invocation did not yet occur, teleporting into
          * the last level of Gehennom is forbidden.
+         * attempting to bypass the three demon boss lairs
+         * or Orcus town is also forbidden
          */
-        if (!wizard && Inhell && !u.uevent.invoked && newlev >= deepest) {
-            newlev = deepest - 1;
-            pline("Sorry...");
+        if (!wizard && Inhell) {
+            if (!u.uevent.hella_entered && newlev > depth(&hella_level))
+                newlev = depth(&hella_level);
+            if (!u.uevent.hellb_entered && newlev > depth(&hellb_level))
+                newlev = depth(&hellb_level);
+            if (!u.uevent.hellc_entered && newlev > depth(&hellc_level))
+                newlev = depth(&hellc_level);
+            if (!u.uevent.orcus_entered && newlev > depth(&orcus_level))
+                newlev = depth(&orcus_level);
+            if (!u.uevent.invoked && newlev >= deepest) {
+                newlev = deepest - 1;
+                pline("Sorry...");
+            }
         }
+
         /* no teleporting out of quest dungeon */
         if (In_quest(&u.uz) && newlev < depth(&qstart_level))
             newlev = depth(&qstart_level);

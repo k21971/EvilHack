@@ -2682,4 +2682,5 @@ The following changes to date are:
 
 - Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 23rd, 2022)
 - Initial preparation for new version (0.8.2)
+- Prevent bypassing demon boss lairs via level teleport
 
