@@ -753,6 +753,8 @@ struct attack *uattk;
         if (!rn2(5)) {
             You("swing wildly and miss!");
         } else {
+            char tmpbuf[BUFSZ];
+
             Your("cursed %s turns against you!", simpleonames(uwep));
             You("hit yourself in the %s!", body_part(FACE));
             if (uwep->oartifact
@@ -770,7 +772,8 @@ struct attack *uattk;
                 searmsg(&youmonst, &youmonst, uwep, FALSE);
                 exercise(A_CON, FALSE);
             }
-            losehp(dmg_wep, "hitting themselves in the face", KILLED_BY);
+            Sprintf(tmpbuf, "hitting %sself in the face", uhim());
+            losehp(dmg_wep, tmpbuf, KILLED_BY);
         }
         return 0;
     }

@@ -1268,6 +1268,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                 slipok = FALSE;
         }
         if (slipok) {
+            char tmpbuf[BUFSZ];
             int dmg = dmgval(obj, &youmonst);
 
             u.dx = rn2(3) - 1;
@@ -1296,7 +1297,9 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                     searmsg(&youmonst, &youmonst, obj, FALSE);
                     exercise(A_CON, FALSE);
                 }
-                losehp(dmg, "hitting themselves with a cursed projectile", KILLED_BY);
+                Sprintf(tmpbuf, "hitting %sself with a cursed projectile",
+                        uhim());
+                losehp(dmg, tmpbuf, KILLED_BY);
             }
             impaired = TRUE;
         }
