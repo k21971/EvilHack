@@ -2680,7 +2680,7 @@ The following changes to date are:
 
 ### Version 0.8.2
 
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 23rd, 2022)
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of February 16th, 2023)
 - Initial preparation for new version (0.8.2)
 - Prevent bypassing demon boss lairs via level teleport
 - Tweak feedback if killing yourself from a cursed weapon
