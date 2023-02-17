@@ -45,7 +45,7 @@
 %.au
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for 3.6 by Mike Stephenson and others)}
-\date{September 29, 2021}
+\date{February 3, 2023}
 
 \maketitle
 
@@ -2916,12 +2916,12 @@ can be created with any text editor.\\
 
 %.lp ""
 On Windows, it is \mbox{``.evilhackrc''} in the folder
-\mbox{{``\%USERPROFILE\%\textbackslash NetHack\textbackslash 3.6''}}. The
+\mbox{{``\%USERPROFILE\%\textbackslash NetHack\textbackslash''}}. The
 file may not exist, but it is a normal ASCII text file and can be created
 with any text editor.
 After runing {\it NetHack\/} for the first time, you should find a default
 template for ths configuration file named \mbox{``.evilhackrc.template''} in
-\mbox{{``\%USERPROFILE\%\textbackslash NetHack\textbackslash 3.6''}}.
+\mbox{{``\%USERPROFILE\%\textbackslash NetHack\textbackslash''}}.
 If you had not created the configuration file, {\it NetHack\/} will create
 the configuration file for you using the default template file.
 
@@ -4262,11 +4262,9 @@ or ports to customize and change the port behavior.
 
 \blist{}
 %.lp
-\item[\ib{altkeyhandler}]
-Select an alternate keystroke handler dll to load ({\it Win32 tty\/ NetHack\/} only).
-The name of the handler is specified without the .dll extension and without any
-path information.
-Cannot be set with the `{\tt O}' command.
+\item[\ib{altkeyhandling}]
+Select an alternate way to handle keystrokes ({\it Win32 tty\/ NetHack\/} only).
+The name of the handling type is one of {\it default}, {\it ray}, {\it 340}
 %.lp
 \item[\ib{altmeta}]
 On Amiga, this option controls whether typing ``Alt'' plus another key
@@ -5833,6 +5831,11 @@ and a small number of bug fixes.
 %.pg
 \medskip
 NetHack 3.6.6 was released on March 8, 2020 containing a security fix and
+some bug fixes.
+
+%.pg
+\medskip
+NetHack 3.6.7 was released in February 2023 containing a security fix and
 some bug fixes.
 
 %.pg
