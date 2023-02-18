@@ -2219,8 +2219,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             if (!spec_dbon_applies) {
                 if ((!youattack && magr && cansee(magr->mx, magr->my))
                     || youattack)
-                    pline_The("dark blade hits %s.", hittee);
-            } else if (!rn2(10) && !resistant) {
+                    pline_The("deadly blade hits %s.", hittee);
+            } else if (!rn2(12) && !resistant) {
                 /* instant disintegration */
                 if ((!youattack && magr && cansee(magr->mx, magr->my))
                     || youattack)
@@ -2234,9 +2234,30 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else { /* you or mon hit monster */
                     disint_mon_invent(mdef);
                     if (youattack) {
-                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                        if (is_rider(mdef->data)) {
+                            if (vis) {
+                                pline("%s body reintegrates before your %s!",
+                                      s_suffix(Monnam(mdef)),
+                                      (eyecount(youmonst.data) == 1)
+                                         ? body_part(EYE)
+                                         : makeplural(body_part(EYE)));
+                                pline("%s resurrects!", Monnam(mdef));
+                            }
+                            mdef->mhp = mdef->mhpmax;
+                        } else {
+                            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                        }
                     } else {
-                        monkilled(mdef, 0, AD_DISN);
+                        if (is_rider(mdef->data)) {
+                            if (vis) {
+                                pline("%s body reintegrates!",
+                                      s_suffix(Monnam(mdef)));
+                                pline("%s resurrects!", Monnam(mdef));
+                            }
+                            mdef->mhp = mdef->mhpmax;
+                        } else {
+                            monkilled(mdef, 0, AD_DISN);
+                        }
                     }
                 }
             } else {

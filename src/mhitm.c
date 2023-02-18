@@ -2792,8 +2792,17 @@ struct obj *mwep;
                                   mdef->data == &mons[PM_ANTIMATTER_VORTEX]
                                       ? "form" : "hide", mon_nam(magr));
                         disint_mon_invent(magr);
-                        monkilled(magr, "", AD_DISN);
-                        return (mdead | mhit | MM_AGR_DIED);
+                        if (is_rider(magr->data)) {
+                            if (canseemon(magr)) {
+                                pline("%s body reintegrates!",
+                                      s_suffix(Monnam(magr)));
+                                pline("%s resurrects!", Monnam(magr));
+                            }
+                            magr->mhp = magr->mhpmax;
+                        } else {
+                            monkilled(magr, "", AD_DISN);
+                            return (mdead | mhit | MM_AGR_DIED);
+                        }
                     }
                 }
             }

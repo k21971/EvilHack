@@ -4027,7 +4027,19 @@ struct attack *mattk;
                         if (canseemon(mtmp))
                             pline("%s is disintegrated completely!", Monnam(mtmp));
                         disint_mon_invent(mtmp);
-                        xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                        if (is_rider(mtmp->data)) {
+                            if (canseemon(mtmp)) {
+                                pline("%s body reintegrates before your %s!",
+                                      s_suffix(Monnam(mtmp)),
+                                      (eyecount(youmonst.data) == 1)
+                                         ? body_part(EYE)
+                                         : makeplural(body_part(EYE)));
+                                pline("%s resurrects!", Monnam(mtmp));
+                            }
+                            mtmp->mhp = mtmp->mhpmax;
+                        } else {
+                            xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                        }
                         if (!DEADMONSTER(mtmp))
                             return 1;
                         return 2;
@@ -4223,7 +4235,19 @@ struct attack *mattk;
                              youmonst.data == &mons[PM_ANTIMATTER_VORTEX]
                                  ? "form" : "hide", mon_nam(mtmp));
                         disint_mon_invent(mtmp);
-                        xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                        if (is_rider(mtmp->data)) {
+                            if (canseemon(mtmp)) {
+                                pline("%s body reintegrates before your %s!",
+                                      s_suffix(Monnam(mtmp)),
+                                      (eyecount(youmonst.data) == 1)
+                                         ? body_part(EYE)
+                                         : makeplural(body_part(EYE)));
+                                pline("%s resurrects!", Monnam(mtmp));
+                            }
+                            mtmp->mhp = mtmp->mhpmax;
+                        } else {
+                            xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                        }
                         if (!DEADMONSTER(mtmp))
                             return 1;
                         return 2;
