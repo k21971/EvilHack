@@ -2684,4 +2684,5 @@ The following changes to date are:
 - Initial preparation for new version (0.8.2)
 - Prevent bypassing demon boss lairs via level teleport
 - Tweak feedback if killing yourself from a cursed weapon
+- Fix: logic in amulet/tool naming after 3.6.7 merge
 
