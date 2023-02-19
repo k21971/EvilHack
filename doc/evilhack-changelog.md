@@ -2688,4 +2688,6 @@ The following changes to date are:
 - Fix: the Riders being disintegrated and not leaving a corpse
 - Fix: monster jumping logic
 - Monsters flagged as a lord/prince don't spawn with eroded gear
+- Fix: Infidel role - repeatedly chatting with your quest leader causes
+  'completed his/her quest without incident' livelog to run every time
 
