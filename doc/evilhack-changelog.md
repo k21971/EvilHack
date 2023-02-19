@@ -2687,4 +2687,5 @@ The following changes to date are:
 - Fix: logic in amulet/tool naming after 3.6.7 merge
 - Fix: the Riders being disintegrated and not leaving a corpse
 - Fix: monster jumping logic
+- Monsters flagged as a lord/prince don't spawn with eroded gear
 
