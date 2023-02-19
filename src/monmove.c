@@ -1237,9 +1237,14 @@ register int after;
     }
 #endif
 
-    /* jump toward the player if that lies in our nature */
-    if (can_jump(mtmp) || is_jumper(ptr)) {
+    /* jump toward the player if that lies in
+       our nature, can see the player, and isn't
+       otherwise incapacitated in some way */
+    if ((can_jump(mtmp) || is_jumper(ptr)) && m_canseeu(mtmp)
+        && !(mtmp->mflee || mtmp->mconf
+             || mtmp->mstun || mtmp->msleeping)) {
         int dist = dist2(mtmp->mx, mtmp->my, u.ux, u.uy);
+
         if (!mtmp->mpeaceful && !rn2(3) && dist <= 20 && dist > 8) {
             int x = u.ux - mtmp->mx;
             int y = u.uy - mtmp->my;

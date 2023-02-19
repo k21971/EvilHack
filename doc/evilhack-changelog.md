@@ -2686,4 +2686,5 @@ The following changes to date are:
 - Tweak feedback if killing yourself from a cursed weapon
 - Fix: logic in amulet/tool naming after 3.6.7 merge
 - Fix: the Riders being disintegrated and not leaving a corpse
+- Fix: monster jumping logic
 
