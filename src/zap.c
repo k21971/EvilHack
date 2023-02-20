@@ -1207,7 +1207,6 @@ register struct obj *obj;
 {
     boolean u_ring = (obj == uleft || obj == uright);
     int otyp = obj->otyp;
-    int oarti = obj->oartifact;
 
     switch (otyp) {
     case RIN_GAIN_STRENGTH:
@@ -1251,7 +1250,6 @@ register struct obj *obj;
         || otyp == POT_SICKNESS
         || (otyp == POT_WATER && (obj->blessed || obj->cursed))) {
         if (obj->spe != ((obj->oclass == WAND_CLASS) ? -1 : 0)
-            && oarti != ART_IDOL_OF_MOLOCH /* the Idol must never be cancelled */
             && otyp != WAN_CANCELLATION /* can't cancel cancellation */
             && otyp != MAGIC_LAMP /* cancelling doesn't remove djinni */
             && otyp != CANDELABRUM_OF_INVOCATION) {

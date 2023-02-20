@@ -121,10 +121,8 @@ STATIC_DCL void
 fix_artifact(otmp)
 struct obj *otmp;
 {
-    if (otmp->oartifact == ART_IDOL_OF_MOLOCH) {
+    if (otmp->oartifact == ART_IDOL_OF_MOLOCH)
         set_corpsenm(otmp, PM_HORNED_DEVIL);
-        otmp->spe = 0;
-    }
 }
 
 const char *
@@ -3040,12 +3038,11 @@ struct obj *obj;
                     You_feel("something flow from %s.", the(xname(obj)));
                 if (altar_align == A_NONE) {
                     if (high_altar && Role_if(PM_INFIDEL)
-                        && u.uachieve.amulet && !obj->spe) {
+                        && u.uachieve.amulet) {
                         godvoice(A_NONE, (char *) 0);
                         qt_pager(QT_MOLOCH_2);
                         You_feel("strange energies envelop %s.",
                                  the(xname(obj)));
-                        obj->spe = 1;
                         u.uhave.amulet = 1;
                         break;
                     }
@@ -3058,7 +3055,7 @@ struct obj *obj;
                     /* messages yoinked from pray.c */
                     You("sense a conflict between %s and %s.",
                         align_gname(A_NONE), a_gname());
-                    if (obj->spe && altar_align == inf_align(1)) {
+                    if (u.uachieve.amulet && altar_align == inf_align(1)) {
                         You_feel("the power of %s increase.",
                                  align_gname(A_NONE));
                     } else {

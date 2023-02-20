@@ -860,7 +860,7 @@ struct obj *obj;
             if (u.uhave.questart)
                 impossible("already have quest artifact?");
             u.uhave.questart = 1;
-            if (Role_if(PM_INFIDEL) && obj->spe)
+            if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
                 u.uhave.amulet = 1;
             artitouch(obj);
         }
@@ -1172,7 +1172,7 @@ struct obj *obj;
             if (!u.uhave.questart)
                 impossible("don't have quest artifact?");
             u.uhave.questart = 0;
-            if (Role_if(PM_INFIDEL) && obj->spe)
+            if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
                 u.uhave.amulet = 0;
         }
         set_artifact_intrinsic(obj, 0, W_ART);

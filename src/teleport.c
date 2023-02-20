@@ -916,16 +916,14 @@ level_tele()
 
                     if (!Role_if(PM_INFIDEL)) {
                         amu = mksobj(AMULET_OF_YENDOR, TRUE, FALSE);
-                    } else if ((amu = find_quest_artifact(1 << OBJ_INVENT))) {
-                        obj_extract_self(amu); /* may be contained */
-                        amu->spe = 1;
-                    } else {
+                    } else if (Role_if(PM_INFIDEL)) {
                         const char *idol = artiname(ART_IDOL_OF_MOLOCH);
+
                         amu = mksobj(FIGURINE, TRUE, FALSE);
                         artifact_exists(amu, idol, TRUE);
                         new_oname(amu, strlen(idol) + 1);
                         Strcpy(ONAME(amu), idol);
-                        amu->spe = 1;
+                        u.uachieve.amulet = 1;
                     }
 
                     if (amu) {

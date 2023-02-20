@@ -2690,4 +2690,5 @@ The following changes to date are:
 - Monsters flagged as a lord/prince don't spawn with eroded gear
 - Fix: Infidel role - repeatedly chatting with your quest leader causes
   'completed his/her quest without incident' livelog to run every time
+- Fix: track the Idol of Moloch's imbuement properly
 
