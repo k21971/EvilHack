@@ -914,9 +914,7 @@ level_tele()
                     && !u.uhave.amulet) {
                     struct obj *amu;
 
-                    if (!Role_if(PM_INFIDEL)) {
-                        amu = mksobj(AMULET_OF_YENDOR, TRUE, FALSE);
-                    } else if (Role_if(PM_INFIDEL)) {
+                    if (Role_if(PM_INFIDEL)) {
                         const char *idol = artiname(ART_IDOL_OF_MOLOCH);
 
                         amu = mksobj(FIGURINE, TRUE, FALSE);
@@ -924,15 +922,14 @@ level_tele()
                         new_oname(amu, strlen(idol) + 1);
                         Strcpy(ONAME(amu), idol);
                         u.uachieve.amulet = 1;
+                    } else {
+                        amu = mksobj(AMULET_OF_YENDOR, TRUE, FALSE);
                     }
-
-                    if (amu) {
-                        /* ordinarily we'd use hold_another_object()
-                           for something like this, but we don't want
-                           fumbling or already full pack to interfere */
-                        amu = addinv(amu);
-                        prinv("Endgame prerequisite:", amu, 0L);
-                    }
+                    /* ordinarily we'd use hold_another_object()
+                       for something like this, but we don't want
+                       fumbling or already full pack to interfere */
+                    amu = addinv(amu);
+                    prinv("Endgame prerequisite:", amu, 0L);
                 }
                 force_dest = TRUE;
             } else if ((newlev = lev_by_name(buf)) == 0)
