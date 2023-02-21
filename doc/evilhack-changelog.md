@@ -2693,4 +2693,5 @@ The following changes to date are:
 - Fix: track the Idol of Moloch's imbuement properly
 - Fix: 'potentially uninitialized local pointer' from last commit
 - Fix: describing barding
+- Fix: object materials - several wish parsing bugs
 
