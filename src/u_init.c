@@ -1157,6 +1157,10 @@ u_init()
                 }
             }
         }
+        /* if a dwarvish monk starts with a pickaxe,
+           don't start with it wielded */
+        if (uwep && uwep->otyp == PICK_AXE)
+            setuwep((struct obj *) 0);
     }
 
     /* Tortles that start with a trident get one that

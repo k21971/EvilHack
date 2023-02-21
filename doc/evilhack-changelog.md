@@ -2696,4 +2696,5 @@ The following changes to date are:
 - Fix: object materials - several wish parsing bugs
 - Fix: x-ray vision issues when using multiple objects that grant it
   at the same time
+- Fix: dwarvish monks that started with a pick-axe were wielding it
 
