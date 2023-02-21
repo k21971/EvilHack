@@ -2692,4 +2692,5 @@ The following changes to date are:
   'completed his/her quest without incident' livelog to run every time
 - Fix: track the Idol of Moloch's imbuement properly
 - Fix: 'potentially uninitialized local pointer' from last commit
+- Fix: describing barding
 

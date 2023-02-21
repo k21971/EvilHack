@@ -1288,11 +1288,12 @@ unsigned doname_flags;
             Sprintf(prefix, "%ld ", obj->quan);
         else
             Strcpy(prefix, "some ");
-    } else if (obj->otyp == CORPSE || is_barding(obj)) {
+    } else if (obj->otyp == CORPSE) {
         /* skip article prefix for corpses [else corpse_xname()
-           would have to be taught how to strip it off again].
-           do the same for barding */
+           would have to be taught how to strip it off again] */
         *prefix = '\0';
+    } else if (is_barding(obj)) {
+        Strcpy(prefix, "some ");
     } else if (obj_is_pname(obj) || the_unique_obj(obj)) {
         if (!strncmpi(bp, "the ", 4))
             bp += 4;
