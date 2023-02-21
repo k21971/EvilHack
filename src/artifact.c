@@ -906,8 +906,9 @@ long wp_mask;
     }
     if (spfx & SPFX_WARN) {
         if (spec_mh(otmp)) {
-            /* Since multiple artifacts can potentially warn of the same monster type
-            * we need to recalculate everything on any use or unuse. */
+            /* Since multiple artifacts can potentially warn of the
+               same monster type we need to recalculate everything
+               on any use or unuse. */
             EWarn_of_mon = 0;
             context.warntype.obj = 0;
             for (obj = invent; obj; obj = obj->nobj) {
@@ -946,12 +947,24 @@ long wp_mask;
             EHalf_physical_damage &= ~wp_mask;
     }
     if (spfx & SPFX_XRAY) {
-        /* this assumes that no one else is using xray_range */
+        boolean old_vis = Xray_vision;
+
         if (on)
-            u.xray_range = 3;
+            EXray_vision |= wp_mask;
         else
-            u.xray_range = -1;
-        vision_full_recalc = 1;
+            EXray_vision &= ~wp_mask;
+
+        if (Xray_vision != old_vis) {
+            /* XXX should this change to u.xray_range go here?
+               Or somewhere in vision.c where it can reflect
+               x-ray vision updates from other sources as well? */
+            if (Xray_vision)
+                u.xray_range = 3;
+            else
+                u.xray_range = -1;
+
+            vision_full_recalc = 1;
+        }
     }
     if (spfx & SPFX_REFLECT) {
         if (otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN) {

@@ -194,6 +194,11 @@
 #define EFood_sense u.uprops[FOOD_SENSE].extrinsic
 #define Food_sense (HFood_sense || EFood_sense)
 
+/* (intrinsic x-ray vision prop is not currently used) */
+#define HXray_vision u.uprops[XRAY_VISION].intrinsic
+#define EXray_vision u.uprops[XRAY_VISION].extrinsic
+#define Xray_vision (HXray_vision || EXray_vision)
+
 /* Warning for a specific type of monster */
 #define HWarn_of_mon u.uprops[WARN_OF_MON].intrinsic
 #define EWarn_of_mon u.uprops[WARN_OF_MON].extrinsic
