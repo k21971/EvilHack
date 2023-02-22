@@ -124,12 +124,11 @@ struct obj {
 #define record_achieve_special corpsenm
 #define dragonscales corpsenm /* dragon-scaled body armor
                                * (index into objects[], not mons[]) */
-    int usecount;           /* overloaded for various things that tally */
-#define spestudied usecount /* # of times a spellbook has been studied */
-#define wep_kills usecount  /* number of kills a weapon has */
-#define newwarncnt usecount /* How many monsters a glow warning artifact is currently warning of */
+    int wep_kills;          /* tally number of kills a weapon has */
+    int spestudied;         /* tally # of times a spellbook has been studied */
+    int newwarncnt;         /* tally how many monsters a glow warning artifact is currently warning of */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
-#define lastwarncnt oeaten  /* How many monsters a glow warning artifact was last warning of */
+    unsigned lastwarncnt;   /* tally how many monsters a glow warning artifact was last warning of */
     long age;               /* creation date */
     long owornmask;
     struct oextra *oextra;  /* pointer to oextra struct */
