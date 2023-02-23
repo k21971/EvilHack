@@ -88,12 +88,28 @@ const char *name; /* if null, then format `*objp' */
         } else if (u.uac + tlev <= dieroll - 2) {
             if (onm != onmbuf)
                 Strcpy(onmbuf, onm); /* [modifiable buffer for upstart()] */
-            pline("%s %s you.", upstart(onmbuf), vtense(onmbuf, "miss"));
+            if ((thick_skinned(youmonst.data)
+                 || (!Upolyd && Race_if(PM_TORTLE))) && rn2(2)) {
+                Your("%s %s %s.",
+                     (is_dragon(youmonst.data) ? "scaly hide"
+                                               : (youmonst.data == &mons[PM_GIANT_TURTLE]
+                                                  || Race_if(PM_TORTLE))
+                                                   ? "protective shell"
+                                                   : "thick hide"),
+                      (rn2(2) ? "blocks" : "deflects"), onm);
+            } else {
+                pline("%s %s you.", upstart(onmbuf), vtense(onmbuf, "miss"));
+            }
         } else
             You("are almost hit by %s.", onm);
 
-        if (uarms && !rn2(3))
+        if (uarms && !rn2(3)) {
+            Your("%s %s %s.",
+                 uarms->oartifact ? xname(uarms)
+                                  : simple_typename(uarms->otyp),
+                 (rn2(2) ? "blocks" : "deflects"), onm);
             use_skill(P_SHIELD, 1);
+        }
         return 0;
     } else {
         if (Blind || !flags.verbose)
