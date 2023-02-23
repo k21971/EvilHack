@@ -2701,4 +2701,6 @@ The following changes to date are:
   monster kill
 - Shield skill
 - Utilize shield skill to shield bash monsters the player is attacking
+- Prevent shield from being taken away via dwarvish bearded axe attack
+  if expert skill or higher in shields
 

@@ -3327,6 +3327,9 @@ struct monst *mtmp;
                       !obj->bknown ? '!' : '.');
                 /* obj->bknown = 1; */ /* welded() takes care of this */
                 where_to = 0;
+            } else if (P_SKILL(P_SHIELD) >= P_EXPERT) {
+                You("hold on firmly to %s.", ysimple_name(obj));
+                where_to = 0;
             }
             if (!where_to) {
                 pline_The("axe comes free."); /* not `The_whip' */
