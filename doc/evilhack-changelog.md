@@ -2705,4 +2705,6 @@ The following changes to date are:
   if expert skill or higher in shields
 - Wand of wishing in explore mode charges
 - Some descriptive miss messages for thrown/fired objects at the player
+- Fix: crash if attacking bare-handed and not wearing a shield if role
+  has shield skill
 

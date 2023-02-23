@@ -1785,7 +1785,7 @@ int dieroll;
             You("claw %s%s", mon_nam(mon),
                 canseemon(mon) ? exclam(tmp) : ".");
         } else {
-            if ((obj == uarms) && is_shield(obj)) {
+            if (obj && (obj == uarms) && is_shield(obj)) {
                 You("bash %s with %s%s",
                     mon_nam(mon), ysimple_name(obj),
                     canseemon(mon) ? exclam(tmp) : ".");
