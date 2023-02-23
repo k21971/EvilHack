@@ -269,6 +269,9 @@ struct attack *mattk;
             if (DEADMONSTER(mtmp))
                 killed(mtmp);
         }
+        /* train shield skill if the shield made a block */
+        if ((blocker == uarms))
+            use_skill(P_SHIELD, 1);
         /* the artifact shield Ashmar has a chance to knockback
            the attacker if it deflects an attack */
         if (!rn2(4) && (blocker == uarms)
@@ -993,6 +996,8 @@ register struct monst *mtmp;
                         }
                     } else {
                         missmu(mtmp, tmp, j, mattk);
+                        if (uarms && !rn2(3))
+                            use_skill(P_SHIELD, 1);
                         /* if the attacker dies from a glancing blow off
                            of a piece of the player's armor, and said armor
                            is made of a material the attacker hates, this
@@ -1040,6 +1045,8 @@ register struct monst *mtmp;
                         sum[i] = gulpmu(mtmp, mattk);
                     } else {
                         missmu(mtmp, tmp, j, mattk);
+                        if (uarms && !rn2(3))
+                            use_skill(P_SHIELD, 1);
                     }
                 } else if (is_swallower(mtmp->data)) {
                     pline("%s gulps some air!", Monnam(mtmp));
@@ -1095,10 +1102,13 @@ register struct monst *mtmp;
                         tmp += hittmp;
                         mswings(mtmp, mon_currwep);
                     }
-                    if (tmp > (j = dieroll = rnd(20 + i)))
+                    if (tmp > (j = dieroll = rnd(20 + i))) {
                         sum[i] = hitmu(mtmp, mattk);
-                    else
+                    } else {
                         missmu(mtmp, tmp, j, mattk);
+                        if (uarms && !rn2(3))
+                            use_skill(P_SHIELD, 1);
+                    }
                     /* KMH -- Don't accumulate to-hit bonuses */
                     if (mon_currwep)
                         tmp -= hittmp;

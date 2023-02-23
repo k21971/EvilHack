@@ -2699,4 +2699,5 @@ The following changes to date are:
 - Fix: dwarvish monks that started with a pick-axe were wielding it
 - Fix: artifacts warning of monsters would flicker on/off for every
   monster kill
+- Shield skill
 

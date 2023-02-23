@@ -2684,7 +2684,6 @@ find_ac()
                               ? 6 : Race_if(PM_TORTLE)
                                   ? 0 : mons[u.umonnum].ac);
 
-
     /* armor class from worn gear */
 
     int racial_bonus, dex_adjust_ac, tortle_ac;
@@ -2735,6 +2734,15 @@ find_ac()
 
     if (uarms) {
         uac -= armor_bonus(uarms);
+        if (P_SKILL(P_SHIELD) == P_BASIC)
+            uac -= 1;
+        else if (P_SKILL(P_SHIELD) == P_SKILLED)
+            uac -= 3;
+        else if (P_SKILL(P_SHIELD) == P_EXPERT)
+            uac -= 5;
+        else if (P_SKILL(P_SHIELD) == P_MASTER)
+            uac -= 8;
+
         if ((Race_if(PM_ORC)
              && (uarms->otyp == ORCISH_SHIELD
                  || uarms->otyp == URUK_HAI_SHIELD))

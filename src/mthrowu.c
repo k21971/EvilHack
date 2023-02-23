@@ -91,6 +91,9 @@ const char *name; /* if null, then format `*objp' */
             pline("%s %s you.", upstart(onmbuf), vtense(onmbuf, "miss"));
         } else
             You("are almost hit by %s.", onm);
+
+        if (uarms && !rn2(3))
+            use_skill(P_SHIELD, 1);
         return 0;
     } else {
         if (Blind || !flags.verbose)

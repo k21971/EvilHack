@@ -62,9 +62,10 @@ enum p_skills {
     /* Other types of combat */
     P_BARE_HANDED_COMBAT = 36, /* actually weaponless; gloves are ok */
     P_TWO_WEAPON_COMBAT  = 37, /* pair of weapons, one in each hand */
-    P_RIDING             = 38, /* How well you control your steed */
+    P_SHIELD             = 38, /* How well you use a shield */
+    P_RIDING             = 39, /* How well you control your steed */
 
-    P_NUM_SKILLS         = 39
+    P_NUM_SKILLS         = 40
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
@@ -101,7 +102,7 @@ enum skill_levels {
        were unnamed and just used numbers.  Devteam coined them Master and
        Grand Master.  Sometime after that, Heroes of Might and Magic IV (tm)
        was released and had two more levels which use these same names. */
-    P_MASTER       = 5, /* Unarmed combat/martial arts/thievery only */
+    P_MASTER       = 5, /* Unarmed combat/martial arts/thievery/shield only */
     P_GRAND_MASTER = 6  /* ditto */
 };
 
