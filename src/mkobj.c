@@ -1143,7 +1143,7 @@ boolean artif;
         case WAND_CLASS:
             if (otmp->otyp == WAN_WISHING) {
                 otmp->spe = rnd(3);
-                otmp->recharged = Is_stronghold(&u.uz) ? 0 : 1;
+                otmp->recharged = (Is_stronghold(&u.uz) || discover) ? 0 : 1;
             } else {
                 otmp->spe =
                     rn1(5, (objects[otmp->otyp].oc_dir == NODIR) ? 11 : 4);

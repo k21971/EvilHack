@@ -2703,4 +2703,5 @@ The following changes to date are:
 - Utilize shield skill to shield bash monsters the player is attacking
 - Prevent shield from being taken away via dwarvish bearded axe attack
   if expert skill or higher in shields
+- Wand of wishing in explore mode charges
 
