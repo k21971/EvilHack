@@ -2700,4 +2700,5 @@ The following changes to date are:
 - Fix: artifacts warning of monsters would flicker on/off for every
   monster kill
 - Shield skill
+- Utilize shield skill to shield bash monsters the player is attacking
 

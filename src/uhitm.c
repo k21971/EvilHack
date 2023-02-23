@@ -744,6 +744,9 @@ struct attack *uattk;
     int dieroll = rnd(20), oldumort = u.umortality;
     int mhit = (tmp > dieroll || u.uswallow);
     int dmg_wep = (uwep ? dmgval(uwep, &youmonst) : 0);
+    int bash_chance = (P_SKILL(P_SHIELD) == P_MASTER ? !rn2(3) :
+                       P_SKILL(P_SHIELD) == P_EXPERT ? !rn2(4) :
+                       P_SKILL(P_SHIELD) == P_SKILLED ? !rn2(6) : !rn2(8));
 
     /* using cursed weapons can sometimes do unexpected things.
        no need to set a condition for cursed secondary weapon
@@ -882,6 +885,24 @@ struct attack *uattk;
                 kick_monster(mon, x, y);
         }
     }
+
+    /* random shield bash if wearing a shield and are skilled
+       in using shields */
+    if (bash_chance
+        && wearshield && P_SKILL(P_SHIELD) >= P_BASIC
+        && !(multi < 0 || u.umortality > oldumort
+             || !malive || m_at(x, y) != mon)) {
+        tmp = find_roll_to_hit(mon, uattk->aatyp, wearshield, &attknum,
+                               &armorpenalty);
+        dieroll = rnd(20);
+        mhit = (tmp > dieroll || u.uswallow);
+        malive = known_hitum(mon, wearshield, &mhit, tmp, armorpenalty, uattk,
+                             dieroll);
+        /* second passive counter-attack only occurs if second attack hits */
+        if (mhit)
+            (void) passive(mon, wearshield, mhit, malive, AT_WEAP, FALSE);
+    }
+
 
     /* Your race may grant extra attacks. Illithids don't use
      * their tentacle attack every turn, Centaurs are strong
@@ -1273,6 +1294,37 @@ int dieroll;
                 case HEAVY_IRON_BALL: /* 1d25 */
                 case IRON_CHAIN:      /* 1d4+1 */
                     tmp = dmgval(obj, mon);
+                    if (mon_hates_material(mon, obj->material)) {
+                        /* dmgval() already added damage, but track hated_obj */
+                        hated_obj = obj;
+                    }
+                    break;
+                case SMALL_SHIELD:
+                case ELVEN_SHIELD:
+                case URUK_HAI_SHIELD:
+                case ORCISH_SHIELD:
+                case LARGE_SHIELD:
+                case DWARVISH_ROUNDSHIELD:
+                case SHIELD_OF_REFLECTION:
+                case SHIELD_OF_LIGHT:
+                case SHIELD_OF_MOBILITY:
+                    if (uarms && P_SKILL(P_SHIELD) >= P_BASIC) {
+                         /* dmgval for shields is just one point,
+                            plus whatever material damage applies */
+                        tmp = dmgval(obj, mon);
+
+                        /* add extra damage based on the type
+                           of shield */
+                        if (obj->otyp == SMALL_SHIELD)
+                            tmp += rn2(3) + 1;
+                        else
+                            tmp += rn2(6) + 2;
+
+                        /* sprinkle on a bit more damage if
+                           shield skill is high enough */
+                        if (P_SKILL(P_SHIELD) >= P_EXPERT)
+                            tmp += rnd(4);
+                    }
                     if (mon_hates_material(mon, obj->material)) {
                         /* dmgval() already added damage, but track hated_obj */
                         hated_obj = obj;
@@ -1732,13 +1784,27 @@ int dieroll;
                              || (Race_if(PM_ILLITHID) && !Upolyd))) {
             You("claw %s%s", mon_nam(mon),
                 canseemon(mon) ? exclam(tmp) : ".");
-        } else
-            You("%s %s%s",
-                (obj && (is_shield(obj) || is_whack(obj)))
-                ? wep_whack[rn2(SIZE(wep_whack))] : (obj && is_pierce(obj))
-                    ? wep_pierce[rn2(SIZE(wep_pierce))] : (obj && is_slash(obj))
-                        ? wep_slash[rn2(SIZE(wep_slash))] : "hit",
-                mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
+        } else {
+            if ((obj == uarms) && is_shield(obj)) {
+                You("bash %s with %s%s",
+                    mon_nam(mon), ysimple_name(obj),
+                    canseemon(mon) ? exclam(tmp) : ".");
+                /* placing this here, because order of events */
+                if (!rn2(10) && P_SKILL(P_SHIELD) >= P_EXPERT) {
+                    if (canspotmon(mon))
+                        pline("%s %s from the force of your blow!",
+                              Monnam(mon), makeplural(stagger(mdat, "stagger")));
+                    mon->mstun = 1;
+                }
+            } else {
+                You("%s %s%s",
+                    (obj && (is_shield(obj) || is_whack(obj)))
+                    ? wep_whack[rn2(SIZE(wep_whack))] : (obj && is_pierce(obj))
+                        ? wep_pierce[rn2(SIZE(wep_pierce))] : (obj && is_slash(obj))
+                            ? wep_slash[rn2(SIZE(wep_slash))] : "hit",
+                    mon_nam(mon), canseemon(mon) ? exclam(tmp) : ".");
+           }
+        }
     }
 
     /* The Hand of Vecna imparts cold damage to attacks,
@@ -1858,6 +1924,13 @@ int dieroll;
     if (!destroyed) {
         print_mon_wounded(mon, saved_mhp);
     }
+
+#if 0
+    /* debug pline to verify damage dealt from whatever
+       object hits its target */
+    if (wizard)
+        pline("Damage from %s: %d.", simpleonames(obj), tmp);
+#endif
 
     return destroyed ? FALSE : TRUE;
 }
