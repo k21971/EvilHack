@@ -172,7 +172,7 @@
      || (ptr) == &mons[PM_HILL_GIANT_SHAMAN] || (ptr) == &mons[PM_ELVEN_WIZARD]   \
      || (ptr) == &mons[PM_GNOMISH_WIZARD] || (ptr) == &mons[PM_ALHOON]            \
      || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_GNOLL_CLERIC]            \
-     || (ptr) == &mons[PM_NEOTHELID])
+     || (ptr) == &mons[PM_NEOTHELID] || (ptr) == &mons[PM_TORTLE_SHAMAN])
 #define has_claws(ptr) \
     ((is_illithid(ptr)                                         \
       && !((ptr) == &mons[PM_MIND_FLAYER_LARVA]                \

@@ -2707,4 +2707,5 @@ The following changes to date are:
 - Some descriptive miss messages for thrown/fired objects at the player
 - Fix: crash if attacking bare-handed and not wearing a shield if role
   has shield skill
+- Tortle shamans are telepathic and will grant telepathy intrinsic if eaten
 
