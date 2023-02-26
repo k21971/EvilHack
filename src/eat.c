@@ -2062,6 +2062,17 @@ struct obj *otmp;
     case HUGE_CHUNK_OF_MEAT:
     case MEAT_RING:
         goto give_feedback;
+    case EGG:
+        /* eggs are severely harmful to gnomes, so it's going to hurt a lot -
+           and even if you survive, your stomach rejects it */
+        if (otmp->corpsenm == NON_PM
+            && maybe_polyd(is_gnome(youmonst.data), Race_if(PM_GNOME))) {
+            pline("Errmahgerd!  Eggs are anathema to gnomes!");
+            make_vomiting((Vomiting & TIMEOUT) + (long) d(10, 4), TRUE);
+            losehp(d(4, 10), "eating an egg", KILLED_BY);
+            break;
+        } else
+            goto give_feedback;
     case CLOVE_OF_GARLIC:
         if (is_undead(youmonst.data)) {
             make_vomiting((long) rn1(context.victual.reqtime, 5), FALSE);
@@ -2618,9 +2629,18 @@ struct obj *otmp;
         else
             return 2;
     }
+    if (otmp->otyp == EGG && otmp->corpsenm == NON_PM
+        && maybe_polyd(is_gnome(youmonst.data), Race_if(PM_GNOME))) {
+        Sprintf(buf, "%s like %s could be very harmful for gnomes!  %s",
+                foodsmell, it_or_they, eat_it_anyway);
+        if (yn_function(buf, ynchars, 'n') == 'n')
+            return 1;
+        else
+            return 2;
+    }
     if (otmp->orotten || (cadaver && rotted > 3L)) {
         /* Rotten */
-        Sprintf(buf, "%s like %s could be rotten! %s",  foodsmell, it_or_they,
+        Sprintf(buf, "%s like %s could be rotten!  %s", foodsmell, it_or_they,
                 eat_it_anyway);
         if (yn_function(buf, ynchars, 'n') == 'n')
             return 1;
@@ -2692,7 +2712,8 @@ struct obj *otmp;
             return 2;
     }
 
-    if (((cadaver && mnum != PM_ACID_BLOB && rotted > 5L) || (cadaver && (otmp->zombie_corpse)))
+    if (((cadaver && mnum != PM_ACID_BLOB && rotted > 5L)
+          || (cadaver && (otmp->zombie_corpse)))
         && Sick_resistance) {
         /* Tainted meat with Sick_resistance */
         Sprintf(buf, "%s like %s could be tainted!  %s",

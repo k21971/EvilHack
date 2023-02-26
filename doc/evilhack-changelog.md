@@ -2708,4 +2708,5 @@ The following changes to date are:
 - Fix: crash if attacking bare-handed and not wearing a shield if role
   has shield skill
 - Tortle shamans are telepathic and will grant telepathy intrinsic if eaten
+- Gnomes hate eggs
 

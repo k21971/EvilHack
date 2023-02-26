@@ -1437,6 +1437,18 @@ int dieroll;
                             obj->owt = weight(obj);
                             if (thrown)
                                 place_object(obj, mon->mx, mon->my);
+                        } else if (obj->corpsenm == NON_PM && is_gnome(mdat)
+                                   && !is_undead(mdat)) {
+                            /* chicken eggs are deadly poison to gnomes */
+                            pline("%s %s in terror!", Monnam(mon),
+                                  is_silent(mdat) ? "writhes" : "shrieks");
+                            if (!is_silent(mdat))
+                                wake_nearto(mon->mx, mon->my, mon->data->mlevel * 10);
+                            /* not as much damage as ingesting, but still hurts */
+                            tmp = d(4, 5);
+                            if (!DEADMONSTER(mon))
+                                monflee(mon, d(4, 8) + 20, FALSE, TRUE);
+                            useup_eggs(obj);
                         } else {
                             pline("Splat!");
                             useup_eggs(obj);

@@ -4557,6 +4557,16 @@ struct monst *mtmp;
                 break;
             }
     }
+    if (is_gnome(mtmp->data) && !is_undead(mtmp->data)
+        && !rn2(20)) {
+        if (canseemon(mtmp))
+            pline("%s looks at you and is immediately agitated.",
+                  Monnam(mtmp));
+        if (!Deaf)
+            verbalize("Ahhhh!  Eggs!  %s has eggs!!",
+                      (flags.female) ? "She" : "He");
+        monflee(mtmp, d(2, 6) + 10, FALSE, TRUE);
+    }
 }
 
 /* Called whenever the player attacks mtmp; also called in other situations
