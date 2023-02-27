@@ -2710,4 +2710,5 @@ The following changes to date are:
 - Tortle shamans are telepathic and will grant telepathy intrinsic if eaten
 - Gnomes hate eggs
 - Fix: some 'gnomes hate eggs' tweaks
+- Adjust Wizard of Yendor resurrecting back to normal odds
 

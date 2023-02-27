@@ -3146,7 +3146,7 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_PNAME | M2_FEMALE | M2_NASTY,
         M3_WAITFORU | M3_INFRAVISIBLE, M4_VULNERABLE_FIRE,
         0, 28, CLR_BRIGHT_GREEN),
-    MON("Wizard of Yendor", S_HUMAN, LVL(30, 12, -8, 100, A_NONE),
+    MON("Wizard of Yendor", S_HUMAN, LVL(30, 12, -6, 100, A_NONE),
         (G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_CLAW, AD_SAMU, 2, 12),
           ATTK(AT_MAGC, AD_SPEL, 0, 0), ATTK(AT_MAGC, AD_CLRC, 0, 0),
