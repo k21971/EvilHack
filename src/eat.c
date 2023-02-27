@@ -2067,7 +2067,7 @@ struct obj *otmp;
            and even if you survive, your stomach rejects it */
         if (otmp->corpsenm == NON_PM
             && maybe_polyd(is_gnome(youmonst.data), Race_if(PM_GNOME))) {
-            pline("Errmahgerd!  Eggs are anathema to gnomes!");
+            pline("Ewww!  Eggs are anathema to gnomes!");
             make_vomiting((Vomiting & TIMEOUT) + (long) d(10, 4), TRUE);
             losehp(d(4, 10), "eating an egg", KILLED_BY);
             break;

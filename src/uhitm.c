@@ -1440,8 +1440,6 @@ int dieroll;
                         } else if (obj->corpsenm == NON_PM && is_gnome(mdat)
                                    && !is_undead(mdat)) {
                             /* chicken eggs are deadly poison to gnomes */
-                            pline("%s %s in terror!", Monnam(mon),
-                                  is_silent(mdat) ? "writhes" : "shrieks");
                             if (!is_silent(mdat))
                                 wake_nearto(mon->mx, mon->my, mon->data->mlevel * 10);
                             /* not as much damage as ingesting, but still hurts */

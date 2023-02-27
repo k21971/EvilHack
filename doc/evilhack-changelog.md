@@ -2709,4 +2709,5 @@ The following changes to date are:
   has shield skill
 - Tortle shamans are telepathic and will grant telepathy intrinsic if eaten
 - Gnomes hate eggs
+- Fix: some 'gnomes hate eggs' tweaks
 

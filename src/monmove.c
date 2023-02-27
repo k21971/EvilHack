@@ -473,7 +473,6 @@ register struct monst *mtmp;
     register struct permonst *mdat;
     register int tmp = 0;
     struct monst* mdummy;
-    struct obj *otmp;
     int inrange, nearby, scared, oldx, oldy;
 
     boolean mwalk_sewage = is_sewage(mtmp->mx, mtmp->my);
@@ -601,12 +600,8 @@ register struct monst *mtmp;
     if (mdat == &mons[PM_MEDUSA] && couldsee(mtmp->mx, mtmp->my))
         m_respond(mtmp);
     if (is_gnome(mdat) && !is_undead(mdat)
-        && m_canseeu(mtmp)) {
-        for (otmp = invent; otmp; otmp = otmp->nobj) {
-            if (otmp->otyp == EGG)
-                m_respond(mtmp);
-        }
-    }
+        && m_canseeu(mtmp))
+        m_respond(mtmp);
     if (DEADMONSTER(mtmp))
         return 1; /* m_respond gaze can kill medusa */
 
