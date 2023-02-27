@@ -2069,6 +2069,9 @@ struct obj *otmp;
             && maybe_polyd(is_gnome(youmonst.data), Race_if(PM_GNOME))) {
             pline("Ewww!  Eggs are anathema to gnomes!");
             make_vomiting((Vomiting & TIMEOUT) + (long) d(10, 4), TRUE);
+            /* small chance of cancellation (Tik Tok of Oz) */
+            if (!rn2(10))
+                (void) cancel_monst(&youmonst, otmp, FALSE, FALSE, TRUE);
             losehp(d(4, 10), "eating an egg", KILLED_BY);
             break;
         } else

@@ -2711,4 +2711,5 @@ The following changes to date are:
 - Gnomes hate eggs
 - Fix: some 'gnomes hate eggs' tweaks
 - Adjust Wizard of Yendor resurrecting back to normal odds
+- Regular eggs have a small chance to cancel gnomes
 

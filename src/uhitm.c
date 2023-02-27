@@ -1444,8 +1444,12 @@ int dieroll;
                                 wake_nearto(mon->mx, mon->my, mon->data->mlevel * 10);
                             /* not as much damage as ingesting, but still hurts */
                             tmp = d(4, 5);
-                            if (!DEADMONSTER(mon))
+                            if (!DEADMONSTER(mon)) {
+                                /* small chance of cancellation (Tik Tok of Oz) */
+                                if (!rn2(10))
+                                    (void) cancel_monst(mon, obj, TRUE, FALSE, FALSE);
                                 monflee(mon, d(4, 8) + 20, FALSE, TRUE);
+                            }
                             useup_eggs(obj);
                         } else {
                             pline("Splat!");
