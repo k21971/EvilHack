@@ -2257,10 +2257,8 @@ msickness:
                         }
                         if (!mlifesaver(mdef)) {
                             boolean tamer = magr->mtame;
-                            if (!tamer && mdef->mtame) {
-                                mdef->mpeaceful = magr->mpeaceful;
-                                mdef->mtame = 0;
-                            }
+                            if (!tamer && (mdef->mtame || mdef->mpeaceful))
+                                mdef->mtame = mdef->mpeaceful = 0;
                             mongone(magr); /* mind flayer larva transforms */
                             become_flayer(mdef);
                             if (tamer)
