@@ -2714,4 +2714,6 @@ The following changes to date are:
 - Regular eggs have a small chance to cancel gnomes
 - Mind flayer larva victims, if peaceful, will become hostile when turned
   into a mind flayer
+- Fix: wrong deity was made upset if caught trying to ascend while wearing
+  a helm of opposite alignment
 
