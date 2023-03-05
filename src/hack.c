@@ -1971,7 +1971,10 @@ domove_core()
                            && uarmf->oerodeproof && uarmf->rknown)
                           || (uarm && Is_dragon_scaled_armor(uarm)
                                && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES));
-        if (!Levitation && !Flying && grounded(youmonst.data)
+
+        if (!HLevitation && !ELevitation
+            && ((!EFlying && !HFlying) || !!(BFlying & W_ARMOR))
+            && !(u.usteed && is_flyer(u.usteed->data)) && grounded(youmonst.data)
             && !Stunned && !Confusion && levl[x][y].seenv
             && ((is_pool(x, y) && !is_pool(u.ux, u.uy))
                 || (is_lava(x, y) && !is_lava(u.ux, u.uy)))) {

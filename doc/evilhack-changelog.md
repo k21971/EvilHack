@@ -2716,4 +2716,5 @@ The following changes to date are:
   into a mind flayer
 - Fix: wrong deity was made upset if caught trying to ascend while wearing
   a helm of opposite alignment
+- Fix: paranoid swim would kick in while phasing under certain conditions
 
