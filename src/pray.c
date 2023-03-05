@@ -2428,12 +2428,14 @@ dosacrifice()
                         while (((Race_if(PM_ELF) && otmp->material == IRON)
                                 || (Race_if(PM_ORC)
                                     && otmp->material == MITHRIL)
+                                || (Race_if(PM_ILLITHID)
+                                    && is_helmet(otmp)
+                                    && is_metallic(otmp))
                                 || (Role_if(PM_INFIDEL)
                                     && otmp->material == SILVER))
                                && ncount++ < 500) {
                             obfree(otmp, (struct obj *) 0);
                             otmp = mksobj(typ, FALSE, FALSE);
-                            /* keep trying for non-iron */
                         }
 
                         if (otmp) {
