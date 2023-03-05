@@ -2717,4 +2717,5 @@ The following changes to date are:
 - Fix: wrong deity was made upset if caught trying to ascend while wearing
   a helm of opposite alignment
 - Fix: paranoid swim would kick in while phasing under certain conditions
+- Remove unnecessary code from in_hell_effects() and in_iceq_effects()
 
