@@ -2430,7 +2430,7 @@ dosacrifice()
                                     && otmp->material == MITHRIL)
                                 || (Race_if(PM_ILLITHID)
                                     && is_helmet(otmp)
-                                    && is_metallic(otmp))
+                                    && is_heavy_metallic(otmp))
                                 || (Role_if(PM_INFIDEL)
                                     && otmp->material == SILVER))
                                && ncount++ < 500) {
