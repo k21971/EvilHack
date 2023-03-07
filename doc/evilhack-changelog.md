@@ -2720,4 +2720,6 @@ The following changes to date are:
 - Remove unnecessary code from in_hell_effects() and in_iceq_effects()
 - Fix: illithids receiving metallic helmets for sacrifice gifts
 - Tweak to last commit (illithids and metallic helmets as sacrifice gift)
+- Huge or gigantic monsters on a pool/lava tile will not be instakilled
+  if a boulder fills up the pool/lava spot
 

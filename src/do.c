@@ -79,7 +79,8 @@ boolean pushing;
                will be dead here; killing it again would yield impossible
                "dmonsfree: N removed doesn't match N+1 pending" when other
                monsters have finished their current turn */
-            if ((mtmp = m_at(rx, ry)) != 0 && !DEADMONSTER(mtmp))
+            if ((mtmp = m_at(rx, ry)) != 0
+                && r_data(mtmp)->msize <= MZ_LARGE && !DEADMONSTER(mtmp))
                 mondied(mtmp);
 
             if (ttmp)
