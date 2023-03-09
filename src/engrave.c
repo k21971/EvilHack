@@ -1178,6 +1178,7 @@ doengrave()
                 otmp->spe -= len >> 1;
             else
                 otmp->spe -= 1; /* Prevent infinite engraving */
+            update_inventory();
         } else if (otmp->oclass == RING_CLASS || otmp->oclass == GEM_CLASS) {
             multi = -len;
         }
@@ -1203,6 +1204,7 @@ doengrave()
                 otmp->spe -= len >> 1;
             else
                 otmp->spe -= 1; /* Prevent infinite graffiti */
+            update_inventory();
         }
         if (multi)
             nomovemsg = "You finish defacing the dungeon.";

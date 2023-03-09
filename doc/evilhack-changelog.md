@@ -2722,4 +2722,6 @@ The following changes to date are:
 - Tweak to last commit (illithids and metallic helmets as sacrifice gift)
 - Huge or gigantic monsters on a pool/lava tile will not be instakilled
   if a boulder fills up the pool/lava spot
+- Fix: engraving with a bladed weapon or magic marker would not update
+  permanent inventory
 
