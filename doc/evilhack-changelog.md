@@ -2724,4 +2724,6 @@ The following changes to date are:
   if a boulder fills up the pool/lava spot
 - Fix: engraving with a bladed weapon or magic marker would not update
   permanent inventory
+- Fix: objects created with an object property would sometimes be blessed
+  and cursed simultaneously
 

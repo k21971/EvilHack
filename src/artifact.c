@@ -422,18 +422,17 @@ boolean allow_detrimental;
             || otmp->oclass == ARMOR_CLASS)
         && !(otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER))) {
         if (!rn2(8)) {
-            otmp->spe = rne(3);
-            otmp->blessed = rn2(2);
-        } else if (!rn2(8)) {
-            curse(otmp);
-            otmp->spe = -rne(3);
-        } else {
             blessorcurse(otmp, 8);
+            if (otmp->cursed)
+                otmp->spe = -rne(3);
+            else
+                otmp->spe = rne(3);
         }
     }
 
     if (otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER)) {
-        curse(otmp);
+        if (!otmp->cursed)
+            curse(otmp);
         otmp->spe = -rne(3);
     }
     return otmp;
