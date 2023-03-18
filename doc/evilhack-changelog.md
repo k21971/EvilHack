@@ -2728,4 +2728,5 @@ The following changes to date are:
   and cursed simultaneously
 - Fix: corrections to separate_steed_and_rider() function
 - Fix: forged objects having an object property when they shouldn't
+- Fix: player poly'd into a centaur reported incorrect body parts
 
