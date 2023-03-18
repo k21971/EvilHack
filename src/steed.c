@@ -156,11 +156,13 @@ struct monst *rider;
 
     /* handle rider if both rider and steed are alive */
     if (!DEADMONSTER(rider) && !DEADMONSTER(steed)) {
+        xchar orig_x = rider->mx, orig_y = rider->my;
         /* move rider to an adjacent tile */
         if (enexto(&cc, rider->mx, rider->my, rider->data))
-            rloc_to(steed, cc.x, cc.y);
+            rloc_to(rider, cc.x, cc.y);
         else /* evidently no room nearby; move rider elsewhere */
             (void) rloc(rider, FALSE);
+        place_monster(steed, orig_x, orig_y);
     }
     /* place rider if steed dies and rider is still alive */
     if (!DEADMONSTER(rider) && DEADMONSTER(steed)) {
