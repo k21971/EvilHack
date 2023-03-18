@@ -2727,4 +2727,5 @@ The following changes to date are:
 - Fix: objects created with an object property would sometimes be blessed
   and cursed simultaneously
 - Fix: corrections to separate_steed_and_rider() function
+- Fix: forged objects having an object property when they shouldn't
 

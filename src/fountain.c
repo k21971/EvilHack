@@ -705,7 +705,7 @@ doforging(void)
                ensure that the newly forged object doesn't
                randomly have a property added at creation */
             if ((obj1->oprops & 0L) && (obj2->oprops & 0L))
-                output->oprops |= 0L;
+                output->oprops = 0L;
 
             /* if objects are enchanted or have charges,
                carry that over, and use the greater of the two */
