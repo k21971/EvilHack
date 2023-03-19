@@ -1150,7 +1150,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                         setnotworn(armor);
                         /* don't allow a suit of armor with an object property
                            to co-exist with merged dragon scales */
-                        if ((armor->oprops & ITEM_PROP_MASK) != 0) {
+                        if ((armor->oprops & ITEM_PROP_MASK) != 0L) {
                             oprops_off(armor, W_ARM);
                             armor->oprops &= ~(ITEM_PROP_MASK);
                         }
