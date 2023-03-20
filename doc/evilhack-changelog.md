@@ -2730,4 +2730,5 @@ The following changes to date are:
 - Fix: forged objects having an object property when they shouldn't
 - Fix: player poly'd into a centaur reported incorrect body parts
 - Fix: tweak to forged objects having an object property when they shouldn't
+- Fix: multishot bonuses with various races
 
