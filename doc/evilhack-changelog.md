@@ -2731,4 +2731,6 @@ The following changes to date are:
 - Fix: player poly'd into a centaur reported incorrect body parts
 - Fix: tweak to forged objects having an object property when they shouldn't
 - Fix: multishot bonuses with various races
+- Fix: locking then unlocking the Sokoban closet doors prevents them from
+  being sealed
 

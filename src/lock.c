@@ -104,6 +104,11 @@ picklock(VOID_ARGS)
         }
     }
 
+    if (Sokoban && (xlock.door->doormask & D_TRAPPED) != 0) {
+        You("cannot lock this door.");
+        return ((xlock.usedtime = 0));
+    }
+
     if (xlock.usedtime++ >= 50 || nohands(youmonst.data)) {
         You("give up your attempt at %s.", lock_action());
         exercise(A_DEX, TRUE); /* even if you don't succeed */
@@ -1180,6 +1185,12 @@ int x, y;
             /* maketrap() clears doormask, so it should be NODOOR */
             pline("%s springs up in the doorway, but %s.", dustcloud,
                   quickly_dissipates);
+            return FALSE;
+        }
+        /* Don't allow the sokoban closet doors to be locked */
+        if (Sokoban && (door->doormask & D_TRAPPED) != 0) {
+            pline_The("%s has no effect on this door.",
+                      otmp->otyp == WAN_LOCKING ? "wand" : "spell");
             return FALSE;
         }
 
