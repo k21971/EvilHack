@@ -560,6 +560,27 @@ register struct monst *mtmp;
         return FALSE;
     }
 
+    if (Underwater && !is_pool(mtmp->mx, mtmp->my)) {
+        ; /* no attack, hero will still attempt to move onto solid ground */
+        return FALSE;
+    }
+
+    if (Underwater
+        && !grounded(mtmp->data) && is_pool(mtmp->mx, mtmp->my)) {
+        char pnambuf[BUFSZ];
+
+        /* save its current description in case of polymorph */
+        Strcpy(pnambuf, y_monnam(mtmp));
+        mtmp->mtrapped = 0;
+        remove_monster(mtmp->mx, mtmp->my);
+        place_monster(mtmp, u.ux0, u.uy0);
+        newsym(mtmp->mx, mtmp->my);
+        newsym(u.ux0, u.uy0);
+
+        You("swim underneath %s.", pnambuf);
+        return FALSE;
+    }
+
     if (Upolyd)
         (void) hmonas(mtmp, NON_PM, TRUE);
     else
@@ -853,8 +874,8 @@ struct attack *uattk;
        or greater in martial arts */
     if (!rn2(3) && !uwep && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) >= P_MASTER
-        && !(u.usteed || u.uswallow || multi < 0
-             || u.umortality > oldumort
+        && !(u.usteed || u.uswallow || u.uinwater
+             || multi < 0 || u.umortality > oldumort
              || !malive || m_at(x, y) != mon)) {
         if (weararmor) {
             if (!rn2(8))
@@ -891,7 +912,7 @@ struct attack *uattk;
     if (bash_chance
         && wearshield && P_SKILL(P_SHIELD) >= P_BASIC
         && !(multi < 0 || u.umortality > oldumort
-             || !malive || m_at(x, y) != mon)) {
+             || u.uinwater || !malive || m_at(x, y) != mon)) {
         tmp = find_roll_to_hit(mon, uattk->aatyp, wearshield, &attknum,
                                &armorpenalty);
         dieroll = rnd(20);

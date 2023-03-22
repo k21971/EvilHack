@@ -2733,4 +2733,5 @@ The following changes to date are:
 - Fix: multishot bonuses with various races
 - Fix: locking then unlocking the Sokoban closet doors prevents them from
   being sealed
+- Fix: inconsistent attack behavior while submerged in water
 
