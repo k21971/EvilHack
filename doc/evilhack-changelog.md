@@ -2734,4 +2734,5 @@ The following changes to date are:
 - Fix: locking then unlocking the Sokoban closet doors prevents them from
   being sealed
 - Fix: inconsistent attack behavior while submerged in water
+- Follow up to 'inconsistent attack behavior while submerged in water'
 

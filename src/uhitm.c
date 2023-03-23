@@ -566,7 +566,8 @@ register struct monst *mtmp;
     }
 
     if (Underwater
-        && !grounded(mtmp->data) && is_pool(mtmp->mx, mtmp->my)) {
+        && (!grounded(mtmp->data) || can_levitate(mtmp) || can_wwalk(mtmp))
+        && is_pool(mtmp->mx, mtmp->my)) {
         char pnambuf[BUFSZ];
 
         /* save its current description in case of polymorph */

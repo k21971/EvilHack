@@ -1343,8 +1343,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                aklys must be wielded as primary to return when thrown */
             && iflags.returning_missile
             && !impaired) {
-            pline("%s the %s and returns to your hand!", Tobjnam(obj, "hit"),
-                  ceiling(u.ux, u.uy));
+            pline("%s the %s and returns to your %s!", Tobjnam(obj, "hit"),
+                  ceiling(u.ux, u.uy), body_part(HAND));
             obj = addinv(obj);
             (void) encumber_msg();
             if (obj->owornmask & W_QUIVER) /* in case addinv() autoquivered */
@@ -1467,8 +1467,18 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
         else if (obj == uball && u.utrap && u.utraptype == TT_INFLOOR)
             range = 1;
 
-        if (Underwater)
-            range = 1;
+        if (Underwater) {
+            if (rn2(5)) {
+                pline("Water turbulence prevents the %s from %s.",
+                      simpleonames(obj),
+                      ammo_and_launcher(obj, uwep) ? "firing" : "being thrown");
+                if (!iflags.returning_missile)
+                    pline("It drifts down to your %s.", makeplural(body_part(FOOT)));
+                range = 0;
+            } else {
+                range = 1;
+            }
+        }
 
         mon = bhit(u.dx, u.dy, range,
                    tethered_weapon ? THROWN_TETHERED_WEAPON : THROWN_WEAPON,
@@ -1537,7 +1547,9 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                     sho_obj_return_to_u(obj); /* display its flight */
 
                 if (!impaired && rn2(100)) {
-                    pline("%s to your hand!", Tobjnam(obj, "return"));
+                    if (range > 0)
+                        pline("%s to your %s!", Tobjnam(obj, "return"),
+                              body_part(HAND));
                     obj = addinv(obj);
                     (void) encumber_msg();
                     /* addinv autoquivers an aklys if quiver is empty;

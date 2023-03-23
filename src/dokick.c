@@ -874,7 +874,7 @@ dokick()
     } else if (youmonst.data->mlet == S_LIZARD) {
         Your("legs cannot kick effectively.");
         no_kick = TRUE;
-    } else if (u.uinwater && !rn2(2)) {
+    } else if (u.uinwater) {
         Your("slow motion kick doesn't hit anything.");
         no_kick = TRUE;
     } else if (u.utrap) {
