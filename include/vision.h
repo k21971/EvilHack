@@ -48,12 +48,11 @@ extern char *viz_rmax;			/* max could see indices */
 #if 0
 #define m_canseeu(m) \
     ((!Invis || perceives((m)->data))                      \
-     && !(Underwater || u.uburied || (m)->mburied)         \
+     && !(u.uburied || (m)->mburied)                       \
      && couldsee((m)->mx, (m)->my))
 #else   /* without 'uburied' and 'mburied' */
 #define m_canseeu(m) \
     ((!Invis || racial_perceives(m))                       \
-     && !Underwater                                        \
      && couldsee((m)->mx, (m)->my))
 #endif
 

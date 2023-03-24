@@ -2735,4 +2735,5 @@ The following changes to date are:
   being sealed
 - Fix: inconsistent attack behavior while submerged in water
 - Follow up to 'inconsistent attack behavior while submerged in water'
+- m_canseeu() allows seeing the player underwater
 
