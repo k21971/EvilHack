@@ -2736,4 +2736,6 @@ The following changes to date are:
 - Fix: inconsistent attack behavior while submerged in water
 - Follow up to 'inconsistent attack behavior while submerged in water'
 - m_canseeu() allows seeing the player underwater
+- Being underwater (player or monster) provides protection against fire/acid
+  attacks
 

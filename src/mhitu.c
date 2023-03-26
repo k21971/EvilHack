@@ -624,8 +624,7 @@ register struct monst *mtmp;
     if (!ranged)
         nomul(0);
     if (DEADMONSTER(mtmp)
-        || (Underwater && !(is_swimmer(mtmp->data)
-                            && is_pool(mtmp->mx, mtmp->my))))
+        || (Underwater && !mon_underwater(mtmp)))
         return 0;
 
     /* If swallowed, can only be affected by u.ustuck */
@@ -1494,26 +1493,33 @@ register struct attack *mattk;
     case AD_FIRE:
         hitmsg(mtmp, mattk);
         if (uncancelled) {
-            pline("You're %s!", on_fire(&youmonst, mattk->aatyp == AT_HUGS ? ON_FIRE_HUG : ON_FIRE));
+            pline("You're %s!",
+                  on_fire(&youmonst, mattk->aatyp == AT_HUGS ? ON_FIRE_HUG
+                                                             : ON_FIRE));
             if (completelyburns(youmonst.data)) { /* paper or straw golem */
                 You("go up in flames!");
                 /* KMH -- this is okay with unchanging */
                 rehumanize();
                 break;
-            } else if (how_resistant(FIRE_RES) == 100) {
-                pline_The("fire doesn't feel hot!");
+            } else if (how_resistant(FIRE_RES) == 100 || Underwater) {
+                if (Underwater)
+                    pline_The("fire quickly fizzles out.");
+                else
+                    pline_The("fire doesn't feel hot!");
                 monstseesu(M_SEEN_FIRE);
                 dmg = 0;
             } else {
                 dmg = resist_reduce(dmg, FIRE_RES);
             }
-            if ((int) mtmp->m_lev > rn2(20))
-                destroy_item(SCROLL_CLASS, AD_FIRE);
-            if ((int) mtmp->m_lev > rn2(20))
-                destroy_item(POTION_CLASS, AD_FIRE);
-            if ((int) mtmp->m_lev > rn2(25))
-                destroy_item(SPBOOK_CLASS, AD_FIRE);
-            burn_away_slime();
+            if (!Underwater) {
+                if ((int) mtmp->m_lev > rn2(20))
+                    destroy_item(SCROLL_CLASS, AD_FIRE);
+                if ((int) mtmp->m_lev > rn2(20))
+                    destroy_item(POTION_CLASS, AD_FIRE);
+                if ((int) mtmp->m_lev > rn2(25))
+                    destroy_item(SPBOOK_CLASS, AD_FIRE);
+                burn_away_slime();
+            }
         } else
             dmg = 0;
         break;
@@ -2229,7 +2235,7 @@ do_rust:
     case AD_ACID:
         hitmsg(mtmp, mattk);
         if (!mtmp->mcan && !rn2(3))
-            if (Acid_resistance) {
+            if (Acid_resistance || Underwater) {
                 pline("You're covered in %s, but it seems harmless.",
                       hliquid("acid"));
                 monstseesu(M_SEEN_ACID);
@@ -3234,22 +3240,28 @@ struct attack *mattk;
                 pline("%s attacks you with a fiery gaze!", Monnam(mtmp));
                 stop_occupation();
                 dmg = resist_reduce(dmg, FIRE_RES);
-                if (how_resistant(FIRE_RES) == 100) {
+                if (how_resistant(FIRE_RES) == 100
+                    || Underwater) {
                     shieldeff(u.ux, u.uy);
-                    pline_The("fire feels mildly hot.");
+                    if (Underwater)
+                        pline_The("fire quickly fizzles out.");
+                    else
+                        pline_The("fire feels mildly hot.");
                     monstseesu(M_SEEN_FIRE);
                     ugolemeffects(AD_FIRE, d(12, 6));
                     dmg = 0;
                 }
-                burn_away_slime();
-                if (lev > rn2(20))
-                    (void) burnarmor(&youmonst);
-                if (lev > rn2(20))
-                    destroy_item(SCROLL_CLASS, AD_FIRE);
-                if (lev > rn2(20))
-                    destroy_item(POTION_CLASS, AD_FIRE);
-                if (lev > rn2(25))
-                    destroy_item(SPBOOK_CLASS, AD_FIRE);
+                if (!Underwater) {
+                    burn_away_slime();
+                    if (lev > rn2(20))
+                        (void) burnarmor(&youmonst);
+                    if (lev > rn2(20))
+                        destroy_item(SCROLL_CLASS, AD_FIRE);
+                    if (lev > rn2(20))
+                        destroy_item(POTION_CLASS, AD_FIRE);
+                    if (lev > rn2(25))
+                        destroy_item(SPBOOK_CLASS, AD_FIRE);
+                }
                 if (dmg)
                     mdamageu(mtmp, dmg);
             }
@@ -4100,7 +4112,8 @@ struct attack *mattk;
             }
             break;
         case RED_DRAGON_SCALES:
-            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
+            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)
+                || mon_underwater(mtmp))
                 break;
             if (rn2(20)) {
                 if (!rn2(3)) {
@@ -4188,16 +4201,19 @@ struct attack *mattk;
                      looks strange coming immediately after player has
                      been told that hero has reverted to normal form */
                   !Upolyd ? "" : "your ", hliquid("acid"));
-            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
+            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)
+                || mon_underwater(mtmp)) {
                 pline("%s is not affected.", Monnam(mtmp));
                 tmp = 0;
             }
         } else
             tmp = 0;
-        if (!rn2(30))
-            erode_armor(mtmp, ERODE_CORRODE);
-        if (!rn2(6))
-            acid_damage(MON_WEP(mtmp));
+        if (!Underwater) {
+            if (!rn2(30))
+                erode_armor(mtmp, ERODE_CORRODE);
+            if (!rn2(6))
+                acid_damage(MON_WEP(mtmp));
+        }
         goto assess_dmg;
     case AD_DISN: {
         int chance = (youmonst.data == &mons[PM_ANTIMATTER_VORTEX] ? !rn2(3) : !rn2(6));
@@ -4394,7 +4410,8 @@ struct attack *mattk;
             tmp = 0;
             break;
         case AD_FIRE: /* Red mold */
-            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
+            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)
+                || mon_underwater(mtmp)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("%s is mildly warm.", Monnam(mtmp));
                 golemeffects(mtmp, AD_FIRE, tmp);

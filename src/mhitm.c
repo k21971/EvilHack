@@ -1510,7 +1510,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             }
 
             if (magr->mcan || !magr->mcansee || !mdef->mcansee
-                || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                || (magr->minvis && !racial_perceives(mdef))
+                || mdef->msleeping || mon_underwater(mdef)) {
                 if (vis && canspotmon(mdef))
                     pline("but nothing happens.");
                 return MM_MISS;
@@ -1528,8 +1529,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 pline("May %s roast in peace.", mon_nam(mdef));
             return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
         }
-        tmp += destroy_mitem(mdef, SCROLL_CLASS, AD_FIRE);
-        tmp += destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
+        if (!mon_underwater(mdef)) {
+            tmp += destroy_mitem(mdef, SCROLL_CLASS, AD_FIRE);
+            tmp += destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
+        }
         if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
             if (vis && canseemon(mdef))
                 pline_The("fire doesn't seem to burn %s!", mon_nam(mdef));
@@ -1619,7 +1622,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             tmp = 0;
             break;
         }
-        if (resists_acid(mdef) || defended(mdef, AD_ACID)) {
+        if (resists_acid(mdef) || defended(mdef, AD_ACID)
+            || mon_underwater(mdef)) {
             if (vis && canseemon(mdef))
                 pline("%s is covered in %s, but it seems harmless.",
                       Monnam(mdef), hliquid("acid"));
@@ -1628,10 +1632,12 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             pline("%s is covered in %s!", Monnam(mdef), hliquid("acid"));
             pline("It burns %s!", mon_nam(mdef));
         }
-        if (!rn2(30))
-            erode_armor(mdef, ERODE_CORRODE);
-        if (!rn2(6))
-            acid_damage(MON_WEP(mdef));
+        if (!mon_underwater(mdef)) {
+            if (!rn2(30))
+                erode_armor(mdef, ERODE_CORRODE);
+            if (!rn2(6))
+                acid_damage(MON_WEP(mdef));
+        }
         break;
     case AD_RUST:
         if (magr->mcan)
@@ -2727,17 +2733,20 @@ struct obj *mwep;
             if (canseemon(magr))
                 pline("%s is splashed by %s %s!", buf,
                       s_suffix(mon_nam(mdef)), hliquid("acid"));
-            if (resists_acid(magr) || defended(magr, AD_ACID)) {
+            if (resists_acid(magr) || defended(magr, AD_ACID)
+                || mon_underwater(magr)) {
                 if (canseemon(magr))
                     pline("%s is not affected.", Monnam(magr));
                 tmp = 0;
             }
         } else
             tmp = 0;
-        if (!rn2(30))
-            erode_armor(magr, ERODE_CORRODE);
-        if (!rn2(6))
-            acid_damage(MON_WEP(magr));
+        if (!mon_underwater(magr)) {
+            if (!rn2(30))
+                erode_armor(magr, ERODE_CORRODE);
+            if (!rn2(6))
+                acid_damage(MON_WEP(magr));
+        }
         goto assess_dmg;
     case AD_DISN: {
         int chance = (mdef->data == &mons[PM_ANTIMATTER_VORTEX] ? !rn2(3) : !rn2(6));
@@ -2959,7 +2968,8 @@ struct obj *mwep;
             tmp = 0;
             break;
         case AD_FIRE:
-            if (resists_fire(magr) || defended(magr, AD_FIRE)) {
+            if (resists_fire(magr) || defended(magr, AD_FIRE)
+                || mon_underwater(magr)) {
                 if (canseemon(magr)) {
                     pline("%s is mildly warmed.", Monnam(magr));
                     golemeffects(magr, AD_FIRE, tmp);
