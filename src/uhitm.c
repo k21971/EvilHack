@@ -1961,12 +1961,12 @@ int dieroll;
         print_mon_wounded(mon, saved_mhp);
     }
 
-/*#if 0*/
+#if 0
     /* debug pline to verify damage dealt from whatever
        object hits its target */
     if (wizard)
         pline("Damage from %s: %d.", simpleonames(obj), tmp);
-/*#endif*/
+#endif
 
     return destroyed ? FALSE : TRUE;
 }

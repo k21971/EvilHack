@@ -3636,18 +3636,21 @@ struct obj *box; /* or bag */
                                  ansimpleoname(otmp), otense(otmp, "tumble"));
                     do_boh_explosion(targetbox, held);
                     nobj = 0; /* stop tipping; want loop to exit 'normally' */
-                    if (held)
-                        useup(targetbox);
-                    else
-                        useupf(targetbox, targetbox->quan);
 
                     livelog_printf(LL_ACHIEVE, "just blew up %s %s", uhis(),
                                    tipBotH ? "Bag of the Hesperides" : "bag of holding");
 
                     if (tipBotH)
-                        losehp(Maybe_Half_Phys(d(12, 12)), "exploding magical artifact bag", KILLED_BY_AN);
+                        losehp(Maybe_Half_Phys(d(12, 12)),
+                               "exploding magical artifact bag", KILLED_BY_AN);
                     else
-                        losehp(Maybe_Half_Phys(d(8, 10)), "exploding magical bag", KILLED_BY_AN);
+                        losehp(Maybe_Half_Phys(d(8, 10)),
+                               "exploding magical bag", KILLED_BY_AN);
+
+                    if (held)
+                        useup(targetbox);
+                    else
+                        useupf(targetbox, targetbox->quan);
 
                     targetbox = 0; /* it's gone */
                 } else {

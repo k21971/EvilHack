@@ -2738,4 +2738,6 @@ The following changes to date are:
 - m_canseeu() allows seeing the player underwater
 - Being underwater (player or monster) provides protection against fire/acid
   attacks
+- Fix: heap-use-after-free when tipping a container with a wand of
+  cancellation into a bag of holding
 
