@@ -3240,7 +3240,7 @@ register struct monst *mtmp;
         return;
 
     /* someone or something decided to mess with Izchak. oops... */
-    if (is_izchak(mtmp, TRUE)) {
+    if (is_izchak(mtmp, TRUE) && racial_human(mtmp)) {
         if (canspotmon(mtmp)) {
             pline("But wait!  %s rises and transforms into his true form!",
                   Monnam(mtmp));
@@ -3257,6 +3257,7 @@ register struct monst *mtmp;
         if (!mtmp->mpeaceful)
             hot_pursuit(mtmp);
         newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
+        free_erac(mtmp);
         mtmp->mhp = mtmp->mhpmax = 1500;
         if (mtmp == u.ustuck) {
             if (u.uswallow)

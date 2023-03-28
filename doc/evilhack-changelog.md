@@ -2742,4 +2742,5 @@ The following changes to date are:
   cancellation into a bag of holding
 - Fix: worn chromatic dragon scales as a giant could be destroyed if poly'd
   into a smaller monster and then revert back to giant form
+- Fix: Izchak keeps transforming back into angelic form after every death
 
