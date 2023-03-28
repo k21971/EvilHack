@@ -313,7 +313,7 @@ struct monst* mdef;
     if (newcham(mdef, &mons[PM_MIND_FLAYER], FALSE, FALSE)) {
         char name[PL_PSIZ];
         /* off-chance Izchak succumbs to a mind flayer larva's physical attack */
-        if (is_izchak(mdef, TRUE)) {
+        if (is_izchak(mdef, TRUE) && racial_human(mdef)) {
             pline("But wait!  %s transforms again into his true form!",
                   Monnam(mdef));
             mdef->mcanmove = 1;
@@ -325,6 +325,7 @@ struct monst* mdef;
             mdef->mconf = 0;
             mdef->mstun = 0;
             newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
+            free_erac(mdef);
             mdef->mhp = mdef->mhpmax = 1500;
             newsym(mdef->mx, mdef->my);
             return;
@@ -1259,7 +1260,7 @@ mcalcdistress()
         were_change(mtmp);
 
         /* special handling for Izchak */
-        if (is_izchak(mtmp, TRUE)) {
+        if (is_izchak(mtmp, TRUE) && racial_human(mtmp)) {
             if (mtmp->mstone > 3 || mtmp->msick > 0)
                 mondead(mtmp);
         }
