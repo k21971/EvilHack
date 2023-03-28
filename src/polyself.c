@@ -978,9 +978,15 @@ break_armor()
                 (void) Cloak_off();
                 dropp(otmp);
             } else {
-                Your("%s tears apart!", cloak_simple_name(otmp));
-                (void) Cloak_off();
-                useup(otmp);
+                if (youmonst.data->msize >= MZ_HUGE
+                    && humanoid(youmonst.data)
+                    && otmp->otyp == CHROMATIC_DRAGON_SCALES) {
+                    ; /* nothing bad happens, armor is still worn */
+                } else {
+                    Your("%s tears apart!", cloak_simple_name(otmp));
+                    (void) Cloak_off();
+                    useup(otmp);
+                }
             }
         }
         if (uarmu) {

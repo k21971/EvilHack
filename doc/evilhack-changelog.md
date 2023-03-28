@@ -2740,4 +2740,6 @@ The following changes to date are:
   attacks
 - Fix: heap-use-after-free when tipping a container with a wand of
   cancellation into a bag of holding
+- Fix: worn chromatic dragon scales as a giant could be destroyed if poly'd
+  into a smaller monster and then revert back to giant form
 
