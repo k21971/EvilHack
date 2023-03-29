@@ -2744,4 +2744,5 @@ The following changes to date are:
   into a smaller monster and then revert back to giant form
 - Fix: Izchak keeps transforming back into angelic form after every death
 - Fix: some follow-up to last commit (Izchak and angelic form)
+- Fix: zombie bite attack slipping off of a greased/oilskin helm feedback
 

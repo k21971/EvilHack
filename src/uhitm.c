@@ -2102,9 +2102,11 @@ struct attack *mattk;
                 || (obj->oprops & ITEM_OILSKIN))
         && (!obj->cursed || rn2(3))) {
         pline_The("%s %s %s %s!",
-                  (mattk->adtyp == AD_WRAP
-                   && youmonst.data != &mons[PM_SALAMANDER]) ? "attack slips off of"
-                                                             : "attack cannot hold onto",
+                  ((mattk->adtyp == AD_WRAP
+                    && youmonst.data != &mons[PM_SALAMANDER])
+                   || (mattk->adtyp == AD_DRIN && is_zombie(youmonst.data)))
+                     ? "attack slips off of"
+                     : "attack cannot hold onto",
                   s_suffix(mon_nam(mdef)), obj->greased ? "greased" : "slippery",
                   /* avoid "slippery slippery cloak"
                      for undiscovered oilskin cloak */
