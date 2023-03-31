@@ -2747,4 +2747,5 @@ The following changes to date are:
 - Fix: zombie bite attack slipping off of a greased/oilskin helm feedback
 - Fix: player monsters inheriting race flags from the player 
 - Fix: remove urace test from player race macros
+- Fix: prevent forging an object if neither base objects material is valid
 
