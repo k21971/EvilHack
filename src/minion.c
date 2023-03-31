@@ -57,7 +57,7 @@ struct monst *mon;
     struct monst *mtmp;
 
     if (mon) {
-        ptr = mon->data;
+        ptr = r_data(mon);
 
         if ((uwep || (u.twoweap && uswapwep))
             && (uwep->oartifact == ART_DEMONBANE

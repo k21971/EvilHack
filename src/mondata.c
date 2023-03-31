@@ -380,7 +380,7 @@ mon_hates_material(mon, material)
 struct monst * mon;
 int material;
 {
-    if (hates_material(mon->data, material))
+    if (hates_material(r_data(mon), material))
         return TRUE;
 
     /* extra case: shapeshifted vampires still hate silver */
