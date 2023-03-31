@@ -1604,7 +1604,8 @@ domove_core()
         walk_sewage = !Levitation && is_sewage(u.ux, u.uy);
         if (walk_sewage) {
             if (Flying || is_floater(youmonst.data)
-                || is_swimmer(youmonst.data) || is_tortle(youmonst.data)
+                || is_swimmer(youmonst.data)
+                || maybe_polyd(is_tortle(youmonst.data), Race_if(PM_TORTLE))
                 || is_clinger(youmonst.data) || is_whirly(youmonst.data)
                 || (uarm && Is_dragon_scaled_armor(uarm)
                     && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) {
@@ -2439,7 +2440,7 @@ boolean newspot;             /* true if called by spoteffects */
                 pline("You splash through the shallow water.");
 
             if (is_sewage(u.ux, u.uy) && u.umoved && !rn2(4)
-                && !is_tortle(youmonst.data)
+                && !maybe_polyd(is_tortle(youmonst.data), Race_if(PM_TORTLE))
                 && (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
                 pline("%s %s difficulty %s through %s.",
                       u.usteed ? upstart(x_monnam(u.usteed,

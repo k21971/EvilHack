@@ -520,7 +520,7 @@ can_ride(mtmp)
 struct monst *mtmp;
 {
     return ((mtmp->mtame && humanoid(youmonst.data)
-             && !is_tortle(youmonst.data)
+             && !maybe_polyd(is_tortle(youmonst.data), Race_if(PM_TORTLE))
              && !verysmall(youmonst.data)
              && !bigmonst(youmonst.data)
              && (!Underwater || is_swimmer(mtmp->data)))

@@ -2746,4 +2746,5 @@ The following changes to date are:
 - Fix: some follow-up to last commit (Izchak and angelic form)
 - Fix: zombie bite attack slipping off of a greased/oilskin helm feedback
 - Fix: player monsters inheriting race flags from the player 
+- Fix: remove urace test from player race macros
 

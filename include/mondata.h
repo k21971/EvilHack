@@ -205,49 +205,29 @@
 #define is_shapeshifter(ptr) (((ptr)->mflags2 & M2_SHAPESHIFTER) != 0L)
 #define is_undead(ptr) (((ptr)->mhflags & MH_UNDEAD) != 0L)
 #define is_were(ptr) (((ptr)->mhflags & MH_WERE) != 0L)
-#define is_elf(ptr) \
-    ((((ptr)->mhflags & MH_ELF) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ELF)))
 #define mon_has_race(mon, rflag) \
     ((has_erac(mon) ? (ERAC(mon)->mrace & (rflag)) \
                     : ((mon)->data->mhflags & (rflag))) \
      || ((mon) == &youmonst && !Upolyd && (urace.selfmask & (rflag))))
+#define is_elf(ptr) (((ptr)->mhflags & MH_ELF) != 0L)
 #define racial_elf(mon) mon_has_race(mon, MH_ELF)
-#define is_dwarf(ptr) \
-    ((((ptr)->mhflags & MH_DWARF) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_DWARF)))
+#define is_dwarf(ptr) (((ptr)->mhflags & MH_DWARF) != 0L)
 #define racial_dwarf(mon) mon_has_race(mon, MH_DWARF)
-#define is_gnome(ptr) \
-    ((((ptr)->mhflags & MH_GNOME) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GNOME)))
+#define is_gnome(ptr) (((ptr)->mhflags & MH_GNOME) != 0L)
 #define racial_gnome(mon) mon_has_race(mon, MH_GNOME)
-#define is_orc(ptr) \
-    ((((ptr)->mhflags & MH_ORC) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ORC)))
+#define is_orc(ptr) (((ptr)->mhflags & MH_ORC) != 0L)
 #define racial_orc(mon) mon_has_race(mon, MH_ORC)
-#define is_human(ptr) \
-    ((((ptr)->mhflags & MH_HUMAN) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_HUMAN)))
+#define is_human(ptr) (((ptr)->mhflags & MH_HUMAN) != 0L)
 #define racial_human(mon) mon_has_race(mon, MH_HUMAN)
-#define is_hobbit(ptr) \
-    ((((ptr)->mhflags & MH_HOBBIT) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_HOBBIT)))
+#define is_hobbit(ptr) (((ptr)->mhflags & MH_HOBBIT) != 0L)
 #define racial_hobbit(mon) mon_has_race(mon, MH_HOBBIT)
-#define is_giant(ptr) \
-    ((((ptr)->mhflags & MH_GIANT) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_GIANT)))
+#define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define racial_giant(mon) mon_has_race(mon, MH_GIANT)
-#define is_centaur(ptr) \
-    ((((ptr)->mhflags & MH_CENTAUR) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_CENTAUR)))
+#define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
 #define racial_centaur(mon) mon_has_race(mon, MH_CENTAUR)
-#define is_illithid(ptr) \
-    ((((ptr)->mhflags & MH_ILLITHID) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_ILLITHID)))
+#define is_illithid(ptr) (((ptr)->mhflags & MH_ILLITHID) != 0L)
 #define racial_illithid(mon) mon_has_race(mon, MH_ILLITHID)
-#define is_tortle(ptr) \
-    ((((ptr)->mhflags & MH_TORTLE) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_TORTLE)))
+#define is_tortle(ptr) (((ptr)->mhflags & MH_TORTLE) != 0L)
 #define racial_tortle(mon) mon_has_race(mon, MH_TORTLE)
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define racial_match(mon) mon_has_race(mon, urace.selfmask)
@@ -287,9 +267,7 @@
                          || (ptr)->mlet == S_GNOME || (ptr)->mlet == S_ORC   \
                          || (ptr)->mlet == S_GIANT))
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
-#define is_demon(ptr) \
-    ((((ptr)->mhflags & MH_DEMON) != 0L) \
-     || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_DEMON)))
+#define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 #define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)
 #define is_pseudodragon(ptr) \
     ((ptr) == &mons[PM_PSEUDODRAGON] \

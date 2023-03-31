@@ -728,7 +728,8 @@ domonability(VOID_ARGS)
         return dospinweb();
     else if (is_hider(youmonst.data))
         return dohide();
-    else if (is_tortle(youmonst.data))
+    else if (maybe_polyd(is_tortle(youmonst.data),
+             Race_if(PM_TORTLE)))
         return toggleshell();
     else if (is_mind_flayer(youmonst.data))
         return domindblast();

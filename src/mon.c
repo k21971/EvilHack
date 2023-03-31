@@ -502,6 +502,8 @@ int mndx, mode;
                 mndx = PM_HOBBIT;
             else if (is_illithid(ptr))
                 mndx = PM_ILLITHID;
+            else if (is_tortle(ptr))
+                mndx = PM_TORTLE;
         }
         break;
     }

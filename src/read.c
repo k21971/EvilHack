@@ -1809,7 +1809,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             }
         } else {
  forget_routine:
-            if (is_illithid(youmonst.data)) {
+            if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
                 Your("psionic abilities ward off the scroll's magic.");
                 break;
             } else {

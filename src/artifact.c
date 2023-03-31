@@ -2174,7 +2174,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (realizes_damage) {
             /* currently the only object that uses this
                is Grimtooth */
-            boolean elf = youdefend ? is_elf(youmonst.data)
+            boolean elf = youdefend ? maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
                                     : racial_elf(mdef);
             boolean no_sick = youdefend ? Sick_resistance
                                         : (resists_sick(mdef->data)
@@ -2558,7 +2558,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                   mon_nam(mdef));
                         *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                     }
-                } else if (youdefend && is_demon(youmonst.data) && k) {
+                } else if (youdefend && k
+                           && maybe_polyd(is_demon(youmonst.data), Race_if(PM_DEMON))) {
                     pline("Demonbane shines brilliantly, destroying you!");
                     *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                     /* player returns to their original form if poly'd */

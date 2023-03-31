@@ -708,7 +708,7 @@ register struct monst *mtmp;
         if (mtmp->mpeaceful
             && (!Conflict || resist_conflict(mtmp))) {
             pline("It feels quite soothing.");
-        } else if (is_illithid(youmonst.data)) {
+        } else if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
             Your("psionic abilities shield your brain.");
         } else if (!u.uinvulnerable) {
             register boolean m_sen = sensemon(mtmp);

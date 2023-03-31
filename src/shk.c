@@ -2983,12 +2983,13 @@ char *buf;
     Strcat(buf, honored[rn2(SIZE(honored) - 1) + u.uevent.udemigod]);
     if (is_vampire(youmonst.data))
         Strcat(buf, (flags.female) ? " dark lady" : " dark lord");
-    else if (is_elf(youmonst.data))
+    else if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
         Strcat(buf, (flags.female) ? " hiril" : " hir");
     else
-        Strcat(buf, !is_human(youmonst.data) ? " creature"
-                                             : (flags.female) ? " lady"
-                                                              : " sir");
+        Strcat(buf, !maybe_polyd(is_human(youmonst.data),
+                                 Race_if(PM_HUMAN)) ? " creature"
+                                                    : (flags.female) ? " lady"
+                                                                     : " sir");
 }
 
 void
