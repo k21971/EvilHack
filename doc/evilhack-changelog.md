@@ -2748,4 +2748,5 @@ The following changes to date are:
 - Fix: player monsters inheriting race flags from the player 
 - Fix: remove urace test from player race macros
 - Fix: prevent forging an object if neither base objects material is valid
+- Fix: multiple objects in a stack highlighting
 
