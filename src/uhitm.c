@@ -1154,12 +1154,13 @@ int dieroll;
                 }
             } else {
                 tmp = dmgval(obj, mon);
-                /* Giants are more effective with a club.
+                /* Giants are more effective with club-like weapons.
                  * For example, a caveman's starting +1 club will do an average
                  * of 4.444 rather than 3 against large monsters, and 6.4725
                  * rather than 4.5 against small.
                  **/
                 if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
+                    && objects[obj->otyp].oc_skill == P_CLUB
                     && !noncorporeal(mdat)) {
                     int tmp2 = dmgval(obj, mon);
                     if (tmp < tmp2)

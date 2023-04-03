@@ -2750,4 +2750,5 @@ The following changes to date are:
 - Fix: prevent forging an object if neither base objects material is valid
 - Fix: multiple objects in a stack highlighting
 - Fix: refactor and fix various bugs in artifact_hit() function
+- Fix: Giant race using a club damage bonus was applied to every weapon
 
