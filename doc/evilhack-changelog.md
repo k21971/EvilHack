@@ -2753,4 +2753,5 @@ The following changes to date are:
 - Fix: Giant race using a club damage bonus was applied to every weapon
 - Fix: armor losing fooproofing via a monsters 'destroy armor' spell was
   not updated in perm_invent (curses)
+- Fix: grammar when welcoming the player back to a saved game
 
