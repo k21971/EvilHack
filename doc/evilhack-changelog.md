@@ -2754,4 +2754,5 @@ The following changes to date are:
 - Fix: armor losing fooproofing via a monsters 'destroy armor' spell was
   not updated in perm_invent (curses)
 - Fix: grammar when welcoming the player back to a saved game
+- Fix: help prevent inherently fixed objects from spawning eroded/corroded
 
