@@ -617,6 +617,7 @@ struct monst *mattk, *mdef;
         else if (uattk || canseemon(mdef))
             pline("%s seems irritated.", Monnam(mdef));
     }
+    update_inventory();
 
     return 0;
 }
