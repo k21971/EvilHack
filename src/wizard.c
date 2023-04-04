@@ -1076,7 +1076,7 @@ register struct monst *mtmp;
 {
     if (Deaf)
         return;
-    if (mtmp->data == &mons[PM_ARCHANGEL]) {
+    if (mtmp->data == &mons[PM_SAINT_MICHAEL]) {
         if (Role_if(PM_INFIDEL))
             verbalize("%s",
                       random_arch_idol[rn2(SIZE(random_arch_idol))]);

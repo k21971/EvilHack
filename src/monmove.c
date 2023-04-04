@@ -945,7 +945,7 @@ toofar:
         mplayer_purg_talk(mtmp);
     /* Saint Michael the Archangel in Purgatory */
     if (Inpurg && (distu(mtmp->mx, mtmp->my) <= 15)
-        && mtmp->data == &mons[PM_ARCHANGEL]
+        && mtmp->data == &mons[PM_SAINT_MICHAEL]
         && !mtmp->mpeaceful
         && couldsee(mtmp->mx, mtmp->my)
         && !mtmp->minvis && !rn2(5))

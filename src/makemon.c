@@ -1370,7 +1370,7 @@ register struct monst *mtmp;
                and maybe make it special */
             int typ = rn2(2) ? LONG_SWORD : HEAVY_MACE;
             otmp = mksobj(typ, FALSE, FALSE);
-            if ((!rn2(20) || is_lord(ptr) || is_prince(ptr))
+            if ((!rn2(20) || is_lord(ptr))
                 && sgn(mtmp->isminion ? EMIN(mtmp)->min_align
                                       : ptr->maligntyp) == A_LAWFUL) {
                 otmp = oname(otmp, artiname(typ == LONG_SWORD
@@ -1393,6 +1393,23 @@ register struct monst *mtmp;
             otmp->oerodeproof = TRUE;
             otmp->spe = 0;
             (void) mpickobj(mtmp, otmp);
+
+            /* Saint Michael */
+            if (is_prince(ptr)) {
+                struct obj* received;
+                int item;
+
+                item = RUNESWORD;
+                otmp = mksobj(item, FALSE, FALSE);
+                bless(otmp);
+                otmp->oerodeproof = TRUE;
+                otmp->spe = rn2(3) + 5;
+                otmp->oprops = ITEM_FIRE;
+                (void) mpickobj(mtmp, otmp);
+                received = m_carrying(mtmp, item);
+                if (received)
+                    set_material(received, SILVER);
+            }
             /* some insurance against 'purple rain' */
             if (on_level(&astral_level, &u.uz) && !rn2(3)) {
                 otmp = mksobj(RIN_SLOW_DIGESTION, FALSE, FALSE);
