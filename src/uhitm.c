@@ -1026,6 +1026,8 @@ int dieroll;
     boolean hand_to_hand = (thrown == HMON_MELEE
                             /* not grapnels; applied implies uwep */
                             || (thrown == HMON_APPLIED && is_pole(uwep)));
+    boolean is_rogue = (Role_if(PM_ROGUE) && !Upolyd);
+    boolean wield_shadowblade = (uwep && uwep->oartifact == ART_SHADOWBLADE);
     int jousting = 0;
     int joustdmg;
     struct obj *hated_obj = NULL;
@@ -1036,12 +1038,17 @@ int dieroll;
 
     saved_oname[0] = '\0';
 
-    /* Awaken nearby monsters. A stealthy hero makes much less noise */
+    /* Awaken nearby monsters. A stealthy hero makes much less noise,
+       playing as a rogue or wielding Shadowblade even less so */
     if (!(is_silent(youmonst.data) && helpless(mon))
-        && rn2(Stealth ? 10 : 2)) {
+        && !rn2(wield_shadowblade ? 40
+                                  : is_rogue ? 20
+                                             : Stealth ? 10
+                                                       : 2)) {
         int base_combat_noise = combat_noise(&mons[urace.malenum]);
-        wake_nearto(mon->mx, mon->my, Stealth ? base_combat_noise / 2
-                                              : base_combat_noise);
+        wake_nearto(mon->mx, mon->my, is_rogue ? base_combat_noise / 4
+                                               : Stealth ? base_combat_noise / 2
+                                                         : base_combat_noise);
     }
 
     wakeup(mon, TRUE);

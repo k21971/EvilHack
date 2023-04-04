@@ -2756,4 +2756,5 @@ The following changes to date are:
 - Fix: grammar when welcoming the player back to a saved game
 - Fix: help prevent inherently fixed objects from spawning eroded/corroded
 - Make the archangel Saint Michael a unique monster
+- Fix: stealth and waking nearby monsters during combat
 
