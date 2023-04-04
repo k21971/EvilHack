@@ -2757,4 +2757,5 @@ The following changes to date are:
 - Fix: help prevent inherently fixed objects from spawning eroded/corroded
 - Make the archangel Saint Michael a unique monster
 - Fix: stealth and waking nearby monsters during combat
+- Fix: missing race from 'Dark Knight' template
 
