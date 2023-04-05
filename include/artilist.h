@@ -302,9 +302,18 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        magic and energy form to produce a sword capable of
        disintegrating most anything it hits, while protecting the
        one that wields it from the same type of attack */
+
+    /*
+     *      Forged artifacts
+     *
+     *      Artifacts that can only be created in a forge
+     *      by forging two existing artifacts together to
+     *      create a new artifact.
+     */
+
     A("The Sword of Annihilation", LONG_SWORD,
-      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
-       | SPFX_INTEL),
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
+       | SPFX_DEFN | SPFX_INTEL),
       0, 0, DISN(5, 12), DFNS(AD_DISN), NO_CARY, 0, A_NONE,
       NON_PM, NON_PM, 25000L, NO_COLOR, METAL),
     /* Glamdring, from the LotR series by J.R.R Tolkien. This was the
@@ -313,8 +322,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * glows blue in the presence of orcs. In EvilHack, can only come into
      * existience by forging Orcrist and Sting together */
     A("Glamdring", ELVEN_LONG_SWORD,
-      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_WARN | SPFX_PROTECT
-       | SPFX_DFLAGH),
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_WARN
+       | SPFX_PROTECT | SPFX_DFLAGH),
       0, MH_ORC, PHYS(8, 0), DFNS(AD_ELEC), NO_CARY, 0, A_CHAOTIC,
       NON_PM, PM_ELF, 8000L, CLR_BRIGHT_BLUE, MITHRIL),
     /* The Staff of the Archmagi, allows the one that wields it a 50%
@@ -323,8 +332,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        type of damage Magicbane would do, minus cancellation. Can be
        created by forging Magicbane and Secespita together */
     A("The Staff of the Archmagi", ASHWOOD_STAFF,
-      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
-       | SPFX_INTEL),
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
+       | SPFX_DEFN | SPFX_INTEL),
       SPFX_HSPDAM, 0, STUN(5, 8), DFNS(AD_MAGM), NO_CARY, PHASING, A_NEUTRAL,
       NON_PM, NON_PM, 35000L, NO_COLOR, DEFAULT_MAT),
     /* Shadowblade is a chaotic aligned athame that is created by
@@ -333,8 +342,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        attack and protection without its penchant for attacking
        peaceful creatures. Can be invoked to cause fear */
     A("Shadowblade", ATHAME,
-      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_DEFN
-       | SPFX_INTEL | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
+       | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
       0, 0, DRLI(8, 10), DFNS(AD_DRLI), NO_CARY, FEAR, A_CHAOTIC,
       NON_PM, NON_PM, 15000L, NO_COLOR, DEFAULT_MAT),
     /* The Gauntlets of Purity are a divine artifact that is created
@@ -346,8 +355,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        to resist the charms of monsters that try to seduce them. Does
        not inhibit spellcasting while worn */
     A("Gauntlets of Purity", GAUNTLETS_OF_POWER,
-      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL
-       | SPFX_REFLECT | SPFX_EREGEN),
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_DEFN
+       | SPFX_INTEL | SPFX_REFLECT | SPFX_EREGEN),
       0, 0, NO_ATTK, DFNS(AD_DETH), NO_CARY, 0, A_LAWFUL,
       NON_PM, NON_PM, 25000L, NO_COLOR, SILVER),
     /* Ashmar is a mithril dwarvish roundshield that can be created
@@ -361,8 +370,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        the shield deflects an attack, there's a 1 in 4 chance of it
        knocking the attacker back */
     A("Ashmar", DWARVISH_ROUNDSHIELD,
-      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_DEFN | SPFX_INTEL
-       | SPFX_REGEN | SPFX_PROTECT | SPFX_HPHDAM),
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_DEFN
+       | SPFX_INTEL | SPFX_REGEN | SPFX_PROTECT | SPFX_HPHDAM),
       0, 0, NO_ATTK, DFNS(AD_ACID), NO_CARY, 0, A_NONE,
       NON_PM, PM_DWARF, 20000L, NO_COLOR, MITHRIL),
 

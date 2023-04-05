@@ -2758,4 +2758,5 @@ The following changes to date are:
 - Make the archangel Saint Michael a unique monster
 - Fix: stealth and waking nearby monsters during combat
 - Fix: missing race from 'Dark Knight' template
+- Create new artifact flag and macro (SPFX_FORGED and is_forged_artifact())
 

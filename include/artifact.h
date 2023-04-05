@@ -41,6 +41,7 @@
 #define SPFX_REFLECT 0x04000000L /* Reflection */
 #define SPFX_PROTECT 0x08000000L /* Protection */
 #define SPFX_NOWISH 0x10000000L  /* cannot be wished for */
+#define SPFX_FORGED 0x20000000L  /* forged artifact */
 
 struct artifact {
     short otyp;

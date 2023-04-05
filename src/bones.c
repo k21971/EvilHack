@@ -148,7 +148,9 @@ boolean restore;
             /* Prevent non-wishable artifacts that are
                meant to be found with their owners or at
                the end of a specific quest from winding up
-               in a bones pile */
+               in a bones pile. Forged artifacts also fall
+               under this category, as all of them are
+               flagged as SPFX_NOWISH */
             if (non_wishable_artifact(otmp)) {
                 struct monst *mtmp;
                 mtmp = find_owner_on_level(otmp);
