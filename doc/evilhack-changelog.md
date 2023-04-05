@@ -2759,4 +2759,5 @@ The following changes to date are:
 - Fix: stealth and waking nearby monsters during combat
 - Fix: missing race from 'Dark Knight' template
 - Create new artifact flag and macro (SPFX_FORGED and is_forged_artifact())
+- Gauntlets of Purity tweaks
 

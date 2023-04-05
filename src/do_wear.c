@@ -2313,11 +2313,17 @@ boolean noisy;
                 pline_The("%s are too rigid to wear.",
                           gloves_simple_name(otmp));
             err++;
-        } else if (!wizard && u.ualign.record < 20
+        } else if (!wizard
+                   && (u.ualign.record < 20 || Role_if(PM_INFIDEL))
                    && otmp->oartifact == ART_GAUNTLETS_OF_PURITY) {
-            if (noisy)
-                You("are not pure enough to wear these %s.",
-                    gloves_simple_name(otmp));
+            if (noisy) {
+                if (Role_if(PM_INFIDEL))
+                    pline_The("%s sense your wickedness, and refuse to be worn!",
+                              xname(otmp));
+                else
+                    You("are not pure enough to wear these %s.",
+                        gloves_simple_name(otmp));
+            }
             err++;
         } else
             *mask = W_ARMG;

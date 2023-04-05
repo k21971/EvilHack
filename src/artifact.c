@@ -1073,10 +1073,14 @@ struct monst *mon;
         You("are blasted by %s power!", s_suffix(the(xname(obj))));
         touch_blasted = TRUE;
         dmg = d((Antimagic ? 2 : 4), (self_willed ? 10 : 4));
+        /* wearing the gauntlets of purity can harm the player
+           even more if their alignment doesn't match */
+        if (obj->oartifact == ART_GAUNTLETS_OF_PURITY
+            && oart->alignment != u.ualign.type)
+            dmg += d((u.ualign.record > 50 ? 6 : 8), 10);
         /* add half of the usual material damage bonus */
-        if (Hate_material(obj->material)) {
+        if (Hate_material(obj->material))
             dmg += (rnd(sear_damage(obj->material)) / 2) + 1;
-        }
         Sprintf(buf, "touching %s", oart->name);
         losehp(dmg, buf, KILLED_BY); /* magic damage, not physical */
         exercise(A_WIS, FALSE);
