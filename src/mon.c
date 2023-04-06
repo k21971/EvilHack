@@ -162,7 +162,7 @@ mon_sanity_check()
         } else if (mtmp != (m = level.monsters[x][y])) {
             if (!m || m->rider_id != mtmp->m_id)
                 impossible("mon (%s) at <%d,%d> is not there!",
-                       fmt_ptr((genericptr_t) mtmp), x, y);
+                           fmt_ptr((genericptr_t) mtmp), x, y);
         } else if (mtmp->wormno) {
             sanity_check_worm(mtmp);
         }
@@ -1390,9 +1390,8 @@ movemon()
         }
 
 
-        if ((mtmp->data == &mons[PM_WIZARD_OF_YENDOR] && !rn2(5))
-            || (is_mplayer(mtmp->data) && !rn2(16))
-            || !rn2(300)) {
+        if ((is_mplayer(mtmp->data) && !rn2(16))
+             || !rn2(300)) {
             if (mount_up(mtmp))
                 continue;
         }

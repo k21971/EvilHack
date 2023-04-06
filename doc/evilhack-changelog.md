@@ -2760,4 +2760,5 @@ The following changes to date are:
 - Fix: missing race from 'Dark Knight' template
 - Create new artifact flag and macro (SPFX_FORGED and is_forged_artifact())
 - Gauntlets of Purity tweaks
+- Fix: more separate_steed_and_rider() tweaks, other monster/steed tweaks
 

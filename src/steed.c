@@ -166,7 +166,8 @@ struct monst *rider;
     }
     /* place rider if steed dies and rider is still alive */
     if (!DEADMONSTER(rider) && DEADMONSTER(steed)) {
-        remove_monster(steed->mx, steed->my);
+        remove_monster(steed->mx, steed->my); /* remove pointer to steed */
+        steed->mx = 0, steed->my = 0; /* zero out steeds location on map */
         place_monster(rider, rider->mx, rider->my);
     }
     /* place steed if rider dies and steed is still alive */
