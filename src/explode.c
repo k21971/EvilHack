@@ -452,8 +452,10 @@ int expltype;
                         (void) burnarmor(mtmp);
                 }
 
-                if (!mon_underwater(mtmp)
-                    && !(adtyp == AD_FIRE || adtyp == AD_ACID)) {
+                if (mon_underwater(mtmp)
+                    && (adtyp == AD_FIRE || adtyp == AD_ACID)) {
+                    ; /* nothing happens */
+                } else {
                     idamres += destroy_mitem(mtmp, SCROLL_CLASS, (int) adtyp);
                     idamres += destroy_mitem(mtmp, SPBOOK_CLASS, (int) adtyp);
                     idamnonres += destroy_mitem(mtmp, POTION_CLASS, (int) adtyp);
@@ -495,7 +497,7 @@ int expltype;
                         mdam = rnd(3); /* physical damage only */
 
                     damage_mon(mtmp, mdam, adtyp);
-		    damage_mon(mtmp, idamres + idamnonres, adtyp);
+                    damage_mon(mtmp, idamres + idamnonres, adtyp);
                 }
                 if (DEADMONSTER(mtmp)) {
                     int xkflg = ((adtyp == AD_FIRE
@@ -576,7 +578,10 @@ int expltype;
                 damu =  Maybe_Half_Phys(damu);
         }
 
-        if (!Underwater && !(adtyp == AD_FIRE || adtyp == AD_ACID)) {
+        if (Underwater
+            && (adtyp == AD_FIRE || adtyp == AD_ACID)) {
+            ; /* nothing happens */
+        } else {
             destroy_item(SCROLL_CLASS, (int) adtyp);
             destroy_item(SPBOOK_CLASS, (int) adtyp);
             destroy_item(POTION_CLASS, (int) adtyp);
