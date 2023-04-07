@@ -2762,4 +2762,5 @@ The following changes to date are:
 - Gauntlets of Purity tweaks
 - Fix: more separate_steed_and_rider() tweaks, other monster/steed tweaks
 - Fix: fire/acid explosions not affecting various objects in open inventory
+- Fix: Demonbane's instakill damage vs demons
 
