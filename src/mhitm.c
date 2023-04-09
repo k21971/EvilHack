@@ -21,7 +21,6 @@ STATIC_DCL int FDECL(gazemm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(screamm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(gulpmm, (struct monst *, struct monst *, struct attack *));
 STATIC_DCL int FDECL(explmm, (struct monst *, struct monst *, struct attack *));
-
 STATIC_DCL int FDECL(mdamagem, (struct monst *, struct monst *,
                                 struct attack *, struct obj *, int, struct obj **));
 STATIC_DCL void FDECL(mswingsm, (struct monst *, struct monst *, struct obj *));

@@ -3002,12 +3002,10 @@ struct attack *mattk;
         if (!Deaf && uarmh && uarmh->otyp == TOQUE) {
             pline("Your %s protects your ears from the sonic onslaught.",
                   helm_simple_name(uarmh));
-            mdamageu(mtmp, 1);
             break;
         } else if (!Deaf && uarm
                    && Dragon_armor_to_scales(uarm) == CELESTIAL_DRAGON_SCALES) {
             pline("Your armor negates the lethal sonic assault.");
-            mdamageu(mtmp, 1);
             break;
         } else {
             if (!Stunned)
