@@ -16,6 +16,7 @@ STATIC_DCL void FDECL(mayberem, (struct monst *, const char *,
 STATIC_DCL int FDECL(hitmu, (struct monst *, struct attack *));
 STATIC_DCL int FDECL(gulpmu, (struct monst *, struct attack *));
 STATIC_DCL int FDECL(explmu, (struct monst *, struct attack *, BOOLEAN_P));
+STATIC_DCL int FDECL(screamu, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(missmu, (struct monst *, int, int, struct attack *));
 STATIC_DCL void FDECL(mswings, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(wildmiss, (struct monst *, struct attack *));
@@ -1128,7 +1129,7 @@ register struct monst *mtmp;
             break;
 	case AT_SCRE:
             if (ranged || !rn2(5)) /* sometimes right next to our hero */
-                sum[i] = hitmu(mtmp, mattk);
+                sum[i] = screamu(mtmp, mattk);
 	    break;
         default: /* no attack */
             break;
@@ -1541,84 +1542,6 @@ register struct attack *mattk;
                 destroy_item(POTION_CLASS, AD_COLD);
         } else
             dmg = 0;
-        break;
-    case AD_LOUD:
-        /* Assumes that the hero has to hear the monster's
-         * scream in order to be affected.
-         * Only screams when a certain distance from our hero,
-         * can see them, and has the available mspec.
-         */
-        if (distu(mtmp->mx, mtmp->my) > 128
-            || !m_canseeu(mtmp) || mtmp->mspec_used)
-            return FALSE;
-
-        if (!mtmp->mcan && canseemon(mtmp) && Deaf) {
-            pline("It looks as if %s is yelling at you.",
-                  mon_nam(mtmp));
-        } else if (!mtmp->mcan
-                   && !canseemon(mtmp) && Deaf) {
-            You("sense a disturbing vibration in the air.");
-        } else if (mtmp->mcan
-                   && canseemon(mtmp) && !Deaf) {
-            pline("%s croaks hoarsely.", Monnam(mtmp));
-        } else if (mtmp->mcan && !canseemon(mtmp) && !Deaf) {
-            You_hear("a hoarse croak nearby.");
-        }
-
-        /* Set mspec->mused */
-        mtmp->mspec_used = mtmp->mspec_used + (rn2(6) + 5);
-
-        if (mtmp->mcan || Deaf)
-            return FALSE;
-
-        if (m_canseeu(mtmp))
-            pline("%s lets out a %s!", Monnam(mtmp),
-                  mtmp->data == &mons[PM_NAZGUL] ? "bloodcurdling scream"
-                                                 : "deafening roar");
-        else if (u.usleep && m_canseeu(mtmp) && !Deaf)
-                 unmul("You are frightened awake!");
-
-        if (!Deaf && uarmh && uarmh->otyp == TOQUE) {
-            pline("Your %s protects your ears from the sonic onslaught.",
-                  helm_simple_name(uarmh));
-            dmg = 1;
-            break;
-        } else if (!Deaf && uarm
-                   && Dragon_armor_to_scales(uarm) == CELESTIAL_DRAGON_SCALES) {
-            pline("Your armor protects your ears from the sonic onslaught.");
-            dmg = 1;
-            break;
-        } else {
-            if (!Stunned)
-                Your("mind reels from the noise!");
-            else
-                You("struggle to keep your balance.");
-            make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
-            stop_occupation();
-        }
-
-        /* being deaf won't protect objects in inventory,
-           or being made of glass */
-        if (!rn2(6))
-            erode_armor(&youmonst, ERODE_FRACTURE);
-        if (!rn2(5))
-            erode_obj(uwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
-        if (!rn2(6))
-            erode_obj(uswapwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
-        if (rn2(2))
-            destroy_item(POTION_CLASS, AD_LOUD);
-        if (!rn2(4))
-            destroy_item(RING_CLASS, AD_LOUD);
-        if (!rn2(4))
-            destroy_item(TOOL_CLASS, AD_LOUD);
-        if (!rn2(3))
-            destroy_item(WAND_CLASS, AD_LOUD);
-
-        if (u.umonnum == PM_GLASS_GOLEM) {
-            You("shatter into a million pieces!");
-            rehumanize();
-            break;
-        }
         break;
     case AD_ELEC:
         hitmsg(mtmp, mattk);
@@ -3029,6 +2952,102 @@ boolean ufound;
         mondead(mtmp);
     wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
     return (!DEADMONSTER(mtmp)) ? 0 : 2;
+}
+
+/* monster uses a sonic-based attack against you */
+STATIC_OVL int
+screamu(mtmp, mattk)
+struct monst *mtmp;
+struct attack *mattk;
+{
+    int dmg = d((int) mattk->damn, (int) mattk->damd);
+
+    switch (mattk->adtyp) {
+    case AD_LOUD:
+        /* Assumes that the hero has to hear the monster's
+         * scream in order to be affected.
+         * Only screams when a certain distance from our hero,
+         * can see them, and has the available mspec.
+         */
+        if (distu(mtmp->mx, mtmp->my) > 128
+            || !m_canseeu(mtmp) || mtmp->mspec_used)
+            return FALSE;
+
+        if (!mtmp->mcan && canseemon(mtmp) && Deaf) {
+            pline("It looks as if %s is yelling at you.",
+                  mon_nam(mtmp));
+        } else if (!mtmp->mcan
+                   && !canseemon(mtmp) && Deaf) {
+            You("sense a disturbing vibration in the air.");
+        } else if (mtmp->mcan
+                   && canseemon(mtmp) && !Deaf) {
+            pline("%s croaks hoarsely.", Monnam(mtmp));
+        } else if (mtmp->mcan && !canseemon(mtmp) && !Deaf) {
+            You_hear("a hoarse croak nearby.");
+        }
+
+        /* Set mspec->mused */
+        mtmp->mspec_used = mtmp->mspec_used + (rn2(6) + 5);
+
+        if (mtmp->mcan || Deaf)
+            return FALSE;
+
+        if (m_canseeu(mtmp))
+            pline("%s lets out a %s!", Monnam(mtmp),
+                  mtmp->data == &mons[PM_NAZGUL] ? "bloodcurdling scream"
+                                                 : "deafening roar");
+        else if (u.usleep && m_canseeu(mtmp) && !Deaf)
+                 unmul("You are frightened awake!");
+
+        if (!Deaf && uarmh && uarmh->otyp == TOQUE) {
+            pline("Your %s protects your ears from the sonic onslaught.",
+                  helm_simple_name(uarmh));
+            mdamageu(mtmp, 1);
+            break;
+        } else if (!Deaf && uarm
+                   && Dragon_armor_to_scales(uarm) == CELESTIAL_DRAGON_SCALES) {
+            pline("Your armor negates the lethal sonic assault.");
+            mdamageu(mtmp, 1);
+            break;
+        } else {
+            if (!Stunned)
+                Your("mind reels from the noise!");
+            else
+                You("struggle to keep your balance.");
+            make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+            stop_occupation();
+            mdamageu(mtmp, dmg);
+        }
+
+        /* being deaf won't protect objects in inventory,
+           or being made of glass */
+        if (!rn2(6))
+            erode_armor(&youmonst, ERODE_FRACTURE);
+        if (!rn2(5))
+            erode_obj(uwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
+        if (!rn2(6))
+            erode_obj(uswapwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
+        if (rn2(2))
+            destroy_item(POTION_CLASS, AD_LOUD);
+        if (!rn2(4))
+            destroy_item(RING_CLASS, AD_LOUD);
+        if (!rn2(4))
+            destroy_item(TOOL_CLASS, AD_LOUD);
+        if (!rn2(3))
+            destroy_item(WAND_CLASS, AD_LOUD);
+
+        if (u.umonnum == PM_GLASS_GOLEM) {
+            You("shatter into a million pieces!");
+            rehumanize();
+            break;
+        }
+        break;
+    default:
+        dmg = 0;
+        break;
+    }
+
+    return TRUE;
 }
 
 /* monster gazes at you */
