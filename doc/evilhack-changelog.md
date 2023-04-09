@@ -2764,4 +2764,5 @@ The following changes to date are:
 - Fix: fire/acid explosions not affecting various objects in open inventory
 - Fix: Demonbane's instakill damage vs demons
 - Fix: monsters sonic attack subject to passive attacks from player
+- Fix: remove unnecessary check for Monk's random kick attack
 
