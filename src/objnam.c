@@ -1539,7 +1539,9 @@ unsigned doname_flags;
             /* note: Sting's glow message, if added, will insert text
                in front of "(weapon in hand)"'s closing paren */
             Sprintf(eos(bp), " (%sweapon in %s)",
-                    (obj->otyp == AKLYS) ? "tethered " : "", hand_s);
+                    (obj->otyp == AKLYS
+                     || obj->oartifact == ART_HAMMER_OF_THE_GODS) ? "tethered "
+                                                                  : "", hand_s);
         }
     }
     if (obj->owornmask & W_SWAPWEP) {
@@ -2185,7 +2187,8 @@ const char *verb;
         || obj->oartifact == ART_DRAGONBANE
         || obj->oartifact == ART_MAGIC___BALL
         || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
-        || obj->oartifact == ART_GAUNTLETS_OF_PURITY) {
+        || obj->oartifact == ART_GAUNTLETS_OF_PURITY
+        || obj->oartifact == ART_HAMMER_OF_THE_GODS) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - strlen(outbuf);
 
@@ -2271,7 +2274,8 @@ struct obj *obj;
         || obj->oartifact == ART_DRAGONBANE
         || obj->oartifact == ART_MAGIC___BALL
         || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
-        || obj->oartifact == ART_GAUNTLETS_OF_PURITY) {
+        || obj->oartifact == ART_GAUNTLETS_OF_PURITY
+        || obj->oartifact == ART_HAMMER_OF_THE_GODS) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - strlen(outbuf);
 
@@ -5023,6 +5027,7 @@ struct obj *no_wish;
             case ART_SHADOWBLADE:
             case ART_GAUNTLETS_OF_PURITY:
             case ART_ASHMAR:
+            case ART_HAMMER_OF_THE_GODS:
                 pm = PM_SAMURAI;
                 break;
             default:

@@ -497,6 +497,7 @@ static const struct forge_arti {
     { ART_SHADOWBLADE, ART_STORMBRINGER, ART_GRIMTOOTH },
     { ART_GAUNTLETS_OF_PURITY, ART_DRAGONBANE, ART_GRAYSWANDIR },
     { ART_ASHMAR, ART_TROLLSBANE, ART_OGRESMASHER },
+    { ART_HAMMER_OF_THE_GODS, ART_SUNSWORD, ART_DEMONBANE },
     { 0, 0, 0 }
 };
 
@@ -633,7 +634,8 @@ doforging(void)
             output->owt = weight(output);
             You("have successfully forged %s.", doname(output));
             livelog_printf(LL_ARTIFACT, "used a forge to create %s%s",
-                           output->oartifact == ART_GAUNTLETS_OF_PURITY ? "the " : "",
+                           (output->oartifact == ART_GAUNTLETS_OF_PURITY
+                            || output->oartifact == ART_HAMMER_OF_THE_GODS) ? "the " : "",
                            artiname(output->oartifact));
             update_inventory();
 

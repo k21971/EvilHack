@@ -2766,4 +2766,5 @@ The following changes to date are:
 - Fix: monsters sonic attack subject to passive attacks from player
 - Fix: remove unnecessary check for Monk's random kick attack
 - Fix: Vecna's artifacts never forming if destroyed over lava or a pool
+- New forging artifact recipe - Hammer of the Gods
 

@@ -374,6 +374,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        | SPFX_INTEL | SPFX_REGEN | SPFX_PROTECT | SPFX_HPHDAM),
       0, 0, NO_ATTK, DFNS(AD_ACID), NO_CARY, 0, A_NONE,
       NON_PM, PM_DWARF, 20000L, NO_COLOR, MITHRIL),
+    /* The Hammer of the Gods is a silver heavy war hammer that can be
+       created by forging Sunsword and Demonbane together. In a nutshell,
+       has all of the same abilities and powers as Sunsword and Demonbane,
+       along with imparting disease resistance when wielded */
+    A("Hammer of the Gods", HEAVY_WAR_HAMMER,
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_WARN
+       | SPFX_INTEL | SPFX_DFLAGH), 0, (MH_DEMON | MH_UNDEAD),
+      PHYS(8, 12), DFNS(AD_DISE), NO_CARY, 0, A_LAWFUL,
+      NON_PM, NON_PM, 25000L, NO_COLOR, SILVER),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

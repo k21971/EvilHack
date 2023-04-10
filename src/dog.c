@@ -1114,14 +1114,18 @@ register struct obj *obj;
     if (wielding_artifact(ART_OGRESMASHER) && is_ogre(mtmp->data))
         return FALSE;
 
-    if (wielding_artifact(ART_SUNSWORD) && is_undead(mtmp->data))
+    if ((wielding_artifact(ART_SUNSWORD)
+         || wielding_artifact(ART_HAMMER_OF_THE_GODS))
+        && is_undead(mtmp->data))
         return FALSE;
 
     if (wielding_artifact(ART_WEREBANE) && is_were(mtmp->data))
         return FALSE;
 
     /* can't really tame demons, but this is here for completeness sake */
-    if (wielding_artifact(ART_DEMONBANE) && is_demon(mtmp->data))
+    if ((wielding_artifact(ART_DEMONBANE)
+         || wielding_artifact(ART_HAMMER_OF_THE_GODS))
+        && is_demon(mtmp->data))
         return FALSE;
 
     /* same for angels */

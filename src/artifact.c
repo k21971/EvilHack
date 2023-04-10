@@ -2356,6 +2356,69 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else
                     return FALSE;
                 return TRUE;
+            case ART_HAMMER_OF_THE_GODS:
+                if (youattack && is_demon(mdef->data) && j) {
+                    if (!is_ndemon(mdef->data)) {
+                        pline("The Hammer of the Gods gravely wounds %s!",
+                              mon_nam(mdef));
+                        *dmgptr *= 3;
+                        return TRUE;
+                    } else {
+                        pline("The Hammer of the Gods shines brilliantly, destroying %s!",
+                              mon_nam(mdef));
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                    }
+                } else if (youattack && is_undead(mdef->data) && j) {
+                    if (mdef->isvecna) {
+                        pline("The Hammer of the Gods flares brightly, severely wounding %s!",
+                              mon_nam(mdef));
+                        *dmgptr *= 3;
+                        return TRUE;
+                    } else {
+                        pline("The Hammer of the Gods flares brightly as it incinerates %s!",
+                              mon_nam(mdef));
+                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    }
+                } else if (!youattack && !youdefend
+                           && magr && is_demon(mdef->data) && j) {
+                    if (!is_ndemon(mdef->data)) {
+                        if (cansee(magr->mx, magr->my))
+                            pline("The Hammer of the Gods gravely wounds %s!",
+                                  mon_nam(mdef));
+                        *dmgptr *= 3;
+                        return TRUE;
+                    } else {
+                        if (cansee(magr->mx, magr->my))
+                            pline("The Hammer of the Gods shines brilliantly, destroying %s!",
+                                  mon_nam(mdef));
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                    }
+                } else if (!youattack && !youdefend
+                           && magr && is_undead(mdef->data) && j) {
+                    if (mdef->isvecna) {
+                        if (cansee(magr->mx, magr->my))
+                            pline("The Hammer of the Gods flares brightly, severely wounding %s!",
+                                  mon_nam(mdef));
+                        *dmgptr *= 3;
+                        return TRUE;
+                    } else {
+                        if (cansee(magr->mx, magr->my))
+                            pline("The Hammer of the Gods flares brightly as it incinerates %s!",
+                                  mon_nam(mdef));
+                        mongone(mdef);
+                    }
+                } else if (youdefend && k
+                           && maybe_polyd(is_demon(youmonst.data), Race_if(PM_DEMON))) {
+                    pline("The Hammer of the Gods shines brilliantly, destroying you!");
+                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form if poly'd */
+                } else if (youdefend && is_undead(youmonst.data) && k) {
+                    pline("The Hammer of the Gods incinerates your undead flesh!");
+                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                    /* player returns to their original form */
+                } else
+                    return FALSE;
+                return TRUE;
             default:
                 break;
         }
@@ -3114,14 +3177,13 @@ struct obj *obj;
         return TRUE;
 
     if (get_artifact(obj)
-        && obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
+        && (obj->oartifact == ART_SUNSWORD
+            || obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+            || obj->oartifact == ART_SHADOWBLADE
+            || obj->oartifact == ART_HAMMER_OF_THE_GODS))
         return TRUE;
 
-    if (get_artifact(obj)
-        && obj->oartifact == ART_SHADOWBLADE)
-        return TRUE;
-
-    return (boolean) (get_artifact(obj) && obj->oartifact == ART_SUNSWORD);
+    return FALSE;
 }
 
 /* KMH -- Talking artifacts are finally implemented */

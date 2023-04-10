@@ -735,7 +735,6 @@ boolean minimal; /* print a shorter message leaving out obj details */
         /* note: s_suffix returns a modifiable buffer */
         if (has_flesh)
             whom = strcat(s_suffix(whom), " flesh");
-
         pline("%s%s %s %s!", upstart(whose), onamebuf,
               vtense(onamebuf, "sear"), whom);
     } else {

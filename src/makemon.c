@@ -2935,7 +2935,8 @@ long mmflags;
         mtmp->mpeaceful = mtmp->minvis = mtmp->perminvis = 1;
         mtmp->mavenge = 0;
         if (wielding_artifact(ART_EXCALIBUR)
-            || wielding_artifact(ART_DEMONBANE))
+            || wielding_artifact(ART_DEMONBANE)
+            || wielding_artifact(ART_HAMMER_OF_THE_GODS))
             mtmp->mpeaceful = mtmp->mtame = FALSE;
     }
 #ifndef DCC30_BUG

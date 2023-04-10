@@ -59,9 +59,9 @@ struct monst *mon;
     if (mon) {
         ptr = r_data(mon);
 
-        if ((uwep || (u.twoweap && uswapwep))
-            && (uwep->oartifact == ART_DEMONBANE
-                || (u.twoweap && uswapwep->oartifact == ART_DEMONBANE)) && is_demon(ptr)) {
+        if ((wielding_artifact(ART_DEMONBANE)
+             || wielding_artifact(ART_HAMMER_OF_THE_GODS))
+            && is_demon(ptr)) {
             if (canseemon(mon))
                 pline("%s looks puzzled for a moment.", Monnam(mon));
             return 0;
@@ -243,7 +243,8 @@ register struct monst *mtmp;
     mtmp->mstrategy &= ~STRAT_APPEARMSG; /* only initiate talk once */
 
     if (wielding_artifact(ART_EXCALIBUR)
-        || wielding_artifact(ART_DEMONBANE)) {
+        || wielding_artifact(ART_DEMONBANE)
+        || wielding_artifact(ART_HAMMER_OF_THE_GODS)) {
         pline("%s looks very angry.", Amonnam(mtmp));
         mtmp->mpeaceful = mtmp->mtame = 0;
         set_malign(mtmp);

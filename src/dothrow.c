@@ -23,9 +23,13 @@ STATIC_DCL boolean FDECL(mhurtle_step, (genericptr_t, int, int));
    for Valk + Mjollnir, caller needs to validate the strength requirement,
    for Xiuhcoatl, caller needs to validate the dexterity requirement */
 #define AutoReturn(o, wmsk) \
-    ((((wmsk) & W_WEP) != 0                                             \
-      && ((o)->otyp == AKLYS || (o)->oartifact == ART_XIUHCOATL         \
-          || ((o)->oartifact == ART_MJOLLNIR && Role_if(PM_VALKYRIE)))) \
+    ((((wmsk) & W_WEP) != 0                            \
+      && ((o)->otyp == AKLYS                           \
+          || (o)->oartifact == ART_XIUHCOATL           \
+          || ((o)->oartifact == ART_MJOLLNIR           \
+              && Role_if(PM_VALKYRIE))                 \
+          || ((o)->oartifact == ART_HAMMER_OF_THE_GODS \
+              && P_SKILL(P_HAMMER) >= P_SKILLED)))     \
      || (o)->otyp == BOOMERANG)
 
 static NEARDATA const char toss_objs[] = { ALLOW_COUNT, COIN_CLASS,
@@ -1249,7 +1253,9 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
     boolean crossbowing, clear_thrownobj = FALSE,
             impaired = (Confusion || Stunned || Blind
                         || Hallucination || Fumbling),
-            tethered_weapon = (obj->otyp == AKLYS && (wep_mask & W_WEP) != 0);
+            tethered_weapon = ((obj->otyp == AKLYS && (wep_mask & W_WEP) != 0)
+                               || (obj->oartifact == ART_HAMMER_OF_THE_GODS
+                                   && (wep_mask & W_WEP) != 0));
 
     notonhead = FALSE; /* reset potentially stale value */
     if (((obj->cursed && u.ualign.type != A_NONE)
