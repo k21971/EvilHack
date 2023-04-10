@@ -1540,8 +1540,9 @@ unsigned doname_flags;
                in front of "(weapon in hand)"'s closing paren */
             Sprintf(eos(bp), " (%sweapon in %s)",
                     (obj->otyp == AKLYS
-                     || obj->oartifact == ART_HAMMER_OF_THE_GODS) ? "tethered "
-                                                                  : "", hand_s);
+                     || (obj->oartifact == ART_HAMMER_OF_THE_GODS
+                         && P_SKILL(P_HAMMER) >= P_SKILLED)) ? "tethered "
+                                                             : "", hand_s);
         }
     }
     if (obj->owornmask & W_SWAPWEP) {

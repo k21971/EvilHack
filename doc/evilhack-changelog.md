@@ -2768,4 +2768,5 @@ The following changes to date are:
 - Fix: Vecna's artifacts never forming if destroyed over lava or a pool
 - New forging artifact recipe - Hammer of the Gods
 - Fix: genociding all lich types and alhoons before destroying Vecna
+- Fix: some Hammer of the Gods tweaks and fixes
 

@@ -1255,6 +1255,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                         || Hallucination || Fumbling),
             tethered_weapon = ((obj->otyp == AKLYS && (wep_mask & W_WEP) != 0)
                                || (obj->oartifact == ART_HAMMER_OF_THE_GODS
+                                   && P_SKILL(P_HAMMER) >= P_SKILLED
                                    && (wep_mask & W_WEP) != 0));
 
     notonhead = FALSE; /* reset potentially stale value */
@@ -1357,6 +1358,12 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                 setuqwep((struct obj *) 0);
             setuwep(obj);
             u.twoweap = twoweap;
+            if (artifact_light(obj) && !obj->lamplit) {
+                begin_burn(obj, FALSE);
+                if (!Blind)
+                    pline("%s to shine %s!", Tobjnam(obj, "begin"),
+                          arti_light_description(obj));
+            }
         } else if (u.dz < 0) {
             (void) toss_up(obj, rn2(5) && !Underwater);
         } else if (u.dz > 0 && u.usteed && obj->oclass == POTION_CLASS
@@ -1565,6 +1572,12 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                     setuwep(obj);
                     u.twoweap = twoweap;
                     retouch_object(&obj, TRUE);
+                    if (artifact_light(obj) && !obj->lamplit) {
+                        begin_burn(obj, FALSE);
+                        if (!Blind)
+                            pline("%s to shine %s!", Tobjnam(obj, "begin"),
+                                  arti_light_description(obj));
+                    }
                     if (cansee(bhitpos.x, bhitpos.y))
                         newsym(bhitpos.x, bhitpos.y);
                 } else {

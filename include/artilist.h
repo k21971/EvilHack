@@ -381,7 +381,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("Hammer of the Gods", HEAVY_WAR_HAMMER,
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_WARN
        | SPFX_INTEL | SPFX_DFLAGH), 0, (MH_DEMON | MH_UNDEAD),
-      PHYS(8, 12), DFNS(AD_DISE), NO_CARY, 0, A_LAWFUL,
+      PHYS(8, 0), DFNS(AD_DISE), NO_CARY, 0, A_LAWFUL,
       NON_PM, NON_PM, 25000L, NO_COLOR, SILVER),
 
     /*

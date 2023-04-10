@@ -217,6 +217,7 @@ struct obj *wep;
             wep->owornmask |= W_WEP;
             if ((wep->otyp == AKLYS && (wep->owornmask & W_WEP) != 0)
                 || (wep->oartifact == ART_HAMMER_OF_THE_GODS
+                    && P_SKILL(P_HAMMER) >= P_SKILLED
                     && (wep->owornmask & W_WEP) != 0))
                 You("secure the tether.");
             prinv((char *) 0, wep, 0L);
