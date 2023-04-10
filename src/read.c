@@ -2577,12 +2577,13 @@ int how;
                 return;
             }
 
+            mndx = name_to_mon(buf);
+            ptr = &mons[mndx];
+
             /* Liches and the like are immune to genocide until Vecna
                is destroyed */
             if (!u.uevent.uvecna
-                && (!strcmpi(buf, "lich") || !strcmpi(buf, "demilich")
-                    || !strcmpi(buf, "master lich") || !strcmpi(buf, "arch-lich")
-                    || !strcmpi(buf, "arch lich") || !strcmpi(buf, "alhoon"))) {
+                && no_geno_vecna(ptr)) {
                 pline_The("voice of Vecna fills your mind:");
                 verbalize("Thou shalt do no harm to %s whilst I exist!",
                           makeplural(buf));
@@ -2607,13 +2608,11 @@ int how;
                 return;
             }
 
-            mndx = name_to_mon(buf);
             if (mndx == NON_PM || (mvitals[mndx].mvflags & G_GENOD)) {
                 pline("Such creatures %s exist in this world.",
                       (mndx == NON_PM) ? "do not" : "no longer");
                 continue;
             }
-            ptr = &mons[mndx];
             /* Although "genus" is Latin for race, the hero benefits
              * from both race and role; thus genocide affects either.
              */

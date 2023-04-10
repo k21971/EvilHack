@@ -425,6 +425,9 @@
 /* never leaves a corpse */
 #define no_corpse(ptr) (((ptr)->geno & G_NOCORPSE) != 0)
 
+/* monsters that cannot be genocided until Vecna has been destroyed */
+#define no_geno_vecna(ptr) (((ptr)->geno & G_VECNA) != 0)
+
 /* this returns the light's range, or 0 if none; if we add more light emitting
    monsters, we'll likely have to add a new light range field to mons[] */
 #define emits_light(ptr) \
