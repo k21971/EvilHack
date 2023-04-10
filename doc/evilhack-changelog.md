@@ -2769,4 +2769,5 @@ The following changes to date are:
 - New forging artifact recipe - Hammer of the Gods
 - Fix: genociding all lich types and alhoons before destroying Vecna
 - Fix: some Hammer of the Gods tweaks and fixes
+- Some format cleanup in artifact.c
 

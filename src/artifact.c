@@ -2166,261 +2166,261 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         j = !rn2(10); /* 10% chance of instakill for some artifacts */
         k = !rn2(20); /* 5% chance if same weapon is used against the player */
         switch (otmp->oartifact) {
-            case ART_WEREBANE:
-                if (youattack && is_were(mdef->data) && j) {
-                    You("severely burn %s with your silver blade!", mon_nam(mdef));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (!youattack && !youdefend
-                           && magr && is_were(mdef->data) && j) {
-                    if (cansee(magr->mx, magr->my))
-                        pline("%s severely burns %s with its silver blade!",
-                              Monnam(magr), mon_nam(mdef));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && is_were(youmonst.data) && k) {
-                    pline("The silver blade gravely burns you!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_GIANTSLAYER:
-                if (youattack && racial_giant(mdef) && j) {
-                    You("eviscerate %s with a fatal stab!", mon_nam(mdef));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (!youattack && !youdefend
-                           && magr && racial_giant(mdef) && j) {
-                    if (cansee(magr->mx, magr->my))
-                        pline("%s eviscerates %s with a fatal stab!",
-                              Monnam(magr), mon_nam(mdef));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && maybe_polyd(is_giant(youmonst.data),
-                           Race_if(PM_GIANT)) && k) {
-                    pline("The magical spear eviscerates you!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form if poly'd */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_OGRESMASHER:
-                if (youattack && is_ogre(mdef->data) && j) {
-                    You("crush %s skull!", s_suffix(mon_nam(mdef)));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (!youattack && !youdefend
-                           && magr && is_ogre(mdef->data) && j) {
-                    if (cansee(magr->mx, magr->my))
-                        pline("%s crushes %s skull!",
-                              Monnam(magr), s_suffix(mon_nam(mdef)));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && is_ogre(youmonst.data) && k) {
-                    pline("The monstrous hammer crushes your skull!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_TROLLSBANE:
-                if (youattack && is_troll(mdef->data) && j) {
-                    pline("As you strike %s, it bursts into flame!", mon_nam(mdef));
+        case ART_WEREBANE:
+            if (youattack && is_were(mdef->data) && j) {
+                You("severely burn %s with your silver blade!", mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && is_were(mdef->data) && j) {
+                if (cansee(magr->mx, magr->my))
+                    pline("%s severely burns %s with its silver blade!",
+                          Monnam(magr), mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && is_were(youmonst.data) && k) {
+                pline("The silver blade gravely burns you!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_GIANTSLAYER:
+            if (youattack && racial_giant(mdef) && j) {
+                You("eviscerate %s with a fatal stab!", mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && racial_giant(mdef) && j) {
+                if (cansee(magr->mx, magr->my))
+                    pline("%s eviscerates %s with a fatal stab!",
+                          Monnam(magr), mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && maybe_polyd(is_giant(youmonst.data),
+                       Race_if(PM_GIANT)) && k) {
+                pline("The magical spear eviscerates you!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_OGRESMASHER:
+            if (youattack && is_ogre(mdef->data) && j) {
+                You("crush %s skull!", s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && is_ogre(mdef->data) && j) {
+                if (cansee(magr->mx, magr->my))
+                    pline("%s crushes %s skull!",
+                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && is_ogre(youmonst.data) && k) {
+                pline("The monstrous hammer crushes your skull!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_TROLLSBANE:
+            if (youattack && is_troll(mdef->data) && j) {
+                pline("As you strike %s, it bursts into flame!", mon_nam(mdef));
+                xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+            } else if (!youattack && !youdefend
+                       && magr && is_troll(mdef->data) && j) {
+                if (cansee(magr->mx, magr->my))
+                    pline("As %s strikes %s, it bursts into flame!",
+                          mon_nam(magr), mon_nam(mdef));
+                mongone(mdef);
+            } else if (youdefend && is_troll(youmonst.data) && k) {
+                You("burst into flame as you are hit!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_ORCRIST:
+            if (youattack && racial_orc(mdef) && j) {
+                You("slice open %s throat!", s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && racial_orc(mdef) && j) {
+                if (cansee(magr->mx, magr->my))
+                    pline("%s slices open %s throat!",
+                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && maybe_polyd(is_orc(youmonst.data),
+                       Race_if(PM_ORC)) && k) {
+                You("feel Orcrist slice deep across your neck!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_STING:
+            if (youattack && racial_orc(mdef) && j) {
+                You("stab deep into %s heart!", s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && racial_orc(mdef) && j) {
+                if (cansee(magr->mx, magr->my))
+                    pline("%s stabs deep into %s heart!",
+                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && maybe_polyd(is_orc(youmonst.data),
+                       Race_if(PM_ORC)) && k) {
+                You("feel Sting stab deep into your heart!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_SUNSWORD:
+            if (youattack && is_undead(mdef->data) && j) {
+                if (mdef->isvecna) {
+                    pline("Sunsword flares brightly, severely wounding %s!",
+                          mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    pline("Sunsword flares brightly as it incinerates %s!",
+                          mon_nam(mdef));
                     xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                } else if (!youattack && !youdefend
-                           && magr && is_troll(mdef->data) && j) {
+                }
+            } else if (!youattack && !youdefend
+                       && magr && is_undead(mdef->data) && j) {
+                if (mdef->isvecna) {
                     if (cansee(magr->mx, magr->my))
-                        pline("As %s strikes %s, it bursts into flame!",
-                              mon_nam(magr), mon_nam(mdef));
-                    mongone(mdef);
-                } else if (youdefend && is_troll(youmonst.data) && k) {
-                    You("burst into flame as you are hit!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_ORCRIST:
-                if (youattack && racial_orc(mdef) && j) {
-                    You("slice open %s throat!", s_suffix(mon_nam(mdef)));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (!youattack && !youdefend
-                           && magr && racial_orc(mdef) && j) {
-                    if (cansee(magr->mx, magr->my))
-                        pline("%s slices open %s throat!",
-                              Monnam(magr), s_suffix(mon_nam(mdef)));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && maybe_polyd(is_orc(youmonst.data),
-                           Race_if(PM_ORC)) && k) {
-                    You("feel Orcrist slice deep across your neck!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form if poly'd */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_STING:
-                if (youattack && racial_orc(mdef) && j) {
-                    You("stab deep into %s heart!", s_suffix(mon_nam(mdef)));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (!youattack && !youdefend
-                           && magr && racial_orc(mdef) && j) {
-                    if (cansee(magr->mx, magr->my))
-                        pline("%s stabs deep into %s heart!",
-                              Monnam(magr), s_suffix(mon_nam(mdef)));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && maybe_polyd(is_orc(youmonst.data),
-                           Race_if(PM_ORC)) && k) {
-                    You("feel Sting stab deep into your heart!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form if poly'd */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_SUNSWORD:
-                if (youattack && is_undead(mdef->data) && j) {
-                    if (mdef->isvecna) {
                         pline("Sunsword flares brightly, severely wounding %s!",
                               mon_nam(mdef));
-                        *dmgptr *= 3;
-                        return TRUE;
-                    } else {
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    if (cansee(magr->mx, magr->my))
                         pline("Sunsword flares brightly as it incinerates %s!",
                               mon_nam(mdef));
-                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                    }
-                } else if (!youattack && !youdefend
-                           && magr && is_undead(mdef->data) && j) {
-                    if (mdef->isvecna) {
-                        if (cansee(magr->mx, magr->my))
-                            pline("Sunsword flares brightly, severely wounding %s!",
-                                  mon_nam(mdef));
-                        *dmgptr *= 3;
-                        return TRUE;
-                    } else {
-                        if (cansee(magr->mx, magr->my))
-                            pline("Sunsword flares brightly as it incinerates %s!",
-                                  mon_nam(mdef));
-                        mongone(mdef);
-                    }
-                } else if (youdefend && is_undead(youmonst.data) && k) {
-                    pline("The holy power of Sunsword incinerates your undead flesh!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_DRAMBORLEG:
-                /* Dramborleg will one-shot kill a balrog every time */
-                if (youattack && mdef->data == &mons[PM_BALROG]) {
-                    You("obliterate %s with a powerful strike!", mon_nam(mdef));
+                    mongone(mdef);
+                }
+            } else if (youdefend && is_undead(youmonst.data) && k) {
+                pline("The holy power of Sunsword incinerates your undead flesh!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_DRAMBORLEG:
+            /* Dramborleg will one-shot kill a balrog every time */
+            if (youattack && mdef->data == &mons[PM_BALROG]) {
+                You("obliterate %s with a powerful strike!", mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && mdef->data == &mons[PM_BALROG]) {
+                if (cansee(magr->mx, magr->my))
+                    pline("%s obliterates %s with a powerful strike!",
+                          Monnam(magr), mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && youmonst.data == &mons[PM_BALROG]) {
+                pline("The magical axe obliterates you!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_DEMONBANE:
+            if (youattack && is_demon(mdef->data) && j) {
+                if (!is_ndemon(mdef->data)) {
+                    pline("Demonbane gravely wounds %s!",
+                          mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    pline("Demonbane shines brilliantly, destroying %s!",
+                          mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (!youattack && !youdefend
-                           && magr && mdef->data == &mons[PM_BALROG]) {
+                }
+            } else if (!youattack && !youdefend
+                       && magr && is_demon(mdef->data) && j) {
+                if (!is_ndemon(mdef->data)) {
                     if (cansee(magr->mx, magr->my))
-                        pline("%s obliterates %s with a powerful strike!",
-                              Monnam(magr), mon_nam(mdef));
-                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                } else if (youdefend && youmonst.data == &mons[PM_BALROG]) {
-                    pline("The magical axe obliterates you!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_DEMONBANE:
-                if (youattack && is_demon(mdef->data) && j) {
-                    if (!is_ndemon(mdef->data)) {
                         pline("Demonbane gravely wounds %s!",
                               mon_nam(mdef));
-                        *dmgptr *= 3;
-                        return TRUE;
-                    } else {
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    if (cansee(magr->mx, magr->my))
                         pline("Demonbane shines brilliantly, destroying %s!",
                               mon_nam(mdef));
-                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    }
-                } else if (!youattack && !youdefend
-                           && magr && is_demon(mdef->data) && j) {
-                    if (!is_ndemon(mdef->data)) {
-                        if (cansee(magr->mx, magr->my))
-                            pline("Demonbane gravely wounds %s!",
-                                  mon_nam(mdef));
-                        *dmgptr *= 3;
-                        return TRUE;
-                    } else {
-                        if (cansee(magr->mx, magr->my))
-                            pline("Demonbane shines brilliantly, destroying %s!",
-                                  mon_nam(mdef));
-                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    }
-                } else if (youdefend && k
-                           && maybe_polyd(is_demon(youmonst.data), Race_if(PM_DEMON))) {
-                    pline("Demonbane shines brilliantly, destroying you!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form if poly'd */
-                } else
-                    return FALSE;
-                return TRUE;
-            case ART_HAMMER_OF_THE_GODS:
-                if (youattack && is_demon(mdef->data) && j) {
-                    if (!is_ndemon(mdef->data)) {
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                }
+            } else if (youdefend && k
+                       && maybe_polyd(is_demon(youmonst.data), Race_if(PM_DEMON))) {
+                pline("Demonbane shines brilliantly, destroying you!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_HAMMER_OF_THE_GODS:
+            if (youattack && is_demon(mdef->data) && j) {
+                if (!is_ndemon(mdef->data)) {
+                    pline("The Hammer of the Gods gravely wounds %s!",
+                          mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    pline("The Hammer of the Gods shines brilliantly, destroying %s!",
+                          mon_nam(mdef));
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                }
+            } else if (youattack && is_undead(mdef->data) && j) {
+                if (mdef->isvecna) {
+                    pline("The Hammer of the Gods flares brightly, severely wounding %s!",
+                          mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    pline("The Hammer of the Gods flares brightly as it incinerates %s!",
+                          mon_nam(mdef));
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                }
+            } else if (!youattack && !youdefend
+                       && magr && is_demon(mdef->data) && j) {
+                if (!is_ndemon(mdef->data)) {
+                    if (cansee(magr->mx, magr->my))
                         pline("The Hammer of the Gods gravely wounds %s!",
                               mon_nam(mdef));
-                        *dmgptr *= 3;
-                        return TRUE;
-                    } else {
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    if (cansee(magr->mx, magr->my))
                         pline("The Hammer of the Gods shines brilliantly, destroying %s!",
                               mon_nam(mdef));
-                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    }
-                } else if (youattack && is_undead(mdef->data) && j) {
-                    if (mdef->isvecna) {
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                }
+            } else if (!youattack && !youdefend
+                       && magr && is_undead(mdef->data) && j) {
+                if (mdef->isvecna) {
+                    if (cansee(magr->mx, magr->my))
                         pline("The Hammer of the Gods flares brightly, severely wounding %s!",
                               mon_nam(mdef));
-                        *dmgptr *= 3;
-                        return TRUE;
-                    } else {
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    if (cansee(magr->mx, magr->my))
                         pline("The Hammer of the Gods flares brightly as it incinerates %s!",
                               mon_nam(mdef));
-                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                    }
-                } else if (!youattack && !youdefend
-                           && magr && is_demon(mdef->data) && j) {
-                    if (!is_ndemon(mdef->data)) {
-                        if (cansee(magr->mx, magr->my))
-                            pline("The Hammer of the Gods gravely wounds %s!",
-                                  mon_nam(mdef));
-                        *dmgptr *= 3;
-                        return TRUE;
-                    } else {
-                        if (cansee(magr->mx, magr->my))
-                            pline("The Hammer of the Gods shines brilliantly, destroying %s!",
-                                  mon_nam(mdef));
-                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
-                    }
-                } else if (!youattack && !youdefend
-                           && magr && is_undead(mdef->data) && j) {
-                    if (mdef->isvecna) {
-                        if (cansee(magr->mx, magr->my))
-                            pline("The Hammer of the Gods flares brightly, severely wounding %s!",
-                                  mon_nam(mdef));
-                        *dmgptr *= 3;
-                        return TRUE;
-                    } else {
-                        if (cansee(magr->mx, magr->my))
-                            pline("The Hammer of the Gods flares brightly as it incinerates %s!",
-                                  mon_nam(mdef));
-                        mongone(mdef);
-                    }
-                } else if (youdefend && k
-                           && maybe_polyd(is_demon(youmonst.data), Race_if(PM_DEMON))) {
-                    pline("The Hammer of the Gods shines brilliantly, destroying you!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form if poly'd */
-                } else if (youdefend && is_undead(youmonst.data) && k) {
-                    pline("The Hammer of the Gods incinerates your undead flesh!");
-                    *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                    /* player returns to their original form */
-                } else
-                    return FALSE;
-                return TRUE;
-            default:
-                break;
+                    mongone(mdef);
+                }
+            } else if (youdefend && k
+                       && maybe_polyd(is_demon(youmonst.data), Race_if(PM_DEMON))) {
+                pline("The Hammer of the Gods shines brilliantly, destroying you!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else if (youdefend && is_undead(youmonst.data) && k) {
+                pline("The Hammer of the Gods incinerates your undead flesh!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else
+                return FALSE;
+            return TRUE;
+        default:
+            break;
         }
     }
     /* We really want "on a natural 20" but Nethack does it in */
