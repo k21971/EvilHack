@@ -803,15 +803,12 @@ struct obj *otmp;
     if (wep) {
         if (wep == otmp)
             return TRUE;
-
         if (wep->oartifact)
             return FALSE;
-
         if (mtmp->data->mlet == S_KOP && wep->otyp == CREAM_PIE)
             return FALSE;
         if (mtmp->data->mlet == S_KOP && otmp->otyp == CREAM_PIE)
             return TRUE;
-
         if (racial_throws_rocks(mtmp) && wep->otyp == BOULDER)
             return FALSE;
         if (racial_throws_rocks(mtmp) && otmp->otyp == BOULDER)
@@ -852,9 +849,9 @@ struct obj *propellor;
 /* select a ranged weapon for the monster */
 struct obj *
 select_rwep(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     struct obj *mwep;
     boolean mweponly;
     int i;
@@ -872,12 +869,11 @@ register struct monst *mtmp;
 
     /* Select polearms first; they do more damage and aren't expendable.
        But don't pick one if monster's weapon is welded, because then
-       we'd never have a chance to throw non-wielding missiles. */
-    /* The limit of 13 here is based on the monster polearm range limit
-     * (defined as 5 in mthrowu.c).  5 corresponds to a distance of 2 in
-     * one direction and 1 in another; one space beyond that would be 3 in
-     * one direction and 2 in another; 3^2+2^2=13.
-     */
+       we'd never have a chance to throw non-wielding missiles.
+       The limit of 13 here is based on the monster polearm range limit
+       (defined as 5 in mthrowu.c).  5 corresponds to a distance of 2 in
+       one direction and 1 in another; one space beyond that would be 3 in
+       one direction and 2 in another; 3^2 + 2^2 = 13 */
     mwep = MON_WEP(mtmp);
     /* NO_WEAPON_WANTED means we already tried to wield and failed */
     mweponly = (mwelded(mwep) && mtmp->weapon_check == NO_WEAPON_WANTED);
@@ -886,9 +882,8 @@ register struct monst *mtmp;
         && couldsee(mtmp->mx, mtmp->my)) {
         for (i = 0; i < SIZE(pwep); i++) {
             /* Only strong monsters can wield big (esp. long) weapons.
-             * Big weapon is basically the same as bimanual.
-             * All monsters can wield the remaining weapons.
-             */
+               Big weapon is basically the same as bimanual.
+               All monsters can wield the remaining weapons */
             if ((strongmonst(mtmp->data)
                 && (mtmp->misc_worn_check & W_ARMS) == 0)
                 || !objects[pwep[i]].oc_bimanual) {
@@ -902,15 +897,13 @@ register struct monst *mtmp;
         }
     }
 
-    /*
-     * other than these two specific cases, always select the
-     * most potent ranged weapon to hand.
-     */
+    /* other than these two specific cases, always select the
+       most potent ranged weapon to hand */
     for (i = 0; i < SIZE(rwep); i++) {
         int prop;
 
-        /* shooting gems from slings; this goes just before the darts */
-        /* (shooting rocks is already handled via the rwep[] ordering) */
+        /* shooting gems from slings; this goes just before the darts
+           (shooting rocks is already handled via the rwep[] ordering) */
         if (rwep[i] == DART && !likes_gems(mtmp->data)
             && m_carrying(mtmp, SLING)) { /* propellor */
             for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
@@ -949,14 +942,12 @@ register struct monst *mtmp;
                 propellor = 0;
         }
         /* propellor = obj, propellor to use
-         * propellor = &zeroobj, doesn't need a propellor
-         * propellor = 0, needed one and didn't have one
-         */
+           propellor = &zeroobj, doesn't need a propellor
+           propellor = 0, needed one and didn't have one */
         if (propellor != 0) {
             /* Note: cannot use m_carrying for loadstones, since it will
-             * always select the first object of a type, and maybe the
-             * monster is carrying two but only the first is unthrowable.
-             */
+               always select the first object of a type, and maybe the
+               monster is carrying two but only the first is unthrowable */
             if (rwep[i] != LOADSTONE) {
                 /* Don't throw a cursed weapon-in-hand or an artifact */
                 if ((otmp = oselect(mtmp, rwep[i])) && !otmp->oartifact
@@ -1013,10 +1004,8 @@ struct obj *otmp;
     if (wep) {
        if (wep == otmp)
            return TRUE;
-
        if (wep->oartifact)
            return FALSE;
-
        if (is_giant(mtmp->data) && wep->otyp == CLUB)
            return FALSE;
        if (is_giant(mtmp->data) && otmp->otyp == CLUB)
@@ -1040,10 +1029,10 @@ struct obj *otmp;
 /* select a hand to hand weapon for the monster */
 struct obj *
 select_hwep(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *otmp;
-    register int i;
+    struct obj *otmp;
+    int i;
     boolean strong = strongmonst(mtmp->data);
     boolean wearing_shield = (mtmp->misc_worn_check & W_ARMS) != 0;
 
