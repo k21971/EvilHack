@@ -762,7 +762,7 @@ boolean ghostly;
             if (!mtmp) {
                 free_erid(mon);
             } else {
-                ERID(mon)->m1 = mtmp;
+                ERID(mon)->mon_steed = mtmp;
             }
         }
     }
@@ -775,7 +775,7 @@ boolean ghostly;
             }
             if (!mtmp)
                 panic("Cannot find monster steed.");
-            ERID(mon)->m1 = mtmp;
+            ERID(mon)->mon_steed = mtmp;
         }
     }
 }
@@ -1191,7 +1191,7 @@ boolean ghostly;
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (mtmp->isshk)
             set_residency(mtmp, FALSE);
-        if (!mtmp->rider_id) {
+        if (!mtmp->ridden_by) {
             place_monster(mtmp, mtmp->mx, mtmp->my);
         }
         if (mtmp->wormno)

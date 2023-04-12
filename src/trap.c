@@ -3140,7 +3140,7 @@ register struct monst *mtmp;
                     && (!humanoid(mtmp->data) || bigmonst(mtmp->data))) {
                     if (in_sight)
                         pline("%s falls off %s %s!",
-                              Monnam(mtmp), mhis(mtmp), l_monnam(ERID(mtmp)->m1));
+                              Monnam(mtmp), mhis(mtmp), l_monnam(ERID(mtmp)->mon_steed));
                     separate_steed_and_rider(mtmp);
                 }
                 if (in_sight) {

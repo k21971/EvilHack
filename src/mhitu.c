@@ -274,8 +274,11 @@ struct attack *mattk;
         if ((blocker == uarms))
             use_skill(P_SHIELD, 1);
         /* the artifact shield Ashmar has a chance to knockback
-           the attacker if it deflects an attack */
+           the attacker if it deflects an attack. Check for
+           dead monster in case the attacker kills themselves
+           by some other means from the shield (material hatred) */
         if (!rn2(4) && (blocker == uarms)
+            && !DEADMONSTER(mtmp)
             && blocker->oartifact == ART_ASHMAR) {
             pline("%s knocks %s away from you!",
                   artiname(uarms->oartifact), mon_nam(mtmp));

@@ -1238,8 +1238,8 @@ register struct monst *mtmp;
         mtmp2 = mtmp->nmon;
         #if 0
         /* this simply eliminates the mount entirely */
-        if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1) {
-            ERID(mtmp)->m1 = (struct monst *) 0;
+        if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->mon_steed) {
+            ERID(mtmp)->mon_steed = (struct monst *) 0;
         }
         #endif
         if (perform_bwrite(mode)) {

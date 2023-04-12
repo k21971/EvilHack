@@ -92,7 +92,8 @@ struct monst {
     coord mtrack[MTSZ];   /* monster track */
     int mhp, mhpmax;
     unsigned mappearance; /* for undetected mimics and the wiz */
-    unsigned rider_id;    /* m_id for rider, can check if not ridden since context.ident is initialized at 1 */
+    unsigned ridden_by;   /* m_id for rider while on its steed, can check if not
+                             ridden since context.ident is initialized at 1 */
     uchar m_ap_type;      /* what mappearance is describing, m_ap_types */
 
     schar mtame;                /* level of tameness, implies peaceful */

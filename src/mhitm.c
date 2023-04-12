@@ -1018,7 +1018,7 @@ struct monst *magr, *mdef;
         return FALSE;
 
     /* can't swallow something if riding / being ridden */
-    if (magr->rider_id || mdef->rider_id || has_erid(magr))
+    if (magr->ridden_by || mdef->ridden_by || has_erid(magr))
         return FALSE;
 
     /* (hypothetical) engulfers who can pass through walls aren't
@@ -1475,7 +1475,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 tmp = mdef->mhp - 1;
         }
         if (mattk->adtyp == AD_CLOB && tmp > 0
-            && !unsolid(mdef->data) && !rn2(6)) {
+            && !unsolid(pd) && !rn2(6)) {
             if (tmp < mdef->mhp) {
                 if (vis && canseemon(mdef))
                     pline("%s knocks %s back with a %s %s!",
@@ -1486,8 +1486,9 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                     newsym(u.usteed->mx, u.usteed->my);
                     dismount_steed(DISMOUNT_FELL);
                 }
-                mhurtle(mdef, mdef->mx - magr->mx,
-                        mdef->my - magr->my, rnd(2));
+                if (!DEADMONSTER(mdef))
+                    mhurtle(mdef, mdef->mx - magr->mx,
+                            mdef->my - magr->my, rnd(2));
                 if (DEADMONSTER(mdef))
                     return (MM_DEF_DIED
                             | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
@@ -2459,7 +2460,7 @@ msickness:
                 if (has_erid(mdef) && mdef->mtrapped) {
                     if (canseemon(mdef))
                         pline("%s falls off %s %s!",
-                              Monnam(mdef), mhis(mdef), l_monnam(ERID(mdef)->m1));
+                              Monnam(mdef), mhis(mdef), l_monnam(ERID(mdef)->mon_steed));
                     separate_steed_and_rider(mdef);
                 }
             }

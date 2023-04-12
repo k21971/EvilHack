@@ -1172,7 +1172,7 @@ boolean
 levl_follower(mtmp)
 struct monst *mtmp;
 {
-    if (mtmp == u.usteed || mtmp->rider_id)
+    if (mtmp == u.usteed || mtmp->ridden_by)
         return TRUE;
 
     /* Wizard with Amulet won't bother trying to follow across levels */

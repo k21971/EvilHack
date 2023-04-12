@@ -288,8 +288,9 @@ int x, y;
     boolean accurate = !Hallucination;
     char *mwounds;
 
-    if (!canspotmon(mtmp) && has_erid(mtmp) && canspotmon(ERID(mtmp)->m1))
-        mtmp = ERID(mtmp)->m1;
+    if (!canspotmon(mtmp) && has_erid(mtmp)
+        && canspotmon(ERID(mtmp)->mon_steed))
+        mtmp = ERID(mtmp)->mon_steed;
 
     name = (mtmp->data == &mons[PM_COYOTE] && accurate)
               ? coyotename(mtmp, monnambuf)
@@ -304,14 +305,14 @@ int x, y;
                     ? "peaceful "
                     : "",
             name);
-    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1) {
+    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->mon_steed) {
         if (is_rider(mtmp->data) && (distu(mtmp->mx, mtmp->my) > 2)
             && !canseemon(mtmp))
             Sprintf(eos(buf), ", riding its steed.");
         else
-            Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->m1));
+            Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->mon_steed));
     }
-    if (mtmp->rider_id)
+    if (mtmp->ridden_by)
         Sprintf(eos(buf), ", being ridden");
     mwounds = mon_wounds(mtmp);
     if (mwounds) {
@@ -528,8 +529,8 @@ char *buf, *monbuf;
         if ((mtmp = m_at(x, y)) != 0) {
             look_at_monster(buf, monbuf, mtmp, x, y);
             if (!canspotmon(mtmp) && has_erid(mtmp)
-                && canspotmon(ERID(mtmp)->m1))
-                mtmp = ERID(mtmp)->m1;
+                && canspotmon(ERID(mtmp)->mon_steed))
+                mtmp = ERID(mtmp)->mon_steed;
             pm = mtmp->data;
         } else if (Hallucination) {
             /* 'monster' must actually be a statue */

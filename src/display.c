@@ -278,7 +278,8 @@ void
 map_invisible(x, y)
 register xchar x, y;
 {
-    if (m_at(x, y) && has_erid(m_at(x, y)) && mon_visible(ERID(m_at(x, y))->m1))
+    if (m_at(x, y) && has_erid(m_at(x, y))
+        && mon_visible(ERID(m_at(x, y))->mon_steed))
         return;
     if (x != u.ux || y != u.uy) { /* don't display I at hero's location */
         if (level.flags.hero_memory)
@@ -486,7 +487,7 @@ xchar worm_tail;            /* mon is actually a worm tail */
                 num = petnum_to_glyph(PM_LONG_WORM_TAIL);
             else
                 num = pet_to_glyph(mon, rn2_on_display_rng);
-        } else if (has_erid(mon) || mon->rider_id) {
+        } else if (has_erid(mon) || mon->ridden_by) {
             num = ridden_mon_to_glyph(mon, rn2_on_display_rng);
         } else if (sightflags == DETECTED) {
             if (worm_tail)
@@ -828,8 +829,9 @@ register int x, y;
                 display_monster(x, y, mon,
                                 see_it ? PHYSICALLY_SEEN : DETECTED,
                                 worm_tail);
-            } else if (mon && !mon_visible(mon) && has_erid(mon) && mon_visible(ERID(mon)->m1)) {
-                display_monster(x, y, ERID(mon)->m1, PHYSICALLY_SEEN, FALSE);
+            } else if (mon && !mon_visible(mon) && has_erid(mon)
+                       && mon_visible(ERID(mon)->mon_steed)) {
+                display_monster(x, y, ERID(mon)->mon_steed, PHYSICALLY_SEEN, FALSE);
             } else if (mon && mon_warning(mon) && !is_worm_tail(mon)) {
                 display_warning(mon);
             } else if (glyph_is_invisible(lev->glyph)) {

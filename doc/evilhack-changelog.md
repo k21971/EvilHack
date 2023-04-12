@@ -2771,4 +2771,5 @@ The following changes to date are:
 - Fix: some Hammer of the Gods tweaks and fixes
 - Some format cleanup in artifact.c
 - Fix: monsters stuck in a loop switching between melee and ranged weapon
+- Fix: monster steed being knocked back while being ridden
 

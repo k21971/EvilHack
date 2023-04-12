@@ -546,7 +546,7 @@ struct obj *corpse;
 
         /* monster steeds tend to wander off */
         if (has_erid(mtmp)) {
-            msteed = ERID(mtmp)->m1;
+            msteed = ERID(mtmp)->mon_steed;
             cc.x = msteed->mx;
             cc.y = msteed->my;
             enexto(&cc, u.ux, u.uy, msteed->data);

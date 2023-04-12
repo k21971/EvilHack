@@ -157,10 +157,10 @@ mon_sanity_check()
             if (x != u.ux || y != u.uy)
                 impossible("steed (%s) claims to be at <%d,%d>?",
                            fmt_ptr((genericptr_t) mtmp), x, y);
-        } else if (mtmp->rider_id) {
+        } else if (mtmp->ridden_by) {
             continue;
         } else if (mtmp != (m = level.monsters[x][y])) {
-            if (!m || m->rider_id != mtmp->m_id)
+            if (!m || m->ridden_by != mtmp->m_id)
                 impossible("mon (%s) at <%d,%d> is not there!",
                            fmt_ptr((genericptr_t) mtmp), x, y);
         } else if (mtmp->wormno) {
@@ -181,7 +181,7 @@ mon_sanity_check()
                     impossible("steed (%s) is on the map at <%d,%d>!",
                                fmt_ptr((genericptr_t) mtmp), x, y);
                 else if ((mtmp->mx != x || mtmp->my != y)
-                         && mtmp->data != &mons[PM_LONG_WORM] && !mtmp->rider_id)
+                         && mtmp->data != &mons[PM_LONG_WORM] && !mtmp->ridden_by)
                     impossible("map mon (%s) at <%d,%d> is found at <%d,%d>?",
                                fmt_ptr((genericptr_t) mtmp),
                                mtmp->mx, mtmp->my, x, y);
@@ -2878,7 +2878,7 @@ struct monst *mtmp, *mtmp2;
     relmon(mtmp, (struct monst **) 0);
 
     /* finish adding its replacement */
-    if (mtmp != u.usteed && !mtmp->rider_id) /* don't place steed onto the map */
+    if (mtmp != u.usteed && !mtmp->ridden_by) /* don't place steed onto the map */
         place_monster(mtmp2, mtmp2->mx, mtmp2->my);
     if (mtmp2->wormno)      /* update level.monsters[wseg->wx][wseg->wy] */
         place_wsegs(mtmp2, NULL); /* locations to mtmp2 not mtmp. */
@@ -3085,7 +3085,7 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
         seemimic(mtmp);
     if (has_erid(mtmp))
         separate_steed_and_rider(mtmp);
-    if (mtmp->rider_id) {
+    if (mtmp->ridden_by) {
         struct monst *mtmp2 = get_mon_rider(mtmp);
         if (mtmp2)
             free_erid(mtmp2);
@@ -5609,11 +5609,11 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     if (has_erid(mtmp) && !mon_can_ride(mtmp)) {
         if (canseemon(mtmp)) {
             pline("Transforming, %s falls from %s!", l_oldname,
-                  mon_nam(ERID(mtmp)->m1));
+                  mon_nam(ERID(mtmp)->mon_steed));
         }
         separate_steed_and_rider(mtmp);
     }
-    if (mtmp->rider_id && !mon_can_be_ridden(mtmp) && mtmp != u.usteed) {
+    if (mtmp->ridden_by && !mon_can_be_ridden(mtmp) && mtmp != u.usteed) {
         struct monst *rider = get_mon_rider(mtmp);
         if (canseemon(rider)) {
             pline("%s falls from %s mount as %s transforms!", Monnam(rider),

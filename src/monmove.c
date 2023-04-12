@@ -1137,7 +1137,7 @@ register int after;
     }
     ptr = mtmp->data; /* mintrap() can change mtmp->data -dlc */
 
-    if (mtmp->rider_id)
+    if (mtmp->ridden_by)
         return 0;
 
     if (mtmp->meating) {

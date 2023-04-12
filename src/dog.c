@@ -427,7 +427,7 @@ boolean with_you;
     ylocale = mtmp->mtrack[1].y;
     memset(mtmp->mtrack, 0, sizeof mtmp->mtrack);
 
-    if (mtmp == u.usteed || mtmp->rider_id)
+    if (mtmp == u.usteed || mtmp->ridden_by)
         return; /* don't place steed on the map */
     if (with_you) {
         /* When a monster accompanies you, sometimes it will arrive
@@ -714,7 +714,7 @@ boolean pets_only; /* true for ascension or final escape */
         mtmp2 = mtmp->nmon;
         if (DEADMONSTER(mtmp))
             continue;
-        if (has_erid(mtmp) || mtmp->rider_id)
+        if (has_erid(mtmp) || mtmp->ridden_by)
             continue;
         if (pets_only) {
             if (!mtmp->mtame)
@@ -827,8 +827,8 @@ coord *cc;   /* optional destination coordinates */
     int num_segs = 0; /* count of worm segments */
 
     /* Recursive call to levelport monster steeds. */
-    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1) {
-        migrate_to_level(ERID(mtmp)->m1, tolev, xyloc, cc);
+    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->mon_steed) {
+        migrate_to_level(ERID(mtmp)->mon_steed, tolev, xyloc, cc);
     }
 
     if (mtmp->isshk)

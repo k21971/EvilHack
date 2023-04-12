@@ -612,7 +612,7 @@ struct monst *mtmp;
             if ((t = t_at(xx, yy)) == 0
                 || (!ignore_boulders && sobj_at(BOULDER, xx, yy))
                 || onscary(xx, yy, mtmp)
-                || has_erid(mtmp) || mtmp->rider_id)
+                || has_erid(mtmp) || mtmp->ridden_by)
                 continue;
             /* use trap if it's the correct type */
             if (is_hole(t->ttyp)
@@ -1942,8 +1942,9 @@ register struct obj *otmp;
                         newsym(u.usteed->mx, u.usteed->my);
                         dismount_steed(DISMOUNT_FELL);
                     }
-                    mhurtle(mtmp, mtmp->mx - zapper->mx,
-                            mtmp->my - zapper->my, 1);
+                    if (!DEADMONSTER(mtmp))
+                        mhurtle(mtmp, mtmp->mx - zapper->mx,
+                                mtmp->my - zapper->my, 1);
                 }
             }
         } else {

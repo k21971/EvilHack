@@ -998,8 +998,14 @@ int dx, dy, range;
     if (has_erid(mon)) {
         if (canseemon(mon))
             pline("%s is knocked straight off %s %s!",
-                  Monnam(mon), mhis(mon), l_monnam(ERID(mon)->m1));
+                  Monnam(mon), mhis(mon), l_monnam(ERID(mon)->mon_steed));
         separate_steed_and_rider(mon);
+    /* Is the monster being ridden? */
+    } else if (mon->ridden_by) {
+        if (canseemon(mon))
+            pline("%s is knocked out from under %s rider!",
+                  Monnam(mon), mhis(mon));
+        separate_steed_and_rider(get_mon_rider(mon));
     }
 
     /* Make sure dx and dy are [-1,0,1] */

@@ -338,7 +338,7 @@ struct obj *otmp;
                     && (!humanoid(mtmp->data) || r_bigmonst(mtmp))) {
                     if (canseemon(mtmp))
                         pline("%s falls off %s %s!",
-                              Monnam(mtmp), mhis(mtmp), l_monnam(ERID(mtmp)->m1));
+                              Monnam(mtmp), mhis(mtmp), l_monnam(ERID(mtmp)->mon_steed));
                     separate_steed_and_rider(mtmp);
                 }
             }
@@ -3999,7 +3999,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
                    mount dies before the rider... */
 
                 if (obj->otyp == WAN_PROBING && has_erid(mtmp)) {
-                    (*fhitm)(ERID(mtmp)->m1, obj);
+                    (*fhitm)(ERID(mtmp)->mon_steed, obj);
                     range -= 1;
                 }
             }

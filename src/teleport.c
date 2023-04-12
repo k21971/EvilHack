@@ -1366,7 +1366,7 @@ boolean suppress_impossible;
         return TRUE;
     }
 
-    if (mtmp->rider_id) {
+    if (mtmp->ridden_by) {
         /* teleport rider along with steed */
         struct monst *rider = get_mon_rider(mtmp);
         return rloc(rider, suppress_impossible);

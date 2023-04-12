@@ -28,9 +28,9 @@ void update_monsteed(mtmp)
 struct monst *mtmp;
 {
     if (has_erid(mtmp)) {
-        ERID(mtmp)->m1->mx = mtmp->mx;
-        ERID(mtmp)->m1->my = mtmp->my;
-        ERID(mtmp)->m1->mpeaceful = mtmp->mpeaceful;
+        ERID(mtmp)->mon_steed->mx = mtmp->mx;
+        ERID(mtmp)->mon_steed->my = mtmp->my;
+        ERID(mtmp)->mon_steed->mpeaceful = mtmp->mpeaceful;
     }
 }
 
@@ -50,11 +50,11 @@ int pm;
         newsym(mount->mx, mount->my);
     }
     newerid(mtmp);
-    ERID(mtmp)->m1 = mount;
+    ERID(mtmp)->mon_steed = mount;
     ERID(mtmp)->mid = mount->m_id;
-    ERID(mtmp)->m1->rider_id = mtmp->m_id;
-    ERID(mtmp)->m1->mx = mtmp->mx;
-    ERID(mtmp)->m1->my = mtmp->my;
+    ERID(mtmp)->mon_steed->ridden_by = mtmp->m_id;
+    ERID(mtmp)->mon_steed->mx = mtmp->mx;
+    ERID(mtmp)->mon_steed->my = mtmp->my;
     newsym(mtmp->mx, mtmp->my);
 
     /* rider over'rides' horse's natural inclinations */
@@ -93,7 +93,7 @@ struct monst *rider;
             nmon = rider->nmon;
         /* criteria for an acceptable steed */
         if (monnear(rider, steed->mx, steed->my) && mon_can_be_ridden(steed)
-            && !steed->rider_id) {
+            && !steed->ridden_by) {
             break;
         }
     }
@@ -109,11 +109,11 @@ struct monst *rider;
     remove_monster(steed->mx, steed->my);
     newsym(steed->mx, steed->my);
     newerid(rider);
-    ERID(rider)->m1 = steed;
+    ERID(rider)->mon_steed = steed;
     ERID(rider)->mid = steed->m_id;
-    ERID(rider)->m1->rider_id = rider->m_id;
-    ERID(rider)->m1->mx = rider->mx;
-    ERID(rider)->m1->my = rider->my;
+    ERID(rider)->mon_steed->ridden_by = rider->m_id;
+    ERID(rider)->mon_steed->mx = rider->mx;
+    ERID(rider)->mon_steed->my = rider->my;
     newsym(rider->mx, rider->my);
     return TRUE;
 }
@@ -135,7 +135,7 @@ free_erid(mtmp)
 struct monst *mtmp;
 {
     if (mtmp->mextra && ERID(mtmp)) {
-        ERID(mtmp)->m1->rider_id = 0; /* Remove pointer to monster in steed */
+        ERID(mtmp)->mon_steed->ridden_by = 0; /* Remove pointer to monster in steed */
         free((genericptr_t) ERID(mtmp));
         ERID(mtmp) = (struct erid *) 0;
     }
@@ -151,12 +151,13 @@ struct monst *rider;
     if (!has_erid(rider))
         return;
 
-    steed = ERID(rider)->m1;
+    steed = ERID(rider)->mon_steed;
     free_erid(rider);
 
     /* handle rider if both rider and steed are alive */
     if (!DEADMONSTER(rider) && !DEADMONSTER(steed)) {
-        xchar orig_x = rider->mx, orig_y = rider->my;
+        xchar orig_x = rider->mx, orig_y = rider->my; /* cache riders position */
+
         /* move rider to an adjacent tile */
         if (enexto(&cc, rider->mx, rider->my, rider->data))
             rloc_to(rider, cc.x, cc.y);
@@ -186,10 +187,10 @@ struct monst *mtmp;
 {
     struct monst *mtmp2;
 
-    if (!mtmp->rider_id)
+    if (!mtmp->ridden_by)
         return (struct monst *) 0;
     for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
-        if (mtmp->rider_id == mtmp2->m_id)
+        if (mtmp->ridden_by == mtmp2->m_id)
             return mtmp2;
     }
     return (struct monst *) 0;
@@ -1166,8 +1167,8 @@ int x, y;
     if (((othermon = level.monsters[x][y]) != 0)
         /* steed and rider are colocated in the same position, so allow
          * placing one on top of the other */
-        && !((has_erid(othermon) && ERID(othermon)->m1 == mon)
-             || (has_erid(mon) && ERID(mon)->m1 == othermon))) {
+        && !((has_erid(othermon) && ERID(othermon)->mon_steed == mon)
+             || (has_erid(mon) && ERID(mon)->mon_steed == othermon))) {
         describe_level(buf);
         monnm = minimal_monnam(mon, FALSE);
         othnm = (mon != othermon) ? minimal_monnam(othermon, TRUE) : "itself";
