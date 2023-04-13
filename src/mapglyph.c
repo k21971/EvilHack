@@ -21,8 +21,9 @@ static const int explcolors[] = {
     CLR_BLUE,          /* wet     */
     CLR_MAGENTA,       /* magical */
     CLR_ORANGE,        /* fiery   */
-    CLR_WHITE,         /* frosty  */
+    CLR_BRIGHT_CYAN,   /* frosty  */
     CLR_YELLOW,        /* acid    */
+    CLR_WHITE,         /* shock   */
 };
 
 #define zap_color(n) color = iflags.use_color ? zapcolors[n] : NO_COLOR

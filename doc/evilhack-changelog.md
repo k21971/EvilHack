@@ -2772,4 +2772,5 @@ The following changes to date are:
 - Some format cleanup in artifact.c
 - Fix: monsters stuck in a loop switching between melee and ranged weapon
 - Fix: monster steed being knocked back while being ridden
+- New forging artifact recipe - Tempest
 

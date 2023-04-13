@@ -178,17 +178,17 @@ NEARDATA int force_mintrap = 0;
  *  (They're only used in mapglyph.c so probably shouldn't be here.)
  */
 const int zapcolors[NUM_ZAP] = {
-    HI_ZAP,     /* 0 - missile */
-    CLR_ORANGE, /* 1 - fire */
-    CLR_WHITE,  /* 2 - frost */
-    HI_ZAP,     /* 3 - sleep */
-    CLR_BLACK,  /* 4 - death */
-    CLR_WHITE,  /* 5 - lightning */
+    HI_ZAP,           /* 0 - missile */
+    CLR_ORANGE,       /* 1 - fire */
+    CLR_BRIGHT_CYAN,  /* 2 - frost */
+    HI_ZAP,           /* 3 - sleep */
+    CLR_BLACK,        /* 4 - death */
+    CLR_WHITE,        /* 5 - lightning */
     /* 3.6.3: poison gas zap used to be yellow and acid zap was green,
        which conflicted with the corresponding dragon colors */
-    CLR_GREEN,  /* 6 - poison gas */
-    CLR_YELLOW, /* 7 - acid */
-    CLR_BLUE,   /* 8 - water */
+    CLR_GREEN,        /* 6 - poison gas */
+    CLR_YELLOW,       /* 7 - acid */
+    CLR_BLUE,         /* 8 - water */
 };
 #endif /* text color */
 

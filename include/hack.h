@@ -402,7 +402,8 @@ enum explosion_types {
     EXPL_FIERY   = 5,
     EXPL_FROSTY  = 6,
     EXPL_ACID    = 7,
-    EXPL_MAX     = 8
+    EXPL_SHOCK   = 8,
+    EXPL_MAX     = 9
 };
 
 /* enlightenment control flags */

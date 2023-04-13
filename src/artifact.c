@@ -1790,6 +1790,12 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? ""
                               : "!  Lightning strikes",
                           hittee, !spec_dbon_applies ? '.' : '!');
+            } else if (otmp->oartifact == ART_TEMPEST) {
+                pline("Tempest hits%s %s%c",
+                      !spec_dbon_applies
+                          ? ""
+                          : "!  Lightning strikes",
+                      hittee, !spec_dbon_applies ? '.' : '!');
             } else if (otmp->oclass == WEAPON_CLASS
                        && (otmp->oprops & ITEM_SHOCK)) {
                 pline_The("%s %s %s%c",
@@ -1804,8 +1810,21 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if ((otmp->oprops & ITEM_SHOCK) && spec_dbon_applies)
             otmp->oprops_known |= ITEM_SHOCK;
 
+        /* Mjollnir's thunderclap can wake up nearby
+           sleeping monsters */
         if (spec_dbon_applies && otmp->oartifact == ART_MJOLLNIR)
             wake_nearto(mdef->mx, mdef->my, 4 * 4);
+
+        /* Tempest has a chance of a power surge on a
+           successful hit, and can cause additional
+           electrical damage (area of effect) */
+        if (!rn2(5)
+            && spec_dbon_applies && otmp->oartifact == ART_TEMPEST)
+            explode(mdef->mx, mdef->my,
+                    (youattack ? (AD_ELEC - 1) + 20
+                               : -((AD_ELEC - 1) + 20)), d(6, 6),
+                    (youattack ? 0 : MON_CASTBALL), EXPL_SHOCK);
+
         if (!rn2(5))
             (void) destroy_mitem(mdef, RING_CLASS, AD_ELEC);
         if (!rn2(5))

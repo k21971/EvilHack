@@ -2516,8 +2516,10 @@ int specialdmg; /* blessed and/or silver bonus against various things */
     int armpro, tmp = d((int) mattk->damn, (int) mattk->damd);
     boolean negated;
     struct obj *mongold;
-    boolean mon_vorpal_wield = (MON_WEP(mdef)
-                                && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
+    boolean mon_vorpal_wield  = (MON_WEP(mdef)
+                                 && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
+    boolean mon_tempest_wield = (MON_WEP(mdef)
+                                 && MON_WEP(mdef)->oartifact == ART_TEMPEST);
 
     armpro = magic_negation(mdef);
     /* since hero can't be cancelled, only defender's armor applies */
@@ -2533,6 +2535,10 @@ int specialdmg; /* blessed and/or silver bonus against various things */
 
     switch (mattk->adtyp) {
     case AD_STUN:
+        if (mon_tempest_wield) {
+            ; /* immune */
+            break;
+        }
         if (!Blind)
             pline("%s %s for a moment.", Monnam(mdef),
                   makeplural(stagger(pd, "stagger")));
@@ -4362,6 +4368,10 @@ boolean wep_was_destroyed;
             }
             break;
         case AD_STUN: /* specifically yellow mold */
+            if (wielding_artifact(ART_TEMPEST)) {
+                ; /* immune */
+                break;
+            }
             if (!Stunned)
                 make_stunned((long) tmp, TRUE);
             break;

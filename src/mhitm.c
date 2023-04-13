@@ -1242,8 +1242,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     boolean cancelled;
     struct obj* hated_obj;
     long armask;
-    boolean mon_vorpal_wield = (MON_WEP(mdef)
-                                && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
+    boolean mon_vorpal_wield  = (MON_WEP(mdef)
+                                 && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
+    boolean mon_tempest_wield = (MON_WEP(mdef)
+                                 && MON_WEP(mdef)->oartifact == ART_TEMPEST);
 
     if ((touch_petrifies(pd) /* or flesh_petrifies() */
          || (mattk->adtyp == AD_DGST && pd == &mons[PM_MEDUSA]))
@@ -1357,6 +1359,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     case AD_STUN:
         if (magr->mcan)
             break;
+        if (mon_tempest_wield) {
+            ; /* immune */
+            break;
+        }
         if (mattk->aatyp == AT_GAZE) {
             if (vis) {
                 if (mdef->data->mlet == S_MIMIC
@@ -2713,6 +2719,9 @@ struct obj *mwep;
     struct attack *mdattk;
     mdattk = has_erac(mdef) ? ERAC(mdef)->mattk : mddat->mattk;
 
+    boolean mon_tempest_wield = (MON_WEP(mdef)
+                                 && MON_WEP(mdef)->oartifact == ART_TEMPEST);
+
     for (i = 0;; i++) {
         if (i >= NATTK)
             return (mdead | mhit); /* no passive attacks */
@@ -2960,6 +2969,10 @@ struct obj *mwep;
             }
             break;
         case AD_STUN:
+            if (mon_tempest_wield) {
+                ; /* immune */
+                break;
+            }
             if (!magr->mstun) {
                 magr->mstun = 1;
                 if (canseemon(magr))

@@ -383,6 +383,16 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        | SPFX_INTEL | SPFX_DFLAGH), 0, (MH_DEMON | MH_UNDEAD),
       PHYS(8, 0), DFNS(AD_DISE), NO_CARY, 0, A_LAWFUL,
       NON_PM, NON_PM, 25000L, NO_COLOR, SILVER),
+    /* Tempest is a halberd that can be created by forging Cleaver and
+       Mjollnir together. It inherits lightning damage/protection from
+       Mjollnir, and in some cases will cause area of effect lightning
+       damage on a successful hit. Prevents becoming stunned when wielded,
+       can be invoked for conflict */
+    A("Tempest", HALBERD,
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_INTEL
+       | SPFX_ATTK | SPFX_DEFN), 0, 0,
+      ELEC(10, 24), DFNS(AD_ELEC), NO_CARY, CONFLICT, A_NONE,
+      NON_PM, NON_PM, 20000L, NO_COLOR, IRON),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

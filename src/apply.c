@@ -4003,7 +4003,10 @@ struct obj *obj;
         pline(nothing_else_happens);
         goto discard_broken_wand;
     case WAN_DEATH:
+        dmg *= 4;
+        goto wanexpl;
     case WAN_LIGHTNING:
+        expltype = EXPL_SHOCK;
         dmg *= 4;
         goto wanexpl;
     case WAN_FIRE:

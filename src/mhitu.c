@@ -2157,6 +2157,10 @@ do_rust:
         break;
     case AD_STUN:
         hitmsg(mtmp, mattk);
+        if (wielding_artifact(ART_TEMPEST)) {
+            ; /* immune */
+            break;
+        }
         if (!mtmp->mcan && !rn2(4)) {
             make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
             dmg /= 2;
@@ -3211,6 +3215,11 @@ struct attack *mattk;
                 if (!rn2(4))
                     pline("%s protect you from %s stunning gaze.",
                           An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
+                break;
+            } else if (wielding_artifact(ART_TEMPEST)) {
+                You("are unaffected by %s stunning gaze.",
+                    s_suffix(mon_nam(mtmp)));
+                ; /* immune */
                 break;
             } else {
                 int stun = d(2, 6);
@@ -4426,6 +4435,10 @@ struct attack *mattk;
                 (void) split_mon(&youmonst, mtmp);
             break;
         case AD_STUN: /* Yellow mold */
+            if (wielding_artifact(ART_TEMPEST)) {
+                ; /* immune */
+                break;
+            }
             if (!mtmp->mstun) {
                 mtmp->mstun = 1;
                 pline("%s %s.", Monnam(mtmp),
