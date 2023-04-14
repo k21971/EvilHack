@@ -2773,4 +2773,5 @@ The following changes to date are:
 - Fix: monsters stuck in a loop switching between melee and ranged weapon
 - Fix: monster steed being knocked back while being ridden
 - New forging artifact recipe - Tempest
+- Fix: missing window tiles for new explosion type/color
 
