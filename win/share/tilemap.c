@@ -176,7 +176,7 @@ int set, entry;
             static const char *explosion_types[] = {
                 /* hack.h */
                 "dark", "noxious", "muddy", "wet", "magical", "fiery",
-                "frosty", "acid"
+                "frosty", "acid", "shock"
             };
             Sprintf(buf, "explosion %s %d", explosion_types[i / MAXEXPCHARS],
                     i % MAXEXPCHARS);

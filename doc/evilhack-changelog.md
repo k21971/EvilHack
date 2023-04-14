@@ -2774,4 +2774,5 @@ The following changes to date are:
 - Fix: monster steed being knocked back while being ridden
 - New forging artifact recipe - Tempest
 - Fix: missing window tiles for new explosion type/color
+- Fix: no really, fix missing window tiles for new explosion type/color
 
