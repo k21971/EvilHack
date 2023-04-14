@@ -63,14 +63,7 @@ set_uasmon()
     PROPSET(ACID_RES, resists_acid(&youmonst));
     PROPSET(STONE_RES, resists_ston(&youmonst));
     PROPSET(PSYCHIC_RES, resists_psychic(&youmonst));
-    {
-        /* resists_drli() takes wielded weapon into account; suppress it */
-        struct obj *save_uwep = uwep;
-
-        uwep = 0;
-        PROPSET(DRAIN_RES, resists_drli(&youmonst));
-        uwep = save_uwep;
-    }
+    PROPSET(DRAIN_RES, resists_drain(racedat));
     /* Vulnerablilties */
     PROPSET(VULN_FIRE, vulnerable_to(&youmonst, AD_FIRE));
     PROPSET(VULN_COLD, vulnerable_to(&youmonst, AD_COLD));
@@ -2060,7 +2053,7 @@ polysense()
     context.warntype.speciesidx = NON_PM;
     context.warntype.species = 0;
     context.warntype.polyd = 0;
-    HWarn_of_mon &= ~FROMRACE;
+    HWarn_of_mon &= ~FROMFORM;
 
     switch (u.umonnum) {
     case PM_PURPLE_WORM:
@@ -2071,13 +2064,13 @@ polysense()
     case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_MAGE:
         context.warntype.polyd = MH_HUMAN | MH_ELF;
-        HWarn_of_mon |= FROMRACE;
+        HWarn_of_mon |= FROMFORM;
         return;
     }
     if (warnidx >= LOW_PM) {
         context.warntype.speciesidx = warnidx;
         context.warntype.species = &mons[warnidx];
-        HWarn_of_mon |= FROMRACE;
+        HWarn_of_mon |= FROMFORM;
     }
 }
 

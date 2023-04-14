@@ -116,8 +116,10 @@ static const struct innate {
   orc_abil[] = { { 1, &(HInfravision), "", "" },
                  { 1, &(HPoison_resistance), "", "" },
                  { 0, 0, 0, 0 } },
-
-  gia_abil[] = { { 1, &(HAggravate_monster), "", "" },
+  
+  // giants had it FROMFORM---make it FROMRACE like other races
+  gia_abil[] = { { 1, &(HInfravision), "", "" },
+                 { 1, &(HAggravate_monster), "", "" },
                  { 12, &(HRegeneration), "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },
 
@@ -140,12 +142,13 @@ static const struct innate {
                  { 12, &(HFlying), "lighter than air", "gravity's pull" },
                  { 0, 0, 0, 0 } },
 
+  // remove drain res and flying---they are FROMFORM
+  // add sick res to remain consistent with previous behavior
   dem_abil[] = { { 1, &(HInfravision), "", "" },
                  { 1, &(HFire_resistance), "", "" },
                  { 1, &(HPoison_resistance), "", "" },
-                 { 1, &(HDrain_resistance), "", "" },
                  { 1, &(HSee_invisible), "", "" },
-                 { 1, &(HFlying), "", "" },
+                 { 1, &(HSick_resistance), "hale", "" },
                  /* also inediate */
                  { 0, 0, 0, 0 } },
 
@@ -775,7 +778,8 @@ long *ability;
 {
     if (!ability)
         return;
-    if (ability == &(HWarning) || ability == &(HSee_invisible))
+    if (ability == &(HWarning) || ability == &(HSee_invisible) 
+        || (ability == &(HTelepat) && Blind))
         see_monsters();
 }
 
@@ -1021,6 +1025,11 @@ int oldlevel, newlevel;
 {
     register const struct innate *abil, *rabil;
     long prevabil, mask = FROMEXPER;
+    /* don't give resistance messages when demon crowning.
+     * they aren't given in normal crowning, and you can
+     * e.g. lose and regain warning, so you don't want 
+     * messages about that. */
+    boolean verbose = !(oldlevel == 0 || newlevel == 0);
 
     abil = role_abil(Role_switch);
 
@@ -1046,9 +1055,20 @@ int oldlevel, newlevel;
     case PM_TORTLE:
         rabil = trt_abil;
         break;
+    case PM_DEMON:
+        rabil = dem_abil;
+        break;
     case PM_HUMAN:
+        rabil = hum_abil;
+        break;
+    // explicitly write these out or else infravision will be FROMFORM
+    // (though ^x will show it as innate)
     case PM_DWARF:
+        rabil = dwa_abil;
+        break;
     case PM_GNOME:
+        rabil = gno_abil;
+        break;
     default:
         rabil = 0;
         break;
@@ -1068,18 +1088,14 @@ int oldlevel, newlevel;
         if (!(Race_if(PM_GIANT) && (abil->ability == &HStealth))) {
             if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {
                 /* Abilities gained at level 1 can never be lost
-                 * via level loss, only via means that remove _any_
-                 * sort of ability.  A "gain" of such an ability from
-                 * an outside source is devoid of meaning, so we set
-                 * FROMOUTSIDE to avoid such gains.
+                 * via level loss, but can be lost by race change via 
+                 * infidel crowning. So, track separately from corpses.
                  */
-                if (abil->ulevel == 1)
-                    *(abil->ability) |= (mask | FROMOUTSIDE);
-                else
-                    *(abil->ability) |= mask;
+                *(abil->ability) |= mask;
                 if (!(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL & ~mask)
                     && (!(*(abil->ability) & HAVEPARTIAL & ~mask)
-                        || (*(abil->ability) & TIMEOUT) < 100)) {
+                        || (*(abil->ability) & TIMEOUT) < 100)
+                    && verbose) {
                     if (*(abil->gainstr))
                         You_feel("%s!", abil->gainstr);
                 }
@@ -1087,7 +1103,8 @@ int oldlevel, newlevel;
                 *(abil->ability) &= ~mask;
                 if (!(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL)
                     && (!(*(abil->ability) & HAVEPARTIAL)
-                        || (*(abil->ability) & TIMEOUT) < 100)) {
+                        || (*(abil->ability) & TIMEOUT) < 100)
+                    && verbose) {
                     if (*(abil->losestr))
                         You_feel("%s!", abil->losestr);
                     else if (*(abil->gainstr))
@@ -1099,8 +1116,11 @@ int oldlevel, newlevel;
             postadjabil(abil->ability);
         abil++;
     }
-
-    if (oldlevel > 0) {
+    
+    /* don't lose infidel skill slots when crowning. probably good to have 
+     * the symmetry regardless. (newlevel == 0 should never happen elsewhere,
+     * but if it does we probably don't want lost skill slots there either). */
+    if (oldlevel > 0 && newlevel > 0) {
         if (newlevel > oldlevel)
             add_weapon_skill(newlevel - oldlevel);
         else

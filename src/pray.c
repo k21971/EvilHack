@@ -811,31 +811,23 @@ gcrownu()
     xchar maxint, maxwis;
 #define ok_wep(o) ((o) && ((o)->oclass == WEAPON_CLASS || is_weptool(o)))
 
-    HSee_invisible |= FROMOUTSIDE;
-    /* small chance to obtain sick resistance, but not
-       this way if infidel (see below) */
-    if (!rn2(10) && !Role_if(PM_INFIDEL))
-        HSick_resistance |= FROMOUTSIDE;
-    incr_resistance(&HFire_resistance, 100);
-    if (!Role_if(PM_INFIDEL)) {
-        /* demons don't get all the intrinsics */
+    /* Moloch-worshippers get intrinsics from becoming a demon*/
+    if (u.ualign.type != A_NONE) {
+        incr_resistance(&HFire_resistance, 100);
         incr_resistance(&HCold_resistance, 100);
         incr_resistance(&HShock_resistance, 100);
         incr_resistance(&HSleep_resistance, 100);
-    }
-    incr_resistance(&HPoison_resistance, 100);
-    if (Role_if(PM_INFIDEL)) {
-        HSick_resistance |= FROMRACE;
-        if (Race_if(PM_ILLITHID)) /* demons don't have the correct brain structure */
-            HPsychic_resistance &= ~INTRINSIC;
-        if (Race_if(PM_CENTAUR)) /* demons don't have four legs */
-            EJumping &= ~INTRINSIC;
-    }
-    if (!Role_if(PM_INFIDEL))
+        incr_resistance(&HPoison_resistance, 100);
+        HSee_invisible |= FROMOUTSIDE;
+        /* small chance to obtain sick resistance, but not
+        this way if infidel (see below) */
+        if (!rn2(10))
+            HSick_resistance |= FROMOUTSIDE;
+            
         monstseesu(M_SEEN_FIRE | M_SEEN_COLD | M_SEEN_ELEC
                    | M_SEEN_SLEEP | M_SEEN_POISON);
-    else
-        monstseesu(M_SEEN_FIRE | M_SEEN_POISON);
+    }
+
     godvoice(u.ualign.type, (char *) 0);
 
     class_gift = STRANGE_OBJECT;
@@ -915,7 +907,8 @@ gcrownu()
             P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
             if (Upolyd)
                 rehumanize(); /* return to human/orcish form -- not a demon yet */
-            pline1("Wings sprout from your back and you grow a barbed tail!");
+            /* lose ALL old racial abilities */
+            adjabil(u.ulevel, 0);
             maxint = urace.attrmax[A_INT];
             maxwis = urace.attrmax[A_WIS];
             urace = race_demon;
@@ -923,9 +916,14 @@ gcrownu()
             urace.attrmax[A_INT] = maxint;
             urace.attrmax[A_WIS] = maxwis;
             youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
+            /* gain demonic resistances */
+            adjabil(0, u.ulevel);
+            // move this line so adjabil doesn't flash e.g. warning on and off
+            pline1("Wings sprout from your back and you grow a barbed tail!");
             set_uasmon();
             newsym(u.ux, u.uy);
             retouch_equipment(2); /* silver */
+            monstseesu(M_SEEN_FIRE | M_SEEN_POISON);
             break;
         }
     }
