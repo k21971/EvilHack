@@ -218,6 +218,9 @@ struct obj *otmp;
        exclude food from spawning as 'rotten' */
     if (otmp->oclass == FOOD_CLASS)
         return FALSE;
+    /* exclude candles */
+    if (Is_candle(otmp))
+        return FALSE;
     /* part of a monster's body and produced when it dies */
     if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
         return FALSE;

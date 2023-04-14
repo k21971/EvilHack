@@ -2777,4 +2777,5 @@ The following changes to date are:
 - Fix: no really, fix missing window tiles for new explosion type/color
 - Fix: adjustments to racial abilities
 - Fix: one compile warning, formatting cleanup from last commit
+- Fix: prevent candles from spawning as 'rotted'
 
