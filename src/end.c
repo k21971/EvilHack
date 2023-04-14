@@ -1020,6 +1020,7 @@ int how;
        reducing ulevel below 1, but include this for bulletproofing */
     if (u.ulevel < 1)
         u.ulevel = 1;
+        adjabil(0,1); // since level-draining would have lost them
     uhpmin = max(2 * u.ulevel, 10);
     if (u.uhpmax < uhpmin)
         u.uhpmax = uhpmin;
