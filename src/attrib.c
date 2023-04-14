@@ -116,8 +116,8 @@ static const struct innate {
   orc_abil[] = { { 1, &(HInfravision), "", "" },
                  { 1, &(HPoison_resistance), "", "" },
                  { 0, 0, 0, 0 } },
-  
-  // giants had it FROMFORM---make it FROMRACE like other races
+
+  /* giants had it FROMFORM - make it FROMRACE like other races */
   gia_abil[] = { { 1, &(HInfravision), "", "" },
                  { 1, &(HAggravate_monster), "", "" },
                  { 12, &(HRegeneration), "resilient", "less resilient" },
@@ -142,8 +142,8 @@ static const struct innate {
                  { 12, &(HFlying), "lighter than air", "gravity's pull" },
                  { 0, 0, 0, 0 } },
 
-  // remove drain res and flying---they are FROMFORM
-  // add sick res to remain consistent with previous behavior
+  /* remove drain res and flying - they are FROMFORM.
+     add sick res to remain consistent with previous behavior */
   dem_abil[] = { { 1, &(HInfravision), "", "" },
                  { 1, &(HFire_resistance), "", "" },
                  { 1, &(HPoison_resistance), "", "" },
@@ -778,7 +778,7 @@ long *ability;
 {
     if (!ability)
         return;
-    if (ability == &(HWarning) || ability == &(HSee_invisible) 
+    if (ability == &(HWarning) || ability == &(HSee_invisible)
         || (ability == &(HTelepat) && Blind))
         see_monsters();
 }
@@ -1027,7 +1027,7 @@ int oldlevel, newlevel;
     long prevabil, mask = FROMEXPER;
     /* don't give resistance messages when demon crowning.
      * they aren't given in normal crowning, and you can
-     * e.g. lose and regain warning, so you don't want 
+     * e.g. lose and regain warning, so you don't want
      * messages about that. */
     boolean verbose = !(oldlevel == 0 || newlevel == 0);
 
@@ -1061,8 +1061,8 @@ int oldlevel, newlevel;
     case PM_HUMAN:
         rabil = hum_abil;
         break;
-    // explicitly write these out or else infravision will be FROMFORM
-    // (though ^x will show it as innate)
+    /* explicitly write these out or else infravision will be FROMFORM
+       (though ^x will show it as innate) */
     case PM_DWARF:
         rabil = dwa_abil;
         break;
@@ -1088,7 +1088,7 @@ int oldlevel, newlevel;
         if (!(Race_if(PM_GIANT) && (abil->ability == &HStealth))) {
             if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {
                 /* Abilities gained at level 1 can never be lost
-                 * via level loss, but can be lost by race change via 
+                 * via level loss, but can be lost by race change via
                  * infidel crowning. So, track separately from corpses.
                  */
                 *(abil->ability) |= mask;
@@ -1116,8 +1116,8 @@ int oldlevel, newlevel;
             postadjabil(abil->ability);
         abil++;
     }
-    
-    /* don't lose infidel skill slots when crowning. probably good to have 
+
+    /* don't lose infidel skill slots when crowning. probably good to have
      * the symmetry regardless. (newlevel == 0 should never happen elsewhere,
      * but if it does we probably don't want lost skill slots there either). */
     if (oldlevel > 0 && newlevel > 0) {

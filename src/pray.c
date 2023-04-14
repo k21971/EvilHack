@@ -811,7 +811,7 @@ gcrownu()
     xchar maxint, maxwis;
 #define ok_wep(o) ((o) && ((o)->oclass == WEAPON_CLASS || is_weptool(o)))
 
-    /* Moloch-worshippers get intrinsics from becoming a demon*/
+    /* Moloch-worshippers get intrinsics from becoming a demon */
     if (u.ualign.type != A_NONE) {
         incr_resistance(&HFire_resistance, 100);
         incr_resistance(&HCold_resistance, 100);
@@ -823,7 +823,7 @@ gcrownu()
         this way if infidel (see below) */
         if (!rn2(10))
             HSick_resistance |= FROMOUTSIDE;
-            
+
         monstseesu(M_SEEN_FIRE | M_SEEN_COLD | M_SEEN_ELEC
                    | M_SEEN_SLEEP | M_SEEN_POISON);
     }
@@ -906,7 +906,7 @@ gcrownu()
             unrestrict_weapon_skill(P_TRIDENT);
             P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
             if (Upolyd)
-                rehumanize(); /* return to human/orcish form -- not a demon yet */
+                rehumanize(); /* return to original form -- not a demon yet */
             /* lose ALL old racial abilities */
             adjabil(u.ulevel, 0);
             maxint = urace.attrmax[A_INT];
@@ -918,7 +918,7 @@ gcrownu()
             youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
             /* gain demonic resistances */
             adjabil(0, u.ulevel);
-            // move this line so adjabil doesn't flash e.g. warning on and off
+            /* move this line so adjabil doesn't flash e.g. warning on and off */
             pline1("Wings sprout from your back and you grow a barbed tail!");
             set_uasmon();
             newsym(u.ux, u.uy);
