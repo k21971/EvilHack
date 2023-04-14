@@ -2778,4 +2778,5 @@ The following changes to date are:
 - Fix: adjustments to racial abilities
 - Fix: one compile warning, formatting cleanup from last commit
 - Fix: prevent candles from spawning as 'rotted'
+- Livelog wishes granted exclusively by the Magic 8-Ball
 

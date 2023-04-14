@@ -2421,7 +2421,7 @@ register struct obj *obj;
             pline("Unfortunately, nothing happens.");
             break;
         }
-        makewish();
+        makewish(FALSE);
         break;
     case WAN_ENLIGHTENMENT:
         known = TRUE;
@@ -6253,7 +6253,8 @@ int triesleft;
 }
 
 void
-makewish()
+makewish(eight_ball)
+boolean eight_ball;
 {
     char buf[BUFSZ] = DUMMY;
     char promptbuf[BUFSZ];
@@ -6323,15 +6324,29 @@ makewish()
     }
 
     /* KMH, conduct */
-    if (!u.uconduct.wishes++)
-        livelog_printf(LL_CONDUCT | LL_WISH | (prev_artwish < u.uconduct.wisharti ? LL_ARTIFACT : 0),
-                       "made %s first wish - \"%s\"", uhis(), bufcpy);
-    else if (!prev_artwish && u.uconduct.wisharti) /* arti conduct handled in readobjnam() above */
-        livelog_printf(LL_CONDUCT | LL_WISH | LL_ARTIFACT,
-                       "made %s first artifact wish - \"%s\"", uhis(), bufcpy);
-    else
-        livelog_printf(LL_WISH | (prev_artwish < u.uconduct.wisharti ? LL_ARTIFACT : 0),
-                       "wished for \"%s\"", bufcpy);
+    if (!u.uconduct.wishes++) {
+        if (eight_ball)
+            livelog_printf(LL_CONDUCT | LL_WISH | (prev_artwish < u.uconduct.wisharti ? LL_ARTIFACT : 0),
+                           "made %s first wish - \"%s\" using the Magic 8-Ball", uhis(), bufcpy);
+        else
+            livelog_printf(LL_CONDUCT | LL_WISH | (prev_artwish < u.uconduct.wisharti ? LL_ARTIFACT : 0),
+                           "made %s first wish - \"%s\"", uhis(), bufcpy);
+    } else if (!prev_artwish && u.uconduct.wisharti) {
+        /* arti conduct handled in readobjnam() above */
+        if (eight_ball)
+            livelog_printf(LL_CONDUCT | LL_WISH | LL_ARTIFACT,
+                           "made %s first artifact wish - \"%s\" using the Magic 8-ball", uhis(), bufcpy);
+        else
+            livelog_printf(LL_CONDUCT | LL_WISH | LL_ARTIFACT,
+                           "made %s first artifact wish - \"%s\"", uhis(), bufcpy);
+    } else {
+        if (eight_ball)
+            livelog_printf(LL_WISH | (prev_artwish < u.uconduct.wisharti ? LL_ARTIFACT : 0),
+                           "wished for \"%s\" using the Magic 8-ball", bufcpy);
+        else
+            livelog_printf(LL_WISH | (prev_artwish < u.uconduct.wisharti ? LL_ARTIFACT : 0),
+                           "wished for \"%s\"", bufcpy);
+    }
 
     if (otmp != &zeroobj) {
         const char

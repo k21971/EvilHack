@@ -501,8 +501,8 @@ struct obj **optr;
         switch (chance) {
         case 0:
             pline("The Magic 8-Ball has granted you a wish!");
-            makewish();
-            pline("The Magic 8-Ball winks out of existence, but not before spreading one last rumor.");
+            makewish(TRUE);
+            pline("The Magic 8-Ball winks out of existence.");
             useup(obj); /* one wish is all you get */
             *optr = (struct obj *) 0;
             break;
