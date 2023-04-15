@@ -2780,4 +2780,6 @@ The following changes to date are:
 - Fix: prevent candles from spawning as 'rotted'
 - Livelog wishes granted exclusively by the Magic 8-Ball
 - Encyclopedia entries for latest two forged artifacts
+- Wielding or wearing an object that grants petrification resistance
+  will cure it if in the process of being petrified
 
