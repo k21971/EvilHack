@@ -31,7 +31,9 @@ struct monst *mtmp;
             You_hear("a distant explosion.");
     }
     wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
-    mtmp->mstun = 1;
+    if (!(MON_WEP(mtmp)
+          && MON_WEP(mtmp)->oartifact == ART_TEMPEST))
+        mtmp->mstun = 1;
     damage_mon(mtmp, rnd(15), AD_PHYS);
     if (DEADMONSTER(mtmp)) {
         mondied(mtmp);

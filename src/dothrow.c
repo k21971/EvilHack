@@ -983,7 +983,9 @@ int dx, dy, range;
 
     /* At the very least, debilitate the monster */
     mon->movement = 0;
-    mon->mstun = 1;
+    if (!(MON_WEP(mon)
+          && MON_WEP(mon)->oartifact == ART_TEMPEST))
+        mon->mstun = 1;
 
     /* Is the monster stuck or too heavy to push?
      * (very large monsters have too much inertia, even floaters and flyers)

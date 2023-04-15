@@ -1833,7 +1833,9 @@ int dieroll;
                     mon_nam(mon), ysimple_name(obj),
                     canseemon(mon) ? exclam(tmp) : ".");
                 /* placing this here, because order of events */
-                if (!rn2(10) && P_SKILL(P_SHIELD) >= P_EXPERT) {
+                if (!rn2(10) && P_SKILL(P_SHIELD) >= P_EXPERT
+                    && (!(MON_WEP(mon)
+                          && MON_WEP(mon)->oartifact == ART_TEMPEST))) {
                     if (canspotmon(mon))
                         pline("%s %s from the force of your blow!",
                               Monnam(mon), makeplural(stagger(mdat, "stagger")));

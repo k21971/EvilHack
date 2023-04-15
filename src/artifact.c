@@ -1567,10 +1567,14 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
     }
     /* stun if that was selected and a worse effect didn't occur */
     if (do_stun) {
-        if (youdefend)
-            make_stunned(((HStun & TIMEOUT) + 3L), FALSE);
-        else
-            mdef->mstun = 1;
+        if (youdefend) {
+            if (!wielding_artifact(ART_TEMPEST))
+                make_stunned(((HStun & TIMEOUT) + 3L), FALSE);
+        } else {
+            if (!(MON_WEP(mdef)
+                  && MON_WEP(mdef)->oartifact == ART_TEMPEST))
+                mdef->mstun = 1;
+        }
         /* avoid extra stun message below if we used mb_verb["stun"] above */
         if (attack_indx == MB_INDEX_STUN)
             do_stun = FALSE;
@@ -2157,8 +2161,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
 
     if (attacks(AD_STUN, otmp) && dieroll <= MB_MAX_DIEROLL) {
-        /* Magicbane's special attacks (possibly modifies hittee[]) */
-        return Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis, hittee);
+        if (dieroll <= MB_MAX_DIEROLL)
+            /* Magicbane's special attacks (possibly modifies hittee[]) */
+            return Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis, hittee);
+        else
+            return FALSE;
     }
 
     if (!spec_dbon_applies) {

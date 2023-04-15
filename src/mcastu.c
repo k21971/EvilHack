@@ -799,6 +799,10 @@ int spellnum;
             impossible("no reason for monster to cast disappear spell?");
         break;
     case MGC_STUN_YOU:
+        if (wielding_artifact(ART_TEMPEST)) {
+            You_feel("a slight itch.");
+            break; /* no effect */
+        }
         if (Antimagic || Free_action || Hidinshell) {
             shieldeff(u.ux, u.uy);
             if (!Stunned)
@@ -2180,7 +2184,8 @@ int spellnum;
         }
         if (resist(mtmp, 0, 0, FALSE)) {
             shieldeff(mtmp->mx, mtmp->my);
-            if (yours || canseemon(mtmp))
+            if (yours || canseemon(mtmp)
+                || (MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact == ART_TEMPEST))
                 pline("%s seems momentarily disoriented.", Monnam(mtmp));
         } else {
             if (yours || canseemon(mtmp)) {

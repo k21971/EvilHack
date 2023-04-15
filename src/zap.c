@@ -1192,7 +1192,7 @@ unturn_you()
 {
     (void) unturn_dead(&youmonst); /* hit carried corpses and eggs */
 
-    if (is_undead(youmonst.data)) {
+    if (is_undead(youmonst.data) && !wielding_artifact(ART_TEMPEST)) {
         You_feel("frightened and %sstunned.", Stunned ? "even more " : "");
         make_stunned((HStun & TIMEOUT) + (long) rnd(30), FALSE);
     } else {
@@ -2649,7 +2649,8 @@ boolean ordinary;
                 ugolemeffects(AD_PSYC, d(2, 6));
             } else {
                 You("assault your own mind!");
-                make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
+                if (!wielding_artifact(ART_TEMPEST))
+                    make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
                 if (u.ulevel >= 26)
                     damage = d(4, 6);
                 else

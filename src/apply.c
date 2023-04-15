@@ -2135,7 +2135,10 @@ struct obj *obj;
             make_confused((HConfusion & TIMEOUT) + lcount, TRUE);
             break;
         case 3:
-            make_stunned((HStun & TIMEOUT) + lcount, TRUE);
+            if (!wielding_artifact(ART_TEMPEST))
+                make_stunned((HStun & TIMEOUT) + lcount, TRUE);
+            else
+                You_feel("a slight itch.");
             break;
         case 4:
             if (Vomiting)

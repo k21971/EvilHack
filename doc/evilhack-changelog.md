@@ -2782,4 +2782,5 @@ The following changes to date are:
 - Encyclopedia entries for latest two forged artifacts
 - Wielding or wearing an object that grants petrification resistance
   will cure it if in the process of being petrified
+- Fix: some Tempest tweaks and fixes
 

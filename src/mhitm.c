@@ -1589,8 +1589,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             break;
         }
 
-        if (!mdef->mstun)
-            mdef->mstun = 1;
+        if (!mdef->mstun) {
+            if (!mon_tempest_wield)
+                mdef->mstun = 1;
+        }
 
         if (!rn2(6))
             erode_armor(mdef, ERODE_FRACTURE);
