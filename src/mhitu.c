@@ -1488,11 +1488,11 @@ register struct attack *mattk;
                         make_stunned((HStun & TIMEOUT) + (long) rnd(2) + 1, TRUE);
                 }
             }
-	    if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
+            if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
                 || mtmp->data == &mons[PM_BABY_SEA_DRAGON]
                 || mtmp->data == &mons[PM_SEA_DRAGON])
-		goto do_rust;
-	}
+                goto do_rust;
+        }
         break;
     case AD_DISE:
         hitmsg(mtmp, mattk);

@@ -2783,4 +2783,6 @@ The following changes to date are:
 - Wielding or wearing an object that grants petrification resistance
   will cure it if in the process of being petrified
 - Fix: some Tempest tweaks and fixes
+- Defending against cancellation odds adjusted when wearing gray
+  dragon-scaled armor
 
