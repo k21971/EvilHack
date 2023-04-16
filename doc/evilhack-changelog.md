@@ -2786,4 +2786,5 @@ The following changes to date are:
 - Defending against cancellation odds adjusted when wearing gray
   dragon-scaled armor
 - Fix: various monsters movement speed while underwater
+- Don't drop aklys on the floor due to slippery fingers
 

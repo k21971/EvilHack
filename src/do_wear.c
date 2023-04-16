@@ -2919,7 +2919,9 @@ glibr()
             dropx(otmp);
     }
     otmp = uwep;
-    if (otmp && !welded(otmp)) {
+    if (otmp && otmp->otyp != AKLYS
+        && otmp->oartifact != ART_HAMMER_OF_THE_GODS
+        && !welded(otmp)) {
         long savequan = otmp->quan;
 
         /* nice wording if both weapons are the same type.
