@@ -2787,4 +2787,5 @@ The following changes to date are:
   dragon-scaled armor
 - Fix: various monsters movement speed while underwater
 - Don't drop aklys on the floor due to slippery fingers
+- Wand of speed gives player temporary speed and potion gives intrinsic
 
