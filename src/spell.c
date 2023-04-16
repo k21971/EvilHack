@@ -915,15 +915,18 @@ int spell;
     case 5:
     case 6:
         make_confused(old_conf + 2L * duration / 3L, FALSE); /* 30% */
-        make_stunned(old_stun + duration / 3L, FALSE);
+        if (!wielding_artifact(ART_TEMPEST))
+            make_stunned(old_stun + duration / 3L, FALSE);
         break;
     case 7:
     case 8:
-        make_stunned(old_stun + 2L * duration / 3L, FALSE); /* 20% */
+        if (!wielding_artifact(ART_TEMPEST))
+            make_stunned(old_stun + 2L * duration / 3L, FALSE); /* 20% */
         make_confused(old_conf + duration / 3L, FALSE);
         break;
     case 9:
-        make_stunned(old_stun + duration, FALSE); /* 10% */
+        if (!wielding_artifact(ART_TEMPEST))
+            make_stunned(old_stun + duration, FALSE); /* 10% */
         break;
     }
     return;

@@ -1085,21 +1085,14 @@ register struct obj *otmp;
         }
         /* FALLTHRU */
     case SPE_HASTE_SELF:
-        /* will fix intrinsic 'slow' */
-        if (Slow) {
-            HSlow = 0;
-            if (!ESlow) {
-                You("no longer feel sluggish.");
-            }
+        speed_up(rn1(10, 100 + 60 * bcsign(otmp)));
+
+        /* non-cursed potion grants intrinsic speed */
+        if (otmp->otyp == POT_SPEED
+            && !otmp->cursed && !(HFast & INTRINSIC)) {
+            Your("quickness feels very natural.");
+            HFast |= FROMOUTSIDE;
         }
-        if (!Very_fast && !Slow) { /* wwf@doe.carleton.ca */
-            You("are suddenly moving %sfaster.", Fast ? "" : "much ");
-        } else if (!Slow) {
-            Your("%s get new energy.", makeplural(body_part(LEG)));
-            unkn++;
-        }
-        exercise(A_DEX, TRUE);
-        incr_itimeout(&HFast, rn1(otmp->odiluted ? 5 : 10, 100 + 60 * bcsign(otmp)));
         break;
     case POT_BLINDNESS:
         if (Blind)
@@ -2798,6 +2791,28 @@ struct monst *mon,  /* monster being split */
         }
     }
     return mtmp2;
+}
+
+/* Character becomes very fast temporarily. */
+void
+speed_up(duration)
+long duration;
+{
+    /* will fix intrinsic 'slow' */
+    if (Slow) {
+        HSlow = 0;
+        if (!ESlow)
+            You("no longer feel sluggish.");
+    }
+
+    if (!Very_fast && !Slow) {
+        You("are suddenly moving %sfaster.", Fast ? "" : "much ");
+    } else if (!Slow) {
+        Your("%s get new energy.", makeplural(body_part(LEG)));
+    }
+
+    exercise(A_DEX, TRUE);
+    incr_itimeout(&HFast, duration);
 }
 
 /*potion.c*/

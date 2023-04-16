@@ -5835,6 +5835,10 @@ boolean disarm;
                       the(xname(obj)));
             }
             if (yours) {
+                if (wielding_artifact(ART_TEMPEST)) {
+                    You_feel("a slight itch.");
+                    break;
+                }
                 if (!Stunned) {
                     if (Hallucination)
                         pline("What a groovy feeling!");
@@ -6093,7 +6097,8 @@ int bodypart;
     exercise(A_STR, FALSE);
     if (bodypart)
         exercise(A_CON, FALSE);
-    make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+    if (!wielding_artifact(ART_TEMPEST))
+        make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
 }
 
 /* Monster is hit by trap. */

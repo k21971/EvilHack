@@ -1483,14 +1483,16 @@ register struct attack *mattk;
                       u.usteed ? "out of your saddle" : "back",
                       rn2(2) ? "forceful" : "powerful", rn2(2) ? "blow" : "strike");
                 hurtle(u.ux - mtmp->mx, u.uy - mtmp->my, rnd(2), FALSE);
-                if (!rn2(4))
-                    make_stunned((HStun & TIMEOUT) + (long) rnd(2) + 1, TRUE);
+                if (!rn2(4)) {
+                    if (!wielding_artifact(ART_TEMPEST))
+                        make_stunned((HStun & TIMEOUT) + (long) rnd(2) + 1, TRUE);
+                }
             }
-	    if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
+            if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
                 || mtmp->data == &mons[PM_BABY_SEA_DRAGON]
                 || mtmp->data == &mons[PM_SEA_DRAGON])
-		goto do_rust;
-	}
+                goto do_rust;
+        }
         break;
     case AD_DISE:
         hitmsg(mtmp, mattk);
@@ -2412,7 +2414,8 @@ do_rust:
 
     /* player monster monks can sometimes stun with their kick attack */
     if (mattk->aatyp == AT_KICK && mdat == &mons[PM_MONK]
-        && !rn2(10) && youmonst.data->msize < MZ_HUGE) {
+        && !wielding_artifact(ART_TEMPEST) && !rn2(10)
+        && youmonst.data->msize < MZ_HUGE) {
         You("reel from %s powerful kick!", s_suffix(mon_nam(mtmp)));
         make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
         dmg /= 2;
@@ -3014,6 +3017,10 @@ struct attack *mattk;
                    && Dragon_armor_to_scales(uarm) == CELESTIAL_DRAGON_SCALES) {
             pline("Your armor negates the lethal sonic assault.");
             break;
+        } else if (wielding_artifact(ART_TEMPEST)) {
+            You("are unaffected by %s scream.",
+                s_suffix(mon_nam(mtmp)));
+            break;
         } else {
             if (!Stunned)
                 Your("mind reels from the noise!");
@@ -3217,9 +3224,9 @@ struct attack *mattk;
                           An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
                 break;
             } else if (wielding_artifact(ART_TEMPEST)) {
-                You("are unaffected by %s stunning gaze.",
-                    s_suffix(mon_nam(mtmp)));
-                ; /* immune */
+                if (!rn2(4))
+                    You("are unaffected by %s stunning gaze.",
+                        s_suffix(mon_nam(mtmp)));
                 break;
             } else {
                 int stun = d(2, 6);
@@ -4009,6 +4016,8 @@ struct attack *mattk;
 {
     int i, tmp;
     struct attack *oldu_mattk = 0;
+    boolean mon_tempest_wield = (MON_WEP(mtmp)
+                                 && MON_WEP(mtmp)->oartifact == ART_TEMPEST);
 
     if (uarm && Is_dragon_scaled_armor(uarm)) {
         int otyp = Dragon_armor_to_scales(uarm);
@@ -4435,7 +4444,7 @@ struct attack *mattk;
                 (void) split_mon(&youmonst, mtmp);
             break;
         case AD_STUN: /* Yellow mold */
-            if (wielding_artifact(ART_TEMPEST)) {
+            if (mon_tempest_wield) {
                 ; /* immune */
                 break;
             }

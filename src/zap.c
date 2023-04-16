@@ -1192,7 +1192,7 @@ unturn_you()
 {
     (void) unturn_dead(&youmonst); /* hit carried corpses and eggs */
 
-    if (is_undead(youmonst.data)) {
+    if (is_undead(youmonst.data) && !wielding_artifact(ART_TEMPEST)) {
         You_feel("frightened and %sstunned.", Stunned ? "even more " : "");
         make_stunned((HStun & TIMEOUT) + (long) rnd(30), FALSE);
     } else {
@@ -2649,7 +2649,8 @@ boolean ordinary;
                 ugolemeffects(AD_PSYC, d(2, 6));
             } else {
                 You("assault your own mind!");
-                make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
+                if (!wielding_artifact(ART_TEMPEST))
+                    make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
                 if (u.ulevel >= 26)
                     damage = d(4, 6);
                 else
@@ -2740,19 +2741,9 @@ boolean ordinary;
     }
 
     case WAN_SPEED_MONSTER:
-        if (!(HFast & INTRINSIC)) {
-            learn_it = TRUE;
-            if (!Fast && !Slow)
-                You("speed up.");
-            else if (!Slow)
-                Your("quickness feels more natural.");
-            } else if (Slow) {
-                HSlow = 0;
-                if (!ESlow)
-                    You("no longer feel sluggish.");
-            }
-        exercise(A_DEX, TRUE);
-        HFast |= FROMOUTSIDE;
+        /* no longer gives intrinsic, but gives very fast speed instead */
+        speed_up(rn1(25, 50));
+        learn_it = TRUE;
         break;
 
     case WAN_SLEEP:
@@ -3115,7 +3106,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
         /* player attacking monster */
         if (youattack) {
-            if (rn2(5)
+            if (rn2(10)
                 && (otmp = which_armor(mdef, W_ARM))
                 && Is_dragon_scaled_armor(otmp)
                 && Dragon_armor_to_scales(otmp) == GRAY_DRAGON_SCALES) {
@@ -3152,7 +3143,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
         /* monster attacking player */
         if (youdefend) {
-            if (rn2(5) && uarm
+            if (rn2(10) && uarm
                 && Is_dragon_scaled_armor(uarm)
                 && Dragon_armor_to_scales(uarm)== GRAY_DRAGON_SCALES) {
                 shieldeff(u.ux, u.uy);
@@ -3181,7 +3172,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
 
         /* monster attacking another monster */
         if (!youdefend && !youattack) {
-            if (rn2(5)
+            if (rn2(10)
                 && (otmp = which_armor(mdef, W_ARM))
                 && Is_dragon_scaled_armor(otmp)
                 && Dragon_armor_to_scales(otmp) == GRAY_DRAGON_SCALES) {

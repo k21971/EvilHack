@@ -2159,6 +2159,7 @@ E void FDECL(mongrantswish, (struct monst **));
 E void FDECL(djinni_from_bottle, (struct obj *));
 E struct monst *FDECL(split_mon, (struct monst *, struct monst *));
 E const char *NDECL(bottlename);
+E void FDECL(speed_up, (long));
 
 /* ### pray.c ### */
 

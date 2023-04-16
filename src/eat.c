@@ -1187,10 +1187,12 @@ int pm;
         /*FALLTHRU*/
     case PM_YELLOW_LIGHT:
     case PM_GIANT_BAT:
-        make_stunned((HStun & TIMEOUT) + 30L, FALSE);
+        if (!wielding_artifact(ART_TEMPEST))
+            make_stunned((HStun & TIMEOUT) + 30L, FALSE);
         /*FALLTHRU*/
     case PM_BAT:
-        make_stunned((HStun & TIMEOUT) + 30L, FALSE);
+        if (!wielding_artifact(ART_TEMPEST))
+            make_stunned((HStun & TIMEOUT) + 30L, FALSE);
         break;
     case PM_GIANT_MIMIC:
         tmp += 10;

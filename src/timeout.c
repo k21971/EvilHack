@@ -210,7 +210,8 @@ vomiting_dialogue()
         txt = vomiting_texts[1];
         break;
     case 6:
-        make_stunned((HStun & TIMEOUT) + (long) d(2, 4), FALSE);
+        if (!wielding_artifact(ART_TEMPEST))
+            make_stunned((HStun & TIMEOUT) + (long) d(2, 4), FALSE);
         if (!Popeye(VOMITING))
             stop_occupation();
     /*FALLTHRU*/
