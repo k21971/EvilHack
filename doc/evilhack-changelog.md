@@ -2785,4 +2785,5 @@ The following changes to date are:
 - Fix: some Tempest tweaks and fixes
 - Defending against cancellation odds adjusted when wearing gray
   dragon-scaled armor
+- Fix: various monsters movement speed while underwater
 
