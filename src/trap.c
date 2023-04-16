@@ -3916,17 +3916,18 @@ xchar x, y;
     int in_sight = !Blind && couldsee(x, y); /* Don't care if it's lit */
     int dindx;
 
-    if (is_flammable(obj) && obj->oerodeproof)
-        return FALSE;
-
-    /* Container might be made of a material that isn't flammable.
-       The line below technically protects any container made of plastic,
-       but that currently isn't possible. We'll let it slide for now */
-    if (Is_container(obj) && obj->material >= DRAGON_HIDE)
-        return FALSE;
-
     /* object might light in a controlled manner */
     if (catch_lit(obj))
+        return FALSE;
+    
+    /* special BotD feedback - should it be the "dark red" message?*/
+    if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+            if (in_sight)
+                pline("Smoke rises from %s.", the(xname(obj)));
+            return FALSE;
+    }
+
+    if (!is_flammable(obj) || obj->oerodeproof)
         return FALSE;
 
     if (Is_container(obj)) {
@@ -3945,8 +3946,7 @@ xchar x, y;
             chance = 20;
             break;
         }
-        if ((!force && (Luck + 5) > rn2(chance))
-            || (is_flammable(obj) && obj->oerodeproof))
+        if (!force && (Luck + 5) > rn2(chance))
             return FALSE;
         /* Container is burnt up - dump contents out */
         if (in_sight)
@@ -3972,13 +3972,6 @@ xchar x, y;
           */
         return FALSE;
     } else if (obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS) {
-        if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL)
-            return FALSE;
-        if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
-            if (in_sight)
-                pline("Smoke rises from %s.", the(xname(obj)));
-            return FALSE;
-        }
         dindx = (obj->oclass == SCROLL_CLASS) ? 3 : 4;
         if (in_sight)
             pline("%s %s.", Yname2(obj),
@@ -4051,10 +4044,7 @@ xchar x, y;
        and books--let fire damage deal with them), cloth, leather, wood, bone
        unless it's inherently or explicitly fireproof or contains something;
        note: potions are glass so fall through to fire_damage() and boil */
-    if (obj->material < DRAGON_HIDE
-        && ocls != SCROLL_CLASS && ocls != SPBOOK_CLASS
-        && objects[otyp].oc_oprop != FIRE_RES
-        && otyp != WAN_FIRE && otyp != FIRE_HORN
+    if (is_flammable(obj)
         /* assumes oerodeproof isn't overloaded for some other purpose on
            non-eroding items */
         && !obj->oerodeproof
@@ -4079,10 +4069,11 @@ xchar x, y;
                     losehp(resist_reduce(d(2, 6), FIRE_RES),
                            "dipping a worn object into a forge", KILLED_BY);
                 }
-                pline_The("molten lava in the forge incinerates the %s.",
-                          xname(obj));
+                /* use the() to properly handle artifacts */
+                pline_The("molten lava in the forge incinerates %s.",
+                          the(xname(obj)));
             } else
-                You_see("%s hit lava and burn up!", doname(obj));
+                You_see("%s hit lava and burn up!", the(xname(obj)));
         }
         if (carried(obj)) { /* shouldn't happen */
             remove_worn_item(obj, TRUE);
