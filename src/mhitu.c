@@ -4415,14 +4415,24 @@ struct attack *mattk;
                         if (mon_reflects(mtmp,
                                          "Your gaze is reflected by %s %s."))
                             return 1;
-                        pline("%s is frozen by your gaze!", Monnam(mtmp));
-                        paralyze_monst(mtmp, tmp);
+                        if (has_free_action(mtmp)) {
+                            pline("%s stiffens momentarily.", Monnam(mtmp));
+                            return 1;
+                        } else {
+                            pline("%s is frozen by your gaze!", Monnam(mtmp));
+                            paralyze_monst(mtmp, tmp);
+                        }
                         return 3;
                     }
                 }
             } else { /* gelatinous cube */
-                pline("%s is frozen by you.", Monnam(mtmp));
-                paralyze_monst(mtmp, tmp);
+                if (has_free_action(mtmp)) {
+                    pline("%s stiffens momentarily.", Monnam(mtmp));
+                    return 1;
+                } else {
+                    pline("%s is frozen by you.", Monnam(mtmp));
+                    paralyze_monst(mtmp, tmp);
+                }
                 return 3;
             }
             return 1;

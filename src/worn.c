@@ -450,6 +450,9 @@ boolean on, silently;
             if (!unseen)
                 pline("%s starts to float in the air!", Monnam(mon));
             break;
+        case FREE_ACTION:
+            mon->mextrinsics |= MR2_FREE_ACTION;
+            break;
         /* properties handled elsewhere */
         case ANTIMAGIC:
         case REFLECTING:
@@ -515,6 +518,9 @@ boolean on, silently;
             if (!unseen)
                 pline("%s floats gently back to the %s.",
                       Monnam(mon), surface(mon->mx, mon->my));
+            break;
+        case FREE_ACTION:
+            mon->mextrinsics &= ~(MR2_FREE_ACTION);
             break;
         case FIRE_RES:
         case COLD_RES:
@@ -896,7 +902,8 @@ boolean racialexception;
                     && obj->otyp != RIN_INCREASE_DAMAGE
                     && obj->otyp != RIN_INCREASE_ACCURACY
                     && obj->otyp != RIN_PROTECTION
-                    && obj->otyp != RIN_LEVITATION))
+                    && obj->otyp != RIN_LEVITATION
+                    && obj->otyp != RIN_FREE_ACTION))
                 continue;
             if (mon->data == &mons[PM_NAZGUL]
                 && obj->otyp == RIN_INVISIBILITY)
@@ -1364,6 +1371,9 @@ struct obj *obj;
     if (obj_has_prop(obj, DISPLACED)
         && !has_displacement(mon))
         return 30;
+    if (obj_has_prop(obj, FREE_ACTION)
+        && !has_free_action(mon))
+        return 30;
     if (obj_has_prop(obj, FAST)
         && mon->permspeed != MFAST)
         return 20;
@@ -1453,6 +1463,9 @@ struct obj *obj;
         break;
     case RIN_LEVITATION:
         rc = grounded(mon->data) ? 20 : 0;
+        break;
+    case RIN_FREE_ACTION:
+        rc = 30;
         break;
     }
     old = which_armor(mon, W_RINGL);

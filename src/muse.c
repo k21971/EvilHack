@@ -135,9 +135,15 @@ struct obj *obj;
                               mon_nam(mon),
                               Hallucination ? rndmonnam(NULL)
                                             : (const char *) "ghost");
-                        pline("%s is frightened to death, and unable to move.",
-                              Monnam(mon));
+                        if (has_free_action(mon)) {
+                            pline("%s stiffens momentarily.", Monnam(mon));
+                        } else {
+                            pline("%s is frightened to death, and unable to move.",
+                                  Monnam(mon));
+                        }
                     }
+                    if (has_free_action(mon))
+                        return 0;
                     paralyze_monst(mon, 3);
                 }
                 return 2;
@@ -3570,6 +3576,8 @@ struct obj *obj;
             return (!mon_prop(mon, REGENERATION));
         if (typ == RIN_LEVITATION)
             return (grounded(mon->data));
+        if (typ == RIN_FREE_ACTION)
+            return TRUE;
         /* Below this line are off-limits to uniques */
         if (mon->data->geno & G_UNIQ)
             return (FALSE);

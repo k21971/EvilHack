@@ -2792,4 +2792,5 @@ The following changes to date are:
 - Consolidate some fire_ and lava_damage() code, and make fiery items
   fireproof
 - Fix: two compile warnings, a bit of formatting cleanup from last commit
+- Monsters can utilize free action
 

@@ -1809,7 +1809,10 @@ int how;
             }
             break;
         case POT_PARALYSIS:
-            if (mon->mcanmove) {
+            if (has_free_action(mon)) {
+                pline("%s stiffens momentarily.", Monnam(mon));
+                break;
+            } else if (mon->mcanmove) {
                 /* really should be rnd(5) for consistency with players
                  * breathing potions, but...
                  */

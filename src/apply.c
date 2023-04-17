@@ -1057,10 +1057,22 @@ struct obj *obj;
         int tmp = d((int) mtmp->m_lev, (int) mtmp->data->mattk[0].damd);
         if (!rn2(4))
             tmp = 120;
-        if (vis)
-            pline("%s is frozen by its reflection.", Monnam(mtmp));
-        else
-            You_hear("%s stop moving.", something);
+        if (vis) {
+            /* currently the only way a monster can obtain free action
+               is by wearing a magical object that grants it. Floating
+               eyes can't wear anything, but we'll future-proof this
+               now in case other sources of free action are added */
+            if (has_free_action(mtmp)) {
+                pline("%s stiffens momentarily.", Monnam(mtmp));
+            } else {
+                pline("%s is frozen by its reflection.", Monnam(mtmp));
+            }
+        } else {
+            if (!has_free_action(mtmp))
+                You_hear("%s stop moving.", something);
+        }
+        if (has_free_action(mtmp))
+            return 1;
         paralyze_monst(mtmp, (int) mtmp->mfrozen + tmp);
     } else if (monable && !mtmp->mcan && !mtmp->minvis
 	       && mtmp->data == &mons[PM_MAGICAL_EYE]) {

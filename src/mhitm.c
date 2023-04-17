@@ -1803,8 +1803,14 @@ post_stone:
         if (!cancelled && mdef->mcanmove) {
             if (vis && canspotmon(mdef)) {
                 Strcpy(buf, Monnam(mdef));
-                pline("%s is frozen by %s.", buf, mon_nam(magr));
+                if (has_free_action(mdef)) {
+                    pline("%s stiffens momentarily.", Monnam(mdef));
+                } else {
+                    pline("%s is frozen by %s.", buf, mon_nam(magr));
+                }
             }
+            if (has_free_action(mdef))
+                break;
             paralyze_monst(mdef, rnd(10));
         }
         break;
@@ -2936,16 +2942,30 @@ struct obj *mwep;
                                      canseemon(magr) ? buf : (char *) 0))
                         return (mdead | mhit);
                     Strcpy(buf, Monnam(magr));
-                    if (canseemon(magr))
-                        pline("%s is frozen by %s gaze!", buf,
-                              s_suffix(mon_nam(mdef)));
+                    if (canseemon(magr)) {
+                        if (has_free_action(magr)) {
+                            pline("%s stiffens momentarily.", Monnam(magr));
+                        } else {
+                            pline("%s is frozen by %s gaze!", buf,
+                                  s_suffix(mon_nam(mdef)));
+                        }
+                    }
+                    if (has_free_action(magr))
+                        return 1;
                     paralyze_monst(magr, tmp);
                     return (mdead | mhit);
                 }
             } else { /* gelatinous cube */
                 Strcpy(buf, Monnam(magr));
-                if (canseemon(magr))
-                    pline("%s is frozen by %s.", buf, mon_nam(mdef));
+                if (canseemon(magr)) {
+                    if (has_free_action(magr)) {
+                        pline("%s stiffens momentarily.", Monnam(magr));
+                    } else {
+                        pline("%s is frozen by %s.", buf, mon_nam(mdef));
+                    }
+                }
+                if (has_free_action(magr))
+                    return 1;
                 paralyze_monst(magr, tmp);
                 return (mdead | mhit);
             }

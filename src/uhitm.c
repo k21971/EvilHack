@@ -3033,8 +3033,15 @@ do_rust:
         break;
     case AD_PLYS:
         if (!negated && mdef->mcanmove && !rn2(3) && tmp < mdef->mhp) {
-            if (!Blind)
-                pline("%s is frozen by you!", Monnam(mdef));
+            if (!Blind) {
+                if (has_free_action(mdef)) {
+                    pline("%s stiffens momentarily.", Monnam(mdef));
+                } else {
+                    pline("%s is frozen by you!", Monnam(mdef));
+                }
+            }
+            if (has_free_action(mdef))
+                break;
             paralyze_monst(mdef, rnd(10));
         }
         break;
