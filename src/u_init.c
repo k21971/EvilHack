@@ -608,7 +608,7 @@ static const struct def_skill Skill_T[] = {
     { P_ENCHANTMENT_SPELL, P_BASIC },
     { P_ESCAPE_SPELL, P_SKILLED },
     { P_RIDING, P_BASIC },
-    { P_TWO_WEAPON_COMBAT, P_BASIC },
+    { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_SKILLED },
     { P_SHIELD, P_BASIC },
     { P_NONE, 0 }

@@ -2794,4 +2794,5 @@ The following changes to date are:
 - Fix: two compile warnings, a bit of formatting cleanup from last commit
 - Monsters can utilize free action
 - Fix: objects being created with materials they shouldn't have
+- Restore Tourists skill in twoweaponing to 'skilled'
 
