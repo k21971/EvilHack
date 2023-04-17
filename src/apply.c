@@ -3071,9 +3071,9 @@ struct obj *obj;
 
     } else if (u.dz < 0) {
         /* ~Grammar~ */
-        const char *ceil_prep = (ceiling(u.ux, u.uy) == "sky"
-                                 || ceiling(u.ux, u.uy) == "water above") ?
-                                "out" : "off";
+        const char *ceil_prep = (!strncmpi(ceiling(u.ux, u.uy), "sky", 3)
+                                 || !strncmpi(ceiling(u.ux, u.uy), "water above", 11))
+                                ? "out" : "off";
         You("flick a bug %s of the %s.", ceil_prep, ceiling(u.ux, u.uy));
 
     } else if ((!u.dx && !u.dy) || (u.dz > 0)) {
@@ -3091,10 +3091,11 @@ struct obj *obj;
         if (Levitation || Flying || u.usteed || !grounded(youmonst.data)
             || (Wwalking && (is_pool_or_lava(u.ux, u.uy)))) {
             /* bullwhips and lava don't mix (usually) */
-            if (is_lava(u.ux, u.uy))
-                // lava_damage() gives feedback which works surprisingly well
+            if (is_lava(u.ux, u.uy)) {
+                /* lava_damage() gives feedback which works surprisingly well */
                 if (lava_damage(obj, u.ux, u.uy))
                     return 0;
+            }
 
             /* try to grab something */
             otmp = level.objects[u.ux][u.uy];

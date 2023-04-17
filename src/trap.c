@@ -3919,12 +3919,12 @@ xchar x, y;
     /* object might light in a controlled manner */
     if (catch_lit(obj))
         return FALSE;
-    
+
     /* special BotD feedback - should it be the "dark red" message?*/
     if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
-            if (in_sight)
-                pline("Smoke rises from %s.", the(xname(obj)));
-            return FALSE;
+        if (in_sight)
+            pline("Smoke rises from %s.", the(xname(obj)));
+        return FALSE;
     }
 
     if (!is_flammable(obj) || obj->oerodeproof)
@@ -4029,8 +4029,7 @@ lava_damage(obj, x, y)
 struct obj *obj;
 xchar x, y;
 {
-    int otyp = obj->otyp, ocls = obj->oclass,
-        oart = obj->oartifact;
+    int otyp = obj->otyp, oart = obj->oartifact;
 
     /* the Amulet, invocation items, and Rider corpses are never destroyed
        (let Book of the Dead fall through to fire_damage() to get feedback) */
