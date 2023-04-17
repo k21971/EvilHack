@@ -2793,4 +2793,5 @@ The following changes to date are:
   fireproof
 - Fix: two compile warnings, a bit of formatting cleanup from last commit
 - Monsters can utilize free action
+- Fix: objects being created with materials they shouldn't have
 

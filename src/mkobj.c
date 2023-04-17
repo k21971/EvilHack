@@ -3495,6 +3495,7 @@ struct obj* obj;
         case STAFF_OF_MATTER:
         case STAFF_OF_ESCAPE:
         case STAFF_OF_WAR:
+        case ASHWOOD_STAFF:
         case GRAPPLING_HOOK:
         case IRON_SAFE:
         case CRYSTAL_CHEST:
@@ -3507,6 +3508,7 @@ struct obj* obj;
         case LEASH:
         case SADDLE:
         case TINNING_KIT:
+        case MUMMY_WRAPPING:
         case AMULET_OF_YENDOR:
         case FAKE_AMULET_OF_YENDOR:
             return NULL;
