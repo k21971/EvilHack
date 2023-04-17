@@ -2006,7 +2006,17 @@ register struct obj *otmp;
         || otmp->oartifact == ART_HAND_OF_VECNA)
         return FALSE;
 
-    if (objects[otyp].oc_oprop == FIRE_RES || otyp == WAN_FIRE)
+    /* fire-related items are immune*/
+    if (objects[otyp].oc_oprop == FIRE_RES || otyp == WAN_FIRE
+        || otyp == SCR_FIRE || otyp == SPE_FIREBALL || otyp == FIRE_HORN)
+        return FALSE;
+    else if (attacks(AD_FIRE, otmp) || defends(AD_FIRE, otmp))
+        return FALSE;
+    /* weapons of fire are handled above; armor is not*/
+    else if (otmp->oprops  && otmp->oprops & ITEM_FIRE)
+        return FALSE;
+
+    if (otyp == SPE_BOOK_OF_THE_DEAD)
         return FALSE;
 
     return (boolean) ((omat <= BONE && omat != LIQUID) || omat == PLASTIC);

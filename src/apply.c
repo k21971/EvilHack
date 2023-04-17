@@ -3070,7 +3070,11 @@ struct obj *obj;
         There("is too much resistance to flick your bullwhip.");
 
     } else if (u.dz < 0) {
-        You("flick a bug off of the %s.", ceiling(u.ux, u.uy));
+        /* ~Grammar~ */
+        const char *ceil_prep = (ceiling(u.ux, u.uy) == "sky"
+                                 || ceiling(u.ux, u.uy) == "water above") ?
+                                "out" : "off";
+        You("flick a bug %s of the %s.", ceil_prep, ceiling(u.ux, u.uy));
 
     } else if ((!u.dx && !u.dy) || (u.dz > 0)) {
         int dam;
@@ -3081,16 +3085,30 @@ struct obj *obj;
             kick_steed();
             return 1;
         }
-        if (Levitation || u.usteed) {
-            /* Have a shot at snaring something on the floor */
+        /* arguably this whole if statement should be done away with.
+         * why shouldn't you be able to pick up something when you're
+         * just standing on the square? */
+        if (Levitation || Flying || u.usteed || !grounded(youmonst.data)
+            || (Wwalking && (is_pool_or_lava(u.ux, u.uy)))) {
+            /* bullwhips and lava don't mix (usually) */
+            if (is_lava(u.ux, u.uy))
+                // lava_damage() gives feedback which works surprisingly well
+                if (lava_damage(obj, u.ux, u.uy))
+                    return 0;
+
+            /* try to grab something */
             otmp = level.objects[u.ux][u.uy];
             if (otmp && otmp->otyp == CORPSE && otmp->corpsenm == PM_HORSE) {
                 pline("Why beat a dead horse?");
                 return 1;
             }
             if (otmp && proficient) {
-                You("wrap your bullwhip around %s on the %s.",
-                    an(singular(otmp, xname)), surface(u.ux, u.uy));
+                /* objects lie *in* water, lava, or sewage. 'on the fountain'
+                 * sounds a bit weird, but the object isn't in the fountain,
+                 * or else it would be wet. */
+                const char *surf_prep = is_damp_terrain(u.ux, u.uy) ? "in" : "on";
+                You("wrap your bullwhip around %s %s the %s.",
+                    an(singular(otmp, xname)), surf_prep, surface(u.ux, u.uy));
                 if (rnl(6) || pickup_object(otmp, 1L, TRUE) < 1)
                     pline1(msg_slipsfree);
                 return 1;
