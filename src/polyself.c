@@ -100,6 +100,17 @@ set_uasmon()
     PROPSET(REFLECTING, (mdat == &mons[PM_SILVER_DRAGON]));
 #undef PROPSET
 
+    /* Nonliving monsters are immune to withering.
+     * This could use is_fleshy(), but that would
+     * make a large set of monsters immune like
+     * fungus, blobs, and jellies.
+     * TODO: make is_vampshifter actually work for youmonst, and include that. */
+    if (nonliving(mdat))
+        BWithering |= FROMFORM;
+    else
+        BWithering &= ~FROMFORM;
+    /* context.botl = TRUE happens in the next line. */
+
     float_vs_flight(); /* maybe toggle (BFlying & I_SPECIAL) */
     polysense();
 
@@ -412,7 +423,7 @@ polyself(psflags)
 int psflags;
 {
     char buf[BUFSZ] = DUMMY;
-    int old_light, new_light, mntmp, class, tryct;
+    int old_wither, new_wither, old_light, new_light, mntmp, class, tryct;
     boolean forcecontrol = (psflags == 1), monsterpoly = (psflags == 2),
             draconian = (!uskin && armor_to_dragon(&youmonst) != NON_PM),
             /* psflags = 4: enchanting dragon scales while confused; polycontrol
@@ -438,6 +449,7 @@ int psflags;
         }
     }
     old_light = emits_light(youmonst.data);
+    old_wither = Withering;
     mntmp = NON_PM;
 
     if (Hidinshell)
@@ -635,6 +647,19 @@ made_change:
         if (new_light)
             new_light_source(u.ux, u.uy, new_light, LS_MONSTER,
                              monst_to_any(&youmonst));
+    }
+    new_wither = Withering;
+    if (old_wither && !new_wither) {
+        You("are no longer withering away.");
+        /* Currently the only way to have BWithering is to be nonliving.
+         * But I feel another source of BWithering might not necessarily
+         * cure it. Hence this arbitrary distinction. */
+        if (nonliving(youmonst.data))
+            /* intrinsic withering has no foothold on a dead body */
+            set_itimeout(&HWithering, (long) 0);
+    } else if (!old_wither && new_wither) {
+        /* only happens with extrinsic withering */
+        You("begin to wither away!");
     }
 }
 
