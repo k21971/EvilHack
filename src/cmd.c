@@ -6063,7 +6063,7 @@ int x, y;
         add_herecmd_menuitem(win, doloot, buf), ++K;
     }
     if (mtmp && can_wear_barding(mtmp) && !which_armor(mtmp, W_BARDING)
-        && (carrying(BARDING)
+        && (carrying(BARDING) || carrying(RUNED_BARDING)
             || carrying(SPIKED_BARDING) || carrying(BARDING_OF_REFLECTION))) {
         Sprintf(buf, "Put barding on %s", mon_nam(mtmp)), ++K;
         add_herecmd_menuitem(win, doapply, buf);

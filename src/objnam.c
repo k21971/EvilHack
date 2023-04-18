@@ -1291,7 +1291,8 @@ unsigned doname_flags;
         /* skip article prefix for corpses [else corpse_xname()
            would have to be taught how to strip it off again] */
         *prefix = '\0';
-    } else if (is_barding(obj)) {
+    } else if (is_barding(obj)
+               && obj->oartifact != ART_ITHILMAR) {
         Strcpy(prefix, "some ");
     } else if (obj_is_pname(obj) || the_unique_obj(obj)) {
         if (!strncmpi(bp, "the ", 4))
@@ -5029,6 +5030,8 @@ struct obj *no_wish;
             case ART_GAUNTLETS_OF_PURITY:
             case ART_ASHMAR:
             case ART_HAMMER_OF_THE_GODS:
+            case ART_TEMPEST:
+            case ART_ITHILMAR:
                 pm = PM_SAMURAI;
                 break;
             default:

@@ -553,6 +553,7 @@ struct monst *mtmp; /* The animal */
 boolean force;      /* Quietly force this animal */
 {
     struct obj *otmp;
+    struct obj *barding = which_armor(mtmp, W_BARDING);
     char buf[BUFSZ];
     int role_modifier;
     struct permonst *ptr;
@@ -652,7 +653,12 @@ boolean force;      /* Quietly force this animal */
         return (FALSE);
     }
 
-    if (!force && !Role_if(PM_KNIGHT) && !(--mtmp->mtame)) {
+    /* Knights will not decrease the tameness of their steed when
+       mounting them. The same is true for any role whose steed is
+       wearing Ithilmar (artifact barding) */
+    if (!force && !(Role_if(PM_KNIGHT)
+                    || (barding && barding->oartifact == ART_ITHILMAR))
+        && !(--mtmp->mtame)) {
         /* no longer tame */
         newsym(mtmp->mx, mtmp->my);
         pline("%s resists%s!", Monnam(mtmp),

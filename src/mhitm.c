@@ -400,13 +400,21 @@ boolean quietly;
 
 boolean
 resist_conflict(mtmp)
-struct monst* mtmp;
+struct monst *mtmp;
 {
-	int resist_chance;
+    int resist_chance;
+    struct obj *barding;
 
-	resist_chance = ACURR(A_CHA) - mtmp->m_lev + u.ulevel;
-	if (resist_chance > 19) resist_chance = 19; /* always a small chance */
-	return (rnd(20) > resist_chance);
+    resist_chance = ACURR(A_CHA) - mtmp->m_lev + u.ulevel;
+    if (resist_chance > 19) {
+        resist_chance = 19; /* always a small chance */
+    } else if ((barding = which_armor(mtmp, W_BARDING)) != 0
+        && barding->oartifact == ART_ITHILMAR) {
+        /* steed wearing Ithilmar will always resist */
+        return TRUE;
+    }
+
+    return (rnd(20) > resist_chance);
 }
 
 /*
@@ -1303,7 +1311,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         if (mon_prop(mdef, SLOW_DIGESTION))
             return (MM_HIT | MM_EXPELLED);
         if ((sbarding = which_armor(mdef, W_BARDING)) != 0
-            && sbarding->otyp == SPIKED_BARDING)
+            && (sbarding->otyp == SPIKED_BARDING
+                || sbarding->otyp == RUNED_BARDING))
             return (MM_HIT | MM_EXPELLED);
         /* eating a Rider or its corpse is fatal */
         if (is_rider(pd)) {
@@ -1391,13 +1400,23 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             break;
         }
         goto physical;
-    case AD_BHED:
+    case AD_BHED: {
+        struct obj *barding;
+
         if ((!rn2(15) || is_jabberwock(mdef->data))
             && !magr->mcan) {
             Strcpy(buf, Monnam(magr));
             if (!has_head(mdef->data) || mon_vorpal_wield) {
                 if (canseemon(mdef))
                     pline("%s somehow misses %s wildly.", buf, mon_nam(mdef));
+                tmp = 0;
+                break;
+            }
+            if ((barding = which_armor(mdef, W_BARDING)) != 0
+                && barding->oartifact == ART_ITHILMAR) {
+                if (canseemon(mdef))
+                    pline("Its attack glances harmlessly off of %s barding.",
+                          s_suffix(mon_nam(mdef)));
                 tmp = 0;
                 break;
             }
@@ -1427,6 +1446,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
         }
         break;
+    }
     case AD_WERE:
     case AD_HEAL:
     case AD_CLOB:
