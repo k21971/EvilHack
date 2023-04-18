@@ -1709,7 +1709,7 @@ int how;
             }
             if (mon->mwither) {
                 if (canseemon(mon))
-                    pline("is no longer withering away.");
+                    pline("%s is no longer withering away.", Monnam(mon));
                 mon->mwither = 0;
             }
             /*FALLTHRU*/
@@ -1723,7 +1723,7 @@ int how;
                 }
                 if (mon->mwither) {
                     if (canseemon(mon))
-                        pline("is no longer withering away.");
+                        pline("%s is no longer withering away.", Monnam(mon));
                     mon->mwither = 0;
                 }
             }
@@ -1738,7 +1738,7 @@ int how;
                 }
                 if (mon->mwither) {
                     if (canseemon(mon))
-                        pline("is no longer withering away.");
+                        pline("%s is no longer withering away.", Monnam(mon));
                     mon->mwither = 0;
                 }
             }
