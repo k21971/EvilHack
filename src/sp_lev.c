@@ -2155,6 +2155,7 @@ struct mkroom *croom;
                 if (++soko_prize_count > 6)
                     impossible(prize_warning, "sokoban end");
             }
+            init_obj_material(otmp); /* prevent invalid materials for prizes */
         }
     }
 
