@@ -2349,16 +2349,18 @@ do_rust:
     case AD_WTHR: {
         uchar withertime = max(2, dmg);
         boolean no_effect =
-            (BWithering || !uncancelled);
-        boolean lose_maxhp = (withertime >= 8); /* if already withering */
+            (nonliving(youmonst.data) || !uncancelled);
+        boolean lose_maxhp = (withertime >= 8 && !BWithering); /* if already withering */
         dmg = 0; /* doesn't deal immediate damage */
 
         hitmsg(mtmp, mattk);
         if (!no_effect) {
             if (Withering)
                 Your("withering speeds up!");
-            else
+            else if (!BWithering)
                 You("begin to wither away!");
+            else
+                You_feel("drier for a moment.");
             incr_itimeout(&HWithering, withertime);
 
             if (lose_maxhp) {
