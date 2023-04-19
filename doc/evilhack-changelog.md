@@ -2798,4 +2798,6 @@ The following changes to date are:
 - New forging artifact recipe - Ithilmar
 - Fix: sokoban prizes could still spawn with an invalid material
 - Add a couple more sources of cancellation protection
+- Fix: prevent Bourbon, Ozzy, and Kathryn in both forms from being
+  polymorphed
 

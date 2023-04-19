@@ -298,6 +298,20 @@ struct obj *otmp;
             /* magic resistance protects from polymorph traps, so make
                it guard against involuntary polymorph attacks too... */
             shieldeff(mtmp->mx, mtmp->my);
+        } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+                   || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]
+                   || mtmp->data == &mons[PM_BOURBON]
+                   || mtmp->data == &mons[PM_OZZY]) {
+            /* Kathryn in both forms, and both dogs are only supposed
+               to be defeated, never actually killed. Both dogs monster
+               MR is low enough, they could easily be poly'd into another
+               form and then killed. Kathryn the Ice Queen has very high
+               monster MR, but there's still a chance of being poly'd.
+               Kathryn the Enchantress has full monster MR, but guarding
+               against it happening anyways. I could bump up all of their
+               MR to 100, but that would then protect them against other
+               magical attacks, and we don't want that */
+            shieldeff(mtmp->mx, mtmp->my);
         } else if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
             boolean polyspot = (otyp != POT_POLYMORPH),
                     give_msg = (!Hallucination
