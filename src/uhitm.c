@@ -2139,6 +2139,7 @@ joust(mon, obj)
 struct monst *mon; /* target */
 struct obj *obj;   /* weapon */
 {
+    struct obj *barding;
     int skill_rating, joust_dieroll;
 
     if (Fumbling || Stunned)
@@ -2156,6 +2157,11 @@ struct obj *obj;   /* weapon */
 
     /* odds to joust are expert:80%, skilled:60%, basic:40%, unskilled:20% */
     if ((joust_dieroll = rn2(5)) < skill_rating) {
+        if (!Race_if(PM_CENTAUR)) { /* centaurs can't ride a steed */
+            if ((barding = which_armor(u.usteed, W_BARDING)) != 0
+                && barding->oartifact == ART_ITHILMAR)
+                joust_dieroll = 5; /* lance never breaks */
+        }
         if (joust_dieroll == 0 && rnl(50) == (50 - 1) && !unsolid(mon->data)
             && !obj_resists(obj, 0, 100))
             return -1; /* hit that breaks lance */
@@ -2554,11 +2560,21 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         }
 #endif
         goto physical;
-    case AD_BHED:
+    case AD_BHED: {
+        struct obj *barding;
+
         if (!rn2(15) || is_jabberwock(mdef->data)) {
             if (!has_head(mdef->data) || mon_vorpal_wield) {
                 if (canseemon(mdef))
                     pline("Somehow, you miss %s wildly.", mon_nam(mdef));
+                tmp = 0;
+                break;
+            }
+            if ((barding = which_armor(mdef, W_BARDING)) != 0
+                && barding->oartifact == ART_ITHILMAR) {
+                if (canseemon(mdef))
+                    Your("attack glances harmlessly off of %s barding.",
+                         s_suffix(mon_nam(mdef)));
                 tmp = 0;
                 break;
             }
@@ -2584,9 +2600,9 @@ int specialdmg; /* blessed and/or silver bonus against various things */
                 mdef->mcan = 1; /* no head? no reviving */
             xkilled(mdef, 0);
             tmp = 0;
-            break;
         }
         break;
+    }
     case AD_WERE: /* no special effect on monsters */
     case AD_HEAL: /* likewise */
     case AD_PHYS:
@@ -3325,7 +3341,8 @@ register struct attack *mattk;
                     return 2;
                 }
                 if ((sbarding = which_armor(mdef, W_BARDING)) != 0
-                    && sbarding->otyp == SPIKED_BARDING) {
+                    && (sbarding->otyp == SPIKED_BARDING
+                        || sbarding->otyp == RUNED_BARDING)) {
                     You("hurriedly regurgitate the indigestible %s.", m_monnam(mdef));
                     end_engulf();
                     return 2;

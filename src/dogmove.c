@@ -727,37 +727,14 @@ dog_hunger(mtmp, edog)
 struct monst *mtmp;
 struct edog *edog;
 {
-    /* The below block of code is broken
-     * commenting out for now (#if 0) */
-#if 0
-    if (monstermoves > edog->hungrytime) {
-  	/* We're hungry; check if we're carrying anything we can eat
-  	 * Intelligent pets should be able to carry such food */
-  	register struct obj *otmp, *obest = (struct obj *) 0;
-  	int cur_nutrit = -1, best_nutrit = -1;
-        int cur_food = APPORT, best_food = APPORT;
-
-        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-    	    cur_nutrit = dog_nutrition(mtmp, otmp);
-            cur_food = dogfood(mtmp, otmp);
-            if (cur_food < best_food && cur_nutrit > best_nutrit) {
-                best_nutrit = cur_nutrit;
-                best_food = cur_food;
-                obest = otmp;
-            }
-        }
-        if (obest != (struct obj *) 0) {
-    	    obj_extract_self(obest);
-            place_object(obest, mtmp->mx, mtmp->my);
-    	    if (dog_eat(mtmp, obest, mtmp->mx, mtmp->my, FALSE) == 2)
-    	        return(TRUE);
-    	    return(FALSE);
-    	}
-    }
-#endif
+    struct obj *barding;
 
     if (monstermoves > edog->hungrytime + 500) {
-        if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data)) {
+        if ((barding = which_armor(mtmp, W_BARDING)) != 0
+            && barding->oartifact == ART_ITHILMAR) {
+            /* steeds wearing Ithilmar will never starve */
+            edog->hungrytime = monstermoves + 500;
+        } else if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data)) {
             edog->hungrytime = monstermoves + 500;
             /* but not too high; it might polymorph */
         } else if (!edog->mhpmax_penalty) {
@@ -1159,7 +1136,7 @@ struct monst *mtmp, *mtarg;
             return score;
         }
         /* Is the monster peaceful or tame? */
-        if (/*mtarg->mpeaceful ||*/ mtarg->mtame || mtarg == &youmonst) {
+        if (mtarg->mtame || mtarg == &youmonst) {
             /* Pets will never be targeted */
             score -= 3000L;
             return score;

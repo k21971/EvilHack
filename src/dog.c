@@ -649,8 +649,13 @@ long nmv; /* number of moves */
 
     /* reduce tameness for every 150 moves you are separated */
     if (mtmp->mtame) {
+        struct obj *barding;
         int wilder = (imv + 75) / 150;
-        if (mtmp->mtame > wilder)
+
+        if ((barding = which_armor(mtmp, W_BARDING)) != 0
+            && barding->oartifact == ART_ITHILMAR)
+            return; /* tameness isn't affected */
+        else if (mtmp->mtame > wilder)
             mtmp->mtame -= wilder; /* less tame */
         else if (mtmp->mtame > rn2(wilder))
             mtmp->mtame = 0; /* untame */

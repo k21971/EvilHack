@@ -209,8 +209,10 @@ struct obj {
         /* towel is not a weptool:  spe isn't an enchantment, cursed towel
            doesn't weld to hand, and twoweapon won't work with one */
 #define is_barding(otmp) \
-    (otmp->otyp == BARDING                                                   \
-     || otmp->otyp == SPIKED_BARDING || otmp->otyp == BARDING_OF_REFLECTION)
+    (otmp->otyp == BARDING                   \
+     || otmp->otyp == RUNED_BARDING          \
+     || otmp->otyp == SPIKED_BARDING         \
+     || otmp->otyp == BARDING_OF_REFLECTION)
 
 #define is_lawful_artifact(otmp) \
     (otmp->oartifact && arti_align(otmp->oartifact) == A_LAWFUL)

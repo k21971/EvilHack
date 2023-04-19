@@ -393,6 +393,15 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        | SPFX_ATTK | SPFX_DEFN), 0, 0,
       ELEC(10, 24), DFNS(AD_ELEC), NO_CARY, CONFLICT, A_NONE,
       NON_PM, NON_PM, 20000L, NO_COLOR, IRON),
+    /* Ithilmar is a set of barding that can be created by forging
+       Vorpal Blade and the Gauntlets of Purity together. It grants
+       the steed that wears it reflection, magic resistance, and
+       several other benefits that will help keep the steed alive */
+    A("Ithilmar", RUNED_BARDING,
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_INTEL
+       | SPFX_DEFN | SPFX_REFLECT), 0, 0,
+      NO_ATTK, DFNS(AD_MAGM), NO_CARY, 0, A_NONE,
+      NON_PM, NON_PM, 50000L, NO_COLOR, METAL),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

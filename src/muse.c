@@ -3609,10 +3609,12 @@ const char *str;
             makeknown(SHIELD_OF_REFLECTION);
         }
         return TRUE;
-    } else if (brefl && brefl->otyp == BARDING_OF_REFLECTION) {
+    } else if (brefl && (brefl->otyp == BARDING_OF_REFLECTION
+                         || brefl->oartifact == ART_ITHILMAR)) {
         if (str) {
             pline(str, s_suffix(mon_nam(mon)), "barding");
-            makeknown(BARDING_OF_REFLECTION);
+            if (brefl->otyp == BARDING_OF_REFLECTION)
+                makeknown(BARDING_OF_REFLECTION);
         }
         return TRUE;
     } else if ((orefl = which_armor(mon, W_ARMG))

@@ -2795,4 +2795,6 @@ The following changes to date are:
 - Monsters can utilize free action
 - Fix: objects being created with materials they shouldn't have
 - Restore Tourists skill in twoweaponing to 'skilled'
+- New forging artifact recipe - Ithilmar
+- Fix: sokoban prizes could still spawn with an invalid material
 

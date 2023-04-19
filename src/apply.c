@@ -4353,6 +4353,7 @@ doapply()
         res = use_saddle(obj);
         break;
     case BARDING:
+    case RUNED_BARDING:
     case SPIKED_BARDING:
     case BARDING_OF_REFLECTION:
         res = use_barding(obj);

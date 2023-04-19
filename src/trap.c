@@ -1749,6 +1749,7 @@ unsigned trflags;
         unsigned steed_mid = 0;
         struct obj *saddle = 0;
         struct obj *barding = 0;
+        struct obj *abarding = 0;
         struct obj *sbarding = 0;
         struct obj *rbarding = 0;
 
@@ -1785,6 +1786,7 @@ unsigned trflags;
             recursive_mine = FALSE;
             saddle = sobj_at(SADDLE, u.ux, u.uy);
             barding = sobj_at(BARDING, u.ux, u.uy);
+            abarding = sobj_at(RUNED_BARDING, u.ux, u.uy);
             sbarding = sobj_at(SPIKED_BARDING, u.ux, u.uy);
             rbarding = sobj_at(BARDING_OF_REFLECTION, u.ux, u.uy);
             set_wounded_legs(LEFT_SIDE, rn1(35, 41));
@@ -1796,6 +1798,8 @@ unsigned trflags;
             (void) keep_saddle_with_steedcorpse(steed_mid, fobj, saddle);
         if (steed_mid && barding && !u.usteed)
             (void) keep_barding_with_steedcorpse(steed_mid, fobj, barding);
+        if (steed_mid && abarding && !u.usteed)
+            (void) keep_barding_with_steedcorpse(steed_mid, fobj, abarding);
         if (steed_mid && sbarding && !u.usteed)
             (void) keep_barding_with_steedcorpse(steed_mid, fobj, sbarding);
         if (steed_mid && rbarding && !u.usteed)
