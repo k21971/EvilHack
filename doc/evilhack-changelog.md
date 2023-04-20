@@ -2801,4 +2801,5 @@ The following changes to date are:
 - Fix: prevent Bourbon, Ozzy, and Kathryn in both forms from being
   polymorphed
 - Implement 'race0' field to xlogfile, denoting starting race
+- Allow some monsters to break boulders
 

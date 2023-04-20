@@ -74,7 +74,8 @@ register xchar omx, omy, gx, gy;
         allowflags = ALLOW_SSM | ALLOW_SANCT;
     if (passes_walls(mtmp->data))
         allowflags |= (ALLOW_ROCK | ALLOW_WALL);
-    if (racial_throws_rocks(mtmp))
+    if (racial_throws_rocks(mtmp)
+        || m_can_break_boulder(mtmp))
         allowflags |= ALLOW_ROCK;
     if (tunnels(mtmp->data))
         allowflags |= ALLOW_DIG;
@@ -122,7 +123,10 @@ pick_move:
     }
 
     if (nix != omx || niy != omy) {
-        if (ninfo & ALLOW_M) {
+        if (ninfo & ALLOW_ROCK) {
+            m_break_boulder(mtmp, nix, niy);
+            return 1;
+        } else if (ninfo & ALLOW_M) {
             /* mtmp is deciding it would like to attack this turn.
              * Returns from m_move_aggress don't correspond to the same things
              * as this function should return, so we need to translate. */

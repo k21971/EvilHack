@@ -81,6 +81,43 @@ const char *shout;
     }
 }
 
+/* can monster mtmp break boulders? */
+boolean
+m_can_break_boulder(mtmp)
+struct monst *mtmp;
+{
+    return (!mtmp->mpeaceful
+            && (is_rider(mtmp->data)
+                || (!mtmp->mspec_used
+                    && (mtmp->isshk
+                        || mtmp->ispriest
+                        || mtmp->isqldr
+                        || mtmp->data == &mons[PM_ORACLE]))));
+}
+
+/* monster mtmp breaks boulder at x, y */
+void
+m_break_boulder(mtmp, x, y)
+struct monst *mtmp;
+xchar x, y;
+{
+    struct obj *otmp;
+
+    if (m_can_break_boulder(mtmp)
+        && ((otmp = sobj_at(BOULDER, x, y)) != 0)) {
+        if (!Deaf && (distu(mtmp->mx, mtmp->my) < 4 * 4))
+            pline("%s %s %s.",
+                  Monnam(mtmp),
+                  rn2(2) ? "mutters" : "whispers",
+                  mtmp->ispriest ? "a prayer" : "an incantation");
+        if (!is_rider(mtmp->data))
+            mtmp->mspec_used += rn1(20, 10);
+        if (cansee(x, y))
+            pline_The("boulder falls apart.");
+        fracture_rock(otmp);
+    }
+}
+
 STATIC_OVL void
 watch_on_duty(mtmp)
 register struct monst *mtmp;
@@ -1515,9 +1552,11 @@ register int after;
         flag |= ALLOW_DIG;
     if (is_human(ptr) || ptr == &mons[PM_MINOTAUR])
         flag |= ALLOW_SSM;
-    if ((is_undead(ptr) && ptr->mlet != S_GHOST) || is_vampshifter(mtmp))
+    if ((is_undead(ptr) && ptr->mlet != S_GHOST)
+        || is_vampshifter(mtmp))
         flag |= NOGARLIC;
-    if (racial_throws_rocks(mtmp))
+    if (racial_throws_rocks(mtmp)
+        || m_can_break_boulder(mtmp))
         flag |= ALLOW_ROCK;
     if (can_open)
         flag |= OPENDOOR;
@@ -1636,6 +1675,11 @@ register int after;
 
         if (!m_in_out_region(mtmp, nix, niy))
             return 3;
+
+        if ((info[chi] & ALLOW_ROCK) && m_can_break_boulder(mtmp)) {
+            (void) m_break_boulder(mtmp, nix, niy);
+            return 3;
+        }
 
         /* move a normal monster; for a long worm, remove_monster() and
            place_monster() only manipulate the head; they leave tail as-is */

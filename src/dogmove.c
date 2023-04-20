@@ -1370,7 +1370,8 @@ int after; /* this is extra fast monster movement */
         allowflags |= (ALLOW_ROCK | ALLOW_WALL);
     if (passes_bars(mtmp->data))
         allowflags |= ALLOW_BARS;
-    if (racial_throws_rocks(mtmp))
+    if (racial_throws_rocks(mtmp)
+        || m_can_break_boulder(mtmp))
         allowflags |= ALLOW_ROCK;
     if (is_displacer(mtmp->data))
         allowflags |= ALLOW_MDISP;
