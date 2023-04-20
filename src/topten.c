@@ -395,9 +395,10 @@ int how;
     Fprintf(rfile, "%crealtime=%ld%cstarttime=%ld%cendtime=%ld", XLOG_SEP,
             (long) urealtime.realtime, XLOG_SEP,
             (long) ubirthday, XLOG_SEP, (long) urealtime.finish_time);
-    Fprintf(rfile, "%cgender0=%s%calign0=%s", XLOG_SEP,
+    Fprintf(rfile, "%cgender0=%s%calign0=%s%crace0=%s", XLOG_SEP,
             genders[flags.initgend].filecode, XLOG_SEP,
-            aligns[u.ualign.type == A_NONE ? 3 : 1 - u.ualign.type].filecode);
+            aligns[u.ualign.type == A_NONE ? 3 : 1 - u.ualign.type].filecode,
+            XLOG_SEP, races[flags.initrace].filecode);
     Fprintf(rfile, "%cflags=0x%lx", XLOG_SEP, encodexlogflags());
     Fprintf(rfile, "%cgold=%ld", XLOG_SEP, money_cnt(invent) + hidden_gold());
     Fprintf(rfile, "%cwish_cnt=%ld", XLOG_SEP, u.uconduct.wishes);
