@@ -2360,7 +2360,7 @@ do_rust:
             else if (!BWithering)
                 You("begin to wither away!");
             else
-                You_feel("drier for a moment.");
+                You_feel("dessicated for a moment.");
             incr_itimeout(&HWithering, withertime);
 
             if (lose_maxhp) {
