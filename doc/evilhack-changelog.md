@@ -2797,4 +2797,8 @@ The following changes to date are:
 - Restore Tourists skill in twoweaponing to 'skilled'
 - New forging artifact recipe - Ithilmar
 - Fix: sokoban prizes could still spawn with an invalid material
+- Add a couple more sources of cancellation protection
+- Fix: prevent Bourbon, Ozzy, and Kathryn in both forms from being
+  polymorphed
+- Implement 'race0' field to xlogfile, denoting starting race
 
