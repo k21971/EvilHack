@@ -431,7 +431,8 @@
 
 #define HWithering u.uprops[WITHERING].intrinsic
 #define EWithering u.uprops[WITHERING].extrinsic
-#define Withering (HWithering || EWithering)
+#define BWithering u.uprops[WITHERING].blocked
+#define Withering ((HWithering || EWithering) && !BWithering)
 
 #define Free_action u.uprops[FREE_ACTION].extrinsic /* [Tom] */
 

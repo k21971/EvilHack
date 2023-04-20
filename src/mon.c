@@ -5703,6 +5703,12 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
                    !context.mon_moving);
     check_gear_next_turn(mtmp);
 
+    if (mtmp->mwither && (nonliving(mdat) || is_vampshifter(mtmp))) {
+        if (canseemon(mtmp))
+            pline("%s is no longer withering away.", Monnam(mtmp));
+        mtmp->mwither = 0;
+    }
+
     /* This ought to re-test can_carry() on each item in the inventory
      * rather than just checking ex-giants & boulders, but that'd be
      * pretty expensive to perform.  If implemented, then perhaps

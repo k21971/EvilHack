@@ -503,10 +503,14 @@ struct obj *otmp;
         }
         break;
     case SPE_CURE_SICKNESS:
-        if (mtmp->msick) {
+        if (mtmp->msick || mtmp->mwither) {
             wake = FALSE;
-            if (canseemon(mtmp))
-                pline("%s is no longer ill.", Monnam(mtmp));
+            if (canseemon(mtmp)) {
+                if (mtmp->msick)
+                    pline("%s is no longer ill.", Monnam(mtmp));
+                if (mtmp->mwither)
+                    pline("%s is no longer withering away.", Monnam(mtmp));
+            }
             if (mtmp->mtame || mtmp->mpeaceful) {
                 if (Role_if(PM_HEALER)) {
                     adjalign(1);
@@ -514,7 +518,7 @@ struct obj *otmp;
                     adjalign(sgn(u.ualign.type));
                 }
             }
-            mtmp->msick = 0;
+            mtmp->msick = mtmp->mwither = 0;
         } else if (is_zombie(mtmp->data)) {
             if (!DEADMONSTER(mtmp)) {
                 dmg = d(1, 8);
@@ -2824,8 +2828,9 @@ boolean ordinary;
         if (Slimed)
             make_slimed(0L, "The slime disappears!");
         if (Withering) {
-            You("are no longer withering away.");
             set_itimeout(&HWithering, (long) 0);
+            if (!Withering)
+                You("are no longer withering away.");
         }
         healup(0, 0, TRUE, FALSE);
         break;

@@ -1193,8 +1193,9 @@ no_rise:
                 !otmp->cursed, TRUE);
         if (otmp->blessed) {
             if (Withering) {
-                You("are no longer withering away.");
                 set_itimeout(&HWithering, (long) 0);
+                if (!Withering)
+                    You("are no longer withering away.");
             }
         }
         (void) make_hallucinated(0L, TRUE, 0L);
@@ -1213,8 +1214,9 @@ no_rise:
         }
         if (!otmp->cursed) {
             if (Withering) {
-                You("are no longer withering away.");
                 set_itimeout(&HWithering, (long) 0);
+                if (!Withering)
+                    You("are no longer withering away.");
             }
         }
         (void) make_hallucinated(0L, TRUE, 0L);
@@ -1709,7 +1711,7 @@ int how;
             }
             if (mon->mwither) {
                 if (canseemon(mon))
-                    pline("is no longer withering away.");
+                    pline("%s is no longer withering away.", Monnam(mon));
                 mon->mwither = 0;
             }
             /*FALLTHRU*/
@@ -1723,7 +1725,7 @@ int how;
                 }
                 if (mon->mwither) {
                     if (canseemon(mon))
-                        pline("is no longer withering away.");
+                        pline("%s is no longer withering away.", Monnam(mon));
                     mon->mwither = 0;
                 }
             }
@@ -1738,7 +1740,7 @@ int how;
                 }
                 if (mon->mwither) {
                     if (canseemon(mon))
-                        pline("is no longer withering away.");
+                        pline("%s is no longer withering away.", Monnam(mon));
                     mon->mwither = 0;
                 }
             }
