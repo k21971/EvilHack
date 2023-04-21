@@ -2880,23 +2880,28 @@ struct obj *obj;
             nhUse(otmp);
             break;
         }
-        case FEAR: {
+        case SHADOWBLADE: {
             int ct = 0;
 
-            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-                if (DEADMONSTER(mtmp))
-                    continue;
-                if (cansee(mtmp->mx, mtmp->my)) {
-                    monflee(mtmp, 0, FALSE, FALSE);
-                    if (!mtmp->mtame)
-                        ct++; /* pets don't laugh at you */
+            if (yn("Do you want to cast an aura of darkness?") == 'n') {
+                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                    if (DEADMONSTER(mtmp))
+                        continue;
+                    if (cansee(mtmp->mx, mtmp->my)) {
+                        monflee(mtmp, 0, FALSE, FALSE);
+                        if (!mtmp->mtame)
+                            ct++; /* pets don't laugh at you */
+                    }
                 }
+                if (!Deaf)
+                    You_hear("%s laughter coming from %s!",
+                             rn2(2) ? "fiendish" : "maniacal",
+                             xname(obj));
+                break;
+            } else {
+                litroom(FALSE, obj);
+                break;
             }
-            if (!Deaf)
-                You_hear("%s laughter coming from %s!",
-                         rn2(2) ? "fiendish" : "maniacal",
-                         xname(obj));
-            break;
         }
         case PHASING: /* Walk through walls and stone like a xorn */
             if (Passes_walls)
@@ -3208,7 +3213,6 @@ struct obj *obj;
     if (get_artifact(obj)
         && (obj->oartifact == ART_SUNSWORD
             || obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
-            || obj->oartifact == ART_SHADOWBLADE
             || obj->oartifact == ART_HAMMER_OF_THE_GODS))
         return TRUE;
 

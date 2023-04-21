@@ -1009,11 +1009,11 @@ register struct obj *obj;
         case LEMBAS_WAFER:
         case FOOD_RATION:
             if (racial_human(mon)
-          	|| racial_elf(mon)
+                || racial_elf(mon)
                 || racial_drow(mon)
-          	|| racial_dwarf(mon)
-          	|| racial_gnome(mon)
-          	|| racial_orc(mon)
+                || racial_dwarf(mon)
+                || racial_gnome(mon)
+                || racial_orc(mon)
                 || racial_hobbit(mon)
                 || racial_giant(mon)
                 || racial_centaur(mon)

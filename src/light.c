@@ -160,8 +160,6 @@ char **cs_rows;
                 ls->flags |= LSF_SHOW;
             if (ls->id.a_obj->otyp == MAGIC_LAMP && ls->id.a_obj->cursed)
                 lit_typ = TEMP_DARK;
-            if (ls->id.a_obj->oartifact == ART_SHADOWBLADE)
-                lit_typ = TEMP_DARK;
         } else if (ls->type == LS_MONSTER) {
             if (get_mon_location(ls->id.a_monst, &ls->x, &ls->y, 0))
                 ls->flags |= LSF_SHOW;

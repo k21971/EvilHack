@@ -1567,11 +1567,8 @@ unsigned doname_flags;
 
         /* Light from always-lit artifacts. */
         } else if (!Blind && obj->lamplit && artifact_light(obj)) {
-            if (obj->oartifact == ART_SHADOWBLADE)
-                Sprintf(eos(bp) - 1, ", aura of darkness)");
-            else
-                Sprintf(eos(bp) - 1, ", %s lit)",
-                        arti_light_description(obj));
+            Sprintf(eos(bp) - 1, ", %s lit)",
+                    arti_light_description(obj));
         }
     }
 
