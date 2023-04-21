@@ -2803,4 +2803,5 @@ The following changes to date are:
 - Implement 'race0' field to xlogfile, denoting starting race
 - Allow some monsters to break boulders
 - New forging artifact recipe - Armor of Retribution
+- Fix: case for armor falling off when poly'd (Armor of Retribution)
 

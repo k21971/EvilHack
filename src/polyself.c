@@ -971,9 +971,16 @@ break_armor()
             if (otmp->lamplit)
                 end_burn(otmp, FALSE);
             if (youmonst.data->msize >= MZ_HUGE
-                && otmp->otyp == LARGE_SPLINT_MAIL) {
+                && (otmp->otyp == LARGE_SPLINT_MAIL
+                    || otmp->oartifact == ART_ARMOR_OF_RETRIBUTION)) {
                 if (humanoid(youmonst.data)) {
-                    ; /* nothing bad happens, armor is still worn */
+                    if (otmp->otyp == LARGE_SPLINT_MAIL) {
+                        ; /* nothing bad happens, armor is still worn */
+                    } else { /* Armor of Retribution */
+                        Your("armor falls off!");
+                        (void) Armor_gone();
+                        dropp(otmp);
+                    }
                 } else if (!humanoid(youmonst.data)) {
                     Your("armor falls off!");
                     (void) Armor_gone();
