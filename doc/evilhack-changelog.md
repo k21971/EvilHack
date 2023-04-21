@@ -2802,4 +2802,5 @@ The following changes to date are:
   polymorphed
 - Implement 'race0' field to xlogfile, denoting starting race
 - Allow some monsters to break boulders
+- New forging artifact recipe - Armor of Retribution
 

@@ -1128,6 +1128,12 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                         struct obj *scales = uarmc;
                         struct obj *armor = uarm;
 
+                        if (armor->oartifact == ART_ARMOR_OF_RETRIBUTION) {
+                            pline("%s refuses to meld into the %s.",
+                                  Yname2(scales), artiname(armor->oartifact));
+                            break;
+                        }
+
                         pline("%s hardens and melds into your %s%s", Yname2(scales),
                               suit_simple_name(armor),
                               Is_dragon_scaled_armor(armor) ? "." : "!");

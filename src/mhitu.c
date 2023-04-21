@@ -290,6 +290,21 @@ struct attack *mattk;
                     killed(mtmp);
             }
         }
+        /* the artifact Armor of Retribution can do the same
+           as Ashmar, just not as often */
+        if (!rn2(7) && (blocker == uarm)
+            && !DEADMONSTER(mtmp)
+            && blocker->oartifact == ART_ARMOR_OF_RETRIBUTION) {
+            pline_The("%s knocks %s away from you!",
+                      artiname(uarm->oartifact), mon_nam(mtmp));
+            if (mhurtle_to_doom(mtmp, tmp, &mdat, TRUE))
+                already_killed = TRUE;
+            if (!already_killed) {
+                damage_mon(mtmp, tmp, AD_PHYS);
+                if (DEADMONSTER(mtmp))
+                    killed(mtmp);
+            }
+        }
     }
 end:
     stop_occupation();
@@ -1477,6 +1492,7 @@ register struct attack *mattk;
             if (mattk->adtyp == AD_CLOB && dmg != 0
                 && !wielding_artifact(ART_GIANTSLAYER)
                 && !(uarms && uarms->oartifact == ART_ASHMAR)
+                && !(uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION)
                 && (youmonst.data)->msize < MZ_HUGE
                 && !unsolid(youmonst.data) && !rn2(6)) {
                 pline("%s knocks you %s with a %s %s!", Monnam(mtmp),

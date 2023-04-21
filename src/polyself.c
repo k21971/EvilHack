@@ -980,7 +980,8 @@ break_armor()
                     dropp(otmp);
                 }
             } else if (youmonst.data->msize <= MZ_LARGE
-                       && otmp->otyp == LARGE_SPLINT_MAIL) {
+                       && (otmp->otyp == LARGE_SPLINT_MAIL
+                           || otmp->oartifact == ART_ARMOR_OF_RETRIBUTION)) {
                 Your("armor falls off!");
                 (void) Armor_gone();
                 dropp(otmp);

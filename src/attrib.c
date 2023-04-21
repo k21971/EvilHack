@@ -1247,7 +1247,8 @@ int x;
         }
     } else if (x == A_CON) {
         if (wielding_artifact(ART_OGRESMASHER)
-            || (uarms && uarms->oartifact == ART_ASHMAR))
+            || (uarms && uarms->oartifact == ART_ASHMAR)
+            || (uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION))
             return (schar) 25;
     } else if (x == A_INT || x == A_WIS) {
         /* yes, this may raise int/wis if player is sufficiently
@@ -1299,7 +1300,8 @@ int attrindx;
             lolimit = hilimit;
     } else if (attrindx == A_CON) {
         if (wielding_artifact(ART_OGRESMASHER)
-            || (uarms && uarms->oartifact == ART_ASHMAR))
+            || (uarms && uarms->oartifact == ART_ASHMAR)
+            || (uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION))
             lolimit = hilimit;
     }
     /* this exception is hypothetical; the only other worn item affecting

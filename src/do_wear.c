@@ -2780,6 +2780,8 @@ find_ac()
         else
             uac -= 5;
     }
+    if (uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION)
+        uac -= 5;
 
     /* armor class from other sources */
     if (HProtection & INTRINSIC)

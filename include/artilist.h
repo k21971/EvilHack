@@ -297,11 +297,6 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_RESTR | SPFX_INTEL | SPFX_PROTECT | SPFX_WARN | SPFX_DFLAGH),
       0, MH_DEMON, PHYS(8, 8), DFNS(AD_MAGM), NO_CARY, 0, A_LAWFUL,
       NON_PM, PM_DWARF, 9000L, CLR_RED, MITHRIL),
-    /* The Sword of Annihilation can only be created by forging the
-       artifacts Fire Brand and Frost Brand together. Their combined
-       magic and energy form to produce a sword capable of
-       disintegrating most anything it hits, while protecting the
-       one that wields it from the same type of attack */
 
     /*
      *      Forged artifacts
@@ -311,6 +306,11 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      create a new artifact.
      */
 
+    /* The Sword of Annihilation can only be created by forging the
+       artifacts Fire Brand and Frost Brand together. Their combined
+       magic and energy form to produce a sword capable of
+       disintegrating most anything it hits, while protecting the
+       one that wields it from the same type of attack */
     A("The Sword of Annihilation", LONG_SWORD,
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
        | SPFX_DEFN | SPFX_INTEL),
@@ -402,6 +402,17 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        | SPFX_DEFN | SPFX_REFLECT), 0, 0,
       NO_ATTK, DFNS(AD_MAGM), NO_CARY, 0, A_NONE,
       NON_PM, NON_PM, 50000L, NO_COLOR, METAL),
+    /* The Armor of Retribution is crystal plate mail that is created
+       by forging two forged artifacts - the Sword of Annihilation and
+       Ashmar. It inherits many of the abilities of both, while having
+       a few abilities that didn't exist from either, such as half spell
+       damage, and a certain level of protection vs cancellation.
+       Cannot be dragon-scaled */
+    A("Armor of Retribution", CRYSTAL_PLATE_MAIL,
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_DEFN
+       | SPFX_INTEL | SPFX_PROTECT | SPFX_HPHDAM | SPFX_HSPDAM),
+      0, 0, NO_ATTK, DFNS(AD_DISN), CARY(AD_ACID), 0, A_NONE,
+      NON_PM, NON_PM, 60000L, NO_COLOR, GEMSTONE),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

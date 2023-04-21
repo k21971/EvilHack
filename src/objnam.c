@@ -5032,6 +5032,7 @@ struct obj *no_wish;
             case ART_HAMMER_OF_THE_GODS:
             case ART_TEMPEST:
             case ART_ITHILMAR:
+            case ART_ARMOR_OF_RETRIBUTION:
                 pm = PM_SAMURAI;
                 break;
             default:

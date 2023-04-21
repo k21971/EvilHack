@@ -1397,6 +1397,7 @@ int ochance, achance; /* percent chance for ordinary objects, artifacts */
         || obj->otyp == CANDELABRUM_OF_INVOCATION
         || obj->otyp == BELL_OF_OPENING
         || obj->oartifact == ART_SWORD_OF_ANNIHILATION
+        || obj->oartifact == ART_ARMOR_OF_RETRIBUTION
         || (obj->otyp == CORPSE && is_rider(&mons[obj->corpsenm]))) {
         return TRUE;
     } else {
@@ -3135,6 +3136,14 @@ boolean youattack, allow_cancel_kill, self_cancel;
                     You("sense a wave of energy dissipate around %s.",
                         mon_nam(mdef));
                 return FALSE;
+            } else if (rn2(3)
+                       && (otmp = which_armor(mdef, W_ARM))
+                       && otmp->oartifact == ART_ARMOR_OF_RETRIBUTION) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
             } else if (mdef->data == &mons[PM_TIAMAT]
                        || mdef->data == &mons[PM_GRAY_DRAGON]
                        || mdef->data == &mons[PM_BABY_GRAY_DRAGON]) {
@@ -3166,13 +3175,15 @@ boolean youattack, allow_cancel_kill, self_cancel;
         if (youdefend) {
             if (rn2(10) && uarm
                 && Is_dragon_scaled_armor(uarm)
-                && (Dragon_armor_to_scales(uarm)== GRAY_DRAGON_SCALES
+                && (Dragon_armor_to_scales(uarm) == GRAY_DRAGON_SCALES
                     || Dragon_armor_to_scales(uarm) == CHROMATIC_DRAGON_SCALES)) {
                 shieldeff(u.ux, u.uy);
                 You_feel("a wave of energy dissipate around you.");
                 return FALSE;
-            } else if (rn2(3) && Role_if(PM_MONK)
-                && ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
+            } else if (rn2(3)
+                       && ((Role_if(PM_MONK)
+                            && ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD)
+                           || (uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION))) {
                 shieldeff(u.ux, u.uy);
                 You_feel("a wave of energy dissipate around you.");
                 return FALSE;
@@ -3204,6 +3215,14 @@ boolean youattack, allow_cancel_kill, self_cancel;
                 && Is_dragon_scaled_armor(otmp)
                 && (Dragon_armor_to_scales(otmp) == GRAY_DRAGON_SCALES
                     || Dragon_armor_to_scales(otmp) == CHROMATIC_DRAGON_SCALES)) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+            } else if (rn2(3)
+                       && (otmp = which_armor(mdef, W_ARM))
+                       && otmp->oartifact == ART_ARMOR_OF_RETRIBUTION) {
                 shieldeff(mdef->mx, mdef->my);
                 if (canseemon(mdef))
                     You("sense a wave of energy dissipate around %s.",

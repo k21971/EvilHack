@@ -1916,7 +1916,9 @@ register struct obj *otmp;
                 tmp = d(2, 12);
                 if (Half_spell_damage)
                     tmp = (tmp + 1) / 2;
-                if (tmp > 16 && mcarried(otmp)) {
+                if (tmp > 16 && mcarried(otmp)
+                    && !(uarms && uarms->oartifact == ART_ASHMAR)
+                    && !(uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION)) {
                     struct monst *zapper = otmp->ocarry;
                     pline_The("force of the wand knocks you %s!",
                               u.usteed ? "out of your saddle" : "back");
