@@ -171,7 +171,7 @@
 #define MZ_HUGE 4          /* 12-25' */
 #define MZ_GIGANTIC 7      /* off the scale */
 
-/* Remember to update mon_race_name method when adding bits here. */
+/* Remember to update mon_race_name method when adding bits here */
 #define MH_HUMAN 0x00000001L
 #define MH_ELF 0x00000002L
 #define MH_DWARF 0x00000004L
@@ -182,16 +182,17 @@
 #define MH_CENTAUR 0x00000080L
 #define MH_ILLITHID 0x00000100L
 #define MH_TORTLE 0x00000200L
-/* Flags below not used as a player race */
-#define MH_UNDEAD 0x00000400L
-#define MH_WERE 0x00000800L
-#define MH_DEMON 0x00001000L
-#define MH_DRAGON 0x00002000L
-#define MH_ANGEL 0x00004000L
-#define MH_OGRE 0x00008000L
-#define MH_TROLL 0x00010000L
-#define MH_GNOLL 0x00020000L
-#define MH_JABBERWOCK 0x00040000L
+#define MH_DROW 0x00000400L
+/* Flags below not used as a player race (demon has one exception) */
+#define MH_UNDEAD 0x00000800L
+#define MH_WERE 0x00001000L
+#define MH_DEMON 0x00002000L
+#define MH_DRAGON 0x00004000L
+#define MH_ANGEL 0x00008000L
+#define MH_OGRE 0x00010000L
+#define MH_TROLL 0x00020000L
+#define MH_GNOLL 0x00040000L
+#define MH_JABBERWOCK 0x00080000L
 
 #define MH_ANY 0x80000000L
 

@@ -2003,6 +2003,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         boolean elf = youdefend ? maybe_polyd(is_elf(youmonst.data),
                                               Race_if(PM_ELF))
                                 : racial_elf(mdef);
+        boolean drow = youdefend ? maybe_polyd(is_drow(youmonst.data),
+                                               Race_if(PM_DROW))
+                                 : racial_drow(mdef);
         boolean no_sick = youdefend ? Sick_resistance
                                     : (resists_sick(mdef->data)
                                        || defended(mdef, AD_DISE));
@@ -2023,7 +2026,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                       hittee, !spec_dbon_applies ? '.' : '!');
         }
 
-        if (!rn2(10) && elf) {
+        if (!rn2(10) && (elf || drow)) {
             pline("Grimtooth penetrates %s soft flesh, disemboweling %s!",
                   youdefend ? "your" : s_suffix(mon_nam(mdef)),
                   youdefend ? "you" : noit_mhim(mdef));

@@ -93,7 +93,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      (handled as special case in spec_dbon()).
      */
     A("Grimtooth", ORCISH_DAGGER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH),
-      0, MH_ELF, DISE(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
+      0, MH_ELF | MH_DROW, DISE(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
       NON_PM, PM_ORC, 1500L, CLR_RED, DEFAULT_MAT),
     /*
      *      Orcrist and Sting have same alignment as elves.
@@ -345,7 +345,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
        | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
       0, 0, DRLI(8, 10), DFNS(AD_DRLI), NO_CARY, FEAR, A_CHAOTIC,
-      NON_PM, NON_PM, 15000L, NO_COLOR, DEFAULT_MAT),
+      NON_PM, PM_DROW, 15000L, NO_COLOR, DEFAULT_MAT),
     /* The Gauntlets of Purity are a divine artifact that is created
        by forging Dragonbane and Grayswandir together. These gauntlets
        inherit reflection from Dragonbane, and the silver material and

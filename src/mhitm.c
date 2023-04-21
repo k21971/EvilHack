@@ -500,8 +500,9 @@ register struct monst *magr, *mdef;
         }
     }
 
-    /* Elves hate orcs. */
-    if (racial_elf(magr) && racial_orc(mdef))
+    /* Elven types hate orcs */
+    if ((racial_elf(magr) || racial_drow(magr))
+        && racial_orc(mdef))
         tmp++;
 
     /* Set up the visibility of action */

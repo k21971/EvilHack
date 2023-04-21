@@ -157,6 +157,12 @@ static const struct innate {
                  { 12, &(HRegeneration), "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },
 
+  dro_abil[] = { { 1, &(HInfravision), "", "" },
+                 { 1, &(HSleep_resistance), "", "" },
+                 { 5, &(HPoison_resistance), "hardy", "" },
+                 { 9, &(HSearching), "perceptive", "unaware" },
+                 { 0, 0, 0, 0 } },
+
   hum_abil[] = { { 0, 0, 0, 0 } };
 
 STATIC_DCL void NDECL(exerper);
@@ -856,6 +862,9 @@ long frommask;
         case PM_TORTLE:
             abil = trt_abil;
             break;
+        case PM_DROW:
+            abil = dro_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -1054,6 +1063,9 @@ int oldlevel, newlevel;
         break;
     case PM_TORTLE:
         rabil = trt_abil;
+        break;
+    case PM_DROW:
+        rabil = dro_abil;
         break;
     case PM_DEMON:
         rabil = dem_abil;

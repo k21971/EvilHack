@@ -1516,9 +1516,10 @@ register struct trobj *origtrop;
                        && (objects[otyp].oc_level > (got_sp1 ? 3 : 1)
                            || restricted_spell_discipline(otyp)))
                    || otyp == SPE_NOVEL
-                   /* items that will be iron for elves (rings/wands perhaps)
-                    * that can't become copper */
-                   || (Race_if(PM_ELF) && objects[otyp].oc_material == IRON
+                   /* items that will be iron for elvenkind
+                    * (rings/wands perhaps) that can't become copper */
+                   || ((Race_if(PM_ELF) || Race_if(PM_DROW))
+                       && objects[otyp].oc_material == IRON
                        && !valid_obj_material(obj, COPPER))
                    /* items that will be mithril for orcs (rings/wands perhaps)
                     * that can't become iron */
@@ -1561,8 +1562,10 @@ register struct trobj *origtrop;
         /* Don't allow materials to be start scummed for */
         set_material(obj, objects[otyp].oc_material);
 
-        /* Replace iron objects (e.g. Priest's mace) with copper for elves */
-        if (Race_if(PM_ELF) && obj->material == IRON
+        /* Replace iron objects (e.g. Priest's mace) with copper
+           for elvenkind */
+        if ((Race_if(PM_ELF) || Race_if(PM_DROW))
+            && obj->material == IRON
             && valid_obj_material(obj, COPPER))
             set_material(obj, COPPER);
 

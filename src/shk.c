@@ -2145,7 +2145,8 @@ long *numerator, *denominator;
             *denominator = 2L;
         }
     } else if (is_elf(shkdat)) {
-        if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
+        if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)
+            || Race_if(PM_DROW)) {
             *numerator = 2L;
         } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
             *numerator = 4L;
@@ -2154,10 +2155,21 @@ long *numerator, *denominator;
             *numerator = 4L;
             *denominator = 5L;
         }
+    } else if (is_drow(shkdat)) {
+        if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)
+            || Race_if(PM_ELF)) {
+            *numerator = 2L;
+        } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        } else if (Race_if(PM_DROW)) {
+            *numerator = 4L;
+            *denominator = 5L;
+        }
     } else if (is_dwarf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
             *numerator = 2L;
-        } else if (Race_if(PM_ELF)) {
+        } else if (Race_if(PM_ELF) || Race_if(PM_DROW)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_GIANT)) {
@@ -2169,7 +2181,7 @@ long *numerator, *denominator;
         }
     } else if (is_orc(shkdat)) {
         if (Race_if(PM_ELF) || Race_if(PM_GNOME)
-            || Race_if(PM_HOBBIT)) {
+            || Race_if(PM_HOBBIT) || Race_if(PM_DROW)) {
             *numerator = 3L;
         } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
             *numerator = 5L;

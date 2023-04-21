@@ -28,7 +28,8 @@ enum monster_generation monclock;
 boolean
 elf_can_regen()
 {
-    if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))) {
+    if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
+        || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))) {
         if (uwep && is_iron(uwep)
             && !is_quest_artifact(uwep) && !uarmg)
             return 0;
@@ -559,7 +560,7 @@ boolean resuming;
                             || (wielding_artifact(ART_GLAMDRING)
                                 && racial_orc(mtmp))
                             || (wielding_artifact(ART_GRIMTOOTH)
-                                && racial_elf(mtmp))
+                                && (racial_elf(mtmp) || racial_drow(mtmp)))
                             || (wielding_artifact(ART_GIANTSLAYER)
                                 && racial_giant(mtmp))
                             || (wielding_artifact(ART_TROLLSBANE)

@@ -2270,6 +2270,13 @@ struct permonst _mons2[] = {
         0, M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
         M2_HOSTILE, M3_ACCURATE | M3_INFRAVISION, M4_VULNERABLE_FIRE,
         MH_ELF | MH_UNDEAD, 7, CLR_GREEN),
+    MON("drow mummy", S_MUMMY, LVL(6, 12, 4, 30, -5),
+        (G_GENO | G_NOCORPSE | 1), A(ATTK(AT_CLAW, AD_WTHR, 2, 4), NO_ATTK,
+                                     NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_ELF, 175, MS_SILENT, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
+        0, M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID | M1_POIS,
+        M2_HOSTILE, M3_ACCURATE | M3_INFRAVISION, M4_VULNERABLE_FIRE,
+        MH_DROW | MH_UNDEAD, 7, CLR_BLACK),
     MON("human mummy", S_MUMMY, LVL(6, 12, 4, 30, -5),
         (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_WTHR, 2, 4), ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK,
@@ -2774,6 +2781,14 @@ struct permonst _mons2[] = {
         0, M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID,
         M2_STALK | M2_HOSTILE, M3_ACCURATE | M3_INFRAVISION,
         M4_VULNERABLE_FIRE, MH_ELF | MH_UNDEAD, 4, CLR_GREEN),
+    MON("drow zombie", S_ZOMBIE, LVL(3, 3, 9, 0, -3),
+        (G_GENO | G_SGROUP | G_NOCORPSE | 2),
+        A(ATTK(AT_CLAW, AD_DRCO, 1, 7), ATTK(AT_BITE, AD_DRIN, 1, 2),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_ELF, 175, MS_SILENT, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
+        0, M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID,
+        M2_STALK | M2_HOSTILE, M3_ACCURATE | M3_INFRAVISION,
+        M4_VULNERABLE_FIRE, MH_DROW | MH_UNDEAD, 4, CLR_BLACK),
     MON("human zombie", S_ZOMBIE, LVL(4, 4, 8, 0, -3),
         (G_GENO | G_SGROUP | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_DRCO, 1, 8), ATTK(AT_BITE, AD_DRIN, 1, 2),
@@ -2918,7 +2933,7 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_COLLECT, 0,
         M4_VULNERABLE_FIRE, 0, 25, CLR_BRIGHT_CYAN),
     /*
-     * humans, including elves and were-critters
+     * humans, including elves, drow, and were-critters
      */
     MON("human", S_HUMAN, LVL(0, 12, 10, 0, 0), G_NOGEN, /* for corpses */
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
@@ -2983,6 +2998,14 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE | M1_TPORT,
         M2_NOPOLY | M2_HOSTILE | M2_STALK | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE, 0, MH_HUMAN, 6, CLR_BLACK),
+    MON("drow", S_HUMAN, LVL(0, 12, 10, 2, -3), G_NOGEN, /* placeholder */
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP | MR_POISON, MR_SLEEP,
+        M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS,
+        M2_NOPOLY | M2_STRONG | M2_COLLECT,
+        M3_ACCURATE | M3_INFRAVISION | M3_INFRAVISIBLE, 0, MH_DROW, 2,
+        CLR_BLACK),
     MON("elf", S_HUMAN, LVL(0, 12, 10, 2, -3), G_NOGEN, /* placeholder */
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),

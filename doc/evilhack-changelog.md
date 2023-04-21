@@ -2804,4 +2804,5 @@ The following changes to date are:
 - Allow some monsters to break boulders
 - New forging artifact recipe - Armor of Retribution
 - Fix: case for armor falling off when poly'd (Armor of Retribution)
+- Drow as a playable race (initial commit)
 

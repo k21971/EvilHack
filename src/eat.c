@@ -323,7 +323,8 @@ struct obj *otmp;
                          : (unsigned) objects[otmp->otyp].oc_nutrition;
 
     if (otmp->otyp == LEMBAS_WAFER) {
-        if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
+        if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
+            || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW)))
             nut += nut / 4; /* 800 -> 1000 */
         else if (maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC)))
             nut -= nut / 4; /* 800 -> 600 */
@@ -2048,7 +2049,8 @@ struct obj *otmp;
         if (maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC))) {
             pline("%s", "!#?&* elf kibble!");
             break;
-        } else if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))) {
+        } else if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
+                   || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))) {
             pline("A little goes a long way.");
             break;
         } else if (maybe_polyd(is_dwarf(youmonst.data), Race_if(PM_DWARF))) {

@@ -967,11 +967,12 @@ register struct obj *obj;
                                                                    : CADAVER)
                              : MANFOOD;
             /* most humanoids will avoid cannibalism unless starving;
-               arbitrary: elves won't eat other elves even then */
+               arbitrary: elven types won't eat other elves even then */
             else if (humanoid(mptr) && same_race(mptr, fptr)
                      && (!is_undead(mptr) && fptr->mlet != S_KOBOLD
                          && fptr->mlet != S_ORC && fptr->mlet != S_OGRE))
-                return (starving && carni && !racial_elf(mon)) ? ACCFOOD : TABU;
+                return (starving && carni && !(racial_elf(mon) || racial_drow(mon)))
+                        ? ACCFOOD : TABU;
             else
                 return carni ? (can_give_new_mintrinsic(fptr, mon) ? DOGFOOD
                                                                    : CADAVER)
@@ -1009,12 +1010,15 @@ register struct obj *obj;
         case FOOD_RATION:
             if (racial_human(mon)
           	|| racial_elf(mon)
+                || racial_drow(mon)
           	|| racial_dwarf(mon)
           	|| racial_gnome(mon)
           	|| racial_orc(mon)
                 || racial_hobbit(mon)
                 || racial_giant(mon)
-                || racial_centaur(mon))
+                || racial_centaur(mon)
+                || racial_illithid(mon)
+                || racial_tortle(mon))
                 return ACCFOOD;
             /*FALLTHRU*/
         default:
@@ -1107,7 +1111,8 @@ register struct obj *obj;
     if (wielding_artifact(ART_GLAMDRING) && racial_orc(mtmp))
         return FALSE;
 
-    if (wielding_artifact(ART_GRIMTOOTH) && racial_elf(mtmp))
+    if (wielding_artifact(ART_GRIMTOOTH)
+        && (racial_elf(mtmp) || racial_drow(mtmp)))
         return FALSE;
 
     if (wielding_artifact(ART_GIANTSLAYER) && racial_giant(mtmp))

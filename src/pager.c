@@ -438,17 +438,18 @@ int x, y;
                                                       : mtmp->data->mhflags;
                     const char *whom = ((mW & MH_HUMAN & mh) ? "human"
                                         : (mW & MH_ELF & mh) ? "elf"
-                                          : (mW & MH_ORC & mh) ? "orc"
-                                            : (mW & MH_UNDEAD & mh) ? "the undead"
-                                              : (mW & MH_GIANT & mh) ? "giant"
-                                                : (mW & MH_WERE & mh) ? "werecreature"
-                                                  : (mW & MH_DRAGON & mh) ? "dragon"
-                                                    : (mW & MH_OGRE & mh) ? "ogre"
-                                                      : (mW & MH_TROLL & mh) ? "troll"
-                                                        : (mW & MH_DEMON & mh) ? "demon"
-                                                          : (mW & MH_ANGEL & mh) ? "angel"
-                                                            : (mW & MH_JABBERWOCK & mh) ? "jabberwock"
-                                                              : mtmp->data->mname);
+                                          : (mW & MH_DROW & mh) ? "drow"
+                                            : (mW & MH_ORC & mh) ? "orc"
+                                              : (mW & MH_UNDEAD & mh) ? "the undead"
+                                                : (mW & MH_GIANT & mh) ? "giant"
+                                        : (mW & MH_WERE & mh) ? "werecreature"
+                                          : (mW & MH_DRAGON & mh) ? "dragon"
+                                            : (mW & MH_OGRE & mh) ? "ogre"
+                                              : (mW & MH_TROLL & mh) ? "troll"
+                                                : (mW & MH_DEMON & mh) ? "demon"
+                                                  : (mW & MH_ANGEL & mh) ? "angel"
+                                                    : (mW & MH_JABBERWOCK & mh) ? "jabberwock"
+                                                      : mtmp->data->mname);
 
                     Sprintf(eos(monbuf), "warned of %s", makeplural(whom));
                 }
@@ -1990,7 +1991,8 @@ struct permonst **for_supplement;
         if ((looked ? (sym == showsyms[S_HUMAN + SYM_OFF_M]
                        && cc.x == u.ux && cc.y == u.uy)
                     : (sym == def_monsyms[S_HUMAN].sym && !flags.showrace))
-            && !(Race_if(PM_HUMAN) || Race_if(PM_ELF)) && !Upolyd)
+            && !(Race_if(PM_HUMAN) || Race_if(PM_ELF)
+                 || Race_if(PM_DROW)) && !Upolyd)
             found += append_str(out_str, "you"); /* tack on "or you" */
     }
 

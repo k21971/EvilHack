@@ -2702,7 +2702,10 @@ find_ac()
      * larger bonus to compensate their sub-standard equipment, lack of equipment,
      * and the stats-challenged orc itself. Taken from SporkHack.
      */
-    racial_bonus = Race_if(PM_ORC) ? 2 : Race_if(PM_ELF) ? 1 : Race_if(PM_DWARF) ? 1 : 0;
+    racial_bonus = Race_if(PM_ORC) ? 2
+                     : Race_if(PM_ELF) ? 1
+                       : Race_if(PM_DWARF) ? 1
+                         : Race_if(PM_DROW) ? 1 : 0;
 
     if (uarm) {
         uac -= armor_bonus(uarm);

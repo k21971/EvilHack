@@ -1849,7 +1849,8 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
 
     tmp += omon_adj(mon, obj, TRUE);
     if (racial_orc(mon)
-        && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
+        && (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
+            || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))))
         tmp++;
     if (guaranteed_hit) {
         tmp += 1000; /* Guaranteed hit */

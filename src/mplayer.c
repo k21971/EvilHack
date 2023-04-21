@@ -158,6 +158,17 @@ static const char *tortle_female_names[] = {
     0
 };
 
+static const char *drow_male_names[] = {
+    "Chanin",       "Dresmorlin",  "Gwydyn",     "Imaufein",   "Nadryn",
+    "Ornamorlin",   "Seldszar",    "Torreldril", "Uhlsyln",    "Zaknafein",
+    0
+};
+
+static const char *drow_female_names[] = {
+    "Arduda",       "Balquiri",    "Drisinil",   "Ghirina",    "Jhulssysn",
+    "Kiava",        "Nalin",       "Quarstin",   "Rilvra",     "Vierna",
+    0
+};
 
 struct mfnames {
     const char **male;
@@ -175,7 +186,8 @@ static const struct mfnames namelists[] = {
     { hobbit_male_names, hobbit_female_names },
     { centaur_male_names, centaur_female_names },
     { illithid_male_names, illithid_female_names },
-    { tortle_male_names, tortle_female_names }
+    { tortle_male_names, tortle_female_names },
+    { drow_male_names, drow_female_names }
 };
 
 void
@@ -277,7 +289,7 @@ struct monst *mtmp;
         break;
     case PM_KNIGHT:
         if (race == PM_ELF || race == PM_ORC
-            || race == PM_CENTAUR)
+            || race == PM_CENTAUR || race == PM_DROW)
             rptr->ralign = -3;
         break;
     case PM_MONK:
@@ -301,7 +313,8 @@ struct monst *mtmp;
         rptr->mattk[0].adtyp = AD_SAMU;
         rptr->mattk[1].aatyp = AT_MAGC;
         rptr->mattk[1].adtyp = AD_CLRC;
-        if (race == PM_ORC || race == PM_ILLITHID)
+        if (race == PM_ORC || race == PM_ILLITHID
+            || race == PM_DROW)
             rptr->ralign = -3;
         if (race == PM_TORTLE)
             rptr->ralign = 0;
@@ -343,7 +356,8 @@ struct monst *mtmp;
         rptr->mattk[0].adtyp = AD_SAMU;
         rptr->mattk[1].aatyp = AT_MAGC;
         rptr->mattk[1].adtyp = AD_SPEL;
-        if (race == PM_ORC || race == PM_ILLITHID)
+        if (race == PM_ORC || race == PM_ILLITHID
+            || race == PM_DROW)
             rptr->ralign = -3;
         if (race == PM_DWARF || race == PM_HOBBIT
             || race == PM_TORTLE)

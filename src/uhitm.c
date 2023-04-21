@@ -316,11 +316,12 @@ int *attk_count, *role_roll_penalty;
 
     /* elves get a slight bonus to-hit vs orcs */
     if (racial_orc(mtmp)
-        && maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
+        && (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
+            || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))))
         tmp++;
 
     /* orcs should get the same to-hit bonus vs elves */
-    if (racial_elf(mtmp)
+    if ((racial_elf(mtmp) || racial_drow(mtmp))
         && maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC)))
         tmp++;
 

@@ -395,7 +395,7 @@ int material;
 
     if (has_erac(mon)) {
         if (material == IRON) {
-            return (racial_elf(mon));
+            return (racial_elf(mon) || racial_drow(mon));
         } else if (material == MITHRIL) {
             return (racial_orc(mon));
         }
@@ -423,8 +423,8 @@ int material;
     } else if (material == IRON) {
         if (is_undead(ptr))
             return FALSE;
-        /* cold iron: elves hate it */
-        return (is_elf(ptr));
+        /* cold iron: elves and drow hate it */
+        return (is_elf(ptr) || is_drow(ptr));
     } else if (material == MITHRIL) {
         if (is_undead(ptr))
             return FALSE;
@@ -763,12 +763,20 @@ struct permonst *pm1, *pm2;
         return is_human(pm2);
     if (is_elf(pm1))
         return is_elf(pm2);
+    if (is_drow(pm1))
+        return is_drow(pm2);
     if (is_dwarf(pm1))
         return is_dwarf(pm2);
     if (is_gnome(pm1))
         return is_gnome(pm2);
     if (is_orc(pm1))
         return is_orc(pm2);
+    if (is_hobbit(pm1))
+        return is_hobbit(pm2);
+    if (is_centaur(pm1))
+        return is_centaur(pm2);
+    if (is_tortle(pm1))
+        return is_tortle(pm2);
     /* other creatures are less precise */
     if (is_giant(pm1))
         return is_giant(pm2); /* open to quibbling here */
@@ -880,7 +888,9 @@ mon_race_name(mhflag)
 unsigned mhflag;
 {
     static const char* mrnames[] = {
-        "human", "elf", "dwarf", "gnome", "orc", "giant", "hobbit", "centaur", "illithid", "tortle",
+        "human", "elf", "dwarf", "gnome",
+        "orc", "giant", "hobbit", "centaur",
+        "illithid", "tortle", "drow",
         "undead",
         "lycanthrope",
         "demon",

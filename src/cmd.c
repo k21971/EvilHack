@@ -3225,31 +3225,36 @@ int final;
                 ((context.warntype.polyd & (MH_HUMAN | MH_ELF))
                  == (MH_HUMAN | MH_ELF))
                     ? "humans and elves"
-                    : (context.warntype.polyd & MH_HUMAN)
-                          ? "humans"
-                          : (context.warntype.polyd & MH_ELF)
-                                ? "elves"
-                                : (context.warntype.polyd & MH_ORC)
-                                      ? "orcs"
-                                      : (context.warntype.polyd & MH_UNDEAD)
-                                            ? "the undead"
-                                            : (context.warntype.polyd & MH_GIANT)
+                    : ((context.warntype.polyd & (MH_ELF | MH_DROW))
+                       == (MH_ELF | MH_DROW))
+                          ? "elves and drow"
+                          : (context.warntype.polyd & MH_HUMAN)
+                              ? "humans"
+                              : (context.warntype.polyd & MH_ELF)
+                                  ? "elves"
+                                  : (context.warntype.polyd & MH_DROW)
+                                      ? "drow"
+                                      : (context.warntype.polyd & MH_ORC)
+                                          ? "orcs"
+                                          : (context.warntype.polyd & MH_UNDEAD)
+                                              ? "the undead"
+                                              : (context.warntype.polyd & MH_GIANT)
                                                   ? "giants"
                     : (context.warntype.polyd & MH_WERE)
-                          ? "werecreatures"
-                          : (context.warntype.polyd & MH_DRAGON)
-                                ? "dragons"
-                                : (context.warntype.polyd & MH_OGRE)
-                                      ? "ogres"
-                                      : (context.warntype.polyd & MH_TROLL)
-                                            ? "trolls"
-                                            : (context.warntype.polyd & MH_DEMON)
-                                                  ? "demons"
-                                                  : (context.warntype.polyd & MH_ANGEL)
-                                                        ? "angels"
-                                                        : (context.warntype.polyd & MH_JABBERWOCK)
-                                                              ? "jabberwocks"
-                                                              : "certain monsters");
+                        ? "werecreatures"
+                        : (context.warntype.polyd & MH_DRAGON)
+                            ? "dragons"
+                            : (context.warntype.polyd & MH_OGRE)
+                                ? "ogres"
+                                : (context.warntype.polyd & MH_TROLL)
+                                    ? "trolls"
+                                    : (context.warntype.polyd & MH_DEMON)
+                                        ? "demons"
+                                        : (context.warntype.polyd & MH_ANGEL)
+                                            ? "angels"
+                                            : (context.warntype.polyd & MH_JABBERWOCK)
+                                                ? "jabberwocks"
+                                                : "certain monsters");
         you_are(buf, "");
     }
     if (Warn_of_mon && context.warntype.speciesidx >= LOW_PM) {

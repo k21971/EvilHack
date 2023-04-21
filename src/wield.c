@@ -244,7 +244,8 @@ struct obj *wep;
             }
         }
 
-        if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
+        if ((maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
+             || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW)))
             && wep->material == IRON) {
             /* Elves are averse to wielding cold iron */
             You("%s wielding cold iron.",

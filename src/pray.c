@@ -2426,7 +2426,8 @@ dosacrifice()
                     if (typ) {
                         ncount = 0;
                         otmp = mksobj(typ, FALSE, FALSE);
-                        while (((Race_if(PM_ELF) && otmp->material == IRON)
+                        while ((((Race_if(PM_ELF) || Race_if(PM_DROW))
+                                 && otmp->material == IRON)
                                 || (Race_if(PM_ORC)
                                     && otmp->material == MITHRIL)
                                 || (Race_if(PM_ILLITHID)

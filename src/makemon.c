@@ -2855,7 +2855,7 @@ long mmflags;
             mtmp->msleeping = 1;
         break;
     case S_ORC:
-        if (Race_if(PM_ELF))
+        if (Race_if(PM_ELF) || Race_if(PM_DROW))
             mtmp->mpeaceful = FALSE;
         break;
     case S_UNICORN:
