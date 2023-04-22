@@ -2806,4 +2806,5 @@ The following changes to date are:
 - Fix: case for armor falling off when poly'd (Armor of Retribution)
 - Drow as a playable race (initial commit)
 - Shadowblade tweaks
+- Drow ability - conjuring an aura of darkness
 

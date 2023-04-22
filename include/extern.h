@@ -2115,6 +2115,7 @@ E int NDECL(dospinweb);
 E int NDECL(dosummon);
 E int NDECL(dogaze);
 E int NDECL(dohide);
+E int NDECL(dodarkness);
 E int NDECL(toggleshell);
 E int NDECL(dopoly);
 E int NDECL(domindblast);

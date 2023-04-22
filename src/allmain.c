@@ -1075,6 +1075,13 @@ boolean new_game; /* false => restoring an old game */
         pline(new_game ? "%s %s, welcome to EvilHack!  You are a%s."
                        : "%s %s, the%s, welcome back to EvilHack!",
               Hello((struct monst *) 0), plname, buf);
+
+    if (new_game) {
+        if (Race_if(PM_TORTLE))
+            pline("Use #monster to hide in your shell.");
+        else if (Race_if(PM_DROW))
+            pline("Use #monster to invoke an aura of darkness.");
+    }
 }
 
 #ifdef POSITIONBAR

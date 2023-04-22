@@ -731,6 +731,9 @@ domonability(VOID_ARGS)
     else if (maybe_polyd(is_tortle(youmonst.data),
              Race_if(PM_TORTLE)))
         return toggleshell();
+    else if (maybe_polyd(is_drow(youmonst.data),
+             Race_if(PM_DROW)))
+        return dodarkness();
     else if (is_mind_flayer(youmonst.data))
         return domindblast();
     else if (u.umonnum == PM_GREMLIN) {

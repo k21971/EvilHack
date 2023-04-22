@@ -1698,6 +1698,41 @@ dohide()
 }
 
 int
+dodarkness()
+{
+    int energy = 0;
+    const char *fail_invoke = 0;
+    boolean invoke_darkness = TRUE;
+
+    energy = 10;
+    if (Confusion || Stunned)
+        fail_invoke = "are unable";
+    if (u.uhunger <= 10)
+        fail_invoke = "are too weak from hunger";
+    else if (ACURR(A_STR) < 4)
+        fail_invoke = "lack the strength";
+    else if (energy > u.uen)
+        fail_invoke = "lack the energy";
+
+    if (fail_invoke) {
+        You("%s to invoke an aura of darkness.",
+            fail_invoke);
+        invoke_darkness = FALSE;
+        return 0;
+    }
+
+    if (invoke_darkness) {
+        exercise(A_WIS, TRUE);
+        u.uen -= energy;
+        context.botl = 1;
+        You("invoke an aura of darkness.");
+        litroom(FALSE, NULL);
+    }
+
+    return 1;
+}
+
+int
 toggleshell()
 {
     boolean was_blind = Blind, was_hiding = Hidinshell;
