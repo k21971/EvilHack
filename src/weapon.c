@@ -193,6 +193,14 @@ botl_hitbonus()
             tmp += (u.ulevel / 3) + 2;
     }
 
+    if (maybe_polyd(is_drow(youmonst.data),
+                    Race_if(PM_DROW))) {
+        if (levl[u.ux][u.uy].lit == 1)
+            tmp -= 3;
+        else if (levl[u.ux][u.uy].lit == 0)
+            tmp += (u.ulevel / 3) + 2;
+    }
+
     if (uwep && (uwep->otyp == HEAVY_IRON_BALL))
         tmp += 4;
 
@@ -216,8 +224,11 @@ botl_hitbonus()
         wepskill = P_SKILL(weapon_type(uwep));
         twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);
         /* use the lesser skill of two-weapon or your primary */
-        useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill : wepskill;
-        if ((useskill == P_UNSKILLED || useskill == P_ISRESTRICTED) && tmp > 15)
+        useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill
+                                                         : wepskill;
+        if ((useskill == P_UNSKILLED
+             || useskill == P_ISRESTRICTED)
+            && tmp > 15)
             tmp = 15;
     }
 

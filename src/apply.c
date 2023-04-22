@@ -1010,7 +1010,8 @@ struct obj *obj;
     vis = canseemon(mtmp);
 /* ways to directly see monster (excludes X-ray vision, telepathy,
    extended detection, type-specific warning) */
-#define SEENMON (MONSEEN_NORMAL | MONSEEN_SEEINVIS | MONSEEN_INFRAVIS)
+#define SEENMON (MONSEEN_NORMAL | MONSEEN_SEEINVIS \
+                 | MONSEEN_INFRAVIS | MONSEEN_ULTRAVIS)
     how_seen = vis ? howmonseen(mtmp) : 0;
     /* whether monster is able to use its vision-based capabilities */
     monable = !mtmp->mcan && (!mtmp->minvis || mon_prop(mtmp, SEE_INVIS));

@@ -79,8 +79,9 @@ set_uasmon()
     PROPSET(HALLUC_RES, dmgtype(mdat, AD_HALU));
     PROPSET(SEE_INVIS, perceives(mdat));
     PROPSET(TELEPAT, telepathic(mdat));
-    /* note that Infravision uses mons[race] rather than usual mons[role] */
+    /* note that Infravision/Ultravision uses mons[race] rather than usual mons[role] */
     PROPSET(INFRAVISION, infravision(racedat));
+    PROPSET(ULTRAVISION, ultravision(racedat));
     PROPSET(INVIS, pm_invisible(mdat));
     PROPSET(TELEPORT, can_teleport(mdat));
     PROPSET(TELEPORT_CONTROL, control_teleport(mdat));

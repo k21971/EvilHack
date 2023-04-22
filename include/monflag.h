@@ -152,11 +152,12 @@
 /* Infravision is currently implemented for players only */
 #define M3_INFRAVISION 0x0100  /* has infravision */
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
+#define M3_ULTRAVISION 0x0400  /* has ultravision */
 
-#define M3_DISPLACES 0x0400 /* moves monsters out of its way */
-#define M3_SKITTISH 0x0800  /* tends to stay a few squares away from you */
-#define M3_ACCURATE 0x1000  /* gets an accuracy bonus to hit */
-#define M3_BERSERK 0x2000   /* extremely indiscriminate in its attacks */
+#define M3_DISPLACES 0x0800 /* moves monsters out of its way */
+#define M3_SKITTISH 0x1000  /* tends to stay a few squares away from you */
+#define M3_ACCURATE 0x2000  /* gets an accuracy bonus to hit */
+#define M3_BERSERK 0x4000   /* extremely indiscriminate in its attacks */
 
 #define M4_VULNERABLE_FIRE 0x0001 /* inherent elemental vulnerabilities */
 #define M4_VULNERABLE_COLD 0x0002

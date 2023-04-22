@@ -409,6 +409,12 @@ int x, y;
                 if (how_seen)
                     Strcat(monbuf, ", ");
             }
+            if (how_seen & MONSEEN_ULTRAVIS) {
+                Strcat(monbuf, "ultravision");
+                how_seen &= ~MONSEEN_ULTRAVIS;
+                if (how_seen)
+                    Strcat(monbuf, ", ");
+            }
             if (how_seen & MONSEEN_TELEPAT) {
                 Strcat(monbuf, "telepathy");
                 how_seen &= ~MONSEEN_TELEPAT;
@@ -502,22 +508,34 @@ char *buf, *monbuf;
             && !(u.uswallow || iflags.save_uswallow)) {
             unsigned how = 0;
 
-            if (Infravision)
+            if (Infravision || Ultravision)
                 how |= 1;
             if (Unblind_telepat)
                 how |= 2;
             if (Detect_monsters)
                 how |= 4;
 
-            if (how)
-                Sprintf(eos(buf), " [seen: %s%s%s%s%s]",
-                        (how & 1) ? "infravision" : "",
-                        /* add comma if telep and infrav */
-                        ((how & 3) > 2) ? ", " : "",
-                        (how & 2) ? "telepathy" : "",
-                        /* add comma if detect and (infrav or telep or both) */
-                        ((how & 7) > 4) ? ", " : "",
-                        (how & 4) ? "monster detection" : "");
+            if (how) {
+                if (Infravision) {
+                    Sprintf(eos(buf), " [seen: %s%s%s%s%s]",
+                            (how & 1) ? "infravision" : "",
+                            /* add comma if telep and infrav */
+                            ((how & 3) > 2) ? ", " : "",
+                            (how & 2) ? "telepathy" : "",
+                            /* add comma if detect and (infrav or telep or both) */
+                            ((how & 7) > 4) ? ", " : "",
+                            (how & 4) ? "monster detection" : "");
+                } else {
+                    Sprintf(eos(buf), " [seen: %s%s%s%s%s]",
+                            (how & 1) ? "ultravision" : "",
+                            /* add comma if telep and infrav */
+                            ((how & 3) > 2) ? ", " : "",
+                            (how & 2) ? "telepathy" : "",
+                            /* add comma if detect and (infrav or telep or both) */
+                            ((how & 7) > 4) ? ", " : "",
+                            (how & 4) ? "monster detection" : "");
+                }
+            }
         }
     } else if (u.uswallow) {
         /* when swallowed, we're only called for spots adjacent to hero,
@@ -1376,6 +1394,7 @@ short otyp;
                     /* don't do special warn_of_mon */
                     case SEARCHING:
                     case INFRAVISION:
+                    case ULTRAVISION:
                     case AGGRAVATE_MONSTER:
                     case CONFLICT:
                     case JUMPING:

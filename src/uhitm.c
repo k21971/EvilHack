@@ -2294,9 +2294,21 @@ struct attack *mattk;
     else if (ACURR(A_DEX) == 25)
         dex_pick -= 4;
 
-    /* bonus if the target can't see the thief */
-    if (!m_canseeu(mdef))
-        no_vis -= 2;
+    /* varying degrees of perception */
+    if (!mdef->mcansee && haseyes(mdef->data)) {
+        /* target is blind */
+        no_vis -= 4;
+    } else if (!m_canseeu(mdef)) {
+        /* thief is invisible */
+        no_vis -= 3;
+    } else if (mdef->mcansee && haseyes(mdef->data)
+        && (levl[u.ux][u.uy].lit == 0)) {
+        /* thief is in darkness, target can see */
+        if (Race_if(PM_DROW))
+            no_vis -= 3;
+        else
+            no_vis -= 2;
+    }
 
     /* slight bonus if the thief is small and
        its target is much bigger */

@@ -849,7 +849,8 @@ register int x, y;
                 display_self();
         } else if ((mon = m_at(x, y)) != 0
                    && ((see_it = (tp_sensemon(mon) || MATCH_WARN_OF_MON(mon)
-                                  || (see_with_infrared(mon)
+                                  || ((see_with_infrared(mon)
+                                       || see_with_ultravision(mon))
                                       && mon_visible(mon)))) != 0
                        || Detect_monsters)) {
             /* Seen or sensed monsters are printed every time.

@@ -220,6 +220,10 @@
 #define EInfravision u.uprops[INFRAVISION].extrinsic
 #define Infravision (HInfravision || EInfravision)
 
+#define HUltravision u.uprops[ULTRAVISION].intrinsic
+#define EUltravision u.uprops[ULTRAVISION].extrinsic
+#define Ultravision (HUltravision || EUltravision)
+
 #define HDetect_monsters u.uprops[DETECT_MONSTERS].intrinsic
 #define EDetect_monsters u.uprops[DETECT_MONSTERS].extrinsic
 #define Detect_monsters (HDetect_monsters || EDetect_monsters)

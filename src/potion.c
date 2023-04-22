@@ -426,7 +426,8 @@ toggle_blindness()
        and then a secret door; hero was blinded by vapors but then got the
        message "a door appears in the wall" because wall spot was IN_SIGHT) */
     vision_recalc(0);
-    if (Blind_telepat || Infravision || context.warntype.obj)
+    if (Blind_telepat || Infravision
+        || Ultravision || context.warntype.obj)
         see_monsters(); /* also counts EWarn_of_mon monsters */
     /*
      * Avoid either of the sequences

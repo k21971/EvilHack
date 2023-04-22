@@ -76,6 +76,7 @@ const struct propname {
     { WARN_UNDEAD, "warn: undead" },
     { SEARCHING, "searching" },
     { INFRAVISION, "infravision" },
+    { ULTRAVISION, "ultravision" },
     { ADORNED, "adorned (+/- Cha)" },
     { DISPLACED, "displaced" },
     { STEALTH, "stealthy" },

@@ -809,8 +809,12 @@ int wtcap;
     int heal = 0;
     boolean reached_full = FALSE,
             encumbrance_ok = (wtcap < MOD_ENCUMBER || !u.umoved),
-            infidel_no_amulet = (u.ualign.type == A_NONE && !u.uhave.amulet
-                                 && !u.uachieve.amulet);
+            infidel_no_amulet = (u.ualign.type == A_NONE
+                                 && !u.uhave.amulet
+                                 && !u.uachieve.amulet),
+            drow_in_light = (maybe_polyd(is_drow(youmonst.data),
+                                         Race_if(PM_DROW))
+                             && (levl[u.ux][u.uy].lit == 1));
 
     /* periodically let our Infidel know why their hit
        points aren't regenerating if they don't have
@@ -844,7 +848,12 @@ int wtcap;
         /* [when this code was in-line within moveloop(), there was
            no !Upolyd check here, so poly'd hero recovered lost u.uhp
            once u.mh reached u.mhmax; that may have been convenient
-           for the player, but it didn't make sense for gameplay...] */
+           for the player, but it didn't make sense for gameplay...]
+
+           Drow heal more slowly in the light, Infidels won't heal at
+           all without the Amulet of Yendor with them (pre-idol
+           imbuement). No one can regenerate hit points while located
+           in the Valley of the Dead */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
             && (encumbrance_ok || Regeneration) && !Is_valley(&u.uz)
             && !infidel_no_amulet) {
@@ -853,16 +862,26 @@ int wtcap;
                     int Con = (int) ACURR(A_CON);
 
                     if (Con <= 12) {
-                        heal = 1;
+                        if (drow_in_light)
+                            heal = rn2(2);
+                        else
+                            heal = 1;
                     } else {
-                        heal = rnd(Con);
+                        if (drow_in_light)
+                            heal = rnd(Con) / 2;
+                        else
+                            heal = rnd(Con);
                         if (heal > u.ulevel - 9)
                             heal = u.ulevel - 9;
                     }
                 }
             } else { /* u.ulevel <= 9 */
-                if (!(moves % (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1)))
-                    heal = 1;
+                if (!(moves % (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1))) {
+                    if (drow_in_light)
+                        heal = rn2(2);
+                    else
+                        heal = 1;
+                }
             }
 
             /* tortles gain some accelerated regeneration while

@@ -89,9 +89,19 @@
  * invisible to infravision), because this is usually called from within
  * canseemon() or canspotmon() which already check that.
  */
-#define see_with_infrared(mon)                        \
+#define see_with_infrared(mon) \
     (!Blind && Infravision && mon && infravisible(mon->data) \
      && couldsee(mon->mx, mon->my))
+
+/*
+ * see_with_ultravision()
+ *
+ * This function much like see_with_infrared, however the monster
+ * being viewed does not have to be infravisible if they are
+ * surrounded in darkness.
+ */
+#define see_with_ultravision(mon) \
+    (!Blind && Ultravision && mon && couldsee(mon->mx, mon->my))
 
 /*
  * canseemon()
@@ -100,9 +110,11 @@
  * routines.  Like mon_visible(), but it checks to see if the hero sees the
  * location instead of assuming it.  (And also considers worms.)
  */
-#define canseemon(mon)                                                    \
-    ((mon->wormno ? worm_known(mon)                                       \
-                  : (cansee(mon->mx, mon->my) || see_with_infrared(mon))) \
+#define canseemon(mon) \
+    ((mon->wormno ? worm_known(mon)                 \
+                  : (cansee(mon->mx, mon->my)       \
+                     || see_with_infrared(mon)      \
+                     || see_with_ultravision(mon))) \
      && mon_visible(mon))
 
 /*

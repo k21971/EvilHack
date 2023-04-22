@@ -2817,6 +2817,8 @@ struct monst *mon;
     /* infravision */
     if ((!mon->minvis || See_invisible) && see_with_infrared(mon))
         how_seen |= MONSEEN_INFRAVIS;
+    if ((!mon->minvis || See_invisible) && see_with_ultravision(mon))
+        how_seen |= MONSEEN_ULTRAVIS;
     /* telepathy */
     if (tp_sensemon(mon))
         how_seen |= MONSEEN_TELEPAT;

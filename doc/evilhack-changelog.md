@@ -2807,4 +2807,5 @@ The following changes to date are:
 - Drow as a playable race (initial commit)
 - Shadowblade tweaks
 - Drow ability - conjuring an aura of darkness
+- More Drow abilities, strengths and weaknesses
 

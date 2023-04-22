@@ -157,7 +157,7 @@ static const struct innate {
                  { 12, &(HRegeneration), "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },
 
-  dro_abil[] = { { 1, &(HInfravision), "", "" },
+  dro_abil[] = { { 1, &(HUltravision), "", "" },
                  { 1, &(HSleep_resistance), "", "" },
                  { 5, &(HPoison_resistance), "hardy", "" },
                  { 9, &(HSearching), "perceptive", "unaware" },

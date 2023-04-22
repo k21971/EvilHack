@@ -3278,6 +3278,8 @@ int final;
     }
     if (Infravision)
         you_have("infravision", from_what(INFRAVISION));
+    if (Ultravision)
+        you_have("ultravision", from_what(ULTRAVISION));
     if (Detect_monsters)
         you_are("sensing the presence of monsters", "");
     if (u.umconf)
