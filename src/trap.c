@@ -1030,6 +1030,7 @@ struct trap *trap;
     otmp->quan = 1L;
     otmp->owt = weight(otmp);
     otmp->opoisoned = 0;
+    otmp->otainted = 0;
     otmp->ox = trap->tx, otmp->oy = trap->ty;
     return otmp;
 }
@@ -4722,8 +4723,10 @@ boolean bury_it;
     otmp->quan = cnt;
     otmp->owt = weight(otmp);
     /* Only dart traps are capable of being poisonous */
-    if (otyp != DART)
+    if (otyp != DART) {
         otmp->opoisoned = 0;
+        otmp->otainted = 0;
+    }
     place_object(otmp, ttmp->tx, ttmp->ty);
     if (bury_it) {
         /* magical digging first disarms this trap, then will unearth it */

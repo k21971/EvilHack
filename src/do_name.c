@@ -1539,9 +1539,10 @@ struct obj *obj;
     /* remove attributes that are doname() caliber but get formatted
        by xname(); most of these fixups aren't really needed because the
        relevant type of object isn't callable so won't reach this far */
-    if (otemp.oclass == WEAPON_CLASS)
+    if (otemp.oclass == WEAPON_CLASS) {
         otemp.opoisoned = 0; /* not poisoned */
-    else if (otemp.oclass == POTION_CLASS)
+        otemp.otainted = 0; /* not tainted */
+    } else if (otemp.oclass == POTION_CLASS)
         otemp.odiluted = 0; /* not diluted */
     else if (otemp.otyp == TOWEL || otemp.otyp == STATUE)
         otemp.spe = 0; /* not wet or historic */

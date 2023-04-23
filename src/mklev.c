@@ -1691,15 +1691,18 @@ coord *tm;
         case ARROW_TRAP:
             otmp = mksobj(ARROW, TRUE, FALSE);
             otmp->opoisoned = 0;
+            otmp->otainted = 0;
             /* don't adjust the quantity; maybe the trap shot multiple
                times, there was an untrapping attempt, etc... */
             break;
         case BOLT_TRAP:
             otmp = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
             otmp->opoisoned = 0;
+            otmp->otainted = 0;
             break;
         case DART_TRAP:
             otmp = mksobj(DART, TRUE, FALSE);
+            otmp->otainted = 0;
             break;
         case ROCKTRAP:
             otmp = mksobj(ROCK, TRUE, FALSE);

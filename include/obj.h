@@ -90,16 +90,19 @@ struct obj {
 #define orotten oeroded  /* rotten food */
 #define odiluted oeroded /* diluted potions */
 #define norevive oeroded2 /* frozen corpses */
-    Bitfield(oerodeproof, 1); /* erodeproof weapon/armor */
-    Bitfield(olocked, 1);     /* object is locked */
-#define sokoprize olocked     /* special flag for sokoban prize */
-#define orecursive olocked    /* special flag for preventing recursive calls */
-    Bitfield(obroken, 1);     /* lock has been broken */
-#define degraded_horn obroken /* unicorn horn will poly to non-magic */
-    Bitfield(otrapped, 1);    /* container is trapped */
+    Bitfield(oerodeproof, 1);  /* erodeproof weapon/armor */
+    Bitfield(olocked, 1);      /* object is locked */
+#define sokoprize olocked      /* special flag for sokoban prize */
+#define orecursive olocked     /* special flag for preventing recursive calls */
+    Bitfield(obroken, 1);      /* lock has been broken */
+#define degraded_horn obroken  /* unicorn horn will poly to non-magic */
+    Bitfield(otrapped, 1);     /* container is trapped */
 /* or accidental tripped rolling boulder trap */
-#define opoisoned otrapped /* object (weapon) is coated with poison */
 #define zombie_corpse otrapped /* zombie corpse that can revive */
+    Bitfield(ocoated1, 1);     /* object (weapon) is coated in some type of poison */
+    Bitfield(ocoated2, 1);     /* object (weapon) is coated in some other type of poison */
+#define opoisoned ocoated1     /* object (weapon) is coated with poison */
+#define otainted ocoated2      /* object (weapon) is coated with drow poison */
 
     Bitfield(recharged, 3); /* number of times it's been recharged */
 #define on_ice recharged    /* corpse on ice */

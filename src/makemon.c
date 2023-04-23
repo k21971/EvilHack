@@ -656,6 +656,8 @@ unsigned short chance;
                 obj->cursed = (trop->trbless == CURSED);
                 if (obj->opoisoned && mon_aligntyp(mtmp) > A_CHAOTIC)
                     obj->opoisoned = 0;
+                if (obj->otainted)
+                    obj->otainted = 0;
                 if (obj->oclass == WEAPON_CLASS
                     || obj->oclass == TOOL_CLASS) {
                     obj->quan = (long) trop->trquan;

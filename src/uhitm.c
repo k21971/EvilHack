@@ -1015,6 +1015,8 @@ int dieroll;
     boolean get_dmg_bonus = TRUE;
     boolean ispoisoned = FALSE, needpoismsg = FALSE, poiskilled = FALSE,
             unpoisonmsg = FALSE;
+    boolean istainted = FALSE, needtaintmsg = FALSE, taintsleep = FALSE,
+            untaintmsg = FALSE;
     boolean ispotion = FALSE;
     boolean lightobj = FALSE;
     boolean thievery = FALSE;
@@ -1290,6 +1292,9 @@ int dieroll;
                 }
                 if (obj->opoisoned && is_poisonable(obj))
                     ispoisoned = TRUE;
+
+                if (obj->otainted && is_poisonable(obj))
+                    istainted = TRUE;
 
                 /* maybe break your glass weapon or monster's glass armor; put
                  * this at the end so that other stuff doesn't have to check obj
@@ -1672,6 +1677,31 @@ int dieroll;
         else
             poiskilled = TRUE;
     }
+
+    if (!ispotion && obj /* potion obj will have been freed by here */
+        && istainted) {
+        int notaint = (15 - (obj->owt / 10));
+
+        if (notaint < 2)
+            notaint = 2;
+        if (Role_if(PM_SAMURAI)) {
+            You("dishonorably use a tainted weapon!");
+            adjalign(-sgn(u.ualign.type));
+        } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
+            You_feel("like an evil coward for using a tainted weapon.");
+            adjalign(Role_if(PM_KNIGHT) ? -3 : -1);
+        }
+        if (obj && !rn2(notaint)) {
+            /* remove drow poison now in case obj ends up in a bones file */
+            obj->otainted = FALSE;
+            /* defer "obj is no longer tainted" until after hit message */
+            untaintmsg = TRUE;
+        }
+        if (resists_sleep(mon))
+            needtaintmsg = TRUE;
+        else
+            taintsleep = TRUE;
+    }
     if (tmp < 1) {
         /* make sure that negative damage adjustment can't result
            in inadvertently boosting the victim's hit points */
@@ -1918,13 +1948,16 @@ int dieroll;
        obj->opoisoned was cleared above and any message referring to
        "poisoned <obj>" has now been given; we want just "<obj>" for
        last message, so reformat while obj is still accessible */
-    if (unpoisonmsg)
+    if (unpoisonmsg || untaintmsg)
         Strcpy(saved_oname, cxname(obj));
 
     /* [note: thrown obj might go away during killed()/xkilled() call
        (via 'thrownobj'; if swallowed, it gets added to engulfer's
        minvent and might merge with a stack that's already there)] */
 
+    if (needtaintmsg)
+        pline_The("drow poison doesn't seem to affect %s.",
+                  mon_nam(mon));
     if (needpoismsg) {
         pline_The("poison doesn't seem to affect %s.", mon_nam(mon));
         if (obj && (obj->oprops & ITEM_VENOM))
@@ -1940,6 +1973,15 @@ int dieroll;
     } else if (destroyed) {
         if (!already_killed)
             killed(mon); /* takes care of most messages */
+    } else if (taintsleep) {
+        if (!rn2(3)) {
+            tmp += rnd(2);
+        } else {
+            if (sleep_monst(mon, rn2(3) + 2, WEAPON_CLASS)) {
+                pline("%s loses consciousness.", Monnam(mon));
+                slept_monst(mon);
+            }
+        }
     } else if (u.umconf && hand_to_hand) {
         nohandglow(mon);
         if (!mon->mconf && !resist(mon, SPBOOK_CLASS, 0, NOTELL)) {
@@ -1963,6 +2005,12 @@ int dieroll;
 
     if (unpoisonmsg) {
         Your("%s %s no longer poisoned.", saved_oname,
+             vtense(saved_oname, "are"));
+        update_inventory();
+    }
+
+    if (untaintmsg) {
+        Your("%s %s no longer tainted.", saved_oname,
              vtense(saved_oname, "are"));
         update_inventory();
     }

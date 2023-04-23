@@ -2892,9 +2892,18 @@ doeat()
             pline("Ecch - that must have been poisonous!");
             if (how_resistant(POISON_RES) < 100) {
                 losestr(resist_reduce(rnd(4), POISON_RES));
-                losehp(resist_reduce(rnd(15), POISON_RES), xname(otmp), KILLED_BY_AN);
+                losehp(resist_reduce(rnd(15), POISON_RES),
+                       xname(otmp), KILLED_BY_AN);
             } else
                 You("seem unaffected by the poison.");
+        } else if (otmp->oclass == WEAPON_CLASS && otmp->otainted) {
+            pline("Ecch - that must have been tainted!");
+            if (how_resistant(SLEEP_RES) < 100) {
+                losehp(resist_reduce(rnd(2), POISON_RES),
+                       xname(otmp), KILLED_BY_AN);
+                fall_asleep(-resist_reduce(rn2(3) + 2, SLEEP_RES), TRUE);
+            } else
+                You("seem unaffected by the drow poison.");
         } else if (!nodelicious) {
             pline("%s%s is delicious!",
                   (obj_is_pname(otmp)

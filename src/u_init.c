@@ -287,6 +287,8 @@ struct inv_sub {
     { PM_TORTLE, HAWAIIAN_SHIRT, TOQUE },
     { PM_TORTLE, CLOAK_OF_MAGIC_RESISTANCE, GLOVES },
     { PM_TORTLE, SACK, OILSKIN_SACK },
+    /* Drow have their own special gear */
+    { PM_DROW, POT_SICKNESS, POT_DROW_POISON },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -1137,6 +1139,10 @@ u_init()
         knows_object(ORCISH_MORNING_STAR);
         break;
 
+    case PM_DROW:
+        knows_object(POT_DROW_POISON);
+        break;
+
     default: /* impossible */
         break;
     }
@@ -1619,6 +1625,8 @@ register struct trobj *origtrop;
             obj->cursed = (trop->trbless == CURSED);
             if (obj->opoisoned && u.ualign.type > A_CHAOTIC)
                 obj->opoisoned = 0;
+            if (obj->otainted)
+                obj->otainted = 0;
             if (obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS) {
                 obj->quan = (long) trop->trquan;
                 trop->trquan = 1;

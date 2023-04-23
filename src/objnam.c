@@ -704,6 +704,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     case WEAPON_CLASS:
         if (is_poisonable(obj) && obj->opoisoned)
             Strcat(buf, "poisoned ");
+        else if (is_poisonable(obj) && obj->otainted)
+            Strcat(buf, "tainted ");
         /*FALLTHRU*/
     case VENOM_CLASS:
     case TOOL_CLASS:
@@ -1247,7 +1249,7 @@ doname_base(obj, doname_flags)
 struct obj *obj;
 unsigned doname_flags;
 {
-    boolean ispoisoned = FALSE,
+    boolean ispoisoned = FALSE, istainted = FALSE,
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
             weightshown = FALSE;
@@ -1280,6 +1282,12 @@ unsigned doname_flags;
     if (!strncmp(bp, "poisoned ", 9) && obj->opoisoned) {
         bp += 9;
         ispoisoned = TRUE;
+    }
+
+    /* same check for otainted */
+    if (!strncmp(bp, "tainted ", 8) && obj->otainted) {
+        bp += 8;
+        istainted = TRUE;
     }
 
     if (obj->quan != 1L) {
@@ -1412,6 +1420,8 @@ unsigned doname_flags;
     case WEAPON_CLASS:
         if (ispoisoned)
             Strcat(prefix, "poisoned ");
+        if (istainted)
+            Strcat(prefix, "tainted ");
         add_erosion_words(obj, prefix);
         if (known) {
             Strcat(prefix, sitoa(obj->spe));
@@ -1888,6 +1898,8 @@ struct obj *obj;
        not the cause of death and "poisoned by poisoned <obj>" would
        be redundant when it is, so suppress "poisoned" prefix */
     obj->opoisoned = 0;
+    /* same for "killed by tainted <obj>" */
+    obj->otainted = 0;
     /* strip user-supplied name; artifacts keep theirs */
     if (!obj->oartifact && save_oname)
         ONAME(obj) = (char *) 0;
@@ -3404,6 +3416,7 @@ const char *str;
     const char *non_monster_strs[] = {
         "samurai sword", /* not the "samurai" monster! */
         "wizard lock",   /* not the "wizard" monster! */
+        "drow poison",   /* not the "drow" monster! */
         "death wand",    /* 'of inversion', not Rider */
         "master key",    /* not the "master" rank */
         "ninja-to",      /* not the "ninja" rank */
@@ -3497,7 +3510,7 @@ struct obj *no_wish;
     register int i;
     register struct obj *otmp;
     int cnt, spe, spesgn, typ, very, rechrg;
-    int blessed, uncursed, iscursed, ispoisoned, isgreased;
+    int blessed, uncursed, iscursed, ispoisoned, istainted, isgreased;
     int magical;
     int eroded, eroded2, erodeproof, locked, unlocked, broken;
     int halfeaten, mntmp, contents;
@@ -3532,9 +3545,9 @@ struct obj *no_wish;
 
     cnt = spe = spesgn = typ = 0;
     very = rechrg = blessed = uncursed = iscursed = magical =
-        ispoisoned = isgreased = eroded = eroded2 = erodeproof =
-        halfeaten = islit = unlabeled = ishistoric = isdiluted =
-        trapped = locked = unlocked = broken = 0;
+        ispoisoned = istainted = isgreased = eroded = eroded2 =
+        erodeproof = halfeaten = islit = unlabeled = ishistoric =
+        isdiluted = trapped = locked = unlocked = broken = 0;
     tvariety = RANDOM_TIN;
     mntmp = NON_PM;
 #define UNDEFINED 0
@@ -3620,6 +3633,8 @@ struct obj *no_wish;
             unlabeled = 1;
         } else if (!strncmpi(bp, "poisoned ", l = 9)) {
             ispoisoned = 1;
+        } else if (!strncmpi(bp, "tainted ", l = 8)) {
+            istainted = 1;
             /* "trapped" recognized but not honored outside wizard mode */
         } else if (!strncmpi(bp, "trapped ", l = 8)) {
             trapped = 0; /* undo any previous "untrapped" */
@@ -4785,6 +4800,11 @@ struct obj *no_wish;
         else if (oclass == FOOD_CLASS)
             /* try to taint by making it as old as possible */
             otmp->age = 1L;
+    }
+    /* set tainted */
+    if (istainted) {
+        if (is_poisonable(otmp))
+            otmp->otainted = (Luck >= 0);
     }
     /* and [un]trapped */
     if (trapped) {

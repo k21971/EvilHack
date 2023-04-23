@@ -626,7 +626,9 @@ doforging(void)
             output->blessed = obj2->blessed;
             /* ensure the final product is not degraded or poisoned
                in any way */
-            output->oeroded = output->oeroded2 = output->opoisoned = 0;
+            output->oeroded = output->oeroded2 = 0;
+            output->opoisoned = 0;
+            output->otainted = 0;
 
             /* delete recipe objects */
             delobj(obj1);
@@ -737,7 +739,9 @@ doforging(void)
             output->blessed = obj2->blessed;
             /* ensure the final product is not degraded or poisoned
                in any way */
-            output->oeroded = output->oeroded2 = output->opoisoned = 0;
+            output->oeroded = output->oeroded2 = 0;
+            output->opoisoned = 0;
+            output->otainted = 0;
 
             /* toss out old objects, add new one */
             if (obj1->otyp == recipe->typ1)

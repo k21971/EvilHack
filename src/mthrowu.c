@@ -582,6 +582,23 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                 }
             }
         }
+        if (otmp->otainted && is_poisonable(otmp)) {
+            if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE)) {
+                if (vis)
+                    pline_The("drow poison doesn't seem to affect %s.",
+                              mon_nam(mtmp));
+            } else {
+                if (!rn2(3)) {
+                    damage += rnd(2);
+                } else {
+                    if (sleep_monst(mtmp, rn2(3) + 2, WEAPON_CLASS)) {
+                        if (vis)
+                            pline("%s loses consciousness.", Monnam(mtmp));
+                        slept_monst(mtmp);
+                    }
+                }
+            }
+        }
         if (!DEADMONSTER(mtmp)
             && mon_hates_material(mtmp, otmp->material)) {
             /* Extra damage is already handled in dmgval(). */
@@ -854,6 +871,27 @@ register boolean verbose;
                          /* if damage triggered life-saving,
                             poison is limited to attrib loss */
                          (u.umortality > oldumort) ? 0 : 10, TRUE);
+            }
+            if (hitu && singleobj->otainted && is_poisonable(singleobj)) {
+                if (how_resistant(SLEEP_RES) == 100) {
+                    monstseesu(M_SEEN_SLEEP);
+                    pline_The("drow poison doesn't seem to affect you.");
+                } else {
+                    if (!rn2(3)) {
+                        losehp(resist_reduce(rnd(2), POISON_RES),
+                               xname(singleobj), KILLED_BY_AN);
+                    } else {
+                        if (u.usleep) { /* don't let sleep effect stack */
+                            losehp(resist_reduce(rnd(2), POISON_RES),
+                                   xname(singleobj), KILLED_BY_AN);
+                        } else {
+                            You("lose consciousness.");
+                            losehp(resist_reduce(rnd(2), POISON_RES),
+                                   xname(singleobj), KILLED_BY_AN);
+                            fall_asleep(-resist_reduce(rn2(3) + 2, SLEEP_RES), TRUE);
+                        }
+                    }
+                }
             }
             if (hitu && can_blnd((struct monst *) 0, &youmonst,
                                  (uchar) (((singleobj->otyp == BLINDING_VENOM)

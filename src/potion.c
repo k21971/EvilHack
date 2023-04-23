@@ -949,7 +949,10 @@ register struct obj *otmp;
             You("yawn.");
         } else {
             You("suddenly fall asleep!");
-            fall_asleep(-resist_reduce(rn1(otmp->odiluted ? 5 : 10, 25 - 12 * bcsign(otmp)), SLEEP_RES), TRUE);
+            fall_asleep(-resist_reduce(rn1(otmp->odiluted
+                                           ? 5
+                                           : 10, 25 - 12 * bcsign(otmp)),
+                        SLEEP_RES), TRUE);
         }
         break;
     case POT_MONSTER_DETECTION:
@@ -1037,6 +1040,18 @@ register struct obj *otmp;
         if (Hallucination) {
             You("are shocked back to your senses!");
             (void) make_hallucinated(0L, FALSE, 0L);
+        }
+        break;
+    case POT_DROW_POISON:
+        pline("Ugh!  This molasses tastes foul.");
+        if (how_resistant(SLEEP_RES) == 100) {
+            monstseesu(M_SEEN_SLEEP);
+            pline_The("drow poison doesn't seem to affect you.");
+        } else {
+            You("lose consciousness.");
+            losehp(resist_reduce(rnd(2), POISON_RES),
+                   xname(otmp), KILLED_BY_AN);
+            fall_asleep(-resist_reduce(rn2(3) + 2, SLEEP_RES), TRUE);
         }
         break;
     case POT_CONFUSION:
@@ -1790,6 +1805,13 @@ int how;
             if (canseemon(mon))
                 pline("%s looks rather ill.", Monnam(mon));
             break;
+        case POT_DROW_POISON:
+            /* wakeup() doesn't rouse victims of temporary sleep */
+            if (sleep_monst(mon, rn2(3) + 2, POTION_CLASS)) {
+                pline("%s loses consciousness.", Monnam(mon));
+                slept_monst(mon);
+            }
+            break;
         case POT_CONFUSION:
         case POT_BOOZE:
             if (!resist(mon, POTION_CLASS, 0, NOTELL))
@@ -2024,6 +2046,19 @@ register struct obj *obj;
             }
             context.botl = 1;
             exercise(A_CON, FALSE);
+        }
+        break;
+    case POT_DROW_POISON:
+        kn++;
+        if (how_resistant(SLEEP_RES) < 100) {
+            You_feel("rather tired.");
+            nomul(-resist_reduce(rnd(3), SLEEP_RES));
+            multi_reason = "sleeping off poisonous fumes";
+            nomovemsg = You_can_move_again;
+            exercise(A_DEX, FALSE);
+        } else {
+            monstseesu(M_SEEN_SLEEP);
+            pline_The("drow poison doesn't seem to affect you.");
         }
         break;
     case POT_HALLUCINATION: {
@@ -2496,6 +2531,12 @@ dodip()
         if (potion->otyp == POT_SICKNESS && !obj->opoisoned) {
             char buf[BUFSZ];
 
+            if (obj->otainted) {
+                pline_The("%s is already coated in drow poison.",
+                          xname(obj));
+                return 1;
+            }
+
             if (potion->quan > 1L)
                 Sprintf(buf, "One of %s", the(xname(potion)));
             else
@@ -2503,11 +2544,31 @@ dodip()
             pline("%s forms a coating on %s.", buf, the(xname(obj)));
             obj->opoisoned = TRUE;
             goto poof;
-        } else if (obj->opoisoned && (potion->otyp == POT_HEALING
-                                      || potion->otyp == POT_EXTRA_HEALING
-                                      || potion->otyp == POT_FULL_HEALING)) {
+        } else if (potion->otyp == POT_DROW_POISON && !obj->otainted) {
+            char buf[BUFSZ];
+
+            if (obj->opoisoned) {
+                pline_The("%s is already coated in poison.",
+                          xname(obj));
+                return 1;
+            }
+
+            if (potion->quan > 1L)
+                Sprintf(buf, "One of %s", the(xname(potion)));
+            else
+                Strcpy(buf, The(xname(potion)));
+            pline("%s forms a thick inky coating on %s.", buf, the(xname(obj)));
+            obj->otainted = TRUE;
+            goto poof;
+        } else if ((obj->opoisoned || obj->otainted)
+                   && (potion->otyp == POT_HEALING
+                       || potion->otyp == POT_EXTRA_HEALING
+                       || potion->otyp == POT_FULL_HEALING)) {
             pline("A coating wears off %s.", the(xname(obj)));
-            obj->opoisoned = 0;
+            if (obj->opoisoned)
+                obj->opoisoned = 0;
+            if (obj->otainted)
+                obj->otainted = 0;
             goto poof;
         }
     }

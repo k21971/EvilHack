@@ -1738,6 +1738,9 @@ int id;
     if (obj->opoisoned && is_poisonable(otmp))
         otmp->opoisoned = TRUE;
 
+    if (obj->otainted && is_poisonable(otmp))
+        otmp->otainted = TRUE;
+
     if (id == STRANGE_OBJECT && obj->otyp == CORPSE) {
         /* turn crocodile corpses into shoes */
         if (obj->corpsenm == PM_CROCODILE) {

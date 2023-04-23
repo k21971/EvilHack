@@ -350,7 +350,8 @@ struct attack *mattk;
         struct obj *mwep = (mtmp == &youmonst) ? uwep : MON_WEP(mtmp);
         /* "Foo's attack was poisoned." is pretty lame, but at least
            it's better than "sting" when not a stinging attack... */
-        return (!mwep || !mwep->opoisoned) ? "attack" : "weapon";
+        return (!mwep || !mwep->opoisoned
+                || !mwep->otainted) ? "attack" : "weapon";
     } else {
         return (mattk->aatyp == AT_TUCH) ? "contact"
                   : (mattk->aatyp == AT_GAZE) ? "gaze"
@@ -1614,7 +1615,6 @@ register struct attack *mattk;
         goto dopois;
     case AD_DRCO:
         ptmp = A_CON;
-        goto dopois;
  dopois:
         hitmsg(mtmp, mattk);
         if (uncancelled && !rn2(8)) {
@@ -2434,6 +2434,63 @@ do_rust:
         You("reel from %s powerful kick!", s_suffix(mon_nam(mtmp)));
         make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
         dmg /= 2;
+    }
+
+    /* monster attacking with a poisoned weapon */
+    if (mattk->aatyp == AT_WEAP && MON_WEP(mtmp)
+        && MON_WEP(mtmp)->opoisoned) {
+        int nopoison = (10 - (MON_WEP(mtmp)->owt / 10));
+
+        Sprintf(buf, "%s %s", s_suffix(Monnam(mtmp)),
+                mpoisons_subj(mtmp, mattk));
+        poisoned(buf, A_STR, mdat->mname, 30, FALSE);
+
+        if (nopoison < 2)
+            nopoison = 2;
+        if (MON_WEP(mtmp) && !rn2(nopoison)) {
+            MON_WEP(mtmp)->opoisoned = FALSE;
+            if (canseemon(mtmp))
+                pline("%s %s is no longer poisoned.",
+                      s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
+        }
+    }
+
+    /* monster attacking with a tainted (drow-poisoned) weapon */
+    if (mattk->aatyp == AT_WEAP && MON_WEP(mtmp)
+        && MON_WEP(mtmp)->otainted) {
+        int notaint = (15 - (MON_WEP(mtmp)->owt / 10));
+
+        Sprintf(buf, "%s %s", s_suffix(Monnam(mtmp)),
+                mpoisons_subj(mtmp, mattk));
+        pline("%s attack was tainted!", s_suffix(Monnam(mtmp)));
+
+        if (how_resistant(SLEEP_RES) == 100) {
+            monstseesu(M_SEEN_SLEEP);
+            pline_The("drow poison doesn't seem to affect you.");
+        } else {
+            if (!rn2(3)) {
+                losehp(resist_reduce(rnd(2), POISON_RES),
+                       "tainted weapon", KILLED_BY_AN);
+            } else {
+                if (u.usleep) { /* don't let sleep effect stack */
+                    losehp(resist_reduce(rnd(2), POISON_RES),
+                           "tainted weapon", KILLED_BY_AN);
+                } else {
+                    You("lose consciousness.");
+                    losehp(resist_reduce(rnd(2), POISON_RES),
+                           "tainted weapon", KILLED_BY_AN);
+                    fall_asleep(-resist_reduce(rn2(3) + 2, SLEEP_RES), TRUE);
+                }
+            }
+        }
+        if (notaint < 2)
+            notaint = 2;
+        if (MON_WEP(mtmp) && !rn2(notaint)) {
+            MON_WEP(mtmp)->otainted = FALSE;
+            if (canseemon(mtmp))
+                pline("%s %s is no longer tainted.",
+                      s_suffix(Monnam(mtmp)), xname(MON_WEP(mtmp)));
+        }
     }
 
     if ((Upolyd ? u.mh : u.uhp) < 1) {

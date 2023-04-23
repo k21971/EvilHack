@@ -435,7 +435,8 @@ boolean fleemsg;
                     }
                 }
             }
-            pline("%s turns to flee.", Monnam(mtmp));
+            if (mtmp->mcanmove)
+                pline("%s turns to flee.", Monnam(mtmp));
         }
         mtmp->mflee = 1;
     }

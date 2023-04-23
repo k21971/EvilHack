@@ -1491,6 +1491,74 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                     return (MM_DEF_DIED
                             | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
             }
+            /* monster attacking with a poisoned weapon */
+            if (mwep->opoisoned) {
+                int nopoison = (10 - (mwep->owt / 10));
+
+                Sprintf(buf, "%s %s", s_suffix(Monnam(magr)),
+                        mpoisons_subj(magr, mattk));
+
+                if (resists_poison(mdef) || defended(mdef, AD_DRST)) {
+                    if (vis && canseemon(mdef))
+                        pline_The("poison doesn't seem to affect %s.",
+                                  mon_nam(mdef));
+                } else {
+                    if (rn2(30)) {
+                        tmp += rnd(6);
+                    } else {
+                        if (vis && canseemon(mdef))
+                            pline_The("poison was deadly...");
+                        mondied(mdef);
+                    }
+                }
+
+                if (nopoison < 2)
+                    nopoison = 2;
+                if (mwep && !rn2(nopoison)) {
+                    mwep->opoisoned = FALSE;
+                    if (vis && canseemon(magr))
+                        pline("%s %s is no longer poisoned.",
+                              s_suffix(Monnam(magr)), xname(mwep));
+                }
+                if (DEADMONSTER(mdef))
+                    return (MM_DEF_DIED
+                            | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+            }
+            /* monster attacking with a tainted (drow-poisoned) weapon */
+            if (mwep->otainted) {
+                int notaint = (15 - (mwep->owt / 10));
+
+                Sprintf(buf, "%s %s", s_suffix(Monnam(magr)),
+                        mpoisons_subj(magr, mattk));
+
+                if (resists_sleep(mdef) || defended(mdef, AD_SLEE)) {
+                    if (vis && canseemon(mdef))
+                        pline_The("drow poison doesn't seem to affect %s.",
+                                  mon_nam(mdef));
+                } else {
+                    if (!rn2(3)) {
+                        tmp += rnd(2);
+                    } else {
+                        if (sleep_monst(mdef, rn2(3) + 2, WEAPON_CLASS)) {
+                            if (vis && canseemon(mdef))
+                                pline("%s loses consciousness.", Monnam(mdef));
+                            slept_monst(mdef);
+                        }
+                    }
+                }
+
+                if (notaint < 2)
+                    notaint = 2;
+                if (mwep && !rn2(notaint)) {
+                    mwep->otainted = FALSE;
+                    if (vis && canseemon(magr))
+                        pline("%s %s is no longer tainted.",
+                              s_suffix(Monnam(magr)), xname(MON_WEP(magr)));
+                }
+                if (DEADMONSTER(mdef))
+                    return (MM_DEF_DIED
+                            | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+            }
             if (tmp)
                 rustm(mdef, mwep);
         } else if (pa == &mons[PM_PURPLE_WORM] && pd == &mons[PM_SHRIEKER]) {

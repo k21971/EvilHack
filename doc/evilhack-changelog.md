@@ -2808,4 +2808,5 @@ The following changes to date are:
 - Shadowblade tweaks
 - Drow ability - conjuring an aura of darkness
 - More Drow abilities, strengths and weaknesses
+- New object - potion of drow poison
 

@@ -895,6 +895,8 @@ boolean artif;
                 otmp->spe = -rne(3);
             } else
                 blessorcurse(otmp, 10);
+            /* TODO: allow drow-specific weapons a chance
+               to spawn tainted (drow poison)? */
             if (is_poisonable(otmp) && !rn2(100))
                 otmp->opoisoned = 1;
 
