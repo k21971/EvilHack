@@ -1035,9 +1035,9 @@ const struct Race races[] = {
     },
     {
         "drow",
-        "droven",
-        "drovenkind",
-        "Drow",
+        "dark elven",
+        "drow",
+        "Dro",
         { 0, 0 },
         PM_DROW,
         NON_PM,
