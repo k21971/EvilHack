@@ -1120,7 +1120,8 @@ register struct obj *obj;
 
     /* If wielding/wearing any of the 'banes, taming becomes
        impossible */
-    if (wielding_artifact(ART_STING) && racial_orc(mtmp))
+    if (wielding_artifact(ART_STING)
+        && (racial_orc(mtmp) || is_spider(mtmp->data)))
         return FALSE;
 
     if (wielding_artifact(ART_ORCRIST) && racial_orc(mtmp))

@@ -2814,4 +2814,5 @@ The following changes to date are:
   type monsters
 - Fix: silence warning during windows build from last commit
 - Allow Drow to move through webs like spiders can
+- Sting warns of spiders
 

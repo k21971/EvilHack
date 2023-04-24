@@ -106,9 +106,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ELF, 2000L,
       CLR_BRIGHT_BLUE, MITHRIL), /* bright blue is actually light blue */
 
-    A("Sting", ELVEN_DAGGER, (SPFX_WARN | SPFX_DFLAGH), 0, MH_ORC, PHYS(5, 0),
-      NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ELF, 800L,
-      CLR_BRIGHT_BLUE, MITHRIL),
+    A("Sting", ELVEN_DAGGER, (SPFX_WARN | SPFX_DFLAGH), 0,
+      (MH_ORC | MH_SPIDER), PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
+      NON_PM, PM_ELF, 1000L, CLR_BRIGHT_BLUE, MITHRIL),
     /*
      *      Magicbane is a bit different!  Its magic fanfare
      *      unbalances victims in addition to doing some damage.

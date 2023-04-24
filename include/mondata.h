@@ -249,10 +249,6 @@
     ((ptr) == &mons[PM_SEWER_RAT] || (ptr) == &mons[PM_GIANT_RAT]       \
      || (ptr) == &mons[PM_RABID_RAT] || (ptr) == &mons[PM_ENORMOUS_RAT] \
      || (ptr) == &mons[PM_RODENT_OF_UNUSUAL_SIZE])
-#define is_spider(ptr) \
-    ((ptr) == &mons[PM_CAVE_SPIDER] || (ptr) == &mons[PM_LARGE_SPIDER]       \
-     || (ptr) == &mons[PM_JUMPING_SPIDER] || (ptr) == &mons[PM_GIANT_SPIDER] \
-     || (ptr) == &mons[PM_GARGANTUAN_SPIDER])
 #define has_trunk(ptr) \
     ((ptr) == &mons[PM_MUMAK] || (ptr) == &mons[PM_MASTODON] \
      || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
@@ -260,6 +256,7 @@
 #define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_gnoll(ptr) (((ptr)->mhflags & MH_GNOLL) != 0L)
+#define is_spider(ptr) (((ptr)->mhflags & MH_SPIDER) != 0L)
 #define is_not_zombie(ptr) \
     ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON] \
      || (ptr) == &mons[PM_REVENANT])
@@ -331,8 +328,7 @@
 #define likes_gems(ptr) (((ptr)->mflags2 & M2_JEWELS) != 0L)
 #define likes_objs(ptr) (((ptr)->mflags2 & M2_COLLECT) != 0L || is_armed(ptr))
 #define likes_magic(ptr) (((ptr)->mflags2 & M2_MAGIC) != 0L)
-#define webmaker(ptr) \
-    (is_spider(ptr) || is_drow(ptr) || (ptr) == &mons[PM_LOLTH])
+#define webmaker(ptr) (is_spider(ptr) || is_drow(ptr))
 #define is_unicorn(ptr) ((ptr)->mlet == S_UNICORN && likes_gems(ptr))
 #define is_longworm(ptr) \
     (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
