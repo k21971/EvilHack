@@ -303,7 +303,11 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *
      *      Artifacts that can only be created in a forge
      *      by forging two existing artifacts together to
-     *      create a new artifact.
+     *      create a new artifact. Due to the powerful magic
+     *      involved in forging two artifacts together, the
+     *      material of the final product can sometimes be
+     *      completely different from the recipe object
+     *      materials.
      */
 
     /* The Sword of Annihilation can only be created by forging the
@@ -340,12 +344,13 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        forging Stormbringer and Grimtooth together. Inherits
        Stormbringer's drain life attack and protection without its
        penchant for attacking peaceful creatures. Can be invoked to
-       cause fear or create an aura of darkness */
+       cause fear or create an aura of darkness. Is made of adamantine,
+       and is attuned to Drow */
     A("Shadowblade", ATHAME,
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
        | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
       0, 0, DRLI(8, 10), DFNS(AD_DRLI), NO_CARY, SHADOWBLADE, A_CHAOTIC,
-      NON_PM, PM_DROW, 15000L, NO_COLOR, DEFAULT_MAT),
+      NON_PM, PM_DROW, 15000L, NO_COLOR, ADAMANTINE),
     /* The Gauntlets of Purity are a divine artifact that is created
        by forging Dragonbane and Grayswandir together. These gauntlets
        inherit reflection from Dragonbane, and the silver material and
@@ -412,7 +417,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_DEFN
        | SPFX_INTEL | SPFX_PROTECT | SPFX_HPHDAM | SPFX_HSPDAM),
       0, 0, NO_ATTK, DFNS(AD_DISN), CARY(AD_ACID), 0, A_NONE,
-      NON_PM, NON_PM, 60000L, NO_COLOR, GEMSTONE),
+      NON_PM, NON_PM, 60000L, NO_COLOR, DEFAULT_MAT),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

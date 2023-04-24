@@ -1605,6 +1605,7 @@ const int matdensities[] = {
     120, /* GOLD */
     120, /* PLATINUM */
     30,  /* MITHRIL */
+    50,  /* ADAMANTINE */
     20,  /* PLASTIC */
     60,  /* GLASS */
     55,  /* GEMSTONE */
@@ -1720,6 +1721,7 @@ const int matac[] = {
      3,  /* GOLD */
      4,  /* PLATINUM */
      6,  /* MITHRIL */
+     7,  /* ADAMANTINE */
      3,  /* PLASTIC */
      5,  /* GLASS */
      7,  /* GEMSTONE */

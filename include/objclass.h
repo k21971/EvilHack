@@ -27,10 +27,11 @@ enum obj_material_types {
     GOLD        = 15, /* Au */
     PLATINUM    = 16, /* Pt */
     MITHRIL     = 17,
-    PLASTIC     = 18,
-    GLASS       = 19,
-    GEMSTONE    = 20,
-    MINERAL     = 21,
+    ADAMANTINE  = 18,
+    PLASTIC     = 19,
+    GLASS       = 20,
+    GEMSTONE    = 21,
+    MINERAL     = 22,
     NUM_MATERIAL_TYPES
 };
 
@@ -93,8 +94,9 @@ struct objclass {
 #define is_bone(otmp) (otmp->material == BONE)
 #define is_stone(otmp) (otmp->material == MINERAL)
 #define is_crystal(otmp) (otmp->material == GEMSTONE)
+#define is_adamantine(otmp) (otmp->material == ADAMANTINE)
 #define is_metallic(otmp) \
-    (otmp->material >= IRON && otmp->material <= MITHRIL)
+    (otmp->material >= IRON && otmp->material <= ADAMANTINE)
 #define is_heavy_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= PLATINUM)
 
@@ -115,7 +117,7 @@ struct objclass {
     (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL \
      || otmp->material == GOLD || otmp->material == PLATINUM    \
      || otmp->material == SILVER || otmp->material == MINERAL   \
-     || otmp->material == METAL)
+     || otmp->material == METAL || otmp->material == ADAMANTINE)
 
 #define is_damageable(otmp)                                        \
     (is_rustprone(otmp) || is_flammable(otmp) || is_rottable(otmp) \

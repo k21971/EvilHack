@@ -2818,4 +2818,5 @@ The following changes to date are:
 - Adjust weight of large/giant/gargantuan spiders
 - Fix: place poisoned/tainted weapon attacks (monster vs player) in
   correct location
+- New material type - Adamantine
 
