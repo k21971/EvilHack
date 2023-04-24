@@ -1561,7 +1561,8 @@ unsigned trflags;
         feeltrap(trap);
         if (mu_maybe_destroy_web(&youmonst, webmsgok, trap))
             break;
-        if (webmaker(youmonst.data)) {
+        if (webmaker(youmonst.data)
+            || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))) {
             if (webmsgok)
                 pline(trap->madeby_u ? "You take a walk on your web."
                                      : "There is a spider web here.");
@@ -4685,8 +4686,9 @@ struct trap *ttmp;
 {
     int chance = 3;
 
-    /* Only spiders know how to deal with webs reliably */
-    if (ttmp->ttyp == WEB && !webmaker(youmonst.data))
+    /* Only spiders and Drow know how to deal with webs reliably */
+    if (ttmp->ttyp == WEB && !webmaker(youmonst.data)
+        && maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW)))
         chance = 30;
     if (Confusion || Hallucination)
         chance++;
@@ -4847,7 +4849,9 @@ boolean force_failure;
                     if (DEADMONSTER(mtmp))
                         killed(mtmp);
                 } else if (ttype == WEB) {
-                    if (!webmaker(youmonst.data)) {
+                    if (!webmaker(youmonst.data)
+                        || !maybe_polyd(is_drow(youmonst.data),
+                                        Race_if(PM_DROW))) {
                         struct trap *ttmp2 = maketrap(u.ux, u.uy, WEB);
 
                         if (ttmp2) {

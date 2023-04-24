@@ -235,7 +235,7 @@
 #define racial_drow(mon) mon_has_race(mon, MH_DROW)
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define racial_match(mon) mon_has_race(mon, urace.selfmask)
-#define is_bat(ptr)                                         \
+#define is_bat(ptr) \
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
      || (ptr) == &mons[PM_VAMPIRE_BAT])
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
@@ -332,11 +332,9 @@
 #define likes_objs(ptr) (((ptr)->mflags2 & M2_COLLECT) != 0L || is_armed(ptr))
 #define likes_magic(ptr) (((ptr)->mflags2 & M2_MAGIC) != 0L)
 #define webmaker(ptr) \
-    ((ptr) == &mons[PM_CAVE_SPIDER] || (ptr) == &mons[PM_GIANT_SPIDER]       \
-     || (ptr) == &mons[PM_JUMPING_SPIDER] || (ptr) == &mons[PM_LARGE_SPIDER] \
-     || (ptr) == &mons[PM_GARGANTUAN_SPIDER] || (ptr) == &mons[PM_LOLTH])
+    (is_spider(ptr) || is_drow(ptr) || (ptr) == &mons[PM_LOLTH])
 #define is_unicorn(ptr) ((ptr)->mlet == S_UNICORN && likes_gems(ptr))
-#define is_longworm(ptr)                                                   \
+#define is_longworm(ptr) \
     (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
      || ((ptr) == &mons[PM_LONG_WORM_TAIL]))
 #define is_jabberwock(ptr) (((ptr)->mhflags & MH_JABBERWOCK) != 0L)

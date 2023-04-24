@@ -2414,8 +2414,11 @@ do_rust:
                       Monnam(mtmp),
                       is_giant(youmonst.data)
                           ? ", but you rip through it!"
-                          : webmaker(youmonst.data) ? ", but you easily disentangle yourself."
-                                                    : "!");
+                          : (webmaker(youmonst.data)
+                             || maybe_polyd(is_drow(youmonst.data),
+                                            Race_if(PM_DROW)))
+                              ? ", but you easily disentangle yourself."
+                              : "!");
                 dotrap(web, NOWEBMSG);
                 if (u.usteed && u.utrap)
                     dismount_steed(DISMOUNT_FELL);

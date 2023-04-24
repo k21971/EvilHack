@@ -2813,4 +2813,5 @@ The following changes to date are:
 - Drow race starts with a pet spider (role dependent), new spider
   type monsters
 - Fix: silence warning during windows build from last commit
+- Allow Drow to move through webs like spiders can
 

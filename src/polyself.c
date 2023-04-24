@@ -910,7 +910,9 @@ int mntmp;
         /* probably should burn webs too if PM_FIRE_ELEMENTAL */
         reset_utrap(TRUE);
     }
-    if (webmaker(youmonst.data) && u.utrap && u.utraptype == TT_WEB) {
+    if ((webmaker(youmonst.data)
+         || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW)))
+        && u.utrap && u.utraptype == TT_WEB) {
         You("orient yourself on the web.");
         reset_utrap(TRUE);
     }
