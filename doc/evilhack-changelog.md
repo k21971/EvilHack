@@ -2815,4 +2815,5 @@ The following changes to date are:
 - Fix: silence warning during windows build from last commit
 - Allow Drow to move through webs like spiders can
 - Sting warns of spiders
+- Adjust weight of large/giant/gargantuan spiders
 
