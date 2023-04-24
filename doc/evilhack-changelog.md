@@ -2816,4 +2816,6 @@ The following changes to date are:
 - Allow Drow to move through webs like spiders can
 - Sting warns of spiders
 - Adjust weight of large/giant/gargantuan spiders
+- Fix: place poisoned/tainted weapon attacks (monster vs player) in
+  correct location
 
