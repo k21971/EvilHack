@@ -2812,4 +2812,5 @@ The following changes to date are:
 - Fix: correct Drow entry in role.c
 - Drow race starts with a pet spider (role dependent), new spider
   type monsters
+- Fix: silence warning during windows build from last commit
 

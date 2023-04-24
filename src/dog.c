@@ -222,7 +222,7 @@ makedog()
 {
     register struct monst *mtmp;
     register struct obj *otmp;
-    const char *petname;
+    const char *petname = 0;
     int pettype;
     static int petname_used = 0;
 
