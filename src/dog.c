@@ -232,15 +232,27 @@ makedog()
     u.uconduct.pets++;
 
     pettype = pet_type();
-    if (pettype == PM_LITTLE_DOG)
+    if (pettype == PM_LITTLE_DOG) {
         petname = dogname;
-    else if (pettype == PM_PSEUDODRAGON)
+        /* hijack creation for drow race */
+        if (Race_if(PM_DROW)) {
+            petname = spidername;
+            pettype = PM_LARGE_SPIDER;
+        }
+    } else if (pettype == PM_PSEUDODRAGON) {
         petname = pseudoname;
-    else if (pettype == PM_SEWER_RAT)
+    } else if (pettype == PM_SEWER_RAT) {
         petname = ratname;
-    else if (pettype == PM_LESSER_HOMUNCULUS)
+    } else if (pettype == PM_LESSER_HOMUNCULUS) {
         petname = homunname;
-    else if (pettype == PM_PONY) {
+        /* hijack creation for drow race */
+        if (Race_if(PM_DROW)) {
+            petname = spidername;
+            pettype = PM_LARGE_SPIDER;
+        }
+    } else if (pettype == PM_LARGE_SPIDER) {
+        petname = spidername;
+    } else if (pettype == PM_PONY) {
         petname = horsename;
         /* hijack creation for chaotic knights */
         if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)) {
@@ -251,8 +263,14 @@ makedog()
                 pettype = PM_LITTLE_DOG;
             }
         }
-    } else
+    } else if (pettype == PM_KITTEN) {
         petname = catname;
+        /* hijack creation for drow race */
+        if (Race_if(PM_DROW)) {
+            petname = spidername;
+            pettype = PM_LARGE_SPIDER;
+        }
+    }
 
     /* default pet names */
     if (!*petname && pettype == PM_LITTLE_DOG) {

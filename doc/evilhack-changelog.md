@@ -2810,4 +2810,6 @@ The following changes to date are:
 - More Drow abilities, strengths and weaknesses
 - New object - potion of drow poison
 - Fix: correct Drow entry in role.c
+- Drow race starts with a pet spider (role dependent), new spider
+  type monsters
 

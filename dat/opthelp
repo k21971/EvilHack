@@ -241,6 +241,7 @@ ratname    the name of your first rat                                [none]
            starting pet.  Its default starting name is "Nicodemus"
            unless specified.
 homunname  the name of your first homunculus                         [none]
+spidername the name of your first spider                             [none]
 menu_*     specify single character accelerators for menu commands.
            Here is a list of all commands with their default keystroke
            followed by a list of window-ports that implement them:

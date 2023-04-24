@@ -1091,6 +1091,12 @@ NEARDATA struct permonst mons[] = {
         SIZ(50, 50, MS_SILENT, MZ_TINY), MR_POISON, MR_POISON,
         M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE,
         M2_HOSTILE, 0, 0, 0, 3, CLR_GRAY),
+    MON("large spider", S_SPIDER, LVL(2, 15, 3, 0, 0), (G_GENO | 2),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_TUCH, AD_WEBS, 0, 0),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(75, 75, MS_SILENT, MZ_SMALL), MR_POISON, MR_POISON,
+        M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE,
+        M2_HOSTILE, 0, 0, 0, 3, CLR_MAGENTA),
     MON("centipede", S_SPIDER, LVL(2, 4, 3, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_DRST, 1, 3), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -1116,6 +1122,12 @@ NEARDATA struct permonst mons[] = {
         M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_POIS
             | M1_CARNIVORE,
         M2_HOSTILE, M3_ACCURATE, 0, 0, 8, CLR_RED),
+    MON("gargantuan spider", S_SPIDER, LVL(7, 15, 4, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_DRST, 2, 6), ATTK(AT_TUCH, AD_WEBS, 0, 0),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(300, 300, MS_SILENT, MZ_HUGE), MR_POISON, MR_POISON,
+        M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_POIS | M1_CARNIVORE,
+        M2_HOSTILE | M2_STRONG, 0, 0, 0, 10, CLR_MAGENTA),
     /* in honor of our friend Grasshopper
      * who always seems to be attacked by centipedes */
     MON("giant centipede", S_SPIDER, LVL(16, 24, -6, 0, 0), (G_GENO | 1),

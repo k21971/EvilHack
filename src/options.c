@@ -422,6 +422,8 @@ static struct Comp_Opt {
 #endif
     { "sparkle", "display this many frames of resistance animation",
       20, SET_IN_GAME },
+    { "spidername", "the name of your (first) spider (e.g., spidername:Phil)",
+      PL_PSIZ, DISP_IN_GAME },
     { "statushilites",
 #ifdef STATUS_HILITES
       "0=no status highlighting, N=show highlights for N turns",
@@ -2237,6 +2239,9 @@ boolean tinitial, tfrom_file;
                 case 'r': /* rat */
                     preferred_pet = 'r';
                     break;
+                case 's': /* spider */
+                    preferred_pet = 's';
+                    break;
                 case 'n': /* no pet */
                     preferred_pet = 'n';
                     break;
@@ -2344,6 +2349,21 @@ boolean tinitial, tfrom_file;
         } else
             return FALSE;
         sanitize_name(ratname);
+        return retval;
+    }
+
+    fullname = "spidername";
+    if (match_optname(opts, fullname, 6, TRUE)) {
+        if (duplicate)
+            complain_about_duplicate(opts, 1);
+        if (negated) {
+            bad_negation(fullname, FALSE);
+            return FALSE;
+        } else if ((op = string_for_env_opt(fullname, opts, FALSE)) != 0) {
+            nmcpy(spidername, op, PL_PSIZ);
+        } else
+            return FALSE;
+        sanitize_name(spidername);
         return retval;
     }
 
@@ -6040,8 +6060,9 @@ char *buf;
                                : (preferred_pet == 'i') ? "homunculus"
                                  : (preferred_pet == 'p') ? "pseudodragon"
                                    : (preferred_pet == 'r') ? "ratname"
-                                     : (preferred_pet == 'n') ? "none"
-                                       : "random");
+                                     : (preferred_pet == 's') ? "spidername"
+                                       : (preferred_pet == 'n') ? "none"
+                                         : "random");
     } else if (!strcmp(optname, "pickup_burden")) {
         Sprintf(buf, "%s", burdentype[flags.pickup_burden]);
     } else if (!strcmp(optname, "pickup_types")) {
@@ -6057,6 +6078,8 @@ char *buf;
         Sprintf(buf, "%s", rolestring(flags.initrace, races, noun));
     } else if (!strcmp(optname, "ratname")) {
         Sprintf(buf, "%s", ratname[0] ? ratname : none );
+    } else if (!strcmp(optname, "spidername")) {
+        Sprintf(buf, "%s", spidername[0] ? spidername : none );
     } else if (!strcmp(optname, "roguesymset")) {
         Sprintf(buf, "%s",
                 symset[ROGUESET].name ? symset[ROGUESET].name : "default");

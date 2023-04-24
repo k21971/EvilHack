@@ -245,10 +245,14 @@
      || (ptr) == &mons[PM_BABY_OWLBEAR]       \
      || (ptr) == &mons[PM_OWLBEAR]            \
      || (ptr) == &mons[PM_FELL_BEAST])
-# define is_rat(ptr) \
+#define is_rat(ptr) \
     ((ptr) == &mons[PM_SEWER_RAT] || (ptr) == &mons[PM_GIANT_RAT]       \
      || (ptr) == &mons[PM_RABID_RAT] || (ptr) == &mons[PM_ENORMOUS_RAT] \
      || (ptr) == &mons[PM_RODENT_OF_UNUSUAL_SIZE])
+#define is_spider(ptr) \
+    ((ptr) == &mons[PM_CAVE_SPIDER] || (ptr) == &mons[PM_LARGE_SPIDER]       \
+     || (ptr) == &mons[PM_JUMPING_SPIDER] || (ptr) == &mons[PM_GIANT_SPIDER] \
+     || (ptr) == &mons[PM_GARGANTUAN_SPIDER])
 #define has_trunk(ptr) \
     ((ptr) == &mons[PM_MUMAK] || (ptr) == &mons[PM_MASTODON] \
      || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
@@ -328,8 +332,9 @@
 #define likes_objs(ptr) (((ptr)->mflags2 & M2_COLLECT) != 0L || is_armed(ptr))
 #define likes_magic(ptr) (((ptr)->mflags2 & M2_MAGIC) != 0L)
 #define webmaker(ptr) \
-    ((ptr) == &mons[PM_CAVE_SPIDER] || (ptr) == &mons[PM_GIANT_SPIDER] \
-     || (ptr) == &mons[PM_JUMPING_SPIDER] || (ptr) == &mons[PM_LOLTH])
+    ((ptr) == &mons[PM_CAVE_SPIDER] || (ptr) == &mons[PM_GIANT_SPIDER]       \
+     || (ptr) == &mons[PM_JUMPING_SPIDER] || (ptr) == &mons[PM_LARGE_SPIDER] \
+     || (ptr) == &mons[PM_GARGANTUAN_SPIDER] || (ptr) == &mons[PM_LOLTH])
 #define is_unicorn(ptr) ((ptr)->mlet == S_UNICORN && likes_gems(ptr))
 #define is_longworm(ptr)                                                   \
     (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
@@ -533,7 +538,9 @@
 #define befriend_with_obj(ptr, obj) \
     (((ptr) == &mons[PM_MONKEY] || (ptr) == &mons[PM_APE])                   \
      ? (obj)->otyp == BANANA                                                 \
-     : ((is_domestic(ptr) || (is_rat(ptr) && Role_if(PM_CONVICT))            \
+     : ((is_domestic(ptr)                                                    \
+         || (is_rat(ptr) && Role_if(PM_CONVICT))                             \
+         || (is_spider(ptr) && Race_if(PM_DROW))                             \
          || ((ptr) == &mons[PM_WARG] && Race_if(PM_ORC))                     \
          || ((ptr) == &mons[PM_SABER_TOOTHED_TIGER] && Role_if(PM_CAVEMAN))) \
         && (obj)->oclass == FOOD_CLASS                                       \

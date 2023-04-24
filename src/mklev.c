@@ -1636,13 +1636,16 @@ coord *tm;
     kind = t ? t->ttyp : NO_TRAP;
 
     if (kind == WEB) {
-        i = rn2(3);
+        i = rn2(4);
         switch (i) {
             case 0:
                 (void) makemon(&mons[PM_JUMPING_SPIDER], m.x, m.y, NO_MM_FLAGS);
                 break;
             case 1:
                 (void) makemon(&mons[PM_CAVE_SPIDER], m.x, m.y, NO_MM_FLAGS);
+                break;
+            case 2:
+                (void) makemon(&mons[PM_LARGE_SPIDER], m.x, m.y, NO_MM_FLAGS);
                 break;
             default:
                 (void) makemon(&mons[PM_GIANT_SPIDER], m.x, m.y, NO_MM_FLAGS);
