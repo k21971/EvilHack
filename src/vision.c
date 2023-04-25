@@ -779,6 +779,7 @@ int control;
                         /* Update pos if previously not in sight or new
                          * angle.*/
                         if (!(old_row[col] & IN_SIGHT)
+                            || (old_row[col] & UV_SEEN)
                             || oldseenv != lev->seenv)
                             newsym(col, row);
                     } else
@@ -791,7 +792,9 @@ int control;
                     lev->seenv |= new_angle(lev, sv, row, col);
 
                     /* Update pos if previously not in sight or new angle. */
-                    if (!(old_row[col] & IN_SIGHT) || oldseenv != lev->seenv)
+                    if (!(old_row[col] & IN_SIGHT)
+                        || (old_row[col] & UV_SEEN)
+                        || oldseenv != lev->seenv)
                         newsym(col, row);
                 }
             } else if ((next_row[col] & COULD_SEE) && Ultravision) {
