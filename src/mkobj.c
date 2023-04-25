@@ -3719,7 +3719,7 @@ int mat;
             return FALSE;
 
         if (materials) {
-            int i = 100; /* guarantee going through everything */
+            int i = 1000; /* guarantee going through everything */
             while (i > 0) {
                 if (materials->iclass == mat)
                     return TRUE;

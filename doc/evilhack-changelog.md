@@ -2822,5 +2822,6 @@ The following changes to date are:
 - Improvements to ultravision; fix to last commit (new material)
 - New objects: Drow weapons
 - Fix: ultravision and portable light sources
-- Fix material probabilities
+- Fix: material probabilities
+- Fix: no really, fix material probabilities
 
