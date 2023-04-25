@@ -745,7 +745,9 @@ int control;
                     new_angle(lev, sv, row, col); /* update seen angle */
 
                 /* Update pos if previously not in sight or new angle. */
-                if (!(old_row[col] & IN_SIGHT) || oldseenv != lev->seenv)
+                if (!(old_row[col] & IN_SIGHT)
+                    || (old_row[col] & UV_SEEN)
+                    || oldseenv != lev->seenv)
                     newsym(col, row);
 
             } else if ((next_row[col] & COULD_SEE)
@@ -792,6 +794,18 @@ int control;
                     if (!(old_row[col] & IN_SIGHT) || oldseenv != lev->seenv)
                         newsym(col, row);
                 }
+            } else if ((next_row[col] & COULD_SEE) && Ultravision) {
+                if (lev->waslit)
+                    lev->waslit = 0;
+                next_row[col] |= UV_SEEN | IN_SIGHT; /* we see it */
+                oldseenv = lev->seenv;
+                lev->seenv |=
+                    new_angle(lev, sv, row, col); /* update seen angle */
+
+                /* Update pos if not previously using UV or new angle. */
+                if (!(old_row[col] & UV_SEEN) || oldseenv != lev->seenv)
+                    newsym(col, row);
+
             } else if ((next_row[col] & COULD_SEE) && lev->waslit) {
                 /*
                  * If we make it here, the hero _could see_ the location,
@@ -2808,7 +2822,8 @@ struct monst *mon;
        cansee is true for both normal and astral vision,
        but couldsee it not true for astral vision */
     if ((mon->wormno ? worm_known(mon) : (cansee(mon->mx, mon->my)
-                                          && couldsee(mon->mx, mon->my)))
+                                          && couldsee(mon->mx, mon->my)
+                                          && !uv_cansee(mon->mx, mon->my)))
         && mon_visible(mon) && !mon->minvis)
         how_seen |= MONSEEN_NORMAL;
     /* see invisible */
@@ -2817,7 +2832,8 @@ struct monst *mon;
     /* infravision */
     if ((!mon->minvis || See_invisible) && see_with_infrared(mon))
         how_seen |= MONSEEN_INFRAVIS;
-    if ((!mon->minvis || See_invisible) && see_with_ultravision(mon))
+    /* ultravision */
+    if (useemon && uv_cansee(mon->mx, mon->my))
         how_seen |= MONSEEN_ULTRAVIS;
     /* telepathy */
     if (tp_sensemon(mon))

@@ -2819,4 +2819,5 @@ The following changes to date are:
 - Fix: place poisoned/tainted weapon attacks (monster vs player) in
   correct location
 - New material type - Adamantine
+- Improvements to ultravision; fix to last commit (new material)
 

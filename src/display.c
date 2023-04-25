@@ -836,6 +836,20 @@ register int x, y;
                 display_warning(mon);
             } else if (glyph_is_invisible(lev->glyph)) {
                 map_invisible(x, y);
+            } else if (uv_cansee(x, y)) {
+                struct obj *otmp = vobj_at(x, y);
+                struct trap *ttmp = t_at(x, y);
+                if (otmp && !covers_objects(x, y)) {
+                    map_object(otmp, TRUE);
+                } else if (ttmp && ttmp->tseen && !covers_traps(x, y)) {
+                    map_trap(ttmp, TRUE);
+                } else if (lev->typ == CORR) {
+                    show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
+                } else if (lev->typ == ROOM) {
+                    show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
+                } else {
+                    map_background(x, y, TRUE);
+                }
             } else
                 _map_location(x, y, 1); /* map the location */
         }
@@ -849,8 +863,7 @@ register int x, y;
                 display_self();
         } else if ((mon = m_at(x, y)) != 0
                    && ((see_it = (tp_sensemon(mon) || MATCH_WARN_OF_MON(mon)
-                                  || ((see_with_infrared(mon)
-                                       || see_with_ultravision(mon))
+                                  || (see_with_infrared(mon)
                                       && mon_visible(mon)))) != 0
                        || Detect_monsters)) {
             /* Seen or sensed monsters are printed every time.

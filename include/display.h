@@ -94,16 +94,6 @@
      && couldsee(mon->mx, mon->my))
 
 /*
- * see_with_ultravision()
- *
- * This function much like see_with_infrared, however the monster
- * being viewed does not have to be infravisible if they are
- * surrounded in darkness.
- */
-#define see_with_ultravision(mon) \
-    (!Blind && Ultravision && mon && couldsee(mon->mx, mon->my))
-
-/*
  * canseemon()
  *
  * This is the globally used canseemon().  It is not called within the display
@@ -113,8 +103,7 @@
 #define canseemon(mon) \
     ((mon->wormno ? worm_known(mon)                 \
                   : (cansee(mon->mx, mon->my)       \
-                     || see_with_infrared(mon)      \
-                     || see_with_ultravision(mon))) \
+                     || see_with_infrared(mon)))    \
      && mon_visible(mon))
 
 /*
