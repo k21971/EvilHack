@@ -3645,7 +3645,7 @@ struct obj* obj;
     set_material(obj, objects[obj->otyp].oc_material);
 
     if (materials) {
-        int i = rnd(100);
+        int i = rnd(1000);
         while (i > 0) {
             if (i <= materials->iprob)
                 break;
