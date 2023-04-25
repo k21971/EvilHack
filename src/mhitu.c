@@ -1482,7 +1482,7 @@ register struct attack *mattk;
                 }
                 /* monster attacking with a tainted (drow-poisoned) weapon */
                 if (otmp->otainted) {
-                    int notaint = (15 - otmp->owt / 10);
+                    int notaint = ((is_drow_weapon(otmp) ? 20 : 5) - otmp->owt / 10);
 
                     Sprintf(buf, "%s %s", s_suffix(Monnam(mtmp)),
                             mpoisons_subj(mtmp, mattk));

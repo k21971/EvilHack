@@ -1526,7 +1526,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             }
             /* monster attacking with a tainted (drow-poisoned) weapon */
             if (mwep->otainted) {
-                int notaint = (15 - (mwep->owt / 10));
+                int notaint = ((is_drow_weapon(mwep) ? 20 : 5) - (mwep->owt / 10));
 
                 Sprintf(buf, "%s %s", s_suffix(Monnam(magr)),
                         mpoisons_subj(magr, mattk));

@@ -196,6 +196,14 @@ int shotlimit;
                     && uwep->otyp == ELVEN_BOW)
                     multishot++;
                 break;
+            case PM_DROW:
+                if (obj->otyp == DARK_ELVEN_ARROW && uwep
+                    && uwep->otyp == DARK_ELVEN_BOW)
+                    multishot++;
+                if (obj->otyp == DARK_ELVEN_CROSSBOW_BOLT && uwep
+                    && uwep->otyp == DARK_ELVEN_HAND_CROSSBOW)
+                    multishot++;
+                break;
             case PM_ORC:
                 if (obj->otyp == ORCISH_ARROW && uwep
                     && uwep->otyp == ORCISH_BOW)
@@ -1437,11 +1445,14 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                 if (crossbowing) {
                     if (uwep->oartifact == ART_CROSSBOW_OF_CARL)
                         range += 12; /* divine workmanship */
+                    else if (uwep->otyp == DARK_ELVEN_HAND_CROSSBOW)
+                        range += 8; /* not strength dependent; smaller */
                     else
                         range += 10; /* not strength dependent */
                 } else {
                     switch (uwep->otyp) {
                     case ELVEN_BOW:
+                    case DARK_ELVEN_BOW:
                     case YUMI:
                         range += urange + 2; /* better workmanship */
                         break;
@@ -1940,15 +1951,18 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
                 if (uwep->oartifact)
                     tmp += spec_abon(uwep, mon);
                 /*
-                 * Elves and Samurais are highly trained w/bows,
+                 * Elvenkind and Samurais are highly trained w/bows,
                  * especially their own special types of bow.
                  * Polymorphing won't make you a bow expert.
                  */
-                if ((Race_if(PM_ELF) || Role_if(PM_SAMURAI))
+                if ((Race_if(PM_ELF) || Race_if(PM_DROW)
+                     || Role_if(PM_SAMURAI))
                     && (!Upolyd || your_race(youmonst.data))
                     && objects[uwep->otyp].oc_skill == P_BOW) {
                     tmp++;
                     if (Race_if(PM_ELF) && uwep->otyp == ELVEN_BOW)
+                        tmp++;
+                    else if (Race_if(PM_DROW) && uwep->otyp == DARK_ELVEN_BOW)
                         tmp++;
                     else if (Role_if(PM_SAMURAI) && uwep->otyp == YUMI)
                         tmp++;

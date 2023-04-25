@@ -190,12 +190,14 @@ struct obj {
          || objects[otmp->otyp].oc_skill == P_LANCE))
 #define is_spear(otmp) \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill == P_SPEAR)
-#define is_launcher(otmp)                                                  \
+#define is_launcher(otmp) \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill >= P_BOW \
      && objects[otmp->otyp].oc_skill <= P_CROSSBOW)
-#define is_2h_launcher(otmp)                                                \
-    (otmp->oclass == WEAPON_CLASS && (objects[otmp->otyp].oc_skill == P_BOW \
-     || objects[otmp->otyp].oc_skill == P_CROSSBOW))
+#define is_2h_launcher(otmp) \
+    (otmp->oclass == WEAPON_CLASS                         \
+     && (objects[otmp->otyp].oc_skill == P_BOW            \
+         || (objects[otmp->otyp].oc_skill == P_CROSSBOW   \
+             && otmp->otyp != DARK_ELVEN_HAND_CROSSBOW)))
 #define is_ammo(otmp)                                            \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == GEM_CLASS) \
      && objects[otmp->otyp].oc_skill >= -P_CROSSBOW              \
@@ -356,6 +358,16 @@ struct obj {
      || (otmp)->otyp == ELVEN_BROADSWORD || (otmp)->otyp == ELVEN_BOW     \
      || (otmp)->otyp == ELVEN_LONG_SWORD)
 #define is_elven_obj(otmp) (is_elven_armor(otmp) || is_elven_weapon(otmp))
+
+/* Drow gear */
+#define is_drow_weapon(otmp) \
+    ((otmp)->otyp == DARK_ELVEN_ARROW || (otmp)->otyp == DARK_ELVEN_CROSSBOW_BOLT    \
+     || (otmp)->otyp == DARK_ELVEN_HAND_CROSSBOW || (otmp)->otyp == DARK_ELVEN_SPEAR \
+     || (otmp)->otyp == DARK_ELVEN_DAGGER || (otmp)->otyp == DARK_ELVEN_SHORT_SWORD  \
+     || (otmp)->otyp == DARK_ELVEN_BROADSWORD || (otmp)->otyp == DARK_ELVEN_BOW      \
+     || (otmp)->otyp == DARK_ELVEN_LONG_SWORD || (otmp)->otyp == DARK_ELVEN_MACE     \
+     || (otmp)->otyp == DARK_ELVEN_HEAVY_MACE)
+#define is_drow_obj(otmp) (is_drow_weapon(otmp))
 
 /* Orcish gear */
 #define is_orcish_obj(otmp) \

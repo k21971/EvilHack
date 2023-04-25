@@ -963,9 +963,10 @@ register int amount;
     }
 
     /* an elven magic clue, cookie@keebler */
-    /* elven weapons vibrate warningly when enchanted beyond a limit */
+    /* elvenkind weapons vibrate warningly when enchanted beyond a limit */
     if ((uwep->spe > 5)
-        && (is_elven_weapon(uwep) || uwep->oartifact || !rn2(7)))
+        && (is_elven_weapon(uwep) || is_drow_weapon(uwep)
+            || uwep->oartifact || !rn2(7)))
         pline("%s unexpectedly.", Yobjnam2(uwep, "suddenly vibrate"));
 
     return 1;

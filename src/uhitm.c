@@ -1680,7 +1680,7 @@ int dieroll;
 
     if (!ispotion && obj /* potion obj will have been freed by here */
         && istainted) {
-        int notaint = (15 - (obj->owt / 10));
+        int notaint = ((is_drow_weapon(obj) ? 20 : 5) - (obj->owt / 10));
 
         if (notaint < 2)
             notaint = 2;

@@ -343,11 +343,13 @@ struct monst *mon;
         switch (otyp) {
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
+        case DARK_ELVEN_CROSSBOW_BOLT:
         case MORNING_STAR:
         case ORCISH_MORNING_STAR:
         case PARTISAN:
         case RUNESWORD:
         case ELVEN_BROADSWORD:
+        case DARK_ELVEN_BROADSWORD:
         case BROADSWORD:
             tmp++;
             break;
@@ -386,8 +388,11 @@ struct monst *mon;
         switch (otyp) {
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
+        case DARK_ELVEN_CROSSBOW_BOLT:
         case MACE:
+        case DARK_ELVEN_MACE:
         case HEAVY_MACE:
+        case DARK_ELVEN_HEAVY_MACE:
         case ROD:
         case WAR_HAMMER:
         case HEAVY_WAR_HAMMER:
@@ -408,6 +413,7 @@ struct monst *mon;
         case RANSEUR:
         case BROADSWORD:
         case ELVEN_BROADSWORD:
+        case DARK_ELVEN_BROADSWORD:
         case RUNESWORD:
         case VOULGE:
             tmp += rnd(4);
@@ -433,7 +439,8 @@ struct monst *mon;
             if (objects[otmp->otyp].oc_dir & WHACK) {
                 tmp += 1;
             }
-        } else if (is_odd_material(otmp, MITHRIL)) {
+        } else if (is_odd_material(otmp, MITHRIL)
+                   || is_odd_material(otmp, ADAMANTINE)) {
             /* light and sharp */
             if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)) {
                 tmp += 2;
@@ -789,10 +796,11 @@ int x;
 
 /* TODO: have monsters use aklys' throw-and-return */
 static NEARDATA const int rwep[] = {
-    DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, JAVELIN,
-    SHURIKEN, YA, ELVEN_ARROW, ARROW, ORCISH_ARROW,
-    CROSSBOW_BOLT, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, KNIFE,
-    SLING_BULLET, FLINT, ROCK, LOADSTONE, LUCKSTONE, DART,
+    DWARVISH_SPEAR, DARK_ELVEN_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR,
+    JAVELIN, SHURIKEN, YA, ELVEN_ARROW, DARK_ELVEN_ARROW, ARROW,
+    ORCISH_ARROW, CROSSBOW_BOLT, DARK_ELVEN_CROSSBOW_BOLT, DARK_ELVEN_DAGGER,
+    ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, KNIFE, SLING_BULLET, FLINT, ROCK,
+    LOADSTONE, LUCKSTONE, DART,
     /* BOOMERANG, */ CREAM_PIE
 };
 
@@ -936,6 +944,8 @@ struct monst *mtmp;
                 if (!propellor)
                     propellor = oselect(mtmp, ELVEN_BOW);
                 if (!propellor)
+                    propellor = oselect(mtmp, DARK_ELVEN_BOW);
+                if (!propellor)
                     propellor = oselect(mtmp, BOW);
                 if (!propellor)
                     propellor = oselect(mtmp, ORCISH_BOW);
@@ -945,6 +955,8 @@ struct monst *mtmp;
                 break;
             case P_CROSSBOW:
                 propellor = oselect(mtmp, CROSSBOW);
+                if (!propellor)
+                    propellor = oselect(mtmp, DARK_ELVEN_HAND_CROSSBOW);
             }
             if (!tmpprop)
                 tmpprop = propellor;
@@ -994,13 +1006,15 @@ struct obj *obj;
 /* Weapons in order of preference */
 static const NEARDATA short hwep[] = {
     CORPSE, /* cockatrice corpse */
-    TSURUGI, RUNESWORD, ROD, TRIPLE_HEADED_FLAIL, ATLATL, HEAVY_MACE, HEAVY_WAR_HAMMER, LONG_SWORD,
-    DWARVISH_MATTOCK, TWO_HANDED_SWORD, BATTLE_AXE, KATANA, ELVEN_LONG_SWORD, DWARVISH_BEARDED_AXE,
-    UNICORN_HORN, CRYSKNIFE, TRIDENT, BULLWHIP, ELVEN_BROADSWORD, BROADSWORD, SCIMITAR, MORNING_STAR,
-    ELVEN_SHORT_SWORD, DWARVISH_SHORT_SWORD, SHORT_SWORD, ORCISH_SHORT_SWORD, MACE, AXE,
-    DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, FLAIL, QUARTERSTAFF, JAVELIN, AKLYS, CLUB,
-    PICK_AXE, RUBBER_HOSE, WAR_HAMMER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, ATHAME, SCALPEL,
-    KNIFE, WORM_TOOTH
+    TSURUGI, RUNESWORD, ROD, TRIPLE_HEADED_FLAIL, ATLATL, DARK_ELVEN_MACE,
+    HEAVY_MACE, HEAVY_WAR_HAMMER, LONG_SWORD, DWARVISH_MATTOCK, TWO_HANDED_SWORD,
+    BATTLE_AXE, KATANA, DARK_ELVEN_LONG_SWORD, ELVEN_LONG_SWORD, DWARVISH_BEARDED_AXE,
+    UNICORN_HORN, CRYSKNIFE, TRIDENT, BULLWHIP, DARK_ELVEN_BROADSWORD, ELVEN_BROADSWORD,
+    BROADSWORD, SCIMITAR, MORNING_STAR, DARK_ELVEN_SHORT_SWORD, ELVEN_SHORT_SWORD,
+    DWARVISH_SHORT_SWORD, SHORT_SWORD, ORCISH_SHORT_SWORD, DARK_ELVEN_MACE, MACE, AXE,
+    DWARVISH_SPEAR, DARK_ELVEN_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, FLAIL, QUARTERSTAFF,
+    JAVELIN, AKLYS, CLUB, PICK_AXE, RUBBER_HOSE, WAR_HAMMER, DARK_ELVEN_DAGGER, ELVEN_DAGGER,
+    DAGGER, ORCISH_DAGGER, ATHAME, SCALPEL, KNIFE, WORM_TOOTH
 };
 
 boolean

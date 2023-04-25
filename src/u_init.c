@@ -148,6 +148,17 @@ struct trobj Rogue[] = {
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
+struct trobj Drow_Rogue[] = {
+#define R_DEBOLTS 2
+    { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { DARK_ELVEN_HAND_CROSSBOW, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { DARK_ELVEN_CROSSBOW_BOLT, 0, WEAPON_CLASS, 25, UNDEF_BLESS }, /* quan is variable */
+    { ARMOR, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { POT_SICKNESS, 0, POTION_CLASS, 2, 0 },
+    { LOCK_PICK, 0, TOOL_CLASS, 1, 0 },
+    { SACK, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
 struct trobj Samurai[] = {
 #define S_ARROWS 3
     { KATANA, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
@@ -289,6 +300,17 @@ struct inv_sub {
     { PM_TORTLE, SACK, OILSKIN_SACK },
     /* Drow have their own special gear */
     { PM_DROW, POT_SICKNESS, POT_DROW_POISON },
+    { PM_DROW, DAGGER, DARK_ELVEN_DAGGER },
+    { PM_DROW, SPEAR, DARK_ELVEN_SPEAR },
+    { PM_DROW, SHORT_SWORD, DARK_ELVEN_SHORT_SWORD },
+    { PM_DROW, LONG_SWORD, DARK_ELVEN_LONG_SWORD },
+    { PM_DROW, MACE, DARK_ELVEN_MACE },
+    { PM_DROW, BOW, DARK_ELVEN_BOW },
+    { PM_DROW, ARROW, DARK_ELVEN_ARROW },
+    { PM_DROW, CROSSBOW, DARK_ELVEN_HAND_CROSSBOW },
+    { PM_DROW, CROSSBOW_BOLT, DARK_ELVEN_CROSSBOW_BOLT },
+    { PM_DROW, GAUNTLETS, GLOVES },
+    /* end */
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -907,9 +929,15 @@ u_init()
         skill_init(Skill_Ran);
         break;
     case PM_ROGUE:
-        Rogue[R_DAGGERS].trquan = rn1(10, 6);
+        if (Race_if(PM_DROW))
+            Drow_Rogue[R_DEBOLTS].trquan = rn1(20, 26);
+        else
+            Rogue[R_DAGGERS].trquan = rn1(10, 6);
         u.umoney0 = 0;
-        ini_inv(Rogue);
+        if (Race_if(PM_DROW))
+            ini_inv(Drow_Rogue);
+        else
+            ini_inv(Rogue);
         if (!rn2(5))
             ini_inv(Blindfold);
         knows_object(SACK);
@@ -999,7 +1027,7 @@ u_init()
 
     case PM_ELF:
         /*
-         * Elves are people of music and song, or they are warriors.
+         * Elvenkind are people of music and song, or they are warriors.
          * Non-warriors get an instrument.  We use a kludge to
          * get only non-magic instruments.
          */
@@ -1110,12 +1138,16 @@ u_init()
         knows_object(ELVEN_BOW);
         knows_object(ORCISH_ARROW);
         knows_object(ORCISH_BOW);
+        knows_object(DARK_ELVEN_ARROW);
+        knows_object(DARK_ELVEN_BOW);
         knows_object(ARROW);
         knows_object(BOW);
         knows_object(YA);
         knows_object(YUMI);
         knows_object(CROSSBOW_BOLT);
         knows_object(CROSSBOW);
+        knows_object(DARK_ELVEN_CROSSBOW_BOLT);
+        knows_object(DARK_ELVEN_HAND_CROSSBOW);
         break;
 
     case PM_ORC:
@@ -1139,8 +1171,31 @@ u_init()
         knows_object(ORCISH_MORNING_STAR);
         break;
 
+    /* Drow can recognize all dark elven objects */
     case PM_DROW:
+        /*
+         * Elvenkind are people of music and song, or they are warriors.
+         * Non-warriors get an instrument.  We use a kludge to
+         * get only non-magic instruments.
+         */
+        if (Role_if(PM_PRIEST) || Role_if(PM_WIZARD)) {
+            static int trotyp[] = { FLUTE,  TOOLED_HORN,       HARP,
+                                    BELL,         BUGLE,       LEATHER_DRUM };
+            Instrument[0].trotyp = trotyp[rn2(SIZE(trotyp))];
+            ini_inv(Instrument);
+        }
         knows_object(POT_DROW_POISON);
+        knows_object(DARK_ELVEN_SHORT_SWORD);
+        knows_object(DARK_ELVEN_ARROW);
+        knows_object(DARK_ELVEN_BOW);
+        knows_object(DARK_ELVEN_CROSSBOW_BOLT);
+        knows_object(DARK_ELVEN_HAND_CROSSBOW);
+        knows_object(DARK_ELVEN_MACE);
+        knows_object(DARK_ELVEN_HEAVY_MACE);
+        knows_object(DARK_ELVEN_SPEAR);
+        knows_object(DARK_ELVEN_DAGGER);
+        knows_object(DARK_ELVEN_BROADSWORD);
+        knows_object(DARK_ELVEN_LONG_SWORD);
         break;
 
     default: /* impossible */
@@ -1522,11 +1577,14 @@ register struct trobj *origtrop;
                        && (objects[otyp].oc_level > (got_sp1 ? 3 : 1)
                            || restricted_spell_discipline(otyp)))
                    || otyp == SPE_NOVEL
-                   /* items that will be iron for elvenkind
-                    * (rings/wands perhaps) that can't become copper */
-                   || ((Race_if(PM_ELF) || Race_if(PM_DROW))
-                       && objects[otyp].oc_material == IRON
+                   /* items that will be iron for elves (rings/wands perhaps)
+                    * that can't become copper */
+                   || (Race_if(PM_ELF) && objects[otyp].oc_material == IRON
                        && !valid_obj_material(obj, COPPER))
+                   /* items that will be iron for drow (rings/wands perhaps)
+                    * that can't become adamantine */
+                   || (Race_if(PM_DROW) && objects[otyp].oc_material == IRON
+                       && !valid_obj_material(obj, ADAMANTINE))
                    /* items that will be mithril for orcs (rings/wands perhaps)
                     * that can't become iron */
                    || (Race_if(PM_ORC) && objects[otyp].oc_material == MITHRIL
@@ -1569,11 +1627,16 @@ register struct trobj *origtrop;
         set_material(obj, objects[otyp].oc_material);
 
         /* Replace iron objects (e.g. Priest's mace) with copper
-           for elvenkind */
-        if ((Race_if(PM_ELF) || Race_if(PM_DROW))
-            && obj->material == IRON
+           for elves */
+        if (Race_if(PM_ELF) && obj->material == IRON
             && valid_obj_material(obj, COPPER))
             set_material(obj, COPPER);
+
+        /* Replace iron objects (e.g. Priest's mace) with adamantine
+           for drow */
+        if (Race_if(PM_DROW) && obj->material == IRON
+            && valid_obj_material(obj, ADAMANTINE))
+            set_material(obj, ADAMANTINE);
 
         /* Do the same for orcs and mithril objects.
            Currently not a concern, but may be in the future */

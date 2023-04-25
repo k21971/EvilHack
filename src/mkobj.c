@@ -895,10 +895,11 @@ boolean artif;
                 otmp->spe = -rne(3);
             } else
                 blessorcurse(otmp, 10);
-            /* TODO: allow drow-specific weapons a chance
-               to spawn tainted (drow poison)? */
             if (is_poisonable(otmp) && !rn2(100))
                 otmp->opoisoned = 1;
+            if (is_poisonable(otmp) && !rn2(100)
+                && is_drow_weapon(otmp))
+                otmp->otainted = 1;
 
             if (artif && !rn2(30 + (5 * u.uconduct.wisharti)))
                 otmp = mk_artifact(otmp, (aligntyp) A_NONE);
@@ -1742,9 +1743,10 @@ struct obj * obj;
     if (objects[obj->otyp].a_ac + diff < min_ac) {
         diff = min_ac - objects[obj->otyp].a_ac;
     }
-    /* force mithril and metal to give unique extra +1 AC for barding */
+    /* force mithril, adamantine and metal to give unique extra +1 AC for barding */
     if (is_barding(obj)
-        && (obj->material == MITHRIL || obj->material == METAL))
+        && (obj->material == MITHRIL || obj->material == METAL
+            || obj->material == ADAMANTINE))
          diff++;
     return diff;
 }
@@ -3289,182 +3291,196 @@ struct obj *otmp2;
 /* Object material probabilities. */
 /* for objects which are normally iron or steel */
 static const struct icp metal_materials[] = {
-    {65, 0}, /* default to base type, iron or steel */
-    {10, METAL},
-    { 5, BONE},
-    { 5, WOOD},
-    { 4, SILVER},
-    { 4, COPPER},
-    { 3, MITHRIL},
-    { 1, GOLD},
-    { 1, GLASS},
-    { 1, MINERAL},
-    { 1, PLATINUM}
+    {650, 0}, /* default to base type, iron or steel */
+    {100, METAL},
+    { 50, BONE},
+    { 50, WOOD},
+    { 40, SILVER},
+    { 40, COPPER},
+    { 30, MITHRIL},
+    { 10, GOLD},
+    { 10, GLASS},
+    { 10, MINERAL},
+    { 10, PLATINUM}
 };
 
 /* for objects which are normally wooden */
 static const struct icp wood_materials[] = {
-    {80, WOOD},
-    { 8, MINERAL},
-    { 4, IRON},
-    { 2, METAL},
-    { 2, MITHRIL},
-    { 2, BONE},
-    { 1, COPPER},
-    { 1, SILVER}
+    {800, WOOD},
+    { 80, MINERAL},
+    { 40, IRON},
+    { 20, METAL},
+    { 20, MITHRIL},
+    { 20, BONE},
+    { 10, COPPER},
+    { 10, SILVER}
 };
 
 /* for most objects which are normally cloth */
 static const struct icp cloth_materials[] = {
-    {80, CLOTH},
-    {19, LEATHER},
-    { 1, DRAGON_HIDE}
+    {800, CLOTH},
+    {190, LEATHER},
+    { 10, DRAGON_HIDE}
 };
 
 /* for objects which are normally leather */
 static const struct icp leather_materials[] = {
-    {86, LEATHER},
-    {13, CLOTH},
-    { 1, DRAGON_HIDE}
+    {860, LEATHER},
+    {130, CLOTH},
+    { 10, DRAGON_HIDE}
 };
 
 /* for objects of dwarvish make */
 static const struct icp dwarvish_materials[] = {
-    {60, IRON},
-    {20, METAL},
-    {15, MITHRIL},
-    { 3, SILVER},
-    { 1, GOLD},
-    { 1, PLATINUM}
+    {600, IRON},
+    {200, METAL},
+    {150, MITHRIL},
+    { 30, SILVER},
+    { 10, GOLD},
+    {  8, PLATINUM},
+    {  2, ADAMANTINE}
 };
 
 /* for armor objects of elven make - no iron!
  * Does not cover cloth items; those use the regular cloth probs. */
 static const struct icp elven_materials[] = {
-    {60, 0}, /* use base material */
-    {20, WOOD},
-    {10, COPPER},
-    { 5, MITHRIL},
-    { 3, SILVER},
-    { 2, GOLD}
+    {600, 0}, /* use base material */
+    {200, WOOD},
+    {100, COPPER},
+    { 50, MITHRIL},
+    { 30, SILVER},
+    { 20, GOLD}
+};
+
+/* for armor objects of drow make - no iron!
+ * Does not cover cloth items; those use the regular cloth probs. */
+static const struct icp drow_materials[] = {
+    {1000, 0} /* use base material */
 };
 
 /* for objects of orcish make - no mithril! */
 static const struct icp orcish_materials[] = {
-    {65, IRON},
-    {25, BONE},
-    {10, MINERAL}
+    {650, IRON},
+    {250, BONE},
+    {100, MINERAL}
 };
 
 /* Reflectable items - for the shield of reflection; anything that can hold a
  * polish. Amulets also arbitrarily use this list. */
 static const struct icp shiny_materials[] = {
-    {50, 0}, /* use base material */
-    {20, SILVER},
-    {15, GOLD},
-    { 5, MITHRIL},
-    { 4, COPPER},
-    { 4, METAL},
-    { 2, PLATINUM}
+    {500, 0}, /* use base material */
+    {200, SILVER},
+    {150, GOLD},
+    { 50, MITHRIL},
+    { 40, COPPER},
+    { 30, METAL},
+    { 20, PLATINUM},
+    { 10, ADAMANTINE}
 };
 
 /* for bells and other tools, especially instruments, which are normally copper
  * or metal.  Wood and glass in other lists precludes us from using those. */
 static const struct icp resonant_materials[] = {
-    {55, 0}, /* use base material */
-    {20, COPPER},
-    { 6, SILVER},
-    { 5, IRON},
-    { 5, METAL},
-    { 5, MITHRIL},
-    { 3, GOLD},
-    { 1, PLATINUM}
+    {550, 0}, /* use base material */
+    {200, COPPER},
+    { 60, SILVER},
+    { 50, IRON},
+    { 50, METAL},
+    { 50, MITHRIL},
+    { 30, GOLD},
+    { 10, PLATINUM}
 };
 
 /* for horns, currently. */
 static const struct icp horn_materials[] = {
-    {70, BONE},
-    {10, COPPER},
-    { 8, MITHRIL},
-    { 5, WOOD},
-    { 5, SILVER},
-    { 2, GOLD}
+    {700, BONE},
+    {100, COPPER},
+    { 80, MITHRIL},
+    { 50, WOOD},
+    { 50, SILVER},
+    { 20, GOLD}
 };
 
 /* hacks for specific objects... not great because it's a lot of data, but it's
  * a relatively clean solution */
 static const struct icp elven_helm_boots_materials[] = {
-    {90, LEATHER},
-    { 9, CLOTH},
-    { 1, DRAGON_HIDE}
+    {900, LEATHER},
+    { 90, CLOTH},
+    { 10, DRAGON_HIDE}
 };
 
 static const struct icp portable_container_materials[] = {
-    {93, CLOTH},
-    { 6, LEATHER},
-    { 1, DRAGON_HIDE}
+    {930, CLOTH},
+    { 60, LEATHER},
+    { 10, DRAGON_HIDE}
 };
 
 static const struct icp dwarvish_weapon_materials[] = {
-    {50, IRON},
-    {25, METAL},
-    {20, MITHRIL},
-    { 5, GEMSTONE} /* gemstone is very hard and very sharp */
+    {500, IRON},
+    {250, METAL},
+    {200, MITHRIL},
+    { 48, GEMSTONE}, /* gemstone is very hard and very sharp */
+    {  2, ADAMANTINE}
 };
 
 static const struct icp elven_weapon_materials[] = {
     /* melee weapons only */
-    {50, WOOD},
-    {25, COPPER},
-    {20, MITHRIL},
-    { 5, SILVER}
+    {500, WOOD},
+    {250, COPPER},
+    {200, MITHRIL},
+    { 50, SILVER}
+};
+
+static const struct icp drow_weapon_materials[] = {
+    {1000, 0} /* use base material */
 };
 
 static const struct icp bow_materials[] = {
     /* assumes all bows will be wood by default, fairly safe assumption */
-    {75, WOOD},
-    { 7, IRON},
-    { 7, BONE},
-    { 6, MITHRIL},
-    { 2, COPPER},
-    { 2, SILVER},
-    { 1, GOLD}
+    {750, WOOD},
+    { 70, IRON},
+    { 70, BONE},
+    { 60, MITHRIL},
+    { 20, COPPER},
+    { 20, SILVER},
+    { 10, GOLD}
 };
 
 /* not really necessary to set more than one material, but we'll
    create the array for possible future use */
 static const struct icp rod_materials[] = {
-    {90, GEMSTONE},
-    { 4, GOLD},
-    { 3, SILVER},
-    { 3, PLATINUM},
+    {900, GEMSTONE},
+    { 40, GOLD},
+    { 30, SILVER},
+    { 30, PLATINUM}
 };
 
 static const struct icp sling_bullet_materials[] = {
-    {65, IRON},
-    {15, METAL},
-    {10, MITHRIL},
-    { 5, SILVER},
-    { 3, COPPER},
-    { 1, GOLD},
-    { 1, PLATINUM},
+    {650, IRON},
+    {150, METAL},
+    {100, MITHRIL},
+    { 50, SILVER},
+    { 30, COPPER},
+    { 10, GOLD},
+    { 10, PLATINUM}
 };
 
 /* special case array for helm of speed */
 static const struct icp helm_speed_materials[] = {
-    {30, 0}, /* default to base type, steel */
-    {25, LEATHER},
-    {15, CLOTH},
-    {10, BONE},
-    { 4, WOOD},
-    { 4, SILVER},
-    { 4, COPPER},
-    { 3, MITHRIL},
-    { 1, GOLD},
-    { 1, GLASS},
-    { 1, MINERAL},
-    { 1, PLATINUM},
-    { 1, DRAGON_HIDE}
+    {300, 0}, /* default to base type, steel */
+    {250, LEATHER},
+    {150, CLOTH},
+    {100, BONE},
+    { 40, WOOD},
+    { 40, SILVER},
+    { 40, COPPER},
+    { 30, MITHRIL},
+    { 10, GOLD},
+    { 10, GLASS},
+    { 10, MINERAL},
+    { 10, PLATINUM},
+    {  8, DRAGON_HIDE},
+    {  2, ADAMANTINE}
 };
 
 
@@ -3535,6 +3551,18 @@ struct obj* obj;
         case ELVEN_BROADSWORD:
         case ELVEN_LONG_SWORD:
             return elven_weapon_materials;
+        case DARK_ELVEN_SPEAR:
+        case DARK_ELVEN_DAGGER:
+        case DARK_ELVEN_SHORT_SWORD:
+        case DARK_ELVEN_BROADSWORD:
+        case DARK_ELVEN_LONG_SWORD:
+        case DARK_ELVEN_MACE:
+        case DARK_ELVEN_HEAVY_MACE:
+        case DARK_ELVEN_BOW:
+        case DARK_ELVEN_ARROW:
+        case DARK_ELVEN_HAND_CROSSBOW:
+        case DARK_ELVEN_CROSSBOW_BOLT:
+            return drow_weapon_materials;
         case CHEST:
         case LARGE_BOX:
             return wood_materials;
@@ -3581,6 +3609,8 @@ struct obj* obj;
      * list exists. */
     if (is_elven_obj(obj) && default_material != CLOTH)
         return elven_materials;
+    else if (is_drow_obj(obj) && default_material != CLOTH)
+        return drow_materials;
     else if (is_dwarvish_obj(obj) && default_material != CLOTH)
         return dwarvish_materials;
     else if (is_orcish_obj(obj) && default_material != CLOTH)

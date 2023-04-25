@@ -183,6 +183,7 @@ extern struct trobj Monk[];
 extern struct trobj Priest[];
 extern struct trobj Ranger[];
 extern struct trobj Rogue[];
+extern struct trobj Drow_Rogue[];
 extern struct trobj Samurai[];
 extern struct trobj Tourist[];
 extern struct trobj Valkyrie[];
@@ -548,13 +549,14 @@ struct trobj Level10Kit2[] = {
 #define C_AMMO          2
 #define M_BOOK          2
 #define RAN_BOW	        1
-#define RAN_TWO_ARROWS	2
-#define RAN_ZERO_ARROWS	3
-#define R_DAGGERS	1
-#define S_ARROWS	3
-#define T_DARTS		0
-#define W_MULTSTART	2
-#define W_MULTEND	6
+#define RAN_TWO_ARROWS  2
+#define RAN_ZERO_ARROWS 3
+#define R_DAGGERS       1
+#define R_DEBOLTS       2
+#define S_ARROWS        3
+#define T_DARTS         0
+#define W_MULTSTART     2
+#define W_MULTEND       6
 
 struct inv_sub { short race_pm, item_otyp, subs_otyp; };
 extern struct inv_sub inv_subs[];
@@ -895,8 +897,14 @@ register struct monst *mtmp;
             break;
         case PM_ROGUE:
             mkmonmoney(mtmp, (long) rn1(1000, 500));
-            Rogue[R_DAGGERS].trquan = rn1(10, 6);
-            ini_mon_inv(mtmp, Rogue, 1);
+            if (racial_drow(mtmp))
+                Drow_Rogue[R_DEBOLTS].trquan = rn1(20, 26);
+            else
+                Rogue[R_DAGGERS].trquan = rn1(10, 6);
+            if (racial_drow(mtmp))
+                ini_mon_inv(mtmp, Drow_Rogue, 1);
+            else
+                ini_mon_inv(mtmp, Rogue, 1);
             ini_mon_inv(mtmp, Blindfold, 5);
             break;
         case PM_SAMURAI:

@@ -114,9 +114,9 @@ struct objclass {
 
 /* inherently fooproof */
 #define is_supermaterial(otmp) \
-    (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL \
-     || otmp->material == GOLD || otmp->material == PLATINUM    \
-     || otmp->material == SILVER || otmp->material == MINERAL   \
+    (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL  \
+     || otmp->material == GOLD || otmp->material == PLATINUM     \
+     || otmp->material == SILVER || otmp->material == MINERAL    \
      || otmp->material == METAL || otmp->material == ADAMANTINE)
 
 #define is_damageable(otmp)                                        \

@@ -242,14 +242,16 @@ struct obj *otmp, *mwep;
             multishot += 2;
         /* this portion is different from hero multishot; from slash'em?
          */
-        /* Elven Craftsmanship makes for light, quick bows */
-        if (otmp->otyp == ELVEN_ARROW && !otmp->cursed)
+        /* Elvenkind Craftsmanship makes for light, quick bows */
+        if ((otmp->otyp == ELVEN_ARROW
+             || otmp->otyp == DARK_ELVEN_ARROW) && !otmp->cursed)
             multishot++;
         /* for arrow, we checked bow&arrow when entering block, but for
            bow, so far we've only validated that otmp is a weapon stack;
            need to verify that it's a stack of arrows rather than darts */
-        if (mwep && mwep->otyp == ELVEN_BOW && ammo_and_launcher(otmp, mwep)
-            && !mwep->cursed)
+        if (mwep && (mwep->otyp == ELVEN_BOW
+                     || mwep->otyp == DARK_ELVEN_BOW)
+            && ammo_and_launcher(otmp, mwep) && !mwep->cursed)
             multishot++;
         /* 1/3 of launcher enchantment */
         if (ammo_and_launcher(otmp, mwep) && mwep->spe > 1)
@@ -290,8 +292,12 @@ struct obj *otmp, *mwep;
         /* racial bonus */
         if ((racial_elf(mtmp) && otmp->otyp == ELVEN_ARROW
             && mwep->otyp == ELVEN_BOW)
+            || (racial_drow(mtmp) && otmp->otyp == DARK_ELVEN_ARROW
+                && mwep->otyp == DARK_ELVEN_BOW)
             || (racial_orc(mtmp) && otmp->otyp == ORCISH_ARROW
                 && mwep->otyp == ORCISH_BOW)
+            || (racial_drow(mtmp) && otmp->otyp == DARK_ELVEN_CROSSBOW_BOLT
+                && mwep->otyp == DARK_ELVEN_HAND_CROSSBOW)
             || (racial_gnome(mtmp) && otmp->otyp == CROSSBOW_BOLT
                 && mwep->otyp == CROSSBOW))
             multishot++;
@@ -845,6 +851,14 @@ register boolean verbose;
                     if (MON_WEP(mon) && MON_WEP(mon)->otyp == ELVEN_BOW)
                         hitv++;
                     if (singleobj->otyp == ELVEN_ARROW)
+                        dam++;
+                }
+                if (racial_drow(mon)
+                    && objects[singleobj->otyp].oc_skill == P_BOW) {
+                    hitv++;
+                    if (MON_WEP(mon) && MON_WEP(mon)->otyp == DARK_ELVEN_BOW)
+                        hitv++;
+                    if (singleobj->otyp == DARK_ELVEN_ARROW)
                         dam++;
                 }
                 if (bigmonst(youmonst.data))

@@ -2820,4 +2820,5 @@ The following changes to date are:
   correct location
 - New material type - Adamantine
 - Improvements to ultravision; fix to last commit (new material)
+- New objects: Drow weapons
 
