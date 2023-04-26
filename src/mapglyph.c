@@ -280,9 +280,10 @@ unsigned mgflags;
             /* Externify this array if it's ever needed anywhere else. */
             const int materialclr[] = {
                 CLR_BLACK, HI_ORGANIC, CLR_WHITE, HI_ORGANIC, CLR_RED,
-                CLR_WHITE, HI_CLOTH, HI_LEATHER, HI_WOOD, CLR_WHITE, CLR_BLACK,
-                HI_METAL, HI_METAL, HI_COPPER, HI_SILVER, HI_GOLD, CLR_WHITE,
-                HI_SILVER, CLR_BLACK, CLR_WHITE, HI_GLASS, CLR_RED, CLR_GRAY
+                CLR_WHITE, HI_CLOTH, CLR_WHITE, HI_LEATHER, HI_WOOD,
+                CLR_WHITE, CLR_BLACK, HI_METAL, HI_METAL, HI_COPPER,
+                HI_SILVER, HI_GOLD, CLR_WHITE, HI_SILVER, CLR_BLACK,
+                CLR_WHITE, HI_GLASS, CLR_RED, CLR_GRAY
             };
             color = materialclr[otmp->material];
         } else

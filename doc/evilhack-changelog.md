@@ -2832,4 +2832,5 @@ The following changes to date are:
   bypass the first level of Purgatory
 - Fix: permanent inventory not updating various object property
   discoveries (curses mode)
+- New material type - Spider Silk
 

@@ -2261,6 +2261,7 @@ const int matprices[] = {
      3, /* FLESH */
      2, /* PAPER */
      3, /* CLOTH */
+    30, /* SPIDER_SILK */
      5, /* LEATHER */
      8, /* WOOD */
     20, /* BONE */

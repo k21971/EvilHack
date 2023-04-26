@@ -3417,6 +3417,7 @@ const char *str;
         "samurai sword", /* not the "samurai" monster! */
         "wizard lock",   /* not the "wizard" monster! */
         "drow poison",   /* not the "drow" monster! */
+        "spider silk",   /* not "spider" monsters! */
         "death wand",    /* 'of inversion', not Rider */
         "master key",    /* not the "master" rank */
         "ninja-to",      /* not the "ninja" rank */

@@ -16,22 +16,23 @@ enum obj_material_types {
     FLESH       =  4, /*   ditto    */
     PAPER       =  5,
     CLOTH       =  6,
-    LEATHER     =  7,
-    WOOD        =  8,
-    BONE        =  9,
-    DRAGON_HIDE = 10, /* not leather! */
-    IRON        = 11, /* Fe */
-    METAL       = 12, /* Stainless steel, Sn, &c. */
-    COPPER      = 13, /* Cu - includes brass */
-    SILVER      = 14, /* Ag */
-    GOLD        = 15, /* Au */
-    PLATINUM    = 16, /* Pt */
-    MITHRIL     = 17,
-    ADAMANTINE  = 18,
-    PLASTIC     = 19,
-    GLASS       = 20,
-    GEMSTONE    = 21,
-    MINERAL     = 22,
+    SPIDER_SILK =  7,
+    LEATHER     =  8,
+    WOOD        =  9,
+    BONE        = 10,
+    DRAGON_HIDE = 11, /* not leather! */
+    IRON        = 12, /* Fe */
+    METAL       = 13, /* Stainless steel, Sn, &c. */
+    COPPER      = 14, /* Cu - includes brass */
+    SILVER      = 15, /* Ag */
+    GOLD        = 16, /* Au */
+    PLATINUM    = 17, /* Pt */
+    MITHRIL     = 18,
+    ADAMANTINE  = 19,
+    PLASTIC     = 20,
+    GLASS       = 21,
+    GEMSTONE    = 22,
+    MINERAL     = 23,
     NUM_MATERIAL_TYPES
 };
 
@@ -95,6 +96,7 @@ struct objclass {
 #define is_stone(otmp) (otmp->material == MINERAL)
 #define is_crystal(otmp) (otmp->material == GEMSTONE)
 #define is_adamantine(otmp) (otmp->material == ADAMANTINE)
+#define is_spidersilk(otmp) (otmp->material == SPIDER_SILK)
 #define is_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= ADAMANTINE)
 #define is_heavy_metallic(otmp) \

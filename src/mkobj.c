@@ -1595,6 +1595,7 @@ const int matdensities[] = {
     10,  /* FLESH */
     5,   /* PAPER */
     10,  /* CLOTH */
+    5,   /* SPIDER_SILK */
     15,  /* LEATHER */
     30,  /* WOOD */
     25,  /* BONE */
@@ -1711,6 +1712,7 @@ const int matac[] = {
      3,  /* FLESH */
      1,  /* PAPER */
      2,  /* CLOTH */
+     4,  /* SPIDER_SILK */
      3,  /* LEATHER */
      4,  /* WOOD */
      5,  /* BONE */
@@ -2027,8 +2029,10 @@ boolean
 is_rottable(otmp)
 register struct obj *otmp;
 {
-    return (boolean) (otmp->material <= WOOD && otmp->material != LIQUID
-                      && otmp->material != BONE);
+    return (boolean) (otmp->material <= WOOD
+                      && otmp->material != LIQUID
+                      && otmp->material != BONE
+                      && otmp->material != SPIDER_SILK);
 }
 
 /*
@@ -3320,14 +3324,16 @@ static const struct icp wood_materials[] = {
 static const struct icp cloth_materials[] = {
     {800, CLOTH},
     {190, LEATHER},
-    { 10, DRAGON_HIDE}
+    {  9, DRAGON_HIDE},
+    {  1, SPIDER_SILK}
 };
 
 /* for objects which are normally leather */
 static const struct icp leather_materials[] = {
     {860, LEATHER},
     {130, CLOTH},
-    { 10, DRAGON_HIDE}
+    {  9, DRAGON_HIDE},
+    {  1, SPIDER_SILK}
 };
 
 /* for objects of dwarvish make */
@@ -3352,8 +3358,7 @@ static const struct icp elven_materials[] = {
     { 20, GOLD}
 };
 
-/* for armor objects of drow make - no iron!
- * Does not cover cloth items; those use the regular cloth probs. */
+/* for armor objects of drow make - no iron! */
 static const struct icp drow_materials[] = {
     {1000, 0} /* use base material */
 };
@@ -3609,12 +3614,12 @@ struct obj* obj;
      * list exists. */
     if (is_elven_obj(obj) && default_material != CLOTH)
         return elven_materials;
-    else if (is_drow_obj(obj) && default_material != CLOTH)
-        return drow_materials;
     else if (is_dwarvish_obj(obj) && default_material != CLOTH)
         return dwarvish_materials;
     else if (is_orcish_obj(obj) && default_material != CLOTH)
         return orcish_materials;
+    else if (is_drow_obj(obj))
+        return drow_materials;
     else if (obj->oclass == AMULET_CLASS)
         /* could use metal_materials too */
         return shiny_materials;
