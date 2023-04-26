@@ -2824,4 +2824,6 @@ The following changes to date are:
 - Fix: ultravision and portable light sources
 - Fix: material probabilities
 - Fix: no really, fix material probabilities
+- Fix: temporary light/dark sources affect Drow the same as permanent
+  sources
 

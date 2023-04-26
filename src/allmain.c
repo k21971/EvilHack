@@ -406,8 +406,19 @@ boolean resuming;
                             || (Role_if(PM_INFIDEL) && u.uhave.questart
                                 && u.ualign.type == A_NONE
                                 && u.ualign.record > rn2(20)))) {
-                        u.uen += rn1(
-                            (int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1, 1);
+                        boolean drow_in_light =
+                            (maybe_polyd(is_drow(youmonst.data),
+                                         Race_if(PM_DROW))
+                             && ((levl[u.ux][u.uy].lit
+                                  && !(viz_array[u.uy][u.ux] & TEMP_DARK))
+                                 || (viz_array[u.uy][u.ux] & TEMP_LIT)));
+
+                        if (drow_in_light)
+                            u.uen += rn1(
+                                (int) (ACURR(A_WIS) + ACURR(A_INT)) / 30 + 1, 1);
+                        else
+                            u.uen += rn1(
+                                (int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1, 1);
                         if (u.uen > u.uenmax)
                             u.uen = u.uenmax;
                         context.botl = TRUE;
@@ -814,8 +825,10 @@ int wtcap;
                                  && !u.uhave.amulet
                                  && !u.uachieve.amulet),
             drow_in_light = (maybe_polyd(is_drow(youmonst.data),
-                                         Race_if(PM_DROW))
-                             && (levl[u.ux][u.uy].lit == 1));
+                                        Race_if(PM_DROW))
+                             && ((levl[u.ux][u.uy].lit
+                                  && !(viz_array[u.uy][u.ux] & TEMP_DARK))
+                                 || (viz_array[u.uy][u.ux] & TEMP_LIT)));
 
     /* periodically let our Infidel know why their hit
        points aren't regenerating if they don't have
@@ -864,12 +877,12 @@ int wtcap;
 
                     if (Con <= 12) {
                         if (drow_in_light)
-                            heal = rn2(2);
+                            heal = !(moves % 3L);
                         else
                             heal = 1;
                     } else {
                         if (drow_in_light)
-                            heal = rnd(Con) / 2;
+                            heal = rnd(Con) / 3;
                         else
                             heal = rnd(Con);
                         if (heal > u.ulevel - 9)
@@ -879,7 +892,7 @@ int wtcap;
             } else { /* u.ulevel <= 9 */
                 if (!(moves % (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1))) {
                     if (drow_in_light)
-                        heal = rn2(2);
+                        heal = !(moves % 3L);
                     else
                         heal = 1;
                 }

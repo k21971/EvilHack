@@ -195,10 +195,15 @@ botl_hitbonus()
 
     if (maybe_polyd(is_drow(youmonst.data),
                     Race_if(PM_DROW))) {
-        if (levl[u.ux][u.uy].lit == 1)
-            tmp -= 3;
-        else if (levl[u.ux][u.uy].lit == 0)
+        if (!(levl[u.ux][u.uy].lit
+              || (viz_array[u.uy][u.ux] & TEMP_LIT))
+            || (viz_array[u.uy][u.ux] & TEMP_DARK)) {
+            /* spot is dark */
             tmp += (u.ulevel / 3) + 2;
+        } else {
+            /* spot is lit */
+            tmp -= 3;
+        }
     }
 
     if (uwep && (uwep->otyp == HEAVY_IRON_BALL))

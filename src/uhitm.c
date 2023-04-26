@@ -2350,7 +2350,9 @@ struct attack *mattk;
         /* thief is invisible */
         no_vis -= 3;
     } else if (mdef->mcansee && haseyes(mdef->data)
-        && (levl[u.ux][u.uy].lit == 0)) {
+        && (!(levl[u.ux][u.uy].lit
+              || (viz_array[u.uy][u.ux] & TEMP_LIT))
+            || (viz_array[u.uy][u.ux] & TEMP_DARK))) {
         /* thief is in darkness, target can see */
         if (Race_if(PM_DROW))
             no_vis -= 3;
