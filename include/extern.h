@@ -2810,7 +2810,7 @@ E int FDECL(passive_obj, (struct monst *, struct obj *, struct attack *));
 E boolean FDECL(break_glass_obj, (struct obj *));
 E void FDECL(stumble_onto_mimic, (struct monst *));
 E int FDECL(flash_hits_mon, (struct monst *, struct obj *));
-E void FDECL(light_hits_gremlin, (struct monst *, int));
+E void FDECL(light_hits_light_hater, (struct monst *, int));
 
 /* ### unixmain.c ### */
 

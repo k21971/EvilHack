@@ -1261,17 +1261,20 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
 {
     struct obj *obj;
     char buf[BUFSZ];
+    char saved_oname[BUFSZ];
     struct permonst *pa = magr->data, *pd = mdef->data;
     int armpro, num,
         tmp = d((int) mattk->damn, (int) mattk->damd),
         res = MM_MISS;
-    boolean cancelled;
+    boolean cancelled, lightobj = FALSE;
     struct obj* hated_obj;
     long armask;
     boolean mon_vorpal_wield  = (MON_WEP(mdef)
                                  && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
     boolean mon_tempest_wield = (MON_WEP(mdef)
                                  && MON_WEP(mdef)->oartifact == ART_TEMPEST);
+
+    saved_oname[0] = '\0';
 
     if ((touch_petrifies(pd) /* or flesh_petrifies() */
          || (mattk->adtyp == AD_DGST && pd == &mons[PM_MEDUSA]))
@@ -1315,11 +1318,43 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     /* check for special damage sources (e.g. hated material) */
     armask = attack_contact_slots(magr, mattk->aatyp);
     tmp += special_dmgval(magr, mdef, armask, &hated_obj);
+
     if (hated_obj) {
         searmsg(magr, mdef, hated_obj, FALSE);
         if (DEADMONSTER(mdef))
             return (MM_DEF_DIED
                     | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+    }
+
+    if (artifact_light(mwep) && mwep->lamplit)
+        Strcpy(saved_oname, bare_artifactname(mwep));
+
+    if (artifact_light(mwep) && mwep->lamplit
+        && mon_hates_light(mdef))
+        lightobj = TRUE;
+
+    if (lightobj) {
+        const char *fmt;
+        char *whom = mon_nam(mdef);
+        char emitlightobjbuf[BUFSZ];
+
+        if (canspotmon(mdef)) {
+            if (saved_oname[0]) {
+                Sprintf(emitlightobjbuf,
+                        "%s radiance penetrates deep into",
+                        s_suffix(saved_oname));
+                Strcat(emitlightobjbuf, " %s!");
+                fmt = emitlightobjbuf;
+            } else
+                fmt = "The light sears %s!";
+        } else {
+            *whom = highc(*whom); /* "it" -> "It" */
+            fmt = "%s is seared!";
+        }
+        /* note: s_suffix returns a modifiable buffer */
+        if (!noncorporeal(pd) && !amorphous(pd))
+            whom = strcat(s_suffix(whom), " flesh");
+        pline(fmt, whom);
     }
 
     switch (mattk->adtyp) {

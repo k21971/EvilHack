@@ -510,7 +510,10 @@ struct monst *mon;
             bonus += rnd(4);
         if (mon_hates_material(mon, otmp->material))
             bonus += rnd(sear_damage(otmp->material));
-        if (artifact_light(otmp) && otmp->lamplit && hates_light(ptr))
+        if (artifact_light(otmp) && otmp->lamplit
+            && (hates_light(ptr)
+                || maybe_polyd(is_drow(youmonst.data),
+                                       Race_if(PM_DROW))))
             bonus += rnd(8);
 
         /* if the weapon is going to get a double damage bonus, adjust

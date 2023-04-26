@@ -1867,7 +1867,10 @@ boolean reflection_skip;
         }
         nomore(MUSE_CAMERA);
         if (obj->otyp == EXPENSIVE_CAMERA
-            && (!Blind || hates_light(youmonst.data))
+            && (!Blind
+                || hates_light(youmonst.data)
+                || maybe_polyd(is_drow(youmonst.data),
+                                       Race_if(PM_DROW)))
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
             && obj->spe > 0 && !rn2(6)) {
             m.offensive = obj;

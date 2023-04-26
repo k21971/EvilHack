@@ -2833,4 +2833,5 @@ The following changes to date are:
 - Fix: permanent inventory not updating various object property
   discoveries (curses mode)
 - New material type - Spider Silk
+- Drow truly hate light (player and monster)
 

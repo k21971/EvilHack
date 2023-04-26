@@ -4941,11 +4941,11 @@ struct obj *otmp; /* source of flash */
                 pline("%s is blinded by the flash!", Monnam(mtmp));
                 res = 1;
             }
-            if (mtmp->data == &mons[PM_GREMLIN]) {
+            if (hates_light(mtmp->data)) {
                 /* Rule #1: Keep them out of the light. */
                 amt = otmp->otyp == WAN_LIGHT ? d(1 + otmp->spe, 4)
                                               : rn2(min(mtmp->mhp, 4));
-                light_hits_gremlin(mtmp, amt);
+                light_hits_light_hater(mtmp, amt);
             }
             if (!DEADMONSTER(mtmp)) {
                 if (!context.mon_moving)
@@ -4961,7 +4961,7 @@ struct obj *otmp; /* source of flash */
 }
 
 void
-light_hits_gremlin(mon, dmg)
+light_hits_light_hater(mon, dmg)
 struct monst *mon;
 int dmg;
 {

@@ -2178,13 +2178,13 @@ register struct obj *obj;
     }
 }
 
-/* used to collect gremlins being hit by light so that they can be processed
-   after vision for the entire lit area has been brought up to date */
+/* used to collect light haters being hit by light so that they can be
+   processed after vision for the entire lit area has been brought up to date */
 struct litmon {
     struct monst *mon;
     struct litmon *nxt;
 };
-STATIC_VAR struct litmon *gremlins = 0;
+STATIC_VAR struct litmon *light_haters = 0;
 
 /*
  * Low-level lit-field update routine.
@@ -2195,15 +2195,15 @@ int x, y;
 genericptr_t val;
 {
     struct monst *mtmp;
-    struct litmon *gremlin;
+    struct litmon *target;
 
     if (val) {
         levl[x][y].lit = 1;
-        if ((mtmp = m_at(x, y)) != 0 && mtmp->data == &mons[PM_GREMLIN]) {
-            gremlin = (struct litmon *) alloc(sizeof *gremlin);
-            gremlin->mon = mtmp;
-            gremlin->nxt = gremlins;
-            gremlins = gremlin;
+        if ((mtmp = m_at(x, y)) != 0 && hates_light(mtmp->data)) {
+            target = (struct litmon *) alloc(sizeof *target);
+            target->mon = mtmp;
+            target->nxt = light_haters;
+            light_haters = target;
         }
     } else {
         levl[x][y].lit = 0;
@@ -2336,19 +2336,19 @@ struct obj *obj;     /* scroll, spellbook (for spell), or wand of light */
     }
 
     vision_full_recalc = 1; /* delayed vision recalculation */
-    if (gremlins) {
-        struct litmon *gremlin;
+    if (light_haters) {
+        struct litmon *target;
 
         /* can't delay vision recalc after all */
         vision_recalc(0);
         /* after vision has been updated, monsters who are affected
            when hit by light can now be hit by it */
         do {
-            gremlin = gremlins;
-            gremlins = gremlin->nxt;
-            light_hits_gremlin(gremlin->mon, rnd(5));
-            free((genericptr_t) gremlin);
-        } while (gremlins);
+            target = light_haters;
+            light_haters = target->nxt;
+            light_hits_light_hater(target->mon, rnd(5));
+            free((genericptr_t) target);
+        } while (light_haters);
     }
     return;
 }

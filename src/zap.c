@@ -2971,7 +2971,7 @@ struct attack *mattk;
     zhitu(dtyp, mattk->damn, fltxt, u.ux, u.uy);
 }
 
-/* light damages hero in gremlin form */
+/* light damages hero in light-hating form */
 int
 lightdamage(obj, ordinary, amt)
 struct obj *obj;  /* item making light (fake book if spell) */
@@ -2982,7 +2982,9 @@ int amt;          /* pseudo-damage used to determine blindness duration */
     const char *how;
     int dmg = amt;
 
-    if (dmg && youmonst.data == &mons[PM_GREMLIN]) {
+    if (dmg && (hates_light(youmonst.data)
+                || maybe_polyd(is_drow(youmonst.data),
+                                       Race_if(PM_DROW)))) {
         /* reduce high values (from destruction of wand with many charges) */
         dmg = rnd(dmg);
         if (dmg > 10)
@@ -6442,11 +6444,9 @@ blindingflash()
             && distu(mtmp->mx, mtmp->my) <= 5) {
             if (!Blind && canseemon(mtmp))
                 pline("%s is blinded by the flash!", Monnam(mtmp));
-            if (mtmp->mtame && rn2(2))
-                abuse_dog(mtmp);
-            if (mtmp->mpeaceful && !rn2(3))
+            if (mtmp->mpeaceful && !mtmp->mtame && !rn2(3))
                 setmangry(mtmp, TRUE);
-            mtmp->mblinded = rnd(20);
+            mtmp->mblinded = rnd(hates_light(mtmp->data) ? 40 : 20);
             mtmp->mcansee = 0;
         }
     }

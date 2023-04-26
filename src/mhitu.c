@@ -1324,6 +1324,7 @@ register struct attack *mattk;
     int res;
     long armask = attack_contact_slots(mtmp, mattk->aatyp);
     struct obj* hated_obj;
+    boolean lightobj = FALSE;
     boolean vorpal_wield = ((uwep && uwep->oartifact == ART_VORPAL_BLADE)
                             || (u.twoweap && uswapwep->oartifact == ART_VORPAL_BLADE));
 
@@ -1449,6 +1450,26 @@ register struct attack *mattk;
                     if (!Stoned)
                         goto do_stone;
                 }
+
+                if (artifact_light(otmp) && otmp->lamplit
+                    && (hates_light(youmonst.data)
+                        || maybe_polyd(is_drow(youmonst.data),
+                                               Race_if(PM_DROW))))
+                    lightobj = TRUE;
+
+                if (lightobj) {
+                    if (canspotmon(mtmp)) {
+                        pline("%s radiance penetrates deep into your %s!",
+                              s_suffix(bare_artifactname(otmp)),
+                              (!(noncorporeal(youmonst.data)
+                                 || amorphous(youmonst.data))) ? "flesh" : "form");
+                    } else if (!Blind) {
+                        pline("The light sears you!");
+                    } else {
+                        You("are seared!");
+                    }
+                }
+
                 dmg += dmgval(otmp, &youmonst);
                 if ((marmg = which_armor(mtmp, W_ARMG)) != 0
                     && marmg->otyp == GAUNTLETS_OF_POWER)
