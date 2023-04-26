@@ -1738,6 +1738,20 @@ boolean mon_notices;
             mon->mfrozen = 0;
         }
     }
+    /* Drow are affected by being in both the light or
+       the dark */
+    if (maybe_polyd(is_drow(youmonst.data),
+                    Race_if(PM_DROW))) {
+        if (!(levl[u.ux][u.uy].lit
+              || (viz_array[u.uy][u.ux] & TEMP_LIT))
+            || (viz_array[u.uy][u.ux] & TEMP_DARK)) {
+            /* spot is dark */
+            tmp += (u.ulevel / 6) + 2;
+        } else {
+            /* spot is lit */
+            tmp -= 3;
+        }
+    }
     /* some objects are more likely to hit than others */
     switch (obj->otyp) {
     case HEAVY_IRON_BALL:

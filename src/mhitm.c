@@ -473,6 +473,11 @@ register struct monst *magr, *mdef;
         mdef->msleeping = 0;
     }
 
+    /* M3_ACCURATE monsters get a to-hit bonus */
+    if ((has_erac(magr) && (ERAC(magr)->mflags3 & M3_ACCURATE))
+        || is_accurate(pa))
+        tmp += 5;
+
     /* find rings of increase accuracy */
     {
 	struct obj *o;
@@ -504,6 +509,18 @@ register struct monst *magr, *mdef;
     if ((racial_elf(magr) || racial_drow(magr))
         && racial_orc(mdef))
         tmp++;
+
+    /* Drow are affected by being in both the light or the dark */
+    if (racial_drow(magr)
+        && (!(levl[magr->mx][magr->my].lit
+              || (viz_array[magr->my][magr->mx] & TEMP_LIT))
+            || (viz_array[magr->my][magr->mx] & TEMP_DARK))) {
+        /* in darkness */
+        tmp += (magr->m_lev / 3) + 2;
+    } else {
+        /* in the light */
+        tmp -= 3;
+    }
 
     /* Set up the visibility of action */
     vis = (cansee(magr->mx, magr->my) && cansee(mdef->mx, mdef->my)

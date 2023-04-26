@@ -864,10 +864,21 @@ register boolean verbose;
                 if (bigmonst(youmonst.data))
                     hitv++;
                 hitv += 8 + singleobj->spe;
-                    /* M3_ACCURATE monsters get a significant bonus here */
+                /* M3_ACCURATE monsters get a significant bonus here */
                 if ((has_erac(mon) && (ERAC(mon)->mflags3 & M3_ACCURATE))
                     || (!has_erac(mon) && is_accurate(mon->data))) {
                     hitv += mon->m_lev;
+                }
+                /* Drow are affected by being in both the light or the dark */
+                if (racial_drow(mon)
+                    && (!(levl[mon->mx][mon->my].lit
+                          || (viz_array[mon->my][mon->mx] & TEMP_LIT))
+                        || (viz_array[mon->my][mon->mx] & TEMP_DARK))) {
+                    /* in darkness */
+                    hitv += (mon->m_lev / 6) + 2;
+                } else {
+                    /* in the light */
+                    hitv -= 3;
                 }
                 if (dam < 1)
                     dam = 1;

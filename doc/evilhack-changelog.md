@@ -2826,4 +2826,6 @@ The following changes to date are:
 - Fix: no really, fix material probabilities
 - Fix: temporary light/dark sources affect Drow the same as permanent
   sources
+- Drow monsters vs player/other monsters are affected by light/dark
+  same as a player Drow
 
