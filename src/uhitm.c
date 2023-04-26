@@ -1960,16 +1960,20 @@ int dieroll;
                   mon_nam(mon));
     if (needpoismsg) {
         pline_The("poison doesn't seem to affect %s.", mon_nam(mon));
-        if (obj && (obj->oprops & ITEM_VENOM))
+        if (obj && (obj->oprops & ITEM_VENOM)) {
             obj->oprops_known |= ITEM_VENOM;
+            update_inventory();
+        }
     }
     if (poiskilled) {
         pline_The("poison was deadly...");
         if (!already_killed)
             xkilled(mon, XKILL_NOMSG);
         destroyed = TRUE; /* return FALSE; */
-        if (obj && (obj->oprops & ITEM_VENOM))
+        if (obj && (obj->oprops & ITEM_VENOM)) {
             obj->oprops_known |= ITEM_VENOM;
+            update_inventory();
+        }
     } else if (destroyed) {
         if (!already_killed)
             killed(mon); /* takes care of most messages */

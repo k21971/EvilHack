@@ -2830,4 +2830,6 @@ The following changes to date are:
   same as a player Drow
 - Fix: prevent using level teleport/cursed potion of gain level to
   bypass the first level of Purgatory
+- Fix: permanent inventory not updating various object property
+  discoveries (curses mode)
 
