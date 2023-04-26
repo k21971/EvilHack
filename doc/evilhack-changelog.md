@@ -2834,4 +2834,6 @@ The following changes to date are:
   discoveries (curses mode)
 - New material type - Spider Silk
 - Drow truly hate light (player and monster)
+- Fix: prevent uncharged wands of wishing from randomly spawning on
+  the castle level
 

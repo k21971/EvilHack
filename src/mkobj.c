@@ -1147,9 +1147,11 @@ boolean artif;
             }
             break;
         case WAND_CLASS:
+            /* castle wands of wishing are hard-coded to
+               not be charged (recharged:0) */
             if (otmp->otyp == WAN_WISHING) {
                 otmp->spe = rnd(3);
-                otmp->recharged = (Is_stronghold(&u.uz) || discover) ? 0 : 1;
+                otmp->recharged = discover ? 0 : 1;
             } else {
                 otmp->spe =
                     rn1(5, (objects[otmp->otyp].oc_dir == NODIR) ? 11 : 4);

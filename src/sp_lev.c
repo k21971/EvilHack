@@ -1972,7 +1972,7 @@ struct mkroom *croom;
         otmp->oeroded = otmp->oeroded2 = 0;
         otmp->oerodeproof = 0;
     }
-    if (o->recharged)
+    if (o->recharged > -1)
         otmp->recharged = (o->recharged % 8);
     if (o->locked) {
         otmp->olocked = 1;
@@ -3261,7 +3261,7 @@ struct sp_coder *coder;
     tmpobj.eroded = 0;
     tmpobj.locked = 0;
     tmpobj.trapped = -1;
-    tmpobj.recharged = 0;
+    tmpobj.recharged = -1;
     tmpobj.invis = 0;
     tmpobj.greased = 0;
     tmpobj.broken = 0;
