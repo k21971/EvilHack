@@ -1124,8 +1124,11 @@ register struct obj *otmp;
             /* Once the Amulet of Yendor has been obtained
                (or the Idol of Moloch imbued for Infidels),
                leaving the sanctum without going through
-               Purgatory is prohibited */
-            if (Is_sanctum(&u.uz) && u.uachieve.amulet) {
+               Purgatory is prohibited. Bypassing the first
+               level of Purgatory this way is also
+               prohibited */
+            if ((Is_sanctum(&u.uz) && u.uachieve.amulet)
+                || In_purgatory(&u.uz)) {
                 You("have an uneasy feeling.");
                 goto no_rise;
             }

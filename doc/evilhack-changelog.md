@@ -2828,4 +2828,6 @@ The following changes to date are:
   sources
 - Drow monsters vs player/other monsters are affected by light/dark
   same as a player Drow
+- Fix: prevent using level teleport/cursed potion of gain level to
+  bypass the first level of Purgatory
 

@@ -844,7 +844,8 @@ level_tele()
         goto random_levtport;
     if ((u.uhave.amulet || In_endgame(&u.uz)
         || In_V_tower(&u.uz) || In_sokoban(&u.uz)
-        || (Is_sanctum(&u.uz) && u.uachieve.amulet))
+        || (Is_sanctum(&u.uz) && u.uachieve.amulet)
+        || In_purgatory(&u.uz))
         && !wizard) {
         You_feel("very disoriented for a moment.");
         return;
