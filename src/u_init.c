@@ -153,8 +153,8 @@ struct trobj Drow_Rogue[] = {
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { DARK_ELVEN_HAND_CROSSBOW, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { DARK_ELVEN_CROSSBOW_BOLT, 0, WEAPON_CLASS, 25, UNDEF_BLESS }, /* quan is variable */
-    { ARMOR, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { POT_SICKNESS, 0, POTION_CLASS, 2, 0 },
+    { DARK_ELVEN_TUNIC, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { POT_DROW_POISON, 0, POTION_CLASS, 2, 0 },
     { LOCK_PICK, 0, TOOL_CLASS, 1, 0 },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
@@ -265,6 +265,7 @@ struct inv_sub {
     { PM_DWARF, SPEAR, DWARVISH_SPEAR },
     { PM_DWARF, SHORT_SWORD, DWARVISH_SHORT_SWORD },
     { PM_DWARF, HELMET, DWARVISH_HELM },
+    { PM_DWARF, PLATE_MAIL, DWARVISH_CHAIN_MAIL },
     /* { PM_DWARF, SMALL_SHIELD, DWARVISH_ROUNDSHIELD }, */
     /* { PM_DWARF, PICK_AXE, DWARVISH_MATTOCK }, */
     { PM_DWARF, LEMBAS_WAFER, CRAM_RATION },
@@ -310,6 +311,13 @@ struct inv_sub {
     { PM_DROW, CROSSBOW, DARK_ELVEN_HAND_CROSSBOW },
     { PM_DROW, CROSSBOW_BOLT, DARK_ELVEN_CROSSBOW_BOLT },
     { PM_DROW, GAUNTLETS, GLOVES },
+    { PM_DROW, ARMOR, DARK_ELVEN_TUNIC },
+    { PM_DROW, JACKET, DARK_ELVEN_TUNIC },
+    { PM_DROW, PLATE_MAIL, DARK_ELVEN_CHAIN_MAIL },
+    { PM_DROW, HELMET, DARK_ELVEN_HELM },
+    { PM_DROW, SMALL_SHIELD, DARK_ELVEN_BRACER },
+    { PM_DROW, CLOAK_OF_DISPLACEMENT, DARK_ELVEN_CLOAK },
+    { PM_DROW, CLOAK_OF_PROTECTION, DARK_ELVEN_CLOAK },
     /* end */
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
@@ -1196,6 +1204,12 @@ u_init()
         knows_object(DARK_ELVEN_DAGGER);
         knows_object(DARK_ELVEN_BROADSWORD);
         knows_object(DARK_ELVEN_LONG_SWORD);
+        knows_object(DARK_ELVEN_HELM);
+        knows_object(DARK_ELVEN_CHAIN_MAIL);
+        knows_object(DARK_ELVEN_TUNIC);
+        knows_object(DARK_ELVEN_CLOAK);
+        knows_object(DARK_ELVEN_BRACER);
+        knows_object(DARK_ELVEN_BOOTS);
         break;
 
     default: /* impossible */

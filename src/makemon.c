@@ -1015,6 +1015,13 @@ register struct monst *mtmp;
                         mongets(mtmp, ELVEN_DAGGER);
                     } else
                         w1 = rn2(2) ? ELVEN_SPEAR : ELVEN_SHORT_SWORD;
+                } else if (racial_drow(mtmp)) {
+                    if (!rn2(3)) {
+                        mongets(mtmp, DARK_ELVEN_HAND_CROSSBOW);
+                        m_initthrow(mtmp, DARK_ELVEN_CROSSBOW_BOLT, 12);
+                        mongets(mtmp, DARK_ELVEN_DAGGER);
+                    } else
+                        w1 = rn2(2) ? DARK_ELVEN_SPEAR : DARK_ELVEN_SHORT_SWORD;
                 } else if (racial_dwarf(mtmp)) {
                     if (!rn2(3)) {
                         w1 = rn1(BEC_DE_CORBIN - PARTISAN + 1, PARTISAN);
@@ -1045,6 +1052,12 @@ register struct monst *mtmp;
                         w2 = ELVEN_BOW;
                         m_initthrow(mtmp, ELVEN_ARROW, 30);
                     }
+                } else if (racial_drow(mtmp)) {
+                    w1 = rn2(2) ? DARK_ELVEN_BROADSWORD : DARK_ELVEN_SHORT_SWORD;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = DARK_ELVEN_HAND_CROSSBOW;
+                        m_initthrow(mtmp, DARK_ELVEN_CROSSBOW_BOLT, 30);
+                    }
                 } else if (racial_dwarf(mtmp)) {
                     w1 = rn2(2) ? MORNING_STAR : DWARVISH_MATTOCK;
                     if (Is_stronghold(&u.uz)) {
@@ -1074,10 +1087,16 @@ register struct monst *mtmp;
                 break;
             case PM_LIEUTENANT:
                 if (racial_elf(mtmp)) {
-                    w1 = rn2(2) ? ELVEN_BROADSWORD : ELVEN_LONG_SWORD;
+                    w1 = rn2(4) ? ELVEN_BROADSWORD : ELVEN_LONG_SWORD;
                     if (Is_stronghold(&u.uz)) {
                         w2 = ELVEN_BOW;
                         m_initthrow(mtmp, ELVEN_ARROW, 30);
+                    }
+                } else if (racial_drow(mtmp)) {
+                    w1 = rn2(4) ? DARK_ELVEN_BROADSWORD : DARK_ELVEN_LONG_SWORD;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = DARK_ELVEN_BOW;
+                        m_initthrow(mtmp, DARK_ELVEN_ARROW, 30);
                     }
                 } else if (racial_dwarf(mtmp)) {
                     w1 = rn2(2) ? DWARVISH_SHORT_SWORD : DWARVISH_BEARDED_AXE;
@@ -1091,7 +1110,7 @@ register struct monst *mtmp;
                     w1 = rn2(2) ? HALBERD : BATTLE_AXE;
                     mongets(mtmp, BOULDER);
                 } else {
-                    w1 = rn2(2) ? BROADSWORD : ORCISH_LONG_SWORD;
+                    w1 = rn2(3) ? BROADSWORD : ORCISH_LONG_SWORD;
                     if (Is_stronghold(&u.uz)) {
                         w2 = CROSSBOW;
                         m_initthrow(mtmp, CROSSBOW_BOLT, 30);
@@ -1132,6 +1151,8 @@ register struct monst *mtmp;
             case PM_PRISON_GUARD:
                 if (racial_elf(mtmp))
                     w1 = ELVEN_LONG_SWORD;
+                else if (racial_drow(mtmp))
+                    w1 = DARK_ELVEN_LONG_SWORD;
                 else if (racial_dwarf(mtmp))
                     w1 = rn2(4) ? DWARVISH_BEARDED_AXE : BATTLE_AXE;
                 else if (racial_giant(mtmp))
@@ -1934,64 +1955,92 @@ register struct monst *mtmp;
                                                    : CRYSTAL_PLATE_MAIL);
             else if (mac < 3 && rn2(5)
                        && (!(racial_giant(mtmp)
-                             || racial_elf(mtmp) || racial_orc(mtmp))))
+                             || racial_elf(mtmp)
+                             || racial_drow(mtmp) || racial_orc(mtmp))))
                 mac += 6 + mongets(mtmp, (rn2(3)) ? SPLINT_MAIL
                                                   : BANDED_MAIL);
             else if (mac < 3 && rn2(5)
                      && racial_elf(mtmp))
                 mac += 6 + mongets(mtmp, (rn2(3)) ? ELVEN_CHAIN_MAIL
                                                   : BANDED_MAIL);
+            else if (mac < 3 && rn2(5)
+                     && racial_drow(mtmp))
+                mac += 6 + mongets(mtmp, (rn2(3)) ? DARK_ELVEN_CHAIN_MAIL
+                                                  : DARK_ELVEN_TUNIC);
             else if (rn2(5) && (!(racial_giant(mtmp)
-                                  || racial_elf(mtmp) || racial_orc(mtmp))))
+                                  || racial_elf(mtmp)
+                                  || racial_drow(mtmp) || racial_orc(mtmp))))
                 mac += 3 + mongets(mtmp, (rn2(3)) ? RING_MAIL
                                                   : STUDDED_ARMOR);
+            else if (rn2(5) && racial_drow(mtmp))
+                mac += 3 + mongets(mtmp, DARK_ELVEN_TUNIC);
             else if (rn2(5) && racial_orc(mtmp))
                 mac += 3 + mongets(mtmp, (rn2(3)) ? ORCISH_RING_MAIL
                                                   : ARMOR);
-            else if (!racial_giant(mtmp))
+            else if (racial_drow(mtmp))
+                mac += 2 + mongets(mtmp, DARK_ELVEN_TUNIC);
+            else if (!(racial_giant(mtmp) || racial_drow(mtmp)))
                 mac += 2 + mongets(mtmp, ARMOR);
 
             if (mac < 10 && rn2(3)
-                && (!(racial_elf(mtmp) || racial_orc(mtmp))))
+                && (!(racial_elf(mtmp)
+                      || racial_drow(mtmp) || racial_orc(mtmp))))
                 mac += 1 + mongets(mtmp, HELMET);
             else if (mac < 10 && rn2(2)
-                     && (!(racial_elf(mtmp) || racial_orc(mtmp))))
+                     && (!(racial_elf(mtmp)
+                           || racial_drow(mtmp) || racial_orc(mtmp))))
                 mac += 1 + mongets(mtmp, DENTED_POT);
             else if (mac < 10 && rn2(3)
                      && racial_elf(mtmp))
                 mac += 1 + mongets(mtmp, ELVEN_HELM);
             else if (mac < 10 && rn2(3)
+                     && racial_drow(mtmp))
+                mac += 1 + mongets(mtmp, DARK_ELVEN_HELM);
+            else if (mac < 10 && rn2(3)
                      && racial_orc(mtmp))
                 mac += 1 + mongets(mtmp, ORCISH_HELM);
 
             if (mac < 10 && rn2(3)
-                && (!(racial_elf(mtmp) || racial_orc(mtmp))))
+                && (!(racial_elf(mtmp)
+                      || racial_drow(mtmp) || racial_orc(mtmp))))
                 mac += 1 + mongets(mtmp, SMALL_SHIELD);
             else if (mac < 10 && rn2(2)
-                     && (!(racial_elf(mtmp) || racial_orc(mtmp))))
+                     && (!(racial_elf(mtmp)
+                           || racial_drow(mtmp) || racial_orc(mtmp))))
                 mac += 2 + mongets(mtmp, LARGE_SHIELD);
             else if (mac < 10 && rn2(2)
                      && racial_elf(mtmp))
                 mac += 2 + mongets(mtmp, ELVEN_SHIELD);
             else if (mac < 10 && rn2(2)
+                     && racial_drow(mtmp))
+                mac += 2 + mongets(mtmp, DARK_ELVEN_BRACER);
+            else if (mac < 10 && rn2(2)
                      && racial_orc(mtmp))
                 mac += 2 + mongets(mtmp, ORCISH_SHIELD);
 
-            if (mac < 10 && rn2(3) && !racial_centaur(mtmp))
+            if (mac < 10 && rn2(3)
+                && (!(racial_centaur(mtmp) || racial_drow(mtmp))))
                 mac += 1 + mongets(mtmp, LOW_BOOTS);
-            else if (mac < 10 && rn2(2) && !racial_centaur(mtmp))
+            else if (mac < 10 && rn2(2)
+                     && (!(racial_centaur(mtmp) || racial_drow(mtmp))))
                 mac += 2 + mongets(mtmp, HIGH_BOOTS);
+            else if (mac < 10 && rn2(2) && racial_drow(mtmp))
+                mac += 2 + mongets(mtmp, DARK_ELVEN_BOOTS);
 
             if (mac < 10 && rn2(3))
                 mac += 1 + mongets(mtmp, (rn2(3)) ? GLOVES
                                                   : GAUNTLETS);
             else if (mac < 10 && rn2(2)
                      && (!(racial_giant(mtmp)
-                           || racial_elf(mtmp) || racial_orc(mtmp))))
+                           || racial_elf(mtmp)
+                           || racial_drow(mtmp) || racial_orc(mtmp))))
                 mac += 1 + mongets(mtmp, CLOAK);
             else if (mac < 10 && rn2(2)
                      && racial_elf(mtmp))
                 mac += 1 + mongets(mtmp, ELVEN_CLOAK);
+            else if (mac < 10 && rn2(2)
+                     && racial_drow(mtmp))
+                mac += 1 + mongets(mtmp, DARK_ELVEN_CLOAK);
             else if (mac < 10 && rn2(2)
                      && racial_orc(mtmp))
                 mac += 1 + mongets(mtmp, ORCISH_CLOAK);
@@ -2048,7 +2097,10 @@ register struct monst *mtmp;
                                             : rn2(3)
                                                 ? CLOAK_OF_PROTECTION
                                                 : CLOAK_OF_MAGIC_RESISTANCE);
-                (void) mongets(mtmp, SMALL_SHIELD);
+                if (racial_drow(mtmp))
+                    (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                else
+                    (void) mongets(mtmp, SMALL_SHIELD);
             } else {
                 (void) mongets(mtmp, rn2(7) ? HIGH_BOOTS
                                             : rn2(3)
@@ -2056,7 +2108,11 @@ register struct monst *mtmp;
                                                 : AMULET_OF_MAGIC_RESISTANCE);
                 (void) mongets(mtmp, LARGE_SHIELD);
             }
-            (void) mongets(mtmp, rn2(2) ? MACE : HEAVY_MACE);
+            if (racial_drow(mtmp))
+                (void) mongets(mtmp, rn2(2) ? DARK_ELVEN_MACE
+                                            : DARK_ELVEN_HEAVY_MACE);
+            else
+                (void) mongets(mtmp, rn2(2) ? MACE : HEAVY_MACE);
             /* some insurance against 'purple rain' */
             if (on_level(&astral_level, &u.uz) && rn2(2)) {
                 (void) mongets(mtmp, RIN_SLOW_DIGESTION);

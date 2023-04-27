@@ -267,16 +267,20 @@ struct obj {
      && objects[otmp->otyp].oc_armcat == ARM_SHIRT)
 #define is_suit(otmp) \
     (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat == ARM_SUIT)
-#define is_elven_armor(otmp)                                             \
-    ((otmp)->otyp == ELVEN_HELM                                          \
-     || (otmp)->otyp == ELVEN_CHAIN_MAIL || (otmp)->otyp == ELVEN_CLOAK  \
+#define is_elven_armor(otmp) \
+    ((otmp)->otyp == ELVEN_HELM                                         \
+     || (otmp)->otyp == ELVEN_CHAIN_MAIL || (otmp)->otyp == ELVEN_CLOAK \
      || (otmp)->otyp == ELVEN_SHIELD || (otmp)->otyp == ELVEN_BOOTS)
-#define is_orcish_armor(otmp)                                            \
+#define is_drow_armor(otmp) \
+    ((otmp)->otyp == DARK_ELVEN_HELM || (otmp)->otyp == DARK_ELVEN_BOOTS          \
+     || (otmp)->otyp == DARK_ELVEN_CHAIN_MAIL || (otmp)->otyp == DARK_ELVEN_TUNIC \
+     || (otmp)->otyp == DARK_ELVEN_CLOAK || (otmp)->otyp == DARK_ELVEN_BRACER)
+#define is_orcish_armor(otmp) \
     ((otmp)->otyp == ORCISH_HELM || (otmp)->otyp == ORCISH_CHAIN_MAIL    \
      || (otmp)->otyp == ORCISH_RING_MAIL || (otmp)->otyp == ORCISH_CLOAK \
      || (otmp)->otyp == URUK_HAI_SHIELD || (otmp)->otyp == ORCISH_SHIELD \
      || (otmp)->otyp == ORCISH_BOOTS)
-#define is_dwarvish_armor(otmp)               \
+#define is_dwarvish_armor(otmp) \
     ((otmp)->otyp == DWARVISH_HELM            \
      || (otmp)->otyp == DWARVISH_CHAIN_MAIL   \
      || (otmp)->otyp == DWARVISH_CLOAK        \
@@ -367,7 +371,7 @@ struct obj {
      || (otmp)->otyp == DARK_ELVEN_BROADSWORD || (otmp)->otyp == DARK_ELVEN_BOW      \
      || (otmp)->otyp == DARK_ELVEN_LONG_SWORD || (otmp)->otyp == DARK_ELVEN_MACE     \
      || (otmp)->otyp == DARK_ELVEN_HEAVY_MACE)
-#define is_drow_obj(otmp) (is_drow_weapon(otmp))
+#define is_drow_obj(otmp) (is_drow_armor(otmp) || is_drow_weapon(otmp))
 
 /* Orcish gear */
 #define is_orcish_obj(otmp) \
@@ -376,6 +380,7 @@ struct obj {
      || (otmp)->otyp == ORCISH_SHORT_SWORD || (otmp)->otyp == ORCISH_BOW       \
      || (otmp)->otyp == ORCISH_MORNING_STAR || (otmp)->otyp == ORCISH_SCIMITAR \
      || (otmp)->otyp == ORCISH_LONG_SWORD)
+
 /* Dwarvish gear */
 #define is_dwarvish_obj(otmp) \
     (is_dwarvish_armor(otmp) || (otmp)->otyp == DWARVISH_SPEAR \

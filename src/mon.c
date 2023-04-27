@@ -6366,7 +6366,8 @@ short mndx;
         /* fallthru */
     case PM_CAPTAIN:
     case PM_WATCH_CAPTAIN:
-        permitted |= (MH_DWARF | MH_ELF | MH_GNOME | MH_GIANT);
+        permitted |= (MH_DWARF | MH_ELF | MH_GNOME | MH_GIANT
+                      | MH_DROW);
         break;
     case PM_ARCHEOLOGIST:
         permitted |= (MH_DWARF | MH_GNOME | MH_HOBBIT | MH_TORTLE);

@@ -2075,7 +2075,7 @@ int spell;
      * player's role-specific spell.  Metallic shields still adversely
      * affect spellcasting, no matter how light they are.
      */
-    if (uarms && (is_metallic(uarms)
+    if (uarms && ((is_metallic(uarms) && uarms->otyp != DARK_ELVEN_BRACER)
                   || (weight(uarms) > (int) objects[SMALL_SHIELD].oc_weight))) {
         if (spellid(spell) == urole.spelspec) {
             chance /= 2;

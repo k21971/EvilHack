@@ -771,8 +771,14 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
 
         if (obj->otyp >= ELVEN_SHIELD && obj->otyp <= ORCISH_SHIELD
-            && !dknown) {
+            && obj->otyp != DARK_ELVEN_BRACER && !dknown) {
             Strcat(buf, "shield");
+            propnames(buf, obj->oprops, obj->oprops_known,
+                      FALSE, FALSE);
+            break;
+        }
+        if (obj->otyp == DARK_ELVEN_BRACER && !dknown) {
+            Strcat(buf, "bracer");
             propnames(buf, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
             break;

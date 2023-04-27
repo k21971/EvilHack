@@ -1782,8 +1782,10 @@ dosacrifice()
             /* create Dirge from player's longsword here if possible */
             if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)
                 && !u.ugangr && u.ualign.record > 0
-                && uwep && (uwep->otyp == LONG_SWORD || uwep->otyp == ELVEN_LONG_SWORD
-                            || uwep->otyp == ORCISH_LONG_SWORD)
+                && uwep && (uwep->otyp == LONG_SWORD
+                            || uwep->otyp == ELVEN_LONG_SWORD
+                            || uwep->otyp == ORCISH_LONG_SWORD
+                            || uwep->otyp == DARK_ELVEN_LONG_SWORD)
                 && !uwep->oartifact && !(uarmh && uarmh->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
                 && !exist_artifact(LONG_SWORD, artiname(ART_DIRGE))) {
                 pline("Your sword melts in your hand and transforms into something new!");
@@ -2245,6 +2247,8 @@ dosacrifice()
                             otmp = mksobj(typ, FALSE, FALSE);
                             if (is_elven_obj(otmp) && !Race_if(PM_ELF))
                                 typ = 0;
+                            else if (is_drow_obj(otmp) && !Race_if(PM_DROW))
+                                typ = 0;
                             else if (is_orcish_obj(otmp) && !Race_if(PM_ORC))
                                 typ = 0;
 
@@ -2365,7 +2369,7 @@ dosacrifice()
                                 if ((primary_casters || primary_casters_priest)
                                     && !Race_if(PM_TORTLE)) {
                                     if (Role_if(PM_WIZARD)) {
-                                        typ = rn2(2) ? rnd_class(CORNUTHAUM, ELVEN_HELM)
+                                        typ = rn2(2) ? rnd_class(CORNUTHAUM, DARK_ELVEN_HELM)
                                                      : rnd_class(HELM_OF_BRILLIANCE,
                                                                  HELM_OF_TELEPATHY);
                                     } else {
@@ -2375,9 +2379,9 @@ dosacrifice()
                                     }
                                 } else if (Race_if(PM_TORTLE)) {
                                     if (Role_if(PM_WIZARD)) {
-                                        typ = rnd_class(CORNUTHAUM, ELVEN_HELM);
+                                        typ = rnd_class(CORNUTHAUM, DARK_ELVEN_HELM);
                                     } else {
-                                        typ = rnd_class(FEDORA, ELVEN_HELM);
+                                        typ = rnd_class(FEDORA, DARK_ELVEN_HELM);
                                     }
                                 } else {
                                     typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
@@ -2406,6 +2410,8 @@ dosacrifice()
                             /* if we have the WRONG object, then let's not do that */
                             otmp = mksobj(typ, FALSE, FALSE);
                             if (is_elven_armor(otmp) && !Race_if(PM_ELF))
+                                typ = 0;
+                            else if (is_drow_armor(otmp) && !Race_if(PM_DROW))
                                 typ = 0;
                             else if (is_orcish_armor(otmp) && !Race_if(PM_ORC))
                                 typ = 0;

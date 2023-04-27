@@ -294,6 +294,7 @@ Boots_on(VOID_ARGS)
         }
         break;
     case ELVEN_BOOTS:
+    case DARK_ELVEN_BOOTS:
         if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) {
             pline("This %s will not silence someone %s.",
                   xname(uarmf), rn2(2) ? "as large as you" : "of your stature");
@@ -365,6 +366,7 @@ Boots_off(VOID_ARGS)
         }
         break;
     case ELVEN_BOOTS:
+    case DARK_ELVEN_BOOTS:
         toggle_stealth(otmp, oldprop, FALSE);
         break;
     case FUMBLE_BOOTS:
@@ -419,6 +421,7 @@ Cloak_on(VOID_ARGS)
         makeknown(uarmc->otyp);
         break;
     case ELVEN_CLOAK:
+    case DARK_ELVEN_CLOAK:
         toggle_stealth(uarmc, oldprop, TRUE);
         break;
     case CLOAK_OF_DISPLACEMENT:
@@ -491,6 +494,7 @@ Cloak_off(VOID_ARGS)
     case GRAY_DRAGON_SCALES:
         break;
     case ELVEN_CLOAK:
+    case DARK_ELVEN_CLOAK:
         toggle_stealth(otmp, oldprop, FALSE);
         break;
     case CLOAK_OF_DISPLACEMENT:
@@ -538,6 +542,7 @@ Helmet_on(VOID_ARGS)
     case HELMET:
     case DENTED_POT:
     case ELVEN_HELM:
+    case DARK_ELVEN_HELM:
     case DWARVISH_HELM:
     case ORCISH_HELM:
     case HELM_OF_TELEPATHY:
@@ -627,6 +632,7 @@ Helmet_off(VOID_ARGS)
     case HELMET:
     case DENTED_POT:
     case ELVEN_HELM:
+    case DARK_ELVEN_HELM:
     case DWARVISH_HELM:
     case ORCISH_HELM:
         break;
@@ -801,6 +807,7 @@ Shield_on(VOID_ARGS)
     switch (uarms->otyp) {
     case SMALL_SHIELD:
     case ELVEN_SHIELD:
+    case DARK_ELVEN_BRACER:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
     case DWARVISH_ROUNDSHIELD:
@@ -836,6 +843,7 @@ Shield_off(VOID_ARGS)
     switch (otmp->otyp) {
     case SMALL_SHIELD:
     case ELVEN_SHIELD:
+    case DARK_ELVEN_BRACER:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
     case DWARVISH_ROUNDSHIELD:
@@ -2712,6 +2720,9 @@ find_ac()
         if ((Race_if(PM_ORC)
              && (uarm->otyp == ORCISH_CHAIN_MAIL
                  || uarm->otyp == ORCISH_RING_MAIL))
+            || (Race_if(PM_DROW)
+                && (uarm->otyp == DARK_ELVEN_CHAIN_MAIL
+                    || uarm->otyp == DARK_ELVEN_TUNIC))
             || (Race_if(PM_ELF) && uarm->otyp == ELVEN_CHAIN_MAIL)
             || (Race_if(PM_DWARF) && uarm->otyp == DWARVISH_CHAIN_MAIL)) {
             uac -= racial_bonus;
@@ -2722,6 +2733,7 @@ find_ac()
         uac -= armor_bonus(uarmc);
         if ((Race_if(PM_ORC) && uarmc->otyp == ORCISH_CLOAK)
             || (Race_if(PM_ELF) && uarmc->otyp == ELVEN_CLOAK)
+            || (Race_if(PM_DROW) && uarmc->otyp == DARK_ELVEN_CLOAK)
             || (Race_if(PM_DWARF) && uarmc->otyp == DWARVISH_CLOAK)) {
             uac -= racial_bonus;
         }
@@ -2731,6 +2743,7 @@ find_ac()
         uac -= armor_bonus(uarmh);
         if ((Race_if(PM_ORC) && uarmh->otyp == ORCISH_HELM)
             || (Race_if(PM_ELF) && uarmh->otyp == ELVEN_HELM)
+            || (Race_if(PM_DROW) && uarmh->otyp == DARK_ELVEN_HELM)
             || (Race_if(PM_DWARF) && uarmh->otyp == DWARVISH_HELM)) {
             uac -= racial_bonus;
         }
@@ -2739,6 +2752,7 @@ find_ac()
     if (uarmf) {
         uac -= armor_bonus(uarmf);
         if ((Race_if(PM_ELF) && uarmf->otyp == ELVEN_BOOTS)
+            || (Race_if(PM_DROW) && uarmf->otyp == DARK_ELVEN_BOOTS)
             || (Race_if(PM_DWARF) && uarmf->otyp == DWARVISH_BOOTS)
             || (Race_if(PM_ORC) && uarmf->otyp == ORCISH_BOOTS)) {
             uac -= racial_bonus;
@@ -2760,6 +2774,7 @@ find_ac()
              && (uarms->otyp == ORCISH_SHIELD
                  || uarms->otyp == URUK_HAI_SHIELD))
             || (Race_if(PM_ELF) && uarms->otyp == ELVEN_SHIELD)
+            || (Race_if(PM_DROW) && uarms->otyp == DARK_ELVEN_BRACER)
             || (Race_if(PM_DWARF) && uarms->otyp == DWARVISH_ROUNDSHIELD)) {
             uac -= racial_bonus;
         }

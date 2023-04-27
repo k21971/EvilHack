@@ -1254,6 +1254,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         }
         /* elven armor vibrates warningly when enchanted beyond a limit */
         special_armor = is_elven_armor(otmp)
+                        || (Race_if(PM_DROW) && is_drow_armor(otmp))
                         || otmp->oartifact == ART_HAND_OF_VECNA
                         || (Role_if(PM_WIZARD) && otmp->otyp == CORNUTHAUM);
         if (scursed)

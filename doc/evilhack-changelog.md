@@ -2836,4 +2836,5 @@ The following changes to date are:
 - Drow truly hate light (player and monster)
 - Fix: prevent uncharged wands of wishing from randomly spawning on
   the castle level
+- New objects: Drow armor
 

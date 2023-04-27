@@ -3570,6 +3570,13 @@ struct obj* obj;
         case DARK_ELVEN_HAND_CROSSBOW:
         case DARK_ELVEN_CROSSBOW_BOLT:
             return drow_weapon_materials;
+        case DARK_ELVEN_HELM:
+        case DARK_ELVEN_CHAIN_MAIL:
+        case DARK_ELVEN_TUNIC:
+        case DARK_ELVEN_CLOAK:
+        case DARK_ELVEN_BRACER:
+        case DARK_ELVEN_BOOTS:
+            return drow_materials;
         case CHEST:
         case LARGE_BOX:
             return wood_materials;
