@@ -2841,4 +2841,5 @@ The following changes to date are:
 - The Staff of the Archmagi will either give off light or darkness
   depnding on the race that wields it
 - Fix: player monster Drow spawning with inappropriate objects
+- Fix: worn glass helmets would never break when boulders hit them
 

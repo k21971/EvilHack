@@ -2323,7 +2323,7 @@ struct monst *mtmp;
         }
         /* Attack the player */
         if (distmin(mmx, mmy, u.ux, u.uy) == 1 && !is_cursed) {
-            drop_boulder_on_player(confused, !is_cursed, FALSE, TRUE);
+            drop_boulder_on_player(confused, TRUE, FALSE, TRUE);
         }
 
         return (DEADMONSTER(mtmp)) ? 1 : 2;

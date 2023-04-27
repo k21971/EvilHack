@@ -1923,7 +1923,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                 }
             /* Attack the player */
             if (!sblessed) {
-                drop_boulder_on_player(confused, !scursed, TRUE, FALSE);
+                drop_boulder_on_player(confused, TRUE, TRUE, FALSE);
             } else if (!nboulders)
                 pline("But nothing else happens.");
         }
