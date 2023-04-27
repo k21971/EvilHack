@@ -94,7 +94,40 @@ struct trobj Knight[] = {
     { LANCE, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { PLATE_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { LARGE_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { APPLE, 0, FOOD_CLASS, 10, 0 },
+    { CARROT, 0, FOOD_CLASS, 10, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+struct trobj Elven_Knight[] = {
+    { LONG_SWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { LANCE, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { PLATE_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ELVEN_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { APPLE, 0, FOOD_CLASS, 10, 0 },
+    { CARROT, 0, FOOD_CLASS, 10, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+struct trobj Dwarvish_Knight[] = {
+    { LONG_SWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { LANCE, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { PLATE_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { DWARVISH_ROUNDSHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { APPLE, 0, FOOD_CLASS, 10, 0 },
+    { CARROT, 0, FOOD_CLASS, 10, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+struct trobj Orcish_Knight[] = {
+    { LONG_SWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { LANCE, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { PLATE_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ORCISH_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { GAUNTLETS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { APPLE, 0, FOOD_CLASS, 10, 0 },
     { CARROT, 0, FOOD_CLASS, 10, 0 },
@@ -256,7 +289,7 @@ struct inv_sub {
     { PM_ORC, BOW, ORCISH_BOW },
     { PM_ORC, ARROW, ORCISH_ARROW },
     { PM_ORC, HELMET, ORCISH_HELM },
-    { PM_ORC, SMALL_SHIELD, ORCISH_SHIELD },
+    /* { PM_ORC, SMALL_SHIELD, ORCISH_SHIELD }, */
     { PM_ORC, RING_MAIL, ORCISH_RING_MAIL },
     { PM_ORC, CHAIN_MAIL, ORCISH_CHAIN_MAIL },
     { PM_ORC, CRAM_RATION, TRIPE_RATION },
@@ -310,12 +343,14 @@ struct inv_sub {
     { PM_DROW, ARROW, DARK_ELVEN_ARROW },
     { PM_DROW, CROSSBOW, DARK_ELVEN_HAND_CROSSBOW },
     { PM_DROW, CROSSBOW_BOLT, DARK_ELVEN_CROSSBOW_BOLT },
-    { PM_DROW, GAUNTLETS, GLOVES },
+    { PM_DROW, GLOVES, DARK_ELVEN_GLOVES },
+    { PM_DROW, GAUNTLETS, DARK_ELVEN_GLOVES },
     { PM_DROW, ARMOR, DARK_ELVEN_TUNIC },
     { PM_DROW, JACKET, DARK_ELVEN_TUNIC },
     { PM_DROW, PLATE_MAIL, DARK_ELVEN_CHAIN_MAIL },
     { PM_DROW, HELMET, DARK_ELVEN_HELM },
     { PM_DROW, SMALL_SHIELD, DARK_ELVEN_BRACER },
+    { PM_DROW, LARGE_SHIELD, DARK_ELVEN_BRACER },
     { PM_DROW, CLOAK_OF_DISPLACEMENT, DARK_ELVEN_CLOAK },
     { PM_DROW, CLOAK_OF_PROTECTION, DARK_ELVEN_CLOAK },
     /* end */
@@ -884,7 +919,14 @@ u_init()
         skill_init(Skill_Inf);
         break;
     case PM_KNIGHT:
-        ini_inv(Knight);
+        if (Race_if(PM_ELF))
+            ini_inv(Elven_Knight);
+        else if (Race_if(PM_DWARF))
+            ini_inv(Dwarvish_Knight);
+        else if (Race_if(PM_ORC))
+            ini_inv(Orcish_Knight);
+        else
+            ini_inv(Knight);
         knows_class(WEAPON_CLASS);
         knows_class(ARMOR_CLASS);
         /* give knights chess-like mobility--idea from wooledge@..cwru.edu */
@@ -1210,6 +1252,7 @@ u_init()
         knows_object(DARK_ELVEN_CLOAK);
         knows_object(DARK_ELVEN_BRACER);
         knows_object(DARK_ELVEN_BOOTS);
+        knows_object(DARK_ELVEN_GLOVES);
         break;
 
     default: /* impossible */

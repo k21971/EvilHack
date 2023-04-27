@@ -679,6 +679,7 @@ Gloves_on(VOID_ARGS)
 {
     switch (uarmg->otyp) {
     case GLOVES:
+    case DARK_ELVEN_GLOVES:
     case GAUNTLETS:
         break;
     case GAUNTLETS_OF_FUMBLING:
@@ -749,6 +750,7 @@ Gloves_off(VOID_ARGS)
 
     switch (uarmg->otyp) {
     case GLOVES:
+    case DARK_ELVEN_GLOVES:
     case GAUNTLETS:
     case GAUNTLETS_OF_PROTECTION:
         break;
@@ -2709,6 +2711,7 @@ find_ac()
     /* Wearing racial armor is worth +x to the armor's AC; orcs get a slightly
      * larger bonus to compensate their sub-standard equipment, lack of equipment,
      * and the stats-challenged orc itself. Taken from SporkHack.
+     * Leaving Drow gloves off this list on purpose.
      */
     racial_bonus = Race_if(PM_ORC) ? 2
                      : Race_if(PM_ELF) ? 1

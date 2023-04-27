@@ -2837,4 +2837,5 @@ The following changes to date are:
 - Fix: prevent uncharged wands of wishing from randomly spawning on
   the castle level
 - New objects: Drow armor
+- Added Drow gloves, some other tweaks
 

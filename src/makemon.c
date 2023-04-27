@@ -179,6 +179,9 @@ extern struct trobj Cave_man[];
 extern struct trobj Convict[];
 extern struct trobj Healer[];
 extern struct trobj Knight[];
+extern struct trobj Elven_Knight[];
+extern struct trobj Dwarvish_Knight[];
+extern struct trobj Orcish_Knight[];
 extern struct trobj Monk[];
 extern struct trobj Priest[];
 extern struct trobj Ranger[];
@@ -856,7 +859,14 @@ register struct monst *mtmp;
             mongets(mtmp, SKELETON_KEY);
             break;
         case PM_KNIGHT:
-            ini_mon_inv(mtmp, Knight, 1);
+            if (racial_elf(mtmp))
+                ini_mon_inv(mtmp, Elven_Knight, 1);
+            else if (racial_dwarf(mtmp))
+                ini_mon_inv(mtmp, Dwarvish_Knight, 1);
+            else if (racial_orc(mtmp))
+                ini_mon_inv(mtmp, Orcish_Knight, 1);
+            else
+                ini_mon_inv(mtmp, Knight, 1);
             mongets(mtmp, SKELETON_KEY);
             break;
         case PM_MONK:
@@ -963,6 +973,10 @@ register struct monst *mtmp;
                             mk_artifact(otmp, sgn(mon_aligntyp(mtmp)));
                         else if (!rn2(8))
                             create_oprop(otmp, FALSE);
+                    }
+                    if (!rn2(3) && is_drow_weapon(otmp)
+                        && is_poisonable(otmp)) {
+                        otmp->otainted = 1;
                     }
                 }
             }
@@ -1740,6 +1754,7 @@ register struct monst *mtmp;
             curse(otmp);
             otmp->oerodeproof = TRUE;
             otmp->spe = rnd(3) + 2;
+            otmp->otainted = 1;
             (void) mpickobj(mtmp, otmp);
             break;
         case PM_BAPHOMET:
@@ -1864,6 +1879,16 @@ register struct monst *mtmp;
             break;
         }
         break;
+    }
+
+    /* Drow mercenary types have a higher chance of
+       their weapons being coated in drow poison */
+    for (; otmp; otmp = otmp->nobj) {
+        if (otmp->oclass == WEAPON_CLASS) {
+            if (!rn2(3) && is_drow_weapon(otmp)
+                && is_poisonable(otmp))
+                otmp->otainted = 1;
+        }
     }
 
     if ((int) mtmp->m_lev > rn2(75))
@@ -2030,6 +2055,9 @@ register struct monst *mtmp;
             if (mac < 10 && rn2(3))
                 mac += 1 + mongets(mtmp, (rn2(3)) ? GLOVES
                                                   : GAUNTLETS);
+            else if (mac < 10 && rn2(3)
+                     && racial_drow(mtmp))
+                mac += 1 + mongets(mtmp, DARK_ELVEN_GLOVES);
             else if (mac < 10 && rn2(2)
                      && (!(racial_giant(mtmp)
                            || racial_elf(mtmp)

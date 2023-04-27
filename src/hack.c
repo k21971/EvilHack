@@ -748,6 +748,7 @@ ma_break()
             prob *= 4;
             break;
         case GLOVES:
+        case DARK_ELVEN_GLOVES:
         case GAUNTLETS:
         case GAUNTLETS_OF_DEXTERITY:
         case GAUNTLETS_OF_PROTECTION:

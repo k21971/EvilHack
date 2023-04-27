@@ -665,7 +665,8 @@ register struct monst *mon;
                 /* since armor_bonus is positive, subtracting it increases AC */
                 base -= armor_bonus(obj);
             }
-            /* racial armor bonuses, separate from regular bonuses */
+            /* racial armor bonuses, separate from regular bonuses,
+               leaving drow gloves out of this on purpose */
             racial_bonus = 1;
             if (which_armor(mon, W_ARM)) {
                 if ((racial_orc(mon)
