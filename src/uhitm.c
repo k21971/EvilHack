@@ -3690,12 +3690,18 @@ boolean wouldhavehit;
                   s_suffix(Monnam(mdef)),
                   aobjnam(blocker, (char *) 0),
                   (rn2(2) ? "blocks" : "deflects"));
+            /* glass armor can potentially break if it deflects
+               and attack */
+            if (blocker && is_glass(blocker))
+                break_glass_obj(blocker);
+            /* called if player hates the material of the armor
+               that deflected their attack */
             if (blocker && !uwep && !uarmg
                 && Hate_material(blocker->material)) {
                 searmsg(mdef, &youmonst, blocker, FALSE);
                 /* glancing blow */
                 losehp(rnd(sear_damage(blocker->material) / 2),
-                       "hitting an adverse material", KILLED_BY);
+                       "touching a hated material", KILLED_BY);
             }
         }
     } else

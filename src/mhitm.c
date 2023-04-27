@@ -179,6 +179,12 @@ int target, roll;
                     aobjnam(blocker, (char *) 0),
                     (rn2(2) ? "blocks" : "deflects"));
             pline("%s %s attack.", buf, s_suffix(mon_nam_too(magr, mdef)));
+            /* glass armor can potentially break if it deflects
+               and attack */
+            if (blocker && is_glass(blocker))
+                break_glass_obj(blocker);
+            /* called if attacker hates the material of the armor
+               that deflected their attack */
             if (blocker
                 && (!MON_WEP(magr) && which_armor(magr, W_ARMG) == 0)
                 && mon_hates_material(magr, blocker->material)) {

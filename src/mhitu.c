@@ -259,6 +259,10 @@ struct attack *mattk;
         }
         if (!blocker)
             goto end;
+        /* glass armor can potentially break if it deflects
+           and attack */
+        if (blocker && is_glass(blocker))
+            break_glass_obj(blocker);
         /* called if attacker hates the material of the armor
            that deflected their attack */
         if (blocker
