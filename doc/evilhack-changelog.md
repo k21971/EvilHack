@@ -2838,4 +2838,6 @@ The following changes to date are:
   the castle level
 - New objects: Drow armor
 - Added Drow gloves, some other tweaks
+- The Staff of the Archmagi will either give off light or darkness
+  depnding on the race that wields it
 

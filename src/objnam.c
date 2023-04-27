@@ -1583,8 +1583,12 @@ unsigned doname_flags;
 
         /* Light from always-lit artifacts. */
         } else if (!Blind && obj->lamplit && artifact_light(obj)) {
-            Sprintf(eos(bp) - 1, ", %s lit)",
-                    arti_light_description(obj));
+            if (obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                && !Upolyd && Race_if(PM_DROW))
+                Sprintf(eos(bp) - 1, ", aura of darkness)");
+            else
+                Sprintf(eos(bp) - 1, ", %s lit)",
+                        arti_light_description(obj));
         }
     }
 
