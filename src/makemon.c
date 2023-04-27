@@ -842,7 +842,8 @@ register struct monst *mtmp;
         case PM_CONVICT:
             ini_mon_inv(mtmp, Convict, 1);
             mongets(mtmp, SKELETON_KEY);
-            mongets(mtmp, GRAPPLING_HOOK);
+            if (!racial_drow(mtmp)) /* iron bad */
+                mongets(mtmp, GRAPPLING_HOOK);
             break;
         case PM_HEALER:
             mkmonmoney(mtmp, (long) rn1(1000, 1001));
@@ -896,7 +897,8 @@ register struct monst *mtmp;
                 ini_mon_inv(mtmp, tortlePriest, 1);
             else
                 ini_mon_inv(mtmp, Priest, 1);
-            ini_mon_inv(mtmp, Lamp, 10);
+            if (!racial_drow(mtmp)) /* light bad */
+                ini_mon_inv(mtmp, Lamp, 10);
             mongets(mtmp, SKELETON_KEY);
             break;
         case PM_RANGER:
