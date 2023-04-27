@@ -106,6 +106,11 @@ orc_can_regen()
     return 1;
 }
 
+#define LIT_DROW_EREGEN_MULTI 2L /* Drow energy regeneration
+                                    rate in the light */
+#define LIT_DROW_HREGEN_MULTI 3L /* Drow hit point regeneration
+                                    rate in the light */
+
 void
 moveloop(resuming)
 boolean resuming;
@@ -122,6 +127,7 @@ boolean resuming;
     int past_clock;
     boolean elf_regen = elf_can_regen();
     boolean orc_regen = orc_can_regen();
+    long rate;
 
     /* Note:  these initializers don't do anything except guarantee that
             we're linked properly.
@@ -393,12 +399,20 @@ boolean resuming;
                         }
                     }
 
+                    /* normal energy regeneration rate */
+                    rate = ((MAXULEV + 8L - u.ulevel)
+                            * ((Role_if(PM_WIZARD) || Role_if(PM_INFIDEL))
+                               ? 3L : 4L) / 6L);
+
+                    /* energy regeneration rate for Drow while
+                       in the light (2x slower) */
+                    if (maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
+                        && !spot_is_dark(u.ux, u.uy))
+                        rate *= LIT_DROW_EREGEN_MULTI;
+
                     if (u.uen < u.uenmax
                         && ((wtcap < MOD_ENCUMBER
-                             && (!(moves % ((MAXULEV + 8 - u.ulevel)
-                                            * ((Role_if(PM_WIZARD)
-                                                || Role_if(PM_INFIDEL))
-                                                ? 3 : 4) / 6))))
+                             && (!(moves % rate)))
                             || Energy_regeneration
                             /* the Idol grants energy regen to piously unaligned;
                              * it really shouldn't be restricted to Infidels,
@@ -406,19 +420,8 @@ boolean resuming;
                             || (Role_if(PM_INFIDEL) && u.uhave.questart
                                 && u.ualign.type == A_NONE
                                 && u.ualign.record > rn2(20)))) {
-                        boolean drow_in_light =
-                            (maybe_polyd(is_drow(youmonst.data),
-                                         Race_if(PM_DROW))
-                             && ((levl[u.ux][u.uy].lit
-                                  && !(viz_array[u.uy][u.ux] & TEMP_DARK))
-                                 || (viz_array[u.uy][u.ux] & TEMP_LIT)));
 
-                        if (drow_in_light)
-                            u.uen += rn1(
-                                (int) (ACURR(A_WIS) + ACURR(A_INT)) / 30 + 1, 1);
-                        else
-                            u.uen += rn1(
-                                (int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1, 1);
+                        u.uen += rn1((int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1, 1);
                         if (u.uen > u.uenmax)
                             u.uen = u.uenmax;
                         context.botl = TRUE;
@@ -825,10 +828,8 @@ int wtcap;
                                  && !u.uhave.amulet
                                  && !u.uachieve.amulet),
             drow_in_light = (maybe_polyd(is_drow(youmonst.data),
-                                        Race_if(PM_DROW))
-                             && ((levl[u.ux][u.uy].lit
-                                  && !(viz_array[u.uy][u.ux] & TEMP_DARK))
-                                 || (viz_array[u.uy][u.ux] & TEMP_LIT)));
+                                         Race_if(PM_DROW))
+                             && !spot_is_dark(u.ux, u.uy));
 
     /* periodically let our Infidel know why their hit
        points aren't regenerating if they don't have
@@ -864,37 +865,36 @@ int wtcap;
            once u.mh reached u.mhmax; that may have been convenient
            for the player, but it didn't make sense for gameplay...]
 
-           Drow heal more slowly in the light, Infidels won't heal at
-           all without the Amulet of Yendor with them (pre-idol
-           imbuement). No one can regenerate hit points while located
-           in the Valley of the Dead */
+           Drow heal more slowly in the light (3x slower), Infidels
+           won't heal at all without the Amulet of Yendor with them
+           (pre-idol imbuement). No one can regenerate hit points
+           while located in the Valley of the Dead */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
             && (encumbrance_ok || Regeneration) && !Is_valley(&u.uz)
             && !infidel_no_amulet) {
             if (u.ulevel > 9) {
-                if (!(moves % 3L)) {
+                long rate = 3L;
+                if (drow_in_light)
+                    rate *= LIT_DROW_HREGEN_MULTI;
+
+                if (!(moves % rate)) {
                     int Con = (int) ACURR(A_CON);
 
                     if (Con <= 12) {
-                        if (drow_in_light)
-                            heal = !(moves % 3L);
-                        else
-                            heal = 1;
+                        heal = 1;
                     } else {
-                        if (drow_in_light)
-                            heal = rnd(Con) / 3;
-                        else
-                            heal = rnd(Con);
+                        heal = rnd(Con);
                         if (heal > u.ulevel - 9)
                             heal = u.ulevel - 9;
                     }
                 }
             } else { /* u.ulevel <= 9 */
-                if (!(moves % (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1))) {
-                    if (drow_in_light)
-                        heal = !(moves % 3L);
-                    else
-                        heal = 1;
+                long rate = (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1);
+                if (drow_in_light)
+                    rate *= LIT_DROW_HREGEN_MULTI;
+
+                if (!(moves % rate)) {
+                    heal = 1;
                 }
             }
 

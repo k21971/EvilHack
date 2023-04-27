@@ -2843,4 +2843,5 @@ The following changes to date are:
 - Fix: player monster Drow spawning with inappropriate objects
 - Fix: worn glass helmets would never break when boulders hit them
 - Glass armor that blocks an attack has a chance to break
+- Improvements to how Drow weaknesses are handled
 

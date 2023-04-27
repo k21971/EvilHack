@@ -34,6 +34,9 @@ extern char *viz_rmax;			/* max could see indices */
 #define uv_cansee(x, y) (viz_array[y][x] & UV_SEEN)
 #define templit(x, y) \
     ((viz_array[y][x] & TEMP_LIT) && !(viz_array[y][x] & TEMP_DARK))
+#define spot_is_dark(x, y) \
+    (!(levl[x][y].lit || (viz_array[y][x] & TEMP_LIT)) \
+     || (viz_array[y][x] & TEMP_DARK))
 
 /*
  *  The following assume the monster is not blind.

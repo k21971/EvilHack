@@ -195,9 +195,7 @@ botl_hitbonus()
 
     if (maybe_polyd(is_drow(youmonst.data),
                     Race_if(PM_DROW))) {
-        if (!(levl[u.ux][u.uy].lit
-              || (viz_array[u.uy][u.ux] & TEMP_LIT))
-            || (viz_array[u.uy][u.ux] & TEMP_DARK)) {
+        if (spot_is_dark(u.ux, u.uy)) {
             /* spot is dark */
             tmp += (u.ulevel / 3) + 2;
         } else {
