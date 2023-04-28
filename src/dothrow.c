@@ -2403,10 +2403,25 @@ boolean
 breaktest(obj)
 struct obj *obj;
 {
+    xchar x, y;
+
+    /* establish the 'where' for spot_is_dark () */
+    if (mcarried(obj)) {
+        x = obj->ocarry->mx, y = obj->ocarry->my;
+    } else if (carried(obj)) {
+        x = u.ux, y = u.uy;
+    } else {
+        x = obj->ox, y = obj->oy;
+    }
+
     if (obj_resists(obj, 1, 99))
         return 0;
     if (obj->material == GLASS && !obj->oerodeproof
         && !obj->oartifact && obj->oclass != GEM_CLASS)
+        return 1;
+    /* Drow armor is brittle if in the light */
+    if (obj->material == ADAMANTINE && is_drow_armor(obj)
+        && !obj->oartifact && !spot_is_dark(x, y))
         return 1;
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case EXPENSIVE_CAMERA:
@@ -2432,8 +2447,9 @@ boolean in_view;
 
     to_pieces = "";
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
-    default: /* glass or crystal wand */
-        if (obj->material != GLASS)
+    default: /* glass or crystal wand, or adamantine (drow armor) in light */
+        if (!(obj->material == GLASS
+              || obj->material == ADAMANTINE))
             impossible("breaking odd object?");
         /*FALLTHRU*/
     case LENSES:
@@ -2463,6 +2479,15 @@ boolean in_view;
         break;
     case SNOWBALL:
         pline("Thwap!");
+        break;
+    case DARK_ELVEN_BRACER:
+    case DARK_ELVEN_CHAIN_MAIL:
+        if (!in_view)
+            You_hear("%s break into fragments!",
+                     something);
+        else
+           pline_The("%s breaks into fragments!",
+                     xname(obj));
         break;
     }
 }
