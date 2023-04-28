@@ -2847,4 +2847,6 @@ The following changes to date are:
 - Certain Drow armor becomes brittle in the presence of light
 - Drow weapons are also susceptible to light
 - Catch alternative spellings for dark elven gear
+- New monster: Black fungus; some fungal corpses can be used to make
+  certain potions
 

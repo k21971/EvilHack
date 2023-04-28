@@ -2524,6 +2524,52 @@ dodip()
         return 1;
     }
 
+    /* create a potion of sickness from a potion of fruit juice
+       and a gray fungus corpse */
+    if (potion->otyp == POT_FRUIT_JUICE && obj->otyp == CORPSE
+        && obj->corpsenm == PM_GRAY_FUNGUS) {
+        if (obj->quan > 1) {
+            You_cant("dip multiple %s into %s.",
+                     cxname(obj), the(xname(potion)));
+            return 0;
+        }
+
+        pline("%s is absorbed by %s%s.", The(cxname(obj)),
+              (potion->quan > 1L) ? "one of " : "", the(xname(potion)));
+        pline("%s bubble%s furiously, and %stransforms.", The(xname(potion)),
+              (potion->quan > 1L) ? "" : "s", (potion->quan > 1L) ? "one " : "");
+        useup(potion);
+        makeknown(POT_FRUIT_JUICE);
+        obj = poly_obj(obj, POT_SICKNESS);
+        freeinv(obj);
+        (void) hold_another_object(obj, "You drop %s!", doname(obj),
+                                   (const char *) 0);
+        return 1;
+    }
+
+    /* create a Drow poison potion from a potion of fruit juice
+       and a black fungus corpse */
+    if (potion->otyp == POT_FRUIT_JUICE && obj->otyp == CORPSE
+        && obj->corpsenm == PM_BLACK_FUNGUS) {
+        if (obj->quan > 1) {
+            You_cant("dip multiple %s into %s.",
+                     cxname(obj), the(xname(potion)));
+            return 0;
+        }
+
+        pline("%s is absorbed by %s%s.", The(cxname(obj)),
+              (potion->quan > 1L) ? "one of " : "", the(xname(potion)));
+        pline("%s bubble%s furiously, and %stransforms.", The(xname(potion)),
+              (potion->quan > 1L) ? "" : "s", (potion->quan > 1L) ? "one " : "");
+        useup(potion);
+        makeknown(POT_FRUIT_JUICE);
+        obj = poly_obj(obj, POT_DROW_POISON);
+        freeinv(obj);
+        (void) hold_another_object(obj, "You drop %s!", doname(obj),
+                                   (const char *) 0);
+        return 1;
+    }
+
     if (potion->otyp == POT_WATER && obj->otyp == TOWEL) {
         pline_The("towel soaks it up!");
         /* wetting towel already done via water_damage() in H2Opotion_dip */

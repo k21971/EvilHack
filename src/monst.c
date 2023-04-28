@@ -1959,7 +1959,8 @@ NEARDATA struct permonst mons[] = {
         SIZ(50, 30, MS_SILENT, MZ_SMALL), MR_FIRE | MR_POISON,
         MR_FIRE | MR_POISON, M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS
                                  | M1_NOHEAD | M1_MINDLESS | M1_NOTAKE,
-        M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, M4_VULNERABLE_COLD, 0, 2, CLR_RED),
+        M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, M4_VULNERABLE_COLD,
+        0, 2, CLR_RED),
     MON("shrieker", S_FUNGUS, LVL(3, 1, 7, 0, 0), (G_GENO | 1),
         A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(100, 100, MS_SHRIEK, MZ_SMALL), MR_POISON, MR_POISON,
@@ -1973,8 +1974,6 @@ NEARDATA struct permonst mons[] = {
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0, 0, 0, 5, CLR_MAGENTA),
-    /* From SporkHack.
-     */
     MON("gray fungus", S_FUNGUS, LVL(3, 0, 7, 0, 0), (G_GENO | 2),
         A(ATTK(AT_NONE, AD_DISE, 0, 2),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -1982,6 +1981,13 @@ NEARDATA struct permonst mons[] = {
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE | M1_POIS,
         M2_HOSTILE | M2_NEUTER, 0, 0, 0, 5, CLR_GRAY),
+    MON("black fungus", S_FUNGUS, LVL(3, 0, 7, 0, 0), (G_GENO | 2),
+        A(ATTK(AT_NONE, AD_SLEE, 0, 2),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(50, 30, MS_SILENT, MZ_SMALL), MR_SLEEP, MR_SLEEP,
+        M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
+            | M1_NOTAKE | M1_POIS,
+        M2_HOSTILE | M2_NEUTER, 0, 0, 0, 5, CLR_BLACK),
     /*
      * Gnomes
      */

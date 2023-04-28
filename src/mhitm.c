@@ -3208,6 +3208,13 @@ struct obj *mwep;
             }
             tmp = 0;
             break;
+        case AD_SLEE:
+            if (sleep_monst(magr, rn2(3) + 8, -1)) {
+                if (canseemon(magr))
+                    pline("%s loses consciousness.", Monnam(magr));
+                slept_monst(magr);
+            }
+            break;
         default:
             tmp = 0;
             break;

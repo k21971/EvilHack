@@ -4527,6 +4527,14 @@ boolean wep_was_destroyed;
             if (!Slow)
                 u_slow_down();
             break;
+        case AD_SLEE: /* specifically black fungus */
+            if (how_resistant(SLEEP_RES) < 100) {
+                You("lose consciousness.");
+                losehp(resist_reduce(rnd(6), POISON_RES),
+                       "black fungus", KILLED_BY_AN);
+                fall_asleep(-resist_reduce(rn2(3) + 8, SLEEP_RES), TRUE);
+            }
+            break;
         default:
             break;
         }

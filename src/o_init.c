@@ -195,9 +195,10 @@ int *lo_p, *hi_p; /* output: range that item belongs among */
             *lo_p = SPEED_BOOTS, *hi_p = LEVITATION_BOOTS;
         break;
     case POTION_CLASS:
-        /* potion of water has the only fixed description */
-        *lo_p = bases[POTION_CLASS];
-        *hi_p = POT_WATER - 1;
+        /* potions of water, sickness and drow poison have
+           the only fixed descriptions */
+        if (otyp >= POT_GAIN_ABILITY && otyp <= POT_OIL)
+            *lo_p = POT_GAIN_ABILITY, *hi_p = POT_OIL;
         break;
     case AMULET_CLASS:
     case SCROLL_CLASS:

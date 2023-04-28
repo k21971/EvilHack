@@ -4623,6 +4623,31 @@ struct attack *mattk;
             }
             tmp = 0;
             break;
+        case AD_DISE: /* gray fungus */
+            if (resists_sick(mtmp->data) || defended(mtmp, AD_DISE)) {
+                if (canseemon(mtmp))
+                    pline("%s resists infection.", Monnam(mtmp));
+                tmp = 0;
+                break;
+            } else {
+                if (mtmp->mdiseasetime)
+                    mtmp->mdiseasetime -= rnd(3);
+                else
+                    mtmp->mdiseasetime = rn1(9, 6);
+                if (canseemon(mtmp))
+                    pline("%s looks %s.", Monnam(mtmp),
+                          mtmp->mdiseased ? "even worse" : "diseased");
+                mtmp->mdiseased = 1;
+                mtmp->mdiseabyu = TRUE;
+            }
+            break;
+        case AD_SLEE: /* black fungus */
+            if (sleep_monst(mtmp, rn2(3) + 8, -1)) {
+                if (canseemon(mtmp))
+                    pline("%s loses consciousness.", Monnam(mtmp));
+                slept_monst(mtmp);
+            }
+            break;
         default:
             tmp = 0;
             break;
