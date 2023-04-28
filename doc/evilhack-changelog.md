@@ -2845,4 +2845,5 @@ The following changes to date are:
 - Glass armor that blocks an attack has a chance to break
 - Improvements to how Drow weaknesses are handled
 - Certain Drow armor becomes brittle in the presence of light
+- Drow weapons are also susceptible to light
 

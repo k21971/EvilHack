@@ -180,7 +180,7 @@ int target, roll;
                     (rn2(2) ? "blocks" : "deflects"));
             pline("%s %s attack.", buf, s_suffix(mon_nam_too(magr, mdef)));
             /* glass armor, or certain drow armor if in the presence
-               of light, can potentially break if it deflects and attack */
+               of light, can potentially break if it deflects an attack */
             if (blocker
                 && (is_glass(blocker) || is_adamantine(blocker)))
                 break_glass_obj(blocker);

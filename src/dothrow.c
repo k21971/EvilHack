@@ -2419,8 +2419,8 @@ struct obj *obj;
     if (obj->material == GLASS && !obj->oerodeproof
         && !obj->oartifact && obj->oclass != GEM_CLASS)
         return 1;
-    /* Drow armor is brittle if in the light */
-    if (obj->material == ADAMANTINE && is_drow_armor(obj)
+    /* Drow objects are brittle if in the light */
+    if (obj->material == ADAMANTINE && is_drow_obj(obj)
         && !obj->oartifact && !spot_is_dark(x, y))
         return 1;
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
@@ -2447,7 +2447,7 @@ boolean in_view;
 
     to_pieces = "";
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
-    default: /* glass or crystal wand, or adamantine (drow armor) in light */
+    default: /* glass or crystal wand, or adamantine (drow objects) in light */
         if (!(obj->material == GLASS
               || obj->material == ADAMANTINE))
             impossible("breaking odd object?");
@@ -2480,14 +2480,25 @@ boolean in_view;
     case SNOWBALL:
         pline("Thwap!");
         break;
+    case DARK_ELVEN_SPEAR:
+    case DARK_ELVEN_DAGGER:
+    case DARK_ELVEN_SHORT_SWORD:
+    case DARK_ELVEN_BROADSWORD:
+    case DARK_ELVEN_LONG_SWORD:
+    case DARK_ELVEN_MACE:
+    case DARK_ELVEN_HEAVY_MACE:
+    case DARK_ELVEN_BOW:
+    case DARK_ELVEN_ARROW:
+    case DARK_ELVEN_HAND_CROSSBOW:
+    case DARK_ELVEN_CROSSBOW_BOLT:
     case DARK_ELVEN_BRACER:
     case DARK_ELVEN_CHAIN_MAIL:
         if (!in_view)
-            You_hear("%s break into fragments!",
+            You_hear("%s crumble apart!",
                      something);
         else
-           pline_The("%s breaks into fragments!",
-                     xname(obj));
+           pline("%s crumble%s into fragments!",
+                 Doname2(obj), (obj->quan == 1L) ? "s" : "");
         break;
     }
 }
@@ -2503,7 +2514,9 @@ struct obj* obj;
 {
     long unwornmask;
     boolean ucarried;
-    if (!obj || !breaktest(obj) || rn2(6))
+    if (!obj || !breaktest(obj)
+        || (obj->material == ADAMANTINE
+            && is_drow_weapon(obj) ? rn2(16) : rn2(6)))
         return FALSE;
     /* now we are definitely breaking it */
 
@@ -2544,9 +2557,13 @@ struct obj* obj;
 
     if (obj->quan == 1L) {
         obj->owornmask = 0L;
-        pline("%s breaks into pieces!", Yname2(obj));
+        pline("%s %s!", Yname2(obj),
+              (obj->material == ADAMANTINE ? "crumbles into fragments"
+                                           : "breaks into pieces"));
     } else {
-        pline("One of %s breaks into pieces!", yname(obj));
+        pline("One of %s %s!", yname(obj),
+              (obj->material == ADAMANTINE ? "crumbles into fragments"
+                                           : "breaks into pieces"));
         obj = splitobj(obj, 1L);
     }
     breakobj(obj, obj->ox, obj->oy, !context.mon_moving, TRUE);

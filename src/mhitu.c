@@ -260,7 +260,7 @@ struct attack *mattk;
         if (!blocker)
             goto end;
         /* glass armor, or certain drow armor if in the presence
-           of light, can potentially break if it deflects and attack */
+           of light, can potentially break if it deflects an attack */
         if (blocker
             && (is_glass(blocker) || is_adamantine(blocker)))
             break_glass_obj(blocker);
