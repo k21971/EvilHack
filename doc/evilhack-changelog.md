@@ -2846,4 +2846,5 @@ The following changes to date are:
 - Improvements to how Drow weaknesses are handled
 - Certain Drow armor becomes brittle in the presence of light
 - Drow weapons are also susceptible to light
+- Catch alternative spellings for dark elven gear
 
