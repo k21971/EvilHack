@@ -791,7 +791,8 @@ boolean creation;
         m_dowear_type(mon, W_RINGR, creation, FALSE);
 
     m_dowear_type(mon, W_ARMG, creation, FALSE);
-    if (!slithy(mon->data) && r_data(mon)->mlet != S_CENTAUR)
+    if (!slithy(mon->data) && r_data(mon)->mlet != S_CENTAUR
+        && mon->data != &mons[PM_DRIDER])
         m_dowear_type(mon, W_ARMF, creation, FALSE);
     if (!cantweararm(mon))
         m_dowear_type(mon, W_ARM, creation, FALSE);

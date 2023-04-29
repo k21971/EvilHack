@@ -2849,4 +2849,5 @@ The following changes to date are:
 - Catch alternative spellings for dark elven gear
 - New monster: Black fungus; some fungal corpses can be used to make
   certain potions
+- New monsters: several new drow-based creatures
 

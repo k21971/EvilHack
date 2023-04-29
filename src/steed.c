@@ -7,12 +7,14 @@
 /* Monsters that might be ridden */
 static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN, S_ANGEL,
                                         S_CENTAUR,   S_DRAGON,  S_JABBERWOCK,
-                                        S_DOG,       S_FELINE,  S_SPIDER, '\0' };
+                                        S_DOG,       S_FELINE,  S_SPIDER,
+                                        S_LIZARD,    '\0' };
 
 /* Monsters that might wear barding */
 static NEARDATA const char mbarding[] = { S_QUADRUPED, S_UNICORN,    S_ANGEL,
                                           S_DRAGON,    S_JABBERWOCK, S_DOG,
-                                          S_FELINE,    S_SPIDER,     '\0' };
+                                          S_FELINE,    S_SPIDER,     S_LIZARD,
+                                          '\0' };
 
 STATIC_DCL boolean FDECL(landing_spot, (coord *, int, int));
 STATIC_DCL void FDECL(maybewakesteed, (struct monst *));
@@ -213,6 +215,9 @@ struct monst *mtmp;
             && !(ptr->mlet == S_SPIDER
                  && mtmp->mnum != PM_GIANT_SPIDER
                  && mtmp->mnum != PM_GARGANTUAN_SPIDER)
+            && !(ptr->mlet == S_LIZARD
+                 && mtmp->mnum != PM_CAVE_LIZARD
+                 && mtmp->mnum != PM_LARGE_CAVE_LIZARD)
             && !(ptr->mlet == S_FELINE && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
 
@@ -310,7 +315,9 @@ struct obj *otmp;
         return 1;
     }
     if ((ptr == &mons[PM_GIANT_SPIDER]
-         || ptr == &mons[PM_GARGANTUAN_SPIDER]) && !Race_if(PM_DROW)) {
+         || ptr == &mons[PM_GARGANTUAN_SPIDER]
+         || ptr == &mons[PM_CAVE_LIZARD]
+         || ptr == &mons[PM_LARGE_CAVE_LIZARD]) && !Race_if(PM_DROW)) {
         if (!Deaf)
             pline("%s hisses threatenly at you!", Monnam(mtmp));
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
@@ -451,7 +458,9 @@ struct obj *otmp;
         return 1;
     }
     if ((ptr == &mons[PM_GIANT_SPIDER]
-         || ptr == &mons[PM_GARGANTUAN_SPIDER]) && !Race_if(PM_DROW)) {
+         || ptr == &mons[PM_GARGANTUAN_SPIDER]
+         || ptr == &mons[PM_CAVE_LIZARD]
+         || ptr == &mons[PM_LARGE_CAVE_LIZARD]) && !Race_if(PM_DROW)) {
         if (!Deaf)
             pline("%s hisses threatenly at you!", Monnam(mtmp));
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)

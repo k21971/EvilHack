@@ -792,12 +792,12 @@ IF [50%] {
   } ELSE {
     MONSTER:('&',"Lolth"),(12,08)
     # minions
-    MONSTER:('s',"giant spider"),(11,08),hostile
-    MONSTER:('s',"giant spider"),(13,08),hostile
-    MONSTER:('s',"giant spider"),(11,07),hostile
-    MONSTER:('s',"giant spider"),(11,09),hostile
-    MONSTER:('s',"scorpion"),(13,07),hostile
-    MONSTER:('s',"giant centipede"),(13,09),hostile
+    MONSTER:('s',"drider"),(11,08),hostile
+    MONSTER:('s',"drider"),(13,08),hostile
+    MONSTER:('@',"drow warrior"),(11,07),hostile
+    MONSTER:('@',"drow warrior"),(11,09),hostile
+    MONSTER:('@',"drow cleric"),(13,07),hostile
+    MONSTER:('s',"gargantuan spider"),(13,09),hostile
     MONSTER:'s',(10,08),hostile
     MONSTER:'s',(14,12),hostile
   }
@@ -972,10 +972,10 @@ IF [50%] {
   } ELSE {
     MONSTER:('&',"Lolth"),(18,10)
     # their minions
-    MONSTER:('s',"giant centipede"),(18,09),hostile
-    MONSTER:('s',"giant spider"),(18,11),hostile
-    MONSTER:('s',"giant spider"),(17,10),hostile
-    MONSTER:('s',"giant spider"),(19,10),hostile
+    MONSTER:('s',"gargantuan spider"),(18,09),hostile
+    MONSTER:('@',"drow cleric"),(18,11),hostile
+    MONSTER:('@',"drow warrior"),(17,10),hostile
+    MONSTER:('s',"drider"),(19,10),hostile
   }
 }
 # their subordinates
@@ -1179,8 +1179,8 @@ IF [50%] {
   } ELSE {
     MONSTER:('&',"Lolth"),(14,03)
     #entourage
-    MONSTER:('s',"giant centipede"),(12,03),hostile
-    MONSTER:('&',"pit fiend"),(16,03),hostile
+    MONSTER:('@',"drow cleric"),(12,03),hostile
+    MONSTER:('s',"drider"),(16,03),hostile
   }
 }
 # lava

@@ -617,6 +617,9 @@ struct monst *mon;
     if (racial_tortle(mon))
         return TRUE;
 
+    if (ptr == &mons[PM_DRIDER])
+        return FALSE;
+
     return (boolean) (r_bigmonst(mon)
                       || (ptr->msize > MZ_SMALL && !humanoid(ptr))
                       /* special cases of humanoids that cannot wear suits */
@@ -1233,6 +1236,7 @@ static const short grownups[][2] = {
     { PM_GIANT_SPIDER, PM_GARGANTUAN_SPIDER },
     { PM_OGRE, PM_OGRE_NOBLE },
     { PM_OGRE_NOBLE, PM_OGRE_ROYAL },
+    { PM_DROW_RAIDER, PM_DROW_WARRIOR },
     { PM_WOODLAND_ELF, PM_ELVEN_NOBLE },
     { PM_GREEN_ELF, PM_ELVEN_NOBLE },
     { PM_GREY_ELF, PM_ELVEN_NOBLE },
@@ -1268,6 +1272,7 @@ static const short grownups[][2] = {
     { PM_BABY_PURPLE_WORM, PM_PURPLE_WORM },
     { PM_BABY_CROCODILE, PM_CROCODILE },
     { PM_CROCODILE, PM_GIANT_CROCODILE },
+    { PM_CAVE_LIZARD, PM_LARGE_CAVE_LIZARD },
     { PM_SOLDIER, PM_SERGEANT },
     { PM_SERGEANT, PM_LIEUTENANT },
     { PM_LIEUTENANT, PM_CAPTAIN },

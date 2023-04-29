@@ -83,8 +83,9 @@
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
 #define is_jumper(ptr) \
-    ((ptr) == &mons[PM_KNIGHT] || (ptr) == &mons[PM_JUMPING_SPIDER]     \
-     || (ptr) == &mons[PM_GIANT_CENTIPEDE] || (ptr) == &mons[PM_ZRUTY])
+    ((ptr) == &mons[PM_KNIGHT] || (ptr) == &mons[PM_JUMPING_SPIDER]             \
+     || (ptr) == &mons[PM_GIANT_CENTIPEDE] || (ptr) == &mons[PM_ZRUTY]          \
+     || (ptr) == &mons[PM_CAVE_LIZARD] || (ptr) == &mons[PM_LARGE_CAVE_LIZARD])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 /* humanoid shape with big wings (flight blocked by most body armor) */
 #define big_wings(ptr) \
@@ -330,6 +331,8 @@
 #define likes_magic(ptr) (((ptr)->mflags2 & M2_MAGIC) != 0L)
 #define webmaker(ptr) (is_spider(ptr) || is_drow(ptr))
 #define is_unicorn(ptr) ((ptr)->mlet == S_UNICORN && likes_gems(ptr))
+#define is_cavelizard(ptr) \
+    ((ptr) == &mons[PM_CAVE_LIZARD]) || ((ptr) == &mons[PM_LARGE_CAVE_LIZARD])
 #define is_longworm(ptr) \
     (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
      || ((ptr) == &mons[PM_LONG_WORM_TAIL]))
@@ -535,7 +538,8 @@
      ? (obj)->otyp == BANANA                                                 \
      : ((is_domestic(ptr)                                                    \
          || (is_rat(ptr) && Role_if(PM_CONVICT))                             \
-         || (is_spider(ptr) && Race_if(PM_DROW))                             \
+         || (((is_spider(ptr) && (ptr) != &mons[PM_DRIDER])                  \
+             || is_cavelizard(ptr)) && Race_if(PM_DROW))                     \
          || ((ptr) == &mons[PM_WARG] && Race_if(PM_ORC))                     \
          || ((ptr) == &mons[PM_SABER_TOOTHED_TIGER] && Role_if(PM_CAVEMAN))) \
         && (obj)->oclass == FOOD_CLASS                                       \

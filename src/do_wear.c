@@ -2267,21 +2267,23 @@ boolean noisy;
                 You("have no feet..."); /* not body_part(FOOT) */
             err++;
         } else if ((Upolyd && youmonst.data->mlet == S_CENTAUR)
+                   || (Upolyd && youmonst.data == &mons[PM_DRIDER])
                    || (!Upolyd && Race_if(PM_CENTAUR))) {
             /* break_armor() pushes boots off for centaurs,
                so don't let dowear() put them back on... */
             if (noisy)
-                Your ("hooves are not shaped correctly to wear %s.",
-                      c_boots); /* makeplural(body_part(FOOT)) yields
-                                   "rear hooves" which sounds odd */
+                Your("%s are not shaped correctly to wear %s.",
+                     (is_centaur(youmonst.data) ? "hooves" : "tarsi"),
+                     c_boots); /* makeplural(body_part(FOOT)) yields
+                                  "rear hooves" which sounds odd */
             err++;
         } else if (!Upolyd && Race_if(PM_TORTLE)) {
             /* Tortles can't retreat back into their shells
                whilst wearing footwear, plus their shape is
                all wrong */
             if (noisy)
-                Your ("%s are not shaped correctly to wear %s.",
-                      makeplural(body_part(FOOT)), c_boots);
+                Your("%s are not shaped correctly to wear %s.",
+                     makeplural(body_part(FOOT)), c_boots);
             err++;
         } else if (u.utrap
                    && (u.utraptype == TT_BEARTRAP || u.utraptype == TT_INFLOOR

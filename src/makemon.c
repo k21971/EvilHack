@@ -1204,9 +1204,9 @@ register struct monst *mtmp;
                 struct obj* mail = m_carrying(mtmp, ELVEN_CHAIN_MAIL);
                 if (mail)
                     set_material(mail, MITHRIL);
-            }
-            else if (!rn2(4))
+            } else if (!rn2(4)) {
                 (void) mongets(mtmp, ELVEN_BOOTS);
+            }
             if (rn2(2))
                 (void) mongets(mtmp, ELVEN_DAGGER);
             switch (rn2(3)) {
@@ -1241,6 +1241,66 @@ register struct monst *mtmp;
                     (void) mongets(mtmp, PICK_AXE);
                 if (!rn2(50))
                     (void) mongets(mtmp, CRYSTAL_BALL);
+            }
+        } else if (racial_drow(mtmp)) {
+            if (rn2(2))
+                (void) mongets(mtmp,
+                 (rn2(2) ? DARK_ELVEN_HELM : DARK_ELVEN_CLOAK));
+            if (rn2(2) && !(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                (void) mongets(mtmp, rn2(5) ? DARK_ELVEN_TUNIC
+                                            : DARK_ELVEN_CHAIN_MAIL);
+            } else if (!rn2(3)) {
+                (void) mongets(mtmp, rn2(2) ? DARK_ELVEN_BOOTS
+                                            : DARK_ELVEN_GLOVES);
+            }
+            if (rn2(2) && mm != PM_DROW_CLERIC)
+                (void) mongets(mtmp, DARK_ELVEN_DAGGER);
+            switch (rn2(4)) {
+            case 0:
+                if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                    if (!rn2(4))
+                        (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                    if (rn2(3))
+                        (void) mongets(mtmp, DARK_ELVEN_SHORT_SWORD);
+                    (void) mongets(mtmp, DARK_ELVEN_BOW);
+                    m_initthrow(mtmp, DARK_ELVEN_ARROW, 12);
+                }
+                break;
+            case 1:
+                if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                    if (!rn2(4))
+                        (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                    if (rn2(3))
+                        (void) mongets(mtmp, DARK_ELVEN_SHORT_SWORD);
+                    (void) mongets(mtmp, DARK_ELVEN_HAND_CROSSBOW);
+                    m_initthrow(mtmp, DARK_ELVEN_CROSSBOW_BOLT, 12);
+                }
+                break;
+            case 2:
+                if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                    (void) mongets(mtmp, !rn2(4) ? DARK_ELVEN_LONG_SWORD
+                                                 : DARK_ELVEN_BROADSWORD);
+                    if (rn2(2))
+                        (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                }
+                break;
+            case 3:
+                if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                    if (rn2(2)) {
+                        (void) mongets(mtmp, DARK_ELVEN_SPEAR);
+                        (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                    }
+                }
+                break;
+            }
+            if (mm == PM_DROW_CLERIC) {
+                if (rn2(4))
+                    (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                if (rn2(3))
+                    (void) mongets(mtmp, DARK_ELVEN_TUNIC);
+                if (rn2(8))
+                    (void) mongets(mtmp, rn2(2) ? DARK_ELVEN_MACE
+                                                : DARK_ELVEN_HEAVY_MACE);
             }
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_PRIEST)) {
@@ -2304,6 +2364,21 @@ register struct monst *mtmp;
                 otmp->spe = 0;
                 (void) mpickobj(mtmp, otmp);
             }
+        } else if (ptr == &mons[PM_DRIDER]) {
+            if (rn2(3)) {
+                (void) mongets(mtmp, DARK_ELVEN_BOW);
+                m_initthrow(mtmp, DARK_ELVEN_ARROW, 12);
+            } else {
+                (void) mongets(mtmp, DARK_ELVEN_HAND_CROSSBOW);
+                m_initthrow(mtmp, DARK_ELVEN_CROSSBOW_BOLT, 12);
+            }
+            if (rn2(3))
+                (void) mongets(mtmp, rn2(4) ? DARK_ELVEN_SPEAR
+                                            : rn2(3) ? DARK_ELVEN_BROADSWORD
+                                                     : DARK_ELVEN_LONG_SWORD);
+            if (!rn2(3))
+                (void) mongets(mtmp, rn2(6) ? DARK_ELVEN_TUNIC
+                                            : DARK_ELVEN_CHAIN_MAIL);
         }
         break;
     case S_VAMPIRE:
