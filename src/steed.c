@@ -236,6 +236,9 @@ struct monst *mtmp;
             && !(ptr->mlet == S_SPIDER
                  && mtmp->mnum != PM_GIANT_SPIDER
                  && mtmp->mnum != PM_GARGANTUAN_SPIDER)
+            && !(ptr->mlet == S_LIZARD
+                 && mtmp->mnum != PM_CAVE_LIZARD
+                 && mtmp->mnum != PM_LARGE_CAVE_LIZARD)
             && !(ptr->mlet == S_FELINE && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
 
