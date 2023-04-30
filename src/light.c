@@ -160,12 +160,21 @@ char **cs_rows;
                 ls->flags |= LSF_SHOW;
             if (ls->id.a_obj->otyp == MAGIC_LAMP && ls->id.a_obj->cursed)
                 lit_typ = TEMP_DARK;
+            if (ls->id.a_obj->otyp == SHADOW_DRAGON_SCALES)
+                lit_typ = TEMP_DARK;
+            if (Is_dragon_scaled_armor(ls->id.a_obj)
+                && Dragon_armor_to_scales(ls->id.a_obj) == SHADOW_DRAGON_SCALES)
+                lit_typ = TEMP_DARK;
             if (ls->id.a_obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
                 && !Upolyd && Race_if(PM_DROW))
                 lit_typ = TEMP_DARK;
         } else if (ls->type == LS_MONSTER) {
-            if (get_mon_location(ls->id.a_monst, &ls->x, &ls->y, 0))
-                ls->flags |= LSF_SHOW;
+            if (get_mon_location(ls->id.a_monst, &ls->x, &ls->y, 0)) {
+                if (ls->id.a_monst->data == &mons[PM_SHADOW_DRAGON])
+                    lit_typ = TEMP_DARK;
+                else
+                    ls->flags |= LSF_SHOW;
+            }
         }
 
 #if 0 /* disabled for now since light sources at hero location may be a mix of
@@ -775,6 +784,7 @@ struct obj *obj;
         res = 1;
     else if ((Is_dragon_scaled_armor(obj)
               && (Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES
+                  || Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES
                   || Dragon_armor_to_scales(obj) == CHROMATIC_DRAGON_SCALES))
              || obj->otyp == SHIELD_OF_LIGHT)
         ++res;

@@ -1581,10 +1581,12 @@ unsigned doname_flags;
                     glow_verb(obj->lastwarncnt, TRUE),
                     glow_color(obj->oartifact));
 
-        /* Light from always-lit artifacts. */
+        /* Light/dark from always-lit objects */
         } else if (!Blind && obj->lamplit && artifact_light(obj)) {
-            if (obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
-                && !Upolyd && Race_if(PM_DROW))
+            if ((obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                 && !Upolyd && Race_if(PM_DROW))
+                || (Is_dragon_armor(obj)
+                    && (Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES)))
                 Sprintf(eos(bp) - 1, ", aura of darkness)");
             else
                 Sprintf(eos(bp) - 1, ", %s lit)",

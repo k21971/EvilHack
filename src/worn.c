@@ -990,17 +990,34 @@ boolean racialexception;
         vision_recalc(1);
         if (!creation && best->lamplit && cansee(mon->mx, mon->my)) {
             const char *adesc = arti_light_description(best);
+            boolean shadow = (Is_dragon_armor(best)
+                              && Dragon_armor_to_scales(best) == SHADOW_DRAGON_SCALES);
 
-            if (sawmon) /* could already see monster */
-                pline("%s %s to shine %s.", Yname2(best),
-                      otense(best, "begin"), adesc);
-            else if (canseemon(mon)) /* didn't see it until new light */
-                pline("%s %s shining %s.", Yname2(best),
-                      otense(best, "are"), adesc);
-            else if (sawloc) /* saw location but not invisible monster */
-                pline("%s begins to shine %s.", Something, adesc);
-            else /* didn't see location until new light */
-                pline("%s is shining %s.", Something, adesc);
+            if (shadow) {
+                if (sawmon) /* could already see monster */
+                    pline("%s %s to cast an aura of darkness %s.",
+                          Yname2(best), otense(best, "begin"), adesc);
+                else if (canseemon(mon)) /* didn't see it until new dark */
+                    pline("%s %s giving off an aura of darkness %s.",
+                          Yname2(best), otense(best, "are"), adesc);
+                else if (sawloc) /* saw location but not invisible monster */
+                    pline("%s begins to cast an aura of darkness %s.",
+                          Something, adesc);
+                else /* didn't see location until new dark */
+                    pline("%s is giving off an aura of darkness %s.",
+                          Something, adesc);
+            } else {
+                if (sawmon) /* could already see monster */
+                    pline("%s %s to shine %s.", Yname2(best),
+                          otense(best, "begin"), adesc);
+                else if (canseemon(mon)) /* didn't see it until new light */
+                    pline("%s %s shining %s.", Yname2(best),
+                          otense(best, "are"), adesc);
+                else if (sawloc) /* saw location but not invisible monster */
+                    pline("%s begins to shine %s.", Something, adesc);
+                else /* didn't see location until new light */
+                    pline("%s is shining %s.", Something, adesc);
+            }
         }
     }
     update_mon_intrinsics(mon, best, TRUE, creation);

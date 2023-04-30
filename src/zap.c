@@ -45,8 +45,9 @@ STATIC_DCL void FDECL(wishcmdassist, (int));
 #define ZT_DEATH (AD_DISN - 1) /* or disintegration */
 #define ZT_LIGHTNING (AD_ELEC - 1)
 #define ZT_POISON_GAS (AD_DRST - 1)
-#define ZT_WATER (AD_WATR - 1)
 #define ZT_ACID (AD_ACID - 1)
+#define ZT_WATER (AD_WATR - 1)
+#define ZT_DRLI (AD_DRLI - 1)
 
 #define ZT_WAND(x) (x)
 #define ZT_SPELL(x) (10 + (x))
@@ -72,7 +73,7 @@ const char *const flash_types[] =       /* also used in buzzmu(mcastu.c) */
         "blast of fire", "blast of frost", "blast of sleep gas",
         "blast of disintegration", "blast of lightning",
         "blast of poison gas",  "blast of acid", "blast of water",
-        ""
+        "blast of dark energy"
     };
 
 /*
@@ -4402,6 +4403,18 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         }
         tmp = d(nd, 6);
         break;
+    case ZT_ACID:
+        if (resists_acid(mon) || defended(mon, AD_ACID)
+            || mon_underwater(mon)) {
+            sho_shieldeff = TRUE;
+            break;
+        }
+        tmp = d(nd, 6);
+        if (!rn2(6))
+            acid_damage(MON_WEP(mon));
+        if (!rn2(6))
+            erode_armor(mon, ERODE_CORRODE);
+        break;
     case ZT_WATER:
         tmp = d(nd, 8);
         if (mon->data == &mons[PM_WATER_ELEMENTAL]
@@ -4423,18 +4436,23 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         if (!rn2(6))
             erode_armor(mon, ERODE_RUST);
         break;
-    case ZT_ACID:
-        if (resists_acid(mon) || defended(mon, AD_ACID)
-            || mon_underwater(mon)) {
+    case ZT_DRLI: {
+        int drain = monhp_per_lvl(mon);
+
+        tmp = d(nd, 6);
+        if (resists_drli(mon) || defended(mon, AD_DRLI)) {
             sho_shieldeff = TRUE;
             break;
         }
-        tmp = d(nd, 6);
-        if (!rn2(6))
-            acid_damage(MON_WEP(mon));
-        if (!rn2(6))
-            erode_armor(mon, ERODE_CORRODE);
+
+        tmp += drain;
+        mon->mhpmax -= drain;
+        mon->m_lev--;
+        drain /= 2;
+        if (drain)
+            healup(drain, 0, FALSE, FALSE);
         break;
+        }
     }
     if (sho_shieldeff)
         shieldeff(mon->mx, mon->my);
@@ -4622,6 +4640,26 @@ xchar sx, sy;
             poisoned("blast", A_DEX, "poisoned blast", 15, FALSE);
         }
         break;
+    case ZT_ACID:
+        if (Acid_resistance || Underwater) {
+            pline_The("%s doesn't hurt.", hliquid("acid"));
+            monstseesu(M_SEEN_ACID);
+            dam = 0;
+        } else {
+            pline_The("%s burns!", hliquid("acid"));
+            dam = d(nd, 6);
+            exercise(A_STR, FALSE);
+        }
+        if (!(Reflecting || Underwater)) {
+            /* using two weapons at once makes both of them more vulnerable */
+            if (!rn2(u.twoweap ? 3 : 6))
+                acid_damage(uwep);
+            if (u.twoweap && !rn2(3))
+                acid_damage(uswapwep);
+            if (!rn2(6))
+                erode_armor(&youmonst, ERODE_CORRODE);
+        }
+        break;
     case ZT_WATER:
         dam = d(nd, 8);
         if (Half_physical_damage)
@@ -4649,26 +4687,30 @@ xchar sx, sy;
                 erode_armor(&youmonst, ERODE_RUST);
         }
         break;
-    case ZT_ACID:
-        if (Acid_resistance || Underwater) {
-            pline_The("%s doesn't hurt.", hliquid("acid"));
-            monstseesu(M_SEEN_ACID);
-            dam = 0;
-        } else {
-            pline_The("%s burns!", hliquid("acid"));
-            dam = d(nd, 6);
-            exercise(A_STR, FALSE);
+    case ZT_DRLI: {
+        const char *life = nonliving(youmonst.data) ? "animating force"
+                                                    : "life";
+
+        dam = d(nd, 6);
+        if (Drain_resistance) {
+            ugolemeffects(AD_DRLI, d(nd, 6));
+            break;
         }
-        if (!(Reflecting || Underwater)) {
-            /* using two weapons at once makes both of them more vulnerable */
-            if (!rn2(u.twoweap ? 3 : 6))
-                acid_damage(uwep);
-            if (u.twoweap && !rn2(3))
-                acid_damage(uswapwep);
-            if (!rn2(6))
-                erode_armor(&youmonst, ERODE_CORRODE);
+
+        if (Reflecting) {
+            You("feel drained...");
+            u.uhpmax -= dam / 2 + rn2(5);
+        } else {
+            if (Blind)
+                You_feel("a dark energy blast draining your %s!",
+                         life);
+            else
+                pline_The("dark energy blast drains your %s!",
+                          life);
+            losexp("life drainage");
         }
         break;
+        }
     }
 
     /* Half_spell_damage protection yields half-damage for wands & spells,
@@ -4906,8 +4948,22 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     if (cansee(mon->mx, mon->my)) {
                         hit(fltxt, mon, exclam(0));
                         shieldeff(mon->mx, mon->my);
-                        (void) mon_reflects(mon,
-                                            "But it reflects from %s %s!");
+                        if (abstype == ZT_DRLI)
+                            (void) mon_reflects(mon,
+                                                "But some of it reflects from %s %s!");
+                        else
+                            (void) mon_reflects(mon,
+                                                "But it reflects from %s %s!");
+
+                        if (abstype == ZT_DRLI) {
+                            if (canseemon(mon))
+                                pline("%s appears drained.",
+                                      Monnam(mon));
+                            mon->mhpmax -= rn2(6) + 1;
+                            mon->mhp -= rn2(4) + 8;
+                            if (mon->mhpmax <= 0)
+                                mon->mhpmax = 1;
+                        }
                     }
                     /* water is reflected but doesn't bounce */
                     if (abstype == ZT_WATER)
@@ -4951,6 +5007,20 @@ boolean say; /* Announce out of sight hit/miss events if true */
                             pline("%s aborbs the blast of water into its body.",
                                   Monnam(mon));
                         range = 0;
+                        break; /* Out of while loop */
+                    }
+                    if (abstype == ZT_DRLI) {
+                        const char *life = nonliving(mon->data) ? "animating force"
+                                                                : "life";
+
+                        if (canseemon(mon)) {
+                            hit(fltxt, mon, ".");
+                            if (resists_drli(mon) || defended(mon, AD_DRLI))
+                                pline("%s appears unaffected.", Monnam(mon));
+                            else
+                                pline_The("blast draws the %s from %s!",
+                                          life, mon_nam(mon));
+                        }
                         break; /* Out of while loop */
                     }
 

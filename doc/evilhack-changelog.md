@@ -2859,4 +2859,5 @@ The following changes to date are:
 - Various Drow monsters can spawn riding drow-specific steeds
 - Drow that can cast 'summon insects' will summon spiders instead
 - Driders can shoot webbing at a distance at its target
+- New monster: Shadow dragon
 

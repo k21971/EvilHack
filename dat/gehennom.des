@@ -1290,7 +1290,7 @@ IF [50%] {
     # entourage - chaotic aligned dragons
     MONSTER:('D',"blue dragon"),(49,08),hostile
     MONSTER:('D',"green dragon"),(51,08),hostile
-    MONSTER:('D',"white dragon"),(49,10),hostile
+    MONSTER:('D',"shadow dragon"),(49,10),hostile
     MONSTER:('D',"black dragon"),(51,10),hostile
     MONSTER:('D',"red dragon"),(50,08),hostile
     MONSTER:('&',"balrog"),(49,09),hostile
@@ -1509,7 +1509,7 @@ IF [50%] {
     MONSTER:('D',"yellow dragon"),(13,17),asleep
     MONSTER:('&',"Balrog"),(11,18),"Dagul",asleep
     MONSTER:('D',"blue dragon"),(10,13),asleep
-    MONSTER:('D',"white dragon"),(12,13),asleep
+    MONSTER:('D',"shadow dragon"),(12,13),asleep
   }
 } ELSE {
   IF [50%] {
@@ -1721,7 +1721,7 @@ IF [50%] {
     MONSTER:('D',"red dragon"),(02,05),asleep
     MONSTER:('D',"orange dragon"),(11,05),asleep
     MONSTER:('D',"blue dragon"),(05,04),asleep
-    MONSTER:('D',"white dragon"),(07,04),asleep
+    MONSTER:('D',"shadow dragon"),(07,04),asleep
   }
 } ELSE {
   IF [50%] {

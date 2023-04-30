@@ -992,6 +992,16 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
             EShock_resistance  &= ~W_ARM;
         }
         break;
+    case SHADOW_DRAGON_SCALES:
+        /* ultravision handled in objects.c */
+        if (puton) {
+            ESleep_resistance  |= W_ARM;
+            EDrain_resistance  |= W_ARM;
+        } else {
+            ESleep_resistance  &= ~W_ARM;
+            EDrain_resistance  &= ~W_ARM;
+        }
+        break;
     case CHROMATIC_DRAGON_SCALES:
         /* magic res handled in objects.c */
         if (puton) {
@@ -3663,19 +3673,32 @@ boolean only_if_known_cursed; /* ignore covering unless known to be cursed */
 static void
 toggle_armor_light(struct obj *armor, boolean on)
 {
+    boolean shadow = (Is_dragon_armor(armor)
+                      && Dragon_armor_to_scales(armor) == SHADOW_DRAGON_SCALES);
+
     if (on) {
         if (artifact_light(armor) && !armor->lamplit) {
             begin_burn(armor, FALSE);
-            if (!Blind)
-                pline("%s %s to shine %s!",
-                    Yname2(armor), otense(armor, "begin"),
-                    arti_light_description(armor));
+            if (!Blind) {
+                if (shadow)
+                    pline("%s %s an aura of darkness!",
+                          Yname2(armor), otense(armor, "cast"));
+                else
+                    pline("%s %s to shine %s!",
+                          Yname2(armor), otense(armor, "begin"),
+                          arti_light_description(armor));
+            }
         }
     } else {
         if (!artifact_light(armor)) {
             end_burn(armor, FALSE);
-            if (!Blind)
-                pline("%s shining.", Tobjnam(armor, "stop"));
+            if (!Blind) {
+                if (shadow)
+                    pline("%s its aura of darkness.",
+                          Tobjnam(armor, "stop"));
+                else
+                    pline("%s shining.", Tobjnam(armor, "stop"));
+            }
         }
     }
 }

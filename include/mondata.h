@@ -66,6 +66,8 @@
 #define resists_drain(ptr) \
     (is_undead(ptr) || is_demon(ptr) || is_were(ptr)            \
      || (ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_CERBERUS] \
+     || (ptr) == &mons[PM_BABY_SHADOW_DRAGON]                   \
+     || (ptr) == &mons[PM_SHADOW_DRAGON]                        \
      || (ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN]                \
      || (ptr) == &mons[PM_KATHRYN_THE_ENCHANTRESS])
 /* is_were() doesn't handle hero in human form */
@@ -332,7 +334,7 @@
 #define webmaker(ptr) (is_spider(ptr) || is_drow(ptr))
 #define is_unicorn(ptr) ((ptr)->mlet == S_UNICORN && likes_gems(ptr))
 #define is_cavelizard(ptr) \
-    ((ptr) == &mons[PM_CAVE_LIZARD]) || ((ptr) == &mons[PM_LARGE_CAVE_LIZARD])
+    ((ptr) == &mons[PM_CAVE_LIZARD] || (ptr) == &mons[PM_LARGE_CAVE_LIZARD])
 #define is_longworm(ptr) \
     (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
      || ((ptr) == &mons[PM_LONG_WORM_TAIL]))
@@ -359,11 +361,12 @@
     ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
      || (ptr) == &mons[PM_PESTILENCE])
 #define is_placeholder(ptr) \
-    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]          \
-     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]       \
-     || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON]   \
-     || (ptr) == &mons[PM_DWARF] || (ptr) == &mons[PM_GNOME]     \
-     || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_NYMPH])
+    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]         \
+     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]      \
+     || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON]  \
+     || (ptr) == &mons[PM_DWARF] || (ptr) == &mons[PM_GNOME]    \
+     || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_NYMPH] \
+     || (ptr) == &mons[PM_DROW])
 
 /* Ice Queen branch defines */
 #define is_iceq_only(ptr) \
@@ -446,6 +449,7 @@
          ? 1                                       \
          : ((ptr) == &mons[PM_FIRE_ELEMENTAL]      \
             || (ptr) == &mons[PM_GOLD_DRAGON]      \
+            || (ptr) == &mons[PM_SHADOW_DRAGON]    \
             || (ptr) == &mons[PM_TIAMAT])          \
            ? 2                                     \
            : ((ptr) == &mons[PM_LUCIFER]) ? 3 : 0)
@@ -479,7 +483,9 @@
 #define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
 
 #define hates_light(ptr) \
-    ((ptr) == &mons[PM_GREMLIN] || is_drow(ptr))
+    ((ptr) == &mons[PM_GREMLIN] || is_drow(ptr) \
+     || (ptr) == &mons[PM_BABY_SHADOW_DRAGON]   \
+     || (ptr) == &mons[PM_SHADOW_DRAGON])
 
 /* used to vary a few messages */
 #define weirdnonliving(ptr) (is_golem(ptr) || (ptr)->mlet == S_VORTEX)

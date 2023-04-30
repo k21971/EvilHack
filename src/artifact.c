@@ -718,7 +718,8 @@ struct obj *otmp;
         case AD_DRST: /* drain strength => poison */
             return (otyp == GREEN_DRAGON_SCALES);
         case AD_SLEE: /* sleep */
-            return (otyp == ORANGE_DRAGON_SCALES);
+            return (otyp == ORANGE_DRAGON_SCALES
+                    || otyp == SHADOW_DRAGON_SCALES);
         case AD_DISN: /* disintegration */
             return (otyp == BLACK_DRAGON_SCALES);
         case AD_ELEC: /* electricity == lightning */
@@ -729,6 +730,8 @@ struct obj *otmp;
             return (otyp == YELLOW_DRAGON_SCALES);
         case AD_LOUD: /* sonic */
             return (otyp == CELESTIAL_DRAGON_SCALES);
+        case AD_DRLI: /* drain resistance */
+            return (otyp == SHADOW_DRAGON_SCALES);
         default:
             break;
         }
@@ -3214,6 +3217,7 @@ struct obj *obj;
        light without burning */
     if (obj && (Is_dragon_armor(obj)
                 && (Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES
+                    || Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES
                     || Dragon_armor_to_scales(obj) == CHROMATIC_DRAGON_SCALES))
         && (obj->owornmask & (W_ARM | W_ARMC)) != 0L)
         return TRUE;
