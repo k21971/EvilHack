@@ -1297,14 +1297,6 @@ int dieroll;
 
                 if (obj->otainted && is_poisonable(obj))
                     istainted = TRUE;
-
-                /* glass breakage from the attack */
-                break_glass_obj(some_armor(mon));
-                if (break_glass_obj(obj)) {
-                    ispoisoned = FALSE;
-                    istainted = FALSE;
-                    obj = (struct obj *) 0;
-                }
             }
         } else if (obj->oclass == POTION_CLASS) {
             if (obj->quan > 1L)
@@ -2018,6 +2010,14 @@ int dieroll;
         Your("%s %s no longer tainted.", saved_oname,
              vtense(saved_oname, "are"));
         update_inventory();
+    }
+
+    /* glass breakage from the attack */
+    break_glass_obj(some_armor(mon));
+    if (break_glass_obj(obj)) {
+        obj->opoisoned = 0;
+        obj->otainted = 0;
+        obj = (struct obj *) 0;
     }
 
     if (!destroyed) {

@@ -2854,4 +2854,5 @@ The following changes to date are:
 - Fix: crash in mount_steed() checking for forged artifact barding
 - Fix: a couple crash bugs related to breaking objects and
   poisoned/tainted status
+- Fix: order of events when breaking a weapon while attacking a monster
 
