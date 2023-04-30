@@ -1018,7 +1018,8 @@ int spellnum;
     case CLC_INSECTS: {
         /* Try for bugs, and if there are none
            left, go for (sticks to) snakes.  -3. */
-        boolean spiders = (mtmp->data == &mons[PM_LOLTH]);
+        boolean spiders = (mtmp->data == &mons[PM_LOLTH]
+                           || racial_drow(mtmp));
         struct permonst *pm = mkclass(spiders ? S_SPIDER : S_ANT, 0);
         struct monst *mtmp2 = (struct monst *) 0;
         char let = (pm ? (spiders ? S_SPIDER : S_ANT) : S_SNAKE);

@@ -2857,4 +2857,5 @@ The following changes to date are:
 - Fix: order of events when breaking a weapon while attacking a monster
 - Drow monsters, driders can cast an aura of darkness around themselves 
 - Various Drow monsters can spawn riding drow-specific steeds
+- Drow that can cast 'summon insects' will summon spiders instead
 
