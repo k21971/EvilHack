@@ -3195,7 +3195,7 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
     { "dragon scales", ARMOR_CLASS, FIRST_DRAGON_SCALES,
       LAST_DRAGON_SCALES },
     { "sword", WEAPON_CLASS, SHORT_SWORD, KATANA },
-    { "venom", VENOM_CLASS, BLINDING_VENOM, SNOWBALL },
+    { "venom", VENOM_CLASS, BLINDING_VENOM, BALL_OF_WEBBING },
     { "gray stone", GEM_CLASS, LUCKSTONE, FLINT },
     { "grey stone", GEM_CLASS, LUCKSTONE, FLINT },
 };

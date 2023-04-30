@@ -1266,6 +1266,9 @@ OBJECT(OBJ("acid venom", "splash of venom"),
 OBJECT(OBJ("snowball", None),
        BITS(1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, LIQUID), 0,
        VENOM_CLASS, 500, 0, 1, 0, 6, 6, 0, 0, 0, HI_GLASS),
+OBJECT(OBJ("ball of webbing", None),
+       BITS(1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, LIQUID), 0,
+       VENOM_CLASS, 500, 0, 1, 0, 0, 0, 0, 0, 0, CLR_WHITE),
         /* +d6 small or large */
 
 /* fencepost, the deadly Array Terminator -- name [1st arg] *must* be NULL */

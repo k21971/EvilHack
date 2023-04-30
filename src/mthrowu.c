@@ -630,6 +630,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                     pline("It is burned!");
             }
         }
+
         if (otmp->otyp == EGG && touch_petrifies(&mons[otmp->corpsenm])) {
 	    if (!mtmp->mstone) {
 	        mtmp->mstone = 5;
@@ -639,7 +640,8 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                 damage = 0;
         }
 
-        if (!DEADMONSTER(mtmp)) { /* might already be dead (if petrified) */
+        if (!DEADMONSTER(mtmp)
+            && otmp->otyp == ACID_VENOM) { /* might already be dead (if petrified) */
             damage_mon(mtmp, damage, AD_ACID);
             if (DEADMONSTER(mtmp)) {
                 if (vis || (verbose && !target))
@@ -670,6 +672,23 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             if (tmp > 127)
                 tmp = 127;
             mtmp->mblinded = tmp;
+        }
+
+        if (!DEADMONSTER(mtmp)
+            && otmp->otyp == BALL_OF_WEBBING) {
+            if (!t_at(mtmp->mx, mtmp->my)) {
+                struct trap *web = maketrap(mtmp->mx, mtmp->my, WEB);
+                if (web) {
+                    mintrap(mtmp);
+                    if (has_erid(mtmp) && mtmp->mtrapped) {
+                        if (canseemon(mtmp))
+                            pline("%s falls off %s %s!",
+                                  Monnam(mtmp), mhis(mtmp),
+                                  l_monnam(ERID(mtmp)->mon_steed));
+                        separate_steed_and_rider(mtmp);
+                    }
+                }
+            }
         }
 
         if (is_pole(otmp))
@@ -838,6 +857,8 @@ register boolean verbose;
             /* fall through */
             case CREAM_PIE:
             case BLINDING_VENOM:
+            case SNOWBALL:
+            case BALL_OF_WEBBING:
                 hitu = thitu(8, 0, &singleobj, (char *) 0);
                 break;
             default:
@@ -945,6 +966,25 @@ register boolean verbose;
                             pline_The("venom blinds you.");
                     } else
                         Your("%s %s.", eyes, vtense(eyes, "sting"));
+                }
+            }
+            if (hitu && singleobj->otyp == BALL_OF_WEBBING) {
+                if (!t_at(u.ux, u.uy)) {
+                    struct trap *web = maketrap(u.ux, u.uy, WEB);
+                    if (web) {
+                        pline("%s entangles you in a web%s",
+                              Monnam(mon),
+                              is_giant(youmonst.data)
+                                  ? ", but you rip through it!"
+                                  : (webmaker(youmonst.data)
+                                     || maybe_polyd(is_drow(youmonst.data),
+                                                    Race_if(PM_DROW)))
+                                      ? ", but you easily disentangle yourself."
+                                      : "!");
+                        dotrap(web, NOWEBMSG);
+                        if (u.usteed && u.utrap)
+                            dismount_steed(DISMOUNT_FELL);
+                    }
                 }
             }
             if (hitu && singleobj->otyp == EGG) {
@@ -1069,7 +1109,9 @@ struct attack *mattk;
 
     if (mtmp->mcan) {
         if (!Deaf) {
-            if (mtmp && mtmp->data == &mons[PM_SNOW_GOLEM])
+            if (mtmp
+                && (mtmp->data == &mons[PM_SNOW_GOLEM]
+                    || mtmp->data->mlet == S_SPIDER))
                 ;
             else
                 pline("A dry rattle comes from %s throat.",
@@ -1077,6 +1119,9 @@ struct attack *mattk;
         }
         return 0;
     }
+
+    if (mtmp->mspec_used)
+        return 0;
 
     otmp = (struct obj *) 0;
     if (mlined_up(mtmp, mtarg, FALSE)) {
@@ -1091,6 +1136,10 @@ struct attack *mattk;
         case AD_COLD:
             otmp = mksobj(SNOWBALL, TRUE, FALSE);
             break;
+        case AD_WEBS:
+            mtmp->mspec_used = rn2(4);
+            otmp = mksobj(BALL_OF_WEBBING, TRUE, FALSE);
+            break;
         default:
             impossible("bad attack type in spitmu");
             /*FALLTHRU*/
@@ -1099,6 +1148,8 @@ struct attack *mattk;
             if (canseemon(mtmp)) {
                 if (mtmp && mtmp->data == &mons[PM_SNOW_GOLEM])
                     pline("%s throws a snowball!", Monnam(mtmp));
+                else if (mtmp && mtmp->data->mlet == S_SPIDER)
+                    pline("%s shoots a ball of webbing!", Monnam(mtmp));
                 else
                     pline("%s spits venom!", Monnam(mtmp));
             }
@@ -1293,7 +1344,9 @@ struct attack *mattk;
 
     if (mtmp->mcan) {
         if (!Deaf) {
-            if (mtmp && mtmp->data == &mons[PM_SNOW_GOLEM])
+            if (mtmp
+                && (mtmp->data == &mons[PM_SNOW_GOLEM]
+                    || mtmp->data->mlet == S_SPIDER))
                 ;
             else
                 pline("A dry rattle comes from %s throat.",
@@ -1301,6 +1354,10 @@ struct attack *mattk;
         }
         return 0;
     }
+
+    if (mtmp->mspec_used)
+        return 0;
+
     otmp = (struct obj *) 0;
     if (lined_up(mtmp)) {
         switch (mattk->adtyp) {
@@ -1314,11 +1371,13 @@ struct attack *mattk;
         case AD_COLD:
             otmp = mksobj(SNOWBALL, TRUE, FALSE);
             break;
+        case AD_WEBS:
+            mtmp->mspec_used = rn2(4);
+            otmp = mksobj(BALL_OF_WEBBING, TRUE, FALSE);
+            break;
         default:
             impossible("bad attack type in spitmu");
             /* fall through */
-        /* case AD_ACID:
-            otmp = mksobj(ACID_VENOM, TRUE, FALSE); */
             break;
         }
         if (!rn2(BOLT_LIM
@@ -1326,6 +1385,8 @@ struct attack *mattk;
             if (canseemon(mtmp)) {
                 if (mtmp && mtmp->data == &mons[PM_SNOW_GOLEM])
                     pline("%s throws a snowball!", Monnam(mtmp));
+                else if (mtmp && mtmp->data->mlet == S_SPIDER)
+                    pline("%s shoots a ball of webbing!", Monnam(mtmp));
                 else
                     pline("%s spits venom!", Monnam(mtmp));
             }

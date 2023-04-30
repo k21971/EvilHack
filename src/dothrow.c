@@ -2096,8 +2096,9 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
             tmiss(obj, mon, TRUE);
         }
 
-    } else if ((otyp == EGG || otyp == CREAM_PIE || otyp == BLINDING_VENOM
-                || otyp == ACID_VENOM || otyp == SNOWBALL)
+    } else if ((otyp == EGG || otyp == CREAM_PIE
+                || otyp == BLINDING_VENOM || otyp == ACID_VENOM
+                || otyp == SNOWBALL || otyp == BALL_OF_WEBBING)
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
         (void) hmon(mon, obj, hmode, dieroll);
         return 1; /* hmon used it up */
@@ -2432,6 +2433,7 @@ struct obj *obj;
     case ACID_VENOM:
     case BLINDING_VENOM:
     case SNOWBALL:
+    case BALL_OF_WEBBING:
         return 1;
     default:
         return 0;
@@ -2467,6 +2469,7 @@ boolean in_view;
         break;
     case EGG:
     case MELON:
+    case BALL_OF_WEBBING:
         pline("Splat!");
         break;
     case CREAM_PIE:
@@ -2514,7 +2517,9 @@ struct obj* obj;
 {
     long unwornmask;
     boolean ucarried;
+
     if (!obj || !breaktest(obj)
+        || spit_object(obj)
         || (obj->material == ADAMANTINE
             && is_drow_weapon(obj) ? rn2(16) : rn2(6)))
         return FALSE;

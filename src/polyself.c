@@ -1318,6 +1318,9 @@ dospit()
         case AD_COLD:
             otmp = mksobj(SNOWBALL, TRUE, FALSE);
             break;
+        case AD_WEBS:
+            otmp = mksobj(BALL_OF_WEBBING, TRUE, FALSE);
+            break;
         }
         otmp->spe = 1; /* to indicate it's yours */
         throwit(otmp, 0L, FALSE);

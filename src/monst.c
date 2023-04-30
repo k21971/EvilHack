@@ -1130,7 +1130,7 @@ NEARDATA struct permonst mons[] = {
         M2_HOSTILE | M2_STRONG, 0, 0, MH_SPIDER, 10, CLR_MAGENTA),
     MON("drider", S_SPIDER, LVL(14, 15, 2, 15, -15), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_WEAP, AD_PHYS, 2, 4),
-          ATTK(AT_BITE, AD_DRST, 1, 4), ATTK(AT_TUCH, AD_WEBS, 0, 0),
+          ATTK(AT_BITE, AD_DRST, 1, 4), ATTK(AT_SPIT, AD_WEBS, 0, 0),
           NO_ATTK, NO_ATTK),
         SIZ(1500, 300, MS_SILENT, MZ_LARGE),
         MR_SLEEP | MR_POISON, MR_SLEEP | MR_POISON,

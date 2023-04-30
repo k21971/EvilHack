@@ -1560,6 +1560,21 @@ int dieroll;
                     hittxt = TRUE;
                     get_dmg_bonus = FALSE;
                     break;
+                case BALL_OF_WEBBING:
+                    if (!t_at(mon->mx, mon->my)) {
+                        struct trap *web = maketrap(mon->mx, mon->my, WEB);
+                        if (web) {
+                            mintrap(mon);
+                            if (has_erid(mon) && mon->mtrapped) {
+                                if (canseemon(mon))
+                                    pline("%s falls off %s %s!",
+                                          Monnam(mon), mhis(mon),
+                                          l_monnam(ERID(mon)->mon_steed));
+                                separate_steed_and_rider(mon);
+                            }
+                        }
+                    }
+                    break;
                 default:
                     /* non-weapons can damage because of their weight */
                     /* (but not too much) */

@@ -289,6 +289,10 @@ struct obj {
      || (otmp)->otyp == DWARVISH_ROUNDSHIELD)
 #define is_gnomish_armor(otmp) (FALSE)
 
+#define spit_object(otmp) \
+    ((otmp)->otyp == ACID_VENOM || (otmp)->otyp == BLINDING_VENOM    \
+     || (otmp)->otyp == SNOWBALL || (otmp)->otyp == BALL_OF_WEBBING)
+
 /* Eggs and other food */
 #define MAX_EGG_HATCH_TIME 200 /* longest an egg can remain unhatched */
 #define stale_egg(egg) \
