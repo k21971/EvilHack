@@ -47,7 +47,7 @@ STATIC_DCL void FDECL(wishcmdassist, (int));
 #define ZT_POISON_GAS (AD_DRST - 1)
 #define ZT_ACID (AD_ACID - 1)
 #define ZT_WATER (AD_WATR - 1)
-#define ZT_DRLI (AD_DRLI - 1)
+#define ZT_DRAIN (AD_DRLI - 1)
 
 #define ZT_WAND(x) (x)
 #define ZT_SPELL(x) (10 + (x))
@@ -4428,7 +4428,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 pline("%s falls to pieces!", Monnam(mon));
             if (mon->mtame)
                 pline("May %s rust in peace.", mon_nam(mon));
-            tmp = 500;
+            tmp = mon->mhp + 1;
             break;
         }
         if (!rn2(6))
@@ -4436,21 +4436,27 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         if (!rn2(6))
             erode_armor(mon, ERODE_RUST);
         break;
-    case ZT_DRLI: {
+    case ZT_DRAIN: {
         int drain = monhp_per_lvl(mon);
 
         tmp = d(nd, 6);
         if (resists_drli(mon) || defended(mon, AD_DRLI)) {
             sho_shieldeff = TRUE;
+            /* physical damage still occurs */
             break;
         }
 
-        tmp += drain;
-        mon->mhpmax -= drain;
-        mon->m_lev--;
-        drain /= 2;
-        if (drain)
-            healup(drain, 0, FALSE, FALSE);
+        if (mon->m_lev == 0) {
+            tmp = mon->mhp + 1;
+            break;
+        } else {
+            tmp += drain;
+            mon->mhpmax -= drain;
+            mon->m_lev--;
+            drain /= 2;
+            if (drain)
+                healup(drain, 0, FALSE, FALSE);
+        }
         break;
         }
     }
@@ -4687,7 +4693,7 @@ xchar sx, sy;
                 erode_armor(&youmonst, ERODE_RUST);
         }
         break;
-    case ZT_DRLI: {
+    case ZT_DRAIN: {
         const char *life = nonliving(youmonst.data) ? "animating force"
                                                     : "life";
 
@@ -4948,22 +4954,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     if (cansee(mon->mx, mon->my)) {
                         hit(fltxt, mon, exclam(0));
                         shieldeff(mon->mx, mon->my);
-                        if (abstype == ZT_DRLI)
-                            (void) mon_reflects(mon,
-                                                "But some of it reflects from %s %s!");
-                        else
-                            (void) mon_reflects(mon,
-                                                "But it reflects from %s %s!");
-
-                        if (abstype == ZT_DRLI) {
-                            if (canseemon(mon))
-                                pline("%s appears drained.",
-                                      Monnam(mon));
-                            mon->mhpmax -= rn2(6) + 1;
-                            mon->mhp -= rn2(4) + 8;
-                            if (mon->mhpmax <= 0)
-                                mon->mhpmax = 1;
-                        }
+                        (void) mon_reflects(mon,
+                                            "But it reflects from %s %s!");
                     }
                     /* water is reflected but doesn't bounce */
                     if (abstype == ZT_WATER)
@@ -5009,20 +5001,6 @@ boolean say; /* Announce out of sight hit/miss events if true */
                         range = 0;
                         break; /* Out of while loop */
                     }
-                    if (abstype == ZT_DRLI) {
-                        const char *life = nonliving(mon->data) ? "animating force"
-                                                                : "life";
-
-                        if (canseemon(mon)) {
-                            hit(fltxt, mon, ".");
-                            if (resists_drli(mon) || defended(mon, AD_DRLI))
-                                pline("%s appears unaffected.", Monnam(mon));
-                            else
-                                pline_The("blast draws the %s from %s!",
-                                          life, mon_nam(mon));
-                        }
-                        break; /* Out of while loop */
-                    }
 
                     if (tmp == MAGIC_COOKIE) { /* disintegration */
                         disintegrate_mon(mon, type, fltxt);
@@ -5054,6 +5032,18 @@ boolean say; /* Announce out of sight hit/miss events if true */
                                     if (canseemon(mon))
                                         pline("%s resists the death magic, but appears drained!",
                                               Monnam(mon));
+                                }
+                                if (abstype == ZT_DRAIN) {
+                                    const char *life = nonliving(mon->data) ? "animating force"
+                                                                            : "life";
+
+                                    if (canseemon(mon)) {
+                                        if (resists_drli(mon) || defended(mon, AD_DRLI))
+                                            pline("%s appears unaffected.", Monnam(mon));
+                                        else
+                                            pline_The("blast draws the %s from %s!",
+                                                      life, mon_nam(mon));
+                                    }
                                 }
                                 print_mon_wounded(mon, saved_mhp);
                             }

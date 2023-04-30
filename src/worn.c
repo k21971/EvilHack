@@ -995,17 +995,17 @@ boolean racialexception;
 
             if (shadow) {
                 if (sawmon) /* could already see monster */
-                    pline("%s %s to cast an aura of darkness %s.",
-                          Yname2(best), otense(best, "begin"), adesc);
+                    pline("%s %s to cast an aura of darkness.",
+                          Yname2(best), otense(best, "begin"));
                 else if (canseemon(mon)) /* didn't see it until new dark */
-                    pline("%s %s giving off an aura of darkness %s.",
-                          Yname2(best), otense(best, "are"), adesc);
+                    pline("%s %s giving off an aura of darkness.",
+                          Yname2(best), otense(best, "are"));
                 else if (sawloc) /* saw location but not invisible monster */
-                    pline("%s begins to cast an aura of darkness %s.",
-                          Something, adesc);
+                    pline("%s begins to cast an aura of darkness.",
+                          Something);
                 else /* didn't see location until new dark */
-                    pline("%s is giving off an aura of darkness %s.",
-                          Something, adesc);
+                    pline("%s is giving off an aura of darkness.",
+                          Something);
             } else {
                 if (sawmon) /* could already see monster */
                     pline("%s %s to shine %s.", Yname2(best),

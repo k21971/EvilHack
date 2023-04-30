@@ -2860,4 +2860,5 @@ The following changes to date are:
 - Drow that can cast 'summon insects' will summon spiders instead
 - Driders can shoot webbing at a distance at its target
 - New monster: Shadow dragon
+- Fix: bugs with shadow dragon commit
 
