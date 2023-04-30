@@ -2856,4 +2856,5 @@ The following changes to date are:
   poisoned/tainted status
 - Fix: order of events when breaking a weapon while attacking a monster
 - Drow monsters, driders can cast an aura of darkness around themselves 
+- Various Drow monsters can spawn riding drow-specific steeds
 

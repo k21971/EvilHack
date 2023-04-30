@@ -2966,16 +2966,30 @@ long mmflags;
         case PM_KNIGHT:
             if (racial_centaur(mtmp))
                 break;
-            if (mon_aligntyp(mtmp) == A_CHAOTIC)
-                rn2(3) ? mount_monster(mtmp, PM_NIGHTMARE)
-                       : mount_monster(mtmp, PM_CAUCHEMAR);
-            else
+            if (mon_aligntyp(mtmp) == A_CHAOTIC) {
+                if (racial_drow(mtmp))
+                    rn2(3) ? mount_monster(mtmp, PM_CAVE_LIZARD)
+                           : mount_monster(mtmp, PM_LARGE_CAVE_LIZARD);
+                else
+                    rn2(3) ? mount_monster(mtmp, PM_NIGHTMARE)
+                           : mount_monster(mtmp, PM_CAUCHEMAR);
+            } else {
                 rn2(3) ? mount_monster(mtmp, PM_HORSE)
                        : mount_monster(mtmp, PM_WARHORSE);
+            }
             break;
         case PM_FROST_GIANT:
             if (Iniceq && !rn2(5))
                 mount_monster(mtmp, PM_WOOLLY_MAMMOTH);
+            break;
+        case PM_DROW_RAIDER:
+            if (!rn2(7))
+                mount_monster(mtmp, PM_GIANT_SPIDER);
+            break;
+        case PM_DROW_CLERIC:
+            if (!rn2(7))
+                rn2(3) ? mount_monster(mtmp, PM_GIANT_SPIDER)
+                       : mount_monster(mtmp, PM_GARGANTUAN_SPIDER);
             break;
         }
     }
