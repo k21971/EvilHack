@@ -2911,7 +2911,7 @@ struct obj *obj;
                              xname(obj));
                 break;
             } else {
-                litroom(FALSE, obj);
+                litroom(FALSE, obj, u.ux, u.uy);
                 break;
             }
         }

@@ -1677,7 +1677,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         if (!confused || rn2(5)) {
             if (!Blind)
                 known = TRUE;
-            litroom(!confused && !scursed, sobj);
+            litroom(!confused && !scursed, sobj, u.ux, u.uy);
             if (!confused && !scursed) {
                 if (lightdamage(sobj, TRUE, 5))
                     known = TRUE;
@@ -2213,15 +2213,18 @@ genericptr_t val;
 }
 
 void
-litroom(on, obj)
+litroom(on, obj, x, y)
 register boolean on; /* True: make nearby area lit; False: cursed scroll */
 struct obj *obj;     /* scroll, spellbook (for spell), or wand of light */
+xchar x, y;          /* coordinates for centering do_clear_area() */
 {
     struct obj *otmp;
+    struct monst *mtmp;
     boolean blessed_effect = (obj && obj->oclass == SCROLL_CLASS
                               && obj->blessed);
     char is_lit = 0; /* value is irrelevant but assign something anyway; its
                       * address is used as a 'not null' flag for set_lit() */
+    boolean you = (x == u.ux && y == u.uy);
 
     /* update object lights and produce message (provided you're not blind) */
     if (!on) {
@@ -2234,6 +2237,7 @@ struct obj *obj;     /* scroll, spellbook (for spell), or wand of light */
          *  Shouldn't this affect all lit objects in the area of effect
          *  rather than just those carried by the hero?
          */
+
         for (otmp = invent; otmp; otmp = otmp->nobj) {
             if (otmp->lamplit) {
                 if (!artifact_light(otmp))
@@ -2257,12 +2261,22 @@ struct obj *obj;     /* scroll, spellbook (for spell), or wand of light */
                message came after the darkening, we could count visibly
                lit squares before and after to know; we do know that being
                swallowed won't be affected--the interior is still lit */
-            if (still_lit)
+            if (still_lit) {
                 pline_The("ambient light seems dimmer.");
-            else if (u.uswallow)
+            } else if (u.uswallow) {
                 pline("It seems even darker in here than before.");
-            else
-                You("are surrounded by darkness!");
+            } else {
+                if (you) {
+                    You("are surrounded by darkness!");
+                } else {
+                    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                        if (!DEADMONSTER(mtmp)
+                            && (x == mtmp->mx) && (y == mtmp->my))
+                            pline("%s is surrounded by darkness!",
+                                  Monnam(mtmp));
+                    }
+                }
+            }
         }
     } else { /* on */
         if (blessed_effect) {
@@ -2285,8 +2299,18 @@ struct obj *obj;     /* scroll, spellbook (for spell), or wand of light */
                 pline("%s shines briefly.", Monnam(u.ustuck));
             else
                 pline("%s glistens.", Monnam(u.ustuck));
-        } else if (!Blind)
-            pline("A lit field surrounds you!");
+        } else if (!Blind) {
+            if (you) {
+                pline("A lit field surrounds you!");
+            } else {
+                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                    if (!DEADMONSTER(mtmp)
+                        && (x == mtmp->mx) && (y == mtmp->my))
+                        pline("A lit field surrounds %s!",
+                              mon_nam(mtmp));
+                }
+            }
+        }
     }
 
     /* No-op when swallowed or in water */
@@ -2316,7 +2340,7 @@ struct obj *obj;     /* scroll, spellbook (for spell), or wand of light */
         }
         /* hallways remain dark on the rogue level */
     } else
-        do_clear_area(u.ux, u.uy, blessed_effect ? 9 : 5,
+        do_clear_area(x, y, blessed_effect ? 9 : 5,
                       set_lit, (genericptr_t) (on ? &is_lit : (char *) 0));
 
     /*

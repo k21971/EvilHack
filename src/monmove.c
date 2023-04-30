@@ -801,11 +801,21 @@ register struct monst *mtmp;
         if (couldsee && !canseemon(mtmp)) {
             pline("%s fades from view.", nam);
             newsym(mtmp->mx, mtmp->my);
-        }
-        else if (couldsee && See_invisible) {
+        } else if (couldsee && See_invisible) {
             pline("%s turns even more transparent.", nam);
             newsym(mtmp->mx, mtmp->my);
         }
+        return 0;
+    }
+
+    /* Drow have the innate ability to cast an aura of darkness
+       around themselves, and will use it if surrounded by light */
+    if (!rn2(10) && is_drow(mdat)
+        && !spot_is_dark(mtmp->mx, mtmp->my)) {
+        if (canseemon(mtmp))
+            pline("%s invokes an aura of darkness.",
+                  Monnam(mtmp));
+        litroom(FALSE, NULL, mtmp->mx, mtmp->my);
         return 0;
     }
 
