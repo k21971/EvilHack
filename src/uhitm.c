@@ -1200,7 +1200,8 @@ int dieroll;
                                || (Role_if(PM_SAMURAI) && obj->otyp == KATANA && !uarms))
                                    && ((wtype = uwep_skill_type()) != P_NONE
                                    && P_SKILL(wtype) >= P_SKILLED))
-                               || (dieroll == 3 && (Race_if(PM_GIANT)) && (((wtype = uwep_skill_type()) != P_NONE)
+                               || (dieroll == 3 && (Race_if(PM_GIANT))
+                                   && (((wtype = uwep_skill_type()) != P_NONE)
                                    && P_SKILL(wtype) >= P_BASIC))
                                || (dieroll == 4 && (!rn2(2)) && (Race_if(PM_GIANT))
                                    && (((wtype = uwep_skill_type()) != P_NONE)
@@ -1210,7 +1211,8 @@ int dieroll;
                                && !is_mithril(monwep) /* mithril is super-strong */
                                && !is_crystal(monwep) /* so are weapons made of gemstone */
                                && !obj_resists(monwep,
-                                       50 + 15 * (greatest_erosion(obj) - greatest_erosion(monwep)), 100))) {
+                                       50 + 15 * (greatest_erosion(obj)
+                                                  - greatest_erosion(monwep)), 100))) {
                     /*
                      * 2.5% chance of shattering defender's weapon when
                      * using a two-handed weapon; less if uwep is rusted.
@@ -1296,13 +1298,12 @@ int dieroll;
                 if (obj->otainted && is_poisonable(obj))
                     istainted = TRUE;
 
-                /* maybe break your glass weapon or monster's glass armor; put
-                 * this at the end so that other stuff doesn't have to check obj
-                 * && obj->whatever all the time */
-                if (hand_to_hand) {
-                    if (break_glass_obj(obj))
-                        obj = (struct obj *) 0;
-                    break_glass_obj(some_armor(mon));
+                /* glass breakage from the attack */
+                break_glass_obj(some_armor(mon));
+                if (break_glass_obj(obj)) {
+                    ispoisoned = FALSE;
+                    istainted = FALSE;
+                    obj = (struct obj *) 0;
                 }
             }
         } else if (obj->oclass == POTION_CLASS) {

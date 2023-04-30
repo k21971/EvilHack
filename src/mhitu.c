@@ -1329,7 +1329,7 @@ register struct attack *mattk;
     int res;
     long armask = attack_contact_slots(mtmp, mattk->aatyp);
     struct obj* hated_obj;
-    boolean lightobj = FALSE;
+    boolean lightobj = FALSE, ispoisoned = FALSE, istainted = FALSE;
     boolean vorpal_wield = ((uwep && uwep->oartifact == ART_VORPAL_BLADE)
                             || (u.twoweap && uswapwep->oartifact == ART_VORPAL_BLADE));
 
@@ -1486,9 +1486,17 @@ register struct attack *mattk;
                         && artifact_hit(mtmp, &youmonst, otmp, &dmg, dieroll)))
                     hitmsg(mtmp, mattk);
 
+                if (otmp->opoisoned && is_poisonable(otmp))
+                    ispoisoned = TRUE;
+
+                if (otmp->otainted && is_poisonable(otmp))
+                    istainted = TRUE;
+
                 /* glass breakage from the attack */
                 break_glass_obj(some_armor(&youmonst));
                 if (break_glass_obj(MON_WEP(mtmp))) {
+                    ispoisoned = FALSE;
+                    istainted = FALSE;
                     otmp = NULL;
                     mon_currwep = NULL;
                 }
@@ -1501,13 +1509,14 @@ register struct attack *mattk;
                     exercise(A_CON, FALSE);
                 }
                 /* monster attacking with a poisoned weapon */
-                if (otmp->opoisoned) {
-                    int nopoison = (10 - otmp->owt / 10);
+                if (ispoisoned) {
+                    int nopoison;
 
                     Sprintf(buf, "%s %s", s_suffix(Monnam(mtmp)),
                             mpoisons_subj(mtmp, mattk));
                     poisoned(buf, A_STR, mdat->mname, 30, FALSE);
 
+                    nopoison = (10 - otmp->owt / 10);
                     if (nopoison < 2)
                         nopoison = 2;
                     if (otmp && !rn2(nopoison)) {
@@ -1518,8 +1527,8 @@ register struct attack *mattk;
                     }
                 }
                 /* monster attacking with a tainted (drow-poisoned) weapon */
-                if (otmp->otainted) {
-                    int notaint = ((is_drow_weapon(otmp) ? 20 : 5) - otmp->owt / 10);
+                if (istainted) {
+                    int notaint;
 
                     Sprintf(buf, "%s %s", s_suffix(Monnam(mtmp)),
                             mpoisons_subj(mtmp, mattk));
@@ -1544,6 +1553,8 @@ register struct attack *mattk;
                             }
                         }
                     }
+
+                    notaint = ((is_drow_weapon(otmp) ? 20 : 5) - otmp->owt / 10);
                     if (notaint < 2)
                         notaint = 2;
                     if (otmp && !rn2(notaint)) {

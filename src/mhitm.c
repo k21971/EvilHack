@@ -826,8 +826,15 @@ int dieroll;
             showit = FALSE;
 
     /* Possibly awaken nearby monsters */
-    if ((!is_silent(magr->data) || !helpless(mdef)) && rn2(10)) {
+    if ((!is_silent(magr->data) || !helpless(mdef)) && rn2(10))
         wake_nearto(magr->mx, magr->my, combat_noise(magr->data));
+
+    /* glass breakage from the attack */
+    break_glass_obj(some_armor(mdef));
+    if (break_glass_obj(mwep)) {
+        mwep->opoisoned = 0;
+        mwep->otainted = 0;
+        mwep = NULL;
     }
 
     /* unhiding or unmimicking happens even if hero can't see it
@@ -1273,7 +1280,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     int armpro, num,
         tmp = d((int) mattk->damn, (int) mattk->damd),
         res = MM_MISS;
-    boolean cancelled, lightobj = FALSE;
+    boolean cancelled, lightobj = FALSE,
+            ispoisoned = FALSE, istainted = FALSE;
     struct obj* hated_obj;
     long armask;
     boolean mon_vorpal_wield  = (MON_WEP(mdef)
@@ -1550,9 +1558,16 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                     return (MM_DEF_DIED
                             | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
             }
+
+            if (mwep->opoisoned && is_poisonable(mwep))
+                ispoisoned = TRUE;
+
+            if (mwep->otainted && is_poisonable(mwep))
+                istainted = TRUE;
+
             /* monster attacking with a poisoned weapon */
-            if (mwep->opoisoned) {
-                int nopoison = (10 - (mwep->owt / 10));
+            if (ispoisoned) {
+                int nopoison;
 
                 Sprintf(buf, "%s %s", s_suffix(Monnam(magr)),
                         mpoisons_subj(magr, mattk));
@@ -1571,6 +1586,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                     }
                 }
 
+                nopoison = (10 - (mwep->owt / 10));
                 if (nopoison < 2)
                     nopoison = 2;
                 if (mwep && !rn2(nopoison)) {
@@ -1584,8 +1600,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                             | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
             }
             /* monster attacking with a tainted (drow-poisoned) weapon */
-            if (mwep->otainted) {
-                int notaint = ((is_drow_weapon(mwep) ? 20 : 5) - (mwep->owt / 10));
+            if (istainted) {
+                int notaint;
 
                 Sprintf(buf, "%s %s", s_suffix(Monnam(magr)),
                         mpoisons_subj(magr, mattk));
@@ -1606,6 +1622,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                     }
                 }
 
+                notaint = ((is_drow_weapon(mwep) ? 20 : 5) - (mwep->owt / 10));
                 if (notaint < 2)
                     notaint = 2;
                 if (mwep && !rn2(notaint)) {

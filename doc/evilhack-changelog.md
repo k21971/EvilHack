@@ -2852,4 +2852,6 @@ The following changes to date are:
 - New monsters: several new drow-based creatures
 - Fix: cave lizards can wear barding
 - Fix: crash in mount_steed() checking for forged artifact barding
+- Fix: a couple crash bugs related to breaking objects and
+  poisoned/tainted status
 
