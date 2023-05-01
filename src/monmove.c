@@ -811,6 +811,7 @@ register struct monst *mtmp;
     /* Drow have the innate ability to cast an aura of darkness
        around themselves, and will use it if surrounded by light */
     if (!rn2(10) && is_drow(mdat)
+        && !is_undead(mdat) /* drow mummies/zombies */
         && !spot_is_dark(mtmp->mx, mtmp->my)) {
         if (canseemon(mtmp))
             pline("%s invokes an aura of darkness.",

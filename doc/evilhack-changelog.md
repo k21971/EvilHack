@@ -2874,4 +2874,5 @@ The following changes to date are:
 - Fix: fix for the 'webs in/on water' patch, as it made the game unwinnable 
 - Ogresmasher knockback
 - Fix: ogresmasher knockback monster vs player, some feedback formatting
+- Don't allow drow mummies/zombies to cast aura of darkness
 
