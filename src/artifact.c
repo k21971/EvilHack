@@ -1673,7 +1673,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
        types of damage */
     if (!(shade_glare(otmp) || spec_dbon_applies || hurtle_distance))
         return FALSE;
-    
+
     realizes_damage = (youdefend || vis
                        /* feel the effect even if not seen */
                        || (youattack && mdef == u.ustuck));
@@ -2267,7 +2267,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 /* player returns to their original form */
             } else if (hurtle_distance) {
                 if (youattack) {
-                    You("smash back %s%s", mon_nam(mdef), canseemon(mdef) ? exclam(4*hurtle_distance) : ".");
+                    You("smash back %s%s", mon_nam(mdef), canseemon(mdef) ? exclam(4 * hurtle_distance) : ".");
                     mhurtle(mdef, u.dx, u.dy, hurtle_distance);
                 } else if (!youattack && !youdefend) {
                     if (cansee(magr->mx, magr->my))
