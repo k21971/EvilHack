@@ -57,7 +57,7 @@ const char *name; /* if null, then format `*objp' */
     struct obj *obj = objp ? *objp : 0;
     const char *onm, *knm;
     int realac;
-    boolean is_acid;
+    boolean is_acid, is_webbing;
     int kprefix = KILLED_BY_AN, dieroll;
     char onmbuf[BUFSZ], knmbuf[BUFSZ];
 
@@ -79,6 +79,7 @@ const char *name; /* if null, then format `*objp' */
           : (obj && obj->quan > 1L) ? name
             : an(name);
     is_acid = (obj && obj->otyp == ACID_VENOM);
+    is_webbing = (obj && obj->otyp == BALL_OF_WEBBING);
 
     realac = AC_VALUE(u.uac);
     if (realac + tlev <= (dieroll = rnd(20))) {
@@ -127,6 +128,11 @@ const char *name; /* if null, then format `*objp' */
         if (is_acid && Acid_resistance) {
             pline("It doesn't seem to hurt you.");
             monstseesu(M_SEEN_ACID);
+        } else if (is_webbing && (is_pool_or_lava(u.ux, u.uy)
+                                  || is_puddle(u.ux, u.uy)
+                                  || is_sewage(u.ux, u.uy)
+                                  || IS_AIR(levl[u.ux][u.uy].typ))) {
+            You("easily disentangle yourself.");
         } else if (obj && obj->oclass == POTION_CLASS) {
             /* an explosion which scatters objects might hit hero with one
                (potions deliberately thrown at hero are handled by m_throw) */
@@ -970,6 +976,7 @@ register boolean verbose;
             }
             if (hitu && singleobj->otyp == BALL_OF_WEBBING) {
                 if (!t_at(u.ux, u.uy)) {
+                    /* webbing won't form over liquid/lava/air */
                     struct trap *web = maketrap(u.ux, u.uy, WEB);
                     if (web) {
                         pline("%s entangles you in a web%s",

@@ -2868,4 +2868,5 @@ The following changes to date are:
   the player is amphibious
 - Shadow dragons emit a continuous aura of darkness
 - Drow mages and clerics are telepathic
+- Fix: webs in/on water
 

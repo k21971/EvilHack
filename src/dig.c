@@ -628,6 +628,9 @@ int ttyp;
                 You("dig a pit in the %s.", surface_type);
             if (shopdoor)
                 pay_for_damage("ruin", FALSE);
+            else
+                add_damage(x, y, madeby_u ? SHOP_PIT_COST : 0L);
+            wake_nearby();
         } else if (!madeby_obj && canseemon(madeby)) {
             pline("%s digs a pit in the %s.", Monnam(madeby), surface_type);
         } else if (cansee(x, y) && flags.verbose) {
@@ -1215,8 +1218,10 @@ struct obj *obj;
             assign_level(&context.digging.level, &u.uz);
             context.digging.effort = 0;
             You("start %s downward.", verbing);
-            if (*u.ushops)
+            if (*u.ushops) {
                 shopdig(0);
+                add_damage(u.ux, u.uy, SHOP_PIT_COST);
+            }
         } else
             You("continue %s downward.", verbing);
         did_dig_msg = FALSE;

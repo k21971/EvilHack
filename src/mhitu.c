@@ -2513,13 +2513,18 @@ do_rust:
                 hitmsg(mtmp, mattk);
                 pline("%s entangles you in a web%s",
                       Monnam(mtmp),
-                      is_giant(youmonst.data)
-                          ? ", but you rip through it!"
-                          : (webmaker(youmonst.data)
-                             || maybe_polyd(is_drow(youmonst.data),
-                                            Race_if(PM_DROW)))
-                              ? ", but you easily disentangle yourself."
-                              : "!");
+                      (is_pool_or_lava(u.ux, u.uy)
+                       || is_puddle(u.ux, u.uy)
+                       || is_sewage(u.ux, u.uy)
+                       || IS_AIR(levl[u.ux][u.uy].typ))
+                          ? ", but it has nothing to anchor to."
+                          : is_giant(youmonst.data)
+                              ? ", but you rip through it!"
+                              : (webmaker(youmonst.data)
+                                 || maybe_polyd(is_drow(youmonst.data),
+                                                Race_if(PM_DROW)))
+                                  ? ", but you easily disentangle yourself."
+                                  : "!");
                 dotrap(web, NOWEBMSG);
                 if (u.usteed && u.utrap)
                     dismount_steed(DISMOUNT_FELL);

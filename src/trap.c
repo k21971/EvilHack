@@ -403,8 +403,10 @@ int x, y, typ;
                 || (u.utraptype == TT_PIT && !is_pit(typ))))
             u.utrap = 0;
         /* old <tx,ty> remain valid */
-    } else if (IS_FURNITURE(lev->typ)
-               && (!IS_GRAVE(lev->typ) || (typ != PIT && typ != HOLE))) {
+    } else if ((IS_FURNITURE(lev->typ)
+                && (!IS_GRAVE(lev->typ) || (typ != PIT && typ != HOLE)))
+               || (is_pool_or_lava(x, y) || IS_AIR(lev->typ))
+               || ((is_puddle(x, y) || is_sewage(x, y)) && typ == WEB)) {
         /* no trap on top of furniture (caller usually screens the
            location to inhibit this, but wizard mode wishing doesn't) */
         return (struct trap *) 0;
