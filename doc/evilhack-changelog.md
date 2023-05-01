@@ -2863,4 +2863,5 @@ The following changes to date are:
 - Fix: bugs with shadow dragon commit
 - Fix: some forge recipes
 - Add various Drow objects to the allowed forge recipe list
+- Fix: remove unnecessary code from shadow dragon level drain attack
 

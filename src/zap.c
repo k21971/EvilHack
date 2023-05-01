@@ -4453,9 +4453,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             tmp += drain;
             mon->mhpmax -= drain;
             mon->m_lev--;
-            drain /= 2;
-            if (drain)
-                healup(drain, 0, FALSE, FALSE);
         }
         break;
         }
