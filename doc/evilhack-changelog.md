@@ -2875,4 +2875,5 @@ The following changes to date are:
 - Ogresmasher knockback
 - Fix: ogresmasher knockback monster vs player, some feedback formatting
 - Don't allow drow mummies/zombies to cast aura of darkness
+- Fix: zapping cancellation at magical trap
 

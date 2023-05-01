@@ -91,6 +91,8 @@ int expltype;
     } else if (olet == SCROLL_CLASS) {
         /* ditto */
         exploding_wand_typ = SCR_FIRE;
+    } else if (olet == TRAP_EXPLODE) {
+        type = 0; /* hardcoded to generic magic explosion */
     }
     /* muse_unslime: SCR_FIRE */
     if (expltype < 0) {
