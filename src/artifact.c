@@ -2266,19 +2266,17 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
             } else if (hurtle_distance) {
-                int dx = mdef->mx - magr->mx;
-                int dy = mdef->my - magr->my;
                 if (youattack) {
                     You("smash back %s%s", mon_nam(mdef), canseemon(mdef) ? exclam(4*hurtle_distance) : ".");
-                    dx = u.dx;
-                    dy = u.dy;
+                    mhurtle(mdef, u.dx, u.dy, hurtle_distance);
                 } else if (!youattack && !youdefend) {
                     if (cansee(magr->mx, magr->my))
-                        pline("%s smashes %s back!", Monnam(magr), s_suffix(mon_nam(mdef)));
+                        pline("%s smashes %s back!", Monnam(magr), mon_nam(mdef));
+                    mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my, hurtle_distance);
                 } else {
                     pline("You are smashed backwards!");
+                    hurtle(u.ux - magr->my, u.uy - magr->my, hurtle_distance, FALSE);
                 }
-                mhurtle(mdef, dx, dy, hurtle_distance);
             } else
                 return FALSE;
             return TRUE;
