@@ -2813,7 +2813,10 @@ struct attack *mattk;
                 if (!(HMagical_breathing || EMagical_breathing)) {
                     /* test this one first, in case breathless and also wearing
                      * magical breathing */
-                    You("can't breathe, but you don't need to.");
+                    if (Amphibious)
+                        You("can still breathe, though.");
+                    else
+                        You("can't breathe, but you don't need to.");
                 } else {
                     You("can still breathe, though.");
                     if (uamul && uamul->otyp == AMULET_OF_MAGICAL_BREATHING)

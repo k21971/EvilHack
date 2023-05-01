@@ -2864,4 +2864,6 @@ The following changes to date are:
 - Fix: some forge recipes
 - Add various Drow objects to the allowed forge recipe list
 - Fix: remove unnecessary code from shadow dragon level drain attack
+- Fix: feedback when engulfed by a water elemental/sea dragon and
+  the player is amphibious
 
