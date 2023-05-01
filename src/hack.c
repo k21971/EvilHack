@@ -2381,7 +2381,7 @@ boolean newspot;             /* true if called by spoteffects */
             You("pop out of the %s like a cork!", hliquid("water"));
         } else if (Flying) {
             You("fly out of the %s.", hliquid("water"));
-        } else if (Wwalking) {
+        } else if (EWwalking) { /* extrinsic source only */
             You("slowly rise above the surface.");
         } else {
             still_inwater = TRUE;
