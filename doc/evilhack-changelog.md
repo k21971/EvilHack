@@ -2871,4 +2871,5 @@ The following changes to date are:
 - Fix: webs in/on water
 - Allow monks with intrinsic water walking to enter into and stay in
   pools/moats
+- Fix: fix for the 'webs in/on water' patch, as it made the game unwinnable 
 
