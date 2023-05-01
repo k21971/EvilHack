@@ -2861,4 +2861,5 @@ The following changes to date are:
 - Driders can shoot webbing at a distance at its target
 - New monster: Shadow dragon
 - Fix: bugs with shadow dragon commit
+- Fix: some forge recipes
 
