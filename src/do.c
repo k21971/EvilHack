@@ -1211,6 +1211,11 @@ dodown()
         if (trap && (uteetering_at_seen_pit(trap) || uescaped_shaft(trap))) {
             dotrap(trap, TOOKPLUNGE);
             return 1;
+        } else if (IS_POOL(levl[u.ux][u.uy].typ) && HWwalking) {
+            /* Monks that have intrinsic water walking but
+               still wish to go for a dip in the pool */
+            drown();
+            return 1;
         } else if (!trap || !is_hole(trap->ttyp)
                    || !Can_fall_thru(&u.uz) || !trap->tseen) {
             if (flags.autodig && !context.nopick && uwep && is_pick(uwep)) {
