@@ -169,12 +169,12 @@ char **cs_rows;
                 && !Upolyd && Race_if(PM_DROW))
                 lit_typ = TEMP_DARK;
         } else if (ls->type == LS_MONSTER) {
-            if (get_mon_location(ls->id.a_monst, &ls->x, &ls->y, 0)) {
-                if (ls->id.a_monst->data == &mons[PM_SHADOW_DRAGON])
-                    lit_typ = TEMP_DARK;
-                else
-                    ls->flags |= LSF_SHOW;
-            }
+            if (get_mon_location(ls->id.a_monst, &ls->x, &ls->y, 0))
+                ls->flags |= LSF_SHOW;
+            if (ls->id.a_monst->data == &mons[PM_SHADOW_DRAGON])
+                lit_typ = TEMP_DARK;
+            if (ls->id.a_monst->data == &mons[PM_BABY_SHADOW_DRAGON])
+                lit_typ = TEMP_DARK;
         }
 
 #if 0 /* disabled for now since light sources at hero location may be a mix of

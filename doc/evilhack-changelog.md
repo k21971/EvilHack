@@ -2866,4 +2866,5 @@ The following changes to date are:
 - Fix: remove unnecessary code from shadow dragon level drain attack
 - Fix: feedback when engulfed by a water elemental/sea dragon and
   the player is amphibious
+- Shadow dragons emit a continuous aura of darkness
 
