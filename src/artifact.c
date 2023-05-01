@@ -1659,11 +1659,21 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         return FALSE;
     }
 
+    /* Ogresmasher has a damage bonus against ogres, but it can also
+     * hurtle light-weight monsters, so the spec_dbon_applies check
+     * is insufficient for its effects. Hurtle distance is used as an
+     * additional check for its knockback behavior for MZ_MEDIUM and
+     * smaller targets. Knockback rate is set here as well in rn2(rate).
+     */
+     int hurtle_distance = 0;
+     if (otmp->oartifact == ART_OGRESMASHER && mdef->data->msize < MZ_LARGE && !rn2(5))
+         hurtle_distance = MZ_LARGE - mdef->data->msize;
+
     /* incorporeal monsters are immune to various
        types of damage */
-    if (!(shade_glare(otmp) || spec_dbon_applies))
+    if (!(shade_glare(otmp) || spec_dbon_applies || hurtle_distance))
         return FALSE;
-
+    
     realizes_damage = (youdefend || vis
                        /* feel the effect even if not seen */
                        || (youattack && mdef == u.ustuck));
@@ -2182,7 +2192,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             return FALSE;
     }
 
-    if (!spec_dbon_applies) {
+    if (!spec_dbon_applies && !hurtle_distance) {
         /* since damage bonus didn't apply, nothing more to do;
            no further attacks have side-effects on inventory */
         return FALSE;
@@ -2255,6 +2265,20 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 pline("The monstrous hammer crushes your skull!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
+            } else if (hurtle_distance) {
+                int dx = mdef->mx - magr->mx;
+                int dy = mdef->my - magr->my;
+                if (youattack) {
+                    You("smash back %s%s", mon_nam(mdef), canseemon(mdef) ? exclam(4*hurtle_distance) : ".");
+                    dx = u.dx;
+                    dy = u.dy;
+                } else if (!youattack && !youdefend) {
+                    if (cansee(magr->mx, magr->my))
+                        pline("%s smashes %s back!", Monnam(magr), s_suffix(mon_nam(mdef)));
+                } else {
+                    pline("You are smashed backwards!");
+                }
+                mhurtle(mdef, dx, dy, hurtle_distance);
             } else
                 return FALSE;
             return TRUE;
