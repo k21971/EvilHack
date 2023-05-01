@@ -483,6 +483,17 @@ static const struct forge_recipe {
     { BARDING, PLATE_MAIL, SADDLE, 1, 1 },
     { SPIKED_BARDING, BARDING, MORNING_STAR, 1, 1 },
     { BARDING_OF_REFLECTION, BARDING, SHIELD_OF_REFLECTION, 1, 1 },
+    /* Drow weapons and armor - requires drow objects
+       to forge other drow objects */
+    { DARK_ELVEN_SPEAR, DARK_ELVEN_ARROW, DARK_ELVEN_DAGGER, 2, 1 },
+    { DARK_ELVEN_DAGGER, DARK_ELVEN_ARROW, DARK_ELVEN_CROSSBOW_BOLT, 2, 2 },
+    { DARK_ELVEN_SHORT_SWORD, DARK_ELVEN_CROSSBOW_BOLT, DARK_ELVEN_DAGGER, 2, 1 },
+    { DARK_ELVEN_BROADSWORD, DARK_ELVEN_DAGGER, DARK_ELVEN_SHORT_SWORD, 1, 1 },
+    { DARK_ELVEN_LONG_SWORD, DARK_ELVEN_SHORT_SWORD, DARK_ELVEN_SHORT_SWORD, 1, 1 },
+    { DARK_ELVEN_MACE, DARK_ELVEN_DAGGER, DARK_ELVEN_DAGGER, 1, 1 },
+    { DARK_ELVEN_HEAVY_MACE, DARK_ELVEN_MACE, DARK_ELVEN_MACE, 1, 1 },
+    { DARK_ELVEN_CHAIN_MAIL, DARK_ELVEN_HEAVY_MACE, DARK_ELVEN_BRACER, 1, 1 },
+    { DARK_ELVEN_BRACER, ELVEN_DAGGER, DARK_ELVEN_MACE, 1, 1 },
     { 0, 0, 0, 0, 0 }
 };
 
@@ -583,6 +594,12 @@ doforging(void)
     } else if (Is_dragon_scaled_armor(obj1)
                || Is_dragon_scaled_armor(obj2)) {
         pline("Dragon-scaled armor cannot be forged.");
+        return 0;
+    /* due to the nature of Drow objects, they can only
+       be forged in darkness */
+    } else if (!spot_is_dark(u.ux, u.uy)
+               && (is_drow_obj(obj1) || is_drow_obj(obj2))) {
+        pline("Drowcraft must be performed under the cover of darkness.");
         return 0;
     }
 

@@ -2862,4 +2862,5 @@ The following changes to date are:
 - New monster: Shadow dragon
 - Fix: bugs with shadow dragon commit
 - Fix: some forge recipes
+- Add various Drow objects to the allowed forge recipe list
 

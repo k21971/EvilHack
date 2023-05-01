@@ -8741,10 +8741,10 @@ out these riches.  I just need to make it out of this place alive first...
 # every recipe available that the player can
 # use to forge objects.
 #
-%title The Blacksmith's Cookbook (9)
+%title The Blacksmith's Cookbook (10)
 #
 %passage 1
-Chapter 1 of 9 - Getting Started
+Chapter 1 of 10 - Getting Started
 
 1) Find a forge.
 2) Find a hammer, any will do.
@@ -8765,7 +8765,7 @@ Don't try to forge things you know you shouldn't.
 %e passage
 #
 %passage 2
-Chapter 2 of 9 - Weapons (part 1)
+Chapter 2 of 10 - Weapons (part 1)
 
 Forge 2 darts / dagger to create:  3 to 4 shuriken
 Forge 2 arrows / dagger to create:  spear
@@ -8791,7 +8791,7 @@ Forge 2 crossbow bolts / elven dagger to create:  elven short sword
 %e passage
 #
 %passage 3
-Chapter 3 of 9 - Weapons (part 2)
+Chapter 3 of 10 - Weapons (part 2)
 
 Forge 2 crossbow bolts / orcish dagger to create:  orcish short sword
 Forge short sword / dwarvish spear to create:  dwarvish short sword
@@ -8812,14 +8812,14 @@ Forge dagger / club to create:  mace
 Forge mace (x2) to create:  heavy mace
 Forge 2 rubies / mace to create:  rod
 Forge dagger / mace to create:  morning star
-Forge orcish dagger / mace to create:  orcish morning star
 
   [The Blacksmith's Cookbook]
 %e passage
 #
 %passage 4
-Chapter 4 of 9 - Weapons (part 3)
+Chapter 4 of 10 - Weapons (part 3)
 
+Forge orcish dagger / mace to create:  orcish morning star
 Forge flail / mace to create:  war hammer
 Forge war hammer (x2) to create:  heavy war hammer
 Forge 2 arrows / 2 crossbow bolts to create:  club
@@ -8843,7 +8843,7 @@ Forge war hammer / spear to create:  bec de corbin
 %e passage
 #
 %passage 5
-Chapter 5 of 9 - Armor (Helmets)
+Chapter 5 of 10 - Armor (Helmets)
 
 Forge dented pot / orcish dagger to create:  orcish helm
 Forge dwarvish short sword / helmet to create:  dwarvish helm
@@ -8854,7 +8854,7 @@ Forge dagger / dented pot to create:  helmet
 %e passage
 #
 %passage 6
-Chapter 6 of 9 - Armor (Body Armor)
+Chapter 6 of 10 - Armor (Body Armor)
 
 Forge chain mail / splint mail to create:  plate mail
 Forge 3 dilithium crystals / plate mail to create:  crystal plate mail
@@ -8873,7 +8873,7 @@ Forge orcish shield / orcish helm to create:  orcish ring mail
 %e passage
 #
 %passage 7
-Chapter 7 of 9 - Armor (Shields)
+Chapter 7 of 10 - Armor (Shields)
 
 Forge dagger / helmet to create:  small shield
 Forge elven dagger / small shield to create:  elven shield
@@ -8886,7 +8886,7 @@ Forge dwarvish helm / large shield to create:  dwarvish roundshield
 %e passage
 #
 %passage 8
-Chapter 8 of 9 - Armor (Boots, Gauntlets, Barding)
+Chapter 8 of 10 - Armor (Boots, Gauntlets, Barding)
 
 Forge mace / helmet to create:  gauntlets
 Forge dwarvish short sword / gauntlets to create:  dwarvish boots
@@ -8899,7 +8899,33 @@ Forge shield of reflection / barding to create:  barding of reflection
 %e passage
 #
 %passage 9
-Chapter 9 of 9 - Artifacts
+Chapter 9 of 10 - Drowcraft (Weapons, Armor)
+
+Almost all dark elven objects are made of a very rare material
+known as adamantine.  Due to the nature of this alloy, it becomes
+very brittle in the presence of light. Because of this, Drowcraft
+can only be forged in darkness.
+
+Forge 2 dark elven arrows / dark elven dagger
+    to create:  dark elven spear
+Forge 2 dark elven arrows / 2 dark elven crossbow bolts
+    to create:  dark elven dagger
+Forge 2 dark elven crossbow bolts / dark elven dagger
+    to create:  dark elven short sword
+Forge dark elven dagger / dark elven short sword
+    to create:  dark elven broadsword
+Forge dark elven short sword (x2) to create:  dark elven long sword
+Forge dark elven dagger (x2) to create:  dark elven mace
+Forge dark elven mace (x2) to create:  dark elven heavy mace
+Forge dark elven heavy mace / dark elven bracer
+    to create:  dark elven chain mail
+Forge dark elven dagger / dark elven mace to create:  dark elven bracer
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 10
+Chapter 10 of 10 - Artifacts
 
 Rumor has it that some artifacts can be forged together
 to make an even more powerful artifact.  Many say this
