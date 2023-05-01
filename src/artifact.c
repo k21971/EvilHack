@@ -1666,7 +1666,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
      * smaller targets. Knockback rate is set here as well in rn2(rate).
      */
      int hurtle_distance = 0;
-     if (otmp->oartifact == ART_OGRESMASHER && mdef->data->msize < MZ_LARGE && !rn2(5))
+     if (otmp->oartifact == ART_OGRESMASHER
+         && mdef->data->msize < MZ_LARGE && !rn2(5))
          hurtle_distance = MZ_LARGE - mdef->data->msize;
 
     /* incorporeal monsters are immune to various
@@ -2267,15 +2268,18 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 /* player returns to their original form */
             } else if (hurtle_distance) {
                 if (youattack) {
-                    You("smash back %s%s", mon_nam(mdef), canseemon(mdef) ? exclam(4 * hurtle_distance) : ".");
+                    You("smash %s backwards%s", mon_nam(mdef),
+                        canseemon(mdef) ? exclam(4 * hurtle_distance) : ".");
                     mhurtle(mdef, u.dx, u.dy, hurtle_distance);
                 } else if (!youattack && !youdefend) {
                     if (cansee(magr->mx, magr->my))
-                        pline("%s smashes %s back!", Monnam(magr), mon_nam(mdef));
-                    mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my, hurtle_distance);
+                        pline("%s smashes %s backwards!", Monnam(magr), mon_nam(mdef));
+                    mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my,
+                            hurtle_distance);
                 } else {
                     pline("You are smashed backwards!");
-                    hurtle(u.ux - magr->my, u.uy - magr->my, hurtle_distance, FALSE);
+                    hurtle(u.ux - magr->mx, u.uy - magr->my, hurtle_distance, FALSE);
+                    return TRUE;
                 }
             } else
                 return FALSE;
