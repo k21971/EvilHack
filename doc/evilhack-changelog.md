@@ -2869,4 +2869,7 @@ The following changes to date are:
 - Shadow dragons emit a continuous aura of darkness
 - Drow mages and clerics are telepathic
 - Fix: webs in/on water
+- Allow monks with intrinsic water walking to enter into and stay in
+  pools/moats
+- Fix: fix for the 'webs in/on water' patch, as it made the game unwinnable 
 

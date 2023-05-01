@@ -405,7 +405,8 @@ int x, y, typ;
         /* old <tx,ty> remain valid */
     } else if ((IS_FURNITURE(lev->typ)
                 && (!IS_GRAVE(lev->typ) || (typ != PIT && typ != HOLE)))
-               || (is_pool_or_lava(x, y) || IS_AIR(lev->typ))
+               || (!In_endgame(&u.uz) && (is_pool_or_lava(x, y)
+                                          || IS_AIR(lev->typ)))
                || ((is_puddle(x, y) || is_sewage(x, y)) && typ == WEB)) {
         /* no trap on top of furniture (caller usually screens the
            location to inhibit this, but wizard mode wishing doesn't) */
@@ -4492,7 +4493,8 @@ drown()
     }
 
     if (!u.uinwater) {
-        You("%s into the %s%c", Is_waterlevel(&u.uz) ? "plunge" : "fall",
+        You("%s into the %s%c",
+            (Is_waterlevel(&u.uz) || HWwalking) ? "plunge" : "fall",
             hliquid(!is_sewage(u.ux, u.uy) ? "water" : "sewage"),
             Amphibious || Swimming ? '.' : '!');
         if (!Swimming && !Is_waterlevel(&u.uz))
