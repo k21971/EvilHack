@@ -810,7 +810,8 @@ register struct monst *mtmp;
 
     /* Drow have the innate ability to cast an aura of darkness
        around themselves, and will use it if surrounded by light */
-    if (!rn2(10) && is_drow(mdat)
+    if (!rn2(10) && racial_drow(mtmp)
+        && !mtmp->mpeaceful /* shopkeepers/temple priests */
         && !is_undead(mdat) /* drow mummies/zombies */
         && !spot_is_dark(mtmp->mx, mtmp->my)) {
         if (canseemon(mtmp))
