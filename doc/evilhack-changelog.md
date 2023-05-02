@@ -2877,4 +2877,5 @@ The following changes to date are:
 - Don't allow drow mummies/zombies to cast aura of darkness
 - Fix: zapping cancellation at magical trap
 - Fix: drow monsters using aura of darkness
+- Fix: drow and untrapping webs
 

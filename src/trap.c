@@ -4692,7 +4692,7 @@ struct trap *ttmp;
 
     /* Only spiders and Drow know how to deal with webs reliably */
     if (ttmp->ttyp == WEB && !webmaker(youmonst.data)
-        && maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW)))
+        && !maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW)))
         chance = 30;
     if (Confusion || Hallucination)
         chance++;
