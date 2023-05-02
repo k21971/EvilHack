@@ -2878,4 +2878,5 @@ The following changes to date are:
 - Fix: zapping cancellation at magical trap
 - Fix: drow monsters using aura of darkness
 - Fix: drow and untrapping webs
+- Tempest when wielded grants shock resistance to items in open inventory
 

@@ -6025,6 +6025,9 @@ int osym, dmgtyp;
             continue; /* don't destroy artifacts */
         if (obj->in_use && obj->quan == 1L)
             continue; /* not available */
+        if (dmgtyp == AD_ELEC && wielding_artifact(ART_TEMPEST))
+            continue; /* tempest grants shock resistance
+                         to objects in open inventory */
 
         /* if loss of this item might dump us onto a trap, hold off
            until later because potential recursive destroy_item() will
@@ -6084,6 +6087,10 @@ int osym, dmgtyp;
             continue; /* test only objs of type osym */
         if (obj->oartifact)
             continue; /* don't destroy artifacts */
+        if (dmgtyp == AD_ELEC && MON_WEP(mtmp)
+            && MON_WEP(mtmp)->oartifact == ART_TEMPEST)
+            continue; /* tempest grants shock resistance
+                         to objects in open inventory */
         skip = 0;
         quan = 0L;
         dindx = 0;
