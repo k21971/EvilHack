@@ -1627,6 +1627,9 @@ register struct trobj *origtrop;
                       by having the Amulet of Yendor in starting
                       inventory */
                    || (otyp == SPE_CLAIRVOYANCE && Role_if(PM_INFIDEL))
+                   /* Drow hate the light, no self-respecting dark elf
+                      would ever want to cast it */
+                   || (otyp == SPE_LIGHT && Race_if(PM_DROW))
                    /* powerful spells are either useless to
                       low level players or unbalancing; also
                       spells in restricted skill categories */

@@ -2426,6 +2426,10 @@ register struct obj *obj;
             if (lightdamage(obj, TRUE, 5))
                 known = TRUE;
         }
+        if (obj->otyp == SPE_LIGHT) {
+            if (lightdamage(obj, FALSE, 5))
+                known = TRUE;
+        }
         break;
     case WAN_SECRET_DOOR_DETECTION:
     case SPE_DETECT_UNSEEN:
