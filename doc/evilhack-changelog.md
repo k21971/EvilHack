@@ -2880,4 +2880,5 @@ The following changes to date are:
 - Fix: drow and untrapping webs
 - Tempest when wielded grants shock resistance to items in open inventory
 - Drow and spellbooks of light
+- Fix: error in drowcraft forge recipes
 
