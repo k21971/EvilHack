@@ -2882,4 +2882,6 @@ The following changes to date are:
 - Drow and spellbooks of light
 - Fix: error in drowcraft forge recipes
 - Drow that pray shouldn't be surrounded by 'shimmering light'
+- Fix: stacked food objects, weight not updating for split object in curses
+  mode if eating was interrupted
 

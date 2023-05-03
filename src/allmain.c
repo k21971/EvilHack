@@ -927,8 +927,10 @@ void
 stop_occupation()
 {
     if (occupation) {
-        if (!maybe_finished_meal(TRUE))
+        if (!maybe_finished_meal(TRUE)) {
             You("stop %s.", occtxt);
+            update_inventory(); /* meal weight has changed */
+        }
         occupation = 0;
         context.botl = TRUE; /* in case u.uhs changed */
         nomul(0);
