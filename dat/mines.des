@@ -1400,14 +1400,15 @@ MAP
                                                                         .}}{
 ENDMAP
 
-$stones = { (0,18),(0,12),(2,18),(12,14),(20,12),(16,16),(72,18),(52,14),(44,14) }
+$stones = { (0,18),(0,12),(2,18),(12,14),(22,14),
+            (16,16),(72,18),(52,14),(44,14) }
 SHUFFLE: $stones
 REGION:(0,0,75,19),lit,"ordinary"
 NON_DIGGABLE:(0,0,75,19)
 STAIR:(1,9),up
 
-#SOME ORCS (The religious kind)
-# Hostile to anyone, regardless of race,  who disturbs their sacred temple
+# SOME ORCS (The religious kind)
+# Hostile to anyone, regardless of race, who disturbs their sacred temple
 MONSTER:('o',"goblin outrider"),random,hostile
 MONSTER:('o',"goblin-captain"),random,hostile
 MONSTER:('o',"goblin outrider"),random,hostile
@@ -1449,6 +1450,8 @@ TRAP:"board",random
 OBJECT:('?', "scare monster"),(70,5),cursed
 ENGRAVING:(70,5),burn,"Moloch"
 OBJECT:('(',"figurine"),(70,5),cursed,montype:"balrog",1
+# random placement of gems/stones
+# one location will always be empty
 OBJECT:('*',"luckstone"),$stones[0]
 OBJECT:('*',"flint"),$stones[1]
 OBJECT:'*',$stones[2]
@@ -1457,8 +1460,8 @@ OBJECT:'*',$stones[4]
 OBJECT:'*',$stones[5]
 OBJECT:'*',$stones[6]
 OBJECT:'*',$stones[7]
-OBJECT:'*',$stones[8]
-OBJECT:'*',$stones[9]
+
+#shamans guarding the inner temple/figurine
 MONSTER:('o',"orc shaman"),(69,3),asleep,hostile
 MONSTER:('o',"orc shaman"),(71,3),asleep,hostile
 MONSTER:('o',"orc shaman"),(68,4),asleep,hostile

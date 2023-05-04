@@ -2889,4 +2889,5 @@ The following changes to date are:
 - Fix: hurtled monster logic
 - Fix: Drow players shouldn't start with lamps
 - Fix: restore aklys tether glyph to its original color
+- Fix: minor issues with Mines' End 'Orc Temple' map
 
