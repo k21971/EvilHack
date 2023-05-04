@@ -2884,4 +2884,6 @@ The following changes to date are:
 - Drow that pray shouldn't be surrounded by 'shimmering light'
 - Fix: stacked food objects, weight not updating for split object in curses
   mode if eating was interrupted
+- Fix: Drow player was considered being in the light if in a lit room while
+  using a temporary source of darkness while blind
 

@@ -2634,7 +2634,7 @@ dopray()
             if (u.ualign.type == A_NONE)
                 You("are surrounded by an ominous crimson glow.");
             else if (u.ualign.type != A_NONE && Race_if(PM_DROW))
-                You("are surrounded by darkening shadows.");
+                You("are surrounded by swirling shadows.");
             else
                 You("are surrounded by a shimmering light.");
         }

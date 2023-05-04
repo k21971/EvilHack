@@ -574,6 +574,12 @@ int control;
                     newsym(col, row);
         }
 
+        /* Set the correct bits for all light sources. This
+           is necessary while blind because we need to know
+           whether the player (specifically, as Drow race)
+           is in the presence of light or dark */
+        do_light_sources(next_array);
+
         /* skip the normal update loop */
         goto skip;
     } else if (Is_rogue_level(&u.uz)) {
