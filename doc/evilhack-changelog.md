@@ -2887,4 +2887,5 @@ The following changes to date are:
 - Fix: Drow player was considered being in the light if in a lit room while
   using a temporary source of darkness while blind
 - Fix: hurtled monster logic
+- Fix: Drow players shouldn't start with lamps
 

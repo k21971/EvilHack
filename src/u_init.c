@@ -950,7 +950,7 @@ u_init()
         ini_inv(Priest);
         if (Race_if(PM_ILLITHID))
             force_learn_spell(SPE_PSIONIC_WAVE);
-        if (!rn2(4))
+        if (!rn2(4) && !Race_if(PM_DROW))
             ini_inv(Lamp);
         knows_object(POT_WATER);
         if (Race_if(PM_GIANT)) {
@@ -1048,7 +1048,7 @@ u_init()
             ini_inv(AoMR);
         if (Race_if(PM_ILLITHID))
             force_learn_spell(SPE_PSIONIC_WAVE);
-        if (!rn2(5))
+        if (!rn2(5) && !Race_if(PM_DROW))
             ini_inv(Lamp);
         if (!rn2(5))
             ini_inv(Blindfold);
