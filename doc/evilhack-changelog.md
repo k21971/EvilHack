@@ -2888,4 +2888,5 @@ The following changes to date are:
   using a temporary source of darkness while blind
 - Fix: hurtled monster logic
 - Fix: Drow players shouldn't start with lamps
+- Fix: restore aklys tether glyph to its original color
 

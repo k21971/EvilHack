@@ -952,7 +952,7 @@ int x, y;
     int tdx, tdy;
     tdx = u.ux - x;
     tdy = u.uy - y;
-    return zapdir_to_glyph(sgn(tdx),sgn(tdy), 2);
+    return zapdir_to_glyph(sgn(tdx),sgn(tdy), 5);
 }
 
 /*
