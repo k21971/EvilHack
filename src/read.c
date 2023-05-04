@@ -2272,8 +2272,9 @@ xchar x, y;          /* coordinates for centering do_clear_area() */
                     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                         if (!DEADMONSTER(mtmp)
                             && (x == mtmp->mx) && (y == mtmp->my))
-                            pline("%s is surrounded by darkness!",
-                                  Monnam(mtmp));
+                            if (canseemon(mtmp))
+                                pline("%s is surrounded by darkness!",
+                                      Monnam(mtmp));
                     }
                 }
             }
@@ -2306,8 +2307,9 @@ xchar x, y;          /* coordinates for centering do_clear_area() */
                 for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                     if (!DEADMONSTER(mtmp)
                         && (x == mtmp->mx) && (y == mtmp->my))
-                        pline("A lit field surrounds %s!",
-                              mon_nam(mtmp));
+                        if (canseemon(mtmp))
+                            pline("A lit field surrounds %s!",
+                                  mon_nam(mtmp));
                 }
             }
         }

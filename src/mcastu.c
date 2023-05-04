@@ -394,17 +394,22 @@ boolean foundyou;
         return 0;
     }
     if (canseemon(mtmp) || !is_undirected_spell(mattk->adtyp, spellnum)) {
-        pline("%s casts a spell%s!",
-              canseemon(mtmp) ? Monnam(mtmp) : "Something",
-              is_undirected_spell(mattk->adtyp, spellnum)
-                  ? ""
-                  : (Invis && !mon_prop(mtmp, SEE_INVIS)
-                     && (mtmp->mux != u.ux || mtmp->muy != u.uy))
-                        ? " at a spot near you"
-                        : (Displaced
-                           && (mtmp->mux != u.ux || mtmp->muy != u.uy))
-                              ? " at your displaced image"
-                              : " at you");
+        if (mtmp->mpeaceful
+            && mtmp->ispriest && inhistemple(mtmp)) {
+            ; /* cut down on the temple spam */
+        } else {
+            pline("%s casts a spell%s!",
+                  canseemon(mtmp) ? Monnam(mtmp) : "Something",
+                  is_undirected_spell(mattk->adtyp, spellnum)
+                      ? ""
+                      : (Invis && !mon_prop(mtmp, SEE_INVIS)
+                         && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+                            ? " at a spot near you"
+                            : (Displaced
+                               && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+                                  ? " at your displaced image"
+                                  : " at you");
+        }
     }
 
     /*
@@ -1219,17 +1224,22 @@ int spellnum;
 
         gain = loglev - mtmp->mprotection / (4 - min(3, (10 - natac) / 10));
 
-        if (gain && canseemon(mtmp)) {
-            if (mtmp->mprotection) {
-                pline_The("%s haze around %s becomes more dense.",
-                          hcolor(NH_GOLDEN), mon_nam(mtmp));
-            } else {
-                mtmp->mprottime = (mtmp->iswiz || is_prince(mtmp->data)
-                                   || mtmp->data->msound == MS_NEMESIS
-                                   || mtmp->data->msound == MS_LEADER)
-                                   ? 20 : 10;
-                pline_The("air around %s begins to shimmer with a %s haze.",
-                          mon_nam(mtmp), hcolor(NH_GOLDEN));
+        if (mtmp->mpeaceful
+            && mtmp->ispriest && inhistemple(mtmp)) {
+            ; /* cut down on the temple spam */
+        } else {
+            if (gain && canseemon(mtmp)) {
+                if (mtmp->mprotection) {
+                    pline_The("%s haze around %s becomes more dense.",
+                              hcolor(NH_GOLDEN), mon_nam(mtmp));
+                } else {
+                    mtmp->mprottime = (mtmp->iswiz || is_prince(mtmp->data)
+                                       || mtmp->data->msound == MS_NEMESIS
+                                       || mtmp->data->msound == MS_LEADER)
+                                       ? 20 : 10;
+                    pline_The("air around %s begins to shimmer with a %s haze.",
+                              mon_nam(mtmp), hcolor(NH_GOLDEN));
+                }
             }
         }
         mtmp->mprotection += gain;

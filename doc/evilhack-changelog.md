@@ -2890,4 +2890,6 @@ The following changes to date are:
 - Fix: Drow players shouldn't start with lamps
 - Fix: restore aklys tether glyph to its original color
 - Fix: minor issues with Mines' End 'Orc Temple' map
+- Remove peaceful temple priest protection spell spam; fix for monster
+  using aura of darkness feedback
 
