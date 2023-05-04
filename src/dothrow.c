@@ -855,6 +855,25 @@ int x, y;
     return TRUE;
 }
 
+/* used by mhurtle_step() for actual hurtling and also to vary message
+   if target will/won't change location when knocked back */
+boolean
+will_hurtle(mon, x, y)
+struct monst *mon;
+xchar x, y;
+{
+    if (!isok(x, y))
+        return FALSE;
+    /* redundant when called by mhurtle() */
+    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped)
+        return FALSE;
+    /*
+     * TODO: Treat walls, doors, iron bars, etc. specially
+     * rather than just stopping before.
+     */
+    return goodpos(x, y, mon, MM_IGNOREWATER | MM_IGNORELAVA | MM_IGNOREAIR);
+}
+
 STATIC_OVL boolean
 mhurtle_step(arg, x, y)
 genericptr_t arg;
@@ -863,14 +882,10 @@ int x, y;
     struct monst *mon = (struct monst *) arg;
     struct monst *mtmp;
 
-    /* TODO: Treat walls, doors, iron bars, etc. specially
-     * rather than just stopping before.
-     */
     if (!isok(x, y))
         return FALSE;
 
-    if (goodpos(x, y, mon, MM_IGNOREWATER | MM_IGNORELAVA | MM_IGNOREAIR)
-        && m_in_out_region(mon, x, y)) {
+    if (will_hurtle(mon, x, y) && m_in_out_region(mon, x, y)) {
         int res;
 
         remove_monster(mon->mx, mon->my);
@@ -878,31 +893,53 @@ int x, y;
         place_monster(mon, x, y);
         maybe_unhide_at(mon->mx, mon->my);
         newsym(mon->mx, mon->my);
+
+        flush_screen(1);
+        delay_output();
         set_apparxy(mon);
         if (Is_waterlevel(&u.uz) && levl[x][y].typ == WATER)
             return FALSE;
         res = mintrap(mon);
         if (res == 1 || res == 2)
             return FALSE;
-
-        flush_screen(1);
-        delay_output();
         return TRUE;
     }
-    if ((mtmp = m_at(x, y)) != 0) {
+    if ((mtmp = m_at(x, y)) != 0  && mtmp != mon) {
         if (canseemon(mon) || canseemon(mtmp))
             pline("%s bumps into %s.", Monnam(mon), a_monnam(mtmp));
-        wakeup(mon, !context.mon_moving);
         wakeup(mtmp, !context.mon_moving);
+        /* check whether 'mon' is turned to stone by touching 'mtmp' */
         if (touch_petrifies(mtmp->data)
             && !which_armor(mon, W_ARMU | W_ARM | W_ARMC)) {
             minstapetrify(mon, !context.mon_moving);
             newsym(mon->mx, mon->my);
         }
+        /* and whether 'mtmp' is turned to stone by being touched by 'mon' */
         if (touch_petrifies(mon->data)
             && !which_armor(mtmp, W_ARMU | W_ARM | W_ARMC)) {
             minstapetrify(mtmp, !context.mon_moving);
             newsym(mtmp->mx, mtmp->my);
+        }
+    } else if (x == u.ux && y == u.uy) {
+        /* a monster has caused 'mon' to hurtle against hero */
+        pline("%s bumps into you.", Monnam(mon));
+        stop_occupation();
+        /* check whether 'mon' is turned to stone by touching poly'd hero */
+        if (Upolyd && touch_petrifies(youmonst.data)
+            && !which_armor(mon, W_ARMU | W_ARM | W_ARMC)) {
+            /* give poly'd hero credit/blame despite a monster causing it */
+            minstapetrify(mon, TRUE);
+            newsym(mon->mx, mon->my);
+        }
+        /* and whether hero is turned to stone by being touched by 'mon' */
+        if (touch_petrifies(mon->data) && !(uarmu || uarm || uarmc)) {
+            Sprintf(killer.name, "being hit by %s",
+                    /* combine m_monnam() and noname_monnam():
+                       "{your,a} hurtling cockatrice" w/o assigned name */
+                    x_monnam(mon, mon->mtame ? ARTICLE_YOUR : ARTICLE_A,
+                             "hurtling", EXACT_NAME | SUPPRESS_NAME, FALSE));
+            instapetrify(killer.name);
+            newsym(u.ux, u.uy);
         }
     }
 
@@ -989,6 +1026,7 @@ int dx, dy, range;
 {
     coord mc, cc;
 
+    wakeup(mon, !context.mon_moving);
     /* At the very least, debilitate the monster */
     mon->movement = 0;
     if (!(MON_WEP(mon)
@@ -1033,7 +1071,12 @@ int dx, dy, range;
     cc.x = mon->mx + (dx * range);
     cc.y = mon->my + (dy * range);
     (void) walk_path(&mc, &cc, mhurtle_step, (genericptr_t) mon);
-    (void) minliquid(mon);
+    if (!DEADMONSTER(mon)) {
+        if (t_at(mon->mx, mon->my))
+            (void) mintrap(mon);
+        else
+            (void) minliquid(mon);
+    }
     return;
 }
 
