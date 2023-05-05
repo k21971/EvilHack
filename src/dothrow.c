@@ -2605,13 +2605,15 @@ struct obj* obj;
 
     if (obj->quan == 1L) {
         obj->owornmask = 0L;
-        pline("%s %s!", Yname2(obj),
-              (obj->material == ADAMANTINE ? "crumbles into fragments"
-                                           : "breaks into pieces"));
+        if (cansee(obj->ox, obj->oy))
+            pline("%s %s!", Yname2(obj),
+                  (obj->material == ADAMANTINE ? "crumbles into fragments"
+                                               : "breaks into pieces"));
     } else {
-        pline("One of %s %s!", yname(obj),
-              (obj->material == ADAMANTINE ? "crumbles into fragments"
-                                           : "breaks into pieces"));
+        if (cansee(obj->ox, obj->oy))
+            pline("One of %s %s!", yname(obj),
+                  (obj->material == ADAMANTINE ? "crumbles into fragments"
+                                               : "breaks into pieces"));
         obj = splitobj(obj, 1L);
     }
     breakobj(obj, obj->ox, obj->oy, !context.mon_moving, TRUE);

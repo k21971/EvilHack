@@ -2892,4 +2892,5 @@ The following changes to date are:
 - Fix: minor issues with Mines' End 'Orc Temple' map
 - Remove peaceful temple priest protection spell spam; fix for monster
   using aura of darkness feedback
+- Fix: feedback when objects break
 
