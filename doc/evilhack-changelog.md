@@ -2896,4 +2896,5 @@ The following changes to date are:
 - Fix: minor feedback bug when player's shield blocks a ranged attack
 - Drow and Elves, cannibalism and same-race sacrifice
 - Fix: damage types via monster lookup
+- Fix: 'altar is stained with' feedback, drow/elven same-race sacrifice
 

@@ -1707,7 +1707,10 @@ dosacrifice()
                 goto desecrate_high_altar;
             } else if (altaralign != A_CHAOTIC && altaralign != A_NONE) {
                 /* curse the lawful/neutral altar */
-                pline_The("altar is stained with %s blood.", urace.adj);
+                pline_The("altar is stained with %s blood.",
+                          (Race_if(PM_DROW) && is_elf(ptr))
+                            ? "elven" : (Race_if(PM_ELF) && is_drow(ptr))
+                              ? "dark elven" : urace.adj);
                 levl[u.ux][u.uy].altarmask = (u.ualign.type == A_NONE)
                                               ? AM_NONE : AM_CHAOTIC;
                 newsym(u.ux, u.uy); /* in case Invisible to self */
