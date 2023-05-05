@@ -2895,4 +2895,5 @@ The following changes to date are:
 - Fix: feedback when objects break
 - Fix: minor feedback bug when player's shield blocks a ranged attack
 - Drow and Elves, cannibalism and same-race sacrifice
+- Fix: damage types via monster lookup
 
