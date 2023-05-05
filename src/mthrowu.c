@@ -98,19 +98,18 @@ const char *name; /* if null, then format `*objp' */
                                                    ? "protective shell"
                                                    : "thick hide"),
                       (rn2(2) ? "blocks" : "deflects"), onm);
+            } else if (uarms && rn2(2)) {
+                Your("%s %s %s.",
+                     uarms->oartifact ? xname(uarms)
+                                      : simple_typename(uarms->otyp),
+                     (rn2(2) ? "blocks" : "deflects"), onm);
+                use_skill(P_SHIELD, 1);
             } else {
                 pline("%s %s you.", upstart(onmbuf), vtense(onmbuf, "miss"));
             }
         } else
             You("are almost hit by %s.", onm);
 
-        if (uarms && !rn2(3)) {
-            Your("%s %s %s.",
-                 uarms->oartifact ? xname(uarms)
-                                  : simple_typename(uarms->otyp),
-                 (rn2(2) ? "blocks" : "deflects"), onm);
-            use_skill(P_SHIELD, 1);
-        }
         return 0;
     } else {
         if (Blind || !flags.verbose)

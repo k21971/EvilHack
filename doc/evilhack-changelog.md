@@ -2893,4 +2893,5 @@ The following changes to date are:
 - Remove peaceful temple priest protection spell spam; fix for monster
   using aura of darkness feedback
 - Fix: feedback when objects break
+- Fix: minor feedback bug when player's shield blocks a ranged attack
 
