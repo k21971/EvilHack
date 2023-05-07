@@ -2900,4 +2900,6 @@ The following changes to date are:
 - Fix: quest leader dying by means other than by the player directly
 - Light haters, exploding yellow lights, and various objects that give
   off light
+- Fix: Angelslayer's chance of special attack worked with other fire-based
+  weapons
 
