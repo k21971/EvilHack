@@ -622,7 +622,7 @@ E int FDECL(hero_breaks, (struct obj *, XCHAR_P, XCHAR_P, unsigned));
 E int FDECL(breaks, (struct obj *, XCHAR_P, XCHAR_P));
 E void FDECL(release_camera_demon, (struct obj *, XCHAR_P, XCHAR_P));
 E void FDECL(breakobj, (struct obj *, XCHAR_P, XCHAR_P, BOOLEAN_P, BOOLEAN_P));
-E boolean FDECL(breaktest, (struct obj *));
+E boolean FDECL(breaktest, (struct obj *, XCHAR_P, XCHAR_P));
 E void FDECL(breakmsg, (struct obj *, BOOLEAN_P));
 E boolean FDECL(walk_path, (coord *, coord *,
                             boolean (*)(genericptr, int, int), genericptr_t));

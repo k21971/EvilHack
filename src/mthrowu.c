@@ -182,7 +182,7 @@ int x, y;
                     && is_pit(t->ttyp))) {
         int objgone = 0;
 
-        if (!IS_SOFT(levl[x][y].typ) && breaktest(obj)) {
+        if (!IS_SOFT(levl[x][y].typ) && breaktest(obj, x, y)) {
             breakmsg(obj, cansee(x, y));
             breakobj(obj, x, y, FALSE, FALSE);
             objgone = 1;
