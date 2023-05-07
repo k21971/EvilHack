@@ -2902,4 +2902,5 @@ The following changes to date are:
   off light
 - Fix: Angelslayer's chance of special attack worked with other fire-based
   weapons
+- Fix: drow objects breaking based on incorrect position info
 

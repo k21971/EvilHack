@@ -2565,8 +2565,7 @@ struct obj* obj;
         struct monst *mon = obj->ocarry;
         x = mon->mx;
         y = mon->my;
-    }
-    else {
+    } else {
         impossible("trying to break non-equipped glass obj?");
         return FALSE;
     }
