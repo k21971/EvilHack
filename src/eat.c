@@ -710,7 +710,9 @@ boolean allowmsg;
            about cannibalism--hero's innate traits aren't altered) */
         && (your_race(fptr)
             || (Upolyd && same_race(youmonst.data, fptr))
-            || (u.ulycn >= LOW_PM && were_beastie(pm) == u.ulycn))) {
+            || (u.ulycn >= LOW_PM && were_beastie(pm) == u.ulycn)
+            || (Race_if(PM_ELF) && is_drow(fptr))
+            || (Race_if(PM_DROW) && is_elf(fptr)))) {
         if (allowmsg) {
             if (Upolyd && your_race(fptr))
                 You("have a bad feeling deep inside.");

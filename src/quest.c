@@ -113,7 +113,7 @@ nemdead()
         /* player had to kill the quest leader to
            continue - in this case, killing the quest
            nemesis marks the quest as complete */
-        if (quest_status.leader_is_dead)
+        if (quest_status.killed_leader)
             u.uevent.qcompleted = 1;
     }
 }

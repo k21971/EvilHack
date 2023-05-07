@@ -1738,8 +1738,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         boolean angel = youdefend ? is_angel(youmonst.data)
                                   : is_angel(mdef->data);
 
-        if ((completelyburns(mdef->data) || is_wooden(mdef->data)
-             || mdef->data == &mons[PM_GREEN_SLIME]) || (!rn2(10) && angel)) {
+        if (wielding_artifact(ART_ANGELSLAYER)
+            && ((completelyburns(mdef->data) || is_wooden(mdef->data)
+                 || mdef->data == &mons[PM_GREEN_SLIME])
+                || (!rn2(10) && angel))) {
             if (youdefend && !Underwater) {
                 if (angel) {
                     pline("Angelslayer's eldritch flame consumes %s!", hittee);

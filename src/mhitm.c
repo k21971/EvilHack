@@ -2040,6 +2040,7 @@ post_stone:
         }
         break;
     case AD_BLND:
+        tmp = 0;
         if (can_blnd(magr, mdef, mattk->aatyp, (struct obj *) 0)) {
             register unsigned rnd_tmp;
 
@@ -2069,7 +2070,16 @@ post_stone:
             mdef->mcansee = 0;
             mdef->mstrategy &= ~STRAT_WAITFORU;
         }
-        tmp = 0;
+
+        /* light-haters can take damage from the intense light
+           (yellow light explosion), blind or not */
+        if (mattk->aatyp == AT_EXPL
+            && hates_light(mdef->data)) {
+            if (!Deaf)
+                pline("%s cries out in pain!",
+                      Monnam(mdef));
+            tmp = rnd(5);
+        }
         break;
     case AD_HALU:
         if (!magr->mcan && haseyes(pd) && mdef->mcansee

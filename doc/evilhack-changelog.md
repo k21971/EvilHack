@@ -2893,4 +2893,13 @@ The following changes to date are:
 - Remove peaceful temple priest protection spell spam; fix for monster
   using aura of darkness feedback
 - Fix: feedback when objects break
+- Fix: minor feedback bug when player's shield blocks a ranged attack
+- Drow and Elves, cannibalism and same-race sacrifice
+- Fix: damage types via monster lookup
+- Fix: 'altar is stained with' feedback, drow/elven same-race sacrifice
+- Fix: quest leader dying by means other than by the player directly
+- Light haters, exploding yellow lights, and various objects that give
+  off light
+- Fix: Angelslayer's chance of special attack worked with other fire-based
+  weapons
 

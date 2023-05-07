@@ -1633,13 +1633,19 @@ boolean already_lit;
     long turns = 0;
     boolean do_timer = TRUE;
 
-    if (obj->age == 0 && obj->otyp != MAGIC_LAMP && !artifact_light(obj))
+    if (obj->age == 0 && obj->otyp != MAGIC_LAMP
+        && !artifact_light(obj))
         return;
 
     switch (obj->otyp) {
     case MAGIC_LAMP:
         obj->lamplit = 1;
         do_timer = FALSE;
+        if (!obj->cursed) {
+            if (lightdamage(obj, FALSE, 5)) {
+                ; /* light haters */
+            }
+        }
         break;
 
     case POT_OIL:
@@ -1683,6 +1689,12 @@ boolean already_lit;
             obj->lamplit = 1;
             do_timer = FALSE;
             radius = arti_light_radius(obj);
+            if (!(wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
+                  && !Upolyd && Race_if(PM_DROW))) {
+                if (lightdamage(obj, FALSE, 5)) {
+                    ; /* light haters */
+                }
+            }
         } else {
             impossible("begin burn: unexpected %s", xname(obj));
             turns = obj->age;
