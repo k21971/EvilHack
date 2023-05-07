@@ -1816,7 +1816,7 @@ domove_core()
         struct obj *obj = uwep;
         unsigned breakflags = (BRK_BY_HERO | BRK_FROM_INV);
 
-        if (breaktest(obj)) {
+        if (breaktest(obj, u.ux, u.uy)) {
             if (obj->quan > 1L)
                 obj = splitobj(obj, 1L);
             else
@@ -2604,7 +2604,7 @@ boolean pick;
                 You("are almost hit by %s!",
                     x_monnam(mtmp, ARTICLE_A, "falling", 0, TRUE));
             } else if (uarmh) {
-                if (breaktest(uarmh) && (mtmp->data == &mons[PM_GLASS_PIERCER]
+                if (breaktest(uarmh, u.ux, u.uy) && (mtmp->data == &mons[PM_GLASS_PIERCER]
                                          && uarmh->material == GLASS)) {
                     struct obj* helm = uarmh;
                     pline("It pierces and shatters your helm!");

@@ -1721,13 +1721,15 @@ boolean shop_floor_obj;
         remove_worn_item(otmp, TRUE);
 
     /* some things break rather than ship */
-    if (breaktest(otmp)) {
+    if (breaktest(otmp, cc.x, cc.y)) {
         const char *result;
 
         if (otmp->material == GLASS || otmp->otyp == EXPENSIVE_CAMERA) {
             if (otmp->otyp == MIRROR)
                 change_luck(-2);
             result = "crash";
+        } else if (otmp->material == ADAMANTINE) {
+            result = "crumbling sound";
         } else {
             /* penalty for breaking eggs laid by you */
             if (otmp->otyp == EGG && otmp->spe && otmp->corpsenm >= LOW_PM)
@@ -1816,7 +1818,7 @@ boolean near_hero;
                 if (where == MIGR_WITH_HERO) {
                     if (breaks(otmp, nx, ny))
                         continue;
-                } else if (breaktest(otmp)) {
+                } else if (breaktest(otmp, nx, ny)) {
                     /* assume it broke before player arrived, no messages */
                     delobj(otmp);
                     continue;
@@ -1831,7 +1833,7 @@ boolean near_hero;
             /* set dummy coordinates because there's no
                current position for rloco() to update */
             otmp->ox = otmp->oy = 0;
-            if (rloco(otmp) && !nobreak && breaktest(otmp)) {
+            if (rloco(otmp) && !nobreak && breaktest(otmp, otmp->ox, otmp->oy)) {
                 /* assume it broke before player arrived, no messages */
                 delobj(otmp);
             }

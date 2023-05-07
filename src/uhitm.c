@@ -1359,7 +1359,7 @@ int dieroll;
                     }
                     break;
                 case MIRROR:
-                    if (breaktest(obj)) {
+                    if (breaktest(obj, u.ux, u.uy)) {
                         You("break %s.  That's bad luck!", ysimple_name(obj));
                         change_luck(-2);
                         useup(obj);

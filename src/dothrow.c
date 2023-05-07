@@ -1132,7 +1132,7 @@ boolean hitsroof;
     if (!has_ceiling(&u.uz)) {
         action = "flies up into"; /* into "the sky" or "the water above" */
     } else if (hitsroof) {
-        if (breaktest(obj)) {
+        if (breaktest(obj, u.ux, u.uy)) {
             pline("%s hits the %s.", Doname2(obj), ceiling(u.ux, u.uy));
             breakmsg(obj, !Blind);
             breakobj(obj, u.ux, u.uy, TRUE, TRUE);
@@ -1149,7 +1149,7 @@ boolean hitsroof;
 
     if (obj->oclass == POTION_CLASS) {
         potionhit(&youmonst, obj, POTHIT_HERO_THROW);
-    } else if (breaktest(obj)) {
+    } else if (breaktest(obj, u.ux, u.uy)) {
         int otyp = obj->otyp;
         int blindinc;
 
@@ -1694,7 +1694,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             }
         }
 
-        if ((!IS_SOFT(levl[bhitpos.x][bhitpos.y].typ) && breaktest(obj))
+        if ((!IS_SOFT(levl[bhitpos.x][bhitpos.y].typ) && breaktest(obj, bhitpos.x, bhitpos.y))
             /* venom [via #monster to spit while poly'd] fails breaktest()
                but we want to force breakage even when location IS_SOFT() */
             || obj->oclass == VENOM_CLASS) {
@@ -2304,7 +2304,7 @@ unsigned breakflags;
 
     /* only call breaktest if caller hasn't already specified the outcome */
     if (!brk)
-        brk = breaktest(obj) ? BRK_KNOWN2BREAK : BRK_KNOWN2NOTBREAK;
+        brk = breaktest(obj, x, y) ? BRK_KNOWN2BREAK : BRK_KNOWN2NOTBREAK;
     if (brk == BRK_KNOWN2NOTBREAK)
         return 0;
 
@@ -2325,7 +2325,7 @@ xchar x, y; /* object location (ox, oy may not be right) */
 {
     boolean in_view = Blind ? FALSE : cansee(x, y);
 
-    if (!breaktest(obj))
+    if (!breaktest(obj, x, y))
         return 0;
     breakmsg(obj, in_view);
     breakobj(obj, x, y, FALSE, FALSE);
@@ -2444,20 +2444,20 @@ boolean from_invent;
  * Return 0 if the object isn't going to break, 1 if it is.
  */
 boolean
-breaktest(obj)
+breaktest(obj, x, y)
 struct obj *obj;
+xchar x, y;
 {
-    xchar x, y;
+    //xchar x, y;
 
     /* establish the 'where' for spot_is_dark () */
-    if (mcarried(obj)) {
+    /*if (mcarried(obj)) {
         x = obj->ocarry->mx, y = obj->ocarry->my;
     } else if (carried(obj)) {
         x = u.ux, y = u.uy;
     } else {
         x = obj->ox, y = obj->oy;
-    }
-
+    }*/
     if (obj_resists(obj, 1, 99))
         return 0;
     if (obj->material == GLASS && !obj->oerodeproof
@@ -2560,15 +2560,33 @@ struct obj* obj;
 {
     long unwornmask;
     boolean ucarried;
+    /* position of the object */
+    xchar x, y;
 
-    if (!obj || !breaktest(obj)
+    if (!obj)
+        return FALSE;
+
+    ucarried = carried(obj);
+
+    if (ucarried) {
+        x = u.ux;
+        y = u.uy;
+    } else if (mcarried(obj)) {
+        struct monst *mon = obj->ocarry;
+        x = mon->mx;
+        y = mon->my;
+    }
+    else {
+        impossible("trying to break non-equipped glass obj?");
+        return FALSE;
+    }
+
+    if (!breaktest(obj, x, y)
         || spit_object(obj)
         || (obj->material == ADAMANTINE
             && is_drow_weapon(obj) ? rn2(16) : rn2(6)))
         return FALSE;
     /* now we are definitely breaking it */
-
-    ucarried = carried(obj);
 
     /* remove its worn flags */
     unwornmask = obj->owornmask;
