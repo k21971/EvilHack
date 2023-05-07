@@ -3055,8 +3055,20 @@ boolean ufound;
                 make_blinded((long) tmp, FALSE);
                 if (!Blind)
                     Your1(vision_clears);
-            } else if (flags.verbose)
+            } else if (flags.verbose) {
                 You("get the impression it was not terribly bright.");
+            }
+        }
+        /* exploding light can damage light haters whether
+           they are blind or not */
+        if (ufound
+            && (hates_light(youmonst.data)
+                || maybe_polyd(is_drow(youmonst.data),
+                               Race_if(PM_DROW)))) {
+            pline("Ow, that light hurts!");
+            not_affected = FALSE;
+            tmp = rnd(5);
+            mdamageu(mtmp, tmp);
         }
         break;
 

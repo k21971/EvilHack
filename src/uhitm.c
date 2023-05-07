@@ -3290,6 +3290,19 @@ register struct attack *mattk;
             mdef->mblinded = min((int) mdef->mblinded + tmp, 127);
             mdef->mcansee = 0;
         }
+        if (hates_light(mdef->data)) {
+            if (!Deaf)
+                pline("%s cries out in pain!",
+                      Monnam(mdef));
+            mdef->mhp -= rnd(5);
+            if (mdef->mhp <= 0)
+                xkilled(mdef, XKILL_GIVEMSG);
+            if (mdef && DEADMONSTER(mdef)) {
+                /* Other monsters may have died too, but return 2 if the actual
+                 * target died. */
+                return 2;
+            }
+        }
         break;
     case AD_HALU:
         if (mdef && haseyes(mdef->data) && mdef->mcansee

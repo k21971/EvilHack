@@ -2898,4 +2898,6 @@ The following changes to date are:
 - Fix: damage types via monster lookup
 - Fix: 'altar is stained with' feedback, drow/elven same-race sacrifice
 - Fix: quest leader dying by means other than by the player directly
+- Light haters, exploding yellow lights, and various objects that give
+  off light
 
