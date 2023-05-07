@@ -2448,16 +2448,6 @@ breaktest(obj, x, y)
 struct obj *obj;
 xchar x, y;
 {
-    //xchar x, y;
-
-    /* establish the 'where' for spot_is_dark () */
-    /*if (mcarried(obj)) {
-        x = obj->ocarry->mx, y = obj->ocarry->my;
-    } else if (carried(obj)) {
-        x = u.ux, y = u.uy;
-    } else {
-        x = obj->ox, y = obj->oy;
-    }*/
     if (obj_resists(obj, 1, 99))
         return 0;
     if (obj->material == GLASS && !obj->oerodeproof
