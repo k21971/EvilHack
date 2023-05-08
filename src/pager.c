@@ -1128,8 +1128,11 @@ short otyp;
         switch (otyp) {
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
+        case DARK_ELVEN_CROSSBOW_BOLT:
         case MACE:
+        case DARK_ELVEN_MACE:
         case HEAVY_MACE:
+        case DARK_ELVEN_HEAVY_MACE:
         case ROD:
         case WAR_HAMMER:
         case HEAVY_WAR_HAMMER:
@@ -1149,6 +1152,7 @@ short otyp;
         case RANSEUR:
         case BROADSWORD:
         case ELVEN_BROADSWORD:
+        case DARK_ELVEN_BROADSWORD:
         case RUNESWORD:
         case VOULGE:
             sdambon = " + 1d4";
@@ -1157,11 +1161,13 @@ short otyp;
         /* and again, because /large/ damage is entirely separate. Bleah. */
         switch (otyp) {
         case CROSSBOW_BOLT:
+        case DARK_ELVEN_CROSSBOW_BOLT:
         case MORNING_STAR:
         case ORCISH_MORNING_STAR:
         case PARTISAN:
         case RUNESWORD:
         case ELVEN_BROADSWORD:
+        case DARK_ELVEN_BROADSWORD:
         case BROADSWORD:
             ldambon = " + 1";
             break;

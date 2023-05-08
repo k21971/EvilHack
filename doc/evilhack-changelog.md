@@ -2906,4 +2906,5 @@ The following changes to date are:
 - Fix: thrown fragile objects hitting monsters
 - Fix: program in disorder from last commit
 - Fix: locking/unlocking containers in sokoban
+- Include drow weapon damage bonuses to the pokedex
 
