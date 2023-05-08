@@ -2904,3 +2904,5 @@ The following changes to date are:
   weapons
 - Fix: drow objects breaking based on incorrect position info
 - Fix: thrown fragile objects hitting monsters
+- Fix: program in disorder from last commit
+
