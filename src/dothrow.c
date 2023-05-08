@@ -2299,7 +2299,7 @@ unsigned breakflags;
     /* from_invent: thrown or dropped by player; maybe on shop bill;
        by-hero is implicit so callers don't need to specify BRK_BY_HERO */
     boolean from_invent = (breakflags & BRK_FROM_INV) != 0,
-            in_view = Blind ? FALSE : (from_invent || cansee(x, y));
+            in_view = Blind ? FALSE : cansee(x, y);
     unsigned brk = (breakflags & BRK_KNOWN_OUTCOME);
 
     /* only call breaktest if caller hasn't already specified the outcome */
@@ -2448,14 +2448,15 @@ breaktest(obj, x, y)
 struct obj *obj;
 xchar x, y;
 {
-    if (obj_resists(obj, 1, 99))
+    if (!obj || obj_resists(obj, 1, 99))
         return 0;
     if (obj->material == GLASS && !obj->oerodeproof
         && !obj->oartifact && obj->oclass != GEM_CLASS)
         return 1;
     /* Drow objects are brittle if in the light */
     if (obj->material == ADAMANTINE && is_drow_obj(obj)
-        && !obj->oartifact && !spot_is_dark(x, y))
+        && !obj->oartifact && !spot_is_dark(x, y)
+        && (is_drow_weapon(obj) ? !rn2(16) : !rn2(6)))
         return 1;
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case EXPENSIVE_CAMERA:
@@ -2571,9 +2572,7 @@ struct obj* obj;
     }
 
     if (!breaktest(obj, x, y)
-        || spit_object(obj)
-        || (obj->material == ADAMANTINE
-            && is_drow_weapon(obj) ? rn2(16) : rn2(6)))
+        || spit_object(obj))
         return FALSE;
     /* now we are definitely breaking it */
 
