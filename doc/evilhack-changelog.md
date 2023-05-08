@@ -2905,4 +2905,5 @@ The following changes to date are:
 - Fix: drow objects breaking based on incorrect position info
 - Fix: thrown fragile objects hitting monsters
 - Fix: program in disorder from last commit
+- Fix: locking/unlocking containers in sokoban
 

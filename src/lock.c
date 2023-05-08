@@ -104,7 +104,8 @@ picklock(VOID_ARGS)
         }
     }
 
-    if (Sokoban && (xlock.door->doormask & D_TRAPPED) != 0) {
+    if (Sokoban && !xlock.box
+        && (xlock.door->doormask & D_TRAPPED) != 0) {
         You("cannot lock this door.");
         return ((xlock.usedtime = 0));
     }
