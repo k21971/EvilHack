@@ -2299,7 +2299,7 @@ unsigned breakflags;
     /* from_invent: thrown or dropped by player; maybe on shop bill;
        by-hero is implicit so callers don't need to specify BRK_BY_HERO */
     boolean from_invent = (breakflags & BRK_FROM_INV) != 0,
-            in_view = Blind ? FALSE : cansee(x, y);
+            in_view = Blind ? FALSE : (from_invent || cansee(x, y));
     unsigned brk = (breakflags & BRK_KNOWN_OUTCOME);
 
     /* only call breaktest if caller hasn't already specified the outcome */
