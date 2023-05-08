@@ -2903,4 +2903,4 @@ The following changes to date are:
 - Fix: Angelslayer's chance of special attack worked with other fire-based
   weapons
 - Fix: drow objects breaking based on incorrect position info
-
+- Fix: thrown fragile objects hitting monsters
