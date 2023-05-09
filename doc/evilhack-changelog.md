@@ -2907,4 +2907,5 @@ The following changes to date are:
 - Fix: program in disorder from last commit
 - Fix: locking/unlocking containers in sokoban
 - Include drow weapon damage bonuses to the pokedex
+- Cancelled potions of drow poison turn into fruit juice
 
