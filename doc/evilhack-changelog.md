@@ -2908,4 +2908,5 @@ The following changes to date are:
 - Fix: locking/unlocking containers in sokoban
 - Include drow weapon damage bonuses to the pokedex
 - Cancelled potions of drow poison turn into fruit juice
+- Fix: more cases where certain objects shouldn't spawn eroded
 
