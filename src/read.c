@@ -2239,17 +2239,27 @@ xchar x, y;          /* coordinates for centering do_clear_area() */
          */
 
         for (otmp = invent; otmp; otmp = otmp->nobj) {
-            if (otmp->lamplit) {
-                if (!artifact_light(otmp))
-                    (void) snuff_lit(otmp);
-                else
-                    /* wielded Sunsword or worn shield of light/gold dragon
-                       scales; maybe lower its BUC state if not already
-                       cursed */
-                    impact_arti_light(otmp, TRUE, (boolean) !Blind);
+            boolean lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
+            boolean staff = (otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                             && !Upolyd && Race_if(PM_DROW));
+            boolean armor = (Is_dragon_armor(otmp)
+                             && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
 
-                if (otmp->lamplit)
-                    ++still_lit;
+            if (otmp->lamplit) {
+                if (lamp || staff || armor) {
+                    break;
+                } else {
+                    if (!artifact_light(otmp))
+                        (void) snuff_lit(otmp);
+                    else
+                        /* wielded Sunsword or worn shield of light/gold dragon
+                           scales; maybe lower its BUC state if not already
+                           cursed */
+                        impact_arti_light(otmp, TRUE, (boolean) !Blind);
+
+                    if (otmp->lamplit)
+                        ++still_lit;
+                }
             }
         }
 
@@ -2281,13 +2291,26 @@ xchar x, y;          /* coordinates for centering do_clear_area() */
         }
     } else { /* on */
         if (blessed_effect) {
-            /* might bless artifact lights; no effect on ordinary lights */
+            /* might bless artifact lights; could put out cursed
+               magic lamps (darkness) */
             for (otmp = invent; otmp; otmp = otmp->nobj) {
-                if (otmp->lamplit && artifact_light(otmp))
-                    /* wielded Sunsword or worn shield of light/gold dragon
-                       scales; maybe raise its BUC state if not already
-                       blessed */
-                    impact_arti_light(otmp, FALSE, (boolean) !Blind);
+                boolean lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
+                boolean staff = (otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                                 && !Upolyd && Race_if(PM_DROW));
+                boolean armor = (Is_dragon_armor(otmp)
+                                 && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
+
+                if (otmp->lamplit) {
+                    if (!artifact_light(otmp) && lamp) {
+                        (void) snuff_lit(otmp);
+                    } else {
+                        /* wielded Sunsword or worn shield of light/gold dragon
+                           scales; maybe raise its BUC state if not already
+                           blessed */
+                        if (!(staff || armor))
+                            impact_arti_light(otmp, FALSE, (boolean) !Blind);
+                    }
+                }
             }
         }
         if (u.uswallow) {

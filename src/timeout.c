@@ -1686,11 +1686,15 @@ boolean already_lit;
     default:
         /* [ALI] Support artifact light sources */
         if (artifact_light(obj)) {
+            boolean staff = (wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
+                             && !Upolyd && Race_if(PM_DROW));
+            boolean armor = (Is_dragon_armor(obj)
+                             && Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES);
+
             obj->lamplit = 1;
             do_timer = FALSE;
             radius = arti_light_radius(obj);
-            if (!(wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
-                  && !Upolyd && Race_if(PM_DROW))) {
+            if (!(staff || armor)) {
                 if (lightdamage(obj, FALSE, 5)) {
                     ; /* light haters */
                 }

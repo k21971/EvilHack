@@ -614,7 +614,12 @@ int x, y;
                  * dropped or thrown inside a monster, this won't matter
                  * anyway because it will go out when dropped.)
                  */
-                if (artifact_light(obj))
+                if (artifact_light(obj)
+                    || (obj->otyp == MAGIC_LAMP && obj->cursed)
+                    || (obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                        && !Upolyd && Race_if(PM_DROW))
+                    || (Is_dragon_armor(obj)
+                        && Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES))
                     continue;
                 end_burn(obj, obj->otyp != MAGIC_LAMP);
                 /*

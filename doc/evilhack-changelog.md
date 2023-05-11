@@ -2910,4 +2910,6 @@ The following changes to date are:
 - Cancelled potions of drow poison turn into fruit juice
 - Fix: more cases where certain objects shouldn't spawn eroded
 - Fix: some doors would spawn booby-trapped as early as dungeon level one
+- Fix: aura of darkness could snuff out/curse other sources of darkness;
+  shadow dragon scales aura of darkness hurting light haters
 
