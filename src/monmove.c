@@ -2307,7 +2307,7 @@ struct monst *mtmp;
     boolean was_lava, was_sewage, is_you = (mtmp == &youmonst);
     coord cc;
     if (!mtmp || !has_cold_feet(mtmp) || (is_you && (Flying || Levitation))
-        || !grounded(mtmp->data) || !grounded(u.usteed->data))
+        || !grounded(mtmp->data))
         return 0;
 
     if (is_you) {

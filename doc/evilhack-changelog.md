@@ -2921,4 +2921,5 @@ The following changes to date are:
 - Fix: make elemental vulnerability more consistent
 - Fix: better fix for cream pie/spit object throwing
 - Adjust feedback when freezing a liquid underfoot while riding a steed
+- Fix: dismounting crash from last commit
 
