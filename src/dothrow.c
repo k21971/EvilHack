@@ -2144,7 +2144,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
                 || otyp == SNOWBALL || otyp == BALL_OF_WEBBING)
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
         (void) hmon(mon, obj, hmode, dieroll);
-        return 1; /* hmon used to use it up */
+        return 1; /* hmon used it up */
 
     } else if (obj->oclass == POTION_CLASS
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {

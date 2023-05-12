@@ -2919,4 +2919,5 @@ The following changes to date are:
 - Fix: crash when throwing and hitting a monster with a cream pie or most
   spit-based objects
 - Fix: make elemental vulnerability more consistent
+- Fix: better fix for cream pie/spit object throwing
 
