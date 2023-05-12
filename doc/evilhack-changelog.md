@@ -2923,4 +2923,5 @@ The following changes to date are:
 - Adjust feedback when freezing a liquid underfoot while riding a steed
 - Fix: dismounting crash from last commit
 - Fix: proper handling of flying/clinging u.usteed from last commit
+- Fix: poisoned/tainted weapon stacks were merging with non-poisoned/tainted
 
