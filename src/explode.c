@@ -486,18 +486,9 @@ int expltype;
                        gets hit by double damage */
                     if (grabbed && mtmp == u.ustuck && distu(x, y) <= 2)
                         mdam *= 2;
-                    /* being resistant to opposite type of damage makes
-                       target more vulnerable to current type of damage
-                       (when target is also resistant to current type,
-                       we won't get here) */
-                    if (resists_cold(mtmp) && adtyp == AD_FIRE)
-                        mdam *= 2;
-                    else if (resists_fire(mtmp) && adtyp == AD_COLD)
-                        mdam *= 2;
                     if (mon_underwater(mtmp)
                         && (adtyp == AD_FIRE || adtyp == AD_ACID))
                         mdam = rnd(3); /* physical damage only */
-
                     damage_mon(mtmp, mdam, adtyp);
                     damage_mon(mtmp, idamres + idamnonres, adtyp);
                 }
