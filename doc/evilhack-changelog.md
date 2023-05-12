@@ -2913,4 +2913,6 @@ The following changes to date are:
 - Fix: aura of darkness could snuff out/curse other sources of darkness;
   shadow dragon scales aura of darkness hurting light haters
 - Fix: revert commit 06c26ff, extra check for what can/can't spawn eroded
+- Fix: racial drow were unaffected by hates_light(), gremlins fleeing from
+  sources of darkness
 

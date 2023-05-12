@@ -2200,7 +2200,7 @@ genericptr_t val;
 
     if (val) {
         levl[x][y].lit = 1;
-        if ((mtmp = m_at(x, y)) != 0 && hates_light(mtmp->data)) {
+        if ((mtmp = m_at(x, y)) != 0 && hates_light(r_data(mtmp))) {
             target = (struct litmon *) alloc(sizeof *target);
             target->mon = mtmp;
             target->nxt = light_haters;

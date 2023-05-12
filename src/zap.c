@@ -6516,7 +6516,7 @@ blindingflash()
                 pline("%s is blinded by the flash!", Monnam(mtmp));
             if (mtmp->mpeaceful && !mtmp->mtame && !rn2(3))
                 setmangry(mtmp, TRUE);
-            mtmp->mblinded = rnd(hates_light(mtmp->data) ? 40 : 20);
+            mtmp->mblinded = rnd(hates_light(r_data(mtmp)) ? 40 : 20);
             mtmp->mcansee = 0;
         }
     }

@@ -2074,7 +2074,7 @@ post_stone:
         /* light-haters can take damage from the intense light
            (yellow light explosion), blind or not */
         if (mattk->aatyp == AT_EXPL
-            && hates_light(mdef->data)) {
+            && hates_light(r_data(mdef))) {
             if (!Deaf)
                 pline("%s cries out in pain!",
                       Monnam(mdef));

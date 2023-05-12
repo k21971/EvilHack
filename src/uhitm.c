@@ -3291,7 +3291,7 @@ register struct attack *mattk;
             mdef->mblinded = min((int) mdef->mblinded + tmp, 127);
             mdef->mcansee = 0;
         }
-        if (hates_light(mdef->data)) {
+        if (hates_light(r_data(mdef))) {
             if (!Deaf)
                 pline("%s cries out in pain!",
                       Monnam(mdef));
@@ -4984,7 +4984,7 @@ struct obj *otmp; /* source of flash */
                 pline("%s is blinded by the flash!", Monnam(mtmp));
                 res = 1;
             }
-            if (hates_light(mtmp->data)) {
+            if (hates_light(r_data(mtmp))) {
                 /* Rule #1: Keep them out of the light. */
                 amt = otmp->otyp == WAN_LIGHT ? d(1 + otmp->spe, 4)
                                               : rn2(min(mtmp->mhp, 4));

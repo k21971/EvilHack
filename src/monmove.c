@@ -326,10 +326,16 @@ struct monst *mon;
 }
 
 #define flees_light(mon) \
-    ((mon)->data == &mons[PM_GREMLIN]                                    \
-     && ((uwep && uwep->lamplit && artifact_light(uwep))                 \
-         || (u.twoweap && uswapwep->lamplit && artifact_light(uswapwep)) \
-         || (uarm && uarm->lamplit && artifact_light(uarm))              \
+    ((mon)->data == &mons[PM_GREMLIN]                                       \
+     && ((uwep && uwep->lamplit && artifact_light(uwep)                     \
+          && !(wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)                 \
+               && !Upolyd && Race_if(PM_DROW)))                             \
+         || (u.twoweap && uswapwep->lamplit && artifact_light(uswapwep)     \
+             && !(wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)              \
+                  && !Upolyd && Race_if(PM_DROW)))                          \
+         || (uarm && uarm->lamplit && artifact_light(uarm)                  \
+             && !(Is_dragon_armor(uarm)                                     \
+                  && Dragon_armor_to_scales(uarm) == SHADOW_DRAGON_SCALES)) \
          || (uarms && uarms->lamplit && artifact_light(uarms))))
 /* we could include this in the above macro, but probably overkill/overhead */
 /*      && (!(which_armor((mon), W_ARMC) != 0                               */

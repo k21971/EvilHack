@@ -509,7 +509,7 @@ struct monst *mon;
         if (mon_hates_material(mon, otmp->material))
             bonus += rnd(sear_damage(otmp->material));
         if (artifact_light(otmp) && otmp->lamplit
-            && (hates_light(ptr)
+            && (hates_light(r_data(mon))
                 || maybe_polyd(is_drow(youmonst.data),
                                        Race_if(PM_DROW))))
             bonus += rnd(8);

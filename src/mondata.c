@@ -456,7 +456,7 @@ boolean
 mon_hates_light(mon)
 struct monst *mon;
 {
-    return (boolean) (hates_light(mon->data));
+    return (boolean) (hates_light(r_data(mon)));
 }
 
 /* True iff the type of monster pass through iron bars */
