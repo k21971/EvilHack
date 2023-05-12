@@ -2912,4 +2912,5 @@ The following changes to date are:
 - Fix: some doors would spawn booby-trapped as early as dungeon level one
 - Fix: aura of darkness could snuff out/curse other sources of darkness;
   shadow dragon scales aura of darkness hurting light haters
+- Fix: revert commit 06c26ff, extra check for what can/can't spawn eroded
 

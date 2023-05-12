@@ -212,7 +212,11 @@ struct obj *otmp;
     if (moves <= 1 && !in_mklev)
         return FALSE;
     /* already erodeproof or cannot be eroded */
-    if (otmp->oerodeproof || !erosion_matters(otmp) || !is_damageable(otmp))
+    if (otmp->oerodeproof
+        || !erosion_matters(otmp) || !is_damageable(otmp))
+        return FALSE;
+    /* extra guard for inherently fixed materials */
+    if (is_supermaterial(otmp) || is_crystal(otmp))
         return FALSE;
     /* food is included as a part of erosion_matters(),
        exclude food from spawning as 'rotten' */

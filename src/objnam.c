@@ -1169,7 +1169,6 @@ struct obj *obj;
 char *prefix;
 {
     boolean iscrys = (obj->otyp == CRYSKNIFE),
-            skip_eroded = (iscrys || !is_damageable(obj)),
             rknown;
 
     rknown = (iflags.override_ID == 0) ? obj->rknown : TRUE;
@@ -1177,7 +1176,7 @@ char *prefix;
     /* The only cases where any of these bits do double duty are for
      * rotted food and diluted potions, which are all not is_damageable().
      */
-    if (obj->oeroded && !skip_eroded) {
+    if (obj->oeroded && !iscrys) {
         switch (obj->oeroded) {
         case 2:
             Strcat(prefix, "very ");
@@ -1189,7 +1188,7 @@ char *prefix;
         Strcat(prefix, is_rustprone(obj) ? "rusty " :
                obj->oclass == FOOD_CLASS ? "rotten " : "burnt ");
     }
-    if (obj->oeroded2 && !skip_eroded && obj->oclass != FOOD_CLASS) {
+    if (obj->oeroded2 && !iscrys && obj->oclass != FOOD_CLASS) {
         switch (obj->oeroded2) {
         case 2:
             Strcat(prefix, "very ");
