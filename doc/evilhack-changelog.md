@@ -2920,4 +2920,5 @@ The following changes to date are:
   spit-based objects
 - Fix: make elemental vulnerability more consistent
 - Fix: better fix for cream pie/spit object throwing
+- Adjust feedback when freezing a liquid underfoot while riding a steed
 

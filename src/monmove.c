@@ -2307,11 +2307,13 @@ struct monst *mtmp;
     boolean was_lava, was_sewage, is_you = (mtmp == &youmonst);
     coord cc;
     if (!mtmp || !has_cold_feet(mtmp) || (is_you && (Flying || Levitation))
-        || !grounded(mtmp->data))
+        || !grounded(mtmp->data) || !grounded(u.usteed->data))
         return 0;
 
     if (is_you) {
         cc.x = u.ux, cc.y = u.uy;
+    } else if (u.usteed) {
+        cc.x = u.usteed->mx, cc.y = u.usteed->my;
     } else {
         cc.x = mtmp->mx, cc.y = mtmp->my;
     }
@@ -2351,11 +2353,14 @@ struct monst *mtmp;
     if (lev->icedpool != ICED_PUDDLE && lev->icedpool != ICED_SEWAGE)
         bury_objs(cc.x, cc.y);
 
-    if (is_you || canseemon(mtmp)) {
+    if (is_you || u.usteed || canseemon(mtmp)) {
         const char *liq = was_lava ? "lava" : was_sewage ? "sewage" : "water";
+
         Norep("The %s %s under %s %s.", hliquid(liq),
               was_lava ? "cools and solidifies" : "crackles and freezes",
-              is_you ? "your" : s_suffix(mon_nam(mtmp)),
+              u.usteed ? s_suffix(mon_nam(u.usteed))
+                       : is_you ? "your"
+                                : s_suffix(mon_nam(mtmp)),
               makeplural(mbodypart(mtmp, FOOT)));
     }
 
