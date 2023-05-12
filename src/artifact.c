@@ -1266,36 +1266,42 @@ int tmp;
     register const struct artifact *weap = get_artifact(otmp);
     boolean yours = (mon == &youmonst);
     spec_dbon_applies = FALSE;
+    int dbon = 0, adtype;
 
     if (!weap && otmp->oprops
         && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))) {
         /* until we know otherwise... */
-        if ((attacks(AD_FIRE, otmp)
+        if ((attacks(adtype = AD_FIRE, otmp)
             && ((yours) ? !(Fire_resistance || Underwater)
                         : !(resists_fire(mon) || mon_underwater(mon))))
-                || (attacks(AD_COLD, otmp)
+                || (attacks(adtype = AD_COLD, otmp)
                     && ((yours) ? (!Cold_resistance) : (!resists_cold(mon))))
-                        || (attacks(AD_ELEC, otmp)
+                        || (attacks(adtype = AD_ELEC, otmp)
                             && ((yours) ? (!Shock_resistance) : (!resists_elec(mon))))
-                                || (attacks(AD_DRST, otmp)
+                                || (attacks(adtype = AD_DRST, otmp)
                                     && ((yours) ? (!Poison_resistance) : (!resists_poison(mon))))
-                || (attacks(AD_ACID, otmp)
+                || (attacks(adtype = AD_ACID, otmp)
                     && ((yours) ? !(Acid_resistance || Underwater)
                                 : !(resists_acid(mon) || mon_underwater(mon))))
-                        || (attacks(AD_DISE, otmp)
+                        || (attacks(adtype = AD_DISE, otmp)
                             && ((yours) ? (!Sick_resistance) : (!resists_sick(mon->data))))
-                                || (attacks(AD_DETH, otmp)
+                                || (attacks(adtype = AD_DETH, otmp)
                                     && ((yours) ? (!Death_resistance) : (!immune_death_magic(mon->data))))
-                                        || (attacks(AD_DISN, otmp)
+                                        || (attacks(adtype = AD_DISN, otmp)
                                             && ((yours) ? (!Disint_resistance) : (!resists_disint(mon))))) {
 
             spec_dbon_applies = TRUE;
             /* majority of ITEM_VENOM damage
              * handled in src/uhitm.c */
             if (otmp->oprops & ITEM_VENOM)
+                /* don't worry about vulnerability (it doesn't exist for poison anyway) */
                 return rnd(2);
-            else
-                return rnd(5) + 3;
+            else {
+                dbon = rnd(5) + 3;
+                if (vulnerable_to(mon, adtype))
+                    dbon = ((3 * dbon) + 1) / 2;
+                return dbon;
+            }
         }
         if ((otmp->oprops & ITEM_DRLI)
             && ((yours) ? (!Drain_resistance) : (!resists_drli(mon)))) {
@@ -1320,8 +1326,15 @@ int tmp;
     else
         spec_dbon_applies = spec_applies(weap, mon);
 
-    if (spec_dbon_applies)
-        return weap->attk.damd ? rnd((int) weap->attk.damd) : max(tmp, 1);
+    if (spec_dbon_applies) {
+        dbon = weap->attk.damd ? rnd((int) weap->attk.damd) : max(tmp, 1);
+        /* we want to possibly increase dbon, not the whole attack's damage,
+           since only this bit is elemental. can't call damage_mon() because
+           it would double-count the damage when the weapon hits in xhity.c */
+        if (vulnerable_to(mon, weap->attk.adtyp))
+            dbon = ((3 * dbon) + 1) / 2;
+        return dbon;
+    }
     return 0;
 }
 
