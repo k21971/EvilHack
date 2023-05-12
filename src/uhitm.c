@@ -1537,10 +1537,7 @@ int dieroll;
                               : obj->otyp == SNOWBALL ? "Thwap!" : "Splash!");
                         setmangry(mon, TRUE);
                     }
-                    if (thrown)
-                        obfree(obj, (struct obj *) 0);
-                    else
-                        useup(obj);
+                    /* obj removal handled in dothrow.c */
                     hittxt = TRUE;
                     get_dmg_bonus = FALSE;
                     tmp = 0;
@@ -1553,10 +1550,7 @@ int dieroll;
                         Your("venom burns %s!", mon_nam(mon));
                         tmp = dmgval(obj, mon);
                     }
-                    if (thrown)
-                        obfree(obj, (struct obj *) 0);
-                    else
-                        useup(obj);
+                    /* obj removal handled in dothrow.c */
                     hittxt = TRUE;
                     get_dmg_bonus = FALSE;
                     break;
