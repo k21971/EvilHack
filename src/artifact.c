@@ -1330,7 +1330,7 @@ int tmp;
         dbon = weap->attk.damd ? rnd((int) weap->attk.damd) : max(tmp, 1);
         /* we want to possibly increase dbon, not the whole attack's damage,
            since only this bit is elemental. can't call damage_mon() because
-           it would double-count the damage when the weapon hits in xhity.c */
+           it would double-count the damage when the weapon hits */
         if (vulnerable_to(mon, weap->attk.adtyp))
             dbon = ((3 * dbon) + 1) / 2;
         return dbon;

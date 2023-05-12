@@ -2918,4 +2918,5 @@ The following changes to date are:
 - Fix: celestial dragon scales/dragon-scaled armor and flying
 - Fix: crash when throwing and hitting a monster with a cream pie or most
   spit-based objects
+- Fix: make elemental vulnerability more consistent
 
