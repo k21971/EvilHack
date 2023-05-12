@@ -2915,4 +2915,5 @@ The following changes to date are:
 - Fix: revert commit 06c26ff, extra check for what can/can't spawn eroded
 - Fix: racial drow were unaffected by hates_light(), gremlins fleeing from
   sources of darkness
+- Fix: celestial dragon scales/dragon-scaled armor and flying
 
