@@ -88,7 +88,7 @@ const struct propname {
     { WWALKING, "water walking" },
     { SWIMMING, "swimming" },
     { MAGICAL_BREATHING, "magical breathing" },
-    { PASSES_WALLS, "pass thru walls" },
+    { PASSES_WALLS, "phasing" },
     { SLOW_DIGESTION, "slow digestion" },
     { HALF_SPDAM, "half spell damage" },
     { HALF_PHDAM, "half physical damage" },

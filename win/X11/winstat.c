@@ -76,14 +76,15 @@
 #define F_FLY      29
 #define F_RIDE     30
 #define F_SLOW     31
+#define F_PHASING  32
 
-#define F_BLIND    32
-#define F_DEAF     33
-#define F_STUN     34
-#define F_CONF     35
-#define F_HALLU    36
+#define F_BLIND    33
+#define F_DEAF     34
+#define F_STUN     35
+#define F_CONF     36
+#define F_HALLU    37
 
-#define NUM_STATS 37
+#define NUM_STATS 38
 
 static void FDECL(update_fancy_status, (struct xwindow *));
 static void FDECL(update_fancy_status_field, (int));
@@ -378,6 +379,7 @@ unsigned long *colormasks;
             MaybeDisplayCond(BL_MASK_FLY, colormasks, "Fly");
             MaybeDisplayCond(BL_MASK_RIDE, colormasks, "Ride");
             MaybeDisplayCond(BL_MASK_SLOW, colormasks, "Slow");
+            MaybeDisplayCond(BL_MASK_PHASING, colormasks, "Phasing");
         } else {
             label = X11_status_labels[fld];
             text = status_vals[fld];
@@ -560,7 +562,8 @@ unsigned long *colormasks UNUSED;
         { BL_MASK_LEV, F_LEV },
         { BL_MASK_FLY, F_FLY },
         { BL_MASK_RIDE, F_RIDE },
-        { BL_MASK_SLOW, F_SLOW }
+        { BL_MASK_SLOW, F_SLOW },
+        { BL_MASK_PHASING, F_PHASING }
     };
     int i;
 
@@ -1331,6 +1334,9 @@ int i;
         case F_SLOW:
             val = Slow ? 1L : 0L;
             break;
+        case F_PHASING:
+            val = Passes_walls ? 1L : 0L;
+            break;
         /* fatal status conditions */
         case F_STONE:
             val = Stoned ? 1L : 0L;
@@ -1504,6 +1510,7 @@ int sv_index;
     case F_FLY:
     case F_RIDE:
     case F_SLOW:
+    case F_PHASING:
     case F_STONE:
     case F_SLIME:
     case F_STRNGL:
@@ -1709,7 +1716,8 @@ static int status_indices[3][9] = { { F_STONE, F_SLIME, F_STRNGL,
                                       F_FOODPOIS, F_TERMILL, F_WITHER,
                                       -1, 0, 0 },
                                     { F_HUNGER, F_ENCUMBER,
-                                      F_LEV, F_FLY, F_RIDE, F_SLOW,
+                                      F_LEV, F_FLY, F_RIDE,
+                                      F_SLOW, F_PHASING, F_DUMMY,
                                       -1, 0, 0 },
                                     { F_BLIND, F_DEAF, F_STUN,
                                       F_CONF, F_HALLU, F_DUMMY,

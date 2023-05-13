@@ -2817,7 +2817,8 @@ static mswin_condition_field _condition_fields[BL_MASK_BITS] = {
     { BL_MASK_LEV, "Lev" },
     { BL_MASK_FLY, "Fly" },
     { BL_MASK_RIDE, "Ride" },
-    { BL_MASK_RIDE, "Slow" }
+    { BL_MASK_SLOW, "Slow" },
+    { BL_MASK_PHASING, "Phasing" }
 };
 
 
@@ -3032,6 +3033,7 @@ status_update(int fldindex, genericptr_t ptr, int chg, int percent, int color, u
                         BL_MASK_RIDE            0x00001000L
                         BL_MASK_SLOW            0x00002000L
                         BL_MASK_WITHER          0x00004000L
+                        BL_MASK_PHASING         0x00008000L
                 -- The value passed for BL_GOLD includes an encoded leading
                    symbol for GOLD "\GXXXXNNNN:nnn". If window port needs
                    textual gold amount without the leading "$:" the port will

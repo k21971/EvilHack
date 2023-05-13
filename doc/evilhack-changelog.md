@@ -2924,4 +2924,5 @@ The following changes to date are:
 - Fix: dismounting crash from last commit
 - Fix: proper handling of flying/clinging u.usteed from last commit
 - Fix: poisoned/tainted weapon stacks were merging with non-poisoned/tainted
+- Add phasing status to botl
 
