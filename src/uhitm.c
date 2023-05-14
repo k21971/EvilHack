@@ -1290,6 +1290,9 @@ int dieroll;
                         else if (Race_if(PM_ELF) && obj->otyp == ELVEN_ARROW
                                  && uwep->otyp == ELVEN_BOW)
                             tmp++;
+                        else if (Race_if(PM_DROW) && obj->otyp == DARK_ELVEN_ARROW
+                                 && uwep->otyp == DARK_ELVEN_BOW)
+                            tmp++;
                     }
                 }
                 if (obj->opoisoned && is_poisonable(obj))

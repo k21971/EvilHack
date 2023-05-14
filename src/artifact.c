@@ -2912,8 +2912,16 @@ struct obj *obj;
             enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS);
             break;
         case CREATE_AMMO: {
-            struct obj *otmp = mksobj(obj->otyp == CROSSBOW ? CROSSBOW_BOLT
-                                                            : ARROW, TRUE, FALSE);
+            struct obj *otmp =
+                mksobj(obj->otyp == CROSSBOW ? (Race_if(PM_DROW)
+                                                 ? DARK_ELVEN_CROSSBOW_BOLT
+                                                 : CROSSBOW_BOLT)
+                                             : (Race_if(PM_ELF)
+                                                 ? ELVEN_ARROW
+                                                 : Race_if(PM_DROW)
+                                                    ? DARK_ELVEN_ARROW
+                                                    : Race_if(PM_ORC)
+                                                       ? ORCISH_ARROW : ARROW), TRUE, FALSE);
 
             if (!otmp)
                 goto nothing_special;

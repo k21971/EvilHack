@@ -188,25 +188,30 @@ int shotlimit;
         default:
             break; /* No bonus */
         }
-        /* ...or using their race's special bow; no bonus for spears */
+        /* ...or using their race's special bow or Ranger artifact;
+           no bonus for spears */
         if (!weakmultishot)
             switch (Race_switch) {
             case PM_ELF:
                 if (obj->otyp == ELVEN_ARROW && uwep
-                    && uwep->otyp == ELVEN_BOW)
+                    && (uwep->otyp == ELVEN_BOW
+                        || uwep->oartifact == ART_LONGBOW_OF_DIANA))
                     multishot++;
                 break;
             case PM_DROW:
                 if (obj->otyp == DARK_ELVEN_ARROW && uwep
-                    && uwep->otyp == DARK_ELVEN_BOW)
+                    && (uwep->otyp == DARK_ELVEN_BOW
+                        || uwep->oartifact == ART_LONGBOW_OF_DIANA))
                     multishot++;
                 if (obj->otyp == DARK_ELVEN_CROSSBOW_BOLT && uwep
-                    && uwep->otyp == DARK_ELVEN_HAND_CROSSBOW)
+                    && (uwep->otyp == DARK_ELVEN_HAND_CROSSBOW
+                        || uwep->oartifact == ART_CROSSBOW_OF_CARL))
                     multishot++;
                 break;
             case PM_ORC:
                 if (obj->otyp == ORCISH_ARROW && uwep
-                    && uwep->otyp == ORCISH_BOW)
+                    && (uwep->otyp == ORCISH_BOW
+                        || uwep->oartifact == ART_LONGBOW_OF_DIANA))
                     multishot++;
                 break;
             case PM_GNOME:

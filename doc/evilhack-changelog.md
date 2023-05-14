@@ -2926,4 +2926,5 @@ The following changes to date are:
 - Fix: poisoned/tainted weapon stacks were merging with non-poisoned/tainted
 - Add phasing status to botl
 - Fix: crowned infidel in demonic form not resistant to death magic
+- Ranger artifacts will create ammo based on the race of the Ranger
 
