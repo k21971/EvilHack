@@ -2925,4 +2925,5 @@ The following changes to date are:
 - Fix: proper handling of flying/clinging u.usteed from last commit
 - Fix: poisoned/tainted weapon stacks were merging with non-poisoned/tainted
 - Add phasing status to botl
+- Fix: crowned infidel in demonic form not resistant to death magic
 
