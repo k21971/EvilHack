@@ -2927,4 +2927,6 @@ The following changes to date are:
 - Add phasing status to botl
 - Fix: crowned infidel in demonic form not resistant to death magic
 - Ranger artifacts will create ammo based on the race of the Ranger
+- Ranger quest artifact, if blessed, has a chance to produce ammo with
+  an object property
 

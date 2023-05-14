@@ -2933,6 +2933,8 @@ struct obj *obj;
                 if (otmp->spe < 0)
                     otmp->spe = 0;
                 otmp->quan += rnd(10);
+                if (!rn2(5))
+                    create_oprop(otmp, FALSE);
             } else if (obj->cursed) {
                 if (otmp->spe > 0)
                     otmp->spe = 0;
