@@ -1141,11 +1141,12 @@ Armor_off(VOID_ARGS)
 
     check_wings(FALSE);
 
-    if (was_arti_light)
-        toggle_armor_light(otmp, FALSE);
     dragon_armor_handling(otmp, FALSE);
 
     setworn((struct obj *) 0, W_ARM);
+
+    if (was_arti_light)
+        toggle_armor_light(otmp, FALSE);
     return 0;
 }
 
