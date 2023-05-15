@@ -2929,4 +2929,5 @@ The following changes to date are:
 - Ranger artifacts will create ammo based on the race of the Ranger
 - Ranger quest artifact, if blessed, has a chance to produce ammo with
   an object property
+- Fix: livelogging when Kathryn the Ice Queen is defeated while hallucinating
 

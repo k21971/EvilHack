@@ -6200,7 +6200,7 @@ struct monst *mtmp;
         u.uachieve.defeat_icequeen = 1;
 
     mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
-    livelog_printf(LL_UMONST, "defeated %s", noit_mon_nam(mtmp));
+    livelog_printf(LL_UMONST, "defeated %s", livelog_mon_nam(mtmp));
     newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
     if (kathryn_bday()) {
         mtmp->mhp = mtmp->mhpmax = 15000;
