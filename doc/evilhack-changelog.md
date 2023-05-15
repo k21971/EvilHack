@@ -2930,4 +2930,5 @@ The following changes to date are:
 - Ranger quest artifact, if blessed, has a chance to produce ammo with
   an object property
 - Fix: livelogging when Kathryn the Ice Queen is defeated while hallucinating
+- Crowned infidel receives sleep resistance
 

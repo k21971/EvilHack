@@ -921,12 +921,15 @@ gcrownu()
             youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
             /* gain demonic resistances */
             adjabil(0, u.ulevel);
+            /* resistances - not shock res because that can be gained by leveling
+               up, and not cold res because demons and cold typically don't mix */
+            incr_resistance(&HSleep_resistance, 100);
             /* move this line so adjabil doesn't flash e.g. warning on and off */
             pline1("Wings sprout from your back and you grow a barbed tail!");
             set_uasmon();
             newsym(u.ux, u.uy);
             retouch_equipment(2); /* silver */
-            monstseesu(M_SEEN_FIRE | M_SEEN_POISON);
+            monstseesu(M_SEEN_FIRE | M_SEEN_POISON | M_SEEN_SLEEP);
             break;
         }
     }
