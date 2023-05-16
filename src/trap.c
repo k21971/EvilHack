@@ -4854,9 +4854,9 @@ boolean force_failure;
                     if (DEADMONSTER(mtmp))
                         killed(mtmp);
                 } else if (ttype == WEB) {
-                    if (!webmaker(youmonst.data)
-                        || !maybe_polyd(is_drow(youmonst.data),
-                                        Race_if(PM_DROW))) {
+                    if (!(webmaker(youmonst.data)
+                          || maybe_polyd(is_drow(youmonst.data),
+                                         Race_if(PM_DROW)))) {
                         struct trap *ttmp2 = maketrap(u.ux, u.uy, WEB);
 
                         if (ttmp2) {

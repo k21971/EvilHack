@@ -2936,4 +2936,5 @@ The following changes to date are:
 - Convicts can use and train up thievery skill
 - Player race Gnomes will not start with eggs in inventory
 - Magic lamps won't be extinguished by a rust trap
+- Fix: Drow and untrapping monsters from webs
 
