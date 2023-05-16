@@ -2938,4 +2938,5 @@ The following changes to date are:
 - Magic lamps won't be extinguished by a rust trap
 - Fix: Drow and untrapping monsters from webs
 - Drow aura of darkness and sources of 'artifact light'
+- Convict thievery skill adjustment
 
