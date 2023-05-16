@@ -2934,4 +2934,5 @@ The following changes to date are:
 - Fix: dragon-scaled armor that was lit would still shine after taken off
 - Drow convict can safely handle the Iron Ball of Liberation
 - Convicts can use and train up thievery skill
+- Player race Gnomes will not start with eggs in inventory
 
