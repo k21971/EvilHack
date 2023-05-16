@@ -51,16 +51,18 @@ STATIC_VAR NEARDATA const char *const odd_skill_names[] = {
     "whip", "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
 };
-/* indexed vis Role_if(PM_ROGUE) ? 2 : is_martial() */
+/* indexed vis rogue/convict role ? 2 : is_martial() */
 STATIC_VAR NEARDATA const char *const barehands_or_martial[] = {
     "bare handed combat", "martial arts", "thievery"
 };
 
-#define P_NAME(type)                                                           \
-    ((skill_names_indices[type] > 0)                                           \
-         ? OBJ_NAME(objects[skill_names_indices[type]])                        \
-         : (type == P_BARE_HANDED_COMBAT)                                      \
-               ? barehands_or_martial[Role_if(PM_ROGUE) ? 2 : martial_bonus()] \
+#define P_NAME(type) \
+    ((skill_names_indices[type] > 0)                                              \
+         ? OBJ_NAME(objects[skill_names_indices[type]])                           \
+         : (type == P_BARE_HANDED_COMBAT)                                         \
+               ? barehands_or_martial[(Role_if(PM_ROGUE)                          \
+                                       || Role_if(PM_CONVICT)) ? 2                \
+                                                               : martial_bonus()] \
                      : odd_skill_names[-skill_names_indices[type]])
 
 static NEARDATA const char kebabable[] = { S_XORN, S_DRAGON, S_JABBERWOCK,
@@ -2210,6 +2212,10 @@ const struct def_skill *class_skill;
         P_SKILL(P_ATTACK_SPELL) = P_BASIC;
         P_SKILL(P_ENCHANTMENT_SPELL) = P_BASIC;
     }
+
+    /* set skill for thievery */
+    if (Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+        P_SKILL(P_THIEVERY) = P_BASIC;
 
     /* walk through array to set skill maximums */
     for (; class_skill->skill != P_NONE; class_skill++) {

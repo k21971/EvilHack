@@ -391,6 +391,8 @@ register struct monst *mtmp;
 {
     register struct permonst *mdat = mtmp->data;
     size_t maxweight;
+    boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+                        && context.forcefight && !Upolyd);
 
     /* This section of code provides protection against accidentally
      * hitting peaceful (like '@') and tame (like 'd') monsters.
@@ -536,7 +538,7 @@ register struct monst *mtmp;
             else if (!cantwield(youmonst.data))
                 You("begin %s monsters with your %s %s.",
                     ing_suffix(Role_if(PM_MONK) ? "strike" :
-                               (Role_if(PM_ROGUE) && context.forcefight) ? "rob" : "bash"),
+                               thievery ? "rob" : "bash"),
                     (uarmg && uarmg->oartifact != ART_HAND_OF_VECNA) ? "gloved" : "bare", /* Del Lamb */
                     makeplural(body_part(HAND)));
         }
@@ -958,13 +960,14 @@ int thrown; /* HMON_xxx (0 => hand-to-hand, other => ranged) */
 int dieroll;
 {
     boolean result, anger_guards;
+    boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+                        && context.forcefight && !Upolyd);
 
-    anger_guards = (mon->mpeaceful
-                    && (mon->ispriest || mon->isshk || is_watch(mon->data))
-                    && (!(Role_if(PM_ROGUE) && context.forcefight && !Upolyd)));
+    anger_guards = (mon->mpeaceful && !thievery
+                    && (mon->ispriest || mon->isshk || is_watch(mon->data)));
     result = hmon_hitmon(mon, obj, thrown, dieroll);
-    if (mon->ispriest && !rn2(2)
-        && (!(Role_if(PM_ROGUE) && context.forcefight && !Upolyd)))
+
+    if (mon->ispriest && !rn2(2) && !thievery)
         ghod_hitsu(mon);
     if (anger_guards)
         (void) angry_guards(!!Deaf);
@@ -1070,11 +1073,13 @@ int dieroll;
                 tmp = rnd(2);
         }
 
-        /* establish conditions for Rogue's special thieving skill */
-        thievery = Role_if(PM_ROGUE) && context.forcefight && !Upolyd;
+        /* establish conditions for various role's special thieving skill */
+        thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+                    && context.forcefight && !Upolyd);
 
         /* don't increment thievery skill for regular bare handed attacks */
-        if (!uwep && Role_if(PM_ROGUE) && !context.forcefight)
+        if (!uwep && (Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+            && !context.forcefight)
             use_skill(P_THIEVERY, -1);
 
         /* monks have a chance to break their opponents wielded weapon
@@ -2350,9 +2355,9 @@ struct attack *mattk;
     if (as_mon && gold)
         obj_extract_self(gold);
 
-    /* Rogue uses the thievery skill; dexterity directly
-       affects how successful a pickpocketing attempt
-       will be */
+    /* Rogues and Convicts can use the thievery skill;
+       dexterity directly affects how successful a
+       pickpocketing attempt will be */
     if (ACURR(A_DEX) <= 6)
         dex_pick += 3;
     else if (ACURR(A_DEX) <= 9)
@@ -3621,8 +3626,10 @@ register int target;
 register int roll;
 boolean wouldhavehit;
 {
-    register boolean nearmiss = (target == roll);
-    register struct obj *blocker = (struct obj *) 0;
+    struct obj *blocker = (struct obj *) 0;
+    boolean nearmiss = (target == roll);
+    boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+                        && context.forcefight && !Upolyd);
 
     /* 2 values for blocker:
      * No blocker: (struct obj *) 0
@@ -3700,8 +3707,7 @@ boolean wouldhavehit;
     if (could_seduce(&youmonst, mdef, mattk))
         You("pretend to be friendly to %s.", mon_nam(mdef));
     else if (canspotmon(mdef) && flags.verbose) {
-        if (Role_if(PM_ROGUE)
-            && !uwep && context.forcefight && !Upolyd) {
+        if (!uwep && thievery) {
             Your("pickpocketing attempt fails %s.",
                  rn2(2) ? "horribly" : "miserably");
         } else if (nearmiss || !blocker) {
@@ -4185,6 +4191,8 @@ boolean wep_was_destroyed;
     register int i, t, tmp;
     register struct attack *mattk;
     mattk = has_erac(mon) ? ERAC(mon)->mattk : ptr->mattk;
+    boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+                        && context.forcefight && !Upolyd);
 
     for (i = 0;; i++) {
         if (i >= NATTK)
@@ -4377,8 +4385,7 @@ boolean wep_was_destroyed;
             tmp = (tmp + 1) / 2;
             mdamageu(mon, tmp);
         } else {
-            if (Role_if(PM_ROGUE) && !uwep
-                && context.forcefight && !Upolyd && mon->mpeaceful)
+            if (!uwep && thievery && mon->mpeaceful)
                 pline_The("gods notice your deception!");
             /* The Oracle notices too... */
             setmangry(mon, FALSE);

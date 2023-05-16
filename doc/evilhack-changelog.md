@@ -2933,4 +2933,5 @@ The following changes to date are:
 - Crowned infidel receives sleep resistance
 - Fix: dragon-scaled armor that was lit would still shine after taken off
 - Drow convict can safely handle the Iron Ball of Liberation
+- Convicts can use and train up thievery skill
 

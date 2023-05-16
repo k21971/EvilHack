@@ -435,7 +435,7 @@ static const struct def_skill Skill_Con[] = {
     { P_DAGGER, P_SKILLED },
     { P_KNIFE,  P_EXPERT },
     { P_HAMMER, P_SKILLED },
-    { P_PICK_AXE, P_EXPERT },
+    { P_PICK_AXE, P_SKILLED },
     { P_CLUB, P_EXPERT },
     { P_MACE, P_BASIC },
     { P_DART, P_SKILLED },
@@ -447,7 +447,7 @@ static const struct def_skill Skill_Con[] = {
     { P_ESCAPE_SPELL, P_EXPERT },
     { P_RIDING, P_BASIC },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
-    { P_BARE_HANDED_COMBAT, P_SKILLED },
+    { P_THIEVERY, P_EXPERT },
     { P_SHIELD, P_BASIC },
     { P_NONE, 0 }
 };
