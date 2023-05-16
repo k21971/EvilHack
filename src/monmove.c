@@ -823,7 +823,7 @@ register struct monst *mtmp;
         if (canseemon(mtmp))
             pline("%s invokes an aura of darkness.",
                   Monnam(mtmp));
-        litroom(FALSE, NULL, mtmp->mx, mtmp->my);
+        litroom(FALSE, TRUE, NULL, mtmp->mx, mtmp->my);
         return 0;
     }
 

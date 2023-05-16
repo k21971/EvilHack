@@ -1677,7 +1677,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         if (!confused || rn2(5)) {
             if (!Blind)
                 known = TRUE;
-            litroom(!confused && !scursed, sobj, u.ux, u.uy);
+            litroom(!confused && !scursed, FALSE, sobj, u.ux, u.uy);
             if (!confused && !scursed) {
                 if (lightdamage(sobj, TRUE, 5))
                     known = TRUE;
@@ -2213,10 +2213,11 @@ genericptr_t val;
 }
 
 void
-litroom(on, obj, x, y)
-register boolean on; /* True: make nearby area lit; False: cursed scroll */
-struct obj *obj;     /* scroll, spellbook (for spell), or wand of light */
-xchar x, y;          /* coordinates for centering do_clear_area() */
+litroom(on, mon, obj, x, y)
+boolean on;      /* True: make nearby area lit; False: cursed scroll */
+boolean mon;     /* True: source comes from a monster's ability; False: magical object */
+struct obj *obj; /* scroll, spellbook (for spell), or wand of light */
+xchar x, y;      /* coordinates for centering do_clear_area() */
 {
     struct obj *otmp;
     struct monst *mtmp;
@@ -2245,7 +2246,7 @@ xchar x, y;          /* coordinates for centering do_clear_area() */
             boolean armor = (Is_dragon_armor(otmp)
                              && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
 
-            if (otmp->lamplit) {
+            if (otmp->lamplit && !mon) {
                 if (lamp || staff || armor) {
                     break;
                 } else {
@@ -2300,7 +2301,7 @@ xchar x, y;          /* coordinates for centering do_clear_area() */
                 boolean armor = (Is_dragon_armor(otmp)
                                  && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
 
-                if (otmp->lamplit) {
+                if (otmp->lamplit && !mon) {
                     if (!artifact_light(otmp) && lamp) {
                         (void) snuff_lit(otmp);
                     } else {

@@ -4184,9 +4184,9 @@ struct obj *obj;
     if (obj->otyp == WAN_LIGHT) {
         /* only needs to be done once */
         if (cursed(obj, TRUE))
-            litroom(FALSE, obj, u.ux, u.uy);
+            litroom(FALSE, FALSE, obj, u.ux, u.uy);
         else
-            litroom(TRUE, obj, u.ux, u.uy);
+            litroom(TRUE, FALSE, obj, u.ux, u.uy);
     }
 
 discard_broken_wand:

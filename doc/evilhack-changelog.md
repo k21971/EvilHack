@@ -2937,4 +2937,5 @@ The following changes to date are:
 - Player race Gnomes will not start with eggs in inventory
 - Magic lamps won't be extinguished by a rust trap
 - Fix: Drow and untrapping monsters from webs
+- Drow aura of darkness and sources of 'artifact light'
 

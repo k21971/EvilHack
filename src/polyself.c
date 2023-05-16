@@ -1742,7 +1742,7 @@ dodarkness()
         u.uen -= energy;
         context.botl = 1;
         You("invoke an aura of darkness.");
-        litroom(FALSE, NULL, u.ux, u.uy);
+        litroom(FALSE, TRUE, NULL, u.ux, u.uy);
     }
 
     return 1;

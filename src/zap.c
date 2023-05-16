@@ -2418,9 +2418,9 @@ register struct obj *obj;
     case WAN_LIGHT:
     case SPE_LIGHT:
         if (obj->otyp == WAN_LIGHT && cursed(obj, TRUE))
-            litroom(FALSE, obj, u.ux, u.uy);
+            litroom(FALSE, FALSE, obj, u.ux, u.uy);
         else
-            litroom(TRUE, obj, u.ux, u.uy);
+            litroom(TRUE, FALSE, obj, u.ux, u.uy);
         if (!Blind)
             known = TRUE;
         if (obj->otyp == WAN_LIGHT && !cursed(obj, TRUE)) {

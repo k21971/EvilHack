@@ -2280,7 +2280,7 @@ E void FDECL(mwand_explode, (struct monst *, struct obj *));
 #ifdef USE_TRAMPOLI
 E void FDECL(set_lit, (int, int, genericptr_t));
 #endif
-E void FDECL(litroom, (BOOLEAN_P, struct obj *, XCHAR_P, XCHAR_P));
+E void FDECL(litroom, (BOOLEAN_P, BOOLEAN_P, struct obj *, XCHAR_P, XCHAR_P));
 E void FDECL(do_genocide, (int));
 E void FDECL(punish, (struct obj *));
 E void NDECL(unpunish);
