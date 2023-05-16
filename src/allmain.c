@@ -37,7 +37,8 @@ elf_can_regen()
             return 0;
         if (uarmu && is_iron(uarmu))
             return 0;
-        if (uarmc && is_iron(uarmc) && !uarmu && !uarm)
+        if (uarmc && is_iron(uarmc)
+            && !uarmu && !uarm)
             return 0;
         if (uarmh && is_iron(uarmh)
             && !is_quest_artifact(uarmh))
@@ -52,12 +53,15 @@ elf_can_regen()
             return 0;
         if (uright && is_iron(uright))
             return 0;
-        if (uamul && is_iron(uamul) && !is_quest_artifact(uamul)
+        if (uamul && is_iron(uamul)
+            && !is_quest_artifact(uamul)
             && !uarmu && !uarm)
             return 0;
         if (ublindf && is_iron(ublindf))
             return 0;
-        if (uchain && is_iron(uchain))
+        if (uchain && is_iron(uchain)
+            && !((uball->spe == 1)
+                 && is_quest_artifact(uball)))
             return 0;
         if (uswapwep && is_iron(uswapwep)
             && u.twoweap && !uarmg)
@@ -77,7 +81,8 @@ orc_can_regen()
             return 0;
         if (uarmu && is_mithril(uarmu))
             return 0;
-        if (uarmc && is_mithril(uarmc) && !uarmu && !uarm)
+        if (uarmc && is_mithril(uarmc)
+            && !uarmu && !uarm)
             return 0;
         if (uarmh && is_mithril(uarmh)
             && !is_quest_artifact(uarmh))
@@ -92,7 +97,8 @@ orc_can_regen()
             return 0;
         if (uright && is_mithril(uright))
             return 0;
-        if (uamul && is_mithril(uamul) && !is_quest_artifact(uamul)
+        if (uamul && is_mithril(uamul)
+            && !is_quest_artifact(uamul)
             && !uarmu && !uarm)
             return 0;
         if (ublindf && is_mithril(ublindf))

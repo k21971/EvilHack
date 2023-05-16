@@ -3568,6 +3568,12 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
         if (!bane && obj == uwep && uarmg)
             return 1;
 
+        /* Convict deity negates the quest artifact from being
+           harmful to Drow */
+        if (!bane && Race_if(PM_DROW) && Role_if(PM_CONVICT)
+            && obj->oartifact == ART_IRON_BALL_OF_LIBERATION)
+            return 1;
+
         /* hero can't handle this object, but didn't get touch_artifact()'s
            "<obj> evades your grasp|control" message; give an alternate one */
 

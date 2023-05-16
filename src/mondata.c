@@ -411,6 +411,8 @@ hates_material(ptr, material)
 register struct permonst *ptr;
 int material;
 {
+    struct obj *obj = 0;
+
     if (material == SILVER) {
         if (ptr->mlet == S_IMP) {
             /* impish creatures that aren't actually demonic */
@@ -422,6 +424,11 @@ int material;
                 || (ptr->mlet == S_IMP));
     } else if (material == IRON) {
         if (is_undead(ptr))
+            return FALSE;
+        /* Convict deity negates the quest artifact from being
+           harmful to Drow */
+        if (Race_if(PM_DROW) && Role_if(PM_CONVICT) && obj
+            && obj->oartifact == ART_IRON_BALL_OF_LIBERATION)
             return FALSE;
         /* cold iron: elves and drow hate it */
         return (is_elf(ptr) || is_drow(ptr));

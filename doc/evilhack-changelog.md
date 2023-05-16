@@ -2932,4 +2932,5 @@ The following changes to date are:
 - Fix: livelogging when Kathryn the Ice Queen is defeated while hallucinating
 - Crowned infidel receives sleep resistance
 - Fix: dragon-scaled armor that was lit would still shine after taken off
+- Drow convict can safely handle the Iron Ball of Liberation
 
