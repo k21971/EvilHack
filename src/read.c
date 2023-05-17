@@ -2248,19 +2248,16 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
 
             if (otmp->lamplit && !mon) {
                 if (lamp || staff || armor) {
-                    break;
-                } else {
-                    if (!artifact_light(otmp))
-                        (void) snuff_lit(otmp);
-                    else
-                        /* wielded Sunsword or worn shield of light/gold dragon
-                           scales; maybe lower its BUC state if not already
-                           cursed */
-                        impact_arti_light(otmp, TRUE, (boolean) !Blind);
+                    continue;
+                } else if (artifact_light(otmp)) {
+                    /* wielded Sunsword or worn shield of light/gold dragon
+                        scales; maybe lower its BUC state if not already
+                        cursed */
+                    impact_arti_light(otmp, TRUE, (boolean) !Blind);
+                }
 
                     if (otmp->lamplit)
                         ++still_lit;
-                }
             }
         }
 

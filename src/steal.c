@@ -572,7 +572,7 @@ register struct obj *otmp;
     freed_otmp = add_to_minv(mtmp, otmp);
     /* and we had to defer this until object is in mtmp's inventory */
     if (snuff_otmp)
-        snuff_light_source(mtmp->mx, mtmp->my);
+        end_burn(otmp, TRUE);
     return freed_otmp;
 }
 
