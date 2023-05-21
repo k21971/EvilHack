@@ -2941,4 +2941,5 @@ The following changes to date are:
 - Convict thievery skill adjustment
 - More 'gnomes hate eggs'
 - Fix: The 'weapon' welds itself to the 'monsters' hand!
+- Fix: some light edits to light code
 

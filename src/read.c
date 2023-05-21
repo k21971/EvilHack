@@ -2239,9 +2239,9 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
             for (otmp = invent; otmp; otmp = otmp->nobj) {
                 boolean lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
                 boolean staff = (otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI
-                                && !Upolyd && Race_if(PM_DROW));
+                                 && !Upolyd && Race_if(PM_DROW));
                 boolean armor = (Is_dragon_armor(otmp)
-                                && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
+                                 && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
 
                 if (otmp->lamplit) {
                     if (lamp || staff || armor) {
