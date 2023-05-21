@@ -953,6 +953,10 @@ register struct obj *obj;
             return TABU;
         }
 
+        /* gnomes hate eggs */
+        if (obj->otyp == EGG && racial_gnome(mon))
+            return TABU;
+
         switch (obj->otyp) {
         case TRIPE_RATION:
         case MEATBALL:

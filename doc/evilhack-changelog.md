@@ -2939,4 +2939,5 @@ The following changes to date are:
 - Fix: Drow and untrapping monsters from webs
 - Drow aura of darkness and sources of 'artifact light'
 - Convict thievery skill adjustment
+- More 'gnomes hate eggs'
 

@@ -2204,6 +2204,9 @@ struct obj *otmp;
     if (mon_hates_material(mtmp, otmp->material)
         && (otyp != BELL_OF_OPENING || !is_covetous(mdat)))
         return 0;
+    /* gnomes hate eggs */
+    if (otyp == EGG && racial_gnome(mtmp))
+        return 0;
 
     /* hostile monsters who like gold will pick up the whole stack;
        tame mosnters with hands will pick up the partial stack */
