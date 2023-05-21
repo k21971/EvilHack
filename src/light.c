@@ -597,15 +597,16 @@ void
 snuff_light_source(x, y)
 int x, y;
 {
-    light_source *ls;
+    light_source *ls, *ls_next;
     struct obj *obj;
 
-    for (ls = light_base; ls; ls = ls->next)
+    for (ls = light_base; ls; ls = ls_next) {
         /*
          * Is this position check valid??? Can I assume that the positions
          * will always be correct because the objects would have been
          * updated with the last vision update?  [Is that recent enough???]
          */
+        ls_next = ls->next;
         if (ls->type == LS_OBJECT && ls->x == x && ls->y == y) {
             obj = ls->id.a_obj;
             if (obj_is_burning(obj)) {
@@ -622,14 +623,9 @@ int x, y;
                         && Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES))
                     continue;
                 end_burn(obj, obj->otyp != MAGIC_LAMP);
-                /*
-                 * The current ls element has just been removed (and
-                 * ls->next is now invalid).  Return assuming that there
-                 * is only one light source attached to each object.
-                 */
-                return;
             }
         }
+    }
 }
 
 /* Return TRUE if object sheds any light at all. */
