@@ -2940,4 +2940,5 @@ The following changes to date are:
 - Drow aura of darkness and sources of 'artifact light'
 - Convict thievery skill adjustment
 - More 'gnomes hate eggs'
+- Fix: The 'weapon' welds itself to the 'monsters' hand!
 

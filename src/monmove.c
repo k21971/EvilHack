@@ -1083,7 +1083,8 @@ xchar nix,niy;
     if (!Is_rogue_level(&u.uz))
         can_tunnel = racial_tunnels(mtmp);
 
-    if (can_tunnel && racial_needspick(mtmp) && !mwelded(mw_tmp)
+    if (can_tunnel && racial_needspick(mtmp)
+        && !(mwelded(mw_tmp) && mtmp->data != &mons[PM_INFIDEL])
         && (may_dig(nix, niy) || closed_door(nix, niy))) {
         /* may_dig() is either IS_STWALL or IS_TREES */
         if (closed_door(nix, niy)) {

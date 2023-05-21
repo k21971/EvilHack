@@ -3216,7 +3216,7 @@ struct obj *obj;
                 mon_hand = 0; /* lint suppression */
 
             You("wrap your bullwhip around %s.", yname(otmp));
-            if (gotit && mwelded(otmp)) {
+            if (gotit && mwelded(otmp) && mtmp->data != &mons[PM_INFIDEL]) {
                 pline("%s welded to %s %s%c",
                       (otmp->quan == 1L) ? "It is" : "They are", mhis(mtmp),
                       mon_hand, !otmp->bknown ? '!' : '.');
@@ -3465,7 +3465,8 @@ struct obj *obj;
                 mon_hand = 0; /* lint suppression */
 
             You("hook your axe onto %s.", yname(otmp));
-            if (gotit && (mwelded(otmp) || cursed(otmp, TRUE))) {
+            if (gotit && (mwelded(otmp) || cursed(otmp, TRUE))
+                && mtmp->data != &mons[PM_INFIDEL]) {
                 pline("%s welded to %s %s%c",
                       (otmp->quan == 1L) ? "It is" : "They are", mhis(mtmp),
                       mon_hand, !otmp->bknown ? '!' : '.');

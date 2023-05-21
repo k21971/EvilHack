@@ -903,7 +903,9 @@ struct monst *mtmp;
        one direction and 2 in another; 3^2 + 2^2 = 13 */
     mwep = MON_WEP(mtmp);
     /* NO_WEAPON_WANTED means we already tried to wield and failed */
-    mweponly = (mwelded(mwep) && mtmp->weapon_check == NO_WEAPON_WANTED);
+    mweponly = (mwelded(mwep)
+                && mtmp->data != &mons[PM_INFIDEL]
+                && mtmp->weapon_check == NO_WEAPON_WANTED);
 
     if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 5
         && couldsee(mtmp->mx, mtmp->my)) {
@@ -968,7 +970,8 @@ struct monst *mtmp;
             }
             if (!tmpprop)
                 tmpprop = propellor;
-            if ((otmp = MON_WEP(mtmp)) && mwelded(otmp) && otmp != propellor
+            if ((otmp = MON_WEP(mtmp)) && mwelded(otmp)
+                && mtmp->data != &mons[PM_INFIDEL] && otmp != propellor
                 && mtmp->weapon_check == NO_WEAPON_WANTED)
                 propellor = 0;
         }
@@ -982,7 +985,8 @@ struct monst *mtmp;
             if (rwep[i] != LOADSTONE) {
                 /* Don't throw a cursed weapon-in-hand or an artifact */
                 if ((otmp = oselect(mtmp, rwep[i])) && !otmp->oartifact
-                    && !(otmp == MON_WEP(mtmp) && mwelded(otmp)))
+                    && !(otmp == MON_WEP(mtmp) && mwelded(otmp)
+                         && mtmp->data != &mons[PM_INFIDEL]))
                     return otmp;
             } else
                 for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
@@ -1148,7 +1152,8 @@ boolean polyspot;
      * polymorphed into little monster.  But it's not quite clear how to
      * handle this anyway....
      */
-    if (!(mwelded(mw_tmp) && mon->weapon_check == NO_WEAPON_WANTED))
+    if (!(mwelded(mw_tmp) && mon->data != &mons[PM_INFIDEL]
+          && mon->weapon_check == NO_WEAPON_WANTED))
         mon->weapon_check = NEED_WEAPON;
     return;
 }
@@ -1214,7 +1219,8 @@ register struct monst *mon;
          * can know it's cursed and needn't even bother trying.
          * Still....
          */
-        if (mw_tmp && mwelded(mw_tmp)) {
+        if (mw_tmp && mwelded(mw_tmp)
+            && mon->data != &mons[PM_INFIDEL]) {
             if (canseemon(mon)) {
                 char welded_buf[BUFSZ];
                 const char *mon_hand = mbodypart(mon, HAND);
@@ -1251,7 +1257,7 @@ register struct monst *mon;
                in hand/claw)' appended; so we set it for the mwelded test
                and then clear it, until finally setting it for good below */
             obj->owornmask |= W_WEP;
-            newly_welded = mwelded(obj);
+            newly_welded = (mwelded(obj) && mon->data != &mons[PM_INFIDEL]);
             obj->owornmask &= ~W_WEP;
             if (newly_welded) {
                 const char *mon_hand = mbodypart(mon, HAND);

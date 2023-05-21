@@ -3927,7 +3927,7 @@ struct monst *mon;
         return FALSE;
 
     mwep = MON_WEP(mon);
-    welded_wep = mwep && mwelded(mwep);
+    welded_wep = (mwep && mwelded(mwep) && mon->data != &mons[PM_INFIDEL]);
     /* this is different from the player; tin opener or dagger doesn't
        have to be wielded, and knife can be used instead of dagger */
     for (obj = mon->minvent; obj; obj = obj->nobj) {

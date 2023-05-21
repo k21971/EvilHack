@@ -2186,7 +2186,7 @@ boolean taking;
         } else {
             /* cursed weapons, armor, accessories, etc treated the same */
             if ((otmp->cursed && (unwornmask & ~W_WEAPONS))
-                || mwelded(otmp)) {
+                || (mwelded(otmp) && mtmp->data != &mons[PM_INFIDEL])) {
                 pline("%s won't come off!", Yname2(otmp));
                 otmp->bknown = 1;
                 continue;
