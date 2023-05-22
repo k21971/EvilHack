@@ -2348,10 +2348,19 @@ dosacrifice()
                             case 3:
                                 /* shield */
                                 if (primary_casters || primary_casters_priest) {
-                                    typ = rn2(8) ? typ == SMALL_SHIELD
-                                                 : rnd_class(SHIELD_OF_REFLECTION, SHIELD_OF_MOBILITY);
+                                    if (Race_if(PM_DROW)) {
+                                        typ = rn2(8) ? typ == DARK_ELVEN_BRACER
+                                                     : rn2(2) ? typ == SHIELD_OF_REFLECTION
+                                                              : typ == SHIELD_OF_MOBILITY;
+                                    } else {
+                                        typ = rn2(8) ? typ == SMALL_SHIELD
+                                                     : rnd_class(SHIELD_OF_REFLECTION, SHIELD_OF_MOBILITY);
+                                    }
                                 } else {
-                                    typ = rnd_class(SMALL_SHIELD, SHIELD_OF_MOBILITY);
+                                    if (Race_if(PM_DROW))
+                                        typ = rnd_class(SMALL_SHIELD, SHIELD_OF_REFLECTION);
+                                    else
+                                        typ = rnd_class(SMALL_SHIELD, SHIELD_OF_MOBILITY);
                                 }
                                 if (!Role_if(PM_MONK)) {
                                     break;

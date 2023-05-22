@@ -2942,4 +2942,5 @@ The following changes to date are:
 - More 'gnomes hate eggs'
 - Fix: The 'weapon' welds itself to the 'monsters' hand!
 - Fix: some light edits to light code
+- Fix: Drow shouldn't receive a shield of light as a sacrifice gift
 
