@@ -2943,4 +2943,6 @@ The following changes to date are:
 - Fix: The 'weapon' welds itself to the 'monsters' hand!
 - Fix: some light edits to light code
 - Fix: Drow shouldn't receive a shield of light as a sacrifice gift
+- Fix: minor feedback bit with aura of darkness and objects using
+  artifact_light()
 

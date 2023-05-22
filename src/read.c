@@ -2270,7 +2270,7 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
                message came after the darkening, we could count visibly
                lit squares before and after to know; we do know that being
                swallowed won't be affected--the interior is still lit */
-            if (still_lit) {
+            if (still_lit && !mon) {
                 pline_The("ambient light seems dimmer.");
             } else if (u.uswallow) {
                 pline("It seems even darker in here than before.");
