@@ -5557,7 +5557,8 @@ boolean *noticed; /* set to true iff hero notices the effect; */
     return result;
 }
 
-/* only called when the player is doing something to the chest directly */
+/* only called when the player or monster is doing something
+   to the chest directly */
 boolean
 chest_trap(mon, obj, bodypart, disarm)
 register struct monst *mon;
@@ -5579,8 +5580,8 @@ boolean disarm;
     if (yours)
         You(disarm ? "set it off!" : "trigger a trap!");
     else if (canseemon(mon))
-             pline("%s %s!", Monnam(mon),
-                   disarm ? "sets it off" : "triggers a trap");
+         pline("%s %s!", Monnam(mon),
+               disarm ? "sets it off" : "triggers a trap");
 
     display_nhwindow(WIN_MESSAGE, FALSE);
     if (Luck > -13 && rn2(13 + Luck) > 7) { /* saved by luck */
@@ -5639,11 +5640,13 @@ boolean disarm;
                 pline("%s!", Tobjnam(obj, "explode"));
                 Sprintf(buf, "exploding %s", xname(obj));
             } else if (!Deaf) {
-                       You_hear("a distant explosion.");
+                You_hear("a distant explosion.");
             }
 
             if (costly)
-                loss += stolen_value(obj, ox, oy, (boolean) shkp->mpeaceful, TRUE);
+                loss += stolen_value(obj, ox, oy, (boolean) shkp->mpeaceful,
+                                     TRUE);
+
             delete_contents(obj);
             /* unpunish() in advance if either ball or chain (or both)
                is going to be destroyed */
@@ -5652,8 +5655,6 @@ boolean disarm;
                                  && uball->ox == ox && uball->oy == oy)))
                 unpunish();
 
-            /* destroy everything at the spot (the Amulet, the
-               invocation tools, and Rider corpses will remain intact) */
             for (otmp = level.objects[ox][oy]; otmp; otmp = otmp2) {
                  otmp2 = otmp->nexthere;
                 if (costly)
@@ -5663,9 +5664,8 @@ boolean disarm;
             }
             wake_nearby();
             if (yours) {
-                losehp(d(6, 6), buf, KILLED_BY_AN);
-            losehp(Maybe_Half_Phys(d(6, 6)), buf, KILLED_BY_AN);
-            exercise(A_STR, FALSE);
+                losehp(Maybe_Half_Phys(d(6, 6)), buf, KILLED_BY_AN);
+                exercise(A_STR, FALSE);
                 if (costly && loss) {
                     if (insider)
                         You("owe %ld %s for objects destroyed.", loss,
@@ -5677,13 +5677,12 @@ boolean disarm;
                     }
                 }
             } else {
-                  mon->mhp -= d(6, 6);
-                  if (mon->mhp <= 0) {
-                      if (canseemon(mon)) {
-                          pline("%s is killed by the explosion!", Monnam(mon));
-                      }
-                      mondied(mon);
-                  }
+                mon->mhp -= d(6, 6);
+                if (mon->mhp <= 0) {
+                    if (canseemon(mon))
+                        pline("%s is killed by the explosion!", Monnam(mon));
+                    mondied(mon);
+                }
             }
             return TRUE;
         } /* case 21 */
@@ -5716,15 +5715,24 @@ boolean disarm;
                 You_feel("a needle prick your %s.", body_part(bodypart));
                 poisoned("needle", A_CON, "poisoned needle", 10, FALSE);
                 exercise(A_CON, FALSE);
-            } else if (!(resists_poison(mon) || defended(mon, AD_DRST))) {
-                int dmg = rnd(10);
-                if (!rn2(10))
-                    dmg = mon->mhp;
-                mon->mhp -= dmg;
-                if (mon->mhp <= 0) {
+            } else {
+                if (canseemon(mon))
+                    pline("A needle pricks %s %s.", s_suffix(mon_nam(mon)),
+                          mbodypart(mon, bodypart));
+                if (!(resists_poison(mon) || defended(mon, AD_DRST))) {
+                    int dmg = rnd(10);
+
+                    if (!rn2(10))
+                        dmg = mon->mhp;
+                    mon->mhp -= dmg;
+                    if (mon->mhp <= 0) {
+                        if (canseemon(mon))
+                            pline("%s is killed!", Monnam(mon));
+                        mondied(mon);
+                    }
+                } else {
                     if (canseemon(mon))
-                        pline("%s is killed!", Monnam(mon));
-                    mondied(mon);
+                        pline("%s is unaffected.", Monnam(mon));
                 }
             }
             break;
@@ -5835,9 +5843,16 @@ boolean disarm;
                 } else
                     You("momentarily stiffen.");
             } else {
-                if (mon->mcanmove) {
-                    mon->mcanmove = 0;
-                    mon->mfrozen = d(5, 6);
+                if (has_free_action(mon)) {
+                    if (canseemon(mon))
+                        pline("%s stiffens momentarily.", Monnam(mon));
+                } else {
+                    if (mon->mcanmove) {
+                        if (canseemon(mon))
+                            pline("%s is frozen in place!", Monnam(mon));
+                        mon->mcanmove = 0;
+                        mon->mfrozen = d(5, 6);
+                    }
                 }
             }
             break;

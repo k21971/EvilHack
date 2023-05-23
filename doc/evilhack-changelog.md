@@ -2949,4 +2949,5 @@ The following changes to date are:
   level
 - The Red Horse has a chance to spawn wearing barding
 - Fix: blanked spellbooks from reading not updating in permanent inventory
+- Fix: various issues with monsters setting off container traps
 
