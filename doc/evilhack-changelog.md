@@ -2945,4 +2945,6 @@ The following changes to date are:
 - Fix: Drow shouldn't receive a shield of light as a sacrifice gift
 - Fix: minor feedback bit with aura of darkness and objects using
   artifact_light()
+- Fix: the Wizard of Yendor could be awakened prematurely on wizard1
+  level
 

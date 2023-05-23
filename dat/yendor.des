@@ -26,10 +26,10 @@ L|..|.......S...............|L
 L----------------------------L
  LLLLLLLLLLLLL LLLLLLLLLLLLLL
 ENDMAP
-STAIR:levregion(01,00,79,20),(0,0,29,14),up
-STAIR:levregion(01,00,79,20),(0,0,29,14),down
-BRANCH:levregion(01,00,79,20),(0,0,29,14)
-TELEPORT_REGION:levregion(01,00,79,20),(0,0,29,14)
+STAIR:levregion(01,00,79,20),(01,01,28,13),up
+STAIR:levregion(01,00,79,20),(01,01,28,13),down
+BRANCH:levregion(01,00,79,20),(01,01,28,13)
+TELEPORT_REGION:levregion(01,00,79,20),(01,01,28,13)
 # Make it a morgue for rm id in mkmaze.c
 # for the purpose of random sdoor placement
 REGION:(13,02,21,10),unlit,"morgue",unfilled
