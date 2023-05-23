@@ -65,7 +65,7 @@ char *buf;
 #if defined(NETHACK_GIT_BRANCH)
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
         if (NetHack_git_branch)
-            Sprintf(eos(buf), "%sbranch:%s",
+            Sprintf(eos(buf), "%s branch: %s",
                     c++ ? "," : "", NetHack_git_branch);
 #endif
 #endif
