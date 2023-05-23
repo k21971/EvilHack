@@ -2297,4 +2297,30 @@ num_spells()
     return i;
 }
 
+void
+dump_spells()
+{
+    int i;
+    char buf[BUFSZ];
+
+    if (spellid(0) == NO_SPELL) {
+        putstr(0, 0, "You didn't know any spells.");
+        return;
+    } else {
+        putstr(0, ATR_HEADING, "Spells known:");
+        Sprintf(buf, " %-20s     Level  %-12s Fail  Retention", "    Name", "Category");
+        putstr(0, ATR_PREFORM, buf);
+
+        for (i = 0; i < MAXSPELL && spellid(i) != NO_SPELL; i++) {
+            Sprintf(buf, " %c - %-20s  %2d%s   %-12s %3d%%" "       %3d%%",
+                    spellet(i), spellname(i), spellev(i),
+                    (spellknow(i) > 1000) ? " " : (spellknow(i) ? "!" : "*"),
+                    spelltypemnemonic(spell_skilltype(spellid(i))),
+                    100 - percent_success(i),
+                    (spellknow(i) * 100 + (KEEN - 1)) / KEEN);
+            putstr(0, ATR_PREFORM, buf);
+        }
+    }
+}
+
 /*spell.c*/

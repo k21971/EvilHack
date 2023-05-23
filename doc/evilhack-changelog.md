@@ -2951,4 +2951,5 @@ The following changes to date are:
 - Fix: blanked spellbooks from reading not updating in permanent inventory
 - Fix: various issues with monsters setting off container traps
 - Git info formatting in dumplog
+- Show spells known in the dumplog (text and html).
 

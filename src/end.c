@@ -919,6 +919,8 @@ time_t when; /* date+time at end of game */
     enlightenment((BASICENLIGHTENMENT | MAGICENLIGHTENMENT),
                   (how >= PANICKED) ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD);
     putstr(NHW_DUMPTXT, 0, "");
+    dump_spells();
+    putstr(NHW_DUMPTXT, 0, "");
     list_vanquished('d', FALSE); /* 'd' => 'y' */
     putstr(NHW_DUMPTXT, 0, "");
     list_genocided('d', FALSE); /* 'd' => 'y' */
