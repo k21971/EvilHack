@@ -2947,4 +2947,5 @@ The following changes to date are:
   artifact_light()
 - Fix: the Wizard of Yendor could be awakened prematurely on wizard1
   level
+- The Red Horse has a chance to spawn wearing barding
 

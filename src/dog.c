@@ -1414,6 +1414,15 @@ gain_guardian_steed()
             put_saddle_on_mon(otmp, mtmp);
             bless(otmp);
             otmp->dknown = otmp->bknown = otmp->rknown = 1;
+            /* chance of wearing barding */
+            if (!rn2(3)) {
+                struct obj *otmp2 = mksobj(rn2(2) ? SPIKED_BARDING
+                                                  : BARDING_OF_REFLECTION, TRUE, FALSE);
+
+                put_barding_on_mon(otmp2, mtmp);
+                bless(otmp2);
+                otmp2->dknown = otmp2->bknown = otmp2->rknown = 1;
+            }
         }
     }
 }
