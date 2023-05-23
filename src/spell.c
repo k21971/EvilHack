@@ -432,6 +432,7 @@ learn(VOID_ARGS)
         check_unpaid(book);
     context.spbook.book = 0;
     context.spbook.o_id = 0;
+    update_inventory();
     return 0;
 }
 
