@@ -1793,10 +1793,11 @@ int skill;
      * Same for priests, they shouldn't have edged weapons at all.
      */
 
-    if ((Role_if(PM_CAVEMAN) || Role_if(PM_PRIEST))
-        && skill >= P_DAGGER && skill <= P_SABER
-        && skill >= P_POLEARMS && skill <= P_UNICORN_HORN) {
-        return;
+    if (Role_if(PM_CAVEMAN) || Role_if(PM_PRIEST)) {
+        if (skill >= P_DAGGER && skill <= P_SABER)
+            return;
+        if (skill >= P_POLEARMS && skill <= P_UNICORN_HORN)
+            return;
     }
 
     if (skill < P_NUM_SKILLS && P_RESTRICTED(skill)) {

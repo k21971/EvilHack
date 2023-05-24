@@ -2953,4 +2953,6 @@ The following changes to date are:
 - Git info formatting in dumplog
 - Show spells known in the dumplog (text and html).
 - Show play time/wallclock time in the dumplog (text and html)
+- Fix: cavepersons/priests could still have certain weapon skills
+  unrestricted that shouldn't have been
 
