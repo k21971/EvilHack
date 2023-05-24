@@ -2952,4 +2952,5 @@ The following changes to date are:
 - Fix: various issues with monsters setting off container traps
 - Git info formatting in dumplog
 - Show spells known in the dumplog (text and html).
+- Show play time/wallclock time in the dumplog (text and html)
 

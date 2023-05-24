@@ -909,6 +909,13 @@ time_t when; /* date+time at end of game */
     dump_end_screendump();
     putstr(NHW_DUMPTXT, 0, "");
 
+    putstr(0, ATR_HEADING, "Time information:");
+    Sprintf(pbuf, " Play time: %s", iso8601_duration(urealtime.realtime));
+    putstr(0, 0, pbuf);
+    Sprintf(pbuf, " Wallclock time: %s", iso8601_duration(getnow() - ubirthday));
+    putstr(0, 0, pbuf);
+    putstr(NHW_DUMPTXT, 0, "");
+
     dump_plines();
     putstr(NHW_DUMPTXT, 0, "");
     putstr(0, ATR_HEADING, "Inventory:");

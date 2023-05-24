@@ -1175,6 +1175,29 @@ ozzy_bday()
     return (boolean) ((getmday() == 13) && (getmonth() == 1));
 }
 
+static char buf_fmt_duration[BUFSZ];
+/* Returns a iso-8601 formatted duration (e.g. hh:mm:ss) */
+char *
+iso8601_duration(long int seconds)
+{
+    /* currently no days, months and years, as the conversion
+     * is non-trivial */
+    long minutes = seconds / 60;
+    long hours = minutes / 60;
+    long days = hours / 24;
+
+    if (days > 0) {
+        /* dddhh:mm:ss */
+        sprintf(buf_fmt_duration, "%02ldd%02ld:%02ld:%02ld",
+                days, hours % 24, minutes % 60, seconds % 60);
+    } else {
+        /* hh:mm:ss */
+        sprintf(buf_fmt_duration, "%02ldh:%02ldm:%02lds",
+                hours, minutes % 60, seconds % 60);
+    }
+    return buf_fmt_duration;
+}
+
 /* strbuf_init() initializes strbuf state for use */
 void
 strbuf_init(strbuf)

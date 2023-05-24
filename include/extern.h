@@ -1061,6 +1061,7 @@ E int NDECL(midnight);
 E boolean NDECL(kathryn_bday);
 E boolean NDECL(bourbon_bday);
 E boolean NDECL(ozzy_bday);
+E char *FDECL(iso8601_duration, (long));
 E void FDECL(strbuf_init, (strbuf_t *));
 E void FDECL(strbuf_append, (strbuf_t *, const char *));
 E void FDECL(strbuf_reserve, (strbuf_t *, int));
