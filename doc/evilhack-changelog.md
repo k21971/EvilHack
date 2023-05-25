@@ -2957,4 +2957,5 @@ The following changes to date are:
   unrestricted that shouldn't have been
 - Reflection spell improvements
 - Restore ability spell is now directional
+- Tweak to 'restore ability spell is now directional'
 

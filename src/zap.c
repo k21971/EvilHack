@@ -535,6 +535,13 @@ struct obj *otmp;
         break;
     case SPE_RESTORE_ABILITY:
         if (mtmp->mcan) {
+            if (mdat->mlet != S_NYMPH
+                && could_seduce(mtmp, &youmonst, (struct attack *) 0) == 1) {
+                /* don't allow abuse/infinite source of level/stat gain */
+                shieldeff(mtmp->mx, mtmp->my);
+                Your("spell has no effect on %s.", mon_nam(mtmp));
+                break;
+            }
             mtmp->mcan = 0;
             if (canseemon(mtmp))
                 pline("%s looks revitalized.", Monnam(mtmp));
