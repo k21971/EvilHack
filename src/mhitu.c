@@ -2996,6 +2996,12 @@ struct attack *mattk;
         pline("%s very hurriedly %s you!", Monnam(mtmp),
               is_swallower(mtmp->data) ? "regurgitates" : "expels");
         expels(mtmp, mtmp->data, FALSE);
+    } else if (Passes_walls) {
+        /* enabling phasing (artifact) or poly'd into a monster that
+           can naturally phase allows our hero to escape being engulfed */
+        expels(mtmp, mtmp->data, FALSE);
+        You("exit %s, phasing right through %s %s!", mon_nam(mtmp),
+            mhis(mtmp), mbodypart(mtmp, STOMACH));
     } else if (!u.uswldtim || youmonst.data->msize >= MZ_HUGE) {
         /* As of 3.6.2: u.uswldtim used to be set to 0 by life-saving but it
            expels now so the !u.uswldtim case is no longer possible;

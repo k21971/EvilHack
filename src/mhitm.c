@@ -710,7 +710,8 @@ register struct monst *magr, *mdef;
             break;
 
         case AT_ENGL:
-            if (noncorporeal(mdef->data)) { /* no silver teeth... */
+            if (noncorporeal(mdef->data) /* no silver teeth... */
+                || passes_walls(mdef->data)) {
                 if (vis)
                     pline("%s attempt to engulf %s is futile.",
                           s_suffix(Monnam(magr)), mon_nam(mdef));
