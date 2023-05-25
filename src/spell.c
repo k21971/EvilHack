@@ -863,6 +863,10 @@ cast_reflection(mdef)
 register struct monst *mdef;
 {
     boolean youdefend = (mdef == &youmonst);
+    int skill = (P_SKILL(spell_skilltype(SPE_REFLECTION)) == P_EXPERT
+                 ? 750 : P_SKILL(spell_skilltype(SPE_REFLECTION)) == P_SKILLED
+                       ? 500 : P_SKILL(spell_skilltype(SPE_REFLECTION)) == P_BASIC
+                             ? 250 : 100);
 
     if (youdefend) {
         if (HReflecting) {
@@ -876,7 +880,8 @@ register struct monst *mdef;
             else
                 You_feel("smooth.");
         }
-        incr_itimeout(&HReflecting, rn1(10, HReflecting ? 50 : 250));
+        /* the higher the skill in matter-based spells, the longer the effect */
+        incr_itimeout(&HReflecting, rn1(10, HReflecting ? (skill / 5) : skill));
     } else if (!youdefend) {
         if (canseemon(mdef))
             pline("A shimmering globe appears around %s!", mon_nam(mdef));

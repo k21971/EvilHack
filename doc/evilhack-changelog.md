@@ -2955,4 +2955,5 @@ The following changes to date are:
 - Show play time/wallclock time in the dumplog (text and html)
 - Fix: cavepersons/priests could still have certain weapon skills
   unrestricted that shouldn't have been
+- Reflection spell improvements
 
