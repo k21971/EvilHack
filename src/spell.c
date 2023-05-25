@@ -1264,13 +1264,16 @@ boolean wiz_cast;
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
     case SPE_CURE_SICKNESS:
+    case SPE_RESTORE_ABILITY:
     case SPE_DRAIN_LIFE:
     case SPE_STONE_TO_FLESH:
     case SPE_PSIONIC_WAVE:
         if (objects[otyp].oc_dir != NODIR) {
-            if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING) {
-                /* healing and extra healing are actually potion effects,
-                   but they've been extended to take a direction like wands */
+            if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING
+                || otyp == SPE_RESTORE_ABILITY) {
+                /* healing/extra healing/restore ability are actually potion
+                   effects, but they've been extended to take a direction
+                   like wands */
                 if (role_skill >= P_SKILLED)
                     pseudo->blessed = 1;
             }
@@ -1325,7 +1328,6 @@ boolean wiz_cast;
     case SPE_DETECT_TREASURE:
     case SPE_DETECT_MONSTERS:
     case SPE_LEVITATION:
-    case SPE_RESTORE_ABILITY:
         /* high skill yields effect equivalent to blessed potion */
         if (role_skill >= P_SKILLED)
             pseudo->blessed = 1;

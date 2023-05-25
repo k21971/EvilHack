@@ -2956,4 +2956,5 @@ The following changes to date are:
 - Fix: cavepersons/priests could still have certain weapon skills
   unrestricted that shouldn't have been
 - Reflection spell improvements
+- Restore ability spell is now directional
 

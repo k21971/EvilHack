@@ -533,6 +533,15 @@ struct obj *otmp;
         if (mtmp->mpeaceful && !is_zombie(mtmp->data))
             helpful_gesture = TRUE;
         break;
+    case SPE_RESTORE_ABILITY:
+        if (mtmp->mcan) {
+            mtmp->mcan = 0;
+            if (canseemon(mtmp))
+                pline("%s looks revitalized.", Monnam(mtmp));
+        }
+        if (mtmp->mpeaceful)
+            helpful_gesture = TRUE;
+        break;
     case WAN_LIGHT: /* (broken wand) */
         if (flash_hits_mon(mtmp, otmp)) {
             learn_it = TRUE;
@@ -2326,6 +2335,7 @@ struct obj *obj, *otmp;
         case SPE_HEALING:
         case SPE_EXTRA_HEALING:
         case SPE_CURE_SICKNESS:
+        case SPE_RESTORE_ABILITY:
         case SPE_PSIONIC_WAVE:
             res = 0;
             break;
@@ -2845,6 +2855,30 @@ boolean ordinary;
         }
         healup(0, 0, TRUE, FALSE);
         break;
+    case SPE_RESTORE_ABILITY: {
+        int i, ii, lim;
+
+        pline("Wow!  This makes you feel %s!",
+              (obj->blessed)
+                  ? (unfixable_trouble_count(FALSE) ? "better" : "great")
+                  : "good");
+        i = rn2(A_MAX); /* start at a random point */
+        for (ii = 0; ii < A_MAX; ii++) {
+            lim = AMAX(i);
+            /* this used to adjust 'lim' for A_STR when u.uhs was
+               WEAK or worse, but that's handled via ATEMP(A_STR) now */
+            if (ABASE(i) < lim) {
+                ABASE(i) = lim;
+                context.botl = 1;
+                /* only first found if not blessed */
+                if (!obj->blessed)
+                    break;
+            }
+            if (++i >= A_MAX)
+                i = 0;
+        }
+        break;
+    }
     case WAN_LIGHT: /* (broken wand) */
         /* assert( !ordinary ); */
         damage = d(obj->spe, 25);

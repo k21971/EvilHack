@@ -735,7 +735,6 @@ register struct obj *otmp;
 
     switch (otmp->otyp) {
     case POT_RESTORE_ABILITY:
-    case SPE_RESTORE_ABILITY:
         unkn++;
         if (otmp->cursed) {
             pline("Ulch!  This makes you feel mediocre!");
