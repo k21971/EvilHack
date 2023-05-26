@@ -2458,11 +2458,15 @@ xchar x, y;
     if (obj->material == GLASS && !obj->oerodeproof
         && !obj->oartifact && obj->oclass != GEM_CLASS)
         return 1;
-    /* Drow objects are brittle if in the light */
+    /* Drow objects are brittle if in the light.
+     * Drow weapons are a bit sturdier. 
+     * Melee weapons have 1/16 chance of breakage when break_glass_obj
+     * is considered, thrown/kicked/etc. weapons have a 3/8 chance, 
+     * and armor has a 1/6 chance regardless. */
     if (obj->material == ADAMANTINE && is_drow_obj(obj)
-        && !obj->oartifact && !spot_is_dark(x, y)
-        && (is_drow_weapon(obj) ? !rn2(16) : !rn2(6)))
-        return 1;
+        && !obj->oartifact && !spot_is_dark(x, y))
+        if (!is_drow_weapon(obj) || (rn2(8) < 3))
+            return 1;
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case EXPENSIVE_CAMERA:
     case POT_WATER: /* really, all potions */
@@ -2577,7 +2581,8 @@ struct obj* obj;
     }
 
     if (!breaktest(obj, x, y)
-        || spit_object(obj))
+        || spit_object(obj)
+        || rn2(6)) /* items are subject to less force than when thrown */
         return FALSE;
     /* now we are definitely breaking it */
 
