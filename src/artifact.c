@@ -2950,19 +2950,23 @@ struct obj *obj;
             int ct = 0;
 
             if (yn("Do you want to cast an aura of darkness?") == 'n') {
+                if (!Deaf && !ct)
+                    You_hear("%s laughter coming from %s!",
+                             rn2(2) ? "fiendish" : "maniacal",
+                             xname(obj));
+
                 for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                     if (DEADMONSTER(mtmp))
                         continue;
                     if (cansee(mtmp->mx, mtmp->my)) {
-                        monflee(mtmp, 0, FALSE, FALSE);
+                        if (!resist(mtmp, WEAPON_CLASS, 0, NOTELL)
+                            /* some monsters are immune */
+                            && onscary(0, 0, mtmp))
+                            monflee(mtmp, 0, FALSE, TRUE);
                         if (!mtmp->mtame)
                             ct++; /* pets don't laugh at you */
                     }
                 }
-                if (!Deaf)
-                    You_hear("%s laughter coming from %s!",
-                             rn2(2) ? "fiendish" : "maniacal",
-                             xname(obj));
                 break;
             } else {
                 litroom(FALSE, FALSE, obj, u.ux, u.uy);

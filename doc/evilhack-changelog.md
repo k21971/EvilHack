@@ -2959,4 +2959,5 @@ The following changes to date are:
 - Restore ability spell is now directional
 - Tweak to 'restore ability spell is now directional'
 - Phasing allows escape from being engulfed
+- Fix: invoking Shadowblade to cause fear could scare monsters it shouldn't
 

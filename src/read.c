@@ -1421,8 +1421,13 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         break;
     case SCR_SCARE_MONSTER:
     case SPE_CAUSE_FEAR: {
-        register int ct = 0;
-        register struct monst *mtmp;
+        int ct = 0;
+        struct monst *mtmp;
+
+        if ((otyp == SCR_SCARE_MONSTER || !ct) && !Deaf)
+            You_hear("%s %s.", (confused || scursed) ? "sad wailing"
+                                                     : "maniacal laughter",
+                     !ct ? "in the distance" : "close by");
 
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
             if (DEADMONSTER(mtmp))
@@ -1432,16 +1437,14 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                     mtmp->mflee = mtmp->mfrozen = mtmp->msleeping = 0;
 		    if (!mtmp->mstone || mtmp->mstone > 2)
 			mtmp->mcanmove = 1;
-                } else if (!resist(mtmp, sobj->oclass, 0, NOTELL))
-                    monflee(mtmp, 0, FALSE, FALSE);
+                } else if (!resist(mtmp, sobj->oclass, 0, NOTELL)
+                    /* some monsters are immune */
+                    && onscary(0, 0, mtmp))
+                    monflee(mtmp, 0, FALSE, TRUE);
                 if (!mtmp->mtame)
                     ct++; /* pets don't laugh at you */
             }
         }
-        if (otyp == SCR_SCARE_MONSTER || !ct)
-            You_hear("%s %s.", (confused || scursed) ? "sad wailing"
-                                                     : "maniacal laughter",
-                     !ct ? "in the distance" : "close by");
         break;
     }
     case SCR_BLANK_PAPER:
