@@ -2960,3 +2960,5 @@ The following changes to date are:
 - Tweak to 'restore ability spell is now directional'
 - Phasing allows escape from being engulfed
 - Fix: carried glass objects always broke when used
+- Fix: invoking Shadowblade to cause fear could scare monsters it shouldn't
+
