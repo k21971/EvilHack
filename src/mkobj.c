@@ -3544,6 +3544,8 @@ struct obj* obj;
         case SADDLE:
         case TINNING_KIT:
         case MUMMY_WRAPPING:
+        case OILSKIN_SACK:
+        case OILSKIN_CLOAK:
         case AMULET_OF_YENDOR:
         case FAKE_AMULET_OF_YENDOR:
             return NULL;
@@ -3619,7 +3621,6 @@ struct obj* obj;
         case HORN_OF_PLENTY:
             return horn_materials;
         case SACK:
-        case OILSKIN_SACK:
         case BAG_OF_HOLDING:
         case BAG_OF_TRICKS:
             return portable_container_materials;

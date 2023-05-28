@@ -2961,4 +2961,5 @@ The following changes to date are:
 - Phasing allows escape from being engulfed
 - Fix: carried glass objects always broke when used
 - Fix: invoking Shadowblade to cause fear could scare monsters it shouldn't
+- Fix: oilskin sacks/cloaks spawning with materials other than cloth
 
