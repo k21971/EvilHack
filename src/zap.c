@@ -3317,7 +3317,10 @@ boolean youattack, allow_cancel_kill, self_cancel;
         }
 
         if (onum) {
-            for (cnt = rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1));
+            int hero_count = ((!!Antimagic) + (!!Half_spell_damage) + 1);
+            int mon_count = rnd(3);
+
+            for (cnt = rnd(6 / (youdefend ? hero_count : mon_count));
                  cnt > 0; cnt--) {
                 oindex = rnd(onum);
                 /* if random count is higher than number of objects

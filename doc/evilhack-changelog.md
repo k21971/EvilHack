@@ -2963,4 +2963,6 @@ The following changes to date are:
 - Fix: invoking Shadowblade to cause fear could scare monsters it shouldn't
 - Fix: oilskin sacks/cloaks spawning with materials other than cloth
 - Fix: vampshifted Vlad in bones
+- Fix: separate monster from player when determining number of objects
+  in inventory to cancel
 
