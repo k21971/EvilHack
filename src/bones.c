@@ -531,11 +531,14 @@ struct obj *corpse;
             || (mptr == &mons[PM_MEDUSA] && !Is_medusa_level(&u.uz))
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
             || mptr == &mons[PM_VLAD_THE_IMPALER]
+            || mtmp->cham == PM_VLAD_THE_IMPALER /* in case he's vampshifted */
             || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))
             || (mtmp->iscerberus && !Is_valley(&u.uz))
             || (mptr == &mons[PM_CHARON] && !Is_valley(&u.uz))
             || mptr == &mons[PM_KAS]
+            || mtmp->cham == PM_KAS /* in case he's vampshifted */
             || mptr == &mons[PM_RAT_KING]
+            || mtmp->cham == PM_RAT_KING /* in case he's wereshifted */
             || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
             || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
             || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
