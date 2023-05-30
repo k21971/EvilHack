@@ -2965,4 +2965,6 @@ The following changes to date are:
 - Fix: vampshifted Vlad in bones
 - Fix: separate monster from player when determining number of objects
   in inventory to cancel
+- Don't allow poisoned/tainted sacrifice gifts when using lawful or neutral
+  altars
 

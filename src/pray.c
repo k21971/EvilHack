@@ -2475,6 +2475,8 @@ dosacrifice()
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */
                             otmp->oerodeproof = TRUE;
                             otmp->oeroded = otmp->oeroded2 = 0;
+                            if (altaralign > A_CHAOTIC) /* lawful or neutral altar */
+                                otmp->opoisoned = otmp->otainted = 0;
                             otmp->owt = weight(otmp);
                             at_your_feet(otmp->quan > 1L ? "Some objects"
                                                          : "An object");
@@ -2511,6 +2513,8 @@ dosacrifice()
                         bless(otmp);
                     otmp->oerodeproof = TRUE;
                     otmp->oeroded = otmp->oeroded2 = 0;
+                    if (altaralign > A_CHAOTIC) /* lawful or neutral altar */
+                        otmp->opoisoned = otmp->otainted = 0;
                     at_your_feet("An object");
                     place_object(otmp, u.ux, u.uy);
                     newsym(u.ux, u.uy);
