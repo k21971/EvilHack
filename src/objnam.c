@@ -3922,15 +3922,17 @@ struct obj *no_wish;
         actualn = bp, dn = 0;
         goto srch;
     } else {
+        char *sng = makesingular(bp);
         /*
          * Find corpse type using "of" (figurine of an orc, tin of orc meat)
          * Don't check if it's a wand or spellbook.
          * (avoid "wand/finger of death" confusion).
          * (also avoid "sword of kas" or "eye/hand of vecna" issues)
          */
-        if (!strstri(bp, "wand ") && !strstri(bp, "spellbook ")
-            && !strstri(bp, "finger ") && !strstri(bp, "eye ")
-            && !strstri(bp, "hand ") && !strstri(bp, "sword of kas")) {
+        if (!strstri(sng, "wand ") && !strstri(sng, "spellbook ")
+            && !strstri(sng, "potion ") && !strstri(sng, "finger ")
+            && !strstri(sng, "eye ") && !strstri(sng, "hand ")
+            && !strstri(sng, "sword of kas")) {
             int l = 0, of = 4;
             char *tmpp;
 

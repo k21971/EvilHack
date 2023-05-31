@@ -2967,4 +2967,5 @@ The following changes to date are:
   in inventory to cancel
 - Don't allow poisoned/tainted sacrifice gifts when using lawful or neutral
   altars
+- Fix: being able to wish for more than one potion of drow poison
 
