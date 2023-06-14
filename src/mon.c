@@ -3083,7 +3083,8 @@ m_detach(mtmp, mptr)
 struct monst *mtmp;
 struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
 {
-    boolean onmap = (mtmp->mx > 0);
+    boolean onmap = (isok(mtmp->mx, mtmp->my)
+                     && level.monsters[mtmp->mx][mtmp->my] == mtmp);
 
     if (mtmp == context.polearm.hitmon)
         context.polearm.hitmon = 0;
@@ -3093,7 +3094,7 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
     mtmp->mtrapped = 0;
     mtmp->mhp = 0; /* simplify some tests: force mhp to 0 */
     relobj(mtmp, 0, FALSE);
-    if (onmap || mtmp == level.monsters[0][0]) {
+    if (onmap) {
         if (mtmp->wormno)
             remove_worm(mtmp);
         else

@@ -2968,4 +2968,5 @@ The following changes to date are:
 - Don't allow poisoned/tainted sacrifice gifts when using lawful or neutral
   altars
 - Fix: being able to wish for more than one potion of drow poison
+- Fix: even more separate_steed_and_rider() fixes
 
