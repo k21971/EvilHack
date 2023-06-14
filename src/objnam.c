@@ -3829,6 +3829,9 @@ struct obj *no_wish;
     if (rechrg < 0 || rechrg > 7)
         rechrg = 7; /* recharge_limit */
 
+    if (!bp || !*bp)
+        goto any;
+
     /* now we have the actual name, as delivered by xname, say
      *  green potions called whisky
      *  scrolls labeled "QWERTY"

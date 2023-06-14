@@ -2969,4 +2969,6 @@ The following changes to date are:
   altars
 - Fix: being able to wish for more than one potion of drow poison
 - Fix: even more separate_steed_and_rider() fixes
+- Fix: wishing for a string with mismatched parens, that doesn't contain any
+  actual wish before them
 
