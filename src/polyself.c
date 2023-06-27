@@ -101,12 +101,7 @@ set_uasmon()
     PROPSET(REFLECTING, (mdat == &mons[PM_SILVER_DRAGON]));
 #undef PROPSET
 
-    /* Nonliving monsters are immune to withering.
-     * This could use is_fleshy(), but that would
-     * make a large set of monsters immune like
-     * fungus, blobs, and jellies.
-     * TODO: make is_vampshifter actually work for youmonst, and include that. */
-    if (nonliving(mdat))
+    if (resists_wither(&youmonst))
         BWithering |= FROMFORM;
     else
         BWithering &= ~FROMFORM;

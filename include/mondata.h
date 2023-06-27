@@ -47,6 +47,9 @@
 #define has_free_action(mon) \
     ((mon_resistancebits(mon) & MR2_FREE_ACTION) != 0)
 
+#define resists_wither(mon) ((mon == &youmonst) ? \
+    nonliving(raceptr(&youmonst)) : nonliving(r_data(mon)))
+
 #define resists_sick(ptr) \
     ((ptr)->mlet == S_FUNGUS || nonliving(ptr)                                   \
      || is_angel(ptr) || is_demon(ptr) || is_rider(ptr)                          \

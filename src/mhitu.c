@@ -2464,9 +2464,10 @@ do_rust:
             dmg = mon_poly(mtmp, &youmonst, dmg);
         break;
     case AD_WTHR: {
+        pline("TT: %d", resists_wither(&youmonst));
         uchar withertime = max(2, dmg);
         boolean no_effect =
-            (nonliving(youmonst.data) || !uncancelled);
+            (resists_wither(&youmonst) || !uncancelled);
         boolean lose_maxhp = (withertime >= 8 && !BWithering); /* if already withering */
         dmg = 0; /* doesn't deal immediate damage */
 
