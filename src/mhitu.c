@@ -2464,7 +2464,6 @@ do_rust:
             dmg = mon_poly(mtmp, &youmonst, dmg);
         break;
     case AD_WTHR: {
-        pline("TT: %d", resists_wither(&youmonst));
         uchar withertime = max(2, dmg);
         boolean no_effect =
             (resists_wither(&youmonst) || !uncancelled);

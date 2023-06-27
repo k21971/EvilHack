@@ -911,6 +911,17 @@ nh_timeout()
             }
         }
 
+    if (u.uprops[WITHERING].blocked && TIMEOUT && !(--(u.uprops[WITHERING].blocked))) {
+        if (wielding_artifact(ART_GLORY_OF_ARMOK))
+            pline("Your weapon begins to siphon your %s!", body_part(BLOOD));
+        else
+            pline("You feel less hydrated.");
+        if (Withering) {
+            You("are withering away!");
+            context.botl = TRUE;
+        }
+    }
+
     run_timers();
 }
 

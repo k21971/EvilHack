@@ -7,6 +7,7 @@
 #include "artifact.h"
 #include "artilist.h"
 #include "qtext.h"
+#include <limits.h>
 
 /*
  * Note:  both artilist[] and artiexist[] have a dummy element #0,
@@ -1165,7 +1166,7 @@ struct monst *mtmp;
         return (weap->attk.adtyp == AD_PHYS);
 
     yours = (mtmp == &youmonst);
-    ptr = mtmp->data;
+    ptr = r_data(mtmp);
 
     if (weap->spfx & SPFX_DMONS) {
         return (ptr == &mons[(int) weap->mtype]);
@@ -1220,6 +1221,8 @@ struct monst *mtmp;
             return !(yours ? Death_resistance : immune_death_magic(ptr));
         case AD_DISN:
             return !(yours ? Disint_resistance : resists_disint(mtmp));
+        case AD_WTHR:
+            return !resists_wither(mtmp);
         default:
             impossible("Weird weapon special attack.");
         }
@@ -1323,6 +1326,10 @@ int tmp;
            and demons respectively, but we want its damage bonus to
            apply to all targets, so bypass spec_applies() */
         spec_dbon_applies = TRUE;
+    else if (otmp->oartifact == ART_GLORY_OF_ARMOK)
+        /* Glory of Armok works against all living monsters despite 
+           warning against elves. */
+        spec_dbon_applies = !resists_wither(mon);
     else
         spec_dbon_applies = spec_applies(weap, mon);
 
@@ -2198,6 +2205,59 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             }
         }
         return realizes_damage;
+    }
+
+    if (attacks(AD_WTHR, otmp)) {
+        if (realizes_damage) {
+            if (otmp->oartifact == ART_GLORY_OF_ARMOK) {
+                if (spec_dbon_applies) {
+                    pline_The("greedy mattock sucks the %s from %s!",
+                              mbodypart(mdef, BLOOD), hittee);
+                } else {
+                    pline_The("greedy mattock hits %s.", hittee);
+                }
+            }
+        }
+        if (spec_dbon_applies) {
+            uchar withertime = max(2, rnd(10));
+            boolean lose_maxhp = (withertime >= 8 && (youdefend ? !BWithering : 1));
+            if (canseemon(mdef)) {
+                if (youdefend)
+                    pline("You are withering away!");
+                else
+                    pline("%s is withering away!", Monnam(mdef));
+            }
+
+            if (youdefend) {
+                incr_itimeout(&HWithering, withertime);
+                if (lose_maxhp) {
+                    if (Upolyd && u.mhmax > 1) {
+                        u.mhmax--;
+                        u.mh = min(u.mh, u.mhmax);
+                    } else if (u.uhpmax > 1) {
+                        u.uhpmax--;
+                        u.uhp = min(u.uhp, u.uhpmax);
+                    }
+                }
+                context.botl = TRUE;
+            }
+            else {
+                if (mdef->mwither + withertime > UCHAR_MAX)
+                    mdef->mwither = UCHAR_MAX;
+                else
+                    mdef->mwither += withertime;
+
+                if (lose_maxhp && mdef->mhpmax > 1) {
+                    mdef->mhpmax--;
+                    mdef->mhp = min(mdef->mhp, mdef->mhpmax);
+                }
+                mdef->mwither_from_u = TRUE;
+                /* the exact increase to BWithering is currently pretty arbitrary. */
+                if (!BWithering)
+                    pline_The("ravenous weapon seems satiated... for now.");
+                incr_itimeout(&BWithering, *dmgptr);
+            }
+        }
     }
 
     if (attacks(AD_STUN, otmp) && dieroll <= MB_MAX_DIEROLL) {

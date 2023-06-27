@@ -39,6 +39,7 @@ static const char *artifact_names[] = {
 #define     STON(a,b)   {0,AD_STON,a,b}         /* petrification */
 #define     DETH(a,b)   {0,AD_DETH,a,b}         /* special death attack */
 #define     DISN(a,b)   {0,AD_DISN,a,b}         /* disintegration attack */
+#define     WTHR(a,b)   {0,AD_WTHR,a,b}         /* withering attack */
 
 #define DEFAULT_MAT 0 /* use base object's default material */
 /* clang-format on */
@@ -351,6 +352,13 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
       0, 0, DRLI(8, 10), DFNS(AD_DRLI), NO_CARY, SHADOWBLADE, A_CHAOTIC,
       NON_PM, PM_DROW, 15000L, NO_COLOR, ADAMANTINE),
+    /* Glory of Armok is a bloodthirsty weapon, sucking life force from
+     * you if not given the blood of enemies. Hates elves but will gladly
+     * take life force from anyone. */
+    A("Glory of Armok", DWARVISH_MATTOCK,
+      (SPFX_RESTR | SPFX_INTEL | SPFX_ATTK | SPFX_DEFN | SPFX_WARN |SPFX_DFLAGH),
+      0, MH_ELF | MH_DROW, WTHR(8, 0), DFNS(AD_DISE), NO_CARY, 0,
+      A_CHAOTIC, NON_PM, NON_PM, 10000L, CLR_RED, MINERAL),
     /* The Gauntlets of Purity are a divine artifact that is created
        by forging Dragonbane and Grayswandir together. These gauntlets
        inherit reflection from Dragonbane, and the silver material and
