@@ -4192,6 +4192,27 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         }
     }
 
+    /* This is slightly odd if the death wasn't caused by GoA. But
+       it's pretty difficult to do anything other than whack stuff
+       with a cursed 2-handed weapon. */
+    if (wielding_artifact(ART_GLORY_OF_ARMOK)) {
+        pline_The("Glory of Armok exults in the slaughter!");
+        /* a helpful catchall in case the weapon somehow gets cursed or enchanted.
+           unsure if this should be intended behavior or if cursing/enchanting GoA
+           should be disallowed. */
+        if (uwep->spe >= 7 && uwep->cursed) {
+            pline("Satisfied, it relinquishes its grip.");
+            uncurse(uwep);
+        }
+        /* increase the weapon enchantment up to +7 and uncurse if at +7 */
+        if (uwep->spe < 7 && ++uwep->spe == 7) {
+            if (uwep->cursed)
+                pline("Satisfied, it relinquishes its grip.");
+            uncurse(uwep);
+        }
+        update_inventory();
+    }
+
     /* malign was already adjusted for u.ualign.type and randomization */
     adjalign(mtmp->malign);
 

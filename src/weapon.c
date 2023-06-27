@@ -794,7 +794,11 @@ int x;
                  && !touch_petrifies(&mons[otmp->corpsenm]))
             /* never select a weapon made of a hated material */
             && !mon_hates_material(mtmp, otmp->material)
-            && (!otmp->oartifact || touch_artifact(otmp, mtmp))) {
+            /* don't select hated/damaging artifacts */
+            && (!otmp->oartifact || 
+                (touch_artifact(otmp, mtmp) 
+                 && (!(otmp->oartifact == ART_GLORY_OF_ARMOK)
+                     || resists_wither(mtmp))))) {
        	        if (!obest || dmgval(otmp, &youmonst) > dmgval(obest, &youmonst))
                     obest = otmp;
         }
@@ -1078,7 +1082,9 @@ struct monst *mtmp;
         if (otmp->oclass == WEAPON_CLASS && otmp->oartifact
             && touch_artifact(otmp, mtmp)
             && ((strong && !wearing_shield)
-                || !objects[otmp->otyp].oc_bimanual))
+                || !objects[otmp->otyp].oc_bimanual)
+            && !(otmp->oartifact == ART_GLORY_OF_ARMOK
+                 && !resists_wither(mtmp)))
             return otmp;
     }
 

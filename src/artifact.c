@@ -1005,12 +1005,21 @@ long wp_mask;
             EProtection &= ~wp_mask;
     }
 
+    if (spfx & SPFX_WITHER) {
+        if (on)
+            EWithering |= wp_mask;
+        else
+            EWithering &= ~wp_mask;
+        context.botl = TRUE;
+    }
+
     if (wp_mask == W_ART && !on && oart && oart->inv_prop) {
         /* might have to turn off invoked power too */
         if (oart->inv_prop <= LAST_PROP
             && (u.uprops[oart->inv_prop].extrinsic & W_ARTI))
             (void) arti_invoke(otmp);
     }
+    
 }
 
 /* touch_artifact()'s return value isn't sufficient to tell whether it
@@ -2226,7 +2235,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                      : racial_drow(mdef);
             if (!rn2(10) && (elf || drow)) {
                 if (realizes_damage)
-                    pline_The("masterwork weapon digs into %s spine. Timber!", 
+                    pline_The("masterwork pick digs into %s spine. Timber!", 
                               youdefend ? "your" : s_suffix(mon_nam(mdef)));
                 if (youdefend) {
                     losehp((Upolyd ? u.mh : u.uhp) + 1, "cut down by the Glory of Armok",
@@ -3583,19 +3592,22 @@ struct obj *glower;
         int oldstr = glow_strength(glower->lastwarncnt),
             newstr = glow_strength(glower->newwarncnt);
 
+        char *artiname = bare_artifactname(glower);
+        *artiname = highc(*artiname);
+
         if (newstr > 0 && newstr != oldstr) {
             /* 'start' message */
             if (!Blind)
-                pline("%s %s %s%c", bare_artifactname(glower),
+                pline("%s %s %s%c", artiname,
                       otense(glower, glow_verb(glower->newwarncnt, FALSE)),
                       glow_color(glower->oartifact),
                       (newstr > oldstr) ? '!' : '.');
             else if (oldstr == 0) /* quivers */
-                pline("%s %s slightly.", bare_artifactname(glower),
+                pline("%s %s slightly.", artiname,
                       otense(glower, glow_verb(0, FALSE)));
         } else if (glower->newwarncnt == 0 && glower->lastwarncnt > 0) {
             /* 'stop' message */
-            pline("%s stops %s.", bare_artifactname(glower),
+            pline("%s stops %s.", artiname,
                   glow_verb(Blind ? 0 : glower->lastwarncnt, TRUE));
         }
     }
@@ -3612,9 +3624,11 @@ blind_glow_warnings(VOID_ARGS)
                 || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
             && has_glow_warning(otmp)
             && otmp->lastwarncnt > 0) {
+            char *artiname = bare_artifactname(otmp);
+            *artiname = highc(*artiname);
             /* blindness has just been toggled; give a
                'continue' message that eventual 'stop' message will match */
-            pline("%s is %s.", bare_artifactname(otmp),
+            pline("%s is %s.", artiname,
                   glow_verb(Blind ? 0 : otmp->lastwarncnt, TRUE));
         }
     }

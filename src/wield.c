@@ -121,6 +121,15 @@ register struct obj *obj;
         }
         context.botl = 1;
     }
+    /* The Glory of Armok refuses to be unwielded until sufficient blood is spilled */
+    if (uwep == obj
+        && (uwep && uwep->oartifact == ART_GLORY_OF_ARMOK)) {
+        pline_The("Glory of Armok demands blood, and refuses to be sheathed!");
+        if (uwep->spe > 0)
+            uwep->spe = 0;
+        curse(uwep);
+        update_inventory();
+    }
 
     if (uwep && uwep == obj && (uwep->oprops & ITEM_EXCEL)) {
         uwep->oprops_known |= ITEM_EXCEL;
@@ -338,6 +347,16 @@ register struct obj *obj;
                         (char *) 0);
         }
         context.botl = 1;
+    }
+
+    /* The Glory of Armok refuses to be unwielded until sufficient blood is spilled */
+    if (uswapwep == obj
+        && (u.twoweap && uswapwep->oartifact == ART_GLORY_OF_ARMOK)) {
+        pline_The("Glory of Armok tries to attach itself to your %s!", body_part(HAND));
+        if (uswapwep->spe > 0)
+            uswapwep->spe = 0;
+        curse(uswapwep);
+        update_inventory();
     }
 
     if (uswapwep == obj
@@ -740,6 +759,10 @@ can_twoweapon()
                  || (is_chaotic_artifact(uswapwep) && is_lawful_artifact(uwep))))
         pline("%s being held second to an opposite aligned weapon!",
               Yobjnam2(uswapwep, "resist"));
+    /* this avoids an odd problem with trying to twoweapon with GoA. even without that
+       issue, twoweaponing would and should fail, so this is slightly more convenient. */
+    // else if (uswapwep->oartifact == ART_GLORY_OF_ARMOK)
+    //     pline("The Glory of Armok resists being held second to another weapon!");
     else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
         /* [Note: NOT_WEAPON() check prevents ever getting here...] */
         ; /* must be life-saved to reach here; return FALSE */
@@ -757,7 +780,6 @@ drop_uswapwep()
 {
     char str[BUFSZ];
     struct obj *obj = uswapwep;
-
     /* Avoid trashing makeplural's static buffer */
     Strcpy(str, makeplural(body_part(HAND)));
     pline("%s from your %s!", Yobjnam2(obj, "slip"), str);

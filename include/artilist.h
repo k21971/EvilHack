@@ -356,9 +356,10 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * you if not given the blood of enemies. Hates elves but will gladly
      * take life force from anyone. */
     A("The Glory of Armok", DWARVISH_MATTOCK,
-      (SPFX_RESTR | SPFX_INTEL | SPFX_ATTK | SPFX_DEFN | SPFX_WARN |SPFX_DFLAGH),
-      0, MH_ELF | MH_DROW, WTHR(8, 0), DFNS(AD_DISE), NO_CARY, 0,
-      A_CHAOTIC, NON_PM, NON_PM, 10000L, CLR_RED, MINERAL),
+      (SPFX_RESTR | SPFX_INTEL | SPFX_ATTK | SPFX_DEFN | SPFX_WARN |
+       SPFX_WITHER | SPFX_DFLAGH), 0, MH_ELF | MH_DROW, WTHR(8, 0),
+       DFNS(AD_DISE), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 10000L,
+       CLR_RED, MINERAL),
     /* The Gauntlets of Purity are a divine artifact that is created
        by forging Dragonbane and Grayswandir together. These gauntlets
        inherit reflection from Dragonbane, and the silver material and

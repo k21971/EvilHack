@@ -911,8 +911,15 @@ int mode;
         } else if (flags.autodig && !context.run && !context.nopick && uwep
                    && is_pick(uwep)) {
             /* MRKR: Automatic digging when wielding the appropriate tool */
-            if (mode == DO_MOVE)
+            if (mode == DO_MOVE) {
+                if (uwep->oartifact || !uarmg) {
+                    if (!retouch_object(&uwep, FALSE))
+                        return FALSE; /* evading your grasp should cost a turn. 
+                                         however, no digging tools can do for now
+                                         so let's gloss over that. */
+                }
                 (void) use_pick_axe2(uwep);
+            }
             return FALSE;
         } else {
             if (mode == DO_MOVE) {
