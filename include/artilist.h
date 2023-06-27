@@ -355,7 +355,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     /* Glory of Armok is a bloodthirsty weapon, sucking life force from
      * you if not given the blood of enemies. Hates elves but will gladly
      * take life force from anyone. */
-    A("Glory of Armok", DWARVISH_MATTOCK,
+    A("The Glory of Armok", DWARVISH_MATTOCK,
       (SPFX_RESTR | SPFX_INTEL | SPFX_ATTK | SPFX_DEFN | SPFX_WARN |SPFX_DFLAGH),
       0, MH_ELF | MH_DROW, WTHR(8, 0), DFNS(AD_DISE), NO_CARY, 0,
       A_CHAOTIC, NON_PM, NON_PM, 10000L, CLR_RED, MINERAL),

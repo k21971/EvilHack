@@ -2258,6 +2258,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 incr_itimeout(&BWithering, *dmgptr);
             }
         }
+        return realizes_damage;
     }
 
     if (attacks(AD_STUN, otmp) && dieroll <= MB_MAX_DIEROLL) {
