@@ -759,10 +759,6 @@ can_twoweapon()
                  || (is_chaotic_artifact(uswapwep) && is_lawful_artifact(uwep))))
         pline("%s being held second to an opposite aligned weapon!",
               Yobjnam2(uswapwep, "resist"));
-    /* this avoids an odd problem with trying to twoweapon with GoA. even without that
-       issue, twoweaponing would and should fail, so this is slightly more convenient. */
-    // else if (uswapwep->oartifact == ART_GLORY_OF_ARMOK)
-    //     pline("The Glory of Armok resists being held second to another weapon!");
     else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
         /* [Note: NOT_WEAPON() check prevents ever getting here...] */
         ; /* must be life-saved to reach here; return FALSE */
