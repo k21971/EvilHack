@@ -2208,54 +2208,77 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
 
     if (attacks(AD_WTHR, otmp)) {
-        if (realizes_damage) {
-            if (otmp->oartifact == ART_GLORY_OF_ARMOK) {
+        /* currently this is the only withering weapon */
+        if (otmp->oartifact == ART_GLORY_OF_ARMOK) {
+            if (realizes_damage) {
                 if (spec_dbon_applies) {
-                    pline_The("greedy mattock sucks the %s from %s!",
-                              mbodypart(mdef, BLOOD), hittee);
+                    pline_The("greedy mattock draws %s from %s!",
+                                mbodypart(mdef, BLOOD), hittee);
                 } else {
                     pline_The("greedy mattock hits %s.", hittee);
                 }
             }
-        }
-        if (spec_dbon_applies) {
-            uchar withertime = max(2, rnd(10));
-            boolean lose_maxhp = (withertime >= 8 && (youdefend ? !BWithering : 1));
-            if (canseemon(mdef)) {
-                if (youdefend)
-                    pline("You are withering away!");
-                else
-                    pline("%s is withering away!", Monnam(mdef));
+            boolean elf = youdefend ? maybe_polyd(is_elf(youmonst.data),
+                                                  Race_if(PM_ELF))
+                                    : racial_elf(mdef);
+            boolean drow = youdefend ? maybe_polyd(is_drow(youmonst.data),
+                                                   Race_if(PM_DROW))
+                                     : racial_drow(mdef);
+            if (!rn2(10) && (elf || drow)) {
+                if (realizes_damage)
+                    pline_The("masterwork weapon digs into %s spine. Timber!", 
+                              youdefend ? "your" : s_suffix(mon_nam(mdef)));
+                if (youdefend) {
+                    losehp((Upolyd ? u.mh : u.uhp) + 1, "cut down by the Glory of Armok",
+                           NO_KILLER_PREFIX);
+                } else { /* you or mon hit monster */
+                    if (youattack) {
+                        xkilled(mdef, XKILL_NOMSG);
+                    } else {
+                        monkilled(mdef, 0, AD_WTHR);
+                }
             }
+                return realizes_damage;
+            }
+            if (spec_dbon_applies) {
+                uchar withertime = max(2, rnd(10));
+                boolean lose_maxhp = (withertime >= 8 && (youdefend ? !BWithering : 1));
+                if (canseemon(mdef)) {
+                    if (youdefend)
+                        pline("You are withering away!");
+                    else
+                        pline("%s is withering away!", Monnam(mdef));
+                }
 
-            if (youdefend) {
-                incr_itimeout(&HWithering, withertime);
-                if (lose_maxhp) {
-                    if (Upolyd && u.mhmax > 1) {
-                        u.mhmax--;
-                        u.mh = min(u.mh, u.mhmax);
-                    } else if (u.uhpmax > 1) {
-                        u.uhpmax--;
-                        u.uhp = min(u.uhp, u.uhpmax);
+                if (youdefend) {
+                    incr_itimeout(&HWithering, withertime);
+                    if (lose_maxhp) {
+                        if (Upolyd && u.mhmax > 1) {
+                            u.mhmax--;
+                            u.mh = min(u.mh, u.mhmax);
+                        } else if (u.uhpmax > 1) {
+                            u.uhpmax--;
+                            u.uhp = min(u.uhp, u.uhpmax);
+                        }
                     }
+                    context.botl = TRUE;
                 }
-                context.botl = TRUE;
-            }
-            else {
-                if (mdef->mwither + withertime > UCHAR_MAX)
-                    mdef->mwither = UCHAR_MAX;
-                else
-                    mdef->mwither += withertime;
+                else {
+                    if (mdef->mwither + withertime > UCHAR_MAX)
+                        mdef->mwither = UCHAR_MAX;
+                    else
+                        mdef->mwither += withertime;
 
-                if (lose_maxhp && mdef->mhpmax > 1) {
-                    mdef->mhpmax--;
-                    mdef->mhp = min(mdef->mhp, mdef->mhpmax);
+                    if (lose_maxhp && mdef->mhpmax > 1) {
+                        mdef->mhpmax--;
+                        mdef->mhp = min(mdef->mhp, mdef->mhpmax);
+                    }
+                    mdef->mwither_from_u = TRUE;
+                    /* the exact increase to BWithering is currently pretty arbitrary. */
+                    if (!BWithering)
+                        pline_The("ravenous weapon seems satiated... for now.");
+                    incr_itimeout(&BWithering, *dmgptr);
                 }
-                mdef->mwither_from_u = TRUE;
-                /* the exact increase to BWithering is currently pretty arbitrary. */
-                if (!BWithering)
-                    pline_The("ravenous weapon seems satiated... for now.");
-                incr_itimeout(&BWithering, *dmgptr);
             }
         }
         return realizes_damage;

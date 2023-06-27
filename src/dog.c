@@ -1138,6 +1138,10 @@ register struct obj *obj;
         && (racial_elf(mtmp) || racial_drow(mtmp)))
         return FALSE;
 
+    if (wielding_artifact(ART_GLORY_OF_ARMOK)
+        && (racial_elf(mtmp) || racial_drow(mtmp)))
+        return FALSE;
+
     if (wielding_artifact(ART_GIANTSLAYER) && racial_giant(mtmp))
         return FALSE;
 
