@@ -2971,4 +2971,5 @@ The following changes to date are:
 - Fix: even more separate_steed_and_rider() fixes
 - Fix: wishing for a string with mismatched parens, that doesn't contain any
   actual wish before them
+- Fix: material damage message firing after target was already killed
 
