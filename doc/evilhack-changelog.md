@@ -2973,4 +2973,5 @@ The following changes to date are:
   actual wish before them
 - Fix: material damage message firing after target was already killed
 - Fix: racial weapon selection flub for lieutenants
+- Fix: dialogue formatting with the Priest quest
 

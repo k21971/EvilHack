@@ -2713,18 +2713,17 @@ that brought you here."
 "You have returned, %p.  And with %o, I see.
 Congratulations.
 
-"Well done, %p.  You have defeated %n and
-recovered %o, and I have lifted the curse from
-the silver bell.  However, %d has
-directed that %o shall be kept
-here with us at %H.
+"Well done, %p.  You have defeated %n and recovered
+%o, and I have lifted the curse from
+the silver bell.  However, %d has directed that
+%o shall be kept here with us at %H.
 
 Please %p, return %o to us now.
 %E ["%lC asks you to forfeit %o."]
 %Cc Pri 00084
-"Thank you %p for your sacrifice, I know this must have been
-difficult to do. Rest assured, %d smiles down
-upon you this day.  %o will be safe with us."
+"Thank you %p for your sacrifice, I know this must have
+been difficult to do.  Rest assured, %d smiles down
+upon you this day.  %oC will be safe with us."
 %E ["You give %o to %l."]
 %Cp Pri 00090
 "Welcome back, %p.  How is your quest for the Amulet going?"
