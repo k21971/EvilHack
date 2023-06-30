@@ -2972,4 +2972,5 @@ The following changes to date are:
 - Fix: wishing for a string with mismatched parens, that doesn't contain any
   actual wish before them
 - Fix: material damage message firing after target was already killed
+- Fix: racial weapon selection flub for lieutenants
 
