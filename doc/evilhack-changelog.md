@@ -2974,4 +2974,5 @@ The following changes to date are:
 - Fix: material damage message firing after target was already killed
 - Fix: racial weapon selection flub for lieutenants
 - Fix: dialogue formatting with the Priest quest
+- Fix: double message when entering the lemure pits (hellc demon boss level) 
 
