@@ -362,6 +362,8 @@ result:
     case 22:
         if (Luck < 0) {
             blowupforge(u.ux, u.uy);
+            /* Avoid destroying the same item twice (lava_damage) */
+            return;
         } else {
            pline("Molten lava surges up and splashes all over you!");
            losehp(resist_reduce(d(3, 8), FIRE_RES), "dipping into a forge", KILLED_BY);

@@ -2977,4 +2977,6 @@ The following changes to date are:
 - Fix: double message when entering the lemure pits (hellc demon boss level) 
 - Fix: heap-use-after-free when long worms where slimed by a player poly'd
   as green slime mid worm hit loop
+- Fix: heap-use-after-free caused by an exploding forge destroying the same
+  dipped object twice
 
