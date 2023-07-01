@@ -299,10 +299,14 @@ register struct monst *worm;
      *  the head within range for a tiny moment, but this needs a bit more
      *  looking at before we decide to do this.
      */
-    for (seg = wtails[wnum]; seg; seg = seg->nseg)
-        if (distu(seg->wx, seg->wy) < 3)
+    for (seg = wtails[wnum]; seg; seg = seg->nseg) {
+        if (distu(seg->wx, seg->wy) < 3) {
             if (mattacku(worm))
                 return; /* your passive ability killed the worm */
+        }
+        if (!worm->wormno)
+            return; /* may have been slimed */
+    }
 }
 
 /*  cutworm()
