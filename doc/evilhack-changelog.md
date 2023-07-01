@@ -2979,4 +2979,5 @@ The following changes to date are:
   as green slime mid worm hit loop
 - Fix: heap-use-after-free caused by an exploding forge destroying the same
   dipped object twice
+- Fix: weapon material damage adjustments
 
