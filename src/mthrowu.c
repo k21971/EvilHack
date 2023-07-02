@@ -1174,7 +1174,11 @@ struct attack *mattk;
                 if (dog->hungrytime > 1)
                     dog->hungrytime -= 5;
             }
+
             return 1;
+        } else {
+            obj_extract_self(otmp);
+            obfree(otmp, (struct obj *) 0);
         }
     }
     return 0;

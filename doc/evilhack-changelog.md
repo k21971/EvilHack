@@ -2980,4 +2980,5 @@ The following changes to date are:
 - Fix: heap-use-after-free caused by an exploding forge destroying the same
   dipped object twice
 - Fix: weapon material damage adjustments
+- Fix: memory leak in spitmm()
 
