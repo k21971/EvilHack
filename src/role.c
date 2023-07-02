@@ -2535,12 +2535,11 @@ role_init()
 
     /* Fix up the god names */
     if (flags.pantheon == -1) {             /* new game */
+        flags.pantheon = flags.initrole;    /* use own gods */
         if (Race_if(PM_DROW)) {
             urole.lgod = "_Eilistraee";
             urole.ngod = "Vhaeraun";
             urole.cgod = "_Lolth";
-        } else {
-            flags.pantheon = flags.initrole;    /* use own gods */
         }
         while (!roles[flags.pantheon].lgod) /* unless they're missing */
             flags.pantheon = randrole(FALSE);

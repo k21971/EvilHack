@@ -2981,4 +2981,5 @@ The following changes to date are:
   dipped object twice
 - Fix: weapon material damage adjustments
 - Fix: memory leak in spitmm()
+- Fix: global-buffer-overflow when initializing drow characters
 
