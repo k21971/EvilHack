@@ -1069,21 +1069,11 @@ boolean msg;
     }
 }
 
-static const char *const spearmsgs[] = {
-    "a spear trap",
-    "a sharpened bamboo stick",
-    "a tapered wooden stake",
-    "a narrow pointy spike",
-    "becoming a döner kebab",
-    "imitating a meat popsicle"
-};
-
 void
 dotrap(trap, trflags)
 register struct trap *trap;
 unsigned trflags;
 {
-    char buf[BUFSZ];
     register int ttype = trap->ttyp;
     struct obj *otmp;
     struct monst *steed = u.usteed;
@@ -1098,7 +1088,6 @@ unsigned trflags;
             adj_pit = adj_nonconjoined_pit(trap);
     int oldumort;
     int steed_article = ARTICLE_THE;
-    int lvl = level_difficulty();
 
     nomul(0);
 
@@ -1858,14 +1847,7 @@ unsigned trflags;
               body_part(LEG));
             set_wounded_legs(rn2(2) ? RIGHT_SIDE : LEFT_SIDE, rn1(10, 10));
             exercise(A_DEX, FALSE);
-            Sprintf(buf, "%s", spearmsgs[rn2(SIZE(spearmsgs))]);
-            /* currently there's no way to have random vaults spawn at
-             * certain level depths. until then, we'll curtail spear trap
-             * damage a bit, up until the level they'd normally appear at */
-            if (lvl < 6)
-                losehp(Maybe_Half_Phys(rnd(4) + 6), buf, KILLED_BY);
-            else
-                losehp(Maybe_Half_Phys(rnd(10) + 10), buf, KILLED_BY);
+            losehp(Maybe_Half_Phys(rnd(8) + 6), "spear trap", KILLED_BY);
         }
         break;
 
@@ -1913,7 +1895,6 @@ struct obj *otmp;
 {
     struct monst *steed = u.usteed;
     int tt;
-    int lvl = level_difficulty();
     boolean trapkilled, steedhit;
 
     if (!steed || !trap)
@@ -1972,7 +1953,7 @@ struct obj *otmp;
         } else {
             trapkilled = (DEADMONSTER(steed)
                           || thitm(0, steed, (struct obj*) 0,
-                                   (rnd((lvl < 6) ? 4 : 10) + 10), FALSE));
+                                   (rnd(8) + 6), FALSE));
             steedhit = TRUE;
         }
         break;
@@ -2511,7 +2492,6 @@ register struct monst *mtmp;
     struct permonst *mptr = mtmp->data;
     struct obj *otmp;
     struct monst* mtmp2;
-    int lvl = level_difficulty();
 
     if (!trap) {
         mtmp->mtrapped = 0;      /* perhaps teleported? */
@@ -3197,7 +3177,7 @@ register struct monst *mtmp;
             } else {
                 if (DEADMONSTER(mtmp)
                     || thitm(0, mtmp, (struct obj *) 0,
-                             (rnd((lvl < 6) ? 4 : 10) + 10), FALSE))
+                             (rnd(8) + 6), FALSE))
                     trapkilled = TRUE;
                 else if (in_sight)
                     pline("%s is skewered!", Monnam(mtmp));

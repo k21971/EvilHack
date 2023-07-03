@@ -2986,4 +2986,5 @@ The following changes to date are:
 - Minor tweaks to receiving a spellbook via altar sacrifice
 - Make scrolls of blank paper and potions of water known
 - Allow knights to tame dragons of the same alignment
+- Spear trap tweaks, remove multiple random death messages
 
