@@ -823,8 +823,10 @@ u_init()
     u.nv_range = 1;
     u.xray_range = -1;
 
-    /* Scrolls of identify universally known. */
+    /* various objects are universally known */
     knows_object(SCR_IDENTIFY);
+    knows_object(POT_WATER);
+    knows_object(SCR_BLANK_PAPER);
 
     /*** Role-specific initializations ***/
     switch (Role_switch) {

@@ -2984,4 +2984,5 @@ The following changes to date are:
 - Fix: global-buffer-overflow when initializing drow characters
 - Monsters that spawn with spears have a chance to spawn with a stack of them
 - Minor tweaks to receiving a spellbook via altar sacrifice
+- Make scrolls of blank paper and potions of water known
 
