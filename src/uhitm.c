@@ -4550,7 +4550,8 @@ boolean wep_was_destroyed;
             break;
         case AD_DRST: /* specifically green dragons */
             if (how_resistant(POISON_RES) == 100) {
-                You("are immune to %s poisonous hide.", s_suffix(mon_nam(mon)));
+                if (!rn2(5))
+                    You("are immune to %s poisonous hide.", s_suffix(mon_nam(mon)));
                 monstseesu(M_SEEN_POISON);
             } else {
                 i = rn2(20);

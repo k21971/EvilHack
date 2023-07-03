@@ -3013,9 +3013,9 @@ struct obj *mwep;
     case AD_DRST:
         if (mhit && !mdef->mcan && !rn2(3)) {
             if (resists_poison(magr) || defended(magr, AD_DRST)) {
-                if (canseemon(magr) && !rn2(3)) {
-                    shieldeff(magr->mx, magr->my);
-                    pline("%s poisonous hide doesn't seem to affect %s.",
+                if (canseemon(magr)) {
+                    if (!rn2(5))
+                        pline("%s poisonous hide doesn't seem to affect %s.",
                               s_suffix(Monnam(mdef)), mon_nam(magr));
                 }
             } else {

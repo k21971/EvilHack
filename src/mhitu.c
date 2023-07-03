@@ -4633,7 +4633,8 @@ struct attack *mattk;
             break;
         case AD_DRST:
             if (resists_poison(mtmp) || defended(mtmp, AD_DRST)) {
-                pline("%s is unaffected by your poisonous hide.", Monnam(mtmp));
+                if (!rn2(5))
+                    pline("%s is unaffected by your poisonous hide.", Monnam(mtmp));
                 tmp = 0;
                 break;
             }

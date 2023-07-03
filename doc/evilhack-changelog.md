@@ -2987,4 +2987,6 @@ The following changes to date are:
 - Make scrolls of blank paper and potions of water known
 - Allow knights to tame dragons of the same alignment
 - Spear trap tweaks, remove multiple random death messages
+- Cut down on feedback when melee attacking a green dragon and not being
+  affected by its hide
 
