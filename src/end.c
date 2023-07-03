@@ -1371,6 +1371,9 @@ int how;
             } else if (is_open_air(x, y) && !Levitation
                        && !(Flying && !(Punished && !carried(uball)
                             && is_open_air(uball->ox, uball->oy)))) {
+                if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT))
+                    return; /* successful life-save */
+                /* nowhere safe to land; repeat falling loop... */
                 pline("Unfortunately the impact was too great...");
             } else {
                 char killbuf[BUFSZ];

@@ -2989,4 +2989,6 @@ The following changes to date are:
 - Spear trap tweaks, remove multiple random death messages
 - Cut down on feedback when melee attacking a green dragon and not being
   affected by its hide
+- Allow a worn not cursed amulet of life saving to save the player if they
+  fall in an 'open air' space
 
