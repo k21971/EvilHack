@@ -1401,6 +1401,7 @@ aligntyp g_align;
                     obfree(otmp, (struct obj *) 0);
                 } else {
                     bless(otmp);
+                    otmp->oeroded = otmp->oeroded2 = 0;
                     at_your_feet("A spellbook");
                     place_object(otmp, u.ux, u.uy);
                     newsym(u.ux, u.uy);
@@ -2270,6 +2271,8 @@ dosacrifice()
                         /* Making a spellbook */
                         int trycnt = u.ulevel + 1;
 
+                        /* not yet known spells given preference over already known ones.
+                           Also, try to grant a spell for which there is a skill slot */
                         otmp = mkobj(SPBOOK_CLASS, TRUE);
 
                         if (!otmp)
@@ -2281,19 +2284,27 @@ dosacrifice()
                                     && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
                                     break; /* usable, but not yet known */
                             } else {
-                                if (!objects[SPE_BLANK_PAPER].oc_name_known
-                                    || carrying(MAGIC_MARKER))
+                                if ((!objects[SPE_BLANK_PAPER].oc_name_known
+                                     || carrying(MAGIC_MARKER)) && u.uconduct.literate)
                                     break;
                             }
                             otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
                             otmp->owt = weight(otmp);
                         }
 
-                        bless(otmp);
-                        otmp->oeroded = otmp->oeroded2 = 0;
-                        at_your_feet("An object");
-                        place_object(otmp, u.ux, u.uy);
-                        newsym(u.ux, u.uy);
+                        if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
+                            && !known_spell(otmp->otyp)) {
+                            if (force_learn_spell(otmp->otyp))
+                                pline("Divine knowledge of %s fills your mind!",
+                                      OBJ_NAME(objects[otmp->otyp]));
+                            obfree(otmp, (struct obj *) 0);
+                        } else {
+                            bless(otmp);
+                            otmp->oeroded = otmp->oeroded2 = 0;
+                            at_your_feet("A spellbook");
+                            place_object(otmp, u.ux, u.uy);
+                            newsym(u.ux, u.uy);
+                        }
                         godvoice(u.ualign.type, "Use this gift skillfully!");
                         u.ugifts++;
                         u.ublesscnt = rnz(300 + (50 * u.ugifts));
