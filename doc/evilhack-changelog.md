@@ -2982,4 +2982,5 @@ The following changes to date are:
 - Fix: weapon material damage adjustments
 - Fix: memory leak in spitmm()
 - Fix: global-buffer-overflow when initializing drow characters
+- Monsters that spawn with spears have a chance to spawn with a stack of them
 

@@ -3811,6 +3811,12 @@ int otyp;
             otmp->cursed = TRUE;
         }
 
+        /* Any monster that gets a spear may get a stack of them */
+        if (is_spear(otmp)) {
+            otmp->quan = rne(2);
+            otmp->owt = weight(otmp);
+        }
+
         /* leaders don't tolerate inferior quality battle gear
          * in fact, they don't settle for non-enchanted gear period */
         if (is_prince(mtmp->data)) {
