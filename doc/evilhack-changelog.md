@@ -2991,4 +2991,5 @@ The following changes to date are:
   affected by its hide
 - Allow a worn not cursed amulet of life saving to save the player if they
   fall in an 'open air' space
+- Make Saint Michael a slightly tougher opponent
 

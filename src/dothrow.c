@@ -2459,14 +2459,15 @@ xchar x, y;
         && !obj->oartifact && obj->oclass != GEM_CLASS)
         return 1;
     /* Drow objects are brittle if in the light.
-     * Drow weapons are a bit sturdier. 
+     * Drow weapons are a bit sturdier.
      * Melee weapons have 1/16 chance of breakage when break_glass_obj
-     * is considered, thrown/kicked/etc. weapons have a 3/8 chance, 
+     * is considered, thrown/kicked/etc. weapons have a 3/8 chance,
      * and armor has a 1/6 chance regardless. */
     if (obj->material == ADAMANTINE && is_drow_obj(obj)
-        && !obj->oartifact && !spot_is_dark(x, y))
+        && !obj->oartifact && !spot_is_dark(x, y)) {
         if (!is_drow_weapon(obj) || (rn2(8) < 3))
             return 1;
+    }
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case EXPENSIVE_CAMERA:
     case POT_WATER: /* really, all potions */

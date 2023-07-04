@@ -2947,6 +2947,10 @@ long mmflags;
     if (ptr == &mons[PM_LUCIFER])
         mtmp->mhp = mtmp->mhpmax = 666;
 
+    /* Saint Michael */
+    if (ptr == &mons[PM_SAINT_MICHAEL])
+        mtmp->mhp = mtmp->mhpmax = 300 + rnd(50);
+
     /* Here is where we match riding monsters with their mounts */
     if (!(mmflags & MM_REVIVE)) {
         switch (mndx) {
