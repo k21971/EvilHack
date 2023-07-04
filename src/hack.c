@@ -3506,6 +3506,11 @@ weight_cap()
             carrcap = (carrcap * (long) youmonst.data->cwt / WT_HUMAN);
     }
 
+    if (uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION) {
+        carrcap += 200;
+        maxcarrcap += 500;
+    }
+
     if (Levitation || Is_airlevel(&u.uz) /* pugh@cornell */
         || (u.usteed && strongmonst(u.usteed->data))) {
         carrcap = maxcarrcap;

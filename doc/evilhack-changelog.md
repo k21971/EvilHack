@@ -2993,4 +2993,5 @@ The following changes to date are:
   fall in an 'open air' space
 - Make Saint Michael a slightly tougher opponent
 - Fix: place trident skill initialization (Tortle) in correct location
+- Wearing the Armor of Retribution increases carry cap/max carry cap
 
