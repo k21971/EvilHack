@@ -2256,6 +2256,21 @@ const struct def_skill *class_skill;
     if (Role_if(PM_KNIGHT) || Role_if(PM_VALKYRIE))
         P_SKILL(P_SHIELD) = P_BASIC;
 
+    /* As a Tortle, if their role lists trident as a trainable
+       skill, raise the max proficiency level by one. If
+       non-priest, add trident skill, and allow training up to
+       basic */
+    if (Race_if(PM_TORTLE)) {
+        if (Role_if(PM_BARBARIAN) || Role_if(PM_MONK)) {
+            P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
+        } else if (Role_if(PM_HEALER) || Role_if(PM_TOURIST)) {
+            P_MAX_SKILL(P_TRIDENT) = P_SKILLED;
+        } else if (!Role_if(PM_PRIEST)) {
+            unrestrict_weapon_skill(P_TRIDENT);
+            P_MAX_SKILL(P_TRIDENT) = P_BASIC;
+        }
+    }
+
     /*
      * Make sure we haven't missed setting the max on a skill
      * & set advance

@@ -1129,18 +1129,6 @@ u_init()
         break;
 
     case PM_TORTLE:
-        /* if their role lists trident as a trainable skill,
-           raise the max proficiency level by one. If non-priest,
-           add trident skill, and allow training up to basic */
-        if (Role_if(PM_BARBARIAN) || Role_if(PM_MONK)) {
-            P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
-        } else if (Role_if(PM_HEALER) || Role_if(PM_TOURIST)) {
-            P_MAX_SKILL(P_TRIDENT) = P_SKILLED;
-        } else if (!Role_if(PM_PRIEST)) {
-            unrestrict_weapon_skill(P_TRIDENT);
-            P_MAX_SKILL(P_TRIDENT) = P_BASIC;
-        }
-
         if (!rn2(4)
             && !Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_ROGUE)) {
             /* in case they want to go for a swim */

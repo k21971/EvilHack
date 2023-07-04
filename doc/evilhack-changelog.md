@@ -2992,4 +2992,5 @@ The following changes to date are:
 - Allow a worn not cursed amulet of life saving to save the player if they
   fall in an 'open air' space
 - Make Saint Michael a slightly tougher opponent
+- Fix: place trident skill initialization (Tortle) in correct location
 
