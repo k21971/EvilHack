@@ -88,6 +88,7 @@ struct monst *mtmp;
 {
     return (!mtmp->mpeaceful
             && (is_rider(mtmp->data)
+                || (MON_WEP(mtmp) && is_pick(MON_WEP(mtmp)))
                 || (!mtmp->mspec_used
                     && (mtmp->isshk
                         || mtmp->ispriest
@@ -102,14 +103,24 @@ struct monst *mtmp;
 xchar x, y;
 {
     struct obj *otmp;
+    boolean using_pick = (MON_WEP(mtmp) && is_pick(MON_WEP(mtmp)));
 
     if (m_can_break_boulder(mtmp)
         && ((otmp = sobj_at(BOULDER, x, y)) != 0)) {
-        if (!Deaf && (distu(mtmp->mx, mtmp->my) < 4 * 4))
-            pline("%s %s %s.",
-                  Monnam(mtmp),
-                  rn2(2) ? "mutters" : "whispers",
-                  mtmp->ispriest ? "a prayer" : "an incantation");
+        if (distu(mtmp->mx, mtmp->my) < 4 * 4) {
+            if (using_pick && cansee(x, y)) {
+                pline("%s swings %s %s.",
+                      Monnam(mtmp), mhis(mtmp),
+                      simpleonames(MON_WEP(mtmp)));
+            } else {
+                if (!Deaf)
+                    pline("%s %s %s.",
+                          Monnam(mtmp),
+                          rn2(2) ? "mutters" : "whispers",
+                          mtmp->ispriest ? "a prayer"
+                                         : "an incantation");
+            }
+        }
         if (!is_rider(mtmp->data))
             mtmp->mspec_used += rn1(20, 10);
         if (cansee(x, y))
