@@ -2996,4 +2996,5 @@ The following changes to date are:
 - Wearing the Armor of Retribution increases carry cap/max carry cap
 - Allow monsters wielding a digging tool to break boulders
 - Feedback for trying to wear gloves/gauntlets over the Hand of Vecna
+- Fix: prevent #wizbury from being used in open air spaces
 
