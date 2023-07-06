@@ -2997,4 +2997,5 @@ The following changes to date are:
 - Allow monsters wielding a digging tool to break boulders
 - Feedback for trying to wear gloves/gauntlets over the Hand of Vecna
 - Fix: prevent #wizbury from being used in open air spaces
+- Cleaver multi-attack changes
 
