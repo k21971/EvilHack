@@ -900,7 +900,8 @@ struct monst *mon;
     (((mon)->mintrinsics | (mon)->data->mresists) & intrinsic)
     int i;
     for (i = 1; i <= STONE_RES; i++) {
-        if (intrinsic_possible(i, ptr) && !mon_has_intrinsic((1 << i), mon)) {
+        if (intrinsic_possible(i, ptr)
+            && !mon_has_intrinsic((1 << (i - 1)), mon)) {
             return TRUE;
         }
     }
