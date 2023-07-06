@@ -2995,4 +2995,5 @@ The following changes to date are:
 - Fix: place trident skill initialization (Tortle) in correct location
 - Wearing the Armor of Retribution increases carry cap/max carry cap
 - Allow monsters wielding a digging tool to break boulders
+- Feedback for trying to wear gloves/gauntlets over the Hand of Vecna
 
