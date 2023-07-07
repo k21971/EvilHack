@@ -832,11 +832,8 @@ int dieroll;
 
     /* glass breakage from the attack */
     break_glass_obj(some_armor(mdef));
-    if (break_glass_obj(mwep)) {
-        mwep->opoisoned = 0;
-        mwep->otainted = 0;
+    if (break_glass_obj(mwep))
         mwep = NULL;
-    }
 
     /* unhiding or unmimicking happens even if hero can't see it
        because the formerly concealed monster is now in action */
