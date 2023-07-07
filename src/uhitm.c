@@ -2085,8 +2085,6 @@ int dieroll;
     break_glass_obj(some_armor(mon));
     if (hand_to_hand ? break_glass_obj(obj)
                      : hero_breaks(obj, mon->mx, mon->my, 0)) {
-        obj->opoisoned = 0;
-        obj->otainted = 0;
         obj = (struct obj *) 0;
     }
 

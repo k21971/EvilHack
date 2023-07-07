@@ -788,7 +788,7 @@ topl.o: ../win/tty/topl.c $(HACK_H) ../include/tcap.h
 wintty.o: ../win/tty/wintty.c $(HACK_H) ../include/dlb.h ../include/tcap.h
 	$(CC) $(CFLAGS) -c -o $@ ../win/tty/wintty.c
 recover.o: ../util/recover.c $(HACK_H)
-	$(CC) $(CFLAGS) -DNO_MAIN -c ../util/recover.c
+	$(CC) $(CFLAGS) -DNO_MAIN -c -o $@ ../util/recover.c
 cursmain.o: ../win/curses/cursmain.c $(HACK_H) ../include/patchlevel.h \
 		../include/wincurs.h
 	$(CC) $(CFLAGS) -c -o $@ ../win/curses/cursmain.c

@@ -2999,4 +2999,5 @@ The following changes to date are:
 - Fix: prevent #wizbury from being used in open air spaces
 - Cleaver multi-attack changes
 - Fix: bug with how pets consider intrinsic-granting corpses as treats
+- Fix: heap-use-after-free when attacking with an object that breaks
 
