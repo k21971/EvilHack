@@ -6490,6 +6490,148 @@ short raceidx;
     rptr->mflags1 |= ptr->mflags1;
     rptr->mflags2 |= ptr->mflags2;
     rptr->mflags3 |= ptr->mflags3;
+
+    /* various racial adjustments (special attack types, alignment, etc) */
+    switch (raceidx) {
+    case PM_HUMAN:
+        if (mtmp->mnum == PM_CONVICT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        if (mtmp->mnum == PM_BARBARIAN
+            || mtmp->mnum == PM_RANGER
+            || mtmp->mnum == PM_ROGUE
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = rn2(2) ? 0 : -3;
+        if (mtmp->mnum == PM_ARCHEOLOGIST
+            || mtmp->mnum == PM_CAVEMAN
+            || mtmp->mnum == PM_CAVEWOMAN
+            || mtmp->mnum == PM_VALKYRIE)
+            rptr->ralign = rn2(2) ? 0 : 3;
+        if (mtmp->mnum == PM_KNIGHT)
+            rptr->ralign = rn2(2) ? 3 : -3;
+        if (mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_PRIEST
+            || mtmp->mnum == PM_PRIESTESS)
+            rptr->ralign = rn2(2) ? 3 : rn2(2) ? 0 : -3;
+        break;
+    case PM_ELF:
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        if (mtmp->mnum == PM_HEALER)
+            rptr->ralign = 0;
+        if (mtmp->mnum == PM_KNIGHT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_PRIEST
+            || mtmp->mnum == PM_PRIESTESS
+            || mtmp->mnum == PM_RANGER
+            || mtmp->mnum == PM_ROGUE
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = rn2(3) ? -3 : 0;
+        break;
+    case PM_DWARF:
+        if (mtmp->mnum == PM_CONVICT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_ARCHEOLOGIST
+            || mtmp->mnum == PM_CAVEMAN
+            || mtmp->mnum == PM_CAVEWOMAN
+            || mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_PRIEST
+            || mtmp->mnum == PM_PRIESTESS
+            || mtmp->mnum == PM_VALKYRIE)
+            rptr->ralign = rn2(3) ? 3 : 0;
+        if (mtmp->mnum == PM_BARBARIAN
+            || mtmp->mnum == PM_HEALER
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = 0;
+        if (mtmp->mnum == PM_KNIGHT)
+            rptr->ralign = 3;
+        break;
+    case PM_GIANT:
+        if (!(Role_if(PM_WIZARD) || Role_if(PM_MONK)
+              || Role_if(PM_PRIEST) || Role_if(PM_PRIESTESS))) {
+            rptr->mattk[0].aatyp = AT_WEAP;
+            rptr->mattk[0].adtyp = AD_CLOB;
+            rptr->mattk[0].damn = 2;
+            rptr->mattk[0].damd = 8;
+        }
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        if (mtmp->mnum == PM_CAVEMAN
+            || mtmp->mnum == PM_CAVEWOMAN
+            || mtmp->mnum == PM_VALKYRIE)
+            rptr->ralign = rn2(2) ? 0 : 3;
+        if (mtmp->mnum == PM_BARBARIAN
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = rn2(2) ? 0 : -3;
+        if (mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_PRIEST
+            || mtmp->mnum == PM_PRIESTESS)
+            rptr->ralign = rn2(2) ? 3 : rn2(2) ? 0 : -3;
+        break;
+    case PM_GNOME:
+        rptr->ralign = 0;
+        if (mtmp->mnum == PM_CONVICT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_RANGER
+            || mtmp->mnum == PM_ROGUE
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = rn2(3) ? 0 : -3;
+        break;
+    case PM_HOBBIT:
+        rptr->ralign = 0;
+        if (mtmp->mnum == PM_CONVICT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_ARCHEOLOGIST
+            || mtmp->mnum == PM_PRIEST
+            || mtmp->mnum == PM_PRIESTESS)
+            rptr->ralign = rn2(3) ? 0 : 3;
+        break;
+    case PM_CENTAUR:
+        rptr->mattk[2].aatyp = AT_KICK;
+        rptr->mattk[2].adtyp = AD_PHYS;
+        rptr->mattk[2].damn = 1;
+        rptr->mattk[2].damd = 6;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        if (mtmp->mnum == PM_HEALER
+            || mtmp->mnum == PM_VALKYRIE)
+            rptr->ralign = 0;
+        if (mtmp->mnum == PM_BARBARIAN
+            || mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_PRIEST
+            || mtmp->mnum == PM_PRIESTESS)
+            rptr->ralign = rn2(3) ? -3 : 0;
+        break;
+    case PM_ORC:
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    case PM_ILLITHID:
+        rptr->mattk[2].aatyp = AT_TENT;
+        rptr->mattk[2].adtyp = AD_DRIN;
+        rptr->mattk[2].damn = 2;
+        rptr->mattk[2].damd = 1;
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    case PM_TORTLE:
+        rptr->ralign = 0;
+        if (mtmp->mnum == PM_ARCHEOLOGIST
+            || mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_PRIEST
+            || mtmp->mnum == PM_PRIESTESS)
+            rptr->ralign = rn2(4) ? 3 : 0;
+        break;
+    case PM_DROW:
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    }
 }
 
 /*mon.c*/

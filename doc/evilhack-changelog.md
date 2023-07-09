@@ -3003,4 +3003,5 @@ The following changes to date are:
 - Fix: heap-use-after-free when a monster attacks with an object that breaks
 - Fix: explicitly state various materials so certain forge recipes will work
 - Fix: various fixes to polyself.c
+- Player monster racial settings refactor
 
