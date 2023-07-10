@@ -2544,6 +2544,13 @@ role_init()
         while (!roles[flags.pantheon].lgod) /* unless they're missing */
             flags.pantheon = randrole(FALSE);
     }
+    if (flags.pantheon >= 0) {              /* existing games, drow */
+        if (Race_if(PM_DROW)) {
+            urole.lgod = "_Eilistraee";
+            urole.ngod = "Vhaeraun";
+            urole.cgod = "_Lolth";
+        }
+    }
     if (!urole.lgod) {
         urole.lgod = roles[flags.pantheon].lgod;
         urole.ngod = roles[flags.pantheon].ngod;

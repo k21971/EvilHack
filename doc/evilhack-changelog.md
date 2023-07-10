@@ -3005,4 +3005,5 @@ The following changes to date are:
 - Fix: various fixes to polyself.c
 - Player monster racial settings refactor
 - Fix: brain fart in last commit (player monster racial settings refactor)
+- Fix: Drow were not preserving their special deities after a save/reload
 
