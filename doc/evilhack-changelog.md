@@ -3004,4 +3004,5 @@ The following changes to date are:
 - Fix: explicitly state various materials so certain forge recipes will work
 - Fix: various fixes to polyself.c
 - Player monster racial settings refactor
+- Fix: brain fart in last commit (player monster racial settings refactor)
 

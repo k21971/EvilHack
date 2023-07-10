@@ -6549,8 +6549,8 @@ short raceidx;
             rptr->ralign = 3;
         break;
     case PM_GIANT:
-        if (!(Role_if(PM_WIZARD) || Role_if(PM_MONK)
-              || Role_if(PM_PRIEST) || Role_if(PM_PRIESTESS))) {
+        if (!(mtmp->mnum == PM_WIZARD || mtmp->mnum == PM_MONK
+              || mtmp->mnum == PM_PRIEST || mtmp->mnum == PM_PRIESTESS)) {
             rptr->mattk[0].aatyp = AT_WEAP;
             rptr->mattk[0].adtyp = AD_CLOB;
             rptr->mattk[0].damn = 2;
