@@ -2294,6 +2294,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else {
                     pline("You are smashed backwards!");
                     hurtle(u.ux - magr->mx, u.uy - magr->my, hurtle_distance, FALSE);
+                    /* Update monster's knowledge of your position */
+                    magr->mux = u.ux;
+                    magr->muy = u.uy;
                     return TRUE;
                 }
             } else

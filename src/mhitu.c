@@ -1599,6 +1599,9 @@ register struct attack *mattk;
                       u.usteed ? "out of your saddle" : "back",
                       rn2(2) ? "forceful" : "powerful", rn2(2) ? "blow" : "strike");
                 hurtle(u.ux - mtmp->mx, u.uy - mtmp->my, rnd(2), FALSE);
+                /* Update monster's knowledge of your position */
+                mtmp->mux = u.ux;
+                mtmp->muy = u.uy;
                 if (!rn2(4)) {
                     if (!wielding_artifact(ART_TEMPEST))
                         make_stunned((HStun & TIMEOUT) + (long) rnd(2) + 1, TRUE);

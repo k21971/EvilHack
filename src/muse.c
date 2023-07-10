@@ -1927,6 +1927,9 @@ register struct obj *otmp;
                               u.usteed ? "out of your saddle" : "back");
                     last_hurtled = &youmonst;
                     hurtle(u.ux - zapper->mx, u.uy - zapper->my, 1, FALSE);
+                    /* Update monster's knowledge of your position */
+                    mtmp->mux = u.ux;
+                    mtmp->muy = u.uy;
                 }
                 losehp(tmp, "wand", KILLED_BY_AN);
             } else

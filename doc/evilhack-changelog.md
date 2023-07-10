@@ -3006,4 +3006,6 @@ The following changes to date are:
 - Player monster racial settings refactor
 - Fix: brain fart in last commit (player monster racial settings refactor)
 - Fix: Drow were not preserving their special deities after a save/reload
+- Fix: monster attack that hurtles player caused monster to lose track of
+  the players' position
 
