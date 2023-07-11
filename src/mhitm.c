@@ -2172,9 +2172,10 @@ post_stone:
         if (magr->mcan)
             break;
         /* find an object to steal, non-cursed if magr is tame */
-        for (obj = mdef->minvent; obj; obj = obj->nobj)
+        for (obj = mdef->minvent; obj; obj = obj->nobj) {
             if (!magr->mtame || !obj->cursed)
                 break;
+        }
 
         if (obj) {
             char onambuf[BUFSZ], mdefnambuf[BUFSZ];
@@ -2183,6 +2184,28 @@ post_stone:
                the saddle, and save it for later messages */
             Strcpy(mdefnambuf,
                    x_monnam(mdef, ARTICLE_THE, (char *) 0, 0, FALSE));
+
+            /* greased objects are difficult to get a grip on, hence
+               the odds that an attempt at stealing it may fail */
+            if ((obj->greased || obj->otyp == OILSKIN_CLOAK
+                 || (obj->oprops & ITEM_OILSKIN))
+                && (!obj->cursed || rn2(4))) {
+                if (vis && canseemon(mdef)) {
+                    pline("%s %s slip off of %s's %s %s!", s_suffix(Monnam(magr)),
+                          makeplural(mbodypart(magr, HAND)),
+                          mdefnambuf,
+                          obj->greased ? "greased" : "slippery",
+                          (obj->greased || objects[obj->otyp].oc_name_known)
+                              ? xname(obj)
+                              : cloak_simple_name(obj));
+                }
+                if (obj->greased && !rn2(3)) {
+                    if (vis && canseemon(mdef))
+                        pline_The("grease wears off.");
+                    obj->greased = 0;
+                }
+                break;
+            }
 
             if (u.usteed == mdef && obj == which_armor(mdef, W_SADDLE))
                 /* "You can no longer ride <steed>." */

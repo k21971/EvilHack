@@ -2360,6 +2360,26 @@ struct attack *mattk;
     if (!otmp || (as_mon && otmp->oclass == COIN_CLASS && !otmp->nobj))
         return; /* nothing to take */
 
+    /* greased objects are difficult to get a grip on, hence
+       the odds that an attempt at stealing it may fail */
+    if (otmp && (otmp->greased || otmp->otyp == OILSKIN_CLOAK
+        || (otmp->oprops & ITEM_OILSKIN))
+        && (!otmp->cursed || rn2(4))) {
+        Your("%s slip off of %s %s %s!",
+              makeplural(body_part(HAND)),
+              s_suffix(mon_nam(mdef)),
+              otmp->greased ? "greased" : "slippery",
+              (otmp->greased || objects[otmp->otyp].oc_name_known)
+                  ? xname(otmp)
+                  : cloak_simple_name(otmp));
+
+        if (otmp->greased && !rn2(3)) {
+            pline_The("grease wears off.");
+            otmp->greased = 0;
+        }
+        return;
+    }
+
     /* look for worn body armor */
     stealoid = (struct obj *) 0;
     if (as_mon) {

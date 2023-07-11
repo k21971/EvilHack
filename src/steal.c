@@ -307,7 +307,7 @@ char *objnambuf;
         else
             pline("%s tries to rob you, but there is nothing to steal!",
                   Monnam(mtmp));
-        return 1; /* let her flee */
+        return 1; /* let them flee */
     }
 
     monkey_business = (is_animal(mtmp->data) || is_rogue(mtmp->data));
@@ -365,6 +365,27 @@ char *objnambuf;
             goto retry;
         goto cant_take;
     }
+
+    /* greased objects are difficult to get a grip on, hence
+       the odds that an attempt at stealing it may fail */
+    if (otmp && (otmp->greased || otmp->otyp == OILSKIN_CLOAK
+        || (otmp->oprops & ITEM_OILSKIN))
+        && (!otmp->cursed || rn2(4))) {
+        pline("%s %s slip off of your %s %s!", s_suffix(Monnam(mtmp)),
+              makeplural(mbodypart(mtmp, HAND)),
+              otmp->greased ? "greased" : "slippery",
+              (otmp->greased || objects[otmp->otyp].oc_name_known)
+                  ? xname(otmp)
+                  : cloak_simple_name(otmp));
+
+        if (otmp->greased && !rn2(3)) {
+            pline_The("grease wears off.");
+            otmp->greased = 0;
+            update_inventory();
+        }
+        return 1; /* let them flee */
+    }
+
     /* animals and rogues can't overcome curse stickiness nor unlock chains */
     if (monkey_business) {
         boolean ostuck;
@@ -630,6 +651,19 @@ struct monst *mtmp;
     }
 
     if (otmp) { /* we have something to snatch */
+        if (otmp->greased
+            && (!otmp->cursed || !obj_resists(obj, 0, 0) || rn2(4))) {
+            pline("%s %s slip off of your greased %s!", s_suffix(Monnam(mtmp)),
+                  makeplural(mbodypart(mtmp, HAND)),
+                  xname(otmp));
+
+            if (otmp->greased && !rn2(3)) {
+                pline_The("grease wears off.");
+                otmp->greased = 0;
+                update_inventory();
+            }
+            return;
+        }
         /* take off outer gear if we're targetting [hypothetical]
            quest artifact suit, shirt, gloves, or rings */
         if ((otmp == uarm || otmp == uarmu) && uarmc)

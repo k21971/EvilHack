@@ -3009,4 +3009,5 @@ The following changes to date are:
 - Fix: monster attack that hurtles player caused monster to lose track of
   the players' position
 - Consolidate some race-specific functions in u_init.c
+- Greased objects have a chance to resist being stolen
 
