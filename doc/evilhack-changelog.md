@@ -3008,4 +3008,5 @@ The following changes to date are:
 - Fix: Drow were not preserving their special deities after a save/reload
 - Fix: monster attack that hurtles player caused monster to lose track of
   the players' position
+- Consolidate some race-specific functions in u_init.c
 
