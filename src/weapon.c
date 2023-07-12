@@ -681,7 +681,7 @@ boolean minimal; /* print a shorter message leaving out obj details */
         return;
     }
 
-    if (DEADMONSTER(mdef))
+    if (!youdefend && DEADMONSTER(mdef))
         return;
 
     if (!youdefend && !canspotmon(mdef))
