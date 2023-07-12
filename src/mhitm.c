@@ -2199,7 +2199,7 @@ post_stone:
                               ? xname(obj)
                               : cloak_simple_name(obj));
                 }
-                if (obj->greased && !rn2(3)) {
+                if (obj->greased && !rn2(2)) {
                     if (vis && canseemon(mdef))
                         pline_The("grease wears off.");
                     obj->greased = 0;

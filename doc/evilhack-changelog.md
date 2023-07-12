@@ -3013,4 +3013,5 @@ The following changes to date are:
 - Fix: certain spellbooks would have the wrong weight if received via prayer
   or altar sacrifice
 - Fix: material sear messages were being suppressed vs the player
+- Adjust some probabilities with grease wearing off during theft attempt
 
