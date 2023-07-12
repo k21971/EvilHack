@@ -1391,6 +1391,7 @@ aligntyp g_align;
                             break;
                     }
                     otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                    otmp->material = objects[otmp->otyp].oc_material;
                     otmp->owt = weight(otmp);
                 }
                 if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
@@ -2289,6 +2290,7 @@ dosacrifice()
                                     break;
                             }
                             otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                            otmp->material = objects[otmp->otyp].oc_material;
                             otmp->owt = weight(otmp);
                         }
 

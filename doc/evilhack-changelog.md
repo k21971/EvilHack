@@ -3010,4 +3010,6 @@ The following changes to date are:
   the players' position
 - Consolidate some race-specific functions in u_init.c
 - Greased objects have a chance to resist being stolen
+- Fix: certain spellbooks would have the wrong weight if received via prayer
+  or altar sacrifice
 
