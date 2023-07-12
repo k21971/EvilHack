@@ -3015,4 +3015,5 @@ The following changes to date are:
 - Fix: material sear messages were being suppressed vs the player
 - Adjust some probabilities with grease wearing off during theft attempt
 - Include oilskin sacks and the like to have a chance to resist being stolen
+- Fix: morgues don't make corpses from races that don't leave a corpse
 
