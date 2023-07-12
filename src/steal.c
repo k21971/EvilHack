@@ -369,6 +369,8 @@ char *objnambuf;
     /* greased objects are difficult to get a grip on, hence
        the odds that an attempt at stealing it may fail */
     if (otmp && (otmp->greased || otmp->otyp == OILSKIN_CLOAK
+        || otmp->otyp == OILSKIN_SACK
+        || otmp->oartifact == ART_BAG_OF_THE_HESPERIDES
         || (otmp->oprops & ITEM_OILSKIN))
         && (!otmp->cursed || rn2(4))) {
         pline("%s %s slip off of your %s %s!", s_suffix(Monnam(mtmp)),
