@@ -49,7 +49,8 @@ elf_can_regen()
             return 0;
         if (uarmf && is_iron(uarmf))
             return 0;
-        if (uleft && is_iron(uleft))
+        if (uleft && is_iron(uleft)
+            && !(uarmg && uarmg->oartifact == ART_HAND_OF_VECNA))
             return 0;
         if (uright && is_iron(uright))
             return 0;
@@ -93,7 +94,8 @@ orc_can_regen()
             return 0;
         if (uarmf && is_mithril(uarmf))
             return 0;
-        if (uleft && is_mithril(uleft))
+        if (uleft && is_mithril(uleft)
+            && !(uarmg && uarmg->oartifact == ART_HAND_OF_VECNA))
             return 0;
         if (uright && is_mithril(uright))
             return 0;

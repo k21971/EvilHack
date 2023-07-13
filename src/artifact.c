@@ -3567,12 +3567,18 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
             return 1;
 
         /* another case where nothing should happen: hero is wearing gloves
-         * which protect them from directly touching a weapon of a material they
-         * hate
-         * (no other gear slots are considered to completely block touching an
-         * outer piece of gear; e.g. wearing body armor doesn't protect from
-         * touching a worn cloak) */
+           which protect them from directly touching a weapon of a material
+           they hate (no other gear slots are considered to completely block
+           touching an outer piece of gear; e.g. wearing body armor doesn't
+           protect from touching a worn cloak) */
         if (!bane && obj == uwep && uarmg)
+            return 1;
+
+        /* The Hand of Vecna technically replaces the players left hand,
+           and since it's a dead mummified hand, wearing rings while
+           'wearing' the Hand won't cause any material damage */
+        if (!bane && obj->oclass == RING_CLASS
+            && uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
             return 1;
 
         /* Convict deity negates the quest artifact from being
