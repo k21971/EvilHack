@@ -2680,7 +2680,7 @@ The following changes to date are:
 
 ### Version 0.8.2
 
-- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of February 16th, 2023)
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of February 24th, 2023)
 - Initial preparation for new version (0.8.2)
 - Prevent bypassing demon boss lairs via level teleport
 - Tweak feedback if killing yourself from a cursed weapon
@@ -3017,4 +3017,10 @@ The following changes to date are:
 - Include oilskin sacks and the like to have a chance to resist being stolen
 - Fix: morgues don't make corpses from races that don't leave a corpse
 - Wearing the Hand of Vecna prevents material damage from worn rings
+
+
+### Version 0.9.0
+
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of February 24th, 2023)
+- Initial preparation for new version (0.9.0)
 
