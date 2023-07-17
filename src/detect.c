@@ -235,11 +235,6 @@ boolean magic;
     }
 }
 
-#define is_magic(obj) \
-                 (((obj)->oprops & ITEM_PROP_MASK) \
-                  || (objects[(obj)->otyp]).oc_magic \
-                  || (obj)->oartifact)
-
 /* Check whether the location has an outdated object displayed on it. */
 STATIC_OVL boolean
 check_map_spot(x, y, oclass, material, magic)
