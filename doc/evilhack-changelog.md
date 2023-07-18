@@ -3019,6 +3019,7 @@ The following changes to date are:
 - Wearing the Hand of Vecna prevents material damage from worn rings
 - Fix: crash when poisoned/tainted weapon breaks (monster attacking player)
 - Fix: swimming underneath monsters while engulfed/grabbed/swallowed
+- Fix: boulder trap pathing could go out of bounds
 
 
 ### Version 0.9.0
