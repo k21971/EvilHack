@@ -1492,13 +1492,6 @@ register struct attack *mattk;
                 if (otmp->otainted && is_poisonable(otmp))
                     istainted = TRUE;
 
-                /* glass breakage from the attack */
-                break_glass_obj(some_armor(&youmonst));
-                if (break_glass_obj(MON_WEP(mtmp))) {
-                    otmp = NULL;
-                    mon_currwep = NULL;
-                }
-
                 if (!dmg)
                     break;
                 if (Hate_material(wepmaterial)) {
@@ -1562,6 +1555,14 @@ register struct attack *mattk;
                                   s_suffix(Monnam(mtmp)), xname(otmp));
                     }
                 }
+
+                /* glass breakage from the attack */
+                break_glass_obj(some_armor(&youmonst));
+                if (break_glass_obj(MON_WEP(mtmp))) {
+                    otmp = NULL;
+                    mon_currwep = NULL;
+                }
+
                 /* this redundancy necessary because you have
                    to take the damage _before_ being cloned;
                    need to have at least 2 hp left to split */
