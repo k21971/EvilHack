@@ -3018,6 +3018,7 @@ The following changes to date are:
 - Fix: morgues don't make corpses from races that don't leave a corpse
 - Wearing the Hand of Vecna prevents material damage from worn rings
 - Fix: crash when poisoned/tainted weapon breaks (monster attacking player)
+- Fix: swimming underneath monsters while engulfed/grabbed/swallowed
 
 
 ### Version 0.9.0
