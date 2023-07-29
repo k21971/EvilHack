@@ -737,8 +737,13 @@ struct obj **potmp, **pobj;
 
         if (!otmp->globby)
             otmp->quan += obj->quan;
+        /* recalc weight for various classes that may use
+           different materials that could make the object
+           weigh less than 1 aum*/
+        if (otmp->oclass == WEAPON_CLASS)
+            otmp->owt = weight(otmp);
         /* temporary special case for gold objects!!!! */
-        if (otmp->oclass == COIN_CLASS)
+        else if (otmp->oclass == COIN_CLASS)
             otmp->owt = weight(otmp), otmp->bknown = 0;
         /* and puddings!!!1!!one! */
         else if (!Is_pudding(otmp))
