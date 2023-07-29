@@ -3036,6 +3036,7 @@ The following changes to date are:
   spellcasting
 - Fix: ukiller can't be null if killer wants to go through player inventory
 - Fix: minor bugs while underwater and trying to fight monsters above water
+- Prevent wishing for objects with an invalid material whilst fuzzing
 
 
 ### Version 0.9.0
