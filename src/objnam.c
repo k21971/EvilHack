@@ -1409,12 +1409,19 @@ unsigned doname_flags;
             /* slippery fingers is an intrinsic condition of the hero
                rather than extrinsic condition of objects, but gloves
                are described as slippery when hero has slippery fingers */
-            if (obj == uarmg && Glib) /* just appended "(something)",
-                                       * change to "(something; slippery)" */
+            if (obj == uarmg
+                && obj->otyp != MUMMIFIED_HAND && Glib) {
+                /* just appended "(something)",
+                 * change to "(something; slippery)" */
                 Strcpy(rindex(bp, ')'), "; slippery)");
-            else if (obj->otyp == MUMMIFIED_HAND)
-                Sprintf(rindex(bp, ' '), " (merged to your left %s)",
-                        body_part(ARM));
+            } else if (obj->otyp == MUMMIFIED_HAND) {
+                if (Glib)
+                    Sprintf(rindex(bp, ' '), " (merged to your left %s; slippery)",
+                            body_part(ARM));
+                else
+                    Sprintf(rindex(bp, ' '), " (merged to your left %s)",
+                            body_part(ARM));
+            }
         }
         if (Is_dragon_scaled_armor(obj)) {
             char scalebuf[30];
