@@ -2362,6 +2362,8 @@ boolean on_floor;
     for (otmp = boh->cobj; otmp; otmp = nobj) {
         nobj = otmp->nobj;
         if (is_boh_item_gone()) {
+            if (obj_resists(otmp, 0, 0))
+                return;
             obj_extract_self(otmp);
             mbag_item_gone(!on_floor, otmp, TRUE);
         } else {
@@ -2385,6 +2387,8 @@ boolean held;
         for (curr = container->cobj; curr; curr = otmp) {
             otmp = curr->nobj;
             if (is_boh_item_gone()) {
+                if (obj_resists(curr, 0, 0))
+                    return 0;
                 obj_extract_self(curr);
                 loss += mbag_item_gone(held, curr, FALSE);
             }
@@ -3618,6 +3622,8 @@ struct obj *box; /* or bag */
             if (box->otyp == ICE_BOX) {
                 removed_from_icebox(otmp); /* resume rotting for corpse */
             } else if (cursed_mbag && is_boh_item_gone()) {
+                if (obj_resists(otmp, 0, 0))
+                    return;
                 loss += mbag_item_gone(held, otmp, FALSE);
                 /* abbreviated drop format is no longer appropriate */
                 terse = FALSE;
