@@ -3020,4 +3020,5 @@ The following changes to date are:
 - Fix: crash when poisoned/tainted weapon breaks (monster attacking player)
 - Fix: swimming underneath monsters while engulfed/grabbed/swallowed
 - Fix: boulder trap pathing could go out of bounds
+- Fix: crash when Bourbon or Ozzy were level drained below zero
 
