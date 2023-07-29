@@ -2308,7 +2308,8 @@ dosacrifice()
                             newsym(u.ux, u.uy);
                         }
                         godvoice(u.ualign.type, "Use this gift skillfully!");
-                        u.ugifts++;
+                        if (!otmp || is_magic(otmp))
+                            u.ugifts++;
                         u.ublesscnt = rnz(300 + (50 * u.ugifts));
                         exercise(A_WIS, TRUE);
                         if (!Hallucination && !Blind) {
@@ -2501,7 +2502,8 @@ dosacrifice()
                             else
                                 godvoice(u.ualign.type,
                                          "Use this gift valorously!");
-                            u.ugifts++;
+                            if (is_magic(otmp))
+                                u.ugifts++;
                             u.ublesscnt = rnz(300 + (50 * u.ugifts));
                             exercise(A_WIS, TRUE);
                             if (!Hallucination && !Blind) {

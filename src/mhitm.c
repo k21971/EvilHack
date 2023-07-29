@@ -2172,9 +2172,19 @@ post_stone:
         if (magr->mcan)
             break;
         /* find an object to steal, non-cursed if magr is tame */
+        int inv_tmp = 0;
         for (obj = mdef->minvent; obj; obj = obj->nobj) {
             if (!magr->mtame || !obj->cursed)
-                break;
+                ++inv_tmp;
+        }
+        if (inv_tmp)
+            inv_tmp = rnd(inv_tmp);
+        for (obj = mdef->minvent; obj; obj = obj->nobj) {
+            if (!magr->mtame || !obj->cursed) {
+                --inv_tmp;
+                if (inv_tmp < 1)
+                    break;
+            }
         }
 
         if (obj) {
