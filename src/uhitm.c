@@ -570,11 +570,19 @@ register struct monst *mtmp;
     }
 
     if (Underwater
-        && !u.ustuck && !u.uswallow
+        && !u.ustuck && !u.uswallow && !mtmp->minvis
         && (!grounded(mtmp->data) || can_levitate(mtmp)
             || can_wwalk(mtmp))
         && is_pool(mtmp->mx, mtmp->my)) {
         char pnambuf[BUFSZ];
+
+        /* forecefighting monsters that are above water can
+           cause issues, such as displacing the target onto
+           the players position without moving the player */
+        if (context.forcefight) {
+            You("flail wildly.");
+            return FALSE;
+        }
 
         /* save its current description in case of polymorph */
         Strcpy(pnambuf, y_monnam(mtmp));

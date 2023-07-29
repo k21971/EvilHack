@@ -3035,6 +3035,7 @@ The following changes to date are:
 - Fix: incorrect value used in determining mspec->used for monster
   spellcasting
 - Fix: ukiller can't be null if killer wants to go through player inventory
+- Fix: minor bugs while underwater and trying to fight monsters above water
 
 
 ### Version 0.9.0
