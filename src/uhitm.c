@@ -2399,7 +2399,7 @@ struct attack *mattk;
     }
 
     /* greased objects are difficult to get a grip on, hence
-    the odds that an attempt at stealing it may fail */
+       the odds that an attempt at stealing it may fail */
     if (otmp && (otmp->greased || otmp->otyp == OILSKIN_CLOAK
         || otmp->otyp == OILSKIN_SACK
         || otmp->oartifact == ART_BAG_OF_THE_HESPERIDES
@@ -2599,8 +2599,8 @@ struct attack *mattk;
                     mhis(mdef));
 
         /* only triggered if (stealoid && items have already been stolen).
-        failing to steal a greased object will stop you from stealing 
-        anything else to avoid infinite loop nastiness */
+           failing to steal a greased object will stop you from stealing 
+           anything else to avoid infinite loop nastiness */
         if (otmp && (otmp->greased || otmp->otyp == OILSKIN_CLOAK
             || otmp->otyp == OILSKIN_SACK
             || otmp->oartifact == ART_BAG_OF_THE_HESPERIDES
@@ -2654,14 +2654,14 @@ struct attack *mattk;
     /* only train thievery if you have the skill */
     if (Role_if(PM_ROGUE) || Role_if(PM_CONVICT)) {
         /* train the skill here instead of in hmon_hitmon() to avoid premature
-        messages about feeling more dangerous when theft fails */
+           messages about feeling more dangerous when theft fails */
         use_skill(P_THIEVERY, 1);
 
         /* Training up thievery skill can be quite the chore, to the point
-        where many players don't bother to use it. Randomly add an
-        additional point of skill for a successful attempt to balance
-        out the drudgery, without having to revamp how skill points are
-        awarded for this specific skill */
+           where many players don't bother to use it. Randomly add an
+           additional point of skill for a successful attempt to balance
+           out the drudgery, without having to revamp how skill points are
+           awarded for this specific skill */
         if (rn2(3)) /* 66% chance in favor of the player */
             use_skill(P_THIEVERY, 1);
     }
