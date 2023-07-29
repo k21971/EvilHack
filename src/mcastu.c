@@ -655,8 +655,8 @@ int spellnum;
         pline("Oh no, %s's using the touch of death!", mhe(mtmp));
         if (Death_resistance || immune_death_magic(youmonst.data)) {
             You("%s.", nonliving(youmonst.data)
-                ? " seem no more dead than before"
-                : " are unaffected");
+                ? "seem no more dead than before"
+                : "are unaffected");
         } else {
             if (Hallucination) {
                 You("have an out of body experience.");

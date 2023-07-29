@@ -3031,4 +3031,5 @@ The following changes to date are:
   the objects material caused sear damage to target
 - Fix: curses mode - prevent spurious cursor updates
 - Fix: SET_TYPLIT if/else chain broken
+- Fix: whitespace in feedback (mcastu.c)
 
