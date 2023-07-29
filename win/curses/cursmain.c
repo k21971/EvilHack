@@ -911,6 +911,7 @@ curses_delay_output()
 {
     /* refreshing the whole display is a waste of time,
      * but that's why we're here */
+    curses_update_stdscr_cursor();
     refresh();
     napms(50);
 }

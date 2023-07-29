@@ -3029,6 +3029,7 @@ The following changes to date are:
   bag of holding
 - Fix: breaking wielded weapon in combat caused heap-use-after-free if
   the objects material caused sear damage to target
+- Fix: curses mode - prevent spurious cursor updates
 
 
 ### Version 0.9.0
