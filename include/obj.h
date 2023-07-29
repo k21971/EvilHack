@@ -449,6 +449,10 @@ struct obj {
 #define bypass_forging_rules(obj) \
     ((obj)->otyp == SADDLE || (obj)->oartifact == ART_MAGICBANE \
      || (obj)->oartifact == ART_DRAGONBANE)
+#define is_magic(obj) \
+                 (((obj)->oprops & ITEM_PROP_MASK) \
+                  || (objects[(obj)->otyp]).oc_magic \
+                  || (obj)->oartifact)
 
 /* 'PRIZE' values override obj->corpsenm so prizes mustn't be object types
    which use that field for monster type (or other overloaded purpose) */
