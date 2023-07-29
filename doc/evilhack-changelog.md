@@ -3021,4 +3021,5 @@ The following changes to date are:
 - Fix: swimming underneath monsters while engulfed/grabbed/swallowed
 - Fix: boulder trap pathing could go out of bounds
 - Fix: crash when Bourbon or Ozzy were level drained below zero
+- Fix: wishing for regular gloves
 
