@@ -3270,6 +3270,8 @@ static const struct alt_spellings {
     { "drow shield", DARK_ELVEN_BRACER },
     { "drow gloves", DARK_ELVEN_GLOVES },
     { "drow boots", DARK_ELVEN_BOOTS },
+    /* armor */
+    { "gloves", GLOVES },
     { (const char *) 0, 0 },
 };
 
