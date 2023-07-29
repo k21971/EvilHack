@@ -5153,7 +5153,8 @@ struct obj *no_wish;
     }
 
     if (material > 0 && !otmp->oartifact
-        && (wizard || valid_obj_material(otmp, material))) {
+        && ((wizard && !iflags.debug_fuzzer)
+            || valid_obj_material(otmp, material))) {
         if (!valid_obj_material(otmp, material)) {
             pline("Note: material %s is not normally valid for this object.",
                   materialnm[material]);
