@@ -68,6 +68,8 @@
      || (ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_CERBERUS] \
      || (ptr) == &mons[PM_BABY_SHADOW_DRAGON]                   \
      || (ptr) == &mons[PM_SHADOW_DRAGON]                        \
+     || (ptr) == &mons[PM_OZZY]                                 \
+     || (ptr) == &mons[PM_BOURBON]                              \
      || (ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN]                \
      || (ptr) == &mons[PM_KATHRYN_THE_ENCHANTRESS])
 /* is_were() doesn't handle hero in human form */

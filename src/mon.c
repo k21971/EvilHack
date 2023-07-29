@@ -3310,6 +3310,7 @@ register struct monst *mtmp;
         mtmp->mstone = 0;
         mtmp->msick = 0;
         mtmp->mdiseased = 0;
+        mtmp->mwither = 0;
         mtmp->mconf = 0;
         mtmp->mstun = 0;
         mtmp->mpeaceful = 0;
@@ -3333,19 +3334,22 @@ register struct monst *mtmp;
     }
 
     /* special handling for the Ice Queen's dogs */
-    if (mtmp->data == &mons[PM_BOURBON] || mtmp->data == &mons[PM_OZZY]) {
+    if (mtmp->data == &mons[PM_BOURBON]
+        || mtmp->data == &mons[PM_OZZY]) {
         if (canspotmon(mtmp)) {
-            You("have made %s submit, and %s is no longer hostile.", mon_nam(mtmp), mhe(mtmp));
+            pline("%s has been forced to submit, and %s is no longer hostile.",
+                  Monnam(mtmp), mhe(mtmp));
         }
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         mtmp->mstone = 0;
         mtmp->msick = 0;
         mtmp->mdiseased = 0;
+        mtmp->mwither = 0;
         mtmp->mconf = 0;
         mtmp->mstun = 0;
         mtmp->mpeaceful = 1;
-        mtmp->mhp = mtmp->mhpmax;
+        mtmp->mhp = mtmp->mhpmax = monmaxhp(mtmp->data, mtmp->m_lev);
         if (mtmp == u.ustuck) {
             if (u.uswallow)
                 expels(mtmp, mtmp->data, FALSE);
