@@ -49,6 +49,10 @@ const char *
 fingers_or_gloves(check_gloves)
 boolean check_gloves;
 {
+    if (check_gloves && uarmg
+        && uarmg->oartifact == ART_HAND_OF_VECNA)
+        return "mummified hand";
+
     return ((check_gloves && uarmg)
             ? gloves_simple_name(uarmg) /* "gloves" or "gauntlets" */
             : makeplural(body_part(FINGER))); /* "fingers" */
