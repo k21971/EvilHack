@@ -3024,6 +3024,7 @@ The following changes to date are:
 - Fix: wishing for regular gloves
 - Fix: crash if the worn Hand of Vecna became glib
 - Fix: weight of recipe stacks not recalculated when forging
+- Fix: 'You detect the presence of' array was off by one
 
 
 ### Version 0.9.0
