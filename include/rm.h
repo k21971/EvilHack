@@ -454,9 +454,7 @@ struct rm {
         if ((x) >= 0 && (y) >= 0 && (x) < COLNO && (y) < ROWNO) { \
             if ((ttyp) < MAX_TYPE)                                \
                 levl[(x)][(y)].typ = (ttyp);                      \
-            if ((ttyp) == LAVAPOOL)                               \
-                levl[(x)][(y)].lit = 1;                           \
-            if ((ttyp) == FORGE)                                  \
+            if ((ttyp) == LAVAPOOL || (ttyp) == FORGE)            \
                 levl[(x)][(y)].lit = 1;                           \
             else if ((schar)(llit) != -2) {                       \
                 if ((schar)(llit) == -1)                          \

@@ -3030,4 +3030,5 @@ The following changes to date are:
 - Fix: breaking wielded weapon in combat caused heap-use-after-free if
   the objects material caused sear damage to target
 - Fix: curses mode - prevent spurious cursor updates
+- Fix: SET_TYPLIT if/else chain broken
 
