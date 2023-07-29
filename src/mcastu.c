@@ -80,15 +80,6 @@ register struct monst *mtmp;
     return FALSE;
 }
 
-int spelltimeout(mtmp, spl_level)
-register struct monst *mtmp;
-register int spl_level;
-{
-    if (mtmp->m_lev >= 38)
-        return 1;
-    return 5 * spl_level * ((38 - mtmp->m_lev) * 2 / 3);
-}
-
 extern const char *const flash_types[]; /* from zap.c */
 
 /* feedback when frustrated monster couldn't cast a spell */
@@ -345,8 +336,8 @@ boolean foundyou;
     }
 
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
-        register struct obj *obj;
-        mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
+        struct obj *obj;
+        mtmp->mspec_used = 4 - mtmp->m_lev;
         if (mtmp->mspec_used < 2)
             mtmp->mspec_used = 2;
         /* many boss-type monsters than have two or more spell attacks
@@ -1622,8 +1613,8 @@ struct attack *mattk;
     }
 
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
-        register struct obj *obj;
-        mtmp->mspec_used += spelltimeout(mtmp, objects[spellnum].oc_level);
+        struct obj *obj;
+        mtmp->mspec_used = 4 - mtmp->m_lev;
         if (mtmp->mspec_used < 2)
             mtmp->mspec_used = 2;
         /* many boss-type monsters than have two or more spell attacks
