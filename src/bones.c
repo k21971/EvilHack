@@ -599,7 +599,7 @@ struct obj *corpse;
         /* trick makemon() into allowing monster creation
          * on your location
          */
-        if (ukiller) {
+        if (ukiller == mtmp) {
             /* If you don't rise from your grave (and are thus carrying your stuff),
              * the critter that killed you gets some special handling here.
              *

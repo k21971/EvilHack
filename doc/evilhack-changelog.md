@@ -3034,4 +3034,5 @@ The following changes to date are:
 - Fix: whitespace in feedback (mcastu.c)
 - Fix: incorrect value used in determining mspec->used for monster
   spellcasting
+- Fix: ukiller can't be null if killer wants to go through player inventory
 
