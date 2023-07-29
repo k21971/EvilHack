@@ -3027,6 +3027,8 @@ The following changes to date are:
 - Fix: 'You detect the presence of' array was off by one
 - Fix: prevent indestructible objects from being destroyed by a cursed
   bag of holding
+- Fix: breaking wielded weapon in combat caused heap-use-after-free if
+  the objects material caused sear damage to target
 
 
 ### Version 0.9.0
