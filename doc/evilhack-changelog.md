@@ -3032,6 +3032,8 @@ The following changes to date are:
 - Fix: curses mode - prevent spurious cursor updates
 - Fix: SET_TYPLIT if/else chain broken
 - Fix: whitespace in feedback (mcastu.c)
+- Fix: incorrect value used in determining mspec->used for monster
+  spellcasting
 
 
 ### Version 0.9.0
