@@ -779,6 +779,13 @@ doforging(void)
             if (obj2->quan <= 0)
                 delobj(obj2);
 
+            /* recalculate weight of the recipe objects if
+               using a stack */
+            if (obj1->quan > 0)
+                obj1->owt = weight(obj1);
+            if (obj2->quan > 0)
+                obj2->owt = weight(obj2);
+
             /* forged object is created */
             output = addinv(output);
             /* prevent large stacks of ammo-type weapons from being
