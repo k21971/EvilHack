@@ -3037,6 +3037,8 @@ The following changes to date are:
 - Fix: ukiller can't be null if killer wants to go through player inventory
 - Fix: minor bugs while underwater and trying to fight monsters above water
 - Prevent wishing for objects with an invalid material whilst fuzzing
+- Don't count non-magical sacrifice gifts towards total gifts received
+- Tweaks to thievery skill
 
 
 ### Version 0.9.0
