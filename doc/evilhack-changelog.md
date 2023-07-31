@@ -3039,6 +3039,7 @@ The following changes to date are:
 - Prevent wishing for objects with an invalid material whilst fuzzing
 - Don't count non-magical sacrifice gifts towards total gifts received
 - Tweaks to thievery skill
+- Fix: update to 'ukiller can't be null' fix
 
 
 ### Version 0.9.0

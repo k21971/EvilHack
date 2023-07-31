@@ -523,8 +523,11 @@ struct obj *corpse;
         dismount_steed(DISMOUNT_BONES);
     /* in case these characters are not in their home bases */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp))
+        if (DEADMONSTER(mtmp)) {
+            if (ukiller == mtmp)
+                ukiller = (struct monst *) 0;
             continue;
+        }
         mptr = mtmp->data;
         if (mtmp->iswiz || mtmp->isvecna
             || mtmp->isgking || mtmp->islucifer
@@ -599,7 +602,7 @@ struct obj *corpse;
         /* trick makemon() into allowing monster creation
          * on your location
          */
-        if (ukiller == mtmp) {
+        if (ukiller) {
             /* If you don't rise from your grave (and are thus carrying your stuff),
              * the critter that killed you gets some special handling here.
              *
