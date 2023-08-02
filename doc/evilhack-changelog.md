@@ -3040,4 +3040,6 @@ The following changes to date are:
 - Don't count non-magical sacrifice gifts towards total gifts received
 - Tweaks to thievery skill
 - Fix: update to 'ukiller can't be null' fix
+- Fix: couldn't forge the Armor of Retribution due to the Sword of
+  Annihilation being indestructible
 

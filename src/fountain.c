@@ -576,8 +576,10 @@ doforging(void)
     /* not that the Amulet of Yendor or invocation items would
        ever be part of a forging recipe, but these should be
        protected in any case */
-    } else if (obj_resists(obj1, 0, 0)
-               || obj_resists(obj2, 0, 0)) {
+    } else if ((obj_resists(obj1, 0, 0)
+                && obj1->oartifact != ART_SWORD_OF_ANNIHILATION)
+               || (obj_resists(obj2, 0, 0)
+                   && obj2->oartifact != ART_SWORD_OF_ANNIHILATION)) {
         You_cant("forge such a thing!");
         blowupforge(u.ux, u.uy);
         return 0;
@@ -773,18 +775,18 @@ doforging(void)
             if (obj2->otyp == recipe->typ2)
                 obj2->quan -= recipe->quan_typ2;
 
-            /* delete recipe objects if quantity reaches zero */
-            if (obj1->quan <= 0)
-                delobj(obj1);
-            if (obj2->quan <= 0)
-                delobj(obj2);
-
             /* recalculate weight of the recipe objects if
                using a stack */
             if (obj1->quan > 0)
                 obj1->owt = weight(obj1);
             if (obj2->quan > 0)
                 obj2->owt = weight(obj2);
+
+            /* delete recipe objects if quantity reaches zero */
+            if (obj1->quan <= 0)
+                delobj(obj1);
+            if (obj2->quan <= 0)
+                delobj(obj2);
 
             /* forged object is created */
             output = addinv(output);
