@@ -652,9 +652,11 @@ doforging(void)
             output->opoisoned = 0;
             output->otainted = 0;
 
-            /* delete recipe objects */
-            delobj(obj1);
-            delobj(obj2);
+            /* delete recipe objects - use delobj_core() directly
+               to handle the Sword of Annihilation potentially
+               being one of the recipe objects */
+            delobj_core(obj1, TRUE);
+            delobj_core(obj2, TRUE);
 
             /* forged object is created */
             output = addinv(output);
@@ -662,7 +664,8 @@ doforging(void)
             You("have successfully forged %s.", doname(output));
             livelog_printf(LL_ARTIFACT, "used a forge to create %s%s",
                            (output->oartifact == ART_GAUNTLETS_OF_PURITY
-                            || output->oartifact == ART_HAMMER_OF_THE_GODS) ? "the " : "",
+                            || output->oartifact == ART_HAMMER_OF_THE_GODS
+                            || output->oartifact == ART_ARMOR_OF_RETRIBUTION) ? "the " : "",
                            artiname(output->oartifact));
             update_inventory();
 
