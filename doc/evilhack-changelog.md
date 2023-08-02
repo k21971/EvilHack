@@ -3042,6 +3042,8 @@ The following changes to date are:
 - Fix: update to 'ukiller can't be null' fix
 - Fix: couldn't forge the Armor of Retribution due to the Sword of
   Annihilation being indestructible
+- Fix: the Sword of Annihilation wasn't being used up when forging the
+  Armor of Retribution
 
 
 ### Version 0.9.0
