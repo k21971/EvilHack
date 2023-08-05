@@ -1126,8 +1126,7 @@ register struct obj *otmp;
                Purgatory is prohibited. Bypassing the first
                level of Purgatory this way is also
                prohibited */
-            if ((Is_sanctum(&u.uz) && u.uachieve.amulet)
-                || In_purgatory(&u.uz)) {
+            if (Is_sanctum(&u.uz) && u.uachieve.amulet) {
                 You("have an uneasy feeling.");
                 goto no_rise;
             }
