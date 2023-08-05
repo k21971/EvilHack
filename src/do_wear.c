@@ -3677,17 +3677,6 @@ register schar delta;
         }
         context.botl = 1;
     }
-    if (otmp && (otmp->oprops & ITEM_EXCEL) && (otmp->owornmask & W_ARMOR)) {
-        if (delta) {
-            int which = A_CHA,
-                old_attrib = ACURR(which);
-            ABON(which) += (delta);
-            if (old_attrib != ACURR(which))
-                otmp->oprops_known |= ITEM_EXCEL;
-            set_moreluck();
-        }
-        context.botl = 1;
-    }
 }
 
 /* decide whether a worn item is covered up by some other worn item,
