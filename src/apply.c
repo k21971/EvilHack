@@ -4285,11 +4285,9 @@ doapply()
      * applied only with feet, or something. If wearing gloves of any sort, you
      * are shielded from harmful material effects of that item, though only if
      * it's not an artifact. */
-    if (obj->oartifact || !uarmg) {
-        if (!retouch_object(&obj, FALSE))
-            return 1; /* evading your grasp costs a turn; just be
-                         grateful that you don't drop it as well */
-    }
+    if (!retouch_object(&obj, !uarmg, FALSE))
+        return 1; /* evading your grasp costs a turn; just be
+                        grateful that you don't drop it as well */
 
     if (obj->oclass == WAND_CLASS)
         return do_break_wand(obj);

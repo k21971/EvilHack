@@ -38,7 +38,6 @@ STATIC_PTR int NDECL(take_off);
 STATIC_DCL int FDECL(menu_remarm, (int));
 STATIC_DCL void FDECL(count_worn_stuff, (struct obj **, BOOLEAN_P));
 STATIC_PTR int FDECL(armor_or_accessory_off, (struct obj *));
-STATIC_PTR boolean FDECL(will_touch_skin, (long));
 STATIC_PTR int FDECL(accessory_or_armor_on, (struct obj *));
 STATIC_DCL void FDECL(already_wearing, (const char *));
 STATIC_DCL void FDECL(already_wearing2, (const char *, const char *));
@@ -833,7 +832,7 @@ Gloves_off(VOID_ARGS)
 
     /* you may now be touching some material you hate */
     if (uwep)
-        retouch_object(&uwep, FALSE);
+        retouch_object(&uwep, will_touch_skin(W_WEP), FALSE);
 
     /* KMH -- ...or your secondary weapon when you're wielding it
        [This case can't actually happen; twoweapon mode won't
@@ -2503,15 +2502,21 @@ boolean noisy;
     return !err;
 }
 
-/* Return TRUE iff wearing a potential new piece of armor with the given mask
- * will touch the hero's skin. */
-STATIC_OVL boolean
+/* Return TRUE iff wearing/wielding a potential new piece of equipment with
+ * the given mask will touch the hero's skin. */
+boolean
 will_touch_skin(mask)
 long mask;
 {
     if (mask == W_ARMC && (uarm || uarmu))
         return FALSE;
     else if (mask == W_ARM && uarmu)
+        return FALSE;
+    else if ((mask & (W_WEP | W_SWAPWEP | W_ARMS)) && uarmg)
+        return FALSE;
+    else if ((mask & W_RINGL) && uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
+        return FALSE;
+    else if (mask == W_QUIVER)
         return FALSE;
     return TRUE;
 }
@@ -2655,7 +2660,7 @@ struct obj *obj;
         }
     }
 
-    if (will_touch_skin(mask) && !retouch_object(&obj, FALSE))
+    if (!retouch_object(&obj, will_touch_skin(mask), FALSE))
         return 1; /* costs a turn even though it didn't get worn */
 
     if (armor) {
