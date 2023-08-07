@@ -1081,9 +1081,6 @@ struct monst *mon;
         if (obj->oartifact == ART_GAUNTLETS_OF_PURITY
             && oart->alignment != u.ualign.type)
             dmg += d((u.ualign.record > 50 ? 6 : 8), 10);
-        /* add half of the usual material damage bonus */
-        if (Hate_material(obj->material))
-            dmg += (rnd(sear_damage(obj->material)) / 2) + 1;
         Sprintf(buf, "touching %s", oart->name);
         losehp(dmg, buf, KILLED_BY); /* magic damage, not physical */
         exercise(A_WIS, FALSE);
@@ -2726,7 +2723,7 @@ doinvoke()
                  the(distant_name(obj, xname)));
         return 0;
     }
-    if (!retouch_object(&obj, FALSE))
+    if (!retouch_object(&obj, FALSE, FALSE))
         return 1;
     return arti_invoke(obj);
 }
@@ -3543,8 +3540,9 @@ blind_glow_warnings(VOID_ARGS)
    after undergoing a transformation (alignment change, lycanthropy,
    polymorph) which might affect item access */
 int
-retouch_object(objp, loseit)
+retouch_object(objp, direct, loseit)
 struct obj **objp; /* might be destroyed or unintentionally dropped */
+boolean direct; /* whether player has physical protection from artifact */
 boolean loseit;    /* whether to drop it if hero can longer touch it */
 {
     struct obj *obj = *objp;
@@ -3568,17 +3566,9 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
 
         /* another case where nothing should happen: hero is wearing gloves
            which protect them from directly touching a weapon of a material
-           they hate (no other gear slots are considered to completely block
-           touching an outer piece of gear; e.g. wearing body armor doesn't
-           protect from touching a worn cloak) */
-        if (!bane && obj == uwep && uarmg)
-            return 1;
-
-        /* The Hand of Vecna technically replaces the players left hand,
-           and since it's a dead mummified hand, wearing rings while
-           'wearing' the Hand won't cause any material damage */
-        if (!bane && obj->oclass == RING_CLASS
-            && uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
+           they hate or wearing boots that prevent them touching a kicked
+           object. demons will always get blasted, though. */
+        if (!bane && !(direct || is_demon(raceptr(&youmonst))))
             return 1;
 
         /* Convict deity negates the quest artifact from being
@@ -3597,19 +3587,16 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
             You_cant("handle %s%s!", yname(obj),
                      obj->owornmask ? " anymore" : "");
         }
-        /* also inflict damage unless touch_artifact() already did so */
-        if (!touch_blasted) {
-            /* damage is somewhat arbitrary: 1d10 magical for <foo>bane,
-             * half of the usual damage for materials */
-            if (hatemat)
-                dmg += rnd(sear_damage(obj->material) / 2);
-            if (bane)
-                dmg += rnd(10);
-            Sprintf(buf, "handling %s that was made of %s",
-                    killer_xname(obj), materialnm[obj->material]);
-            losehp(dmg, buf, KILLED_BY);
-            exercise(A_CON, FALSE);
-        }
+        /* damage is somewhat arbitrary: 1d10 magical for <foo>bane,
+            * half of the usual damage for materials */
+        if (hatemat && (direct || is_demon(raceptr(&youmonst))))
+            dmg += rnd(sear_damage(obj->material) / 2);
+        if (bane)
+            dmg += rnd(10);
+        Sprintf(buf, "handling %s that was made of %s",
+                killer_xname(obj), materialnm[obj->material]);
+        losehp(dmg, buf, KILLED_BY);
+        exercise(A_CON, FALSE);
         /* concession to those wishing to use gear made of an adverse material:
          * don't make them totally unable to use them. In fact, they can touch
          * them just fine as long as they're willing to.
@@ -3679,7 +3666,8 @@ boolean drop_untouchable;
     }
 
     if (beingworn || carryeffect || invoked) {
-        if (!retouch_object(&obj, drop_untouchable)) {
+        boolean direct = beingworn && will_touch_skin(obj->owornmask);
+        if (!retouch_object(&obj, direct, drop_untouchable)) {
             /* "<artifact> is beyond your control" or "you can't handle
                <object>" has been given and it is now unworn/unwielded
                and possibly dropped (depending upon caller); if dropped,

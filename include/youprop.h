@@ -291,8 +291,10 @@
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BFlying u.uprops[FLYING].blocked
 #define Flying                                                             \
-    ((((HFlying || EFlying) && !BFlying)                                   \
-      || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR))
+    ((((EFlying || (HFlying & ~FROMFORM)                                   \
+       || (HFlying && !big_wings(raceptr(&youmonst))))                     \
+       || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR))\
+     || (HFlying && !BFlying)) \
 /* May touch surface; does not override any others */
 
 #define HWwalking u.uprops[WWALKING].intrinsic
