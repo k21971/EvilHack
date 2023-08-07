@@ -1038,11 +1038,14 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
 
             if (Flying) {
                 boolean already_flying;
+                long cramped_wings = BFlying;
 
                 /* to determine whether this flight is new we have to muck
                    about in the Flying intrinsic (actually extrinsic) */
                 EFlying &= ~W_ARM;
+                BFlying &= ~W_ARM;
                 already_flying = !!Flying;
+                BFlying |= cramped_wings;
                 EFlying |= W_ARM;
 
                 if (!already_flying) {
@@ -1142,11 +1145,11 @@ Armor_off(VOID_ARGS)
     context.takeoff.mask &= ~W_ARM;
     context.takeoff.cancelled_don = FALSE;
 
-    check_wings(FALSE);
-
     dragon_armor_handling(otmp, FALSE);
 
     setworn((struct obj *) 0, W_ARM);
+
+    check_wings(FALSE);
 
     if (was_arti_light)
         toggle_armor_light(otmp, FALSE);
@@ -1210,8 +1213,7 @@ boolean silent; /* we assume a wardrobe change if false */
         if (!silent && uarm != last_worn_armor)
             Your("%s seems to have holes for wings.", simpleonames(uarm));
     } else {
-        if (!(uamul && uamul->otyp == AMULET_OF_FLYING))
-            BFlying |= W_ARM;
+        BFlying |= W_ARM;
         if (!silent)
             You("fold your wings under your suit.");
     }
