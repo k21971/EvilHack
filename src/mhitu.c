@@ -2795,7 +2795,7 @@ struct attack *mattk;
                 flaming(youmonst.data)
                     ? "are smoldering out!"
                     : Breathless ? "find it mildly uncomfortable."
-                                 : amphibious(youmonst.data)
+                                 : Amphibious
                                        ? "feel comforted."
                                        : "can barely breathe!");
             /* NB: Amphibious includes Breathless */

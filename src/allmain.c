@@ -717,22 +717,25 @@ boolean resuming;
             (void) Gloves_off();
             /* any wielded/worn objects are forced to drop,
                even if cursed */
+            struct obj *was_shield;
             if (u.twoweap) {
                 Your("%s and %s are forced from your %s!",
                      simpleonames(uwep), simpleonames(uswapwep),
                      makeplural(body_part(HAND)));
                 dropx(uswapwep);
                 dropx(uwep);
-            } else if (uwep && uarms) {
+            } else if (uwep && (was_shield = uarms)) {
                 Your("%s and %s are forced from your %s!",
                      simpleonames(uwep), simpleonames(uarms),
                      makeplural(body_part(HAND)));
                 (void) Shield_off();
                 dropx(uwep);
-            } else if (!uwep && uarms) {
+                dropx(was_shield);
+            } else if (!uwep && (was_shield = uarms)) {
                 Your("%s is forced from your %s!",
                      simpleonames(uarms), body_part(HAND));
                 (void) Shield_off();
+                dropx(was_shield);
             } else if (uwep) {
                 Your("%s is forced from your %s!",
                      simpleonames(uwep), body_part(HAND));
