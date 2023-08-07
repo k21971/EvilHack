@@ -1351,7 +1351,8 @@ d_level *lev;
     /* can't rise up from inside the top of the Wizard's tower */
     /* KMH -- or in sokoban */
     if (In_endgame(lev) || In_sokoban(lev)
-        || (Is_wiz1_level(lev) && In_W_tower(x, y, lev)))
+        || (Is_wiz1_level(lev) && In_W_tower(x, y, lev))
+        || In_purgatory(lev))
         return FALSE;
     return (boolean) (lev->dlevel > 1
                       || (dungeons[lev->dnum].entry_lev == 1
@@ -2987,7 +2988,8 @@ boolean printdun;
     /* calculate level number */
     i = depthstart + mptr->lev.dlevel - 1;
     if (In_endgame(&mptr->lev))
-        Sprintf(buf, "%s%s:", TAB, endgamelevelname(tmpbuf, i));
+        Sprintf(buf, "%s%s:", TAB, 
+                endgamelevelname(tmpbuf, observable_depth(&mptr->lev)));
     else
         Sprintf(buf, "%sLevel %d:", TAB, i);
 
