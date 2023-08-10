@@ -957,6 +957,11 @@ register struct obj *obj;
             return TABU;
         }
 
+        /* lizards cure stoning. ghouls won't eat them even then, though,
+           just like elves prefer starvation to cannibalism. */
+        if (obj->otyp == CORPSE && fptr == &mons[PM_LIZARD] && mon->mstone)
+            return DOGFOOD;
+
         /* gnomes hate eggs */
         if (obj->otyp == EGG && racial_gnome(mon))
             return TABU;
