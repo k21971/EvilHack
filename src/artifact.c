@@ -1311,14 +1311,16 @@ int tmp;
     if (!weap || (weap->attk.adtyp == AD_PHYS /* check for `NO_ATTK' */
                   && weap->attk.damn == 0 && weap->attk.damd == 0))
         spec_dbon_applies = FALSE;
-    else if (otmp->oartifact == ART_GRIMTOOTH
+    else if ((otmp->oartifact == ART_GRIMTOOTH
+              && !(yours ? Sick_resistance : resists_sick(mon->data)))
              || otmp->oartifact == ART_VORPAL_BLADE
-             || otmp->oartifact == ART_ANGELSLAYER
+             || (otmp->oartifact == ART_ANGELSLAYER
+                 && !(yours ? is_demon(raceptr(&youmonst)) : is_demon(mon->data)))
              || otmp->oartifact == ART_DRAMBORLEG)
         /* Grimtooth, Vorpal Blade, Angelslayer, and Dramborleg have
            SPFX settings to warn against elves, jabberwocks, angels,
            and demons respectively, but we want its damage bonus to
-           apply to all targets, so bypass spec_applies() */
+           apply to more targets, so bypass spec_applies() */
         spec_dbon_applies = TRUE;
     else
         spec_dbon_applies = spec_applies(weap, mon);
@@ -1649,6 +1651,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     boolean vis = (!youattack && magr && cansee(magr->mx, magr->my))
                   || (!youdefend && cansee(mdef->mx, mdef->my))
                   || (youattack && u.uswallow && mdef == u.ustuck && !Blind);
+    /* used to determine if an instakill message should be shown. 
+     * currently consistent with behavior of other instakill weapons,
+     * but not realizes_damage */
+    boolean show_instakill = (youattack || youdefend || vis);
     boolean realizes_damage;
     const char *wepdesc;
     static const char you[] = "you";
@@ -1748,7 +1754,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         boolean angel = youdefend ? is_angel(youmonst.data)
                                   : is_angel(mdef->data);
 
-        if (wielding_artifact(ART_ANGELSLAYER)
+        if (otmp->oartifact == ART_ANGELSLAYER
             && ((completelyburns(mdef->data) || is_wooden(mdef->data)
                  || mdef->data == &mons[PM_GREEN_SLIME])
                 || (!rn2(10) && angel))) {
@@ -1764,10 +1770,12 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
             } else {
                 if (!mon_underwater(mdef)) {
-                    if (angel)
-                        pline("Angelslayer's eldritch flame consumes %s!", hittee);
-                    else
-                        pline("%s ignites and turns to ash!", Monnam(mdef));
+                    if (show_instakill) {
+                        if (angel)
+                            pline("Angelslayer's eldritch flame consumes %s!", hittee);
+                        else
+                            pline("%s ignites and turns to ash!", Monnam(mdef));
+                    }
                     if (youattack)
                         xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                     else
@@ -2061,9 +2069,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
 
         if (!rn2(10) && (elf || drow)) {
-            pline("Grimtooth penetrates %s soft flesh, disemboweling %s!",
-                  youdefend ? "your" : s_suffix(mon_nam(mdef)),
-                  youdefend ? "you" : noit_mhim(mdef));
+            if (show_instakill)
+                pline("Grimtooth penetrates %s soft flesh, disemboweling %s!",
+                    youdefend ? "your" : s_suffix(mon_nam(mdef)),
+                    youdefend ? "you" : noit_mhim(mdef));
             if (youdefend) {
                 losehp((Upolyd ? u.mh : u.uhp) + 1, "disemboweled by Grimtooth",
                        NO_KILLER_PREFIX);
@@ -2099,16 +2108,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         boolean resistant = youdefend ? how_resistant(DISINT_RES) >= 50
                                       : (resists_disint(mdef)
                                          || defended(mdef, AD_DISN));
-        if (realizes_damage) {
-            /* currently the only object that uses this
-               is the Sword of Annihilation artifact */
-            pline_The("deadly blade %s %s!",
-                      resistant ? "hits" : "partially disintegrates", hittee);
-        }
-
         if (!rn2(12) && !resistant) {
-            /* instant disintegration */
-            pline_The("deadly blade disintegrates %s!", hittee);
+            /* instant disintegration. */
+            if (show_instakill)
+                pline_The("deadly blade disintegrates %s!", hittee);
             if (youdefend) {
                 u.ugrave_arise = (NON_PM - 2); /* no corpse */
                 killer.format = NO_KILLER_PREFIX;
@@ -2144,6 +2147,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
             }
             return TRUE;
+        }
+
+        if (realizes_damage) {
+            /* currently the only object that uses this
+               is the Sword of Annihilation artifact */
+            pline_The("deadly blade %s %s!",
+                      resistant ? "hits" : "partially disintegrates", hittee);
         }
 
         /* maybe disintegrate some armor */
@@ -2235,7 +2245,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (!youattack && !youdefend
                        && magr && is_were(mdef->data) && j) {
-                if (cansee(magr->mx, magr->my))
+                if (show_instakill)
                     pline("%s severely burns %s with its silver blade!",
                           Monnam(magr), mon_nam(mdef));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
@@ -2252,7 +2262,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (!youattack && !youdefend
                        && magr && racial_giant(mdef) && j) {
-                if (cansee(magr->mx, magr->my))
+                if (show_instakill)
                     pline("%s eviscerates %s with a fatal stab!",
                           Monnam(magr), mon_nam(mdef));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
@@ -2270,7 +2280,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (!youattack && !youdefend
                        && magr && is_ogre(mdef->data) && j) {
-                if (cansee(magr->mx, magr->my))
+                if (show_instakill)
                     pline("%s crushes %s skull!",
                           Monnam(magr), s_suffix(mon_nam(mdef)));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
@@ -2284,7 +2294,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         canseemon(mdef) ? exclam(4 * hurtle_distance) : ".");
                     mhurtle(mdef, u.dx, u.dy, hurtle_distance);
                 } else if (!youattack && !youdefend) {
-                    if (cansee(magr->mx, magr->my))
+                    /* not an instakill, but currently behaves like one */
+                    if (show_instakill)
                         pline("%s smashes %s backwards!", Monnam(magr), mon_nam(mdef));
                     mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my,
                             hurtle_distance);
@@ -2305,7 +2316,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
             } else if (!youattack && !youdefend
                        && magr && is_troll(mdef->data) && j) {
-                if (cansee(magr->mx, magr->my))
+                if (show_instakill)
                     pline("As %s strikes %s, it bursts into flame!",
                           mon_nam(magr), mon_nam(mdef));
                 mongone(mdef);
@@ -2322,7 +2333,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (!youattack && !youdefend
                        && magr && racial_orc(mdef) && j) {
-                if (cansee(magr->mx, magr->my))
+                if (show_instakill)
                     pline("%s slices open %s throat!",
                           Monnam(magr), s_suffix(mon_nam(mdef)));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
@@ -2340,7 +2351,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (!youattack && !youdefend
                        && magr && racial_orc(mdef) && j) {
-                if (cansee(magr->mx, magr->my))
+                if (show_instakill)
                     pline("%s stabs deep into %s heart!",
                           Monnam(magr), s_suffix(mon_nam(mdef)));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
@@ -2367,13 +2378,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (!youattack && !youdefend
                        && magr && is_undead(mdef->data) && j) {
                 if (mdef->isvecna) {
-                    if (cansee(magr->mx, magr->my))
+                    if (show_instakill)
                         pline("Sunsword flares brightly, severely wounding %s!",
                               mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
-                    if (cansee(magr->mx, magr->my))
+                    if (show_instakill)
                         pline("Sunsword flares brightly as it incinerates %s!",
                               mon_nam(mdef));
                     mongone(mdef);
@@ -2392,7 +2403,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (!youattack && !youdefend
                        && magr && mdef->data == &mons[PM_BALROG]) {
-                if (cansee(magr->mx, magr->my))
+                if (show_instakill)
                     pline("%s obliterates %s with a powerful strike!",
                           Monnam(magr), mon_nam(mdef));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
@@ -2418,13 +2429,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (!youattack && !youdefend
                        && magr && is_demon(mdef->data) && j) {
                 if (!is_ndemon(mdef->data)) {
-                    if (cansee(magr->mx, magr->my))
+                    if (show_instakill)
                         pline("Demonbane gravely wounds %s!",
                               mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
-                    if (cansee(magr->mx, magr->my))
+                    if (show_instakill)
                         pline("Demonbane shines brilliantly, destroying %s!",
                               mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
@@ -2463,13 +2474,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (!youattack && !youdefend
                        && magr && is_demon(mdef->data) && j) {
                 if (!is_ndemon(mdef->data)) {
-                    if (cansee(magr->mx, magr->my))
+                    if (show_instakill)
                         pline("The Hammer of the Gods gravely wounds %s!",
                               mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
-                    if (cansee(magr->mx, magr->my))
+                    if (show_instakill)
                         pline("The Hammer of the Gods shines brilliantly, destroying %s!",
                               mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
@@ -2477,13 +2488,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (!youattack && !youdefend
                        && magr && is_undead(mdef->data) && j) {
                 if (mdef->isvecna) {
-                    if (cansee(magr->mx, magr->my))
+                    if (show_instakill)
                         pline("The Hammer of the Gods flares brightly, severely wounding %s!",
                               mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
-                    if (cansee(magr->mx, magr->my))
+                    if (show_instakill)
                         pline("The Hammer of the Gods flares brightly as it incinerates %s!",
                               mon_nam(mdef));
                     mongone(mdef);
