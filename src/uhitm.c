@@ -3911,12 +3911,10 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 /* only consider seconary when wielding one-handed primary */
                 && uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
                 && !bimanual(uwep)
-                /* only switch if not wearing shield and not at artifact;
+                /* only switch if not wearing shield;
                    shield limitation is iffy since still get extra swings
-                   if polyform has them, but it matches twoweap behavior;
-                   twoweap also only allows primary to be an artifact, so
-                   if alternate weapon is one, don't use it */
-                && !uarms && !uswapwep->oartifact
+                   if polyform has them, but it matches twoweap behavior */
+                && !uarms
                 /* only switch to uswapwep if it's a weapon */
                 && (uswapwep->oclass == WEAPON_CLASS || is_weptool(uswapwep))
                 /* only switch if uswapwep is not bow, arrows, or darts */
