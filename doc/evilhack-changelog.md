@@ -3050,4 +3050,16 @@ The following changes to date are:
 
 - Latest merges from 'vanilla' NetHack 3.6.7 official release (as of February 24th, 2023)
 - Initial preparation for new version (0.9.0)
+- Allow self-targeting advanced spells when blind
+- Fix: Dexcellence
+- Stunned/confused jumping
+- Black dragon breath documentation
+- Don't allow monsters to rise through Purgatory ceilings
+- Fix: Demon lords of your alignment should demand less bribe money
+- Fix: tortles should feel comfortable in fog clouds
+- Make retouch_object more consistent
+- Fix: gloves shouldn't allow you to wield banes
+- Fix: drop shield when the Gauntlets of Purity remove themselves
+- Fix: flying with wings and taking body armor on/off
+- Fix: Elemental Planes overview
 
