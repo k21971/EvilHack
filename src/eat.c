@@ -2797,7 +2797,7 @@ doeat()
         else
             You_cant("eat %s you're wearing.", something);
         return 0;
-    } else if (!(carried(otmp) ? retouch_object(&otmp, FALSE)
+    } else if (!(carried(otmp) ? retouch_object(&otmp, !uarmg, FALSE)
                                : touch_artifact(otmp, &youmonst))) {
         return 1; /* got blasted so use a turn */
     }

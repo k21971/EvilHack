@@ -285,7 +285,7 @@ register struct monst *mtmp;
 
     cash = money_cnt(invent);
     demand = rn1(4000, 1000)
-           + (1000 * (1 + (sgn(u.ualign.type) == sgn(mon_aligntyp(mtmp)))));
+           + (1000 * (1 - (sgn(u.ualign.type) == sgn(mon_aligntyp(mtmp)))));
 
     if (!demand || multi < 0 || cash <= 0) { /* you have no gold or can't move */
         mtmp->mpeaceful = 0;

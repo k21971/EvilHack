@@ -1888,6 +1888,28 @@ int magic; /* 0=Physical, otherwise skill level */
     } else if (!magic && u.usteed && stucksteed(FALSE)) {
         /* stucksteed gave "<steed> won't move" message */
         return 0;
+    } else if (Stunned || (Confusion && !rn2(5))) {
+        /* NB: you're guaranteed to be nonmagically jumping and to possess
+           limbs if you've gotten to this point. */
+        if (u.usteed) {
+            You("haphazardly yank the reins.");
+            /* taken from leash-pulling code */
+            if (u.usteed->data->msound != MS_SILENT)
+                switch (rn2(3)) {
+                case 0:
+                    growl(u.usteed);
+                    break;
+                case 1:
+                    yelp(u.usteed);
+                    break;
+                default:
+                    whimper(u.usteed);
+                    break;
+                }
+        }
+        else
+            You("trip over your own %s.", makeplural(body_part(FOOT)));
+        return 1;
     } else if (u.uswallow) {
         if (magic) {
             You("bounce around a little.");
@@ -4285,11 +4307,9 @@ doapply()
      * applied only with feet, or something. If wearing gloves of any sort, you
      * are shielded from harmful material effects of that item, though only if
      * it's not an artifact. */
-    if (obj->oartifact || !uarmg) {
-        if (!retouch_object(&obj, FALSE))
-            return 1; /* evading your grasp costs a turn; just be
-                         grateful that you don't drop it as well */
-    }
+    if (!retouch_object(&obj, !uarmg, FALSE))
+        return 1; /* evading your grasp costs a turn; just be
+                        grateful that you don't drop it as well */
 
     if (obj->oclass == WAND_CLASS)
         return do_break_wand(obj);

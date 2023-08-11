@@ -1483,7 +1483,8 @@ throwspell()
         u.dy = 0;
         return 1;
     } else if ((!cansee(cc.x, cc.y)
-                && (!(mtmp = m_at(cc.x, cc.y)) || !canspotmon(mtmp)))
+                && (!(mtmp = m_at(cc.x, cc.y)) || !canspotmon(mtmp))
+                && !((u.ux == cc.x) && (u.uy == cc.y)))
                || IS_STWALL(levl[cc.x][cc.y].typ)) {
         Your("mind fails to lock onto that location!");
         return 0;
