@@ -912,6 +912,7 @@ int mode;
                    && is_pick(uwep)) {
             /* MRKR: Automatic digging when wielding the appropriate tool */
             if (mode == DO_MOVE)
+                if (retouch_object(&uwep, !uarmg, FALSE))
                 (void) use_pick_axe2(uwep);
             return FALSE;
         } else {
@@ -1855,6 +1856,7 @@ domove_core()
             if (context.forcefight
                 /* can we dig? */
                 && uwep && dig_typ(uwep, x, y)
+                && retouch_object(&uwep, !uarmg, FALSE)
                 /* should we dig? */
                 && !glyph_is_invisible(glyph) && !glyph_is_monster(glyph)) {
                 (void) use_pick_axe2(uwep);

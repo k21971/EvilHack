@@ -1218,7 +1218,8 @@ dodown()
             return 1;
         } else if (!trap || !is_hole(trap->ttyp)
                    || !Can_fall_thru(&u.uz) || !trap->tseen) {
-            if (flags.autodig && !context.nopick && uwep && is_pick(uwep)) {
+            if (flags.autodig && !context.nopick && uwep && is_pick(uwep)
+                && retouch_object(&uwep, !uarmg, FALSE)) {
                 return use_pick_axe2(uwep);
             } else {
                 You_cant("go down here.");
