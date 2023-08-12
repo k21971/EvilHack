@@ -2496,15 +2496,15 @@ do_class_genocide()
                 if (!u.uevent.uvecna && i == PM_ALHOON) {
                     if (!gameover)
                         pline("A dark magic prevents you from genociding alhoons.");
-                    return;
+                    continue;
                 } else if (Your_Own_Role(i) || Your_Own_Race(i)
                     || ((mons[i].geno & G_GENO)
                         && !(mvitals[i].mvflags & G_GENOD))) {
                     /* This check must be first since player monsters might
                      * have G_GENOD or !G_GENO. We also have to keep track of
                      * whether there are only two or fewer critters left available for us
-		     * to geno in the first place; we must get them all then.
-		     * finally, we have to make sure the self-geno cases always happen.
+                     * to geno in the first place; we must get them all then.
+                     * finally, we have to make sure the self-geno cases always happen.
                      */
                     if (!ll_done++) {
                         if (!num_genocides())
@@ -2515,39 +2515,40 @@ do_class_genocide()
                             livelog_printf(LL_GENOCIDE, "genocided two random monsters from class %c",
                                            def_monsyms[class].sym);
                     }
-		    if ((killed < 2 && (!rn2(goodcnt) || (killed + candidates > goodcnt - 2)))
-			|| Your_Own_Role(i) || Your_Own_Race(i)) {
-			killed++;
-		        mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
-	                reset_rndmonst(i);
-			kill_genocided_monsters();
+                    if ((killed < 2 && (!rn2(goodcnt) || (killed + candidates > goodcnt - 2)))
+                        || Your_Own_Role(i) || Your_Own_Race(i)) {
+                        killed++;
+                        mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
+                        reset_rndmonst(i);
+                        kill_genocided_monsters();
                         update_inventory();	/* eggs & tins */
-			pline("Wiped out all %s.", nam);
-			if (Upolyd && i == u.umonnum) {
+                        pline("Wiped out all %s.", nam);
+                        if (Upolyd && i == u.umonnum) {
                             u.mh = -1;
-			    if (Unchanging) {
-			        if (!feel_dead++) You("die.");
-				    /* finish genociding this class of
-				       monsters before ultimately dying */
-			            gameover = TRUE;
-			    } else
-			        rehumanize();
-			}
-			/* Self-genocide if it matches either your race
-		 	   or role.  Assumption:  male and female forms
-			   share same monster class. */
-			if (i == urole.malenum || i == urace.malenum) {
-			    u.uhp = -1;
-			    if (Upolyd) {
-				if (!feel_dead++)
-                                    You_feel("dead inside.");
-			    } else {
-				if (!feel_dead++)
+                            if (Unchanging) {
+                                if (!feel_dead++)
                                     You("die.");
-			        gameover = TRUE;
-			    }
-			}
-		    }
+                                /* finish genociding this class of
+                                    monsters before ultimately dying */
+                                gameover = TRUE;
+                            } else
+                                rehumanize();
+                        }
+                        /* Self-genocide if it matches either your race
+                           or role.  Assumption:  male and female forms
+                           share same monster class. */
+                        if (i == urole.malenum || i == urace.malenum) {
+                            u.uhp = -1;
+                            if (Upolyd) {
+                                if (!feel_dead++)
+                                    You_feel("dead inside.");
+                            } else {
+                                if (!feel_dead++)
+                                    You("die.");
+                                gameover = TRUE;
+                            }
+                        }
+                    }
                 } else if (mvitals[i].mvflags & G_GENOD) {
                     if (!gameover)
                         pline("All %s are already nonexistent.", nam);
@@ -2584,8 +2585,9 @@ do_class_genocide()
         if (gameover || u.uhp == -1) {
             killer.format = KILLED_BY_AN;
             Strcpy(killer.name, "scroll of genocide");
-            if (gameover)
+            if (gameover) {
                 done(GENOCIDED);
+            }
         }
         return;
     }
