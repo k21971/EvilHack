@@ -1341,8 +1341,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                     | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
     }
 
-    if (artifact_light(mwep) && mwep->lamplit)
+    if (artifact_light(mwep) && mwep->lamplit) {
         Strcpy(saved_oname, bare_artifactname(mwep));
+        saved_oname[0] = highc(saved_oname[0]);
+    }
 
     if (artifact_light(mwep) && mwep->lamplit
         && mon_hates_light(mdef))

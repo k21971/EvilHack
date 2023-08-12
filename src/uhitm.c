@@ -1176,8 +1176,10 @@ int dieroll;
             isvenom = TRUE;
         if (!(artifact_light(obj) && obj->lamplit))
             Strcpy(saved_oname, cxname(obj));
-        else
+        else {
             Strcpy(saved_oname, bare_artifactname(obj));
+            saved_oname[0] = highc(saved_oname[0]);
+        }
         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
             || obj->oclass == GEM_CLASS || obj->otyp == HEAVY_IRON_BALL) {
             /* is it not a melee weapon? */
@@ -1314,6 +1316,8 @@ int dieroll;
                     hated_obj = obj;
                 }
                 if (artifact_light(obj) && obj->lamplit
+                    && !((obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
+                         && !Upolyd && Race_if(PM_DROW))
                     && mon_hates_light(mon))
                     lightobj = TRUE;
                 if ((u.usteed || Race_if(PM_CENTAUR)) && !thrown && tmp > 0

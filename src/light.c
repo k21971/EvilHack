@@ -166,7 +166,8 @@ char **cs_rows;
                 && Dragon_armor_to_scales(ls->id.a_obj) == SHADOW_DRAGON_SCALES)
                 lit_typ = TEMP_DARK;
             if (ls->id.a_obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
-                && !Upolyd && Race_if(PM_DROW))
+                && (wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
+                    && !Upolyd && Race_if(PM_DROW)))
                 lit_typ = TEMP_DARK;
         } else if (ls->type == LS_MONSTER) {
             if (get_mon_location(ls->id.a_monst, &ls->x, &ls->y, 0))

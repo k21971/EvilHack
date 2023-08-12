@@ -1474,8 +1474,10 @@ register struct attack *mattk;
 
                 if (lightobj) {
                     if (canspotmon(mtmp)) {
+                        char *artiname = s_suffix(bare_artifactname(otmp));
+                        *artiname = highc(*artiname);
                         pline("%s radiance penetrates deep into your %s!",
-                              s_suffix(bare_artifactname(otmp)),
+                              artiname,
                               (!(noncorporeal(youmonst.data)
                                  || amorphous(youmonst.data))) ? "flesh" : "form");
                     } else if (!Blind) {
