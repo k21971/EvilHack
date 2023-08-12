@@ -3062,4 +3062,4 @@ The following changes to date are:
 - Fix: drop shield when the Gauntlets of Purity remove themselves
 - Fix: flying with wings and taking body armor on/off
 - Fix: Elemental Planes overview
-
+- Fix: Silver dragon scaled armor was not granting cold resistance.

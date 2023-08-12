@@ -714,7 +714,8 @@ struct obj *otmp;
         case AD_FIRE:
             return (otyp == RED_DRAGON_SCALES); /* red but not gold */
         case AD_COLD:
-            return (otyp == WHITE_DRAGON_SCALES);
+            return (otyp == WHITE_DRAGON_SCALES
+                    || otyp == SILVER_DRAGON_SCALES);
         case AD_DRST: /* drain strength => poison */
             return (otyp == GREEN_DRAGON_SCALES);
         case AD_SLEE: /* sleep */
