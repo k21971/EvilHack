@@ -3915,6 +3915,9 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                    shield limitation is iffy since still get extra swings
                    if polyform has them, but it matches twoweap behavior */
                 && !uarms
+                /* opposite-aligned artifacts can't be twoweaponed */
+                && !((is_lawful_artifact(uwep) && is_chaotic_artifact(uswapwep))
+                     || (is_chaotic_artifact(uwep) && is_lawful_artifact(uswapwep)))
                 /* only switch to uswapwep if it's a weapon */
                 && (uswapwep->oclass == WEAPON_CLASS || is_weptool(uswapwep))
                 /* only switch if uswapwep is not bow, arrows, or darts */
