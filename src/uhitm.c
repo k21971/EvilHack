@@ -1176,8 +1176,10 @@ int dieroll;
             isvenom = TRUE;
         if (!(artifact_light(obj) && obj->lamplit))
             Strcpy(saved_oname, cxname(obj));
-        else
+        else {
             Strcpy(saved_oname, bare_artifactname(obj));
+            saved_oname[0] = highc(saved_oname[0]);
+        }
         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
             || obj->oclass == GEM_CLASS || obj->otyp == HEAVY_IRON_BALL) {
             /* is it not a melee weapon? */
@@ -1314,6 +1316,8 @@ int dieroll;
                     hated_obj = obj;
                 }
                 if (artifact_light(obj) && obj->lamplit
+                    && !((obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
+                         && !Upolyd && Race_if(PM_DROW))
                     && mon_hates_light(mon))
                     lightobj = TRUE;
                 if ((u.usteed || Race_if(PM_CENTAUR)) && !thrown && tmp > 0
@@ -3911,12 +3915,13 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 /* only consider seconary when wielding one-handed primary */
                 && uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
                 && !bimanual(uwep)
-                /* only switch if not wearing shield and not at artifact;
+                /* only switch if not wearing shield;
                    shield limitation is iffy since still get extra swings
-                   if polyform has them, but it matches twoweap behavior;
-                   twoweap also only allows primary to be an artifact, so
-                   if alternate weapon is one, don't use it */
-                && !uarms && !uswapwep->oartifact
+                   if polyform has them, but it matches twoweap behavior */
+                && !uarms
+                /* opposite-aligned artifacts can't be twoweaponed */
+                && !((is_lawful_artifact(uwep) && is_chaotic_artifact(uswapwep))
+                     || (is_chaotic_artifact(uwep) && is_lawful_artifact(uswapwep)))
                 /* only switch to uswapwep if it's a weapon */
                 && (uswapwep->oclass == WEAPON_CLASS || is_weptool(uswapwep))
                 /* only switch if uswapwep is not bow, arrows, or darts */

@@ -3194,9 +3194,10 @@ register struct monst *mtmp;
                 seetrap(trap);
             if (isok(trap->launch.x, trap->launch.y)
                 && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
-                buzz(trap->launch_otyp, 8,
+                dobuzz(trap->launch_otyp, 8,
                      trap->launch.x, trap->launch.y,
-                     sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y));
+                     sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y),
+                     FALSE);
                 trap->once = 1;
                 if (DEADMONSTER(mtmp))
                     trapkilled = TRUE;

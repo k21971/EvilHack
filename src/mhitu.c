@@ -287,6 +287,8 @@ struct attack *mattk;
             && blocker->oartifact == ART_ASHMAR) {
             pline("%s knocks %s away from you!",
                   artiname(uarms->oartifact), mon_nam(mtmp));
+            u.dx = mtmp->mx - u.ux;
+            u.dy = mtmp->my - u.uy;
             if (mhurtle_to_doom(mtmp, tmp, &mdat, TRUE))
                 already_killed = TRUE;
             if (!already_killed) {
@@ -302,6 +304,8 @@ struct attack *mattk;
             && blocker->oartifact == ART_ARMOR_OF_RETRIBUTION) {
             pline_The("%s knocks %s away from you!",
                       artiname(uarm->oartifact), mon_nam(mtmp));
+            u.dx = mtmp->mx - u.ux;
+            u.dy = mtmp->my - u.uy;
             if (mhurtle_to_doom(mtmp, tmp, &mdat, TRUE))
                 already_killed = TRUE;
             if (!already_killed) {
@@ -965,6 +969,11 @@ register struct monst *mtmp;
     }
 
     for (i = 0; i < NATTK; i++) {
+        /* update these in case someone moves */
+        ranged = (distu(mtmp->mx, mtmp->my) > 3);
+        range2 = !monnear(mtmp, mtmp->mux, mtmp->muy);
+        foundyou = (mtmp->mux == u.ux && mtmp->muy == u.uy);
+        youseeit = canseemon(mtmp);
         sum[i] = 0;
         mon_currwep = (struct obj *)0;
         mattk = getmattk(mtmp, &youmonst, i, sum, &alt_attk);
@@ -1053,8 +1062,9 @@ register struct monst *mtmp;
             break;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
-            /* Note: if displaced, prev attacks never succeeded */
-            if ((!range2 && i >= 2 && sum[i - 1] && sum[i - 2])
+            /* Note: if displaced, prev attacks never succeeded,
+               but ashmar/AoR may have knocked them away. */
+            if ((!ranged && i >= 2 && sum[i - 1] && sum[i - 2])
                 || mtmp == u.ustuck)
                 sum[i] = hitmu(mtmp, mattk);
             break;
@@ -1464,8 +1474,10 @@ register struct attack *mattk;
 
                 if (lightobj) {
                     if (canspotmon(mtmp)) {
+                        char *artiname = s_suffix(bare_artifactname(otmp));
+                        *artiname = highc(*artiname);
                         pline("%s radiance penetrates deep into your %s!",
-                              s_suffix(bare_artifactname(otmp)),
+                              artiname,
                               (!(noncorporeal(youmonst.data)
                                  || amorphous(youmonst.data))) ? "flesh" : "form");
                     } else if (!Blind) {

@@ -428,8 +428,13 @@ boolean foundyou;
     case AD_FIRE:
         if (is_demon(mtmp->data))
             pline("You're enveloped in hellfire!");
-        else
+        else if (!Underwater)
             pline("You're enveloped in flames.");
+        else {
+                pline("The flames are quenched by the water around you.");
+                dmg = 0;
+                break;
+            }
 
         if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
@@ -468,7 +473,13 @@ boolean foundyou;
         }
         break;
     case AD_ACID:
-        pline("You're splashed in acid.");
+        if (!Underwater)
+            pline("You're splashed in acid.");
+        else {
+            pline("The acid dissipates harmlessly in the water around you.");
+            dmg = 0;
+            break;
+        }
         if (how_resistant(ACID_RES) == 100) {
             shieldeff(u.ux, u.uy);
             pline("But you resist the effects.");
@@ -1673,8 +1684,14 @@ struct attack *mattk;
         if (canseemon(mdef)) {
             if (is_demon(mtmp->data))
                 pline("%s is enveloped in hellfire!", Monnam(mdef));
-            else
+            else if (!mon_underwater(mdef))
                 pline("%s is enveloped in flames.", Monnam(mdef));
+            else {
+                pline("The flames are quenched by the water around %s.",
+                      mon_nam(mdef));
+                dmg = 0;
+                break;
+            }
         }
 
         if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
@@ -1706,8 +1723,16 @@ struct attack *mattk;
         }
         break;
     case AD_ACID:
-        if (canseemon(mdef))
-            pline("%s is covered in acid.", Monnam(mdef));
+        if (canseemon(mdef)) {
+            if (!mon_underwater(mdef))
+                pline("%s is covered in acid.", Monnam(mdef));
+            else {
+                pline("The acid dissipates harmlessly in the water around %s.",
+                      mon_nam(mdef));
+                dmg = 0;
+                break;
+            }
+        }
         if (resists_acid(mdef) || defended(mdef, AD_ACID)) {
             shieldeff(mdef->mx, mdef->my);
             if (canseemon(mdef))
@@ -1861,8 +1886,14 @@ struct attack *mattk;
         if (canseemon(mtmp)) {
             if (is_demon(youmonst.data))
                 pline("%s is enveloped in hellfire!", Monnam(mtmp));
-            else
+            else if (!mon_underwater(mtmp))
                 pline("%s is enveloped in flames.", Monnam(mtmp));
+            else {
+                pline("The flames are quenched by the water around %s.",
+                      mon_nam(mtmp));
+                dmg = 0;
+                break;
+            }
         }
 
         if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
@@ -1894,8 +1925,16 @@ struct attack *mattk;
         }
         break;
     case AD_ACID:
-        if (canseemon(mtmp))
-            pline("%s is covered in acid.", Monnam(mtmp));
+        if (canseemon(mtmp)) {
+            if (!mon_underwater(mtmp))
+                pline("%s is covered in acid.", Monnam(mtmp));
+            else {
+                pline("The acid dissipates harmlessly in the water around %s.",
+                      mon_nam(mtmp));
+                dmg = 0;
+                break;
+            }
+        }
         if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))

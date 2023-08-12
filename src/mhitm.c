@@ -627,11 +627,11 @@ register struct monst *magr, *mdef;
                     material = mwep->material;
 
                 res[i] = hitmm(magr, mdef, mattk, mwep, dieroll);
-		if ((res[i]) == MM_HIT && mwep
+                if ((res[i]) == MM_HIT && mwep
                     && type == CORPSE
                     && corpsenm
                     && touch_petrifies(&mons[corpsenm])
-	            && !(resists_ston(mdef) || defended(mdef, AD_STON))) {
+                    && !(resists_ston(mdef) || defended(mdef, AD_STON))) {
                     if (poly_when_stoned(mdef->data)) {
                         mon_to_stone(mdef);
                     } else if (!mdef->mstone) {
@@ -710,6 +710,10 @@ register struct monst *magr, *mdef;
             break;
 
         case AT_ENGL:
+            /* D: Prevent engulf from a distance */
+            if (distmin(magr->mx, magr->my, mdef->mx, mdef->my) > 1)
+                continue;
+
             if (noncorporeal(mdef->data) /* no silver teeth... */
                 || passes_walls(mdef->data)) {
                 if (vis)
@@ -722,9 +726,6 @@ register struct monst *magr, *mdef;
                 strike = 0;
                 break;
             }
-            /* D: Prevent engulf from a distance */
-            if (distmin(magr->mx, magr->my, mdef->mx, mdef->my) > 1)
-                continue;
             /* Engulfing attacks are directed at the hero if possible. -dlc */
             if (u.uswallow && magr == u.ustuck)
                 strike = 0;
@@ -1333,14 +1334,17 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     tmp += special_dmgval(magr, mdef, armask, &hated_obj);
 
     if (hated_obj) {
-        searmsg(magr, mdef, hated_obj, FALSE);
+        if (vis && canseemon(mdef))
+            searmsg(magr, mdef, hated_obj, FALSE);
         if (DEADMONSTER(mdef))
             return (MM_DEF_DIED
                     | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
     }
 
-    if (artifact_light(mwep) && mwep->lamplit)
+    if (artifact_light(mwep) && mwep->lamplit) {
         Strcpy(saved_oname, bare_artifactname(mwep));
+        saved_oname[0] = highc(saved_oname[0]);
+    }
 
     if (artifact_light(mwep) && mwep->lamplit
         && mon_hates_light(mdef))
@@ -1551,7 +1555,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             }
             if (mon_hates_material(mdef, mwep->material)) {
                 /* extra damage already applied by dmgval() */
-                searmsg(magr, mdef, mwep, FALSE);
+                if (vis && canseemon(mdef))
+                    searmsg(magr, mdef, mwep, FALSE);
                 if (DEADMONSTER(mdef))
                     return (MM_DEF_DIED
                             | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
