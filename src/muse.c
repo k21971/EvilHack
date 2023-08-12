@@ -2116,6 +2116,19 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             case WAN_STRIKING:
                 destroy_drawbridge(x, y);
             }
+        if (levl[x][y].typ == IRONBARS 
+            && !(levl[x][y].wall_info & W_NONDIGGABLE)
+            && obj->otyp == WAN_STRIKING) {
+            levl[x][y].typ = ROOM;
+            if (cansee(x, y))
+                pline_The("iron bars are blown apart!");
+            else if (!Deaf)
+                You_hear("a lot of loud clanging sounds!");
+            wake_nearto(x, y, 20 * 20);
+            newsym(x, y);
+            /* stop the bolt here; it takes a lot of energy to destroy bars */
+            range = 0;
+        }
         /*
          * Affect objects on the floor before monster, so that objects dropped
          * by hero when polymorphed are safe from polymorph by same beam hit;
