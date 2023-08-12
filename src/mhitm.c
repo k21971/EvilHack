@@ -1334,7 +1334,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     tmp += special_dmgval(magr, mdef, armask, &hated_obj);
 
     if (hated_obj) {
-        searmsg(magr, mdef, hated_obj, FALSE);
+        if (vis && canseemon(mdef))
+            searmsg(magr, mdef, hated_obj, FALSE);
         if (DEADMONSTER(mdef))
             return (MM_DEF_DIED
                     | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
@@ -1552,7 +1553,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             }
             if (mon_hates_material(mdef, mwep->material)) {
                 /* extra damage already applied by dmgval() */
-                searmsg(magr, mdef, mwep, FALSE);
+                if (vis && canseemon(mdef))
+                    searmsg(magr, mdef, mwep, FALSE);
                 if (DEADMONSTER(mdef))
                     return (MM_DEF_DIED
                             | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
