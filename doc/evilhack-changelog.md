@@ -3062,4 +3062,18 @@ The following changes to date are:
 - Fix: drop shield when the Gauntlets of Purity remove themselves
 - Fix: flying with wings and taking body armor on/off
 - Fix: Elemental Planes overview
-- Fix: Silver dragon scaled armor was not granting cold resistance.
+- Artifact Messages, Angelslayer/Grimtooth tweaks
+- Fix: Grease shouldn't protect invocation items from Rodney
+- Fix: Allow twoweaponing artifacts in polyform
+- Fix: polyform twoweaponing opposite-aligned artifacts
+- Monsters zapping wands of striking can break iron bars
+- Fix: Safes don't have lids
+- More hellfire tweaks 
+- Fix: Blessed genocide of 'h'
+- Fix: Attempts to engulf spectres &c. from a distance
+- Fix: Messages for unseen events
+- Fix: defensive knockback
+- Fix: Staff of the Archmagi, drow, and light-haters
+- Fix: Autodigging and forcefight-digging can sear you
+- Fix: Silver dragon scaled armor was not granting cold resistance
+
