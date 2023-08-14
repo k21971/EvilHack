@@ -108,10 +108,13 @@ xchar x, y;
     if (m_can_break_boulder(mtmp)
         && ((otmp = sobj_at(BOULDER, x, y)) != 0)) {
         if (distu(mtmp->mx, mtmp->my) < 4 * 4) {
-            if (using_pick && cansee(x, y)) {
-                pline("%s swings %s %s.",
-                      Monnam(mtmp), mhis(mtmp),
-                      simpleonames(MON_WEP(mtmp)));
+            if (using_pick) {
+                if (cansee(x, y))
+                    pline("%s swings %s %s.",
+                          Monnam(mtmp), mhis(mtmp),
+                          simpleonames(MON_WEP(mtmp)));
+                else if (!Deaf)
+                    You_hear("a crumbling sound.");
             } else {
                 if (!Deaf)
                     pline("%s %s %s.",

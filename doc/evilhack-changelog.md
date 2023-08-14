@@ -3079,4 +3079,5 @@ The following changes to date are:
 - Fix: bracers are plural, not singular
 - Fix: a couple places where traps could spawn on top of altars
 - Dark elven bracers and dual wielding/two-handed weapons
+- Fix: monsters digging through boulders and not seen
 
