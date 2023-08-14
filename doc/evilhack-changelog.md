@@ -3081,4 +3081,6 @@ The following changes to date are:
 - Dark elven bracers and dual wielding/two-handed weapons
 - Fix: monsters digging through boulders and not seen
 - Reduce AC bonus from shield skill if wearing bracers
+- Fix: feedback for gaining telepathy via food when already telepathic
+  via race
 

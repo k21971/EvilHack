@@ -1034,14 +1034,16 @@ register struct permonst *ptr;
         break;
     case TELEPORT:
         debugpline0("Trying to give teleport");
-        if (!(HTeleportation & FROMOUTSIDE) && !rn2(5)) {
+        if (!(HTeleportation & (FROMOUTSIDE | FROMRACE | FROMEXPER))
+            && !rn2(5)) {
             You_feel(Hallucination ? "diffuse." : "very jumpy.");
             HTeleportation |= FROMOUTSIDE;
         }
         break;
     case TELEPORT_CONTROL:
         debugpline0("Trying to give teleport control");
-        if (!(HTeleport_control & FROMOUTSIDE) && !rn2(10)) {
+        if (!(HTeleport_control & (FROMOUTSIDE | FROMRACE | FROMEXPER))
+            && !rn2(10)) {
             You_feel(Hallucination ? "centered in your personal space."
                                    : "in control of yourself.");
             HTeleport_control |= FROMOUTSIDE;
@@ -1049,7 +1051,7 @@ register struct permonst *ptr;
         break;
     case TELEPAT:
         debugpline0("Trying to give telepathy");
-        if (!(HTelepat & FROMOUTSIDE)) {
+        if (!(HTelepat & (FROMOUTSIDE | FROMRACE | FROMEXPER))) {
             You_feel(Hallucination ? "in touch with the cosmos."
                                    : "a strange mental acuity.");
             HTelepat |= FROMOUTSIDE;
