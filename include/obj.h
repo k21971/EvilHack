@@ -274,7 +274,7 @@ struct obj {
 #define is_drow_armor(otmp) \
     ((otmp)->otyp == DARK_ELVEN_HELM || (otmp)->otyp == DARK_ELVEN_BOOTS          \
      || (otmp)->otyp == DARK_ELVEN_CHAIN_MAIL || (otmp)->otyp == DARK_ELVEN_TUNIC \
-     || (otmp)->otyp == DARK_ELVEN_CLOAK || (otmp)->otyp == DARK_ELVEN_BRACER     \
+     || (otmp)->otyp == DARK_ELVEN_CLOAK || (otmp)->otyp == DARK_ELVEN_BRACERS    \
      || (otmp)->otyp == DARK_ELVEN_GLOVES)
 #define is_orcish_armor(otmp) \
     ((otmp)->otyp == ORCISH_HELM || (otmp)->otyp == ORCISH_CHAIN_MAIL    \

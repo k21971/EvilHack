@@ -349,8 +349,8 @@ struct inv_sub {
     { PM_DROW, JACKET, DARK_ELVEN_TUNIC },
     { PM_DROW, PLATE_MAIL, DARK_ELVEN_CHAIN_MAIL },
     { PM_DROW, HELMET, DARK_ELVEN_HELM },
-    { PM_DROW, SMALL_SHIELD, DARK_ELVEN_BRACER },
-    { PM_DROW, LARGE_SHIELD, DARK_ELVEN_BRACER },
+    { PM_DROW, SMALL_SHIELD, DARK_ELVEN_BRACERS },
+    { PM_DROW, LARGE_SHIELD, DARK_ELVEN_BRACERS },
     { PM_DROW, CLOAK_OF_DISPLACEMENT, DARK_ELVEN_CLOAK },
     { PM_DROW, CLOAK_OF_PROTECTION, DARK_ELVEN_CLOAK },
     /* end */
@@ -1174,7 +1174,7 @@ u_init()
         knows_object(DARK_ELVEN_CHAIN_MAIL);
         knows_object(DARK_ELVEN_TUNIC);
         knows_object(DARK_ELVEN_CLOAK);
-        knows_object(DARK_ELVEN_BRACER);
+        knows_object(DARK_ELVEN_BRACERS);
         knows_object(DARK_ELVEN_BOOTS);
         knows_object(DARK_ELVEN_GLOVES);
         break;

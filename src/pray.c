@@ -2363,7 +2363,7 @@ dosacrifice()
                                 /* shield */
                                 if (primary_casters || primary_casters_priest) {
                                     if (Race_if(PM_DROW)) {
-                                        typ = rn2(8) ? typ == DARK_ELVEN_BRACER
+                                        typ = rn2(8) ? typ == DARK_ELVEN_BRACERS
                                                      : rn2(2) ? typ == SHIELD_OF_REFLECTION
                                                               : typ == SHIELD_OF_MOBILITY;
                                     } else {

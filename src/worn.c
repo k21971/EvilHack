@@ -705,7 +705,7 @@ register struct monst *mon;
                      && (obj->otyp == ORCISH_SHIELD
                          || obj->otyp == URUK_HAI_SHIELD))
                     || (racial_elf(mon) && obj->otyp == ELVEN_SHIELD)
-                    || (racial_drow(mon) && obj->otyp == DARK_ELVEN_BRACER)
+                    || (racial_drow(mon) && obj->otyp == DARK_ELVEN_BRACERS)
                     || (racial_dwarf(mon) && obj->otyp == DWARVISH_ROUNDSHIELD))
                     base -= racial_bonus;
             }

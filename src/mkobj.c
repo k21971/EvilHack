@@ -3591,7 +3591,7 @@ struct obj* obj;
         case DARK_ELVEN_CHAIN_MAIL:
         case DARK_ELVEN_TUNIC:
         case DARK_ELVEN_CLOAK:
-        case DARK_ELVEN_BRACER:
+        case DARK_ELVEN_BRACERS:
         case DARK_ELVEN_BOOTS:
         case DARK_ELVEN_GLOVES:
             return drow_materials;

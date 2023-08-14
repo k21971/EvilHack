@@ -1259,7 +1259,7 @@ register struct monst *mtmp;
             case 0:
                 if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
                     if (!rn2(4))
-                        (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                        (void) mongets(mtmp, DARK_ELVEN_BRACERS);
                     if (rn2(3))
                         (void) mongets(mtmp, DARK_ELVEN_SHORT_SWORD);
                     (void) mongets(mtmp, DARK_ELVEN_BOW);
@@ -1269,7 +1269,7 @@ register struct monst *mtmp;
             case 1:
                 if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
                     if (!rn2(4))
-                        (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                        (void) mongets(mtmp, DARK_ELVEN_BRACERS);
                     if (rn2(3))
                         (void) mongets(mtmp, DARK_ELVEN_SHORT_SWORD);
                     (void) mongets(mtmp, DARK_ELVEN_HAND_CROSSBOW);
@@ -1281,21 +1281,21 @@ register struct monst *mtmp;
                     (void) mongets(mtmp, !rn2(4) ? DARK_ELVEN_LONG_SWORD
                                                  : DARK_ELVEN_BROADSWORD);
                     if (rn2(2))
-                        (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                        (void) mongets(mtmp, DARK_ELVEN_BRACERS);
                 }
                 break;
             case 3:
                 if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
                     if (rn2(2)) {
                         (void) mongets(mtmp, DARK_ELVEN_SPEAR);
-                        (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                        (void) mongets(mtmp, DARK_ELVEN_BRACERS);
                     }
                 }
                 break;
             }
             if (mm == PM_DROW_CLERIC) {
                 if (rn2(4))
-                    (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                    (void) mongets(mtmp, DARK_ELVEN_BRACERS);
                 if (rn2(3))
                     (void) mongets(mtmp, DARK_ELVEN_TUNIC);
                 if (rn2(8))
@@ -2110,7 +2110,7 @@ register struct monst *mtmp;
                 mac += 2 + mongets(mtmp, ELVEN_SHIELD);
             else if (mac < 10 && rn2(2)
                      && racial_drow(mtmp))
-                mac += 2 + mongets(mtmp, DARK_ELVEN_BRACER);
+                mac += 2 + mongets(mtmp, DARK_ELVEN_BRACERS);
             else if (mac < 10 && rn2(2)
                      && racial_orc(mtmp))
                 mac += 2 + mongets(mtmp, ORCISH_SHIELD);
@@ -2198,7 +2198,7 @@ register struct monst *mtmp;
                                                 ? CLOAK_OF_PROTECTION
                                                 : CLOAK_OF_MAGIC_RESISTANCE);
                 if (racial_drow(mtmp))
-                    (void) mongets(mtmp, DARK_ELVEN_BRACER);
+                    (void) mongets(mtmp, DARK_ELVEN_BRACERS);
                 else
                     (void) mongets(mtmp, SMALL_SHIELD);
             } else {

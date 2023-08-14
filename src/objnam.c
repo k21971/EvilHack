@@ -756,7 +756,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
 
         if (is_boots(obj)
-            || (is_gloves(obj) && obj->otyp != MUMMIFIED_HAND))
+            || typ == DARK_ELVEN_BRACERS
+            || (is_gloves(obj) && typ != MUMMIFIED_HAND))
             Strcat(buf, "pair of ");
 
         if (dknown && (obj->oprops & ITEM_OILSKIN)
@@ -771,14 +772,14 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
 
         if (obj->otyp >= ELVEN_SHIELD && obj->otyp <= ORCISH_SHIELD
-            && obj->otyp != DARK_ELVEN_BRACER && !dknown) {
+            && obj->otyp != DARK_ELVEN_BRACERS && !dknown) {
             Strcat(buf, "shield");
             propnames(buf, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
             break;
         }
-        if (obj->otyp == DARK_ELVEN_BRACER && !dknown) {
-            Strcat(buf, "bracer");
+        if (obj->otyp == DARK_ELVEN_BRACERS && !dknown) {
+            Strcat(buf, "bracers");
             propnames(buf, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
             break;
@@ -3267,14 +3268,18 @@ static const struct alt_spellings {
     { "drow heavy mace", DARK_ELVEN_HEAVY_MACE },
     { "drow bow", DARK_ELVEN_BOW },
     { "drow crossbow", DARK_ELVEN_HAND_CROSSBOW },
+    { "dark elven crossbow", DARK_ELVEN_HAND_CROSSBOW },
     { "drow hand crossbow", DARK_ELVEN_HAND_CROSSBOW },
     { "drow helm", DARK_ELVEN_HELM },
     { "drow armor", DARK_ELVEN_CHAIN_MAIL },
+    { "dark elven armor", DARK_ELVEN_CHAIN_MAIL },
     { "drow chain mail", DARK_ELVEN_CHAIN_MAIL },
     { "drow tunic", DARK_ELVEN_TUNIC },
     { "drow cloak", DARK_ELVEN_CLOAK },
-    { "drow bracer", DARK_ELVEN_BRACER },
-    { "drow shield", DARK_ELVEN_BRACER },
+    { "drow bracers", DARK_ELVEN_BRACERS },
+    { "dark elven bracers", DARK_ELVEN_BRACERS },
+    { "drow shield", DARK_ELVEN_BRACERS },
+    { "dark elven shield", DARK_ELVEN_BRACERS },
     { "drow gloves", DARK_ELVEN_GLOVES },
     { "drow boots", DARK_ELVEN_BOOTS },
     /* armor */

@@ -3076,4 +3076,5 @@ The following changes to date are:
 - Fix: Staff of the Archmagi, drow, and light-haters
 - Fix: Autodigging and forcefight-digging can sear you
 - Fix: Silver dragon scaled armor was not granting cold resistance
+- Fix: bracers are plural, not singular
 

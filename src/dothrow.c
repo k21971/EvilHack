@@ -2536,7 +2536,7 @@ boolean in_view;
     case DARK_ELVEN_ARROW:
     case DARK_ELVEN_HAND_CROSSBOW:
     case DARK_ELVEN_CROSSBOW_BOLT:
-    case DARK_ELVEN_BRACER:
+    case DARK_ELVEN_BRACERS:
     case DARK_ELVEN_CHAIN_MAIL:
         if (!in_view)
             You_hear("%s crumble apart!",

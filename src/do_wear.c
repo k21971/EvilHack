@@ -853,7 +853,7 @@ Shield_on(VOID_ARGS)
     switch (uarms->otyp) {
     case SMALL_SHIELD:
     case ELVEN_SHIELD:
-    case DARK_ELVEN_BRACER:
+    case DARK_ELVEN_BRACERS:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
     case DWARVISH_ROUNDSHIELD:
@@ -889,7 +889,7 @@ Shield_off(VOID_ARGS)
     switch (otmp->otyp) {
     case SMALL_SHIELD:
     case ELVEN_SHIELD:
-    case DARK_ELVEN_BRACER:
+    case DARK_ELVEN_BRACERS:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
     case DWARVISH_ROUNDSHIELD:
@@ -2889,7 +2889,7 @@ find_ac()
              && (uarms->otyp == ORCISH_SHIELD
                  || uarms->otyp == URUK_HAI_SHIELD))
             || (Race_if(PM_ELF) && uarms->otyp == ELVEN_SHIELD)
-            || (Race_if(PM_DROW) && uarms->otyp == DARK_ELVEN_BRACER)
+            || (Race_if(PM_DROW) && uarms->otyp == DARK_ELVEN_BRACERS)
             || (Race_if(PM_DWARF) && uarms->otyp == DWARVISH_ROUNDSHIELD)) {
             uac -= racial_bonus;
         }
