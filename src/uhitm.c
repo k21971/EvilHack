@@ -911,7 +911,7 @@ struct attack *uattk;
         && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
         && !(multi < 0 || u.umortality > oldumort
              || !malive || m_at(x, y) != mon)) {
-        if (wearshield && uarms->otyp != DARK_ELVEN_BRACERS) {
+        if (wearshield && !is_bracer(uarms)) {
             if (!rn2(8))
                 pline("Your extra attack is ineffective while wearing %s.",
                       an(xname(wearshield)));
@@ -967,7 +967,7 @@ struct attack *uattk;
     /* random shield bash if wearing a shield and are skilled
        in using shields */
     if (bash_chance
-        && wearshield && uarms->otyp != DARK_ELVEN_BRACERS
+        && wearshield && !is_bracer(uarms)
         && P_SKILL(P_SHIELD) >= P_BASIC
         && !(multi < 0 || u.umortality > oldumort
              || u.uinwater || !malive || m_at(x, y) != mon)) {

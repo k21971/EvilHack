@@ -2344,14 +2344,14 @@ boolean noisy;
             if (noisy)
                 already_wearing(an(c_shield));
             err++;
-        } else if (uwep && otmp->otyp != DARK_ELVEN_BRACERS && bimanual(uwep)) {
+        } else if (uwep && !is_bracer(otmp) && bimanual(uwep)) {
             if (noisy)
                 You("cannot wear a shield while wielding a two-handed %s.",
                     is_sword(uwep) ? c_sword : (uwep->otyp == BATTLE_AXE)
                                                    ? c_axe
                                                    : c_weapon);
             err++;
-        } else if (u.twoweap && otmp->otyp != DARK_ELVEN_BRACERS) {
+        } else if (u.twoweap && !is_bracer(otmp)) {
             if (noisy)
                 You("cannot wear a shield while wielding two weapons.");
             err++;
@@ -2879,11 +2879,11 @@ find_ac()
         if (P_SKILL(P_SHIELD) == P_BASIC)
             uac -= 1;
         else if (P_SKILL(P_SHIELD) == P_SKILLED)
-            uac -= 3;
+            uac -= (is_bracer(uarms) ? 2 : 3);
         else if (P_SKILL(P_SHIELD) == P_EXPERT)
-            uac -= 5;
+            uac -= (is_bracer(uarms) ? 3 : 5);
         else if (P_SKILL(P_SHIELD) == P_MASTER)
-            uac -= 8;
+            uac -= (is_bracer(uarms) ? 4 : 8);
 
         if ((Race_if(PM_ORC)
              && (uarms->otyp == ORCISH_SHIELD

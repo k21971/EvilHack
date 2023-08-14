@@ -3080,4 +3080,5 @@ The following changes to date are:
 - Fix: a couple places where traps could spawn on top of altars
 - Dark elven bracers and dual wielding/two-handed weapons
 - Fix: monsters digging through boulders and not seen
+- Reduce AC bonus from shield skill if wearing bracers
 
