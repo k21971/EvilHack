@@ -3077,4 +3077,5 @@ The following changes to date are:
 - Fix: Autodigging and forcefight-digging can sear you
 - Fix: Silver dragon scaled armor was not granting cold resistance
 - Fix: bracers are plural, not singular
+- Fix: a couple places where traps could spawn on top of altars
 

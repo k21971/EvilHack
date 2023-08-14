@@ -1445,8 +1445,6 @@ MAZEWALK:(62,15),south
 ALTAR:(70,5),noalign,shrine
 DOOR:closed,(62,12)
 DOOR:closed,(70,10)
-TRAP:"spear",random
-TRAP:"board",random
 OBJECT:('?', "scare monster"),(70,5),cursed
 ENGRAVING:(70,5),burn,"Moloch"
 OBJECT:('(',"figurine"),(70,5),cursed,montype:"balrog",1
@@ -1527,6 +1525,9 @@ TRAP:"board",(70,06)
 TRAP:"board",(71,04)
 TRAP:"board",(71,05)
 TRAP:"board",(71,06)
+# Random traps
+TRAP:"spear",random
+TRAP:"board",random
 
 # Mine end level variant 5
 # "The Sewers of Waterdeep"
