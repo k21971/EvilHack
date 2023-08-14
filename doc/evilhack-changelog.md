@@ -3078,4 +3078,5 @@ The following changes to date are:
 - Fix: Silver dragon scaled armor was not granting cold resistance
 - Fix: bracers are plural, not singular
 - Fix: a couple places where traps could spawn on top of altars
+- Dark elven bracers and dual wielding/two-handed weapons
 

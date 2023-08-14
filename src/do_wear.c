@@ -2344,14 +2344,14 @@ boolean noisy;
             if (noisy)
                 already_wearing(an(c_shield));
             err++;
-        } else if (uwep && bimanual(uwep)) {
+        } else if (uwep && otmp->otyp != DARK_ELVEN_BRACERS && bimanual(uwep)) {
             if (noisy)
                 You("cannot wear a shield while wielding a two-handed %s.",
                     is_sword(uwep) ? c_sword : (uwep->otyp == BATTLE_AXE)
                                                    ? c_axe
                                                    : c_weapon);
             err++;
-        } else if (u.twoweap) {
+        } else if (u.twoweap && otmp->otyp != DARK_ELVEN_BRACERS) {
             if (noisy)
                 You("cannot wear a shield while wielding two weapons.");
             err++;

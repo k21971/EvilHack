@@ -185,7 +185,7 @@ struct obj *wep;
     } else if (wep->otyp == CORPSE && cant_wield_corpse(wep)) {
         /* hero must have been life-saved to get here; use a turn */
         res++; /* corpse won't be wielded */
-    } else if (uarms && bimanual(wep)) {
+    } else if (uarms && uarms->otyp != DARK_ELVEN_BRACERS && bimanual(wep)) {
         You("cannot wield a two-handed %s while wearing a shield.",
             is_sword(wep) ? "sword" : wep->otyp == BATTLE_AXE ? "axe"
                                                               : "weapon");
@@ -730,7 +730,7 @@ can_twoweapon()
     } else if (bimanual(uwep) || bimanual(uswapwep)) {
         otmp = bimanual(uwep) ? uwep : uswapwep;
         pline("%s isn't one-handed.", Yname2(otmp));
-    } else if (uarms)
+    } else if (uarms && uarms->otyp != DARK_ELVEN_BRACERS)
         You_cant("use two weapons while wearing a shield.");
     /* Allow two-weaponing with an artifact, but not if they are of opposite alignements.
      * As expected, neutral artifacts don't care */
