@@ -3084,4 +3084,5 @@ The following changes to date are:
 - Fix: feedback for gaining telepathy via food when already telepathic
   via race
 - Fix: release obufs used by sortloot
+- Fix: tweaks to objnam.c (dragon-scaled armor)
 
