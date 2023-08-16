@@ -3087,4 +3087,5 @@ The following changes to date are:
 - Fix: tweaks to objnam.c (dragon-scaled armor)
 - Fix: wearing dragon scales and reading an unidentified scroll of enchant
   armor
+- Fix: player objects destroyed via passive disintegration handling
 

@@ -4828,10 +4828,11 @@ boolean wep_was_destroyed;
                                 pline("%s disintegrates!", Yname2(weapon));
                             if (weapon == uball || weapon == uchain)
                                 unpunish();
-                            if (carried(weapon))
-                                useup(weapon);
-                            else
-                                delobj(weapon);
+                            /* make sure any properties given by worn/wielded
+                               objects are removed */
+                            remove_worn_item(weapon, FALSE);
+                            setnotworn(weapon);
+                            delobj(weapon);
                             break;
                         }
                     }
@@ -4944,7 +4945,7 @@ struct attack *mattk;     /* null means we find one internally */
         if (!rn2(6) && !mon->mcan && !Underwater
             /* steam vortex: fire resist applies, fire damage doesn't */
             && mon->data != &mons[PM_STEAM_VORTEX]) {
-            ret = erode_obj(obj, NULL, ERODE_BURN, EF_GREASE | EF_DESTROY);
+            ret = erode_obj(obj, NULL, ERODE_BURN, EF_DESTROY);
         }
         break;
     case AD_ACID:
@@ -5012,10 +5013,11 @@ struct attack *mattk;     /* null means we find one internally */
                     pline("%s disintegrates!", Yname2(obj));
                 if (obj == uchain || obj == uball)
                     unpunish();
-                if (carried(obj))
-                    useup(obj);
-                else
-                    delobj(obj);
+                /* make sure any properties given by worn/wielded
+                   objects are removed */
+                remove_worn_item(obj, FALSE);
+                setnotworn(obj);
+                delobj(obj);
                 ret = ER_DESTROYED;
             }
             break;
