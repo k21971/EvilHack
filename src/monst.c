@@ -2183,7 +2183,7 @@ struct permonst _mons2[] = {
         M1_ANIMAL | M1_FLY | M1_CARNIVORE | M1_SEE_INVIS,
         M2_HOSTILE | M2_NOPOLY | M2_STRONG,
         M3_INFRAVISIBLE, 0, 0, 21, CLR_YELLOW),
-    MON("vorpal jabberwock", S_JABBERWOCK, LVL(20, 12, -2, 50, 0), (1),
+    MON("vorpal jabberwock", S_JABBERWOCK, LVL(20, 12, -2, 70, 0), (1),
         A(ATTK(AT_BITE, AD_PHYS, 3, 10), ATTK(AT_BITE, AD_PHYS, 3, 10),
           ATTK(AT_CLAW, AD_BHED, 3, 10), ATTK(AT_CLAW, AD_BHED, 3, 10),
           NO_ATTK, NO_ATTK),

@@ -3093,4 +3093,5 @@ The following changes to date are:
   at a distance
 - New race/role combinations: drow monk, tortle samurai
 - Flag alhoon as M2_NOPOLY
+- Allow vorpal jabberwocks to be steeds
 
