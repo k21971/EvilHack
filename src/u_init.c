@@ -326,6 +326,7 @@ struct inv_sub {
     /* Tortles also have special considerations */
     { PM_TORTLE, JACKET, GLOVES },
     { PM_TORTLE, RING_MAIL, TOQUE },
+    { PM_TORTLE, SPLINT_MAIL, TOQUE },
     { PM_TORTLE, BATTLE_AXE, TRIDENT },
     { PM_TORTLE, TWO_HANDED_SWORD, TRIDENT },
     { PM_TORTLE, ROBE, TOQUE },
@@ -904,7 +905,7 @@ u_init()
 
         Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
         ini_inv(Monk);
-        if (!rn2(4))
+        if (!rn2(4) && !Race_if(PM_DROW))
             ini_inv(Lamp);
         knows_class(ARMOR_CLASS);
         /* sufficiently martial-arts oriented item to ignore language issue */

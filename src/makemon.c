@@ -393,6 +393,15 @@ struct trobj tortlePriest[] = {
     { 0, 0, 0, 0, 0 }
 };
 
+struct trobj tortleSamurai[] = {
+    { KATANA, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS }, /* wakizashi */
+    { YUMI, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { YA, 0, WEAPON_CLASS, 25, UNDEF_BLESS }, /* variable quan */
+    { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
 struct trobj tortleTourist[] = {
     { DART, 2, WEAPON_CLASS, 25, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 10, 0 },
@@ -923,6 +932,8 @@ register struct monst *mtmp;
             Samurai[S_ARROWS].trquan = rn1(20, 26);
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantSamurai, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleSamurai, 1);
             else
                 ini_mon_inv(mtmp, Samurai, 1);
             ini_mon_inv(mtmp, Blindfold, 5);

@@ -6409,7 +6409,7 @@ short mndx;
         break;
     case PM_MONK:
         permitted |= (MH_DWARF | MH_ELF | MH_GIANT | MH_CENTAUR
-                      | MH_TORTLE);
+                      | MH_TORTLE | MH_DROW);
         break;
     case PM_PRIEST:
     case PM_PRIESTESS:
@@ -6426,7 +6426,7 @@ short mndx;
                       | MH_DROW);
         break;
     case PM_SAMURAI:
-        permitted |= (MH_DWARF | MH_GIANT);
+        permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE);
         break;
     case PM_TOURIST:
         permitted |= (MH_HOBBIT | MH_GNOME | MH_TORTLE);

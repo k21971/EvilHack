@@ -3091,4 +3091,5 @@ The following changes to date are:
 - Move the Wizard's Tower into its own branch
 - Fix: walls and doors were not being seen in the dark via ultravision
   at a distance
+- New race/role combinations: drow monk, tortle samurai
 
