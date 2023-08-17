@@ -659,8 +659,8 @@ NEARDATA struct permonst mons[] = {
             | MR_SLEEP | MR_ELEC | MR_POISON, MR_FIRE | MR_COLD,
         M1_BREATHLESS | M1_HUMANOID | M1_FLY | M1_SEE_INVIS | M1_POIS
             | M1_REGEN,
-        M2_HOSTILE | M2_NASTY | M2_MAGIC | M2_GREEDY | M2_JEWELS
-            | M2_COLLECT,
+        M2_NOPOLY | M2_HOSTILE | M2_NASTY | M2_MAGIC | M2_GREEDY
+            | M2_JEWELS | M2_COLLECT,
         M3_WANTSBOOK | M3_INFRAVISIBLE | M3_INFRAVISION, 0,
         MH_ILLITHID | MH_UNDEAD, 30, CLR_GRAY),
     /* Placeholder for player race Illithid, not generated at random */

@@ -3092,4 +3092,5 @@ The following changes to date are:
 - Fix: walls and doors were not being seen in the dark via ultravision
   at a distance
 - New race/role combinations: drow monk, tortle samurai
+- Flag alhoon as M2_NOPOLY
 
