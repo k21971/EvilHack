@@ -7,7 +7,7 @@
 # Keeping the Moat for old-time's sake
 MAZE:"wizard1",' '
 FLAGS:noteleport,hardfloor
-INIT_MAP:mines,'.',' ',true,true,unlit,true
+INIT_MAP:solidfill,' '
 GEOMETRY:center,center
 MAP
  LLLLLLLLLLLLL LLLLLLLLLLLLLL
@@ -26,10 +26,7 @@ L|..|.......S...............|L
 L----------------------------L
  LLLLLLLLLLLLL LLLLLLLLLLLLLL
 ENDMAP
-STAIR:levregion(01,00,79,20),(01,01,28,13),up
-STAIR:levregion(01,00,79,20),(01,01,28,13),down
-BRANCH:levregion(01,00,79,20),(01,01,28,13)
-TELEPORT_REGION:levregion(01,00,79,20),(01,01,28,13)
+TELEPORT_REGION:(01,01,28,13),levregion(01,00,79,20)
 # Make it a morgue for rm id in mkmaze.c
 # for the purpose of random sdoor placement
 REGION:(13,02,21,10),unlit,"morgue",unfilled
@@ -127,7 +124,7 @@ IF [50%] {
 # The middle wizard level.
 MAZE:"wizard2",' '
 FLAGS:noteleport,hardfloor
-INIT_MAP:mines,'.',' ',true,true,unlit,true
+INIT_MAP:solidfill,' '
 GEOMETRY:center,center
 MAP
  LLLLLLLLLLLLL LLLLLLLLLLLLLL
@@ -146,10 +143,7 @@ L|............|....S.|......|L
 L----------------------------L
  LLLLLLLLLLLLL LLLLLLLLLLLLLL
 ENDMAP
-STAIR:levregion(01,00,79,20),(0,0,29,14),up
-STAIR:levregion(01,00,79,20),(0,0,29,14),down
-BRANCH:levregion(01,00,79,20),(0,0,29,14)
-TELEPORT_REGION:levregion(01,00,79,20),(0,0,29,14)
+TELEPORT_REGION:(0,0,29,14),levregion(01,00,79,20)
 # entire tower in a region, constrains monster migration
 REGION:(02,02,27,12),unlit,"ordinary",unfilled
 REGION:(10,04,18,10),unlit,"zoo"
@@ -216,7 +210,7 @@ IF [50%] {
 # Memorialize the fakewiz setup.
 MAZE:"wizard3",' '
 FLAGS:noteleport,hardfloor
-INIT_MAP:mines,'.',' ',true,true,unlit,true
+INIT_MAP:solidfill,' '
 GEOMETRY:center,center
 MAP
  LLLLLLLLLLLLL LLLLLLLLLLLLLL
@@ -235,11 +229,8 @@ L|.....|.........|..|.......|L
 L----------------------------L
  LLLLLLLLLLLLL LLLLLLLLLLLLLL
 ENDMAP
-STAIR:levregion(01,00,79,20),(0,0,29,14),up
-STAIR:levregion(01,00,79,20),(0,0,29,14),down
-BRANCH:levregion(01,00,79,20),(0,0,29,14)
-TELEPORT_REGION:levregion(01,00,79,20),(0,0,29,14)
-PORTAL:(26,12,26,12),(0,0,0,0),"fakewiz1"
+TELEPORT_REGION:(0,0,29,14),levregion(01,00,79,20)
+BRANCH:(26,12,26,12),(0,0,0,0)
 REGION:(08,04,16,12),unlit,"morgue",unfilled
 REGION:(18,07,19,12),unlit,"beehive"
 # make the entry chamber a real room; it affects monster arrival;
@@ -353,9 +344,8 @@ LLL...LLLLLLLLL...LLL
 ENDMAP
 STAIR:levregion(01,00,79,20),(0,0,20,20),up
 STAIR:levregion(01,00,79,20),(0,0,20,20),down
-BRANCH:levregion(01,00,79,20),(0,0,20,20)
 TELEPORT_REGION:levregion(01,00,79,20),(08,08,12,12)
-PORTAL:(10,10,10,10),(0,0,0,0),"wizard3"
+BRANCH:(10,10,10,10),(0,0,0,0)
 REGION:(10,09,12,12),unlit,"ordinary",unfilled,irregular
 
 TERRAIN: (00,00), ' '
@@ -471,7 +461,6 @@ LLL...LLLLLLLLL...LLL
 ENDMAP
 STAIR:levregion(01,00,79,20),(0,0,20,20),up
 STAIR:levregion(01,00,79,20),(0,0,20,20),down
-BRANCH:levregion(01,00,79,20),(0,0,20,20)
 TELEPORT_REGION:levregion(01,00,79,20),(08,08,12,12)
 REGION:(10,09,12,12),unlit,"ordinary",unfilled,irregular
 
