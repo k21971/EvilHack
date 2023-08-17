@@ -774,9 +774,11 @@ int control;
                     dx = u.ux - col;
                     dx = sign(dx);
                     flev = &(levl[col + dx][row + dy]);
-                    if ((flev->lit
-                         || next_array[row + dy][col + dx] & TEMP_LIT)
-                        && !(next_array[row + dy][col + dx] & TEMP_DARK)) {
+                    if (((flev->lit
+                          || next_array[row + dy][col + dx] & TEMP_LIT)
+                         && !(next_array[row + dy][col + dx] & TEMP_DARK))
+                        || (next_array[row + dy][col + dx] & COULD_SEE
+                             && Ultravision)) {
                         next_row[col] |= IN_SIGHT; /* we see it */
 
                         oldseenv = lev->seenv;
