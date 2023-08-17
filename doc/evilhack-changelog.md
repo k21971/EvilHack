@@ -3094,4 +3094,5 @@ The following changes to date are:
 - New race/role combinations: drow monk, tortle samurai
 - Flag alhoon as M2_NOPOLY
 - Allow vorpal jabberwocks to be steeds
+- Make elf zombies and mummies color bright green
 
