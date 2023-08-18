@@ -3100,4 +3100,5 @@ The following changes to date are:
 - Allow tortles to wear rigid gloves/helmets
 - The Rat King will sometimes spawn with a ring of teleport control
 - Vampire types cannot be genocided until Vlad the Impaler is destroyed
+- Don't prevent tortles from wearing certain cursed armor
 
