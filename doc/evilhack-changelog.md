@@ -3098,4 +3098,5 @@ The following changes to date are:
 - Fix: The Hammer of the Gods wasn't destroying zombie corpses
 - Fix: Drow to-hit bonuses and penalties actually in effect, various tweaks
 - Allow tortles to wear rigid gloves/helmets
+- The Rat King will sometimes spawn with a ring of teleport control
 
