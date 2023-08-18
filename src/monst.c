@@ -2616,7 +2616,7 @@ struct permonst _mons2[] = {
      * Vampires
      */
     MON("vampire", S_VAMPIRE, LVL(10, 12, 1, 25, -8),
-        (G_GENO | G_NOCORPSE | 1),
+        (G_GENO | G_VLAD | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6), ATTK(AT_BITE, AD_DRLI, 1, 6), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_VAMPIRE, MZ_HUMAN), MR_SLEEP | MR_POISON, 0,
@@ -2625,7 +2625,7 @@ struct permonst _mons2[] = {
             | M2_SHAPESHIFTER,
         M3_INFRAVISIBLE, M4_VULNERABLE_FIRE, MH_UNDEAD, 12, CLR_RED),
     MON("vampire noble", S_VAMPIRE, LVL(12, 14, 0, 50, -9),
-        (G_GENO | G_NOCORPSE | 1),
+        (G_GENO | G_VLAD | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 8), ATTK(AT_BITE, AD_DRLI, 1, 8), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_VAMPIRE, MZ_HUMAN), MR_SLEEP | MR_POISON, 0,
@@ -2634,7 +2634,7 @@ struct permonst _mons2[] = {
             | M2_SHAPESHIFTER,
         M3_INFRAVISIBLE, M4_VULNERABLE_FIRE, MH_UNDEAD, 14, CLR_BLUE),
     MON("vampire royal", S_VAMPIRE, LVL(16, 18, -2, 50, -9),
-        (G_GENO | G_NOCORPSE | 1),
+        (G_GENO | G_VLAD | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 6), ATTK(AT_BITE, AD_DRLI, 1, 10), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_VAMPIRE, MZ_HUMAN), MR_SLEEP | MR_POISON, 0,
@@ -2642,7 +2642,8 @@ struct permonst _mons2[] = {
         M2_STALK | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_PRINCE
             | M2_SHAPESHIFTER,
         M3_INFRAVISIBLE, M4_VULNERABLE_FIRE, MH_UNDEAD, 18, HI_LORD),
-    MON("vampire mage", S_VAMPIRE, LVL(20, 14, -4, 50, -9), (G_GENO | G_NOCORPSE | 1),
+    MON("vampire mage", S_VAMPIRE, LVL(20, 14, -4, 50, -9),
+        (G_GENO | G_VLAD | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_DRLI, 2, 8), ATTK(AT_BITE, AD_DRLI, 1, 8),
           ATTK(AT_MAGC, AD_SPEL, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_VAMPIRE, MZ_HUMAN), MR_SLEEP | MR_POISON

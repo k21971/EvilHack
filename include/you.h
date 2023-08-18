@@ -59,7 +59,8 @@ struct u_event {
     Bitfield(purgatory_entered, 1); /* entered Purgatory */
     Bitfield(uhand_of_elbereth, 3); /* became Hand of Elbereth */
     Bitfield(ucerberus, 1);         /* killed Cerberus */
-    Bitfield(uvecna, 1);            /* killed Vecna */
+    Bitfield(uvecna, 1);            /* destroyed Vecna */
+    Bitfield(uvlad, 1);             /* destroyed Vlad */
     Bitfield(ugking, 1);            /* killed the Goblin King */
     Bitfield(ulucifer, 1);          /* killed Lucifer */
     Bitfield(udemigod, 1);          /* killed the wiz */
@@ -84,6 +85,7 @@ struct u_achieve {
     Bitfield(defeat_icequeen, 1);
     Bitfield(killed_cerberus, 1);
     Bitfield(killed_vecna, 1);
+    Bitfield(killed_vlad, 1);
     Bitfield(killed_gking, 1);
     Bitfield(killed_lucifer, 1);
 

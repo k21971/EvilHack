@@ -2450,6 +2450,22 @@ do_class_genocide()
             return;
         }
 
+        /* Vampires are immune to genocide until Vlad is destroyed */
+        if (!u.uevent.uvlad && !strcmpi(buf, "V")) {
+            pline_The("voice of Vlad the Impaler fills your mind:");
+            verbalize("Thou shalt do no harm to my kind whilst I exist!");
+            /* the dark magic causes the scroll to burn */
+            pline("A dark magic catches the scroll on fire and you burn your %s.",
+                  makeplural(body_part(HAND)));
+            if (how_resistant(FIRE_RES) == 100) {
+                shieldeff(u.ux, u.uy);
+                monstseesu(M_SEEN_FIRE);
+            } else {
+                losehp(rnd(3), "burning scroll of genocide", KILLED_BY_AN);
+            }
+            return;
+        }
+
         class = name_to_monclass(buf, (int *) 0);
         if (class == 0 && (i = name_to_mon(buf)) != NON_PM)
             class = mons[i].mlet;
@@ -2652,6 +2668,33 @@ int how;
             if (!u.uevent.uvecna
                 && no_geno_vecna(ptr)) {
                 pline_The("voice of Vecna fills your mind:");
+                verbalize("Thou shalt do no harm to %s whilst I exist!",
+                          makeplural(buf));
+                if (how & ONTHRONE) { /* dark magic causes the throne to burn you */
+                    pline_The("throne glows white hot!");
+                    if (how_resistant(FIRE_RES) == 100) {
+                        shieldeff(u.ux, u.uy);
+                        monstseesu(M_SEEN_FIRE);
+                    } else {
+                        losehp(rnd(3), "sitting on a searing hot throne", KILLED_BY);
+                    }
+                } else { /* the dark magic causes the scroll to burn */
+                    pline("A dark magic catches the scroll on fire and you burn your %s.",
+                          makeplural(body_part(HAND)));
+                    if (how_resistant(FIRE_RES) == 100) {
+                        shieldeff(u.ux, u.uy);
+                        monstseesu(M_SEEN_FIRE);
+                    } else {
+                        losehp(rnd(3), "burning scroll of genocide", KILLED_BY_AN);
+                    }
+                }
+                return;
+            }
+
+            /* Vampires are immune to genocide until Vlad is destroyed */
+            if (!u.uevent.uvlad
+                && no_geno_vlad(ptr)) {
+                pline_The("voice of Vlad the Impaler fills your mind:");
                 verbalize("Thou shalt do no harm to %s whilst I exist!",
                           makeplural(buf));
                 if (how & ONTHRONE) { /* dark magic causes the throne to burn you */

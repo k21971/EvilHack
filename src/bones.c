@@ -530,10 +530,9 @@ struct obj *corpse;
         }
         mptr = mtmp->data;
         if (mtmp->iswiz || mtmp->isvecna
-            || mtmp->isgking || mtmp->islucifer
+            || mtmp->isgking || mtmp->islucifer || mtmp->isvlad
             || (mptr == &mons[PM_MEDUSA] && !Is_medusa_level(&u.uz))
             || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
-            || mptr == &mons[PM_VLAD_THE_IMPALER]
             || mtmp->cham == PM_VLAD_THE_IMPALER /* in case he's vampshifted */
             || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))
             || (mtmp->iscerberus && !Is_valley(&u.uz))

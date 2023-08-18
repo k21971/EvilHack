@@ -3099,4 +3099,5 @@ The following changes to date are:
 - Fix: Drow to-hit bonuses and penalties actually in effect, various tweaks
 - Allow tortles to wear rigid gloves/helmets
 - The Rat King will sometimes spawn with a ring of teleport control
+- Vampire types cannot be genocided until Vlad the Impaler is destroyed
 

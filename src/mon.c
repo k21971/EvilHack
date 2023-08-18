@@ -3234,6 +3234,13 @@ vecnadead()
 }
 
 void
+vladdead()
+{
+    if (!u.uevent.uvlad)
+        u.uevent.uvlad = TRUE;
+}
+
+void
 goblinkingdead()
 {
     if (!u.uevent.ugking)
@@ -3514,6 +3521,8 @@ register struct monst *mtmp;
         cerberusdead();
     if (mtmp->isvecna)
         vecnadead();
+    if (mtmp->isvlad)
+        vladdead();
     if (mtmp->isgking)
         goblinkingdead();
     if (mtmp->islucifer)
@@ -3536,6 +3545,9 @@ register struct monst *mtmp;
     } else if (mtmp->isvecna && !u.uachieve.killed_vecna) {
         u.uachieve.killed_vecna = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vecna");
+    } else if (mtmp->isvlad && !u.uachieve.killed_vlad) {
+        u.uachieve.killed_vlad = 1;
+        livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vlad the Impaler");
     } else if (mtmp->isgking && !u.uachieve.killed_gking) {
         u.uachieve.killed_gking = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed the Goblin King");

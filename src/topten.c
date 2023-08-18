@@ -468,6 +468,7 @@ encode_extended_achievements()
     add_achieveX(buf, "defeated_ice_queen", u.uachieve.defeat_icequeen);
     add_achieveX(buf, "defeated_cerberus", u.uachieve.killed_cerberus);
     add_achieveX(buf, "defeated_vecna", u.uachieve.killed_vecna);
+    add_achieveX(buf, "defeated_vlad_impaler", u.uachieve.killed_vlad);
     add_achieveX(buf, "defeated_goblin_king", u.uachieve.killed_gking);
     add_achieveX(buf, "defeated_lucifer", u.uachieve.killed_lucifer);
     add_achieveX(buf, "got_crowned", u.uevent.uhand_of_elbereth);
@@ -634,6 +635,8 @@ encodeachieve()
         r |= 1L << 18;
     if (u.uachieve.enter_purgatory)
         r |= 1L << 19;
+    if (u.uachieve.killed_vlad)
+        r |= 1L << 20;
 
     return r;
 }

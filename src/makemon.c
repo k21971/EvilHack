@@ -3094,8 +3094,10 @@ long mmflags;
                          monst_to_any(mtmp));
     mitem = 0; /* extra inventory item for this monster */
 
-    if (mndx == PM_VLAD_THE_IMPALER)
+    if (mndx == PM_VLAD_THE_IMPALER) {
+        mtmp->isvlad = TRUE;
         mitem = CANDELABRUM_OF_INVOCATION;
+    }
     mtmp->cham = NON_PM; /* default is "not a shapechanger" */
     if (!Protection_from_shape_changers
         && (mcham = pm_to_cham(mndx)) != NON_PM) {

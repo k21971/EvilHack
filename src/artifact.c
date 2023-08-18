@@ -2369,7 +2369,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             return TRUE;
         case ART_SUNSWORD:
             if (youattack && is_undead(mdef->data) && j) {
-                if (mdef->isvecna) {
+                if (mdef->isvecna || mdef->isvlad) {
                     pline("Sunsword flares brightly, severely wounding %s!",
                           mon_nam(mdef));
                     *dmgptr *= 3;
@@ -2381,7 +2381,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
             } else if (!youattack && !youdefend
                        && magr && is_undead(mdef->data) && j) {
-                if (mdef->isvecna) {
+                if (mdef->isvecna || mdef->isvlad) {
                     if (show_instakill)
                         pline("Sunsword flares brightly, severely wounding %s!",
                               mon_nam(mdef));
@@ -2465,7 +2465,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 }
             } else if (youattack && is_undead(mdef->data) && j) {
-                if (mdef->isvecna) {
+                if (mdef->isvecna || mdef->isvlad) {
                     pline("The Hammer of the Gods flares brightly, severely wounding %s!",
                           mon_nam(mdef));
                     *dmgptr *= 3;
@@ -2491,7 +2491,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
             } else if (!youattack && !youdefend
                        && magr && is_undead(mdef->data) && j) {
-                if (mdef->isvecna) {
+                if (mdef->isvecna || mdef->isvlad) {
                     if (show_instakill)
                         pline("The Hammer of the Gods flares brightly, severely wounding %s!",
                               mon_nam(mdef));

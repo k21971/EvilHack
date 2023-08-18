@@ -3909,6 +3909,9 @@ int final;
     if (u.uachieve.killed_vecna)
         enl_msg(You_, "have ", "",
                 "defeated Vecna", ""), ++acnt;
+    if (u.uachieve.killed_vlad)
+        enl_msg(You_, "have ", "",
+                "defeated Vlad the Impaler", ""), ++acnt;
     if (u.uachieve.killed_gking)
         enl_msg(You_, "have ", "",
                 "defeated the Goblin King", ""), ++acnt;
