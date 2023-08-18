@@ -305,7 +305,7 @@ int *attk_count, *role_roll_penalty;
 
     /* level adjustment. maxing out has some benefits */
     if (u.ulevel == 30)
-        tmp += 4;
+        tmp += 5;
 
     /* role/race adjustments */
     if (Role_if(PM_MONK) && !Upolyd) {
@@ -326,13 +326,30 @@ int *attk_count, *role_roll_penalty;
         && maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC)))
         tmp++;
 
+    /* drow get a to-hit bonus if surrounded by darkness
+       and using their racial weaponry, otherwise no bonus,
+       and they take a penalty while in the light */
+    if (maybe_polyd(is_drow(youmonst.data),
+                    Race_if(PM_DROW))) {
+        if (spot_is_dark(u.ux, u.uy)) { /* spot is dark */
+            if (!uwep || is_drow_weapon(weapon)
+                || weapon->oartifact == ART_SHADOWBLADE)
+                tmp += (u.ulevel / 3) + 2;
+            else
+                tmp += 0;
+        } else {
+            /* spot is lit */
+            tmp -= 4;
+        }
+    }
+
     /* Adding iron ball as a weapon skill gives a -4 penalty for
-    unskilled vs no penalty for non-weapon objects.  Add 4 to
-    compensate. */
+       unskilled vs no penalty for non-weapon objects. Add 4 to
+       compensate */
     if (uwep && (uwep->otyp == HEAVY_IRON_BALL)) {
         tmp += 4;   /* Compensate for iron ball weapon skill -4
-                    penalty for unskilled vs no penalty for non-
-                    weapon objects. */
+                       penalty for unskilled vs no penalty for non-
+                       weapon objects */
     }
 
     /* gloves' bonus contributes if unarmed */
@@ -345,11 +362,9 @@ int *attk_count, *role_roll_penalty;
     if (u.utrap)
         tmp -= 3;
 
-    /*
-     * hitval applies if making a weapon attack while wielding a weapon;
-     * weapon_hit_bonus applies if doing a weapon attack even bare-handed
-     * or if kicking as martial artist
-     */
+    /* hitval applies if making a weapon attack while wielding a weapon;
+       weapon_hit_bonus applies if doing a weapon attack even bare-handed
+       or if kicking as martial artist */
     if (aatyp == AT_WEAP || aatyp == AT_CLAW) {
         if (weapon)
             tmp += hitval(weapon, mtmp);
@@ -359,8 +374,7 @@ int *attk_count, *role_roll_penalty;
     }
 
     /* if unskilled with a weapon/object type (bare-handed is exempt),
-     * you'll never have a chance greater than 75% to land a hit.
-     */
+       you'll never have a chance greater than 75% to land a hit */
     if (uwep && aatyp == AT_WEAP && !u.uswallow) {
         wepskill = P_SKILL(weapon_type(uwep));
         twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);

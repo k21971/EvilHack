@@ -3096,4 +3096,5 @@ The following changes to date are:
 - Allow vorpal jabberwocks to be steeds
 - Make elf zombies and mummies color bright green
 - Fix: The Hammer of the Gods wasn't destroying zombie corpses
+- Fix: Drow to-hit bonuses and penalties actually in effect, various tweaks
 
