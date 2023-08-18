@@ -3097,4 +3097,5 @@ The following changes to date are:
 - Make elf zombies and mummies color bright green
 - Fix: The Hammer of the Gods wasn't destroying zombie corpses
 - Fix: Drow to-hit bonuses and penalties actually in effect, various tweaks
+- Allow tortles to wear rigid gloves/helmets
 

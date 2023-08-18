@@ -2382,14 +2382,9 @@ dosacrifice()
                                 /* FALLTHRU */
                             case 4:
                                 /* gloves */
-                                if ((primary_casters || primary_casters_priest)
-                                    && !Race_if(PM_TORTLE)) {
+                                if ((primary_casters || primary_casters_priest)) {
                                     typ = rn2(3) ? typ == GLOVES
                                                  : rnd_class(GAUNTLETS_OF_POWER,
-                                                             GAUNTLETS_OF_DEXTERITY);
-                                } else if (Race_if(PM_TORTLE)) {
-                                    typ = rn2(3) ? typ == GLOVES
-                                                 : rnd_class(GAUNTLETS_OF_PROTECTION,
                                                              GAUNTLETS_OF_DEXTERITY);
                                 } else {
                                     typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
@@ -2397,8 +2392,7 @@ dosacrifice()
                                 break;
                             case 5:
                                 /* helm */
-                                if ((primary_casters || primary_casters_priest)
-                                    && !Race_if(PM_TORTLE)) {
+                                if ((primary_casters || primary_casters_priest)) {
                                     if (Role_if(PM_WIZARD)) {
                                         typ = rn2(2) ? rnd_class(CORNUTHAUM, DARK_ELVEN_HELM)
                                                      : rnd_class(HELM_OF_BRILLIANCE,
@@ -2407,12 +2401,6 @@ dosacrifice()
                                         typ = rn2(2) ? rnd_class(FEDORA, ELVEN_HELM)
                                                      : rnd_class(HELM_OF_BRILLIANCE,
                                                                  HELM_OF_TELEPATHY);
-                                    }
-                                } else if (Race_if(PM_TORTLE)) {
-                                    if (Role_if(PM_WIZARD)) {
-                                        typ = rnd_class(CORNUTHAUM, DARK_ELVEN_HELM);
-                                    } else {
-                                        typ = rnd_class(FEDORA, DARK_ELVEN_HELM);
                                     }
                                 } else {
                                     typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);

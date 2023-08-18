@@ -1778,6 +1778,17 @@ toggleshell()
         You_cant("retreat into your shell with an iron ball chained to your %s!",
                  body_part(LEG));
         return 0;
+    } else if (uarmg && is_hard(uarmg) && uarmg->cursed
+               && uarmg->oartifact != ART_GAUNTLETS_OF_PURITY) {
+        Your("cursed %s prevent you from retreating into your shell.",
+             gloves_simple_name(uarmg));
+        return 0;
+    } else if (uarmh && is_hard(uarmh) && uarmh->cursed
+               && !(Role_if(PM_PRIEST)
+                    && uarmh->oartifact == ART_MITRE_OF_HOLINESS)) {
+        Your("cursed %s prevents you from retreating into your shell.",
+             helm_simple_name(uarmh));
+        return 0;
     }
 
     You("%s your shell.", was_hiding ? "emerge from" : "retreat into");
