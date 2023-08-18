@@ -3102,4 +3102,5 @@ The following changes to date are:
 - Vampire types cannot be genocided until Vlad the Impaler is destroyed
 - Don't prevent tortles from wearing certain cursed armor
 - Refactor tortle enshelling
+- Merge various skills
 
