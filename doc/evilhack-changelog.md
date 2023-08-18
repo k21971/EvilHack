@@ -3095,4 +3095,5 @@ The following changes to date are:
 - Flag alhoon as M2_NOPOLY
 - Allow vorpal jabberwocks to be steeds
 - Make elf zombies and mummies color bright green
+- Fix: The Hammer of the Gods wasn't destroying zombie corpses
 

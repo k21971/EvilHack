@@ -3627,11 +3627,17 @@ boolean was_swallowed; /* digestion */
 
     /* Zombies don't leave a corpse when the player is wielding Sunsword */
     if (is_zombie(mdat)
-        && wielding_artifact(ART_SUNSWORD)
+        && (wielding_artifact(ART_SUNSWORD)
+            || wielding_artifact(ART_HAMMER_OF_THE_GODS))
         && distu(mon->mx, mon->my) < 3) {
-        if (cansee(mon->mx, mon->my))
-            pline("In the presence of Sunsword, %s corpse dissolves into nothingness.",
-                  s_suffix(mon_nam(mon)));
+        if (cansee(mon->mx, mon->my)) {
+            if (wielding_artifact(ART_SUNSWORD))
+                pline("In the presence of Sunsword, %s corpse dissolves into nothingness.",
+                      s_suffix(mon_nam(mon)));
+            else if (wielding_artifact(ART_HAMMER_OF_THE_GODS))
+                pline("In the presence of the Hammer of the Gods, %s corpse dissolves into nothingness.",
+                      s_suffix(mon_nam(mon)));
+        }
         return FALSE;
     }
 
