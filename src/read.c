@@ -1162,6 +1162,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         special_armor = is_elven_armor(otmp)
                         || (Race_if(PM_DROW) && is_drow_armor(otmp))
                         || otmp->oartifact == ART_HAND_OF_VECNA
+                        || otmp->oartifact == ART_ARMOR_OF_RETRIBUTION
                         || (Role_if(PM_WIZARD) && otmp->otyp == CORNUTHAUM);
         if (scursed)
             same_color = (otmp->otyp == BLACK_DRAGON_SCALES);
@@ -1284,6 +1285,14 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                       (!Blind && !same_color) ? " " : "",
                       (Blind || same_color) ? "" : hcolor(scursed ? NH_BLACK
                                                                   : NH_SILVER));
+            } else if ((otmp == uarm) && otmp->oartifact == ART_ARMOR_OF_RETRIBUTION) {
+                /* The Armor of Retribution is indestructible */
+                pline("%s violently %s%s%s for a while, but remains intact.",
+                      Yname2(otmp),
+                      otense(otmp, Blind ? "vibrate" : "glow"),
+                      (!Blind && !same_color) ? " " : "",
+                      (Blind || same_color) ? "" : hcolor(scursed ? NH_BLACK
+                                                                  : NH_SILVER));
             } else {
                 pline("%s violently %s%s%s for a while, then %s.", Yname2(otmp),
                       otense(otmp, Blind ? "vibrate" : "glow"),
@@ -1294,6 +1303,8 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             }
             if (carried(otmp)) {
                 if ((otmp == uarmg) && otmp->oartifact == ART_HAND_OF_VECNA) {
+                    otmp->in_use = FALSE; /* nothing happens if worn */
+                } else if ((otmp == uarm) && otmp->oartifact == ART_ARMOR_OF_RETRIBUTION) {
                     otmp->in_use = FALSE; /* nothing happens if worn */
                 } else {
                     remove_worn_item(otmp, FALSE);

@@ -3576,18 +3576,21 @@ register struct obj *atmp;
         useup(otmp);
     } else if (DESTROY_ARM(uarm)) {
         if (uarm && (uarm == otmp)
-            && otmp->otyp == CRYSTAL_PLATE_MAIL)
-            goto end;
-        if (donning(otmp))
-            cancel_don();
-        /* for gold/chromatic dragon-scaled armor, we don't want
-           Armor_gone() to report that it stops shining _after_
-           we've been told that it is destroyed */
-        if (otmp->lamplit)
-            end_burn(otmp, FALSE);
-        Your("armor turns to dust and falls to the %s!", surface(u.ux, u.uy));
-        (void) Armor_gone();
-        useup(otmp);
+            && otmp->otyp == CRYSTAL_PLATE_MAIL) {
+            otmp->in_use = FALSE; /* nothing happens */
+            return 0;
+        } else {
+            if (donning(otmp))
+                cancel_don();
+            /* for gold/chromatic dragon-scaled armor, we don't want
+               Armor_gone() to report that it stops shining _after_
+               we've been told that it is destroyed */
+            if (otmp->lamplit)
+                end_burn(otmp, FALSE);
+            Your("armor turns to dust and falls to the %s!", surface(u.ux, u.uy));
+            (void) Armor_gone();
+            useup(otmp);
+        }
     } else if (DESTROY_ARM(uarmu)) {
         if (donning(otmp))
             cancel_don();
@@ -3606,18 +3609,21 @@ register struct obj *atmp;
             pline("%s %s and cannot be disintegrated.",
                   Yname2(otmp), rn2(2) ? "resists completely"
                                        : "defies physics");
-            goto end;
+            otmp->in_use = FALSE; /* nothing happens */
+            return 0;
         } else if (uarmg && (uarmg == otmp)
                    && otmp->oartifact == ART_HAND_OF_VECNA) {
             /* no feedback, as we're pretending it's not actually worn */
-            goto end;
+            otmp->in_use = FALSE; /* nothing happens */
+            return 0;
+        } else {
+            if (donning(otmp))
+                cancel_don();
+            Your("gloves vanish!");
+            (void) Gloves_off();
+            useup(otmp);
+            selftouch("You");
         }
-        if (donning(otmp))
-            cancel_don();
-        Your("gloves vanish!");
-        (void) Gloves_off();
-        useup(otmp);
-        selftouch("You");
     } else if (DESTROY_ARM(uarmf)) {
         if (donning(otmp))
             cancel_don();
@@ -3644,7 +3650,6 @@ register struct obj *atmp;
         pline("%s crumbles to pieces!", Yname2(otmp));
         m_useup(u.usteed, otmp);
     } else {
-end:
         return 0; /* could not destroy anything */
     }
 
